@@ -1,7 +1,12 @@
 import { Type } from "@sinclair/typebox";
 
 import type { MoltbotConfig } from "../../config/config.js";
+<<<<<<< HEAD
+=======
+import type { MemoryCitationsMode } from "../../config/types.memory.js";
+>>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 import { getMemorySearchManager } from "../../memory/index.js";
+import type { MemorySearchResult } from "../../memory/types.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveMemorySearchConfig } from "../memory-search.js";
 import type { AnyAgentTool } from "./common.js";
@@ -24,16 +29,12 @@ export function createMemorySearchTool(options: {
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;
-  if (!cfg) {
-    return null;
-  }
+  if (!cfg) return null;
   const agentId = resolveSessionAgentId({
     sessionKey: options.agentSessionKey,
     config: cfg,
   });
-  if (!resolveMemorySearchConfig(cfg, agentId)) {
-    return null;
-  }
+  if (!resolveMemorySearchConfig(cfg, agentId)) return null;
   return {
     label: "Memory Search",
     name: "memory_search",
@@ -52,17 +53,21 @@ export function createMemorySearchTool(options: {
         return jsonResult({ results: [], disabled: true, error });
       }
       try {
-        const results = await manager.search(query, {
+        const citationsMode = resolveMemoryCitationsMode(cfg);
+        const includeCitations = citationsMode !== "off";
+        const rawResults = await manager.search(query, {
           maxResults,
           minScore,
           sessionKey: options.agentSessionKey,
         });
         const status = manager.status();
+        const results = decorateCitations(rawResults, includeCitations);
         return jsonResult({
           results,
           provider: status.provider,
           model: status.model,
           fallback: status.fallback,
+          citations: citationsMode,
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
@@ -77,21 +82,17 @@ export function createMemoryGetTool(options: {
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;
-  if (!cfg) {
-    return null;
-  }
+  if (!cfg) return null;
   const agentId = resolveSessionAgentId({
     sessionKey: options.agentSessionKey,
     config: cfg,
   });
-  if (!resolveMemorySearchConfig(cfg, agentId)) {
-    return null;
-  }
+  if (!resolveMemorySearchConfig(cfg, agentId)) return null;
   return {
     label: "Memory Get",
     name: "memory_get",
     description:
-      "Safe snippet read from MEMORY.md, memory/*.md, or configured memorySearch.extraPaths with optional from/lines; use after memory_search to pull only the needed lines and keep context small.",
+      "Safe snippet read from MEMORY.md or memory/*.md with optional from/lines; use after memory_search to pull only the needed lines and keep context small.",
     parameters: MemoryGetSchema,
     execute: async (_toolCallId, params) => {
       const relPath = readStringParam(params, "path", { required: true });
@@ -117,4 +118,29 @@ export function createMemoryGetTool(options: {
       }
     },
   };
+}
+
+function resolveMemoryCitationsMode(cfg: MoltbotConfig): MemoryCitationsMode {
+  const mode = cfg.memory?.citations;
+  if (mode === "on" || mode === "off" || mode === "auto") return mode;
+  return "auto";
+}
+
+function decorateCitations(results: MemorySearchResult[], include: boolean): MemorySearchResult[] {
+  if (!include) {
+    return results.map((entry) => ({ ...entry, citation: undefined }));
+  }
+  return results.map((entry) => {
+    const citation = formatCitation(entry);
+    const snippet = `${entry.snippet.trim()}\n\nSource: ${citation}`;
+    return { ...entry, citation, snippet };
+  });
+}
+
+function formatCitation(entry: MemorySearchResult): string {
+  const lineRange =
+    entry.startLine === entry.endLine
+      ? `#L${entry.startLine}`
+      : `#L${entry.startLine}-L${entry.endLine}`;
+  return `${entry.path}${lineRange}`;
 }
