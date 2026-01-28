@@ -115,10 +115,12 @@ class FallbackMemoryManager implements MemorySearchManager {
       return this.deps.primary.status();
     }
     const fallbackStatus = this.fallback?.status();
+    const fallbackInfo = { from: "qmd", reason: this.lastError ?? "unknown" };
     if (fallbackStatus) {
       const custom = fallbackStatus.custom ?? {};
       return {
         ...fallbackStatus,
+        fallback: fallbackInfo,
         custom: {
           ...custom,
           fallback: { disabled: true, reason: this.lastError ?? "unknown" },
@@ -129,6 +131,7 @@ class FallbackMemoryManager implements MemorySearchManager {
     const custom = primaryStatus.custom ?? {};
     return {
       ...primaryStatus,
+      fallback: fallbackInfo,
       custom: {
         ...custom,
         fallback: { disabled: true, reason: this.lastError ?? "unknown" },
