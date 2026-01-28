@@ -5,8 +5,11 @@ import { createSubsystemLogger } from "../logging/subsystem.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveMemoryBackendConfig } from "./backend-config.js";
 import type { ResolvedQmdConfig } from "./backend-config.js";
+<<<<<<< HEAD
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 import type { MemoryIndexManager } from "./manager.js";
+=======
+>>>>>>> dd8373a42 (fix(memory-qmd): write XDG index.yml + legacy compat)
 import type {
   MemoryEmbeddingProbeResult,
   MemorySearchManager,
