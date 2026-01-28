@@ -59,6 +59,7 @@ export type MemorySearchResult = {
 };
 =======
 import type {
+  MemoryEmbeddingProbeResult,
   MemoryProviderStatus,
   MemorySearchManager,
   MemorySearchResult,
@@ -518,7 +519,7 @@ export class MemoryIndexManager implements MemorySearchManager {
     return this.ensureVectorReady();
   }
 
-  async probeEmbeddingAvailability(): Promise<{ ok: boolean; error?: string }> {
+  async probeEmbeddingAvailability(): Promise<MemoryEmbeddingProbeResult> {
     try {
       await this.embedBatchWithRetry(["ping"]);
       return { ok: true };

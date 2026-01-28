@@ -1609,4 +1609,8 @@ Thanks @AlexMikhalev, @CoreyH, @John-Rood, @KrauseFx, @MaudeBot, @Nachx639, @Nic
 - Agent tools: honor `agent.tools` allow/deny policy even when sandbox is off.
 - Discord: avoid duplicate replies when OpenAI emits repeated `message_end` events.
 - Commands: unify /status (inline) and command auth across providers; group bypass for authorized control commands; remove Discord /clawd slash handler.
+<<<<<<< HEAD
 - CLI: run `moltbot agent` via the Gateway by default; use `--local` to force embedded mode.
+=======
+- CLI: run `openclaw agent` via the Gateway by default; use `--local` to force embedded mode.
+>>>>>>> 3a57106c1 (Add more tests; make fall back more resilient and visible)
