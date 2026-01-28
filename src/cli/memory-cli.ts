@@ -24,6 +24,7 @@ type MemoryCommandOptions = {
   json?: boolean;
   deep?: boolean;
   index?: boolean;
+  force?: boolean;
   verbose?: boolean;
 };
 
@@ -289,7 +290,7 @@ export async function runMemoryStatus(opts: MemoryCommandOptions) {
                 try {
                   await syncFn({
                     reason: "cli",
-                    force: true,
+                    force: Boolean(opts.force),
                     progress: (syncUpdate) => {
                       update({
                         completed: syncUpdate.completed,
@@ -497,7 +498,7 @@ export function registerMemoryCli(program: Command) {
     .option("--deep", "Probe embedding provider availability")
     .option("--index", "Reindex if dirty (implies --deep)")
     .option("--verbose", "Verbose logging", false)
-    .action(async (opts: MemoryCommandOptions) => {
+    .action(async (opts: MemoryCommandOptions & { force?: boolean }) => {
       await runMemoryStatus(opts);
     });
 
@@ -505,6 +506,7 @@ export function registerMemoryCli(program: Command) {
     .command("index")
     .description("Reindex memory files")
     .option("--agent <id>", "Agent id (default: default agent)")
+    .option("--force", "Force full reindex", false)
     .option("--verbose", "Verbose logging", false)
     .action(async (opts: MemoryCommandOptions) => {
       setVerbose(Boolean(opts.verbose));
@@ -607,7 +609,7 @@ export function registerMemoryCli(program: Command) {
                   try {
                     await syncFn({
                       reason: "cli",
-                      force: true,
+                      force: Boolean(opts.force),
                       progress: (syncUpdate) => {
                         if (syncUpdate.label) {
                           lastLabel = syncUpdate.label;

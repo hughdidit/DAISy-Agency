@@ -55,6 +55,7 @@ const MemoryQmdUpdateSchema = z
     interval: z.string().optional(),
     debounceMs: z.number().int().nonnegative().optional(),
     onBoot: z.boolean().optional(),
+    embedInterval: z.string().optional(),
   })
   .strict();
 
