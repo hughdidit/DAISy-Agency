@@ -124,6 +124,9 @@ export function injectTimestamp(message: string, opts?: TimestampInjectionOption
   if (!formatted) return message;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
   // 3-letter DOW: small models (8B) can't reliably derive day-of-week from
   // a date, and may treat a bare "Wed" as a typo. Costs ~1 token.
   const dow = new Intl.DateTimeFormat("en-US", { timeZone: timezone, weekday: "short" }).format(
@@ -131,6 +134,7 @@ export function injectTimestamp(message: string, opts?: TimestampInjectionOption
   );
 
   return `[${dow} ${formatted}] ${message}`;
+<<<<<<< HEAD
 =======
   const timeFormat = opts?.timeFormat ?? "12";
 =======
@@ -160,6 +164,8 @@ export function injectTimestamp(message: string, opts?: TimestampInjectionOption
 =======
   return `[Current Date: ${dow} ${formatted}] ${message}`;
 >>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
+=======
+>>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
 }
 
 /**

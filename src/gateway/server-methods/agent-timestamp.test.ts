@@ -36,11 +36,15 @@ describe("injectTimestamp", () => {
     });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     expect(result).toMatch(/^\[Wed 2026-01-28 20:30 EST\] Is it the weekend\?$/);
 <<<<<<< HEAD
 =======
     expect(result).toMatch(/^\[Current Date: Wed 2026-01-28 20:30 EST\] Is it the weekend\?$/);
 >>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
+=======
+    expect(result).toMatch(/^\[Wed 2026-01-28 20:30 EST\] Is it the weekend\?$/);
+>>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
   });
 
   it("uses channel envelope format with DOW prefix", () => {
@@ -50,7 +54,7 @@ describe("injectTimestamp", () => {
     const result = injectTimestamp("hello", { timezone: "America/New_York" });
 
     // DOW prefix + formatZonedTimestamp format
-    expect(result).toBe(`[Current Date: Wed ${expected}] hello`);
+    expect(result).toBe(`[Wed ${expected}] hello`);
   });
 
   it("always uses 24-hour format", () => {
@@ -65,6 +69,7 @@ describe("injectTimestamp", () => {
     const result = injectTimestamp("hello", { timezone: "America/Chicago" });
 
     // 8:30 PM EST = 7:30 PM CST = 19:30
+<<<<<<< HEAD
 <<<<<<< HEAD
     expect(result).toMatch(/^\[Wed 2026-01-28 19:30 CST\]/);
 =======
@@ -117,12 +122,16 @@ describe("injectTimestamp", () => {
 =======
     expect(result).toMatch(/^\[Current Date: Wed 2026-01-28 19:30 CST\]/);
 >>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
+=======
+    expect(result).toMatch(/^\[Wed 2026-01-28 19:30 CST\]/);
+>>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
   });
 
   it("defaults to UTC when no timezone specified", () => {
     const result = injectTimestamp("hello", {});
 
     // 2026-01-29T01:30:00Z
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -141,6 +150,9 @@ describe("injectTimestamp", () => {
 =======
     expect(result).toMatch(/^\[Current Date: Thu 2026-01-29 01:30/);
 >>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
+=======
+    expect(result).toMatch(/^\[Thu 2026-01-29 01:30/);
+>>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
   });
 
   it("returns empty/whitespace messages unchanged", () => {
@@ -159,6 +171,7 @@ describe("injectTimestamp", () => {
 <<<<<<< HEAD
   it("does NOT double-stamp messages already injected by us", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const alreadyStamped = "[Wed 2026-01-28 20:30 EST] hello there";
 =======
   it("does NOT double-stamp messages already injected by us", () => {
@@ -171,6 +184,9 @@ describe("injectTimestamp", () => {
 =======
     const alreadyStamped = "[Current Date: Wed 2026-01-28 20:30 EST] hello there";
 >>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
+=======
+    const alreadyStamped = "[Wed 2026-01-28 20:30 EST] hello there";
+>>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
     const result = injectTimestamp(alreadyStamped, { timezone: "America/New_York" });
 
     expect(result).toBe(alreadyStamped);
@@ -197,11 +213,15 @@ describe("injectTimestamp", () => {
     const result = injectTimestamp("hello", { timezone: "America/New_York" });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     expect(result).toMatch(/^\[Sun 2026-02-01 00:00 EST\]/);
 <<<<<<< HEAD
 =======
     expect(result).toMatch(/^\[Current Date: Sun 2026-02-01 00:00 EST\]/);
 >>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
+=======
+    expect(result).toMatch(/^\[Sun 2026-02-01 00:00 EST\]/);
+>>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
   });
 
   it("handles date boundaries (just before midnight)", () => {
@@ -209,19 +229,19 @@ describe("injectTimestamp", () => {
 
     const result = injectTimestamp("hello", { timezone: "America/New_York" });
 
-    expect(result).toMatch(/^\[Current Date: Sat 2026-01-31 23:59 EST\]/);
+    expect(result).toMatch(/^\[Sat 2026-01-31 23:59 EST\]/);
   });
 
   it("handles DST correctly (same UTC hour, different local time)", () => {
     // EST (winter): UTC-5 → 2026-01-15T05:00Z = midnight Jan 15
     vi.setSystemTime(new Date("2026-01-15T05:00:00.000Z"));
     const winter = injectTimestamp("winter", { timezone: "America/New_York" });
-    expect(winter).toMatch(/^\[Current Date: Thu 2026-01-15 00:00 EST\]/);
+    expect(winter).toMatch(/^\[Thu 2026-01-15 00:00 EST\]/);
 
     // EDT (summer): UTC-4 → 2026-07-15T04:00Z = midnight Jul 15
     vi.setSystemTime(new Date("2026-07-15T04:00:00.000Z"));
     const summer = injectTimestamp("summer", { timezone: "America/New_York" });
-    expect(summer).toMatch(/^\[Current Date: Wed 2026-07-15 00:00 EDT\]/);
+    expect(summer).toMatch(/^\[Wed 2026-07-15 00:00 EDT\]/);
   });
 
   it("accepts a custom now date", () => {
@@ -232,6 +252,7 @@ describe("injectTimestamp", () => {
       now: customDate,
     });
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     expect(result).toMatch(/^\[Fri 2025-07-04 12:00 EDT\]/);
 =======
@@ -290,6 +311,9 @@ describe("injectTimestamp", () => {
 =======
     expect(result).toMatch(/^\[Current Date: Fri 2025-07-04 12:00 EDT\]/);
 >>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
+=======
+    expect(result).toMatch(/^\[Fri 2025-07-04 12:00 EDT\]/);
+>>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
   });
 });
 
