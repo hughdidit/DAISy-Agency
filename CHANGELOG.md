@@ -74,6 +74,7 @@ Status: beta.
 
 ### Fixes
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - Telegram: avoid silent empty replies by tracking normalization skips before fallback. (#3796)
 - Mentions: honor mentionPatterns even when explicit mentions are present. (#3303) Thanks @HirokiKobayashi-R.
@@ -124,6 +125,26 @@ Status: beta.
 - Gateway: default auth now fail-closed (token/password required; Tailscale Serve identity remains allowed).
 - Gateway: treat loopback + non-local Host connections as remote unless trusted proxy headers are present.
 - Onboarding: remove unsupported gateway auth "off" choice from onboarding/configure flows and CLI flags.
+=======
+- Security: harden SSH tunnel target parsing to prevent option injection/DoS. (#4001) Thanks @YLChen-007.
+- Security: prevent PATH injection in exec sandbox; harden file serving; pin DNS in URL fetches; verify Twilio webhooks; fix LINE webhook timing-attack edge case; validate Tailscale Serve identity; flag loopback Control UI with auth disabled as critical. (#1616, #1795)
+- Gateway: prevent crashes on transient network errors, suppress AbortError/unhandled rejections, sanitize error responses, clean session locks on exit, and harden reverse proxy handling for unauthenticated proxied connects. (#2980, #2451, #2483, #1795)
+- Config: auto-migrate legacy state/config paths; honor state dir overrides.
+- Packaging: include missing dist/shared and dist/link-understanding outputs in npm tarball installs.
+- Telegram: avoid silent empty replies, improve polling/network recovery, handle video notes, keep DM thread sessions, ignore non-forum message_thread_id, centralize API error logging, include AccountId in native command context. (#3796, #3013, #2905, #2731, #2492, #2942)
+- Telegram: preserve reasoning tags inside code blocks. (#3952) Thanks @vinaygit18.
+- Discord: restore username resolution, resolve outbound usernames to IDs, honor threadId replies, guard forum thread access. (#3131, #2649)
+- BlueBubbles: coalesce URL link previews, improve reaction handling, preserve reply-tag GUIDs. (#1981, #1641)
+- Voice Call: prevent TTS overlap, validate env-var config, return TwiML for conversation calls. (#1713, #1634)
+- Media: fix text attachment MIME classification + XML escaping on Windows. (#3628, #3750)
+- Models: inherit provider baseUrl/api for inline models. (#2740) Thanks @lploc94.
+- Web UI: auto-scroll on send; fix textarea sizing; improve chat session refresh. (#2471, #2950, #3682)
+- CLI/TUI: resume sessions cleanly; guard width overflow; avoid spinner prompt race. (#1921, #1686, #2874)
+- Slack: fix file downloads failing on redirects with missing auth header. (#1936)
+- iMessage: normalize messaging targets. (#1708)
+- Signal: fix reactions and add configurable startup timeout. (#1651, #1677)
+- Matrix: decrypt E2EE media with size guard. (#1744)
+>>>>>>> 4583f8862 (fix: preserve reasoning tags inside code blocks (#4118) (thanks @vinaygit18))
 
 ## 2026.1.24-3
 
