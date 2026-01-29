@@ -138,8 +138,18 @@ export function injectTimestamp(message: string, opts?: TimestampInjectionOption
   const formatted = formatZonedTimestamp(now, timezone);
   if (!formatted) return message;
 
+<<<<<<< HEAD
   return `[${formatted}] ${message}`;
 >>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
+=======
+  // Add 3-letter day-of-week for smaller models that can't derive DOW
+  // from a date. Costs ~1 token, cheap insurance.
+  const dow = new Intl.DateTimeFormat("en-US", { timeZone: timezone, weekday: "short" }).format(
+    now,
+  );
+
+  return `[${dow} ${formatted}] ${message}`;
+>>>>>>> a6c68e869 (feat: add 3-letter DOW prefix to injected timestamps)
 }
 
 /**

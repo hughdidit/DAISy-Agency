@@ -172,6 +172,7 @@ describe("gateway agent handler", () => {
     const callArgs = mocks.agentCommand.mock.calls[0][0];
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     expect(callArgs.message).toBe("[Wed 2026-01-28 20:30 EST] Is it the weekend?");
 =======
     expect(callArgs.message).toMatch(
@@ -181,6 +182,9 @@ describe("gateway agent handler", () => {
 =======
     expect(callArgs.message).toBe("[2026-01-28 20:30 EST] Is it the weekend?");
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
+=======
+    expect(callArgs.message).toBe("[Wed 2026-01-28 20:30 EST] Is it the weekend?");
+>>>>>>> a6c68e869 (feat: add 3-letter DOW prefix to injected timestamps)
 
     mocks.loadConfigReturn = {};
     vi.useRealTimers();
