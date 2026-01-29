@@ -1,6 +1,11 @@
 import { describe, expect, test } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { ChatType } from "../channels/chat-type.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 4bf06e782 (Discord: add unit tests for role-based agent routing)
 import { resolveAgentRoute } from "./resolve-route.js";
 
 describe("resolveAgentRoute", () => {
@@ -420,7 +425,7 @@ describe("backward compatibility: peer.kind dm → direct", () => {
           match: {
             channel: "whatsapp",
             // Legacy config uses "dm" instead of "direct"
-            peer: { kind: "dm", id: "+15551234567" },
+            peer: { kind: "dm" as ChatType, id: "+15551234567" },
           },
         },
       ],
@@ -434,5 +439,140 @@ describe("backward compatibility: peer.kind dm → direct", () => {
     });
     expect(route.agentId).toBe("alex");
     expect(route.matchedBy).toBe("binding.peer");
+  });
+});
+
+describe("role-based agent routing", () => {
+  test("guild+roles binding matches when member has matching role", () => {
+    const cfg: OpenClawConfig = {
+      bindings: [{ agentId: "opus", match: { channel: "discord", guildId: "g1", roles: ["r1"] } }],
+    };
+    const route = resolveAgentRoute({
+      cfg,
+      channel: "discord",
+      guildId: "g1",
+      memberRoleIds: ["r1"],
+      peer: { kind: "channel", id: "c1" },
+    });
+    expect(route.agentId).toBe("opus");
+    expect(route.matchedBy).toBe("binding.guild+roles");
+  });
+
+  test("guild+roles binding skipped when no matching role", () => {
+    const cfg: OpenClawConfig = {
+      bindings: [{ agentId: "opus", match: { channel: "discord", guildId: "g1", roles: ["r1"] } }],
+    };
+    const route = resolveAgentRoute({
+      cfg,
+      channel: "discord",
+      guildId: "g1",
+      memberRoleIds: ["r2"],
+      peer: { kind: "channel", id: "c1" },
+    });
+    expect(route.agentId).toBe("main");
+    expect(route.matchedBy).toBe("default");
+  });
+
+  test("guild+roles is more specific than guild-only", () => {
+    const cfg: OpenClawConfig = {
+      bindings: [
+        { agentId: "opus", match: { channel: "discord", guildId: "g1", roles: ["r1"] } },
+        { agentId: "sonnet", match: { channel: "discord", guildId: "g1" } },
+      ],
+    };
+    const route = resolveAgentRoute({
+      cfg,
+      channel: "discord",
+      guildId: "g1",
+      memberRoleIds: ["r1"],
+      peer: { kind: "channel", id: "c1" },
+    });
+    expect(route.agentId).toBe("opus");
+    expect(route.matchedBy).toBe("binding.guild+roles");
+  });
+
+  test("peer binding still beats guild+roles", () => {
+    const cfg: OpenClawConfig = {
+      bindings: [
+        {
+          agentId: "peer-agent",
+          match: { channel: "discord", peer: { kind: "channel", id: "c1" } },
+        },
+        { agentId: "roles-agent", match: { channel: "discord", guildId: "g1", roles: ["r1"] } },
+      ],
+    };
+    const route = resolveAgentRoute({
+      cfg,
+      channel: "discord",
+      guildId: "g1",
+      memberRoleIds: ["r1"],
+      peer: { kind: "channel", id: "c1" },
+    });
+    expect(route.agentId).toBe("peer-agent");
+    expect(route.matchedBy).toBe("binding.peer");
+  });
+
+  test("no memberRoleIds → guild+roles doesn't match", () => {
+    const cfg: OpenClawConfig = {
+      bindings: [{ agentId: "opus", match: { channel: "discord", guildId: "g1", roles: ["r1"] } }],
+    };
+    const route = resolveAgentRoute({
+      cfg,
+      channel: "discord",
+      guildId: "g1",
+      peer: { kind: "channel", id: "c1" },
+    });
+    expect(route.agentId).toBe("main");
+    expect(route.matchedBy).toBe("default");
+  });
+
+  test("first matching binding wins with multiple role bindings", () => {
+    const cfg: OpenClawConfig = {
+      bindings: [
+        { agentId: "opus", match: { channel: "discord", guildId: "g1", roles: ["r1"] } },
+        { agentId: "sonnet", match: { channel: "discord", guildId: "g1", roles: ["r2"] } },
+      ],
+    };
+    const route = resolveAgentRoute({
+      cfg,
+      channel: "discord",
+      guildId: "g1",
+      memberRoleIds: ["r1", "r2"],
+      peer: { kind: "channel", id: "c1" },
+    });
+    expect(route.agentId).toBe("opus");
+    expect(route.matchedBy).toBe("binding.guild+roles");
+  });
+
+  test("empty roles array treated as no role restriction", () => {
+    const cfg: OpenClawConfig = {
+      bindings: [{ agentId: "opus", match: { channel: "discord", guildId: "g1", roles: [] } }],
+    };
+    const route = resolveAgentRoute({
+      cfg,
+      channel: "discord",
+      guildId: "g1",
+      memberRoleIds: ["r1"],
+      peer: { kind: "channel", id: "c1" },
+    });
+    expect(route.agentId).toBe("opus");
+    expect(route.matchedBy).toBe("binding.guild");
+  });
+
+  test("CRITICAL: guild+roles binding NOT matched as guild-only when roles don't match", () => {
+    const cfg: OpenClawConfig = {
+      bindings: [
+        { agentId: "opus", match: { channel: "discord", guildId: "g1", roles: ["admin"] } },
+      ],
+    };
+    const route = resolveAgentRoute({
+      cfg,
+      channel: "discord",
+      guildId: "g1",
+      memberRoleIds: ["regular"],
+      peer: { kind: "channel", id: "c1" },
+    });
+    expect(route.agentId).toBe("main");
+    expect(route.matchedBy).toBe("default");
   });
 });
