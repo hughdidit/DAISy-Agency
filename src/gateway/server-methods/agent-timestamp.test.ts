@@ -35,8 +35,12 @@ describe("injectTimestamp", () => {
       timezone: "America/New_York",
     });
 
+<<<<<<< HEAD
     expect(result).toMatch(/^\[Wed 2026-01-28 20:30 EST\] Is it the weekend\?$/);
 <<<<<<< HEAD
+=======
+    expect(result).toMatch(/^\[Current Date: Wed 2026-01-28 20:30 EST\] Is it the weekend\?$/);
+>>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
   });
 
   it("uses channel envelope format with DOW prefix", () => {
@@ -46,7 +50,7 @@ describe("injectTimestamp", () => {
     const result = injectTimestamp("hello", { timezone: "America/New_York" });
 
     // DOW prefix + formatZonedTimestamp format
-    expect(result).toBe(`[Wed ${expected}] hello`);
+    expect(result).toBe(`[Current Date: Wed ${expected}] hello`);
   });
 
   it("always uses 24-hour format", () => {
@@ -61,6 +65,7 @@ describe("injectTimestamp", () => {
     const result = injectTimestamp("hello", { timezone: "America/Chicago" });
 
     // 8:30 PM EST = 7:30 PM CST = 19:30
+<<<<<<< HEAD
     expect(result).toMatch(/^\[Wed 2026-01-28 19:30 CST\]/);
 =======
   it("prepends a formatted timestamp to a plain message", () => {
@@ -109,12 +114,16 @@ describe("injectTimestamp", () => {
 =======
     expect(result).toMatch(/^\[Wed 2026-01-28 19:30 CST\]/);
 >>>>>>> a6c68e869 (feat: add 3-letter DOW prefix to injected timestamps)
+=======
+    expect(result).toMatch(/^\[Current Date: Wed 2026-01-28 19:30 CST\]/);
+>>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
   });
 
   it("defaults to UTC when no timezone specified", () => {
     const result = injectTimestamp("hello", {});
 
     // 2026-01-29T01:30:00Z
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -129,6 +138,9 @@ describe("injectTimestamp", () => {
 =======
     expect(result).toMatch(/^\[Thu 2026-01-29 01:30/);
 >>>>>>> a6c68e869 (feat: add 3-letter DOW prefix to injected timestamps)
+=======
+    expect(result).toMatch(/^\[Current Date: Thu 2026-01-29 01:30/);
+>>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
   });
 
   it("returns empty/whitespace messages unchanged", () => {
@@ -146,6 +158,7 @@ describe("injectTimestamp", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
   it("does NOT double-stamp messages already injected by us", () => {
+<<<<<<< HEAD
     const alreadyStamped = "[Wed 2026-01-28 20:30 EST] hello there";
 =======
   it("does NOT double-stamp messages already injected by us", () => {
@@ -155,6 +168,9 @@ describe("injectTimestamp", () => {
 =======
     const alreadyStamped = "[Wed 2026-01-28 20:30 EST] hello there";
 >>>>>>> a6c68e869 (feat: add 3-letter DOW prefix to injected timestamps)
+=======
+    const alreadyStamped = "[Current Date: Wed 2026-01-28 20:30 EST] hello there";
+>>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
     const result = injectTimestamp(alreadyStamped, { timezone: "America/New_York" });
 
     expect(result).toBe(alreadyStamped);
@@ -180,8 +196,12 @@ describe("injectTimestamp", () => {
 <<<<<<< HEAD
     const result = injectTimestamp("hello", { timezone: "America/New_York" });
 
+<<<<<<< HEAD
     expect(result).toMatch(/^\[Sun 2026-02-01 00:00 EST\]/);
 <<<<<<< HEAD
+=======
+    expect(result).toMatch(/^\[Current Date: Sun 2026-02-01 00:00 EST\]/);
+>>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
   });
 
   it("handles date boundaries (just before midnight)", () => {
@@ -189,19 +209,19 @@ describe("injectTimestamp", () => {
 
     const result = injectTimestamp("hello", { timezone: "America/New_York" });
 
-    expect(result).toMatch(/^\[Sat 2026-01-31 23:59 EST\]/);
+    expect(result).toMatch(/^\[Current Date: Sat 2026-01-31 23:59 EST\]/);
   });
 
   it("handles DST correctly (same UTC hour, different local time)", () => {
     // EST (winter): UTC-5 → 2026-01-15T05:00Z = midnight Jan 15
     vi.setSystemTime(new Date("2026-01-15T05:00:00.000Z"));
     const winter = injectTimestamp("winter", { timezone: "America/New_York" });
-    expect(winter).toMatch(/^\[Thu 2026-01-15 00:00 EST\]/);
+    expect(winter).toMatch(/^\[Current Date: Thu 2026-01-15 00:00 EST\]/);
 
     // EDT (summer): UTC-4 → 2026-07-15T04:00Z = midnight Jul 15
     vi.setSystemTime(new Date("2026-07-15T04:00:00.000Z"));
     const summer = injectTimestamp("summer", { timezone: "America/New_York" });
-    expect(summer).toMatch(/^\[Wed 2026-07-15 00:00 EDT\]/);
+    expect(summer).toMatch(/^\[Current Date: Wed 2026-07-15 00:00 EDT\]/);
   });
 
   it("accepts a custom now date", () => {
@@ -212,6 +232,7 @@ describe("injectTimestamp", () => {
       now: customDate,
     });
 
+<<<<<<< HEAD
     expect(result).toMatch(/^\[Fri 2025-07-04 12:00 EDT\]/);
 =======
     const result = injectTimestamp("hello", {
@@ -266,6 +287,9 @@ describe("injectTimestamp", () => {
 =======
     expect(result).toMatch(/^\[Fri 2025-07-04 12:00 EDT\]/);
 >>>>>>> a6c68e869 (feat: add 3-letter DOW prefix to injected timestamps)
+=======
+    expect(result).toMatch(/^\[Current Date: Fri 2025-07-04 12:00 EDT\]/);
+>>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
   });
 });
 
