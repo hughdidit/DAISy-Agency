@@ -547,6 +547,7 @@ describe("applyMediaUnderstanding", () => {
     expect(ctx.Body).toContain("a\tb\tc");
   });
 
+<<<<<<< HEAD
   // Windows NTFS disallows < and > in filenames; XML escaping is
   // platform-independent string logic tested adequately on Linux/macOS.
   it.skipIf(process.platform === "win32")(
@@ -559,6 +560,17 @@ describe("applyMediaUnderstanding", () => {
       // but we test that even if some slip through, they get escaped in output
       const filePath = path.join(dir, "file<test>.txt");
       await fs.writeFile(filePath, "safe content");
+=======
+  it("escapes XML special characters in filenames to prevent injection", async () => {
+    const { applyMediaUnderstanding } = await loadApply();
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-media-"));
+    // Use & in filename — valid on all platforms (including Windows, which
+    // forbids < and > in NTFS filenames) and still requires XML escaping.
+    // Note: The sanitizeFilename in store.ts would strip most dangerous chars,
+    // but we test that even if some slip through, they get escaped in output
+    const filePath = path.join(dir, "file&test.txt");
+    await fs.writeFile(filePath, "safe content");
+>>>>>>> c20035094 (fix: use & instead of <> in XML escaping test for Windows NTFS compatibility (#3750))
 
       const ctx: MsgContext = {
         Body: "<media:document>",
@@ -577,6 +589,7 @@ describe("applyMediaUnderstanding", () => {
 
       const result = await applyMediaUnderstanding({ ctx, cfg });
 
+<<<<<<< HEAD
       expect(result.appliedFile).toBe(true);
       // Verify XML special chars are escaped in the output
       expect(ctx.Body).toContain("&lt;");
@@ -585,6 +598,14 @@ describe("applyMediaUnderstanding", () => {
       expect(ctx.Body).not.toMatch(/name="[^"]*<[^"]*"/);
     },
   );
+=======
+    expect(result.appliedFile).toBe(true);
+    // Verify XML special chars are escaped in the output
+    expect(ctx.Body).toContain("&amp;");
+    // The name attribute should contain the escaped form, not a raw unescaped &
+    expect(ctx.Body).toMatch(/name="file&amp;test\.txt"/);
+  });
+>>>>>>> c20035094 (fix: use & instead of <> in XML escaping test for Windows NTFS compatibility (#3750))
 
   it("normalizes MIME types to prevent attribute injection", async () => {
     const { applyMediaUnderstanding } = await loadApply();
