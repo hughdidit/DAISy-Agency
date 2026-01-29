@@ -126,9 +126,12 @@ describe("gateway agent handler", () => {
         defaults: {
           userTimezone: "America/New_York",
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
           timeFormat: "12",
 >>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
+=======
+>>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
         },
       },
     };
@@ -168,12 +171,16 @@ describe("gateway agent handler", () => {
 
     const callArgs = mocks.agentCommand.mock.calls[0][0];
 <<<<<<< HEAD
+<<<<<<< HEAD
     expect(callArgs.message).toBe("[Wed 2026-01-28 20:30 EST] Is it the weekend?");
 =======
     expect(callArgs.message).toMatch(
       /^\[.*Wednesday.*January 28.*2026.*8:30 PM.*\] Is it the weekend\?$/,
     );
 >>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
+=======
+    expect(callArgs.message).toBe("[2026-01-28 20:30 EST] Is it the weekend?");
+>>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
 
     mocks.loadConfigReturn = {};
     vi.useRealTimers();
