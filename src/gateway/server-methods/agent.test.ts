@@ -174,6 +174,7 @@ describe("gateway agent handler", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     expect(callArgs.message).toBe("[Wed 2026-01-28 20:30 EST] Is it the weekend?");
 =======
     expect(callArgs.message).toMatch(
@@ -189,6 +190,9 @@ describe("gateway agent handler", () => {
 =======
     expect(callArgs.message).toBe("[Current Date: Wed 2026-01-28 20:30 EST] Is it the weekend?");
 >>>>>>> b6c8c1e89 (feat: add "Current Date:" label to timestamp prefix)
+=======
+    expect(callArgs.message).toBe("[Wed 2026-01-28 20:30 EST] Is it the weekend?");
+>>>>>>> 8a5b139a9 (revert: drop "Current Date:" label, keep [Wed YYYY-MM-DD HH:MM TZ])
 
     mocks.loadConfigReturn = {};
     vi.useRealTimers();
