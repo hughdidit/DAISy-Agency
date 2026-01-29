@@ -1,11 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
+<<<<<<< HEAD
 import { formatZonedTimestamp } from "../../auto-reply/envelope.js";
+=======
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
 
 describe("injectTimestamp", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+<<<<<<< HEAD
     // Wednesday, January 28, 2026 at 8:30 PM EST (01:30 UTC Jan 29)
+=======
+    // Wednesday, January 28, 2026 at 8:30 PM EST
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
     vi.setSystemTime(new Date("2026-01-29T01:30:00.000Z"));
   });
 
@@ -13,6 +20,7 @@ describe("injectTimestamp", () => {
     vi.useRealTimers();
   });
 
+<<<<<<< HEAD
   it("prepends a compact timestamp matching formatZonedTimestamp", () => {
     const result = injectTimestamp("Is it the weekend?", {
       timezone: "America/New_York",
@@ -44,13 +52,51 @@ describe("injectTimestamp", () => {
 
     // 8:30 PM EST = 7:30 PM CST = 19:30
     expect(result).toMatch(/^\[Wed 2026-01-28 19:30 CST\]/);
+=======
+  it("prepends a formatted timestamp to a plain message", () => {
+    const result = injectTimestamp("Is it the weekend?", {
+      timezone: "America/New_York",
+      timeFormat: "12",
+    });
+
+    expect(result).toMatch(/^\[.+\] Is it the weekend\?$/);
+    expect(result).toContain("Wednesday");
+    expect(result).toContain("January 28");
+    expect(result).toContain("2026");
+    expect(result).toContain("8:30 PM");
+  });
+
+  it("formats in 24-hour time when configured", () => {
+    const result = injectTimestamp("hello", {
+      timezone: "America/New_York",
+      timeFormat: "24",
+    });
+
+    expect(result).toContain("20:30");
+    expect(result).not.toContain("PM");
+  });
+
+  it("uses the configured timezone", () => {
+    const result = injectTimestamp("hello", {
+      timezone: "America/Chicago",
+      timeFormat: "12",
+    });
+
+    // 8:30 PM EST = 7:30 PM CST
+    expect(result).toContain("7:30 PM");
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
   });
 
   it("defaults to UTC when no timezone specified", () => {
     const result = injectTimestamp("hello", {});
 
     // 2026-01-29T01:30:00Z
+<<<<<<< HEAD
     expect(result).toMatch(/^\[Thu 2026-01-29 01:30/);
+=======
+    expect(result).toContain("January 29"); // UTC date, not EST
+    expect(result).toContain("1:30 AM");
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
   });
 
   it("returns empty/whitespace messages unchanged", () => {
@@ -65,6 +111,7 @@ describe("injectTimestamp", () => {
     expect(result).toBe(enveloped);
   });
 
+<<<<<<< HEAD
   it("does NOT double-stamp messages already injected by us", () => {
     const alreadyStamped = "[Wed 2026-01-28 20:30 EST] hello there";
     const result = injectTimestamp(alreadyStamped, { timezone: "America/New_York" });
@@ -72,6 +119,8 @@ describe("injectTimestamp", () => {
     expect(result).toBe(alreadyStamped);
   });
 
+=======
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
   it("does NOT double-stamp messages with cron-injected timestamps", () => {
     const cronMessage =
       "[cron:abc123 my-job] do the thing\nCurrent time: Wednesday, January 28th, 2026 — 8:30 PM (America/New_York)";
@@ -83,6 +132,7 @@ describe("injectTimestamp", () => {
   it("handles midnight correctly", () => {
     vi.setSystemTime(new Date("2026-02-01T05:00:00.000Z")); // midnight EST
 
+<<<<<<< HEAD
     const result = injectTimestamp("hello", { timezone: "America/New_York" });
 
     expect(result).toMatch(/^\[Sun 2026-02-01 00:00 EST\]/);
@@ -117,25 +167,75 @@ describe("injectTimestamp", () => {
     });
 
     expect(result).toMatch(/^\[Fri 2025-07-04 12:00 EDT\]/);
+=======
+    const result = injectTimestamp("hello", {
+      timezone: "America/New_York",
+      timeFormat: "12",
+    });
+
+    expect(result).toContain("February 1");
+    expect(result).toContain("12:00 AM");
+  });
+
+  it("handles date boundaries (just before midnight)", () => {
+    vi.setSystemTime(new Date("2026-02-01T04:59:00.000Z")); // 11:59 PM Jan 31 EST
+
+    const result = injectTimestamp("hello", {
+      timezone: "America/New_York",
+      timeFormat: "12",
+    });
+
+    expect(result).toContain("January 31");
+    expect(result).toContain("11:59 PM");
+  });
+
+  it("accepts a custom now date", () => {
+    const customDate = new Date("2025-07-04T16:00:00.000Z"); // July 4, noon EST
+
+    const result = injectTimestamp("fireworks?", {
+      timezone: "America/New_York",
+      timeFormat: "12",
+      now: customDate,
+    });
+
+    expect(result).toContain("July 4");
+    expect(result).toContain("2025");
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
   });
 });
 
 describe("timestampOptsFromConfig", () => {
+<<<<<<< HEAD
   it("extracts timezone from config", () => {
+=======
+  it("extracts timezone and timeFormat from config", () => {
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
     const opts = timestampOptsFromConfig({
       agents: {
         defaults: {
           userTimezone: "America/Chicago",
+<<<<<<< HEAD
+=======
+          timeFormat: "24",
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
         },
       },
     } as any);
 
     expect(opts.timezone).toBe("America/Chicago");
+<<<<<<< HEAD
+=======
+    expect(opts.timeFormat).toBe("24");
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
   });
 
   it("falls back gracefully with empty config", () => {
     const opts = timestampOptsFromConfig({} as any);
 
     expect(opts.timezone).toBeDefined(); // resolveUserTimezone provides a default
+<<<<<<< HEAD
+=======
+    expect(opts.timeFormat).toBeUndefined();
+>>>>>>> 582a4e261 (feat(gateway): inject timestamps into agent handler messages)
   });
 });
