@@ -6,7 +6,24 @@ Docs: https://docs.molt.bot
 Status: beta.
 
 ### Changes
+<<<<<<< HEAD
 - Rebrand: rename the npm package/CLI to `moltbot`, add a `moltbot` compatibility shim, and move extensions to the `@moltbot/*` scope.
+=======
+- Providers: add Venice AI integration; update Moonshot Kimi references to kimi-k2.5; update MiniMax API endpoint/format. (#2762, #3064)
+- Providers: add Xiaomi MiMo (mimo-v2-flash) support and onboarding flow. (#3454) Thanks @WqyJh.
+- Telegram: quote replies, edit-message action, silent sends, sticker support + vision caching, linkPreview toggle, plugin sendPayload support. (#2900, #2394, #2382, #2548, #1700, #1917)
+- Discord: configurable privileged gateway intents for presences/members. (#2266) Thanks @kentaro.
+- Browser: route browser control via gateway/node; fallback URL matching for relay targets. (#1999)
+- macOS: add direct gateway transport; preserve custom SSH usernames for remote control; bump Textual to 0.3.1. (#2033, #2046)
+- Routing: add per-account DM session scope + guidance for multi-account setups. (#3095) Thanks @jarvis-sam.
+- Hooks: make session-memory message count configurable. (#2681)
+- Tools: honor tools.exec.safeBins in exec allowlist checks. (#2281)
+- Security: add Control UI device auth bypass flag + audit warnings; warn on hook tokens via query params; add security audit CLI surface. (#2248, #2200)
+- Doctor: warn on gateway exposure without auth. (#2016) Thanks @Alex-Alaniz.
+- Config: apply config.env before ${VAR} substitution. (#1813)
+- Web search: add Brave freshness filter parameter. (#1688) Thanks @JonUleis.
+- Control UI: improve chat session dropdown refresh, URL confirmation flow, config-save guardrails, and chat composer sizing. (#3682, #3578, #1707, #2950)
+>>>>>>> 78b987664 (feat: add Xiaomi MiMo provider onboarding (#3454))
 - Commands: group /help and /commands output with Telegram paging. (#2504) Thanks @hougangdev.
 - macOS: limit project-local `node_modules/.bin` PATH preference to debug builds (reduce PATH hijacking risk).
 - macOS: finish Moltbot app rename for macOS sources, bundle identifiers, and shared kit paths. (#2844) Thanks @fal3.
