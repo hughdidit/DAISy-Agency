@@ -1,7 +1,13 @@
 {
+<<<<<<< HEAD
   "name": "@moltbot/twitch",
   "version": "2026.1.27-beta.1",
   "description": "Moltbot Twitch channel plugin",
+=======
+  "name": "@openclaw/twitch",
+  "version": "2026.1.29",
+  "description": "OpenClaw Twitch channel plugin",
+>>>>>>> 62e4ad23d (chore: release 2026.1.29)
   "type": "module",
   "dependencies": {
     "@twurple/api": "^8.0.3",

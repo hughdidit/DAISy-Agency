@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
   "name": "@moltbot/nextcloud-talk",
   "version": "2026.1.27-beta.1",
+=======
+  "name": "@openclaw/nextcloud-talk",
+  "version": "2026.1.29",
+>>>>>>> 62e4ad23d (chore: release 2026.1.29)
   "type": "module",
   "description": "Moltbot Nextcloud Talk channel plugin",
   "moltbot": {
