@@ -1,11 +1,15 @@
 ---
-summary: "Agent runtime (embedded p-mono), workspace contract, and session bootstrap"
+summary: "Agent runtime (embedded pi-mono), workspace contract, and session bootstrap"
 read_when:
   - Changing agent runtime, workspace bootstrap, or session behavior
 ---
 # Agent Runtime 🤖
 
+<<<<<<< HEAD
 Moltbot runs a single embedded agent runtime derived from **p-mono**.
+=======
+OpenClaw runs a single embedded agent runtime derived from **pi-mono**.
+>>>>>>> 9a1b44096 (Fix typo in agent.md from p-mono to pi-mono)
 
 ## Workspace (required)
 
