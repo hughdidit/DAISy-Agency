@@ -63,11 +63,15 @@ Moltbot loads skills from three locations (workspace wins on name conflict):
 
 Skills can be gated by config/env (see `skills` in [Gateway configuration](/gateway/configuration)).
 
-## p-mono integration
+## pi-mono integration
 
+<<<<<<< HEAD
 Moltbot reuses pieces of the p-mono codebase (models/tools), but **session management, discovery, and tool wiring are Moltbot-owned**.
+=======
+OpenClaw reuses pieces of the pi-mono codebase (models/tools), but **session management, discovery, and tool wiring are OpenClaw-owned**.
+>>>>>>> 97895a023 (Fix typo from 'p-mono' to 'pi-mono' in agent.md)
 
-- No p-coding agent runtime.
+- No pi-coding agent runtime.
 - No `~/.pi/agent` or `<workspace>/.pi` settings are consulted.
 
 ## Sessions
