@@ -104,9 +104,13 @@ Status: beta.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
+=======
+- Infra: resolve Control UI assets for npm global installs. (#4909) Thanks @YuriNachos.
+>>>>>>> 34bdbdb40 (fix: resolve Control UI assets for global installs (#4909) (thanks @YuriNachos))
 - Gateway: prevent blank token prompts from storing "undefined". (#4873) Thanks @Hisleren.
 >>>>>>> 39eb0b7bc (fix: prevent undefined gateway token defaults (#4873) (thanks @Hisleren))
 - Telegram: use undici fetch for per-account proxy dispatcher. (#4456) Thanks @spiceoogway.

@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { runCommandWithTimeout } from "../process/exec.js";
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
+import { resolveOpenClawPackageRoot } from "./openclaw-root.js";
 
 export function resolveControlUiRepoRoot(
   argv1: string | undefined = process.argv[1],
@@ -32,14 +33,24 @@ export function resolveControlUiRepoRoot(
   return null;
 }
 
-export function resolveControlUiDistIndexPath(
+export async function resolveControlUiDistIndexPath(
   argv1: string | undefined = process.argv[1],
-): string | null {
+): Promise<string | null> {
   if (!argv1) return null;
   const normalized = path.resolve(argv1);
   const distDir = path.dirname(normalized);
+<<<<<<< HEAD
   if (path.basename(distDir) !== "dist") return null;
   return path.join(distDir, "control-ui", "index.html");
+=======
+  if (path.basename(distDir) === "dist") {
+    return path.join(distDir, "control-ui", "index.html");
+  }
+
+  const packageRoot = await resolveOpenClawPackageRoot({ argv1: normalized });
+  if (!packageRoot) return null;
+  return path.join(packageRoot, "dist", "control-ui", "index.html");
+>>>>>>> 34bdbdb40 (fix: resolve Control UI assets for global installs (#4909) (thanks @YuriNachos))
 }
 
 export type EnsureControlUiAssetsResult = {
@@ -63,7 +74,7 @@ export async function ensureControlUiAssetsBuilt(
   runtime: RuntimeEnv = defaultRuntime,
   opts?: { timeoutMs?: number },
 ): Promise<EnsureControlUiAssetsResult> {
-  const indexFromDist = resolveControlUiDistIndexPath(process.argv[1]);
+  const indexFromDist = await resolveControlUiDistIndexPath(process.argv[1]);
   if (indexFromDist && fs.existsSync(indexFromDist)) {
     return { ok: true, built: false };
   }
