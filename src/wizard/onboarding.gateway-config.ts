@@ -1,4 +1,4 @@
-import { randomToken } from "../commands/onboard-helpers.js";
+import { normalizeGatewayTokenInput, randomToken } from "../commands/onboard-helpers.js";
 import type { GatewayAuthChoice } from "../commands/onboard-types.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { findTailscaleBinary } from "../infra/tailscale.js";
@@ -180,7 +180,11 @@ export async function configureGatewayForOnboarding(
         placeholder: "Needed for multi-machine or non-loopback access",
         initialValue: quickstartGateway.token ?? "",
       });
+<<<<<<< HEAD
       gatewayToken = String(tokenInput).trim() || randomToken();
+=======
+      gatewayToken = normalizeGatewayTokenInput(tokenInput) || randomToken();
+>>>>>>> e5a95b5b6 (fix: local updates for PR #4873)
     }
   }
 
