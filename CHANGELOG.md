@@ -81,6 +81,7 @@ Status: beta.
 - Telegram: use undici fetch for per-account proxy dispatcher. (#4456) Thanks @spiceoogway.
 >>>>>>> 3a85cb183 (fix: honor Telegram proxy dispatcher (#4456) (thanks @spiceoogway))
 - Telegram: avoid silent empty replies by tracking normalization skips before fallback. (#3796)
+- Telegram: accept numeric messageId/chatId in react action and honor channelId fallback. (#4533) Thanks @Ayush10.
 - Telegram: scope native skill commands to bound agent per bot. (#4360) Thanks @robhparker.
 - Mentions: honor mentionPatterns even when explicit mentions are present. (#3303) Thanks @HirokiKobayashi-R.
 >>>>>>> 718bc3f9c (fix: avoid silent telegram empty replies (#3796) (#3796))
