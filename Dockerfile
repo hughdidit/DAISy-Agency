@@ -26,8 +26,12 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 RUN CLAWDBOT_A2UI_SKIP_MISSING=1 pnpm build
 # Force pnpm for UI build (Bun may fail on ARM/Synology architectures)
+<<<<<<< HEAD
 ENV CLAWDBOT_PREFER_PNPM=1
 RUN pnpm ui:install
+=======
+ENV OPENCLAW_PREFER_PNPM=1
+>>>>>>> 1168f5989 (perf: skip redundant ui install in Dockerfile)
 RUN pnpm ui:build
 
 ENV NODE_ENV=production
