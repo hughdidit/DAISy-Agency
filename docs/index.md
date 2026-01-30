@@ -7,6 +7,7 @@ read_when:
 
 > *"EXFOLIATE! EXFOLIATE!"* — A space lobster, probably
 
+<<<<<<< HEAD
 <p align="center">
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -28,7 +29,16 @@ read_when:
 <p align="center">
   <img src="whatsapp-openclaw.jpg" alt="OpenClaw" width="420" />
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
+=======
+
+<p align="center">
+    <picture>
+        <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text-dark.png">
+        <img src="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text.png" alt="OpenClaw" width="500">
+    </picture>
+>>>>>>> 613724c26 (Update index.md)
 </p>
+
 
 <p align="center">
   <strong>Any OS + WhatsApp/Telegram/Discord/iMessage gateway for AI agents (Pi).</strong><br />
