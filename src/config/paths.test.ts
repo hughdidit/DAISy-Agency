@@ -49,10 +49,19 @@ describe("state + config path candidates", () => {
   it("orders default config candidates as new then legacy", () => {
     const home = "/home/test";
     const candidates = resolveDefaultConfigCandidates({} as NodeJS.ProcessEnv, () => home);
+<<<<<<< HEAD
     expect(candidates[0]).toBe(path.join(home, ".moltbot", "moltbot.json"));
     expect(candidates[1]).toBe(path.join(home, ".moltbot", "clawdbot.json"));
     expect(candidates[2]).toBe(path.join(home, ".clawdbot", "moltbot.json"));
     expect(candidates[3]).toBe(path.join(home, ".clawdbot", "clawdbot.json"));
+=======
+    const expectedDirs = [".openclaw", ".clawdbot", ".moltbot", ".moldbot"];
+    const expectedFiles = ["openclaw.json", "clawdbot.json", "moltbot.json", "moldbot.json"];
+    const expected = expectedDirs.flatMap((dir) =>
+      expectedFiles.map((file) => path.join(home, dir, file)),
+    );
+    expect(candidates).toEqual(expected);
+>>>>>>> 5e635c965 (feat: add Kimi K2.5 model to synthetic catalog (#4407))
   });
 
   it("prefers ~/.moltbot when it exists and legacy dir is missing", async () => {
