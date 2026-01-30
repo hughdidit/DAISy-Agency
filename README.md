@@ -1,7 +1,14 @@
 # 🦞 Moltbot — Personal AI Assistant
 
 <p align="center">
+<<<<<<< HEAD
   <img src="https://raw.githubusercontent.com/moltbot/moltbot/main/docs/whatsapp-clawd.jpg" alt="Clawdbot" width="400">
+=======
+    <picture>
+        <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text-dark.png">
+        <img src="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text.png" alt="OpenClaw" width="500">
+    </picture>
+>>>>>>> 4de0bae45 (Update README with responsive logo for dark mode)
 </p>
 
 <p align="center">
