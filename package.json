@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
   "name": "moltbot",
   "version": "2026.1.27-beta.1",
+=======
+  "name": "openclaw",
+  "version": "2026.1.29-beta.2",
+>>>>>>> 02576615c (fix: migrate legacy gateway services)
   "description": "WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
   "type": "module",
   "main": "dist/index.js",
