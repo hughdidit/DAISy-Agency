@@ -184,8 +184,12 @@ export async function doctorCommand(
   cfg = await maybeRepairSandboxImages(cfg, runtime, prompter);
   noteSandboxScopeWarnings(cfg);
 
+<<<<<<< HEAD
   await maybeMigrateLegacyGatewayService(cfg, resolveMode(cfg), runtime, prompter);
   await maybeScanExtraGatewayServices(options);
+=======
+  await maybeScanExtraGatewayServices(options, runtime, prompter);
+>>>>>>> 02576615c (fix: migrate legacy gateway services)
   await maybeRepairGatewayServiceConfig(cfg, resolveMode(cfg), runtime, prompter);
   await noteMacLaunchAgentOverrides();
   await noteMacLaunchctlGatewayEnvOverrides(cfg);
