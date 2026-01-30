@@ -37,9 +37,15 @@ What it does (high level):
 - Choose install method:
   - `npm` (default): `npm install -g moltbot@latest`
   - `git`: clone/build a source checkout and install a wrapper script
+<<<<<<< HEAD
 - On Linux: avoid global npm permission errors by switching npm’s prefix to `~/.npm-global` when needed.
 - If upgrading an existing install: runs `moltbot doctor --non-interactive` (best effort).
 - For git installs: runs `moltbot doctor --non-interactive` after install/update (best effort).
+=======
+- On Linux: avoid global npm permission errors by switching npm's prefix to `~/.npm-global` when needed.
+- If upgrading an existing install: runs `openclaw doctor --non-interactive` (best effort).
+- For git installs: runs `openclaw doctor --non-interactive` after install/update (best effort).
+>>>>>>> 23f0efbf0 (docs: use straight quotes for code terms in installer guide)
 - Mitigates `sharp` native install gotchas by defaulting `SHARP_IGNORE_GLOBAL_LIBVIPS=1` (avoids building against system libvips).
 
 If you *want* `sharp` to link against a globally-installed libvips (or you’re debugging), set:
@@ -65,7 +71,7 @@ For `npm` installs, Git is *usually* not required, but some environments still e
 
 ### Why npm hits `EACCES` on fresh Linux
 
-On some Linux setups (especially after installing Node via the system package manager or NodeSource), npm’s global prefix points at a root-owned location. Then `npm install -g ...` fails with `EACCES` / `mkdir` permission errors.
+On some Linux setups (especially after installing Node via the system package manager or NodeSource), npm's global prefix points at a root-owned location. Then `npm install -g ...` fails with `EACCES` / `mkdir` permission errors.
 
 `install.sh` mitigates this by switching the prefix to:
 
