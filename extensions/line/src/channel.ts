@@ -4,7 +4,12 @@ import {
   LineConfigSchema,
   processLineMessage,
   type ChannelPlugin,
+<<<<<<< HEAD
   type MoltbotConfig,
+=======
+  type ChannelStatusIssue,
+  type OpenClawConfig,
+>>>>>>> 3fbf99d72 (fix(line): resolve TypeError in status command)
   type LineConfig,
   type LineChannelData,
   type ResolvedLineAccount,
@@ -560,19 +565,26 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
       lastStopAt: null,
       lastError: null,
     },
-    collectStatusIssues: ({ account }) => {
-      const issues: Array<{ level: "error" | "warning"; message: string }> = [];
-      if (!account.channelAccessToken?.trim()) {
-        issues.push({
-          level: "error",
-          message: "LINE channel access token not configured",
-        });
-      }
-      if (!account.channelSecret?.trim()) {
-        issues.push({
-          level: "error",
-          message: "LINE channel secret not configured",
-        });
+    collectStatusIssues: (accounts) => {
+      const issues: ChannelStatusIssue[] = [];
+      for (const account of accounts) {
+        const accountId = account.accountId ?? DEFAULT_ACCOUNT_ID;
+        if (!account.channelAccessToken?.trim()) {
+          issues.push({
+            channel: "line",
+            accountId,
+            kind: "config",
+            message: "LINE channel access token not configured",
+          });
+        }
+        if (!account.channelSecret?.trim()) {
+          issues.push({
+            channel: "line",
+            accountId,
+            kind: "config",
+            message: "LINE channel secret not configured",
+          });
+        }
       }
       return issues;
     },
