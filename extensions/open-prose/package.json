@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
   "name": "@moltbot/open-prose",
   "version": "2026.1.27-beta.1",
+=======
+  "name": "@openclaw/open-prose",
+  "version": "2026.1.29",
+>>>>>>> 62e4ad23d (chore: release 2026.1.29)
   "type": "module",
   "description": "OpenProse VM skill pack plugin (slash command + telemetry).",
   "moltbot": {

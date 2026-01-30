@@ -9,6 +9,7 @@ read_when:
 
 <p align="center">
 <<<<<<< HEAD
+<<<<<<< HEAD
   <img src="whatsapp-clawd.jpg" alt="Moltbot" width="420" />
 =======
     <picture>
@@ -16,6 +17,17 @@ read_when:
         <img src="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text.png" alt="OpenClaw" width="420">
     </picture>
 >>>>>>> 12e8a8410 (Update logo and contributor name in docs)
+=======
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="/assets/openclaw-logo-text.png" />
+    <source media="(prefers-color-scheme: light)" srcset="/assets/openclaw-logo-text-dark.png" />
+    <img src="/assets/openclaw-logo-text.png" alt="OpenClaw" width="520" />
+  </picture>
+</p>
+
+<p align="center">
+  <img src="whatsapp-openclaw.jpg" alt="OpenClaw" width="420" />
+>>>>>>> 62e4ad23d (chore: release 2026.1.29)
 </p>
 
 <p align="center">
@@ -231,7 +243,7 @@ Example:
 
 - **Peter Steinberger** ([@steipete](https://twitter.com/steipete)) — Creator, lobster whisperer
 - **Mario Zechner** ([@badlogicc](https://twitter.com/badlogicgames)) — Pi creator, security pen-tester
-- **Molty** — The space lobster who demanded a better name
+- **Clawd** — The space lobster who demanded a better name
 
 ## Core Contributors
 
