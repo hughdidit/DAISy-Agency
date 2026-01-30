@@ -98,7 +98,12 @@
     "gateway:dev": "CLAWDBOT_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway",
     "gateway:dev:reset": "CLAWDBOT_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway --reset",
     "tui": "node scripts/run-node.mjs tui",
+<<<<<<< HEAD
     "tui:dev": "CLAWDBOT_PROFILE=dev node scripts/run-node.mjs tui",
+=======
+    "tui:dev": "OPENCLAW_PROFILE=dev CLAWDBOT_PROFILE=dev node scripts/run-node.mjs --dev tui",
+    "openclaw:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
+>>>>>>> aa6b9e3a2 (CLI: fix tui:dev port resolution)
     "moltbot:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
     "ios:gen": "cd apps/ios && xcodegen generate",
     "ios:open": "cd apps/ios && xcodegen generate && open Moltbot.xcodeproj",
