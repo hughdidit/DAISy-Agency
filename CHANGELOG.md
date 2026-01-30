@@ -103,8 +103,12 @@ Status: beta.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
+=======
+- Gateway: prevent blank token prompts from storing "undefined". (#4873) Thanks @Hisleren.
+>>>>>>> 39eb0b7bc (fix: prevent undefined gateway token defaults (#4873) (thanks @Hisleren))
 - Telegram: use undici fetch for per-account proxy dispatcher. (#4456) Thanks @spiceoogway.
 <<<<<<< HEAD
 >>>>>>> 3a85cb183 (fix: honor Telegram proxy dispatcher (#4456) (thanks @spiceoogway))
