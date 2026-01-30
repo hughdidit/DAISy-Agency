@@ -6,6 +6,7 @@
   "name": "openclaw",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29-beta.2",
 >>>>>>> 02576615c (fix: migrate legacy gateway services)
 =======
@@ -14,6 +15,9 @@
 =======
   "version": "2026.1.29-beta.6",
 >>>>>>> b9afa3d33 (fix: migrate symlinked legacy state dirs)
+=======
+  "version": "2026.1.29-beta.7",
+>>>>>>> 151ddd624 (fix: detect legacy gateway launchd labels)
   "description": "WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
   "type": "module",
   "main": "dist/index.js",
