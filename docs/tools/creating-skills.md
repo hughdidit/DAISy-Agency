@@ -38,4 +38,4 @@ Ask your agent to "refresh skills" or restart the gateway. Moltbot will discover
 - **Test Locally**: Use `moltbot agent --message "use my new skill"` to test.
 
 ## Shared Skills
-You can also browse and contribute skills to [ClawdHub](https://clawdhub.com).
+You can also browse and contribute skills to [ClawHub](https://clawhub.com).

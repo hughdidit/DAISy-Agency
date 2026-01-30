@@ -124,9 +124,15 @@ function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readT
     "Mirror: https://docs.molt.bot",
     "Source: https://github.com/moltbot/moltbot",
     "Community: https://discord.com/invite/clawd",
+<<<<<<< HEAD
     "Find new skills: https://clawdhub.com",
     "For Moltbot behavior, commands, config, or architecture: consult local docs first.",
     "When diagnosing issues, run `moltbot status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
+=======
+    "Find new skills: https://clawhub.com",
+    "For OpenClaw behavior, commands, config, or architecture: consult local docs first.",
+    "When diagnosing issues, run `openclaw status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
+>>>>>>> fd00d5688 (chore: update openclaw naming)
     "",
   ];
 }

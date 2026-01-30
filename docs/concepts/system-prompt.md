@@ -105,6 +105,12 @@ This keeps the base prompt small while still enabling targeted skill usage.
 When available, the system prompt includes a **Documentation** section that points to the
 local Moltbot docs directory (either `docs/` in the repo workspace or the bundled npm
 package docs) and also notes the public mirror, source repo, community Discord, and
+<<<<<<< HEAD
 ClawdHub (https://clawdhub.com) for skills discovery. The prompt instructs the model to consult local docs first
 for Moltbot behavior, commands, configuration, or architecture, and to run
 `moltbot status` itself when possible (asking the user only when it lacks access).
+=======
+ClawHub (https://clawhub.com) for skills discovery. The prompt instructs the model to consult local docs first
+for OpenClaw behavior, commands, configuration, or architecture, and to run
+`openclaw status` itself when possible (asking the user only when it lacks access).
+>>>>>>> fd00d5688 (chore: update openclaw naming)

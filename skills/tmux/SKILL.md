@@ -11,7 +11,11 @@ Use tmux only when you need an interactive TTY. Prefer exec background mode for 
 ## Quickstart (isolated socket, exec tool)
 
 ```bash
+<<<<<<< HEAD
 SOCKET_DIR="${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/moltbot-tmux-sockets}"
+=======
+SOCKET_DIR="${OPENCLAW_TMUX_SOCKET_DIR:-${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/openclaw-tmux-sockets}}"
+>>>>>>> fd00d5688 (chore: update openclaw naming)
 mkdir -p "$SOCKET_DIR"
 SOCKET="$SOCKET_DIR/moltbot.sock"
 SESSION=moltbot-python
@@ -31,8 +35,13 @@ To monitor:
 
 ## Socket convention
 
+<<<<<<< HEAD
 - Use `CLAWDBOT_TMUX_SOCKET_DIR` (default `${TMPDIR:-/tmp}/moltbot-tmux-sockets`).
 - Default socket path: `"$CLAWDBOT_TMUX_SOCKET_DIR/moltbot.sock"`.
+=======
+- Use `OPENCLAW_TMUX_SOCKET_DIR` (legacy `CLAWDBOT_TMUX_SOCKET_DIR` also supported).
+- Default socket path: `"$OPENCLAW_TMUX_SOCKET_DIR/openclaw.sock"`.
+>>>>>>> fd00d5688 (chore: update openclaw naming)
 
 ## Targeting panes and naming
 
@@ -43,7 +52,7 @@ To monitor:
 ## Finding sessions
 
 - List sessions on your socket: `{baseDir}/scripts/find-sessions.sh -S "$SOCKET"`.
-- Scan all sockets: `{baseDir}/scripts/find-sessions.sh --all` (uses `CLAWDBOT_TMUX_SOCKET_DIR`).
+- Scan all sockets: `{baseDir}/scripts/find-sessions.sh --all` (uses `OPENCLAW_TMUX_SOCKET_DIR`).
 
 ## Sending input safely
 
