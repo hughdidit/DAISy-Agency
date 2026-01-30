@@ -175,7 +175,8 @@ export async function promptGatewayConfig(
       }),
       runtime,
     );
-    gatewayToken = String(tokenInput).trim() || randomToken();
+    const rawInput = tokenInput ? String(tokenInput).trim() : "";
+    gatewayToken = rawInput || randomToken();
   }
 
   if (authMode === "password") {
