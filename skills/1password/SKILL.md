@@ -31,7 +31,11 @@ The shell tool uses a fresh TTY per command. To avoid re-prompts and failures, a
 Example (see `tmux` skill for socket conventions, do not reuse old session names):
 
 ```bash
+<<<<<<< HEAD
 SOCKET_DIR="${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/moltbot-tmux-sockets}"
+=======
+SOCKET_DIR="${OPENCLAW_TMUX_SOCKET_DIR:-${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/openclaw-tmux-sockets}}"
+>>>>>>> fd00d5688 (chore: update openclaw naming)
 mkdir -p "$SOCKET_DIR"
 SOCKET="$SOCKET_DIR/moltbot-op.sock"
 SESSION="op-auth-$(date +%Y%m%d-%H%M%S)"

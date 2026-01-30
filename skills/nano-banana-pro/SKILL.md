@@ -26,7 +26,11 @@ uv run {baseDir}/scripts/generate_image.py --prompt "combine these into one scen
 
 API key
 - `GEMINI_API_KEY` env var
+<<<<<<< HEAD
 - Or set `skills."nano-banana-pro".apiKey` / `skills."nano-banana-pro".env.GEMINI_API_KEY` in `~/.clawdbot/moltbot.json`
+=======
+- Or set `skills."nano-banana-pro".apiKey` / `skills."nano-banana-pro".env.GEMINI_API_KEY` in `~/.openclaw/openclaw.json`
+>>>>>>> fd00d5688 (chore: update openclaw naming)
 
 Notes
 - Resolutions: `1K` (default), `2K`, `4K`.

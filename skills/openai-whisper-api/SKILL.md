@@ -30,7 +30,11 @@ Defaults:
 
 ## API key
 
+<<<<<<< HEAD
 Set `OPENAI_API_KEY`, or configure it in `~/.clawdbot/moltbot.json`:
+=======
+Set `OPENAI_API_KEY`, or configure it in `~/.openclaw/openclaw.json`:
+>>>>>>> fd00d5688 (chore: update openclaw naming)
 
 ```json5
 {

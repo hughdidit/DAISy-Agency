@@ -7,7 +7,12 @@ import process from "node:process";
 const args = process.argv.slice(2);
 const env = { ...process.env };
 const cwd = process.cwd();
+<<<<<<< HEAD
 const compiler = env.CLAWDBOT_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
+=======
+const compilerOverride = env.OPENCLAW_TS_COMPILER ?? env.CLAWDBOT_TS_COMPILER;
+const compiler = compilerOverride === "tsc" ? "tsc" : "tsgo";
+>>>>>>> fd00d5688 (chore: update openclaw naming)
 const projectArgs = ["--project", "tsconfig.json"];
 
 const distRoot = path.join(cwd, "dist");
