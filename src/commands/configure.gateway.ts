@@ -5,7 +5,7 @@ import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { buildGatewayAuthConfig } from "./configure.gateway-auth.js";
 import { confirm, select, text } from "./configure.shared.js";
-import { guardCancel, randomToken } from "./onboard-helpers.js";
+import { guardCancel, normalizeGatewayTokenInput, randomToken } from "./onboard-helpers.js";
 
 type GatewayAuthChoice = "token" | "password";
 
@@ -175,7 +175,11 @@ export async function promptGatewayConfig(
       }),
       runtime,
     );
+<<<<<<< HEAD
     gatewayToken = String(tokenInput).trim() || randomToken();
+=======
+    gatewayToken = normalizeGatewayTokenInput(tokenInput) || randomToken();
+>>>>>>> e5a95b5b6 (fix: local updates for PR #4873)
   }
 
   if (authMode === "password") {
