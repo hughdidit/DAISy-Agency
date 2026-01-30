@@ -53,10 +53,19 @@ describe.sequential("acquireSessionWriteLock", () => {
       return;
     }
 
+<<<<<<< HEAD
     const realDir = path.join(testRoot, "real");
     const linkDir = path.join(testRoot, "link");
     await fs.mkdir(realDir, { recursive: true });
     await fs.symlink(realDir, linkDir);
+=======
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-"));
+    try {
+      const realDir = path.join(root, "real");
+      const linkDir = path.join(root, "link");
+      await fs.mkdir(realDir, { recursive: true });
+      await fs.symlink(realDir, linkDir);
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 
     const sessionReal = path.join(realDir, "sessions.json");
     const sessionLink = path.join(linkDir, "sessions.json");
@@ -71,8 +80,15 @@ describe.sequential("acquireSessionWriteLock", () => {
   });
 
   it("keeps the lock file until the last release", async () => {
+<<<<<<< HEAD
     const sessionFile = path.join(testRoot, "sessions.json");
     const lockPath = `${sessionFile}.lock`;
+=======
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-"));
+    try {
+      const sessionFile = path.join(root, "sessions.json");
+      const lockPath = `${sessionFile}.lock`;
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 
     const lockA = await acquireLock(sessionFile);
     const lockB = await acquireLock(sessionFile);
@@ -87,6 +103,7 @@ describe.sequential("acquireSessionWriteLock", () => {
   });
 
   it("reclaims stale lock files", async () => {
+<<<<<<< HEAD
     const sessionFile = path.join(testRoot, "sessions.json");
     const lockPath = `${sessionFile}.lock`;
     await fs.writeFile(
@@ -94,6 +111,17 @@ describe.sequential("acquireSessionWriteLock", () => {
       JSON.stringify({ pid: 123456, createdAt: new Date(Date.now() - 60_000).toISOString() }),
       "utf8",
     );
+=======
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-"));
+    try {
+      const sessionFile = path.join(root, "sessions.json");
+      const lockPath = `${sessionFile}.lock`;
+      await fs.writeFile(
+        lockPath,
+        JSON.stringify({ pid: 123456, createdAt: new Date(Date.now() - 60_000).toISOString() }),
+        "utf8",
+      );
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 
     const lock = await acquireLock(sessionFile, 500, 10);
     const raw = await fs.readFile(lockPath, "utf8");
@@ -107,7 +135,11 @@ describe.sequential("acquireSessionWriteLock", () => {
   it("removes held locks on termination signals", async () => {
     const signals = ["SIGINT", "SIGTERM", "SIGQUIT", "SIGABRT"] as const;
     for (const signal of signals) {
+<<<<<<< HEAD
       const signalRoot = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-lock-cleanup-"));
+=======
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-cleanup-"));
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
       try {
         const sessionFile = path.join(signalRoot, "sessions.json");
         const lockPath = `${sessionFile}.lock`;
@@ -144,6 +176,10 @@ describe.sequential("acquireSessionWriteLock", () => {
   });
 
   it("cleans up locks on SIGINT without removing other handlers", async () => {
+<<<<<<< HEAD
+=======
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-"));
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
     const originalKill = process.kill.bind(process) as typeof process.kill;
     const killCalls: Array<NodeJS.Signals | undefined> = [];
     let otherHandlerCalled = false;
@@ -182,8 +218,16 @@ describe.sequential("acquireSessionWriteLock", () => {
   });
 
   it("cleans up locks on exit", async () => {
+<<<<<<< HEAD
     const sessionFile = path.join(testRoot, "sessions.json");
     const lockPath = `${sessionFile}.lock`;
+=======
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-"));
+    try {
+      const sessionFile = path.join(root, "sessions.json");
+      const lockPath = `${sessionFile}.lock`;
+      await acquireSessionWriteLock({ sessionFile, timeoutMs: 500 });
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 
     // Acquire lock directly - exit event will release it synchronously
     await acquireSessionWriteLock({ sessionFile, timeoutMs: 500 });

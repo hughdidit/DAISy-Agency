@@ -1,5 +1,5 @@
 ---
-summary: "Fix Chrome/Brave/Edge/Chromium CDP startup issues for Moltbot browser control on Linux"
+summary: "Fix Chrome/Brave/Edge/Chromium CDP startup issues for OpenClaw browser control on Linux"
 read_when: "Browser control fails on Linux, especially with snap Chromium"
 ---
 
@@ -7,14 +7,18 @@ read_when: "Browser control fails on Linux, especially with snap Chromium"
 
 ## Problem: "Failed to start Chrome CDP on port 18800"
 
-Moltbot's browser control server fails to launch Chrome/Brave/Edge/Chromium with the error:
+OpenClaw's browser control server fails to launch Chrome/Brave/Edge/Chromium with the error:
 ```
+<<<<<<< HEAD
 {"error":"Error: Failed to start Chrome CDP on port 18800 for profile \"daisy\"."}
+=======
+{"error":"Error: Failed to start Chrome CDP on port 18800 for profile \"openclaw\"."}
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 ```
 
 ### Root Cause
 
-On Ubuntu (and many Linux distros), the default Chromium installation is a **snap package**. Snap's AppArmor confinement interferes with how Moltbot spawns and monitors the browser process.
+On Ubuntu (and many Linux distros), the default Chromium installation is a **snap package**. Snap's AppArmor confinement interferes with how OpenClaw spawns and monitors the browser process.
 
 The `apt install chromium` command installs a stub package that redirects to snap:
 ```
@@ -34,7 +38,7 @@ sudo dpkg -i google-chrome-stable_current_amd64.deb
 sudo apt --fix-broken install -y  # if there are dependency errors
 ```
 
-Then update your Moltbot config (`~/.clawdbot/moltbot.json`):
+Then update your OpenClaw config (`~/.openclaw/openclaw.json`):
 
 ```json
 {
@@ -49,7 +53,7 @@ Then update your Moltbot config (`~/.clawdbot/moltbot.json`):
 
 ### Solution 2: Use Snap Chromium with Attach-Only Mode
 
-If you must use snap Chromium, configure Moltbot to attach to a manually-started browser:
+If you must use snap Chromium, configure OpenClaw to attach to a manually-started browser:
 
 1. Update config:
 ```json
@@ -67,12 +71,17 @@ If you must use snap Chromium, configure Moltbot to attach to a manually-started
 ```bash
 chromium-browser --headless --no-sandbox --disable-gpu \
   --remote-debugging-port=18800 \
+<<<<<<< HEAD
   --user-data-dir=$HOME/.clawdbot/browser/daisy/user-data \
+=======
+  --user-data-dir=$HOME/.openclaw/browser/openclaw/user-data \
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
   about:blank &
 ```
 
 3. Optionally create a systemd user service to auto-start Chrome:
 ```ini
+<<<<<<< HEAD
 # ~/.config/systemd/user/daisy-browser.service
 [Unit]
 Description=DAISy Browser (Chrome CDP)
@@ -80,6 +89,15 @@ After=network.target
 
 [Service]
 ExecStart=/snap/bin/chromium --headless --no-sandbox --disable-gpu --remote-debugging-port=18800 --user-data-dir=%h/.clawdbot/browser/daisy/user-data about:blank
+=======
+# ~/.config/systemd/user/openclaw-browser.service
+[Unit]
+Description=OpenClaw Browser (Chrome CDP)
+After=network.target
+
+[Service]
+ExecStart=/snap/bin/chromium --headless --no-sandbox --disable-gpu --remote-debugging-port=18800 --user-data-dir=%h/.openclaw/browser/openclaw/user-data about:blank
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 Restart=on-failure
 RestartSec=5
 
@@ -87,7 +105,11 @@ RestartSec=5
 WantedBy=default.target
 ```
 
+<<<<<<< HEAD
 Enable with: `systemctl --user enable --now daisy-browser.service`
+=======
+Enable with: `systemctl --user enable --now openclaw-browser.service`
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 
 ### Verifying the Browser Works
 
@@ -115,15 +137,24 @@ curl -s http://127.0.0.1:18791/tabs
 
 ### Problem: "Chrome extension relay is running, but no tab is connected"
 
-You’re using the `chrome` profile (extension relay). It expects the Moltbot
+You’re using the `chrome` profile (extension relay). It expects the OpenClaw
 browser extension to be attached to a live tab.
 
 Fix options:
+<<<<<<< HEAD
 1. **Use the managed browser:** `moltbot browser start --browser-profile daisy`
   (or set `browser.defaultProfile: "daisy"`).
+=======
+1. **Use the managed browser:** `openclaw browser start --browser-profile openclaw`
+   (or set `browser.defaultProfile: "openclaw"`).
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 2. **Use the extension relay:** install the extension, open a tab, and click the
-   Moltbot extension icon to attach it.
+   OpenClaw extension icon to attach it.
 
 Notes:
 - The `chrome` profile uses your **system default Chromium browser** when possible.
+<<<<<<< HEAD
 - Local `daisy` profiles auto-assign `cdpPort`/`cdpUrl`; only set those for remote CDP.
+=======
+- Local `openclaw` profiles auto-assign `cdpPort`/`cdpUrl`; only set those for remote CDP.
+>>>>>>> 9a7160786 (refactor: rename to openclaw)

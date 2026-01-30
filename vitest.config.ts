@@ -12,7 +12,7 @@ const ciWorkers = isWindows ? 1 : 3;
 export default defineConfig({
   resolve: {
     alias: {
-      "clawdbot/plugin-sdk": path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
+      "openclaw/plugin-sdk": path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
     },
   },
   test: {
@@ -33,7 +33,7 @@ export default defineConfig({
       "apps/macos/.build/**",
       "**/node_modules/**",
       "**/vendor/**",
-      "dist/Moltbot.app/**",
+      "dist/OpenClaw.app/**",
       "**/*.live.test.ts",
       "**/*.e2e.test.ts",
     ],

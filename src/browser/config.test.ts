@@ -16,17 +16,24 @@ describe("browser config", () => {
     expect(profile?.cdpPort).toBe(18792);
     expect(profile?.cdpUrl).toBe("http://127.0.0.1:18792");
 
+<<<<<<< HEAD
     const daisy = resolveProfile(resolved, "daisy");
     expect(daisy?.driver).toBe("clawd");
     expect(daisy?.cdpPort).toBe(18800);
     expect(daisy?.cdpUrl).toBe("http://127.0.0.1:18800");
+=======
+    const openclaw = resolveProfile(resolved, "openclaw");
+    expect(openclaw?.driver).toBe("openclaw");
+    expect(openclaw?.cdpPort).toBe(18800);
+    expect(openclaw?.cdpUrl).toBe("http://127.0.0.1:18800");
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
     expect(resolved.remoteCdpTimeoutMs).toBe(1500);
     expect(resolved.remoteCdpHandshakeTimeoutMs).toBe(3000);
   });
 
-  it("derives default ports from CLAWDBOT_GATEWAY_PORT when unset", () => {
-    const prev = process.env.CLAWDBOT_GATEWAY_PORT;
-    process.env.CLAWDBOT_GATEWAY_PORT = "19001";
+  it("derives default ports from OPENCLAW_GATEWAY_PORT when unset", () => {
+    const prev = process.env.OPENCLAW_GATEWAY_PORT;
+    process.env.OPENCLAW_GATEWAY_PORT = "19001";
     try {
       const resolved = resolveBrowserConfig(undefined);
       expect(resolved.controlPort).toBe(19003);
@@ -35,21 +42,27 @@ describe("browser config", () => {
       expect(chrome?.cdpPort).toBe(19004);
       expect(chrome?.cdpUrl).toBe("http://127.0.0.1:19004");
 
+<<<<<<< HEAD
       const daisy = resolveProfile(resolved, "daisy");
       expect(daisy?.cdpPort).toBe(19012);
       expect(daisy?.cdpUrl).toBe("http://127.0.0.1:19012");
+=======
+      const openclaw = resolveProfile(resolved, "openclaw");
+      expect(openclaw?.cdpPort).toBe(19012);
+      expect(openclaw?.cdpUrl).toBe("http://127.0.0.1:19012");
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
     } finally {
       if (prev === undefined) {
-        delete process.env.CLAWDBOT_GATEWAY_PORT;
+        delete process.env.OPENCLAW_GATEWAY_PORT;
       } else {
-        process.env.CLAWDBOT_GATEWAY_PORT = prev;
+        process.env.OPENCLAW_GATEWAY_PORT = prev;
       }
     }
   });
 
   it("derives default ports from gateway.port when env is unset", () => {
-    const prev = process.env.CLAWDBOT_GATEWAY_PORT;
-    delete process.env.CLAWDBOT_GATEWAY_PORT;
+    const prev = process.env.OPENCLAW_GATEWAY_PORT;
+    delete process.env.OPENCLAW_GATEWAY_PORT;
     try {
       const resolved = resolveBrowserConfig(undefined, { gateway: { port: 19011 } });
       expect(resolved.controlPort).toBe(19013);
@@ -58,14 +71,20 @@ describe("browser config", () => {
       expect(chrome?.cdpPort).toBe(19014);
       expect(chrome?.cdpUrl).toBe("http://127.0.0.1:19014");
 
+<<<<<<< HEAD
       const daisy = resolveProfile(resolved, "daisy");
       expect(daisy?.cdpPort).toBe(19022);
       expect(daisy?.cdpUrl).toBe("http://127.0.0.1:19022");
+=======
+      const openclaw = resolveProfile(resolved, "openclaw");
+      expect(openclaw?.cdpPort).toBe(19022);
+      expect(openclaw?.cdpUrl).toBe("http://127.0.0.1:19022");
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
     } finally {
       if (prev === undefined) {
-        delete process.env.CLAWDBOT_GATEWAY_PORT;
+        delete process.env.OPENCLAW_GATEWAY_PORT;
       } else {
-        process.env.CLAWDBOT_GATEWAY_PORT = prev;
+        process.env.OPENCLAW_GATEWAY_PORT = prev;
       }
     }
   });
@@ -97,7 +116,11 @@ describe("browser config", () => {
     const resolved = resolveBrowserConfig({
       cdpUrl: "http://example.com:9222",
     });
+<<<<<<< HEAD
     const profile = resolveProfile(resolved, "daisy");
+=======
+    const profile = resolveProfile(resolved, "openclaw");
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
     expect(profile?.cdpIsLoopback).toBe(false);
   });
 
@@ -105,7 +128,11 @@ describe("browser config", () => {
     const resolved = resolveBrowserConfig({
       cdpUrl: "http://example.com:9222",
     });
+<<<<<<< HEAD
     const profile = resolveProfile(resolved, "daisy");
+=======
+    const profile = resolveProfile(resolved, "openclaw");
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
     expect(profile?.cdpPort).toBe(9222);
     expect(profile?.cdpUrl).toBe("http://example.com:9222");
     expect(profile?.cdpIsLoopback).toBe(false);
@@ -143,10 +170,18 @@ describe("browser config", () => {
   it("does not add the built-in chrome extension profile if the derived relay port is already used", () => {
     const resolved = resolveBrowserConfig({
       profiles: {
+<<<<<<< HEAD
         daisy: { cdpPort: 18792, color: "#FF4500" },
       },
     });
     expect(resolveProfile(resolved, "chrome")).toBe(null);
     expect(resolved.defaultProfile).toBe("daisy");
+=======
+        openclaw: { cdpPort: 18792, color: "#FF4500" },
+      },
+    });
+    expect(resolveProfile(resolved, "chrome")).toBe(null);
+    expect(resolved.defaultProfile).toBe("openclaw");
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
   });
 });

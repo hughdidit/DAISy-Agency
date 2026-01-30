@@ -9,7 +9,11 @@ read_when:
 
 ## Manual login (recommended)
 
+<<<<<<< HEAD
 When a site requires login, **sign in manually** in the **host** browser profile (the daisy browser).
+=======
+When a site requires login, **sign in manually** in the **host** browser profile (the openclaw browser).
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 
 Do **not** give the model your credentials. Automated logins often trigger anti‑bot defenses and can lock the account.
 
@@ -17,7 +21,11 @@ Back to the main browser docs: [Browser](/tools/browser).
 
 ## Which Chrome profile is used?
 
+<<<<<<< HEAD
 Moltbot controls a **dedicated Chrome profile** (named `daisy`, orange‑tinted UI). This is separate from your daily browser profile.
+=======
+OpenClaw controls a **dedicated Chrome profile** (named `openclaw`, orange‑tinted UI). This is separate from your daily browser profile.
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 
 Two easy ways to access it:
 
@@ -25,11 +33,15 @@ Two easy ways to access it:
 2) **Open it via CLI**:
 
 ```bash
-moltbot browser start
-moltbot browser open https://x.com
+openclaw browser start
+openclaw browser open https://x.com
 ```
 
+<<<<<<< HEAD
 If you have multiple profiles, pass `--browser-profile <name>` (the default managed profile is `daisy`).
+=======
+If you have multiple profiles, pass `--browser-profile <name>` (the default is `openclaw`).
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 
 ## X/Twitter: recommended flow
 
@@ -61,7 +73,11 @@ If the agent is sandboxed, the browser tool defaults to the sandbox. To allow ho
 Then target the host browser:
 
 ```bash
+<<<<<<< HEAD
 moltbot browser open https://x.com --browser-profile daisy --target host
+=======
+openclaw browser open https://x.com --browser-profile openclaw --target host
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
 ```
 
 Or disable sandboxing for the agent that posts updates.

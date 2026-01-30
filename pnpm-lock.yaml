@@ -316,7 +316,7 @@ importers:
     devDependencies:
       moltbot:
         specifier: workspace:*
-        version: link:../..
+        version: link:../../packages/moltbot
 
   extensions/imessage: {}
 
@@ -324,7 +324,7 @@ importers:
     devDependencies:
       moltbot:
         specifier: workspace:*
-        version: link:../..
+        version: link:../../packages/moltbot
 
   extensions/llm-task: {}
 
@@ -350,7 +350,7 @@ importers:
     devDependencies:
       moltbot:
         specifier: workspace:*
-        version: link:../..
+        version: link:../../packages/moltbot
 
   extensions/mattermost: {}
 
@@ -358,7 +358,7 @@ importers:
     devDependencies:
       moltbot:
         specifier: workspace:*
-        version: link:../..
+        version: link:../../packages/moltbot
 
   extensions/memory-lancedb:
     dependencies:
@@ -400,7 +400,11 @@ importers:
         version: 5.2.1
       moltbot:
         specifier: workspace:*
+<<<<<<< HEAD
         version: link:../..
+=======
+        version: link:../../packages/moltbot
+>>>>>>> 9a7160786 (refactor: rename to openclaw)
       proper-lockfile:
         specifier: ^4.1.2
         version: 4.1.2
@@ -411,7 +415,7 @@ importers:
     dependencies:
       moltbot:
         specifier: workspace:*
-        version: link:../..
+        version: link:../../packages/moltbot
       nostr-tools:
         specifier: ^2.20.0
         version: 2.20.0(typescript@5.9.3)
@@ -453,7 +457,7 @@ importers:
     devDependencies:
       moltbot:
         specifier: workspace:*
-        version: link:../..
+        version: link:../../packages/moltbot
 
   extensions/voice-call:
     dependencies:
@@ -473,7 +477,7 @@ importers:
     dependencies:
       moltbot:
         specifier: workspace:*
-        version: link:../..
+        version: link:../../packages/moltbot
       undici:
         specifier: 7.19.0
         version: 7.19.0
@@ -485,11 +489,17 @@ importers:
         version: 0.34.47
       moltbot:
         specifier: workspace:*
-        version: link:../..
+        version: link:../../packages/moltbot
 
   packages/clawdbot:
     dependencies:
-      moltbot:
+      openclaw:
+        specifier: workspace:*
+        version: link:../..
+
+  packages/moltbot:
+    dependencies:
+      openclaw:
         specifier: workspace:*
         version: link:../..
 
