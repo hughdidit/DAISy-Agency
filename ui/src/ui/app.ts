@@ -258,6 +258,10 @@ export class MoltbotApp extends LitElement {
   private logsScrollFrame: number | null = null;
   private toolStreamById = new Map<string, ToolStreamEntry>();
   private toolStreamOrder: string[] = [];
+<<<<<<< HEAD
+=======
+  refreshSessionsAfterChat = new Set<string>();
+>>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
   basePath = "";
   private popStateHandler = () =>
     onPopStateInternal(

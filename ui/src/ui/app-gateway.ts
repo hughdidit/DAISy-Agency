@@ -50,6 +50,10 @@ type GatewayHost = {
   assistantAgentId: string | null;
   sessionKey: string;
   chatRunId: string | null;
+<<<<<<< HEAD
+=======
+  refreshSessionsAfterChat: Set<string>;
+>>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
   execApprovalQueue: ExecApprovalRequest[];
   execApprovalError: string | null;
 };
@@ -194,6 +198,16 @@ function handleGatewayEventUnsafe(host: GatewayHost, evt: GatewayEventFrame) {
       void flushChatQueueForEvent(
         host as unknown as Parameters<typeof flushChatQueueForEvent>[0],
       );
+<<<<<<< HEAD
+=======
+      const runId = payload?.runId;
+      if (runId && host.refreshSessionsAfterChat.has(runId)) {
+        host.refreshSessionsAfterChat.delete(runId);
+        if (state === "final") {
+          void loadSessions(host as unknown as OpenClawApp, { activeMinutes: 0 });
+        }
+      }
+>>>>>>> 0b7aa8cf1 (feat(ui): refresh session list after chat commands in Web UI)
     }
     if (state === "final") void loadChatHistory(host as unknown as MoltbotApp);
     return;
