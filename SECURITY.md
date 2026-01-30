@@ -7,6 +7,16 @@ If you believe you've found a security issue in Moltbot, please report it privat
 - Email: `steipete@gmail.com`
 - What to include: reproduction steps, impact assessment, and (if possible) a minimal PoC.
 
+## Bug Bounties
+
+OpenClaw is a labor of love. There is no bug bounty program and no budget for paid reports. Please still disclose responsibly so we can fix issues quickly.
+The best way to help the project right now is by sending PRs.
+
+## Out of Scope
+
+- Public Internet Exposure
+- Using OpenClaw in ways that the docs recommend not to
+
 ## Operational Guidance
 
 For threat model + hardening guidance (including `moltbot security audit --deep` and `--fix`), see:
