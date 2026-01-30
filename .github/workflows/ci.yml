@@ -2,7 +2,17 @@ name: CI
 
 on:
   push:
+    branches:
+      - daisy/main
+      - daisy/dev
   pull_request:
+    branches:
+      - daisy/main
+      - daisy/dev
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 
 jobs:
   install-check:
