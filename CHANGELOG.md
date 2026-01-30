@@ -3,7 +3,11 @@
 Docs: https://docs.molt.bot
 
 ## 2026.1.29
+<<<<<<< HEAD
 Status: beta.
+=======
+Status: stable.
+>>>>>>> 23c424899 (docs: reorder 2026.1.29 changelog)
 
 ### Highlights
 - Rebrand: rename the npm package/CLI to `moltbot`, keep a `moltbot` compatibility shim, move extensions to the `@moltbot/*` scope, and update bot.molt bundle IDs/labels/logging subsystems. Thanks @thewilloftheshadow.
@@ -14,6 +18,7 @@ Status: beta.
 - Memory Search: allow extra paths for memory indexing. (#3600) Thanks @kira-ariaki.
 
 ### Changes
+<<<<<<< HEAD
 <<<<<<< HEAD
 - Rebrand: rename the npm package/CLI to `moltbot`, add a `moltbot` compatibility shim, and move extensions to the `@moltbot/*` scope.
 - Commands: group /help and /commands output with Telegram paging. (#2504) Thanks @hougangdev.
@@ -29,6 +34,12 @@ Status: beta.
 - Docs: tighten Fly private deployment steps. (#2289) Thanks @dguido.
 - Docs: add migration guide for moving to a new machine. (#2381)
 - Docs: add Northflank one-click deployment guide. (#2167) Thanks @AdeboyeDN.
+=======
+- Rebrand: rename the npm package/CLI to `openclaw`, add a `openclaw` compatibility shim, and move extensions to the `@openclaw/*` scope.
+- Onboarding: strengthen security warning copy for beta + access control expectations.
+- Onboarding: add Venice API key to non-interactive flow. (#1893) Thanks @jonisjongithub.
+- Config: auto-migrate legacy state/config paths and keep config resolution consistent across legacy filenames.
+>>>>>>> 23c424899 (docs: reorder 2026.1.29 changelog)
 - Gateway: warn on hook tokens via query params; document header auth preference. (#2200) Thanks @YuriNachos.
 - Gateway: add dangerous Control UI device auth bypass flag + audit warnings. (#2248)
 =======
@@ -43,6 +54,7 @@ Status: beta.
 - Security: add Control UI device auth bypass flag + audit warnings; warn on hook tokens via query params; add security audit CLI surface. (#2248, #2200)
 >>>>>>> 515206012 (docs(changelog): rewrite 2026.1.29 notes)
 - Doctor: warn on gateway exposure without auth. (#2016) Thanks @Alex-Alaniz.
+<<<<<<< HEAD
 - Config: apply config.env before ${VAR} substitution. (#1813)
 - Web search: add Brave freshness filter parameter. (#1688) Thanks @JonUleis.
 - Control UI: improve chat session dropdown refresh, URL confirmation flow, config-save guardrails, and chat composer sizing. (#3682, #3578, #1707, #2950)
@@ -54,6 +66,62 @@ Status: beta.
 - Docs: new deployment guides (Northflank, Render, Oracle, Raspberry Pi, GCP, DigitalOcean), Claude Max API Proxy, Vercel AI Gateway, migration guide, formal verification updates, and Fly private hardening. (#2167, #1975, #2333, #1871, #1848, #1870, #1875, #1901, #2381, #2289)
 - Onboarding: add Venice API key to non-interactive flow; strengthen security warning copy.
 
+=======
+- Web UI: keep sub-agent announce replies visible in WebChat. (#1977) Thanks @andrescardonas7.
+- Browser: route browser control via gateway/node; remove standalone browser control command and control URL config.
+- Browser: route `browser.request` via node proxies when available; honor proxy timeouts; derive browser ports from `gateway.port`.
+- Browser: fall back to URL matching for extension relay target resolution. (#1999) Thanks @jonit-dev.
+- Telegram: allow caption param for media sends. (#1888) Thanks @mguellsegarra.
+- Telegram: support plugin sendPayload channelData (media/buttons) and validate plugin commands. (#1917) Thanks @JoshuaLelon.
+- Telegram: avoid block replies when streaming is disabled. (#1885) Thanks @ivancasco.
+- Telegram: add optional silent send flag (disable notifications). (#2382) Thanks @Suksham-sharma.
+- Telegram: support editing sent messages via message(action="edit"). (#2394) Thanks @marcelomar21.
+- Telegram: support quote replies for message tool and inbound context. (#2900) Thanks @aduk059.
+- Telegram: add sticker receive/send with vision caching. (#2629) Thanks @longjos.
+- Telegram: send sticker pixels to vision models. (#2650)
+- Telegram: keep topic IDs in restart sentinel notifications. (#1807) Thanks @hsrvc.
+- Discord: add configurable privileged gateway intents for presences/members. (#2266) Thanks @kentaro.
+- Slack: clear ack reaction after streamed replies. (#2044) Thanks @fancyboi999.
+- Matrix: switch plugin SDK to @vector-im/matrix-bot-sdk.
+- Tlon: format thread reply IDs as @ud. (#1837) Thanks @wca4a.
+- Tools: add per-sender group tool policies and fix precedence. (#1757) Thanks @adam91holt.
+- Agents: summarize dropped messages during compaction safeguard pruning. (#2509) Thanks @jogi47.
+- Agents: expand cron tool description with full schema docs. (#1988) Thanks @tomascupr.
+- Agents: honor tools.exec.safeBins in exec allowlist checks. (#2281)
+- Memory Search: allow extra paths for memory indexing (ignores symlinks). (#3600) Thanks @kira-ariaki.
+- Skills: add multi-image input support to Nano Banana Pro skill. (#1958) Thanks @tyler6204.
+- Skills: add missing dependency metadata for GitHub, Notion, Slack, Discord. (#1995) Thanks @jackheuberger.
+- Commands: group /help and /commands output with Telegram paging. (#2504) Thanks @hougangdev.
+- Routing: add per-account DM session scope and document multi-account isolation. (#3095) Thanks @jarvis-sam.
+- Routing: precompile session key regexes. (#1697) Thanks @Ray0907.
+- CLI: use Node's module compile cache for faster startup. (#2808) Thanks @pi0.
+- Auth: show copyable Google auth URL after ASCII prompt. (#1787) Thanks @robbyczgw-cla.
+- TUI: avoid width overflow when rendering selection lists. (#1686) Thanks @mossein.
+- macOS: finish OpenClaw app rename for macOS sources, bundle identifiers, and shared kit paths. (#2844) Thanks @fal3.
+- Branding: update launchd labels, mobile bundle IDs, and logging subsystems to bot.molt (legacy com.clawdbot migrations). Thanks @thewilloftheshadow.
+- macOS: limit project-local `node_modules/.bin` PATH preference to debug builds (reduce PATH hijacking risk).
+- macOS: keep custom SSH usernames in remote target. (#2046) Thanks @algal.
+- macOS: avoid crash when rendering code blocks by bumping Textual to 0.3.1. (#2033) Thanks @garricn.
+- Update: ignore dist/control-ui for dirty checks and restore after ui builds. (#1976) Thanks @Glucksberg.
+- Build: bundle A2UI assets during build and stop tracking generated bundles. (#2455) Thanks @0oAstro.
+- CI: increase Node heap size for macOS checks. (#1890) Thanks @realZachi.
+- Config: apply config.env before ${VAR} substitution. (#1813) Thanks @spanishflu-est1918.
+- Gateway: prefer newest session metadata when combining stores. (#1823) Thanks @emanuelst.
+- Docs: tighten Fly private deployment steps. (#2289) Thanks @dguido.
+- Docs: add migration guide for moving to a new machine. (#2381)
+- Docs: add Northflank one-click deployment guide. (#2167) Thanks @AdeboyeDN.
+- Docs: add Vercel AI Gateway to providers sidebar. (#1901) Thanks @jerilynzheng.
+- Docs: add Render deployment guide. (#1975) Thanks @anurag.
+- Docs: add Claude Max API Proxy guide. (#1875) Thanks @atalovesyou.
+- Docs: add DigitalOcean deployment guide. (#1870) Thanks @0xJonHoldsCrypto.
+- Docs: add Oracle Cloud (OCI) platform guide + cross-links. (#2333) Thanks @hirefrank.
+- Docs: add Raspberry Pi install guide. (#1871) Thanks @0xJonHoldsCrypto.
+- Docs: add GCP Compute Engine deployment guide. (#1848) Thanks @hougangdev.
+- Docs: add LINE channel guide. Thanks @thewilloftheshadow.
+- Docs: credit both contributors for Control UI refresh. (#1852) Thanks @EnzeD.
+- Docs: keep docs header sticky so navbar stays visible while scrolling. (#2445) Thanks @chenyuan99.
+- Docs: update exe.dev install instructions. (#https://github.com/openclaw/openclaw/pull/3047) Thanks @zackerthescar.
+>>>>>>> 23c424899 (docs: reorder 2026.1.29 changelog)
 ### Breaking
 - **BREAKING:** Gateway auth mode "none" is removed; gateway now requires token/password (Tailscale Serve identity still allowed).
 
