@@ -77,6 +77,7 @@ Status: beta.
 <<<<<<< HEAD
 =======
 - Telegram: avoid silent empty replies by tracking normalization skips before fallback. (#3796)
+- Telegram: scope native skill commands to bound agent per bot. (#4360) Thanks @robhparker.
 - Mentions: honor mentionPatterns even when explicit mentions are present. (#3303) Thanks @HirokiKobayashi-R.
 >>>>>>> 718bc3f9c (fix: avoid silent telegram empty replies (#3796) (#3796))
 - Discord: restore username directory lookup in target resolution. (#3131) Thanks @bonald.
