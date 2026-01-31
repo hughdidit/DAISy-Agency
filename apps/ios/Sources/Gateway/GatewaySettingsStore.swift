@@ -14,6 +14,7 @@ enum GatewaySettingsStore {
     private static let manualHostDefaultsKey = "gateway.manual.host"
     private static let manualPortDefaultsKey = "gateway.manual.port"
     private static let manualTlsDefaultsKey = "gateway.manual.tls"
+    private static let manualPasswordDefaultsKey = "gateway.manual.password"
     private static let discoveryDebugLogsDefaultsKey = "gateway.discovery.debugLogs"
 
     private static let legacyPreferredBridgeStableIDDefaultsKey = "bridge.preferredStableID"
@@ -31,7 +32,11 @@ enum GatewaySettingsStore {
         self.ensureStableInstanceID()
         self.ensurePreferredGatewayStableID()
         self.ensureLastDiscoveredGatewayStableID()
+<<<<<<< HEAD
         self.migrateLegacyDefaults()
+=======
+        self.ensureManualGatewayPassword()
+>>>>>>> 84e115834 (Gateway: fix node invoke receive loop)
     }
 
     static func loadStableInstanceID() -> String? {
@@ -231,6 +236,7 @@ enum GatewaySettingsStore {
         }
     }
 
+<<<<<<< HEAD
     private static func migrateLegacyDefaults() {
         let defaults = UserDefaults.standard
 
@@ -281,4 +287,25 @@ enum GatewaySettingsStore {
                 forKey: self.discoveryDebugLogsDefaultsKey)
         }
     }
+=======
+    private static func ensureManualGatewayPassword() {
+        let defaults = UserDefaults.standard
+        let instanceId = defaults.string(forKey: self.instanceIdDefaultsKey)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !instanceId.isEmpty else { return }
+
+        let manualPassword = defaults.string(forKey: self.manualPasswordDefaultsKey)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !manualPassword.isEmpty else { return }
+
+        if self.loadGatewayPassword(instanceId: instanceId) == nil {
+            self.saveGatewayPassword(manualPassword, instanceId: instanceId)
+        }
+
+        if self.loadGatewayPassword(instanceId: instanceId) == manualPassword {
+            defaults.removeObject(forKey: self.manualPasswordDefaultsKey)
+        }
+    }
+
+>>>>>>> 84e115834 (Gateway: fix node invoke receive loop)
 }
