@@ -29,6 +29,7 @@ services:
       start_period: 30s
     command:
       [
+<<<<<<< HEAD
         "node",
         "dist/index.js",
         "gateway",
@@ -37,6 +38,15 @@ services:
         "--port",
         "${CLAWDBOT_GATEWAY_PORT}",
         "--allow-unconfigured"
+=======
+        'node',
+        'dist/index.js',
+        "gateway",
+        '--bind',
+        '${OPENCLAW_GATEWAY_BIND:-lan}',
+        '--port',
+        '${OPENCLAW_GATEWAY_PORT:-18789}',
+>>>>>>> c3a8a5374 (fix: sync docker-compose gateway command)
       ]
 
   moltbot-cli:
