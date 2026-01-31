@@ -53,8 +53,16 @@ describe("resolveSessionAuthProfileOverride", () => {
       expect(resolved).toBe("zai:work");
       expect(sessionEntry.authProfileOverride).toBe("zai:work");
     } finally {
+<<<<<<< HEAD
       if (prevStateDir === undefined) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = prevStateDir;
+=======
+      if (prevStateDir === undefined) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = prevStateDir;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });

@@ -36,8 +36,15 @@ describe("nodes camera_snap", () => {
       throw new Error(`unexpected method: ${String(method)}`);
     });
 
+<<<<<<< HEAD:src/agents/clawdbot-tools.camera.test.ts
     const tool = createMoltbotTools().find((candidate) => candidate.name === "nodes");
     if (!tool) throw new Error("missing nodes tool");
+=======
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "nodes");
+    if (!tool) {
+      throw new Error("missing nodes tool");
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.):src/agents/openclaw-tools.camera.test.ts
 
     const result = await tool.execute("call1", {
       action: "camera_snap",
@@ -72,8 +79,15 @@ describe("nodes camera_snap", () => {
       throw new Error(`unexpected method: ${String(method)}`);
     });
 
+<<<<<<< HEAD:src/agents/clawdbot-tools.camera.test.ts
     const tool = createMoltbotTools().find((candidate) => candidate.name === "nodes");
     if (!tool) throw new Error("missing nodes tool");
+=======
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "nodes");
+    if (!tool) {
+      throw new Error("missing nodes tool");
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.):src/agents/openclaw-tools.camera.test.ts
 
     await tool.execute("call1", {
       action: "camera_snap",
@@ -113,8 +127,15 @@ describe("nodes run", () => {
       throw new Error(`unexpected method: ${String(method)}`);
     });
 
+<<<<<<< HEAD:src/agents/clawdbot-tools.camera.test.ts
     const tool = createMoltbotTools().find((candidate) => candidate.name === "nodes");
     if (!tool) throw new Error("missing nodes tool");
+=======
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "nodes");
+    if (!tool) {
+      throw new Error("missing nodes tool");
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.):src/agents/openclaw-tools.camera.test.ts
 
     await tool.execute("call1", {
       action: "run",

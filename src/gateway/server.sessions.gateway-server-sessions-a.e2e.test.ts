@@ -56,8 +56,16 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await server.close();
+<<<<<<< HEAD
   if (previousToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   else process.env.CLAWDBOT_GATEWAY_TOKEN = previousToken;
+=======
+  if (previousToken === undefined) {
+    delete process.env.OPENCLAW_GATEWAY_TOKEN;
+  } else {
+    process.env.OPENCLAW_GATEWAY_TOKEN = previousToken;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 });
 
 const openClient = async (opts?: Parameters<typeof connectOk>[1]) => {

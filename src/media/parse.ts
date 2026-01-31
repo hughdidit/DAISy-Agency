@@ -15,6 +15,7 @@ function cleanCandidate(raw: string) {
 }
 
 function isValidMedia(candidate: string, opts?: { allowSpaces?: boolean }) {
+<<<<<<< HEAD
   if (!candidate) return false;
   if (candidate.length > 4096) return false;
   if (!opts?.allowSpaces && /\s/.test(candidate)) return false;
@@ -24,15 +25,38 @@ function isValidMedia(candidate: string, opts?: { allowSpaces?: boolean }) {
   if (candidate.startsWith("../")) return true;
   if (candidate.startsWith("~")) return true;
   return false;
+=======
+  if (!candidate) {
+    return false;
+  }
+  if (candidate.length > 4096) {
+    return false;
+  }
+  if (!opts?.allowSpaces && /\s/.test(candidate)) {
+    return false;
+  }
+  if (/^https?:\/\//i.test(candidate)) {
+    return true;
+  }
+
+  // Local paths: only allow safe relative paths starting with ./ that do not traverse upwards.
+  return candidate.startsWith("./") && !candidate.includes("..");
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 function unwrapQuoted(value: string): string | undefined {
   const trimmed = value.trim();
-  if (trimmed.length < 2) return undefined;
+  if (trimmed.length < 2) {
+    return undefined;
+  }
   const first = trimmed[0];
   const last = trimmed[trimmed.length - 1];
-  if (first !== last) return undefined;
-  if (first !== `"` && first !== "'" && first !== "`") return undefined;
+  if (first !== last) {
+    return undefined;
+  }
+  if (first !== `"` && first !== "'" && first !== "`") {
+    return undefined;
+  }
   return trimmed.slice(1, -1).trim();
 }
 
@@ -50,7 +74,9 @@ export function splitMediaFromOutput(raw: string): {
   // KNOWN: Leading whitespace is semantically meaningful in Markdown (lists, indented fences).
   // We only trim the end; token cleanup below handles removing `MEDIA:` lines.
   const trimmedRaw = raw.trimEnd();
-  if (!trimmedRaw.trim()) return { text: "" };
+  if (!trimmedRaw.trim()) {
+    return { text: "" };
+  }
 
   const media: string[] = [];
   let foundMediaToken = false;
@@ -184,7 +210,9 @@ export function splitMediaFromOutput(raw: string): {
       // Return cleaned text if we found a media token OR audio tag, otherwise original
       text: foundMediaToken || hasAudioAsVoice ? cleanedText : trimmedRaw,
     };
-    if (hasAudioAsVoice) result.audioAsVoice = true;
+    if (hasAudioAsVoice) {
+      result.audioAsVoice = true;
+    }
     return result;
   }
 

@@ -102,8 +102,16 @@ describe("session cost usage", () => {
       expect(summary.totals.totalTokens).toBe(50);
       expect(summary.totals.totalCost).toBeCloseTo(0.03003, 5);
     } finally {
+<<<<<<< HEAD
       if (originalState === undefined) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = originalState;
+=======
+      if (originalState === undefined) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = originalState;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 

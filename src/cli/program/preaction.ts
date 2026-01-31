@@ -15,7 +15,9 @@ function setProcessTitleForCommand(actionCommand: Command) {
   }
   const name = current.name();
   const cliName = resolveCliName();
-  if (!name || name === cliName) return;
+  if (!name || name === cliName) {
+    return;
+  }
   process.title = `${cliName}-${name}`;
 }
 
@@ -26,7 +28,9 @@ export function registerPreActionHooks(program: Command, programVersion: string)
   program.hook("preAction", async (_thisCommand, actionCommand) => {
     setProcessTitleForCommand(actionCommand);
     const argv = process.argv;
-    if (hasHelpOrVersion(argv)) return;
+    if (hasHelpOrVersion(argv)) {
+      return;
+    }
     const commandPath = getCommandPath(argv, 2);
     const hideBanner =
       isTruthyEnvValue(process.env.CLAWDBOT_HIDE_BANNER) ||
@@ -40,7 +44,13 @@ export function registerPreActionHooks(program: Command, programVersion: string)
     if (!verbose) {
       process.env.NODE_NO_WARNINGS ??= "1";
     }
+<<<<<<< HEAD
     if (commandPath[0] === "doctor") return;
+=======
+    if (commandPath[0] === "doctor" || commandPath[0] === "completion") {
+      return;
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     await ensureConfigReady({ runtime: defaultRuntime, commandPath });
     // Load plugins for commands that need channel access
     if (PLUGIN_REQUIRED_COMMANDS.has(commandPath[0])) {

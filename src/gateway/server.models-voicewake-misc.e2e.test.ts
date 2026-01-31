@@ -375,8 +375,15 @@ describe("gateway server misc", () => {
   });
 
   test("auto-enables configured channel plugins on startup", async () => {
+<<<<<<< HEAD
     const configPath = process.env.CLAWDBOT_CONFIG_PATH;
     if (!configPath) throw new Error("Missing CLAWDBOT_CONFIG_PATH");
+=======
+    const configPath = process.env.OPENCLAW_CONFIG_PATH;
+    if (!configPath) {
+      throw new Error("Missing OPENCLAW_CONFIG_PATH");
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     await fs.mkdir(path.dirname(configPath), { recursive: true });
     await fs.writeFile(
       configPath,

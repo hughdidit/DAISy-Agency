@@ -134,6 +134,7 @@ describe("state + config path candidates", () => {
       } else {
         process.env.HOME = previousHome;
       }
+<<<<<<< HEAD
       if (previousUserProfile === undefined) delete process.env.USERPROFILE;
       else process.env.USERPROFILE = previousUserProfile;
       if (previousHomeDrive === undefined) delete process.env.HOMEDRIVE;
@@ -148,6 +149,43 @@ describe("state + config path candidates", () => {
       else process.env.MOLTBOT_STATE_DIR = previousMoltbotState;
       if (previousClawdbotState === undefined) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = previousClawdbotState;
+=======
+      if (previousUserProfile === undefined) {
+        delete process.env.USERPROFILE;
+      } else {
+        process.env.USERPROFILE = previousUserProfile;
+      }
+      if (previousHomeDrive === undefined) {
+        delete process.env.HOMEDRIVE;
+      } else {
+        process.env.HOMEDRIVE = previousHomeDrive;
+      }
+      if (previousHomePath === undefined) {
+        delete process.env.HOMEPATH;
+      } else {
+        process.env.HOMEPATH = previousHomePath;
+      }
+      if (previousOpenClawConfig === undefined) {
+        delete process.env.OPENCLAW_CONFIG_PATH;
+      } else {
+        process.env.OPENCLAW_CONFIG_PATH = previousOpenClawConfig;
+      }
+      if (previousOpenClawConfig === undefined) {
+        delete process.env.OPENCLAW_CONFIG_PATH;
+      } else {
+        process.env.OPENCLAW_CONFIG_PATH = previousOpenClawConfig;
+      }
+      if (previousOpenClawState === undefined) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = previousOpenClawState;
+      }
+      if (previousOpenClawState === undefined) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = previousOpenClawState;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       await fs.rm(root, { recursive: true, force: true });
       vi.resetModules();
     }

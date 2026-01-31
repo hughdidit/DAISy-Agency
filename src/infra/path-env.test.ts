@@ -31,8 +31,16 @@ describe("ensureMoltbotCliOnPath", () => {
         expect(updated.split(path.delimiter)[0]).toBe(appBinDir);
       } finally {
         process.env.PATH = originalPath;
+<<<<<<< HEAD
         if (originalFlag === undefined) delete process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
         else process.env.CLAWDBOT_PATH_BOOTSTRAPPED = originalFlag;
+=======
+        if (originalFlag === undefined) {
+          delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+        } else {
+          process.env.OPENCLAW_PATH_BOOTSTRAPPED = originalFlag;
+        }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       }
     } finally {
       await fs.rm(tmp, { recursive: true, force: true });
@@ -54,8 +62,16 @@ describe("ensureMoltbotCliOnPath", () => {
       expect(process.env.PATH).toBe("/bin");
     } finally {
       process.env.PATH = originalPath;
+<<<<<<< HEAD
       if (originalFlag === undefined) delete process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
       else process.env.CLAWDBOT_PATH_BOOTSTRAPPED = originalFlag;
+=======
+      if (originalFlag === undefined) {
+        delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+      } else {
+        process.env.OPENCLAW_PATH_BOOTSTRAPPED = originalFlag;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 
@@ -101,10 +117,23 @@ describe("ensureMoltbotCliOnPath", () => {
       expect(shimsIndex).toBeGreaterThan(localIndex);
     } finally {
       process.env.PATH = originalPath;
+<<<<<<< HEAD
       if (originalFlag === undefined) delete process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
       else process.env.CLAWDBOT_PATH_BOOTSTRAPPED = originalFlag;
       if (originalMiseDataDir === undefined) delete process.env.MISE_DATA_DIR;
       else process.env.MISE_DATA_DIR = originalMiseDataDir;
+=======
+      if (originalFlag === undefined) {
+        delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+      } else {
+        process.env.OPENCLAW_PATH_BOOTSTRAPPED = originalFlag;
+      }
+      if (originalMiseDataDir === undefined) {
+        delete process.env.MISE_DATA_DIR;
+      } else {
+        process.env.MISE_DATA_DIR = originalMiseDataDir;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       await fs.rm(tmp, { recursive: true, force: true });
     }
   });
@@ -144,6 +173,7 @@ describe("ensureMoltbotCliOnPath", () => {
       expect(parts[1]).toBe(linuxbrewSbin);
     } finally {
       process.env.PATH = originalPath;
+<<<<<<< HEAD
       if (originalFlag === undefined) delete process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
       else process.env.CLAWDBOT_PATH_BOOTSTRAPPED = originalFlag;
       if (originalHomebrewPrefix === undefined) delete process.env.HOMEBREW_PREFIX;
@@ -152,6 +182,28 @@ describe("ensureMoltbotCliOnPath", () => {
       else process.env.HOMEBREW_BREW_FILE = originalHomebrewBrewFile;
       if (originalXdgBinHome === undefined) delete process.env.XDG_BIN_HOME;
       else process.env.XDG_BIN_HOME = originalXdgBinHome;
+=======
+      if (originalFlag === undefined) {
+        delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+      } else {
+        process.env.OPENCLAW_PATH_BOOTSTRAPPED = originalFlag;
+      }
+      if (originalHomebrewPrefix === undefined) {
+        delete process.env.HOMEBREW_PREFIX;
+      } else {
+        process.env.HOMEBREW_PREFIX = originalHomebrewPrefix;
+      }
+      if (originalHomebrewBrewFile === undefined) {
+        delete process.env.HOMEBREW_BREW_FILE;
+      } else {
+        process.env.HOMEBREW_BREW_FILE = originalHomebrewBrewFile;
+      }
+      if (originalXdgBinHome === undefined) {
+        delete process.env.XDG_BIN_HOME;
+      } else {
+        process.env.XDG_BIN_HOME = originalXdgBinHome;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       await fs.rm(tmp, { recursive: true, force: true });
     }
   });

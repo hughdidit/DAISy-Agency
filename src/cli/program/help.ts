@@ -70,7 +70,9 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
   }
 
   program.addHelpText("beforeAll", () => {
-    if (hasEmittedCliBanner()) return "";
+    if (hasEmittedCliBanner()) {
+      return "";
+    }
     const rich = isRich();
     const line = formatCliBannerLine(ctx.programVersion, { richTty: rich });
     return `\n${line}\n`;
@@ -81,8 +83,15 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
   ).join("\n");
 
   program.addHelpText("afterAll", ({ command }) => {
+<<<<<<< HEAD
     if (command !== program) return "";
     const docs = formatDocsLink("/cli", "docs.molt.bot/cli");
+=======
+    if (command !== program) {
+      return "";
+    }
+    const docs = formatDocsLink("/cli", "docs.openclaw.ai/cli");
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     return `\n${theme.heading("Examples:")}\n${fmtExamples}\n\n${theme.muted("Docs:")} ${docs}\n`;
   });
 }

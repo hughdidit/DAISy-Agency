@@ -7,13 +7,17 @@ import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 export function resolveControlUiRepoRoot(
   argv1: string | undefined = process.argv[1],
 ): string | null {
-  if (!argv1) return null;
+  if (!argv1) {
+    return null;
+  }
   const normalized = path.resolve(argv1);
   const parts = normalized.split(path.sep);
   const srcIndex = parts.lastIndexOf("src");
   if (srcIndex !== -1) {
     const root = parts.slice(0, srcIndex).join(path.sep);
-    if (fs.existsSync(path.join(root, "ui", "vite.config.ts"))) return root;
+    if (fs.existsSync(path.join(root, "ui", "vite.config.ts"))) {
+      return root;
+    }
   }
 
   let dir = path.dirname(normalized);
@@ -25,7 +29,9 @@ export function resolveControlUiRepoRoot(
       return dir;
     }
     const parent = path.dirname(dir);
-    if (parent === dir) break;
+    if (parent === dir) {
+      break;
+    }
     dir = parent;
   }
 
@@ -34,8 +40,15 @@ export function resolveControlUiRepoRoot(
 
 export function resolveControlUiDistIndexPath(
   argv1: string | undefined = process.argv[1],
+<<<<<<< HEAD
 ): string | null {
   if (!argv1) return null;
+=======
+): Promise<string | null> {
+  if (!argv1) {
+    return null;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const normalized = path.resolve(argv1);
 
   // Case 1: entrypoint is directly inside dist/ (e.g., dist/entry.js)
@@ -44,6 +57,7 @@ export function resolveControlUiDistIndexPath(
     return path.join(distDir, "control-ui", "index.html");
   }
 
+<<<<<<< HEAD
   // Case 2: npm global install - entrypoint is at package root (e.g., openclaw.mjs)
   // or in node_modules/.bin/. Walk up to find package.json with dist/control-ui/
   const parts = normalized.split(path.sep);
@@ -70,6 +84,13 @@ export function resolveControlUiDistIndexPath(
   }
 
   return null;
+=======
+  const packageRoot = await resolveOpenClawPackageRoot({ argv1: normalized });
+  if (!packageRoot) {
+    return null;
+  }
+  return path.join(packageRoot, "dist", "control-ui", "index.html");
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 export type EnsureControlUiAssetsResult = {
@@ -83,9 +104,13 @@ function summarizeCommandOutput(text: string): string | undefined {
     .split(/\r?\n/g)
     .map((l) => l.trim())
     .filter(Boolean);
-  if (!lines.length) return undefined;
+  if (!lines.length) {
+    return undefined;
+  }
   const last = lines.at(-1);
-  if (!last) return undefined;
+  if (!last) {
+    return undefined;
+  }
   return last.length > 240 ? `${last.slice(0, 239)}…` : last;
 }
 

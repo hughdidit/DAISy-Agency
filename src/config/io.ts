@@ -75,9 +75,13 @@ export function resolveConfigSnapshotHash(snapshot: {
 }): string | null {
   if (typeof snapshot.hash === "string") {
     const trimmed = snapshot.hash.trim();
-    if (trimmed) return trimmed;
+    if (trimmed) {
+      return trimmed;
+    }
   }
-  if (typeof snapshot.raw !== "string") return null;
+  if (typeof snapshot.raw !== "string") {
+    return null;
+  }
   return hashConfigRaw(snapshot.raw);
 }
 
@@ -89,7 +93,9 @@ function coerceConfig(value: unknown): MoltbotConfig {
 }
 
 async function rotateConfigBackups(configPath: string, ioFs: typeof fs.promises): Promise<void> {
-  if (CONFIG_BACKUP_COUNT <= 1) return;
+  if (CONFIG_BACKUP_COUNT <= 1) {
+    return;
+  }
   const backupBase = `${configPath}.bak`;
   const maxIndex = CONFIG_BACKUP_COUNT - 1;
   await ioFs.unlink(`${backupBase}.${maxIndex}`).catch(() => {
@@ -115,9 +121,13 @@ export type ConfigIoDeps = {
 };
 
 function warnOnConfigMiskeys(raw: unknown, logger: Pick<typeof console, "warn">): void {
-  if (!raw || typeof raw !== "object") return;
+  if (!raw || typeof raw !== "object") {
+    return;
+  }
   const gateway = (raw as Record<string, unknown>).gateway;
-  if (!gateway || typeof gateway !== "object") return;
+  if (!gateway || typeof gateway !== "object") {
+    return;
+  }
   if ("token" in (gateway as Record<string, unknown>)) {
     logger.warn(
       'Config uses "gateway.token". This key is ignored; use "gateway.auth.token" instead.',
@@ -139,9 +149,19 @@ function stampConfigVersion(cfg: MoltbotConfig): MoltbotConfig {
 
 function warnIfConfigFromFuture(cfg: MoltbotConfig, logger: Pick<typeof console, "warn">): void {
   const touched = cfg.meta?.lastTouchedVersion;
+<<<<<<< HEAD
   if (!touched) return;
   const cmp = compareMoltbotVersions(VERSION, touched);
   if (cmp === null) return;
+=======
+  if (!touched) {
+    return;
+  }
+  const cmp = compareOpenClawVersions(VERSION, touched);
+  if (cmp === null) {
+    return;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   if (cmp < 0) {
     logger.warn(
       `Config was last written by a newer Moltbot (${touched}); current version is ${VERSION}.`,
@@ -152,13 +172,17 @@ function warnIfConfigFromFuture(cfg: MoltbotConfig, logger: Pick<typeof console,
 function applyConfigEnv(cfg: MoltbotConfig, env: NodeJS.ProcessEnv): void {
   const entries = collectConfigEnvVars(cfg);
   for (const [key, value] of Object.entries(entries)) {
-    if (env[key]?.trim()) continue;
+    if (env[key]?.trim()) {
+      continue;
+    }
     env[key] = value;
   }
 }
 
 function resolveConfigPathForDeps(deps: Required<ConfigIoDeps>): string {
-  if (deps.configPath) return deps.configPath;
+  if (deps.configPath) {
+    return deps.configPath;
+  }
   return resolveConfigPath(deps.env, resolveStateDir(deps.env, deps.homedir));
 }
 
@@ -226,8 +250,15 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
 
       const resolvedConfig = substituted;
       warnOnConfigMiskeys(resolvedConfig, deps.logger);
+<<<<<<< HEAD
       if (typeof resolvedConfig !== "object" || resolvedConfig === null) return {};
       const preValidationDuplicates = findDuplicateAgentDirs(resolvedConfig as MoltbotConfig, {
+=======
+      if (typeof resolvedConfig !== "object" || resolvedConfig === null) {
+        return {};
+      }
+      const preValidationDuplicates = findDuplicateAgentDirs(resolvedConfig as OpenClawConfig, {
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
         env: deps.env,
         homedir: deps.homedir,
       });
@@ -537,16 +568,34 @@ let configCache: {
 } | null = null;
 
 function resolveConfigCacheMs(env: NodeJS.ProcessEnv): number {
+<<<<<<< HEAD
   const raw = env.CLAWDBOT_CONFIG_CACHE_MS?.trim();
   if (raw === "" || raw === "0") return 0;
   if (!raw) return DEFAULT_CONFIG_CACHE_MS;
+=======
+  const raw = env.OPENCLAW_CONFIG_CACHE_MS?.trim();
+  if (raw === "" || raw === "0") {
+    return 0;
+  }
+  if (!raw) {
+    return DEFAULT_CONFIG_CACHE_MS;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const parsed = Number.parseInt(raw, 10);
-  if (!Number.isFinite(parsed)) return DEFAULT_CONFIG_CACHE_MS;
+  if (!Number.isFinite(parsed)) {
+    return DEFAULT_CONFIG_CACHE_MS;
+  }
   return Math.max(0, parsed);
 }
 
 function shouldUseConfigCache(env: NodeJS.ProcessEnv): boolean {
+<<<<<<< HEAD
   if (env.CLAWDBOT_DISABLE_CONFIG_CACHE?.trim()) return false;
+=======
+  if (env.OPENCLAW_DISABLE_CONFIG_CACHE?.trim()) {
+    return false;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return resolveConfigCacheMs(env) > 0;
 }
 
