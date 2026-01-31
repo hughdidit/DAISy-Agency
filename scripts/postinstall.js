@@ -252,7 +252,7 @@ function main() {
   const repoRoot = getRepoRoot();
   process.chdir(repoRoot);
 
-  ensureExecutable(path.join(repoRoot, "dist", "entry.js"));
+  ensureExecutable(path.join(repoRoot, "dist", "entry.mjs"));
   setupGitHooks({ repoRoot });
 
   if (!shouldApplyPnpmPatchedDependenciesFallback()) {
