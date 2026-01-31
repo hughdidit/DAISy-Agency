@@ -360,8 +360,14 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
           lane: AGENT_LANE_SUBAGENT,
         },
         timeoutMs: 10_000,
+<<<<<<< HEAD
       })) as { runId?: string };
       if (response?.runId) runId = response.runId;
+=======
+      });
+      const responseRunId = typeof response?.runId === "string" ? response.runId : undefined;
+      if (responseRunId) runId = responseRunId;
+>>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
     } catch (err) {
       const messageText =
         err instanceof Error ? err.message : typeof err === "string" ? err : "error";
@@ -381,10 +387,11 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
       };
     }
     if (wait?.status === "error") {
+      const waitError = typeof wait.error === "string" ? wait.error : "unknown error";
       return {
         shouldContinue: false,
         reply: {
-          text: `⚠️ Subagent error: ${wait.error ?? "unknown error"} (run ${runId.slice(0, 8)}).`,
+          text: `⚠️ Subagent error: ${waitError} (run ${runId.slice(0, 8)}).`,
         },
       };
     }

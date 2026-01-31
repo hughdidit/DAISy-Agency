@@ -305,7 +305,7 @@ describeLive("gateway live (cli backend)", () => {
         providerId === "codex-cli"
           ? `Please include the token CLI-BACKEND-${nonce} in your reply.`
           : `Reply with exactly: CLI backend OK ${nonce}.`;
-      const payload = await client.request<Record<string, unknown>>(
+      const payload = await client.request(
         "agent",
         {
           sessionKey,
@@ -332,7 +332,7 @@ describeLive("gateway live (cli backend)", () => {
           providerId === "codex-cli"
             ? `Please include the token CLI-RESUME-${resumeNonce} in your reply.`
             : `Reply with exactly: CLI backend RESUME OK ${resumeNonce}.`;
-        const resumePayload = await client.request<Record<string, unknown>>(
+        const resumePayload = await client.request(
           "agent",
           {
             sessionKey,
@@ -359,7 +359,7 @@ describeLive("gateway live (cli backend)", () => {
         const imageBase64 = renderCatNoncePngBase64(imageCode);
         const runIdImage = randomUUID();
 
-        const imageProbe = await client.request<Record<string, unknown>>(
+        const imageProbe = await client.request(
           "agent",
           {
             sessionKey,

@@ -3,6 +3,12 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+<<<<<<< HEAD
+=======
+    "lib": ["DOM", "DOM.Iterable", "ES2023", "ScriptHost"],
+    "noEmit": true,
+    "noEmitOnError": true,
+>>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,

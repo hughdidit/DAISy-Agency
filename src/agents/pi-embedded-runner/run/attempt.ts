@@ -848,8 +848,13 @@ export async function runEmbeddedAttempt(
 
       const lastAssistant = messagesSnapshot
         .slice()
+<<<<<<< HEAD
         .reverse()
         .find((m) => (m as AgentMessage)?.role === "assistant") as AssistantMessage | undefined;
+=======
+        .toReversed()
+        .find((m) => m.role === "assistant");
+>>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
 
       const toolMetasNormalized = toolMetas
         .filter(
