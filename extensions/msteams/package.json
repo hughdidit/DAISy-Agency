@@ -6,7 +6,21 @@
   "version": "2026.1.30",
 >>>>>>> 247fab47c (chore: bump version to 2026.1.30)
   "type": "module",
+<<<<<<< HEAD
   "description": "OpenClaw Microsoft Teams channel plugin",
+=======
+  "dependencies": {
+    "@microsoft/agents-hosting": "^1.2.3",
+    "@microsoft/agents-hosting-express": "^1.2.3",
+    "@microsoft/agents-hosting-extensions-teams": "^1.2.3",
+    "express": "^5.2.1",
+    "openclaw": "workspace:*",
+    "proper-lockfile": "^4.1.2"
+  },
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+>>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
   "openclaw": {
     "extensions": [
       "./index.ts"

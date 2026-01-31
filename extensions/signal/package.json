@@ -6,7 +6,13 @@
   "version": "2026.1.30",
 >>>>>>> 247fab47c (chore: bump version to 2026.1.30)
   "type": "module",
+<<<<<<< HEAD
   "description": "OpenClaw Signal channel plugin",
+=======
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+>>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
   "openclaw": {
     "extensions": [
       "./index.ts"

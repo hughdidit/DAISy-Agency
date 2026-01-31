@@ -24,5 +24,16 @@
     "@opentelemetry/sdk-node": "^0.211.0",
     "@opentelemetry/sdk-trace-base": "^2.5.0",
     "@opentelemetry/semantic-conventions": "^1.39.0"
+<<<<<<< HEAD
+=======
+  },
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+>>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
   }
 }

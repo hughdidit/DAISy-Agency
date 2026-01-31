@@ -2,7 +2,13 @@
   "name": "@openclaw/minimax-portal-auth",
   "version": "2026.1.30",
   "type": "module",
+<<<<<<< HEAD
   "description": "OpenClaw MiniMax Portal OAuth provider plugin",
+=======
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+>>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
   "openclaw": {
     "extensions": [
       "./index.ts"
