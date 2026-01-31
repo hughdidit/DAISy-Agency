@@ -50,6 +50,7 @@ describe("state + config path candidates", () => {
     const home = "/home/test";
     const candidates = resolveDefaultConfigCandidates({} as NodeJS.ProcessEnv, () => home);
 <<<<<<< HEAD
+<<<<<<< HEAD
     expect(candidates[0]).toBe(path.join(home, ".moltbot", "moltbot.json"));
     expect(candidates[1]).toBe(path.join(home, ".moltbot", "clawdbot.json"));
     expect(candidates[2]).toBe(path.join(home, ".clawdbot", "moltbot.json"));
@@ -60,6 +61,26 @@ describe("state + config path candidates", () => {
     const expected = expectedDirs.flatMap((dir) =>
       expectedFiles.map((file) => path.join(home, dir, file)),
     );
+=======
+    const expected = [
+      path.join(home, ".openclaw", "openclaw.json"),
+      path.join(home, ".openclaw", "clawdbot.json"),
+      path.join(home, ".openclaw", "moltbot.json"),
+      path.join(home, ".openclaw", "moldbot.json"),
+      path.join(home, ".clawdbot", "openclaw.json"),
+      path.join(home, ".clawdbot", "clawdbot.json"),
+      path.join(home, ".clawdbot", "moltbot.json"),
+      path.join(home, ".clawdbot", "moldbot.json"),
+      path.join(home, ".moltbot", "openclaw.json"),
+      path.join(home, ".moltbot", "clawdbot.json"),
+      path.join(home, ".moltbot", "moltbot.json"),
+      path.join(home, ".moltbot", "moldbot.json"),
+      path.join(home, ".moldbot", "openclaw.json"),
+      path.join(home, ".moldbot", "clawdbot.json"),
+      path.join(home, ".moldbot", "moltbot.json"),
+      path.join(home, ".moldbot", "moldbot.json"),
+    ];
+>>>>>>> ded95d5c7 (test: update config candidate order expectation)
     expect(candidates).toEqual(expected);
 >>>>>>> 5e635c965 (feat: add Kimi K2.5 model to synthetic catalog (#4407))
   });
