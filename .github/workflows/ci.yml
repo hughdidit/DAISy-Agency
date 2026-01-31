@@ -31,8 +31,14 @@ jobs:
       matrix:
         include:
 <<<<<<< HEAD
+<<<<<<< HEAD
           - task: lint
 =======
+=======
+          - runtime: nodegs
+            task: build
+            command: pnpm build
+>>>>>>> 36b0070b7 (fix: Build before linting in CI since we are now linting the extensions folder with `--type-aware`.)
           - runtime: node
             task: tsgo
             command: pnpm tsgo
