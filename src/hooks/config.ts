@@ -31,7 +31,7 @@ export function resolveConfigPath(config: MoltbotConfig | undefined, pathStr: st
 export function isConfigPathTruthy(config: MoltbotConfig | undefined, pathStr: string): boolean {
   const value = resolveConfigPath(config, pathStr);
   if (value === undefined && pathStr in DEFAULT_CONFIG_VALUES) {
-    return DEFAULT_CONFIG_VALUES[pathStr] === true;
+    return DEFAULT_CONFIG_VALUES[pathStr];
   }
   return isTruthy(value);
 }

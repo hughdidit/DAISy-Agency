@@ -33,8 +33,13 @@ metadata:
     const result = parseFrontmatterBlock(content);
     expect(result.metadata).toBeDefined();
 
+<<<<<<< HEAD
     const parsed = JSON5.parse(result.metadata ?? "") as { moltbot?: { emoji?: string } };
     expect(parsed.moltbot?.emoji).toBe("disk");
+=======
+    const parsed = JSON5.parse(result.metadata ?? "");
+    expect(parsed.openclaw?.emoji).toBe("disk");
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
   });
 
   it("preserves inline JSON values", () => {
@@ -65,8 +70,13 @@ metadata:
     expect(result.enabled).toBe("true");
     expect(result.retries).toBe("3");
     expect(JSON.parse(result.tags ?? "[]")).toEqual(["alpha", "beta"]);
+<<<<<<< HEAD
     const parsed = JSON5.parse(result.metadata ?? "") as { moltbot?: { events?: string[] } };
     expect(parsed.moltbot?.events).toEqual(["command:new"]);
+=======
+    const parsed = JSON5.parse(result.metadata ?? "");
+    expect(parsed.openclaw?.events).toEqual(["command:new"]);
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
   });
 
   it("returns empty when frontmatter is missing", () => {

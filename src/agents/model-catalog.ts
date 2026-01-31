@@ -82,9 +82,7 @@ export async function loadModelCatalog(params?: {
             ? entry.contextWindow
             : undefined;
         const reasoning = typeof entry?.reasoning === "boolean" ? entry.reasoning : undefined;
-        const input = Array.isArray(entry?.input)
-          ? (entry.input as Array<"text" | "image">)
-          : undefined;
+        const input = Array.isArray(entry?.input) ? entry.input : undefined;
         models.push({ id, name, provider, contextWindow, reasoning, input });
       }
 

@@ -40,7 +40,7 @@ function parseInstallSpec(input: unknown): HookInstallSpec | undefined {
   }
 
   const spec: HookInstallSpec = {
-    kind: kind as HookInstallSpec["kind"],
+    kind: kind,
   };
 
   if (typeof raw.id === "string") spec.id = raw.id;
@@ -69,9 +69,13 @@ export function resolveMoltbotMetadata(
   const raw = getFrontmatterValue(frontmatter, "metadata");
   if (!raw) return undefined;
   try {
+<<<<<<< HEAD
     const parsed = JSON5.parse(raw) as { moltbot?: unknown } & Partial<
       Record<typeof LEGACY_MANIFEST_KEY, unknown>
     >;
+=======
+    const parsed = JSON5.parse(raw);
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
     if (!parsed || typeof parsed !== "object") return undefined;
     const metadataRaw = parsed.moltbot ?? parsed[LEGACY_MANIFEST_KEY];
     if (!metadataRaw || typeof metadataRaw !== "object") return undefined;

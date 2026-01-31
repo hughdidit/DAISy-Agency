@@ -72,7 +72,11 @@ function stripUnknownConfigKeys(config: MoltbotConfig): {
     return { config, removed: [] };
   }
 
+<<<<<<< HEAD
   const next = structuredClone(config) as MoltbotConfig;
+=======
+  const next = structuredClone(config);
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
   const removed: string[] = [];
   for (const issue of parsed.error.issues) {
     if (!isUnrecognizedKeysIssue(issue)) continue;
@@ -165,8 +169,13 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     }
   }
   const baseCfg = snapshot.config ?? {};
+<<<<<<< HEAD
   let cfg: MoltbotConfig = baseCfg;
   let candidate = structuredClone(baseCfg) as MoltbotConfig;
+=======
+  let cfg: OpenClawConfig = baseCfg;
+  let candidate = structuredClone(baseCfg);
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
   let pendingChanges = false;
   let shouldWriteConfig = false;
   const fixHints: string[] = [];

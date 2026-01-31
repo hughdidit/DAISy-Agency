@@ -11,7 +11,11 @@ const soulEvilHook: HookHandler = async (event) => {
 
   const context = event.context;
   if (context.sessionKey && isSubagentSessionKey(context.sessionKey)) return;
+<<<<<<< HEAD
   const cfg = context.cfg as MoltbotConfig | undefined;
+=======
+  const cfg = context.cfg;
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
   const hookConfig = resolveHookConfig(cfg, HOOK_KEY);
   if (!hookConfig || hookConfig.enabled === false) return;
 

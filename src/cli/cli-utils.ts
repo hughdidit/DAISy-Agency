@@ -46,3 +46,19 @@ export async function runCommandWithRuntime(
     runtime.exit(1);
   }
 }
+<<<<<<< HEAD
+=======
+
+export function resolveOptionFromCommand<T>(
+  command: Command | undefined,
+  key: string,
+): T | undefined {
+  let current: Command | null | undefined = command;
+  while (current) {
+    const opts = current.opts?.() ?? {};
+    if (opts[key] !== undefined) return opts[key];
+    current = current.parent ?? undefined;
+  }
+  return undefined;
+}
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)

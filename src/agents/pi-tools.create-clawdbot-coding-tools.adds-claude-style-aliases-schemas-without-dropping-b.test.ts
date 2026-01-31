@@ -117,7 +117,7 @@ describe("createMoltbotCodingTools", () => {
         return {
           name: tool.name,
           type: schema?.type,
-          keys: schema ? Object.keys(schema).sort() : null,
+          keys: schema ? Object.keys(schema).toSorted() : null,
         };
       })
       .filter((entry) => entry.type !== "object");

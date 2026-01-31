@@ -371,6 +371,10 @@ export async function autoMigrateLegacyStateDir(params: {
   } catch (err) {
     try {
       if (process.platform === "win32") {
+<<<<<<< HEAD
+=======
+        if (!legacyDir) throw new Error("Legacy state dir not found", { cause: err });
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
         fs.symlinkSync(targetDir, legacyDir, "junction");
         changes.push(formatStateDirMigration(legacyDir, targetDir));
       } else {
@@ -378,6 +382,11 @@ export async function autoMigrateLegacyStateDir(params: {
       }
     } catch (fallbackErr) {
       try {
+<<<<<<< HEAD
+=======
+        if (!legacyDir)
+          throw new Error("Legacy state dir not found", { cause: err }, { cause: fallbackErr });
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
         fs.renameSync(targetDir, legacyDir);
         warnings.push(
           `State dir migration rolled back (failed to link legacy path): ${String(fallbackErr)}`,

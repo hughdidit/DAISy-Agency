@@ -545,6 +545,53 @@ export function registerSlackMonitorSlashCommands(params: {
           text: payload.text,
           blocks: payload.blocks,
         });
+<<<<<<< HEAD
+=======
+      const parsed = parseSlackCommandArgValue(action?.value);
+      if (!parsed) {
+        await respondFn({
+          text: "Sorry, that button is no longer valid.",
+          response_type: "ephemeral",
+        });
+        return;
+      }
+      if (body.user?.id && parsed.userId !== body.user.id) {
+        await respondFn({
+          text: "That menu is for another user.",
+          response_type: "ephemeral",
+        });
+        return;
+      }
+      const commandDefinition = findCommandByNativeName(parsed.command, "slack");
+      const commandArgs: CommandArgs = {
+        values: { [parsed.arg]: parsed.value },
+      };
+      const prompt = commandDefinition
+        ? buildCommandTextFromArgs(commandDefinition, commandArgs)
+        : `/${parsed.command} ${parsed.value}`;
+      const user = body.user;
+      const userName =
+        user && "name" in user && user.name
+          ? user.name
+          : user && "username" in user && user.username
+            ? user.username
+            : (user?.id ?? "");
+      const triggerId = "trigger_id" in body ? body.trigger_id : undefined;
+      const commandPayload = {
+        user_id: user?.id ?? "",
+        user_name: userName,
+        channel_id: body.channel?.id ?? "",
+        channel_name: body.channel?.name ?? body.channel?.id ?? "",
+        trigger_id: triggerId ?? String(Date.now()),
+      } as SlackCommandMiddlewareArgs["command"];
+      await handleSlashCommand({
+        command: commandPayload,
+        ack: async () => {},
+        respond: respondFn,
+        prompt,
+        commandArgs,
+        commandDefinition: commandDefinition ?? undefined,
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
       });
     const parsed = parseSlackCommandArgValue(action?.value);
     if (!parsed) {

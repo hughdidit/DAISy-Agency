@@ -59,8 +59,13 @@ export async function openFileWithinRoot(params: {
     throw new SafeOpenError("invalid-path", "path escapes root");
   }
 
+<<<<<<< HEAD
   const supportsNoFollow = !isWindows && "O_NOFOLLOW" in fsConstants;
   const flags = fsConstants.O_RDONLY | (supportsNoFollow ? (fsConstants.O_NOFOLLOW as number) : 0);
+=======
+  const supportsNoFollow = process.platform !== "win32" && "O_NOFOLLOW" in fsConstants;
+  const flags = fsConstants.O_RDONLY | (supportsNoFollow ? fsConstants.O_NOFOLLOW : 0);
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
 
   let handle: FileHandle;
   try {

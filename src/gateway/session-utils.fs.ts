@@ -358,7 +358,7 @@ function readRecentMessagesFromTranscript(
         // skip malformed lines
       }
     }
-    return collected.reverse();
+    return collected.toReversed();
   } catch {
     return [];
   } finally {

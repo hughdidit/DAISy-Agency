@@ -57,9 +57,15 @@ metadata:
     expect(typeof result.metadata).toBe("string");
 
     // Verify the metadata is valid JSON
+<<<<<<< HEAD
     const parsed = JSON.parse(result.metadata as string);
     expect(parsed.moltbot.emoji).toBe("💾");
     expect(parsed.moltbot.events).toEqual(["command:new"]);
+=======
+    const parsed = JSON.parse(result.metadata);
+    expect(parsed.openclaw.emoji).toBe("💾");
+    expect(parsed.openclaw.events).toEqual(["command:new"]);
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
   });
 
   it("parses multi-line metadata with complex nested structure", () => {
@@ -82,11 +88,19 @@ metadata:
     expect(result.name).toBe("command-logger");
     expect(result.metadata).toBeDefined();
 
+<<<<<<< HEAD
     const parsed = JSON.parse(result.metadata as string);
     expect(parsed.moltbot.emoji).toBe("📝");
     expect(parsed.moltbot.events).toEqual(["command"]);
     expect(parsed.moltbot.requires.config).toEqual(["workspace.dir"]);
     expect(parsed.moltbot.install[0].kind).toBe("bundled");
+=======
+    const parsed = JSON.parse(result.metadata);
+    expect(parsed.openclaw.emoji).toBe("📝");
+    expect(parsed.openclaw.events).toEqual(["command"]);
+    expect(parsed.openclaw.requires.config).toEqual(["workspace.dir"]);
+    expect(parsed.openclaw.install[0].kind).toBe("bundled");
+>>>>>>> 15792b153 (chore: Enable more lint rules, disable some that trigger a lot. Will clean up later.)
   });
 
   it("handles single-line metadata (inline JSON)", () => {
