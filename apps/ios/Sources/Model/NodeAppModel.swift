@@ -4,6 +4,36 @@ import Observation
 import SwiftUI
 import UIKit
 
+private struct NotificationCallError: Error, Sendable {
+    let message: String
+}
+
+private final class NotificationInvokeLatch<T: Sendable>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<Result<T, NotificationCallError>, Never>?
+    private var resumed = false
+
+    func setContinuation(_ continuation: CheckedContinuation<Result<T, NotificationCallError>, Never>) {
+        self.lock.lock()
+        defer { self.lock.unlock() }
+        self.continuation = continuation
+    }
+
+    func resume(_ response: Result<T, NotificationCallError>) {
+        let cont: CheckedContinuation<Result<T, NotificationCallError>, Never>?
+        self.lock.lock()
+        if self.resumed {
+            self.lock.unlock()
+            return
+        }
+        self.resumed = true
+        cont = self.continuation
+        self.continuation = nil
+        self.lock.unlock()
+        cont?.resume(returning: response)
+    }
+}
+
 @MainActor
 @Observable
 final class NodeAppModel {
@@ -107,7 +137,10 @@ final class NodeAppModel {
             return raw.isEmpty ? "-" : raw
         }()
 
-        let host = UserDefaults.standard.string(forKey: "node.displayName") ?? UIDevice.current.name
+        let host = NodeDisplayName.resolve(
+            existing: UserDefaults.standard.string(forKey: "node.displayName"),
+            deviceName: UIDevice.current.name,
+            interfaceIdiom: UIDevice.current.userInterfaceIdiom)
         let instanceId = (UserDefaults.standard.string(forKey: "node.instanceId") ?? "ios-node").lowercased()
         let contextJSON = MoltbotCanvasA2UIAction.compactJSON(userAction["context"])
         let sessionKey = self.mainSessionKey
@@ -884,6 +917,173 @@ final class NodeAppModel {
         return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: payload)
     }
 
+<<<<<<< HEAD
+=======
+    private func handleSystemNotify(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+        let params = try Self.decodeParams(OpenClawSystemNotifyParams.self, from: req.paramsJSON)
+        let title = params.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let body = params.body.trimmingCharacters(in: .whitespacesAndNewlines)
+        if title.isEmpty, body.isEmpty {
+            return BridgeInvokeResponse(
+                id: req.id,
+                ok: false,
+                error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: empty notification"))
+        }
+
+        let finalStatus = await self.requestNotificationAuthorizationIfNeeded()
+        guard finalStatus == .authorized || finalStatus == .provisional || finalStatus == .ephemeral else {
+            return BridgeInvokeResponse(
+                id: req.id,
+                ok: false,
+                error: OpenClawNodeError(code: .unavailable, message: "NOT_AUTHORIZED: notifications"))
+        }
+
+        let addResult = await self.runNotificationCall(timeoutSeconds: 2.0) { [notificationCenter] in
+            let content = UNMutableNotificationContent()
+            content.title = title
+            content.body = body
+            let request = UNNotificationRequest(
+                identifier: UUID().uuidString,
+                content: content,
+                trigger: nil)
+            try await notificationCenter.add(request)
+        }
+        if case let .failure(error) = addResult {
+            return BridgeInvokeResponse(
+                id: req.id,
+                ok: false,
+                error: OpenClawNodeError(code: .unavailable, message: "NOTIFICATION_FAILED: \(error.message)"))
+        }
+        return BridgeInvokeResponse(id: req.id, ok: true)
+    }
+
+    private func requestNotificationAuthorizationIfNeeded() async -> NotificationAuthorizationStatus {
+        let status = await self.notificationAuthorizationStatus()
+        guard status == .notDetermined else { return status }
+
+        // Avoid hanging invoke requests if the permission prompt is never answered.
+        _ = await self.runNotificationCall(timeoutSeconds: 2.0) { [notificationCenter] in
+            _ = try await notificationCenter.requestAuthorization(options: [.alert, .sound, .badge])
+        }
+
+        return await self.notificationAuthorizationStatus()
+    }
+
+    private func notificationAuthorizationStatus() async -> NotificationAuthorizationStatus {
+        let result = await self.runNotificationCall(timeoutSeconds: 1.5) { [notificationCenter] in
+            await notificationCenter.authorizationStatus()
+        }
+        switch result {
+        case let .success(status):
+            return status
+        case .failure:
+            return .denied
+        }
+    }
+
+    private func runNotificationCall<T: Sendable>(
+        timeoutSeconds: Double,
+        operation: @escaping @Sendable () async throws -> T
+    ) async -> Result<T, NotificationCallError> {
+        let latch = NotificationInvokeLatch<T>()
+        var opTask: Task<Void, Never>?
+        var timeoutTask: Task<Void, Never>?
+        let result = await withCheckedContinuation { (cont: CheckedContinuation<Result<T, NotificationCallError>, Never>) in
+            latch.setContinuation(cont)
+            opTask = Task { @MainActor in
+                do {
+                    let value = try await operation()
+                    latch.resume(.success(value))
+                } catch {
+                    latch.resume(.failure(NotificationCallError(message: error.localizedDescription)))
+                }
+            }
+            timeoutTask = Task.detached {
+                let clamped = max(0.0, timeoutSeconds)
+                if clamped > 0 {
+                    try? await Task.sleep(nanoseconds: UInt64(clamped * 1_000_000_000))
+                }
+                latch.resume(.failure(NotificationCallError(message: "notification request timed out")))
+            }
+        }
+        opTask?.cancel()
+        timeoutTask?.cancel()
+        return result
+    }
+
+    private func handleDeviceInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+        switch req.command {
+        case OpenClawDeviceCommand.status.rawValue:
+            let payload = try await self.deviceStatusService.status()
+            let json = try Self.encodePayload(payload)
+            return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+        case OpenClawDeviceCommand.info.rawValue:
+            let payload = self.deviceStatusService.info()
+            let json = try Self.encodePayload(payload)
+            return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+        default:
+            return BridgeInvokeResponse(
+                id: req.id,
+                ok: false,
+                error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
+        }
+    }
+
+    private func handlePhotosInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+        let params = (try? Self.decodeParams(OpenClawPhotosLatestParams.self, from: req.paramsJSON)) ??
+            OpenClawPhotosLatestParams()
+        let payload = try await self.photosService.latest(params: params)
+        let json = try Self.encodePayload(payload)
+        return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+    }
+
+    private func handleContactsInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+        let params = (try? Self.decodeParams(OpenClawContactsSearchParams.self, from: req.paramsJSON)) ??
+            OpenClawContactsSearchParams()
+        let payload = try await self.contactsService.search(params: params)
+        let json = try Self.encodePayload(payload)
+        return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+    }
+
+    private func handleCalendarInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+        let params = (try? Self.decodeParams(OpenClawCalendarEventsParams.self, from: req.paramsJSON)) ??
+            OpenClawCalendarEventsParams()
+        let payload = try await self.calendarService.events(params: params)
+        let json = try Self.encodePayload(payload)
+        return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+    }
+
+    private func handleRemindersInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+        let params = (try? Self.decodeParams(OpenClawRemindersListParams.self, from: req.paramsJSON)) ??
+            OpenClawRemindersListParams()
+        let payload = try await self.remindersService.list(params: params)
+        let json = try Self.encodePayload(payload)
+        return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+    }
+
+    private func handleMotionInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+        switch req.command {
+        case OpenClawMotionCommand.activity.rawValue:
+            let params = (try? Self.decodeParams(OpenClawMotionActivityParams.self, from: req.paramsJSON)) ??
+                OpenClawMotionActivityParams()
+            let payload = try await self.motionService.activities(params: params)
+            let json = try Self.encodePayload(payload)
+            return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+        case OpenClawMotionCommand.pedometer.rawValue:
+            let params = (try? Self.decodeParams(OpenClawPedometerParams.self, from: req.paramsJSON)) ??
+                OpenClawPedometerParams()
+            let payload = try await self.motionService.pedometer(params: params)
+            let json = try Self.encodePayload(payload)
+            return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+        default:
+            return BridgeInvokeResponse(
+                id: req.id,
+                ok: false,
+                error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
+        }
+    }
+
+>>>>>>> 761188cd1 (iOS: fix node notify and identity)
 }
 
 private extension NodeAppModel {

@@ -6,7 +6,15 @@ Sources/Gateway/KeychainStore.swift
 Sources/Camera/CameraController.swift
 Sources/Chat/ChatSheet.swift
 Sources/Chat/IOSGatewayChatTransport.swift
+<<<<<<< HEAD
 Sources/ClawdbotApp.swift
+=======
+Sources/Contacts/ContactsService.swift
+Sources/Device/DeviceStatusService.swift
+Sources/Device/NodeDisplayName.swift
+Sources/Device/NetworkStatusService.swift
+Sources/OpenClawApp.swift
+>>>>>>> 761188cd1 (iOS: fix node notify and identity)
 Sources/Location/LocationService.swift
 Sources/Model/NodeAppModel.swift
 Sources/RootCanvas.swift
