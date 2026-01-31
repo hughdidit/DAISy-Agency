@@ -23,7 +23,7 @@
     "./cli-entry": "./openclaw.mjs"
   },
   "bin": {
-    "openclaw": "./openclaw.mjs"
+    "openclaw": "openclaw.mjs"
   },
   "files": [
     "dist/acp/**",
@@ -248,13 +248,13 @@
     "vitest": "^4.0.18"
   },
   "overrides": {
-    "tar": "7.5.4"
+    "tar": "7.5.7"
   },
   "pnpm": {
     "minimumReleaseAge": 2880,
     "overrides": {
       "@sinclair/typebox": "0.34.47",
-      "tar": "7.5.4"
+      "tar": "7.5.7"
     }
   },
   "vitest": {
