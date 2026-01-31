@@ -385,6 +385,7 @@ final class GatewayConnectionController {
             OpenClawScreenCommand.record.rawValue,
             OpenClawSystemCommand.notify.rawValue,
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
 =======
             OpenClawSystemCommand.which.rawValue,
@@ -392,6 +393,10 @@ final class GatewayConnectionController {
             OpenClawSystemCommand.execApprovalsGet.rawValue,
             OpenClawSystemCommand.execApprovalsSet.rawValue,
 >>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
+=======
+            OpenClawTalkCommand.pttStart.rawValue,
+            OpenClawTalkCommand.pttStop.rawValue,
+>>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
         ]
 
         let caps = Set(self.currentCaps())

@@ -66,8 +66,19 @@ final class NodeAppModel {
     private var voiceWakeSyncTask: Task<Void, Never>?
     @ObservationIgnored private var cameraHUDDismissTask: Task<Void, Never>?
     let voiceWake = VoiceWakeManager()
+<<<<<<< HEAD
     let talkMode = TalkModeManager()
     private let locationService = LocationService()
+=======
+    let talkMode: TalkModeManager
+    private let locationService: any LocationServicing
+    private let deviceStatusService: any DeviceStatusServicing
+    private let photosService: any PhotosServicing
+    private let contactsService: any ContactsServicing
+    private let calendarService: any CalendarServicing
+    private let remindersService: any RemindersServicing
+    private let motionService: any MotionServicing
+>>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
     private var lastAutoA2uiURL: String?
 
     private var gatewayConnected = false
@@ -78,7 +89,37 @@ final class NodeAppModel {
     var cameraFlashNonce: Int = 0
     var screenRecordActive: Bool = false
 
+<<<<<<< HEAD
     init() {
+=======
+    init(
+        screen: ScreenController = ScreenController(),
+        camera: any CameraServicing = CameraController(),
+        screenRecorder: any ScreenRecordingServicing = ScreenRecordService(),
+        locationService: any LocationServicing = LocationService(),
+        notificationCenter: NotificationCentering = LiveNotificationCenter(),
+        deviceStatusService: any DeviceStatusServicing = DeviceStatusService(),
+        photosService: any PhotosServicing = PhotoLibraryService(),
+        contactsService: any ContactsServicing = ContactsService(),
+        calendarService: any CalendarServicing = CalendarService(),
+        remindersService: any RemindersServicing = RemindersService(),
+        motionService: any MotionServicing = MotionService(),
+        talkMode: TalkModeManager = TalkModeManager())
+    {
+        self.screen = screen
+        self.camera = camera
+        self.screenRecorder = screenRecorder
+        self.locationService = locationService
+        self.notificationCenter = notificationCenter
+        self.deviceStatusService = deviceStatusService
+        self.photosService = photosService
+        self.contactsService = contactsService
+        self.calendarService = calendarService
+        self.remindersService = remindersService
+        self.motionService = motionService
+        self.talkMode = talkMode
+
+>>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
         self.voiceWake.configure { [weak self] cmd in
             guard let self else { return }
             let sessionKey = await MainActor.run { self.mainSessionKey }
@@ -286,6 +327,7 @@ final class NodeAppModel {
                                 self.gatewayStatusText = "Connected"
                                 self.gatewayServerName = url.host ?? "gateway"
                                 self.gatewayConnected = true
+                                self.talkMode.updateGatewayConnected(true)
                             }
                             if let addr = await self.gateway.currentRemoteAddress() {
                                 await MainActor.run {
@@ -302,6 +344,7 @@ final class NodeAppModel {
                                 self.gatewayStatusText = "Disconnected"
                                 self.gatewayRemoteAddress = nil
                                 self.gatewayConnected = false
+                                self.talkMode.updateGatewayConnected(false)
                                 self.showLocalCanvasOnDisconnect()
                                 self.gatewayStatusText = "Disconnected: \(reason)"
                             }
@@ -329,6 +372,7 @@ final class NodeAppModel {
                         self.gatewayServerName = nil
                         self.gatewayRemoteAddress = nil
                         self.gatewayConnected = false
+                        self.talkMode.updateGatewayConnected(false)
                         self.showLocalCanvasOnDisconnect()
                     }
                     let sleepSeconds = min(8.0, 0.5 * pow(1.7, Double(attempt)))
@@ -342,6 +386,7 @@ final class NodeAppModel {
                 self.gatewayRemoteAddress = nil
                 self.connectedGatewayID = nil
                 self.gatewayConnected = false
+                self.talkMode.updateGatewayConnected(false)
                 self.seamColorHex = nil
                 if !SessionKey.isCanonicalMainSessionKey(self.mainSessionKey) {
                     self.mainSessionKey = "main"
@@ -363,6 +408,7 @@ final class NodeAppModel {
         self.gatewayRemoteAddress = nil
         self.connectedGatewayID = nil
         self.gatewayConnected = false
+        self.talkMode.updateGatewayConnected(false)
         self.seamColorHex = nil
         if !SessionKey.isCanonicalMainSessionKey(self.mainSessionKey) {
             self.mainSessionKey = "main"
@@ -602,7 +648,13 @@ final class NodeAppModel {
             case OpenClawMotionCommand.activity.rawValue,
                  OpenClawMotionCommand.pedometer.rawValue:
                 return try await self.handleMotionInvoke(req)
+<<<<<<< HEAD
 >>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
+=======
+            case OpenClawTalkCommand.pttStart.rawValue,
+                 OpenClawTalkCommand.pttStop.rawValue:
+                return try await self.handleTalkInvoke(req)
+>>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
             default:
                 return BridgeInvokeResponse(
                     id: req.id,
@@ -631,7 +683,8 @@ final class NodeAppModel {
     }
 
     private func isBackgroundRestricted(_ command: String) -> Bool {
-        command.hasPrefix("canvas.") || command.hasPrefix("camera.") || command.hasPrefix("screen.")
+        command.hasPrefix("canvas.") || command.hasPrefix("camera.") || command.hasPrefix("screen.") ||
+            command.hasPrefix("talk.")
     }
 
     private func handleLocationInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
@@ -1151,7 +1204,28 @@ final class NodeAppModel {
         }
     }
 
+<<<<<<< HEAD
 >>>>>>> 761188cd1 (iOS: fix node notify and identity)
+=======
+    private func handleTalkInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+        switch req.command {
+        case OpenClawTalkCommand.pttStart.rawValue:
+            let payload = try await self.talkMode.beginPushToTalk()
+            let json = try Self.encodePayload(payload)
+            return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+        case OpenClawTalkCommand.pttStop.rawValue:
+            let payload = await self.talkMode.endPushToTalk()
+            let json = try Self.encodePayload(payload)
+            return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+        default:
+            return BridgeInvokeResponse(
+                id: req.id,
+                ok: false,
+                error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
+        }
+    }
+
+>>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
 }
 
 private extension NodeAppModel {
