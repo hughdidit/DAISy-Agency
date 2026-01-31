@@ -120,10 +120,15 @@
     "lint:swift": "swiftlint lint --config .swiftlint.yml && (cd apps/ios && swiftlint lint --config .swiftlint.yml)",
     "lint:all": "pnpm lint && pnpm lint:swift",
     "lint:fix": "pnpm format:fix && oxlint --type-aware --fix src test",
+<<<<<<< HEAD
     "format": "oxfmt --check src test",
     "format:swift": "swiftformat --lint --config .swiftformat apps/macos/Sources apps/ios/Sources apps/shared/MoltbotKit/Sources",
+=======
+    "format": "oxfmt --check",
+    "format:swift": "swiftformat --lint --config .swiftformat apps/macos/Sources apps/ios/Sources apps/shared/OpenClawKit/Sources",
+>>>>>>> dcc2de15a (chore: Enable formatting of files other than `src` and `test`.)
     "format:all": "pnpm format && pnpm format:swift",
-    "format:fix": "oxfmt --write src test",
+    "format:fix": "oxfmt --write",
     "test": "node scripts/test-parallel.mjs",
     "test:watch": "vitest",
     "test:ui": "pnpm --dir ui test",
