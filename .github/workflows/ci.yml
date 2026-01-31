@@ -32,6 +32,7 @@ jobs:
         include:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           - task: lint
 =======
 =======
@@ -39,11 +40,14 @@ jobs:
             task: build
             command: pnpm build
 >>>>>>> 36b0070b7 (fix: Build before linting in CI since we are now linting the extensions folder with `--type-aware`.)
+=======
+>>>>>>> 1f2fb823a (fix: CI: Run build and lint together since lint depends on build now.)
           - runtime: node
             task: tsgo
             command: pnpm tsgo
           - runtime: node
             task: lint
+<<<<<<< HEAD
 >>>>>>> f99e3ddd6 (Run `tsgo` on CI.)
             command: pnpm lint
           - task: test
@@ -51,6 +55,14 @@ jobs:
           - task: build
             command: pnpm build
           - task: protocol
+=======
+            command: pnpm build && pnpm lint
+          - runtime: node
+            task: test
+            command: pnpm canvas:a2ui:bundle && pnpm test
+          - runtime: node
+            task: protocol
+>>>>>>> 1f2fb823a (fix: CI: Run build and lint together since lint depends on build now.)
             command: pnpm protocol:check
           - task: format
             command: pnpm format
@@ -147,8 +159,8 @@ jobs:
       matrix:
         include:
           - runtime: node
-            task: lint
-            command: pnpm lint
+            task: build & lint
+            command: pnpm build && pnpm lint
           - runtime: node
             task: test-unit
             command: pnpm canvas:a2ui:bundle && pnpm vitest run --config vitest.unit.config.ts --no-file-parallelism --dangerouslyIgnoreUnhandledErrors
@@ -158,9 +170,6 @@ jobs:
           - runtime: node
             task: test-gateway
             command: pnpm canvas:a2ui:bundle && pnpm vitest run --config vitest.gateway.config.ts --no-file-parallelism --dangerouslyIgnoreUnhandledErrors
-          - runtime: node
-            task: build
-            command: pnpm build
           - runtime: node
             task: protocol
             command: pnpm protocol:check
