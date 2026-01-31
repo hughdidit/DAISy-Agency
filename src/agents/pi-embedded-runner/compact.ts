@@ -383,6 +383,7 @@ export async function compactEmbeddedPiSessionDirect(
         sandboxEnabled: !!sandbox?.enabled,
       });
 
+<<<<<<< HEAD
       let session: Awaited<ReturnType<typeof createAgentSession>>["session"];
 <<<<<<< HEAD
 =======
@@ -399,6 +400,9 @@ export async function compactEmbeddedPiSessionDirect(
 
 >>>>>>> e9f0be06e (fix: repair docker build typing)
       ({ session } = await createAgentSession({
+=======
+      const { session } = await createAgentSession({
+>>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
         cwd: resolvedWorkspace,
         agentDir,
         authStorage,
@@ -410,10 +414,18 @@ export async function compactEmbeddedPiSessionDirect(
         customTools,
         sessionManager,
         settingsManager,
+<<<<<<< HEAD
         skills: [],
         contextFiles: [],
         additionalExtensionPaths,
       }));
+=======
+        additionalExtensionPaths,
+        skills: [],
+        contextFiles: [],
+        systemPrompt,
+      });
+>>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
 
       try {
         const prior = await sanitizeSessionHistory({
