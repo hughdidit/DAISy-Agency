@@ -129,6 +129,7 @@
     "android:test": "cd apps/android && ./gradlew :app:testDebugUnitTest",
     "mac:restart": "bash scripts/restart-mac.sh",
     "mac:package": "bash scripts/package-mac-app.sh",
+<<<<<<< HEAD
     "mac:open": "open dist/Moltbot.app",
     "lint": "oxlint --type-aware src test",
     "lint:swift": "swiftlint lint --config .swiftlint.yml && (cd apps/ios && swiftlint lint --config .swiftlint.yml)",
@@ -138,6 +139,13 @@
     "format": "oxfmt --check src test",
     "format:swift": "swiftformat --lint --config .swiftformat apps/macos/Sources apps/ios/Sources apps/shared/MoltbotKit/Sources",
 =======
+=======
+    "mac:open": "open dist/OpenClaw.app",
+    "lint": "oxlint --type-aware",
+    "lint:swift": "swiftlint lint --config .swiftlint.yml && (cd apps/ios && swiftlint lint --config .swiftlint.yml)",
+    "lint:all": "pnpm lint && pnpm lint:swift",
+    "lint:fix": "pnpm format:fix && oxlint --type-aware --fix",
+>>>>>>> 0ffc25170 (chore: Updated lint config using `ignorePatterns`.)
     "format": "oxfmt --check",
     "format:swift": "swiftformat --lint --config .swiftformat apps/macos/Sources apps/ios/Sources apps/shared/OpenClawKit/Sources",
 >>>>>>> dcc2de15a (chore: Enable formatting of files other than `src` and `test`.)
