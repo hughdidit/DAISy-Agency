@@ -36,8 +36,16 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await server.close();
+<<<<<<< HEAD
   if (previousToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   else process.env.CLAWDBOT_GATEWAY_TOKEN = previousToken;
+=======
+  if (previousToken === undefined) {
+    delete process.env.OPENCLAW_GATEWAY_TOKEN;
+  } else {
+    process.env.OPENCLAW_GATEWAY_TOKEN = previousToken;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 });
 
 const openClient = async (opts?: Parameters<typeof connectOk>[1]) => {
@@ -210,7 +218,9 @@ describe("gateway server health/presence", () => {
       expect(evt.payload?.presence?.length).toBeGreaterThan(0);
       expect(typeof evt.seq).toBe("number");
     }
-    for (const c of clients) c.close();
+    for (const c of clients) {
+      c.close();
+    }
   });
 
   test("presence includes client fingerprint", async () => {

@@ -22,8 +22,15 @@ const noopAsync = async () => {};
 const noop = () => {};
 const authProfilePathFor = (agentDir: string) => path.join(agentDir, "auth-profiles.json");
 const requireAgentDir = () => {
+<<<<<<< HEAD
   const agentDir = process.env.CLAWDBOT_AGENT_DIR;
   if (!agentDir) throw new Error("CLAWDBOT_AGENT_DIR not set");
+=======
+  const agentDir = process.env.OPENCLAW_AGENT_DIR;
+  if (!agentDir) {
+    throw new Error("OPENCLAW_AGENT_DIR not set");
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return agentDir;
 };
 

@@ -22,8 +22,16 @@ describe("restart sentinel", () => {
   });
 
   afterEach(async () => {
+<<<<<<< HEAD
     if (prevStateDir) process.env.CLAWDBOT_STATE_DIR = prevStateDir;
     else delete process.env.CLAWDBOT_STATE_DIR;
+=======
+    if (prevStateDir) {
+      process.env.OPENCLAW_STATE_DIR = prevStateDir;
+    } else {
+      delete process.env.OPENCLAW_STATE_DIR;
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 

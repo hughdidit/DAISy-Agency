@@ -63,8 +63,16 @@ describe("browser extension install", () => {
 
       expect(copyToClipboard).toHaveBeenCalledWith(dir);
     } finally {
+<<<<<<< HEAD
       if (prev === undefined) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = prev;
+=======
+      if (prev === undefined) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = prev;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 });

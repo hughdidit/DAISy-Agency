@@ -421,8 +421,16 @@ describe("doctor command", () => {
         { nonInteractive: true, workspaceSuggestions: false },
       );
     } finally {
+<<<<<<< HEAD
       if (prevToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
       else process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
+=======
+      if (prevToken === undefined) {
+        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      } else {
+        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
 
     const warned = note.mock.calls.some(([message]) =>

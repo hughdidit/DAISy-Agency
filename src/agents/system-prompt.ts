@@ -17,9 +17,13 @@ function buildSkillsSection(params: {
   isMinimal: boolean;
   readToolName: string;
 }) {
-  if (params.isMinimal) return [];
+  if (params.isMinimal) {
+    return [];
+  }
   const trimmed = params.skillsPrompt?.trim();
-  if (!trimmed) return [];
+  if (!trimmed) {
+    return [];
+  }
   return [
     "## Skills (mandatory)",
     "Before replying: scan <available_skills> <description> entries.",
@@ -33,7 +37,9 @@ function buildSkillsSection(params: {
 }
 
 function buildMemorySection(params: { isMinimal: boolean; availableTools: Set<string> }) {
-  if (params.isMinimal) return [];
+  if (params.isMinimal) {
+    return [];
+  }
   if (!params.availableTools.has("memory_search") && !params.availableTools.has("memory_get")) {
     return [];
   }
@@ -45,11 +51,14 @@ function buildMemorySection(params: { isMinimal: boolean; availableTools: Set<st
 }
 
 function buildUserIdentitySection(ownerLine: string | undefined, isMinimal: boolean) {
-  if (!ownerLine || isMinimal) return [];
+  if (!ownerLine || isMinimal) {
+    return [];
+  }
   return ["## User Identity", ownerLine, ""];
 }
 
 function buildTimeSection(params: { userTimezone?: string }) {
+<<<<<<< HEAD
   if (!params.userTimezone) return [];
   return [
     "## Current Date & Time",
@@ -57,10 +66,18 @@ function buildTimeSection(params: { userTimezone?: string }) {
     "If you need the current date, time, or day of week, use the session_status tool.",
     "",
   ];
+=======
+  if (!params.userTimezone) {
+    return [];
+  }
+  return ["## Current Date & Time", `Time zone: ${params.userTimezone}`, ""];
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 function buildReplyTagsSection(isMinimal: boolean) {
-  if (isMinimal) return [];
+  if (isMinimal) {
+    return [];
+  }
   return [
     "## Reply Tags",
     "To request a native reply/quote on supported surfaces, include one tag in your reply:",
@@ -80,7 +97,9 @@ function buildMessagingSection(params: {
   runtimeChannel?: string;
   messageToolHints?: string[];
 }) {
-  if (params.isMinimal) return [];
+  if (params.isMinimal) {
+    return [];
+  }
   return [
     "## Messaging",
     "- Reply in current session → automatically routes to the source channel (Signal, Telegram, etc.)",
@@ -109,15 +128,21 @@ function buildMessagingSection(params: {
 }
 
 function buildVoiceSection(params: { isMinimal: boolean; ttsHint?: string }) {
-  if (params.isMinimal) return [];
+  if (params.isMinimal) {
+    return [];
+  }
   const hint = params.ttsHint?.trim();
-  if (!hint) return [];
+  if (!hint) {
+    return [];
+  }
   return ["## Voice (TTS)", hint, ""];
 }
 
 function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readToolName: string }) {
   const docsPath = params.docsPath?.trim();
-  if (!docsPath || params.isMinimal) return [];
+  if (!docsPath || params.isMinimal) {
+    return [];
+  }
   return [
     "## Documentation",
     `Moltbot docs: ${docsPath}`,
@@ -263,7 +288,9 @@ export function buildAgentSystemPrompt(params: {
   const externalToolSummaries = new Map<string, string>();
   for (const [key, value] of Object.entries(params.toolSummaries ?? {})) {
     const normalized = key.trim().toLowerCase();
-    if (!normalized || !value?.trim()) continue;
+    if (!normalized || !value?.trim()) {
+      continue;
+    }
     externalToolSummaries.set(normalized, value.trim());
   }
   const extraTools = Array.from(

@@ -93,13 +93,17 @@ export async function buildProviderStatusIndex(
 
 function resolveDefaultAccountId(cfg: MoltbotConfig, provider: ChannelId): string {
   const plugin = getChannelPlugin(provider);
-  if (!plugin) return DEFAULT_ACCOUNT_ID;
+  if (!plugin) {
+    return DEFAULT_ACCOUNT_ID;
+  }
   return resolveChannelDefaultAccountId({ plugin, cfg });
 }
 
 function shouldShowProviderEntry(entry: ProviderAccountStatus, cfg: MoltbotConfig): boolean {
   const plugin = getChannelPlugin(entry.provider);
-  if (!plugin) return Boolean(entry.configured);
+  if (!plugin) {
+    return Boolean(entry.configured);
+  }
   if (plugin.meta.showConfigured === false) {
     const providerConfig = (cfg as Record<string, unknown>)[plugin.id];
     return Boolean(entry.configured) || Boolean(providerConfig);
@@ -116,12 +120,21 @@ function formatProviderEntry(entry: ProviderAccountStatus): string {
   return `${label}: ${formatProviderState(entry)}`;
 }
 
+<<<<<<< HEAD
 export function summarizeBindings(cfg: MoltbotConfig, bindings: AgentBinding[]): string[] {
   if (bindings.length === 0) return [];
+=======
+export function summarizeBindings(cfg: OpenClawConfig, bindings: AgentBinding[]): string[] {
+  if (bindings.length === 0) {
+    return [];
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const seen = new Map<string, string>();
   for (const binding of bindings) {
     const channel = normalizeChannelId(binding.match.channel);
-    if (!channel) continue;
+    if (!channel) {
+      continue;
+    }
     const accountId = binding.match.accountId ?? resolveDefaultAccountId(cfg, channel);
     const key = providerAccountKey(channel, accountId);
     if (!seen.has(key)) {
@@ -147,10 +160,14 @@ export function listProvidersForAgent(params: {
     const seen = new Set<string>();
     for (const binding of params.bindings) {
       const channel = normalizeChannelId(binding.match.channel);
-      if (!channel) continue;
+      if (!channel) {
+        continue;
+      }
       const accountId = binding.match.accountId ?? resolveDefaultAccountId(params.cfg, channel);
       const key = providerAccountKey(channel, accountId);
-      if (seen.has(key)) continue;
+      if (seen.has(key)) {
+        continue;
+      }
       seen.add(key);
       const status = params.providerStatus.get(key);
       if (status) {

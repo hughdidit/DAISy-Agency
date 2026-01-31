@@ -13,15 +13,23 @@ export function resolveCliName(
   const override = env.MOLTBOT_CLI_NAME?.trim() || env.CLAWDBOT_CLI_NAME?.trim();
   if (override) return override;
   const argv1 = argv[1];
-  if (!argv1) return DEFAULT_CLI_NAME;
+  if (!argv1) {
+    return DEFAULT_CLI_NAME;
+  }
   const base = path.basename(argv1).trim();
-  if (KNOWN_CLI_NAMES.has(base)) return base;
+  if (KNOWN_CLI_NAMES.has(base)) {
+    return base;
+  }
   return DEFAULT_CLI_NAME;
 }
 
 export function replaceCliName(command: string, cliName = resolveCliName()): string {
-  if (!command.trim()) return command;
-  if (!CLI_PREFIX_RE.test(command)) return command;
+  if (!command.trim()) {
+    return command;
+  }
+  if (!CLI_PREFIX_RE.test(command)) {
+    return command;
+  }
   return command.replace(CLI_PREFIX_RE, (_match, runner: string | undefined) => {
     return `${runner ?? ""}${cliName}`;
   });

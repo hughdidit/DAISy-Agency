@@ -27,10 +27,23 @@ describe("noteSecurityWarnings gateway exposure", () => {
   });
 
   afterEach(() => {
+<<<<<<< HEAD
     if (prevToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     else process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
     if (prevPassword === undefined) delete process.env.CLAWDBOT_GATEWAY_PASSWORD;
     else process.env.CLAWDBOT_GATEWAY_PASSWORD = prevPassword;
+=======
+    if (prevToken === undefined) {
+      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+    } else {
+      process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+    }
+    if (prevPassword === undefined) {
+      delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+    } else {
+      process.env.OPENCLAW_GATEWAY_PASSWORD = prevPassword;
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   });
 
   const lastMessage = () => String(note.mock.calls.at(-1)?.[0] ?? "");

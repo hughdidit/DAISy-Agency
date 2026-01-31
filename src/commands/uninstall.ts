@@ -42,10 +42,18 @@ function buildScopeSelection(opts: UninstallOptions): {
 } {
   const hadExplicit = Boolean(opts.all || opts.service || opts.state || opts.workspace || opts.app);
   const scopes = new Set<UninstallScope>();
-  if (opts.all || opts.service) scopes.add("service");
-  if (opts.all || opts.state) scopes.add("state");
-  if (opts.all || opts.workspace) scopes.add("workspace");
-  if (opts.all || opts.app) scopes.add("app");
+  if (opts.all || opts.service) {
+    scopes.add("service");
+  }
+  if (opts.all || opts.state) {
+    scopes.add("state");
+  }
+  if (opts.all || opts.workspace) {
+    scopes.add("workspace");
+  }
+  if (opts.all || opts.app) {
+    scopes.add("app");
+  }
   return { scopes, hadExplicit };
 }
 
@@ -81,8 +89,15 @@ async function stopAndUninstallService(runtime: RuntimeEnv): Promise<boolean> {
 }
 
 async function removeMacApp(runtime: RuntimeEnv, dryRun?: boolean) {
+<<<<<<< HEAD
   if (process.platform !== "darwin") return;
   await removePath("/Applications/Moltbot.app", runtime, {
+=======
+  if (process.platform !== "darwin") {
+    return;
+  }
+  await removePath("/Applications/OpenClaw.app", runtime, {
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     dryRun,
     label: "/Applications/Moltbot.app",
   });
@@ -126,7 +141,9 @@ export async function uninstallCommand(runtime: RuntimeEnv, opts: UninstallOptio
       runtime.exit(0);
       return;
     }
-    for (const value of selection) scopes.add(value);
+    for (const value of selection) {
+      scopes.add(value);
+    }
   }
 
   if (scopes.size === 0) {

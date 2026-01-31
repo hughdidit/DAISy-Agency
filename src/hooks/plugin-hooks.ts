@@ -14,8 +14,15 @@ export type PluginHookLoadResult = {
   errors: string[];
 };
 
+<<<<<<< HEAD
 function resolveHookDir(api: MoltbotPluginApi, dir: string): string {
   if (path.isAbsolute(dir)) return dir;
+=======
+function resolveHookDir(api: OpenClawPluginApi, dir: string): string {
+  if (path.isAbsolute(dir)) {
+    return dir;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return path.resolve(path.dirname(api.source), dir);
 }
 

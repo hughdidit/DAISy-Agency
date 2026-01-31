@@ -15,8 +15,16 @@ async function withTempStateDir<T>(fn: (stateDir: string) => Promise<T>) {
   try {
     return await fn(dir);
   } finally {
+<<<<<<< HEAD
     if (previous === undefined) delete process.env.CLAWDBOT_STATE_DIR;
     else process.env.CLAWDBOT_STATE_DIR = previous;
+=======
+    if (previous === undefined) {
+      delete process.env.OPENCLAW_STATE_DIR;
+    } else {
+      process.env.OPENCLAW_STATE_DIR = previous;
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     await fs.rm(dir, { recursive: true, force: true });
   }
 }

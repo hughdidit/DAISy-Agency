@@ -42,7 +42,9 @@ vi.mock("../infra/exec-approvals.js", async (importOriginal) => {
 
 describe("createMoltbotCodingTools safeBins", () => {
   it("threads tools.exec.safeBins into exec allowlist checks", async () => {
-    if (process.platform === "win32") return;
+    if (process.platform === "win32") {
+      return;
+    }
 
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-safe-bins-"));
     const cfg: MoltbotConfig = {

@@ -13,15 +13,32 @@ export type ResolveBonjourCliPathOptions = {
 
 export function formatBonjourInstanceName(displayName: string) {
   const trimmed = displayName.trim();
+<<<<<<< HEAD
   if (!trimmed) return "Moltbot";
   if (/moltbot/i.test(trimmed)) return trimmed;
   return `${trimmed} (Moltbot)`;
+=======
+  if (!trimmed) {
+    return "OpenClaw";
+  }
+  if (/openclaw/i.test(trimmed)) {
+    return trimmed;
+  }
+  return `${trimmed} (OpenClaw)`;
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 }
 
 export function resolveBonjourCliPath(opts: ResolveBonjourCliPathOptions = {}): string | undefined {
   const env = opts.env ?? process.env;
+<<<<<<< HEAD
   const envPath = env.CLAWDBOT_CLI_PATH?.trim();
   if (envPath) return envPath;
+=======
+  const envPath = env.OPENCLAW_CLI_PATH?.trim();
+  if (envPath) {
+    return envPath;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
   const statSync = opts.statSync ?? fs.statSync;
   const isFile = (candidate: string) => {
@@ -34,8 +51,15 @@ export function resolveBonjourCliPath(opts: ResolveBonjourCliPathOptions = {}): 
 
   const execPath = opts.execPath ?? process.execPath;
   const execDir = path.dirname(execPath);
+<<<<<<< HEAD
   const siblingCli = path.join(execDir, "moltbot");
   if (isFile(siblingCli)) return siblingCli;
+=======
+  const siblingCli = path.join(execDir, "openclaw");
+  if (isFile(siblingCli)) {
+    return siblingCli;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
   const argv = opts.argv ?? process.argv;
   const argvPath = argv[1];
@@ -45,9 +69,19 @@ export function resolveBonjourCliPath(opts: ResolveBonjourCliPathOptions = {}): 
 
   const cwd = opts.cwd ?? process.cwd();
   const distCli = path.join(cwd, "dist", "index.js");
+<<<<<<< HEAD
   if (isFile(distCli)) return distCli;
   const binCli = path.join(cwd, "bin", "moltbot.js");
   if (isFile(binCli)) return binCli;
+=======
+  if (isFile(distCli)) {
+    return distCli;
+  }
+  const binCli = path.join(cwd, "bin", "openclaw");
+  if (isFile(binCli)) {
+    return binCli;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
   return undefined;
 }
@@ -60,8 +94,12 @@ export async function resolveTailnetDnsHint(opts?: {
   const env = opts?.env ?? process.env;
   const envRaw = env.CLAWDBOT_TAILNET_DNS?.trim();
   const envValue = envRaw && envRaw.length > 0 ? envRaw.replace(/\.$/, "") : "";
-  if (envValue) return envValue;
-  if (opts?.enabled === false) return undefined;
+  if (envValue) {
+    return envValue;
+  }
+  if (opts?.enabled === false) {
+    return undefined;
+  }
 
   const exec =
     opts?.exec ??

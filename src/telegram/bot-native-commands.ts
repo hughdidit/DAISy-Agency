@@ -338,8 +338,12 @@ export const registerTelegramNativeCommands = ({
       for (const command of nativeCommands) {
         bot.command(command.name, async (ctx: TelegramNativeCommandContext) => {
           const msg = ctx.message;
-          if (!msg) return;
-          if (shouldSkipUpdate(ctx)) return;
+          if (!msg) {
+            return;
+          }
+          if (shouldSkipUpdate(ctx)) {
+            return;
+          }
           const auth = await resolveTelegramCommandAuth({
             msg,
             bot,
@@ -352,7 +356,9 @@ export const registerTelegramNativeCommands = ({
             resolveTelegramGroupConfig,
             requireAuth: true,
           });
-          if (!auth) return;
+          if (!auth) {
+            return;
+          }
           const {
             chatId,
             isGroup,
@@ -507,6 +513,17 @@ export const registerTelegramNativeCommands = ({
                   linkPreview: telegramCfg.linkPreview,
                   notifyEmptyResponse: info.kind === "final",
                 });
+<<<<<<< HEAD
+=======
+                if (result.delivered) {
+                  deliveryState.delivered = true;
+                }
+              },
+              onSkip: (_payload, info) => {
+                if (info.reason !== "silent") {
+                  deliveryState.skippedNonSilent += 1;
+                }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
               },
               onError: (err, info) => {
                 runtime.error?.(danger(`telegram slash ${info.kind} reply failed: ${String(err)}`));
@@ -523,8 +540,12 @@ export const registerTelegramNativeCommands = ({
       for (const pluginCommand of pluginCommands) {
         bot.command(pluginCommand.command, async (ctx: TelegramNativeCommandContext) => {
           const msg = ctx.message;
-          if (!msg) return;
-          if (shouldSkipUpdate(ctx)) return;
+          if (!msg) {
+            return;
+          }
+          if (shouldSkipUpdate(ctx)) {
+            return;
+          }
           const chatId = msg.chat.id;
           const rawText = ctx.match?.trim() ?? "";
           const commandBody = `/${pluginCommand.command}${rawText ? ` ${rawText}` : ""}`;
@@ -549,7 +570,9 @@ export const registerTelegramNativeCommands = ({
             resolveTelegramGroupConfig,
             requireAuth: match.command.requireAuth !== false,
           });
-          if (!auth) return;
+          if (!auth) {
+            return;
+          }
           const { resolvedThreadId, senderId, commandAuthorized, isGroup } = auth;
           const messageThreadId = (msg as { message_thread_id?: number }).message_thread_id;
           const threadIdForSend = isGroup ? resolvedThreadId : messageThreadId;

@@ -42,8 +42,18 @@ export function normalizeReplyPayload(
   const shouldStripHeartbeat = opts.stripHeartbeat ?? true;
   if (shouldStripHeartbeat && text?.includes(HEARTBEAT_TOKEN)) {
     const stripped = stripHeartbeatToken(text, { mode: "message" });
+<<<<<<< HEAD
     if (stripped.didStrip) opts.onHeartbeatStrip?.();
     if (stripped.shouldSkip && !hasMedia && !hasChannelData) return null;
+=======
+    if (stripped.didStrip) {
+      opts.onHeartbeatStrip?.();
+    }
+    if (stripped.shouldSkip && !hasMedia && !hasChannelData) {
+      opts.onSkip?.("heartbeat");
+      return null;
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     text = stripped.text;
   }
 

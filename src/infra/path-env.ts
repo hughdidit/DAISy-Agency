@@ -59,8 +59,15 @@ function candidateBinDirs(opts: EnsureMoltbotPathOpts): string[] {
   // Bundled macOS app: `moltbot` lives next to the executable (process.execPath).
   try {
     const execDir = path.dirname(execPath);
+<<<<<<< HEAD
     const siblingMoltbot = path.join(execDir, "moltbot");
     if (isExecutable(siblingMoltbot)) candidates.push(execDir);
+=======
+    const siblingCli = path.join(execDir, "openclaw");
+    if (isExecutable(siblingCli)) {
+      candidates.push(execDir);
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   } catch {
     // ignore
   }
@@ -68,11 +75,19 @@ function candidateBinDirs(opts: EnsureMoltbotPathOpts): string[] {
   // Project-local installs (best effort): if a `node_modules/.bin/moltbot` exists near cwd,
   // include it. This helps when running under launchd or other minimal PATH environments.
   const localBinDir = path.join(cwd, "node_modules", ".bin");
+<<<<<<< HEAD
   if (isExecutable(path.join(localBinDir, "moltbot"))) candidates.push(localBinDir);
+=======
+  if (isExecutable(path.join(localBinDir, "openclaw"))) {
+    candidates.push(localBinDir);
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
 
   const miseDataDir = process.env.MISE_DATA_DIR ?? path.join(homeDir, ".local", "share", "mise");
   const miseShims = path.join(miseDataDir, "shims");
-  if (isDirectory(miseShims)) candidates.push(miseShims);
+  if (isDirectory(miseShims)) {
+    candidates.push(miseShims);
+  }
 
   candidates.push(...resolveBrewPathDirs({ homeDir }));
 
@@ -80,7 +95,9 @@ function candidateBinDirs(opts: EnsureMoltbotPathOpts): string[] {
   if (platform === "darwin") {
     candidates.push(path.join(homeDir, "Library", "pnpm"));
   }
-  if (process.env.XDG_BIN_HOME) candidates.push(process.env.XDG_BIN_HOME);
+  if (process.env.XDG_BIN_HOME) {
+    candidates.push(process.env.XDG_BIN_HOME);
+  }
   candidates.push(path.join(homeDir, ".local", "bin"));
   candidates.push(path.join(homeDir, ".local", "share", "pnpm"));
   candidates.push(path.join(homeDir, ".bun", "bin"));
@@ -100,8 +117,12 @@ export function ensureMoltbotCliOnPath(opts: EnsureMoltbotPathOpts = {}) {
 
   const existing = opts.pathEnv ?? process.env.PATH ?? "";
   const prepend = candidateBinDirs(opts);
-  if (prepend.length === 0) return;
+  if (prepend.length === 0) {
+    return;
+  }
 
   const merged = mergePath({ existing, prepend });
-  if (merged) process.env.PATH = merged;
+  if (merged) {
+    process.env.PATH = merged;
+  }
 }

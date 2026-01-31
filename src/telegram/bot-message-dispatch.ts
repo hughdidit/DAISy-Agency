@@ -26,7 +26,9 @@ async function resolveStickerVisionSupport(cfg, agentId) {
     const catalog = await loadModelCatalog({ config: cfg });
     const defaultModel = resolveDefaultModelForAgent({ cfg, agentId });
     const entry = findModelInCatalog(catalog, defaultModel.provider, defaultModel.model);
-    if (!entry) return false;
+    if (!entry) {
+      return false;
+    }
     return modelSupportsVision(entry);
   } catch {
     return false;
@@ -90,8 +92,12 @@ export const dispatchTelegramMessage = async ({
   let lastPartialText = "";
   let draftText = "";
   const updateDraftFromPartial = (text?: string) => {
-    if (!draftStream || !text) return;
-    if (text === lastPartialText) return;
+    if (!draftStream || !text) {
+      return;
+    }
+    if (text === lastPartialText) {
+      return;
+    }
     if (streamMode === "partial") {
       lastPartialText = text;
       draftStream.update(text);
@@ -106,7 +112,9 @@ export const dispatchTelegramMessage = async ({
       draftText = "";
     }
     lastPartialText = text;
-    if (!delta) return;
+    if (!delta) {
+      return;
+    }
     if (!draftChunker) {
       draftText = text;
       draftStream.update(draftText);
@@ -122,7 +130,9 @@ export const dispatchTelegramMessage = async ({
     });
   };
   const flushDraft = async () => {
-    if (!draftStream) return;
+    if (!draftStream) {
+      return;
+    }
     if (draftChunker?.hasBuffered()) {
       draftChunker.drain({
         force: true,
@@ -131,7 +141,9 @@ export const dispatchTelegramMessage = async ({
         },
       });
       draftChunker.reset();
-      if (draftText) draftStream.update(draftText);
+      if (draftText) {
+        draftStream.update(draftText);
+      }
     }
     await draftStream.flush();
   };
@@ -230,6 +242,17 @@ export const dispatchTelegramMessage = async ({
           replyQuoteText,
           notifyEmptyResponse: info.kind === "final",
         });
+<<<<<<< HEAD
+=======
+        if (result.delivered) {
+          deliveryState.delivered = true;
+        }
+      },
+      onSkip: (_payload, info) => {
+        if (info.reason !== "silent") {
+          deliveryState.skippedNonSilent += 1;
+        }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       },
       onError: (err, info) => {
         runtime.error?.(danger(`telegram ${info.kind} reply failed: ${String(err)}`));
@@ -251,7 +274,9 @@ export const dispatchTelegramMessage = async ({
       onPartialReply: draftStream ? (payload) => updateDraftFromPartial(payload.text) : undefined,
       onReasoningStream: draftStream
         ? (payload) => {
-            if (payload.text) draftStream.update(payload.text);
+            if (payload.text) {
+              draftStream.update(payload.text);
+            }
           }
         : undefined,
       disableBlockStreaming,
@@ -273,7 +298,9 @@ export const dispatchTelegramMessage = async ({
     ackReactionValue: ackReactionPromise ? "ack" : null,
     remove: () => reactionApi?.(chatId, msg.message_id ?? 0, []) ?? Promise.resolve(),
     onError: (err) => {
-      if (!msg.message_id) return;
+      if (!msg.message_id) {
+        return;
+      }
       logAckFailure({
         log: logVerbose,
         channel: "telegram",

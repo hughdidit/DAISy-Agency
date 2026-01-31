@@ -429,8 +429,16 @@ describe("security audit", () => {
         ]),
       );
     } finally {
+<<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = prevStateDir;
+=======
+      if (prevStateDir == null) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = prevStateDir;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 
@@ -475,8 +483,16 @@ describe("security audit", () => {
         ]),
       );
     } finally {
+<<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = prevStateDir;
+=======
+      if (prevStateDir == null) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = prevStateDir;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 
@@ -520,8 +536,16 @@ describe("security audit", () => {
         ]),
       );
     } finally {
+<<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = prevStateDir;
+=======
+      if (prevStateDir == null) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = prevStateDir;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 
@@ -559,8 +583,16 @@ describe("security audit", () => {
         ]),
       );
     } finally {
+<<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = prevStateDir;
+=======
+      if (prevStateDir == null) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = prevStateDir;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 
@@ -599,8 +631,16 @@ describe("security audit", () => {
         ]),
       );
     } finally {
+<<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = prevStateDir;
+=======
+      if (prevStateDir == null) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = prevStateDir;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 
@@ -637,8 +677,16 @@ describe("security audit", () => {
         ]),
       );
     } finally {
+<<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
       else process.env.CLAWDBOT_STATE_DIR = prevStateDir;
+=======
+      if (prevStateDir == null) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = prevStateDir;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 
@@ -785,8 +833,16 @@ describe("security audit", () => {
         ]),
       );
     } finally {
+<<<<<<< HEAD
       if (prevToken === undefined) delete process.env.CLAWDBOT_GATEWAY_TOKEN;
       else process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
+=======
+      if (prevToken === undefined) {
+        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      } else {
+        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+      }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
   });
 
@@ -905,14 +961,26 @@ describe("security audit", () => {
         ]),
       );
     } finally {
-      if (prevDiscordToken == null) delete process.env.DISCORD_BOT_TOKEN;
-      else process.env.DISCORD_BOT_TOKEN = prevDiscordToken;
-      if (prevTelegramToken == null) delete process.env.TELEGRAM_BOT_TOKEN;
-      else process.env.TELEGRAM_BOT_TOKEN = prevTelegramToken;
-      if (prevSlackBotToken == null) delete process.env.SLACK_BOT_TOKEN;
-      else process.env.SLACK_BOT_TOKEN = prevSlackBotToken;
-      if (prevSlackAppToken == null) delete process.env.SLACK_APP_TOKEN;
-      else process.env.SLACK_APP_TOKEN = prevSlackAppToken;
+      if (prevDiscordToken == null) {
+        delete process.env.DISCORD_BOT_TOKEN;
+      } else {
+        process.env.DISCORD_BOT_TOKEN = prevDiscordToken;
+      }
+      if (prevTelegramToken == null) {
+        delete process.env.TELEGRAM_BOT_TOKEN;
+      } else {
+        process.env.TELEGRAM_BOT_TOKEN = prevTelegramToken;
+      }
+      if (prevSlackBotToken == null) {
+        delete process.env.SLACK_BOT_TOKEN;
+      } else {
+        process.env.SLACK_BOT_TOKEN = prevSlackBotToken;
+      }
+      if (prevSlackAppToken == null) {
+        delete process.env.SLACK_APP_TOKEN;
+      } else {
+        process.env.SLACK_APP_TOKEN = prevSlackAppToken;
+      }
     }
   });
 
@@ -949,8 +1017,11 @@ describe("security audit", () => {
         ]),
       );
     } finally {
-      if (prevDiscordToken == null) delete process.env.DISCORD_BOT_TOKEN;
-      else process.env.DISCORD_BOT_TOKEN = prevDiscordToken;
+      if (prevDiscordToken == null) {
+        delete process.env.DISCORD_BOT_TOKEN;
+      } else {
+        process.env.DISCORD_BOT_TOKEN = prevDiscordToken;
+      }
     }
   });
 

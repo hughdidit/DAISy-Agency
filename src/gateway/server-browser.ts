@@ -5,7 +5,13 @@ export type BrowserControlServer = {
 };
 
 export async function startBrowserControlServerIfEnabled(): Promise<BrowserControlServer | null> {
+<<<<<<< HEAD
   if (isTruthyEnvValue(process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER)) return null;
+=======
+  if (isTruthyEnvValue(process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER)) {
+    return null;
+  }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   // Lazy import: keeps startup fast, but still bundles for the embedded
   // gateway (bun --compile) via the static specifier path.
   const override = process.env.CLAWDBOT_BROWSER_CONTROL_MODULE?.trim();
@@ -21,7 +27,9 @@ export async function startBrowserControlServerIfEnabled(): Promise<BrowserContr
     typeof (mod as { stopBrowserControlService?: unknown }).stopBrowserControlService === "function"
       ? (mod as { stopBrowserControlService: () => Promise<void> }).stopBrowserControlService
       : (mod as { stopBrowserControlServer?: () => Promise<void> }).stopBrowserControlServer;
-  if (!start) return null;
+  if (!start) {
+    return null;
+  }
   await start();
   return { stop: stop ?? (async () => {}) };
 }

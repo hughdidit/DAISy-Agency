@@ -12,21 +12,37 @@ describe("parseCliProfileArgs", () => {
       "--dev",
       "--allow-unconfigured",
     ]);
-    if (!res.ok) throw new Error(res.error);
+    if (!res.ok) {
+      throw new Error(res.error);
+    }
     expect(res.profile).toBeNull();
     expect(res.argv).toEqual(["node", "moltbot", "gateway", "--dev", "--allow-unconfigured"]);
   });
 
   it("still accepts global --dev before subcommand", () => {
+<<<<<<< HEAD
     const res = parseCliProfileArgs(["node", "moltbot", "--dev", "gateway"]);
     if (!res.ok) throw new Error(res.error);
+=======
+    const res = parseCliProfileArgs(["node", "openclaw", "--dev", "gateway"]);
+    if (!res.ok) {
+      throw new Error(res.error);
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     expect(res.profile).toBe("dev");
     expect(res.argv).toEqual(["node", "moltbot", "gateway"]);
   });
 
   it("parses --profile value and strips it", () => {
+<<<<<<< HEAD
     const res = parseCliProfileArgs(["node", "moltbot", "--profile", "work", "status"]);
     if (!res.ok) throw new Error(res.error);
+=======
+    const res = parseCliProfileArgs(["node", "openclaw", "--profile", "work", "status"]);
+    if (!res.ok) {
+      throw new Error(res.error);
+    }
+>>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     expect(res.profile).toBe("work");
     expect(res.argv).toEqual(["node", "moltbot", "status"]);
   });
