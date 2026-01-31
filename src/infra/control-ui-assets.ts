@@ -38,6 +38,11 @@ export async function resolveControlUiDistIndexPath(
 ): Promise<string | null> {
   if (!argv1) return null;
   const normalized = path.resolve(argv1);
+<<<<<<< HEAD
+=======
+
+  // Case 1: entrypoint is directly inside dist/ (e.g., dist/entry.mjs)
+>>>>>>> ed65131c1 (fix: Also build `entry.ts` into `dist/entry.mjs`.)
   const distDir = path.dirname(normalized);
 <<<<<<< HEAD
   if (path.basename(distDir) !== "dist") return null;
