@@ -334,16 +334,21 @@ export async function runSubagentAnnounceFlow(params: {
           timeoutMs: waitMs,
         },
         timeoutMs: waitMs + 2000,
+<<<<<<< HEAD
       })) as {
         status?: string;
         error?: string;
         startedAt?: number;
         endedAt?: number;
       };
+=======
+      });
+      const waitError = typeof wait?.error === "string" ? wait.error : undefined;
+>>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
       if (wait?.status === "timeout") {
         outcome = { status: "timeout" };
       } else if (wait?.status === "error") {
-        outcome = { status: "error", error: wait.error };
+        outcome = { status: "error", error: waitError };
       } else if (wait?.status === "ok") {
         outcome = { status: "ok" };
       }
