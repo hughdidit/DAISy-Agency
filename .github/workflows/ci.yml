@@ -47,8 +47,12 @@ jobs:
             command: pnpm canvas:a2ui:bundle && bunx vitest run
           - runtime: bun
             task: build
+<<<<<<< HEAD
             command: bunx tsdown
 >>>>>>> 762652279 (Switch from TypeScript to TypeScript Go. Use `pnpm tsgo` for Typechecks.)
+=======
+            command: bunx tsc -p tsconfig.json --noEmit false
+>>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
     steps:
       - name: Checkout
         uses: actions/checkout@v4

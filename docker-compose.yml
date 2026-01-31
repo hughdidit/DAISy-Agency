@@ -18,12 +18,17 @@ services:
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
     ports:
 <<<<<<< HEAD
+<<<<<<< HEAD
       - "${CLAWDBOT_GATEWAY_PORT}:${CLAWDBOT_GATEWAY_PORT}"
       - "${CLAWDBOT_BRIDGE_PORT}:${CLAWDBOT_BRIDGE_PORT}"
 =======
       - "${OPENCLAW_GATEWAY_PORT:-18789}:18789"
       - "${OPENCLAW_BRIDGE_PORT:-18790}:18790"
 >>>>>>> 9a7160786 (refactor: rename to openclaw)
+=======
+      - '${OPENCLAW_GATEWAY_PORT:-18789}:18789'
+      - '${OPENCLAW_BRIDGE_PORT:-18790}:18790'
+>>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
     init: true
     restart: unless-stopped
     healthcheck:
@@ -34,6 +39,7 @@ services:
       start_period: 30s
     command:
       [
+<<<<<<< HEAD
         "node",
         "dist/index.mjs",
         "gateway",
@@ -48,6 +54,15 @@ services:
         "--port",
         "${OPENCLAW_GATEWAY_PORT:-18789}"
 >>>>>>> 9a7160786 (refactor: rename to openclaw)
+=======
+        'node',
+        'dist/index.js',
+        'gateway',
+        '--bind',
+        '${OPENCLAW_GATEWAY_BIND:-lan}',
+        '--port',
+        '${OPENCLAW_GATEWAY_PORT:-18789}',
+>>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
       ]
 
   openclaw-cli:
@@ -65,4 +80,4 @@ services:
     stdin_open: true
     tty: true
     init: true
-    entrypoint: ["node", "dist/index.mjs"]
+    entrypoint: ['node', 'dist/index.js']

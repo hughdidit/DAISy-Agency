@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import module from "node:module";
+import module from 'node:module';
 
 // https://nodejs.org/api/module.html#module-compile-cache
 if (module.enableCompileCache && !process.env.NODE_DISABLE_COMPILE_CACHE) {
@@ -11,4 +11,8 @@ if (module.enableCompileCache && !process.env.NODE_DISABLE_COMPILE_CACHE) {
   }
 }
 
+<<<<<<< HEAD
 await import("./dist/entry.js");
+=======
+await import('./dist/entry.js');
+>>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)

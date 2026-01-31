@@ -98,7 +98,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "@openclaw/voice-call",
         version: "0.0.1",
-        openclaw: { extensions: ["./dist/index.mjs"] },
+        openclaw: { extensions: ["./dist/index.js"] },
       }),
       "utf-8",
     );
@@ -134,7 +134,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "@openclaw/voice-call",
         version: "0.0.1",
-        openclaw: { extensions: ["./dist/index.mjs"] },
+        openclaw: { extensions: ["./dist/index.js"] },
       }),
       "utf-8",
     );
@@ -174,10 +174,10 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "@openclaw/zipper",
         version: "0.0.1",
-        openclaw: { extensions: ["./dist/index.mjs"] },
+        openclaw: { extensions: ["./dist/index.js"] },
       }),
     );
-    zip.file("package/dist/index.mjs", "export {};");
+    zip.file("package/dist/index.js", "export {};");
     const buffer = await zip.generateAsync({ type: "nodebuffer" });
     fs.writeFileSync(archivePath, buffer);
 
@@ -206,7 +206,7 @@ describe("installPluginFromArchive", () => {
       JSON.stringify({
         name: "@openclaw/voice-call",
         version: "0.0.1",
-        openclaw: { extensions: ["./dist/index.mjs"] },
+        openclaw: { extensions: ["./dist/index.js"] },
       }),
       "utf-8",
     );
@@ -224,7 +224,7 @@ describe("installPluginFromArchive", () => {
         JSON.stringify({
           name: "@openclaw/voice-call",
           version: "0.0.2",
-          openclaw: { extensions: ["./dist/index.mjs"] },
+          openclaw: { extensions: ["./dist/index.js"] },
         }),
         "utf-8",
       );

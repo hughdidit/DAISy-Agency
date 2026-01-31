@@ -37,6 +37,11 @@ export function resolveControlUiDistIndexPath(
 ): string | null {
   if (!argv1) return null;
   const normalized = path.resolve(argv1);
+<<<<<<< HEAD
+=======
+
+  // Case 1: entrypoint is directly inside dist/ (e.g., dist/entry.js)
+>>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
   const distDir = path.dirname(normalized);
   if (path.basename(distDir) !== "dist") return null;
   return path.join(distDir, "control-ui", "index.html");
