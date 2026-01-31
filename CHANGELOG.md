@@ -2,8 +2,42 @@
 
 Docs: https://docs.openclaw.ai
 
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 Status: beta.
+=======
+## 2026.1.30
+
+### Changes
+- CLI: add `completion` command (Zsh/Bash/PowerShell/Fish) and auto-setup during postinstall/onboarding.
+- CLI: add per-agent `models status` (`--agent` filter). (#4780) Thanks @jlowin.
+- Agents: add Kimi K2.5 to the synthetic model catalog. (#4407) Thanks @manikv12.
+- Auth: switch Kimi Coding to built-in provider; normalize OAuth profile email.
+- Agents: update pi SDK/API usage and dependencies.
+- Web UI: refresh sessions after chat commands and improve session display names.
+- Build: move TypeScript builds to `tsdown` + `tsgo` (faster builds, CI typechecks), update tsconfig target, and clean up lint rules.
+- Docs: add pi/pi-dev docs and update OpenClaw branding + install links.
+
+### Fixes
+- Security: restrict local path extraction in media parser to prevent LFI. (#4880)
+- Gateway: prevent token defaults from becoming the literal "undefined". (#4873) Thanks @Hisleren.
+- Control UI: fix assets resolution for npm global installs. (#4909) Thanks @YuriNachos.
+- Telegram: normalize account token lookup for non-normalized IDs. (#5055) Thanks @jasonsschin.
+- Telegram: preserve delivery thread fallback and fix threadId handling in delivery context.
+- Telegram: fix HTML nesting for overlapping styles/links. (#4578) Thanks @ThanhNguyxn.
+- Telegram: accept numeric messageId/chatId in react actions. (#4533) Thanks @Ayush10.
+- Telegram: honor per-account proxy dispatcher via undici fetch. (#4456) Thanks @spiceoogway.
+- Telegram: scope skill commands to bound agent per bot. (#4360) Thanks @robhparker.
+- BlueBubbles: debounce by messageId to preserve attachments in text+image messages. (#4984)
+- Routing: prefer requesterOrigin over stale session entries for sub-agent announce delivery. (#4957)
+- Extensions: restore embedded extension discovery typings.
+- CLI: fix `tui:dev` port resolution.
+- LINE: fix status command TypeError. (#4651)
+- OAuth: skip expired-token warnings when refresh tokens are still valid. (#4593)
+- Build: skip redundant UI install step in Dockerfile. (#4584) Thanks @obviyus.
+
+## 2026.1.29
+>>>>>>> 247fab47c (chore: bump version to 2026.1.30)
 
 ### Changes
 <<<<<<< HEAD
@@ -23,8 +57,28 @@ Status: beta.
 - Agents: summarize dropped messages during compaction safeguard pruning. (#2509) Thanks @jogi47.
 - Memory Search: allow extra paths for memory indexing (ignores symlinks). (#3600) Thanks @kira-ariaki.
 - Skills: add multi-image input support to Nano Banana Pro skill. (#1958) Thanks @tyler6204.
+<<<<<<< HEAD
 - Agents: honor tools.exec.safeBins in exec allowlist checks. (#2281)
 - Matrix: switch plugin SDK to @vector-im/matrix-bot-sdk.
+=======
+- Skills: add missing dependency metadata for GitHub, Notion, Slack, Discord. (#1995) Thanks @jackheuberger.
+- Commands: group /help and /commands output with Telegram paging. (#2504) Thanks @hougangdev.
+- Routing: add per-account DM session scope and document multi-account isolation. (#3095) Thanks @jarvis-sam.
+- Routing: precompile session key regexes. (#1697) Thanks @Ray0907.
+- CLI: use Node's module compile cache for faster startup. (#2808) Thanks @pi0.
+- Auth: show copyable Google auth URL after ASCII prompt. (#1787) Thanks @robbyczgw-cla.
+- TUI: avoid width overflow when rendering selection lists. (#1686) Thanks @mossein.
+- macOS: finish OpenClaw app rename for macOS sources, bundle identifiers, and shared kit paths. (#2844) Thanks @fal3.
+- Branding: update launchd labels, mobile bundle IDs, and logging subsystems to bot.molt (legacy bundle ID migrations). Thanks @thewilloftheshadow.
+- macOS: limit project-local `node_modules/.bin` PATH preference to debug builds (reduce PATH hijacking risk).
+- macOS: keep custom SSH usernames in remote target. (#2046) Thanks @algal.
+- macOS: avoid crash when rendering code blocks by bumping Textual to 0.3.1. (#2033) Thanks @garricn.
+- Update: ignore dist/control-ui for dirty checks and restore after ui builds. (#1976) Thanks @Glucksberg.
+- Build: bundle A2UI assets during build and stop tracking generated bundles. (#2455) Thanks @0oAstro.
+- CI: increase Node heap size for macOS checks. (#1890) Thanks @realZachi.
+- Config: apply config.env before ${VAR} substitution. (#1813) Thanks @spanishflu-est1918.
+- Gateway: prefer newest session metadata when combining stores. (#1823) Thanks @emanuelst.
+>>>>>>> 247fab47c (chore: bump version to 2026.1.30)
 - Docs: tighten Fly private deployment steps. (#2289) Thanks @dguido.
 - Docs: add migration guide for moving to a new machine. (#2381)
 - Docs: add Northflank one-click deployment guide. (#2167) Thanks @AdeboyeDN.
@@ -64,6 +118,7 @@ Status: beta.
 - Docs: update exe.dev install instructions. (#https://github.com/moltbot/moltbot/pull/3047) Thanks @zackerthescar.
 =======
 - Docs: update exe.dev install instructions. (#https://github.com/openclaw/openclaw/pull/3047) Thanks @zackerthescar.
+<<<<<<< HEAD
 >>>>>>> 9a7160786 (refactor: rename to openclaw)
 - Security: use Windows ACLs for permission audits and fixes on Windows. (#1957)
 - Auth: show copyable Google auth URL after ASCII prompt. (#1787) Thanks @robbyczgw-cla.
@@ -81,12 +136,17 @@ Status: beta.
 - CLI: use Node's module compile cache for faster startup. (#2808) Thanks @pi0.
 - Routing: add per-account DM session scope and document multi-account isolation. (#3095) Thanks @jarvis-sam.
 
+=======
+>>>>>>> 247fab47c (chore: bump version to 2026.1.30)
 ### Breaking
 - **BREAKING:** Gateway auth mode "none" is removed; gateway now requires token/password (Tailscale Serve identity still allowed).
 
 ### Fixes
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 247fab47c (chore: bump version to 2026.1.30)
 - Telegram: avoid silent empty replies by tracking normalization skips before fallback. (#3796)
 - Mentions: honor mentionPatterns even when explicit mentions are present. (#3303) Thanks @HirokiKobayashi-R.
 >>>>>>> 9a7160786 (refactor: rename to openclaw)
