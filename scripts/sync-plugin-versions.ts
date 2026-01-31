@@ -6,7 +6,6 @@ type PackageJson = {
   version?: string;
 };
 
-const root = resolve(".");
 const rootPackagePath = resolve("package.json");
 const rootPackage = JSON.parse(readFileSync(rootPackagePath, "utf8")) as PackageJson;
 const targetVersion = rootPackage.version;
@@ -25,10 +24,19 @@ const changelogged: string[] = [];
 const skipped: string[] = [];
 
 function ensureChangelogEntry(changelogPath: string, version: string): boolean {
-  if (!existsSync(changelogPath)) return false;
+  if (!existsSync(changelogPath)) {
+    return false;
+  }
   const content = readFileSync(changelogPath, "utf8");
+<<<<<<< HEAD
   if (content.includes(`## ${version}`)) return false;
   const entry = `## ${version}\n\n### Changes\n- Version alignment with core Moltbot release numbers.\n\n`;
+=======
+  if (content.includes(`## ${version}`)) {
+    return false;
+  }
+  const entry = `## ${version}\n\n### Changes\n- Version alignment with core OpenClaw release numbers.\n\n`;
+>>>>>>> 1838ab019 (chore: Enable linting in `scripts`.)
   if (content.startsWith("# Changelog\n\n")) {
     const next = content.replace("# Changelog\n\n", `# Changelog\n\n${entry}`);
     writeFileSync(changelogPath, next);
