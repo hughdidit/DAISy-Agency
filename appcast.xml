@@ -3,6 +3,51 @@
     <channel>
         <title>Moltbot</title>
         <item>
+            <title>2026.1.30</title>
+            <pubDate>Sat, 31 Jan 2026 14:29:57 +0100</pubDate>
+            <link>https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml</link>
+            <sparkle:version>8469</sparkle:version>
+            <sparkle:shortVersionString>2026.1.30</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h2>OpenClaw 2026.1.30</h2>
+<h3>Changes</h3>
+<ul>
+<li>CLI: add <code>completion</code> command (Zsh/Bash/PowerShell/Fish) and auto-setup during postinstall/onboarding.</li>
+<li>CLI: add per-agent <code>models status</code> (<code>--agent</code> filter). (#4780) Thanks @jlowin.</li>
+<li>Agents: add Kimi K2.5 to the synthetic model catalog. (#4407) Thanks @manikv12.</li>
+<li>Auth: switch Kimi Coding to built-in provider; normalize OAuth profile email.</li>
+<li>Auth: add MiniMax OAuth plugin + onboarding option. (#4521) Thanks @Maosghoul.</li>
+<li>Agents: update pi SDK/API usage and dependencies.</li>
+<li>Web UI: refresh sessions after chat commands and improve session display names.</li>
+<li>Build: move TypeScript builds to <code>tsdown</code> + <code>tsgo</code> (faster builds, CI typechecks), update tsconfig target, and clean up lint rules.</li>
+<li>Build: align npm tar override and bin metadata so the <code>openclaw</code> CLI entrypoint is preserved in npm publishes.</li>
+<li>Docs: add pi/pi-dev docs and update OpenClaw branding + install links.</li>
+</ul>
+<h3>Fixes</h3>
+<ul>
+<li>Security: restrict local path extraction in media parser to prevent LFI. (#4880)</li>
+<li>Gateway: prevent token defaults from becoming the literal "undefined". (#4873) Thanks @Hisleren.</li>
+<li>Control UI: fix assets resolution for npm global installs. (#4909) Thanks @YuriNachos.</li>
+<li>macOS: avoid stderr pipe backpressure in gateway discovery. (#3304) Thanks @abhijeet117.</li>
+<li>Telegram: normalize account token lookup for non-normalized IDs. (#5055) Thanks @jasonsschin.</li>
+<li>Telegram: preserve delivery thread fallback and fix threadId handling in delivery context.</li>
+<li>Telegram: fix HTML nesting for overlapping styles/links. (#4578) Thanks @ThanhNguyxn.</li>
+<li>Telegram: accept numeric messageId/chatId in react actions. (#4533) Thanks @Ayush10.</li>
+<li>Telegram: honor per-account proxy dispatcher via undici fetch. (#4456) Thanks @spiceoogway.</li>
+<li>Telegram: scope skill commands to bound agent per bot. (#4360) Thanks @robhparker.</li>
+<li>BlueBubbles: debounce by messageId to preserve attachments in text+image messages. (#4984)</li>
+<li>Routing: prefer requesterOrigin over stale session entries for sub-agent announce delivery. (#4957)</li>
+<li>Extensions: restore embedded extension discovery typings.</li>
+<li>CLI: fix <code>tui:dev</code> port resolution.</li>
+<li>LINE: fix status command TypeError. (#4651)</li>
+<li>OAuth: skip expired-token warnings when refresh tokens are still valid. (#4593)</li>
+<li>Build: skip redundant UI install step in Dockerfile. (#4584) Thanks @obviyus.</li>
+</ul>
+<p><a href="https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md">View full changelog</a></p>
+]]></description>
+            <enclosure url="https://github.com/openclaw/openclaw/releases/download/v2026.1.30/OpenClaw-2026.1.30.zip" length="22458594" type="application/octet-stream" sparkle:edSignature="77/GuEcruKGgu2CJyMq+OVwzaJ2v1VzRQC9NmOirKO3uH5Nn5HaoouwrOHnOanrzlD4OvPW0FS5GH2E4Ntu4CQ=="/>
+        </item>
+        <item>
             <title>2026.1.29</title>
             <pubDate>Fri, 30 Jan 2026 06:24:15 +0100</pubDate>
             <link>https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml</link>
@@ -150,6 +195,7 @@ Status: stable.
 ]]></description>
             <enclosure url="https://github.com/moltbot/moltbot/releases/download/v2026.1.24-1/Moltbot-2026.1.24-1.zip" length="12396699" type="application/octet-stream" sparkle:edSignature="VaEdWIgEJBrZLIp2UmigoQ6vaq4P/jNFXpHYXvXHD5MsATS0CqBl6ugyyxRq+/GbpUqmdgdlht4dTUVbLRw6BA=="/>
         </item>
+<<<<<<< HEAD
         <item>
             <title>2026.1.24</title>
             <pubDate>Sun, 25 Jan 2026 13:31:05 +0000</pubDate>
@@ -319,5 +365,7 @@ Status: stable.
         </item>
 =======
 >>>>>>> 77e703c69 (chore: update appcast for 2026.1.29)
+=======
+>>>>>>> 4f2166c50 (chore: update appcast for 2026.1.30)
     </channel>
 </rss>
