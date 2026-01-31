@@ -18,6 +18,7 @@ services:
     restart: unless-stopped
     command:
       [
+<<<<<<< HEAD
         "node",
         "dist/index.js",
         "gateway",
@@ -25,6 +26,15 @@ services:
         "${CLAWDBOT_GATEWAY_BIND:-lan}",
         "--port",
         "${CLAWDBOT_GATEWAY_PORT:-18789}"
+=======
+        'node',
+        'dist/index.js',
+        "gateway",
+        '--bind',
+        '${OPENCLAW_GATEWAY_BIND:-lan}',
+        '--port',
+        '${OPENCLAW_GATEWAY_PORT:-18789}',
+>>>>>>> c3a8a5374 (fix: sync docker-compose gateway command)
       ]
 
   moltbot-cli:
