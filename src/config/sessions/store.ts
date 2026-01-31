@@ -55,7 +55,18 @@ function invalidateSessionStoreCache(storePath: string): void {
 }
 
 function normalizeSessionEntryDelivery(entry: SessionEntry): SessionEntry {
+<<<<<<< HEAD
   const normalized = normalizeSessionDeliveryFields(entry);
+=======
+  const normalized = normalizeSessionDeliveryFields({
+    channel: entry.channel,
+    lastChannel: entry.lastChannel,
+    lastTo: entry.lastTo,
+    lastAccountId: entry.lastAccountId,
+    lastThreadId: entry.lastThreadId ?? entry.deliveryContext?.threadId ?? entry.origin?.threadId,
+    deliveryContext: entry.deliveryContext,
+  });
+>>>>>>> 310eed825 (fix: preserve delivery thread fallback (#4911) (thanks @yevhen))
   const nextDelivery = normalized.deliveryContext;
   const sameDelivery =
     (entry.deliveryContext?.channel ?? undefined) === nextDelivery?.channel &&
