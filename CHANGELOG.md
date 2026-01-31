@@ -11,6 +11,12 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+<<<<<<< HEAD
+=======
+- Telegram: restore draft streaming partials. (#5543) Thanks @obviyus.
+- fix(lobster): block arbitrary exec via lobsterPath/cwd injection (GHSA-4mhr-g7xj-cg8j). (#5335) Thanks @vignesh07.
+
+>>>>>>> 1295b6705 (fix(lobster): block arbitrary exec via lobsterPath/cwd (GHSA-4mhr-g7xj-cg8j) (#5335))
 ## 2026.1.30
 
 ### Changes
