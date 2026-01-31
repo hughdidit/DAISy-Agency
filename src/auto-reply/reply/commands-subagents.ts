@@ -366,8 +366,14 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
 =======
       });
       const responseRunId = typeof response?.runId === "string" ? response.runId : undefined;
+<<<<<<< HEAD
       if (responseRunId) runId = responseRunId;
 >>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
+=======
+      if (responseRunId) {
+        runId = responseRunId;
+      }
+>>>>>>> ee26b68fe (fix: lint cleanups)
     } catch (err) {
       const messageText =
         err instanceof Error ? err.message : typeof err === "string" ? err : "error";
