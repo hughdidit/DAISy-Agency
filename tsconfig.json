@@ -3,6 +3,13 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+<<<<<<< HEAD
+=======
+    "lib": ["DOM", "DOM.Iterable", "ES2023", "ScriptHost"],
+    "noEmit": true,
+    "declaration": true,
+    "noEmitOnError": true,
+>>>>>>> 59cfff02f (chore: Emit TypeScript declaration files so that we can type-check the extensions folder soon.)
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
