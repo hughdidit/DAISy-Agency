@@ -224,7 +224,12 @@ enum WideAreaGatewayDiscovery {
         let outPipe = Pipe()
         let errPipe = Pipe()
         process.standardOutput = outPipe
+<<<<<<< HEAD:apps/macos/Sources/MoltbotDiscovery/WideAreaGatewayDiscovery.swift
         process.standardError = errPipe
+=======
+        // Avoid stderr pipe backpressure; we don't consume it.
+        process.standardError = FileHandle.nullDevice
+>>>>>>> b9b94715f (fix: avoid stderr backpressure in macOS discovery (#3304) (thanks @abhijeet117)):apps/macos/Sources/OpenClawDiscovery/WideAreaGatewayDiscovery.swift
 
         do {
             try process.run()

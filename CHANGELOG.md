@@ -6,11 +6,69 @@ Docs: https://docs.molt.bot
 Status: beta.
 
 ### Changes
+<<<<<<< HEAD
 - Rebrand: rename the npm package/CLI to `moltbot`, add a `moltbot` compatibility shim, and move extensions to the `@moltbot/*` scope.
 - Commands: group /help and /commands output with Telegram paging. (#2504) Thanks @hougangdev.
 - macOS: limit project-local `node_modules/.bin` PATH preference to debug builds (reduce PATH hijacking risk).
 - macOS: finish Moltbot app rename for macOS sources, bundle identifiers, and shared kit paths. (#2844) Thanks @fal3.
 - Branding: update launchd labels, mobile bundle IDs, and logging subsystems to bot.molt (legacy com.clawdbot migrations). Thanks @thewilloftheshadow.
+=======
+- CLI: add `completion` command (Zsh/Bash/PowerShell/Fish) and auto-setup during postinstall/onboarding.
+- CLI: add per-agent `models status` (`--agent` filter). (#4780) Thanks @jlowin.
+- Agents: add Kimi K2.5 to the synthetic model catalog. (#4407) Thanks @manikv12.
+- Auth: switch Kimi Coding to built-in provider; normalize OAuth profile email.
+- Agents: update pi SDK/API usage and dependencies.
+- Web UI: refresh sessions after chat commands and improve session display names.
+- Build: move TypeScript builds to `tsdown` + `tsgo` (faster builds, CI typechecks), update tsconfig target, and clean up lint rules.
+- Docs: add pi/pi-dev docs and update OpenClaw branding + install links.
+
+### Fixes
+- Security: restrict local path extraction in media parser to prevent LFI. (#4880)
+- Gateway: prevent token defaults from becoming the literal "undefined". (#4873) Thanks @Hisleren.
+- Control UI: fix assets resolution for npm global installs. (#4909) Thanks @YuriNachos.
+- macOS: avoid stderr pipe backpressure in gateway discovery. (#3304) Thanks @abhijeet117.
+- Telegram: normalize account token lookup for non-normalized IDs. (#5055) Thanks @jasonsschin.
+- Telegram: preserve delivery thread fallback and fix threadId handling in delivery context.
+- Telegram: fix HTML nesting for overlapping styles/links. (#4578) Thanks @ThanhNguyxn.
+- Telegram: accept numeric messageId/chatId in react actions. (#4533) Thanks @Ayush10.
+- Telegram: honor per-account proxy dispatcher via undici fetch. (#4456) Thanks @spiceoogway.
+- Telegram: scope skill commands to bound agent per bot. (#4360) Thanks @robhparker.
+- BlueBubbles: debounce by messageId to preserve attachments in text+image messages. (#4984)
+- Routing: prefer requesterOrigin over stale session entries for sub-agent announce delivery. (#4957)
+- Extensions: restore embedded extension discovery typings.
+- CLI: fix `tui:dev` port resolution.
+- LINE: fix status command TypeError. (#4651)
+- OAuth: skip expired-token warnings when refresh tokens are still valid. (#4593)
+- Build: skip redundant UI install step in Dockerfile. (#4584) Thanks @obviyus.
+
+## 2026.1.29
+
+### Changes
+- Rebrand: rename the npm package/CLI to `openclaw`, add a `openclaw` compatibility shim, and move extensions to the `@openclaw/*` scope.
+- Onboarding: strengthen security warning copy for beta + access control expectations.
+- Onboarding: add Venice API key to non-interactive flow. (#1893) Thanks @jonisjongithub.
+- Config: auto-migrate legacy state/config paths and keep config resolution consistent across legacy filenames.
+- Gateway: warn on hook tokens via query params; document header auth preference. (#2200) Thanks @YuriNachos.
+- Gateway: add dangerous Control UI device auth bypass flag + audit warnings. (#2248)
+- Doctor: warn on gateway exposure without auth. (#2016) Thanks @Alex-Alaniz.
+- Web UI: keep sub-agent announce replies visible in WebChat. (#1977) Thanks @andrescardonas7.
+- Browser: route browser control via gateway/node; remove standalone browser control command and control URL config.
+- Browser: route `browser.request` via node proxies when available; honor proxy timeouts; derive browser ports from `gateway.port`.
+- Browser: fall back to URL matching for extension relay target resolution. (#1999) Thanks @jonit-dev.
+- Telegram: allow caption param for media sends. (#1888) Thanks @mguellsegarra.
+- Telegram: support plugin sendPayload channelData (media/buttons) and validate plugin commands. (#1917) Thanks @JoshuaLelon.
+- Telegram: avoid block replies when streaming is disabled. (#1885) Thanks @ivancasco.
+- Telegram: add optional silent send flag (disable notifications). (#2382) Thanks @Suksham-sharma.
+- Telegram: support editing sent messages via message(action="edit"). (#2394) Thanks @marcelomar21.
+- Telegram: support quote replies for message tool and inbound context. (#2900) Thanks @aduk059.
+- Telegram: add sticker receive/send with vision caching. (#2629) Thanks @longjos.
+- Telegram: send sticker pixels to vision models. (#2650)
+- Telegram: keep topic IDs in restart sentinel notifications. (#1807) Thanks @hsrvc.
+- Discord: add configurable privileged gateway intents for presences/members. (#2266) Thanks @kentaro.
+- Slack: clear ack reaction after streamed replies. (#2044) Thanks @fancyboi999.
+- Matrix: switch plugin SDK to @vector-im/matrix-bot-sdk.
+- Tlon: format thread reply IDs as @ud. (#1837) Thanks @wca4a.
+>>>>>>> b9b94715f (fix: avoid stderr backpressure in macOS discovery (#3304) (thanks @abhijeet117))
 - Tools: add per-sender group tool policies and fix precedence. (#1757) Thanks @adam91holt.
 - Agents: summarize dropped messages during compaction safeguard pruning. (#2509) Thanks @jogi47.
 - Memory Search: allow extra paths for memory indexing (ignores symlinks). (#3600) Thanks @kira-ariaki.
