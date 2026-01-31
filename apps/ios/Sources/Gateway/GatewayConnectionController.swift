@@ -285,6 +285,9 @@ final class GatewayConnectionController {
     private func makeConnectOptions() -> GatewayConnectOptions {
         let defaults = UserDefaults.standard
         let displayName = self.resolvedDisplayName(defaults: defaults)
+        let manualClientId = defaults.string(forKey: "gateway.manual.clientId")?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedClientId = manualClientId?.isEmpty == false ? manualClientId! : "openclaw-ios"
 
         return GatewayConnectOptions(
             role: "node",
@@ -297,11 +300,15 @@ final class GatewayConnectionController {
             clientId: "moltbot-ios",
 =======
             permissions: self.currentPermissions(),
+<<<<<<< HEAD
 =======
             permissions: [:],
 >>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
             clientId: "openclaw-ios",
 >>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
+=======
+            clientId: resolvedClientId,
+>>>>>>> 84e115834 (Gateway: fix node invoke receive loop)
             clientMode: "node",
             clientDisplayName: displayName)
     }
