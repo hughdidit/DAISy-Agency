@@ -2,42 +2,22 @@
 import MoltbotKit
 =======
 import OpenClawKit
+<<<<<<< HEAD
 import AVFoundation
 import CoreLocation
 >>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
+=======
+>>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
 import Darwin
 import Foundation
 import Network
 import Observation
-import ReplayKit
 import SwiftUI
 import UIKit
 
 @MainActor
 @Observable
 final class GatewayConnectionController {
-    struct PermissionStatusProvider: Sendable {
-        var cameraStatus: @Sendable () -> AVAuthorizationStatus
-        var microphoneStatus: @Sendable () -> AVAuthorizationStatus
-        var locationStatus: @Sendable () -> CLAuthorizationStatus
-        var locationServicesEnabled: @Sendable () -> Bool
-        var screenRecordingAvailable: @Sendable () -> Bool
-
-        static func live() -> PermissionStatusProvider {
-            PermissionStatusProvider(
-                cameraStatus: { AVCaptureDevice.authorizationStatus(for: .video) },
-                microphoneStatus: { AVCaptureDevice.authorizationStatus(for: .audio) },
-                locationStatus: {
-                    if #available(iOS 14.0, *) {
-                        return CLLocationManager.authorizationStatus()
-                    }
-                    return CLLocationManager().authorizationStatus
-                },
-                locationServicesEnabled: { CLLocationManager.locationServicesEnabled() },
-                screenRecordingAvailable: { RPScreenRecorder.shared().isAvailable })
-        }
-    }
-
     private(set) var gateways: [GatewayDiscoveryModel.DiscoveredGateway] = []
     private(set) var discoveryStatusText: String = "Idle"
     private(set) var discoveryDebugLog: [GatewayDiscoveryModel.DebugLogEntry] = []
@@ -45,15 +25,9 @@ final class GatewayConnectionController {
     private let discovery = GatewayDiscoveryModel()
     private weak var appModel: NodeAppModel?
     private var didAutoConnect = false
-    private let permissionProvider: PermissionStatusProvider
 
-    init(
-        appModel: NodeAppModel,
-        startDiscovery: Bool = true,
-        permissionProvider: PermissionStatusProvider = PermissionStatusProvider.live())
-    {
+    init(appModel: NodeAppModel, startDiscovery: Bool = true) {
         self.appModel = appModel
-        self.permissionProvider = permissionProvider
 
         GatewaySettingsStore.bootstrapPersistence()
         let defaults = UserDefaults.standard
@@ -318,10 +292,14 @@ final class GatewayConnectionController {
             caps: self.currentCaps(),
             commands: self.currentCommands(),
 <<<<<<< HEAD
+<<<<<<< HEAD
             permissions: [:],
             clientId: "moltbot-ios",
 =======
             permissions: self.currentPermissions(),
+=======
+            permissions: [:],
+>>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
             clientId: "openclaw-ios",
 >>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
             clientMode: "node",
@@ -391,7 +369,14 @@ final class GatewayConnectionController {
             OpenClawCanvasA2UICommand.reset.rawValue,
             OpenClawScreenCommand.record.rawValue,
             OpenClawSystemCommand.notify.rawValue,
+<<<<<<< HEAD
 >>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
+=======
+            OpenClawSystemCommand.which.rawValue,
+            OpenClawSystemCommand.run.rawValue,
+            OpenClawSystemCommand.execApprovalsGet.rawValue,
+            OpenClawSystemCommand.execApprovalsSet.rawValue,
+>>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
         ]
 
         let caps = Set(self.currentCaps())
@@ -405,32 +390,6 @@ final class GatewayConnectionController {
         }
 
         return commands
-    }
-
-    private func currentPermissions() -> [String: Bool] {
-        let camera = self.permissionProvider.cameraStatus()
-        let microphone = self.permissionProvider.microphoneStatus()
-        let locationStatus = self.permissionProvider.locationStatus()
-        let locationEnabled = self.permissionProvider.locationServicesEnabled()
-        let screenRecordingAvailable = self.permissionProvider.screenRecordingAvailable()
-
-        return [
-            "camera": camera == .authorized,
-            "microphone": microphone == .authorized,
-            "location": locationEnabled && Self.isLocationAuthorized(status: locationStatus),
-            "screenRecording": screenRecordingAvailable,
-        ]
-    }
-
-    private static func isLocationAuthorized(status: CLAuthorizationStatus) -> Bool {
-        switch status {
-        case .authorizedAlways, .authorizedWhenInUse:
-            return true
-        case .authorized:
-            return true
-        default:
-            return false
-        }
     }
 
     private func platformString() -> String {
@@ -484,10 +443,6 @@ extension GatewayConnectionController {
 
     func _test_currentCommands() -> [String] {
         self.currentCommands()
-    }
-
-    func _test_currentPermissions() -> [String: Bool] {
-        self.currentPermissions()
     }
 
     func _test_platformString() -> String {
