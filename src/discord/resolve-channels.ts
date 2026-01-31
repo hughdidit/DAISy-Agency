@@ -122,8 +122,14 @@ async function fetchChannel(
   if (!raw || !("guild_id" in raw)) return null;
 =======
   const raw = await fetchDiscord<DiscordChannelPayload>(`/channels/${channelId}`, token, fetcher);
+<<<<<<< HEAD
   if (!raw || typeof raw.guild_id !== "string" || typeof raw.id !== "string") return null;
 >>>>>>> a42e1c82d (fix: restore tsc build and plugin install tests)
+=======
+  if (!raw || typeof raw.guild_id !== "string" || typeof raw.id !== "string") {
+    return null;
+  }
+>>>>>>> ee26b68fe (fix: lint cleanups)
   return {
     id: raw.id,
     name: typeof raw.name === "string" ? raw.name : "",
