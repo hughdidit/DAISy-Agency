@@ -8,7 +8,14 @@ read_when:
 > *"EXFOLIATE! EXFOLIATE!"* — A space lobster, probably
 
 <p align="center">
+<<<<<<< HEAD
   <img src="whatsapp-openclaw.jpg" alt="OpenClaw" width="420" />
+=======
+    <picture>
+        <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text-dark.png" />
+        <img src="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text.png" alt="OpenClaw" width="500" />
+    </picture>
+>>>>>>> 08ed62852 (chore: update deps and pi model discovery)
 </p>
 
 <p align="center">

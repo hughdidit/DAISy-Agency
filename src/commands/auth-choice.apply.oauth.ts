@@ -69,8 +69,12 @@ export async function applyAuthChoiceOAuth(
 
       spin.stop("Chutes OAuth complete");
       const email =
+<<<<<<< HEAD
         (typeof creds.email === "string" ? creds.email.trim() : String(creds.email ?? "").trim()) ||
         "default";
+=======
+        typeof creds.email === "string" && creds.email.trim() ? creds.email.trim() : "default";
+>>>>>>> 08ed62852 (chore: update deps and pi model discovery)
       const profileId = `chutes:${email}`;
 
       await writeOAuthCredentials("chutes", creds, params.agentDir);
