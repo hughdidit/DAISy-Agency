@@ -4,6 +4,7 @@ read_when:
   - You want Moltbot running 24/7 on GCP
   - You want a production-grade, always-on Gateway on your own VM
   - You want full control over persistence, binaries, and restart behavior
+title: "GCP"
 ---
 
 # Moltbot on GCP Compute Engine (Docker, Production VPS Guide)

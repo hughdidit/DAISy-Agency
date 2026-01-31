@@ -3,6 +3,7 @@ summary: "Setup guide: keep your Moltbot setup tailored while staying up-to-date
 read_when:
   - Setting up a new machine
   - You want “latest + greatest” without breaking your personal setup
+title: "Setup"
 ---
 
 # Setup

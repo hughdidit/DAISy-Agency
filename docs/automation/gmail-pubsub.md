@@ -3,6 +3,7 @@ summary: "Gmail Pub/Sub push wired into Moltbot webhooks via gogcli"
 read_when:
   - Wiring Gmail inbox triggers to Moltbot
   - Setting up Pub/Sub push for agent wake
+title: "Gmail PubSub"
 ---
 
 # Gmail Pub/Sub -> Moltbot

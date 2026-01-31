@@ -3,6 +3,7 @@ summary: "Use Anthropic Claude via API keys or setup-token in Moltbot"
 read_when:
   - You want to use Anthropic models in Moltbot
   - You want setup-token instead of API keys
+title: "Anthropic"
 ---
 # Anthropic (Claude)
 

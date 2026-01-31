@@ -1,8 +1,14 @@
 ---
 summary: "Moltbot on DigitalOcean (simple paid VPS option)"
 read_when:
+<<<<<<< HEAD
   - Setting up Moltbot on DigitalOcean
   - Looking for cheap VPS hosting for Moltbot
+=======
+  - Setting up OpenClaw on DigitalOcean
+  - Looking for cheap VPS hosting for OpenClaw
+title: "DigitalOcean"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Moltbot on DigitalOcean

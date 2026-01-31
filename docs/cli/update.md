@@ -3,6 +3,7 @@ summary: "CLI reference for `moltbot update` (safe-ish source update + gateway a
 read_when:
   - You want to update a source checkout safely
   - You need to understand `--update` shorthand behavior
+title: "update"
 ---
 
 # `moltbot update`

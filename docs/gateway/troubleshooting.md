@@ -2,6 +2,7 @@
 summary: "Quick troubleshooting guide for common Moltbot failures"
 read_when:
   - Investigating runtime issues or failures
+title: "Troubleshooting"
 ---
 # Troubleshooting 🔧
 

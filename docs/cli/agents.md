@@ -2,6 +2,7 @@
 summary: "CLI reference for `moltbot agents` (list/add/delete/set identity)"
 read_when:
   - You want multiple isolated agents (workspaces + routing + auth)
+title: "agents"
 ---
 
 # `moltbot agents`

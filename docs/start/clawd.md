@@ -3,6 +3,7 @@ summary: "End-to-end guide for running Moltbot as a personal assistant with safe
 read_when:
   - Onboarding a new assistant instance
   - Reviewing safety/permission implications
+title: "Personal Assistant Setup"
 ---
 # Building a personal assistant with Moltbot (Clawd-style)
 

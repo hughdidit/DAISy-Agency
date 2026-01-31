@@ -2,6 +2,7 @@
 summary: "CLI reference for `moltbot onboard` (interactive onboarding wizard)"
 read_when:
   - You want guided setup for gateway, workspace, auth, channels, and skills
+title: "onboard"
 ---
 
 # `moltbot onboard`

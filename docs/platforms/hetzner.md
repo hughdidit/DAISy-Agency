@@ -4,7 +4,12 @@ read_when:
   - You want Moltbot running 24/7 on a cloud VPS (not your laptop)
   - You want a production-grade, always-on Gateway on your own VPS
   - You want full control over persistence, binaries, and restart behavior
+<<<<<<< HEAD
   - You are running Moltbot in Docker on Hetzner or a similar provider
+=======
+  - You are running OpenClaw in Docker on Hetzner or a similar provider
+title: "Hetzner"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Moltbot on Hetzner (Docker, Production VPS Guide)

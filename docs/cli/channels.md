@@ -3,6 +3,7 @@ summary: "CLI reference for `moltbot channels` (accounts, status, login/logout, 
 read_when:
   - You want to add/remove channel accounts (WhatsApp/Telegram/Discord/Google Chat/Slack/Mattermost (plugin)/Signal/iMessage)
   - You want to check channel status or tail channel logs
+title: "channels"
 ---
 
 # `moltbot channels`

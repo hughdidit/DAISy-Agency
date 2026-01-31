@@ -3,6 +3,7 @@ summary: "Use Venice AI privacy-focused models in Moltbot"
 read_when:
   - You want privacy-focused inference in Moltbot
   - You want Venice AI setup guidance
+title: "Venice AI"
 ---
 # Venice AI (Venice highlight)
 

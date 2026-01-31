@@ -2,6 +2,7 @@
 summary: "CLI reference for `moltbot health` (gateway health endpoint via RPC)"
 read_when:
   - You want to quickly check the running Gateway’s health
+title: "health"
 ---
 
 # `moltbot health`

@@ -2,6 +2,7 @@
 summary: "All configuration options for ~/.clawdbot/moltbot.json with examples"
 read_when:
   - Adding or modifying config fields
+title: "Configuration"
 ---
 # Configuration 🔧
 

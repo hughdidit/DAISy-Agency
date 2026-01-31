@@ -3,7 +3,12 @@ summary: "ClawdHub guide: public skills registry + CLI workflows"
 read_when:
   - Introducing ClawdHub to new users
   - Installing, searching, or publishing skills
+<<<<<<< HEAD:docs/tools/clawdhub.md
   - Explaining ClawdHub CLI flags and sync behavior
+=======
+  - Explaining ClawHub CLI flags and sync behavior
+title: "ClawHub"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689)):docs/tools/clawhub.md
 ---
 
 # ClawdHub

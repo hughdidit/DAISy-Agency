@@ -3,6 +3,7 @@ summary: "GLM model family overview + how to use it in Moltbot"
 read_when:
   - You want GLM models in Moltbot
   - You need the model naming convention and setup
+title: "GLM Models"
 ---
 # GLM models
 

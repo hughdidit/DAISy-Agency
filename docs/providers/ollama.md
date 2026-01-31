@@ -3,6 +3,7 @@ summary: "Run Moltbot with Ollama (local LLM runtime)"
 read_when:
   - You want to run Moltbot with local models via Ollama
   - You need Ollama setup and configuration guidance
+title: "Ollama"
 ---
 # Ollama
 

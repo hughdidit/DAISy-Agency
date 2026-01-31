@@ -1,7 +1,12 @@
 ---
 summary: "Top-level overview of Moltbot, features, and purpose"
 read_when:
+<<<<<<< HEAD
   - Introducing Moltbot to newcomers
+=======
+  - Introducing OpenClaw to newcomers
+title: "OpenClaw"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 # Moltbot 🦞
 

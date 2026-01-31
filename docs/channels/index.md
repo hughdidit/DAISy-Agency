@@ -3,6 +3,7 @@ summary: "Messaging platforms Moltbot can connect to"
 read_when:
   - You want to choose a chat channel for Moltbot
   - You need a quick overview of supported messaging platforms
+title: "Chat Channels"
 ---
 # Chat Channels
 

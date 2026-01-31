@@ -3,6 +3,7 @@ summary: "Install Moltbot (recommended installer, global install, or from source
 read_when:
   - Installing Moltbot
   - You want to install from GitHub
+title: "Install"
 ---
 
 # Install

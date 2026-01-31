@@ -2,7 +2,12 @@
 summary: "Agent tool surface for Moltbot (browser, canvas, nodes, message, cron) replacing legacy `moltbot-*` skills"
 read_when:
   - Adding or modifying agent tools
+<<<<<<< HEAD
   - Retiring or changing `moltbot-*` skills
+=======
+  - Retiring or changing `openclaw-*` skills
+title: "Tools"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Tools (Moltbot)
