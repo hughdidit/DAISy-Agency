@@ -1,13 +1,19 @@
+<<<<<<< HEAD
 import MoltbotKit
 import Network
+=======
+import OpenClawKit
+>>>>>>> f72ac60b0 (iOS: streamline notify timeouts)
 import Observation
 import SwiftUI
 import UIKit
 
+// Wrap errors without pulling non-Sendable types into async notification paths.
 private struct NotificationCallError: Error, Sendable {
     let message: String
 }
 
+// Ensures notification requests return promptly even if the system prompt blocks.
 private final class NotificationInvokeLatch<T: Sendable>: @unchecked Sendable {
     private let lock = NSLock()
     private var continuation: CheckedContinuation<Result<T, NotificationCallError>, Never>?
@@ -988,7 +994,12 @@ final class NodeAppModel {
         let latch = NotificationInvokeLatch<T>()
         var opTask: Task<Void, Never>?
         var timeoutTask: Task<Void, Never>?
-        let result = await withCheckedContinuation { (cont: CheckedContinuation<Result<T, NotificationCallError>, Never>) in
+        defer {
+            opTask?.cancel()
+            timeoutTask?.cancel()
+        }
+        let clamped = max(0.0, timeoutSeconds)
+        return await withCheckedContinuation { (cont: CheckedContinuation<Result<T, NotificationCallError>, Never>) in
             latch.setContinuation(cont)
             opTask = Task { @MainActor in
                 do {
@@ -999,16 +1010,12 @@ final class NodeAppModel {
                 }
             }
             timeoutTask = Task.detached {
-                let clamped = max(0.0, timeoutSeconds)
                 if clamped > 0 {
                     try? await Task.sleep(nanoseconds: UInt64(clamped * 1_000_000_000))
                 }
                 latch.resume(.failure(NotificationCallError(message: "notification request timed out")))
             }
         }
-        opTask?.cancel()
-        timeoutTask?.cancel()
-        return result
     }
 
     private func handleDeviceInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
