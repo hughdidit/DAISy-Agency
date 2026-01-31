@@ -28,6 +28,7 @@ Status: beta.
 - Auth: switch Kimi Coding to built-in provider; normalize OAuth profile email.
 - Auth: add MiniMax OAuth plugin + onboarding option. (#4521) Thanks @Maosghoul.
 - Agents: update pi SDK/API usage and dependencies.
+- Gateway: inject timestamps into agent and chat.send messages. (#3705) Thanks @conroywhitney, @CashWilliams.
 - Web UI: refresh sessions after chat commands and improve session display names.
 - Build: move TypeScript builds to `tsdown` + `tsgo` (faster builds, CI typechecks), update tsconfig target, and clean up lint rules.
 - Docs: add pi/pi-dev docs and update OpenClaw branding + install links.
