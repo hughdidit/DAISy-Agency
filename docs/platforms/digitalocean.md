@@ -70,8 +70,13 @@ apt update && apt upgrade -y
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt install -y nodejs
 
+<<<<<<< HEAD
 # Install Moltbot
 curl -fsSL https://molt.bot/install.sh | bash
+=======
+# Install OpenClaw
+curl -fsSL https://openclaw.ai/install.sh | bash
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 
 # Verify
 moltbot --version

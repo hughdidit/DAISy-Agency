@@ -114,8 +114,13 @@ If you used a profile, delete the matching task name and `~\.clawdbot-<profile>\
 
 ### Normal install (install.sh / npm / pnpm / bun)
 
+<<<<<<< HEAD
 If you used `https://molt.bot/install.sh` or `install.ps1`, the CLI was installed with `npm install -g moltbot@latest`.
 Remove it with `npm rm -g moltbot` (or `pnpm remove -g` / `bun remove -g` if you installed that way).
+=======
+If you used `https://openclaw.ai/install.sh` or `install.ps1`, the CLI was installed with `npm install -g openclaw@latest`.
+Remove it with `npm rm -g openclaw` (or `pnpm remove -g` / `bun remove -g` if you installed that way).
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 
 ### Source checkout (git clone)
 

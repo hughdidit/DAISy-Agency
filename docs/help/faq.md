@@ -263,7 +263,11 @@ setup (PATH, services, permissions, auth files). Give them the **full source che
 the hackable (git) install:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 This installs Moltbot **from a git checkout**, so the agent can read the code + docs and
@@ -305,8 +309,13 @@ Install docs: [Install](/install), [Installer flags](/install/installer), [Updat
 The repo recommends running from source and using the onboarding wizard:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
 moltbot onboard --install-daemon
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash
+openclaw onboard --install-daemon
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 The wizard can also build UI assets automatically. After onboarding, you typically run the Gateway on port **18789**.
@@ -454,11 +463,19 @@ https://github.com/moltbot/moltbot/blob/main/CHANGELOG.md
 One‑liners (macOS/Linux):
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL --proto '=https' --tlsv1.2 https://molt.bot/install.sh | bash -s -- --beta
 ```
 
 ```bash
 curl -fsSL --proto '=https' --tlsv1.2 https://molt.bot/install.sh | bash -s -- --install-method git
+=======
+curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --beta
+```
+
+```bash
+curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --install-method git
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Windows installer (PowerShell):
@@ -487,7 +504,11 @@ This switches to the `main` branch and updates from source.
 
 2) **Hackable install (from the installer site):**
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 That gives you a local repo you can edit, then update via git.
 
@@ -507,19 +528,31 @@ Docs: [Update](/cli/update), [Development channels](/install/development-channel
 Re-run the installer with **verbose output**:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --verbose
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --verbose
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Beta install with verbose:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --beta --verbose
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --beta --verbose
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 For a hackable (git) install:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git --verbose
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git --verbose
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 More options: [Installer flags](/install/installer).
@@ -550,7 +583,11 @@ Use the **hackable (git) install** so you have the full source and docs locally,
 your bot (or Claude/Codex) *from that folder* so it can read the repo and answer precisely.
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 More detail: [Install](/install) and [Installer flags](/install/installer).

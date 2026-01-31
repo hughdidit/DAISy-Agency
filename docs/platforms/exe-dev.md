@@ -65,7 +65,11 @@ sudo apt-get install -y git curl jq ca-certificates openssl
 Run the Moltbot install script:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 ## 4) Setup nginx to proxy Moltbot to port 8000
