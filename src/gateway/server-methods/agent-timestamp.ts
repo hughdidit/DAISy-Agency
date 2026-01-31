@@ -2,7 +2,7 @@
 <<<<<<< HEAD
 import { resolveUserTimezone } from "../../agents/date-time.js";
 import { formatZonedTimestamp } from "../../auto-reply/envelope.js";
-import type { MoltbotConfig } from "../../config/types.js";
+import type { OpenClawConfig } from "../../config/types.js";
 
 /**
  * Cron jobs inject "Current time: ..." into their messages.
@@ -97,11 +97,14 @@ export interface TimestampInjectionOptions {
  * @see https://github.com/moltbot/moltbot/issues/3658
  */
 export function injectTimestamp(message: string, opts?: TimestampInjectionOptions): string {
-  if (!message.trim()) return message;
+  if (!message.trim()) {
+    return message;
+  }
 
 <<<<<<< HEAD
 <<<<<<< HEAD
   // Already has an envelope or injected timestamp
+<<<<<<< HEAD
   if (TIMESTAMP_ENVELOPE_PATTERN.test(message)) return message;
 =======
   // Already has a channel envelope timestamp
@@ -111,9 +114,16 @@ export function injectTimestamp(message: string, opts?: TimestampInjectionOption
   // Already has an envelope or injected timestamp
   if (TIMESTAMP_ENVELOPE_PATTERN.test(message)) return message;
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
+=======
+  if (TIMESTAMP_ENVELOPE_PATTERN.test(message)) {
+    return message;
+  }
+>>>>>>> 9c2985301 (Gateway: inject timestamps into agent/chat.send (#3705) (thanks @conroywhitney, @CashWilliams))
 
   // Already has a cron-injected timestamp
-  if (CRON_TIME_PATTERN.test(message)) return message;
+  if (CRON_TIME_PATTERN.test(message)) {
+    return message;
+  }
 
   const now = opts?.now ?? new Date();
   const timezone = opts?.timezone ?? "UTC";
@@ -121,7 +131,9 @@ export function injectTimestamp(message: string, opts?: TimestampInjectionOption
 <<<<<<< HEAD
 
   const formatted = formatZonedTimestamp(now, timezone);
-  if (!formatted) return message;
+  if (!formatted) {
+    return message;
+  }
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -169,9 +181,9 @@ export function injectTimestamp(message: string, opts?: TimestampInjectionOption
 }
 
 /**
- * Build TimestampInjectionOptions from a MoltbotConfig.
+ * Build TimestampInjectionOptions from an OpenClawConfig.
  */
-export function timestampOptsFromConfig(cfg: MoltbotConfig): TimestampInjectionOptions {
+export function timestampOptsFromConfig(cfg: OpenClawConfig): TimestampInjectionOptions {
   return {
     timezone: resolveUserTimezone(cfg.agents?.defaults?.userTimezone),
 <<<<<<< HEAD
