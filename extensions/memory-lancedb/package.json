@@ -5,8 +5,13 @@
   "description": "Moltbot LanceDB-backed long-term memory plugin with auto-recall/capture",
   "dependencies": {
     "@lancedb/lancedb": "^0.23.0",
+<<<<<<< HEAD
     "@sinclair/typebox": "0.34.47",
     "openai": "^6.16.0"
+=======
+    "@sinclair/typebox": "0.34.48",
+    "openai": "^6.17.0"
+>>>>>>> b56e7e66c (chore: Update deps + `pnpm dedupe`.)
   },
   "moltbot": {
     "extensions": [

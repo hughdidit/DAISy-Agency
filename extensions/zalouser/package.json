@@ -4,8 +4,13 @@
   "type": "module",
   "description": "Moltbot Zalo Personal Account plugin via zca-cli",
   "dependencies": {
+<<<<<<< HEAD
     "moltbot": "workspace:*",
     "@sinclair/typebox": "0.34.47"
+=======
+    "@sinclair/typebox": "0.34.48",
+    "openclaw": "workspace:*"
+>>>>>>> b56e7e66c (chore: Update deps + `pnpm dedupe`.)
   },
   "moltbot": {
     "extensions": [
