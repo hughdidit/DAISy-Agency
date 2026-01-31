@@ -1,5 +1,10 @@
 import type { WebhookRequestBody } from "@line/bot-sdk";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { Request, Response, NextFunction } from "express";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 59cfff02f (chore: Emit TypeScript declaration files so that we can type-check the extensions folder soon.)
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -71,7 +76,7 @@ export function createLineWebhookCallback(
   bot: LineBot,
   channelSecret: string,
   path = "/line/webhook",
-) {
+): { path: string; handler: (req: Request, res: Response, _next: NextFunction) => Promise<void> } {
   const { handler } = startLineWebhook({
     channelSecret,
     onEvents: bot.handleWebhook,
