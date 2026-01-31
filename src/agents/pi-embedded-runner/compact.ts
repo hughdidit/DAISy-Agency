@@ -384,6 +384,20 @@ export async function compactEmbeddedPiSessionDirect(
       });
 
       let session: Awaited<ReturnType<typeof createAgentSession>>["session"];
+<<<<<<< HEAD
+=======
+      const resourceLoader = new DefaultResourceLoader({
+        cwd: resolvedWorkspace,
+        agentDir,
+        settingsManager,
+        additionalExtensionPaths,
+        noSkills: true,
+        systemPromptOverride: systemPrompt,
+        agentsFilesOverride: () => ({ agentsFiles: [] }),
+      });
+      await resourceLoader.reload();
+
+>>>>>>> e9f0be06e (fix: repair docker build typing)
       ({ session } = await createAgentSession({
         cwd: resolvedWorkspace,
         agentDir,
