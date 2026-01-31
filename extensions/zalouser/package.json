@@ -11,6 +11,9 @@
     "@sinclair/typebox": "0.34.47",
     "openclaw": "workspace:*"
   },
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
   "openclaw": {
     "extensions": [
       "./index.ts"
