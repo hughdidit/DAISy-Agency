@@ -15,8 +15,14 @@ const runtimeStub = {
       const override = env.CLAWDBOT_STATE_DIR?.trim();
 =======
       const override = env.OPENCLAW_STATE_DIR?.trim() || env.OPENCLAW_STATE_DIR?.trim();
+<<<<<<< HEAD
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       if (override) return override;
+=======
+      if (override) {
+        return override;
+      }
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
       const resolvedHome = homedir ? homedir() : os.homedir();
       return path.join(resolvedHome, ".clawdbot");
     },

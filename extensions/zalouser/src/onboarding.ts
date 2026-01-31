@@ -73,19 +73,29 @@ async function promptZalouserAllowFrom(params: {
 
   const resolveUserId = async (input: string): Promise<string | null> => {
     const trimmed = input.trim();
-    if (!trimmed) return null;
-    if (/^\d+$/.test(trimmed)) return trimmed;
+    if (!trimmed) {
+      return null;
+    }
+    if (/^\d+$/.test(trimmed)) {
+      return trimmed;
+    }
     const ok = await checkZcaInstalled();
-    if (!ok) return null;
+    if (!ok) {
+      return null;
+    }
     const result = await runZca(["friend", "find", trimmed], {
       profile: resolved.profile,
       timeout: 15000,
     });
-    if (!result.ok) return null;
+    if (!result.ok) {
+      return null;
+    }
     const parsed = parseJsonOutput<ZcaFriend[]>(result.stdout);
     const rows = Array.isArray(parsed) ? parsed : [];
     const match = rows[0];
-    if (!match?.userId) return null;
+    if (!match?.userId) {
+      return null;
+    }
     if (rows.length > 1) {
       await prompter.note(
         `Multiple matches for "${trimmed}", using ${match.displayName ?? match.userId}.`,
@@ -140,9 +150,9 @@ async function promptZalouserAllowFrom(params: {
           ...cfg.channels?.zalouser,
           enabled: true,
           accounts: {
-            ...(cfg.channels?.zalouser?.accounts ?? {}),
+            ...cfg.channels?.zalouser?.accounts,
             [accountId]: {
-              ...(cfg.channels?.zalouser?.accounts?.[accountId] ?? {}),
+              ...cfg.channels?.zalouser?.accounts?.[accountId],
               enabled: cfg.channels?.zalouser?.accounts?.[accountId]?.enabled ?? true,
               dmPolicy: "allowlist",
               allowFrom: unique,
@@ -180,9 +190,9 @@ function setZalouserGroupPolicy(
         ...cfg.channels?.zalouser,
         enabled: true,
         accounts: {
-          ...(cfg.channels?.zalouser?.accounts ?? {}),
+          ...cfg.channels?.zalouser?.accounts,
           [accountId]: {
-            ...(cfg.channels?.zalouser?.accounts?.[accountId] ?? {}),
+            ...cfg.channels?.zalouser?.accounts?.[accountId],
             enabled: cfg.channels?.zalouser?.accounts?.[accountId]?.enabled ?? true,
             groupPolicy,
           },
@@ -219,9 +229,9 @@ function setZalouserGroupAllowlist(
         ...cfg.channels?.zalouser,
         enabled: true,
         accounts: {
-          ...(cfg.channels?.zalouser?.accounts ?? {}),
+          ...cfg.channels?.zalouser?.accounts,
           [accountId]: {
-            ...(cfg.channels?.zalouser?.accounts?.[accountId] ?? {}),
+            ...cfg.channels?.zalouser?.accounts?.[accountId],
             enabled: cfg.channels?.zalouser?.accounts?.[accountId]?.enabled ?? true,
             groups,
           },
@@ -241,14 +251,18 @@ async function resolveZalouserGroups(params: {
     profile: account.profile,
     timeout: 15000,
   });
-  if (!result.ok) throw new Error(result.stderr || "Failed to list groups");
+  if (!result.ok) {
+    throw new Error(result.stderr || "Failed to list groups");
+  }
   const groups = (parseJsonOutput<ZcaGroup[]>(result.stdout) ?? []).filter((group) =>
     Boolean(group.groupId),
   );
   const byName = new Map<string, ZcaGroup[]>();
   for (const group of groups) {
     const name = group.name?.trim().toLowerCase();
-    if (!name) continue;
+    if (!name) {
+      continue;
+    }
     const list = byName.get(name) ?? [];
     list.push(group);
     byName.set(name, list);
@@ -256,8 +270,12 @@ async function resolveZalouserGroups(params: {
 
   return params.entries.map((input) => {
     const trimmed = input.trim();
-    if (!trimmed) return { input, resolved: false };
-    if (/^\d+$/.test(trimmed)) return { input, resolved: true, id: trimmed };
+    if (!trimmed) {
+      return { input, resolved: false };
+    }
+    if (/^\d+$/.test(trimmed)) {
+      return { input, resolved: true, id: trimmed };
+    }
     const matches = byName.get(trimmed.toLowerCase()) ?? [];
     const match = matches[0];
     return match?.groupId
@@ -272,6 +290,7 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
   policyKey: "channels.zalouser.dmPolicy",
   allowFromKey: "channels.zalouser.allowFrom",
 <<<<<<< HEAD
+<<<<<<< HEAD
   getCurrent: (cfg) => ((cfg as MoltbotConfig).channels?.zalouser?.dmPolicy ?? "pairing") as "pairing",
   setPolicy: (cfg, policy) => setZalouserDmPolicy(cfg as MoltbotConfig, policy),
   promptAllowFrom: async ({ cfg, prompter, accountId }) => {
@@ -283,14 +302,24 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
   getCurrent: (cfg) =>
     ((cfg as OpenClawConfig).channels?.zalouser?.dmPolicy ?? "pairing") as "pairing",
   setPolicy: (cfg, policy) => setZalouserDmPolicy(cfg as OpenClawConfig, policy),
+=======
+  getCurrent: (cfg) => (cfg.channels?.zalouser?.dmPolicy ?? "pairing") as "pairing",
+  setPolicy: (cfg, policy) => setZalouserDmPolicy(cfg, policy),
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
   promptAllowFrom: async ({ cfg, prompter, accountId }) => {
     const id =
       accountId && normalizeAccountId(accountId)
         ? (normalizeAccountId(accountId) ?? DEFAULT_ACCOUNT_ID)
+<<<<<<< HEAD
         : resolveDefaultZalouserAccountId(cfg as OpenClawConfig);
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     return promptZalouserAllowFrom({
       cfg: cfg as MoltbotConfig,
+=======
+        : resolveDefaultZalouserAccountId(cfg);
+    return promptZalouserAllowFrom({
+      cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
       prompter,
       accountId: id,
     });
@@ -301,10 +330,17 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
   channel,
   dmPolicy,
   getStatus: async ({ cfg }) => {
+<<<<<<< HEAD
     const ids = listZalouserAccountIds(cfg as MoltbotConfig);
     let configured = false;
     for (const accountId of ids) {
       const account = resolveZalouserAccountSync({ cfg: cfg as MoltbotConfig, accountId });
+=======
+    const ids = listZalouserAccountIds(cfg);
+    let configured = false;
+    for (const accountId of ids) {
+      const account = resolveZalouserAccountSync({ cfg: cfg, accountId });
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
       const isAuth = await checkZcaAuthenticated(account.profile);
       if (isAuth) {
         configured = true;
@@ -343,18 +379,26 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
 
     const zalouserOverride = accountOverrides.zalouser?.trim();
 <<<<<<< HEAD
+<<<<<<< HEAD
     const defaultAccountId = resolveDefaultZalouserAccountId(cfg as MoltbotConfig);
     let accountId = zalouserOverride
       ? normalizeAccountId(zalouserOverride)
       : defaultAccountId;
 =======
     const defaultAccountId = resolveDefaultZalouserAccountId(cfg as OpenClawConfig);
+=======
+    const defaultAccountId = resolveDefaultZalouserAccountId(cfg);
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
     let accountId = zalouserOverride ? normalizeAccountId(zalouserOverride) : defaultAccountId;
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
     if (shouldPromptAccountIds && !zalouserOverride) {
       accountId = await promptAccountId({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         prompter,
         label: "Zalo Personal",
         currentId: accountId,
@@ -363,7 +407,11 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
       });
     }
 
+<<<<<<< HEAD
     let next = cfg as MoltbotConfig;
+=======
+    let next = cfg;
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
     const account = resolveZalouserAccountSync({ cfg: next, accountId });
     const alreadyAuthenticated = await checkZcaAuthenticated(account.profile);
 
@@ -428,9 +476,9 @@ export const zalouserOnboardingAdapter: ChannelOnboardingAdapter = {
             ...next.channels?.zalouser,
             enabled: true,
             accounts: {
-              ...(next.channels?.zalouser?.accounts ?? {}),
+              ...next.channels?.zalouser?.accounts,
               [accountId]: {
-                ...(next.channels?.zalouser?.accounts?.[accountId] ?? {}),
+                ...next.channels?.zalouser?.accounts?.[accountId],
                 enabled: true,
                 profile: account.profile,
               },

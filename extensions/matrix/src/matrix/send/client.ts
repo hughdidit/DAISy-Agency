@@ -31,10 +31,19 @@ export async function resolveMatrixClient(opts: {
   timeoutMs?: number;
 }): Promise<{ client: MatrixClient; stopOnDone: boolean }> {
   ensureNodeRuntime();
-  if (opts.client) return { client: opts.client, stopOnDone: false };
+  if (opts.client) {
+    return { client: opts.client, stopOnDone: false };
+  }
   const active = getActiveMatrixClient();
+<<<<<<< HEAD
   if (active) return { client: active, stopOnDone: false };
   const shouldShareClient = Boolean(process.env.CLAWDBOT_GATEWAY_PORT);
+=======
+  if (active) {
+    return { client: active, stopOnDone: false };
+  }
+  const shouldShareClient = Boolean(process.env.OPENCLAW_GATEWAY_PORT);
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
   if (shouldShareClient) {
     const client = await resolveSharedMatrixClient({
       timeoutMs: opts.timeoutMs,

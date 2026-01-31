@@ -21,14 +21,22 @@ function normalizeEndpoint(endpoint?: string): string | undefined {
 }
 
 function resolveOtelUrl(endpoint: string | undefined, path: string): string | undefined {
-  if (!endpoint) return undefined;
-  if (endpoint.includes("/v1/")) return endpoint;
+  if (!endpoint) {
+    return undefined;
+  }
+  if (endpoint.includes("/v1/")) {
+    return endpoint;
+  }
   return `${endpoint}/${path}`;
 }
 
 function resolveSampleRate(value: number | undefined): number | undefined {
-  if (typeof value !== "number" || !Number.isFinite(value)) return undefined;
-  if (value < 0 || value > 1) return undefined;
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return undefined;
+  }
+  if (value < 0 || value > 1) {
+    return undefined;
+  }
   return value;
 }
 
@@ -43,7 +51,9 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
     async start(ctx) {
       const cfg = ctx.config.diagnostics;
       const otel = cfg?.otel;
-      if (!cfg?.enabled || !otel?.enabled) return;
+      if (!cfg?.enabled || !otel?.enabled) {
+        return;
+      }
 
       const protocol = otel.protocol ?? process.env.OTEL_EXPORTER_OTLP_PROTOCOL ?? "http/protobuf";
       if (protocol !== "http/protobuf") {
@@ -60,7 +70,9 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
       const tracesEnabled = otel.traces !== false;
       const metricsEnabled = otel.metrics !== false;
       const logsEnabled = otel.logs === true;
-      if (!tracesEnabled && !metricsEnabled && !logsEnabled) return;
+      if (!tracesEnabled && !metricsEnabled && !logsEnabled) {
+        return;
+      }
 
       const resource = new Resource({
         [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
@@ -106,7 +118,7 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
             : {}),
         });
 
-        await sdk.start();
+        sdk.start();
       }
 
       const logSeverityMap: Record<string, SeverityNumber> = {
@@ -201,11 +213,12 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
         });
         logProvider = new LoggerProvider({ resource });
         logProvider.addLogRecordProcessor(
-          new BatchLogRecordProcessor(logExporter, {
-            ...(typeof otel.flushIntervalMs === "number"
+          new BatchLogRecordProcessor(
+            logExporter,
+            typeof otel.flushIntervalMs === "number"
               ? { scheduledDelayMillis: Math.max(1000, otel.flushIntervalMs) }
-              : {}),
-          }),
+              : {},
+          ),
         );
         const otelLogger = logProvider.getLogger("moltbot");
 
@@ -237,7 +250,7 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
 
           const numericArgs = Object.entries(logObj)
             .filter(([key]) => /^\d+$/.test(key))
-            .sort((a, b) => Number(a[0]) - Number(b[0]))
+            .toSorted((a, b) => Number(a[0]) - Number(b[0]))
             .map(([, value]) => value);
 
           let bindings: Record<string, unknown> | undefined;
@@ -267,7 +280,13 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
           const attributes: Record<string, string | number | boolean> = {
             "moltbot.log.level": logLevelName,
           };
+<<<<<<< HEAD
           if (meta?.name) attributes["moltbot.logger"] = meta.name;
+=======
+          if (meta?.name) {
+            attributes["openclaw.logger"] = meta.name;
+          }
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
           if (meta?.parentNames?.length) {
             attributes["moltbot.logger.parents"] = meta.parentNames.join(".");
           }
@@ -292,9 +311,15 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
           if (numericArgs.length > 0) {
             attributes["moltbot.log.args"] = safeStringify(numericArgs);
           }
-          if (meta?.path?.filePath) attributes["code.filepath"] = meta.path.filePath;
-          if (meta?.path?.fileLine) attributes["code.lineno"] = Number(meta.path.fileLine);
-          if (meta?.path?.method) attributes["code.function"] = meta.path.method;
+          if (meta?.path?.filePath) {
+            attributes["code.filepath"] = meta.path.filePath;
+          }
+          if (meta?.path?.fileLine) {
+            attributes["code.lineno"] = Number(meta.path.fileLine);
+          }
+          if (meta?.path?.method) {
+            attributes["code.function"] = meta.path.method;
+          }
           if (meta?.path?.filePathWithLine) {
             attributes["moltbot.code.location"] = meta.path.filePathWithLine;
           }
@@ -331,6 +356,7 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
         };
 
         const usage = evt.usage;
+<<<<<<< HEAD
         if (usage.input) tokensCounter.add(usage.input, { ...attrs, "moltbot.token": "input" });
         if (usage.output) tokensCounter.add(usage.output, { ...attrs, "moltbot.token": "output" });
         if (usage.cacheRead)
@@ -340,21 +366,49 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
         if (usage.promptTokens)
           tokensCounter.add(usage.promptTokens, { ...attrs, "moltbot.token": "prompt" });
         if (usage.total) tokensCounter.add(usage.total, { ...attrs, "moltbot.token": "total" });
+=======
+        if (usage.input) {
+          tokensCounter.add(usage.input, { ...attrs, "openclaw.token": "input" });
+        }
+        if (usage.output) {
+          tokensCounter.add(usage.output, { ...attrs, "openclaw.token": "output" });
+        }
+        if (usage.cacheRead) {
+          tokensCounter.add(usage.cacheRead, { ...attrs, "openclaw.token": "cache_read" });
+        }
+        if (usage.cacheWrite) {
+          tokensCounter.add(usage.cacheWrite, { ...attrs, "openclaw.token": "cache_write" });
+        }
+        if (usage.promptTokens) {
+          tokensCounter.add(usage.promptTokens, { ...attrs, "openclaw.token": "prompt" });
+        }
+        if (usage.total) {
+          tokensCounter.add(usage.total, { ...attrs, "openclaw.token": "total" });
+        }
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
 
-        if (evt.costUsd) costCounter.add(evt.costUsd, attrs);
-        if (evt.durationMs) durationHistogram.record(evt.durationMs, attrs);
-        if (evt.context?.limit)
+        if (evt.costUsd) {
+          costCounter.add(evt.costUsd, attrs);
+        }
+        if (evt.durationMs) {
+          durationHistogram.record(evt.durationMs, attrs);
+        }
+        if (evt.context?.limit) {
           contextHistogram.record(evt.context.limit, {
             ...attrs,
             "moltbot.context": "limit",
           });
-        if (evt.context?.used)
+        }
+        if (evt.context?.used) {
           contextHistogram.record(evt.context.used, {
             ...attrs,
             "moltbot.context": "used",
           });
+        }
 
-        if (!tracesEnabled) return;
+        if (!tracesEnabled) {
+          return;
+        }
         const spanAttrs: Record<string, string | number> = {
           ...attrs,
           "moltbot.sessionKey": evt.sessionKey ?? "",
@@ -390,10 +444,19 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
         if (typeof evt.durationMs === "number") {
           webhookDurationHistogram.record(evt.durationMs, attrs);
         }
-        if (!tracesEnabled) return;
+        if (!tracesEnabled) {
+          return;
+        }
         const spanAttrs: Record<string, string | number> = { ...attrs };
+<<<<<<< HEAD
         if (evt.chatId !== undefined) spanAttrs["moltbot.chatId"] = String(evt.chatId);
         const span = spanWithDuration("moltbot.webhook.processed", spanAttrs, evt.durationMs);
+=======
+        if (evt.chatId !== undefined) {
+          spanAttrs["openclaw.chatId"] = String(evt.chatId);
+        }
+        const span = spanWithDuration("openclaw.webhook.processed", spanAttrs, evt.durationMs);
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         span.end();
       };
 
@@ -405,13 +468,22 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
           "moltbot.webhook": evt.updateType ?? "unknown",
         };
         webhookErrorCounter.add(1, attrs);
-        if (!tracesEnabled) return;
+        if (!tracesEnabled) {
+          return;
+        }
         const spanAttrs: Record<string, string | number> = {
           ...attrs,
           "moltbot.error": evt.error,
         };
+<<<<<<< HEAD
         if (evt.chatId !== undefined) spanAttrs["moltbot.chatId"] = String(evt.chatId);
         const span = tracer.startSpan("moltbot.webhook.error", {
+=======
+        if (evt.chatId !== undefined) {
+          spanAttrs["openclaw.chatId"] = String(evt.chatId);
+        }
+        const span = tracer.startSpan("openclaw.webhook.error", {
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
           attributes: spanAttrs,
         });
         span.setStatus({ code: SpanStatusCode.ERROR, message: evt.error });
@@ -442,14 +514,35 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
         if (typeof evt.durationMs === "number") {
           messageDurationHistogram.record(evt.durationMs, attrs);
         }
-        if (!tracesEnabled) return;
+        if (!tracesEnabled) {
+          return;
+        }
         const spanAttrs: Record<string, string | number> = { ...attrs };
+<<<<<<< HEAD
         if (evt.sessionKey) spanAttrs["moltbot.sessionKey"] = evt.sessionKey;
         if (evt.sessionId) spanAttrs["moltbot.sessionId"] = evt.sessionId;
         if (evt.chatId !== undefined) spanAttrs["moltbot.chatId"] = String(evt.chatId);
         if (evt.messageId !== undefined) spanAttrs["moltbot.messageId"] = String(evt.messageId);
         if (evt.reason) spanAttrs["moltbot.reason"] = evt.reason;
         const span = spanWithDuration("moltbot.message.processed", spanAttrs, evt.durationMs);
+=======
+        if (evt.sessionKey) {
+          spanAttrs["openclaw.sessionKey"] = evt.sessionKey;
+        }
+        if (evt.sessionId) {
+          spanAttrs["openclaw.sessionId"] = evt.sessionId;
+        }
+        if (evt.chatId !== undefined) {
+          spanAttrs["openclaw.chatId"] = String(evt.chatId);
+        }
+        if (evt.messageId !== undefined) {
+          spanAttrs["openclaw.messageId"] = String(evt.messageId);
+        }
+        if (evt.reason) {
+          spanAttrs["openclaw.reason"] = evt.reason;
+        }
+        const span = spanWithDuration("openclaw.message.processed", spanAttrs, evt.durationMs);
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         if (evt.outcome === "error") {
           span.setStatus({ code: SpanStatusCode.ERROR, message: evt.error });
         }
@@ -478,8 +571,15 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
       const recordSessionState = (
         evt: Extract<DiagnosticEventPayload, { type: "session.state" }>,
       ) => {
+<<<<<<< HEAD
         const attrs: Record<string, string> = { "moltbot.state": evt.state };
         if (evt.reason) attrs["moltbot.reason"] = evt.reason;
+=======
+        const attrs: Record<string, string> = { "openclaw.state": evt.state };
+        if (evt.reason) {
+          attrs["openclaw.reason"] = evt.reason;
+        }
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         sessionStateCounter.add(1, attrs);
       };
 
@@ -491,13 +591,27 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
         if (typeof evt.ageMs === "number") {
           sessionStuckAgeHistogram.record(evt.ageMs, attrs);
         }
-        if (!tracesEnabled) return;
+        if (!tracesEnabled) {
+          return;
+        }
         const spanAttrs: Record<string, string | number> = { ...attrs };
+<<<<<<< HEAD
         if (evt.sessionKey) spanAttrs["moltbot.sessionKey"] = evt.sessionKey;
         if (evt.sessionId) spanAttrs["moltbot.sessionId"] = evt.sessionId;
         spanAttrs["moltbot.queueDepth"] = evt.queueDepth ?? 0;
         spanAttrs["moltbot.ageMs"] = evt.ageMs;
         const span = tracer.startSpan("moltbot.session.stuck", { attributes: spanAttrs });
+=======
+        if (evt.sessionKey) {
+          spanAttrs["openclaw.sessionKey"] = evt.sessionKey;
+        }
+        if (evt.sessionId) {
+          spanAttrs["openclaw.sessionId"] = evt.sessionId;
+        }
+        spanAttrs["openclaw.queueDepth"] = evt.queueDepth ?? 0;
+        spanAttrs["openclaw.ageMs"] = evt.ageMs;
+        const span = tracer.startSpan("openclaw.session.stuck", { attributes: spanAttrs });
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         span.setStatus({ code: SpanStatusCode.ERROR, message: "session stuck" });
         span.end();
       };

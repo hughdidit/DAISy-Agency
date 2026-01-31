@@ -105,7 +105,9 @@ async function promptToken(
       initialValue: envToken ?? "",
       validate: (value) => {
         const raw = String(value ?? "").trim();
-        if (!raw) return "Required";
+        if (!raw) {
+          return "Required";
+        }
         if (!raw.startsWith("oauth:")) {
           return "Token should start with 'oauth:'";
         }
@@ -265,14 +267,22 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
   getCurrent: (cfg) => {
     const account = getAccountConfig(cfg, DEFAULT_ACCOUNT_ID);
     // Map allowedRoles to policy equivalent
-    if (account?.allowedRoles?.includes("all")) return "open";
-    if (account?.allowFrom && account.allowFrom.length > 0) return "allowlist";
+    if (account?.allowedRoles?.includes("all")) {
+      return "open";
+    }
+    if (account?.allowFrom && account.allowFrom.length > 0) {
+      return "allowlist";
+    }
     return "disabled";
   },
   setPolicy: (cfg, policy) => {
     const allowedRoles: TwitchRole[] =
       policy === "open" ? ["all"] : policy === "allowlist" ? [] : ["moderator"];
+<<<<<<< HEAD
     return setTwitchAccessControl(cfg as MoltbotConfig, allowedRoles, true);
+=======
+    return setTwitchAccessControl(cfg, allowedRoles, true);
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
   },
   promptAllowFrom: async ({ cfg, prompter }) => {
     const account = getAccountConfig(cfg, DEFAULT_ACCOUNT_ID);
@@ -289,7 +299,11 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
       .map((s) => s.trim())
       .filter(Boolean);
 
+<<<<<<< HEAD
     return setTwitchAccount(cfg as MoltbotConfig, {
+=======
+    return setTwitchAccount(cfg, {
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
       ...(account ?? undefined),
       allowFrom,
     });

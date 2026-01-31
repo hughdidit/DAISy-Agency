@@ -134,15 +134,23 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       const isLocationEvent =
         eventType === EventType.Location ||
         (eventType === EventType.RoomMessage && locationContent.msgtype === EventType.Location);
-      if (eventType !== EventType.RoomMessage && !isPollEvent && !isLocationEvent) return;
+      if (eventType !== EventType.RoomMessage && !isPollEvent && !isLocationEvent) {
+        return;
+      }
       logVerboseMessage(
         `matrix: room.message recv room=${roomId} type=${eventType} id=${event.event_id ?? "unknown"}`,
       );
-      if (event.unsigned?.redacted_because) return;
+      if (event.unsigned?.redacted_because) {
+        return;
+      }
       const senderId = event.sender;
-      if (!senderId) return;
+      if (!senderId) {
+        return;
+      }
       const selfUserId = await client.getUserId();
-      if (senderId === selfUserId) return;
+      if (senderId === selfUserId) {
+        return;
+      }
       const eventTs = event.origin_server_ts;
       const eventAge = event.unsigned?.age;
       if (typeof eventTs === "number" && eventTs < startupMs - startupGraceMs) {
@@ -187,7 +195,9 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
 
       const relates = content["m.relates_to"];
       if (relates && "rel_type" in relates) {
-        if (relates.rel_type === RelationType.Replace) return;
+        if (relates.rel_type === RelationType.Replace) {
+          return;
+        }
       }
 
       const isDirectMessage = await directTracker.isDirectMessage({
@@ -197,7 +207,9 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       });
       const isRoom = !isDirectMessage;
 
-      if (isRoom && groupPolicy === "disabled") return;
+      if (isRoom && groupPolicy === "disabled") {
+        return;
+      }
 
       const roomConfigInfo = isRoom
         ? resolveMatrixRoomConfig({
@@ -242,7 +254,9 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       const groupAllowConfigured = effectiveGroupAllowFrom.length > 0;
 
       if (isDirectMessage) {
-        if (!dmEnabled || dmPolicy === "disabled") return;
+        if (!dmEnabled || dmPolicy === "disabled") {
+          return;
+        }
         if (dmPolicy !== "open") {
           const allowMatch = resolveMatrixAllowListMatch({
             allowList: effectiveAllowFrom,
@@ -364,7 +378,9 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       }
 
       const bodyText = rawBody || media?.placeholder || "";
-      if (!bodyText) return;
+      if (!bodyText) {
+        return;
+      }
 
       const { wasMentioned, hasExplicitMention } = resolveMentions({
         content,
@@ -505,7 +521,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         MediaPath: media?.path,
         MediaType: media?.contentType,
         MediaUrl: media?.path,
-        ...(locationPayload?.context ?? {}),
+        ...locationPayload?.context,
         CommandAuthorized: commandAuthorized,
         CommandSource: "text" as const,
         OriginatingChannel: "matrix" as const,
@@ -641,7 +657,9 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         },
       });
       markDispatchIdle();
-      if (!queuedFinal) return;
+      if (!queuedFinal) {
+        return;
+      }
       didSendReply = true;
       const finalCount = counts.final;
       logVerboseMessage(

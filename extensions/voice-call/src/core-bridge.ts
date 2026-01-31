@@ -72,20 +72,32 @@ function findPackageRoot(startDir: string, name: string): string | null {
       if (fs.existsSync(pkgPath)) {
         const raw = fs.readFileSync(pkgPath, "utf8");
         const pkg = JSON.parse(raw) as { name?: string };
-        if (pkg.name === name) return dir;
+        if (pkg.name === name) {
+          return dir;
+        }
       }
     } catch {
       // ignore parse errors and keep walking
     }
     const parent = path.dirname(dir);
-    if (parent === dir) return null;
+    if (parent === dir) {
+      return null;
+    }
     dir = parent;
   }
 }
 
+<<<<<<< HEAD
 function resolveMoltbotRoot(): string {
   if (coreRootCache) return coreRootCache;
   const override = process.env.MOLTBOT_ROOT?.trim() || process.env.CLAWDBOT_ROOT?.trim();
+=======
+function resolveOpenClawRoot(): string {
+  if (coreRootCache) {
+    return coreRootCache;
+  }
+  const override = process.env.OPENCLAW_ROOT?.trim();
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
   if (override) {
     coreRootCache = override;
     return override;
@@ -134,7 +146,9 @@ async function importCoreModule<T>(relativePath: string): Promise<T> {
 }
 
 export async function loadCoreAgentDeps(): Promise<CoreAgentDeps> {
-  if (coreDepsPromise) return coreDepsPromise;
+  if (coreDepsPromise) {
+    return coreDepsPromise;
+  }
 
   coreDepsPromise = (async () => {
     const [

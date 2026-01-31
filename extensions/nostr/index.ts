@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import type { MoltbotPluginApi, MoltbotConfig } from "clawdbot/plugin-sdk";
 import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
+import { emptyPluginConfigSchema } from "openclaw/plugin-sdk";
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
 
 import { nostrPlugin } from "./src/channel.js";
 import { setNostrRuntime, getNostrRuntime } from "./src/runtime.js";
@@ -20,13 +25,21 @@ const plugin = {
     const httpHandler = createNostrProfileHttpHandler({
       getConfigProfile: (accountId: string) => {
         const runtime = getNostrRuntime();
+<<<<<<< HEAD
         const cfg = runtime.config.loadConfig() as MoltbotConfig;
+=======
+        const cfg = runtime.config.loadConfig();
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         const account = resolveNostrAccount({ cfg, accountId });
         return account.profile;
       },
       updateConfigProfile: async (accountId: string, profile: NostrProfile) => {
         const runtime = getNostrRuntime();
+<<<<<<< HEAD
         const cfg = runtime.config.loadConfig() as MoltbotConfig;
+=======
+        const cfg = runtime.config.loadConfig();
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
 
         // Build the config patch for channels.nostr.profile
         const channels = (cfg.channels ?? {}) as Record<string, unknown>;
@@ -49,7 +62,11 @@ const plugin = {
       },
       getAccountInfo: (accountId: string) => {
         const runtime = getNostrRuntime();
+<<<<<<< HEAD
         const cfg = runtime.config.loadConfig() as MoltbotConfig;
+=======
+        const cfg = runtime.config.loadConfig();
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         const account = resolveNostrAccount({ cfg, accountId });
         if (!account.configured || !account.publicKey) {
           return null;
