@@ -7,12 +7,24 @@ Status: beta.
 
 ### Changes
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Rebrand: rename the npm package/CLI to `moltbot`, add a `moltbot` compatibility shim, and move extensions to the `@moltbot/*` scope.
 - Commands: group /help and /commands output with Telegram paging. (#2504) Thanks @hougangdev.
 - macOS: limit project-local `node_modules/.bin` PATH preference to debug builds (reduce PATH hijacking risk).
 - macOS: finish Moltbot app rename for macOS sources, bundle identifiers, and shared kit paths. (#2844) Thanks @fal3.
 - Branding: update launchd labels, mobile bundle IDs, and logging subsystems to bot.molt (legacy com.clawdbot migrations). Thanks @thewilloftheshadow.
 =======
+=======
+
+### Fixes
+
+- Telegram: restore draft streaming partials. (#5543) Thanks @obviyus.
+
+## 2026.1.30
+
+### Changes
+
+>>>>>>> f1de88c19 (fix: restore telegram draft streaming partials (#5543) (thanks @obviyus))
 - CLI: add `completion` command (Zsh/Bash/PowerShell/Fish) and auto-setup during postinstall/onboarding.
 - CLI: add per-agent `models status` (`--agent` filter). (#4780) Thanks @jlowin.
 - Agents: add Kimi K2.5 to the synthetic model catalog. (#4407) Thanks @manikv12.
