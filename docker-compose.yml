@@ -35,7 +35,7 @@ services:
     command:
       [
         "node",
-        "dist/index.js",
+        "dist/index.mjs",
         "gateway",
         "--bind",
 <<<<<<< HEAD
@@ -65,4 +65,4 @@ services:
     stdin_open: true
     tty: true
     init: true
-    entrypoint: ["node", "dist/index.js"]
+    entrypoint: ["node", "dist/index.mjs"]
