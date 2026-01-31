@@ -2,7 +2,29 @@
 name: sag
 description: ElevenLabs text-to-speech with mac-style say UX.
 homepage: https://sag.sh
+<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"🗣️","requires":{"bins":["sag"],"env":["ELEVENLABS_API_KEY"]},"primaryEnv":"ELEVENLABS_API_KEY","install":[{"id":"brew","kind":"brew","formula":"steipete/tap/sag","bins":["sag"],"label":"Install sag (brew)"}]}}
+=======
+metadata:
+  {
+    "openclaw":
+      {
+        "emoji": "🗣️",
+        "requires": { "bins": ["sag"], "env": ["ELEVENLABS_API_KEY"] },
+        "primaryEnv": "ELEVENLABS_API_KEY",
+        "install":
+          [
+            {
+              "id": "brew",
+              "kind": "brew",
+              "formula": "steipete/tap/sag",
+              "bins": ["sag"],
+              "label": "Install sag (brew)",
+            },
+          ],
+      },
+  }
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 ---
 
 # sag
@@ -10,21 +32,25 @@ metadata: {"moltbot":{"emoji":"🗣️","requires":{"bins":["sag"],"env":["ELEVE
 Use `sag` for ElevenLabs TTS with local playback.
 
 API key (required)
+
 - `ELEVENLABS_API_KEY` (preferred)
 - `SAG_API_KEY` also supported by the CLI
 
 Quick start
+
 - `sag "Hello there"`
 - `sag speak -v "Roger" "Hello"`
 - `sag voices`
 - `sag prompting` (model-specific tips)
 
 Model notes
+
 - Default: `eleven_v3` (expressive)
 - Stable: `eleven_multilingual_v2`
 - Fast: `eleven_flash_v2_5`
 
 Pronunciation + delivery rules
+
 - First fix: respell (e.g. "key-note"), add hyphens, adjust casing.
 - Numbers/units/URLs: `--normalize auto` (or `off` if it harms names).
 - Language bias: `--lang en|de|fr|...` to guide normalization.
@@ -32,12 +58,14 @@ Pronunciation + delivery rules
 - v2/v2.5: SSML `<break time="1.5s" />` supported; `<phoneme>` not exposed in `sag`.
 
 v3 audio tags (put at the entrance of a line)
+
 - `[whispers]`, `[shouts]`, `[sings]`
 - `[laughs]`, `[starts laughing]`, `[sighs]`, `[exhales]`
 - `[sarcastic]`, `[curious]`, `[excited]`, `[crying]`, `[mischievously]`
 - Example: `sag "[whispers] keep this quiet. [short pause] ok?"`
 
 Voice defaults
+
 - `ELEVENLABS_VOICE_ID` or `SAG_VOICE_ID`
 
 Confirm voice + speaker before long output.
@@ -55,6 +83,7 @@ sag -v Clawd -o /tmp/voice-reply.mp3 "Your message here"
 ```
 
 Voice character tips:
+
 - Crazy scientist: Use `[excited]` tags, dramatic pauses `[short pause]`, vary intensity
 - Calm: Use `[whispers]` or slower pacing
 - Dramatic: Use `[sings]` or `[shouts]` sparingly

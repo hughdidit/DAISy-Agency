@@ -20,9 +20,7 @@ function pickAnthropicEnv(): { type: "oauth" | "api"; value: string } | null {
 }
 
 function pickZaiKey(): string | null {
-  return (
-    process.env.ZAI_API_KEY?.trim() ?? process.env.Z_AI_API_KEY?.trim() ?? null
-  );
+  return process.env.ZAI_API_KEY?.trim() ?? process.env.Z_AI_API_KEY?.trim() ?? null;
 }
 
 async function runCommand(
@@ -74,9 +72,13 @@ async function main() {
     process.exit(1);
   }
 
+<<<<<<< HEAD
   const baseDir = await fs.mkdtemp(
     path.join(os.tmpdir(), "moltbot-zai-fallback-"),
   );
+=======
+  const baseDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-zai-fallback-"));
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
   const stateDir = path.join(baseDir, "state");
   const configPath = path.join(baseDir, "moltbot.json");
   await fs.mkdir(stateDir, { recursive: true });
@@ -126,6 +128,7 @@ async function main() {
     "Then use the read tool to display the file contents. Reply with just the file contents.";
   const run1 = await runCommand(
     "run1",
+<<<<<<< HEAD
     [
       "moltbot",
       "agent",
@@ -135,19 +138,16 @@ async function main() {
       "--message",
       toolPrompt,
     ],
+=======
+    ["openclaw", "agent", "--local", "--session-id", sessionId, "--message", toolPrompt],
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
     envValidAnthropic,
   );
   if (run1.code !== 0) {
     process.exit(run1.code ?? 1);
   }
 
-  const sessionFile = path.join(
-    stateDir,
-    "agents",
-    "main",
-    "sessions",
-    `${sessionId}.jsonl`,
-  );
+  const sessionFile = path.join(stateDir, "agents", "main", "sessions", `${sessionId}.jsonl`);
   const transcript = await fs.readFile(sessionFile, "utf8").catch(() => "");
   if (!transcript.includes('"toolResult"')) {
     console.warn("Warning: no toolResult entries detected in session history.");
@@ -158,6 +158,7 @@ async function main() {
     "What is the content of zai-fallback-tool.txt? Reply with just the contents.";
   const run2 = await runCommand(
     "run2",
+<<<<<<< HEAD
     [
       "moltbot",
       "agent",
@@ -167,6 +168,9 @@ async function main() {
       "--message",
       followupPrompt,
     ],
+=======
+    ["openclaw", "agent", "--local", "--session-id", sessionId, "--message", followupPrompt],
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
     envInvalidAnthropic,
   );
 
