@@ -235,6 +235,7 @@ moltbot cron add \
   --to "+15551234567"
 
 Agent selection (multi-agent setups):
+
 ```bash
 # Pin a job to agent "ops" (falls back to default if that agent is missing)
 moltbot cron add --name "Ops sweep" --cron "0 6 * * *" --session isolated --message "Check ops queue" --agent ops
@@ -246,6 +247,7 @@ moltbot cron edit <jobId> --clear-agent
 ```
 
 Manual run (debug):
+
 ```bash
 moltbot cron run <jobId> --force
 ```
