@@ -30,7 +30,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
+<<<<<<< HEAD
           - task: lint
+=======
+          - runtime: node
+            task: tsgo
+            command: pnpm tsgo
+          - runtime: node
+            task: lint
+>>>>>>> f99e3ddd6 (Run `tsgo` on CI.)
             command: pnpm lint
           - task: test
             command: pnpm canvas:a2ui:bundle && pnpm test -- --no-file-parallelism
