@@ -24,8 +24,13 @@ Welcome to the lobster tank! 🦞
 3. **Questions** → Discord #setup-help
 
 ## Before You PR
+<<<<<<< HEAD
 - Test locally with your Moltbot instance
 - Run linter: `npm run lint`
+=======
+- Test locally with your OpenClaw instance
+- Run tests: `pnpm tsgo && pnpm format && pnpm lint && pnpm build && pnpm test`
+>>>>>>> dae00fe18 (fix: Update `CONTRIBUTING.md` + adjust `watch-node.mjs` again to be faster with `tsc`.)
 - Keep PRs focused (one thing per PR)
 - Describe what & why
 
