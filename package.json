@@ -2,6 +2,7 @@
   "name": "openclaw",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29-beta.1",
 =======
   "version": "2026.1.29-beta.3",
@@ -9,6 +10,9 @@
 =======
   "version": "2026.1.29-beta.5",
 >>>>>>> d9c81991b (chore: bump beta)
+=======
+  "version": "2026.1.30",
+>>>>>>> 247fab47c (chore: bump version to 2026.1.30)
   "description": "WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
   "type": "module",
   "main": "dist/index.js",
