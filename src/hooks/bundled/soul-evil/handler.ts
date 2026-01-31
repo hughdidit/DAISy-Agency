@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
+=======
+>>>>>>> 9c4cbaab7 (chore: Enable eslint/no-unused-vars.)
 import { isSubagentSessionKey } from "../../../routing/session-key.js";
 import { resolveHookConfig } from "../../config.js";
 import { isAgentBootstrapEvent, type HookHandler } from "../../hooks.js";

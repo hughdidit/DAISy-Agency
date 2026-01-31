@@ -1,6 +1,10 @@
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+<<<<<<< HEAD
 import type { ChannelId } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 9c4cbaab7 (chore: Enable eslint/no-unused-vars.)
 import { loadConfig } from "../../config/config.js";
 import { callGateway, randomIdempotencyKey } from "../../gateway/call.js";
 import type { PollInput } from "../../polls.js";
@@ -18,7 +22,6 @@ import {
   type OutboundSendDeps,
 } from "./deliver.js";
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
-import type { OutboundChannel } from "./targets.js";
 import { resolveOutboundTarget } from "./targets.js";
 
 export type MessageGatewayOptions = {

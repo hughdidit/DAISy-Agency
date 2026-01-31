@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
+<<<<<<< HEAD
 import {
   type Api,
   type AssistantMessage,
@@ -9,6 +10,10 @@ import {
   type Model,
 } from "@mariozechner/pi-ai";
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
+=======
+import { type Api, type Context, complete, type Model } from "@mariozechner/pi-ai";
+import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
+>>>>>>> 9c4cbaab7 (chore: Enable eslint/no-unused-vars.)
 import { Type } from "@sinclair/typebox";
 
 import type { MoltbotConfig } from "../../config/config.js";
