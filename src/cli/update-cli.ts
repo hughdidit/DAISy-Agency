@@ -653,7 +653,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
         message: stylePromptMessage(message),
         initialValue: false,
       });
-      if (isCancel(ok) || ok === false) {
+      if (isCancel(ok) || !ok) {
         if (!opts.json) {
           defaultRuntime.log(theme.muted("Update cancelled."));
         }
@@ -1078,7 +1078,7 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
         ),
         initialValue: true,
       });
-      if (isCancel(ok) || ok === false) {
+      if (isCancel(ok) || !ok) {
         defaultRuntime.log(theme.muted("Update cancelled."));
         defaultRuntime.exit(0);
         return;

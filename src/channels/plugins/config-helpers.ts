@@ -30,7 +30,7 @@ export function setAccountEnabledInConfigSection(params: {
     } as MoltbotConfig;
   }
 
-  const baseAccounts = (base?.accounts ?? {}) as Record<string, Record<string, unknown>>;
+  const baseAccounts = base?.accounts ?? {};
   const existing = baseAccounts[accountKey] ?? {};
   return {
     ...params.cfg,

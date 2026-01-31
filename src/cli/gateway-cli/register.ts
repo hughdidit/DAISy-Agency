@@ -284,7 +284,7 @@ export function registerGatewayCli(program: Command) {
           async () => await discoverGatewayBeacons({ timeoutMs }),
         );
 
-        const deduped = dedupeBeacons(beacons).sort((a, b) =>
+        const deduped = dedupeBeacons(beacons).toSorted((a, b) =>
           String(a.displayName || a.instanceName).localeCompare(
             String(b.displayName || b.instanceName),
           ),

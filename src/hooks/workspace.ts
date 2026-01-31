@@ -85,7 +85,7 @@ function loadHookFromDir(params: {
     return {
       name,
       description,
-      source: params.source as Hook["source"],
+      source: params.source,
       pluginId: params.pluginId,
       filePath: hookMdPath,
       baseDir: params.hookDir,

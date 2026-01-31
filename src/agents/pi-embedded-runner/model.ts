@@ -41,7 +41,7 @@ export function buildModelAliasLines(cfg?: MoltbotConfig) {
     entries.push({ alias, model });
   }
   return entries
-    .sort((a, b) => a.alias.localeCompare(b.alias))
+    .toSorted((a, b) => a.alias.localeCompare(b.alias))
     .map((entry) => `- ${entry.alias}: ${entry.model}`);
 }
 

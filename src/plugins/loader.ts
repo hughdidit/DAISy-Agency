@@ -409,7 +409,7 @@ export function loadMoltbotPlugins(options: PluginLoadOptions = {}): PluginRegis
 
     try {
       const result = register(api);
-      if (result && typeof (result as Promise<void>).then === "function") {
+      if (result && typeof result.then === "function") {
         registry.diagnostics.push({
           level: "warn",
           pluginId: record.id,

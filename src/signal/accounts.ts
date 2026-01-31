@@ -20,7 +20,7 @@ function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
 export function listSignalAccountIds(cfg: MoltbotConfig): string[] {
   const ids = listConfiguredAccountIds(cfg);
   if (ids.length === 0) return [DEFAULT_ACCOUNT_ID];
-  return ids.sort((a, b) => a.localeCompare(b));
+  return ids.toSorted((a, b) => a.localeCompare(b));
 }
 
 export function resolveDefaultSignalAccountId(cfg: MoltbotConfig): string {
