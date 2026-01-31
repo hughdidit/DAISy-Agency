@@ -68,11 +68,23 @@ export function createTelegramDraftStream(params: {
       return;
     }
     const text = pendingText;
+<<<<<<< HEAD
     pendingText = "";
     if (!text.trim()) {
       if (pendingText) schedule();
+=======
+    const trimmed = text.trim();
+    if (!trimmed) {
+      if (pendingText === text) {
+        pendingText = "";
+      }
+      if (pendingText) {
+        schedule();
+      }
+>>>>>>> a64d8d2d6 (fix: harden telegram streaming state)
       return;
     }
+    pendingText = "";
     inFlight = true;
     try {
       await sendDraft(text);
