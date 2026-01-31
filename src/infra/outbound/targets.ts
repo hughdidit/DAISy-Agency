@@ -1,7 +1,12 @@
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { formatCliCommand } from "../../cli/command-format.js";
+<<<<<<< HEAD
 import type { ChannelId, ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 9c4cbaab7 (chore: Enable eslint/no-unused-vars.)
 import type { SessionEntry } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.agent-defaults.js";
 import { deliveryContextFromSession } from "../../utils/delivery-context.js";
