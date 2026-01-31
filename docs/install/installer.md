@@ -1,7 +1,11 @@
 ---
 summary: "How the installer scripts work (install.sh + install-cli.sh), flags, and automation"
 read_when:
+<<<<<<< HEAD
   - You want to understand `molt.bot/install.sh`
+=======
+  - You want to understand `openclaw.ai/install.sh`
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
   - You want to automate installs (CI / headless)
   - You want to install from a GitHub checkout
 title: "Installer Internals"
@@ -11,14 +15,24 @@ title: "Installer Internals"
 
 Moltbot ships two installer scripts (served from `molt.bot`):
 
+<<<<<<< HEAD
 - `https://molt.bot/install.sh` — “recommended” installer (global npm install by default; can also install from a GitHub checkout)
 - `https://molt.bot/install-cli.sh` — non-root-friendly CLI installer (installs into a prefix with its own Node)
  - `https://molt.bot/install.ps1` — Windows PowerShell installer (npm by default; optional git install)
+=======
+- `https://openclaw.ai/install.sh` — “recommended” installer (global npm install by default; can also install from a GitHub checkout)
+- `https://openclaw.ai/install-cli.sh` — non-root-friendly CLI installer (installs into a prefix with its own Node)
+- `https://openclaw.ai/install.ps1` — Windows PowerShell installer (npm by default; optional git install)
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 
 To see the current flags/behavior, run:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --help
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --help
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Windows (PowerShell) help:
@@ -52,7 +66,11 @@ What it does (high level):
 If you *want* `sharp` to link against a globally-installed libvips (or you’re debugging), set:
 
 ```bash
+<<<<<<< HEAD
 SHARP_IGNORE_GLOBAL_LIBVIPS=0 curl -fsSL https://molt.bot/install.sh | bash
+=======
+SHARP_IGNORE_GLOBAL_LIBVIPS=0 curl -fsSL https://openclaw.ai/install.sh | bash
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 ### Discoverability / “git install” prompt
@@ -85,7 +103,11 @@ This script installs `moltbot` into a prefix (default: `~/.clawdbot`) and also i
 Help:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install-cli.sh | bash -s -- --help
+=======
+curl -fsSL https://openclaw.ai/install-cli.sh | bash -s -- --help
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 ## install.ps1 (Windows PowerShell)

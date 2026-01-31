@@ -13,7 +13,11 @@ Use the installer unless you have a reason not to. It sets up the CLI and runs o
 ## Quick install (recommended)
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Windows (PowerShell):
@@ -41,13 +45,21 @@ moltbot onboard --install-daemon
 Installs `moltbot` globally via npm and runs onboarding.
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Installer flags:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --help
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --help
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Details: [Installer internals](/install/installer).
@@ -55,7 +67,11 @@ Details: [Installer internals](/install/installer).
 Non-interactive (skip onboarding):
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --no-onboard
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 ### 2) Global install (manual)
@@ -124,10 +140,17 @@ The installer supports two methods:
 
 ```bash
 # Explicit npm
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method npm
 
 # Install from GitHub (source checkout)
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method npm
+
+# Install from GitHub (source checkout)
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Common flags:

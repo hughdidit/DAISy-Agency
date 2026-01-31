@@ -42,7 +42,11 @@ When the operator says “release”, immediately do this preflight (no extra qu
 - [ ] `CLAWDBOT_INSTALL_SMOKE_SKIP_NONROOT=1 pnpm test:install:smoke` (Docker install smoke test, fast path; required before release)
   - If the immediate previous npm release is known broken, set `CLAWDBOT_INSTALL_SMOKE_PREVIOUS=<last-good-version>` or `CLAWDBOT_INSTALL_SMOKE_SKIP_PREVIOUS=1` for the preinstall step.
 - [ ] (Optional) Full installer smoke (adds non-root + CLI coverage): `pnpm test:install:smoke`
+<<<<<<< HEAD
 - [ ] (Optional) Installer E2E (Docker, runs `curl -fsSL https://molt.bot/install.sh | bash`, onboards, then runs real tool calls):
+=======
+- [ ] (Optional) Installer E2E (Docker, runs `curl -fsSL https://openclaw.ai/install.sh | bash`, onboards, then runs real tool calls):
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
   - `pnpm test:install:e2e:openai` (requires `OPENAI_API_KEY`)
   - `pnpm test:install:e2e:anthropic` (requires `ANTHROPIC_API_KEY`)
   - `pnpm test:install:e2e` (requires both keys; runs both providers)

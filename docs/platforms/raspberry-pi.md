@@ -111,7 +111,11 @@ sudo sysctl -p
 ### Option A: Standard Install (Recommended)
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 ### Option B: Hackable Install (For tinkering)

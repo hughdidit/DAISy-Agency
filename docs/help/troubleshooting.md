@@ -39,13 +39,21 @@ Almost always a Node/npm PATH issue. Start here:
 Re-run the installer in verbose mode to see the full trace and npm output:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --verbose
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --verbose
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 For beta installs:
 
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --beta --verbose
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --beta --verbose
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 You can also set `CLAWDBOT_VERBOSE=1` instead of the flag.

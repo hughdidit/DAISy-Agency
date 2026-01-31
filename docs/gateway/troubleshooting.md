@@ -502,12 +502,20 @@ upgrades in place and rewrites the gateway service to point at the new install.
 
 Switch **to git install**:
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git --no-onboard
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git --no-onboard
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Switch **to npm global**:
 ```bash
+<<<<<<< HEAD
 curl -fsSL https://molt.bot/install.sh | bash
+=======
+curl -fsSL https://openclaw.ai/install.sh | bash
+>>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
 Notes:
