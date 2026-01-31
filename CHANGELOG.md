@@ -118,7 +118,11 @@ Status: beta.
 >>>>>>> 3a85cb183 (fix: honor Telegram proxy dispatcher (#4456) (thanks @spiceoogway))
 =======
 - Telegram: fix HTML nesting for overlapping styles and links. (#4578) Thanks @ThanhNguyxn.
+<<<<<<< HEAD
 >>>>>>> da71eaebd (fix: correct telegram html nesting (#4578) (thanks @ThanhNguyxn))
+=======
+- Telegram: resolve per-account bot token configs with normalized account IDs. (#5055) Thanks @jasonsschin.
+>>>>>>> e849df64d (fix: normalize telegram account token lookup (#5055) (thanks @jasonsschin))
 - Telegram: avoid silent empty replies by tracking normalization skips before fallback. (#3796)
 - Telegram: accept numeric messageId/chatId in react action and honor channelId fallback. (#4533) Thanks @Ayush10.
 - Telegram: scope native skill commands to bound agent per bot. (#4360) Thanks @robhparker.
