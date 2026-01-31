@@ -131,7 +131,9 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> = 
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
-      if (groupPolicy !== "open") return [];
+      if (groupPolicy !== "open") {
+        return [];
+      }
       const roomAllowlistConfigured =
         account.config.rooms && Object.keys(account.config.rooms).length > 0;
       if (roomAllowlistConfigured) {
@@ -148,7 +150,9 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> = 
     resolveRequireMention: ({ cfg, accountId, groupId }) => {
       const account = resolveNextcloudTalkAccount({ cfg: cfg as CoreConfig, accountId });
       const rooms = account.config.rooms;
-      if (!rooms || !groupId) return true;
+      if (!rooms || !groupId) {
+        return true;
+      }
 
       const roomConfig = rooms[groupId];
       if (roomConfig?.requireMention !== undefined) {
@@ -175,7 +179,11 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> = 
     resolveAccountId: ({ accountId }) => normalizeAccountId(accountId),
     applyAccountName: ({ cfg, accountId, name }) =>
       applyAccountNameToChannelSection({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         channelKey: "nextcloud-talk",
         accountId,
         name,
@@ -196,7 +204,11 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> = 
     applyAccountConfig: ({ cfg, accountId, input }) => {
       const setupInput = input as NextcloudSetupInput;
       const namedConfig = applyAccountNameToChannelSection({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         channelKey: "nextcloud-talk",
         accountId,
         name: setupInput.name,

@@ -18,17 +18,28 @@ function listEnabledAccounts(cfg: MoltbotConfig) {
 
 export const zaloMessageActions: ChannelMessageActionAdapter = {
   listActions: ({ cfg }) => {
+<<<<<<< HEAD
     const accounts = listEnabledAccounts(cfg as MoltbotConfig);
     if (accounts.length === 0) return [];
+=======
+    const accounts = listEnabledAccounts(cfg);
+    if (accounts.length === 0) {
+      return [];
+    }
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
     const actions = new Set<ChannelMessageActionName>(["send"]);
     return Array.from(actions);
   },
   supportsButtons: () => false,
   extractToolSend: ({ args }) => {
     const action = typeof args.action === "string" ? args.action.trim() : "";
-    if (action !== "sendMessage") return null;
+    if (action !== "sendMessage") {
+      return null;
+    }
     const to = typeof args.to === "string" ? args.to : undefined;
-    if (!to) return null;
+    if (!to) {
+      return null;
+    }
     const accountId = typeof args.accountId === "string" ? args.accountId.trim() : undefined;
     return { to, accountId };
   },
@@ -44,7 +55,11 @@ export const zaloMessageActions: ChannelMessageActionAdapter = {
       const result = await sendMessageZalo(to ?? "", content ?? "", {
         accountId: accountId ?? undefined,
         mediaUrl: mediaUrl ?? undefined,
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
       });
 
       if (!result.ok) {

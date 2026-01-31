@@ -61,10 +61,7 @@ function setZaloUpdateMode(
         },
       } as MoltbotConfig;
     }
-    const accounts = { ...(cfg.channels?.zalo?.accounts ?? {}) } as Record<
-      string,
-      Record<string, unknown>
-    >;
+    const accounts = { ...cfg.channels?.zalo?.accounts } as Record<string, Record<string, unknown>>;
     const existing = accounts[accountId] ?? {};
     const { webhookUrl: _url, webhookSecret: _secret, webhookPath: _path, ...rest } = existing;
     accounts[accountId] = rest;
@@ -95,12 +92,9 @@ function setZaloUpdateMode(
     } as MoltbotConfig;
   }
 
-  const accounts = { ...(cfg.channels?.zalo?.accounts ?? {}) } as Record<
-    string,
-    Record<string, unknown>
-  >;
+  const accounts = { ...cfg.channels?.zalo?.accounts } as Record<string, Record<string, unknown>>;
   accounts[accountId] = {
-    ...(accounts[accountId] ?? {}),
+    ...accounts[accountId],
     webhookUrl,
     webhookSecret,
     webhookPath,
@@ -144,8 +138,12 @@ async function promptZaloAllowFrom(params: {
     initialValue: existingAllowFrom[0] ? String(existingAllowFrom[0]) : undefined,
     validate: (value) => {
       const raw = String(value ?? "").trim();
-      if (!raw) return "Required";
-      if (!/^\d+$/.test(raw)) return "Use a numeric Zalo user id";
+      if (!raw) {
+        return "Required";
+      }
+      if (!/^\d+$/.test(raw)) {
+        return "Use a numeric Zalo user id";
+      }
       return undefined;
     },
   });
@@ -179,9 +177,9 @@ async function promptZaloAllowFrom(params: {
         ...cfg.channels?.zalo,
         enabled: true,
         accounts: {
-          ...(cfg.channels?.zalo?.accounts ?? {}),
+          ...cfg.channels?.zalo?.accounts,
           [accountId]: {
-            ...(cfg.channels?.zalo?.accounts?.[accountId] ?? {}),
+            ...cfg.channels?.zalo?.accounts?.[accountId],
             enabled: cfg.channels?.zalo?.accounts?.[accountId]?.enabled ?? true,
             dmPolicy: "allowlist",
             allowFrom: unique,
@@ -198,7 +196,11 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
   policyKey: "channels.zalo.dmPolicy",
   allowFromKey: "channels.zalo.allowFrom",
   getCurrent: (cfg) => (cfg.channels?.zalo?.dmPolicy ?? "pairing") as "pairing",
+<<<<<<< HEAD
   setPolicy: (cfg, policy) => setZaloDmPolicy(cfg as MoltbotConfig, policy),
+=======
+  setPolicy: (cfg, policy) => setZaloDmPolicy(cfg, policy),
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
   promptAllowFrom: async ({ cfg, prompter, accountId }) => {
     const id =
       accountId && normalizeAccountId(accountId)
@@ -207,10 +209,16 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
         : resolveDefaultZaloAccountId(cfg as MoltbotConfig);
 =======
         ? (normalizeAccountId(accountId) ?? DEFAULT_ACCOUNT_ID)
+<<<<<<< HEAD
         : resolveDefaultZaloAccountId(cfg as OpenClawConfig);
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     return promptZaloAllowFrom({
       cfg: cfg as MoltbotConfig,
+=======
+        : resolveDefaultZaloAccountId(cfg);
+    return promptZaloAllowFrom({
+      cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
       prompter,
       accountId: id,
     });
@@ -221,8 +229,13 @@ export const zaloOnboardingAdapter: ChannelOnboardingAdapter = {
   channel,
   dmPolicy,
   getStatus: async ({ cfg }) => {
+<<<<<<< HEAD
     const configured = listZaloAccountIds(cfg as MoltbotConfig).some((accountId) =>
       Boolean(resolveZaloAccount({ cfg: cfg as MoltbotConfig, accountId }).token),
+=======
+    const configured = listZaloAccountIds(cfg).some((accountId) =>
+      Boolean(resolveZaloAccount({ cfg: cfg, accountId }).token),
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
     );
     return {
       channel,
@@ -241,17 +254,25 @@ export const zaloOnboardingAdapter: ChannelOnboardingAdapter = {
   }) => {
     const zaloOverride = accountOverrides.zalo?.trim();
 <<<<<<< HEAD
+<<<<<<< HEAD
     const defaultZaloAccountId = resolveDefaultZaloAccountId(cfg as MoltbotConfig);
     let zaloAccountId = zaloOverride
       ? normalizeAccountId(zaloOverride)
       : defaultZaloAccountId;
 =======
     const defaultZaloAccountId = resolveDefaultZaloAccountId(cfg as OpenClawConfig);
+=======
+    const defaultZaloAccountId = resolveDefaultZaloAccountId(cfg);
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
     let zaloAccountId = zaloOverride ? normalizeAccountId(zaloOverride) : defaultZaloAccountId;
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     if (shouldPromptAccountIds && !zaloOverride) {
       zaloAccountId = await promptAccountId({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         prompter,
         label: "Zalo",
         currentId: zaloAccountId,
@@ -260,7 +281,11 @@ export const zaloOnboardingAdapter: ChannelOnboardingAdapter = {
       });
     }
 
+<<<<<<< HEAD
     let next = cfg as MoltbotConfig;
+=======
+    let next = cfg;
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
     const resolvedAccount = resolveZaloAccount({ cfg: next, accountId: zaloAccountId });
     const accountConfigured = Boolean(resolvedAccount.token);
     const allowEnv = zaloAccountId === DEFAULT_ACCOUNT_ID;
@@ -341,9 +366,9 @@ export const zaloOnboardingAdapter: ChannelOnboardingAdapter = {
               ...next.channels?.zalo,
               enabled: true,
               accounts: {
-                ...(next.channels?.zalo?.accounts ?? {}),
+                ...next.channels?.zalo?.accounts,
                 [zaloAccountId]: {
-                  ...(next.channels?.zalo?.accounts?.[zaloAccountId] ?? {}),
+                  ...next.channels?.zalo?.accounts?.[zaloAccountId],
                   enabled: true,
                   botToken: token,
                 },
@@ -378,7 +403,9 @@ export const zaloOnboardingAdapter: ChannelOnboardingAdapter = {
           message: "Webhook secret (8-256 chars)",
           validate: (value) => {
             const raw = String(value ?? "");
-            if (raw.length < 8 || raw.length > 256) return "8-256 chars";
+            if (raw.length < 8 || raw.length > 256) {
+              return "8-256 chars";
+            }
             return undefined;
           },
         }),

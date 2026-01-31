@@ -132,8 +132,15 @@ describe("lobster plugin tool", () => {
 
   it("can be gated off in sandboxed contexts", async () => {
     const api = fakeApi();
+<<<<<<< HEAD
     const factoryTool = (ctx: MoltbotPluginToolContext) => {
       if (ctx.sandboxed) return null;
+=======
+    const factoryTool = (ctx: OpenClawPluginToolContext) => {
+      if (ctx.sandboxed) {
+        return null;
+      }
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
       return createLobsterTool(api);
     };
 

@@ -1,8 +1,13 @@
 import crypto from "node:crypto";
 
+<<<<<<< HEAD
 import type { CallId, CallRecord, CallState, NormalizedEvent } from "../types.js";
 import { TerminalStates } from "../types.js";
 import type { CallManagerContext, Logger } from "./context.js";
+=======
+import type { CallRecord, CallState, NormalizedEvent } from "../types.js";
+import type { CallManagerContext } from "./context.js";
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
 import { findCall } from "./lookup.js";
 import { addTranscriptEntry, transitionState } from "./state.js";
 import { persistCallRecord } from "./store.js";
@@ -84,8 +89,15 @@ function createInboundCall(params: {
   return callRecord;
 }
 
+<<<<<<< HEAD
 export async function processEvent(ctx: CallManagerContext, event: NormalizedEvent): Promise<void> {
   if (ctx.processedEventIds.has(event.id)) return;
+=======
+export function processEvent(ctx: CallManagerContext, event: NormalizedEvent): void {
+  if (ctx.processedEventIds.has(event.id)) {
+    return;
+  }
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
   ctx.processedEventIds.add(event.id);
 
   let call = findCall({
@@ -120,7 +132,9 @@ export async function processEvent(ctx: CallManagerContext, event: NormalizedEve
     event.callId = call.callId;
   }
 
-  if (!call) return;
+  if (!call) {
+    return;
+  }
 
   if (event.providerCallId && !call.providerCallId) {
     call.providerCallId = event.providerCallId;
@@ -173,7 +187,9 @@ export async function processEvent(ctx: CallManagerContext, event: NormalizedEve
       clearMaxDurationTimer(ctx, call.callId);
       rejectTranscriptWaiter(ctx, call.callId, `Call ended: ${event.reason}`);
       ctx.activeCalls.delete(call.callId);
-      if (call.providerCallId) ctx.providerCallIdMap.delete(call.providerCallId);
+      if (call.providerCallId) {
+        ctx.providerCallIdMap.delete(call.providerCallId);
+      }
       break;
 
     case "call.error":
@@ -184,7 +200,9 @@ export async function processEvent(ctx: CallManagerContext, event: NormalizedEve
         clearMaxDurationTimer(ctx, call.callId);
         rejectTranscriptWaiter(ctx, call.callId, `Call error: ${event.error}`);
         ctx.activeCalls.delete(call.callId);
-        if (call.providerCallId) ctx.providerCallIdMap.delete(call.providerCallId);
+        if (call.providerCallId) {
+          ctx.providerCallIdMap.delete(call.providerCallId);
+        }
       }
       break;
   }

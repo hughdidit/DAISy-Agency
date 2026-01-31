@@ -60,6 +60,7 @@ export const googlechatDock: ChannelDock = {
   config: {
     resolveAllowFrom: ({ cfg, accountId }) =>
 <<<<<<< HEAD
+<<<<<<< HEAD
       (resolveGoogleChatAccount({ cfg: cfg as MoltbotConfig, accountId }).config.dm?.allowFrom ??
 =======
       (
@@ -67,6 +68,11 @@ export const googlechatDock: ChannelDock = {
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         []
       ).map((entry) => String(entry)),
+=======
+      (resolveGoogleChatAccount({ cfg: cfg, accountId }).config.dm?.allowFrom ?? []).map((entry) =>
+        String(entry),
+      ),
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
     formatAllowFrom: ({ allowFrom }) =>
       allowFrom
         .map((entry) => String(entry))
@@ -108,8 +114,15 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
     idLabel: "googlechatUserId",
     normalizeAllowEntry: (entry) => formatAllowFromEntry(entry),
     notifyApproval: async ({ cfg, id }) => {
+<<<<<<< HEAD
       const account = resolveGoogleChatAccount({ cfg: cfg as MoltbotConfig });
       if (account.credentialSource === "none") return;
+=======
+      const account = resolveGoogleChatAccount({ cfg: cfg });
+      if (account.credentialSource === "none") {
+        return;
+      }
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
       const user = normalizeGoogleChatTarget(id) ?? id;
       const target = isGoogleChatUserTarget(user) ? user : `users/${user}`;
       const space = await resolveGoogleChatOutboundSpace({ account, target });
@@ -134,6 +147,7 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
   reload: { configPrefixes: ["channels.googlechat"] },
   configSchema: buildChannelConfigSchema(GoogleChatConfigSchema),
   config: {
+<<<<<<< HEAD
     listAccountIds: (cfg) => listGoogleChatAccountIds(cfg as MoltbotConfig),
     resolveAccount: (cfg, accountId) =>
       resolveGoogleChatAccount({ cfg: cfg as MoltbotConfig, accountId }),
@@ -141,6 +155,14 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
     setAccountEnabled: ({ cfg, accountId, enabled }) =>
       setAccountEnabledInConfigSection({
         cfg: cfg as MoltbotConfig,
+=======
+    listAccountIds: (cfg) => listGoogleChatAccountIds(cfg),
+    resolveAccount: (cfg, accountId) => resolveGoogleChatAccount({ cfg: cfg, accountId }),
+    defaultAccountId: (cfg) => resolveDefaultGoogleChatAccountId(cfg),
+    setAccountEnabled: ({ cfg, accountId, enabled }) =>
+      setAccountEnabledInConfigSection({
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         sectionKey: "googlechat",
         accountId,
         enabled,
@@ -148,7 +170,11 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
       }),
     deleteAccount: ({ cfg, accountId }) =>
       deleteAccountFromConfigSection({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         sectionKey: "googlechat",
         accountId,
         clearBaseFields: [
@@ -179,7 +205,7 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
 =======
       (
         resolveGoogleChatAccount({
-          cfg: cfg as OpenClawConfig,
+          cfg: cfg,
           accountId,
         }).config.dm?.allowFrom ?? []
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
@@ -193,9 +219,13 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
   security: {
     resolveDmPolicy: ({ cfg, accountId, account }) => {
       const resolvedAccountId = accountId ?? account.accountId ?? DEFAULT_ACCOUNT_ID;
+<<<<<<< HEAD
       const useAccountPath = Boolean(
         (cfg as MoltbotConfig).channels?.["googlechat"]?.accounts?.[resolvedAccountId],
       );
+=======
+      const useAccountPath = Boolean(cfg.channels?.["googlechat"]?.accounts?.[resolvedAccountId]);
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
       const allowFromPath = useAccountPath
         ? `channels.googlechat.accounts.${resolvedAccountId}.dm.`
         : "channels.googlechat.dm.";
@@ -244,7 +274,11 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
     self: async () => null,
     listPeers: async ({ cfg, accountId, query, limit }) => {
       const account = resolveGoogleChatAccount({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         accountId,
       });
       const q = query?.trim().toLowerCase() || "";
@@ -264,7 +298,11 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
     },
     listGroups: async ({ cfg, accountId, query, limit }) => {
       const account = resolveGoogleChatAccount({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         accountId,
       });
       const groups = account.config.groups ?? {};
@@ -304,7 +342,11 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
     resolveAccountId: ({ accountId }) => normalizeAccountId(accountId),
     applyAccountName: ({ cfg, accountId, name }) =>
       applyAccountNameToChannelSection({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         channelKey: "googlechat",
         accountId,
         name,
@@ -320,7 +362,11 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
     },
     applyAccountConfig: ({ cfg, accountId, input }) => {
       const namedConfig = applyAccountNameToChannelSection({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         channelKey: "googlechat",
         accountId,
         name: input.name,
@@ -328,7 +374,11 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
       const next =
         accountId !== DEFAULT_ACCOUNT_ID
           ? migrateBaseNameToDefaultAccount({
+<<<<<<< HEAD
               cfg: namedConfig as MoltbotConfig,
+=======
+              cfg: namedConfig,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
               channelKey: "googlechat",
             })
           : namedConfig;
@@ -356,7 +406,7 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
           channels: {
             ...next.channels,
             googlechat: {
-              ...(next.channels?.["googlechat"] ?? {}),
+              ...next.channels?.["googlechat"],
               enabled: true,
               ...configPatch,
             },
@@ -368,12 +418,12 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
         channels: {
           ...next.channels,
           googlechat: {
-            ...(next.channels?.["googlechat"] ?? {}),
+            ...next.channels?.["googlechat"],
             enabled: true,
             accounts: {
-              ...(next.channels?.["googlechat"]?.accounts ?? {}),
+              ...next.channels?.["googlechat"]?.accounts,
               [accountId]: {
-                ...(next.channels?.["googlechat"]?.accounts?.[accountId] ?? {}),
+                ...next.channels?.["googlechat"]?.accounts?.[accountId],
                 enabled: true,
                 ...configPatch,
               },
@@ -426,7 +476,11 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
     },
     sendText: async ({ cfg, to, text, accountId, replyToId, threadId }) => {
       const account = resolveGoogleChatAccount({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         accountId,
       });
       const space = await resolveGoogleChatOutboundSpace({ account, target: to });
@@ -448,14 +502,22 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
         throw new Error("Google Chat mediaUrl is required.");
       }
       const account = resolveGoogleChatAccount({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         accountId,
       });
       const space = await resolveGoogleChatOutboundSpace({ account, target: to });
       const thread = (threadId ?? replyToId ?? undefined) as string | undefined;
       const runtime = getGoogleChatRuntime();
       const maxBytes = resolveChannelMediaMaxBytes({
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         resolveChannelLimitMb: ({ cfg, accountId }) =>
           (
             cfg.channels?.["googlechat"] as
@@ -504,7 +566,9 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
         const accountId = String(entry.accountId ?? DEFAULT_ACCOUNT_ID);
         const enabled = entry.enabled !== false;
         const configured = entry.configured === true;
-        if (!enabled || !configured) return [];
+        if (!enabled || !configured) {
+          return [];
+        }
         const issues = [];
         if (!entry.audience) {
           issues.push({
@@ -575,7 +639,11 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
       });
       const unregister = await startGoogleChatMonitor({
         account,
+<<<<<<< HEAD
         config: ctx.cfg as MoltbotConfig,
+=======
+        config: ctx.cfg,
+>>>>>>> 230ca789e (chore: Lint extensions folder.)
         runtime: ctx.runtime,
         abortSignal: ctx.abortSignal,
         webhookPath: account.config.webhookPath,

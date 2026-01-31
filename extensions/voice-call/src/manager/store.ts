@@ -33,7 +33,9 @@ export function loadActiveCallsFromStore(storePath: string): {
 
   const callMap = new Map<CallId, CallRecord>();
   for (const line of lines) {
-    if (!line.trim()) continue;
+    if (!line.trim()) {
+      continue;
+    }
     try {
       const call = CallRecordSchema.parse(JSON.parse(line));
       callMap.set(call.callId, call);
@@ -47,7 +49,9 @@ export function loadActiveCallsFromStore(storePath: string): {
   const processedEventIds = new Set<string>();
 
   for (const [callId, call] of callMap) {
-    if (TerminalStates.has(call.state)) continue;
+    if (TerminalStates.has(call.state)) {
+      continue;
+    }
     activeCalls.set(callId, call);
     if (call.providerCallId) {
       providerCallIdMap.set(call.providerCallId, callId);

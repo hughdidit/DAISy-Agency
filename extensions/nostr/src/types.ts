@@ -48,7 +48,9 @@ export function listNostrAccountIds(cfg: MoltbotConfig): string[] {
  */
 export function resolveDefaultNostrAccountId(cfg: MoltbotConfig): string {
   const ids = listNostrAccountIds(cfg);
-  if (ids.includes(DEFAULT_ACCOUNT_ID)) return DEFAULT_ACCOUNT_ID;
+  if (ids.includes(DEFAULT_ACCOUNT_ID)) {
+    return DEFAULT_ACCOUNT_ID;
+  }
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
 
