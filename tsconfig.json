@@ -6,12 +6,16 @@
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
+<<<<<<< HEAD
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "noEmitOnError": true,
     "allowSyntheticDefaultImports": true
+=======
+    "target": "es2023"
+>>>>>>> 2957d4306 (chore: Update `tsconfig.json` target, oops.)
   },
   "include": ["src/**/*"],
   "exclude": [
