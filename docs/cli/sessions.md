@@ -13,4 +13,3 @@ moltbot sessions
 moltbot sessions --active 120
 moltbot sessions --json
 ```
-

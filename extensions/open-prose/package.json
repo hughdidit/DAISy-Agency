@@ -1,9 +1,17 @@
 {
+<<<<<<< HEAD
   "name": "@moltbot/open-prose",
   "version": "2026.1.27-beta.1",
   "type": "module",
   "description": "OpenProse VM skill pack plugin (slash command + telemetry).",
   "moltbot": {
+=======
+  "name": "@openclaw/open-prose",
+  "version": "2026.1.30",
+  "description": "OpenProse VM skill pack plugin (slash command + telemetry).",
+  "type": "module",
+  "openclaw": {
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     "extensions": [
       "./index.ts"
     ]

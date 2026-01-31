@@ -5,6 +5,7 @@ read_when:
   - Packaging or signing the macOS app
   - Changing bundle IDs or app install paths
 ---
+
 # macOS permissions (TCC)
 
 macOS permission grants are fragile. TCC associates a permission grant with the
@@ -12,7 +13,12 @@ app's code signature, bundle identifier, and on-disk path. If any of those chang
 macOS treats the app as new and may drop or hide prompts.
 
 ## Requirements for stable permissions
+<<<<<<< HEAD
 - Same path: run the app from a fixed location (for Moltbot, `dist/Moltbot.app`).
+=======
+
+- Same path: run the app from a fixed location (for OpenClaw, `dist/OpenClaw.app`).
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Same bundle identifier: changing the bundle ID creates a new permission identity.
 - Signed app: unsigned or ad-hoc signed builds do not persist permissions.
 - Consistent signature: use a real Apple Development or Developer ID certificate
@@ -22,6 +28,7 @@ Ad-hoc signatures generate a new identity every build. macOS will forget previou
 grants, and prompts can disappear entirely until the stale entries are cleared.
 
 ## Recovery checklist when prompts disappear
+
 1. Quit the app.
 2. Remove the app entry in System Settings -> Privacy & Security.
 3. Relaunch the app from the same path and re-grant permissions.

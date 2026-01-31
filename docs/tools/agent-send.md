@@ -3,7 +3,12 @@ summary: "Direct `moltbot agent` CLI runs (with optional delivery)"
 read_when:
   - Adding or modifying the agent CLI entrypoint
 ---
+<<<<<<< HEAD
 # `moltbot agent` (direct agent runs)
+=======
+
+# `openclaw agent` (direct agent runs)
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 `moltbot agent` runs a single agent turn without needing an inbound chat message.
 By default it goes **through the Gateway**; add `--local` to force the embedded

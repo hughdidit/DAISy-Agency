@@ -16,7 +16,12 @@ import {
   setAccountEnabledInConfigSection,
 } from "clawdbot/plugin-sdk";
 
-import { listZaloAccountIds, resolveDefaultZaloAccountId, resolveZaloAccount, type ResolvedZaloAccount } from "./accounts.js";
+import {
+  listZaloAccountIds,
+  resolveDefaultZaloAccountId,
+  resolveZaloAccount,
+  type ResolvedZaloAccount,
+} from "./accounts.js";
 import { zaloMessageActions } from "./actions.js";
 import { ZaloConfigSchema } from "./config-schema.js";
 import { zaloOnboardingAdapter } from "./onboarding.js";
@@ -87,9 +92,16 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
   reload: { configPrefixes: ["channels.zalo"] },
   configSchema: buildChannelConfigSchema(ZaloConfigSchema),
   config: {
+<<<<<<< HEAD
     listAccountIds: (cfg) => listZaloAccountIds(cfg as MoltbotConfig),
     resolveAccount: (cfg, accountId) => resolveZaloAccount({ cfg: cfg as MoltbotConfig, accountId }),
     defaultAccountId: (cfg) => resolveDefaultZaloAccountId(cfg as MoltbotConfig),
+=======
+    listAccountIds: (cfg) => listZaloAccountIds(cfg as OpenClawConfig),
+    resolveAccount: (cfg, accountId) =>
+      resolveZaloAccount({ cfg: cfg as OpenClawConfig, accountId }),
+    defaultAccountId: (cfg) => resolveDefaultZaloAccountId(cfg as OpenClawConfig),
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     setAccountEnabled: ({ cfg, accountId, enabled }) =>
       setAccountEnabledInConfigSection({
         cfg: cfg as MoltbotConfig,

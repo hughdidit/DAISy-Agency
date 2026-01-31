@@ -12,4 +12,3 @@ Search the live docs index.
 moltbot docs browser extension
 moltbot docs sandbox allowHostControl
 ```
-

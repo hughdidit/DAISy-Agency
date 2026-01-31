@@ -143,9 +143,9 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
       tokenSource: account.tokenSource,
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
-      (getLineRuntime().channel.line.resolveLineAccount({ cfg, accountId }).config.allowFrom ?? []).map(
-        (entry) => String(entry),
-      ),
+      (
+        getLineRuntime().channel.line.resolveLineAccount({ cfg, accountId }).config.allowFrom ?? []
+      ).map((entry) => String(entry)),
     formatAllowFrom: ({ allowFrom }) =>
       allowFrom
         .map((entry) => String(entry).trim())
@@ -174,8 +174,8 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
       };
     },
     collectWarnings: ({ account, cfg }) => {
-      const defaultGroupPolicy =
-        (cfg.channels?.defaults as { groupPolicy?: string } | undefined)?.groupPolicy;
+      const defaultGroupPolicy = (cfg.channels?.defaults as { groupPolicy?: string } | undefined)
+        ?.groupPolicy;
       const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
       if (groupPolicy !== "open") return [];
       return [
@@ -375,14 +375,9 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
         : { text: "", flexMessages: [] };
 
       const chunkLimit =
-        runtime.channel.text.resolveTextChunkLimit?.(
-          cfg,
-          "line",
-          accountId ?? undefined,
-          {
-            fallbackLimit: 5000,
-          },
-        ) ?? 5000;
+        runtime.channel.text.resolveTextChunkLimit?.(cfg, "line", accountId ?? undefined, {
+          fallbackLimit: 5000,
+        }) ?? 5000;
 
       const chunks = processed.text
         ? runtime.channel.text.chunkMarkdownText(processed.text, chunkLimit)

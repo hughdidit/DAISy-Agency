@@ -8,7 +8,12 @@ read_when:
 # Uninstall
 
 Two paths:
+<<<<<<< HEAD
 - **Easy path** if `moltbot` is still installed.
+=======
+
+- **Easy path** if `openclaw` is still installed.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Manual service removal** if the CLI is gone but the service is still running.
 
 ## Easy path (CLI still installed)
@@ -28,19 +33,19 @@ npx -y moltbot uninstall --all --yes --non-interactive
 
 Manual steps (same result):
 
-1) Stop the gateway service:
+1. Stop the gateway service:
 
 ```bash
 moltbot gateway stop
 ```
 
-2) Uninstall the gateway service (launchd/systemd/schtasks):
+2. Uninstall the gateway service (launchd/systemd/schtasks):
 
 ```bash
 moltbot gateway uninstall
 ```
 
-3) Delete state + config:
+3. Delete state + config:
 
 ```bash
 rm -rf "${CLAWDBOT_STATE_DIR:-$HOME/.clawdbot}"
@@ -48,13 +53,13 @@ rm -rf "${CLAWDBOT_STATE_DIR:-$HOME/.clawdbot}"
 
 If you set `CLAWDBOT_CONFIG_PATH` to a custom location outside the state dir, delete that file too.
 
-4) Delete your workspace (optional, removes agent files):
+4. Delete your workspace (optional, removes agent files):
 
 ```bash
 rm -rf ~/clawd
 ```
 
-5) Remove the CLI install (pick the one you used):
+5. Remove the CLI install (pick the one you used):
 
 ```bash
 npm rm -g moltbot
@@ -62,14 +67,19 @@ pnpm remove -g moltbot
 bun remove -g moltbot
 ```
 
-6) If you installed the macOS app:
+6. If you installed the macOS app:
 
 ```bash
 rm -rf /Applications/Moltbot.app
 ```
 
 Notes:
+<<<<<<< HEAD
 - If you used profiles (`--profile` / `CLAWDBOT_PROFILE`), repeat step 3 for each state dir (defaults are `~/.clawdbot-<profile>`).
+=======
+
+- If you used profiles (`--profile` / `OPENCLAW_PROFILE`), repeat step 3 for each state dir (defaults are `~/.openclaw-<profile>`).
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - In remote mode, the state dir lives on the **gateway host**, so run steps 1-4 there too.
 
 ## Manual service removal (CLI not installed)
@@ -120,6 +130,6 @@ Remove it with `npm rm -g moltbot` (or `pnpm remove -g` / `bun remove -g` if you
 
 If you run from a repo checkout (`git clone` + `moltbot ...` / `bun run moltbot ...`):
 
-1) Uninstall the gateway service **before** deleting the repo (use the easy path above or manual service removal).
-2) Delete the repo directory.
-3) Remove state + workspace as shown above.
+1. Uninstall the gateway service **before** deleting the repo (use the easy path above or manual service removal).
+2. Delete the repo directory.
+3. Remove state + workspace as shown above.

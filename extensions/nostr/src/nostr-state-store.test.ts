@@ -19,7 +19,11 @@ async function withTempStateDir<T>(fn: (dir: string) => Promise<T>) {
   setNostrRuntime({
     state: {
       resolveStateDir: (env, homedir) => {
+<<<<<<< HEAD
         const override = env.CLAWDBOT_STATE_DIR?.trim();
+=======
+        const override = env.OPENCLAW_STATE_DIR?.trim() || env.OPENCLAW_STATE_DIR?.trim();
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         if (override) return override;
         return path.join(homedir(), ".clawdbot");
       },

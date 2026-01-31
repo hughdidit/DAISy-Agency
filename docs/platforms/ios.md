@@ -5,6 +5,7 @@ read_when:
   - Running the iOS app from source
   - Debugging gateway discovery or canvas commands
 ---
+
 # iOS App (Node)
 
 Availability: internal preview. The iOS app is not publicly distributed yet.
@@ -25,22 +26,22 @@ Availability: internal preview. The iOS app is not publicly distributed yet.
 
 ## Quick start (pair + connect)
 
-1) Start the Gateway:
+1. Start the Gateway:
 
 ```bash
 moltbot gateway --port 18789
 ```
 
-2) In the iOS app, open Settings and pick a discovered gateway (or enable Manual Host and enter host/port).
+2. In the iOS app, open Settings and pick a discovered gateway (or enable Manual Host and enter host/port).
 
-3) Approve the pairing request on the gateway host:
+3. Approve the pairing request on the gateway host:
 
 ```bash
 moltbot nodes pending
 moltbot nodes approve <requestId>
 ```
 
-4) Verify connection:
+4. Verify connection:
 
 ```bash
 moltbot nodes status
@@ -71,7 +72,12 @@ moltbot nodes invoke --node "iOS Node" --command canvas.navigate --params '{"url
 ```
 
 Notes:
+<<<<<<< HEAD
 - The Gateway canvas host serves `/__moltbot__/canvas/` and `/__moltbot__/a2ui/`.
+=======
+
+- The Gateway canvas host serves `/__openclaw__/canvas/` and `/__openclaw__/a2ui/`.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - The iOS node auto-navigates to A2UI on connect when a canvas host URL is advertised.
 - Return to the built-in scaffold with `canvas.navigate` and `{"url":""}`.
 

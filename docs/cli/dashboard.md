@@ -13,4 +13,3 @@ Open the Control UI using your current auth.
 moltbot dashboard
 moltbot dashboard --no-open
 ```
-

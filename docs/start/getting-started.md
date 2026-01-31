@@ -13,7 +13,12 @@ Fastest chat: open the Control UI (no channel setup needed). Run `moltbot dashbo
 and chat in the browser, or open `http://127.0.0.1:18789/` on the gateway host.
 Docs: [Dashboard](/web/dashboard) and [Control UI](/web/control-ui).
 
+<<<<<<< HEAD
 Recommended path: use the **CLI onboarding wizard** (`moltbot onboard`). It sets up:
+=======
+Recommended path: use the **CLI onboarding wizard** (`openclaw onboard`). It sets up:
+
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - model/auth (OAuth recommended)
 - gateway settings
 - channels (WhatsApp/Telegram/Discord/Mattermost (plugin)/...)
@@ -82,6 +87,7 @@ moltbot onboard --install-daemon
 ```
 
 What you’ll choose:
+
 - **Local vs Remote** gateway
 - **Auth**: OpenAI Code (Codex) subscription (OAuth) or API keys. For Anthropic we recommend an API key; `claude setup-token` is also supported.
 - **Providers**: WhatsApp QR login, Telegram/Discord bot tokens, Mattermost plugin tokens, etc.
@@ -143,6 +149,7 @@ WhatsApp doc: [WhatsApp](/channels/whatsapp)
 ### Telegram / Discord / others
 
 The wizard can write tokens/config for you. If you prefer manual config, start with:
+
 - Telegram: [Telegram](/channels/telegram)
 - Discord: [Discord](/channels/discord)
 - Mattermost (plugin): [Mattermost](/channels/mattermost)

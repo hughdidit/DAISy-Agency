@@ -4,6 +4,7 @@ read_when:
   - Editing system prompt text, tools list, or time/heartbeat sections
   - Changing workspace bootstrap or skills injection behavior
 ---
+
 # System Prompt
 
 Moltbot builds a custom system prompt for every agent run. The prompt is **Moltbot-owned** and does not use the p-coding-agent default prompt.

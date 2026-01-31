@@ -10,12 +10,18 @@ read_when:
 Directory lookups for channels that support it (contacts/peers, groups, and “me”).
 
 ## Common flags
+
 - `--channel <name>`: channel id/alias (required when multiple channels are configured; auto when only one is configured)
 - `--account <id>`: account id (default: channel default)
 - `--json`: output JSON
 
 ## Notes
+<<<<<<< HEAD
 - `directory` is meant to help you find IDs you can paste into other commands (especially `moltbot message send --target ...`).
+=======
+
+- `directory` is meant to help you find IDs you can paste into other commands (especially `openclaw message send --target ...`).
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - For many channels, results are config-backed (allowlists / configured groups) rather than a live provider directory.
 - Default output is `id` (and sometimes `name`) separated by a tab; use `--json` for scripting.
 

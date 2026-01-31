@@ -1,9 +1,25 @@
 {
+<<<<<<< HEAD
   "name": "@moltbot/msteams",
   "version": "2026.1.27-beta.1",
   "type": "module",
   "description": "Moltbot Microsoft Teams channel plugin",
   "moltbot": {
+=======
+  "name": "@openclaw/msteams",
+  "version": "2026.1.30",
+  "description": "OpenClaw Microsoft Teams channel plugin",
+  "type": "module",
+  "dependencies": {
+    "@microsoft/agents-hosting": "^1.2.3",
+    "@microsoft/agents-hosting-express": "^1.2.3",
+    "@microsoft/agents-hosting-extensions-teams": "^1.2.3",
+    "express": "^5.2.1",
+    "openclaw": "workspace:*",
+    "proper-lockfile": "^4.1.2"
+  },
+  "openclaw": {
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     "extensions": [
       "./index.ts"
     ],
@@ -24,6 +40,7 @@
       "localPath": "extensions/msteams",
       "defaultChoice": "npm"
     }
+<<<<<<< HEAD
   },
   "dependencies": {
     "@microsoft/agents-hosting": "^1.2.2",
@@ -32,5 +49,7 @@
     "moltbot": "workspace:*",
     "express": "^5.2.1",
     "proper-lockfile": "^4.1.2"
+=======
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   }
 }

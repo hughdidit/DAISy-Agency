@@ -12,8 +12,13 @@ services:
       - ${CLAWDBOT_CONFIG_DIR}:/home/node/.clawdbot
       - ${CLAWDBOT_WORKSPACE_DIR}:/home/node/clawd
     ports:
+<<<<<<< HEAD
       - "${CLAWDBOT_GATEWAY_PORT:-18789}:18789"
       - "${CLAWDBOT_BRIDGE_PORT:-18790}:18790"
+=======
+      - "${OPENCLAW_GATEWAY_PORT:-18789}:18789"
+      - "${OPENCLAW_BRIDGE_PORT:-18790}:18790"
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     init: true
     restart: unless-stopped
     command:
@@ -22,9 +27,15 @@ services:
         "dist/index.js",
         "gateway",
         "--bind",
+<<<<<<< HEAD
         "${CLAWDBOT_GATEWAY_BIND:-lan}",
         "--port",
         "${CLAWDBOT_GATEWAY_PORT:-18789}"
+=======
+        "${OPENCLAW_GATEWAY_BIND:-lan}",
+        "--port",
+        "${OPENCLAW_GATEWAY_PORT:-18789}",
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       ]
 
   moltbot-cli:

@@ -5,6 +5,7 @@ read_when:
   - Adding agent controls for visual workspace
   - Debugging WKWebView canvas loads
 ---
+
 # Canvas (macOS app)
 
 The macOS app embeds an agent‑controlled **Canvas panel** using `WKWebView`. It
@@ -22,9 +23,16 @@ The Canvas panel serves those files via a **custom URL scheme**:
 - `moltbot-canvas://<session>/<path>`
 
 Examples:
+<<<<<<< HEAD
 - `moltbot-canvas://main/` → `<canvasRoot>/main/index.html`
 - `moltbot-canvas://main/assets/app.css` → `<canvasRoot>/main/assets/app.css`
 - `moltbot-canvas://main/widgets/todo/` → `<canvasRoot>/main/widgets/todo/index.html`
+=======
+
+- `openclaw-canvas://main/` → `<canvasRoot>/main/index.html`
+- `openclaw-canvas://main/assets/app.css` → `<canvasRoot>/main/assets/app.css`
+- `openclaw-canvas://main/widgets/todo/` → `<canvasRoot>/main/widgets/todo/index.html`
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 If no `index.html` exists at the root, the app shows a **built‑in scaffold page**.
 
@@ -57,6 +65,7 @@ moltbot nodes canvas snapshot --node <id>
 ```
 
 Notes:
+
 - `canvas.navigate` accepts **local canvas paths**, `http(s)` URLs, and `file://` URLs.
 - If you pass `"/"`, the Canvas shows the local scaffold or `index.html`.
 

@@ -273,8 +273,17 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
           }
           if (bindings) {
             for (const [key, value] of Object.entries(bindings)) {
+<<<<<<< HEAD
               if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
                 attributes[`moltbot.${key}`] = value;
+=======
+              if (
+                typeof value === "string" ||
+                typeof value === "number" ||
+                typeof value === "boolean"
+              ) {
+                attributes[`openclaw.${key}`] = value;
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
               } else if (value != null) {
                 attributes[`moltbot.${key}`] = safeStringify(value);
               }

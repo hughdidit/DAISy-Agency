@@ -4,6 +4,7 @@ read_when:
   - Debugging Bonjour discovery issues on macOS/iOS
   - Changing mDNS service types, TXT records, or discovery UX
 ---
+
 # Bonjour / mDNS discovery
 
 Moltbot uses Bonjour (mDNS / DNS‑SD) as a **LAN‑only convenience** to discover
@@ -18,10 +19,17 @@ boundary. You can keep the same discovery UX by switching to **unicast DNS‑SD*
 
 High‑level steps:
 
+<<<<<<< HEAD
 1) Run a DNS server on the gateway host (reachable over Tailnet).
 2) Publish DNS‑SD records for `_moltbot-gw._tcp` under a dedicated zone
    (example: `moltbot.internal.`).
 3) Configure Tailscale **split DNS** so `moltbot.internal` resolves via that
+=======
+1. Run a DNS server on the gateway host (reachable over Tailnet).
+2. Publish DNS‑SD records for `_openclaw-gw._tcp` under a dedicated zone
+   (example: `openclaw.internal.`).
+3. Configure Tailscale **split DNS** so your chosen domain resolves via that
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    DNS server for clients (including iOS).
 
 Moltbot standardizes on `moltbot.internal.` for this mode. iOS/Android nodes
@@ -32,7 +40,11 @@ browse both `local.` and `moltbot.internal.` automatically.
 ```json5
 {
   gateway: { bind: "tailnet" }, // tailnet-only (recommended)
+<<<<<<< HEAD
   discovery: { wideArea: { enabled: true } } // enables moltbot.internal DNS-SD publishing
+=======
+  discovery: { wideArea: { enabled: true } }, // enables wide-area DNS-SD publishing
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -43,6 +55,7 @@ moltbot dns setup --apply
 ```
 
 This installs CoreDNS and configures it to:
+
 - listen on port 53 only on the gateway’s Tailscale interfaces
 - serve `moltbot.internal.` from `~/.clawdbot/dns/moltbot.internal.db`
 
@@ -69,7 +82,12 @@ The Gateway WS port (default `18789`) binds to loopback by default. For LAN/tail
 access, bind explicitly and keep auth enabled.
 
 For tailnet‑only setups:
+<<<<<<< HEAD
 - Set `gateway.bind: "tailnet"` in `~/.clawdbot/moltbot.json`.
+=======
+
+- Set `gateway.bind: "tailnet"` in `~/.openclaw/openclaw.json`.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Restart the Gateway (or restart the macOS menubar app).
 
 ## What advertises
@@ -126,6 +144,7 @@ The Gateway writes a rolling log file (printed on startup as
 The iOS node uses `NWBrowser` to discover `_moltbot-gw._tcp`.
 
 To capture logs:
+
 - Settings → Gateway → Advanced → **Discovery Debug Logs**
 - Settings → Gateway → Advanced → **Discovery Logs** → reproduce → **Copy**
 

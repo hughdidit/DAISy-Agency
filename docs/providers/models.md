@@ -4,6 +4,7 @@ read_when:
   - You want to choose a model provider
   - You want quick setup examples for LLM auth + model selection
 ---
+
 # Model Providers
 
 Moltbot can use many LLM providers. Pick one, authenticate, then set the default
@@ -20,12 +21,17 @@ See [Venice AI](/providers/venice).
 
 ## Quick start (two steps)
 
+<<<<<<< HEAD
 1) Authenticate with the provider (usually via `moltbot onboard`).
 2) Set the default model:
+=======
+1. Authenticate with the provider (usually via `openclaw onboard`).
+2. Set the default model:
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```json5
 {
-  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } }
+  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } },
 }
 ```
 

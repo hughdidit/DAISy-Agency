@@ -4,6 +4,7 @@ read_when:
   - Explaining token usage, costs, or context windows
   - Debugging context growth or compaction behavior
 ---
+
 # Token use & costs
 
 Moltbot tracks **tokens**, not characters. Tokens are model-specific, but most

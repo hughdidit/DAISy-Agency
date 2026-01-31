@@ -89,7 +89,11 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="PR Review → Telegram Feedback" icon="code-pull-request" href="https://x.com/i/status/2010878524543131691">
   **@bangnokia** • `review` `github` `telegram`
 
+<<<<<<< HEAD
   OpenCode finishes the change → opens a PR → Moltbot reviews the diff and replies in Telegram with “minor suggestions” plus a clear merge verdict (including critical fixes to apply first).
+=======
+OpenCode finishes the change → opens a PR → OpenClaw reviews the diff and replies in Telegram with “minor suggestions” plus a clear merge verdict (including critical fixes to apply first).
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   <img src="/assets/showcase/pr-review-telegram.jpg" alt="Moltbot PR review feedback delivered in Telegram" />
 </Card>
@@ -97,7 +101,11 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="Wine Cellar Skill in Minutes" icon="wine-glass" href="https://x.com/i/status/2010916352454791216">
   **@prades_maxime** • `skills` `local` `csv`
 
+<<<<<<< HEAD
   Asked “Robby” (@moltbot) for a local wine cellar skill. It requests a sample CSV export + where to store it, then builds/tests the skill fast (962 bottles in the example).
+=======
+Asked “Robby” (@openclaw) for a local wine cellar skill. It requests a sample CSV export + where to store it, then builds/tests the skill fast (962 bottles in the example).
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   <img src="/assets/showcase/wine-cellar-skill.jpg" alt="Moltbot building a local wine cellar skill from CSV" />
 </Card>
@@ -105,7 +113,7 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="Tesco Shop Autopilot" icon="cart-shopping" href="https://x.com/i/status/2009724862470689131">
   **@marchattonhere** • `automation` `browser` `shopping`
 
-  Weekly meal plan → regulars → book delivery slot → confirm order. No APIs, just browser control.
+Weekly meal plan → regulars → book delivery slot → confirm order. No APIs, just browser control.
 
   <img src="/assets/showcase/tesco-shop.jpg" alt="Tesco shop automation via chat" />
 </Card>
@@ -113,7 +121,7 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="SNAG Screenshot-to-Markdown" icon="scissors" href="https://github.com/am-will/snag">
   **@am-will** • `devtools` `screenshots` `markdown`
 
-  Hotkey a screen region → Gemini vision → instant Markdown in your clipboard.
+Hotkey a screen region → Gemini vision → instant Markdown in your clipboard.
 
   <img src="/assets/showcase/snag.png" alt="SNAG screenshot-to-markdown tool" />
 </Card>
@@ -121,7 +129,11 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="Agents UI" icon="window-maximize" href="https://releaseflow.net/kitze/agents-ui">
   **@kitze** • `ui` `skills` `sync`
 
+<<<<<<< HEAD
   Desktop app to manage skills/commands across Agents, Claude, Codex, and Moltbot.
+=======
+Desktop app to manage skills/commands across Agents, Claude, Codex, and OpenClaw.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   <img src="/assets/showcase/agents-ui.jpg" alt="Agents UI app" />
 </Card>
@@ -129,7 +141,7 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="Telegram Voice Notes (papla.media)" icon="microphone" href="https://papla.media/docs">
   **Community** • `voice` `tts` `telegram`
 
-  Wraps papla.media TTS and sends results as Telegram voice notes (no annoying autoplay).
+Wraps papla.media TTS and sends results as Telegram voice notes (no annoying autoplay).
 
   <img src="/assets/showcase/papla-tts.jpg" alt="Telegram voice note output from TTS" />
 </Card>
@@ -137,7 +149,7 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="CodexMonitor" icon="eye" href="https://clawhub.com/odrobnik/codexmonitor">
   **@odrobnik** • `devtools` `codex` `brew`
 
-  Homebrew-installed helper to list/inspect/watch local OpenAI Codex sessions (CLI + VS Code).
+Homebrew-installed helper to list/inspect/watch local OpenAI Codex sessions (CLI + VS Code).
 
   <img src="/assets/showcase/codexmonitor.png" alt="CodexMonitor on ClawHub" />
 </Card>
@@ -145,7 +157,7 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="Bambu 3D Printer Control" icon="print" href="https://clawhub.com/tobiasbischoff/bambu-cli">
   **@tobiasbischoff** • `hardware` `3d-printing` `skill`
 
-  Control and troubleshoot BambuLab printers: status, jobs, camera, AMS, calibration, and more.
+Control and troubleshoot BambuLab printers: status, jobs, camera, AMS, calibration, and more.
 
   <img src="/assets/showcase/bambu-cli.png" alt="Bambu CLI skill on ClawHub" />
 </Card>
@@ -153,7 +165,7 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="Vienna Transport (Wiener Linien)" icon="train" href="https://clawhub.com/hjanuschka/wienerlinien">
   **@hjanuschka** • `travel` `transport` `skill`
 
-  Real-time departures, disruptions, elevator status, and routing for Vienna's public transport.
+Real-time departures, disruptions, elevator status, and routing for Vienna's public transport.
 
   <img src="/assets/showcase/wienerlinien.png" alt="Wiener Linien skill on ClawHub" />
 </Card>
@@ -161,19 +173,23 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="ParentPay School Meals" icon="utensils" href="#">
   **@George5562** • `automation` `browser` `parenting`
 
-  Automated UK school meal booking via ParentPay. Uses mouse coordinates for reliable table cell clicking.
+Automated UK school meal booking via ParentPay. Uses mouse coordinates for reliable table cell clicking.
 </Card>
 
 <Card title="R2 Upload (Send Me My Files)" icon="cloud-arrow-up" href="https://clawhub.com/skills/r2-upload">
   **@julianengel** • `files` `r2` `presigned-urls`
 
+<<<<<<< HEAD
   Upload to Cloudflare R2/S3 and generate secure presigned download links. Perfect for remote Moltbot instances.
+=======
+Upload to Cloudflare R2/S3 and generate secure presigned download links. Perfect for remote OpenClaw instances.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 </Card>
 
 <Card title="iOS App via Telegram" icon="mobile" href="#">
   **@coard** • `ios` `xcode` `testflight`
 
-  Built a complete iOS app with maps and voice recording, deployed to TestFlight entirely via Telegram chat.
+Built a complete iOS app with maps and voice recording, deployed to TestFlight entirely via Telegram chat.
 
   <img src="/assets/showcase/ios-testflight.jpg" alt="iOS app on TestFlight" />
 </Card>
@@ -181,26 +197,30 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="Oura Ring Health Assistant" icon="heart-pulse" href="#">
   **@AS** • `health` `oura` `calendar`
 
-  Personal AI health assistant integrating Oura ring data with calendar, appointments, and gym schedule.
+Personal AI health assistant integrating Oura ring data with calendar, appointments, and gym schedule.
 
   <img src="/assets/showcase/oura-health.png" alt="Oura ring health assistant" />
 </Card>
 <Card title="Kev's Dream Team (14+ Agents)" icon="robot" href="https://github.com/adam91holt/orchestrated-ai-articles">
   **@adam91holt** • `multi-agent` `orchestration` `architecture` `manifesto`
 
-  14+ agents under one gateway with Opus 4.5 orchestrator delegating to Codex workers. Comprehensive [technical write-up](https://github.com/adam91holt/orchestrated-ai-articles) covering the Dream Team roster, model selection, sandboxing, webhooks, heartbeats, and delegation flows. [Clawdspace](https://github.com/adam91holt/clawdspace) for agent sandboxing. [Blog post](https://adams-ai-journey.ghost.io/2026-the-year-of-the-orchestrator/).
+14+ agents under one gateway with Opus 4.5 orchestrator delegating to Codex workers. Comprehensive [technical write-up](https://github.com/adam91holt/orchestrated-ai-articles) covering the Dream Team roster, model selection, sandboxing, webhooks, heartbeats, and delegation flows. [Clawdspace](https://github.com/adam91holt/clawdspace) for agent sandboxing. [Blog post](https://adams-ai-journey.ghost.io/2026-the-year-of-the-orchestrator/).
 </Card>
 
 <Card title="Linear CLI" icon="terminal" href="https://github.com/Finesssee/linear-cli">
   **@NessZerra** • `devtools` `linear` `cli` `issues`
 
+<<<<<<< HEAD
   CLI for Linear that integrates with agentic workflows (Claude Code, Moltbot). Manage issues, projects, and workflows from the terminal. First external PR merged!
+=======
+CLI for Linear that integrates with agentic workflows (Claude Code, OpenClaw). Manage issues, projects, and workflows from the terminal. First external PR merged!
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 </Card>
 
 <Card title="Beeper CLI" icon="message" href="https://github.com/blqke/beepcli">
   **@jules** • `messaging` `beeper` `cli` `automation`
 
-  Read, send, and archive messages via Beeper Desktop. Uses Beeper local MCP API so agents can manage all your chats (iMessage, WhatsApp, etc.) in one place.
+Read, send, and archive messages via Beeper Desktop. Uses Beeper local MCP API so agents can manage all your chats (iMessage, WhatsApp, etc.) in one place.
 </Card>
 
 </CardGroup>
@@ -212,7 +232,11 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="Winix Air Purifier Control" icon="wind" href="https://x.com/antonplex/status/2010518442471006253">
   **@antonplex** • `automation` `hardware` `air-quality`
 
+<<<<<<< HEAD
   Claude Code discovered and confirmed the purifier controls, then Moltbot takes over to manage room air quality.
+=======
+Claude Code discovered and confirmed the purifier controls, then OpenClaw takes over to manage room air quality.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   <img src="/assets/showcase/winix-air-purifier.jpg" alt="Winix air purifier control via Moltbot" />
 </Card>
@@ -220,7 +244,11 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="Pretty Sky Camera Shots" icon="camera" href="https://x.com/signalgaining/status/2010523120604746151">
   **@signalgaining** • `automation` `camera` `skill` `images`
 
+<<<<<<< HEAD
   Triggered by a roof camera: ask Moltbot to snap a sky photo whenever it looks pretty — it designed a skill and took the shot.
+=======
+Triggered by a roof camera: ask OpenClaw to snap a sky photo whenever it looks pretty — it designed a skill and took the shot.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   <img src="/assets/showcase/roof-camera-sky.jpg" alt="Roof camera sky snapshot captured by Moltbot" />
 </Card>
@@ -228,7 +256,11 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="Visual Morning Briefing Scene" icon="robot" href="https://x.com/buddyhadry/status/2010005331925954739">
   **@buddyhadry** • `automation` `briefing` `images` `telegram`
 
+<<<<<<< HEAD
   A scheduled prompt generates a single "scene" image each morning (weather, tasks, date, favorite post/quote) via a Moltbot persona.
+=======
+A scheduled prompt generates a single "scene" image each morning (weather, tasks, date, favorite post/quote) via a OpenClaw persona.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 </Card>
 
 <Card title="Padel Court Booking" icon="calendar-check" href="https://github.com/joshp123/padel-cli">
@@ -248,41 +280,49 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="Couch Potato Dev Mode" icon="couch" href="https://davekiss.com">
   **@davekiss** • `telegram` `website` `migration` `astro`
 
-  Rebuilt entire personal site via Telegram while watching Netflix — Notion → Astro, 18 posts migrated, DNS to Cloudflare. Never opened a laptop.
+Rebuilt entire personal site via Telegram while watching Netflix — Notion → Astro, 18 posts migrated, DNS to Cloudflare. Never opened a laptop.
 </Card>
 
 <Card title="Job Search Agent" icon="briefcase">
   **@attol8** • `automation` `api` `skill`
 
-  Searches job listings, matches against CV keywords, and returns relevant opportunities with links. Built in 30 minutes using JSearch API.
+Searches job listings, matches against CV keywords, and returns relevant opportunities with links. Built in 30 minutes using JSearch API.
 </Card>
 
 <Card title="Jira Skill Builder" icon="diagram-project" href="https://x.com/jdrhyne/status/2008336434827002232">
   **@jdrhyne** • `automation` `jira` `skill` `devtools`
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   Moltbot connected to Jira, then generated a new skill on the fly (before it existed on ClawdHub).
 =======
   OpenClaw connected to Jira, then generated a new skill on the fly (before it existed on ClawHub).
 >>>>>>> fd00d5688 (chore: update openclaw naming)
+=======
+OpenClaw connected to Jira, then generated a new skill on the fly (before it existed on ClawHub).
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 </Card>
 
 <Card title="Todoist Skill via Telegram" icon="list-check" href="https://x.com/iamsubhrajyoti/status/2009949389884920153">
   **@iamsubhrajyoti** • `automation` `todoist` `skill` `telegram`
 
+<<<<<<< HEAD
   Automated Todoist tasks and had Moltbot generate the skill directly in Telegram chat.
+=======
+Automated Todoist tasks and had OpenClaw generate the skill directly in Telegram chat.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 </Card>
 
 <Card title="TradingView Analysis" icon="chart-line">
   **@bheem1798** • `finance` `browser` `automation`
 
-  Logs into TradingView via browser automation, screenshots charts, and performs technical analysis on demand. No API needed—just browser control.
+Logs into TradingView via browser automation, screenshots charts, and performs technical analysis on demand. No API needed—just browser control.
 </Card>
 
 <Card title="Slack Auto-Support" icon="slack">
   **@henrymascot** • `slack` `automation` `support`
 
-  Watches company Slack channel, responds helpfully, and forwards notifications to Telegram. Autonomously fixed a production bug in a deployed app without being asked.
+Watches company Slack channel, responds helpfully, and forwards notifications to Telegram. Autonomously fixed a production bug in a deployed app without being asked.
 </Card>
 
 </CardGroup>
@@ -332,7 +372,7 @@ Full setup walkthrough (28m) by VelvetShark.
 <Card title="OpenRouter Transcription" icon="microphone" href="https://clawhub.com/obviyus/openrouter-transcribe">
   **@obviyus** • `transcription` `multilingual` `skill`
 
-  Multi-lingual audio transcription via OpenRouter (Gemini, etc). Available on ClawHub.
+Multi-lingual audio transcription via OpenRouter (Gemini, etc). Available on ClawHub.
 </Card>
 
 </CardGroup>

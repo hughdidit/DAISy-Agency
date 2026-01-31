@@ -7,9 +7,16 @@ read_when:
 
 # Model failover
 
+<<<<<<< HEAD
 Moltbot handles failures in two stages:
 1) **Auth profile rotation** within the current provider.
 2) **Model fallback** to the next model in `agents.defaults.model.fallbacks`.
+=======
+OpenClaw handles failures in two stages:
+
+1. **Auth profile rotation** within the current provider.
+2. **Model fallback** to the next model in `agents.defaults.model.fallbacks`.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 This doc explains the runtime rules and the data that backs them.
 
@@ -24,12 +31,14 @@ Moltbot uses **auth profiles** for both API keys and OAuth tokens.
 More detail: [/concepts/oauth](/concepts/oauth)
 
 Credential types:
+
 - `type: "api_key"` → `{ provider, key }`
 - `type: "oauth"` → `{ provider, access, refresh, expires, email? }` (+ `projectId`/`enterpriseUrl` for some providers)
 
 ## Profile IDs
 
 OAuth logins create distinct profiles so multiple accounts can coexist.
+
 - Default: `provider:default` when no email is available.
 - OAuth with email: `provider:<email>` (for example `google-antigravity:user@gmail.com`).
 
@@ -39,11 +48,16 @@ Profiles live in `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json` under `
 
 When a provider has multiple profiles, Moltbot chooses an order like this:
 
-1) **Explicit config**: `auth.order[provider]` (if set).
-2) **Configured profiles**: `auth.profiles` filtered by provider.
-3) **Stored profiles**: entries in `auth-profiles.json` for the provider.
+1. **Explicit config**: `auth.order[provider]` (if set).
+2. **Configured profiles**: `auth.profiles` filtered by provider.
+3. **Stored profiles**: entries in `auth-profiles.json` for the provider.
 
+<<<<<<< HEAD
 If no explicit order is configured, Moltbot uses a round‑robin order:
+=======
+If no explicit order is configured, OpenClaw uses a round‑robin order:
+
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - **Primary key:** profile type (**OAuth before API keys**).
 - **Secondary key:** `usageStats.lastUsed` (oldest first, within each type).
 - **Cooldown/disabled profiles** are moved to the end, ordered by soonest expiry.
@@ -52,6 +66,7 @@ If no explicit order is configured, Moltbot uses a round‑robin order:
 
 Moltbot **pins the chosen auth profile per session** to keep provider caches warm.
 It does **not** rotate on every request. The pinned profile is reused until:
+
 - the session is reset (`/new` / `/reset`)
 - a compaction completes (compaction count increments)
 - the profile is in cooldown/disabled
@@ -67,6 +82,7 @@ are configured, Moltbot moves to the next model instead of switching profiles.
 ### Why OAuth can “look lost”
 
 If you have both an OAuth profile and an API key profile for the same provider, round‑robin can switch between them across messages unless pinned. To force a single profile:
+
 - Pin with `auth.order[provider] = ["provider:profileId"]`, or
 - Use a per-session override via `/model …` with a profile override (when supported by your UI/chat surface).
 
@@ -78,6 +94,7 @@ Format/invalid‑request errors (for example Cloud Code Assist tool call ID
 validation failures) are treated as failover‑worthy and use the same cooldowns.
 
 Cooldowns use exponential backoff:
+
 - 1 minute
 - 5 minutes
 - 25 minutes
@@ -115,6 +132,7 @@ State is stored in `auth-profiles.json`:
 ```
 
 Defaults:
+
 - Billing backoff starts at **5 hours**, doubles per billing failure, and caps at **24 hours**.
 - Backoff counters reset if the profile hasn’t failed for **24 hours** (configurable).
 
@@ -130,6 +148,7 @@ When a run starts with a model override (hooks or CLI), fallbacks still end at
 ## Related config
 
 See [Gateway configuration](/gateway/configuration) for:
+
 - `auth.profiles` / `auth.order`
 - `auth.cooldowns.billingBackoffHours` / `auth.cooldowns.billingBackoffHoursByProvider`
 - `auth.cooldowns.billingMaxHours` / `auth.cooldowns.failureWindowHours`

@@ -4,6 +4,7 @@ read_when:
   - Calling tools without running a full agent turn
   - Building automations that need tool policy enforcement
 ---
+
 # Tools Invoke (HTTP)
 
 Moltbot’s Gateway exposes a simple HTTP endpoint for invoking a single tool directly. It is always enabled, but gated by Gateway auth and tool policy.
@@ -20,8 +21,14 @@ Uses the Gateway auth configuration. Send a bearer token:
 - `Authorization: Bearer <token>`
 
 Notes:
+<<<<<<< HEAD
 - When `gateway.auth.mode="token"`, use `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`).
 - When `gateway.auth.mode="password"`, use `gateway.auth.password` (or `CLAWDBOT_GATEWAY_PASSWORD`).
+=======
+
+- When `gateway.auth.mode="token"`, use `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`).
+- When `gateway.auth.mode="password"`, use `gateway.auth.password` (or `OPENCLAW_GATEWAY_PASSWORD`).
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Request body
 
@@ -36,6 +43,7 @@ Notes:
 ```
 
 Fields:
+
 - `tool` (string, required): tool name to invoke.
 - `action` (string, optional): mapped into args if the tool schema supports `action` and the args payload omitted it.
 - `args` (object, optional): tool-specific arguments.
@@ -45,6 +53,7 @@ Fields:
 ## Policy + routing behavior
 
 Tool availability is filtered through the same policy chain used by Gateway agents:
+
 - `tools.profile` / `tools.byProvider.profile`
 - `tools.allow` / `tools.byProvider.allow`
 - `agents.<id>.tools.allow` / `agents.<id>.tools.byProvider.allow`
@@ -54,8 +63,14 @@ Tool availability is filtered through the same policy chain used by Gateway agen
 If a tool is not allowed by policy, the endpoint returns **404**.
 
 To help group policies resolve context, you can optionally set:
+<<<<<<< HEAD
 - `x-moltbot-message-channel: <channel>` (example: `slack`, `telegram`)
 - `x-moltbot-account-id: <accountId>` (when multiple accounts exist)
+=======
+
+- `x-openclaw-message-channel: <channel>` (example: `slack`, `telegram`)
+- `x-openclaw-account-id: <accountId>` (when multiple accounts exist)
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Responses
 

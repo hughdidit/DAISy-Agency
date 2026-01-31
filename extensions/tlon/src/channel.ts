@@ -188,8 +188,14 @@ export const tlonPlugin: ChannelPlugin = {
   reload: { configPrefixes: ["channels.tlon"] },
   configSchema: tlonChannelConfigSchema,
   config: {
+<<<<<<< HEAD
     listAccountIds: (cfg) => listTlonAccountIds(cfg as MoltbotConfig),
     resolveAccount: (cfg, accountId) => resolveTlonAccount(cfg as MoltbotConfig, accountId ?? undefined),
+=======
+    listAccountIds: (cfg) => listTlonAccountIds(cfg as OpenClawConfig),
+    resolveAccount: (cfg, accountId) =>
+      resolveTlonAccount(cfg as OpenClawConfig, accountId ?? undefined),
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     defaultAccountId: () => "default",
     setAccountEnabled: ({ cfg, accountId, enabled }) => {
       const useDefault = !accountId || accountId === "default";

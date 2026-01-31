@@ -1,5 +1,9 @@
 ---
+<<<<<<< HEAD
 summary: "Moltbot plugins/extensions: discovery, config, and safety"
+=======
+summary: "OpenClaw plugins/extensions: discovery, config, and safety"
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 read_when:
   - Adding or modifying plugins/extensions
   - Documenting plugin install or load rules
@@ -73,7 +77,11 @@ Plugins can access selected core helpers via `api.runtime`. For telephony TTS:
 
 ```ts
 const result = await api.runtime.tts.textToSpeechTelephony({
+<<<<<<< HEAD
   text: "Hello from Moltbot",
+=======
+  text: "Hello from OpenClaw",
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   cfg: api.config,
 });
 ```
@@ -192,9 +200,15 @@ configured id.
     deny: ["untrusted-plugin"],
     load: { paths: ["~/Projects/oss/voice-call-extension"] },
     entries: {
+<<<<<<< HEAD
       "voice-call": { enabled: true, config: { provider: "twilio" } }
     }
   }
+=======
+      "voice-call": { enabled: true, config: { provider: "twilio" } },
+    },
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -224,9 +238,15 @@ Some plugin categories are **exclusive** (only one active at a time). Use
 {
   plugins: {
     slots: {
+<<<<<<< HEAD
       memory: "memory-core" // or "none" to disable memory plugins
     }
   }
+=======
+      memory: "memory-core", // or "none" to disable memory plugins
+    },
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -387,7 +407,13 @@ const myChannel = {
   config: {
     listAccountIds: (cfg) => Object.keys(cfg.channels?.acmechat?.accounts ?? {}),
     resolveAccount: (cfg, accountId) =>
+<<<<<<< HEAD
       (cfg.channels?.acmechat?.accounts?.[accountId ?? "default"] ?? { accountId }),
+=======
+      cfg.channels?.acmechat?.accounts?.[accountId ?? "default"] ?? {
+        accountId,
+      },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   outbound: {
     deliveryMode: "direct",
@@ -442,10 +468,17 @@ Minimal config example:
   channels: {
     acmechat: {
       accounts: {
+<<<<<<< HEAD
         default: { token: "ACME_TOKEN", enabled: true }
       }
     }
   }
+=======
+        default: { token: "ACME_TOKEN", enabled: true },
+      },
+    },
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -466,7 +499,13 @@ const plugin = {
   config: {
     listAccountIds: (cfg) => Object.keys(cfg.channels?.acmechat?.accounts ?? {}),
     resolveAccount: (cfg, accountId) =>
+<<<<<<< HEAD
       (cfg.channels?.acmechat?.accounts?.[accountId ?? "default"] ?? { accountId }),
+=======
+      cfg.channels?.acmechat?.accounts?.[accountId ?? "default"] ?? {
+        accountId,
+      },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   outbound: {
     deliveryMode: "direct",
@@ -503,11 +542,22 @@ export default function (api) {
 
 ```ts
 export default function (api) {
+<<<<<<< HEAD
   api.registerCli(({ program }) => {
     program.command("mycmd").action(() => {
       console.log("Hello");
     });
   }, { commands: ["mycmd"] });
+=======
+  api.registerCli(
+    ({ program }) => {
+      program.command("mycmd").action(() => {
+        console.log("Hello");
+      });
+    },
+    { commands: ["mycmd"] },
+  );
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 

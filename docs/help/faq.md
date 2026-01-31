@@ -1,6 +1,7 @@
 ---
 summary: "Frequently asked questions about Moltbot setup, configuration, and usage"
 ---
+
 # FAQ
 
 Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS, multi-agent, OAuth/API keys, model failover). For runtime diagnostics, see [Troubleshooting](/gateway/troubleshooting). For the full config reference, see [Configuration](/gateway/configuration).
@@ -195,47 +196,61 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
 
 ## First 60 seconds if something's broken
 
-1) **Quick status (first check)**
+1. **Quick status (first check)**
+
    ```bash
    moltbot status
    ```
+
    Fast local summary: OS + update, gateway/service reachability, agents/sessions, provider config + runtime issues (when gateway is reachable).
 
-2) **Pasteable report (safe to share)**
+2. **Pasteable report (safe to share)**
+
    ```bash
    moltbot status --all
    ```
+
    Read-only diagnosis with log tail (tokens redacted).
 
-3) **Daemon + port state**
+3. **Daemon + port state**
+
    ```bash
    moltbot gateway status
    ```
+
    Shows supervisor runtime vs RPC reachability, the probe target URL, and which config the service likely used.
 
-4) **Deep probes**
+4. **Deep probes**
+
    ```bash
    moltbot status --deep
    ```
+
    Runs gateway health checks + provider probes (requires a reachable gateway). See [Health](/gateway/health).
 
-5) **Tail the latest log**
+5. **Tail the latest log**
+
    ```bash
    moltbot logs --follow
    ```
+
    If RPC is down, fall back to:
+
    ```bash
    tail -f "$(ls -t /tmp/moltbot/moltbot-*.log | head -1)"
    ```
+
    File logs are separate from service logs; see [Logging](/logging) and [Troubleshooting](/gateway/troubleshooting).
 
-6) **Run the doctor (repairs)**
+6. **Run the doctor (repairs)**
+
    ```bash
    moltbot doctor
    ```
+
    Repairs/migrates config/state + runs health checks. See [Doctor](/gateway/doctor).
 
-7) **Gateway snapshot**
+7. **Gateway snapshot**
    ```bash
    moltbot health --json
    moltbot health --verbose   # shows the target URL + config path on errors
@@ -281,9 +296,16 @@ moltbot doctor
 ```
 
 What they do:
+<<<<<<< HEAD
 - `moltbot status`: quick snapshot of gateway/agent health + basic config.
 - `moltbot models status`: checks provider auth + model availability.
 - `moltbot doctor`: validates and repairs common config/state issues.
+=======
+
+- `openclaw status`: quick snapshot of gateway/agent health + basic config.
+- `openclaw models status`: checks provider auth + model availability.
+- `openclaw doctor`: validates and repairs common config/state issues.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Other useful CLI checks: `moltbot status --all`, `moltbot logs --follow`,
 `moltbot gateway status`, `moltbot health --verbose`.
@@ -322,14 +344,22 @@ The wizard now opens your browser with a tokenized dashboard URL right after onb
 ### How do I authenticate the dashboard token on localhost vs remote
 
 **Localhost (same machine):**
+
 - Open `http://127.0.0.1:18789/`.
 - If it asks for auth, run `moltbot dashboard` and use the tokenized link (`?token=...`).
 - The token is the same value as `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`) and is stored by the UI after first load.
 
 **Not on localhost:**
+<<<<<<< HEAD
 - **Tailscale Serve** (recommended): keep bind loopback, run `moltbot gateway --tailscale serve`, open `https://<magicdns>/`. If `gateway.auth.allowTailscale` is `true`, identity headers satisfy auth (no token).
 - **Tailnet bind**: run `moltbot gateway --bind tailnet --token "<token>"`, open `http://<tailscale-ip>:18789/`, paste token in dashboard settings.
 - **SSH tunnel**: `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/?token=...` from `moltbot dashboard`.
+=======
+
+- **Tailscale Serve** (recommended): keep bind loopback, run `openclaw gateway --tailscale serve`, open `https://<magicdns>/`. If `gateway.auth.allowTailscale` is `true`, identity headers satisfy auth (no token).
+- **Tailnet bind**: run `openclaw gateway --bind tailnet --token "<token>"`, open `http://<tailscale-ip>:18789/`, paste token in dashboard settings.
+- **SSH tunnel**: `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/?token=...` from `openclaw dashboard`.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 See [Dashboard](/web/dashboard) and [Web surfaces](/web) for bind modes and auth details.
 
@@ -365,17 +395,22 @@ That screen depends on the Gateway being reachable and authenticated. The TUI al
 "Wake up, my friend!" automatically on first hatch. If you see that line with **no reply**
 and tokens stay at 0, the agent never ran.
 
-1) Restart the Gateway:
+1. Restart the Gateway:
+
 ```bash
 moltbot gateway restart
 ```
-2) Check status + auth:
+
+2. Check status + auth:
+
 ```bash
 moltbot status
 moltbot models status
 moltbot logs --follow
 ```
-3) If it still hangs, run:
+
+3. If it still hangs, run:
+
 ```bash
 moltbot doctor
 ```
@@ -389,10 +424,17 @@ Yes. Copy the **state directory** and **workspace**, then run Doctor once. This
 keeps your bot “exactly the same” (memory, session history, auth, and channel
 state) as long as you copy **both** locations:
 
+<<<<<<< HEAD
 1) Install Moltbot on the new machine.
 2) Copy `$CLAWDBOT_STATE_DIR` (default: `~/.clawdbot`) from the old machine.
 3) Copy your workspace (default: `~/clawd`).
 4) Run `moltbot doctor` and restart the Gateway service.
+=======
+1. Install OpenClaw on the new machine.
+2. Copy `$OPENCLAW_STATE_DIR` (default: `~/.openclaw`) from the old machine.
+3. Copy your workspace (default: `~/.openclaw/workspace`).
+4. Run `openclaw doctor` and restart the Gateway service.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 That preserves config, auth profiles, WhatsApp creds, sessions, and memory. If you’re in
 remote mode, remember the gateway host owns the session store and workspace.
@@ -427,6 +469,7 @@ https://github.com/moltbot/moltbot/tree/main/docs
 ### Whats the difference between stable and beta
 
 **Stable** and **beta** are **npm dist‑tags**, not separate code lines:
+
 - `latest` = stable
 - `beta` = early build for testing
 
@@ -460,6 +503,7 @@ More detail: [Development channels](/install/development-channels) and [Installe
 ### How long does install and onboarding usually take
 
 Rough guide:
+
 - **Install:** 2-5 minutes
 - **Onboarding:** 5-15 minutes depending on how many channels/models you configure
 
@@ -470,19 +514,24 @@ and the fast debug loop in [Im stuck](/help/faq#im-stuck--whats-the-fastest-way-
 
 Two options:
 
-1) **Dev channel (git checkout):**
+1. **Dev channel (git checkout):**
+
 ```bash
 moltbot update --channel dev
 ```
+
 This switches to the `main` branch and updates from source.
 
-2) **Hackable install (from the installer site):**
+2. **Hackable install (from the installer site):**
+
 ```bash
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
 ```
+
 That gives you a local repo you can edit, then update via git.
 
 If you prefer a clean clone manually, use:
+
 ```bash
 git clone https://github.com/moltbot/moltbot.git
 cd moltbot
@@ -520,10 +569,16 @@ More options: [Installer flags](/install/installer).
 Two common Windows issues:
 
 **1) npm error spawn git / git not found**
+
 - Install **Git for Windows** and make sure `git` is on your PATH.
 - Close and reopen PowerShell, then re-run the installer.
 
+<<<<<<< HEAD
 **2) moltbot is not recognized after install**
+=======
+**2) openclaw is not recognized after install**
+
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Your npm global bin folder is not on PATH.
 - Check the path:
   ```powershell
@@ -538,7 +593,7 @@ Docs: [Windows](/platforms/windows).
 ### The docs didnt answer my question how do I get a better answer
 
 Use the **hackable (git) install** so you have the full source and docs locally, then ask
-your bot (or Claude/Codex) *from that folder* so it can read the repo and answer precisely.
+your bot (or Claude/Codex) _from that folder_ so it can read the repo and answer precisely.
 
 ```bash
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
@@ -688,8 +743,14 @@ See [OAuth](/concepts/oauth), [Model providers](/concepts/model-providers), and 
 Gemini CLI uses a **plugin auth flow**, not a client id or secret in `moltbot.json`.
 
 Steps:
+<<<<<<< HEAD
 1) Enable the plugin: `moltbot plugins enable google-gemini-cli-auth`
 2) Login: `moltbot models auth login --provider google-gemini-cli --set-default`
+=======
+
+1. Enable the plugin: `openclaw plugins enable google-gemini-cli-auth`
+2. Login: `openclaw models auth login --provider google-gemini-cli --set-default`
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 This stores OAuth tokens in auth profiles on the gateway host. Details: [Model providers](/concepts/model-providers).
 
@@ -719,6 +780,7 @@ any Mac works. Moltbot’s iMessage integrations run on macOS (BlueBubbles or `i
 the Gateway can run elsewhere.
 
 Common setups:
+
 - Run the Gateway on Linux/VPS, and point `channels.imessage.cliPath` at an SSH wrapper that
   runs `imsg` on the Mac.
 - Run everything on the Mac if you want the simplest single‑machine setup.
@@ -733,6 +795,7 @@ Yes. The **Mac mini can run the Gateway**, and your MacBook Pro can connect as a
 capabilities like screen/camera/canvas and `system.run` on that device.
 
 Common pattern:
+
 - Gateway on the Mac mini (always‑on).
 - MacBook Pro runs the macOS app or a node host and pairs to the Gateway.
 - Use `moltbot nodes status` / `moltbot nodes list` to see it.
@@ -752,12 +815,19 @@ without WhatsApp/Telegram.
 `channels.telegram.allowFrom` is **the human sender’s Telegram user ID** (numeric, recommended) or `@username`. It is not the bot username.
 
 Safer (no third-party bot):
+<<<<<<< HEAD
 - DM your bot, then run `moltbot logs --follow` and read `from.id`.
+=======
+
+- DM your bot, then run `openclaw logs --follow` and read `from.id`.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Official Bot API:
+
 - DM your bot, then call `https://api.telegram.org/bot<bot_token>/getUpdates` and read `message.from.id`.
 
 Third-party (less private):
+
 - DM `@userinfobot` or `@getidsbot`.
 
 See [/channels/telegram](/channels/telegram#access-control-dms--groups).
@@ -828,10 +898,12 @@ Short answer: **if you want 24/7 reliability, use a VPS**. If you want the
 lowest friction and you’re okay with sleep/restarts, run it locally.
 
 **Laptop (local Gateway)**
+
 - **Pros:** no server cost, direct access to local files, live browser window.
 - **Cons:** sleep/network drops = disconnects, OS updates/reboots interrupt, must stay awake.
 
 **VPS / cloud**
+
 - **Pros:** always‑on, stable network, no laptop sleep issues, easier to keep running.
 - **Cons:** often run headless (use screenshots), remote file access only, you must SSH for updates.
 
@@ -866,6 +938,7 @@ Yes. Treat a VM the same as a VPS: it needs to be always on, reachable, and have
 RAM for the Gateway and any channels you enable.
 
 Baseline guidance:
+
 - **Absolute minimum:** 1 vCPU, 1GB RAM.
 - **Recommended:** 2GB RAM or more if you run multiple channels, browser automation, or media tools.
 - **OS:** Ubuntu LTS or another modern Debian/Ubuntu.
@@ -888,15 +961,16 @@ stateful sessions, memory, and tools - without handing control of your workflows
 SaaS.
 
 Highlights:
+
 - **Your devices, your data:** run the Gateway wherever you want (Mac, Linux, VPS) and keep the
-  workspace + session history local.  
+  workspace + session history local.
 - **Real channels, not a web sandbox:** WhatsApp/Telegram/Slack/Discord/Signal/iMessage/etc,
-  plus mobile voice and Canvas on supported platforms.  
+  plus mobile voice and Canvas on supported platforms.
 - **Model-agnostic:** use Anthropic, OpenAI, MiniMax, OpenRouter, etc., with per‑agent routing
-  and failover.  
+  and failover.
 - **Local-only option:** run local models so **all data can stay on your device** if you want.
 - **Multi-agent routing:** separate agents per channel, account, or task, each with its own
-  workspace and defaults.  
+  workspace and defaults.
 - **Open source and hackable:** inspect, extend, and self-host without vendor lock‑in.
 
 Docs: [Gateway](/gateway), [Channels](/channels), [Multi‑agent](/concepts/multi-agent),
@@ -905,6 +979,7 @@ Docs: [Gateway](/gateway), [Channels](/channels), [Multi‑agent](/concepts/mult
 ### I just set it up what should I do first
 
 Good first projects:
+
 - Build a website (WordPress, Shopify, or a simple static site).
 - Prototype a mobile app (outline, screens, API plan).
 - Organize files and folders (cleanup, naming, tagging).
@@ -916,6 +991,7 @@ use sub agents for parallel work.
 ### What are the top five everyday use cases for Moltbot
 
 Everyday wins usually look like:
+
 - **Personal briefings:** summaries of inbox, calendar, and news you care about.
 - **Research and drafting:** quick research, summaries, and first drafts for emails or docs.
 - **Reminders and follow ups:** cron or heartbeat driven nudges and checklists.
@@ -940,6 +1016,7 @@ Claude Code or Codex for the fastest direct coding loop inside a repo. Use Moltb
 want durable memory, cross-device access, and tool orchestration.
 
 Advantages:
+
 - **Persistent memory + workspace** across sessions
 - **Multi-platform access** (WhatsApp, Telegram, TUI, WebChat)
 - **Tool orchestration** (browser, files, scheduling, hooks)
@@ -965,6 +1042,7 @@ Yes. Add extra directories via `skills.load.extraDirs` in `~/.openclaw/openclaw.
 ### How can I use different models for different tasks
 
 Today the supported patterns are:
+
 - **Cron jobs**: isolated jobs can set a `model` override per job.
 - **Sub-agents**: route tasks to separate agents with different default models.
 - **On-demand switch**: use `/model` to switch the current session model at any time.
@@ -990,11 +1068,17 @@ Cron runs inside the Gateway process. If the Gateway is not running continuously
 scheduled jobs will not run.
 
 Checklist:
+<<<<<<< HEAD
 - Confirm cron is enabled (`cron.enabled`) and `CLAWDBOT_SKIP_CRON` is not set.
+=======
+
+- Confirm cron is enabled (`cron.enabled`) and `OPENCLAW_SKIP_CRON` is not set.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Check the Gateway is running 24/7 (no sleep/restarts).
 - Verify timezone settings for the job (`--tz` vs host timezone).
 
 Debug:
+
 ```bash
 moltbot cron run <jobId> --force
 moltbot cron runs --id <jobId> --limit 50
@@ -1043,22 +1127,31 @@ Run the Gateway on Linux, pair a macOS node (menubar app), and set **Node Run Co
 **Option C - proxy macOS binaries over SSH (advanced).**  
 Keep the Gateway on Linux, but make the required CLI binaries resolve to SSH wrappers that run on a Mac. Then override the skill to allow Linux so it stays eligible.
 
-1) Create an SSH wrapper for the binary (example: `imsg`):
+1. Create an SSH wrapper for the binary (example: `imsg`):
    ```bash
    #!/usr/bin/env bash
    set -euo pipefail
    exec ssh -T user@mac-host /opt/homebrew/bin/imsg "$@"
    ```
+<<<<<<< HEAD
 2) Put the wrapper on `PATH` on the Linux host (for example `~/bin/imsg`).
 3) Override the skill metadata (workspace or `~/.clawdbot/skills`) to allow Linux:
+=======
+2. Put the wrapper on `PATH` on the Linux host (for example `~/bin/imsg`).
+3. Override the skill metadata (workspace or `~/.openclaw/skills`) to allow Linux:
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    ```markdown
    ---
    name: imsg
    description: iMessage/SMS CLI for listing chats, history, watch, and sending.
+<<<<<<< HEAD
    metadata: {"moltbot":{"os":["darwin","linux"],"requires":{"bins":["imsg"]}}}
+=======
+   metadata: { "openclaw": { "os": ["darwin", "linux"], "requires": { "bins": ["imsg"] } } }
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    ---
    ```
-4) Start a new session so the skills snapshot refreshes.
+4. Start a new session so the skills snapshot refreshes.
 
 For iMessage specifically, you can also point `channels.imessage.cliPath` at an SSH wrapper (Moltbot only needs stdio). See [iMessage](/channels/imessage).
 
@@ -1067,10 +1160,12 @@ For iMessage specifically, you can also point `channels.imessage.cliPath` at an 
 Not built‑in today.
 
 Options:
+
 - **Custom skill / plugin:** best for reliable API access (Notion/HeyGen both have APIs).
 - **Browser automation:** works without code but is slower and more fragile.
 
 If you want to keep context per client (agency workflows), a simple pattern is:
+
 - One Notion page per client (context + preferences + active work).
 - Ask the agent to fetch that page at the start of a session.
 
@@ -1129,7 +1224,12 @@ Set `agents.defaults.sandbox.docker.binds` to `["host:path:mode"]` (e.g., `"/hom
 
 ### How does memory work
 
+<<<<<<< HEAD
 Moltbot memory is just Markdown files in the agent workspace:
+=======
+OpenClaw memory is just Markdown files in the agent workspace:
+
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Daily notes in `memory/YYYY-MM-DD.md`
 - Curated long-term notes in `MEMORY.md` (main/private sessions only)
 
@@ -1197,6 +1297,7 @@ Related: [Agent workspace](/concepts/agent-workspace), [Memory](/concepts/memory
 
 Everything lives under `$CLAWDBOT_STATE_DIR` (default: `~/.clawdbot`):
 
+<<<<<<< HEAD
 | Path | Purpose |
 |------|---------|
 | `$CLAWDBOT_STATE_DIR/moltbot.json` | Main config (JSON5) |
@@ -1207,6 +1308,18 @@ Everything lives under `$CLAWDBOT_STATE_DIR` (default: `~/.clawdbot`):
 | `$CLAWDBOT_STATE_DIR/agents/` | Per‑agent state (agentDir + sessions) |
 | `$CLAWDBOT_STATE_DIR/agents/<agentId>/sessions/` | Conversation history & state (per agent) |
 | `$CLAWDBOT_STATE_DIR/agents/<agentId>/sessions/sessions.json` | Session metadata (per agent) |
+=======
+| Path                                                            | Purpose                                                      |
+| --------------------------------------------------------------- | ------------------------------------------------------------ |
+| `$OPENCLAW_STATE_DIR/openclaw.json`                             | Main config (JSON5)                                          |
+| `$OPENCLAW_STATE_DIR/credentials/oauth.json`                    | Legacy OAuth import (copied into auth profiles on first use) |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/agent/auth-profiles.json` | Auth profiles (OAuth + API keys)                             |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/agent/auth.json`          | Runtime auth cache (managed automatically)                   |
+| `$OPENCLAW_STATE_DIR/credentials/`                              | Provider state (e.g. `whatsapp/<accountId>/creds.json`)      |
+| `$OPENCLAW_STATE_DIR/agents/`                                   | Per‑agent state (agentDir + sessions)                        |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/`                | Conversation history & state (per agent)                     |
+| `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/sessions.json`   | Session metadata (per agent)                                 |
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Legacy single‑agent path: `~/.clawdbot/agent/*` (migrated by `moltbot doctor`).
 
@@ -1225,7 +1338,11 @@ Default workspace is `~/clawd`, configurable via:
 
 ```json5
 {
+<<<<<<< HEAD
   agents: { defaults: { workspace: "~/clawd" } }
+=======
+  agents: { defaults: { workspace: "~/.openclaw/workspace" } },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -1270,9 +1387,9 @@ Example (repo as default cwd):
 {
   agents: {
     defaults: {
-      workspace: "~/Projects/my-repo"
-    }
-  }
+      workspace: "~/Projects/my-repo",
+    },
+  },
 }
 ```
 
@@ -1302,13 +1419,14 @@ Non-loopback binds **require auth**. Configure `gateway.auth.mode` + `gateway.au
     bind: "lan",
     auth: {
       mode: "token",
-      token: "replace-me"
-    }
-  }
+      token: "replace-me",
+    },
+  },
 }
 ```
 
 Notes:
+
 - `gateway.remote.token` is for **remote CLI calls** only; it does not enable local gateway auth.
 - The Control UI authenticates via `connect.params.auth.token` (stored in app/UI settings). Avoid putting tokens in URLs.
 
@@ -1339,17 +1457,18 @@ Gateway process.
       search: {
         enabled: true,
         apiKey: "BRAVE_API_KEY_HERE",
-        maxResults: 5
+        maxResults: 5,
       },
       fetch: {
-        enabled: true
-      }
-    }
-  }
+        enabled: true,
+      },
+    },
+  },
 }
 ```
 
 Notes:
+
 - If you use allowlists, add `web_search`/`web_fetch` or `group:web`.
 - `web_fetch` is enabled by default (unless explicitly disabled).
 - Daemons read env vars from `~/.clawdbot/.env` (or the service environment).
@@ -1377,15 +1496,16 @@ Yes. It’s a config option:
   browser: { headless: true },
   agents: {
     defaults: {
-      sandbox: { browser: { headless: true } }
-    }
-  }
+      sandbox: { browser: { headless: true } },
+    },
+  },
 }
 ```
 
 Default is `false` (headful). Headless is more likely to trigger anti‑bot checks on some sites. See [Browser](/tools/browser).
 
 Headless uses the **same Chromium engine** and works for most automation (forms, clicks, scraping, logins). The main differences:
+
 - No visible browser window (use screenshots if you need visuals).
 - Some sites are stricter about automation in headless mode (CAPTCHAs, anti‑bot).
   For example, X/Twitter often blocks headless sessions.
@@ -1412,12 +1532,13 @@ Short answer: **pair your computer as a node**. The Gateway runs elsewhere, but 
 call `node.*` tools (screen, camera, system) on your local machine over the Gateway WebSocket.
 
 Typical setup:
-1) Run the Gateway on the always‑on host (VPS/home server).
-2) Put the Gateway host + your computer on the same tailnet.
-3) Ensure the Gateway WS is reachable (tailnet bind or SSH tunnel).
-4) Open the macOS app locally and connect in **Remote over SSH** mode (or direct tailnet)
+
+1. Run the Gateway on the always‑on host (VPS/home server).
+2. Put the Gateway host + your computer on the same tailnet.
+3. Ensure the Gateway WS is reachable (tailnet bind or SSH tunnel).
+4. Open the macOS app locally and connect in **Remote over SSH** mode (or direct tailnet)
    so it can register as a node.
-5) Approve the node on the Gateway:
+5. Approve the node on the Gateway:
    ```bash
    moltbot nodes pending
    moltbot nodes approve <requestId>
@@ -1433,11 +1554,19 @@ Docs: [Nodes](/nodes), [Gateway protocol](/gateway/protocol), [macOS remote mode
 ### Tailscale is connected but I get no replies What now
 
 Check the basics:
+<<<<<<< HEAD
 - Gateway is running: `moltbot gateway status`
 - Gateway health: `moltbot status`
 - Channel health: `moltbot channels status`
+=======
+
+- Gateway is running: `openclaw gateway status`
+- Gateway health: `openclaw status`
+- Channel health: `openclaw channels status`
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Then verify auth and routing:
+
 - If you use Tailscale Serve, make sure `gateway.auth.allowTailscale` is set correctly.
 - If you connect via SSH tunnel, confirm the local tunnel is up and points at the right port.
 - Confirm your allowlists (DM or group) include your account.
@@ -1458,6 +1587,7 @@ listens. If one bot is on a remote VPS, point your CLI at that remote Gateway
 via SSH/Tailscale (see [Remote access](/gateway/remote)).
 
 Example pattern (run from a machine that can reach the target Gateway):
+
 ```bash
 moltbot agent --message "Hello from local bot" --deliver --channel telegram --reply-to <chat-id>
 ```
@@ -1523,14 +1653,26 @@ Yes. `config.apply` validates + writes the full config and restarts the Gateway 
 else is removed.
 
 Recover:
+<<<<<<< HEAD
 - Restore from backup (git or a copied `~/.clawdbot/moltbot.json`).
 - If you have no backup, re-run `moltbot doctor` and reconfigure channels/models.
+=======
+
+- Restore from backup (git or a copied `~/.openclaw/openclaw.json`).
+- If you have no backup, re-run `openclaw doctor` and reconfigure channels/models.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - If this was unexpected, file a bug and include your last known config or any backup.
 - A local coding agent can often reconstruct a working config from logs or history.
 
 Avoid it:
+<<<<<<< HEAD
 - Use `moltbot config set` for small changes.
 - Use `moltbot configure` for interactive edits.
+=======
+
+- Use `openclaw config set` for small changes.
+- Use `openclaw configure` for interactive edits.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Docs: [Config](/cli/config), [Configure](/cli/configure), [Doctor](/gateway/doctor).
 
@@ -1538,8 +1680,13 @@ Docs: [Config](/cli/config), [Configure](/cli/configure), [Doctor](/gateway/doct
 
 ```json5
 {
+<<<<<<< HEAD
   agents: { defaults: { workspace: "~/clawd" } },
   channels: { whatsapp: { allowFrom: ["+15555550123"] } }
+=======
+  agents: { defaults: { workspace: "~/.openclaw/workspace" } },
+  channels: { whatsapp: { allowFrom: ["+15555550123"] } },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -1549,23 +1696,25 @@ This sets your workspace and restricts who can trigger the bot.
 
 Minimal steps:
 
-1) **Install + login on the VPS**
+1. **Install + login on the VPS**
    ```bash
    curl -fsSL https://tailscale.com/install.sh | sh
    sudo tailscale up
    ```
-2) **Install + login on your Mac**
+2. **Install + login on your Mac**
    - Use the Tailscale app and sign in to the same tailnet.
-3) **Enable MagicDNS (recommended)**
+3. **Enable MagicDNS (recommended)**
    - In the Tailscale admin console, enable MagicDNS so the VPS has a stable name.
-4) **Use the tailnet hostname**
+4. **Use the tailnet hostname**
    - SSH: `ssh user@your-vps.tailnet-xxxx.ts.net`
    - Gateway WS: `ws://your-vps.tailnet-xxxx.ts.net:18789`
 
 If you want the Control UI without SSH, use Tailscale Serve on the VPS:
+
 ```bash
 moltbot gateway --tailscale serve
 ```
+
 This keeps the gateway bound to loopback and exposes HTTPS via Tailscale. See [Tailscale](/gateway/tailscale).
 
 ### How do I connect a Mac node to a remote Gateway Tailscale Serve
@@ -1573,10 +1722,11 @@ This keeps the gateway bound to loopback and exposes HTTPS via Tailscale. See [T
 Serve exposes the **Gateway Control UI + WS**. Nodes connect over the same Gateway WS endpoint.
 
 Recommended setup:
-1) **Make sure the VPS + Mac are on the same tailnet**.
-2) **Use the macOS app in Remote mode** (SSH target can be the tailnet hostname).
+
+1. **Make sure the VPS + Mac are on the same tailnet**.
+2. **Use the macOS app in Remote mode** (SSH target can be the tailnet hostname).
    The app will tunnel the Gateway port and connect as a node.
-3) **Approve the node** on the gateway:
+3. **Approve the node** on the gateway:
    ```bash
    moltbot nodes pending
    moltbot nodes approve <requestId>
@@ -1601,8 +1751,8 @@ You can also define inline env vars in config (applied only if missing from the 
 {
   env: {
     OPENROUTER_API_KEY: "sk-or-...",
-    vars: { GROQ_API_KEY: "gsk-..." }
-  }
+    vars: { GROQ_API_KEY: "gsk-..." },
+  },
 }
 ```
 
@@ -1612,17 +1762,22 @@ See [/environment](/environment) for full precedence and sources.
 
 Two common fixes:
 
+<<<<<<< HEAD
 1) Put the missing keys in `~/.clawdbot/.env` so they’re picked up even when the service doesn’t inherit your shell env.
 2) Enable shell import (opt‑in convenience):
+=======
+1. Put the missing keys in `~/.openclaw/.env` so they’re picked up even when the service doesn’t inherit your shell env.
+2. Enable shell import (opt‑in convenience):
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ```json5
 {
   env: {
     shellEnv: {
       enabled: true,
-      timeoutMs: 15000
-    }
-  }
+      timeoutMs: 15000,
+    },
+  },
 }
 ```
 
@@ -1638,14 +1793,19 @@ your login shell automatically.
 If the Gateway runs as a service (launchd/systemd), it won’t inherit your shell
 environment. Fix by doing one of these:
 
+<<<<<<< HEAD
 1) Put the token in `~/.clawdbot/.env`:
+=======
+1. Put the token in `~/.openclaw/.env`:
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    ```
    COPILOT_GITHUB_TOKEN=...
    ```
-2) Or enable shell import (`env.shellEnv.enabled: true`).
-3) Or add it to your config `env` block (applies only if missing).
+2. Or enable shell import (`env.shellEnv.enabled: true`).
+3. Or add it to your config `env` block (applies only if missing).
 
 Then restart the gateway and recheck:
+
 ```bash
 moltbot models status
 ```
@@ -1668,8 +1828,8 @@ transcripts - it just starts a new session.
 ```json5
 {
   session: {
-    idleMinutes: 240
-  }
+    idleMinutes: 240,
+  },
 }
 ```
 
@@ -1691,6 +1851,7 @@ Session context is limited by the model window. Long chats, large tool outputs, 
 files can trigger compaction or truncation.
 
 What helps:
+
 - Ask the bot to summarize the current state and write it to a file.
 - Use `/compact` before long tasks, and `/new` when switching topics.
 - Keep important context in the workspace and ask the bot to read it back.
@@ -1718,6 +1879,7 @@ moltbot onboard --install-daemon
 ```
 
 Notes:
+
 - The onboarding wizard also offers **Reset** if it sees an existing config. See [Wizard](/start/wizard).
 - If you used profiles (`--profile` / `CLAWDBOT_PROFILE`), reset each state dir (defaults are `~/.clawdbot-<profile>`).
 - Dev reset: `moltbot gateway --dev --reset` (dev-only; wipes dev config + credentials + sessions + workspace).
@@ -1727,9 +1889,11 @@ Notes:
 Use one of these:
 
 - **Compact** (keeps the conversation but summarizes older turns):
+
   ```
   /compact
   ```
+
   or `/compact <instructions>` to guide the summary.
 
 - **Reset** (fresh session ID for the same chat key):
@@ -1739,6 +1903,7 @@ Use one of these:
   ```
 
 If it keeps happening:
+
 - Enable or tune **session pruning** (`agents.defaults.contextPruning`) to trim old tool output.
 - Use a model with a larger context window.
 
@@ -1761,10 +1926,10 @@ Heartbeats run every **30m** by default. Tune or disable them:
   agents: {
     defaults: {
       heartbeat: {
-        every: "2h"   // or "0m" to disable
-      }
-    }
-  }
+        every: "2h", // or "0m" to disable
+      },
+    },
+  },
 }
 ```
 
@@ -1786,9 +1951,9 @@ If you want only **you** to be able to trigger group replies:
   channels: {
     whatsapp: {
       groupPolicy: "allowlist",
-      groupAllowFrom: ["+15551234567"]
-    }
-  }
+      groupAllowFrom: ["+15551234567"],
+    },
+  },
 }
 ```
 
@@ -1814,6 +1979,7 @@ Docs: [WhatsApp](/channels/whatsapp), [Directory](/cli/directory), [Logs](/cli/l
 ### Why doesnt Moltbot reply in a group
 
 Two common causes:
+
 - Mention gating is on (default). You must @mention the bot (or match `mentionPatterns`).
 - You configured `channels.whatsapp.groups` without `"*"` and the group isn’t allowlisted.
 
@@ -1832,6 +1998,7 @@ No hard limits. Dozens (even hundreds) are fine, but watch for:
 - **Ops overhead:** per-agent auth profiles, workspaces, and channel routing.
 
 Tips:
+
 - Keep one **active** workspace per agent (`agents.defaults.workspace`).
 - Prune old sessions (delete JSONL or store entries) if disk grows.
 - Use `moltbot doctor` to spot stray workspaces and profile mismatches.
@@ -1846,6 +2013,7 @@ still block automation. For the most reliable browser control, use the Chrome ex
 on the machine that runs the browser (and keep the Gateway anywhere).
 
 Best‑practice setup:
+
 - Always‑on Gateway host (VPS/Mac mini).
 - One agent per role (bindings).
 - Slack channel(s) bound to those agents.
@@ -1904,6 +2072,7 @@ Docs: [Ollama](/providers/ollama), [Local models](/gateway/local-models),
 Use **model commands** or edit only the **model** fields. Avoid full config replaces.
 
 Safe options:
+
 - `/model` in chat (quick, per-session)
 - `moltbot models set ...` (updates just model config)
 - `moltbot configure --section models` (interactive)
@@ -1991,12 +2160,13 @@ profile was found), so the model can’t be resolved. A fix for this detection i
 in **2026.1.12** (unreleased at the time of writing).
 
 Fix checklist:
-1) Upgrade to **2026.1.12** (or run from source `main`), then restart the gateway.
-2) Make sure MiniMax is configured (wizard or JSON), or that a MiniMax API key
+
+1. Upgrade to **2026.1.12** (or run from source `main`), then restart the gateway.
+2. Make sure MiniMax is configured (wizard or JSON), or that a MiniMax API key
    exists in env/auth profiles so the provider can be injected.
-3) Use the exact model id (case‑sensitive): `minimax/MiniMax-M2.1` or
+3. Use the exact model id (case‑sensitive): `minimax/MiniMax-M2.1` or
    `minimax/MiniMax-M2.1-lightning`.
-4) Run:
+4. Run:
    ```bash
    moltbot models list
    ```
@@ -2010,6 +2180,7 @@ Yes. Use **MiniMax as the default** and switch models **per session** when neede
 Fallbacks are for **errors**, not “hard tasks,” so use `/model` or a separate agent.
 
 **Option A: switch per session**
+
 ```json5
 {
   env: { MINIMAX_API_KEY: "sk-...", OPENAI_API_KEY: "sk-..." },
@@ -2018,19 +2189,21 @@ Fallbacks are for **errors**, not “hard tasks,” so use `/model` or a separat
       model: { primary: "minimax/MiniMax-M2.1" },
       models: {
         "minimax/MiniMax-M2.1": { alias: "minimax" },
-        "openai/gpt-5.2": { alias: "gpt" }
-      }
-    }
-  }
+        "openai/gpt-5.2": { alias: "gpt" },
+      },
+    },
+  },
 }
 ```
 
 Then:
+
 ```
 /model gpt
 ```
 
 **Option B: separate agents**
+
 - Agent A default: MiniMax
 - Agent B default: OpenAI
 - Route by agent or use `/agent` to switch
@@ -2062,10 +2235,10 @@ Aliases come from `agents.defaults.models.<modelId>.alias`. Example:
       models: {
         "anthropic/claude-opus-4-5": { alias: "opus" },
         "anthropic/claude-sonnet-4-5": { alias: "sonnet" },
-        "anthropic/claude-haiku-4-5": { alias: "haiku" }
-      }
-    }
-  }
+        "anthropic/claude-haiku-4-5": { alias: "haiku" },
+      },
+    },
+  },
 }
 ```
 
@@ -2080,10 +2253,10 @@ OpenRouter (pay‑per‑token; many models):
   agents: {
     defaults: {
       model: { primary: "openrouter/anthropic/claude-sonnet-4-5" },
-      models: { "openrouter/anthropic/claude-sonnet-4-5": {} }
-    }
+      models: { "openrouter/anthropic/claude-sonnet-4-5": {} },
+    },
   },
-  env: { OPENROUTER_API_KEY: "sk-or-..." }
+  env: { OPENROUTER_API_KEY: "sk-or-..." },
 }
 ```
 
@@ -2094,10 +2267,10 @@ Z.AI (GLM models):
   agents: {
     defaults: {
       model: { primary: "zai/glm-4.7" },
-      models: { "zai/glm-4.7": {} }
-    }
+      models: { "zai/glm-4.7": {} },
+    },
   },
-  env: { ZAI_API_KEY: "..." }
+  env: { ZAI_API_KEY: "..." },
 }
 ```
 
@@ -2113,7 +2286,12 @@ stored in:
 ```
 
 Fix options:
+<<<<<<< HEAD
 - Run `moltbot agents add <id>` and configure auth during the wizard.
+=======
+
+- Run `openclaw agents add <id>` and configure auth during the wizard.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Or copy `auth-profiles.json` from the main agent’s `agentDir` into the new agent’s `agentDir`.
 
 Do **not** reuse `agentDir` across agents; it causes auth/session collisions.
@@ -2124,8 +2302,8 @@ Do **not** reuse `agentDir` across agents; it causes auth/session collisions.
 
 Failover happens in two stages:
 
-1) **Auth profile rotation** within the same provider.
-2) **Model fallback** to the next model in `agents.defaults.model.fallbacks`.
+1. **Auth profile rotation** within the same provider.
+2. **Model fallback** to the next model in `agents.defaults.model.fallbacks`.
 
 Cooldowns apply to failing profiles (exponential backoff), so Moltbot can keep responding even when a provider is rate‑limited or temporarily failing.
 
@@ -2252,7 +2430,12 @@ Precedence:
 
 Because “running” is the **supervisor’s** view (launchd/systemd/schtasks). The RPC probe is the CLI actually connecting to the gateway WebSocket and calling `status`.
 
+<<<<<<< HEAD
 Use `moltbot gateway status` and trust these lines:
+=======
+Use `openclaw gateway status` and trust these lines:
+
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `Probe target:` (the URL the probe actually used)
 - `Listening:` (what’s actually bound on the port)
 - `Last gateway error:` (common root cause when the process is alive but the port isn’t listening)
@@ -2262,9 +2445,11 @@ Use `moltbot gateway status` and trust these lines:
 You’re editing one config file while the service is running another (often a `--profile` / `CLAWDBOT_STATE_DIR` mismatch).
 
 Fix:
+
 ```bash
 moltbot gateway install --force
 ```
+
 Run that from the same `--profile` / environment you want the service to use.
 
 ### What does another gateway instance is already listening mean
@@ -2284,14 +2469,19 @@ Set `gateway.mode: "remote"` and point to a remote WebSocket URL, optionally wit
     remote: {
       url: "ws://gateway.tailnet:18789",
       token: "your-token",
-      password: "your-password"
-    }
-  }
+      password: "your-password",
+    },
+  },
 }
 ```
 
 Notes:
+<<<<<<< HEAD
 - `moltbot gateway` only starts when `gateway.mode` is `local` (or you pass the override flag).
+=======
+
+- `openclaw gateway` only starts when `gateway.mode` is `local` (or you pass the override flag).
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - The macOS app watches the config file and switches modes live when these values change.
 
 ### The Control UI says unauthorized or keeps reconnecting What now
@@ -2299,12 +2489,23 @@ Notes:
 Your gateway is running with auth enabled (`gateway.auth.*`), but the UI is not sending the matching token/password.
 
 Facts (from code):
+<<<<<<< HEAD
 - The Control UI stores the token in browser localStorage key `moltbot.control.settings.v1`.
 - The UI can import `?token=...` (and/or `?password=...`) once, then strips it from the URL.
 
 Fix:
 - Fastest: `moltbot dashboard` (prints + copies tokenized link, tries to open; shows SSH hint if headless).
 - If you don’t have a token yet: `moltbot doctor --generate-gateway-token`.
+=======
+
+- The Control UI stores the token in browser localStorage key `openclaw.control.settings.v1`.
+- The UI can import `?token=...` (and/or `?password=...`) once, then strips it from the URL.
+
+Fix:
+
+- Fastest: `openclaw dashboard` (prints + copies tokenized link, tries to open; shows SSH hint if headless).
+- If you don’t have a token yet: `openclaw doctor --generate-gateway-token`.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - If remote, tunnel first: `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/?token=...`.
 - Set `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`) on the gateway host.
 - In the Control UI settings, paste the same token (or refresh with a one-time `?token=...` link).
@@ -2315,9 +2516,10 @@ Fix:
 `tailnet` bind picks a Tailscale IP from your network interfaces (100.64.0.0/10). If the machine isn’t on Tailscale (or the interface is down), there’s nothing to bind to.
 
 Fix:
+
 - Start Tailscale on that host (so it has a 100.x address), or
 - Switch to `gateway.bind: "loopback"` / `"lan"`.
-  
+
 Note: `tailnet` is explicit. `auto` prefers loopback; use `gateway.bind: "tailnet"` when you want a tailnet-only bind.
 
 ### Can I run multiple Gateways on the same host
@@ -2332,7 +2534,12 @@ Yes, but you must isolate:
 - `gateway.port` (unique ports)
 
 Quick setup (recommended):
+<<<<<<< HEAD
 - Use `moltbot --profile <name> …` per instance (auto-creates `~/.clawdbot-<name>`).
+=======
+
+- Use `openclaw --profile <name> …` per instance (auto-creates `~/.openclaw-<name>`).
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Set a unique `gateway.port` in each profile config (or pass `--port` for manual runs).
 - Install a per-profile service: `moltbot --profile <name> gateway install`.
 
@@ -2346,16 +2553,19 @@ be a `connect` frame. If it receives anything else, it closes the connection
 with **code 1008** (policy violation).
 
 Common causes:
+
 - You opened the **HTTP** URL in a browser (`http://...`) instead of a WS client.
 - You used the wrong port or path.
 - A proxy or tunnel stripped auth headers or sent a non‑Gateway request.
 
 Quick fixes:
-1) Use the WS URL: `ws://<host>:18789` (or `wss://...` if HTTPS).
-2) Don’t open the WS port in a normal browser tab.
-3) If auth is on, include the token/password in the `connect` frame.
+
+1. Use the WS URL: `ws://<host>:18789` (or `wss://...` if HTTPS).
+2. Don’t open the WS port in a normal browser tab.
+3. If auth is on, include the token/password in the `connect` frame.
 
 If you’re using the CLI or TUI, the URL should look like:
+
 ```
 moltbot tui --url ws://<host>:18789 --token <token>
 ```
@@ -2381,9 +2591,16 @@ moltbot logs --follow
 ```
 
 Service/supervisor logs (when the gateway runs via launchd/systemd):
+<<<<<<< HEAD
 - macOS: `$CLAWDBOT_STATE_DIR/logs/gateway.log` and `gateway.err.log` (default: `~/.clawdbot/logs/...`; profiles use `~/.clawdbot-<profile>/logs/...`)
 - Linux: `journalctl --user -u moltbot-gateway[-<profile>].service -n 200 --no-pager`
 - Windows: `schtasks /Query /TN "Moltbot Gateway (<profile>)" /V /FO LIST`
+=======
+
+- macOS: `$OPENCLAW_STATE_DIR/logs/gateway.log` and `gateway.err.log` (default: `~/.openclaw/logs/...`; profiles use `~/.openclaw-<profile>/logs/...`)
+- Linux: `journalctl --user -u openclaw-gateway[-<profile>].service -n 200 --no-pager`
+- Windows: `schtasks /Query /TN "OpenClaw Gateway (<profile>)" /V /FO LIST`
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 See [Troubleshooting](/gateway/troubleshooting#log-locations) for more.
 
@@ -2447,6 +2664,7 @@ moltbot logs --follow
 ```
 
 Common causes:
+
 - Model auth not loaded on the **gateway host** (check `models status`).
 - Channel pairing/allowlist blocking replies (check channel config + logs).
 - WebChat/Dashboard is open without the right token.
@@ -2460,10 +2678,17 @@ Docs: [Channels](/channels), [Troubleshooting](/gateway/troubleshooting), [Remot
 
 This usually means the UI lost the WebSocket connection. Check:
 
+<<<<<<< HEAD
 1) Is the Gateway running? `moltbot gateway status`
 2) Is the Gateway healthy? `moltbot status`
 3) Does the UI have the right token? `moltbot dashboard`
 4) If remote, is the tunnel/Tailscale link up?
+=======
+1. Is the Gateway running? `openclaw gateway status`
+2. Is the Gateway healthy? `openclaw status`
+3. Does the UI have the right token? `openclaw dashboard`
+4. If remote, is the tunnel/Tailscale link up?
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 Then tail logs:
 
@@ -2547,6 +2772,7 @@ moltbot message send --target +15555550123 --message "Here you go" --media /path
 ```
 
 Also check:
+
 - The target channel supports outbound media and isn’t blocked by allowlists.
 - The file is within the provider’s size limits (images are resized to max 2048px).
 
@@ -2575,6 +2801,7 @@ to hijack the model. This can happen even if **you are the only sender**.
 
 The biggest risk is when tools are enabled: the model can be tricked into
 exfiltrating context or calling tools on your behalf. Reduce the blast radius by:
+
 - using a read-only or tool-disabled "reader" agent to summarize untrusted content
 - keeping `web_search` / `web_fetch` / `browser` off for tool-enabled agents
 - sandboxing and strict tool allowlists
@@ -2595,6 +2822,7 @@ Docs: [Security](/gateway/security), [Pairing](/start/pairing).
 ### Can I give it autonomy over my text messages and is that safe
 
 We do **not** recommend full autonomy over your personal messages. The safest pattern is:
+
 - Keep DMs in **pairing mode** or a tight allowlist.
 - Use a **separate number or account** if you want it to message on your behalf.
 - Let it draft, then **approve before sending**.
@@ -2615,6 +2843,7 @@ Pairing codes are sent **only** when an unknown sender messages the bot and
 `dmPolicy: "pairing"` is enabled. `/start` by itself doesn’t generate a code.
 
 Check pending requests:
+
 ```bash
 moltbot pairing list telegram
 ```
@@ -2648,6 +2877,7 @@ Most internal or tool messages only appear when **verbose** or **reasoning** is 
 for that session.
 
 Fix in the chat where you see it:
+
 ```
 /verbose off
 /reasoning off
@@ -2699,12 +2929,12 @@ Enable cross‑provider messaging for the agent:
         message: {
           crossContext: {
             allowAcrossProviders: true,
-            marker: { enabled: true, prefix: "[from {channel}] " }
-          }
-        }
-      }
-    }
-  }
+            marker: { enabled: true, prefix: "[from {channel}] " },
+          },
+        },
+      },
+    },
+  },
 }
 ```
 

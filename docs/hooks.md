@@ -4,6 +4,7 @@ read_when:
   - You want event-driven automation for /new, /reset, /stop, and agent lifecycle events
   - You want to build, install, or debug hooks
 ---
+
 # Hooks
 
 Hooks provide an extensible event-driven system for automating actions in response to agent commands and events. Hooks are automatically discovered from directories and can be managed via CLI commands, similar to how skills work in Moltbot.
@@ -13,11 +14,17 @@ Hooks provide an extensible event-driven system for automating actions in respon
 Hooks are small scripts that run when something happens. There are two kinds:
 
 - **Hooks** (this page): run inside the Gateway when agent events fire, like `/new`, `/reset`, `/stop`, or lifecycle events.
+<<<<<<< HEAD
 - **Webhooks**: external HTTP webhooks that let other systems trigger work in Moltbot. See [Webhook Hooks](/automation/webhook) or use `moltbot webhooks` for Gmail helper commands.
   
+=======
+- **Webhooks**: external HTTP webhooks that let other systems trigger work in OpenClaw. See [Webhook Hooks](/automation/webhook) or use `openclaw webhooks` for Gmail helper commands.
+
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 Hooks can also be bundled inside plugins; see [Plugins](/plugin#plugin-hooks).
 
 Common uses:
+
 - Save a memory snapshot when you reset a session
 - Keep an audit trail of commands for troubleshooting or compliance
 - Trigger follow-up automation when a session starts or ends
@@ -28,6 +35,7 @@ If you can write a small TypeScript function, you can write a hook. Hooks are di
 ## Overview
 
 The hooks system allows you to:
+
 - Save session context to memory when `/new` is issued
 - Log all commands for auditing
 - Trigger custom automations on agent lifecycle events
@@ -124,8 +132,14 @@ The `HOOK.md` file contains metadata in YAML frontmatter plus Markdown documenta
 ---
 name: my-hook
 description: "Short description of what this hook does"
+<<<<<<< HEAD
 homepage: https://docs.molt.bot/hooks#my-hook
 metadata: {"moltbot":{"emoji":"🔗","events":["command:new"],"requires":{"bins":["node"]}}}
+=======
+homepage: https://docs.openclaw.ai/hooks#my-hook
+metadata:
+  { "openclaw": { "emoji": "🔗", "events": ["command:new"], "requires": { "bins": ["node"] } } }
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ---
 
 # My Hook
@@ -169,11 +183,11 @@ The `metadata.moltbot` object supports:
 The `handler.ts` file exports a `HookHandler` function:
 
 ```typescript
-import type { HookHandler } from '../../src/hooks/hooks.js';
+import type { HookHandler } from "../../src/hooks/hooks.js";
 
 const myHandler: HookHandler = async (event) => {
   // Only trigger on 'new' command
-  if (event.type !== 'command' || event.action !== 'new') {
+  if (event.type !== "command" || event.action !== "new") {
     return;
   }
 
@@ -184,7 +198,7 @@ const myHandler: HookHandler = async (event) => {
   // Your custom logic here
 
   // Optionally send message to user
-  event.messages.push('✨ My hook executed!');
+  event.messages.push("✨ My hook executed!");
 };
 
 export default myHandler;
@@ -271,7 +285,11 @@ cd ~/.clawdbot/hooks/my-hook
 ---
 name: my-hook
 description: "Does something useful"
+<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"🎯","events":["command:new"]}}
+=======
+metadata: { "openclaw": { "emoji": "🎯", "events": ["command:new"] } }
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ---
 
 # My Custom Hook
@@ -282,14 +300,14 @@ This hook does something useful when you issue `/new`.
 ### 4. Create handler.ts
 
 ```typescript
-import type { HookHandler } from '../../src/hooks/hooks.js';
+import type { HookHandler } from "../../src/hooks/hooks.js";
 
 const handler: HookHandler = async (event) => {
-  if (event.type !== 'command' || event.action !== 'new') {
+  if (event.type !== "command" || event.action !== "new") {
     return;
   }
 
-  console.log('[my-hook] Running!');
+  console.log("[my-hook] Running!");
   // Your logic here
 };
 
@@ -452,6 +470,7 @@ Saves session context to memory when you issue `/new`.
 **Output**: `<workspace>/memory/YYYY-MM-DD-slug.md` (defaults to `~/clawd`)
 
 **What it does**:
+
 1. Uses the pre-reset session entry to locate the correct transcript
 2. Extracts the last 15 lines of conversation
 3. Uses LLM to generate a descriptive filename slug
@@ -468,6 +487,7 @@ Saves session context to memory when you issue `/new`.
 ```
 
 **Filename examples**:
+
 - `2026-01-16-vendor-pitch.md`
 - `2026-01-16-api-design.md`
 - `2026-01-16-1430.md` (fallback timestamp if slug generation fails)
@@ -489,6 +509,7 @@ Logs all command events to a centralized audit file.
 **Output**: `~/.clawdbot/logs/commands.log`
 
 **What it does**:
+
 1. Captures event details (command action, timestamp, session key, sender ID, source)
 2. Appends to log file in JSONL format
 3. Runs silently in the background
@@ -565,6 +586,7 @@ Internal hooks must be enabled for this to run.
 **Requirements**: `workspace.dir` must be configured
 
 **What it does**:
+
 1. Reads `BOOT.md` from your workspace
 2. Runs the instructions via the agent runner
 3. Sends any requested outbound messages via the message tool
@@ -603,7 +625,7 @@ const handler: HookHandler = async (event) => {
   try {
     await riskyOperation(event);
   } catch (err) {
-    console.error('[my-handler] Failed:', err instanceof Error ? err.message : String(err));
+    console.error("[my-handler] Failed:", err instanceof Error ? err.message : String(err));
     // Don't throw - let other handlers run
   }
 };
@@ -616,7 +638,7 @@ Return early if the event isn't relevant:
 ```typescript
 const handler: HookHandler = async (event) => {
   // Only handle 'new' commands
-  if (event.type !== 'command' || event.action !== 'new') {
+  if (event.type !== "command" || event.action !== "new") {
     return;
   }
 
@@ -629,13 +651,21 @@ const handler: HookHandler = async (event) => {
 Specify exact events in metadata when possible:
 
 ```yaml
+<<<<<<< HEAD
 metadata: {"moltbot":{"events":["command:new"]}}  # Specific
+=======
+metadata: { "openclaw": { "events": ["command:new"] } } # Specific
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ```
 
 Rather than:
 
 ```yaml
+<<<<<<< HEAD
 metadata: {"moltbot":{"events":["command"]}}      # General - more overhead
+=======
+metadata: { "openclaw": { "events": ["command"] } } # General - more overhead
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 ```
 
 ## Debugging
@@ -664,7 +694,7 @@ In your handler, log when it's called:
 
 ```typescript
 const handler: HookHandler = async (event) => {
-  console.log('[my-handler] Triggered:', event.type, event.action);
+  console.log("[my-handler] Triggered:", event.type, event.action);
   // Your logic
 };
 ```
@@ -698,13 +728,13 @@ tail -f ~/.clawdbot/gateway.log
 Test your handlers in isolation:
 
 ```typescript
-import { test } from 'vitest';
-import { createHookEvent } from './src/hooks/hooks.js';
-import myHandler from './hooks/my-hook/handler.js';
+import { test } from "vitest";
+import { createHookEvent } from "./src/hooks/hooks.js";
+import myHandler from "./hooks/my-hook/handler.js";
 
-test('my handler works', async () => {
-  const event = createHookEvent('command', 'new', 'test-session', {
-    foo: 'bar'
+test("my handler works", async () => {
+  const event = createHookEvent("command", "new", "test-session", {
+    foo: "bar",
   });
 
   await myHandler(event);
@@ -764,12 +794,14 @@ Session reset
 ### Hook Not Discovered
 
 1. Check directory structure:
+
    ```bash
    ls -la ~/.clawdbot/hooks/my-hook/
    # Should show: HOOK.md, handler.ts
    ```
 
 2. Verify HOOK.md format:
+
    ```bash
    cat ~/.clawdbot/hooks/my-hook/HOOK.md
    # Should have YAML frontmatter with name and metadata
@@ -789,6 +821,7 @@ moltbot hooks info my-hook
 ```
 
 Look for missing:
+
 - Binaries (check PATH)
 - Environment variables
 - Config values
@@ -797,6 +830,7 @@ Look for missing:
 ### Hook Not Executing
 
 1. Verify hook is enabled:
+
    ```bash
    moltbot hooks list
    # Should show ✓ next to enabled hooks
@@ -843,17 +877,23 @@ node -e "import('./path/to/handler.ts').then(console.log)"
 **After**:
 
 1. Create hook directory:
+
    ```bash
    mkdir -p ~/.clawdbot/hooks/my-hook
    mv ./hooks/handlers/my-handler.ts ~/.clawdbot/hooks/my-hook/handler.ts
    ```
 
 2. Create HOOK.md:
+
    ```markdown
    ---
    name: my-hook
    description: "My custom hook"
+<<<<<<< HEAD
    metadata: {"moltbot":{"emoji":"🎯","events":["command:new"]}}
+=======
+   metadata: { "openclaw": { "emoji": "🎯", "events": ["command:new"] } }
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
    ---
 
    # My Hook
@@ -862,6 +902,7 @@ node -e "import('./path/to/handler.ts').then(console.log)"
    ```
 
 3. Update config:
+
    ```json
    {
      "hooks": {
@@ -882,6 +923,7 @@ node -e "import('./path/to/handler.ts').then(console.log)"
    ```
 
 **Benefits of migration**:
+
 - Automatic discovery
 - CLI management
 - Eligibility checking

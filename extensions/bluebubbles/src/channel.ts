@@ -106,10 +106,16 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
       baseUrl: account.baseUrl,
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
+<<<<<<< HEAD
       (resolveBlueBubblesAccount({ cfg: cfg as MoltbotConfig, accountId }).config.allowFrom ??
         []).map(
         (entry) => String(entry),
       ),
+=======
+      (
+        resolveBlueBubblesAccount({ cfg: cfg as OpenClawConfig, accountId }).config.allowFrom ?? []
+      ).map((entry) => String(entry)),
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     formatAllowFrom: ({ allowFrom }) =>
       allowFrom
         .map((entry) => String(entry).trim())

@@ -1,5 +1,9 @@
 ---
+<<<<<<< HEAD
 summary: "Run Moltbot Gateway 24/7 on a cheap Hetzner VPS (Docker) with durable state and baked-in binaries"
+=======
+summary: "Run OpenClaw Gateway 24/7 on a cheap Hetzner VPS (Docker) with durable state and baked-in binaries"
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 read_when:
   - You want Moltbot running 24/7 on a cloud VPS (not your laptop)
   - You want a production-grade, always-on Gateway on your own VPS
@@ -175,7 +179,11 @@ services:
     ports:
       # Recommended: keep the Gateway loopback-only on the VPS; access via SSH tunnel.
       # To expose it publicly, remove the `127.0.0.1:` prefix and firewall accordingly.
+<<<<<<< HEAD
       - "127.0.0.1:${CLAWDBOT_GATEWAY_PORT}:18789"
+=======
+      - "127.0.0.1:${OPENCLAW_GATEWAY_PORT}:18789"
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
       # Optional: only if you run iOS/Android nodes against this VPS and need Canvas host.
       # If you expose this publicly, read /gateway/security and firewall accordingly.
@@ -186,9 +194,15 @@ services:
         "dist/index.js",
         "gateway",
         "--bind",
+<<<<<<< HEAD
         "${CLAWDBOT_GATEWAY_BIND}",
         "--port",
         "${CLAWDBOT_GATEWAY_PORT}"
+=======
+        "${OPENCLAW_GATEWAY_BIND}",
+        "--port",
+        "${OPENCLAW_GATEWAY_PORT}",
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       ]
 ```
 

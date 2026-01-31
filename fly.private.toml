@@ -9,8 +9,13 @@
 #
 # See https://fly.io/docs/reference/configuration/
 
+<<<<<<< HEAD
 app = "my-moltbot"  # change to your app name
 primary_region = "iad"  # change to your closest region
+=======
+app = "my-openclaw" # change to your app name
+primary_region = "iad" # change to your closest region
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 [build]
   dockerfile = "Dockerfile"
