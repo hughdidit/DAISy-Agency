@@ -400,13 +400,87 @@ final class GatewayConnectionController {
             commands.append(MoltbotCameraCommand.snap.rawValue)
             commands.append(MoltbotCameraCommand.clip.rawValue)
         }
+<<<<<<< HEAD
         if caps.contains(MoltbotCapability.location.rawValue) {
             commands.append(MoltbotLocationCommand.get.rawValue)
+=======
+        if caps.contains(OpenClawCapability.location.rawValue) {
+            commands.append(OpenClawLocationCommand.get.rawValue)
+        }
+        if caps.contains(OpenClawCapability.device.rawValue) {
+            commands.append(OpenClawDeviceCommand.status.rawValue)
+            commands.append(OpenClawDeviceCommand.info.rawValue)
+        }
+        if caps.contains(OpenClawCapability.photos.rawValue) {
+            commands.append(OpenClawPhotosCommand.latest.rawValue)
+        }
+        if caps.contains(OpenClawCapability.contacts.rawValue) {
+            commands.append(OpenClawContactsCommand.search.rawValue)
+            commands.append(OpenClawContactsCommand.add.rawValue)
+        }
+        if caps.contains(OpenClawCapability.calendar.rawValue) {
+            commands.append(OpenClawCalendarCommand.events.rawValue)
+            commands.append(OpenClawCalendarCommand.add.rawValue)
+        }
+        if caps.contains(OpenClawCapability.reminders.rawValue) {
+            commands.append(OpenClawRemindersCommand.list.rawValue)
+            commands.append(OpenClawRemindersCommand.add.rawValue)
+        }
+        if caps.contains(OpenClawCapability.motion.rawValue) {
+            commands.append(OpenClawMotionCommand.activity.rawValue)
+            commands.append(OpenClawMotionCommand.pedometer.rawValue)
+>>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
         }
 
         return commands
     }
 
+<<<<<<< HEAD
+=======
+    private func currentPermissions() -> [String: Bool] {
+        var permissions: [String: Bool] = [:]
+        permissions["camera"] = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
+        permissions["microphone"] = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+        permissions["speechRecognition"] = SFSpeechRecognizer.authorizationStatus() == .authorized
+        permissions["location"] = Self.isLocationAuthorized(
+            status: CLLocationManager().authorizationStatus)
+            && CLLocationManager.locationServicesEnabled()
+        permissions["screenRecording"] = RPScreenRecorder.shared().isAvailable
+
+        let photoStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        permissions["photos"] = photoStatus == .authorized || photoStatus == .limited
+        let contactsStatus = CNContactStore.authorizationStatus(for: .contacts)
+        permissions["contacts"] = contactsStatus == .authorized || contactsStatus == .limited
+
+        let calendarStatus = EKEventStore.authorizationStatus(for: .event)
+        permissions["calendar"] =
+            calendarStatus == .authorized || calendarStatus == .fullAccess || calendarStatus == .writeOnly
+        let remindersStatus = EKEventStore.authorizationStatus(for: .reminder)
+        permissions["reminders"] =
+            remindersStatus == .authorized || remindersStatus == .fullAccess || remindersStatus == .writeOnly
+
+        let motionStatus = CMMotionActivityManager.authorizationStatus()
+        let pedometerStatus = CMPedometer.authorizationStatus()
+        permissions["motion"] =
+            motionStatus == .authorized || pedometerStatus == .authorized
+
+        return permissions
+    }
+
+    private static func isLocationAuthorized(status: CLAuthorizationStatus) -> Bool {
+        switch status {
+        case .authorizedAlways, .authorizedWhenInUse, .authorized:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private static func motionAvailable() -> Bool {
+        CMMotionActivityManager.isActivityAvailable() || CMPedometer.isStepCountingAvailable()
+    }
+
+>>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
     private func platformString() -> String {
         let v = ProcessInfo.processInfo.operatingSystemVersion
         let name = switch UIDevice.current.userInterfaceIdiom {
