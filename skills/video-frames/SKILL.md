@@ -2,7 +2,28 @@
 name: video-frames
 description: Extract frames or short clips from videos using ffmpeg.
 homepage: https://ffmpeg.org
+<<<<<<< HEAD
 metadata: {"moltbot":{"emoji":"🎞️","requires":{"bins":["ffmpeg"]},"install":[{"id":"brew","kind":"brew","formula":"ffmpeg","bins":["ffmpeg"],"label":"Install ffmpeg (brew)"}]}}
+=======
+metadata:
+  {
+    "openclaw":
+      {
+        "emoji": "🎞️",
+        "requires": { "bins": ["ffmpeg"] },
+        "install":
+          [
+            {
+              "id": "brew",
+              "kind": "brew",
+              "formula": "ffmpeg",
+              "bins": ["ffmpeg"],
+              "label": "Install ffmpeg (brew)",
+            },
+          ],
+      },
+  }
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 ---
 
 # Video Frames (ffmpeg)

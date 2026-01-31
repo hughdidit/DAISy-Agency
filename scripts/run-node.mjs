@@ -12,11 +12,18 @@ const compiler = env.CLAWDBOT_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
 =======
 const compilerOverride = env.OPENCLAW_TS_COMPILER ?? env.CLAWDBOT_TS_COMPILER;
 const compiler = compilerOverride === "tsc" ? "tsc" : "tsgo";
+<<<<<<< HEAD
 >>>>>>> fd00d5688 (chore: update openclaw naming)
 const projectArgs = ["--project", "tsconfig.json"];
 
 const distRoot = path.join(cwd, "dist");
 const distEntry = path.join(distRoot, "entry.js");
+=======
+const projectArgs = ["--project", "tsconfig.json"];
+
+const distRoot = path.join(cwd, "dist");
+const distEntry = path.join(distRoot, "/entry.js");
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 const buildStampPath = path.join(distRoot, ".buildstamp");
 const srcRoot = path.join(cwd, "src");
 const configFiles = [path.join(cwd, "tsconfig.json"), path.join(cwd, "package.json")];
@@ -70,7 +77,11 @@ const findLatestMtime = (dirPath, shouldSkip) => {
 };
 
 const shouldBuild = () => {
+<<<<<<< HEAD
   if (env.CLAWDBOT_FORCE_BUILD === "1") return true;
+=======
+  if (env.OPENCLAW_FORCE_BUILD === "1") return true;
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
   const stampMtime = statMtime(buildStampPath);
   if (stampMtime == null) return true;
   if (statMtime(distEntry) == null) return true;
@@ -86,12 +97,21 @@ const shouldBuild = () => {
 };
 
 const logRunner = (message) => {
+<<<<<<< HEAD
   if (env.CLAWDBOT_RUNNER_LOG === "0") return;
   process.stderr.write(`[moltbot] ${message}\n`);
 };
 
 const runNode = () => {
   const nodeProcess = spawn(process.execPath, ["moltbot.mjs", ...args], {
+=======
+  if (env.OPENCLAW_RUNNER_LOG === "0") return;
+  process.stderr.write(`[openclaw] ${message}\n`);
+};
+
+const runNode = () => {
+  const nodeProcess = spawn(process.execPath, ["openclaw.mjs", ...args], {
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
     cwd,
     env,
     stdio: "inherit",

@@ -40,7 +40,14 @@ function ensureExecutable(targetPath) {
 }
 
 function hasGit(repoRoot) {
+<<<<<<< HEAD
   const result = spawnSync("git", ["--version"], { cwd: repoRoot, stdio: "ignore" });
+=======
+  const result = spawnSync("git", ["--version"], {
+    cwd: repoRoot,
+    stdio: "ignore",
+  });
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
   return result.status === 0;
 }
 
@@ -251,7 +258,11 @@ function applyPatchFile({ patchPath, targetDir }) {
 function trySetupCompletion(repoRoot) {
   // Skip in CI or if explicitly disabled
   if (process.env.CI || process.env.OPENCLAW_SKIP_COMPLETION_SETUP) return;
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
   const binPath = path.join(repoRoot, "openclaw.mjs");
   if (!fs.existsSync(binPath)) return;
   
@@ -264,7 +275,11 @@ function trySetupCompletion(repoRoot) {
     // though distinct from this script.
     spawnSync(process.execPath, [binPath, "completion", "--install", "--yes"], {
       cwd: repoRoot,
+<<<<<<< HEAD
       stdio: "inherit", 
+=======
+      stdio: "inherit",
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
       env: { ...process.env, OPENCLAW_SKIP_POSTINSTALL: "1" },
     });
   } catch (err) {
@@ -276,7 +291,11 @@ function main() {
   const repoRoot = getRepoRoot();
   process.chdir(repoRoot);
 
+<<<<<<< HEAD
   ensureExecutable(path.join(repoRoot, "dist", "entry.js"));
+=======
+  ensureExecutable(path.join(repoRoot, "dist", "/entry.js"));
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
   setupGitHooks({ repoRoot });
   trySetupCompletion(repoRoot);
 
@@ -303,6 +322,10 @@ function main() {
 
 try {
   const skip =
+<<<<<<< HEAD
+=======
+    process.env.OPENCLAW_SKIP_POSTINSTALL === "1" ||
+>>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
     process.env.CLAWDBOT_SKIP_POSTINSTALL === "1" ||
     process.env.VITEST === "true" ||
     process.env.NODE_ENV === "test";
