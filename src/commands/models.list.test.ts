@@ -13,8 +13,20 @@ const resolveProfileUnusableUntilForDisplay = vi.fn().mockReturnValue(null);
 const resolveEnvApiKey = vi.fn().mockReturnValue(undefined);
 const resolveAwsSdkEnvVarName = vi.fn().mockReturnValue(undefined);
 const getCustomProviderApiKey = vi.fn().mockReturnValue(undefined);
+<<<<<<< HEAD
 const discoverAuthStorage = vi.fn().mockReturnValue({});
 const discoverModels = vi.fn();
+=======
+const modelRegistryState = {
+  models: [] as Array<Record<string, unknown>>,
+  available: [] as Array<Record<string, unknown>>,
+};
+const discoverAuthStorage = vi.fn().mockReturnValue({});
+const discoverModels = vi.fn().mockReturnValue({
+  getAll: () => modelRegistryState.models,
+  getAvailable: () => modelRegistryState.available,
+});
+>>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
 
 vi.mock("../config/config.js", () => ({
   CONFIG_PATH: "/tmp/moltbot.json",

@@ -459,9 +459,16 @@ export async function runEmbeddedAttempt(
         customTools: allCustomTools,
         sessionManager,
         settingsManager,
+<<<<<<< HEAD
         skills: [],
         contextFiles: [],
         additionalExtensionPaths,
+=======
+        additionalExtensionPaths,
+        skills: [],
+        contextFiles: [],
+        systemPrompt,
+>>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
       }));
       if (!session) {
         throw new Error("Embedded agent session missing");
