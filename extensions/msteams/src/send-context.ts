@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 import { resolveChannelMediaMaxBytes, type MoltbotConfig, type PluginRuntime } from "clawdbot/plugin-sdk";
+=======
+import {
+  resolveChannelMediaMaxBytes,
+  type OpenClawConfig,
+  type PluginRuntime,
+} from "openclaw/plugin-sdk";
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 import type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
 import type {
   MSTeamsConversationStore,

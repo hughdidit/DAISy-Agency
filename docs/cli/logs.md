@@ -10,6 +10,7 @@ read_when:
 Tail Gateway file logs over RPC (works in remote mode).
 
 Related:
+
 - Logging overview: [Logging](/logging)
 
 ## Examples
@@ -20,4 +21,3 @@ moltbot logs --follow
 moltbot logs --json
 moltbot logs --limit 500
 ```
-

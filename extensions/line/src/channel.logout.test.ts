@@ -12,6 +12,7 @@ type LineRuntimeMocks = {
 
 function createRuntime(): { runtime: PluginRuntime; mocks: LineRuntimeMocks } {
   const writeConfigFile = vi.fn(async () => {});
+<<<<<<< HEAD
   const resolveLineAccount = vi.fn(({ cfg, accountId }: { cfg: MoltbotConfig; accountId?: string }) => {
     const lineConfig = (cfg.channels?.line ?? {}) as {
       tokenFile?: string;
@@ -30,6 +31,27 @@ function createRuntime(): { runtime: PluginRuntime; mocks: LineRuntimeMocks } {
       Boolean((entry as any).channelSecret) || Boolean((entry as any).secretFile);
     return { tokenSource: hasToken && hasSecret ? "config" : "none" };
   });
+=======
+  const resolveLineAccount = vi.fn(
+    ({ cfg, accountId }: { cfg: OpenClawConfig; accountId?: string }) => {
+      const lineConfig = (cfg.channels?.line ?? {}) as {
+        tokenFile?: string;
+        secretFile?: string;
+        channelAccessToken?: string;
+        channelSecret?: string;
+        accounts?: Record<string, Record<string, unknown>>;
+      };
+      const entry =
+        accountId && accountId !== DEFAULT_ACCOUNT_ID
+          ? (lineConfig.accounts?.[accountId] ?? {})
+          : lineConfig;
+      const hasToken =
+        Boolean((entry as any).channelAccessToken) || Boolean((entry as any).tokenFile);
+      const hasSecret = Boolean((entry as any).channelSecret) || Boolean((entry as any).secretFile);
+      return { tokenSource: hasToken && hasSecret ? "config" : "none" };
+    },
+  );
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
   const runtime = {
     config: { writeConfigFile },

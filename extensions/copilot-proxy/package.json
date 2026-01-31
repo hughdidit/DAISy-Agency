@@ -1,9 +1,17 @@
 {
+<<<<<<< HEAD
   "name": "@moltbot/copilot-proxy",
   "version": "2026.1.27-beta.1",
   "type": "module",
   "description": "Moltbot Copilot Proxy provider plugin",
   "moltbot": {
+=======
+  "name": "@openclaw/copilot-proxy",
+  "version": "2026.1.30",
+  "description": "OpenClaw Copilot Proxy provider plugin",
+  "type": "module",
+  "openclaw": {
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     "extensions": [
       "./index.ts"
     ]

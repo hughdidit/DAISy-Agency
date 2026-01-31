@@ -1,8 +1,15 @@
 {
+<<<<<<< HEAD
   "name": "@moltbot/voice-call",
   "version": "2026.1.27-beta.1",
   "type": "module",
   "description": "Moltbot voice-call plugin",
+=======
+  "name": "@openclaw/voice-call",
+  "version": "2026.1.30",
+  "description": "OpenClaw voice-call plugin",
+  "type": "module",
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   "dependencies": {
     "@sinclair/typebox": "0.34.48",
     "ws": "^8.19.0",

@@ -11,11 +11,7 @@ import {
   promptAccountId,
 } from "clawdbot/plugin-sdk";
 
-import {
-  listZaloAccountIds,
-  resolveDefaultZaloAccountId,
-  resolveZaloAccount,
-} from "./accounts.js";
+import { listZaloAccountIds, resolveDefaultZaloAccountId, resolveZaloAccount } from "./accounts.js";
 
 const channel = "zalo" as const;
 
@@ -25,7 +21,8 @@ function setZaloDmPolicy(
   cfg: MoltbotConfig,
   dmPolicy: "pairing" | "allowlist" | "open" | "disabled",
 ) {
-  const allowFrom = dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.zalo?.allowFrom) : undefined;
+  const allowFrom =
+    dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.zalo?.allowFrom) : undefined;
   return {
     ...cfg,
     channels: {
@@ -69,12 +66,7 @@ function setZaloUpdateMode(
       Record<string, unknown>
     >;
     const existing = accounts[accountId] ?? {};
-    const {
-      webhookUrl: _url,
-      webhookSecret: _secret,
-      webhookPath: _path,
-      ...rest
-    } = existing;
+    const { webhookUrl: _url, webhookSecret: _secret, webhookPath: _path, ...rest } = existing;
     accounts[accountId] = rest;
     return {
       ...cfg,
@@ -210,8 +202,13 @@ const dmPolicy: ChannelOnboardingDmPolicy = {
   promptAllowFrom: async ({ cfg, prompter, accountId }) => {
     const id =
       accountId && normalizeAccountId(accountId)
+<<<<<<< HEAD
         ? normalizeAccountId(accountId) ?? DEFAULT_ACCOUNT_ID
         : resolveDefaultZaloAccountId(cfg as MoltbotConfig);
+=======
+        ? (normalizeAccountId(accountId) ?? DEFAULT_ACCOUNT_ID)
+        : resolveDefaultZaloAccountId(cfg as OpenClawConfig);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     return promptZaloAllowFrom({
       cfg: cfg as MoltbotConfig,
       prompter,
@@ -235,12 +232,23 @@ export const zaloOnboardingAdapter: ChannelOnboardingAdapter = {
       quickstartScore: configured ? 1 : 10,
     };
   },
-  configure: async ({ cfg, prompter, accountOverrides, shouldPromptAccountIds, forceAllowFrom }) => {
+  configure: async ({
+    cfg,
+    prompter,
+    accountOverrides,
+    shouldPromptAccountIds,
+    forceAllowFrom,
+  }) => {
     const zaloOverride = accountOverrides.zalo?.trim();
+<<<<<<< HEAD
     const defaultZaloAccountId = resolveDefaultZaloAccountId(cfg as MoltbotConfig);
     let zaloAccountId = zaloOverride
       ? normalizeAccountId(zaloOverride)
       : defaultZaloAccountId;
+=======
+    const defaultZaloAccountId = resolveDefaultZaloAccountId(cfg as OpenClawConfig);
+    let zaloAccountId = zaloOverride ? normalizeAccountId(zaloOverride) : defaultZaloAccountId;
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     if (shouldPromptAccountIds && !zaloOverride) {
       zaloAccountId = await promptAccountId({
         cfg: cfg as MoltbotConfig,
@@ -354,7 +362,8 @@ export const zaloOnboardingAdapter: ChannelOnboardingAdapter = {
       const webhookUrl = String(
         await prompter.text({
           message: "Webhook URL (https://...) ",
-          validate: (value) => (value?.trim()?.startsWith("https://") ? undefined : "HTTPS URL required"),
+          validate: (value) =>
+            value?.trim()?.startsWith("https://") ? undefined : "HTTPS URL required",
         }),
       ).trim();
       const defaultPath = (() => {

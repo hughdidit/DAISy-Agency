@@ -1,9 +1,17 @@
 {
+<<<<<<< HEAD
   "name": "@moltbot/mattermost",
   "version": "2026.1.27-beta.1",
   "type": "module",
   "description": "Moltbot Mattermost channel plugin",
   "moltbot": {
+=======
+  "name": "@openclaw/mattermost",
+  "version": "2026.1.30",
+  "description": "OpenClaw Mattermost channel plugin",
+  "type": "module",
+  "openclaw": {
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     "extensions": [
       "./index.ts"
     ],

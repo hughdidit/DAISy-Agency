@@ -4,6 +4,7 @@ read_when:
   - You need to explain the agent workspace or its file layout
   - You want to back up or migrate an agent workspace
 ---
+
 # Agent workspace
 
 The workspace is the agent's home. It is the only working directory used for
@@ -29,8 +30,13 @@ inside a sandbox workspace under `~/.clawdbot/sandboxes`, not your host workspac
 ```json5
 {
   agent: {
+<<<<<<< HEAD
     workspace: "~/clawd"
   }
+=======
+    workspace: "~/.openclaw/workspace",
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 

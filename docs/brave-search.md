@@ -16,9 +16,9 @@ or via `BRAVE_API_KEY` in the Gateway environment.
 
 ## Get an API key
 
-1) Create a Brave Search API account at https://brave.com/search/api/
-2) In the dashboard, choose the **Data for Search** plan and generate an API key.
-3) Store the key in config (recommended) or set `BRAVE_API_KEY` in the Gateway environment.
+1. Create a Brave Search API account at https://brave.com/search/api/
+2. In the dashboard, choose the **Data for Search** plan and generate an API key.
+3. Store the key in config (recommended) or set `BRAVE_API_KEY` in the Gateway environment.
 
 ## Config example
 
@@ -31,10 +31,10 @@ or via `BRAVE_API_KEY` in the Gateway environment.
         provider: "brave",
         apiKey: "BRAVE_API_KEY_HERE",
         maxResults: 5,
-        timeoutSeconds: 30
-      }
-    }
-  }
+        timeoutSeconds: 30,
+      },
+    },
+  },
 }
 ```
 

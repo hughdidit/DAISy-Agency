@@ -14,4 +14,3 @@ moltbot reset
 moltbot reset --dry-run
 moltbot reset --scope config+creds+sessions --yes --non-interactive
 ```
-

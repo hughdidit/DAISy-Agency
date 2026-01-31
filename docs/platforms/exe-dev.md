@@ -13,17 +13,24 @@ This page assumes exe.dev's default **exeuntu** image. If you picked a different
 
 ## Beginner quick path
 
+<<<<<<< HEAD
 1) [https://exe.new/moltbot](https://exe.new/moltbot)
 2) Fill in your auth key/token as needed
 3) Click on "Agent" next to your VM, and wait...
 4) ???
 5) Profit
+=======
+1. [https://exe.new/openclaw](https://exe.new/openclaw)
+2. Fill in your auth key/token as needed
+3. Click on "Agent" next to your VM, and wait...
+4. ???
+5. Profit
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## What you need
 
 - exe.dev account
 - `ssh exe.dev` access to [exe.dev](https://exe.dev) virtual machines (optional)
-
 
 ## Automated Install with Shelley
 
@@ -41,7 +48,7 @@ Set up Moltbot (https://docs.molt.bot/install) on this VM. Use the non-interacti
 From your device:
 
 ```bash
-ssh exe.dev new 
+ssh exe.dev new
 ```
 
 Then connect:
@@ -111,7 +118,7 @@ use Shelley from your browser!
 
 Remote access is handled by [exe.dev](https://exe.dev)'s authentication. By
 default, HTTP traffic from port 8000 is forwarded to `https://<vm-name>.exe.xyz`
-with email auth. 
+with email auth.
 
 ## Updating
 

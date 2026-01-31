@@ -5,6 +5,7 @@ read_when:
   - Looking for configuration examples
   - Setting up Moltbot for the first time
 ---
+
 # Configuration Examples
 
 Examples below are aligned with the current config schema. For the exhaustive reference and per-field notes, see [Configuration](/gateway/configuration).
@@ -12,33 +13,45 @@ Examples below are aligned with the current config schema. For the exhaustive re
 ## Quick start
 
 ### Absolute minimum
+
 ```json5
 {
+<<<<<<< HEAD
   agent: { workspace: "~/clawd" },
   channels: { whatsapp: { allowFrom: ["+15555550123"] } }
+=======
+  agent: { workspace: "~/.openclaw/workspace" },
+  channels: { whatsapp: { allowFrom: ["+15555550123"] } },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
 Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
 
 ### Recommended starter
+
 ```json5
 {
   identity: {
     name: "Clawd",
     theme: "helpful assistant",
-    emoji: "🦞"
+    emoji: "🦞",
   },
   agent: {
+<<<<<<< HEAD
     workspace: "~/clawd",
     model: { primary: "anthropic/claude-sonnet-4-5" }
+=======
+    workspace: "~/.openclaw/workspace",
+    model: { primary: "anthropic/claude-sonnet-4-5" },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   channels: {
     whatsapp: {
       allowFrom: ["+15555550123"],
-      groups: { "*": { requireMention: true } }
-    }
-  }
+      groups: { "*": { requireMention: true } },
+    },
+  },
 }
 ```
 
@@ -52,12 +65,12 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
   env: {
     OPENROUTER_API_KEY: "sk-or-...",
     vars: {
-      GROQ_API_KEY: "gsk-..."
+      GROQ_API_KEY: "gsk-...",
     },
     shellEnv: {
       enabled: true,
-      timeoutMs: 15000
-    }
+      timeoutMs: 15000,
+    },
   },
 
   // Auth profile metadata (secrets live in auth-profiles.json)
@@ -66,20 +79,20 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       "anthropic:me@example.com": { provider: "anthropic", mode: "oauth", email: "me@example.com" },
       "anthropic:work": { provider: "anthropic", mode: "api_key" },
       "openai:default": { provider: "openai", mode: "api_key" },
-      "openai-codex:default": { provider: "openai-codex", mode: "oauth" }
+      "openai-codex:default": { provider: "openai-codex", mode: "oauth" },
     },
     order: {
       anthropic: ["anthropic:me@example.com", "anthropic:work"],
       openai: ["openai:default"],
-      "openai-codex": ["openai-codex:default"]
-    }
+      "openai-codex": ["openai-codex:default"],
+    },
   },
 
   // Identity
   identity: {
     name: "Samantha",
     theme: "helpful sloth",
-    emoji: "🦥"
+    emoji: "🦥",
   },
 
   // Logging
@@ -88,7 +101,7 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
     file: "/tmp/moltbot/moltbot.log",
     consoleLevel: "info",
     consoleStyle: "pretty",
-    redactSensitive: "tools"
+    redactSensitive: "tools",
   },
 
   // Message formatting
@@ -96,14 +109,19 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
     messagePrefix: "[moltbot]",
     responsePrefix: ">",
     ackReaction: "👀",
-    ackReactionScope: "group-mentions"
+    ackReactionScope: "group-mentions",
   },
 
   // Routing + queue
   routing: {
     groupChat: {
+<<<<<<< HEAD
       mentionPatterns: ["@clawd", "moltbot"],
       historyLimit: 50
+=======
+      mentionPatterns: ["@openclaw", "openclaw"],
+      historyLimit: 50,
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     },
     queue: {
       mode: "collect",
@@ -117,9 +135,9 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
         slack: "collect",
         signal: "collect",
         imessage: "collect",
-        webchat: "collect"
-      }
-    }
+        webchat: "collect",
+      },
+    },
   },
 
   // Tooling
@@ -133,14 +151,14 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
           // Optional CLI fallback (Whisper binary):
           // { type: "cli", command: "whisper", args: ["--model", "base", "{{MediaPath}}"] }
         ],
-        timeoutSeconds: 120
+        timeoutSeconds: 120,
       },
       video: {
         enabled: true,
         maxBytes: 52428800,
-        models: [{ provider: "google", model: "gemini-3-flash-preview" }]
-      }
-    }
+        models: [{ provider: "google", model: "gemini-3-flash-preview" }],
+      },
+    },
   },
 
   // Session behavior
@@ -149,20 +167,18 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
     reset: {
       mode: "daily",
       atHour: 4,
-      idleMinutes: 60
+      idleMinutes: 60,
     },
     resetByChannel: {
-      discord: { mode: "idle", idleMinutes: 10080 }
+      discord: { mode: "idle", idleMinutes: 10080 },
     },
     resetTriggers: ["/new", "/reset"],
     store: "~/.clawdbot/agents/default/sessions/sessions.json",
     typingIntervalSeconds: 5,
     sendPolicy: {
       default: "allow",
-      rules: [
-        { action: "deny", match: { channel: "discord", chatType: "group" } }
-      ]
-    }
+      rules: [{ action: "deny", match: { channel: "discord", chatType: "group" } }],
+    },
   },
 
   // Channels
@@ -172,7 +188,7 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       allowFrom: ["+15555550123"],
       groupPolicy: "allowlist",
       groupAllowFrom: ["+15555550123"],
-      groups: { "*": { requireMention: true } }
+      groups: { "*": { requireMention: true } },
     },
 
     telegram: {
@@ -181,7 +197,7 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       allowFrom: ["123456789"],
       groupPolicy: "allowlist",
       groupAllowFrom: ["123456789"],
-      groups: { "*": { requireMention: true } }
+      groups: { "*": { requireMention: true } },
     },
 
     discord: {
@@ -194,10 +210,10 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
           requireMention: false,
           channels: {
             general: { allow: true },
-            help: { allow: true, requireMention: true }
-          }
-        }
-      }
+            help: { allow: true, requireMention: true },
+          },
+        },
+      },
     },
 
     slack: {
@@ -205,16 +221,16 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       botToken: "xoxb-REPLACE_ME",
       appToken: "xapp-REPLACE_ME",
       channels: {
-        "#general": { allow: true, requireMention: true }
+        "#general": { allow: true, requireMention: true },
       },
       dm: { enabled: true, allowFrom: ["U123"] },
       slashCommand: {
         enabled: true,
         name: "clawd",
         sessionPrefix: "slack:slash",
-        ephemeral: true
-      }
-    }
+        ephemeral: true,
+      },
+    },
   },
 
   // Agent runtime
@@ -224,15 +240,15 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       userTimezone: "America/Chicago",
       model: {
         primary: "anthropic/claude-sonnet-4-5",
-        fallbacks: ["anthropic/claude-opus-4-5", "openai/gpt-5.2"]
+        fallbacks: ["anthropic/claude-opus-4-5", "openai/gpt-5.2"],
       },
       imageModel: {
-        primary: "openrouter/anthropic/claude-sonnet-4-5"
+        primary: "openrouter/anthropic/claude-sonnet-4-5",
       },
       models: {
         "anthropic/claude-opus-4-5": { alias: "opus" },
         "anthropic/claude-sonnet-4-5": { alias: "sonnet" },
-        "openai/gpt-5.2": { alias: "gpt" }
+        "openai/gpt-5.2": { alias: "gpt" },
       },
       thinkingDefault: "low",
       verboseDefault: "off",
@@ -242,13 +258,13 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       blockStreamingChunk: {
         minChars: 800,
         maxChars: 1200,
-        breakPreference: "paragraph"
+        breakPreference: "paragraph",
       },
       blockStreamingCoalesce: {
-        idleMs: 1000
+        idleMs: 1000,
       },
       humanDelay: {
-        mode: "natural"
+        mode: "natural",
       },
       timeoutSeconds: 600,
       mediaMaxMb: 5,
@@ -260,15 +276,15 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
         target: "last",
         to: "+15555550123",
         prompt: "HEARTBEAT",
-        ackMaxChars: 300
+        ackMaxChars: 300,
       },
       memorySearch: {
         provider: "gemini",
         model: "gemini-embedding-001",
         remote: {
-          apiKey: "${GEMINI_API_KEY}"
+          apiKey: "${GEMINI_API_KEY}",
         },
-        extraPaths: ["../team-docs", "/srv/shared-notes"]
+        extraPaths: ["../team-docs", "/srv/shared-notes"],
       },
       sandbox: {
         mode: "non-main",
@@ -280,13 +296,13 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
           readOnlyRoot: true,
           tmpfs: ["/tmp", "/var/tmp", "/run"],
           network: "none",
-          user: "1000:1000"
+          user: "1000:1000",
         },
         browser: {
-          enabled: false
-        }
-      }
-    }
+          enabled: false,
+        },
+      },
+    },
   },
 
   tools: {
@@ -295,7 +311,7 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
     exec: {
       backgroundMs: 10000,
       timeoutSec: 1800,
-      cleanupMs: 1800000
+      cleanupMs: 1800000,
     },
     elevated: {
       enabled: true,
@@ -306,9 +322,9 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
         slack: ["U123"],
         signal: ["+15555550123"],
         imessage: ["user@example.com"],
-        webchat: ["session:demo"]
-      }
-    }
+        webchat: ["session:demo"],
+      },
+    },
   },
 
   // Custom model providers
@@ -330,18 +346,23 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
             input: ["text"],
             cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
             contextWindow: 128000,
-            maxTokens: 32000
-          }
-        ]
-      }
-    }
+            maxTokens: 32000,
+          },
+        ],
+      },
+    },
   },
 
   // Cron jobs
   cron: {
     enabled: true,
+<<<<<<< HEAD
     store: "~/.clawdbot/cron/cron.json",
     maxConcurrentRuns: 2
+=======
+    store: "~/.openclaw/cron/cron.json",
+    maxConcurrentRuns: 2,
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
 
   // Webhooks
@@ -366,8 +387,8 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
         to: "+15555550123",
         thinking: "low",
         timeoutSeconds: 300,
-        transform: { module: "./transforms/gmail.js", export: "transformGmail" }
-      }
+        transform: { module: "./transforms/gmail.js", export: "transformGmail" },
+      },
     ],
     gmail: {
       account: "moltbot@gmail.com",
@@ -380,8 +401,8 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       maxBytes: 20000,
       renewEveryMinutes: 720,
       serve: { bind: "127.0.0.1", port: 8788, path: "/" },
-      tailscale: { mode: "funnel", path: "/gmail-pubsub" }
-    }
+      tailscale: { mode: "funnel", path: "/gmail-pubsub" },
+    },
   },
 
   // Gateway + networking
@@ -393,37 +414,38 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
     auth: {
       mode: "token",
       token: "gateway-token",
-      allowTailscale: true
+      allowTailscale: true,
     },
     tailscale: { mode: "serve", resetOnExit: false },
     remote: { url: "ws://gateway.tailnet:18789", token: "remote-token" },
-    reload: { mode: "hybrid", debounceMs: 300 }
+    reload: { mode: "hybrid", debounceMs: 300 },
   },
 
   skills: {
     allowBundled: ["gemini", "peekaboo"],
     load: {
-      extraDirs: ["~/Projects/agent-scripts/skills"]
+      extraDirs: ["~/Projects/agent-scripts/skills"],
     },
     install: {
       preferBrew: true,
-      nodeManager: "npm"
+      nodeManager: "npm",
     },
     entries: {
       "nano-banana-pro": {
         enabled: true,
         apiKey: "GEMINI_KEY_HERE",
-        env: { GEMINI_API_KEY: "GEMINI_KEY_HERE" }
+        env: { GEMINI_API_KEY: "GEMINI_KEY_HERE" },
       },
-      peekaboo: { enabled: true }
-    }
-  }
+      peekaboo: { enabled: true },
+    },
+  },
 }
 ```
 
 ## Common patterns
 
 ### Multi-platform setup
+
 ```json5
 {
   agent: { workspace: "~/clawd" },
@@ -432,18 +454,19 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
     telegram: {
       enabled: true,
       botToken: "YOUR_TOKEN",
-      allowFrom: ["123456789"]
+      allowFrom: ["123456789"],
     },
     discord: {
       enabled: true,
       token: "YOUR_TOKEN",
-      dm: { allowFrom: ["yourname"] }
-    }
-  }
+      dm: { allowFrom: ["yourname"] },
+    },
+  },
 }
 ```
 
 ### OAuth with API key failover
+
 ```json5
 {
   auth: {
@@ -451,28 +474,29 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       "anthropic:subscription": {
         provider: "anthropic",
         mode: "oauth",
-        email: "me@example.com"
+        email: "me@example.com",
       },
       "anthropic:api": {
         provider: "anthropic",
-        mode: "api_key"
-      }
+        mode: "api_key",
+      },
     },
     order: {
-      anthropic: ["anthropic:subscription", "anthropic:api"]
-    }
+      anthropic: ["anthropic:subscription", "anthropic:api"],
+    },
   },
   agent: {
     workspace: "~/clawd",
     model: {
       primary: "anthropic/claude-sonnet-4-5",
-      fallbacks: ["anthropic/claude-opus-4-5"]
-    }
-  }
+      fallbacks: ["anthropic/claude-opus-4-5"],
+    },
+  },
 }
 ```
 
 ### Anthropic subscription + API key, MiniMax fallback
+
 ```json5
 {
   auth: {
@@ -480,46 +504,52 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       "anthropic:subscription": {
         provider: "anthropic",
         mode: "oauth",
-        email: "user@example.com"
+        email: "user@example.com",
       },
       "anthropic:api": {
         provider: "anthropic",
-        mode: "api_key"
-      }
+        mode: "api_key",
+      },
     },
     order: {
-      anthropic: ["anthropic:subscription", "anthropic:api"]
-    }
+      anthropic: ["anthropic:subscription", "anthropic:api"],
+    },
   },
   models: {
     providers: {
       minimax: {
         baseUrl: "https://api.minimax.io/anthropic",
         api: "anthropic-messages",
-        apiKey: "${MINIMAX_API_KEY}"
-      }
-    }
+        apiKey: "${MINIMAX_API_KEY}",
+      },
+    },
   },
   agent: {
     workspace: "~/clawd",
     model: {
       primary: "anthropic/claude-opus-4-5",
-      fallbacks: ["minimax/MiniMax-M2.1"]
-    }
-  }
+      fallbacks: ["minimax/MiniMax-M2.1"],
+    },
+  },
 }
 ```
 
 ### Work bot (restricted access)
+
 ```json5
 {
   identity: {
     name: "WorkBot",
-    theme: "professional assistant"
+    theme: "professional assistant",
   },
   agent: {
+<<<<<<< HEAD
     workspace: "~/work-clawd",
     elevated: { enabled: false }
+=======
+    workspace: "~/work-openclaw",
+    elevated: { enabled: false },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   channels: {
     slack: {
@@ -527,19 +557,25 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       botToken: "xoxb-...",
       channels: {
         "#engineering": { allow: true, requireMention: true },
-        "#general": { allow: true, requireMention: true }
-      }
-    }
-  }
+        "#general": { allow: true, requireMention: true },
+      },
+    },
+  },
 }
 ```
 
 ### Local models only
+
 ```json5
 {
   agent: {
+<<<<<<< HEAD
     workspace: "~/clawd",
     model: { primary: "lmstudio/minimax-m2.1-gs32" }
+=======
+    workspace: "~/.openclaw/workspace",
+    model: { primary: "lmstudio/minimax-m2.1-gs32" },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   models: {
     mode: "merge",
@@ -556,12 +592,12 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
             input: ["text"],
             cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
             contextWindow: 196608,
-            maxTokens: 8192
-          }
-        ]
-      }
-    }
-  }
+            maxTokens: 8192,
+          },
+        ],
+      },
+    },
+  },
 }
 ```
 

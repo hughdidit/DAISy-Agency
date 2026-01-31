@@ -4,7 +4,12 @@ read_when:
   - You are moving Moltbot to a new laptop/server
   - You want to preserve sessions, auth, and channel logins (WhatsApp, etc.)
 ---
+<<<<<<< HEAD
 # Migrating Moltbot to a new machine
+=======
+
+# Migrating OpenClaw to a new machine
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 This guide migrates a Moltbot Gateway from one machine to another **without redoing onboarding**.
 

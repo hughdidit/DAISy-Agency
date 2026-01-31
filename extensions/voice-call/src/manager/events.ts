@@ -14,7 +14,14 @@ import {
 } from "./timers.js";
 import { endCall } from "./outbound.js";
 
+<<<<<<< HEAD
 function shouldAcceptInbound(config: CallManagerContext["config"], from: string | undefined, logger: Logger): boolean {
+=======
+function shouldAcceptInbound(
+  config: CallManagerContext["config"],
+  from: string | undefined,
+): boolean {
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   const { inboundPolicy: policy, allowFrom } = config;
 
   switch (policy) {

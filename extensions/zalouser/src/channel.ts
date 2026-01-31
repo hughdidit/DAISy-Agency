@@ -91,8 +91,8 @@ function resolveZalouserGroupToolPolicy(
   const groups = account.config.groups ?? {};
   const groupId = params.groupId?.trim();
   const groupChannel = params.groupChannel?.trim();
-  const candidates = [groupId, groupChannel, "*"].filter(
-    (value): value is string => Boolean(value),
+  const candidates = [groupId, groupChannel, "*"].filter((value): value is string =>
+    Boolean(value),
   );
   for (const key of candidates) {
     const entry = groups[key];
@@ -111,9 +111,15 @@ export const zalouserDock: ChannelDock = {
   outbound: { textChunkLimit: 2000 },
   config: {
     resolveAllowFrom: ({ cfg, accountId }) =>
+<<<<<<< HEAD
       (resolveZalouserAccountSync({ cfg: cfg as MoltbotConfig, accountId }).config.allowFrom ?? []).map(
         (entry) => String(entry),
       ),
+=======
+      (
+        resolveZalouserAccountSync({ cfg: cfg as OpenClawConfig, accountId }).config.allowFrom ?? []
+      ).map((entry) => String(entry)),
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     formatAllowFrom: ({ allowFrom }) =>
       allowFrom
         .map((entry) => String(entry).trim())
@@ -163,7 +169,15 @@ export const zalouserPlugin: ChannelPlugin<ResolvedZalouserAccount> = {
         cfg: cfg as MoltbotConfig,
         sectionKey: "zalouser",
         accountId,
-        clearBaseFields: ["profile", "name", "dmPolicy", "allowFrom", "groupPolicy", "groups", "messagePrefix"],
+        clearBaseFields: [
+          "profile",
+          "name",
+          "dmPolicy",
+          "allowFrom",
+          "groupPolicy",
+          "groups",
+          "messagePrefix",
+        ],
       }),
     isConfigured: async (account) => {
       // Check if zca auth status is OK for this profile
@@ -180,9 +194,15 @@ export const zalouserPlugin: ChannelPlugin<ResolvedZalouserAccount> = {
       configured: undefined,
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
+<<<<<<< HEAD
       (resolveZalouserAccountSync({ cfg: cfg as MoltbotConfig, accountId }).config.allowFrom ?? []).map(
         (entry) => String(entry),
       ),
+=======
+      (
+        resolveZalouserAccountSync({ cfg: cfg as OpenClawConfig, accountId }).config.allowFrom ?? []
+      ).map((entry) => String(entry)),
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     formatAllowFrom: ({ allowFrom }) =>
       allowFrom
         .map((entry) => String(entry).trim())
@@ -290,8 +310,16 @@ export const zalouserPlugin: ChannelPlugin<ResolvedZalouserAccount> = {
     self: async ({ cfg, accountId, runtime }) => {
       const ok = await checkZcaInstalled();
       if (!ok) throw new Error("Missing dependency: `zca` not found in PATH");
+<<<<<<< HEAD
       const account = resolveZalouserAccountSync({ cfg: cfg as MoltbotConfig, accountId });
       const result = await runZca(["me", "info", "-j"], { profile: account.profile, timeout: 10000 });
+=======
+      const account = resolveZalouserAccountSync({ cfg: cfg as OpenClawConfig, accountId });
+      const result = await runZca(["me", "info", "-j"], {
+        profile: account.profile,
+        timeout: 10000,
+      });
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       if (!result.ok) {
         runtime.error(result.stderr || "Failed to fetch profile");
         return null;
@@ -308,10 +336,15 @@ export const zalouserPlugin: ChannelPlugin<ResolvedZalouserAccount> = {
     listPeers: async ({ cfg, accountId, query, limit }) => {
       const ok = await checkZcaInstalled();
       if (!ok) throw new Error("Missing dependency: `zca` not found in PATH");
+<<<<<<< HEAD
       const account = resolveZalouserAccountSync({ cfg: cfg as MoltbotConfig, accountId });
       const args = query?.trim()
         ? ["friend", "find", query.trim()]
         : ["friend", "list", "-j"];
+=======
+      const account = resolveZalouserAccountSync({ cfg: cfg as OpenClawConfig, accountId });
+      const args = query?.trim() ? ["friend", "find", query.trim()] : ["friend", "list", "-j"];
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       const result = await runZca(args, { profile: account.profile, timeout: 15000 });
       if (!result.ok) {
         throw new Error(result.stderr || "Failed to list peers");
@@ -332,8 +365,16 @@ export const zalouserPlugin: ChannelPlugin<ResolvedZalouserAccount> = {
     listGroups: async ({ cfg, accountId, query, limit }) => {
       const ok = await checkZcaInstalled();
       if (!ok) throw new Error("Missing dependency: `zca` not found in PATH");
+<<<<<<< HEAD
       const account = resolveZalouserAccountSync({ cfg: cfg as MoltbotConfig, accountId });
       const result = await runZca(["group", "list", "-j"], { profile: account.profile, timeout: 15000 });
+=======
+      const account = resolveZalouserAccountSync({ cfg: cfg as OpenClawConfig, accountId });
+      const result = await runZca(["group", "list", "-j"], {
+        profile: account.profile,
+        timeout: 15000,
+      });
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       if (!result.ok) {
         throw new Error(result.stderr || "Failed to list groups");
       }
@@ -364,7 +405,9 @@ export const zalouserPlugin: ChannelPlugin<ResolvedZalouserAccount> = {
       if (!result.ok) {
         throw new Error(result.stderr || "Failed to list group members");
       }
-      const parsed = parseJsonOutput<Array<Partial<ZcaFriend> & { userId?: string | number }>>(result.stdout);
+      const parsed = parseJsonOutput<Array<Partial<ZcaFriend> & { userId?: string | number }>>(
+        result.stdout,
+      );
       const rows = Array.isArray(parsed)
         ? parsed
             .map((m) => {
@@ -433,7 +476,8 @@ export const zalouserPlugin: ChannelPlugin<ResolvedZalouserAccount> = {
                   name: g.name ?? undefined,
                 }))
               : [];
-            const best = matches.find((g) => g.name?.toLowerCase() === trimmed.toLowerCase()) ?? matches[0];
+            const best =
+              matches.find((g) => g.name?.toLowerCase() === trimmed.toLowerCase()) ?? matches[0];
             results.push({
               input,
               resolved: Boolean(best?.id),
@@ -550,8 +594,7 @@ export const zalouserPlugin: ChannelPlugin<ResolvedZalouserAccount> = {
       probe: snapshot.probe,
       lastProbeAt: snapshot.lastProbeAt ?? null,
     }),
-    probeAccount: async ({ account, timeoutMs }) =>
-      probeZalouser(account.profile, timeoutMs),
+    probeAccount: async ({ account, timeoutMs }) => probeZalouser(account.profile, timeoutMs),
     buildAccountSnapshot: async ({ account, runtime }) => {
       const zcaInstalled = await checkZcaInstalled();
       const configured = zcaInstalled ? await checkZcaAuthenticated(account.profile) : false;
@@ -564,7 +607,7 @@ export const zalouserPlugin: ChannelPlugin<ResolvedZalouserAccount> = {
         running: runtime?.running ?? false,
         lastStartAt: runtime?.lastStartAt ?? null,
         lastStopAt: runtime?.lastStopAt ?? null,
-        lastError: configured ? (runtime?.lastError ?? null) : runtime?.lastError ?? configError,
+        lastError: configured ? (runtime?.lastError ?? null) : (runtime?.lastError ?? configError),
         lastInboundAt: runtime?.lastInboundAt ?? null,
         lastOutboundAt: runtime?.lastOutboundAt ?? null,
         dmPolicy: account.config.dmPolicy ?? "pairing",

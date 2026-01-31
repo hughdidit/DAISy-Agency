@@ -14,4 +14,3 @@ moltbot uninstall
 moltbot uninstall --all --yes
 moltbot uninstall --dry-run
 ```
-

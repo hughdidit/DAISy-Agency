@@ -3,6 +3,7 @@ summary: "Agent runtime (embedded p-mono), workspace contract, and session boots
 read_when:
   - Changing agent runtime, workspace bootstrap, or session behavior
 ---
+
 # Agent Runtime 🤖
 
 Moltbot runs a single embedded agent runtime derived from **p-mono**.
@@ -21,7 +22,12 @@ per-session workspaces under `agents.defaults.sandbox.workspaceRoot` (see
 
 ## Bootstrap files (injected)
 
+<<<<<<< HEAD
 Inside `agents.defaults.workspace`, Moltbot expects these user-editable files:
+=======
+Inside `agents.defaults.workspace`, OpenClaw expects these user-editable files:
+
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `AGENTS.md` — operating instructions + “memory”
 - `SOUL.md` — persona, boundaries, tone
 - `TOOLS.md` — user-maintained tool notes (e.g. `imsg`, `sag`, conventions)
@@ -48,11 +54,16 @@ To disable bootstrap file creation entirely (for pre-seeded workspaces), set:
 Core tools (read/exec/edit/write and related system tools) are always available,
 subject to tool policy. `apply_patch` is optional and gated by
 `tools.exec.applyPatch`. `TOOLS.md` does **not** control which tools exist; it’s
-guidance for how *you* want them used.
+guidance for how _you_ want them used.
 
 ## Skills
 
+<<<<<<< HEAD
 Moltbot loads skills from three locations (workspace wins on name conflict):
+=======
+OpenClaw loads skills from three locations (workspace wins on name conflict):
+
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Bundled (shipped with the install)
 - Managed/local: `~/.clawdbot/skills`
 - Workspace: `<workspace>/skills`
@@ -69,7 +80,12 @@ Moltbot reuses pieces of the p-mono codebase (models/tools), but **session manag
 ## Sessions
 
 Session transcripts are stored as JSONL at:
+<<<<<<< HEAD
 - `~/.clawdbot/agents/<agentId>/sessions/<SessionId>.jsonl`
+=======
+
+- `~/.openclaw/agents/<agentId>/sessions/<SessionId>.jsonl`
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 The session ID is stable and chosen by Moltbot.
 Legacy Pi/Tau session folders are **not** read.
@@ -109,9 +125,10 @@ Model refs in config (for example `agents.defaults.model` and `agents.defaults.m
 ## Configuration (minimal)
 
 At minimum, set:
+
 - `agents.defaults.workspace`
 - `channels.whatsapp.allowFrom` (strongly recommended)
 
 ---
 
-*Next: [Group Chats](/concepts/group-messages)* 🦞
+_Next: [Group Chats](/concepts/group-messages)_ 🦞

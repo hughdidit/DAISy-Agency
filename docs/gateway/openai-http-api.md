@@ -3,6 +3,7 @@ summary: "Expose an OpenAI-compatible /v1/chat/completions HTTP endpoint from th
 read_when:
   - Integrating tools that expect OpenAI Chat Completions
 ---
+
 # OpenAI Chat Completions (HTTP)
 
 Moltbot’s Gateway can serve a small OpenAI-compatible Chat Completions endpoint.
@@ -21,8 +22,14 @@ Uses the Gateway auth configuration. Send a bearer token:
 - `Authorization: Bearer <token>`
 
 Notes:
+<<<<<<< HEAD
 - When `gateway.auth.mode="token"`, use `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`).
 - When `gateway.auth.mode="password"`, use `gateway.auth.password` (or `CLAWDBOT_GATEWAY_PASSWORD`).
+=======
+
+- When `gateway.auth.mode="token"`, use `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`).
+- When `gateway.auth.mode="password"`, use `gateway.auth.password` (or `OPENCLAW_GATEWAY_PASSWORD`).
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Choosing an agent
 
@@ -36,7 +43,12 @@ Or target a specific Moltbot agent by header:
 - `x-moltbot-agent-id: <agentId>` (default: `main`)
 
 Advanced:
+<<<<<<< HEAD
 - `x-moltbot-session-key: <sessionKey>` to fully control session routing.
+=======
+
+- `x-openclaw-session-key: <sessionKey>` to fully control session routing.
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 ## Enabling the endpoint
 
@@ -47,10 +59,10 @@ Set `gateway.http.endpoints.chatCompletions.enabled` to `true`:
   gateway: {
     http: {
       endpoints: {
-        chatCompletions: { enabled: true }
-      }
-    }
-  }
+        chatCompletions: { enabled: true },
+      },
+    },
+  },
 }
 ```
 
@@ -63,10 +75,10 @@ Set `gateway.http.endpoints.chatCompletions.enabled` to `false`:
   gateway: {
     http: {
       endpoints: {
-        chatCompletions: { enabled: false }
-      }
-    }
-  }
+        chatCompletions: { enabled: false },
+      },
+    },
+  },
 }
 ```
 
@@ -87,6 +99,7 @@ Set `stream: true` to receive Server-Sent Events (SSE):
 ## Examples
 
 Non-streaming:
+
 ```bash
 curl -sS http://127.0.0.1:18789/v1/chat/completions \
   -H 'Authorization: Bearer YOUR_TOKEN' \
@@ -99,6 +112,7 @@ curl -sS http://127.0.0.1:18789/v1/chat/completions \
 ```
 
 Streaming:
+
 ```bash
 curl -N http://127.0.0.1:18789/v1/chat/completions \
   -H 'Authorization: Bearer YOUR_TOKEN' \

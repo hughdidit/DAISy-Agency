@@ -92,10 +92,7 @@ export class MediaStreamHandler {
   /**
    * Handle new WebSocket connection from Twilio.
    */
-  private async handleConnection(
-    ws: WebSocket,
-    _request: IncomingMessage,
-  ): Promise<void> {
+  private async handleConnection(ws: WebSocket, _request: IncomingMessage): Promise<void> {
     let session: StreamSession | null = null;
 
     ws.on("message", async (data: Buffer) => {
@@ -145,16 +142,17 @@ export class MediaStreamHandler {
   /**
    * Handle stream start event.
    */
-  private async handleStart(
-    ws: WebSocket,
-    message: TwilioMediaMessage,
-  ): Promise<StreamSession> {
+  private async handleStart(ws: WebSocket, message: TwilioMediaMessage): Promise<StreamSession> {
     const streamSid = message.streamSid || "";
     const callSid = message.start?.callSid || "";
 
+<<<<<<< HEAD
     this.logger.info(
       `[MediaStream] Stream started: ${streamSid} (call: ${callSid})`,
     );
+=======
+    console.log(`[MediaStream] Stream started: ${streamSid} (call: ${callSid})`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
     // Create STT session
     const sttSession = this.config.sttProvider.createSession();
@@ -186,9 +184,13 @@ export class MediaStreamHandler {
 
     // Connect to OpenAI STT (non-blocking, log errors but don't fail the call)
     sttSession.connect().catch((err) => {
+<<<<<<< HEAD
       this.logger.warn(
         `[MediaStream] STT connection failed (TTS still works): ${err.message}`,
       );
+=======
+      console.warn(`[MediaStream] STT connection failed (TTS still works):`, err.message);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     });
 
     return session;
@@ -256,10 +258,7 @@ export class MediaStreamHandler {
    * Queue a TTS operation for sequential playback.
    * Only one TTS operation plays at a time per stream to prevent overlap.
    */
-  async queueTts(
-    streamSid: string,
-    playFn: (signal: AbortSignal) => Promise<void>,
-  ): Promise<void> {
+  async queueTts(streamSid: string, playFn: (signal: AbortSignal) => Promise<void>): Promise<void> {
     const queue = this.getTtsQueue(streamSid);
     let resolveEntry: () => void;
     let rejectEntry: (error: unknown) => void;
@@ -296,9 +295,7 @@ export class MediaStreamHandler {
    * Get active session by call ID.
    */
   getSessionByCallId(callId: string): StreamSession | undefined {
-    return [...this.sessions.values()].find(
-      (session) => session.callId === callId,
-    );
+    return [...this.sessions.values()].find((session) => session.callId === callId);
   }
 
   /**

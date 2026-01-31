@@ -3,9 +3,16 @@ summary: "Top-level overview of Moltbot, features, and purpose"
 read_when:
   - Introducing Moltbot to newcomers
 ---
+<<<<<<< HEAD
 # Moltbot 🦞
 
 > *"EXFOLIATE! EXFOLIATE!"* — A space lobster, probably
+=======
+
+# OpenClaw 🦞
+
+> _"EXFOLIATE! EXFOLIATE!"_ — A space lobster, probably
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
 <p align="center">
   <img src="whatsapp-clawd.jpg" alt="Moltbot" width="420" />
@@ -158,10 +165,14 @@ Example:
   channels: {
     whatsapp: {
       allowFrom: ["+15555550123"],
-      groups: { "*": { requireMention: true } }
-    }
+      groups: { "*": { requireMention: true } },
+    },
   },
+<<<<<<< HEAD
   messages: { groupChat: { mentionPatterns: ["@clawd"] } }
+=======
+  messages: { groupChat: { mentionPatterns: ["@openclaw"] } },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -169,7 +180,7 @@ Example:
 
 - Start here:
   - [Docs hubs (all pages linked)](/start/hubs)
-  - [Help](/help) ← *common fixes + troubleshooting*
+  - [Help](/help) ← _common fixes + troubleshooting_
   - [Configuration](/gateway/configuration)
   - [Configuration examples](/gateway/configuration-examples)
   - [Slash commands](/tools/slash-commands)
@@ -218,7 +229,7 @@ Example:
 
 ---
 
-*"We're all just playing with our own prompts."* — an AI, probably high on tokens
+_"We're all just playing with our own prompts."_ — an AI, probably high on tokens
 
 ## Credits
 
@@ -237,4 +248,4 @@ MIT — Free as a lobster in the ocean 🦞
 
 ---
 
-*"We're all just playing with our own prompts."* — An AI, probably high on tokens
+_"We're all just playing with our own prompts."_ — An AI, probably high on tokens

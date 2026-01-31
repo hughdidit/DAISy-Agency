@@ -1,5 +1,9 @@
 ---
+<<<<<<< HEAD
 summary: "Optional Docker-based setup and onboarding for Moltbot"
+=======
+summary: "Optional Docker-based setup and onboarding for OpenClaw"
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 read_when:
   - You want a containerized gateway instead of local installs
   - You are validating the Docker flow
@@ -270,9 +274,15 @@ log a warning with the exact `moltbot sandbox recreate ...` command.
         mode: "non-main", // off | non-main | all
         scope: "agent", // session | agent | shared (agent is default)
         workspaceAccess: "none", // none | ro | rw
+<<<<<<< HEAD
         workspaceRoot: "~/.clawdbot/sandboxes",
         docker: {
           image: "moltbot-sandbox:bookworm-slim",
+=======
+        workspaceRoot: "~/.openclaw/sandboxes",
+        docker: {
+          image: "openclaw-sandbox:bookworm-slim",
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
           workdir: "/workspace",
           readOnlyRoot: true,
           tmpfs: ["/tmp", "/var/tmp", "/run"],
@@ -290,9 +300,15 @@ log a warning with the exact `moltbot sandbox recreate ...` command.
             nproc: 256
           },
           seccompProfile: "/path/to/seccomp.json",
+<<<<<<< HEAD
           apparmorProfile: "moltbot-sandbox",
           dns: ["1.1.1.1", "8.8.8.8"],
           extraHosts: ["internal.service:10.0.0.5"]
+=======
+          apparmorProfile: "openclaw-sandbox",
+          dns: ["1.1.1.1", "8.8.8.8"],
+          extraHosts: ["internal.service:10.0.0.5"],
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         },
         prune: {
           idleHours: 24, // 0 disables idle pruning
@@ -304,11 +320,30 @@ log a warning with the exact `moltbot sandbox recreate ...` command.
   tools: {
     sandbox: {
       tools: {
+<<<<<<< HEAD
         allow: ["exec", "process", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "sessions_spawn", "session_status"],
         deny: ["browser", "canvas", "nodes", "cron", "discord", "gateway"]
       }
     }
   }
+=======
+        allow: [
+          "exec",
+          "process",
+          "read",
+          "write",
+          "edit",
+          "sessions_list",
+          "sessions_history",
+          "sessions_send",
+          "sessions_spawn",
+          "session_status",
+        ],
+        deny: ["browser", "canvas", "nodes", "cron", "discord", "gateway"],
+      },
+    },
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -338,7 +373,15 @@ This builds `moltbot-sandbox-common:bookworm-slim`. To use it:
 
 ```json5
 {
+<<<<<<< HEAD
   agents: { defaults: { sandbox: { docker: { image: "moltbot-sandbox-common:bookworm-slim" } } } }
+=======
+  agents: {
+    defaults: {
+      sandbox: { docker: { image: "openclaw-sandbox-common:bookworm-slim" } },
+    },
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -379,9 +422,15 @@ Custom browser image:
 {
   agents: {
     defaults: {
+<<<<<<< HEAD
       sandbox: { browser: { image: "my-moltbot-browser" } }
     }
   }
+=======
+      sandbox: { browser: { image: "my-openclaw-browser" } },
+    },
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 
@@ -405,9 +454,15 @@ docker build -t my-moltbot-sbx -f Dockerfile.sandbox .
 {
   agents: {
     defaults: {
+<<<<<<< HEAD
       sandbox: { docker: { image: "my-moltbot-sbx" } }
     }
   }
+=======
+      sandbox: { docker: { image: "my-openclaw-sbx" } },
+    },
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```
 

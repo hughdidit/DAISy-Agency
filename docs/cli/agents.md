@@ -9,6 +9,7 @@ read_when:
 Manage isolated agents (workspaces + auth + routing).
 
 Related:
+
 - Multi-agent routing: [Multi-Agent Routing](/concepts/multi-agent)
 - Agent workspace: [Agent workspace](/concepts/agent-workspace)
 
@@ -25,7 +26,12 @@ moltbot agents delete work
 ## Identity files
 
 Each agent workspace can include an `IDENTITY.md` at the workspace root:
+<<<<<<< HEAD
 - Example path: `~/clawd/IDENTITY.md`
+=======
+
+- Example path: `~/.openclaw/workspace/IDENTITY.md`
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - `set-identity --from-identity` reads from the workspace root (or an explicit `--identity-file`)
 
 Avatar paths resolve relative to the workspace root.
@@ -33,6 +39,7 @@ Avatar paths resolve relative to the workspace root.
 ## Set identity
 
 `set-identity` writes fields into `agents.list[].identity`:
+
 - `name`
 - `theme`
 - `emoji`
@@ -62,10 +69,18 @@ Config sample:
           name: "Clawd",
           theme: "space lobster",
           emoji: "🦞",
+<<<<<<< HEAD
           avatar: "avatars/clawd.png"
         }
       }
     ]
   }
+=======
+          avatar: "avatars/openclaw.png",
+        },
+      },
+    ],
+  },
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 }
 ```

@@ -3,8 +3,8 @@ summary: "Routing rules per channel (WhatsApp, Telegram, Discord, Slack) and sha
 read_when:
   - Changing channel routing or inbox behavior
 ---
-# Channels & routing
 
+# Channels & routing
 
 Moltbot routes replies **back to the channel where a message came from**. The
 model does not choose a channel; routing is deterministic and controlled by the
@@ -62,8 +62,8 @@ Config:
   broadcast: {
     strategy: "parallel",
     "120363403215116621@g.us": ["alfred", "baerbel"],
-    "+15555550123": ["support", "logger"]
-  }
+    "+15555550123": ["support", "logger"],
+  },
 }
 ```
 
@@ -79,14 +79,18 @@ Example:
 ```json5
 {
   agents: {
+<<<<<<< HEAD
     list: [
       { id: "support", name: "Support", workspace: "~/clawd-support" }
     ]
+=======
+    list: [{ id: "support", name: "Support", workspace: "~/.openclaw/workspace-support" }],
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
   bindings: [
     { match: { channel: "slack", teamId: "T123" }, agentId: "support" },
-    { match: { channel: "telegram", peer: { kind: "group", id: "-100123" } }, agentId: "support" }
-  ]
+    { match: { channel: "telegram", peer: { kind: "group", id: "-100123" } }, agentId: "support" },
+  ],
 }
 ```
 
@@ -108,6 +112,7 @@ agent in one place.
 ## Reply context
 
 Inbound replies include:
+
 - `ReplyToId`, `ReplyToBody`, and `ReplyToSender` when available.
 - Quoted context is appended to `Body` as a `[Replying to ...]` block.
 

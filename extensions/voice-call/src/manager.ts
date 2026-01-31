@@ -117,8 +117,7 @@ export class CallManager {
 
     const callId = crypto.randomUUID();
     const from =
-      this.config.fromNumber ||
-      (this.provider?.name === "mock" ? "+15550000000" : undefined);
+      this.config.fromNumber || (this.provider?.name === "mock" ? "+15550000000" : undefined);
     if (!from) {
       return { callId: "", success: false, error: "fromNumber not configured" };
     }
@@ -150,9 +149,13 @@ export class CallManager {
       if (mode === "notify" && initialMessage) {
         const pollyVoice = mapVoiceToPolly(this.config.tts?.openai?.voice);
         inlineTwiml = this.generateNotifyTwiml(initialMessage, pollyVoice);
+<<<<<<< HEAD
         this.logger.info(
           `[voice-call] Using inline TwiML for notify mode (voice: ${pollyVoice})`,
         );
+=======
+        console.log(`[voice-call] Using inline TwiML for notify mode (voice: ${pollyVoice})`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       }
 
       const result = await this.provider.initiateCall({
@@ -189,10 +192,7 @@ export class CallManager {
   /**
    * Speak to user in an active call.
    */
-  async speak(
-    callId: CallId,
-    text: string,
-  ): Promise<{ success: boolean; error?: string }> {
+  async speak(callId: CallId, text: string): Promise<{ success: boolean; error?: string }> {
     const call = this.activeCalls.get(callId);
     if (!call) {
       return { success: false, error: "Call not found" };
@@ -215,8 +215,7 @@ export class CallManager {
       this.addTranscriptEntry(call, "bot", text);
 
       // Play TTS
-      const voice =
-        this.provider?.name === "twilio" ? this.config.tts?.openai?.voice : undefined;
+      const voice = this.provider?.name === "twilio" ? this.config.tts?.openai?.voice : undefined;
       await this.provider.playTts({
         callId,
         providerCallId: call.providerCallId,
@@ -241,9 +240,13 @@ export class CallManager {
   async speakInitialMessage(providerCallId: string): Promise<void> {
     const call = this.getCallByProviderCallId(providerCallId);
     if (!call) {
+<<<<<<< HEAD
       this.logger.warn(
         `[voice-call] speakInitialMessage: no call found for ${providerCallId}`,
       );
+=======
+      console.warn(`[voice-call] speakInitialMessage: no call found for ${providerCallId}`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       return;
     }
 
@@ -251,9 +254,13 @@ export class CallManager {
     const mode = (call.metadata?.mode as CallMode) ?? "conversation";
 
     if (!initialMessage) {
+<<<<<<< HEAD
       this.logger.info(
         `[voice-call] speakInitialMessage: no initial message for ${call.callId}`,
       );
+=======
+      console.log(`[voice-call] speakInitialMessage: no initial message for ${call.callId}`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       return;
     }
 
@@ -263,6 +270,7 @@ export class CallManager {
       this.persistCallRecord(call);
     }
 
+<<<<<<< HEAD
     this.logger.info(
       `[voice-call] Speaking initial message for call ${call.callId} (mode: ${mode})`,
     );
@@ -271,12 +279,19 @@ export class CallManager {
       this.logger.warn(
         `[voice-call] Failed to speak initial message: ${result.error}`,
       );
+=======
+    console.log(`[voice-call] Speaking initial message for call ${call.callId} (mode: ${mode})`);
+    const result = await this.speak(call.callId, initialMessage);
+    if (!result.success) {
+      console.warn(`[voice-call] Failed to speak initial message: ${result.error}`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       return;
     }
 
     // In notify mode, auto-hangup after delay
     if (mode === "notify") {
       const delaySec = this.config.outbound.notifyHangupDelaySec;
+<<<<<<< HEAD
       this.logger.info(
         `[voice-call] Notify mode: auto-hangup in ${delaySec}s for call ${call.callId}`,
       );
@@ -286,6 +301,13 @@ export class CallManager {
           this.logger.info(
             `[voice-call] Notify mode: hanging up call ${call.callId}`,
           );
+=======
+      console.log(`[voice-call] Notify mode: auto-hangup in ${delaySec}s for call ${call.callId}`);
+      setTimeout(async () => {
+        const currentCall = this.getCall(call.callId);
+        if (currentCall && !TerminalStates.has(currentCall.state)) {
+          console.log(`[voice-call] Notify mode: hanging up call ${call.callId}`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
           await this.endCall(call.callId);
         }
       }, delaySec * 1000);
@@ -361,9 +383,7 @@ export class CallManager {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         this.transcriptWaiters.delete(callId);
-        reject(
-          new Error(`Timed out waiting for transcript after ${timeoutMs}ms`),
-        );
+        reject(new Error(`Timed out waiting for transcript after ${timeoutMs}ms`));
       }, timeoutMs);
 
       this.transcriptWaiters.set(callId, { resolve, reject, timeout });
@@ -484,10 +504,7 @@ export class CallManager {
         const normalized = from?.replace(/\D/g, "") || "";
         const allowed = (allowFrom || []).some((num) => {
           const normalizedAllow = num.replace(/\D/g, "");
-          return (
-            normalized.endsWith(normalizedAllow) ||
-            normalizedAllow.endsWith(normalized)
-          );
+          return normalized.endsWith(normalizedAllow) || normalizedAllow.endsWith(normalized);
         });
         const status = allowed ? "accepted" : "rejected";
         this.logger.info(
@@ -504,11 +521,7 @@ export class CallManager {
   /**
    * Create a call record for an inbound call.
    */
-  private createInboundCall(
-    providerCallId: string,
-    from: string,
-    to: string,
-  ): CallRecord {
+  private createInboundCall(providerCallId: string, from: string, to: string): CallRecord {
     const callId = crypto.randomUUID();
 
     const callRecord: CallRecord = {
@@ -523,8 +536,7 @@ export class CallManager {
       transcript: [],
       processedEventIds: [],
       metadata: {
-        initialMessage:
-          this.config.inboundGreeting || "Hello! How can I help you today?",
+        initialMessage: this.config.inboundGreeting || "Hello! How can I help you today?",
       },
     };
 
@@ -532,9 +544,13 @@ export class CallManager {
     this.providerCallIdMap.set(providerCallId, callId); // Map providerCallId to internal callId
     this.persistCallRecord(callRecord);
 
+<<<<<<< HEAD
     this.logger.info(
       `[voice-call] Created inbound call record: ${callId} from ${from}`,
     );
+=======
+    console.log(`[voice-call] Created inbound call record: ${callId} from ${from}`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
     return callRecord;
   }
 
@@ -665,10 +681,7 @@ export class CallManager {
           call.endReason = "error";
           this.transitionState(call, "error");
           this.clearMaxDurationTimer(call.callId);
-          this.rejectTranscriptWaiter(
-            call.callId,
-            `Call error: ${event.error}`,
-          );
+          this.rejectTranscriptWaiter(call.callId, `Call error: ${event.error}`);
           this.activeCalls.delete(call.callId);
           if (call.providerCallId) {
             this.providerCallIdMap.delete(call.providerCallId);
@@ -682,9 +695,7 @@ export class CallManager {
 
   private maybeSpeakInitialMessageOnAnswered(call: CallRecord): void {
     const initialMessage =
-      typeof call.metadata?.initialMessage === "string"
-        ? call.metadata.initialMessage.trim()
-        : "";
+      typeof call.metadata?.initialMessage === "string" ? call.metadata.initialMessage.trim() : "";
 
     if (!initialMessage) return;
 
@@ -761,10 +772,7 @@ export class CallManager {
   }
 
   // States that can cycle during multi-turn conversations
-  private static readonly ConversationStates = new Set<CallState>([
-    "speaking",
-    "listening",
-  ]);
+  private static readonly ConversationStates = new Set<CallState>(["speaking", "listening"]);
 
   // Non-terminal state order for monotonic transitions
   private static readonly StateOrder: readonly CallState[] = [
@@ -810,11 +818,7 @@ export class CallManager {
   /**
    * Add an entry to the call transcript.
    */
-  private addTranscriptEntry(
-    call: CallRecord,
-    speaker: "bot" | "user",
-    text: string,
-  ): void {
+  private addTranscriptEntry(call: CallRecord, speaker: "bot" | "user", text: string): void {
     const entry: TranscriptEntry = {
       timestamp: Date.now(),
       speaker,

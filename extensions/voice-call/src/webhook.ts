@@ -59,13 +59,16 @@ export class VoiceCallWebhookServer {
    * Initialize media streaming with OpenAI Realtime STT.
    */
   private initializeMediaStreaming(): void {
-    const apiKey =
-      this.config.streaming?.openaiApiKey || process.env.OPENAI_API_KEY;
+    const apiKey = this.config.streaming?.openaiApiKey || process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
+<<<<<<< HEAD
       this.logger.warn(
         "[voice-call] Streaming enabled but no OpenAI API key found",
       );
+=======
+      console.warn("[voice-call] Streaming enabled but no OpenAI API key found");
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       return;
     }
 
@@ -79,9 +82,13 @@ export class VoiceCallWebhookServer {
     const streamConfig: MediaStreamConfig = {
       sttProvider,
       onTranscript: (providerCallId, transcript) => {
+<<<<<<< HEAD
         this.logger.info(
           `[voice-call] Transcript for ${providerCallId}: ${transcript}`,
         );
+=======
+        console.log(`[voice-call] Transcript for ${providerCallId}: ${transcript}`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
         // Clear TTS queue on barge-in (user started speaking, interrupt current playback)
         if (this.provider.name === "twilio") {
@@ -91,9 +98,13 @@ export class VoiceCallWebhookServer {
         // Look up our internal call ID from the provider call ID
         const call = this.manager.getCallByProviderCallId(providerCallId);
         if (!call) {
+<<<<<<< HEAD
           this.logger.warn(
             `[voice-call] No active call found for provider ID: ${providerCallId}`,
           );
+=======
+          console.warn(`[voice-call] No active call found for provider ID: ${providerCallId}`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
           return;
         }
 
@@ -111,8 +122,7 @@ export class VoiceCallWebhookServer {
 
         // Auto-respond in conversation mode (inbound always, outbound if mode is conversation)
         const callMode = call.metadata?.mode as string | undefined;
-        const shouldRespond =
-          call.direction === "inbound" || callMode === "conversation";
+        const shouldRespond = call.direction === "inbound" || callMode === "conversation";
         if (shouldRespond) {
           this.handleInboundResponse(call.callId, transcript).catch(async (err) => {
             this.logger.warn(`[voice-call] Failed to auto-respond: ${err}`);
@@ -133,15 +143,16 @@ export class VoiceCallWebhookServer {
         this.logger.debug(`[voice-call] Partial for ${callId}: ${partial}`);
       },
       onConnect: (callId, streamSid) => {
+<<<<<<< HEAD
         this.logger.info(
           `[voice-call] Media stream connected: ${callId} -> ${streamSid}`,
         );
+=======
+        console.log(`[voice-call] Media stream connected: ${callId} -> ${streamSid}`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         // Register stream with provider for TTS routing
         if (this.provider.name === "twilio") {
-          (this.provider as TwilioProvider).registerCallStream(
-            callId,
-            streamSid,
-          );
+          (this.provider as TwilioProvider).registerCallStream(callId, streamSid);
         }
 
         // Speak initial message if one was provided when call was initiated
@@ -183,10 +194,7 @@ export class VoiceCallWebhookServer {
       // Handle WebSocket upgrades for media streams
       if (this.mediaStreamHandler) {
         this.server.on("upgrade", (request, socket, head) => {
-          const url = new URL(
-            request.url || "/",
-            `http://${request.headers.host}`,
-          );
+          const url = new URL(request.url || "/", `http://${request.headers.host}`);
 
           if (url.pathname === streamPath) {
             this.logger.info("[voice-call] WebSocket upgrade for media stream");
@@ -203,9 +211,13 @@ export class VoiceCallWebhookServer {
         const url = `http://${bind}:${port}${webhookPath}`;
         this.logger.info(`[voice-call] Webhook server listening on ${url}`);
         if (this.mediaStreamHandler) {
+<<<<<<< HEAD
           this.logger.info(
             `[voice-call] Media stream WebSocket on ws://${bind}:${port}${streamPath}`,
           );
+=======
+          console.log(`[voice-call] Media stream WebSocket on ws://${bind}:${port}${streamPath}`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         }
         resolve(url);
       });
@@ -268,9 +280,13 @@ export class VoiceCallWebhookServer {
     // Verify signature
     const verification = this.provider.verifyWebhook(ctx);
     if (!verification.ok) {
+<<<<<<< HEAD
       this.logger.warn(
         `[voice-call] Webhook verification failed: ${verification.reason}`,
       );
+=======
+      console.warn(`[voice-call] Webhook verification failed: ${verification.reason}`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       res.statusCode = 401;
       res.end("Unauthorized");
       return;
@@ -284,9 +300,13 @@ export class VoiceCallWebhookServer {
       try {
         await this.manager.processEvent(event);
       } catch (err) {
+<<<<<<< HEAD
         this.logger.error(
           `[voice-call] Error processing event ${event.type}: ${err}`,
         );
+=======
+        console.error(`[voice-call] Error processing event ${event.type}:`, err);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
       }
     }
 
@@ -294,9 +314,7 @@ export class VoiceCallWebhookServer {
     res.statusCode = result.statusCode || 200;
 
     if (result.providerResponseHeaders) {
-      for (const [key, value] of Object.entries(
-        result.providerResponseHeaders,
-      )) {
+      for (const [key, value] of Object.entries(result.providerResponseHeaders)) {
         res.setHeader(key, value);
       }
     }
@@ -320,6 +338,7 @@ export class VoiceCallWebhookServer {
    * Handle auto-response for inbound calls using the agent system.
    * Supports tool calling for richer voice interactions.
    */
+<<<<<<< HEAD
   private async handleInboundResponse(
     callId: string,
     userMessage: string,
@@ -327,6 +346,10 @@ export class VoiceCallWebhookServer {
     this.logger.info(
       `[voice-call] Auto-responding to inbound call ${callId}: "${userMessage}"`,
     );
+=======
+  private async handleInboundResponse(callId: string, userMessage: string): Promise<void> {
+    console.log(`[voice-call] Auto-responding to inbound call ${callId}: "${userMessage}"`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
     // Get call context for conversation history
     const call = this.manager.getCall(callId);
@@ -353,6 +376,7 @@ export class VoiceCallWebhookServer {
       });
 
       if (result.error) {
+<<<<<<< HEAD
         this.logger.error(
           `[voice-call] Response generation error: ${result.error}`,
         );
@@ -361,6 +385,9 @@ export class VoiceCallWebhookServer {
         } catch {
           // Best-effort cleanup
         }
+=======
+        console.error(`[voice-call] Response generation error: ${result.error}`);
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         return;
       }
 
@@ -477,9 +504,7 @@ export async function cleanupTailscaleExposureRoute(opts: {
  * Setup Tailscale serve/funnel for the webhook server.
  * This is a helper that shells out to `tailscale serve` or `tailscale funnel`.
  */
-export async function setupTailscaleExposure(
-  config: VoiceCallConfig,
-): Promise<string | null> {
+export async function setupTailscaleExposure(config: VoiceCallConfig): Promise<string | null> {
   if (config.tailscale.mode === "off") {
     return null;
   }
@@ -498,9 +523,7 @@ export async function setupTailscaleExposure(
 /**
  * Cleanup Tailscale serve/funnel.
  */
-export async function cleanupTailscaleExposure(
-  config: VoiceCallConfig,
-): Promise<void> {
+export async function cleanupTailscaleExposure(config: VoiceCallConfig): Promise<void> {
   if (config.tailscale.mode === "off") {
     return;
   }

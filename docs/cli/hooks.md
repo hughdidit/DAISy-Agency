@@ -10,6 +10,7 @@ read_when:
 Manage agent hooks (event-driven automations for commands like `/new`, `/reset`, and gateway startup).
 
 Related:
+
 - Hooks: [Hooks](/hooks)
 - Plugin hooks: [Plugins](/plugin#plugin-hooks)
 
@@ -22,6 +23,7 @@ moltbot hooks list
 List all discovered hooks from workspace, managed, and bundled directories.
 
 **Options:**
+
 - `--eligible`: Show only eligible hooks (requirements met)
 - `--json`: Output as JSON
 - `-v, --verbose`: Show detailed information including missing requirements
@@ -63,9 +65,11 @@ moltbot hooks info <name>
 Show detailed information about a specific hook.
 
 **Arguments:**
+
 - `<name>`: Hook name (e.g., `session-memory`)
 
 **Options:**
+
 - `--json`: Output as JSON
 
 **Example:**
@@ -101,6 +105,7 @@ moltbot hooks check
 Show summary of hook eligibility status (how many are ready vs. not ready).
 
 **Options:**
+
 - `--json`: Output as JSON
 
 **Example output:**
@@ -125,6 +130,7 @@ Enable a specific hook by adding it to your config (`~/.clawdbot/config.json`).
 can’t be enabled/disabled here. Enable/disable the plugin instead.
 
 **Arguments:**
+
 - `<name>`: Hook name (e.g., `session-memory`)
 
 **Example:**
@@ -140,11 +146,13 @@ moltbot hooks enable session-memory
 ```
 
 **What it does:**
+
 - Checks if hook exists and is eligible
 - Updates `hooks.internal.entries.<name>.enabled = true` in your config
 - Saves config to disk
 
 **After enabling:**
+
 - Restart the gateway so hooks reload (menu bar app restart on macOS, or restart your gateway process in dev).
 
 ## Disable a Hook
@@ -156,6 +164,7 @@ moltbot hooks disable <name>
 Disable a specific hook by updating your config.
 
 **Arguments:**
+
 - `<name>`: Hook name (e.g., `command-logger`)
 
 **Example:**
@@ -171,6 +180,7 @@ moltbot hooks disable command-logger
 ```
 
 **After disabling:**
+
 - Restart the gateway so hooks reload
 
 ## Install Hooks
@@ -182,11 +192,17 @@ moltbot hooks install <path-or-spec>
 Install a hook pack from a local folder/archive or npm.
 
 **What it does:**
+<<<<<<< HEAD
 - Copies the hook pack into `~/.clawdbot/hooks/<id>`
+=======
+
+- Copies the hook pack into `~/.openclaw/hooks/<id>`
+>>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 - Enables the installed hooks in `hooks.internal.entries.*`
 - Records the install under `hooks.internal.installs`
 
 **Options:**
+
 - `-l, --link`: Link a local directory instead of copying (adds it to `hooks.internal.load.extraDirs`)
 
 **Supported archives:** `.zip`, `.tgz`, `.tar.gz`, `.tar`
@@ -217,6 +233,7 @@ moltbot hooks update --all
 Update installed hook packs (npm installs only).
 
 **Options:**
+
 - `--all`: Update all tracked hook packs
 - `--dry-run`: Show what would change without writing
 
