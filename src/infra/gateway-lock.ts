@@ -69,8 +69,12 @@ function isGatewayArgv(args: string[]): boolean {
   if (!normalized.includes("gateway")) return false;
 
   const entryCandidates = [
+<<<<<<< HEAD
     "dist/index.mjs",
     "dist/index.mjs",
+=======
+    "dist/index.js",
+>>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
     "dist/entry.js",
     "openclaw.mjs",
     "dist/entry.mjs",

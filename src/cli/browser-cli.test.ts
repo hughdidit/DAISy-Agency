@@ -43,7 +43,11 @@ describe("browser CLI --browser-profile flag", () => {
   });
 
   it("does not conflict with global --profile flag", () => {
+<<<<<<< HEAD
     // The global --profile flag is handled by entry.js before Commander
+=======
+    // The global --profile flag is handled by /entry.js before Commander
+>>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
     // This test verifies --browser-profile is a separate option
     const program = new Command();
     program.name("test");

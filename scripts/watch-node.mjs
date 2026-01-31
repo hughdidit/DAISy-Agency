@@ -18,12 +18,16 @@ if (initialBuild.status !== 0) {
   process.exit(initialBuild.status ?? 1);
 }
 
+<<<<<<< HEAD
 const watchArgs =
   compiler === "tsc"
     ? [...projectArgs, "--watch", "--preserveWatchOutput"]
     : [...projectArgs, "--watch"];
 
 const compilerProcess = spawn("pnpm", ["exec", compiler, ...watchArgs], {
+=======
+const compilerProcess = spawn("pnpm", ["tsc", '-p', 'tsconfig.json', '--noEmit', 'false', '--watch'], {
+>>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
   cwd,
   env,
   stdio: "inherit",
