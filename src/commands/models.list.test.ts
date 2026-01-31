@@ -44,7 +44,11 @@ vi.mock("../agents/model-auth.js", () => ({
   getCustomProviderApiKey,
 }));
 
+<<<<<<< HEAD
 vi.mock("@mariozechner/pi-coding-agent", () => ({
+=======
+vi.mock("../agents/pi-model-discovery.js", () => ({
+>>>>>>> 08ed62852 (chore: update deps and pi model discovery)
   discoverAuthStorage,
   discoverModels,
 }));

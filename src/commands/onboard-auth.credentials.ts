@@ -9,9 +9,16 @@ export async function writeOAuthCredentials(
   creds: OAuthCredentials,
   agentDir?: string,
 ): Promise<void> {
+<<<<<<< HEAD
   // Write to resolved agent dir so gateway finds credentials on startup.
   upsertAuthProfile({
     profileId: `${provider}:${creds.email ?? "default"}`,
+=======
+  const email =
+    typeof creds.email === "string" && creds.email.trim() ? creds.email.trim() : "default";
+  upsertAuthProfile({
+    profileId: `${provider}:${email}`,
+>>>>>>> 08ed62852 (chore: update deps and pi model discovery)
     credential: {
       type: "oauth",
       provider,
