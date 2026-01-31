@@ -340,6 +340,7 @@ importers:
         specifier: ^6.17.0
         version: 6.17.0(ws@8.19.0)(zod@4.3.6)
 
+<<<<<<< HEAD
   extensions/memory-mongodb:
     dependencies:
       '@sinclair/typebox':
@@ -351,6 +352,9 @@ importers:
       openai:
         specifier: ^6.16.0
         version: 6.16.0(ws@8.19.0)(zod@4.3.6)
+=======
+  extensions/minimax-portal-auth: {}
+>>>>>>> 1287328b6 (feat: add MiniMax OAuth plugin (#4521) (thanks @Maosghoul))
 
   extensions/msteams:
     dependencies:

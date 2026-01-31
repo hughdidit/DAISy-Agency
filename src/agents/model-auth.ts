@@ -269,6 +269,17 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
     return pick("QWEN_OAUTH_TOKEN") ?? pick("QWEN_PORTAL_API_KEY");
   }
 
+<<<<<<< HEAD
+=======
+  if (normalized === "minimax-portal") {
+    return pick("MINIMAX_OAUTH_TOKEN") ?? pick("MINIMAX_API_KEY");
+  }
+
+  if (normalized === "kimi-coding") {
+    return pick("KIMI_API_KEY") ?? pick("KIMICODE_API_KEY");
+  }
+
+>>>>>>> 1287328b6 (feat: add MiniMax OAuth plugin (#4521) (thanks @Maosghoul))
   const envMap: Record<string, string> = {
     openai: "OPENAI_API_KEY",
     google: "GEMINI_API_KEY",
