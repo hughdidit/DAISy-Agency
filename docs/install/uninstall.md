@@ -3,6 +3,7 @@ summary: "Uninstall Moltbot completely (CLI, service, state, workspace)"
 read_when:
   - You want to remove Moltbot from a machine
   - The gateway service is still running after uninstall
+title: "Uninstall"
 ---
 
 # Uninstall

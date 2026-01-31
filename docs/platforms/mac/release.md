@@ -3,6 +3,7 @@ summary: "Moltbot macOS release checklist (Sparkle feed, packaging, signing)"
 read_when:
   - Cutting or validating a Moltbot macOS release
   - Updating the Sparkle appcast or feed assets
+title: "macOS Release"
 ---
 
 # Moltbot macOS release (Sparkle)

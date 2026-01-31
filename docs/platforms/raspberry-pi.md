@@ -4,6 +4,7 @@ read_when:
   - Setting up Moltbot on a Raspberry Pi
   - Running Moltbot on ARM devices
   - Building a cheap always-on personal AI
+title: "Raspberry Pi"
 ---
 
 # Moltbot on Raspberry Pi

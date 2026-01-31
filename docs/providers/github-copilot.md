@@ -2,7 +2,12 @@
 summary: "Sign in to GitHub Copilot from Moltbot using the device flow"
 read_when:
   - You want to use GitHub Copilot as a model provider
+<<<<<<< HEAD
   - You need the `moltbot models auth login-github-copilot` flow
+=======
+  - You need the `openclaw models auth login-github-copilot` flow
+title: "GitHub Copilot"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 # GitHub Copilot
 

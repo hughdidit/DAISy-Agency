@@ -3,6 +3,7 @@ summary: "Use Amazon Bedrock (Converse API) models with Moltbot"
 read_when:
   - You want to use Amazon Bedrock models with Moltbot
   - You need AWS credential/region setup for model calls
+title: "Amazon Bedrock"
 ---
 # Amazon Bedrock
 

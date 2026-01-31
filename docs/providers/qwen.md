@@ -3,6 +3,7 @@ summary: "Use Qwen OAuth (free tier) in Moltbot"
 read_when:
   - You want to use Qwen with Moltbot
   - You want free-tier OAuth access to Qwen Coder
+title: "Qwen"
 ---
 # Qwen
 

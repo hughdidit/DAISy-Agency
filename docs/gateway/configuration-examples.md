@@ -3,7 +3,12 @@ summary: "Schema-accurate configuration examples for common Moltbot setups"
 read_when:
   - Learning how to configure Moltbot
   - Looking for configuration examples
+<<<<<<< HEAD
   - Setting up Moltbot for the first time
+=======
+  - Setting up OpenClaw for the first time
+title: "Configuration Examples"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 # Configuration Examples
 

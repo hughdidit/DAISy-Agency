@@ -2,6 +2,7 @@
 summary: "CLI reference for `moltbot config` (get/set/unset config values)"
 read_when:
   - You want to read or edit config non-interactively
+title: "config"
 ---
 
 # `moltbot config`

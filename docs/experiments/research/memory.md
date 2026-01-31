@@ -4,6 +4,7 @@ read_when:
   - Designing workspace memory (~/clawd) beyond daily Markdown logs
   - Deciding: standalone CLI vs deep Moltbot integration
   - Adding offline recall + reflection (retain/recall/reflect)
+title: "Workspace Memory Research"
 ---
 
 # Workspace Memory v2 (offline): research notes

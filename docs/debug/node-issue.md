@@ -2,7 +2,12 @@
 summary: Node + tsx "__name is not a function" crash notes and workarounds
 read_when:
   - Debugging Node-only dev scripts or watch mode failures
+<<<<<<< HEAD
   - Investigating tsx/esbuild loader crashes in Moltbot
+=======
+  - Investigating tsx/esbuild loader crashes in OpenClaw
+title: "Node + tsx Crash"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 
 # Node + tsx "__name is not a function" crash

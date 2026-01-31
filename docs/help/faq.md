@@ -1,5 +1,10 @@
 ---
+<<<<<<< HEAD
 summary: "Frequently asked questions about Moltbot setup, configuration, and usage"
+=======
+summary: "Frequently asked questions about OpenClaw setup, configuration, and usage"
+title: "FAQ"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 # FAQ
 

@@ -3,6 +3,7 @@ summary: "First-run onboarding flow for Moltbot (macOS app)"
 read_when:
   - Designing the macOS onboarding assistant
   - Implementing auth or identity setup
+title: "Onboarding"
 ---
 # Onboarding (macOS app)
 

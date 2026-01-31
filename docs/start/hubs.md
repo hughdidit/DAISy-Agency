@@ -2,6 +2,7 @@
 summary: "Hubs that link to every Moltbot doc"
 read_when:
   - You want a complete map of the documentation
+title: "Docs Hubs"
 ---
 # Docs hubs
 

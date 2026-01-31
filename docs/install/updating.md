@@ -3,6 +3,7 @@ summary: "Updating Moltbot safely (global install or source), plus rollback stra
 read_when:
   - Updating Moltbot
   - Something breaks after an update
+title: "Updating"
 ---
 
 # Updating

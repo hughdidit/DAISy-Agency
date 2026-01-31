@@ -3,6 +3,7 @@ summary: "Move (migrate) a Moltbot install from one machine to another"
 read_when:
   - You are moving Moltbot to a new laptop/server
   - You want to preserve sessions, auth, and channel logins (WhatsApp, etc.)
+title: "Migration Guide"
 ---
 # Migrating Moltbot to a new machine
 

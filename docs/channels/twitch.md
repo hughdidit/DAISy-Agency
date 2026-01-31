@@ -1,7 +1,12 @@
 ---
 summary: "Twitch chat bot configuration and setup"
 read_when:
+<<<<<<< HEAD
   - Setting up Twitch chat integration for Moltbot
+=======
+  - Setting up Twitch chat integration for OpenClaw
+title: "Twitch"
+>>>>>>> abcaa8c7a (Docs: add nav titles across docs (#5689))
 ---
 # Twitch (plugin)
 

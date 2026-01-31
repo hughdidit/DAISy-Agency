@@ -4,6 +4,7 @@ read_when:
   - Packaging Moltbot.app
   - Debugging the macOS gateway launchd service
   - Installing the gateway CLI for macOS
+title: "Gateway on macOS"
 ---
 
 # Gateway on macOS (external launchd)

@@ -3,6 +3,7 @@ summary: "CLI reference for `moltbot plugins` (list, install, enable/disable, do
 read_when:
   - You want to install or manage in-process Gateway plugins
   - You want to debug plugin load failures
+title: "plugins"
 ---
 
 # `moltbot plugins`

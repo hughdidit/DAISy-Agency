@@ -4,6 +4,7 @@ read_when:
   - Adding agent-controlled browser automation
   - Debugging why clawd is interfering with your own Chrome
   - Implementing browser settings + lifecycle in the macOS app
+title: "Browser (OpenClaw-managed)"
 ---
 
 # Browser (clawd-managed)

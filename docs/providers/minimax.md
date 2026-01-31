@@ -3,6 +3,7 @@ summary: "Use MiniMax M2.1 in Moltbot"
 read_when:
   - You want MiniMax models in Moltbot
   - You need MiniMax setup guidance
+title: "MiniMax"
 ---
 # MiniMax
 
