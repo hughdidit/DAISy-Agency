@@ -13,6 +13,12 @@ Docs: https://docs.openclaw.ai
 =======
 - Docs: add direct BotFather link and verification reminder in Telegram setup. (#4064) Thanks @shatner.
 - Docs: add Mintlify language navigation for zh-Hans. (#6416) Thanks @joshp123.
+- Docs: add device pairing section to Control UI docs. (#5003) Thanks @baccula.
+- Docs: improve exe.dev setup instructions. (#4675) Thanks @itsjling.
+- Docs: add pnpm approve-builds step for global installs. (#5663) Thanks @sfo2001.
+- Docs: add zh-CN entrypoint translations. (#6300) Thanks @joshp123.
+- Docs: document cacheRetention parameter. (#6270) Thanks @kimitaka.
+- Docs: clarify Discord exec approvals UI. (#6550) Thanks @sebslight.
 - Telegram: use shared pairing store. (#6127) Thanks @obviyus.
 <<<<<<< HEAD
 =======
@@ -38,11 +44,16 @@ Docs: https://docs.openclaw.ai
 - Docs: update MiniMax OAuth setup commands; Extensions: use OpenClaw plugin SDK for MiniMax OAuth. (#5402) Thanks @Maosghoul.
 - Discord: resolve PluralKit proxied senders for allowlists and labels. (#5838) Thanks @thewilloftheshadow.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 73c405f74 (Docs: note MiniMax OAuth updates (#5402) (thanks @Maosghoul))
 =======
+=======
+- Agents: ensure OpenRouter attribution headers apply in the embedded runner.
+>>>>>>> a68e32d95 (chore: update changelog)
 - System prompt: hint using session_status for current date/time. (#1897, #1928, #2108)
 >>>>>>> 238200f65 (chore: update changelog and relay formatting)
 - Telegram: restore draft streaming partials. (#5543) Thanks @obviyus.
+- Onboarding: friendlier Windows onboarding message. (#6242) Thanks @shanselman.
 - TUI: prevent crash when searching with digits in the model selector.
 - Browser: secure Chrome extension relay CDP sessions.
 - Docker: use container port for gateway command instead of host port. (#5110) Thanks @mise42.
