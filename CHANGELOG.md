@@ -13,8 +13,13 @@ Status: beta.
 ### Fixes
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - Discord: inherit thread parent bindings when routing Discord messages. (#3892) Thanks @aerolalit.
+=======
+- Auto-reply: avoid referencing workspace files in /new greeting prompt. (#5706) Thanks @bravostation.
+- Process: resolve Windows `spawn()` failures for npm-family CLIs by appending `.cmd` when needed. (#5815) Thanks @thejhinvirtuoso.
+>>>>>>> b4e2e746b ( /new: use agent personality in session greeting (#5706))
 - Docs: update MiniMax OAuth setup commands; Extensions: use OpenClaw plugin SDK for MiniMax OAuth. (#5402) Thanks @Maosghoul.
 >>>>>>> 01d76e479 (feat(routing): add thread parent binding inheritance for Discord (#3892))
 - Discord: resolve PluralKit proxied senders for allowlists and labels. (#5838) Thanks @thewilloftheshadow.
