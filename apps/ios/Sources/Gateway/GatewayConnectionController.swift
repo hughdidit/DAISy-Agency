@@ -225,8 +225,8 @@ final class GatewayConnectionController {
         guard let appModel else { return }
         let connectOptions = self.makeConnectOptions()
 
-        Task { [weak self] in
-            guard let self else { return }
+        Task { [weak appModel] in
+            guard let appModel else { return }
             await MainActor.run {
                 appModel.gatewayStatusText = "Connecting…"
             }
@@ -386,6 +386,7 @@ final class GatewayConnectionController {
             OpenClawSystemCommand.notify.rawValue,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b17e6fdd0 (iOS: align node permissions and notifications)
 =======
             OpenClawSystemCommand.which.rawValue,
@@ -394,6 +395,9 @@ final class GatewayConnectionController {
             OpenClawSystemCommand.execApprovalsSet.rawValue,
 >>>>>>> 821ed35be (Revert "iOS: align node permissions and notifications")
 =======
+=======
+            OpenClawChatCommand.push.rawValue,
+>>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)
             OpenClawTalkCommand.pttStart.rawValue,
             OpenClawTalkCommand.pttStop.rawValue,
 <<<<<<< HEAD
