@@ -8,6 +8,31 @@ import { resolveCommandStdio } from "./spawn-utils.js";
 
 const execFileAsync = promisify(execFile);
 
+<<<<<<< HEAD
+=======
+/**
+ * Resolves a command for Windows compatibility.
+ * On Windows, non-.exe commands (like npm, pnpm) require their .cmd extension.
+ */
+function resolveCommand(command: string): string {
+  if (process.platform !== "win32") {
+    return command;
+  }
+  const basename = path.basename(command).toLowerCase();
+  // Skip if already has an extension (.cmd, .exe, .bat, etc.)
+  const ext = path.extname(basename);
+  if (ext) {
+    return command;
+  }
+  // Common npm-related commands that need .cmd extension on Windows
+  const cmdCommands = ["npm", "pnpm", "yarn", "npx"];
+  if (cmdCommands.includes(basename)) {
+    return `${command}.cmd`;
+  }
+  return command;
+}
+
+>>>>>>> dc8a63cb8 (fix: skip extension append if command already has one)
 // Simple promise-wrapped execFile with optional verbosity logging.
 export async function runExec(
   command: string,
