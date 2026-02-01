@@ -396,7 +396,12 @@ final class GatewayConnectionController {
 =======
             OpenClawTalkCommand.pttStart.rawValue,
             OpenClawTalkCommand.pttStop.rawValue,
+<<<<<<< HEAD
 >>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
+=======
+            OpenClawTalkCommand.pttCancel.rawValue,
+            OpenClawTalkCommand.pttOnce.rawValue,
+>>>>>>> 1a48bce29 (iOS: add PTT once/cancel)
         ]
 
         let caps = Set(self.currentCaps())
