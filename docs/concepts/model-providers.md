@@ -80,7 +80,7 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 - Example model: `google/gemini-3-pro-preview`
 - CLI: `moltbot onboard --auth-choice gemini-api-key`
 
-### Google Vertex / Antigravity / Gemini CLI
+### Google Vertex, Antigravity, and Gemini CLI
 
 - Providers: `google-vertex`, `google-antigravity`, `google-gemini-cli`
 - Auth: Vertex uses gcloud ADC; Antigravity/Gemini CLI use their respective auth flows
@@ -140,6 +140,10 @@ Moonshot uses OpenAI-compatible endpoints, so configure it as a custom provider:
   - `moonshot/kimi-k2-thinking`
   - `moonshot/kimi-k2-thinking-turbo`
   {/* moonshot-kimi-k2-model-refs:end */}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7fabe03a8 (docs: fix anchor link for Google Vertex/Antigravity/Gemini section (#5967))
 ```json5
 {
   agents: {
