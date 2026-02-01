@@ -36,7 +36,12 @@ Status: beta.
 - Browser: secure Chrome extension relay CDP sessions.
 - Docker: use container port for gateway command instead of host port. (#5110) Thanks @mise42.
 - fix(lobster): block arbitrary exec via lobsterPath/cwd injection (GHSA-4mhr-g7xj-cg8j). (#5335) Thanks @vignesh07.
+<<<<<<< HEAD
 >>>>>>> 8eb11bd30 (fix: wire before_tool_call hook into tool execution (#6570) (thanks @ryancnelson) (#6660))
+=======
+- Security: block LD_/DYLD_ env overrides for host exec. (#4896) Thanks @HassanFleyah.
+- Security: harden web tool content wrapping + file parsing safeguards. (#4058) Thanks @VACInc.
+>>>>>>> a87a07ec8 (fix: harden host exec env validation (#4896) (thanks @HassanFleyah))
 
 ## 2026.1.30
 
