@@ -59,7 +59,13 @@ function buildUserIdentitySection(ownerLine: string | undefined, isMinimal: bool
 
 function buildTimeSection(params: { userTimezone?: string }) {
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!params.userTimezone) return [];
+=======
+  if (!params.userTimezone) {
+    return [];
+  }
+>>>>>>> b48d72a2b (chore: fix lint, and format after lint to catch reformats triggered by autofixes.)
   return [
     "## Current Date & Time",
     `Time zone: ${params.userTimezone}`,
