@@ -25,6 +25,7 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
+import { upsertChannelPairingRequest } from "../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import { shouldAckReaction as shouldAckReactionGate } from "../channels/ack-reactions.js";
@@ -46,6 +47,7 @@ import {
   hasBotMention,
   resolveTelegramForumThreadId,
 } from "./bot/helpers.js";
+<<<<<<< HEAD
 import {
   firstDefined,
   isSenderAllowed,
@@ -54,6 +56,8 @@ import {
 } from "./bot-access.js";
 import { upsertTelegramPairingRequest } from "./pairing-store.js";
 import type { TelegramContext } from "./bot/types.js";
+=======
+>>>>>>> 24fbafa9a (refactor: use shared pairing store for telegram)
 
 type TelegramMediaRef = {
   path: string;
@@ -252,11 +256,14 @@ export const buildTelegramMessageContext = async ({
                 }
               | undefined;
             const telegramUserId = from?.id ? String(from.id) : candidate;
-            const { code, created } = await upsertTelegramPairingRequest({
-              chatId: candidate,
-              username: from?.username,
-              firstName: from?.first_name,
-              lastName: from?.last_name,
+            const { code, created } = await upsertChannelPairingRequest({
+              channel: "telegram",
+              id: String(candidate),
+              meta: {
+                username: from?.username,
+                firstName: from?.first_name,
+                lastName: from?.last_name,
+              },
             });
             if (created) {
               logger.info(

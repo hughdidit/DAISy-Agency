@@ -29,7 +29,11 @@ import { resolveCommandAuthorizedFromAuthorizers } from "../channels/command-gat
 =======
 import { danger, logVerbose } from "../globals.js";
 import { getChildLogger } from "../logging.js";
+<<<<<<< HEAD
 >>>>>>> 147eba11f (chore: Manually fix TypeScript errors uncovered by sorting imports.)
+=======
+import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
+>>>>>>> 24fbafa9a (refactor: use shared pairing store for telegram)
 import {
   executePluginCommand,
   getPluginCommandSpecs,
@@ -61,8 +65,14 @@ import {
   buildTelegramGroupPeerId,
   resolveTelegramForumThreadId,
 } from "./bot/helpers.js";
+<<<<<<< HEAD
 import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
 import { readTelegramAllowFromStore } from "./pairing-store.js";
+=======
+import { buildInlineKeyboard } from "./send.js";
+
+const EMPTY_RESPONSE_FALLBACK = "No response generated. Please try again.";
+>>>>>>> 24fbafa9a (refactor: use shared pairing store for telegram)
 
 type TelegramNativeCommandContext = Context & { match?: string };
 
@@ -163,7 +173,7 @@ async function resolveTelegramCommandAuth(params: {
     isForum,
     messageThreadId,
   });
-  const storeAllowFrom = await readTelegramAllowFromStore().catch(() => []);
+  const storeAllowFrom = await readChannelAllowFromStore("telegram").catch(() => []);
   const { groupConfig, topicConfig } = resolveTelegramGroupConfig(chatId, resolvedThreadId);
   const groupAllowOverride = firstDefined(topicConfig?.allowFrom, groupConfig?.allowFrom);
   const effectiveGroupAllow = normalizeAllowFromWithStore({
