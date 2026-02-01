@@ -191,6 +191,12 @@ Status: stable.
 
 ### Fixes
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+- Skills: update session-logs paths to use ~/.openclaw. (#4502) Thanks @bonald.
+- Telegram: avoid silent empty replies by tracking normalization skips before fallback. (#3796)
+>>>>>>> d3e53eaf2 (fix(skill): update session-logs paths from .clawdbot to .openclaw (#4502))
 - Mentions: honor mentionPatterns even when explicit mentions are present. (#3303) Thanks @HirokiKobayashi-R.
 - Discord: restore username directory lookup in target resolution. (#3131) Thanks @bonald.
 - Agents: align MiniMax base URL test expectation with default provider config. (#3131) Thanks @bonald.
