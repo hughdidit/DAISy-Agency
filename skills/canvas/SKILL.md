@@ -107,9 +107,13 @@ cat ~/.clawdbot/moltbot.json | jq '.gateway.bind'
 
 Then construct the URL:
 <<<<<<< HEAD
+<<<<<<< HEAD
 - **loopback**: `http://127.0.0.1:18793/__moltbot__/canvas/<file>.html`
 - **lan/tailnet/auto**: `http://<hostname>:18793/__moltbot__/canvas/<file>.html`
 =======
+=======
+
+>>>>>>> 443ee26af (chore: oxfmt fixes)
 - **loopback**: `http://127.0.0.1:18793/__openclaw__/canvas/<file>.html`
 - **lan/tailnet/auto**: `http://<hostname>:18793/__openclaw__/canvas/<file>.html`
 >>>>>>> 701d43892 (docs(skills): update canvas URL prefix to /__openclaw__/ (#4729))

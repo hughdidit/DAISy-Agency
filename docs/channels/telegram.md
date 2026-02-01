@@ -11,9 +11,13 @@ Status: production-ready for bot DMs + groups via grammY. Long-polling by defaul
 
 ## Quick setup (beginner)
 <<<<<<< HEAD
+<<<<<<< HEAD
 1) Create a bot with **@BotFather** and copy the token.
 2) Set the token:
 =======
+=======
+
+>>>>>>> 443ee26af (chore: oxfmt fixes)
 1. Create a bot with **@BotFather** ([direct link](https://t.me/BotFather)). Confirm the handle is exactly `@BotFather`, then copy the token.
 2. Set the token:
 >>>>>>> 8ff75eaf1 (Docs: Direct link to BotFather on Telegram (#4064))
@@ -44,10 +48,14 @@ Minimal config:
 ## Setup (fast path)
 ### 1) Create a bot token (BotFather)
 <<<<<<< HEAD
+<<<<<<< HEAD
 1) Open Telegram and chat with **@BotFather**.
 2) Run `/newbot`, then follow the prompts (name + username ending in `bot`).
 3) Copy the token and store it safely.
 =======
+=======
+
+>>>>>>> 443ee26af (chore: oxfmt fixes)
 1. Open Telegram and chat with **@BotFather** ([direct link](https://t.me/BotFather)). Confirm the handle is exactly `@BotFather`.
 2. Run `/newbot`, then follow the prompts (name + username ending in `bot`).
 3. Copy the token and store it safely.

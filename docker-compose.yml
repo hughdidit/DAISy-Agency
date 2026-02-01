@@ -25,10 +25,14 @@ services:
         "${CLAWDBOT_GATEWAY_BIND:-lan}",
         "--port",
 <<<<<<< HEAD
+<<<<<<< HEAD
         "${CLAWDBOT_GATEWAY_PORT:-18789}"
 =======
         "18789"
 >>>>>>> bc5b0c82a (fix(docker): avoid using host port in gateway command (#5110) (thanks @mise42))
+=======
+        "18789",
+>>>>>>> 443ee26af (chore: oxfmt fixes)
       ]
 
   moltbot-cli:
