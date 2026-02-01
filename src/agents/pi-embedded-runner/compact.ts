@@ -4,7 +4,6 @@ import os from "node:os";
 import {
   createAgentSession,
   estimateTokens,
-  DefaultResourceLoader,
   SessionManager,
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
@@ -391,6 +390,7 @@ export async function compactEmbeddedPiSessionDirect(
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       let session: Awaited<ReturnType<typeof createAgentSession>>["session"];
 <<<<<<< HEAD
 =======
@@ -417,6 +417,8 @@ export async function compactEmbeddedPiSessionDirect(
       });
       await resourceLoader.reload();
 >>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
+=======
+>>>>>>> e58291e07 (fix: align embedded runner with pi-coding-agent API)
       const { session } = await createAgentSession({
 >>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
         cwd: resolvedWorkspace,
@@ -428,8 +430,10 @@ export async function compactEmbeddedPiSessionDirect(
         systemPrompt,
         tools: builtInTools,
         customTools,
+        additionalExtensionPaths,
         sessionManager,
         settingsManager,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -452,6 +456,8 @@ export async function compactEmbeddedPiSessionDirect(
 >>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
 =======
         resourceLoader,
+=======
+>>>>>>> e58291e07 (fix: align embedded runner with pi-coding-agent API)
       });
       applySystemPromptOverrideToSession(session, systemPromptOverride);
 >>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
