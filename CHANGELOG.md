@@ -31,7 +31,11 @@ Docs: https://docs.openclaw.ai
 - Agents: add system prompt safety guardrails. (#5445) Thanks @joshp123.
 - Agents: update pi-ai to 0.50.9 and rename cacheControlTtl -> cacheRetention (with back-compat mapping).
 - Discord: inherit thread parent bindings for routing. (#3892) Thanks @aerolalit.
+<<<<<<< HEAD
 >>>>>>> 238200f65 (chore: update changelog and relay formatting)
+=======
+- Gateway: require TLS 1.3 minimum for TLS listeners. (#5970) Thanks @loganaden.
+>>>>>>> 92112a61d (chore: add TLS 1.3 minimum changelog (#5970) (thanks @loganaden))
 
 >>>>>>> 8ff75eaf1 (Docs: Direct link to BotFather on Telegram (#4064))
 ### Fixes
