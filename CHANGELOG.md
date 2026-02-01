@@ -10,6 +10,7 @@ Docs: https://docs.openclaw.ai
 ### Changes
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - Docs: add direct BotFather link and verification reminder in Telegram setup. (#4064) Thanks @shatner.
 - Docs: add Mintlify language navigation for zh-Hans. (#6416) Thanks @joshp123.
@@ -20,6 +21,9 @@ Docs: https://docs.openclaw.ai
 - Docs: document cacheRetention parameter. (#6270) Thanks @kimitaka.
 - Docs: clarify Discord exec approvals UI. (#6550) Thanks @sebslight.
 - Docs: navigation polish + cron quick start/formatting + Moonshot markers/typos + URL/anchor fixes.
+=======
+- Docs: onboarding/install/i18n/exec-approvals/Control UI/exe.dev/cacheRetention updates + misc nav/typos.
+>>>>>>> 99346314f (chore: trim docs changelog)
 - Telegram: use shared pairing store. (#6127) Thanks @obviyus.
 <<<<<<< HEAD
 =======
@@ -35,6 +39,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -43,6 +48,10 @@ Docs: https://docs.openclaw.ai
 - Process: resolve Windows `spawn()` failures for npm-family CLIs by appending `.cmd` when needed. (#5815) Thanks @thejhinvirtuoso.
 >>>>>>> 92803facf (docs: preserve moonshot sync markers)
 - Docs: update MiniMax OAuth setup commands; Extensions: use OpenClaw plugin SDK for MiniMax OAuth. (#5402) Thanks @Maosghoul.
+=======
+- Auto-reply: avoid referencing workspace files in /new greeting prompt. (#5706) Thanks @bravostation.
+- Process: resolve Windows `spawn()` failures for npm-family CLIs by appending `.cmd` when needed. (#5815) Thanks @thejhinvirtuoso.
+>>>>>>> 99346314f (chore: trim docs changelog)
 - Discord: resolve PluralKit proxied senders for allowlists and labels. (#5838) Thanks @thewilloftheshadow.
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -62,8 +71,6 @@ Docs: https://docs.openclaw.ai
 - TUI: prevent crash when searching with digits in the model selector.
 - Browser: secure Chrome extension relay CDP sessions.
 - Docker: use container port for gateway command instead of host port. (#5110) Thanks @mise42.
-- Docs: add zh-CN frontmatter titles for localized metadata. (#6487) Thanks @joshp123.
-- Docs: clarify Moonshot endpoints. (#4763) Thanks @hansbbans.
 - fix(lobster): block arbitrary exec via lobsterPath/cwd injection (GHSA-4mhr-g7xj-cg8j). (#5335) Thanks @vignesh07.
 
 >>>>>>> 1295b6705 (fix(lobster): block arbitrary exec via lobsterPath/cwd (GHSA-4mhr-g7xj-cg8j) (#5335))
