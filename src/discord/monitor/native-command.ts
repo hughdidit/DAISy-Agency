@@ -51,8 +51,12 @@ import {
   resolveDiscordGuildEntry,
   resolveDiscordUserAllowed,
 } from "./allow-list.js";
+<<<<<<< HEAD
 import { formatDiscordUserTag } from "./format.js";
+=======
+>>>>>>> 58f418592 (fix: Failing tests due to import sorting.)
 import { resolveDiscordChannelInfo } from "./message-utils.js";
+import { resolveDiscordSenderIdentity } from "./sender-identity.js";
 import { resolveDiscordThreadParentInfo } from "./threading.js";
 
 type DiscordConfig = NonNullable<MoltbotConfig["channels"]>["discord"];

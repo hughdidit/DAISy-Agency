@@ -12,6 +12,8 @@ import {
 } from "./monitor.test-helpers.js";
 import { monitorSlackProvider } from "./monitor.js";
 
+const { monitorSlackProvider } = await import("./monitor.js");
+
 const slackTestState = getSlackTestState();
 const { sendMock, replyMock } = slackTestState;
 
