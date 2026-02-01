@@ -326,10 +326,16 @@ export function applyContextPruningDefaults(cfg: OpenClawConfig): OpenClawConfig
       if (!parsed || parsed.provider !== "anthropic") continue;
       const current = entry ?? {};
       const params = (current as { params?: Record<string, unknown> }).params ?? {};
+<<<<<<< HEAD
       if (typeof params.cacheControlTtl === "string") continue;
+=======
+      if (typeof params.cacheRetention === "string") {
+        continue;
+      }
+>>>>>>> ba4a55f6d (fix(agents): update cacheControlTtl to cacheRetention for pi-ai 0.50.9)
       nextModels[key] = {
         ...(current as Record<string, unknown>),
-        params: { ...params, cacheControlTtl: "1h" },
+        params: { ...params, cacheRetention: "short" },
       };
       modelsMutated = true;
     }
@@ -342,10 +348,10 @@ export function applyContextPruningDefaults(cfg: OpenClawConfig): OpenClawConfig
         const entry = nextModels[key];
         const current = entry ?? {};
         const params = (current as { params?: Record<string, unknown> }).params ?? {};
-        if (typeof params.cacheControlTtl !== "string") {
+        if (typeof params.cacheRetention !== "string") {
           nextModels[key] = {
             ...(current as Record<string, unknown>),
-            params: { ...params, cacheControlTtl: "1h" },
+            params: { ...params, cacheRetention: "short" },
           };
           modelsMutated = true;
         }
