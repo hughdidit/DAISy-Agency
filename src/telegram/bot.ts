@@ -1,7 +1,11 @@
 // @ts-nocheck
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
+<<<<<<< HEAD
 import type { ApiClientOptions } from "grammy";
+=======
+import { ReactionTypeEmoji } from "@grammyjs/types";
+>>>>>>> 147eba11f (chore: Manually fix TypeScript errors uncovered by sorting imports.)
 import { Bot, webhookCallback } from "grammy";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { isControlCommandMessage } from "../auto-reply/command-detection.js";
@@ -413,11 +417,11 @@ export function createTelegramBot(opts: TelegramBotOptions) {
       // Detect added reactions
       const oldEmojis = new Set(
         reaction.old_reaction
-          .filter((r): r is { type: "emoji"; emoji: string } => r.type === "emoji")
+          .filter((r): r is ReactionTypeEmoji => r.type === "emoji")
           .map((r) => r.emoji),
       );
       const addedReactions = reaction.new_reaction
-        .filter((r): r is { type: "emoji"; emoji: string } => r.type === "emoji")
+        .filter((r): r is ReactionTypeEmoji => r.type === "emoji")
         .filter((r) => !oldEmojis.has(r.emoji));
 
       if (addedReactions.length === 0) {

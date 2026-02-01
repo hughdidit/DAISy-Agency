@@ -22,14 +22,20 @@ import {
   normalizeTelegramCommandName,
   TELEGRAM_COMMAND_NAME_PATTERN,
 } from "../config/telegram-custom-commands.js";
+<<<<<<< HEAD
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../channels/command-gating.js";
+=======
+import { danger, logVerbose } from "../globals.js";
+import { getChildLogger } from "../logging.js";
+>>>>>>> 147eba11f (chore: Manually fix TypeScript errors uncovered by sorting imports.)
 import {
   executePluginCommand,
   getPluginCommandSpecs,
   matchPluginCommand,
 } from "../plugins/commands.js";
+<<<<<<< HEAD
 import type { ChannelGroupPolicy } from "../config/group-policy.js";
 import type {
   ReplyToMode,
@@ -39,6 +45,14 @@ import type {
 } from "../config/types.js";
 import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import { resolveAgentRoute } from "../routing/resolve-route.js";
+import { resolveThreadSessionKeys } from "../routing/session-key.js";
+import { withTelegramApiErrorLogging } from "./api-logging.js";
+import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
+import { TelegramUpdateKeyContext } from "./bot-updates.js";
+import { TelegramBotOptions } from "./bot.js";
+>>>>>>> 147eba11f (chore: Manually fix TypeScript errors uncovered by sorting imports.)
 import { deliverReplies } from "./bot/delivery.js";
 import { buildInlineKeyboard } from "./send.js";
 import {
@@ -64,6 +78,33 @@ type TelegramCommandAuthResult = {
   commandAuthorized: boolean;
 };
 
+export type RegisterTelegramHandlerParams = {
+  cfg: OpenClawConfig;
+  accountId: string;
+  bot: Bot;
+  mediaMaxBytes: number;
+  opts: TelegramBotOptions;
+  runtime: RuntimeEnv;
+  telegramCfg: TelegramAccountConfig;
+  groupAllowFrom?: Array<string | number>;
+  resolveGroupPolicy: (chatId: string | number) => ChannelGroupPolicy;
+  resolveTelegramGroupConfig: (
+    chatId: string | number,
+    messageThreadId?: number,
+  ) => { groupConfig?: TelegramGroupConfig; topicConfig?: TelegramTopicConfig };
+  shouldSkipUpdate: (ctx: TelegramUpdateKeyContext) => boolean;
+  processMessage: (
+    ctx: unknown,
+    allMedia: Array<{ path: string; contentType?: string }>,
+    storeAllowFrom: string[],
+    options?: {
+      messageIdOverride?: string;
+      forceWasMentioned?: boolean;
+    },
+  ) => Promise<void>;
+  logger: ReturnType<typeof getChildLogger>;
+};
+
 type RegisterTelegramNativeCommandsParams = {
   bot: Bot;
   cfg: MoltbotConfig;
@@ -83,7 +124,7 @@ type RegisterTelegramNativeCommandsParams = {
     chatId: string | number,
     messageThreadId?: number,
   ) => { groupConfig?: TelegramGroupConfig; topicConfig?: TelegramTopicConfig };
-  shouldSkipUpdate: (ctx: unknown) => boolean;
+  shouldSkipUpdate: (ctx: TelegramUpdateKeyContext) => boolean;
   opts: { token: string };
 };
 
@@ -262,7 +303,10 @@ export const registerTelegramNativeCommands = ({
       ? listSkillCommandsForAgents({ cfg, agentIds: boundAgentIds })
       : [];
   const nativeCommands = nativeEnabled
-    ? listNativeCommandSpecsForConfig(cfg, { skillCommands, provider: "telegram" })
+    ? listNativeCommandSpecsForConfig(cfg, {
+        skillCommands,
+        provider: "telegram",
+      })
     : [];
   const reservedCommands = new Set(
     listNativeCommandSpecs().map((command) => command.name.toLowerCase()),
@@ -437,7 +481,10 @@ export const registerTelegramNativeCommands = ({
           const dmThreadId = !isGroup ? messageThreadId : undefined;
           const threadKeys =
             dmThreadId != null
-              ? resolveThreadSessionKeys({ baseSessionKey, threadId: String(dmThreadId) })
+              ? resolveThreadSessionKeys({
+                  baseSessionKey,
+                  threadId: String(dmThreadId),
+                })
               : null;
           const sessionKey = threadKeys?.sessionKey ?? baseSessionKey;
           const tableMode = resolveMarkdownTableMode({
