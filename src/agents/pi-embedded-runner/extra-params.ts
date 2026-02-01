@@ -21,7 +21,14 @@ export function resolveExtraParams(params: {
   return modelConfig?.params ? { ...modelConfig.params } : undefined;
 }
 
+<<<<<<< HEAD
 type CacheControlTtl = "5m" | "1h";
+=======
+type CacheRetention = "none" | "short" | "long";
+type CacheRetentionStreamOptions = Partial<SimpleStreamOptions> & {
+  cacheRetention?: CacheRetention;
+};
+>>>>>>> e4f715536 (fix(ci): repair lint/build checks)
 
 function resolveCacheControlTtl(
   extraParams: Record<string, unknown> | undefined,
@@ -51,7 +58,11 @@ function createStreamFnWithExtraParams(
     return undefined;
   }
 
+<<<<<<< HEAD
   const streamParams: Partial<SimpleStreamOptions> & { cacheControlTtl?: CacheControlTtl } = {};
+=======
+  const streamParams: CacheRetentionStreamOptions = {};
+>>>>>>> e4f715536 (fix(ci): repair lint/build checks)
   if (typeof extraParams.temperature === "number") {
     streamParams.temperature = extraParams.temperature;
   }
