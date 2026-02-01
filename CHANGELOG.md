@@ -19,6 +19,7 @@ Docs: https://docs.openclaw.ai
 - Docs: add zh-CN entrypoint translations. (#6300) Thanks @joshp123.
 - Docs: document cacheRetention parameter. (#6270) Thanks @kimitaka.
 - Docs: clarify Discord exec approvals UI. (#6550) Thanks @sebslight.
+- Docs: navigation polish + cron quick start/formatting + Moonshot markers/typos + URL/anchor fixes.
 - Telegram: use shared pairing store. (#6127) Thanks @obviyus.
 <<<<<<< HEAD
 =======
@@ -49,7 +50,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Agents: ensure OpenRouter attribution headers apply in the embedded runner.
+<<<<<<< HEAD
 >>>>>>> a68e32d95 (chore: update changelog)
+=======
+- Agents: cap context window resolution for compaction safeguard. (#6187) Thanks @iamEvanYT.
+>>>>>>> 1968a4b7d (chore: expand changelog)
 - System prompt: hint using session_status for current date/time. (#1897, #1928, #2108)
 >>>>>>> 238200f65 (chore: update changelog and relay formatting)
 - Telegram: restore draft streaming partials. (#5543) Thanks @obviyus.
