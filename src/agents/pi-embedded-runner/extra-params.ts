@@ -74,6 +74,25 @@ function createStreamFnWithExtraParams(
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * Create a streamFn wrapper that adds OpenRouter app attribution headers.
+ * These headers allow OpenClaw to appear on OpenRouter's leaderboard.
+ */
+function createOpenRouterHeadersWrapper(baseStreamFn: StreamFn | undefined): StreamFn {
+  const underlying = baseStreamFn ?? streamSimple;
+  return (model, context, options) =>
+    underlying(model, context, {
+      ...options,
+      headers: {
+        ...OPENROUTER_APP_HEADERS,
+        ...options?.headers,
+      },
+    });
+}
+
+/**
+>>>>>>> 083ec9325 (fix: cover OpenRouter attribution headers)
  * Apply extra params (like temperature) to an agent's streamFn.
  *
  * @internal Exported for testing
