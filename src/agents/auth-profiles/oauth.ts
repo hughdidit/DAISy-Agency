@@ -21,7 +21,7 @@ import { ensureAuthProfileStore, saveAuthProfileStore } from "./store.js";
 import type { AuthProfileStore } from "./types.js";
 
 const OAUTH_PROVIDER_IDS = new Set<OAuthProvider>(
-  getOAuthProviders().map((provider) => provider.id as OAuthProvider),
+  getOAuthProviders().map((provider) => provider.id),
 );
 
 const isOAuthProvider = (provider: string): provider is OAuthProvider =>
