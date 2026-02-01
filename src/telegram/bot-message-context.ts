@@ -249,11 +249,22 @@ export const buildTelegramMessageContext = async ({
                 }
               | undefined;
             const telegramUserId = from?.id ? String(from.id) : candidate;
+<<<<<<< HEAD
             const { code, created } = await upsertTelegramPairingRequest({
               chatId: candidate,
               username: from?.username,
               firstName: from?.first_name,
               lastName: from?.last_name,
+=======
+            const { code, created } = await upsertChannelPairingRequest({
+              channel: "telegram",
+              id: telegramUserId,
+              meta: {
+                username: from?.username,
+                firstName: from?.first_name,
+                lastName: from?.last_name,
+              },
+>>>>>>> 633f84848 (fix: use telegram user id for pairing request)
             });
             if (created) {
               logger.info(
