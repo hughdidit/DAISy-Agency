@@ -1,7 +1,11 @@
 import type { IncomingMessage } from "node:http";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ChannelPlugin } from "../channels/plugins/types.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createIMessageTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import {

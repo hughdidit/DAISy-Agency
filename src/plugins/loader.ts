@@ -1,6 +1,8 @@
+import { createJiti } from "jiti";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 import { createJiti } from "jiti";
 
 import type { MoltbotConfig } from "../config/config.js";
@@ -21,12 +23,32 @@ import { createPluginRegistry, type PluginRecord, type PluginRegistry } from "./
 import { createPluginRuntime } from "./runtime/index.js";
 import { setActivePluginRegistry } from "./runtime.js";
 import { validateJsonSchemaValue } from "./schema-validator.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
   MoltbotPluginDefinition,
   MoltbotPluginModule,
   PluginDiagnostic,
   PluginLogger,
 } from "./types.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { resolveUserPath } from "../utils.js";
+import { clearPluginCommands } from "./commands.js";
+import {
+  normalizePluginsConfig,
+  resolveEnableState,
+  resolveMemorySlotDecision,
+  type NormalizedPluginsConfig,
+} from "./config-state.js";
+import { discoverOpenClawPlugins } from "./discovery.js";
+import { initializeGlobalHookRunner } from "./hook-runner-global.js";
+import { loadPluginManifestRegistry } from "./manifest-registry.js";
+import { createPluginRegistry, type PluginRecord, type PluginRegistry } from "./registry.js";
+import { setActivePluginRegistry } from "./runtime.js";
+import { createPluginRuntime } from "./runtime/index.js";
+import { validateJsonSchemaValue } from "./schema-validator.js";
 
 export type PluginLoadResult = PluginRegistry;
 

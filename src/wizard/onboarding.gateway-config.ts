@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 import { randomToken } from "../commands/onboard-helpers.js";
 import type { GatewayAuthChoice } from "../commands/onboard-types.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { findTailscaleBinary } from "../infra/tailscale.js";
+=======
+import type { GatewayAuthChoice } from "../commands/onboard-types.js";
+import type { GatewayBindMode, GatewayTailscaleMode, OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { RuntimeEnv } from "../runtime.js";
 import type {
   GatewayWizardSettings,
@@ -9,6 +14,8 @@ import type {
   WizardFlow,
 } from "./onboarding.types.js";
 import type { WizardPrompter } from "./prompts.js";
+import { normalizeGatewayTokenInput, randomToken } from "../commands/onboard-helpers.js";
+import { findTailscaleBinary } from "../infra/tailscale.js";
 
 type ConfigureGatewayOptions = {
   flow: WizardFlow;

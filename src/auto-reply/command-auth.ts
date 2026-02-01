@@ -1,9 +1,14 @@
 import type { ChannelDock } from "../channels/dock.js";
-import { getChannelDock, listChannelDocks } from "../channels/dock.js";
 import type { ChannelId } from "../channels/plugins/types.js";
+<<<<<<< HEAD
 import { normalizeAnyChannelId } from "../channels/registry.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { MsgContext } from "./templating.js";
+import { getChannelDock, listChannelDocks } from "../channels/dock.js";
+import { normalizeAnyChannelId } from "../channels/registry.js";
 
 export type CommandAuthorization = {
   providerId?: ChannelId;

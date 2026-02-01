@@ -1,8 +1,13 @@
 import type { AnyAgentTool } from "../agents/tools/common.js";
+import type { OpenClawPluginToolContext } from "./types.js";
 import { normalizeToolName } from "../agents/tool-policy.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
+<<<<<<< HEAD
 import { loadMoltbotPlugins } from "./loader.js";
 import type { MoltbotPluginToolContext } from "./types.js";
+=======
+import { loadOpenClawPlugins } from "./loader.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const log = createSubsystemLogger("plugins");
 

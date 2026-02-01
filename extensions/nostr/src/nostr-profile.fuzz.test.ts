@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 import { getPublicKey } from "nostr-tools";
+=======
+import type { NostrProfile } from "./config-schema.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   createProfileEvent,
   profileToContent,
   validateProfile,
   sanitizeProfileForDisplay,
 } from "./nostr-profile.js";
-import type { NostrProfile } from "./config-schema.js";
 
 // Test private key
 const TEST_HEX_KEY = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";

@@ -1,10 +1,16 @@
+<<<<<<< HEAD
 import { getChannelDock } from "../../channels/dock.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { GroupKeyResolution, SessionEntry } from "../../config/sessions.js";
+import type { TemplateContext } from "../templating.js";
+import { getChannelDock } from "../../channels/dock.js";
+import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { isInternalMessageChannel } from "../../utils/message-channel.js";
 import { normalizeGroupActivation } from "../group-activation.js";
-import type { TemplateContext } from "../templating.js";
 
 function extractGroupId(raw: string | undefined | null): string | undefined {
   const trimmed = (raw ?? "").trim();

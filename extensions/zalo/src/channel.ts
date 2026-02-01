@@ -14,14 +14,24 @@ import {
   normalizeAccountId,
   PAIRING_APPROVED_MESSAGE,
   setAccountEnabledInConfigSection,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import { listZaloAccountIds, resolveDefaultZaloAccountId, resolveZaloAccount, type ResolvedZaloAccount } from "./accounts.js";
+=======
+} from "openclaw/plugin-sdk";
+import {
+  listZaloAccountIds,
+  resolveDefaultZaloAccountId,
+  resolveZaloAccount,
+  type ResolvedZaloAccount,
+} from "./accounts.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { zaloMessageActions } from "./actions.js";
 import { ZaloConfigSchema } from "./config-schema.js";
 import { zaloOnboardingAdapter } from "./onboarding.js";
-import { resolveZaloProxyFetch } from "./proxy.js";
 import { probeZalo } from "./probe.js";
+import { resolveZaloProxyFetch } from "./proxy.js";
 import { sendMessageZalo } from "./send.js";
 import { collectZaloStatusIssues } from "./status-issues.js";
 

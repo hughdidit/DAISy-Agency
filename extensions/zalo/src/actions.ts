@@ -1,10 +1,16 @@
 import type {
   ChannelMessageActionAdapter,
   ChannelMessageActionName,
+<<<<<<< HEAD
   MoltbotConfig,
 } from "clawdbot/plugin-sdk";
 import { jsonResult, readStringParam } from "clawdbot/plugin-sdk";
 
+=======
+  OpenClawConfig,
+} from "openclaw/plugin-sdk";
+import { jsonResult, readStringParam } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { listEnabledZaloAccounts } from "./accounts.js";
 import { sendMessageZalo } from "./send.js";
 

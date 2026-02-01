@@ -1,33 +1,48 @@
-import fs from "node:fs/promises";
-import os from "node:os";
-
 import {
   createAgentSession,
   estimateTokens,
   SessionManager,
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
-
-import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
+import fs from "node:fs/promises";
+import os from "node:os";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
+<<<<<<< HEAD
 import { listChannelSupportedActions, resolveChannelMessageToolHints } from "../channel-tools.js";
 import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { ExecElevatedDefaults } from "../bash-tools.js";
+import type { EmbeddedPiCompactResult } from "./types.js";
+import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
+import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { getMachineDisplayName } from "../../infra/machine-name.js";
+import { type enqueueCommand, enqueueCommandInLane } from "../../process/command-queue.js";
+import { isSubagentSessionKey } from "../../routing/session-key.js";
+import { resolveSignalReactionLevel } from "../../signal/reaction-level.js";
 import { resolveTelegramInlineButtonsScope } from "../../telegram/inline-buttons.js";
 import { resolveTelegramReactionLevel } from "../../telegram/reaction-level.js";
-import { resolveSignalReactionLevel } from "../../signal/reaction-level.js";
-import { type enqueueCommand, enqueueCommandInLane } from "../../process/command-queue.js";
-import { normalizeMessageChannel } from "../../utils/message-channel.js";
-import { isSubagentSessionKey } from "../../routing/session-key.js";
-import { isReasoningTagProvider } from "../../utils/provider-utils.js";
+import { buildTtsSystemPromptHint } from "../../tts/tts.js";
 import { resolveUserPath } from "../../utils.js";
+<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../agent-paths.js";
 import { resolveSessionAgentIds } from "../agent-scope.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../bootstrap-files.js";
 import { resolveMoltbotDocsPath } from "../docs-path.js";
 import type { ExecElevatedDefaults } from "../bash-tools.js";
+=======
+import { normalizeMessageChannel } from "../../utils/message-channel.js";
+import { isReasoningTagProvider } from "../../utils/provider-utils.js";
+import { resolveOpenClawAgentDir } from "../agent-paths.js";
+import { resolveSessionAgentIds } from "../agent-scope.js";
+import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../bootstrap-files.js";
+import { listChannelSupportedActions, resolveChannelMessageToolHints } from "../channel-tools.js";
+import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../defaults.js";
+import { resolveOpenClawDocsPath } from "../docs-path.js";
 import { getApiKeyForModel, resolveModelAuthMode } from "../model-auth.js";
 import { ensureMoltbotModelsJson } from "../models-config.js";
 import {
@@ -42,7 +57,6 @@ import {
 import { createMoltbotCodingTools } from "../pi-tools.js";
 import { resolveSandboxContext } from "../sandbox.js";
 import { guardSessionManager } from "../session-tool-result-guard-wrapper.js";
-import { resolveTranscriptPolicy } from "../transcript-policy.js";
 import { acquireSessionWriteLock } from "../session-write-lock.js";
 import {
   applySkillEnvOverrides,
@@ -51,6 +65,7 @@ import {
   resolveSkillsPromptForRun,
   type SkillSnapshot,
 } from "../skills.js";
+import { resolveTranscriptPolicy } from "../transcript-policy.js";
 import { buildEmbeddedExtensionPaths } from "./extensions.js";
 import {
   logToolSchemasForGoogle,
@@ -65,10 +80,7 @@ import { buildEmbeddedSandboxInfo } from "./sandbox-info.js";
 import { prewarmSessionFile, trackSessionManagerAccess } from "./session-manager-cache.js";
 import { buildEmbeddedSystemPrompt, createSystemPromptOverride } from "./system-prompt.js";
 import { splitSdkTools } from "./tool-split.js";
-import type { EmbeddedPiCompactResult } from "./types.js";
-import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
 import { describeUnknownError, mapThinkingLevel, resolveExecToolDefaults } from "./utils.js";
-import { buildTtsSystemPromptHint } from "../../tts/tts.js";
 
 export type CompactEmbeddedPiSessionParams = {
   sessionId: string;

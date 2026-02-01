@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 import { readFileSync } from "node:fs";
 
 import type { RuntimeEnv } from "clawdbot/plugin-sdk";
 
+=======
+import type { RuntimeEnv } from "openclaw/plugin-sdk";
+import { readFileSync } from "node:fs";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
 
 const ROOM_CACHE_TTL_MS = 5 * 60 * 1000;

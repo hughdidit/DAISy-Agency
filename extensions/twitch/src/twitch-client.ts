@@ -1,6 +1,10 @@
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { RefreshingAuthProvider, StaticAuthProvider } from "@twurple/auth";
 import { ChatClient, LogLevel } from "@twurple/chat";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ChannelLogSink, TwitchAccountConfig, TwitchChatMessage } from "./types.js";
 import { resolveTwitchToken } from "./token.js";
 import { normalizeToken } from "./utils/twitch.js";

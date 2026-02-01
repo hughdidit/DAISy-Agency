@@ -1,3 +1,6 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { SessionEntry } from "../../config/sessions.js";
+import type { MsgContext, TemplateContext } from "../templating.js";
 import { loadModelCatalog } from "../../agents/model-catalog.js";
 import {
   buildAllowedModelSet,
@@ -6,13 +9,15 @@ import {
   resolveModelRefFromString,
   type ModelAliasIndex,
 } from "../../agents/model-selection.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { updateSessionStore } from "../../config/sessions.js";
-import type { MsgContext, TemplateContext } from "../templating.js";
+import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
 import { formatInboundBodyWithSenderMeta } from "./inbound-sender-meta.js";
 import { resolveModelDirectiveSelection, type ModelDirectiveSelection } from "./model-selection.js";
-import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
 
 type ResetModelResult = {
   selection?: ModelDirectiveSelection;

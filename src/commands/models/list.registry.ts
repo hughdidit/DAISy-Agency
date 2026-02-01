@@ -1,17 +1,28 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { AuthProfileStore } from "../../agents/auth-profiles.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { ModelRow } from "./list.types.js";
+import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
 import { listProfilesForProvider } from "../../agents/auth-profiles.js";
 import {
   getCustomProviderApiKey,
   resolveAwsSdkEnvVarName,
   resolveEnvApiKey,
 } from "../../agents/model-auth.js";
+<<<<<<< HEAD
 import { ensureMoltbotModelsJson } from "../../agents/models-config.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ModelRow } from "./list.types.js";
+=======
+import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
+import { discoverAuthStorage, discoverModels } from "../../agents/pi-model-discovery.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { modelKey } from "./shared.js";
 
 const isLocalBaseUrl = (baseUrl: string) => {

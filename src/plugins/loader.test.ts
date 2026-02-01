@@ -3,8 +3,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { loadMoltbotPlugins } from "./loader.js";
+=======
+import { loadOpenClawPlugins } from "./loader.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type TempPlugin = { dir: string; file: string; id: string };
 

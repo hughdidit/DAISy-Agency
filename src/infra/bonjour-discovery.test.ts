@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-
 import type { runCommandWithTimeout } from "../process/exec.js";
 import { discoverGatewayBeacons } from "./bonjour-discovery.js";
 import { WIDE_AREA_DISCOVERY_DOMAIN } from "./widearea-dns.js";

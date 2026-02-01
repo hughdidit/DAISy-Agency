@@ -1,18 +1,24 @@
+import type { ApiClientOptions } from "grammy";
 // @ts-nocheck
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-import type { ApiClientOptions } from "grammy";
 import { Bot, webhookCallback } from "grammy";
+import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { TelegramContext, TelegramMessage } from "./bot/types.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { isControlCommandMessage } from "../auto-reply/command-detection.js";
 import { resolveTextChunkLimit } from "../auto-reply/chunk.js";
+import { isControlCommandMessage } from "../auto-reply/command-detection.js";
 import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "../auto-reply/reply/history.js";
 import {
   isNativeCommandsExplicitlyDisabled,
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
 } from "../config/commands.js";
+<<<<<<< HEAD
 import type { MoltbotConfig, ReplyToMode } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { loadConfig } from "../config/config.js";
 import {
   resolveChannelGroupPolicy,
@@ -20,21 +26,18 @@ import {
 } from "../config/group-policy.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 import { danger, logVerbose, shouldLogVerbose } from "../globals.js";
-import { createSubsystemLogger } from "../logging/subsystem.js";
 import { formatUncaughtError } from "../infra/errors.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { getChildLogger } from "../logging.js";
+<<<<<<< HEAD
 import { withTelegramApiErrorLogging } from "./api-logging.js";
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { resolveTelegramAccount } from "./accounts.js";
-import {
-  buildTelegramGroupPeerId,
-  resolveTelegramForumThreadId,
-  resolveTelegramStreamMode,
-} from "./bot/helpers.js";
-import type { TelegramContext, TelegramMessage } from "./bot/types.js";
+import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { registerTelegramHandlers } from "./bot-handlers.js";
 import { createTelegramMessageProcessor } from "./bot-message.js";
 import { registerTelegramNativeCommands } from "./bot-native-commands.js";
@@ -44,6 +47,14 @@ import {
   resolveTelegramUpdateId,
   type TelegramUpdateKeyContext,
 } from "./bot-updates.js";
+<<<<<<< HEAD
+=======
+import {
+  buildTelegramGroupPeerId,
+  resolveTelegramForumThreadId,
+  resolveTelegramStreamMode,
+} from "./bot/helpers.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveTelegramFetch } from "./fetch.js";
 import { wasSentByBot } from "./sent-message-cache.js";
 

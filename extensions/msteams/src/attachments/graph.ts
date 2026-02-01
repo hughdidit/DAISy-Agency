@@ -1,5 +1,12 @@
+import type {
+  MSTeamsAccessTokenProvider,
+  MSTeamsAttachmentLike,
+  MSTeamsGraphMediaResult,
+  MSTeamsInboundMedia,
+} from "./types.js";
 import { getMSTeamsRuntime } from "../runtime.js";
 import { downloadMSTeamsAttachments } from "./download.js";
+<<<<<<< HEAD
 import { GRAPH_ROOT, inferPlaceholder, isRecord, normalizeContentType, resolveAllowedHosts } from "./shared.js";
 import type {
   MSTeamsAccessTokenProvider,
@@ -7,6 +14,15 @@ import type {
   MSTeamsGraphMediaResult,
   MSTeamsInboundMedia,
 } from "./types.js";
+=======
+import {
+  GRAPH_ROOT,
+  inferPlaceholder,
+  isRecord,
+  normalizeContentType,
+  resolveAllowedHosts,
+} from "./shared.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type GraphHostedContent = {
   id?: string | null;

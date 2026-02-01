@@ -9,14 +9,16 @@ import {
   type ChannelMessageActionAdapter,
   type ChannelMessageActionName,
   type ChannelToolSend,
+<<<<<<< HEAD
   type MoltbotConfig,
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+import type { BlueBubblesSendTarget } from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveBlueBubblesAccount } from "./accounts.js";
-import { resolveBlueBubblesMessageId } from "./monitor.js";
-import { isMacOS26OrHigher } from "./probe.js";
-import { sendBlueBubblesReaction } from "./reactions.js";
-import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
+import { sendBlueBubblesAttachment } from "./attachments.js";
 import {
   editBlueBubblesMessage,
   unsendBlueBubblesMessage,
@@ -26,9 +28,11 @@ import {
   removeBlueBubblesParticipant,
   leaveBlueBubblesChat,
 } from "./chat.js";
-import { sendBlueBubblesAttachment } from "./attachments.js";
+import { resolveBlueBubblesMessageId } from "./monitor.js";
+import { isMacOS26OrHigher } from "./probe.js";
+import { sendBlueBubblesReaction } from "./reactions.js";
+import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
 import { normalizeBlueBubblesHandle, parseBlueBubblesTarget } from "./targets.js";
-import type { BlueBubblesSendTarget } from "./types.js";
 
 const providerId = "bluebubbles";
 

@@ -3,12 +3,17 @@ import type {
   ChannelResolveKind,
   ChannelResolveResult,
   RuntimeEnv,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import {
   listMatrixDirectoryGroupsLive,
   listMatrixDirectoryPeersLive,
 } from "./directory-live.js";
+=======
+} from "openclaw/plugin-sdk";
+import { listMatrixDirectoryGroupsLive, listMatrixDirectoryPeersLive } from "./directory-live.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 function pickBestGroupMatch(
   matches: ChannelDirectoryEntry[],

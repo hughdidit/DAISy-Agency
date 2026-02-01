@@ -1,5 +1,13 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import {
+  resolveTelegramInlineButtonsScope,
+  resolveTelegramTargetChatType,
+} from "../../telegram/inline-buttons.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveTelegramReactionLevel } from "../../telegram/reaction-level.js";
 import {
   deleteMessageTelegram,
@@ -10,10 +18,6 @@ import {
 } from "../../telegram/send.js";
 import { getCacheStats, searchStickers } from "../../telegram/sticker-cache.js";
 import { resolveTelegramToken } from "../../telegram/token.js";
-import {
-  resolveTelegramInlineButtonsScope,
-  resolveTelegramTargetChatType,
-} from "../../telegram/inline-buttons.js";
 import {
   createActionGate,
   jsonResult,

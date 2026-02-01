@@ -1,17 +1,23 @@
+import type { GatewayBindMode, GatewayControlUiConfig } from "../../config/types.js";
+import type { FindExtraGatewayServicesOptions } from "../../daemon/inspect.js";
+import type { ServiceConfigAudit } from "../../daemon/service-audit.js";
+import type { GatewayRpcOpts } from "./types.js";
 import {
   createConfigIO,
   resolveConfigPath,
   resolveGatewayPort,
   resolveStateDir,
 } from "../../config/config.js";
-import type { GatewayBindMode, GatewayControlUiConfig } from "../../config/types.js";
 import { readLastGatewayErrorLine } from "../../daemon/diagnostics.js";
-import type { FindExtraGatewayServicesOptions } from "../../daemon/inspect.js";
 import { findExtraGatewayServices } from "../../daemon/inspect.js";
+<<<<<<< HEAD
 import { findLegacyGatewayServices } from "../../daemon/legacy.js";
 import { resolveGatewayService } from "../../daemon/service.js";
 import type { ServiceConfigAudit } from "../../daemon/service-audit.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { auditGatewayServiceConfig } from "../../daemon/service-audit.js";
+import { resolveGatewayService } from "../../daemon/service.js";
 import { resolveGatewayBindHost } from "../../gateway/net.js";
 import {
   formatPortDiagnostics,
@@ -22,7 +28,6 @@ import {
 import { pickPrimaryTailnetIPv4 } from "../../infra/tailnet.js";
 import { probeGatewayStatus } from "./probe.js";
 import { normalizeListenerAddress, parsePortFromArgs, pickProbeHostForBind } from "./shared.js";
-import type { GatewayRpcOpts } from "./types.js";
 
 type ConfigSummary = {
   path: string;

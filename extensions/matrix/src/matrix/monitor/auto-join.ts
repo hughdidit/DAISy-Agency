@@ -1,7 +1,12 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
+<<<<<<< HEAD
 import { AutojoinRoomsMixin } from "@vector-im/matrix-bot-sdk";
 
 import type { RuntimeEnv } from "clawdbot/plugin-sdk";
+=======
+import type { RuntimeEnv } from "openclaw/plugin-sdk";
+import { AutojoinRoomsMixin } from "@vector-im/matrix-bot-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { CoreConfig } from "../../types.js";
 import { getMatrixRuntime } from "../../runtime.js";
 

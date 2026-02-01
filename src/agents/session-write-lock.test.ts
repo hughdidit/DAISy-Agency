@@ -1,8 +1,12 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { __testing, acquireSessionWriteLock } from "./session-write-lock.js";
 
 describe.sequential("acquireSessionWriteLock", () => {

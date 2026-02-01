@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../agents/agent-paths.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { ProviderAuthMethod, ProviderPlugin } from "../plugins/types.js";
+import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
+import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   resolveDefaultAgentId,
   resolveAgentDir,
@@ -7,15 +14,16 @@ import {
 import { upsertAuthProfile } from "../agents/auth-profiles.js";
 import { normalizeProviderId } from "../agents/model-selection.js";
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { enablePluginInConfig } from "../plugins/enable.js";
 import { resolvePluginProviders } from "../plugins/providers.js";
-import type { ProviderAuthMethod, ProviderPlugin } from "../plugins/types.js";
-import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
+import { isRemoteEnvironment } from "./oauth-env.js";
+import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
 import { applyAuthProfileConfig } from "./onboard-auth.js";
 import { openUrl } from "./onboard-helpers.js";
-import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
-import { isRemoteEnvironment } from "./oauth-env.js";
 
 export type PluginProviderAuthChoiceOptions = {
   authChoice: string;

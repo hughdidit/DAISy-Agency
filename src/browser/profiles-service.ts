@@ -1,12 +1,21 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
 import type { BrowserProfileConfig, MoltbotConfig } from "../config/config.js";
 import { loadConfig, writeConfigFile } from "../config/config.js";
 import { deriveDefaultBrowserCdpPortRange } from "../config/port-defaults.js";
 import { DEFAULT_BROWSER_DEFAULT_PROFILE_NAME } from "./constants.js";
 import { resolveClawdUserDataDir } from "./chrome.js";
+=======
+import type { BrowserProfileConfig, OpenClawConfig } from "../config/config.js";
+import type { BrowserRouteContext, ProfileStatus } from "./server-context.js";
+import { loadConfig, writeConfigFile } from "../config/config.js";
+import { deriveDefaultBrowserCdpPortRange } from "../config/port-defaults.js";
+import { resolveOpenClawUserDataDir } from "./chrome.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { parseHttpUrl, resolveProfile } from "./config.js";
+import { DEFAULT_BROWSER_DEFAULT_PROFILE_NAME } from "./constants.js";
 import {
   allocateCdpPort,
   allocateColor,
@@ -14,7 +23,6 @@ import {
   getUsedPorts,
   isValidProfileName,
 } from "./profiles.js";
-import type { BrowserRouteContext, ProfileStatus } from "./server-context.js";
 import { movePathToTrash } from "./trash.js";
 
 export type CreateProfileParams = {

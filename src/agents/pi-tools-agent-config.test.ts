@@ -1,8 +1,13 @@
 import { describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { createMoltbotCodingTools } from "./pi-tools.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { SandboxDockerConfig } from "./sandbox.js";
+import { createOpenClawCodingTools } from "./pi-tools.js";
 
 describe("Agent-specific tool filtering", () => {
   it("should apply global tool policy when no agent-specific policy exists", () => {

@@ -1,6 +1,10 @@
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveTextChunkLimit } from "../auto-reply/chunk.js";
 import { getChannelDock } from "../channels/dock.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { normalizeAccountId } from "../routing/session-key.js";
 
 const DEFAULT_TELEGRAM_DRAFT_STREAM_MIN = 200;

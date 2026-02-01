@@ -15,10 +15,16 @@ import {
   type ChannelDock,
   type ChannelMessageActionAdapter,
   type ChannelPlugin,
+<<<<<<< HEAD
   type MoltbotConfig,
 } from "clawdbot/plugin-sdk";
 import { GoogleChatConfigSchema } from "clawdbot/plugin-sdk";
 
+=======
+  type OpenClawConfig,
+} from "openclaw/plugin-sdk";
+import { GoogleChatConfigSchema } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   listGoogleChatAccountIds,
   resolveDefaultGoogleChatAccountId,
@@ -27,9 +33,9 @@ import {
 } from "./accounts.js";
 import { googlechatMessageActions } from "./actions.js";
 import { sendGoogleChatMessage, uploadGoogleChatAttachment, probeGoogleChat } from "./api.js";
+import { resolveGoogleChatWebhookPath, startGoogleChatMonitor } from "./monitor.js";
 import { googlechatOnboardingAdapter } from "./onboarding.js";
 import { getGoogleChatRuntime } from "./runtime.js";
-import { resolveGoogleChatWebhookPath, startGoogleChatMonitor } from "./monitor.js";
 import {
   isGoogleChatSpaceTarget,
   isGoogleChatUserTarget,

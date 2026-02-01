@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import type { ChannelDirectoryEntry } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import { resetDirectoryCache, resolveMessagingTarget } from "./target-resolver.js";

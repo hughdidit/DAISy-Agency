@@ -1,11 +1,22 @@
+import type {
+  GatewayAuthChoice,
+  OnboardMode,
+  OnboardOptions,
+  ResetScope,
+} from "../commands/onboard-types.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.js";
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import { installCompletion } from "../cli/completion-cli.js";
+import { promptAuthChoiceGrouped } from "../commands/auth-choice-prompt.js";
 import {
   applyAuthChoice,
   resolvePreferredProviderForAuthChoice,
   warnIfModelConfigLooksOff,
 } from "../commands/auth-choice.js";
-import { promptAuthChoiceGrouped } from "../commands/auth-choice-prompt.js";
 import { applyPrimaryModel, promptDefaultModel } from "../commands/model-picker.js";
 import { setupChannels } from "../commands/onboard-channels.js";
 import {
@@ -17,8 +28,10 @@ import {
   probeGatewayReachable,
   summarizeExistingConfig,
 } from "../commands/onboard-helpers.js";
+import { setupInternalHooks } from "../commands/onboard-hooks.js";
 import { promptRemoteGatewayConfig } from "../commands/onboard-remote.js";
 import { setupSkills } from "../commands/onboard-skills.js";
+<<<<<<< HEAD
 import { setupInternalHooks } from "../commands/onboard-hooks.js";
 import type {
   GatewayAuthChoice,
@@ -28,6 +41,8 @@ import type {
 } from "../commands/onboard-types.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   DEFAULT_GATEWAY_PORT,
   readConfigFileSnapshot,
@@ -35,12 +50,10 @@ import {
   writeConfigFile,
 } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import { resolveUserPath } from "../utils.js";
 import { finalizeOnboardingWizard } from "./onboarding.finalize.js";
 import { configureGatewayForOnboarding } from "./onboarding.gateway-config.js";
-import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.js";
 import { WizardCancelledError, type WizardPrompter } from "./prompts.js";
 
 async function requireRiskAcknowledgement(params: {

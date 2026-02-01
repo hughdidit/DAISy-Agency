@@ -1,9 +1,13 @@
 import type { WebhookContext, WebhookVerificationResult } from "../../types.js";
+<<<<<<< HEAD
 import type { Logger } from "../../manager/context.js";
 import { defaultLogger, sanitizeLogValue } from "../../manager/context.js";
 import { verifyTwilioWebhook } from "../../webhook-security.js";
 
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { TwilioProviderOptions } from "../twilio.js";
+import { verifyTwilioWebhook } from "../../webhook-security.js";
 
 export function verifyTwilioProviderWebhook(params: {
   ctx: WebhookContext;
