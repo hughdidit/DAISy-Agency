@@ -4,6 +4,7 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
 >>>>>>> bcde2fca5 (fix: align embedded agent session setup)
 =======
@@ -14,6 +15,9 @@ import {
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
 >>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
+=======
+import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
+>>>>>>> e58291e07 (fix: align embedded runner with pi-coding-agent API)
 import fs from "node:fs/promises";
 import os from "node:os";
 
@@ -475,13 +479,6 @@ export async function runEmbeddedAttempt(
 
       const allCustomTools = [...customTools, ...clientToolDefs];
 
-      const resourceLoader = new DefaultResourceLoader({
-        cwd: resolvedWorkspace,
-        agentDir,
-        settingsManager,
-        additionalExtensionPaths,
-      });
-      await resourceLoader.reload();
       ({ session } = await createAgentSession({
         cwd: resolvedWorkspace,
         agentDir,
@@ -492,8 +489,10 @@ export async function runEmbeddedAttempt(
         systemPrompt,
         tools: builtInTools,
         customTools: allCustomTools,
+        additionalExtensionPaths,
         sessionManager,
         settingsManager,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -515,6 +514,8 @@ export async function runEmbeddedAttempt(
 =======
         resourceLoader,
 >>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
+=======
+>>>>>>> e58291e07 (fix: align embedded runner with pi-coding-agent API)
       }));
       applySystemPromptOverrideToSession(session, systemPromptOverride);
       if (!session) {

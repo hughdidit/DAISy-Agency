@@ -20,10 +20,15 @@ import { suggestOAuthProfileIdForLegacyDefault } from "./repair.js";
 import { ensureAuthProfileStore, saveAuthProfileStore } from "./store.js";
 import type { AuthProfileStore } from "./types.js";
 
-const OAUTH_PROVIDER_IDS = new Set(getOAuthProviders().map((provider) => provider.id));
+const OAUTH_PROVIDER_IDS = new Set<OAuthProvider>(
+  getOAuthProviders().map((provider) => provider.id as OAuthProvider),
+);
+
+const isOAuthProvider = (provider: string): provider is OAuthProvider =>
+  OAUTH_PROVIDER_IDS.has(provider as OAuthProvider);
 
 const resolveOAuthProvider = (provider: string): OAuthProvider | null =>
-  OAUTH_PROVIDER_IDS.has(provider) ? provider : null;
+  isOAuthProvider(provider) ? provider : null;
 
 function buildOAuthApiKey(provider: string, credentials: OAuthCredentials): string {
   const needsProjectId = provider === "google-gemini-cli" || provider === "google-antigravity";
