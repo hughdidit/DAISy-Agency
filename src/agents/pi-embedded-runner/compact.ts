@@ -4,6 +4,7 @@ import os from "node:os";
 import {
   createAgentSession,
   estimateTokens,
+  DefaultResourceLoader,
   SessionManager,
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
@@ -63,7 +64,11 @@ import { log } from "./logger.js";
 import { buildModelAliasLines, resolveModel } from "./model.js";
 import { buildEmbeddedSandboxInfo } from "./sandbox-info.js";
 import { prewarmSessionFile, trackSessionManagerAccess } from "./session-manager-cache.js";
-import { buildEmbeddedSystemPrompt, createSystemPromptOverride } from "./system-prompt.js";
+import {
+  applySystemPromptOverrideToSession,
+  buildEmbeddedSystemPrompt,
+  createSystemPromptOverride,
+} from "./system-prompt.js";
 import { splitSdkTools } from "./tool-split.js";
 import type { EmbeddedPiCompactResult } from "./types.js";
 import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
@@ -347,7 +352,7 @@ export async function compactEmbeddedPiSessionDirect(
       userTimeFormat,
       contextFiles,
     });
-    const systemPrompt = createSystemPromptOverride(appendPrompt);
+    const systemPromptOverride = createSystemPromptOverride(appendPrompt);
 
     const sessionLock = await acquireSessionWriteLock({
       sessionFile: params.sessionFile,
@@ -385,14 +390,18 @@ export async function compactEmbeddedPiSessionDirect(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       let session: Awaited<ReturnType<typeof createAgentSession>>["session"];
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
       const resourceLoader = new DefaultResourceLoader({
         cwd: resolvedWorkspace,
         agentDir,
         settingsManager,
         additionalExtensionPaths,
+<<<<<<< HEAD
         noSkills: true,
         systemPromptOverride: systemPrompt,
         agentsFilesOverride: () => ({ agentsFiles: [] }),
@@ -404,6 +413,10 @@ export async function compactEmbeddedPiSessionDirect(
 =======
 =======
 >>>>>>> bcde2fca5 (fix: align embedded agent session setup)
+=======
+      });
+      await resourceLoader.reload();
+>>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
       const { session } = await createAgentSession({
 >>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
         cwd: resolvedWorkspace,
@@ -417,6 +430,7 @@ export async function compactEmbeddedPiSessionDirect(
         customTools,
         sessionManager,
         settingsManager,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         skills: [],
@@ -436,6 +450,11 @@ export async function compactEmbeddedPiSessionDirect(
 >>>>>>> bcde2fca5 (fix: align embedded agent session setup)
       });
 >>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
+=======
+        resourceLoader,
+      });
+      applySystemPromptOverrideToSession(session, systemPromptOverride);
+>>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
 
       try {
         const prior = await sanitizeSessionHistory({
