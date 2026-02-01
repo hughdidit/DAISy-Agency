@@ -35,8 +35,12 @@ services:
         "--bind",
         "${CLAWDBOT_GATEWAY_BIND:-loopback}",
         "--port",
+<<<<<<< HEAD
         "${CLAWDBOT_GATEWAY_PORT}",
         "--allow-unconfigured"
+=======
+        "18789"
+>>>>>>> bc5b0c82a (fix(docker): avoid using host port in gateway command (#5110) (thanks @mise42))
       ]
 
   moltbot-cli:
