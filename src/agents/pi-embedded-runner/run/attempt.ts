@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import type { ImageContent } from "@mariozechner/pi-ai";
+import { streamSimple } from "@mariozechner/pi-ai";
+import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
+>>>>>>> bcde2fca5 (fix: align embedded agent session setup)
 import fs from "node:fs/promises";
 import os from "node:os";
 
@@ -460,6 +467,7 @@ export async function runEmbeddedAttempt(
         sessionManager,
         settingsManager,
 <<<<<<< HEAD
+<<<<<<< HEAD
         skills: [],
         contextFiles: [],
         additionalExtensionPaths,
@@ -469,6 +477,12 @@ export async function runEmbeddedAttempt(
         contextFiles: [],
         systemPrompt,
 >>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
+=======
+        systemPrompt,
+        additionalExtensionPaths,
+        skills: [],
+        contextFiles: [],
+>>>>>>> bcde2fca5 (fix: align embedded agent session setup)
       }));
       if (!session) {
         throw new Error("Embedded agent session missing");

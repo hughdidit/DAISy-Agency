@@ -1,4 +1,13 @@
+<<<<<<< HEAD
 import { getOAuthApiKey, type OAuthCredentials, type OAuthProvider } from "@mariozechner/pi-ai";
+=======
+import {
+  getOAuthApiKey,
+  getOAuthProviders,
+  type OAuthCredentials,
+  type OAuthProvider,
+} from "@mariozechner/pi-ai";
+>>>>>>> bcde2fca5 (fix: align embedded agent session setup)
 import lockfile from "proper-lockfile";
 
 import type { MoltbotConfig } from "../../config/config.js";
@@ -10,6 +19,11 @@ import { ensureAuthStoreFile, resolveAuthStorePath } from "./paths.js";
 import { suggestOAuthProfileIdForLegacyDefault } from "./repair.js";
 import { ensureAuthProfileStore, saveAuthProfileStore } from "./store.js";
 import type { AuthProfileStore } from "./types.js";
+
+const OAUTH_PROVIDER_IDS = new Set(getOAuthProviders().map((provider) => provider.id));
+
+const resolveOAuthProvider = (provider: string): OAuthProvider | null =>
+  OAUTH_PROVIDER_IDS.has(provider as OAuthProvider) ? (provider as OAuthProvider) : null;
 
 function buildOAuthApiKey(provider: string, credentials: OAuthCredentials): string {
   const needsProjectId = provider === "google-gemini-cli" || provider === "google-antigravity";
@@ -62,8 +76,21 @@ async function refreshOAuthTokenWithLock(params: {
               const newCredentials = await refreshQwenPortalCredentials(cred);
               return { apiKey: newCredentials.access, newCredentials };
             })()
+<<<<<<< HEAD
           : await getOAuthApiKey(cred.provider as OAuthProvider, oauthCreds);
     if (!result) return null;
+=======
+          : await (async () => {
+              const oauthProvider = resolveOAuthProvider(cred.provider);
+              if (!oauthProvider) {
+                return null;
+              }
+              return await getOAuthApiKey(oauthProvider, oauthCreds);
+            })();
+    if (!result) {
+      return null;
+    }
+>>>>>>> bcde2fca5 (fix: align embedded agent session setup)
     store.profiles[params.profileId] = {
       ...cred,
       ...result.newCredentials,
