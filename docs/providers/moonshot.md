@@ -15,12 +15,17 @@ Kimi Code with `kimi-code/kimi-for-coding`.
 
 Current Kimi K2 model IDs:
 <<<<<<< HEAD
+<<<<<<< HEAD
 {/* moonshot-kimi-k2-ids:start */}
 <<<<<<< HEAD
 =======
 =======
 {/_ moonshot-kimi-k2-ids:start _/}
 >>>>>>> 443ee26af (chore: oxfmt fixes)
+=======
+
+<!-- moonshot-kimi-k2-ids:start -->
+>>>>>>> 92803facf (docs: preserve moonshot sync markers)
 
 >>>>>>> 8582ed4d4 (Docs: fix Moonshot MDX comment marker (#6311))
 - `kimi-k2.5`
@@ -28,7 +33,7 @@ Current Kimi K2 model IDs:
 - `kimi-k2-turbo-preview`
 - `kimi-k2-thinking`
 - `kimi-k2-thinking-turbo`
-  {/_ moonshot-kimi-k2-ids:end _/}
+<!-- moonshot-kimi-k2-ids:end -->
 
 ```bash
 moltbot onboard --auth-choice moonshot-api-key
