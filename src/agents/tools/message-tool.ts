@@ -15,7 +15,12 @@ import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "../../gateway/protocol
 import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
 import { getToolResult, runMessageAction } from "../../infra/outbound/message-action-runner.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
+<<<<<<< HEAD
 import { normalizeAccountId } from "../../routing/session-key.js";
+=======
+import { listChannelSupportedActions } from "../channel-tools.js";
+import { assertSandboxPath } from "../sandbox-paths.js";
+>>>>>>> 9b6fffd00 (security(message-tool): validate filePath/path against sandbox root (#6398))
 import { channelTargetSchema, channelTargetsSchema, stringEnum } from "../schema/typebox.js";
 import { listChannelSupportedActions } from "../channel-tools.js";
 import { normalizeMessageChannel } from "../../utils/message-channel.js";
@@ -248,6 +253,7 @@ type MessageToolOptions = {
   currentThreadTs?: string;
   replyToMode?: "off" | "first" | "all";
   hasRepliedRef?: { value: boolean };
+  sandboxRoot?: string;
 };
 
 function buildMessageToolSchema(cfg: OpenClawConfig) {
@@ -349,6 +355,17 @@ export function createMessageTool(options?: MessageToolOptions): AnyAgentTool {
       const action = readStringParam(params, "action", {
         required: true,
       }) as ChannelMessageActionName;
+
+      // Validate file paths against sandbox root to prevent host file access.
+      const sandboxRoot = options?.sandboxRoot;
+      if (sandboxRoot) {
+        for (const key of ["filePath", "path"] as const) {
+          const raw = readStringParam(params, key, { trim: false });
+          if (raw) {
+            await assertSandboxPath({ filePath: raw, cwd: sandboxRoot, root: sandboxRoot });
+          }
+        }
+      }
 
       const accountId = readStringParam(params, "accountId") ?? agentAccountId;
       if (accountId) {
