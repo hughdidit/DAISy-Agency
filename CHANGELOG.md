@@ -12,6 +12,11 @@ Status: beta.
 
 ### Fixes
 
+<<<<<<< HEAD
+=======
+- Discord: inherit thread parent bindings when routing Discord messages. (#3892) Thanks @aerolalit.
+- Docs: update MiniMax OAuth setup commands; Extensions: use OpenClaw plugin SDK for MiniMax OAuth. (#5402) Thanks @Maosghoul.
+>>>>>>> 01d76e479 (feat(routing): add thread parent binding inheritance for Discord (#3892))
 - Discord: resolve PluralKit proxied senders for allowlists and labels. (#5838) Thanks @thewilloftheshadow.
 - Telegram: restore draft streaming partials. (#5543) Thanks @obviyus.
 - fix(lobster): block arbitrary exec via lobsterPath/cwd injection (GHSA-4mhr-g7xj-cg8j). (#5335) Thanks @vignesh07.
