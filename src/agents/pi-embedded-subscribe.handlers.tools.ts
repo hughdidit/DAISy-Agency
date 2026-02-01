@@ -1,5 +1,9 @@
 import type { AgentEvent } from "@mariozechner/pi-agent-core";
+<<<<<<< HEAD
 
+=======
+import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
+>>>>>>> 8eb11bd30 (fix: wire before_tool_call hook into tool execution (#6570) (thanks @ryancnelson) (#6660))
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
 import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";

@@ -28,6 +28,15 @@ Status: beta.
 - Discord: resolve PluralKit proxied senders for allowlists and labels. (#5838) Thanks @thewilloftheshadow.
 >>>>>>> 3d5c03ec2 (fix: resolve Windows npm spawn ENOENT (#5815) (thanks @thejhinvirtuoso))
 - Telegram: restore draft streaming partials. (#5543) Thanks @obviyus.
+<<<<<<< HEAD
+=======
+- Onboarding: friendlier Windows onboarding message. (#6242) Thanks @shanselman.
+- TUI: prevent crash when searching with digits in the model selector.
+- Agents: wire before_tool_call plugin hook into tool execution. (#6570) Thanks @ryancnelson.
+- Browser: secure Chrome extension relay CDP sessions.
+- Docker: use container port for gateway command instead of host port. (#5110) Thanks @mise42.
+- fix(lobster): block arbitrary exec via lobsterPath/cwd injection (GHSA-4mhr-g7xj-cg8j). (#5335) Thanks @vignesh07.
+>>>>>>> 8eb11bd30 (fix: wire before_tool_call hook into tool execution (#6570) (thanks @ryancnelson) (#6660))
 
 ## 2026.1.30
 
