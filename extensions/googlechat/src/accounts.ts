@@ -42,9 +42,17 @@ function resolveAccountConfig(
   cfg: MoltbotConfig,
   accountId: string,
 ): GoogleChatAccountConfig | undefined {
+<<<<<<< HEAD
   const accounts = (cfg.channels?.["googlechat"] as GoogleChatConfig | undefined)?.accounts;
   if (!accounts || typeof accounts !== "object") return undefined;
   return accounts[accountId] as GoogleChatAccountConfig | undefined;
+=======
+  const accounts = cfg.channels?.["googlechat"]?.accounts;
+  if (!accounts || typeof accounts !== "object") {
+    return undefined;
+  }
+  return accounts[accountId];
+>>>>>>> 19775abdd (fix: clean up plugin linting and types)
 }
 
 function mergeGoogleChatAccountConfig(

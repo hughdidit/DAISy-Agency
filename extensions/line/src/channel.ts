@@ -349,9 +349,10 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
       const createQuickReplyItems = runtime.channel.line.createQuickReplyItems;
 
       let lastResult: { messageId: string; chatId: string } | null = null;
-      const hasQuickReplies = Boolean(lineData.quickReplies?.length);
+      const quickReplies = lineData.quickReplies ?? [];
+      const hasQuickReplies = quickReplies.length > 0;
       const quickReply = hasQuickReplies
-        ? createQuickReplyItems(lineData.quickReplies!)
+        ? createQuickReplyItems(quickReplies)
         : undefined;
 
       const sendMessageBatch = async (messages: Array<Record<string, unknown>>) => {
@@ -438,7 +439,11 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
         for (let i = 0; i < chunks.length; i += 1) {
           const isLast = i === chunks.length - 1;
           if (isLast && hasQuickReplies) {
+<<<<<<< HEAD
             lastResult = await sendQuickReplies(to, chunks[i]!, lineData.quickReplies!, {
+=======
+            lastResult = await sendQuickReplies(to, chunks[i], quickReplies, {
+>>>>>>> 19775abdd (fix: clean up plugin linting and types)
               verbose: false,
               accountId: accountId ?? undefined,
             });
