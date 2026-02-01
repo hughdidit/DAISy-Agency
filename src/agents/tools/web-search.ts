@@ -2,7 +2,11 @@ import { Type } from "@sinclair/typebox";
 
 import type { OpenClawConfig } from "../../config/config.js";
 import { formatCliCommand } from "../../cli/command-format.js";
+<<<<<<< HEAD
 import type { AnyAgentTool } from "./common.js";
+=======
+import { wrapWebContent } from "../../security/external-content.js";
+>>>>>>> b796f6ec0 (Security: harden web tools and file parsing (#4058))
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 import {
   CacheEntry,
@@ -344,7 +348,7 @@ async function runWebSearch(params: {
       provider: params.provider,
       model: params.perplexityModel ?? DEFAULT_PERPLEXITY_MODEL,
       tookMs: Date.now() - start,
-      content,
+      content: wrapWebContent(content),
       citations,
     };
     writeCache(SEARCH_CACHE, cacheKey, payload, params.cacheTtlMs);
@@ -387,13 +391,19 @@ async function runWebSearch(params: {
 
   const data = (await res.json()) as BraveSearchResponse;
   const results = Array.isArray(data.web?.results) ? (data.web?.results ?? []) : [];
-  const mapped = results.map((entry) => ({
-    title: entry.title ?? "",
-    url: entry.url ?? "",
-    description: entry.description ?? "",
-    published: entry.age ?? undefined,
-    siteName: resolveSiteName(entry.url ?? ""),
-  }));
+  const mapped = results.map((entry) => {
+    const description = entry.description ?? "";
+    const title = entry.title ?? "";
+    const url = entry.url ?? "";
+    const rawSiteName = resolveSiteName(url);
+    return {
+      title: title ? wrapWebContent(title, "web_search") : "",
+      url, // Keep raw for tool chaining
+      description: description ? wrapWebContent(description, "web_search") : "",
+      published: entry.age || undefined,
+      siteName: rawSiteName || undefined,
+    };
+  });
 
   const payload = {
     query: params.query,
