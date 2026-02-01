@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { SILENT_REPLY_TOKEN, type PluginRuntime } from "clawdbot/plugin-sdk";
+=======
+import { SILENT_REPLY_TOKEN, type PluginRuntime } from "openclaw/plugin-sdk";
+import { beforeEach, describe, expect, it } from "vitest";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { StoredConversationReference } from "./conversation-store.js";
 import {
   type MSTeamsAdapter,

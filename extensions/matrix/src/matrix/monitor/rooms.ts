@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import type { MatrixRoomConfig } from "../../types.js";
 import { buildChannelKeyCandidates, resolveChannelEntryMatch } from "clawdbot/plugin-sdk";
+=======
+import { buildChannelKeyCandidates, resolveChannelEntryMatch } from "openclaw/plugin-sdk";
+import type { MatrixRoomConfig } from "../../types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type MatrixRoomConfigResolved = {
   allowed: boolean;

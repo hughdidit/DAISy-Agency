@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { BackoffPolicy } from "../infra/backoff.js";
 import { computeBackoff, sleepWithAbort } from "../infra/backoff.js";
 

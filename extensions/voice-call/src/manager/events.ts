@@ -1,9 +1,14 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
 import type { CallId, CallRecord, CallState, NormalizedEvent } from "../types.js";
 import { TerminalStates } from "../types.js";
+=======
+import type { CallRecord, CallState, NormalizedEvent } from "../types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { CallManagerContext } from "./context.js";
 import { findCall } from "./lookup.js";
+import { endCall } from "./outbound.js";
 import { addTranscriptEntry, transitionState } from "./state.js";
 import { persistCallRecord } from "./store.js";
 import {
@@ -12,7 +17,6 @@ import {
   resolveTranscriptWaiter,
   startMaxDurationTimer,
 } from "./timers.js";
-import { endCall } from "./outbound.js";
 
 function shouldAcceptInbound(config: CallManagerContext["config"], from: string | undefined): boolean {
   const { inboundPolicy: policy, allowFrom } = config;

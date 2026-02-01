@@ -1,11 +1,13 @@
 import type { SlackEventMiddlewareArgs } from "@slack/bolt";
-
+import type { SlackMonitorContext } from "../context.js";
+<<<<<<< HEAD
+import type { SlackMessageEvent, SlackReactionEvent } from "../types.js";
+=======
+import type { SlackReactionEvent } from "../types.js";
 import { danger } from "../../../globals.js";
 import { enqueueSystemEvent } from "../../../infra/system-events.js";
-
 import { resolveSlackChannelLabel } from "../channel-config.js";
-import type { SlackMonitorContext } from "../context.js";
-import type { SlackMessageEvent, SlackReactionEvent } from "../types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export function registerSlackReactionEvents(params: { ctx: SlackMonitorContext }) {
   const { ctx } = params;

@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
 import type { MoltbotConfig } from "./types.js";
+=======
+import type { OpenClawConfig } from "./types.js";
+import { resolveUserPath } from "../utils.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const PATH_VALUE_RE = /^~(?=$|[\\/])/;
 

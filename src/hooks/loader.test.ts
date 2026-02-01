@@ -2,14 +2,18 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { loadInternalHooks } from "./loader.js";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   clearInternalHooks,
   getRegisteredEventKeys,
   triggerInternalHook,
   createInternalHookEvent,
 } from "./internal-hooks.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { loadInternalHooks } from "./loader.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("loader", () => {
   let tmpDir: string;

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -11,6 +12,9 @@ import {
   resolveMoltbotMetadata,
   resolveHookInvocationPolicy,
 } from "./frontmatter.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
   Hook,
   HookEligibilityContext,
@@ -19,6 +23,15 @@ import type {
   HookSource,
   ParsedHookFrontmatter,
 } from "./types.js";
+import { MANIFEST_KEY } from "../compat/legacy-names.js";
+import { CONFIG_DIR, resolveUserPath } from "../utils.js";
+import { resolveBundledHooksDir } from "./bundled-dir.js";
+import { shouldIncludeHook } from "./config.js";
+import {
+  parseFrontmatter,
+  resolveOpenClawMetadata,
+  resolveHookInvocationPolicy,
+} from "./frontmatter.js";
 
 type HookPackageManifest = {
   name?: string;

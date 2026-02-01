@@ -1,6 +1,10 @@
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import crypto from "node:crypto";
 import { resolveBlueBubblesAccount } from "./accounts.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { blueBubblesFetchWithTimeout, buildBlueBubblesApiUrl } from "./types.js";
 
 export type BlueBubblesChatOpts = {

@@ -1,15 +1,19 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { DispatchInboundResult } from "../dispatch.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 import type { GetReplyOptions } from "../types.js";
-import type { DispatchInboundResult } from "../dispatch.js";
-import {
-  dispatchInboundMessageWithBufferedDispatcher,
-  dispatchInboundMessageWithDispatcher,
-} from "../dispatch.js";
 import type {
   ReplyDispatcherOptions,
   ReplyDispatcherWithTypingOptions,
 } from "./reply-dispatcher.js";
+import {
+  dispatchInboundMessageWithBufferedDispatcher,
+  dispatchInboundMessageWithDispatcher,
+} from "../dispatch.js";
 
 export async function dispatchReplyWithBufferedBlockDispatcher(params: {
   ctx: MsgContext | FinalizedMsgContext;

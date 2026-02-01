@@ -1,8 +1,12 @@
 import type { HumanDelayConfig } from "../../config/types.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
+<<<<<<< HEAD
 import { normalizeReplyPayload } from "./normalize-reply.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ResponsePrefixContext } from "./response-prefix-template.js";
 import type { TypingController } from "./typing.js";
+import { normalizeReplyPayload, type NormalizeReplySkipReason } from "./normalize-reply.js";
 
 export type ReplyDispatchKind = "tool" | "block" | "final";
 

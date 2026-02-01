@@ -5,6 +5,7 @@
  * This is the primary entry point for the Twitch channel integration.
  */
 
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { buildChannelConfigSchema } from "clawdbot/plugin-sdk";
 import { twitchMessageActions } from "./actions.js";
@@ -18,6 +19,10 @@ import { collectTwitchStatusIssues } from "./status.js";
 import { removeClientManager } from "./client-manager-registry.js";
 import { resolveTwitchToken } from "./token.js";
 import { isAccountConfigured } from "./utils/twitch.js";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { buildChannelConfigSchema } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type {
   ChannelAccountSnapshot,
   ChannelCapabilities,
@@ -28,6 +33,17 @@ import type {
   ChannelResolveResult,
   TwitchAccountConfig,
 } from "./types.js";
+import { twitchMessageActions } from "./actions.js";
+import { removeClientManager } from "./client-manager-registry.js";
+import { TwitchConfigSchema } from "./config-schema.js";
+import { DEFAULT_ACCOUNT_ID, getAccountConfig, listAccountIds } from "./config.js";
+import { twitchOnboardingAdapter } from "./onboarding.js";
+import { twitchOutbound } from "./outbound.js";
+import { probeTwitch } from "./probe.js";
+import { resolveTwitchTargets } from "./resolver.js";
+import { collectTwitchStatusIssues } from "./status.js";
+import { resolveTwitchToken } from "./token.js";
+import { isAccountConfigured } from "./utils/twitch.js";
 
 /**
  * Twitch channel plugin.

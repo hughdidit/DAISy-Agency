@@ -1,5 +1,7 @@
+import JSON5 from "json5";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
 import JSON5 from "json5";
 
@@ -9,17 +11,26 @@ import { resolveNativeSkillsEnabled } from "../config/commands.js";
 import { resolveOAuthDir } from "../config/paths.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+=======
+import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
+import type { OpenClawConfig, ConfigFileSnapshot } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { AgentToolsConfig } from "../config/types.tools.js";
-import { resolveBrowserConfig } from "../browser/config.js";
+import type { ExecFn } from "./windows-acl.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { isToolAllowedByPolicies } from "../agents/pi-tools.policy.js";
-import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import {
   resolveSandboxConfigForAgent,
   resolveSandboxToolPolicyForAgent,
 } from "../agents/sandbox.js";
-import { resolveGatewayAuth } from "../gateway/auth.js";
-import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
+import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
+import { resolveBrowserConfig } from "../browser/config.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import { resolveNativeSkillsEnabled } from "../config/commands.js";
+import { createConfigIO } from "../config/config.js";
 import { INCLUDE_KEY, MAX_INCLUDE_DEPTH } from "../config/includes.js";
+import { resolveOAuthDir } from "../config/paths.js";
+import { resolveGatewayAuth } from "../gateway/auth.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import {
   formatPermissionDetail,
@@ -27,7 +38,6 @@ import {
   inspectPathPermissions,
   safeStat,
 } from "./audit-fs.js";
-import type { ExecFn } from "./windows-acl.js";
 
 export type SecurityAuditFinding = {
   checkId: string;

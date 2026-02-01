@@ -8,12 +8,24 @@ import {
   PAIRING_APPROVED_MESSAGE,
   setAccountEnabledInConfigSection,
   type ChannelPlugin,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import { matrixMessageActions } from "./actions.js";
 import { MatrixConfigSchema } from "./config-schema.js";
 import { resolveMatrixGroupRequireMention, resolveMatrixGroupToolPolicy } from "./group-mentions.js";
 import type { CoreConfig } from "./types.js";
+=======
+} from "openclaw/plugin-sdk";
+import type { CoreConfig } from "./types.js";
+import { matrixMessageActions } from "./actions.js";
+import { MatrixConfigSchema } from "./config-schema.js";
+import { listMatrixDirectoryGroupsLive, listMatrixDirectoryPeersLive } from "./directory-live.js";
+import {
+  resolveMatrixGroupRequireMention,
+  resolveMatrixGroupToolPolicy,
+} from "./group-mentions.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   listMatrixAccountIds,
   resolveDefaultMatrixAccountId,
@@ -27,10 +39,13 @@ import { sendMessageMatrix } from "./matrix/send.js";
 import { matrixOnboardingAdapter } from "./onboarding.js";
 import { matrixOutbound } from "./outbound.js";
 import { resolveMatrixTargets } from "./resolve-targets.js";
+<<<<<<< HEAD
 import {
   listMatrixDirectoryGroupsLive,
   listMatrixDirectoryPeersLive,
 } from "./directory-live.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const meta = {
   id: "matrix",

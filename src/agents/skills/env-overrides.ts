@@ -1,7 +1,11 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { SkillEntry, SkillSnapshot } from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveSkillConfig } from "./config.js";
 import { resolveSkillKey } from "./frontmatter.js";
-import type { SkillEntry, SkillSnapshot } from "./types.js";
 
 export function applySkillEnvOverrides(params: { skills: SkillEntry[]; config?: MoltbotConfig }) {
   const { skills, config } = params;

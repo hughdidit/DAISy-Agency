@@ -11,8 +11,13 @@
  * - setTwitchAccount config updates
  */
 
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { WizardPrompter } from "clawdbot/plugin-sdk";
+=======
+import type { WizardPrompter } from "openclaw/plugin-sdk";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { TwitchAccountConfig } from "./types.js";
 
 // Mock the helpers we're testing

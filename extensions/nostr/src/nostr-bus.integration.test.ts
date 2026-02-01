@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { createSeenTracker } from "./seen-tracker.js";
 import {
@@ -5,6 +6,11 @@ import {
   createNoopMetrics,
   type MetricEvent,
 } from "./metrics.js";
+=======
+import { describe, expect, it, vi } from "vitest";
+import { createMetrics, createNoopMetrics, type MetricEvent } from "./metrics.js";
+import { createSeenTracker } from "./seen-tracker.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 // ============================================================================
 // Seen Tracker Integration Tests

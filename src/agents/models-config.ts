@@ -1,8 +1,13 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { type MoltbotConfig, loadConfig } from "../config/config.js";
 import { resolveMoltbotAgentDir } from "./agent-paths.js";
+=======
+import { type OpenClawConfig, loadConfig } from "../config/config.js";
+import { resolveOpenClawAgentDir } from "./agent-paths.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   normalizeProviders,
   type ProviderConfig,

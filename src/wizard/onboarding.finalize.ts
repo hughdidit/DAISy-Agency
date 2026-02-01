@@ -1,14 +1,23 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-
+import type { OnboardOptions } from "../commands/onboard-types.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
+import type { WizardPrompter } from "./prompts.js";
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import {
+  buildGatewayInstallPlan,
+  gatewayInstallErrorHint,
+} from "../commands/daemon-install-helpers.js";
 import {
   DEFAULT_GATEWAY_DAEMON_RUNTIME,
   GATEWAY_DAEMON_RUNTIME_OPTIONS,
   type GatewayDaemonRuntime,
 } from "../commands/daemon-runtime.js";
-import { healthCommand } from "../commands/health.js";
 import { formatHealthCheckFailure } from "../commands/health-format.js";
+import { healthCommand } from "../commands/health.js";
 import {
   detectBrowserOpenSupport,
   formatControlUiSshHint,
@@ -18,21 +27,17 @@ import {
   waitForGatewayReachable,
   resolveControlUiLinks,
 } from "../commands/onboard-helpers.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OnboardOptions } from "../commands/onboard-types.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveGatewayService } from "../daemon/service.js";
 import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { runTui } from "../tui/tui.js";
 import { resolveUserPath } from "../utils.js";
-import {
-  buildGatewayInstallPlan,
-  gatewayInstallErrorHint,
-} from "../commands/daemon-install-helpers.js";
-import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
-import type { WizardPrompter } from "./prompts.js";
 
 type FinalizeOnboardingOptions = {
   flow: WizardFlow;

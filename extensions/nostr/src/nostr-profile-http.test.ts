@@ -2,10 +2,13 @@
  * Tests for Nostr Profile HTTP Handler
  */
 
+<<<<<<< HEAD
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { IncomingMessage, ServerResponse } from "node:http";
 import { Socket } from "node:net";
-
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createNostrProfileHttpHandler,
   type NostrProfileHttpContext,

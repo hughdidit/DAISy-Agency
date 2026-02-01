@@ -1,3 +1,5 @@
+import type { OpenClawApp } from "./app";
+import type { NostrProfile } from "./types";
 import {
   loadChannels,
   logoutWhatsApp,
@@ -5,8 +7,11 @@ import {
   waitWhatsAppLogin,
 } from "./controllers/channels";
 import { loadConfig, saveConfig } from "./controllers/config";
+<<<<<<< HEAD
 import type { MoltbotApp } from "./app";
 import type { NostrProfile } from "./types";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { createNostrProfileFormState } from "./views/channels.nostr-profile-form";
 
 export async function handleWhatsAppStart(host: MoltbotApp, force: boolean) {

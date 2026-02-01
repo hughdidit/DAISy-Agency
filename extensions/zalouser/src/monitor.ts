@@ -1,4 +1,5 @@
 import type { ChildProcess } from "node:child_process";
+<<<<<<< HEAD
 
 import type { MoltbotConfig, MarkdownTableMode, RuntimeEnv } from "clawdbot/plugin-sdk";
 import { mergeAllowlist, summarizeMapping } from "clawdbot/plugin-sdk";
@@ -9,7 +10,13 @@ import type {
   ZcaGroup,
   ZcaMessage,
 } from "./types.js";
+=======
+import type { OpenClawConfig, MarkdownTableMode, RuntimeEnv } from "openclaw/plugin-sdk";
+import { mergeAllowlist, summarizeMapping } from "openclaw/plugin-sdk";
+import type { ResolvedZalouserAccount, ZcaFriend, ZcaGroup, ZcaMessage } from "./types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { getZalouserRuntime } from "./runtime.js";
+import { sendMessageZalouser } from "./send.js";
 import { parseJsonOutput, runZca, runZcaStreaming } from "./zca.js";
 
 export type ZalouserMonitorOptions = {

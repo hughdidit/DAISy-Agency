@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-
 import { CONFIG_DIR, ensureDir } from "../utils.js";
 
 export const WIDE_AREA_DISCOVERY_DOMAIN = "moltbot.internal.";

@@ -103,8 +103,13 @@ vi.mock("clawdbot/plugin-sdk", async () => {
   };
 });
 
+<<<<<<< HEAD
 import { createDiagnosticsOtelService } from "./service.js";
 import { emitDiagnosticEvent } from "clawdbot/plugin-sdk";
+=======
+import { emitDiagnosticEvent } from "openclaw/plugin-sdk";
+import { createDiagnosticsOtelService } from "./service.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("diagnostics-otel service", () => {
   beforeEach(() => {

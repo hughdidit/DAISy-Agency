@@ -1,5 +1,3 @@
-import WebSocket from "ws";
-
 import type {
   ChannelAccountSnapshot,
   MoltbotConfig,
@@ -18,8 +16,13 @@ import {
   resolveControlCommandGate,
   resolveChannelMediaMaxBytes,
   type HistoryEntry,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+import WebSocket from "ws";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { getMattermostRuntime } from "../runtime.js";
 import { resolveMattermostAccount } from "./accounts.js";
 import {

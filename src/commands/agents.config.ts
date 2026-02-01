@@ -1,15 +1,19 @@
+import type { AgentIdentityFile } from "../agents/identity-file.js";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   resolveAgentDir,
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
 } from "../agents/agent-scope.js";
-import type { AgentIdentityFile } from "../agents/identity-file.js";
 import {
   identityHasValues,
   loadAgentIdentityFromWorkspace,
   parseIdentityMarkdown as parseIdentityMarkdownFile,
 } from "../agents/identity-file.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { normalizeAgentId } from "../routing/session-key.js";
 
 export type AgentSummary = {

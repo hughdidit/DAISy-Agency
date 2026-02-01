@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { agentCommand } from "../../commands/agent.js";
+import type { GatewayRequestHandlers } from "./types.js";
 import { listAgentIds } from "../../agents/agent-scope.js";
+import { agentCommand } from "../../commands/agent.js";
 import { loadConfig } from "../../config/config.js";
 import {
   resolveAgentIdFromSessionKey,
@@ -14,6 +15,7 @@ import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
 } from "../../infra/outbound/agent-delivery.js";
+import { normalizeAgentId } from "../../routing/session-key.js";
 import { defaultRuntime } from "../../runtime.js";
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { normalizeSessionDeliveryFields } from "../../utils/delivery-context.js";
@@ -23,8 +25,9 @@ import {
   isGatewayMessageChannel,
   normalizeMessageChannel,
 } from "../../utils/message-channel.js";
-import { normalizeAgentId } from "../../routing/session-key.js";
+import { resolveAssistantIdentity } from "../assistant-identity.js";
 import { parseMessageWithAttachments } from "../chat-attachments.js";
+import { resolveAssistantAvatarUrl } from "../control-ui-shared.js";
 import {
   type AgentIdentityParams,
   type AgentWaitParams,
@@ -37,10 +40,8 @@ import {
 } from "../protocol/index.js";
 import { loadSessionEntry } from "../session-utils.js";
 import { formatForLog } from "../ws-log.js";
-import { resolveAssistantIdentity } from "../assistant-identity.js";
-import { resolveAssistantAvatarUrl } from "../control-ui-shared.js";
 import { waitForAgentJob } from "./agent-job.js";
-import type { GatewayRequestHandlers } from "./types.js";
+import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 
 export const agentHandlers: GatewayRequestHandlers = {
   agent: async ({ params, respond, context }) => {

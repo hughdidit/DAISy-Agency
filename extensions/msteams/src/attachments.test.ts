@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
+=======
+import type { PluginRuntime } from "openclaw/plugin-sdk";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { setMSTeamsRuntime } from "./runtime.js";
 
 const detectMimeMock = vi.fn(async () => "image/png");

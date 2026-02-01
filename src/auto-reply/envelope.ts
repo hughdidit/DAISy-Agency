@@ -1,7 +1,11 @@
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveUserTimezone } from "../agents/date-time.js";
 import { normalizeChatType } from "../channels/chat-type.js";
 import { resolveSenderLabel, type SenderLabelParams } from "../channels/sender-label.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type AgentEnvelopeParams = {
   channel: string;

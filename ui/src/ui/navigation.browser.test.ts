@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { MoltbotApp } from "./app";
+=======
+import { OpenClawApp } from "./app";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import "../styles.css";
 
 const originalConnect = MoltbotApp.prototype.connect;

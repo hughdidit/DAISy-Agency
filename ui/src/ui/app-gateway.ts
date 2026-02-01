@@ -1,13 +1,10 @@
-import { loadChatHistory } from "./controllers/chat";
-import { loadDevices } from "./controllers/devices";
-import { loadNodes } from "./controllers/nodes";
-import { loadAgents } from "./controllers/agents";
-import type { GatewayEventFrame, GatewayHelloOk } from "./gateway";
-import { GatewayBrowserClient } from "./gateway";
+import type { OpenClawApp } from "./app";
 import type { EventLogEntry } from "./app-events";
-import type { AgentsListResult, PresenceEntry, HealthSnapshot, StatusSummary } from "./types";
+import type { ExecApprovalRequest } from "./controllers/exec-approval";
+import type { GatewayEventFrame, GatewayHelloOk } from "./gateway";
 import type { Tab } from "./navigation";
 import type { UiSettings } from "./storage";
+<<<<<<< HEAD
 import { handleAgentEvent, resetToolStream, type AgentEventPayload } from "./app-tool-stream";
 import { flushChatQueueForEvent } from "./app-chat";
 import {
@@ -16,16 +13,32 @@ import {
   refreshActiveTab,
   setLastActiveSessionKey,
 } from "./app-settings";
+=======
+import type { AgentsListResult, PresenceEntry, HealthSnapshot, StatusSummary } from "./types";
+import { CHAT_SESSIONS_ACTIVE_MINUTES, flushChatQueueForEvent } from "./app-chat";
+import { applySettings, loadCron, refreshActiveTab, setLastActiveSessionKey } from "./app-settings";
+import { handleAgentEvent, resetToolStream, type AgentEventPayload } from "./app-tool-stream";
+import { loadAgents } from "./controllers/agents";
+import { loadAssistantIdentity } from "./controllers/assistant-identity";
+import { loadChatHistory } from "./controllers/chat";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { handleChatEvent, type ChatEventPayload } from "./controllers/chat";
+import { loadDevices } from "./controllers/devices";
 import {
   addExecApproval,
   parseExecApprovalRequested,
   parseExecApprovalResolved,
   removeExecApproval,
 } from "./controllers/exec-approval";
+<<<<<<< HEAD
 import type { MoltbotApp } from "./app";
 import type { ExecApprovalRequest } from "./controllers/exec-approval";
 import { loadAssistantIdentity } from "./controllers/assistant-identity";
+=======
+import { loadNodes } from "./controllers/nodes";
+import { loadSessions } from "./controllers/sessions";
+import { GatewayBrowserClient } from "./gateway";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type GatewayHost = {
   settings: UiSettings;

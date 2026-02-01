@@ -8,9 +8,13 @@
  * - Account ID normalization
  */
 
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveTwitchToken, type TwitchTokenSource } from "./token.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("token", () => {
   // Multi-account config for testing non-default accounts

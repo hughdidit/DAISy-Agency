@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import {
     handleChatEvent,
     type ChatEventPayload,
     type ChatState,
 } from "./chat";
+=======
+import { handleChatEvent, type ChatEventPayload, type ChatState } from "./chat";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 function createState(overrides: Partial<ChatState> = {}): ChatState {
   return {

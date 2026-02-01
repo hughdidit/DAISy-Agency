@@ -1,5 +1,9 @@
+import { Type } from "@sinclair/typebox";
+import Ajv from "ajv";
+import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 
 import Ajv from "ajv";
@@ -11,6 +15,13 @@ import { Type } from "@sinclair/typebox";
 // So we resolve internal imports dynamically with src-first, dist-fallback.
 
 import type { MoltbotPluginApi } from "../../../src/plugins/types.js";
+=======
+// NOTE: This extension is intended to be bundled with OpenClaw.
+// When running from source (tests/dev), OpenClaw internals live under src/.
+// When running from a built install, internals live under dist/ (no src/ tree).
+// So we resolve internal imports dynamically with src-first, dist-fallback.
+import type { OpenClawPluginApi } from "../../../src/plugins/types.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type RunEmbeddedPiAgentFn = (params: Record<string, unknown>) => Promise<unknown>;
 

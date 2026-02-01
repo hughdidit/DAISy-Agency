@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { renderWideAreaGatewayZoneText, WIDE_AREA_DISCOVERY_DOMAIN } from "./widearea-dns.js";
+=======
+import { renderWideAreaGatewayZoneText } from "./widearea-dns.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("wide-area DNS-SD zone rendering", () => {
   it("renders a moltbot.internal zone with gateway PTR/SRV/TXT records", () => {

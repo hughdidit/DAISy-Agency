@@ -9,6 +9,7 @@ import {
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
   promptAccountId,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import {
@@ -16,6 +17,10 @@ import {
   resolveDefaultZaloAccountId,
   resolveZaloAccount,
 } from "./accounts.js";
+=======
+} from "openclaw/plugin-sdk";
+import { listZaloAccountIds, resolveDefaultZaloAccountId, resolveZaloAccount } from "./accounts.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 const channel = "zalo" as const;
 

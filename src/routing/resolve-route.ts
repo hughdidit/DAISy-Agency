@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { listBindings } from "./bindings.js";
 import {
   buildAgentMainSessionKey,

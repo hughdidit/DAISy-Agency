@@ -1,9 +1,14 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import { parseReplyDirectives } from "../../../auto-reply/reply/reply-directives.js";
 import type { ReasoningLevel, VerboseLevel } from "../../../auto-reply/thinking.js";
+import type { OpenClawConfig } from "../../../config/config.js";
+import type { ToolResultFormat } from "../../pi-embedded-subscribe.js";
+import { parseReplyDirectives } from "../../../auto-reply/reply/reply-directives.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../../../auto-reply/tokens.js";
 import { formatToolAggregate } from "../../../auto-reply/tool-meta.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import {
   formatAssistantErrorText,
   formatRawAssistantErrorForUi,
@@ -16,7 +21,6 @@ import {
   extractAssistantThinking,
   formatReasoningMessage,
 } from "../../pi-embedded-utils.js";
-import type { ToolResultFormat } from "../../pi-embedded-subscribe.js";
 
 type ToolMetaEntry = { toolName: string; meta?: string };
 

@@ -1,7 +1,11 @@
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { resolveAgentIdentity } from "../agents/identity.js";
 import { loadAgentIdentity } from "../commands/agents.config.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { normalizeAgentId } from "../routing/session-key.js";
 
 const MAX_ASSISTANT_NAME = 50;

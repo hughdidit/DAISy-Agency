@@ -1,7 +1,11 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
 
 import type { MoltbotConfig, MarkdownTableMode } from "clawdbot/plugin-sdk";
 
+=======
+import type { OpenClawConfig, MarkdownTableMode } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { ResolvedZaloAccount } from "./accounts.js";
 import {
   ZaloApiError,

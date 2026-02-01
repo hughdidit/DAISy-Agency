@@ -1,11 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { signalOutbound } from "../../channels/plugins/outbound/signal.js";
 import { telegramOutbound } from "../../channels/plugins/outbound/telegram.js";
 import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
-import { markdownToSignalTextChunks } from "../../signal/format.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
+import { markdownToSignalTextChunks } from "../../signal/format.js";
 import {
   createIMessageTestPlugin,
   createOutboundTestPlugin,

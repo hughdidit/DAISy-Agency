@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 import { Buffer } from "node:buffer";
 
 import type WebSocket from "ws";
 
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import type WebSocket from "ws";
+import { Buffer } from "node:buffer";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type ResponsePrefixContext = {
   model?: string;

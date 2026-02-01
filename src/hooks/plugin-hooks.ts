@@ -1,11 +1,15 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+<<<<<<< HEAD
 
 import type { MoltbotPluginApi } from "../plugins/types.js";
+=======
+import type { OpenClawPluginApi } from "../plugins/types.js";
+import type { InternalHookHandler } from "./internal-hooks.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { HookEntry } from "./types.js";
 import { shouldIncludeHook } from "./config.js";
 import { loadHookEntriesFromDir } from "./workspace.js";
-import type { InternalHookHandler } from "./internal-hooks.js";
 
 export type PluginHookLoadResult = {
   hooks: HookEntry[];

@@ -1,10 +1,13 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
 import { afterEach, describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { resolveMoltbotAgentDir } from "./agent-paths.js";
+=======
+import { resolveOpenClawAgentDir } from "./agent-paths.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("resolveMoltbotAgentDir", () => {
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;

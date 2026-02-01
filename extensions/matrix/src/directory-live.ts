@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import type { ChannelDirectoryEntry } from "clawdbot/plugin-sdk";
 
+=======
+import type { ChannelDirectoryEntry } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { resolveMatrixAuth } from "./matrix/client.js";
 
 type MatrixUserResult = {

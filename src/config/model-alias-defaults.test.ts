@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "./types.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
 import { applyModelDefaults } from "./defaults.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
+=======
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 describe("applyModelDefaults", () => {
   it("adds default aliases when models are present", () => {

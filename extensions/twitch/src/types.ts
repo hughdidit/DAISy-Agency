@@ -6,6 +6,14 @@
  */
 
 import type {
+  ChannelGatewayContext,
+  ChannelOutboundAdapter,
+  ChannelOutboundContext,
+  ChannelResolveKind,
+  ChannelResolveResult,
+  ChannelStatusAdapter,
+} from "../../../src/channels/plugins/types.adapters.js";
+import type {
   ChannelAccountSnapshot,
   ChannelCapabilities,
   ChannelLogSink,
@@ -14,6 +22,7 @@ import type {
   ChannelMeta,
 } from "../../../src/channels/plugins/types.core.js";
 import type { ChannelPlugin } from "../../../src/channels/plugins/types.plugin.js";
+<<<<<<< HEAD
 import type {
   ChannelGatewayContext,
   ChannelOutboundAdapter,
@@ -23,6 +32,9 @@ import type {
   ChannelStatusAdapter,
 } from "../../../src/channels/plugins/types.adapters.js";
 import type { MoltbotConfig } from "../../../src/config/config.js";
+=======
+import type { OpenClawConfig } from "../../../src/config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { OutboundDeliveryResult } from "../../../src/infra/outbound/deliver.js";
 import type { RuntimeEnv } from "../../../src/runtime.js";
 
@@ -132,9 +144,9 @@ export type {
   OutboundDeliveryResult,
 };
 
+import type { z } from "zod";
 // Import and re-export the schema type
 import type { TwitchConfigSchema } from "./config-schema.js";
-import type { z } from "zod";
 export type TwitchConfig = z.infer<typeof TwitchConfigSchema>;
 
 export type { MoltbotConfig };

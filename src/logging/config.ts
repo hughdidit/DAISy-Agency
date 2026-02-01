@@ -1,9 +1,13 @@
-import fs from "node:fs";
-
 import json5 from "json5";
+<<<<<<< HEAD
 
 import { resolveConfigPath } from "../config/paths.js";
 import type { MoltbotConfig } from "../config/types.js";
+=======
+import fs from "node:fs";
+import type { OpenClawConfig } from "../config/types.js";
+import { resolveConfigPath } from "../config/paths.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 type LoggingConfig = MoltbotConfig["logging"];
 

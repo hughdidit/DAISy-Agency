@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig, PluginRuntime } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig, PluginRuntime } from "openclaw/plugin-sdk";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { linePlugin } from "./channel.js";
 import { setLineRuntime } from "./runtime.js";
 

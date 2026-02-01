@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import type { ChannelOutboundAdapter } from "clawdbot/plugin-sdk";
 
+=======
+import type { ChannelOutboundAdapter } from "openclaw/plugin-sdk";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import { createMSTeamsPollStoreFs } from "./polls.js";
 import { getMSTeamsRuntime } from "./runtime.js";
 import { sendMessageMSTeams, sendPollMSTeams } from "./send.js";

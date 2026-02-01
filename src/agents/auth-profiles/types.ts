@@ -1,6 +1,10 @@
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 
 export type ApiKeyCredential = {
   type: "api_key";

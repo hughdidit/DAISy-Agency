@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { defaultSlotIdForKey } from "./slots.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f06dd8df0 (chore: Enable "experimentalSortImports" in Oxfmt and reformat all imorts.)
 import type { PluginRecord } from "./registry.js";
+import { defaultSlotIdForKey } from "./slots.js";
 
 export type NormalizedPluginsConfig = {
   enabled: boolean;
