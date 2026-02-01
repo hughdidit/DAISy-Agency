@@ -17,6 +17,7 @@ Status: beta.
 =======
 
 - Telegram: use shared pairing store. (#6127) Thanks @obviyus.
+- Agents: add OpenRouter app attribution headers. (#5050) Thanks @alexanderatallah.
 
 ### Fixes
 
