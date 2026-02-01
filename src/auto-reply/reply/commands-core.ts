@@ -17,6 +17,11 @@ import { handleAllowlistCommand } from "./commands-allowlist.js";
 import { handleApproveCommand } from "./commands-approve.js";
 import { handleSubagentsCommand } from "./commands-subagents.js";
 import { handleModelsCommand } from "./commands-models.js";
+<<<<<<< HEAD
+=======
+import { handlePluginCommand } from "./commands-plugin.js";
+import { handlePTTCommand } from "./commands-ptt.js";
+>>>>>>> b7aac92ac (Gateway: add PTT chat + nodes CLI)
 import { handleTtsCommands } from "./commands-tts.js";
 import {
   handleAbortTrigger,
@@ -26,12 +31,17 @@ import {
   handleStopCommand,
   handleUsageCommand,
 } from "./commands-session.js";
+<<<<<<< HEAD
 import { handlePluginCommand } from "./commands-plugin.js";
 import type {
   CommandHandler,
   CommandHandlerResult,
   HandleCommandsParams,
 } from "./commands-types.js";
+=======
+import { handleSubagentsCommand } from "./commands-subagents.js";
+import { routeReply } from "./route-reply.js";
+>>>>>>> b7aac92ac (Gateway: add PTT chat + nodes CLI)
 
 const HANDLERS: CommandHandler[] = [
   // Plugin commands are processed first, before built-in commands
@@ -59,6 +69,36 @@ const HANDLERS: CommandHandler[] = [
 ];
 
 export async function handleCommands(params: HandleCommandsParams): Promise<CommandHandlerResult> {
+<<<<<<< HEAD
+=======
+  if (HANDLERS === null) {
+    HANDLERS = [
+      // Plugin commands are processed first, before built-in commands
+      handlePluginCommand,
+      handleBashCommand,
+      handleActivationCommand,
+      handleSendPolicyCommand,
+      handleUsageCommand,
+      handleRestartCommand,
+      handleTtsCommands,
+      handlePTTCommand,
+      handleHelpCommand,
+      handleCommandsListCommand,
+      handleStatusCommand,
+      handleAllowlistCommand,
+      handleApproveCommand,
+      handleContextCommand,
+      handleWhoamiCommand,
+      handleSubagentsCommand,
+      handleConfigCommand,
+      handleDebugCommand,
+      handleModelsCommand,
+      handleStopCommand,
+      handleCompactCommand,
+      handleAbortTrigger,
+    ];
+  }
+>>>>>>> b7aac92ac (Gateway: add PTT chat + nodes CLI)
   const resetMatch = params.command.commandBodyNormalized.match(/^\/(new|reset)(?:\s|$)/);
   const resetRequested = Boolean(resetMatch);
   if (resetRequested && !params.command.isAuthorizedSender) {
