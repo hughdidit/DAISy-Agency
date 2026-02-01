@@ -30,8 +30,12 @@ import { resolveThreadSessionKeys } from "../../routing/session-key.js";
 import { truncateUtf16Safe } from "../../utils.js";
 import { reactMessageDiscord, removeReactionDiscord } from "../send.js";
 import { normalizeDiscordSlug } from "./allow-list.js";
+<<<<<<< HEAD
 import { formatDiscordUserTag, resolveTimestampMs } from "./format.js";
 import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
+=======
+import { resolveTimestampMs } from "./format.js";
+>>>>>>> abcca0f9b (Discord: fix PK sender identity context)
 import {
   buildDiscordMediaPayload,
   resolveDiscordMessageText,
@@ -138,6 +142,13 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   const groupChannel = isGuildMessage && displayChannelSlug ? `#${displayChannelSlug}` : undefined;
   const groupSubject = isDirectMessage ? undefined : groupChannel;
   const channelDescription = channelInfo?.topic?.trim();
+  const senderName = sender.isPluralKit
+    ? (sender.name ?? author.username)
+    : (data.member?.nickname ?? author.globalName ?? author.username);
+  const senderUsername = sender.isPluralKit
+    ? (sender.tag ?? sender.name ?? author.username)
+    : author.username;
+  const senderTag = sender.tag;
   const systemPromptParts = [
     channelDescription ? `Channel topic: ${channelDescription}` : null,
     channelConfig?.systemPrompt?.trim() || null,
@@ -268,10 +279,10 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     AccountId: route.accountId,
     ChatType: isDirectMessage ? "direct" : "channel",
     ConversationLabel: fromLabel,
-    SenderName: data.member?.nickname ?? author.globalName ?? author.username,
-    SenderId: author.id,
-    SenderUsername: author.username,
-    SenderTag: formatDiscordUserTag(author),
+    SenderName: senderName,
+    SenderId: sender.id,
+    SenderUsername: senderUsername,
+    SenderTag: senderTag,
     GroupSubject: groupSubject,
     GroupChannel: groupChannel,
     GroupSystemPrompt: isGuildMessage ? groupSystemPrompt : undefined,
