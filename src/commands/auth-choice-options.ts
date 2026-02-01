@@ -175,6 +175,14 @@ export function buildAuthChoiceOptions(params: {
     value: "xiaomi-api-key",
     label: "Xiaomi API key",
   });
+<<<<<<< HEAD
+=======
+  options.push({
+    value: "minimax-portal",
+    label: "MiniMax OAuth",
+    hint: "Oauth plugin for MiniMax",
+  });
+>>>>>>> 511b2c91e (feat: mr)
   options.push({ value: "qwen-portal", label: "Qwen OAuth" });
   options.push({
     value: "copilot-proxy",
