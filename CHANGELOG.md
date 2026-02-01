@@ -16,6 +16,8 @@ Status: beta.
 =======
 =======
 
+- Telegram: use shared pairing store. (#6127) Thanks @obviyus.
+
 ### Fixes
 
 <<<<<<< HEAD
