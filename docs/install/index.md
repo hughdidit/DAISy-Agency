@@ -90,11 +90,19 @@ SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g moltbot@latest
 
 If you see `sharp: Please add node-gyp to your dependencies`, either install build tooling (macOS: Xcode CLT + `npm install -g node-gyp`) or use the `SHARP_IGNORE_GLOBAL_LIBVIPS=1` workaround above to skip the native build.
 
-Or:
+Or with pnpm:
 
 ```bash
+<<<<<<< HEAD
 pnpm add -g moltbot@latest
+=======
+pnpm add -g openclaw@latest
+pnpm approve-builds -g                # approve openclaw, node-llama-cpp, sharp, etc.
+pnpm add -g openclaw@latest           # re-run to execute postinstall scripts
+>>>>>>> 3ae049b50 (docs(install): add pnpm approve-builds step for global installs (#5663))
 ```
+
+pnpm requires explicit approval for packages with build scripts. After the first install shows the "Ignored build scripts" warning, run `pnpm approve-builds -g` and select the listed packages, then re-run the install so postinstall scripts execute.
 
 Then:
 
