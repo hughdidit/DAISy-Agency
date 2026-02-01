@@ -63,9 +63,16 @@ export async function onboardCommand(opts: OnboardOptions, runtime: RuntimeEnv =
   if (process.platform === "win32") {
     runtime.log(
       [
+<<<<<<< HEAD
         "Windows detected.",
         "WSL2 is strongly recommended; native Windows is untested and more problematic.",
         "Guide: https://docs.molt.bot/windows",
+=======
+        "Windows detected — OpenClaw runs great on WSL2!",
+        "Native Windows might be trickier.",
+        "Quick setup: wsl --install (one command, one reboot)",
+        "Guide: https://docs.openclaw.ai/windows",
+>>>>>>> b897389b8 (fix: friendlier Windows onboarding message (#6242))
       ].join("\n"),
     );
   }
