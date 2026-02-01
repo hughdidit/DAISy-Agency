@@ -15,6 +15,10 @@ Kimi Code with `kimi-code/kimi-for-coding`.
 
 Current Kimi K2 model IDs:
 {/* moonshot-kimi-k2-ids:start */}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8582ed4d4 (Docs: fix Moonshot MDX comment marker (#6311))
 - `kimi-k2.5`
 - `kimi-k2-0905-preview`
 - `kimi-k2-turbo-preview`
