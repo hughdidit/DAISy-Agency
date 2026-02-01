@@ -18,6 +18,12 @@ Status: beta.
 
 ### Fixes
 
+<<<<<<< HEAD
+=======
+- Process: resolve Windows `spawn()` failures for npm-family CLIs by appending `.cmd` when needed. (#5815) Thanks @thejhinvirtuoso.
+- Docs: update MiniMax OAuth setup commands; Extensions: use OpenClaw plugin SDK for MiniMax OAuth. (#5402) Thanks @Maosghoul.
+- Discord: resolve PluralKit proxied senders for allowlists and labels. (#5838) Thanks @thewilloftheshadow.
+>>>>>>> 3d5c03ec2 (fix: resolve Windows npm spawn ENOENT (#5815) (thanks @thejhinvirtuoso))
 - Telegram: restore draft streaming partials. (#5543) Thanks @obviyus.
 
 ## 2026.1.30
