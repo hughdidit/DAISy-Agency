@@ -290,10 +290,14 @@ function main() {
   process.chdir(repoRoot);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   ensureExecutable(path.join(repoRoot, "dist", "entry.js"));
 =======
   ensureExecutable(path.join(repoRoot, 'dist', '/entry.js'));
 >>>>>>> 76361ae3a (revert: Switch back to `tsc` for compiling.)
+=======
+  ensureExecutable(path.join(repoRoot, "dist", "entry.js"));
+>>>>>>> a03d852d6 (chore: Migrate to tsdown, speed up JS bundling by ~10x (thanks @hyf0).)
   setupGitHooks({ repoRoot });
 
   if (!shouldApplyPnpmPatchedDependenciesFallback()) {
