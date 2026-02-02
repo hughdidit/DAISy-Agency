@@ -19,7 +19,7 @@ DIGEST="$("${READ_META}" "${META_PATH}" digest)"
 FIRST_TAG="$("${READ_META}" "${META_PATH}" first_tag)"
 
 if [[ -z "${IMAGE//[[:space:]]/}" ]]; then
-  echo "ERROR: release metadata is missing required field: image" >&2
+  echo "ERROR: release metadata field \"image\" is missing or empty" >&2
   exit 3
 fi
 
