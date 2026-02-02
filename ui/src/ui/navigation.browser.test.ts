@@ -3,7 +3,12 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { MoltbotApp } from "./app";
 import "../styles.css";
 
+<<<<<<< HEAD
 const originalConnect = MoltbotApp.prototype.connect;
+=======
+// oxlint-disable-next-line typescript/unbound-method
+const originalConnect = OpenClawApp.prototype.connect;
+>>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
 
 function mountApp(pathname: string) {
   window.history.replaceState({}, "", pathname);
@@ -118,7 +123,9 @@ describe("control UI routing", () => {
 
     const initialContainer = app.querySelector(".chat-thread");
     expect(initialContainer).not.toBeNull();
-    if (!initialContainer) {return;}
+    if (!initialContainer) {
+      return;
+    }
     initialContainer.style.maxHeight = "180px";
     initialContainer.style.overflow = "auto";
 
@@ -135,11 +142,15 @@ describe("control UI routing", () => {
 
     const container = app.querySelector(".chat-thread");
     expect(container).not.toBeNull();
-    if (!container) {return;}
+    if (!container) {
+      return;
+    }
     const maxScroll = container.scrollHeight - container.clientHeight;
     expect(maxScroll).toBeGreaterThan(0);
     for (let i = 0; i < 10; i++) {
-      if (container.scrollTop === maxScroll) {break;}
+      if (container.scrollTop === maxScroll) {
+        break;
+      }
       await nextFrame();
     }
     expect(container.scrollTop).toBe(maxScroll);

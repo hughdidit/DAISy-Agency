@@ -11,7 +11,9 @@ type PollingHost = {
 };
 
 export function startNodesPolling(host: PollingHost) {
-  if (host.nodesPollInterval != null) {return;}
+  if (host.nodesPollInterval != null) {
+    return;
+  }
   host.nodesPollInterval = window.setInterval(
     () => void loadNodes(host as unknown as MoltbotApp, { quiet: true }),
     5000,
@@ -19,45 +21,67 @@ export function startNodesPolling(host: PollingHost) {
 }
 
 export function stopNodesPolling(host: PollingHost) {
-  if (host.nodesPollInterval == null) {return;}
+  if (host.nodesPollInterval == null) {
+    return;
+  }
   clearInterval(host.nodesPollInterval);
   host.nodesPollInterval = null;
 }
 
 export function startLogsPolling(host: PollingHost) {
-  if (host.logsPollInterval != null) {return;}
+  if (host.logsPollInterval != null) {
+    return;
+  }
   host.logsPollInterval = window.setInterval(() => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     if (host.tab !== "logs") return;
     void loadLogs(host as unknown as MoltbotApp, { quiet: true });
 =======
     if (host.tab !== "logs") {return;}
+=======
+    if (host.tab !== "logs") {
+      return;
+    }
+>>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
     void loadLogs(host as unknown as OpenClawApp, { quiet: true });
 >>>>>>> 5ba4586e5 (chore: lint the `ui` folder.)
   }, 2000);
 }
 
 export function stopLogsPolling(host: PollingHost) {
-  if (host.logsPollInterval == null) {return;}
+  if (host.logsPollInterval == null) {
+    return;
+  }
   clearInterval(host.logsPollInterval);
   host.logsPollInterval = null;
 }
 
 export function startDebugPolling(host: PollingHost) {
-  if (host.debugPollInterval != null) {return;}
+  if (host.debugPollInterval != null) {
+    return;
+  }
   host.debugPollInterval = window.setInterval(() => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     if (host.tab !== "debug") return;
     void loadDebug(host as unknown as MoltbotApp);
 =======
     if (host.tab !== "debug") {return;}
+=======
+    if (host.tab !== "debug") {
+      return;
+    }
+>>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
     void loadDebug(host as unknown as OpenClawApp);
 >>>>>>> 5ba4586e5 (chore: lint the `ui` folder.)
   }, 3000);
 }
 
 export function stopDebugPolling(host: PollingHost) {
-  if (host.debugPollInterval == null) {return;}
+  if (host.debugPollInterval == null) {
+    return;
+  }
   clearInterval(host.debugPollInterval);
   host.debugPollInterval = null;
 }
