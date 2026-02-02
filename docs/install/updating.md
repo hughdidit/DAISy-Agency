@@ -35,8 +35,13 @@ Notes:
 >>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
   ```
   The installer will `git pull --rebase` **only** if the repo is clean.
+<<<<<<< HEAD
 - For **global installs**, the script uses `npm install -g moltbot@latest` under the hood.
 - Legacy note: `moltbot` remains available as a compatibility shim.
+=======
+- For **global installs**, the script uses `npm install -g openclaw@latest` under the hood.
+- Legacy note: `clawdbot` remains available as a compatibility shim.
+>>>>>>> 0eae9f456 (Docs: fix compatibility shim note)
 
 ## Before you update
 
