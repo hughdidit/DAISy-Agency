@@ -5,7 +5,11 @@ Docs: https://docs.molt.bot
 =======
 Docs: https://docs.openclaw.ai
 
+<<<<<<< HEAD
 ## 2026.1.31
+=======
+## 2026.2.1
+>>>>>>> d5f6caba3 (docs: merge 2026.2.2 changelog into 2026.2.1)
 
 ### Changes
 
@@ -44,10 +48,17 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
 - Docs: run oxfmt to fix format checks. (#6513) Thanks @app/clawdinator.
+=======
+- Telegram: add download timeouts for file fetches. (#6914) Thanks @hclsys.
+- Telegram: enforce thread specs for DM vs forum sends. (#6833) Thanks @obviyus.
+- Streaming: avoid stuck typing indicator after streamed BlueBubbles replies.
+- Streaming: dedupe fence-split handling and cover maxChars fallback for newline chunking.
+>>>>>>> d5f6caba3 (docs: merge 2026.2.2 changelog into 2026.2.1)
 - Auto-reply: avoid referencing workspace files in /new greeting prompt. (#5706) Thanks @bravostation.
 - Process: resolve Windows `spawn()` failures for npm-family CLIs by appending `.cmd` when needed. (#5815) Thanks @thejhinvirtuoso.
 >>>>>>> 92803facf (docs: preserve moonshot sync markers)
