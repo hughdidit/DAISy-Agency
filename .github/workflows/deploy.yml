@@ -48,7 +48,7 @@ jobs:
           run-id: ${{ inputs.release_run_id }}
           github-token: ${{ github.token }}
 
-      - name: "Help: release metadata download failed"
+      - name: Help: release metadata download failed
         if: failure()
         shell: bash
         run: |
