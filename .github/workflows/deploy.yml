@@ -77,4 +77,5 @@ jobs:
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
           chmod +x scripts/deploy.sh
+          chmod +x scripts/read-release-metadata.sh
           ./scripts/deploy.sh dist/release/release-metadata.json
