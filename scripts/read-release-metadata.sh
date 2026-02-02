@@ -16,8 +16,12 @@ import sys
 path = sys.argv[1]
 field = sys.argv[2]
 
-with open(path, "r", encoding="utf-8") as handle:
-    data = json.load(handle)
+try:
+    with open(path, "r", encoding="utf-8") as handle:
+        data = json.load(handle)
+except json.JSONDecodeError as exc:
+    print(f"Failed to parse JSON from {path}: {exc}", file=sys.stderr)
+    sys.exit(3)
 
 if field == "tags":
     raw_tags = data.get("tags")
