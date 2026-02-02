@@ -30,7 +30,12 @@ export function resolveDiscordWebhookId(message: DiscordWebhookMessageLike): str
 
 export function resolveDiscordSenderIdentity(params: {
   author: User;
+<<<<<<< HEAD
   member?: DiscordMessageEvent["member"] | null;
+=======
+  // oxlint-disable-next-line typescript/no-explicit-any
+  member?: any;
+>>>>>>> 935a0e570 (chore: Enable `typescript/no-explicit-any` rule.)
   pluralkitInfo?: PluralKitMessageInfo | null;
 }): DiscordSenderIdentity {
   const pkInfo = params.pluralkitInfo ?? null;
@@ -75,7 +80,12 @@ export function resolveDiscordSenderIdentity(params: {
 
 export function resolveDiscordSenderLabel(params: {
   author: User;
+<<<<<<< HEAD
   member?: DiscordMessageEvent["member"] | null;
+=======
+  // oxlint-disable-next-line typescript/no-explicit-any
+  member?: any;
+>>>>>>> 935a0e570 (chore: Enable `typescript/no-explicit-any` rule.)
   pluralkitInfo?: PluralKitMessageInfo | null;
 }): string {
   return resolveDiscordSenderIdentity(params).label;

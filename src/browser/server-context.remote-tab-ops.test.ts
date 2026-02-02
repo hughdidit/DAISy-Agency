@@ -16,7 +16,7 @@ function makeState(
   profile: "remote" | "clawd",
 ): BrowserServerState & { profiles: Map<string, { lastTargetId?: string | null }> } {
   return {
-    // biome-ignore lint/suspicious/noExplicitAny: test stub
+    // oxlint-disable-next-line typescript/no-explicit-any
     server: null as any,
     port: 0,
     resolved: {
@@ -68,7 +68,7 @@ describe("browser server-context remote profile tab operations", () => {
     const fetchMock = vi.fn(async () => {
       throw new Error("unexpected fetch");
     });
-    // @ts-expect-error test override
+
     global.fetch = fetchMock;
 
     const { createBrowserRouteContext } = await import("./server-context.js");
@@ -135,7 +135,7 @@ describe("browser server-context remote profile tab operations", () => {
     const fetchMock = vi.fn(async () => {
       throw new Error("unexpected fetch");
     });
-    // @ts-expect-error test override
+
     global.fetch = fetchMock;
 
     const { createBrowserRouteContext } = await import("./server-context.js");
@@ -164,7 +164,7 @@ describe("browser server-context remote profile tab operations", () => {
     const fetchMock = vi.fn(async () => {
       throw new Error("unexpected fetch");
     });
-    // @ts-expect-error test override
+
     global.fetch = fetchMock;
 
     const { createBrowserRouteContext } = await import("./server-context.js");
@@ -192,7 +192,7 @@ describe("browser server-context remote profile tab operations", () => {
     const fetchMock = vi.fn(async () => {
       throw new Error("unexpected fetch");
     });
-    // @ts-expect-error test override
+
     global.fetch = fetchMock;
 
     const { createBrowserRouteContext } = await import("./server-context.js");
@@ -230,7 +230,7 @@ describe("browser server-context remote profile tab operations", () => {
         ],
       } as unknown as Response;
     });
-    // @ts-expect-error test override
+
     global.fetch = fetchMock;
 
     const { createBrowserRouteContext } = await import("./server-context.js");
@@ -274,7 +274,7 @@ describe("browser server-context tab selection state", () => {
         ],
       } as unknown as Response;
     });
-    // @ts-expect-error test override
+
     global.fetch = fetchMock;
 
     const { createBrowserRouteContext } = await import("./server-context.js");

@@ -340,6 +340,7 @@ describe("timestampOptsFromConfig", () => {
 >>>>>>> 76391bba3 (refactor: use compact formatZonedTimestamp for injection)
         },
       },
+      // oxlint-disable-next-line typescript/no-explicit-any
     } as any);
 
     expect(opts.timezone).toBe("America/Chicago");
@@ -353,6 +354,7 @@ describe("timestampOptsFromConfig", () => {
   });
 
   it("falls back gracefully with empty config", () => {
+    // oxlint-disable-next-line typescript/no-explicit-any
     const opts = timestampOptsFromConfig({} as any);
 
     expect(opts.timezone).toBeDefined(); // resolveUserTimezone provides a default

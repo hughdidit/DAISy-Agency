@@ -54,7 +54,9 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleAgentEvent } = createEventHandlers({
       // Casts are fine here: TUI runtime shape is larger than we need in unit tests.
+      // oxlint-disable-next-line typescript/no-explicit-any
       chatLog: chatLog as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
       state,
       setActivityStatus,
@@ -81,7 +83,9 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const state = makeState({ activeChatRunId: "run-1" });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleAgentEvent } = createEventHandlers({
+      // oxlint-disable-next-line typescript/no-explicit-any
       chatLog: chatLog as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
       state,
       setActivityStatus,
@@ -104,7 +108,9 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const state = makeState({ activeChatRunId: "run-9" });
     const { tui, setActivityStatus } = makeContext(state);
     const { handleAgentEvent } = createEventHandlers({
+      // oxlint-disable-next-line typescript/no-explicit-any
       chatLog: { startTool: vi.fn(), updateToolResult: vi.fn() } as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
       state,
       setActivityStatus,
@@ -126,7 +132,9 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const state = makeState({ activeChatRunId: null });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleChatEvent, handleAgentEvent } = createEventHandlers({
+      // oxlint-disable-next-line typescript/no-explicit-any
       chatLog: chatLog as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
       state,
       setActivityStatus,
@@ -158,7 +166,9 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const state = makeState({ activeChatRunId: null });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleChatEvent, handleAgentEvent } = createEventHandlers({
+      // oxlint-disable-next-line typescript/no-explicit-any
       chatLog: chatLog as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
       state,
       setActivityStatus,
@@ -189,7 +199,9 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const state = makeState({ activeChatRunId: "run-active" });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleChatEvent, handleAgentEvent } = createEventHandlers({
+      // oxlint-disable-next-line typescript/no-explicit-any
       chatLog: chatLog as any,
+      // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
       state,
       setActivityStatus,

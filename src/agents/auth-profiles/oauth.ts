@@ -9,7 +9,21 @@ import { formatAuthDoctorHint } from "./doctor.js";
 import { ensureAuthStoreFile, resolveAuthStorePath } from "./paths.js";
 import { suggestOAuthProfileIdForLegacyDefault } from "./repair.js";
 import { ensureAuthProfileStore, saveAuthProfileStore } from "./store.js";
+<<<<<<< HEAD
 import type { AuthProfileStore } from "./types.js";
+=======
+
+const OAUTH_PROVIDER_IDS = new Set<OAuthProvider>(
+  getOAuthProviders().map((provider) => provider.id),
+);
+
+function isOAuthProvider(provider: string): provider is OAuthProvider {
+  return OAUTH_PROVIDER_IDS.has(provider);
+}
+
+const resolveOAuthProvider = (provider: string): OAuthProvider | null =>
+  isOAuthProvider(provider) ? provider : null;
+>>>>>>> 935a0e570 (chore: Enable `typescript/no-explicit-any` rule.)
 
 function buildOAuthApiKey(provider: string, credentials: OAuthCredentials): string {
   const needsProjectId = provider === "google-gemini-cli" || provider === "google-antigravity";
