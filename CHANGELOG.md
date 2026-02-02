@@ -12,9 +12,16 @@ Status: beta.
 
 - Telegram: add download timeouts for file fetches. (#6914) Thanks @hclsys.
 - Telegram: enforce thread specs for DM vs forum sends. (#6833) Thanks @obviyus.
+<<<<<<< HEAD
 
 ## 2026.1.31
 >>>>>>> e25f8ed56 (fix: add changelog for telegram thread spec (#6833) (thanks @obviyus))
+=======
+- Streaming: avoid stuck typing indicator after streamed BlueBubbles replies.
+- Streaming: dedupe fence-split handling and cover maxChars fallback for newline chunking.
+
+## 2026.2.1
+>>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
 
 ### Changes
 <<<<<<< HEAD
