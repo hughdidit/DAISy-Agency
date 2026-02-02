@@ -14,9 +14,19 @@ Status: beta.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - Discord: inherit thread parent bindings when routing Discord messages. (#3892) Thanks @aerolalit.
 =======
+=======
+- Security: guard remote media fetches with SSRF protections (block private/localhost, DNS pinning).
+- Updates: clean stale global install rename dirs and extend gateway update timeouts to avoid npm ENOTEMPTY failures.
+- Plugins: validate plugin/hook install paths and reject traversal-like names.
+- Telegram: add download timeouts for file fetches. (#6914) Thanks @hclsys.
+- Telegram: enforce thread specs for DM vs forum sends. (#6833) Thanks @obviyus.
+- Streaming: flush block streaming on paragraph boundaries for newline chunking. (#7014)
+- Streaming: stabilize partial streaming filters.
+>>>>>>> 57d008a33 (fix(update): harden global updates)
 - Auto-reply: avoid referencing workspace files in /new greeting prompt. (#5706) Thanks @bravostation.
 - Process: resolve Windows `spawn()` failures for npm-family CLIs by appending `.cmd` when needed. (#5815) Thanks @thejhinvirtuoso.
 >>>>>>> b4e2e746b ( /new: use agent personality in session greeting (#5706))
