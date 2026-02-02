@@ -139,6 +139,10 @@ Moonshot uses OpenAI-compatible endpoints, so configure it as a custom provider:
   - `moonshot/kimi-k2-thinking`
   - `moonshot/kimi-k2-thinking-turbo`
   {/* moonshot-kimi-k2-model-refs:end */}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7ee99af9f (fix: convert HTML comments to MDX comments in docs)
 ```json5
 {
   agents: {

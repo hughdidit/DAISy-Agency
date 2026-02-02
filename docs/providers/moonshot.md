@@ -17,7 +17,7 @@ Current Kimi K2 model IDs:
 {/* moonshot-kimi-k2-ids:start */}
 =======
 
-<!-- moonshot-kimi-k2-ids:start -->
+{/* moonshot-kimi-k2-ids:start */}
 
 >>>>>>> 4347d2468 (fix: format issues and lint error in oauth.ts)
 - `kimi-k2.5`
