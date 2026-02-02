@@ -6,8 +6,21 @@ Docs: https://docs.molt.bot
 Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.31
 =======
+=======
+## 2026.2.2
+
+### Fixes
+
+- Plugins: validate plugin/hook install paths and reject traversal-like names.
+- Telegram: add download timeouts for file fetches. (#6914) Thanks @hclsys.
+- Telegram: enforce thread specs for DM vs forum sends. (#6833) Thanks @obviyus.
+- Streaming: avoid stuck typing indicator after streamed BlueBubbles replies.
+- Streaming: dedupe fence-split handling and cover maxChars fallback for newline chunking.
+
+>>>>>>> f6d98a908 (docs: add changelog entry for plugin install hardening)
 ## 2026.2.1
 >>>>>>> d5f6caba3 (docs: merge 2026.2.2 changelog into 2026.2.1)
 
@@ -49,6 +62,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -59,6 +73,8 @@ Docs: https://docs.openclaw.ai
 - Streaming: avoid stuck typing indicator after streamed BlueBubbles replies.
 - Streaming: dedupe fence-split handling and cover maxChars fallback for newline chunking.
 >>>>>>> d5f6caba3 (docs: merge 2026.2.2 changelog into 2026.2.1)
+=======
+>>>>>>> f6d98a908 (docs: add changelog entry for plugin install hardening)
 - Auto-reply: avoid referencing workspace files in /new greeting prompt. (#5706) Thanks @bravostation.
 - Process: resolve Windows `spawn()` failures for npm-family CLIs by appending `.cmd` when needed. (#5815) Thanks @thejhinvirtuoso.
 >>>>>>> 92803facf (docs: preserve moonshot sync markers)
