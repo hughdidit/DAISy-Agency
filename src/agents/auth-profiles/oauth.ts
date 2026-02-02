@@ -24,10 +24,15 @@ const OAUTH_PROVIDER_IDS = new Set<OAuthProvider>(
   getOAuthProviders().map((provider) => provider.id),
 );
 
+<<<<<<< HEAD
 function isOAuthProvider(provider: string): provider is OAuthProvider {
   // biome-ignore lint/suspicious/noExplicitAny: type guard needs runtime check
   return OAUTH_PROVIDER_IDS.has(provider as any);
 }
+=======
+const isOAuthProvider = (provider: string): provider is OAuthProvider =>
+  OAUTH_PROVIDER_IDS.has(provider as OAuthProvider);
+>>>>>>> 34dd7324d (fix: restore lint/build gates)
 
 const resolveOAuthProvider = (provider: string): OAuthProvider | null =>
   isOAuthProvider(provider) ? provider : null;
