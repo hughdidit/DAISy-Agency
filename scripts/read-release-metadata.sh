@@ -9,10 +9,11 @@ if [[ -z "${META_PATH}" || -z "${FIELD}" || ! -f "${META_PATH}" ]]; then
   exit 2
 fi
 
-if ! command -v python3 >/dev/null 2>&1; then
-  echo "Error: python3 is required but not installed or not in PATH." >&2
+if ! command -v jq >/dev/null 2>&1; then
+  echo "Error: jq is required but not installed or not in PATH." >&2
   exit 3
 fi
+
 jq -r --arg field "${FIELD}" '
   if $field == "tags" then
     (.tags // [] | map(tostring) | join(" "))
@@ -22,7 +23,3 @@ jq -r --arg field "${FIELD}" '
     (.[$field] // "")
   end
 ' "${META_PATH}"
-    print(tags[0] if tags else "")
-else:
-    print(data.get(field, ""))
-PY
