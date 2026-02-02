@@ -13,6 +13,7 @@ if ! command -v jq >/dev/null 2>&1; then
   echo "Error: jq is required but not installed or not in PATH." >&2
   exit 3
 fi
+
 jq -r --arg field "${FIELD}" '
   if $field == "tags" then
     (.tags // [] | map(tostring) | join(" "))
@@ -22,11 +23,3 @@ jq -r --arg field "${FIELD}" '
     (.[$field] // "")
   end
 ' "${META_PATH}"
-    first_tag = ""
-    for tag in tags:
-        first_tag = str(tag)
-        break
-    print(first_tag)
-else:
-    print(data.get(field, ""))
-PY
