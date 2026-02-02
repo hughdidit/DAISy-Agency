@@ -270,8 +270,12 @@ final class NodeAppModel {
         switch phase {
         case .background:
             self.isBackgrounded = true
+            self.stopGatewayHealthMonitor()
         case .active, .inactive:
             self.isBackgrounded = false
+            if self.gatewayConnected {
+                self.startGatewayHealthMonitor()
+            }
         @unknown default:
             self.isBackgrounded = false
         }
