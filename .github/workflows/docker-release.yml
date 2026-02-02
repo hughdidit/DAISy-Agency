@@ -9,6 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
+        description: "Skip pushing images/manifests."
+        required: false
+        default: "false"
         description: "Run release without pushing images"
         required: false
         default: "false"
@@ -26,6 +29,7 @@ concurrency:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  PUSH_ENABLED: ${{ (github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/daisy/main')) || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
 
 permissions:
   contents: read
@@ -78,7 +82,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
-          push: true
+          push: ${{ env.PUSH_ENABLED }}
 
   # Build arm64 image
   build-arm64:
@@ -126,7 +130,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
-          push: true
+          push: ${{ env.PUSH_ENABLED }}
 
   # Create multi-platform manifest
   create-manifest:
@@ -150,6 +154,7 @@ jobs:
             type=semver,pattern={{version}}
 
       - name: Create and push manifest
+        if: env.PUSH_ENABLED == 'true'
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             ${{ needs.build-amd64.outputs.image-digest }} \
