@@ -13,6 +13,11 @@ Status: beta.
 
 ### Fixes
 
+<<<<<<< HEAD
+=======
+- fix(agents): validate AbortSignal instances before calling AbortSignal.any() (#7277) (thanks @Elarwei001)
+- fix(webchat): respect user scroll position during streaming and refresh (#7226) (thanks @marcomarandiz)
+>>>>>>> 5fb8f779c (fix: validate AbortSignal instances before calling AbortSignal.any() (#7277) (thanks @Elarwei001))
 - Security: guard skill installer downloads with SSRF checks (block private/localhost URLs).
 - Media understanding: apply SSRF guardrails to provider fetches; allow private baseUrl overrides explicitly.
 
