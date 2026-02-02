@@ -9,7 +9,7 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 READ_META="${SCRIPT_DIR}/read-release-metadata.sh"
-if [[ ! -x "${READ_META}" ]]; then
+if [[ ! -f "${READ_META}" ]]; then
   echo "Missing helper script: ${READ_META}" >&2
   exit 2
 fi
