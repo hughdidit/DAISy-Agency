@@ -13,14 +13,19 @@ provider and set the default model to `moonshot/kimi-k2.5`, or use
 Kimi Coding with `kimi-coding/k2p5`.
 
 Current Kimi K2 model IDs:
+<<<<<<< HEAD
 {/_ moonshot-kimi-k2-ids:start _/}
+=======
+
+{/_ moonshot-kimi-k2-ids:start _/ && null}
+>>>>>>> b9910ab03 (Docs: fix Moonshot sync markers (#6789))
 
 - `kimi-k2.5`
 - `kimi-k2-0905-preview`
 - `kimi-k2-turbo-preview`
 - `kimi-k2-thinking`
 - `kimi-k2-thinking-turbo`
-  {/_ moonshot-kimi-k2-ids:end _/}
+  {/_ moonshot-kimi-k2-ids:end _/ && null}
 
 ```bash
 moltbot onboard --auth-choice moonshot-api-key
