@@ -1,10 +1,15 @@
 {
   "name": "@openclaw/msteams",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
 >>>>>>> 247fab47c (chore: bump version to 2026.1.30)
+=======
+  "version": "2026.2.1",
+  "description": "OpenClaw Microsoft Teams channel plugin",
+>>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
   "type": "module",
 <<<<<<< HEAD
   "description": "OpenClaw Microsoft Teams channel plugin",
