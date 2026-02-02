@@ -327,8 +327,19 @@ export class MoltbotApp extends LitElement {
   }
 
   resetChatScroll() {
+<<<<<<< HEAD
     resetChatScrollInternal(
       this as unknown as Parameters<typeof resetChatScrollInternal>[0],
+=======
+    resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
+  }
+
+  scrollToBottom() {
+    resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
+    scheduleChatScrollInternal(
+      this as unknown as Parameters<typeof scheduleChatScrollInternal>[0],
+      true,
+>>>>>>> 371114354 (chore: fix formatting and CI)
     );
   }
 
