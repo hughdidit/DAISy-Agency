@@ -20,12 +20,15 @@ import { handleModelsCommand } from "./commands-models.js";
 <<<<<<< HEAD
 =======
 import { handlePluginCommand } from "./commands-plugin.js";
+<<<<<<< HEAD
 import { handlePTTCommand } from "./commands-ptt.js";
 <<<<<<< HEAD
 >>>>>>> b7aac92ac (Gateway: add PTT chat + nodes CLI)
 import { handleTtsCommands } from "./commands-tts.js";
 =======
 >>>>>>> 6cd3bc3a4 (iOS: improve gateway auto-connect and voice permissions)
+=======
+>>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
 import {
   handleAbortTrigger,
   handleActivationCommand,
@@ -85,7 +88,6 @@ export async function handleCommands(params: HandleCommandsParams): Promise<Comm
       handleUsageCommand,
       handleRestartCommand,
       handleTtsCommands,
-      handlePTTCommand,
       handleHelpCommand,
       handleCommandsListCommand,
       handleStatusCommand,
