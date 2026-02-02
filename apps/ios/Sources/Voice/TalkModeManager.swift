@@ -456,7 +456,8 @@ final class TalkModeManager: NSObject {
 
     private func handleTranscript(transcript: String, isFinal: Bool) async {
         let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
-        if self.isSpeaking, self.interruptOnSpeech {
+        let ttsActive = self.isSpeechOutputActive
+        if ttsActive, self.interruptOnSpeech {
             if self.shouldInterrupt(with: trimmed) {
                 self.stopSpeaking()
             }
@@ -475,7 +476,7 @@ final class TalkModeManager: NSObject {
                 _ = await self.endPushToTalk()
                 return
             }
-            if self.captureMode == .continuous, !self.isSpeaking {
+            if self.captureMode == .continuous, !self.isSpeechOutputActive {
                 await self.processTranscript(trimmed, restartAfter: true)
             }
         }
@@ -494,7 +495,7 @@ final class TalkModeManager: NSObject {
 
     private func checkSilence() async {
         if self.captureMode == .continuous {
-            guard self.isListening, !self.isSpeaking else { return }
+            guard self.isListening, !self.isSpeechOutputActive else { return }
             let transcript = self.lastTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !transcript.isEmpty else { return }
             guard let lastHeard else { return }
@@ -900,16 +901,22 @@ final class TalkModeManager: NSObject {
     }
 
     private func stopSpeaking(storeInterruption: Bool = true) {
-        guard self.isSpeaking else { return }
-        let interruptedAt = self.lastPlaybackWasPCM
-            ? self.pcmPlayer.stop()
-            : self.mp3Player.stop()
-        if storeInterruption {
-            self.lastInterruptedAtSeconds = interruptedAt
+        let hasIncremental = self.incrementalSpeechActive ||
+            self.incrementalSpeechTask != nil ||
+            !self.incrementalSpeechQueue.isEmpty
+        if self.isSpeaking {
+            let interruptedAt = self.lastPlaybackWasPCM
+                ? self.pcmPlayer.stop()
+                : self.mp3Player.stop()
+            if storeInterruption {
+                self.lastInterruptedAtSeconds = interruptedAt
+            }
+            _ = self.lastPlaybackWasPCM
+                ? self.mp3Player.stop()
+                : self.pcmPlayer.stop()
+        } else if !hasIncremental {
+            return
         }
-        _ = self.lastPlaybackWasPCM
-            ? self.mp3Player.stop()
-            : self.pcmPlayer.stop()
         TalkSystemSpeechSynthesizer.shared.stop()
         self.cancelIncrementalSpeech()
         self.isSpeaking = false
@@ -926,6 +933,13 @@ final class TalkModeManager: NSObject {
 
     private func shouldUseIncrementalTTS() -> Bool {
         true
+    }
+
+    private var isSpeechOutputActive: Bool {
+        self.isSpeaking ||
+            self.incrementalSpeechActive ||
+            self.incrementalSpeechTask != nil ||
+            !self.incrementalSpeechQueue.isEmpty
     }
 
     private func applyDirective(_ directive: TalkDirective?) {
@@ -1353,13 +1367,31 @@ private struct IncrementalSpeechBuffer {
         if newText.hasPrefix(self.latestText) {
             self.latestText = newText
         } else if self.latestText.hasPrefix(newText) {
-            // Keep the longer cached text.
+            // Stream reset or correction; prefer the newer prefix.
+            self.latestText = newText
+            self.spokenOffset = min(self.spokenOffset, newText.count)
         } else {
-            self.latestText += newText
+            // Diverged text means chunks arrived out of order or stream restarted.
+            let commonPrefix = Self.commonPrefixCount(self.latestText, newText)
+            self.latestText = newText
+            if self.spokenOffset > commonPrefix {
+                self.spokenOffset = commonPrefix
+            }
         }
         if self.spokenOffset > self.latestText.count {
             self.spokenOffset = self.latestText.count
         }
+    }
+
+    private static func commonPrefixCount(_ lhs: String, _ rhs: String) -> Int {
+        let left = Array(lhs)
+        let right = Array(rhs)
+        let limit = min(left.count, right.count)
+        var idx = 0
+        while idx < limit, left[idx] == right[idx] {
+            idx += 1
+        }
+        return idx
     }
 
     private mutating func extractSegments(isFinal: Bool) -> [String] {

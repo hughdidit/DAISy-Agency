@@ -70,8 +70,12 @@ final class NodeAppModel {
     private var voiceWakeSyncTask: Task<Void, Never>?
     @ObservationIgnored private var cameraHUDDismissTask: Task<Void, Never>?
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     @ObservationIgnored private var capabilityRouter: NodeCapabilityRouter
+=======
+    @ObservationIgnored private lazy var capabilityRouter: NodeCapabilityRouter = self.buildCapabilityRouter()
+>>>>>>> ff6114599 (iOS: update onboarding and gateway UI)
     private let gatewayHealthMonitor = GatewayHealthMonitor()
     private let notificationCenter: NotificationCentering
 >>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)
@@ -129,8 +133,6 @@ final class NodeAppModel {
         self.remindersService = remindersService
         self.motionService = motionService
         self.talkMode = talkMode
-        self.capabilityRouter = NodeCapabilityRouter(handlers: [:])
-        self.capabilityRouter = self.buildCapabilityRouter()
 
 >>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
         self.voiceWake.configure { [weak self] cmd in
@@ -317,6 +319,9 @@ final class NodeAppModel {
 
         self.gatewayTask = Task {
             var attempt = 0
+            var currentOptions = connectOptions
+            var didFallbackClientId = false
+            let trimmedStableID = gatewayStableID.trimmingCharacters(in: .whitespacesAndNewlines)
             while !Task.isCancelled {
                 await MainActor.run {
                     if attempt == 0 {
@@ -333,7 +338,7 @@ final class NodeAppModel {
                         url: url,
                         token: token,
                         password: password,
-                        connectOptions: connectOptions,
+                        connectOptions: currentOptions,
                         sessionBox: sessionBox,
                         onConnected: { [weak self] in
                             guard let self else { return }
@@ -382,6 +387,23 @@ final class NodeAppModel {
                     try? await Task.sleep(nanoseconds: 1_000_000_000)
                 } catch {
                     if Task.isCancelled { break }
+                    if !didFallbackClientId,
+                       let fallbackClientId = self.legacyClientIdFallback(
+                        currentClientId: currentOptions.clientId,
+                        error: error)
+                    {
+                        didFallbackClientId = true
+                        currentOptions.clientId = fallbackClientId
+                        if !trimmedStableID.isEmpty {
+                            GatewaySettingsStore.saveGatewayClientIdOverride(
+                                stableID: trimmedStableID,
+                                clientId: fallbackClientId)
+                        }
+                        await MainActor.run {
+                            self.gatewayStatusText = "Gateway rejected client id. Retrying…"
+                        }
+                        continue
+                    }
                     attempt += 1
                     await MainActor.run {
                         self.gatewayStatusText = "Gateway error: \(error.localizedDescription)"
@@ -411,6 +433,16 @@ final class NodeAppModel {
                 self.showLocalCanvasOnDisconnect()
             }
         }
+    }
+
+    private func legacyClientIdFallback(currentClientId: String, error: Error) -> String? {
+        let normalizedClientId = currentClientId.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard normalizedClientId == "openclaw-ios" else { return nil }
+        let message = error.localizedDescription.lowercased()
+        guard message.contains("invalid connect params"), message.contains("/client/id") else {
+            return nil
+        }
+        return "moltbot-ios"
     }
 
     func disconnectGateway() {
@@ -526,7 +558,10 @@ final class NodeAppModel {
                 guard let self else { return false }
                 do {
                     let data = try await self.gateway.request(method: "health", paramsJSON: nil, timeoutSeconds: 6)
-                    return (try? JSONDecoder().decode(OpenClawGatewayHealthOK.self, from: data))?.ok ?? true
+                    guard let decoded = try? JSONDecoder().decode(OpenClawGatewayHealthOK.self, from: data) else {
+                        return false
+                    }
+                    return decoded.ok ?? false
                 } catch {
                     return false
                 }
