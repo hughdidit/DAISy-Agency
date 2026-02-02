@@ -61,7 +61,7 @@ describe("config view", () => {
 
     const saveButton = Array.from(container.querySelectorAll("button")).find(
       (btn) => btn.textContent?.trim() === "Save",
-    ) as HTMLButtonElement | undefined;
+    );
     expect(saveButton).not.toBeUndefined();
     expect(saveButton?.disabled).toBe(false);
   });
@@ -81,7 +81,7 @@ describe("config view", () => {
 
     const saveButton = Array.from(container.querySelectorAll("button")).find(
       (btn) => btn.textContent?.trim() === "Save",
-    ) as HTMLButtonElement | undefined;
+    );
     expect(saveButton).not.toBeUndefined();
     expect(saveButton?.disabled).toBe(true);
   });
@@ -100,10 +100,10 @@ describe("config view", () => {
 
     const saveButton = Array.from(container.querySelectorAll("button")).find(
       (btn) => btn.textContent?.trim() === "Save",
-    ) as HTMLButtonElement | undefined;
+    );
     const applyButton = Array.from(container.querySelectorAll("button")).find(
       (btn) => btn.textContent?.trim() === "Apply",
-    ) as HTMLButtonElement | undefined;
+    );
     expect(saveButton).not.toBeUndefined();
     expect(applyButton).not.toBeUndefined();
     expect(saveButton?.disabled).toBe(true);
@@ -124,10 +124,10 @@ describe("config view", () => {
 
     const saveButton = Array.from(container.querySelectorAll("button")).find(
       (btn) => btn.textContent?.trim() === "Save",
-    ) as HTMLButtonElement | undefined;
+    );
     const applyButton = Array.from(container.querySelectorAll("button")).find(
       (btn) => btn.textContent?.trim() === "Apply",
-    ) as HTMLButtonElement | undefined;
+    );
     expect(saveButton).not.toBeUndefined();
     expect(applyButton).not.toBeUndefined();
     expect(saveButton?.disabled).toBe(false);
@@ -147,7 +147,7 @@ describe("config view", () => {
 
     const btn = Array.from(container.querySelectorAll("button")).find(
       (b) => b.textContent?.trim() === "Raw",
-    ) as HTMLButtonElement | undefined;
+    );
     expect(btn).toBeTruthy();
     btn?.click();
     expect(onFormModeChange).toHaveBeenCalledWith("raw");
@@ -173,7 +173,7 @@ describe("config view", () => {
 
     const btn = Array.from(container.querySelectorAll("button")).find(
       (b) => b.textContent?.trim() === "Gateway",
-    ) as HTMLButtonElement | undefined;
+    );
     expect(btn).toBeTruthy();
     btn?.click();
     expect(onSectionChange).toHaveBeenCalledWith("gateway");
@@ -190,9 +190,9 @@ describe("config view", () => {
       container,
     );
 
-    const input = container.querySelector(".config-search__input") as HTMLInputElement | null;
+    const input = container.querySelector(".config-search__input");
     expect(input).not.toBeNull();
-    if (!input) return;
+    if (!input) {return;}
     input.value = "gateway";
     input.dispatchEvent(new Event("input", { bubbles: true }));
     expect(onSearchChange).toHaveBeenCalledWith("gateway");
