@@ -132,15 +132,19 @@ Moonshot uses OpenAI-compatible endpoints, so configure it as a custom provider:
 - Auth: `MOONSHOT_API_KEY`
 - Example model: `moonshot/kimi-k2.5`
 - Kimi K2 model IDs:
-  {/* moonshot-kimi-k2-model-refs:start */}
+  {/_ moonshot-kimi-k2-model-refs:start _/}
   - `moonshot/kimi-k2.5`
   - `moonshot/kimi-k2-0905-preview`
   - `moonshot/kimi-k2-turbo-preview`
   - `moonshot/kimi-k2-thinking`
   - `moonshot/kimi-k2-thinking-turbo`
+<<<<<<< HEAD
   {/* moonshot-kimi-k2-model-refs:end */}
 <<<<<<< HEAD
 =======
+=======
+    {/_ moonshot-kimi-k2-model-refs:end _/}
+>>>>>>> dda8a2b23 (fix: format docs)
 
 >>>>>>> 7ee99af9f (fix: convert HTML comments to MDX comments in docs)
 ```json5
