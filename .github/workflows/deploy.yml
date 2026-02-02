@@ -104,9 +104,13 @@ jobs:
             rm -f "${output_file}"
           }
           trap cleanup EXIT
+          # Temporarily disable -e so we can capture PIPESTATUS and parse output even if deploy.sh fails
+          set +e
           ./scripts/deploy.sh dist/release/release-metadata.json | tee "${output_file}"
           status="${PIPESTATUS[0]}"
-          deploy_ref="$(grep -m 1 '^DEPLOY_REF:' "${output_file}" | sed -E 's/^DEPLOY_REF:[[:space:]]*//')"
+          deploy_ref="$(grep -m 1 '^DEPLOY_REF:' "${output_file}" | sed -E 's/^DEPLOY_REF:[[:space:]]*//' || true)"
+          # Re-enable -e for the remaining commands
+          set -e
           if [[ -n "${deploy_ref}" ]]; then
             echo "deploy_ref=${deploy_ref}" >> "${GITHUB_OUTPUT}"
           fi
