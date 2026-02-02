@@ -261,4 +261,4 @@ jobs:
           name: release-metadata
           path: dist/release/release-metadata.json
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 90
