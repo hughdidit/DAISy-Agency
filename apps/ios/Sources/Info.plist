@@ -44,6 +44,7 @@
 	<string>Moltbot needs microphone access for voice wake.</string>
 =======
 	<string>OpenClaw needs microphone access for voice wake.</string>
+<<<<<<< HEAD
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>OpenClaw can read recent photos when requested via the gateway.</string>
 	<key>NSContactsUsageDescription</key>
@@ -55,6 +56,8 @@
 	<key>NSMotionUsageDescription</key>
 	<string>OpenClaw can read motion activity and pedometer data when requested via the gateway.</string>
 >>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
+=======
+>>>>>>> ff6114599 (iOS: update onboarding and gateway UI)
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Moltbot uses on-device speech recognition for voice wake.</string>
 	<key>UIApplicationSceneManifest</key>
