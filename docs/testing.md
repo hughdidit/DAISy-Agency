@@ -20,7 +20,12 @@ This doc is a “how we test” guide:
 ## Quick start
 
 Most days:
+<<<<<<< HEAD
 - Full gate (expected before push): `pnpm lint && pnpm build && pnpm test`
+=======
+
+- Full gate (expected before push): `pnpm build && pnpm check && pnpm test`
+>>>>>>> 902f96805 (chore: Add `pnpm check` for fast repo checks.)
 
 When you touch tests or want extra confidence:
 - Coverage gate: `pnpm test:coverage`
