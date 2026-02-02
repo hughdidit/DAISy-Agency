@@ -9,7 +9,7 @@ on:
 
 concurrency:
   group: docker-release-global
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
 
 env:
   REGISTRY: ghcr.io
