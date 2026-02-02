@@ -21,10 +21,6 @@ if [[ -z "${IMAGE}" ]]; then
 fi
 DIGEST="$("${READ_META}" "${META_PATH}" digest)"
 FIRST_TAG="$("${READ_META}" "${META_PATH}" first_tag)"
-if [[ -z "${IMAGE}" ]]; then
-  echo "ERROR: release metadata is missing required field: image" >&2
-  exit 3
-fi
 
 RESOLVED_REF=""
 if [[ -n "${IMAGE_REF_OVERRIDE:-}" ]]; then
