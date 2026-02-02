@@ -41,12 +41,25 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download release metadata from docker-release run
+        id: dl
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: release-metadata
           path: dist/release
           run-id: ${{ inputs.release_run_id }}
           github-token: ${{ github.token }}
+
+      - name: Validate release metadata downloaded
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -f dist/release/release-metadata.json ]; then
+            echo "ERROR: Could not download release-metadata artifact for run-id='${{ inputs.release_run_id }}'." >&2
+            echo "Make sure release_run_id is from the *docker-release* workflow run that uploaded the artifact named 'release-metadata'." >&2
+            echo "Tip: Open Actions → Docker release workflow → pick the run → copy its Run ID from the URL." >&2
+            exit 2
+          fi
 
       - name: Show release metadata
         shell: bash
