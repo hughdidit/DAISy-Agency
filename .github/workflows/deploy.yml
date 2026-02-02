@@ -55,7 +55,8 @@ jobs:
         run: |
           set -euo pipefail
           if [ ! -f dist/release/release-metadata.json ]; then
-            echo "ERROR: Could not download release-metadata artifact for run-id='${{ inputs.release_run_id }}'." >&2
+            echo "ERROR: Failed to locate or download the 'release-metadata' artifact for run-id='${{ inputs.release_run_id }}'." >&2
+            echo "This may mean the artifact does not exist for that run, the run ID is invalid, or this workflow does not have permission to access it." >&2
             echo "Make sure release_run_id is from the *docker-release* workflow run that uploaded the artifact named 'release-metadata'." >&2
             echo "Tip: Open Actions → Docker release workflow → pick the run → copy its Run ID from the URL." >&2
             exit 2
