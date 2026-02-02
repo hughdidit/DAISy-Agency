@@ -4,11 +4,15 @@ set -euo pipefail
 META_PATH="${1:-}"
 FIELD="${2:-}"
 
-if [[ -z "${META_PATH}" || -z "${FIELD}" || ! -f "${META_PATH}" ]]; then
+if [[ -z "${META_PATH}" || -z "${FIELD}" ]]; then
   echo "Usage: $0 <path-to-release-metadata.json> <field>" >&2
   exit 2
 fi
 
+if [[ ! -f "${META_PATH}" ]]; then
+  echo "Error: metadata file not found: ${META_PATH}" >&2
+  exit 2
+fi
 if ! command -v jq >/dev/null 2>&1; then
   echo "Error: jq is required but not installed or not in PATH." >&2
   exit 3
