@@ -142,7 +142,7 @@ jobs:
             type=semver,pattern={{version}}
 
       - name: Create and push manifest
-        if: ${{ env.PUSH_ENABLED == 'true' }}
+        if: env.PUSH_ENABLED == 'true'
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             ${{ needs.build-amd64.outputs.image-digest }} \
