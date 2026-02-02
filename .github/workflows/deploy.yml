@@ -61,6 +61,20 @@ jobs:
       deploy_ref: ${{ steps.deploy.outputs.deploy_ref }}
 
     steps:
+      - name: Validate environment input
+        shell: bash
+        run: |
+          case "${{ inputs.environment }}" in
+            staging|production)
+              echo "✓ Valid environment: ${{ inputs.environment }}"
+              ;;
+            *)
+              echo "ERROR: Invalid environment '${{ inputs.environment }}'" >&2
+              echo "Allowed values: staging, production" >&2
+              exit 1
+              ;;
+          esac
+
       - name: Checkout (for scripts)
         uses: actions/checkout@v4
 
