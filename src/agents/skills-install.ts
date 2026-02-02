@@ -6,6 +6,7 @@ import { pipeline } from "node:stream/promises";
 
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveBrewExecutable } from "../infra/brew.js";
+import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { CONFIG_DIR, ensureDir, resolveUserPath } from "../utils.js";
 import {
@@ -149,10 +150,11 @@ async function downloadFile(
   destPath: string,
   timeoutMs: number,
 ): Promise<{ bytes: number }> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), Math.max(1_000, timeoutMs));
+  const { response, release } = await fetchWithSsrFGuard({
+    url,
+    timeoutMs: Math.max(1_000, timeoutMs),
+  });
   try {
-    const response = await fetch(url, { signal: controller.signal });
     if (!response.ok || !response.body) {
       throw new Error(`Download failed (${response.status} ${response.statusText})`);
     }
@@ -166,7 +168,7 @@ async function downloadFile(
     const stat = await fs.promises.stat(destPath);
     return { bytes: stat.size };
   } finally {
-    clearTimeout(timeout);
+    await release();
   }
 }
 
