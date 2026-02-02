@@ -18,6 +18,7 @@ export function createBlockReplyCoalescer(params: {
   const maxChars = Math.max(minChars, Math.floor(config.maxChars));
   const idleMs = Math.max(0, Math.floor(config.idleMs));
   const joiner = config.joiner ?? "";
+  const flushOnEnqueue = config.flushOnEnqueue === true;
 
   let bufferText = "";
   let bufferReplyToId: ReplyPayload["replyToId"];
@@ -50,8 +51,15 @@ export function createBlockReplyCoalescer(params: {
       resetBuffer();
       return;
     }
+<<<<<<< HEAD
     if (!bufferText) return;
     if (!options?.force && bufferText.length < minChars) {
+=======
+    if (!bufferText) {
+      return;
+    }
+    if (!options?.force && !flushOnEnqueue && bufferText.length < minChars) {
+>>>>>>> 9ef24fd40 (fix: flush block streaming on paragraph boundaries for chunkMode=newline (#7014))
       scheduleIdleFlush();
       return;
     }
@@ -75,6 +83,19 @@ export function createBlockReplyCoalescer(params: {
       return;
     }
     if (!hasText) return;
+
+    // When flushOnEnqueue is set (chunkMode="newline"), each enqueued payload is treated
+    // as a separate paragraph and flushed immediately so delivery matches streaming boundaries.
+    if (flushOnEnqueue) {
+      if (bufferText) {
+        void flush({ force: true });
+      }
+      bufferReplyToId = payload.replyToId;
+      bufferAudioAsVoice = payload.audioAsVoice;
+      bufferText = text;
+      void flush({ force: true });
+      return;
+    }
 
     if (
       bufferText &&
