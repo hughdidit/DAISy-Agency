@@ -14,7 +14,6 @@ env:
 permissions:
   contents: read
   packages: write
-  id-token: write
 
 jobs:
   # Build amd64 image
