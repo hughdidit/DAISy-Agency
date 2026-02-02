@@ -233,6 +233,32 @@ export async function handleDiscordMessagingAction(
       const replyTo = readStringParam(params, "replyTo");
       const embeds =
         Array.isArray(params.embeds) && params.embeds.length > 0 ? params.embeds : undefined;
+<<<<<<< HEAD
+=======
+
+      // Handle voice message sending
+      if (asVoice) {
+        if (!mediaUrl) {
+          throw new Error("Voice messages require a media file path (mediaUrl).");
+        }
+        if (content && content.trim()) {
+          throw new Error(
+            "Voice messages cannot include text content (Discord limitation). Remove the content parameter.",
+          );
+        }
+        if (mediaUrl.startsWith("http://") || mediaUrl.startsWith("https://")) {
+          throw new Error(
+            "Voice messages require a local file path, not a URL. Download the file first.",
+          );
+        }
+        const result = await sendVoiceMessageDiscord(to, mediaUrl, {
+          ...(accountId ? { accountId } : {}),
+          replyTo,
+        });
+        return jsonResult({ ok: true, result, voiceMessage: true });
+      }
+
+>>>>>>> b9da2c467 (fix: address code review feedback)
       const result = await sendMessageDiscord(to, content, {
         ...(accountId ? { accountId } : {}),
         mediaUrl,
