@@ -23,6 +23,11 @@ Status: beta.
 ### Fixes
 
 - Auto-reply: avoid referencing workspace files in /new greeting prompt. (#5706) Thanks @bravostation.
+<<<<<<< HEAD
+=======
+- Tools: treat `"*"` tool allowlist entries as valid to avoid spurious unknown-entry warnings.
+- Slack: harden media fetch limits and Slack file URL validation. (#6639) Thanks @davidiach.
+>>>>>>> 4e4ed2ea1 (fix(security): cap Slack media downloads and validate Slack file URLs (#6639))
 - Process: resolve Windows `spawn()` failures for npm-family CLIs by appending `.cmd` when needed. (#5815) Thanks @thejhinvirtuoso.
 - Discord: resolve PluralKit proxied senders for allowlists and labels. (#5838) Thanks @thewilloftheshadow.
 - Agents: ensure OpenRouter attribution headers apply in the embedded runner.
