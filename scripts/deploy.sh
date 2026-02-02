@@ -26,11 +26,6 @@ if [[ -z "${IMAGE}" ]]; then
   exit 3
 fi
 
-if [[ -z "${IMAGE//[[:space:]]/}" ]]; then
-  echo "ERROR: release metadata field \"image\" is missing or empty" >&2
-  exit 3
-fi
-
 RESOLVED_REF=""
 if [[ -n "${IMAGE_REF_OVERRIDE:-}" ]]; then
   RESOLVED_REF="${IMAGE_REF_OVERRIDE}"
