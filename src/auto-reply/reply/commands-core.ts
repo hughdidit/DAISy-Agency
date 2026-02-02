@@ -21,8 +21,11 @@ import { handleModelsCommand } from "./commands-models.js";
 =======
 import { handlePluginCommand } from "./commands-plugin.js";
 import { handlePTTCommand } from "./commands-ptt.js";
+<<<<<<< HEAD
 >>>>>>> b7aac92ac (Gateway: add PTT chat + nodes CLI)
 import { handleTtsCommands } from "./commands-tts.js";
+=======
+>>>>>>> 6cd3bc3a4 (iOS: improve gateway auto-connect and voice permissions)
 import {
   handleAbortTrigger,
   handleActivationCommand,
@@ -40,6 +43,7 @@ import type {
 } from "./commands-types.js";
 =======
 import { handleSubagentsCommand } from "./commands-subagents.js";
+import { handleTtsCommands } from "./commands-tts.js";
 import { routeReply } from "./route-reply.js";
 >>>>>>> b7aac92ac (Gateway: add PTT chat + nodes CLI)
 
