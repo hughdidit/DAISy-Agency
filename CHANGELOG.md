@@ -10,6 +10,7 @@ Status: beta.
 
 ### Fixes
 
+- Telegram: add download timeouts for file fetches. (#6914) Thanks @hclsys.
 - Telegram: enforce thread specs for DM vs forum sends. (#6833) Thanks @obviyus.
 
 ## 2026.1.31
