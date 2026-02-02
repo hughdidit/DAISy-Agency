@@ -34,10 +34,16 @@ When the operator says “release”, immediately do this preflight (no extra qu
 - [ ] Update `CHANGELOG.md` with user-facing highlights (create the file if missing); keep entries strictly descending by version.
 - [ ] Ensure README examples/flags match current CLI behavior (notably new commands or options).
 
+<<<<<<< HEAD
 4) **Validation**
 - [ ] `pnpm lint`
+=======
+4. **Validation**
+
+- [ ] `pnpm build`
+- [ ] `pnpm check`
+>>>>>>> 902f96805 (chore: Add `pnpm check` for fast repo checks.)
 - [ ] `pnpm test` (or `pnpm test:coverage` if you need coverage output)
-- [ ] `pnpm run build` (last sanity check after tests)
 - [ ] `pnpm release:check` (verifies npm pack contents)
 - [ ] `CLAWDBOT_INSTALL_SMOKE_SKIP_NONROOT=1 pnpm test:install:smoke` (Docker install smoke test, fast path; required before release)
   - If the immediate previous npm release is known broken, set `CLAWDBOT_INSTALL_SMOKE_PREVIOUS=<last-good-version>` or `CLAWDBOT_INSTALL_SMOKE_SKIP_PREVIOUS=1` for the preinstall step.
