@@ -14,7 +14,7 @@ if [[ ! -f "${META_PATH}" ]]; then
   exit 2
 fi
 if ! command -v jq >/dev/null 2>&1; then
-  echo "Error: jq is required but not installed or not in PATH." >&2
+  echo "Error: jq is required but not installed or not in PATH. Please install jq (e.g., via your package manager such as 'apt-get install jq', 'yum install jq', or 'brew install jq')." >&2
   exit 3
 fi
 
