@@ -218,9 +218,9 @@ jobs:
 
           TAGS_JSON="[]"
           if [[ "${IS_TAG}" == "true" ]]; then
-            TAGS_JSON=$(printf '["%s","latest"]' "${TAG_VERSION}")
+            TAGS_JSON="$(jq -n --arg v "${TAG_VERSION}" '[ $v, "latest" ]')"
           elif [[ "${IS_MAIN}" == "true" ]]; then
-            TAGS_JSON=$(printf '["main-%s"]' "${SHORTSHA}")
+            TAGS_JSON="$(jq -n --arg t "main-${SHORTSHA}" '[ $t ]')"
           fi
 
           DIGEST=""
