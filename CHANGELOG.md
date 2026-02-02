@@ -2,8 +2,18 @@
 
 Docs: https://docs.molt.bot
 
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 Status: beta.
+=======
+## 2026.2.2
+
+### Fixes
+
+- Telegram: enforce thread specs for DM vs forum sends. (#6833) Thanks @obviyus.
+
+## 2026.1.31
+>>>>>>> e25f8ed56 (fix: add changelog for telegram thread spec (#6833) (thanks @obviyus))
 
 ### Changes
 <<<<<<< HEAD
