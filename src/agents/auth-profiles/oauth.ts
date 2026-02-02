@@ -13,13 +13,16 @@ import { ensureAuthProfileStore, saveAuthProfileStore } from "./store.js";
 import type { AuthProfileStore } from "./types.js";
 =======
 
-const OAUTH_PROVIDER_IDS = new Set<OAuthProvider>(
-  getOAuthProviders().map((provider) => provider.id),
-);
+const OAUTH_PROVIDER_IDS = new Set<string>(getOAuthProviders().map((provider) => provider.id));
 
+<<<<<<< HEAD
 function isOAuthProvider(provider: string): provider is OAuthProvider {
   return OAUTH_PROVIDER_IDS.has(provider);
 }
+=======
+const isOAuthProvider = (provider: string): provider is OAuthProvider =>
+  OAUTH_PROVIDER_IDS.has(provider);
+>>>>>>> 8d2f98fb0 (Fix subagent announce failover race (always emit lifecycle end + treat timeout=0 as no-timeout) (#6621))
 
 const resolveOAuthProvider = (provider: string): OAuthProvider | null =>
   isOAuthProvider(provider) ? provider : null;

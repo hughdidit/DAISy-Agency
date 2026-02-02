@@ -35,9 +35,9 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
       execute: async (
         toolCallId,
         params,
+        signal: AbortSignal | undefined,
         onUpdate: AgentToolUpdateCallback<unknown> | undefined,
         _ctx,
-        signal,
       ): Promise<AgentToolResult<unknown>> => {
         // KNOWN: pi-coding-agent `ToolDefinition.execute` has a different signature/order
         // than pi-agent-core `AgentTool.execute`. This adapter keeps our existing tools intact.
@@ -87,9 +87,9 @@ export function toClientToolDefinitions(
       execute: async (
         toolCallId,
         params,
+        _signal: AbortSignal | undefined,
         _onUpdate: AgentToolUpdateCallback<unknown> | undefined,
         _ctx,
-        _signal,
       ): Promise<AgentToolResult<unknown>> => {
         // Notify handler that a client tool was called
         if (onClientToolCall) {
