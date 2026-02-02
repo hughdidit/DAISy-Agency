@@ -146,7 +146,7 @@ jobs:
   create-manifest:
     runs-on: ubuntu-latest
     needs: [build-amd64, build-arm64]
-    if: ${{ env.PUSH_ENABLED }}
+    if: github.event_name == 'push'
     steps:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
