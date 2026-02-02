@@ -10,10 +10,12 @@ on:
         options:
           - staging
           - production
-      ref:
-        description: "Branch/tag/SHA to deploy"
+      release_run_id:
+        description: "docker-release workflow run ID to deploy (from Actions UI)"
         required: true
-        default: "daisy/main"
+      image_ref:
+        description: "Optional override: full image ref (tag or digest)"
+        required: false
       dry_run:
         description: "If true, do not perform real deployment"
         required: true
@@ -22,6 +24,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: deploy-${{ inputs.environment }}
@@ -34,24 +37,40 @@ jobs:
     environment: ${{ inputs.environment }}
 
     steps:
-      - name: Checkout
+      - name: Checkout (for scripts)
         uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.ref }}
 
-      - name: Show inputs
+      - name: Download release metadata from docker-release run
+        uses: actions/download-artifact@v4
+        with:
+          name: release-metadata
+          path: dist/release
+          run-id: ${{ inputs.release_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Help: release metadata download failed
+        if: failure()
+        shell: bash
         run: |
-          echo "Environment: ${{ inputs.environment }}"
-          echo "Ref:         ${{ inputs.ref }}"
-          echo "Dry run:     ${{ inputs.dry_run }}"
+          echo "ERROR: Failed to download artifact 'release-metadata' for run-id='${{ inputs.release_run_id }}'." >&2
+          echo "Make sure release_run_id is from the docker-release workflow run that uploaded 'release-metadata'." >&2
+          echo "Tip: Open Actions → docker-release workflow → pick the run → copy the run ID from the URL." >&2
+
+      - name: Show release metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -la dist/release
+          cat dist/release/release-metadata.json
 
       - name: Deploy
         env:
           DEPLOY_ENV: ${{ inputs.environment }}
-          DEPLOY_REF: ${{ inputs.ref }}
           DRY_RUN: ${{ inputs.dry_run }}
+          IMAGE_REF_OVERRIDE: ${{ inputs.image_ref }}
           DEPLOY_TARGET: ${{ secrets.DEPLOY_TARGET }}
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
           chmod +x scripts/deploy.sh
-          ./scripts/deploy.sh
+          chmod +x scripts/read-release-metadata.sh
+          ./scripts/deploy.sh dist/release/release-metadata.json
