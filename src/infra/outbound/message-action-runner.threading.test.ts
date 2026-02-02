@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { slackPlugin } from "../../../extensions/slack/src/channel.js";
+import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
+>>>>>>> 6ac5dd2c0 (test: cover telegram topic threadId auto-injection and subagent origin threading)
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
 import { slackPlugin } from "../../../extensions/slack/src/channel.js";
@@ -41,18 +47,33 @@ const slackConfig = {
   },
 } as MoltbotConfig;
 
-describe("runMessageAction Slack threading", () => {
+const telegramConfig = {
+  channels: {
+    telegram: {
+      botToken: "telegram-test",
+    },
+  },
+} as OpenClawConfig;
+
+describe("runMessageAction threading auto-injection", () => {
   beforeEach(async () => {
     const { createPluginRuntime } = await import("../../plugins/runtime/index.js");
     const { setSlackRuntime } = await import("../../../extensions/slack/src/runtime.js");
+    const { setTelegramRuntime } = await import("../../../extensions/telegram/src/runtime.js");
     const runtime = createPluginRuntime();
     setSlackRuntime(runtime);
+    setTelegramRuntime(runtime);
     setActivePluginRegistry(
       createTestRegistry([
         {
           pluginId: "slack",
           source: "test",
           plugin: slackPlugin,
+        },
+        {
+          pluginId: "telegram",
+          source: "test",
+          plugin: telegramPlugin,
         },
       ]),
     );
@@ -114,5 +135,56 @@ describe("runMessageAction Slack threading", () => {
 
     const call = mocks.executeSendAction.mock.calls[0]?.[0];
     expect(call?.ctx?.mirror?.sessionKey).toBe("agent:main:slack:channel:c123:thread:333.444");
+  });
+
+  it("auto-injects telegram threadId from toolContext when omitted", async () => {
+    mocks.executeSendAction.mockResolvedValue({
+      handledBy: "plugin",
+      payload: {},
+    });
+
+    await runMessageAction({
+      cfg: telegramConfig,
+      action: "send",
+      params: {
+        channel: "telegram",
+        target: "telegram:123",
+        message: "hi",
+      },
+      toolContext: {
+        currentChannelId: "telegram:123",
+        currentThreadTs: "42",
+      },
+      agentId: "main",
+    });
+
+    const call = mocks.executeSendAction.mock.calls[0]?.[0] as { ctx?: { params?: any } };
+    expect(call?.ctx?.params?.threadId).toBe("42");
+  });
+
+  it("uses explicit telegram threadId when provided", async () => {
+    mocks.executeSendAction.mockResolvedValue({
+      handledBy: "plugin",
+      payload: {},
+    });
+
+    await runMessageAction({
+      cfg: telegramConfig,
+      action: "send",
+      params: {
+        channel: "telegram",
+        target: "telegram:123",
+        message: "hi",
+        threadId: "999",
+      },
+      toolContext: {
+        currentChannelId: "telegram:123",
+        currentThreadTs: "42",
+      },
+      agentId: "main",
+    });
+
+    const call = mocks.executeSendAction.mock.calls[0]?.[0] as { ctx?: { params?: any } };
+    expect(call?.ctx?.params?.threadId).toBe("999");
   });
 });

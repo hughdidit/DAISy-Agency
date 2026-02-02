@@ -10,12 +10,18 @@ import {
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
+<<<<<<< HEAD
 import type {
   ChannelId,
   ChannelMessageActionName,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import { extensionForMime } from "../../media/mime.js";
+import { parseSlackTarget } from "../../slack/targets.js";
+// parseTelegramTarget no longer used (telegram auto-threading uses string matching)
+>>>>>>> 6ac5dd2c0 (test: cover telegram topic threadId auto-injection and subagent origin threading)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -243,6 +249,34 @@ function resolveSlackAutoThreadId(params: {
   return context.currentThreadTs;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * Auto-inject Telegram forum topic thread ID when the message tool targets
+ * the same chat the session originated from.  Mirrors the Slack auto-threading
+ * pattern so media, buttons, and other tool-sent messages land in the correct
+ * topic instead of the General Topic.
+ */
+function resolveTelegramAutoThreadId(params: {
+  to: string;
+  toolContext?: ChannelThreadingToolContext;
+}): string | undefined {
+  const context = params.toolContext;
+  if (!context?.currentThreadTs || !context.currentChannelId) {
+    return undefined;
+  }
+  // Only apply when the target matches the originating chat.
+  // Note: Telegram topic routing is carried via threadId/message_thread_id;
+  // `currentChannelId` (and most agent targets) are typically the base chat id.
+  const normalizedTo = params.to.trim().toLowerCase();
+  const normalizedChannel = context.currentChannelId.trim().toLowerCase();
+  if (normalizedTo !== normalizedChannel) {
+    return undefined;
+  }
+  return context.currentThreadTs;
+}
+
+>>>>>>> 6ac5dd2c0 (test: cover telegram topic threadId auto-injection and subagent origin threading)
 function resolveAttachmentMaxBytes(params: {
   cfg: MoltbotConfig;
   channel: ChannelId;
