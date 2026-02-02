@@ -8,8 +8,8 @@ on:
       - "v*"
 
 concurrency:
-  group: docker-release-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: docker-release-global
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
