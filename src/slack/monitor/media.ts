@@ -5,6 +5,38 @@ import { fetchRemoteMedia } from "../../media/fetch.js";
 import { saveMediaBuffer } from "../../media/store.js";
 import type { SlackFile } from "../types.js";
 
+function resolveRequestUrl(input: RequestInfo | URL): string {
+  if (typeof input === "string") {
+    return input;
+  }
+  if (input instanceof URL) {
+    return input.toString();
+  }
+  if ("url" in input && typeof input.url === "string") {
+    return input.url;
+  }
+  return String(input);
+}
+
+function createSlackMediaFetch(token: string): FetchLike {
+  let includeAuth = true;
+  return async (input, init) => {
+    const url = resolveRequestUrl(input);
+    const { headers: initHeaders, redirect: _redirect, ...rest } = init ?? {};
+    const headers = new Headers(initHeaders);
+
+    if (includeAuth) {
+      includeAuth = false;
+      const parsed = assertSlackFileUrl(url);
+      headers.set("Authorization", `Bearer ${token}`);
+      return fetch(parsed.href, { ...rest, headers, redirect: "manual" });
+    }
+
+    headers.delete("Authorization");
+    return fetch(url, { ...rest, headers, redirect: "manual" });
+  };
+}
+
 /**
  * Fetches a URL with Authorization header, handling cross-origin redirects.
  * Node.js fetch strips Authorization headers on cross-origin redirects for security.
@@ -51,6 +83,7 @@ export async function resolveSlackMedia(params: {
     const url = file.url_private_download ?? file.url_private;
     if (!url) continue;
     try {
+<<<<<<< HEAD
       // Note: We ignore init options because fetchWithSlackAuth handles
       // redirect behavior specially. fetchRemoteMedia only passes the URL.
       const fetchImpl: FetchLike = (input) => {
@@ -58,6 +91,12 @@ export async function resolveSlackMedia(params: {
           typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
         return fetchWithSlackAuth(inputUrl, params.token);
       };
+=======
+      // Note: fetchRemoteMedia calls fetchImpl(url) with the URL string today and
+      // handles size limits internally. Provide a fetcher that uses auth once, then lets
+      // the redirect chain continue without credentials.
+      const fetchImpl = createSlackMediaFetch(params.token);
+>>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
       const fetched = await fetchRemoteMedia({
         url,
         fetchImpl,
