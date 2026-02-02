@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 import MoltbotKit
 import Foundation
 import Testing
 import UIKit
 @testable import Moltbot
+=======
+import OpenClawKit
+import Foundation
+import Testing
+import UIKit
+@testable import OpenClaw
+>>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
 
 private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws -> T) rethrows -> T {
     let defaults = UserDefaults.standard
@@ -29,6 +37,7 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
     return try body()
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 private final class TestNotificationCenter: NotificationCentering, @unchecked Sendable {
@@ -236,6 +245,8 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
 }
 
 >>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
+=======
+>>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
 @Suite(.serialized) struct NodeAppModelInvokeTests {
     @Test @MainActor func decodeParamsFailsWithoutJSON() {
         #expect(throws: Error.self) {
@@ -362,6 +373,7 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
         #expect(res.error?.code == .invalidRequest)
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     @Test @MainActor func handleInvokeSystemNotifyCreatesNotificationRequest() async throws {
@@ -838,6 +850,8 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
     }
 
 >>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)
+=======
+>>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
     @Test @MainActor func handleDeepLinkSetsErrorWhenNotConnected() async {
         let appModel = NodeAppModel()
         let url = URL(string: "moltbot://agent?message=hello")!

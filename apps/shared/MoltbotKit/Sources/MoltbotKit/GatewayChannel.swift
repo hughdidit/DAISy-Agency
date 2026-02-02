@@ -113,14 +113,16 @@ public actor GatewayChannelActor {
     private let logger = Logger(subsystem: "bot.molt", category: "gateway")
 =======
     private let logger = Logger(subsystem: "ai.openclaw", category: "gateway")
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
     #if DEBUG
     private var debugEventLogCount = 0
     private var debugMessageLogCount = 0
     private var debugListenLogCount = 0
     #endif
 >>>>>>> 84e115834 (Gateway: fix node invoke receive loop):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
+=======
+>>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests"):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
     private var task: WebSocketTaskBox?
-    private var listenTask: Task<Void, Never>?
     private var pending: [String: CheckedContinuation<GatewayFrame, Error>] = [:]
     private var connected = false
     private var isConnecting = false
@@ -179,9 +181,6 @@ public actor GatewayChannelActor {
         self.tickTask?.cancel()
         self.tickTask = nil
 
-        self.listenTask?.cancel()
-        self.listenTask = nil
-
         self.task?.cancel(with: .goingAway, reason: nil)
         self.task = nil
 
@@ -234,8 +233,6 @@ public actor GatewayChannelActor {
         self.isConnecting = true
         defer { self.isConnecting = false }
 
-        self.listenTask?.cancel()
-        self.listenTask = nil
         self.task?.cancel(with: .goingAway, reason: nil)
         self.task = self.session.makeWebSocketTask(url: self.url)
         self.task?.resume()
@@ -263,7 +260,6 @@ public actor GatewayChannelActor {
             throw wrapped
         }
         self.listen()
-        self.logger.info("gateway ws listen registered")
         self.connected = true
         self.backoffMs = 500
         self.lastSeq = nil
@@ -436,44 +432,24 @@ public actor GatewayChannelActor {
     }
 
     private func listen() {
-        #if DEBUG
-        if self.debugListenLogCount < 3 {
-            self.debugListenLogCount += 1
-            self.logger.info("gateway ws listen start")
-        }
-        #endif
-        self.listenTask?.cancel()
-        self.listenTask = Task { [weak self] in
+        self.task?.receive { [weak self] result in
             guard let self else { return }
-            defer { Task { await self.clearListenTask() } }
-            while !Task.isCancelled {
-                guard let task = await self.currentTask() else { return }
-                do {
-                    let msg = try await task.receive()
+            switch result {
+            case let .failure(err):
+                Task { await self.handleReceiveFailure(err) }
+            case let .success(msg):
+                Task {
                     await self.handle(msg)
-                } catch {
-                    if Task.isCancelled { return }
-                    await self.handleReceiveFailure(error)
-                    return
+                    await self.listen()
                 }
             }
         }
-    }
-
-    private func clearListenTask() {
-        self.listenTask = nil
-    }
-
-    private func currentTask() -> WebSocketTaskBox? {
-        self.task
     }
 
     private func handleReceiveFailure(_ err: Error) async {
         let wrapped = self.wrap(err, context: "gateway receive")
         self.logger.error("gateway ws receive failed \(wrapped.localizedDescription, privacy: .public)")
         self.connected = false
-        self.listenTask?.cancel()
-        self.listenTask = nil
         await self.disconnectHandler?("receive failed: \(wrapped.localizedDescription)")
         await self.failPending(wrapped)
         await self.scheduleReconnect()
@@ -485,13 +461,6 @@ public actor GatewayChannelActor {
         case let .string(s): s.data(using: .utf8)
         @unknown default: nil
         }
-        #if DEBUG
-        if self.debugMessageLogCount < 8 {
-            self.debugMessageLogCount += 1
-            let size = data?.count ?? 0
-            self.logger.info("gateway ws message received size=\(size, privacy: .public)")
-        }
-        #endif
         guard let data else { return }
         guard let frame = try? self.decoder.decode(GatewayFrame.self, from: data) else {
             self.logger.error("gateway decode failed")
@@ -505,13 +474,6 @@ public actor GatewayChannelActor {
             }
         case let .event(evt):
             if evt.event == "connect.challenge" { return }
-            #if DEBUG
-            if self.debugEventLogCount < 12 {
-                self.debugEventLogCount += 1
-                self.logger.info(
-                    "gateway event received event=\(evt.event, privacy: .public) payload=\(evt.payload != nil, privacy: .public)")
-            }
-            #endif
             if let seq = evt.seq {
                 if let last = lastSeq, seq > last + 1 {
                     await self.pushHandler?(.seqGap(expected: last + 1, received: seq))

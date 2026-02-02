@@ -49,7 +49,6 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
 
             let resolved = controller._test_resolvedDisplayName(defaults: defaults)
             #expect(!resolved.isEmpty)
-            #expect(resolved != "iOS Node")
             #expect(defaults.string(forKey: displayKey) == resolved)
         }
     }
@@ -66,11 +65,19 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
             let controller = GatewayConnectionController(appModel: appModel, startDiscovery: false)
             let caps = Set(controller._test_currentCaps())
 
+<<<<<<< HEAD
             #expect(caps.contains(MoltbotCapability.canvas.rawValue))
             #expect(caps.contains(MoltbotCapability.screen.rawValue))
             #expect(caps.contains(MoltbotCapability.camera.rawValue))
             #expect(caps.contains(MoltbotCapability.location.rawValue))
             #expect(caps.contains(MoltbotCapability.voiceWake.rawValue))
+=======
+            #expect(caps.contains(OpenClawCapability.canvas.rawValue))
+            #expect(caps.contains(OpenClawCapability.screen.rawValue))
+            #expect(caps.contains(OpenClawCapability.camera.rawValue))
+            #expect(caps.contains(OpenClawCapability.location.rawValue))
+            #expect(caps.contains(OpenClawCapability.voiceWake.rawValue))
+>>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
         }
     }
 
@@ -86,6 +93,7 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
             #expect(commands.contains(MoltbotLocationCommand.get.rawValue))
         }
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 
@@ -133,4 +141,6 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
         #expect(keys.contains("motion"))
     }
 >>>>>>> a884955cd (iOS: add write commands for contacts/calendar/reminders)
+=======
+>>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
 }
