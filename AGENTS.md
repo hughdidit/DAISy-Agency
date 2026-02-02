@@ -2,6 +2,14 @@
 - Repo: https://github.com/moltbot/moltbot
 - GitHub issues/comments/PR comments: use literal multiline strings or `-F - <<'EOF'` (or $'...') for real newlines; never embed "\\n".
 
+## DAISy-Agency Fork Workflow
+- This is a fork of moltbot/moltbot
+- Default PR base branch: `daisy/dev` (not `main`)
+- Never commit directly to `daisy/dev` — always use feature branches and PRs
+- Avoid merging from `upstream` remote — keep fork changes isolated
+- Avoid merging to `upstream` remote — keep fork changes isolated
+- Avoid merging to/from `main` and `dev` — they represent production and staging for CI/CD
+
 ## Project Structure & Module Organization
 - Source code: `src/` (CLI wiring in `src/cli`, commands in `src/commands`, web provider in `src/provider-web.ts`, infra in `src/infra`, media pipeline in `src/media`).
 - Tests: colocated `*.test.ts`.
