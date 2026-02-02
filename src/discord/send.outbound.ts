@@ -4,6 +4,7 @@ import { Routes } from "discord-api-types/v10";
 =======
 import type { APIChannel } from "discord-api-types/v10";
 import { ChannelType, Routes } from "discord-api-types/v10";
+import fs from "node:fs/promises";
 import type { RetryConfig } from "../infra/retry.js";
 import type { PollInput } from "../polls.js";
 import type { DiscordSendResult } from "./send.types.js";
@@ -27,7 +28,15 @@ import {
   sendDiscordMedia,
   sendDiscordText,
 } from "./send.shared.js";
+<<<<<<< HEAD
 import type { DiscordSendResult } from "./send.types.js";
+=======
+import {
+  ensureOggOpus,
+  getVoiceMessageMetadata,
+  sendDiscordVoiceMessage,
+} from "./voice-message.js";
+>>>>>>> a09e4fac3 (feat(discord): add voice message support)
 
 type DiscordSendOpts = {
   token?: string;
@@ -38,6 +47,7 @@ type DiscordSendOpts = {
   replyTo?: string;
   retry?: RetryConfig;
   embeds?: unknown[];
+  silent?: boolean;
 };
 
 /** Discord thread names are capped at 100 characters. */
@@ -138,6 +148,7 @@ export async function sendMessageDiscord(
           accountInfo.config.maxLinesPerMessage,
           undefined,
           chunkMode,
+          opts.silent,
         );
         for (const chunk of afterMediaChunks) {
           await sendDiscordText(
@@ -149,6 +160,7 @@ export async function sendMessageDiscord(
             accountInfo.config.maxLinesPerMessage,
             undefined,
             chunkMode,
+            opts.silent,
           );
         }
       } else {
@@ -162,6 +174,7 @@ export async function sendMessageDiscord(
             accountInfo.config.maxLinesPerMessage,
             undefined,
             chunkMode,
+            opts.silent,
           );
         }
       }
@@ -198,6 +211,7 @@ export async function sendMessageDiscord(
         accountInfo.config.maxLinesPerMessage,
         opts.embeds,
         chunkMode,
+        opts.silent,
       );
     } else {
       result = await sendDiscordText(
@@ -209,6 +223,7 @@ export async function sendMessageDiscord(
         accountInfo.config.maxLinesPerMessage,
         opts.embeds,
         chunkMode,
+        opts.silent,
       );
     }
   } catch (err) {
@@ -283,4 +298,88 @@ export async function sendPollDiscord(
     messageId: res.id ? String(res.id) : "unknown",
     channelId: String(res.channel_id ?? channelId),
   };
+}
+
+type VoiceMessageOpts = {
+  token?: string;
+  accountId?: string;
+  verbose?: boolean;
+  rest?: RequestClient;
+  replyTo?: string;
+  retry?: RetryConfig;
+  silent?: boolean;
+};
+
+/**
+ * Send a voice message to Discord.
+ *
+ * Voice messages are a special Discord feature that displays audio with a waveform
+ * visualization. They require OGG/Opus format and cannot include text content.
+ *
+ * @param to - Recipient (user ID for DM or channel ID)
+ * @param audioPath - Path to local audio file (will be converted to OGG/Opus if needed)
+ * @param opts - Send options
+ */
+export async function sendVoiceMessageDiscord(
+  to: string,
+  audioPath: string,
+  opts: VoiceMessageOpts = {},
+): Promise<DiscordSendResult> {
+  const cfg = loadConfig();
+  const accountInfo = resolveDiscordAccount({
+    cfg,
+    accountId: opts.accountId,
+  });
+  const { token, rest, request } = createDiscordClient(opts, cfg);
+  const recipient = await parseAndResolveRecipient(to, opts.accountId);
+  const { channelId } = await resolveChannelId(rest, recipient, request);
+
+  // Convert to OGG/Opus if needed
+  const { path: oggPath, cleanup } = await ensureOggOpus(audioPath);
+
+  try {
+    // Get voice message metadata (duration and waveform)
+    const metadata = await getVoiceMessageMetadata(oggPath);
+
+    // Read the audio file
+    const audioBuffer = await fs.readFile(oggPath);
+
+    // Send the voice message
+    const result = await sendDiscordVoiceMessage(
+      rest,
+      channelId,
+      audioBuffer,
+      metadata,
+      opts.replyTo,
+      request,
+      opts.silent,
+    );
+
+    recordChannelActivity({
+      channel: "discord",
+      accountId: accountInfo.accountId,
+      direction: "outbound",
+    });
+
+    return {
+      messageId: result.id ? String(result.id) : "unknown",
+      channelId: String(result.channel_id ?? channelId),
+    };
+  } catch (err) {
+    throw await buildDiscordSendError(err, {
+      channelId,
+      rest,
+      token,
+      hasMedia: true,
+    });
+  } finally {
+    // Clean up temporary OGG file if we created one
+    if (cleanup) {
+      try {
+        await fs.unlink(oggPath);
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+  }
 }
