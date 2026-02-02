@@ -12,7 +12,16 @@ import {
   sanitizeGoogleTurnOrdering,
   sanitizeSessionMessagesImages,
 } from "../pi-embedded-helpers.js";
+<<<<<<< HEAD
 import { sanitizeToolUseResultPairing } from "../session-transcript-repair.js";
+=======
+import { cleanToolSchemaForGemini } from "../pi-tools.schema.js";
+import {
+  sanitizeToolCallInputs,
+  sanitizeToolUseResultPairing,
+} from "../session-transcript-repair.js";
+import { resolveTranscriptPolicy } from "../transcript-policy.js";
+>>>>>>> 0da6de662 (Agent: repair malformed tool calls and session files)
 import { log } from "./logger.js";
 import { describeUnknownError } from "./utils.js";
 import { cleanToolSchemaForGemini } from "../pi-tools.schema.js";
@@ -348,9 +357,10 @@ export async function sanitizeSessionHistory(params: {
   const sanitizedThinking = policy.normalizeAntigravityThinkingBlocks
     ? sanitizeAntigravityThinkingBlocks(sanitizedImages)
     : sanitizedImages;
+  const sanitizedToolCalls = sanitizeToolCallInputs(sanitizedThinking);
   const repairedTools = policy.repairToolUseResultPairing
-    ? sanitizeToolUseResultPairing(sanitizedThinking)
-    : sanitizedThinking;
+    ? sanitizeToolUseResultPairing(sanitizedToolCalls)
+    : sanitizedToolCalls;
 
   const isOpenAIResponsesApi =
     params.modelApi === "openai-responses" || params.modelApi === "openai-codex-responses";
