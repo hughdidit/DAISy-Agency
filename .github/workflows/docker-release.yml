@@ -209,7 +209,7 @@ jobs:
           SHA="${GITHUB_SHA}"
           RUN_ID="${GITHUB_RUN_ID}"
           RUN_ATTEMPT="${GITHUB_RUN_ATTEMPT}"
-          CREATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          CREATED_AT="$(date -u --iso-8601=seconds)"
 
           TAG_VERSION="${{ steps.meta.outputs.version || '' }}"
           SHORTSHA="$(echo "${GITHUB_SHA}" | cut -c1-7)"
