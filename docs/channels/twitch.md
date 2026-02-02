@@ -111,12 +111,20 @@ If both env and config are set, config takes precedence.
 {
   channels: {
     twitch: {
+<<<<<<< HEAD
       allowFrom: ["123456789"],       // (recommended) Your Twitch user ID only
       allowedRoles: ["moderator"]     // Or restrict to roles
     }
   }
+=======
+      allowFrom: ["123456789"], // (recommended) Your Twitch user ID only
+    },
+  },
+>>>>>>> 8c7901c98 (fix(twitch): enforce allowFrom allowlist)
 }
 ```
+
+Prefer `allowFrom` for a hard allowlist. Use `allowedRoles` instead if you want role-based access.
 
 **Available roles:** `"moderator"`, `"owner"`, `"vip"`, `"subscriber"`, `"all"`.
 
@@ -208,9 +216,10 @@ Example (one bot account in two channels):
 }
 ```
 
-### Combined allowlist + roles
+### Role-based access (alternative)
 
-Users in `allowFrom` bypass role checks:
+`allowFrom` is a hard allowlist. When set, only those user IDs are allowed.
+If you want role-based access, leave `allowFrom` unset and configure `allowedRoles` instead:
 
 ```json5
 {
@@ -218,12 +227,20 @@ Users in `allowFrom` bypass role checks:
     twitch: {
       accounts: {
         default: {
+<<<<<<< HEAD
           allowFrom: ["123456789"],
           allowedRoles: ["moderator"]
         }
       }
     }
   }
+=======
+          allowedRoles: ["moderator"],
+        },
+      },
+    },
+  },
+>>>>>>> 8c7901c98 (fix(twitch): enforce allowFrom allowlist)
 }
 ```
 
@@ -256,7 +273,8 @@ moltbot channels status --probe
 
 ### Bot doesn't respond to messages
 
-**Check access control:** Temporarily set `allowedRoles: ["all"]` to test.
+**Check access control:** Ensure your user ID is in `allowFrom`, or temporarily remove
+`allowFrom` and set `allowedRoles: ["all"]` to test.
 
 **Check the bot is in the channel:** The bot must join the channel specified in `channel`.
 
