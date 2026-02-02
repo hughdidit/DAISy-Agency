@@ -16,7 +16,7 @@ fi
 
 IMAGE="$("${READ_META}" "${META_PATH}" image)"
 if [[ -z "${IMAGE}" ]]; then
-  echo "ERROR: Release metadata is missing required 'image' field." >&2
+  echo "ERROR: release metadata is missing required field: image" >&2
   exit 3
 fi
 DIGEST="$("${READ_META}" "${META_PATH}" digest)"
