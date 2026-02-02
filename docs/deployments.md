@@ -31,12 +31,13 @@ Environment scoped secrets are only available after approvals, which keeps produ
 Run the Deploy workflow from GitHub Actions using workflow dispatch inputs:
 
 - environment: staging or production
-- ref: branch, tag, or SHA to deploy
+- release_run_id: docker-release workflow run ID to deploy (from Actions UI)
+- image_ref: optional override for a full image ref (tag or digest)
 - dry_run: true keeps the deploy as a no-op
 
-The workflow checks out the selected ref and runs scripts/deploy.sh.
+The workflow downloads the release metadata artifact from the selected docker-release run and passes it into scripts/deploy.sh.
 
 ## Deploy script behavior
 
-- Dry run exits successfully after printing the target environment and ref.
+- Dry run exits successfully after printing the resolved image reference.
 - Real deploy validates environment secrets and exits with a TODO message until the deploy implementation is added.

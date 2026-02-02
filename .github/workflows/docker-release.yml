@@ -195,3 +195,62 @@ jobs:
               "${IMAGE}:main-${SHORTSHA}-amd64" \
               "${IMAGE}:main-${SHORTSHA}-arm64"
           fi
+
+      - name: Write release metadata
+        if: env.PUSH_ENABLED == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p dist/release
+
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          REF="${GITHUB_REF}"
+          SHA="${GITHUB_SHA}"
+          RUN_ID="${GITHUB_RUN_ID}"
+          RUN_ATTEMPT="${GITHUB_RUN_ATTEMPT}"
+          CREATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          TAG_VERSION="${{ steps.meta.outputs.version }}"
+          SHORTSHA="$(echo "${GITHUB_SHA}" | cut -c1-7)"
+          IS_TAG="${{ startsWith(github.ref, 'refs/tags/v') }}"
+          IS_MAIN="${{ github.ref == 'refs/heads/daisy/main' }}"
+
+          TAGS_JSON="[]"
+          if [[ "${IS_TAG}" == "true" ]]; then
+            TAGS_JSON=$(printf '["%s","latest"]' "${TAG_VERSION}")
+          elif [[ "${IS_MAIN}" == "true" ]]; then
+            TAGS_JSON=$(printf '["main-%s"]' "${SHORTSHA}")
+          fi
+
+          DIGEST=""
+          if [[ "${IS_TAG}" == "true" ]]; then
+            DIGEST="$(docker buildx imagetools inspect "${IMAGE}:${TAG_VERSION}" --format '{{json .Manifest.Digest}}' | tr -d '\"')"
+          elif [[ "${IS_MAIN}" == "true" ]]; then
+            DIGEST="$(docker buildx imagetools inspect "${IMAGE}:main-${SHORTSHA}" --format '{{json .Manifest.Digest}}' | tr -d '\"')"
+          fi
+
+          cat > dist/release/release-metadata.json <<EOF
+          {
+            "image": "${IMAGE}",
+            "tags": ${TAGS_JSON},
+            "digest": "${DIGEST}",
+            "git_sha": "${SHA}",
+            "git_ref": "${REF}",
+            "run_id": "${RUN_ID}",
+            "run_attempt": "${RUN_ATTEMPT}",
+            "created_at": "${CREATED_AT}"
+          }
+          EOF
+
+          echo "Wrote dist/release/release-metadata.json"
+          cat dist/release/release-metadata.json
+
+      - name: Upload release metadata artifact
+        if: env.PUSH_ENABLED == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-metadata
+          path: dist/release/release-metadata.json
+          if-no-files-found: error
+          retention-days: 30
