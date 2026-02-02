@@ -54,7 +54,9 @@ describe("config form renderer", () => {
 
     const tokenInput = container.querySelector("input[type='password']");
     expect(tokenInput).not.toBeNull();
-    if (!tokenInput) {return;}
+    if (!tokenInput) {
+      return;
+    }
     tokenInput.value = "abc123";
     tokenInput.dispatchEvent(new Event("input", { bubbles: true }));
     expect(onPatch).toHaveBeenCalledWith(["gateway", "auth", "token"], "abc123");
@@ -68,7 +70,9 @@ describe("config form renderer", () => {
 
     const checkbox = container.querySelector("input[type='checkbox']");
     expect(checkbox).not.toBeNull();
-    if (!checkbox) {return;}
+    if (!checkbox) {
+      return;
+    }
     checkbox.checked = true;
     checkbox.dispatchEvent(new Event("change", { bubbles: true }));
     expect(onPatch).toHaveBeenCalledWith(["enabled"], true);
@@ -94,9 +98,7 @@ describe("config form renderer", () => {
     addButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(onPatch).toHaveBeenCalledWith(["allowFrom"], ["+1", ""]);
 
-    const removeButton = container.querySelector(
-      ".cfg-array__item-remove",
-    );
+    const removeButton = container.querySelector(".cfg-array__item-remove");
     expect(removeButton).not.toBeUndefined();
     removeButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(onPatch).toHaveBeenCalledWith(["allowFrom"], []);
@@ -151,9 +153,7 @@ describe("config form renderer", () => {
       container,
     );
 
-    const removeButton = container.querySelector(
-      ".cfg-map__item-remove",
-    );
+    const removeButton = container.querySelector(".cfg-map__item-remove");
     expect(removeButton).not.toBeUndefined();
     removeButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(onPatch).toHaveBeenCalledWith(["slack"], {});

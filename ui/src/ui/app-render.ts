@@ -1,4 +1,5 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import type { AppViewState } from "./app-view-state";
@@ -30,6 +31,10 @@ import type {
   StatusSummary,
 } from "./types";
 import type { ChatQueueItem, CronFormState } from "./ui-types";
+=======
+import type { AppViewState } from "./app-view-state";
+import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
+>>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
 import { refreshChatAvatar } from "./app-chat";
 import { renderChat } from "./views/chat";
 import { renderConfig } from "./views/config";
@@ -61,8 +66,8 @@ import {
   saveSkillApiKey,
   updateSkillEdit,
   updateSkillEnabled,
-  type SkillMessage,
 } from "./controllers/skills";
+<<<<<<< HEAD
 import { loadNodes } from "./controllers/nodes";
 import { loadChatHistory } from "./controllers/chat";
 import {
@@ -88,6 +93,23 @@ import {
 } from "./controllers/cron";
 import { loadDebug, callDebugMethod } from "./controllers/debug";
 import { loadLogs } from "./controllers/logs";
+=======
+import { icons } from "./icons";
+import { TAB_GROUPS, subtitleForTab, titleForTab } from "./navigation";
+import { renderChannels } from "./views/channels";
+import { renderChat } from "./views/chat";
+import { renderConfig } from "./views/config";
+import { renderCron } from "./views/cron";
+import { renderDebug } from "./views/debug";
+import { renderExecApprovalPrompt } from "./views/exec-approval";
+import { renderGatewayUrlConfirmation } from "./views/gateway-url-confirmation";
+import { renderInstances } from "./views/instances";
+import { renderLogs } from "./views/logs";
+import { renderNodes } from "./views/nodes";
+import { renderOverview } from "./views/overview";
+import { renderSessions } from "./views/sessions";
+import { renderSkills } from "./views/skills";
+>>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
 
 const AVATAR_DATA_RE = /^data:/i;
 const AVATAR_HTTP_RE = /^https?:\/\//i;
@@ -99,8 +121,12 @@ function resolveAssistantAvatarUrl(state: AppViewState): string | undefined {
   const agent = list.find((entry) => entry.id === agentId);
   const identity = agent?.identity;
   const candidate = identity?.avatarUrl ?? identity?.avatar;
-  if (!candidate) {return undefined;}
-  if (AVATAR_DATA_RE.test(candidate) || AVATAR_HTTP_RE.test(candidate)) {return candidate;}
+  if (!candidate) {
+    return undefined;
+  }
+  if (AVATAR_DATA_RE.test(candidate) || AVATAR_HTTP_RE.test(candidate)) {
+    return candidate;
+  }
   return identity?.avatarUrl;
 }
 
@@ -495,7 +521,9 @@ export function renderApp(state: AppViewState) {
                   return Promise.all([loadChatHistory(state), refreshChatAvatar(state)]);
                 },
                 onToggleFocusMode: () => {
-                  if (state.onboarding) {return;}
+                  if (state.onboarding) {
+                    return;
+                  }
                   state.applySettings({
                     ...state.settings,
                     chatFocusMode: !state.settings.chatFocusMode,
