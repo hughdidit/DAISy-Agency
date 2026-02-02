@@ -1,6 +1,14 @@
 import { LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
+<<<<<<< HEAD
 
+=======
+import type { EventLogEntry } from "./app-events";
+import type { AppViewState } from "./app-view-state";
+import type { DevicePairingList } from "./controllers/devices";
+import type { ExecApprovalRequest } from "./controllers/exec-approval";
+import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals";
+>>>>>>> 2af977f94 (fix(ui): add core state and logic for scroll control)
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import { resolveInjectedAssistantIdentity } from "./assistant-identity";
 import { loadSettings, type UiSettings } from "./storage";
@@ -73,7 +81,44 @@ import {
   handleWhatsAppStart as handleWhatsAppStartInternal,
   handleWhatsAppWait as handleWhatsAppWaitInternal,
 } from "./app-channels";
+<<<<<<< HEAD
 import type { NostrProfileFormState } from "./views/channels.nostr-profile-form";
+=======
+import {
+  handleAbortChat as handleAbortChatInternal,
+  handleSendChat as handleSendChatInternal,
+  removeQueuedMessage as removeQueuedMessageInternal,
+} from "./app-chat";
+import { DEFAULT_CRON_FORM, DEFAULT_LOG_LEVEL_FILTERS } from "./app-defaults";
+import { connectGateway as connectGatewayInternal } from "./app-gateway";
+import {
+  handleConnected,
+  handleDisconnected,
+  handleFirstUpdated,
+  handleUpdated,
+} from "./app-lifecycle";
+import { renderApp } from "./app-render";
+import {
+  exportLogs as exportLogsInternal,
+  handleChatScroll as handleChatScrollInternal,
+  handleLogsScroll as handleLogsScrollInternal,
+  resetChatScroll as resetChatScrollInternal,
+  scheduleChatScroll as scheduleChatScrollInternal,
+} from "./app-scroll";
+import {
+  applySettings as applySettingsInternal,
+  loadCron as loadCronInternal,
+  loadOverview as loadOverviewInternal,
+  setTab as setTabInternal,
+  setTheme as setThemeInternal,
+  onPopState as onPopStateInternal,
+} from "./app-settings";
+import {
+  resetToolStream as resetToolStreamInternal,
+  type ToolStreamEntry,
+} from "./app-tool-stream";
+import { resolveInjectedAssistantIdentity } from "./assistant-identity";
+>>>>>>> 2af977f94 (fix(ui): add core state and logic for scroll control)
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity";
 
 declare global {
@@ -320,6 +365,11 @@ export class MoltbotApp extends LitElement {
     resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
   }
 
+  scrollToBottom() {
+    resetChatScrollInternal(this as unknown as Parameters<typeof resetChatScrollInternal>[0]);
+    scheduleChatScrollInternal(this as unknown as Parameters<typeof scheduleChatScrollInternal>[0], true);
+  }
+
   async loadAssistantIdentity() {
     await loadAssistantIdentityInternal(this);
   }
@@ -481,6 +531,6 @@ export class MoltbotApp extends LitElement {
   }
 
   render() {
-    return renderApp(this);
+    return renderApp(this as unknown as AppViewState);
   }
 }
