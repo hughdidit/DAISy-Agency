@@ -225,9 +225,9 @@ jobs:
 
           DIGEST=""
           if [[ "${IS_TAG}" == "true" ]]; then
-            DIGEST="$(docker buildx imagetools inspect "${IMAGE}:${TAG_VERSION}" --format '{{json .Manifest.Digest}}' | tr -d '\"')"
+            DIGEST="$(docker buildx imagetools inspect "${IMAGE}:${TAG_VERSION}" --format '{{json .Manifest.Digest}}' 2>/dev/null | tr -d '\"' || echo "")"
           elif [[ "${IS_MAIN}" == "true" ]]; then
-            DIGEST="$(docker buildx imagetools inspect "${IMAGE}:main-${SHORTSHA}" --format '{{json .Manifest.Digest}}' | tr -d '\"')"
+            DIGEST="$(docker buildx imagetools inspect "${IMAGE}:main-${SHORTSHA}" --format '{{json .Manifest.Digest}}' 2>/dev/null | tr -d '\"' || echo "")"
           fi
 
           cat > dist/release/release-metadata.json <<EOF
