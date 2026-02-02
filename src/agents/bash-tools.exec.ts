@@ -1396,8 +1396,7 @@ export function createExecTool(
               {
                 type: "text",
                 text:
-                  `${warningText}` +
-                  `Approval required (id ${approvalSlug}). ` +
+                  `${warningText}Approval required (id ${approvalSlug}). ` +
                   "Approve to run; updates will arrive after completion.",
               },
             ],
@@ -1479,12 +1478,9 @@ export function createExecTool(
             content: [
               {
                 type: "text",
-                text:
-                  `${getWarningText()}` +
-                  `Command still running (session ${run.session.id}, pid ${
-                    run.session.pid ?? "n/a"
-                  }). ` +
-                  "Use process (list/poll/log/write/kill/clear/remove) for follow-up.",
+                text: `${getWarningText()}Command still running (session ${run.session.id}, pid ${
+                  run.session.pid ?? "n/a"
+                }). Use process (list/poll/log/write/kill/clear/remove) for follow-up.`,
               },
             ],
             details: {
