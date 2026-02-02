@@ -6,6 +6,7 @@ import {
   isRecord,
   isUrlAllowed,
   normalizeContentType,
+  resolveAuthAllowedHosts,
   resolveAllowedHosts,
 } from "./shared.js";
 import type {
@@ -79,12 +80,29 @@ async function fetchWithAuthFallback(params: {
   url: string;
   tokenProvider?: MSTeamsAccessTokenProvider;
   fetchFn?: typeof fetch;
+  allowHosts: string[];
+  authAllowHosts: string[];
 }): Promise<Response> {
   const fetchFn = params.fetchFn ?? fetch;
   const firstAttempt = await fetchFn(params.url);
+<<<<<<< HEAD
   if (firstAttempt.ok) return firstAttempt;
   if (!params.tokenProvider) return firstAttempt;
   if (firstAttempt.status !== 401 && firstAttempt.status !== 403) return firstAttempt;
+=======
+  if (firstAttempt.ok) {
+    return firstAttempt;
+  }
+  if (!params.tokenProvider) {
+    return firstAttempt;
+  }
+  if (firstAttempt.status !== 401 && firstAttempt.status !== 403) {
+    return firstAttempt;
+  }
+  if (!isUrlAllowed(params.url, params.authAllowHosts)) {
+    return firstAttempt;
+  }
+>>>>>>> 41cc5bcd4 (fix: gate Teams media auth retries)
 
   const scopes = scopeCandidatesForUrl(params.url);
   for (const scope of scopes) {
@@ -92,14 +110,55 @@ async function fetchWithAuthFallback(params: {
       const token = await params.tokenProvider.getAccessToken(scope);
       const res = await fetchFn(params.url, {
         headers: { Authorization: `Bearer ${token}` },
+        redirect: "manual",
       });
+<<<<<<< HEAD
       if (res.ok) return res;
+=======
+      if (res.ok) {
+        return res;
+      }
+      const redirectUrl = readRedirectUrl(params.url, res);
+      if (redirectUrl && isUrlAllowed(redirectUrl, params.allowHosts)) {
+        const redirectRes = await fetchFn(redirectUrl);
+        if (redirectRes.ok) {
+          return redirectRes;
+        }
+        if (
+          (redirectRes.status === 401 || redirectRes.status === 403) &&
+          isUrlAllowed(redirectUrl, params.authAllowHosts)
+        ) {
+          const redirectAuthRes = await fetchFn(redirectUrl, {
+            headers: { Authorization: `Bearer ${token}` },
+            redirect: "manual",
+          });
+          if (redirectAuthRes.ok) {
+            return redirectAuthRes;
+          }
+        }
+      }
+>>>>>>> 41cc5bcd4 (fix: gate Teams media auth retries)
     } catch {
       // Try the next scope.
     }
   }
 
   return firstAttempt;
+}
+
+function readRedirectUrl(baseUrl: string, res: Response): string | null {
+  if (![301, 302, 303, 307, 308].includes(res.status)) {
+    return null;
+  }
+  const location = res.headers.get("location");
+  if (!location) {
+    return null;
+  }
+  try {
+    return new URL(location, baseUrl).toString();
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -111,6 +170,7 @@ export async function downloadMSTeamsAttachments(params: {
   maxBytes: number;
   tokenProvider?: MSTeamsAccessTokenProvider;
   allowHosts?: string[];
+  authAllowHosts?: string[];
   fetchFn?: typeof fetch;
   /** When true, embeds original filename in stored path for later extraction. */
   preserveFilenames?: boolean;
@@ -118,6 +178,7 @@ export async function downloadMSTeamsAttachments(params: {
   const list = Array.isArray(params.attachments) ? params.attachments : [];
   if (list.length === 0) return [];
   const allowHosts = resolveAllowedHosts(params.allowHosts);
+  const authAllowHosts = resolveAuthAllowedHosts(params.authAllowHosts);
 
   // Download ANY downloadable attachment (not just images)
   const downloadable = list.filter(isDownloadableAttachment);
@@ -171,6 +232,8 @@ export async function downloadMSTeamsAttachments(params: {
         url: candidate.url,
         tokenProvider: params.tokenProvider,
         fetchFn: params.fetchFn,
+        allowHosts,
+        authAllowHosts,
       });
       if (!res.ok) continue;
       const buffer = Buffer.from(await res.arrayBuffer());
