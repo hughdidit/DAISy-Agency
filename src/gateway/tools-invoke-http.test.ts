@@ -3,7 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import { resetTestPluginRegistry, setTestPluginRegistry, testState } from "./test-helpers.mocks.js";
+>>>>>>> 476f367cf (Gateway: avoid writing host config in tools invoke test)
 import { installGatewayTestHooks, getFreePort, startGatewayServer } from "./test-helpers.server.js";
 import { resetTestPluginRegistry, setTestPluginRegistry, testState } from "./test-helpers.mocks.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
@@ -93,6 +99,7 @@ describe("POST /tools/invoke", () => {
       list: [{ id: "main" }],
     } as any;
 
+    const { CONFIG_PATH } = await import("../config/config.js");
     await fs.mkdir(path.dirname(CONFIG_PATH), { recursive: true });
     await fs.writeFile(
       CONFIG_PATH,
