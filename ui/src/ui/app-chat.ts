@@ -205,7 +205,7 @@ export async function refreshChat(host: ChatHost) {
 >>>>>>> 57c34a324 (UI: introduce active minutes constant for chat sessions and enhance session display names)
     refreshChatAvatar(host),
   ]);
-  scheduleChatScroll(host as unknown as Parameters<typeof scheduleChatScroll>[0], true);
+  scheduleChatScroll(host as unknown as Parameters<typeof scheduleChatScroll>[0]);
 }
 
 export const flushChatQueueForEvent = flushChatQueue;
