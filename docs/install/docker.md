@@ -264,7 +264,12 @@ pnpm test:docker:qr
 ### Notes
 
 - Gateway bind defaults to `lan` for container use.
+<<<<<<< HEAD
 - The gateway container is the source of truth for sessions (`~/.clawdbot/agents/<agentId>/sessions/`).
+=======
+- Dockerfile CMD uses `--allow-unconfigured`; mounted config with `gateway.mode` not `local` will still start. Override CMD to enforce the guard.
+- The gateway container is the source of truth for sessions (`~/.openclaw/agents/<agentId>/sessions/`).
+>>>>>>> d134a8c7f (docs: note docker allow-unconfigured behavior)
 
 ## Agent Sandbox (host gateway + Docker tools)
 
