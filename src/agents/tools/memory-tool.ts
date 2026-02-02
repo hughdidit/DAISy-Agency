@@ -4,7 +4,11 @@ import type { MoltbotConfig } from "../../config/config.js";
 <<<<<<< HEAD
 =======
 import type { MemoryCitationsMode } from "../../config/types.memory.js";
+<<<<<<< HEAD
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
+=======
+import { resolveMemoryBackendConfig } from "../../memory/backend-config.js";
+>>>>>>> 1861e7636 (Memory: clamp QMD citations to injected budget)
 import { getMemorySearchManager } from "../../memory/index.js";
 import type { MemorySearchResult } from "../../memory/types.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
@@ -64,7 +68,12 @@ export function createMemorySearchTool(options: {
           sessionKey: options.agentSessionKey,
         });
         const status = manager.status();
-        const results = decorateCitations(rawResults, includeCitations);
+        const decorated = decorateCitations(rawResults, includeCitations);
+        const resolved = resolveMemoryBackendConfig({ cfg, agentId });
+        const results =
+          status.backend === "qmd"
+            ? clampResultsByInjectedChars(decorated, resolved.qmd?.limits.maxInjectedChars)
+            : decorated;
         return jsonResult({
           results,
           provider: status.provider,
@@ -146,6 +155,28 @@ function formatCitation(entry: MemorySearchResult): string {
       ? `#L${entry.startLine}`
       : `#L${entry.startLine}-L${entry.endLine}`;
   return `${entry.path}${lineRange}`;
+}
+
+function clampResultsByInjectedChars(
+  results: MemorySearchResult[],
+  budget?: number,
+): MemorySearchResult[] {
+  if (!budget || budget <= 0) return results;
+  let remaining = budget;
+  const clamped: MemorySearchResult[] = [];
+  for (const entry of results) {
+    if (remaining <= 0) break;
+    const snippet = entry.snippet ?? "";
+    if (snippet.length <= remaining) {
+      clamped.push(entry);
+      remaining -= snippet.length;
+    } else {
+      const trimmed = snippet.slice(0, Math.max(0, remaining));
+      clamped.push({ ...entry, snippet: trimmed });
+      break;
+    }
+  }
+  return clamped;
 }
 
 function shouldIncludeCitations(params: {
