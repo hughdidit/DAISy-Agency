@@ -22,7 +22,12 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 import "./test-helpers/fast-core-tools.js";
+<<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-announces-agent-wait-lifecycle-events.test.ts
 import { createMoltbotTools } from "./moltbot-tools.js";
+=======
+import { sleep } from "../utils.js";
+import { createOpenClawTools } from "./openclaw-tools.js";
+>>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:):src/agents/openclaw-tools.subagents.sessions-spawn-announces-agent-wait-lifecycle-events.test.ts
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 describe("moltbot-tools: subagents", () => {
@@ -107,9 +112,9 @@ describe("moltbot-tools: subagents", () => {
       runId: "run-1",
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await sleep(0);
+    await sleep(0);
+    await sleep(0);
 
     const childWait = waitCalls.find((call) => call.runId === childRunId);
     expect(childWait?.timeoutMs).toBe(1000);

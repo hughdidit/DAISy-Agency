@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
+=======
+import { sleep } from "../utils.ts";
+>>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 import {
   removeAckReactionAfterReply,
   shouldAckReaction,
@@ -238,7 +242,7 @@ describe("removeAckReactionAfterReply", () => {
       remove,
       onError,
     });
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await sleep(0);
     expect(remove).toHaveBeenCalledTimes(1);
     expect(onError).not.toHaveBeenCalled();
   });
@@ -251,7 +255,7 @@ describe("removeAckReactionAfterReply", () => {
       ackReactionValue: "👀",
       remove,
     });
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await sleep(0);
     expect(remove).not.toHaveBeenCalled();
   });
 
@@ -263,7 +267,7 @@ describe("removeAckReactionAfterReply", () => {
       ackReactionValue: "👀",
       remove,
     });
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await sleep(0);
     expect(remove).not.toHaveBeenCalled();
   });
 });

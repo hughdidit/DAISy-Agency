@@ -1,8 +1,12 @@
 import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chunk.js";
 import type { MarkdownTableMode } from "../../config/types.base.js";
 import { convertMarkdownTables } from "../../markdown/tables.js";
+<<<<<<< HEAD
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import { logVerbose, shouldLogVerbose } from "../../globals.js";
+=======
+import { sleep } from "../../utils.js";
+>>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 import { loadWebMedia } from "../media.js";
 import { newConnectionId } from "../reconnect.js";
 import { formatError } from "../session.js";
@@ -35,8 +39,6 @@ export async function deliverWebReply(params: {
     : replyResult.mediaUrl
       ? [replyResult.mediaUrl]
       : [];
-
-  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const sendWithRetry = async (fn: () => Promise<unknown>, label: string, maxAttempts = 3) => {
     let lastErr: unknown;

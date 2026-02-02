@@ -3,7 +3,83 @@ import type { WebClient as SlackWebClient } from "@slack/web-api";
 import type { FetchLike } from "../../media/fetch.js";
 import { fetchRemoteMedia } from "../../media/fetch.js";
 import { saveMediaBuffer } from "../../media/store.js";
+<<<<<<< HEAD
 import type { SlackFile } from "../types.js";
+=======
+
+function normalizeHostname(hostname: string): string {
+  const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
+  if (normalized.startsWith("[") && normalized.endsWith("]")) {
+    return normalized.slice(1, -1);
+  }
+  return normalized;
+}
+
+function isSlackHostname(hostname: string): boolean {
+  const normalized = normalizeHostname(hostname);
+  if (!normalized) {
+    return false;
+  }
+  // Slack-hosted files typically come from *.slack.com and redirect to Slack CDN domains.
+  // Include a small allowlist of known Slack domains to avoid leaking tokens if a file URL
+  // is ever spoofed or mishandled.
+  const allowedSuffixes = ["slack.com", "slack-edge.com", "slack-files.com"];
+  return allowedSuffixes.some(
+    (suffix) => normalized === suffix || normalized.endsWith(`.${suffix}`),
+  );
+}
+
+function assertSlackFileUrl(rawUrl: string): URL {
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    throw new Error(`Invalid Slack file URL: ${rawUrl}`);
+  }
+  if (parsed.protocol !== "https:") {
+    throw new Error(`Refusing Slack file URL with non-HTTPS protocol: ${parsed.protocol}`);
+  }
+  if (!isSlackHostname(parsed.hostname)) {
+    throw new Error(
+      `Refusing to send Slack token to non-Slack host "${parsed.hostname}" (url: ${rawUrl})`,
+    );
+  }
+  return parsed;
+}
+
+function resolveRequestUrl(input: RequestInfo | URL): string {
+  if (typeof input === "string") {
+    return input;
+  }
+  if (input instanceof URL) {
+    return input.toString();
+  }
+  if ("url" in input && typeof input.url === "string") {
+    return input.url;
+  }
+
+  throw new Error(`Unable to resolve request URL from input: ${JSON.stringify(input, null, 2)}`);
+}
+
+function createSlackMediaFetch(token: string): FetchLike {
+  let includeAuth = true;
+  return async (input, init) => {
+    const url = resolveRequestUrl(input);
+    const { headers: initHeaders, redirect: _redirect, ...rest } = init ?? {};
+    const headers = new Headers(initHeaders);
+
+    if (includeAuth) {
+      includeAuth = false;
+      const parsed = assertSlackFileUrl(url);
+      headers.set("Authorization", `Bearer ${token}`);
+      return fetch(parsed.href, { ...rest, headers, redirect: "manual" });
+    }
+
+    headers.delete("Authorization");
+    return fetch(url, { ...rest, headers, redirect: "manual" });
+  };
+}
+>>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 
 /**
  * Fetches a URL with Authorization header, handling cross-origin redirects.
