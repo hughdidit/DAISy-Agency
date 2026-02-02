@@ -14,7 +14,11 @@ Status: beta.
 ### Fixes
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+- Agents: repair malformed tool calls and session transcripts. (#7473) Thanks @justinhuangcode.
+>>>>>>> cfd6b21d0 (fix: repair malformed tool calls and session transcripts (#7473) (thanks @justinhuangcode))
 - fix(agents): validate AbortSignal instances before calling AbortSignal.any() (#7277) (thanks @Elarwei001)
 - fix(webchat): respect user scroll position during streaming and refresh (#7226) (thanks @marcomarandiz)
 <<<<<<< HEAD
