@@ -1,6 +1,22 @@
 # Changelog
 
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
+=======
+## 2026.2.1
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+## 2026.1.31
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+## 2026.1.30
+>>>>>>> 8d2f98fb0 (Fix subagent announce failover race (always emit lifecycle end + treat timeout=0 as no-timeout) (#6621))
 
 ### Changes
 <<<<<<< HEAD

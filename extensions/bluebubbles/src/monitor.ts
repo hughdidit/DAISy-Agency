@@ -2146,6 +2146,36 @@ async function processMessage(
   };
 
   let sentMessage = false;
+<<<<<<< HEAD
+=======
+  let streamingActive = false;
+  let typingRestartTimer: NodeJS.Timeout | undefined;
+  const typingRestartDelayMs = 150;
+  const clearTypingRestartTimer = () => {
+    if (typingRestartTimer) {
+      clearTimeout(typingRestartTimer);
+      typingRestartTimer = undefined;
+    }
+  };
+  const restartTypingSoon = () => {
+    if (!streamingActive || !chatGuidForActions || !baseUrl || !password) {
+      return;
+    }
+    clearTypingRestartTimer();
+    typingRestartTimer = setTimeout(() => {
+      typingRestartTimer = undefined;
+      if (!streamingActive) {
+        return;
+      }
+      sendBlueBubblesTyping(chatGuidForActions, true, {
+        cfg: config,
+        accountId: account.accountId,
+      }).catch((err) => {
+        runtime.error?.(`[bluebubbles] typing restart failed: ${String(err)}`);
+      });
+    }, typingRestartDelayMs);
+  };
+>>>>>>> 8d2f98fb0 (Fix subagent announce failover race (always emit lifecycle end + treat timeout=0 as no-timeout) (#6621))
   try {
     await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
       ctx: ctxPayload,
