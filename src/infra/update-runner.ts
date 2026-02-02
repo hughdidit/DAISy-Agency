@@ -4,9 +4,17 @@ import path from "node:path";
 
 import { type CommandOptions, runCommandWithTimeout } from "../process/exec.js";
 import { compareSemverStrings } from "./update-check.js";
+<<<<<<< HEAD
 import { DEV_BRANCH, isBetaTag, isStableTag, type UpdateChannel } from "./update-channels.js";
 import { detectGlobalInstallManagerForRoot, globalInstallArgs } from "./update-global.js";
 import { trimLogTail } from "./restart-sentinel.js";
+=======
+import {
+  cleanupGlobalRenameDirs,
+  detectGlobalInstallManagerForRoot,
+  globalInstallArgs,
+} from "./update-global.js";
+>>>>>>> 57d008a33 (fix(update): harden global updates)
 
 export type UpdateStepResult = {
   name: string;
@@ -798,6 +806,10 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
   const globalManager = await detectGlobalInstallManagerForRoot(runCommand, pkgRoot, timeoutMs);
   if (globalManager) {
     const packageName = (await readPackageName(pkgRoot)) ?? DEFAULT_PACKAGE_NAME;
+    await cleanupGlobalRenameDirs({
+      globalRoot: path.dirname(pkgRoot),
+      packageName,
+    });
     const spec = `${packageName}@${normalizeTag(opts.tag)}`;
     const updateStep = await runStep({
       runCommand,
