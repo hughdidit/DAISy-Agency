@@ -2,7 +2,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
+=======
+import { sleep } from "../utils.js";
+>>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 import {
   buildGroupDisplayName,
   deriveSessionKey,
@@ -429,7 +433,6 @@ describe("sessions", () => {
       "utf-8",
     );
 
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
     await Promise.all([
       updateSessionStoreEntry({
         storePath,

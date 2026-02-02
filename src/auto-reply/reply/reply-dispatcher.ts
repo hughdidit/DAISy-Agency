@@ -3,6 +3,11 @@ import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { normalizeReplyPayload } from "./normalize-reply.js";
 import type { ResponsePrefixContext } from "./response-prefix-template.js";
 import type { TypingController } from "./typing.js";
+<<<<<<< HEAD
+=======
+import { sleep } from "../../utils.js";
+import { normalizeReplyPayload, type NormalizeReplySkipReason } from "./normalize-reply.js";
+>>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 
 export type ReplyDispatchKind = "tool" | "block" | "final";
 
@@ -31,9 +36,6 @@ function getHumanDelay(config: HumanDelayConfig | undefined): number {
   }
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
-/** Sleep for a given number of milliseconds. */
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export type ReplyDispatcherOptions = {
   deliver: ReplyDispatchDeliverer;

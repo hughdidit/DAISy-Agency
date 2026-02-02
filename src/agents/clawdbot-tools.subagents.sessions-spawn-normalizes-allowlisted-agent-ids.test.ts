@@ -23,7 +23,12 @@ vi.mock("../config/config.js", async (importOriginal) => {
 
 import { emitAgentEvent } from "../infra/agent-events.js";
 import "./test-helpers/fast-core-tools.js";
+<<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
 import { createMoltbotTools } from "./moltbot-tools.js";
+=======
+import { sleep } from "../utils.js";
+import { createOpenClawTools } from "./openclaw-tools.js";
+>>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:):src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 describe("moltbot-tools: subagents", () => {
@@ -165,7 +170,12 @@ describe("moltbot-tools: subagents", () => {
       if (request.method === "agent.wait") {
         const params = request.params as { runId?: string; timeoutMs?: number } | undefined;
         waitCalls.push(params ?? {});
-        return { runId: params?.runId ?? "run-1", status: "ok", startedAt: 1000, endedAt: 2000 };
+        return {
+          runId: params?.runId ?? "run-1",
+          status: "ok",
+          startedAt: 1000,
+          endedAt: 2000,
+        };
       }
       if (request.method === "sessions.delete") {
         const params = request.params as { key?: string } | undefined;
@@ -206,9 +216,9 @@ describe("moltbot-tools: subagents", () => {
       },
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await sleep(0);
+    await sleep(0);
+    await sleep(0);
 
     const childWait = waitCalls.find((call) => call.runId === childRunId);
     expect(childWait?.timeoutMs).toBe(1000);
@@ -272,7 +282,12 @@ describe("moltbot-tools: subagents", () => {
       }
       if (request.method === "agent.wait") {
         const params = request.params as { runId?: string; timeoutMs?: number } | undefined;
-        return { runId: params?.runId ?? "run-1", status: "ok", startedAt: 1000, endedAt: 2000 };
+        return {
+          runId: params?.runId ?? "run-1",
+          status: "ok",
+          startedAt: 1000,
+          endedAt: 2000,
+        };
       }
       if (request.method === "sessions.delete" || request.method === "sessions.patch") {
         return { ok: true };
@@ -312,9 +327,9 @@ describe("moltbot-tools: subagents", () => {
       },
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await sleep(0);
+    await sleep(0);
+    await sleep(0);
 
     const agentCalls = calls.filter((call) => call.method === "agent");
     expect(agentCalls).toHaveLength(2);
