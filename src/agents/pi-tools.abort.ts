@@ -7,6 +7,7 @@ function throwAbortError(): never {
 }
 
 function combineAbortSignals(a?: AbortSignal, b?: AbortSignal): AbortSignal | undefined {
+<<<<<<< HEAD
   if (!a && !b) return undefined;
   if (a && !b) return a;
   if (b && !a) return b;
@@ -14,7 +15,31 @@ function combineAbortSignals(a?: AbortSignal, b?: AbortSignal): AbortSignal | un
   if (b?.aborted) return b;
   if (typeof AbortSignal.any === "function") {
     return AbortSignal.any([a as AbortSignal, b as AbortSignal]);
+=======
+  if (!a && !b) {
+    return undefined;
   }
+  if (a && !b) {
+    return a;
+  }
+  if (b && !a) {
+    return b;
+  }
+  if (a?.aborted) {
+    return a;
+  }
+  if (b?.aborted) {
+    return b;
+  }
+  if (
+    typeof AbortSignal.any === "function" &&
+    a instanceof AbortSignal &&
+    b instanceof AbortSignal
+  ) {
+    return AbortSignal.any([a, b]);
+>>>>>>> a63ec41a7 (fix: validate AbortSignal instances before calling AbortSignal.any())
+  }
+
   const controller = new AbortController();
   const onAbort = () => controller.abort();
   a?.addEventListener("abort", onAbort, { once: true });
