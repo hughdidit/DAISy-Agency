@@ -230,18 +230,25 @@ jobs:
             DIGEST="$(docker buildx imagetools inspect "${IMAGE}:main-${SHORTSHA}" --format '{{json .Manifest.Digest}}' 2>/dev/null | tr -d '\"' || echo "")"
           fi
 
-          cat > dist/release/release-metadata.json <<EOF
-          {
-            "image": "${IMAGE}",
-            "tags": ${TAGS_JSON},
-            "digest": "${DIGEST}",
-            "git_sha": "${SHA}",
-            "git_ref": "${REF}",
-            "run_id": "${RUN_ID}",
-            "run_attempt": "${RUN_ATTEMPT}",
-            "created_at": "${CREATED_AT}"
-          }
-          EOF
+          jq -n \
+            --arg image "${IMAGE}" \
+            --arg digest "${DIGEST}" \
+            --arg git_sha "${SHA}" \
+            --arg git_ref "${REF}" \
+            --arg run_id "${RUN_ID}" \
+            --arg run_attempt "${RUN_ATTEMPT}" \
+            --arg created_at "${CREATED_AT}" \
+            --argjson tags "${TAGS_JSON}" \
+            '{
+              image: $image,
+              tags: $tags,
+              digest: $digest,
+              git_sha: $git_sha,
+              git_ref: $git_ref,
+              run_id: $run_id,
+              run_attempt: $run_attempt,
+              created_at: $created_at
+            }' > dist/release/release-metadata.json
 
           echo "Wrote dist/release/release-metadata.json"
           cat dist/release/release-metadata.json
