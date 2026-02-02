@@ -13,7 +13,13 @@ provider and set the default model to `moonshot/kimi-k2.5`, or use
 Kimi Code with `kimi-code/kimi-for-coding`.
 
 Current Kimi K2 model IDs:
+<<<<<<< HEAD
 {/* moonshot-kimi-k2-ids:start */}
+=======
+
+<!-- moonshot-kimi-k2-ids:start -->
+
+>>>>>>> 4347d2468 (fix: format issues and lint error in oauth.ts)
 - `kimi-k2.5`
 - `kimi-k2-0905-preview`
 - `kimi-k2-turbo-preview`
