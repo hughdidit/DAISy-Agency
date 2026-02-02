@@ -6,7 +6,7 @@
 | --- | --- | --- | --- | --- | --- |
 | `.github/workflows/ci.yml` | CI | `push` + `pull_request` (daisy/main, daisy/dev) | `Install Check`, `Linux / <runtime> / <task>`, `Secrets Scan`, `Windows / <runtime> / <task>`, `macOS / node / <task>`, `macOS App / <task>`, `iOS`, `Android / <task>` | Needs refactor | Multi-OS matrix load; job names are matrix-derived (required-check churn); shared concurrency group with other workflows can cancel runs; iOS job is disabled (`if: false`). |
 | `.github/workflows/codeql.yml` | CodeQL Advanced | `push` + `pull_request` (daisy/main, daisy/dev), `schedule` | `Analyze (<language>)` | Needs refactor | Broad language matrix; macOS runners for Swift; scheduled load; actions not pinned to SHAs. |
-| `.github/workflows/docker-release.yml` | Docker Release | `push` (main + tags `v*`) | `build-amd64`, `build-arm64`, `create-manifest` | Needs refactor | Branch trigger uses `main` (not `daisy/main`); assumes GHCR publish with `GITHUB_TOKEN`; no workflow_dispatch; provenance disabled. |
+| `.github/workflows/docker-release.yml` | Docker Release | `push` (main + tags `v*`) | `build-amd64`, `build-arm64`, `create-manifest` | Needs refactor | Branch trigger uses `main` (not `daisy/main`); assumes GHCR publish with `GITHUB_TOKEN`; no workflow_dispatch; provenance + SBOM enabled on push. |
 | `.github/workflows/install-smoke.yml` | Install Smoke | `push` + `pull_request` (daisy/main, daisy/dev), `workflow_dispatch` | `install-smoke` | Useful | Uses public installer URLs; runs Docker smoke tests; shares `ci-` concurrency group with other workflows (risk of cross-cancel). |
 | `.github/workflows/labeler.yml` | Labeler | `pull_request_target` | `label` | Useful | Requires `GH_APP_PRIVATE_KEY` and app id; runs on fork PRs with elevated token; action versions not SHA-pinned. |
 | `.github/workflows/auto-response.yml` | Auto response | `issues` + `pull_request_target` (labeled) | `auto-response` | Useful | Requires `GH_APP_PRIVATE_KEY`; closes issues/PRs based on labels; action versions not SHA-pinned. |
@@ -94,7 +94,6 @@
 **Risks / issues found**
 - **Branch model mismatch**: triggers on `main`, while repo uses `daisy/main` and `daisy/dev` for integration/production branches.
 - **Missing manual trigger**: no `workflow_dispatch` for controlled releases.
-- **Provenance disabled**: `provenance: false`.
 - **Unpinned actions**: docker actions pinned to tags only.
 
 **Recommendation**
