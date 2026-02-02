@@ -3,8 +3,13 @@ import os from "node:os";
 import path from "node:path";
 
 import sharp from "sharp";
+<<<<<<< HEAD
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+=======
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as ssrf from "../infra/net/ssrf.js";
+>>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
 import { optimizeImageToPng } from "../media/image-ops.js";
 import { loadWebMedia, optimizeImageToJpeg } from "./media.js";
 
@@ -33,9 +38,22 @@ function buildDeterministicBytes(length: number): Buffer {
 afterEach(async () => {
   await Promise.all(tmpFiles.map((file) => fs.rm(file, { force: true })));
   tmpFiles.length = 0;
+  vi.restoreAllMocks();
 });
 
 describe("web media loading", () => {
+  beforeEach(() => {
+    vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
+      const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
+      const addresses = ["93.184.216.34"];
+      return {
+        hostname: normalized,
+        addresses,
+        lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
+      };
+    });
+  });
+
   it("compresses large local images under the provided cap", async () => {
     const buffer = await sharp({
       create: {
