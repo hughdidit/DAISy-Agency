@@ -22,7 +22,11 @@ jq -r --arg field "${FIELD}" '
     (.[$field] // "")
   end
 ' "${META_PATH}"
-    print(tags[0] if tags else "")
+    first_tag = ""
+    for tag in tags:
+        first_tag = str(tag)
+        break
+    print(first_tag)
 else:
     print(data.get(field, ""))
 PY
