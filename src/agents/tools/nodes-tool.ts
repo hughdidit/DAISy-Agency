@@ -440,6 +440,36 @@ export function createNodesTool(options?: {
             })) as { payload?: unknown };
             return jsonResult(raw?.payload ?? {});
           }
+<<<<<<< HEAD
+=======
+          case "invoke": {
+            const node = readStringParam(params, "node", { required: true });
+            const nodeId = await resolveNodeId(gatewayOpts, node);
+            const invokeCommand = readStringParam(params, "invokeCommand", { required: true });
+            const invokeParamsJson =
+              typeof params.invokeParamsJson === "string" ? params.invokeParamsJson.trim() : "";
+            let invokeParams: unknown = {};
+            if (invokeParamsJson) {
+              try {
+                invokeParams = JSON.parse(invokeParamsJson);
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                throw new Error(`invokeParamsJson must be valid JSON: ${message}`, {
+                  cause: err,
+                });
+              }
+            }
+            const invokeTimeoutMs = parseTimeoutMs(params.invokeTimeoutMs);
+            const raw = await callGatewayTool("node.invoke", gatewayOpts, {
+              nodeId,
+              command: invokeCommand,
+              params: invokeParams,
+              timeoutMs: invokeTimeoutMs,
+              idempotencyKey: crypto.randomUUID(),
+            });
+            return jsonResult(raw ?? {});
+          }
+>>>>>>> d3bb32273 (fix: resolve check errors in nodes-tool and commands-ptt)
           default:
             throw new Error(`Unknown action: ${action}`);
         }
