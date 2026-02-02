@@ -1,0 +1,57 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      ref:
+        description: "Branch/tag/SHA to deploy"
+        required: true
+        default: "daisy/main"
+      dry_run:
+        description: "If true, do not perform real deployment"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Show inputs
+        run: |
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Ref:         ${{ inputs.ref }}"
+          echo "Dry run:     ${{ inputs.dry_run }}"
+
+      - name: Deploy
+        env:
+          DEPLOY_ENV: ${{ inputs.environment }}
+          DEPLOY_REF: ${{ inputs.ref }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          DEPLOY_TARGET: ${{ secrets.DEPLOY_TARGET }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          chmod +x scripts/deploy.sh
+          ./scripts/deploy.sh
