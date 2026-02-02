@@ -33,7 +33,7 @@ concurrency:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  PUSH_ENABLED: ${{ github.event_name == 'push' }}
+  PUSH_ENABLED: ${{ (github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/daisy/main')) || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
 
 jobs:
   # Build amd64 image
