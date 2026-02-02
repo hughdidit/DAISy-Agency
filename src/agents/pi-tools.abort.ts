@@ -6,6 +6,19 @@ function throwAbortError(): never {
   throw err;
 }
 
+/**
+ * Checks if an object is a valid AbortSignal using structural typing.
+ * This is more reliable than `instanceof` across different realms (VM, iframe, etc.)
+ * where the AbortSignal constructor may differ.
+ */
+function isAbortSignal(obj: unknown): obj is AbortSignal {
+  if (!obj || typeof obj !== "object") {
+    return false;
+  }
+  const signal = obj as Record<string, unknown>;
+  return typeof signal.aborted === "boolean" && typeof signal.addEventListener === "function";
+}
+
 function combineAbortSignals(a?: AbortSignal, b?: AbortSignal): AbortSignal | undefined {
   if (!a && !b) {
     return undefined;
@@ -22,8 +35,13 @@ function combineAbortSignals(a?: AbortSignal, b?: AbortSignal): AbortSignal | un
   if (b?.aborted) {
     return b;
   }
+<<<<<<< HEAD
   if (typeof AbortSignal.any === "function") {
     return AbortSignal.any([a as AbortSignal, b as AbortSignal]);
+=======
+  if (typeof AbortSignal.any === "function" && isAbortSignal(a) && isAbortSignal(b)) {
+    return AbortSignal.any([a, b]);
+>>>>>>> 88e29c728 (refactor: use structural typing instead of instanceof for AbortSignal check)
   }
   const controller = new AbortController();
   const onAbort = () => controller.abort();
