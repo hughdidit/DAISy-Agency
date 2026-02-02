@@ -17,7 +17,7 @@ Current Kimi K2 model IDs:
 {/* moonshot-kimi-k2-ids:start */}
 =======
 
-{/* moonshot-kimi-k2-ids:start */}
+{/_ moonshot-kimi-k2-ids:start _/}
 
 >>>>>>> 4347d2468 (fix: format issues and lint error in oauth.ts)
 - `kimi-k2.5`
@@ -25,7 +25,7 @@ Current Kimi K2 model IDs:
 - `kimi-k2-turbo-preview`
 - `kimi-k2-thinking`
 - `kimi-k2-thinking-turbo`
-{/* moonshot-kimi-k2-ids:end */}
+  {/_ moonshot-kimi-k2-ids:end _/}
 
 ```bash
 moltbot onboard --auth-choice moonshot-api-key
