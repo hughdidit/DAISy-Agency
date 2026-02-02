@@ -13,8 +13,28 @@ import { jsonResult } from "./tools/common.js";
 // biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.
 type AnyAgentTool = AgentTool<any, unknown>;
 
+type ToolExecuteArgs = Parameters<ToolDefinition["execute"]>;
+type ToolExecuteArgsLegacy = [
+  string,
+  unknown,
+  AbortSignal | undefined,
+  AgentToolUpdateCallback<unknown> | undefined,
+  unknown,
+];
+type ToolExecuteArgsAny = ToolExecuteArgs | ToolExecuteArgsLegacy;
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isAbortSignal(value: unknown): value is AbortSignal {
+  return typeof value === "object" && value !== null && "aborted" in value;
+}
+
+function isLegacyToolExecuteArgs(args: ToolExecuteArgsAny): args is ToolExecuteArgsLegacy {
+  const third = args[2];
+  const fourth = args[3];
+  return isAbortSignal(third) || typeof fourth === "function";
 }
 
 function describeToolExecutionError(err: unknown): {
@@ -28,6 +48,30 @@ function describeToolExecutionError(err: unknown): {
   return { message: String(err) };
 }
 
+function splitToolExecuteArgs(args: ToolExecuteArgsAny): {
+  toolCallId: string;
+  params: unknown;
+  onUpdate: AgentToolUpdateCallback<unknown> | undefined;
+  signal: AbortSignal | undefined;
+} {
+  if (isLegacyToolExecuteArgs(args)) {
+    const [toolCallId, params, signal, onUpdate] = args;
+    return {
+      toolCallId,
+      params,
+      onUpdate,
+      signal,
+    };
+  }
+  const [toolCallId, params, onUpdate, _ctx, signal] = args;
+  return {
+    toolCallId,
+    params,
+    onUpdate,
+    signal,
+  };
+}
+
 export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
   return tools.map((tool) => {
     const name = tool.name || "tool";
@@ -36,6 +80,7 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
       name,
       label: tool.label ?? name,
       description: tool.description ?? "",
+<<<<<<< HEAD
       // biome-ignore lint/suspicious/noExplicitAny: TypeBox schema from pi-agent-core uses a different module instance.
       parameters: tool.parameters as any,
       execute: async (
@@ -58,6 +103,11 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
       ): Promise<AgentToolResult<unknown>> => {
         // KNOWN: pi-coding-agent `ToolDefinition.execute` has a different signature/order
         // than pi-agent-core `AgentTool.execute`. This adapter keeps our existing tools intact.
+=======
+      parameters: tool.parameters,
+      execute: async (...args: ToolExecuteArgs): Promise<AgentToolResult<unknown>> => {
+        const { toolCallId, params, onUpdate, signal } = splitToolExecuteArgs(args);
+>>>>>>> bcb0ed086 (fix: normalize tool execute args)
         try {
           return await tool.execute(toolCallId, params, signal, onUpdate);
         } catch (err) {
@@ -97,6 +147,7 @@ export function toClientToolDefinitions(
       label: func.name,
       description: func.description ?? "",
       parameters: func.parameters as any,
+<<<<<<< HEAD
       execute: async (
         toolCallId,
         params,
@@ -115,6 +166,10 @@ export function toClientToolDefinitions(
         _signal?: AbortSignal,
 >>>>>>> 9ae1b732e (fix: align tool definition adapter)
       ): Promise<AgentToolResult<unknown>> => {
+=======
+      execute: async (...args: ToolExecuteArgs): Promise<AgentToolResult<unknown>> => {
+        const { toolCallId, params } = splitToolExecuteArgs(args);
+>>>>>>> bcb0ed086 (fix: normalize tool execute args)
         const outcome = await runBeforeToolCallHook({
           toolName: func.name,
           params,
