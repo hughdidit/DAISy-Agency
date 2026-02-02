@@ -141,7 +141,7 @@ export function renderNostrProfileForm(params: {
 
   const renderPicturePreview = () => {
     const picture = state.values.picture;
-    if (!picture) return nothing;
+    if (!picture) {return nothing;}
 
     return html`
       <div style="margin-bottom: 12px;">
