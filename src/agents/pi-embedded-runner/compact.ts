@@ -459,8 +459,12 @@ export async function compactEmbeddedPiSessionDirect(
 =======
 >>>>>>> e58291e07 (fix: align embedded runner with pi-coding-agent API)
       });
+<<<<<<< HEAD
       applySystemPromptOverrideToSession(session, systemPromptOverride);
 >>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
+=======
+      applySystemPromptOverrideToSession(session, systemPromptOverride());
+>>>>>>> d03eca845 (fix: harden plugin and hook install paths)
 
       try {
         const prior = await sanitizeSessionHistory({
