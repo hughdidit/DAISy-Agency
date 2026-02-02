@@ -63,6 +63,7 @@ Status: beta.
 - Agents: wire before_tool_call plugin hook into tool execution. (#6570) Thanks @ryancnelson.
 - Browser: secure Chrome extension relay CDP sessions.
 - Docker: use container port for gateway command instead of host port. (#5110) Thanks @mise42.
+- Docker: start gateway CMD by default for container deployments. (#6635) Thanks @kaizen403.
 - fix(lobster): block arbitrary exec via lobsterPath/cwd injection (GHSA-4mhr-g7xj-cg8j). (#5335) Thanks @vignesh07.
 <<<<<<< HEAD
 <<<<<<< HEAD
