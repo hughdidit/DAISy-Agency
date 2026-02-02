@@ -41,9 +41,9 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
       execute: async (
         toolCallId,
         params,
-        signal: AbortSignal | undefined,
         onUpdate: AgentToolUpdateCallback<unknown> | undefined,
         _ctx,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         signal,
@@ -52,6 +52,9 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
 >>>>>>> 284d24209 (fix: align tool execute signature)
 =======
 >>>>>>> 2d317ce42 (fix: align tool execute parameter order)
+=======
+        signal?: AbortSignal,
+>>>>>>> 9ae1b732e (fix: align tool definition adapter)
       ): Promise<AgentToolResult<unknown>> => {
         // KNOWN: pi-coding-agent `ToolDefinition.execute` has a different signature/order
         // than pi-agent-core `AgentTool.execute`. This adapter keeps our existing tools intact.
@@ -97,9 +100,9 @@ export function toClientToolDefinitions(
       execute: async (
         toolCallId,
         params,
-        _signal: AbortSignal | undefined,
         _onUpdate: AgentToolUpdateCallback<unknown> | undefined,
         _ctx,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         _signal,
@@ -108,6 +111,9 @@ export function toClientToolDefinitions(
 >>>>>>> 284d24209 (fix: align tool execute signature)
 =======
 >>>>>>> 2d317ce42 (fix: align tool execute parameter order)
+=======
+        _signal?: AbortSignal,
+>>>>>>> 9ae1b732e (fix: align tool definition adapter)
       ): Promise<AgentToolResult<unknown>> => {
         const outcome = await runBeforeToolCallHook({
           toolName: func.name,
