@@ -252,6 +252,10 @@ export class MoltbotApp extends LitElement {
   private chatScrollTimeout: number | null = null;
   private chatHasAutoScrolled = false;
   private chatUserNearBottom = true;
+<<<<<<< HEAD
+=======
+  @state() chatNewMessagesBelow = false;
+>>>>>>> 822388fe9 (fix: address review feedback — retryDelay uses effectiveForce, default overrides param, @state() on chatNewMessagesBelow)
   private nodesPollInterval: number | null = null;
   private logsPollInterval: number | null = null;
   private debugPollInterval: number | null = null;

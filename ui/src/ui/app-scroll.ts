@@ -42,7 +42,12 @@ export function scheduleChatScroll(host: ScrollHost, force = false) {
       if (force) host.chatHasAutoScrolled = true;
       target.scrollTop = target.scrollHeight;
       host.chatUserNearBottom = true;
+<<<<<<< HEAD
       const retryDelay = force ? 150 : 120;
+=======
+      host.chatNewMessagesBelow = false;
+      const retryDelay = effectiveForce ? 150 : 120;
+>>>>>>> 822388fe9 (fix: address review feedback — retryDelay uses effectiveForce, default overrides param, @state() on chatNewMessagesBelow)
       host.chatScrollTimeout = window.setTimeout(() => {
         host.chatScrollTimeout = null;
         const latest = pickScrollTarget();
