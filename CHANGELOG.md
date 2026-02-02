@@ -26,6 +26,11 @@ Docs: https://docs.openclaw.ai
 ### Fixes
 
 - fix(webchat): respect user scroll position during streaming and refresh (#7226) (thanks @marcomarandiz)
+<<<<<<< HEAD
+=======
+- Telegram: recover from grammY long-poll timed out errors. (#7466) Thanks @macmimi23.
+- Media understanding: skip binary media from file text extraction. (#7475) Thanks @AlexZhangji.
+>>>>>>> 561a10c49 (fix(telegram): recover from grammY long-poll timeouts (#7466) (thanks @macmimi23))
 - Security: guard skill installer downloads with SSRF checks (block private/localhost URLs).
 - Media understanding: apply SSRF guardrails to provider fetches; allow private baseUrl overrides explicitly.
 
