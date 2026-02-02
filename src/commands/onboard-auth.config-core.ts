@@ -22,6 +22,7 @@ import {
   buildMoonshotModelDefinition,
   KIMI_CODING_MODEL_REF,
   MOONSHOT_BASE_URL,
+  MOONSHOT_CN_BASE_URL,
   MOONSHOT_DEFAULT_MODEL_ID,
   MOONSHOT_DEFAULT_MODEL_REF,
 } from "./onboard-auth.models.js";
@@ -136,11 +137,22 @@ export function applyOpenrouterConfig(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
+<<<<<<< HEAD
 export function applyMoonshotProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
+=======
+export function applyMoonshotProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+  return applyMoonshotProviderConfigWithBaseUrl(cfg, MOONSHOT_BASE_URL);
+}
+
+function applyMoonshotProviderConfigWithBaseUrl(
+  cfg: OpenClawConfig,
+  baseUrl: string,
+): OpenClawConfig {
+>>>>>>> 1c6b25ddb (feat: add support for Moonshot API key for China endpoint)
   const models = { ...cfg.agents?.defaults?.models };
   models[MOONSHOT_DEFAULT_MODEL_REF] = {
     ...models[MOONSHOT_DEFAULT_MODEL_REF],
-    alias: models[MOONSHOT_DEFAULT_MODEL_REF]?.alias ?? "Kimi K2",
+    alias: models[MOONSHOT_DEFAULT_MODEL_REF]?.alias ?? "Kimi",
   };
 
   const providers = { ...cfg.models?.providers };
@@ -157,7 +169,7 @@ export function applyMoonshotProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
   const normalizedApiKey = resolvedApiKey?.trim();
   providers.moonshot = {
     ...existingProviderRest,
-    baseUrl: MOONSHOT_BASE_URL,
+    baseUrl,
     api: "openai-completions",
     ...(normalizedApiKey ? { apiKey: normalizedApiKey } : {}),
     models: mergedModels.length > 0 ? mergedModels : [defaultModel],
@@ -201,7 +213,33 @@ export function applyMoonshotConfig(cfg: MoltbotConfig): MoltbotConfig {
   };
 }
 
+<<<<<<< HEAD
 export function applyKimiCodeProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
+=======
+export function applyMoonshotConfigCn(cfg: OpenClawConfig): OpenClawConfig {
+  const next = applyMoonshotProviderConfigWithBaseUrl(cfg, MOONSHOT_CN_BASE_URL);
+  const existingModel = next.agents?.defaults?.model;
+  return {
+    ...next,
+    agents: {
+      ...next.agents,
+      defaults: {
+        ...next.agents?.defaults,
+        model: {
+          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
+            ? {
+                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
+              }
+            : undefined),
+          primary: MOONSHOT_DEFAULT_MODEL_REF,
+        },
+      },
+    },
+  };
+}
+
+export function applyKimiCodeProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+>>>>>>> 1c6b25ddb (feat: add support for Moonshot API key for China endpoint)
   const models = { ...cfg.agents?.defaults?.models };
   models[KIMI_CODING_MODEL_REF] = {
     ...models[KIMI_CODING_MODEL_REF],
