@@ -17,7 +17,11 @@ Status: beta.
 =======
 - fix(agents): validate AbortSignal instances before calling AbortSignal.any() (#7277) (thanks @Elarwei001)
 - fix(webchat): respect user scroll position during streaming and refresh (#7226) (thanks @marcomarandiz)
+<<<<<<< HEAD
 >>>>>>> 5fb8f779c (fix: validate AbortSignal instances before calling AbortSignal.any() (#7277) (thanks @Elarwei001))
+=======
+- Media understanding: skip binary media from file text extraction. (#7475) Thanks @AlexZhangji.
+>>>>>>> f49297e2c (fix: skip audio files from text extraction to prevent binary processing (#7475))
 - Security: guard skill installer downloads with SSRF checks (block private/localhost URLs).
 - Media understanding: apply SSRF guardrails to provider fetches; allow private baseUrl overrides explicitly.
 
