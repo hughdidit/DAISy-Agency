@@ -38,7 +38,13 @@ function fakeApi(): MoltbotPluginApi {
     id: "lobster",
     name: "lobster",
     source: "test",
+<<<<<<< HEAD
     config: {} as any,
+=======
+    config: {},
+    pluginConfig: {},
+    // oxlint-disable-next-line typescript/no-explicit-any
+>>>>>>> 935a0e570 (chore: Enable `typescript/no-explicit-any` rule.)
     runtime: { version: "test" } as any,
     logger: { info() {}, warn() {}, error() {}, debug() {} },
     registerTool() {},
@@ -54,7 +60,7 @@ function fakeApi(): MoltbotPluginApi {
 
 function fakeCtx(overrides: Partial<MoltbotPluginToolContext> = {}): MoltbotPluginToolContext {
   return {
-    config: {} as any,
+    config: {},
     workspaceDir: "/tmp",
     agentDir: "/tmp",
     agentId: "main",
