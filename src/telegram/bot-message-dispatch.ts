@@ -53,7 +53,7 @@ export const dispatchTelegramMessage = async ({
     msg,
     chatId,
     isGroup,
-    replyThreadId,
+    threadSpec,
     historyKey,
     historyLimit,
     groupHistories,
@@ -67,8 +67,7 @@ export const dispatchTelegramMessage = async ({
   } = context;
 
   const isPrivateChat = msg.chat.type === "private";
-  const messageThreadId = (msg as { message_thread_id?: number }).message_thread_id;
-  const draftThreadId = replyThreadId ?? messageThreadId;
+  const draftThreadId = threadSpec.id;
   const draftMaxChars = Math.min(textLimit, 4096);
   const canStreamDraft =
     streamMode !== "off" &&
@@ -81,7 +80,7 @@ export const dispatchTelegramMessage = async ({
         chatId,
         draftId: msg.message_id || Date.now(),
         maxChars: draftMaxChars,
-        messageThreadId: draftThreadId,
+        thread: threadSpec,
         log: logVerbose,
         warn: logVerbose,
       })
@@ -230,7 +229,7 @@ export const dispatchTelegramMessage = async ({
           bot,
           replyToMode,
           textLimit,
-          messageThreadId: replyThreadId,
+          thread: threadSpec,
           tableMode,
           chunkMode,
           onVoiceRecording: sendRecordVoice,
@@ -288,7 +287,7 @@ export const dispatchTelegramMessage = async ({
       bot,
       replyToMode,
       textLimit,
-      messageThreadId: replyThreadId,
+      thread: threadSpec,
       tableMode,
       chunkMode,
       linkPreview: telegramCfg.linkPreview,
