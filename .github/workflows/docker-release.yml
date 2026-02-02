@@ -214,6 +214,7 @@ jobs:
           TAG_VERSION="${{ steps.meta.outputs.version || '' }}"
           SHORTSHA="$(echo "${GITHUB_SHA}" | cut -c1-7)"
           IS_TAG="${{ startsWith(github.ref, 'refs/tags/v') }}"
+          # Note: 'daisy/main' is this repository's primary branch, so we treat it as "main".
           IS_MAIN="${{ github.ref == 'refs/heads/daisy/main' }}"
 
           TAGS_JSON="[]"
