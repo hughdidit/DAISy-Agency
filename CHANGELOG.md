@@ -344,7 +344,14 @@ Docs: https://docs.openclaw.ai
 - Config/Memory: auto-migrate legacy top-level `memorySearch` settings into `agents.defaults.memorySearch`. (#11278, #9143) Thanks @vignesh07.
 - Media understanding: recognize `.caf` audio attachments for transcription. (#10982) Thanks @succ985.
 - State dir: honor `OPENCLAW_STATE_DIR` for default device identity and canvas storage paths. (#4824) Thanks @kossoy.
+<<<<<<< HEAD
 >>>>>>> 8d80212f9 (docs: credit memorySearch changelog)
+=======
+- Doctor/State dir: suppress repeated legacy migration warnings only for valid symlink mirrors, while keeping warnings for empty or invalid legacy trees. (#11709) Thanks @gumadeiras.
+- Tests: harden flaky hotspots by removing timer sleeps, consolidating onboarding provider-auth coverage, and improving memory test realism. (#11598) Thanks @gumadeiras.
+- macOS: honor Nix-managed defaults suite (`ai.openclaw.mac`) for nixMode to prevent onboarding from reappearing after bundle-id churn. (#12205) Thanks @joshp123.
+- Matrix: add multi-account support via `channels.matrix.accounts`; use per-account config for dm policy, allowFrom, groups, and other settings; serialize account startup to avoid race condition. (#3165, #3085) Thanks @emonty.
+>>>>>>> caf5d2dd7 (feat(matrix): Add multi-account support to Matrix channel)
 
 ### Added
 
@@ -578,6 +585,7 @@ Docs: https://docs.openclaw.ai
 =======
 - Discord: enforce DM allowlists for agent components (buttons/select menus), honoring pairing store approvals and tag matches. (#11254) Thanks @thedudeabidesai.
 >>>>>>> 8d80212f9 (docs: credit memorySearch changelog)
+
 
 ## 2026.2.2-3
 
