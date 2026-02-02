@@ -6,6 +6,18 @@ function throwAbortError(): never {
   throw err;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * Checks if an object is a valid AbortSignal using structural typing.
+ * This is more reliable than `instanceof` across different realms (VM, iframe, etc.)
+ * where the AbortSignal constructor may differ.
+ */
+function isAbortSignal(obj: unknown): obj is AbortSignal {
+  return obj instanceof AbortSignal;
+}
+
+>>>>>>> 5fb8f779c (fix: validate AbortSignal instances before calling AbortSignal.any() (#7277) (thanks @Elarwei001))
 function combineAbortSignals(a?: AbortSignal, b?: AbortSignal): AbortSignal | undefined {
 <<<<<<< HEAD
   if (!a && !b) return undefined;
