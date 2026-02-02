@@ -19,6 +19,10 @@ on:
         description: "Override image tag"
         required: false
 
+concurrency:
+  group: docker-release-global
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
