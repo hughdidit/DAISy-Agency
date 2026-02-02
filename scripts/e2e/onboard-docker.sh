@@ -280,9 +280,15 @@ TRASH
       --skip-health
 
     # Assert config + workspace scaffolding.
+<<<<<<< HEAD
     workspace_dir="$HOME/clawd"
     config_path="$HOME/.clawdbot/moltbot.json"
     sessions_dir="$HOME/.clawdbot/agents/main/sessions"
+=======
+    workspace_dir="$HOME/.openclaw/workspace"
+    config_path="$HOME/.openclaw/openclaw.json"
+    sessions_dir="$HOME/.openclaw/agents/main/sessions"
+>>>>>>> f9fae2c43 (fix: stabilize docker e2e flows)
 
     assert_file "$config_path"
     assert_dir "$sessions_dir"

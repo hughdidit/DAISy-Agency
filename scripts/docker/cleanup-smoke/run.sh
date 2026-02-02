@@ -6,6 +6,9 @@ cd /repo
 export CLAWDBOT_STATE_DIR="/tmp/moltbot-test"
 export CLAWDBOT_CONFIG_PATH="${CLAWDBOT_STATE_DIR}/moltbot.json"
 
+echo "==> Build"
+pnpm build
+
 echo "==> Seed state"
 mkdir -p "${CLAWDBOT_STATE_DIR}/credentials"
 mkdir -p "${CLAWDBOT_STATE_DIR}/agents/main/sessions"
