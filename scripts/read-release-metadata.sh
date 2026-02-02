@@ -20,11 +20,13 @@ with open(path, "r", encoding="utf-8") as handle:
     data = json.load(handle)
 
 if field == "tags":
-    tags = data.get("tags") or []
-    print(" ".join(tags))
+    raw_tags = data.get("tags")
+    tags = raw_tags if isinstance(raw_tags, list) else []
+    print(" ".join(str(tag) for tag in tags))
 elif field == "first_tag":
-    tags = data.get("tags") or [""]
-    print(tags[0])
+    raw_tags = data.get("tags")
+    tags = raw_tags if isinstance(raw_tags, list) else []
+    print(tags[0] if tags else "")
 else:
     print(data.get(field, ""))
 PY
