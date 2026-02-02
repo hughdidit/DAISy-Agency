@@ -9,6 +9,10 @@ if [[ -z "${META_PATH}" || -z "${FIELD}" || ! -f "${META_PATH}" ]]; then
   exit 2
 fi
 
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "Error: python3 is required but not installed or not in PATH." >&2
+  exit 3
+fi
 python3 - "${META_PATH}" "${FIELD}" <<'PY'
 import json
 import sys
