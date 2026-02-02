@@ -8,8 +8,12 @@ const args = process.argv.slice(2);
 const env = { ...process.env };
 const cwd = process.cwd();
 <<<<<<< HEAD
+<<<<<<< HEAD
 const compiler = env.OPENCLAW_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
 const projectArgs = ["--project", "tsconfig.json"];
+=======
+const compiler = "tsdown";
+>>>>>>> a03d852d6 (chore: Migrate to tsdown, speed up JS bundling by ~10x (thanks @hyf0).)
 
 const distRoot = path.join(cwd, "dist");
 const distEntry = path.join(distRoot, "entry.js");
@@ -130,9 +134,15 @@ const writeBuildStamp = () => {
 if (!shouldBuild()) {
   runNode();
 } else {
+<<<<<<< HEAD
   logRunner('Building TypeScript (dist is stale).');
   const pnpmArgs = ['exec', compiler, ...projectArgs];
   const buildCmd = process.platform === 'win32' ? 'cmd.exe' : 'pnpm';
+=======
+  logRunner("Building TypeScript (dist is stale).");
+  const pnpmArgs = ["exec", compiler];
+  const buildCmd = process.platform === "win32" ? "cmd.exe" : "pnpm";
+>>>>>>> a03d852d6 (chore: Migrate to tsdown, speed up JS bundling by ~10x (thanks @hyf0).)
   const buildArgs =
     process.platform === 'win32'
       ? ['/d', '/s', '/c', 'pnpm', ...pnpmArgs]
