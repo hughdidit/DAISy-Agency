@@ -226,9 +226,29 @@ jobs:
 
           DIGEST=""
           if [[ "${IS_TAG}" == "true" ]]; then
-            DIGEST="$(docker buildx imagetools inspect "${IMAGE}:${TAG_VERSION}" --format '{{json .Manifest.Digest}}' 2>/dev/null | tr -d '\"' || echo "")"
+            echo "Retrieving digest for ${IMAGE}:${TAG_VERSION}..."
+            if ! DIGEST="$(docker buildx imagetools inspect "${IMAGE}:${TAG_VERSION}" --format '{{json .Manifest.Digest}}' 2>&1 | tr -d '\"')"; then
+              echo "ERROR: Failed to retrieve digest for ${IMAGE}:${TAG_VERSION}" >&2
+              echo "This indicates the manifest was not pushed successfully." >&2
+              exit 1
+            fi
+            if [[ -z "${DIGEST}" || "${DIGEST}" == "null" ]]; then
+              echo "ERROR: Retrieved empty or null digest for ${IMAGE}:${TAG_VERSION}" >&2
+              exit 1
+            fi
+            echo "Retrieved digest: ${DIGEST}"
           elif [[ "${IS_MAIN}" == "true" ]]; then
-            DIGEST="$(docker buildx imagetools inspect "${IMAGE}:main-${SHORTSHA}" --format '{{json .Manifest.Digest}}' 2>/dev/null | tr -d '\"' || echo "")"
+            echo "Retrieving digest for ${IMAGE}:main-${SHORTSHA}..."
+            if ! DIGEST="$(docker buildx imagetools inspect "${IMAGE}:main-${SHORTSHA}" --format '{{json .Manifest.Digest}}' 2>&1 | tr -d '\"')"; then
+              echo "ERROR: Failed to retrieve digest for ${IMAGE}:main-${SHORTSHA}" >&2
+              echo "This indicates the manifest was not pushed successfully." >&2
+              exit 1
+            fi
+            if [[ -z "${DIGEST}" || "${DIGEST}" == "null" ]]; then
+              echo "ERROR: Retrieved empty or null digest for ${IMAGE}:main-${SHORTSHA}" >&2
+              exit 1
+            fi
+            echo "Retrieved digest: ${DIGEST}"
           fi
 
           jq -n \
