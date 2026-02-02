@@ -87,8 +87,11 @@ export function createSystemPromptOverride(
 >>>>>>> 34dd7324d (fix: restore lint/build gates)
 }
 
-export function applySystemPromptOverrideToSession(session: AgentSession, override: string) {
-  const prompt = override.trim();
+export function applySystemPromptOverrideToSession(
+  session: AgentSession,
+  override: string | ((defaultPrompt?: string) => string),
+) {
+  const prompt = typeof override === "function" ? override() : override.trim();
   session.agent.setSystemPrompt(prompt);
   const mutableSession = session as unknown as {
     _baseSystemPrompt?: string;
