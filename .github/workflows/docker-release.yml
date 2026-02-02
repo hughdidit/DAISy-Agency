@@ -23,13 +23,14 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   # Build amd64 image
   build-amd64:
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
       image-metadata: ${{ steps.meta.outputs.json }}
@@ -78,9 +79,6 @@ jobs:
   # Build arm64 image
   build-arm64:
     runs-on: ubuntu-24.04-arm
-    permissions:
-      packages: write
-      contents: read
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
       image-metadata: ${{ steps.meta.outputs.json }}
@@ -129,9 +127,6 @@ jobs:
   # Create multi-platform manifest
   create-manifest:
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
     needs: [build-amd64, build-arm64]
     steps:
       - name: Login to GitHub Container Registry
