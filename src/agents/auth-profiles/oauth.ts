@@ -9,7 +9,20 @@ import { formatAuthDoctorHint } from "./doctor.js";
 import { ensureAuthStoreFile, resolveAuthStorePath } from "./paths.js";
 import { suggestOAuthProfileIdForLegacyDefault } from "./repair.js";
 import { ensureAuthProfileStore, saveAuthProfileStore } from "./store.js";
+<<<<<<< HEAD
 import type { AuthProfileStore } from "./types.js";
+=======
+
+const OAUTH_PROVIDER_IDS = new Set<OAuthProvider>(
+  getOAuthProviders().map((provider) => provider.id),
+);
+
+const isOAuthProvider = (provider: string): provider is OAuthProvider =>
+  OAUTH_PROVIDER_IDS.has(provider);
+
+const resolveOAuthProvider = (provider: string): OAuthProvider | null =>
+  isOAuthProvider(provider) ? provider : null;
+>>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
 
 function buildOAuthApiKey(provider: string, credentials: OAuthCredentials): string {
   const needsProjectId = provider === "google-gemini-cli" || provider === "google-antigravity";

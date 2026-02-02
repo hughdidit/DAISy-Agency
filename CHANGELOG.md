@@ -4,11 +4,22 @@ Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 Status: beta.
 =======
 =======
 ## 2026.1.31
+=======
+## 2026.2.2
+
+### Fixes
+
+- Telegram: add download timeouts for file fetches. (#6914) Thanks @hclsys.
+- Telegram: enforce thread specs for DM vs forum sends. (#6833) Thanks @obviyus.
+ 
+## 2026.2.1
+>>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
 
 ### Changes
 
