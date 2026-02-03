@@ -49,6 +49,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 561a10c49 (fix(telegram): recover from grammY long-poll timeouts (#7466) (thanks @macmimi23))
 - Security: guard skill installer downloads with SSRF checks (block private/localhost URLs).
 - Media understanding: apply SSRF guardrails to provider fetches; allow private baseUrl overrides explicitly.
+<<<<<<< HEAD
+=======
+- Tests: stub SSRF DNS pinning in web auto-reply + Gemini video coverage. (#6619) Thanks @joshp123.
+- fix(voice-call): harden inbound allowlist; reject anonymous callers; require Telnyx publicKey for allowlist; token-gate Twilio media streams; cap webhook body size (thanks @simecek)
+>>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
 
 >>>>>>> 4023b76ed (docs: add changelog for zh-CN translations (#6619) (thanks @joshp123))
 ## 2026.2.1
