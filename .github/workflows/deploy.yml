@@ -1,6 +1,29 @@
 name: Deploy
 
 on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: string
+      release_run_id:
+        description: "docker-release workflow run ID to deploy"
+        required: true
+        type: string
+      image_ref:
+        description: "Optional override: full image ref (tag or digest)"
+        required: false
+        type: string
+      dry_run:
+        description: "If true, do not perform real deployment"
+        required: true
+        type: boolean
+        default: true
+    outputs:
+      deploy_ref:
+        description: "Resolved image reference that was deployed"
+        value: ${{ jobs.deploy.outputs.deploy_ref }}
   workflow_dispatch:
     inputs:
       environment:
@@ -35,6 +58,8 @@ jobs:
     name: Deploy to ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    outputs:
+      deploy_ref: ${{ steps.deploy.outputs.deploy_ref }}
 
     steps:
       - name: Checkout (for scripts)
@@ -64,6 +89,7 @@ jobs:
           cat dist/release/release-metadata.json
 
       - name: Deploy
+        id: deploy
         env:
           DEPLOY_ENV: ${{ inputs.environment }}
           DRY_RUN: ${{ inputs.dry_run }}

@@ -1,0 +1,47 @@
+name: Promote to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_run_id:
+        description: "docker-release workflow run ID to deploy"
+        required: true
+      image_ref:
+        description: "Optional override: full image ref (tag or digest)"
+        required: false
+      run_verify:
+        description: "Run verify after deployment"
+        required: true
+        default: true
+        type: boolean
+      dry_run:
+        description: "If true, do not perform real deployment"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: promote-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+      release_run_id: ${{ inputs.release_run_id }}
+      image_ref: ${{ inputs.image_ref }}
+      dry_run: ${{ inputs.dry_run }}
+
+  verify:
+    if: ${{ inputs.run_verify }}
+    needs: deploy
+    uses: ./.github/workflows/verify.yml
+    with:
+      environment: production
+      deployed_ref: ${{ needs.deploy.outputs.deploy_ref }}
+      dry_run: true
