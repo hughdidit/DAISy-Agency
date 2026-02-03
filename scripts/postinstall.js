@@ -321,7 +321,7 @@ function trySetupCompletion(repoRoot) {
   try {
     // Run with OPENCLAW_SKIP_POSTINSTALL to avoid any weird recursion,
     // though distinct from this script.
-    spawnSync(process.execPath, [binPath, "completion", "--install", "--yes"], {
+    spawnSync(process.execPath, [binPath, "completion", "--install", "--yes", "--write-state"], {
       cwd: repoRoot,
 <<<<<<< HEAD
       stdio: "inherit", 
@@ -331,7 +331,7 @@ function trySetupCompletion(repoRoot) {
       env: { ...process.env, OPENCLAW_SKIP_POSTINSTALL: "1" },
     });
   } catch {
-    // Ignore errors to not break install
+    // Ignore errors
   }
 }
 
