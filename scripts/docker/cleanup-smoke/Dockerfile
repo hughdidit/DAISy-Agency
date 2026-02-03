@@ -10,10 +10,13 @@ RUN apt-get update \
 WORKDIR /repo
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 <<<<<<< HEAD
+<<<<<<< HEAD
 COPY scripts/postinstall.js ./scripts/postinstall.js
 =======
 COPY scripts/setup-git-hooks.js ./scripts/setup-git-hooks.js
 >>>>>>> 6fb2d3d7d (feat: remove slop.)
+=======
+>>>>>>> 6b83d82e8 (chore: clean up git hooks and actually install them again.)
 RUN corepack enable \
   && pnpm install --frozen-lockfile
 
