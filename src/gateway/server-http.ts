@@ -13,9 +13,18 @@ import type { CanvasHostHandler } from "../canvas-host/server.js";
 import { loadConfig } from "../config/config.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
+<<<<<<< HEAD
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
 import { setSecurityHeaders } from "./http-common.js";
+=======
+import {
+  handleControlUiAvatarRequest,
+  handleControlUiHttpRequest,
+  type ControlUiRootState,
+} from "./control-ui.js";
+import { applyHookMappings } from "./hooks-mapping.js";
+>>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 import {
   extractHookToken,
   getHookChannelError,
@@ -219,6 +228,7 @@ export function createGatewayHttpServer(opts: {
   canvasHost: CanvasHostHandler | null;
   controlUiEnabled: boolean;
   controlUiBasePath: string;
+  controlUiRoot?: ControlUiRootState;
   openAiChatCompletionsEnabled: boolean;
   openResponsesEnabled: boolean;
   openResponsesConfig?: import("../config/types.gateway.js").GatewayHttpResponsesConfig;
@@ -231,6 +241,7 @@ export function createGatewayHttpServer(opts: {
     canvasHost,
     controlUiEnabled,
     controlUiBasePath,
+    controlUiRoot,
     openAiChatCompletionsEnabled,
     openResponsesEnabled,
     openResponsesConfig,
@@ -316,8 +327,12 @@ export function createGatewayHttpServer(opts: {
           await handleControlUiHttpRequest(req, res, {
             basePath: controlUiBasePath,
             config: configSnapshot,
+<<<<<<< HEAD
             auth: resolvedAuth,
             trustedProxies,
+=======
+            root: controlUiRoot,
+>>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
           })
         ) {
           return;

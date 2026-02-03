@@ -25,6 +25,7 @@
     "rootDir": "src",
     "strict": true,
 <<<<<<< HEAD
+<<<<<<< HEAD
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
@@ -34,6 +35,10 @@
 =======
     "target": "es2023"
 >>>>>>> 2957d4306 (chore: Update `tsconfig.json` target, oops.)
+=======
+    "target": "es2023",
+    "useDefineForClassFields": false
+>>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
   },
   "include": ["src/**/*", "ui/**/*"],
   "exclude": [

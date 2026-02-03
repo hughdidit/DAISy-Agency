@@ -1,9 +1,14 @@
 import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
+<<<<<<< HEAD
 import { fileURLToPath } from "node:url";
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveControlUiRootSync } from "../infra/control-ui-assets.js";
+>>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 import { DEFAULT_ASSISTANT_IDENTITY, resolveAssistantIdentity } from "./assistant-identity.js";
 import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
 import {
@@ -21,36 +26,18 @@ export type ControlUiRequestOptions = {
   basePath?: string;
   config?: MoltbotConfig;
   agentId?: string;
+<<<<<<< HEAD
   auth?: ResolvedGatewayAuth;
   trustedProxies?: string[];
+=======
+  root?: ControlUiRootState;
+>>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 };
 
-function resolveControlUiRoot(): string | null {
-  const here = path.dirname(fileURLToPath(import.meta.url));
-  const execDir = (() => {
-    try {
-      return path.dirname(fs.realpathSync(process.execPath));
-    } catch {
-      return null;
-    }
-  })();
-  const candidates = [
-    // Packaged app: control-ui lives alongside the executable.
-    execDir ? path.resolve(execDir, "control-ui") : null,
-    // Running from dist: dist/gateway/control-ui.js -> dist/control-ui
-    path.resolve(here, "../control-ui"),
-    // Running from source: src/gateway/control-ui.ts -> dist/control-ui
-    path.resolve(here, "../../dist/control-ui"),
-    // Fallback to cwd (dev)
-    path.resolve(process.cwd(), "dist", "control-ui"),
-  ].filter((dir): dir is string => Boolean(dir));
-  for (const dir of candidates) {
-    if (fs.existsSync(path.join(dir, "index.html"))) {
-      return dir;
-    }
-  }
-  return null;
-}
+export type ControlUiRootState =
+  | { kind: "resolved"; path: string }
+  | { kind: "invalid"; path: string }
+  | { kind: "missing" };
 
 function contentTypeForExt(ext: string): string {
   switch (ext) {
@@ -321,6 +308,7 @@ export async function handleControlUiHttpRequest(
     }
   }
 
+<<<<<<< HEAD
   if (opts?.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
     const token = getBearerToken(req) ?? url.searchParams.get("token") ?? undefined;
     const authResult = await authorizeGatewayConnect({
@@ -336,6 +324,34 @@ export async function handleControlUiHttpRequest(
   }
 
   const root = resolveControlUiRoot();
+=======
+  const rootState = opts?.root;
+  if (rootState?.kind === "invalid") {
+    res.statusCode = 503;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end(
+      `Control UI assets not found at ${rootState.path}. Build them with \`pnpm ui:build\` (auto-installs UI deps), or update gateway.controlUi.root.`,
+    );
+    return true;
+  }
+  if (rootState?.kind === "missing") {
+    res.statusCode = 503;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end(
+      "Control UI assets not found. Build them with `pnpm ui:build` (auto-installs UI deps), or run `pnpm ui:dev` during development.",
+    );
+    return true;
+  }
+
+  const root =
+    rootState?.kind === "resolved"
+      ? rootState.path
+      : resolveControlUiRootSync({
+          moduleUrl: import.meta.url,
+          argv1: process.argv[1],
+          cwd: process.cwd(),
+        });
+>>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
   if (!root) {
     res.statusCode = 503;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
