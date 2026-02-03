@@ -19,11 +19,17 @@ Status: beta.
 
 - Web UI: add Agents dashboard for managing agent files, tools, skills, models, channels, and cron jobs.
 - Security: add healthcheck skill and bootstrap audit guidance. (#7641) Thanks @Takhoffman.
+<<<<<<< HEAD
 - Docs: seed zh-CN translations. (#6619) Thanks @joshp123.
 - Docs: expand zh-Hans navigation and fix zh-CN index asset paths. (#7242) Thanks @joshp123.
 - Docs: add zh-CN landing notice + AI-translated image. (#7303) Thanks @joshp123.
 - Docs: fix typo - clawdbot is the compatibility shim, not openclaw. (#7415) Thanks @lailoo.
 - Config: allow setting a default subagent thinking level via `agents.defaults.subagents.thinking` (and per-agent `agents.list[].subagents.thinking`). (#7372) Thanks @tyler6204.
+=======
+- Docs: zh-CN translation polish + pipeline guidance. (#8202, #6995) Thanks @AaronWander, @taiyi747, @Explorer1092, @rendaoyuan.
+- Docs: zh-CN translations seed + nav polish + landing notice + typo fix. (#6619, #7242, #7303, #7415) Thanks @joshp123, @lailoo.
+- Feishu: add Feishu/Lark plugin support + docs. (#7313) Thanks @jiulingyun (openclaw-cn).
+>>>>>>> 0223416c6 (Channels: finish Feishu/Lark integration)
 
 >>>>>>> 578bde1e0 (Security: healthcheck skill (#7641) (thanks @Takhoffman))
 ### Fixes
