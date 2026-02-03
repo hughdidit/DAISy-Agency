@@ -1,3 +1,19 @@
+<<<<<<< HEAD
+=======
+import type { OpenClawApp } from "./app";
+import { refreshChat } from "./app-chat";
+import {
+  startLogsPolling,
+  stopLogsPolling,
+  startDebugPolling,
+  stopDebugPolling,
+} from "./app-polling";
+import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
+import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity";
+import { loadAgentSkills } from "./controllers/agent-skills";
+import { loadAgents } from "./controllers/agents";
+import { loadChannels } from "./controllers/channels";
+>>>>>>> 2a68bcbeb (feat(ui): add Agents dashboard)
 import { loadConfig, loadConfigSchema } from "./controllers/config";
 import { loadCronJobs, loadCronStatus } from "./controllers/cron";
 import { loadChannels } from "./controllers/channels";
@@ -202,7 +218,32 @@ export async function refreshActiveTab(host: SettingsHost) {
   if (host.tab === "skills") {
     await loadSkills(host as unknown as OpenClawApp);
   }
+<<<<<<< HEAD
 >>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
+=======
+  if (host.tab === "agents") {
+    await loadAgents(host as unknown as OpenClawApp);
+    await loadConfig(host as unknown as OpenClawApp);
+    const agentIds = host.agentsList?.agents?.map((entry) => entry.id) ?? [];
+    if (agentIds.length > 0) {
+      void loadAgentIdentities(host as unknown as OpenClawApp, agentIds);
+    }
+    const agentId =
+      host.agentsSelectedId ?? host.agentsList?.defaultId ?? host.agentsList?.agents?.[0]?.id;
+    if (agentId) {
+      void loadAgentIdentity(host as unknown as OpenClawApp, agentId);
+      if (host.agentsPanel === "skills") {
+        void loadAgentSkills(host as unknown as OpenClawApp, agentId);
+      }
+      if (host.agentsPanel === "channels") {
+        void loadChannels(host as unknown as OpenClawApp, false);
+      }
+      if (host.agentsPanel === "cron") {
+        void loadCron(host);
+      }
+    }
+  }
+>>>>>>> 2a68bcbeb (feat(ui): add Agents dashboard)
   if (host.tab === "nodes") {
     await loadNodes(host as unknown as MoltbotApp);
     await loadDevices(host as unknown as MoltbotApp);

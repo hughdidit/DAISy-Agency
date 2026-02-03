@@ -9,6 +9,7 @@ Docs: https://docs.openclaw.ai
 
 ### Changes
 
+- Web UI: add Agents dashboard for managing agent files, tools, skills, models, channels, and cron jobs.
 - Docs: seed zh-CN translations. (#6619) Thanks @joshp123.
 <<<<<<< HEAD
 =======
