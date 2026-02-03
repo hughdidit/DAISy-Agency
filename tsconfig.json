@@ -1,13 +1,24 @@
 {
   "compilerOptions": {
+<<<<<<< HEAD
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
 <<<<<<< HEAD
 =======
     "lib": ["DOM", "DOM.Iterable", "ES2023", "ScriptHost"],
-    "noEmit": true,
+=======
+    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
     "declaration": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2023", "ScriptHost"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+>>>>>>> 1f2f79a7a (chore: Merge tsconfigs, typecheck `ui` as part of `pnpm tsgo` locally and on CI.)
+    "noEmit": true,
     "noEmitOnError": true,
 >>>>>>> 59cfff02f (chore: Emit TypeScript declaration files so that we can type-check the extensions folder soon.)
     "outDir": "dist",
@@ -24,7 +35,7 @@
     "target": "es2023"
 >>>>>>> 2957d4306 (chore: Update `tsconfig.json` target, oops.)
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "ui/**/*"],
   "exclude": [
     "node_modules",
     "dist",
