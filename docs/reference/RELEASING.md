@@ -56,6 +56,15 @@ Use the Verify workflow in GitHub Actions to run `scripts/verify.sh` after a dep
 
 The workflow exports `VERIFY_ENV`, `DEPLOYED_REF`, and `DRY_RUN` so `verify.sh` can log the runtime context.
 
+`scripts/verify.sh` supports additional env vars to perform concrete checks:
+- `VERIFY_HEALTH_URL` (required for HTTP checks): endpoint to fetch and validate.
+  - Optional: `VERIFY_HTTP_TIMEOUT` (seconds, default 10).
+  - If the health payload includes fields like `commit`, `git_sha`, or `version`, the script compares them to `DEPLOYED_REF`.
+- `VERIFY_SSH_HOST` (required for SSH checks): host to run remote checks against.
+  - Optional: `VERIFY_SSH_USER` (SSH username).
+  - `VERIFY_SYSTEMD_SERVICE` to assert `systemctl is-active`.
+  - `VERIFY_DOCKER_CONTAINER` to assert a running container; if `DEPLOYED_REF` is set, the image tag is checked for it.
+
 5) **macOS app (Sparkle)**
 - [ ] Build + sign the macOS app, then zip it for distribution.
 - [ ] Generate the Sparkle appcast (HTML notes via [`scripts/make_appcast.sh`](https://github.com/moltbot/moltbot/blob/main/scripts/make_appcast.sh)) and update `appcast.xml`.
