@@ -26,13 +26,18 @@ on:
           - staging
           - production
       deployed_ref:
-        description: "Resolved image ref that was deployed"
+        description: "Deployed ref to verify"
         required: true
-      dry_run:
-        description: "If true, do not perform real verification"
+  workflow_call:
+    inputs:
+      environment:
+        description: "Target environment"
         required: true
-        default: true
-        type: boolean
+        type: string
+      deployed_ref:
+        description: "Deployed ref to verify"
+        required: true
+        type: string
 
 permissions:
   contents: read
