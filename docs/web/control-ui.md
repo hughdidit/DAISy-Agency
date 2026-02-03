@@ -50,7 +50,7 @@ Auth is supplied during the WebSocket handshake via:
 
 Cron jobs panel notes:
 
-- For isolated jobs, choose a delivery mode: legacy main summary, announce summary, deliver full output, or none.
+- For isolated jobs, delivery defaults to announce summary. You can switch to legacy main summary, deliver full output, or none.
 - Channel/target fields appear when announce or deliver is selected.
 
 ## Chat behavior
