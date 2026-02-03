@@ -55,9 +55,17 @@ If you must ask, use non-technical prompts:
 - “Is disk encryption turned on (FileVault/BitLocker/LUKS)?”
 - “Are automatic security updates enabled?”
 - “How do you use this machine?”
+<<<<<<< HEAD
   1. Personal/workstation (mostly local dev)
   2. Headless server (always on, accessed remotely)
   3. Something else?
+=======
+  Examples:
+  - Personal machine shared with the assistant
+  - Dedicated local machine for the assistant
+  - Dedicated remote machine/server accessed remotely (always on)
+  - Something else?
+>>>>>>> fc40ba8e7 (Skills: refine healthcheck guidance)
 
 Only ask for the risk profile after system context is known.
 
@@ -188,6 +196,14 @@ If the user says yes, ask for:
 - cadence (daily/weekly), preferred time window, and output location
 - whether to also schedule `openclaw update status`
 
+Use a stable cron job name so updates are deterministic. Prefer exact names:
+
+- `healthcheck:security-audit`
+- `healthcheck:update-status`
+
+Before creating, `openclaw cron list` and match on exact `name`. If found, `openclaw cron edit <id> ...`.
+If not found, `openclaw cron add --name <name> ...`.
+
 Also offer a periodic version check so the user can decide when to update (numbered):
 
 1. `openclaw update status` (preferred for source checkouts and channels)
@@ -216,15 +232,20 @@ Record:
 
 Redact secrets. Never log tokens or full credential contents.
 
-## Memory writes (required)
+## Memory writes (conditional)
+
+Only write to memory files when the user explicitly opts in and the session is a private/local workspace
+(per `docs/reference/templates/AGENTS.md`). Otherwise provide a redacted, paste-ready summary the user can
+decide to save elsewhere.
 
 Follow the durable-memory prompt format used by OpenClaw compaction:
 
 - Write lasting notes to `memory/YYYY-MM-DD.md`.
 
-After each audit/hardening run, append a short, dated summary to `memory/YYYY-MM-DD.md`
+After each audit/hardening run, if opted-in, append a short, dated summary to `memory/YYYY-MM-DD.md`
 (what was checked, key findings, actions taken, any scheduled cron jobs, key decisions,
 and all commands executed). Append-only: never overwrite existing entries.
+Redact sensitive host details (usernames, hostnames, IPs, serials, service names, tokens).
 If there are durable preferences or decisions (risk posture, allowed ports, update policy),
 also update `MEMORY.md` (long-term memory is optional and only used in private sessions).
 
