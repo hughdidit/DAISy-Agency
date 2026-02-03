@@ -263,6 +263,7 @@ upsert_env "$ENV_FILE" \
   CLAWDBOT_DOCKER_APT_PACKAGES
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 echo "==> Building Docker image: $IMAGE_NAME"
 docker build \
   --build-arg "CLAWDBOT_DOCKER_APT_PACKAGES=${CLAWDBOT_DOCKER_APT_PACKAGES}" \
@@ -271,6 +272,9 @@ docker build \
   "$ROOT_DIR"
 =======
 if [ "$IMAGE_NAME" == "openclaw:local" ]; then
+=======
+if [[ "$IMAGE_NAME" == "openclaw:local" ]]; then
+>>>>>>> c7f88e85b (feature/OPENCLAW_IMAGE)
   echo "==> Building Docker image: $IMAGE_NAME"
   docker build \
     --build-arg "OPENCLAW_DOCKER_APT_PACKAGES=${OPENCLAW_DOCKER_APT_PACKAGES}" \
