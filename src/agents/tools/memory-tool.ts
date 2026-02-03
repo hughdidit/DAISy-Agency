@@ -1,19 +1,26 @@
 import { Type } from "@sinclair/typebox";
-
 import type { MoltbotConfig } from "../../config/config.js";
 <<<<<<< HEAD
 =======
 import type { MemoryCitationsMode } from "../../config/types.memory.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 =======
+=======
+import type { MemorySearchResult } from "../../memory/types.js";
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 9bef52594 (chore: apply formatter)
 import { resolveMemoryBackendConfig } from "../../memory/backend-config.js";
 >>>>>>> 1861e7636 (Memory: clamp QMD citations to injected budget)
 import { getMemorySearchManager } from "../../memory/index.js";
+<<<<<<< HEAD
 import type { MemorySearchResult } from "../../memory/types.js";
+=======
+import { parseAgentSessionKey } from "../../routing/session-key.js";
+>>>>>>> 9bef52594 (chore: apply formatter)
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveMemorySearchConfig } from "../memory-search.js";
-import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 
 const MemorySearchSchema = Type.Object({
@@ -204,7 +211,15 @@ function deriveChatTypeFromSessionKey(sessionKey?: string): "direct" | "group" |
   if (!sessionKey) {
     return "direct";
   }
+<<<<<<< HEAD
   if (sessionKey.includes(":group:")) {
+=======
+  const tokens = parsed.rest.toLowerCase().split(":").filter(Boolean);
+  if (tokens.includes("channel")) {
+    return "channel";
+  }
+  if (tokens.includes("group")) {
+>>>>>>> 9bef52594 (chore: apply formatter)
     return "group";
   }
   if (sessionKey.includes(":channel:")) {

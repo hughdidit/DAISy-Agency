@@ -1,9 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { createSubsystemLogger } from "../logging/subsystem.js";
+=======
+>>>>>>> 9bef52594 (chore: apply formatter)
 import type { MoltbotConfig } from "../config/config.js";
-import { resolveMemoryBackendConfig } from "./backend-config.js";
 import type { ResolvedQmdConfig } from "./backend-config.js";
 <<<<<<< HEAD
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
@@ -15,6 +17,8 @@ import type {
   MemorySearchManager,
   MemorySyncProgressUpdate,
 } from "./types.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { resolveMemoryBackendConfig } from "./backend-config.js";
 
 const log = createSubsystemLogger("memory");
 const QMD_MANAGER_CACHE = new Map<string, MemorySearchManager>();

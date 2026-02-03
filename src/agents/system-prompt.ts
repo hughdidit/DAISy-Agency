@@ -1,12 +1,17 @@
 import type { ReasoningLevel, ThinkLevel } from "../auto-reply/thinking.js";
+<<<<<<< HEAD
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import { listDeliverableMessageChannels } from "../utils/message-channel.js";
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> 9bef52594 (chore: apply formatter)
 import type { MemoryCitationsMode } from "../config/types.memory.js";
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 import type { ResolvedTimeFormat } from "./date-time.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
+import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
+import { listDeliverableMessageChannels } from "../utils/message-channel.js";
 
 /**
  * Controls which hardcoded sections are included in the system prompt.
