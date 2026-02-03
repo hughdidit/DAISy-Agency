@@ -1,62 +1,38 @@
 name: Verify
 
 on:
-  workflow_call:
-    inputs:
-      environment:
-        description: "Target environment"
-        required: true
-        type: string
-      deployed_ref:
-        description: "Resolved image ref that was deployed"
-        required: true
-        type: string
-      dry_run:
-        description: "If true, do not perform real verification"
-        required: false
-        type: boolean
-        default: true
   workflow_dispatch:
     inputs:
       environment:
-        description: "Target environment"
         required: true
         type: choice
-        options:
-          - staging
-          - production
+        options: [staging, production]
       deployed_ref:
-        description: "Deployed ref to verify"
-        required: true
+        required: false
+        type: string
   workflow_call:
     inputs:
       environment:
-        description: "Target environment"
         required: true
         type: string
       deployed_ref:
-        description: "Deployed ref to verify"
-        required: true
+        required: false
         type: string
+    secrets: inherit
 
 permissions:
   contents: read
 
+concurrency:
+  group: verify-${{ inputs.environment }}
+  cancel-in-progress: true
+
 jobs:
   verify:
-    name: Verify ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-
     steps:
-      - name: Checkout (for scripts)
-        uses: actions/checkout@v4
-
-      - name: Verify
-        env:
-          VERIFY_ENV: ${{ inputs.environment }}
-          DEPLOYED_REF: ${{ inputs.deployed_ref }}
-          DRY_RUN: ${{ inputs.dry_run }}
-        run: |
+      - uses: actions/checkout@v4
+      - run: |
           chmod +x scripts/verify.sh
-          ./scripts/verify.sh
+          DEPLOYED_REF="${{ inputs.deployed_ref }}" scripts/verify.sh

@@ -1,28 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-META_PATH="${1:-}"
-if [[ -z "${META_PATH}" || ! -f "${META_PATH}" ]]; then
-  echo "Usage: $0 <path-to-release-metadata.json>" >&2
-  exit 2
+if [[ "${1:-}" == "--resolve-only" ]]; then
+  META_PATH="${2:?metadata path required}"
+  RESOLVE_ONLY="true"
+else
+  META_PATH="${1:?metadata path required}"
+  RESOLVE_ONLY="false"
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-READ_META="${SCRIPT_DIR}/read-release-metadata.sh"
-if [[ ! -f "${READ_META}" ]]; then
-  echo "Missing helper script: ${READ_META}" >&2
-  exit 2
-fi
+chmod +x scripts/read-release-metadata.sh
 
-IMAGE="$("${READ_META}" "${META_PATH}" image)"
-if [[ -z "${IMAGE}" ]]; then
-  echo "ERROR: release metadata is missing required field: image" >&2
+IMAGE="$(scripts/read-release-metadata.sh "$META_PATH" image)"
+DIGEST="$(scripts/read-release-metadata.sh "$META_PATH" digest)"
+FIRST_TAG="$(scripts/read-release-metadata.sh "$META_PATH" first_tag)"
+
+if [[ -z "${IMAGE//[[:space:]]/}" ]]; then
+  echo "ERROR: release metadata missing required field: image" >&2
   exit 3
 fi
-DIGEST="$("${READ_META}" "${META_PATH}" digest)"
-FIRST_TAG="$("${READ_META}" "${META_PATH}" first_tag)"
 
-RESOLVED_REF=""
 if [[ -n "${IMAGE_REF_OVERRIDE:-}" ]]; then
   RESOLVED_REF="${IMAGE_REF_OVERRIDE}"
 elif [[ -n "${DIGEST}" ]]; then
@@ -34,22 +31,14 @@ else
   exit 3
 fi
 
-echo "DEPLOY_REF=${RESOLVED_REF}"
-if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-  echo "deployed_ref=${RESOLVED_REF}" >> "${GITHUB_OUTPUT}"
+if [[ "${RESOLVE_ONLY}" == "true" ]]; then
+  echo "${RESOLVED_REF}"
+  exit 0
 fi
 
-echo "=== Patchbot Deploy ==="
 echo "DEPLOY_ENV: ${DEPLOY_ENV:-<unset>}"
 echo "DRY_RUN:    ${DRY_RUN:-<unset>}"
-echo "IMAGE:      ${IMAGE}"
-echo "DIGEST:     ${DIGEST:-<none>}"
 echo "DEPLOY_REF: ${RESOLVED_REF}"
-echo "DEPLOY_REF=${RESOLVED_REF}"
-
-if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-  echo "deploy_ref=${RESOLVED_REF}" >> "${GITHUB_OUTPUT}"
-fi
 
 if [[ "${DRY_RUN:-true}" == "true" ]]; then
   echo "Dry-run enabled: no deployment performed."
@@ -59,6 +48,6 @@ fi
 : "${DEPLOY_TARGET:?DEPLOY_TARGET is required for real deploy}"
 : "${DEPLOY_TOKEN:?DEPLOY_TOKEN is required for real deploy}"
 
-echo "Real deploy requested, but deploy is not implemented yet."
-echo "TODO: deploy ${RESOLVED_REF} to ${DEPLOY_TARGET} using environment-scoped credentials."
+# TODO: implement real deployment steps for your infra
+echo "Real deploy requested, but deployment is not implemented yet."
 exit 1
