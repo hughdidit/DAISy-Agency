@@ -9,14 +9,14 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Run release without pushing images"
+        description: "Build only; do not push"
         required: false
         default: "false"
       ref:
-        description: "Git ref to build (branch, tag, or SHA)"
+        description: "Branch/tag/SHA to build (optional)"
         required: false
       image_tag:
-        description: "Override image tag"
+        description: "Override canonical tag (optional)"
         required: false
 
 permissions:
@@ -30,7 +30,8 @@ concurrency:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  PUSH_ENABLED: ${{ (github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/daisy/main')) || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
+  BUILD_REF: ${{ (github.event_name == 'workflow_dispatch' && inputs.ref) || github.ref }}
+  PUSH_ENABLED: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true' && (startsWith(env.BUILD_REF, 'refs/tags/v') || env.BUILD_REF == 'refs/heads/daisy/main')) }}
 
 jobs:
   # Build amd64 image
@@ -61,15 +62,15 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}},suffix=-amd64,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
-            type=raw,value=latest,suffix=-amd64,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
-            type=sha,prefix=main-,suffix=-amd64,enable=${{ github.ref == 'refs/heads/daisy/main' }}
+            type=semver,pattern={{version}},suffix=-amd64,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
+            type=raw,value=latest,suffix=-amd64,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
+            type=sha,prefix=main-,suffix=-amd64,enable=${{ env.BUILD_REF == 'refs/heads/daisy/main' }}
 
       - name: Assert tags are generated
         if: ${{ inputs.dry_run != 'true' }}
         run: |
           if [ -z "${{ steps.meta.outputs.tags }}" ]; then
-            echo "No docker tags were generated for amd64 build." >&2
+            echo "ERROR: No Docker tags generated. Check metadata tag rules and triggers."
             exit 1
           fi
 
@@ -83,9 +84,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          provenance: ${{ env.PUSH_ENABLED }}
-          sbom: ${{ env.PUSH_ENABLED }}
-          push: ${{ env.PUSH_ENABLED }}
+          provenance: ${{ inputs.dry_run != 'true' }}
+          sbom: ${{ inputs.dry_run != 'true' }}
+          push: ${{ inputs.dry_run != 'true' }}
 
   # Build arm64 image
   build-arm64:
@@ -115,15 +116,15 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}},suffix=-arm64,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
-            type=raw,value=latest,suffix=-arm64,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
-            type=sha,prefix=main-,suffix=-arm64,enable=${{ github.ref == 'refs/heads/daisy/main' }}
+            type=semver,pattern={{version}},suffix=-arm64,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
+            type=raw,value=latest,suffix=-arm64,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
+            type=sha,prefix=main-,suffix=-arm64,enable=${{ env.BUILD_REF == 'refs/heads/daisy/main' }}
 
       - name: Assert tags are generated
         if: ${{ inputs.dry_run != 'true' }}
         run: |
           if [ -z "${{ steps.meta.outputs.tags }}" ]; then
-            echo "No docker tags were generated for arm64 build." >&2
+            echo "ERROR: No Docker tags generated. Check metadata tag rules and triggers."
             exit 1
           fi
 
@@ -137,14 +138,15 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          provenance: ${{ env.PUSH_ENABLED }}
-          sbom: ${{ env.PUSH_ENABLED }}
-          push: ${{ env.PUSH_ENABLED }}
+          provenance: ${{ inputs.dry_run != 'true' }}
+          sbom: ${{ inputs.dry_run != 'true' }}
+          push: ${{ inputs.dry_run != 'true' }}
 
   # Create multi-platform manifest
   create-manifest:
     runs-on: ubuntu-latest
     needs: [build-amd64, build-arm64]
+    if: env.PUSH_ENABLED == 'true'
     steps:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -159,26 +161,26 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
-            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
-            type=sha,prefix=main-,enable=${{ github.ref == 'refs/heads/daisy/main' }}
+            type=semver,pattern={{version}},enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
+            type=raw,value=latest,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
+            type=sha,prefix=main-,enable=${{ env.BUILD_REF == 'refs/heads/daisy/main' }}
 
       - name: Assert tags are generated
         run: |
           if [ -z "${{ steps.meta.outputs.tags }}" ]; then
-            echo "No docker tags were generated for manifest." >&2
+            echo "ERROR: No Docker tags generated. Check metadata tag rules and triggers."
             exit 1
           fi
 
       - name: Create and push manifest
-        if: env.PUSH_ENABLED == 'true'
         run: |
           set -euo pipefail
 
           IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
           TAG_VERSION="${{ steps.meta.outputs.version }}"
-          IS_TAG="${{ startsWith(github.ref, 'refs/tags/v') }}"
-          IS_MAIN="${{ github.ref == 'refs/heads/daisy/main' }}"
+          IS_TAG="${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}"
+          # Note: daisy/main is the production branch for this repository.
+          IS_MAIN="${{ env.BUILD_REF == 'refs/heads/daisy/main' }}"
 
           if [ "${IS_TAG}" = "true" ]; then
             docker buildx imagetools create \
@@ -197,7 +199,6 @@ jobs:
           fi
 
       - name: Write release metadata
-        if: env.PUSH_ENABLED == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -213,9 +214,9 @@ jobs:
 
           TAG_VERSION="${{ steps.meta.outputs.version || '' }}"
           SHORTSHA="$(echo "${GITHUB_SHA}" | cut -c1-7)"
-          IS_TAG="${{ startsWith(github.ref, 'refs/tags/v') }}"
+          IS_TAG="${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}"
           # Note: 'daisy/main' is this repository's primary branch, so we treat it as "main".
-          IS_MAIN="${{ github.ref == 'refs/heads/daisy/main' }}"
+          IS_MAIN="${{ env.BUILD_REF == 'refs/heads/daisy/main' }}"
 
           TAGS_JSON="[]"
           if [[ "${IS_TAG}" == "true" ]]; then
@@ -275,7 +276,6 @@ jobs:
           cat dist/release/release-metadata.json
 
       - name: Upload release metadata artifact
-        if: env.PUSH_ENABLED == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: release-metadata
