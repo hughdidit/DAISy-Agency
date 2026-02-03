@@ -56,7 +56,16 @@ Reference:
 - Secrets and environment approvals:
   https://docs.github.com/en/actions/concepts/security/secrets
 
----
+#### Secrets format
+
+- `DEPLOY_TARGET`: SSH target for the GCP VM (for example, `DAISy@203.0.113.10`).
+- `DEPLOY_TOKEN`: SSH private key (raw PEM or base64-encoded).
+
+Optional environment overrides:
+
+- `DEPLOY_DIR`: directory on the VM containing `docker-compose.yml` (defaults to `/opt/DAISy`).
+
+## Deploy workflow
 
 ## Secrets (IAP-only + Workload Identity Federation)
 
@@ -92,6 +101,9 @@ References:
 ---
 
 ## Workflows overview
+- Dry run exits successfully after printing the resolved image reference.
+- Real deploy SSHes to the target VM, sets `DAISy_IMAGE` to the resolved ref, runs `docker compose pull`, then `docker compose up -d --remove-orphans`.
+- The deploy fails if Docker is missing or `docker-compose.yml` is not found under `DEPLOY_DIR`.
 
 ### Docker release
 Builds and publishes the multi-arch image, then uploads an artifact:
