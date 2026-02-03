@@ -22,11 +22,24 @@ Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 - Onboarding: keep TUI flow exclusive (skip completion prompt + background Web UI seed).
 - TUI: block onboarding output while TUI is active and restore terminal state on exit.
 >>>>>>> 58d5b39c9 (Onboarding: keep TUI flow exclusive)
+=======
+- Security: require operator.approvals for gateway /approve commands. (#1) Thanks @mitsuhiko, @yueyueL.
+- Security: Matrix allowlists now require full MXIDs; ambiguous name resolution no longer grants access. Thanks @MegaManSec.
+- Security: enforce access-group gating for Slack slash commands when channel type lookup fails.
+- Security: require validated shared-secret auth before skipping device identity on gateway connect.
+- Security: guard skill installer downloads with SSRF checks (block private/localhost URLs).
+- Security: harden Windows exec allowlist; block cmd.exe bypass via single &. Thanks @simecek.
+- Media understanding: apply SSRF guardrails to provider fetches; allow private baseUrl overrides explicitly.
+- fix(voice-call): harden inbound allowlist; reject anonymous callers; require Telnyx publicKey for allowlist; token-gate Twilio media streams; cap webhook body size (thanks @simecek)
+- fix(webchat): respect user scroll position during streaming and refresh (#7226) (thanks @marcomarandiz)
+- Telegram: recover from grammY long-poll timed out errors. (#7466) Thanks @macmimi23.
+>>>>>>> d41acf99a (test: add /approve gateway scope coverage (#1) (thanks @mitsuhiko))
 - Agents: repair malformed tool calls and session transcripts. (#7473) Thanks @justinhuangcode.
 - fix(agents): validate AbortSignal instances before calling AbortSignal.any() (#7277) (thanks @Elarwei001)
 - fix(webchat): respect user scroll position during streaming and refresh (#7226) (thanks @marcomarandiz)
