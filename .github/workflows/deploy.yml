@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     outputs:
-      deployed_ref: ${{ steps.resolve_ref.outputs.deployed_ref }}
+      deployed_ref: ${{ steps.deploy.outputs.deployed_ref }}
 
     steps:
       - name: Checkout (for scripts)
@@ -88,33 +88,8 @@ jobs:
           ls -la dist/release
           cat dist/release/release-metadata.json
 
-      - name: Resolve deployed ref
-        id: resolve_ref
-        shell: bash
-        env:
-          IMAGE_REF_OVERRIDE: ${{ inputs.image_ref }}
-        run: |
-          set -euo pipefail
-          META_PATH="dist/release/release-metadata.json"
-          IMAGE="$(./scripts/read-release-metadata.sh "${META_PATH}" image)"
-          DIGEST="$(./scripts/read-release-metadata.sh "${META_PATH}" digest)"
-          FIRST_TAG="$(./scripts/read-release-metadata.sh "${META_PATH}" first_tag)"
-
-          if [[ -n "${IMAGE_REF_OVERRIDE:-}" ]]; then
-            RESOLVED_REF="${IMAGE_REF_OVERRIDE}"
-          elif [[ -n "${DIGEST}" ]]; then
-            RESOLVED_REF="${IMAGE}@${DIGEST}"
-          elif [[ -n "${FIRST_TAG}" ]]; then
-            RESOLVED_REF="${IMAGE}:${FIRST_TAG}"
-          else
-            echo "ERROR: No image reference available (no override, no digest, no tags)." >&2
-            exit 3
-          fi
-
-          echo "Resolved deploy ref: ${RESOLVED_REF}"
-          echo "deployed_ref=${RESOLVED_REF}" >> "${GITHUB_OUTPUT}"
-
       - name: Deploy
+        id: deploy
         env:
           DEPLOY_ENV: ${{ inputs.environment }}
           DRY_RUN: ${{ inputs.dry_run }}
