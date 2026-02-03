@@ -380,6 +380,7 @@ export const MoltbotSchema = z
           .object({
             enabled: z.boolean().optional(),
             basePath: z.string().optional(),
+            root: z.string().optional(),
             allowInsecureAuth: z.boolean().optional(),
             dangerouslyDisableDeviceAuth: z.boolean().optional(),
           })
