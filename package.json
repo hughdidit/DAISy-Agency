@@ -21,11 +21,16 @@
     "clawdbot": "./moltbot.mjs"
   },
   "files": [
+    "assets/",
     "CHANGELOG.md",
+    "dist/",
+    "docs/",
+    "extensions/",
     "LICENSE",
     "openclaw.mjs",
     "README-header.png",
     "README.md",
+<<<<<<< HEAD
     "assets/**",
     "dist/*.js",
     "dist/*.json",
@@ -107,6 +112,9 @@
     "dist/web/**",
     "dist/whatsapp/**",
     "dist/wizard/**"
+=======
+    "skills/"
+>>>>>>> 6fb2d3d7d (feat: remove slop.)
   ],
   "type": "module",
   "main": "dist/index.js",
@@ -236,7 +244,6 @@
     "openclaw": "node scripts/run-node.mjs",
     "openclaw:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
     "plugins:sync": "node --import tsx scripts/sync-plugin-versions.ts",
-    "postinstall": "node scripts/postinstall.js",
     "prepack": "pnpm build && pnpm ui:build",
     "protocol:check": "pnpm protocol:gen && pnpm protocol:gen:swift && git diff --exit-code -- dist/protocol.schema.json apps/macos/Sources/OpenClawProtocol/GatewayModels.swift",
     "protocol:gen": "node --import tsx scripts/protocol-gen.ts",

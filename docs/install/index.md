@@ -76,9 +76,18 @@ If you see `sharp: Please add node-gyp to your dependencies`, either install bui
 Or:
 
 ```bash
+<<<<<<< HEAD
 pnpm add -g moltbot@latest
 ```
 
+=======
+pnpm add -g openclaw@latest
+pnpm approve-builds -g                # approve openclaw, node-llama-cpp, sharp, etc.
+```
+
+pnpm requires explicit approval for packages with build scripts. After the first install shows the "Ignored build scripts" warning, run `pnpm approve-builds -g` and select the listed packages.
+
+>>>>>>> 6fb2d3d7d (feat: remove slop.)
 Then:
 
 ```bash
