@@ -247,6 +247,7 @@ export async function handleDiscordMessagingAction(
         const result = await sendVoiceMessageDiscord(to, mediaUrl, {
           ...(accountId ? { accountId } : {}),
           replyTo,
+          silent,
         });
         return jsonResult({ ok: true, result, voiceMessage: true });
       }
