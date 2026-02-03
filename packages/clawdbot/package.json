@@ -18,6 +18,7 @@
     "./plugin-sdk": "./plugin-sdk/index.js"
   },
 <<<<<<< HEAD
+<<<<<<< HEAD
   "bin": {
     "moltbot": "./bin/moltbot.js"
 =======
@@ -25,6 +26,8 @@
     "postinstall": "node ./scripts/postinstall.js"
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   },
+=======
+>>>>>>> 6fb2d3d7d (feat: remove slop.)
   "dependencies": {
     "moltbot": "workspace:*"
   }
