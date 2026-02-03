@@ -78,6 +78,12 @@ These are **environment secrets** (set separately under `staging` and `productio
 - `GCP_SERVICE_ACCOUNT`  
   Service account email to impersonate (e.g. `deploy-bot@project.iam.gserviceaccount.com`)
 
+**GCP auth via JSON service account key (required by deploy workflow):**
+- `GCP_CREDENTIALS`  
+  JSON service account key (stored as a secret string).
+- `GCP_PROJECT_ID`  
+  GCP project id hosting the deployment VM.
+
 **Target VM identity:**
 - `GCP_PROJECT_ID`
 - `GCP_ZONE`
