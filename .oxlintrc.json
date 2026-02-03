@@ -20,11 +20,14 @@
     "oxc/no-async-endpoint-handlers": "off",
     "oxc/no-map-spread": "off",
     "typescript/no-extraneous-class": "off",
+<<<<<<< HEAD
     "typescript/no-redundant-type-constituents": "off",
 <<<<<<< HEAD
     "typescript/no-unnecessary-template-expression": "off",
 =======
 >>>>>>> 34dd7324d (fix: restore lint/build gates)
+=======
+>>>>>>> 425003417 (fix: Remove `tsconfig.oxlint.json` AGAIN.)
     "typescript/no-unsafe-type-assertion": "off",
     "unicorn/consistent-function-scoping": "off",
     "unicorn/require-post-message-target-origin": "off"

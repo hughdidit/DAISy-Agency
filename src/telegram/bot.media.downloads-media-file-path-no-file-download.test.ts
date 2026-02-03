@@ -14,8 +14,12 @@ const describeStickerImageSpy = vi.fn();
 =======
 const resolvePinnedHostname = ssrf.resolvePinnedHostname;
 const lookupMock = vi.fn();
+<<<<<<< HEAD
 let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> | null = null;
 >>>>>>> 9bd64c8a1 (fix: expand SSRF guard coverage)
+=======
+let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> = null;
+>>>>>>> 425003417 (fix: Remove `tsconfig.oxlint.json` AGAIN.)
 
 type ApiStub = {
   config: { use: (arg: unknown) => void };

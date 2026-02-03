@@ -9,6 +9,31 @@ const resolveRequestUrl = (input: RequestInfo | URL) => {
 };
 
 describe("describeGeminiVideo", () => {
+<<<<<<< HEAD
+=======
+  let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    resolvePinnedHostnameSpy = vi
+      .spyOn(ssrf, "resolvePinnedHostnameWithPolicy")
+      .mockImplementation(async (hostname) => {
+        // SSRF guard pins DNS; stub resolution to avoid live lookups in unit tests.
+        const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
+        const addresses = [TEST_NET_IP];
+        return {
+          hostname: normalized,
+          addresses,
+          lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
+        };
+      });
+  });
+
+  afterEach(() => {
+    resolvePinnedHostnameSpy?.mockRestore();
+    resolvePinnedHostnameSpy = undefined;
+  });
+
+>>>>>>> 425003417 (fix: Remove `tsconfig.oxlint.json` AGAIN.)
   it("respects case-insensitive x-goog-api-key overrides", async () => {
     let seenKey: string | null = null;
     const fetchFn = async (_input: RequestInfo | URL, init?: RequestInit) => {
