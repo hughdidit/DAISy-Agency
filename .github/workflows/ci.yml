@@ -89,9 +89,12 @@ jobs:
           - runtime: bun
             task: test
             command: pnpm canvas:a2ui:bundle && bunx vitest run
+<<<<<<< HEAD
           - runtime: bun
             task: build
             command: bunx tsc -p tsconfig.json
+=======
+>>>>>>> a8893094e (fix: CI: We no longer need to test the tsc build with Bun, we are always using `tsdown` to build now.)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
