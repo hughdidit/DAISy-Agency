@@ -32,6 +32,7 @@ Docs: https://docs.openclaw.ai
 - fix(webchat): respect user scroll position during streaming and refresh (#7226) (thanks @marcomarandiz)
 - Telegram: recover from grammY long-poll timed out errors. (#7466) Thanks @macmimi23.
 - Media understanding: skip binary media from file text extraction. (#7475) Thanks @AlexZhangji.
+<<<<<<< HEAD
 - Security: enforce access-group gating for Slack slash commands when channel type lookup fails.
 <<<<<<< HEAD
 >>>>>>> fff59da96 (fix(slack): fail closed on slash command channel type lookup)
@@ -40,6 +41,13 @@ Docs: https://docs.openclaw.ai
 >>>>>>> fe81b1d71 (fix(gateway): require shared auth before device bypass)
 - Security: guard skill installer downloads with SSRF checks (block private/localhost URLs).
 - Media understanding: apply SSRF guardrails to provider fetches; allow private baseUrl overrides explicitly.
+=======
+- Onboarding: keep TUI flow exclusive (skip completion prompt + background Web UI seed); completion prompt now handled by install/update.
+- TUI: block onboarding output while TUI is active and restore terminal state on exit.
+- CLI/Zsh completion: cache scripts in state dir and escape option descriptions to avoid invalid option errors.
+- fix(ui): resolve Control UI asset path correctly.
+- Docs: finish renaming the QMD memory docs to reference the OpenClaw state dir.
+>>>>>>> f60eae83f (fix(skills): warn when bundled dir missing)
 - Tests: stub SSRF DNS pinning in web auto-reply + Gemini video coverage. (#6619) Thanks @joshp123.
 
 ## 2026.2.1
