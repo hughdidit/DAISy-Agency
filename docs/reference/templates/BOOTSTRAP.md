@@ -37,6 +37,19 @@ Then open `SOUL.md` together and talk about:
 
 Write it down. Make it real.
 
+<<<<<<< HEAD
+=======
+## One-time system admin check
+
+Since this is a new install, run the recommended host healthcheck using the `healthcheck` skill.
+At minimum, run:
+
+- `openclaw security audit --deep`
+- `openclaw update status`
+
+Offer to set up an OpenClaw cron job for ongoing monitoring.
+
+>>>>>>> 7dfa99a6f (chore: fix formatting)
 ## Connect (Optional)
 
 Ask how they want to reach you:
