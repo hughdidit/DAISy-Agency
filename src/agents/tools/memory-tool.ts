@@ -2,6 +2,11 @@ import { Type } from "@sinclair/typebox";
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { getMemorySearchManager } from "../../memory/index.js";
+<<<<<<< HEAD
+=======
+import type { MemorySearchResult } from "../../memory/types.js";
+import { parseAgentSessionKey } from "../../routing/session-key.js";
+>>>>>>> edd6289f2 (fix: derive citations chat type via session parser)
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveMemorySearchConfig } from "../memory-search.js";
 import type { AnyAgentTool } from "./common.js";
@@ -110,3 +115,92 @@ export function createMemoryGetTool(options: {
     },
   };
 }
+<<<<<<< HEAD
+=======
+
+function resolveMemoryCitationsMode(cfg: MoltbotConfig): MemoryCitationsMode {
+  const mode = cfg.memory?.citations;
+  if (mode === "on" || mode === "off" || mode === "auto") {
+    return mode;
+  }
+  return "auto";
+}
+
+function decorateCitations(results: MemorySearchResult[], include: boolean): MemorySearchResult[] {
+  if (!include) {
+    return results.map((entry) => ({ ...entry, citation: undefined }));
+  }
+  return results.map((entry) => {
+    const citation = formatCitation(entry);
+    const snippet = `${entry.snippet.trim()}\n\nSource: ${citation}`;
+    return { ...entry, citation, snippet };
+  });
+}
+
+function formatCitation(entry: MemorySearchResult): string {
+  const lineRange =
+    entry.startLine === entry.endLine
+      ? `#L${entry.startLine}`
+      : `#L${entry.startLine}-L${entry.endLine}`;
+  return `${entry.path}${lineRange}`;
+}
+
+function clampResultsByInjectedChars(
+  results: MemorySearchResult[],
+  budget?: number,
+): MemorySearchResult[] {
+  if (!budget || budget <= 0) {
+    return results;
+  }
+  let remaining = budget;
+  const clamped: MemorySearchResult[] = [];
+  for (const entry of results) {
+    if (remaining <= 0) {
+      break;
+    }
+    const snippet = entry.snippet ?? "";
+    if (snippet.length <= remaining) {
+      clamped.push(entry);
+      remaining -= snippet.length;
+    } else {
+      const trimmed = snippet.slice(0, Math.max(0, remaining));
+      clamped.push({ ...entry, snippet: trimmed });
+      break;
+    }
+  }
+  return clamped;
+}
+
+function shouldIncludeCitations(params: {
+  mode: MemoryCitationsMode;
+  sessionKey?: string;
+}): boolean {
+  if (params.mode === "on") {
+    return true;
+  }
+  if (params.mode === "off") {
+    return false;
+  }
+  // auto: show citations in direct chats; suppress in groups/channels by default.
+  const chatType = deriveChatTypeFromSessionKey(params.sessionKey);
+  return chatType === "direct";
+}
+
+function deriveChatTypeFromSessionKey(sessionKey?: string): "direct" | "group" | "channel" {
+  const parsed = parseAgentSessionKey(sessionKey);
+  if (!parsed?.rest) {
+    return "direct";
+  }
+  const tokens = parsed.rest
+    .toLowerCase()
+    .split(":")
+    .filter(Boolean);
+  if (tokens.includes("channel")) {
+    return "channel";
+  }
+  if (tokens.includes("group")) {
+    return "group";
+  }
+  return "direct";
+}
+>>>>>>> edd6289f2 (fix: derive citations chat type via session parser)
