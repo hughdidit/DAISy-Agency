@@ -10,7 +10,7 @@ import { parseAgentSessionKey } from "../../../src/sessions/session-key-utils.js
 import type { MoltbotApp } from "./app";
 import type { ChatAttachment, ChatQueueItem } from "./ui-types";
 
-type ChatHost = {
+export type ChatHost = {
   connected: boolean;
   chatMessage: string;
   chatAttachments: ChatAttachment[];
