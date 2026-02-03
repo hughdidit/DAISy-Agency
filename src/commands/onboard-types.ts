@@ -44,6 +44,12 @@ export type AuthChoice =
   | "copilot-proxy"
   | "qwen-portal"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  | "xai-api-key"
+  | "volcengine-api-key"
+  | "byteplus-api-key"
+>>>>>>> 559736a5a (feat(volcengine): integrate Volcengine & Byteplus Provider)
   | "qianfan-api-key"
 <<<<<<< HEAD
 =======
@@ -76,6 +82,8 @@ export type AuthChoiceGroupId =
   | "huggingface"
   | "qianfan"
   | "xai"
+  | "volcengine"
+  | "byteplus"
   | "custom";
 export type GatewayAuthChoice = "token" | "password";
 export type ResetScope = "config" | "config+creds+sessions" | "full";
@@ -124,6 +132,12 @@ export type OnboardOptions = {
   huggingfaceApiKey?: string;
   opencodeZenApiKey?: string;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  xaiApiKey?: string;
+  volcengineApiKey?: string;
+  byteplusApiKey?: string;
+>>>>>>> 559736a5a (feat(volcengine): integrate Volcengine & Byteplus Provider)
   qianfanApiKey?: string;
 <<<<<<< HEAD
 =======

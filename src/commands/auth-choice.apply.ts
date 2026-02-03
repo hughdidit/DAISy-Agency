@@ -1,8 +1,10 @@
 import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
+import type { AuthChoice, OnboardOptions } from "./onboard-types.js";
 import { applyAuthChoiceAnthropic } from "./auth-choice.apply.anthropic.js";
 import { applyAuthChoiceApiProviders } from "./auth-choice.apply.api-providers.js";
+import { applyAuthChoiceBytePlus } from "./auth-choice.apply.byteplus.js";
 import { applyAuthChoiceCopilotProxy } from "./auth-choice.apply.copilot-proxy.js";
 import { applyAuthChoiceGitHubCopilot } from "./auth-choice.apply.github-copilot.js";
 import { applyAuthChoiceGoogleAntigravity } from "./auth-choice.apply.google-antigravity.js";
@@ -27,7 +29,9 @@ import type { AuthChoice } from "./onboard-types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { applyAuthChoiceVllm } from "./auth-choice.apply.vllm.js";
+import { applyAuthChoiceVolcengine } from "./auth-choice.apply.volcengine.js";
 import { applyAuthChoiceXAI } from "./auth-choice.apply.xai.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -40,6 +44,8 @@ import type { AuthChoice } from "./onboard-types.js";
 =======
 import type { AuthChoice } from "./onboard-types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+>>>>>>> 559736a5a (feat(volcengine): integrate Volcengine & Byteplus Provider)
 
 export type ApplyAuthChoiceParams = {
   authChoice: AuthChoice;
@@ -49,14 +55,7 @@ export type ApplyAuthChoiceParams = {
   agentDir?: string;
   setDefaultModel: boolean;
   agentId?: string;
-  opts?: {
-    tokenProvider?: string;
-    token?: string;
-    cloudflareAiGatewayAccountId?: string;
-    cloudflareAiGatewayGatewayId?: string;
-    cloudflareAiGatewayApiKey?: string;
-    xaiApiKey?: string;
-  };
+  opts?: Partial<OnboardOptions>;
 };
 
 export type ApplyAuthChoiceResult = {
@@ -80,6 +79,8 @@ export async function applyAuthChoice(
     applyAuthChoiceCopilotProxy,
     applyAuthChoiceQwenPortal,
     applyAuthChoiceXAI,
+    applyAuthChoiceVolcengine,
+    applyAuthChoiceBytePlus,
   ];
 
   for (const handler of handlers) {

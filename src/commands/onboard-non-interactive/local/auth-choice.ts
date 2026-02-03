@@ -92,6 +92,7 @@ import {
   resolveCustomProviderId,
 } from "../../onboard-custom.js";
 import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
+import { applyPrimaryModel } from "../../model-picker.js";
 import { applyOpenAIConfig } from "../../openai-model-default.js";
 <<<<<<< HEAD
 >>>>>>> 029b77c85 (onboard: support custom provider in non-interactive flow (#14223))
@@ -389,7 +390,79 @@ export async function applyNonInteractiveAuthChoice(params: {
       mode: "api_key",
     });
     return applyXaiConfig(nextConfig);
+<<<<<<< HEAD
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
+=======
+  }
+
+  if (authChoice === "volcengine-api-key") {
+    const resolved = await resolveNonInteractiveApiKey({
+      provider: "volcengine",
+      cfg: baseConfig,
+      flagValue: opts.volcengineApiKey,
+      flagName: "--volcengine-api-key",
+      envVar: "VOLCANO_ENGINE_API_KEY",
+      runtime,
+    });
+    if (!resolved) {
+      return null;
+    }
+    if (resolved.source !== "profile") {
+      const result = upsertSharedEnvVar({
+        key: "VOLCANO_ENGINE_API_KEY",
+        value: resolved.key,
+      });
+      process.env.VOLCANO_ENGINE_API_KEY = resolved.key;
+      runtime.log(`Saved VOLCANO_ENGINE_API_KEY to ${shortenHomePath(result.path)}`);
+    }
+    return applyPrimaryModel(nextConfig, "volcengine-plan/ark-code-latest");
+  }
+
+  if (authChoice === "byteplus-api-key") {
+    const resolved = await resolveNonInteractiveApiKey({
+      provider: "byteplus",
+      cfg: baseConfig,
+      flagValue: opts.byteplusApiKey,
+      flagName: "--byteplus-api-key",
+      envVar: "BYTEPLUS_API_KEY",
+      runtime,
+    });
+    if (!resolved) {
+      return null;
+    }
+    if (resolved.source !== "profile") {
+      const result = upsertSharedEnvVar({
+        key: "BYTEPLUS_API_KEY",
+        value: resolved.key,
+      });
+      process.env.BYTEPLUS_API_KEY = resolved.key;
+      runtime.log(`Saved BYTEPLUS_API_KEY to ${shortenHomePath(result.path)}`);
+    }
+    return applyPrimaryModel(nextConfig, "byteplus-plan/ark-code-latest");
+  }
+
+  if (authChoice === "qianfan-api-key") {
+    const resolved = await resolveNonInteractiveApiKey({
+      provider: "qianfan",
+      cfg: baseConfig,
+      flagValue: opts.qianfanApiKey,
+      flagName: "--qianfan-api-key",
+      envVar: "QIANFAN_API_KEY",
+      runtime,
+    });
+    if (!resolved) {
+      return null;
+    }
+    if (resolved.source !== "profile") {
+      setQianfanApiKey(resolved.key);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "qianfan:default",
+      provider: "qianfan",
+      mode: "api_key",
+    });
+    return applyQianfanConfig(nextConfig);
+>>>>>>> 559736a5a (feat(volcengine): integrate Volcengine & Byteplus Provider)
   }
 
   if (authChoice === "openai-api-key") {

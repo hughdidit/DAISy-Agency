@@ -10,7 +10,10 @@ import { normalizeModelCompat } from "../model-compat.js";
 import { resolveForwardCompatModel } from "../model-forward-compat.js";
 import { normalizeProviderId } from "../model-selection.js";
 
-type InlineModelEntry = ModelDefinitionConfig & { provider: string; baseUrl?: string };
+type InlineModelEntry = ModelDefinitionConfig & {
+  provider: string;
+  baseUrl?: string;
+};
 type InlineProviderConfig = {
   baseUrl?: string;
   api?: ModelDefinitionConfig["api"];

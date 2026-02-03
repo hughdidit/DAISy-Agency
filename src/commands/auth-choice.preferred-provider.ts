@@ -45,7 +45,12 @@ const PREFERRED_PROVIDER_BY_AUTH_CHOICE: Partial<Record<AuthChoice, string>> = {
   "litellm-api-key": "litellm",
   "qwen-portal": "qwen-portal",
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  "volcengine-api-key": "volcengine",
+  "byteplus-api-key": "byteplus",
+>>>>>>> 559736a5a (feat(volcengine): integrate Volcengine & Byteplus Provider)
   "minimax-portal": "minimax-portal",
   "qianfan-api-key": "qianfan",
 <<<<<<< HEAD
