@@ -48,6 +48,14 @@ When the operator says “release”, immediately do this preflight (no extra qu
   - `pnpm test:install:e2e` (requires both keys; runs both providers)
 - [ ] (Optional) Spot-check the web gateway if your changes affect send/receive paths.
 
+## Deployment verification workflow
+
+Use the Verify workflow in GitHub Actions to run `scripts/verify.sh` after a deploy. It requires two inputs:
+- `environment` (the target environment)
+- `deployed_ref` (the git ref or artifact identifier you want verified)
+
+The workflow exports `VERIFY_ENV`, `DEPLOYED_REF`, and `DRY_RUN` so `verify.sh` can log the runtime context.
+
 5) **macOS app (Sparkle)**
 - [ ] Build + sign the macOS app, then zip it for distribution.
 - [ ] Generate the Sparkle appcast (HTML notes via [`scripts/make_appcast.sh`](https://github.com/moltbot/moltbot/blob/main/scripts/make_appcast.sh)) and update `appcast.xml`.

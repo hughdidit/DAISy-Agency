@@ -1,0 +1,47 @@
+name: Verify
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      deployed_ref:
+        description: "Deployed ref to verify"
+        required: true
+  workflow_call:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: string
+      deployed_ref:
+        description: "Deployed ref to verify"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout (for scripts)
+        uses: actions/checkout@v4
+
+      - name: Verify
+        env:
+          VERIFY_ENV: ${{ inputs.environment }}
+          DEPLOYED_REF: ${{ inputs.deployed_ref }}
+          DRY_RUN: "false"
+        run: |
+          chmod +x scripts/verify.sh
+          ./scripts/verify.sh
