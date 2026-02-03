@@ -10,7 +10,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: staging-on-release
+  group: deploy-staging-on-release
   cancel-in-progress: false
 
 jobs:
@@ -21,3 +21,4 @@ jobs:
       environment: staging
       release_run_id: ${{ github.event.workflow_run.id }}
       dry_run: true
+    secrets: inherit

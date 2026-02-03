@@ -4,16 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       release_run_id:
-        description: "docker-release workflow run ID to deploy"
+        description: "Docker release run ID (release-metadata source)"
         required: true
       image_ref:
-        description: "Optional override: full image ref (tag or digest)"
+        description: "Optional override: full image ref"
         required: false
-      run_verify:
-        description: "Run verify after deployment"
-        required: true
-        default: true
-        type: boolean
       dry_run:
         description: "If true, do not perform real deployment"
         required: true
@@ -29,19 +24,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  deploy_prod:
     uses: ./.github/workflows/deploy.yml
     with:
       environment: production
       release_run_id: ${{ inputs.release_run_id }}
       image_ref: ${{ inputs.image_ref }}
       dry_run: ${{ inputs.dry_run }}
-
-  verify:
-    if: ${{ inputs.run_verify }}
-    needs: deploy
-    uses: ./.github/workflows/verify.yml
-    with:
-      environment: production
-      deployed_ref: ${{ needs.deploy.outputs.deploy_ref }}
-      dry_run: true
+    secrets: inherit

@@ -1,40 +1,15 @@
 name: Deploy
 
 on:
-  workflow_call:
-    inputs:
-      environment:
-        description: "Target environment"
-        required: true
-        type: string
-      release_run_id:
-        description: "docker-release workflow run ID to deploy"
-        required: true
-        type: string
-      image_ref:
-        description: "Optional override: full image ref (tag or digest)"
-        required: false
-        type: string
-      dry_run:
-        description: "If true, do not perform real deployment"
-        required: true
-        type: boolean
-        default: true
-    outputs:
-      deploy_ref:
-        description: "Resolved image reference that was deployed"
-        value: ${{ jobs.deploy.outputs.deploy_ref }}
   workflow_dispatch:
     inputs:
       environment:
         description: "Target environment"
         required: true
         type: choice
-        options:
-          - staging
-          - production
+        options: [staging, production]
       release_run_id:
-        description: "docker-release workflow run ID to deploy (from Actions UI)"
+        description: "Docker release workflow run ID (source of release-metadata)"
         required: true
       image_ref:
         description: "Optional override: full image ref (tag or digest)"
@@ -44,29 +19,22 @@ on:
         required: true
         default: true
         type: boolean
+
   workflow_call:
     inputs:
       environment:
-        description: "Target environment"
         required: true
         type: string
       release_run_id:
-        description: "docker-release workflow run ID to deploy (from Actions UI)"
         required: true
         type: string
       image_ref:
-        description: "Optional override: full image ref (tag or digest)"
         required: false
         type: string
       dry_run:
-        description: "If true, do not perform real deployment"
         required: true
-        default: true
         type: boolean
-    outputs:
-      deployed_ref:
-        description: "Image ref deployed"
-        value: ${{ jobs.deploy.outputs.deployed_ref }}
+    secrets: inherit
 
 permissions:
   contents: read
@@ -81,25 +49,9 @@ jobs:
     name: Deploy to ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    outputs:
-      deploy_ref: ${{ steps.deploy.outputs.deploy_ref }}
 
     steps:
-      - name: Validate environment input
-        shell: bash
-        run: |
-          case "${{ inputs.environment }}" in
-            staging|production)
-              echo "✓ Valid environment: ${{ inputs.environment }}"
-              ;;
-            *)
-              echo "ERROR: Invalid environment '${{ inputs.environment }}'" >&2
-              echo "Allowed values: staging, production" >&2
-              exit 1
-              ;;
-          esac
-
-      - name: Checkout (for scripts)
+      - name: Checkout (scripts only)
         uses: actions/checkout@v4
 
       - name: Download release metadata from docker-release run
@@ -112,21 +64,28 @@ jobs:
 
       - name: Help: release metadata download failed
         if: failure()
-        shell: bash
         run: |
           echo "ERROR: Failed to download artifact 'release-metadata' for run-id='${{ inputs.release_run_id }}'." >&2
-          echo "Make sure release_run_id is from the docker-release workflow run that uploaded 'release-metadata'." >&2
-          echo "Tip: Open Actions → docker-release workflow → pick the run → copy the run ID from the URL." >&2
+          echo "Use the Run ID from the Docker release workflow run that uploaded 'release-metadata'." >&2
+          exit 2
 
       - name: Show release metadata
-        shell: bash
         run: |
-          set -euo pipefail
           ls -la dist/release
           cat dist/release/release-metadata.json
 
+      - name: Resolve deploy image ref
+        id: resolve
+        env:
+          IMAGE_REF_OVERRIDE: ${{ inputs.image_ref }}
+        run: |
+          chmod +x scripts/read-release-metadata.sh
+          chmod +x scripts/deploy.sh
+          RESOLVED="$(scripts/deploy.sh --resolve-only dist/release/release-metadata.json)"
+          echo "resolved_ref=${RESOLVED}" >> "$GITHUB_OUTPUT"
+          echo "Resolved ref: ${RESOLVED}"
+
       - name: Deploy
-        id: deploy
         env:
           DEPLOY_ENV: ${{ inputs.environment }}
           DRY_RUN: ${{ inputs.dry_run }}
@@ -134,22 +93,4 @@ jobs:
           DEPLOY_TARGET: ${{ secrets.DEPLOY_TARGET }}
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
-          set -euo pipefail
-          chmod +x scripts/deploy.sh
-          chmod +x scripts/read-release-metadata.sh
-          output_file="$(mktemp)"
-          cleanup() {
-            rm -f "${output_file}"
-          }
-          trap cleanup EXIT
-          # Temporarily disable -e so we can capture PIPESTATUS and parse output even if deploy.sh fails
-          set +e
-          ./scripts/deploy.sh dist/release/release-metadata.json | tee "${output_file}"
-          status="${PIPESTATUS[0]}"
-          deploy_ref="$(grep -m 1 '^DEPLOY_REF:' "${output_file}" | sed -E 's/^DEPLOY_REF:[[:space:]]*//' || true)"
-          # Re-enable -e for the remaining commands
-          set -e
-          if [[ -n "${deploy_ref}" ]]; then
-            echo "deploy_ref=${deploy_ref}" >> "${GITHUB_OUTPUT}"
-          fi
-          exit "${status}"
+          scripts/deploy.sh dist/release/release-metadata.json

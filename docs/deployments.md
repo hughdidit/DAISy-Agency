@@ -1,6 +1,6 @@
 # Deployments
 
-This repository uses GitHub Actions environments to gate deployments to staging and production. The deploy workflow is a minimal stub that validates inputs and prints intent until real infrastructure wiring is added.
+This repository uses GitHub Actions environments to gate deployments to staging and production. The deploy workflow validates inputs, resolves the exact image ref from release metadata, and prints intent until real infrastructure wiring is added.
 
 ## Environment setup
 
@@ -26,16 +26,25 @@ Create the following environments in GitHub settings:
 
 Environment scoped secrets are only available after approvals, which keeps production deploys gated.
 
-## Manual deploy workflow
+## Deploy workflow
 
-Run the Deploy workflow from GitHub Actions using workflow dispatch inputs:
+Deploy can run manually (workflow dispatch) or as a reusable workflow call. Inputs:
 
 - environment: staging or production
-- release_run_id: docker-release workflow run ID to deploy (from Actions UI)
+- release_run_id: Docker release workflow run ID to deploy (from Actions UI)
 - image_ref: optional override for a full image ref (tag or digest)
 - dry_run: true keeps the deploy as a no-op
 
-The workflow downloads the release metadata artifact from the selected docker-release run and passes it into scripts/deploy.sh.
+The workflow downloads the release metadata artifact from the selected Docker release run, resolves the immutable image ref, and passes it into `scripts/deploy.sh`.
+
+## Verify workflow
+
+Verify can run manually or as a reusable workflow call. Inputs:
+
+- environment: staging or production
+- deployed_ref: optional ref identifier for logging
+
+The default implementation is a stub in `scripts/verify.sh` for now.
 
 ## Deploy script behavior
 
@@ -47,7 +56,7 @@ The workflow downloads the release metadata artifact from the selected docker-re
 ### How to find release_run_id
 
 1. Go to GitHub → Actions.
-2. Open the Docker release workflow.
+2. Open the Docker Release workflow.
 3. Click the specific run you want to deploy.
 4. Copy the run id from the URL.
 
@@ -61,9 +70,9 @@ Example: `.../actions/runs/1234567890` → `release_run_id=1234567890`.
 
 When a Docker release run completes successfully, Deploy staging on release triggers automatically.
 
-It deploys the exact artifact from that Docker release run (`release-metadata` → digest/tag).
+It deploys the exact artifact from that Docker release run (`release-metadata` → digest or tag).
 
-After deploy, run Verify for staging (or confirm the pipeline ran it automatically, depending on configuration).
+After deploy, run Verify for staging or confirm a follow-up workflow handles it.
 
 #### Production
 
@@ -72,16 +81,16 @@ Production is never automatic.
 Run Promote to Production manually:
 
 - input `release_run_id` from the Docker release run you intend to ship
-- (optional) `image_ref` override only for emergencies
+- optional `image_ref` override only for emergencies
 
-GitHub will pause at the production environment approval gate (required reviewers).
+GitHub will pause at the production environment approval gate.
 
-After approval, deployment proceeds and then Verify runs for production (if configured).
+After approval, deployment proceeds and Verify can run separately.
 
-### Troubleshooting: “release-metadata not found”
+### Troubleshooting: release-metadata not found
 
 If deploy fails to download `release-metadata`:
 
-- Confirm the `release_run_id` is from the Docker release workflow (not CI or Deploy).
+- Confirm the `release_run_id` is from the Docker Release workflow (not CI or Deploy).
 - Confirm that run uploaded an artifact named `release-metadata`.
-- Re-run the Docker release workflow if needed, then retry deploy with the new run id.
+- Re-run the Docker Release workflow if needed, then retry deploy with the new run id.
