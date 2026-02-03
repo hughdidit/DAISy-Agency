@@ -115,6 +115,7 @@ function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readT
   if (!docsPath || params.isMinimal) return [];
   return [
     "## Documentation",
+<<<<<<< HEAD
     `Moltbot docs: ${docsPath}`,
     "Mirror: https://docs.molt.bot",
     "Source: https://github.com/moltbot/moltbot",
@@ -122,6 +123,15 @@ function buildDocsSection(params: { docsPath?: string; isMinimal: boolean; readT
     "Find new skills: https://clawdhub.com",
     "For Moltbot behavior, commands, config, or architecture: consult local docs first.",
     "When diagnosing issues, run `moltbot status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
+=======
+    `OpenClaw docs: ${docsPath}`,
+    "Mirror: https://docs.openclaw.ai",
+    "Source: https://github.com/openclaw/openclaw",
+    "Community: https://discord.com/invite/clawd",
+    "Find new skills: https://clawhub.com",
+    "For OpenClaw behavior, commands, config, or architecture: consult local docs first.",
+    "When diagnosing issues, run `openclaw status` yourself when possible; only ask the user if you lack access (e.g., sandboxed).",
+>>>>>>> 9d2066bd5 (fix: restore OpenClaw docs/source links in system prompt)
     "",
   ];
 }
