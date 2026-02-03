@@ -48,6 +48,11 @@ Auth is supplied during the WebSocket handshake via:
 - Logs: live tail of gateway file logs with filter/export (`logs.tail`)
 - Update: run a package/git update + restart (`update.run`) with a restart report
 
+Cron jobs panel notes:
+
+- For isolated jobs, choose a delivery mode: legacy main summary, announce summary, deliver full output, or none.
+- Channel/target fields appear when announce or deliver is selected.
+
 ## Chat behavior
 
 - `chat.send` is **non-blocking**: it acks immediately with `{ runId, status: "started" }` and the response streams via `chat` events.

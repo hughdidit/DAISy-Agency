@@ -20,11 +20,21 @@ Tip: run `moltbot cron --help` for the full command surface.
 Update delivery settings without changing the message:
 
 ```bash
+<<<<<<< HEAD
 moltbot cron edit <job-id> --deliver --channel telegram --to "123456789"
+=======
+openclaw cron edit <job-id> --announce --channel telegram --to "123456789"
+>>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 ```
 
 Disable delivery for an isolated job:
 
 ```bash
 moltbot cron edit <job-id> --no-deliver
+```
+
+Deliver full output (instead of announce):
+
+```bash
+openclaw cron edit <job-id> --deliver --channel slack --to "channel:C1234567890"
 ```
