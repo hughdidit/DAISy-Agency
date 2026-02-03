@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { handleChatEvent, type ChatEventPayload, type ChatState } from "./chat";
+=======
+import { handleChatEvent, type ChatEventPayload, type ChatState } from "./chat.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 function createState(overrides: Partial<ChatState> = {}): ChatState {
   return {

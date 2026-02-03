@@ -1,17 +1,30 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+<<<<<<< HEAD
 
 import type { AssistantIdentity } from "../assistant-identity";
 import { toSanitizedMarkdownHtml } from "../markdown";
 import type { MessageGroup } from "../types/chat-types";
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown";
 import { isToolResultMessage, normalizeRoleForGrouping } from "./message-normalizer";
+=======
+import type { AssistantIdentity } from "../assistant-identity.ts";
+import type { MessageGroup } from "../types/chat-types.ts";
+import { toSanitizedMarkdownHtml } from "../markdown.ts";
+import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
   extractTextCached,
   extractThinkingCached,
   formatReasoningMarkdown,
+<<<<<<< HEAD
 } from "./message-extract";
 import { extractToolCards, renderToolCardSidebar } from "./tool-cards";
+=======
+} from "./message-extract.ts";
+import { isToolResultMessage, normalizeRoleForGrouping } from "./message-normalizer.ts";
+import { extractToolCards, renderToolCardSidebar } from "./tool-cards.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 type ImageBlock = {
   url: string;

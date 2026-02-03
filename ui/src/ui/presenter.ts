@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { formatAgo, formatDurationMs, formatMs } from "./format";
 import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types";
+=======
+import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types.ts";
+import { formatAgo, formatDurationMs, formatMs } from "./format.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export function formatPresenceSummary(entry: PresenceEntry): string {
   const host = entry.host ?? "unknown";

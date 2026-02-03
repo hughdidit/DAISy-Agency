@@ -1,8 +1,13 @@
 import { render } from "lit";
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { SessionsListResult } from "../types";
 import { renderChat, type ChatProps } from "./chat";
+=======
+import type { SessionsListResult } from "../types.ts";
+import { renderChat, type ChatProps } from "./chat.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 function createSessions(): SessionsListResult {
   return {

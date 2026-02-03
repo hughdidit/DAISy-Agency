@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { stripThinkingTags } from "./format";
+=======
+import { stripThinkingTags } from "./format.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 describe("stripThinkingTags", () => {
   it("strips <think>…</think> segments", () => {

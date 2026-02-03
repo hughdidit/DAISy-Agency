@@ -1,12 +1,18 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { OpenClawApp } from "./app";
 import { refreshChat } from "./app-chat";
+=======
+import type { OpenClawApp } from "./app.ts";
+import { refreshChat } from "./app-chat.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
   startLogsPolling,
   stopLogsPolling,
   startDebugPolling,
   stopDebugPolling,
+<<<<<<< HEAD
 } from "./app-polling";
 import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
 import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity";
@@ -25,6 +31,24 @@ import { loadExecApprovals } from "./controllers/exec-approvals";
 import { loadPresence } from "./controllers/presence";
 import { loadSessions } from "./controllers/sessions";
 import { loadSkills } from "./controllers/skills";
+=======
+} from "./app-polling.ts";
+import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll.ts";
+import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
+import { loadAgentSkills } from "./controllers/agent-skills.ts";
+import { loadAgents } from "./controllers/agents.ts";
+import { loadChannels } from "./controllers/channels.ts";
+import { loadConfig, loadConfigSchema } from "./controllers/config.ts";
+import { loadCronJobs, loadCronStatus } from "./controllers/cron.ts";
+import { loadDebug } from "./controllers/debug.ts";
+import { loadDevices } from "./controllers/devices.ts";
+import { loadExecApprovals } from "./controllers/exec-approvals.ts";
+import { loadLogs } from "./controllers/logs.ts";
+import { loadNodes } from "./controllers/nodes.ts";
+import { loadPresence } from "./controllers/presence.ts";
+import { loadSessions } from "./controllers/sessions.ts";
+import { loadSkills } from "./controllers/skills.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
   inferBasePathFromPathname,
   normalizeBasePath,
@@ -32,6 +56,7 @@ import {
   pathForTab,
   tabFromPath,
   type Tab,
+<<<<<<< HEAD
 } from "./navigation";
 import { saveSettings, type UiSettings } from "./storage";
 import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme";
@@ -45,6 +70,12 @@ import {
 } from "./app-polling";
 import { refreshChat } from "./app-chat";
 import type { MoltbotApp } from "./app";
+=======
+} from "./navigation.ts";
+import { saveSettings, type UiSettings } from "./storage.ts";
+import { startThemeTransition, type ThemeTransitionContext } from "./theme-transition.ts";
+import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 type SettingsHost = {
   settings: UiSettings;

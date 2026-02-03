@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { MoltbotApp } from "./app";
+=======
+import { OpenClawApp } from "./app.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import "../styles.css";
 
 <<<<<<< HEAD

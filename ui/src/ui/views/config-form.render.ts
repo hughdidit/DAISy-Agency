@@ -1,8 +1,15 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 import type { ConfigUiHints } from "../types";
 import { icons } from "../icons";
 import { hintForPath, humanize, schemaType, type JsonSchema } from "./config-form.shared";
 import { renderNode } from "./config-form.node";
+=======
+import type { ConfigUiHints } from "../types.ts";
+import { icons } from "../icons.ts";
+import { renderNode } from "./config-form.node.ts";
+import { hintForPath, humanize, schemaType, type JsonSchema } from "./config-form.shared.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export type ConfigFormProps = {
   schema: JsonSchema | null;

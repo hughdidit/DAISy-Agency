@@ -1,10 +1,18 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import type { WhatsAppStatus } from "../types";
 import type { ChannelsProps } from "./channels.types";
 import { renderChannelConfigSection } from "./channels.config";
 import { formatDuration } from "./channels.shared";
+=======
+import type { WhatsAppStatus } from "../types.ts";
+import type { ChannelsProps } from "./channels.types.ts";
+import { formatAgo } from "../format.ts";
+import { renderChannelConfigSection } from "./channels.config.ts";
+import { formatDuration } from "./channels.shared.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export function renderWhatsAppCard(params: {
   props: ChannelsProps;

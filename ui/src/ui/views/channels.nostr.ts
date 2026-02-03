@@ -1,14 +1,21 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import type { ChannelAccountSnapshot, NostrStatus } from "../types";
 import type { ChannelsProps } from "./channels.types";
 import { renderChannelConfigSection } from "./channels.config";
+=======
+import type { ChannelAccountSnapshot, NostrStatus } from "../types.ts";
+import type { ChannelsProps } from "./channels.types.ts";
+import { formatAgo } from "../format.ts";
+import { renderChannelConfigSection } from "./channels.config.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
   renderNostrProfileForm,
   type NostrProfileFormState,
   type NostrProfileFormCallbacks,
-} from "./channels.nostr-profile-form";
+} from "./channels.nostr-profile-form.ts";
 
 /**
  * Truncate a pubkey for display (shows first and last 8 chars)

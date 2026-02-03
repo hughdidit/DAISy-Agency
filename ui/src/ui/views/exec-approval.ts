@@ -1,6 +1,10 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import type { AppViewState } from "../app-view-state";
+=======
+import type { AppViewState } from "../app-view-state.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 function formatRemaining(ms: number): string {
   const remaining = Math.max(0, ms);

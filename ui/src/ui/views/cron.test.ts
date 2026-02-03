@@ -1,9 +1,15 @@
 import { render } from "lit";
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { DEFAULT_CRON_FORM } from "../app-defaults";
 import type { CronJob } from "../types";
 import { renderCron, type CronProps } from "./cron";
+=======
+import type { CronJob } from "../types.ts";
+import { DEFAULT_CRON_FORM } from "../app-defaults.ts";
+import { renderCron, type CronProps } from "./cron.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 function createJob(id: string): CronJob {
   return {

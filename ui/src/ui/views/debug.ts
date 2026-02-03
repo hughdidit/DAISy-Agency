@@ -1,7 +1,12 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import { formatEventPayload } from "../presenter";
 import type { EventLogEntry } from "../app-events";
+=======
+import type { EventLogEntry } from "../app-events.ts";
+import { formatEventPayload } from "../presenter.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export type DebugProps = {
   loading: boolean;

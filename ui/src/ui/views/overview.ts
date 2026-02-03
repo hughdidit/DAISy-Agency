@@ -1,9 +1,16 @@
 import { html } from "lit";
+<<<<<<< HEAD
 
 import type { GatewayHelloOk } from "../gateway";
 import { formatAgo, formatDurationMs } from "../format";
 import { formatNextRun } from "../presenter";
 import type { UiSettings } from "../storage";
+=======
+import type { GatewayHelloOk } from "../gateway.ts";
+import type { UiSettings } from "../storage.ts";
+import { formatAgo, formatDurationMs } from "../format.ts";
+import { formatNextRun } from "../presenter.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export type OverviewProps = {
   connected: boolean;

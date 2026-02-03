@@ -11,7 +11,17 @@ import type {
   DeviceTokenSummary,
   PairedDevice,
   PendingDevice,
+<<<<<<< HEAD
 } from "../controllers/devices";
+=======
+} from "../controllers/devices.ts";
+import type {
+  ExecApprovalsAllowlistEntry,
+  ExecApprovalsFile,
+  ExecApprovalsSnapshot,
+} from "../controllers/exec-approvals.ts";
+import { clampText, formatAgo, formatList } from "../format.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export type NodesProps = {
   loading: boolean;

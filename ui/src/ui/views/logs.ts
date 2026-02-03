@@ -1,6 +1,10 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import type { LogEntry, LogLevel } from "../types";
+=======
+import type { LogEntry, LogLevel } from "../types.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 const LEVELS: LogLevel[] = ["trace", "debug", "info", "warn", "error", "fatal"];
 
