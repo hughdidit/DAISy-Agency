@@ -279,6 +279,9 @@ async function resolveChannelId(
   return { channelId: dmChannel.id, dm: true };
 }
 
+// Discord message flag for silent/suppress notifications
+const SUPPRESS_NOTIFICATIONS_FLAG = 1 << 12;
+
 export function buildDiscordTextChunks(
   text: string,
   opts: { maxLinesPerMessage?: number; chunkMode?: ChunkMode; maxChars?: number } = {},
@@ -306,11 +309,13 @@ async function sendDiscordText(
   maxLinesPerMessage?: number,
   embeds?: unknown[],
   chunkMode?: ChunkMode,
+  silent?: boolean,
 ) {
   if (!text.trim()) {
     throw new Error("Message must be non-empty for Discord sends");
   }
   const messageReference = replyTo ? { message_id: replyTo, fail_if_not_exists: false } : undefined;
+  const flags = silent ? SUPPRESS_NOTIFICATIONS_FLAG : undefined;
   const chunks = buildDiscordTextChunks(text, { maxLinesPerMessage, chunkMode });
   if (chunks.length === 1) {
     const res = (await request(
@@ -320,6 +325,7 @@ async function sendDiscordText(
             content: chunks[0],
             message_reference: messageReference,
             ...(embeds?.length ? { embeds } : {}),
+            ...(flags ? { flags } : {}),
           },
         }) as Promise<{ id: string; channel_id: string }>,
       "text",
@@ -336,6 +342,7 @@ async function sendDiscordText(
             content: chunk,
             message_reference: isFirst ? messageReference : undefined,
             ...(isFirst && embeds?.length ? { embeds } : {}),
+            ...(flags ? { flags } : {}),
           },
         }) as Promise<{ id: string; channel_id: string }>,
       "text",
@@ -358,12 +365,14 @@ async function sendDiscordMedia(
   maxLinesPerMessage?: number,
   embeds?: unknown[],
   chunkMode?: ChunkMode,
+  silent?: boolean,
 ) {
   const media = await loadWebMedia(mediaUrl);
   const chunks = text ? buildDiscordTextChunks(text, { maxLinesPerMessage, chunkMode }) : [];
   const caption = chunks[0] ?? "";
   const hasCaption = caption.trim().length > 0;
   const messageReference = replyTo ? { message_id: replyTo, fail_if_not_exists: false } : undefined;
+  const flags = silent ? SUPPRESS_NOTIFICATIONS_FLAG : undefined;
   const res = (await request(
     () =>
       rest.post(Routes.channelMessages(channelId), {
@@ -374,6 +383,7 @@ async function sendDiscordMedia(
           ...(hasCaption ? { content: caption } : {}),
           ...(messageReference ? { message_reference: messageReference } : {}),
           ...(embeds?.length ? { embeds } : {}),
+          ...(flags ? { flags } : {}),
           files: [
             {
               data: media.buffer,
@@ -397,6 +407,7 @@ async function sendDiscordMedia(
       maxLinesPerMessage,
       undefined,
       chunkMode,
+      silent,
     );
   }
   return res;

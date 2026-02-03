@@ -39,6 +39,7 @@ export type OutboundSendContext = {
     mediaUrls?: string[];
   };
   abortSignal?: AbortSignal;
+  silent?: boolean;
 };
 
 function extractToolPayload(result: AgentToolResult<unknown>): unknown {
@@ -129,6 +130,7 @@ export async function executeSendAction(params: {
     gateway: params.ctx.gateway,
     mirror: params.ctx.mirror,
     abortSignal: params.ctx.abortSignal,
+    silent: params.ctx.silent,
   });
 
   return {
