@@ -158,7 +158,11 @@ import { normalizeAssistantIdentity } from "./assistant-identity.ts";
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity.ts";
 import { loadSettings, type UiSettings } from "./storage.ts";
 import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types.ts";
+<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+=======
+import { i18n, I18nController, type Locale } from "../i18n/index.ts";
+>>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
 
 declare global {
   interface Window {
@@ -181,9 +185,24 @@ function resolveOnboardingMode(): boolean {
   return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
 }
 
+<<<<<<< HEAD
 @customElement("moltbot-app")
 export class MoltbotApp extends LitElement {
+=======
+@customElement("openclaw-app")
+export class OpenClawApp extends LitElement {
+  private i18nController = new I18nController(this);
+>>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
   @state() settings: UiSettings = loadSettings();
+  constructor() {
+    super();
+    if (this.settings.locale) {
+      const supportedLocales: Locale[] = ["en", "zh-CN", "zh-TW", "pt-BR"];
+      if (supportedLocales.includes(this.settings.locale as Locale)) {
+        void i18n.setLocale(this.settings.locale as Locale);
+      }
+    }
+  }
   @state() password = "";
   @state() tab: Tab = "chat";
   @state() onboarding = resolveOnboardingMode();
