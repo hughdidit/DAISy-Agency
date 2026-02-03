@@ -207,5 +207,26 @@ class FallbackMemoryManager implements MemorySearchManager {
 }
 
 function buildQmdCacheKey(agentId: string, config: ResolvedQmdConfig): string {
+<<<<<<< HEAD
   return `${agentId}:${JSON.stringify(config)}`;
+=======
+  return `${agentId}:${stableSerialize(config)}`;
+}
+
+function stableSerialize(value: unknown): string {
+  return JSON.stringify(sortValue(value));
+}
+
+function sortValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((entry) => sortValue(entry));
+  }
+  if (value && typeof value === "object") {
+    const sortedEntries = Object.keys(value as Record<string, unknown>)
+      .toSorted((a, b) => a.localeCompare(b))
+      .map((key) => [key, sortValue((value as Record<string, unknown>)[key])]);
+    return Object.fromEntries(sortedEntries);
+  }
+  return value;
+>>>>>>> 30098b04d (chore: fix lint warnings)
 }

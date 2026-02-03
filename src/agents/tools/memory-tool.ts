@@ -44,12 +44,16 @@ export function createMemorySearchTool(options: {
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;
-  if (!cfg) return null;
+  if (!cfg) {
+    return null;
+  }
   const agentId = resolveSessionAgentId({
     sessionKey: options.agentSessionKey,
     config: cfg,
   });
-  if (!resolveMemorySearchConfig(cfg, agentId)) return null;
+  if (!resolveMemorySearchConfig(cfg, agentId)) {
+    return null;
+  }
   return {
     label: "Memory Search",
     name: "memory_search",
@@ -105,12 +109,16 @@ export function createMemoryGetTool(options: {
   agentSessionKey?: string;
 }): AnyAgentTool | null {
   const cfg = options.config;
-  if (!cfg) return null;
+  if (!cfg) {
+    return null;
+  }
   const agentId = resolveSessionAgentId({
     sessionKey: options.agentSessionKey,
     config: cfg,
   });
-  if (!resolveMemorySearchConfig(cfg, agentId)) return null;
+  if (!resolveMemorySearchConfig(cfg, agentId)) {
+    return null;
+  }
   return {
     label: "Memory Get",
     name: "memory_get",
@@ -216,6 +224,7 @@ function deriveChatTypeFromSessionKey(sessionKey?: string): "direct" | "group" |
     return "direct";
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (sessionKey.includes(":group:")) {
 =======
   const tokens = parsed.rest.toLowerCase().split(":").filter(Boolean);
@@ -224,6 +233,18 @@ function deriveChatTypeFromSessionKey(sessionKey?: string): "direct" | "group" |
   }
   if (tokens.includes("group")) {
 >>>>>>> 9bef52594 (chore: apply formatter)
+=======
+  const tokens = new Set(
+    parsed.rest
+      .toLowerCase()
+      .split(":")
+      .filter(Boolean),
+  );
+  if (tokens.has("channel")) {
+    return "channel";
+  }
+  if (tokens.has("group")) {
+>>>>>>> 30098b04d (chore: fix lint warnings)
     return "group";
   }
   if (sessionKey.includes(":channel:")) {
