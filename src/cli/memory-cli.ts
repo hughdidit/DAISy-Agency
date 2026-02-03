@@ -321,7 +321,12 @@ export async function runMemoryStatus(opts: MemoryCommandOptions) {
         ) as MemorySourceName[];
         const workspaceDir = status.workspaceDir;
         const scan = workspaceDir
-          ? await scanMemorySources({ workspaceDir, agentId, sources, extraPaths: status.extraPaths })
+          ? await scanMemorySources({
+              workspaceDir,
+              agentId,
+              sources,
+              extraPaths: status.extraPaths,
+            })
           : undefined;
         allResults.push({ agentId, status, embeddingProbe, indexError, scan });
       },
