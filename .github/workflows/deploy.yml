@@ -74,6 +74,30 @@ jobs:
           ls -la dist/release
           cat dist/release/release-metadata.json
 
+      - name: Validate required secrets
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        run: |
+          : "${GCP_CREDENTIALS:?GCP_CREDENTIALS is required}"
+          : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required}"
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Install Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Install required CLIs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssh-client
+
       - name: Resolve deploy image ref
         id: resolve
         env:
