@@ -66,8 +66,8 @@ jobs:
 
       - name: Claude Code Action
         # Pin this action to a full commit SHA per our 7e policy (do not leave @v1).
-        # anthropics/claude-code-action@v1
-        uses: anthropics/claude-code-action@<PINNED_SHA>
+        # anthropics/claude-code-action@v1 (pinned to e2c61e6c2ef3d31b2b6d1b1a0e2ffda2f5fcb34a)
+        uses: anthropics/claude-code-action@e2c61e6c2ef3d31b2b6d1b1a0e2ffda2f5fcb34a
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           # Prefer explicit command to keep it consistent and bounded:
