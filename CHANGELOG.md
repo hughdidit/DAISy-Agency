@@ -52,7 +52,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 =======
 - Cron: default isolated jobs to announce delivery; accept ISO 8601 `schedule.at` in tool inputs.
+<<<<<<< HEAD
 >>>>>>> 0bb0dfc9b (feat(cron): default isolated jobs to announce delivery and enhance scheduling options)
+=======
+- Cron: delete one-shot jobs after success by default; add `--keep-after-run` for CLI.
+>>>>>>> ab9f06f4f (feat(cron): enhance one-shot job behavior and CLI options)
 - Memory: implement the opt-in QMD backend for workspace memory. (#3160) Thanks @vignesh07.
 - Security: add healthcheck skill and bootstrap audit guidance. (#7641) Thanks @Takhoffman.
 - Config: allow setting a default subagent thinking level via `agents.defaults.subagents.thinking` (and per-agent `agents.list[].subagents.thinking`). (#7372) Thanks @tyler6204.
