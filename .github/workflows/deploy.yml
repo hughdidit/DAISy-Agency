@@ -43,6 +43,29 @@ on:
         required: true
         default: true
         type: boolean
+  workflow_call:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: string
+      release_run_id:
+        description: "docker-release workflow run ID to deploy (from Actions UI)"
+        required: true
+        type: string
+      image_ref:
+        description: "Optional override: full image ref (tag or digest)"
+        required: false
+        type: string
+      dry_run:
+        description: "If true, do not perform real deployment"
+        required: true
+        default: true
+        type: boolean
+    outputs:
+      deployed_ref:
+        description: "Image ref deployed"
+        value: ${{ jobs.deploy.outputs.deployed_ref }}
 
 permissions:
   contents: read
@@ -58,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     outputs:
-      deploy_ref: ${{ steps.deploy.outputs.deploy_ref }}
+      deployed_ref: ${{ steps.deploy.outputs.deployed_ref }}
 
     steps:
       - name: Validate environment input

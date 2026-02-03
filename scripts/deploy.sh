@@ -34,6 +34,11 @@ else
   exit 3
 fi
 
+echo "DEPLOY_REF=${RESOLVED_REF}"
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+  echo "deployed_ref=${RESOLVED_REF}" >> "${GITHUB_OUTPUT}"
+fi
+
 echo "=== Patchbot Deploy ==="
 echo "DEPLOY_ENV: ${DEPLOY_ENV:-<unset>}"
 echo "DRY_RUN:    ${DRY_RUN:-<unset>}"
