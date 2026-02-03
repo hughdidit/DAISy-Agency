@@ -169,3 +169,24 @@
 - Publish: `npm publish --access public --otp="<otp>"` (run from the package dir).
 - Verify without local npmrc side effects: `npm view <pkg> version --userconfig "$(mktemp)"`.
 - Kill the tmux session after publish.
+
+# Claude Review Guidelines (DAISy-Agency / Moltbot thin fork)
+
+## Review scope (priority order)
+1) Correctness and safety (security, auth, secrets, permissions, data loss)
+2) CI/CD and workflow safety (required checks, concurrency, env gating)
+3) Maintainability (clear naming, modularity, tests)
+4) Style (only if it improves readability)
+
+## What to output in PR reviews
+- Top 3–7 actionable findings, each with:
+  - file path(s)
+  - risk level (low/med/high)
+  - a concrete fix suggestion
+- Avoid nitpicks unless they prevent bugs.
+- Be concise.
+
+## Repo-specific guardrails
+- Branch model: daisy/dev (integration), daisy/main (production)
+- Required check stability is critical: do not propose renaming required check names.
+- Prefer least-privilege permissions in workflows.
