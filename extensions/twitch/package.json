@@ -5,7 +5,11 @@
   "description": "Moltbot Twitch channel plugin",
 =======
   "name": "@openclaw/twitch",
+<<<<<<< HEAD
   "version": "2026.1.29",
+=======
+  "version": "2026.2.2",
+>>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "description": "OpenClaw Twitch channel plugin",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
   "type": "module",

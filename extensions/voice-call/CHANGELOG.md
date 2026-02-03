@@ -1,6 +1,10 @@
 # Changelog
 
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
+=======
+## 2026.2.2
+>>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 
 ### Changes
 - Version alignment with core Moltbot release numbers.
