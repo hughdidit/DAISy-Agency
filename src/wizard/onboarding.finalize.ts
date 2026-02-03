@@ -12,7 +12,6 @@ import {
   detectBrowserOpenSupport,
   formatControlUiSshHint,
   openUrl,
-  openUrlInBackground,
   probeGatewayReachable,
   waitForGatewayReachable,
   resolveControlUiLinks,
@@ -23,7 +22,11 @@ import type { MoltbotConfig } from "../config/config.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import { restoreTerminalState } from "../terminal/restore.js";
+>>>>>>> 58d5b39c9 (Onboarding: keep TUI flow exclusive)
 import { runTui } from "../tui/tui.js";
 import { resolveUserPath } from "../utils.js";
 import {
@@ -44,7 +47,9 @@ type FinalizeOnboardingOptions = {
   runtime: RuntimeEnv;
 };
 
-export async function finalizeOnboardingWizard(options: FinalizeOnboardingOptions) {
+export async function finalizeOnboardingWizard(
+  options: FinalizeOnboardingOptions,
+): Promise<{ launchedTui: boolean }> {
   const { flow, opts, baseConfig, nextConfig, settings, prompter, runtime } = options;
 
   const withWizardProgress = async <T>(
@@ -287,6 +292,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
   let controlUiOpenHint: string | undefined;
   let seededInBackground = false;
   let hatchChoice: "tui" | "web" | "later" | null = null;
+  let launchedTui = false;
 
   if (!opts.skipUi && gatewayProbe.ok) {
     if (hasBootstrap) {
@@ -322,6 +328,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     });
 
     if (hatchChoice === "tui") {
+      restoreTerminalState("pre-onboarding tui");
       await runTui({
         url: links.wsUrl,
         token: settings.authMode === "token" ? settings.gatewayToken : undefined,
@@ -330,6 +337,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
         deliver: false,
         message: hasBootstrap ? "Wake up, my friend!" : undefined,
       });
+<<<<<<< HEAD
       if (settings.authMode === "token" && settings.gatewayToken) {
         seededInBackground = await openUrlInBackground(authedUrl);
       }
@@ -341,6 +349,9 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
           "Web UI",
         );
       }
+=======
+      launchedTui = true;
+>>>>>>> 58d5b39c9 (Onboarding: keep TUI flow exclusive)
     } else if (hatchChoice === "web") {
       const browserSupport = await detectBrowserOpenSupport();
       if (browserSupport.ok) {
@@ -471,4 +482,6 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
         ? "Onboarding complete. Web UI seeded in the background; open it anytime with the tokenized link above."
         : "Onboarding complete. Use the tokenized dashboard link above to control Moltbot.",
   );
+
+  return { launchedTui };
 }
