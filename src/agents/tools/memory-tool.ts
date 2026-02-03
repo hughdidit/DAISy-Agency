@@ -225,6 +225,7 @@ function deriveChatTypeFromSessionKey(sessionKey?: string): "direct" | "group" |
   }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (sessionKey.includes(":group:")) {
 =======
   const tokens = parsed.rest.toLowerCase().split(":").filter(Boolean);
@@ -240,6 +241,9 @@ function deriveChatTypeFromSessionKey(sessionKey?: string): "direct" | "group" |
       .split(":")
       .filter(Boolean),
   );
+=======
+  const tokens = new Set(parsed.rest.toLowerCase().split(":").filter(Boolean));
+>>>>>>> 5915d479d (chore: oxfmt)
   if (tokens.has("channel")) {
     return "channel";
   }
