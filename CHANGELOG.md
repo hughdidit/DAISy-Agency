@@ -21,7 +21,12 @@ Docs: https://docs.openclaw.ai
 ### Fixes
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+- Onboarding: keep TUI flow exclusive (skip completion prompt + background Web UI seed).
+- TUI: block onboarding output while TUI is active and restore terminal state on exit.
+>>>>>>> 58d5b39c9 (Onboarding: keep TUI flow exclusive)
 - Agents: repair malformed tool calls and session transcripts. (#7473) Thanks @justinhuangcode.
 - fix(agents): validate AbortSignal instances before calling AbortSignal.any() (#7277) (thanks @Elarwei001)
 - fix(webchat): respect user scroll position during streaming and refresh (#7226) (thanks @marcomarandiz)
