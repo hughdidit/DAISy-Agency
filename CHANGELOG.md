@@ -41,6 +41,7 @@ Status: beta.
 - Media understanding: skip binary media from file text extraction. (#7475) Thanks @AlexZhangji.
 >>>>>>> f49297e2c (fix: skip audio files from text extraction to prevent binary processing (#7475))
 - Security: guard skill installer downloads with SSRF checks (block private/localhost URLs).
+- Security: harden Windows exec allowlist; block cmd.exe bypass via single &. Thanks @simecek.
 - Media understanding: apply SSRF guardrails to provider fetches; allow private baseUrl overrides explicitly.
 
 ## 2026.2.1
