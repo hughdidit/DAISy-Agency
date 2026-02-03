@@ -69,6 +69,8 @@ IDENTITY.md
 USER.md
 .tgz
 .githooks/
+error.log
+*.bak
 
 # local tooling
 .serena/
@@ -86,4 +88,4 @@ USER.md
 secrets/
 .clawdbot/
 .var/
-error.log
+
