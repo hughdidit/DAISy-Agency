@@ -988,6 +988,7 @@ export function createExecTool(
           safeBins: new Set(),
           cwd: workdir,
           env,
+          platform: nodeInfo?.platform,
         });
         let analysisOk = baseAllowlistEval.analysisOk;
         let allowlistSatisfied = false;
@@ -1015,6 +1016,7 @@ export function createExecTool(
                 safeBins: new Set(),
                 cwd: workdir,
                 env,
+                platform: nodeInfo?.platform,
               });
               allowlistSatisfied = allowlistEval.allowlistSatisfied;
               analysisOk = allowlistEval.analysisOk;
@@ -1245,6 +1247,7 @@ export function createExecTool(
           safeBins,
           cwd: workdir,
           env,
+          platform: process.platform,
         });
         const allowlistMatches = allowlistEval.allowlistMatches;
         const analysisOk = allowlistEval.analysisOk;
