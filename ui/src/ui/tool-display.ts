@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import rawConfig from "./tool-display.json";
 import type { IconName } from "./icons";
+=======
+import type { IconName } from "./icons.ts";
+import rawConfig from "./tool-display.json" with { type: "json" };
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 type ToolDisplayActionSpec = {
   label?: string;

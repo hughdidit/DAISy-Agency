@@ -1,7 +1,12 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import type { ChannelAccountSnapshot } from "../types";
 import type { ChannelKey, ChannelsProps } from "./channels.types";
+=======
+import type { ChannelAccountSnapshot } from "../types.ts";
+import type { ChannelKey, ChannelsProps } from "./channels.types.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export function formatDuration(ms?: number | null) {
   if (!ms && ms !== 0) {

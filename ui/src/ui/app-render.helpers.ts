@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { repeat } from "lit/directives/repeat.js";
+<<<<<<< HEAD
 
 import type { AppViewState } from "./app-view-state";
 <<<<<<< HEAD
@@ -22,6 +23,18 @@ import { ChatState, loadChatHistory } from "./controllers/chat";
 import { icons } from "./icons";
 import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation";
 >>>>>>> 27677dd8b (chore: Fix all TypeScript errors in `ui`.)
+=======
+import type { AppViewState } from "./app-view-state.ts";
+import type { ThemeTransitionContext } from "./theme-transition.ts";
+import type { ThemeMode } from "./theme.ts";
+import type { SessionsListResult } from "./types.ts";
+import { refreshChat } from "./app-chat.ts";
+import { syncUrlWithSessionKey } from "./app-settings.ts";
+import { OpenClawApp } from "./app.ts";
+import { ChatState, loadChatHistory } from "./controllers/chat.ts";
+import { icons } from "./icons.ts";
+import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export function renderTab(state: AppViewState, tab: Tab) {
   const href = pathForTab(tab, state.basePath);

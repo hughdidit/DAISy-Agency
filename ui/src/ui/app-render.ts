@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import type { AppViewState } from "./app-view-state";
@@ -83,6 +84,19 @@ import { loadChatHistory } from "./controllers/chat";
 =======
 import { ChatState, loadChatHistory } from "./controllers/chat";
 >>>>>>> 27677dd8b (chore: Fix all TypeScript errors in `ui`.)
+=======
+import type { AppViewState } from "./app-view-state.ts";
+import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
+import { ChatHost, refreshChatAvatar } from "./app-chat.ts";
+import { renderChatControls, renderTab, renderThemeToggle } from "./app-render.helpers.ts";
+import { OpenClawApp } from "./app.ts";
+import { loadAgentFileContent, loadAgentFiles, saveAgentFile } from "./controllers/agent-files.ts";
+import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
+import { loadAgentSkills } from "./controllers/agent-skills.ts";
+import { loadAgents } from "./controllers/agents.ts";
+import { loadChannels } from "./controllers/channels.ts";
+import { ChatState, loadChatHistory } from "./controllers/chat.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
   applyConfig,
   ConfigState,
@@ -91,7 +105,7 @@ import {
   saveConfig,
   updateConfigFormValue,
   removeConfigFormValue,
-} from "./controllers/config";
+} from "./controllers/config.ts";
 import {
   loadExecApprovals,
   removeExecApprovalsFormValue,
@@ -104,35 +118,41 @@ import {
   runCronJob,
   removeCronJob,
   addCronJob,
+<<<<<<< HEAD
 } from "./controllers/cron";
 import { loadDebug, callDebugMethod } from "./controllers/debug";
 <<<<<<< HEAD
 import { loadLogs } from "./controllers/logs";
 =======
 =======
+=======
+} from "./controllers/cron.ts";
+import { loadDebug, callDebugMethod } from "./controllers/debug.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
   approveDevicePairing,
   loadDevices,
   rejectDevicePairing,
   revokeDeviceToken,
   rotateDeviceToken,
-} from "./controllers/devices";
+} from "./controllers/devices.ts";
 import {
   loadExecApprovals,
   removeExecApprovalsFormValue,
   saveExecApprovals,
   updateExecApprovalsFormValue,
-} from "./controllers/exec-approvals";
-import { loadLogs, LogsState } from "./controllers/logs";
-import { loadNodes } from "./controllers/nodes";
-import { loadPresence } from "./controllers/presence";
-import { deleteSession, loadSessions, patchSession } from "./controllers/sessions";
+} from "./controllers/exec-approvals.ts";
+import { loadLogs, LogsState } from "./controllers/logs.ts";
+import { loadNodes } from "./controllers/nodes.ts";
+import { loadPresence } from "./controllers/presence.ts";
+import { deleteSession, loadSessions, patchSession } from "./controllers/sessions.ts";
 import {
   installSkill,
   loadSkills,
   saveSkillApiKey,
   updateSkillEdit,
   updateSkillEnabled,
+<<<<<<< HEAD
 } from "./controllers/skills";
 >>>>>>> 27677dd8b (chore: Fix all TypeScript errors in `ui`.)
 import { icons } from "./icons";
@@ -153,6 +173,26 @@ import { renderOverview } from "./views/overview";
 import { renderSessions } from "./views/sessions";
 import { renderSkills } from "./views/skills";
 >>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
+=======
+} from "./controllers/skills.ts";
+import { icons } from "./icons.ts";
+import { TAB_GROUPS, subtitleForTab, titleForTab } from "./navigation.ts";
+import { ConfigUiHints } from "./types.ts";
+import { renderAgents } from "./views/agents.ts";
+import { renderChannels } from "./views/channels.ts";
+import { renderChat } from "./views/chat.ts";
+import { renderConfig } from "./views/config.ts";
+import { renderCron } from "./views/cron.ts";
+import { renderDebug } from "./views/debug.ts";
+import { renderExecApprovalPrompt } from "./views/exec-approval.ts";
+import { renderGatewayUrlConfirmation } from "./views/gateway-url-confirmation.ts";
+import { renderInstances } from "./views/instances.ts";
+import { renderLogs } from "./views/logs.ts";
+import { renderNodes } from "./views/nodes.ts";
+import { renderOverview } from "./views/overview.ts";
+import { renderSessions } from "./views/sessions.ts";
+import { renderSkills } from "./views/skills.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 const AVATAR_DATA_RE = /^data:/i;
 const AVATAR_HTTP_RE = /^https?:\/\//i;

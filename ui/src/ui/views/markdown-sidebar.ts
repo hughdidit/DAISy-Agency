@@ -1,8 +1,13 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+<<<<<<< HEAD
 
 import { icons } from "../icons";
 import { toSanitizedMarkdownHtml } from "../markdown";
+=======
+import { icons } from "../icons.ts";
+import { toSanitizedMarkdownHtml } from "../markdown.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export type MarkdownSidebarProps = {
   content: string | null;

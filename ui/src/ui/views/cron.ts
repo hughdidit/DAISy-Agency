@@ -1,14 +1,24 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import { formatMs } from "../format";
+=======
+import type { ChannelUiMetaEntry, CronJob, CronRunLogEntry, CronStatus } from "../types.ts";
+import type { CronFormState } from "../ui-types.ts";
+import { formatMs } from "../format.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
   formatCronPayload,
   formatCronSchedule,
   formatCronState,
   formatNextRun,
+<<<<<<< HEAD
 } from "../presenter";
 import type { ChannelUiMetaEntry, CronJob, CronRunLogEntry, CronStatus } from "../types";
 import type { CronFormState } from "../ui-types";
+=======
+} from "../presenter.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export type CronProps = {
   loading: boolean;

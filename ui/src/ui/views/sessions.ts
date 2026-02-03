@@ -1,9 +1,16 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import { formatSessionTokens } from "../presenter";
 import { pathForTab } from "../navigation";
 import type { GatewaySessionRow, SessionsListResult } from "../types";
+=======
+import type { GatewaySessionRow, SessionsListResult } from "../types.ts";
+import { formatAgo } from "../format.ts";
+import { pathForTab } from "../navigation.ts";
+import { formatSessionTokens } from "../presenter.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export type SessionsProps = {
   loading: boolean;

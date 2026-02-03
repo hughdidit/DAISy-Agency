@@ -1,7 +1,11 @@
 import { render } from "lit";
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { renderConfig } from "./config";
+=======
+import { renderConfig } from "./config.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 describe("config view", () => {
   const baseProps = () => ({

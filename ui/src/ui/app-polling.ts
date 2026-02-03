@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 import { loadLogs } from "./controllers/logs";
 import { loadNodes } from "./controllers/nodes";
 import { loadDebug } from "./controllers/debug";
 import type { MoltbotApp } from "./app";
+=======
+import type { OpenClawApp } from "./app.ts";
+import { loadDebug } from "./controllers/debug.ts";
+import { loadLogs } from "./controllers/logs.ts";
+import { loadNodes } from "./controllers/nodes.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 type PollingHost = {
   nodesPollInterval: number | null;

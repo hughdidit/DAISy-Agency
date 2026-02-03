@@ -1,12 +1,25 @@
-import type { Tab } from "./navigation";
-import { connectGateway } from "./app-gateway";
+import type { Tab } from "./navigation.ts";
+import { connectGateway } from "./app-gateway.ts";
 import {
+<<<<<<< HEAD
+=======
+  startLogsPolling,
+  startNodesPolling,
+  stopLogsPolling,
+  stopNodesPolling,
+  startDebugPolling,
+  stopDebugPolling,
+} from "./app-polling.ts";
+import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll.ts";
+import {
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
   applySettingsFromUrl,
   attachThemeListener,
   detachThemeListener,
   inferBasePath,
   syncTabWithLocation,
   syncThemeWithSettings,
+<<<<<<< HEAD
 } from "./app-settings";
 import { observeTopbar, scheduleChatScroll, scheduleLogsScroll } from "./app-scroll";
 import {
@@ -17,6 +30,9 @@ import {
   startDebugPolling,
   stopDebugPolling,
 } from "./app-polling";
+=======
+} from "./app-settings.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 type LifecycleHost = {
   basePath: string;

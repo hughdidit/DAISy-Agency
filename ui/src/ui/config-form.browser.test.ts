@@ -1,7 +1,11 @@
 import { render } from "lit";
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { analyzeConfigSchema, renderConfigForm } from "./views/config-form";
+=======
+import { analyzeConfigSchema, renderConfigForm } from "./views/config-form.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 const rootSchema = {
   type: "object",

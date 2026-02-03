@@ -1,9 +1,16 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import type { DiscordStatus } from "../types";
 import type { ChannelsProps } from "./channels.types";
 import { renderChannelConfigSection } from "./channels.config";
+=======
+import type { DiscordStatus } from "../types.ts";
+import type { ChannelsProps } from "./channels.types.ts";
+import { formatAgo } from "../format.ts";
+import { renderChannelConfigSection } from "./channels.config.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 export function renderDiscordCard(params: {
   props: ChannelsProps;

@@ -1,8 +1,14 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import { clampText } from "../format";
 import type { SkillStatusEntry, SkillStatusReport } from "../types";
 import type { SkillMessageMap } from "../controllers/skills";
+=======
+import type { SkillMessageMap } from "../controllers/skills.ts";
+import type { SkillStatusEntry, SkillStatusReport } from "../types.ts";
+import { clampText } from "../format.ts";
+>>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 type SkillGroup = {
   id: string;
