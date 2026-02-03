@@ -19,9 +19,10 @@ on:
         description: "If true, do not perform real deployment"
         required: true
         type: boolean
+        default: true
     outputs:
       deploy_ref:
-        description: "Resolved image ref selected by the deploy script"
+        description: "Resolved image reference that was deployed"
         value: ${{ jobs.deploy.outputs.deploy_ref }}
   workflow_dispatch:
     inputs:
@@ -81,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     outputs:
-      deployed_ref: ${{ steps.deploy.outputs.deployed_ref }}
+      deploy_ref: ${{ steps.deploy.outputs.deploy_ref }}
 
     steps:
       - name: Validate environment input

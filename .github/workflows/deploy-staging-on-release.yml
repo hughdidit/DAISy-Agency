@@ -2,10 +2,8 @@ name: Deploy staging on release
 
 on:
   workflow_run:
-    workflows:
-      - "Docker Release"
-    types:
-      - completed
+    workflows: ["Docker Release"]
+    types: [completed]
 
 permissions:
   contents: read
@@ -16,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  deploy_staging:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     uses: ./.github/workflows/deploy.yml
     with:

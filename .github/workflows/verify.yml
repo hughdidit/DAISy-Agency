@@ -1,6 +1,21 @@
 name: Verify
 
 on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: string
+      deployed_ref:
+        description: "Resolved image ref that was deployed"
+        required: true
+        type: string
+      dry_run:
+        description: "If true, do not perform real verification"
+        required: false
+        type: boolean
+        default: true
   workflow_dispatch:
     inputs:
       environment:
@@ -41,7 +56,7 @@ jobs:
         env:
           VERIFY_ENV: ${{ inputs.environment }}
           DEPLOYED_REF: ${{ inputs.deployed_ref }}
-          DRY_RUN: "false"
+          DRY_RUN: ${{ inputs.dry_run }}
         run: |
           chmod +x scripts/verify.sh
           ./scripts/verify.sh

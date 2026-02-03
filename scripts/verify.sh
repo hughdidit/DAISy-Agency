@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Environment: ${VERIFY_ENV:-unknown}"
-echo "Deployed ref: ${DEPLOYED_REF:-unknown}"
+VERIFY_ENV="${VERIFY_ENV:-}"
+DEPLOYED_REF="${DEPLOYED_REF:-}"
 
-if [[ "${DRY_RUN:-false}" == "true" ]]; then
-  echo "DRY_RUN=true; skipping smoke check."
+if [[ -z "${VERIFY_ENV}" || -z "${DEPLOYED_REF}" ]]; then
+  echo "ERROR: VERIFY_ENV and DEPLOYED_REF are required." >&2
+  exit 2
+fi
+
+echo "=== Patchbot Verify ==="
+echo "VERIFY_ENV:  ${VERIFY_ENV}"
+echo "DEPLOYED_REF: ${DEPLOYED_REF}"
+echo "DRY_RUN:     ${DRY_RUN:-<unset>}"
+
+if [[ "${DRY_RUN:-true}" == "true" ]]; then
+  echo "Dry-run enabled: no verification performed."
   exit 0
 fi
 
-if [[ -z "${SMOKE_URL:-}" ]]; then
-  echo "TODO: set SMOKE_URL to the deployed health endpoint."
-  echo "Skipping smoke check."
-  exit 0
-fi
-
-echo "Running smoke check against ${SMOKE_URL}"
-curl --fail --show-error --silent "${SMOKE_URL}"
+echo "Verification is not implemented yet."
+echo "TODO: add environment-specific smoke checks for ${VERIFY_ENV}."

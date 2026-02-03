@@ -45,6 +45,11 @@ echo "DRY_RUN:    ${DRY_RUN:-<unset>}"
 echo "IMAGE:      ${IMAGE}"
 echo "DIGEST:     ${DIGEST:-<none>}"
 echo "DEPLOY_REF: ${RESOLVED_REF}"
+echo "DEPLOY_REF=${RESOLVED_REF}"
+
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+  echo "deploy_ref=${RESOLVED_REF}" >> "${GITHUB_OUTPUT}"
+fi
 
 if [[ "${DRY_RUN:-true}" == "true" ]]; then
   echo "Dry-run enabled: no deployment performed."
