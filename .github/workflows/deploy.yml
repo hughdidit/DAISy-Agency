@@ -21,6 +21,29 @@ on:
         required: true
         default: true
         type: boolean
+  workflow_call:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: string
+      release_run_id:
+        description: "docker-release workflow run ID to deploy (from Actions UI)"
+        required: true
+        type: string
+      image_ref:
+        description: "Optional override: full image ref (tag or digest)"
+        required: false
+        type: string
+      dry_run:
+        description: "If true, do not perform real deployment"
+        required: true
+        default: true
+        type: boolean
+    outputs:
+      deployed_ref:
+        description: "Image ref deployed"
+        value: ${{ jobs.deploy.outputs.deployed_ref }}
 
 permissions:
   contents: read
@@ -35,6 +58,8 @@ jobs:
     name: Deploy to ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    outputs:
+      deployed_ref: ${{ steps.resolve_ref.outputs.deployed_ref }}
 
     steps:
       - name: Checkout (for scripts)
@@ -62,6 +87,32 @@ jobs:
           set -euo pipefail
           ls -la dist/release
           cat dist/release/release-metadata.json
+
+      - name: Resolve deployed ref
+        id: resolve_ref
+        shell: bash
+        env:
+          IMAGE_REF_OVERRIDE: ${{ inputs.image_ref }}
+        run: |
+          set -euo pipefail
+          META_PATH="dist/release/release-metadata.json"
+          IMAGE="$(./scripts/read-release-metadata.sh "${META_PATH}" image)"
+          DIGEST="$(./scripts/read-release-metadata.sh "${META_PATH}" digest)"
+          FIRST_TAG="$(./scripts/read-release-metadata.sh "${META_PATH}" first_tag)"
+
+          if [[ -n "${IMAGE_REF_OVERRIDE:-}" ]]; then
+            RESOLVED_REF="${IMAGE_REF_OVERRIDE}"
+          elif [[ -n "${DIGEST}" ]]; then
+            RESOLVED_REF="${IMAGE}@${DIGEST}"
+          elif [[ -n "${FIRST_TAG}" ]]; then
+            RESOLVED_REF="${IMAGE}:${FIRST_TAG}"
+          else
+            echo "ERROR: No image reference available (no override, no digest, no tags)." >&2
+            exit 3
+          fi
+
+          echo "Resolved deploy ref: ${RESOLVED_REF}"
+          echo "deployed_ref=${RESOLVED_REF}" >> "${GITHUB_OUTPUT}"
 
       - name: Deploy
         env:
