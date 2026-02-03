@@ -26,6 +26,15 @@ Create the following environments in GitHub settings:
 
 Environment scoped secrets are only available after approvals, which keeps production deploys gated.
 
+#### Secrets format
+
+- `DEPLOY_TARGET`: SSH target for the GCP VM (for example, `DAISy@203.0.113.10`).
+- `DEPLOY_TOKEN`: SSH private key (raw PEM or base64-encoded).
+
+Optional environment overrides:
+
+- `DEPLOY_DIR`: directory on the VM containing `docker-compose.yml` (defaults to `/opt/DAISy`).
+
 ## Deploy workflow
 
 Deploy can run manually (workflow dispatch) or as a reusable workflow call. Inputs:
@@ -49,7 +58,8 @@ The default implementation is a stub in `scripts/verify.sh` for now.
 ## Deploy script behavior
 
 - Dry run exits successfully after printing the resolved image reference.
-- Real deploy validates environment secrets and exits with a TODO message until the deploy implementation is added.
+- Real deploy SSHes to the target VM, sets `DAISy_IMAGE` to the resolved ref, runs `docker compose pull`, then `docker compose up -d --remove-orphans`.
+- The deploy fails if Docker is missing or `docker-compose.yml` is not found under `DEPLOY_DIR`.
 
 ## Operator notes
 
