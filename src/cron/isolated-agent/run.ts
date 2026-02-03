@@ -23,6 +23,10 @@ import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
 import { buildWorkspaceSkillSnapshot } from "../../agents/skills.js";
 import { getSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
+import {
+  runSubagentAnnounceFlow,
+  type SubagentRunOutcome,
+} from "../../agents/subagent-announce.js";
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { hasNonzeroUsage } from "../../agents/usage.js";
 import { ensureAgentWorkspace } from "../../agents/workspace.js";
@@ -38,9 +42,17 @@ import {
   supportsXHighThinking,
 } from "../../auto-reply/thinking.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.js";
+=======
+import {
+  resolveAgentMainSessionKey,
+  resolveSessionTranscriptPath,
+  updateSessionStore,
+} from "../../config/sessions.js";
+>>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
@@ -51,8 +63,12 @@ import {
   getHookType,
   isExternalHookSession,
 } from "../../security/external-content.js";
+<<<<<<< HEAD
 import { logWarn } from "../../logger.js";
 import type { CronJob } from "../types.js";
+=======
+import { resolveCronDeliveryPlan } from "../delivery.js";
+>>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 import { resolveDeliveryTarget } from "./delivery-target.js";
 import {
   isHeartbeatOnlyResponse,
@@ -231,16 +247,15 @@ export async function runCronIsolatedAgentTurn(params: {
   });
 
   const agentPayload = params.job.payload.kind === "agentTurn" ? params.job.payload : null;
-  const deliveryMode =
-    agentPayload?.deliver === true ? "explicit" : agentPayload?.deliver === false ? "off" : "auto";
-  const hasExplicitTarget = Boolean(agentPayload?.to && agentPayload.to.trim());
-  const deliveryRequested =
-    deliveryMode === "explicit" || (deliveryMode === "auto" && hasExplicitTarget);
-  const bestEffortDeliver = agentPayload?.bestEffortDeliver === true;
+  const deliveryPlan = resolveCronDeliveryPlan(params.job);
+  const deliveryRequested = deliveryPlan.requested;
+  const bestEffortDeliver = deliveryPlan.bestEffort;
+  const legacyDeliveryMode =
+    deliveryPlan.source === "payload" ? deliveryPlan.legacyMode : undefined;
 
   const resolvedDelivery = await resolveDeliveryTarget(cfgWithAgentDefaults, agentId, {
-    channel: agentPayload?.channel ?? "last",
-    to: agentPayload?.to,
+    channel: deliveryPlan.channel ?? "last",
+    to: deliveryPlan.to,
   });
 
   const userTimezone = resolveUserTimezone(params.cfg.agents?.defaults?.userTimezone);
@@ -424,7 +439,7 @@ export async function runCronIsolatedAgentTurn(params: {
   const skipHeartbeatDelivery = deliveryRequested && isHeartbeatOnlyResponse(payloads, ackMaxChars);
   const skipMessagingToolDelivery =
     deliveryRequested &&
-    deliveryMode === "auto" &&
+    legacyDeliveryMode === "auto" &&
     runResult.didSendViaMessagingTool === true &&
     (runResult.messagingToolSentTargets ?? []).some((target) =>
       matchesMessagingToolDeliveryTarget(target, {
@@ -435,38 +450,70 @@ export async function runCronIsolatedAgentTurn(params: {
     );
 
   if (deliveryRequested && !skipHeartbeatDelivery && !skipMessagingToolDelivery) {
-    if (!resolvedDelivery.to) {
-      const reason =
-        resolvedDelivery.error?.message ?? "Cron delivery requires a recipient (--to).";
-      if (!bestEffortDeliver) {
+    if (deliveryPlan.mode === "announce") {
+      const requesterSessionKey = resolveAgentMainSessionKey({
+        cfg: cfgWithAgentDefaults,
+        agentId,
+      });
+      const useExplicitOrigin = deliveryPlan.channel !== "last" || Boolean(deliveryPlan.to?.trim());
+      const requesterOrigin = useExplicitOrigin
+        ? {
+            channel: resolvedDelivery.channel,
+            to: resolvedDelivery.to,
+            accountId: resolvedDelivery.accountId,
+            threadId: resolvedDelivery.threadId,
+          }
+        : undefined;
+      const outcome: SubagentRunOutcome = { status: "ok" };
+      const taskLabel = params.job.name?.trim() || "cron job";
+      await runSubagentAnnounceFlow({
+        childSessionKey: agentSessionKey,
+        childRunId: cronSession.sessionEntry.sessionId,
+        requesterSessionKey,
+        requesterOrigin,
+        requesterDisplayKey: requesterSessionKey,
+        task: taskLabel,
+        timeoutMs: 30_000,
+        cleanup: "keep",
+        roundOneReply: outputText ?? summary,
+        waitForCompletion: false,
+        label: `Cron: ${taskLabel}`,
+        outcome,
+      });
+    } else {
+      if (!resolvedDelivery.to) {
+        const reason =
+          resolvedDelivery.error?.message ?? "Cron delivery requires a recipient (--to).";
+        if (!bestEffortDeliver) {
+          return {
+            status: "error",
+            summary,
+            outputText,
+            error: reason,
+          };
+        }
         return {
-          status: "error",
-          summary,
+          status: "skipped",
+          summary: `Delivery skipped (${reason}).`,
           outputText,
-          error: reason,
         };
       }
-      return {
-        status: "skipped",
-        summary: `Delivery skipped (${reason}).`,
-        outputText,
-      };
-    }
-    try {
-      await deliverOutboundPayloads({
-        cfg: cfgWithAgentDefaults,
-        channel: resolvedDelivery.channel,
-        to: resolvedDelivery.to,
-        accountId: resolvedDelivery.accountId,
-        payloads,
-        bestEffort: bestEffortDeliver,
-        deps: createOutboundSendDeps(params.deps),
-      });
-    } catch (err) {
-      if (!bestEffortDeliver) {
-        return { status: "error", summary, outputText, error: String(err) };
+      try {
+        await deliverOutboundPayloads({
+          cfg: cfgWithAgentDefaults,
+          channel: resolvedDelivery.channel,
+          to: resolvedDelivery.to,
+          accountId: resolvedDelivery.accountId,
+          payloads,
+          bestEffort: bestEffortDeliver,
+          deps: createOutboundSendDeps(params.deps),
+        });
+      } catch (err) {
+        if (!bestEffortDeliver) {
+          return { status: "error", summary, outputText, error: String(err) };
+        }
+        return { status: "ok", summary, outputText };
       }
-      return { status: "ok", summary, outputText };
     }
   }
 

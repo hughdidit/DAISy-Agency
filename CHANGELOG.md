@@ -37,6 +37,7 @@ Docs: https://docs.openclaw.ai
 - Feishu: add Feishu/Lark plugin support + docs. (#7313) Thanks @jiulingyun (openclaw-cn).
 - Web UI: add Agents dashboard for managing agent files, tools, skills, models, channels, and cron jobs.
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Docs: seed zh-CN translations. (#6619) Thanks @joshp123.
 <<<<<<< HEAD
 =======
@@ -45,6 +46,9 @@ Docs: https://docs.openclaw.ai
 - Config: allow setting a default subagent thinking level via `agents.defaults.subagents.thinking` (and per-agent `agents.list[].subagents.thinking`). (#7372) Thanks @tyler6204.
 >>>>>>> 64849e81f (feat(config): default thinking for sessions_spawn subagents (#7372))
 =======
+=======
+- Cron: add announce delivery mode for isolated jobs (CLI + Control UI) and delivery mode config.
+>>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 - Memory: implement the opt-in QMD backend for workspace memory. (#3160) Thanks @vignesh07.
 - Security: add healthcheck skill and bootstrap audit guidance. (#7641) Thanks @Takhoffman.
 - Config: allow setting a default subagent thinking level via `agents.defaults.subagents.thinking` (and per-agent `agents.list[].subagents.thinking`). (#7372) Thanks @tyler6204.
