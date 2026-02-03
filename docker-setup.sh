@@ -288,6 +288,7 @@ else
     exit 1
   fi
 fi
+<<<<<<< HEAD
     --build-arg "OPENCLAW_DOCKER_APT_PACKAGES=${OPENCLAW_DOCKER_APT_PACKAGES}" \
     -t "$IMAGE_NAME" \
     -f "$ROOT_DIR/Dockerfile" \
@@ -297,6 +298,8 @@ else
   docker pull "$IMAGE_NAME"
 fi
 >>>>>>> 15240bdbf (feature/OPENCLAW_IMAGE)
+=======
+>>>>>>> a898acbd5 (feature/OPENCLAW_IMAGE)
 
 echo ""
 echo "==> Onboarding (interactive)"
