@@ -10,6 +10,20 @@ Status: beta.
 ## 2026.2.2
 =======
 ## 2026.2.2
+<<<<<<< HEAD
+=======
+
+### Changes
+
+- Web UI: add Agents dashboard for managing agent files, tools, skills, models, channels, and cron jobs.
+- Security: add healthcheck skill and bootstrap audit guidance. (#7641) Thanks @Takhoffman.
+- Docs: seed zh-CN translations. (#6619) Thanks @joshp123.
+- Docs: expand zh-Hans navigation and fix zh-CN index asset paths. (#7242) Thanks @joshp123.
+- Docs: add zh-CN landing notice + AI-translated image. (#7303) Thanks @joshp123.
+- Docs: fix typo - clawdbot is the compatibility shim, not openclaw. (#7415) Thanks @lailoo.
+- Config: allow setting a default subagent thinking level via `agents.defaults.subagents.thinking` (and per-agent `agents.list[].subagents.thinking`). (#7372) Thanks @tyler6204.
+- Memory: implement the opt-in QMD backend for workspace memory. (#3160) Thanks @vignesh07.
+>>>>>>> 1ee57cf72 (fix: changelog entry for QMD memory (#3160) (thanks @vignesh07))
 
 ### Fixes
 
