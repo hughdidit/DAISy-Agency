@@ -1,30 +1,60 @@
-# Deployments
+# Deployments (GCP VM: DAISy)
 
-This repository uses GitHub Actions environments to gate deployments to staging and production. The deploy workflow validates inputs, resolves the exact image ref from release metadata, and prints intent until real infrastructure wiring is added.
+This repository deploys the Moltbot-forked version of DAISy to a **Debian 12 Google Compute Engine (GCE) VM** using GitHub Actions **Environments** for gating (staging vs production) and a release artifact (`release-metadata`) for deterministic, rollbackable deployments.
 
-## Environment setup
+This document is written for the **IAP-only** access model (preferred): the VM does **not** need a public SSH endpoint; GitHub Actions reaches it through **IAP TCP forwarding** using `gcloud compute ssh --tunnel-through-iap`.
 
-Create the following environments in GitHub settings:
+---
 
-### Staging environment
+## Branch model
 
-- Name: staging
-- Deployment branches: daisy/dev and daisy/main
+- `daisy/dev` — integration / staging
+- `daisy/main` — production
+
+---
+
+## Deployment target
+
+- Host: Debian 12 GCE VM running the Moltbot/Clawdbot stack
+- Persistent state: `/var/lib/clawdbot` (must survive deploys/restarts)
+- Deployment directory on VM: `DEPLOY_TARGET_DIR` (recommended: `/opt/moltbot`)
+- Runtime: Docker + Compose (or systemd-managed service that starts containers)
+
+---
+
+## Why IAP-only
+
+IAP TCP forwarding tunnels SSH over HTTPS and enforces IAM authorization before the connection is allowed. This reduces public attack surface compared to exposing port 22 to the internet.
+
+References:
+- Connect to Linux VMs using IAP (`gcloud compute ssh --tunnel-through-iap`):
+  https://docs.cloud.google.com/compute/docs/connect/ssh-using-iap
+- Using IAP TCP forwarding:
+  https://docs.cloud.google.com/iap/docs/using-tcp-forwarding
+
+---
+
+## GitHub Environments
+
+Create two environments in GitHub repo settings:
+
+### `staging`
+- Deployment branches: `daisy/dev`, `daisy/main` (your choice)
 - Required reviewers: optional
-- Environment secrets:
-  - DEPLOY_TARGET
-  - DEPLOY_TOKEN
+- Environment secrets: see **Secrets** section below
 
-### Production environment
+### `production`
+- Deployment branches: `daisy/main` (recommended; optionally tags `v*`)
+- Required reviewers: **required** (at least one approver)
+- Environment secrets: see **Secrets** section below
 
-- Name: production
-- Deployment branches: daisy/main and optionally tags matching v*
-- Required reviewers: required with at least one approver
-- Environment secrets:
-  - DEPLOY_TARGET
-  - DEPLOY_TOKEN
+**Important:** environment secrets are only available to jobs that reference the environment, and approval gates can prevent access until a reviewer approves.
 
-Environment scoped secrets are only available after approvals, which keeps production deploys gated.
+Reference:
+- GitHub Environments & deployment protection rules:
+  https://docs.github.com/actions/deployment/targeting-different-environments/using-environments-for-deployment
+- Secrets and environment approvals:
+  https://docs.github.com/en/actions/concepts/security/secrets
 
 #### Secrets format
 
@@ -37,70 +67,129 @@ Optional environment overrides:
 
 ## Deploy workflow
 
-Deploy can run manually (workflow dispatch) or as a reusable workflow call. Inputs:
+## Secrets (IAP-only + Workload Identity Federation)
 
-- environment: staging or production
-- release_run_id: Docker release workflow run ID to deploy (from Actions UI)
-- image_ref: optional override for a full image ref (tag or digest)
-- dry_run: true keeps the deploy as a no-op
+### Required (both staging and production)
+These are **environment secrets** (set separately under `staging` and `production` environments).
 
-The workflow downloads the release metadata artifact from the selected Docker release run, resolves the immutable image ref, and passes it into `scripts/deploy.sh`.
+**GCP auth via Workload Identity Federation (no JSON keys):**
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`  
+  Resource name of your WIF provider (e.g. `projects/…/locations/global/workloadIdentityPools/…/providers/…`)
+- `GCP_SERVICE_ACCOUNT`  
+  Service account email to impersonate (e.g. `deploy-bot@project.iam.gserviceaccount.com`)
 
-## Verify workflow
+**Target VM identity:**
+- `GCP_PROJECT_ID`
+- `GCP_ZONE`
+- `GCE_INSTANCE_NAME`
 
-Verify can run manually or as a reusable workflow call. Inputs:
+**VM deploy layout:**
+- `DEPLOY_TARGET_DIR` (e.g. `/opt/moltbot`)
+- `PERSIST_STATE_DIR` (must be `/var/lib/clawdbot`)
 
-- environment: staging or production
-- deployed_ref: optional ref identifier for logging
+**Registry pull (GHCR):**
+- `GHCR_IMAGE` (e.g. `ghcr.io/<owner>/<repo>`)
+- `GHCR_USERNAME`
+- `GHCR_TOKEN` (recommend: `packages:read` only)
 
-The default implementation is a stub in `scripts/verify.sh` for now.
+References:
+- google-github-actions/auth (WIF setup and examples):
+  https://github.com/google-github-actions/auth
+- Keyless auth overview (GCP blog):
+  https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions
 
-## Deploy script behavior
+---
 
+## Workflows overview
 - Dry run exits successfully after printing the resolved image reference.
 - Real deploy SSHes to the target VM, sets `DAISy_IMAGE` to the resolved ref, runs `docker compose pull`, then `docker compose up -d --remove-orphans`.
 - The deploy fails if Docker is missing or `docker-compose.yml` is not found under `DEPLOY_DIR`.
 
+### Docker release
+Builds and publishes the multi-arch image, then uploads an artifact:
+
+- Artifact name: `release-metadata`
+- File: `dist/release/release-metadata.json`
+- Contains: image name, canonical tags, digest (preferred), sha/ref, run id
+
+Deployments should reference a specific `release_run_id` so the deploy is deterministic and rollbackable.
+
+### Deploy
+Manual dispatch and reusable workflow call.
+
+Inputs:
+- `environment`: `staging` | `production`
+- `release_run_id`: the Docker release run id that uploaded `release-metadata`
+- optional `image_ref`: emergency override (tag or digest ref)
+- `dry_run`: if true, does not perform remote changes
+
+### Promote to production
+Manual dispatch only; routes through `Deploy` with `environment=production`, which triggers the environment approval gate.
+
+### Verify
+Smoke-check workflow (may be a stub initially). Prefer running Verify after staging deploy and after production promote.
+
+---
+
 ## Operator notes
 
-### How to find release_run_id
+### How to find `release_run_id`
+1. GitHub → Actions
+2. Open the **Docker release** workflow
+3. Click the run you want
+4. Copy the numeric run id from the URL: `/actions/runs/<RUN_ID>`
 
-1. Go to GitHub → Actions.
-2. Open the Docker Release workflow.
-3. Click the specific run you want to deploy.
-4. Copy the run id from the URL.
+### How to SSH to the VM via IAP (operator workstation)
+```bash
+gcloud compute ssh "$GCE_INSTANCE_NAME"   --project "$GCP_PROJECT_ID"   --zone "$GCP_ZONE"   --tunnel-through-iap
+```
 
-The URL contains `/actions/runs/<RUN_ID>`.
+---
 
-Example: `.../actions/runs/1234567890` → `release_run_id=1234567890`.
+## Deploy behavior on the VM (expected)
 
-### How Patchbot promotes a release
+On a real deploy (dry_run=false), the deploy routine should:
 
-#### Staging
+1. Ensure directories exist:
+   - `$DEPLOY_TARGET_DIR`
+   - `$PERSIST_STATE_DIR` (must be `/var/lib/clawdbot`)
+2. Authenticate to GHCR (read-only):
+   - `docker login ghcr.io`
+3. Pin the exact image ref (digest preferred) into compose/env:
+   - e.g. write an override file or `.env` with `DAISY_IMAGE=<image@digest>`
+4. Apply:
+   - `docker compose pull`
+   - `docker compose up -d`
+5. Basic verification:
+   - `docker ps` shows expected containers healthy/running
+   - application-level health check (if available)
 
-When a Docker release run completes successfully, Deploy staging on release triggers automatically.
+---
 
-It deploys the exact artifact from that Docker release run (`release-metadata` → digest or tag).
+## Rollback
 
-After deploy, run Verify for staging or confirm a follow-up workflow handles it.
+Rollback is “deploy a previous artifact”:
 
-#### Production
+1. Identify a prior successful Docker release run id
+2. Run `Deploy` for the target environment with that `release_run_id`
+3. Approve if production
+4. Verify
 
-Production is never automatic.
+Because deploy uses `release-metadata`, rollback is deterministic.
 
-Run Promote to Production manually:
+---
 
-- input `release_run_id` from the Docker release run you intend to ship
-- optional `image_ref` override only for emergencies
+## Troubleshooting
 
-GitHub will pause at the production environment approval gate.
+### Deploy cannot download `release-metadata`
+- Verify `release_run_id` is from the **Docker release** workflow run (not CI/Deploy).
+- Confirm that run uploaded `release-metadata` artifact.
 
-After approval, deployment proceeds and Verify can run separately.
+### IAP tunnel errors
+- Ensure IAP TCP forwarding is enabled and IAM grants include IAP tunnel access.
+- Reference IAP TCP forwarding docs:
+  https://docs.cloud.google.com/iap/docs/using-tcp-forwarding
 
-### Troubleshooting: release-metadata not found
-
-If deploy fails to download `release-metadata`:
-
-- Confirm the `release_run_id` is from the Docker Release workflow (not CI or Deploy).
-- Confirm that run uploaded an artifact named `release-metadata`.
-- Re-run the Docker Release workflow if needed, then retry deploy with the new run id.
+### Permission/approval confusion
+- Ensure deploy jobs reference `environment: staging|production` so GitHub Environments apply.
+- Environment secrets are unavailable until approval (production).
