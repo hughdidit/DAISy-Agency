@@ -5,6 +5,11 @@ import {
   resolveInboundDebounceMs,
 } from "../auto-reply/inbound-debounce.js";
 import { buildCommandsPaginationKeyboard } from "../auto-reply/reply/commands-info.js";
+<<<<<<< HEAD
+=======
+import { buildModelsProviderData } from "../auto-reply/reply/commands-models.js";
+import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
+>>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
 import { buildCommandsMessagePaginated } from "../auto-reply/status.js";
 import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
@@ -25,10 +30,21 @@ import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
 import { migrateTelegramGroupConfig } from "./group-migration.js";
 import { resolveTelegramInlineButtonsScope } from "./inline-buttons.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { readTelegramAllowFromStore } from "./pairing-store.js";
 import { resolveChannelConfigWrites } from "../channels/plugins/config-writes.js";
 =======
 >>>>>>> 24fbafa9a (refactor: use shared pairing store for telegram)
+=======
+import {
+  buildModelsKeyboard,
+  buildProviderKeyboard,
+  calculateTotalPages,
+  getModelsPageSize,
+  parseModelCallbackData,
+  type ProviderInfo,
+} from "./model-buttons.js";
+>>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
 import { buildInlineKeyboard } from "./send.js";
 
 export const registerTelegramHandlers = ({
@@ -408,6 +424,107 @@ export const registerTelegramHandlers = ({
             throw editErr;
           }
         }
+        return;
+      }
+
+      // Model selection callback handler (mdl_prov, mdl_list_*, mdl_sel_*, mdl_back)
+      const modelCallback = parseModelCallbackData(data);
+      if (modelCallback) {
+        const modelData = await buildModelsProviderData(cfg);
+        const { byProvider, providers } = modelData;
+
+        const editMessageWithButtons = async (
+          text: string,
+          buttons: ReturnType<typeof buildProviderKeyboard>,
+        ) => {
+          const keyboard = buildInlineKeyboard(buttons);
+          try {
+            await bot.api.editMessageText(
+              callbackMessage.chat.id,
+              callbackMessage.message_id,
+              text,
+              keyboard ? { reply_markup: keyboard } : undefined,
+            );
+          } catch (editErr) {
+            const errStr = String(editErr);
+            if (!errStr.includes("message is not modified")) {
+              throw editErr;
+            }
+          }
+        };
+
+        if (modelCallback.type === "providers" || modelCallback.type === "back") {
+          if (providers.length === 0) {
+            await editMessageWithButtons("No providers available.", []);
+            return;
+          }
+          const providerInfos: ProviderInfo[] = providers.map((p) => ({
+            id: p,
+            count: byProvider.get(p)?.size ?? 0,
+          }));
+          const buttons = buildProviderKeyboard(providerInfos);
+          await editMessageWithButtons("Select a provider:", buttons);
+          return;
+        }
+
+        if (modelCallback.type === "list") {
+          const { provider, page } = modelCallback;
+          const modelSet = byProvider.get(provider);
+          if (!modelSet || modelSet.size === 0) {
+            // Provider not found or no models - show providers list
+            const providerInfos: ProviderInfo[] = providers.map((p) => ({
+              id: p,
+              count: byProvider.get(p)?.size ?? 0,
+            }));
+            const buttons = buildProviderKeyboard(providerInfos);
+            await editMessageWithButtons(
+              `Unknown provider: ${provider}\n\nSelect a provider:`,
+              buttons,
+            );
+            return;
+          }
+          const models = [...modelSet].toSorted();
+          const pageSize = getModelsPageSize();
+          const totalPages = calculateTotalPages(models.length, pageSize);
+          const safePage = Math.max(1, Math.min(page, totalPages));
+
+          const buttons = buildModelsKeyboard({
+            provider,
+            models,
+            currentPage: safePage,
+            totalPages,
+            pageSize,
+          });
+          const text = `Models (${provider}) — ${models.length} available`;
+          await editMessageWithButtons(text, buttons);
+          return;
+        }
+
+        if (modelCallback.type === "select") {
+          const { provider, model } = modelCallback;
+          // Process model selection as a synthetic message with /model command
+          const syntheticMessage: TelegramMessage = {
+            ...callbackMessage,
+            from: callback.from,
+            text: `/model ${provider}/${model}`,
+            caption: undefined,
+            caption_entities: undefined,
+            entities: undefined,
+          };
+          const getFile =
+            typeof ctx.getFile === "function" ? ctx.getFile.bind(ctx) : async () => ({});
+          await processMessage(
+            { message: syntheticMessage, me: ctx.me, getFile },
+            [],
+            storeAllowFrom,
+            {
+              forceWasMentioned: true,
+              messageIdOverride: callback.id,
+            },
+          );
+          return;
+        }
+
         return;
       }
 
