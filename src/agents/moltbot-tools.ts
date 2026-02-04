@@ -53,6 +53,10 @@ export function createMoltbotTools(options?: {
   modelHasVision?: boolean;
   /** Explicit agent ID override for cron/hook sessions. */
   requesterAgentIdOverride?: string;
+  /** Require explicit message targets (no implicit last-route sends). */
+  requireExplicitMessageTarget?: boolean;
+  /** If true, omit the message tool from the tool list. */
+  disableMessageTool?: boolean;
 }): AnyAgentTool[] {
   const imageTool = options?.agentDir?.trim()
     ? createImageTool({
@@ -70,6 +74,20 @@ export function createMoltbotTools(options?: {
     config: options?.config,
     sandboxed: options?.sandboxed,
   });
+  const messageTool = options?.disableMessageTool
+    ? null
+    : createMessageTool({
+        agentAccountId: options?.agentAccountId,
+        agentSessionKey: options?.agentSessionKey,
+        config: options?.config,
+        currentChannelId: options?.currentChannelId,
+        currentChannelProvider: options?.agentChannel,
+        currentThreadTs: options?.currentThreadTs,
+        replyToMode: options?.replyToMode,
+        hasRepliedRef: options?.hasRepliedRef,
+        sandboxRoot: options?.sandboxRoot,
+        requireExplicitTarget: options?.requireExplicitMessageTarget,
+      });
   const tools: AnyAgentTool[] = [
     createBrowserTool({
       sandboxBridgeUrl: options?.sandboxBrowserBridgeUrl,
@@ -83,6 +101,7 @@ export function createMoltbotTools(options?: {
     createCronTool({
       agentSessionKey: options?.agentSessionKey,
     }),
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
     createMessageTool({
       agentAccountId: options?.agentAccountId,
       agentSessionKey: options?.agentSessionKey,
@@ -93,6 +112,9 @@ export function createMoltbotTools(options?: {
       replyToMode: options?.replyToMode,
       hasRepliedRef: options?.hasRepliedRef,
     }),
+=======
+    ...(messageTool ? [messageTool] : []),
+>>>>>>> 3f82daefd (feat(cron): enhance delivery modes and job configuration):src/agents/openclaw-tools.ts
     createTtsTool({
       agentChannel: options?.agentChannel,
       config: options?.config,
