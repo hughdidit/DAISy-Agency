@@ -10,6 +10,11 @@ on:
       - daisy/main
       - daisy/dev
   workflow_dispatch:
+    inputs:
+      run_ios:
+        description: Run iOS tests
+        type: boolean
+        default: false
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -544,7 +549,7 @@ jobs:
         run: ${{ matrix.command }}
   ios:
     name: iOS
-    if: false # ignore iOS in CI for now
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.run_ios) }}
     runs-on: macos-latest
     steps:
       - name: Checkout
