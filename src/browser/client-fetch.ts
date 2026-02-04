@@ -23,10 +23,17 @@ function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number):
     msgLower.includes("aborterror");
   if (looksLikeTimeout) {
     return new Error(
+<<<<<<< HEAD
       `Can't reach the clawd browser control service (timed out after ${timeoutMs}ms). ${hint}`,
     );
   }
   return new Error(`Can't reach the clawd browser control service. ${hint} (${msg})`);
+=======
+      `Can't reach the OpenClaw browser control service (timed out after ${timeoutMs}ms). ${hint}`,
+    );
+  }
+  return new Error(`Can't reach the OpenClaw browser control service. ${hint} (${msg})`);
+>>>>>>> d2ff28dda (Make openclaw consistent in this file (#8533))
 }
 
 async function fetchHttpJson<T>(
