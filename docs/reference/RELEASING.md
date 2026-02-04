@@ -101,6 +101,7 @@ Process to derive the list:
 3) Publish only the **intersection** (already on npm).
 
 Current npm plugin list (update as needed):
+<<<<<<< HEAD
 - @moltbot/bluebubbles
 - @moltbot/diagnostics-otel
 - @moltbot/discord
@@ -112,6 +113,21 @@ Current npm plugin list (update as needed):
 - @moltbot/voice-call
 - @moltbot/zalo
 - @moltbot/zalouser
+=======
+
+- @openclaw/bluebubbles
+- @openclaw/diagnostics-otel
+- @openclaw/discord
+- @openclaw/feishu
+- @openclaw/lobster
+- @openclaw/matrix
+- @openclaw/msteams
+- @openclaw/nextcloud-talk
+- @openclaw/nostr
+- @openclaw/voice-call
+- @openclaw/zalo
+- @openclaw/zalouser
+>>>>>>> 529236732 (docs: update Feishu plugin docs)
 
 Release notes must also call out **new optional bundled plugins** that are **not
 on by default** (example: `tlon`).
