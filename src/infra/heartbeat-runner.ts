@@ -540,6 +540,19 @@ export async function runHeartbeatOnce(opts: {
   const { entry, sessionKey, storePath } = resolveHeartbeatSession(cfg, agentId, heartbeat);
   const previousUpdatedAt = entry?.updatedAt;
   const delivery = resolveHeartbeatDeliveryTarget({ cfg, entry, heartbeat });
+  const heartbeatAccountId = heartbeat?.accountId?.trim();
+  if (delivery.reason === "unknown-account") {
+    log.warn("heartbeat: unknown accountId", {
+      accountId: delivery.accountId ?? heartbeatAccountId ?? null,
+      target: heartbeat?.target ?? "last",
+    });
+  } else if (heartbeatAccountId) {
+    log.info("heartbeat: using explicit accountId", {
+      accountId: delivery.accountId ?? heartbeatAccountId,
+      target: heartbeat?.target ?? "last",
+      channel: delivery.channel,
+    });
+  }
   const visibility =
     delivery.channel !== "none"
       ? resolveHeartbeatVisibility({
@@ -575,6 +588,7 @@ export async function runHeartbeatOnce(opts: {
       reason: "alerts-disabled",
       durationMs: Date.now() - startedAt,
       channel: delivery.channel !== "none" ? delivery.channel : undefined,
+      accountId: delivery.accountId,
     });
     return { status: "skipped", reason: "alerts-disabled" };
   }
@@ -632,6 +646,7 @@ export async function runHeartbeatOnce(opts: {
         reason: opts.reason,
         durationMs: Date.now() - startedAt,
         channel: delivery.channel !== "none" ? delivery.channel : undefined,
+        accountId: delivery.accountId,
         silent: !okSent,
         indicatorType: visibility.useIndicator ? resolveIndicatorType("ok-empty") : undefined,
       });
@@ -665,6 +680,7 @@ export async function runHeartbeatOnce(opts: {
         reason: opts.reason,
         durationMs: Date.now() - startedAt,
         channel: delivery.channel !== "none" ? delivery.channel : undefined,
+        accountId: delivery.accountId,
         silent: !okSent,
         indicatorType: visibility.useIndicator ? resolveIndicatorType("ok-token") : undefined,
       });
@@ -701,6 +717,7 @@ export async function runHeartbeatOnce(opts: {
         durationMs: Date.now() - startedAt,
         hasMedia: false,
         channel: delivery.channel !== "none" ? delivery.channel : undefined,
+        accountId: delivery.accountId,
       });
       return { status: "ran", durationMs: Date.now() - startedAt };
     }
@@ -720,6 +737,7 @@ export async function runHeartbeatOnce(opts: {
         preview: previewText?.slice(0, 200),
         durationMs: Date.now() - startedAt,
         hasMedia: mediaUrls.length > 0,
+        accountId: delivery.accountId,
       });
       return { status: "ran", durationMs: Date.now() - startedAt };
     }
@@ -737,6 +755,7 @@ export async function runHeartbeatOnce(opts: {
         durationMs: Date.now() - startedAt,
         channel: delivery.channel,
         hasMedia: mediaUrls.length > 0,
+        accountId: delivery.accountId,
         indicatorType: visibility.useIndicator ? resolveIndicatorType("sent") : undefined,
       });
       return { status: "ran", durationMs: Date.now() - startedAt };
@@ -758,6 +777,7 @@ export async function runHeartbeatOnce(opts: {
           durationMs: Date.now() - startedAt,
           hasMedia: mediaUrls.length > 0,
           channel: delivery.channel,
+          accountId: delivery.accountId,
         });
         log.info("heartbeat: channel not ready", {
           channel: delivery.channel,
@@ -807,6 +827,7 @@ export async function runHeartbeatOnce(opts: {
       durationMs: Date.now() - startedAt,
       hasMedia: mediaUrls.length > 0,
       channel: delivery.channel,
+      accountId: delivery.accountId,
       indicatorType: visibility.useIndicator ? resolveIndicatorType("sent") : undefined,
     });
     return { status: "ran", durationMs: Date.now() - startedAt };
@@ -817,6 +838,7 @@ export async function runHeartbeatOnce(opts: {
       reason,
       durationMs: Date.now() - startedAt,
       channel: delivery.channel !== "none" ? delivery.channel : undefined,
+      accountId: delivery.accountId,
       indicatorType: visibility.useIndicator ? resolveIndicatorType("failed") : undefined,
     });
     log.error(`heartbeat failed: ${reason}`, { error: reason });
