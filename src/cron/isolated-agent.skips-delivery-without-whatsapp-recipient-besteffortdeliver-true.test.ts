@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -16,6 +17,15 @@ import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { setDiscordRuntime } from "../../extensions/discord/src/runtime.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
 import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
+=======
+import type { CliDeps } from "../cli/deps.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { CronJob } from "./types.js";
+import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
+import { telegramOutbound } from "../channels/plugins/outbound/telegram.js";
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
@@ -94,15 +104,20 @@ describe("runCronIsolatedAgentTurn", () => {
   beforeEach(() => {
     vi.mocked(runEmbeddedPiAgent).mockReset();
     vi.mocked(loadModelCatalog).mockResolvedValue([]);
+<<<<<<< HEAD
     const runtime = createPluginRuntime();
     setDiscordRuntime(runtime);
     setTelegramRuntime(runtime);
     setWhatsAppRuntime(runtime);
+=======
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
     setActivePluginRegistry(
       createTestRegistry([
-        { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
-        { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
-        { pluginId: "discord", plugin: discordPlugin, source: "test" },
+        {
+          pluginId: "telegram",
+          plugin: createOutboundTestPlugin({ id: "telegram", outbound: telegramOutbound }),
+          source: "test",
+        },
       ]),
     );
   });
@@ -187,6 +202,7 @@ describe("runCronIsolatedAgentTurn", () => {
           lane: "cron",
         });
 
+<<<<<<< HEAD
         expect(res.status).toBe("ok");
         expect(deps.sendMessageTelegram).toHaveBeenCalledWith(
           "123",
@@ -200,6 +216,10 @@ describe("runCronIsolatedAgentTurn", () => {
           process.env.TELEGRAM_BOT_TOKEN = prevTelegramToken;
         }
       }
+=======
+      expect(res.status).toBe("ok");
+      expect(deps.sendMessageTelegram).toHaveBeenCalled();
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
     });
   });
 
@@ -350,11 +370,15 @@ describe("runCronIsolatedAgentTurn", () => {
       });
 
       expect(res.status).toBe("ok");
+<<<<<<< HEAD
       expect(deps.sendMessageTelegram).toHaveBeenCalledWith(
         "telegram:group:-1001234567890:topic:321",
         "hello from cron",
         expect.objectContaining({ verbose: false }),
       );
+=======
+      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
     });
   });
 
@@ -531,7 +555,11 @@ describe("runCronIsolatedAgentTurn", () => {
       });
 
       expect(res.status).toBe("ok");
+<<<<<<< HEAD
       expect(deps.sendMessageWhatsApp).not.toHaveBeenCalled();
+=======
+      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
     });
   });
 
@@ -540,10 +568,14 @@ describe("runCronIsolatedAgentTurn", () => {
       const storePath = await writeSessionStore(home);
       const deps: CliDeps = {
         sendMessageWhatsApp: vi.fn(),
+<<<<<<< HEAD
         sendMessageTelegram: vi.fn().mockResolvedValue({
           messageId: "t1",
           chatId: "123",
         }),
+=======
+        sendMessageTelegram: vi.fn().mockRejectedValue(new Error("boom")),
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
         sendMessageDiscord: vi.fn(),
         sendMessageSignal: vi.fn(),
         sendMessageIMessage: vi.fn(),
@@ -557,16 +589,56 @@ describe("runCronIsolatedAgentTurn", () => {
           agentMeta: { sessionId: "s", provider: "p", model: "m" },
         },
       });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
       const res = await runCronIsolatedAgentTurn({
         cfg: makeCfg(home, storePath),
         deps,
+<<<<<<< HEAD
         job: makeJob({
           kind: "agentTurn",
           message: "do it",
           deliver: true,
           channel: "telegram",
           to: "123",
+=======
+        job: {
+          ...makeJob({ kind: "agentTurn", message: "do it" }),
+          delivery: { mode: "announce", channel: "telegram", to: "123" },
+        },
+        message: "do it",
+        sessionKey: "cron:job-1",
+        lane: "cron",
+      });
+
+      expect(res.status).toBe("error");
+      expect(res.error).toBe("Error: boom");
+    });
+  });
+
+  it("ignores announce delivery failures when best-effort is enabled", async () => {
+    await withTempHome(async (home) => {
+      const storePath = await writeSessionStore(home);
+      const deps: CliDeps = {
+        sendMessageWhatsApp: vi.fn(),
+        sendMessageTelegram: vi.fn().mockRejectedValue(new Error("boom")),
+        sendMessageDiscord: vi.fn(),
+        sendMessageSignal: vi.fn(),
+        sendMessageIMessage: vi.fn(),
+      };
+      vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
+        payloads: [{ text: "hello from cron" }],
+        meta: {
+          durationMs: 5,
+          agentMeta: { sessionId: "s", provider: "p", model: "m" },
+        },
+      });
+      const res = await runCronIsolatedAgentTurn({
+        cfg: makeCfg(home, storePath, {
+          channels: { telegram: { botToken: "t-1" } },
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
         }),
         message: "do it",
         sessionKey: "cron:job-1",

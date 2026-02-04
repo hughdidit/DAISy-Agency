@@ -4,9 +4,15 @@ import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
+<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import type { MoltbotConfig } from "../config/config.js";
 import type { CronJob } from "./types.js";
+=======
+import { telegramOutbound } from "../channels/plugins/outbound/telegram.js";
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
@@ -85,6 +91,18 @@ describe("runCronIsolatedAgentTurn", () => {
   beforeEach(() => {
     vi.mocked(runEmbeddedPiAgent).mockReset();
     vi.mocked(loadModelCatalog).mockResolvedValue([]);
+<<<<<<< HEAD
+=======
+    setActivePluginRegistry(
+      createTestRegistry([
+        {
+          pluginId: "telegram",
+          plugin: createOutboundTestPlugin({ id: "telegram", outbound: telegramOutbound }),
+          source: "test",
+        },
+      ]),
+    );
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
   });
 
   it("delivers when response has HEARTBEAT_OK but includes media", async () => {
@@ -125,11 +143,15 @@ describe("runCronIsolatedAgentTurn", () => {
       });
 
       expect(res.status).toBe("ok");
+<<<<<<< HEAD
       expect(deps.sendMessageTelegram).toHaveBeenCalledWith(
         "123",
         "HEARTBEAT_OK",
         expect.objectContaining({ mediaUrl: "https://example.com/img.png" }),
       );
+=======
+      expect(deps.sendMessageTelegram).toHaveBeenCalled();
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
     });
   });
 
