@@ -118,8 +118,13 @@
       "destination": "/providers/opencode"
     },
     {
+<<<<<<< HEAD
       "source": "/opencode/",
       "destination": "/providers/opencode"
+=======
+      "source": "/qianfan",
+      "destination": "/providers/qianfan"
+>>>>>>> 7bf408060 (Fix format)
     },
     {
       "source": "/mattermost",
@@ -1367,7 +1372,8 @@
                   "providers/opencode",
                   "providers/glm",
                   "providers/zai",
-                  "providers/synthetic"
+                  "providers/synthetic",
+                  "providers/qianfan"
                 ]
               }
             ]
