@@ -5,11 +5,12 @@
 # First-boot scrub script for staging VM.
 # Run this ON THE STAGING VM after creation to:
 #   1. Stop services
-#   2. Format and mount the state disk with bind mounts
-#   3. Remove production config artifacts
-#   4. Set staging identity
-#   5. Disable production-specific services
-#   6. Reboot
+#   2. Clear production state from boot disk paths (before bind mounts)
+#   3. Format and mount the fresh state disk with bind mounts
+#   4. Remove production secrets from deploy directory
+#   5. Set staging identity
+#   6. Disable production-specific services
+#   7. Reboot
 #
 # Usage (on the staging VM):
 #   sudo bash staging-scrub.sh
@@ -35,7 +36,8 @@ STATE_MOUNT="${STATE_MOUNT:-/var/lib/daisy}"
 CLAWDBOT_HOME="${CLAWDBOT_HOME:-/var/lib/clawdbot/home}"
 CONFIG_DIR="${CONFIG_DIR:-$CLAWDBOT_HOME/.clawdbot}"
 WORKSPACE_DIR="${WORKSPACE_DIR:-$CLAWDBOT_HOME/clawd}"
-DEPLOY_DIR="${DEPLOY_DIR:-/var/lib/clawdbot}"
+# DEPLOY_DIR is where docker-compose.yml and .env live (separate from state)
+DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
 CLAWDBOT_USER="${CLAWDBOT_USER:-clawdbot}"
 
 # =============================================================================
@@ -78,7 +80,16 @@ fi
 log "State disk found: $STATE_DISK"
 log "Will mount to: $STATE_MOUNT"
 log "Bind mounts: $CONFIG_DIR, $WORKSPACE_DIR"
+log "Deploy directory: $DEPLOY_DIR"
 log ""
+
+# Check deploy directory has compose file (prevents scrubbing wrong location)
+if [[ ! -f "$DEPLOY_DIR/docker-compose.yml" ]] && [[ ! -f "$DEPLOY_DIR/compose.yml" ]]; then
+  log "ERROR: No docker-compose.yml or compose.yml found in $DEPLOY_DIR"
+  log "Either DEPLOY_DIR is wrong, or the compose file has a different name."
+  log "Set DEPLOY_DIR to the directory containing your compose file."
+  exit 1
+fi
 
 confirm "This will FORMAT $STATE_DISK and clear production state. Continue?" || exit 0
 
@@ -101,11 +112,32 @@ else
 fi
 
 # =============================================================================
-# Phase 2: Format and Mount State Disk
+# Phase 2: Clear Production State from Boot Disk
 # =============================================================================
 
 log ""
-log "=== Phase 2: Format and Mount State Disk ==="
+log "=== Phase 2: Clear Production State from Boot Disk ==="
+
+# IMPORTANT: Clear production state from boot disk paths BEFORE bind mounts
+# This prevents production data from leaking if bind mounts ever fail.
+# After bind mounts are applied, these paths will point to the fresh state disk.
+
+if [[ -d "$CONFIG_DIR" ]]; then
+  log "Clearing production config from boot disk ($CONFIG_DIR)..."
+  rm -rf "${CONFIG_DIR:?}"/* 2>/dev/null || true
+fi
+
+if [[ -d "$WORKSPACE_DIR" ]]; then
+  log "Clearing production workspace from boot disk ($WORKSPACE_DIR)..."
+  rm -rf "${WORKSPACE_DIR:?}"/* 2>/dev/null || true
+fi
+
+# =============================================================================
+# Phase 3: Format and Mount State Disk
+# =============================================================================
+
+log ""
+log "=== Phase 3: Format and Mount State Disk ==="
 
 # Unmount if already mounted
 if mountpoint -q "$STATE_MOUNT" 2>/dev/null; then
@@ -113,7 +145,7 @@ if mountpoint -q "$STATE_MOUNT" 2>/dev/null; then
   umount "$STATE_MOUNT"
 fi
 
-# Format the state disk
+# Format the state disk (this is a NEW, empty disk)
 log "Formatting $STATE_DISK as ext4..."
 mkfs.ext4 -F "$STATE_DISK"
 
@@ -125,14 +157,14 @@ mkdir -p "$STATE_MOUNT"
 log "Mounting $STATE_DISK to $STATE_MOUNT..."
 mount "$STATE_DISK" "$STATE_MOUNT"
 
-# Create subdirectories
+# Create subdirectories on the fresh state disk
 log "Creating subdirectories for config and workspace..."
 mkdir -p "$STATE_MOUNT/config"
 mkdir -p "$STATE_MOUNT/workspace"
 chown -R "$CLAWDBOT_USER:$CLAWDBOT_USER" "$STATE_MOUNT"
 
-# Create target directories if they don't exist
-log "Creating bind mount target directories..."
+# Ensure bind mount target directories exist
+log "Ensuring bind mount target directories exist..."
 mkdir -p "$CONFIG_DIR"
 mkdir -p "$WORKSPACE_DIR"
 chown "$CLAWDBOT_USER:$CLAWDBOT_USER" "$CONFIG_DIR" "$WORKSPACE_DIR"
@@ -152,7 +184,7 @@ $STATE_MOUNT/config $CONFIG_DIR none bind 0 0
 $STATE_MOUNT/workspace $WORKSPACE_DIR none bind 0 0
 EOF
 
-# Apply bind mounts
+# Apply bind mounts (now CONFIG_DIR and WORKSPACE_DIR point to fresh state disk)
 log "Applying bind mounts..."
 mount --bind "$STATE_MOUNT/config" "$CONFIG_DIR"
 mount --bind "$STATE_MOUNT/workspace" "$WORKSPACE_DIR"
@@ -163,19 +195,11 @@ mountpoint "$CONFIG_DIR" && log "  $CONFIG_DIR: OK"
 mountpoint "$WORKSPACE_DIR" && log "  $WORKSPACE_DIR: OK"
 
 # =============================================================================
-# Phase 3: Remove Production Config Artifacts
+# Phase 4: Remove Production Secrets from Deploy Directory
 # =============================================================================
 
 log ""
-log "=== Phase 3: Remove Production Config Artifacts ==="
-
-# Clear config directory (now on state disk)
-log "Clearing config directory..."
-rm -rf "${CONFIG_DIR:?}"/* 2>/dev/null || true
-
-# Clear workspace directory (now on state disk)
-log "Clearing workspace directory..."
-rm -rf "${WORKSPACE_DIR:?}"/* 2>/dev/null || true
+log "=== Phase 4: Remove Production Secrets from Deploy Directory ==="
 
 # Remove deploy .env file
 if [[ -f "$DEPLOY_DIR/.env" ]]; then
@@ -204,11 +228,11 @@ rm -f /root/.ssh/known_hosts 2>/dev/null || true
 rm -f /home/node/.ssh/known_hosts 2>/dev/null || true
 
 # =============================================================================
-# Phase 4: Set Staging Identity
+# Phase 5: Set Staging Identity
 # =============================================================================
 
 log ""
-log "=== Phase 4: Set Staging Identity ==="
+log "=== Phase 5: Set Staging Identity ==="
 
 log "Setting hostname to $STAGING_HOSTNAME..."
 hostnamectl set-hostname "$STAGING_HOSTNAME"
@@ -226,11 +250,11 @@ DAISY_ENVIRONMENT=staging
 EOF
 
 # =============================================================================
-# Phase 5: Disable Production-Specific Services
+# Phase 6: Disable Production-Specific Services
 # =============================================================================
 
 log ""
-log "=== Phase 5: Disable Production-Specific Services ==="
+log "=== Phase 6: Disable Production-Specific Services ==="
 
 # Remove root crontab
 log "Removing root crontab..."

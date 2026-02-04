@@ -19,7 +19,8 @@ STATE_MOUNT="${STATE_MOUNT:-/var/lib/daisy}"
 CLAWDBOT_HOME="${CLAWDBOT_HOME:-/var/lib/clawdbot/home}"
 CONFIG_DIR="${CONFIG_DIR:-$CLAWDBOT_HOME/.clawdbot}"
 WORKSPACE_DIR="${WORKSPACE_DIR:-$CLAWDBOT_HOME/clawd}"
-DEPLOY_DIR="${DEPLOY_DIR:-/var/lib/clawdbot}"
+# DEPLOY_DIR is where docker-compose.yml and .env live (separate from state)
+DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
 
 # =============================================================================
 # Helper functions
@@ -63,13 +64,32 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# Check 2: No external IP
+# Check 2: No external IP (via GCE metadata, not outbound connectivity)
 # -----------------------------------------------------------------------------
-echo "Checking external IP access..."
-if curl -sf --connect-timeout 5 ifconfig.me &>/dev/null; then
-  check_fail "External IP is reachable (VM may have public IP)"
+echo "Checking external IP configuration..."
+METADATA_NIC_BASE="http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/"
+if curl -sf -H "Metadata-Flavor: Google" "${METADATA_NIC_BASE}" >/dev/null 2>&1; then
+  has_external_ip=false
+  nic_index=0
+  while true; do
+    # Stop when this NIC index does not exist
+    if ! curl -sf -H "Metadata-Flavor: Google" "${METADATA_NIC_BASE}${nic_index}/" >/dev/null 2>&1; then
+      break
+    fi
+    # Check if an access-config external IP exists for this NIC
+    if curl -sf -H "Metadata-Flavor: Google" "${METADATA_NIC_BASE}${nic_index}/access-configs/0/external-ip" 2>/dev/null | grep -q .; then
+      has_external_ip=true
+      break
+    fi
+    nic_index=$((nic_index + 1))
+  done
+  if [[ "${has_external_ip}" == true ]]; then
+    check_fail "Instance has one or more external IPs configured"
+  else
+    check_pass "No external IPs configured on any network interface (IAP-only)"
+  fi
 else
-  check_pass "No external IP access (IAP-only)"
+  check_warn "Could not query GCE metadata server - not running on GCE?"
 fi
 
 # -----------------------------------------------------------------------------

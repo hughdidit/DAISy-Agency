@@ -163,7 +163,7 @@ gcloud compute ssh ${STAGING_INSTANCE:-daisy-staging-1} \
 Create the `.env` file with staging secrets:
 
 ```bash
-sudo nano /var/lib/clawdbot/.env
+sudo nano /opt/DAISy/.env
 ```
 
 Required variables:
@@ -174,8 +174,12 @@ CLAWDBOT_GATEWAY_BIND=lan
 CLAWDBOT_GATEWAY_PORT=18789
 CLAWDBOT_BRIDGE_PORT=18790
 
-# Docker image
-CLAWDBOT_IMAGE=ghcr.io/hughdidit/daisy-agency:latest
+# Docker image (pin to specific version or SHA for security)
+# Using :latest is convenient but poses supply-chain risk - if the registry
+# or tag is compromised, malicious code could execute with your secrets.
+# For staging, use a specific version tag or image digest:
+CLAWDBOT_IMAGE=ghcr.io/hughdidit/daisy-agency:v1.2.3
+# Or pin to SHA: ghcr.io/hughdidit/daisy-agency@sha256:abc123...
 
 # Paths (should match bind mounts)
 CLAWDBOT_CONFIG_DIR=/var/lib/clawdbot/home/.clawdbot
@@ -203,7 +207,7 @@ openssl rand -hex 32
 ### 5. Start Services
 
 ```bash
-cd /var/lib/clawdbot
+cd /opt/DAISy
 
 # Pull the staging image
 sudo docker compose pull
@@ -339,7 +343,7 @@ Use `gcloud compute ssh` with IAP tunneling (no SSH keys):
     gcloud compute ssh ${{ vars.GCE_INSTANCE_NAME }} \
       --zone=${{ vars.GCP_ZONE }} \
       --tunnel-through-iap \
-      --command="cd /var/lib/clawdbot && docker compose pull && docker compose up -d"
+      --command="cd /opt/DAISy && docker compose pull && docker compose up -d"
 ```
 
 ### WIF Setup (one-time)
@@ -425,13 +429,13 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
 
 1. Check Docker logs:
    ```bash
-   cd /var/lib/clawdbot
+   cd /opt/DAISy
    docker compose logs
    ```
 
 2. Verify .env file:
    ```bash
-   cat /var/lib/clawdbot/.env
+   cat /opt/DAISy/.env
    ```
 
 3. Verify image pull:
