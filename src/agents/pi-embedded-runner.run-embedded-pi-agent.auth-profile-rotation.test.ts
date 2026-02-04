@@ -8,13 +8,41 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
 import type { EmbeddedRunAttemptResult } from "./pi-embedded-runner/run/types.js";
 
+<<<<<<< HEAD
 const runEmbeddedAttemptMock = vi.fn<Promise<EmbeddedRunAttemptResult>, [unknown]>();
+=======
+const runEmbeddedAttemptMock = vi.fn<(params: unknown) => Promise<EmbeddedRunAttemptResult>>();
+const resolveCopilotApiTokenMock = vi.fn();
+>>>>>>> 2dcd2f909 (fix: refresh Copilot token before expiry and retry on auth errors)
 
 vi.mock("./pi-embedded-runner/run/attempt.js", () => ({
   runEmbeddedAttempt: (params: unknown) => runEmbeddedAttemptMock(params),
 }));
 
+<<<<<<< HEAD
 let runEmbeddedPiAgent: typeof import("./pi-embedded-runner.js").runEmbeddedPiAgent;
+=======
+vi.mock("../providers/github-copilot-token.js", () => ({
+  DEFAULT_COPILOT_API_BASE_URL: "https://api.individual.githubcopilot.com",
+  resolveCopilotApiToken: (...args: unknown[]) => resolveCopilotApiTokenMock(...args),
+}));
+
+vi.mock("./pi-embedded-runner/compact.js", () => ({
+  compactEmbeddedPiSessionDirect: vi.fn(async () => {
+    throw new Error("compact should not run in auth profile rotation tests");
+  }),
+}));
+
+vi.mock("./models-config.js", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("./models-config.js")>();
+  return {
+    ...mod,
+    ensureOpenClawModelsJson: vi.fn(async () => ({ wrote: false })),
+  };
+});
+
+let runEmbeddedPiAgent: typeof import("./pi-embedded-runner/run.js").runEmbeddedPiAgent;
+>>>>>>> 2dcd2f909 (fix: refresh Copilot token before expiry and retry on auth errors)
 
 beforeAll(async () => {
   ({ runEmbeddedPiAgent } = await import("./pi-embedded-runner.js"));
@@ -22,7 +50,12 @@ beforeAll(async () => {
 
 beforeEach(() => {
   vi.useRealTimers();
+<<<<<<< HEAD
   runEmbeddedAttemptMock.mockReset();
+=======
+  runEmbeddedAttemptMock.mockClear();
+  resolveCopilotApiTokenMock.mockReset();
+>>>>>>> 2dcd2f909 (fix: refresh Copilot token before expiry and retry on auth errors)
 });
 
 const baseUsage = {
@@ -94,6 +127,31 @@ const makeConfig = (opts?: { fallbacks?: string[]; apiKey?: string }): MoltbotCo
     },
   }) satisfies MoltbotConfig;
 
+const copilotModelId = "gpt-4o";
+
+const makeCopilotConfig = (): OpenClawConfig =>
+  ({
+    models: {
+      providers: {
+        "github-copilot": {
+          api: "openai-responses",
+          baseUrl: "https://api.copilot.example",
+          models: [
+            {
+              id: copilotModelId,
+              name: "Copilot GPT-4o",
+              reasoning: false,
+              input: ["text"],
+              cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+              contextWindow: 16_000,
+              maxTokens: 2048,
+            },
+          ],
+        },
+      },
+    },
+  }) satisfies OpenClawConfig;
+
 const writeAuthStore = async (
   agentDir: string,
   opts?: {
@@ -121,6 +179,7 @@ const writeAuthStore = async (
   await fs.writeFile(authPath, JSON.stringify(payload));
 };
 
+<<<<<<< HEAD
 describe("runEmbeddedPiAgent auth profile rotation", () => {
 <<<<<<< HEAD
   it("rotates for auto-pinned profiles", async () => {
@@ -128,6 +187,422 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-workspace-"));
     try {
 =======
+=======
+const writeCopilotAuthStore = async (agentDir: string, token = "gh-token") => {
+  const authPath = path.join(agentDir, "auth-profiles.json");
+  const payload = {
+    version: 1,
+    profiles: {
+      "github-copilot:github": { type: "token", provider: "github-copilot", token },
+    },
+  };
+  await fs.writeFile(authPath, JSON.stringify(payload));
+};
+
+const buildCopilotAssistant = (overrides: Partial<AssistantMessage> = {}) =>
+  buildAssistant({ provider: "github-copilot", model: copilotModelId, ...overrides });
+
+const mockFailedThenSuccessfulAttempt = (errorMessage = "rate limit") => {
+  runEmbeddedAttemptMock
+    .mockResolvedValueOnce(
+      makeAttempt({
+        assistantTexts: [],
+        lastAssistant: buildAssistant({
+          stopReason: "error",
+          errorMessage,
+        }),
+      }),
+    )
+    .mockResolvedValueOnce(
+      makeAttempt({
+        assistantTexts: ["ok"],
+        lastAssistant: buildAssistant({
+          stopReason: "stop",
+          content: [{ type: "text", text: "ok" }],
+        }),
+      }),
+    );
+};
+
+async function runAutoPinnedOpenAiTurn(params: {
+  agentDir: string;
+  workspaceDir: string;
+  sessionKey: string;
+  runId: string;
+  authProfileId?: string;
+}) {
+  await runEmbeddedPiAgent({
+    sessionId: "session:test",
+    sessionKey: params.sessionKey,
+    sessionFile: path.join(params.workspaceDir, "session.jsonl"),
+    workspaceDir: params.workspaceDir,
+    agentDir: params.agentDir,
+    config: makeConfig(),
+    prompt: "hello",
+    provider: "openai",
+    model: "mock-1",
+    authProfileId: params.authProfileId ?? "openai:p1",
+    authProfileIdSource: "auto",
+    timeoutMs: 5_000,
+    runId: params.runId,
+  });
+}
+
+async function readUsageStats(agentDir: string) {
+  const stored = JSON.parse(
+    await fs.readFile(path.join(agentDir, "auth-profiles.json"), "utf-8"),
+  ) as {
+    usageStats?: Record<
+      string,
+      {
+        lastUsed?: number;
+        cooldownUntil?: number;
+        disabledUntil?: number;
+        disabledReason?: AuthProfileFailureReason;
+      }
+    >;
+  };
+  return stored.usageStats ?? {};
+}
+
+async function expectProfileP2UsageUnchanged(agentDir: string) {
+  const usageStats = await readUsageStats(agentDir);
+  expect(usageStats["openai:p2"]?.lastUsed).toBe(2);
+}
+
+async function runAutoPinnedRotationCase(params: {
+  errorMessage: string;
+  sessionKey: string;
+  runId: string;
+}) {
+  runEmbeddedAttemptMock.mockClear();
+  return withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
+    await writeAuthStore(agentDir);
+    mockFailedThenSuccessfulAttempt(params.errorMessage);
+    await runAutoPinnedOpenAiTurn({
+      agentDir,
+      workspaceDir,
+      sessionKey: params.sessionKey,
+      runId: params.runId,
+    });
+
+    expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(2);
+    const usageStats = await readUsageStats(agentDir);
+    return { usageStats };
+  });
+}
+
+function mockSingleSuccessfulAttempt() {
+  runEmbeddedAttemptMock.mockResolvedValueOnce(
+    makeAttempt({
+      assistantTexts: ["ok"],
+      lastAssistant: buildAssistant({
+        stopReason: "stop",
+        content: [{ type: "text", text: "ok" }],
+      }),
+    }),
+  );
+}
+
+function mockSingleErrorAttempt(params: {
+  errorMessage: string;
+  provider?: string;
+  model?: string;
+}) {
+  runEmbeddedAttemptMock.mockResolvedValueOnce(
+    makeAttempt({
+      assistantTexts: [],
+      lastAssistant: buildAssistant({
+        stopReason: "error",
+        errorMessage: params.errorMessage,
+        ...(params.provider ? { provider: params.provider } : {}),
+        ...(params.model ? { model: params.model } : {}),
+      }),
+    }),
+  );
+}
+
+async function withTimedAgentWorkspace<T>(
+  run: (ctx: { agentDir: string; workspaceDir: string; now: number }) => Promise<T>,
+) {
+  vi.useFakeTimers();
+  try {
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+    const now = Date.now();
+    vi.setSystemTime(now);
+
+    try {
+      return await run({ agentDir, workspaceDir, now });
+    } finally {
+      await fs.rm(agentDir, { recursive: true, force: true });
+      await fs.rm(workspaceDir, { recursive: true, force: true });
+    }
+  } finally {
+    vi.useRealTimers();
+  }
+}
+
+async function withAgentWorkspace<T>(
+  run: (ctx: { agentDir: string; workspaceDir: string }) => Promise<T>,
+) {
+  const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+  const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+  try {
+    return await run({ agentDir, workspaceDir });
+  } finally {
+    await fs.rm(agentDir, { recursive: true, force: true });
+    await fs.rm(workspaceDir, { recursive: true, force: true });
+  }
+}
+
+async function runTurnWithCooldownSeed(params: {
+  sessionKey: string;
+  runId: string;
+  authProfileId: string | undefined;
+  authProfileIdSource: "auto" | "user";
+}) {
+  return await withTimedAgentWorkspace(async ({ agentDir, workspaceDir, now }) => {
+    await writeAuthStore(agentDir, {
+      usageStats: {
+        "openai:p1": { lastUsed: 1, cooldownUntil: now + 60 * 60 * 1000 },
+        "openai:p2": { lastUsed: 2 },
+      },
+    });
+    mockSingleSuccessfulAttempt();
+
+    await runEmbeddedPiAgent({
+      sessionId: "session:test",
+      sessionKey: params.sessionKey,
+      sessionFile: path.join(workspaceDir, "session.jsonl"),
+      workspaceDir,
+      agentDir,
+      config: makeConfig(),
+      prompt: "hello",
+      provider: "openai",
+      model: "mock-1",
+      authProfileId: params.authProfileId,
+      authProfileIdSource: params.authProfileIdSource,
+      timeoutMs: 5_000,
+      runId: params.runId,
+    });
+
+    expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(1);
+    return { usageStats: await readUsageStats(agentDir), now };
+  });
+}
+
+describe("runEmbeddedPiAgent auth profile rotation", () => {
+  it("refreshes copilot token after auth error and retries once", async () => {
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+    vi.useFakeTimers();
+    try {
+      await writeCopilotAuthStore(agentDir);
+      const now = Date.now();
+      vi.setSystemTime(now);
+
+      resolveCopilotApiTokenMock
+        .mockResolvedValueOnce({
+          token: "copilot-initial",
+          expiresAt: now + 2 * 60 * 1000,
+          source: "mock",
+          baseUrl: "https://api.copilot.example",
+        })
+        .mockResolvedValueOnce({
+          token: "copilot-refresh",
+          expiresAt: now + 60 * 60 * 1000,
+          source: "mock",
+          baseUrl: "https://api.copilot.example",
+        });
+
+      runEmbeddedAttemptMock
+        .mockResolvedValueOnce(
+          makeAttempt({
+            assistantTexts: [],
+            lastAssistant: buildCopilotAssistant({
+              stopReason: "error",
+              errorMessage: "unauthorized",
+            }),
+          }),
+        )
+        .mockResolvedValueOnce(
+          makeAttempt({
+            assistantTexts: ["ok"],
+            lastAssistant: buildCopilotAssistant({
+              stopReason: "stop",
+              content: [{ type: "text", text: "ok" }],
+            }),
+          }),
+        );
+
+      await runEmbeddedPiAgent({
+        sessionId: "session:test",
+        sessionKey: "agent:test:copilot-auth-error",
+        sessionFile: path.join(workspaceDir, "session.jsonl"),
+        workspaceDir,
+        agentDir,
+        config: makeCopilotConfig(),
+        prompt: "hello",
+        provider: "github-copilot",
+        model: copilotModelId,
+        authProfileIdSource: "auto",
+        timeoutMs: 5_000,
+        runId: "run:copilot-auth-error",
+      });
+
+      expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(2);
+      expect(resolveCopilotApiTokenMock).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+      await fs.rm(agentDir, { recursive: true, force: true });
+      await fs.rm(workspaceDir, { recursive: true, force: true });
+    }
+  });
+
+  it("allows another auth refresh after a successful retry", async () => {
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+    vi.useFakeTimers();
+    try {
+      await writeCopilotAuthStore(agentDir);
+      const now = Date.now();
+      vi.setSystemTime(now);
+
+      resolveCopilotApiTokenMock
+        .mockResolvedValueOnce({
+          token: "copilot-initial",
+          expiresAt: now + 2 * 60 * 1000,
+          source: "mock",
+          baseUrl: "https://api.copilot.example",
+        })
+        .mockResolvedValueOnce({
+          token: "copilot-refresh-1",
+          expiresAt: now + 4 * 60 * 1000,
+          source: "mock",
+          baseUrl: "https://api.copilot.example",
+        })
+        .mockResolvedValueOnce({
+          token: "copilot-refresh-2",
+          expiresAt: now + 40 * 60 * 1000,
+          source: "mock",
+          baseUrl: "https://api.copilot.example",
+        });
+
+      runEmbeddedAttemptMock
+        .mockResolvedValueOnce(
+          makeAttempt({
+            assistantTexts: [],
+            lastAssistant: buildCopilotAssistant({
+              stopReason: "error",
+              errorMessage: "401 unauthorized",
+            }),
+          }),
+        )
+        .mockResolvedValueOnce(
+          makeAttempt({
+            promptError: new Error("supported values are: low, medium"),
+          }),
+        )
+        .mockResolvedValueOnce(
+          makeAttempt({
+            assistantTexts: [],
+            lastAssistant: buildCopilotAssistant({
+              stopReason: "error",
+              errorMessage: "token has expired",
+            }),
+          }),
+        )
+        .mockResolvedValueOnce(
+          makeAttempt({
+            assistantTexts: ["ok"],
+            lastAssistant: buildCopilotAssistant({
+              stopReason: "stop",
+              content: [{ type: "text", text: "ok" }],
+            }),
+          }),
+        );
+
+      await runEmbeddedPiAgent({
+        sessionId: "session:test",
+        sessionKey: "agent:test:copilot-auth-repeat",
+        sessionFile: path.join(workspaceDir, "session.jsonl"),
+        workspaceDir,
+        agentDir,
+        config: makeCopilotConfig(),
+        prompt: "hello",
+        provider: "github-copilot",
+        model: copilotModelId,
+        authProfileIdSource: "auto",
+        timeoutMs: 5_000,
+        runId: "run:copilot-auth-repeat",
+      });
+
+      expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(4);
+      expect(resolveCopilotApiTokenMock).toHaveBeenCalledTimes(3);
+    } finally {
+      vi.useRealTimers();
+      await fs.rm(agentDir, { recursive: true, force: true });
+      await fs.rm(workspaceDir, { recursive: true, force: true });
+    }
+  });
+
+  it("does not reschedule copilot refresh after shutdown", async () => {
+    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+    vi.useFakeTimers();
+    try {
+      await writeCopilotAuthStore(agentDir);
+      const now = Date.now();
+      vi.setSystemTime(now);
+
+      resolveCopilotApiTokenMock.mockResolvedValue({
+        token: "copilot-initial",
+        expiresAt: now + 60 * 60 * 1000,
+        source: "mock",
+        baseUrl: "https://api.copilot.example",
+      });
+
+      runEmbeddedAttemptMock.mockResolvedValueOnce(
+        makeAttempt({
+          assistantTexts: ["ok"],
+          lastAssistant: buildCopilotAssistant({
+            stopReason: "stop",
+            content: [{ type: "text", text: "ok" }],
+          }),
+        }),
+      );
+
+      const runPromise = runEmbeddedPiAgent({
+        sessionId: "session:test",
+        sessionKey: "agent:test:copilot-shutdown",
+        sessionFile: path.join(workspaceDir, "session.jsonl"),
+        workspaceDir,
+        agentDir,
+        config: makeCopilotConfig(),
+        prompt: "hello",
+        provider: "github-copilot",
+        model: copilotModelId,
+        authProfileIdSource: "auto",
+        timeoutMs: 5_000,
+        runId: "run:copilot-shutdown",
+      });
+
+      await vi.advanceTimersByTimeAsync(1);
+      await runPromise;
+      const refreshCalls = resolveCopilotApiTokenMock.mock.calls.length;
+
+      await vi.advanceTimersByTimeAsync(2 * 60 * 1000);
+
+      expect(resolveCopilotApiTokenMock.mock.calls.length).toBe(refreshCalls);
+    } finally {
+      vi.useRealTimers();
+      await fs.rm(agentDir, { recursive: true, force: true });
+      await fs.rm(workspaceDir, { recursive: true, force: true });
+    }
+  });
+
+>>>>>>> 2dcd2f909 (fix: refresh Copilot token before expiry and retry on auth errors)
   it("rotates for auto-pinned profiles across retryable stream failures", async () => {
     const cases = [
       {
