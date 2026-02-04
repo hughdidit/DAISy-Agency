@@ -132,6 +132,9 @@ Inputs:
 ### Promote to production
 Manual dispatch only; routes through `Deploy` with `environment=production`, which triggers the environment approval gate.
 
+### Staging auto-deploy dry run toggle
+The `deploy-staging-on-release` workflow reads a repo variable named `STAGING_DEPLOY_DRY_RUN`. Set it to `true` to keep staging in dry-run mode, or `false` to allow real deployments without editing the workflow file.
+
 ### Verify
 Smoke-check workflow (may be a stub initially). Prefer running Verify after staging deploy and after production promote.
 
