@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29-beta.1",
 =======
   "version": "2026.1.29-beta.3",
@@ -17,6 +18,9 @@
 =======
   "version": "2026.2.1",
 >>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
+=======
+  "version": "2026.2.2-1",
+>>>>>>> e59eb814b (chore: bump version to 2026.2.2-1)
   "description": "WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
   "type": "module",
   "main": "dist/index.js",

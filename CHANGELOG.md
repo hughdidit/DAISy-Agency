@@ -5,12 +5,21 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 Status: beta.
 =======
 =======
 ## 2026.1.31
 =======
+=======
+## 2026.2.2-1
+
+### Fixes
+
+- CLI status: fall back to build-info for version detection (fixes "unknown" in beta builds). Thanks @gumadeira.
+
+>>>>>>> e59eb814b (chore: bump version to 2026.2.2-1)
 ## 2026.2.2
 
 <<<<<<< HEAD
