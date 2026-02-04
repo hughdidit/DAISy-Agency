@@ -81,6 +81,19 @@ function matchesMessagingToolDeliveryTarget(
   return target.to === delivery.to;
 }
 
+<<<<<<< HEAD
+=======
+function resolveCronDeliveryBestEffort(job: CronJob): boolean {
+  if (typeof job.delivery?.bestEffort === "boolean") {
+    return job.delivery.bestEffort;
+  }
+  if (job.payload.kind === "agentTurn" && typeof job.payload.bestEffortDeliver === "boolean") {
+    return job.payload.bestEffortDeliver;
+  }
+  return false;
+}
+
+>>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))
 export type RunCronAgentTurnResult = {
   status: "ok" | "error" | "skipped";
   summary?: string;
@@ -443,17 +456,26 @@ export async function runCronIsolatedAgentTurn(params: {
     );
 
   if (deliveryRequested && !skipHeartbeatDelivery && !skipMessagingToolDelivery) {
+<<<<<<< HEAD
     if (!resolvedDelivery.to) {
       const reason =
         resolvedDelivery.error?.message ?? "Cron delivery requires a recipient (--to).";
       if (!bestEffortDeliver) {
         return {
           status: "error",
+=======
+    if (resolvedDelivery.error) {
+      if (!deliveryBestEffort) {
+        return {
+          status: "error",
+          error: resolvedDelivery.error.message,
+>>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))
           summary,
           outputText,
           error: reason,
         };
       }
+<<<<<<< HEAD
 <<<<<<< HEAD
       return {
         status: "skipped",
@@ -462,6 +484,22 @@ export async function runCronIsolatedAgentTurn(params: {
       };
 =======
       logWarn(`[cron:${params.job.id}] ${deliveryFailure.message}`);
+=======
+      logWarn(`[cron:${params.job.id}] ${resolvedDelivery.error.message}`);
+      return { status: "ok", summary, outputText };
+    }
+    if (!resolvedDelivery.to) {
+      const message = "cron delivery target is missing";
+      if (!deliveryBestEffort) {
+        return {
+          status: "error",
+          error: message,
+          summary,
+          outputText,
+        };
+      }
+      logWarn(`[cron:${params.job.id}] ${message}`);
+>>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))
       return { status: "ok", summary, outputText };
     }
     try {
