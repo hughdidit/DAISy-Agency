@@ -86,6 +86,12 @@ type ControlUiAvatarMeta = {
   avatarUrl: string | null;
 };
 
+function applyControlUiSecurityHeaders(res: ServerResponse) {
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+}
+
 function sendJson(res: ServerResponse, status: number, body: unknown) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -113,6 +119,8 @@ export function handleControlUiAvatarRequest(
     ? `${basePath}${CONTROL_UI_AVATAR_PREFIX}/`
     : `${CONTROL_UI_AVATAR_PREFIX}/`;
   if (!pathname.startsWith(pathWithBase)) return false;
+
+  applyControlUiSecurityHeaders(res);
 
   const agentIdParts = pathname.slice(pathWithBase.length).split("/").filter(Boolean);
   const agentId = agentIdParts[0] ?? "";
@@ -254,6 +262,7 @@ export function handleControlUiHttpRequest(
 
   if (!basePath) {
     if (pathname === "/ui" || pathname.startsWith("/ui/")) {
+      applyControlUiSecurityHeaders(res);
       respondNotFound(res);
       return true;
     }
@@ -261,6 +270,7 @@ export function handleControlUiHttpRequest(
 
   if (basePath) {
     if (pathname === basePath) {
+      applyControlUiSecurityHeaders(res);
       res.statusCode = 302;
       res.setHeader("Location", `${basePath}/${url.search}`);
       res.end();
@@ -269,7 +279,38 @@ export function handleControlUiHttpRequest(
     if (!pathname.startsWith(`${basePath}/`)) return false;
   }
 
+<<<<<<< HEAD
   const root = resolveControlUiRoot();
+=======
+  applyControlUiSecurityHeaders(res);
+
+  const rootState = opts?.root;
+  if (rootState?.kind === "invalid") {
+    res.statusCode = 503;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end(
+      `Control UI assets not found at ${rootState.path}. Build them with \`pnpm ui:build\` (auto-installs UI deps), or update gateway.controlUi.root.`,
+    );
+    return true;
+  }
+  if (rootState?.kind === "missing") {
+    res.statusCode = 503;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end(
+      "Control UI assets not found. Build them with `pnpm ui:build` (auto-installs UI deps), or run `pnpm ui:dev` during development.",
+    );
+    return true;
+  }
+
+  const root =
+    rootState?.kind === "resolved"
+      ? rootState.path
+      : resolveControlUiRootSync({
+          moduleUrl: import.meta.url,
+          argv1: process.argv[1],
+          cwd: process.cwd(),
+        });
+>>>>>>> 66d8117d4 (fix: harden control ui framing + ws origin)
   if (!root) {
     res.statusCode = 503;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
