@@ -176,7 +176,7 @@ import { renderSkills } from "./views/skills";
 =======
 } from "./controllers/skills.ts";
 import { icons } from "./icons.ts";
-import { TAB_GROUPS, subtitleForTab, titleForTab } from "./navigation.ts";
+import { normalizeBasePath, TAB_GROUPS, subtitleForTab, titleForTab } from "./navigation.ts";
 import { ConfigUiHints } from "./types.ts";
 import { renderAgents } from "./views/agents.ts";
 import { renderChannels } from "./views/channels.ts";
@@ -223,6 +223,8 @@ export function renderApp(state: AppViewState) {
   const showThinking = state.onboarding ? false : state.settings.chatShowThinking;
   const assistantAvatarUrl = resolveAssistantAvatarUrl(state);
   const chatAvatarUrl = state.chatAvatarUrl ?? assistantAvatarUrl ?? null;
+  const logoBase = normalizeBasePath(state.basePath);
+  const logoHref = logoBase ? `${logoBase}/favicon.svg` : "/favicon.svg";
   const configValue =
     state.configForm ?? (state.configSnapshot?.config as Record<string, unknown> | null);
   const resolvedAgentId =
@@ -251,6 +253,7 @@ export function renderApp(state: AppViewState) {
             <div class="brand-logo">
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
               <img src="https://mintcdn.com/clawdhub/4rYvG-uuZrMK_URE/assets/pixel-lobster.svg?fit=max&auto=format&n=4rYvG-uuZrMK_URE&q=85&s=da2032e9eac3b5d9bfe7eb96ca6a8a26" alt="Moltbot" />
 =======
               <img src="https://mintcdn.com/clawhub/4rYvG-uuZrMK_URE/assets/pixel-lobster.svg?fit=max&auto=format&n=4rYvG-uuZrMK_URE&q=85&s=da2032e9eac3b5d9bfe7eb96ca6a8a26" alt="OpenClaw" />
@@ -258,6 +261,9 @@ export function renderApp(state: AppViewState) {
 =======
               <img src="/favicon.svg" alt="OpenClaw" />
 >>>>>>> f8575c401 (feat: update chat layout and session management)
+=======
+              <img src="${logoHref}" alt="OpenClaw" />
+>>>>>>> 7b3d23b70 (fix(control-ui): resolve header logo when gateway.controlUi.basePath is set (#7178))
             </div>
             <div class="brand-text">
               <div class="brand-title">MOLTBOT</div>
