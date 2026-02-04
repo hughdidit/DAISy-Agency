@@ -1,12 +1,16 @@
 ---
+<<<<<<< HEAD
 summary: "Use DeepSeek-V3.2 in OpenClaw"
+=======
+summary: "Use Qianfan's unified API to access many models in OpenClaw"
+>>>>>>> fb5280e1b (optimize doc)
 read_when:
   - You want a single API key for many LLMs
   - You need Baidu Qianfan setup guidance
 title: "Qianfan"
 ---
 
-# Baidu Qianfan Provider Guide
+# Qianfan Provider Guide
 
 Qianfan is Baidu's MaaS platform, provides a **unified API** that routes requests to many models behind a single
 endpoint and API key. It is OpenAI-compatible, so most OpenAI SDKs work by switching the base URL.
@@ -80,20 +84,9 @@ openclaw onboard --auth-choice qianfan-api-key
 
 Follow the prompts to enter your API key.
 
-### Method 3: Non-Interactive Setup
 
-For CI/CD or scripted setups:
 
-```bash
-openclaw onboard \
-  --non-interactive \
-  --accept-risk \
-  --auth-choice token \
-  --token-provider qianfan \
-  --token "bce-v3/ALTAK-your-api-key-here"
-```
-
-### Method 4: Configuration File
+### Method 3: Configuration File
 
 Configure manually via `openclaw.json`:
 
