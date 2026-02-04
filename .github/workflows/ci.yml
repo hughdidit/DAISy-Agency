@@ -236,7 +236,20 @@ jobs:
           which node
           node -v
           pnpm -v
-          pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true || pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
+          install_flags="--frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true"
+          for attempt in 1 2 3; do
+            echo "pnpm install attempt ${attempt}/3"
+            if pnpm install ${install_flags}; then
+              echo "pnpm install succeeded on attempt ${attempt}/3"
+              break
+            fi
+            if [ "${attempt}" -eq 3 ]; then
+              echo "pnpm install failed after ${attempt}/3 attempts"
+              exit 1
+            fi
+            echo "pnpm install failed (attempt ${attempt}/3). Retrying..."
+            sleep $((attempt * 5))
+          done
 
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
         run: ${{ matrix.command }}
@@ -353,7 +366,20 @@ jobs:
           which node
           node -v
           pnpm -v
-          pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true || pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
+          install_flags="--frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true"
+          for attempt in 1 2 3; do
+            echo "pnpm install attempt ${attempt}/3"
+            if pnpm install ${install_flags}; then
+              echo "pnpm install succeeded on attempt ${attempt}/3"
+              break
+            fi
+            if [ "${attempt}" -eq 3 ]; then
+              echo "pnpm install failed after ${attempt}/3 attempts"
+              exit 1
+            fi
+            echo "pnpm install failed (attempt ${attempt}/3). Retrying..."
+            sleep $((attempt * 5))
+          done
 
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
         run: ${{ matrix.command }}
@@ -423,7 +449,20 @@ jobs:
           which node
           node -v
           pnpm -v
-          pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true || pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
+          install_flags="--frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true"
+          for attempt in 1 2 3; do
+            echo "pnpm install attempt ${attempt}/3"
+            if pnpm install ${install_flags}; then
+              echo "pnpm install succeeded on attempt ${attempt}/3"
+              break
+            fi
+            if [ "${attempt}" -eq 3 ]; then
+              echo "pnpm install failed after ${attempt}/3 attempts"
+              exit 1
+            fi
+            echo "pnpm install failed (attempt ${attempt}/3). Retrying..."
+            sleep $((attempt * 5))
+          done
 
       - name: Run ${{ matrix.task }}
         env:
