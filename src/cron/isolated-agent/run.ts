@@ -38,9 +38,13 @@ import {
   supportsXHighThinking,
 } from "../../auto-reply/thinking.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.js";
+=======
+import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
@@ -283,6 +287,13 @@ export async function runCronIsolatedAgentTurn(params: {
     // Internal/trusted source - use original format
     commandBody = `${base}\n${timeLine}`.trim();
   }
+<<<<<<< HEAD
+=======
+  if (deliveryRequested) {
+    commandBody =
+      `${commandBody}\n\nReturn your summary as plain text; it will be delivered automatically. If the task explicitly calls for messaging a specific external recipient, note who/where it should go instead of sending it yourself.`.trim();
+  }
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
 
   const existingSnapshot = cronSession.sessionEntry.skillsSnapshot;
   const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
@@ -443,11 +454,32 @@ export async function runCronIsolatedAgentTurn(params: {
           error: reason,
         };
       }
+<<<<<<< HEAD
       return {
         status: "skipped",
         summary: `Delivery skipped (${reason}).`,
         outputText,
       };
+=======
+      logWarn(`[cron:${params.job.id}] ${deliveryFailure.message}`);
+      return { status: "ok", summary, outputText };
+    }
+    try {
+      await deliverOutboundPayloads({
+        cfg: cfgWithAgentDefaults,
+        channel: resolvedDelivery.channel,
+        to: resolvedDelivery.to,
+        accountId: resolvedDelivery.accountId,
+        threadId: resolvedDelivery.threadId,
+        payloads,
+        bestEffort: deliveryBestEffort,
+        deps: createOutboundSendDeps(params.deps),
+      });
+    } catch (err) {
+      if (!deliveryBestEffort) {
+        return { status: "error", summary, outputText, error: String(err) };
+      }
+>>>>>>> 6341819d7 (fix: cron announce delivery path (#8540) (thanks @tyler6204))
     }
     try {
       await deliverOutboundPayloads({
