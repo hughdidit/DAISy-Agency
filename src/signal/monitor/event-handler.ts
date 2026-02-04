@@ -17,7 +17,7 @@ import {
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import { createReplyDispatcherWithTyping } from "../../auto-reply/reply/reply-dispatcher.js";
 import { logInboundDrop, logTypingFailure } from "../../channels/logging.js";
-import { createReplyPrefixContext } from "../../channels/reply-prefix.js";
+import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 import { recordInboundSession } from "../../channels/session.js";
 import { createTypingCallbacks } from "../../channels/typing.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
@@ -172,7 +172,12 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
       logVerbose(`signal inbound: from=${ctxPayload.From} len=${body.length} preview="${preview}"`);
     }
 
-    const prefixContext = createReplyPrefixContext({ cfg: deps.cfg, agentId: route.agentId });
+    const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+      cfg: deps.cfg,
+      agentId: route.agentId,
+      channel: "signal",
+      accountId: route.accountId,
+    });
 
     const typingCallbacks = createTypingCallbacks({
       start: async () => {
@@ -196,8 +201,7 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
     });
 
     const { dispatcher, replyOptions, markDispatchIdle } = createReplyDispatcherWithTyping({
-      responsePrefix: prefixContext.responsePrefix,
-      responsePrefixContextProvider: prefixContext.responsePrefixContextProvider,
+      ...prefixOptions,
       humanDelay: resolveHumanDelayConfig(deps.cfg, route.agentId),
       deliver: async (payload) => {
         await deps.deliverReplies({
@@ -225,9 +229,7 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
         ...replyOptions,
         disableBlockStreaming:
           typeof deps.blockStreaming === "boolean" ? !deps.blockStreaming : undefined,
-        onModelSelected: (ctx) => {
-          prefixContext.onModelSelected(ctx);
-        },
+        onModelSelected,
       },
     });
     markDispatchIdle();

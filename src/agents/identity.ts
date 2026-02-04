@@ -50,7 +50,53 @@ export function resolveMessagePrefix(
   return resolveIdentityNamePrefix(cfg, agentId) ?? opts?.fallback ?? "[moltbot]";
 }
 
+<<<<<<< HEAD
 export function resolveResponsePrefix(cfg: MoltbotConfig, agentId: string): string | undefined {
+=======
+/** Helper to extract a channel config value by dynamic key. */
+function getChannelConfig(
+  cfg: OpenClawConfig,
+  channel: string,
+): Record<string, unknown> | undefined {
+  const channels = cfg.channels as Record<string, unknown> | undefined;
+  const value = channels?.[channel];
+  return typeof value === "object" && value !== null
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+export function resolveResponsePrefix(
+  cfg: OpenClawConfig,
+  agentId: string,
+  opts?: { channel?: string; accountId?: string },
+): string | undefined {
+  // L1: Channel account level
+  if (opts?.channel && opts?.accountId) {
+    const channelCfg = getChannelConfig(cfg, opts.channel);
+    const accounts = channelCfg?.accounts as Record<string, Record<string, unknown>> | undefined;
+    const accountPrefix = accounts?.[opts.accountId]?.responsePrefix as string | undefined;
+    if (accountPrefix !== undefined) {
+      if (accountPrefix === "auto") {
+        return resolveIdentityNamePrefix(cfg, agentId);
+      }
+      return accountPrefix;
+    }
+  }
+
+  // L2: Channel level
+  if (opts?.channel) {
+    const channelCfg = getChannelConfig(cfg, opts.channel);
+    const channelPrefix = channelCfg?.responsePrefix as string | undefined;
+    if (channelPrefix !== undefined) {
+      if (channelPrefix === "auto") {
+        return resolveIdentityNamePrefix(cfg, agentId);
+      }
+      return channelPrefix;
+    }
+  }
+
+  // L4: Global level
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
   const configured = cfg.messages?.responsePrefix;
   if (configured !== undefined) {
     if (configured === "auto") {
@@ -64,14 +110,22 @@ export function resolveResponsePrefix(cfg: MoltbotConfig, agentId: string): stri
 export function resolveEffectiveMessagesConfig(
   cfg: MoltbotConfig,
   agentId: string,
-  opts?: { hasAllowFrom?: boolean; fallbackMessagePrefix?: string },
+  opts?: {
+    hasAllowFrom?: boolean;
+    fallbackMessagePrefix?: string;
+    channel?: string;
+    accountId?: string;
+  },
 ): { messagePrefix: string; responsePrefix?: string } {
   return {
     messagePrefix: resolveMessagePrefix(cfg, agentId, {
       hasAllowFrom: opts?.hasAllowFrom,
       fallback: opts?.fallbackMessagePrefix,
     }),
-    responsePrefix: resolveResponsePrefix(cfg, agentId),
+    responsePrefix: resolveResponsePrefix(cfg, agentId, {
+      channel: opts?.channel,
+      accountId: opts?.accountId,
+    }),
   };
 }
 

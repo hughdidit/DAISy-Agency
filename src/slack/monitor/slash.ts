@@ -1,5 +1,10 @@
 import type { SlackActionMiddlewareArgs, SlackCommandMiddlewareArgs } from "@slack/bolt";
 import type { ChatCommandDefinition, CommandArgs } from "../../auto-reply/commands-registry.js";
+<<<<<<< HEAD
+=======
+import type { ResolvedSlackAccount } from "../accounts.js";
+import type { SlackMonitorContext } from "./context.js";
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveChunkMode } from "../../auto-reply/chunk.js";
 import { resolveEffectiveMessagesConfig } from "../../agents/identity.js";
 import {
@@ -10,8 +15,15 @@ import {
   resolveCommandArgMenu,
 } from "../../auto-reply/commands-registry.js";
 import { listSkillCommandsForAgents } from "../../auto-reply/skill-commands.js";
+<<<<<<< HEAD
 import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
+=======
+import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
+import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
+import { resolveConversationLabel } from "../../channels/conversation-label.js";
+import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveNativeCommandsEnabled, resolveNativeSkillsEnabled } from "../../config/commands.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import { danger, logVerbose } from "../../globals.js";
@@ -436,11 +448,18 @@ export function registerSlackMonitorSlashCommands(params: {
         OriginatingTo: `user:${command.user_id}`,
       });
 
+      const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+        cfg,
+        agentId: route.agentId,
+        channel: "slack",
+        accountId: route.accountId,
+      });
+
       const { counts } = await dispatchReplyWithDispatcher({
         ctx: ctxPayload,
         cfg,
         dispatcherOptions: {
-          responsePrefix: resolveEffectiveMessagesConfig(cfg, route.agentId).responsePrefix,
+          ...prefixOptions,
           deliver: async (payload) => {
             await deliverSlackSlashReplies({
               replies: [payload],
@@ -459,7 +478,10 @@ export function registerSlackMonitorSlashCommands(params: {
             runtime.error?.(danger(`slack slash ${info.kind} reply failed: ${String(err)}`));
           },
         },
-        replyOptions: { skillFilter: channelConfig?.skills },
+        replyOptions: {
+          skillFilter: channelConfig?.skills,
+          onModelSelected,
+        },
       });
       if (counts.final + counts.tool + counts.block === 0) {
         await deliverSlackSlashReplies({

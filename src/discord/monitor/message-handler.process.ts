@@ -5,7 +5,12 @@ import {
   shouldAckReaction as shouldAckReactionGate,
 } from "../../channels/ack-reactions.js";
 import { logTypingFailure, logAckFailure } from "../../channels/logging.js";
+<<<<<<< HEAD
 import { createReplyPrefixContext } from "../../channels/reply-prefix.js";
+=======
+import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
+import { recordInboundSession } from "../../channels/session.js";
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { createTypingCallbacks } from "../../channels/typing.js";
 import {
   formatInboundEnvelope,
@@ -331,7 +336,12 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     ? deliverTarget.slice("channel:".length)
     : message.channelId;
 
-  const prefixContext = createReplyPrefixContext({ cfg, agentId: route.agentId });
+  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+    cfg,
+    agentId: route.agentId,
+    channel: "discord",
+    accountId: route.accountId,
+  });
   const tableMode = resolveMarkdownTableMode({
     cfg,
     channel: "discord",
@@ -339,8 +349,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   });
 
   const { dispatcher, replyOptions, markDispatchIdle } = createReplyDispatcherWithTyping({
-    responsePrefix: prefixContext.responsePrefix,
-    responsePrefixContextProvider: prefixContext.responsePrefixContextProvider,
+    ...prefixOptions,
     humanDelay: resolveHumanDelayConfig(cfg, route.agentId),
     deliver: async (payload: ReplyPayload) => {
       const replyToId = replyReference.use();
@@ -386,9 +395,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
         typeof discordConfig?.blockStreaming === "boolean"
           ? !discordConfig.blockStreaming
           : undefined,
-      onModelSelected: (ctx) => {
-        prefixContext.onModelSelected(ctx);
-      },
+      onModelSelected,
     },
   });
   markDispatchIdle();

@@ -1,7 +1,12 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
 
 import type { MoltbotConfig, MarkdownTableMode } from "clawdbot/plugin-sdk";
 
+=======
+import type { OpenClawConfig, MarkdownTableMode } from "openclaw/plugin-sdk";
+import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import type { ResolvedZaloAccount } from "./accounts.js";
 import {
   ZaloApiError,
@@ -585,11 +590,18 @@ async function processMessageWithPipeline(params: {
     channel: "zalo",
     accountId: account.accountId,
   });
+  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+    cfg: config,
+    agentId: route.agentId,
+    channel: "zalo",
+    accountId: account.accountId,
+  });
 
   await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg: config,
     dispatcherOptions: {
+      ...prefixOptions,
       deliver: async (payload) => {
         await deliverZaloReply({
           payload,
@@ -607,6 +619,9 @@ async function processMessageWithPipeline(params: {
       onError: (err, info) => {
         runtime.error?.(`[${account.accountId}] Zalo ${info.kind} reply failed: ${String(err)}`);
       },
+    },
+    replyOptions: {
+      onModelSelected,
     },
   });
 }
