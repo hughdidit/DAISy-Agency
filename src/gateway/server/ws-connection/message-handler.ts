@@ -28,6 +28,11 @@ import { loadConfig } from "../../../config/config.js";
 import { buildDeviceAuthPayload } from "../../device-auth.js";
 import { isLoopbackAddress, isTrustedProxyAddress, resolveGatewayClientIp } from "../../net.js";
 import { resolveNodeCommandAllowlist } from "../../node-command-policy.js";
+<<<<<<< HEAD
+=======
+import { checkBrowserOrigin } from "../../origin-check.js";
+import { GATEWAY_CLIENT_IDS } from "../../protocol/client-info.js";
+>>>>>>> 66d8117d4 (fix: harden control ui framing + ws origin)
 import {
   type ConnectParams,
   ErrorCodes,
@@ -362,12 +367,43 @@ export function attachGatewayWsMessageHandler(params: {
         connectParams.role = role;
         connectParams.scopes = scopes;
 
+        const isControlUi = connectParams.client.id === GATEWAY_CLIENT_IDS.CONTROL_UI;
+        const isWebchat = isWebchatConnect(connectParams);
+        if (isControlUi || isWebchat) {
+          const originCheck = checkBrowserOrigin({
+            requestHost,
+            origin: requestOrigin,
+            allowedOrigins: configSnapshot.gateway?.controlUi?.allowedOrigins,
+          });
+          if (!originCheck.ok) {
+            const errorMessage =
+              "origin not allowed (open the Control UI from the gateway host or allow it in gateway.controlUi.allowedOrigins)";
+            setHandshakeState("failed");
+            setCloseCause("origin-mismatch", {
+              origin: requestOrigin ?? "n/a",
+              host: requestHost ?? "n/a",
+              reason: originCheck.reason,
+              client: connectParams.client.id,
+              clientDisplayName: connectParams.client.displayName,
+              mode: connectParams.client.mode,
+              version: connectParams.client.version,
+            });
+            send({
+              type: "res",
+              id: frame.id,
+              ok: false,
+              error: errorShape(ErrorCodes.INVALID_REQUEST, errorMessage),
+            });
+            close(1008, truncateCloseReason(errorMessage));
+            return;
+          }
+        }
+
         const deviceRaw = connectParams.device;
         let devicePublicKey: string | null = null;
         const hasTokenAuth = Boolean(connectParams.auth?.token);
         const hasPasswordAuth = Boolean(connectParams.auth?.password);
         const hasSharedAuth = hasTokenAuth || hasPasswordAuth;
-        const isControlUi = connectParams.client.id === GATEWAY_CLIENT_IDS.CONTROL_UI;
         const allowInsecureControlUi =
           isControlUi && configSnapshot.gateway?.controlUi?.allowInsecureAuth === true;
         const disableControlUiDeviceAuth =

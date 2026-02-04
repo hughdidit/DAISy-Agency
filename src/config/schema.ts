@@ -200,6 +200,11 @@ const FIELD_LABELS: Record<string, string> = {
   "tools.web.fetch.maxRedirects": "Web Fetch Max Redirects",
   "tools.web.fetch.userAgent": "Web Fetch User-Agent",
   "gateway.controlUi.basePath": "Control UI Base Path",
+<<<<<<< HEAD
+=======
+  "gateway.controlUi.root": "Control UI Assets Root",
+  "gateway.controlUi.allowedOrigins": "Control UI Allowed Origins",
+>>>>>>> 66d8117d4 (fix: harden control ui framing + ws origin)
   "gateway.controlUi.allowInsecureAuth": "Allow Insecure Control UI Auth",
   "gateway.controlUi.dangerouslyDisableDeviceAuth": "Dangerously Disable Control UI Device Auth",
   "gateway.http.endpoints.chatCompletions.enabled": "OpenAI Chat Completions Endpoint",
@@ -383,7 +388,15 @@ const FIELD_HELP: Record<string, string> = {
     "Required by default for gateway access (unless using Tailscale Serve identity); required for non-loopback binds.",
   "gateway.auth.password": "Required for Tailscale funnel.",
   "gateway.controlUi.basePath":
+<<<<<<< HEAD
     "Optional URL prefix where the Control UI is served (e.g. /moltbot).",
+=======
+    "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
+  "gateway.controlUi.root":
+    "Optional filesystem root for Control UI assets (defaults to dist/control-ui).",
+  "gateway.controlUi.allowedOrigins":
+    "Allowed browser origins for Control UI/WebChat websocket connections (full origins only, e.g. https://control.example.com).",
+>>>>>>> 66d8117d4 (fix: harden control ui framing + ws origin)
   "gateway.controlUi.allowInsecureAuth":
     "Allow Control UI auth over insecure HTTP (token-only; not recommended).",
   "gateway.controlUi.dangerouslyDisableDeviceAuth":
@@ -682,7 +695,13 @@ const FIELD_PLACEHOLDERS: Record<string, string> = {
   "gateway.remote.url": "ws://host:18789",
   "gateway.remote.tlsFingerprint": "sha256:ab12cd34…",
   "gateway.remote.sshTarget": "user@host",
+<<<<<<< HEAD
   "gateway.controlUi.basePath": "/moltbot",
+=======
+  "gateway.controlUi.basePath": "/openclaw",
+  "gateway.controlUi.root": "dist/control-ui",
+  "gateway.controlUi.allowedOrigins": "https://control.example.com",
+>>>>>>> 66d8117d4 (fix: harden control ui framing + ws origin)
   "channels.mattermost.baseUrl": "https://chat.example.com",
   "agents.list[].identity.avatar": "avatars/clawd.png",
 };
