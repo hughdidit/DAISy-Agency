@@ -13,8 +13,13 @@ import {
 } from "./google-gemini-model-default.js";
 import {
   applyAuthProfileConfig,
+<<<<<<< HEAD
   applyQianfanConfig,
   applyQianfanProviderConfig,
+=======
+  applyCloudflareAiGatewayConfig,
+  applyCloudflareAiGatewayProviderConfig,
+>>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   applyKimiCodeConfig,
   applyKimiCodeProviderConfig,
   applyMoonshotConfig,
@@ -33,7 +38,11 @@ import {
   applyXiaomiConfig,
   applyXiaomiProviderConfig,
   applyZaiConfig,
+<<<<<<< HEAD
   QIANFAN_DEFAULT_MODEL_REF,
+=======
+  CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF,
+>>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   KIMI_CODING_MODEL_REF,
   MOONSHOT_DEFAULT_MODEL_REF,
   OPENROUTER_DEFAULT_MODEL_REF,
@@ -41,7 +50,11 @@ import {
   VENICE_DEFAULT_MODEL_REF,
   VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF,
   XIAOMI_DEFAULT_MODEL_REF,
+<<<<<<< HEAD
   setQianfanApiKey,
+=======
+  setCloudflareAiGatewayConfig,
+>>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   setGeminiApiKey,
   setKimiCodingApiKey,
   setMoonshotApiKey,
@@ -82,6 +95,8 @@ export async function applyAuthChoiceApiProviders(
       authChoice = "openrouter-api-key";
     } else if (params.opts.tokenProvider === "vercel-ai-gateway") {
       authChoice = "ai-gateway-api-key";
+    } else if (params.opts.tokenProvider === "cloudflare-ai-gateway") {
+      authChoice = "cloudflare-ai-gateway-api-key";
     } else if (params.opts.tokenProvider === "moonshot") {
       authChoice = "moonshot-api-key";
     } else if (
@@ -227,6 +242,105 @@ export async function applyAuthChoiceApiProviders(
         applyDefaultConfig: applyVercelAiGatewayConfig,
         applyProviderConfig: applyVercelAiGatewayProviderConfig,
         noteDefault: VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF,
+        noteAgentModel,
+        prompter: params.prompter,
+      });
+      nextConfig = applied.config;
+      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+    }
+    return { config: nextConfig, agentModelOverride };
+  }
+
+  if (authChoice === "cloudflare-ai-gateway-api-key") {
+    let hasCredential = false;
+    let accountId = params.opts?.cloudflareAiGatewayAccountId?.trim() ?? "";
+    let gatewayId = params.opts?.cloudflareAiGatewayGatewayId?.trim() ?? "";
+
+    const ensureAccountGateway = async () => {
+      if (!accountId) {
+        const value = await params.prompter.text({
+          message: "Enter Cloudflare Account ID",
+          validate: (val) => (String(val).trim() ? undefined : "Account ID is required"),
+        });
+        accountId = String(value).trim();
+      }
+      if (!gatewayId) {
+        const value = await params.prompter.text({
+          message: "Enter Cloudflare AI Gateway ID",
+          validate: (val) => (String(val).trim() ? undefined : "Gateway ID is required"),
+        });
+        gatewayId = String(value).trim();
+      }
+    };
+
+    const optsApiKey = normalizeApiKeyInput(params.opts?.cloudflareAiGatewayApiKey ?? "");
+    if (!hasCredential && accountId && gatewayId && optsApiKey) {
+      await setCloudflareAiGatewayConfig(accountId, gatewayId, optsApiKey, params.agentDir);
+      hasCredential = true;
+    }
+
+    const envKey = resolveEnvApiKey("cloudflare-ai-gateway");
+    if (!hasCredential && envKey) {
+      const useExisting = await params.prompter.confirm({
+        message: `Use existing CLOUDFLARE_AI_GATEWAY_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
+        initialValue: true,
+      });
+      if (useExisting) {
+        await ensureAccountGateway();
+        await setCloudflareAiGatewayConfig(
+          accountId,
+          gatewayId,
+          normalizeApiKeyInput(envKey.apiKey),
+          params.agentDir,
+        );
+        hasCredential = true;
+      }
+    }
+
+    if (!hasCredential && optsApiKey) {
+      await ensureAccountGateway();
+      await setCloudflareAiGatewayConfig(accountId, gatewayId, optsApiKey, params.agentDir);
+      hasCredential = true;
+    }
+
+    if (!hasCredential) {
+      await ensureAccountGateway();
+      const key = await params.prompter.text({
+        message: "Enter Cloudflare AI Gateway API key",
+        validate: validateApiKeyInput,
+      });
+      await setCloudflareAiGatewayConfig(
+        accountId,
+        gatewayId,
+        normalizeApiKeyInput(String(key)),
+        params.agentDir,
+      );
+      hasCredential = true;
+    }
+
+    if (hasCredential) {
+      nextConfig = applyAuthProfileConfig(nextConfig, {
+        profileId: "cloudflare-ai-gateway:default",
+        provider: "cloudflare-ai-gateway",
+        mode: "api_key",
+      });
+    }
+    {
+      const applied = await applyDefaultModelChoice({
+        config: nextConfig,
+        setDefaultModel: params.setDefaultModel,
+        defaultModel: CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF,
+        applyDefaultConfig: (cfg) =>
+          applyCloudflareAiGatewayConfig(cfg, {
+            accountId: accountId || params.opts?.cloudflareAiGatewayAccountId,
+            gatewayId: gatewayId || params.opts?.cloudflareAiGatewayGatewayId,
+          }),
+        applyProviderConfig: (cfg) =>
+          applyCloudflareAiGatewayProviderConfig(cfg, {
+            accountId: accountId || params.opts?.cloudflareAiGatewayAccountId,
+            gatewayId: gatewayId || params.opts?.cloudflareAiGatewayGatewayId,
+          }),
+        noteDefault: CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF,
         noteAgentModel,
         prompter: params.prompter,
       });
