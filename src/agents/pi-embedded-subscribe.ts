@@ -47,6 +47,11 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     // Track if a streamed chunk opened a <think> block (stateful across chunks).
     blockState: { thinking: false, final: false, inlineCode: createInlineCodeState() },
     lastStreamedAssistant: undefined,
+<<<<<<< HEAD
+=======
+    lastStreamedAssistantCleaned: undefined,
+    emittedAssistantUpdate: false,
+>>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
     lastStreamedReasoning: undefined,
     lastBlockReplyText: undefined,
     assistantMessageIndex: 0,
@@ -87,6 +92,11 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     state.blockState.final = false;
     state.blockState.inlineCode = createInlineCodeState();
     state.lastStreamedAssistant = undefined;
+<<<<<<< HEAD
+=======
+    state.lastStreamedAssistantCleaned = undefined;
+    state.emittedAssistantUpdate = false;
+>>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
     state.lastBlockReplyText = undefined;
     state.lastStreamedReasoning = undefined;
     state.lastReasoningSent = undefined;
