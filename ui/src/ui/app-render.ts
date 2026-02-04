@@ -825,9 +825,26 @@ export function renderApp(state: AppViewState) {
                     return;
                   }
                   const basePath = ["agents", "list", index, "model"];
+<<<<<<< HEAD
                   const entry = list[index] as { model?: unknown };
                   const normalized = fallbacks.map((name) => name.trim()).filter(Boolean);
                   const existing = entry.model;
+=======
+                  const list = (
+                    (state.configForm ??
+                      (state.configSnapshot?.config as Record<string, unknown> | null)) as {
+                      agents?: { list?: unknown[] };
+                    }
+                  )?.agents?.list;
+                  const entry =
+                    Array.isArray(list) && list[index]
+                      ? (list[index] as { model?: unknown })
+                      : null;
+                  const existing = entry?.model;
+                  if (!existing) {
+                    return;
+                  }
+>>>>>>> 01ce144fa (fix(app-render): handle optional model in renderApp function)
                   const resolvePrimary = () => {
                     if (typeof existing === "string") {
                       return existing.trim() || null;
