@@ -45,7 +45,7 @@ import { truncateUtf16Safe } from "../../utils.js";
 import { resolveControlCommandGate } from "../../channels/command-gating.js";
 import { resolveIMessageAccount } from "../accounts.js";
 import { createIMessageRpcClient } from "../client.js";
-import { probeIMessage } from "../probe.js";
+import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS, probeIMessage } from "../probe.js";
 import { sendMessageIMessage } from "../send.js";
 import {
   formatIMessageChatTarget,
@@ -140,6 +140,7 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
   const mediaMaxBytes = (opts.mediaMaxMb ?? imessageCfg.mediaMaxMb ?? 16) * 1024 * 1024;
   const cliPath = opts.cliPath ?? imessageCfg.cliPath ?? "imsg";
   const dbPath = opts.dbPath ?? imessageCfg.dbPath;
+  const probeTimeoutMs = imessageCfg.probeTimeoutMs ?? DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS;
 
   // Resolve remoteHost: explicit config, or auto-detect from SSH wrapper script
   let remoteHost = imessageCfg.remoteHost;
@@ -619,7 +620,7 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
     abortSignal: opts.abortSignal,
     runtime,
     check: async () => {
-      const probe = await probeIMessage(2000, { cliPath, dbPath, runtime });
+      const probe = await probeIMessage(probeTimeoutMs, { cliPath, dbPath, runtime });
       if (probe.ok) {
         return { ok: true };
       }
