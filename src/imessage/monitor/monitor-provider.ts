@@ -45,6 +45,10 @@ import { truncateUtf16Safe } from "../../utils.js";
 import { resolveControlCommandGate } from "../../channels/command-gating.js";
 import { resolveIMessageAccount } from "../accounts.js";
 import { createIMessageRpcClient } from "../client.js";
+<<<<<<< HEAD
+=======
+import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "../constants.js";
+>>>>>>> f633a8cb2 (fix: address review comments)
 import { probeIMessage } from "../probe.js";
 import { sendMessageIMessage } from "../send.js";
 import {
