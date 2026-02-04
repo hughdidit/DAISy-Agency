@@ -8,6 +8,7 @@ type PackFile = { path: string };
 type PackResult = { files?: PackFile[] };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const requiredPaths = [
   "dist/discord/send.js",
   "dist/hooks/gmail.js",
@@ -16,6 +17,15 @@ const requiredPaths = [
 const forbiddenPrefixes = ["dist/Moltbot.app/"];
 =======
 const requiredPaths = ["dist/discord/send.js", "dist/hooks/gmail.js", "dist/whatsapp/normalize.js"];
+=======
+const requiredPaths = [
+  "dist/index.js",
+  "dist/entry.js",
+  "dist/plugin-sdk/index.js",
+  "dist/plugin-sdk/index.d.ts",
+  "dist/build-info.json",
+];
+>>>>>>> 539a15e63 (chore: prep 2026.2.2 docs/release checks)
 const forbiddenPrefixes = ["dist/OpenClaw.app/"];
 >>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 
