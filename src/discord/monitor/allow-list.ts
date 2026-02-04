@@ -32,6 +32,7 @@ export type DiscordGuildEntryResolved = {
       enabled?: boolean;
       users?: Array<string | number>;
       systemPrompt?: string;
+      includeThreadStarter?: boolean;
       autoThread?: boolean;
     }
   >;
@@ -44,6 +45,7 @@ export type DiscordChannelConfigResolved = {
   enabled?: boolean;
   users?: Array<string | number>;
   systemPrompt?: string;
+  includeThreadStarter?: boolean;
   autoThread?: boolean;
   matchKey?: string;
   matchSource?: ChannelMatchSource;
@@ -214,6 +216,7 @@ function resolveDiscordChannelConfigEntry(
     enabled: entry.enabled,
     users: entry.users,
     systemPrompt: entry.systemPrompt,
+    includeThreadStarter: entry.includeThreadStarter,
     autoThread: entry.autoThread,
   };
   return resolved;
