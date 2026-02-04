@@ -14,8 +14,13 @@ import type { ReplyPayload } from "../../../auto-reply/types.js";
 import { shouldComputeCommandAuthorized } from "../../../auto-reply/command-detection.js";
 import { finalizeInboundContext } from "../../../auto-reply/reply/inbound-context.js";
 import { toLocationContext } from "../../../channels/location.js";
+<<<<<<< HEAD
 import { createReplyPrefixContext } from "../../../channels/reply-prefix.js";
 import type { loadConfig } from "../../../config/config.js";
+=======
+import { createReplyPrefixOptions } from "../../../channels/reply-prefix.js";
+import { resolveMarkdownTableMode } from "../../../config/markdown-tables.js";
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import {
   readSessionUpdatedAt,
   recordSessionMetaFromInbound,
@@ -255,16 +260,18 @@ export async function processMessage(params: {
     ? await resolveWhatsAppCommandAuthorized({ cfg: params.cfg, msg: params.msg })
     : undefined;
   const configuredResponsePrefix = params.cfg.messages?.responsePrefix;
-  const prefixContext = createReplyPrefixContext({
+  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
     cfg: params.cfg,
     agentId: params.route.agentId,
+    channel: "whatsapp",
+    accountId: params.route.accountId,
   });
   const isSelfChat =
     params.msg.chatType !== "group" &&
     Boolean(params.msg.selfE164) &&
     normalizeE164(params.msg.from) === normalizeE164(params.msg.selfE164 ?? "");
   const responsePrefix =
-    prefixContext.responsePrefix ??
+    prefixOptions.responsePrefix ??
     (configuredResponsePrefix === undefined && isSelfChat
       ? (resolveIdentityNamePrefix(params.cfg, params.route.agentId) ?? "[moltbot]")
       : undefined);
@@ -339,8 +346,8 @@ export async function processMessage(params: {
     cfg: params.cfg,
     replyResolver: params.replyResolver,
     dispatcherOptions: {
+      ...prefixOptions,
       responsePrefix,
-      responsePrefixContextProvider: prefixContext.responsePrefixContextProvider,
       onHeartbeatStrip: () => {
         if (!didLogHeartbeatStrip) {
           didLogHeartbeatStrip = true;
@@ -400,7 +407,7 @@ export async function processMessage(params: {
         typeof params.cfg.channels?.whatsapp?.blockStreaming === "boolean"
           ? !params.cfg.channels.whatsapp.blockStreaming
           : undefined,
-      onModelSelected: prefixContext.onModelSelected,
+      onModelSelected,
     },
   });
 

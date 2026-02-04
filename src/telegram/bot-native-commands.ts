@@ -13,8 +13,11 @@ import type {
 } from "../config/types.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { TelegramContext } from "./bot/types.js";
+<<<<<<< HEAD
 >>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
 import { resolveEffectiveMessagesConfig } from "../agents/identity.js";
+=======
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveChunkMode } from "../auto-reply/chunk.js";
 import {
   buildCommandTextFromArgs,
@@ -25,7 +28,13 @@ import {
   resolveCommandArgMenu,
 } from "../auto-reply/commands-registry.js";
 import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
+<<<<<<< HEAD
 import type { CommandArgs } from "../auto-reply/commands-registry.js";
+=======
+import { resolveCommandAuthorizedFromAuthorizers } from "../channels/command-gating.js";
+import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
+import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveTelegramCustomCommands } from "../config/telegram-custom-commands.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
@@ -564,13 +573,34 @@ export const registerTelegramNativeCommands = ({
               : undefined;
           const chunkMode = resolveChunkMode(cfg, "telegram", route.accountId);
 
+<<<<<<< HEAD
+=======
+          const deliveryState = {
+            delivered: false,
+            skippedNonSilent: 0,
+          };
+
+          const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+            cfg,
+            agentId: route.agentId,
+            channel: "telegram",
+            accountId: route.accountId,
+          });
+
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
           await dispatchReplyWithBufferedBlockDispatcher({
             ctx: ctxPayload,
             cfg,
             dispatcherOptions: {
+<<<<<<< HEAD
               responsePrefix: resolveEffectiveMessagesConfig(cfg, route.agentId).responsePrefix,
               deliver: async (payload, info) => {
                 await deliverReplies({
+=======
+              ...prefixOptions,
+              deliver: async (payload, _info) => {
+                const result = await deliverReplies({
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
                   replies: [payload],
                   chatId: String(chatId),
                   token: opts.token,
@@ -603,6 +633,7 @@ export const registerTelegramNativeCommands = ({
             replyOptions: {
               skillFilter,
               disableBlockStreaming,
+              onModelSelected,
             },
           });
         });

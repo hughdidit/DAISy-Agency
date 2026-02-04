@@ -1,6 +1,15 @@
 import type { WebhookRequestBody } from "@line/bot-sdk";
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { LineChannelData, ResolvedLineAccount } from "./types.js";
+import { chunkMarkdownText } from "../auto-reply/chunk.js";
+import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
+import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { danger, logVerbose } from "../globals.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { createLineBot } from "./bot.js";
@@ -192,12 +201,18 @@ export async function monitorLineProvider(
       try {
         const textLimit = 5000; // LINE max message length
         let replyTokenUsed = false; // Track if we've used the one-time reply token
+        const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+          cfg: config,
+          agentId: route.agentId,
+          channel: "line",
+          accountId: route.accountId,
+        });
 
         const { queuedFinal } = await dispatchReplyWithBufferedBlockDispatcher({
           ctx: ctxPayload,
           cfg: config,
           dispatcherOptions: {
-            responsePrefix: resolveEffectiveMessagesConfig(config, route.agentId).responsePrefix,
+            ...prefixOptions,
             deliver: async (payload, _info) => {
               const lineData = (payload.channelData?.line as LineChannelData | undefined) ?? {};
 
@@ -249,7 +264,9 @@ export async function monitorLineProvider(
               runtime.error?.(danger(`line ${info.kind} reply failed: ${String(err)}`));
             },
           },
-          replyOptions: {},
+          replyOptions: {
+            onModelSelected,
+          },
         });
 
         if (!queuedFinal) {

@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import {
+  createReplyPrefixOptions,
   logAckFailure,
   logInboundDrop,
   logTypingFailure,
@@ -2177,11 +2178,22 @@ async function processMessage(
   };
 >>>>>>> 8d2f98fb0 (Fix subagent announce failover race (always emit lifecycle end + treat timeout=0 as no-timeout) (#6621))
   try {
+    const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+      cfg: config,
+      agentId: route.agentId,
+      channel: "bluebubbles",
+      accountId: account.accountId,
+    });
     await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
       ctx: ctxPayload,
       cfg: config,
       dispatcherOptions: {
+<<<<<<< HEAD
         deliver: async (payload) => {
+=======
+        ...prefixOptions,
+        deliver: async (payload, info) => {
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
           const rawReplyToId =
             typeof payload.replyToId === "string" ? payload.replyToId.trim() : "";
           // Resolve short ID (e.g., "5") to full UUID
@@ -2302,6 +2314,7 @@ async function processMessage(
         },
       },
       replyOptions: {
+        onModelSelected,
         disableBlockStreaming:
           typeof account.config.blockStreaming === "boolean"
             ? !account.config.blockStreaming

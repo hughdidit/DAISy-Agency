@@ -1,8 +1,13 @@
 import type { ChildProcess } from "node:child_process";
+<<<<<<< HEAD
 
 import type { MoltbotConfig, MarkdownTableMode, RuntimeEnv } from "clawdbot/plugin-sdk";
 import { mergeAllowlist, summarizeMapping } from "clawdbot/plugin-sdk";
 import { sendMessageZalouser } from "./send.js";
+=======
+import type { OpenClawConfig, MarkdownTableMode, RuntimeEnv } from "openclaw/plugin-sdk";
+import { createReplyPrefixOptions, mergeAllowlist, summarizeMapping } from "openclaw/plugin-sdk";
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import type { ResolvedZalouserAccount, ZcaFriend, ZcaGroup, ZcaMessage } from "./types.js";
 import { getZalouserRuntime } from "./runtime.js";
 import { parseJsonOutput, runZca, runZcaStreaming } from "./zca.js";
@@ -335,10 +340,18 @@ async function processMessage(
     },
   });
 
+  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+    cfg: config,
+    agentId: route.agentId,
+    channel: "zalouser",
+    accountId: account.accountId,
+  });
+
   await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg: config,
     dispatcherOptions: {
+      ...prefixOptions,
       deliver: async (payload) => {
         await deliverZalouserReply({
           payload: payload as { text?: string; mediaUrls?: string[]; mediaUrl?: string },
@@ -360,6 +373,9 @@ async function processMessage(
       onError: (err, info) => {
         runtime.error(`[${account.accountId}] Zalouser ${info.kind} reply failed: ${String(err)}`);
       },
+    },
+    replyOptions: {
+      onModelSelected,
     },
   });
 }

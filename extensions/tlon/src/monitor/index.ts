@@ -1,7 +1,11 @@
 import { format } from "node:util";
+<<<<<<< HEAD
 
 import type { RuntimeEnv, ReplyPayload, MoltbotConfig } from "clawdbot/plugin-sdk";
 
+=======
+import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
+>>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { getTlonRuntime } from "../runtime.js";
 import { resolveTlonAccount } from "../types.js";
 import { normalizeShip, parseChannelNest } from "../targets.js";
@@ -28,6 +32,29 @@ export type MonitorTlonOpts = {
 type ChannelAuthorization = {
   mode?: "restricted" | "open";
   allowedShips?: string[];
+};
+
+type UrbitMemo = {
+  author?: string;
+  content?: unknown;
+  sent?: number;
+};
+
+type UrbitUpdate = {
+  id?: string | number;
+  response?: {
+    add?: { memo?: UrbitMemo };
+    post?: {
+      id?: string | number;
+      "r-post"?: {
+        set?: { essay?: UrbitMemo };
+        reply?: {
+          id?: string | number;
+          "r-reply"?: { set?: { memo?: UrbitMemo } };
+        };
+      };
+    };
+  };
 };
 
 function resolveChannelAuthorization(
@@ -127,15 +154,14 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
     runtime.log?.("[tlon] No group channels to monitor (DMs only)");
   }
 
-  // oxlint-disable-next-line typescript/no-explicit-any
-  const handleIncomingDM = async (update: any) => {
+  const handleIncomingDM = async (update: UrbitUpdate) => {
     try {
       const memo = update?.response?.add?.memo;
       if (!memo) {
         return;
       }
 
-      const messageId = update.id as string | undefined;
+      const messageId = update.id != null ? String(update.id) : undefined;
       if (!processedTracker.mark(messageId)) {
         return;
       }
@@ -167,25 +193,24 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
     }
   };
 
-  // oxlint-disable-next-line typescript/no-explicit-any
-  const handleIncomingGroupMessage = (channelNest: string) => async (update: any) => {
+  const handleIncomingGroupMessage = (channelNest: string) => async (update: UrbitUpdate) => {
     try {
       const parsed = parseChannelNest(channelNest);
       if (!parsed) {
         return;
       }
 
-      const essay = update?.response?.post?.["r-post"]?.set?.essay;
-      const memo = update?.response?.post?.["r-post"]?.reply?.["r-reply"]?.set?.memo;
+      const post = update?.response?.post?.["r-post"];
+      const essay = post?.set?.essay;
+      const memo = post?.reply?.["r-reply"]?.set?.memo;
       if (!essay && !memo) {
         return;
       }
 
       const content = memo || essay;
       const isThreadReply = Boolean(memo);
-      const messageId = isThreadReply
-        ? update?.response?.post?.["r-post"]?.reply?.id
-        : update?.response?.post?.id;
+      const rawMessageId = isThreadReply ? post?.reply?.id : update?.response?.post?.id;
+      const messageId = rawMessageId != null ? String(rawMessageId) : undefined;
 
       if (!processedTracker.mark(messageId)) {
         return;
@@ -362,17 +387,19 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
 
     const dispatchStartTime = Date.now();
 
-    const responsePrefix = core.channel.reply.resolveEffectiveMessagesConfig(
+    const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
       cfg,
-      route.agentId,
-    ).responsePrefix;
+      agentId: route.agentId,
+      channel: "tlon",
+      accountId: route.accountId,
+    });
     const humanDelay = core.channel.reply.resolveHumanDelayConfig(cfg, route.agentId);
 
     await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
       ctx: ctxPayload,
       cfg,
       dispatcherOptions: {
-        responsePrefix,
+        ...prefixOptions,
         humanDelay,
         deliver: async (payload: ReplyPayload) => {
           let replyText = payload.text;
@@ -414,6 +441,9 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
             `[tlon] ${info.kind} reply failed after ${dispatchDuration}ms: ${String(err)}`,
           );
         },
+      },
+      replyOptions: {
+        onModelSelected,
       },
     });
   };
