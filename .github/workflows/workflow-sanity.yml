@@ -47,3 +47,6 @@ jobs:
               print(f"- {path}")
             sys.exit(1)
           PY
+
+      - name: Run actionlint
+        uses: rhysd/actionlint@v1

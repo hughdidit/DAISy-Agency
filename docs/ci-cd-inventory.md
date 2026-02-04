@@ -174,19 +174,19 @@
 
 **What it does**
 - Ensures no workflow files contain tabs.
+- Runs actionlint to validate workflow YAML and job structure.
 
 **When it runs**
 - `push` and `pull_request` on `daisy/main`/`daisy/dev`.
-- Concurrency group: `ci-${{ github.event.pull_request.number || github.ref }}` with cancel-in-progress.
+- Concurrency group: `workflow-sanity-${{ github.event.pull_request.number || github.ref }}` with cancel-in-progress.
 
 **Permissions / secrets / environment**
 - No permissions block, no secrets.
 
 **Jobs inventory**
-- `no-tabs` (ubuntu-latest): scans workflow YAML for tabs.
+- `no-tabs` (ubuntu-latest): scans workflow YAML for tabs and runs actionlint.
 
 **Risks / issues found**
-- **Concurrency cross-cancel**: shared `ci-` group with CI and install-smoke can cancel runs.
 - **Redundant gate**: could be folded into a reusable lint job.
 
 **Recommendation**
