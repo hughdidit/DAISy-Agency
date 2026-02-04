@@ -2,11 +2,19 @@
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ApiClientOptions } from "grammy";
 =======
 import { ReactionTypeEmoji } from "@grammyjs/types";
 >>>>>>> 147eba11f (chore: Manually fix TypeScript errors uncovered by sorting imports.)
 import { Bot, webhookCallback } from "grammy";
+=======
+import { type Message, ReactionTypeEmoji } from "@grammyjs/types";
+import { Bot, webhookCallback } from "grammy";
+import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { TelegramContext } from "./bot/types.js";
+>>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { isControlCommandMessage } from "../auto-reply/command-detection.js";
 import { resolveTextChunkLimit } from "../auto-reply/chunk.js";
@@ -70,11 +78,11 @@ export type TelegramBotOptions = {
 
 export function getTelegramSequentialKey(ctx: {
   chat?: { id?: number };
-  message?: TelegramMessage;
+  message?: Message;
   update?: {
-    message?: TelegramMessage;
-    edited_message?: TelegramMessage;
-    callback_query?: { message?: TelegramMessage };
+    message?: Message;
+    edited_message?: Message;
+    callback_query?: { message?: Message };
     message_reaction?: { chat?: { id?: number } };
   };
 }): string {
