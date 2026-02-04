@@ -3,6 +3,50 @@
     <channel>
         <title>Moltbot</title>
         <item>
+            <title>2026.2.2</title>
+            <pubDate>Tue, 03 Feb 2026 17:04:17 -0800</pubDate>
+            <link>https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml</link>
+            <sparkle:version>8809</sparkle:version>
+            <sparkle:shortVersionString>2026.2.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h2>OpenClaw 2026.2.2</h2>
+<h3>Changes</h3>
+<ul>
+<li>Feishu: add Feishu/Lark plugin support + docs. (#7313) Thanks @jiulingyun (openclaw-cn).</li>
+<li>Web UI: add Agents dashboard for managing agent files, tools, skills, models, channels, and cron jobs.</li>
+<li>Memory: implement the opt-in QMD backend for workspace memory. (#3160) Thanks @vignesh07.</li>
+<li>Security: add healthcheck skill and bootstrap audit guidance. (#7641) Thanks @Takhoffman.</li>
+<li>Config: allow setting a default subagent thinking level via <code>agents.defaults.subagents.thinking</code> (and per-agent <code>agents.list[].subagents.thinking</code>). (#7372) Thanks @tyler6204.</li>
+<li>Docs: zh-CN translations seed + polish, pipeline guidance, nav/landing updates, and typo fixes. (#8202, #6995, #6619, #7242, #7303, #7415) Thanks @AaronWander, @taiyi747, @Explorer1092, @rendaoyuan, @joshp123, @lailoo.</li>
+</ul>
+<h3>Fixes</h3>
+<ul>
+<li>Security: require operator.approvals for gateway /approve commands. (#1) Thanks @mitsuhiko, @yueyueL.</li>
+<li>Security: Matrix allowlists now require full MXIDs; ambiguous name resolution no longer grants access. Thanks @MegaManSec.</li>
+<li>Security: enforce access-group gating for Slack slash commands when channel type lookup fails.</li>
+<li>Security: require validated shared-secret auth before skipping device identity on gateway connect.</li>
+<li>Security: guard skill installer downloads with SSRF checks (block private/localhost URLs).</li>
+<li>Security: harden Windows exec allowlist; block cmd.exe bypass via single &. Thanks @simecek.</li>
+<li>fix(voice-call): harden inbound allowlist; reject anonymous callers; require Telnyx publicKey for allowlist; token-gate Twilio media streams; cap webhook body size (thanks @simecek)</li>
+<li>Media understanding: apply SSRF guardrails to provider fetches; allow private baseUrl overrides explicitly.</li>
+<li>fix(webchat): respect user scroll position during streaming and refresh (#7226) (thanks @marcomarandiz)</li>
+<li>Telegram: recover from grammY long-poll timed out errors. (#7466) Thanks @macmimi23.</li>
+<li>Agents: repair malformed tool calls and session transcripts. (#7473) Thanks @justinhuangcode.</li>
+<li>fix(agents): validate AbortSignal instances before calling AbortSignal.any() (#7277) (thanks @Elarwei001)</li>
+<li>Media understanding: skip binary media from file text extraction. (#7475) Thanks @AlexZhangji.</li>
+<li>Onboarding: keep TUI flow exclusive (skip completion prompt + background Web UI seed); completion prompt now handled by install/update.</li>
+<li>TUI: block onboarding output while TUI is active and restore terminal state on exit.</li>
+<li>CLI/Zsh completion: cache scripts in state dir and escape option descriptions to avoid invalid option errors.</li>
+<li>fix(ui): resolve Control UI asset path correctly.</li>
+<li>fix(ui): refresh agent files after external edits.</li>
+<li>Docs: finish renaming the QMD memory docs to reference the OpenClaw state dir.</li>
+<li>Tests: stub SSRF DNS pinning in web auto-reply + Gemini video coverage. (#6619) Thanks @joshp123.</li>
+</ul>
+<p><a href="https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md">View full changelog</a></p>
+]]></description>
+            <enclosure url="https://github.com/openclaw/openclaw/releases/download/v2026.2.2/OpenClaw-2026.2.2.zip" length="22519052" type="application/octet-stream" sparkle:edSignature="a6viD+aS5EfY/RkPIPMfoQQNkJCk6QTdV5WobXFxyYwURskUm8/nXTHVXsCh1c5+0WKUnmlDIyf0i+6IWiavAA=="/>
+        </item>
+        <item>
             <title>2026.2.1</title>
             <pubDate>Mon, 02 Feb 2026 03:53:03 -0800</pubDate>
             <link>https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml</link>
@@ -113,6 +157,7 @@
 ]]></description>
             <enclosure url="https://github.com/openclaw/openclaw/releases/download/v2026.1.30/OpenClaw-2026.1.30.zip" length="22458594" type="application/octet-stream" sparkle:edSignature="77/GuEcruKGgu2CJyMq+OVwzaJ2v1VzRQC9NmOirKO3uH5Nn5HaoouwrOHnOanrzlD4OvPW0FS5GH2E4Ntu4CQ=="/>
         </item>
+<<<<<<< HEAD
         <item>
             <title>2026.1.29</title>
             <pubDate>Fri, 30 Jan 2026 06:24:15 +0100</pubDate>
@@ -436,5 +481,7 @@ Status: stable.
 >>>>>>> 4f2166c50 (chore: update appcast for 2026.1.30)
 =======
 >>>>>>> d842b28a1 (docs: update appcast for 2026.2.1)
+=======
+>>>>>>> 95cd2210f (chore: update appcast for 2026.2.2)
     </channel>
 </rss>
