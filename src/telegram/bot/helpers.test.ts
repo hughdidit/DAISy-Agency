@@ -125,8 +125,116 @@ describe("normalizeForwardedContext", () => {
       forward_date: 111,
     } as any);
     expect(ctx).not.toBeNull();
+<<<<<<< HEAD
     expect(ctx?.from).toBe("Legacy Hidden");
     expect(ctx?.fromType).toBe("legacy_hidden_user");
     expect(ctx?.date).toBe(111);
+=======
+    expect(ctx?.from).toBe("Discussion Group (Admin)");
+    expect(ctx?.fromType).toBe("chat");
+    expect(ctx?.fromId).toBe("-1005678");
+    expect(ctx?.fromTitle).toBe("Discussion Group");
+    expect(ctx?.fromSignature).toBe("Admin");
+    expect(ctx?.fromChatType).toBe("supergroup");
+    expect(ctx?.date).toBe(600);
+  });
+
+  it("uses author_signature from forward_origin", () => {
+    const ctx = normalizeForwardedContext({
+      forward_origin: {
+        type: "channel",
+        chat: { title: "My Channel", id: -100999, type: "channel" },
+        date: 700,
+        author_signature: "New Sig",
+        message_id: 1,
+      },
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any);
+    expect(ctx).not.toBeNull();
+    expect(ctx?.fromSignature).toBe("New Sig");
+    expect(ctx?.from).toBe("My Channel (New Sig)");
+  });
+
+  it("returns undefined signature when author_signature is blank", () => {
+    const ctx = normalizeForwardedContext({
+      forward_origin: {
+        type: "channel",
+        chat: { title: "Updates", id: -100333, type: "channel" },
+        date: 860,
+        author_signature: "   ",
+        message_id: 1,
+      },
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any);
+    expect(ctx).not.toBeNull();
+    expect(ctx?.fromSignature).toBeUndefined();
+    expect(ctx?.from).toBe("Updates");
+  });
+
+  it("handles forward_origin channel without author_signature", () => {
+    const ctx = normalizeForwardedContext({
+      forward_origin: {
+        type: "channel",
+        chat: { title: "News", id: -100111, type: "channel" },
+        date: 900,
+        message_id: 1,
+      },
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any);
+    expect(ctx).not.toBeNull();
+    expect(ctx?.from).toBe("News");
+    expect(ctx?.fromSignature).toBeUndefined();
+    expect(ctx?.fromChatType).toBe("channel");
+  });
+});
+
+describe("expandTextLinks", () => {
+  it("returns text unchanged when no entities are provided", () => {
+    expect(expandTextLinks("Hello world")).toBe("Hello world");
+    expect(expandTextLinks("Hello world", null)).toBe("Hello world");
+    expect(expandTextLinks("Hello world", [])).toBe("Hello world");
+  });
+
+  it("returns text unchanged when there are no text_link entities", () => {
+    const entities = [
+      { type: "mention", offset: 0, length: 5 },
+      { type: "bold", offset: 6, length: 5 },
+    ];
+    expect(expandTextLinks("@user hello", entities)).toBe("@user hello");
+  });
+
+  it("expands a single text_link entity", () => {
+    const text = "Check this link for details";
+    const entities = [{ type: "text_link", offset: 11, length: 4, url: "https://example.com" }];
+    expect(expandTextLinks(text, entities)).toBe(
+      "Check this [link](https://example.com) for details",
+    );
+  });
+
+  it("expands multiple text_link entities", () => {
+    const text = "Visit Google or GitHub for more";
+    const entities = [
+      { type: "text_link", offset: 6, length: 6, url: "https://google.com" },
+      { type: "text_link", offset: 16, length: 6, url: "https://github.com" },
+    ];
+    expect(expandTextLinks(text, entities)).toBe(
+      "Visit [Google](https://google.com) or [GitHub](https://github.com) for more",
+    );
+  });
+
+  it("handles adjacent text_link entities", () => {
+    const text = "AB";
+    const entities = [
+      { type: "text_link", offset: 0, length: 1, url: "https://a.example" },
+      { type: "text_link", offset: 1, length: 1, url: "https://b.example" },
+    ];
+    expect(expandTextLinks(text, entities)).toBe("[A](https://a.example)[B](https://b.example)");
+  });
+
+  it("preserves offsets from the original string", () => {
+    const text = " Hello world";
+    const entities = [{ type: "text_link", offset: 1, length: 5, url: "https://example.com" }];
+    expect(expandTextLinks(text, entities)).toBe(" [Hello](https://example.com) world");
+>>>>>>> b2361292e (fix: trim legacy signature fallback, type fromChatType as union)
   });
 });
