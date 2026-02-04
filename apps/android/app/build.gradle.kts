@@ -21,8 +21,13 @@ android {
     applicationId = "ai.openclaw.android"
     minSdk = 31
     targetSdk = 36
+<<<<<<< HEAD
     versionCode = 202602010
     versionName = "2026.2.1"
+=======
+    versionCode = 202602030
+    versionName = "2026.2.3"
+>>>>>>> e4b084c76 (chore: bump version to 2026.2.3)
   }
 
   buildTypes {
