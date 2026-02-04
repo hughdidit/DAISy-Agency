@@ -3,8 +3,20 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import type { Command } from "commander";
 
+=======
+import {
+  checkShellCompletionStatus,
+  ensureCompletionCacheExists,
+} from "../commands/doctor-completion.js";
+import {
+  formatUpdateAvailableHint,
+  formatUpdateOneLiner,
+  resolveUpdateAvailability,
+} from "../commands/status.update.js";
+>>>>>>> dbaf0a8ae (update: use shared completion helpers for shell completion setup)
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 import {
@@ -42,6 +54,7 @@ import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { formatCliCommand } from "./command-format.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { replaceCliName, resolveCliName } from "./cli-name.js";
 import { stylePromptHint, stylePromptMessage } from "../terminal/prompt-style.js";
 import { theme } from "../terminal/theme.js";
@@ -49,6 +62,9 @@ import { renderTable } from "../terminal/table.js";
 =======
 import { installCompletion, isCompletionInstalled, resolveShellFromEnv } from "./completion-cli.js";
 >>>>>>> 1d17630dc (feat: add shell completion installation prompt to CLI update command)
+=======
+import { installCompletion } from "./completion-cli.js";
+>>>>>>> dbaf0a8ae (update: use shared completion helpers for shell completion setup)
 import { formatHelpExamples } from "./help-format.js";
 import {
   formatUpdateAvailableHint,
@@ -243,32 +259,56 @@ async function tryInstallShellCompletion(opts: {
     return;
   }
 
-  const shell = resolveShellFromEnv();
-  const installed = await isCompletionInstalled(shell, CLI_NAME);
-  if (installed) {
-    return;
-  }
+  const status = await checkShellCompletionStatus(CLI_NAME);
 
-  defaultRuntime.log("");
-  defaultRuntime.log(theme.heading("Shell completion"));
-
-  const shouldInstall = await confirm({
-    message: stylePromptMessage(`Enable ${shell} shell completion for ${CLI_NAME}?`),
-    initialValue: true,
-  });
-
-  if (isCancel(shouldInstall) || !shouldInstall) {
-    if (!opts.skipPrompt) {
-      defaultRuntime.log(
-        theme.muted(
-          `Skipped. Run \`${replaceCliName(formatCliCommand("openclaw completion --install"), CLI_NAME)}\` later to enable.`,
-        ),
-      );
+  // Profile uses slow dynamic pattern - upgrade to cached version
+  if (status.usesSlowPattern) {
+    defaultRuntime.log(theme.muted("Upgrading shell completion to cached version..."));
+    // Ensure cache exists first
+    const cacheGenerated = await ensureCompletionCacheExists(CLI_NAME);
+    if (cacheGenerated) {
+      await installCompletion(status.shell, true, CLI_NAME);
     }
     return;
   }
 
-  await installCompletion(shell, opts.skipPrompt, CLI_NAME);
+  // Profile has completion but no cache - auto-fix silently
+  if (status.profileInstalled && !status.cacheExists) {
+    defaultRuntime.log(theme.muted("Regenerating shell completion cache..."));
+    await ensureCompletionCacheExists(CLI_NAME);
+    return;
+  }
+
+  // No completion at all - prompt to install
+  if (!status.profileInstalled) {
+    defaultRuntime.log("");
+    defaultRuntime.log(theme.heading("Shell completion"));
+
+    const shouldInstall = await confirm({
+      message: stylePromptMessage(`Enable ${status.shell} shell completion for ${CLI_NAME}?`),
+      initialValue: true,
+    });
+
+    if (isCancel(shouldInstall) || !shouldInstall) {
+      if (!opts.skipPrompt) {
+        defaultRuntime.log(
+          theme.muted(
+            `Skipped. Run \`${replaceCliName(formatCliCommand("openclaw completion --install"), CLI_NAME)}\` later to enable.`,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Generate cache first (required for fast shell startup)
+    const cacheGenerated = await ensureCompletionCacheExists(CLI_NAME);
+    if (!cacheGenerated) {
+      defaultRuntime.log(theme.warn("Failed to generate completion cache."));
+      return;
+    }
+
+    await installCompletion(status.shell, opts.skipPrompt, CLI_NAME);
+  }
 }
 
 async function isEmptyDir(targetPath: string): Promise<boolean> {
