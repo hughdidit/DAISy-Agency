@@ -20,5 +20,5 @@ jobs:
     with:
       environment: staging
       release_run_id: ${{ github.event.workflow_run.id }}
-      dry_run: false
+      dry_run: ${{ vars.STAGING_DEPLOY_DRY_RUN == 'true' }}
     secrets: inherit
