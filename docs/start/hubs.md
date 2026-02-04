@@ -12,11 +12,13 @@ Use these hubs to discover every page, including deep dives and reference docs t
 
 - [Index](/)
 - [Getting Started](/start/getting-started)
+- [Quick start](/start/quickstart)
 - [Onboarding](/start/onboarding)
 - [Wizard](/start/wizard)
 - [Setup](/start/setup)
 - [Dashboard (local Gateway)](http://127.0.0.1:18789/)
 - [Help](/help)
+- [Docs directory](/start/docs-directory)
 - [Configuration](/gateway/configuration)
 - [Configuration examples](/gateway/configuration-examples)
 - [Moltbot assistant (Clawd)](/start/clawd)
@@ -33,6 +35,7 @@ Use these hubs to discover every page, including deep dives and reference docs t
 ## Core concepts
 
 - [Architecture](/concepts/architecture)
+- [Features](/concepts/features)
 - [Network hub](/network)
 - [Agent runtime](/concepts/agent)
 - [Agent workspace](/concepts/agent-workspace)
@@ -79,6 +82,7 @@ Use these hubs to discover every page, including deep dives and reference docs t
 ## Gateway + operations
 
 - [Gateway runbook](/gateway)
+- [Network model](/gateway/network-model)
 - [Gateway pairing](/gateway/pairing)
 - [Gateway lock](/gateway/gateway-lock)
 - [Background process](/gateway/background-process)
@@ -175,6 +179,10 @@ Use these hubs to discover every page, including deep dives and reference docs t
 - [Group policy hardening notes](/experiments/plans/group-policy-hardening)
 - [Research: memory](/experiments/research/memory)
 - [Model config exploration](/experiments/proposals/model-config)
+
+## Project
+
+- [Credits](/reference/credits)
 
 ## Testing + release
 
