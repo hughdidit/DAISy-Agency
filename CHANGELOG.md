@@ -6,6 +6,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 Status: beta.
 =======
@@ -13,6 +14,30 @@ Status: beta.
 ## 2026.1.31
 =======
 =======
+=======
+## 2026.2.3
+
+### Changes
+
+- TBD.
+
+## 2026.2.2-3
+
+### Fixes
+
+- Update: ship legacy daemon-cli shim for pre-tsdown update imports (fixes daemon restart after npm update).
+
+## 2026.2.2-2
+
+### Changes
+
+- Docs: promote BlueBubbles as the recommended iMessage integration; mark imsg channel as legacy. (#8415) Thanks @tyler6204.
+
+### Fixes
+
+- CLI status: resolve build-info from bundled dist output (fixes "unknown" commit in npm builds).
+
+>>>>>>> e4b084c76 (chore: bump version to 2026.2.3)
 ## 2026.2.2-1
 
 ### Fixes
