@@ -21,12 +21,16 @@ import {
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
+<<<<<<< HEAD
 import { resolveConversationLabel } from "../../channels/conversation-label.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 
 import type { ResolvedSlackAccount } from "../accounts.js";
 
+=======
+import { buildUntrustedChannelMetadata } from "../../security/channel-metadata.js";
+>>>>>>> 35eb40a70 (fix(security): separate untrusted channel metadata from system prompt (thanks @KonstantinMirin))
 import {
   normalizeAllowList,
   normalizeAllowListLower,
@@ -365,15 +369,16 @@ export function registerSlackMonitorSlashCommands(params: {
         },
       });
 
-      const channelDescription = [channelInfo?.topic, channelInfo?.purpose]
-        .map((entry) => entry?.trim())
-        .filter((entry): entry is string => Boolean(entry))
-        .filter((entry, index, list) => list.indexOf(entry) === index)
-        .join("\n");
-      const systemPromptParts = [
-        channelDescription ? `Channel description: ${channelDescription}` : null,
-        channelConfig?.systemPrompt?.trim() || null,
-      ].filter((entry): entry is string => Boolean(entry));
+      const untrustedChannelMetadata = isRoomish
+        ? buildUntrustedChannelMetadata({
+            source: "slack",
+            label: "Slack channel description",
+            entries: [channelInfo?.topic, channelInfo?.purpose],
+          })
+        : undefined;
+      const systemPromptParts = [channelConfig?.systemPrompt?.trim() || null].filter(
+        (entry): entry is string => Boolean(entry),
+      );
       const groupSystemPrompt =
         systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
 
@@ -402,6 +407,7 @@ export function registerSlackMonitorSlashCommands(params: {
           }) ?? (isDirectMessage ? senderName : roomLabel),
         GroupSubject: isRoomish ? roomLabel : undefined,
         GroupSystemPrompt: isRoomish ? groupSystemPrompt : undefined,
+        UntrustedContext: untrustedChannelMetadata ? [untrustedChannelMetadata] : undefined,
         SenderName: senderName,
         SenderId: command.user_id,
         Provider: "slack" as const,
