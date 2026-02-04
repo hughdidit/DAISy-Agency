@@ -4,6 +4,7 @@ on:
   pull_request_target:
     # pull_request_target is required for labeling; avoid checking out PR code here.
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 permissions:
   contents: read

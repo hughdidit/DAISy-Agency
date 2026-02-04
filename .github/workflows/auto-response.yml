@@ -6,6 +6,7 @@ on:
   pull_request_target:
     # pull_request_target is used for safe label-driven automation; do not check out PR code.
     types: [labeled]
+  workflow_dispatch:
 
 permissions:
   issues: write
