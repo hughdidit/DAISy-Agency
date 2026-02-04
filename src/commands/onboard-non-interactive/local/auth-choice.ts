@@ -8,7 +8,11 @@ import { buildTokenProfileId, validateAnthropicSetupToken } from "../../auth-tok
 import { applyGoogleGeminiModelDefault } from "../../google-gemini-model-default.js";
 import {
   applyAuthProfileConfig,
+<<<<<<< HEAD
   applyQianfanConfig,
+=======
+  applyCloudflareAiGatewayConfig,
+>>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   applyKimiCodeConfig,
   applyMinimaxApiConfig,
   applyMinimaxConfig,
@@ -22,7 +26,11 @@ import {
   applyXiaomiConfig,
   applyZaiConfig,
   setAnthropicApiKey,
+<<<<<<< HEAD
   setQianfanApiKey,
+=======
+  setCloudflareAiGatewayConfig,
+>>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   setGeminiApiKey,
   setKimiCodingApiKey,
   setMinimaxApiKey,
@@ -304,6 +312,44 @@ export async function applyNonInteractiveAuthChoice(params: {
       mode: "api_key",
     });
     return applyVercelAiGatewayConfig(nextConfig);
+  }
+
+  if (authChoice === "cloudflare-ai-gateway-api-key") {
+    const accountId = opts.cloudflareAiGatewayAccountId?.trim() ?? "";
+    const gatewayId = opts.cloudflareAiGatewayGatewayId?.trim() ?? "";
+    if (!accountId || !gatewayId) {
+      runtime.error(
+        [
+          'Auth choice "cloudflare-ai-gateway-api-key" requires Account ID and Gateway ID.',
+          "Use --cloudflare-ai-gateway-account-id and --cloudflare-ai-gateway-gateway-id.",
+        ].join("\n"),
+      );
+      runtime.exit(1);
+      return null;
+    }
+    const resolved = await resolveNonInteractiveApiKey({
+      provider: "cloudflare-ai-gateway",
+      cfg: baseConfig,
+      flagValue: opts.cloudflareAiGatewayApiKey,
+      flagName: "--cloudflare-ai-gateway-api-key",
+      envVar: "CLOUDFLARE_AI_GATEWAY_API_KEY",
+      runtime,
+    });
+    if (!resolved) {
+      return null;
+    }
+    if (resolved.source !== "profile") {
+      await setCloudflareAiGatewayConfig(accountId, gatewayId, resolved.key);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "cloudflare-ai-gateway:default",
+      provider: "cloudflare-ai-gateway",
+      mode: "api_key",
+    });
+    return applyCloudflareAiGatewayConfig(nextConfig, {
+      accountId,
+      gatewayId,
+    });
   }
 
   if (authChoice === "moonshot-api-key") {
