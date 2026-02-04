@@ -33,6 +33,7 @@ Docs: https://docs.openclaw.ai
 =======
 - Docs: fix typo - clawdbot is the compatibility shim, not openclaw. (#7415) Thanks @lailoo.
 - Config: allow setting a default subagent thinking level via `agents.defaults.subagents.thinking` (and per-agent `agents.list[].subagents.thinking`). (#7372) Thanks @tyler6204.
+<<<<<<< HEAD
 >>>>>>> 0eae9f456 (Docs: fix compatibility shim note)
 =======
 - Memory: implement the opt-in QMD backend for workspace memory. (#3160) Thanks @vignesh07.
@@ -41,6 +42,10 @@ Docs: https://docs.openclaw.ai
 - Docs: zh-CN translation polish + pipeline guidance. (#8202, #6995) Thanks @AaronWander, @taiyi747, @Explorer1092, @rendaoyuan.
 - Docs: zh-CN translations seed + nav polish + landing notice + typo fix. (#6619, #7242, #7303, #7415) Thanks @joshp123, @lailoo.
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
+=======
+- Docs: zh-CN translations seed + polish, pipeline guidance, nav/landing updates, and typo fixes. (#8202, #6995, #6619, #7242, #7303, #7415) Thanks @AaronWander, @taiyi747, @Explorer1092, @rendaoyuan, @joshp123, @lailoo.
+- Docs: add zh-CN i18n guardrails to avoid editing generated translations. (#8416) Thanks @joshp123.
+>>>>>>> fd8f8843b (Docs: guard zh-CN i18n workflow)
 
 ### Fixes
 
