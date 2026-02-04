@@ -38,6 +38,7 @@ Then open `SOUL.md` together and talk about:
 Write it down. Make it real.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 ## One-time system admin check
 
@@ -57,6 +58,8 @@ Since this is a new install, offer a choice:
 Offer to set up an OpenClaw cron job for ongoing monitoring.
 
 >>>>>>> 7dfa99a6f (chore: fix formatting)
+=======
+>>>>>>> 61a7fc5e0 (Docs: drop healthcheck from bootstrap)
 ## Connect (Optional)
 
 Ask how they want to reach you:
