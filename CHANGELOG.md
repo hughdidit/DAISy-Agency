@@ -5,6 +5,20 @@ Docs: https://docs.molt.bot
 =======
 Docs: https://docs.openclaw.ai
 
+<<<<<<< HEAD
+=======
+## 2026.2.3
+
+### Changes
+
+- Onboarding: add Moonshot (.cn) auth choice and keep the China base URL when preserving defaults. (#7180) Thanks @waynelwz.
+
+### Fixes
+
+- Telegram: honor session model overrides in inline model selection. (#8193) Thanks @gildo.
+- Web UI: apply button styling to the new-messages indicator.
+
+>>>>>>> 4a5d36892 (fix: keep Moonshot CN base URL in onboarding (#7180) (thanks @waynelwz))
 ## 2026.2.2-3
 
 ### Fixes
