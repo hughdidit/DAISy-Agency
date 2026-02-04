@@ -1,5 +1,19 @@
 import type { Bot, Context } from "grammy";
+<<<<<<< HEAD
 
+=======
+import type { CommandArgs } from "../auto-reply/commands-registry.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { ChannelGroupPolicy } from "../config/group-policy.js";
+import type {
+  ReplyToMode,
+  TelegramAccountConfig,
+  TelegramGroupConfig,
+  TelegramTopicConfig,
+} from "../config/types.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { TelegramContext } from "./bot/types.js";
+>>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
 import { resolveEffectiveMessagesConfig } from "../agents/identity.js";
 import { resolveChunkMode } from "../auto-reply/chunk.js";
 import {
@@ -104,7 +118,7 @@ export type RegisterTelegramHandlerParams = {
   ) => { groupConfig?: TelegramGroupConfig; topicConfig?: TelegramTopicConfig };
   shouldSkipUpdate: (ctx: TelegramUpdateKeyContext) => boolean;
   processMessage: (
-    ctx: unknown,
+    ctx: TelegramContext,
     allMedia: Array<{ path: string; contentType?: string }>,
     storeAllowFrom: string[],
     options?: {

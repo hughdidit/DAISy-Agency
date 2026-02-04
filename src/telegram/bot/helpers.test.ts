@@ -90,6 +90,7 @@ describe("normalizeForwardedContext", () => {
     expect(ctx?.fromTitle).toBe("Hidden Name");
     expect(ctx?.date).toBe(456);
   });
+<<<<<<< HEAD
 
   it("handles legacy forwards with signatures", () => {
     const ctx = normalizeForwardedContext({
@@ -124,6 +125,8 @@ describe("normalizeForwardedContext", () => {
     expect(ctx?.fromType).toBe("legacy_hidden_user");
     expect(ctx?.date).toBe(111);
   });
+=======
+>>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
 });
 
 describe("expandTextLinks", () => {

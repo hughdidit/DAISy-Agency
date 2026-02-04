@@ -1,4 +1,6 @@
 // @ts-nocheck
+import type { Message } from "@grammyjs/types";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { hasControlCommand } from "../auto-reply/command-detection.js";
 import {
   createInboundDebouncer,
@@ -73,7 +75,7 @@ export const registerTelegramHandlers = ({
 
   type TextFragmentEntry = {
     key: string;
-    messages: Array<{ msg: TelegramMessage; ctx: unknown; receivedAtMs: number }>;
+    messages: Array<{ msg: Message; ctx: unknown; receivedAtMs: number }>;
     timer: ReturnType<typeof setTimeout>;
   };
   const textFragmentBuffer = new Map<string, TextFragmentEntry>();
@@ -82,7 +84,7 @@ export const registerTelegramHandlers = ({
   const debounceMs = resolveInboundDebounceMs({ cfg, channel: "telegram" });
   type TelegramDebounceEntry = {
     ctx: unknown;
-    msg: TelegramMessage;
+    msg: Message;
     allMedia: Array<{ path: string; contentType?: string }>;
     storeAllowFrom: string[];
     debounceKey: string | null;
@@ -121,7 +123,7 @@ export const registerTelegramHandlers = ({
       const baseCtx = first.ctx as { me?: unknown; getFile?: unknown } & Record<string, unknown>;
       const getFile =
         typeof baseCtx.getFile === "function" ? baseCtx.getFile.bind(baseCtx) : async () => ({});
-      const syntheticMessage: TelegramMessage = {
+      const syntheticMessage: Message = {
         ...first.msg,
         text: combinedText,
         caption: undefined,
@@ -187,7 +189,7 @@ export const registerTelegramHandlers = ({
         return;
       }
 
-      const syntheticMessage: TelegramMessage = {
+      const syntheticMessage: Message = {
         ...first.msg,
         text: combinedText,
         caption: undefined,
@@ -508,7 +510,7 @@ export const registerTelegramHandlers = ({
         if (modelCallback.type === "select") {
           const { provider, model } = modelCallback;
           // Process model selection as a synthetic message with /model command
-          const syntheticMessage: TelegramMessage = {
+          const syntheticMessage: Message = {
             ...callbackMessage,
             from: callback.from,
             text: `/model ${provider}/${model}`,
@@ -533,7 +535,7 @@ export const registerTelegramHandlers = ({
         return;
       }
 
-      const syntheticMessage: TelegramMessage = {
+      const syntheticMessage: Message = {
         ...callbackMessage,
         from: callback.from,
         text: data,
