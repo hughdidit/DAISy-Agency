@@ -7,6 +7,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29-beta.2",
 >>>>>>> 02576615c (fix: migrate legacy gateway services)
 =======
@@ -18,6 +19,9 @@
 =======
   "version": "2026.1.29-beta.7",
 >>>>>>> 151ddd624 (fix: detect legacy gateway launchd labels)
+=======
+  "version": "2026.2.2-2",
+>>>>>>> e895e85f5 (fix: improve build-info resolution for commit/version)
   "description": "WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
   "type": "module",
   "main": "dist/index.js",

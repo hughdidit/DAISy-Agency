@@ -1,6 +1,22 @@
 # Changelog
 
+<<<<<<< HEAD
 Docs: https://docs.molt.bot
+=======
+Docs: https://docs.openclaw.ai
+
+## 2026.2.2-2
+
+### Fixes
+
+- CLI status: resolve build-info from bundled dist output (fixes "unknown" commit in npm builds).
+
+## 2026.2.2-1
+
+### Fixes
+
+- CLI status: fall back to build-info for version detection (fixes "unknown" in beta builds). Thanks @gumadeira.
+>>>>>>> e895e85f5 (fix: improve build-info resolution for commit/version)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
