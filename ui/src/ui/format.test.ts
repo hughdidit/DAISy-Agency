@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
 
@@ -5,6 +6,41 @@ import { stripThinkingTags } from "./format";
 =======
 import { stripThinkingTags } from "./format.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+=======
+import { describe, expect, it, vi } from "vitest";
+import { formatAgo, stripThinkingTags } from "./format.ts";
+
+describe("formatAgo", () => {
+  it("returns 'just now' for timestamps less than 60s in the future", () => {
+    expect(formatAgo(Date.now() + 30_000)).toBe("just now");
+  });
+
+  it("returns 'Xm from now' for future timestamps", () => {
+    expect(formatAgo(Date.now() + 5 * 60_000)).toBe("5m from now");
+  });
+
+  it("returns 'Xh from now' for future timestamps", () => {
+    expect(formatAgo(Date.now() + 3 * 60 * 60_000)).toBe("3h from now");
+  });
+
+  it("returns 'Xd from now' for future timestamps beyond 48h", () => {
+    expect(formatAgo(Date.now() + 3 * 24 * 60 * 60_000)).toBe("3d from now");
+  });
+
+  it("returns 'Xs ago' for recent past timestamps", () => {
+    expect(formatAgo(Date.now() - 10_000)).toBe("10s ago");
+  });
+
+  it("returns 'Xm ago' for past timestamps", () => {
+    expect(formatAgo(Date.now() - 5 * 60_000)).toBe("5m ago");
+  });
+
+  it("returns 'n/a' for null/undefined", () => {
+    expect(formatAgo(null)).toBe("n/a");
+    expect(formatAgo(undefined)).toBe("n/a");
+  });
+});
+>>>>>>> 79d00e20d (UI: handle future timestamps in formatAgo)
 
 describe("stripThinkingTags", () => {
   it("strips <think>…</think> segments", () => {
