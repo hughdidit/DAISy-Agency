@@ -3,6 +3,18 @@ import os from "node:os";
 import path from "node:path";
 
 import { type CommandOptions, runCommandWithTimeout } from "../process/exec.js";
+<<<<<<< HEAD
+=======
+import { trimLogTail } from "./restart-sentinel.js";
+import {
+  channelToNpmTag,
+  DEFAULT_PACKAGE_CHANNEL,
+  DEV_BRANCH,
+  isBetaTag,
+  isStableTag,
+  type UpdateChannel,
+} from "./update-channels.js";
+>>>>>>> bbe9cb302 (fix(update): honor update.channel for update.run)
 import { compareSemverStrings } from "./update-check.js";
 <<<<<<< HEAD
 import { DEV_BRANCH, isBetaTag, isStableTag, type UpdateChannel } from "./update-channels.js";
@@ -810,7 +822,9 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
       globalRoot: path.dirname(pkgRoot),
       packageName,
     });
-    const spec = `${packageName}@${normalizeTag(opts.tag)}`;
+    const channel = opts.channel ?? DEFAULT_PACKAGE_CHANNEL;
+    const tag = normalizeTag(opts.tag ?? channelToNpmTag(channel));
+    const spec = `${packageName}@${tag}`;
     const updateStep = await runStep({
       runCommand,
       name: "global update",
