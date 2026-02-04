@@ -23,6 +23,18 @@ import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 
 const AllMessageActions = CHANNEL_MESSAGE_ACTION_NAMES;
+const EXPLICIT_TARGET_ACTIONS = new Set<ChannelMessageActionName>([
+  "send",
+  "sendWithEffect",
+  "sendAttachment",
+  "reply",
+  "thread-reply",
+  "broadcast",
+]);
+
+function actionNeedsExplicitTarget(action: ChannelMessageActionName): boolean {
+  return EXPLICIT_TARGET_ACTIONS.has(action);
+}
 function buildRoutingSchema() {
   return {
     channel: Type.Optional(Type.String()),
@@ -283,6 +295,11 @@ type MessageToolOptions = {
   currentThreadTs?: string;
   replyToMode?: "off" | "first" | "all";
   hasRepliedRef?: { value: boolean };
+<<<<<<< HEAD
+=======
+  sandboxRoot?: string;
+  requireExplicitTarget?: boolean;
+>>>>>>> 3f82daefd (feat(cron): enhance delivery modes and job configuration)
 };
 
 function buildMessageToolSchema(cfg: MoltbotConfig) {
@@ -392,6 +409,20 @@ export function createMessageTool(options?: MessageToolOptions): AnyAgentTool {
       const action = readStringParam(params, "action", {
         required: true,
       }) as ChannelMessageActionName;
+      const requireExplicitTarget = options?.requireExplicitTarget === true;
+      if (requireExplicitTarget && actionNeedsExplicitTarget(action)) {
+        const explicitTarget =
+          (typeof params.target === "string" && params.target.trim().length > 0) ||
+          (typeof params.to === "string" && params.to.trim().length > 0) ||
+          (typeof params.channelId === "string" && params.channelId.trim().length > 0) ||
+          (Array.isArray(params.targets) &&
+            params.targets.some((value) => typeof value === "string" && value.trim().length > 0));
+        if (!explicitTarget) {
+          throw new Error(
+            "Explicit message target required for this run. Provide target/targets (and channel when needed).",
+          );
+        }
+      }
 
       const accountId = readStringParam(params, "accountId") ?? agentAccountId;
       if (accountId) {

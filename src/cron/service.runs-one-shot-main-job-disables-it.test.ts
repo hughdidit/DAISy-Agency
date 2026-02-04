@@ -58,7 +58,7 @@ describe("CronService", () => {
       name: "one-shot hello",
       enabled: true,
       deleteAfterRun: false,
-      schedule: { kind: "at", atMs },
+      schedule: { kind: "at", at: new Date(atMs).toISOString() },
       sessionTarget: "main",
       wakeMode: "now",
       payload: { kind: "systemEvent", text: "hello" },
@@ -101,7 +101,7 @@ describe("CronService", () => {
     const job = await cron.add({
       name: "one-shot delete",
       enabled: true,
-      schedule: { kind: "at", atMs },
+      schedule: { kind: "at", at: new Date(atMs).toISOString() },
       sessionTarget: "main",
       wakeMode: "now",
       payload: { kind: "systemEvent", text: "hello" },
@@ -155,7 +155,7 @@ describe("CronService", () => {
     const job = await cron.add({
       name: "wakeMode now waits",
       enabled: true,
-      schedule: { kind: "at", atMs: 1 },
+      schedule: { kind: "at", at: new Date(1).toISOString() },
       sessionTarget: "main",
       wakeMode: "now",
       payload: { kind: "systemEvent", text: "hello" },
@@ -210,7 +210,7 @@ describe("CronService", () => {
     await cron.add({
       enabled: true,
       name: "weekly",
-      schedule: { kind: "at", atMs },
+      schedule: { kind: "at", at: new Date(atMs).toISOString() },
       sessionTarget: "isolated",
       wakeMode: "now",
       payload: { kind: "agentTurn", message: "do it", deliver: false },
@@ -354,7 +354,7 @@ describe("CronService", () => {
     await cron.add({
       name: "isolated error test",
       enabled: true,
-      schedule: { kind: "at", atMs },
+      schedule: { kind: "at", at: new Date(atMs).toISOString() },
       sessionTarget: "isolated",
       wakeMode: "now",
       payload: { kind: "agentTurn", message: "do it", deliver: false },
@@ -429,7 +429,7 @@ describe("CronService", () => {
             enabled: true,
             createdAtMs: Date.parse("2025-12-13T00:00:00.000Z"),
             updatedAtMs: Date.parse("2025-12-13T00:00:00.000Z"),
-            schedule: { kind: "at", atMs },
+            schedule: { kind: "at", at: new Date(atMs).toISOString() },
             sessionTarget: "main",
             wakeMode: "now",
             payload: { kind: "agentTurn", message: "bad" },
