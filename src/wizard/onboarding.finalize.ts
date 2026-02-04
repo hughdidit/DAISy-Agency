@@ -2,10 +2,28 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
+<<<<<<< HEAD
+=======
+import { resolveCliName } from "../cli/cli-name.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import { installCompletion } from "../cli/completion-cli.js";
+import {
+  buildGatewayInstallPlan,
+  gatewayInstallErrorHint,
+} from "../commands/daemon-install-helpers.js";
+>>>>>>> 3e1419273 (onboard: use shared completion helpers for shell completion setup)
 import {
   DEFAULT_GATEWAY_DAEMON_RUNTIME,
   GATEWAY_DAEMON_RUNTIME_OPTIONS,
 } from "../commands/daemon-runtime.js";
+<<<<<<< HEAD
+=======
+import {
+  checkShellCompletionStatus,
+  ensureCompletionCacheExists,
+} from "../commands/doctor-completion.js";
+import { formatHealthCheckFailure } from "../commands/health-format.js";
+>>>>>>> 3e1419273 (onboard: use shared completion helpers for shell completion setup)
 import { healthCommand } from "../commands/health.js";
 import { formatHealthCheckFailure } from "../commands/health-format.js";
 import {
@@ -403,6 +421,51 @@ export async function finalizeOnboardingWizard(
     "Running agents on your computer is risky — harden your setup: https://docs.molt.bot/security",
     "Security",
   );
+
+  // Shell completion setup
+  const cliName = resolveCliName();
+  const completionStatus = await checkShellCompletionStatus(cliName);
+
+  if (completionStatus.usesSlowPattern) {
+    // Case 1: Profile uses slow dynamic pattern - silently upgrade to cached version
+    const cacheGenerated = await ensureCompletionCacheExists(cliName);
+    if (cacheGenerated) {
+      await installCompletion(completionStatus.shell, true, cliName);
+    }
+  } else if (completionStatus.profileInstalled && !completionStatus.cacheExists) {
+    // Case 2: Profile has completion but no cache - auto-fix silently
+    await ensureCompletionCacheExists(cliName);
+  } else if (!completionStatus.profileInstalled) {
+    // Case 3: No completion at all - prompt to install
+    const installShellCompletion = await prompter.confirm({
+      message: `Enable ${completionStatus.shell} shell completion for ${cliName}?`,
+      initialValue: true,
+    });
+    if (installShellCompletion) {
+      // Generate cache first (required for fast shell startup)
+      const cacheGenerated = await ensureCompletionCacheExists(cliName);
+      if (cacheGenerated) {
+        // Install to shell profile
+        await installCompletion(completionStatus.shell, true, cliName);
+        const profileHint =
+          completionStatus.shell === "zsh"
+            ? "~/.zshrc"
+            : completionStatus.shell === "bash"
+              ? "~/.bashrc"
+              : "~/.config/fish/config.fish";
+        await prompter.note(
+          `Shell completion installed. Restart your shell or run: source ${profileHint}`,
+          "Shell completion",
+        );
+      } else {
+        await prompter.note(
+          `Failed to generate completion cache. Run \`${cliName} completion --install\` later.`,
+          "Shell completion",
+        );
+      }
+    }
+  }
+  // Case 4: Both profile and cache exist (using cached version) - all good, nothing to do
 
   const shouldOpenControlUi =
     !opts.skipUi &&
