@@ -31,7 +31,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   BUILD_REF: ${{ (github.event_name == 'workflow_dispatch' && inputs.ref) || github.ref }}
-  PUSH_ENABLED: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true' && (startsWith(env.BUILD_REF, 'refs/tags/v') || env.BUILD_REF == 'refs/heads/daisy/main')) }}
+  PUSH_ENABLED: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true' && (startsWith(((github.event_name == 'workflow_dispatch' && inputs.ref) || github.ref), 'refs/tags/v') || ((github.event_name == 'workflow_dispatch' && inputs.ref) || github.ref) == 'refs/heads/daisy/main')) }}
 
 jobs:
   # Build amd64 image
