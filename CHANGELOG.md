@@ -27,6 +27,12 @@ Status: beta.
 
 ### Fixes
 
+<<<<<<< HEAD
+=======
+- Heartbeat: allow explicit accountId routing for multi-account channels. (#8702) Thanks @lsh411.
+- TUI/Gateway: handle non-streaming finals, refresh history for non-local chat runs, and avoid event gap warnings for targeted tool streams. (#8432) Thanks @gumadeiras.
+- Shell completion: auto-detect and migrate slow dynamic patterns to cached files for faster terminal startup; add completion health checks to doctor/update/onboard.
+>>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
 - Telegram: honor session model overrides in inline model selection. (#8193) Thanks @gildo.
 - Web UI: resolve header logo path when `gateway.controlUi.basePath` is set. (#7178) Thanks @Yeom-JinHo.
 - Web UI: apply button styling to the new-messages indicator.

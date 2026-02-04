@@ -38,6 +38,11 @@ export type EmbeddedPiSubscribeState = {
   blockBuffer: string;
   blockState: { thinking: boolean; final: boolean; inlineCode: InlineCodeState };
   lastStreamedAssistant?: string;
+<<<<<<< HEAD
+=======
+  lastStreamedAssistantCleaned?: string;
+  emittedAssistantUpdate: boolean;
+>>>>>>> 38e6da1fe (TUI/Gateway: fix pi streaming + tool routing + model display + msg updating (#8432))
   lastStreamedReasoning?: string;
   lastBlockReplyText?: string;
   assistantMessageIndex: number;
