@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @ts-nocheck
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
@@ -10,6 +11,12 @@ import { ReactionTypeEmoji } from "@grammyjs/types";
 import { Bot, webhookCallback } from "grammy";
 =======
 import { type Message, ReactionTypeEmoji } from "@grammyjs/types";
+=======
+import type { ApiClientOptions } from "grammy";
+import { sequentialize } from "@grammyjs/runner";
+import { apiThrottler } from "@grammyjs/transformer-throttler";
+import { type Message, type UserFromGetMe, ReactionTypeEmoji } from "@grammyjs/types";
+>>>>>>> 96abc1c86 (Telegram: remove @ts-nocheck from bot.ts, fix duplicate error handler, harden sticker caching (#9077))
 import { Bot, webhookCallback } from "grammy";
 import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -38,8 +45,11 @@ import { enqueueSystemEvent } from "../infra/system-events.js";
 import { getChildLogger } from "../logging.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
+<<<<<<< HEAD
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";
+=======
+>>>>>>> 96abc1c86 (Telegram: remove @ts-nocheck from bot.ts, fix duplicate error handler, harden sticker caching (#9077))
 import { resolveTelegramAccount } from "./accounts.js";
 import {
   buildTelegramGroupPeerId,
@@ -78,6 +88,7 @@ export type TelegramBotOptions = {
 
 export function getTelegramSequentialKey(ctx: {
   chat?: { id?: number };
+  me?: UserFromGetMe;
   message?: Message;
   update?: {
     message?: Message;
@@ -98,7 +109,7 @@ export function getTelegramSequentialKey(ctx: {
     ctx.update?.callback_query?.message;
   const chatId = msg?.chat?.id ?? ctx.chat?.id;
   const rawText = msg?.text ?? msg?.caption;
-  const botUsername = (ctx as { me?: { username?: string } }).me?.username;
+  const botUsername = ctx.me?.username;
   if (
     rawText &&
     isControlCommandMessage(rawText, undefined, botUsername ? { botUsername } : undefined)
@@ -110,7 +121,7 @@ export function getTelegramSequentialKey(ctx: {
   }
   const isGroup = msg?.chat?.type === "group" || msg?.chat?.type === "supergroup";
   const messageThreadId = msg?.message_thread_id;
-  const isForum = (msg?.chat as { is_forum?: boolean } | undefined)?.is_forum;
+  const isForum = msg?.chat?.is_forum;
   const threadId = isGroup
     ? resolveTelegramForumThreadId({ isForum, messageThreadId })
     : messageThreadId;
@@ -146,9 +157,7 @@ export function createTelegramBot(opts: TelegramBotOptions) {
   const client: ApiClientOptions | undefined =
     shouldProvideFetch || timeoutSeconds
       ? {
-          ...(shouldProvideFetch && fetchImpl
-            ? { fetch: fetchImpl as unknown as ApiClientOptions["fetch"] }
-            : {}),
+          ...(shouldProvideFetch && fetchImpl ? { fetch: fetchImpl } : {}),
           ...(timeoutSeconds ? { timeoutSeconds } : {}),
         }
       : undefined;
@@ -156,14 +165,9 @@ export function createTelegramBot(opts: TelegramBotOptions) {
   const bot = new Bot(opts.token, client ? { client } : undefined);
   bot.api.config.use(apiThrottler());
   bot.use(sequentialize(getTelegramSequentialKey));
-  bot.catch((err) => {
-    runtime.error?.(danger(`telegram bot error: ${formatUncaughtError(err)}`));
-  });
-
   // Catch all errors from bot middleware to prevent unhandled rejections
   bot.catch((err) => {
-    const message = err instanceof Error ? err.message : String(err);
-    runtime.error?.(danger(`telegram bot error: ${message}`));
+    runtime.error?.(danger(`telegram bot error: ${formatUncaughtError(err)}`));
   });
 
   const recentUpdates = createTelegramUpdateDedupe();
@@ -214,11 +218,10 @@ export function createTelegramBot(opts: TelegramBotOptions) {
         ];
       }
       if (value && typeof value === "object") {
-        const obj = value as object;
-        if (seen.has(obj)) {
+        if (seen.has(value)) {
           return "[Circular]";
         }
-        seen.add(obj);
+        seen.add(value);
       }
       return value;
     });
@@ -278,20 +281,19 @@ export function createTelegramBot(opts: TelegramBotOptions) {
   const logger = getChildLogger({ module: "telegram-auto-reply" });
   let botHasTopicsEnabled: boolean | undefined;
   const resolveBotTopicsEnabled = async (ctx?: TelegramContext) => {
-    const fromCtx = ctx?.me as { has_topics_enabled?: boolean } | undefined;
-    if (typeof fromCtx?.has_topics_enabled === "boolean") {
-      botHasTopicsEnabled = fromCtx.has_topics_enabled;
+    if (typeof ctx?.me?.has_topics_enabled === "boolean") {
+      botHasTopicsEnabled = ctx.me.has_topics_enabled;
       return botHasTopicsEnabled;
     }
     if (typeof botHasTopicsEnabled === "boolean") {
       return botHasTopicsEnabled;
     }
     try {
-      const me = (await withTelegramApiErrorLogging({
+      const me = await withTelegramApiErrorLogging({
         operation: "getMe",
         runtime,
         fn: () => bot.api.getMe(),
-      })) as { has_topics_enabled?: boolean };
+      });
       botHasTopicsEnabled = Boolean(me?.has_topics_enabled);
     } catch (err) {
       logVerbose(`telegram getMe failed: ${String(err)}`);
@@ -452,18 +454,14 @@ export function createTelegramBot(opts: TelegramBotOptions) {
       }
       senderLabel = senderLabel || "unknown";
 
-      // Extract forum thread info (similar to message processing)
-      // oxlint-disable-next-line typescript/no-explicit-any
-      const messageThreadId = (reaction as any).message_thread_id;
-      // oxlint-disable-next-line typescript/no-explicit-any
-      const isForum = (reaction.chat as any).is_forum === true;
-      const resolvedThreadId = resolveTelegramForumThreadId({
-        isForum,
-        messageThreadId,
-      });
-
-      // Resolve agent route for session
+      // Reactions target a specific message_id; the Telegram Bot API does not include
+      // message_thread_id on MessageReactionUpdated, so we route to the chat-level
+      // session (forum topic routing is not available for reactions).
       const isGroup = reaction.chat.type === "group" || reaction.chat.type === "supergroup";
+      const isForum = reaction.chat.is_forum === true;
+      const resolvedThreadId = isForum
+        ? resolveTelegramForumThreadId({ isForum, messageThreadId: undefined })
+        : undefined;
       const peerId = isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : String(chatId);
       const route = resolveAgentRoute({
         cfg,
@@ -471,14 +469,7 @@ export function createTelegramBot(opts: TelegramBotOptions) {
         accountId: account.accountId,
         peer: { kind: isGroup ? "group" : "dm", id: peerId },
       });
-      const baseSessionKey = route.sessionKey;
-      // DMs: use raw messageThreadId for thread sessions (not resolvedThreadId which is for forums)
-      const dmThreadId = !isGroup ? messageThreadId : undefined;
-      const threadKeys =
-        dmThreadId != null
-          ? resolveThreadSessionKeys({ baseSessionKey, threadId: String(dmThreadId) })
-          : null;
-      const sessionKey = threadKeys?.sessionKey ?? baseSessionKey;
+      const sessionKey = route.sessionKey;
 
       // Enqueue system event for each added reaction
       for (const r of addedReactions) {
