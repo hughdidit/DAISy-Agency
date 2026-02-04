@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -8,9 +9,6 @@ import { describe, expect, it } from "vitest";
 import { installChromeExtension } from "./browser-cli-extension";
 >>>>>>> 0621d0e9e (fix(cli): resolve bundled chrome extension path)
 
-// This test ensures the bundled extension path resolution matches the npm package layout.
-// The install command should succeed without requiring any external symlinks.
-
 describe("browser extension install", () => {
 <<<<<<< HEAD
   it("installs into the state dir (never node_modules)", async () => {
@@ -18,11 +16,17 @@ describe("browser extension install", () => {
     const { installChromeExtension } = await import("./browser-cli-extension.js");
 =======
   it("installs bundled chrome extension into a state dir", async () => {
+<<<<<<< HEAD
     const tmp = path.join(process.cwd(), ".tmp-test-openclaw-state", String(Date.now()));
 >>>>>>> 0621d0e9e (fix(cli): resolve bundled chrome extension path)
+=======
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-ext-state-"));
+>>>>>>> 1008c28f5 (test(cli): use unique temp dir for extension install)
 
-    const result = await installChromeExtension({ stateDir: tmp });
+    try {
+      const result = await installChromeExtension({ stateDir: tmp });
 
+<<<<<<< HEAD
     expect(result.path).toContain(path.join("browser", "chrome-extension"));
     expect(fs.existsSync(path.join(result.path, "manifest.json"))).toBe(true);
 <<<<<<< HEAD
@@ -73,5 +77,12 @@ describe("browser extension install", () => {
     }
 =======
 >>>>>>> 0621d0e9e (fix(cli): resolve bundled chrome extension path)
+=======
+      expect(result.path).toBe(path.join(tmp, "browser", "chrome-extension"));
+      expect(fs.existsSync(path.join(result.path, "manifest.json"))).toBe(true);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+>>>>>>> 1008c28f5 (test(cli): use unique temp dir for extension install)
   });
 });
