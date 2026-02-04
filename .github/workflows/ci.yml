@@ -43,8 +43,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
-          check-latest: true
+          node-version: 22.11.0
 
       - name: Setup pnpm (corepack retry)
         run: |
@@ -113,8 +112,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
-          check-latest: true
+          node-version: 22.11.0
 
       - name: Setup pnpm (corepack retry)
         run: |
@@ -199,8 +197,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
-          check-latest: true
+          node-version: 22.11.0
 
       - name: Setup pnpm (corepack retry)
         run: |
@@ -317,8 +314,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
-          check-latest: true
+          node-version: 22.11.0
 
       - name: Setup pnpm (corepack retry)
         run: |
@@ -394,8 +390,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
-          check-latest: true
+          node-version: 22.11.0
 
       - name: Setup pnpm (corepack retry)
         run: |
