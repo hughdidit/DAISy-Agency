@@ -235,6 +235,8 @@ export function describeReplyTarget(msg: TelegramMessage): TelegramReplyTarget |
   };
 }
 
+export type TelegramChatType = "private" | "group" | "supergroup" | "channel";
+
 export type TelegramForwardedContext = {
   from: string;
   date?: number;
@@ -243,6 +245,13 @@ export type TelegramForwardedContext = {
   fromUsername?: string;
   fromTitle?: string;
   fromSignature?: string;
+<<<<<<< HEAD
+=======
+  /** Original chat type from forward_from_chat (e.g. "channel", "supergroup", "group"). */
+  fromChatType?: TelegramChatType;
+  /** Original message ID in the source chat (channel forwards). */
+  fromMessageId?: number;
+>>>>>>> b2361292e (fix: trim legacy signature fallback, type fromChatType as union)
 };
 
 function normalizeForwardedUserLabel(user: TelegramForwardUser) {
@@ -309,6 +318,10 @@ function buildForwardedContextFromChat(params: {
   if (!display) return null;
   const signature = params.signature?.trim() || undefined;
   const from = signature ? `${display} (${signature})` : display;
+<<<<<<< HEAD
+=======
+  const chatType = (params.chat.type?.trim() || undefined) as TelegramChatType | undefined;
+>>>>>>> b2361292e (fix: trim legacy signature fallback, type fromChatType as union)
   return {
     from,
     date: params.date,
