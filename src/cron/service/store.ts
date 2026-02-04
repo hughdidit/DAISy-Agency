@@ -6,6 +6,7 @@ import type { CronServiceState } from "./state.js";
 
 const storeCache = new Map<string, { version: 1; jobs: CronJob[] }>();
 
+<<<<<<< HEAD
 export async function ensureLoaded(state: CronServiceState) {
   if (state.store) return;
   const cached = storeCache.get(state.deps.storePath);
@@ -13,6 +14,124 @@ export async function ensureLoaded(state: CronServiceState) {
     state.store = cached;
     return;
   }
+=======
+function buildDeliveryFromLegacyPayload(payload: Record<string, unknown>) {
+  const deliver = payload.deliver;
+  const mode = deliver === false ? "none" : "announce";
+  const channelRaw =
+    typeof payload.channel === "string" ? payload.channel.trim().toLowerCase() : "";
+  const toRaw = typeof payload.to === "string" ? payload.to.trim() : "";
+  const next: Record<string, unknown> = { mode };
+  if (channelRaw) {
+    next.channel = channelRaw;
+  }
+  if (toRaw) {
+    next.to = toRaw;
+  }
+  if (typeof payload.bestEffortDeliver === "boolean") {
+    next.bestEffort = payload.bestEffortDeliver;
+  }
+  return next;
+}
+
+function buildDeliveryPatchFromLegacyPayload(payload: Record<string, unknown>) {
+  const deliver = payload.deliver;
+  const channelRaw =
+    typeof payload.channel === "string" ? payload.channel.trim().toLowerCase() : "";
+  const toRaw = typeof payload.to === "string" ? payload.to.trim() : "";
+  const next: Record<string, unknown> = {};
+  let hasPatch = false;
+
+  if (deliver === false) {
+    next.mode = "none";
+    hasPatch = true;
+  } else if (deliver === true || toRaw) {
+    next.mode = "announce";
+    hasPatch = true;
+  }
+  if (channelRaw) {
+    next.channel = channelRaw;
+    hasPatch = true;
+  }
+  if (toRaw) {
+    next.to = toRaw;
+    hasPatch = true;
+  }
+  if (typeof payload.bestEffortDeliver === "boolean") {
+    next.bestEffort = payload.bestEffortDeliver;
+    hasPatch = true;
+  }
+
+  return hasPatch ? next : null;
+}
+
+function mergeLegacyDeliveryInto(
+  delivery: Record<string, unknown>,
+  payload: Record<string, unknown>,
+) {
+  const patch = buildDeliveryPatchFromLegacyPayload(payload);
+  if (!patch) {
+    return { delivery, mutated: false };
+  }
+
+  const next = { ...delivery };
+  let mutated = false;
+
+  if ("mode" in patch && patch.mode !== next.mode) {
+    next.mode = patch.mode;
+    mutated = true;
+  }
+  if ("channel" in patch && patch.channel !== next.channel) {
+    next.channel = patch.channel;
+    mutated = true;
+  }
+  if ("to" in patch && patch.to !== next.to) {
+    next.to = patch.to;
+    mutated = true;
+  }
+  if ("bestEffort" in patch && patch.bestEffort !== next.bestEffort) {
+    next.bestEffort = patch.bestEffort;
+    mutated = true;
+  }
+
+  return { delivery: next, mutated };
+}
+
+function stripLegacyDeliveryFields(payload: Record<string, unknown>) {
+  if ("deliver" in payload) {
+    delete payload.deliver;
+  }
+  if ("channel" in payload) {
+    delete payload.channel;
+  }
+  if ("to" in payload) {
+    delete payload.to;
+  }
+  if ("bestEffortDeliver" in payload) {
+    delete payload.bestEffortDeliver;
+  }
+}
+
+async function getFileMtimeMs(path: string): Promise<number | null> {
+  try {
+    const stats = await fs.promises.stat(path);
+    return stats.mtimeMs;
+  } catch {
+    return null;
+  }
+}
+
+export async function ensureLoaded(state: CronServiceState, opts?: { forceReload?: boolean }) {
+  // Fast path: store is already in memory. Other callers (add, list, run, …)
+  // trust the in-memory copy to avoid a stat syscall on every operation.
+  if (state.store && !opts?.forceReload) {
+    return;
+  }
+  // Force reload always re-reads the file to avoid missing cross-service
+  // edits on filesystems with coarse mtime resolution.
+
+  const fileMtimeMs = await getFileMtimeMs(state.deps.storePath);
+>>>>>>> 6f200ea77 (fix: force reload cron store)
   const loaded = await loadCronStore(state.deps.storePath);
   const jobs = (loaded.jobs ?? []) as unknown as Array<Record<string, unknown>>;
   let mutated = false;
