@@ -30,6 +30,11 @@ const PREFERRED_PROVIDER_BY_AUTH_CHOICE: Partial<Record<AuthChoice, string>> = {
   minimax: "lmstudio",
   "opencode-zen": "opencode",
   "qwen-portal": "qwen-portal",
+<<<<<<< HEAD
+=======
+  "minimax-portal": "minimax-portal",
+  "qianfan-api-key": "qianfan",
+>>>>>>> 30ac80b96 (Add baidu qianfan model provider)
 };
 
 export function resolvePreferredProviderForAuthChoice(choice: AuthChoice): string | undefined {
