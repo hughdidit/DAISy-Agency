@@ -18,7 +18,12 @@ Docs: https://docs.openclaw.ai
 
 ### Changes
 
+<<<<<<< HEAD
 - TBD.
+=======
+- Onboarding: add Moonshot (.cn) auth choice and keep the China base URL when preserving defaults. (#7180) Thanks @waynelwz.
+- Docs: clarify tmux send-keys for TUI by splitting text and Enter. (#7737) Thanks @Wangnov.
+>>>>>>> efc9d0a49 (docs: note tmux send-keys TUI guidance (#7737) (thanks @Wangnov))
 
 ### Fixes
 
