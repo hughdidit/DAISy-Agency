@@ -63,6 +63,7 @@ Minimal config:
   - `moltbot pairing list nextcloud-talk`
   - `moltbot pairing approve nextcloud-talk <CODE>`
 - Public DMs: `channels.nextcloud-talk.dmPolicy="open"` plus `channels.nextcloud-talk.allowFrom=["*"]`.
+- `allowFrom` matches Nextcloud user IDs only; display names are ignored.
 
 ## Rooms (groups)
 - Default: `channels.nextcloud-talk.groupPolicy = "allowlist"` (mention-gated).
