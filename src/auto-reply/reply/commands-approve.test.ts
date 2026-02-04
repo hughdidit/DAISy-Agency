@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 4df4435c4 (test: reset /approve mock per test (#1) (thanks @mitsuhiko))
 import type { MsgContext } from "../templating.js";
 import { buildCommandContext, handleCommands } from "./commands.js";
 import { parseInlineDirectives } from "./directive-handling.js";
@@ -49,6 +54,10 @@ function buildParams(commandBody: string, cfg: MoltbotConfig, ctxOverrides?: Par
 }
 
 describe("/approve command", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("rejects invalid usage", async () => {
     const cfg = {
       commands: { text: true },
