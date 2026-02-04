@@ -11,51 +11,139 @@
 #   5. Validate IAP SSH access
 #
 # Usage:
-#   ./scripts/gcp/create-staging-vm.sh [--dry-run]
+#   ./scripts/gcp/create-staging-vm.sh [--dry-run] [--show-defaults]
+#
+# Configuration via environment variables (all optional, defaults shown):
+#   GCP_PROJECT_ID          - GCP project (default: amiable-raceway-472818-m5)
+#   GCP_ZONE                - Zone for staging VM (default: us-west1-b)
+#   PROD_BOOT_DISK          - Production boot disk to clone (default: clawdbot-gw-1)
+#   STAGING_INSTANCE        - Staging VM name (default: daisy-staging-1)
+#   STAGING_MACHINE_TYPE    - Machine type (default: n2-standard-8)
+#   STAGING_STATE_DISK_SIZE - State disk size (default: 200GB)
 #
 # Prerequisites:
 #   - gcloud CLI authenticated with appropriate permissions
-#   - Project set: gcloud config set project <PROJECT_ID>
 #
 set -euo pipefail
 
 # =============================================================================
-# Configuration (discovered from production)
+# Configuration (override via environment variables)
 # =============================================================================
 
-PROJECT_ID="amiable-raceway-472818-m5"
-PROD_ZONE="us-west1-b"
-PROD_BOOT_DISK="clawdbot-gw-1"  # Boot disk name (kept from original VM)
+# GCP project and zone
+PROJECT_ID="${GCP_PROJECT_ID:-amiable-raceway-472818-m5}"
+PROD_ZONE="${GCP_ZONE:-us-west1-b}"
+PROD_BOOT_DISK="${PROD_BOOT_DISK:-clawdbot-gw-1}"
 
 # Staging configuration
-STAGING_INSTANCE="daisy-staging-1"
-STAGING_ZONE="us-west1-b"  # Same zone for simplicity; change if needed
-STAGING_MACHINE_TYPE="n2-standard-8"  # Match prod (n2 used due to e2 capacity issues)
-STAGING_BOOT_DISK="daisy-staging-boot"
-STAGING_STATE_DISK="daisy-staging-state"
-STAGING_STATE_DISK_SIZE="50GB"
-STAGING_SA_NAME="daisy-staging-sa"
+STAGING_INSTANCE="${STAGING_INSTANCE:-daisy-staging-1}"
+STAGING_ZONE="${STAGING_ZONE:-$PROD_ZONE}"
+STAGING_MACHINE_TYPE="${STAGING_MACHINE_TYPE:-n2-standard-8}"
+STAGING_BOOT_DISK="${STAGING_BOOT_DISK:-${STAGING_INSTANCE}-boot}"
+STAGING_STATE_DISK="${STAGING_STATE_DISK:-${STAGING_INSTANCE}-state}"
+STAGING_STATE_DISK_SIZE="${STAGING_STATE_DISK_SIZE:-200GB}"
+STAGING_SA_NAME="${STAGING_SA_NAME:-${STAGING_INSTANCE}-sa}"
 STAGING_SA_EMAIL="${STAGING_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
-STAGING_NETWORK="default"
-STAGING_SUBNET="default"
-STAGING_TAGS="iap-ssh"
+STAGING_NETWORK="${STAGING_NETWORK:-default}"
+STAGING_SUBNET="${STAGING_SUBNET:-default}"
+STAGING_TAGS="${STAGING_TAGS:-iap-ssh}"
 
 # Snapshot naming
-SNAPSHOT_NAME="daisy-staging-snapshot-$(date +%Y%m%d-%H%M%S)"
+SNAPSHOT_NAME="${SNAPSHOT_NAME:-${STAGING_INSTANCE}-snapshot-$(date +%Y%m%d-%H%M%S)}"
 
 # =============================================================================
 # Parse arguments
 # =============================================================================
 
 DRY_RUN=false
+SHOW_DEFAULTS=false
+
 for arg in "$@"; do
   case $arg in
     --dry-run)
       DRY_RUN=true
       shift
       ;;
+    --show-defaults)
+      SHOW_DEFAULTS=true
+      shift
+      ;;
+    --help|-h)
+      echo "Usage: $0 [--dry-run] [--show-defaults]"
+      echo ""
+      echo "Options:"
+      echo "  --dry-run       Show what would be done without making changes"
+      echo "  --show-defaults Show current configuration and exit"
+      echo "  --help          Show this help message"
+      echo ""
+      echo "Configure via environment variables:"
+      echo "  GCP_PROJECT_ID, GCP_ZONE, PROD_BOOT_DISK, STAGING_INSTANCE,"
+      echo "  STAGING_MACHINE_TYPE, STAGING_STATE_DISK_SIZE"
+      exit 0
+      ;;
   esac
 done
+
+# =============================================================================
+# Show defaults mode
+# =============================================================================
+
+if [[ "$SHOW_DEFAULTS" == "true" ]]; then
+  echo "=== Current Configuration ==="
+  echo ""
+  echo "GCP Settings:"
+  echo "  GCP_PROJECT_ID          = $PROJECT_ID"
+  echo "  GCP_ZONE                = $PROD_ZONE"
+  echo "  PROD_BOOT_DISK          = $PROD_BOOT_DISK"
+  echo ""
+  echo "Staging VM:"
+  echo "  STAGING_INSTANCE        = $STAGING_INSTANCE"
+  echo "  STAGING_ZONE            = $STAGING_ZONE"
+  echo "  STAGING_MACHINE_TYPE    = $STAGING_MACHINE_TYPE"
+  echo "  STAGING_BOOT_DISK       = $STAGING_BOOT_DISK"
+  echo "  STAGING_STATE_DISK      = $STAGING_STATE_DISK"
+  echo "  STAGING_STATE_DISK_SIZE = $STAGING_STATE_DISK_SIZE"
+  echo "  STAGING_SA_NAME         = $STAGING_SA_NAME"
+  echo "  STAGING_NETWORK         = $STAGING_NETWORK"
+  echo "  STAGING_SUBNET          = $STAGING_SUBNET"
+  echo "  STAGING_TAGS            = $STAGING_TAGS"
+  echo ""
+  echo "To override, export variables before running:"
+  echo "  export STAGING_INSTANCE=my-staging-2"
+  echo "  ./scripts/gcp/create-staging-vm.sh"
+  exit 0
+fi
+
+# =============================================================================
+# Safety checks (prevent footguns)
+# =============================================================================
+
+# Require explicit PROD_BOOT_DISK (don't blindly use default)
+if [[ -z "${PROD_BOOT_DISK_SET:-}" && "${PROD_BOOT_DISK}" == "clawdbot-gw-1" ]]; then
+  echo "ERROR: PROD_BOOT_DISK must be explicitly set to prevent cloning the wrong disk."
+  echo ""
+  echo "Set explicitly:"
+  echo "  export PROD_BOOT_DISK=your-prod-boot-disk"
+  echo "  ./scripts/gcp/create-staging-vm.sh"
+  echo ""
+  echo "Or confirm the default by setting:"
+  echo "  export PROD_BOOT_DISK_SET=1"
+  exit 1
+fi
+
+# Staging instance name must differ from common production patterns
+PROD_PATTERNS="prod|production|daisy-1$|clawdbot-gw"
+if echo "$STAGING_INSTANCE" | grep -qiE "$PROD_PATTERNS"; then
+  echo "ERROR: STAGING_INSTANCE '$STAGING_INSTANCE' looks like a production name."
+  echo "Choose a name that clearly indicates staging (e.g., 'daisy-staging-1')."
+  exit 1
+fi
+
+# Staging instance must not match production boot disk name
+if [[ "$STAGING_INSTANCE" == "$PROD_BOOT_DISK" ]]; then
+  echo "ERROR: STAGING_INSTANCE cannot be the same as PROD_BOOT_DISK."
+  exit 1
+fi
 
 # =============================================================================
 # Helper functions
@@ -195,6 +283,7 @@ log ""
 log "=== Phase 4: Create Staging VM ==="
 
 log "Creating staging VM: $STAGING_INSTANCE"
+# Use least-privilege scopes (not broad cloud-platform)
 run gcloud compute instances create "$STAGING_INSTANCE" \
   --project="$PROJECT_ID" \
   --zone="$STAGING_ZONE" \
@@ -202,25 +291,40 @@ run gcloud compute instances create "$STAGING_INSTANCE" \
   --disk="name=$STAGING_BOOT_DISK,boot=yes,auto-delete=no" \
   --disk="name=$STAGING_STATE_DISK,auto-delete=no" \
   --service-account="$STAGING_SA_EMAIL" \
-  --scopes="https://www.googleapis.com/auth/cloud-platform" \
+  --scopes="logging-write,monitoring-write,storage-ro" \
   --no-address \
   --network="$STAGING_NETWORK" \
   --subnet="$STAGING_SUBNET" \
   --tags="$STAGING_TAGS"
 
 # =============================================================================
-# Phase 5: Validate IAP SSH Access
+# Phase 5: Validate Security Posture (No External IP + IAP Works)
 # =============================================================================
 
 log ""
-log "=== Phase 5: Validate IAP SSH Access ==="
+log "=== Phase 5: Validate Security Posture ==="
 
 if [[ "$DRY_RUN" == "true" ]]; then
-  log "[DRY-RUN] Would test IAP SSH access to $STAGING_INSTANCE"
+  log "[DRY-RUN] Would validate: no external IP + IAP SSH works"
 else
   log "Waiting 30 seconds for VM to boot..."
   sleep 30
 
+  # Check 1: Verify no external IP
+  log "Checking VM has no external IP..."
+  EXTERNAL_IP=$(gcloud compute instances describe "$STAGING_INSTANCE" \
+    --project="$PROJECT_ID" \
+    --zone="$STAGING_ZONE" \
+    --format="get(networkInterfaces[0].accessConfigs[0].natIP)" 2>/dev/null || echo "")
+
+  if [[ -n "$EXTERNAL_IP" ]]; then
+    log "ERROR: VM has external IP $EXTERNAL_IP - this violates IAP-only requirement!"
+    log "Delete the VM and recreate with --no-address flag."
+    exit 1
+  fi
+  log "OK: No external IP assigned"
+
+  # Check 2: Verify IAP SSH works
   log "Testing IAP SSH access..."
   if gcloud compute ssh "$STAGING_INSTANCE" \
     --project="$PROJECT_ID" \
@@ -228,10 +332,12 @@ else
     --tunnel-through-iap \
     --command="echo 'IAP SSH connection successful! Hostname: '\$(hostname)" \
     -- -o ConnectTimeout=30 -o StrictHostKeyChecking=no; then
-    log "IAP SSH access validated successfully!"
+    log "OK: IAP SSH access validated"
   else
-    log "WARNING: IAP SSH test failed. Check IAP configuration and IAM permissions."
-    log "You may need to grant roles/iap.tunnelResourceAccessor to your user."
+    log "ERROR: IAP SSH failed. Check:"
+    log "  1. Firewall rule allows 35.235.240.0/20 -> tcp:22 for tag '$STAGING_TAGS'"
+    log "  2. Your user has roles/iap.tunnelResourceAccessor"
+    exit 1
   fi
 fi
 

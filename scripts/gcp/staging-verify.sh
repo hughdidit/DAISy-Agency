@@ -12,14 +12,14 @@
 set -euo pipefail
 
 # =============================================================================
-# Configuration
+# Configuration (override via environment variables)
 # =============================================================================
 
-STATE_MOUNT="/var/lib/daisy"
-CLAWDBOT_HOME="/var/lib/clawdbot/home"
-CONFIG_DIR="$CLAWDBOT_HOME/.clawdbot"
-WORKSPACE_DIR="$CLAWDBOT_HOME/clawd"
-DEPLOY_DIR="/var/lib/clawdbot"
+STATE_MOUNT="${STATE_MOUNT:-/var/lib/daisy}"
+CLAWDBOT_HOME="${CLAWDBOT_HOME:-/var/lib/clawdbot/home}"
+CONFIG_DIR="${CONFIG_DIR:-$CLAWDBOT_HOME/.clawdbot}"
+WORKSPACE_DIR="${WORKSPACE_DIR:-$CLAWDBOT_HOME/clawd}"
+DEPLOY_DIR="${DEPLOY_DIR:-/var/lib/clawdbot}"
 
 # =============================================================================
 # Helper functions

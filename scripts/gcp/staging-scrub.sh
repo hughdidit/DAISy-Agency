@@ -21,17 +21,22 @@
 set -euo pipefail
 
 # =============================================================================
-# Configuration
+# Configuration (override via environment variables)
 # =============================================================================
 
-STAGING_HOSTNAME="daisy-staging-1"
-STATE_DISK="/dev/sdb"
-STATE_MOUNT="/var/lib/daisy"
-CLAWDBOT_HOME="/var/lib/clawdbot/home"
-CONFIG_DIR="$CLAWDBOT_HOME/.clawdbot"
-WORKSPACE_DIR="$CLAWDBOT_HOME/clawd"
-DEPLOY_DIR="/var/lib/clawdbot"
-CLAWDBOT_USER="clawdbot"
+# Auto-detect hostname from GCE metadata if not set
+if [[ -z "${STAGING_HOSTNAME:-}" ]]; then
+  STAGING_HOSTNAME=$(curl -sf -H "Metadata-Flavor: Google" \
+    http://metadata.google.internal/computeMetadata/v1/instance/name 2>/dev/null || echo "daisy-staging-1")
+fi
+
+STATE_DISK="${STATE_DISK:-/dev/sdb}"
+STATE_MOUNT="${STATE_MOUNT:-/var/lib/daisy}"
+CLAWDBOT_HOME="${CLAWDBOT_HOME:-/var/lib/clawdbot/home}"
+CONFIG_DIR="${CONFIG_DIR:-$CLAWDBOT_HOME/.clawdbot}"
+WORKSPACE_DIR="${WORKSPACE_DIR:-$CLAWDBOT_HOME/clawd}"
+DEPLOY_DIR="${DEPLOY_DIR:-/var/lib/clawdbot}"
+CLAWDBOT_USER="${CLAWDBOT_USER:-clawdbot}"
 
 # =============================================================================
 # Helper functions
