@@ -51,6 +51,7 @@ Status: beta.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 - Agents: repair malformed tool calls and session transcripts. (#7473) Thanks @justinhuangcode.
@@ -62,6 +63,22 @@ Status: beta.
 =======
 - Media understanding: skip binary media from file text extraction. (#7475) Thanks @AlexZhangji.
 >>>>>>> f49297e2c (fix: skip audio files from text extraction to prevent binary processing (#7475))
+=======
+- Docs: finish renaming the QMD memory docs to reference the OpenClaw state dir.
+- Onboarding: keep TUI flow exclusive (skip completion prompt + background Web UI seed).
+- Onboarding: drop completion prompt now handled by install/update.
+- TUI: block onboarding output while TUI is active and restore terminal state on exit.
+- CLI: cache shell completion scripts in state dir and source cached files in profiles.
+- Zsh completion: escape option descriptions to avoid invalid option errors.
+- Agents: repair malformed tool calls and session transcripts. (#7473) Thanks @justinhuangcode.
+- fix(agents): validate AbortSignal instances before calling AbortSignal.any() (#7277) (thanks @Elarwei001)
+- fix(webchat): respect user scroll position during streaming and refresh (#7226) (thanks @marcomarandiz)
+- Telegram: recover from grammY long-poll timed out errors. (#7466) Thanks @macmimi23.
+- Telegram: honor session model overrides in inline model selection. (#8193) Thanks @gildo.
+- Media understanding: skip binary media from file text extraction. (#7475) Thanks @AlexZhangji.
+- Security: enforce access-group gating for Slack slash commands when channel type lookup fails.
+- Security: require validated shared-secret auth before skipping device identity on gateway connect.
+>>>>>>> 41a4f1200 (fix: honor telegram model overrides in buttons (#8193) (thanks @gildo))
 - Security: guard skill installer downloads with SSRF checks (block private/localhost URLs).
 - Security: harden Windows exec allowlist; block cmd.exe bypass via single &. Thanks @simecek.
 - Media understanding: apply SSRF guardrails to provider fetches; allow private baseUrl overrides explicitly.
