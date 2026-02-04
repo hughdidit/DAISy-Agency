@@ -17,6 +17,11 @@ Docs: https://docs.openclaw.ai
 
 - Telegram: honor session model overrides in inline model selection. (#8193) Thanks @gildo.
 - Web UI: apply button styling to the new-messages indicator.
+<<<<<<< HEAD
+=======
+- Security: keep untrusted channel metadata out of system prompts (Slack/Discord). Thanks @KonstantinMirin.
+- Voice call: harden webhook verification with host allowlists/proxy trust and keep ngrok loopback bypass.
+>>>>>>> a749db982 (fix: harden voice-call webhook verification)
 
 >>>>>>> 4a5d36892 (fix: keep Moonshot CN base URL in onboarding (#7180) (thanks @waynelwz))
 ## 2026.2.2-3

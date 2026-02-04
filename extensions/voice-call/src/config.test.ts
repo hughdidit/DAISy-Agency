@@ -20,6 +20,11 @@ function createBaseConfig(
     serve: { port: 3334, bind: "127.0.0.1", path: "/voice/webhook" },
     tailscale: { mode: "off", path: "/voice/webhook" },
     tunnel: { provider: "none", allowNgrokFreeTierLoopbackBypass: false },
+    webhookSecurity: {
+      allowedHosts: [],
+      trustForwardingHeaders: false,
+      trustedProxyIPs: [],
+    },
     streaming: {
       enabled: false,
       sttProvider: "openai-realtime",

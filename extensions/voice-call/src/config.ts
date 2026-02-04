@@ -220,15 +220,36 @@ export const VoiceCallTunnelConfigSchema = z
      * will be allowed only for loopback requests (ngrok local agent).
      */
     allowNgrokFreeTierLoopbackBypass: z.boolean().default(false),
-    /**
-     * Legacy ngrok free tier compatibility mode (deprecated).
-     * Use allowNgrokFreeTierLoopbackBypass instead.
-     */
-    allowNgrokFreeTier: z.boolean().optional(),
   })
   .strict()
   .default({ provider: "none", allowNgrokFreeTierLoopbackBypass: false });
 export type VoiceCallTunnelConfig = z.infer<typeof VoiceCallTunnelConfigSchema>;
+
+// -----------------------------------------------------------------------------
+// Webhook Security Configuration
+// -----------------------------------------------------------------------------
+
+export const VoiceCallWebhookSecurityConfigSchema = z
+  .object({
+    /**
+     * Allowed hostnames for webhook URL reconstruction.
+     * Only these hosts are accepted from forwarding headers.
+     */
+    allowedHosts: z.array(z.string().min(1)).default([]),
+    /**
+     * Trust X-Forwarded-* headers without a hostname allowlist.
+     * WARNING: Only enable if you trust your proxy configuration.
+     */
+    trustForwardingHeaders: z.boolean().default(false),
+    /**
+     * Trusted proxy IP addresses. Forwarded headers are only trusted when
+     * the remote IP matches one of these addresses.
+     */
+    trustedProxyIPs: z.array(z.string().min(1)).default([]),
+  })
+  .strict()
+  .default({ allowedHosts: [], trustForwardingHeaders: false, trustedProxyIPs: [] });
+export type WebhookSecurityConfig = z.infer<typeof VoiceCallWebhookSecurityConfigSchema>;
 
 // -----------------------------------------------------------------------------
 // Outbound Call Configuration
@@ -350,8 +371,16 @@ export const VoiceCallConfigSchema = z
   /** Tunnel configuration (unified ngrok/tailscale) */
   tunnel: VoiceCallTunnelConfigSchema,
 
+<<<<<<< HEAD
   /** Real-time audio streaming configuration */
   streaming: VoiceCallStreamingConfigSchema,
+=======
+    /** Webhook signature reconstruction and proxy trust configuration */
+    webhookSecurity: VoiceCallWebhookSecurityConfigSchema,
+
+    /** Real-time audio streaming configuration */
+    streaming: VoiceCallStreamingConfigSchema,
+>>>>>>> a749db982 (fix: harden voice-call webhook verification)
 
   /** Public webhook URL override (if set, bypasses tunnel auto-detection) */
   publicUrl: z.string().url().optional(),
@@ -427,6 +456,7 @@ export function resolveVoiceCallConfig(config: VoiceCallConfig): VoiceCallConfig
     allowNgrokFreeTierLoopbackBypass: false,
   };
   resolved.tunnel.allowNgrokFreeTierLoopbackBypass =
+<<<<<<< HEAD
     resolved.tunnel.allowNgrokFreeTierLoopbackBypass ||
     resolved.tunnel.allowNgrokFreeTier ||
     false;
@@ -434,6 +464,22 @@ export function resolveVoiceCallConfig(config: VoiceCallConfig): VoiceCallConfig
     resolved.tunnel.ngrokAuthToken ?? process.env.NGROK_AUTHTOKEN;
   resolved.tunnel.ngrokDomain =
     resolved.tunnel.ngrokDomain ?? process.env.NGROK_DOMAIN;
+=======
+    resolved.tunnel.allowNgrokFreeTierLoopbackBypass ?? false;
+  resolved.tunnel.ngrokAuthToken = resolved.tunnel.ngrokAuthToken ?? process.env.NGROK_AUTHTOKEN;
+  resolved.tunnel.ngrokDomain = resolved.tunnel.ngrokDomain ?? process.env.NGROK_DOMAIN;
+>>>>>>> a749db982 (fix: harden voice-call webhook verification)
+
+  // Webhook Security Config
+  resolved.webhookSecurity = resolved.webhookSecurity ?? {
+    allowedHosts: [],
+    trustForwardingHeaders: false,
+    trustedProxyIPs: [],
+  };
+  resolved.webhookSecurity.allowedHosts = resolved.webhookSecurity.allowedHosts ?? [];
+  resolved.webhookSecurity.trustForwardingHeaders =
+    resolved.webhookSecurity.trustForwardingHeaders ?? false;
+  resolved.webhookSecurity.trustedProxyIPs = resolved.webhookSecurity.trustedProxyIPs ?? [];
 
   return resolved;
 }

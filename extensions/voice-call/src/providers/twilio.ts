@@ -1,6 +1,10 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
 import type { TwilioConfig } from "../config.js";
+=======
+import type { TwilioConfig, WebhookSecurityConfig } from "../config.js";
+>>>>>>> a749db982 (fix: harden voice-call webhook verification)
 import type { MediaStreamHandler } from "../media-stream.js";
 import type {
   HangupCallInput,
@@ -39,6 +43,8 @@ export interface TwilioProviderOptions {
   streamPath?: string;
   /** Skip webhook signature verification (development only) */
   skipVerification?: boolean;
+  /** Webhook security options (forwarded headers/allowlist) */
+  webhookSecurity?: WebhookSecurityConfig;
 }
 
 export class TwilioProvider implements VoiceCallProvider {
