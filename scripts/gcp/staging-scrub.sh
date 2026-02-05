@@ -118,12 +118,8 @@ log "Stopping moltbot-gateway systemd service (if exists)..."
 systemctl stop moltbot-gateway 2>/dev/null || log "  (service not found or not running)"
 
 log "Stopping Docker containers..."
-if [[ -f "$DEPLOY_DIR/docker-compose.yml" ]] || [[ -f "$DEPLOY_DIR/compose.yml" ]]; then
-  cd "$DEPLOY_DIR"
-  docker compose down 2>/dev/null || log "  (no containers running)"
-else
-  log "  (no docker-compose.yml or compose.yml found at $DEPLOY_DIR)"
-fi
+cd "$DEPLOY_DIR"
+docker compose down 2>/dev/null || log "  (no containers running)"
 
 # =============================================================================
 # Phase 2: Clear Production State from Boot Disk
