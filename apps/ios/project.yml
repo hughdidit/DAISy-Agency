@@ -82,10 +82,14 @@ targets:
         CFBundleDisplayName: OpenClaw
         CFBundleIconName: AppIcon
 <<<<<<< HEAD
+<<<<<<< HEAD
         CFBundleShortVersionString: "2026.2.1"
         CFBundleVersion: "20260201"
 =======
         CFBundleShortVersionString: "2026.2.3"
+=======
+        CFBundleShortVersionString: "2026.2.4"
+>>>>>>> 5031b283a (chore: bump version to 2026.2.4)
         CFBundleVersion: "20260202"
 >>>>>>> e4b084c76 (chore: bump version to 2026.2.3)
         UILaunchScreen: {}
@@ -136,9 +140,13 @@ targets:
       properties:
         CFBundleDisplayName: OpenClawTests
 <<<<<<< HEAD
+<<<<<<< HEAD
         CFBundleShortVersionString: "2026.2.1"
         CFBundleVersion: "20260201"
 =======
         CFBundleShortVersionString: "2026.2.3"
+=======
+        CFBundleShortVersionString: "2026.2.4"
+>>>>>>> 5031b283a (chore: bump version to 2026.2.4)
         CFBundleVersion: "20260202"
 >>>>>>> e4b084c76 (chore: bump version to 2026.2.3)

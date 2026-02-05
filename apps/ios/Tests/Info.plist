@@ -18,10 +18,14 @@
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
 <<<<<<< HEAD
+<<<<<<< HEAD
 	<string>2026.2.1</string>
 =======
 	<string>2026.2.3</string>
 >>>>>>> e4b084c76 (chore: bump version to 2026.2.3)
+=======
+	<string>2026.2.4</string>
+>>>>>>> 5031b283a (chore: bump version to 2026.2.4)
 	<key>CFBundleVersion</key>
 	<string>20260201</string>
 </dict>
