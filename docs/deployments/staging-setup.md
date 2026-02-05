@@ -14,17 +14,17 @@ The staging VM is created by:
 
 ```
 +-------------------------------------------------------+
-| ${STAGING_INSTANCE} (GCE VM)                          |
+| daisy-staging-1 (GCE VM)                              |
 |                                                       |
 |  +-----------------+  +---------------------------+   |
 |  | Boot Disk       |  | State Disk (200GB)        |   |
 |  | (from snapshot) |  | /var/lib/daisy            |   |
-|  |                 |  |   +-- home/               |   |
-|  | - OS            |  |       +-- .clawdbot/      |   |
-|  | - Docker        |  |       +-- clawd/          |   |
-|  | - App binaries  |  |                           |   |
-|  +-----------------+  |  Bind mount:              |   |
-|                       |  -> /var/lib/clawdbot/home|   |
+|  |                 |  |   +-- config/             |   |
+|  | - OS            |  |   +-- workspace/          |   |
+|  | - Docker        |  |                           |   |
+|  | - App binaries  |  | Bind mounts:              |   |
+|  +-----------------+  |   config/ -> .clawdbot/   |   |
+|                       |   workspace/ -> clawd/    |   |
 |                       +---------------------------+   |
 |                                                       |
 |  IAP-only SSH (no external IP)                        |
@@ -75,7 +75,7 @@ export STAGING_INSTANCE="my-staging-vm"
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `GCP_PROJECT_ID` | `amiable-raceway-472818-m5` | GCP project ID |
+| `GCP_PROJECT_ID` | **(required)** | GCP project ID |
 | `GCP_ZONE` | `us-west1-b` | Zone for staging VM |
 | `PROD_BOOT_DISK` | `clawdbot-gw-1` | Production boot disk to clone |
 | `STAGING_INSTANCE` | `daisy-staging-1` | Staging VM name |
@@ -178,8 +178,10 @@ CLAWDBOT_BRIDGE_PORT=18790
 # Using :latest is convenient but poses supply-chain risk - if the registry
 # or tag is compromised, malicious code could execute with your secrets.
 # For staging, use a specific version tag or image digest:
-CLAWDBOT_IMAGE=ghcr.io/hughdidit/daisy-agency:v1.2.3
-# Or pin to SHA: ghcr.io/hughdidit/daisy-agency@sha256:abc123...
+#   Tag example:    ghcr.io/hughdidit/daisy-agency:staging
+#   SHA example:    ghcr.io/hughdidit/daisy-agency@sha256:abc123...
+# Replace <TAG_OR_SHA> with your actual version:
+CLAWDBOT_IMAGE=ghcr.io/hughdidit/daisy-agency:<TAG_OR_SHA>
 
 # Paths (should match bind mounts)
 CLAWDBOT_CONFIG_DIR=/var/lib/clawdbot/home/.clawdbot
@@ -296,9 +298,9 @@ gcloud iam service-accounts delete \
 
 | Aspect | Production | Staging |
 |--------|------------|---------|
-| Instance name | Production instance | `${STAGING_INSTANCE}` |
-| Hostname | Production hostname | `${STAGING_INSTANCE}` |
-| State storage | Production data disk | `${STAGING_INSTANCE}-state` (fresh) |
+| Instance name | Production instance | `daisy-staging-1` |
+| Hostname | Production hostname | `daisy-staging-1` |
+| State storage | Production data disk | `daisy-staging-1-state` (fresh) |
 | Discord bot | Production bot | Staging bot (different token) |
 | Discord allowlist | Production channels | Staging-only channels |
 | External IP | None (IAP-only) | None (IAP-only) |
@@ -347,6 +349,8 @@ Use `gcloud compute ssh` with IAP tunneling (no SSH keys):
 ```
 
 ### WIF Setup (one-time)
+
+**Prerequisite**: This assumes you have a Workload Identity Pool named `github` already configured. See [Google's WIF documentation](https://cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines) to create one if needed.
 
 Grant the staging service account permission to be impersonated by GitHub Actions:
 

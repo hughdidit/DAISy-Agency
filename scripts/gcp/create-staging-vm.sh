@@ -128,16 +128,17 @@ fi
 # Safety checks (prevent footguns)
 # =============================================================================
 
-# Require explicit PROD_BOOT_DISK (don't blindly use default)
-if [[ -z "${PROD_BOOT_DISK_SET:-}" && "${PROD_BOOT_DISK}" == "clawdbot-gw-1" ]]; then
-  echo "ERROR: PROD_BOOT_DISK must be explicitly set to prevent cloning the wrong disk."
+# Require explicit PROD_BOOT_DISK confirmation (don't blindly use default)
+# User must either set a different value OR confirm the default explicitly
+if [[ "${PROD_BOOT_DISK}" == "clawdbot-gw-1" && -z "${PROD_BOOT_DISK_CONFIRMED:-}" ]]; then
+  echo "ERROR: PROD_BOOT_DISK defaults to 'clawdbot-gw-1'. Please confirm this is correct."
   echo ""
-  echo "Set explicitly:"
+  echo "Either set a different value:"
   echo "  export PROD_BOOT_DISK=your-prod-boot-disk"
-  echo "  ./scripts/gcp/create-staging-vm.sh"
   echo ""
-  echo "Or confirm the default by setting:"
-  echo "  export PROD_BOOT_DISK_SET=1"
+  echo "Or confirm the default is correct:"
+  echo "  export PROD_BOOT_DISK_CONFIRMED=1"
+  echo "  ./scripts/gcp/create-staging-vm.sh"
   exit 1
 fi
 
@@ -334,7 +335,7 @@ else
     --zone="$STAGING_ZONE" \
     --tunnel-through-iap \
     --command="echo 'IAP SSH connection successful! Hostname: '\$(hostname)" \
-    -- -o ConnectTimeout=30 -o StrictHostKeyChecking=no; then
+    -- -o ConnectTimeout=30 -o StrictHostKeyChecking=accept-new; then
     log "OK: IAP SSH access validated"
   else
     log "ERROR: IAP SSH failed. Check:"

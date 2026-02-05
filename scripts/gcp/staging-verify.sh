@@ -185,10 +185,10 @@ if command -v docker &>/dev/null; then
   if docker ps &>/dev/null; then
     check_pass "Docker daemon is running"
 
-    if docker ps | grep -q moltbot; then
-      check_pass "Moltbot container is running"
+    if docker ps | grep -q moltbot-gateway; then
+      check_pass "Moltbot gateway container is running"
     else
-      check_warn "Moltbot container is not running (expected before first deploy)"
+      check_warn "Moltbot gateway container is not running (expected before first deploy)"
     fi
   else
     check_fail "Docker daemon is not running or not accessible"

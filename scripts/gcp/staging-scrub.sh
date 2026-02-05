@@ -41,6 +41,9 @@ if [[ -z "${STAGING_HOSTNAME:-}" ]]; then
   fi
 fi
 
+# State disk device path. GCP doesn't guarantee /dev/sdX naming across reboots.
+# Verify with 'lsblk' before running if unsure. For persistent naming, consider
+# using disk labels or /dev/disk/by-id/ paths in production setups.
 STATE_DISK="${STATE_DISK:-/dev/sdb}"
 STATE_MOUNT="${STATE_MOUNT:-/var/lib/daisy}"
 CLAWDBOT_HOME="${CLAWDBOT_HOME:-/var/lib/clawdbot/home}"
@@ -114,11 +117,11 @@ log "Stopping moltbot-gateway systemd service (if exists)..."
 systemctl stop moltbot-gateway 2>/dev/null || log "  (service not found or not running)"
 
 log "Stopping Docker containers..."
-if [[ -f "$DEPLOY_DIR/docker-compose.yml" ]]; then
+if [[ -f "$DEPLOY_DIR/docker-compose.yml" ]] || [[ -f "$DEPLOY_DIR/compose.yml" ]]; then
   cd "$DEPLOY_DIR"
   docker compose down 2>/dev/null || log "  (no containers running)"
 else
-  log "  (no docker-compose.yml found at $DEPLOY_DIR)"
+  log "  (no docker-compose.yml or compose.yml found at $DEPLOY_DIR)"
 fi
 
 # =============================================================================
@@ -180,10 +183,15 @@ mkdir -p "$WORKSPACE_DIR"
 chown "$CLAWDBOT_USER:$CLAWDBOT_USER" "$CONFIG_DIR" "$WORKSPACE_DIR"
 
 # Remove existing fstab entries for these mounts
+# Using grep -Fv for fixed-string matching (safe with special regex chars in paths)
 log "Updating /etc/fstab..."
-sed -i "\|$STATE_MOUNT|d" /etc/fstab
-sed -i "\|$CONFIG_DIR|d" /etc/fstab
-sed -i "\|$WORKSPACE_DIR|d" /etc/fstab
+for mount_path in "$STATE_MOUNT" "$CONFIG_DIR" "$WORKSPACE_DIR"; do
+  if grep -Fq "$mount_path" /etc/fstab 2>/dev/null; then
+    tmp_fstab="$(mktemp)"
+    grep -Fv "$mount_path" /etc/fstab > "$tmp_fstab" || true
+    mv "$tmp_fstab" /etc/fstab
+  fi
+done
 
 # Add fstab entries
 cat <<EOF >> /etc/fstab
@@ -221,15 +229,17 @@ fi
 rm -f "$DEPLOY_DIR"/.env.* 2>/dev/null || true
 
 # Remove cached gcloud credentials (root)
-if [[ -d /root/.config/gcloud ]]; then
+ROOT_GCLOUD_DIR="/root/.config/gcloud"
+if [[ -d "$ROOT_GCLOUD_DIR" ]]; then
   log "Removing root gcloud credentials..."
-  rm -rf /root/.config/gcloud
+  rm -rf "${ROOT_GCLOUD_DIR:?}"
 fi
 
 # Remove cached gcloud credentials (node user)
-if [[ -d /home/node/.config/gcloud ]]; then
+NODE_GCLOUD_DIR="/home/node/.config/gcloud"
+if [[ -d "$NODE_GCLOUD_DIR" ]]; then
   log "Removing node user gcloud credentials..."
-  rm -rf /home/node/.config/gcloud
+  rm -rf "${NODE_GCLOUD_DIR:?}"
 fi
 
 # Remove any SSH known_hosts that might reference prod hosts
@@ -247,9 +257,9 @@ log "=== Phase 5: Set Staging Identity ==="
 log "Setting hostname to $STAGING_HOSTNAME..."
 hostnamectl set-hostname "$STAGING_HOSTNAME"
 
-# Update /etc/hosts
+# Update /etc/hosts (only replace hostname entries, not comments)
 log "Updating /etc/hosts..."
-sed -i "s/clawdbot-gw-1/$STAGING_HOSTNAME/g" /etc/hosts 2>/dev/null || true
+sed -i -E "s/^([0-9.]+[[:space:]]+)clawdbot-gw-1([[:space:]]|$)/\1$STAGING_HOSTNAME\2/" /etc/hosts 2>/dev/null || true
 
 # Create staging environment marker
 log "Creating staging environment marker..."
