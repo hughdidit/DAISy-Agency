@@ -22,6 +22,7 @@ Docs: https://docs.openclaw.ai
 - TBD.
 =======
 - Onboarding: add Moonshot (.cn) auth choice and keep the China base URL when preserving defaults. (#7180) Thanks @waynelwz.
+- Onboarding: add xAI (Grok) auth choice and provider defaults. (#9885) Thanks @grp06.
 - Docs: clarify tmux send-keys for TUI by splitting text and Enter. (#7737) Thanks @Wangnov.
 <<<<<<< HEAD
 <<<<<<< HEAD
