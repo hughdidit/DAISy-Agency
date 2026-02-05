@@ -3,10 +3,10 @@ summary: "Install Moltbot (recommended installer, global install, or from source
 read_when:
   - Installing Moltbot
   - You want to install from GitHub
-title: "Install"
+title: "Install Overview"
 ---
 
-# Install
+# Install Overview
 
 Use the installer unless you have a reason not to. It sets up the CLI and runs onboarding.
 
