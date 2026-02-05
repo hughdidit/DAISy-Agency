@@ -15,6 +15,13 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+<<<<<<< HEAD
+=======
+- CLI: resolve bundled Chrome extension assets by walking up to the nearest assets directory; add resolver and clipboard tests. (#8914) Thanks @kelvinCB.
+- Heartbeat: allow explicit accountId routing for multi-account channels. (#8702) Thanks @lsh411.
+- TUI/Gateway: handle non-streaming finals, refresh history for non-local chat runs, and avoid event gap warnings for targeted tool streams. (#8432) Thanks @gumadeiras.
+- Shell completion: auto-detect and migrate slow dynamic patterns to cached files for faster terminal startup; add completion health checks to doctor/update/onboard.
+>>>>>>> 1ee1522da (fix: resolve bundled chrome extension assets (#8914) (thanks @kelvinCB))
 - Telegram: honor session model overrides in inline model selection. (#8193) Thanks @gildo.
 - Web UI: apply button styling to the new-messages indicator.
 <<<<<<< HEAD
