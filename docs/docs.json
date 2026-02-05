@@ -1044,7 +1044,7 @@
 =======
                   {
                     "group": "Onboarding",
-                    "pages": ["start/wizard", "start/onboarding"]
+                    "pages": ["start/wizard", "start/onboarding", "start/bootstrapping"]
                   },
                   "start/pairing"
 >>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
