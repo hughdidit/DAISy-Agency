@@ -13,8 +13,8 @@
 # Usage:
 #   ./scripts/gcp/create-staging-vm.sh [--dry-run] [--show-defaults]
 #
-# Configuration via environment variables (all optional, defaults shown):
-#   GCP_PROJECT_ID          - GCP project (default: amiable-raceway-472818-m5)
+# Configuration via environment variables:
+#   GCP_PROJECT_ID          - GCP project (REQUIRED - no default)
 #   GCP_ZONE                - Zone for staging VM (default: us-west1-b)
 #   PROD_BOOT_DISK          - Production boot disk to clone (default: clawdbot-gw-1)
 #   STAGING_INSTANCE        - Staging VM name (default: daisy-staging-1)
@@ -30,8 +30,18 @@ set -euo pipefail
 # Configuration (override via environment variables)
 # =============================================================================
 
-# GCP project and zone
-PROJECT_ID="${GCP_PROJECT_ID:-amiable-raceway-472818-m5}"
+# GCP project (required - no default to prevent accidental use of wrong project)
+if [[ -z "${GCP_PROJECT_ID:-}" ]]; then
+  echo "ERROR: GCP_PROJECT_ID is required."
+  echo ""
+  echo "Set it before running:"
+  echo "  export GCP_PROJECT_ID=your-project-id"
+  echo "  ./scripts/gcp/create-staging-vm.sh"
+  exit 1
+fi
+PROJECT_ID="$GCP_PROJECT_ID"
+
+# GCP zone and production disk
 PROD_ZONE="${GCP_ZONE:-us-west1-b}"
 PROD_BOOT_DISK="${PROD_BOOT_DISK:-clawdbot-gw-1}"
 
@@ -188,15 +198,8 @@ if ! gcloud auth list --filter="status:ACTIVE" --format="value(account)" | grep 
   exit 1
 fi
 
-# Verify project is set
-CURRENT_PROJECT=$(gcloud config get-value project 2>/dev/null)
-if [[ "$CURRENT_PROJECT" != "$PROJECT_ID" ]]; then
-  log "Setting project to $PROJECT_ID..."
-  run gcloud config set project "$PROJECT_ID"
-fi
-
 # Check if staging instance already exists
-if gcloud compute instances describe "$STAGING_INSTANCE" --zone="$STAGING_ZONE" &>/dev/null; then
+if gcloud compute instances describe "$STAGING_INSTANCE" --project="$PROJECT_ID" --zone="$STAGING_ZONE" &>/dev/null; then
   log "ERROR: Staging instance '$STAGING_INSTANCE' already exists in zone '$STAGING_ZONE'."
   log "Delete it first or choose a different name."
   exit 1
@@ -213,7 +216,7 @@ fi
 log ""
 log "=== Phase 2: Create Staging Service Account ==="
 
-if gcloud iam service-accounts describe "$STAGING_SA_EMAIL" &>/dev/null; then
+if gcloud iam service-accounts describe "$STAGING_SA_EMAIL" --project="$PROJECT_ID" &>/dev/null; then
   log "Service account $STAGING_SA_EMAIL already exists, skipping creation."
 else
   log "Creating service account: $STAGING_SA_NAME"
@@ -265,7 +268,7 @@ run gcloud compute disks create "$STAGING_BOOT_DISK" \
 
 # 3.3 Create staging state disk (fresh, empty)
 log "Creating staging state disk..."
-if gcloud compute disks describe "$STAGING_STATE_DISK" --zone="$STAGING_ZONE" &>/dev/null; then
+if gcloud compute disks describe "$STAGING_STATE_DISK" --project="$PROJECT_ID" --zone="$STAGING_ZONE" &>/dev/null; then
   log "State disk $STAGING_STATE_DISK already exists, skipping creation."
 else
   run gcloud compute disks create "$STAGING_STATE_DISK" \
@@ -342,6 +345,47 @@ else
 fi
 
 # =============================================================================
+# Phase 6: Copy Scrub and Verify Scripts to VM
+# =============================================================================
+
+log ""
+log "=== Phase 6: Copy Scripts to VM ==="
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ "$DRY_RUN" == "true" ]]; then
+  log "[DRY-RUN] Would copy scripts to VM:"
+  log "  - $SCRIPT_DIR/staging-scrub.sh -> /tmp/staging-scrub.sh"
+  log "  - $SCRIPT_DIR/staging-verify.sh -> /tmp/staging-verify.sh"
+else
+  # Copy scrub script
+  if [[ -f "$SCRIPT_DIR/staging-scrub.sh" ]]; then
+    log "Copying staging-scrub.sh to VM..."
+    gcloud compute scp "$SCRIPT_DIR/staging-scrub.sh" \
+      "$STAGING_INSTANCE:/tmp/staging-scrub.sh" \
+      --project="$PROJECT_ID" \
+      --zone="$STAGING_ZONE" \
+      --tunnel-through-iap
+    log "OK: staging-scrub.sh copied to /tmp/staging-scrub.sh"
+  else
+    log "WARN: staging-scrub.sh not found at $SCRIPT_DIR"
+  fi
+
+  # Copy verify script
+  if [[ -f "$SCRIPT_DIR/staging-verify.sh" ]]; then
+    log "Copying staging-verify.sh to VM..."
+    gcloud compute scp "$SCRIPT_DIR/staging-verify.sh" \
+      "$STAGING_INSTANCE:/tmp/staging-verify.sh" \
+      --project="$PROJECT_ID" \
+      --zone="$STAGING_ZONE" \
+      --tunnel-through-iap
+    log "OK: staging-verify.sh copied to /tmp/staging-verify.sh"
+  else
+    log "WARN: staging-verify.sh not found at $SCRIPT_DIR"
+  fi
+fi
+
+# =============================================================================
 # Summary
 # =============================================================================
 
@@ -372,15 +416,15 @@ else
   log ""
   log "Next steps:"
   log "  1. SSH into the VM:"
-  log "     gcloud compute ssh $STAGING_INSTANCE --zone=$STAGING_ZONE --tunnel-through-iap"
-  log "  2. Copy and run the scrub script on the VM:"
+  log "     gcloud compute ssh $STAGING_INSTANCE --project=$PROJECT_ID --zone=$STAGING_ZONE --tunnel-through-iap"
+  log "  2. Run the scrub script (already copied to VM):"
   log "     sudo bash /tmp/staging-scrub.sh"
   log "  3. Complete manual secret configuration (see docs/deployments/staging-setup.md)"
-  log "  4. Run verification:"
+  log "  4. Run verification (already copied to VM):"
   log "     bash /tmp/staging-verify.sh"
   log ""
   log "To delete staging resources (rollback):"
-  log "  gcloud compute instances delete $STAGING_INSTANCE --zone=$STAGING_ZONE --quiet"
-  log "  gcloud compute disks delete $STAGING_BOOT_DISK $STAGING_STATE_DISK --zone=$STAGING_ZONE --quiet"
-  log "  gcloud compute snapshots delete $SNAPSHOT_NAME --quiet"
+  log "  gcloud compute instances delete $STAGING_INSTANCE --project=$PROJECT_ID --zone=$STAGING_ZONE --quiet"
+  log "  gcloud compute disks delete $STAGING_BOOT_DISK $STAGING_STATE_DISK --project=$PROJECT_ID --zone=$STAGING_ZONE --quiet"
+  log "  gcloud compute snapshots delete $SNAPSHOT_NAME --project=$PROJECT_ID --quiet"
 fi

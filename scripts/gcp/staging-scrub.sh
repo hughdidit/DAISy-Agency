@@ -28,7 +28,17 @@ set -euo pipefail
 # Auto-detect hostname from GCE metadata if not set
 if [[ -z "${STAGING_HOSTNAME:-}" ]]; then
   STAGING_HOSTNAME=$(curl -sf -H "Metadata-Flavor: Google" \
-    http://metadata.google.internal/computeMetadata/v1/instance/name 2>/dev/null || echo "daisy-staging-1")
+    http://metadata.google.internal/computeMetadata/v1/instance/name 2>/dev/null || true)
+  if [[ -z "$STAGING_HOSTNAME" ]]; then
+    echo "ERROR: Could not detect hostname from GCE metadata and STAGING_HOSTNAME not set."
+    echo ""
+    echo "Either:"
+    echo "  1. Run this script on a GCE VM (metadata service will provide hostname)"
+    echo "  2. Set STAGING_HOSTNAME explicitly:"
+    echo "     export STAGING_HOSTNAME=your-staging-hostname"
+    echo "     sudo bash staging-scrub.sh"
+    exit 1
+  fi
 fi
 
 STATE_DISK="${STATE_DISK:-/dev/sdb}"

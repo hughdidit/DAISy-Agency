@@ -21,6 +21,8 @@ CONFIG_DIR="${CONFIG_DIR:-$CLAWDBOT_HOME/.clawdbot}"
 WORKSPACE_DIR="${WORKSPACE_DIR:-$CLAWDBOT_HOME/clawd}"
 # DEPLOY_DIR is where docker-compose.yml and .env live (separate from state)
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
+# Hostname pattern to verify (default: must contain "staging")
+STAGING_HOSTNAME_PATTERN="${STAGING_HOSTNAME_PATTERN:-staging}"
 
 # =============================================================================
 # Helper functions
@@ -57,10 +59,11 @@ echo ""
 # -----------------------------------------------------------------------------
 echo "Checking hostname..."
 HOSTNAME=$(hostname)
-if [[ "$HOSTNAME" == *"staging"* ]]; then
-  check_pass "Hostname is '$HOSTNAME'"
+if [[ "$HOSTNAME" == *"$STAGING_HOSTNAME_PATTERN"* ]]; then
+  check_pass "Hostname is '$HOSTNAME' (matches pattern '$STAGING_HOSTNAME_PATTERN')"
 else
-  check_fail "Hostname '$HOSTNAME' does not contain 'staging'"
+  check_fail "Hostname '$HOSTNAME' does not contain '$STAGING_HOSTNAME_PATTERN'"
+  echo "         (Set STAGING_HOSTNAME_PATTERN to override the expected pattern)"
 fi
 
 # -----------------------------------------------------------------------------
