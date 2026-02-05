@@ -29,9 +29,14 @@ import { buildAgentSessionKey } from "../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../routing/session-key.js";
 import { truncateUtf16Safe } from "../../utils.js";
 import { reactMessageDiscord, removeReactionDiscord } from "../send.js";
+<<<<<<< HEAD
 import { normalizeDiscordSlug } from "./allow-list.js";
 import { formatDiscordUserTag, resolveTimestampMs } from "./format.js";
 import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
+=======
+import { normalizeDiscordSlug, resolveDiscordOwnerAllowFrom } from "./allow-list.js";
+import { resolveTimestampMs } from "./format.js";
+>>>>>>> d84eb4646 (fix: restore discord owner hint from allowlists)
 import {
   buildDiscordMediaPayload,
   resolveDiscordMessageText,
@@ -148,6 +153,11 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   ].filter((entry): entry is string => Boolean(entry));
   const groupSystemPrompt =
     systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
+  const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
+    channelConfig,
+    guildInfo,
+    sender: { id: sender.id, name: sender.name, tag: sender.tag },
+  });
   const storePath = resolveStorePath(cfg.session?.store, {
     agentId: route.agentId,
   });
@@ -280,6 +290,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     GroupChannel: groupChannel,
     GroupSystemPrompt: isGuildMessage ? groupSystemPrompt : undefined,
     GroupSpace: isGuildMessage ? (guildInfo?.id ?? guildSlug) || undefined : undefined,
+    OwnerAllowFrom: ownerAllowFrom,
     Provider: "discord" as const,
     Surface: "discord" as const,
     WasMentioned: effectiveWasMentioned,

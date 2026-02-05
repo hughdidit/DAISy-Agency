@@ -87,6 +87,13 @@ export type MsgContext = {
   GroupSpace?: string;
   GroupMembers?: string;
   GroupSystemPrompt?: string;
+<<<<<<< HEAD
+=======
+  /** Untrusted metadata that must not be treated as system instructions. */
+  UntrustedContext?: string[];
+  /** Explicit owner allowlist overrides (trusted, configuration-derived). */
+  OwnerAllowFrom?: Array<string | number>;
+>>>>>>> d84eb4646 (fix: restore discord owner hint from allowlists)
   SenderName?: string;
   SenderId?: string;
   SenderUsername?: string;
