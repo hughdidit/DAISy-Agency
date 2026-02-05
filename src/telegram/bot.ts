@@ -66,6 +66,15 @@ import {
   resolveTelegramUpdateId,
   type TelegramUpdateKeyContext,
 } from "./bot-updates.js";
+<<<<<<< HEAD
+=======
+import {
+  buildTelegramGroupPeerId,
+  buildTelegramParentPeer,
+  resolveTelegramForumThreadId,
+  resolveTelegramStreamMode,
+} from "./bot/helpers.js";
+>>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
 import { resolveTelegramFetch } from "./fetch.js";
 import { wasSentByBot } from "./sent-message-cache.js";
 
@@ -463,11 +472,13 @@ export function createTelegramBot(opts: TelegramBotOptions) {
         ? resolveTelegramForumThreadId({ isForum, messageThreadId: undefined })
         : undefined;
       const peerId = isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : String(chatId);
+      const parentPeer = buildTelegramParentPeer({ isGroup, resolvedThreadId, chatId });
       const route = resolveAgentRoute({
         cfg,
         channel: "telegram",
         accountId: account.accountId,
         peer: { kind: isGroup ? "group" : "dm", id: peerId },
+        parentPeer,
       });
       const sessionKey = route.sessionKey;
 

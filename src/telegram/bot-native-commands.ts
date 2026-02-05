@@ -86,6 +86,7 @@ import {
   buildSenderName,
   buildTelegramGroupFrom,
   buildTelegramGroupPeerId,
+  buildTelegramParentPeer,
   resolveTelegramForumThreadId,
 } from "./bot/helpers.js";
 <<<<<<< HEAD
@@ -500,6 +501,7 @@ export const registerTelegramNativeCommands = ({
             });
             return;
           }
+          const parentPeer = buildTelegramParentPeer({ isGroup, resolvedThreadId, chatId });
           const route = resolveAgentRoute({
             cfg,
             channel: "telegram",
@@ -508,6 +510,7 @@ export const registerTelegramNativeCommands = ({
               kind: isGroup ? "group" : "dm",
               id: isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : String(chatId),
             },
+            parentPeer,
           });
           const baseSessionKey = route.sessionKey;
           // DMs: use raw messageThreadId for thread sessions (not resolvedThreadId which is for forums)
