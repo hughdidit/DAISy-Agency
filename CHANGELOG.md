@@ -38,9 +38,13 @@ Status: beta.
 - Web UI: apply button styling to the new-messages indicator.
 - Security: keep untrusted channel metadata out of system prompts (Slack/Discord). Thanks @KonstantinMirin.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 35eb40a70 (fix(security): separate untrusted channel metadata from system prompt (thanks @KonstantinMirin))
 =======
 - Security: require explicit credentials for gateway URL overrides to prevent credential leakage. (#8113) Thanks @victormier.
+=======
+- Security: enforce sandboxed media paths for message tool attachments. (#9182) Thanks @victormier.
+>>>>>>> 4434cae56 (Security: harden sandboxed media handling (#9182))
 - Voice call: harden webhook verification with host allowlists/proxy trust and keep ngrok loopback bypass.
 - Cron: accept epoch timestamps and 0ms durations in CLI `--at` parsing.
 - Cron: reload store data when the store file is recreated or mtime changes.
