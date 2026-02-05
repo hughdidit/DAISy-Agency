@@ -57,7 +57,7 @@ It writes config/workspace on the host:
 - `~/.clawdbot/`
 - `~/clawd`
 
-Running on a VPS? See [Hetzner (Docker VPS)](/platforms/hetzner).
+Running on a VPS? See [Hetzner (Docker VPS)](/install/hetzner).
 
 ### Manual flow (compose)
 

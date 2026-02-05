@@ -21,12 +21,21 @@ x-i18n:
 
 - **Railway**（一键 + 浏览器设置）：[Railway](/railway)
 - **Northflank**（一键 + 浏览器设置）：[Northflank](/northflank)
+<<<<<<< HEAD
 - **Oracle Cloud（永久免费）**：[Oracle](/platforms/oracle) — $0/月（永久免费，ARM 架构；容量/注册可能不太稳定）
 - **Fly.io**：[Fly.io](/platforms/fly)
 - **Hetzner (Docker)**：[Hetzner](/platforms/hetzner)
 - **GCP (Compute Engine)**：[GCP](/platforms/gcp)
 - **exe.dev**（虚拟机 + HTTPS 代理）：[exe.dev](/platforms/exe-dev)
 - **AWS (EC2/Lightsail/免费套餐)**：同样运行良好。视频指南：
+=======
+- **Oracle Cloud（永久免费）**：[Oracle](/platforms/oracle) — $0/月（永久免费，ARM；容量/注册可能不太稳定）
+- **Fly.io**：[Fly.io](/install/fly)
+- **Hetzner（Docker）**：[Hetzner](/install/hetzner)
+- **GCP（Compute Engine）**：[GCP](/install/gcp)
+- **exe.dev**（VM + HTTPS 代理）：[exe.dev](/install/exe-dev)
+- **AWS（EC2/Lightsail/免费套餐）**：也运行良好。视频指南：
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
   https://x.com/techfrenAJ/status/2014934471095812547
 
 ## 云端设置的工作方式

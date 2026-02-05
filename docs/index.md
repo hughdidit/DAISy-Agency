@@ -73,8 +73,25 @@ title: "OpenClaw"
   <a href="/start/clawd">Moltbot assistant setup</a>
 </p>
 
+<<<<<<< HEAD
 Moltbot bridges WhatsApp (via WhatsApp Web / Baileys), Telegram (Bot API / grammY), Discord (Bot API / channels.discord.js), and iMessage (imsg CLI) to coding agents like [Pi](https://github.com/badlogic/pi-mono). Plugins add Mattermost (Bot API + WebSocket) and more.
 Moltbot also powers [Clawd](https://clawd.me), the space‑lobster assistant.
+=======
+## What is OpenClaw?
+
+OpenClaw is a **self-hosted gateway** that connects your favorite chat apps — WhatsApp, Telegram, Discord, iMessage, and more — to AI coding agents like Pi. You run a single Gateway process on your own machine (or a server), and it becomes the bridge between your messaging apps and an always-available AI assistant.
+
+**Who is it for?** Developers and power users who want a personal AI assistant they can message from anywhere — without giving up control of their data or relying on a hosted service.
+
+**What makes it different?**
+
+- **Self-hosted**: runs on your hardware, your rules
+- **Multi-channel**: one Gateway serves WhatsApp, Telegram, Discord, and more simultaneously
+- **Agent-native**: built for coding agents with tool use, sessions, memory, and multi-agent routing
+- **Open source**: MIT licensed, community-driven
+
+**What do you need?** Node 22+, an API key (Anthropic recommended), and 5 minutes.
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 
 ## Start here
 

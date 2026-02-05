@@ -23,6 +23,7 @@ Start conservative:
 
 ## Prerequisites
 
+<<<<<<< HEAD:docs/start/clawd.md
 - Node **22+**
 - Moltbot available on PATH (recommended: global install)
 - A second phone number (SIM/eSIM/prepaid) for the assistant
@@ -43,6 +44,11 @@ pnpm build
 pnpm link --global
 ```
 
+=======
+- OpenClaw installed and onboarded — see [Getting Started](/start/getting-started) if you haven't done this yet
+- A second phone number (SIM/eSIM/prepaid) for the assistant
+
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950)):docs/start/openclaw.md
 ## The two-phone setup (recommended)
 
 You want this:

@@ -33,9 +33,15 @@ x-i18n:
 
 **选择提供商：**
 
+<<<<<<< HEAD
 - DigitalOcean：最简单的用户体验 + 可预期的设置流程（本指南）
 - Hetzner：性价比高（参见 [Hetzner 指南](/platforms/hetzner)）
 - Oracle Cloud：可以每月 $0，但配置较繁琐且仅支持 ARM（参见 [Oracle 指南](/platforms/oracle)）
+=======
+- DigitalOcean：最简单的用户体验 + 可预测的设置（本指南）
+- Hetzner：性价比高（参见 [Hetzner 指南](/install/hetzner)）
+- Oracle Cloud：可以 $0/月，但更麻烦且仅限 ARM（参见 [Oracle 指南](/platforms/oracle)）
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 
 ---
 
@@ -263,7 +269,11 @@ free -h
 
 ## 另请参阅
 
+<<<<<<< HEAD
 - [Hetzner 指南](/platforms/hetzner) — 更便宜，性能更强
+=======
+- [Hetzner 指南](/install/hetzner) — 更便宜、更强大
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 - [Docker 安装](/install/docker) — 容器化设置
 - [Tailscale](/gateway/tailscale) — 安全远程访问
 - [配置](/gateway/configuration) — 完整配置参考

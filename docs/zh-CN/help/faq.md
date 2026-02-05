@@ -572,17 +572,22 @@ curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git
 
 任何 Linux VPS 都可以。在服务器上安装，然后使用 SSH/Tailscale 访问 Gateway网关。
 
+<<<<<<< HEAD
 指南：[exe.dev](/platforms/exe-dev)、[Hetzner](/platforms/hetzner)、[Fly.io](/platforms/fly)。
 远程访问：[Gateway网关远程](/gateway/remote)。
+=======
+指南：[exe.dev](/install/exe-dev)、[Hetzner](/install/hetzner)、[Fly.io](/install/fly)。
+远程访问：[Gateway 网关远程](/gateway/remote)。
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 
 ### 云/VPS 安装指南在哪里
 
 我们维护了一个**托管中心**，涵盖常见提供商。选择一个并按指南操作：
 
 - [VPS 托管](/vps)（所有提供商汇总）
-- [Fly.io](/platforms/fly)
-- [Hetzner](/platforms/hetzner)
-- [exe.dev](/platforms/exe-dev)
+- [Fly.io](/install/fly)
+- [Hetzner](/install/hetzner)
+- [exe.dev](/install/exe-dev)
 
 在云端的工作方式：**Gateway网关运行在服务器上**，你通过控制 UI（或 Tailscale/SSH）从笔记本/手机访问。你的状态 + 工作区位于服务器上，因此将主机视为数据来源并做好备份。
 
@@ -863,7 +868,7 @@ OpenClaw 是轻量级的。对于基本的 Gateway网关 + 一个聊天渠道：
 - **操作系统：** Ubuntu LTS 或其他现代 Debian/Ubuntu。
 
 如果你使用 Windows，**WSL2 是最简单的虚拟机式设置**，具有最佳的工具兼容性。参阅 [Windows](/platforms/windows)、[VPS 托管](/vps)。
-如果你在虚拟机中运行 macOS，参阅 [macOS VM](/platforms/macos-vm)。
+如果你在虚拟机中运行 macOS，参阅 [macOS VM](/install/macos-vm)。
 
 ## 什么是 OpenClaw？
 

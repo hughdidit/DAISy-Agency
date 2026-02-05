@@ -33,9 +33,15 @@ x-i18n:
 
 在持久化主机上运行 Gateway网关，通过 **Tailscale** 或 SSH 访问。
 
+<<<<<<< HEAD
 - **最佳体验：**保持 `gateway.bind: "loopback"` 并使用 **Tailscale Serve** 提供控制界面。
 - **后备方案：**保持 local loopback + 从需要访问的任何机器建立 SSH 隧道。
 - **示例：**[exe.dev](/platforms/exe-dev)（简易虚拟机）或 [Hetzner](/platforms/hetzner)（生产 VPS）。
+=======
+- **最佳用户体验：** 保持 `gateway.bind: "loopback"` 并使用 **Tailscale Serve** 作为控制 UI。
+- **回退方案：** 保持 loopback + 从任何需要访问的机器建立 SSH 隧道。
+- **示例：** [exe.dev](/install/exe-dev)（简易 VM）或 [Hetzner](/install/hetzner)（生产 VPS）。
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 
 当你的笔记本经常休眠但希望智能体始终在线时，这是理想方案。
 

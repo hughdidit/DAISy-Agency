@@ -69,7 +69,11 @@ Docker 是**可选的**。仅在你需要容器化 Gateway网关或验证 Docker
 - `~/.openclaw/`
 - `~/.openclaw/workspace`
 
+<<<<<<< HEAD
 在 VPS 上运行？参见 [Hetzner（Docker VPS）](/platforms/hetzner)。
+=======
+在 VPS 上运行？参阅 [Hetzner（Docker VPS）](/install/hetzner)。
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 
 ### 手动流程（compose）
 
