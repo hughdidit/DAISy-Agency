@@ -79,6 +79,7 @@ openclaw onboard --auth-choice qianfan-api-key
 
 Follow the prompts to enter your API key.
 
+<<<<<<< HEAD
 ### Method 3: Non-Interactive Setup
 
 For CI/CD or scripted setups:
@@ -93,6 +94,9 @@ openclaw onboard \
 ```
 
 ### Method 4: Configuration File
+=======
+### Method 3: Configuration File
+>>>>>>> ad759c944 (Optimize format)
 
 Configure manually via `openclaw.json`:
 
