@@ -24,7 +24,7 @@ DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
 # Hostname pattern to verify (default: must contain "staging")
 STAGING_HOSTNAME_PATTERN="${STAGING_HOSTNAME_PATTERN:-staging}"
 # Production hostname pattern for .env checks (set via GitHub env var, empty skips check)
-PROD_HOSTNAME_PATTERN="${PROD_HOSTNAME_PATTERN:-}"
+HOSTNAME_PATTERN="${HOSTNAME_PATTERN:-}"
 
 # =============================================================================
 # Helper functions
@@ -36,17 +36,17 @@ WARN=0
 
 check_pass() {
   echo "  [PASS] $1"
-  ((PASS++))
+  PASS=$((PASS + 1))
 }
 
 check_fail() {
   echo "  [FAIL] $1"
-  ((FAIL++))
+  FAIL=$((FAIL + 1))
 }
 
 check_warn() {
   echo "  [WARN] $1"
-  ((WARN++))
+  WARN=$((WARN + 1))
 }
 
 # =============================================================================
@@ -231,14 +231,14 @@ PROD_CREDS_FOUND=0
 # Check for gcloud credentials
 if [[ -d /root/.config/gcloud ]] || [[ -d /home/node/.config/gcloud ]]; then
   check_warn "gcloud credentials directory found (may need cleanup)"
-  ((PROD_CREDS_FOUND++))
+  PROD_CREDS_FOUND=$((PROD_CREDS_FOUND + 1))
 fi
 
 # Check for production hostname references in .env (if pattern configured)
-if [[ -n "$PROD_HOSTNAME_PATTERN" ]] && [[ -f "$DEPLOY_DIR/.env" ]]; then
-  if grep -q "$PROD_HOSTNAME_PATTERN" "$DEPLOY_DIR/.env" 2>/dev/null; then
-    check_warn ".env may contain production references (matched '$PROD_HOSTNAME_PATTERN')"
-    ((PROD_CREDS_FOUND++))
+if [[ -n "$HOSTNAME_PATTERN" ]] && [[ -f "$DEPLOY_DIR/.env" ]]; then
+  if grep -q "$HOSTNAME_PATTERN" "$DEPLOY_DIR/.env" 2>/dev/null; then
+    check_warn ".env may contain production references (matched '$HOSTNAME_PATTERN')"
+    PROD_CREDS_FOUND=$((PROD_CREDS_FOUND + 1))
   fi
 fi
 

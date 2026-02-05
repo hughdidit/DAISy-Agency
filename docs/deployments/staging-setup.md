@@ -180,8 +180,8 @@ CLAWDBOT_BRIDGE_PORT=18790
 # For staging, use a specific version tag or image digest:
 #   Tag example:    ghcr.io/hughdidit/daisy-agency:staging
 #   SHA example:    ghcr.io/hughdidit/daisy-agency@sha256:abc123...
-# Replace <TAG_OR_SHA> with your actual version:
-CLAWDBOT_IMAGE=ghcr.io/hughdidit/daisy-agency:<TAG_OR_SHA>
+# Example: CLAWDBOT_IMAGE=ghcr.io/hughdidit/daisy-agency:v1.2.3
+CLAWDBOT_IMAGE=ghcr.io/hughdidit/daisy-agency:v1.0.0
 
 # Paths (should match bind mounts)
 CLAWDBOT_CONFIG_DIR=/var/lib/clawdbot/home/.clawdbot
@@ -291,7 +291,8 @@ gcloud compute snapshots list --filter="name~${STAGING_INSTANCE}" \
 
 # Delete service account (optional)
 gcloud iam service-accounts delete \
-  "${STAGING_INSTANCE}-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com"
+  "${STAGING_INSTANCE}-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com" \
+  --quiet
 ```
 
 ## Differences from Production
@@ -322,7 +323,7 @@ Configure the `staging` environment with these variables (replace with your valu
 | `GCP_WORKLOAD_IDENTITY_PROVIDER` | `projects/PROJECT_NUM/locations/global/workloadIdentityPools/github/providers/github` | WIF provider path |
 | `GCP_SERVICE_ACCOUNT` | `daisy-staging-sa@PROJECT_ID.iam.gserviceaccount.com` | Staging service account |
 | `DEPLOY_DIR` | `/opt/DAISy` | Directory containing docker-compose.yml |
-| `PROD_HOSTNAME_PATTERN` | `daisy-1` | Production hostname for .env validation (optional) |
+| `HOSTNAME_PATTERN` | `daisy-1` | Production hostname pattern for .env validation (optional) |
 
 ### Workflow Authentication
 

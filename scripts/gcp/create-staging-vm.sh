@@ -18,6 +18,7 @@
 #   GCP_ZONE                - Zone for staging VM (default: us-west1-b)
 #   PROD_BOOT_DISK          - Production boot disk to clone (default: clawdbot-gw-1)
 #   STAGING_INSTANCE        - Staging VM name (default: daisy-staging-1)
+#   STAGING_ZONE            - Zone for staging VM (default: same as GCP_ZONE)
 #   STAGING_MACHINE_TYPE    - Machine type (default: n2-standard-8)
 #   STAGING_STATE_DISK_SIZE - State disk size (default: 200GB)
 #
@@ -72,11 +73,9 @@ for arg in "$@"; do
   case $arg in
     --dry-run)
       DRY_RUN=true
-      shift
       ;;
     --show-defaults)
       SHOW_DEFAULTS=true
-      shift
       ;;
     --help|-h)
       echo "Usage: $0 [--dry-run] [--show-defaults]"
@@ -88,7 +87,7 @@ for arg in "$@"; do
       echo ""
       echo "Configure via environment variables:"
       echo "  GCP_PROJECT_ID, GCP_ZONE, PROD_BOOT_DISK, STAGING_INSTANCE,"
-      echo "  STAGING_MACHINE_TYPE, STAGING_STATE_DISK_SIZE"
+      echo "  STAGING_ZONE, STAGING_MACHINE_TYPE, STAGING_STATE_DISK_SIZE"
       exit 0
       ;;
   esac

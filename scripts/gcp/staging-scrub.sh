@@ -214,8 +214,18 @@ EOF
 
 # Apply bind mounts (now CONFIG_DIR and WORKSPACE_DIR point to fresh state disk)
 log "Applying bind mounts..."
-mount --bind "$STATE_MOUNT/config" "$CONFIG_DIR"
-mount --bind "$STATE_MOUNT/workspace" "$WORKSPACE_DIR"
+mount --bind "$STATE_MOUNT/config" "$CONFIG_DIR" || {
+  log "ERROR: Failed to bind mount config directory!"
+  log "Boot disk paths have been cleared but state disk not mounted."
+  log "Fix manually: mount --bind $STATE_MOUNT/config $CONFIG_DIR"
+  exit 1
+}
+mount --bind "$STATE_MOUNT/workspace" "$WORKSPACE_DIR" || {
+  log "ERROR: Failed to bind mount workspace directory!"
+  log "Boot disk paths have been cleared but state disk not mounted."
+  log "Fix manually: mount --bind $STATE_MOUNT/workspace $WORKSPACE_DIR"
+  exit 1
+}
 
 log "Verifying mounts..."
 mountpoint "$STATE_MOUNT" && log "  $STATE_MOUNT: OK"
