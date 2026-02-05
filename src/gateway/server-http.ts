@@ -5,15 +5,37 @@ import {
   type ServerResponse,
 } from "node:http";
 import { createServer as createHttpsServer } from "node:https";
+<<<<<<< HEAD
 import type { TlsOptions } from "node:tls";
 import type { WebSocketServer } from "ws";
 import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
 import type { CanvasHostHandler } from "../canvas-host/server.js";
+=======
+import type { CanvasHostHandler } from "../canvas-host/server.js";
+import type { createSubsystemLogger } from "../logging/subsystem.js";
+import { resolveAgentAvatar } from "../agents/identity-avatar.js";
+import {
+  A2UI_PATH,
+  CANVAS_HOST_PATH,
+  CANVAS_WS_PATH,
+  handleA2uiHttpRequest,
+} from "../canvas-host/a2ui.js";
+>>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
 import { loadConfig } from "../config/config.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
+<<<<<<< HEAD
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
+=======
+import { authorizeGatewayConnect } from "./auth.js";
+import {
+  handleControlUiAvatarRequest,
+  handleControlUiHttpRequest,
+  type ControlUiRootState,
+} from "./control-ui.js";
+import { applyHookMappings } from "./hooks-mapping.js";
+>>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
 import {
   extractHookToken,
   getHookChannelError,
@@ -26,7 +48,12 @@ import {
   resolveHookChannel,
   resolveHookDeliver,
 } from "./hooks.js";
+<<<<<<< HEAD
 import { applyHookMappings } from "./hooks-mapping.js";
+=======
+import { sendUnauthorized } from "./http-common.js";
+import { getBearerToken } from "./http-utils.js";
+>>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
@@ -54,6 +81,16 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.end(JSON.stringify(body));
+}
+
+function isCanvasPath(pathname: string): boolean {
+  return (
+    pathname === A2UI_PATH ||
+    pathname.startsWith(`${A2UI_PATH}/`) ||
+    pathname === CANVAS_HOST_PATH ||
+    pathname.startsWith(`${CANVAS_HOST_PATH}/`) ||
+    pathname === CANVAS_WS_PATH
+  );
 }
 
 export type HooksRequestHandler = (req: IncomingMessage, res: ServerResponse) => Promise<boolean>;
@@ -268,8 +305,31 @@ export function createGatewayHttpServer(opts: {
           return;
       }
       if (canvasHost) {
+<<<<<<< HEAD
         if (await handleA2uiHttpRequest(req, res)) return;
         if (await canvasHost.handleHttpRequest(req, res)) return;
+=======
+        const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
+        if (isCanvasPath(url.pathname)) {
+          const token = getBearerToken(req);
+          const authResult = await authorizeGatewayConnect({
+            auth: resolvedAuth,
+            connectAuth: token ? { token, password: token } : null,
+            req,
+            trustedProxies,
+          });
+          if (!authResult.ok) {
+            sendUnauthorized(res);
+            return;
+          }
+        }
+        if (await handleA2uiHttpRequest(req, res)) {
+          return;
+        }
+        if (await canvasHost.handleHttpRequest(req, res)) {
+          return;
+        }
+>>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
       }
       if (controlUiEnabled) {
         if (
@@ -305,12 +365,47 @@ export function attachGatewayUpgradeHandler(opts: {
   httpServer: HttpServer;
   wss: WebSocketServer;
   canvasHost: CanvasHostHandler | null;
+  resolvedAuth: import("./auth.js").ResolvedGatewayAuth;
 }) {
-  const { httpServer, wss, canvasHost } = opts;
+  const { httpServer, wss, canvasHost, resolvedAuth } = opts;
   httpServer.on("upgrade", (req, socket, head) => {
+<<<<<<< HEAD
     if (canvasHost?.handleUpgrade(req, socket, head)) return;
     wss.handleUpgrade(req, socket, head, (ws) => {
       wss.emit("connection", ws, req);
+=======
+    void (async () => {
+      if (canvasHost) {
+        const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
+        if (url.pathname === CANVAS_WS_PATH) {
+          const configSnapshot = loadConfig();
+          const token = getBearerToken(req);
+          const authResult = await authorizeGatewayConnect({
+            auth: resolvedAuth,
+            connectAuth: token ? { token, password: token } : null,
+            req,
+            trustedProxies: configSnapshot.gateway?.trustedProxies ?? [],
+          });
+          if (!authResult.ok) {
+            socket.write("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n");
+            socket.destroy();
+            return;
+          }
+        }
+      }
+      if (canvasHost?.handleUpgrade(req, socket, head)) {
+        return;
+      }
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        wss.emit("connection", ws, req);
+      });
+    })().catch(() => {
+      try {
+        socket.destroy();
+      } catch {
+        // ignore
+      }
+>>>>>>> 47538bca4 (fix: Gateway canvas host bypasses auth and serves files unauthenticated)
     });
   });
 }
