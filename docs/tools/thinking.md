@@ -13,6 +13,10 @@ read_when:
   - medium → “think harder”
   - high → “ultrathink” (max budget)
   - xhigh → “ultrathink+” (GPT-5.2 + Codex models only)
+<<<<<<< HEAD
+=======
+  - `x-high`, `x_high`, `extra-high`, `extra high`, and `extra_high` map to `xhigh`.
+>>>>>>> de7b2ba7d (fix: normalize xhigh aliases and docs sync (#9976))
   - `highest`, `max` map to `high`.
 - Provider notes:
   - Z.AI (`zai/*`) only supports binary thinking (`on`/`off`). Any non-`off` level is treated as `on` (mapped to `low`).
