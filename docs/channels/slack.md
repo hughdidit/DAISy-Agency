@@ -571,6 +571,69 @@ Slack tool actions can be gated with `channels.slack.actions.*`:
   scopes you expect (`chat:write`, `reactions:write`, `pins:write`,
   `files:write`) or those operations will fail.
 
+<<<<<<< HEAD
+=======
+## Troubleshooting
+
+Run this ladder first:
+
+```bash
+openclaw status
+openclaw gateway status
+openclaw logs --follow
+openclaw doctor
+openclaw channels status --probe
+```
+
+Then confirm DM pairing state if needed:
+
+```bash
+openclaw pairing list slack
+```
+
+Common failures:
+
+- Connected but no channel replies: channel blocked by `groupPolicy` or not in `channels.slack.channels` allowlist.
+- DMs ignored: sender not approved when `channels.slack.dm.policy="pairing"`.
+- API errors (`missing_scope`, `not_in_channel`, auth failures): bot/app tokens or Slack scopes are incomplete.
+
+For triage flow: [/channels/troubleshooting](/channels/troubleshooting).
+
+## Text streaming
+
+Slack's [Agents & AI Apps](https://docs.slack.dev/ai/developing-ai-apps) feature includes native text streaming APIs that let your app stream responses word-by-word (similar to ChatGPT) instead of waiting for the full response.
+
+Enable it per-account:
+
+```yaml
+channels:
+  slack:
+    streaming: true
+```
+
+### Requirements
+
+1. **Agents & AI Apps** must be toggled on in your [Slack app settings](https://api.slack.com/apps). This automatically adds the `assistant:write` scope.
+2. Streaming only works **within threads** (DM threads, channel threads). Messages without a thread context fall back to normal delivery automatically.
+3. Block streaming (`blockStreaming`) is automatically enabled when `streaming` is active so the LLM's incremental output feeds into the stream.
+
+### Behavior
+
+- On the first text block the bot calls `chat.startStream` to create a single updating message.
+- Subsequent text blocks are appended via `chat.appendStream`.
+- When the reply is complete the stream is finalized with `chat.stopStream`.
+- Media attachments (images, files) are delivered as separate messages alongside the stream.
+- If a streaming API call fails, the bot gracefully falls back to normal message delivery for the remainder of the response.
+
+### Relevant Slack API methods
+
+| Method                                                                            | Purpose                   |
+| --------------------------------------------------------------------------------- | ------------------------- |
+| [`chat.startStream`](https://docs.slack.dev/reference/methods/chat.startStream)   | Start a new text stream   |
+| [`chat.appendStream`](https://docs.slack.dev/reference/methods/chat.appendStream) | Append text to the stream |
+| [`chat.stopStream`](https://docs.slack.dev/reference/methods/chat.stopStream)     | Finalize the stream       |
+
+>>>>>>> 6945fbf10 (feat(slack): add native text streaming support)
 ## Notes
 
 - Mention gating is controlled via `channels.slack.channels` (set `requireMention` to `true`); `agents.list[].groupChat.mentionPatterns` (or `messages.groupChat.mentionPatterns`) also count as mentions.
