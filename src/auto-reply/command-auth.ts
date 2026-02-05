@@ -138,7 +138,15 @@ export function resolveCommandAuthorization(params: {
     });
     if (normalizedTo.length > 0) ownerCandidates.push(...normalizedTo);
   }
+<<<<<<< HEAD
   const ownerList = Array.from(new Set(ownerCandidates));
+=======
+  const ownerAllowAll = ownerAllowFromList.some((entry) => entry.trim() === "*");
+  const explicitOwners = ownerAllowFromList.filter((entry) => entry !== "*");
+  const ownerList = Array.from(
+    new Set(explicitOwners.length > 0 ? explicitOwners : ownerCandidatesForCommands),
+  );
+>>>>>>> 385a7eba3 (fix: enforce owner allowlist for commands)
 
   const senderCandidates = resolveSenderCandidates({
     dock,
@@ -155,8 +163,22 @@ export function resolveCommandAuthorization(params: {
   const senderId = matchedSender ?? senderCandidates[0];
 
   const enforceOwner = Boolean(dock?.commands?.enforceOwnerForCommands);
+<<<<<<< HEAD
   const isOwner = !enforceOwner || allowAll || ownerList.length === 0 || Boolean(matchedSender);
   const isAuthorizedSender = commandAuthorized && isOwner;
+=======
+  const senderIsOwner = Boolean(matchedSender);
+  const ownerAllowlistConfigured = ownerAllowAll || explicitOwners.length > 0;
+  const requireOwner = enforceOwner || ownerAllowlistConfigured;
+  const isOwnerForCommands = !requireOwner
+    ? true
+    : ownerAllowAll
+      ? true
+      : ownerAllowlistConfigured
+        ? senderIsOwner
+        : allowAll || ownerCandidatesForCommands.length === 0 || Boolean(matchedCommandOwner);
+  const isAuthorizedSender = commandAuthorized && isOwnerForCommands;
+>>>>>>> 385a7eba3 (fix: enforce owner allowlist for commands)
 
   return {
     providerId,
