@@ -47,6 +47,7 @@ See [Venice AI](/providers/venice).
 - [MiniMax](/providers/minimax)
 - [Venius (Venice AI, privacy-focused)](/providers/venice)
 - [Ollama (local models)](/providers/ollama)
+- [Qianfan](/providers/qianfan)
 
 ## Transcription providers
 
