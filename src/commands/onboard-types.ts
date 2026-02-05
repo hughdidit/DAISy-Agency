@@ -34,7 +34,11 @@ export type AuthChoice =
   | "github-copilot"
   | "copilot-proxy"
   | "qwen-portal"
+<<<<<<< HEAD
   | "qianfan-api-key"
+=======
+  | "xai-api-key"
+>>>>>>> db31c0ccc (feat: add xAI Grok provider support)
   | "skip";
 export type GatewayAuthChoice = "token" | "password";
 export type ResetScope = "config" | "config+creds+sessions" | "full";
@@ -79,7 +83,11 @@ export type OnboardOptions = {
   syntheticApiKey?: string;
   veniceApiKey?: string;
   opencodeZenApiKey?: string;
+<<<<<<< HEAD
   qianfanApiKey?: string;
+=======
+  xaiApiKey?: string;
+>>>>>>> db31c0ccc (feat: add xAI Grok provider support)
   gatewayPort?: number;
   gatewayBind?: GatewayBind;
   gatewayAuth?: GatewayAuthChoice;

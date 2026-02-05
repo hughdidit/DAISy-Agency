@@ -2,6 +2,7 @@ import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { resolveMoltbotAgentDir } from "../agents/agent-paths.js";
 import { upsertAuthProfile } from "../agents/auth-profiles.js";
 export { CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF } from "../agents/cloudflare-ai-gateway.js";
+export { XAI_DEFAULT_MODEL_REF } from "./onboard-auth.models.js";
 
 const resolveAuthAgentDir = (agentDir?: string) => agentDir ?? resolveMoltbotAgentDir();
 
@@ -204,12 +205,21 @@ export async function setOpencodeZenApiKey(key: string, agentDir?: string) {
   });
 }
 
+<<<<<<< HEAD
 export function setQianfanApiKey(key: string, agentDir?: string) {
   upsertAuthProfile({
     profileId: "qianfan:default",
     credential: {
       type: "api_key",
       provider: "qianfan",
+=======
+export async function setXaiApiKey(key: string, agentDir?: string) {
+  upsertAuthProfile({
+    profileId: "xai:default",
+    credential: {
+      type: "api_key",
+      provider: "xai",
+>>>>>>> db31c0ccc (feat: add xAI Grok provider support)
       key,
     },
     agentDir: resolveAuthAgentDir(agentDir),
