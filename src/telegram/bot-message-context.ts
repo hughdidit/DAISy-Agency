@@ -59,7 +59,7 @@ import type { TelegramContext } from "./bot/types.js";
 =======
 >>>>>>> 24fbafa9a (refactor: use shared pairing store for telegram)
 
-type TelegramMediaRef = {
+export type TelegramMediaRef = {
   path: string;
   contentType?: string;
   stickerMetadata?: {
@@ -94,7 +94,7 @@ type ResolveGroupActivation = (params: {
 
 type ResolveGroupRequireMention = (chatId: string | number) => boolean;
 
-type BuildTelegramMessageContextParams = {
+export type BuildTelegramMessageContextParams = {
   primaryCtx: TelegramContext;
   allMedia: TelegramMediaRef[];
   storeAllowFrom: string[];
