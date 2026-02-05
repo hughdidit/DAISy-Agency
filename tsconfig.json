@@ -41,11 +41,5 @@
 >>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
   },
   "include": ["src/**/*", "ui/**/*"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/**/*.test.ts",
-    "src/**/*.test.tsx",
-    "src/**/test-helpers.ts"
-  ]
+  "exclude": ["node_modules", "dist", "src/**/*.test.ts"]
 }
