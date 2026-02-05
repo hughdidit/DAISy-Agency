@@ -24,59 +24,13 @@ endpoint and API key. It is OpenAI-compatible, so most OpenAI SDKs work by switc
 3. Generate an API key (format: `bce-v3/ALTAK-...`)
 4. Copy the API key for use with OpenClaw
 
-## Installation
-
-### Install OpenClaw
-
-```bash
-# Using npm
-npm install -g openclaw
-
-# Using pnpm
-pnpm add -g openclaw
-
-# Using bun
-bun add -g openclaw
-```
-
-### Verify Installation
-
-```bash
-openclaw --version
-```
-
-## Configuration Methods
-
-### Method 1: Environment Variable (Recommended)
-
-Set the `QIANFAN_API_KEY` environment variable:
-
-```bash
-# Bash/Zsh
-export QIANFAN_API_KEY="bce-v3/ALTAK-your-api-key-here"
-
-# Fish
-set -gx QIANFAN_API_KEY "bce-v3/ALTAK-your-api-key-here"
-
-# PowerShell
-$env:QIANFAN_API_KEY = "bce-v3/ALTAK-your-api-key-here"
-```
-
-Add to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.) for persistence:
-
-```bash
-echo 'export QIANFAN_API_KEY="bce-v3/ALTAK-your-api-key-here"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-### Method 2: Interactive Onboarding
-
-Run the onboarding wizard:
+## CLI setup
 
 ```bash
 openclaw onboard --auth-choice qianfan-api-key
 ```
 
+<<<<<<< HEAD
 Follow the prompts to enter your API key.
 
 <<<<<<< HEAD
@@ -286,6 +240,8 @@ OpenClaw uses the OpenAI-compatible API format (`openai-completions`), which Qia
 4. **Handle rate limits**: Implement appropriate retry logic for production use
 5. **Test locally first**: Verify your configuration before deploying
 
+=======
+>>>>>>> ff948a6dd (Optimize doc)
 ## Related Documentation
 
 - [OpenClaw Configuration](/configuration)
