@@ -19,8 +19,11 @@ import { resolveSessionAgentId } from "../agent-scope.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 =======
 import { listChannelSupportedActions } from "../channel-tools.js";
+<<<<<<< HEAD
 import { assertSandboxPath } from "../sandbox-paths.js";
 >>>>>>> 9b6fffd00 (security(message-tool): validate filePath/path against sandbox root (#6398))
+=======
+>>>>>>> 4434cae56 (Security: harden sandboxed media handling (#9182))
 import { channelTargetSchema, channelTargetsSchema, stringEnum } from "../schema/typebox.js";
 import { listChannelSupportedActions } from "../channel-tools.js";
 import { normalizeMessageChannel } from "../../utils/message-channel.js";
@@ -356,17 +359,6 @@ export function createMessageTool(options?: MessageToolOptions): AnyAgentTool {
         required: true,
       }) as ChannelMessageActionName;
 
-      // Validate file paths against sandbox root to prevent host file access.
-      const sandboxRoot = options?.sandboxRoot;
-      if (sandboxRoot) {
-        for (const key of ["filePath", "path"] as const) {
-          const raw = readStringParam(params, key, { trim: false });
-          if (raw) {
-            await assertSandboxPath({ filePath: raw, cwd: sandboxRoot, root: sandboxRoot });
-          }
-        }
-      }
-
       const accountId = readStringParam(params, "accountId") ?? agentAccountId;
       if (accountId) {
         params.accountId = accountId;
@@ -409,6 +401,7 @@ export function createMessageTool(options?: MessageToolOptions): AnyAgentTool {
         agentId: options?.agentSessionKey
           ? resolveSessionAgentId({ sessionKey: options.agentSessionKey, config: cfg })
           : undefined,
+        sandboxRoot: options?.sandboxRoot,
         abortSignal: signal,
       });
 
