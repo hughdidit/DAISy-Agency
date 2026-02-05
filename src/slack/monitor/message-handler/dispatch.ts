@@ -141,6 +141,21 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
   });
   markDispatchIdle();
 
+<<<<<<< HEAD
+=======
+  // -----------------------------------------------------------------------
+  // Finalize the stream if one was started
+  // -----------------------------------------------------------------------
+  const finalStream = streamSession as SlackStreamSession | null;
+  if (finalStream && !finalStream.stopped) {
+    try {
+      await stopSlackStream({ session: finalStream });
+    } catch (err) {
+      runtime.error?.(danger(`slack-stream: failed to stop stream: ${String(err)}`));
+    }
+  }
+
+>>>>>>> 06efbd231 (fix: resolve ChatStreamer import path and TypeScript narrowing issue)
   const anyReplyDelivered = queuedFinal || (counts.block ?? 0) > 0 || (counts.final ?? 0) > 0;
 
   if (!anyReplyDelivered) {
