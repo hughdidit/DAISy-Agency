@@ -27,9 +27,11 @@ import {
 import { normalizeProviderId } from "../model-selection.js";
 import { ensureMoltbotModelsJson } from "../models-config.js";
 import {
+  BILLING_ERROR_USER_MESSAGE,
   classifyFailoverReason,
   formatAssistantErrorText,
   isAuthAssistantError,
+  isBillingAssistantError,
   isCompactionFailureError,
   isContextOverflowError,
   isFailoverAssistantError,
@@ -525,6 +527,7 @@ export async function runEmbeddedPiAgent(
 
           const authFailure = isAuthAssistantError(lastAssistant);
           const rateLimitFailure = isRateLimitAssistantError(lastAssistant);
+          const billingFailure = isBillingAssistantError(lastAssistant);
           const failoverFailure = isFailoverAssistantError(lastAssistant);
           const assistantFailoverReason = classifyFailoverReason(lastAssistant?.errorMessage ?? "");
           const cloudCodeAssistFormatError = attempt.cloudCodeAssistFormatError;
@@ -594,9 +597,11 @@ export async function runEmbeddedPiAgent(
                   ? "LLM request timed out."
                   : rateLimitFailure
                     ? "LLM request rate limited."
-                    : authFailure
-                      ? "LLM request unauthorized."
-                      : "LLM request failed.");
+                    : billingFailure
+                      ? BILLING_ERROR_USER_MESSAGE
+                      : authFailure
+                        ? "LLM request unauthorized."
+                        : "LLM request failed.");
               const status =
                 resolveFailoverStatus(assistantFailoverReason ?? "unknown") ??
                 (isTimeoutErrorMessage(message) ? 408 : undefined);
