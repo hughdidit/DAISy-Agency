@@ -30,6 +30,15 @@ import type { TelegramMessage } from "./bot/types.js";
 import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
 import { RegisterTelegramHandlerParams } from "./bot-native-commands.js";
 import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
+<<<<<<< HEAD
+=======
+import { resolveMedia } from "./bot/delivery.js";
+import {
+  buildTelegramGroupPeerId,
+  buildTelegramParentPeer,
+  resolveTelegramForumThreadId,
+} from "./bot/helpers.js";
+>>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
 import { migrateTelegramGroupConfig } from "./group-migration.js";
 import { resolveTelegramInlineButtonsScope } from "./inline-buttons.js";
 <<<<<<< HEAD
@@ -145,6 +154,69 @@ export const registerTelegramHandlers = ({
     },
   });
 
+<<<<<<< HEAD
+=======
+  const resolveTelegramSessionModel = (params: {
+    chatId: number | string;
+    isGroup: boolean;
+    isForum: boolean;
+    messageThreadId?: number;
+    resolvedThreadId?: number;
+  }): string | undefined => {
+    const resolvedThreadId =
+      params.resolvedThreadId ??
+      resolveTelegramForumThreadId({
+        isForum: params.isForum,
+        messageThreadId: params.messageThreadId,
+      });
+    const peerId = params.isGroup
+      ? buildTelegramGroupPeerId(params.chatId, resolvedThreadId)
+      : String(params.chatId);
+    const parentPeer = buildTelegramParentPeer({
+      isGroup: params.isGroup,
+      resolvedThreadId,
+      chatId: params.chatId,
+    });
+    const route = resolveAgentRoute({
+      cfg,
+      channel: "telegram",
+      accountId,
+      peer: {
+        kind: params.isGroup ? "group" : "dm",
+        id: peerId,
+      },
+      parentPeer,
+    });
+    const baseSessionKey = route.sessionKey;
+    const dmThreadId = !params.isGroup ? params.messageThreadId : undefined;
+    const threadKeys =
+      dmThreadId != null
+        ? resolveThreadSessionKeys({ baseSessionKey, threadId: String(dmThreadId) })
+        : null;
+    const sessionKey = threadKeys?.sessionKey ?? baseSessionKey;
+    const storePath = resolveStorePath(cfg.session?.store, { agentId: route.agentId });
+    const store = loadSessionStore(storePath);
+    const entry = store[sessionKey];
+    const storedOverride = resolveStoredModelOverride({
+      sessionEntry: entry,
+      sessionStore: store,
+      sessionKey,
+    });
+    if (storedOverride) {
+      return storedOverride.provider
+        ? `${storedOverride.provider}/${storedOverride.model}`
+        : storedOverride.model;
+    }
+    const provider = entry?.modelProvider?.trim();
+    const model = entry?.model?.trim();
+    if (provider && model) {
+      return `${provider}/${model}`;
+    }
+    const modelCfg = cfg.agents?.defaults?.model;
+    return typeof modelCfg === "string" ? modelCfg : modelCfg?.primary;
+  };
+
+>>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
   const processMediaGroup = async (entry: MediaGroupEntry) => {
     try {
       entry.messages.sort((a, b) => a.msg.message_id - b.msg.message_id);
