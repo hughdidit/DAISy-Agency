@@ -59,7 +59,7 @@ STAGING_SUBNET="${STAGING_SUBNET:-default}"
 STAGING_TAGS="${STAGING_TAGS:-iap-ssh}"
 
 # Snapshot naming
-SNAPSHOT_NAME="${SNAPSHOT_NAME:-${STAGING_INSTANCE}-snapshot-$(date +%Y%m%d-%H%M%S)}"
+SNAPSHOT_NAME="${SNAPSHOT_NAME:-${STAGING_INSTANCE}-snapshot-$(date +%Y%m%d-%H%M%S)-${USER:-$(whoami)}}"
 
 # =============================================================================
 # Parse arguments
