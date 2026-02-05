@@ -21,6 +21,9 @@ Welcome to the lobster tank! 🦞
 - **Christoph Nakazawa** - JS Infra
   - GitHub: [@cpojer](https://github.com/cpojer) · X: [@cnakazawa](https://x.com/cnakazawa)
 
+- **Gustavo Madeira Santana** - Multi-agents, CLI, web UI
+  - GitHub: [@gumadeiras](https://github.com/gumadeiras) · X: [@gumadeiras](https://x.com/gumadeiras)
+
 ## How to Contribute
 1. **Bugs & small fixes** → Open a PR!
 2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/moltbot/moltbot/discussions) or ask in Discord first
