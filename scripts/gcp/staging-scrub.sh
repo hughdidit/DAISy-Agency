@@ -159,6 +159,18 @@ if mountpoint -q "$STATE_MOUNT" 2>/dev/null; then
   umount "$STATE_MOUNT"
 fi
 
+# Check for existing filesystem on the state disk before formatting
+EXISTING_FS_INFO=$(blkid "$STATE_DISK" 2>/dev/null || true)
+if [[ -n "${EXISTING_FS_INFO:-}" ]]; then
+  log "WARNING: $STATE_DISK appears to contain an existing filesystem or data:"
+  log "  $EXISTING_FS_INFO"
+  log "Formatting will ERASE ALL DATA on $STATE_DISK."
+  read -rp "Type 'FORMAT' to continue formatting $STATE_DISK, or anything else to abort: " CONFIRM_FORMAT_STATE_DISK
+  if [[ "$CONFIRM_FORMAT_STATE_DISK" != "FORMAT" ]]; then
+    log "Aborting at user request; state disk was not formatted."
+    exit 1
+  fi
+fi
 # Format the state disk with label (this is a NEW, empty disk)
 # Label enables persistent fstab mounting even if device path changes
 log "Formatting $STATE_DISK as ext4 with label '$STATE_DISK_LABEL'..."
