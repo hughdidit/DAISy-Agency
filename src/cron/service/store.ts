@@ -133,11 +133,25 @@ async function getFileMtimeMs(path: string): Promise<number | null> {
   }
 }
 
+<<<<<<< HEAD
 export async function ensureLoaded(state: CronServiceState, opts?: { forceReload?: boolean }) {
   // Fast path: store is already in memory.  The timer path passes
   // forceReload=true so that cross-service writes to the same store file
   // are always picked up.  Other callers (add, list, run, …) trust the
   // in-memory copy to avoid a stat syscall on every operation.
+=======
+export async function ensureLoaded(
+  state: CronServiceState,
+  opts?: {
+    forceReload?: boolean;
+    /** Skip recomputing nextRunAtMs after load so the caller can run due
+     *  jobs against the persisted values first (see onTimer). */
+    skipRecompute?: boolean;
+  },
+) {
+  // Fast path: store is already in memory. Other callers (add, list, run, …)
+  // trust the in-memory copy to avoid a stat syscall on every operation.
+>>>>>>> 313e2f2e8 (fix(cron): prevent recomputeNextRuns from skipping due jobs in onTimer (#9823))
   if (state.store && !opts?.forceReload) {
     return;
   }
@@ -270,8 +284,9 @@ export async function ensureLoaded(state: CronServiceState, opts?: { forceReload
   state.storeLoadedAtMs = state.deps.nowMs();
   state.storeFileMtimeMs = fileMtimeMs;
 
-  // Recompute next runs after loading to ensure accuracy
-  recomputeNextRuns(state);
+  if (!opts?.skipRecompute) {
+    recomputeNextRuns(state);
+  }
 
   if (mutated) {
     await persist(state);
