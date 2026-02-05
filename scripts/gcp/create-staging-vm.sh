@@ -313,9 +313,33 @@ log "=== Phase 5: Validate Security Posture ==="
 if [[ "$DRY_RUN" == "true" ]]; then
   log "[DRY-RUN] Would validate: no external IP + IAP SSH works"
 else
-  log "Waiting 30 seconds for VM to boot..."
-  sleep 30
+  log "Waiting for VM to reach RUNNING state before validation..."
+  MAX_STATUS_ATTEMPTS=6
+  STATUS_SLEEP_SECONDS=5
+  for ((attempt=1; attempt<=MAX_STATUS_ATTEMPTS; attempt++)); do
+    VM_STATUS=$(gcloud compute instances describe "$STAGING_INSTANCE" \
+      --project="$PROJECT_ID" \
+      --zone="$STAGING_ZONE" \
+      --format="get(status)" 2>/dev/null || echo "")
 
+    if [[ "$VM_STATUS" == "RUNNING" ]]; then
+      log "VM is RUNNING (attempt $attempt/$MAX_STATUS_ATTEMPTS)."
+      break
+    fi
+
+    if [[ $attempt -eq $MAX_STATUS_ATTEMPTS ]]; then
+      log "ERROR: VM did not reach RUNNING state after $MAX_STATUS_ATTEMPTS attempts."
+      exit 1
+    fi
+
+    if [[ -z "$VM_STATUS" ]]; then
+      log "VM status is unavailable, retrying in ${STATUS_SLEEP_SECONDS}s (attempt $attempt/$MAX_STATUS_ATTEMPTS)..."
+    else
+      log "VM status is '$VM_STATUS', retrying in ${STATUS_SLEEP_SECONDS}s (attempt $attempt/$MAX_STATUS_ATTEMPTS)..."
+    fi
+    sleep "$STATUS_SLEEP_SECONDS"
+    STATUS_SLEEP_SECONDS=$(( STATUS_SLEEP_SECONDS * 2 ))
+  done
   # Check 1: Verify no external IP
   log "Checking VM has no external IP..."
   EXTERNAL_IP=$(gcloud compute instances describe "$STAGING_INSTANCE" \
