@@ -17,7 +17,19 @@ Use `session.identityLinks` to map provider-prefixed peer ids to a canonical ide
 
 ### Secure DM mode (recommended)
 
+<<<<<<< HEAD
 If your agent can receive DMs from **multiple people** (pairing approvals for more than one sender, a DM allowlist with multiple entries, or `dmPolicy: "open"`), enable **secure DM mode** to avoid cross-user context leakage:
+=======
+> **Security Warning:** If your agent can receive DMs from **multiple people**, you should strongly consider enabling secure DM mode. Without it, all users share the same conversation context, which can leak private information between users.
+
+**Example of the problem with default settings:**
+
+- Alice (`<SENDER_A>`) messages your agent about a private topic (for example, a medical appointment)
+- Bob (`<SENDER_B>`) messages your agent asking "What were we talking about?"
+- Because both DMs share the same session, the model may answer Bob using Alice's prior context.
+
+**The fix:** Set `dmScope` to isolate sessions per user:
+>>>>>>> 873182ec2 (docs: tighten secure DM example)
 
 ```json5
 // ~/.openclaw/openclaw.json
@@ -34,6 +46,7 @@ Notes:
 - Default is `dmScope: "main"` for continuity (all DMs share the main session).
 - For multi-account inboxes on the same channel, prefer `per-account-channel-peer`.
 - If the same person contacts you on multiple channels, use `session.identityLinks` to collapse their DM sessions into one canonical identity.
+- You can verify your DM settings with `openclaw security audit` (see [security](/cli/security)).
 
 ## Gateway is the source of truth
 All session state is **owned by the gateway** (the “master” Moltbot). UI clients (macOS app, WebChat, etc.) must query the gateway for session lists and token counts instead of reading local files.
