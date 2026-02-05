@@ -12,7 +12,28 @@
             <description><![CDATA[<h2>Moltbot 2026.1.24-1</h2>
 <h3>Fixes</h3>
 <ul>
+<<<<<<< HEAD
 <li>Packaging: include dist/shared output in npm tarball (fixes missing reasoning-tags import on install).</li>
+=======
+<li>Heartbeat: allow explicit accountId routing for multi-account channels. (#8702) Thanks @lsh411.</li>
+<li>TUI/Gateway: handle non-streaming finals, refresh history for non-local chat runs, and avoid event gap warnings for targeted tool streams. (#8432) Thanks @gumadeiras.</li>
+<li>Shell completion: auto-detect and migrate slow dynamic patterns to cached files for faster terminal startup; add completion health checks to doctor/update/onboard.</li>
+<li>Telegram: honor session model overrides in inline model selection. (#8193) Thanks @gildo.</li>
+<li>Web UI: fix agent model selection saves for default/non-default agents and wrap long workspace paths. Thanks @Takhoffman.</li>
+<li>Web UI: resolve header logo path when <code>gateway.controlUi.basePath</code> is set. (#7178) Thanks @Yeom-JinHo.</li>
+<li>Web UI: apply button styling to the new-messages indicator.</li>
+<li>Security: keep untrusted channel metadata out of system prompts (Slack/Discord). Thanks @KonstantinMirin.</li>
+<li>Security: enforce sandboxed media paths for message tool attachments. (#9182) Thanks @victormier.</li>
+<li>Security: require explicit credentials for gateway URL overrides to prevent credential leakage. (#8113) Thanks @victormier.</li>
+<li>Security: gate <code>whatsapp_login</code> tool to owner senders and default-deny non-owner contexts. (#8768) Thanks @victormier.</li>
+<li>Voice call: harden webhook verification with host allowlists/proxy trust and keep ngrok loopback bypass.</li>
+<li>Voice call: add regression coverage for anonymous inbound caller IDs with allowlist policy. (#8104) Thanks @victormier.</li>
+<li>Cron: accept epoch timestamps and 0ms durations in CLI <code>--at</code> parsing.</li>
+<li>Cron: reload store data when the store file is recreated or mtime changes.</li>
+<li>Cron: deliver announce runs directly, honor delivery mode, and respect wakeMode for summaries. (#8540) Thanks @tyler6204.</li>
+<li>Telegram: include forward_from_chat metadata in forwarded messages and harden cron delivery target checks. (#8392) Thanks @Glucksberg.</li>
+<li>macOS: fix cron payload summary rendering and ISO 8601 formatter concurrency safety.</li>
+>>>>>>> 54ddbc466 (chore: update 2026.2.3 notes)
 </ul>
 <p><a href="https://github.com/moltbot/moltbot/blob/main/CHANGELOG.md">View full changelog</a></p>
 ]]></description>
