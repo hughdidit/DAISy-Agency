@@ -22,8 +22,12 @@ Docs: https://docs.openclaw.ai
 - Security: keep untrusted channel metadata out of system prompts (Slack/Discord). Thanks @KonstantinMirin.
 - Voice call: harden webhook verification with host allowlists/proxy trust and keep ngrok loopback bypass.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> a749db982 (fix: harden voice-call webhook verification)
 =======
+=======
+- Voice call: add regression coverage for anonymous inbound caller IDs with allowlist policy. (#8104) Thanks @victormier.
+>>>>>>> 0cd47d830 (fix: cover anonymous voice allowlist callers (#8104) (thanks @victormier) (#9188))
 - Cron: accept epoch timestamps and 0ms durations in CLI `--at` parsing.
 - Cron: reload store data when the store file is recreated or mtime changes.
 - Cron: deliver announce runs directly, honor delivery mode, and respect wakeMode for summaries. (#8540) Thanks @tyler6204.
