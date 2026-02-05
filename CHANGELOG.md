@@ -52,7 +52,12 @@ Docs: https://docs.openclaw.ai
 - Cron: accept epoch timestamps and 0ms durations in CLI `--at` parsing.
 - Cron: reload store data when the store file is recreated or mtime changes.
 - Cron: deliver announce runs directly, honor delivery mode, and respect wakeMode for summaries. (#8540) Thanks @tyler6204.
+<<<<<<< HEAD
 >>>>>>> c396877dd (Changelog: move cron entries to 2026.2.3)
+=======
+- Telegram: include forward_from_chat metadata in forwarded messages and harden cron delivery target checks. (#8392) Thanks @Glucksberg.
+- macOS: fix cron payload summary rendering and ISO 8601 formatter concurrency safety.
+>>>>>>> 54ddbc466 (chore: update 2026.2.3 notes)
 
 ## 2026.2.2-3
 
