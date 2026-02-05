@@ -117,7 +117,7 @@ export function buildQianfanModelDefinition(): ModelDefinitionConfig {
     maxTokens: QIANFAN_DEFAULT_MAX_TOKENS,
 =======
 export const XAI_BASE_URL = "https://api.x.ai/v1";
-export const XAI_DEFAULT_MODEL_ID = "grok-2-latest";
+export const XAI_DEFAULT_MODEL_ID = "grok-4";
 export const XAI_DEFAULT_MODEL_REF = `xai/${XAI_DEFAULT_MODEL_ID}`;
 export const XAI_DEFAULT_CONTEXT_WINDOW = 131072;
 export const XAI_DEFAULT_MAX_TOKENS = 8192;
@@ -131,7 +131,7 @@ export const XAI_DEFAULT_COST = {
 export function buildXaiModelDefinition(): ModelDefinitionConfig {
   return {
     id: XAI_DEFAULT_MODEL_ID,
-    name: "Grok 2",
+    name: "Grok 4",
     reasoning: false,
     input: ["text"],
     cost: XAI_DEFAULT_COST,

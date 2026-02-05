@@ -251,6 +251,7 @@ export async function applyNonInteractiveAuthChoice(params: {
     }
     if (resolved.source !== "profile") {
 <<<<<<< HEAD
+<<<<<<< HEAD
       setQianfanApiKey(resolved.key);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
@@ -261,6 +262,9 @@ export async function applyNonInteractiveAuthChoice(params: {
     return applyQianfanConfig(nextConfig);
 =======
       await setXaiApiKey(resolved.key);
+=======
+      setXaiApiKey(resolved.key);
+>>>>>>> 155dfa93e (fix(onboard): align xAI default model to grok-4)
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "xai:default",
