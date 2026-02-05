@@ -27,7 +27,6 @@ import {
   buildXiaomiProvider,
   buildQianfanProvider,
   XIAOMI_DEFAULT_MODEL_ID,
-  QIANFAN_DEFAULT_MODEL_ID,
 } from "../agents/models-config.providers.js";
 >>>>>>> c8e67ad5d (Fix import error)
 import {
@@ -54,6 +53,7 @@ import {
   buildMoonshotModelDefinition,
   QIANFAN_BASE_URL,
   QIANFAN_DEFAULT_MODEL_REF,
+  QIANFAN_DEFAULT_MODEL_ID,
   KIMI_CODING_MODEL_REF,
   MOONSHOT_BASE_URL,
   MOONSHOT_CN_BASE_URL,
