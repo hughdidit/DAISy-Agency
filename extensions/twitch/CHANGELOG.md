@@ -1,8 +1,17 @@
 # Changelog
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 =======
+=======
+## 2026.2.3
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+>>>>>>> f895c9fba (chore: sync plugin versions to 2026.2.3)
 ## 2026.2.2
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 
