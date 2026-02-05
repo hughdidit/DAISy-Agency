@@ -1,5 +1,11 @@
 import type { Bot } from "grammy";
+<<<<<<< HEAD
 
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
+import type { StickerMetadata, TelegramContext } from "./bot/types.js";
+>>>>>>> 21f8c3db1 (Telegram: remove last @ts-nocheck from bot-handlers.ts (#9206))
 import { resolveAckReaction } from "../agents/identity.js";
 import {
   findModelInCatalog,
@@ -62,13 +68,7 @@ import type { TelegramContext } from "./bot/types.js";
 export type TelegramMediaRef = {
   path: string;
   contentType?: string;
-  stickerMetadata?: {
-    emoji?: string;
-    setName?: string;
-    fileId?: string;
-    fileUniqueId?: string;
-    cachedDescription?: string;
-  };
+  stickerMetadata?: StickerMetadata;
 };
 
 type TelegramMessageContextOptions = {
