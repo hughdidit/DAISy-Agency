@@ -147,10 +147,17 @@ Once configured, all your Ollama models are available:
     defaults: {
       model: {
         primary: "ollama/llama3.3",
+<<<<<<< HEAD
         fallback: ["ollama/qwen2.5-coder:32b"]
       }
     }
   }
+=======
+        fallbacks: ["ollama/qwen2.5-coder:32b"],
+      },
+    },
+  },
+>>>>>>> 679bb087d (docs: fix incorrect model.fallback to model.fallbacks in Ollama config (#9384) (#9749))
 }
 ```
 
