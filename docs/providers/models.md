@@ -25,7 +25,11 @@ See [Venice AI](/providers/venice).
 
 ```json5
 {
+<<<<<<< HEAD
   agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } }
+=======
+  agents: { defaults: { model: { primary: "anthropic/claude-opus-4-6" } } },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

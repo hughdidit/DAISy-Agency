@@ -23,7 +23,11 @@ openclaw onboard --opencode-zen-api-key "$OPENCODE_API_KEY"
 ```json5
 {
   env: { OPENCODE_API_KEY: "sk-..." },
+<<<<<<< HEAD
   agents: { defaults: { model: { primary: "opencode/claude-opus-4-5" } } }
+=======
+  agents: { defaults: { model: { primary: "opencode/claude-opus-4-6" } } },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 

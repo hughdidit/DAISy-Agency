@@ -23,13 +23,13 @@ want “always works” text responses without relying on external APIs.
 You can use Claude Code CLI **without any config** (OpenClaw ships a built-in default):
 
 ```bash
-openclaw agent --message "hi" --model claude-cli/opus-4.5
+openclaw agent --message "hi" --model claude-cli/opus-4.6
 ```
 
 Codex CLI also works out of the box:
 
 ```bash
-openclaw agent --message "hi" --model codex-cli/gpt-5.2-codex
+openclaw agent --message "hi" --model codex-cli/gpt-5.3-codex
 ```
 
 If your gateway runs under launchd/systemd and PATH is minimal, add just the
@@ -60,6 +60,7 @@ Add a CLI backend to your fallback list so it only runs when primary models fail
   agents: {
     defaults: {
       model: {
+<<<<<<< HEAD
         primary: "anthropic/claude-opus-4-5",
         fallbacks: [
           "claude-cli/opus-4.5"
@@ -71,6 +72,18 @@ Add a CLI backend to your fallback list so it only runs when primary models fail
       }
     }
   }
+=======
+        primary: "anthropic/claude-opus-4-6",
+        fallbacks: ["claude-cli/opus-4.6", "claude-cli/opus-4.5"],
+      },
+      models: {
+        "anthropic/claude-opus-4-6": { alias: "Opus" },
+        "claude-cli/opus-4.6": {},
+        "claude-cli/opus-4.5": {},
+      },
+    },
+  },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -111,6 +124,7 @@ The provider id becomes the left side of your model ref:
           input: "arg",
           modelArg: "--model",
           modelAliases: {
+            "claude-opus-4-6": "opus",
             "claude-opus-4-5": "opus",
             "claude-sonnet-4-5": "sonnet"
           },

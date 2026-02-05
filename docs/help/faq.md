@@ -674,7 +674,7 @@ Yes - via pi‑ai’s **Amazon Bedrock (Converse)** provider with **manual confi
 
 ### How does Codex auth work
 
-OpenClaw supports **OpenAI Code (Codex)** via OAuth (ChatGPT sign-in). The wizard can run the OAuth flow and will set the default model to `openai-codex/gpt-5.2` when appropriate. See [Model providers](/concepts/model-providers) and [Wizard](/start/wizard).
+OpenClaw supports **OpenAI Code (Codex)** via OAuth (ChatGPT sign-in). The wizard can run the OAuth flow and will set the default model to `openai-codex/gpt-5.3-codex` when appropriate. See [Model providers](/concepts/model-providers) and [Wizard](/start/wizard).
 
 ### Do you support OpenAI subscription auth Codex OAuth
 
@@ -1856,13 +1856,19 @@ OpenClaw’s default model is whatever you set as:
 agents.defaults.model.primary
 ```
 
-Models are referenced as `provider/model` (example: `anthropic/claude-opus-4-5`). If you omit the provider, OpenClaw currently assumes `anthropic` as a temporary deprecation fallback - but you should still **explicitly** set `provider/model`.
+Models are referenced as `provider/model` (example: `anthropic/claude-opus-4-6`). If you omit the provider, OpenClaw currently assumes `anthropic` as a temporary deprecation fallback - but you should still **explicitly** set `provider/model`.
 
 ### What model do you recommend
 
+<<<<<<< HEAD
 **Recommended default:** `anthropic/claude-opus-4-5`.  
 **Good alternative:** `anthropic/claude-sonnet-4-5`.  
 **Reliable (less character):** `openai/gpt-5.2` - nearly as good as Opus, just less personality.  
+=======
+**Recommended default:** `anthropic/claude-opus-4-6`.
+**Good alternative:** `anthropic/claude-sonnet-4-5`.
+**Reliable (less character):** `openai/gpt-5.2` - nearly as good as Opus, just less personality.
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 **Budget:** `zai/glm-4.7`.
 
 MiniMax M2.1 has its own docs: [MiniMax](/providers/minimax) and
@@ -1908,7 +1914,7 @@ Docs: [Models](/concepts/models), [Configure](/cli/configure), [Config](/cli/con
 
 ### What do OpenClaw, Flawd, and Krill use for models
 
-- **OpenClaw + Flawd:** Anthropic Opus (`anthropic/claude-opus-4-5`) - see [Anthropic](/providers/anthropic).
+- **OpenClaw + Flawd:** Anthropic Opus (`anthropic/claude-opus-4-6`) - see [Anthropic](/providers/anthropic).
 - **Krill:** MiniMax M2.1 (`minimax/MiniMax-M2.1`) - see [MiniMax](/providers/minimax).
 
 ### How do I switch models on the fly without restarting
@@ -1948,7 +1954,7 @@ It also shows the configured provider endpoint (`baseUrl`) and API mode (`api`) 
 Re-run `/model` **without** the `@profile` suffix:
 
 ```
-/model anthropic/claude-opus-4-5
+/model anthropic/claude-opus-4-6
 ```
 
 If you want to return to the default, pick it from `/model` (or send `/model <default provider/model>`).
@@ -1958,8 +1964,8 @@ Use `/model status` to confirm which auth profile is active.
 
 Yes. Set one as default and switch as needed:
 
-- **Quick switch (per session):** `/model gpt-5.2` for daily tasks, `/model gpt-5.2-codex` for coding.
-- **Default + switch:** set `agents.defaults.model.primary` to `openai-codex/gpt-5.2`, then switch to `openai-codex/gpt-5.2-codex` when coding (or the other way around).
+- **Quick switch (per session):** `/model gpt-5.2` for daily tasks, `/model gpt-5.3-codex` for coding.
+- **Default + switch:** set `agents.defaults.model.primary` to `openai-codex/gpt-5.3-codex`, then switch to `openai-codex/gpt-5.3-codex-codex` when coding (or the other way around).
 - **Sub-agents:** route coding tasks to sub-agents with a different default model.
 
 See [Models](/concepts/models) and [Slash commands](/tools/slash-commands).
@@ -2033,7 +2039,7 @@ Docs: [Models](/concepts/models), [Multi-Agent Routing](/concepts/multi-agent), 
 
 Yes. OpenClaw ships a few default shorthands (only applied when the model exists in `agents.defaults.models`):
 
-- `opus` → `anthropic/claude-opus-4-5`
+- `opus` → `anthropic/claude-opus-4-6`
 - `sonnet` → `anthropic/claude-sonnet-4-5`
 - `gpt` → `openai/gpt-5.2`
 - `gpt-mini` → `openai/gpt-5-mini`
@@ -2050,9 +2056,9 @@ Aliases come from `agents.defaults.models.<modelId>.alias`. Example:
 {
   agents: {
     defaults: {
-      model: { primary: "anthropic/claude-opus-4-5" },
+      model: { primary: "anthropic/claude-opus-4-6" },
       models: {
-        "anthropic/claude-opus-4-5": { alias: "opus" },
+        "anthropic/claude-opus-4-6": { alias: "opus" },
         "anthropic/claude-sonnet-4-5": { alias: "sonnet" },
         "anthropic/claude-haiku-4-5": { alias: "haiku" }
       }
@@ -2719,7 +2725,11 @@ You can add options like `debounce:2s cap:25 drop:summarize` for followup modes.
 
 **Q: “What’s the default model for Anthropic with an API key?”**
 
+<<<<<<< HEAD
 **A:** In OpenClaw, credentials and model selection are separate. Setting `ANTHROPIC_API_KEY` (or storing an Anthropic API key in auth profiles) enables authentication, but the actual default model is whatever you configure in `agents.defaults.model.primary` (for example, `anthropic/claude-sonnet-4-5` or `anthropic/claude-opus-4-5`). If you see `No credentials found for profile "anthropic:default"`, it means the Gateway couldn’t find Anthropic credentials in the expected `auth-profiles.json` for the agent that’s running.
+=======
+**A:** In OpenClaw, credentials and model selection are separate. Setting `ANTHROPIC_API_KEY` (or storing an Anthropic API key in auth profiles) enables authentication, but the actual default model is whatever you configure in `agents.defaults.model.primary` (for example, `anthropic/claude-sonnet-4-5` or `anthropic/claude-opus-4-6`). If you see `No credentials found for profile "anthropic:default"`, it means the Gateway couldn't find Anthropic credentials in the expected `auth-profiles.json` for the agent that's running.
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 
 ---
 

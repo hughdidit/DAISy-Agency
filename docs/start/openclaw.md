@@ -137,7 +137,7 @@ Example:
 {
   logging: { level: "info" },
   agent: {
-    model: "anthropic/claude-opus-4-5",
+    model: "anthropic/claude-opus-4-6",
     workspace: "~/.openclaw/workspace",
     thinkingDefault: "high",
     timeoutSeconds: 1800,

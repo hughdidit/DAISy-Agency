@@ -224,13 +224,17 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       userTimezone: "America/Chicago",
       model: {
         primary: "anthropic/claude-sonnet-4-5",
+<<<<<<< HEAD
         fallbacks: ["anthropic/claude-opus-4-5", "openai/gpt-5.2"]
+=======
+        fallbacks: ["anthropic/claude-opus-4-6", "openai/gpt-5.2"],
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
       },
       imageModel: {
         primary: "openrouter/anthropic/claude-sonnet-4-5"
       },
       models: {
-        "anthropic/claude-opus-4-5": { alias: "opus" },
+        "anthropic/claude-opus-4-6": { alias: "opus" },
         "anthropic/claude-sonnet-4-5": { alias: "sonnet" },
         "openai/gpt-5.2": { alias: "gpt" }
       },
@@ -466,9 +470,15 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     workspace: "~/.openclaw/workspace",
     model: {
       primary: "anthropic/claude-sonnet-4-5",
+<<<<<<< HEAD
       fallbacks: ["anthropic/claude-opus-4-5"]
     }
   }
+=======
+      fallbacks: ["anthropic/claude-opus-4-6"],
+    },
+  },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -503,10 +513,17 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
   agent: {
     workspace: "~/.openclaw/workspace",
     model: {
+<<<<<<< HEAD
       primary: "anthropic/claude-opus-4-5",
       fallbacks: ["minimax/MiniMax-M2.1"]
     }
   }
+=======
+      primary: "anthropic/claude-opus-4-6",
+      fallbacks: ["minimax/MiniMax-M2.1"],
+    },
+  },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
