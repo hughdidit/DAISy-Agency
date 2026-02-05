@@ -1,6 +1,10 @@
 # Changelog
 
+<<<<<<< HEAD
 ## 2026.2.1
+=======
+## 2026.2.4
+>>>>>>> 5031b283a (chore: bump version to 2026.2.4)
 
 ### Changes
 - Version alignment with core OpenClaw release numbers.

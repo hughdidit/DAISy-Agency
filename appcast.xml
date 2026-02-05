@@ -3,6 +3,7 @@
     <channel>
         <title>OpenClaw</title>
         <item>
+<<<<<<< HEAD
             <title>2026.1.24-1</title>
             <pubDate>Sun, 25 Jan 2026 14:05:25 +0000</pubDate>
             <link>https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml</link>
@@ -10,13 +11,43 @@
             <sparkle:shortVersionString>2026.1.24-1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
             <description><![CDATA[<h2>OpenClaw 2026.1.24-1</h2>
+=======
+            <title>2026.2.4</title>
+            <pubDate>Wed, 04 Feb 2026 17:47:10 -0800</pubDate>
+            <link>https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml</link>
+            <sparkle:version>8900</sparkle:version>
+            <sparkle:shortVersionString>2026.2.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h2>OpenClaw 2026.2.4</h2>
+<h3>Changes</h3>
+<ul>
+<li>Telegram: remove last <code>@ts-nocheck</code> from <code>bot-handlers.ts</code>, use Grammy types directly, deduplicate <code>StickerMetadata</code>. Zero <code>@ts-nocheck</code> remaining in <code>src/telegram/</code>. (#9206)</li>
+<li>Telegram: remove <code>@ts-nocheck</code> from <code>bot-message.ts</code>, type deps via <code>Omit<BuildTelegramMessageContextParams></code>, widen <code>allMedia</code> to <code>TelegramMediaRef[]</code>. (#9180)</li>
+<li>Telegram: remove <code>@ts-nocheck</code> from <code>bot.ts</code>, fix duplicate <code>bot.catch</code> error handler (Grammy overrides), remove dead reaction <code>message_thread_id</code> routing, harden sticker cache guard. (#9077)</li>
+<li>Onboarding: add Cloudflare AI Gateway provider setup and docs. (#7914) Thanks @roerohan.</li>
+<li>Onboarding: add Moonshot (.cn) auth choice and keep the China base URL when preserving defaults. (#7180) Thanks @waynelwz.</li>
+<li>Docs: clarify tmux send-keys for TUI by splitting text and Enter. (#7737) Thanks @Wangnov.</li>
+<li>Docs: mirror the landing page revamp for zh-CN (features, quickstart, docs directory, network model, credits). (#8994) Thanks @joshp123.</li>
+<li>Messages: add per-channel and per-account responsePrefix overrides across channels. (#9001) Thanks @mudrii.</li>
+<li>Cron: add announce delivery mode for isolated jobs (CLI + Control UI) and delivery mode config.</li>
+<li>Cron: default isolated jobs to announce delivery; accept ISO 8601 <code>schedule.at</code> in tool inputs.</li>
+<li>Cron: hard-migrate isolated jobs to announce/none delivery; drop legacy post-to-main/payload delivery fields and <code>atMs</code> inputs.</li>
+<li>Cron: delete one-shot jobs after success by default; add <code>--keep-after-run</code> for CLI.</li>
+<li>Cron: suppress messaging tools during announce delivery so summaries post consistently.</li>
+<li>Cron: avoid duplicate deliveries when isolated runs send messages directly.</li>
+</ul>
+>>>>>>> 5031b283a (chore: bump version to 2026.2.4)
 <h3>Fixes</h3>
 <ul>
 <li>Packaging: include dist/shared output in npm tarball (fixes missing reasoning-tags import on install).</li>
 </ul>
 <p><a href="https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md">View full changelog</a></p>
 ]]></description>
+<<<<<<< HEAD
             <enclosure url="https://github.com/openclaw/openclaw/releases/download/v2026.1.24-1/OpenClaw-2026.1.24-1.zip" length="12396699" type="application/octet-stream" sparkle:edSignature="VaEdWIgEJBrZLIp2UmigoQ6vaq4P/jNFXpHYXvXHD5MsATS0CqBl6ugyyxRq+/GbpUqmdgdlht4dTUVbLRw6BA=="/>
+=======
+            <enclosure url="https://github.com/openclaw/openclaw/releases/download/v2026.2.4/OpenClaw-2026.2.4.zip" length="22530161" type="application/octet-stream" sparkle:edSignature="7eHUaQC6cx87HWbcaPh9T437+LqfE9VtQBf4p9JBjIyBrqGYxxp9KPvI5unEjg55j9j2djCXhseSMeyyRmvYBg=="/>
+>>>>>>> 5031b283a (chore: bump version to 2026.2.4)
         </item>
         <item>
             <title>2026.1.24</title>
