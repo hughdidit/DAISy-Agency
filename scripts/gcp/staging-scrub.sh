@@ -42,9 +42,10 @@ if [[ -z "${STAGING_HOSTNAME:-}" ]]; then
 fi
 
 # State disk device path. GCP doesn't guarantee /dev/sdX naming across reboots.
-# Verify with 'lsblk' before running if unsure. For persistent naming, consider
-# using disk labels or /dev/disk/by-id/ paths in production setups.
+# Verify with 'lsblk' before running if unsure.
 STATE_DISK="${STATE_DISK:-/dev/sdb}"
+# Disk label for persistent fstab mounting (survives device renaming)
+STATE_DISK_LABEL="${STATE_DISK_LABEL:-daisy-state}"
 STATE_MOUNT="${STATE_MOUNT:-/var/lib/daisy}"
 CLAWDBOT_HOME="${CLAWDBOT_HOME:-/var/lib/clawdbot/home}"
 CONFIG_DIR="${CONFIG_DIR:-$CLAWDBOT_HOME/.clawdbot}"
@@ -158,9 +159,10 @@ if mountpoint -q "$STATE_MOUNT" 2>/dev/null; then
   umount "$STATE_MOUNT"
 fi
 
-# Format the state disk (this is a NEW, empty disk)
-log "Formatting $STATE_DISK as ext4..."
-mkfs.ext4 -F "$STATE_DISK"
+# Format the state disk with label (this is a NEW, empty disk)
+# Label enables persistent fstab mounting even if device path changes
+log "Formatting $STATE_DISK as ext4 with label '$STATE_DISK_LABEL'..."
+mkfs.ext4 -L "$STATE_DISK_LABEL" -F "$STATE_DISK"
 
 # Create mount point
 log "Creating mount point $STATE_MOUNT..."
@@ -182,22 +184,22 @@ mkdir -p "$CONFIG_DIR"
 mkdir -p "$WORKSPACE_DIR"
 chown "$CLAWDBOT_USER:$CLAWDBOT_USER" "$CONFIG_DIR" "$WORKSPACE_DIR"
 
-# Remove existing fstab entries for these mounts
+# Remove existing fstab entries for these mounts (by path or label)
 # Using grep -Fv for fixed-string matching (safe with special regex chars in paths)
 log "Updating /etc/fstab..."
-for mount_path in "$STATE_MOUNT" "$CONFIG_DIR" "$WORKSPACE_DIR"; do
-  if grep -Fq "$mount_path" /etc/fstab 2>/dev/null; then
+for mount_pattern in "$STATE_MOUNT" "$CONFIG_DIR" "$WORKSPACE_DIR" "LABEL=$STATE_DISK_LABEL"; do
+  if grep -Fq "$mount_pattern" /etc/fstab 2>/dev/null; then
     tmp_fstab="$(mktemp)"
-    grep -Fv "$mount_path" /etc/fstab > "$tmp_fstab" || true
+    grep -Fv "$mount_pattern" /etc/fstab > "$tmp_fstab" || true
     mv "$tmp_fstab" /etc/fstab
   fi
 done
 
-# Add fstab entries
+# Add fstab entries (using LABEL for state disk - survives device renaming)
 cat <<EOF >> /etc/fstab
 
-# DAISy staging state disk
-$STATE_DISK $STATE_MOUNT ext4 defaults 0 2
+# DAISy staging state disk (mounted by label for persistence)
+LABEL=$STATE_DISK_LABEL $STATE_MOUNT ext4 defaults 0 2
 $STATE_MOUNT/config $CONFIG_DIR none bind 0 0
 $STATE_MOUNT/workspace $WORKSPACE_DIR none bind 0 0
 EOF

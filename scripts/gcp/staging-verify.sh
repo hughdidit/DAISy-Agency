@@ -23,6 +23,8 @@ WORKSPACE_DIR="${WORKSPACE_DIR:-$CLAWDBOT_HOME/clawd}"
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
 # Hostname pattern to verify (default: must contain "staging")
 STAGING_HOSTNAME_PATTERN="${STAGING_HOSTNAME_PATTERN:-staging}"
+# Production hostname pattern for .env checks (set via GitHub env var, empty skips check)
+PROD_HOSTNAME_PATTERN="${PROD_HOSTNAME_PATTERN:-}"
 
 # =============================================================================
 # Helper functions
@@ -126,22 +128,30 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# Check 6: State directories are clean (no prod data)
+# Check 6: State directories exist and are clean (no prod data)
 # -----------------------------------------------------------------------------
 echo "Checking state directories..."
 
-CONFIG_COUNT=$(find "$STATE_MOUNT/config" -type f 2>/dev/null | wc -l)
-if [[ "$CONFIG_COUNT" -eq 0 ]]; then
-  check_pass "Config directory is empty (no production data)"
+if [[ -d "$STATE_MOUNT/config" ]]; then
+  CONFIG_COUNT=$(find "$STATE_MOUNT/config" -type f | wc -l)
+  if [[ "$CONFIG_COUNT" -eq 0 ]]; then
+    check_pass "Config directory is empty (no production data)"
+  else
+    check_warn "Config directory has $CONFIG_COUNT files (expected after staging setup)"
+  fi
 else
-  check_warn "Config directory has $CONFIG_COUNT files (expected after staging setup)"
+  check_fail "Config directory $STATE_MOUNT/config does not exist (scrub may have failed)"
 fi
 
-WORKSPACE_COUNT=$(find "$STATE_MOUNT/workspace" -type f 2>/dev/null | wc -l)
-if [[ "$WORKSPACE_COUNT" -eq 0 ]]; then
-  check_pass "Workspace directory is empty"
+if [[ -d "$STATE_MOUNT/workspace" ]]; then
+  WORKSPACE_COUNT=$(find "$STATE_MOUNT/workspace" -type f | wc -l)
+  if [[ "$WORKSPACE_COUNT" -eq 0 ]]; then
+    check_pass "Workspace directory is empty"
+  else
+    check_warn "Workspace directory has $WORKSPACE_COUNT files"
+  fi
 else
-  check_warn "Workspace directory has $WORKSPACE_COUNT files"
+  check_fail "Workspace directory $STATE_MOUNT/workspace does not exist (scrub may have failed)"
 fi
 
 # -----------------------------------------------------------------------------
@@ -224,10 +234,12 @@ if [[ -d /root/.config/gcloud ]] || [[ -d /home/node/.config/gcloud ]]; then
   ((PROD_CREDS_FOUND++))
 fi
 
-# Check for production hostname references in .env
-if [[ -f "$DEPLOY_DIR/.env" ]] && grep -qi "clawdbot-gw-1\|production" "$DEPLOY_DIR/.env" 2>/dev/null; then
-  check_warn ".env may contain production references"
-  ((PROD_CREDS_FOUND++))
+# Check for production hostname references in .env (if pattern configured)
+if [[ -n "$PROD_HOSTNAME_PATTERN" ]] && [[ -f "$DEPLOY_DIR/.env" ]]; then
+  if grep -q "$PROD_HOSTNAME_PATTERN" "$DEPLOY_DIR/.env" 2>/dev/null; then
+    check_warn ".env may contain production references (matched '$PROD_HOSTNAME_PATTERN')"
+    ((PROD_CREDS_FOUND++))
+  fi
 fi
 
 if [[ "$PROD_CREDS_FOUND" -eq 0 ]]; then

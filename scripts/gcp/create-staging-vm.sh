@@ -218,33 +218,34 @@ log ""
 log "=== Phase 2: Create Staging Service Account ==="
 
 if gcloud iam service-accounts describe "$STAGING_SA_EMAIL" --project="$PROJECT_ID" &>/dev/null; then
-  log "Service account $STAGING_SA_EMAIL already exists, skipping creation."
+  log "Service account $STAGING_SA_EMAIL already exists."
 else
   log "Creating service account: $STAGING_SA_NAME"
   run gcloud iam service-accounts create "$STAGING_SA_NAME" \
     --project="$PROJECT_ID" \
     --display-name="DAISy Staging VM Service Account"
-
-  log "Granting roles to service account..."
-
-  # Logging
-  run gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-    --member="serviceAccount:$STAGING_SA_EMAIL" \
-    --role="roles/logging.logWriter" \
-    --quiet
-
-  # Monitoring
-  run gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-    --member="serviceAccount:$STAGING_SA_EMAIL" \
-    --role="roles/monitoring.metricWriter" \
-    --quiet
-
-  # Artifact Registry (for pulling Docker images)
-  run gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-    --member="serviceAccount:$STAGING_SA_EMAIL" \
-    --role="roles/artifactregistry.reader" \
-    --quiet
 fi
+
+# Always ensure roles are granted (idempotent - safe to run multiple times)
+log "Ensuring service account has required roles..."
+
+# Logging
+run gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$STAGING_SA_EMAIL" \
+  --role="roles/logging.logWriter" \
+  --quiet
+
+# Monitoring
+run gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$STAGING_SA_EMAIL" \
+  --role="roles/monitoring.metricWriter" \
+  --quiet
+
+# Artifact Registry (for pulling Docker images)
+run gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$STAGING_SA_EMAIL" \
+  --role="roles/artifactregistry.reader" \
+  --quiet
 
 # =============================================================================
 # Phase 3: Clone Production Boot Disk
@@ -288,6 +289,7 @@ log "=== Phase 4: Create Staging VM ==="
 
 log "Creating staging VM: $STAGING_INSTANCE"
 # Use least-privilege scopes (not broad cloud-platform)
+# auto-delete=no prevents accidental data loss; delete disks manually (see Rollback in docs)
 run gcloud compute instances create "$STAGING_INSTANCE" \
   --project="$PROJECT_ID" \
   --zone="$STAGING_ZONE" \

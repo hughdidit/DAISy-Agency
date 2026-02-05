@@ -321,6 +321,8 @@ Configure the `staging` environment with these variables (replace with your valu
 | `GCE_INSTANCE_NAME` | `daisy-staging-1` | Staging VM instance name |
 | `GCP_WORKLOAD_IDENTITY_PROVIDER` | `projects/PROJECT_NUM/locations/global/workloadIdentityPools/github/providers/github` | WIF provider path |
 | `GCP_SERVICE_ACCOUNT` | `daisy-staging-sa@PROJECT_ID.iam.gserviceaccount.com` | Staging service account |
+| `DEPLOY_DIR` | `/opt/DAISy` | Directory containing docker-compose.yml |
+| `PROD_HOSTNAME_PATTERN` | `daisy-1` | Production hostname for .env validation (optional) |
 
 ### Workflow Authentication
 
@@ -345,7 +347,7 @@ Use `gcloud compute ssh` with IAP tunneling (no SSH keys):
     gcloud compute ssh ${{ vars.GCE_INSTANCE_NAME }} \
       --zone=${{ vars.GCP_ZONE }} \
       --tunnel-through-iap \
-      --command="cd /opt/DAISy && docker compose pull && docker compose up -d"
+      --command="cd ${{ vars.DEPLOY_DIR }} && docker compose pull && docker compose up -d"
 ```
 
 ### WIF Setup (one-time)
