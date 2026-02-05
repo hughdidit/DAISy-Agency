@@ -57,6 +57,7 @@
 - Lint/format: `pnpm lint` (oxlint), `pnpm format` (oxfmt)
 =======
 - Type-check/build: `pnpm build`
+- TypeScript checks: `pnpm tsgo`
 - Lint/format: `pnpm check`
 >>>>>>> 902f96805 (chore: Add `pnpm check` for fast repo checks.)
 - Tests: `pnpm test` (vitest); coverage: `pnpm test:coverage`
