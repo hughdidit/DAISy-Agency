@@ -44,7 +44,12 @@ Status: beta.
 - Security: require explicit credentials for gateway URL overrides to prevent credential leakage. (#8113) Thanks @victormier.
 =======
 - Security: enforce sandboxed media paths for message tool attachments. (#9182) Thanks @victormier.
+<<<<<<< HEAD
 >>>>>>> 4434cae56 (Security: harden sandboxed media handling (#9182))
+=======
+- Security: require explicit credentials for gateway URL overrides to prevent credential leakage. (#8113) Thanks @victormier.
+- Security: gate `whatsapp_login` tool to owner senders and default-deny non-owner contexts. (#8768) Thanks @victormier.
+>>>>>>> 392bbddf2 (Security: owner-only tools + command auth hardening (#9202))
 - Voice call: harden webhook verification with host allowlists/proxy trust and keep ngrok loopback bypass.
 - Cron: accept epoch timestamps and 0ms durations in CLI `--at` parsing.
 - Cron: reload store data when the store file is recreated or mtime changes.
