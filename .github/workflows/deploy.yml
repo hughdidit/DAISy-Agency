@@ -37,6 +37,7 @@ on:
     secrets: inherit
 
 permissions:
+  id-token: write
   contents: read
   actions: read
 
