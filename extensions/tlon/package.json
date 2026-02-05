@@ -5,10 +5,14 @@
 =======
   "name": "@openclaw/tlon",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
   "version": "2026.2.2",
+=======
+  "version": "2026.2.3",
+>>>>>>> f895c9fba (chore: sync plugin versions to 2026.2.3)
   "description": "OpenClaw Tlon/Urbit channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
