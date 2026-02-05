@@ -29,7 +29,12 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Docs: mirror the landing page revamp for zh-CN (features, quickstart, docs directory, network model, credits). (#8994) Thanks @joshp123.
+<<<<<<< HEAD
 >>>>>>> 2b1da4f5d (🤖 docs: note zh-CN landing revamp (#8994) (thanks @joshp123))
+=======
+- Docs: strengthen secure DM mode guidance for multi-user inboxes with an explicit warning and example. (#9377) Thanks @Shrinija17.
+- Messages: add per-channel and per-account responsePrefix overrides across channels. (#9001) Thanks @mudrii.
+>>>>>>> 8fdc0a284 (docs: note secure DM guidance update (#9377) (thanks @Shrinija17))
 - Cron: add announce delivery mode for isolated jobs (CLI + Control UI) and delivery mode config.
 - Cron: default isolated jobs to announce delivery; accept ISO 8601 `schedule.at` in tool inputs.
 - Cron: hard-migrate isolated jobs to announce/none delivery; drop legacy post-to-main/payload delivery fields and `atMs` inputs.
