@@ -27,12 +27,15 @@ import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { hasNonzeroUsage } from "../../agents/usage.js";
 import { ensureAgentWorkspace } from "../../agents/workspace.js";
 import {
+<<<<<<< HEAD
   formatUserTime,
   resolveUserTimeFormat,
   resolveUserTimezone,
 } from "../../agents/date-time.js";
 import {
   formatXHighModelHint,
+=======
+>>>>>>> 3b40227bc (fix: remove unused cron import)
   normalizeThinkLevel,
   normalizeVerboseLevel,
   supportsXHighThinking,
