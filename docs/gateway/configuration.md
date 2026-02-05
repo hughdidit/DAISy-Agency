@@ -1455,6 +1455,7 @@ Set it to `"auto"` to derive `[{identity.name}]` for the routed agent (when set)
 
 The `responsePrefix` string can include template variables that resolve dynamically:
 
+<<<<<<< HEAD
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `{model}` | Short model name | `claude-opus-4-5`, `gpt-4o` |
@@ -1462,6 +1463,15 @@ The `responsePrefix` string can include template variables that resolve dynamica
 | `{provider}` | Provider name | `anthropic`, `openai` |
 | `{thinkingLevel}` | Current thinking level | `high`, `low`, `off` |
 | `{identity.name}` | Agent identity name | (same as `"auto"` mode) |
+=======
+| Variable          | Description            | Example                     |
+| ----------------- | ---------------------- | --------------------------- |
+| `{model}`         | Short model name       | `claude-opus-4-6`, `gpt-4o` |
+| `{modelFull}`     | Full model identifier  | `anthropic/claude-opus-4-6` |
+| `{provider}`      | Provider name          | `anthropic`, `openai`       |
+| `{thinkingLevel}` | Current thinking level | `high`, `low`, `off`        |
+| `{identity.name}` | Agent identity name    | (same as `"auto"` mode)     |
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 
 Variables are case-insensitive (`{MODEL}` = `{model}`). `{think}` is an alias for `{thinkingLevel}`.
 Unresolved variables remain as literal text.
@@ -1474,7 +1484,7 @@ Unresolved variables remain as literal text.
 }
 ```
 
-Example output: `[claude-opus-4-5 | think:high] Here's my response...`
+Example output: `[claude-opus-4-6 | think:high] Here's my response...`
 
 WhatsApp inbound prefix is configured via `channels.whatsapp.messagePrefix` (deprecated:
 `messages.messagePrefix`). Default stays **unchanged**: `"[openclaw]"` when
@@ -1616,7 +1626,7 @@ Z.AI GLM-4.x models automatically enable thinking mode unless you:
 OpenClaw also ships a few built-in alias shorthands. Defaults only apply when the model
 is already present in `agents.defaults.models`:
 
-- `opus` -> `anthropic/claude-opus-4-5`
+- `opus` -> `anthropic/claude-opus-4-6`
 - `sonnet` -> `anthropic/claude-sonnet-4-5`
 - `gpt` -> `openai/gpt-5.2`
 - `gpt-mini` -> `openai/gpt-5-mini`
@@ -1625,13 +1635,14 @@ is already present in `agents.defaults.models`:
 
 If you configure the same alias name (case-insensitive) yourself, your value wins (defaults never override).
 
-Example: Opus 4.5 primary with MiniMax M2.1 fallback (hosted MiniMax):
+Example: Opus 4.6 primary with MiniMax M2.1 fallback (hosted MiniMax):
 
 ```json5
 {
   agents: {
     defaults: {
       models: {
+<<<<<<< HEAD
         "anthropic/claude-opus-4-5": { alias: "opus" },
         "minimax/MiniMax-M2.1": { alias: "minimax" }
       },
@@ -1641,6 +1652,17 @@ Example: Opus 4.5 primary with MiniMax M2.1 fallback (hosted MiniMax):
       }
     }
   }
+=======
+        "anthropic/claude-opus-4-6": { alias: "opus" },
+        "minimax/MiniMax-M2.1": { alias: "minimax" },
+      },
+      model: {
+        primary: "anthropic/claude-opus-4-6",
+        fallbacks: ["minimax/MiniMax-M2.1"],
+      },
+    },
+  },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -1691,7 +1713,7 @@ Example:
   agents: {
     defaults: {
       models: {
-        "anthropic/claude-opus-4-5": { alias: "Opus" },
+        "anthropic/claude-opus-4-6": { alias: "Opus" },
         "anthropic/claude-sonnet-4-1": { alias: "Sonnet" },
         "openrouter/deepseek/deepseek-r1:free": {},
         "zai/glm-4.7": {
@@ -1705,7 +1727,7 @@ Example:
         }
       },
       model: {
-        primary: "anthropic/claude-opus-4-5",
+        primary: "anthropic/claude-opus-4-6",
         fallbacks: [
           "openrouter/deepseek/deepseek-r1:free",
           "openrouter/meta-llama/llama-3.3-70b-instruct:free"
@@ -1906,7 +1928,7 @@ Typing indicators:
 - `session.typingIntervalSeconds`: per-session override for the refresh interval.
 See [/concepts/typing-indicators](/concepts/typing-indicators) for behavior details.
 
-`agents.defaults.model.primary` should be set as `provider/model` (e.g. `anthropic/claude-opus-4-5`).
+`agents.defaults.model.primary` should be set as `provider/model` (e.g. `anthropic/claude-opus-4-6`).
 Aliases come from `agents.defaults.models.*.alias` (e.g. `Opus`).
 If you omit the provider, OpenClaw currently assumes `anthropic` as a temporary
 deprecation fallback.
@@ -2343,7 +2365,12 @@ the built-in `opencode` provider from pi-ai; set `OPENCODE_API_KEY` (or
 `OPENCODE_ZEN_API_KEY`) from https://opencode.ai/auth.
 
 Notes:
+<<<<<<< HEAD
 - Model refs use `opencode/<modelId>` (example: `opencode/claude-opus-4-5`).
+=======
+
+- Model refs use `opencode/<modelId>` (example: `opencode/claude-opus-4-6`).
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 - If you enable an allowlist via `agents.defaults.models`, add each model you plan to use.
 - Shortcut: `openclaw onboard --auth-choice opencode-zen`.
 
@@ -2351,10 +2378,17 @@ Notes:
 {
   agents: {
     defaults: {
+<<<<<<< HEAD
       model: { primary: "opencode/claude-opus-4-5" },
       models: { "opencode/claude-opus-4-5": { alias: "Opus" } }
     }
   }
+=======
+      model: { primary: "opencode/claude-opus-4-6" },
+      models: { "opencode/claude-opus-4-6": { alias: "Opus" } },
+    },
+  },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 }
 ```
 
@@ -2527,9 +2561,15 @@ Use MiniMax M2.1 directly without LM Studio:
   agent: {
     model: { primary: "minimax/MiniMax-M2.1" },
     models: {
+<<<<<<< HEAD
       "anthropic/claude-opus-4-5": { alias: "Opus" },
       "minimax/MiniMax-M2.1": { alias: "Minimax" }
     }
+=======
+      "anthropic/claude-opus-4-6": { alias: "Opus" },
+      "minimax/MiniMax-M2.1": { alias: "Minimax" },
+    },
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
   },
   models: {
     mode: "merge",

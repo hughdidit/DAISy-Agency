@@ -30,7 +30,11 @@ import {
   setVercelAiGatewayApiKey,
   setZaiApiKey,
 } from "../../onboard-auth.js";
+<<<<<<< HEAD
 import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
+=======
+import { applyOpenAIConfig } from "../../openai-model-default.js";
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 import { resolveNonInteractiveApiKey } from "../api-keys.js";
 import { shortenHomePath } from "../../../utils.js";
 
@@ -192,7 +196,7 @@ export async function applyNonInteractiveAuthChoice(params: {
     const result = upsertSharedEnvVar({ key: "OPENAI_API_KEY", value: key });
     process.env.OPENAI_API_KEY = key;
     runtime.log(`Saved OPENAI_API_KEY to ${shortenHomePath(result.path)}`);
-    return nextConfig;
+    return applyOpenAIConfig(nextConfig);
   }
 
   if (authChoice === "openrouter-api-key") {

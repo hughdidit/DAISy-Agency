@@ -7,9 +7,9 @@ import {
   isTimeoutError,
 } from "./failover-error.js";
 import {
+  buildConfiguredAllowlistKeys,
   buildModelAliasIndex,
   modelKey,
-  parseModelRef,
   resolveConfiguredModelRef,
   resolveModelRefFromString,
 } from "./model-selection.js";
@@ -47,6 +47,7 @@ function shouldRethrowAbort(err: unknown): boolean {
   return isAbortError(err) && !isTimeoutError(err);
 }
 
+<<<<<<< HEAD
 function buildAllowedModelKeys(
   cfg: OpenClawConfig | undefined,
   defaultProvider: string,
@@ -65,6 +66,8 @@ function buildAllowedModelKeys(
   return keys.size > 0 ? keys : null;
 }
 
+=======
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
 function resolveImageFallbackCandidates(params: {
   cfg: OpenClawConfig | undefined;
   defaultProvider: string;
@@ -74,7 +77,10 @@ function resolveImageFallbackCandidates(params: {
     cfg: params.cfg ?? {},
     defaultProvider: params.defaultProvider,
   });
-  const allowlist = buildAllowedModelKeys(params.cfg, params.defaultProvider);
+  const allowlist = buildConfiguredAllowlistKeys({
+    cfg: params.cfg,
+    defaultProvider: params.defaultProvider,
+  });
   const seen = new Set<string>();
   const candidates: ModelCandidate[] = [];
 
@@ -148,7 +154,10 @@ function resolveFallbackCandidates(params: {
     cfg: params.cfg ?? {},
     defaultProvider,
   });
-  const allowlist = buildAllowedModelKeys(params.cfg, defaultProvider);
+  const allowlist = buildConfiguredAllowlistKeys({
+    cfg: params.cfg,
+    defaultProvider,
+  });
   const seen = new Set<string>();
   const candidates: ModelCandidate[] = [];
 

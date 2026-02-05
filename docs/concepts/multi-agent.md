@@ -220,9 +220,15 @@ Split by channel: route WhatsApp to a fast everyday agent and Telegram to an Opu
         id: "opus",
         name: "Deep Work",
         workspace: "~/.openclaw/workspace-opus",
+<<<<<<< HEAD
         model: "anthropic/claude-opus-4-5"
       }
     ]
+=======
+        model: "anthropic/claude-opus-4-6",
+      },
+    ],
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
   },
   bindings: [
     { agentId: "chat", match: { channel: "whatsapp" } },
@@ -243,9 +249,25 @@ Keep WhatsApp on the fast agent, but route one DM to Opus:
 {
   agents: {
     list: [
+<<<<<<< HEAD
       { id: "chat", name: "Everyday", workspace: "~/.openclaw/workspace-chat", model: "anthropic/claude-sonnet-4-5" },
       { id: "opus", name: "Deep Work", workspace: "~/.openclaw/workspace-opus", model: "anthropic/claude-opus-4-5" }
     ]
+=======
+      {
+        id: "chat",
+        name: "Everyday",
+        workspace: "~/.openclaw/workspace-chat",
+        model: "anthropic/claude-sonnet-4-5",
+      },
+      {
+        id: "opus",
+        name: "Deep Work",
+        workspace: "~/.openclaw/workspace-opus",
+        model: "anthropic/claude-opus-4-6",
+      },
+    ],
+>>>>>>> 462905440 (chore: apply local workspace updates (#9911))
   },
   bindings: [
     { agentId: "opus", match: { channel: "whatsapp", peer: { kind: "dm", id: "+15551234567" } } },
