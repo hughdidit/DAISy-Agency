@@ -1,8 +1,7 @@
-import type { Client } from "@larksuiteoapi/node-sdk";
+import type { ClawdbotConfig } from "openclaw/plugin-sdk";
+import type { FeishuConfig } from "./types.js";
+import { createFeishuClient } from "./client.js";
 
-/**
- * Reaction info returned from Feishu API
- */
 export type FeishuReaction = {
   reactionId: string;
   emojiType: string;
@@ -12,14 +11,22 @@ export type FeishuReaction = {
 
 /**
  * Add a reaction (emoji) to a message.
- * @param emojiType - Feishu emoji type, e.g., "SMILE", "THUMBSUP", "HEART", "Typing"
+ * @param emojiType - Feishu emoji type, e.g., "SMILE", "THUMBSUP", "HEART"
  * @see https://open.feishu.cn/document/server-docs/im-v1/message-reaction/emojis-introduce
  */
-export async function addReactionFeishu(
-  client: Client,
-  messageId: string,
-  emojiType: string,
-): Promise<{ reactionId: string }> {
+export async function addReactionFeishu(params: {
+  cfg: ClawdbotConfig;
+  messageId: string;
+  emojiType: string;
+}): Promise<{ reactionId: string }> {
+  const { cfg, messageId, emojiType } = params;
+  const feishuCfg = cfg.channels?.feishu as FeishuConfig | undefined;
+  if (!feishuCfg) {
+    throw new Error("Feishu channel not configured");
+  }
+
+  const client = createFeishuClient(feishuCfg);
+
   const response = (await client.im.messageReaction.create({
     path: { message_id: messageId },
     data: {
@@ -48,11 +55,19 @@ export async function addReactionFeishu(
 /**
  * Remove a reaction from a message.
  */
-export async function removeReactionFeishu(
-  client: Client,
-  messageId: string,
-  reactionId: string,
-): Promise<void> {
+export async function removeReactionFeishu(params: {
+  cfg: ClawdbotConfig;
+  messageId: string;
+  reactionId: string;
+}): Promise<void> {
+  const { cfg, messageId, reactionId } = params;
+  const feishuCfg = cfg.channels?.feishu as FeishuConfig | undefined;
+  if (!feishuCfg) {
+    throw new Error("Feishu channel not configured");
+  }
+
+  const client = createFeishuClient(feishuCfg);
+
   const response = (await client.im.messageReaction.delete({
     path: {
       message_id: messageId,
@@ -68,11 +83,19 @@ export async function removeReactionFeishu(
 /**
  * List all reactions for a message.
  */
-export async function listReactionsFeishu(
-  client: Client,
-  messageId: string,
-  emojiType?: string,
-): Promise<FeishuReaction[]> {
+export async function listReactionsFeishu(params: {
+  cfg: ClawdbotConfig;
+  messageId: string;
+  emojiType?: string;
+}): Promise<FeishuReaction[]> {
+  const { cfg, messageId, emojiType } = params;
+  const feishuCfg = cfg.channels?.feishu as FeishuConfig | undefined;
+  if (!feishuCfg) {
+    throw new Error("Feishu channel not configured");
+  }
+
+  const client = createFeishuClient(feishuCfg);
+
   const response = (await client.im.messageReaction.list({
     path: { message_id: messageId },
     params: emojiType ? { reaction_type: emojiType } : undefined,
@@ -129,8 +152,6 @@ export const FeishuEmoji = {
   CROSS: "CROSS",
   QUESTION: "QUESTION",
   EXCLAMATION: "EXCLAMATION",
-  // Special typing indicator
-  TYPING: "Typing",
 } as const;
 
 export type FeishuEmojiType = (typeof FeishuEmoji)[keyof typeof FeishuEmoji];
