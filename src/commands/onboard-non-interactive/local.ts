@@ -12,8 +12,12 @@ import {
   resolveControlUiLinks,
   waitForGatewayReachable,
 } from "../onboard-helpers.js";
+<<<<<<< HEAD
 import type { OnboardOptions } from "../onboard-types.js";
 
+=======
+import { inferAuthChoiceFromFlags } from "./local/auth-choice-inference.js";
+>>>>>>> 22927b083 (fix: infer --auth-choice from API key flags during non-interactive onboarding (#9241))
 import { applyNonInteractiveAuthChoice } from "./local/auth-choice.js";
 import { installGatewayDaemonNonInteractive } from "./local/daemon-install.js";
 import { applyNonInteractiveGatewayConfig } from "./local/gateway-config.js";
@@ -50,7 +54,19 @@ export async function runNonInteractiveOnboardingLocal(params: {
     },
   };
 
-  const authChoice = opts.authChoice ?? "skip";
+  const inferredAuthChoice = inferAuthChoiceFromFlags(opts);
+  if (!opts.authChoice && inferredAuthChoice.matches.length > 1) {
+    runtime.error(
+      [
+        "Multiple API key flags were provided for non-interactive onboarding.",
+        "Use a single provider flag or pass --auth-choice explicitly.",
+        `Flags: ${inferredAuthChoice.matches.map((match) => match.label).join(", ")}`,
+      ].join("\n"),
+    );
+    runtime.exit(1);
+    return;
+  }
+  const authChoice = opts.authChoice ?? inferredAuthChoice.choice ?? "skip";
   const nextConfigAfterAuth = await applyNonInteractiveAuthChoice({
     nextConfig,
     authChoice,

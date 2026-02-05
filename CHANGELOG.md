@@ -18,7 +18,11 @@ Docs: https://docs.openclaw.ai
 - Telegram: honor session model overrides in inline model selection. (#8193) Thanks @gildo.
 - Web UI: apply button styling to the new-messages indicator.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+- Onboarding: infer auth choice from non-interactive API key flags. (#8484) Thanks @f-trycua.
+>>>>>>> 22927b083 (fix: infer --auth-choice from API key flags during non-interactive onboarding (#9241))
 - Security: keep untrusted channel metadata out of system prompts (Slack/Discord). Thanks @KonstantinMirin.
 - Voice call: harden webhook verification with host allowlists/proxy trust and keep ngrok loopback bypass.
 <<<<<<< HEAD
