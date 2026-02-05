@@ -11,6 +11,14 @@ Docs: https://docs.openclaw.ai
 
 ### Changes
 
+<<<<<<< HEAD
+=======
+- CLI: sort `openclaw --help` commands (and options) alphabetically. (#8068) Thanks @deepsoumya617.
+- Telegram: remove last `@ts-nocheck` from `bot-handlers.ts`, use Grammy types directly, deduplicate `StickerMetadata`. Zero `@ts-nocheck` remaining in `src/telegram/`. (#9206)
+- Telegram: remove `@ts-nocheck` from `bot-message.ts`, type deps via `Omit<BuildTelegramMessageContextParams>`, widen `allMedia` to `TelegramMediaRef[]`. (#9180)
+- Telegram: remove `@ts-nocheck` from `bot.ts`, fix duplicate `bot.catch` error handler (Grammy overrides), remove dead reaction `message_thread_id` routing, harden sticker cache guard. (#9077)
+- Onboarding: add Cloudflare AI Gateway provider setup and docs. (#7914) Thanks @roerohan.
+>>>>>>> cf95b2f3f (fix: update changelog for help sorting (#8068) (thanks @deepsoumya617))
 - Onboarding: add Moonshot (.cn) auth choice and keep the China base URL when preserving defaults. (#7180) Thanks @waynelwz.
 
 ### Fixes
