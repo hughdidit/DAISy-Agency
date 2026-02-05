@@ -51,7 +51,12 @@ Docs: https://docs.openclaw.ai
 - Cron: reload store data when the store file is recreated or mtime changes.
 - Cron: deliver announce runs directly, honor delivery mode, and respect wakeMode for summaries. (#8540) Thanks @tyler6204.
 - Telegram: include forward_from_chat metadata in forwarded messages and harden cron delivery target checks. (#8392) Thanks @Glucksberg.
+<<<<<<< HEAD
 >>>>>>> 78fd19472 (fix: telegram forward metadata + cron delivery guard (#8392) (thanks @Glucksberg))
+=======
+- Telegram: preserve DM topic threadId in deliveryContext. (#9039) Thanks @lailoo.
+- macOS: fix cron payload summary rendering and ISO 8601 formatter concurrency safety.
+>>>>>>> f2c5c847b (fix: preserve telegram DM topic threadId (#9039) (thanks @lailoo))
 
 >>>>>>> 4a5d36892 (fix: keep Moonshot CN base URL in onboarding (#7180) (thanks @waynelwz))
 ## 2026.2.2-3
