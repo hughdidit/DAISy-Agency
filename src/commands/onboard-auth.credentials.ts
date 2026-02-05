@@ -206,6 +206,7 @@ export async function setOpencodeZenApiKey(key: string, agentDir?: string) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export function setQianfanApiKey(key: string, agentDir?: string) {
   upsertAuthProfile({
     profileId: "qianfan:default",
@@ -214,6 +215,9 @@ export function setQianfanApiKey(key: string, agentDir?: string) {
       provider: "qianfan",
 =======
 export async function setXaiApiKey(key: string, agentDir?: string) {
+=======
+export function setXaiApiKey(key: string, agentDir?: string) {
+>>>>>>> 155dfa93e (fix(onboard): align xAI default model to grok-4)
   upsertAuthProfile({
     profileId: "xai:default",
     credential: {
