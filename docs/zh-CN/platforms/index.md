@@ -33,10 +33,17 @@ Windows 的原生配套应用同样在规划中；推荐通过 WSL2 使用 Gatew
 ## VPS 与托管
 
 - VPS 中心：[VPS 托管](/vps)
+<<<<<<< HEAD
 - Fly.io：[Fly.io](/platforms/fly)
 - Hetzner (Docker)：[Hetzner](/platforms/hetzner)
 - GCP (Compute Engine)：[GCP](/platforms/gcp)
 - exe.dev (VM + HTTPS 代理)：[exe.dev](/platforms/exe-dev)
+=======
+- Fly.io：[Fly.io](/install/fly)
+- Hetzner（Docker）：[Hetzner](/install/hetzner)
+- GCP（Compute Engine）：[GCP](/install/gcp)
+- exe.dev（VM + HTTPS 代理）：[exe.dev](/install/exe-dev)
+>>>>>>> c18452598 (docs: restructure Get Started tab and improve onboarding flow (#9950))
 
 ## 常用链接
 
