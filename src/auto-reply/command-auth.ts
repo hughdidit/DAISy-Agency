@@ -71,6 +71,51 @@ function normalizeAllowFromEntry(params: {
   return normalized.filter((entry) => entry.trim().length > 0);
 }
 
+<<<<<<< HEAD
+=======
+function resolveOwnerAllowFromList(params: {
+  dock?: ChannelDock;
+  cfg: OpenClawConfig;
+  accountId?: string | null;
+  providerId?: ChannelId;
+  allowFrom?: Array<string | number>;
+}): string[] {
+  const raw = params.allowFrom ?? params.cfg.commands?.ownerAllowFrom;
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return [];
+  }
+  const filtered: string[] = [];
+  for (const entry of raw) {
+    const trimmed = String(entry ?? "").trim();
+    if (!trimmed) {
+      continue;
+    }
+    const separatorIndex = trimmed.indexOf(":");
+    if (separatorIndex > 0) {
+      const prefix = trimmed.slice(0, separatorIndex);
+      const channel = normalizeAnyChannelId(prefix);
+      if (channel) {
+        if (params.providerId && channel !== params.providerId) {
+          continue;
+        }
+        const remainder = trimmed.slice(separatorIndex + 1).trim();
+        if (remainder) {
+          filtered.push(remainder);
+        }
+        continue;
+      }
+    }
+    filtered.push(trimmed);
+  }
+  return formatAllowFromList({
+    dock: params.dock,
+    cfg: params.cfg,
+    accountId: params.accountId,
+    allowFrom: filtered,
+  });
+}
+
+>>>>>>> d84eb4646 (fix: restore discord owner hint from allowlists)
 function resolveSenderCandidates(params: {
   dock?: ChannelDock;
   providerId?: ChannelId;
@@ -125,6 +170,23 @@ export function resolveCommandAuthorization(params: {
     accountId: ctx.AccountId,
     allowFrom: Array.isArray(allowFromRaw) ? allowFromRaw : [],
   });
+<<<<<<< HEAD
+=======
+  const configOwnerAllowFromList = resolveOwnerAllowFromList({
+    dock,
+    cfg,
+    accountId: ctx.AccountId,
+    providerId,
+    allowFrom: cfg.commands?.ownerAllowFrom,
+  });
+  const contextOwnerAllowFromList = resolveOwnerAllowFromList({
+    dock,
+    cfg,
+    accountId: ctx.AccountId,
+    providerId,
+    allowFrom: ctx.OwnerAllowFrom,
+  });
+>>>>>>> d84eb4646 (fix: restore discord owner hint from allowlists)
   const allowAll =
     allowFromList.length === 0 || allowFromList.some((entry) => entry.trim() === "*");
 
@@ -139,12 +201,26 @@ export function resolveCommandAuthorization(params: {
     if (normalizedTo.length > 0) ownerCandidates.push(...normalizedTo);
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
   const ownerList = Array.from(new Set(ownerCandidates));
 =======
   const ownerAllowAll = ownerAllowFromList.some((entry) => entry.trim() === "*");
   const explicitOwners = ownerAllowFromList.filter((entry) => entry !== "*");
+=======
+  const ownerAllowAll = configOwnerAllowFromList.some((entry) => entry.trim() === "*");
+  const explicitOwners = configOwnerAllowFromList.filter((entry) => entry !== "*");
+  const explicitOverrides = contextOwnerAllowFromList.filter((entry) => entry !== "*");
+>>>>>>> d84eb4646 (fix: restore discord owner hint from allowlists)
   const ownerList = Array.from(
-    new Set(explicitOwners.length > 0 ? explicitOwners : ownerCandidatesForCommands),
+    new Set(
+      explicitOwners.length > 0
+        ? explicitOwners
+        : ownerAllowAll
+          ? []
+          : explicitOverrides.length > 0
+            ? explicitOverrides
+            : ownerCandidatesForCommands,
+    ),
   );
 >>>>>>> 385a7eba3 (fix: enforce owner allowlist for commands)
 

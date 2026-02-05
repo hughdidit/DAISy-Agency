@@ -49,6 +49,7 @@ import {
   normalizeDiscordSlug,
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
+  resolveDiscordOwnerAllowFrom,
   resolveDiscordUserAllowed,
 } from "./allow-list.js";
 <<<<<<< HEAD
@@ -718,6 +719,11 @@ async function dispatchDiscordCommandInteraction(params: {
     },
   });
   const conversationLabel = isDirectMessage ? (user.globalName ?? user.username) : channelId;
+  const ownerAllowFrom = resolveDiscordOwnerAllowFrom({
+    channelConfig,
+    guildInfo,
+    sender: { id: sender.id, name: sender.name, tag: sender.tag },
+  });
   const ctxPayload = finalizeInboundContext({
     Body: prompt,
     RawBody: prompt,
@@ -747,6 +753,7 @@ async function dispatchDiscordCommandInteraction(params: {
           return systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
         })()
       : undefined,
+    OwnerAllowFrom: ownerAllowFrom,
     SenderName: user.globalName ?? user.username,
     SenderId: user.id,
     SenderUsername: user.username,
