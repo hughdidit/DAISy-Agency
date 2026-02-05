@@ -9,12 +9,18 @@ sidebarTitle: "Wizard (CLI)"
 
 # Onboarding Wizard (CLI)
 
+<<<<<<< HEAD
 The onboarding wizard is the **recommended** way to set up Moltbot on macOS,
 Linux, or Windows (via WSL2; strongly recommended).
 It configures a local Gateway or a remote Gateway connection, plus channels, skills,
 and workspace defaults in one guided flow.
 
 Primary entrypoint:
+=======
+The CLI onboarding wizard is the recommended setup path for OpenClaw on macOS,
+Linux, and Windows (via WSL2). It configures a local gateway or a remote
+gateway connection, plus workspace defaults, channels, and skills.
+>>>>>>> 9e0030b75 (docs(onboarding): streamline CLI onboarding docs (#9830))
 
 ```bash
 moltbot onboard
@@ -29,11 +35,49 @@ Fastest first chat: open the Control UI (no channel setup needed). Run
 </Info>
 >>>>>>> 675c26b2b (Docs: streamline start and install docs (#9648))
 
-Follow‑up reconfiguration:
+## QuickStart vs Advanced
+
+The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
+
+<Tabs>
+  <Tab title="QuickStart (defaults)">
+    - Local gateway on loopback
+    - Existing workspace or default workspace
+    - Gateway port `18789`
+    - Gateway auth token auto-generated (even on loopback)
+    - Tailscale exposure off
+    - Telegram and WhatsApp DMs default to allowlist (you may be prompted for your phone number)
+  </Tab>
+  <Tab title="Advanced (full control)">
+    - Exposes full prompt flow for mode, workspace, gateway, channels, daemon, and skills
+  </Tab>
+</Tabs>
+
+## CLI onboarding details
+
+<Columns>
+  <Card title="CLI reference" href="/start/wizard-cli-reference">
+    Full local and remote flow, auth and model matrix, config outputs, wizard RPC, and signal-cli behavior.
+  </Card>
+  <Card title="Automation and scripts" href="/start/wizard-cli-automation">
+    Non-interactive onboarding recipes and automated `agents add` examples.
+  </Card>
+</Columns>
+
+## Common follow-up commands
 
 ```bash
+<<<<<<< HEAD
 moltbot configure
+=======
+openclaw configure
+openclaw agents add <name>
+>>>>>>> 9e0030b75 (docs(onboarding): streamline CLI onboarding docs (#9830))
 ```
+
+<Note>
+`--json` does not imply non-interactive mode. For scripts, use `--non-interactive`.
+</Note>
 
 <Tip>
 Recommended: set up a Brave Search API key so the agent can use `web_search`
@@ -41,6 +85,7 @@ Recommended: set up a Brave Search API key so the agent can use `web_search`
 which stores `tools.web.search.apiKey`. Docs: [Web tools](/tools/web).
 </Tip>
 
+<<<<<<< HEAD
 ## QuickStart vs Advanced
 
 The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
@@ -533,9 +578,16 @@ Sessions are stored under `~/.clawdbot/agents/<agentId>/sessions/`.
 Some channels are delivered as plugins. When you pick one during onboarding, the wizard
 will prompt to install it (npm or a local path) before it can be configured.
 
+=======
+>>>>>>> 9e0030b75 (docs(onboarding): streamline CLI onboarding docs (#9830))
 ## Related docs
 
+- CLI command reference: [`openclaw onboard`](/cli/onboard)
 - macOS app onboarding: [Onboarding](/start/onboarding)
+<<<<<<< HEAD
 - Config reference: [Gateway configuration](/gateway/configuration)
 - Providers: [WhatsApp](/channels/whatsapp), [Telegram](/channels/telegram), [Discord](/channels/discord), [Google Chat](/channels/googlechat), [Signal](/channels/signal), [iMessage](/channels/imessage)
 - Skills: [Skills](/tools/skills), [Skills config](/tools/skills-config)
+=======
+- Agent first-run ritual: [Agent Bootstrapping](/start/bootstrapping)
+>>>>>>> 9e0030b75 (docs(onboarding): streamline CLI onboarding docs (#9830))
