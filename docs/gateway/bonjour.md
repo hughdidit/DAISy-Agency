@@ -102,13 +102,10 @@ The Gateway advertises small non‑secret hints to make UI flows convenient:
 Useful built‑in tools:
 
 - Browse instances:
-
   ```bash
   dns-sd -B _moltbot-gw._tcp local.
   ```
-
 - Resolve one instance (replace `<instance>`):
-
   ```bash
   dns-sd -L "<instance>" _moltbot-gw._tcp local.
   ```

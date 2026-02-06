@@ -31,15 +31,20 @@ moltbot browser extension install
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 2) Print the installed extension directory path:
 =======
 1. Print the installed extension directory path:
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. Print the installed extension directory path:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 moltbot browser extension path
 ```
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 3) Chrome → `chrome://extensions`
 - Enable “Developer mode”
@@ -48,12 +53,19 @@ moltbot browser extension path
 4) Pin the extension.
 =======
 1. Chrome → `chrome://extensions`
+=======
+3. Chrome → `chrome://extensions`
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - Enable “Developer mode”
 - “Load unpacked” → select the directory printed above
 
+<<<<<<< HEAD
 1. Pin the extension.
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+4. Pin the extension.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ## Updates (no build step)
 

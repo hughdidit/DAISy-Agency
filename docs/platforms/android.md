@@ -94,13 +94,10 @@ Pairing details: [Gateway pairing](/gateway/pairing).
 ### 5) Verify the node is connected
 
 - Via nodes status:
-
   ```bash
   moltbot nodes status
   ```
-
 - Via Gateway:
-
   ```bash
   moltbot gateway call node.list --params "{}"
   ```

@@ -39,9 +39,13 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 - Over time, review your daily files and update MEMORY.md with what's worth keeping
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ### 📝 Write It Down - No "Mental Notes"!
 =======
 ### 📝 Write It Down - No "Mental Notes"
+=======
+### 📝 Write It Down - No "Mental Notes"!
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - **Memory is limited** — if you want to remember something, WRITE IT TO A FILE
@@ -75,9 +79,13 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 You have access to your human's stuff. That doesn't mean you *share* their stuff. In groups, you're a participant — not their voice, not their proxy. Think before you speak.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ### 💬 Know When to Speak!
 =======
 ### 💬 Know When to Speak
+=======
+### 💬 Know When to Speak!
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 In group chats where you receive every message, be **smart about when to contribute**:
@@ -103,9 +111,13 @@ In group chats where you receive every message, be **smart about when to contrib
 Participate, don't dominate.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ### 😊 React Like a Human!
 =======
 ### 😊 React Like a Human
+=======
+### 😊 React Like a Human!
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 On platforms that support reactions (Discord, Slack), use emoji reactions naturally:
@@ -133,7 +145,7 @@ Skills provide your tools. When you need one, check its `SKILL.md`. Keep local n
 - **Discord links:** Wrap multiple links in `<>` to suppress embeds: `<https://example.com>`
 - **WhatsApp:** No headers — use **bold** or CAPS for emphasis
 
-## 💓 Heartbeats - Be Proactive
+## 💓 Heartbeats - Be Proactive!
 
 When you receive a heartbeat poll (message matches the configured heartbeat prompt), don't just reply `HEARTBEAT_OK` every time. Use heartbeats productively!
 

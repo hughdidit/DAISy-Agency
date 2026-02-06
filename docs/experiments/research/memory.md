@@ -45,9 +45,13 @@ Two pieces to blend:
 - memory writes are explicit tool calls (append/replace/insert), persisted, then re-injected next turn
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 2) **Hindsight-style memory substrate**
 =======
 1. **Hindsight-style memory substrate**
+=======
+2. **Hindsight-style memory substrate**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - separate what’s observed vs what’s believed vs what’s summarized

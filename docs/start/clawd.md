@@ -79,20 +79,28 @@ moltbot channels login
 ```
 
 <<<<<<< HEAD:docs/start/clawd.md
+<<<<<<< HEAD:docs/start/clawd.md
 2) Start the Gateway (leave it running):
 =======
 1. Start the Gateway (leave it running):
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links):docs/start/openclaw.md
+=======
+2. Start the Gateway (leave it running):
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn):docs/start/openclaw.md
 
 ```bash
 moltbot gateway --port 18789
 ```
 
 <<<<<<< HEAD:docs/start/clawd.md
+<<<<<<< HEAD:docs/start/clawd.md
 3) Put a minimal config in `~/.clawdbot/moltbot.json`:
 =======
 1. Put a minimal config in `~/.openclaw/openclaw.json`:
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links):docs/start/openclaw.md
+=======
+3. Put a minimal config in `~/.openclaw/openclaw.json`:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn):docs/start/openclaw.md
 
 ```json5
 {
