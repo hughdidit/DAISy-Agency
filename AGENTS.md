@@ -9,7 +9,7 @@
 ## DAISy-Agency Fork Workflow
 - This is a fork of moltbot/moltbot
 - Default PR base branch: `daisy/dev` (not `main`)
-- Never commit directly to `daisy/dev` — always use feature branches and PRs
+- **Never commit directly to `daisy/dev` or `daisy/main`** — always create a throwaway feature branch and merge via PR
 - Avoid merging from `upstream` remote — keep fork changes isolated
 - Avoid merging to `upstream` remote — keep fork changes isolated
 - Avoid merging to/from `main` and `dev` — they represent production and staging for CI/CD
