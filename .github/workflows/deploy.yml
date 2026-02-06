@@ -62,6 +62,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download release metadata from docker-release run
+        if: ${{ !inputs.image_ref }}
         uses: actions/download-artifact@v4
         with:
           name: release-metadata
@@ -70,13 +71,14 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Help - release metadata download failed
-        if: failure()
+        if: ${{ failure() && !inputs.image_ref }}
         run: |
           echo "ERROR: Failed to download artifact 'release-metadata' for run-id='${{ inputs.release_run_id }}'." >&2
           echo "Use the Run ID from the Docker release workflow run that uploaded 'release-metadata'." >&2
           exit 2
 
       - name: Show release metadata
+        if: ${{ !inputs.image_ref }}
         run: |
           ls -la dist/release
           cat dist/release/release-metadata.json
@@ -115,11 +117,16 @@ jobs:
         env:
           IMAGE_REF_OVERRIDE: ${{ inputs.image_ref }}
         run: |
-          chmod +x scripts/read-release-metadata.sh
-          chmod +x scripts/deploy.sh
-          RESOLVED="$(scripts/deploy.sh --resolve-only dist/release/release-metadata.json)"
-          echo "resolved_ref=${RESOLVED}" >> "$GITHUB_OUTPUT"
-          echo "Resolved ref: ${RESOLVED}"
+          if [[ -n "${IMAGE_REF_OVERRIDE}" ]]; then
+            echo "resolved_ref=${IMAGE_REF_OVERRIDE}" >> "$GITHUB_OUTPUT"
+            echo "Resolved ref (override): ${IMAGE_REF_OVERRIDE}"
+          else
+            chmod +x scripts/read-release-metadata.sh
+            chmod +x scripts/deploy.sh
+            RESOLVED="$(scripts/deploy.sh --resolve-only dist/release/release-metadata.json)"
+            echo "resolved_ref=${RESOLVED}" >> "$GITHUB_OUTPUT"
+            echo "Resolved ref: ${RESOLVED}"
+          fi
 
       - name: Deploy
         env:
