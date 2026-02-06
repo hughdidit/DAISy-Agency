@@ -370,6 +370,7 @@ export async function runCronIsolatedAgentTurn(params: {
           return runCliAgent({
             sessionId: cronSession.sessionEntry.sessionId,
             sessionKey: agentSessionKey,
+            agentId,
             sessionFile,
             workspaceDir,
             config: cfgWithAgentDefaults,
@@ -385,6 +386,7 @@ export async function runCronIsolatedAgentTurn(params: {
         return runEmbeddedPiAgent({
           sessionId: cronSession.sessionEntry.sessionId,
           sessionKey: agentSessionKey,
+          agentId,
           messageChannel,
           agentAccountId: resolvedDelivery.accountId,
           sessionFile,
