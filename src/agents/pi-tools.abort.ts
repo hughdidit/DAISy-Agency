@@ -44,7 +44,7 @@ function combineAbortSignals(a?: AbortSignal, b?: AbortSignal): AbortSignal | un
 >>>>>>> 88e29c728 (refactor: use structural typing instead of instanceof for AbortSignal check)
   }
   const controller = new AbortController();
-  const onAbort = () => controller.abort();
+  const onAbort = controller.abort.bind(controller);
   a?.addEventListener("abort", onAbort, { once: true });
   b?.addEventListener("abort", onAbort, { once: true });
   return controller.signal;
