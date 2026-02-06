@@ -46,7 +46,11 @@ Use the manifest below so scopes and events stay in sync.
 
 Multi-account support: use `channels.slack.accounts` with per-account tokens and optional `name`. See [`gateway/configuration`](/gateway/configuration#telegramaccounts--discordaccounts--slackaccounts--signalaccounts--imessageaccounts) for the shared pattern.
 
+<<<<<<< HEAD
 ### Moltbot config (minimal)
+=======
+### OpenClaw config (Socket mode)
+>>>>>>> 1bf9f237f (docs: linting)
 
 Set tokens via env vars (recommended):
 - `SLACK_APP_TOKEN=xapp-...`
@@ -120,6 +124,7 @@ Example with userTokenReadOnly explicitly set (allow user token writes):
 Use HTTP webhook mode when your Gateway is reachable by Slack over HTTPS (typical for server deployments).
 HTTP mode uses the Events API + Interactivity + Slash Commands with a shared request URL.
 
+<<<<<<< HEAD
 ### Setup
 1) Create a Slack app and **disable Socket Mode** (optional if you only use HTTP).
 2) **Basic Information** → copy the **Signing Secret**.
@@ -127,6 +132,16 @@ HTTP mode uses the Events API + Interactivity + Slash Commands with a shared req
 4) **Event Subscriptions** → enable events and set the **Request URL** to your gateway webhook path (default `/slack/events`).
 5) **Interactivity & Shortcuts** → enable and set the same **Request URL**.
 6) **Slash Commands** → set the same **Request URL** for your command(s).
+=======
+### Setup (HTTP mode)
+
+1. Create a Slack app and **disable Socket Mode** (optional if you only use HTTP).
+2. **Basic Information** → copy the **Signing Secret**.
+3. **OAuth & Permissions** → install the app and copy the **Bot User OAuth Token** (`xoxb-...`).
+4. **Event Subscriptions** → enable events and set the **Request URL** to your gateway webhook path (default `/slack/events`).
+5. **Interactivity & Shortcuts** → enable and set the same **Request URL**.
+6. **Slash Commands** → set the same **Request URL** for your command(s).
+>>>>>>> 1bf9f237f (docs: linting)
 
 Example request URL:
 `https://gateway-host/slack/events`

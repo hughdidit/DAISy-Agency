@@ -129,7 +129,12 @@ No output after sending a message:
 - If you expect messages in a chat channel, enable delivery (`/deliver on` or `--deliver`).
 - `--history-limit <n>`: History entries to load (default 200)
 
+<<<<<<< HEAD
 ## Troubleshooting
+=======
+## Connection troubleshooting
+
+>>>>>>> 1bf9f237f (docs: linting)
 - `disconnected`: ensure the Gateway is running and your `--url/--token/--password` are correct.
 - No agents in picker: check `moltbot agents list` and your routing config.
 - Empty session picker: you might be in global scope or have no sessions yet.
