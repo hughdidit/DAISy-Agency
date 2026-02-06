@@ -100,10 +100,12 @@ if [[ "${PROVISION}" == "true" ]]; then
   COMPOSE_B64="$(base64 -w0 docker-compose.yml)"
 
   # Copy docker-compose.yml to VM and set up directory structure
+  # --quiet suppresses interactive prompts (SSH key generation) that would consume stdin
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
+    --quiet \
     --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"'"
   echo "Provisioning complete."
 fi
@@ -111,25 +113,18 @@ fi
 # Build the remote script as a variable (avoids heredoc/pipe conflict)
 # shellcheck disable=SC2016
 REMOTE_SCRIPT='
-set -eo pipefail
+set -euo pipefail
 
 DEPLOY_REF="$1"
 DEPLOY_DIR="$2"
 GHCR_USERNAME="$3"
 
-echo "Starting deploy script..."
-echo "DEPLOY_REF: ${DEPLOY_REF}"
-echo "DEPLOY_DIR: ${DEPLOY_DIR}"
-echo "GHCR_USERNAME: ${GHCR_USERNAME}"
-
 # Read secrets from stdin (one per line, passed by outer script)
-echo "Reading secrets from stdin..."
-read -r GHCR_TOKEN || { echo "ERROR: Failed to read GHCR_TOKEN"; exit 1; }
-read -r CLAWDBOT_GATEWAY_TOKEN || { echo "ERROR: Failed to read CLAWDBOT_GATEWAY_TOKEN"; exit 1; }
-read -r CLAUDE_AI_SESSION_KEY || { echo "ERROR: Failed to read CLAUDE_AI_SESSION_KEY"; exit 1; }
+read -r GHCR_TOKEN
+read -r CLAWDBOT_GATEWAY_TOKEN
+read -r CLAUDE_AI_SESSION_KEY
 read -r CLAUDE_WEB_SESSION_KEY || CLAUDE_WEB_SESSION_KEY=""
 read -r CLAUDE_WEB_COOKIE || CLAUDE_WEB_COOKIE=""
-echo "Secrets read successfully."
 
 echo "Deploy ref: ${DEPLOY_REF}"
 
@@ -197,4 +192,5 @@ printf -v GHCR_USERNAME_ESCAPED '%q' "${GHCR_USERNAME}"
   --project "${GCP_PROJECT_ID}" \
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
+  --quiet \
   --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED}"
