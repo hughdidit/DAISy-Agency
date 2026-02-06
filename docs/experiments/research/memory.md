@@ -44,7 +44,12 @@ Two pieces to blend:
 - everything else is out-of-context and retrieved via tools
 - memory writes are explicit tool calls (append/replace/insert), persisted, then re-injected next turn
 
+<<<<<<< HEAD
 2) **Hindsight-style memory substrate**
+=======
+1. **Hindsight-style memory substrate**
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - separate what’s observed vs what’s believed vs what’s summarized
 - support retain/recall/reflect
 - confidence-bearing opinions that can evolve with evidence

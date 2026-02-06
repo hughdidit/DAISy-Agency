@@ -28,7 +28,11 @@ without writing custom Moltbot code for each workflow.
 }
 ```
 
+<<<<<<< HEAD
 2) Allowlist the tool (it is registered with `optional: true`):
+=======
+1. Allowlist the tool (it is registered with `optional: true`):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```json
 {

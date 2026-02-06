@@ -32,16 +32,26 @@ Availability: internal preview. The iOS app is not publicly distributed yet.
 moltbot gateway --port 18789
 ```
 
+<<<<<<< HEAD
 2) In the iOS app, open Settings and pick a discovered gateway (or enable Manual Host and enter host/port).
 
 3) Approve the pairing request on the gateway host:
+=======
+1. In the iOS app, open Settings and pick a discovered gateway (or enable Manual Host and enter host/port).
+
+2. Approve the pairing request on the gateway host:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 moltbot nodes pending
 moltbot nodes approve <requestId>
 ```
 
+<<<<<<< HEAD
 4) Verify connection:
+=======
+1. Verify connection:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 moltbot nodes status

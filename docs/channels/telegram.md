@@ -86,9 +86,15 @@ If both env and config are set, config takes precedence.
 
 Multi-account support: use `channels.telegram.accounts` with per-account tokens and optional `name`. See [`gateway/configuration`](/gateway/configuration#telegramaccounts--discordaccounts--slackaccounts--signalaccounts--imessageaccounts) for the shared pattern.
 
+<<<<<<< HEAD
 3) Start the gateway. Telegram starts when a token is resolved (config first, env fallback).
 4) DM access defaults to pairing. Approve the code when the bot is first contacted.
 5) For groups: add the bot, decide privacy/admin behavior (below), then set `channels.telegram.groups` to control mention gating + allowlists.
+=======
+1. Start the gateway. Telegram starts when a token is resolved (config first, env fallback).
+2. DM access defaults to pairing. Approve the code when the bot is first contacted.
+3. For groups: add the bot, decide privacy/admin behavior (below), then set `channels.telegram.groups` to control mention gating + allowlists.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ## Token + privacy + permissions (Telegram side)
 
@@ -341,8 +347,15 @@ Safer (no third-party bot):
 2) Run `moltbot logs --follow` and look for `from.id`.
 
 Alternate (official Bot API):
+<<<<<<< HEAD
 1) DM your bot.
 2) Fetch updates with your bot token and read `message.from.id`:
+=======
+
+1. DM your bot.
+2. Fetch updates with your bot token and read `message.from.id`:
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
    ```bash
    curl "https://api.telegram.org/bot<bot_token>/getUpdates"
    ```

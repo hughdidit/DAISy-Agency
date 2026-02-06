@@ -152,14 +152,22 @@ export OPENCLAW_HOME_VOLUME="openclaw_home"
 ./docker-setup.sh
 ```
 
+<<<<<<< HEAD
 2) **Bake system deps into the image** (repeatable + persistent):
+=======
+1. **Bake system deps into the image** (repeatable + persistent):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 export OPENCLAW_DOCKER_APT_PACKAGES="git curl jq"
 ./docker-setup.sh
 ```
 
+<<<<<<< HEAD
 3) **Install Playwright browsers without `npx`** (avoids npm override conflicts):
+=======
+1. **Install Playwright browsers without `npx`** (avoids npm override conflicts):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 docker compose run --rm openclaw-cli \
@@ -169,7 +177,11 @@ docker compose run --rm openclaw-cli \
 If you need Playwright to install system deps, rebuild the image with
 `OPENCLAW_DOCKER_APT_PACKAGES` instead of using `--with-deps` at runtime.
 
+<<<<<<< HEAD
 4) **Persist Playwright browser downloads**:
+=======
+1. **Persist Playwright browser downloads**:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 - Set `PLAYWRIGHT_BROWSERS_PATH=/home/node/.cache/ms-playwright` in
   `docker-compose.yml`.

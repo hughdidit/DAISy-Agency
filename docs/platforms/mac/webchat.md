@@ -18,9 +18,11 @@ agent (with a session switcher for other sessions).
 
 - Manual: Lobster menu → “Open Chat”.
 - Auto‑open for testing:
+
   ```bash
   dist/Moltbot.app/Contents/MacOS/Moltbot --webchat
   ```
+
 - Logs: `./scripts/clawlog.sh` (subsystem `bot.molt`, category `WebChatSwiftUI`).
 
 ## How it’s wired

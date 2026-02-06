@@ -22,7 +22,11 @@ The [Vercel AI Gateway](https://vercel.com/ai-gateway) provides a unified API to
 moltbot onboard --auth-choice ai-gateway-api-key
 ```
 
+<<<<<<< HEAD
 2) Set a default model:
+=======
+1. Set a default model:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```json5
 {

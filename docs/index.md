@@ -104,9 +104,62 @@ immediately. If it fails, start the Gateway first: `moltbot gateway`.
 
 ## Dashboard (browser Control UI)
 
+<<<<<<< HEAD
 The dashboard is the browser Control UI for chat, config, nodes, sessions, and more.
 Local default: http://127.0.0.1:18789/
 Remote access: [Web surfaces](/web) and [Tailscale](/gateway/tailscale)
+=======
+<Columns>
+  <Card title="Multi-channel gateway" icon="network">
+    WhatsApp, Telegram, Discord, and iMessage with a single Gateway process.
+  </Card>
+  <Card title="Plugin channels" icon="plug">
+    Add Mattermost and more with extension packages.
+  </Card>
+  <Card title="Multi-agent routing" icon="route">
+    Isolated sessions per agent, workspace, or sender.
+  </Card>
+  <Card title="Media support" icon="image">
+    Send and receive images, audio, and documents.
+  </Card>
+  <Card title="Web Control UI" icon="monitor">
+    Browser dashboard for chat, config, sessions, and nodes.
+  </Card>
+  <Card title="Mobile nodes" icon="smartphone">
+    Pair iOS and Android nodes with Canvas support.
+  </Card>
+</Columns>
+
+## Quick start
+
+<Steps>
+  <Step title="Install OpenClaw">
+    ```bash
+    npm install -g openclaw@latest
+    ```
+  </Step>
+  <Step title="Onboard and install the service">
+    ```bash
+    openclaw onboard --install-daemon
+    ```
+  </Step>
+  <Step title="Pair WhatsApp and start the Gateway">
+    ```bash
+    openclaw channels login
+    openclaw gateway --port 18789
+    ```
+  </Step>
+</Steps>
+
+Need the full install and dev setup? See [Quick start](/start/quickstart).
+
+## Dashboard
+
+Open the browser Control UI after the Gateway starts.
+
+- Local default: [http://127.0.0.1:18789/](http://127.0.0.1:18789/)
+- Remote access: [Web surfaces](/web) and [Tailscale](/gateway/tailscale)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 <p align="center">
   <img src="whatsapp-openclaw.jpg" alt="OpenClaw" width="420" />

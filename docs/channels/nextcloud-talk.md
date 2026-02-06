@@ -27,13 +27,26 @@ Moltbot will offer the local install path automatically.
 Details: [Plugins](/plugin)
 
 ## Quick setup (beginner)
+<<<<<<< HEAD
 1) Install the Nextcloud Talk plugin.
 2) On your Nextcloud server, create a bot:
+=======
+
+1. Install the Nextcloud Talk plugin.
+2. On your Nextcloud server, create a bot:
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
    ```bash
    ./occ talk:bot:install "Moltbot" "<shared-secret>" "<webhook-url>" --feature reaction
    ```
+<<<<<<< HEAD
 3) Enable the bot in the target room settings.
 4) Configure Moltbot:
+=======
+
+3. Enable the bot in the target room settings.
+4. Configure OpenClaw:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
    - Config: `channels.nextcloud-talk.baseUrl` + `channels.nextcloud-talk.botSecret`
    - Or env: `NEXTCLOUD_TALK_BOT_SECRET` (default account only)
 5) Restart the gateway (or finish onboarding).

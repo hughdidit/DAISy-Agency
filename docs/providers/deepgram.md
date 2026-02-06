@@ -14,8 +14,8 @@ When enabled, Moltbot uploads the audio file to Deepgram and injects the transcr
 into the reply pipeline (`{{Transcript}}` + `[Audio]` block). This is **not streaming**;
 it uses the pre-recorded transcription endpoint.
 
-Website: https://deepgram.com  
-Docs: https://developers.deepgram.com
+Website: [https://deepgram.com](https://deepgram.com)  
+Docs: [https://developers.deepgram.com](https://developers.deepgram.com)
 
 ## Quick start
 
@@ -24,7 +24,12 @@ Docs: https://developers.deepgram.com
 DEEPGRAM_API_KEY=dg_...
 ```
 
+<<<<<<< HEAD
 2) Enable the provider:
+=======
+1. Enable the provider:
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   tools: {

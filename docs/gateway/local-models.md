@@ -50,7 +50,12 @@ Best current local stack. Load MiniMax M2.1 in LM Studio, enable the local serve
 ```
 
 **Setup checklist**
+<<<<<<< HEAD
 - Install LM Studio: https://lmstudio.ai
+=======
+
+- Install LM Studio: [https://lmstudio.ai](https://lmstudio.ai)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - In LM Studio, download the **largest MiniMax M2.1 build available** (avoid “small”/heavily quantized variants), start the server, confirm `http://127.0.0.1:1234/v1/models` lists it.
 - Keep the model loaded; cold-load adds startup latency.
 - Adjust `contextWindow`/`maxTokens` if your LM Studio build differs.
