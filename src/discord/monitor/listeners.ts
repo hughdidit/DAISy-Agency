@@ -182,9 +182,15 @@ async function handleDiscordReactionEvent(params: {
     const { data, client, action, botUserId, guildEntries } = params;
     if (!("user" in data)) return;
     const user = data.user;
+<<<<<<< HEAD
     if (!user || user.bot) return;
     if (!data.guild_id) return;
 
+=======
+    if (!user || user.bot) {
+      return;
+    }
+>>>>>>> 888f7dbbd (fix: process Discord DM reactions instead of silently dropping them)
     const guildInfo = resolveDiscordGuildEntry({
       guild: data.guild ?? undefined,
       guildEntries,
@@ -198,6 +204,8 @@ async function handleDiscordReactionEvent(params: {
     const channelName = "name" in channel ? (channel.name ?? undefined) : undefined;
     const channelSlug = channelName ? normalizeDiscordSlug(channelName) : "";
     const channelType = "type" in channel ? channel.type : undefined;
+    const isDirectMessage = channelType === ChannelType.DM;
+    const isGroupDm = channelType === ChannelType.GroupDM;
     const isThreadChannel =
       channelType === ChannelType.PublicThread ||
       channelType === ChannelType.PrivateThread ||
@@ -247,7 +255,8 @@ async function handleDiscordReactionEvent(params: {
     const emojiLabel = formatDiscordReactionEmoji(data.emoji);
     const actorLabel = formatDiscordUserTag(user);
     const guildSlug =
-      guildInfo?.slug || (data.guild?.name ? normalizeDiscordSlug(data.guild.name) : data.guild_id);
+      guildInfo?.slug ||
+      (data.guild?.name ? normalizeDiscordSlug(data.guild.name) : (data.guild_id ?? "dm"));
     const channelLabel = channelSlug
       ? `#${channelSlug}`
       : channelName
@@ -261,7 +270,15 @@ async function handleDiscordReactionEvent(params: {
       channel: "discord",
       accountId: params.accountId,
       guildId: data.guild_id ?? undefined,
+<<<<<<< HEAD
       peer: { kind: "channel", id: data.channel_id },
+=======
+      peer: {
+        kind: isDirectMessage ? "dm" : isGroupDm ? "group" : "channel",
+        id: isDirectMessage ? user.id : data.channel_id,
+      },
+      parentPeer: parentId ? { kind: "channel", id: parentId } : undefined,
+>>>>>>> 888f7dbbd (fix: process Discord DM reactions instead of silently dropping them)
     });
     enqueueSystemEvent(text, {
       sessionKey: route.sessionKey,
