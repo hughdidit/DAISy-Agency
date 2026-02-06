@@ -34,12 +34,20 @@ Moltbot ships two installer scripts (served from `molt.bot`):
 =======
 OpenClaw ships three installer scripts, served from `openclaw.ai`.
 
+<<<<<<< HEAD
 | Script                              | Platform             | What it does                                                                                 |
 | ----------------------------------- | -------------------- | -------------------------------------------------------------------------------------------- |
 | [`install.sh`](#install-sh)         | macOS / Linux / WSL  | Installs Node if needed, installs OpenClaw via npm (default) or git, and can run onboarding. |
 | [`install-cli.sh`](#install-cli-sh) | macOS / Linux / WSL  | Installs Node + OpenClaw into a local prefix (`~/.openclaw`). No root required.              |
 | [`install.ps1`](#install-ps1)       | Windows (PowerShell) | Installs Node if needed, installs OpenClaw via npm (default) or git, and can run onboarding. |
 >>>>>>> 991cf4d7f (Docs: revamp installer internals for readability and accuracy (#10499))
+=======
+| Script                             | Platform             | What it does                                                                                 |
+| ---------------------------------- | -------------------- | -------------------------------------------------------------------------------------------- |
+| [`install.sh`](#installsh)         | macOS / Linux / WSL  | Installs Node if needed, installs OpenClaw via npm (default) or git, and can run onboarding. |
+| [`install-cli.sh`](#install-clish) | macOS / Linux / WSL  | Installs Node + OpenClaw into a local prefix (`~/.openclaw`). No root required.              |
+| [`install.ps1`](#installps1)       | Windows (PowerShell) | Installs Node if needed, installs OpenClaw via npm (default) or git, and can run onboarding. |
+>>>>>>> 5163833be (docs: fix markdownlint fragments + headings)
 
 ## Quick commands
 
@@ -110,6 +118,7 @@ Recommended for most interactive installs on macOS/Linux/WSL.
 </Tip>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 | Variable                           | Description                                                  |
 | ---------------------------------- | ------------------------------------------------------------ |
 | `OPENCLAW_INSTALL_METHOD=git\|npm` | Install method                                               |
@@ -123,6 +132,9 @@ Recommended for most interactive installs on macOS/Linux/WSL.
 =======
 ### Flow
 >>>>>>> 991cf4d7f (Docs: revamp installer internals for readability and accuracy (#10499))
+=======
+### Flow (install.sh)
+>>>>>>> 5163833be (docs: fix markdownlint fragments + headings)
 
 <Steps>
   <Step title="Detect OS">
@@ -189,10 +201,14 @@ If no TTY is available and no install method is set, it defaults to `npm` and wa
 The script exits with code `2` for invalid method selection or invalid `--install-method` values.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 If you run the installer while **already inside a Moltbot source checkout** (detected via `package.json` + `pnpm-workspace.yaml`), it prompts:
 =======
 ### Examples
 >>>>>>> 991cf4d7f (Docs: revamp installer internals for readability and accuracy (#10499))
+=======
+### Examples (install.sh)
+>>>>>>> 5163833be (docs: fix markdownlint fragments + headings)
 
 <Tabs>
   <Tab title="Default">
@@ -275,6 +291,7 @@ Designed for environments where you want everything under a local prefix (defaul
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 This script installs `moltbot` into a prefix (default: `~/.clawdbot`) and also installs a dedicated Node runtime under that prefix, so it can work on machines where you don’t want to touch the system Node/npm.
 =======
 This script installs `openclaw` into a prefix (default: `~/.openclaw`) and also installs a dedicated Node runtime under that prefix, so it can work on machines where you don't want to touch the system Node/npm.
@@ -282,6 +299,9 @@ This script installs `openclaw` into a prefix (default: `~/.openclaw`) and also 
 =======
 ### Flow
 >>>>>>> 991cf4d7f (Docs: revamp installer internals for readability and accuracy (#10499))
+=======
+### Flow (install-cli.sh)
+>>>>>>> 5163833be (docs: fix markdownlint fragments + headings)
 
 <Steps>
   <Step title="Install local Node runtime">
@@ -296,6 +316,7 @@ This script installs `openclaw` into a prefix (default: `~/.openclaw`) and also 
 </Steps>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ```bash
 <<<<<<< HEAD
 curl -fsSL https://molt.bot/install-cli.sh | bash -s -- --help
@@ -306,6 +327,9 @@ curl -fsSL https://openclaw.ai/install-cli.sh | bash -s -- --help
 =======
 ### Examples
 >>>>>>> 991cf4d7f (Docs: revamp installer internals for readability and accuracy (#10499))
+=======
+### Examples (install-cli.sh)
+>>>>>>> 5163833be (docs: fix markdownlint fragments + headings)
 
 <Tabs>
   <Tab title="Default">
@@ -392,7 +416,7 @@ iwr -useb https://molt.bot/install.ps1 | iex -InstallMethod git -GitDir "C:\\mol
 ## install.ps1
 >>>>>>> 991cf4d7f (Docs: revamp installer internals for readability and accuracy (#10499))
 
-### Flow
+### Flow (install.ps1)
 
 <Steps>
   <Step title="Ensure PowerShell + Windows environment">
@@ -410,7 +434,7 @@ iwr -useb https://molt.bot/install.ps1 | iex -InstallMethod git -GitDir "C:\\mol
   </Step>
 </Steps>
 
-### Examples
+### Examples (install.ps1)
 
 <<<<<<< HEAD
 - **npm error spawn git / ENOENT**: install Git for Windows and reopen PowerShell, then rerun the installer.
