@@ -3027,8 +3027,12 @@ Defaults:
 
 Requests must include the hook token:
 - `Authorization: Bearer <token>` **or**
+<<<<<<< HEAD
 - `x-moltbot-token: <token>` **or**
 - `?token=<token>`
+=======
+- `x-openclaw-token: <token>`
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
 
 Endpoints:
 - `POST /hooks/wake` → `{ text, mode?: "now"|"next-heartbeat" }`

@@ -91,19 +91,18 @@ export function applySettingsFromUrl(host: SettingsHost) {
   let shouldCleanUrl = false;
 
   if (tokenRaw != null) {
-    const token = tokenRaw.trim();
-    if (token && token !== host.settings.token) {
-      applySettings(host, { ...host.settings, token });
-    }
     params.delete("token");
     shouldCleanUrl = true;
   }
 
   if (passwordRaw != null) {
+<<<<<<< HEAD
     const password = passwordRaw.trim();
     if (password) {
       (host as { password: string }).password = password;
     }
+=======
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
     params.delete("password");
     shouldCleanUrl = true;
   }
