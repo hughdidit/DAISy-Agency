@@ -95,7 +95,116 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     },
   });
 
+<<<<<<< HEAD
   const prefixContext = createReplyPrefixContext({ cfg, agentId: route.agentId });
+=======
+  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+    cfg,
+    agentId: route.agentId,
+    channel: "slack",
+    accountId: route.accountId,
+  });
+
+  // -----------------------------------------------------------------------
+  // Slack native text streaming state
+  // -----------------------------------------------------------------------
+  const streamingEnabled = account.config.streaming === true;
+
+  // Peek at the thread target without consuming it (for streaming check only).
+  const streamThreadHint = incomingThreadTs ?? statusThreadTs;
+
+  const useStreaming = shouldUseStreaming({
+    streamingEnabled,
+    threadTs: streamThreadHint,
+  });
+
+  let streamSession: SlackStreamSession | null = null;
+  let streamFailed = false;
+
+  /**
+   * Deliver a payload via Slack native text streaming when possible.
+   * Falls back to normal delivery for media payloads, errors, or if the
+   * streaming API call itself fails.
+   */
+  const deliverWithStreaming = async (payload: ReplyPayload): Promise<void> => {
+    const effectiveThreadTs = replyPlan.nextThreadTs();
+
+    // Fall back to normal delivery for media, errors, or if streaming already failed
+    if (streamFailed || hasMedia(payload) || !payload.text?.trim()) {
+      await deliverReplies({
+        replies: [payload],
+        target: prepared.replyTarget,
+        token: ctx.botToken,
+        accountId: account.accountId,
+        runtime,
+        textLimit: ctx.textLimit,
+        replyThreadTs: effectiveThreadTs,
+      });
+      replyPlan.markSent();
+      return;
+    }
+
+    const text = payload.text.trim();
+
+    try {
+      if (!streamSession) {
+        // Determine the thread_ts for the stream (required by Slack API)
+        const streamThreadTs = effectiveThreadTs ?? incomingThreadTs ?? statusThreadTs;
+
+        if (!streamThreadTs) {
+          // No thread context — can't stream, fall back
+          logVerbose(
+            "slack-stream: no thread_ts for stream start, falling back to normal delivery",
+          );
+          streamFailed = true;
+          await deliverReplies({
+            replies: [payload],
+            target: prepared.replyTarget,
+            token: ctx.botToken,
+            accountId: account.accountId,
+            runtime,
+            textLimit: ctx.textLimit,
+            replyThreadTs: effectiveThreadTs,
+          });
+          replyPlan.markSent();
+          return;
+        }
+
+        // Start a new stream
+        streamSession = await startSlackStream({
+          client: ctx.app.client,
+          channel: message.channel,
+          threadTs: streamThreadTs,
+          text,
+        });
+        replyPlan.markSent();
+      } else {
+        // Append to existing stream
+        await appendSlackStream({
+          session: streamSession,
+          text: "\n" + text,
+        });
+      }
+    } catch (err) {
+      runtime.error?.(
+        danger(`slack-stream: streaming API call failed: ${String(err)}, falling back`),
+      );
+      streamFailed = true;
+
+      // Fall back to normal delivery for this payload
+      await deliverReplies({
+        replies: [payload],
+        target: prepared.replyTarget,
+        token: ctx.botToken,
+        accountId: account.accountId,
+        runtime,
+        textLimit: ctx.textLimit,
+        replyThreadTs: effectiveThreadTs,
+      });
+      replyPlan.markSent();
+    }
+  };
+>>>>>>> 878a13d21 (fix: don't consume replyPlan reference eagerly for streaming check)
 
   const { dispatcher, replyOptions, markDispatchIdle } = createReplyDispatcherWithTyping({
     responsePrefix: prefixContext.responsePrefix,
