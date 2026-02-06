@@ -79,7 +79,7 @@ fi
 : "${GHCR_USERNAME:?GHCR_USERNAME is required for real deploy}"
 : "${GHCR_TOKEN:?GHCR_TOKEN is required for real deploy}"
 
-# App secrets (passed to docker-compose on the VM)
+# App secrets (passed to docker compose on the VM)
 : "${CLAWDBOT_GATEWAY_TOKEN:?CLAWDBOT_GATEWAY_TOKEN is required for real deploy}"
 : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required for real deploy}"
 # CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
@@ -99,14 +99,14 @@ if [[ "${PROVISION}" == "true" ]]; then
   # Base64 encode docker-compose.yml to pass as argument (stdin not forwarded by gcloud ssh --command)
   COMPOSE_B64="$(base64 -w0 docker-compose.yml)"
 
-  # Copy docker-compose.yml to VM and set up directory structure
+  # Provision VM: install docker-compose-plugin, create directory structure, copy docker-compose.yml
   # --quiet suppresses interactive prompts (SSH key generation) that would consume stdin
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if ! docker compose version >/dev/null 2>&1; then echo \"Installing docker-compose-plugin...\"; sudo apt-get update -qq && sudo apt-get install -y -qq docker-compose-plugin; fi; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"; docker compose version'"
   echo "Provisioning complete."
 fi
 
@@ -153,7 +153,7 @@ if ! sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR
 fi
 unset GHCR_TOKEN
 
-# Export app secrets for docker-compose
+# Export app secrets for docker compose
 export CLAWDBOT_IMAGE="${DEPLOY_REF}"
 export CLAWDBOT_GATEWAY_TOKEN
 export CLAUDE_AI_SESSION_KEY
@@ -163,8 +163,8 @@ export CLAWDBOT_CONFIG_DIR="${DEPLOY_DIR}/config"
 export CLAWDBOT_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
 
 # Pull and deploy (use sudo -E to preserve environment variables)
-sudo -E docker-compose pull
-sudo -E docker-compose up -d --remove-orphans
+sudo -E docker compose pull
+sudo -E docker compose up -d --remove-orphans
 
 # Clear secrets from environment
 unset CLAWDBOT_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE
