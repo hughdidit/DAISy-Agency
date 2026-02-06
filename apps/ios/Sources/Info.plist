@@ -21,6 +21,7 @@
 	<key>CFBundleShortVersionString</key>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	<string>2026.2.1</string>
 =======
 	<string>2026.2.3</string>
@@ -28,6 +29,9 @@
 =======
 	<string>2026.2.4</string>
 >>>>>>> 5031b283a (chore: bump version to 2026.2.4)
+=======
+	<string>2026.2.6</string>
+>>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
 	<key>CFBundleVersion</key>
 	<string>20260201</string>
 	<key>NSAppTransportSecurity</key>

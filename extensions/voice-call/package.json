@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
@@ -12,6 +13,9 @@
 =======
   "version": "2026.2.4",
 >>>>>>> 5031b283a (chore: bump version to 2026.2.4)
+=======
+  "version": "2026.2.6",
+>>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
   "description": "OpenClaw voice-call plugin",
 >>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
   "type": "module",
