@@ -4,7 +4,7 @@ set -euo pipefail
 META_PATH="${1:?metadata path required}"
 FIELD="${2:?field required}"
 
-python3 - <<'PY'
+python3 - "$META_PATH" "$FIELD" <<'PY'
 import json
 import sys
 
@@ -28,4 +28,4 @@ elif field == "first_tag":
     print(tags[0] if tags else "")
 else:
     raise SystemExit(f"Unknown field: {field}")
-PY "$META_PATH" "$FIELD"
+PY
