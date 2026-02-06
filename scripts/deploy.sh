@@ -3,15 +3,29 @@ set -euo pipefail
 
 # Deploy script for DAISy staging/production
 # Uses gcloud compute ssh with IAP tunneling for secure access
-# Usage: deploy.sh [--resolve-only] <metadata-path>
+# Usage: deploy.sh [--resolve-only] [--provision] <metadata-path>
 
-if [[ "${1:-}" == "--resolve-only" ]]; then
-  META_PATH="${2:-}"
-  RESOLVE_ONLY="true"
-else
-  META_PATH="${1:-}"
-  RESOLVE_ONLY="false"
-fi
+RESOLVE_ONLY="false"
+PROVISION="false"
+
+while [[ "${1:-}" == --* ]]; do
+  case "${1}" in
+    --resolve-only)
+      RESOLVE_ONLY="true"
+      shift
+      ;;
+    --provision)
+      PROVISION="true"
+      shift
+      ;;
+    *)
+      echo "Unknown option: ${1}" >&2
+      exit 1
+      ;;
+  esac
+done
+
+META_PATH="${1:-}"
 
 # If IMAGE_REF_OVERRIDE is set, use it directly without reading metadata
 if [[ -n "${IMAGE_REF_OVERRIDE:-}" ]]; then
@@ -65,9 +79,30 @@ fi
 : "${GHCR_USERNAME:?GHCR_USERNAME is required for real deploy}"
 : "${GHCR_TOKEN:?GHCR_TOKEN is required for real deploy}"
 
+# App secrets (passed to docker compose on the VM)
+: "${CLAWDBOT_GATEWAY_TOKEN:?CLAWDBOT_GATEWAY_TOKEN is required for real deploy}"
+: "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required for real deploy}"
+: "${CLAUDE_WEB_SESSION_KEY:?CLAUDE_WEB_SESSION_KEY is required for real deploy}"
+: "${CLAUDE_WEB_COOKIE:?CLAUDE_WEB_COOKIE is required for real deploy}"
+
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
 
 echo "Deploying to ${GCE_INSTANCE_NAME} via IAP (dir: ${DEPLOY_DIR})..."
+echo "Provision: ${PROVISION}"
+
+# Provision VM if requested (creates directory structure and copies docker-compose.yml)
+if [[ "${PROVISION}" == "true" ]]; then
+  echo "Provisioning VM..."
+  printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
+
+  # Copy docker-compose.yml to VM via stdin, then set up directory structure
+  cat docker-compose.yml | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+    --project "${GCP_PROJECT_ID}" \
+    --zone "${GCP_ZONE}" \
+    --tunnel-through-iap \
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; cat > \"\${DEPLOY_DIR}/docker-compose.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"'"
+  echo "Provisioning complete."
+fi
 
 # Build the remote script as a variable (avoids heredoc/pipe conflict)
 # shellcheck disable=SC2016
@@ -78,8 +113,12 @@ DEPLOY_REF="$1"
 DEPLOY_DIR="$2"
 GHCR_USERNAME="$3"
 
-# Read GHCR token from stdin (passed by outer script)
+# Read secrets from stdin (one per line, passed by outer script)
 read -r GHCR_TOKEN
+read -r CLAWDBOT_GATEWAY_TOKEN
+read -r CLAUDE_AI_SESSION_KEY
+read -r CLAUDE_WEB_SESSION_KEY
+read -r CLAUDE_WEB_COOKIE
 
 echo "Deploy ref: ${DEPLOY_REF}"
 
@@ -95,19 +134,29 @@ fi
 
 cd "${DEPLOY_DIR}"
 
-# Authenticate to GHCR (token read from stdin)
-# PR #66 review: explicit error handling for docker login failure
+# Authenticate to GHCR
 if ! docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
   echo "ERROR: Failed to authenticate to GHCR. Check credentials and network." >&2
   exit 1
 fi
-# PR #66 review: clear token from memory after use
 unset GHCR_TOKEN
 
-# Pull and deploy (using CLAWDBOT_IMAGE which matches docker-compose.yml)
+# Export app secrets for docker compose
 export CLAWDBOT_IMAGE="${DEPLOY_REF}"
+export CLAWDBOT_GATEWAY_TOKEN
+export CLAUDE_AI_SESSION_KEY
+export CLAUDE_WEB_SESSION_KEY
+export CLAUDE_WEB_COOKIE
+export CLAWDBOT_CONFIG_DIR="${DEPLOY_DIR}/config"
+export CLAWDBOT_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
+
+# Pull and deploy
 docker compose pull
 docker compose up -d --remove-orphans
+
+# Clear secrets from environment
+unset CLAWDBOT_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE
+
 echo "Deployment complete."
 '
 
@@ -120,7 +169,14 @@ printf -v RESOLVED_REF_ESCAPED '%q' "${RESOLVED_REF}"
 printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
 printf -v GHCR_USERNAME_ESCAPED '%q' "${GHCR_USERNAME}"
 
-printf '%s\n' "${GHCR_TOKEN}" | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+# Pass all secrets via stdin (one per line)
+{
+  printf '%s\n' "${GHCR_TOKEN}"
+  printf '%s\n' "${CLAWDBOT_GATEWAY_TOKEN}"
+  printf '%s\n' "${CLAUDE_AI_SESSION_KEY}"
+  printf '%s\n' "${CLAUDE_WEB_SESSION_KEY}"
+  printf '%s\n' "${CLAUDE_WEB_COOKIE}"
+} | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
   --project "${GCP_PROJECT_ID}" \
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
