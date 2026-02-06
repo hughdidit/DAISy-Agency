@@ -34,7 +34,13 @@ on:
       dry_run:
         required: true
         type: boolean
-    secrets: inherit
+    secrets:
+      GHCR_USERNAME:
+        description: GitHub username for GHCR
+        required: true
+      GHCR_TOKEN:
+        description: PAT with read:packages scope
+        required: true
 
 permissions:
   id-token: write
