@@ -99,14 +99,14 @@ if [[ "${PROVISION}" == "true" ]]; then
   # Base64 encode docker-compose.yml to pass as argument (stdin not forwarded by gcloud ssh --command)
   COMPOSE_B64="$(base64 -w0 docker-compose.yml)"
 
-  # Provision VM: install docker-compose-plugin, create directory structure, copy docker-compose.yml
+  # Provision VM: install docker-compose, create directory structure, copy docker-compose.yml
   # --quiet suppresses interactive prompts (SSH key generation) that would consume stdin
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if ! docker compose version >/dev/null 2>&1; then echo \"Installing docker-compose-plugin...\"; sudo apt-get update -qq && sudo apt-get install -y -qq docker-compose-plugin; fi; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"; docker compose version'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if ! command -v docker-compose >/dev/null 2>&1; then echo \"Installing docker-compose...\"; sudo curl -fsSL \"https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose; fi; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"; docker-compose version'"
   echo "Provisioning complete."
 fi
 
@@ -163,8 +163,8 @@ export CLAWDBOT_CONFIG_DIR="${DEPLOY_DIR}/config"
 export CLAWDBOT_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
 
 # Pull and deploy (use sudo -E to preserve environment variables)
-sudo -E docker compose pull
-sudo -E docker compose up -d --remove-orphans
+sudo -E docker-compose pull
+sudo -E docker-compose up -d --remove-orphans
 
 # Clear secrets from environment
 unset CLAWDBOT_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE
