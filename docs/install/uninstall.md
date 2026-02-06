@@ -35,13 +35,21 @@ Manual steps (same result):
 moltbot gateway stop
 ```
 
+<<<<<<< HEAD
 2) Uninstall the gateway service (launchd/systemd/schtasks):
+=======
+1. Uninstall the gateway service (launchd/systemd/schtasks):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 moltbot gateway uninstall
 ```
 
+<<<<<<< HEAD
 3) Delete state + config:
+=======
+1. Delete state + config:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 rm -rf "${CLAWDBOT_STATE_DIR:-$HOME/.clawdbot}"
@@ -49,13 +57,21 @@ rm -rf "${CLAWDBOT_STATE_DIR:-$HOME/.clawdbot}"
 
 If you set `CLAWDBOT_CONFIG_PATH` to a custom location outside the state dir, delete that file too.
 
+<<<<<<< HEAD
 4) Delete your workspace (optional, removes agent files):
+=======
+1. Delete your workspace (optional, removes agent files):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 rm -rf ~/clawd
 ```
 
+<<<<<<< HEAD
 5) Remove the CLI install (pick the one you used):
+=======
+1. Remove the CLI install (pick the one you used):
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 npm rm -g moltbot
@@ -63,7 +79,11 @@ pnpm remove -g moltbot
 bun remove -g moltbot
 ```
 
+<<<<<<< HEAD
 6) If you installed the macOS app:
+=======
+1. If you installed the macOS app:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 rm -rf /Applications/Moltbot.app

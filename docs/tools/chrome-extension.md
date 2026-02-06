@@ -30,17 +30,30 @@ Moltbot then controls the attached tab through the normal `browser` tool surface
 moltbot browser extension install
 ```
 
+<<<<<<< HEAD
 2) Print the installed extension directory path:
+=======
+1. Print the installed extension directory path:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 moltbot browser extension path
 ```
 
+<<<<<<< HEAD
 3) Chrome → `chrome://extensions`
 - Enable “Developer mode”
 - “Load unpacked” → select the directory printed above
 
 4) Pin the extension.
+=======
+1. Chrome → `chrome://extensions`
+
+- Enable “Developer mode”
+- “Load unpacked” → select the directory printed above
+
+1. Pin the extension.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ## Updates (no build step)
 

@@ -209,7 +209,11 @@ export type SystemEchoParams = Static<typeof SystemEchoParamsSchema>;
 export type SystemEchoResult = Static<typeof SystemEchoResultSchema>;
 ```
 
+<<<<<<< HEAD
 2) **Validation**
+=======
+1. **Validation**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 In `src/gateway/protocol/index.ts`, export an AJV validator:
 
@@ -218,7 +222,11 @@ export const validateSystemEchoParams =
   ajv.compile<SystemEchoParams>(SystemEchoParamsSchema);
 ```
 
+<<<<<<< HEAD
 3) **Server behavior**
+=======
+1. **Server behavior**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 Add a handler in `src/gateway/server-methods/system.ts`:
 
@@ -234,13 +242,21 @@ export const systemHandlers: GatewayRequestHandlers = {
 Register it in `src/gateway/server-methods.ts` (already merges `systemHandlers`),
 then add `"system.echo"` to `METHODS` in `src/gateway/server.ts`.
 
+<<<<<<< HEAD
 4) **Regenerate**
+=======
+1. **Regenerate**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 pnpm protocol:check
 ```
 
+<<<<<<< HEAD
 5) **Tests + docs**
+=======
+1. **Tests + docs**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 Add a server test in `src/gateway/server.*.test.ts` and note the method in docs.
 
@@ -273,7 +289,11 @@ Unknown frame types are preserved as raw payloads for forward compatibility.
 Generated JSON Schema is in the repo at `dist/protocol.schema.json`. The
 published raw file is typically available at:
 
+<<<<<<< HEAD
 - https://raw.githubusercontent.com/moltbot/moltbot/main/dist/protocol.schema.json
+=======
+- [https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json](https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json)
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ## When you change schemas
 

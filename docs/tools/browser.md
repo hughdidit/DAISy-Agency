@@ -240,8 +240,14 @@ moltbot browser extension install
 - “Load unpacked” → select the directory printed by `moltbot browser extension path`
 - Pin the extension, then click it on the tab you want to control (badge shows `ON`).
 
+<<<<<<< HEAD
 2) Use it:
 - CLI: `moltbot browser --browser-profile chrome tabs`
+=======
+1. Use it:
+
+- CLI: `openclaw browser --browser-profile chrome tabs`
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - Agent tool: `browser` with `profile="chrome"`
 
 Optional: if you want a different name or relay port, create your own profile:

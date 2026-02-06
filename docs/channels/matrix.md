@@ -70,9 +70,15 @@ Details: [Plugins](/plugin)
    - If both are set, config takes precedence.
    - With access token: user ID is fetched automatically via `/whoami`.
    - When set, `channels.matrix.userId` should be the full Matrix ID (example: `@bot:example.org`).
+<<<<<<< HEAD
 5) Restart the gateway (or finish onboarding).
 6) Start a DM with the bot or invite it to a room from any Matrix client
    (Element, Beeper, etc.; see https://matrix.org/ecosystem/clients/). Beeper requires E2EE,
+=======
+5. Restart the gateway (or finish onboarding).
+6. Start a DM with the bot or invite it to a room from any Matrix client
+   (Element, Beeper, etc.; see [https://matrix.org/ecosystem/clients/](https://matrix.org/ecosystem/clients/)). Beeper requires E2EE,
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
    so set `channels.matrix.encryption: true` and verify the device.
 
 Minimal config (access token, user ID auto-fetched):

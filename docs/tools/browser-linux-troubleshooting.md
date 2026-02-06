@@ -64,7 +64,12 @@ If you must use snap Chromium, configure Moltbot to attach to a manually-started
 }
 ```
 
+<<<<<<< HEAD
 2. Start Chromium manually:
+=======
+1. Start Chromium manually:
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```bash
 chromium-browser --headless --no-sandbox --disable-gpu \
   --remote-debugging-port=18800 \
@@ -72,7 +77,12 @@ chromium-browser --headless --no-sandbox --disable-gpu \
   about:blank &
 ```
 
+<<<<<<< HEAD
 3. Optionally create a systemd user service to auto-start Chrome:
+=======
+1. Optionally create a systemd user service to auto-start Chrome:
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```ini
 # ~/.config/systemd/user/clawd-browser.service
 [Unit]

@@ -26,8 +26,13 @@ export ANTHROPIC_API_KEY="..."
 moltbot models status
 ```
 
+<<<<<<< HEAD
 3) If the Gateway runs under systemd/launchd, prefer putting the key in
 `~/.clawdbot/.env` so the daemon can read it:
+=======
+1. If the Gateway runs under systemd/launchd, prefer putting the key in
+   `~/.openclaw/.env` so the daemon can read it:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 cat >> ~/.clawdbot/.env <<'EOF'

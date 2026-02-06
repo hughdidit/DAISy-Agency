@@ -10,7 +10,12 @@ The Gateway dashboard is the browser Control UI served at `/` by default
 (override with `gateway.controlUi.basePath`).
 
 Quick open (local Gateway):
+<<<<<<< HEAD
 - http://127.0.0.1:18789/ (or http://localhost:18789/)
+=======
+
+- [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (or [http://localhost:18789/](http://localhost:18789/))
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 Key references:
 - [Control UI](/web/control-ui) for usage and UI capabilities.

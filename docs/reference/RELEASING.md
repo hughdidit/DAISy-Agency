@@ -23,13 +23,20 @@ When the operator says “release”, immediately do this preflight (no extra qu
 - [ ] Confirm package metadata (name, description, repository, keywords, license) and `bin` map points to [`moltbot.mjs`](https://github.com/moltbot/moltbot/blob/main/moltbot.mjs) for `moltbot`.
 - [ ] If dependencies changed, run `pnpm install` so `pnpm-lock.yaml` is current.
 
+<<<<<<< HEAD
 2) **Build & artifacts**
 - [ ] If A2UI inputs changed, run `pnpm canvas:a2ui:bundle` and commit any updated [`src/canvas-host/a2ui/a2ui.bundle.js`](https://github.com/moltbot/moltbot/blob/main/src/canvas-host/a2ui/a2ui.bundle.js).
+=======
+1. **Build & artifacts**
+
+- [ ] If A2UI inputs changed, run `pnpm canvas:a2ui:bundle` and commit any updated [`src/canvas-host/a2ui/a2ui.bundle.js`](https://github.com/openclaw/openclaw/blob/main/src/canvas-host/a2ui/a2ui.bundle.js).
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - [ ] `pnpm run build` (regenerates `dist/`).
 - [ ] Verify npm package `files` includes all required `dist/*` folders (notably `dist/node-host/**` and `dist/acp/**` for headless node + ACP CLI).
 - [ ] Confirm `dist/build-info.json` exists and includes the expected `commit` hash (CLI banner uses this for npm installs).
 - [ ] Optional: `npm pack --pack-destination /tmp` after the build; inspect the tarball contents and keep it handy for the GitHub release (do **not** commit it).
 
+<<<<<<< HEAD
 3) **Changelog & docs**
 - [ ] Update `CHANGELOG.md` with user-facing highlights (create the file if missing); keep entries strictly descending by version.
 - [ ] Ensure README examples/flags match current CLI behavior (notably new commands or options).
@@ -39,6 +46,14 @@ When the operator says “release”, immediately do this preflight (no extra qu
 - [ ] `pnpm lint`
 =======
 4. **Validation**
+=======
+1. **Changelog & docs**
+
+- [ ] Update `CHANGELOG.md` with user-facing highlights (create the file if missing); keep entries strictly descending by version.
+- [ ] Ensure README examples/flags match current CLI behavior (notably new commands or options).
+
+1. **Validation**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 - [ ] `pnpm build`
 - [ ] `pnpm check`
@@ -58,13 +73,24 @@ When the operator says “release”, immediately do this preflight (no extra qu
   - `pnpm test:install:e2e` (requires both keys; runs both providers)
 - [ ] (Optional) Spot-check the web gateway if your changes affect send/receive paths.
 
+<<<<<<< HEAD
 5) **macOS app (Sparkle)**
+=======
+1. **macOS app (Sparkle)**
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - [ ] Build + sign the macOS app, then zip it for distribution.
 - [ ] Generate the Sparkle appcast (HTML notes via [`scripts/make_appcast.sh`](https://github.com/moltbot/moltbot/blob/main/scripts/make_appcast.sh)) and update `appcast.xml`.
 - [ ] Keep the app zip (and optional dSYM zip) ready to attach to the GitHub release.
 - [ ] Follow [macOS release](/platforms/mac/release) for the exact commands and required env vars.
   - `APP_BUILD` must be numeric + monotonic (no `-beta`) so Sparkle compares versions correctly.
+<<<<<<< HEAD
   - If notarizing, use the `moltbot-notary` keychain profile created from App Store Connect API env vars (see [macOS release](/platforms/mac/release)).
+=======
+  - If notarizing, use the `openclaw-notary` keychain profile created from App Store Connect API env vars (see [macOS release](/platforms/mac/release)).
+
+1. **Publish (npm)**
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 6) **Publish (npm)**
 - [ ] Confirm git status is clean; commit and push as needed.
@@ -81,7 +107,12 @@ When the operator says “release”, immediately do this preflight (no extra qu
 - **Tag needs repointing after a late fix**: force-update and push the tag, then ensure the GitHub release assets still match:
   - `git tag -f vX.Y.Z && git push -f origin vX.Y.Z`
 
+<<<<<<< HEAD
 7) **GitHub release + appcast**
+=======
+1. **GitHub release + appcast**
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - [ ] Tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z` (or `git push --tags`).
 - [ ] Create/refresh the GitHub release for `vX.Y.Z` with **title `moltbot X.Y.Z`** (not just the tag); body should include the **full** changelog section for that version (Highlights + Changes + Fixes), inline (no bare links), and **must not repeat the title inside the body**.
 - [ ] Attach artifacts: `npm pack` tarball (optional), `Moltbot-X.Y.Z.zip`, and `Moltbot-X.Y.Z.dSYM.zip` (if generated).

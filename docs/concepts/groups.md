@@ -282,7 +282,12 @@ Common intents (copy/paste):
 }
 ```
 
+<<<<<<< HEAD
 2) Allow only specific groups (WhatsApp)
+=======
+1. Allow only specific groups (WhatsApp)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   channels: {
@@ -296,7 +301,12 @@ Common intents (copy/paste):
 }
 ```
 
+<<<<<<< HEAD
 3) Allow all groups but require mention (explicit)
+=======
+1. Allow all groups but require mention (explicit)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   channels: {
@@ -307,7 +317,12 @@ Common intents (copy/paste):
 }
 ```
 
+<<<<<<< HEAD
 4) Only the owner can trigger in groups (WhatsApp)
+=======
+1. Only the owner can trigger in groups (WhatsApp)
+
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```json5
 {
   channels: {

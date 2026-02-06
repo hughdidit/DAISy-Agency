@@ -1875,11 +1875,13 @@ Block streaming:
 - `agents.defaults.blockStreamingChunk`: soft chunking for streamed blocks. Defaults to
   800–1200 chars, prefers paragraph breaks (`\n\n`), then newlines, then sentences.
   Example:
+
   ```json5
   {
     agents: { defaults: { blockStreamingChunk: { minChars: 800, maxChars: 1200 } } }
   }
   ```
+
 - `agents.defaults.blockStreamingCoalesce`: merge streamed blocks before sending.
   Defaults to `{ idleMs: 1000 }` and inherits `minChars` from `blockStreamingChunk`
   with `maxChars` capped to the channel text limit. Signal/Slack/Discord/Google Chat default
@@ -1893,12 +1895,18 @@ Block streaming:
   Modes: `off` (default), `natural` (800–2500ms), `custom` (use `minMs`/`maxMs`).
   Per-agent override: `agents.list[].humanDelay`.
   Example:
+
   ```json5
   {
     agents: { defaults: { humanDelay: { mode: "natural" } } }
   }
   ```
+<<<<<<< HEAD
 See [/concepts/streaming](/concepts/streaming) for behavior + chunking details.
+=======
+
+  See [/concepts/streaming](/concepts/streaming) for behavior + chunking details.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 Typing indicators:
 - `agents.defaults.typingMode`: `"never" | "instant" | "thinking" | "message"`. Defaults to
@@ -1957,7 +1965,7 @@ Note: `applyPatch` is only under `tools.exec`.
 - `tools.web.fetch.readability` (default true; disable to use basic HTML cleanup only)
 - `tools.web.fetch.firecrawl.enabled` (default true when an API key is set)
 - `tools.web.fetch.firecrawl.apiKey` (optional; defaults to `FIRECRAWL_API_KEY`)
-- `tools.web.fetch.firecrawl.baseUrl` (default https://api.firecrawl.dev)
+- `tools.web.fetch.firecrawl.baseUrl` (default [https://api.firecrawl.dev](https://api.firecrawl.dev))
 - `tools.web.fetch.firecrawl.onlyMainContent` (default true)
 - `tools.web.fetch.firecrawl.maxAgeMs` (optional)
 - `tools.web.fetch.firecrawl.timeoutSeconds` (optional)
@@ -2342,7 +2350,7 @@ Select the model via `agents.defaults.model.primary` (provider/model).
 
 OpenCode Zen is a multi-model gateway with per-model endpoints. Moltbot uses
 the built-in `opencode` provider from pi-ai; set `OPENCODE_API_KEY` (or
-`OPENCODE_ZEN_API_KEY`) from https://opencode.ai/auth.
+`OPENCODE_ZEN_API_KEY`) from [https://opencode.ai/auth](https://opencode.ai/auth).
 
 Notes:
 - Model refs use `opencode/<modelId>` (example: `opencode/claude-opus-4-5`).

@@ -48,9 +48,15 @@ tool surface those skills teach.
 
 ## ClawdHub (install + sync)
 
+<<<<<<< HEAD
 ClawdHub is the public skills registry for Moltbot. Browse at
 https://clawdhub.com. Use it to discover, install, update, and back up skills.
 Full guide: [ClawdHub](/tools/clawdhub).
+=======
+ClawHub is the public skills registry for OpenClaw. Browse at
+[https://clawhub.com](https://clawhub.com). Use it to discover, install, update, and back up skills.
+Full guide: [ClawHub](/tools/clawhub).
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 Common flows:
 
@@ -263,6 +269,10 @@ See [Skills config](/tools/skills-config) for the full configuration schema.
 
 ## Looking for more skills?
 
+<<<<<<< HEAD
 Browse https://clawdhub.com.
+=======
+Browse [https://clawhub.com](https://clawhub.com).
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ---

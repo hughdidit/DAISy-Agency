@@ -69,7 +69,11 @@ node openclaw.mjs gateway --port 18789 --verbose
 moltbot channels login
 ```
 
+<<<<<<< HEAD
 5) Sanity check:
+=======
+1. Sanity check:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 moltbot health

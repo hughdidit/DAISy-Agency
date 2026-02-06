@@ -48,7 +48,11 @@ Restart the Gateway after installing or enabling plugins.
 nak key generate
 ```
 
+<<<<<<< HEAD
 2) Add to config:
+=======
+1. Add to config:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```json
 {
@@ -60,13 +64,21 @@ nak key generate
 }
 ```
 
+<<<<<<< HEAD
 3) Export the key:
+=======
+1. Export the key:
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ```bash
 export NOSTR_PRIVATE_KEY="nsec1..."
 ```
 
+<<<<<<< HEAD
 4) Restart the Gateway.
+=======
+1. Restart the Gateway.
+>>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
 ## Configuration reference
 
