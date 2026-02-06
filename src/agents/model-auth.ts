@@ -298,7 +298,11 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
     venice: "VENICE_API_KEY",
     mistral: "MISTRAL_API_KEY",
     opencode: "OPENCODE_API_KEY",
+<<<<<<< HEAD
     qianfan: "QIANFAN_API_KEY",
+=======
+    ollama: "OLLAMA_API_KEY",
+>>>>>>> 34a58b839 (fix(ollama): add streaming config and fix OLLAMA_API_KEY env var support (#9870))
   };
   const envVar = envMap[normalized];
   if (!envVar) {
