@@ -87,7 +87,11 @@ moltbot gateway --port 18789
 
 Now message the assistant number from your allowlisted phone.
 
+<<<<<<< HEAD:docs/start/clawd.md
 When onboarding finishes, we auto-open the dashboard with your gateway token and print the tokenized link. To reopen later: `moltbot dashboard`.
+=======
+When onboarding finishes, we auto-open the dashboard and print a clean (non-tokenized) link. If it prompts for auth, paste the token from `gateway.auth.token` into Control UI settings. To reopen later: `openclaw dashboard`.
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436)):docs/start/openclaw.md
 
 ## Give the agent a workspace (AGENTS)
 

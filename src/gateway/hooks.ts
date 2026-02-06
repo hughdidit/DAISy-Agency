@@ -41,16 +41,12 @@ export function resolveHooksConfig(cfg: MoltbotConfig): HooksConfigResolved | nu
   };
 }
 
-export type HookTokenResult = {
-  token: string | undefined;
-  fromQuery: boolean;
-};
-
-export function extractHookToken(req: IncomingMessage, url: URL): HookTokenResult {
+export function extractHookToken(req: IncomingMessage): string | undefined {
   const auth =
     typeof req.headers.authorization === "string" ? req.headers.authorization.trim() : "";
   if (auth.toLowerCase().startsWith("bearer ")) {
     const token = auth.slice(7).trim();
+<<<<<<< HEAD
     if (token) return { token, fromQuery: false };
   }
   const headerToken =
@@ -59,6 +55,20 @@ export function extractHookToken(req: IncomingMessage, url: URL): HookTokenResul
   const queryToken = url.searchParams.get("token");
   if (queryToken) return { token: queryToken.trim(), fromQuery: true };
   return { token: undefined, fromQuery: false };
+=======
+    if (token) {
+      return token;
+    }
+  }
+  const headerToken =
+    typeof req.headers["x-openclaw-token"] === "string"
+      ? req.headers["x-openclaw-token"].trim()
+      : "";
+  if (headerToken) {
+    return headerToken;
+  }
+  return undefined;
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
 }
 
 export async function readJsonBody(

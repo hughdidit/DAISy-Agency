@@ -317,12 +317,17 @@ If you don’t have a global install yet, run it via `pnpm moltbot onboard`.
 
 ### How do I open the dashboard after onboarding
 
+<<<<<<< HEAD
 The wizard now opens your browser with a tokenized dashboard URL right after onboarding and also prints the full link (with token) in the summary. Keep that tab open; if it didn’t launch, copy/paste the printed URL on the same machine. Tokens stay local to your host-nothing is fetched from the browser.
+=======
+The wizard opens your browser with a clean (non-tokenized) dashboard URL right after onboarding and also prints the link in the summary. Keep that tab open; if it didn't launch, copy/paste the printed URL on the same machine.
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
 
 ### How do I authenticate the dashboard token on localhost vs remote
 
 **Localhost (same machine):**
 - Open `http://127.0.0.1:18789/`.
+<<<<<<< HEAD
 - If it asks for auth, run `moltbot dashboard` and use the tokenized link (`?token=...`).
 - The token is the same value as `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`) and is stored by the UI after first load.
 
@@ -330,6 +335,16 @@ The wizard now opens your browser with a tokenized dashboard URL right after onb
 - **Tailscale Serve** (recommended): keep bind loopback, run `moltbot gateway --tailscale serve`, open `https://<magicdns>/`. If `gateway.auth.allowTailscale` is `true`, identity headers satisfy auth (no token).
 - **Tailnet bind**: run `moltbot gateway --bind tailnet --token "<token>"`, open `http://<tailscale-ip>:18789/`, paste token in dashboard settings.
 - **SSH tunnel**: `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/?token=...` from `moltbot dashboard`.
+=======
+- If it asks for auth, paste the token from `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`) into Control UI settings.
+- Retrieve it from the gateway host: `openclaw config get gateway.auth.token` (or generate one: `openclaw doctor --generate-gateway-token`).
+
+**Not on localhost:**
+
+- **Tailscale Serve** (recommended): keep bind loopback, run `openclaw gateway --tailscale serve`, open `https://<magicdns>/`. If `gateway.auth.allowTailscale` is `true`, identity headers satisfy auth (no token).
+- **Tailnet bind**: run `openclaw gateway --bind tailnet --token "<token>"`, open `http://<tailscale-ip>:18789/`, paste token in dashboard settings.
+- **SSH tunnel**: `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/` and paste the token in Control UI settings.
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
 
 See [Dashboard](/web/dashboard) and [Web surfaces](/web) for bind modes and auth details.
 
@@ -2291,6 +2306,7 @@ Notes:
 Your gateway is running with auth enabled (`gateway.auth.*`), but the UI is not sending the matching token/password.
 
 Facts (from code):
+<<<<<<< HEAD
 - The Control UI stores the token in browser localStorage key `moltbot.control.settings.v1`.
 - The UI can import `?token=...` (and/or `?password=...`) once, then strips it from the URL.
 
@@ -2301,6 +2317,19 @@ Fix:
 - Set `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`) on the gateway host.
 - In the Control UI settings, paste the same token (or refresh with a one-time `?token=...` link).
 - Still stuck? Run `moltbot status --all` and follow [Troubleshooting](/gateway/troubleshooting). See [Dashboard](/web/dashboard) for auth details.
+=======
+
+- The Control UI stores the token in browser localStorage key `openclaw.control.settings.v1`.
+
+Fix:
+
+- Fastest: `openclaw dashboard` (prints + copies the dashboard URL, tries to open; shows SSH hint if headless).
+- If you don't have a token yet: `openclaw doctor --generate-gateway-token`.
+- If remote, tunnel first: `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/`.
+- Set `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`) on the gateway host.
+- In the Control UI settings, paste the same token.
+- Still stuck? Run `openclaw status --all` and follow [Troubleshooting](/gateway/troubleshooting). See [Dashboard](/web/dashboard) for auth details.
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
 
 ### I set gatewaybind tailnet but it cant bind nothing listens
 

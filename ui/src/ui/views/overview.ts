@@ -42,9 +42,15 @@ export function renderOverview(props: OverviewProps) {
       return html`
         <div class="muted" style="margin-top: 8px;">
           This gateway requires auth. Add a token or password, then click Connect.
+<<<<<<< HEAD
           <div style="margin-top: 6px;">
             <span class="mono">moltbot dashboard --no-open</span> → tokenized URL<br />
             <span class="mono">moltbot doctor --generate-gateway-token</span> → set token
+=======
+          <div style="margin-top: 6px">
+            <span class="mono">openclaw dashboard --no-open</span> → open the Control UI<br />
+            <span class="mono">openclaw doctor --generate-gateway-token</span> → set token
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
           </div>
           <div style="margin-top: 6px;">
             <a
@@ -60,11 +66,17 @@ export function renderOverview(props: OverviewProps) {
       `;
     }
     return html`
+<<<<<<< HEAD
       <div class="muted" style="margin-top: 8px;">
         Auth failed. Re-copy a tokenized URL with
         <span class="mono">moltbot dashboard --no-open</span>, or update the token,
         then click Connect.
         <div style="margin-top: 6px;">
+=======
+      <div class="muted" style="margin-top: 8px">
+        Auth failed. Update the token or password in Control UI settings, then click Connect.
+        <div style="margin-top: 6px">
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
           <a
             class="session-link"
             href="https://docs.molt.bot/web/dashboard"

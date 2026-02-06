@@ -249,11 +249,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     customBindHost: settings.customBindHost,
     basePath: controlUiBasePath,
   });
-  const tokenParam =
-    settings.authMode === "token" && settings.gatewayToken
-      ? `?token=${encodeURIComponent(settings.gatewayToken)}`
-      : "";
-  const authedUrl = `${links.httpUrl}${tokenParam}`;
+  const dashboardUrl = links.httpUrl;
   const gatewayProbe = await probeGatewayReachable({
     url: links.wsUrl,
     token: settings.authMode === "token" ? settings.gatewayToken : undefined,
@@ -273,8 +269,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
 
   await prompter.note(
     [
-      `Web UI: ${links.httpUrl}`,
-      tokenParam ? `Web UI (with token): ${authedUrl}` : undefined,
+      `Web UI: ${dashboardUrl}`,
       `Gateway WS: ${links.wsUrl}`,
       gatewayStatusLine,
       "Docs: https://docs.molt.bot/web/control-ui",
@@ -305,9 +300,18 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     await prompter.note(
       [
         "Gateway token: shared auth for the Gateway + Control UI.",
+<<<<<<< HEAD
         "Stored in: ~/.clawdbot/moltbot.json (gateway.auth.token) or CLAWDBOT_GATEWAY_TOKEN.",
         "Web UI stores a copy in this browser's localStorage (moltbot.control.settings.v1).",
         `Get the tokenized link anytime: ${formatCliCommand("moltbot dashboard --no-open")}`,
+=======
+        "Stored in: ~/.openclaw/openclaw.json (gateway.auth.token) or OPENCLAW_GATEWAY_TOKEN.",
+        `View token: ${formatCliCommand("openclaw config get gateway.auth.token")}`,
+        `Generate token: ${formatCliCommand("openclaw doctor --generate-gateway-token")}`,
+        "Web UI stores a copy in this browser's localStorage (openclaw.control.settings.v1).",
+        `Open the dashboard anytime: ${formatCliCommand("openclaw dashboard --no-open")}`,
+        "Paste the token into Control UI settings if prompted.",
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
       ].join("\n"),
       "Token",
     );
@@ -345,24 +349,22 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     } else if (hatchChoice === "web") {
       const browserSupport = await detectBrowserOpenSupport();
       if (browserSupport.ok) {
-        controlUiOpened = await openUrl(authedUrl);
+        controlUiOpened = await openUrl(dashboardUrl);
         if (!controlUiOpened) {
           controlUiOpenHint = formatControlUiSshHint({
             port: settings.port,
             basePath: controlUiBasePath,
-            token: settings.gatewayToken,
           });
         }
       } else {
         controlUiOpenHint = formatControlUiSshHint({
           port: settings.port,
           basePath: controlUiBasePath,
-          token: settings.gatewayToken,
         });
       }
       await prompter.note(
         [
-          `Dashboard link (with token): ${authedUrl}`,
+          `Dashboard link: ${dashboardUrl}`,
           controlUiOpened
             ? "Opened in your browser. Keep that tab to control Moltbot."
             : "Copy/paste this URL in a browser on this machine to control Moltbot.",
@@ -402,25 +404,23 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
   if (shouldOpenControlUi) {
     const browserSupport = await detectBrowserOpenSupport();
     if (browserSupport.ok) {
-      controlUiOpened = await openUrl(authedUrl);
+      controlUiOpened = await openUrl(dashboardUrl);
       if (!controlUiOpened) {
         controlUiOpenHint = formatControlUiSshHint({
           port: settings.port,
           basePath: controlUiBasePath,
-          token: settings.gatewayToken,
         });
       }
     } else {
       controlUiOpenHint = formatControlUiSshHint({
         port: settings.port,
         basePath: controlUiBasePath,
-        token: settings.gatewayToken,
       });
     }
 
     await prompter.note(
       [
-        `Dashboard link (with token): ${authedUrl}`,
+        `Dashboard link: ${dashboardUrl}`,
         controlUiOpened
           ? "Opened in your browser. Keep that tab to control Moltbot."
           : "Copy/paste this URL in a browser on this machine to control Moltbot.",
@@ -467,9 +467,16 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
 
   await prompter.outro(
     controlUiOpened
+<<<<<<< HEAD
       ? "Onboarding complete. Dashboard opened with your token; keep that tab to control Moltbot."
       : seededInBackground
         ? "Onboarding complete. Web UI seeded in the background; open it anytime with the tokenized link above."
         : "Onboarding complete. Use the tokenized dashboard link above to control Moltbot.",
+=======
+      ? "Onboarding complete. Dashboard opened; keep that tab to control OpenClaw."
+      : seededInBackground
+        ? "Onboarding complete. Web UI seeded in the background; open it anytime with the dashboard link above."
+        : "Onboarding complete. Use the dashboard link above to control OpenClaw.",
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
   );
 }

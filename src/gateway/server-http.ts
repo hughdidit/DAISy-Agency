@@ -123,16 +123,31 @@ export function createHooksRequestHandler(
       return false;
     }
 
+<<<<<<< HEAD
     // Apply security headers to all hook responses (including error paths).
     setSecurityHeaders(res);
 
     const { token, fromQuery } = extractHookToken(req, url);
     if (!token || !safeTokenEqual(token, hooksConfig.token)) {
+=======
+    if (url.searchParams.has("token")) {
+      res.statusCode = 400;
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      res.end(
+        "Hook token must be provided via Authorization: Bearer <token> or X-OpenClaw-Token header (query parameters are not allowed).",
+      );
+      return true;
+    }
+
+    const token = extractHookToken(req);
+    if (!token || token !== hooksConfig.token) {
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
       res.statusCode = 401;
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
       res.end("Unauthorized");
       return true;
     }
+<<<<<<< HEAD
     if (fromQuery) {
       logHooks.warn(
         "Hook token provided via query parameter is deprecated for security reasons. " +
@@ -140,6 +155,8 @@ export function createHooksRequestHandler(
           "Use Authorization: Bearer <token> or X-Moltbot-Token header instead.",
       );
     }
+=======
+>>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
 
     if (req.method !== "POST") {
       res.statusCode = 405;
