@@ -307,6 +307,7 @@ published raw file is typically available at:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 - https://raw.githubusercontent.com/moltbot/moltbot/main/dist/protocol.schema.json
 =======
 - [https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json](https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json)
@@ -314,6 +315,9 @@ published raw file is typically available at:
 =======
 - https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+- [https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json](https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ## When you change schemas
 

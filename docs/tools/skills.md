@@ -54,7 +54,7 @@ https://clawdhub.com. Use it to discover, install, update, and back up skills.
 Full guide: [ClawdHub](/tools/clawdhub).
 =======
 ClawHub is the public skills registry for OpenClaw. Browse at
-https://clawhub.com. Use it to discover, install, update, and back up skills.
+[https://clawhub.com](https://clawhub.com). Use it to discover, install, update, and back up skills.
 Full guide: [ClawHub](/tools/clawhub).
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
@@ -271,6 +271,7 @@ See [Skills config](/tools/skills-config) for the full configuration schema.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 Browse https://clawdhub.com.
 =======
 Browse [https://clawhub.com](https://clawhub.com).
@@ -278,5 +279,8 @@ Browse [https://clawhub.com](https://clawhub.com).
 =======
 Browse https://clawhub.com.
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+Browse [https://clawhub.com](https://clawhub.com).
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ---

@@ -11,6 +11,7 @@ The Gateway dashboard is the browser Control UI served at `/` by default
 
 Quick open (local Gateway):
 <<<<<<< HEAD
+<<<<<<< HEAD
 - http://127.0.0.1:18789/ (or http://localhost:18789/)
 =======
 
@@ -20,6 +21,10 @@ Quick open (local Gateway):
 =======
 - http://127.0.0.1:18789/ (or http://localhost:18789/)
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+- [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (or [http://localhost:18789/](http://localhost:18789/))
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 Key references:
 - [Control UI](/web/control-ui) for usage and UI capabilities.

@@ -42,7 +42,7 @@ moltbot plugins install ./extensions/line
 5) Set the webhook URL to your gateway endpoint (HTTPS required):
 =======
 1. Create a LINE Developers account and open the Console:
-   https://developers.line.biz/console/
+   [https://developers.line.biz/console/](https://developers.line.biz/console/)
 2. Create (or pick) a Provider and add a **Messaging API** channel.
 3. Copy the **Channel access token** and **Channel secret** from the channel settings.
 4. Enable **Use webhook** in the Messaging API settings.

@@ -361,10 +361,14 @@ Alternate (official Bot API):
 1. DM your bot.
 2. Fetch updates with your bot token and read `message.from.id`:
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    curl "https://api.telegram.org/bot<bot_token>/getUpdates"
    ```

@@ -14,6 +14,7 @@ Moltbot uses Brave Search as the default provider for `web_search`.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 1) Create a Brave Search API account at https://brave.com/search/api/
 2) In the dashboard, choose the **Data for Search** plan and generate an API key.
 3) Store the key in config (recommended) or set `BRAVE_API_KEY` in the Gateway environment.
@@ -22,6 +23,9 @@ Moltbot uses Brave Search as the default provider for `web_search`.
 =======
 1. Create a Brave Search API account at https://brave.com/search/api/
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+1. Create a Brave Search API account at [https://brave.com/search/api/](https://brave.com/search/api/)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 2. In the dashboard, choose the **Data for Search** plan and generate an API key.
 3. Store the key in config (recommended) or set `BRAVE_API_KEY` in the Gateway environment.
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)

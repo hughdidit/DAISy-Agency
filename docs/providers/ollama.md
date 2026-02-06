@@ -13,6 +13,7 @@ Ollama is a local LLM runtime that makes it easy to run open-source models on yo
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 1) Install Ollama: https://ollama.ai
 =======
 1. Install Ollama: [https://ollama.ai](https://ollama.ai)
@@ -20,6 +21,9 @@ Ollama is a local LLM runtime that makes it easy to run open-source models on yo
 =======
 1. Install Ollama: https://ollama.ai
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+1. Install Ollama: [https://ollama.ai](https://ollama.ai)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 2) Pull a model:
 
