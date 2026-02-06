@@ -56,11 +56,11 @@ on:
         description: Claude AI session key
         required: true
       CLAUDE_WEB_SESSION_KEY:
-        description: Claude web session key
-        required: true
+        description: Claude web session key (optional, for usage monitoring)
+        required: false
       CLAUDE_WEB_COOKIE:
-        description: Claude web cookie
-        required: true
+        description: Claude web cookie (optional, for usage monitoring)
+        required: false
 
 permissions:
   id-token: write
@@ -128,8 +128,7 @@ jobs:
           : "${GHCR_TOKEN:?GHCR_TOKEN is required}"
           : "${CLAWDBOT_GATEWAY_TOKEN:?CLAWDBOT_GATEWAY_TOKEN is required}"
           : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required}"
-          : "${CLAUDE_WEB_SESSION_KEY:?CLAUDE_WEB_SESSION_KEY is required}"
-          : "${CLAUDE_WEB_COOKIE:?CLAUDE_WEB_COOKIE is required}"
+          # CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
 
       - name: Authenticate to Google Cloud (WIF)
         uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f  # v2.1.7

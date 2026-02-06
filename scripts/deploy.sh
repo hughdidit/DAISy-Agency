@@ -82,8 +82,9 @@ fi
 # App secrets (passed to docker compose on the VM)
 : "${CLAWDBOT_GATEWAY_TOKEN:?CLAWDBOT_GATEWAY_TOKEN is required for real deploy}"
 : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required for real deploy}"
-: "${CLAUDE_WEB_SESSION_KEY:?CLAUDE_WEB_SESSION_KEY is required for real deploy}"
-: "${CLAUDE_WEB_COOKIE:?CLAUDE_WEB_COOKIE is required for real deploy}"
+# CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
+CLAUDE_WEB_SESSION_KEY="${CLAUDE_WEB_SESSION_KEY:-}"
+CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
 
