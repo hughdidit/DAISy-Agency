@@ -1,7 +1,12 @@
 {
   "name": "@openclaw/feishu",
+<<<<<<< HEAD
   "version": "2026.2.4",
   "description": "OpenClaw Feishu channel plugin",
+=======
+  "version": "2026.2.6",
+  "description": "OpenClaw Feishu/Lark channel plugin (community maintained by @m1heng)",
+>>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
   "type": "module",
   "devDependencies": {
     "openclaw": "workspace:*"
