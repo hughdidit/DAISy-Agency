@@ -19,6 +19,11 @@ on:
         required: true
         default: true
         type: boolean
+      provision:
+        description: "If true, provision VM with docker-compose.yml before deploy"
+        required: false
+        default: false
+        type: boolean
 
   workflow_call:
     inputs:
@@ -34,12 +39,27 @@ on:
       dry_run:
         required: true
         type: boolean
+      provision:
+        required: false
+        type: boolean
     secrets:
       GHCR_USERNAME:
         description: GitHub username for GHCR
         required: true
       GHCR_TOKEN:
         description: PAT with read:packages scope
+        required: true
+      CLAWDBOT_GATEWAY_TOKEN:
+        description: Gateway authentication token
+        required: true
+      CLAUDE_AI_SESSION_KEY:
+        description: Claude AI session key
+        required: true
+      CLAUDE_WEB_SESSION_KEY:
+        description: Claude web session key
+        required: true
+      CLAUDE_WEB_COOKIE:
+        description: Claude web cookie
         required: true
 
 permissions:
@@ -94,6 +114,10 @@ jobs:
           # Secrets (sensitive credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          CLAWDBOT_GATEWAY_TOKEN: ${{ secrets.CLAWDBOT_GATEWAY_TOKEN }}
+          CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
+          CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
+          CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
         run: |
           : "${GCP_WORKLOAD_IDENTITY_PROVIDER:?GCP_WORKLOAD_IDENTITY_PROVIDER is required}"
           : "${GCP_SERVICE_ACCOUNT:?GCP_SERVICE_ACCOUNT is required}"
@@ -102,6 +126,10 @@ jobs:
           : "${GCE_INSTANCE_NAME:?GCE_INSTANCE_NAME is required}"
           : "${GHCR_USERNAME:?GHCR_USERNAME is required}"
           : "${GHCR_TOKEN:?GHCR_TOKEN is required}"
+          : "${CLAWDBOT_GATEWAY_TOKEN:?CLAWDBOT_GATEWAY_TOKEN is required}"
+          : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required}"
+          : "${CLAUDE_WEB_SESSION_KEY:?CLAUDE_WEB_SESSION_KEY is required}"
+          : "${CLAUDE_WEB_COOKIE:?CLAUDE_WEB_COOKIE is required}"
 
       - name: Authenticate to Google Cloud (WIF)
         uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f  # v2.1.7
@@ -141,5 +169,13 @@ jobs:
           # Secrets (sensitive credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          CLAWDBOT_GATEWAY_TOKEN: ${{ secrets.CLAWDBOT_GATEWAY_TOKEN }}
+          CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
+          CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
+          CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
         run: |
-          scripts/deploy.sh dist/release/release-metadata.json
+          PROVISION_FLAG=""
+          if [[ "${{ inputs.provision }}" == "true" ]]; then
+            PROVISION_FLAG="--provision"
+          fi
+          scripts/deploy.sh ${PROVISION_FLAG} dist/release/release-metadata.json
