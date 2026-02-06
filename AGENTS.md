@@ -120,7 +120,7 @@
 
 ## Agent-Specific Notes
 - **WSL sudo/disruptive commands:** If a command requires `sudo` or kills processes (e.g., `pkill`, `rm .git/*.lock`), ask the user to run it manually in their terminal rather than attempting it via Bash tool.
-- **WSL git slowness:** Git operations on Windows filesystem (`/mnt/g/`) via WSL are extremely slow. Commands may timeout but continue running in background, causing `.git/index.lock` conflicts. For git commits on slow repos, ask the user to run the command directly.
+- **WSL git slowness:** Git operations on Windows filesystem (`/mnt/g/`) via WSL are extremely slow and can corrupt files. Use Git for Windows instead: `"/mnt/c/Program Files/Git/bin/git.exe" <command>`. This is FAR more efficient for GitHub interactions on network-mounted repos.
 - Vocabulary: "makeup" = "mac app".
 - Never edit `node_modules` (global/Homebrew/npm/git installs too). Updates overwrite. Skill notes go in `tools.md` or `AGENTS.md`.
 - Signal: "update fly" => `fly ssh console -a flawd-bot -C "bash -lc 'cd /data/clawd/moltbot && git pull --rebase origin main'"` then `fly machines restart e825232f34d058 -a flawd-bot`.
