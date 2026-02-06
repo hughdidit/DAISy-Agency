@@ -75,6 +75,12 @@ Docs: https://docs.openclaw.ai
 - Cron: prevent `recomputeNextRuns` from skipping due jobs when timer fires late by reordering `onTimer` flow. (#9823, fixes #9788) Thanks @pycckuu.
 - Cron: deliver announce runs directly, honor delivery mode, and respect wakeMode for summaries. (#8540) Thanks @tyler6204.
 - Telegram: include forward_from_chat metadata in forwarded messages and harden cron delivery target checks. (#8392) Thanks @Glucksberg.
+<<<<<<< HEAD
+=======
+- Telegram: preserve DM topic threadId in deliveryContext. (#9039) Thanks @lailoo.
+- macOS: fix cron payload summary rendering and ISO 8601 formatter concurrency safety.
+- Security: require gateway auth for Canvas host and A2UI assets. (#9518) Thanks @coygeek.
+>>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
 
 >>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
 ## 2026.2.2-3
