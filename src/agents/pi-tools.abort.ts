@@ -1,4 +1,5 @@
 import type { AnyAgentTool } from "./pi-tools.types.js";
+import { bindAbortRelay } from "../utils/fetch-timeout.js";
 
 function throwAbortError(): never {
   const err = new Error("Aborted");
@@ -53,7 +54,11 @@ function combineAbortSignals(a?: AbortSignal, b?: AbortSignal): AbortSignal | un
   }
 
   const controller = new AbortController();
+<<<<<<< HEAD
   const onAbort = () => controller.abort();
+=======
+  const onAbort = bindAbortRelay(controller);
+>>>>>>> 7ec60d644 (fix: use relayAbort helper for addEventListener to preserve AbortError reason)
   a?.addEventListener("abort", onAbort, { once: true });
   b?.addEventListener("abort", onAbort, { once: true });
   return controller.signal;

@@ -1,5 +1,6 @@
 import type { Dispatcher } from "undici";
 import { logWarn } from "../../logger.js";
+import { bindAbortRelay } from "../../utils/fetch-timeout.js";
 import {
   closeDispatcher,
   createPinnedDispatcher,
@@ -50,8 +51,13 @@ function buildAbortSignal(params: { timeoutMs?: number; signal?: AbortSignal }):
   }
 
   const controller = new AbortController();
+<<<<<<< HEAD
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   const onAbort = () => controller.abort();
+=======
+  const timeoutId = setTimeout(controller.abort.bind(controller), timeoutMs);
+  const onAbort = bindAbortRelay(controller);
+>>>>>>> 7ec60d644 (fix: use relayAbort helper for addEventListener to preserve AbortError reason)
   if (signal) {
     if (signal.aborted) {
       controller.abort();

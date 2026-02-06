@@ -1,3 +1,5 @@
+import { bindAbortRelay } from "../utils/fetch-timeout.js";
+
 type FetchWithPreconnect = typeof fetch & {
   preconnect: (url: string, init?: { credentials?: RequestCredentials }) => void;
 };
@@ -36,7 +38,11 @@ export function wrapFetchWithAbortSignal(fetchImpl: typeof fetch): typeof fetch 
       return fetchImpl(input, patchedInit);
     }
     const controller = new AbortController();
+<<<<<<< HEAD
     const onAbort = () => controller.abort();
+=======
+    const onAbort = bindAbortRelay(controller);
+>>>>>>> 7ec60d644 (fix: use relayAbort helper for addEventListener to preserve AbortError reason)
     if (signal.aborted) {
       controller.abort();
     } else {
