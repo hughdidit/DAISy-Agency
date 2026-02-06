@@ -1,5 +1,9 @@
 # Repository Guidelines
-- Repo: https://github.com/moltbot/moltbot
+- Repo: https://github.com/hughdidit/DAISy-Agency
+- Default Branch: daisy/dev
+- Upstream Mirror Branch: main
+- Staging Branch: daisy/dev
+- Production Branch: daisy/main 
 - GitHub issues/comments/PR comments: use literal multiline strings or `-F - <<'EOF'` (or $'...') for real newlines; never embed "\\n".
 
 ## DAISy-Agency Fork Workflow
@@ -115,6 +119,8 @@
 - Rebrand/migration issues or legacy config/service warnings: run `moltbot doctor` (see `docs/gateway/doctor.md`).
 
 ## Agent-Specific Notes
+- **WSL sudo/disruptive commands:** If a command requires `sudo` or kills processes (e.g., `pkill`, `rm .git/*.lock`), ask the user to run it manually in their terminal rather than attempting it via Bash tool.
+- **WSL git slowness:** Git operations on Windows filesystem (`/mnt/g/`) via WSL are extremely slow. Commands may timeout but continue running in background, causing `.git/index.lock` conflicts. For git commits on slow repos, ask the user to run the command directly.
 - Vocabulary: "makeup" = "mac app".
 - Never edit `node_modules` (global/Homebrew/npm/git installs too). Updates overwrite. Skill notes go in `tools.md` or `AGENTS.md`.
 - Signal: "update fly" => `fly ssh console -a flawd-bot -C "bash -lc 'cd /data/clawd/moltbot && git pull --rebase origin main'"` then `fly machines restart e825232f34d058 -a flawd-bot`.
