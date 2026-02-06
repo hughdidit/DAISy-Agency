@@ -16,6 +16,7 @@ title: "Installer Internals"
 Moltbot ships two installer scripts (served from `molt.bot`):
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 - `https://molt.bot/install.sh` — “recommended” installer (global npm install by default; can also install from a GitHub checkout)
 - `https://molt.bot/install-cli.sh` — non-root-friendly CLI installer (installs into a prefix with its own Node)
  - `https://molt.bot/install.ps1` — Windows PowerShell installer (npm by default; optional git install)
@@ -24,6 +25,11 @@ Moltbot ships two installer scripts (served from `molt.bot`):
 - `https://openclaw.ai/install-cli.sh` — non-root-friendly CLI installer (installs into a prefix with its own Node)
 - `https://openclaw.ai/install.ps1` — Windows PowerShell installer (npm by default; optional git install)
 >>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
+=======
+- `https://openclaw.ai/install.sh` - "recommended" installer (global npm install by default; can also install from a GitHub checkout)
+- `https://openclaw.ai/install-cli.sh` - non-root-friendly CLI installer (installs into a prefix with its own Node)
+- `https://openclaw.ai/install.ps1` - Windows PowerShell installer (npm by default; optional git install)
+>>>>>>> 18b480dd3 (Docs: sharpen Install tab to stop duplicating Getting Started (#10416))
 
 To see the current flags/behavior, run:
 
@@ -41,7 +47,49 @@ Windows (PowerShell) help:
 & ([scriptblock]::Create((iwr -useb https://molt.bot/install.ps1))) -?
 ```
 
+<<<<<<< HEAD
 If the installer completes but `moltbot` is not found in a new terminal, it’s usually a Node/npm PATH issue. See: [Install](/install#nodejs--npm-path-sanity).
+=======
+If the installer completes but `openclaw` is not found in a new terminal, it's usually a Node/npm PATH issue. See: [Node.js](/install/node#troubleshooting).
+
+## Flags and environment variables
+
+### CLI flags (install.sh)
+
+| Flag                        | Description                                      |
+| --------------------------- | ------------------------------------------------ |
+| `--install-method npm\|git` | Choose install method (default: `npm`)           |
+| `--git-dir <path>`          | Source checkout location (default: `~/openclaw`) |
+| `--no-git-update`           | Skip `git pull` when using an existing checkout  |
+| `--no-prompt`               | Disable prompts (required in CI/automation)      |
+| `--dry-run`                 | Print what would happen; make no changes         |
+| `--no-onboard`              | Skip onboarding after install                    |
+
+### PowerShell flags (install.ps1)
+
+| Flag                      | Description                                     |
+| ------------------------- | ----------------------------------------------- |
+| `-InstallMethod npm\|git` | Choose install method (default: `npm`)          |
+| `-GitDir <path>`          | Source checkout location                        |
+| `-NoOnboard`              | Skip onboarding after install                   |
+| `-NoGitUpdate`            | Skip `git pull` when using an existing checkout |
+| `-DryRun`                 | Print what would happen; make no changes        |
+| `-Tag <tag>`              | npm dist-tag to install (default: `latest`)     |
+
+### Environment variables
+
+Equivalent env vars (useful for CI/automation):
+
+| Variable                           | Description                                                  |
+| ---------------------------------- | ------------------------------------------------------------ |
+| `OPENCLAW_INSTALL_METHOD=git\|npm` | Install method                                               |
+| `OPENCLAW_GIT_DIR=<path>`          | Source checkout location                                     |
+| `OPENCLAW_GIT_UPDATE=0\|1`         | Toggle git pull                                              |
+| `OPENCLAW_NO_PROMPT=1`             | Disable prompts                                              |
+| `OPENCLAW_DRY_RUN=1`               | Dry run mode                                                 |
+| `OPENCLAW_NO_ONBOARD=1`            | Skip onboarding                                              |
+| `SHARP_IGNORE_GLOBAL_LIBVIPS=0\|1` | Avoid `sharp` building against system libvips (default: `1`) |
+>>>>>>> 18b480dd3 (Docs: sharpen Install tab to stop duplicating Getting Started (#10416))
 
 ## install.sh (recommended)
 
@@ -63,7 +111,11 @@ What it does (high level):
 >>>>>>> 23f0efbf0 (docs: use straight quotes for code terms in installer guide)
 - Mitigates `sharp` native install gotchas by defaulting `SHARP_IGNORE_GLOBAL_LIBVIPS=1` (avoids building against system libvips).
 
+<<<<<<< HEAD
 If you *want* `sharp` to link against a globally-installed libvips (or you’re debugging), set:
+=======
+If you _want_ `sharp` to link against a globally-installed libvips (or you're debugging), set:
+>>>>>>> 18b480dd3 (Docs: sharpen Install tab to stop duplicating Getting Started (#10416))
 
 ```bash
 <<<<<<< HEAD
@@ -73,7 +125,7 @@ SHARP_IGNORE_GLOBAL_LIBVIPS=0 curl -fsSL https://openclaw.ai/install.sh | bash
 >>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
 ```
 
-### Discoverability / “git install” prompt
+### Discoverability / "git install" prompt
 
 If you run the installer while **already inside a Moltbot source checkout** (detected via `package.json` + `pnpm-workspace.yaml`), it prompts:
 
@@ -98,7 +150,11 @@ On some Linux setups (especially after installing Node via the system package ma
 
 ## install-cli.sh (non-root CLI installer)
 
+<<<<<<< HEAD
 This script installs `moltbot` into a prefix (default: `~/.clawdbot`) and also installs a dedicated Node runtime under that prefix, so it can work on machines where you don’t want to touch the system Node/npm.
+=======
+This script installs `openclaw` into a prefix (default: `~/.openclaw`) and also installs a dedicated Node runtime under that prefix, so it can work on machines where you don't want to touch the system Node/npm.
+>>>>>>> 18b480dd3 (Docs: sharpen Install tab to stop duplicating Getting Started (#10416))
 
 Help:
 
