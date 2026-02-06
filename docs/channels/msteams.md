@@ -151,7 +151,7 @@ Before configuring Moltbot, you need to create an Azure Bot resource.
 
 > **Deprecation notice:** Creation of new multi-tenant bots was deprecated after 2025-07-31. Use **Single Tenant** for new bots.
 
-1. Click **Review + create** → **Create** (wait ~1-2 minutes)
+3. Click **Review + create** → **Create** (wait ~1-2 minutes)
 
 ### Step 2: Get Credentials
 
@@ -517,8 +517,11 @@ Bots don't have a personal OneDrive drive (the `/me/drive` Graph API endpoint do
 4. **Configure Moltbot:**
 =======
 4. **Configure OpenClaw:**
+<<<<<<< HEAD
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
    ```json5
    {
      channels: {
@@ -693,7 +696,7 @@ Bots have limited support in private channels:
 
 - **"Icon file cannot be empty":** The manifest references icon files that are 0 bytes. Create valid PNG icons (32x32 for `outline.png`, 192x192 for `color.png`).
 - **"webApplicationInfo.Id already in use":** The app is still installed in another team/chat. Find and uninstall it first, or wait 5-10 minutes for propagation.
-- **"Something went wrong" on upload:** Upload via [https://admin.teams.microsoft.com](https://admin.teams.microsoft.com) instead, open browser DevTools (F12) → Network tab, and check the response body for the actual error.
+- **"Something went wrong" on upload:** Upload via https://admin.teams.microsoft.com instead, open browser DevTools (F12) → Network tab, and check the response body for the actual error.
 - **Sideload failing:** Try "Upload an app to your org's app catalog" instead of "Upload a custom app" - this often bypasses sideload restrictions.
 
 ### RSC permissions not working

@@ -38,11 +38,15 @@ Details: [Plugins](/plugin)
    - Verify scopes `chat:read` and `chat:write` are selected
    - Copy the **Client ID** and **Access Token**
 <<<<<<< HEAD
+<<<<<<< HEAD
 3) Find your Twitch user ID: https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
 4) Configure the token:
    - Env: `CLAWDBOT_TWITCH_ACCESS_TOKEN=...` (default account only)
 =======
 3. Find your Twitch user ID: [https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/](https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/)
+=======
+3. Find your Twitch user ID: https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 4. Configure the token:
    - Env: `OPENCLAW_TWITCH_ACCESS_TOKEN=...` (default account only)
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
@@ -136,7 +140,7 @@ Prefer `allowFrom` for a hard allowlist. Use `allowedRoles` instead if you want 
 
 **Why user IDs?** Usernames can change, allowing impersonation. User IDs are permanent.
 
-Find your Twitch user ID: [https://www.streamweasels.com/tools/convert-twitch-username-%20to-user-id/](https://www.streamweasels.com/tools/convert-twitch-username-%20to-user-id/) (Convert your Twitch username to ID)
+Find your Twitch user ID: https://www.streamweasels.com/tools/convert-twitch-username-%20to-user-id/ (Convert your Twitch username to ID)
 
 ## Token refresh (optional)
 

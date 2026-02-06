@@ -24,10 +24,14 @@ When the operator says “release”, immediately do this preflight (no extra qu
 - [ ] If dependencies changed, run `pnpm install` so `pnpm-lock.yaml` is current.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 2) **Build & artifacts**
 - [ ] If A2UI inputs changed, run `pnpm canvas:a2ui:bundle` and commit any updated [`src/canvas-host/a2ui/a2ui.bundle.js`](https://github.com/moltbot/moltbot/blob/main/src/canvas-host/a2ui/a2ui.bundle.js).
 =======
 1. **Build & artifacts**
+=======
+2. **Build & artifacts**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - [ ] If A2UI inputs changed, run `pnpm canvas:a2ui:bundle` and commit any updated [`src/canvas-host/a2ui/a2ui.bundle.js`](https://github.com/openclaw/openclaw/blob/main/src/canvas-host/a2ui/a2ui.bundle.js).
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
@@ -36,6 +40,7 @@ When the operator says “release”, immediately do this preflight (no extra qu
 - [ ] Confirm `dist/build-info.json` exists and includes the expected `commit` hash (CLI banner uses this for npm installs).
 - [ ] Optional: `npm pack --pack-destination /tmp` after the build; inspect the tarball contents and keep it handy for the GitHub release (do **not** commit it).
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 3) **Changelog & docs**
 - [ ] Update `CHANGELOG.md` with user-facing highlights (create the file if missing); keep entries strictly descending by version.
@@ -48,12 +53,19 @@ When the operator says “release”, immediately do this preflight (no extra qu
 4. **Validation**
 =======
 1. **Changelog & docs**
+=======
+3. **Changelog & docs**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - [ ] Update `CHANGELOG.md` with user-facing highlights (create the file if missing); keep entries strictly descending by version.
 - [ ] Ensure README examples/flags match current CLI behavior (notably new commands or options).
 
+<<<<<<< HEAD
 1. **Validation**
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+4. **Validation**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - [ ] `pnpm build`
 - [ ] `pnpm check`
@@ -74,9 +86,13 @@ When the operator says “release”, immediately do this preflight (no extra qu
 - [ ] (Optional) Spot-check the web gateway if your changes affect send/receive paths.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 5) **macOS app (Sparkle)**
 =======
 1. **macOS app (Sparkle)**
+=======
+5. **macOS app (Sparkle)**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - [ ] Build + sign the macOS app, then zip it for distribution.
@@ -89,8 +105,12 @@ When the operator says “release”, immediately do this preflight (no extra qu
 =======
   - If notarizing, use the `openclaw-notary` keychain profile created from App Store Connect API env vars (see [macOS release](/platforms/mac/release)).
 
+<<<<<<< HEAD
 1. **Publish (npm)**
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+6. **Publish (npm)**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 6) **Publish (npm)**
 - [ ] Confirm git status is clean; commit and push as needed.
@@ -108,9 +128,13 @@ When the operator says “release”, immediately do this preflight (no extra qu
   - `git tag -f vX.Y.Z && git push -f origin vX.Y.Z`
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 7) **GitHub release + appcast**
 =======
 1. **GitHub release + appcast**
+=======
+7. **GitHub release + appcast**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - [ ] Tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z` (or `git push --tags`).

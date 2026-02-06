@@ -210,10 +210,14 @@ export type SystemEchoResult = Static<typeof SystemEchoResultSchema>;
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 2) **Validation**
 =======
 1. **Validation**
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. **Validation**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 In `src/gateway/protocol/index.ts`, export an AJV validator:
 
@@ -223,10 +227,14 @@ export const validateSystemEchoParams =
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 3) **Server behavior**
 =======
 1. **Server behavior**
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+3. **Server behavior**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 Add a handler in `src/gateway/server-methods/system.ts`:
 
@@ -243,20 +251,28 @@ Register it in `src/gateway/server-methods.ts` (already merges `systemHandlers`)
 then add `"system.echo"` to `METHODS` in `src/gateway/server.ts`.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 4) **Regenerate**
 =======
 1. **Regenerate**
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+4. **Regenerate**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 pnpm protocol:check
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 5) **Tests + docs**
 =======
 1. **Tests + docs**
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+5. **Tests + docs**
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 Add a server test in `src/gateway/server.*.test.ts` and note the method in docs.
 
@@ -290,10 +306,14 @@ Generated JSON Schema is in the repo at `dist/protocol.schema.json`. The
 published raw file is typically available at:
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 - https://raw.githubusercontent.com/moltbot/moltbot/main/dist/protocol.schema.json
 =======
 - [https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json](https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json)
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+- https://raw.githubusercontent.com/openclaw/openclaw/main/dist/protocol.schema.json
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ## When you change schemas
 

@@ -241,10 +241,14 @@ moltbot browser extension install
 - Pin the extension, then click it on the tab you want to control (badge shows `ON`).
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 2) Use it:
 - CLI: `moltbot browser --browser-profile chrome tabs`
 =======
 1. Use it:
+=======
+2. Use it:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - CLI: `openclaw browser --browser-profile chrome tabs`
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)

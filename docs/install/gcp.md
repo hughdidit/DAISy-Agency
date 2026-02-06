@@ -68,7 +68,7 @@ For the generic Docker flow, see [Docker](/install/docker).
 
 **Option A: gcloud CLI** (recommended for automation)
 
-Install from [https://cloud.google.com/sdk/docs/install](https://cloud.google.com/sdk/docs/install)
+Install from https://cloud.google.com/sdk/docs/install
 
 Initialize and authenticate:
 
@@ -79,7 +79,7 @@ gcloud auth login
 
 **Option B: Cloud Console**
 
-All steps can be done via the web UI at [https://console.cloud.google.com](https://console.cloud.google.com)
+All steps can be done via the web UI at https://console.cloud.google.com
 
 ---
 
@@ -92,7 +92,7 @@ gcloud projects create my-moltbot-project --name="Moltbot Gateway"
 gcloud config set project my-moltbot-project
 ```
 
-Enable billing at [https://console.cloud.google.com/billing](https://console.cloud.google.com/billing) (required for Compute Engine).
+Enable billing at https://console.cloud.google.com/billing (required for Compute Engine).
 
 Enable the Compute Engine API:
 
@@ -480,7 +480,6 @@ For automation or CI/CD pipelines, create a dedicated service account with minim
    ```
 
 2. Grant Compute Instance Admin role (or narrower custom role):
-
    ```bash
    gcloud projects add-iam-policy-binding my-moltbot-project \
      --member="serviceAccount:moltbot-deploy@my-moltbot-project.iam.gserviceaccount.com" \
@@ -489,7 +488,7 @@ For automation or CI/CD pipelines, create a dedicated service account with minim
 
 Avoid using the Owner role for automation. Use the principle of least privilege.
 
-See [https://cloud.google.com/iam/docs/understanding-roles](https://cloud.google.com/iam/docs/understanding-roles) for IAM role details.
+See https://cloud.google.com/iam/docs/understanding-roles for IAM role details.
 
 ---
 

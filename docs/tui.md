@@ -16,7 +16,7 @@ moltbot gateway
 2) Open the TUI.
 =======
 
-1. Open the TUI.
+2. Open the TUI.
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 ```bash
@@ -26,8 +26,12 @@ moltbot tui
 3) Type a message and press Enter.
 =======
 
+<<<<<<< HEAD
 1. Type a message and press Enter.
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+3. Type a message and press Enter.
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 Remote Gateway:
 ```bash

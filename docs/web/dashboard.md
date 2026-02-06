@@ -14,8 +14,12 @@ Quick open (local Gateway):
 - http://127.0.0.1:18789/ (or http://localhost:18789/)
 =======
 
+<<<<<<< HEAD
 - [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (or [http://localhost:18789/](http://localhost:18789/))
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+- http://127.0.0.1:18789/ (or http://localhost:18789/)
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 Key references:
 - [Control UI](/web/control-ui) for usage and UI capabilities.

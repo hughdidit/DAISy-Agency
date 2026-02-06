@@ -142,30 +142,42 @@ gcloud config set project <project-id>
 Note: Gmail watch requires the Pub/Sub topic to live in the same project as the OAuth client.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 2) Enable APIs:
 =======
 1. Enable APIs:
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+2. Enable APIs:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 gcloud services enable gmail.googleapis.com pubsub.googleapis.com
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 3) Create a topic:
 =======
 1. Create a topic:
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+3. Create a topic:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 gcloud pubsub topics create gog-gmail-watch
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 4) Allow Gmail push to publish:
 =======
 1. Allow Gmail push to publish:
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+4. Allow Gmail push to publish:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 gcloud pubsub topics add-iam-policy-binding gog-gmail-watch \

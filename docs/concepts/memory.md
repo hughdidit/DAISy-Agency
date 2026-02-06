@@ -309,8 +309,8 @@ Why OpenAI batch is fast + cheap:
 - For large backfills, OpenAI is typically the fastest option we support because we can submit many embedding requests in a single batch job and let OpenAI process them asynchronously.
 - OpenAI offers discounted pricing for Batch API workloads, so large indexing runs are usually cheaper than sending the same requests synchronously.
 - See the OpenAI Batch API docs and pricing for details:
-  - [https://platform.openai.com/docs/api-reference/batch](https://platform.openai.com/docs/api-reference/batch)
-  - [https://platform.openai.com/pricing](https://platform.openai.com/pricing)
+  - https://platform.openai.com/docs/api-reference/batch
+  - https://platform.openai.com/pricing
 
 Config example:
 
@@ -391,16 +391,20 @@ Implementation sketch:
 - **BM25**: top `maxResults * candidateMultiplier` by FTS5 BM25 rank (lower is better).
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 2) Convert BM25 rank into a 0..1-ish score:
 - `textScore = 1 / (1 + max(0, bm25Rank))`
 
 3) Union candidates by chunk id and compute a weighted score:
 =======
 1. Convert BM25 rank into a 0..1-ish score:
+=======
+2. Convert BM25 rank into a 0..1-ish score:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 - `textScore = 1 / (1 + max(0, bm25Rank))`
 
-1. Union candidates by chunk id and compute a weighted score:
+3. Union candidates by chunk id and compute a weighted score:
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 - `finalScore = vectorWeight * vectorScore + textWeight * textScore`

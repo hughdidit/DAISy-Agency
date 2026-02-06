@@ -70,10 +70,14 @@ moltbot channels login
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 5) Sanity check:
 =======
 1. Sanity check:
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+5. Sanity check:
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 moltbot health

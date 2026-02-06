@@ -72,11 +72,15 @@ Example: switch to Perplexity Sonar (direct API):
 ## Getting a Brave API key
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 1) Create a Brave Search API account at https://brave.com/search/api/
 2) In the dashboard, choose the **Data for Search** plan (not “Data for AI”) and generate an API key.
 3) Run `moltbot configure --section web` to store the key in config (recommended), or set `BRAVE_API_KEY` in your environment.
 =======
 1. Create a Brave Search API account at [https://brave.com/search/api/](https://brave.com/search/api/)
+=======
+1. Create a Brave Search API account at https://brave.com/search/api/
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 2. In the dashboard, choose the **Data for Search** plan (not “Data for AI”) and generate an API key.
 3. Run `openclaw configure --section web` to store the key in config (recommended), or set `BRAVE_API_KEY` in your environment.
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
@@ -102,11 +106,15 @@ crypto/prepaid).
 ### Getting an OpenRouter API key
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 1) Create an account at https://openrouter.ai/
 2) Add credits (supports crypto, prepaid, or credit card)
 3) Generate an API key in your account settings
 =======
 1. Create an account at [https://openrouter.ai/](https://openrouter.ai/)
+=======
+1. Create an account at https://openrouter.ai/
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 2. Add credits (supports crypto, prepaid, or credit card)
 3. Generate an API key in your account settings
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)

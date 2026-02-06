@@ -25,11 +25,15 @@ Current Kimi K2 model IDs:
 =======
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 <!-- moonshot-kimi-k2-ids:start -->
 >>>>>>> 92803facf (docs: preserve moonshot sync markers)
 =======
 {/_moonshot-kimi-k2-ids:start_/ && null}
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+{/_ moonshot-kimi-k2-ids:start _/ && null}
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 >>>>>>> 8582ed4d4 (Docs: fix Moonshot MDX comment marker (#6311))
 - `kimi-k2.5`
@@ -38,10 +42,14 @@ Current Kimi K2 model IDs:
 - `kimi-k2-thinking`
 - `kimi-k2-thinking-turbo`
 <<<<<<< HEAD
+<<<<<<< HEAD
 <!-- moonshot-kimi-k2-ids:end -->
 =======
   {/_moonshot-kimi-k2-ids:end_/ && null}
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
+=======
+  {/_ moonshot-kimi-k2-ids:end _/ && null}
+>>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 ```bash
 moltbot onboard --auth-choice moonshot-api-key
