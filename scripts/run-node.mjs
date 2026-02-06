@@ -8,6 +8,7 @@ const args = process.argv.slice(2);
 const env = { ...process.env };
 const cwd = process.cwd();
 <<<<<<< HEAD
+<<<<<<< HEAD
 const compiler = env.CLAWDBOT_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
 =======
 const compilerOverride = env.OPENCLAW_TS_COMPILER ?? env.CLAWDBOT_TS_COMPILER;
@@ -20,6 +21,10 @@ const distRoot = path.join(cwd, "dist");
 const distEntry = path.join(distRoot, "entry.js");
 =======
 const projectArgs = ["--project", "tsconfig.json"];
+=======
+const compiler = "tsdown";
+const compilerArgs = ["exec", compiler, "--no-clean"];
+>>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
 
 const distRoot = path.join(cwd, "dist");
 const distEntry = path.join(distRoot, "/entry.js");
@@ -169,10 +174,13 @@ if (!shouldBuild()) {
   runNode();
 } else {
   logRunner("Building TypeScript (dist is stale).");
+<<<<<<< HEAD
   const pnpmArgs = ["exec", compiler, ...projectArgs];
+=======
+>>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
   const buildCmd = process.platform === "win32" ? "cmd.exe" : "pnpm";
   const buildArgs =
-    process.platform === "win32" ? ["/d", "/s", "/c", "pnpm", ...pnpmArgs] : pnpmArgs;
+    process.platform === "win32" ? ["/d", "/s", "/c", "pnpm", ...compilerArgs] : compilerArgs;
   const build = spawn(buildCmd, buildArgs, {
     cwd,
     env,

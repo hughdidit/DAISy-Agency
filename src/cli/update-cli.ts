@@ -102,8 +102,16 @@ const STEP_LABELS: Record<string, string> = {
   "preflight cleanup": "Cleaning preflight worktree",
   "deps install": "Installing dependencies",
   build: "Building",
+<<<<<<< HEAD
   "ui:build": "Building UI",
   "moltbot doctor": "Running doctor checks",
+=======
+  "ui:build": "Building UI assets",
+  "ui:build (post-doctor repair)": "Restoring missing UI assets",
+  "ui assets verify": "Validating UI assets",
+  "openclaw doctor entry": "Checking doctor entrypoint",
+  "openclaw doctor": "Running doctor checks",
+>>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
   "git rev-parse HEAD (after)": "Verifying update",
   "global update": "Updating via package manager",
   "global install": "Installing global package",

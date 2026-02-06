@@ -35,7 +35,12 @@ describe("runGatewayUpdate", () => {
   let tempDir: string;
 
   beforeEach(async () => {
+<<<<<<< HEAD
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-update-"));
+=======
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-update-"));
+    await fs.writeFile(path.join(tempDir, "openclaw.mjs"), "export {};\n", "utf-8");
+>>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
   });
 
   afterEach(async () => {
@@ -107,6 +112,9 @@ describe("runGatewayUpdate", () => {
       JSON.stringify({ name: "moltbot", version: "1.0.0", packageManager: "pnpm@8.0.0" }),
       "utf-8",
     );
+    const uiIndexPath = path.join(tempDir, "dist", "control-ui", "index.html");
+    await fs.mkdir(path.dirname(uiIndexPath), { recursive: true });
+    await fs.writeFile(uiIndexPath, "<html></html>", "utf-8");
     const stableTag = "v1.0.1-1";
     const betaTag = "v1.0.0-beta.2";
     const { runner, calls } = createRunner({
@@ -121,8 +129,14 @@ describe("runGatewayUpdate", () => {
       "pnpm install": { stdout: "" },
       "pnpm build": { stdout: "" },
       "pnpm ui:build": { stdout: "" },
+<<<<<<< HEAD
       [`git -C ${tempDir} checkout -- dist/control-ui/`]: { stdout: "" },
       "pnpm moltbot doctor --non-interactive": { stdout: "" },
+=======
+      [`${process.execPath} ${path.join(tempDir, "openclaw.mjs")} doctor --non-interactive`]: {
+        stdout: "",
+      },
+>>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
     });
 
     const result = await runGatewayUpdate({
@@ -424,5 +438,178 @@ describe("runGatewayUpdate", () => {
     expect(result.status).toBe("error");
     expect(result.reason).toBe("not-moltbot-root");
     expect(calls.some((call) => call.includes("status --porcelain"))).toBe(false);
+  });
+
+  it("fails with a clear reason when openclaw.mjs is missing", async () => {
+    await fs.mkdir(path.join(tempDir, ".git"));
+    await fs.writeFile(
+      path.join(tempDir, "package.json"),
+      JSON.stringify({ name: "openclaw", version: "1.0.0", packageManager: "pnpm@8.0.0" }),
+      "utf-8",
+    );
+    await fs.rm(path.join(tempDir, "openclaw.mjs"), { force: true });
+
+    const stableTag = "v1.0.1-1";
+    const { runner } = createRunner({
+      [`git -C ${tempDir} rev-parse --show-toplevel`]: { stdout: tempDir },
+      [`git -C ${tempDir} rev-parse HEAD`]: { stdout: "abc123" },
+      [`git -C ${tempDir} status --porcelain -- :!dist/control-ui/`]: { stdout: "" },
+      [`git -C ${tempDir} fetch --all --prune --tags`]: { stdout: "" },
+      [`git -C ${tempDir} tag --list v* --sort=-v:refname`]: { stdout: `${stableTag}\n` },
+      [`git -C ${tempDir} checkout --detach ${stableTag}`]: { stdout: "" },
+      "pnpm install": { stdout: "" },
+      "pnpm build": { stdout: "" },
+      "pnpm ui:build": { stdout: "" },
+    });
+
+    const result = await runGatewayUpdate({
+      cwd: tempDir,
+      runCommand: async (argv, _options) => runner(argv),
+      timeoutMs: 5000,
+      channel: "stable",
+    });
+
+    expect(result.status).toBe("error");
+    expect(result.reason).toBe("doctor-entry-missing");
+    expect(result.steps.at(-1)?.name).toBe("openclaw doctor entry");
+  });
+
+  it("repairs UI assets when doctor run removes control-ui files", async () => {
+    await fs.mkdir(path.join(tempDir, ".git"));
+    await fs.writeFile(
+      path.join(tempDir, "package.json"),
+      JSON.stringify({ name: "openclaw", version: "1.0.0", packageManager: "pnpm@8.0.0" }),
+      "utf-8",
+    );
+    const uiIndexPath = path.join(tempDir, "dist", "control-ui", "index.html");
+    await fs.mkdir(path.dirname(uiIndexPath), { recursive: true });
+    await fs.writeFile(uiIndexPath, "<html></html>", "utf-8");
+
+    const stableTag = "v1.0.1-1";
+    const calls: string[] = [];
+    let uiBuildCount = 0;
+
+    const runCommand = async (argv: string[]) => {
+      const key = argv.join(" ");
+      calls.push(key);
+      if (key === `git -C ${tempDir} rev-parse --show-toplevel`) {
+        return { stdout: tempDir, stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} rev-parse HEAD`) {
+        return { stdout: "abc123", stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} status --porcelain -- :!dist/control-ui/`) {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} fetch --all --prune --tags`) {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} tag --list v* --sort=-v:refname`) {
+        return { stdout: `${stableTag}\n`, stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} checkout --detach ${stableTag}`) {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === "pnpm install") {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === "pnpm build") {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === "pnpm ui:build") {
+        uiBuildCount += 1;
+        await fs.mkdir(path.dirname(uiIndexPath), { recursive: true });
+        await fs.writeFile(uiIndexPath, `<html>${uiBuildCount}</html>`, "utf-8");
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (
+        key === `${process.execPath} ${path.join(tempDir, "openclaw.mjs")} doctor --non-interactive`
+      ) {
+        await fs.rm(path.join(tempDir, "dist", "control-ui"), { recursive: true, force: true });
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      return { stdout: "", stderr: "", code: 0 };
+    };
+
+    const result = await runGatewayUpdate({
+      cwd: tempDir,
+      runCommand: async (argv, _options) => runCommand(argv),
+      timeoutMs: 5000,
+      channel: "stable",
+    });
+
+    expect(result.status).toBe("ok");
+    expect(uiBuildCount).toBe(2);
+    expect(await pathExists(uiIndexPath)).toBe(true);
+    expect(calls).toContain(
+      `${process.execPath} ${path.join(tempDir, "openclaw.mjs")} doctor --non-interactive`,
+    );
+  });
+
+  it("fails when UI assets are still missing after post-doctor repair", async () => {
+    await fs.mkdir(path.join(tempDir, ".git"));
+    await fs.writeFile(
+      path.join(tempDir, "package.json"),
+      JSON.stringify({ name: "openclaw", version: "1.0.0", packageManager: "pnpm@8.0.0" }),
+      "utf-8",
+    );
+    const uiIndexPath = path.join(tempDir, "dist", "control-ui", "index.html");
+    await fs.mkdir(path.dirname(uiIndexPath), { recursive: true });
+    await fs.writeFile(uiIndexPath, "<html></html>", "utf-8");
+
+    const stableTag = "v1.0.1-1";
+    let uiBuildCount = 0;
+    const runCommand = async (argv: string[]) => {
+      const key = argv.join(" ");
+      if (key === `git -C ${tempDir} rev-parse --show-toplevel`) {
+        return { stdout: tempDir, stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} rev-parse HEAD`) {
+        return { stdout: "abc123", stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} status --porcelain -- :!dist/control-ui/`) {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} fetch --all --prune --tags`) {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} tag --list v* --sort=-v:refname`) {
+        return { stdout: `${stableTag}\n`, stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} checkout --detach ${stableTag}`) {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === "pnpm install") {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === "pnpm build") {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === "pnpm ui:build") {
+        uiBuildCount += 1;
+        if (uiBuildCount === 1) {
+          await fs.mkdir(path.dirname(uiIndexPath), { recursive: true });
+          await fs.writeFile(uiIndexPath, "<html>built</html>", "utf-8");
+        }
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (
+        key === `${process.execPath} ${path.join(tempDir, "openclaw.mjs")} doctor --non-interactive`
+      ) {
+        await fs.rm(path.join(tempDir, "dist", "control-ui"), { recursive: true, force: true });
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      return { stdout: "", stderr: "", code: 0 };
+    };
+
+    const result = await runGatewayUpdate({
+      cwd: tempDir,
+      runCommand: async (argv, _options) => runCommand(argv),
+      timeoutMs: 5000,
+      channel: "stable",
+    });
+
+    expect(result.status).toBe("error");
+    expect(result.reason).toBe("ui-assets-missing");
   });
 });
