@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
 import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
 import { listChannelPlugins } from "../../channels/plugins/index.js";
@@ -7,7 +6,14 @@ import type {
   ChannelId,
   ChannelPlugin,
 } from "../../channels/plugins/types.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
+import { listChannelPlugins } from "../../channels/plugins/index.js";
+import { sha256HexPrefix } from "../../logging/redact-identifier.js";
+>>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
 import { formatAge } from "./format.js";
 
 export type ChannelRow = {
@@ -55,14 +61,19 @@ function existsSyncMaybe(p: string | undefined): boolean | null {
   }
 }
 
-function sha256HexPrefix(value: string, len = 8): string {
-  return crypto.createHash("sha256").update(value).digest("hex").slice(0, len);
-}
-
 function formatTokenHint(token: string, opts: { showSecrets: boolean }): string {
   const t = token.trim();
+<<<<<<< HEAD
   if (!t) return "empty";
   if (!opts.showSecrets) return `sha256:${sha256HexPrefix(t)} · len ${t.length}`;
+=======
+  if (!t) {
+    return "empty";
+  }
+  if (!opts.showSecrets) {
+    return `sha256:${sha256HexPrefix(t, 8)} · len ${t.length}`;
+  }
+>>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
   const head = t.slice(0, 4);
   const tail = t.slice(-4);
   if (t.length <= 10) return `${t} · len ${t.length}`;

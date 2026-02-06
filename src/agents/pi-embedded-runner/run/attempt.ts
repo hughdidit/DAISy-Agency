@@ -27,6 +27,26 @@ import { streamSimple } from "@mariozechner/pi-ai";
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
 
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
+<<<<<<< HEAD
+=======
+import { resolveChannelCapabilities } from "../../../config/channel-capabilities.js";
+import { getMachineDisplayName } from "../../../infra/machine-name.js";
+import { MAX_IMAGE_BYTES } from "../../../media/constants.js";
+import { getGlobalHookRunner } from "../../../plugins/hook-runner-global.js";
+import { isSubagentSessionKey, normalizeAgentId } from "../../../routing/session-key.js";
+import { resolveSignalReactionLevel } from "../../../signal/reaction-level.js";
+import { resolveTelegramInlineButtonsScope } from "../../../telegram/inline-buttons.js";
+import { resolveTelegramReactionLevel } from "../../../telegram/reaction-level.js";
+import { buildTtsSystemPromptHint } from "../../../tts/tts.js";
+import { resolveUserPath } from "../../../utils.js";
+import { normalizeMessageChannel } from "../../../utils/message-channel.js";
+import { isReasoningTagProvider } from "../../../utils/provider-utils.js";
+import { resolveOpenClawAgentDir } from "../../agent-paths.js";
+import { resolveSessionAgentIds } from "../../agent-scope.js";
+import { createAnthropicPayloadLogger } from "../../anthropic-payload-log.js";
+import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../../bootstrap-files.js";
+import { createCacheTrace } from "../../cache-trace.js";
+>>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
 import {
   listChannelSupportedActions,
   resolveChannelMessageToolHints,
@@ -733,6 +753,13 @@ export async function runEmbeddedAttempt(
 
       // Get hook runner once for both before_agent_start and agent_end hooks
       const hookRunner = getGlobalHookRunner();
+      const hookAgentId =
+        typeof params.agentId === "string" && params.agentId.trim()
+          ? normalizeAgentId(params.agentId)
+          : resolveSessionAgentIds({
+              sessionKey: params.sessionKey,
+              config: params.config,
+            }).sessionAgentId;
 
       let promptError: unknown = null;
       try {
@@ -748,7 +775,7 @@ export async function runEmbeddedAttempt(
                 messages: activeSession.messages,
               },
               {
-                agentId: params.sessionKey?.split(":")[0] ?? "main",
+                agentId: hookAgentId,
                 sessionKey: params.sessionKey,
                 workspaceDir: params.workspaceDir,
                 messageProvider: params.messageProvider ?? undefined,
@@ -876,7 +903,7 @@ export async function runEmbeddedAttempt(
                 durationMs: Date.now() - promptStartedAt,
               },
               {
-                agentId: params.sessionKey?.split(":")[0] ?? "main",
+                agentId: hookAgentId,
                 sessionKey: params.sessionKey,
                 workspaceDir: params.workspaceDir,
                 messageProvider: params.messageProvider ?? undefined,

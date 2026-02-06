@@ -164,6 +164,7 @@ export async function runAgentTurnWithFallback(params: {
               },
             });
             const cliSessionId = getCliSessionId(params.getActiveSessionEntry(), provider);
+<<<<<<< HEAD
             return runCliAgent({
               sessionId: params.followupRun.run.sessionId,
               sessionKey: params.sessionKey,
@@ -182,6 +183,30 @@ export async function runAgentTurnWithFallback(params: {
               images: params.opts?.images,
             })
               .then((result) => {
+=======
+            return (async () => {
+              let lifecycleTerminalEmitted = false;
+              try {
+                const result = await runCliAgent({
+                  sessionId: params.followupRun.run.sessionId,
+                  sessionKey: params.sessionKey,
+                  agentId: params.followupRun.run.agentId,
+                  sessionFile: params.followupRun.run.sessionFile,
+                  workspaceDir: params.followupRun.run.workspaceDir,
+                  config: params.followupRun.run.config,
+                  prompt: params.commandBody,
+                  provider,
+                  model,
+                  thinkLevel: params.followupRun.run.thinkLevel,
+                  timeoutMs: params.followupRun.run.timeoutMs,
+                  runId,
+                  extraSystemPrompt: params.followupRun.run.extraSystemPrompt,
+                  ownerNumbers: params.followupRun.run.ownerNumbers,
+                  cliSessionId,
+                  images: params.opts?.images,
+                });
+
+>>>>>>> 421644940 (fix: guard resolveUserPath against undefined input (#10176))
                 // CLI backends don't emit streaming assistant events, so we need to
                 // emit one with the final text so server-chat can populate its buffer
                 // and send the response to TUI/WebSocket clients.
@@ -225,6 +250,7 @@ export async function runAgentTurnWithFallback(params: {
           return runEmbeddedPiAgent({
             sessionId: params.followupRun.run.sessionId,
             sessionKey: params.sessionKey,
+            agentId: params.followupRun.run.agentId,
             messageProvider: params.sessionCtx.Provider?.trim().toLowerCase() || undefined,
             agentAccountId: params.sessionCtx.AccountId,
             messageTo: params.sessionCtx.OriginatingTo ?? params.sessionCtx.To,
