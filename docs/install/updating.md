@@ -27,6 +27,7 @@ curl -fsSL https://openclaw.ai/install.sh | bash
 Notes:
 - Add `--no-onboard` if you don’t want the onboarding wizard to run again.
 - For **source installs**, use:
+
   ```bash
 <<<<<<< HEAD
   curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git --no-onboard
@@ -34,7 +35,9 @@ Notes:
   curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git --no-onboard
 >>>>>>> 7a2c4d3cf (fix(docs): use canonical openclaw.ai domain instead of openclaw.bot)
   ```
+
   The installer will `git pull --rebase` **only** if the repo is clean.
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -46,6 +49,9 @@ Notes:
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 - For **global installs**, the script uses `npm install -g openclaw@latest` under the hood.
 - Legacy note: `clawdbot` remains available as a compatibility shim.
 >>>>>>> 0eae9f456 (Docs: fix compatibility shim note)
@@ -237,4 +243,4 @@ git pull
 
 - Run `moltbot doctor` again and read the output carefully (it often tells you the fix).
 - Check: [Troubleshooting](/gateway/troubleshooting)
-- Ask in Discord: https://discord.gg/clawd
+- Ask in Discord: [https://discord.gg/clawd](https://discord.gg/clawd)

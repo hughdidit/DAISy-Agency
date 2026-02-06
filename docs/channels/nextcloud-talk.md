@@ -35,13 +35,18 @@ Details: [Plugins](/plugin)
 1. Install the Nextcloud Talk plugin.
 2. On your Nextcloud server, create a bot:
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    ./occ talk:bot:install "Moltbot" "<shared-secret>" "<webhook-url>" --feature reaction
    ```
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 3) Enable the bot in the target room settings.
@@ -50,6 +55,9 @@ Details: [Plugins](/plugin)
 
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 3. Enable the bot in the target room settings.
 4. Configure OpenClaw:
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)

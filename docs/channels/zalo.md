@@ -55,7 +55,7 @@ It is a good fit for support or notifications where you want deterministic routi
 3) Copy the bot token (format: `12345689:abc-xyz`).
 =======
 
-1. Go to **https://bot.zaloplatforms.com** and sign in.
+1. Go to [https://bot.zaloplatforms.com](https://bot.zaloplatforms.com) and sign in.
 2. Create a new bot and configure its settings.
 3. Copy the bot token (format: `12345689:abc-xyz`).
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)

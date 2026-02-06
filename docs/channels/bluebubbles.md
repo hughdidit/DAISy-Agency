@@ -28,10 +28,14 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
 =======
 3. Run `openclaw onboard` and select BlueBubbles, or configure manually:
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```json5
    {
      channels: {
@@ -44,6 +48,7 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
      }
    }
    ```
+
 4. Point BlueBubbles webhooks to your gateway (example: `https://your-gateway-host:3000/bluebubbles-webhook?password=<password>`).
 5. Start the gateway; it will register the webhook handler and start pairing.
 

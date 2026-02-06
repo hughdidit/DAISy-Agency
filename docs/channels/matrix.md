@@ -78,11 +78,15 @@ Details: [Plugins](/plugin)
 5. Restart the gateway (or finish onboarding).
 6. Start a DM with the bot or invite it to a room from any Matrix client
 <<<<<<< HEAD
+<<<<<<< HEAD
    (Element, Beeper, etc.; see [https://matrix.org/ecosystem/clients/](https://matrix.org/ecosystem/clients/)). Beeper requires E2EE,
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
    (Element, Beeper, etc.; see https://matrix.org/ecosystem/clients/). Beeper requires E2EE,
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+   (Element, Beeper, etc.; see [https://matrix.org/ecosystem/clients/](https://matrix.org/ecosystem/clients/)). Beeper requires E2EE,
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    so set `channels.matrix.encryption: true` and verify the device.
 
 Minimal config (access token, user ID auto-fetched):

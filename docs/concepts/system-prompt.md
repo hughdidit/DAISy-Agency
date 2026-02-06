@@ -108,6 +108,7 @@ local Moltbot docs directory (either `docs/` in the repo workspace or the bundle
 package docs) and also notes the public mirror, source repo, community Discord, and
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ClawdHub (https://clawdhub.com) for skills discovery. The prompt instructs the model to consult local docs first
 for Moltbot behavior, commands, configuration, or architecture, and to run
 `moltbot status` itself when possible (asking the user only when it lacks access).
@@ -116,6 +117,9 @@ ClawHub ([https://clawhub.com](https://clawhub.com)) for skills discovery. The p
 =======
 ClawHub (https://clawhub.com) for skills discovery. The prompt instructs the model to consult local docs first
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+ClawHub ([https://clawhub.com](https://clawhub.com)) for skills discovery. The prompt instructs the model to consult local docs first
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 for OpenClaw behavior, commands, configuration, or architecture, and to run
 `openclaw status` itself when possible (asking the user only when it lacks access).
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)

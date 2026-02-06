@@ -268,14 +268,19 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
 =======
 7. **Gateway snapshot**
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    moltbot health --json
    moltbot health --verbose   # shows the target URL + config path on errors
    ```
+
    Asks the running gateway for a full snapshot (WS-only). See [Health](/gateway/health).
 
 ## Quick start and first-run setup
@@ -286,8 +291,8 @@ Use a local AI agent that can **see your machine**. That is far more effective t
 in Discord, because most "I'm stuck" cases are **local config or environment issues** that
 remote helpers cannot inspect.
 
-- **Claude Code**: https://www.anthropic.com/claude-code/
-- **OpenAI Codex**: https://openai.com/codex/
+- **Claude Code**: [https://www.anthropic.com/claude-code/](https://www.anthropic.com/claude-code/)
+- **OpenAI Codex**: [https://openai.com/codex/](https://openai.com/codex/)
 
 These tools can read the repo, run commands, inspect logs, and help fix your machine-level
 setup (PATH, services, permissions, auth files). Give them the **full source checkout** via
@@ -311,6 +316,7 @@ necessary commands. That keeps changes small and easier to audit.
 If you discover a real bug or fix, please file a GitHub issue or send a PR:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 https://github.com/moltbot/moltbot/issues
 https://github.com/moltbot/moltbot/pulls
 =======
@@ -321,6 +327,10 @@ https://github.com/moltbot/moltbot/pulls
 https://github.com/openclaw/openclaw/issues
 https://github.com/openclaw/openclaw/pulls
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+[https://github.com/openclaw/openclaw/issues](https://github.com/openclaw/openclaw/issues)
+[https://github.com/openclaw/openclaw/pulls](https://github.com/openclaw/openclaw/pulls)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 Start with these commands (share outputs when asking for help):
 
@@ -484,11 +494,15 @@ https://github.com/moltbot/moltbot/blob/main/CHANGELOG.md
 =======
 Check the GitHub changelog:
 <<<<<<< HEAD
+<<<<<<< HEAD
 [https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md](https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md)
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+[https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md](https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 Newest entries are at the top. If the top section is marked **Unreleased**, the next dated
 section is the latest shipped version. Entries are grouped by **Highlights**, **Changes**, and
@@ -508,15 +522,19 @@ https://github.com/moltbot/moltbot/tree/main/docs
 Some Comcast/Xfinity connections incorrectly block `docs.openclaw.ai` via Xfinity
 Advanced Security. Disable it or allowlist `docs.openclaw.ai`, then retry. More
 detail: [Troubleshooting](/help/troubleshooting#docsopenclawai-shows-an-ssl-error-comcastxfinity).
-Please help us unblock it by reporting here: https://spa.xfinity.com/check_url_status.
+Please help us unblock it by reporting here: [https://spa.xfinity.com/check_url_status](https://spa.xfinity.com/check_url_status).
 
 If you still can't reach the site, the docs are mirrored on GitHub:
+<<<<<<< HEAD
 <<<<<<< HEAD
 [https://github.com/openclaw/openclaw/tree/main/docs](https://github.com/openclaw/openclaw/tree/main/docs)
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 https://github.com/openclaw/openclaw/tree/main/docs
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+[https://github.com/openclaw/openclaw/tree/main/docs](https://github.com/openclaw/openclaw/tree/main/docs)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ### What's the difference between stable and beta
 
@@ -534,11 +552,15 @@ https://github.com/moltbot/moltbot/blob/main/CHANGELOG.md
 =======
 See what changed:
 <<<<<<< HEAD
+<<<<<<< HEAD
 [https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md](https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md)
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+[https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md](https://github.com/openclaw/openclaw/blob/main/CHANGELOG.md)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ### How do I install the beta version and whats the difference between beta and dev
 
@@ -566,6 +588,7 @@ curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -
 Windows installer (PowerShell):
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 https://molt.bot/install.ps1
 =======
 [https://openclaw.ai/install.ps1](https://openclaw.ai/install.ps1)
@@ -573,6 +596,9 @@ https://molt.bot/install.ps1
 =======
 https://openclaw.ai/install.ps1
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+[https://openclaw.ai/install.ps1](https://openclaw.ai/install.ps1)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 More detail: [Development channels](/install/development-channels) and [Installer flags](/install/installer).
 
@@ -670,9 +696,11 @@ Two common Windows issues:
 **2) moltbot is not recognized after install**
 - Your npm global bin folder is not on PATH.
 - Check the path:
+
   ```powershell
   npm config get prefix
   ```
+
 - Ensure `<prefix>\\bin` is on PATH (on most systems it is `%AppData%\\npm`).
 - Close and reopen PowerShell after updating PATH.
 
@@ -1100,6 +1128,7 @@ Advantages:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 Showcase: https://molt.bot/showcase
 =======
 Showcase: [https://openclaw.ai/showcase](https://openclaw.ai/showcase)
@@ -1107,6 +1136,9 @@ Showcase: [https://openclaw.ai/showcase](https://openclaw.ai/showcase)
 =======
 Showcase: https://openclaw.ai/showcase
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+Showcase: [https://openclaw.ai/showcase](https://openclaw.ai/showcase)
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 ## Skills and automation
 
@@ -1166,11 +1198,15 @@ Browse skills at https://clawdhub.com.
 =======
 Use **ClawHub** (CLI) or drop skills into your workspace. The macOS Skills UI isn't available on Linux.
 <<<<<<< HEAD
+<<<<<<< HEAD
 Browse skills at [https://clawhub.com](https://clawhub.com).
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 Browse skills at https://clawhub.com.
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+Browse skills at [https://clawhub.com](https://clawhub.com).
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 Install the ClawdHub CLI (pick one package manager):
 
@@ -1213,10 +1249,14 @@ Keep the Gateway on Linux, but make the required CLI binaries resolve to SSH wra
 =======
 1. Create an SSH wrapper for the binary (example: `memo` for Apple Notes):
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    #!/usr/bin/env bash
    set -euo pipefail
@@ -1224,18 +1264,24 @@ Keep the Gateway on Linux, but make the required CLI binaries resolve to SSH wra
    ```
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 2) Put the wrapper on `PATH` on the Linux host (for example `~/bin/imsg`).
 3) Override the skill metadata (workspace or `~/.clawdbot/skills`) to allow Linux:
 =======
+=======
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 
 2. Put the wrapper on `PATH` on the Linux host (for example `~/bin/memo`).
 3. Override the skill metadata (workspace or `~/.openclaw/skills`) to allow Linux:
 
+<<<<<<< HEAD
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 2. Put the wrapper on `PATH` on the Linux host (for example `~/bin/memo`).
 3. Override the skill metadata (workspace or `~/.openclaw/skills`) to allow Linux:
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```markdown
    ---
    name: imsg
@@ -1245,6 +1291,7 @@ Keep the Gateway on Linux, but make the required CLI binaries resolve to SSH wra
    ```
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 4) Start a new session so the skills snapshot refreshes.
 
 For iMessage specifically, you can also point `channels.imessage.cliPath` at an SSH wrapper (Moltbot only needs stdio). See [iMessage](/channels/imessage).
@@ -1252,6 +1299,9 @@ For iMessage specifically, you can also point `channels.imessage.cliPath` at an 
 
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 4. Start a new session so the skills snapshot refreshes.
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 
@@ -1624,10 +1674,14 @@ Typical setup:
 =======
 5. Approve the node on the Gateway:
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    moltbot nodes pending
    moltbot nodes approve <requestId>
@@ -1764,14 +1818,19 @@ Minimal steps:
 =======
 1. **Install + login on the VPS**
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    curl -fsSL https://tailscale.com/install.sh | sh
    sudo tailscale up
    ```
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 2) **Install + login on your Mac**
@@ -1779,6 +1838,9 @@ Minimal steps:
 
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 2. **Install + login on your Mac**
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
    - Use the Tailscale app and sign in to the same tailnet.
@@ -1807,10 +1869,14 @@ Recommended setup:
 =======
 3. **Approve the node** on the gateway:
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    moltbot nodes pending
    moltbot nodes approve <requestId>
@@ -1881,9 +1947,11 @@ environment. Fix by doing one of these:
 3) Or add it to your config `env` block (applies only if missing).
 =======
 1. Put the token in `~/.openclaw/.env`:
+
    ```
    COPILOT_GITHUB_TOKEN=...
    ```
+
 2. Or enable shell import (`env.shellEnv.enabled: true`).
 3. Or add it to your config `env` block (applies only if missing).
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
@@ -1976,6 +2044,7 @@ Use one of these:
   or `/compact <instructions>` to guide the summary.
 
 - **Reset** (fresh session ID for the same chat key):
+
   ```
   /new
   /reset
@@ -2244,13 +2313,18 @@ Fix checklist:
 =======
 4. Run:
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
    ```bash
    moltbot models list
    ```
+
    and pick from the list (or `/model list` in chat).
 
 See [MiniMax](/providers/minimax) and [Models](/concepts/models).
@@ -2411,9 +2485,11 @@ can’t find it in its auth store.
 - **If you want to use an API key instead**
   - Put `ANTHROPIC_API_KEY` in `~/.clawdbot/.env` on the **gateway host**.
   - Clear any pinned order that forces a missing profile:
+
     ```bash
     moltbot models auth order clear --provider anthropic
     ```
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 - **Confirm you’re running commands on the gateway host**
@@ -2421,6 +2497,9 @@ can’t find it in its auth store.
 
 =======
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
+=======
+
+>>>>>>> 578a6e27a (Docs: enable markdownlint autofixables except list numbering (#10476))
 - **Confirm you're running commands on the gateway host**
 >>>>>>> c7aec0660 (docs(markdownlint): enable autofixable rules and normalize links)
   - In remote mode, auth profiles live on the gateway machine, not your laptop.
