@@ -65,7 +65,7 @@ jobs:
             type=raw,value=latest,suffix=-amd64,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
             type=sha,prefix=main-,suffix=-amd64,enable=${{ env.BUILD_REF == 'refs/heads/daisy/main' }}
             type=sha,prefix=dev-,suffix=-amd64,enable=${{ env.BUILD_REF == 'refs/heads/daisy/dev' }}
-            type=raw,value=${{ inputs.image_tag }},suffix=-amd64,enable=${{ inputs.image_tag != '' }}
+            type=raw,value=${{ inputs.image_tag }},suffix=-amd64,enable=${{ github.event_name == 'workflow_dispatch' && inputs.image_tag != '' }}
 
       - name: Assert tags are generated
         if: ${{ inputs.dry_run != 'true' }}
@@ -121,7 +121,7 @@ jobs:
             type=raw,value=latest,suffix=-arm64,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
             type=sha,prefix=main-,suffix=-arm64,enable=${{ env.BUILD_REF == 'refs/heads/daisy/main' }}
             type=sha,prefix=dev-,suffix=-arm64,enable=${{ env.BUILD_REF == 'refs/heads/daisy/dev' }}
-            type=raw,value=${{ inputs.image_tag }},suffix=-arm64,enable=${{ inputs.image_tag != '' }}
+            type=raw,value=${{ inputs.image_tag }},suffix=-arm64,enable=${{ github.event_name == 'workflow_dispatch' && inputs.image_tag != '' }}
 
       - name: Assert tags are generated
         if: ${{ inputs.dry_run != 'true' }}
@@ -150,7 +150,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-amd64, build-arm64]
     # Run manifest creation for: push events, or workflow_dispatch with dry_run=false and valid branch/tag/override
-    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true') }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true' && (startsWith(env.BUILD_REF, 'refs/tags/v') || env.BUILD_REF == 'refs/heads/daisy/main' || env.BUILD_REF == 'refs/heads/daisy/dev' || inputs.image_tag != '')) }}
     steps:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -169,7 +169,7 @@ jobs:
             type=raw,value=latest,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
             type=sha,prefix=main-,enable=${{ env.BUILD_REF == 'refs/heads/daisy/main' }}
             type=sha,prefix=dev-,enable=${{ env.BUILD_REF == 'refs/heads/daisy/dev' }}
-            type=raw,value=${{ inputs.image_tag }},enable=${{ inputs.image_tag != '' }}
+            type=raw,value=${{ inputs.image_tag }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.image_tag != '' }}
 
       - name: Assert tags are generated
         run: |
@@ -232,7 +232,7 @@ jobs:
           mkdir -p dist/release
 
           IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          REF="${GITHUB_REF}"
+          REF="${{ env.BUILD_REF }}"
           SHA="${GITHUB_SHA}"
           RUN_ID="${GITHUB_RUN_ID}"
           RUN_ATTEMPT="${GITHUB_RUN_ATTEMPT}"
