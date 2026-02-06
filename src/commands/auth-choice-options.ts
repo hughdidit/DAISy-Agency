@@ -24,8 +24,12 @@ export type AuthChoiceGroupId =
   | "venice"
   | "qwen"
 <<<<<<< HEAD
+<<<<<<< HEAD
   | "qianfan";
 =======
+=======
+  | "qianfan"
+>>>>>>> 7a9deb240 (Resolve conflicts)
   | "xai";
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
 

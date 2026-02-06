@@ -235,6 +235,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       flagValue: opts.qianfanApiKey,
       flagName: "--qianfan-api-key",
       envVar: "QIANFAN_API_KEY",
+<<<<<<< HEAD
 =======
   if (authChoice === "xai-api-key") {
     const resolved = await resolveNonInteractiveApiKey({
@@ -244,6 +245,8 @@ export async function applyNonInteractiveAuthChoice(params: {
       flagName: "--xai-api-key",
       envVar: "XAI_API_KEY",
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
+=======
+>>>>>>> 7a9deb240 (Resolve conflicts)
       runtime,
     });
     if (!resolved) {
@@ -260,11 +263,27 @@ export async function applyNonInteractiveAuthChoice(params: {
       mode: "api_key",
     });
     return applyQianfanConfig(nextConfig);
+<<<<<<< HEAD
 =======
       await setXaiApiKey(resolved.key);
 =======
       setXaiApiKey(resolved.key);
 >>>>>>> 155dfa93e (fix(onboard): align xAI default model to grok-4)
+=======
+  }
+
+  if (authChoice === "xai-api-key") {
+    const resolved = await resolveNonInteractiveApiKey({
+      provider: "xai",
+      cfg: baseConfig,
+      flagValue: opts.xaiApiKey,
+      flagName: "--xai-api-key",
+      envVar: "XAI_API_KEY",
+      runtime,
+    });
+    if (!resolved) {
+      return null;
+>>>>>>> 7a9deb240 (Resolve conflicts)
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "xai:default",
