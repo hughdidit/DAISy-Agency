@@ -4,7 +4,14 @@ import path from "node:path";
 
 import { type CommandOptions, runCommandWithTimeout } from "../process/exec.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import {
+  resolveControlUiDistIndexHealth,
+  resolveControlUiDistIndexPathForRoot,
+} from "./control-ui-assets.js";
+>>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
 import { trimLogTail } from "./restart-sentinel.js";
 import {
   channelToNpmTag,
@@ -761,6 +768,7 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
     );
     steps.push(uiBuildStep);
 
+<<<<<<< HEAD
     // Restore dist/control-ui/ to committed state to prevent dirty repo after update
     // (ui:build regenerates assets with new hashes, which would block future updates)
     const restoreUiStep = await runStep(
@@ -779,8 +787,90 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
         gitRoot,
         { CLAWDBOT_UPDATE_IN_PROGRESS: "1" },
       ),
+=======
+    const doctorEntry = path.join(gitRoot, "openclaw.mjs");
+    const doctorEntryExists = await fs
+      .stat(doctorEntry)
+      .then(() => true)
+      .catch(() => false);
+    if (!doctorEntryExists) {
+      steps.push({
+        name: "openclaw doctor entry",
+        command: `verify ${doctorEntry}`,
+        cwd: gitRoot,
+        durationMs: 0,
+        exitCode: 1,
+        stderrTail: `missing ${doctorEntry}`,
+      });
+      return {
+        status: "error",
+        mode: "git",
+        root: gitRoot,
+        reason: "doctor-entry-missing",
+        before: { sha: beforeSha, version: beforeVersion },
+        steps,
+        durationMs: Date.now() - startedAt,
+      };
+    }
+
+    const doctorArgv = [process.execPath, doctorEntry, "doctor", "--non-interactive"];
+    const doctorStep = await runStep(
+      step("openclaw doctor", doctorArgv, gitRoot, { OPENCLAW_UPDATE_IN_PROGRESS: "1" }),
+>>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
     );
     steps.push(doctorStep);
+
+    const uiIndexHealth = await resolveControlUiDistIndexHealth({ root: gitRoot });
+    if (!uiIndexHealth.exists) {
+      const repairArgv = managerScriptArgs(manager, "ui:build");
+      const started = Date.now();
+      const repairResult = await runCommand(repairArgv, { cwd: gitRoot, timeoutMs });
+      const repairStep: UpdateStepResult = {
+        name: "ui:build (post-doctor repair)",
+        command: repairArgv.join(" "),
+        cwd: gitRoot,
+        durationMs: Date.now() - started,
+        exitCode: repairResult.code,
+        stdoutTail: trimLogTail(repairResult.stdout, MAX_LOG_CHARS),
+        stderrTail: trimLogTail(repairResult.stderr, MAX_LOG_CHARS),
+      };
+      steps.push(repairStep);
+
+      if (repairResult.code !== 0) {
+        return {
+          status: "error",
+          mode: "git",
+          root: gitRoot,
+          reason: repairStep.name,
+          before: { sha: beforeSha, version: beforeVersion },
+          steps,
+          durationMs: Date.now() - startedAt,
+        };
+      }
+
+      const repairedUiIndexHealth = await resolveControlUiDistIndexHealth({ root: gitRoot });
+      if (!repairedUiIndexHealth.exists) {
+        const uiIndexPath =
+          repairedUiIndexHealth.indexPath ?? resolveControlUiDistIndexPathForRoot(gitRoot);
+        steps.push({
+          name: "ui assets verify",
+          command: `verify ${uiIndexPath}`,
+          cwd: gitRoot,
+          durationMs: 0,
+          exitCode: 1,
+          stderrTail: `missing ${uiIndexPath}`,
+        });
+        return {
+          status: "error",
+          mode: "git",
+          root: gitRoot,
+          reason: "ui-assets-missing",
+          before: { sha: beforeSha, version: beforeVersion },
+          steps,
+          durationMs: Date.now() - startedAt,
+        };
+      }
+    }
 
     const failedStep = steps.find((s) => s.exitCode !== 0);
     const afterShaStep = await runStep(

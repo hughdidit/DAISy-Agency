@@ -1,6 +1,16 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import type { DoctorPrompter } from "./doctor-prompter.js";
+import {
+  resolveControlUiDistIndexHealth,
+  resolveControlUiDistIndexPathForRoot,
+} from "../infra/control-ui-assets.js";
+import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
+>>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
 import { runCommandWithTimeout } from "../process/exec.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
@@ -21,7 +31,11 @@ export async function maybeRepairUiProtocolFreshness(
   }
 
   const schemaPath = path.join(root, "src/gateway/protocol/schema.ts");
-  const uiIndexPath = path.join(root, "dist/control-ui/index.html");
+  const uiHealth = await resolveControlUiDistIndexHealth({
+    root,
+    argv1: process.argv[1],
+  });
+  const uiIndexPath = uiHealth.indexPath ?? resolveControlUiDistIndexPathForRoot(root);
 
   try {
     const [schemaStats, uiStats] = await Promise.all([

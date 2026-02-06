@@ -11,6 +11,32 @@ import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 import { resolveOpenClawPackageRoot, resolveOpenClawPackageRootSync } from "./openclaw-root.js";
 >>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
 
+const CONTROL_UI_DIST_PATH_SEGMENTS = ["dist", "control-ui", "index.html"] as const;
+
+export function resolveControlUiDistIndexPathForRoot(root: string): string {
+  return path.join(root, ...CONTROL_UI_DIST_PATH_SEGMENTS);
+}
+
+export type ControlUiDistIndexHealth = {
+  indexPath: string | null;
+  exists: boolean;
+};
+
+export async function resolveControlUiDistIndexHealth(
+  opts: {
+    root?: string;
+    argv1?: string;
+  } = {},
+): Promise<ControlUiDistIndexHealth> {
+  const indexPath = opts.root
+    ? resolveControlUiDistIndexPathForRoot(opts.root)
+    : await resolveControlUiDistIndexPath(opts.argv1 ?? process.argv[1]);
+  return {
+    indexPath,
+    exists: Boolean(indexPath && fs.existsSync(indexPath)),
+  };
+}
+
 export function resolveControlUiRepoRoot(
   argv1: string | undefined = process.argv[1],
 ): string | null {
@@ -205,8 +231,14 @@ export async function ensureControlUiAssetsBuilt(
   runtime: RuntimeEnv = defaultRuntime,
   opts?: { timeoutMs?: number },
 ): Promise<EnsureControlUiAssetsResult> {
+<<<<<<< HEAD
   const indexFromDist = resolveControlUiDistIndexPath(process.argv[1]);
   if (indexFromDist && fs.existsSync(indexFromDist)) {
+=======
+  const health = await resolveControlUiDistIndexHealth({ argv1: process.argv[1] });
+  const indexFromDist = health.indexPath;
+  if (health.exists) {
+>>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
     return { ok: true, built: false };
   }
 
@@ -222,7 +254,7 @@ export async function ensureControlUiAssetsBuilt(
     };
   }
 
-  const indexPath = path.join(repoRoot, "dist", "control-ui", "index.html");
+  const indexPath = resolveControlUiDistIndexPathForRoot(repoRoot);
   if (fs.existsSync(indexPath)) {
     return { ok: true, built: false };
   }
