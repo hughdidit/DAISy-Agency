@@ -220,7 +220,12 @@ export const DiscordAccountSchema = z
     enabled: z.boolean().optional(),
     commands: ProviderCommandsSchema,
     configWrites: z.boolean().optional(),
+<<<<<<< HEAD
     token: z.string().optional(),
+=======
+    token: z.string().optional().register(sensitive),
+    proxy: z.string().optional(),
+>>>>>>> 0cb69b0f2 (Discord: add gateway proxy support)
     allowBots: z.boolean().optional(),
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
     historyLimit: z.number().int().min(0).optional(),
