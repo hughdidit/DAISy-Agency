@@ -38,6 +38,7 @@ import {
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
   resolveDiscordShouldRequireMention,
+  resolveDiscordRoleAllowed,
   resolveDiscordUserAllowed,
   resolveGroupDmAllow,
 } from "./allow-list.js";
@@ -218,11 +219,18 @@ export async function preflightDiscordMessage(
     earlyThreadParentType = parentInfo.type;
   }
 
+<<<<<<< HEAD
+=======
+  // Fresh config for bindings lookup; other routing inputs are payload-derived.
+  // member.roles is already string[] (Snowflake IDs) per Discord API types
+  const memberRoleIds: string[] = params.data.member?.roles ?? [];
+>>>>>>> ad508c8c8 (fix: use member.roles as string[] per Discord API types)
   const route = resolveAgentRoute({
     cfg: params.cfg,
     channel: "discord",
     accountId: params.accountId,
     guildId: params.data.guild_id ?? undefined,
+    memberRoleIds,
     peer: {
       kind: isDirectMessage ? "dm" : isGroupDm ? "group" : "channel",
       id: isDirectMessage ? author.id : message.channelId,
@@ -532,15 +540,30 @@ export async function preflightDiscordMessage(
 
   if (isGuildMessage) {
     const channelUsers = channelConfig?.users ?? guildInfo?.users;
-    if (Array.isArray(channelUsers) && channelUsers.length > 0) {
-      const userOk = resolveDiscordUserAllowed({
-        allowList: channelUsers,
-        userId: sender.id,
-        userName: sender.name,
-        userTag: sender.tag,
-      });
-      if (!userOk) {
-        logVerbose(`Blocked discord guild sender ${sender.id} (not in channel users allowlist)`);
+    const channelRoles = channelConfig?.roles ?? guildInfo?.roles;
+    const hasUserRestriction = Array.isArray(channelUsers) && channelUsers.length > 0;
+    const hasRoleRestriction = Array.isArray(channelRoles) && channelRoles.length > 0;
+
+    if (hasUserRestriction || hasRoleRestriction) {
+      // member.roles is already string[] (Snowflake IDs) per Discord API types
+      const memberRoleIds: string[] = params.data.member?.roles ?? [];
+      const userOk = hasUserRestriction
+        ? resolveDiscordUserAllowed({
+            allowList: channelUsers,
+            userId: sender.id,
+            userName: sender.name,
+            userTag: sender.tag,
+          })
+        : false;
+      const roleOk = hasRoleRestriction
+        ? resolveDiscordRoleAllowed({
+            allowList: channelRoles,
+            memberRoleIds,
+          })
+        : false;
+
+      if (!userOk && !roleOk) {
+        logVerbose(`Blocked discord guild sender ${sender.id} (not in users/roles allowlist)`);
         return null;
       }
     }
