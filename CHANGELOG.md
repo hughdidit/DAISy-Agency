@@ -93,7 +93,7 @@ Docs: https://docs.openclaw.ai
 - feat: add Claude Opus 4.6 to built-in model catalog. (#9853) Thanks @TinyTb.
 - chore: add agent credentials to gitignore. (#9874) Thanks @caelum0x.
 - Docs: escape hash symbol in help channel names in issue template. (#9695) Thanks @mattqdev.
-- feat(skills): add QR code generation and reading skill (reverted in 6b7d3c30). (#8817) Thanks @Omar-Khaleel.
+- feat(skills): add QR code generation and reading skill (reverted). (#8817) Thanks @Omar-Khaleel.
 - chore(agentsmd): add missing tsgo commands to AGENTS.md. (#9894) Thanks @vincentkoc.
 - chore: apply local workspace updates. (#9911) Thanks @gumadeiras.
 - docs: improve DM security guidance with concrete example. (#9377) Thanks @Shrinija17.
@@ -213,7 +213,14 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 3b768a285 (docs(changelog): prepare 2026.2.6)
 =======
 - 3b768a28 docs(changelog): prepare 2026.2.6 (Peter Steinberger).
+<<<<<<< HEAD
 >>>>>>> ac5944cde (docs(changelog): include merged PRs since v2026.2.3)
+=======
+- ac5944cd docs(changelog): include merged PRs since v2026.2.3 (Peter Steinberger).
+- 677450cd chore(release): bump version to 2026.2.6 (Peter Steinberger).
+- d898ad68 fix(telegram): cast fetch for grammY ApiClientOptions (Peter Steinberger).
+- 5163833b docs: fix markdownlint fragments + headings (Peter Steinberger).
+>>>>>>> 7be921c43 (docs(changelog): refresh 2026.2.6 since v2026.2.3)
 
 ## 2026.2.2-3
 
