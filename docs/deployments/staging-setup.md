@@ -150,9 +150,37 @@ The scrub script will:
 - Remove cron jobs
 - Prompt to reboot
 
-### 4. Configure Staging Secrets (Manual)
+### 4. Provision and Deploy via GitHub Actions (Recommended)
 
-After the VM reboots, SSH back in and configure staging secrets:
+The easiest way to set up the deployment directory and start services is via the GitHub Actions workflow:
+
+1. **Add app secrets** to the `staging` environment in GitHub:
+   - `CLAWDBOT_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
+   - `CLAUDE_AI_SESSION_KEY` - From [Anthropic Console](https://console.anthropic.com/settings/keys)
+   - `CLAUDE_WEB_SESSION_KEY` - Optional, for usage monitoring (see below)
+   - `CLAUDE_WEB_COOKIE` - Optional, for usage monitoring (see below)
+
+2. **Run the Deploy workflow** with:
+   - `environment`: `staging`
+   - `image_ref`: Your image reference (e.g., `ghcr.io/hughdidit/daisy-agency:latest`)
+   - `provision`: `true` (creates `/opt/DAISy` and copies docker-compose.yml)
+   - `dry_run`: `false`
+
+This provisions the VM, pulls the image, and starts the containers in one step.
+
+#### Optional Usage Monitoring Secrets
+
+`CLAUDE_WEB_SESSION_KEY` and `CLAUDE_WEB_COOKIE` enable the **usage monitoring** feature, which displays your Claude rate limits and quota in the dashboard. These are optional fallback credentials used when the primary API token lacks the `user:profile` scope.
+
+To extract (if needed):
+1. Open [claude.ai](https://claude.ai) in your browser
+2. DevTools → Application → Cookies → copy `sessionKey` value
+
+If you don't need usage statistics, set these to any placeholder value (e.g., `unused`).
+
+### 4b. Manual Setup (Alternative)
+
+If you prefer manual configuration instead of workflow provisioning:
 
 ```bash
 gcloud compute ssh ${STAGING_INSTANCE:-daisy-staging-1} \
@@ -160,53 +188,27 @@ gcloud compute ssh ${STAGING_INSTANCE:-daisy-staging-1} \
   --tunnel-through-iap
 ```
 
-Create the `.env` file with staging secrets:
+Create the deployment directory and docker-compose.yml:
 
 ```bash
-sudo nano /opt/DAISy/.env
-```
-
-Required variables:
-```env
-# Gateway
-CLAWDBOT_GATEWAY_TOKEN=<generate-random-token>
-CLAWDBOT_GATEWAY_BIND=lan
-CLAWDBOT_GATEWAY_PORT=18789
-CLAWDBOT_BRIDGE_PORT=18790
-
-# Docker image (pin to specific version or SHA for security)
-# Using :latest is convenient but poses supply-chain risk - if the registry
-# or tag is compromised, malicious code could execute with your secrets.
-# For staging, use a specific version tag or image digest:
-#   Tag example:    ghcr.io/hughdidit/daisy-agency:staging
-#   SHA example:    ghcr.io/hughdidit/daisy-agency@sha256:abc123...
-# Example: CLAWDBOT_IMAGE=ghcr.io/hughdidit/daisy-agency:v1.2.3
-CLAWDBOT_IMAGE=ghcr.io/hughdidit/daisy-agency:v1.0.0
-
-# Paths (should match bind mounts)
-CLAWDBOT_CONFIG_DIR=/var/lib/clawdbot/home/.clawdbot
-CLAWDBOT_WORKSPACE_DIR=/var/lib/clawdbot/home/clawd
-
-# API Keys (use staging-specific or shared with usage tracking)
-# ANTHROPIC_API_KEY=<staging-key>
-# OPENAI_API_KEY=<staging-key>
-```
-
-Generate a random gateway token:
-```bash
-openssl rand -hex 32
+sudo mkdir -p /opt/DAISy
+sudo chown "$(whoami):$(whoami)" /opt/DAISy
+# Copy docker-compose.yml from your local machine or create it manually
 ```
 
 #### Staging Secrets Checklist
 
 - [ ] `CLAWDBOT_GATEWAY_TOKEN` - Generate new random token
+- [ ] `CLAUDE_AI_SESSION_KEY` - Anthropic API key
 - [ ] Discord bot token - **Use staging bot, NOT production**
 - [ ] Discord allowlist - **Staging-only channels/users**
 - [ ] API keys - Use staging keys or shared keys with tracking
 - [ ] GHCR credentials - For pulling staging images
 - [ ] Cloudflare tunnel - **Disabled or staging-only tunnel**
 
-### 5. Start Services
+### 5. Start Services (Manual only)
+
+Skip this if you used the workflow provisioning (step 4).
 
 ```bash
 cd /opt/DAISy
