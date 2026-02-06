@@ -64,6 +64,8 @@ jobs:
             type=semver,pattern={{version}},suffix=-amd64,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
             type=raw,value=latest,suffix=-amd64,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
             type=sha,prefix=main-,suffix=-amd64,enable=${{ env.BUILD_REF == 'refs/heads/daisy/main' }}
+            type=sha,prefix=dev-,suffix=-amd64,enable=${{ env.BUILD_REF == 'refs/heads/daisy/dev' }}
+            type=raw,value=${{ inputs.image_tag }},suffix=-amd64,enable=${{ github.event_name == 'workflow_dispatch' && inputs.image_tag != '' }}
 
       - name: Assert tags are generated
         if: ${{ inputs.dry_run != 'true' }}
@@ -118,6 +120,8 @@ jobs:
             type=semver,pattern={{version}},suffix=-arm64,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
             type=raw,value=latest,suffix=-arm64,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
             type=sha,prefix=main-,suffix=-arm64,enable=${{ env.BUILD_REF == 'refs/heads/daisy/main' }}
+            type=sha,prefix=dev-,suffix=-arm64,enable=${{ env.BUILD_REF == 'refs/heads/daisy/dev' }}
+            type=raw,value=${{ inputs.image_tag }},suffix=-arm64,enable=${{ github.event_name == 'workflow_dispatch' && inputs.image_tag != '' }}
 
       - name: Assert tags are generated
         if: ${{ inputs.dry_run != 'true' }}
@@ -145,7 +149,8 @@ jobs:
   create-manifest:
     runs-on: ubuntu-latest
     needs: [build-amd64, build-arm64]
-    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true' && (startsWith((github.event_name == 'workflow_dispatch' && inputs.ref) || github.ref, 'refs/tags/v') || ((github.event_name == 'workflow_dispatch' && inputs.ref) || github.ref) == 'refs/heads/daisy/main')) }}
+    # Run manifest creation for: push events, or workflow_dispatch with dry_run=false and valid branch/tag/override
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true' && (startsWith(env.BUILD_REF, 'refs/tags/v') || env.BUILD_REF == 'refs/heads/daisy/main' || env.BUILD_REF == 'refs/heads/daisy/dev' || inputs.image_tag != '')) }}
     steps:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -163,6 +168,8 @@ jobs:
             type=semver,pattern={{version}},enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
             type=raw,value=latest,enable=${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}
             type=sha,prefix=main-,enable=${{ env.BUILD_REF == 'refs/heads/daisy/main' }}
+            type=sha,prefix=dev-,enable=${{ env.BUILD_REF == 'refs/heads/daisy/dev' }}
+            type=raw,value=${{ inputs.image_tag }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.image_tag != '' }}
 
       - name: Assert tags are generated
         run: |
@@ -172,6 +179,8 @@ jobs:
           fi
 
       - name: Create and push manifest
+        env:
+          IMAGE_TAG_OVERRIDE: ${{ inputs.image_tag }}
         run: |
           set -euo pipefail
 
@@ -180,6 +189,7 @@ jobs:
           IS_TAG="${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}"
           # Note: daisy/main is the production branch for this repository.
           IS_MAIN="${{ env.BUILD_REF == 'refs/heads/daisy/main' }}"
+          IS_DEV="${{ env.BUILD_REF == 'refs/heads/daisy/dev' }}"
 
           if [ "${IS_TAG}" = "true" ]; then
             docker buildx imagetools create \
@@ -197,15 +207,32 @@ jobs:
               "${IMAGE}:main-${SHORTSHA}-arm64"
           fi
 
+          if [ "${IS_DEV}" = "true" ]; then
+            SHORTSHA="$(echo "${GITHUB_SHA}" | cut -c1-7)"
+            docker buildx imagetools create \
+              -t "${IMAGE}:dev-${SHORTSHA}" \
+              "${IMAGE}:dev-${SHORTSHA}-amd64" \
+              "${IMAGE}:dev-${SHORTSHA}-arm64"
+          fi
+
+          if [ -n "${IMAGE_TAG_OVERRIDE}" ]; then
+            docker buildx imagetools create \
+              -t "${IMAGE}:${IMAGE_TAG_OVERRIDE}" \
+              "${IMAGE}:${IMAGE_TAG_OVERRIDE}-amd64" \
+              "${IMAGE}:${IMAGE_TAG_OVERRIDE}-arm64"
+          fi
+
       - name: Write release metadata
         shell: bash
+        env:
+          IMAGE_TAG_OVERRIDE: ${{ inputs.image_tag }}
         run: |
           set -euo pipefail
 
           mkdir -p dist/release
 
           IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          REF="${GITHUB_REF}"
+          REF="${{ env.BUILD_REF }}"
           SHA="${GITHUB_SHA}"
           RUN_ID="${GITHUB_RUN_ID}"
           RUN_ATTEMPT="${GITHUB_RUN_ATTEMPT}"
@@ -216,36 +243,34 @@ jobs:
           IS_TAG="${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}"
           # Note: 'daisy/main' is this repository's primary branch, so we treat it as "main".
           IS_MAIN="${{ env.BUILD_REF == 'refs/heads/daisy/main' }}"
+          IS_DEV="${{ env.BUILD_REF == 'refs/heads/daisy/dev' }}"
 
           TAGS_JSON="[]"
-          if [[ "${IS_TAG}" == "true" ]]; then
+          LOOKUP_TAG=""
+          if [[ -n "${IMAGE_TAG_OVERRIDE}" ]]; then
+            TAGS_JSON="$(jq -n --arg t "${IMAGE_TAG_OVERRIDE}" '[ $t ]')"
+            LOOKUP_TAG="${IMAGE_TAG_OVERRIDE}"
+          elif [[ "${IS_TAG}" == "true" ]]; then
             TAGS_JSON="$(jq -n --arg v "${TAG_VERSION}" '[ $v, "latest" ]')"
+            LOOKUP_TAG="${TAG_VERSION}"
           elif [[ "${IS_MAIN}" == "true" ]]; then
             TAGS_JSON="$(jq -n --arg t "main-${SHORTSHA}" '[ $t ]')"
+            LOOKUP_TAG="main-${SHORTSHA}"
+          elif [[ "${IS_DEV}" == "true" ]]; then
+            TAGS_JSON="$(jq -n --arg t "dev-${SHORTSHA}" '[ $t ]')"
+            LOOKUP_TAG="dev-${SHORTSHA}"
           fi
 
           DIGEST=""
-          if [[ "${IS_TAG}" == "true" ]]; then
-            echo "Retrieving digest for ${IMAGE}:${TAG_VERSION}..."
-            if ! DIGEST="$(docker buildx imagetools inspect "${IMAGE}:${TAG_VERSION}" --format '{{json .Manifest.Digest}}' 2>&1 | tr -d '\"')"; then
-              echo "ERROR: Failed to retrieve digest for ${IMAGE}:${TAG_VERSION}" >&2
+          if [[ -n "${LOOKUP_TAG}" ]]; then
+            echo "Retrieving digest for ${IMAGE}:${LOOKUP_TAG}..."
+            if ! DIGEST="$(docker buildx imagetools inspect "${IMAGE}:${LOOKUP_TAG}" --format '{{json .Manifest.Digest}}' 2>&1 | tr -d '\"')"; then
+              echo "ERROR: Failed to retrieve digest for ${IMAGE}:${LOOKUP_TAG}" >&2
               echo "This indicates the manifest was not pushed successfully." >&2
               exit 1
             fi
             if [[ -z "${DIGEST}" || "${DIGEST}" == "null" ]]; then
-              echo "ERROR: Retrieved empty or null digest for ${IMAGE}:${TAG_VERSION}" >&2
-              exit 1
-            fi
-            echo "Retrieved digest: ${DIGEST}"
-          elif [[ "${IS_MAIN}" == "true" ]]; then
-            echo "Retrieving digest for ${IMAGE}:main-${SHORTSHA}..."
-            if ! DIGEST="$(docker buildx imagetools inspect "${IMAGE}:main-${SHORTSHA}" --format '{{json .Manifest.Digest}}' 2>&1 | tr -d '\"')"; then
-              echo "ERROR: Failed to retrieve digest for ${IMAGE}:main-${SHORTSHA}" >&2
-              echo "This indicates the manifest was not pushed successfully." >&2
-              exit 1
-            fi
-            if [[ -z "${DIGEST}" || "${DIGEST}" == "null" ]]; then
-              echo "ERROR: Retrieved empty or null digest for ${IMAGE}:main-${SHORTSHA}" >&2
+              echo "ERROR: Retrieved empty or null digest for ${IMAGE}:${LOOKUP_TAG}" >&2
               exit 1
             fi
             echo "Retrieved digest: ${DIGEST}"
