@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Deploy script for DAISy staging/production
+# Uses gcloud compute ssh with IAP tunneling for secure access
+# Usage: deploy.sh [--resolve-only] <metadata-path>
+
 if [[ "${1:-}" == "--resolve-only" ]]; then
   META_PATH="${2:?metadata path required}"
   RESOLVE_ONLY="true"
@@ -45,42 +49,28 @@ if [[ "${DRY_RUN:-true}" == "true" ]]; then
   exit 0
 fi
 
-: "${DEPLOY_TARGET:?DEPLOY_TARGET is required for real deploy}"
-: "${DEPLOY_TOKEN:?DEPLOY_TOKEN is required for real deploy}"
+# Validate required environment variables for IAP deploy
+: "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required for real deploy}"
+: "${GCP_ZONE:?GCP_ZONE is required for real deploy}"
+: "${GCE_INSTANCE_NAME:?GCE_INSTANCE_NAME is required for real deploy}"
+: "${GHCR_USERNAME:?GHCR_USERNAME is required for real deploy}"
+: "${GHCR_TOKEN:?GHCR_TOKEN is required for real deploy}"
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
-SSH_KEY_FILE="$(mktemp)"
-KNOWN_HOSTS_FILE="$(mktemp)"
 
-cleanup() {
-  rm -f "$SSH_KEY_FILE" "$KNOWN_HOSTS_FILE"
-}
-trap cleanup EXIT
+echo "Deploying to ${GCE_INSTANCE_NAME} via IAP (dir: ${DEPLOY_DIR})..."
 
-if [[ "${DEPLOY_TOKEN}" == *"-----BEGIN"* ]]; then
-  printf "%s\n" "${DEPLOY_TOKEN}" > "${SSH_KEY_FILE}"
-else
-  if ! printf "%s" "${DEPLOY_TOKEN}" | base64 --decode > "${SSH_KEY_FILE}" 2>/dev/null; then
-    echo "ERROR: DEPLOY_TOKEN must be a valid SSH private key or base64-encoded key." >&2
-    exit 4
-  fi
-fi
-
-chmod 600 "${SSH_KEY_FILE}"
-
-SSH_OPTS=(
-  -i "${SSH_KEY_FILE}"
-  -o StrictHostKeyChecking=accept-new
-  -o UserKnownHostsFile="${KNOWN_HOSTS_FILE}"
-)
-
-echo "Deploying to ${DEPLOY_TARGET} (dir: ${DEPLOY_DIR})..."
-
-ssh "${SSH_OPTS[@]}" "${DEPLOY_TARGET}" \
-  DEPLOY_REF="${RESOLVED_REF}" \
-  DEPLOY_DIR="${DEPLOY_DIR}" \
-  bash -se <<'EOF'
+# Build the remote script as a variable (avoids heredoc/pipe conflict)
+# shellcheck disable=SC2016
+REMOTE_SCRIPT='
 set -euo pipefail
+
+DEPLOY_REF="$1"
+DEPLOY_DIR="$2"
+GHCR_USERNAME="$3"
+
+# Read GHCR token from stdin (passed by outer script)
+read -r GHCR_TOKEN
 
 echo "Deploy ref: ${DEPLOY_REF}"
 
@@ -96,9 +86,20 @@ fi
 
 cd "${DEPLOY_DIR}"
 
-export DAISy_IMAGE="${DEPLOY_REF}"
-docker compose pull DAISy-gateway
+# Authenticate to GHCR (token read from stdin)
+docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"
+
+# Pull and deploy (using CLAWDBOT_IMAGE which matches docker-compose.yml)
+export CLAWDBOT_IMAGE="${DEPLOY_REF}"
+docker compose pull
 docker compose up -d --remove-orphans
-docker image inspect "${DEPLOY_REF}" >/dev/null
 echo "Deployment complete."
-EOF
+'
+
+# Use gcloud compute ssh with IAP tunneling (enforces IAM before connection)
+# Pass GHCR_TOKEN via stdin; script passed as bash -c argument to avoid stdin conflict
+printf '%s\n' "${GHCR_TOKEN}" | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+  --project "${GCP_PROJECT_ID}" \
+  --zone "${GCP_ZONE}" \
+  --tunnel-through-iap \
+  --command "bash -c '${REMOTE_SCRIPT}' -- '${RESOLVED_REF}' '${DEPLOY_DIR}' '${GHCR_USERNAME}'"

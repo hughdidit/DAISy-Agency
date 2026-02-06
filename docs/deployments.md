@@ -17,7 +17,7 @@ This document is written for the **IAP-only** access model (preferred): the VM d
 
 - Host: Debian 12 GCE VM running the Moltbot/Clawdbot stack
 - Persistent state: `/var/lib/clawdbot` (must survive deploys/restarts)
-- Deployment directory on VM: `DEPLOY_TARGET_DIR` (recommended: `/opt/moltbot`)
+- Deployment directory on VM: `DEPLOY_DIR` (default: `/opt/DAISy`)
 - Runtime: Docker + Compose (or systemd-managed service that starts containers)
 
 ---
@@ -56,16 +56,7 @@ Reference:
 - Secrets and environment approvals:
   https://docs.github.com/en/actions/concepts/security/secrets
 
-#### Secrets format
-
-- `DEPLOY_TARGET`: SSH target for the GCP VM (for example, `DAISy@203.0.113.10`).
-- `DEPLOY_TOKEN`: SSH private key (raw PEM or base64-encoded).
-
-Optional environment overrides:
-
-- `DEPLOY_DIR`: directory on the VM containing `docker-compose.yml` (defaults to `/opt/DAISy`).
-
-## Deploy workflow
+---
 
 ## Secrets (IAP-only + Workload Identity Federation)
 
@@ -73,30 +64,24 @@ Optional environment overrides:
 These are **environment secrets** (set separately under `staging` and `production` environments).
 
 **GCP auth via Workload Identity Federation (no JSON keys):**
-- `GCP_WORKLOAD_IDENTITY_PROVIDER`  
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`
   Resource name of your WIF provider (e.g. `projects/…/locations/global/workloadIdentityPools/…/providers/…`)
-- `GCP_SERVICE_ACCOUNT`  
+- `GCP_SERVICE_ACCOUNT`
   Service account email to impersonate (e.g. `deploy-bot@project.iam.gserviceaccount.com`)
 
-**GCP auth via JSON service account key (required by deploy workflow):**
-- `GCP_CREDENTIALS`  
-  JSON service account key (stored as a secret string).
-- `GCP_PROJECT_ID`  
-  GCP project id hosting the deployment VM.
-
 **Target VM identity:**
-- `GCP_PROJECT_ID`
-- `GCP_ZONE`
-- `GCE_INSTANCE_NAME`
+- `GCP_PROJECT_ID` - GCP project hosting the deployment VM
+- `GCP_ZONE` - Compute zone (e.g. `us-west1-b`)
+- `GCE_INSTANCE_NAME` - VM instance name (e.g. `daisy-staging-1`)
 
 **VM deploy layout:**
-- `DEPLOY_TARGET_DIR` (e.g. `/opt/moltbot`)
-- `PERSIST_STATE_DIR` (must be `/var/lib/clawdbot`)
+- `DEPLOY_DIR` - Directory containing docker-compose.yml (default: `/opt/DAISy`)
 
 **Registry pull (GHCR):**
-- `GHCR_IMAGE` (e.g. `ghcr.io/<owner>/<repo>`)
-- `GHCR_USERNAME`
-- `GHCR_TOKEN` (recommend: `packages:read` only)
+- `GHCR_USERNAME` - GitHub username for GHCR
+- `GHCR_TOKEN` - PAT with `read:packages` scope
+
+Note: Image reference comes from `release-metadata.json`, not a separate secret.
 
 References:
 - google-github-actions/auth (WIF setup and examples):
@@ -108,7 +93,7 @@ References:
 
 ## Workflows overview
 - Dry run exits successfully after printing the resolved image reference.
-- Real deploy SSHes to the target VM, sets `DAISy_IMAGE` to the resolved ref, runs `docker compose pull`, then `docker compose up -d --remove-orphans`.
+- Real deploy connects via IAP, sets `CLAWDBOT_IMAGE` to the resolved ref, runs `docker compose pull`, then `docker compose up -d --remove-orphans`.
 - The deploy fails if Docker is missing or `docker-compose.yml` is not found under `DEPLOY_DIR`.
 
 ### Docker release
@@ -157,21 +142,17 @@ gcloud compute ssh "$GCE_INSTANCE_NAME"   --project "$GCP_PROJECT_ID"   --zone "
 
 ## Deploy behavior on the VM (expected)
 
-On a real deploy (dry_run=false), the deploy routine should:
+On a real deploy (dry_run=false), the deploy routine:
 
-1. Ensure directories exist:
-   - `$DEPLOY_TARGET_DIR`
-   - `$PERSIST_STATE_DIR` (must be `/var/lib/clawdbot`)
-2. Authenticate to GHCR (read-only):
-   - `docker login ghcr.io`
-3. Pin the exact image ref (digest preferred) into compose/env:
-   - e.g. write an override file or `.env` with `DAISY_IMAGE=<image@digest>`
-4. Apply:
+1. Connects to the VM via IAP (`gcloud compute ssh --tunnel-through-iap`)
+2. Authenticates to GHCR:
+   - `docker login ghcr.io -u $GHCR_USERNAME --password-stdin`
+3. Sets the image ref (digest preferred) via environment variable:
+   - `export CLAWDBOT_IMAGE=<image@digest>`
+4. Applies:
    - `docker compose pull`
-   - `docker compose up -d`
-5. Basic verification:
-   - `docker ps` shows expected containers healthy/running
-   - application-level health check (if available)
+   - `docker compose up -d --remove-orphans`
+5. Outputs deployment status
 
 ---
 
