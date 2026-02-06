@@ -96,12 +96,15 @@ if [[ "${PROVISION}" == "true" ]]; then
   echo "Provisioning VM..."
   printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
 
-  # Copy docker-compose.yml to VM via stdin, then set up directory structure
-  cat docker-compose.yml | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+  # Base64 encode docker-compose.yml to pass as argument (stdin not forwarded by gcloud ssh --command)
+  COMPOSE_B64="$(base64 -w0 docker-compose.yml)"
+
+  # Copy docker-compose.yml to VM and set up directory structure
+  gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; cat > \"\${DEPLOY_DIR}/docker-compose.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"'"
   echo "Provisioning complete."
 fi
 
@@ -128,6 +131,12 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 127
 fi
 
+# Verify sudo docker access
+if ! sudo docker version >/dev/null 2>&1; then
+  echo "ERROR: sudo docker access required on the target host." >&2
+  exit 127
+fi
+
 if [[ ! -f "${DEPLOY_DIR}/docker-compose.yml" ]]; then
   echo "ERROR: docker-compose.yml not found at ${DEPLOY_DIR}." >&2
   exit 6
@@ -135,8 +144,8 @@ fi
 
 cd "${DEPLOY_DIR}"
 
-# Authenticate to GHCR
-if ! docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
+# Authenticate to GHCR (use sudo for docker access)
+if ! sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
   echo "ERROR: Failed to authenticate to GHCR. Check credentials and network." >&2
   exit 1
 fi
@@ -151,9 +160,9 @@ export CLAUDE_WEB_COOKIE
 export CLAWDBOT_CONFIG_DIR="${DEPLOY_DIR}/config"
 export CLAWDBOT_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
 
-# Pull and deploy
-docker compose pull
-docker compose up -d --remove-orphans
+# Pull and deploy (use sudo -E to preserve environment variables)
+sudo -E docker compose pull
+sudo -E docker compose up -d --remove-orphans
 
 # Clear secrets from environment
 unset CLAWDBOT_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE
