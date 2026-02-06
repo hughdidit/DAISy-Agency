@@ -87,7 +87,13 @@ fi
 cd "${DEPLOY_DIR}"
 
 # Authenticate to GHCR (token read from stdin)
-docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"
+# PR #66 review: explicit error handling for docker login failure
+if ! docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin <<<"${GHCR_TOKEN}"; then
+  echo "ERROR: Failed to authenticate to GHCR. Check credentials and network." >&2
+  exit 1
+fi
+# PR #66 review: clear token from memory after use
+unset GHCR_TOKEN
 
 # Pull and deploy (using CLAWDBOT_IMAGE which matches docker-compose.yml)
 export CLAWDBOT_IMAGE="${DEPLOY_REF}"
@@ -98,8 +104,15 @@ echo "Deployment complete."
 
 # Use gcloud compute ssh with IAP tunneling (enforces IAM before connection)
 # Pass GHCR_TOKEN via stdin; script passed as bash -c argument to avoid stdin conflict
+#
+# PR #66 review: escape variables for safe shell interpolation to prevent injection
+# The gcloud --command arg is passed to remote shell, so we must escape user-controlled values
+printf -v RESOLVED_REF_ESCAPED '%q' "${RESOLVED_REF}"
+printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
+printf -v GHCR_USERNAME_ESCAPED '%q' "${GHCR_USERNAME}"
+
 printf '%s\n' "${GHCR_TOKEN}" | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
   --project "${GCP_PROJECT_ID}" \
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
-  --command "bash -c '${REMOTE_SCRIPT}' -- '${RESOLVED_REF}' '${DEPLOY_DIR}' '${GHCR_USERNAME}'"
+  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED}"
