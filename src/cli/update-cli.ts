@@ -2,8 +2,21 @@ import { confirm, isCancel, select, spinner } from "@clack/prompts";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import type { Command } from "commander";
 
+=======
+import {
+  checkShellCompletionStatus,
+  ensureCompletionCacheExists,
+} from "../commands/doctor-completion.js";
+import { doctorCommand } from "../commands/doctor.js";
+import {
+  formatUpdateAvailableHint,
+  formatUpdateOneLiner,
+  resolveUpdateAvailability,
+} from "../commands/status.update.js";
+>>>>>>> 4a59b7786 (fix: CLI harden update restart imports and fix nested bundle version resolution)
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 import {
@@ -39,10 +52,15 @@ import { trimLogTail } from "../infra/restart-sentinel.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { formatCliCommand } from "./command-format.js";
+<<<<<<< HEAD
 import { replaceCliName, resolveCliName } from "./cli-name.js";
 import { stylePromptHint, stylePromptMessage } from "../terminal/prompt-style.js";
 import { theme } from "../terminal/theme.js";
 import { renderTable } from "../terminal/table.js";
+=======
+import { installCompletion } from "./completion-cli.js";
+import { runDaemonRestart } from "./daemon-cli.js";
+>>>>>>> 4a59b7786 (fix: CLI harden update restart imports and fix nested bundle version resolution)
 import { formatHelpExamples } from "./help-format.js";
 import {
   formatUpdateAvailableHint,
@@ -924,14 +942,12 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       defaultRuntime.log(theme.heading("Restarting service..."));
     }
     try {
-      const { runDaemonRestart } = await import("./daemon-cli.js");
       const restarted = await runDaemonRestart();
       if (!opts.json && restarted) {
         defaultRuntime.log(theme.success("Daemon restarted successfully."));
         defaultRuntime.log("");
         process.env.CLAWDBOT_UPDATE_IN_PROGRESS = "1";
         try {
-          const { doctorCommand } = await import("../commands/doctor.js");
           const interactiveDoctor = Boolean(process.stdin.isTTY) && !opts.json && opts.yes !== true;
           await doctorCommand(defaultRuntime, { nonInteractive: !interactiveDoctor });
         } catch (err) {
