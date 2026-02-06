@@ -213,6 +213,18 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
     if (peerMatch) {
       return choose(peerMatch.agentId, "binding.peer");
     }
+<<<<<<< HEAD
+=======
+  }
+
+  if (guildId && memberRoleIds.length > 0) {
+    const guildRolesMatch = bindings.find(
+      (b) => matchesGuild(b.match, guildId) && matchesRoles(b.match, memberRoleIds),
+    );
+    if (guildRolesMatch) {
+      return choose(guildRolesMatch.agentId, "binding.guild+roles");
+    }
+>>>>>>> e1e6e3f47 (fix: add curly braces to resolve-route.ts for eslint(curly) compliance)
   }
 
   // Thread parent inheritance: if peer (thread) didn't match, check parent peer binding
