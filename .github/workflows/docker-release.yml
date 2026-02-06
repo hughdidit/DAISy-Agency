@@ -150,7 +150,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-amd64, build-arm64]
     # Run manifest creation for: push events, or workflow_dispatch with dry_run=false and valid branch/tag/override
-    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true' && (startsWith(env.BUILD_REF, 'refs/tags/v') || env.BUILD_REF == 'refs/heads/daisy/main' || env.BUILD_REF == 'refs/heads/daisy/dev' || inputs.image_tag != '')) }}
+    # Note: env context is not available in job-level if conditions, so BUILD_REF is inlined here
+    if: >-
+      ${{
+        github.event_name == 'push' ||
+        (github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true' &&
+          (startsWith(inputs.ref || github.ref, 'refs/tags/v') ||
+           (inputs.ref || github.ref) == 'refs/heads/daisy/main' ||
+           (inputs.ref || github.ref) == 'refs/heads/daisy/dev' ||
+           inputs.image_tag != ''))
+      }}
     steps:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
