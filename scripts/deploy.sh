@@ -6,33 +6,42 @@ set -euo pipefail
 # Usage: deploy.sh [--resolve-only] <metadata-path>
 
 if [[ "${1:-}" == "--resolve-only" ]]; then
-  META_PATH="${2:?metadata path required}"
+  META_PATH="${2:-}"
   RESOLVE_ONLY="true"
 else
-  META_PATH="${1:?metadata path required}"
+  META_PATH="${1:-}"
   RESOLVE_ONLY="false"
 fi
 
-chmod +x scripts/read-release-metadata.sh
-
-IMAGE="$(scripts/read-release-metadata.sh "$META_PATH" image)"
-DIGEST="$(scripts/read-release-metadata.sh "$META_PATH" digest)"
-FIRST_TAG="$(scripts/read-release-metadata.sh "$META_PATH" first_tag)"
-
-if [[ -z "${IMAGE//[[:space:]]/}" ]]; then
-  echo "ERROR: release metadata missing required field: image" >&2
-  exit 3
-fi
-
+# If IMAGE_REF_OVERRIDE is set, use it directly without reading metadata
 if [[ -n "${IMAGE_REF_OVERRIDE:-}" ]]; then
   RESOLVED_REF="${IMAGE_REF_OVERRIDE}"
-elif [[ -n "${DIGEST}" ]]; then
-  RESOLVED_REF="${IMAGE}@${DIGEST}"
-elif [[ -n "${FIRST_TAG}" ]]; then
-  RESOLVED_REF="${IMAGE}:${FIRST_TAG}"
 else
-  echo "ERROR: No image reference available (no override, no digest, no tags)." >&2
-  exit 3
+  # Require metadata path when no override
+  if [[ -z "${META_PATH}" ]]; then
+    echo "ERROR: metadata path required when IMAGE_REF_OVERRIDE is not set" >&2
+    exit 1
+  fi
+
+  chmod +x scripts/read-release-metadata.sh
+
+  IMAGE="$(scripts/read-release-metadata.sh "$META_PATH" image)"
+  DIGEST="$(scripts/read-release-metadata.sh "$META_PATH" digest)"
+  FIRST_TAG="$(scripts/read-release-metadata.sh "$META_PATH" first_tag)"
+
+  if [[ -z "${IMAGE//[[:space:]]/}" ]]; then
+    echo "ERROR: release metadata missing required field: image" >&2
+    exit 3
+  fi
+
+  if [[ -n "${DIGEST}" ]]; then
+    RESOLVED_REF="${IMAGE}@${DIGEST}"
+  elif [[ -n "${FIRST_TAG}" ]]; then
+    RESOLVED_REF="${IMAGE}:${FIRST_TAG}"
+  else
+    echo "ERROR: No image reference available (no digest, no tags)." >&2
+    exit 3
+  fi
 fi
 
 if [[ "${RESOLVE_ONLY}" == "true" ]]; then
