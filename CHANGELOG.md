@@ -22,7 +22,11 @@ Docs: https://docs.openclaw.ai
 - Onboarding: add Moonshot (.cn) auth choice and keep the China base URL when preserving defaults. (#7180) Thanks @waynelwz.
 - Docs: clarify tmux send-keys for TUI by splitting text and Enter. (#7737) Thanks @Wangnov.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+- Web UI: add Token Usage dashboard with session analytics. (#8462) Thanks @mcinteerj.
+>>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 - Docs: mirror the landing page revamp for zh-CN (features, quickstart, docs directory, network model, credits). (#8994) Thanks @joshp123.
 - Messages: add per-channel and per-account responsePrefix overrides across channels. (#9001) Thanks @mudrii.
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
@@ -60,6 +64,11 @@ Docs: https://docs.openclaw.ai
 - Telegram: honor session model overrides in inline model selection. (#8193) Thanks @gildo.
 - Web UI: resolve header logo path when `gateway.controlUi.basePath` is set. (#7178) Thanks @Yeom-JinHo.
 - Web UI: apply button styling to the new-messages indicator.
+<<<<<<< HEAD
+=======
+- Onboarding: infer auth choice from non-interactive API key flags. (#8484) Thanks @f-trycua.
+- Usage: include estimated cost when breakdown is missing and keep `usage.cost` days support. (#8462) Thanks @mcinteerj.
+>>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 - Security: keep untrusted channel metadata out of system prompts (Slack/Discord). Thanks @KonstantinMirin.
 <<<<<<< HEAD
 =======

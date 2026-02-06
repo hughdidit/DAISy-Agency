@@ -5,6 +5,7 @@ import type { OpenClawApp } from "./app";
 import { refreshChat } from "./app-chat";
 =======
 import type { OpenClawApp } from "./app.ts";
+import type { AgentsListResult } from "./types.ts";
 import { refreshChat } from "./app-chat.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
@@ -79,6 +80,7 @@ import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme.ts";
 
 type SettingsHost = {
   settings: UiSettings;
+  password?: string;
   theme: ThemeMode;
   themeResolved: ResolvedTheme;
   applySessionKey: string;
@@ -90,6 +92,9 @@ type SettingsHost = {
   eventLog: unknown[];
   eventLogBuffer: unknown[];
   basePath: string;
+  agentsList?: AgentsListResult | null;
+  agentsSelectedId?: string | null;
+  agentsPanel?: "overview" | "files" | "tools" | "skills" | "channels" | "cron";
   themeMedia: MediaQueryList | null;
   themeMediaHandler: ((event: MediaQueryListEvent) => void) | null;
   pendingGatewayUrl?: string | null;
@@ -143,7 +148,11 @@ export function applySettingsFromUrl(host: SettingsHost) {
   if (passwordRaw != null) {
     const password = passwordRaw.trim();
     if (password) {
+<<<<<<< HEAD
       (host as unknown as { password: string }).password = password;
+=======
+      (host as { password: string }).password = password;
+>>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
     }
     params.delete("password");
     shouldCleanUrl = true;
@@ -253,24 +262,23 @@ export async function refreshActiveTab(host: SettingsHost) {
 >>>>>>> e9a32b83c (chore: Manually fix lint issues in `ui`.)
 =======
   if (host.tab === "agents") {
-    const app = host as unknown as OpenClawApp;
-    await loadAgents(app);
-    await loadConfig(app);
-    const agentIds = app.agentsList?.agents?.map((entry) => entry.id) ?? [];
+    await loadAgents(host as unknown as OpenClawApp);
+    await loadConfig(host as unknown as OpenClawApp);
+    const agentIds = host.agentsList?.agents?.map((entry) => entry.id) ?? [];
     if (agentIds.length > 0) {
-      void loadAgentIdentities(app, agentIds);
+      void loadAgentIdentities(host as unknown as OpenClawApp, agentIds);
     }
     const agentId =
-      app.agentsSelectedId ?? app.agentsList?.defaultId ?? app.agentsList?.agents?.[0]?.id;
+      host.agentsSelectedId ?? host.agentsList?.defaultId ?? host.agentsList?.agents?.[0]?.id;
     if (agentId) {
-      void loadAgentIdentity(app, agentId);
-      if (app.agentsPanel === "skills") {
-        void loadAgentSkills(app, agentId);
+      void loadAgentIdentity(host as unknown as OpenClawApp, agentId);
+      if (host.agentsPanel === "skills") {
+        void loadAgentSkills(host as unknown as OpenClawApp, agentId);
       }
-      if (app.agentsPanel === "channels") {
-        void loadChannels(app, false);
+      if (host.agentsPanel === "channels") {
+        void loadChannels(host as unknown as OpenClawApp, false);
       }
-      if (app.agentsPanel === "cron") {
+      if (host.agentsPanel === "cron") {
         void loadCron(host);
       }
     }
@@ -463,7 +471,7 @@ export function syncUrlWithTab(host: SettingsHost, tab: Tab, replace: boolean) {
   }
 }
 
-export function syncUrlWithSessionKey(sessionKey: string, replace: boolean) {
+export function syncUrlWithSessionKey(host: SettingsHost, sessionKey: string, replace: boolean) {
   if (typeof window === "undefined") {
     return;
   }
