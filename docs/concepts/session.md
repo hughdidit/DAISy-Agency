@@ -15,7 +15,11 @@ Use `session.dmScope` to control how **direct messages** are grouped:
 - `per-account-channel-peer`: isolate by account + channel + sender (recommended for multi-account inboxes).
 Use `session.identityLinks` to map provider-prefixed peer ids to a canonical identity so the same person shares a DM session across channels when using `per-peer`, `per-channel-peer`, or `per-account-channel-peer`.
 
+<<<<<<< HEAD
 ### Secure DM mode (recommended)
+=======
+## Secure DM mode (recommended for multi-user setups)
+>>>>>>> 1bf9f237f (docs: linting)
 
 <<<<<<< HEAD
 If your agent can receive DMs from **multiple people** (pairing approvals for more than one sender, a DM allowlist with multiple entries, or `dmPolicy: "open"`), enable **secure DM mode** to avoid cross-user context leakage:

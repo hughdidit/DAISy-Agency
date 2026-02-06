@@ -119,14 +119,14 @@ If you generated the token on a different machine, paste it:
 moltbot models auth paste-token --provider anthropic
 ```
 
-### CLI setup
+### CLI setup (setup-token)
 
 ```bash
 # Paste a setup-token during onboarding
 moltbot onboard --auth-choice setup-token
 ```
 
-### Config snippet
+### Config snippet (setup-token)
 
 ```json5
 {

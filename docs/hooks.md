@@ -440,7 +440,7 @@ moltbot hooks enable session-memory
 moltbot hooks disable command-logger
 ```
 
-## Bundled Hooks
+## Bundled hook reference
 
 ### session-memory
 

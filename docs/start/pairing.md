@@ -63,7 +63,7 @@ moltbot devices approve <requestId>
 moltbot devices reject <requestId>
 ```
 
-### Where the state lives
+### Node pairing state storage
 
 Stored under `~/.clawdbot/devices/`:
 - `pending.json` (short-lived; pending requests expire)
