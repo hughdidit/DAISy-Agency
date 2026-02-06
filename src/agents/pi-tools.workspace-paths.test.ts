@@ -36,26 +36,41 @@ describe.sequential("workspace path resolution", () => {
 =======
     await withTempDir("openclaw-ws-", async (workspaceDir) => {
       await withTempDir("openclaw-cwd-", async (otherDir) => {
+<<<<<<< HEAD
         const prevCwd = process.cwd();
 >>>>>>> 9a7160786 (refactor: rename to openclaw)
+=======
+>>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
         const testFile = "read.txt";
         const contents = "workspace read ok";
         await fs.writeFile(path.join(workspaceDir, testFile), contents, "utf8");
 
+<<<<<<< HEAD
         process.chdir(otherDir);
 <<<<<<< HEAD
         const tools = createMoltbotCodingTools({ workspaceDir });
         const readTool = tools.find((tool) => tool.name === "read");
         expect(readTool).toBeDefined();
 =======
+=======
+        const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(otherDir);
+>>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
         try {
           const tools = createOpenClawCodingTools({ workspaceDir });
           const readTool = tools.find((tool) => tool.name === "read");
           expect(readTool).toBeDefined();
 >>>>>>> 9a7160786 (refactor: rename to openclaw)
 
+<<<<<<< HEAD
         const result = await readTool?.execute("ws-read", { path: testFile });
         expect(getTextContent(result)).toContain(contents);
+=======
+          const result = await readTool?.execute("ws-read", { path: testFile });
+          expect(getTextContent(result)).toContain(contents);
+        } finally {
+          cwdSpy.mockRestore();
+        }
+>>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
       });
     });
   });
@@ -67,6 +82,7 @@ describe.sequential("workspace path resolution", () => {
 =======
     await withTempDir("openclaw-ws-", async (workspaceDir) => {
       await withTempDir("openclaw-cwd-", async (otherDir) => {
+<<<<<<< HEAD
         const prevCwd = process.cwd();
 >>>>>>> 9a7160786 (refactor: rename to openclaw)
         const testFile = "write.txt";
@@ -78,6 +94,12 @@ describe.sequential("workspace path resolution", () => {
         const writeTool = tools.find((tool) => tool.name === "write");
         expect(writeTool).toBeDefined();
 =======
+=======
+        const testFile = "write.txt";
+        const contents = "workspace write ok";
+
+        const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(otherDir);
+>>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
         try {
           const tools = createOpenClawCodingTools({ workspaceDir });
           const writeTool = tools.find((tool) => tool.name === "write");
@@ -89,8 +111,16 @@ describe.sequential("workspace path resolution", () => {
           content: contents,
         });
 
+<<<<<<< HEAD
         const written = await fs.readFile(path.join(workspaceDir, testFile), "utf8");
         expect(written).toBe(contents);
+=======
+          const written = await fs.readFile(path.join(workspaceDir, testFile), "utf8");
+          expect(written).toBe(contents);
+        } finally {
+          cwdSpy.mockRestore();
+        }
+>>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
       });
     });
   });
@@ -102,6 +132,7 @@ describe.sequential("workspace path resolution", () => {
 =======
     await withTempDir("openclaw-ws-", async (workspaceDir) => {
       await withTempDir("openclaw-cwd-", async (otherDir) => {
+<<<<<<< HEAD
         const prevCwd = process.cwd();
 >>>>>>> 9a7160786 (refactor: rename to openclaw)
         const testFile = "edit.txt";
@@ -122,6 +153,12 @@ describe.sequential("workspace path resolution", () => {
         const updated = await fs.readFile(path.join(workspaceDir, testFile), "utf8");
         expect(updated).toBe("hello moltbot");
 =======
+=======
+        const testFile = "edit.txt";
+        await fs.writeFile(path.join(workspaceDir, testFile), "hello world", "utf8");
+
+        const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(otherDir);
+>>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
         try {
           const tools = createOpenClawCodingTools({ workspaceDir });
           const editTool = tools.find((tool) => tool.name === "edit");
@@ -136,7 +173,7 @@ describe.sequential("workspace path resolution", () => {
           const updated = await fs.readFile(path.join(workspaceDir, testFile), "utf8");
           expect(updated).toBe("hello openclaw");
         } finally {
-          process.chdir(prevCwd);
+          cwdSpy.mockRestore();
         }
 >>>>>>> 9a7160786 (refactor: rename to openclaw)
       });
