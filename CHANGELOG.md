@@ -59,10 +59,16 @@ Status: beta.
 - Security: keep untrusted channel metadata out of system prompts (Slack/Discord). Thanks @KonstantinMirin.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 35eb40a70 (fix(security): separate untrusted channel metadata from system prompt (thanks @KonstantinMirin))
 =======
 - Security: require explicit credentials for gateway URL overrides to prevent credential leakage. (#8113) Thanks @victormier.
 =======
+=======
+- Security: redact channel credentials (tokens, passwords, API keys, secrets) from gateway config APIs and preserve secrets during Control UI round-trips. (#9858) Thanks @abdelsfane.
+- Discord: treat allowlisted senders as owner for system-prompt identity hints while keeping channel topics untrusted.
+- Slack: strip `<@...>` mention tokens before command matching so `/new` and `/reset` work when prefixed with a mention. (#9971) Thanks @ironbyte-rgb.
+>>>>>>> 0c7fa2b0d (security: redact credentials from config.get gateway responses (#9858))
 - Security: enforce sandboxed media paths for message tool attachments. (#9182) Thanks @victormier.
 <<<<<<< HEAD
 >>>>>>> 4434cae56 (Security: harden sandboxed media handling (#9182))
