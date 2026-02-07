@@ -101,6 +101,7 @@ Wizard doc: [Wizard](/start/wizard)
 
 - **Recommended Anthropic path:** set an API key (wizard can store it for service use). `claude setup-token` is also supported if you want to reuse Claude Code credentials.
 
+<<<<<<< HEAD
 - OAuth credentials (legacy import): `~/.clawdbot/credentials/oauth.json`
 - Auth profiles (OAuth + API keys): `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json`
 
@@ -209,3 +210,8 @@ Health probes: `moltbot health` (or `moltbot status --deep`) asks the running ga
 - iOS/Android nodes (Canvas/camera/voice): [Nodes](/nodes)
 - Remote access (SSH tunnel / Tailscale Serve): [Remote access](/gateway/remote) and [Tailscale](/gateway/tailscale)
 - Always-on / VPN setups: [Remote access](/gateway/remote), [exe.dev](/platforms/exe-dev), [Hetzner](/platforms/hetzner), [macOS remote](/platforms/mac/remote)
+=======
+- DM safety and approvals: [Pairing](/channels/pairing)
+- Connect more channels: [Channels](/channels)
+- Advanced workflows and from source: [Setup](/start/setup)
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))

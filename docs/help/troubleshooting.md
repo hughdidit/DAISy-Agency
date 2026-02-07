@@ -37,9 +37,15 @@ Almost always a Node/npm PATH issue. Start here:
 
 Re-run the installer in verbose mode to see the full trace and npm output:
 
+<<<<<<< HEAD
 ```bash
 curl -fsSL https://molt.bot/install.sh | bash -s -- --verbose
 ```
+=======
+    - [/gateway/troubleshooting#no-replies](/gateway/troubleshooting#no-replies)
+    - [/channels/troubleshooting](/channels/troubleshooting)
+    - [/channels/pairing](/channels/pairing)
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 
 For beta installs:
 

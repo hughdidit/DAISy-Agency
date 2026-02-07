@@ -254,7 +254,7 @@ Manage extensions and their config:
 - `moltbot plugins enable <id>` / `disable <id>` — toggle `plugins.entries.<id>.enabled`.
 - `moltbot plugins doctor` — report plugin load errors.
 
-Most plugin changes require a gateway restart. See [/plugin](/plugin).
+Most plugin changes require a gateway restart. See [/plugin](/tools/plugin).
 
 ## Memory
 

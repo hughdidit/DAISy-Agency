@@ -48,8 +48,13 @@ See [Venice AI](/providers/venice).
 - [Z.AI](/providers/zai)
 - [GLM models](/providers/glm)
 - [MiniMax](/providers/minimax)
+<<<<<<< HEAD
 - [Venius (Venice AI)](/providers/venice)
 - [Amazon Bedrock](/bedrock)
+=======
+- [Venice (Venice AI)](/providers/venice)
+- [Amazon Bedrock](/providers/bedrock)
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - [Qianfan](/providers/qianfan)
 
 For the full provider catalog (xAI, Groq, Mistral, etc.) and advanced configuration,

@@ -78,7 +78,31 @@ moltbot models auth setup-token --provider anthropic
 moltbot models status
 ```
 
+<<<<<<< HEAD
 If you generated the token elsewhere:
+=======
+Look for:
+
+- Pairing pending for DM senders.
+- Group mention gating (`requireMention`, `mentionPatterns`).
+- Channel/group allowlist mismatches.
+
+Common signatures:
+
+- `drop guild message (mention required` → group message ignored until mention.
+- `pairing request` → sender needs approval.
+- `blocked` / `allowlist` → sender/channel was filtered by policy.
+
+Related:
+
+- [/channels/troubleshooting](/channels/troubleshooting)
+- [/channels/pairing](/channels/pairing)
+- [/channels/groups](/channels/groups)
+
+## Dashboard control ui connectivity
+
+When dashboard/control UI will not connect, validate URL, auth mode, and secure context assumptions.
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 
 ```bash
 moltbot models auth paste-token --provider anthropic

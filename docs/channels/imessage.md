@@ -219,9 +219,15 @@ DMs:
 - Default: `channels.imessage.dmPolicy = "pairing"`.
 - Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
+<<<<<<< HEAD
   - `moltbot pairing list imessage`
   - `moltbot pairing approve imessage <CODE>`
 - Pairing is the default token exchange for iMessage DMs. Details: [Pairing](/start/pairing)
+=======
+  - `openclaw pairing list imessage`
+  - `openclaw pairing approve imessage <CODE>`
+- Pairing is the default token exchange for iMessage DMs. Details: [Pairing](/channels/pairing)
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 
 Groups:
 

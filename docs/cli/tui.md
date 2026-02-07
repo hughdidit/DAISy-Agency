@@ -11,7 +11,7 @@ Open the terminal UI connected to the Gateway.
 
 Related:
 
-- TUI guide: [TUI](/tui)
+- TUI guide: [TUI](/web/tui)
 
 ## Examples
 

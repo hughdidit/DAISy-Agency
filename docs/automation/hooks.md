@@ -20,8 +20,12 @@ Hooks are small scripts that run when something happens. There are two kinds:
 =======
 - **Webhooks**: external HTTP webhooks that let other systems trigger work in OpenClaw. See [Webhook Hooks](/automation/webhook) or use `openclaw webhooks` for Gmail helper commands.
 
+<<<<<<< HEAD:docs/hooks.md
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 Hooks can also be bundled inside plugins; see [Plugins](/plugin#plugin-hooks).
+=======
+Hooks can also be bundled inside plugins; see [Plugins](/tools/plugin#plugin-hooks).
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428)):docs/automation/hooks.md
 
 Common uses:
 
