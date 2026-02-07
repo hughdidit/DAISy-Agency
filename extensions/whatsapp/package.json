@@ -7,6 +7,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
@@ -17,6 +18,9 @@
 =======
   "version": "2026.2.6-2",
 >>>>>>> ad4dd0422 (chore(release): 2026.2.6-2)
+=======
+  "version": "2026.2.6-3",
+>>>>>>> 9f703a44d (chore(release): 2026.2.6-3)
   "description": "OpenClaw WhatsApp channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",

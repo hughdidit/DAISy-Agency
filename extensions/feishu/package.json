@@ -1,10 +1,14 @@
 {
   "name": "@openclaw/feishu",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.3",
   "description": "OpenClaw Feishu channel plugin",
 =======
   "version": "2026.2.6-2",
+=======
+  "version": "2026.2.6-3",
+>>>>>>> 9f703a44d (chore(release): 2026.2.6-3)
   "description": "OpenClaw Feishu/Lark channel plugin (community maintained by @m1heng)",
 >>>>>>> ad4dd0422 (chore(release): 2026.2.6-2)
   "type": "module",
