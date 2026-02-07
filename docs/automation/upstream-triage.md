@@ -43,7 +43,7 @@ Commits are classified using a first-match-wins priority:
 | 2 | **ci** | `.github/workflows/**`; or message matches `^ci:` | Yes |
 | 3 | **bugfix** | Message matches `^fix:\|bug\|crash\|regression` | Yes |
 | 4 | **docs** | Only `docs/**` or `*.md` changed (no `src/`/`packages/`/`scripts/`) | Yes |
-| 5 | **refactor/feature** | Everything else | **No** — too risky |
+| 5 | **refactor/feature** | Everything else | Yes — review carefully |
 
 ## Risk scoring (1–5)
 
@@ -87,7 +87,7 @@ Behavior:
 - Cherry-picks oldest-first (chronological order)
 - Skips already-applied SHAs (`git merge-base --is-ancestor`)
 - Aborts and logs conflicting picks to `docs/upstream-candidates/conflicts-YYYY-MM-DD.txt`
-- **Never cherry-picks refactor/feature commits**
+- Refactor/feature commits get their own branch — review with extra scrutiny
 - No force pushes
 
 ## Open PR mode (`--open-pr`)

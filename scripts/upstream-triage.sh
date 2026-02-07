@@ -464,7 +464,7 @@ log "Writing report to ${REPORT_FILE}..."
       ci)            action="Cherry-pick recommended" ;;
       bugfix)        action="Cherry-pick recommended" ;;
       docs)          action="Cherry-pick if relevant" ;;
-      refactor/feature) action="Review carefully — **not auto-cherry-picked**" ;;
+      refactor/feature) action="Review carefully — higher risk" ;;
     esac
     echo "| ${cat} | ${count} | ${action} |"
   done
@@ -515,10 +515,8 @@ if [[ "${APPLY}" == "true" ]]; then
   : > "${CONFLICT_FILE}"
   CONFLICT_COUNT=0
 
-  # Only cherry-pick safe categories (not refactor/feature)
-  SAFE_CATEGORIES=("deps/security" "ci" "bugfix" "docs")
-
-  for cat in "${SAFE_CATEGORIES[@]}"; do
+  # Cherry-pick all categories into throwaway branches for human review
+  for cat in "${CATEGORIES[@]}"; do
     count="${CAT_COUNTS[${cat}]}"
     [[ "${count}" -eq 0 ]] && continue
 
@@ -593,9 +591,7 @@ if [[ "${OPEN_PR}" == "true" ]]; then
     exit 1
   fi
 
-  SAFE_CATEGORIES=("deps/security" "ci" "bugfix" "docs")
-
-  for cat in "${SAFE_CATEGORIES[@]}"; do
+  for cat in "${CATEGORIES[@]}"; do
     count="${CAT_COUNTS[${cat}]}"
     [[ "${count}" -eq 0 ]] && continue
 
