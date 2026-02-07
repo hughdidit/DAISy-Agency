@@ -193,7 +193,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          IMAGE="$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')"
           TAG_VERSION="${{ steps.meta.outputs.version }}"
           IS_TAG="${{ startsWith(env.BUILD_REF, 'refs/tags/v') }}"
           # Note: daisy/main is the production branch for this repository.
@@ -240,7 +240,7 @@ jobs:
 
           mkdir -p dist/release
 
-          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          IMAGE="$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')"
           REF="${{ env.BUILD_REF }}"
           SHA="${GITHUB_SHA}"
           RUN_ID="${GITHUB_RUN_ID}"
