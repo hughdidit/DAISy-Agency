@@ -2,10 +2,26 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 =======
 =======
 ## 2026.2.3
+=======
+## 2026.2.6-2
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+## 2026.2.6
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+## 2026.2.4
+>>>>>>> ad4dd0422 (chore(release): 2026.2.6-2)
 
 ### Changes
 

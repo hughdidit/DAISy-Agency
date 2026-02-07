@@ -6,6 +6,7 @@
   "name": "@openclaw/imessage",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
@@ -13,6 +14,9 @@
 =======
   "version": "2026.2.3",
 >>>>>>> f895c9fba (chore: sync plugin versions to 2026.2.3)
+=======
+  "version": "2026.2.6-2",
+>>>>>>> ad4dd0422 (chore(release): 2026.2.6-2)
   "description": "OpenClaw iMessage channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",
