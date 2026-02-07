@@ -43,6 +43,7 @@ const MIME_BY_EXT: Record<string, string> = {
 
 const AUDIO_FILE_EXTENSIONS = new Set([
   ".aac",
+  ".caf",
   ".flac",
   ".m4a",
   ".mp3",
