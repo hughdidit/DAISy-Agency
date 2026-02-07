@@ -426,6 +426,7 @@ export function renderApp(state: AppViewState) {
             })
           : nothing}
 
+<<<<<<< HEAD
         ${state.tab === "chat"
           ? renderChat({
               sessionKey: state.sessionKey,
@@ -499,6 +500,35 @@ export function renderApp(state: AppViewState) {
               assistantAvatar: state.assistantAvatar,
             })
           : nothing}
+=======
+        ${
+          state.tab === "cron"
+            ? renderCron({
+                basePath: state.basePath,
+                loading: state.cronLoading,
+                status: state.cronStatus,
+                jobs: state.cronJobs,
+                error: state.cronError,
+                busy: state.cronBusy,
+                form: state.cronForm,
+                channels: state.channelsSnapshot?.channelMeta?.length
+                  ? state.channelsSnapshot.channelMeta.map((entry) => entry.id)
+                  : (state.channelsSnapshot?.channelOrder ?? []),
+                channelLabels: state.channelsSnapshot?.channelLabels ?? {},
+                channelMeta: state.channelsSnapshot?.channelMeta ?? [],
+                runsJobId: state.cronRunsJobId,
+                runs: state.cronRuns,
+                onFormChange: (patch) => (state.cronForm = { ...state.cronForm, ...patch }),
+                onRefresh: () => state.loadCron(),
+                onAdd: () => addCronJob(state),
+                onToggle: (job, enabled) => toggleCronJob(state, job, enabled),
+                onRun: (job) => runCronJob(state, job),
+                onRemove: (job) => removeCronJob(state, job),
+                onLoadRuns: (jobId) => loadCronRuns(state, jobId),
+              })
+            : nothing
+        }
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 
         ${state.tab === "config"
           ? renderConfig({

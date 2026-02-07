@@ -177,6 +177,12 @@ export function classifySessionKey(key: string, entry?: SessionEntry): GatewaySe
   return "direct";
 }
 
+function isCronRunSessionKey(key: string): boolean {
+  const parsed = parseAgentSessionKey(key);
+  const raw = parsed?.rest ?? key;
+  return /^cron:[^:]+:run:[^:]+$/.test(raw);
+}
+
 export function parseGroupKey(
   key: string,
 ): { channel?: string; kind?: "group" | "channel"; id?: string } | null {
@@ -506,8 +512,20 @@ export function listSessionsFromStore(params: {
 
   let sessions = Object.entries(store)
     .filter(([key]) => {
+<<<<<<< HEAD
       if (!includeGlobal && key === "global") return false;
       if (!includeUnknown && key === "unknown") return false;
+=======
+      if (isCronRunSessionKey(key)) {
+        return false;
+      }
+      if (!includeGlobal && key === "global") {
+        return false;
+      }
+      if (!includeUnknown && key === "unknown") {
+        return false;
+      }
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
       if (agentId) {
         if (key === "global" || key === "unknown") return false;
         const parsed = parseAgentSessionKey(key);

@@ -23,6 +23,7 @@ import { resolveInternalSessionKey, resolveMainSessionAlias } from "./sessions-h
 const CRON_ACTIONS = ["status", "list", "add", "update", "remove", "run", "runs", "wake"] as const;
 
 const CRON_WAKE_MODES = ["now", "next-heartbeat"] as const;
+const CRON_RUN_MODES = ["due", "force"] as const;
 
 const REMINDER_CONTEXT_MESSAGES_MAX = 10;
 const REMINDER_CONTEXT_PER_MESSAGE_MAX = 220;
@@ -42,6 +43,7 @@ const CronToolSchema = Type.Object({
   patch: Type.Optional(Type.Object({}, { additionalProperties: true })),
   text: Type.Optional(Type.String()),
   mode: optionalStringEnum(CRON_WAKE_MODES),
+  runMode: optionalStringEnum(CRON_RUN_MODES),
   contextMessages: Type.Optional(
     Type.Number({ minimum: 0, maximum: REMINDER_CONTEXT_MESSAGES_MAX }),
   ),
@@ -284,7 +286,6 @@ Use jobId as the canonical identifier; id is accepted for compatibility. Use con
             }
           }
 
-          // [Fix Issue 3] Infer delivery target from session key for isolated jobs if not provided
           if (
             opts?.agentSessionKey &&
             job &&
@@ -365,7 +366,9 @@ Use jobId as the canonical identifier; id is accepted for compatibility. Use con
           if (!id) {
             throw new Error("jobId required (id accepted for backward compatibility)");
           }
-          return jsonResult(await callGatewayTool("cron.run", gatewayOpts, { id }));
+          const runMode =
+            params.runMode === "due" || params.runMode === "force" ? params.runMode : "force";
+          return jsonResult(await callGatewayTool("cron.run", gatewayOpts, { id, mode: runMode }));
         }
         case "runs": {
           const id = readStringParam(params, "jobId") ?? readStringParam(params, "id");
