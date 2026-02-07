@@ -23,6 +23,52 @@ cron is the mechanism.
   - **Isolated**: run a dedicated agent turn in `cron:<jobId>`, optionally deliver output.
 - Wakeups are first-class: a job can request “wake now” vs “next heartbeat”.
 
+<<<<<<< HEAD
+=======
+## Quick start (actionable)
+
+Create a one-shot reminder, verify it exists, and run it immediately:
+
+```bash
+openclaw cron add \
+  --name "Reminder" \
+  --at "2026-02-01T16:00:00Z" \
+  --session main \
+  --system-event "Reminder: check the cron docs draft" \
+  --wake now \
+  --delete-after-run
+
+openclaw cron list
+openclaw cron run <job-id>
+openclaw cron runs --id <job-id>
+```
+
+Schedule a recurring isolated job with delivery:
+
+```bash
+openclaw cron add \
+  --name "Morning brief" \
+  --cron "0 7 * * *" \
+  --tz "America/Los_Angeles" \
+  --session isolated \
+  --message "Summarize overnight updates." \
+  --announce \
+  --channel slack \
+  --to "channel:C1234567890"
+```
+
+## Tool-call equivalents (Gateway cron tool)
+
+For the canonical JSON shapes and examples, see [JSON schema for tool calls](/automation/cron-jobs#json-schema-for-tool-calls).
+
+## Where cron jobs are stored
+
+Cron jobs are persisted on the Gateway host at `~/.openclaw/cron/jobs.json` by default.
+The Gateway loads the file into memory and writes it back on changes, so manual edits
+are only safe when the Gateway is stopped. Prefer `openclaw cron add/edit` or the cron
+tool call API for changes.
+
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 ## Beginner-friendly overview
 Think of a cron job as: **when** to run + **what** to do.
 
@@ -70,8 +116,8 @@ local timezone is used.
 Main jobs enqueue a system event and optionally wake the heartbeat runner.
 They must use `payload.kind = "systemEvent"`.
 
-- `wakeMode: "next-heartbeat"` (default): event waits for the next scheduled heartbeat.
-- `wakeMode: "now"`: event triggers an immediate heartbeat run.
+- `wakeMode: "now"` (default): event triggers an immediate heartbeat run.
+- `wakeMode: "next-heartbeat"`: event waits for the next scheduled heartbeat.
 
 This is the best fit when you want the normal heartbeat prompt + main-session context.
 See [Heartbeat](/gateway/heartbeat).
@@ -202,6 +248,88 @@ the topic/thread into the `to` field:
 Prefixed targets like `telegram:...` / `telegram:group:...` are also accepted:
 - `telegram:group:-1001234567890:topic:123`
 
+<<<<<<< HEAD
+=======
+## JSON schema for tool calls
+
+Use these shapes when calling Gateway `cron.*` tools directly (agent tool calls or RPC).
+CLI flags accept human durations like `20m`, but tool calls should use an ISO 8601 string
+for `schedule.at` and milliseconds for `schedule.everyMs`.
+
+### cron.add params
+
+One-shot, main session job (system event):
+
+```json
+{
+  "name": "Reminder",
+  "schedule": { "kind": "at", "at": "2026-02-01T16:00:00Z" },
+  "sessionTarget": "main",
+  "wakeMode": "now",
+  "payload": { "kind": "systemEvent", "text": "Reminder text" },
+  "deleteAfterRun": true
+}
+```
+
+Recurring, isolated job with delivery:
+
+```json
+{
+  "name": "Morning brief",
+  "schedule": { "kind": "cron", "expr": "0 7 * * *", "tz": "America/Los_Angeles" },
+  "sessionTarget": "isolated",
+  "wakeMode": "next-heartbeat",
+  "payload": {
+    "kind": "agentTurn",
+    "message": "Summarize overnight updates."
+  },
+  "delivery": {
+    "mode": "announce",
+    "channel": "slack",
+    "to": "channel:C1234567890",
+    "bestEffort": true
+  }
+}
+```
+
+Notes:
+
+- `schedule.kind`: `at` (`at`), `every` (`everyMs`), or `cron` (`expr`, optional `tz`).
+- `schedule.at` accepts ISO 8601 (timezone optional; treated as UTC when omitted).
+- `everyMs` is milliseconds.
+- `sessionTarget` must be `"main"` or `"isolated"` and must match `payload.kind`.
+- Optional fields: `agentId`, `description`, `enabled`, `deleteAfterRun` (defaults to true for `at`),
+  `delivery`.
+- `wakeMode` defaults to `"now"` when omitted.
+
+### cron.update params
+
+```json
+{
+  "jobId": "job-123",
+  "patch": {
+    "enabled": false,
+    "schedule": { "kind": "every", "everyMs": 3600000 }
+  }
+}
+```
+
+Notes:
+
+- `jobId` is canonical; `id` is accepted for compatibility.
+- Use `agentId: null` in the patch to clear an agent binding.
+
+### cron.run and cron.remove params
+
+```json
+{ "jobId": "job-123", "mode": "force" }
+```
+
+```json
+{ "jobId": "job-123" }
+```
+
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 ## Storage & history
 - Job store: `~/.clawdbot/cron/jobs.json` (Gateway-managed JSON).
 - Run history: `~/.clawdbot/cron/runs/<jobId>.jsonl` (JSONL, auto-pruned).
@@ -297,9 +425,17 @@ moltbot cron edit <jobId> --clear-agent
 ```
 ```
 
+<<<<<<< HEAD
 Manual run (debug):
 ```bash
 moltbot cron run <jobId> --force
+=======
+Manual run (force is the default, use `--due` to only run when due):
+
+```bash
+openclaw cron run <jobId>
+openclaw cron run <jobId> --due
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
 ```
 
 Edit an existing job (patch fields):

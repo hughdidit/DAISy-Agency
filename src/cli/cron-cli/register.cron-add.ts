@@ -69,8 +69,13 @@ export function registerCronAddCommand(cron: Command) {
       .option("--disabled", "Create job disabled", false)
       .option("--delete-after-run", "Delete one-shot job after it succeeds", false)
       .option("--agent <id>", "Agent id for this job")
+<<<<<<< HEAD
       .option("--session <target>", "Session target (main|isolated)", "main")
       .option("--wake <mode>", "Wake mode (now|next-heartbeat)", "next-heartbeat")
+=======
+      .option("--session <target>", "Session target (main|isolated)")
+      .option("--wake <mode>", "Wake mode (now|next-heartbeat)", "now")
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
       .option("--at <when>", "Run once at time (ISO) or +duration (e.g. 20m)")
       .option("--every <duration>", "Run every duration (e.g. 10m, 1h)")
       .option("--cron <expr>", "Cron expression (5-field)")
@@ -126,6 +131,7 @@ export function registerCronAddCommand(cron: Command) {
             };
           })();
 
+<<<<<<< HEAD
           const sessionTargetRaw = typeof opts.session === "string" ? opts.session : "main";
           const sessionTarget = sessionTargetRaw.trim() || "main";
           if (sessionTarget !== "main" && sessionTarget !== "isolated") {
@@ -134,6 +140,10 @@ export function registerCronAddCommand(cron: Command) {
 
           const wakeModeRaw = typeof opts.wake === "string" ? opts.wake : "next-heartbeat";
           const wakeMode = wakeModeRaw.trim() || "next-heartbeat";
+=======
+          const wakeModeRaw = typeof opts.wake === "string" ? opts.wake : "now";
+          const wakeMode = wakeModeRaw.trim() || "now";
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
           if (wakeMode !== "now" && wakeMode !== "next-heartbeat") {
             throw new Error("--wake must be now or next-heartbeat");
           }

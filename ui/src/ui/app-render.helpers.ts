@@ -132,7 +132,51 @@ export function renderChatControls(state: AppViewState) {
   `;
 }
 
+<<<<<<< HEAD
 function resolveSessionOptions(sessionKey: string, sessions: SessionsListResult | null) {
+=======
+type SessionDefaultsSnapshot = {
+  mainSessionKey?: string;
+  mainKey?: string;
+};
+
+function resolveMainSessionKey(
+  hello: AppViewState["hello"],
+  sessions: SessionsListResult | null,
+): string | null {
+  const snapshot = hello?.snapshot as { sessionDefaults?: SessionDefaultsSnapshot } | undefined;
+  const mainSessionKey = snapshot?.sessionDefaults?.mainSessionKey?.trim();
+  if (mainSessionKey) {
+    return mainSessionKey;
+  }
+  const mainKey = snapshot?.sessionDefaults?.mainKey?.trim();
+  if (mainKey) {
+    return mainKey;
+  }
+  if (sessions?.sessions?.some((row) => row.key === "main")) {
+    return "main";
+  }
+  return null;
+}
+
+function resolveSessionDisplayName(key: string, row?: SessionsListResult["sessions"][number]) {
+  const label = row?.label?.trim() || "";
+  const displayName = row?.displayName?.trim() || "";
+  if (label && label !== key) {
+    return `${label} (${key})`;
+  }
+  if (displayName && displayName !== key) {
+    return `${key} (${displayName})`;
+  }
+  return key;
+}
+
+function resolveSessionOptions(
+  sessionKey: string,
+  sessions: SessionsListResult | null,
+  mainSessionKey?: string | null,
+) {
+>>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
   const seen = new Set<string>();
   const options: Array<{ key: string; displayName?: string }> = [];
 
