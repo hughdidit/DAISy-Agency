@@ -53,6 +53,7 @@ import { repairSessionFileIfNeeded } from "../../session-file-repair.js";
 import { guardSessionManager } from "../../session-tool-result-guard-wrapper.js";
 import { resolveTranscriptPolicy } from "../../transcript-policy.js";
 import { acquireSessionWriteLock } from "../../session-write-lock.js";
+import { detectRuntimeShell } from "../../shell-utils.js";
 import {
   applySkillEnvOverrides,
   applySkillEnvOverridesFromSnapshot,
@@ -338,6 +339,7 @@ export async function runEmbeddedAttempt(
         node: process.version,
         model: `${params.provider}/${params.modelId}`,
         defaultModel: defaultModelLabel,
+        shell: detectRuntimeShell(),
         channel: runtimeChannel,
         capabilities: runtimeCapabilities,
         channelActions,

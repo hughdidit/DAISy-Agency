@@ -9,7 +9,13 @@ import type { ThinkLevel } from "../../auto-reply/thinking.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { CliBackendConfig } from "../../config/types.js";
 import { runExec } from "../../process/exec.js";
+<<<<<<< HEAD
 import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
+=======
+import { buildTtsSystemPromptHint } from "../../tts/tts.js";
+import { resolveDefaultModelForAgent } from "../model-selection.js";
+import { detectRuntimeShell } from "../shell-utils.js";
+>>>>>>> f0722498a (Agents: include runtime shell (#1835))
 import { buildSystemPromptParams } from "../system-prompt-params.js";
 import { resolveDefaultModelForAgent } from "../model-selection.js";
 import { buildAgentSystemPrompt } from "../system-prompt.js";
@@ -227,6 +233,7 @@ export function buildSystemPrompt(params: {
       node: process.version,
       model: params.modelDisplay,
       defaultModel: defaultModelLabel,
+      shell: detectRuntimeShell(),
     },
   });
   const ttsHint = params.config ? buildTtsSystemPromptHint(params.config) : undefined;
