@@ -2,9 +2,13 @@ name: CI
 
 on:
   push:
+<<<<<<< HEAD
     branches:
       - daisy/main
       - daisy/dev
+=======
+    branches: [main]
+>>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
   pull_request:
     branches:
       - daisy/main
@@ -21,6 +25,10 @@ concurrency:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   checks:
@@ -157,6 +165,12 @@ jobs:
     runs-on: windows-latest
     env:
       NODE_OPTIONS: --max-old-space-size=4096
+<<<<<<< HEAD
+=======
+      # Keep total concurrency predictable on the 4 vCPU runner:
+      # `scripts/test-parallel.mjs` runs some vitest suites in parallel processes.
+      OPENCLAW_TEST_WORKERS: 2
+>>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
     defaults:
       run:
         shell: bash
@@ -185,9 +199,32 @@ jobs:
         with:
           submodules: false
 
+<<<<<<< HEAD
       # pnpm must be on PATH before setup-node so cache: 'pnpm' can
       # resolve the store path for cache keys.
       - name: Setup pnpm (corepack)
+=======
+      - name: Try to exclude workspace from Windows Defender (best-effort)
+        shell: pwsh
+        run: |
+          $cmd = Get-Command Add-MpPreference -ErrorAction SilentlyContinue
+          if (-not $cmd) {
+            Write-Host "Add-MpPreference not available, skipping Defender exclusions."
+            exit 0
+          }
+
+          try {
+            # Defender sometimes intercepts process spawning (vitest workers). If this fails
+            # (eg hardened images), keep going and rely on worker limiting above.
+            Add-MpPreference -ExclusionPath "$env:GITHUB_WORKSPACE" -ErrorAction Stop
+            Add-MpPreference -ExclusionProcess "node.exe" -ErrorAction Stop
+            Write-Host "Defender exclusions applied."
+          } catch {
+            Write-Warning "Failed to apply Defender exclusions, continuing. $($_.Exception.Message)"
+          }
+
+      - name: Checkout submodules (retry)
+>>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
         run: |
           corepack enable
           for attempt in 1 2 3; do
@@ -233,6 +270,7 @@ jobs:
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
         run: ${{ matrix.command }}
 
+<<<<<<< HEAD
   checks-macos:
     name: macOS / node / ${{ matrix.task }}
     if: github.event_name == 'pull_request'
@@ -243,6 +281,15 @@ jobs:
         include:
           - task: test
             command: pnpm canvas:a2ui:bundle && pnpm test -- --no-file-parallelism
+=======
+  # Consolidated macOS job: runs TS tests + Swift lint/build/test sequentially
+  # on a single runner. GitHub limits macOS concurrent jobs to 5 per org;
+  # running 4 separate jobs per PR (as before) starved the queue. One job
+  # per PR allows 5 PRs to run macOS checks simultaneously.
+  macos:
+    if: github.event_name == 'pull_request'
+    runs-on: macos-latest
+>>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -253,6 +300,30 @@ jobs:
       # resolve the store path for cache keys.
       - name: Setup pnpm (corepack)
         run: |
+<<<<<<< HEAD
+=======
+          set -euo pipefail
+          git submodule sync --recursive
+          for attempt in 1 2 3 4 5; do
+            if git -c protocol.version=2 submodule update --init --force --depth=1 --recursive; then
+              exit 0
+            fi
+            echo "Submodule update failed (attempt $attempt/5). Retrying…"
+            sleep $((attempt * 10))
+          done
+          exit 1
+
+      # --- Node/pnpm setup (for TS tests) ---
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          check-latest: true
+
+      - name: Setup pnpm (corepack retry)
+        run: |
+          set -euo pipefail
+>>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
           corepack enable
           for attempt in 1 2 3; do
             if corepack prepare pnpm@10.23.0 --activate; then
@@ -294,9 +365,11 @@ jobs:
             sleep $((attempt * 5))
           done
 
-      - name: Run ${{ matrix.task }}
+      # --- Run all checks sequentially (fast gates first) ---
+      - name: TS tests (macOS)
         env:
           NODE_OPTIONS: --max-old-space-size=4096
+<<<<<<< HEAD
         run: ${{ matrix.command }}
 
   macos-app:
@@ -345,11 +418,18 @@ jobs:
           if [ -n "$LATEST" ]; then
             sudo xcode-select -s "$LATEST"
           fi
+=======
+        run: pnpm test
+
+      # --- Xcode/Swift setup ---
+      - name: Select Xcode 26.1
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.1.app
+>>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
           xcodebuild -version
 
       - name: Install XcodeGen / SwiftLint / SwiftFormat
-        run: |
-          brew install xcodegen swiftlint swiftformat
+        run: brew install xcodegen swiftlint swiftformat
 
       - name: Show toolchain
         run: |
@@ -357,8 +437,35 @@ jobs:
           xcodebuild -version
           swift --version
 
-      - name: Run ${{ matrix.task }}
-        run: ${{ matrix.command }}
+      - name: Swift lint
+        run: |
+          swiftlint --config .swiftlint.yml
+          swiftformat --lint apps/macos/Sources --config .swiftformat
+
+      - name: Swift build (release)
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if swift build --package-path apps/macos --configuration release; then
+              exit 0
+            fi
+            echo "swift build failed (attempt $attempt/3). Retrying…"
+            sleep $((attempt * 20))
+          done
+          exit 1
+
+      - name: Swift test
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if swift test --package-path apps/macos --parallel --enable-code-coverage --show-codecov-path; then
+              exit 0
+            fi
+            echo "swift test failed (attempt $attempt/3). Retrying…"
+            sleep $((attempt * 20))
+          done
+          exit 1
+
   ios:
     name: iOS
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.run_ios) }}

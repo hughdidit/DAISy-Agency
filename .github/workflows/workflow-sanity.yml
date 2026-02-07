@@ -2,6 +2,7 @@ name: Workflow Sanity
 
 on:
   push:
+<<<<<<< HEAD
     branches:
       - daisy/main
       - daisy/dev
@@ -16,6 +17,13 @@ concurrency:
 
 permissions:
   contents: read
+=======
+    branches: [main]
+
+concurrency:
+  group: workflow-sanity-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+>>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
 
 jobs:
   no-tabs:
