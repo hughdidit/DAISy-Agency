@@ -55,6 +55,9 @@ on:
       CLAUDE_AI_SESSION_KEY:
         description: Claude AI session key
         required: true
+      DISCORD_BOT_TOKEN:
+        description: Discord bot token
+        required: true
       CLAUDE_WEB_SESSION_KEY:
         description: Claude web session key (optional, for usage monitoring)
         required: false
@@ -116,6 +119,7 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           CLAWDBOT_GATEWAY_TOKEN: ${{ secrets.CLAWDBOT_GATEWAY_TOKEN }}
           CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
         run: |
@@ -128,6 +132,7 @@ jobs:
           : "${GHCR_TOKEN:?GHCR_TOKEN is required}"
           : "${CLAWDBOT_GATEWAY_TOKEN:?CLAWDBOT_GATEWAY_TOKEN is required}"
           : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required}"
+          : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required}"
           # CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
 
       - name: Authenticate to Google Cloud (WIF)
@@ -170,6 +175,7 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           CLAWDBOT_GATEWAY_TOKEN: ${{ secrets.CLAWDBOT_GATEWAY_TOKEN }}
           CLAUDE_AI_SESSION_KEY: ${{ secrets.CLAUDE_AI_SESSION_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           CLAUDE_WEB_SESSION_KEY: ${{ secrets.CLAUDE_WEB_SESSION_KEY }}
           CLAUDE_WEB_COOKIE: ${{ secrets.CLAUDE_WEB_COOKIE }}
         run: |
