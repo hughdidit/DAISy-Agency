@@ -217,8 +217,12 @@ export async function agentCommand(
         sessionEntry ?? { sessionId, updatedAt: Date.now() };
       const next: SessionEntry = { ...entry, sessionId, updatedAt: Date.now() };
       if (thinkOverride) {
+<<<<<<< HEAD
         if (thinkOverride === "off") delete next.thinkingLevel;
         else next.thinkingLevel = thinkOverride;
+=======
+        next.thinkingLevel = thinkOverride;
+>>>>>>> 97b3ee7ec (Fix: Honor `/think off` for reasoning-capable models)
       }
       applyVerboseOverride(next, verboseOverride);
       sessionStore[sessionKey] = next;
