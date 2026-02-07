@@ -21,11 +21,15 @@
   "type": "module",
   "description": "OpenClaw LanceDB-backed long-term memory plugin with auto-recall/capture",
   "dependencies": {
+<<<<<<< HEAD
     "@lancedb/lancedb": "^0.23.0",
 <<<<<<< HEAD
     "@sinclair/typebox": "0.34.47",
     "openai": "^6.17.0"
 =======
+=======
+    "@lancedb/lancedb": "^0.24.1",
+>>>>>>> dca8cf958 (chore(deps): update deps)
     "@sinclair/typebox": "0.34.48",
     "openai": "^6.18.0"
 >>>>>>> 6f4665dda (chore: Update deps.)
