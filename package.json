@@ -163,6 +163,7 @@
     "android:run": "cd apps/android && ./gradlew :app:installDebug && adb shell am start -n bot.molt.android/.MainActivity",
     "android:test": "cd apps/android && ./gradlew :app:testDebugUnitTest",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "mac:restart": "bash scripts/restart-mac.sh",
     "mac:package": "bash scripts/package-mac-app.sh",
 <<<<<<< HEAD
@@ -211,6 +212,10 @@
     "protocol:gen": "node --import tsx scripts/protocol-gen.ts",
     "protocol:gen:swift": "node --import tsx scripts/protocol-gen-swift.ts",
     "protocol:check": "pnpm protocol:gen && pnpm protocol:gen:swift && git diff --exit-code -- dist/protocol.schema.json apps/macos/Sources/MoltbotProtocol/GatewayModels.swift",
+=======
+    "build": "pnpm canvas:a2ui:bundle && tsdown && pnpm build:plugin-sdk:dts && node --import tsx scripts/write-plugin-sdk-entry-dts.ts && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/write-build-info.ts && node --import tsx scripts/write-cli-compat.ts",
+    "build:plugin-sdk:dts": "tsc -p tsconfig.plugin-sdk.dts.json",
+>>>>>>> a3b5f1b15 (fix(build): unblock pnpm build dts)
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500"
 =======
