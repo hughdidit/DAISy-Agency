@@ -317,12 +317,16 @@ function ensureAllowlisted(cfg: MoltbotConfig, pluginId: string): MoltbotConfig 
   };
 }
 
+<<<<<<< HEAD
 function enablePluginEntry(cfg: MoltbotConfig, pluginId: string): MoltbotConfig {
+=======
+function registerPluginEntry(cfg: OpenClawConfig, pluginId: string): OpenClawConfig {
+>>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
   const entries = {
     ...cfg.plugins?.entries,
     [pluginId]: {
       ...(cfg.plugins?.entries?.[pluginId] as Record<string, unknown> | undefined),
-      enabled: true,
+      enabled: false,
     },
   };
   return {
@@ -330,7 +334,6 @@ function enablePluginEntry(cfg: MoltbotConfig, pluginId: string): MoltbotConfig 
     plugins: {
       ...cfg.plugins,
       entries,
-      ...(cfg.plugins?.enabled === false ? { enabled: true } : {}),
     },
   };
 }
@@ -369,8 +372,15 @@ export function applyPluginAutoEnable(params: {
     const allow = next.plugins?.allow;
     const allowMissing = Array.isArray(allow) && !allow.includes(entry.pluginId);
     const alreadyEnabled = next.plugins?.entries?.[entry.pluginId]?.enabled === true;
+<<<<<<< HEAD
     if (alreadyEnabled && !allowMissing) continue;
     next = enablePluginEntry(next, entry.pluginId);
+=======
+    if (alreadyEnabled && !allowMissing) {
+      continue;
+    }
+    next = registerPluginEntry(next, entry.pluginId);
+>>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
     next = ensureAllowlisted(next, entry.pluginId);
     changes.push(formatAutoEnableChange(entry));
   }
