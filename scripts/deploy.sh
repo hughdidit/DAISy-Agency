@@ -83,6 +83,7 @@ fi
 : "${CLAWDBOT_GATEWAY_TOKEN:?CLAWDBOT_GATEWAY_TOKEN is required for real deploy}"
 : "${CLAUDE_AI_SESSION_KEY:?CLAUDE_AI_SESSION_KEY is required for real deploy}"
 : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required for real deploy}"
+: "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required for real deploy}"
 # CLAUDE_WEB_SESSION_KEY and CLAUDE_WEB_COOKIE are optional (usage monitoring only)
 CLAUDE_WEB_SESSION_KEY="${CLAUDE_WEB_SESSION_KEY:-}"
 CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
@@ -129,6 +130,7 @@ read -r GHCR_TOKEN
 read -r CLAWDBOT_GATEWAY_TOKEN
 read -r CLAUDE_AI_SESSION_KEY
 read -r DISCORD_BOT_TOKEN
+read -r ANTHROPIC_API_KEY
 read -r CLAUDE_WEB_SESSION_KEY || CLAUDE_WEB_SESSION_KEY=""
 read -r CLAUDE_WEB_COOKIE || CLAUDE_WEB_COOKIE=""
 
@@ -164,6 +166,7 @@ export CLAWDBOT_IMAGE="${DEPLOY_REF}"
 export CLAWDBOT_GATEWAY_TOKEN
 export CLAUDE_AI_SESSION_KEY
 export DISCORD_BOT_TOKEN
+export ANTHROPIC_API_KEY
 export CLAUDE_WEB_SESSION_KEY
 export CLAUDE_WEB_COOKIE
 export CLAWDBOT_CONFIG_DIR="${DEPLOY_DIR}/config"
@@ -176,7 +179,7 @@ sudo -E docker-compose pull
 sudo -E docker-compose up -d --remove-orphans
 
 # Clear secrets from environment
-unset CLAWDBOT_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE
+unset CLAWDBOT_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE
 
 echo "Deployment complete."
 '
@@ -198,6 +201,7 @@ printf -v BRIDGE_PORT_ESCAPED '%q' "${CLAWDBOT_BRIDGE_PORT}"
   printf '%s\n' "${CLAWDBOT_GATEWAY_TOKEN}"
   printf '%s\n' "${CLAUDE_AI_SESSION_KEY}"
   printf '%s\n' "${DISCORD_BOT_TOKEN}"
+  printf '%s\n' "${ANTHROPIC_API_KEY}"
   printf '%s\n' "${CLAUDE_WEB_SESSION_KEY}"
   printf '%s\n' "${CLAUDE_WEB_COOKIE}"
 } | gcloud compute ssh "${GCE_INSTANCE_NAME}" \
