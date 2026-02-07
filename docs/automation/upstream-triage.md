@@ -151,6 +151,7 @@ Reports are derived artifacts (idempotent, overwritten on re-run) and are not co
 
 ## Prerequisites
 
+- Bash 4+ (required for associative arrays; on macOS: `brew install bash`)
 - `upstream` remote configured: `git remote add upstream https://github.com/moltbot/moltbot.git`
 - `jq` installed (for AI triage JSON processing)
 - `gh` CLI authenticated (for `--open-pr`)

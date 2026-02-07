@@ -17,6 +17,12 @@ set -euo pipefail
 #
 # Usage: scripts/upstream-triage.sh [OPTIONS]
 
+# Requires Bash 4+ for associative arrays (declare -A)
+if [[ "${BASH_VERSINFO[0]}" -lt 4 ]]; then
+  echo "ERROR: Bash 4+ required (found ${BASH_VERSION}). On macOS: brew install bash" >&2
+  exit 1
+fi
+
 # =============================================================================
 # Defaults
 # =============================================================================
@@ -145,8 +151,8 @@ if [[ -n "${MAX_COMMITS}" ]]; then
   MAX_FLAG="--max-count=${MAX_COMMITS}"
 fi
 
-# Format: SHA|subject|author|date
-COMMITS="$(git log ${MAX_FLAG} --format='%H|%s|%an|%ai' "${BASE_REF}..${UPSTREAM_REF}" --)"
+# Format: SHA␟subject␟author␟date (fields separated by ASCII Unit Separator %x1f)
+COMMITS="$(git log ${MAX_FLAG} --format='%H%x1f%s%x1f%an%x1f%ai' "${BASE_REF}..${UPSTREAM_REF}" --)"
 
 if [[ -z "${COMMITS}" ]]; then
   log "No upstream-only commits found. Fork is up to date."
@@ -300,6 +306,11 @@ beware_note() {
 ai_classify() {
   local sha="$1" subject="$2" author="$3" files="$4"
 
+  if ! command -v jq &>/dev/null; then
+    warn "jq not found; falling back to heuristic for ${sha:0:8}"
+    return 1
+  fi
+
   if ! command -v claude &>/dev/null; then
     warn "claude CLI not found; falling back to heuristic for ${sha:0:8}"
     return 1
@@ -350,7 +361,7 @@ Commit data:
 # =============================================================================
 
 # Arrays to hold results (indexed by category)
-declare -A CAT_COMMITS  # category -> newline-separated "sha|subject|author|date|risk|reason"
+declare -A CAT_COMMITS  # category -> newline-separated "sha␟subject␟author␟date␟risk␟reason"
 declare -A CAT_COUNTS
 CATEGORIES=("deps/security" "ci" "bugfix" "docs" "refactor/feature")
 for cat in "${CATEGORIES[@]}"; do
@@ -362,7 +373,7 @@ TOTAL_PROCESSED=0
 
 log "Classifying commits..."
 
-while IFS='|' read -r sha subject author date_str; do
+while IFS=$'\x1f' read -r sha subject author date_str; do
   [[ -z "${sha}" ]] && continue
 
   files="$(git diff-tree --no-commit-id --name-only -r "${sha}" 2>/dev/null || true)"
@@ -403,7 +414,7 @@ while IFS='|' read -r sha subject author date_str; do
     category="refactor/feature"
   fi
 
-  entry="${sha}|${subject}|${author}|${date_str}|${risk}|${reason}"
+  entry="${sha}"$'\x1f'"${subject}"$'\x1f'"${author}"$'\x1f'"${date_str}"$'\x1f'"${risk}"$'\x1f'"${reason}"
   if [[ -n "${CAT_COMMITS[${category}]}" ]]; then
     CAT_COMMITS["${category}"]="${CAT_COMMITS[${category}]}"$'\n'"${entry}"
   else
@@ -471,11 +482,14 @@ log "Writing report to ${REPORT_FILE}..."
     echo "| SHA | Subject | Author | Risk | Notes |"
     echo "|-----|---------|--------|------|-------|"
 
-    while IFS='|' read -r sha subject author date_str risk reason; do
+    while IFS=$'\x1f' read -r sha subject author date_str risk reason; do
       [[ -z "${sha}" ]] && continue
       short_sha="${sha:0:8}"
       label="$(risk_label "${risk}")"
-      echo "| \`${short_sha}\` | ${subject} | ${author} | ${risk}/5 ${label} | ${reason} |"
+      # Escape pipes in subject/author to avoid breaking markdown table
+      subject_escaped="${subject//|/\\|}"
+      author_escaped="${author//|/\\|}"
+      echo "| \`${short_sha}\` | ${subject_escaped} | ${author_escaped} | ${risk}/5 ${label} | ${reason} |"
     done <<< "${CAT_COMMITS[${cat}]}"
 
     echo ""
@@ -524,7 +538,7 @@ if [[ "${APPLY}" == "true" ]]; then
 
     # Cherry-pick commits oldest-first (reverse the log order)
     shas=()
-    while IFS='|' read -r sha _rest; do
+    while IFS=$'\x1f' read -r sha _rest; do
       [[ -z "${sha}" ]] && continue
       shas+=("${sha}")
     done <<< "${CAT_COMMITS[${cat}]}"
@@ -536,13 +550,15 @@ if [[ "${APPLY}" == "true" ]]; then
     done
 
     for sha in "${reversed[@]}"; do
-      # Skip already-applied commits
-      if git merge-base --is-ancestor "${sha}" "${branch_name}" 2>/dev/null; then
-        log "    ${sha:0:8} already applied; skipping"
+      # Skip already-applied commits: detect prior cherry-picks via -x trailer
+      if git log "${branch_name}" --grep="cherry picked from commit ${sha}" \
+          -F --oneline -1 &>/dev/null \
+         && [[ -n "$(git log "${branch_name}" --grep="cherry picked from commit ${sha}" -F --oneline -1 2>/dev/null)" ]]; then
+        log "    ${sha:0:8} already cherry-picked; skipping"
         continue
       fi
 
-      if ! git cherry-pick "${sha}" --no-edit 2>/dev/null; then
+      if ! git cherry-pick -x "${sha}" --no-edit 2>/dev/null; then
         subject="$(git log -1 --format='%s' "${sha}" 2>/dev/null || echo "unknown")"
         warn "    Conflict cherry-picking ${sha:0:8}: ${subject}"
         echo "${sha} | ${subject} | ${cat}" >> "${CONFLICT_FILE}"
@@ -601,14 +617,17 @@ if [[ "${OPEN_PR}" == "true" ]]; then
 
     # Build commit list for PR body
     commit_list=""
-    while IFS='|' read -r sha subject author date_str risk reason; do
+    while IFS=$'\x1f' read -r sha subject author date_str risk reason; do
       [[ -z "${sha}" ]] && continue
       commit_list="${commit_list}- \`${sha:0:8}\` ${subject} (risk: ${risk}/5)
 "
     done <<< "${CAT_COMMITS[${cat}]}"
 
-    # Push branch
-    git push origin "${branch_name}" --quiet 2>/dev/null || true
+    # Push branch (skip PR creation on push failure)
+    if ! git push origin "${branch_name}" --quiet 2>/dev/null; then
+      warn "  Failed to push branch ${branch_name}; skipping PR creation for this category"
+      continue
+    fi
 
     pr_title="cherry-pick: upstream ${cat} commits (${TODAY})"
 

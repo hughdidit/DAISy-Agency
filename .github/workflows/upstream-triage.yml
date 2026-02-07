@@ -22,15 +22,19 @@ on:
         type: string
         default: '200'
 
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+# --------------------------------------------------------------------------
+# Job: report — read-only scan, artifact upload, issue creation
+# Job: apply  — cherry-pick branches + PRs (manual dispatch only, write perms)
+# --------------------------------------------------------------------------
 
 jobs:
-  triage:
+  report:
     name: Scan upstream candidates
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      issues: write
 
     steps:
       - name: Checkout (full history)
@@ -55,39 +59,31 @@ jobs:
             npm install -g @anthropic-ai/claude-code || echo "::warning::Failed to install Claude CLI; falling back to heuristic"
           fi
 
-      - name: Run upstream triage
+      - name: Run upstream triage (report only)
         id: triage
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GH_TOKEN: ${{ github.token }}
         run: |
           chmod +x scripts/upstream-triage.sh
-
-          FLAGS=""
+          ARGS=()
 
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
             # Scheduled runs: report-only with default max
             # (inputs.* is null on schedule events)
-            FLAGS="--max 200"
+            ARGS=(--max 200)
           else
-            # Manual dispatch: read inputs
+            # Manual dispatch: read inputs (report-only, no --apply/--open-pr)
             MAX_VAL="${{ inputs.max }}"
             if [[ -n "${MAX_VAL}" ]]; then
-              FLAGS="${FLAGS} --max ${MAX_VAL}"
+              ARGS+=("--max" "${MAX_VAL}")
             fi
             if [[ "${{ inputs.ai_triage }}" == "true" ]]; then
-              FLAGS="${FLAGS} --ai-triage"
-            fi
-            if [[ "${{ inputs.apply }}" == "true" ]]; then
-              FLAGS="${FLAGS} --apply"
-            fi
-            if [[ "${{ inputs.open_pr }}" == "true" ]]; then
-              FLAGS="${FLAGS} --open-pr"
+              ARGS+=("--ai-triage")
             fi
           fi
 
-          echo "Running: scripts/upstream-triage.sh ${FLAGS}"
-          scripts/upstream-triage.sh ${FLAGS}
+          echo "Running: scripts/upstream-triage.sh ${ARGS[*]}"
+          scripts/upstream-triage.sh "${ARGS[@]}"
 
           # Capture report path for subsequent steps
           REPORT="docs/upstream-candidates/$(date +%Y-%m-%d).md"
@@ -122,3 +118,58 @@ jobs:
             --title "Upstream triage: ${TODAY}" \
             --body "${BODY}${FOOTER}" \
             --label "upstream,triage" || echo "::warning::Failed to create issue (labels may not exist)"
+
+  apply:
+    name: Create cherry-pick branches + PRs
+    if: github.event_name == 'workflow_dispatch' && inputs.apply
+    needs: report
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: daisy/dev
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/moltbot/moltbot.git || true
+          git fetch upstream --quiet
+
+      - name: Install Claude CLI
+        if: inputs.ai_triage
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [[ -z "${ANTHROPIC_API_KEY}" ]]; then
+            echo "::warning::ANTHROPIC_API_KEY not set; AI triage will fall back to heuristic"
+          else
+            npm install -g @anthropic-ai/claude-code || echo "::warning::Failed to install Claude CLI; falling back to heuristic"
+          fi
+
+      - name: Run upstream triage (apply + PR)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          chmod +x scripts/upstream-triage.sh
+          ARGS=(--apply)
+
+          MAX_VAL="${{ inputs.max }}"
+          if [[ -n "${MAX_VAL}" ]]; then
+            ARGS+=("--max" "${MAX_VAL}")
+          fi
+          if [[ "${{ inputs.ai_triage }}" == "true" ]]; then
+            ARGS+=("--ai-triage")
+          fi
+          if [[ "${{ inputs.open_pr }}" == "true" ]]; then
+            ARGS+=("--open-pr")
+          fi
+
+          echo "Running: scripts/upstream-triage.sh ${ARGS[*]}"
+          scripts/upstream-triage.sh "${ARGS[@]}"
