@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
@@ -7,6 +8,24 @@ import handler from "./handler.js";
 import { createHookEvent } from "../../hooks.js";
 import type { ClawdbotConfig } from "../../../config/config.js";
 import { makeTempWorkspace, writeWorkspaceFile } from "../../../test-helpers/workspace.js";
+=======
+import { beforeAll, describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../../../config/config.js";
+import type { HookHandler } from "../../hooks.js";
+import { makeTempWorkspace, writeWorkspaceFile } from "../../../test-helpers/workspace.js";
+import { createHookEvent } from "../../hooks.js";
+
+// Avoid calling the embedded Pi agent (global command lane); keep this unit test deterministic.
+vi.mock("../../llm-slug-generator.js", () => ({
+  generateSlugViaLLM: vi.fn().mockResolvedValue("simple-math"),
+}));
+
+let handler: HookHandler;
+
+beforeAll(async () => {
+  ({ default: handler } = await import("./handler.js"));
+});
+>>>>>>> 4ba9809f1 (test(hooks): stabilize session-memory hook tests)
 
 /**
  * Create a mock session JSONL file with various entry types

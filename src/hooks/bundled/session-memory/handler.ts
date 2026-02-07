@@ -7,13 +7,24 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import os from "node:os";
 import { fileURLToPath } from "node:url";
 import type { MoltbotConfig } from "../../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../../config/config.js";
+import type { HookHandler } from "../../hooks.js";
+>>>>>>> 4ba9809f1 (test(hooks): stabilize session-memory hook tests)
 import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
 import { resolveAgentIdFromSessionKey } from "../../../routing/session-key.js";
 import { resolveHookConfig } from "../../config.js";
+<<<<<<< HEAD
 import type { HookHandler } from "../../hooks.js";
+=======
+import { generateSlugViaLLM } from "../../llm-slug-generator.js";
+
+const log = createSubsystemLogger("hooks/session-memory");
+>>>>>>> 4ba9809f1 (test(hooks): stabilize session-memory hook tests)
 
 /**
  * Read recent messages from session file for slug generation
@@ -113,6 +124,7 @@ const saveSessionToMemory: HookHandler = async (event) => {
       sessionContent = await getRecentSessionContent(sessionFile, messageCount);
       console.log("[session-memory] sessionContent length:", sessionContent?.length || 0);
 
+<<<<<<< HEAD
       if (sessionContent && cfg) {
         console.log("[session-memory] Calling generateSlugViaLLM...");
         // Dynamically import the LLM slug generator (avoids module caching issues)
@@ -122,6 +134,11 @@ const saveSessionToMemory: HookHandler = async (event) => {
         const slugGenPath = path.join(moltbotRoot, "llm-slug-generator.js");
         const { generateSlugViaLLM } = await import(slugGenPath);
 
+=======
+      // Avoid calling the model provider in unit tests, keep hooks fast and deterministic.
+      if (sessionContent && cfg && !process.env.VITEST && process.env.NODE_ENV !== "test") {
+        log.debug("Calling generateSlugViaLLM...");
+>>>>>>> 4ba9809f1 (test(hooks): stabilize session-memory hook tests)
         // Use LLM to generate a descriptive slug
         slug = await generateSlugViaLLM({ sessionContent, cfg });
         console.log("[session-memory] Generated slug:", slug);
