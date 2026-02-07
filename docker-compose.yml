@@ -9,6 +9,7 @@ services:
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      CLAWDBOT_STATE_DIR: /home/node/.clawdbot
     volumes:
       - ${CLAWDBOT_CONFIG_DIR}:/home/node/.clawdbot
       - ${CLAWDBOT_WORKSPACE_DIR}:/home/node/clawd
@@ -25,7 +26,8 @@ services:
         "--bind",
         "${CLAWDBOT_GATEWAY_BIND:-lan}",
         "--port",
-        "18789"
+        "18789",
+        "--allow-unconfigured"
       ]
 
   moltbot-cli:
