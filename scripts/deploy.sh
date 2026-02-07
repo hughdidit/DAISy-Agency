@@ -88,6 +88,8 @@ CLAUDE_WEB_SESSION_KEY="${CLAUDE_WEB_SESSION_KEY:-}"
 CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
+CLAWDBOT_GATEWAY_PORT="${CLAWDBOT_GATEWAY_PORT:-18789}"
+CLAWDBOT_BRIDGE_PORT="${CLAWDBOT_BRIDGE_PORT:-18790}"
 
 echo "Deploying to ${GCE_INSTANCE_NAME} via IAP (dir: ${DEPLOY_DIR})..."
 echo "Provision: ${PROVISION}"
@@ -119,6 +121,8 @@ set -euo pipefail
 DEPLOY_REF="$1"
 DEPLOY_DIR="$2"
 GHCR_USERNAME="$3"
+CLAWDBOT_GATEWAY_PORT="${4:-18789}"
+CLAWDBOT_BRIDGE_PORT="${5:-18790}"
 
 # Read secrets from stdin (one per line, passed by outer script)
 read -r GHCR_TOKEN
@@ -164,6 +168,8 @@ export CLAUDE_WEB_SESSION_KEY
 export CLAUDE_WEB_COOKIE
 export CLAWDBOT_CONFIG_DIR="${DEPLOY_DIR}/config"
 export CLAWDBOT_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
+export CLAWDBOT_GATEWAY_PORT
+export CLAWDBOT_BRIDGE_PORT
 
 # Pull and deploy (use sudo -E to preserve environment variables)
 sudo -E docker-compose pull
@@ -183,6 +189,8 @@ echo "Deployment complete."
 printf -v RESOLVED_REF_ESCAPED '%q' "${RESOLVED_REF}"
 printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
 printf -v GHCR_USERNAME_ESCAPED '%q' "${GHCR_USERNAME}"
+printf -v GATEWAY_PORT_ESCAPED '%q' "${CLAWDBOT_GATEWAY_PORT}"
+printf -v BRIDGE_PORT_ESCAPED '%q' "${CLAWDBOT_BRIDGE_PORT}"
 
 # Pass all secrets via stdin (one per line)
 {
@@ -197,4 +205,4 @@ printf -v GHCR_USERNAME_ESCAPED '%q' "${GHCR_USERNAME}"
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
   --quiet \
-  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED}"
+  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED}"

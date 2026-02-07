@@ -170,6 +170,8 @@ jobs:
           GCP_ZONE: ${{ vars.GCP_ZONE }}
           GCE_INSTANCE_NAME: ${{ vars.GCE_INSTANCE_NAME }}
           DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
+          CLAWDBOT_BRIDGE_PORT: ${{ vars.CLAWDBOT_BRIDGE_PORT }}
           # Secrets (sensitive credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
@@ -184,3 +186,19 @@ jobs:
             PROVISION_FLAG="--provision"
           fi
           scripts/deploy.sh ${PROVISION_FLAG} dist/release/release-metadata.json
+
+      - name: Deploy summary
+        if: ${{ inputs.dry_run != true }}
+        env:
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ vars.GCP_ZONE }}
+          GCE_INSTANCE_NAME: ${{ vars.GCE_INSTANCE_NAME }}
+          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
+        run: |
+          PORT="${CLAWDBOT_GATEWAY_PORT:-18789}"
+          echo ""
+          echo "=== Deploy complete ==="
+          echo "Dashboard: http://localhost:${PORT}/ui/overview?token=<CLAWDBOT_GATEWAY_TOKEN>"
+          echo ""
+          echo "IAP tunnel:"
+          echo "  gcloud compute ssh ${GCE_INSTANCE_NAME} --project ${GCP_PROJECT_ID} --zone ${GCP_ZONE} --tunnel-through-iap -- -L ${PORT}:localhost:${PORT}"
