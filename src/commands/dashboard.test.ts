@@ -84,8 +84,13 @@ describe("dashboardCommand", () => {
       customBindHost: undefined,
       basePath: undefined,
     });
+<<<<<<< HEAD
     expect(mocks.copyToClipboard).toHaveBeenCalledWith("http://127.0.0.1:18789/?token=abc123");
     expect(mocks.openUrl).toHaveBeenCalledWith("http://127.0.0.1:18789/?token=abc123");
+=======
+    expect(mocks.copyToClipboard).toHaveBeenCalledWith("http://127.0.0.1:18789/#token=abc123");
+    expect(mocks.openUrl).toHaveBeenCalledWith("http://127.0.0.1:18789/#token=abc123");
+>>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
     expect(runtime.log).toHaveBeenCalledWith(
       "Opened in your browser. Keep that tab to control Moltbot.",
     );

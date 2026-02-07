@@ -271,11 +271,18 @@ export async function finalizeOnboardingWizard(
     customBindHost: settings.customBindHost,
     basePath: controlUiBasePath,
   });
+<<<<<<< HEAD
   const tokenParam =
     settings.authMode === "token" && settings.gatewayToken
       ? `?token=${encodeURIComponent(settings.gatewayToken)}`
       : "";
   const authedUrl = `${links.httpUrl}${tokenParam}`;
+=======
+  const authedUrl =
+    settings.authMode === "token" && settings.gatewayToken
+      ? `${links.httpUrl}#token=${encodeURIComponent(settings.gatewayToken)}`
+      : links.httpUrl;
+>>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
   const gatewayProbe = await probeGatewayReachable({
     url: links.wsUrl,
     token: settings.authMode === "token" ? settings.gatewayToken : undefined,
@@ -296,7 +303,13 @@ export async function finalizeOnboardingWizard(
   await prompter.note(
     [
       `Web UI: ${links.httpUrl}`,
+<<<<<<< HEAD
       tokenParam ? `Web UI (with token): ${authedUrl}` : undefined,
+=======
+      settings.authMode === "token" && settings.gatewayToken
+        ? `Web UI (with token): ${authedUrl}`
+        : undefined,
+>>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
       `Gateway WS: ${links.wsUrl}`,
       gatewayStatusLine,
       "Docs: https://docs.molt.bot/web/control-ui",
@@ -328,9 +341,18 @@ export async function finalizeOnboardingWizard(
     await prompter.note(
       [
         "Gateway token: shared auth for the Gateway + Control UI.",
+<<<<<<< HEAD
         "Stored in: ~/.clawdbot/moltbot.json (gateway.auth.token) or CLAWDBOT_GATEWAY_TOKEN.",
         "Web UI stores a copy in this browser's localStorage (moltbot.control.settings.v1).",
         `Get the tokenized link anytime: ${formatCliCommand("moltbot dashboard --no-open")}`,
+=======
+        "Stored in: ~/.openclaw/openclaw.json (gateway.auth.token) or OPENCLAW_GATEWAY_TOKEN.",
+        `View token: ${formatCliCommand("openclaw config get gateway.auth.token")}`,
+        `Generate token: ${formatCliCommand("openclaw doctor --generate-gateway-token")}`,
+        "Web UI stores a copy in this browser's localStorage (openclaw.control.settings.v1).",
+        `Open the dashboard anytime: ${formatCliCommand("openclaw dashboard --no-open")}`,
+        "If prompted: paste the token into Control UI settings (or use the tokenized dashboard URL).",
+>>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
       ].join("\n"),
       "Token",
     );
@@ -378,14 +400,22 @@ export async function finalizeOnboardingWizard(
           controlUiOpenHint = formatControlUiSshHint({
             port: settings.port,
             basePath: controlUiBasePath,
+<<<<<<< HEAD
             token: settings.gatewayToken,
+=======
+            token: settings.authMode === "token" ? settings.gatewayToken : undefined,
+>>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
           });
         }
       } else {
         controlUiOpenHint = formatControlUiSshHint({
           port: settings.port,
           basePath: controlUiBasePath,
+<<<<<<< HEAD
           token: settings.gatewayToken,
+=======
+          token: settings.authMode === "token" ? settings.gatewayToken : undefined,
+>>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
         });
       }
       await prompter.note(

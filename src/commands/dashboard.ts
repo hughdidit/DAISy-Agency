@@ -23,7 +23,11 @@ export async function dashboardCommand(
   const bind = cfg.gateway?.bind ?? "loopback";
   const basePath = cfg.gateway?.controlUi?.basePath;
   const customBindHost = cfg.gateway?.customBindHost;
+<<<<<<< HEAD
   const token = cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN ?? "";
+=======
+  const token = cfg.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN ?? "";
+>>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
 
   const links = resolveControlUiLinks({
     port,
@@ -31,7 +35,14 @@ export async function dashboardCommand(
     customBindHost,
     basePath,
   });
+<<<<<<< HEAD
   const authedUrl = token ? `${links.httpUrl}?token=${encodeURIComponent(token)}` : links.httpUrl;
+=======
+  // Prefer URL fragment to avoid leaking auth tokens via query params.
+  const dashboardUrl = token
+    ? `${links.httpUrl}#token=${encodeURIComponent(token)}`
+    : links.httpUrl;
+>>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
 
   runtime.log(`Dashboard URL: ${authedUrl}`);
 
