@@ -1,0 +1,124 @@
+name: Upstream Triage
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'   # Monday 08:00 UTC
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Create cherry-pick topic branches"
+        type: boolean
+        default: false
+      open_pr:
+        description: "Open PRs for topic branches (requires apply)"
+        type: boolean
+        default: false
+      ai_triage:
+        description: "Use Claude CLI for semantic classification"
+        type: boolean
+        default: false
+      max:
+        description: "Max commits to scan (empty = all)"
+        type: string
+        default: '200'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  triage:
+    name: Scan upstream candidates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: daisy/dev
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/moltbot/moltbot.git || true
+          git fetch upstream --quiet
+
+      - name: Install Claude CLI
+        if: github.event_name == 'workflow_dispatch' && inputs.ai_triage
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [[ -z "${ANTHROPIC_API_KEY}" ]]; then
+            echo "::warning::ANTHROPIC_API_KEY not set; AI triage will fall back to heuristic"
+          else
+            npm install -g @anthropic-ai/claude-code || echo "::warning::Failed to install Claude CLI; falling back to heuristic"
+          fi
+
+      - name: Run upstream triage
+        id: triage
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          chmod +x scripts/upstream-triage.sh
+
+          FLAGS=""
+
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            # Scheduled runs: report-only with default max
+            # (inputs.* is null on schedule events)
+            FLAGS="--max 200"
+          else
+            # Manual dispatch: read inputs
+            MAX_VAL="${{ inputs.max }}"
+            if [[ -n "${MAX_VAL}" ]]; then
+              FLAGS="${FLAGS} --max ${MAX_VAL}"
+            fi
+            if [[ "${{ inputs.ai_triage }}" == "true" ]]; then
+              FLAGS="${FLAGS} --ai-triage"
+            fi
+            if [[ "${{ inputs.apply }}" == "true" ]]; then
+              FLAGS="${FLAGS} --apply"
+            fi
+            if [[ "${{ inputs.open_pr }}" == "true" ]]; then
+              FLAGS="${FLAGS} --open-pr"
+            fi
+          fi
+
+          echo "Running: scripts/upstream-triage.sh ${FLAGS}"
+          scripts/upstream-triage.sh ${FLAGS}
+
+          # Capture report path for subsequent steps
+          REPORT="docs/upstream-candidates/$(date +%Y-%m-%d).md"
+          if [[ -f "${REPORT}" ]]; then
+            echo "report_path=${REPORT}" >> "$GITHUB_OUTPUT"
+            echo "has_report=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_report=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload triage report
+        if: steps.triage.outputs.has_report == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: upstream-triage-report
+          path: docs/upstream-candidates/
+          retention-days: 90
+
+      - name: Create summary issue (scheduled runs)
+        if: github.event_name == 'schedule' && steps.triage.outputs.has_report == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          REPORT="${{ steps.triage.outputs.report_path }}"
+          TODAY="$(date +%Y-%m-%d)"
+
+          # Truncate report for issue body (GitHub has a 65536 char limit)
+          BODY="$(head -c 60000 "${REPORT}")"
+          FOOTER=$'\n---\nFull report available as workflow artifact.\nNo upstream code was executed to produce this report.'
+
+          gh issue create \
+            --title "Upstream triage: ${TODAY}" \
+            --body "${BODY}${FOOTER}" \
+            --label "upstream,triage" || echo "::warning::Failed to create issue (labels may not exist)"
