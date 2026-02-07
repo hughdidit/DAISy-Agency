@@ -5,11 +5,15 @@
 =======
   "name": "openclaw",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
   "version": "2026.2.2",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
+=======
+  "version": "2026.2.6-2",
+>>>>>>> ad4dd0422 (chore(release): 2026.2.6-2)
   "description": "WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
   "type": "module",
   "main": "dist/index.js",
