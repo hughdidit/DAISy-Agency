@@ -1,0 +1,19 @@
+# Deploy overlay: host networking for Linux VMs (used by scripts/deploy.sh)
+# Enables localhost detection for auto-approved device pairing.
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.host.yml up -d
+services:
+  moltbot-gateway:
+    network_mode: host
+    # With host networking the gateway listens directly on the host port;
+    # bridge port auto-derives as gateway_port + 1.
+    command:
+      [
+        "node",
+        "dist/index.js",
+        "gateway",
+        "--bind",
+        "${CLAWDBOT_GATEWAY_BIND:-lan}",
+        "--port",
+        "${CLAWDBOT_GATEWAY_PORT:-18789}",
+        "--allow-unconfigured"
+      ]

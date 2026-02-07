@@ -100,17 +100,18 @@ if [[ "${PROVISION}" == "true" ]]; then
   echo "Provisioning VM..."
   printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
 
-  # Base64 encode docker-compose.yml to pass as argument (stdin not forwarded by gcloud ssh --command)
+  # Base64 encode compose files to pass as argument (stdin not forwarded by gcloud ssh --command)
   COMPOSE_B64="$(base64 -w0 docker-compose.yml)"
+  COMPOSE_HOST_B64="$(base64 -w0 docker-compose.host.yml)"
 
-  # Provision VM: install docker-compose, create directory structure, copy docker-compose.yml
+  # Provision VM: install docker-compose, create directory structure, copy compose files
   # --quiet suppresses interactive prompts (SSH key generation) that would consume stdin
   gcloud compute ssh "${GCE_INSTANCE_NAME}" \
     --project "${GCP_PROJECT_ID}" \
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if ! command -v docker-compose >/dev/null 2>&1; then echo \"Installing docker-compose...\"; sudo curl -fsSL \"https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose; fi; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo chown -R 1000:1000 \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"; docker-compose version'"
+    --command "bash -c 'set -euo pipefail; DEPLOY_DIR=${DEPLOY_DIR_ESCAPED}; if ! command -v docker-compose >/dev/null 2>&1; then echo \"Installing docker-compose...\"; sudo curl -fsSL \"https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose; fi; sudo mkdir -p \"\${DEPLOY_DIR}\"; sudo chown \"\$(whoami):\$(whoami)\" \"\${DEPLOY_DIR}\"; echo \"${COMPOSE_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.yml\"; echo \"${COMPOSE_HOST_B64}\" | base64 -d > \"\${DEPLOY_DIR}/docker-compose.host.yml\"; mkdir -p \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; sudo chown -R 1000:1000 \"\${DEPLOY_DIR}/config\" \"\${DEPLOY_DIR}/workspace\"; echo \"Provisioned \${DEPLOY_DIR}\"; ls -la \"\${DEPLOY_DIR}\"; docker-compose version'"
   echo "Provisioning complete."
 fi
 
@@ -174,9 +175,15 @@ export CLAWDBOT_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
 export CLAWDBOT_GATEWAY_PORT
 export CLAWDBOT_BRIDGE_PORT
 
+# Compose file flags: use host networking overlay on Linux VMs
+COMPOSE_FILES="-f docker-compose.yml"
+if [[ -f docker-compose.host.yml ]]; then
+  COMPOSE_FILES="${COMPOSE_FILES} -f docker-compose.host.yml"
+fi
+
 # Pull and deploy (use sudo -E to preserve environment variables)
-sudo -E docker-compose pull
-sudo -E docker-compose up -d --remove-orphans
+sudo -E docker-compose ${COMPOSE_FILES} pull
+sudo -E docker-compose ${COMPOSE_FILES} up -d --remove-orphans
 
 # Clear secrets from environment
 unset CLAWDBOT_GATEWAY_TOKEN CLAUDE_AI_SESSION_KEY DISCORD_BOT_TOKEN ANTHROPIC_API_KEY CLAUDE_WEB_SESSION_KEY CLAUDE_WEB_COOKIE
