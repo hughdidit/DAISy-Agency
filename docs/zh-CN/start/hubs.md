@@ -61,9 +61,9 @@ x-i18n:
 - [在线状态](/concepts/presence)
 - [设备发现 + 传输协议](/gateway/discovery)
 - [Bonjour](/gateway/bonjour)
-- [渠道路由](/concepts/channel-routing)
-- [群组](/concepts/groups)
-- [群组消息](/concepts/group-messages)
+- [渠道路由](/channels/channel-routing)
+- [群组](/channels/groups)
+- [群组消息](/channels/group-messages)
 - [模型故障转移](/concepts/model-failover)
 - [OAuth](/concepts/oauth)
 
@@ -116,7 +116,11 @@ x-i18n:
 - [模型](/concepts/models)
 - [子智能体](/tools/subagents)
 - [Agent send CLI](/tools/agent-send)
+<<<<<<< HEAD
 - [终端 UI](/tui)
+=======
+- [终端界面](/web/tui)
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - [浏览器控制](/tools/browser)
 - [浏览器（Linux 故障排除）](/tools/browser-linux-troubleshooting)
 - [投票](/automation/poll)

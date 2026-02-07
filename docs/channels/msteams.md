@@ -35,7 +35,7 @@ moltbot plugins install ./extensions/msteams
 If you choose Teams during configure/onboarding and a git checkout is detected,
 Moltbot will offer the local install path automatically.
 
-Details: [Plugins](/plugin)
+Details: [Plugins](/tools/plugin)
 
 ## Quick setup (beginner)
 <<<<<<< HEAD

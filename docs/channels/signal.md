@@ -125,9 +125,15 @@ DMs:
 - Default: `channels.signal.dmPolicy = "pairing"`.
 - Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
+<<<<<<< HEAD
   - `moltbot pairing list signal`
   - `moltbot pairing approve signal <CODE>`
 - Pairing is the default token exchange for Signal DMs. Details: [Pairing](/start/pairing)
+=======
+  - `openclaw pairing list signal`
+  - `openclaw pairing approve signal <CODE>`
+- Pairing is the default token exchange for Signal DMs. Details: [Pairing](/channels/pairing)
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - UUID-only senders (from `sourceUuid`) are stored as `uuid:<id>` in `channels.signal.allowFrom`.
 
 Groups:

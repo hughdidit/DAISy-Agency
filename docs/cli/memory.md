@@ -13,7 +13,11 @@ Provided by the active memory plugin (default: `memory-core`; set `plugins.slots
 Related:
 
 - Memory concept: [Memory](/concepts/memory)
+<<<<<<< HEAD
 - Plugins: [Plugins](/plugins)
+=======
+- Plugins: [Plugins](/tools/plugin)
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 
 ## Examples
 

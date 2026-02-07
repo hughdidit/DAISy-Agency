@@ -33,7 +33,7 @@ moltbot plugins install ./extensions/matrix
 If you choose Matrix during configure/onboarding and a git checkout is detected,
 Moltbot will offer the local install path automatically.
 
-Details: [Plugins](/plugin)
+Details: [Plugins](/tools/plugin)
 
 ## Setup
 

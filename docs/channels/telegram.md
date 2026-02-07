@@ -352,9 +352,15 @@ Use the global setting when all Telegram bots/accounts should behave the same. U
 
 - Default: `channels.telegram.dmPolicy = "pairing"`. Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
+<<<<<<< HEAD
   - `moltbot pairing list telegram`
   - `moltbot pairing approve telegram <CODE>`
 - Pairing is the default token exchange used for Telegram DMs. Details: [Pairing](/start/pairing)
+=======
+  - `openclaw pairing list telegram`
+  - `openclaw pairing approve telegram <CODE>`
+- Pairing is the default token exchange used for Telegram DMs. Details: [Pairing](/channels/pairing)
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - `channels.telegram.allowFrom` accepts numeric user IDs (recommended) or `@username` entries. It is **not** the bot username; use the human sender’s ID. The wizard accepts `@username` and resolves it to the numeric ID when possible.
 
 #### Finding your Telegram user ID

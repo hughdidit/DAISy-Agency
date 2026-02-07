@@ -52,8 +52,13 @@ applies: workspace wins, then managed/local, then bundled.
 Plugins can ship their own skills by listing `skills` directories in
 `moltbot.plugin.json` (paths relative to the plugin root). Plugin skills load
 when the plugin is enabled and participate in the normal skill precedence rules.
+<<<<<<< HEAD
 You can gate them via `metadata.moltbot.requires.config` on the plugin’s config
 entry. See [Plugins](/plugin) for discovery/config and [Tools](/tools) for the
+=======
+You can gate them via `metadata.openclaw.requires.config` on the plugin’s config
+entry. See [Plugins](/tools/plugin) for discovery/config and [Tools](/tools) for the
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 tool surface those skills teach.
 
 ## ClawHub (install + sync)

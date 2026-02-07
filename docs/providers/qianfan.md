@@ -278,7 +278,13 @@ OpenClaw uses the OpenAI-compatible API format (`openai-completions`), which Qia
 
 ## Related Documentation
 
+<<<<<<< HEAD
 - [OpenClaw Configuration](/configuration)
 - [Model Providers](/models/providers)
 - [Agent Setup](/agents)
+=======
+- [OpenClaw Configuration](/gateway/configuration)
+- [Model Providers](/concepts/model-providers)
+- [Agent Setup](/concepts/agent)
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - [Qianfan API Documentation](https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb)

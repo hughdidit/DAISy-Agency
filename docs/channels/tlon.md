@@ -29,7 +29,7 @@ Local checkout (when running from a git repo):
 moltbot plugins install ./extensions/tlon
 ```
 
-Details: [Plugins](/plugin)
+Details: [Plugins](/tools/plugin)
 
 ## Setup
 

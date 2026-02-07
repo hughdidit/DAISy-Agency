@@ -172,8 +172,13 @@ Use `accountId` to target a specific account on multi-account channels like Tele
 - `includeReasoning`: when enabled, also deliver the separate `Reasoning:` message when available (same shape as `/reasoning on`).
 - `session`: optional session key for heartbeat runs.
   - `main` (default): agent main session.
+<<<<<<< HEAD
   - Explicit session key (copy from `moltbot sessions --json` or the [sessions CLI](/cli/sessions)).
   - Session key formats: see [Sessions](/concepts/session) and [Groups](/concepts/groups).
+=======
+  - Explicit session key (copy from `openclaw sessions --json` or the [sessions CLI](/cli/sessions)).
+  - Session key formats: see [Sessions](/concepts/session) and [Groups](/channels/groups).
+>>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
 - `target`:
   - `last` (default): deliver to the last used external channel.
   - explicit channel: `whatsapp` / `telegram` / `discord` / `googlechat` / `slack` / `msteams` / `signal` / `imessage`.

@@ -30,7 +30,7 @@ moltbot plugins install ./extensions/mattermost
 If you choose Mattermost during configure/onboarding and a git checkout is detected,
 Moltbot will offer the local install path automatically.
 
-Details: [Plugins](/plugin)
+Details: [Plugins](/tools/plugin)
 
 ## Quick setup
 <<<<<<< HEAD
