@@ -1,5 +1,7 @@
 import { spawn } from "node:child_process";
+import fs from "node:fs";
 import os from "node:os";
+import path from "node:path";
 
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
@@ -60,11 +62,62 @@ const WARNING_SUPPRESSION_FLAGS = [
   "--disable-warning=DEP0060",
 ];
 
+function resolveReportDir() {
+  const raw = process.env.OPENCLAW_VITEST_REPORT_DIR?.trim();
+  if (!raw) {
+    return null;
+  }
+  try {
+    fs.mkdirSync(raw, { recursive: true });
+  } catch {
+    return null;
+  }
+  return raw;
+}
+
+function buildReporterArgs(entry, extraArgs) {
+  const reportDir = resolveReportDir();
+  if (!reportDir) {
+    return [];
+  }
+
+  // Vitest supports both `--shard 1/2` and `--shard=1/2`. We use it in the
+  // split-arg form, so we need to read the next arg to avoid overwriting reports.
+  const shardIndex = extraArgs.findIndex((arg) => arg === "--shard");
+  const inlineShardArg = extraArgs.find(
+    (arg) => typeof arg === "string" && arg.startsWith("--shard="),
+  );
+  const shardValue =
+    shardIndex >= 0 && typeof extraArgs[shardIndex + 1] === "string"
+      ? extraArgs[shardIndex + 1]
+      : typeof inlineShardArg === "string"
+        ? inlineShardArg.slice("--shard=".length)
+        : "";
+  const shardSuffix = shardValue
+    ? `-shard${String(shardValue).replaceAll("/", "of").replaceAll(" ", "")}`
+    : "";
+
+  const outputFile = path.join(reportDir, `vitest-${entry.name}${shardSuffix}.json`);
+  return ["--reporter=default", "--reporter=json", "--outputFile", outputFile];
+}
+
 const runOnce = (entry, extraArgs = []) =>
   new Promise((resolve) => {
+<<<<<<< HEAD
+=======
+    const maxWorkers = maxWorkersForRun(entry.name);
+    const reporterArgs = buildReporterArgs(entry, extraArgs);
+>>>>>>> 8fce7dc9b (perf(test): add vitest slowest report artifact)
     const args = maxWorkers
-      ? [...entry.args, "--maxWorkers", String(maxWorkers), ...windowsCiArgs, ...extraArgs]
-      : [...entry.args, ...windowsCiArgs, ...extraArgs];
+      ? [
+          ...entry.args,
+          "--maxWorkers",
+          String(maxWorkers),
+          ...reporterArgs,
+          ...windowsCiArgs,
+          ...extraArgs,
+        ]
+      : [...entry.args, ...reporterArgs, ...windowsCiArgs, ...extraArgs];
     const nodeOptions = process.env.NODE_OPTIONS ?? "";
     const nextNodeOptions = WARNING_SUPPRESSION_FLAGS.reduce(
       (acc, flag) => (acc.includes(flag) ? acc : `${acc} ${flag}`.trim()),
@@ -101,6 +154,34 @@ const shutdown = (signal) => {
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 
+<<<<<<< HEAD
+=======
+if (passthroughArgs.length > 0) {
+  const maxWorkers = maxWorkersForRun("unit");
+  const args = maxWorkers
+    ? ["vitest", "run", "--maxWorkers", String(maxWorkers), ...windowsCiArgs, ...passthroughArgs]
+    : ["vitest", "run", ...windowsCiArgs, ...passthroughArgs];
+  const nodeOptions = process.env.NODE_OPTIONS ?? "";
+  const nextNodeOptions = WARNING_SUPPRESSION_FLAGS.reduce(
+    (acc, flag) => (acc.includes(flag) ? acc : `${acc} ${flag}`.trim()),
+    nodeOptions,
+  );
+  const code = await new Promise((resolve) => {
+    const child = spawn(pnpm, args, {
+      stdio: "inherit",
+      env: { ...process.env, NODE_OPTIONS: nextNodeOptions },
+      shell: process.platform === "win32",
+    });
+    children.add(child);
+    child.on("exit", (exitCode, signal) => {
+      children.delete(child);
+      resolve(exitCode ?? (signal ? 1 : 0));
+    });
+  });
+  process.exit(Number(code) || 0);
+}
+
+>>>>>>> 8fce7dc9b (perf(test): add vitest slowest report artifact)
 const parallelCodes = await Promise.all(parallelRuns.map(run));
 const failedParallel = parallelCodes.find((code) => code !== 0);
 if (failedParallel !== undefined) {

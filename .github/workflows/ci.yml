@@ -345,8 +345,31 @@ jobs:
         uses: ./.github/actions/setup-node-env
 >>>>>>> 0b7e56143 (ci: split format/lint into tiered gates with shared setup action)
 
+<<<<<<< HEAD
       - name: Run ${{ matrix.task }}
+=======
+      - name: Configure vitest JSON reports
+        if: matrix.task == 'test' && matrix.runtime == 'node'
+        run: echo "OPENCLAW_VITEST_REPORT_DIR=$RUNNER_TEMP/vitest-reports" >> "$GITHUB_ENV"
+
+      - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
+>>>>>>> 8fce7dc9b (perf(test): add vitest slowest report artifact)
         run: ${{ matrix.command }}
+
+      - name: Summarize slowest tests
+        if: matrix.task == 'test' && matrix.runtime == 'node'
+        run: |
+          node scripts/vitest-slowest.mjs --dir "$OPENCLAW_VITEST_REPORT_DIR" --top 50 --out "$RUNNER_TEMP/vitest-slowest.md" > /dev/null
+          echo "Slowest test summary written to $RUNNER_TEMP/vitest-slowest.md"
+
+      - name: Upload vitest reports
+        if: matrix.task == 'test' && matrix.runtime == 'node'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-reports-${{ runner.os }}-${{ matrix.runtime }}
+          path: |
+            ${{ env.OPENCLAW_VITEST_REPORT_DIR }}
+            ${{ runner.temp }}/vitest-slowest.md
 
   # Types, lint, and format check.
   check:
@@ -589,9 +612,14 @@ jobs:
             sleep $((attempt * 5))
           done
 
+      - name: Configure vitest JSON reports
+        if: matrix.task == 'test'
+        run: echo "OPENCLAW_VITEST_REPORT_DIR=$RUNNER_TEMP/vitest-reports" >> "$GITHUB_ENV"
+
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
         run: ${{ matrix.command }}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   checks-macos:
     name: macOS / node / ${{ matrix.task }}
@@ -604,6 +632,23 @@ jobs:
           - task: test
             command: pnpm canvas:a2ui:bundle && pnpm test -- --no-file-parallelism
 =======
+=======
+      - name: Summarize slowest tests
+        if: matrix.task == 'test'
+        run: |
+          node scripts/vitest-slowest.mjs --dir "$OPENCLAW_VITEST_REPORT_DIR" --top 50 --out "$RUNNER_TEMP/vitest-slowest.md" > /dev/null
+          echo "Slowest test summary written to $RUNNER_TEMP/vitest-slowest.md"
+
+      - name: Upload vitest reports
+        if: matrix.task == 'test'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-reports-${{ runner.os }}-${{ matrix.runtime }}
+          path: |
+            ${{ env.OPENCLAW_VITEST_REPORT_DIR }}
+            ${{ runner.temp }}/vitest-slowest.md
+
+>>>>>>> 8fce7dc9b (perf(test): add vitest slowest report artifact)
   # Consolidated macOS job: runs TS tests + Swift lint/build/test sequentially
   # on a single runner. GitHub limits macOS concurrent jobs to 5 per org;
   # running 4 separate jobs per PR (as before) starved the queue. One job
