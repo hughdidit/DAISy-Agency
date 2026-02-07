@@ -1,8 +1,13 @@
 import type { AnyAgentTool } from "../agents/tools/common.js";
 import { normalizeToolName } from "../agents/tool-policy.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
+<<<<<<< HEAD
 import { loadMoltbotPlugins } from "./loader.js";
 import type { MoltbotPluginToolContext } from "./types.js";
+=======
+import { applyTestPluginDefaults, normalizePluginsConfig } from "./config-state.js";
+import { loadOpenClawPlugins } from "./loader.js";
+>>>>>>> 9f507112b (perf(test): speed up vitest by skipping plugins + LLM slug)
 
 const log = createSubsystemLogger("plugins");
 
@@ -45,8 +50,21 @@ export function resolvePluginTools(params: {
   existingToolNames?: Set<string>;
   toolAllowlist?: string[];
 }): AnyAgentTool[] {
+<<<<<<< HEAD
   const registry = loadMoltbotPlugins({
     config: params.context.config,
+=======
+  // Fast path: when plugins are effectively disabled, avoid discovery/jiti entirely.
+  // This matters a lot for unit tests and for tool construction hot paths.
+  const effectiveConfig = applyTestPluginDefaults(params.context.config ?? {}, process.env);
+  const normalized = normalizePluginsConfig(effectiveConfig.plugins);
+  if (!normalized.enabled) {
+    return [];
+  }
+
+  const registry = loadOpenClawPlugins({
+    config: effectiveConfig,
+>>>>>>> 9f507112b (perf(test): speed up vitest by skipping plugins + LLM slug)
     workspaceDir: params.context.workspaceDir,
     logger: {
       info: (msg) => log.info(msg),

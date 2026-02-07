@@ -166,8 +166,15 @@ function pushDiagnostics(diagnostics: PluginDiagnostic[], append: PluginDiagnost
   diagnostics.push(...append);
 }
 
+<<<<<<< HEAD
 export function loadMoltbotPlugins(options: PluginLoadOptions = {}): PluginRegistry {
   const cfg = applyTestPluginDefaults(options.config ?? {});
+=======
+export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegistry {
+  // Test env: default-disable plugins unless explicitly configured.
+  // This keeps unit/gateway suites fast and avoids loading heavyweight plugin deps by accident.
+  const cfg = applyTestPluginDefaults(options.config ?? {}, process.env);
+>>>>>>> 9f507112b (perf(test): speed up vitest by skipping plugins + LLM slug)
   const logger = options.logger ?? defaultLogger();
   const validateOnly = options.mode === "validate";
   const normalized = normalizePluginsConfig(cfg.plugins);

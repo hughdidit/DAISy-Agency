@@ -125,6 +125,7 @@ const saveSessionToMemory: HookHandler = async (event) => {
       console.log("[session-memory] sessionContent length:", sessionContent?.length || 0);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (sessionContent && cfg) {
         console.log("[session-memory] Calling generateSlugViaLLM...");
         // Dynamically import the LLM slug generator (avoids module caching issues)
@@ -137,6 +138,17 @@ const saveSessionToMemory: HookHandler = async (event) => {
 =======
       // Avoid calling the model provider in unit tests, keep hooks fast and deterministic.
       if (sessionContent && cfg && !process.env.VITEST && process.env.NODE_ENV !== "test") {
+=======
+      // Avoid calling the model provider in unit tests; keep hooks fast and deterministic.
+      const isTestEnv =
+        process.env.OPENCLAW_TEST_FAST === "1" ||
+        process.env.VITEST === "true" ||
+        process.env.VITEST === "1" ||
+        process.env.NODE_ENV === "test";
+      const allowLlmSlug = !isTestEnv && hookConfig?.llmSlug !== false;
+
+      if (sessionContent && cfg && allowLlmSlug) {
+>>>>>>> 9f507112b (perf(test): speed up vitest by skipping plugins + LLM slug)
         log.debug("Calling generateSlugViaLLM...");
 >>>>>>> 4ba9809f1 (test(hooks): stabilize session-memory hook tests)
         // Use LLM to generate a descriptive slug
