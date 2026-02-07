@@ -26,6 +26,7 @@ import {
   loadSessionCostSummary,
   loadSessionUsageTimeSeries,
   discoverAllSessions,
+  type DiscoveredSession,
 } from "../../infra/session-cost-usage.js";
 import { parseAgentSessionKey } from "../../routing/session-key.js";
 import {
@@ -34,8 +35,16 @@ import {
   formatValidationErrors,
   validateSessionsUsageParams,
 } from "../protocol/index.js";
+<<<<<<< HEAD
 import { loadCombinedSessionStoreForGateway, loadSessionEntry } from "../session-utils.js";
 >>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
+=======
+import {
+  listAgentsForGateway,
+  loadCombinedSessionStoreForGateway,
+  loadSessionEntry,
+} from "../session-utils.js";
+>>>>>>> 9271fcb3d (Gateway: fix multi-agent sessions.usage discovery (#11523))
 
 const COST_USAGE_CACHE_TTL_MS = 30_000;
 
@@ -117,6 +126,27 @@ const parseDateRange = (params: {
   return { startMs: defaultStartMs, endMs: todayEndMs };
 };
 
+type DiscoveredSessionWithAgent = DiscoveredSession & { agentId: string };
+
+async function discoverAllSessionsForUsage(params: {
+  config: ReturnType<typeof loadConfig>;
+  startMs: number;
+  endMs: number;
+}): Promise<DiscoveredSessionWithAgent[]> {
+  const agents = listAgentsForGateway(params.config).agents;
+  const results = await Promise.all(
+    agents.map(async (agent) => {
+      const sessions = await discoverAllSessions({
+        agentId: agent.id,
+        startMs: params.startMs,
+        endMs: params.endMs,
+      });
+      return sessions.map((session) => ({ ...session, agentId: agent.id }));
+    }),
+  );
+  return results.flat().toSorted((a, b) => b.mtime - a.mtime);
+}
+
 async function loadCostUsageSummaryCached(params: {
   startMs: number;
   endMs: number;
@@ -174,6 +204,7 @@ export const __test = {
   parseDateToMs,
   parseDays,
   parseDateRange,
+  discoverAllSessionsForUsage,
   loadCostUsageSummaryCached,
   costUsageCache,
 };
@@ -290,18 +321,37 @@ export const usageHandlers: GatewayRequestHandlers = {
 
     // Optimization: If a specific key is requested, skip full directory scan
     if (specificKey) {
-      // Check if it's a named session in the store
-      const storeEntry = store[specificKey];
-      let sessionId = storeEntry?.sessionId ?? specificKey;
+      const parsed = parseAgentSessionKey(specificKey);
+      const agentIdFromKey = parsed?.agentId;
+      const keyRest = parsed?.rest ?? specificKey;
+
+      // Prefer the store entry when available, even if the caller provides a discovered key
+      // (`agent:<id>:<sessionId>`) for a session that now has a canonical store key.
+      const storeBySessionId = new Map<string, { key: string; entry: SessionEntry }>();
+      for (const [key, entry] of Object.entries(store)) {
+        if (entry?.sessionId) {
+          storeBySessionId.set(entry.sessionId, { key, entry });
+        }
+      }
+
+      const storeMatch = store[specificKey]
+        ? { key: specificKey, entry: store[specificKey] }
+        : null;
+      const storeByIdMatch = storeBySessionId.get(keyRest) ?? null;
+      const resolvedStoreKey = storeMatch?.key ?? storeByIdMatch?.key ?? specificKey;
+      const storeEntry = storeMatch?.entry ?? storeByIdMatch?.entry;
+      const sessionId = storeEntry?.sessionId ?? keyRest;
 
       // Resolve the session file path
-      const sessionFile = resolveSessionFilePath(sessionId, storeEntry);
+      const sessionFile = resolveSessionFilePath(sessionId, storeEntry, {
+        agentId: agentIdFromKey,
+      });
 
       try {
         const stats = fs.statSync(sessionFile);
         if (stats.isFile()) {
           mergedEntries.push({
-            key: specificKey,
+            key: resolvedStoreKey,
             sessionId,
             sessionFile,
             label: storeEntry?.label,
@@ -314,7 +364,8 @@ export const usageHandlers: GatewayRequestHandlers = {
       }
     } else {
       // Full discovery for list view
-      const discoveredSessions = await discoverAllSessions({
+      const discoveredSessions = await discoverAllSessionsForUsage({
+        config,
         startMs,
         endMs,
       });
@@ -342,7 +393,8 @@ export const usageHandlers: GatewayRequestHandlers = {
         } else {
           // Unnamed session - use session ID as key, no label
           mergedEntries.push({
-            key: discovered.sessionId,
+            // Keep agentId in the key so the dashboard can attribute sessions and later fetch logs.
+            key: `agent:${discovered.agentId}:${discovered.sessionId}`,
             sessionId: discovered.sessionId,
             sessionFile: discovered.sessionFile,
             label: undefined, // No label for unnamed sessions
@@ -719,8 +771,12 @@ export const usageHandlers: GatewayRequestHandlers = {
     const { entry } = loadSessionEntry(key);
 
     // For discovered sessions (not in store), try using key as sessionId directly
-    const sessionId = entry?.sessionId ?? key;
-    const sessionFile = entry?.sessionFile ?? resolveSessionFilePath(key);
+    const parsed = parseAgentSessionKey(key);
+    const agentId = parsed?.agentId;
+    const rawSessionId = parsed?.rest ?? key;
+    const sessionId = entry?.sessionId ?? rawSessionId;
+    const sessionFile =
+      entry?.sessionFile ?? resolveSessionFilePath(rawSessionId, entry, { agentId });
 
     const timeseries = await loadSessionUsageTimeSeries({
       sessionId,
@@ -757,8 +813,12 @@ export const usageHandlers: GatewayRequestHandlers = {
     const { entry } = loadSessionEntry(key);
 
     // For discovered sessions (not in store), try using key as sessionId directly
-    const sessionId = entry?.sessionId ?? key;
-    const sessionFile = entry?.sessionFile ?? resolveSessionFilePath(key);
+    const parsed = parseAgentSessionKey(key);
+    const agentId = parsed?.agentId;
+    const rawSessionId = parsed?.rest ?? key;
+    const sessionId = entry?.sessionId ?? rawSessionId;
+    const sessionFile =
+      entry?.sessionFile ?? resolveSessionFilePath(rawSessionId, entry, { agentId });
 
     const { loadSessionLogs } = await import("../../infra/session-cost-usage.js");
     const logs = await loadSessionLogs({
