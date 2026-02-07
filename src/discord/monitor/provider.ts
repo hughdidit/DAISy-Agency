@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Client } from "@buape/carbon";
+=======
+import { Client, ReadyListener, type BaseMessageInteractiveComponent } from "@buape/carbon";
+>>>>>>> 5d8c6ef91 (feat(discord): add configurable presence (activity/status/type))
 import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway";
 import { Routes } from "discord-api-types/v10";
 import { inspect } from "node:util";
@@ -36,6 +40,7 @@ import {
   registerDiscordListener,
 } from "./listeners.js";
 import { createDiscordMessageHandler } from "./message-handler.js";
+import { resolveDiscordPresenceUpdate } from "./presence.js";
 import {
   createDiscordCommandArgFallbackButton,
   createDiscordNativeCommand,
@@ -532,6 +537,46 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     components.push(createExecApprovalButton({ handler: execApprovalsHandler }));
   }
 
+<<<<<<< HEAD
+=======
+  if (agentComponentsEnabled) {
+    components.push(
+      createAgentComponentButton({
+        cfg,
+        accountId: account.accountId,
+        guildEntries,
+        allowFrom,
+        dmPolicy,
+      }),
+    );
+    components.push(
+      createAgentSelectMenu({
+        cfg,
+        accountId: account.accountId,
+        guildEntries,
+        allowFrom,
+        dmPolicy,
+      }),
+    );
+  }
+
+  class DiscordStatusReadyListener extends ReadyListener {
+    async handle(_data: unknown, client: Client) {
+      const gateway = client.getPlugin<GatewayPlugin>("gateway");
+      if (!gateway) {
+        return;
+      }
+
+      const presence = resolveDiscordPresenceUpdate(discordCfg);
+      if (!presence) {
+        return;
+      }
+
+      gateway.updatePresence(presence);
+    }
+  }
+
+>>>>>>> 5d8c6ef91 (feat(discord): add configurable presence (activity/status/type))
   const client = new Client(
     {
       baseUrl: "http://localhost",
@@ -543,7 +588,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     },
     {
       commands,
-      listeners: [],
+      listeners: [new DiscordStatusReadyListener()],
       components,
     },
     [
