@@ -2217,9 +2217,15 @@ Use **model commands** or edit only the **model** fields. Avoid full config repl
 
 Safe options:
 - `/model` in chat (quick, per-session)
+<<<<<<< HEAD
 - `moltbot models set ...` (updates just model config)
 - `moltbot configure --section models` (interactive)
 - edit `agents.defaults.model` in `~/.clawdbot/moltbot.json`
+=======
+- `openclaw models set ...` (updates just model config)
+- `openclaw configure --section model` (interactive)
+- edit `agents.defaults.model` in `~/.openclaw/openclaw.json`
+>>>>>>> 9201e140c (Fix typo in FAQ regarding model configuration command (#6048))
 
 Avoid `config.apply` with a partial object unless you intend to replace the whole config.
 If you did overwrite config, restore from backup or re-run `moltbot doctor` to repair.
