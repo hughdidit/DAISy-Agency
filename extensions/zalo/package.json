@@ -24,7 +24,7 @@
 =======
   "dependencies": {
     "openclaw": "workspace:*",
-    "undici": "7.20.0"
+    "undici": "7.21.0"
   },
   "devDependencies": {
     "openclaw": "workspace:*"
