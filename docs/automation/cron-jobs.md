@@ -16,6 +16,8 @@ the right time, and can optionally deliver output back to a chat.
 If you want *“run this every morning”* or *“poke the agent in 20 minutes”*,
 cron is the mechanism.
 
+Troubleshooting: [/automation/troubleshooting](/automation/troubleshooting)
+
 ## TL;DR
 - Cron runs **inside the Gateway** (not inside the model).
 - Jobs persist under `~/.clawdbot/cron/` so restarts don’t lose schedules.
