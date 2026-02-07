@@ -80,9 +80,26 @@ LOGINCTL
   fi
   npm install -g --prefix /tmp/npm-prefix "/app/$pkg_tgz"
 
+<<<<<<< HEAD
   npm_bin="/tmp/npm-prefix/bin/moltbot"
   npm_entry="/tmp/npm-prefix/lib/node_modules/moltbot/moltbot.mjs"
   git_entry="/app/moltbot.mjs"
+=======
+	  npm_bin="/tmp/npm-prefix/bin/openclaw"
+	  npm_root="/tmp/npm-prefix/lib/node_modules/openclaw"
+	  if [ -f "$npm_root/dist/index.mjs" ]; then
+	    npm_entry="$npm_root/dist/index.mjs"
+	  else
+	    npm_entry="$npm_root/dist/index.js"
+	  fi
+
+	  if [ -f "/app/dist/index.mjs" ]; then
+	    git_entry="/app/dist/index.mjs"
+	  else
+	    git_entry="/app/dist/index.js"
+	  fi
+	  git_cli="/app/openclaw.mjs"
+>>>>>>> 80d42eb0b (fix(docker): support .mjs entrypoints in images and e2e)
 
   assert_entrypoint() {
     local unit_path="$1"

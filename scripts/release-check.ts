@@ -9,6 +9,7 @@ type PackResult = { files?: PackFile[] };
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 const requiredPaths = [
   "dist/discord/send.js",
   "dist/hooks/gmail.js",
@@ -21,6 +22,11 @@ const requiredPaths = ["dist/discord/send.js", "dist/hooks/gmail.js", "dist/what
 const requiredPaths = [
   "dist/index.js",
   "dist/entry.js",
+=======
+const requiredPathGroups = [
+  ["dist/index.js", "dist/index.mjs"],
+  ["dist/entry.js", "dist/entry.mjs"],
+>>>>>>> 80d42eb0b (fix(docker): support .mjs entrypoints in images and e2e)
   "dist/plugin-sdk/index.js",
   "dist/plugin-sdk/index.d.ts",
   "dist/build-info.json",
@@ -95,7 +101,14 @@ function main() {
   const files = results.flatMap((entry) => entry.files ?? []);
   const paths = new Set(files.map((file) => file.path));
 
-  const missing = requiredPaths.filter((path) => !paths.has(path));
+  const missing = requiredPathGroups
+    .flatMap((group) => {
+      if (Array.isArray(group)) {
+        return group.some((path) => paths.has(path)) ? [] : [group.join(" or ")];
+      }
+      return paths.has(group) ? [] : [group];
+    })
+    .toSorted();
   const forbidden = [...paths].filter((path) =>
     forbiddenPrefixes.some((prefix) => path.startsWith(prefix)),
   );
