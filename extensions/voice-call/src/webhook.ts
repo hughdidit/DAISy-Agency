@@ -296,14 +296,58 @@ export class VoiceCallWebhookServer {
   }
 
   /**
-   * Read request body as string.
+   * Read request body as string with timeout protection.
    */
+<<<<<<< HEAD
   private readBody(req: http.IncomingMessage): Promise<string> {
+=======
+  private readBody(
+    req: http.IncomingMessage,
+    maxBytes: number,
+    timeoutMs = 30_000,
+  ): Promise<string> {
+>>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
     return new Promise((resolve, reject) => {
+      let done = false;
+      const finish = (fn: () => void) => {
+        if (done) {
+          return;
+        }
+        done = true;
+        clearTimeout(timer);
+        fn();
+      };
+
+      const timer = setTimeout(() => {
+        finish(() => {
+          const err = new Error("Request body timeout");
+          req.destroy(err);
+          reject(err);
+        });
+      }, timeoutMs);
+
       const chunks: Buffer[] = [];
+<<<<<<< HEAD
       req.on("data", (chunk) => chunks.push(chunk));
       req.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
       req.on("error", reject);
+=======
+      let totalBytes = 0;
+      req.on("data", (chunk: Buffer) => {
+        totalBytes += chunk.length;
+        if (totalBytes > maxBytes) {
+          finish(() => {
+            req.destroy();
+            reject(new Error("PayloadTooLarge"));
+          });
+          return;
+        }
+        chunks.push(chunk);
+      });
+      req.on("end", () => finish(() => resolve(Buffer.concat(chunks).toString("utf-8"))));
+      req.on("error", (err) => finish(() => reject(err)));
+      req.on("close", () => finish(() => reject(new Error("Connection closed"))));
+>>>>>>> 1007d71f0 (fix: comprehensive BlueBubbles and channel cleanup (#11093))
     });
   }
 
