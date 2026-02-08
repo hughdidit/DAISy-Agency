@@ -215,8 +215,12 @@ export function describeReplyTarget(msg: Message): TelegramReplyTarget | null {
   const externalReply = (msg as Message & { external_reply?: Message }).external_reply;
   const quoteText =
     msg.quote?.text ??
+<<<<<<< HEAD
     (reply as Message & { quote?: { text?: string } } | undefined)?.quote?.text ??
     (externalReply as Message & { quote?: { text?: string } } | undefined)?.quote?.text;
+=======
+    (externalReply as (Message & { quote?: { text?: string } }) | undefined)?.quote?.text;
+>>>>>>> 582732391 (fix(telegram): avoid nested reply quote misclassification)
   let body = "";
   let kind: TelegramReplyTarget["kind"] = "reply";
 
