@@ -1,6 +1,10 @@
 import { CHANNEL_IDS } from "../channels/registry.js";
 import { VERSION } from "../version.js";
+<<<<<<< HEAD
 import { MoltbotSchema } from "./zod-schema.js";
+=======
+import { OpenClawSchema } from "./zod-schema.js";
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
 
 export type ConfigUiHint = {
   label?: string;
@@ -12,6 +16,11 @@ export type ConfigUiHint = {
   placeholder?: string;
   itemTemplate?: unknown;
 };
+<<<<<<< HEAD
+=======
+
+export type ConfigUiHints = Record<string, ConfigUiHint>;
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
 
 export type ConfigUiHints = Record<string, ConfigUiHint>;
 
@@ -202,6 +211,10 @@ const FIELD_LABELS: Record<string, string> = {
   "tools.web.fetch.userAgent": "Web Fetch User-Agent",
   "gateway.controlUi.basePath": "Control UI Base Path",
   "gateway.controlUi.root": "Control UI Assets Root",
+<<<<<<< HEAD
+=======
+  "gateway.controlUi.allowedOrigins": "Control UI Allowed Origins",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "gateway.controlUi.allowInsecureAuth": "Allow Insecure Control UI Auth",
   "gateway.controlUi.dangerouslyDisableDeviceAuth": "Dangerously Disable Control UI Device Auth",
   "gateway.http.endpoints.chatCompletions.enabled": "OpenAI Chat Completions Endpoint",
@@ -259,6 +272,10 @@ const FIELD_LABELS: Record<string, string> = {
   "memory.backend": "Memory Backend",
   "memory.citations": "Memory Citations Mode",
   "memory.qmd.command": "QMD Binary",
+<<<<<<< HEAD
+=======
+  "memory.qmd.searchMode": "QMD Search Mode",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "memory.qmd.includeDefaultMemory": "QMD Include Default Memory",
   "memory.qmd.paths": "QMD Extra Paths",
   "memory.qmd.paths.path": "QMD Path",
@@ -305,10 +322,14 @@ const FIELD_LABELS: Record<string, string> = {
   "commands.restart": "Allow Restart",
   "commands.useAccessGroups": "Use Access Groups",
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   "commands.ownerAllowFrom": "Command Owners",
   "commands.allowFrom": "Command Access Allowlist",
 >>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
+=======
+  "commands.ownerAllowFrom": "Command Owners",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "ui.seamColor": "Accent Color",
   "ui.assistant.name": "Assistant Name",
   "ui.assistant.avatar": "Assistant Avatar",
@@ -400,7 +421,11 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 const FIELD_HELP: Record<string, string> = {
+<<<<<<< HEAD
   "meta.lastTouchedVersion": "Auto-set when Moltbot writes the config.",
+=======
+  "meta.lastTouchedVersion": "Auto-set when OpenClaw writes the config.",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "meta.lastTouchedAt": "ISO timestamp of the last config write (auto-set).",
   "update.channel": 'Update channel for git + npm installs ("stable", "beta", or "dev").',
   "update.checkOnStart": "Check for npm updates when the gateway starts (default: true).",
@@ -423,12 +448,20 @@ const FIELD_HELP: Record<string, string> = {
   "gateway.auth.password": "Required for Tailscale funnel.",
   "gateway.controlUi.basePath":
 <<<<<<< HEAD
+<<<<<<< HEAD
     "Optional URL prefix where the Control UI is served (e.g. /moltbot).",
 =======
     "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
   "gateway.controlUi.root":
     "Optional filesystem root for Control UI assets (defaults to dist/control-ui).",
 >>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
+=======
+    "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
+  "gateway.controlUi.root":
+    "Optional filesystem root for Control UI assets (defaults to dist/control-ui).",
+  "gateway.controlUi.allowedOrigins":
+    "Allowed browser origins for Control UI/WebChat websocket connections (full origins only, e.g. https://control.example.com).",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "gateway.controlUi.allowInsecureAuth":
     "Allow Control UI auth over insecure HTTP (token-only; not recommended).",
   "gateway.controlUi.dangerouslyDisableDeviceAuth":
@@ -452,7 +485,11 @@ const FIELD_HELP: Record<string, string> = {
   "diagnostics.cacheTrace.enabled":
     "Log cache trace snapshots for embedded agent runs (default: false).",
   "diagnostics.cacheTrace.filePath":
+<<<<<<< HEAD
     "JSONL output path for cache trace logs (default: $CLAWDBOT_STATE_DIR/logs/cache-trace.jsonl).",
+=======
+    "JSONL output path for cache trace logs (default: $OPENCLAW_STATE_DIR/logs/cache-trace.jsonl).",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "diagnostics.cacheTrace.includeMessages":
     "Include full message payloads in trace output (default: true).",
   "diagnostics.cacheTrace.includePrompt": "Include prompt text in trace output (default: true).",
@@ -559,7 +596,11 @@ const FIELD_HELP: Record<string, string> = {
   "agents.defaults.memorySearch.remote.headers":
     "Extra headers for remote embeddings (merged; remote overrides OpenAI headers).",
   "agents.defaults.memorySearch.remote.batch.enabled":
+<<<<<<< HEAD
     "Enable batch API for memory embeddings (OpenAI/Gemini/Voyage; default: false).",
+=======
+    "Enable batch API for memory embeddings (OpenAI/Gemini; default: true).",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "agents.defaults.memorySearch.remote.batch.wait":
     "Wait for batch completion when indexing (default: true).",
   "agents.defaults.memorySearch.remote.batch.concurrency":
@@ -573,7 +614,11 @@ const FIELD_HELP: Record<string, string> = {
   "agents.defaults.memorySearch.fallback":
     'Fallback provider when embeddings fail ("openai", "gemini", "local", or "none").',
   "agents.defaults.memorySearch.store.path":
+<<<<<<< HEAD
     "SQLite index path (default: ~/.clawdbot/memory/{agentId}.sqlite).",
+=======
+    "SQLite index path (default: ~/.openclaw/memory/{agentId}.sqlite).",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "agents.defaults.memorySearch.store.vector.enabled":
     "Enable sqlite-vec extension for vector search (default: true).",
   "agents.defaults.memorySearch.store.vector.extensionPath":
@@ -592,6 +637,11 @@ const FIELD_HELP: Record<string, string> = {
   "memory.backend": 'Memory backend ("builtin" for OpenClaw embeddings, "qmd" for QMD sidecar).',
   "memory.citations": 'Default citation behavior ("auto", "on", or "off").',
   "memory.qmd.command": "Path to the qmd binary (default: resolves from PATH).",
+<<<<<<< HEAD
+=======
+  "memory.qmd.searchMode":
+    'QMD search command used for memory recall ("query", "search", or "vsearch"; default: "query").',
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "memory.qmd.includeDefaultMemory":
     "Whether to automatically index MEMORY.md + memory/**/*.md (default: true).",
   "memory.qmd.paths":
@@ -645,12 +695,20 @@ const FIELD_HELP: Record<string, string> = {
   "plugins.entries.*.enabled": "Overrides plugin enable/disable for this entry (restart required).",
   "plugins.entries.*.config": "Plugin-defined config payload (schema is provided by the plugin).",
   "plugins.installs":
+<<<<<<< HEAD
     "CLI-managed install metadata (used by `moltbot plugins update` to locate install sources).",
+=======
+    "CLI-managed install metadata (used by `openclaw plugins update` to locate install sources).",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "plugins.installs.*.source": 'Install source ("npm", "archive", or "path").',
   "plugins.installs.*.spec": "Original npm spec used for install (if source is npm).",
   "plugins.installs.*.sourcePath": "Original archive/path used for install (if any).",
   "plugins.installs.*.installPath":
+<<<<<<< HEAD
     "Resolved install directory (usually ~/.clawdbot/extensions/<id>).",
+=======
+    "Resolved install directory (usually ~/.openclaw/extensions/<id>).",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "plugins.installs.*.version": "Version recorded at install time (if available).",
   "plugins.installs.*.installedAt": "ISO timestamp of last install/update.",
   "agents.list.*.identity.avatar":
@@ -679,12 +737,17 @@ const FIELD_HELP: Record<string, string> = {
   "commands.restart": "Allow /restart and gateway restart tool actions (default: false).",
   "commands.useAccessGroups": "Enforce access-group allowlists/policies for commands.",
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   "commands.ownerAllowFrom":
     "Explicit owner allowlist for owner-only tools/commands. Use channel-native IDs (optionally prefixed like \"whatsapp:+15551234567\"). '*' is ignored.",
   "commands.allowFrom":
     'Per-provider allowlist restricting who can use slash commands. If set, overrides the channel\'s allowFrom for command authorization. Use \'*\' key for global default; provider-specific keys (e.g. \'discord\') override the global. Example: { "*": ["user1"], "discord": ["user:123"] }.',
 >>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
+=======
+  "commands.ownerAllowFrom":
+    "Explicit owner allowlist for owner-only tools/commands. Use channel-native IDs (optionally prefixed like \"whatsapp:+15551234567\"). '*' is ignored.",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "session.dmScope":
     'DM session scoping: "main" keeps continuity; "per-peer", "per-channel-peer", or "per-account-channel-peer" isolates DM history (recommended for shared inboxes/multi-account).',
   "session.identityLinks":
@@ -779,6 +842,7 @@ const FIELD_PLACEHOLDERS: Record<string, string> = {
   "gateway.remote.tlsFingerprint": "sha256:ab12cd34…",
   "gateway.remote.sshTarget": "user@host",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "gateway.controlUi.basePath": "/moltbot",
 =======
   "gateway.controlUi.basePath": "/openclaw",
@@ -786,6 +850,13 @@ const FIELD_PLACEHOLDERS: Record<string, string> = {
 >>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
   "channels.mattermost.baseUrl": "https://chat.example.com",
   "agents.list[].identity.avatar": "avatars/clawd.png",
+=======
+  "gateway.controlUi.basePath": "/openclaw",
+  "gateway.controlUi.root": "dist/control-ui",
+  "gateway.controlUi.allowedOrigins": "https://control.example.com",
+  "channels.mattermost.baseUrl": "https://chat.example.com",
+  "agents.list[].identity.avatar": "avatars/openclaw.png",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
 };
 
 const SENSITIVE_PATTERNS = [/token/i, /password/i, /secret/i, /api.?key/i];
