@@ -281,6 +281,11 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
     moonshot: "MOONSHOT_API_KEY",
     "kimi-code": "KIMICODE_API_KEY",
     minimax: "MINIMAX_API_KEY",
+<<<<<<< HEAD
+=======
+    nvidia: "NVIDIA_API_KEY",
+    xiaomi: "XIAOMI_API_KEY",
+>>>>>>> 8f2884b98 (fix: i am fixing all the changes that claude made. vibe coding is not there yet. anyways, i fixed the issues that the bot told me to fix)
     synthetic: "SYNTHETIC_API_KEY",
     venice: "VENICE_API_KEY",
     mistral: "MISTRAL_API_KEY",
