@@ -23,7 +23,11 @@ vi.mock("../config/config.js", async (importOriginal) => {
 
 import { emitAgentEvent } from "../infra/agent-events.js";
 import "./test-helpers/fast-core-tools.js";
+<<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
 import { createMoltbotTools } from "./moltbot-tools.js";
+=======
+import { createOpenClawTools } from "./openclaw-tools.js";
+>>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204)):src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 describe("moltbot-tools: subagents", () => {
@@ -187,6 +191,7 @@ describe("moltbot-tools: subagents", () => {
       runId: "run-1",
     });
 
+<<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
     if (!childRunId) throw new Error("missing child runId");
     emitAgentEvent({
       runId: childRunId,
@@ -201,6 +206,27 @@ describe("moltbot-tools: subagents", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
+=======
+    if (!childRunId) {
+      throw new Error("missing child runId");
+    }
+    vi.useFakeTimers();
+    try {
+      emitAgentEvent({
+        runId: childRunId,
+        stream: "lifecycle",
+        data: {
+          phase: "end",
+          startedAt: 1234,
+          endedAt: 2345,
+        },
+      });
+
+      await vi.runAllTimersAsync();
+    } finally {
+      vi.useRealTimers();
+    }
+>>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204)):src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
 
     const childWait = waitCalls.find((call) => call.runId === childRunId);
     expect(childWait?.timeoutMs).toBe(1000);
@@ -289,6 +315,7 @@ describe("moltbot-tools: subagents", () => {
       runId: "run-1",
     });
 
+<<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
     if (!childRunId) throw new Error("missing child runId");
     emitAgentEvent({
       runId: childRunId,
@@ -303,6 +330,27 @@ describe("moltbot-tools: subagents", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
+=======
+    if (!childRunId) {
+      throw new Error("missing child runId");
+    }
+    vi.useFakeTimers();
+    try {
+      emitAgentEvent({
+        runId: childRunId,
+        stream: "lifecycle",
+        data: {
+          phase: "end",
+          startedAt: 1000,
+          endedAt: 2000,
+        },
+      });
+
+      await vi.runAllTimersAsync();
+    } finally {
+      vi.useRealTimers();
+    }
+>>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204)):src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
 
     const agentCalls = calls.filter((call) => call.method === "agent");
     expect(agentCalls).toHaveLength(2);

@@ -9,7 +9,11 @@ import type { ExecElevatedDefaults, ExecToolDefaults } from "../../bash-tools.js
 import type { MessagingToolSend } from "../../pi-embedded-messaging.js";
 import type { BlockReplyChunking, ToolResultFormat } from "../../pi-embedded-subscribe.js";
 import type { SkillSnapshot } from "../../skills.js";
+<<<<<<< HEAD
 import type { SessionSystemPromptReport } from "../../../config/sessions/types.js";
+=======
+import type { NormalizedUsage } from "../../usage.js";
+>>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
 import type { ClientToolDefinition } from "./params.js";
 
 type AuthStorage = ReturnType<typeof discoverAuthStorage>;
@@ -104,6 +108,8 @@ export type EmbeddedRunAttemptResult = {
   messagingToolSentTexts: string[];
   messagingToolSentTargets: MessagingToolSend[];
   cloudCodeAssistFormatError: boolean;
+  attemptUsage?: NormalizedUsage;
+  compactionCount?: number;
   /** Client tool call detected (OpenResponses hosted tools). */
   clientToolCall?: { name: string; params: Record<string, unknown> };
 };

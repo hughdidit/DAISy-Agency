@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { hasNonzeroUsage, normalizeUsage } from "./usage.js";
+=======
+import { deriveSessionTotalTokens, hasNonzeroUsage, normalizeUsage } from "./usage.js";
+>>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
 
 describe("normalizeUsage", () => {
   it("normalizes Anthropic-style snake_case usage", () => {
@@ -46,5 +50,33 @@ describe("normalizeUsage", () => {
     expect(hasNonzeroUsage({ input: 0, output: 0 })).toBe(false);
     expect(hasNonzeroUsage({ input: 1 })).toBe(true);
     expect(hasNonzeroUsage({ total: 1 })).toBe(true);
+  });
+
+  it("caps derived session total tokens to the context window", () => {
+    expect(
+      deriveSessionTotalTokens({
+        usage: {
+          input: 27,
+          cacheRead: 2_400_000,
+          cacheWrite: 0,
+          total: 2_402_300,
+        },
+        contextTokens: 200_000,
+      }),
+    ).toBe(200_000);
+  });
+
+  it("uses prompt tokens when within context window", () => {
+    expect(
+      deriveSessionTotalTokens({
+        usage: {
+          input: 1_200,
+          cacheRead: 300,
+          cacheWrite: 50,
+          total: 2_000,
+        },
+        contextTokens: 200_000,
+      }),
+    ).toBe(1_550);
   });
 });

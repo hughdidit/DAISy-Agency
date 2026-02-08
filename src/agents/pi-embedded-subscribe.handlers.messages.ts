@@ -192,7 +192,12 @@ export function handleMessageEnd(
   const msg = evt.message;
   if (msg?.role !== "assistant") return;
 
+<<<<<<< HEAD
   const assistantMessage = msg as AssistantMessage;
+=======
+  const assistantMessage = msg;
+  ctx.recordAssistantUsage((assistantMessage as { usage?: unknown }).usage);
+>>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))
   promoteThinkingTagsToBlocks(assistantMessage);
 
   const rawText = extractAssistantText(assistantMessage);
