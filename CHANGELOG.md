@@ -91,7 +91,11 @@ Docs: https://docs.openclaw.ai
 - Gateway: add node command allowlists (default-deny unknown node commands; configurable via `gateway.nodes.allowCommands` / `gateway.nodes.denyCommands`). (#11755) Thanks @mbelinky.
 - Plugins: add `device-pair` (Telegram `/pair` flow) and `phone-control` (iOS/Android node controls). (#11755) Thanks @mbelinky.
 - iOS: add alpha iOS node app (Telegram setup-code pairing + Talk/Chat surfaces). (#11756) Thanks @mbelinky.
+<<<<<<< HEAD
 >>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
+=======
+- Docs: seed initial ja-JP translations (POC) and make docs-i18n prompts language-pluggable for Japanese. (#11988) Thanks @joshp123.
+>>>>>>> 6e3271ebb (Docs: note ja-JP docs POC in changelog (#11988) (thanks @joshp123))
 
 ### Fixes
 
