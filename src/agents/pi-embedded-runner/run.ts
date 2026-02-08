@@ -53,7 +53,14 @@ import { resolveModel } from "./model.js";
 import { runEmbeddedAttempt } from "./run/attempt.js";
 import type { RunEmbeddedPiAgentParams } from "./run/params.js";
 import { buildEmbeddedRunPayloads } from "./run/payloads.js";
+<<<<<<< HEAD
 import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
+=======
+import {
+  truncateOversizedToolResultsInSession,
+  sessionLikelyHasOversizedToolResults,
+} from "./tool-result-truncation.js";
+>>>>>>> 0deb8b0da (fix: recover from context overflow caused by oversized tool results (#11579))
 import { describeUnknownError } from "./utils.js";
 
 type ApiKeyInfo = ResolvedProviderAuth;
@@ -311,6 +318,7 @@ export async function runEmbeddedPiAgent(
 
       const MAX_OVERFLOW_COMPACTION_ATTEMPTS = 3;
       let overflowCompactionAttempts = 0;
+      let toolResultTruncationAttempted = false;
       try {
         while (true) {
           attemptedThinking.add(thinkLevel);
@@ -425,6 +433,47 @@ export async function runEmbeddedPiAgent(
                   `auto-compaction failed for ${provider}/${modelId}: ${compactResult.reason ?? "nothing to compact"}`,
                 );
               }
+
+              // Fallback: try truncating oversized tool results in the session.
+              // This handles the case where a single tool result (e.g., reading a
+              // huge file or getting a massive PR diff) exceeds the context window,
+              // and compaction can't help because there's no older history to compact.
+              if (!toolResultTruncationAttempted) {
+                const contextWindowTokens = ctxInfo.tokens;
+                const hasOversized = attempt.messagesSnapshot
+                  ? sessionLikelyHasOversizedToolResults({
+                      messages: attempt.messagesSnapshot,
+                      contextWindowTokens,
+                    })
+                  : false;
+
+                if (hasOversized) {
+                  toolResultTruncationAttempted = true;
+                  log.warn(
+                    `[context-overflow-recovery] Attempting tool result truncation for ${provider}/${modelId} ` +
+                      `(contextWindow=${contextWindowTokens} tokens)`,
+                  );
+                  const truncResult = await truncateOversizedToolResultsInSession({
+                    sessionFile: params.sessionFile,
+                    contextWindowTokens,
+                    sessionId: params.sessionId,
+                    sessionKey: params.sessionKey,
+                  });
+                  if (truncResult.truncated) {
+                    log.info(
+                      `[context-overflow-recovery] Truncated ${truncResult.truncatedCount} tool result(s); retrying prompt`,
+                    );
+                    // Reset compaction attempts so compaction can be tried again
+                    // after truncation (the session is now smaller)
+                    overflowCompactionAttempts = 0;
+                    continue;
+                  }
+                  log.warn(
+                    `[context-overflow-recovery] Tool result truncation did not help: ${truncResult.reason ?? "unknown"}`,
+                  );
+                }
+              }
+
               const kind = isCompactionFailure ? "compaction_failure" : "context_overflow";
               return {
                 payloads: [
