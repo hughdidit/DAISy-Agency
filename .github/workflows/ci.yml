@@ -53,9 +53,101 @@ jobs:
         id: check
         uses: ./.github/actions/detect-docs-only
 
-  install-check:
+  # Detect which heavy areas are touched so PRs can skip unrelated expensive jobs.
+  # Push to main keeps broad coverage.
+  changed-scope:
     needs: [docs-scope]
     if: needs.docs-scope.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      run_node: ${{ steps.scope.outputs.run_node }}
+      run_macos: ${{ steps.scope.outputs.run_macos }}
+      run_android: ${{ steps.scope.outputs.run_android }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Detect changed scopes
+        id: scope
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "push" ]; then
+            BASE="${{ github.event.before }}"
+          else
+            BASE="${{ github.event.pull_request.base.sha }}"
+          fi
+
+          CHANGED="$(git diff --name-only "$BASE" HEAD 2>/dev/null || echo "UNKNOWN")"
+          if [ "$CHANGED" = "UNKNOWN" ] || [ -z "$CHANGED" ]; then
+            # Fail-safe: run broad checks if detection fails.
+            echo "run_node=true" >> "$GITHUB_OUTPUT"
+            echo "run_macos=true" >> "$GITHUB_OUTPUT"
+            echo "run_android=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          run_node=false
+          run_macos=false
+          run_android=false
+          has_non_docs=false
+          has_non_native_non_docs=false
+
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            case "$path" in
+              docs/*|*.md|*.mdx)
+                continue
+                ;;
+              *)
+                has_non_docs=true
+                ;;
+            esac
+
+            case "$path" in
+              apps/macos/*|apps/ios/*|apps/shared/*|Swabble/*)
+                run_macos=true
+                ;;
+            esac
+
+            case "$path" in
+              apps/android/*|apps/shared/*)
+                run_android=true
+                ;;
+            esac
+
+            case "$path" in
+              src/*|test/*|extensions/*|packages/*|scripts/*|ui/*|.github/*|openclaw.mjs|package.json|pnpm-lock.yaml|pnpm-workspace.yaml|tsconfig*.json|vitest*.ts|tsdown.config.ts|.oxlintrc.json|.oxfmtrc.jsonc)
+                run_node=true
+                ;;
+            esac
+
+            case "$path" in
+              apps/android/*|apps/ios/*|apps/macos/*|apps/shared/*|Swabble/*|appcast.xml)
+                ;;
+              *)
+                has_non_native_non_docs=true
+                ;;
+            esac
+          done <<< "$CHANGED"
+
+          # If there are non-doc files outside native app trees, keep Node checks enabled.
+          if [ "$run_node" = false ] && [ "$has_non_docs" = true ] && [ "$has_non_native_non_docs" = true ]; then
+            run_node=true
+          fi
+
+          echo "run_node=${run_node}" >> "$GITHUB_OUTPUT"
+          echo "run_macos=${run_macos}" >> "$GITHUB_OUTPUT"
+          echo "run_android=${run_android}" >> "$GITHUB_OUTPUT"
+
+  # Build dist once for Node-relevant changes and share it with downstream jobs.
+  build-artifacts:
+    needs: [docs-scope, changed-scope]
+    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
@@ -82,19 +174,75 @@ jobs:
           node-version: 22.x
           check-latest: true
 
-      - name: Setup pnpm (corepack retry)
+      - name: Setup pnpm + cache store
+        uses: ./.github/actions/setup-pnpm-store-cache
+        with:
+          pnpm-version: "10.23.0"
+          cache-key-suffix: "node22"
+
+      - name: Runtime versions
+        run: |
+          node -v
+          npm -v
+          pnpm -v
+
+      - name: Capture node path
+        run: echo "NODE_BIN=$(dirname \"$(node -p \"process.execPath\")\")" >> "$GITHUB_ENV"
+
+      - name: Install dependencies (frozen)
+        env:
+          CI: true
+        run: |
+          export PATH="$NODE_BIN:$PATH"
+          which node
+          node -v
+          pnpm -v
+          pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
+
+      - name: Build dist
+        run: pnpm build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-build
+          path: dist/
+          retention-days: 1
+
+  install-check:
+    needs: [docs-scope, changed-scope]
+    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Checkout submodules (retry)
         run: |
           set -euo pipefail
-          corepack enable
-          for attempt in 1 2 3; do
-            if corepack prepare pnpm@10.23.0 --activate; then
-              pnpm -v
+          git submodule sync --recursive
+          for attempt in 1 2 3 4 5; do
+            if git -c protocol.version=2 submodule update --init --force --depth=1 --recursive; then
               exit 0
             fi
-            echo "corepack prepare failed (attempt $attempt/3). Retrying..."
+            echo "Submodule update failed (attempt $attempt/5). Retrying…"
             sleep $((attempt * 10))
           done
           exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          check-latest: true
+
+      - name: Setup pnpm + cache store
+        uses: ./.github/actions/setup-pnpm-store-cache
+        with:
+          pnpm-version: "10.23.0"
+          cache-key-suffix: "node22"
 
       - name: Runtime versions
         run: |
@@ -116,8 +264,8 @@ jobs:
           pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
 
   checks:
-    needs: [docs-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true'
+    needs: [docs-scope, changed-scope]
+    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-4vcpu-ubuntu-2404
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
     strategy:
@@ -170,8 +318,12 @@ jobs:
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
           - runtime: bun
             task: test
+<<<<<<< HEAD
             command: pnpm canvas:a2ui:bundle && bunx vitest run
 >>>>>>> a8893094e (fix: CI: We no longer need to test the tsc build with Bun, we are always using `tsdown` to build now.)
+=======
+            command: pnpm canvas:a2ui:bundle && bunx vitest run --config vitest.unit.config.ts
+>>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -182,6 +334,7 @@ jobs:
       # resolve the store path for cache keys.
       - name: Setup pnpm (corepack)
         run: |
+<<<<<<< HEAD
           corepack enable
           for attempt in 1 2 3; do
             if corepack prepare pnpm@10.23.0 --activate; then
@@ -191,6 +344,30 @@ jobs:
             echo "corepack prepare failed (attempt $attempt/3). Retrying..."
             sleep $((attempt * 5))
           done
+=======
+          set -euo pipefail
+          git submodule sync --recursive
+          for attempt in 1 2 3 4 5; do
+            if git -c protocol.version=2 submodule update --init --force --depth=1 --recursive; then
+              exit 0
+            fi
+            echo "Submodule update failed (attempt $attempt/5). Retrying…"
+            sleep $((attempt * 10))
+          done
+          exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          check-latest: true
+
+      - name: Setup pnpm + cache store
+        uses: ./.github/actions/setup-pnpm-store-cache
+        with:
+          pnpm-version: "10.23.0"
+          cache-key-suffix: "node22"
+>>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -234,7 +411,7 @@ jobs:
       matrix:
         include:
           - task: lint
-            command: pnpm build && pnpm lint
+            command: pnpm lint
           - task: format
             command: pnpm format
     steps:
@@ -262,19 +439,11 @@ jobs:
           node-version: 22.x
           check-latest: true
 
-      - name: Setup pnpm (corepack retry)
-        run: |
-          set -euo pipefail
-          corepack enable
-          for attempt in 1 2 3; do
-            if corepack prepare pnpm@10.23.0 --activate; then
-              pnpm -v
-              exit 0
-            fi
-            echo "corepack prepare failed (attempt $attempt/3). Retrying..."
-            sleep $((attempt * 10))
-          done
-          exit 1
+      - name: Setup pnpm + cache store
+        uses: ./.github/actions/setup-pnpm-store-cache
+        with:
+          pnpm-version: "10.23.0"
+          cache-key-suffix: "node22"
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -332,11 +501,16 @@ jobs:
 
   checks-windows:
 <<<<<<< HEAD
+<<<<<<< HEAD
     name: Windows / ${{ matrix.runtime }} / ${{ matrix.task }}
     runs-on: windows-latest
 =======
     needs: [docs-scope]
     if: needs.docs-scope.outputs.docs_only != 'true'
+=======
+    needs: [docs-scope, changed-scope, build-artifacts]
+    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
+>>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     runs-on: blacksmith-4vcpu-windows-2025
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
     env:
@@ -355,8 +529,8 @@ jobs:
       matrix:
         include:
           - runtime: node
-            task: build & lint
-            command: pnpm build && pnpm lint
+            task: lint
+            command: pnpm lint
           - runtime: node
             task: test-unit
             command: pnpm canvas:a2ui:bundle && pnpm vitest run --config vitest.unit.config.ts --no-file-parallelism --dangerouslyIgnoreUnhandledErrors
@@ -402,6 +576,7 @@ jobs:
       - name: Checkout submodules (retry)
 >>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
         run: |
+<<<<<<< HEAD
           corepack enable
           for attempt in 1 2 3; do
             if corepack prepare pnpm@10.23.0 --activate; then
@@ -411,6 +586,44 @@ jobs:
             echo "corepack prepare failed (attempt $attempt/3). Retrying..."
             sleep $((attempt * 5))
           done
+=======
+          set -euo pipefail
+          git submodule sync --recursive
+          for attempt in 1 2 3 4 5; do
+            if git -c protocol.version=2 submodule update --init --force --depth=1 --recursive; then
+              exit 0
+            fi
+            echo "Submodule update failed (attempt $attempt/5). Retrying…"
+            sleep $((attempt * 10))
+          done
+          exit 1
+
+      - name: Download dist artifact (lint lane)
+        if: matrix.task == 'lint'
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-build
+          path: dist/
+
+      - name: Verify dist artifact (lint lane)
+        if: matrix.task == 'lint'
+        run: |
+          set -euo pipefail
+          test -s dist/index.js
+          test -s dist/plugin-sdk/index.js
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          check-latest: true
+
+      - name: Setup pnpm + cache store
+        uses: ./.github/actions/setup-pnpm-store-cache
+        with:
+          pnpm-version: "10.23.0"
+          cache-key-suffix: "node22"
+>>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -463,8 +676,8 @@ jobs:
   # running 4 separate jobs per PR (as before) starved the queue. One job
   # per PR allows 5 PRs to run macOS checks simultaneously.
   macos:
-    needs: [docs-scope]
-    if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true'
+    needs: [docs-scope, changed-scope]
+    if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_macos == 'true'
     runs-on: macos-latest
 >>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
     steps:
@@ -497,6 +710,7 @@ jobs:
           node-version: 22.x
           check-latest: true
 
+<<<<<<< HEAD
       - name: Setup pnpm (corepack retry)
         run: |
           set -euo pipefail
@@ -516,6 +730,13 @@ jobs:
         with:
           node-version: 22.14.0
           cache: 'pnpm'
+=======
+      - name: Setup pnpm + cache store
+        uses: ./.github/actions/setup-pnpm-store-cache
+        with:
+          pnpm-version: "10.23.0"
+          cache-key-suffix: "node22"
+>>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
 
       - name: Runtime versions
         run: |
@@ -809,11 +1030,16 @@ jobs:
 
   android:
 <<<<<<< HEAD
+<<<<<<< HEAD
     name: Android / ${{ matrix.task }}
     runs-on: ubuntu-latest
 =======
     needs: [docs-scope]
     if: needs.docs-scope.outputs.docs_only != 'true'
+=======
+    needs: [docs-scope, changed-scope]
+    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_android == 'true')
+>>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     runs-on: blacksmith-4vcpu-ubuntu-2404
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
     strategy:
