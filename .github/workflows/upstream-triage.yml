@@ -135,6 +135,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: daisy/dev
+          token: ${{ secrets.UPSYNC_PAT }}
 
       - name: Configure git identity
         run: |
