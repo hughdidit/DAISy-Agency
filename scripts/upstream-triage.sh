@@ -604,6 +604,10 @@ if [[ "${APPLY}" == "true" ]]; then
   # is handled naturally when the PR is merged into daisy/dev.
   log "Creating cherry-pick topic branches from ${PREV_MAIN:0:8} (no upstream code will be executed)..."
 
+  # Stash any working tree changes (e.g. generated report) before switching
+  # branches — the checkout to PREV_MAIN will fail if files differ
+  git stash --quiet 2>/dev/null || true
+
   CONFLICT_FILE="${REPORT_DIR}/conflicts-${TODAY}.txt"
   : > "${CONFLICT_FILE}"
   CONFLICT_COUNT=0
@@ -665,6 +669,9 @@ if [[ "${APPLY}" == "true" ]]; then
     # Return to base branch
     git checkout "${BASE_REF}" --quiet
   done
+
+  # Restore stashed working tree changes
+  git stash pop --quiet 2>/dev/null || true
 
   if [[ "${CONFLICT_COUNT}" -gt 0 ]]; then
     warn "${CONFLICT_COUNT} conflict(s) logged to ${CONFLICT_FILE}"
