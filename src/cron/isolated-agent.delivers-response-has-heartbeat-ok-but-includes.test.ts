@@ -90,6 +90,18 @@ describe("runCronIsolatedAgentTurn", () => {
     vi.mocked(runEmbeddedPiAgent).mockReset();
     vi.mocked(loadModelCatalog).mockResolvedValue([]);
     vi.mocked(runSubagentAnnounceFlow).mockReset().mockResolvedValue(true);
+<<<<<<< HEAD
+=======
+    setActivePluginRegistry(
+      createTestRegistry([
+        {
+          pluginId: "telegram",
+          plugin: createOutboundTestPlugin({ id: "telegram", outbound: telegramOutbound }),
+          source: "test",
+        },
+      ]),
+    );
+>>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   });
 
   it("delivers when response has HEARTBEAT_OK but includes media", async () => {
@@ -130,11 +142,16 @@ describe("runCronIsolatedAgentTurn", () => {
       });
 
       expect(res.status).toBe("ok");
+<<<<<<< HEAD
       expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
+=======
+      expect(deps.sendMessageTelegram).toHaveBeenCalled();
+      expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
+>>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     });
   });
 
-  it("delivers when heartbeat ack padding exceeds configured limit", async () => {
+  it("uses shared announce flow when heartbeat ack padding exceeds configured limit", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
       const deps: CliDeps = {
@@ -181,6 +198,10 @@ describe("runCronIsolatedAgentTurn", () => {
 
       expect(res.status).toBe("ok");
       expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
+<<<<<<< HEAD
+=======
+      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
+>>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     });
   });
 });

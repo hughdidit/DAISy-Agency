@@ -97,4 +97,8 @@ AGENTS.md.bak.md
 memory/
 .agent/*.json
 !.agent/workflows/
+<<<<<<< HEAD
 >>>>>>> d6c088910 (chore: add agent credentials to gitignore (#9874))
+=======
+local/
+>>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
