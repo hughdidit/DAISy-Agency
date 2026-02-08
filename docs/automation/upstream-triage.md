@@ -112,12 +112,12 @@ Behavior:
 - Branch names include date+time (HHMM) for uniqueness; a serial suffix (`_2`, `_3`, ...) is appended on rare same-minute collisions
 - Each run creates new branches — prior runs' branches and PRs are left untouched
 - Cherry-picks oldest-first (chronological order)
-- Aborts and logs conflicting picks to `docs/upstream-candidates/conflicts-YYYY-MM-DD.txt`
+- Conflicts are committed with markers intact — visible in the PR diff for manual resolution
 - No force pushes
 
 ### About conflicts
 
-Cherry-picks are applied onto the upstream lineage (branching from `origin/main`), so they should be **conflict-free**. If a cherry-pick does conflict, it indicates a structural issue (delete/modify, rename/rename) in the upstream history itself — not fork divergence.
+Cherry-picks may conflict due to structural issues in upstream history (delete/modify, rename/rename). When this happens, the conflict markers are committed as-is so they are visible in the PR diff for the reviewer to resolve.
 
 Fork divergence (differences between `daisy/dev` and upstream) is handled naturally when the PR is merged. The PR merge UI will show any conflicts between the cherry-pick branch and `daisy/dev`, which can be resolved there or locally with `git merge`.
 
@@ -175,10 +175,9 @@ gh workflow run upstream-triage.yml -f ai_triage=true
 
 | File | Description |
 |------|-------------|
-| `docs/upstream-candidates/YYYY-MM-DD.md` | Triage report (regenerated each run) |
-| `docs/upstream-candidates/conflicts-YYYY-MM-DD.txt` | Cherry-pick conflicts (only if `--apply` encounters conflicts) |
+| `docs/upstream-candidates/YYYY-MM-DD-HHMM.md` | Triage report (report mode only; unique per run) |
 
-Reports are derived artifacts (idempotent, overwritten on re-run) and are not committed by default.
+Reports are derived artifacts and are not committed by default.
 
 ## Prerequisites
 
@@ -205,8 +204,8 @@ git remote set-url --push upstream DISABLE
 **AI triage falls back to heuristic**
 Check that `claude` CLI is installed and `ANTHROPIC_API_KEY` is set. The script continues with heuristic classification on failure.
 
-**Cherry-pick conflicts**
-Cherry-picks onto the upstream lineage should be clean. If conflicts appear in `docs/upstream-candidates/conflicts-YYYY-MM-DD.txt`, they indicate structural issues in upstream history. Fork divergence conflicts appear in the PR merge UI instead.
+**Cherry-pick conflicts in PR diff**
+Some cherry-picks may conflict due to structural issues in upstream history. These are committed with conflict markers intact and visible in the PR diff for manual resolution.
 
 **PR merge conflicts**
 These represent divergence between `daisy/dev` and upstream. Resolve in the GitHub merge UI or locally with `git merge`. This is expected and normal.
