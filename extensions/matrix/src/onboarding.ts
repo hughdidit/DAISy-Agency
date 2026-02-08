@@ -1,3 +1,4 @@
+import type { DmPolicy } from "openclaw/plugin-sdk";
 import {
   addWildcardAllowFrom,
   formatDocsLink,
@@ -5,7 +6,12 @@ import {
   type ChannelOnboardingAdapter,
   type ChannelOnboardingDmPolicy,
   type WizardPrompter,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
+=======
+} from "openclaw/plugin-sdk";
+import type { CoreConfig } from "./types.js";
+>>>>>>> eb3e9c649 (chore: fix vitest standalone configs and update package description (#11865))
 import { listMatrixDirectoryGroupsLive } from "./directory-live.js";
 import { resolveMatrixAccount } from "./matrix/accounts.js";
 import { ensureMatrixSdkInstalled, isMatrixSdkAvailable } from "./matrix/deps.js";
