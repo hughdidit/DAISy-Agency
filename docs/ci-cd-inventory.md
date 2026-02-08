@@ -7,7 +7,7 @@
 | `.github/workflows/ci.yml` | CI | `push` + `pull_request` (daisy/main, daisy/dev) | `Install Check`, `Linux / <runtime> / <task>`, `Secrets Scan`, `Windows / <runtime> / <task>`, `macOS / node / <task>`, `macOS App / <task>`, `iOS`, `Android / <task>` | Needs refactor | Multi-OS matrix load; job names are matrix-derived (required-check churn); shared concurrency group with other workflows can cancel runs; iOS job is disabled (`if: false`). |
 | `.github/workflows/codeql.yml` | CodeQL Advanced | `push` + `pull_request` (daisy/main, daisy/dev), `schedule` | `Analyze (<language>)` | Needs refactor | Broad language matrix; macOS runners for Swift; scheduled load; actions not pinned to SHAs. |
 | `.github/workflows/docker-release.yml` | Docker Release | `push` (main + tags `v*`) | `build-amd64`, `build-arm64`, `create-manifest` | Needs refactor | Branch trigger uses `main` (not `daisy/main`); assumes GHCR publish with `GITHUB_TOKEN`; no workflow_dispatch; provenance + SBOM enabled on push. |
-| `.github/workflows/install-smoke.yml` | Install Smoke | `push` + `pull_request` (daisy/main, daisy/dev), `workflow_dispatch` | `install-smoke` | Useful | Uses public installer URLs; runs Docker smoke tests; shares `ci-` concurrency group with other workflows (risk of cross-cancel). |
+
 | `.github/workflows/labeler.yml` | Labeler | `pull_request_target` | `label` | Useful | Requires `GH_APP_PRIVATE_KEY` and app id; runs on fork PRs with elevated token; action versions not SHA-pinned. |
 | `.github/workflows/auto-response.yml` | Auto response | `issues` + `pull_request_target` (labeled) | `auto-response` | Useful | Requires `GH_APP_PRIVATE_KEY`; closes issues/PRs based on labels; action versions not SHA-pinned. |
 | `.github/workflows/workflow-sanity.yml` | Workflow Sanity | `push` + `pull_request` (daisy/main, daisy/dev) | `no-tabs` | Useful | Shares `ci-` concurrency group with other workflows (risk of cross-cancel). |
@@ -98,31 +98,6 @@
 
 **Recommendation**
 - **Needs refactor.** Align triggers with `daisy/main` (production) and/or tag-based releases, add manual dispatch for controlled deploys, and align with CD phase split.
-
-### Install Smoke (`.github/workflows/install-smoke.yml`)
-
-**What it does**
-- Runs installer smoke tests via Docker against `clawd.bot` installer endpoints.
-
-**When it runs**
-- `push` and `pull_request` on `daisy/main`/`daisy/dev`.
-- `workflow_dispatch`.
-- Concurrency group: `ci-${{ github.event.pull_request.number || github.ref }}` with cancel-in-progress.
-
-**Permissions / secrets / environment**
-- No permissions block.
-- No secrets; uses env vars for installer URLs and smoke-test behavior.
-
-**Jobs inventory**
-- `install-smoke` (ubuntu-latest): checkout, setup pnpm, minimal install, run `pnpm test:install:smoke`.
-
-**Risks / issues found**
-- **External dependency risk**: depends on `https://clawd.bot/install.sh` endpoints.
-- **Concurrency cross-cancel**: same `ci-` group as CI/workflow-sanity; a smoke run can cancel CI.
-- **Unpinned actions**: `actions/checkout@v4` only.
-
-**Recommendation**
-- **Useful.** Keep, but isolate concurrency group and align with Patchbot gating rules.
 
 ### Labeler (`.github/workflows/labeler.yml`)
 
