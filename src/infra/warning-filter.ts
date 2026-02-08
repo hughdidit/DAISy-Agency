@@ -1,13 +1,12 @@
-<<<<<<< HEAD
-const warningFilterKey = Symbol.for("moltbot.warning-filter");
+const warningFilterKey = Symbol.for("openclaw.warning-filter");
 
-type Warning = Error & {
+export type ProcessWarning = Error & {
   code?: string;
   name?: string;
   message?: string;
 };
 
-function shouldIgnoreWarning(warning: Warning): boolean {
+export function shouldIgnoreWarning(warning: ProcessWarning): boolean {
   if (warning.code === "DEP0040" && warning.message?.includes("punycode")) {
     return true;
   }
@@ -32,13 +31,10 @@ export function installProcessWarningFilter(): void {
   }
   globalState[warningFilterKey] = { installed: true };
 
-  process.on("warning", (warning: Warning) => {
+  process.on("warning", (warning: ProcessWarning) => {
     if (shouldIgnoreWarning(warning)) {
       return;
     }
     process.stderr.write(`${warning.stack ?? warning.toString()}\n`);
   });
 }
-=======
-export { installProcessWarningFilter } from "./warning-filter.js";
->>>>>>> 311905716 (chore: centralizing warning filters)
