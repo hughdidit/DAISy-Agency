@@ -572,7 +572,16 @@ if [[ "${APPLY}" == "true" ]]; then
         warn "    Conflict cherry-picking ${sha:0:8}: ${subject}"
         echo "${sha} | ${subject} | ${cat}" >> "${CONFLICT_FILE}"
         CONFLICT_COUNT=$((CONFLICT_COUNT + 1))
-        git cherry-pick --abort 2>/dev/null || true
+        # Commit with conflict markers so the PR shows exactly what needs resolution
+        git add -A 2>/dev/null || true
+        git commit --no-edit -m "CONFLICT: ${subject}
+
+(cherry picked from commit ${sha})
+NOTE: This commit contains conflict markers (<<<<<<< / ======= / >>>>>>>).
+Manual resolution required before merging." 2>/dev/null || {
+          # If commit fails (e.g. nothing staged), fall back to abort
+          git cherry-pick --abort 2>/dev/null || true
+        }
       else
         log "    Applied ${sha:0:8}"
       fi
@@ -618,9 +627,15 @@ if [[ "${OPEN_PR}" == "true" ]]; then
     branch_slug="${cat//\//-}"
     branch_name="cherry/${branch_slug}-${TODAY}"
 
-    # Verify branch exists
+    # Verify branch exists and has commits ahead of base
     if ! git rev-parse --verify "${branch_name}" &>/dev/null; then
       warn "Branch ${branch_name} not found; skipping PR"
+      continue
+    fi
+    ahead_count="$(git rev-list --count "${BASE_REF}..${branch_name}" 2>/dev/null || echo 0)"
+    if [[ "${ahead_count}" -eq 0 ]]; then
+      log "  ${branch_name} has no new commits (all already in ${BASE_REF}); skipping"
+      git branch -D "${branch_name}" 2>/dev/null || true
       continue
     fi
 
@@ -631,11 +646,15 @@ if [[ "${OPEN_PR}" == "true" ]]; then
       continue
     fi
 
-    # Build commit list for PR body
+    # Build commit list for PR body; note which had conflicts
     commit_list=""
     while IFS=$'\x1f' read -r sha subject author date_str risk reason; do
       [[ -z "${sha}" ]] && continue
-      commit_list="${commit_list}- \`${sha:0:8}\` ${subject} (risk: ${risk}/5)
+      conflict_tag=""
+      if grep -q "^${sha} " "${CONFLICT_FILE}" 2>/dev/null; then
+        conflict_tag=" **CONFLICT — markers in diff**"
+      fi
+      commit_list="${commit_list}- \`${sha:0:8}\` ${subject} (risk: ${risk}/5)${conflict_tag}
 "
     done <<< "${CAT_COMMITS[${cat}]}"
 
