@@ -25,10 +25,12 @@ const { createWaSocket } = await import("./session.js");
 
 describe("web login", () => {
   beforeEach(() => {
+    vi.useFakeTimers();
     vi.clearAllMocks();
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     resetLogger();
     setLoggerOverride(null);
   });
@@ -38,7 +40,12 @@ describe("web login", () => {
     const close = vi.spyOn(sock.ws, "close");
     const waiter: typeof waitForWaConnection = vi.fn().mockResolvedValue(undefined);
     await loginWeb(false, waiter);
-    await new Promise((resolve) => setTimeout(resolve, 550));
-    expect(close).toHaveBeenCalled();
+    expect(close).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(499);
+    expect(close).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(close).toHaveBeenCalledTimes(1);
   });
 });
