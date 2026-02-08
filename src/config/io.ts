@@ -370,6 +370,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         exists: false,
         raw: null,
         parsed: {},
+        resolved: {},
         valid: true,
         config,
         hash,
@@ -389,6 +390,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
           exists: true,
           raw,
           parsed: {},
+          resolved: {},
           valid: false,
           config: {},
           hash,
@@ -415,6 +417,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
           exists: true,
           raw,
           parsed: parsedRes.parsed,
+          resolved: coerceConfig(parsedRes.parsed),
           valid: false,
           config: coerceConfig(parsedRes.parsed),
           hash,
@@ -443,6 +446,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
           exists: true,
           raw,
           parsed: parsedRes.parsed,
+          resolved: coerceConfig(resolved),
           valid: false,
           config: coerceConfig(resolved),
           hash,
@@ -462,6 +466,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
           exists: true,
           raw,
           parsed: parsedRes.parsed,
+          resolved: coerceConfig(resolvedConfigRaw),
           valid: false,
           config: coerceConfig(resolvedConfigRaw),
           hash,
@@ -477,6 +482,9 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         exists: true,
         raw,
         parsed: parsedRes.parsed,
+        // Use resolvedConfigRaw (after $include and ${ENV} substitution but BEFORE runtime defaults)
+        // for config set/unset operations (issue #6070)
+        resolved: coerceConfig(resolvedConfigRaw),
         valid: true,
         config: normalizeConfigPaths(
           applyTalkApiKey(
@@ -498,6 +506,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         exists: true,
         raw: null,
         parsed: {},
+        resolved: {},
         valid: false,
         config: {},
         hash: hashConfigRaw(null),
@@ -524,9 +533,9 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
     }
     const dir = path.dirname(configPath);
     await deps.fs.promises.mkdir(dir, { recursive: true, mode: 0o700 });
-    const json = JSON.stringify(applyModelDefaults(stampConfigVersion(cfg)), null, 2)
-      .trimEnd()
-      .concat("\n");
+    // Do NOT apply runtime defaults when writing — user config should only contain
+    // explicitly set values. Runtime defaults are applied when loading (issue #6070).
+    const json = JSON.stringify(stampConfigVersion(cfg), null, 2).trimEnd().concat("\n");
 
     const tmp = path.join(
       dir,
