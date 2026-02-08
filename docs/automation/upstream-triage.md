@@ -15,7 +15,7 @@ The triage system uses three refs:
 **Scan range:** `origin/main..upstream/main` — only commits not yet synced.
 
 **Apply mode flow:**
-1. Scan `origin/main..upstream/main` for unsynced commits (oldest-first, `--max N` takes the N oldest)
+1. Scan `origin/main..upstream/main` for all unsynced commits (oldest-first)
 2. Classify each commit by category and risk
 3. Create cherry-pick branches from `origin/main` (one per category)
 4. Push branches and create PRs targeting `daisy/dev`
@@ -30,14 +30,14 @@ Cherry-picks apply cleanly because they're replayed on their own upstream lineag
 ## Quick start
 
 ```bash
-# Generate a triage report (last 20 commits)
-scripts/upstream-triage.sh --max 20
+# Generate a triage report
+scripts/upstream-triage.sh
 
 # With AI-assisted classification
-scripts/upstream-triage.sh --max 50 --ai-triage
+scripts/upstream-triage.sh --ai-triage
 
 # Create cherry-pick branches + open PRs
-scripts/upstream-triage.sh --max 50 --apply --open-pr
+scripts/upstream-triage.sh --apply --open-pr
 ```
 
 ## CLI reference
@@ -47,7 +47,6 @@ scripts/upstream-triage.sh [OPTIONS]
 
   --base-ref REF        Fork branch to compare against (default: daisy/dev)
   --upstream-ref REF    Upstream ref to scan (default: upstream/main)
-  --max N               Limit number of commits scanned
   --ai-triage           Use Claude CLI for semantic classification (falls back to heuristic)
   --apply               Create cherry-pick topic branches (throwaway, for review only)
   --open-pr             Open PRs for topic branches (requires --apply)
@@ -113,7 +112,6 @@ Behavior:
 - Branch names include date+time (HHMM) for uniqueness; a serial suffix (`_2`, `_3`, ...) is appended on rare same-minute collisions
 - Each run creates new branches — prior runs' branches and PRs are left untouched
 - Cherry-picks oldest-first (chronological order)
-- When `--max N` is used, takes the N **oldest** unsynced commits (not the newest)
 - Aborts and logs conflicting picks to `docs/upstream-candidates/conflicts-YYYY-MM-DD.txt`
 - No force pushes
 
@@ -152,7 +150,6 @@ Supports all flags via inputs:
 | `apply` | boolean | false | Create cherry-pick branches |
 | `open_pr` | boolean | false | Open PRs (requires apply) |
 | `ai_triage` | boolean | false | AI classification |
-| `max` | string | 200 | Max commits to scan |
 
 ### Triggering manually
 
@@ -161,7 +158,7 @@ Supports all flags via inputs:
 gh workflow run upstream-triage.yml
 
 # With cherry-pick branches and PRs
-gh workflow run upstream-triage.yml -f apply=true -f open_pr=true -f max=100
+gh workflow run upstream-triage.yml -f apply=true -f open_pr=true
 
 # With AI triage
 gh workflow run upstream-triage.yml -f ai_triage=true
