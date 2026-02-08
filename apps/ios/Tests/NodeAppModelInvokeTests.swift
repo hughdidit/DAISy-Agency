@@ -244,7 +244,12 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
         #expect(presentRes.ok == true)
         #expect(appModel.screen.urlString.isEmpty)
 
+<<<<<<< HEAD
         let navigateParams = MoltbotCanvasNavigateParams(url: "http://localhost:18789/")
+=======
+        // Loopback URLs are rejected (they are not meaningful for a remote gateway).
+        let navigateParams = OpenClawCanvasNavigateParams(url: "http://example.com/")
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
         let navData = try JSONEncoder().encode(navigateParams)
         let navJSON = String(decoding: navData, as: UTF8.self)
         let navigate = BridgeInvokeRequest(
@@ -253,7 +258,7 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
             paramsJSON: navJSON)
         let navRes = await appModel._test_handleInvoke(navigate)
         #expect(navRes.ok == true)
-        #expect(appModel.screen.urlString == "http://localhost:18789/")
+        #expect(appModel.screen.urlString == "http://example.com/")
 
         let evalParams = MoltbotCanvasEvalParams(javaScript: "1+1")
         let evalData = try JSONEncoder().encode(evalParams)

@@ -41,14 +41,26 @@ protocol PhotosServicing: Sendable {
 
 protocol ContactsServicing: Sendable {
     func search(params: OpenClawContactsSearchParams) async throws -> OpenClawContactsSearchPayload
+<<<<<<< HEAD
+=======
+    func add(params: OpenClawContactsAddParams) async throws -> OpenClawContactsAddPayload
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 }
 
 protocol CalendarServicing: Sendable {
     func events(params: OpenClawCalendarEventsParams) async throws -> OpenClawCalendarEventsPayload
+<<<<<<< HEAD
+=======
+    func add(params: OpenClawCalendarAddParams) async throws -> OpenClawCalendarAddPayload
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 }
 
 protocol RemindersServicing: Sendable {
     func list(params: OpenClawRemindersListParams) async throws -> OpenClawRemindersListPayload
+<<<<<<< HEAD
+=======
+    func add(params: OpenClawRemindersAddParams) async throws -> OpenClawRemindersAddPayload
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 }
 
 protocol MotionServicing: Sendable {

@@ -2,6 +2,10 @@ import Foundation
 
 public enum OpenClawContactsCommand: String, Codable, Sendable {
     case search = "contacts.search"
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/ContactsCommands.swift
+=======
+    case add = "contacts.add"
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/ContactsCommands.swift
 }
 
 public struct OpenClawContactsSearchParams: Codable, Sendable, Equatable {
@@ -14,6 +18,34 @@ public struct OpenClawContactsSearchParams: Codable, Sendable, Equatable {
     }
 }
 
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/ContactsCommands.swift
+=======
+public struct OpenClawContactsAddParams: Codable, Sendable, Equatable {
+    public var givenName: String?
+    public var familyName: String?
+    public var organizationName: String?
+    public var displayName: String?
+    public var phoneNumbers: [String]?
+    public var emails: [String]?
+
+    public init(
+        givenName: String? = nil,
+        familyName: String? = nil,
+        organizationName: String? = nil,
+        displayName: String? = nil,
+        phoneNumbers: [String]? = nil,
+        emails: [String]? = nil)
+    {
+        self.givenName = givenName
+        self.familyName = familyName
+        self.organizationName = organizationName
+        self.displayName = displayName
+        self.phoneNumbers = phoneNumbers
+        self.emails = emails
+    }
+}
+
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/ContactsCommands.swift
 public struct OpenClawContactPayload: Codable, Sendable, Equatable {
     public var identifier: String
     public var displayName: String
@@ -49,3 +81,14 @@ public struct OpenClawContactsSearchPayload: Codable, Sendable, Equatable {
         self.contacts = contacts
     }
 }
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/ContactsCommands.swift
+=======
+
+public struct OpenClawContactsAddPayload: Codable, Sendable, Equatable {
+    public var contact: OpenClawContactPayload
+
+    public init(contact: OpenClawContactPayload) {
+        self.contact = contact
+    }
+}
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/ContactsCommands.swift

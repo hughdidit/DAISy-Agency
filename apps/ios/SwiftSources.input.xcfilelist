@@ -18,6 +18,7 @@ Sources/Location/LocationService.swift
 Sources/Media/PhotoLibraryService.swift
 Sources/Motion/MotionService.swift
 Sources/Model/NodeAppModel.swift
+Sources/Model/NodeAppModel+Canvas.swift
 Sources/RootCanvas.swift
 Sources/RootTabs.swift
 Sources/Services/NodeServiceProtocols.swift
