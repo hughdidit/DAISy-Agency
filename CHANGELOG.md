@@ -95,7 +95,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 =======
 - Docs: seed initial ja-JP translations (POC) and make docs-i18n prompts language-pluggable for Japanese. (#11988) Thanks @joshp123.
+<<<<<<< HEAD
 >>>>>>> 6e3271ebb (Docs: note ja-JP docs POC in changelog (#11988) (thanks @joshp123))
+=======
+- Paths: add `OPENCLAW_HOME` environment variable for overriding the home directory used by all internal path resolution. (#12091) Thanks @sebslight.
+>>>>>>> 41f3e90ea (changelog: split #12091 entry into Added + Fixes)
 
 ### Fixes
 
@@ -105,6 +109,10 @@ Docs: https://docs.openclaw.ai
 =======
 - Exec approvals: format forwarded command text as inline/fenced monospace for safer approval scanning across channels. (#11937)
 - Docs: fix language switcher ordering and Japanese locale flag in Mintlify nav. (#12023) Thanks @joshp123.
+<<<<<<< HEAD
+=======
+- Paths: make internal path resolution respect `HOME`/`USERPROFILE` before `os.homedir()` across config, agents, sessions, pairing, cron, and CLI profiles. (#12091) Thanks @sebslight.
+>>>>>>> 41f3e90ea (changelog: split #12091 entry into Added + Fixes)
 - Thinking: allow xhigh for `github-copilot/gpt-5.2-codex` and `github-copilot/gpt-5.2`. (#11646) Thanks @seans-openclawbot.
 - Discord: support forum/media `thread create` starter messages, wire `message thread create --message`, and harden thread-create routing. (#10062) Thanks @jarvis89757.
 >>>>>>> 2f91bf550 (docs: fix changelog PR reference)
