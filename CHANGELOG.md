@@ -108,6 +108,7 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Exec approvals: format forwarded command text as inline/fenced monospace for safer approval scanning across channels. (#11937)
+- Config: clamp `maxTokens` to `contextWindow` to prevent invalid model configs. (#5516) Thanks @lailoo.
 - Docs: fix language switcher ordering and Japanese locale flag in Mintlify nav. (#12023) Thanks @joshp123.
 <<<<<<< HEAD
 =======
