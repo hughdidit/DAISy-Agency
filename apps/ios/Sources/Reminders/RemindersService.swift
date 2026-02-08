@@ -47,16 +47,77 @@ final class RemindersService: RemindersServicing {
         return OpenClawRemindersListPayload(reminders: payload)
     }
 
+<<<<<<< HEAD
+=======
+    func add(params: OpenClawRemindersAddParams) async throws -> OpenClawRemindersAddPayload {
+        let store = EKEventStore()
+        let status = EKEventStore.authorizationStatus(for: .reminder)
+        let authorized = await Self.ensureWriteAuthorization(store: store, status: status)
+        guard authorized else {
+            throw NSError(domain: "Reminders", code: 2, userInfo: [
+                NSLocalizedDescriptionKey: "REMINDERS_PERMISSION_REQUIRED: grant Reminders permission",
+            ])
+        }
+
+        let title = params.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !title.isEmpty else {
+            throw NSError(domain: "Reminders", code: 3, userInfo: [
+                NSLocalizedDescriptionKey: "REMINDERS_INVALID: title required",
+            ])
+        }
+
+        let reminder = EKReminder(eventStore: store)
+        reminder.title = title
+        if let notes = params.notes?.trimmingCharacters(in: .whitespacesAndNewlines), !notes.isEmpty {
+            reminder.notes = notes
+        }
+        reminder.calendar = try Self.resolveList(
+            store: store,
+            listId: params.listId,
+            listName: params.listName)
+
+        if let dueISO = params.dueISO?.trimmingCharacters(in: .whitespacesAndNewlines), !dueISO.isEmpty {
+            let formatter = ISO8601DateFormatter()
+            guard let dueDate = formatter.date(from: dueISO) else {
+                throw NSError(domain: "Reminders", code: 4, userInfo: [
+                    NSLocalizedDescriptionKey: "REMINDERS_INVALID: dueISO must be ISO-8601",
+                ])
+            }
+            reminder.dueDateComponents = Calendar.current.dateComponents(
+                [.year, .month, .day, .hour, .minute, .second],
+                from: dueDate)
+        }
+
+        try store.save(reminder, commit: true)
+
+        let formatter = ISO8601DateFormatter()
+        let due = reminder.dueDateComponents.flatMap { Calendar.current.date(from: $0) }
+        let payload = OpenClawReminderPayload(
+            identifier: reminder.calendarItemIdentifier,
+            title: reminder.title,
+            dueISO: due.map { formatter.string(from: $0) },
+            completed: reminder.isCompleted,
+            listName: reminder.calendar.title)
+
+        return OpenClawRemindersAddPayload(reminder: payload)
+    }
+
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
     private static func ensureAuthorization(store: EKEventStore, status: EKAuthorizationStatus) async -> Bool {
         switch status {
         case .authorized:
             return true
         case .notDetermined:
+<<<<<<< HEAD
             return await withCheckedContinuation { cont in
                 store.requestAccess(to: .reminder) { granted, _ in
                     cont.resume(returning: granted)
                 }
             }
+=======
+            // Don’t prompt during node.invoke; prompts block the invoke and lead to timeouts.
+            return false
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
         case .restricted, .denied:
             return false
         case .fullAccess:
@@ -67,4 +128,52 @@ final class RemindersService: RemindersServicing {
             return false
         }
     }
+<<<<<<< HEAD
+=======
+
+    private static func ensureWriteAuthorization(store: EKEventStore, status: EKAuthorizationStatus) async -> Bool {
+        switch status {
+        case .authorized, .fullAccess, .writeOnly:
+            return true
+        case .notDetermined:
+            // Don’t prompt during node.invoke; prompts block the invoke and lead to timeouts.
+            return false
+        case .restricted, .denied:
+            return false
+        @unknown default:
+            return false
+        }
+    }
+
+    private static func resolveList(
+        store: EKEventStore,
+        listId: String?,
+        listName: String?) throws -> EKCalendar
+    {
+        if let id = listId?.trimmingCharacters(in: .whitespacesAndNewlines), !id.isEmpty,
+           let calendar = store.calendar(withIdentifier: id)
+        {
+            return calendar
+        }
+
+        if let title = listName?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty {
+            if let calendar = store.calendars(for: .reminder).first(where: {
+                $0.title.compare(title, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+            }) {
+                return calendar
+            }
+            throw NSError(domain: "Reminders", code: 5, userInfo: [
+                NSLocalizedDescriptionKey: "REMINDERS_LIST_NOT_FOUND: no list named \(title)",
+            ])
+        }
+
+        if let fallback = store.defaultCalendarForNewReminders() {
+            return fallback
+        }
+
+        throw NSError(domain: "Reminders", code: 6, userInfo: [
+            NSLocalizedDescriptionKey: "REMINDERS_LIST_NOT_FOUND: no default list",
+        ])
+    }
+>>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 }
