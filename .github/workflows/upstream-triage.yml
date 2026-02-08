@@ -124,6 +124,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.apply
     needs: report
     runs-on: ubuntu-latest
+    environment: staging
 
     permissions:
       contents: write
