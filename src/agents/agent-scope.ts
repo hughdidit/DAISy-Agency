@@ -143,7 +143,12 @@ export function resolveAgentWorkspaceDir(cfg: MoltbotConfig, agentId: string) {
     if (fallback) return resolveUserPath(fallback);
     return DEFAULT_AGENT_WORKSPACE_DIR;
   }
+<<<<<<< HEAD
   return path.join(os.homedir(), `clawd-${id}`);
+=======
+  const stateDir = resolveStateDir(process.env, os.homedir);
+  return path.join(stateDir, `workspace-${id}`);
+>>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 }
 
 export function resolveAgentDir(cfg: MoltbotConfig, agentId: string) {
