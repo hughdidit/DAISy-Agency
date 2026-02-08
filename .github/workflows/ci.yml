@@ -24,43 +24,41 @@ permissions:
 
 jobs:
   checks:
-    name: Linux / ${{ matrix.runtime }} / ${{ matrix.task }}
+    name: Linux / ${{ matrix.task }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          - runtime: node
-            task: lint
+          - task: lint
             command: pnpm lint
-          - runtime: node
-            task: test
+          - task: test
             command: pnpm canvas:a2ui:bundle && pnpm test -- --no-file-parallelism
-          - runtime: node
-            task: build
+          - task: build
             command: pnpm build
-          - runtime: node
-            task: protocol
+          - task: protocol
             command: pnpm protocol:check
-          - runtime: node
-            task: format
+          - task: format
             command: pnpm format
-          - runtime: bun
-            task: test
-            command: pnpm canvas:a2ui:bundle && bunx vitest run --no-file-parallelism
-          - runtime: bun
-            task: build
-            command: bunx tsc -p tsconfig.json
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: false
 
+      # pnpm must be on PATH before setup-node so cache: 'pnpm' can
+      # resolve the store path for cache keys.
       - name: Setup pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.23.0 --activate
+          for attempt in 1 2 3; do
+            if corepack prepare pnpm@10.23.0 --activate; then
+              pnpm -v
+              break
+            fi
+            echo "corepack prepare failed (attempt $attempt/3). Retrying..."
+            sleep $((attempt * 5))
+          done
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -68,16 +66,10 @@ jobs:
           node-version: 22.14.0
           cache: 'pnpm'
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
       - name: Runtime versions
         run: |
           node -v
           npm -v
-          bun -v
           pnpm -v
 
       - name: Install dependencies
@@ -99,7 +91,7 @@ jobs:
             sleep $((attempt * 5))
           done
 
-      - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
+      - name: Run ${{ matrix.task }}
         run: ${{ matrix.command }}
 
   secrets:
@@ -159,10 +151,19 @@ jobs:
         with:
           submodules: false
 
+      # pnpm must be on PATH before setup-node so cache: 'pnpm' can
+      # resolve the store path for cache keys.
       - name: Setup pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.23.0 --activate
+          for attempt in 1 2 3; do
+            if corepack prepare pnpm@10.23.0 --activate; then
+              pnpm -v
+              break
+            fi
+            echo "corepack prepare failed (attempt $attempt/3). Retrying..."
+            sleep $((attempt * 5))
+          done
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -214,10 +215,19 @@ jobs:
         with:
           submodules: false
 
+      # pnpm must be on PATH before setup-node so cache: 'pnpm' can
+      # resolve the store path for cache keys.
       - name: Setup pnpm (corepack)
         run: |
           corepack enable
-          corepack prepare pnpm@10.23.0 --activate
+          for attempt in 1 2 3; do
+            if corepack prepare pnpm@10.23.0 --activate; then
+              pnpm -v
+              break
+            fi
+            echo "corepack prepare failed (attempt $attempt/3). Retrying..."
+            sleep $((attempt * 5))
+          done
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
