@@ -96,6 +96,22 @@ export function recomputeNextRuns(state: CronServiceState) {
         "cron: clearing stuck running marker",
       );
       job.state.runningAtMs = undefined;
+<<<<<<< HEAD
+=======
+      changed = true;
+    }
+    // Only recompute if nextRunAtMs is missing or already past-due.
+    // Preserving a still-future nextRunAtMs avoids accidentally advancing
+    // a job that hasn't fired yet (e.g. during restart recovery).
+    const nextRun = job.state.nextRunAtMs;
+    const isDueOrMissing = nextRun === undefined || now >= nextRun;
+    if (isDueOrMissing) {
+      const newNext = computeJobNextRunAtMs(job, now);
+      if (job.state.nextRunAtMs !== newNext) {
+        job.state.nextRunAtMs = newNext;
+        changed = true;
+      }
+>>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     }
     job.state.nextRunAtMs = computeJobNextRunAtMs(job, now);
   }
@@ -340,6 +356,15 @@ function mergeCronDelivery(
 }
 
 export function isJobDue(job: CronJob, nowMs: number, opts: { forced: boolean }) {
+<<<<<<< HEAD
+=======
+  if (!job.state) {
+    job.state = {};
+  }
+  if (typeof job.state.runningAtMs === "number") {
+    return false;
+  }
+>>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   if (opts.forced) {
     return true;
   }

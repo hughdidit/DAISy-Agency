@@ -41,6 +41,18 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
     timezone: schedule.tz?.trim() || undefined,
     catch: false,
   });
+<<<<<<< HEAD
   const next = cron.nextRun(new Date(nowMs));
   return next ? next.getTime() : undefined;
+=======
+  // Use a tiny lookback (1ms) so croner doesn't skip the current second
+  // boundary. Without this, a job updated at exactly its cron time would
+  // be scheduled for the *next* matching time (e.g. 24h later for daily).
+  const next = cron.nextRun(new Date(nowMs - 1));
+  if (!next) {
+    return undefined;
+  }
+  const nextMs = next.getTime();
+  return Number.isFinite(nextMs) && nextMs >= nowMs ? nextMs : undefined;
+>>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 }

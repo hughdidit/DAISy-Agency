@@ -249,7 +249,7 @@ describe("moltbot-tools: subagents", () => {
       | undefined;
     expect(second?.sessionKey).toBe("discord:group:req");
     expect(second?.deliver).toBe(true);
-    expect(second?.message).toContain("background task");
+    expect(second?.message).toContain("subagent task");
 
     const sendCalls = calls.filter((c) => c.method === "send");
     expect(sendCalls.length).toBe(0);
