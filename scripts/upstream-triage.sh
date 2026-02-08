@@ -208,8 +208,8 @@ if [[ "${APPLY}" == "true" ]]; then
   if [[ "$(git rev-parse "${MIRROR_REF}")" == "$(git rev-parse "${UPSTREAM_REF}")" ]]; then
     log "  origin/main is already at upstream/main; nothing to sync"
   else
-    if push_ref "${UPSTREAM_REF}:refs/heads/test/upstream-mirror"; then
-      log "  Pushed upstream/main → origin/test/upstream-mirror (testing non-main push)"
+    if push_ref "${UPSTREAM_REF}:refs/heads/main"; then
+      log "  Pushed upstream/main → origin/main"
     else
       err "Failed to update origin/main. Upstream may include workflow file changes"
       err "that require a PAT with 'workflows' scope. Set GITHUB_TOKEN to a PAT or"
