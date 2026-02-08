@@ -120,6 +120,35 @@ log()  { echo ":: $*"; }
 warn() { echo "WARN: $*" >&2; }
 err()  { echo "ERROR: $*" >&2; }
 
+# push_ref REFSPEC
+# Pushes a ref to origin. Tries git push first; if that fails (e.g. GITHUB_TOKEN
+# can't update workflow files), falls back to the GitHub API.
+push_ref() {
+  local refspec="$1"
+  if git push origin "${refspec}" --quiet 2>/dev/null; then
+    return 0
+  fi
+  warn "git push failed for ${refspec}; trying GitHub API..."
+  # Resolve the target branch name and SHA from the refspec
+  local src="${refspec%%:*}"
+  local dst="${refspec#*:}"
+  dst="${dst#refs/heads/}"  # strip refs/heads/ prefix if present
+  local sha
+  sha="$(git rev-parse "${src}" 2>/dev/null)" || return 1
+  local repo="${GITHUB_REPOSITORY:-$(gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null || true)}"
+  [[ -z "${repo}" ]] && return 1
+  # Try updating existing ref, then creating new ref
+  if gh api "repos/${repo}/git/refs/heads/${dst}" \
+      -X PATCH -f sha="${sha}" --silent 2>/dev/null; then
+    return 0
+  fi
+  if gh api "repos/${repo}/git/refs" \
+      -f ref="refs/heads/${dst}" -f sha="${sha}" --silent 2>/dev/null; then
+    return 0
+  fi
+  return 1
+}
+
 # =============================================================================
 # Ensure upstream is fetched
 # =============================================================================
@@ -179,8 +208,14 @@ if [[ "${APPLY}" == "true" ]]; then
   if [[ "$(git rev-parse "${MIRROR_REF}")" == "$(git rev-parse "${UPSTREAM_REF}")" ]]; then
     log "  origin/main is already at upstream/main; nothing to sync"
   else
-    git push origin "${UPSTREAM_REF}:refs/heads/main" --quiet
-    log "  Pushed upstream/main → origin/main"
+    if push_ref "${UPSTREAM_REF}:refs/heads/main"; then
+      log "  Pushed upstream/main → origin/main"
+    else
+      err "Failed to update origin/main. Upstream may include workflow file changes"
+      err "that require a PAT with 'workflows' scope. Set GITHUB_TOKEN to a PAT or"
+      err "manually run: git push origin upstream/main:refs/heads/main"
+      exit 1
+    fi
   fi
 
   # Re-fetch so local tracking refs are up to date
@@ -695,7 +730,7 @@ if [[ "${OPEN_PR}" == "true" ]]; then
     done <<< "${CAT_COMMITS[${cat}]}"
 
     # Push branch (skip PR creation on push failure)
-    if ! git push origin "${branch_name}" --quiet 2>/dev/null; then
+    if ! push_ref "${branch_name}:refs/heads/${branch_name}"; then
       warn "  Failed to push branch ${branch_name}; skipping PR creation for this category"
       continue
     fi
