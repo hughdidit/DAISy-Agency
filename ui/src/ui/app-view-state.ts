@@ -57,8 +57,18 @@ export type AppViewState = {
   chatAvatarUrl: string | null;
   chatThinkingLevel: string | null;
   chatQueue: ChatQueueItem[];
+  chatManualRefreshInFlight: boolean;
   nodesLoading: boolean;
   nodes: Array<Record<string, unknown>>;
+<<<<<<< HEAD
+=======
+  chatNewMessagesBelow: boolean;
+  sidebarOpen: boolean;
+  sidebarContent: string | null;
+  sidebarError: string | null;
+  splitRatio: number;
+  scrollToBottom: (opts?: { smooth?: boolean }) => void;
+>>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
   devicesLoading: boolean;
   devicesError: string | null;
   devicesList: DevicePairingList | null;
