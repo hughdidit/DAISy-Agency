@@ -1,8 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { resolveUserTimezone } from "../../agents/date-time.js";
+<<<<<<< HEAD
 import { formatZonedTimestamp } from "../../auto-reply/envelope.js";
 import type { OpenClawConfig } from "../../config/types.js";
+=======
+import { formatZonedTimestamp } from "../../infra/format-time/format-datetime.ts";
+>>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 
 /**
  * Cron jobs inject "Current time: ..." into their messages.
@@ -130,7 +134,7 @@ export function injectTimestamp(message: string, opts?: TimestampInjectionOption
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-  const formatted = formatZonedTimestamp(now, timezone);
+  const formatted = formatZonedTimestamp(now, { timeZone: timezone });
   if (!formatted) {
     return message;
   }

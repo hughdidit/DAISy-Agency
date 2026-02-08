@@ -4,6 +4,7 @@
 
 import type { SandboxBrowserInfo, SandboxContainerInfo } from "../agents/sandbox.js";
 import { formatCliCommand } from "../cli/command-format.js";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import {
   formatAge,
@@ -11,6 +12,10 @@ import {
   formatSimpleStatus,
   formatStatus,
 } from "./sandbox-formatters.js";
+=======
+import { formatDurationCompact } from "../infra/format-time/format-duration.ts";
+import { formatImageMatch, formatSimpleStatus, formatStatus } from "./sandbox-formatters.js";
+>>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 
 type DisplayConfig<T> = {
   emptyMessage: string;
@@ -40,8 +45,12 @@ export function displayContainers(containers: SandboxContainerInfo[], runtime: R
         rt.log(`  ${container.containerName}`);
         rt.log(`    Status:  ${formatStatus(container.running)}`);
         rt.log(`    Image:   ${container.image} ${formatImageMatch(container.imageMatch)}`);
-        rt.log(`    Age:     ${formatAge(Date.now() - container.createdAtMs)}`);
-        rt.log(`    Idle:    ${formatAge(Date.now() - container.lastUsedAtMs)}`);
+        rt.log(
+          `    Age:     ${formatDurationCompact(Date.now() - container.createdAtMs, { spaced: true }) ?? "0s"}`,
+        );
+        rt.log(
+          `    Idle:    ${formatDurationCompact(Date.now() - container.lastUsedAtMs, { spaced: true }) ?? "0s"}`,
+        );
         rt.log(`    Session: ${container.sessionKey}`);
         rt.log("");
       },
@@ -64,8 +73,12 @@ export function displayBrowsers(browsers: SandboxBrowserInfo[], runtime: Runtime
         if (browser.noVncPort) {
           rt.log(`    noVNC:   ${browser.noVncPort}`);
         }
-        rt.log(`    Age:     ${formatAge(Date.now() - browser.createdAtMs)}`);
-        rt.log(`    Idle:    ${formatAge(Date.now() - browser.lastUsedAtMs)}`);
+        rt.log(
+          `    Age:     ${formatDurationCompact(Date.now() - browser.createdAtMs, { spaced: true }) ?? "0s"}`,
+        );
+        rt.log(
+          `    Idle:    ${formatDurationCompact(Date.now() - browser.lastUsedAtMs, { spaced: true }) ?? "0s"}`,
+        );
         rt.log(`    Session: ${browser.sessionKey}`);
         rt.log("");
       },

@@ -4,10 +4,14 @@ import { loadConfig } from "../config/config.js";
 import { resolveAgentMaxConcurrent } from "../config/agent-limits.js";
 import { computeBackoff, sleepWithAbort } from "../infra/backoff.js";
 import { formatErrorMessage } from "../infra/errors.js";
+<<<<<<< HEAD
 import { formatDurationMs } from "../infra/format-duration.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 =======
+=======
+import { formatDurationPrecise } from "../infra/format-time/format-duration.ts";
+>>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { registerUnhandledRejectionHandler } from "../infra/unhandled-rejections.js";
 >>>>>>> 99b4f2a24 (fix(telegram): handle Grammy HttpError network failures (#3815) (#7195))
 import { resolveTelegramAccount } from "./accounts.js";
@@ -198,7 +202,7 @@ export async function monitorTelegramProvider(opts: MonitorTelegramOpts = {}) {
         const reason = isConflict ? "getUpdates conflict" : "network error";
         const errMsg = formatErrorMessage(err);
         (opts.runtime?.error ?? console.error)(
-          `Telegram ${reason}: ${errMsg}; retrying in ${formatDurationMs(delayMs)}.`,
+          `Telegram ${reason}: ${errMsg}; retrying in ${formatDurationPrecise(delayMs)}.`,
         );
         try {
           await sleepWithAbort(delayMs, opts.abortSignal);

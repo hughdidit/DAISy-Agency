@@ -8,7 +8,7 @@ import {
 } from "@buape/carbon";
 
 import { danger } from "../../globals.js";
-import { formatDurationSeconds } from "../../infra/format-duration.js";
+import { formatDurationSeconds } from "../../infra/format-time/format-duration.ts";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { setPresence } from "./presence-cache.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";

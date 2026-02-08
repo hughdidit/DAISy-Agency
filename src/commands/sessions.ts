@@ -4,7 +4,11 @@ import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { loadConfig } from "../config/config.js";
 import { loadSessionStore, resolveStorePath, type SessionEntry } from "../config/sessions.js";
 import { info } from "../globals.js";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
+>>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { isRich, theme } from "../terminal/theme.js";
 
 type SessionRow = {
@@ -90,7 +94,7 @@ const formatKindCell = (kind: SessionRow["kind"], rich: boolean) => {
 };
 
 const formatAgeCell = (updatedAt: number | null | undefined, rich: boolean) => {
-  const ageLabel = updatedAt ? formatAge(Date.now() - updatedAt) : "unknown";
+  const ageLabel = updatedAt ? formatTimeAgo(Date.now() - updatedAt) : "unknown";
   const padded = ageLabel.padEnd(AGE_PAD);
   return rich ? theme.muted(padded) : padded;
 };
@@ -114,25 +118,6 @@ const formatFlagsCell = (row: SessionRow, rich: boolean) => {
   ].filter(Boolean);
   const label = flags.join(" ");
   return label.length === 0 ? "" : rich ? theme.muted(label) : label;
-};
-
-const formatAge = (ms: number | null | undefined) => {
-  if (!ms || ms < 0) {
-    return "unknown";
-  }
-  const minutes = Math.round(ms / 60_000);
-  if (minutes < 1) {
-    return "just now";
-  }
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-  const hours = Math.round(minutes / 60);
-  if (hours < 48) {
-    return `${hours}h ago`;
-  }
-  const days = Math.round(hours / 24);
-  return `${days}d ago`;
 };
 
 function classifyKey(key: string, entry?: SessionEntry): SessionRow["kind"] {

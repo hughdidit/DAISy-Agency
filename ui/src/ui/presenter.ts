@@ -3,8 +3,12 @@ import { formatAgo, formatDurationMs, formatMs } from "./format";
 import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types";
 =======
 import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types.ts";
+<<<<<<< HEAD
 import { formatAgo, formatDurationMs, formatMs } from "./format.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+=======
+import { formatRelativeTimestamp, formatDurationHuman, formatMs } from "./format.ts";
+>>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 
 export function formatPresenceSummary(entry: PresenceEntry): string {
   const host = entry.host ?? "unknown";
@@ -16,14 +20,14 @@ export function formatPresenceSummary(entry: PresenceEntry): string {
 
 export function formatPresenceAge(entry: PresenceEntry): string {
   const ts = entry.ts ?? null;
-  return ts ? formatAgo(ts) : "n/a";
+  return ts ? formatRelativeTimestamp(ts) : "n/a";
 }
 
 export function formatNextRun(ms?: number | null) {
   if (!ms) {
     return "n/a";
   }
-  return `${formatMs(ms)} (${formatAgo(ms)})`;
+  return `${formatMs(ms)} (${formatRelativeTimestamp(ms)})`;
 }
 
 export function formatSessionTokens(row: GatewaySessionRow) {
@@ -62,7 +66,7 @@ export function formatCronSchedule(job: CronJob) {
     return Number.isFinite(atMs) ? `At ${formatMs(atMs)}` : `At ${s.at}`;
   }
   if (s.kind === "every") {
-    return `Every ${formatDurationMs(s.everyMs)}`;
+    return `Every ${formatDurationHuman(s.everyMs)}`;
   }
   return `Cron ${s.expr}${s.tz ? ` (${s.tz})` : ""}`;
 }

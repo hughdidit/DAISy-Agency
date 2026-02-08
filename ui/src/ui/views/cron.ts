@@ -5,6 +5,7 @@ import { formatMs } from "../format";
 =======
 import type { ChannelUiMetaEntry, CronJob, CronRunLogEntry, CronStatus } from "../types.ts";
 import type { CronFormState } from "../ui-types.ts";
+<<<<<<< HEAD
 import { formatMs } from "../format.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
@@ -19,6 +20,11 @@ import type { CronFormState } from "../ui-types";
 =======
 } from "../presenter.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+=======
+import { formatRelativeTimestamp, formatMs } from "../format.ts";
+import { pathForTab } from "../navigation.ts";
+import { formatCronSchedule, formatNextRun } from "../presenter.ts";
+>>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 
 export type CronProps = {
   loading: boolean;
@@ -454,7 +460,87 @@ function renderJob(job: CronJob, props: CronProps) {
   `;
 }
 
+<<<<<<< HEAD
 function renderRun(entry: CronRunLogEntry) {
+=======
+function renderJobPayload(job: CronJob) {
+  if (job.payload.kind === "systemEvent") {
+    return html`<div class="cron-job-detail">
+      <span class="cron-job-detail-label">System</span>
+      <span class="muted cron-job-detail-value">${job.payload.text}</span>
+    </div>`;
+  }
+
+  const delivery = job.delivery;
+  const deliveryTarget =
+    delivery?.channel || delivery?.to
+      ? ` (${delivery.channel ?? "last"}${delivery.to ? ` -> ${delivery.to}` : ""})`
+      : "";
+
+  return html`
+    <div class="cron-job-detail">
+      <span class="cron-job-detail-label">Prompt</span>
+      <span class="muted cron-job-detail-value">${job.payload.message}</span>
+    </div>
+    ${
+      delivery
+        ? html`<div class="cron-job-detail">
+            <span class="cron-job-detail-label">Delivery</span>
+            <span class="muted cron-job-detail-value">${delivery.mode}${deliveryTarget}</span>
+          </div>`
+        : nothing
+    }
+  `;
+}
+
+function formatStateRelative(ms?: number) {
+  if (typeof ms !== "number" || !Number.isFinite(ms)) {
+    return "n/a";
+  }
+  return formatRelativeTimestamp(ms);
+}
+
+function renderJobState(job: CronJob) {
+  const status = job.state?.lastStatus ?? "n/a";
+  const statusClass =
+    status === "ok"
+      ? "cron-job-status-ok"
+      : status === "error"
+        ? "cron-job-status-error"
+        : status === "skipped"
+          ? "cron-job-status-skipped"
+          : "cron-job-status-na";
+  const nextRunAtMs = job.state?.nextRunAtMs;
+  const lastRunAtMs = job.state?.lastRunAtMs;
+
+  return html`
+    <div class="cron-job-state">
+      <div class="cron-job-state-row">
+        <span class="cron-job-state-key">Status</span>
+        <span class=${`cron-job-status-pill ${statusClass}`}>${status}</span>
+      </div>
+      <div class="cron-job-state-row">
+        <span class="cron-job-state-key">Next</span>
+        <span class="cron-job-state-value" title=${formatMs(nextRunAtMs)}>
+          ${formatStateRelative(nextRunAtMs)}
+        </span>
+      </div>
+      <div class="cron-job-state-row">
+        <span class="cron-job-state-key">Last</span>
+        <span class="cron-job-state-value" title=${formatMs(lastRunAtMs)}>
+          ${formatStateRelative(lastRunAtMs)}
+        </span>
+      </div>
+    </div>
+  `;
+}
+
+function renderRun(entry: CronRunLogEntry, basePath: string) {
+  const chatUrl =
+    typeof entry.sessionKey === "string" && entry.sessionKey.trim().length > 0
+      ? `${pathForTab("chat", basePath)}?session=${encodeURIComponent(entry.sessionKey)}`
+      : null;
+>>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
   return html`
     <div class="list-item">
       <div class="list-main">

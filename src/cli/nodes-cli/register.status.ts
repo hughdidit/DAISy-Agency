@@ -1,7 +1,18 @@
 import type { Command } from "commander";
+<<<<<<< HEAD
 import { defaultRuntime } from "../../runtime.js";
 import { formatAge, formatPermissions, parseNodeList, parsePairingList } from "./format.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
+=======
+import type { NodesRpcOpts } from "./types.js";
+import { formatTimeAgo } from "../../infra/format-time/format-relative.ts";
+import { defaultRuntime } from "../../runtime.js";
+import { renderTable } from "../../terminal/table.js";
+import { shortenHomeInString } from "../../utils.js";
+import { parseDurationMs } from "../parse-duration.js";
+import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
+import { formatPermissions, parseNodeList, parsePairingList } from "./format.js";
+>>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 import type { NodesRpcOpts } from "./types.js";
 import { renderTable } from "../../terminal/table.js";
@@ -180,7 +191,7 @@ export function registerNodesStatusCommands(nodes: Command) {
             const connected = n.connected ? ok("connected") : muted("disconnected");
             const since =
               typeof n.connectedAtMs === "number"
-                ? ` (${formatAge(Math.max(0, now - n.connectedAtMs))} ago)`
+                ? ` (${formatTimeAgo(Math.max(0, now - n.connectedAtMs))})`
                 : "";
 
             return {
@@ -365,7 +376,7 @@ export function registerNodesStatusCommands(nodes: Command) {
               IP: r.remoteIp ?? "",
               Requested:
                 typeof r.ts === "number"
-                  ? `${formatAge(Math.max(0, now - r.ts))} ago`
+                  ? formatTimeAgo(Math.max(0, now - r.ts))
                   : muted("unknown"),
               Repair: r.isRepair ? warn("yes") : "",
             }));
@@ -401,7 +412,7 @@ export function registerNodesStatusCommands(nodes: Command) {
                 IP: n.remoteIp ?? "",
                 LastConnect:
                   typeof lastConnectedAtMs === "number"
-                    ? `${formatAge(Math.max(0, now - lastConnectedAtMs))} ago`
+                    ? formatTimeAgo(Math.max(0, now - lastConnectedAtMs))
                     : muted("unknown"),
               };
             });
