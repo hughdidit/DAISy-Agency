@@ -573,7 +573,8 @@ if [[ "${APPLY}" == "true" ]]; then
         echo "${sha} | ${subject} | ${cat}" >> "${CONFLICT_FILE}"
         CONFLICT_COUNT=$((CONFLICT_COUNT + 1))
         # Commit with conflict markers so the PR shows exactly what needs resolution
-        git add -A 2>/dev/null || true
+        # Only stage unmerged (conflicting) files — not untracked report/conflict files
+        git diff --name-only --diff-filter=U -z 2>/dev/null | xargs -0 git add 2>/dev/null || true
         git commit --no-edit -m "CONFLICT: ${subject}
 
 (cherry picked from commit ${sha})
