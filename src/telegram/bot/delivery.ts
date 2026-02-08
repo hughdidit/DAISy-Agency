@@ -476,8 +476,12 @@ async function sendTelegramVoiceFallbackText(opts: {
 
 function buildTelegramSendParams(opts?: {
   replyToMessageId?: number;
+<<<<<<< HEAD
   messageThreadId?: number;
   replyQuoteText?: string;
+=======
+  thread?: TelegramThreadSpec | null;
+>>>>>>> 1c1d7fa0e (fix(telegram): make quote parsing/types CI-safe)
 }): Record<string, unknown> {
   const threadParams = buildTelegramThreadParams(opts?.messageThreadId);
   const params: Record<string, unknown> = {};
@@ -507,8 +511,12 @@ async function sendTelegramText(
 ): Promise<number | undefined> {
   const baseParams = buildTelegramSendParams({
     replyToMessageId: opts?.replyToMessageId,
+<<<<<<< HEAD
     replyQuoteText: opts?.replyQuoteText,
     messageThreadId: opts?.messageThreadId,
+=======
+    thread: opts?.thread,
+>>>>>>> 1c1d7fa0e (fix(telegram): make quote parsing/types CI-safe)
   });
   // Add link_preview_options when link preview is disabled.
   const linkPreviewEnabled = opts?.linkPreview ?? true;
