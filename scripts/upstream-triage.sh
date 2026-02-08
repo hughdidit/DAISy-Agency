@@ -222,27 +222,27 @@ classify_commit() {
   subject_lower="$(echo "${subject}" | tr '[:upper:]' '[:lower:]')"
 
   # 1. deps/security
-  if echo "${files}" | grep -qE '(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|dependabot\.yml|patches/)'; then
+  if grep -qE '(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|dependabot\.yml|patches/)' <<< "${files}"; then
     echo "deps/security"
     return
   fi
-  if echo "${subject_lower}" | grep -qiE '(security|cve|bump|dependabot|vulnerability)'; then
+  if [[ "${subject_lower}" =~ (security|cve|bump|dependabot|vulnerability) ]]; then
     echo "deps/security"
     return
   fi
 
   # 2. ci
-  if echo "${files}" | grep -qE '^\.github/workflows/'; then
+  if grep -qE '^\.github/workflows/' <<< "${files}"; then
     echo "ci"
     return
   fi
-  if echo "${subject_lower}" | grep -qE '^ci:'; then
+  if [[ "${subject_lower}" =~ ^ci: ]]; then
     echo "ci"
     return
   fi
 
   # 3. bugfix
-  if echo "${subject_lower}" | grep -qiE '(^fix:|bug|crash|regression)'; then
+  if [[ "${subject_lower}" =~ (^fix:|bug|crash|regression) ]]; then
     echo "bugfix"
     return
   fi
@@ -253,11 +253,11 @@ classify_commit() {
     local has_docs="false"
     while IFS= read -r f; do
       [[ -z "${f}" ]] && continue
-      if echo "${f}" | grep -qE '^(src/|packages/|scripts/)'; then
+      if [[ "${f}" =~ ^(src/|packages/|scripts/) ]]; then
         has_code="true"
         break
       fi
-      if echo "${f}" | grep -qE '(^docs/|\.md$)'; then
+      if [[ "${f}" =~ (^docs/|\.md$) ]]; then
         has_docs="true"
       fi
     done <<< "${files}"
@@ -291,15 +291,15 @@ score_commit() {
   fi
 
   # Sensitive paths
-  if echo "${files}" | grep -qE '(deploy|docker-compose|auth|secrets)'; then
+  if grep -qE '(deploy|docker-compose|auth|secrets)' <<< "${files}"; then
     score=$((score + 1))
   fi
 
   # Message keywords
-  if echo "${subject_lower}" | grep -qiE '(revert|breaking)'; then
+  if [[ "${subject_lower}" =~ (revert|breaking) ]]; then
     score=$((score + 1))
   fi
-  if echo "${subject_lower}" | grep -qiE 'refactor'; then
+  if [[ "${subject_lower}" =~ refactor ]]; then
     score=$((score + 1))
   fi
 
@@ -567,6 +567,10 @@ if [[ "${APPLY}" == "true" ]]; then
   # Fork divergence is handled naturally when the PR is merged into daisy/dev.
   log "Creating cherry-pick topic branches from ${MIRROR_REF} (no upstream code will be executed)..."
 
+  # Stash working tree — the workflow's chmod +x (and any other drift between
+  # daisy/dev and origin/main) would block checkout to the cherry-pick base.
+  git stash --quiet 2>/dev/null || true
+
   CONFLICT_COUNT=0
   declare -A BRANCH_NAMES  # category -> branch name (for open-pr)
 
@@ -617,6 +621,9 @@ if [[ "${APPLY}" == "true" ]]; then
     # Return to base branch
     git checkout "${BASE_REF}" --quiet
   done
+
+  # Restore stashed working tree
+  git stash pop --quiet 2>/dev/null || true
 
   if [[ "${CONFLICT_COUNT}" -gt 0 ]]; then
     warn "${CONFLICT_COUNT} conflict(s) committed with markers — resolve in PR review"
