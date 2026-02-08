@@ -11,6 +11,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.31
 =======
 =======
@@ -79,6 +80,22 @@ Docs: https://docs.openclaw.ai
 - macOS: fix cron payload summary rendering and ISO 8601 formatter concurrency safety.
 >>>>>>> 54ddbc466 (chore: update 2026.2.3 notes)
 =======
+=======
+## 2026.2.6-4
+
+### Added
+
+- Gateway: add `agents.create`, `agents.update`, `agents.delete` RPC methods for web UI agent management. (#11045) Thanks @advaitpaliwal.
+
+### Fixes
+
+- Agents: recover from context overflow caused by oversized tool results (pre-emptive capping + fallback truncation). (#11579) Thanks @tyler6204.
+- Gateway/CLI: when `gateway.bind=lan`, use a LAN IP for probe URLs and Control UI links. (#11448) Thanks @AnonO6.
+- Memory: set Voyage embeddings `input_type` for improved retrieval. (#10818) Thanks @mcinteerj.
+- Memory/QMD: run boot refresh in background by default, add configurable QMD maintenance timeouts, and retry QMD after fallback failures. (#9690, #9705)
+- Media understanding: recognize `.caf` audio attachments for transcription. (#10982) Thanks @succ985.
+
+>>>>>>> a30c4f45c (Update CHANGELOG.md for version 2026.2.6-4: Added RPC methods for agent management, fixed context overflow recovery, improved LAN IP handling, enhanced memory retrieval, and updated media understanding for audio transcription.)
 ## 2026.2.6
 
 ### Changes
@@ -92,8 +109,21 @@ Docs: https://docs.openclaw.ai
 - CI: optimize pipeline throughput (macOS consolidation, Windows perf, workflow concurrency). (#10784) Thanks @mcaxtr.
 - Agents: bump pi-mono to 0.52.7; add embedded forward-compat fallback for Opus 4.6 model ids.
 
+<<<<<<< HEAD
 ### Fixes
 
+=======
+### Added
+
+- Cron: run history deep-links to session chat from the dashboard. (#10776) Thanks @tyler6204.
+- Cron: per-run session keys in run log entries and default labels for cron sessions. (#10776) Thanks @tyler6204.
+- Cron: legacy payload field compatibility (`deliver`, `channel`, `to`, `bestEffortDeliver`) in schema. (#10776) Thanks @tyler6204.
+
+### Fixes
+
+- Cron: scheduler reliability (timer drift, restart catch-up, lock contention, stale running markers). (#10776) Thanks @tyler6204.
+- Cron: store migration hardening (legacy field migration, parse error handling, explicit delivery mode persistence). (#10776) Thanks @tyler6204.
+>>>>>>> a30c4f45c (Update CHANGELOG.md for version 2026.2.6-4: Added RPC methods for agent management, fixed context overflow recovery, improved LAN IP handling, enhanced memory retrieval, and updated media understanding for audio transcription.)
 - Telegram: auto-inject DM topic threadId in message tool + subagent announce. (#7235) Thanks @Lukavyi.
 - Security: require auth for Gateway canvas host and A2UI assets. (#9518) Thanks @coygeek.
 - Cron: fix scheduling and reminder delivery regressions; harden next-run recompute + timer re-arming + legacy schedule fields. (#9733, #9823, #9948, #9932) Thanks @tyler6204, @pycckuu, @j2h4u, @fujiwara-tofu-shop.
