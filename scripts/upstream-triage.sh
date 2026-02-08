@@ -621,13 +621,14 @@ if [[ "${APPLY}" == "true" ]]; then
 
     for sha in "${shas[@]}"; do
       if ! git cherry-pick -x "${sha}" --no-edit 2>/dev/null; then
-        # Cherry-picks onto upstream lineage should be clean; structural
-        # conflicts (delete/modify, rename/rename) are still possible
+        # Conflict — commit with markers intact so the PR reviewer can resolve
         subject="$(git log -1 --format='%s' "${sha}" 2>/dev/null || echo "unknown")"
-        warn "    Conflict cherry-picking ${sha:0:8}: ${subject}"
+        warn "    Conflict cherry-picking ${sha:0:8}: ${subject} (committed with markers)"
         echo "${sha} | ${subject} | ${cat}" >> "${CONFLICT_FILE}"
         CONFLICT_COUNT=$((CONFLICT_COUNT + 1))
-        git cherry-pick --abort 2>/dev/null || true
+        # Stage all files (including those with conflict markers) and commit
+        git add -A
+        git commit --no-edit --allow-empty 2>/dev/null || true
       else
         log "    Applied ${sha:0:8}"
       fi
