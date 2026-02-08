@@ -8,7 +8,7 @@ import type { UiSettings } from "../storage";
 =======
 import type { GatewayHelloOk } from "../gateway.ts";
 import type { UiSettings } from "../storage.ts";
-import { formatAgo, formatDurationMs } from "../format.ts";
+import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
 import { formatNextRun } from "../presenter.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
@@ -34,7 +34,7 @@ export function renderOverview(props: OverviewProps) {
   const snapshot = props.hello?.snapshot as
     | { uptimeMs?: number; policy?: { tickIntervalMs?: number } }
     | undefined;
-  const uptime = snapshot?.uptimeMs ? formatDurationMs(snapshot.uptimeMs) : "n/a";
+  const uptime = snapshot?.uptimeMs ? formatDurationHuman(snapshot.uptimeMs) : "n/a";
   const tick = snapshot?.policy?.tickIntervalMs ? `${snapshot.policy.tickIntervalMs}ms` : "n/a";
   const authHint = (() => {
     if (props.connected || !props.lastError) {
@@ -219,7 +219,7 @@ export function renderOverview(props: OverviewProps) {
           <div class="stat">
             <div class="stat-label">Last Channels Refresh</div>
             <div class="stat-value">
-              ${props.lastChannelsRefresh ? formatAgo(props.lastChannelsRefresh) : "n/a"}
+              ${props.lastChannelsRefresh ? formatRelativeTimestamp(props.lastChannelsRefresh) : "n/a"}
             </div>
           </div>
         </div>

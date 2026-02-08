@@ -94,7 +94,7 @@ AGENTS.md
 AGENTS.md.bak.md
 =======
 # Agent credentials and memory (NEVER COMMIT)
-memory/
+/memory/
 .agent/*.json
 !.agent/workflows/
 <<<<<<< HEAD

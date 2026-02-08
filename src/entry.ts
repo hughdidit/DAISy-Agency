@@ -4,8 +4,13 @@ import path from "node:path";
 import process from "node:process";
 
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
+<<<<<<< HEAD
 import { isTruthyEnvValue } from "./infra/env.js";
 import { installProcessWarningFilter } from "./infra/warnings.js";
+=======
+import { isTruthyEnvValue, normalizeEnv } from "./infra/env.js";
+import { installProcessWarningFilter } from "./infra/warning-filter.js";
+>>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { attachChildProcessBridge } from "./process/child-process-bridge.js";
 
 process.title = "moltbot";
