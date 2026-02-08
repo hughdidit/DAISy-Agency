@@ -520,6 +520,11 @@ Docs: https://docs.openclaw.ai
 - Cron: `cron run` defaults to force execution; use `--due` to restrict to due-only. (#10776) Thanks @tyler6204.
 - Models: support Anthropic Opus 4.6 and OpenAI Codex gpt-5.3-codex (forward-compat fallbacks). (#9853, #10720, #9995) Thanks @TinyTb, @calvin-hpnet, @tyler6204.
 - Providers: add xAI (Grok) support. (#9885) Thanks @grp06.
+<<<<<<< HEAD
+=======
+- Providers: add Baidu Qianfan support. (#8868) Thanks @ide-rea.
+- Providers: add NVIDIA API support with models including Llama 3.1 Nemotron 70B, Llama 3.3 70B, and Mistral NeMo Minitron 8B.
+>>>>>>> c640b5f86 (feat: add NVIDIA API provider integration)
 - Web UI: add token usage dashboard. (#10072) Thanks @Takhoffman.
 - Memory: native Voyage AI support. (#7078) Thanks @mcinteerj.
 - Sessions: cap sessions_history payloads to reduce context overflow. (#10000) Thanks @gut-puncture.
