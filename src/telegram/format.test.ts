@@ -59,4 +59,27 @@ describe("markdownToTelegramHtml", () => {
     const res = markdownToTelegramHtml("**bold [link](https://example.com) text**");
     expect(res).toBe('<b>bold <a href="https://example.com">link</a> text</b>');
   });
+<<<<<<< HEAD
+=======
+
+  it("properly nests bold wrapping a link with trailing text", () => {
+    const res = markdownToTelegramHtml("**[link](https://example.com) rest**");
+    expect(res).toBe('<b><a href="https://example.com">link</a> rest</b>');
+  });
+
+  it("properly nests bold inside a link", () => {
+    const res = markdownToTelegramHtml("[**bold**](https://example.com)");
+    expect(res).toBe('<a href="https://example.com"><b>bold</b></a>');
+  });
+
+  it("renders spoiler tags", () => {
+    const res = markdownToTelegramHtml("the answer is ||42||");
+    expect(res).toBe("the answer is <tg-spoiler>42</tg-spoiler>");
+  });
+
+  it("renders spoiler with nested formatting", () => {
+    const res = markdownToTelegramHtml("||**secret** text||");
+    expect(res).toBe("<tg-spoiler><b>secret</b> text</tg-spoiler>");
+  });
+>>>>>>> e02d144af (feat(telegram): add spoiler tag support (#11543))
 });
