@@ -34,11 +34,11 @@ AI_TRIAGE="false"
 APPLY="false"
 OPEN_PR="false"
 TODAY="$(date +%Y-%m-%d)"
+RUN_TS="$(date +%Y-%m-%d-%H%M)"  # date+time for unique branch names
 REPORT_DIR="docs/upstream-candidates"
 REPORT_FILE=""
 CONFLICT_FILE=""
-MIRROR_REF="origin/main"   # upstream mirror on fork (tracks what we've synced)
-PREV_MAIN=""               # pre-sync position of MIRROR_REF (set in apply mode)
+MIRROR_REF="origin/main"   # upstream mirror on fork
 
 # =============================================================================
 # Usage
@@ -121,8 +121,8 @@ warn() { echo "WARN: $*" >&2; }
 err()  { echo "ERROR: $*" >&2; }
 
 # push_ref REFSPEC
-# Pushes a ref to origin. Tries git push first; if that fails (e.g. GITHUB_TOKEN
-# can't update workflow files), falls back to the GitHub API.
+# Pushes a ref to origin. Tries git push first; falls back to the GitHub API
+# if push fails (e.g. branches containing workflow file changes).
 push_ref() {
   local refspec="$1"
   if git push origin "${refspec}" --quiet 2>/dev/null; then
@@ -177,14 +177,12 @@ if ! git rev-parse --verify "${MIRROR_REF}" &>/dev/null; then
 fi
 
 # =============================================================================
-# Sync origin/main to upstream (apply mode only)
+# Record scan base (apply mode syncs origin/main after cherry-picks)
 # =============================================================================
 
 SCAN_BASE="${MIRROR_REF}"
 
 if [[ "${APPLY}" == "true" ]]; then
-  log "Syncing origin/main to upstream/main..."
-
   # Validate upstream remote points to the expected repository
   UPSTREAM_URL="$(git remote get-url upstream 2>/dev/null)"
   if [[ "${UPSTREAM_URL}" != *"moltbot/moltbot"* ]]; then
@@ -193,10 +191,6 @@ if [[ "${APPLY}" == "true" ]]; then
     exit 1
   fi
 
-  # Record current mirror position before fast-forward
-  PREV_MAIN="$(git rev-parse "${MIRROR_REF}")"
-  log "  Pre-sync origin/main: ${PREV_MAIN:0:8}"
-
   # Verify fast-forward is possible (mirror must be ancestor of upstream)
   if ! git merge-base --is-ancestor "${MIRROR_REF}" "${UPSTREAM_REF}"; then
     err "origin/main is not an ancestor of upstream/main — cannot fast-forward."
@@ -204,26 +198,7 @@ if [[ "${APPLY}" == "true" ]]; then
     exit 1
   fi
 
-  # Fast-forward origin/main to upstream/main
-  if [[ "$(git rev-parse "${MIRROR_REF}")" == "$(git rev-parse "${UPSTREAM_REF}")" ]]; then
-    log "  origin/main is already at upstream/main; nothing to sync"
-  else
-    if push_ref "${UPSTREAM_REF}:refs/heads/main"; then
-      log "  Pushed upstream/main → origin/main"
-    else
-      err "Failed to update origin/main. Upstream may include workflow file changes"
-      err "that require a PAT with 'workflows' scope. Set GITHUB_TOKEN to a PAT or"
-      err "manually run: git push origin upstream/main:refs/heads/main"
-      exit 1
-    fi
-  fi
-
-  # Re-fetch so local tracking refs are up to date
-  git fetch origin --quiet
-
-  # In apply mode, scan from pre-sync position
-  SCAN_BASE="${PREV_MAIN}"
-  log "  Scan range: ${PREV_MAIN:0:8}..${UPSTREAM_REF}"
+  log "Scan base: ${MIRROR_REF} (will sync to ${UPSTREAM_REF} after cherry-picks)"
 fi
 
 # =============================================================================
@@ -232,13 +207,14 @@ fi
 
 log "Collecting commits in ${UPSTREAM_REF} not in ${SCAN_BASE}..."
 
-MAX_FLAG=""
-if [[ -n "${MAX_COMMITS}" ]]; then
-  MAX_FLAG="--max-count=${MAX_COMMITS}"
-fi
-
 # Format: SHA␟subject␟author␟date (fields separated by ASCII Unit Separator %x1f)
-COMMITS="$(git log ${MAX_FLAG} --format='%H%x1f%s%x1f%an%x1f%ai' "${SCAN_BASE}..${UPSTREAM_REF}" --)"
+# --reverse gives oldest-first so --max takes the N oldest (next in sequence),
+# not the N newest (which would skip intermediate commits and cause conflicts)
+if [[ -n "${MAX_COMMITS}" ]]; then
+  COMMITS="$(git log --reverse --format='%H%x1f%s%x1f%an%x1f%ai' "${SCAN_BASE}..${UPSTREAM_REF}" -- | head -n "${MAX_COMMITS}")"
+else
+  COMMITS="$(git log --reverse --format='%H%x1f%s%x1f%an%x1f%ai' "${SCAN_BASE}..${UPSTREAM_REF}" --)"
+fi
 
 if [[ -z "${COMMITS}" ]]; then
   log "No new upstream commits found. Mirror is up to date with upstream."
@@ -598,61 +574,52 @@ if [[ "${APPLY}" == "true" ]]; then
   # No cherry-picked code is executed, sourced, or tested by this script.
   # The branches exist solely for human review via PR.
   #
-  # Cherry-picks are applied onto branches starting from PREV_MAIN (the
-  # pre-sync position of origin/main). Since upstream commits apply cleanly
-  # on their own lineage, conflicts here are unexpected. Fork divergence
-  # is handled naturally when the PR is merged into daisy/dev.
-  log "Creating cherry-pick topic branches from ${PREV_MAIN:0:8} (no upstream code will be executed)..."
+  # Cherry-picks are applied onto branches starting from origin/main.
+  # Since upstream commits apply cleanly on their own lineage, conflicts
+  # here are unexpected. Fork divergence is handled naturally when the
+  # PR is merged into daisy/dev.
+  log "Creating cherry-pick topic branches from ${MIRROR_REF} (no upstream code will be executed)..."
 
   # Stash any working tree changes (e.g. generated report) before switching
-  # branches — the checkout to PREV_MAIN will fail if files differ
+  # branches — checkout to origin/main will fail if files differ
   git stash --quiet 2>/dev/null || true
 
   CONFLICT_FILE="${REPORT_DIR}/conflicts-${TODAY}.txt"
   : > "${CONFLICT_FILE}"
   CONFLICT_COUNT=0
+  declare -A BRANCH_NAMES  # category -> branch name (for open-pr)
 
   # Cherry-pick all categories into throwaway branches for human review
   for cat in "${CATEGORIES[@]}"; do
     count="${CAT_COUNTS[${cat}]}"
     [[ "${count}" -eq 0 ]] && continue
 
-    # Branch name: cherry/<type>-YYYY-MM-DD
+    # Branch name: cherry/<type>-YYYY-MM-DD-HHMM (serial suffix on rare collision)
     branch_slug="${cat//\//-}"
-    branch_name="cherry/${branch_slug}-${TODAY}"
+    branch_name="cherry/${branch_slug}-${RUN_TS}"
+    if git rev-parse --verify "${branch_name}" &>/dev/null \
+       || git ls-remote --heads origin "${branch_name}" 2>/dev/null | grep -q .; then
+      serial=2
+      while git rev-parse --verify "${branch_name}_${serial}" &>/dev/null \
+         || git ls-remote --heads origin "${branch_name}_${serial}" 2>/dev/null | grep -q .; do
+        serial=$((serial + 1))
+      done
+      branch_name="${branch_name}_${serial}"
+    fi
 
     log "  Branch: ${branch_name} (${count} commits)"
+    BRANCH_NAMES["${cat}"]="${branch_name}"
 
-    # Delete older branches for this category (current run supersedes them)
-    while IFS= read -r old_branch; do
-      [[ -z "${old_branch}" ]] && continue
-      old_branch="${old_branch## }"          # trim leading whitespace
-      old_branch="${old_branch##remotes/origin/}"
-      [[ "${old_branch}" == "${branch_name}" ]] && continue  # keep current
-      log "    Removing superseded branch: ${old_branch}"
-      git branch -D "${old_branch}" 2>/dev/null || true
-      git push origin --delete "${old_branch}" 2>/dev/null || true
-    done < <(git branch -a --list "*cherry/${branch_slug}-*" | sed 's|^[ *]*||')
+    git checkout -b "${branch_name}" "${MIRROR_REF}" --quiet
 
-    # Always create fresh branch from PREV_MAIN (delete if exists from prior run, including remote)
-    git branch -D "${branch_name}" 2>/dev/null || true
-    git push origin --delete "${branch_name}" 2>/dev/null || true
-    git checkout -b "${branch_name}" "${PREV_MAIN}" --quiet
-
-    # Cherry-pick commits oldest-first (reverse the log order)
+    # Cherry-pick commits (already in chronological order from --reverse log)
     shas=()
     while IFS=$'\x1f' read -r sha _rest; do
       [[ -z "${sha}" ]] && continue
       shas+=("${sha}")
     done <<< "${CAT_COMMITS[${cat}]}"
 
-    # Reverse array for chronological order
-    reversed=()
-    for (( i=${#shas[@]}-1; i>=0; i-- )); do
-      reversed+=("${shas[i]}")
-    done
-
-    for sha in "${reversed[@]}"; do
+    for sha in "${shas[@]}"; do
       if ! git cherry-pick -x "${sha}" --no-edit 2>/dev/null; then
         # Cherry-picks onto upstream lineage should be clean; structural
         # conflicts (delete/modify, rename/rename) are still possible
@@ -706,25 +673,17 @@ if [[ "${OPEN_PR}" == "true" ]]; then
     count="${CAT_COUNTS[${cat}]}"
     [[ "${count}" -eq 0 ]] && continue
 
-    branch_slug="${cat//\//-}"
-    branch_name="cherry/${branch_slug}-${TODAY}"
-
-    # Verify branch exists and has commits ahead of base
-    if ! git rev-parse --verify "${branch_name}" &>/dev/null; then
-      warn "Branch ${branch_name} not found; skipping PR"
+    branch_name="${BRANCH_NAMES[${cat}]:-}"
+    if [[ -z "${branch_name}" ]]; then
+      warn "No branch recorded for ${cat}; skipping PR"
       continue
     fi
+
+    # Verify branch has commits ahead of base
     ahead_count="$(git rev-list --count "${BASE_REF}..${branch_name}" 2>/dev/null || echo 0)"
     if [[ "${ahead_count}" -eq 0 ]]; then
       log "  ${branch_name} has no new commits (all already in ${BASE_REF}); skipping"
       git branch -D "${branch_name}" 2>/dev/null || true
-      continue
-    fi
-
-    # Check for existing PR
-    existing_pr="$(gh pr list --repo "${GH_REPO}" --head "${branch_name}" --base "${BASE_REF}" --json number --jq '.[0].number' 2>/dev/null || true)"
-    if [[ -n "${existing_pr}" ]]; then
-      log "  PR #${existing_pr} already exists for ${branch_name}; skipping"
       continue
     fi
 
@@ -751,10 +710,10 @@ if [[ "${OPEN_PR}" == "true" ]]; then
 
 Automated cherry-pick of upstream \`${cat}\` commits from \`${UPSTREAM_REF}\`.
 
-This branch was created from \`origin/main\` (pre-sync position \`${PREV_MAIN:0:8}\`),
-so cherry-picks apply cleanly on their own upstream lineage. Any merge conflicts
-in this PR are due to fork divergence in \`${BASE_REF}\` and should be resolved
-during merge (not in the cherry-picks themselves).
+This branch was created from \`origin/main\`, so cherry-picks apply cleanly on
+their own upstream lineage. Any merge conflicts in this PR are due to fork
+divergence in \`${BASE_REF}\` and should be resolved during merge (not in the
+cherry-picks themselves).
 
 > **No upstream code was executed.** These commits were classified by metadata
 > (commit subjects and file paths) and cherry-picked onto a throwaway branch
@@ -800,6 +759,22 @@ EOPR
       warn "  Failed to create PR for ${branch_name}: ${pr_url}"
     fi
   done
+fi
+
+# =============================================================================
+# --apply: Advance origin/main to upstream/main
+# =============================================================================
+# Sync happens AFTER cherry-picks and PRs so that a mid-run failure doesn't
+# advance the bookmark past unprocessed commits. On rerun, the same scan
+# range is used and branches are recreated.
+
+if [[ "${APPLY}" == "true" ]]; then
+  log "Advancing origin/main to ${UPSTREAM_REF}..."
+  if push_ref "${UPSTREAM_REF}:refs/heads/main"; then
+    log "  origin/main synced to $(git rev-parse "${UPSTREAM_REF}" | head -c 8)"
+  else
+    warn "Failed to advance origin/main — next run will re-scan these commits"
+  fi
 fi
 
 # =============================================================================
