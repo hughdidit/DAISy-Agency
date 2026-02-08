@@ -46,7 +46,34 @@ describe("state + config path candidates", () => {
     expect(resolveStateDir(env, () => "/home/test")).toBe(path.resolve("/new/state"));
   });
 
+<<<<<<< HEAD
   it("orders default config candidates as new then legacy", () => {
+=======
+  it("uses OPENCLAW_HOME for default state/config locations", () => {
+    const env = {
+      OPENCLAW_HOME: "/srv/openclaw-home",
+    } as NodeJS.ProcessEnv;
+
+    expect(resolveStateDir(env)).toBe(path.join("/srv/openclaw-home", ".openclaw"));
+
+    const candidates = resolveDefaultConfigCandidates(env);
+    expect(candidates[0]).toBe(path.join("/srv/openclaw-home", ".openclaw", "openclaw.json"));
+  });
+
+  it("prefers OPENCLAW_HOME over HOME for default state/config locations", () => {
+    const env = {
+      OPENCLAW_HOME: "/srv/openclaw-home",
+      HOME: "/home/other",
+    } as NodeJS.ProcessEnv;
+
+    expect(resolveStateDir(env)).toBe(path.join("/srv/openclaw-home", ".openclaw"));
+
+    const candidates = resolveDefaultConfigCandidates(env);
+    expect(candidates[0]).toBe(path.join("/srv/openclaw-home", ".openclaw", "openclaw.json"));
+  });
+
+  it("orders default config candidates in a stable order", () => {
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
     const home = "/home/test";
     const candidates = resolveDefaultConfigCandidates({} as NodeJS.ProcessEnv, () => home);
 <<<<<<< HEAD

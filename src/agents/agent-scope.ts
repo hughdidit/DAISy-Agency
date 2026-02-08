@@ -1,4 +1,3 @@
-import os from "node:os";
 import path from "node:path";
 
 import type { MoltbotConfig } from "../config/config.js";
@@ -9,7 +8,7 @@ import {
   parseAgentSessionKey,
 } from "../routing/session-key.js";
 import { resolveUserPath } from "../utils.js";
-import { DEFAULT_AGENT_WORKSPACE_DIR } from "./workspace.js";
+import { resolveDefaultAgentWorkspaceDir } from "./workspace.js";
 
 export { resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 
@@ -181,9 +180,14 @@ export function resolveAgentWorkspaceDir(cfg: MoltbotConfig, agentId: string) {
     if (fallback) {
       return resolveUserPath(fallback);
     }
-    return DEFAULT_AGENT_WORKSPACE_DIR;
+    return resolveDefaultAgentWorkspaceDir(process.env);
   }
+<<<<<<< HEAD
   return path.join(os.homedir(), `clawd-${id}`);
+=======
+  const stateDir = resolveStateDir(process.env);
+  return path.join(stateDir, `workspace-${id}`);
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 }
 
 export function resolveAgentDir(cfg: MoltbotConfig, agentId: string) {
@@ -192,6 +196,6 @@ export function resolveAgentDir(cfg: MoltbotConfig, agentId: string) {
   if (configured) {
     return resolveUserPath(configured);
   }
-  const root = resolveStateDir(process.env, os.homedir);
+  const root = resolveStateDir(process.env);
   return path.join(root, "agents", id, "agent");
 }

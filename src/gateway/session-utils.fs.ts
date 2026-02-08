@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { resolveSessionTranscriptPath } from "../config/sessions.js";
+import { resolveRequiredHomeDir } from "../infra/home-dir.js";
 import { extractToolCallNames, hasToolCall } from "../utils/transcript-tools.js";
 import { stripEnvelope } from "./chat-sanitize.js";
 import type { SessionPreviewItem } from "./session-utils.types.js";
@@ -71,7 +72,12 @@ export function resolveSessionTranscriptCandidates(
   if (agentId) {
     candidates.push(resolveSessionTranscriptPath(sessionId, agentId));
   }
+<<<<<<< HEAD
   candidates.push(path.join(os.homedir(), ".clawdbot", "sessions", `${sessionId}.jsonl`));
+=======
+  const home = resolveRequiredHomeDir(process.env, os.homedir);
+  candidates.push(path.join(home, ".openclaw", "sessions", `${sessionId}.jsonl`));
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
   return candidates;
 }
 

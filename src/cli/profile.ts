@@ -1,6 +1,10 @@
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+import { resolveRequiredHomeDir } from "../infra/home-dir.js";
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 import { isValidProfileName } from "./profile-utils.js";
 
 export type CliProfileParseResult =
@@ -88,9 +92,17 @@ export function parseCliProfileArgs(argv: string[]): CliProfileParseResult {
   return { ok: true, profile, argv: out };
 }
 
-function resolveProfileStateDir(profile: string, homedir: () => string): string {
+function resolveProfileStateDir(
+  profile: string,
+  env: Record<string, string | undefined>,
+  homedir: () => string,
+): string {
   const suffix = profile.toLowerCase() === "default" ? "" : `-${profile}`;
+<<<<<<< HEAD
   return path.join(homedir(), `.clawdbot${suffix}`);
+=======
+  return path.join(resolveRequiredHomeDir(env as NodeJS.ProcessEnv, homedir), `.openclaw${suffix}`);
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 }
 
 export function applyCliProfileEnv(params: {
@@ -109,10 +121,14 @@ export function applyCliProfileEnv(params: {
   env.CLAWDBOT_PROFILE = profile;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   const stateDir = env.CLAWDBOT_STATE_DIR?.trim() || resolveProfileStateDir(profile, homedir);
   if (!env.CLAWDBOT_STATE_DIR?.trim()) env.CLAWDBOT_STATE_DIR = stateDir;
 =======
   const stateDir = env.OPENCLAW_STATE_DIR?.trim() || resolveProfileStateDir(profile, homedir);
+=======
+  const stateDir = env.OPENCLAW_STATE_DIR?.trim() || resolveProfileStateDir(profile, env, homedir);
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
   if (!env.OPENCLAW_STATE_DIR?.trim()) {
     env.OPENCLAW_STATE_DIR = stateDir;
   }

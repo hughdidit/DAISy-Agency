@@ -35,7 +35,49 @@ describe("Nix integration (U3, U5, U9)", () => {
   });
 
   describe("U5: CONFIG_PATH and STATE_DIR env var overrides", () => {
+<<<<<<< HEAD
     it("STATE_DIR defaults to ~/.clawdbot when env not set", async () => {
+=======
+    it("STATE_DIR defaults to ~/.openclaw when env not set", async () => {
+      await withEnvOverride({ OPENCLAW_STATE_DIR: undefined }, async () => {
+        const { STATE_DIR } = await import("./config.js");
+        expect(STATE_DIR).toMatch(/\.openclaw$/);
+      });
+    });
+
+    it("STATE_DIR respects OPENCLAW_STATE_DIR override", async () => {
+      await withEnvOverride({ OPENCLAW_STATE_DIR: "/custom/state/dir" }, async () => {
+        const { STATE_DIR } = await import("./config.js");
+        expect(STATE_DIR).toBe(path.resolve("/custom/state/dir"));
+      });
+    });
+
+    it("STATE_DIR respects OPENCLAW_HOME when state override is unset", async () => {
+      await withEnvOverride(
+        { OPENCLAW_HOME: "/custom/home", OPENCLAW_STATE_DIR: undefined },
+        async () => {
+          const { STATE_DIR } = await import("./config.js");
+          expect(STATE_DIR).toBe(path.resolve("/custom/home/.openclaw"));
+        },
+      );
+    });
+
+    it("CONFIG_PATH defaults to OPENCLAW_HOME/.openclaw/openclaw.json", async () => {
+      await withEnvOverride(
+        {
+          OPENCLAW_HOME: "/custom/home",
+          OPENCLAW_CONFIG_PATH: undefined,
+          OPENCLAW_STATE_DIR: undefined,
+        },
+        async () => {
+          const { CONFIG_PATH } = await import("./config.js");
+          expect(CONFIG_PATH).toBe(path.resolve("/custom/home/.openclaw/openclaw.json"));
+        },
+      );
+    });
+
+    it("CONFIG_PATH defaults to ~/.openclaw/openclaw.json when env not set", async () => {
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
       await withEnvOverride(
         { MOLTBOT_STATE_DIR: undefined, CLAWDBOT_STATE_DIR: undefined },
         async () => {

@@ -1,10 +1,21 @@
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 import {
   resolveAgentConfig,
+  resolveAgentDir,
   resolveAgentModelFallbacksOverride,
   resolveAgentModelPrimary,
+  resolveAgentWorkspaceDir,
 } from "./agent-scope.js";
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 describe("resolveAgentConfig", () => {
   it("should return undefined when no agents config exists", () => {
@@ -199,5 +210,19 @@ describe("resolveAgentConfig", () => {
     const result = resolveAgentConfig(cfg, "");
     expect(result).toBeDefined();
     expect(result?.workspace).toBe("~/clawd");
+  });
+
+  it("uses OPENCLAW_HOME for default agent workspace", () => {
+    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
+
+    const workspace = resolveAgentWorkspaceDir({} as OpenClawConfig, "main");
+    expect(workspace).toBe("/srv/openclaw-home/.openclaw/workspace");
+  });
+
+  it("uses OPENCLAW_HOME for default agentDir", () => {
+    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
+
+    const agentDir = resolveAgentDir({} as OpenClawConfig, "main");
+    expect(agentDir).toBe("/srv/openclaw-home/.openclaw/agents/main/agent");
   });
 });

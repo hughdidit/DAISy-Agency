@@ -86,7 +86,21 @@ pnpm add -g moltbot@latest
 moltbot onboard --install-daemon
 ```
 
+<<<<<<< HEAD
 What you’ll choose:
+=======
+## Useful environment variables
+
+If you run OpenClaw as a service account or want custom config/state locations:
+
+- `OPENCLAW_HOME` sets the home directory used for internal path resolution.
+- `OPENCLAW_STATE_DIR` overrides the state directory.
+- `OPENCLAW_CONFIG_PATH` overrides the config file path.
+
+Full environment variable reference: [Environment vars](/help/environment).
+
+## Go deeper
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 
 - **Local vs Remote** gateway
 - **Auth**: OpenAI Code (Codex) subscription (OAuth) or API keys. For Anthropic we recommend an API key; `claude setup-token` is also supported.

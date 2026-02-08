@@ -1,8 +1,12 @@
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import JSON5 from "json5";
+=======
+import type { CronStoreFile } from "./types.js";
+import { expandHomePrefix } from "../infra/home-dir.js";
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 import { CONFIG_DIR } from "../utils.js";
 import type { CronStoreFile } from "./types.js";
 
@@ -13,7 +17,7 @@ export function resolveCronStorePath(storePath?: string) {
   if (storePath?.trim()) {
     const raw = storePath.trim();
     if (raw.startsWith("~")) {
-      return path.resolve(raw.replace("~", os.homedir()));
+      return path.resolve(expandHomePrefix(raw));
     }
     return path.resolve(raw);
   }

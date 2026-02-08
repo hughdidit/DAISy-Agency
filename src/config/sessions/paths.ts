@@ -1,5 +1,10 @@
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import type { SessionEntry } from "./types.js";
+import { expandHomePrefix, resolveRequiredHomeDir } from "../../infra/home-dir.js";
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../../routing/session-key.js";
 import { resolveStateDir } from "../paths.js";
 import type { SessionEntry } from "./types.js";
@@ -7,7 +12,7 @@ import type { SessionEntry } from "./types.js";
 function resolveAgentSessionsDir(
   agentId?: string,
   env: NodeJS.ProcessEnv = process.env,
-  homedir: () => string = os.homedir,
+  homedir: () => string = () => resolveRequiredHomeDir(env, os.homedir),
 ): string {
   const root = resolveStateDir(env, homedir);
   const id = normalizeAgentId(agentId ?? DEFAULT_AGENT_ID);
@@ -16,7 +21,7 @@ function resolveAgentSessionsDir(
 
 export function resolveSessionTranscriptsDir(
   env: NodeJS.ProcessEnv = process.env,
-  homedir: () => string = os.homedir,
+  homedir: () => string = () => resolveRequiredHomeDir(env, os.homedir),
 ): string {
   return resolveAgentSessionsDir(DEFAULT_AGENT_ID, env, homedir);
 }
@@ -24,7 +29,7 @@ export function resolveSessionTranscriptsDir(
 export function resolveSessionTranscriptsDirForAgent(
   agentId?: string,
   env: NodeJS.ProcessEnv = process.env,
-  homedir: () => string = os.homedir,
+  homedir: () => string = () => resolveRequiredHomeDir(env, os.homedir),
 ): string {
   return resolveAgentSessionsDir(agentId, env, homedir);
 }
@@ -66,12 +71,24 @@ export function resolveStorePath(store?: string, opts?: { agentId?: string }) {
   if (store.includes("{agentId}")) {
     const expanded = store.replaceAll("{agentId}", agentId);
     if (expanded.startsWith("~")) {
-      return path.resolve(expanded.replace(/^~(?=$|[\\/])/, os.homedir()));
+      return path.resolve(
+        expandHomePrefix(expanded, {
+          home: resolveRequiredHomeDir(process.env, os.homedir),
+          env: process.env,
+          homedir: os.homedir,
+        }),
+      );
     }
     return path.resolve(expanded);
   }
   if (store.startsWith("~")) {
-    return path.resolve(store.replace(/^~(?=$|[\\/])/, os.homedir()));
+    return path.resolve(
+      expandHomePrefix(store, {
+        home: resolveRequiredHomeDir(process.env, os.homedir),
+        env: process.env,
+        homedir: os.homedir,
+      }),
+    );
   }
   return path.resolve(store);
 }

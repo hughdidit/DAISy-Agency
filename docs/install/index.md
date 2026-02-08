@@ -138,7 +138,19 @@ curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method npm
 curl -fsSL https://molt.bot/install.sh | bash -s -- --install-method git
 ```
 
+<<<<<<< HEAD
 Common flags:
+=======
+If you need custom runtime paths, use:
+
+- `OPENCLAW_HOME` for home-directory based internal paths
+- `OPENCLAW_STATE_DIR` for mutable state location
+- `OPENCLAW_CONFIG_PATH` for config file location
+
+See [Environment vars](/help/environment) for precedence and full details.
+
+## Troubleshooting: `openclaw` not found
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 
 - `--install-method npm|git`
 - `--git-dir <path>` (default: `~/moltbot`)

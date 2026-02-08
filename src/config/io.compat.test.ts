@@ -56,7 +56,21 @@ describe("config io compat (new + legacy folders)", () => {
     });
   });
 
+<<<<<<< HEAD
   it("falls back to ~/.clawdbot/clawdbot.json when only legacy filename exists", async () => {
+=======
+  it("uses OPENCLAW_HOME for default config path", async () => {
+    await withTempHome(async (home) => {
+      const io = createConfigIO({
+        env: { OPENCLAW_HOME: path.join(home, "svc-home") } as NodeJS.ProcessEnv,
+        homedir: () => path.join(home, "ignored-home"),
+      });
+      expect(io.configPath).toBe(path.join(home, "svc-home", ".openclaw", "openclaw.json"));
+    });
+  });
+
+  it("honors explicit OPENCLAW_CONFIG_PATH override", async () => {
+>>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
     await withTempHome(async (home) => {
       const legacyConfigPath = await writeConfig(home, ".clawdbot", 20002, "clawdbot.json");
 
