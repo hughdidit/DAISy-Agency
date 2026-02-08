@@ -591,6 +591,15 @@ if [[ "${OPEN_PR}" == "true" ]]; then
     exit 1
   fi
 
+  # Resolve the current repo (fork) explicitly so gh targets it, not the upstream parent.
+  # GITHUB_REPOSITORY is set in Actions; fall back to gh for local runs.
+  GH_REPO="${GITHUB_REPOSITORY:-$(gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null || true)}"
+  if [[ -z "${GH_REPO}" ]]; then
+    err "Could not determine repository name; set GITHUB_REPOSITORY or authenticate gh"
+    exit 1
+  fi
+  log "  Target repo: ${GH_REPO}"
+
   for cat in "${CATEGORIES[@]}"; do
     count="${CAT_COUNTS[${cat}]}"
     [[ "${count}" -eq 0 ]] && continue
@@ -605,7 +614,7 @@ if [[ "${OPEN_PR}" == "true" ]]; then
     fi
 
     # Check for existing PR
-    existing_pr="$(gh pr list --head "${branch_name}" --base "${BASE_REF}" --json number --jq '.[0].number' 2>/dev/null || true)"
+    existing_pr="$(gh pr list --repo "${GH_REPO}" --head "${branch_name}" --base "${BASE_REF}" --json number --jq '.[0].number' 2>/dev/null || true)"
     if [[ -n "${existing_pr}" ]]; then
       log "  PR #${existing_pr} already exists for ${branch_name}; skipping"
       continue
@@ -665,7 +674,7 @@ ${beware}
 EOPR
 )"
 
-    if pr_url="$(gh pr create --head "${branch_name}" --base "${BASE_REF}" --title "${pr_title}" --body "${pr_body}" 2>&1)"; then
+    if pr_url="$(gh pr create --repo "${GH_REPO}" --head "${branch_name}" --base "${BASE_REF}" --title "${pr_title}" --body "${pr_body}" 2>&1)"; then
       log "  Created PR: ${pr_url}"
     else
       warn "  Failed to create PR for ${branch_name}: ${pr_url}"
