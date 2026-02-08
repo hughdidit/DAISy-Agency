@@ -113,7 +113,7 @@ describe.sequential("acquireSessionWriteLock", () => {
         const lockPath = `${sessionFile}.lock`;
 
         // Acquire lock directly (not through helper) since signal handler will release it
-        const lock = await acquireSessionWriteLock({ sessionFile, timeoutMs: 500 });
+        const _lock = await acquireSessionWriteLock({ sessionFile, timeoutMs: 500 });
 
         const keepAlive = () => {};
         if (signal === "SIGINT") {
