@@ -453,6 +453,7 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
+<<<<<<< HEAD
       openclaw:
         specifier: workspace:*
 <<<<<<< HEAD
@@ -464,9 +465,15 @@ importers:
 =======
         version: link:../..
 >>>>>>> c5d7d1110 (chore: update pnpm lockfile)
+=======
+>>>>>>> 28e1a65eb (chore: project hygiene — fix workspace:*, sandbox USER, dead config (#11289))
       proper-lockfile:
         specifier: ^4.1.2
         version: 4.1.2
+    devDependencies:
+      openclaw:
+        specifier: workspace:*
+        version: link:../..
 
   extensions/nextcloud-talk:
     devDependencies:
@@ -479,12 +486,13 @@ importers:
       nostr-tools:
         specifier: ^2.23.0
         version: 2.23.0(typescript@5.9.3)
-      openclaw:
-        specifier: workspace:*
-        version: link:../..
       zod:
         specifier: ^4.3.6
         version: 4.3.6
+    devDependencies:
+      openclaw:
+        specifier: workspace:*
+        version: link:../..
 
   extensions/open-prose:
     devDependencies:
@@ -566,18 +574,20 @@ importers:
 
   extensions/zalo:
     dependencies:
-      openclaw:
-        specifier: workspace:*
-        version: link:../..
       undici:
         specifier: 7.21.0
         version: 7.21.0
+    devDependencies:
+      openclaw:
+        specifier: workspace:*
+        version: link:../..
 
   extensions/zalouser:
     dependencies:
       '@sinclair/typebox':
         specifier: 0.34.48
         version: 0.34.48
+    devDependencies:
       openclaw:
         specifier: workspace:*
         version: link:../..
