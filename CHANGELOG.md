@@ -23,8 +23,12 @@ Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
+=======
+- Exec approvals: format forwarded command text as inline/fenced monospace for safer approval scanning across channels. (#11917)
+>>>>>>> ad8b839aa (Exec approvals: render forwarded commands in monospace (#11937))
 - Thinking: allow xhigh for `github-copilot/gpt-5.2-codex` and `github-copilot/gpt-5.2`. (#11646) Thanks @seans-openclawbot.
 >>>>>>> 744892de7 (Add GitHub Copilot models to xhigh list (#11646))
 - Discord: support forum/media `thread create` starter messages, wire `message thread create --message`, and harden thread-create routing. (#10062) Thanks @jarvis89757.
