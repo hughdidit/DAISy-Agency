@@ -15,11 +15,11 @@ The triage system uses three refs:
 **Scan range:** `origin/main..upstream/main` — only commits not yet synced.
 
 **Apply mode flow:**
-1. Record `PREV_MAIN` = current `origin/main` position
-2. Fast-forward `origin/main` to `upstream/main` via push
-3. Scan `PREV_MAIN..upstream/main` for new commits
-4. Classify and create cherry-pick branches from `PREV_MAIN`
-5. Push branches and create PRs targeting `daisy/dev`
+1. Scan `origin/main..upstream/main` for unsynced commits (oldest-first, `--max N` takes the N oldest)
+2. Classify each commit by category and risk
+3. Create cherry-pick branches from `origin/main` (one per category)
+4. Push branches and create PRs targeting `daisy/dev`
+5. Advance `origin/main` to `upstream/main` (sync happens **last** so a mid-run failure doesn't skip commits)
 
 Cherry-picks apply cleanly because they're replayed on their own upstream lineage. Fork divergence is resolved naturally when the PR is merged into `daisy/dev`.
 
@@ -97,29 +97,23 @@ When enabled, each commit's metadata (SHA, subject, author, file list) is sent t
 
 ## Apply mode (`--apply`)
 
-Apply mode first syncs `origin/main` to `upstream/main`, then creates cherry-pick branches from the pre-sync position.
-
-### Sync step
-
-1. Records `PREV_MAIN` = current `origin/main` SHA
-2. Verifies `origin/main` is an ancestor of `upstream/main` (fast-forward safe)
-3. Pushes `upstream/main` to `origin/main` (`git push origin upstream/main:refs/heads/main`)
-4. Re-fetches origin to update local tracking refs
+Apply mode creates cherry-pick branches from `origin/main` for each category, then advances `origin/main` to `upstream/main` after all branches and PRs are created. The sync happens last so that a mid-run failure leaves the bookmark unchanged and the next run re-processes the same batch.
 
 ### Cherry-pick branches
 
-Creates throwaway branches per category, all rooted at `PREV_MAIN`:
+Creates throwaway branches per category, all rooted at `origin/main`:
 
-- `cherry/deps-security-YYYY-MM-DD`
-- `cherry/ci-YYYY-MM-DD`
-- `cherry/bugfix-YYYY-MM-DD`
-- `cherry/docs-YYYY-MM-DD`
-- `cherry/refactor-feature-YYYY-MM-DD`
+- `cherry/deps-security-YYYY-MM-DD-HHMM`
+- `cherry/ci-YYYY-MM-DD-HHMM`
+- `cherry/bugfix-YYYY-MM-DD-HHMM`
+- `cherry/docs-YYYY-MM-DD-HHMM`
+- `cherry/refactor-feature-YYYY-MM-DD-HHMM`
 
 Behavior:
-- **Auto-cleanup:** Before creating a branch, older branches of the same category (`cherry/<slug>-<older-date>`) are deleted locally and from origin. A newer run's branches are a superset of older ones, so only the latest run's branches survive.
-- Always creates fresh branches from `PREV_MAIN` (deletes if exists from prior run)
+- Branch names include date+time (HHMM) for uniqueness; a serial suffix (`_2`, `_3`, ...) is appended on rare same-minute collisions
+- Each run creates new branches — prior runs' branches and PRs are left untouched
 - Cherry-picks oldest-first (chronological order)
+- When `--max N` is used, takes the N **oldest** unsynced commits (not the newest)
 - Aborts and logs conflicting picks to `docs/upstream-candidates/conflicts-YYYY-MM-DD.txt`
 - No force pushes
 
@@ -177,6 +171,7 @@ gh workflow run upstream-triage.yml -f ai_triage=true
 
 | Secret | When needed |
 |--------|-------------|
+| `UPSYNC_PAT` | Apply mode — fine-grained PAT with Contents + Workflows permissions. Required because cherry-pick branches may contain upstream workflow file changes that `GITHUB_TOKEN` cannot push. |
 | `ANTHROPIC_API_KEY` | Only when `ai_triage` is true |
 
 ## Output files
@@ -204,8 +199,8 @@ git remote add upstream https://github.com/moltbot/moltbot.git
 git remote set-url --push upstream DISABLE
 ```
 
-**"No upstream-only commits found"**
-`origin/main` is already at `upstream/main`. Nothing to sync.
+**"No new upstream commits found"**
+`origin/main` is already at `upstream/main`. Nothing to scan.
 
 **"origin/main is not an ancestor of upstream/main"**
 `origin/main` has diverged from upstream. This should not happen under normal operation. Manual intervention is required to reconcile the two branches.
