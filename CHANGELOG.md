@@ -9,14 +9,18 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
 =======
+=======
+>>>>>>> 868873016 (Config: migrate legacy top-level memorySearch)
 ## 2026.2.6-4
 
 ### Added
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 - Gateway: add `agents.create`, `agents.update`, `agents.delete` RPC methods for web UI agent management. (#11045) Thanks @advaitpaliwal.
@@ -121,12 +125,26 @@ Docs: https://docs.openclaw.ai
 - Memory/QMD: reuse default model cache across agents instead of re-downloading per agent. (#12114) Thanks @tyler6204.
 - Memory/QMD: run boot refresh in background by default, add configurable QMD maintenance timeouts, retry QMD after fallback failures, and scope QMD queries to OpenClaw-managed collections. (#9690, #9705, #10042) Thanks @vignesh07.
 - Memory/QMD: initialize QMD backend on gateway startup so background update timers restart after process reloads. (#10797) Thanks @vignesh07.
+=======
+- Gateway: add `agents.create`, `agents.update`, `agents.delete` RPC methods for web UI agent management. (#11045) Thanks @advaitpaliwal.
+
+### Fixes
+
+- Agents: recover from context overflow caused by oversized tool results (pre-emptive capping + fallback truncation). (#11579) Thanks @tyler6204.
+- Gateway/CLI: when `gateway.bind=lan`, use a LAN IP for probe URLs and Control UI links. (#11448) Thanks @AnonO6.
+- Memory: set Voyage embeddings `input_type` for improved retrieval. (#10818) Thanks @mcinteerj.
+- Memory/QMD: run boot refresh in background by default, add configurable QMD maintenance timeouts, and retry QMD after fallback failures. (#9690, #9705)
+- Config/Memory: auto-migrate legacy top-level `memorySearch` settings into `agents.defaults.memorySearch`. (#11278, #9143)
+>>>>>>> 868873016 (Config: migrate legacy top-level memorySearch)
 - Media understanding: recognize `.caf` audio attachments for transcription. (#10982) Thanks @succ985.
 <<<<<<< HEAD
 =======
 - State dir: honor `OPENCLAW_STATE_DIR` for default device identity and canvas storage paths. (#4824) Thanks @kossoy.
+<<<<<<< HEAD
 - Doctor/State dir: suppress repeated legacy migration warnings only for valid symlink mirrors, while keeping warnings for empty or invalid legacy trees. (#11709) Thanks @gumadeiras.
 >>>>>>> b75d61808 (fix(doctor): suppress repeated legacy state migration warnings (#11709))
+=======
+>>>>>>> 868873016 (Config: migrate legacy top-level memorySearch)
 - Tests: harden flaky hotspots by removing timer sleeps, consolidating onboarding provider-auth coverage, and improving memory test realism. (#11598) Thanks @gumadeiras.
 
 >>>>>>> e2dea2684 (Tests: harden flake hotspots and consolidate provider-auth suites (#11598))
@@ -155,6 +173,7 @@ Docs: https://docs.openclaw.ai
 
 - Cron: scheduler reliability (timer drift, restart catch-up, lock contention, stale running markers). (#10776) Thanks @tyler6204.
 - Cron: store migration hardening (legacy field migration, parse error handling, explicit delivery mode persistence). (#10776) Thanks @tyler6204.
+<<<<<<< HEAD
 - Gateway/CLI: when `gateway.bind=lan`, use a LAN IP for probe URLs and Control UI links. (#11448) Thanks @AnonO6.
 - Memory: set Voyage embeddings `input_type` for improved retrieval. (#10818) Thanks @mcinteerj.
 <<<<<<< HEAD
@@ -167,6 +186,8 @@ Docs: https://docs.openclaw.ai
 - Memory/QMD: run boot refresh in background by default, add configurable QMD maintenance timeouts, retry QMD after fallback failures, and scope QMD queries to OpenClaw-managed collections. (#9690, #9705, #10042) Thanks @vignesh07.
 - Media understanding: recognize `.caf` audio attachments for transcription. (#10982) Thanks @succ985.
 >>>>>>> ef4a0e92b (fix(memory/qmd): scope query to managed collections (#11645))
+=======
+>>>>>>> 868873016 (Config: migrate legacy top-level memorySearch)
 - Telegram: auto-inject DM topic threadId in message tool + subagent announce. (#7235) Thanks @Lukavyi.
 - Security: require auth for Gateway canvas host and A2UI assets. (#9518) Thanks @coygeek.
 - Cron: fix scheduling and reminder delivery regressions; harden next-run recompute + timer re-arming + legacy schedule fields. (#9733, #9823, #9948, #9932) Thanks @tyler6204, @pycckuu, @j2h4u, @fujiwara-tofu-shop.
@@ -290,8 +311,11 @@ Docs: https://docs.openclaw.ai
 =======
 - Telegram: preserve DM topic threadId in deliveryContext. (#9039) Thanks @lailoo.
 - macOS: fix cron payload summary rendering and ISO 8601 formatter concurrency safety.
+<<<<<<< HEAD
 - Security: require gateway auth for Canvas host and A2UI assets. (#9518) Thanks @coygeek.
 >>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
+=======
+>>>>>>> 868873016 (Config: migrate legacy top-level memorySearch)
 
 >>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
 ## 2026.2.2-3
