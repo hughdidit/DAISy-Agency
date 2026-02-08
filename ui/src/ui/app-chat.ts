@@ -176,13 +176,19 @@ export async function handleSendChat(
   });
 }
 
-export async function refreshChat(host: ChatHost) {
+export async function refreshChat(host: ChatHost, opts?: { scheduleScroll?: boolean }) {
   await Promise.all([
     loadChatHistory(host as unknown as MoltbotApp),
     loadSessions(host as unknown as MoltbotApp),
     refreshChatAvatar(host),
   ]);
+<<<<<<< HEAD
   scheduleChatScroll(host as unknown as Parameters<typeof scheduleChatScroll>[0], true);
+=======
+  if (opts?.scheduleScroll !== false) {
+    scheduleChatScroll(host as unknown as Parameters<typeof scheduleChatScroll>[0]);
+  }
+>>>>>>> bc475f017 (fix(ui): smooth chat refresh scroll and suppress new-messages badge flash)
 }
 
 export const flushChatQueueForEvent = flushChatQueue;
