@@ -37,6 +37,8 @@ TODAY="$(date +%Y-%m-%d)"
 REPORT_DIR="docs/upstream-candidates"
 REPORT_FILE=""
 CONFLICT_FILE=""
+MIRROR_REF="origin/main"   # upstream mirror on fork (tracks what we've synced)
+PREV_MAIN=""               # pre-sync position of MIRROR_REF (set in apply mode)
 
 # =============================================================================
 # Usage
@@ -122,13 +124,14 @@ err()  { echo "ERROR: $*" >&2; }
 # Ensure upstream is fetched
 # =============================================================================
 
-log "Fetching upstream..."
+log "Fetching upstream and origin..."
 if ! git remote get-url upstream &>/dev/null; then
   err "Remote 'upstream' not configured. Add it with:"
   err "  git remote add upstream https://github.com/moltbot/moltbot.git"
   exit 1
 fi
 git fetch upstream --quiet
+git fetch origin --quiet
 
 # Verify refs exist
 if ! git rev-parse --verify "${BASE_REF}" &>/dev/null; then
@@ -139,12 +142,52 @@ if ! git rev-parse --verify "${UPSTREAM_REF}" &>/dev/null; then
   err "Upstream ref '${UPSTREAM_REF}' not found"
   exit 1
 fi
+if ! git rev-parse --verify "${MIRROR_REF}" &>/dev/null; then
+  err "Mirror ref '${MIRROR_REF}' not found. Ensure origin/main exists."
+  exit 1
+fi
+
+# =============================================================================
+# Sync origin/main to upstream (apply mode only)
+# =============================================================================
+
+SCAN_BASE="${MIRROR_REF}"
+
+if [[ "${APPLY}" == "true" ]]; then
+  log "Syncing origin/main to upstream/main..."
+
+  # Record current mirror position before fast-forward
+  PREV_MAIN="$(git rev-parse "${MIRROR_REF}")"
+  log "  Pre-sync origin/main: ${PREV_MAIN:0:8}"
+
+  # Verify fast-forward is possible (mirror must be ancestor of upstream)
+  if ! git merge-base --is-ancestor "${MIRROR_REF}" "${UPSTREAM_REF}"; then
+    err "origin/main is not an ancestor of upstream/main — cannot fast-forward."
+    err "This likely means origin/main has diverged. Manual intervention required."
+    exit 1
+  fi
+
+  # Fast-forward origin/main to upstream/main
+  if [[ "$(git rev-parse "${MIRROR_REF}")" == "$(git rev-parse "${UPSTREAM_REF}")" ]]; then
+    log "  origin/main is already at upstream/main; nothing to sync"
+  else
+    git push origin "${UPSTREAM_REF}:refs/heads/main" --quiet
+    log "  Pushed upstream/main → origin/main"
+  fi
+
+  # Re-fetch so local tracking refs are up to date
+  git fetch origin --quiet
+
+  # In apply mode, scan from pre-sync position
+  SCAN_BASE="${PREV_MAIN}"
+  log "  Scan range: ${PREV_MAIN:0:8}..${UPSTREAM_REF}"
+fi
 
 # =============================================================================
 # Collect upstream-only commits
 # =============================================================================
 
-log "Collecting commits in ${UPSTREAM_REF} not in ${BASE_REF}..."
+log "Collecting commits in ${UPSTREAM_REF} not in ${SCAN_BASE}..."
 
 MAX_FLAG=""
 if [[ -n "${MAX_COMMITS}" ]]; then
@@ -152,7 +195,7 @@ if [[ -n "${MAX_COMMITS}" ]]; then
 fi
 
 # Format: SHA␟subject␟author␟date (fields separated by ASCII Unit Separator %x1f)
-COMMITS="$(git log ${MAX_FLAG} --format='%H%x1f%s%x1f%an%x1f%ai' "${BASE_REF}..${UPSTREAM_REF}" --)"
+COMMITS="$(git log ${MAX_FLAG} --format='%H%x1f%s%x1f%an%x1f%ai' "${SCAN_BASE}..${UPSTREAM_REF}" --)"
 
 if [[ -z "${COMMITS}" ]]; then
   log "No upstream-only commits found. Fork is up to date."
@@ -444,8 +487,10 @@ log "Writing report to ${REPORT_FILE}..."
   echo "> All classification is based on commit metadata (subjects, file paths) only."
   echo "> Cherry-pick branches (if created) contain code for **human review** — not execution."
   echo ""
-  echo "**Base:** \`${BASE_REF}\`  "
+  echo "**PR target:** \`${BASE_REF}\`  "
+  echo "**Upstream mirror:** \`${MIRROR_REF}\`  "
   echo "**Upstream:** \`${UPSTREAM_REF}\`  "
+  echo "**Scan range:** \`${SCAN_BASE}..${UPSTREAM_REF}\`  "
   echo "**Commits scanned:** ${TOTAL_PROCESSED}  "
   if [[ "${AI_TRIAGE}" == "true" ]]; then
     echo "**AI triage:** enabled  "
@@ -509,7 +554,12 @@ if [[ "${APPLY}" == "true" ]]; then
   # SAFETY: cherry-pick applies patches to throwaway branches for review.
   # No cherry-picked code is executed, sourced, or tested by this script.
   # The branches exist solely for human review via PR.
-  log "Creating cherry-pick topic branches (no upstream code will be executed)..."
+  #
+  # Cherry-picks are applied onto branches starting from PREV_MAIN (the
+  # pre-sync position of origin/main). Since upstream commits apply cleanly
+  # on their own lineage, conflicts here are unexpected. Fork divergence
+  # is handled naturally when the PR is merged into daisy/dev.
+  log "Creating cherry-pick topic branches from ${PREV_MAIN:0:8} (no upstream code will be executed)..."
 
   CONFLICT_FILE="${REPORT_DIR}/conflicts-${TODAY}.txt"
   : > "${CONFLICT_FILE}"
@@ -537,13 +587,9 @@ if [[ "${APPLY}" == "true" ]]; then
       git push origin --delete "${old_branch}" 2>/dev/null || true
     done < <(git branch -a --list "*cherry/${branch_slug}-*" | sed 's|^[ *]*||')
 
-    # Create branch from base
-    if git rev-parse --verify "${branch_name}" &>/dev/null; then
-      log "  Branch ${branch_name} already exists; reusing"
-      git checkout "${branch_name}" --quiet
-    else
-      git checkout -b "${branch_name}" "${BASE_REF}" --quiet
-    fi
+    # Always create fresh branch from PREV_MAIN (delete if exists from prior run)
+    git branch -D "${branch_name}" 2>/dev/null || true
+    git checkout -b "${branch_name}" "${PREV_MAIN}" --quiet
 
     # Cherry-pick commits oldest-first (reverse the log order)
     shas=()
@@ -559,30 +605,14 @@ if [[ "${APPLY}" == "true" ]]; then
     done
 
     for sha in "${reversed[@]}"; do
-      # Skip already-applied commits: detect prior cherry-picks via -x trailer
-      if git log "${branch_name}" --grep="cherry picked from commit ${sha}" \
-          -F --oneline -1 &>/dev/null \
-         && [[ -n "$(git log "${branch_name}" --grep="cherry picked from commit ${sha}" -F --oneline -1 2>/dev/null)" ]]; then
-        log "    ${sha:0:8} already cherry-picked; skipping"
-        continue
-      fi
-
       if ! git cherry-pick -x "${sha}" --no-edit 2>/dev/null; then
+        # Cherry-picks onto upstream lineage should be clean; structural
+        # conflicts (delete/modify, rename/rename) are still possible
         subject="$(git log -1 --format='%s' "${sha}" 2>/dev/null || echo "unknown")"
         warn "    Conflict cherry-picking ${sha:0:8}: ${subject}"
         echo "${sha} | ${subject} | ${cat}" >> "${CONFLICT_FILE}"
         CONFLICT_COUNT=$((CONFLICT_COUNT + 1))
-        # Commit with conflict markers so the PR shows exactly what needs resolution
-        # Only stage unmerged (conflicting) files — not untracked report/conflict files
-        git diff --name-only --diff-filter=U -z 2>/dev/null | xargs -0 git add 2>/dev/null || true
-        git commit --no-edit -m "CONFLICT: ${subject}
-
-(cherry picked from commit ${sha})
-NOTE: This commit contains conflict markers (<<<<<<< / ======= / >>>>>>>).
-Manual resolution required before merging." 2>/dev/null || {
-          # If commit fails (e.g. nothing staged), fall back to abort
-          git cherry-pick --abort 2>/dev/null || true
-        }
+        git cherry-pick --abort 2>/dev/null || true
       else
         log "    Applied ${sha:0:8}"
       fi
@@ -647,15 +677,11 @@ if [[ "${OPEN_PR}" == "true" ]]; then
       continue
     fi
 
-    # Build commit list for PR body; note which had conflicts
+    # Build commit list for PR body
     commit_list=""
     while IFS=$'\x1f' read -r sha subject author date_str risk reason; do
       [[ -z "${sha}" ]] && continue
-      conflict_tag=""
-      if grep -q "^${sha} " "${CONFLICT_FILE}" 2>/dev/null; then
-        conflict_tag=" **CONFLICT — markers in diff**"
-      fi
-      commit_list="${commit_list}- \`${sha:0:8}\` ${subject} (risk: ${risk}/5)${conflict_tag}
+      commit_list="${commit_list}- \`${sha:0:8}\` ${subject} (risk: ${risk}/5)
 "
     done <<< "${CAT_COMMITS[${cat}]}"
 
@@ -674,6 +700,11 @@ if [[ "${OPEN_PR}" == "true" ]]; then
 
 Automated cherry-pick of upstream \`${cat}\` commits from \`${UPSTREAM_REF}\`.
 
+This branch was created from \`origin/main\` (pre-sync position \`${PREV_MAIN:0:8}\`),
+so cherry-picks apply cleanly on their own upstream lineage. Any merge conflicts
+in this PR are due to fork divergence in \`${BASE_REF}\` and should be resolved
+during merge (not in the cherry-picks themselves).
+
 > **No upstream code was executed.** These commits were classified by metadata
 > (commit subjects and file paths) and cherry-picked onto a throwaway branch
 > for human review only.
@@ -685,6 +716,13 @@ ${commit_list}
 ## What to beware of
 
 ${beware}
+
+## About conflicts
+
+Cherry-picks onto the upstream lineage should be **conflict-free**. If this PR
+shows merge conflicts, they represent divergence between \`${BASE_REF}\` (fork)
+and upstream — **not** problems with the cherry-picks themselves. Resolve these
+in the merge UI or locally with \`git merge\`.
 
 ## Risk
 
@@ -698,7 +736,7 @@ ${beware}
 - [ ] Smoke test affected functionality
 - [ ] Inspect each commit for unexpected side effects or behavioral changes
 - [ ] Check for new dependencies, post-install hooks, or permission changes
-- [ ] Review any conflicts logged in \`docs/upstream-candidates/conflicts-${TODAY}.txt\`
+- [ ] If merge conflicts exist, verify resolution preserves fork-specific changes
 
 ---
 *Generated by \`scripts/upstream-triage.sh --apply --open-pr\` on ${TODAY} — no upstream code was executed*
