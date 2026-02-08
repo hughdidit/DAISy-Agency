@@ -1,6 +1,27 @@
 # Upstream Triage
 
-Automated scanning and classification of upstream (`moltbot/moltbot`) commits that haven't been merged into the fork (`daisy/dev`). Identifies cherry-pick candidates by category and risk, and optionally creates topic branches with PRs for human review.
+Automated scanning and classification of upstream (`moltbot/moltbot`) commits that haven't been synced into the fork. Identifies cherry-pick candidates by category and risk, and optionally creates topic branches with PRs for human review.
+
+## Branch model
+
+The triage system uses three refs:
+
+| Ref | Role |
+|-----|------|
+| `upstream/main` | Upstream source of truth (`moltbot/moltbot`) |
+| `origin/main` | Mirror of upstream on the fork — tracks what we've synced so far |
+| `daisy/dev` | Fork integration branch — PR target for cherry-pick branches |
+
+**Scan range:** `origin/main..upstream/main` — only commits not yet synced.
+
+**Apply mode flow:**
+1. Record `PREV_MAIN` = current `origin/main` position
+2. Fast-forward `origin/main` to `upstream/main` via push
+3. Scan `PREV_MAIN..upstream/main` for new commits
+4. Classify and create cherry-pick branches from `PREV_MAIN`
+5. Push branches and create PRs targeting `daisy/dev`
+
+Cherry-picks apply cleanly because they're replayed on their own upstream lineage. Fork divergence is resolved naturally when the PR is merged into `daisy/dev`.
 
 ## Safety policy
 
@@ -64,7 +85,7 @@ Score is capped at 5.
 - **ci**: Workflow changes can exfiltrate secrets. Inspect all `run:` blocks, new action references, and permission changes. Verify pinned action SHAs.
 - **bugfix**: May subtly change behavior the fork relies on. Check side effects in shared modules, altered return types, changed error handling.
 - **docs**: Low risk. Confirm no executable content in markdown, no leaked infrastructure paths.
-- **refactor/feature**: HIGH RISK. Not auto-cherry-picked. May conflict with fork changes or introduce unwanted dependencies.
+- **refactor/feature**: HIGH RISK. Cherry-picked for review but requires extra scrutiny. May conflict with fork changes or introduce unwanted dependencies.
 
 ## AI triage (`--ai-triage`)
 
@@ -76,20 +97,37 @@ When enabled, each commit's metadata (SHA, subject, author, file list) is sent t
 
 ## Apply mode (`--apply`)
 
-Creates throwaway branches per category:
+Apply mode first syncs `origin/main` to `upstream/main`, then creates cherry-pick branches from the pre-sync position.
+
+### Sync step
+
+1. Records `PREV_MAIN` = current `origin/main` SHA
+2. Verifies `origin/main` is an ancestor of `upstream/main` (fast-forward safe)
+3. Pushes `upstream/main` to `origin/main` (`git push origin upstream/main:refs/heads/main`)
+4. Re-fetches origin to update local tracking refs
+
+### Cherry-pick branches
+
+Creates throwaway branches per category, all rooted at `PREV_MAIN`:
 
 - `cherry/deps-security-YYYY-MM-DD`
 - `cherry/ci-YYYY-MM-DD`
 - `cherry/bugfix-YYYY-MM-DD`
 - `cherry/docs-YYYY-MM-DD`
+- `cherry/refactor-feature-YYYY-MM-DD`
 
 Behavior:
 - **Auto-cleanup:** Before creating a branch, older branches of the same category (`cherry/<slug>-<older-date>`) are deleted locally and from origin. A newer run's branches are a superset of older ones, so only the latest run's branches survive.
+- Always creates fresh branches from `PREV_MAIN` (deletes if exists from prior run)
 - Cherry-picks oldest-first (chronological order)
-- Skips already-applied SHAs (`git merge-base --is-ancestor`)
 - Aborts and logs conflicting picks to `docs/upstream-candidates/conflicts-YYYY-MM-DD.txt`
-- Refactor/feature commits get their own branch — review with extra scrutiny
 - No force pushes
+
+### About conflicts
+
+Cherry-picks are applied onto the upstream lineage (branching from `origin/main`), so they should be **conflict-free**. If a cherry-pick does conflict, it indicates a structural issue (delete/modify, rename/rename) in the upstream history itself — not fork divergence.
+
+Fork divergence (differences between `daisy/dev` and upstream) is handled naturally when the PR is merged. The PR merge UI will show any conflicts between the cherry-pick branch and `daisy/dev`, which can be resolved there or locally with `git merge`.
 
 ## Open PR mode (`--open-pr`)
 
@@ -167,10 +205,16 @@ git remote set-url --push upstream DISABLE
 ```
 
 **"No upstream-only commits found"**
-The fork is up to date with upstream. Nothing to do.
+`origin/main` is already at `upstream/main`. Nothing to sync.
+
+**"origin/main is not an ancestor of upstream/main"**
+`origin/main` has diverged from upstream. This should not happen under normal operation. Manual intervention is required to reconcile the two branches.
 
 **AI triage falls back to heuristic**
 Check that `claude` CLI is installed and `ANTHROPIC_API_KEY` is set. The script continues with heuristic classification on failure.
 
 **Cherry-pick conflicts**
-Check `docs/upstream-candidates/conflicts-YYYY-MM-DD.txt` for the list of conflicting SHAs. These need manual resolution.
+Cherry-picks onto the upstream lineage should be clean. If conflicts appear in `docs/upstream-candidates/conflicts-YYYY-MM-DD.txt`, they indicate structural issues in upstream history. Fork divergence conflicts appear in the PR merge UI instead.
+
+**PR merge conflicts**
+These represent divergence between `daisy/dev` and upstream. Resolve in the GitHub merge UI or locally with `git merge`. This is expected and normal.
