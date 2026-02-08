@@ -154,7 +154,11 @@ describe("directive behavior", () => {
 
       const texts = (Array.isArray(res) ? res : [res]).map((entry) => entry?.text).filter(Boolean);
       expect(texts).toContain(
+<<<<<<< HEAD
         'Thinking level "xhigh" is only supported for openai/gpt-5.2, openai-codex/gpt-5.2-codex or openai-codex/gpt-5.1-codex.',
+=======
+        'Thinking level "xhigh" is only supported for openai/gpt-5.2, openai-codex/gpt-5.3-codex, openai-codex/gpt-5.2-codex, openai-codex/gpt-5.1-codex, github-copilot/gpt-5.2-codex or github-copilot/gpt-5.2.',
+>>>>>>> 744892de7 (Add GitHub Copilot models to xhigh list (#11646))
       );
     });
   });
