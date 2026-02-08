@@ -1557,24 +1557,6 @@
         ]
       },
       {
-        "language": "ja-jp",
-        "tabs": [
-          {
-            "tab": "はじめに",
-            "groups": [
-              {
-                "group": "概要",
-                "pages": ["ja-JP/index"]
-              },
-              {
-                "group": "初回セットアップ",
-                "pages": ["ja-JP/start/getting-started", "ja-JP/start/wizard"]
-              }
-            ]
-          }
-        ]
-      },
-      {
         "language": "zh-Hans",
         "tabs": [
           {
@@ -2063,6 +2045,24 @@
             ]
           }
 >>>>>>> 3cf35b071 (Docs: add Mintlify language navigation)
+        ]
+      },
+      {
+        "language": "ja",
+        "tabs": [
+          {
+            "tab": "はじめに",
+            "groups": [
+              {
+                "group": "概要",
+                "pages": ["ja-JP/index"]
+              },
+              {
+                "group": "初回セットアップ",
+                "pages": ["ja-JP/start/getting-started", "ja-JP/start/wizard"]
+              }
+            ]
+          }
         ]
       }
     ]
