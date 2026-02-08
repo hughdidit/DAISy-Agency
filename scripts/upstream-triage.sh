@@ -156,6 +156,14 @@ SCAN_BASE="${MIRROR_REF}"
 if [[ "${APPLY}" == "true" ]]; then
   log "Syncing origin/main to upstream/main..."
 
+  # Validate upstream remote points to the expected repository
+  UPSTREAM_URL="$(git remote get-url upstream 2>/dev/null)"
+  if [[ "${UPSTREAM_URL}" != *"moltbot/moltbot"* ]]; then
+    err "Upstream remote URL '${UPSTREAM_URL}' does not match expected moltbot/moltbot."
+    err "Refusing to sync origin/main from an unexpected upstream."
+    exit 1
+  fi
+
   # Record current mirror position before fast-forward
   PREV_MAIN="$(git rev-parse "${MIRROR_REF}")"
   log "  Pre-sync origin/main: ${PREV_MAIN:0:8}"
@@ -198,7 +206,7 @@ fi
 COMMITS="$(git log ${MAX_FLAG} --format='%H%x1f%s%x1f%an%x1f%ai' "${SCAN_BASE}..${UPSTREAM_REF}" --)"
 
 if [[ -z "${COMMITS}" ]]; then
-  log "No upstream-only commits found. Fork is up to date."
+  log "No new upstream commits found. Mirror is up to date with upstream."
   exit 0
 fi
 
@@ -335,7 +343,7 @@ beware_note() {
       echo "Low risk. Confirm no executable content embedded in markdown (scripts in fenced blocks, HTML script tags). Verify no path references leak internal infrastructure."
       ;;
     refactor/feature)
-      echo "HIGH RISK — not auto-cherry-picked. Large refactors may conflict with fork-specific changes. New features may introduce unwanted dependencies or alter public API surfaces."
+      echo "HIGH RISK — review with extra scrutiny. Large refactors may conflict with fork-specific changes. New features may introduce unwanted dependencies or alter public API surfaces."
       ;;
   esac
 }
@@ -587,8 +595,9 @@ if [[ "${APPLY}" == "true" ]]; then
       git push origin --delete "${old_branch}" 2>/dev/null || true
     done < <(git branch -a --list "*cherry/${branch_slug}-*" | sed 's|^[ *]*||')
 
-    # Always create fresh branch from PREV_MAIN (delete if exists from prior run)
+    # Always create fresh branch from PREV_MAIN (delete if exists from prior run, including remote)
     git branch -D "${branch_name}" 2>/dev/null || true
+    git push origin --delete "${branch_name}" 2>/dev/null || true
     git checkout -b "${branch_name}" "${PREV_MAIN}" --quiet
 
     # Cherry-pick commits oldest-first (reverse the log order)

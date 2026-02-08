@@ -85,7 +85,7 @@ Score is capped at 5.
 - **ci**: Workflow changes can exfiltrate secrets. Inspect all `run:` blocks, new action references, and permission changes. Verify pinned action SHAs.
 - **bugfix**: May subtly change behavior the fork relies on. Check side effects in shared modules, altered return types, changed error handling.
 - **docs**: Low risk. Confirm no executable content in markdown, no leaked infrastructure paths.
-- **refactor/feature**: HIGH RISK. Not auto-cherry-picked. May conflict with fork changes or introduce unwanted dependencies.
+- **refactor/feature**: HIGH RISK. Cherry-picked for review but requires extra scrutiny. May conflict with fork changes or introduce unwanted dependencies.
 
 ## AI triage (`--ai-triage`)
 
