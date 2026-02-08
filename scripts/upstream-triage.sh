@@ -29,7 +29,6 @@ fi
 
 BASE_REF="daisy/dev"
 UPSTREAM_REF="upstream/main"
-MAX_COMMITS=""
 AI_TRIAGE="false"
 APPLY="false"
 OPEN_PR="false"
@@ -54,7 +53,6 @@ and optionally create cherry-pick topic branches.
 Options:
   --base-ref REF        Fork branch (default: daisy/dev)
   --upstream-ref REF    Upstream ref (default: upstream/main)
-  --max N               Limit commits scanned
   --ai-triage           Classify commits using Claude CLI
   --apply               Create cherry-pick topic branches
   --open-pr             Open PRs for topic branches (requires --apply)
@@ -79,10 +77,6 @@ while [[ "${1:-}" == --* ]]; do
       ;;
     --upstream-ref)
       UPSTREAM_REF="${2:?--upstream-ref requires a value}"
-      shift 2
-      ;;
-    --max)
-      MAX_COMMITS="${2:?--max requires a value}"
       shift 2
       ;;
     --ai-triage)
@@ -208,13 +202,8 @@ fi
 log "Collecting commits in ${UPSTREAM_REF} not in ${SCAN_BASE}..."
 
 # Format: SHA␟subject␟author␟date (fields separated by ASCII Unit Separator %x1f)
-# --reverse gives oldest-first so --max takes the N oldest (next in sequence),
-# not the N newest (which would skip intermediate commits and cause conflicts)
-if [[ -n "${MAX_COMMITS}" ]]; then
-  COMMITS="$(git log --reverse --format='%H%x1f%s%x1f%an%x1f%ai' "${SCAN_BASE}..${UPSTREAM_REF}" -- | head -n "${MAX_COMMITS}")"
-else
-  COMMITS="$(git log --reverse --format='%H%x1f%s%x1f%an%x1f%ai' "${SCAN_BASE}..${UPSTREAM_REF}" --)"
-fi
+# --reverse gives oldest-first (chronological) for clean cherry-picking
+COMMITS="$(git log --reverse --format='%H%x1f%s%x1f%an%x1f%ai' "${SCAN_BASE}..${UPSTREAM_REF}" --)"
 
 if [[ -z "${COMMITS}" ]]; then
   log "No new upstream commits found. Mirror is up to date with upstream."

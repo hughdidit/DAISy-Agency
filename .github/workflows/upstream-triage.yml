@@ -17,10 +17,6 @@ on:
         description: "Use Claude CLI for semantic classification"
         type: boolean
         default: false
-      max:
-        description: "Max commits to scan (empty = all)"
-        type: string
-        default: '200'
 
 # --------------------------------------------------------------------------
 # Job: report — read-only scan, artifact upload, issue creation
@@ -67,16 +63,8 @@ jobs:
           chmod +x scripts/upstream-triage.sh
           ARGS=()
 
-          if [[ "${{ github.event_name }}" == "schedule" ]]; then
-            # Scheduled runs: report-only with default max
-            # (inputs.* is null on schedule events)
-            ARGS=(--max 200)
-          else
+          if [[ "${{ github.event_name }}" != "schedule" ]]; then
             # Manual dispatch: read inputs (report-only, no --apply/--open-pr)
-            MAX_VAL="${{ inputs.max }}"
-            if [[ -n "${MAX_VAL}" ]]; then
-              ARGS+=("--max" "${MAX_VAL}")
-            fi
             if [[ "${{ inputs.ai_triage }}" == "true" ]]; then
               ARGS+=("--ai-triage")
             fi
@@ -167,10 +155,6 @@ jobs:
           chmod +x scripts/upstream-triage.sh
           ARGS=(--apply)
 
-          MAX_VAL="${{ inputs.max }}"
-          if [[ -n "${MAX_VAL}" ]]; then
-            ARGS+=("--max" "${MAX_VAL}")
-          fi
           if [[ "${{ inputs.ai_triage }}" == "true" ]]; then
             ARGS+=("--ai-triage")
           fi
