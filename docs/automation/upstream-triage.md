@@ -84,6 +84,7 @@ Creates throwaway branches per category:
 - `cherry/docs-YYYY-MM-DD`
 
 Behavior:
+- **Auto-cleanup:** Before creating a branch, older branches of the same category (`cherry/<slug>-<older-date>`) are deleted locally and from origin. A newer run's branches are a superset of older ones, so only the latest run's branches survive.
 - Cherry-picks oldest-first (chronological order)
 - Skips already-applied SHAs (`git merge-base --is-ancestor`)
 - Aborts and logs conflicting picks to `docs/upstream-candidates/conflicts-YYYY-MM-DD.txt`

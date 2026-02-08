@@ -526,6 +526,17 @@ if [[ "${APPLY}" == "true" ]]; then
 
     log "  Branch: ${branch_name} (${count} commits)"
 
+    # Delete older branches for this category (current run supersedes them)
+    while IFS= read -r old_branch; do
+      [[ -z "${old_branch}" ]] && continue
+      old_branch="${old_branch## }"          # trim leading whitespace
+      old_branch="${old_branch##remotes/origin/}"
+      [[ "${old_branch}" == "${branch_name}" ]] && continue  # keep current
+      log "    Removing superseded branch: ${old_branch}"
+      git branch -D "${old_branch}" 2>/dev/null || true
+      git push origin --delete "${old_branch}" 2>/dev/null || true
+    done < <(git branch -a --list "*cherry/${branch_slug}-*" | sed 's|^[ *]*||')
+
     # Create branch from base
     if git rev-parse --verify "${branch_name}" &>/dev/null; then
       log "  Branch ${branch_name} already exists; reusing"
