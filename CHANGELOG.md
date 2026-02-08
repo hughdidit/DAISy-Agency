@@ -33,6 +33,11 @@ Docs: https://docs.openclaw.ai
 - Memory: set Voyage embeddings `input_type` for improved retrieval. (#10818) Thanks @mcinteerj.
 - Memory/QMD: run boot refresh in background by default, add configurable QMD maintenance timeouts, and retry QMD after fallback failures. (#9690, #9705)
 - Media understanding: recognize `.caf` audio attachments for transcription. (#10982) Thanks @succ985.
+<<<<<<< HEAD
+=======
+- State dir: honor `OPENCLAW_STATE_DIR` for default device identity and canvas storage paths. (#4824) Thanks @kossoy.
+- Doctor/State dir: suppress repeated legacy migration warnings only for valid symlink mirrors, while keeping warnings for empty or invalid legacy trees. (#11709) Thanks @gumadeiras.
+>>>>>>> b75d61808 (fix(doctor): suppress repeated legacy state migration warnings (#11709))
 - Tests: harden flaky hotspots by removing timer sleeps, consolidating onboarding provider-auth coverage, and improving memory test realism. (#11598) Thanks @gumadeiras.
 
 >>>>>>> e2dea2684 (Tests: harden flake hotspots and consolidate provider-auth suites (#11598))
