@@ -680,7 +680,19 @@ export const registerTelegramNativeCommands = ({
           }
           const { resolvedThreadId, senderId, commandAuthorized, isGroup } = auth;
           const messageThreadId = (msg as { message_thread_id?: number }).message_thread_id;
+<<<<<<< HEAD
           const threadIdForSend = isGroup ? resolvedThreadId : messageThreadId;
+=======
+          const threadSpec = resolveTelegramThreadSpec({
+            isGroup,
+            isForum,
+            messageThreadId,
+          });
+          const from = isGroup
+            ? buildTelegramGroupFrom(chatId, threadSpec.id)
+            : `telegram:${chatId}`;
+          const to = `telegram:${chatId}`;
+>>>>>>> 730f86dd5 (Gateway/Plugins: device pairing + phone control plugins (#11755))
 
           const result = await executePluginCommand({
             command: match.command,
@@ -690,6 +702,10 @@ export const registerTelegramNativeCommands = ({
             isAuthorizedSender: commandAuthorized,
             commandBody,
             config: cfg,
+            from,
+            to,
+            accountId,
+            messageThreadId: threadSpec.id,
           });
           const tableMode = resolveMarkdownTableMode({
             cfg,
