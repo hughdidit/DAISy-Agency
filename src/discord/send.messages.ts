@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 import type { APIMessage } from "discord-api-types/v10";
 import { Routes } from "discord-api-types/v10";
 import { resolveDiscordRest } from "./send.shared.js";
+=======
+import type { APIChannel, APIMessage } from "discord-api-types/v10";
+import { ChannelType, Routes } from "discord-api-types/v10";
+>>>>>>> 9949f8259 (fix(discord): support forum channel thread-create (#10062))
 import type {
   DiscordMessageEdit,
   DiscordMessageQuery,
@@ -105,7 +110,26 @@ export async function createThreadDiscord(
   if (payload.autoArchiveMinutes) {
     body.auto_archive_duration = payload.autoArchiveMinutes;
   }
-  const route = Routes.threads(channelId, payload.messageId);
+  let channelType: ChannelType | undefined;
+  if (!payload.messageId) {
+    // Only detect channel kind for route-less thread creation.
+    // If this lookup fails, keep prior behavior and let Discord validate.
+    try {
+      const channel = (await rest.get(Routes.channel(channelId))) as APIChannel | null | undefined;
+      channelType = channel?.type;
+    } catch {
+      channelType = undefined;
+    }
+  }
+  const isForumLike =
+    channelType === ChannelType.GuildForum || channelType === ChannelType.GuildMedia;
+  if (isForumLike) {
+    const starterContent = payload.content?.trim() ? payload.content : payload.name;
+    body.message = { content: starterContent };
+  }
+  const route = payload.messageId
+    ? Routes.threads(channelId, payload.messageId)
+    : Routes.threads(channelId);
   return await rest.post(route, { body });
 }
 

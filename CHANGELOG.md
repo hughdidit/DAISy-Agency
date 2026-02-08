@@ -21,6 +21,11 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+<<<<<<< HEAD
+=======
+- Discord: support forum/media `thread create` starter messages, wire `message thread create --message`, and harden thread-create routing. (#10062) Thanks @jarvis89757.
+- Web UI: make chat refresh smoothly scroll to the latest messages and suppress new-messages badge flash during manual refresh.
+>>>>>>> 9949f8259 (fix(discord): support forum channel thread-create (#10062))
 - Cron: route text-only isolated agent announces through the shared subagent announce flow; add exponential backoff for repeated errors; preserve future `nextRunAtMs` on restart; include current-boundary schedule matches; prevent stale threadId reuse across targets; and add per-job execution timeout. (#11641) Thanks @tyler6204.
 - Agents: recover from context overflow caused by oversized tool results (pre-emptive capping + fallback truncation). (#11579) Thanks @tyler6204.
 - Gateway/CLI: when `gateway.bind=lan`, use a LAN IP for probe URLs and Control UI links. (#11448) Thanks @AnonO6.
