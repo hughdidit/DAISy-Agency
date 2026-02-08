@@ -142,4 +142,115 @@ describe("installSessionToolResultGuard", () => {
       .map((e) => (e as { message: AgentMessage }).message);
     expect(messages.map((m) => m.role)).toEqual(["assistant", "toolResult"]);
   });
+<<<<<<< HEAD
+=======
+
+  it("drops malformed tool calls missing input before persistence", () => {
+    const sm = SessionManager.inMemory();
+    installSessionToolResultGuard(sm);
+
+    sm.appendMessage(
+      asAppendMessage({
+        role: "assistant",
+        content: [{ type: "toolCall", id: "call_1", name: "read" }],
+      }),
+    );
+
+    const messages = sm
+      .getEntries()
+      .filter((e) => e.type === "message")
+      .map((e) => (e as { message: AgentMessage }).message);
+
+    expect(messages).toHaveLength(0);
+  });
+
+  it("flushes pending tool results when a sanitized assistant message is dropped", () => {
+    const sm = SessionManager.inMemory();
+    installSessionToolResultGuard(sm);
+
+    sm.appendMessage(
+      asAppendMessage({
+        role: "assistant",
+        content: [{ type: "toolCall", id: "call_1", name: "read", arguments: {} }],
+      }),
+    );
+
+    sm.appendMessage(
+      asAppendMessage({
+        role: "assistant",
+        content: [{ type: "toolCall", id: "call_2", name: "read" }],
+      }),
+    );
+
+    const messages = sm
+      .getEntries()
+      .filter((e) => e.type === "message")
+      .map((e) => (e as { message: AgentMessage }).message);
+
+    expect(messages.map((m) => m.role)).toEqual(["assistant", "toolResult"]);
+  });
+
+  it("caps oversized tool result text during persistence", () => {
+    const sm = SessionManager.inMemory();
+    installSessionToolResultGuard(sm);
+
+    sm.appendMessage(toolCallMessage);
+    sm.appendMessage(
+      asAppendMessage({
+        role: "toolResult",
+        toolCallId: "call_1",
+        toolName: "read",
+        content: [{ type: "text", text: "x".repeat(500_000) }],
+        isError: false,
+        timestamp: Date.now(),
+      }),
+    );
+
+    const entries = sm
+      .getEntries()
+      .filter((e) => e.type === "message")
+      .map((e) => (e as { message: AgentMessage }).message);
+
+    const toolResult = entries.find((m) => m.role === "toolResult") as {
+      content: Array<{ type: string; text: string }>;
+    };
+    expect(toolResult).toBeDefined();
+    const textBlock = toolResult.content.find((b: { type: string }) => b.type === "text") as {
+      text: string;
+    };
+    expect(textBlock.text.length).toBeLessThan(500_000);
+    expect(textBlock.text).toContain("truncated");
+  });
+
+  it("does not truncate tool results under the limit", () => {
+    const sm = SessionManager.inMemory();
+    installSessionToolResultGuard(sm);
+
+    const originalText = "small tool result";
+    sm.appendMessage(toolCallMessage);
+    sm.appendMessage(
+      asAppendMessage({
+        role: "toolResult",
+        toolCallId: "call_1",
+        toolName: "read",
+        content: [{ type: "text", text: originalText }],
+        isError: false,
+        timestamp: Date.now(),
+      }),
+    );
+
+    const entries = sm
+      .getEntries()
+      .filter((e) => e.type === "message")
+      .map((e) => (e as { message: AgentMessage }).message);
+
+    const toolResult = entries.find((m) => m.role === "toolResult") as {
+      content: Array<{ type: string; text: string }>;
+    };
+    const textBlock = toolResult.content.find((b: { type: string }) => b.type === "text") as {
+      text: string;
+    };
+    expect(textBlock.text).toBe(originalText);
+  });
+>>>>>>> 0deb8b0da (fix: recover from context overflow caused by oversized tool results (#11579))
 });
