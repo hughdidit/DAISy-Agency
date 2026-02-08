@@ -260,6 +260,10 @@ const FIELD_LABELS: Record<string, string> = {
   "memory.backend": "Memory Backend",
   "memory.citations": "Memory Citations Mode",
   "memory.qmd.command": "QMD Binary",
+<<<<<<< HEAD
+=======
+  "memory.qmd.searchMode": "QMD Search Mode",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "memory.qmd.includeDefaultMemory": "QMD Include Default Memory",
   "memory.qmd.paths": "QMD Extra Paths",
   "memory.qmd.paths.path": "QMD Path",
@@ -306,7 +310,10 @@ const FIELD_LABELS: Record<string, string> = {
   "commands.restart": "Allow Restart",
   "commands.useAccessGroups": "Use Access Groups",
   "commands.ownerAllowFrom": "Command Owners",
+<<<<<<< HEAD
   "commands.allowFrom": "Command Access Allowlist",
+=======
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "ui.seamColor": "Accent Color",
   "ui.assistant.name": "Assistant Name",
   "ui.assistant.avatar": "Assistant Avatar",
@@ -555,7 +562,11 @@ const FIELD_HELP: Record<string, string> = {
   "agents.defaults.memorySearch.remote.headers":
     "Extra headers for remote embeddings (merged; remote overrides OpenAI headers).",
   "agents.defaults.memorySearch.remote.batch.enabled":
+<<<<<<< HEAD
     "Enable batch API for memory embeddings (OpenAI/Gemini/Voyage; default: false).",
+=======
+    "Enable batch API for memory embeddings (OpenAI/Gemini; default: true).",
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "agents.defaults.memorySearch.remote.batch.wait":
     "Wait for batch completion when indexing (default: true).",
   "agents.defaults.memorySearch.remote.batch.concurrency":
@@ -588,6 +599,11 @@ const FIELD_HELP: Record<string, string> = {
   "memory.backend": 'Memory backend ("builtin" for OpenClaw embeddings, "qmd" for QMD sidecar).',
   "memory.citations": 'Default citation behavior ("auto", "on", or "off").',
   "memory.qmd.command": "Path to the qmd binary (default: resolves from PATH).",
+<<<<<<< HEAD
+=======
+  "memory.qmd.searchMode":
+    'QMD search command used for memory recall ("query", "search", or "vsearch"; default: "query").',
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "memory.qmd.includeDefaultMemory":
     "Whether to automatically index MEMORY.md + memory/**/*.md (default: true).",
   "memory.qmd.paths":
@@ -676,8 +692,11 @@ const FIELD_HELP: Record<string, string> = {
   "commands.useAccessGroups": "Enforce access-group allowlists/policies for commands.",
   "commands.ownerAllowFrom":
     "Explicit owner allowlist for owner-only tools/commands. Use channel-native IDs (optionally prefixed like \"whatsapp:+15551234567\"). '*' is ignored.",
+<<<<<<< HEAD
   "commands.allowFrom":
     'Per-provider allowlist restricting who can use slash commands. If set, overrides the channel\'s allowFrom for command authorization. Use \'*\' key for global default; provider-specific keys (e.g. \'discord\') override the global. Example: { "*": ["user1"], "discord": ["user:123"] }.',
+=======
+>>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
   "session.dmScope":
     'DM session scoping: "main" keeps continuity; "per-peer", "per-channel-peer", or "per-account-channel-peer" isolates DM history (recommended for shared inboxes/multi-account).',
   "session.identityLinks":
