@@ -1,10 +1,13 @@
-import os from "node:os";
 import path from "node:path";
 
 import { CHANNEL_IDS } from "../../channels/registry.js";
 import { STATE_DIR } from "../../config/config.js";
 
+<<<<<<< HEAD
 export const DEFAULT_SANDBOX_WORKSPACE_ROOT = path.join(os.homedir(), ".clawdbot", "sandboxes");
+=======
+export const DEFAULT_SANDBOX_WORKSPACE_ROOT = path.join(STATE_DIR, "sandboxes");
+>>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 
 export const DEFAULT_SANDBOX_IMAGE = "moltbot-sandbox:bookworm-slim";
 export const DEFAULT_SANDBOX_CONTAINER_PREFIX = "moltbot-sbx-";
@@ -48,7 +51,11 @@ export const DEFAULT_SANDBOX_BROWSER_AUTOSTART_TIMEOUT_MS = 12_000;
 
 export const SANDBOX_AGENT_WORKSPACE_MOUNT = "/agent";
 
+<<<<<<< HEAD
 const resolvedSandboxStateDir = STATE_DIR ?? path.join(os.homedir(), ".clawdbot");
 export const SANDBOX_STATE_DIR = path.join(resolvedSandboxStateDir, "sandbox");
+=======
+export const SANDBOX_STATE_DIR = path.join(STATE_DIR, "sandbox");
+>>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 export const SANDBOX_REGISTRY_PATH = path.join(SANDBOX_STATE_DIR, "containers.json");
 export const SANDBOX_BROWSER_REGISTRY_PATH = path.join(SANDBOX_STATE_DIR, "browsers.json");

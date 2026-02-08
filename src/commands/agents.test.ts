@@ -2,8 +2,13 @@ import os from "node:os";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveStateDir } from "../config/paths.js";
+>>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
 import {
   applyAgentBindings,
   applyAgentConfig,
@@ -45,7 +50,13 @@ describe("agents helpers", () => {
     const work = summaries.find((summary) => summary.id === "work");
 
     expect(main).toBeTruthy();
+<<<<<<< HEAD
     expect(main?.workspace).toBe(path.join(os.homedir(), "clawd-main"));
+=======
+    expect(main?.workspace).toBe(
+      path.join(resolveStateDir(process.env, os.homedir), "workspace-main"),
+    );
+>>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
     expect(main?.bindings).toBe(1);
     expect(main?.model).toBe("anthropic/claude");
     expect(main?.agentDir.endsWith(path.join("agents", "main", "agent"))).toBe(true);

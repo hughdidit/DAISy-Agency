@@ -11,6 +11,7 @@ import os from "node:os";
 import { fileURLToPath } from "node:url";
 import type { MoltbotConfig } from "../../../config/config.js";
 import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
+import { resolveStateDir } from "../../../config/paths.js";
 import { createSubsystemLogger } from "../../../logging/subsystem.js";
 import { resolveAgentIdFromSessionKey } from "../../../routing/session-key.js";
 import { resolveHookConfig } from "../../config.js";
@@ -78,7 +79,11 @@ const saveSessionToMemory: HookHandler = async (event) => {
     const agentId = resolveAgentIdFromSessionKey(event.sessionKey);
     const workspaceDir = cfg
       ? resolveAgentWorkspaceDir(cfg, agentId)
+<<<<<<< HEAD
       : path.join(os.homedir(), "clawd");
+=======
+      : path.join(resolveStateDir(process.env, os.homedir), "workspace");
+>>>>>>> ebe573040 (fix: use STATE_DIR instead of hardcoded ~/.openclaw for identity and canvas (#4824))
     const memoryDir = path.join(workspaceDir, "memory");
     await fs.mkdir(memoryDir, { recursive: true });
 
