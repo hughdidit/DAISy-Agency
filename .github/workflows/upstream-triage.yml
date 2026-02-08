@@ -73,9 +73,9 @@ jobs:
           echo "Running: scripts/upstream-triage.sh ${ARGS[*]}"
           scripts/upstream-triage.sh "${ARGS[@]}"
 
-          # Capture report path for subsequent steps
-          REPORT="docs/upstream-candidates/$(date +%Y-%m-%d).md"
-          if [[ -f "${REPORT}" ]]; then
+          # Capture report path for subsequent steps (filename includes HHMM)
+          REPORT="$(ls -t docs/upstream-candidates/*.md 2>/dev/null | head -1)"
+          if [[ -n "${REPORT}" && -f "${REPORT}" ]]; then
             echo "report_path=${REPORT}" >> "$GITHUB_OUTPUT"
             echo "has_report=true" >> "$GITHUB_OUTPUT"
           else
