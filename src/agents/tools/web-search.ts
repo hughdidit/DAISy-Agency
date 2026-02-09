@@ -221,6 +221,39 @@ function resolvePerplexityModel(perplexity?: PerplexityConfig): string {
   return fromConfig || DEFAULT_PERPLEXITY_MODEL;
 }
 
+<<<<<<< HEAD
+=======
+function resolveGrokConfig(search?: WebSearchConfig): GrokConfig {
+  if (!search || typeof search !== "object") {
+    return {};
+  }
+  const grok = "grok" in search ? search.grok : undefined;
+  if (!grok || typeof grok !== "object") {
+    return {};
+  }
+  return grok as GrokConfig;
+}
+
+function resolveGrokApiKey(grok?: GrokConfig): string | undefined {
+  const fromConfig = normalizeApiKey(grok?.apiKey);
+  if (fromConfig) {
+    return fromConfig;
+  }
+  const fromEnv = normalizeApiKey(process.env.XAI_API_KEY);
+  return fromEnv || undefined;
+}
+
+function resolveGrokModel(grok?: GrokConfig): string {
+  const fromConfig =
+    grok && "model" in grok && typeof grok.model === "string" ? grok.model.trim() : "";
+  return fromConfig || DEFAULT_GROK_MODEL;
+}
+
+function resolveGrokInlineCitations(grok?: GrokConfig): boolean {
+  return grok?.inlineCitations === true;
+}
+
+>>>>>>> c984e6d8d (fix: prevent false positive context overflow detection in conversation text (#2078))
 function resolveSearchCount(value: unknown, fallback: number): number {
   const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback;
   const clamped = Math.max(1, Math.min(MAX_SEARCH_COUNT, Math.floor(parsed)));
@@ -323,7 +356,13 @@ async function runWebSearch(params: {
   const cacheKey = normalizeCacheKey(
     params.provider === "brave"
       ? `${params.provider}:${params.query}:${params.count}:${params.country || "default"}:${params.search_lang || "default"}:${params.ui_lang || "default"}:${params.freshness || "default"}`
+<<<<<<< HEAD
       : `${params.provider}:${params.query}:${params.count}:${params.country || "default"}:${params.search_lang || "default"}:${params.ui_lang || "default"}`,
+=======
+      : params.provider === "perplexity"
+        ? `${params.provider}:${params.query}:${params.perplexityBaseUrl ?? DEFAULT_PERPLEXITY_BASE_URL}:${params.perplexityModel ?? DEFAULT_PERPLEXITY_MODEL}`
+        : `${params.provider}:${params.query}:${params.grokModel ?? DEFAULT_GROK_MODEL}:${String(params.grokInlineCitations ?? false)}`,
+>>>>>>> c984e6d8d (fix: prevent false positive context overflow detection in conversation text (#2078))
   );
   const cached = readCache(SEARCH_CACHE, cacheKey);
   if (cached) return { ...cached.value, cached: true };
