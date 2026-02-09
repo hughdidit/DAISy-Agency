@@ -29,20 +29,16 @@ jobs:
 
     steps:
       - name: Checkout
-        # Pinned SHA for actions/checkout (v4).
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        # Pinned SHA for github/codeql-action/init (v3).
-        uses: github/codeql-action/init@f0d3a02f8d7b8d8f1d99b989f58d02423f7b8aaf
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
           build-mode: none
-          # Start with standard queries; expand later if needed.
           queries: security-extended
 
       - name: Perform CodeQL Analysis
-        # Pinned SHA for github/codeql-action/analyze (v3).
-        uses: github/codeql-action/analyze@f0d3a02f8d7b8d8f1d99b989f58d02423f7b8aaf
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
