@@ -14,12 +14,22 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+<<<<<<< HEAD
 - Exec approvals: format forwarded command text as inline/fenced monospace for safer approval scanning across channels. (#11937)
 - Docs: fix language switcher ordering and Japanese locale flag in Mintlify nav. (#12023) Thanks @joshp123.
 - Paths: add `OPENCLAW_HOME` and make internal path resolution respect `HOME`/`USERPROFILE` before `os.homedir()` across config, agents, sessions, pairing, cron, and CLI profiles. (#12091) Thanks @sebslight.
 - Thinking: allow xhigh for `github-copilot/gpt-5.2-codex` and `github-copilot/gpt-5.2`. (#11646) Thanks @seans-openclawbot.
 - Discord: support forum/media `thread create` starter messages, wire `message thread create --message`, and harden thread-create routing. (#10062) Thanks @jarvis89757.
 - Gateway: stabilize chat routing by canonicalizing node session keys for node-originated chat methods. (#11755) Thanks @mbelinky.
+=======
+- Telegram: harden quote parsing; preserve quote context; avoid QUOTE_TEXT_INVALID; avoid nested reply quote misclassification. (#12156) Thanks @rybnikov.
+- Telegram: recover proactive sends when stale topic thread IDs are used by retrying without `message_thread_id`. (#11620)
+- Telegram: render markdown spoilers with `<tg-spoiler>` HTML tags. (#11543) Thanks @ezhikkk.
+- Telegram: truncate command registration to 100 entries to avoid `BOT_COMMANDS_TOO_MUCH` failures on startup. (#12356) Thanks @arosstale.
+- Telegram: match DM `allowFrom` against sender user id (fallback to chat id) and clarify pairing logs. (#12779) Thanks @liuxiaopai-ai.
+- Onboarding: QuickStart now auto-installs shell completion (prompt only in Manual).
+- Auth: strip embedded line breaks from pasted API keys and tokens before storing/resolving credentials.
+>>>>>>> 394d60c1f (fix(onboarding): auto-install shell completion in QuickStart)
 - Web UI: make chat refresh smoothly scroll to the latest messages and suppress new-messages badge flash during manual refresh.
 <<<<<<< HEAD
 - Cron: route text-only isolated agent announces through the shared subagent announce flow; add exponential backoff for repeated errors; preserve future `nextRunAtMs` on restart; include current-boundary schedule matches; prevent stale threadId reuse across targets; and add per-job execution timeout. (#11641) Thanks @tyler6204.
