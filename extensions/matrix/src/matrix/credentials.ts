@@ -13,7 +13,19 @@ export type MatrixStoredCredentials = {
   lastUsedAt?: string;
 };
 
+<<<<<<< HEAD
 const CREDENTIALS_FILENAME = "credentials.json";
+=======
+function credentialsFilename(accountId?: string | null): string {
+  const normalized = normalizeAccountId(accountId);
+  if (normalized === DEFAULT_ACCOUNT_ID) {
+    return "credentials.json";
+  }
+  // normalizeAccountId produces lowercase [a-z0-9-] strings, already filesystem-safe.
+  // Different raw IDs that normalize to the same value are the same logical account.
+  return `credentials-${normalized}.json`;
+}
+>>>>>>> da00f6cf8 (fix: deep-merge nested config, prefer default account in send fallback, simplify credential filenames)
 
 export function resolveMatrixCredentialsDir(
   env: NodeJS.ProcessEnv = process.env,

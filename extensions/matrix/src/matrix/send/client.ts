@@ -1,8 +1,12 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { normalizeAccountId } from "openclaw/plugin-sdk";
+=======
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk";
+>>>>>>> da00f6cf8 (fix: deep-merge nested config, prefer default account in send fallback, simplify credential filenames)
 import type { CoreConfig } from "../../types.js";
 >>>>>>> c89b8d99f (fix: normalize accountId in active-client and send/client for consistent keying)
 import { getMatrixRuntime } from "../../runtime.js";
@@ -74,10 +78,34 @@ export async function resolveMatrixClient(opts: {
   timeoutMs?: number;
 }): Promise<{ client: MatrixClient; stopOnDone: boolean }> {
   ensureNodeRuntime();
+<<<<<<< HEAD
   if (opts.client) return { client: opts.client, stopOnDone: false };
   const active = getActiveMatrixClient();
   if (active) return { client: active, stopOnDone: false };
   const shouldShareClient = Boolean(process.env.CLAWDBOT_GATEWAY_PORT);
+=======
+  if (opts.client) {
+    return { client: opts.client, stopOnDone: false };
+  }
+  // Try to get the client for the specific account
+  const active = getActiveMatrixClient(opts.accountId);
+  if (active) {
+    return { client: active, stopOnDone: false };
+  }
+  // When no account is specified, try the default account first; only fall back to
+  // any active client as a last resort (prevents sending from an arbitrary account).
+  if (!opts.accountId) {
+    const defaultClient = getActiveMatrixClient(DEFAULT_ACCOUNT_ID);
+    if (defaultClient) {
+      return { client: defaultClient, stopOnDone: false };
+    }
+    const anyActive = getAnyActiveMatrixClient();
+    if (anyActive) {
+      return { client: anyActive, stopOnDone: false };
+    }
+  }
+  const shouldShareClient = Boolean(process.env.OPENCLAW_GATEWAY_PORT);
+>>>>>>> da00f6cf8 (fix: deep-merge nested config, prefer default account in send fallback, simplify credential filenames)
   if (shouldShareClient) {
     const client = await resolveSharedMatrixClient({
       timeoutMs: opts.timeoutMs,
