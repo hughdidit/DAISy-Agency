@@ -16,11 +16,15 @@
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
 <<<<<<< HEAD:apps/macos/Sources/Moltbot/Resources/Info.plist
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/Resources/Info.plist
     <string>2026.1.27-beta.1</string>
     <key>CFBundleVersion</key>
     <string>202601260</string>
 =======
     <string>2026.2.2</string>
+=======
+    <string>2026.2.9</string>
+>>>>>>> fb8c653f5 (chore(release): 2026.2.9):apps/macos/Sources/OpenClaw/Resources/Info.plist
     <key>CFBundleVersion</key>
     <string>202602020</string>
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release):apps/macos/Sources/OpenClaw/Resources/Info.plist

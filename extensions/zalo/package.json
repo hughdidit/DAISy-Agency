@@ -8,6 +8,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
 =======
@@ -21,6 +22,9 @@
 =======
   "version": "2026.2.6-3",
 >>>>>>> 9f703a44d (chore(release): 2026.2.6-3)
+=======
+  "version": "2026.2.9",
+>>>>>>> fb8c653f5 (chore(release): 2026.2.9)
   "description": "OpenClaw Zalo channel plugin",
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
   "type": "module",

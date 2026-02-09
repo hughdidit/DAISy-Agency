@@ -22,12 +22,17 @@ android {
     minSdk = 31
     targetSdk = 36
 <<<<<<< HEAD
+<<<<<<< HEAD
     versionCode = 202601260
     versionName = "2026.1.27-beta.1"
 =======
     versionCode = 202602020
     versionName = "2026.2.2"
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
+=======
+    versionCode = 202602030
+    versionName = "2026.2.9"
+>>>>>>> fb8c653f5 (chore(release): 2026.2.9)
   }
 
   buildTypes {

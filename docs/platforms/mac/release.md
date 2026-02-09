@@ -32,16 +32,21 @@ Notes:
 # APP_BUILD must be numeric + monotonic for Sparkle compare.
 BUNDLE_ID=bot.molt.mac \
 <<<<<<< HEAD
+<<<<<<< HEAD
 APP_VERSION=2026.1.27-beta.1 \
 =======
 APP_VERSION=2026.2.2 \
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
+=======
+APP_VERSION=2026.2.9 \
+>>>>>>> fb8c653f5 (chore(release): 2026.2.9)
 APP_BUILD="$(git rev-list --count HEAD)" \
 BUILD_CONFIG=release \
 SIGN_IDENTITY="Developer ID Application: <Developer Name> (<TEAMID>)" \
 scripts/package-mac-app.sh
 
 # Zip for distribution (includes resource forks for Sparkle delta support)
+<<<<<<< HEAD
 <<<<<<< HEAD
 ditto -c -k --sequesterRsrc --keepParent dist/Moltbot.app dist/Moltbot-2026.1.27-beta.1.zip
 
@@ -53,6 +58,12 @@ ditto -c -k --sequesterRsrc --keepParent dist/OpenClaw.app dist/OpenClaw-2026.2.
 # Optional: also build a styled DMG for humans (drag to /Applications)
 scripts/create-dmg.sh dist/OpenClaw.app dist/OpenClaw-2026.2.2.dmg
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
+=======
+ditto -c -k --sequesterRsrc --keepParent dist/OpenClaw.app dist/OpenClaw-2026.2.9.zip
+
+# Optional: also build a styled DMG for humans (drag to /Applications)
+scripts/create-dmg.sh dist/OpenClaw.app dist/OpenClaw-2026.2.9.dmg
+>>>>>>> fb8c653f5 (chore(release): 2026.2.9)
 
 # Recommended: build + notarize/staple zip + DMG
 # First, create a keychain profile once:
@@ -61,10 +72,14 @@ scripts/create-dmg.sh dist/OpenClaw.app dist/OpenClaw-2026.2.2.dmg
 NOTARIZE=1 NOTARYTOOL_PROFILE=moltbot-notary \
 BUNDLE_ID=bot.molt.mac \
 <<<<<<< HEAD
+<<<<<<< HEAD
 APP_VERSION=2026.1.27-beta.1 \
 =======
 APP_VERSION=2026.2.2 \
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
+=======
+APP_VERSION=2026.2.9 \
+>>>>>>> fb8c653f5 (chore(release): 2026.2.9)
 APP_BUILD="$(git rev-list --count HEAD)" \
 BUILD_CONFIG=release \
 SIGN_IDENTITY="Developer ID Application: <Developer Name> (<TEAMID>)" \
@@ -72,20 +87,28 @@ scripts/package-mac-dist.sh
 
 # Optional: ship dSYM alongside the release
 <<<<<<< HEAD
+<<<<<<< HEAD
 ditto -c -k --keepParent apps/macos/.build/release/Moltbot.app.dSYM dist/Moltbot-2026.1.27-beta.1.dSYM.zip
 =======
 ditto -c -k --keepParent apps/macos/.build/release/OpenClaw.app.dSYM dist/OpenClaw-2026.2.2.dSYM.zip
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
+=======
+ditto -c -k --keepParent apps/macos/.build/release/OpenClaw.app.dSYM dist/OpenClaw-2026.2.9.dSYM.zip
+>>>>>>> fb8c653f5 (chore(release): 2026.2.9)
 ```
 
 ## Appcast entry
 Use the release note generator so Sparkle renders formatted HTML notes:
 ```bash
 <<<<<<< HEAD
+<<<<<<< HEAD
 SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh dist/Moltbot-2026.1.27-beta.1.zip https://raw.githubusercontent.com/moltbot/moltbot/main/appcast.xml
 =======
 SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh dist/OpenClaw-2026.2.2.zip https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
+=======
+SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh dist/OpenClaw-2026.2.9.zip https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml
+>>>>>>> fb8c653f5 (chore(release): 2026.2.9)
 ```
 Generates HTML release notes from `CHANGELOG.md` (via [`scripts/changelog-to-html.sh`](https://github.com/moltbot/moltbot/blob/main/scripts/changelog-to-html.sh)) and embeds them in the appcast entry.
 Commit the updated `appcast.xml` alongside the release assets (zip + dSYM) when publishing.
@@ -96,7 +119,11 @@ Commit the updated `appcast.xml` alongside the release assets (zip + dSYM) when 
 - Ensure the raw appcast URL matches the baked feed: `https://raw.githubusercontent.com/moltbot/moltbot/main/appcast.xml`.
 =======
 
+<<<<<<< HEAD
 - Upload `OpenClaw-2026.2.2.zip` (and `OpenClaw-2026.2.2.dSYM.zip`) to the GitHub release for tag `v2026.2.2`.
+=======
+- Upload `OpenClaw-2026.2.9.zip` (and `OpenClaw-2026.2.9.dSYM.zip`) to the GitHub release for tag `v2026.2.9`.
+>>>>>>> fb8c653f5 (chore(release): 2026.2.9)
 - Ensure the raw appcast URL matches the baked feed: `https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml`.
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 - Sanity checks:
