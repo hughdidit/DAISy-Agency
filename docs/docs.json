@@ -1545,8 +1545,25 @@
                 ]
               },
               {
+<<<<<<< HEAD
                 "group": "Developer workflows",
                 "pages": ["start/setup", "help/submitting-a-pr", "help/submitting-an-issue"]
+=======
+                "group": "Node runtime",
+                "pages": ["install/node"]
+              },
+              {
+                "group": "Compaction internals",
+                "pages": ["reference/session-management-compaction"]
+              },
+              {
+                "group": "Developer setup",
+                "pages": ["start/setup"]
+              },
+              {
+                "group": "Contributing",
+                "pages": ["help/submitting-a-pr", "help/submitting-an-issue", "ci"]
+>>>>>>> e4a04f32e (docs: add ci.md to Contributing navigation)
               },
               {
                 "group": "Docs meta",
