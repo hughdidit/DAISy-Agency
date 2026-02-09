@@ -8,6 +8,7 @@ import JSON5 from "json5";
 
 =======
 import type { OpenClawConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./types.js";
+import { loadDotEnv } from "../infra/dotenv.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
 >>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
 import {
@@ -203,6 +204,15 @@ function normalizeDeps(overrides: ConfigIoDeps = {}): Required<ConfigIoDeps> {
   };
 }
 
+function maybeLoadDotEnvForConfig(env: NodeJS.ProcessEnv): void {
+  // Only hydrate dotenv for the real process env. Callers using injected env
+  // objects (tests/diagnostics) should stay isolated.
+  if (env !== process.env) {
+    return;
+  }
+  loadDotEnv({ quiet: true });
+}
+
 export function parseConfigJson5(
   raw: string,
   json5: { parse: (value: string) => unknown } = JSON5,
@@ -225,6 +235,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
 
   function loadConfig(): MoltbotConfig {
     try {
+      maybeLoadDotEnvForConfig(deps.env);
       if (!deps.fs.existsSync(configPath)) {
         if (shouldEnableShellEnvFallback(deps.env) && !shouldDeferShellEnvFallback(deps.env)) {
           loadShellEnvFallback({
@@ -340,6 +351,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
   }
 
   async function readConfigFileSnapshot(): Promise<ConfigFileSnapshot> {
+    maybeLoadDotEnvForConfig(deps.env);
     const exists = deps.fs.existsSync(configPath);
     if (!exists) {
       const hash = hashConfigRaw(null);

@@ -66,6 +66,7 @@ Docs: https://docs.openclaw.ai
 - Tools/web_search: normalize direct Perplexity model IDs while keeping OpenRouter model IDs unchanged. (#12795) Thanks @cdorsey.
 - Model failover: treat HTTP 400 errors as failover-eligible, enabling automatic model fallback. (#1879) Thanks @orenyomtov.
 - Errors: prevent false positive context overflow detection when conversation mentions "context overflow" topic. (#2078) Thanks @sbking.
+- Config: re-hydrate state-dir `.env` during runtime config loads so `${VAR}` substitutions remain resolvable. (#12748) Thanks @rodrigouroz.
 - Gateway: no more post-compaction amnesia; injected transcript writes now preserve Pi session `parentId` chain so agents can remember again. (#12283) Thanks @Takhoffman.
 - Gateway: fix multi-agent sessions.usage discovery. (#11523) Thanks @Takhoffman.
 >>>>>>> 512b2053c (fix(web_search): Fix invalid model name sent to Perplexity (#12795))
