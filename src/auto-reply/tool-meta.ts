@@ -10,12 +10,19 @@ export function shortenPath(p: string): string {
 }
 
 export function shortenMeta(meta: string): string {
+<<<<<<< HEAD
   if (!meta) return meta;
   const colonIdx = meta.indexOf(":");
   if (colonIdx === -1) return shortenHomeInString(meta);
   const base = meta.slice(0, colonIdx);
   const rest = meta.slice(colonIdx);
   return `${shortenHomeInString(base)}${rest}`;
+=======
+  if (!meta) {
+    return meta;
+  }
+  return shortenHomeInString(meta);
+>>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
 }
 
 export function formatToolAggregate(

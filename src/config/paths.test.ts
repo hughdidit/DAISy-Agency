@@ -46,13 +46,65 @@ describe("state + config path candidates", () => {
     expect(resolveStateDir(env, () => "/home/test")).toBe(path.resolve("/new/state"));
   });
 
+<<<<<<< HEAD
   it("orders default config candidates as new then legacy", () => {
+=======
+  it("uses OPENCLAW_HOME for default state/config locations", () => {
+    const env = {
+      OPENCLAW_HOME: "/srv/openclaw-home",
+    } as NodeJS.ProcessEnv;
+
+    const resolvedHome = path.resolve("/srv/openclaw-home");
+    expect(resolveStateDir(env)).toBe(path.join(resolvedHome, ".openclaw"));
+
+    const candidates = resolveDefaultConfigCandidates(env);
+    expect(candidates[0]).toBe(path.join(resolvedHome, ".openclaw", "openclaw.json"));
+  });
+
+  it("prefers OPENCLAW_HOME over HOME for default state/config locations", () => {
+    const env = {
+      OPENCLAW_HOME: "/srv/openclaw-home",
+      HOME: "/home/other",
+    } as NodeJS.ProcessEnv;
+
+    const resolvedHome = path.resolve("/srv/openclaw-home");
+    expect(resolveStateDir(env)).toBe(path.join(resolvedHome, ".openclaw"));
+
+    const candidates = resolveDefaultConfigCandidates(env);
+    expect(candidates[0]).toBe(path.join(resolvedHome, ".openclaw", "openclaw.json"));
+  });
+
+  it("orders default config candidates in a stable order", () => {
+>>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
     const home = "/home/test";
+    const resolvedHome = path.resolve(home);
     const candidates = resolveDefaultConfigCandidates({} as NodeJS.ProcessEnv, () => home);
+<<<<<<< HEAD
     expect(candidates[0]).toBe(path.join(home, ".moltbot", "moltbot.json"));
     expect(candidates[1]).toBe(path.join(home, ".moltbot", "clawdbot.json"));
     expect(candidates[2]).toBe(path.join(home, ".clawdbot", "moltbot.json"));
     expect(candidates[3]).toBe(path.join(home, ".clawdbot", "clawdbot.json"));
+=======
+    const expected = [
+      path.join(resolvedHome, ".openclaw", "openclaw.json"),
+      path.join(resolvedHome, ".openclaw", "clawdbot.json"),
+      path.join(resolvedHome, ".openclaw", "moltbot.json"),
+      path.join(resolvedHome, ".openclaw", "moldbot.json"),
+      path.join(resolvedHome, ".clawdbot", "openclaw.json"),
+      path.join(resolvedHome, ".clawdbot", "clawdbot.json"),
+      path.join(resolvedHome, ".clawdbot", "moltbot.json"),
+      path.join(resolvedHome, ".clawdbot", "moldbot.json"),
+      path.join(resolvedHome, ".moltbot", "openclaw.json"),
+      path.join(resolvedHome, ".moltbot", "clawdbot.json"),
+      path.join(resolvedHome, ".moltbot", "moltbot.json"),
+      path.join(resolvedHome, ".moltbot", "moldbot.json"),
+      path.join(resolvedHome, ".moldbot", "openclaw.json"),
+      path.join(resolvedHome, ".moldbot", "clawdbot.json"),
+      path.join(resolvedHome, ".moldbot", "moltbot.json"),
+      path.join(resolvedHome, ".moldbot", "moldbot.json"),
+    ];
+    expect(candidates).toEqual(expected);
+>>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
   });
 
   it("prefers ~/.moltbot when it exists and legacy dir is missing", async () => {

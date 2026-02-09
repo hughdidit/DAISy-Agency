@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import path from "node:path";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
 import {
   resolveAgentConfig,
   resolveAgentModelFallbacksOverride,
@@ -198,6 +204,29 @@ describe("resolveAgentConfig", () => {
     // Should normalize to "main" (default)
     const result = resolveAgentConfig(cfg, "");
     expect(result).toBeDefined();
+<<<<<<< HEAD
     expect(result?.workspace).toBe("~/clawd");
+=======
+    expect(result?.workspace).toBe("~/openclaw");
+  });
+
+  // Unix-style paths behave differently on Windows; skip there
+  it.skipIf(process.platform === "win32")("uses OPENCLAW_HOME for default agent workspace", () => {
+    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
+
+    const workspace = resolveAgentWorkspaceDir({} as OpenClawConfig, "main");
+    expect(workspace).toBe(path.join(path.resolve("/srv/openclaw-home"), ".openclaw", "workspace"));
+  });
+
+  // Unix-style paths behave differently on Windows; skip there
+  it.skipIf(process.platform === "win32")("uses OPENCLAW_HOME for default agentDir", () => {
+    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
+    vi.stubEnv("OPENCLAW_STATE_DIR", "");
+
+    const agentDir = resolveAgentDir({} as OpenClawConfig, "main");
+    expect(agentDir).toBe(
+      path.join(path.resolve("/srv/openclaw-home"), ".openclaw", "agents", "main", "agent"),
+    );
+>>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
   });
 });

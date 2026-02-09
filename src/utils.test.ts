@@ -144,6 +144,46 @@ describe("resolveConfigDir", () => {
   });
 });
 
+<<<<<<< HEAD
+=======
+describe("resolveHomeDir", () => {
+  it("prefers OPENCLAW_HOME over HOME", () => {
+    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
+    vi.stubEnv("HOME", "/home/other");
+
+    expect(resolveHomeDir()).toBe(path.resolve("/srv/openclaw-home"));
+
+    vi.unstubAllEnvs();
+  });
+});
+
+describe("shortenHomePath", () => {
+  it("uses $OPENCLAW_HOME prefix when OPENCLAW_HOME is set", () => {
+    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
+    vi.stubEnv("HOME", "/home/other");
+
+    expect(shortenHomePath(`${path.resolve("/srv/openclaw-home")}/.openclaw/openclaw.json`)).toBe(
+      "$OPENCLAW_HOME/.openclaw/openclaw.json",
+    );
+
+    vi.unstubAllEnvs();
+  });
+});
+
+describe("shortenHomeInString", () => {
+  it("uses $OPENCLAW_HOME replacement when OPENCLAW_HOME is set", () => {
+    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
+    vi.stubEnv("HOME", "/home/other");
+
+    expect(
+      shortenHomeInString(`config: ${path.resolve("/srv/openclaw-home")}/.openclaw/openclaw.json`),
+    ).toBe("config: $OPENCLAW_HOME/.openclaw/openclaw.json");
+
+    vi.unstubAllEnvs();
+  });
+});
+
+>>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
 describe("resolveJidToE164", () => {
   it("resolves @lid via lidLookup when mapping file is missing", async () => {
     const lidLookup = {

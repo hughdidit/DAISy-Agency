@@ -55,11 +55,19 @@ describe("applyCliProfileEnv", () => {
       env,
       homedir: () => "/home/peter",
     });
+<<<<<<< HEAD
     const expectedStateDir = path.join("/home/peter", ".clawdbot-dev");
     expect(env.CLAWDBOT_PROFILE).toBe("dev");
     expect(env.CLAWDBOT_STATE_DIR).toBe(expectedStateDir);
     expect(env.CLAWDBOT_CONFIG_PATH).toBe(path.join(expectedStateDir, "moltbot.json"));
     expect(env.CLAWDBOT_GATEWAY_PORT).toBe("19001");
+=======
+    const expectedStateDir = path.join(path.resolve("/home/peter"), ".openclaw-dev");
+    expect(env.OPENCLAW_PROFILE).toBe("dev");
+    expect(env.OPENCLAW_STATE_DIR).toBe(expectedStateDir);
+    expect(env.OPENCLAW_CONFIG_PATH).toBe(path.join(expectedStateDir, "openclaw.json"));
+    expect(env.OPENCLAW_GATEWAY_PORT).toBe("19001");
+>>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
   });
 
   it("does not override explicit env values", () => {
@@ -72,9 +80,33 @@ describe("applyCliProfileEnv", () => {
       env,
       homedir: () => "/home/peter",
     });
+<<<<<<< HEAD
     expect(env.CLAWDBOT_STATE_DIR).toBe("/custom");
     expect(env.CLAWDBOT_GATEWAY_PORT).toBe("19099");
     expect(env.CLAWDBOT_CONFIG_PATH).toBe(path.join("/custom", "moltbot.json"));
+=======
+    expect(env.OPENCLAW_STATE_DIR).toBe("/custom");
+    expect(env.OPENCLAW_GATEWAY_PORT).toBe("19099");
+    expect(env.OPENCLAW_CONFIG_PATH).toBe(path.join("/custom", "openclaw.json"));
+  });
+
+  it("uses OPENCLAW_HOME when deriving profile state dir", () => {
+    const env: Record<string, string | undefined> = {
+      OPENCLAW_HOME: "/srv/openclaw-home",
+      HOME: "/home/other",
+    };
+    applyCliProfileEnv({
+      profile: "work",
+      env,
+      homedir: () => "/home/fallback",
+    });
+
+    const resolvedHome = path.resolve("/srv/openclaw-home");
+    expect(env.OPENCLAW_STATE_DIR).toBe(path.join(resolvedHome, ".openclaw-work"));
+    expect(env.OPENCLAW_CONFIG_PATH).toBe(
+      path.join(resolvedHome, ".openclaw-work", "openclaw.json"),
+    );
+>>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
   });
 });
 
