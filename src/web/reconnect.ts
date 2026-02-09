@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { MoltbotConfig } from "../config/config.js";
 import type { BackoffPolicy } from "../infra/backoff.js";
 import { computeBackoff, sleepWithAbort } from "../infra/backoff.js";
+import { clamp } from "../utils.js";
 
 export type ReconnectPolicy = BackoffPolicy & {
   maxAttempts: number;
@@ -17,9 +18,13 @@ export const DEFAULT_RECONNECT_POLICY: ReconnectPolicy = {
   maxAttempts: 12,
 };
 
+<<<<<<< HEAD
 const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
 
 export function resolveHeartbeatSeconds(cfg: MoltbotConfig, overrideSeconds?: number): number {
+=======
+export function resolveHeartbeatSeconds(cfg: OpenClawConfig, overrideSeconds?: number): number {
+>>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
   const candidate = overrideSeconds ?? cfg.web?.heartbeatSeconds;
   if (typeof candidate === "number" && candidate > 0) {
     return candidate;

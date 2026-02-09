@@ -1,11 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { resolveConfigDir } from "../utils.js";
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+=======
+import { escapeRegExp, resolveConfigDir } from "../utils.js";
+>>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 
 export function upsertSharedEnvVar(params: {
   key: string;

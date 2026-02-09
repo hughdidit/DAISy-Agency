@@ -1,4 +1,9 @@
 import type { BrowserRouteContext } from "../server-context.js";
+<<<<<<< HEAD
+=======
+import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./types.js";
+import { escapeRegExp } from "../../utils.js";
+>>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 import { registerBrowserRoutes } from "./index.js";
 import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./types.js";
 
@@ -22,10 +27,6 @@ type RouteEntry = {
   handler: (req: BrowserRequest, res: BrowserResponse) => void | Promise<void>;
 };
 
-function escapeRegex(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 function compileRoute(path: string): { regex: RegExp; paramNames: string[] } {
   const paramNames: string[] = [];
   const parts = path.split("/").map((part) => {
@@ -34,7 +35,7 @@ function compileRoute(path: string): { regex: RegExp; paramNames: string[] } {
       paramNames.push(name);
       return "([^/]+)";
     }
-    return escapeRegex(part);
+    return escapeRegExp(part);
   });
   return { regex: new RegExp(`^${parts.join("/")}$`), paramNames };
 }

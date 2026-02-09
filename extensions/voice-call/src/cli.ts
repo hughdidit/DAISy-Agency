@@ -1,9 +1,13 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import type { Command } from "commander";
 
+=======
+import { sleep } from "openclaw/plugin-sdk";
+>>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 import type { VoiceCallConfig } from "./config.js";
 import type { VoiceCallRuntime } from "./runtime.js";
 import { resolveUserPath } from "./utils.js";
@@ -46,10 +50,6 @@ function resolveDefaultStorePath(config: VoiceCallConfig): string {
   const base = config.store?.trim() ? resolveUserPath(config.store) : existing;
   return path.join(base, "calls.jsonl");
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function registerVoiceCallCli(params: {

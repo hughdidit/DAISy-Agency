@@ -1,5 +1,9 @@
 import { spawn, type SpawnOptions } from "node:child_process";
+<<<<<<< HEAD
 
+=======
+import { stripAnsi } from "openclaw/plugin-sdk";
+>>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 import type { ZcaResult, ZcaRunOptions } from "./types.js";
 
 const ZCA_BINARY = "zca";
@@ -106,11 +110,6 @@ export function runZcaInteractive(args: string[], options?: ZcaRunOptions): Prom
       });
     });
   });
-}
-
-function stripAnsi(str: string): string {
-  // oxlint-disable-next-line no-control-regex
-  return str.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, "");
 }
 
 export function parseJsonOutput<T>(stdout: string): T | null {

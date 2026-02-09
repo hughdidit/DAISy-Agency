@@ -6,7 +6,12 @@ import {
   type MSTeamsReplyStyle,
   type ReplyPayload,
   SILENT_REPLY_TOKEN,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
+=======
+  sleep,
+} from "openclaw/plugin-sdk";
+>>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 import type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
 import type { StoredConversationReference } from "./conversation-store.js";
 import { classifyMSTeamsSendError } from "./errors.js";
@@ -164,16 +169,6 @@ function clampMs(value: number, maxMs: number): number {
     return 0;
   }
   return Math.min(value, maxMs);
-}
-
-async function sleep(ms: number): Promise<void> {
-  const delay = Math.max(0, ms);
-  if (delay === 0) {
-    return;
-  }
-  await new Promise<void>((resolve) => {
-    setTimeout(resolve, delay);
-  });
 }
 
 function resolveRetryOptions(

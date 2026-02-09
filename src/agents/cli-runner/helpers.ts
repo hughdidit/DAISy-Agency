@@ -13,6 +13,7 @@ import { runExec } from "../../process/exec.js";
 import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
 =======
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
+import { escapeRegExp } from "../../utils.js";
 import { resolveDefaultModelForAgent } from "../model-selection.js";
 import { detectRuntimeShell } from "../shell-utils.js";
 >>>>>>> f0722498a (Agents: include runtime shell (#1835))
@@ -22,10 +23,6 @@ import { buildAgentSystemPrompt } from "../system-prompt.js";
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
 
 const CLI_RUN_QUEUE = new Map<string, Promise<unknown>>();
-
-function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 
 export async function cleanupResumeProcesses(
   backend: CliBackendConfig,
@@ -49,7 +46,7 @@ export async function cleanupResumeProcesses(
   const resumeTokens = resumeArgs.map((arg) => arg.replaceAll("{sessionId}", sessionId));
   const pattern = [commandToken, ...resumeTokens]
     .filter(Boolean)
-    .map((token) => escapeRegex(token))
+    .map((token) => escapeRegExp(token))
     .join(".*");
   if (!pattern) {
     return;
@@ -101,9 +98,9 @@ function buildSessionMatchers(backend: CliBackendConfig): RegExp[] {
 
 function tokenToRegex(token: string): string {
   if (!token.includes("{sessionId}")) {
-    return escapeRegex(token);
+    return escapeRegExp(token);
   }
-  const parts = token.split("{sessionId}").map((part) => escapeRegex(part));
+  const parts = token.split("{sessionId}").map((part) => escapeRegExp(part));
   return parts.join("\\S+");
 }
 

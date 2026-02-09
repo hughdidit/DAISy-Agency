@@ -7,7 +7,11 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { loadOrCreateDeviceIdentity } from "../src/infra/device-identity.js";
+<<<<<<< HEAD
 import { GatewayClient } from "../src/gateway/client.js";
+=======
+import { sleep } from "../src/utils.js";
+>>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../src/utils/message-channel.js";
 
 type GatewayInstance = {
@@ -31,8 +35,6 @@ type HealthPayload = { ok?: boolean };
 
 const GATEWAY_START_TIMEOUT_MS = 45_000;
 const E2E_TIMEOUT_MS = 120_000;
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getFreePort = async () => {
   const srv = net.createServer();

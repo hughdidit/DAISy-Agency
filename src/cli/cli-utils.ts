@@ -1,11 +1,15 @@
+<<<<<<< HEAD
+=======
+import type { Command } from "commander";
+import { formatErrorMessage } from "../infra/errors.js";
+
+export { formatErrorMessage };
+
+>>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 export type ManagerLookupResult<T> = {
   manager: T | null;
   error?: string;
 };
-
-export function formatErrorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
-}
 
 export async function withManager<T>(params: {
   getManager: () => Promise<ManagerLookupResult<T>>;
