@@ -146,7 +146,7 @@ jobs:
 
   # Build dist once for Node-relevant changes and share it with downstream jobs.
   build-artifacts:
-    needs: [docs-scope, changed-scope, code-size]
+    needs: [docs-scope, changed-scope, code-size, checks-lint]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
@@ -210,7 +210,7 @@ jobs:
           retention-days: 1
 
   install-check:
-    needs: [docs-scope, changed-scope, code-size]
+    needs: [docs-scope, changed-scope, code-size, checks-lint]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
@@ -264,7 +264,7 @@ jobs:
           pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
 
   checks:
-    needs: [docs-scope, changed-scope, code-size]
+    needs: [docs-scope, changed-scope, code-size, checks-lint]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-4vcpu-ubuntu-2404
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
@@ -534,6 +534,7 @@ jobs:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     name: Windows / ${{ matrix.runtime }} / ${{ matrix.task }}
     runs-on: windows-latest
 =======
@@ -544,6 +545,9 @@ jobs:
 =======
     needs: [docs-scope, changed-scope, build-artifacts, code-size]
 >>>>>>> 57a598c01 (feat(ci): code-size gates heavy jobs, re-enable --strict)
+=======
+    needs: [docs-scope, changed-scope, build-artifacts, code-size, checks-lint]
+>>>>>>> 715e8b544 (ci: lint/format failures also block heavy jobs)
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
 >>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     runs-on: blacksmith-4vcpu-windows-2025
@@ -711,7 +715,7 @@ jobs:
   # running 4 separate jobs per PR (as before) starved the queue. One job
   # per PR allows 5 PRs to run macOS checks simultaneously.
   macos:
-    needs: [docs-scope, changed-scope, code-size]
+    needs: [docs-scope, changed-scope, code-size, checks-lint]
     if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_macos == 'true'
     runs-on: macos-latest
 >>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
@@ -1067,6 +1071,7 @@ jobs:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     name: Android / ${{ matrix.task }}
     runs-on: ubuntu-latest
 =======
@@ -1077,6 +1082,9 @@ jobs:
 =======
     needs: [docs-scope, changed-scope, code-size]
 >>>>>>> 57a598c01 (feat(ci): code-size gates heavy jobs, re-enable --strict)
+=======
+    needs: [docs-scope, changed-scope, code-size, checks-lint]
+>>>>>>> 715e8b544 (ci: lint/format failures also block heavy jobs)
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_android == 'true')
 >>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     runs-on: blacksmith-4vcpu-ubuntu-2404
