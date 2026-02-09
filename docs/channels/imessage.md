@@ -158,6 +158,7 @@ If `remoteHost` is not set, Moltbot attempts to auto-detect it by parsing the SS
 If the Gateway runs on a Linux host/VM but iMessage must run on a Mac, Tailscale is the simplest bridge: the Gateway talks to the Mac over the tailnet, runs `imsg` via SSH, and SCPs attachments back.
 
 Architecture:
+<<<<<<< HEAD
 ```
 ┌──────────────────────────────┐          SSH (imsg rpc)          ┌──────────────────────────┐
 │ Gateway host (Linux/VM)      │──────────────────────────────────▶│ Mac with Messages + imsg │
@@ -168,6 +169,38 @@ Architecture:
               │ Tailscale tailnet (hostname or 100.x.y.z)
               ▼
         user@gateway-host
+=======
+
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#ffffff',
+    'primaryTextColor': '#000000',
+    'primaryBorderColor': '#000000',
+    'lineColor': '#000000',
+    'secondaryColor': '#f9f9fb',
+    'tertiaryColor': '#ffffff',
+    'clusterBkg': '#f9f9fb',
+    'clusterBorder': '#000000',
+    'nodeBorder': '#000000',
+    'mainBkg': '#ffffff',
+    'edgeLabelBackground': '#ffffff'
+  }
+}}%%
+flowchart TB
+ subgraph T[" "]
+ subgraph Tailscale[" "]
+    direction LR
+      Gateway["<b>Gateway host (Linux/VM)<br></b><br>openclaw gateway<br>channels.imessage.cliPath"]
+      Mac["<b>Mac with Messages + imsg<br></b><br>Messages signed in<br>Remote Login enabled"]
+  end
+    Gateway -- SSH (imsg rpc) --> Mac
+    Mac -- SCP (attachments) --> Gateway
+    direction BT
+    User["user@gateway-host"] -- "Tailscale tailnet (hostname or 100.x.y.z)" --> Gateway
+end
+>>>>>>> 24e9b23c4 (Replace text diagrams with mermaid (#7165))
 ```
 
 Concrete config example (Tailscale hostname):

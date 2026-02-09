@@ -10,6 +10,7 @@ Moltbot.app uses SSH tunneling to connect to a remote gateway. This guide shows 
 
 ## Overview
 
+<<<<<<< HEAD
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        Client Machine                          │
@@ -28,6 +29,43 @@ Moltbot.app uses SSH tunneling to connect to a remote gateway. This guide shows 
 │  Gateway WebSocket ──► ws://127.0.0.1:18789 ──►              │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+=======
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#ffffff',
+    'primaryTextColor': '#000000',
+    'primaryBorderColor': '#000000',
+    'lineColor': '#000000',
+    'secondaryColor': '#f9f9fb',
+    'tertiaryColor': '#ffffff',
+    'clusterBkg': '#f9f9fb',
+    'clusterBorder': '#000000',
+    'nodeBorder': '#000000',
+    'mainBkg': '#ffffff',
+    'edgeLabelBackground': '#ffffff'
+  }
+}}%%
+flowchart TB
+    subgraph Client["Client Machine"]
+        direction TB
+        A["OpenClaw.app"]
+        B["ws://127.0.0.1:18789\n(local port)"]
+        T["SSH Tunnel"]
+
+        A --> B
+        B --> T
+    end
+    subgraph Remote["Remote Machine"]
+        direction TB
+        C["Gateway WebSocket"]
+        D["ws://127.0.0.1:18789"]
+
+        C --> D
+    end
+    T --> C
+>>>>>>> 24e9b23c4 (Replace text diagrams with mermaid (#7165))
 ```
 
 ## Quick Setup
