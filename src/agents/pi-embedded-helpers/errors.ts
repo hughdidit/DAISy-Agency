@@ -25,6 +25,10 @@ export function isContextOverflowError(errorMessage?: string): boolean {
     lower.includes("prompt is too long") ||
     lower.includes("exceeds model context window") ||
     (hasRequestSizeExceeds && hasContextWindow) ||
+<<<<<<< HEAD
+=======
+    lower.includes("context overflow:") ||
+>>>>>>> e4651d6af (Memory/QMD: reuse default model cache and skip ENOENT warnings (#12114))
     lower.includes("context overflow") ||
     (lower.includes("413") && lower.includes("too large"))
   );
