@@ -28,6 +28,11 @@ import {
   type GatewayClientMode,
   type GatewayClientName,
 } from "../../utils/message-channel.js";
+<<<<<<< HEAD
+=======
+import { loadWebMedia } from "../../web/media.js";
+import { throwIfAborted } from "./abort.js";
+>>>>>>> 79c246666 (refactor: consolidate throwIfAborted + fix isCompactionFailureError (#12463))
 import {
   listConfiguredMessageChannels,
   resolveMessageChannelSelection,
@@ -677,14 +682,6 @@ async function handleBroadcastAction(
     payload: { results },
     dryRun: Boolean(input.dryRun),
   };
-}
-
-function throwIfAborted(abortSignal?: AbortSignal): void {
-  if (abortSignal?.aborted) {
-    const err = new Error("Message send aborted");
-    err.name = "AbortError";
-    throw err;
-  }
 }
 
 async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActionRunResult> {

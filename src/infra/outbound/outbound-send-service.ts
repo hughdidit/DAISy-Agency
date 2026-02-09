@@ -6,6 +6,12 @@ import { appendAssistantMessageToSessionTranscript } from "../../config/sessions
 import type { GatewayClientMode, GatewayClientName } from "../../utils/message-channel.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
+<<<<<<< HEAD
+=======
+import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
+import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
+import { throwIfAborted } from "./abort.js";
+>>>>>>> 79c246666 (refactor: consolidate throwIfAborted + fix isCompactionFailureError (#12463))
 import { sendMessage, sendPoll } from "./message.js";
 
 export type OutboundGatewayContext = {
@@ -57,14 +63,6 @@ function extractToolPayload(result: AgentToolResult<unknown>): unknown {
     }
   }
   return result.content ?? result;
-}
-
-function throwIfAborted(abortSignal?: AbortSignal): void {
-  if (abortSignal?.aborted) {
-    const err = new Error("Message send aborted");
-    err.name = "AbortError";
-    throw err;
-  }
 }
 
 export async function executeSendAction(params: {
