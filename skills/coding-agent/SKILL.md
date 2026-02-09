@@ -255,14 +255,22 @@ For long-running background tasks, append a wake trigger to your prompt so Moltb
 ... your task here.
 
 When completely finished, run this command to notify me:
+<<<<<<< HEAD
 moltbot gateway wake --text "Done: [brief summary of what was built]" --mode now
+=======
+openclaw system event --text "Done: [brief summary of what was built]" --mode now
+>>>>>>> 588d7133f (fix(docs): correct wake command in coding-agent skill (#10516))
 ```
 
 **Example:**
 ```bash
 bash pty:true workdir:~/project background:true command:"codex --yolo exec 'Build a REST API for todos.
 
+<<<<<<< HEAD
 When completely finished, run: moltbot gateway wake --text \"Done: Built todos REST API with CRUD endpoints\" --mode now'"
+=======
+When completely finished, run: openclaw system event --text \"Done: Built todos REST API with CRUD endpoints\" --mode now'"
+>>>>>>> 588d7133f (fix(docs): correct wake command in coding-agent skill (#10516))
 ```
 
 This triggers an immediate wake event — Skippy gets pinged in seconds, not 10 minutes.
