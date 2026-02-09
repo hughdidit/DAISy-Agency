@@ -32,7 +32,12 @@ struct MoltbotApp: App {
     }
 
     init() {
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/MenuBar.swift
         MoltbotLogging.bootstrapIfNeeded()
+=======
+        OpenClawLogging.bootstrapIfNeeded()
+
+>>>>>>> 69aa3df11 (macOS: honor stable Nix defaults suite (#12205)):apps/macos/Sources/OpenClaw/MenuBar.swift
         Self.applyAttachOnlyOverrideIfNeeded()
         _state = State(initialValue: AppStateStore.shared)
     }
