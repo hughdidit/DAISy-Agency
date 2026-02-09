@@ -1,7 +1,11 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+import { safeParseJson } from "openclaw/plugin-sdk";
+>>>>>>> f0924d3c4 (refactor: consolidate PNG encoder and safeParseJson utilities (#12457))
 import lockfile from "proper-lockfile";
 
 const STORE_LOCK_OPTIONS = {
@@ -14,14 +18,6 @@ const STORE_LOCK_OPTIONS = {
   },
   stale: 30_000,
 } as const;
-
-function safeParseJson<T>(raw: string): T | null {
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    return null;
-  }
-}
 
 export async function readJsonFile<T>(
   filePath: string,

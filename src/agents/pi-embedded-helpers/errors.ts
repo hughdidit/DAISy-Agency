@@ -28,8 +28,11 @@ export function isContextOverflowError(errorMessage?: string): boolean {
 <<<<<<< HEAD
 =======
     lower.includes("context overflow:") ||
+<<<<<<< HEAD
 >>>>>>> e4651d6af (Memory/QMD: reuse default model cache and skip ENOENT warnings (#12114))
     lower.includes("context overflow") ||
+=======
+>>>>>>> f0924d3c4 (refactor: consolidate PNG encoder and safeParseJson utilities (#12457))
     (lower.includes("413") && lower.includes("too large"))
   );
 }
