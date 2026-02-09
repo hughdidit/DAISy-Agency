@@ -311,7 +311,11 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
     qianfan: "QIANFAN_API_KEY",
 =======
     ollama: "OLLAMA_API_KEY",
+<<<<<<< HEAD
 >>>>>>> 34a58b839 (fix(ollama): add streaming config and fix OLLAMA_API_KEY env var support (#9870))
+=======
+    vllm: "VLLM_API_KEY",
+>>>>>>> e73d881c5 (Onboarding: add vLLM provider support)
   };
   const envVar = envMap[normalized];
   if (!envVar) {

@@ -12,8 +12,12 @@ import { applyAuthChoiceOAuth } from "./auth-choice.apply.oauth.js";
 import { applyAuthChoiceOpenAI } from "./auth-choice.apply.openai.js";
 import { applyAuthChoiceQwenPortal } from "./auth-choice.apply.qwen-portal.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { AuthChoice } from "./onboard-types.js";
 =======
+=======
+import { applyAuthChoiceVllm } from "./auth-choice.apply.vllm.js";
+>>>>>>> e73d881c5 (Onboarding: add vLLM provider support)
 import { applyAuthChoiceXAI } from "./auth-choice.apply.xai.js";
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
 
@@ -45,6 +49,7 @@ export async function applyAuthChoice(
 ): Promise<ApplyAuthChoiceResult> {
   const handlers: Array<(p: ApplyAuthChoiceParams) => Promise<ApplyAuthChoiceResult | null>> = [
     applyAuthChoiceAnthropic,
+    applyAuthChoiceVllm,
     applyAuthChoiceOpenAI,
     applyAuthChoiceOAuth,
     applyAuthChoiceApiProviders,
