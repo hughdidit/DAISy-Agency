@@ -1,5 +1,10 @@
 ---
+<<<<<<< HEAD
 summary: "How Moltbot memory works (workspace files + automatic memory flush)"
+=======
+title: "Memory"
+summary: "How OpenClaw memory works (workspace files + automatic memory flush)"
+>>>>>>> a172ff9ed (docs: SEO and AI discoverability improvements)
 read_when:
   - You want the memory file layout and workflow
   - You want to tune the automatic pre-compaction memory flush

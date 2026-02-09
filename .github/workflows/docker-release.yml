@@ -7,6 +7,7 @@ on:
       - daisy/dev
     tags:
       - "v*"
+<<<<<<< HEAD
   workflow_dispatch:
     inputs:
       dry_run:
@@ -27,6 +28,11 @@ permissions:
 concurrency:
   group: docker-release-global
   cancel-in-progress: ${{ github.ref_type != 'tag' }}
+=======
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+>>>>>>> a172ff9ed (docs: SEO and AI discoverability improvements)
 
 env:
   REGISTRY: ghcr.io

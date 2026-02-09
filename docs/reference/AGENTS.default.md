@@ -1,5 +1,10 @@
 ---
+<<<<<<< HEAD
 summary: "Default Moltbot agent instructions and skills roster for the personal assistant setup"
+=======
+title: "Default AGENTS.md"
+summary: "Default OpenClaw agent instructions and skills roster for the personal assistant setup"
+>>>>>>> a172ff9ed (docs: SEO and AI discoverability improvements)
 read_when:
   - Starting a new Moltbot agent session
   - Enabling or auditing default skills
