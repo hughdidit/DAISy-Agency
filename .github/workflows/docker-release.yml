@@ -90,11 +90,18 @@ jobs:
           platforms: linux/amd64
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
+<<<<<<< HEAD
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: ${{ inputs.dry_run != 'true' }}
           sbom: ${{ inputs.dry_run != 'true' }}
           push: ${{ inputs.dry_run != 'true' }}
+=======
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cache:amd64
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cache:amd64,mode=max
+          provenance: false
+          push: true
+>>>>>>> ffeed212d (ci(docker): use registry cache for persistent layer storage)
 
   # Build arm64 image
   build-arm64:
@@ -146,11 +153,18 @@ jobs:
           platforms: linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
+<<<<<<< HEAD
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: ${{ inputs.dry_run != 'true' }}
           sbom: ${{ inputs.dry_run != 'true' }}
           push: ${{ inputs.dry_run != 'true' }}
+=======
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cache:arm64
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cache:arm64,mode=max
+          provenance: false
+          push: true
+>>>>>>> ffeed212d (ci(docker): use registry cache for persistent layer storage)
 
   # Create multi-platform manifest
   create-manifest:
