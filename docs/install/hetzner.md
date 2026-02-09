@@ -115,12 +115,19 @@ Docker containers are ephemeral.
 All long-lived state must live on the host.
 
 ```bash
+<<<<<<< HEAD
 mkdir -p /root/.clawdbot
 mkdir -p /root/clawd
 
 # Set ownership to the container user (uid 1000):
 chown -R 1000:1000 /root/.clawdbot
 chown -R 1000:1000 /root/clawd
+=======
+mkdir -p /root/.openclaw/workspace
+
+# Set ownership to the container user (uid 1000):
+chown -R 1000:1000 /root/.openclaw
+>>>>>>> 9f4466c11 (Simplify ownership commands in hetzner.md (#12703))
 ```
 
 ---
@@ -193,9 +200,16 @@ services:
         "--bind",
         "${CLAWDBOT_GATEWAY_BIND}",
         "--port",
+<<<<<<< HEAD
         "${CLAWDBOT_GATEWAY_PORT}"
+=======
+        "${OPENCLAW_GATEWAY_PORT}",
+        "--allow-unconfigured",
+>>>>>>> 9f4466c11 (Simplify ownership commands in hetzner.md (#12703))
       ]
 ```
+
+`--allow-unconfigured` is only for bootstrap convenience, it is not a replacement for a proper gateway configuration. Still set auth (`gateway.auth.token` or password) and use safe bind settings for your deployment.
 
 ---
 

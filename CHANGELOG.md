@@ -111,7 +111,11 @@ Docs: https://docs.openclaw.ai
 - Config: clamp `maxTokens` to `contextWindow` to prevent invalid model configs. (#5516) Thanks @lailoo.
 - Docs: fix language switcher ordering and Japanese locale flag in Mintlify nav. (#12023) Thanks @joshp123.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+- Docs: clarify Hetzner Docker bootstrap guidance for `--allow-unconfigured` and streamline ownership commands. (#12703) Thanks @vcastellm.
+>>>>>>> 9f4466c11 (Simplify ownership commands in hetzner.md (#12703))
 - Paths: make internal path resolution respect `HOME`/`USERPROFILE` before `os.homedir()` across config, agents, sessions, pairing, cron, and CLI profiles. (#12091) Thanks @sebslight.
 >>>>>>> 41f3e90ea (changelog: split #12091 entry into Added + Fixes)
 - Thinking: allow xhigh for `github-copilot/gpt-5.2-codex` and `github-copilot/gpt-5.2`. (#11646) Thanks @seans-openclawbot.
