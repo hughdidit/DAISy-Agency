@@ -11,6 +11,7 @@ const updateLastRouteMock = vi.fn();
 const dispatchMock = vi.fn();
 const readAllowFromStoreMock = vi.fn();
 const upsertPairingRequestMock = vi.fn();
+const loadConfigMock = vi.fn();
 
 vi.mock("./send.js", () => ({
   sendMessageDiscord: (...args: unknown[]) => sendMock(...args),
@@ -31,6 +32,13 @@ vi.mock("../pairing/pairing-store.js", () => ({
   readChannelAllowFromStore: (...args: unknown[]) => readAllowFromStoreMock(...args),
   upsertChannelPairingRequest: (...args: unknown[]) => upsertPairingRequestMock(...args),
 }));
+vi.mock("../config/config.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../config/config.js")>();
+  return {
+    ...actual,
+    loadConfig: (...args: unknown[]) => loadConfigMock(...args),
+  };
+});
 vi.mock("../config/sessions.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/sessions.js")>();
   return {
@@ -51,6 +59,7 @@ beforeEach(() => {
   });
   readAllowFromStoreMock.mockReset().mockResolvedValue([]);
   upsertPairingRequestMock.mockReset().mockResolvedValue({ code: "PAIRCODE", created: true });
+  loadConfigMock.mockReset().mockReturnValue({});
   __resetDiscordChannelInfoCacheForTest();
 });
 
@@ -676,6 +685,7 @@ describe("discord tool result dispatch", () => {
       },
       bindings: [{ agentId: "support", match: { channel: "discord", guildId: "g1" } }],
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
+    loadConfigMock.mockReturnValue(cfg);
 
     const handler = createDiscordMessageHandler({
       cfg,

@@ -170,6 +170,11 @@ Docs: https://docs.openclaw.ai
 - Exec approvals: coerce bare string allowlist entries to objects to prevent allowlist corruption. (#9903, fixes #9790) Thanks @mcaxtr.
 >>>>>>> 141f551a4 (fix(exec-approvals): coerce bare string allowlist entries (#9903) (thanks @mcaxtr))
 - Heartbeat: allow explicit accountId routing for multi-account channels. (#8702) Thanks @lsh411.
+<<<<<<< HEAD
+=======
+- Routing: refresh bindings per message by loading config at route resolution so binding changes apply without restart. (#11372) Thanks @juanpablodlc.
+- TUI/Gateway: handle non-streaming finals, refresh history for non-local chat runs, and avoid event gap warnings for targeted tool streams. (#8432) Thanks @gumadeiras.
+>>>>>>> 8d96955e1 (fix(routing): make bindings dynamic by calling loadConfig() per-message (#11372))
 - Shell completion: auto-detect and migrate slow dynamic patterns to cached files for faster terminal startup; add completion health checks to doctor/update/onboard.
 >>>>>>> a42e3cb78 (feat(heartbeat): add accountId config option for multi-agent routing (#8702))
 - Telegram: honor session model overrides in inline model selection. (#8193) Thanks @gildo.
