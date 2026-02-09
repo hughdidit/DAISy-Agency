@@ -61,7 +61,7 @@ describe("applyCliProfileEnv", () => {
       env,
       homedir: () => "/home/peter",
     });
-    const expectedStateDir = path.join("/home/peter", ".openclaw-dev");
+    const expectedStateDir = path.join(path.resolve("/home/peter"), ".openclaw-dev");
     expect(env.OPENCLAW_PROFILE).toBe("dev");
     expect(env.OPENCLAW_STATE_DIR).toBe(expectedStateDir);
     expect(env.OPENCLAW_CONFIG_PATH).toBe(path.join(expectedStateDir, "openclaw.json"));
@@ -82,6 +82,27 @@ describe("applyCliProfileEnv", () => {
     expect(env.OPENCLAW_GATEWAY_PORT).toBe("19099");
     expect(env.OPENCLAW_CONFIG_PATH).toBe(path.join("/custom", "openclaw.json"));
   });
+<<<<<<< HEAD
+=======
+
+  it("uses OPENCLAW_HOME when deriving profile state dir", () => {
+    const env: Record<string, string | undefined> = {
+      OPENCLAW_HOME: "/srv/openclaw-home",
+      HOME: "/home/other",
+    };
+    applyCliProfileEnv({
+      profile: "work",
+      env,
+      homedir: () => "/home/fallback",
+    });
+
+    const resolvedHome = path.resolve("/srv/openclaw-home");
+    expect(env.OPENCLAW_STATE_DIR).toBe(path.join(resolvedHome, ".openclaw-work"));
+    expect(env.OPENCLAW_CONFIG_PATH).toBe(
+      path.join(resolvedHome, ".openclaw-work", "openclaw.json"),
+    );
+  });
+>>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
 });
 
 describe("formatCliCommand", () => {

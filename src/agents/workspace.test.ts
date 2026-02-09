@@ -6,6 +6,20 @@ import {
   loadWorkspaceBootstrapFiles,
 } from "./workspace.js";
 
+<<<<<<< HEAD
+=======
+describe("resolveDefaultAgentWorkspaceDir", () => {
+  it("uses OPENCLAW_HOME for default workspace resolution", () => {
+    const dir = resolveDefaultAgentWorkspaceDir({
+      OPENCLAW_HOME: "/srv/openclaw-home",
+      HOME: "/home/other",
+    } as NodeJS.ProcessEnv);
+
+    expect(dir).toBe(path.join(path.resolve("/srv/openclaw-home"), ".openclaw", "workspace"));
+  });
+});
+
+>>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
 describe("loadWorkspaceBootstrapFiles", () => {
   it("includes MEMORY.md when present", async () => {
     const tempDir = await makeTempWorkspace("openclaw-workspace-");
