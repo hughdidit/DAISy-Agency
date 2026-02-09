@@ -16,6 +16,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 import { loadConfig, writeConfigFile } from "../../config/config.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
+import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
 import {
   ErrorCodes,
   errorShape,
@@ -187,7 +188,7 @@ export const skillsHandlers: GatewayRequestHandlers = {
       current.enabled = p.enabled;
     }
     if (typeof p.apiKey === "string") {
-      const trimmed = p.apiKey.trim();
+      const trimmed = normalizeSecretInput(p.apiKey);
       if (trimmed) {
         current.apiKey = trimmed;
       } else {

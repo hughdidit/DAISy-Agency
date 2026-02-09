@@ -4,8 +4,12 @@ import {
   resolveAuthProfileOrder,
 } from "../../agents/auth-profiles.js";
 import { resolveEnvApiKey } from "../../agents/model-auth.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
+=======
+import { normalizeOptionalSecretInput } from "../../utils/normalize-secret-input.js";
+>>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
 
 export type NonInteractiveApiKeySource = "flag" | "env" | "profile";
 
@@ -48,7 +52,7 @@ export async function resolveNonInteractiveApiKey(params: {
   agentDir?: string;
   allowProfile?: boolean;
 }): Promise<{ key: string; source: NonInteractiveApiKeySource } | null> {
-  const flagKey = params.flagValue?.trim();
+  const flagKey = normalizeOptionalSecretInput(params.flagValue);
   if (flagKey) {
     return { key: flagKey, source: "flag" };
   }

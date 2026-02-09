@@ -3,7 +3,12 @@ import { normalizeProviderId } from "../../../agents/model-selection.js";
 import { parseDurationMs } from "../../../cli/parse-duration.js";
 import type { MoltbotConfig } from "../../../config/config.js";
 import { upsertSharedEnvVar } from "../../../infra/env-file.js";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../../../runtime.js";
+=======
+import { shortenHomePath } from "../../../utils.js";
+import { normalizeSecretInput } from "../../../utils/normalize-secret-input.js";
+>>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
 import { buildTokenProfileId, validateAnthropicSetupToken } from "../../auth-token.js";
 import { applyGoogleGeminiModelDefault } from "../../google-gemini-model-default.js";
 import {
@@ -116,7 +121,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       runtime.exit(1);
       return null;
     }
-    const tokenRaw = opts.token?.trim();
+    const tokenRaw = normalizeSecretInput(opts.token);
     if (!tokenRaw) {
       runtime.error("Missing --token for --auth-choice token.");
       runtime.exit(1);

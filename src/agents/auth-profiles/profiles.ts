@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import type { AuthProfileCredential, AuthProfileStore } from "./types.js";
+import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
+>>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
 import { normalizeProviderId } from "../model-selection.js";
 import {
   ensureAuthProfileStore,
@@ -49,8 +54,19 @@ export function upsertAuthProfile(params: {
   credential: AuthProfileCredential;
   agentDir?: string;
 }): void {
+  const credential =
+    params.credential.type === "api_key"
+      ? {
+          ...params.credential,
+          ...(typeof params.credential.key === "string"
+            ? { key: normalizeSecretInput(params.credential.key) }
+            : {}),
+        }
+      : params.credential.type === "token"
+        ? { ...params.credential, token: normalizeSecretInput(params.credential.token) }
+        : params.credential;
   const store = ensureAuthProfileStore(params.agentDir);
-  store.profiles[params.profileId] = params.credential;
+  store.profiles[params.profileId] = credential;
   saveAuthProfileStore(store, params.agentDir);
 }
 
