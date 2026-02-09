@@ -146,7 +146,7 @@ jobs:
 
   # Build dist once for Node-relevant changes and share it with downstream jobs.
   build-artifacts:
-    needs: [docs-scope, changed-scope, code-size, checks-lint]
+    needs: [docs-scope, changed-scope, code-size, check-lint]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
@@ -155,49 +155,10 @@ jobs:
         with:
           submodules: false
 
-      - name: Checkout submodules (retry)
-        run: |
-          set -euo pipefail
-          git submodule sync --recursive
-          for attempt in 1 2 3 4 5; do
-            if git -c protocol.version=2 submodule update --init --force --depth=1 --recursive; then
-              exit 0
-            fi
-            echo "Submodule update failed (attempt $attempt/5). Retrying…"
-            sleep $((attempt * 10))
-          done
-          exit 1
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node environment
+        uses: ./.github/actions/setup-node-env
         with:
-          node-version: 22.x
-          check-latest: true
-
-      - name: Setup pnpm + cache store
-        uses: ./.github/actions/setup-pnpm-store-cache
-        with:
-          pnpm-version: "10.23.0"
-          cache-key-suffix: "node22"
-
-      - name: Runtime versions
-        run: |
-          node -v
-          npm -v
-          pnpm -v
-
-      - name: Capture node path
-        run: echo "NODE_BIN=$(dirname \"$(node -p \"process.execPath\")\")" >> "$GITHUB_ENV"
-
-      - name: Install dependencies (frozen)
-        env:
-          CI: true
-        run: |
-          export PATH="$NODE_BIN:$PATH"
-          which node
-          node -v
-          pnpm -v
-          pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
+          install-bun: "false"
 
       - name: Build dist
         run: pnpm build
@@ -210,7 +171,7 @@ jobs:
           retention-days: 1
 
   install-check:
-    needs: [docs-scope, changed-scope, code-size, checks-lint]
+    needs: [docs-scope, changed-scope, code-size, check-lint]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
@@ -219,52 +180,13 @@ jobs:
         with:
           submodules: false
 
-      - name: Checkout submodules (retry)
-        run: |
-          set -euo pipefail
-          git submodule sync --recursive
-          for attempt in 1 2 3 4 5; do
-            if git -c protocol.version=2 submodule update --init --force --depth=1 --recursive; then
-              exit 0
-            fi
-            echo "Submodule update failed (attempt $attempt/5). Retrying…"
-            sleep $((attempt * 10))
-          done
-          exit 1
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node environment
+        uses: ./.github/actions/setup-node-env
         with:
-          node-version: 22.x
-          check-latest: true
-
-      - name: Setup pnpm + cache store
-        uses: ./.github/actions/setup-pnpm-store-cache
-        with:
-          pnpm-version: "10.23.0"
-          cache-key-suffix: "node22"
-
-      - name: Runtime versions
-        run: |
-          node -v
-          npm -v
-          pnpm -v
-
-      - name: Capture node path
-        run: echo "NODE_BIN=$(dirname \"$(node -p \"process.execPath\")\")" >> "$GITHUB_ENV"
-
-      - name: Install dependencies (frozen)
-        env:
-          CI: true
-        run: |
-          export PATH="$NODE_BIN:$PATH"
-          which node
-          node -v
-          pnpm -v
-          pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
+          install-bun: "false"
 
   checks:
-    needs: [docs-scope, changed-scope, code-size, checks-lint]
+    needs: [docs-scope, changed-scope, code-size, check-lint]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-4vcpu-ubuntu-2404
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
@@ -330,6 +252,7 @@ jobs:
         with:
           submodules: false
 
+<<<<<<< HEAD
       # pnpm must be on PATH before setup-node so cache: 'pnpm' can
       # resolve the store path for cache keys.
       - name: Setup pnpm (corepack)
@@ -399,85 +322,52 @@ jobs:
             echo "pnpm install failed (attempt ${attempt}/3). Retrying..."
             sleep $((attempt * 5))
           done
+=======
+      - name: Setup Node environment
+        uses: ./.github/actions/setup-node-env
+>>>>>>> 0b7e56143 (ci: split format/lint into tiered gates with shared setup action)
 
       - name: Run ${{ matrix.task }}
         run: ${{ matrix.command }}
 
-  # Lint and format always run, even on docs-only changes.
-  checks-lint:
+  # Format check — cheapest gate (~43s). Always runs, even on docs-only changes.
+  check-format:
+    name: "check: format"
     runs-on: blacksmith-4vcpu-ubuntu-2404
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - task: lint
-            command: pnpm lint
-          - task: format
-            command: pnpm format
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: false
 
-      - name: Checkout submodules (retry)
-        run: |
-          set -euo pipefail
-          git submodule sync --recursive
-          for attempt in 1 2 3 4 5; do
-            if git -c protocol.version=2 submodule update --init --force --depth=1 --recursive; then
-              exit 0
-            fi
-            echo "Submodule update failed (attempt $attempt/5). Retrying…"
-            sleep $((attempt * 10))
-          done
-          exit 1
+      - name: Setup Node environment
+        uses: ./.github/actions/setup-node-env
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Check formatting
+        run: pnpm format
+
+  # Lint check — runs after format passes for cleaner output.
+  check-lint:
+    name: "check: lint"
+    needs: [check-format]
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          node-version: 22.x
-          check-latest: true
+          submodules: false
 
-      - name: Setup pnpm + cache store
-        uses: ./.github/actions/setup-pnpm-store-cache
-        with:
-          pnpm-version: "10.23.0"
-          cache-key-suffix: "node22"
+      - name: Setup Node environment
+        uses: ./.github/actions/setup-node-env
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Runtime versions
-        run: |
-          node -v
-          npm -v
-          bun -v
-          pnpm -v
-
-      - name: Capture node path
-        run: echo "NODE_BIN=$(dirname \"$(node -p \"process.execPath\")\")" >> "$GITHUB_ENV"
-
-      - name: Install dependencies
-        env:
-          CI: true
-        run: |
-          export PATH="$NODE_BIN:$PATH"
-          which node
-          node -v
-          pnpm -v
-          pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true || pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
-
-      - name: Run ${{ matrix.task }}
-        run: ${{ matrix.command }}
+      - name: Check lint
+        run: pnpm lint
 
   # Check for files that grew past LOC threshold in this PR (delta-only).
   # On push events, all steps are skipped and the job passes (no-op).
   # Heavy downstream jobs depend on this to fail fast on violations.
   code-size:
-    needs: [checks-lint]
+    needs: [check-format]
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
@@ -536,6 +426,7 @@ jobs:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     name: Windows / ${{ matrix.runtime }} / ${{ matrix.task }}
     runs-on: windows-latest
 =======
@@ -549,6 +440,9 @@ jobs:
 =======
     needs: [docs-scope, changed-scope, build-artifacts, code-size, checks-lint]
 >>>>>>> 715e8b544 (ci: lint/format failures also block heavy jobs)
+=======
+    needs: [docs-scope, changed-scope, build-artifacts, code-size, check-lint]
+>>>>>>> 0b7e56143 (ci: split format/lint into tiered gates with shared setup action)
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
 >>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     runs-on: blacksmith-4vcpu-windows-2025
@@ -716,7 +610,7 @@ jobs:
   # running 4 separate jobs per PR (as before) starved the queue. One job
   # per PR allows 5 PRs to run macOS checks simultaneously.
   macos:
-    needs: [docs-scope, changed-scope, code-size, checks-lint]
+    needs: [docs-scope, changed-scope, code-size, check-lint]
     if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_macos == 'true'
     runs-on: macos-latest
 >>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
@@ -726,6 +620,7 @@ jobs:
         with:
           submodules: false
 
+<<<<<<< HEAD
       # pnpm must be on PATH before setup-node so cache: 'pnpm' can
       # resolve the store path for cache keys.
       - name: Setup pnpm (corepack)
@@ -802,6 +697,12 @@ jobs:
             echo "pnpm install failed (attempt ${attempt}/3). Retrying..."
             sleep $((attempt * 5))
           done
+=======
+      - name: Setup Node environment
+        uses: ./.github/actions/setup-node-env
+        with:
+          install-bun: "false"
+>>>>>>> 0b7e56143 (ci: split format/lint into tiered gates with shared setup action)
 
       # --- Run all checks sequentially (fast gates first) ---
       - name: TS tests (macOS)
@@ -1073,6 +974,7 @@ jobs:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     name: Android / ${{ matrix.task }}
     runs-on: ubuntu-latest
 =======
@@ -1086,6 +988,9 @@ jobs:
 =======
     needs: [docs-scope, changed-scope, code-size, checks-lint]
 >>>>>>> 715e8b544 (ci: lint/format failures also block heavy jobs)
+=======
+    needs: [docs-scope, changed-scope, code-size, check-lint]
+>>>>>>> 0b7e56143 (ci: split format/lint into tiered gates with shared setup action)
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_android == 'true')
 >>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     runs-on: blacksmith-4vcpu-ubuntu-2404
