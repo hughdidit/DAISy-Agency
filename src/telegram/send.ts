@@ -161,7 +161,17 @@ function isTelegramThreadNotFoundError(err: unknown): boolean {
 }
 
 function hasMessageThreadIdParam(params?: Record<string, unknown>): boolean {
-  return Boolean(params && Object.hasOwn(params, "message_thread_id"));
+  if (!params) {
+    return false;
+  }
+  const value = params.message_thread_id;
+  if (typeof value === "number") {
+    return Number.isFinite(value);
+  }
+  if (typeof value === "string") {
+    return value.trim().length > 0;
+  }
+  return false;
 }
 
 function removeMessageThreadIdParam(
