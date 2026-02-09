@@ -5,6 +5,7 @@ import { buildHistoryContextFromEntries, type HistoryEntry } from "../auto-reply
 import { createDefaultDeps } from "../cli/deps.js";
 import { agentCommand } from "../commands/agent.js";
 import { emitAgentEvent, onAgentEvent } from "../infra/agent-events.js";
+import { logWarn } from "../logger.js";
 import { defaultRuntime } from "../runtime.js";
 import { authorizeGatewayConnect, type ResolvedGatewayAuth } from "./auth.js";
 import {
@@ -240,8 +241,9 @@ export async function handleOpenAiHttpRequest(
         usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
       });
     } catch (err) {
+      logWarn(`openai-compat: chat completion failed: ${String(err)}`);
       sendJson(res, 500, {
-        error: { message: String(err), type: "api_error" },
+        error: { message: "internal error", type: "api_error" },
       });
     }
     return true;
@@ -362,7 +364,14 @@ export async function handleOpenAiHttpRequest(
         });
       }
     } catch (err) {
+<<<<<<< HEAD
       if (closed) return;
+=======
+      logWarn(`openai-compat: streaming chat completion failed: ${String(err)}`);
+      if (closed) {
+        return;
+      }
+>>>>>>> f788de30c (fix(security): sanitize error responses to prevent information leakage (#5))
       writeSse(res, {
         id: runId,
         object: "chat.completion.chunk",
@@ -371,7 +380,7 @@ export async function handleOpenAiHttpRequest(
         choices: [
           {
             index: 0,
-            delta: { content: `Error: ${String(err)}` },
+            delta: { content: "Error: internal error" },
             finish_reason: "stop",
           },
         ],

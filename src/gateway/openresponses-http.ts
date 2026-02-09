@@ -13,6 +13,7 @@ import { buildHistoryContextFromEntries, type HistoryEntry } from "../auto-reply
 import { createDefaultDeps } from "../cli/deps.js";
 import { agentCommand } from "../commands/agent.js";
 import { emitAgentEvent, onAgentEvent } from "../infra/agent-events.js";
+<<<<<<< HEAD
 import { defaultRuntime } from "../runtime.js";
 import { authorizeGatewayConnect, type ResolvedGatewayAuth } from "./auth.js";
 import { getBearerToken, resolveAgentIdForRequest, resolveSessionKey } from "./http-utils.js";
@@ -37,6 +38,9 @@ import {
 import type { GatewayHttpResponsesConfig } from "../config/types.gateway.js";
 import type { ClientToolDefinition } from "../agents/pi-embedded-runner/run/params.js";
 import type { ImageContent } from "../commands/agent/types.js";
+=======
+import { logWarn } from "../logger.js";
+>>>>>>> f788de30c (fix(security): sanitize error responses to prevent information leakage (#5))
 import {
   DEFAULT_INPUT_FILE_MAX_BYTES,
   DEFAULT_INPUT_FILE_MAX_CHARS,
@@ -434,8 +438,9 @@ export async function handleOpenResponsesHttpRequest(
       }
     }
   } catch (err) {
+    logWarn(`openresponses: request parsing failed: ${String(err)}`);
     sendJson(res, 400, {
-      error: { message: String(err), type: "invalid_request_error" },
+      error: { message: "invalid request", type: "invalid_request_error" },
     });
     return true;
   }
@@ -451,8 +456,9 @@ export async function handleOpenResponsesHttpRequest(
     resolvedClientTools = toolChoiceResult.tools;
     toolChoicePrompt = toolChoiceResult.extraSystemPrompt;
   } catch (err) {
+    logWarn(`openresponses: tool configuration failed: ${String(err)}`);
     sendJson(res, 400, {
-      error: { message: String(err), type: "invalid_request_error" },
+      error: { message: "invalid tool configuration", type: "invalid_request_error" },
     });
     return true;
   }
@@ -566,12 +572,13 @@ export async function handleOpenResponsesHttpRequest(
 
       sendJson(res, 200, response);
     } catch (err) {
+      logWarn(`openresponses: non-stream response failed: ${String(err)}`);
       const response = createResponseResource({
         id: responseId,
         model,
         status: "failed",
         output: [],
-        error: { code: "api_error", message: String(err) },
+        error: { code: "api_error", message: "internal error" },
       });
       sendJson(res, 500, response);
     }
@@ -845,7 +852,14 @@ export async function handleOpenResponsesHttpRequest(
         });
       }
     } catch (err) {
+<<<<<<< HEAD
       if (closed) return;
+=======
+      logWarn(`openresponses: streaming response failed: ${String(err)}`);
+      if (closed) {
+        return;
+      }
+>>>>>>> f788de30c (fix(security): sanitize error responses to prevent information leakage (#5))
 
       finalUsage = finalUsage ?? createEmptyUsage();
       const errorResponse = createResponseResource({
@@ -853,7 +867,7 @@ export async function handleOpenResponsesHttpRequest(
         model,
         status: "failed",
         output: [],
-        error: { code: "api_error", message: String(err) },
+        error: { code: "api_error", message: "internal error" },
         usage: finalUsage,
       });
 
