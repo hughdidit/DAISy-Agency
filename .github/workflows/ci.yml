@@ -305,13 +305,13 @@ jobs:
         with:
           submodules: false
 
-      - name: Select Xcode (latest)
-        uses: actions/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
-
-      - name: Log Xcode version
-        run: xcodebuild -version
+      - name: Select latest stable Xcode
+        run: |
+          LATEST=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$LATEST" ]; then
+            sudo xcode-select -s "$LATEST"
+          fi
+          xcodebuild -version
 
       - name: Install XcodeGen / SwiftLint / SwiftFormat
         run: |
@@ -335,13 +335,13 @@ jobs:
         with:
           submodules: false
 
-      - name: Select Xcode (latest)
-        uses: actions/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
-
-      - name: Log Xcode version
-        run: xcodebuild -version
+      - name: Select latest stable Xcode
+        run: |
+          LATEST=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$LATEST" ]; then
+            sudo xcode-select -s "$LATEST"
+          fi
+          xcodebuild -version
 
       - name: Install XcodeGen
         run: brew install xcodegen
