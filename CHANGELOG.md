@@ -44,6 +44,12 @@ Docs: https://docs.openclaw.ai
 - Web UI: make chat refresh smoothly scroll to the latest messages and suppress new-messages badge flash during manual refresh.
 >>>>>>> 9949f8259 (fix(discord): support forum channel thread-create (#10062))
 - Cron: route text-only isolated agent announces through the shared subagent announce flow; add exponential backoff for repeated errors; preserve future `nextRunAtMs` on restart; include current-boundary schedule matches; prevent stale threadId reuse across targets; and add per-job execution timeout. (#11641) Thanks @tyler6204.
+<<<<<<< HEAD
+=======
+- Cron tool: recover flat params when LLM omits the `job` wrapper for add requests. (#11310, #12124) Thanks @tyler6204.
+- Cron scheduler: fix `nextRun` skipping the current occurrence when computed mid-second. (#12124) Thanks @tyler6204.
+- Subagents: stabilize announce timing, preserve compaction metrics across retries, clamp overflow-prone long timeouts, and cap impossible context usage token totals. (#11551) Thanks @tyler6204.
+>>>>>>> 07375a65d (fix(cron): recover flat params when LLM omits job wrapper (#12124))
 - Agents: recover from context overflow caused by oversized tool results (pre-emptive capping + fallback truncation). (#11579) Thanks @tyler6204.
 - Gateway: no more post-compaction amnesia; injected transcript writes now preserve Pi session `parentId` chain so agents can remember again. Thanks @Takhoffman 🦞.
 - Telegram: render markdown spoilers with `<tg-spoiler>` HTML tags. (#11543) Thanks @ezhikkk.

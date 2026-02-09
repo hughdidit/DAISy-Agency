@@ -42,6 +42,7 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
     catch: false,
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
   const next = cron.nextRun(new Date(nowMs));
   return next ? next.getTime() : undefined;
 =======
@@ -49,10 +50,24 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
   // boundary. Without this, a job updated at exactly its cron time would
   // be scheduled for the *next* matching time (e.g. 24h later for daily).
   const next = cron.nextRun(new Date(nowMs - 1));
+=======
+  // Cron operates at second granularity, so floor nowMs to the start of the
+  // current second.  This prevents the lookback from landing inside a matching
+  // second — if nowMs is e.g. 12:00:00.500 and the pattern fires at second 0,
+  // a 1ms lookback (12:00:00.499) is still *within* that second, causing
+  // croner to skip ahead to the next occurrence (e.g. the following day).
+  // Flooring first ensures the lookback always falls in the *previous* second.
+  const nowSecondMs = Math.floor(nowMs / 1000) * 1000;
+  const next = cron.nextRun(new Date(nowSecondMs - 1));
+>>>>>>> 07375a65d (fix(cron): recover flat params when LLM omits job wrapper (#12124))
   if (!next) {
     return undefined;
   }
   const nextMs = next.getTime();
+<<<<<<< HEAD
   return Number.isFinite(nextMs) && nextMs >= nowMs ? nextMs : undefined;
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+=======
+  return Number.isFinite(nextMs) && nextMs >= nowSecondMs ? nextMs : undefined;
+>>>>>>> 07375a65d (fix(cron): recover flat params when LLM omits job wrapper (#12124))
 }
