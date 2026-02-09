@@ -153,6 +153,76 @@ async function buildReminderContextLines(params: {
   }
 }
 
+<<<<<<< HEAD
+=======
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function stripThreadSuffixFromSessionKey(sessionKey: string): string {
+  const normalized = sessionKey.toLowerCase();
+  const idx = normalized.lastIndexOf(":thread:");
+  if (idx <= 0) {
+    return sessionKey;
+  }
+  const parent = sessionKey.slice(0, idx).trim();
+  return parent ? parent : sessionKey;
+}
+
+function inferDeliveryFromSessionKey(agentSessionKey?: string): CronDelivery | null {
+  const rawSessionKey = agentSessionKey?.trim();
+  if (!rawSessionKey) {
+    return null;
+  }
+  const parsed = parseAgentSessionKey(stripThreadSuffixFromSessionKey(rawSessionKey));
+  if (!parsed || !parsed.rest) {
+    return null;
+  }
+  const parts = parsed.rest.split(":").filter(Boolean);
+  if (parts.length === 0) {
+    return null;
+  }
+  const head = parts[0]?.trim().toLowerCase();
+  if (!head || head === "main" || head === "subagent" || head === "acp") {
+    return null;
+  }
+
+  // buildAgentPeerSessionKey encodes peers as:
+  // - direct:<peerId>
+  // - <channel>:direct:<peerId>
+  // - <channel>:<accountId>:direct:<peerId>
+  // - <channel>:group:<peerId>
+  // - <channel>:channel:<peerId>
+  // Note: legacy keys may use "dm" instead of "direct".
+  // Threaded sessions append :thread:<id>, which we strip so delivery targets the parent peer.
+  // NOTE: Telegram forum topics encode as <chatId>:topic:<topicId> and should be preserved.
+  const markerIndex = parts.findIndex(
+    (part) => part === "direct" || part === "dm" || part === "group" || part === "channel",
+  );
+  if (markerIndex === -1) {
+    return null;
+  }
+  const peerId = parts
+    .slice(markerIndex + 1)
+    .join(":")
+    .trim();
+  if (!peerId) {
+    return null;
+  }
+
+  let channel: CronMessageChannel | undefined;
+  if (markerIndex >= 1) {
+    channel = parts[0]?.trim().toLowerCase() as CronMessageChannel;
+  }
+
+  const delivery: CronDelivery = { mode: "announce", to: peerId };
+  if (channel) {
+    delivery.channel = channel;
+  }
+  return delivery;
+}
+
+>>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
 export function createCronTool(opts?: CronToolOptions): AnyAgentTool {
   return {
     label: "Cron",

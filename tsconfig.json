@@ -22,7 +22,12 @@
     "noEmitOnError": true,
 >>>>>>> 59cfff02f (chore: Emit TypeScript declaration files so that we can type-check the extensions folder soon.)
     "outDir": "dist",
+<<<<<<< HEAD
     "rootDir": "src",
+=======
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+>>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
     "strict": true,
 <<<<<<< HEAD
 <<<<<<< HEAD

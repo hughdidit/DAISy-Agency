@@ -1,7 +1,11 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
 import type { Skill } from "@mariozechner/pi-coding-agent";
 import type { NormalizedChatType } from "../../channels/chat-type.js";
+=======
+import type { ChatType } from "../../channels/chat-type.js";
+>>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
 import type { ChannelId } from "../../channels/plugins/types.js";
 import type { DeliveryContext } from "../../utils/delivery-context.js";
 import type { TtsAutoMode } from "../types.tts.js";
@@ -10,7 +14,7 @@ export type SessionScope = "per-sender" | "global";
 
 export type SessionChannelId = ChannelId | "webchat";
 
-export type SessionChatType = NormalizedChatType;
+export type SessionChatType = ChatType;
 
 export type SessionOrigin = {
   label?: string;
