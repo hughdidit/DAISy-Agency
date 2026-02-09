@@ -27,6 +27,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -41,6 +42,15 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 744892de7 (Add GitHub Copilot models to xhigh list (#11646))
 - Discord: support forum/media `thread create` starter messages, wire `message thread create --message`, and harden thread-create routing. (#10062) Thanks @jarvis89757.
 - Gateway: stabilize chat routing by canonicalizing node session keys for node-originated chat methods. (#11755) Thanks @mbelinky.
+=======
+- Telegram: harden quote parsing; preserve quote context; avoid QUOTE_TEXT_INVALID; avoid nested reply quote misclassification. (#12156) Thanks @rybnikov.
+- Telegram: recover proactive sends when stale topic thread IDs are used by retrying without `message_thread_id`. (#11620)
+- Telegram: render markdown spoilers with `<tg-spoiler>` HTML tags. (#11543) Thanks @ezhikkk.
+- Telegram: truncate command registration to 100 entries to avoid `BOT_COMMANDS_TOO_MUCH` failures on startup. (#12356) Thanks @arosstale.
+- Telegram: match DM `allowFrom` against sender user id (fallback to chat id) and clarify pairing logs. (#12779) Thanks @liuxiaopai-ai.
+- Onboarding: QuickStart now auto-installs shell completion (prompt only in Manual).
+- Auth: strip embedded line breaks from pasted API keys and tokens before storing/resolving credentials.
+>>>>>>> 394d60c1f (fix(onboarding): auto-install shell completion in QuickStart)
 - Web UI: make chat refresh smoothly scroll to the latest messages and suppress new-messages badge flash during manual refresh.
 <<<<<<< HEAD
 >>>>>>> 9949f8259 (fix(discord): support forum channel thread-create (#10062))
