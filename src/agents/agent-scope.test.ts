@@ -212,11 +212,12 @@ describe("resolveAgentConfig", () => {
     expect(result?.workspace).toBe("~/clawd");
   });
 
-  // Unix-style paths behave differently on Windows; skip there
-  it.skipIf(process.platform === "win32")("uses OPENCLAW_HOME for default agent workspace", () => {
-    vi.stubEnv("OPENCLAW_HOME", "/srv/openclaw-home");
+  it("uses OPENCLAW_HOME for default agent workspace", () => {
+    const home = path.join(path.sep, "srv", "openclaw-home");
+    vi.stubEnv("OPENCLAW_HOME", home);
 
     const workspace = resolveAgentWorkspaceDir({} as OpenClawConfig, "main");
+<<<<<<< HEAD
     expect(workspace).toBe("/srv/openclaw-home/.openclaw/workspace");
   });
 
@@ -226,5 +227,18 @@ describe("resolveAgentConfig", () => {
 
     const agentDir = resolveAgentDir({} as OpenClawConfig, "main");
     expect(agentDir).toBe("/srv/openclaw-home/.openclaw/agents/main/agent");
+=======
+    expect(workspace).toBe(path.join(path.resolve(home), ".openclaw", "workspace"));
+  });
+
+  it("uses OPENCLAW_HOME for default agentDir", () => {
+    const home = path.join(path.sep, "srv", "openclaw-home");
+    vi.stubEnv("OPENCLAW_HOME", home);
+    // Clear state dir so it falls back to OPENCLAW_HOME
+    vi.stubEnv("OPENCLAW_STATE_DIR", "");
+
+    const agentDir = resolveAgentDir({} as OpenClawConfig, "main");
+    expect(agentDir).toBe(path.join(path.resolve(home), ".openclaw", "agents", "main", "agent"));
+>>>>>>> 53a1ac36f (test: normalize paths in OPENCLAW_HOME tests for cross-platform support (#12212))
   });
 });
