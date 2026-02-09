@@ -8,6 +8,12 @@ pnpm-lock.yaml
 bun.lock
 bun.lockb
 coverage
+<<<<<<< HEAD
+=======
+__pycache__/
+*.pyc
+.tsbuildinfo
+>>>>>>> 50b3d32d3 (CI: add code-size check for files crossing LOC threshold (#12810))
 .pnpm-store
 .worktrees/
 .DS_Store
