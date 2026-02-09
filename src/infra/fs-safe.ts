@@ -26,6 +26,11 @@ const NOT_FOUND_CODES = new Set(["ENOENT", "ENOTDIR"]);
 
 const ensureTrailingSep = (value: string) => (value.endsWith(path.sep) ? value : value + path.sep);
 
+const pathStartsWith =
+  process.platform === "win32"
+    ? (p: string, prefix: string) => p.toLowerCase().startsWith(prefix.toLowerCase())
+    : (p: string, prefix: string) => p.startsWith(prefix);
+
 const isNodeError = (err: unknown): err is NodeJS.ErrnoException =>
   Boolean(err && typeof err === "object" && "code" in (err as Record<string, unknown>));
 
@@ -50,7 +55,7 @@ export async function openFileWithinRoot(params: {
   }
   const rootWithSep = ensureTrailingSep(rootReal);
   const resolved = path.resolve(rootWithSep, params.relativePath);
-  if (!resolved.startsWith(rootWithSep)) {
+  if (!pathStartsWith(resolved, rootWithSep)) {
     throw new SafeOpenError("invalid-path", "path escapes root");
   }
 
@@ -77,7 +82,7 @@ export async function openFileWithinRoot(params: {
     }
 
     const realPath = await fs.realpath(resolved);
-    if (!realPath.startsWith(rootWithSep)) {
+    if (!pathStartsWith(realPath, rootWithSep)) {
       throw new SafeOpenError("invalid-path", "path escapes root");
     }
 
