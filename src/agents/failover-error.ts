@@ -116,10 +116,28 @@ export function resolveFailoverReasonFromError(err: unknown): FailoverReason | n
   if (isFailoverError(err)) return err.reason;
 
   const status = getStatusCode(err);
+<<<<<<< HEAD
   if (status === 402) return "billing";
   if (status === 429) return "rate_limit";
   if (status === 401 || status === 403) return "auth";
   if (status === 408) return "timeout";
+=======
+  if (status === 402) {
+    return "billing";
+  }
+  if (status === 429) {
+    return "rate_limit";
+  }
+  if (status === 401 || status === 403) {
+    return "auth";
+  }
+  if (status === 408) {
+    return "timeout";
+  }
+  if (status === 400) {
+    return "format";
+  }
+>>>>>>> 71b4be879 (fix: handle 400 status in failover to enable model fallback (#1879))
 
   const code = (getErrorCode(err) ?? "").toUpperCase();
   if (["ETIMEDOUT", "ESOCKETTIMEDOUT", "ECONNRESET", "ECONNABORTED"].includes(code)) {
