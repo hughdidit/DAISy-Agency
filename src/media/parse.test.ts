@@ -9,21 +9,53 @@ describe("splitMediaFromOutput", () => {
     expect(result.text).toBe("Hello world");
   });
 
+<<<<<<< HEAD
   it("captures media paths with spaces", () => {
+=======
+  it("accepts absolute media paths", () => {
+>>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
     const result = splitMediaFromOutput("MEDIA:/Users/pete/My File.png");
     expect(result.mediaUrls).toEqual(["/Users/pete/My File.png"]);
     expect(result.text).toBe("");
   });
 
+<<<<<<< HEAD
   it("captures quoted media paths with spaces", () => {
+=======
+  it("accepts quoted absolute media paths", () => {
+>>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
     const result = splitMediaFromOutput('MEDIA:"/Users/pete/My File.png"');
     expect(result.mediaUrls).toEqual(["/Users/pete/My File.png"]);
     expect(result.text).toBe("");
   });
 
+<<<<<<< HEAD
   it("captures tilde media paths with spaces", () => {
     const result = splitMediaFromOutput("MEDIA:~/Pictures/My File.png");
     expect(result.mediaUrls).toEqual(["~/Pictures/My File.png"]);
+=======
+  it("accepts tilde media paths", () => {
+    const result = splitMediaFromOutput("MEDIA:~/Pictures/My File.png");
+    expect(result.mediaUrls).toEqual(["~/Pictures/My File.png"]);
+    expect(result.text).toBe("");
+  });
+
+  it("accepts traversal-like media paths (validated at load time)", () => {
+    const result = splitMediaFromOutput("MEDIA:../../etc/passwd");
+    expect(result.mediaUrls).toEqual(["../../etc/passwd"]);
+    expect(result.text).toBe("");
+  });
+
+  it("captures safe relative media paths", () => {
+    const result = splitMediaFromOutput("MEDIA:./screenshots/image.png");
+    expect(result.mediaUrls).toEqual(["./screenshots/image.png"]);
+>>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
+    expect(result.text).toBe("");
+  });
+
+  it("accepts sandbox-relative media paths", () => {
+    const result = splitMediaFromOutput("MEDIA:media/inbound/image.png");
+    expect(result.mediaUrls).toEqual(["media/inbound/image.png"]);
     expect(result.text).toBe("");
   });
 
@@ -46,5 +78,28 @@ describe("splitMediaFromOutput", () => {
     const result = splitMediaFromOutput("  MEDIA:/tmp/screenshot.png");
     expect(result.mediaUrls).toEqual(["/tmp/screenshot.png"]);
     expect(result.text).toBe("");
+  });
+
+  it("accepts Windows-style paths", () => {
+    const result = splitMediaFromOutput("MEDIA:C:\\Users\\pete\\Pictures\\snap.png");
+    expect(result.mediaUrls).toEqual(["C:\\Users\\pete\\Pictures\\snap.png"]);
+    expect(result.text).toBe("");
+  });
+
+  it("accepts TTS temp file paths", () => {
+    const result = splitMediaFromOutput("MEDIA:/tmp/tts-fAJy8C/voice-1770246885083.opus");
+    expect(result.mediaUrls).toEqual(["/tmp/tts-fAJy8C/voice-1770246885083.opus"]);
+    expect(result.text).toBe("");
+  });
+
+  it("accepts bare filenames with extensions", () => {
+    const result = splitMediaFromOutput("MEDIA:image.png");
+    expect(result.mediaUrls).toEqual(["image.png"]);
+    expect(result.text).toBe("");
+  });
+
+  it("rejects bare words without file extensions", () => {
+    const result = splitMediaFromOutput("MEDIA:screenshot");
+    expect(result.mediaUrls).toBeUndefined();
   });
 });
