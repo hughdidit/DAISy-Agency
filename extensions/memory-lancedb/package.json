@@ -6,7 +6,12 @@
   "description": "Moltbot LanceDB-backed long-term memory plugin with auto-recall/capture",
 =======
   "name": "@openclaw/memory-lancedb",
+<<<<<<< HEAD
   "version": "2026.1.30",
+=======
+  "version": "2026.2.9",
+  "private": true,
+>>>>>>> 33c75cb6b (chore(extensions): mark bundled packages private)
   "description": "OpenClaw LanceDB-backed long-term memory plugin with auto-recall/capture",
   "type": "module",
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
