@@ -1,4 +1,5 @@
 import type {
+  ChannelAccountSnapshot,
   ChannelOutboundAdapter,
   ChannelPlugin,
   ChannelSetupInput,
@@ -159,7 +160,7 @@ const tlonOutbound: ChannelOutboundAdapter = {
   },
   sendMedia: async ({ cfg, to, text, mediaUrl, accountId, replyToId, threadId }) => {
     const mergedText = buildMediaText(text, mediaUrl);
-    return await tlonOutbound.sendText({
+    return await tlonOutbound.sendText!({
       cfg,
       to,
       text: mergedText,
@@ -240,9 +241,11 @@ export const tlonPlugin: ChannelPlugin = {
     deleteAccount: ({ cfg, accountId }) => {
       const useDefault = !accountId || accountId === "default";
       if (useDefault) {
-        // @ts-expect-error
         // oxlint-disable-next-line no-unused-vars
-        const { ship, code, url, name, ...rest } = cfg.channels?.tlon ?? {};
+        const { ship, code, url, name, ...rest } = (cfg.channels?.tlon ?? {}) as Record<
+          string,
+          unknown
+        >;
         return {
           ...cfg,
           channels: {
@@ -251,9 +254,9 @@ export const tlonPlugin: ChannelPlugin = {
           },
         } as MoltbotConfig;
       }
-      // @ts-expect-error
       // oxlint-disable-next-line no-unused-vars
-      const { [accountId]: removed, ...remainingAccounts } = cfg.channels?.tlon?.accounts ?? {};
+      const { [accountId]: removed, ...remainingAccounts } = (cfg.channels?.tlon?.accounts ??
+        {}) as Record<string, unknown>;
       return {
         ...cfg,
         channels: {
@@ -362,8 +365,8 @@ export const tlonPlugin: ChannelPlugin = {
     },
     buildChannelSummary: ({ snapshot }) => ({
       configured: snapshot.configured ?? false,
-      ship: snapshot.ship ?? null,
-      url: snapshot.url ?? null,
+      ship: (snapshot as { ship?: string | null }).ship ?? null,
+      url: (snapshot as { url?: string | null }).url ?? null,
     }),
     probeAccount: async ({ account }) => {
       if (!account.configured || !account.ship || !account.url || !account.code) {
@@ -384,7 +387,7 @@ export const tlonPlugin: ChannelPlugin = {
           await api.delete();
         }
       } catch (error) {
-        return { ok: false, error: error?.message ?? String(error) };
+        return { ok: false, error: (error as { message?: string })?.message ?? String(error) };
       }
     },
     buildAccountSnapshot: ({ account, runtime, probe }) => ({
@@ -408,7 +411,7 @@ export const tlonPlugin: ChannelPlugin = {
         accountId: account.accountId,
         ship: account.ship,
         url: account.url,
-      });
+      } as ChannelAccountSnapshot);
       ctx.log?.info(`[${account.accountId}] starting Tlon provider for ${account.ship ?? "tlon"}`);
       return monitorTlonProvider({
         runtime: ctx.runtime,

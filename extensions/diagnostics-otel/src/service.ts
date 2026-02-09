@@ -3,7 +3,7 @@ import type { SeverityNumber } from "@opentelemetry/api-logs";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { Resource } from "@opentelemetry/resources";
+import { resourceFromAttributes } from "@opentelemetry/resources";
 import { BatchLogRecordProcessor, LoggerProvider } from "@opentelemetry/sdk-logs";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
@@ -74,7 +74,7 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
         return;
       }
 
-      const resource = new Resource({
+      const resource = resourceFromAttributes({
         [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
       });
 
@@ -211,16 +211,18 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
           ...(logUrl ? { url: logUrl } : {}),
           ...(headers ? { headers } : {}),
         });
-        logProvider = new LoggerProvider({ resource });
-        logProvider.addLogRecordProcessor(
-          new BatchLogRecordProcessor(
-            logExporter,
-            typeof otel.flushIntervalMs === "number"
-              ? { scheduledDelayMillis: Math.max(1000, otel.flushIntervalMs) }
-              : {},
-          ),
+        const processor = new BatchLogRecordProcessor(
+          logExporter,
+          typeof otel.flushIntervalMs === "number"
+            ? { scheduledDelayMillis: Math.max(1000, otel.flushIntervalMs) }
+            : {},
         );
+<<<<<<< HEAD
         const otelLogger = logProvider.getLogger("moltbot");
+=======
+        logProvider = new LoggerProvider({ resource, processors: [processor] });
+        const otelLogger = logProvider.getLogger("openclaw");
+>>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 
         stopLogTransport = registerLogTransport((logObj) => {
           const safeStringify = (value: unknown) => {

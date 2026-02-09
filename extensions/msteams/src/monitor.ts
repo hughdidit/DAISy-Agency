@@ -8,8 +8,12 @@ import {
 import type { MSTeamsConversationStore } from "./conversation-store.js";
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import { formatUnknownError } from "./errors.js";
+<<<<<<< HEAD
 import type { MSTeamsAdapter } from "./messenger.js";
 import { registerMSTeamsHandlers } from "./monitor-handler.js";
+=======
+import { registerMSTeamsHandlers, type MSTeamsActivityHandler } from "./monitor-handler.js";
+>>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { createMSTeamsPollStoreFs, type MSTeamsPollStore } from "./polls.js";
 import {
   resolveMSTeamsChannelAllowlist,
@@ -40,7 +44,7 @@ export async function monitorMSTeamsProvider(
   let cfg = opts.cfg;
   let msteamsCfg = cfg.channels?.msteams;
   if (!msteamsCfg?.enabled) {
-    log.debug("msteams provider disabled");
+    log.debug?.("msteams provider disabled");
     return { app: null, shutdown: async () => {} };
   }
 
@@ -224,7 +228,7 @@ export async function monitorMSTeamsProvider(
   const tokenProvider = new MsalTokenProvider(authConfig);
   const adapter = createMSTeamsAdapter(authConfig, sdk);
 
-  const handler = registerMSTeamsHandlers(new ActivityHandler(), {
+  const handler = registerMSTeamsHandlers(new ActivityHandler() as MSTeamsActivityHandler, {
     cfg,
     runtime,
     appId,
@@ -246,7 +250,7 @@ export async function monitorMSTeamsProvider(
   const configuredPath = msteamsCfg.webhook?.path ?? "/api/messages";
   const messageHandler = (req: Request, res: Response) => {
     void adapter
-      .process(req, res, (context: unknown) => handler.run(context))
+      .process(req, res, (context: unknown) => handler.run!(context))
       .catch((err: unknown) => {
         log.error("msteams webhook failed", { error: formatUnknownError(err) });
       });
@@ -258,7 +262,7 @@ export async function monitorMSTeamsProvider(
     expressApp.post("/api/messages", messageHandler);
   }
 
-  log.debug("listening on paths", {
+  log.debug?.("listening on paths", {
     primary: configuredPath,
     fallback: "/api/messages",
   });
@@ -277,7 +281,7 @@ export async function monitorMSTeamsProvider(
     return new Promise<void>((resolve) => {
       httpServer.close((err) => {
         if (err) {
-          log.debug("msteams server close error", { error: String(err) });
+          log.debug?.("msteams server close error", { error: String(err) });
         }
         resolve();
       });

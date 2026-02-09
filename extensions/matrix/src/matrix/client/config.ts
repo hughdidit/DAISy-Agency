@@ -1,6 +1,11 @@
 import { MatrixClient } from "@vector-im/matrix-bot-sdk";
+<<<<<<< HEAD
 
 import type { CoreConfig } from "../types.js";
+=======
+import type { CoreConfig } from "../../types.js";
+import type { MatrixAuth, MatrixResolvedConfig } from "./types.js";
+>>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { getMatrixRuntime } from "../../runtime.js";
 import { ensureMatrixSdkLoggingConfigured } from "./logging.js";
 import type { MatrixAuth, MatrixResolvedConfig } from "./types.js";

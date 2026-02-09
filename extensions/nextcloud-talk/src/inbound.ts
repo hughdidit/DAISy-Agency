@@ -7,6 +7,10 @@ import {
 } from "clawdbot/plugin-sdk";
 
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
+<<<<<<< HEAD
+=======
+import type { CoreConfig, GroupPolicy, NextcloudTalkInboundMessage } from "./types.js";
+>>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import {
   normalizeNextcloudTalkAllowlist,
   resolveNextcloudTalkAllowlistMatch,
@@ -85,8 +89,12 @@ export async function handleNextcloudTalkInbound(params: {
   statusSink?.({ lastInboundAt: message.timestamp });
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
-  const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
-  const groupPolicy = account.config.groupPolicy ?? defaultGroupPolicy ?? "allowlist";
+  const defaultGroupPolicy = (config.channels as Record<string, unknown> | undefined)?.defaults as
+    | { groupPolicy?: string }
+    | undefined;
+  const groupPolicy = (account.config.groupPolicy ??
+    defaultGroupPolicy?.groupPolicy ??
+    "allowlist") as GroupPolicy;
 
   const configAllowFrom = normalizeNextcloudTalkAllowlist(account.config.allowFrom);
   const configGroupAllowFrom = normalizeNextcloudTalkAllowlist(account.config.groupAllowFrom);
@@ -119,7 +127,8 @@ export async function handleNextcloudTalkInbound(params: {
     cfg: config as MoltbotConfig,
     surface: CHANNEL_ID,
   });
-  const useAccessGroups = config.commands?.useAccessGroups !== false;
+  const useAccessGroups =
+    (config.commands as Record<string, unknown> | undefined)?.useAccessGroups !== false;
   const senderAllowedForCommands = resolveNextcloudTalkAllowlistMatch({
     allowFrom: isGroup ? effectiveGroupAllowFrom : effectiveAllowFrom,
     senderId,
@@ -251,6 +260,7 @@ export async function handleNextcloudTalkInbound(params: {
   });
 
   const fromLabel = isGroup ? `room:${roomName || roomToken}` : senderName || `user:${senderId}`;
+<<<<<<< HEAD
   const storePath = core.channel.session.resolveStorePath(config.session?.store, {
     agentId: route.agentId,
   });
@@ -259,6 +269,14 @@ export async function handleNextcloudTalkInbound(params: {
     config as MoltbotConfig,
   );
 =======
+=======
+  const storePath = core.channel.session.resolveStorePath(
+    (config.session as Record<string, unknown> | undefined)?.store as string | undefined,
+    {
+      agentId: route.agentId,
+    },
+  );
+>>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
   const envelopeOptions = core.channel.reply.resolveEnvelopeFormatOptions(config as OpenClawConfig);
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
   const previousTimestamp = core.channel.session.readSessionUpdatedAt({

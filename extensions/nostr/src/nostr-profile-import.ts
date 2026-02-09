@@ -131,7 +131,7 @@ export async function importProfileFromRelays(
               authors: [pubkey],
               limit: 1,
             },
-          ],
+          ] as unknown as Parameters<typeof pool.subscribeMany>[1],
           {
             onevent(event) {
               events.push({ event, relay });

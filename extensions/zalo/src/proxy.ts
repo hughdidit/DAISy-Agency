@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import type { Dispatcher, RequestInit as UndiciRequestInit } from "undici";
+>>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { ProxyAgent, fetch as undiciFetch } from "undici";
 import type { Dispatcher } from "undici";
 
@@ -16,7 +20,10 @@ export function resolveZaloProxyFetch(proxyUrl?: string | null): ZaloFetch | und
   }
   const agent = new ProxyAgent(trimmed);
   const fetcher: ZaloFetch = (input, init) =>
-    undiciFetch(input, { ...init, dispatcher: agent as Dispatcher });
+    undiciFetch(input, {
+      ...init,
+      dispatcher: agent,
+    } as UndiciRequestInit) as unknown as Promise<Response>;
   proxyCache.set(trimmed, fetcher);
   return fetcher;
 }

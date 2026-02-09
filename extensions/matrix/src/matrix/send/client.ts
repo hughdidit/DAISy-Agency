@@ -1,5 +1,9 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
+<<<<<<< HEAD
 
+=======
+import type { CoreConfig } from "../../types.js";
+>>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { getMatrixRuntime } from "../../runtime.js";
 import { getActiveMatrixClient } from "../active-client.js";
 import {
@@ -61,7 +65,9 @@ export async function resolveMatrixClient(opts: {
   if (auth.encryption && client.crypto) {
     try {
       const joinedRooms = await client.getJoinedRooms();
-      await client.crypto.prepare(joinedRooms);
+      await (client.crypto as { prepare: (rooms?: string[]) => Promise<void> }).prepare(
+        joinedRooms,
+      );
     } catch {
       // Ignore crypto prep failures for one-off sends; normal sync will retry.
     }

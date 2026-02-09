@@ -18,7 +18,7 @@ export async function fetchGroupChanges(
     return null;
   } catch (error) {
     runtime.log?.(
-      `[tlon] Failed to fetch changes (falling back to full init): ${error?.message ?? String(error)}`,
+      `[tlon] Failed to fetch changes (falling back to full init): ${(error as { message?: string })?.message ?? String(error)}`,
     );
     return null;
   }
@@ -67,7 +67,9 @@ export async function fetchAllChannels(
 
     return channels;
   } catch (error) {
-    runtime.log?.(`[tlon] Auto-discovery failed: ${error?.message ?? String(error)}`);
+    runtime.log?.(
+      `[tlon] Auto-discovery failed: ${(error as { message?: string })?.message ?? String(error)}`,
+    );
     runtime.log?.(
       "[tlon] To monitor group channels, add them to config: channels.tlon.groupChannels",
     );

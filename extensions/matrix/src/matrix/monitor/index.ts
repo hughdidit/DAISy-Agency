@@ -63,7 +63,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
     if (!core.logging.shouldLogVerbose()) {
       return;
     }
-    logger.debug(message);
+    logger.debug?.(message);
   };
 
   const normalizeUserEntry = (raw: string) =>
@@ -77,9 +77,67 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
       .replace(/^(room|channel):/i, "")
       .trim();
   const isMatrixUserId = (value: string) => value.startsWith("@") && value.includes(":");
+<<<<<<< HEAD
 
   const allowlistOnly = cfg.channels?.matrix?.allowlistOnly === true;
   let allowFrom = cfg.channels?.matrix?.dm?.allowFrom ?? [];
+=======
+  const resolveUserAllowlist = async (
+    label: string,
+    list?: Array<string | number>,
+  ): Promise<string[]> => {
+    let allowList = list ?? [];
+    if (allowList.length === 0) {
+      return allowList.map(String);
+    }
+    const entries = allowList
+      .map((entry) => normalizeUserEntry(String(entry)))
+      .filter((entry) => entry && entry !== "*");
+    if (entries.length === 0) {
+      return allowList.map(String);
+    }
+    const mapping: string[] = [];
+    const unresolved: string[] = [];
+    const additions: string[] = [];
+    const pending: string[] = [];
+    for (const entry of entries) {
+      if (isMatrixUserId(entry)) {
+        additions.push(normalizeMatrixUserId(entry));
+        continue;
+      }
+      pending.push(entry);
+    }
+    if (pending.length > 0) {
+      const resolved = await resolveMatrixTargets({
+        cfg,
+        inputs: pending,
+        kind: "user",
+        runtime,
+      });
+      for (const entry of resolved) {
+        if (entry.resolved && entry.id) {
+          const normalizedId = normalizeMatrixUserId(entry.id);
+          additions.push(normalizedId);
+          mapping.push(`${entry.input}→${normalizedId}`);
+        } else {
+          unresolved.push(entry.input);
+        }
+      }
+    }
+    allowList = mergeAllowlist({ existing: allowList, additions });
+    summarizeMapping(label, mapping, unresolved, runtime);
+    if (unresolved.length > 0) {
+      runtime.log?.(
+        `${label} entries must be full Matrix IDs (example: @user:server). Unresolved entries are ignored.`,
+      );
+    }
+    return allowList.map(String);
+  };
+
+  const allowlistOnly = cfg.channels?.matrix?.allowlistOnly === true;
+  let allowFrom: string[] = (cfg.channels?.matrix?.dm?.allowFrom ?? []).map(String);
+  let groupAllowFrom: string[] = (cfg.channels?.matrix?.groupAllowFrom ?? []).map(String);
+>>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
   let roomsConfig = cfg.channels?.matrix?.groups ?? cfg.channels?.matrix?.rooms;
 
   if (allowFrom.length > 0) {
@@ -269,15 +327,16 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
   if (auth.encryption && client.crypto) {
     try {
       // Request verification from other sessions
-      const verificationRequest = await client.crypto.requestOwnUserVerification();
+      const verificationRequest = await (
+        client.crypto as { requestOwnUserVerification?: () => Promise<unknown> }
+      ).requestOwnUserVerification?.();
       if (verificationRequest) {
         logger.info("matrix: device verification requested - please verify in another client");
       }
     } catch (err) {
-      logger.debug(
-        { error: String(err) },
-        "Device verification request failed (may already be verified)",
-      );
+      logger.debug?.("Device verification request failed (may already be verified)", {
+        error: String(err),
+      });
     }
   }
 

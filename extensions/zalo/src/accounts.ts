@@ -4,7 +4,13 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 import type { ResolvedZaloAccount, ZaloAccountConfig, ZaloConfig } from "./types.js";
 import { resolveZaloToken } from "./token.js";
 
+<<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
+=======
+export type { ResolvedZaloAccount };
+
+function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
+>>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
   const accounts = (cfg.channels?.zalo as ZaloConfig | undefined)?.accounts;
   if (!accounts || typeof accounts !== "object") {
     return [];

@@ -28,6 +28,16 @@ export type VoiceCallRuntime = {
   stop: () => Promise<void>;
 };
 
+<<<<<<< HEAD
+=======
+type Logger = {
+  info: (message: string) => void;
+  warn: (message: string) => void;
+  error: (message: string) => void;
+  debug?: (message: string) => void;
+};
+
+>>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 function isLoopbackBind(bind: string | undefined): boolean {
   if (!bind) {
     return false;

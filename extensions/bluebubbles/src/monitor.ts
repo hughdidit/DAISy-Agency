@@ -362,14 +362,16 @@ function combineDebounceEntries(entries: BlueBubblesDebounceEntry[]): Normalized
 
 const webhookTargets = new Map<string, WebhookTarget[]>();
 
+type BlueBubblesDebouncer = {
+  enqueue: (item: BlueBubblesDebounceEntry) => Promise<void>;
+  flushKey: (key: string) => Promise<void>;
+};
+
 /**
  * Maps webhook targets to their inbound debouncers.
  * Each target gets its own debouncer keyed by a unique identifier.
  */
-const targetDebouncers = new Map<
-  WebhookTarget,
-  ReturnType<BlueBubblesCoreRuntime["channel"]["debounce"]["createInboundDebouncer"]>
->();
+const targetDebouncers = new Map<WebhookTarget, BlueBubblesDebouncer>();
 
 function resolveBlueBubblesDebounceMs(
   config: MoltbotConfig,
@@ -1900,7 +1902,7 @@ async function processMessage(
             maxBytes,
           });
           const saved = await core.channel.media.saveMediaBuffer(
-            downloaded.buffer,
+            Buffer.from(downloaded.buffer),
             downloaded.contentType,
             "inbound",
             maxBytes,
@@ -2345,8 +2347,13 @@ async function processMessage(
         },
       });
     }
+<<<<<<< HEAD
     if (chatGuidForActions && baseUrl && password && !sentMessage) {
       // Stop typing indicator when no message was sent (e.g., NO_REPLY)
+=======
+    if (shouldStopTyping && chatGuidForActions) {
+      // Stop typing after streaming completes to avoid a stuck indicator.
+>>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
       sendBlueBubblesTyping(chatGuidForActions, false, {
         cfg: config,
         accountId: account.accountId,
