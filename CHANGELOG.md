@@ -30,7 +30,11 @@ Docs: https://docs.openclaw.ai
 - Errors: prevent false positive context overflow detection when conversation mentions "context overflow" topic. (#2078) Thanks @sbking.
 >>>>>>> c984e6d8d (fix: prevent false positive context overflow detection in conversation text (#2078))
 - Model failover: treat HTTP 400 errors as failover-eligible, enabling automatic model fallback when providers return bad request errors. (#1879) Thanks @orenyomtov.
+<<<<<<< HEAD
 >>>>>>> 71b4be879 (fix: handle 400 status in failover to enable model fallback (#1879))
+=======
+- Telegram: truncate command registration to 100 entries to avoid `BOT_COMMANDS_TOO_MUCH` failures on startup. (#12356) Thanks @arosstale.
+>>>>>>> 727a390d1 (fix: add telegram command-cap regression test (#12356) (thanks @arosstale))
 - Exec approvals: format forwarded command text as inline/fenced monospace for safer approval scanning across channels. (#11937)
 - Config: clamp `maxTokens` to `contextWindow` to prevent invalid model configs. (#5516) Thanks @lailoo.
 - Docs: fix language switcher ordering and Japanese locale flag in Mintlify nav. (#12023) Thanks @joshp123.
