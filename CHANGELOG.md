@@ -586,7 +586,6 @@ Docs: https://docs.openclaw.ai
 - Discord: enforce DM allowlists for agent components (buttons/select menus), honoring pairing store approvals and tag matches. (#11254) Thanks @thedudeabidesai.
 >>>>>>> 8d80212f9 (docs: credit memorySearch changelog)
 
-
 ## 2026.2.2-3
 
 ### Fixes
