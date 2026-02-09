@@ -13,7 +13,29 @@ export function resolveMatrixConfig(
   cfg: CoreConfig = getMatrixRuntime().config.loadConfig() as CoreConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): MatrixResolvedConfig {
+<<<<<<< HEAD
   const matrix = cfg.channels?.matrix ?? {};
+=======
+  const normalizedAccountId = normalizeAccountId(accountId);
+  const matrixBase = cfg.channels?.matrix ?? {};
+
+  // Try to get account-specific config first (direct lookup, then case-insensitive fallback)
+  let accountConfig = matrixBase.accounts?.[normalizedAccountId];
+  if (!accountConfig && matrixBase.accounts) {
+    for (const key of Object.keys(matrixBase.accounts)) {
+      if (normalizeAccountId(key) === normalizedAccountId) {
+        accountConfig = matrixBase.accounts[key];
+        break;
+      }
+    }
+  }
+
+  // Merge: account-specific values override top-level values
+  // For DEFAULT_ACCOUNT_ID with no accounts, use top-level directly
+  const useAccountConfig = accountConfig !== undefined;
+  const matrix = useAccountConfig ? { ...matrixBase, ...accountConfig } : matrixBase;
+
+>>>>>>> a6dd50fed (fix: normalize account config keys for case-insensitive matching)
   const homeserver = clean(matrix.homeserver) || clean(env.MATRIX_HOMESERVER);
   const userId = clean(matrix.userId) || clean(env.MATRIX_USER_ID);
   const accessToken =
