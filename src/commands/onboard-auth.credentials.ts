@@ -118,7 +118,12 @@ export async function setVeniceApiKey(key: string, agentDir?: string) {
 export const ZAI_DEFAULT_MODEL_REF = "zai/glm-4.7";
 export const XIAOMI_DEFAULT_MODEL_REF = "xiaomi/mimo-v2-flash";
 export const OPENROUTER_DEFAULT_MODEL_REF = "openrouter/auto";
+<<<<<<< HEAD
 export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.5";
+=======
+export const TOGETHER_DEFAULT_MODEL_REF = "together/zai-org/GLM-4.7";
+export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.6";
+>>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
 
 export async function setZaiApiKey(key: string, agentDir?: string) {
   // Write to resolved agent dir so gateway finds credentials on startup.
@@ -207,6 +212,21 @@ export async function setOpencodeZenApiKey(key: string, agentDir?: string) {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+export async function setTogetherApiKey(key: string, agentDir?: string) {
+  upsertAuthProfile({
+    profileId: "together:default",
+    credential: {
+      type: "api_key",
+      provider: "together",
+      key,
+    },
+    agentDir: resolveAuthAgentDir(agentDir),
+  });
+}
+
+>>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
 export function setQianfanApiKey(key: string, agentDir?: string) {
   upsertAuthProfile({
     profileId: "qianfan:default",

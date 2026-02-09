@@ -303,6 +303,10 @@ export function resolveEnvApiKey(provider: string): EnvApiKeyResult | null {
     mistral: "MISTRAL_API_KEY",
     opencode: "OPENCODE_API_KEY",
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    together: "TOGETHER_API_KEY",
+>>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
     qianfan: "QIANFAN_API_KEY",
 =======
     ollama: "OLLAMA_API_KEY",
