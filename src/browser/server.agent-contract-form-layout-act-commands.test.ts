@@ -342,12 +342,15 @@ describe("browser control server", () => {
       })) as { ok: boolean; result?: unknown };
       expect(evalRes.ok).toBe(true);
       expect(evalRes.result).toBe("ok");
-      expect(pwMocks.evaluateViaPlaywright).toHaveBeenCalledWith({
-        cdpUrl: cdpBaseUrl,
-        targetId: "abcd1234",
-        fn: "() => 1",
-        ref: undefined,
-      });
+      expect(pwMocks.evaluateViaPlaywright).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cdpUrl: cdpBaseUrl,
+          targetId: "abcd1234",
+          fn: "() => 1",
+          ref: undefined,
+          signal: expect.any(AbortSignal),
+        }),
+      );
     },
     slowTimeoutMs,
   );

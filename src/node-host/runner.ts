@@ -46,7 +46,11 @@ import { VERSION } from "../version.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 
 import { ensureNodeHostConfig, saveNodeHostConfig, type NodeHostGatewayConfig } from "./config.js";
+<<<<<<< HEAD
 import { GatewayClient } from "../gateway/client.js";
+=======
+import { withTimeout } from "./with-timeout.js";
+>>>>>>> 424d2dddf (fix: prevent act:evaluate hangs from getting browser tool stuck/killed (#13498))
 
 type NodeHostRunOptions = {
   gatewayHost: string;
@@ -263,6 +267,7 @@ async function ensureBrowserControlService(): Promise<void> {
   return browserControlReady;
 }
 
+<<<<<<< HEAD
 async function withTimeout<T>(promise: Promise<T>, timeoutMs?: number, label?: string): Promise<T> {
   const resolved =
     typeof timeoutMs === "number" && Number.isFinite(timeoutMs)
@@ -282,6 +287,8 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs?: number, label?: s
   }
 }
 
+=======
+>>>>>>> 424d2dddf (fix: prevent act:evaluate hangs from getting browser tool stuck/killed (#13498))
 function isProfileAllowed(params: { allowProfiles: string[]; profile?: string | null }) {
   const { allowProfiles, profile } = params;
   if (!allowProfiles.length) return true;
@@ -728,12 +735,14 @@ async function handleInvoke(
       }
       const dispatcher = createBrowserRouteDispatcher(createBrowserControlContext());
       const response = await withTimeout(
-        dispatcher.dispatch({
-          method: method === "DELETE" ? "DELETE" : method === "POST" ? "POST" : "GET",
-          path,
-          query,
-          body,
-        }),
+        (signal) =>
+          dispatcher.dispatch({
+            method: method === "DELETE" ? "DELETE" : method === "POST" ? "POST" : "GET",
+            path,
+            query,
+            body,
+            signal,
+          }),
         params.timeoutMs,
         "browser proxy request",
       );
