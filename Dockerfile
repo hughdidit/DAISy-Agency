@@ -24,7 +24,11 @@ COPY scripts ./scripts
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+<<<<<<< HEAD
 RUN CLAWDBOT_A2UI_SKIP_MISSING=1 pnpm build
+=======
+RUN pnpm build
+>>>>>>> 72f89b1f5 (Docker: include A2UI sources for bundle (#13114))
 # Force pnpm for UI build (Bun may fail on ARM/Synology architectures)
 <<<<<<< HEAD
 ENV CLAWDBOT_PREFER_PNPM=1
