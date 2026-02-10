@@ -94,6 +94,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.bundle-meta.outputs.artifact_name }}
+          include-hidden-files: true
           path: |
             src/canvas-host/a2ui/a2ui.bundle.js
             src/canvas-host/a2ui/.bundle.hash
