@@ -299,7 +299,11 @@ export async function startGatewayServer(port: number, opts?: GatewayServerOptio
   return await mod.startGatewayServer(port, opts);
 }
 
-export async function startServerWithClient(token?: string, opts?: GatewayServerOptions) {
+export async function startServerWithClient(
+  token?: string,
+  opts?: GatewayServerOptions & { wsHeaders?: Record<string, string> },
+) {
+  const { wsHeaders, ...gatewayOpts } = opts ?? {};
   let port = await getFreePort();
   const prev = process.env.CLAWDBOT_GATEWAY_TOKEN;
   if (typeof token === "string") {
@@ -319,7 +323,7 @@ export async function startServerWithClient(token?: string, opts?: GatewayServer
   let server: Awaited<ReturnType<typeof startGatewayServer>> | null = null;
   for (let attempt = 0; attempt < 10; attempt++) {
     try {
-      server = await startGatewayServer(port, opts);
+      server = await startGatewayServer(port, gatewayOpts);
       break;
     } catch (err) {
       const code = (err as { cause?: { code?: string } }).cause?.code;
@@ -333,8 +337,39 @@ export async function startServerWithClient(token?: string, opts?: GatewayServer
     throw new Error("failed to start gateway server after retries");
   }
 
+<<<<<<< HEAD
   const ws = new WebSocket(`ws://127.0.0.1:${port}`);
   await new Promise<void>((resolve) => ws.once("open", resolve));
+=======
+  const ws = new WebSocket(
+    `ws://127.0.0.1:${port}`,
+    wsHeaders ? { headers: wsHeaders } : undefined,
+  );
+  await new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("timeout waiting for ws open")), 10_000);
+    const cleanup = () => {
+      clearTimeout(timer);
+      ws.off("open", onOpen);
+      ws.off("error", onError);
+      ws.off("close", onClose);
+    };
+    const onOpen = () => {
+      cleanup();
+      resolve();
+    };
+    const onError = (err: unknown) => {
+      cleanup();
+      reject(err instanceof Error ? err : new Error(String(err)));
+    };
+    const onClose = (code: number, reason: Buffer) => {
+      cleanup();
+      reject(new Error(`closed ${code}: ${reason.toString()}`));
+    };
+    ws.once("open", onOpen);
+    ws.once("error", onError);
+    ws.once("close", onClose);
+  });
+>>>>>>> cfd112952 (fix(gateway): default-deny missing connect scopes)
   return { server, ws, port, prevToken: prev };
 }
 
@@ -401,7 +436,11 @@ export async function connectReq(
         : process.env.CLAWDBOT_GATEWAY_PASSWORD;
   const token = opts?.token ?? defaultToken;
   const password = opts?.password ?? defaultPassword;
-  const requestedScopes = Array.isArray(opts?.scopes) ? opts?.scopes : [];
+  const requestedScopes = Array.isArray(opts?.scopes)
+    ? opts.scopes
+    : role === "operator"
+      ? ["operator.admin"]
+      : [];
   const device = (() => {
     if (opts?.device === null) {
       return undefined;
@@ -441,7 +480,7 @@ export async function connectReq(
         commands: opts?.commands ?? [],
         permissions: opts?.permissions ?? undefined,
         role,
-        scopes: opts?.scopes,
+        scopes: requestedScopes,
         auth:
           token || password
             ? {

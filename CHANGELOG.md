@@ -97,7 +97,13 @@ Docs: https://docs.openclaw.ai
 - Onboarding/Providers: add LiteLLM provider onboarding and preserve custom LiteLLM proxy base URLs while enforcing API-key auth mode. (#12823) Thanks @ryan-crabbe.
 - Docker: make `docker-setup.sh` compatible with macOS Bash 3.2 and empty extra mounts. (#9441) Thanks @mateusz-michalik.
 - Auth: strip embedded line breaks from pasted API keys and tokens before storing/resolving credentials.
+<<<<<<< HEAD
 >>>>>>> 394d60c1f (fix(onboarding): auto-install shell completion in QuickStart)
+=======
+- Agents: strip reasoning tags and downgraded tool markers from messaging tool and streaming output to prevent leakage. (#11053, #13453) Thanks @liebertar, @meaadore1221-afk, @gumadeiras.
+- Browser: prevent stuck `act:evaluate` from wedging the browser tool, and make cancellation stop waiting promptly. (#13498) Thanks @onutc.
+- Security/Gateway: default-deny missing connect `scopes` (no implicit `operator.admin`).
+>>>>>>> cfd112952 (fix(gateway): default-deny missing connect scopes)
 - Web UI: make chat refresh smoothly scroll to the latest messages and suppress new-messages badge flash during manual refresh.
 <<<<<<< HEAD
 >>>>>>> 9949f8259 (fix(discord): support forum channel thread-create (#10062))
