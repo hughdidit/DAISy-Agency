@@ -91,9 +91,14 @@ export async function openFileWithinRoot(params: {
       throw new SafeOpenError("invalid-path", "not a file");
     }
 
-    const realStat = await fs.stat(realPath);
-    if (stat.ino !== realStat.ino || stat.dev !== realStat.dev) {
-      throw new SafeOpenError("invalid-path", "path mismatch");
+    // On Windows, fstat (handle.stat) and stat (fs.stat) can return different
+    // ino/dev values because they use different underlying Win32 APIs, so skip
+    // this TOCTOU check on platforms where it is unreliable.
+    if (process.platform !== "win32") {
+      const realStat = await fs.stat(realPath);
+      if (stat.ino !== realStat.ino || stat.dev !== realStat.dev) {
+        throw new SafeOpenError("invalid-path", "path mismatch");
+      }
     }
 
     return { handle, realPath, stat };
