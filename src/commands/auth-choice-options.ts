@@ -171,7 +171,7 @@ const AUTH_CHOICE_GROUP_DEFS: {
     choices: ["qianfan-api-key"],
 =======
     value: "custom",
-    label: "Custom API Endpoint",
+    label: "Custom Provider",
     hint: "Any OpenAI or Anthropic compatible endpoint",
     choices: ["custom-api-key"],
 >>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
@@ -280,12 +280,16 @@ export function buildAuthChoiceOptions(params: {
     hint: "Faster, higher output cost",
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
   options.push({
     value: "qianfan-api-key",
     label: "Qianfan API key",
   });
 =======
   options.push({ value: "custom-api-key", label: "Custom API Endpoint" });
+=======
+  options.push({ value: "custom-api-key", label: "Custom Provider" });
+>>>>>>> 2914cb1d4 (Onboard: rename Custom API Endpoint to Custom Provider)
 
 >>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
   if (params.includeSkip) {

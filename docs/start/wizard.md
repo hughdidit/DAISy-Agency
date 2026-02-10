@@ -47,9 +47,13 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 **Advanced** exposes every step (mode, workspace, gateway, channels, daemon, skills).
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## What the wizard does
 =======
 1. **Model/Auth** — Anthropic API key (recommended), OpenAI, or Custom API Endpoint
+=======
+1. **Model/Auth** — Anthropic API key (recommended), OpenAI, or Custom Provider
+>>>>>>> 2914cb1d4 (Onboard: rename Custom API Endpoint to Custom Provider)
    (OpenAI-compatible, Anthropic-compatible, or Unknown auto-detect). Pick a default model.
 2. **Workspace** — Location for agent files (default `~/.openclaw/workspace`). Seeds bootstrap files.
 3. **Gateway** — Port, bind address, auth mode, Tailscale exposure.
