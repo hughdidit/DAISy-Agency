@@ -207,6 +207,7 @@ jobs:
 =======
 >>>>>>> 1f2fb823a (fix: CI: Run build and lint together since lint depends on build now.)
           - runtime: node
+<<<<<<< HEAD
             task: tsgo
             command: pnpm tsgo
           - runtime: node
@@ -225,6 +226,8 @@ jobs:
           - runtime: node
 =======
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
+=======
+>>>>>>> 64cf50dfc (chore: rename format scripts for conventional naming)
             task: test
             command: pnpm canvas:a2ui:bundle && pnpm test
           - runtime: node
@@ -344,7 +347,7 @@ jobs:
         uses: ./.github/actions/setup-node-env
 
       - name: Check formatting
-        run: pnpm format
+        run: pnpm format:check
 
   # Lint check — runs after format passes for cleaner output.
   check-lint:
@@ -360,8 +363,8 @@ jobs:
       - name: Setup Node environment
         uses: ./.github/actions/setup-node-env
 
-      - name: Check lint
-        run: pnpm lint
+      - name: Check types and lint
+        run: pnpm check
 
   # Check for files that grew past LOC threshold in this PR (delta-only).
   # On push events, all steps are skipped and the job passes (no-op).
