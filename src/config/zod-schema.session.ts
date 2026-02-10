@@ -1,5 +1,11 @@
 import { z } from "zod";
+<<<<<<< HEAD
 
+=======
+import { parseByteSize } from "../cli/parse-bytes.js";
+import { parseDurationMs } from "../cli/parse-duration.js";
+import { ElevatedAllowFromSchema } from "./zod-schema.agent-runtime.js";
+>>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
 import {
   GroupChatSchema,
   InboundDebounceSchema,
@@ -121,6 +127,11 @@ export const CommandsSchema = z
     debug: z.boolean().optional(),
     restart: z.boolean().optional(),
     useAccessGroups: z.boolean().optional(),
+<<<<<<< HEAD
+=======
+    ownerAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
+    allowFrom: ElevatedAllowFromSchema.optional(),
+>>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
   })
   .strict()
   .optional()

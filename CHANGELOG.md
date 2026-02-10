@@ -18,10 +18,14 @@ Docs: https://docs.openclaw.ai
 ### Added
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Gateway: add `agents.create`, `agents.update`, `agents.delete` RPC methods for web UI agent management. (#11045) Thanks @advaitpaliwal.
 - Gateway: add node command allowlists (default-deny unknown node commands; configurable via `gateway.nodes.allowCommands` / `gateway.nodes.denyCommands`). (#11755) Thanks @mbelinky.
 - Plugins: add `device-pair` (Telegram `/pair` flow) and `phone-control` (iOS/Android node controls). (#11755) Thanks @mbelinky.
 =======
+=======
+- Commands: add `commands.allowFrom` config for separate command authorization, allowing operators to restrict slash commands to specific users while keeping chat open to others. (#12430) Thanks @thewilloftheshadow.
+>>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
 - iOS: alpha node app + setup-code onboarding. (#11756) Thanks @mbelinky.
 - Channels: comprehensive BlueBubbles and channel cleanup. (#11093) Thanks @tyler6204.
 - Plugins: device pairing + phone control plugins (Telegram `/pair`, iOS/Android node controls). (#11755) Thanks @mbelinky.
