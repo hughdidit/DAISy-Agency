@@ -119,9 +119,13 @@ export const ZAI_DEFAULT_MODEL_REF = "zai/glm-4.7";
 export const XIAOMI_DEFAULT_MODEL_REF = "xiaomi/mimo-v2-flash";
 export const OPENROUTER_DEFAULT_MODEL_REF = "openrouter/auto";
 <<<<<<< HEAD
+<<<<<<< HEAD
 export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.5";
 =======
 export const TOGETHER_DEFAULT_MODEL_REF = "together/zai-org/GLM-4.7";
+=======
+export const TOGETHER_DEFAULT_MODEL_REF = "together/moonshotai/Kimi-K2.5";
+>>>>>>> be6de9bb7 (Update Together default model to together/moonshotai/Kimi-K2.5 (#13324))
 export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.6";
 >>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
 
