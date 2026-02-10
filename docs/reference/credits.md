@@ -16,6 +16,7 @@ OpenClaw = CLAW + TARDIS, because every space lobster needs a time and space mac
 - **Clawd** - The space lobster who demanded a better name
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 ## Maintainers
 
@@ -41,6 +42,8 @@ OpenClaw = CLAW + TARDIS, because every space lobster needs a time and space mac
   - GitHub: [@quotentiroler](https://github.com/quotentiroler) · X: [@quotentiroler](https://x.com/quotentiroler)
 
 >>>>>>> d8b9aff2f (update maintainers)
+=======
+>>>>>>> 96c46ed61 (Docs: restore maintainers in contributing)
 ## Core contributors
 
 - **Maxim Vovshin** (@Hyaxia, [36747317+Hyaxia@users.noreply.github.com](mailto:36747317+Hyaxia@users.noreply.github.com)) - Blogwatcher skill
