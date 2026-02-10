@@ -10,12 +10,17 @@ import {
   normalizeTextForComparison,
 } from "./pi-embedded-helpers.js";
 import { createEmbeddedPiSessionEventHandler } from "./pi-embedded-subscribe.handlers.js";
+<<<<<<< HEAD
 import type {
   EmbeddedPiSubscribeContext,
   EmbeddedPiSubscribeState,
 } from "./pi-embedded-subscribe.handlers.types.js";
 import type { SubscribeEmbeddedPiSessionParams } from "./pi-embedded-subscribe.types.js";
 import { formatReasoningMessage } from "./pi-embedded-utils.js";
+=======
+import { formatReasoningMessage, stripDowngradedToolCallText } from "./pi-embedded-utils.js";
+import { hasNonzeroUsage, normalizeUsage, type UsageLike } from "./usage.js";
+>>>>>>> 22458f57f (fix(agents): strip [Historical context: ...] and tool call text from streaming path (#13453))
 
 const THINKING_TAG_SCAN_RE = /<\s*(\/?)\s*(?:think(?:ing)?|thought|antthinking)\s*>/gi;
 const FINAL_TAG_SCAN_RE = /<\s*(\/?)\s*final\s*>/gi;
@@ -393,7 +398,8 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
       return;
     }
     // Strip <think> and <final> blocks across chunk boundaries to avoid leaking reasoning.
-    const chunk = stripBlockTags(text, state.blockState).trimEnd();
+    // Also strip downgraded tool call text ([Tool Call: ...], [Historical context: ...], etc.).
+    const chunk = stripDowngradedToolCallText(stripBlockTags(text, state.blockState)).trimEnd();
     if (!chunk) {
       return;
     }
