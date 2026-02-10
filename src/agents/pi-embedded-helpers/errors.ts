@@ -274,7 +274,7 @@ export function formatAssistantErrorText(
   if (isContextOverflowError(raw)) {
     return (
       "Context overflow: prompt too large for the model. " +
-      "Try again with less input or a larger-context model."
+      "Try /reset (or /new) to start a fresh session, or use a larger-context model."
     );
   }
 
@@ -330,9 +330,18 @@ export function sanitizeUserFacingText(text: string): string {
     );
   }
 
+<<<<<<< HEAD
   if (isRawApiErrorPayload(trimmed) || isLikelyHttpErrorText(trimmed)) {
     return formatRawAssistantErrorForUi(trimmed);
   }
+=======
+    if (shouldRewriteContextOverflowText(trimmed)) {
+      return (
+        "Context overflow: prompt too large for the model. " +
+        "Try /reset (or /new) to start a fresh session, or use a larger-context model."
+      );
+    }
+>>>>>>> c2b2d535f (fix: suggest /clear in context overflow error message (#12973))
 
   if (ERROR_PREFIX_RE.test(trimmed)) {
     if (isOverloadedErrorMessage(trimmed) || isRateLimitErrorMessage(trimmed)) {
