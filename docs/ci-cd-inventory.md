@@ -110,6 +110,7 @@
 **Permissions / secrets / environment**
 - Workflow permissions: `issues: write`, `pull-requests: write`.
 - Uses GitHub App token; requires `secrets.GH_APP_PRIVATE_KEY`.
+- Secret setup: GitHub App settings -> Generate a private key, then store the full PEM text as repository secret `GH_APP_PRIVATE_KEY` (Settings -> Secrets and variables -> Actions).
 
 **Jobs inventory**
 - `auto-response` (ubuntu-latest): create app token, run `actions/github-script@v7` to comment/close.
