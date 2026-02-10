@@ -230,6 +230,7 @@ function resolveMainSessionKey(
   return null;
 }
 
+<<<<<<< HEAD
 function resolveSessionDisplayName(key: string, row?: SessionsListResult["sessions"][number]) {
   const label = row?.label?.trim();
   if (label) {
@@ -239,6 +240,20 @@ function resolveSessionDisplayName(key: string, row?: SessionsListResult["sessio
   if (displayName) {
     return displayName;
   }
+=======
+export function resolveSessionDisplayName(
+  key: string,
+  row?: SessionsListResult["sessions"][number],
+) {
+  const displayName = row?.displayName?.trim() || "";
+  const label = row?.label?.trim() || "";
+  if (displayName && displayName !== key) {
+    return `${displayName} (${key})`;
+  }
+  if (label && label !== key) {
+    return `${label} (${key})`;
+  }
+>>>>>>> 137b7d9aa (fix(ui): prioritize displayName over label in webchat session picker (#13108))
   return key;
 }
 
