@@ -12,8 +12,9 @@ Welcome to the lobster tank! 🦞
 - **Discord:** https://discord.gg/qkhbAGHRBT
 - **X/Twitter:** [@steipete](https://x.com/steipete) / [@moltbot](https://x.com/moltbot)
 
-## Maintainers
+## Contributors
 
+<<<<<<< HEAD
 - **Peter Steinberger** - Benevolent Dictator
   - GitHub: [@steipete](https://github.com/steipete) · X: [@steipete](https://x.com/steipete)
 
@@ -22,6 +23,9 @@ Welcome to the lobster tank! 🦞
 
 - **Jos** - Telegram, API, Nix mode
   - GitHub: [@joshp123](https://github.com/joshp123) · X: [@jjpcodes](https://x.com/jjpcodes)
+=======
+See [Credits & Maintainers](https://docs.openclaw.ai/reference/credits) for the full list.
+>>>>>>> cc87c0ed7 (Update contributing, deduplicate more functions)
 
 ## How to Contribute
 
@@ -36,8 +40,13 @@ Welcome to the lobster tank! 🦞
 =======
 
 - Test locally with your OpenClaw instance
+<<<<<<< HEAD
 - Run tests: `pnpm tsgo && pnpm format && pnpm lint && pnpm build && pnpm test`
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+=======
+- Run tests: `pnpm build && pnpm check && pnpm test`
+- Ensure CI checks pass
+>>>>>>> cc87c0ed7 (Update contributing, deduplicate more functions)
 - Keep PRs focused (one thing per PR)
 - Describe what & why
 
@@ -75,7 +84,7 @@ We are currently prioritizing:
 
 - **Stability**: Fixing edge cases in channel connections (WhatsApp/Telegram).
 - **UX**: Improving the onboarding wizard and error messages.
-- **Skills**: Expanding the library of bundled skills and improving the Skill Creation developer experience.
+- **Skills**: For skill contributions, head to [ClawHub](https://clawhub.ai/) — the community hub for OpenClaw skills.
 - **Performance**: Optimizing token usage and compaction logic.
 
 Check the [GitHub Issues](https://github.com/moltbot/moltbot/issues) for "good first issue" labels!

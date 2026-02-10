@@ -61,10 +61,15 @@ import {
   resolveSkillsPromptForRun,
 } from "../../skills.js";
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../../workspace.js";
+<<<<<<< HEAD
 import { buildSystemPromptReport } from "../../system-prompt-report.js";
 import { resolveDefaultModelForAgent } from "../../model-selection.js";
 
 import { isAbortError } from "../abort.js";
+=======
+import { isRunnerAbortError } from "../abort.js";
+import { appendCacheTtlTimestamp, isCacheTtlEligibleProvider } from "../cache-ttl.js";
+>>>>>>> cc87c0ed7 (Update contributing, deduplicate more functions)
 import { buildEmbeddedExtensionPaths } from "../extensions.js";
 import { applyExtraParamsToAgent } from "../extra-params.js";
 import { appendCacheTtlTimestamp, isCacheTtlEligibleProvider } from "../cache-ttl.js";
@@ -839,7 +844,7 @@ export async function runEmbeddedAttempt(
         try {
           await waitForCompactionRetry();
         } catch (err) {
-          if (isAbortError(err)) {
+          if (isRunnerAbortError(err)) {
             if (!promptError) {
               promptError = err;
             }

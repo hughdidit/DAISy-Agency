@@ -1,17 +1,12 @@
 import { readFileSync } from "node:fs";
+<<<<<<< HEAD
 
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
+=======
+import { DEFAULT_ACCOUNT_ID, isTruthyEnvValue, normalizeAccountId } from "openclaw/plugin-sdk";
+>>>>>>> cc87c0ed7 (Update contributing, deduplicate more functions)
 import type { CoreConfig, NextcloudTalkAccountConfig } from "./types.js";
-
-const TRUTHY_ENV = new Set(["true", "1", "yes", "on"]);
-
-function isTruthyEnvValue(value?: string): boolean {
-  if (!value) {
-    return false;
-  }
-  return TRUTHY_ENV.has(value.trim().toLowerCase());
-}
 
 const debugAccounts = (...args: unknown[]) => {
   if (isTruthyEnvValue(process.env.CLAWDBOT_DEBUG_NEXTCLOUD_TALK_ACCOUNTS)) {
