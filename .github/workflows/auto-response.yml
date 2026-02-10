@@ -16,7 +16,9 @@ jobs:
   auto-response:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/create-github-app-token@v1
+      - name: Create GitHub App token (optional)
+        if: ${{ secrets.GH_APP_PRIVATE_KEY != '' }}
+        uses: actions/create-github-app-token@v1
         id: app-token
         with:
           app-id: "2729701"
@@ -24,7 +26,7 @@ jobs:
       - name: Handle labeled items
         uses: actions/github-script@v7
         with:
-          github-token: ${{ steps.app-token.outputs.token }}
+          github-token: ${{ steps.app-token.outputs.token || github.token }}
           script: |
             // Labels prefixed with "r:" are auto-response triggers.
             const rules = [
