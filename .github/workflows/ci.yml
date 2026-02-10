@@ -85,6 +85,12 @@ jobs:
           echo "bundle_seconds=${bundle_seconds}" >> "$GITHUB_OUTPUT"
           echo "artifact_name=${artifact_name}" >> "$GITHUB_OUTPUT"
 
+      - name: Ensure A2UI bundle hash exists
+        run: |
+          if [ ! -s src/canvas-host/a2ui/.bundle.hash ]; then
+            sha256sum src/canvas-host/a2ui/a2ui.bundle.js | awk '{print $1}' > src/canvas-host/a2ui/.bundle.hash
+          fi
+
       - name: Verify A2UI bundle outputs
         run: |
           test -s src/canvas-host/a2ui/a2ui.bundle.js
