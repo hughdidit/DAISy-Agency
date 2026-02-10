@@ -31,8 +31,15 @@ concurrency:
 =======
     paths-ignore:
       - "docs/**"
+<<<<<<< HEAD
       - "*.md"
 >>>>>>> a172ff9ed (docs: SEO and AI discoverability improvements)
+=======
+      - "**/*.md"
+      - "**/*.mdx"
+      - ".agents/**"
+      - "skills/**"
+>>>>>>> bf308cf6a (CI: expand Docker Release paths-ignore to skip on any markdown)
 
 env:
   REGISTRY: ghcr.io
