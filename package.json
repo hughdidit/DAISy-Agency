@@ -275,9 +275,12 @@
 =======
 =======
     "grammy": "^1.40.0",
+<<<<<<< HEAD
 >>>>>>> fa21050af (chore: Update deps.)
     "hono": "4.11.9",
 >>>>>>> 3573f26d4 (chore: Update deps.)
+=======
+>>>>>>> 8fad4c284 (chore(deps): update dependencies, remove hono pinning)
     "jiti": "^2.6.1",
     "json5": "^2.2.3",
     "jszip": "^3.10.1",
@@ -346,8 +349,6 @@
     "overrides": {
       "fast-xml-parser": "5.3.4",
       "form-data": "2.5.4",
-      "@hono/node-server>hono": "4.11.8",
-      "hono": "4.11.8",
       "qs": "6.14.1",
       "@sinclair/typebox": "0.34.48",
       "tar": "7.5.7",
