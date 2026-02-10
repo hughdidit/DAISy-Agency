@@ -15,6 +15,12 @@ Welcome to the lobster tank! 🦞
 - **Shadow** - Discord + Slack subsystem
   - GitHub: [@thewilloftheshadow](https://github.com/thewilloftheshadow) · X: [@4shad0wed](https://x.com/4shad0wed)
 
+<<<<<<< HEAD
+=======
+- **Vignesh** - Memory (QMD), formal modeling, TUI, and Lobster
+  - GitHub: [@vignesh07](https://github.com/vignesh07) · X: [@\_vgnsh](https://x.com/_vgnsh)
+
+>>>>>>> 96c46ed61 (Docs: restore maintainers in contributing)
 - **Jos** - Telegram, API, Nix mode
   - GitHub: [@joshp123](https://github.com/joshp123) · X: [@jjpcodes](https://x.com/jjpcodes)
 
@@ -23,6 +29,12 @@ Welcome to the lobster tank! 🦞
 
 - **Gustavo Madeira Santana** - Multi-agents, CLI, web UI
   - GitHub: [@gumadeiras](https://github.com/gumadeiras) · X: [@gumadeiras](https://x.com/gumadeiras)
+<<<<<<< HEAD
+=======
+
+- **Maximilian Nussbaumer** - DevOps, CI, Code Sanity
+  - GitHub: [@quotentiroler](https://github.com/quotentiroler) · X: [@quotentiroler](https://x.com/quotentiroler)
+>>>>>>> 96c46ed61 (Docs: restore maintainers in contributing)
 
 ## How to Contribute
 1. **Bugs & small fixes** → Open a PR!
