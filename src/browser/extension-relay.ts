@@ -4,10 +4,14 @@ import type { Duplex } from "node:stream";
 
 import WebSocket, { WebSocketServer } from "ws";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { isLoopbackHost } from "../gateway/net.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
+=======
+import { isLoopbackAddress, isLoopbackHost } from "../gateway/net.js";
+>>>>>>> 53910f364 (Deduplicate more)
 import { rawDataToString } from "../infra/ws.js";
 
 type CdpCommand = {
@@ -88,25 +92,6 @@ export type ChromeExtensionRelayServer = {
   extensionConnected: () => boolean;
   stop: () => Promise<void>;
 };
-
-function isLoopbackAddress(ip: string | undefined): boolean {
-  if (!ip) {
-    return false;
-  }
-  if (ip === "127.0.0.1") {
-    return true;
-  }
-  if (ip.startsWith("127.")) {
-    return true;
-  }
-  if (ip === "::1") {
-    return true;
-  }
-  if (ip.startsWith("::ffff:127.")) {
-    return true;
-  }
-  return false;
-}
 
 function parseBaseUrl(raw: string): {
   host: string;

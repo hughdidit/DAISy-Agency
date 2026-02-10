@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { pathExists } from "../utils.js";
 
 export type GlobalInstallManager = "npm" | "pnpm" | "bun";
 
@@ -15,6 +16,7 @@ const PRIMARY_PACKAGE_NAME = "openclaw";
 const ALL_PACKAGE_NAMES = [PRIMARY_PACKAGE_NAME] as const;
 const GLOBAL_RENAME_PREFIX = ".";
 
+<<<<<<< HEAD
 >>>>>>> 57d008a33 (fix(update): harden global updates)
 async function pathExists(targetPath: string): Promise<boolean> {
   try {
@@ -25,6 +27,8 @@ async function pathExists(targetPath: string): Promise<boolean> {
   }
 }
 
+=======
+>>>>>>> 53910f364 (Deduplicate more)
 async function tryRealpath(targetPath: string): Promise<string> {
   try {
     return await fs.realpath(targetPath);

@@ -6,6 +6,12 @@ import { fileURLToPath } from "node:url";
 
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { MediaUnderstandingAttachmentsConfig } from "../config/types.tools.js";
+<<<<<<< HEAD
+=======
+import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
+import { logVerbose, shouldLogVerbose } from "../globals.js";
+import { isAbortError } from "../infra/unhandled-rejections.js";
+>>>>>>> 53910f364 (Deduplicate more)
 import { fetchRemoteMedia, MediaFetchError } from "../media/fetch.js";
 import { detectMime, getFileExtension, isAudioFileName, kindFromMime } from "../media/mime.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
@@ -140,16 +146,6 @@ export function isAudioAttachment(attachment: MediaAttachment): boolean {
 
 export function isImageAttachment(attachment: MediaAttachment): boolean {
   return resolveAttachmentKind(attachment) === "image";
-}
-
-function isAbortError(err: unknown): boolean {
-  if (!err) {
-    return false;
-  }
-  if (err instanceof Error && err.name === "AbortError") {
-    return true;
-  }
-  return false;
 }
 
 function resolveRequestUrl(input: RequestInfo | URL): string {

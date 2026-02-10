@@ -7,8 +7,12 @@ import type { DmPolicy } from "../../../config/types.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import type { RuntimeEnv } from "../../../runtime.js";
 import { formatDocsLink } from "../../../terminal/links.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../../../cli/command-format.js";
 import { normalizeE164 } from "../../../utils.js";
+=======
+import { normalizeE164, pathExists } from "../../../utils.js";
+>>>>>>> 53910f364 (Deduplicate more)
 import {
   listWhatsAppAccountIds,
   resolveDefaultWhatsAppAccountId,
@@ -32,6 +36,7 @@ function setWhatsAppSelfChatMode(cfg: MoltbotConfig, selfChatMode: boolean): Mol
   return mergeWhatsAppConfig(cfg, { selfChatMode });
 }
 
+<<<<<<< HEAD
 async function pathExists(filePath: string): Promise<boolean> {
   try {
     await fs.access(filePath);
@@ -42,6 +47,9 @@ async function pathExists(filePath: string): Promise<boolean> {
 }
 
 async function detectWhatsAppLinked(cfg: MoltbotConfig, accountId: string): Promise<boolean> {
+=======
+async function detectWhatsAppLinked(cfg: OpenClawConfig, accountId: string): Promise<boolean> {
+>>>>>>> 53910f364 (Deduplicate more)
   const { authDir } = resolveWhatsAppAuthDir({ cfg, accountId });
   const credsPath = path.join(authDir, "creds.json");
   return await pathExists(credsPath);

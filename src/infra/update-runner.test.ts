@@ -2,7 +2,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
+=======
+import { pathExists } from "../utils.js";
+>>>>>>> 53910f364 (Deduplicate more)
 import { runGatewayUpdate } from "./update-runner.js";
 
 type CommandResult = { stdout?: string; stderr?: string; code?: number };
@@ -20,15 +24,6 @@ function createRunner(responses: Record<string, CommandResult>) {
     };
   };
   return { runner, calls };
-}
-
-async function pathExists(targetPath: string): Promise<boolean> {
-  try {
-    await fs.stat(targetPath);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 describe("runGatewayUpdate", () => {
