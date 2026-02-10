@@ -29,7 +29,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Commands: add `commands.allowFrom` config for separate command authorization, allowing operators to restrict slash commands to specific users while keeping chat open to others. (#12430) Thanks @thewilloftheshadow.
+<<<<<<< HEAD
 >>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
+=======
+- Docker: add ClawDock shell helpers for Docker workflows. (#12817) Thanks @Olshansk.
+>>>>>>> 31f616d45 (feat: `ClawDock` - shell docker helpers for OpenClaw development (#12817))
 - iOS: alpha node app + setup-code onboarding. (#11756) Thanks @mbelinky.
 - Channels: comprehensive BlueBubbles and channel cleanup. (#11093) Thanks @tyler6204.
 - Plugins: device pairing + phone control plugins (Telegram `/pair`, iOS/Android node controls). (#11755) Thanks @mbelinky.
