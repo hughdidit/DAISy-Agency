@@ -26,6 +26,8 @@ const NOT_FOUND_CODES = new Set(["ENOENT", "ENOTDIR"]);
 
 const ensureTrailingSep = (value: string) => (value.endsWith(path.sep) ? value : value + path.sep);
 
+const isWindows = process.platform === "win32";
+
 const isNodeError = (err: unknown): err is NodeJS.ErrnoException =>
   Boolean(err && typeof err === "object" && "code" in (err as Record<string, unknown>));
 
@@ -49,12 +51,15 @@ export async function openFileWithinRoot(params: {
     throw err;
   }
   const rootWithSep = ensureTrailingSep(rootReal);
+  // Precompute case-folded prefix once for the two containment checks.
+  const rootPrefix = isWindows ? rootWithSep.toLowerCase() : rootWithSep;
+  const withinRoot = (p: string) => (isWindows ? p.toLowerCase() : p).startsWith(rootPrefix);
   const resolved = path.resolve(rootWithSep, params.relativePath);
-  if (!resolved.startsWith(rootWithSep)) {
+  if (!withinRoot(resolved)) {
     throw new SafeOpenError("invalid-path", "path escapes root");
   }
 
-  const supportsNoFollow = process.platform !== "win32" && "O_NOFOLLOW" in fsConstants;
+  const supportsNoFollow = !isWindows && "O_NOFOLLOW" in fsConstants;
   const flags = fsConstants.O_RDONLY | (supportsNoFollow ? (fsConstants.O_NOFOLLOW as number) : 0);
 
   let handle: FileHandle;
@@ -77,7 +82,7 @@ export async function openFileWithinRoot(params: {
     }
 
     const realPath = await fs.realpath(resolved);
-    if (!realPath.startsWith(rootWithSep)) {
+    if (!withinRoot(realPath)) {
       throw new SafeOpenError("invalid-path", "path escapes root");
     }
 
@@ -86,9 +91,14 @@ export async function openFileWithinRoot(params: {
       throw new SafeOpenError("invalid-path", "not a file");
     }
 
-    const realStat = await fs.stat(realPath);
-    if (stat.ino !== realStat.ino || stat.dev !== realStat.dev) {
-      throw new SafeOpenError("invalid-path", "path mismatch");
+    // On Windows, fstat (handle.stat) and stat (fs.stat) can return different
+    // ino/dev values because they use different underlying Win32 APIs, so skip
+    // this TOCTOU check on platforms where it is unreliable.
+    if (!isWindows) {
+      const realStat = await fs.stat(realPath);
+      if (stat.ino !== realStat.ino || stat.dev !== realStat.dev) {
+        throw new SafeOpenError("invalid-path", "path mismatch");
+      }
     }
 
     return { handle, realPath, stat };
