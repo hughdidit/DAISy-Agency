@@ -1,0 +1,728 @@
+name: Patchbot
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, ready_for_review]
+    branches: [daisy/dev]
+  pull_request_review:
+    types: [submitted]
+    branches: [daisy/dev]
+  check_suite:
+    types: [completed]
+    branches: [daisy/dev]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        required: true
+        type: number
+      phase:
+        required: true
+        type: choice
+        options:
+          - triage
+          - ci-summary
+          - approval-gate
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: read
+  actions: read
+
+concurrency:
+  group: patchbot-${{ github.event.pull_request.number || inputs.pr_number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Job 1: Router
+  # Determines phase, pr_number, head_sha, skip
+  # ──────────────────────────────────────────────
+  router:
+    runs-on: ubuntu-latest
+    outputs:
+      phase: ${{ steps.route.outputs.phase }}
+      pr_number: ${{ steps.route.outputs.pr_number }}
+      head_sha: ${{ steps.route.outputs.head_sha }}
+      skip: ${{ steps.route.outputs.skip }}
+    steps:
+      - name: Route event to phase
+        id: route
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Kill switch
+            const enabled = '${{ vars.PATCHBOT_ENABLED }}';
+            if (enabled === 'false') {
+              core.info('Patchbot is disabled (PATCHBOT_ENABLED=false)');
+              core.setOutput('skip', 'true');
+              return;
+            }
+
+            const event = context.eventName;
+            let phase = '';
+            let prNumber = 0;
+            let headSha = '';
+            let skip = 'false';
+
+            if (event === 'workflow_dispatch') {
+              phase = '${{ inputs.phase }}';
+              prNumber = Number(${{ inputs.pr_number || 0 }});
+              if (!Number.isInteger(prNumber) || prNumber <= 0) {
+                core.setFailed('pr_number must be a positive integer for workflow_dispatch');
+                return;
+              }
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+              });
+              headSha = pr.head.sha;
+
+            } else if (event === 'pull_request') {
+              const action = context.payload.action;
+              prNumber = context.payload.pull_request.number;
+              headSha = context.payload.pull_request.head.sha;
+
+              if (action === 'labeled') {
+                const label = context.payload.label.name;
+                if (label === 'patchbot:approved') {
+                  phase = 'approval-gate';
+                } else {
+                  core.info(`Ignoring labeled event for label: ${label}`);
+                  skip = 'true';
+                }
+              } else if (context.payload.pull_request.draft) {
+                core.info('Skipping draft PR');
+                skip = 'true';
+              } else {
+                // opened, synchronize, reopened, ready_for_review
+                phase = 'triage';
+              }
+
+            } else if (event === 'pull_request_review') {
+              const review = context.payload.review;
+              if (review.state.toLowerCase() !== 'approved') {
+                core.info(`Ignoring review with state: ${review.state}`);
+                skip = 'true';
+              } else {
+                phase = 'approval-gate';
+                prNumber = context.payload.pull_request.number;
+                headSha = context.payload.pull_request.head.sha;
+              }
+
+            } else if (event === 'check_suite') {
+              const checkSuite = context.payload.check_suite;
+              headSha = checkSuite.head_sha;
+
+              // Find open PRs for this commit
+              const prs = checkSuite.pull_requests || [];
+              const openPr = prs.find(pr => pr.base.ref === 'daisy/dev');
+              if (!openPr) {
+                core.info('check_suite is not for a PR targeting daisy/dev');
+                skip = 'true';
+              } else {
+                prNumber = openPr.number;
+
+                // Only proceed if PR has patchbot:triaged label
+                const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                });
+                const hasTriaged = labels.some(l => l.name === 'patchbot:triaged');
+                if (!hasTriaged) {
+                  core.info('PR does not have patchbot:triaged label, skipping check_suite');
+                  skip = 'true';
+                } else {
+                  phase = 'ci-summary';
+                }
+              }
+
+            } else {
+              core.info(`Unhandled event: ${event}`);
+              skip = 'true';
+            }
+
+            core.setOutput('phase', phase);
+            core.setOutput('pr_number', String(prNumber));
+            core.setOutput('head_sha', headSha);
+            core.setOutput('skip', skip);
+            core.info(`phase=${phase} pr=${prNumber} sha=${headSha} skip=${skip}`);
+
+  # ──────────────────────────────────────────────
+  # Job 2: Triage
+  # ──────────────────────────────────────────────
+  triage:
+    needs: router
+    if: needs.router.outputs.skip != 'true' && needs.router.outputs.phase == 'triage'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run triage rules
+        id: triage
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ needs.router.outputs.pr_number }};
+            const headSha = '${{ needs.router.outputs.head_sha }}';
+
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+
+            const sections = {
+              triage: { status: 'running', detail: 'Checking...' },
+              ci: { status: 'pending', detail: '' },
+              approval: { status: 'pending', detail: '' },
+            };
+
+            // Rule: Target branch must be daisy/dev
+            if (pr.base.ref !== 'daisy/dev') {
+              sections.triage = { status: 'fail', detail: `Target branch is \`${pr.base.ref}\`, expected \`daisy/dev\`` };
+              await updateComment(github, context, prNumber, sections, '${{ github.run_id }}', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}');
+              core.info('PR does not target daisy/dev, skipping');
+              return;
+            }
+
+            // Rule: Author allowlist
+            const allowedAuthors = '${{ vars.PATCHBOT_ALLOWED_AUTHORS }}'.trim();
+            if (allowedAuthors) {
+              const allowed = allowedAuthors.split(',').map(a => a.trim().toLowerCase());
+              if (!allowed.includes(pr.user.login.toLowerCase())) {
+                sections.triage = { status: 'fail', detail: `Author \`${pr.user.login}\` is not in the allowlist` };
+                await updateComment(github, context, prNumber, sections, '${{ github.run_id }}', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}');
+                core.info(`Author ${pr.user.login} not in allowlist`);
+                return;
+              }
+            }
+
+            // Rule: No workflow files
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            const workflowFiles = files.filter(f => f.filename.startsWith('.github/workflows/'));
+            if (workflowFiles.length > 0) {
+              const fileList = workflowFiles.map(f => `\`${f.filename}\``).join(', ');
+              sections.triage = {
+                status: 'fail',
+                detail: `PR modifies workflow files (${fileList}). Patchbot cannot manage workflow PRs due to GITHUB_TOKEN restrictions.`,
+              };
+              await updateComment(github, context, prNumber, sections, '${{ github.run_id }}', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}');
+              core.info('PR touches workflow files, skipping');
+              return;
+            }
+
+            // All rules passed — add triaged label, remove stale CI labels
+            const labelOps = [];
+
+            // Add patchbot:triaged
+            labelOps.push(
+              github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['patchbot:triaged'],
+              })
+            );
+
+            // Remove stale labels (ignore 404 "not found", surface other errors)
+            for (const stale of ['patchbot:ci-pass', 'patchbot:ci-fail', 'patchbot:approved', 'patchbot:ready']) {
+              labelOps.push(
+                github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  name: stale,
+                }).catch(err => {
+                  if (err.status === 404) return;
+                  core.warning(`Failed to remove label "${stale}": ${err.message}`);
+                })
+              );
+            }
+            await Promise.all(labelOps);
+
+            sections.triage = { status: 'pass', detail: 'Passed' };
+            sections.ci = { status: 'pending', detail: 'Waiting for CI...' };
+            await updateComment(github, context, prNumber, sections, '${{ github.run_id }}', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}');
+            core.setOutput('triaged', 'true');
+
+            // ── Comment helper ──
+            async function updateComment(github, context, prNumber, sections, runId, runUrl) {
+              const marker = '<!-- patchbot-status -->';
+              const body = buildCommentBody(sections, runId, runUrl);
+
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+              });
+              const existing = comments.find(c => c.body?.includes(marker));
+
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body,
+                });
+              }
+            }
+
+            function buildCommentBody(sections, runId, runUrl) {
+              const icons = { pass: '\u2705', fail: '\u274c', pending: '\u23f3', running: '\u23f3', skip: '\u25fb\ufe0f' };
+              const stageRows = [
+                ['Triage', sections.triage],
+                ['CI', sections.ci],
+                ['Approval', sections.approval],
+                ['Release', { status: 'skip', detail: 'Phase 2' }],
+                ['Deploy', { status: 'skip', detail: 'Phase 2' }],
+                ['Verify', { status: 'skip', detail: 'Phase 2' }],
+              ];
+
+              let md = '<!-- patchbot-status -->\n';
+              md += '## Patchbot\n\n';
+              md += '| Stage | Status |\n';
+              md += '|-------|--------|\n';
+              for (const [name, s] of stageRows) {
+                const icon = icons[s.status] || '\u2753';
+                const detail = s.detail || s.status;
+                md += `| ${name} | ${icon} ${detail} |\n`;
+              }
+
+              if (sections.ciDetails) {
+                const { checks, passed, total } = sections.ciDetails;
+                md += `\n<details>\n<summary>CI Checks (${passed}/${total} passed)</summary>\n\n`;
+                md += '| Check | Result |\n';
+                md += '|-------|--------|\n';
+                for (const check of checks) {
+                  md += `| ${check.name} | ${check.icon} |\n`;
+                }
+                md += '\n</details>\n';
+              }
+
+              md += `\n---\n`;
+              md += `<sub>Updated ${new Date().toISOString()} \u00b7 <a href="${runUrl}">Run #${runId}</a></sub>\n`;
+              md += '<!-- /patchbot-status -->';
+              return md;
+            }
+
+  # ──────────────────────────────────────────────
+  # Job 3: CI Summary
+  # Runs after triage OR on check_suite events
+  # ──────────────────────────────────────────────
+  ci-summary:
+    needs: [router, triage]
+    if: |
+      always()
+      && needs.router.outputs.skip != 'true'
+      && (
+        (needs.router.outputs.phase == 'ci-summary')
+        || (needs.router.outputs.phase == 'triage' && needs.triage.result == 'success')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summarize CI checks
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ needs.router.outputs.pr_number }};
+            const headSha = '${{ needs.router.outputs.head_sha }}';
+            const runId = '${{ github.run_id }}';
+            const runUrl = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
+
+            // Guard: PR must have patchbot:triaged label
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            const hasTriaged = labels.some(l => l.name === 'patchbot:triaged');
+            if (!hasTriaged) {
+              core.info('PR does not have patchbot:triaged label, skipping ci-summary');
+              return;
+            }
+
+            // Fetch all check runs for head_sha (paginated)
+            // checks.listForRef returns check runs under response.data.check_runs;
+            // github.paginate uses this mapper to collect and flatten all pages
+            const checkRuns = await github.paginate(
+              github.rest.checks.listForRef,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: headSha,
+                per_page: 100,
+              },
+              (response) => response.data.check_runs
+            );
+
+            // Fetch commit statuses
+            const { data: statusData } = await github.rest.repos.getCombinedStatusForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: headSha,
+            });
+
+            // Exclude Patchbot's own check runs (workflow name prefix)
+            const filtered = checkRuns.filter(cr => !cr.name.startsWith('Patchbot'));
+
+            // Build check table
+            const conclusionIcons = {
+              success: '\u2705',
+              failure: '\u274c',
+              cancelled: '\u26d4',
+              skipped: '\u23ed\ufe0f',
+              timed_out: '\u23f0',
+              action_required: '\u26a0\ufe0f',
+              neutral: '\u25ab\ufe0f',
+              stale: '\u25ab\ufe0f',
+            };
+
+            const checks = [];
+            let completed = 0;
+            let passed = 0;
+            let failed = 0;
+            let inProgress = 0;
+
+            for (const cr of filtered) {
+              const name = cr.name;
+              const link = cr.html_url ? `[${name}](${cr.html_url})` : name;
+
+              if (cr.status !== 'completed') {
+                checks.push({ name: link, icon: '\u23f3', conclusion: 'in_progress' });
+                inProgress++;
+              } else {
+                const conclusion = cr.conclusion || 'neutral';
+                const icon = conclusionIcons[conclusion] || '\u2753';
+                checks.push({ name: link, icon, conclusion });
+                completed++;
+                if (conclusion === 'success' || conclusion === 'skipped' || conclusion === 'neutral') {
+                  passed++;
+                } else {
+                  failed++;
+                }
+              }
+            }
+
+            // Include commit statuses
+            for (const status of statusData.statuses || []) {
+              const name = status.context;
+              const link = status.target_url ? `[${name}](${status.target_url})` : name;
+              const stateMap = { success: '\u2705', failure: '\u274c', error: '\u274c', pending: '\u23f3' };
+              const icon = stateMap[status.state] || '\u2753';
+              checks.push({ name: link, icon, conclusion: status.state });
+              if (status.state === 'pending') {
+                inProgress++;
+              } else {
+                completed++;
+                if (status.state === 'success') {
+                  passed++;
+                } else {
+                  failed++;
+                }
+              }
+            }
+
+            const total = checks.length;
+
+            // Determine overall CI status
+            const hasApproved = labels.some(l => l.name === 'patchbot:approved');
+
+            const sections = {
+              triage: { status: 'pass', detail: 'Passed' },
+              ci: { status: 'pending', detail: '' },
+              approval: hasApproved
+                ? { status: 'pass', detail: 'Approved' }
+                : { status: 'pending', detail: 'Awaiting review' },
+            };
+
+            if (total === 0) {
+              sections.ci = { status: 'pending', detail: 'No CI checks found yet' };
+            } else if (inProgress > 0) {
+              sections.ci = { status: 'running', detail: `${passed}/${total} passed, ${inProgress} in progress` };
+            } else if (failed > 0) {
+              sections.ci = { status: 'fail', detail: `${passed}/${total} passed, ${failed} failed` };
+              // Add ci-fail label, remove ci-pass
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['patchbot:ci-fail'],
+              });
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                name: 'patchbot:ci-pass',
+              }).catch(err => { if (err.status !== 404) throw err; });
+            } else {
+              sections.ci = { status: 'pass', detail: `${passed}/${total} passed` };
+              // Add ci-pass label, remove ci-fail
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['patchbot:ci-pass'],
+              });
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                name: 'patchbot:ci-fail',
+              }).catch(err => { if (err.status !== 404) throw err; });
+            }
+
+            sections.ciDetails = { checks, passed, total };
+
+            await updateComment(github, context, prNumber, sections, runId, runUrl);
+
+            // ── Comment helper (defined locally for this job) ──
+            async function updateComment(github, context, prNumber, sections, runId, runUrl) {
+              const marker = '<!-- patchbot-status -->';
+              const body = buildCommentBody(sections, runId, runUrl);
+
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+              });
+              const existing = comments.find(c => c.body?.includes(marker));
+
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body,
+                });
+              }
+            }
+
+            function buildCommentBody(sections, runId, runUrl) {
+              const icons = { pass: '\u2705', fail: '\u274c', pending: '\u23f3', running: '\u23f3', skip: '\u25fb\ufe0f' };
+              const stageRows = [
+                ['Triage', sections.triage],
+                ['CI', sections.ci],
+                ['Approval', sections.approval],
+                ['Release', { status: 'skip', detail: 'Phase 2' }],
+                ['Deploy', { status: 'skip', detail: 'Phase 2' }],
+                ['Verify', { status: 'skip', detail: 'Phase 2' }],
+              ];
+
+              let md = '<!-- patchbot-status -->\n';
+              md += '## Patchbot\n\n';
+              md += '| Stage | Status |\n';
+              md += '|-------|--------|\n';
+              for (const [name, s] of stageRows) {
+                const icon = icons[s.status] || '\u2753';
+                const detail = s.detail || s.status;
+                md += `| ${name} | ${icon} ${detail} |\n`;
+              }
+
+              if (sections.ciDetails) {
+                const { checks, passed, total } = sections.ciDetails;
+                md += `\n<details>\n<summary>CI Checks (${passed}/${total} passed)</summary>\n\n`;
+                md += '| Check | Result |\n';
+                md += '|-------|--------|\n';
+                for (const check of checks) {
+                  md += `| ${check.name} | ${check.icon} |\n`;
+                }
+                md += '\n</details>\n';
+              }
+
+              md += `\n---\n`;
+              md += `<sub>Updated ${new Date().toISOString()} \u00b7 <a href="${runUrl}">Run #${runId}</a></sub>\n`;
+              md += '<!-- /patchbot-status -->';
+              return md;
+            }
+
+  # ──────────────────────────────────────────────
+  # Job 4: Approval Gate
+  # ──────────────────────────────────────────────
+  approval-gate:
+    needs: router
+    if: needs.router.outputs.skip != 'true' && needs.router.outputs.phase == 'approval-gate'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check approval gate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ needs.router.outputs.pr_number }};
+            const headSha = '${{ needs.router.outputs.head_sha }}';
+            const runId = '${{ github.run_id }}';
+            const runUrl = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
+
+            // Fetch current labels
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            const labelNames = labels.map(l => l.name);
+
+            const hasTriaged = labelNames.includes('patchbot:triaged');
+            const hasCiPass = labelNames.includes('patchbot:ci-pass');
+            const hasCiFail = labelNames.includes('patchbot:ci-fail');
+            const hasApproved = labelNames.includes('patchbot:approved');
+            const hasReady = labelNames.includes('patchbot:ready');
+
+            const sections = {
+              triage: hasTriaged
+                ? { status: 'pass', detail: 'Passed' }
+                : { status: 'pending', detail: 'Not triaged' },
+              ci: hasCiPass
+                ? { status: 'pass', detail: 'All checks passed' }
+                : hasCiFail
+                  ? { status: 'fail', detail: 'Some checks failed' }
+                  : { status: 'pending', detail: 'Waiting for CI...' },
+              approval: { status: 'pending', detail: '' },
+            };
+
+            // Re-fetch CI check data so the comment preserves the CI details table
+            const checkRuns = await github.paginate(
+              github.rest.checks.listForRef,
+              { owner: context.repo.owner, repo: context.repo.repo, ref: headSha, per_page: 100 },
+              (response) => response.data.check_runs
+            );
+            const ciFiltered = checkRuns.filter(cr => !cr.name.startsWith('Patchbot'));
+            const conclusionIcons = {
+              success: '\u2705', failure: '\u274c', cancelled: '\u26d4',
+              skipped: '\u23ed\ufe0f', timed_out: '\u23f0', action_required: '\u26a0\ufe0f',
+              neutral: '\u25ab\ufe0f', stale: '\u25ab\ufe0f',
+            };
+            const ciChecks = [];
+            let ciPassed = 0;
+            for (const cr of ciFiltered) {
+              const link = cr.html_url ? `[${cr.name}](${cr.html_url})` : cr.name;
+              if (cr.status !== 'completed') {
+                ciChecks.push({ name: link, icon: '\u23f3' });
+              } else {
+                const conclusion = cr.conclusion || 'neutral';
+                ciChecks.push({ name: link, icon: conclusionIcons[conclusion] || '\u2753' });
+                if (conclusion === 'success' || conclusion === 'skipped' || conclusion === 'neutral') ciPassed++;
+              }
+            }
+            sections.ciDetails = { checks: ciChecks, passed: ciPassed, total: ciChecks.length };
+
+            // Guard: CI must have passed
+            if (!hasCiPass) {
+              sections.approval = { status: 'fail', detail: 'Cannot approve: CI has not passed' };
+              await updateComment(github, context, prNumber, sections, runId, runUrl);
+              core.info('CI has not passed, cannot approve');
+              return;
+            }
+
+            // Check approval sources: always require an actual approving review
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            const isApproved = reviews.some(r => r.state && r.state.toLowerCase() === 'approved');
+
+            if (isApproved) {
+              const labelsToAdd = [];
+              if (!hasApproved) labelsToAdd.push('patchbot:approved');
+              if (!hasReady) labelsToAdd.push('patchbot:ready');
+
+              if (labelsToAdd.length > 0) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  labels: labelsToAdd,
+                });
+              }
+
+              sections.approval = { status: 'pass', detail: 'Approved' };
+            } else {
+              sections.approval = { status: 'pending', detail: 'Awaiting review' };
+            }
+
+            await updateComment(github, context, prNumber, sections, runId, runUrl);
+
+            // ── Comment helper (defined locally for this job) ──
+            async function updateComment(github, context, prNumber, sections, runId, runUrl) {
+              const marker = '<!-- patchbot-status -->';
+              const body = buildCommentBody(sections, runId, runUrl);
+
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+              });
+              const existing = comments.find(c => c.body?.includes(marker));
+
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body,
+                });
+              }
+            }
+
+            function buildCommentBody(sections, runId, runUrl) {
+              const icons = { pass: '\u2705', fail: '\u274c', pending: '\u23f3', running: '\u23f3', skip: '\u25fb\ufe0f' };
+              const stageRows = [
+                ['Triage', sections.triage],
+                ['CI', sections.ci],
+                ['Approval', sections.approval],
+                ['Release', { status: 'skip', detail: 'Phase 2' }],
+                ['Deploy', { status: 'skip', detail: 'Phase 2' }],
+                ['Verify', { status: 'skip', detail: 'Phase 2' }],
+              ];
+
+              let md = '<!-- patchbot-status -->\n';
+              md += '## Patchbot\n\n';
+              md += '| Stage | Status |\n';
+              md += '|-------|--------|\n';
+              for (const [name, s] of stageRows) {
+                const icon = icons[s.status] || '\u2753';
+                const detail = s.detail || s.status;
+                md += `| ${name} | ${icon} ${detail} |\n`;
+              }
+
+              if (sections.ciDetails) {
+                const { checks, passed, total } = sections.ciDetails;
+                md += `\n<details>\n<summary>CI Checks (${passed}/${total} passed)</summary>\n\n`;
+                md += '| Check | Result |\n';
+                md += '|-------|--------|\n';
+                for (const check of checks) {
+                  md += `| ${check.name} | ${check.icon} |\n`;
+                }
+                md += '\n</details>\n';
+              }
+
+              md += `\n---\n`;
+              md += `<sub>Updated ${new Date().toISOString()} \u00b7 <a href="${runUrl}">Run #${runId}</a></sub>\n`;
+              md += '<!-- /patchbot-status -->';
+              return md;
+            }
