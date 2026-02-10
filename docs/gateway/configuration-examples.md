@@ -155,7 +155,17 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
       discord: { mode: "idle", idleMinutes: 10080 }
     },
     resetTriggers: ["/new", "/reset"],
+<<<<<<< HEAD
     store: "~/.clawdbot/agents/default/sessions/sessions.json",
+=======
+    store: "~/.openclaw/agents/default/sessions/sessions.json",
+    maintenance: {
+      mode: "warn",
+      pruneAfter: "30d",
+      maxEntries: 500,
+      rotateBytes: "10mb",
+    },
+>>>>>>> e19a23520 (fix: unify session maintenance and cron run pruning (#13083))
     typingIntervalSeconds: 5,
     sendPolicy: {
       default: "allow",
@@ -340,8 +350,14 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
   // Cron jobs
   cron: {
     enabled: true,
+<<<<<<< HEAD
     store: "~/.clawdbot/cron/cron.json",
     maxConcurrentRuns: 2
+=======
+    store: "~/.openclaw/cron/cron.json",
+    maxConcurrentRuns: 2,
+    sessionRetention: "24h",
+>>>>>>> e19a23520 (fix: unify session maintenance and cron run pruning (#13083))
   },
 
   // Webhooks
