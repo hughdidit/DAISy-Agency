@@ -100,7 +100,6 @@ jobs:
 
   checks:
     name: Linux / ${{ matrix.task }}
-    needs: a2ui-bundle
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -108,8 +107,6 @@ jobs:
         include:
           - task: lint
             command: pnpm lint
-          - task: test
-            command: pnpm test -- --no-file-parallelism
           - task: build
             command: pnpm build
           - task: protocol
@@ -167,16 +164,6 @@ jobs:
             sleep $((attempt * 5))
           done
 
-      - name: Build A2UI bundle
-        if: matrix.task == 'test'
-        run: pnpm canvas:a2ui:bundle
-
-      - name: Verify A2UI bundle outputs
-        if: matrix.task == 'test'
-        run: |
-          test -s src/canvas-host/a2ui/a2ui.bundle.js
-          test -s src/canvas-host/a2ui/.bundle.hash
-
       - name: Run ${{ matrix.task }}
         run: ${{ matrix.command }}
 
@@ -208,7 +195,6 @@ jobs:
 
   checks-windows:
     name: Windows / ${{ matrix.runtime }} / ${{ matrix.task }}
-    needs: a2ui-bundle
     runs-on: windows-latest
     env:
       NODE_OPTIONS: --max-old-space-size=4096
@@ -223,9 +209,6 @@ jobs:
           - runtime: node
             task: lint
             command: pnpm lint
-          - runtime: node
-            task: test
-            command: pnpm test -- --no-file-parallelism
           - runtime: node
             task: build
             command: pnpm build
@@ -283,62 +266,13 @@ jobs:
             sleep $((attempt * 5))
           done
 
-      - name: Mark A2UI artifact download start
-        if: matrix.task == 'test'
-        run: date +%s > .a2ui-artifact-download-start
-
-      - name: Download A2UI bundle artifact
-        if: matrix.task == 'test'
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.a2ui-bundle.outputs.artifact-name }}
-          path: src/canvas-host/a2ui
-
-      - name: Capture A2UI artifact download timing
-        if: matrix.task == 'test'
-        id: artifact-transfer
-        run: |
-          transfer_end_epoch="$(date +%s)"
-          transfer_start_epoch="$(cat .a2ui-artifact-download-start)"
-          transfer_seconds="$((transfer_end_epoch - transfer_start_epoch))"
-          echo "transfer_seconds=${transfer_seconds}" >> "$GITHUB_OUTPUT"
-
-      - name: Verify A2UI bundle outputs
-        if: matrix.task == 'test'
-        run: |
-          test -s src/canvas-host/a2ui/a2ui.bundle.js
-          test -s src/canvas-host/a2ui/.bundle.hash
-
-      - name: Compare bundle transfer vs rebuild timing
-        if: matrix.task == 'test'
-        run: |
-          transfer_seconds="${{ steps.artifact-transfer.outputs.transfer_seconds }}"
-          bundle_seconds="${{ needs.a2ui-bundle.outputs.bundle-seconds }}"
-          {
-            echo "### A2UI bundle strategy"
-            echo "- prep build time (linux): ${bundle_seconds}s"
-            echo "- artifact transfer time (windows): ${transfer_seconds}s"
-            if [ "${transfer_seconds}" -le "${bundle_seconds}" ]; then
-              echo "- selected path: artifact transfer (faster/equal and stable)"
-            else
-              echo "- selected path: artifact transfer (slower than rebuild prep; retained for now to avoid duplicate rebuild work across jobs)"
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
         run: ${{ matrix.command }}
 
-  checks-macos:
-    name: macOS / node / ${{ matrix.task }}
-    if: github.event_name == 'pull_request'
-    runs-on: macos-latest
+  checks-linux-test:
+    name: Linux / test
     needs: a2ui-bundle
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - task: test
-            command: pnpm test -- --no-file-parallelism
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -390,20 +324,193 @@ jobs:
             sleep $((attempt * 5))
           done
 
-      - name: Build A2UI bundle
-        if: matrix.task == 'test'
-        run: pnpm canvas:a2ui:bundle
+      - name: Download A2UI bundle artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.a2ui-bundle.outputs.artifact-name }}
+          path: .
 
       - name: Verify A2UI bundle outputs
-        if: matrix.task == 'test'
         run: |
           test -s src/canvas-host/a2ui/a2ui.bundle.js
           test -s src/canvas-host/a2ui/.bundle.hash
 
-      - name: Run ${{ matrix.task }}
+      - name: Run test
+        run: pnpm test -- --no-file-parallelism
+
+  checks-windows-test:
+    name: Windows / node / test
+    needs: a2ui-bundle
+    runs-on: windows-latest
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+      CLAWDBOT_TEST_WORKERS: 1
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      # pnpm must be on PATH before setup-node so cache: 'pnpm' can
+      # resolve the store path for cache keys.
+      - name: Setup pnpm (corepack)
+        run: |
+          corepack enable
+          for attempt in 1 2 3; do
+            if corepack prepare pnpm@10.23.0 --activate; then
+              pnpm -v
+              break
+            fi
+            echo "corepack prepare failed (attempt $attempt/3). Retrying..."
+            sleep $((attempt * 5))
+          done
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: 'pnpm'
+
+      - name: Runtime versions
+        run: |
+          node -v
+          npm -v
+          pnpm -v
+
+      - name: Install dependencies
+        env:
+          CI: true
+        run: |
+          install_flags="--frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true"
+          for attempt in 1 2 3; do
+            echo "pnpm install attempt ${attempt}/3"
+            if pnpm install ${install_flags}; then
+              echo "pnpm install succeeded on attempt ${attempt}/3"
+              break
+            fi
+            if [ "${attempt}" -eq 3 ]; then
+              echo "pnpm install failed after ${attempt}/3 attempts"
+              exit 1
+            fi
+            echo "pnpm install failed (attempt ${attempt}/3). Retrying..."
+            sleep $((attempt * 5))
+          done
+
+      - name: Mark A2UI artifact download start
+        run: date +%s > .a2ui-artifact-download-start
+
+      - name: Download A2UI bundle artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.a2ui-bundle.outputs.artifact-name }}
+          path: .
+
+      - name: Capture A2UI artifact download timing
+        id: artifact-transfer
+        run: |
+          transfer_end_epoch="$(date +%s)"
+          transfer_start_epoch="$(cat .a2ui-artifact-download-start)"
+          transfer_seconds="$((transfer_end_epoch - transfer_start_epoch))"
+          echo "transfer_seconds=${transfer_seconds}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify A2UI bundle outputs
+        run: |
+          test -s src/canvas-host/a2ui/a2ui.bundle.js
+          test -s src/canvas-host/a2ui/.bundle.hash
+
+      - name: Compare bundle transfer vs rebuild timing
+        run: |
+          transfer_seconds="${{ steps.artifact-transfer.outputs.transfer_seconds }}"
+          bundle_seconds="${{ needs.a2ui-bundle.outputs.bundle-seconds }}"
+          {
+            echo "### A2UI bundle strategy"
+            echo "- prep build time (linux): ${bundle_seconds}s"
+            echo "- artifact transfer time (windows): ${transfer_seconds}s"
+            if [ "${transfer_seconds}" -le "${bundle_seconds}" ]; then
+              echo "- selected path: artifact transfer (faster/equal and stable)"
+            else
+              echo "- selected path: artifact transfer (slower than rebuild prep; retained for now to avoid duplicate rebuild work across jobs)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run test
+        run: pnpm test -- --no-file-parallelism
+
+
+  checks-macos:
+    name: macOS / node / test
+    if: github.event_name == 'pull_request'
+    runs-on: macos-latest
+    needs: a2ui-bundle
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      # pnpm must be on PATH before setup-node so cache: 'pnpm' can
+      # resolve the store path for cache keys.
+      - name: Setup pnpm (corepack)
+        run: |
+          corepack enable
+          for attempt in 1 2 3; do
+            if corepack prepare pnpm@10.23.0 --activate; then
+              pnpm -v
+              break
+            fi
+            echo "corepack prepare failed (attempt $attempt/3). Retrying..."
+            sleep $((attempt * 5))
+          done
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: 'pnpm'
+
+      - name: Runtime versions
+        run: |
+          node -v
+          npm -v
+          pnpm -v
+
+      - name: Install dependencies
+        env:
+          CI: true
+        run: |
+          install_flags="--frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true"
+          for attempt in 1 2 3; do
+            echo "pnpm install attempt ${attempt}/3"
+            if pnpm install ${install_flags}; then
+              echo "pnpm install succeeded on attempt ${attempt}/3"
+              break
+            fi
+            if [ "${attempt}" -eq 3 ]; then
+              echo "pnpm install failed after ${attempt}/3 attempts"
+              exit 1
+            fi
+            echo "pnpm install failed (attempt ${attempt}/3). Retrying..."
+            sleep $((attempt * 5))
+          done
+
+      - name: Download A2UI bundle artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.a2ui-bundle.outputs.artifact-name }}
+          path: .
+
+      - name: Verify A2UI bundle outputs
+        run: |
+          test -s src/canvas-host/a2ui/a2ui.bundle.js
+          test -s src/canvas-host/a2ui/.bundle.hash
+
+      - name: Run test
         env:
           NODE_OPTIONS: --max-old-space-size=4096
-        run: ${{ matrix.command }}
+        run: pnpm test -- --no-file-parallelism
 
   macos-app:
     name: macOS App / ${{ matrix.task }}
