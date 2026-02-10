@@ -377,8 +377,12 @@ ack reaction after the bot replies.
 <<<<<<< HEAD
 =======
   - `presence` (bot status/activity, default `false`)
+<<<<<<< HEAD
 - `execApprovals`: Discord-only exec approval DMs (button UI). Supports `enabled`, `approvers`, `agentFilter`, `sessionFilter`.
 >>>>>>> 5af322f71 (feat(discord): add set-presence action for bot activity and status)
+=======
+- `execApprovals`: Discord-only exec approval DMs (button UI). Supports `enabled`, `approvers`, `agentFilter`, `sessionFilter`, `cleanupAfterResolve`.
+>>>>>>> 8ff1618bf (Discord: add exec approval cleanup option (#13205))
 
 Reaction notifications use `guilds.<id>.reactionNotifications`:
 
