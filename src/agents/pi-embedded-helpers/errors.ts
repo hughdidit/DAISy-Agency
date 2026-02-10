@@ -541,7 +541,7 @@ export function isBillingErrorMessage(raw: string): boolean {
   if (!value) {
     return false;
   }
-  
+
   return matchesErrorPatterns(value, ERROR_PATTERNS.billing);
 }
 
