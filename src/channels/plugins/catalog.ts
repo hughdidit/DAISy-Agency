@@ -4,9 +4,16 @@ import path from "node:path";
 import { LEGACY_MANIFEST_KEY } from "../../compat/legacy-names.js";
 import { discoverMoltbotPlugins } from "../../plugins/discovery.js";
 import type { PluginOrigin } from "../../plugins/types.js";
+<<<<<<< HEAD
 import type { MoltbotPackageManifest } from "../../plugins/manifest.js";
 import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
 import type { ChannelMeta } from "./types.js";
+=======
+import type { ChannelMeta } from "./types.js";
+import { MANIFEST_KEY } from "../../compat/legacy-names.js";
+import { discoverOpenClawPlugins } from "../../plugins/discovery.js";
+import { CONFIG_DIR, isRecord, resolveUserPath } from "../../utils.js";
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 
 export type ChannelUiMetaEntry = {
   id: string;
@@ -61,10 +68,6 @@ const DEFAULT_CATALOG_PATHS = [
 ];
 
 const ENV_CATALOG_PATHS = ["CLAWDBOT_PLUGIN_CATALOG_PATHS", "CLAWDBOT_MPM_CATALOG_PATHS"];
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
-}
 
 function parseCatalogEntries(raw: unknown): ExternalCatalogEntry[] {
   if (Array.isArray(raw)) {

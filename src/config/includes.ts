@@ -12,6 +12,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { isPlainObject } from "../utils.js";
 
 import JSON5 from "json5";
 
@@ -52,15 +53,6 @@ export class CircularIncludeError extends ConfigIncludeError {
 // ============================================================================
 // Utilities
 // ============================================================================
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value) &&
-    Object.prototype.toString.call(value) === "[object Object]"
-  );
-}
 
 /** Deep merge: arrays concatenate, objects merge recursively, primitives: source wins */
 export function deepMerge(target: unknown, source: unknown): unknown {

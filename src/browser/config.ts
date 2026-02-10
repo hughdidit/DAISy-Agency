@@ -4,7 +4,11 @@ import {
   deriveDefaultBrowserControlPort,
   DEFAULT_BROWSER_CONTROL_PORT,
 } from "../config/port-defaults.js";
+<<<<<<< HEAD
 import { resolveGatewayPort } from "../config/paths.js";
+=======
+import { isLoopbackHost } from "../gateway/net.js";
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import {
   DEFAULT_CLAWD_BROWSER_COLOR,
   DEFAULT_CLAWD_BROWSER_ENABLED,
@@ -41,19 +45,6 @@ export type ResolvedBrowserProfile = {
   color: string;
   driver: "clawd" | "extension";
 };
-
-function isLoopbackHost(host: string) {
-  const h = host.trim().toLowerCase();
-  return (
-    h === "localhost" ||
-    h === "127.0.0.1" ||
-    h === "0.0.0.0" ||
-    h === "[::1]" ||
-    h === "::1" ||
-    h === "[::]" ||
-    h === "::"
-  );
-}
 
 function normalizeHexColor(raw: string | undefined) {
   const value = (raw ?? "").trim();

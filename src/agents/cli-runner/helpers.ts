@@ -13,7 +13,7 @@ import { runExec } from "../../process/exec.js";
 import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
 =======
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
-import { escapeRegExp } from "../../utils.js";
+import { escapeRegExp, isRecord } from "../../utils.js";
 import { resolveDefaultModelForAgent } from "../model-selection.js";
 import { detectRuntimeShell } from "../shell-utils.js";
 >>>>>>> f0722498a (Agents: include runtime shell (#1835))
@@ -284,10 +284,6 @@ function toUsage(raw: Record<string, unknown>): CliUsage | undefined {
     return undefined;
   }
   return { input, output, cacheRead, cacheWrite, total };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
 function collectText(value: unknown): string {

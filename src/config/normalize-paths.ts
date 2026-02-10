@@ -1,14 +1,15 @@
+<<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
 import type { MoltbotConfig } from "./types.js";
+=======
+import type { OpenClawConfig } from "./types.js";
+import { isPlainObject, resolveUserPath } from "../utils.js";
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 
 const PATH_VALUE_RE = /^~(?=$|[\\/])/;
 
 const PATH_KEY_RE = /(dir|path|paths|file|root|workspace)$/i;
 const PATH_LIST_KEYS = new Set(["paths", "pathPrepend"]);
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
 
 function normalizeStringValue(key: string | undefined, value: string): string {
   if (!PATH_VALUE_RE.test(value.trim())) {

@@ -1,6 +1,10 @@
 import { spawn } from "node:child_process";
 import net from "node:net";
+<<<<<<< HEAD
 
+=======
+import { isErrno } from "./errors.js";
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { ensurePortAvailable } from "./ports.js";
 
 export type SshParsedTarget = {
@@ -17,10 +21,6 @@ export type SshTunnel = {
   stderr: string[];
   stop: () => Promise<void>;
 };
-
-function isErrno(err: unknown): err is NodeJS.ErrnoException {
-  return Boolean(err && typeof err === "object" && "code" in err);
-}
 
 export function parseSshTarget(raw: string): SshParsedTarget | null {
   const trimmed = raw.trim().replace(/^ssh\s+/, "");

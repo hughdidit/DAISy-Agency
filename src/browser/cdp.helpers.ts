@@ -1,6 +1,12 @@
 import WebSocket from "ws";
+<<<<<<< HEAD
 
+=======
+import { isLoopbackHost } from "../gateway/net.js";
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { rawDataToString } from "../infra/ws.js";
+
+export { isLoopbackHost };
 
 type CdpResponse = {
   id: number;
@@ -14,19 +20,6 @@ type Pending = {
 };
 
 export type CdpSendFn = (method: string, params?: Record<string, unknown>) => Promise<unknown>;
-
-export function isLoopbackHost(host: string) {
-  const h = host.trim().toLowerCase();
-  return (
-    h === "localhost" ||
-    h === "127.0.0.1" ||
-    h === "0.0.0.0" ||
-    h === "[::1]" ||
-    h === "::1" ||
-    h === "[::]" ||
-    h === "::"
-  );
-}
 
 export function getHeadersWithAuth(url: string, headers: Record<string, string> = {}) {
   try {

@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.js";
+import { isRecord } from "../utils.js";
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { fetchJson } from "./provider-usage.fetch.shared.js";
 import { clampPercent, PROVIDER_LABELS } from "./provider-usage.shared.js";
 import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.js";
@@ -147,10 +152,6 @@ const WINDOW_MINUTE_KEYS = [
   "durationMinutes",
   "minutes",
 ] as const;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
-}
 
 function pickNumber(record: Record<string, unknown>, keys: readonly string[]): number | undefined {
   for (const key of keys) {

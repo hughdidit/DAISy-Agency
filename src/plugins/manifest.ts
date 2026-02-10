@@ -1,5 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import type { PluginConfigUiHint, PluginKind } from "./types.js";
+import { MANIFEST_KEY } from "../compat/legacy-names.js";
+import { isRecord } from "../utils.js";
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 
 import { LEGACY_MANIFEST_KEY, LEGACY_PLUGIN_MANIFEST_FILENAME } from "../compat/legacy-names.js";
 import type { PluginConfigUiHint, PluginKind } from "./types.js";
@@ -32,10 +38,6 @@ function normalizeStringList(value: unknown): string[] {
     return [];
   }
   return value.map((entry) => (typeof entry === "string" ? entry.trim() : "")).filter(Boolean);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
 export function resolvePluginManifestPath(rootDir: string): string {

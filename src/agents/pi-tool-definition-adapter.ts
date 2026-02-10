@@ -6,12 +6,49 @@ import type {
 import type { ToolDefinition } from "@mariozechner/pi-coding-agent";
 import type { ClientToolDefinition } from "./pi-embedded-runner/run/params.js";
 import { logDebug, logError } from "../logger.js";
+<<<<<<< HEAD
+=======
+import { isPlainObject } from "../utils.js";
+import { runBeforeToolCallHook } from "./pi-tools.before-tool-call.js";
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { normalizeToolName } from "./tool-policy.js";
 import { jsonResult } from "./tools/common.js";
 
 // oxlint-disable-next-line typescript/no-explicit-any
 type AnyAgentTool = AgentTool<any, unknown>;
 
+<<<<<<< HEAD
+=======
+type ToolExecuteArgsCurrent = [
+  string,
+  unknown,
+  AgentToolUpdateCallback<unknown> | undefined,
+  unknown,
+  AbortSignal | undefined,
+];
+type ToolExecuteArgsLegacy = [
+  string,
+  unknown,
+  AbortSignal | undefined,
+  AgentToolUpdateCallback<unknown> | undefined,
+  unknown,
+];
+type ToolExecuteArgs = ToolDefinition["execute"] extends (...args: infer P) => unknown
+  ? P
+  : ToolExecuteArgsCurrent;
+type ToolExecuteArgsAny = ToolExecuteArgs | ToolExecuteArgsLegacy | ToolExecuteArgsCurrent;
+
+function isAbortSignal(value: unknown): value is AbortSignal {
+  return typeof value === "object" && value !== null && "aborted" in value;
+}
+
+function isLegacyToolExecuteArgs(args: ToolExecuteArgsAny): args is ToolExecuteArgsLegacy {
+  const third = args[2];
+  const fourth = args[3];
+  return isAbortSignal(third) || typeof fourth === "function";
+}
+
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 function describeToolExecutionError(err: unknown): {
   message: string;
   stack?: string;

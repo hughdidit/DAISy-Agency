@@ -1,7 +1,13 @@
 import { Type } from "@sinclair/typebox";
 import { normalizeCronJobCreate, normalizeCronJobPatch } from "../../cron/normalize.js";
+<<<<<<< HEAD
 import { loadConfig } from "../../config/config.js";
 import { truncateUtf16Safe } from "../../utils.js";
+=======
+import { parseAgentSessionKey } from "../../sessions/session-key-utils.js";
+import { isRecord, truncateUtf16Safe } from "../../utils.js";
+import { resolveSessionAgentId } from "../agent-scope.js";
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
@@ -154,11 +160,14 @@ async function buildReminderContextLines(params: {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+=======
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 function stripThreadSuffixFromSessionKey(sessionKey: string): string {
   const normalized = sessionKey.toLowerCase();
   const idx = normalized.lastIndexOf(":thread:");

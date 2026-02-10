@@ -1,8 +1,14 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { type MoltbotConfig, loadConfig } from "../config/config.js";
 import { resolveMoltbotAgentDir } from "./agent-paths.js";
+=======
+import { type OpenClawConfig, loadConfig } from "../config/config.js";
+import { isRecord } from "../utils.js";
+import { resolveOpenClawAgentDir } from "./agent-paths.js";
+>>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import {
   normalizeProviders,
   type ProviderConfig,
@@ -14,10 +20,6 @@ import {
 type ModelsConfig = NonNullable<MoltbotConfig["models"]>;
 
 const DEFAULT_MODE: NonNullable<ModelsConfig["mode"]> = "merge";
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
-}
 
 function mergeProviderModels(implicit: ProviderConfig, explicit: ProviderConfig): ProviderConfig {
   const implicitModels = Array.isArray(implicit.models) ? implicit.models : [];
