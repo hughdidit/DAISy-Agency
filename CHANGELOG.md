@@ -22,7 +22,23 @@ Status: beta.
 
 ### Added
 
+<<<<<<< HEAD
 - Gateway: add `agents.create`, `agents.update`, `agents.delete` RPC methods for web UI agent management. (#11045) Thanks @advaitpaliwal.
+=======
+- Commands: add `commands.allowFrom` config for separate command authorization, allowing operators to restrict slash commands to specific users while keeping chat open to others. (#12430) Thanks @thewilloftheshadow.
+- Docker: add ClawDock shell helpers for Docker workflows. (#12817) Thanks @Olshansk.
+- iOS: alpha node app + setup-code onboarding. (#11756) Thanks @mbelinky.
+- Channels: comprehensive BlueBubbles and channel cleanup. (#11093) Thanks @tyler6204.
+- Channels: IRC first-class channel support. (#11482) Thanks @vignesh07.
+- Plugins: device pairing + phone control plugins (Telegram `/pair`, iOS/Android node controls). (#11755) Thanks @mbelinky.
+- Tools: add Grok (xAI) as a `web_search` provider. (#12419) Thanks @tmchow.
+- Gateway: add agent management RPC methods for the web UI (`agents.create`, `agents.update`, `agents.delete`). (#11045) Thanks @advaitpaliwal.
+- Web UI: show a Compaction divider in chat history. (#11341) Thanks @Takhoffman.
+- Agents: include runtime shell in agent envelopes. (#1835) Thanks @Takhoffman.
+- Agents: auto-select `zai/glm-4.6v` for image understanding when ZAI is primary provider. (#10267) Thanks @liuy.
+- Paths: add `OPENCLAW_HOME` for overriding the home directory used by internal path resolution. (#12091) Thanks @sebslight.
+- Onboarding: add Custom Provider flow for OpenAI and Anthropic-compatible endpoints. (#11106) Thanks @MackDing.
+>>>>>>> fa906b26a (feat: IRC — add first-class channel support)
 
 ### Fixes
 

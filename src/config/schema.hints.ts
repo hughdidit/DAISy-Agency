@@ -1,42 +1,18 @@
-import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
-import { CHANNEL_IDS } from "../channels/registry.js";
-import { VERSION } from "../version.js";
-import { applySensitiveHints, buildBaseHints } from "./schema.hints.js";
-import { OpenClawSchema } from "./zod-schema.js";
+import { IRC_FIELD_HELP, IRC_FIELD_LABELS } from "./schema.irc.js";
 
-export type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
-
-export type ConfigSchema = ReturnType<typeof OpenClawSchema.toJSONSchema>;
-
-type JsonSchemaNode = Record<string, unknown>;
-
-export type ConfigSchemaResponse = {
-  schema: ConfigSchema;
-  uiHints: ConfigUiHints;
-  version: string;
-  generatedAt: string;
-};
-
-export type PluginUiMetadata = {
-  id: string;
-  name?: string;
-  description?: string;
-  configUiHints?: Record<
-    string,
-    Pick<ConfigUiHint, "label" | "help" | "advanced" | "sensitive" | "placeholder">
-  >;
-  configSchema?: JsonSchemaNode;
-};
-
-export type ChannelUiMetadata = {
-  id: string;
+export type ConfigUiHint = {
   label?: string;
-  description?: string;
-  configSchema?: JsonSchemaNode;
-  configUiHints?: Record<string, ConfigUiHint>;
+  help?: string;
+  group?: string;
+  order?: number;
+  advanced?: boolean;
+  sensitive?: boolean;
+  placeholder?: string;
+  itemTemplate?: unknown;
 };
 
-<<<<<<< HEAD
+export type ConfigUiHints = Record<string, ConfigUiHint>;
+
 const GROUP_LABELS: Record<string, string> = {
   wizard: "Wizard",
   update: "Update",
@@ -116,6 +92,7 @@ const FIELD_LABELS: Record<string, string> = {
   "diagnostics.cacheTrace.includePrompt": "Cache Trace Include Prompt",
   "diagnostics.cacheTrace.includeSystem": "Cache Trace Include System",
   "agents.list.*.identity.avatar": "Identity Avatar",
+  "agents.list.*.skills": "Agent Skill Filter",
   "gateway.remote.url": "Remote Gateway URL",
   "gateway.remote.sshTarget": "Remote Gateway SSH Target",
   "gateway.remote.sshIdentity": "Remote Gateway SSH Identity",
@@ -192,6 +169,8 @@ const FIELD_LABELS: Record<string, string> = {
   "tools.web.fetch.maxRedirects": "Web Fetch Max Redirects",
   "tools.web.fetch.userAgent": "Web Fetch User-Agent",
   "gateway.controlUi.basePath": "Control UI Base Path",
+  "gateway.controlUi.root": "Control UI Assets Root",
+  "gateway.controlUi.allowedOrigins": "Control UI Allowed Origins",
   "gateway.controlUi.allowInsecureAuth": "Allow Insecure Control UI Auth",
   "gateway.controlUi.dangerouslyDisableDeviceAuth": "Dangerously Disable Control UI Device Auth",
   "gateway.http.endpoints.chatCompletions.enabled": "OpenAI Chat Completions Endpoint",
@@ -245,6 +224,31 @@ const FIELD_LABELS: Record<string, string> = {
     "Memory Search Hybrid Candidate Multiplier",
   "agents.defaults.memorySearch.cache.enabled": "Memory Search Embedding Cache",
   "agents.defaults.memorySearch.cache.maxEntries": "Memory Search Embedding Cache Max Entries",
+  memory: "Memory",
+  "memory.backend": "Memory Backend",
+  "memory.citations": "Memory Citations Mode",
+  "memory.qmd.command": "QMD Binary",
+  "memory.qmd.includeDefaultMemory": "QMD Include Default Memory",
+  "memory.qmd.paths": "QMD Extra Paths",
+  "memory.qmd.paths.path": "QMD Path",
+  "memory.qmd.paths.pattern": "QMD Path Pattern",
+  "memory.qmd.paths.name": "QMD Path Name",
+  "memory.qmd.sessions.enabled": "QMD Session Indexing",
+  "memory.qmd.sessions.exportDir": "QMD Session Export Directory",
+  "memory.qmd.sessions.retentionDays": "QMD Session Retention (days)",
+  "memory.qmd.update.interval": "QMD Update Interval",
+  "memory.qmd.update.debounceMs": "QMD Update Debounce (ms)",
+  "memory.qmd.update.onBoot": "QMD Update on Startup",
+  "memory.qmd.update.waitForBootSync": "QMD Wait for Boot Sync",
+  "memory.qmd.update.embedInterval": "QMD Embed Interval",
+  "memory.qmd.update.commandTimeoutMs": "QMD Command Timeout (ms)",
+  "memory.qmd.update.updateTimeoutMs": "QMD Update Timeout (ms)",
+  "memory.qmd.update.embedTimeoutMs": "QMD Embed Timeout (ms)",
+  "memory.qmd.limits.maxResults": "QMD Max Results",
+  "memory.qmd.limits.maxSnippetChars": "QMD Max Snippet Chars",
+  "memory.qmd.limits.maxInjectedChars": "QMD Max Injected Chars",
+  "memory.qmd.limits.timeoutMs": "QMD Search Timeout (ms)",
+  "memory.qmd.scope": "QMD Surface Scope",
   "auth.profiles": "Auth Profiles",
   "auth.order": "Auth Profile Order",
   "auth.cooldowns.billingBackoffHours": "Billing Backoff (hours)",
@@ -294,6 +298,7 @@ const FIELD_LABELS: Record<string, string> = {
   "channels.imessage": "iMessage",
   "channels.bluebubbles": "BlueBubbles",
   "channels.msteams": "MS Teams",
+  ...IRC_FIELD_LABELS,
   "channels.telegram.botToken": "Telegram Bot Token",
   "channels.telegram.dmPolicy": "Telegram DM Policy",
   "channels.telegram.streamMode": "Telegram Draft Stream Mode",
@@ -321,6 +326,8 @@ const FIELD_LABELS: Record<string, string> = {
   "channels.discord.maxLinesPerMessage": "Discord Max Lines Per Message",
   "channels.discord.intents.presence": "Discord Presence Intent",
   "channels.discord.intents.guildMembers": "Discord Guild Members Intent",
+  "channels.discord.pluralkit.enabled": "Discord PluralKit Enabled",
+  "channels.discord.pluralkit.token": "Discord PluralKit Token",
   "channels.slack.dm.policy": "Slack DM Policy",
   "channels.slack.allowBots": "Slack Allow Bot Messages",
   "channels.discord.token": "Discord Bot Token",
@@ -337,6 +344,7 @@ const FIELD_LABELS: Record<string, string> = {
   "channels.mattermost.requireMention": "Mattermost Require Mention",
   "channels.signal.account": "Signal Account",
   "channels.imessage.cliPath": "iMessage CLI Path",
+  "agents.list[].skills": "Agent Skill Filter",
   "agents.list[].identity.avatar": "Agent Avatar",
   "discovery.mdns.mode": "mDNS Discovery Mode",
   "plugins.enabled": "Enable Plugins",
@@ -368,6 +376,10 @@ const FIELD_HELP: Record<string, string> = {
   "gateway.remote.sshTarget":
     "Remote gateway over SSH (tunnels the gateway port to localhost). Format: user@host or user@host:port.",
   "gateway.remote.sshIdentity": "Optional SSH identity file path (passed to ssh -i).",
+  "agents.list.*.skills":
+    "Optional allowlist of skills for this agent (omit = all skills; empty = no skills).",
+  "agents.list[].skills":
+    "Optional allowlist of skills for this agent (omit = all skills; empty = no skills).",
   "agents.list[].identity.avatar":
     "Avatar image path (relative to the agent workspace only) or a remote URL/data URL.",
   "discovery.mdns.mode":
@@ -377,6 +389,10 @@ const FIELD_HELP: Record<string, string> = {
   "gateway.auth.password": "Required for Tailscale funnel.",
   "gateway.controlUi.basePath":
     "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
+  "gateway.controlUi.root":
+    "Optional filesystem root for Control UI assets (defaults to dist/control-ui).",
+  "gateway.controlUi.allowedOrigins":
+    "Allowed browser origins for Control UI/WebChat websocket connections (full origins only, e.g. https://control.example.com).",
   "gateway.controlUi.allowInsecureAuth":
     "Allow Control UI auth over insecure HTTP (token-only; not recommended).",
   "gateway.controlUi.dangerouslyDisableDeviceAuth":
@@ -441,6 +457,8 @@ const FIELD_HELP: Record<string, string> = {
     'Perplexity model override (default: "perplexity/sonar-pro").',
   "tools.web.fetch.enabled": "Enable the web_fetch tool (lightweight HTTP fetch).",
   "tools.web.fetch.maxChars": "Max characters returned by web_fetch (truncated).",
+  "tools.web.fetch.maxCharsCap":
+    "Hard cap for web_fetch maxChars (applies to config and tool calls).",
   "tools.web.fetch.timeoutSeconds": "Timeout in seconds for web_fetch requests.",
   "tools.web.fetch.cacheTtlMinutes": "Cache TTL in minutes for web_fetch results.",
   "tools.web.fetch.maxRedirects": "Maximum redirects allowed for web_fetch (default: 3).",
@@ -497,7 +515,8 @@ const FIELD_HELP: Record<string, string> = {
     "Extra paths to include in memory search (directories or .md files; relative paths resolved from workspace).",
   "agents.defaults.memorySearch.experimental.sessionMemory":
     "Enable experimental session transcript indexing for memory search (default: false).",
-  "agents.defaults.memorySearch.provider": 'Embedding provider ("openai", "gemini", or "local").',
+  "agents.defaults.memorySearch.provider":
+    'Embedding provider ("openai", "gemini", "voyage", or "local").',
   "agents.defaults.memorySearch.remote.baseUrl":
     "Custom base URL for remote embeddings (OpenAI-compatible proxies or Gemini overrides).",
   "agents.defaults.memorySearch.remote.apiKey": "Custom API key for the remote embedding provider.",
@@ -533,6 +552,43 @@ const FIELD_HELP: Record<string, string> = {
     "Multiplier for candidate pool size (default: 4).",
   "agents.defaults.memorySearch.cache.enabled":
     "Cache chunk embeddings in SQLite to speed up reindexing and frequent updates (default: true).",
+  memory: "Memory backend configuration (global).",
+  "memory.backend": 'Memory backend ("builtin" for OpenClaw embeddings, "qmd" for QMD sidecar).',
+  "memory.citations": 'Default citation behavior ("auto", "on", or "off").',
+  "memory.qmd.command": "Path to the qmd binary (default: resolves from PATH).",
+  "memory.qmd.includeDefaultMemory":
+    "Whether to automatically index MEMORY.md + memory/**/*.md (default: true).",
+  "memory.qmd.paths":
+    "Additional directories/files to index with QMD (path + optional glob pattern).",
+  "memory.qmd.paths.path": "Absolute or ~-relative path to index via QMD.",
+  "memory.qmd.paths.pattern": "Glob pattern relative to the path root (default: **/*.md).",
+  "memory.qmd.paths.name":
+    "Optional stable name for the QMD collection (default derived from path).",
+  "memory.qmd.sessions.enabled":
+    "Enable QMD session transcript indexing (experimental, default: false).",
+  "memory.qmd.sessions.exportDir":
+    "Override directory for sanitized session exports before indexing.",
+  "memory.qmd.sessions.retentionDays":
+    "Retention window for exported sessions before pruning (default: unlimited).",
+  "memory.qmd.update.interval":
+    "How often the QMD sidecar refreshes indexes (duration string, default: 5m).",
+  "memory.qmd.update.debounceMs":
+    "Minimum delay between successive QMD refresh runs (default: 15000).",
+  "memory.qmd.update.onBoot": "Run QMD update once on gateway startup (default: true).",
+  "memory.qmd.update.waitForBootSync":
+    "Block startup until the boot QMD refresh finishes (default: false).",
+  "memory.qmd.update.embedInterval":
+    "How often QMD embeddings are refreshed (duration string, default: 60m). Set to 0 to disable periodic embed.",
+  "memory.qmd.update.commandTimeoutMs":
+    "Timeout for QMD maintenance commands like collection list/add (default: 30000).",
+  "memory.qmd.update.updateTimeoutMs": "Timeout for `qmd update` runs (default: 120000).",
+  "memory.qmd.update.embedTimeoutMs": "Timeout for `qmd embed` runs (default: 120000).",
+  "memory.qmd.limits.maxResults": "Max QMD results returned to the agent loop (default: 6).",
+  "memory.qmd.limits.maxSnippetChars": "Max characters per snippet pulled from QMD (default: 700).",
+  "memory.qmd.limits.maxInjectedChars": "Max total characters injected from QMD hits per turn.",
+  "memory.qmd.limits.timeoutMs": "Per-query timeout for QMD searches (default: 4000).",
+  "memory.qmd.scope":
+    "Session/channel scope for QMD recall (same syntax as session.sendPolicy; default: direct-only).",
   "agents.defaults.memorySearch.cache.maxEntries":
     "Optional cap on cached embeddings (best-effort).",
   "agents.defaults.memorySearch.sync.onSearch":
@@ -608,6 +664,7 @@ const FIELD_HELP: Record<string, string> = {
     "Allow iMessage to write config in response to channel events/commands (default: true).",
   "channels.msteams.configWrites":
     "Allow Microsoft Teams to write config in response to channel events/commands (default: true).",
+  ...IRC_FIELD_HELP,
   "channels.discord.commands.native": 'Override native commands for Discord (bool or "auto").',
   "channels.discord.commands.nativeSkills":
     'Override native skill commands for Discord (bool or "auto").',
@@ -669,6 +726,10 @@ const FIELD_HELP: Record<string, string> = {
     "Enable the Guild Presences privileged intent. Must also be enabled in the Discord Developer Portal. Allows tracking user activities (e.g. Spotify). Default: false.",
   "channels.discord.intents.guildMembers":
     "Enable the Guild Members privileged intent. Must also be enabled in the Discord Developer Portal. Default: false.",
+  "channels.discord.pluralkit.enabled":
+    "Resolve PluralKit proxied messages and treat system members as distinct senders.",
+  "channels.discord.pluralkit.token":
+    "Optional PluralKit token for resolving private systems or members.",
   "channels.slack.dm.policy":
     'Direct message access control ("pairing" recommended). "open" requires channels.slack.dm.allowFrom=["*"].',
 };
@@ -678,276 +739,48 @@ const FIELD_PLACEHOLDERS: Record<string, string> = {
   "gateway.remote.tlsFingerprint": "sha256:ab12cd34…",
   "gateway.remote.sshTarget": "user@host",
   "gateway.controlUi.basePath": "/openclaw",
+  "gateway.controlUi.root": "dist/control-ui",
+  "gateway.controlUi.allowedOrigins": "https://control.example.com",
   "channels.mattermost.baseUrl": "https://chat.example.com",
   "agents.list[].identity.avatar": "avatars/openclaw.png",
 };
 
 const SENSITIVE_PATTERNS = [/token/i, /password/i, /secret/i, /api.?key/i];
 
-function isSensitivePath(path: string): boolean {
+function isSensitiveConfigPath(path: string): boolean {
   return SENSITIVE_PATTERNS.some((pattern) => pattern.test(path));
 }
 
-=======
->>>>>>> fa906b26a (feat: IRC — add first-class channel support)
-type JsonSchemaObject = JsonSchemaNode & {
-  type?: string | string[];
-  properties?: Record<string, JsonSchemaObject>;
-  required?: string[];
-  additionalProperties?: JsonSchemaObject | boolean;
-};
-
-function cloneSchema<T>(value: T): T {
-  if (typeof structuredClone === "function") return structuredClone(value);
-  return JSON.parse(JSON.stringify(value)) as T;
-}
-
-function asSchemaObject(value: unknown): JsonSchemaObject | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-  return value as JsonSchemaObject;
-}
-
-function isObjectSchema(schema: JsonSchemaObject): boolean {
-  const type = schema.type;
-  if (type === "object") return true;
-  if (Array.isArray(type) && type.includes("object")) return true;
-  return Boolean(schema.properties || schema.additionalProperties);
-}
-
-function mergeObjectSchema(base: JsonSchemaObject, extension: JsonSchemaObject): JsonSchemaObject {
-  const mergedRequired = new Set<string>([...(base.required ?? []), ...(extension.required ?? [])]);
-  const merged: JsonSchemaObject = {
-    ...base,
-    ...extension,
-    properties: {
-      ...base.properties,
-      ...extension.properties,
-    },
-  };
-  if (mergedRequired.size > 0) {
-    merged.required = Array.from(mergedRequired);
+export function buildBaseHints(): ConfigUiHints {
+  const hints: ConfigUiHints = {};
+  for (const [group, label] of Object.entries(GROUP_LABELS)) {
+    hints[group] = {
+      label,
+      group: label,
+      order: GROUP_ORDER[group],
+    };
   }
-  const additional = extension.additionalProperties ?? base.additionalProperties;
-  if (additional !== undefined) merged.additionalProperties = additional;
-  return merged;
+  for (const [path, label] of Object.entries(FIELD_LABELS)) {
+    const current = hints[path];
+    hints[path] = current ? { ...current, label } : { label };
+  }
+  for (const [path, help] of Object.entries(FIELD_HELP)) {
+    const current = hints[path];
+    hints[path] = current ? { ...current, help } : { help };
+  }
+  for (const [path, placeholder] of Object.entries(FIELD_PLACEHOLDERS)) {
+    const current = hints[path];
+    hints[path] = current ? { ...current, placeholder } : { placeholder };
+  }
+  return hints;
 }
 
-function applyPluginHints(hints: ConfigUiHints, plugins: PluginUiMetadata[]): ConfigUiHints {
-  const next: ConfigUiHints = { ...hints };
-  for (const plugin of plugins) {
-    const id = plugin.id.trim();
-    if (!id) continue;
-    const name = (plugin.name ?? id).trim() || id;
-    const basePath = `plugins.entries.${id}`;
-
-    next[basePath] = {
-      ...next[basePath],
-      label: name,
-      help: plugin.description
-        ? `${plugin.description} (plugin: ${id})`
-        : `Plugin entry for ${id}.`,
-    };
-    next[`${basePath}.enabled`] = {
-      ...next[`${basePath}.enabled`],
-      label: `Enable ${name}`,
-    };
-    next[`${basePath}.config`] = {
-      ...next[`${basePath}.config`],
-      label: `${name} Config`,
-      help: `Plugin-defined config payload for ${id}.`,
-    };
-
-    const uiHints = plugin.configUiHints ?? {};
-    for (const [relPathRaw, hint] of Object.entries(uiHints)) {
-      const relPath = relPathRaw.trim().replace(/^\./, "");
-      if (!relPath) continue;
-      const key = `${basePath}.config.${relPath}`;
-      next[key] = {
-        ...next[key],
-        ...hint,
-      };
+export function applySensitiveHints(hints: ConfigUiHints): ConfigUiHints {
+  const next = { ...hints };
+  for (const key of Object.keys(next)) {
+    if (isSensitiveConfigPath(key)) {
+      next[key] = { ...next[key], sensitive: true };
     }
   }
   return next;
-}
-
-function applyChannelHints(hints: ConfigUiHints, channels: ChannelUiMetadata[]): ConfigUiHints {
-  const next: ConfigUiHints = { ...hints };
-  for (const channel of channels) {
-    const id = channel.id.trim();
-    if (!id) continue;
-    const basePath = `channels.${id}`;
-    const current = next[basePath] ?? {};
-    const label = channel.label?.trim();
-    const help = channel.description?.trim();
-    next[basePath] = {
-      ...current,
-      ...(label ? { label } : {}),
-      ...(help ? { help } : {}),
-    };
-
-    const uiHints = channel.configUiHints ?? {};
-    for (const [relPathRaw, hint] of Object.entries(uiHints)) {
-      const relPath = relPathRaw.trim().replace(/^\./, "");
-      if (!relPath) continue;
-      const key = `${basePath}.${relPath}`;
-      next[key] = {
-        ...next[key],
-        ...hint,
-      };
-    }
-  }
-  return next;
-}
-
-function listHeartbeatTargetChannels(channels: ChannelUiMetadata[]): string[] {
-  const seen = new Set<string>();
-  const ordered: string[] = [];
-  for (const id of CHANNEL_IDS) {
-    const normalized = id.trim().toLowerCase();
-    if (!normalized || seen.has(normalized)) continue;
-    seen.add(normalized);
-    ordered.push(normalized);
-  }
-  for (const channel of channels) {
-    const normalized = channel.id.trim().toLowerCase();
-    if (!normalized || seen.has(normalized)) continue;
-    seen.add(normalized);
-    ordered.push(normalized);
-  }
-  return ordered;
-}
-
-function applyHeartbeatTargetHints(
-  hints: ConfigUiHints,
-  channels: ChannelUiMetadata[],
-): ConfigUiHints {
-  const next: ConfigUiHints = { ...hints };
-  const channelList = listHeartbeatTargetChannels(channels);
-  const channelHelp = channelList.length ? ` Known channels: ${channelList.join(", ")}.` : "";
-  const help = `Delivery target ("last", "none", or a channel id).${channelHelp}`;
-  const paths = ["agents.defaults.heartbeat.target", "agents.list.*.heartbeat.target"];
-  for (const path of paths) {
-    const current = next[path] ?? {};
-    next[path] = {
-      ...current,
-      help: current.help ?? help,
-      placeholder: current.placeholder ?? "last",
-    };
-  }
-  return next;
-}
-
-function applyPluginSchemas(schema: ConfigSchema, plugins: PluginUiMetadata[]): ConfigSchema {
-  const next = cloneSchema(schema);
-  const root = asSchemaObject(next);
-  const pluginsNode = asSchemaObject(root?.properties?.plugins);
-  const entriesNode = asSchemaObject(pluginsNode?.properties?.entries);
-  if (!entriesNode) return next;
-
-  const entryBase = asSchemaObject(entriesNode.additionalProperties);
-  const entryProperties = entriesNode.properties ?? {};
-  entriesNode.properties = entryProperties;
-
-  for (const plugin of plugins) {
-    if (!plugin.configSchema) continue;
-    const entrySchema = entryBase
-      ? cloneSchema(entryBase)
-      : ({ type: "object" } as JsonSchemaObject);
-    const entryObject = asSchemaObject(entrySchema) ?? ({ type: "object" } as JsonSchemaObject);
-    const baseConfigSchema = asSchemaObject(entryObject.properties?.config);
-    const pluginSchema = asSchemaObject(plugin.configSchema);
-    const nextConfigSchema =
-      baseConfigSchema &&
-      pluginSchema &&
-      isObjectSchema(baseConfigSchema) &&
-      isObjectSchema(pluginSchema)
-        ? mergeObjectSchema(baseConfigSchema, pluginSchema)
-        : cloneSchema(plugin.configSchema);
-
-    entryObject.properties = {
-      ...entryObject.properties,
-      config: nextConfigSchema,
-    };
-    entryProperties[plugin.id] = entryObject;
-  }
-
-  return next;
-}
-
-function applyChannelSchemas(schema: ConfigSchema, channels: ChannelUiMetadata[]): ConfigSchema {
-  const next = cloneSchema(schema);
-  const root = asSchemaObject(next);
-  const channelsNode = asSchemaObject(root?.properties?.channels);
-  if (!channelsNode) return next;
-  const channelProps = channelsNode.properties ?? {};
-  channelsNode.properties = channelProps;
-
-  for (const channel of channels) {
-    if (!channel.configSchema) continue;
-    const existing = asSchemaObject(channelProps[channel.id]);
-    const incoming = asSchemaObject(channel.configSchema);
-    if (existing && incoming && isObjectSchema(existing) && isObjectSchema(incoming)) {
-      channelProps[channel.id] = mergeObjectSchema(existing, incoming);
-    } else {
-      channelProps[channel.id] = cloneSchema(channel.configSchema);
-    }
-  }
-
-  return next;
-}
-
-let cachedBase: ConfigSchemaResponse | null = null;
-
-function stripChannelSchema(schema: ConfigSchema): ConfigSchema {
-  const next = cloneSchema(schema);
-  const root = asSchemaObject(next);
-  if (!root || !root.properties) return next;
-  const channelsNode = asSchemaObject(root.properties.channels);
-  if (channelsNode) {
-    channelsNode.properties = {};
-    channelsNode.required = [];
-    channelsNode.additionalProperties = true;
-  }
-  return next;
-}
-
-function buildBaseConfigSchema(): ConfigSchemaResponse {
-  if (cachedBase) return cachedBase;
-  const schema = OpenClawSchema.toJSONSchema({
-    target: "draft-07",
-    unrepresentable: "any",
-  });
-  schema.title = "OpenClawConfig";
-  const hints = applySensitiveHints(buildBaseHints());
-  const next = {
-    schema: stripChannelSchema(schema),
-    uiHints: hints,
-    version: VERSION,
-    generatedAt: new Date().toISOString(),
-  };
-  cachedBase = next;
-  return next;
-}
-
-export function buildConfigSchema(params?: {
-  plugins?: PluginUiMetadata[];
-  channels?: ChannelUiMetadata[];
-}): ConfigSchemaResponse {
-  const base = buildBaseConfigSchema();
-  const plugins = params?.plugins ?? [];
-  const channels = params?.channels ?? [];
-  if (plugins.length === 0 && channels.length === 0) return base;
-  const mergedHints = applySensitiveHints(
-    applyHeartbeatTargetHints(
-      applyChannelHints(applyPluginHints(base.uiHints, plugins), channels),
-      channels,
-    ),
-  );
-  const mergedSchema = applyChannelSchemas(applyPluginSchemas(base.schema, plugins), channels);
-  return {
-    ...base,
-    schema: mergedSchema,
-    uiHints: mergedHints,
-  };
 }

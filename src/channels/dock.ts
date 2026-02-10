@@ -1,4 +1,22 @@
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
+=======
+import type {
+  ChannelCapabilities,
+  ChannelCommandAdapter,
+  ChannelElevatedAdapter,
+  ChannelGroupAdapter,
+  ChannelId,
+  ChannelAgentPromptAdapter,
+  ChannelMentionAdapter,
+  ChannelPlugin,
+  ChannelThreadingAdapter,
+} from "./plugins/types.js";
+import {
+  resolveChannelGroupRequireMention,
+  resolveChannelGroupToolsPolicy,
+} from "../config/group-policy.js";
+>>>>>>> fa906b26a (feat: IRC — add first-class channel support)
 import { resolveDiscordAccount } from "../discord/accounts.js";
 import { resolveIMessageAccount } from "../imessage/accounts.js";
 import { resolveSignalAccount } from "../signal/accounts.js";
@@ -75,9 +93,12 @@ const formatLower = (allowFrom: Array<string | number>) =>
     .map((entry) => String(entry).trim())
     .filter(Boolean)
     .map((entry) => entry.toLowerCase());
+<<<<<<< HEAD
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+=======
+>>>>>>> fa906b26a (feat: IRC — add first-class channel support)
 // Channel docks: lightweight channel metadata/behavior for shared code paths.
 //
 // Rules:
@@ -211,6 +232,73 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
         currentThreadTs: context.ReplyToId,
         hasRepliedRef,
       }),
+    },
+  },
+  irc: {
+    id: "irc",
+    capabilities: {
+      chatTypes: ["direct", "group"],
+      media: true,
+      blockStreaming: true,
+    },
+    outbound: { textChunkLimit: 350 },
+    streaming: {
+      blockStreamingCoalesceDefaults: { minChars: 300, idleMs: 1000 },
+    },
+    config: {
+      resolveAllowFrom: ({ cfg, accountId }) => {
+        const channel = cfg.channels?.irc;
+        const normalized = normalizeAccountId(accountId);
+        const account =
+          channel?.accounts?.[normalized] ??
+          channel?.accounts?.[
+            Object.keys(channel?.accounts ?? {}).find(
+              (key) => key.toLowerCase() === normalized.toLowerCase(),
+            ) ?? ""
+          ];
+        return (account?.allowFrom ?? channel?.allowFrom ?? []).map((entry) => String(entry));
+      },
+      formatAllowFrom: ({ allowFrom }) =>
+        allowFrom
+          .map((entry) => String(entry).trim())
+          .filter(Boolean)
+          .map((entry) =>
+            entry
+              .replace(/^irc:/i, "")
+              .replace(/^user:/i, "")
+              .toLowerCase(),
+          ),
+    },
+    groups: {
+      resolveRequireMention: ({ cfg, accountId, groupId }) => {
+        if (!groupId) {
+          return true;
+        }
+        return resolveChannelGroupRequireMention({
+          cfg,
+          channel: "irc",
+          groupId,
+          accountId,
+          groupIdCaseInsensitive: true,
+        });
+      },
+      resolveToolPolicy: ({ cfg, accountId, groupId, senderId, senderName, senderUsername }) => {
+        if (!groupId) {
+          return undefined;
+        }
+        // IRC supports per-channel tool policies. Prefer the shared resolver so
+        // toolsBySender is honored consistently across surfaces.
+        return resolveChannelGroupToolsPolicy({
+          cfg,
+          channel: "irc",
+          groupId,
+          accountId,
+          groupIdCaseInsensitive: true,
+          senderId,
+          senderName,
+          senderUsername,
+        });
+      },
     },
   },
   googlechat: {
