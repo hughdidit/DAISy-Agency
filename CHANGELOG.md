@@ -32,6 +32,11 @@ Docs: https://docs.openclaw.ai
 - WhatsApp: preserve original filenames for inbound documents. (#12691) Thanks @akramcodez.
 - Telegram: harden quote parsing; preserve quote context; avoid QUOTE_TEXT_INVALID; avoid nested reply quote misclassification. (#12156) Thanks @rybnikov.
 - Telegram: recover proactive sends when stale topic thread IDs are used by retrying without `message_thread_id`. (#11620)
+<<<<<<< HEAD
+=======
+- Discord: auto-create forum/media thread posts on send, with chunked follow-up replies and media handling for forum sends. (#12380) Thanks @magendary, @thewilloftheshadow.
+- Discord: cap gateway reconnect attempts to avoid infinite retry loops. (#12230) Thanks @Yida-Dev.
+>>>>>>> d3c71875e (fix: cap Discord gateway reconnect at 50 attempts to prevent infinite loop (#12230))
 - Telegram: render markdown spoilers with `<tg-spoiler>` HTML tags. (#11543) Thanks @ezhikkk.
 - Telegram: truncate command registration to 100 entries to avoid `BOT_COMMANDS_TOO_MUCH` failures on startup. (#12356) Thanks @arosstale.
 - Telegram: match DM `allowFrom` against sender user id (fallback to chat id) and clarify pairing logs. (#12779) Thanks @liuxiaopai-ai.
