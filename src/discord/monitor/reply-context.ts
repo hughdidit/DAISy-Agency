@@ -1,14 +1,24 @@
 import type { Guild, Message, User } from "@buape/carbon";
+<<<<<<< HEAD
 
 import { formatAgentEnvelope, type EnvelopeFormatOptions } from "../../auto-reply/envelope.js";
+=======
+>>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
 import { resolveTimestampMs } from "./format.js";
 import { resolveDiscordSenderIdentity } from "./sender-identity.js";
+
+export type DiscordReplyContext = {
+  id: string;
+  channelId: string;
+  sender: string;
+  body: string;
+  timestamp?: number;
+};
 
 export function resolveReplyContext(
   message: Message,
   resolveDiscordMessageText: (message: Message, options?: { includeForwarded?: boolean }) => string,
-  options?: { envelope?: EnvelopeFormatOptions },
-): string | null {
+): DiscordReplyContext | null {
   const referenced = message.referencedMessage;
   if (!referenced?.author) {
     return null;
@@ -23,15 +33,13 @@ export function resolveReplyContext(
     author: referenced.author,
     pluralkitInfo: null,
   });
-  const fromLabel = referenced.author ? buildDirectLabel(referenced.author, sender.tag) : "Unknown";
-  const body = `${referencedText}\n[discord message id: ${referenced.id} channel: ${referenced.channelId} from: ${sender.tag ?? sender.label} user id:${sender.id}]`;
-  return formatAgentEnvelope({
-    channel: "Discord",
-    from: fromLabel,
+  return {
+    id: referenced.id,
+    channelId: referenced.channelId,
+    sender: sender.tag ?? sender.label ?? "unknown",
+    body: referencedText,
     timestamp: resolveTimestampMs(referenced.timestamp),
-    body,
-    envelope: options?.envelope,
-  });
+  };
 }
 
 export function buildDirectLabel(author: User, tagOverride?: string) {

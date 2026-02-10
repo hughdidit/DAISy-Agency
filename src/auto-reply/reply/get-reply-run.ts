@@ -34,6 +34,12 @@ import { SILENT_REPLY_TOKEN } from "../tokens.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { runReplyAgent } from "./agent-runner.js";
 import { applySessionHints } from "./body.js";
+<<<<<<< HEAD
+=======
+import { buildGroupIntro } from "./groups.js";
+import { buildInboundMetaSystemPrompt, buildInboundUserContextPrefix } from "./inbound-meta.js";
+import { resolveQueueSettings } from "./queue.js";
+>>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
 import { routeReply } from "./route-reply.js";
 import type { buildCommandContext } from "./commands.js";
 import type { InlineDirectives } from "./directive-handling.js";
@@ -179,7 +185,12 @@ export async function runPreparedReply(
       })
     : "";
   const groupSystemPrompt = sessionCtx.GroupSystemPrompt?.trim() ?? "";
-  const extraSystemPrompt = [groupIntro, groupSystemPrompt].filter(Boolean).join("\n\n");
+  const inboundMetaPrompt = buildInboundMetaSystemPrompt(
+    isNewSession ? sessionCtx : { ...sessionCtx, ThreadStarterBody: undefined },
+  );
+  const extraSystemPrompt = [inboundMetaPrompt, groupIntro, groupSystemPrompt]
+    .filter(Boolean)
+    .join("\n\n");
   const baseBody = sessionCtx.BodyStripped ?? sessionCtx.Body ?? "";
   // Use CommandBody/RawBody for bare reset detection (clean message without structural context).
   const rawBodyTrimmed = (ctx.CommandBody ?? ctx.RawBody ?? ctx.Body ?? "").trim();
@@ -198,7 +209,13 @@ export async function runPreparedReply(
     isNewSession &&
     ((baseBodyTrimmedRaw.length === 0 && rawBodyTrimmed.length > 0) || isBareNewOrReset);
   const baseBodyFinal = isBareSessionReset ? BARE_SESSION_RESET_PROMPT : baseBody;
-  const baseBodyTrimmed = baseBodyFinal.trim();
+  const inboundUserContext = buildInboundUserContextPrefix(
+    isNewSession ? sessionCtx : { ...sessionCtx, ThreadStarterBody: undefined },
+  );
+  const baseBodyForPrompt = isBareSessionReset
+    ? baseBodyFinal
+    : [inboundUserContext, baseBodyFinal].filter(Boolean).join("\n\n");
+  const baseBodyTrimmed = baseBodyForPrompt.trim();
   if (!baseBodyTrimmed) {
     await typing.onReplyStart();
     logVerbose("Inbound body empty after normalization; skipping agent run");
@@ -208,14 +225,13 @@ export async function runPreparedReply(
     };
   }
   let prefixedBodyBase = await applySessionHints({
-    baseBody: baseBodyFinal,
+    baseBody: baseBodyForPrompt,
     abortedLastRun,
     sessionEntry,
     sessionStore,
     sessionKey,
     storePath,
     abortKey: command.abortKey,
-    messageId: sessionCtx.MessageSid,
   });
   const isGroupSession = sessionEntry?.chatType === "group" || sessionEntry?.chatType === "channel";
   const isMainSession = !isGroupSession && sessionKey === normalizeMainKey(sessionCfg?.mainKey);
@@ -226,11 +242,15 @@ export async function runPreparedReply(
     isNewSession,
     prefixedBodyBase,
   });
+<<<<<<< HEAD
   const threadStarterBody = ctx.ThreadStarterBody?.trim();
   const threadStarterNote =
     isNewSession && threadStarterBody
       ? `[Thread starter - for context]\n${threadStarterBody}`
       : undefined;
+=======
+  prefixedBodyBase = appendUntrustedContext(prefixedBodyBase, sessionCtx.UntrustedContext);
+>>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
   const skillResult = await ensureSkillSnapshot({
     sessionEntry,
     sessionStore,
@@ -245,7 +265,7 @@ export async function runPreparedReply(
   sessionEntry = skillResult.sessionEntry ?? sessionEntry;
   currentSystemSent = skillResult.systemSent;
   const skillsSnapshot = skillResult.skillsSnapshot;
-  const prefixedBody = [threadStarterNote, prefixedBodyBase].filter(Boolean).join("\n\n");
+  const prefixedBody = prefixedBodyBase;
   const mediaNote = buildInboundMediaNote(ctx);
   const mediaReplyHint = mediaNote
     ? "To send an image back, prefer the message tool (media/path/filePath). If you must inline, use MEDIA:/path or MEDIA:https://example.com/image.jpg (spaces ok, quote if needed). Keep caption in the text body."
@@ -308,15 +328,10 @@ export async function runPreparedReply(
   }
   const sessionIdFinal = sessionId ?? crypto.randomUUID();
   const sessionFile = resolveSessionFilePath(sessionIdFinal, sessionEntry);
-  const queueBodyBase = [threadStarterNote, baseBodyFinal].filter(Boolean).join("\n\n");
-  const queueMessageId = sessionCtx.MessageSid?.trim();
-  const queueMessageIdHint = queueMessageId ? `[message_id: ${queueMessageId}]` : "";
-  const queueBodyWithId = queueMessageIdHint
-    ? `${queueBodyBase}\n${queueMessageIdHint}`
-    : queueBodyBase;
+  const queueBodyBase = baseBodyForPrompt;
   const queuedBody = mediaNote
-    ? [mediaNote, mediaReplyHint, queueBodyWithId].filter(Boolean).join("\n").trim()
-    : queueBodyWithId;
+    ? [mediaNote, mediaReplyHint, queueBodyBase].filter(Boolean).join("\n").trim()
+    : queueBodyBase;
   const resolvedQueue = resolveQueueSettings({
     cfg,
     channel: sessionCtx.Provider,

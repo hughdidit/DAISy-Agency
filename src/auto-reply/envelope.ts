@@ -54,7 +54,22 @@ type ResolvedEnvelopeTimezone =
   | { mode: "local" }
   | { mode: "iana"; timeZone: string };
 
+<<<<<<< HEAD
 export function resolveEnvelopeFormatOptions(cfg?: MoltbotConfig): EnvelopeFormatOptions {
+=======
+function sanitizeEnvelopeHeaderPart(value: string): string {
+  // Header parts are metadata and must not be able to break the bracketed prefix.
+  // Keep ASCII; collapse newlines/whitespace; neutralize brackets.
+  return value
+    .replace(/\r\n|\r|\n/g, " ")
+    .replaceAll("[", "(")
+    .replaceAll("]", ")")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function resolveEnvelopeFormatOptions(cfg?: OpenClawConfig): EnvelopeFormatOptions {
+>>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
   const defaults = cfg?.agents?.defaults;
   return {
     timezone: defaults?.envelopeTimezone,
@@ -142,7 +157,7 @@ function formatTimestamp(
 }
 
 export function formatAgentEnvelope(params: AgentEnvelopeParams): string {
-  const channel = params.channel?.trim() || "Channel";
+  const channel = sanitizeEnvelopeHeaderPart(params.channel?.trim() || "Channel");
   const parts: string[] = [channel];
   const resolved = normalizeEnvelopeOptions(params.envelope);
   let elapsed: string | undefined;
@@ -160,16 +175,16 @@ export function formatAgentEnvelope(params: AgentEnvelopeParams): string {
         : undefined;
   }
   if (params.from?.trim()) {
-    const from = params.from.trim();
+    const from = sanitizeEnvelopeHeaderPart(params.from.trim());
     parts.push(elapsed ? `${from} +${elapsed}` : from);
   } else if (elapsed) {
     parts.push(`+${elapsed}`);
   }
   if (params.host?.trim()) {
-    parts.push(params.host.trim());
+    parts.push(sanitizeEnvelopeHeaderPart(params.host.trim()));
   }
   if (params.ip?.trim()) {
-    parts.push(params.ip.trim());
+    parts.push(sanitizeEnvelopeHeaderPart(params.ip.trim()));
   }
   const ts = formatTimestamp(params.timestamp, resolved);
   if (ts) {
@@ -192,7 +207,8 @@ export function formatInboundEnvelope(params: {
 }): string {
   const chatType = normalizeChatType(params.chatType);
   const isDirect = !chatType || chatType === "direct";
-  const resolvedSender = params.senderLabel?.trim() || resolveSenderLabel(params.sender ?? {});
+  const resolvedSenderRaw = params.senderLabel?.trim() || resolveSenderLabel(params.sender ?? {});
+  const resolvedSender = resolvedSenderRaw ? sanitizeEnvelopeHeaderPart(resolvedSenderRaw) : "";
   const body = !isDirect && resolvedSender ? `${resolvedSender}: ${params.body}` : params.body;
   return formatAgentEnvelope({
     channel: params.channel,

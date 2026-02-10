@@ -313,6 +313,7 @@ async function processMessage(
 
   const ctxPayload = core.channel.reply.finalizeInboundContext({
     Body: body,
+    BodyForAgent: rawBody,
     RawBody: rawBody,
     CommandBody: rawBody,
     From: isGroup ? `zalouser:group:${chatId}` : `zalouser:${senderId}`,

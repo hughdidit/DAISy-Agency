@@ -555,6 +555,7 @@ async function processMessageWithPipeline(params: {
 
   const ctxPayload = core.channel.reply.finalizeInboundContext({
     Body: body,
+    BodyForAgent: rawBody,
     RawBody: rawBody,
     CommandBody: rawBody,
     From: isGroup ? `zalo:group:${chatId}` : `zalo:${senderId}`,

@@ -9,8 +9,12 @@ import {
 import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import { updateSessionStore } from "../../config/sessions.js";
+<<<<<<< HEAD
 import type { MsgContext, TemplateContext } from "../templating.js";
 import { formatInboundBodyWithSenderMeta } from "./inbound-sender-meta.js";
+=======
+import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
+>>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
 import { resolveModelDirectiveSelection, type ModelDirectiveSelection } from "./model-selection.js";
 import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
 
@@ -184,10 +188,7 @@ export async function applyResetModelOverride(params: {
   }
 
   const cleanedBody = tokens.slice(consumed).join(" ").trim();
-  params.sessionCtx.BodyStripped = formatInboundBodyWithSenderMeta({
-    ctx: params.ctx,
-    body: cleanedBody,
-  });
+  params.sessionCtx.BodyStripped = cleanedBody;
   params.sessionCtx.BodyForCommands = cleanedBody;
 
   applySelectionToSession({

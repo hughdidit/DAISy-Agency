@@ -408,6 +408,7 @@ export function registerSlackMonitorSlashCommands(params: {
 
       const ctxPayload = finalizeInboundContext({
         Body: prompt,
+        BodyForAgent: prompt,
         RawBody: prompt,
         CommandBody: prompt,
         CommandArgs: commandArgs,

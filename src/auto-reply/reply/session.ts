@@ -27,10 +27,13 @@ import {
 } from "../../config/sessions.js";
 import { normalizeMainKey } from "../../routing/session-key.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
+<<<<<<< HEAD
 import type { MsgContext, TemplateContext } from "../templating.js";
 import { normalizeChatType } from "../../channels/chat-type.js";
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
 import { formatInboundBodyWithSenderMeta } from "./inbound-sender-meta.js";
+=======
+>>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
 import { normalizeInboundTextNewlines } from "./inbound-text.js";
 import { normalizeSessionDeliveryFields } from "../../utils/delivery-context.js";
 
@@ -346,18 +349,15 @@ export async function initSessionState(params: {
     ...ctx,
     // Keep BodyStripped aligned with Body (best default for agent prompts).
     // RawBody is reserved for command/directive parsing and may omit context.
-    BodyStripped: formatInboundBodyWithSenderMeta({
-      ctx,
-      body: normalizeInboundTextNewlines(
-        bodyStripped ??
-          ctx.BodyForAgent ??
-          ctx.Body ??
-          ctx.CommandBody ??
-          ctx.RawBody ??
-          ctx.BodyForCommands ??
-          "",
-      ),
-    }),
+    BodyStripped: normalizeInboundTextNewlines(
+      bodyStripped ??
+        ctx.BodyForAgent ??
+        ctx.Body ??
+        ctx.CommandBody ??
+        ctx.RawBody ??
+        ctx.BodyForCommands ??
+        "",
+    ),
     SessionId: sessionId,
     IsNewSession: isNewSession ? "true" : "false",
   };
