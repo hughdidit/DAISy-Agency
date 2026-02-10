@@ -101,8 +101,12 @@ Docs: https://docs.openclaw.ai
 - Paths: structurally resolve `OPENCLAW_HOME`-derived home paths and fix Windows drive-letter handling in tool meta shortening. (#12125) Thanks @mcaxtr.
 >>>>>>> 3e63b2a4f (fix(cli): improve plugins list source display)
 - Memory: set Voyage embeddings `input_type` for improved retrieval. (#10818) Thanks @mcinteerj.
+<<<<<<< HEAD
 - Memory/QMD: run boot refresh in background by default, add configurable QMD maintenance timeouts, and retry QMD after fallback failures. (#9690, #9705)
 - Memory/QMD: log explicit warnings when `memory.qmd.scope` blocks a search request. (#10191)
+=======
+- Memory: disable async batch embeddings by default for memory indexing (opt-in via `agents.defaults.memorySearch.remote.batch.enabled`). (#13069) Thanks @mcinteerj.
+>>>>>>> 757522fb4 (fix(memory): default batch embeddings to off)
 - Memory/QMD: reuse default model cache across agents instead of re-downloading per agent. (#12114) Thanks @tyler6204.
 - Media understanding: recognize `.caf` audio attachments for transcription. (#10982) Thanks @succ985.
 <<<<<<< HEAD
