@@ -37,10 +37,33 @@ export type AuthChoice =
   | "qwen-portal"
 <<<<<<< HEAD
   | "qianfan-api-key"
+<<<<<<< HEAD
 =======
   | "xai-api-key"
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
+=======
+  | "custom-api-key"
+>>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
   | "skip";
+export type AuthChoiceGroupId =
+  | "openai"
+  | "anthropic"
+  | "google"
+  | "copilot"
+  | "openrouter"
+  | "ai-gateway"
+  | "cloudflare-ai-gateway"
+  | "moonshot"
+  | "zai"
+  | "xiaomi"
+  | "opencode-zen"
+  | "minimax"
+  | "synthetic"
+  | "venice"
+  | "qwen"
+  | "qianfan"
+  | "xai"
+  | "custom";
 export type GatewayAuthChoice = "token" | "password";
 export type ResetScope = "config" | "config+creds+sessions" | "full";
 export type GatewayBind = "loopback" | "lan" | "auto" | "custom" | "tailnet";

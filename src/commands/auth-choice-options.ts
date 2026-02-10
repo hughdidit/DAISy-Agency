@@ -33,9 +33,14 @@ export type AuthChoiceGroupId =
   | "together"
 >>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
   | "qianfan"
+<<<<<<< HEAD
 >>>>>>> 7a9deb240 (Resolve conflicts)
   | "xai";
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
+=======
+  | "xai"
+  | "custom";
+>>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 
 export type AuthChoiceGroup = {
   value: AuthChoiceGroupId;
@@ -159,10 +164,17 @@ const AUTH_CHOICE_GROUP_DEFS: {
     choices: ["cloudflare-ai-gateway-api-key"],
   },
   {
+<<<<<<< HEAD
     value: "qianfan",
     label: "Qianfan",
     hint: "API key",
     choices: ["qianfan-api-key"],
+=======
+    value: "custom",
+    label: "Custom API Endpoint",
+    hint: "Any OpenAI or Anthropic compatible endpoint",
+    choices: ["custom-api-key"],
+>>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
   },
 ];
 
@@ -267,10 +279,15 @@ export function buildAuthChoiceOptions(params: {
     label: "MiniMax M2.1 Lightning",
     hint: "Faster, higher output cost",
   });
+<<<<<<< HEAD
   options.push({
     value: "qianfan-api-key",
     label: "Qianfan API key",
   });
+=======
+  options.push({ value: "custom-api-key", label: "Custom API Endpoint" });
+
+>>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
   if (params.includeSkip) {
     options.push({ value: "skip", label: "Skip for now" });
   }

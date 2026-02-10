@@ -39,7 +39,11 @@ Docs: https://docs.openclaw.ai
 - Agents: include runtime shell in agent envelopes. (#1835) Thanks @Takhoffman.
 - Agents: auto-select `zai/glm-4.6v` for image understanding when ZAI is primary provider. (#10267) Thanks @liuy.
 - Paths: add `OPENCLAW_HOME` for overriding the home directory used by internal path resolution. (#12091) Thanks @sebslight.
+<<<<<<< HEAD
 >>>>>>> 33ee8bbf1 (feat: add zai/glm-4.6v image understanding support (#10267))
+=======
+- Onboarding: add Custom API Endpoint flow for OpenAI and Anthropic-compatible endpoints. (#11106) Thanks @MackDing.
+>>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 
 ### Fixes
 

@@ -1219,7 +1219,41 @@
 >>>>>>> 929a3725d (docs: canonicalize docs paths and align zh navigation (#11428))
               },
               {
+<<<<<<< HEAD
                 "group": "Installation",
+=======
+                "group": "First steps",
+                "pages": [
+                  "start/getting-started",
+                  "start/onboarding-overview",
+                  "start/wizard",
+                  "start/onboarding"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": ["start/openclaw"]
+              }
+            ]
+          },
+          {
+            "tab": "Install",
+            "groups": [
+              {
+                "group": "Install overview",
+                "pages": ["install/index", "install/installer"]
+              },
+              {
+                "group": "Other install methods",
+                "pages": ["install/docker", "install/nix", "install/ansible", "install/bun"]
+              },
+              {
+                "group": "Maintenance",
+                "pages": ["install/updating", "install/migrating", "install/uninstall"]
+              },
+              {
+                "group": "Hosting and deployment",
+>>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
                 "pages": [
                   "install/index",
                   "install/installer",

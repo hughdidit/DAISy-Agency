@@ -37,7 +37,11 @@ const PREFERRED_PROVIDER_BY_AUTH_CHOICE: Partial<Record<AuthChoice, string>> = {
 =======
   "minimax-portal": "minimax-portal",
   "qianfan-api-key": "qianfan",
+<<<<<<< HEAD
 >>>>>>> 30ac80b96 (Add baidu qianfan model provider)
+=======
+  "custom-api-key": "custom",
+>>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 };
 
 export function resolvePreferredProviderForAuthChoice(choice: AuthChoice): string | undefined {

@@ -11,6 +11,7 @@ import {
   promptDefaultModel,
   promptModelAllowlist,
 } from "./model-picker.js";
+import { promptCustomApiConfig } from "./onboard-custom.js";
 
 type GatewayAuthChoice = "token" | "password";
 
@@ -52,7 +53,10 @@ export async function promptAuthConfig(
   });
 
   let next = cfg;
-  if (authChoice !== "skip") {
+  if (authChoice === "custom-api-key") {
+    const customResult = await promptCustomApiConfig({ prompter, runtime, config: next });
+    next = customResult.config;
+  } else if (authChoice !== "skip") {
     const applied = await applyAuthChoice({
       authChoice,
       config: next,
@@ -77,6 +81,7 @@ export async function promptAuthConfig(
   const anthropicOAuth =
     authChoice === "setup-token" || authChoice === "token" || authChoice === "oauth";
 
+<<<<<<< HEAD
   const allowlistSelection = await promptModelAllowlist({
     config: next,
     prompter,
@@ -87,6 +92,20 @@ export async function promptAuthConfig(
   if (allowlistSelection.models) {
     next = applyModelAllowlist(next, allowlistSelection.models);
     next = applyModelFallbacksFromSelection(next, allowlistSelection.models);
+=======
+  if (authChoice !== "custom-api-key") {
+    const allowlistSelection = await promptModelAllowlist({
+      config: next,
+      prompter,
+      allowedKeys: anthropicOAuth ? ANTHROPIC_OAUTH_MODEL_KEYS : undefined,
+      initialSelections: anthropicOAuth ? ["anthropic/claude-opus-4-6"] : undefined,
+      message: anthropicOAuth ? "Anthropic OAuth models" : undefined,
+    });
+    if (allowlistSelection.models) {
+      next = applyModelAllowlist(next, allowlistSelection.models);
+      next = applyModelFallbacksFromSelection(next, allowlistSelection.models);
+    }
+>>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
   }
 
   return next;

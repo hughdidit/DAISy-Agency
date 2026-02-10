@@ -46,7 +46,18 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
 
 **Advanced** exposes every step (mode, workspace, gateway, channels, daemon, skills).
 
+<<<<<<< HEAD
 ## What the wizard does
+=======
+1. **Model/Auth** — Anthropic API key (recommended), OpenAI, or Custom API Endpoint
+   (OpenAI-compatible, Anthropic-compatible, or Unknown auto-detect). Pick a default model.
+2. **Workspace** — Location for agent files (default `~/.openclaw/workspace`). Seeds bootstrap files.
+3. **Gateway** — Port, bind address, auth mode, Tailscale exposure.
+4. **Channels** — WhatsApp, Telegram, Discord, Google Chat, Mattermost, Signal, BlueBubbles, or iMessage.
+5. **Daemon** — Installs a LaunchAgent (macOS) or systemd user unit (Linux/WSL2).
+6. **Health check** — Starts the Gateway and verifies it's running.
+7. **Skills** — Installs recommended skills and optional dependencies.
+>>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 
 **Local mode (default)** walks you through:
 
@@ -381,6 +392,11 @@ will prompt to install it (npm or a local path) before it can be configured.
 
 ## Related docs
 
+<<<<<<< HEAD
+=======
+- CLI command reference: [`openclaw onboard`](/cli/onboard)
+- Onboarding overview: [Onboarding Overview](/start/onboarding-overview)
+>>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 - macOS app onboarding: [Onboarding](/start/onboarding)
 - Config reference: [Gateway configuration](/gateway/configuration)
 - Providers: [WhatsApp](/channels/whatsapp), [Telegram](/channels/telegram), [Discord](/channels/discord), [Google Chat](/channels/googlechat), [Signal](/channels/signal), [BlueBubbles](/channels/bluebubbles) (iMessage), [iMessage](/channels/imessage) (legacy)
