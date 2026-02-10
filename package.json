@@ -128,11 +128,20 @@
     "android:test": "cd apps/android && ./gradlew :app:testDebugUnitTest",
     "build": "pnpm canvas:a2ui:bundle && tsc -p tsconfig.json --noEmit false && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/write-build-info.ts",
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
+<<<<<<< HEAD
     "check": "pnpm tsgo && pnpm lint && pnpm format",
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500",
     "dev": "node scripts/run-node.mjs",
     "docs:bin": "node scripts/build-docs-list.mjs",
     "docs:build": "cd docs && pnpm dlx --reporter append-only mint broken-links",
+=======
+    "check": "pnpm format:check && pnpm tsgo && pnpm lint",
+    "check:docs": "pnpm format:docs:check && pnpm lint:docs && pnpm docs:check-links",
+    "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500",
+    "dev": "node scripts/run-node.mjs",
+    "docs:bin": "node scripts/build-docs-list.mjs",
+    "docs:check-links": "node scripts/docs-link-audit.mjs",
+>>>>>>> 67d3bab89 (docs: fix broken links checker and add CI docs (#13041))
     "docs:dev": "cd docs && mint dev",
     "docs:list": "node scripts/docs-list.js",
     "format": "oxfmt --check",

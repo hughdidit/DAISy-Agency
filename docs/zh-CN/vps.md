@@ -19,6 +19,7 @@ x-i18n:
 
 ## 选择提供商
 
+<<<<<<< HEAD
 - **Railway**（一键 + 浏览器设置）：[Railway](/railway)
 - **Northflank**（一键 + 浏览器设置）：[Northflank](/northflank)
 <<<<<<< HEAD
@@ -29,6 +30,10 @@ x-i18n:
 - **exe.dev**（虚拟机 + HTTPS 代理）：[exe.dev](/platforms/exe-dev)
 - **AWS (EC2/Lightsail/免费套餐)**：同样运行良好。视频指南：
 =======
+=======
+- **Railway**（一键 + 浏览器设置）：[Railway](/install/railway)
+- **Northflank**（一键 + 浏览器设置）：[Northflank](/install/northflank)
+>>>>>>> 67d3bab89 (docs: fix broken links checker and add CI docs (#13041))
 - **Oracle Cloud（永久免费）**：[Oracle](/platforms/oracle) — $0/月（永久免费，ARM；容量/注册可能不太稳定）
 - **Fly.io**：[Fly.io](/install/fly)
 - **Hetzner（Docker）**：[Hetzner](/install/hetzner)
