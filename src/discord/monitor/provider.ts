@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import { inspect } from "node:util";
 import { Client } from "@buape/carbon";
+=======
+import { Client, type BaseMessageInteractiveComponent } from "@buape/carbon";
+>>>>>>> 4537ebc43 (fix: enforce Discord agent component DM auth (#11254) (thanks @thedudeabidesai))
 import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway";
 import { Routes } from "discord-api-types/v10";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
@@ -26,6 +30,12 @@ import { fetchDiscordApplicationId } from "../probe.js";
 import { resolveDiscordChannelAllowlist } from "../resolve-channels.js";
 import { resolveDiscordUserAllowlist } from "../resolve-users.js";
 import { normalizeDiscordToken } from "../token.js";
+<<<<<<< HEAD
+=======
+import { createAgentComponentButton, createAgentSelectMenu } from "./agent-components.js";
+import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
+import { registerGateway, unregisterGateway } from "./gateway-registry.js";
+>>>>>>> 4537ebc43 (fix: enforce Discord agent component DM auth (#11254) (thanks @thedudeabidesai))
 import {
   DiscordMessageListener,
   DiscordPresenceListener,
@@ -439,7 +449,10 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       })
     : null;
 
-  const components = [
+  const agentComponentsConfig = discordCfg.agentComponents ?? {};
+  const agentComponentsEnabled = agentComponentsConfig.enabled ?? true;
+
+  const components: BaseMessageInteractiveComponent[] = [
     createDiscordCommandArgFallbackButton({
       cfg,
       discordConfig: discordCfg,
@@ -450,6 +463,27 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
 
   if (execApprovalsHandler) {
     components.push(createExecApprovalButton({ handler: execApprovalsHandler }));
+  }
+
+  if (agentComponentsEnabled) {
+    components.push(
+      createAgentComponentButton({
+        cfg,
+        accountId: account.accountId,
+        guildEntries,
+        allowFrom,
+        dmPolicy,
+      }),
+    );
+    components.push(
+      createAgentSelectMenu({
+        cfg,
+        accountId: account.accountId,
+        guildEntries,
+        allowFrom,
+        dmPolicy,
+      }),
+    );
   }
 
   const client = new Client(

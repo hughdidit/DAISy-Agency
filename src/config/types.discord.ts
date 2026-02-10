@@ -93,6 +93,11 @@ export type DiscordExecApprovalConfig = {
   sessionFilter?: string[];
 };
 
+export type DiscordAgentComponentsConfig = {
+  /** Enable agent-controlled interactive components (buttons, select menus). Default: true. */
+  enabled?: boolean;
+};
+
 export type DiscordAccountConfig = {
   /** Optional display name for this account (used in CLI/UI lists). */
   name?: string;
@@ -149,6 +154,8 @@ export type DiscordAccountConfig = {
   heartbeat?: ChannelHeartbeatVisibilityConfig;
   /** Exec approval forwarding configuration. */
   execApprovals?: DiscordExecApprovalConfig;
+  /** Agent-controlled interactive components (buttons, select menus). */
+  agentComponents?: DiscordAgentComponentsConfig;
   /** Privileged Gateway Intents (must also be enabled in Discord Developer Portal). */
   intents?: DiscordIntentsConfig;
 };

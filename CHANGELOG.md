@@ -209,7 +209,11 @@ Docs: https://docs.openclaw.ai
 =======
 - Telegram: preserve DM topic threadId in deliveryContext. (#9039) Thanks @lailoo.
 - macOS: fix cron payload summary rendering and ISO 8601 formatter concurrency safety.
+<<<<<<< HEAD
 >>>>>>> f2c5c847b (fix: preserve telegram DM topic threadId (#9039) (thanks @lailoo))
+=======
+- Discord: enforce DM allowlists for agent components (buttons/select menus), honoring pairing store approvals and tag matches. (#11254) Thanks @thedudeabidesai.
+>>>>>>> 4537ebc43 (fix: enforce Discord agent component DM auth (#11254) (thanks @thedudeabidesai))
 
 >>>>>>> 4a5d36892 (fix: keep Moonshot CN base URL in onboarding (#7180) (thanks @waynelwz))
 ## 2026.2.2-3
