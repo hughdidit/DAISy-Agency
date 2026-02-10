@@ -112,7 +112,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
 =======
 - Memory: add MMR (Maximal Marginal Relevance) re-ranking for hybrid search diversity. Configurable via `memorySearch.query.hybrid.mmr`. Thanks @rodrigouroz.
+<<<<<<< HEAD
 >>>>>>> fa9420069 (feat(memory): Add MMR re-ranking for search result diversity)
+=======
+- Memory: add opt-in temporal decay for hybrid search scoring, with configurable half-life via `memorySearch.query.hybrid.temporalDecay`. Thanks @rodrigouroz.
+>>>>>>> 6b3e0710f (feat(memory): Add opt-in temporal decay for hybrid search scoring)
 
 ### Fixes
 
