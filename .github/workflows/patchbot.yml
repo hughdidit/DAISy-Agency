@@ -2,12 +2,14 @@ name: Patchbot
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [opened, synchronize, reopened, labeled, ready_for_review]
     branches: [daisy/dev]
   pull_request_review:
     types: [submitted]
+    branches: [daisy/dev]
   check_suite:
     types: [completed]
+    branches: [daisy/dev]
   workflow_dispatch:
     inputs:
       pr_number:
@@ -28,7 +30,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: patchbot-${{ github.event.pull_request.number || inputs.pr_number || '0' }}
+  group: patchbot-${{ github.event.pull_request.number || inputs.pr_number || github.run_id }}
   cancel-in-progress: false
 
 jobs:
@@ -65,9 +67,9 @@ jobs:
 
             if (event === 'workflow_dispatch') {
               phase = '${{ inputs.phase }}';
-              prNumber = ${{ inputs.pr_number || 0 }};
-              if (!prNumber) {
-                core.setFailed('pr_number is required for workflow_dispatch');
+              prNumber = Number(${{ inputs.pr_number || 0 }});
+              if (!Number.isInteger(prNumber) || prNumber <= 0) {
+                core.setFailed('pr_number must be a positive integer for workflow_dispatch');
                 return;
               }
               const { data: pr } = await github.rest.pulls.get({
@@ -83,15 +85,18 @@ jobs:
               headSha = context.payload.pull_request.head.sha;
 
               if (action === 'labeled') {
-                const label = context.payload.label?.name;
+                const label = context.payload.label.name;
                 if (label === 'patchbot:approved') {
                   phase = 'approval-gate';
                 } else {
                   core.info(`Ignoring labeled event for label: ${label}`);
                   skip = 'true';
                 }
+              } else if (context.payload.pull_request.draft) {
+                core.info('Skipping draft PR');
+                skip = 'true';
               } else {
-                // opened, synchronize, reopened
+                // opened, synchronize, reopened, ready_for_review
                 phase = 'triage';
               }
 
@@ -224,15 +229,18 @@ jobs:
               })
             );
 
-            // Remove stale CI labels (ignore errors if not present)
-            for (const stale of ['patchbot:ci-pass', 'patchbot:ci-fail', 'patchbot:ready']) {
+            // Remove stale labels (ignore 404 "not found", surface other errors)
+            for (const stale of ['patchbot:ci-pass', 'patchbot:ci-fail', 'patchbot:approved', 'patchbot:ready']) {
               labelOps.push(
                 github.rest.issues.removeLabel({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: prNumber,
                   name: stale,
-                }).catch(() => {})
+                }).catch(err => {
+                  if (err.status === 404) return;
+                  core.warning(`Failed to remove label "${stale}": ${err.message}`);
+                })
               );
             }
             await Promise.all(labelOps);
@@ -245,7 +253,6 @@ jobs:
             // ── Comment helper ──
             async function updateComment(github, context, prNumber, sections, runId, runUrl) {
               const marker = '<!-- patchbot-status -->';
-              const endMarker = '<!-- /patchbot-status -->';
               const body = buildCommentBody(sections, runId, runUrl);
 
               const comments = await github.paginate(github.rest.issues.listComments, {
@@ -347,7 +354,8 @@ jobs:
             }
 
             // Fetch all check runs for head_sha (paginated)
-            // checks.listForRef nests results under check_runs, not data
+            // checks.listForRef returns check runs under response.data.check_runs;
+            // github.paginate uses this mapper to collect and flatten all pages
             const checkRuns = await github.paginate(
               github.rest.checks.listForRef,
               {
@@ -366,11 +374,8 @@ jobs:
               ref: headSha,
             });
 
-            // Exclude Patchbot's own check run
-            const ownRunName = 'Patchbot';
-            const filtered = checkRuns.filter(cr =>
-              !cr.name.startsWith('Patchbot') && cr.name !== 'router' && cr.name !== 'triage' && cr.name !== 'ci-summary' && cr.name !== 'approval-gate'
-            );
+            // Exclude Patchbot's own check runs (workflow name prefix)
+            const filtered = checkRuns.filter(cr => !cr.name.startsWith('Patchbot'));
 
             // Build check table
             const conclusionIcons = {
@@ -460,7 +465,7 @@ jobs:
                 repo: context.repo.repo,
                 issue_number: prNumber,
                 name: 'patchbot:ci-pass',
-              }).catch(() => {});
+              }).catch(err => { if (err.status !== 404) throw err; });
             } else {
               sections.ci = { status: 'pass', detail: `${passed}/${total} passed` };
               // Add ci-pass label, remove ci-fail
@@ -475,14 +480,14 @@ jobs:
                 repo: context.repo.repo,
                 issue_number: prNumber,
                 name: 'patchbot:ci-fail',
-              }).catch(() => {});
+              }).catch(err => { if (err.status !== 404) throw err; });
             }
 
             sections.ciDetails = { checks, passed, total };
 
             await updateComment(github, context, prNumber, sections, runId, runUrl);
 
-            // ── Comment helper (duplicated for job isolation) ──
+            // ── Comment helper (defined locally for this job) ──
             async function updateComment(github, context, prNumber, sections, runId, runUrl) {
               const marker = '<!-- patchbot-status -->';
               const body = buildCommentBody(sections, runId, runUrl);
@@ -562,6 +567,7 @@ jobs:
         with:
           script: |
             const prNumber = ${{ needs.router.outputs.pr_number }};
+            const headSha = '${{ needs.router.outputs.head_sha }}';
             const runId = '${{ github.run_id }}';
             const runUrl = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
 
@@ -577,6 +583,7 @@ jobs:
             const hasCiPass = labelNames.includes('patchbot:ci-pass');
             const hasCiFail = labelNames.includes('patchbot:ci-fail');
             const hasApproved = labelNames.includes('patchbot:approved');
+            const hasReady = labelNames.includes('patchbot:ready');
 
             const sections = {
               triage: hasTriaged
@@ -590,6 +597,32 @@ jobs:
               approval: { status: 'pending', detail: '' },
             };
 
+            // Re-fetch CI check data so the comment preserves the CI details table
+            const checkRuns = await github.paginate(
+              github.rest.checks.listForRef,
+              { owner: context.repo.owner, repo: context.repo.repo, ref: headSha, per_page: 100 },
+              (response) => response.data.check_runs
+            );
+            const ciFiltered = checkRuns.filter(cr => !cr.name.startsWith('Patchbot'));
+            const conclusionIcons = {
+              success: '\u2705', failure: '\u274c', cancelled: '\u26d4',
+              skipped: '\u23ed\ufe0f', timed_out: '\u23f0', action_required: '\u26a0\ufe0f',
+              neutral: '\u25ab\ufe0f', stale: '\u25ab\ufe0f',
+            };
+            const ciChecks = [];
+            let ciPassed = 0;
+            for (const cr of ciFiltered) {
+              const link = cr.html_url ? `[${cr.name}](${cr.html_url})` : cr.name;
+              if (cr.status !== 'completed') {
+                ciChecks.push({ name: link, icon: '\u23f3' });
+              } else {
+                const conclusion = cr.conclusion || 'neutral';
+                ciChecks.push({ name: link, icon: conclusionIcons[conclusion] || '\u2753' });
+                if (conclusion === 'success' || conclusion === 'skipped' || conclusion === 'neutral') ciPassed++;
+              }
+            }
+            sections.ciDetails = { checks: ciChecks, passed: ciPassed, total: ciChecks.length };
+
             // Guard: CI must have passed
             if (!hasCiPass) {
               sections.approval = { status: 'fail', detail: 'Cannot approve: CI has not passed' };
@@ -598,24 +631,18 @@ jobs:
               return;
             }
 
-            // Check approval sources
-            let isApproved = hasApproved;
-
-            if (!isApproved) {
-              // Check for approving review
-              const reviews = await github.paginate(github.rest.pulls.listReviews, {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,
-              });
-              isApproved = reviews.some(r => r.state.toUpperCase() === 'APPROVED');
-            }
+            // Check approval sources: always require an actual approving review
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            const isApproved = reviews.some(r => r.state && r.state.toLowerCase() === 'approved');
 
             if (isApproved) {
-              // Add labels
               const labelsToAdd = [];
               if (!hasApproved) labelsToAdd.push('patchbot:approved');
-              labelsToAdd.push('patchbot:ready');
+              if (!hasReady) labelsToAdd.push('patchbot:ready');
 
               if (labelsToAdd.length > 0) {
                 await github.rest.issues.addLabels({
@@ -633,7 +660,7 @@ jobs:
 
             await updateComment(github, context, prNumber, sections, runId, runUrl);
 
-            // ── Comment helper (duplicated for job isolation) ──
+            // ── Comment helper (defined locally for this job) ──
             async function updateComment(github, context, prNumber, sections, runId, runUrl) {
               const marker = '<!-- patchbot-status -->';
               const body = buildCommentBody(sections, runId, runUrl);
