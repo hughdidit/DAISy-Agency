@@ -20,8 +20,12 @@ import type {
 } from "../config/types.tools.js";
 import { MediaAttachmentCache, normalizeAttachments, selectAttachments } from "./attachments.js";
 import {
+  AUTO_AUDIO_KEY_PROVIDERS,
+  AUTO_IMAGE_KEY_PROVIDERS,
+  AUTO_VIDEO_KEY_PROVIDERS,
   CLI_OUTPUT_MAX_BUFFER,
   DEFAULT_AUDIO_MODELS,
+  DEFAULT_IMAGE_MODELS,
   DEFAULT_TIMEOUT_SECONDS,
 } from "./defaults.js";
 import { isMediaUnderstandingSkipError, MediaUnderstandingSkipError } from "./errors.js";
@@ -49,6 +53,7 @@ import {
 import { describeImageWithModel } from "./providers/image.js";
 import { estimateBase64Size, resolveVideoMaxBase64Bytes } from "./video.js";
 
+<<<<<<< HEAD
 const AUTO_AUDIO_KEY_PROVIDERS = ["openai", "groq", "deepgram", "google"] as const;
 const AUTO_IMAGE_KEY_PROVIDERS = ["openai", "anthropic", "google", "minimax"] as const;
 const AUTO_VIDEO_KEY_PROVIDERS = ["google"] as const;
@@ -59,6 +64,8 @@ const DEFAULT_IMAGE_MODELS: Record<string, string> = {
   minimax: "MiniMax-VL-01",
 };
 
+=======
+>>>>>>> 33ee8bbf1 (feat: add zai/glm-4.6v image understanding support (#10267))
 export type ActiveMediaModel = {
   provider: string;
   model?: string;
