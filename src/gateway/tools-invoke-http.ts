@@ -269,7 +269,12 @@ export async function handleToolsInvokeHttpRequest(
     const result = await (tool as any).execute?.(`http-${Date.now()}`, toolArgs);
     sendJson(res, 200, { ok: true, result });
   } catch (err) {
+<<<<<<< HEAD
     sendJson(res, 400, {
+=======
+    logWarn(`tools-invoke: tool execution failed: ${String(err)}`);
+    sendJson(res, 500, {
+>>>>>>> 242f2f148 (fix: return 500 for tool execution failures instead of 400)
       ok: false,
       error: { type: "tool_error", message: err instanceof Error ? err.message : String(err) },
     });
