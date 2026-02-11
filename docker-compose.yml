@@ -14,6 +14,8 @@ services:
     volumes:
       - ${CLAWDBOT_CONFIG_DIR}:/home/node/.clawdbot
       - ${CLAWDBOT_WORKSPACE_DIR}:/home/node/clawd
+    networks:
+      - daisy_net
     ports:
       - "${CLAWDBOT_GATEWAY_PORT:-18789}:18789"
       - "${CLAWDBOT_BRIDGE_PORT:-18790}:18790"
@@ -47,3 +49,7 @@ services:
     tty: true
     init: true
     entrypoint: ["node", "dist/index.js"]
+
+networks:
+  daisy_net:
+    driver: bridge
