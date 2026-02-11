@@ -14,6 +14,8 @@ export type SessionFileEntry = {
   size: number;
   hash: string;
   content: string;
+  /** Maps each content line (0-indexed) to its 1-indexed JSONL source line. */
+  lineMap: number[];
 };
 
 export async function listSessionFilesForAgent(agentId: string): Promise<string[]> {
@@ -65,8 +67,17 @@ export async function buildSessionEntry(absPath: string): Promise<SessionFileEnt
     const raw = await fs.readFile(absPath, "utf-8");
     const lines = raw.split("\n");
     const collected: string[] = [];
+<<<<<<< HEAD
     for (const line of lines) {
       if (!line.trim()) continue;
+=======
+    const lineMap: number[] = [];
+    for (let jsonlIdx = 0; jsonlIdx < lines.length; jsonlIdx++) {
+      const line = lines[jsonlIdx];
+      if (!line.trim()) {
+        continue;
+      }
+>>>>>>> 45488e4ec (fix: remap session JSONL chunk line numbers to original source positions (#12102))
       let record: unknown;
       try {
         record = JSON.parse(line);
@@ -88,7 +99,12 @@ export async function buildSessionEntry(absPath: string): Promise<SessionFileEnt
       const text = extractSessionText(message.content);
       if (!text) continue;
       const label = message.role === "user" ? "User" : "Assistant";
+<<<<<<< HEAD
       collected.push(`${label}: ${text}`);
+=======
+      collected.push(`${label}: ${safe}`);
+      lineMap.push(jsonlIdx + 1);
+>>>>>>> 45488e4ec (fix: remap session JSONL chunk line numbers to original source positions (#12102))
     }
     const content = collected.join("\n");
     return {
@@ -96,8 +112,9 @@ export async function buildSessionEntry(absPath: string): Promise<SessionFileEnt
       absPath,
       mtimeMs: stat.mtimeMs,
       size: stat.size,
-      hash: hashText(content),
+      hash: hashText(content + "\n" + lineMap.join(",")),
       content,
+      lineMap,
     };
   } catch (err) {
     log.debug(`Failed reading session file ${absPath}: ${String(err)}`);
