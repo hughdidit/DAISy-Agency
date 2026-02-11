@@ -1196,7 +1196,6 @@
                 "pages": [
                   "channels/whatsapp",
                   "channels/telegram",
-                  "channels/grammy",
                   "channels/discord",
                   "channels/slack",
                   "channels/googlechat",
@@ -1535,6 +1534,13 @@
               },
               {
                 "group": "Technical reference",
+<<<<<<< HEAD
+=======
+                "pages": ["reference/wizard", "reference/token-use", "channels/grammy"]
+              },
+              {
+                "group": "Concept internals",
+>>>>>>> b90610c09 (docs(nav): move grammy page to technical reference (#14198))
                 "pages": [
                   "reference/wizard",
                   "concepts/typebox",
@@ -1692,7 +1698,6 @@
                 "pages": [
                   "zh-CN/channels/whatsapp",
                   "zh-CN/channels/telegram",
-                  "zh-CN/channels/grammy",
                   "zh-CN/channels/discord",
                   "zh-CN/channels/slack",
                   "zh-CN/channels/googlechat",
