@@ -25,13 +25,13 @@ import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import { buildMentionRegexes, matchesMentionWithExplicit } from "../auto-reply/reply/mentions.js";
 import { formatLocationText, toLocationContext } from "../channels/location.js";
 import { recordInboundSession } from "../channels/session.js";
-import { formatCliCommand } from "../cli/command-format.js";
 import { loadConfig } from "../config/config.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../config/sessions.js";
 import type { MoltbotConfig } from "../config/config.js";
 import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
+import { buildPairingReply } from "../pairing/pairing-messages.js";
 import { upsertChannelPairingRequest } from "../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
@@ -288,6 +288,7 @@ export const buildTelegramMessageContext = async ({
                 fn: () =>
                   bot.api.sendMessage(
                     chatId,
+<<<<<<< HEAD
                     [
                       "Moltbot: access not configured.",
                       "",
@@ -302,6 +303,13 @@ export const buildTelegramMessageContext = async ({
                       formatCliCommand(`openclaw pairing approve telegram ${code}`),
 >>>>>>> 74273d62d (fix(pairing): show actual code in approval command instead of placeholder (#13723))
                     ].join("\n"),
+=======
+                    buildPairingReply({
+                      channel: "telegram",
+                      idLine: `Your Telegram user id: ${telegramUserId}`,
+                      code,
+                    }),
+>>>>>>> a853ded78 (fix(pairing): use actual code in pairing approval text)
                   ),
               });
             }
