@@ -1,6 +1,10 @@
 {
   "name": "@openclaw/nextcloud-talk",
+<<<<<<< HEAD
   "version": "2026.2.6-3",
+=======
+  "version": "2026.2.10",
+>>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
   "description": "OpenClaw Nextcloud Talk channel plugin",
   "type": "module",
   "devDependencies": {

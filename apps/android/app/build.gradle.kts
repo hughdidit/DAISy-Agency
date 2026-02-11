@@ -22,7 +22,11 @@ android {
     minSdk = 31
     targetSdk = 36
     versionCode = 202602030
+<<<<<<< HEAD
     versionName = "2026.2.6"
+=======
+    versionName = "2026.2.10"
+>>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
   }
 
   buildTypes {
