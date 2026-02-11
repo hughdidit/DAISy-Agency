@@ -35,4 +35,9 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           chmod +x scripts/verify.sh
-          DEPLOYED_REF="${{ inputs.deployed_ref }}" scripts/verify.sh
+          scripts/verify.sh
+        env:
+          VERIFY_ENV: ${{ inputs.environment }}
+          DEPLOYED_REF: ${{ inputs.deployed_ref }}
+          VERIFY_HEALTH_URL: ${{ vars.VERIFY_HEALTH_URL }}
+          VERIFY_HTTP_TIMEOUT: ${{ vars.VERIFY_HTTP_TIMEOUT }}

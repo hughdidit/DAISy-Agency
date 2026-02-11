@@ -2,12 +2,16 @@ name: Patchbot
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled, ready_for_review]
+    types: [opened, synchronize, reopened, labeled, ready_for_review, closed]
     branches: [daisy/dev]
   pull_request_review:
     types: [submitted]
     branches: [daisy/dev]
   check_suite:
+    types: [completed]
+    branches: [daisy/dev]
+  workflow_run:
+    workflows: ["Deploy staging on release"]
     types: [completed]
     branches: [daisy/dev]
   workflow_dispatch:
@@ -22,12 +26,14 @@ on:
           - triage
           - ci-summary
           - approval-gate
+          - merge-detect
+          - deploy-complete
 
 permissions:
   contents: read
   pull-requests: write
   checks: read
-  actions: read
+  actions: write
 
 concurrency:
   group: patchbot-${{ github.event.pull_request.number || inputs.pr_number || github.run_id }}
@@ -84,7 +90,23 @@ jobs:
               prNumber = context.payload.pull_request.number;
               headSha = context.payload.pull_request.head.sha;
 
-              if (action === 'labeled') {
+              if (action === 'closed') {
+                // Merge-detect: PR closed + merged + has patchbot:ready label
+                const pr = context.payload.pull_request;
+                if (pr.merged) {
+                  const labels = pr.labels.map(l => l.name);
+                  if (labels.includes('patchbot:ready')) {
+                    phase = 'merge-detect';
+                    headSha = pr.merge_commit_sha;
+                  } else {
+                    core.info('PR merged but does not have patchbot:ready label');
+                    skip = 'true';
+                  }
+                } else {
+                  core.info('PR closed without merge');
+                  skip = 'true';
+                }
+              } else if (action === 'labeled') {
                 const label = context.payload.label.name;
                 if (label === 'patchbot:approved') {
                   phase = 'approval-gate';
@@ -138,6 +160,12 @@ jobs:
                   phase = 'ci-summary';
                 }
               }
+
+            } else if (event === 'workflow_run') {
+              // Deploy staging on release completed — correlate to PR in deploy-complete job
+              phase = 'deploy-complete';
+              headSha = context.payload.workflow_run.head_sha;
+              // prNumber resolved in the deploy-complete job itself
 
             } else {
               core.info(`Unhandled event: ${event}`);
@@ -285,9 +313,9 @@ jobs:
                 ['Triage', sections.triage],
                 ['CI', sections.ci],
                 ['Approval', sections.approval],
-                ['Release', { status: 'skip', detail: 'Phase 2' }],
-                ['Deploy', { status: 'skip', detail: 'Phase 2' }],
-                ['Verify', { status: 'skip', detail: 'Phase 2' }],
+                ['Release', sections.release || { status: 'pending', detail: '' }],
+                ['Deploy', sections.deploy || { status: 'pending', detail: '' }],
+                ['Verify', sections.verify || { status: 'pending', detail: '' }],
               ];
 
               let md = '<!-- patchbot-status -->\n';
@@ -522,9 +550,9 @@ jobs:
                 ['Triage', sections.triage],
                 ['CI', sections.ci],
                 ['Approval', sections.approval],
-                ['Release', { status: 'skip', detail: 'Phase 2' }],
-                ['Deploy', { status: 'skip', detail: 'Phase 2' }],
-                ['Verify', { status: 'skip', detail: 'Phase 2' }],
+                ['Release', sections.release || { status: 'pending', detail: '' }],
+                ['Deploy', sections.deploy || { status: 'pending', detail: '' }],
+                ['Verify', sections.verify || { status: 'pending', detail: '' }],
               ];
 
               let md = '<!-- patchbot-status -->\n';
@@ -695,9 +723,9 @@ jobs:
                 ['Triage', sections.triage],
                 ['CI', sections.ci],
                 ['Approval', sections.approval],
-                ['Release', { status: 'skip', detail: 'Phase 2' }],
-                ['Deploy', { status: 'skip', detail: 'Phase 2' }],
-                ['Verify', { status: 'skip', detail: 'Phase 2' }],
+                ['Release', sections.release || { status: 'pending', detail: '' }],
+                ['Deploy', sections.deploy || { status: 'pending', detail: '' }],
+                ['Verify', sections.verify || { status: 'pending', detail: '' }],
               ];
 
               let md = '<!-- patchbot-status -->\n';
@@ -719,6 +747,385 @@ jobs:
                   md += `| ${check.name} | ${check.icon} |\n`;
                 }
                 md += '\n</details>\n';
+              }
+
+              md += `\n---\n`;
+              md += `<sub>Updated ${new Date().toISOString()} \u00b7 <a href="${runUrl}">Run #${runId}</a></sub>\n`;
+              md += '<!-- /patchbot-status -->';
+              return md;
+            }
+
+  # ──────────────────────────────────────────────
+  # Job 5: Merge Detect
+  # Fires when a patchbot:ready PR is merged
+  # ──────────────────────────────────────────────
+  merge-detect:
+    needs: router
+    if: needs.router.outputs.skip != 'true' && needs.router.outputs.phase == 'merge-detect'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Handle merged PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ needs.router.outputs.pr_number }};
+            const headSha = '${{ needs.router.outputs.head_sha }}';
+            const runId = '${{ github.run_id }}';
+            const runUrl = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
+
+            // Add patchbot:releasing label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              labels: ['patchbot:releasing'],
+            });
+
+            // Update comment
+            const sections = {
+              triage: { status: 'pass', detail: 'Passed' },
+              ci: { status: 'pass', detail: 'All checks passed' },
+              approval: { status: 'pass', detail: 'Approved' },
+              release: { status: 'running', detail: 'Building image...' },
+              deploy: { status: 'pending', detail: '' },
+              verify: { status: 'pending', detail: '' },
+            };
+
+            await updateComment(github, context, prNumber, sections, runId, runUrl);
+
+            // Discord notification
+            const webhookUrl = '${{ secrets.DISCORD_WEBHOOK_URL }}';
+            if (webhookUrl) {
+              const prUrl = `${{ github.server_url }}/${{ github.repository }}/pull/${prNumber}`;
+              const payload = {
+                content: `\u{1F680} PR #${prNumber} merged, building release... [View PR](${prUrl})`,
+              };
+              await fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+              }).catch(err => core.warning(`Discord notification failed: ${err.message}`));
+            }
+
+            // ── Comment helper ──
+            async function updateComment(github, context, prNumber, sections, runId, runUrl) {
+              const marker = '<!-- patchbot-status -->';
+              const body = buildCommentBody(sections, runId, runUrl);
+
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+              });
+              const existing = comments.find(c => c.body?.includes(marker));
+
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body,
+                });
+              }
+            }
+
+            function buildCommentBody(sections, runId, runUrl) {
+              const icons = { pass: '\u2705', fail: '\u274c', pending: '\u23f3', running: '\u23f3', skip: '\u25fb\ufe0f' };
+              const stageRows = [
+                ['Triage', sections.triage],
+                ['CI', sections.ci],
+                ['Approval', sections.approval],
+                ['Release', sections.release || { status: 'pending', detail: '' }],
+                ['Deploy', sections.deploy || { status: 'pending', detail: '' }],
+                ['Verify', sections.verify || { status: 'pending', detail: '' }],
+              ];
+
+              let md = '<!-- patchbot-status -->\n';
+              md += '## Patchbot\n\n';
+              md += '| Stage | Status |\n';
+              md += '|-------|--------|\n';
+              for (const [name, s] of stageRows) {
+                const icon = icons[s.status] || '\u2753';
+                const detail = s.detail || s.status;
+                md += `| ${name} | ${icon} ${detail} |\n`;
+              }
+
+              md += `\n---\n`;
+              md += `<sub>Updated ${new Date().toISOString()} \u00b7 <a href="${runUrl}">Run #${runId}</a></sub>\n`;
+              md += '<!-- /patchbot-status -->';
+              return md;
+            }
+
+  # ──────────────────────────────────────────────
+  # Job 6: Deploy Complete
+  # Fires when deploy-staging-on-release completes
+  # ──────────────────────────────────────────────
+  deploy-complete:
+    needs: router
+    if: needs.router.outputs.skip != 'true' && needs.router.outputs.phase == 'deploy-complete'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process deploy result
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const headSha = '${{ needs.router.outputs.head_sha }}';
+            const triggeringRunId = ${{ github.event.workflow_run.id || 0 }};
+            const triggeringConclusion = '${{ github.event.workflow_run.conclusion }}';
+            const runId = '${{ github.run_id }}';
+            const runUrl = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
+
+            // ── Step 1: Correlate to PR via commit SHA ──
+            const { data: prList } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: headSha,
+            });
+
+            // Find merged PR with patchbot:releasing label
+            const pr = prList.find(p =>
+              p.merged_at &&
+              p.base.ref === 'daisy/dev' &&
+              p.labels.some(l => l.name === 'patchbot:releasing')
+            );
+
+            if (!pr) {
+              core.info(`No merged PR with patchbot:releasing label found for SHA ${headSha}`);
+              return;
+            }
+
+            const prNumber = pr.number;
+            core.info(`Correlated to PR #${prNumber}`);
+
+            // ── Step 2: Fetch job outcomes from the triggering run ──
+            let deployOutcome = 'unknown';
+            let verifyOutcome = 'unknown';
+
+            if (triggeringRunId > 0) {
+              const { data: jobsData } = await github.rest.actions.listJobsForWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: triggeringRunId,
+              });
+
+              for (const job of jobsData.jobs) {
+                if (job.name.toLowerCase().includes('deploy')) {
+                  deployOutcome = job.conclusion || 'in_progress';
+                  core.info(`Deploy job: ${job.name} → ${deployOutcome}`);
+                }
+                if (job.name.toLowerCase().includes('verify')) {
+                  verifyOutcome = job.conclusion || 'in_progress';
+                  core.info(`Verify job: ${job.name} → ${verifyOutcome}`);
+                }
+              }
+            }
+
+            // Build short SHA for image tag reference
+            const shortSha = headSha.substring(0, 7);
+
+            // ── Step 3: Determine outcome and take action ──
+            const sections = {
+              triage: { status: 'pass', detail: 'Passed' },
+              ci: { status: 'pass', detail: 'All checks passed' },
+              approval: { status: 'pass', detail: 'Approved' },
+              release: { status: 'pass', detail: `\`dev-${shortSha}\`` },
+              deploy: { status: 'pending', detail: '' },
+              verify: { status: 'pending', detail: '' },
+            };
+
+            const prUrl = `${{ github.server_url }}/${{ github.repository }}/pull/${prNumber}`;
+            const webhookUrl = '${{ secrets.DISCORD_WEBHOOK_URL }}';
+
+            if (triggeringConclusion !== 'success' || deployOutcome === 'failure') {
+              // ── Deploy failed ──
+              sections.deploy = { status: 'fail', detail: 'Staging deploy failed' };
+              sections.verify = { status: 'skip', detail: 'Skipped (deploy failed)' };
+
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['patchbot:verify-fail'],
+              });
+
+              await updateComment(github, context, prNumber, sections, runId, runUrl);
+
+              if (webhookUrl) {
+                await sendDiscord(webhookUrl,
+                  `\u274c PR #${prNumber} staging deploy failed. [View PR](${prUrl})`
+                );
+              }
+
+            } else if (verifyOutcome === 'failure') {
+              // ── Verify failed — trigger rollback ──
+              sections.deploy = { status: 'pass', detail: 'Deployed to staging' };
+              sections.verify = { status: 'fail', detail: 'Health check failed — rollback in progress' };
+
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['patchbot:verify-fail'],
+              });
+
+              await updateComment(github, context, prNumber, sections, runId, runUrl);
+
+              // Trigger rollback using last-good state
+              const lastGoodRunId = '${{ vars.STAGING_LAST_GOOD_RUN_ID }}';
+              if (lastGoodRunId) {
+                core.info(`Triggering rollback with STAGING_LAST_GOOD_RUN_ID=${lastGoodRunId}`);
+                await github.rest.actions.createWorkflowDispatch({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: 'deploy.yml',
+                  ref: 'daisy/dev',
+                  inputs: {
+                    environment: 'staging',
+                    release_run_id: lastGoodRunId,
+                    dry_run: 'false',
+                  },
+                });
+                core.info('Rollback deploy triggered');
+              } else {
+                core.warning('No STAGING_LAST_GOOD_RUN_ID configured — cannot trigger rollback');
+              }
+
+              if (webhookUrl) {
+                await sendDiscord(webhookUrl,
+                  `\u274c PR #${prNumber} failed staging verification, rolling back. [View PR](${prUrl})`
+                );
+              }
+
+            } else if (verifyOutcome === 'success') {
+              // ── Full success ──
+              sections.deploy = { status: 'pass', detail: 'Deployed to staging' };
+              sections.verify = { status: 'pass', detail: 'Health check passed' };
+
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['patchbot:deployed', 'patchbot:verified'],
+              });
+
+              // Remove patchbot:releasing label
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                name: 'patchbot:releasing',
+              }).catch(err => { if (err.status !== 404) throw err; });
+
+              await updateComment(github, context, prNumber, sections, runId, runUrl);
+
+              // Save last-good state to repo variables
+              const imageRef = `ghcr.io/${{ github.repository }}:dev-${shortSha}`.toLowerCase();
+
+              for (const [varName, varValue] of [
+                ['STAGING_LAST_GOOD_RUN_ID', String(triggeringRunId)],
+                ['STAGING_LAST_GOOD_IMAGE', imageRef],
+              ]) {
+                try {
+                  await github.request('PATCH /repos/{owner}/{repo}/actions/variables/{name}', {
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: varName,
+                    value: varValue,
+                  });
+                  core.info(`Updated ${varName}=${varValue}`);
+                } catch (err) {
+                  if (err.status === 404) {
+                    // Variable doesn't exist yet — create it
+                    await github.request('POST /repos/{owner}/{repo}/actions/variables', {
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      name: varName,
+                      value: varValue,
+                    });
+                    core.info(`Created ${varName}=${varValue}`);
+                  } else {
+                    core.warning(`Failed to update ${varName}: ${err.message}`);
+                  }
+                }
+              }
+
+              if (webhookUrl) {
+                await sendDiscord(webhookUrl,
+                  `\u2705 PR #${prNumber} deployed and verified on staging (\`dev-${shortSha}\`). [View PR](${prUrl})`
+                );
+              }
+
+            } else {
+              // ── Unknown / skipped verify ──
+              sections.deploy = { status: 'pass', detail: 'Deployed to staging' };
+              sections.verify = { status: 'skip', detail: `Verify outcome: ${verifyOutcome}` };
+              await updateComment(github, context, prNumber, sections, runId, runUrl);
+            }
+
+            // ── Helpers ──
+
+            async function sendDiscord(url, content) {
+              await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content }),
+              }).catch(err => core.warning(`Discord notification failed: ${err.message}`));
+            }
+
+            async function updateComment(github, context, prNumber, sections, runId, runUrl) {
+              const marker = '<!-- patchbot-status -->';
+              const body = buildCommentBody(sections, runId, runUrl);
+
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+              });
+              const existing = comments.find(c => c.body?.includes(marker));
+
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body,
+                });
+              }
+            }
+
+            function buildCommentBody(sections, runId, runUrl) {
+              const icons = { pass: '\u2705', fail: '\u274c', pending: '\u23f3', running: '\u23f3', skip: '\u25fb\ufe0f' };
+              const stageRows = [
+                ['Triage', sections.triage],
+                ['CI', sections.ci],
+                ['Approval', sections.approval],
+                ['Release', sections.release || { status: 'pending', detail: '' }],
+                ['Deploy', sections.deploy || { status: 'pending', detail: '' }],
+                ['Verify', sections.verify || { status: 'pending', detail: '' }],
+              ];
+
+              let md = '<!-- patchbot-status -->\n';
+              md += '## Patchbot\n\n';
+              md += '| Stage | Status |\n';
+              md += '|-------|--------|\n';
+              for (const [name, s] of stageRows) {
+                const icon = icons[s.status] || '\u2753';
+                const detail = s.detail || s.status;
+                md += `| ${name} | ${icon} ${detail} |\n`;
               }
 
               md += `\n---\n`;

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - daisy/main
+      - daisy/dev
     tags:
       - "v*"
   workflow_dispatch:
