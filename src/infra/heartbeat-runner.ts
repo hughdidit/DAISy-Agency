@@ -7,7 +7,6 @@ import {
   resolveDefaultAgentId,
 } from "../agents/agent-scope.js";
 import { appendCronStyleCurrentTimeLine } from "../agents/current-time.js";
-import { resolveUserTimezone } from "../agents/date-time.js";
 import { resolveEffectiveMessagesConfig } from "../agents/identity.js";
 import { DEFAULT_HEARTBEAT_FILENAME } from "../agents/workspace.js";
 import {
@@ -48,7 +47,11 @@ import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 import { normalizeAgentId, toAgentStoreSessionKey } from "../routing/session-key.js";
 =======
 import { formatErrorMessage } from "./errors.js";
+<<<<<<< HEAD
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
+=======
+import { isWithinActiveHours } from "./heartbeat-active-hours.js";
+>>>>>>> 4200782a5 (fix(heartbeat): honor heartbeat.model config for heartbeat turns (#14103))
 import { emitHeartbeatEvent, resolveIndicatorType } from "./heartbeat-events.js";
 import { resolveHeartbeatVisibility } from "./heartbeat-visibility.js";
 import {
@@ -96,7 +99,6 @@ export type HeartbeatSummary = {
 };
 
 const DEFAULT_HEARTBEAT_TARGET = "last";
-const ACTIVE_HOURS_TIME_PATTERN = /^([01]\d|2[0-3]|24):([0-5]\d)$/;
 
 // Prompt used when an async exec has completed and the result should be relayed to the user.
 // This overrides the standard heartbeat prompt to ensure the model responds with the exec result
@@ -116,6 +118,7 @@ const CRON_EVENT_PROMPT =
   "A scheduled reminder has been triggered. The reminder message is shown in the system messages above. " +
   "Please relay this reminder to the user in a helpful and friendly way.";
 
+<<<<<<< HEAD
 function resolveActiveHoursTimezone(cfg: OpenClawConfig, raw?: string): string {
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
   const trimmed = raw?.trim();
@@ -209,6 +212,8 @@ function isWithinActiveHours(
   return currentMin >= startMin || currentMin < endMin;
 }
 
+=======
+>>>>>>> 4200782a5 (fix(heartbeat): honor heartbeat.model config for heartbeat turns (#14103))
 type HeartbeatAgentState = {
   agentId: string;
   heartbeat?: HeartbeatConfig;
@@ -647,7 +652,11 @@ export async function runHeartbeatOnce(opts: {
   };
 
   try {
-    const replyResult = await getReplyFromConfig(ctx, { isHeartbeat: true }, cfg);
+    const heartbeatModelOverride = heartbeat?.model?.trim() || undefined;
+    const replyOpts = heartbeatModelOverride
+      ? { isHeartbeat: true, heartbeatModelOverride }
+      : { isHeartbeat: true };
+    const replyResult = await getReplyFromConfig(ctx, replyOpts, cfg);
     const replyPayload = resolveHeartbeatReplyPayload(replyResult);
     const includeReasoning = heartbeat?.includeReasoning === true;
     const reasoningPayloads = includeReasoning
