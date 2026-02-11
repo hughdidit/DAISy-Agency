@@ -362,6 +362,7 @@ export async function runOnboardingWizard(
       includeSkip: true,
     }));
 
+<<<<<<< HEAD
   const authResult = await applyAuthChoice({
     authChoice,
     config: nextConfig,
@@ -374,13 +375,40 @@ export async function runOnboardingWizard(
     },
   });
   nextConfig = authResult.config;
+=======
+  if (authChoice === "custom-api-key") {
+    const customResult = await promptCustomApiConfig({
+      prompter,
+      runtime,
+      config: nextConfig,
+    });
+    nextConfig = customResult.config;
+  } else {
+    const authResult = await applyAuthChoice({
+      authChoice,
+      config: nextConfig,
+      prompter,
+      runtime,
+      setDefaultModel: true,
+      opts: {
+        tokenProvider: opts.tokenProvider,
+        token: opts.authChoice === "apiKey" && opts.token ? opts.token : undefined,
+      },
+    });
+    nextConfig = authResult.config;
+  }
+>>>>>>> d44c11833 (fix: avoid unused custom preferred provider)
 
-  if (authChoiceFromPrompt) {
+  if (authChoiceFromPrompt && authChoice !== "custom-api-key") {
     const modelSelection = await promptDefaultModel({
       config: nextConfig,
       prompter,
       allowKeep: true,
       ignoreAllowlist: true,
+<<<<<<< HEAD
+=======
+      includeVllm: true,
+>>>>>>> d44c11833 (fix: avoid unused custom preferred provider)
       preferredProvider: resolvePreferredProviderForAuthChoice(authChoice),
     });
     if (modelSelection.model) {
