@@ -186,6 +186,8 @@ function ensureListener() {
     if (phase === "error") {
       const error = typeof evt.data?.error === "string" ? (evt.data.error as string) : undefined;
       entry.outcome = { status: "error", error };
+    } else if (evt.data?.aborted) {
+      entry.outcome = { status: "timeout" };
     } else {
       entry.outcome = { status: "ok" };
     }
@@ -300,8 +302,15 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
         timeoutMs,
       },
       timeoutMs: timeoutMs + 10_000,
+<<<<<<< HEAD
     })) as { status?: string; startedAt?: number; endedAt?: number; error?: string };
     if (wait?.status !== "ok" && wait?.status !== "error") return;
+=======
+    });
+    if (wait?.status !== "ok" && wait?.status !== "error" && wait?.status !== "timeout") {
+      return;
+    }
+>>>>>>> e85bbe01f (fix: report subagent timeout as 'timed out' instead of 'completed successfully' (#13996))
     const entry = subagentRuns.get(runId);
     if (!entry) return;
     let mutated = false;
@@ -319,7 +328,11 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
     }
     const waitError = typeof wait.error === "string" ? wait.error : undefined;
     entry.outcome =
-      wait.status === "error" ? { status: "error", error: waitError } : { status: "ok" };
+      wait.status === "error"
+        ? { status: "error", error: waitError }
+        : wait.status === "timeout"
+          ? { status: "timeout" }
+          : { status: "ok" };
     mutated = true;
     if (mutated) persistSubagentRuns();
     if (!beginSubagentCleanup(runId)) return;
