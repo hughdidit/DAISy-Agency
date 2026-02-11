@@ -805,7 +805,7 @@ export class MemoryIndexManager {
     this.fts.available = result.ftsAvailable;
     if (result.ftsError) {
       this.fts.loadError = result.ftsError;
-      log.warn(`fts unavailable: ${result.ftsError}`);
+      log.debug(`fts unavailable: ${result.ftsError}`);
     }
   }
 

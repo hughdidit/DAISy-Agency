@@ -16,10 +16,21 @@ concurrency:
 
 jobs:
   deploy_staging:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Only auto-deploy daisy/dev releases to staging (daisy/main → production via promote-production)
+    if: >-
+      github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.head_branch == 'daisy/dev'
     uses: ./.github/workflows/deploy.yml
     with:
       environment: staging
       release_run_id: ${{ github.event.workflow_run.id }}
       dry_run: ${{ vars.STAGING_DEPLOY_DRY_RUN == 'true' }}
+    secrets: inherit
+
+  verify_staging:
+    needs: deploy_staging
+    uses: ./.github/workflows/verify.yml
+    with:
+      environment: staging
+      deployed_ref: ${{ github.event.workflow_run.head_sha }}
     secrets: inherit
