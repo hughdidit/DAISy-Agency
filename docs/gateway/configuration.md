@@ -1,9 +1,16 @@
 ---
+<<<<<<< HEAD
 summary: "All configuration options for ~/.clawdbot/moltbot.json with examples"
+=======
+summary: "Configuration overview: common tasks, quick setup, and links to the full reference"
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 read_when:
-  - Adding or modifying config fields
+  - Setting up OpenClaw for the first time
+  - Looking for common configuration patterns
+  - Navigating to specific config sections
 title: "Configuration"
 ---
+<<<<<<< HEAD
 # Configuration 🔧
 
 Moltbot reads an optional **JSON5** config from `~/.clawdbot/moltbot.json` (comments + trailing commas allowed).
@@ -15,11 +22,26 @@ If the file is missing, Moltbot uses safe-ish defaults (embedded Pi agent + per-
 - set the agent's workspace (`agents.defaults.workspace` or `agents.list[].workspace`)
 - tune the embedded agent defaults (`agents.defaults`) and session behavior (`session`)
 - set per-agent identity (`agents.list[].identity`)
+=======
 
-> **New to configuration?** Check out the [Configuration Examples](/gateway/configuration-examples) guide for complete examples with detailed explanations!
+# Configuration
 
-## Strict config validation
+OpenClaw reads an optional <Tooltip tip="JSON5 supports comments and trailing commas">**JSON5**</Tooltip> config from `~/.openclaw/openclaw.json`.
 
+If the file is missing, OpenClaw uses safe defaults. Common reasons to add a config:
+
+- Connect channels and control who can message the bot
+- Set models, tools, sandboxing, or automation (cron, hooks)
+- Tune sessions, media, networking, or UI
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
+
+See the [full reference](/gateway/configuration-reference) for every available field.
+
+<Tip>
+**New to configuration?** Start with `openclaw onboard` for interactive setup, or check out the [Configuration Examples](/gateway/configuration-examples) guide for complete copy-paste configs.
+</Tip>
+
+<<<<<<< HEAD
 Moltbot only accepts configurations that fully match the schema.
 Unknown keys, malformed types, or invalid values cause the Gateway to **refuse to start** for safety.
 
@@ -99,23 +121,57 @@ moltbot gateway call config.patch --params '{
 ```
 
 ## Minimal config (recommended starting point)
+=======
+## Minimal config
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
 ```json5
+// ~/.openclaw/openclaw.json
 {
   agents: { defaults: { workspace: "~/clawd" } },
   channels: { whatsapp: { allowFrom: ["+15555550123"] } }
 }
 ```
 
+<<<<<<< HEAD
 Build the default image once with:
 ```bash
 scripts/sandbox-setup.sh
 ```
+=======
+## Editing config
 
-## Self-chat mode (recommended for group control)
+<Tabs>
+  <Tab title="Interactive wizard">
+    ```bash
+    openclaw onboard       # full setup wizard
+    openclaw configure     # config wizard
+    ```
+  </Tab>
+  <Tab title="CLI (one-liners)">
+    ```bash
+    openclaw config get agents.defaults.workspace
+    openclaw config set agents.defaults.heartbeat.every "2h"
+    openclaw config unset tools.web.search.apiKey
+    ```
+  </Tab>
+  <Tab title="Control UI">
+    Open [http://127.0.0.1:18789](http://127.0.0.1:18789) and use the **Config** tab.
+    The Control UI renders a form from the config schema, with a **Raw JSON** editor as an escape hatch.
+  </Tab>
+  <Tab title="Direct edit">
+    Edit `~/.openclaw/openclaw.json` directly. The Gateway watches the file and applies changes automatically (see [hot reload](#config-hot-reload)).
+  </Tab>
+</Tabs>
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
-To prevent the bot from responding to WhatsApp @-mentions in groups (only respond to specific text triggers):
+## Strict validation
 
+<Warning>
+OpenClaw only accepts configurations that fully match the schema. Unknown keys, malformed types, or invalid values cause the Gateway to **refuse to start**.
+</Warning>
+
+<<<<<<< HEAD
 ```json5
 {
   agents: {
@@ -134,18 +190,316 @@ To prevent the bot from responding to WhatsApp @-mentions in groups (only respon
       groups: { "*": { requireMention: true } }
     }
   }
+=======
+When validation fails:
+
+- The Gateway does not boot
+- Only diagnostic commands work (`openclaw doctor`, `openclaw logs`, `openclaw health`, `openclaw status`)
+- Run `openclaw doctor` to see exact issues
+- Run `openclaw doctor --fix` (or `--yes`) to apply repairs
+
+## Common tasks
+
+<AccordionGroup>
+  <Accordion title="Set up a channel (WhatsApp, Telegram, Discord, etc.)">
+    Each channel has its own config section under `channels.<provider>`. See the dedicated channel page for setup steps:
+
+    - [WhatsApp](/channels/whatsapp) — `channels.whatsapp`
+    - [Telegram](/channels/telegram) — `channels.telegram`
+    - [Discord](/channels/discord) — `channels.discord`
+    - [Slack](/channels/slack) — `channels.slack`
+    - [Signal](/channels/signal) — `channels.signal`
+    - [iMessage](/channels/imessage) — `channels.imessage`
+    - [Google Chat](/channels/googlechat) — `channels.googlechat`
+    - [Mattermost](/channels/mattermost) — `channels.mattermost`
+    - [MS Teams](/channels/msteams) — `channels.msteams`
+
+    All channels share the same DM policy pattern:
+
+    ```json5
+    {
+      channels: {
+        telegram: {
+          enabled: true,
+          botToken: "123:abc",
+          dmPolicy: "pairing",   // pairing | allowlist | open | disabled
+          allowFrom: ["tg:123"], // only for allowlist/open
+        },
+      },
+    }
+    ```
+
+  </Accordion>
+
+  <Accordion title="Choose and configure models">
+    Set the primary model and optional fallbacks:
+
+    ```json5
+    {
+      agents: {
+        defaults: {
+          model: {
+            primary: "anthropic/claude-sonnet-4-5",
+            fallbacks: ["openai/gpt-5.2"],
+          },
+          models: {
+            "anthropic/claude-sonnet-4-5": { alias: "Sonnet" },
+            "openai/gpt-5.2": { alias: "GPT" },
+          },
+        },
+      },
+    }
+    ```
+
+    - `agents.defaults.models` defines the model catalog and acts as the allowlist for `/model`.
+    - Model refs use `provider/model` format (e.g. `anthropic/claude-opus-4-6`).
+    - See [Models CLI](/concepts/models) for switching models in chat and [Model Failover](/concepts/model-failover) for auth rotation and fallback behavior.
+    - For custom/self-hosted providers, see [Custom providers](/gateway/configuration-reference#custom-providers-and-base-urls) in the reference.
+
+  </Accordion>
+
+  <Accordion title="Control who can message the bot">
+    DM access is controlled per channel via `dmPolicy`:
+
+    - `"pairing"` (default): unknown senders get a one-time pairing code to approve
+    - `"allowlist"`: only senders in `allowFrom` (or the paired allow store)
+    - `"open"`: allow all inbound DMs (requires `allowFrom: ["*"]`)
+    - `"disabled"`: ignore all DMs
+
+    For groups, use `groupPolicy` + `groupAllowFrom` or channel-specific allowlists.
+
+    See the [full reference](/gateway/configuration-reference#dm-and-group-access) for per-channel details.
+
+  </Accordion>
+
+  <Accordion title="Set up group chat mention gating">
+    Group messages default to **require mention**. Configure patterns per agent:
+
+    ```json5
+    {
+      agents: {
+        list: [
+          {
+            id: "main",
+            groupChat: {
+              mentionPatterns: ["@openclaw", "openclaw"],
+            },
+          },
+        ],
+      },
+      channels: {
+        whatsapp: {
+          groups: { "*": { requireMention: true } },
+        },
+      },
+    }
+    ```
+
+    - **Metadata mentions**: native @-mentions (WhatsApp tap-to-mention, Telegram @bot, etc.)
+    - **Text patterns**: regex patterns in `mentionPatterns`
+    - See [full reference](/gateway/configuration-reference#group-chat-mention-gating) for per-channel overrides and self-chat mode.
+
+  </Accordion>
+
+  <Accordion title="Configure sessions and resets">
+    Sessions control conversation continuity and isolation:
+
+    ```json5
+    {
+      session: {
+        dmScope: "per-channel-peer",  // recommended for multi-user
+        reset: {
+          mode: "daily",
+          atHour: 4,
+          idleMinutes: 120,
+        },
+      },
+    }
+    ```
+
+    - `dmScope`: `main` (shared) | `per-peer` | `per-channel-peer` | `per-account-channel-peer`
+    - See [Session Management](/concepts/session) for scoping, identity links, and send policy.
+    - See [full reference](/gateway/configuration-reference#session) for all fields.
+
+  </Accordion>
+
+  <Accordion title="Enable sandboxing">
+    Run agent sessions in isolated Docker containers:
+
+    ```json5
+    {
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "non-main",  // off | non-main | all
+            scope: "agent",    // session | agent | shared
+          },
+        },
+      },
+    }
+    ```
+
+    Build the image first: `scripts/sandbox-setup.sh`
+
+    See [Sandboxing](/gateway/sandboxing) for the full guide and [full reference](/gateway/configuration-reference#sandbox) for all options.
+
+  </Accordion>
+
+  <Accordion title="Set up heartbeat (periodic check-ins)">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          heartbeat: {
+            every: "30m",
+            target: "last",
+          },
+        },
+      },
+    }
+    ```
+
+    - `every`: duration string (`30m`, `2h`). Set `0m` to disable.
+    - `target`: `last` | `whatsapp` | `telegram` | `discord` | `none`
+    - See [Heartbeat](/gateway/heartbeat) for the full guide.
+
+  </Accordion>
+
+  <Accordion title="Configure cron jobs">
+    ```json5
+    {
+      cron: {
+        enabled: true,
+        maxConcurrentRuns: 2,
+        sessionRetention: "24h",
+      },
+    }
+    ```
+
+    See [Cron jobs](/automation/cron-jobs) for the feature overview and CLI examples.
+
+  </Accordion>
+
+  <Accordion title="Set up webhooks (hooks)">
+    Enable HTTP webhook endpoints on the Gateway:
+
+    ```json5
+    {
+      hooks: {
+        enabled: true,
+        token: "shared-secret",
+        path: "/hooks",
+        mappings: [
+          {
+            match: { path: "gmail" },
+            action: "agent",
+            agentId: "main",
+            deliver: true,
+          },
+        ],
+      },
+    }
+    ```
+
+    See [full reference](/gateway/configuration-reference#hooks) for all mapping options and Gmail integration.
+
+  </Accordion>
+
+  <Accordion title="Configure multi-agent routing">
+    Run multiple isolated agents with separate workspaces and sessions:
+
+    ```json5
+    {
+      agents: {
+        list: [
+          { id: "home", default: true, workspace: "~/.openclaw/workspace-home" },
+          { id: "work", workspace: "~/.openclaw/workspace-work" },
+        ],
+      },
+      bindings: [
+        { agentId: "home", match: { channel: "whatsapp", accountId: "personal" } },
+        { agentId: "work", match: { channel: "whatsapp", accountId: "biz" } },
+      ],
+    }
+    ```
+
+    See [Multi-Agent](/concepts/multi-agent) and [full reference](/gateway/configuration-reference#multi-agent-routing) for binding rules and per-agent access profiles.
+
+  </Accordion>
+
+  <Accordion title="Split config into multiple files ($include)">
+    Use `$include` to organize large configs:
+
+    ```json5
+    // ~/.openclaw/openclaw.json
+    {
+      gateway: { port: 18789 },
+      agents: { $include: "./agents.json5" },
+      broadcast: {
+        $include: ["./clients/a.json5", "./clients/b.json5"],
+      },
+    }
+    ```
+
+    - **Single file**: replaces the containing object
+    - **Array of files**: deep-merged in order (later wins)
+    - **Sibling keys**: merged after includes (override included values)
+    - **Nested includes**: supported up to 10 levels deep
+    - **Relative paths**: resolved relative to the including file
+    - **Error handling**: clear errors for missing files, parse errors, and circular includes
+
+  </Accordion>
+</AccordionGroup>
+
+## Config hot reload
+
+The Gateway watches `~/.openclaw/openclaw.json` and applies changes automatically — no manual restart needed for most settings.
+
+### Reload modes
+
+| Mode                   | Behavior                                                                                |
+| ---------------------- | --------------------------------------------------------------------------------------- |
+| **`hybrid`** (default) | Hot-applies safe changes instantly. Automatically restarts for critical ones.           |
+| **`hot`**              | Hot-applies safe changes only. Logs a warning when a restart is needed — you handle it. |
+| **`restart`**          | Restarts the Gateway on any config change, safe or not.                                 |
+| **`off`**              | Disables file watching. Changes take effect on the next manual restart.                 |
+
+```json5
+{
+  gateway: {
+    reload: { mode: "hybrid", debounceMs: 300 },
+  },
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 }
 ```
 
-## Config Includes (`$include`)
+### What hot-applies vs what needs a restart
 
+<<<<<<< HEAD
 Split your config into multiple files using the `$include` directive. This is useful for:
 - Organizing large configs (e.g., per-client agent definitions)
 - Sharing common settings across environments
 - Keeping sensitive configs separate
+=======
+Most fields hot-apply without downtime. In `hybrid` mode, restart-required changes are handled automatically.
 
-### Basic usage
+| Category            | Fields                                                               | Restart needed? |
+| ------------------- | -------------------------------------------------------------------- | --------------- |
+| Channels            | `channels.*`, `web` (WhatsApp) — all built-in and extension channels | No              |
+| Agent & models      | `agent`, `agents`, `models`, `routing`                               | No              |
+| Automation          | `hooks`, `cron`, `agent.heartbeat`                                   | No              |
+| Sessions & messages | `session`, `messages`                                                | No              |
+| Tools & media       | `tools`, `browser`, `skills`, `audio`, `talk`                        | No              |
+| UI & misc           | `ui`, `logging`, `identity`, `bindings`                              | No              |
+| Gateway server      | `gateway.*` (port, bind, auth, tailscale, TLS, HTTP)                 | **Yes**         |
+| Infrastructure      | `discovery`, `canvasHost`, `plugins`                                 | **Yes**         |
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
+<Note>
+`gateway.reload` and `gateway.remote` are exceptions — changing them does **not** trigger a restart.
+</Note>
+
+<<<<<<< HEAD
 ```json5
 // ~/.clawdbot/moltbot.json
 {
@@ -173,14 +527,36 @@ Split your config into multiple files using the `$include` directive. This is us
   ]
 }
 ```
+=======
+## Config RPC (programmatic updates)
 
-### Merge behavior
+<AccordionGroup>
+  <Accordion title="config.apply (full replace)">
+    Validates + writes the full config and restarts the Gateway in one step.
 
-- **Single file**: Replaces the object containing `$include`
-- **Array of files**: Deep-merges files in order (later files override earlier ones)
-- **With sibling keys**: Sibling keys are merged after includes (override included values)
-- **Sibling keys + arrays/primitives**: Not supported (included content must be an object)
+    <Warning>
+    `config.apply` replaces the **entire config**. Use `config.patch` for partial updates, or `openclaw config set` for single keys.
+    </Warning>
 
+    Params:
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
+
+    - `raw` (string) — JSON5 payload for the entire config
+    - `baseHash` (optional) — config hash from `config.get` (required when config exists)
+    - `sessionKey` (optional) — session key for the post-restart wake-up ping
+    - `note` (optional) — note for the restart sentinel
+    - `restartDelayMs` (optional) — delay before restart (default 2000)
+
+    ```bash
+    openclaw gateway call config.get --params '{}'  # capture payload.hash
+    openclaw gateway call config.apply --params '{
+      "raw": "{ agents: { defaults: { workspace: \"~/.openclaw/workspace\" } } }",
+      "baseHash": "<hash>",
+      "sessionKey": "agent:main:whatsapp:dm:+15555550123"
+    }'
+    ```
+
+<<<<<<< HEAD
 ```json5
 // Sibling keys override included values
 {
@@ -188,11 +564,18 @@ Split your config into multiple files using the `$include` directive. This is us
   b: 99                          // Result: { a: 1, b: 99 }
 }
 ```
+=======
+  </Accordion>
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
-### Nested includes
+  <Accordion title="config.patch (partial update)">
+    Merges a partial update into the existing config (JSON merge patch semantics):
 
-Included files can themselves contain `$include` directives (up to 10 levels deep):
+    - Objects merge recursively
+    - `null` deletes a key
+    - Arrays replace
 
+<<<<<<< HEAD
 ```json5
 // clients/mueller.json5
 {
@@ -200,21 +583,35 @@ Included files can themselves contain `$include` directives (up to 10 levels dee
   broadcast: { "$include": "./mueller/broadcast.json5" }
 }
 ```
+=======
+    Params:
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
-### Path resolution
+    - `raw` (string) — JSON5 with just the keys to change
+    - `baseHash` (required) — config hash from `config.get`
+    - `sessionKey`, `note`, `restartDelayMs` — same as `config.apply`
 
-- **Relative paths**: Resolved relative to the including file
-- **Absolute paths**: Used as-is
-- **Parent directories**: `../` references work as expected
+    ```bash
+    openclaw gateway call config.patch --params '{
+      "raw": "{ channels: { telegram: { groups: { \"*\": { requireMention: false } } } } }",
+      "baseHash": "<hash>"
+    }'
+    ```
 
+<<<<<<< HEAD
 ```json5
 { "$include": "./sub/config.json5" }      // relative
 { "$include": "/etc/moltbot/base.json5" } // absolute
 { "$include": "../shared/common.json5" }   // parent dir
 ```
+=======
+  </Accordion>
+</AccordionGroup>
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
-### Error handling
+## Environment variables
 
+<<<<<<< HEAD
 - **Missing file**: Clear error with resolved path
 - **Parse error**: Shows which included file failed
 - **Circular includes**: Detected and reported with include chain
@@ -272,16 +669,20 @@ Moltbot reads env vars from the parent process (shell, launchd/systemd, CI, etc.
 Additionally, it loads:
 - `.env` from the current working directory (if present)
 - a global fallback `.env` from `~/.clawdbot/.env` (aka `$CLAWDBOT_STATE_DIR/.env`)
+=======
+OpenClaw reads env vars from the parent process plus:
 
-Neither `.env` file overrides existing env vars.
+- `.env` from the current working directory (if present)
+- `~/.openclaw/.env` (global fallback)
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
-You can also provide inline env vars in config. These are only applied if the
-process env is missing the key (same non-overriding rule):
+Neither file overrides existing env vars. You can also set inline env vars in config:
 
 ```json5
 {
   env: {
     OPENROUTER_API_KEY: "sk-or-...",
+<<<<<<< HEAD
     vars: {
       GROQ_API_KEY: "gsk-..."
     }
@@ -295,10 +696,20 @@ See [/environment](/environment) for full precedence and sources.
 
 Opt-in convenience: if enabled and none of the expected keys are set yet, Moltbot runs your login shell and imports only the missing expected keys (never overrides).
 This effectively sources your shell profile.
+=======
+    vars: { GROQ_API_KEY: "gsk-..." },
+  },
+}
+```
+
+<Accordion title="Shell env import (optional)">
+  If enabled and expected keys aren't set, OpenClaw runs your login shell and imports only the missing keys:
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
 ```json5
 {
   env: {
+<<<<<<< HEAD
     shellEnv: {
       enabled: true,
       timeoutMs: 15000
@@ -3223,13 +3634,29 @@ moltbot dns setup --apply
 ```json5
 {
   discovery: { wideArea: { enabled: true } }
+=======
+    shellEnv: { enabled: true, timeoutMs: 15000 },
+  },
 }
 ```
 
-## Media model template variables
+Env var equivalent: `OPENCLAW_LOAD_SHELL_ENV=1`
+</Accordion>
 
-Template placeholders are expanded in `tools.media.*.models[].args` and `tools.media.models[].args` (and any future templated argument fields).
+<Accordion title="Env var substitution in config values">
+  Reference env vars in any config string value with `${VAR_NAME}`:
 
+```json5
+{
+  gateway: { auth: { token: "${OPENCLAW_GATEWAY_TOKEN}" } },
+  models: { providers: { custom: { apiKey: "${CUSTOM_API_KEY}" } } },
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
+}
+```
+
+Rules:
+
+<<<<<<< HEAD
 | Variable | Description |
 |----------|-------------|
 | `{{Body}}` | Full inbound message body |
@@ -3252,9 +3679,17 @@ Template placeholders are expanded in `tools.media.*.models[].args` and `tools.m
 | `{{SenderName}}` | Sender display name (best effort) |
 | `{{SenderE164}}` | Sender phone number (best effort) |
 | `{{Provider}}` | Provider hint (whatsapp|telegram|discord|googlechat|slack|signal|imessage|msteams|webchat|…) |
+=======
+- Only uppercase names matched: `[A-Z_][A-Z0-9_]*`
+- Missing/empty vars throw an error at load time
+- Escape with `$${VAR}` for literal output
+- Works inside `$include` files
+- Inline substitution: `"${BASE}/v1"` → `"https://api.example.com/v1"`
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 
-## Cron (Gateway scheduler)
+</Accordion>
 
+<<<<<<< HEAD
 Cron is a Gateway-owned scheduler for wakeups and scheduled jobs. See [Cron jobs](/automation/cron-jobs) for the feature overview and CLI examples.
 
 ```json5
@@ -3269,3 +3704,14 @@ Cron is a Gateway-owned scheduler for wakeups and scheduled jobs. See [Cron jobs
 ---
 
 *Next: [Agent Runtime](/concepts/agent)* 🦞
+=======
+See [Environment](/help/environment) for full precedence and sources.
+
+## Full reference
+
+For the complete field-by-field reference, see **[Configuration Reference](/gateway/configuration-reference)**.
+
+---
+
+_Related: [Configuration Examples](/gateway/configuration-examples) · [Configuration Reference](/gateway/configuration-reference) · [Doctor](/gateway/doctor)_
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))

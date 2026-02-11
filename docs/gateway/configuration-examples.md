@@ -68,7 +68,11 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
   // Auth profile metadata (secrets live in auth-profiles.json)
   auth: {
     profiles: {
-      "anthropic:me@example.com": { provider: "anthropic", mode: "oauth", email: "me@example.com" },
+      "anthropic:me@example.com": {
+        provider: "anthropic",
+        mode: "oauth",
+        email: "me@example.com",
+      },
       "anthropic:work": { provider: "anthropic", mode: "api_key" },
       "openai:default": { provider: "openai", mode: "api_key" },
       "openai-codex:default": { provider: "openai-codex", mode: "oauth" }
@@ -371,8 +375,16 @@ Save to `~/.clawdbot/moltbot.json` and you can DM the bot from that number.
         to: "+15555550123",
         thinking: "low",
         timeoutSeconds: 300,
+<<<<<<< HEAD
         transform: { module: "./transforms/gmail.js", export: "transformGmail" }
       }
+=======
+        transform: {
+          module: "./transforms/gmail.js",
+          export: "transformGmail",
+        },
+      },
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
     ],
     gmail: {
       account: "moltbot@gmail.com",

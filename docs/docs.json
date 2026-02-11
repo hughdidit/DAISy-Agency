@@ -8,7 +8,35 @@
   },
   "favicon": "/assets/pixel-lobster.svg",
   "colors": {
+<<<<<<< HEAD
     "primary": "#FF5A36"
+=======
+    "primary": "#FF5A36",
+    "dark": "#FF5A36",
+    "light": "#FF8A6B"
+  },
+  "styling": {
+    "codeblocks": {
+      "theme": {
+        "dark": "min-dark",
+        "light": "min-light"
+      }
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/openclaw/openclaw",
+        "icon": "github"
+      },
+      {
+        "label": "Releases",
+        "href": "https://github.com/openclaw/openclaw/releases",
+        "icon": "package"
+      }
+    ]
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
   },
   "topbarLinks": [
     {
@@ -1391,6 +1419,7 @@
                     "group": "Configuration and operations",
                     "pages": [
                       "gateway/configuration",
+                      "gateway/configuration-reference",
                       "gateway/configuration-examples",
                       "gateway/authentication",
                       "gateway/health",

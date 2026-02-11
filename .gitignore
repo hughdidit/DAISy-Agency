@@ -66,7 +66,11 @@ apps/ios/*.mobileprovision
 
 # Local untracked files
 .local/
+<<<<<<< HEAD
 .vscode/
+=======
+docs/.local/
+>>>>>>> 3ed06c6f3 (docs: modernize gateway configuration page (Phase 1) (#14111))
 IDENTITY.md
 USER.md
 .tgz
