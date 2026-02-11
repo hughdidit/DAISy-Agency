@@ -40,6 +40,7 @@ const MOONSHOT_DEFAULT_COST = {
   cacheRead: 0,
   cacheWrite: 0,
 };
+<<<<<<< HEAD
 const KIMI_CODE_BASE_URL = "https://api.kimi.com/coding/v1";
 const KIMI_CODE_MODEL_ID = "kimi-for-coding";
 const KIMI_CODE_CONTEXT_WINDOW = 262144;
@@ -52,6 +53,8 @@ const KIMI_CODE_DEFAULT_COST = {
   cacheRead: 0,
   cacheWrite: 0,
 };
+=======
+>>>>>>> 94d5411f1 (fix: remove duplicate TOGETHER_BASE_URL)
 
 const QWEN_PORTAL_BASE_URL = "https://portal.qwen.ai/v1";
 const QWEN_PORTAL_OAUTH_PLACEHOLDER = "qwen-oauth";
