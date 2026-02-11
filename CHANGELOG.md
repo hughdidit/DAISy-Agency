@@ -51,7 +51,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
 =======
 - Onboarding: add Custom Provider flow for OpenAI and Anthropic-compatible endpoints. (#11106) Thanks @MackDing.
+<<<<<<< HEAD
 >>>>>>> 2914cb1d4 (Onboard: rename Custom API Endpoint to Custom Provider)
+=======
+- Hooks: route webhook agent runs to specific `agentId`s, add `hooks.allowedAgentIds` controls, and fall back to default agent when unknown IDs are provided. (#13672) Thanks @BillChirico.
+>>>>>>> ca629296c (feat(hooks): add agentId support to webhook mappings (#13672))
 
 ### Fixes
 

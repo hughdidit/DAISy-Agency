@@ -303,6 +303,7 @@ export const MoltbotSchema = z
         enabled: z.boolean().optional(),
         path: z.string().optional(),
         token: z.string().optional(),
+        allowedAgentIds: z.array(z.string()).optional(),
         maxBodyBytes: z.number().int().positive().optional(),
         presets: z.array(z.string()).optional(),
         transformsDir: z.string().optional(),
