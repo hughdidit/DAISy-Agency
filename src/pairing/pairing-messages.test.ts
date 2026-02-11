@@ -53,7 +53,11 @@ describe("buildPairingReply", () => {
       expect(text).toContain(`Pairing code: ${testCase.code}`);
       // CLI commands should respect CLAWDBOT_PROFILE when set (most tests run with isolated profile)
       const commandRe = new RegExp(
+<<<<<<< HEAD
         `(?:moltbot|moltbot) --profile isolated pairing approve ${testCase.channel} <code>`,
+=======
+        `(?:openclaw|openclaw) --profile isolated pairing approve ${testCase.channel} ${testCase.code}`,
+>>>>>>> 74273d62d (fix(pairing): show actual code in approval command instead of placeholder (#13723))
       );
       expect(text).toMatch(commandRe);
     });

@@ -15,6 +15,10 @@ export function buildPairingReply(params: {
     `Pairing code: ${code}`,
     "",
     "Ask the bot owner to approve with:",
+<<<<<<< HEAD
     formatCliCommand(`moltbot pairing approve ${channel} <code>`),
+=======
+    formatCliCommand(`openclaw pairing approve ${channel} ${code}`),
+>>>>>>> 74273d62d (fix(pairing): show actual code in approval command instead of placeholder (#13723))
   ].join("\n");
 }
