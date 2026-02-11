@@ -90,13 +90,31 @@ interface OllamaTagsResponse {
   models: OllamaModel[];
 }
 
-async function discoverOllamaModels(): Promise<ModelDefinitionConfig[]> {
+/**
+ * Derive the Ollama native API base URL from a configured base URL.
+ *
+ * Users typically configure `baseUrl` with a `/v1` suffix (e.g.
+ * `http://192.168.20.14:11434/v1`) for the OpenAI-compatible endpoint.
+ * The native Ollama API lives at the root (e.g. `/api/tags`), so we
+ * strip the `/v1` suffix when present.
+ */
+export function resolveOllamaApiBase(configuredBaseUrl?: string): string {
+  if (!configuredBaseUrl) {
+    return OLLAMA_API_BASE_URL;
+  }
+  // Strip trailing slash, then strip /v1 suffix if present
+  const trimmed = configuredBaseUrl.replace(/\/+$/, "");
+  return trimmed.replace(/\/v1$/i, "");
+}
+
+async function discoverOllamaModels(baseUrl?: string): Promise<ModelDefinitionConfig[]> {
   // Skip Ollama discovery in test environments
   if (process.env.VITEST || process.env.NODE_ENV === "test") {
     return [];
   }
   try {
-    const response = await fetch(`${OLLAMA_API_BASE_URL}/api/tags`, {
+    const apiBase = resolveOllamaApiBase(baseUrl);
+    const response = await fetch(`${apiBase}/api/tags`, {
       signal: AbortSignal.timeout(5000),
     });
     if (!response.ok) {
@@ -350,10 +368,10 @@ async function buildVeniceProvider(): Promise<ProviderConfig> {
   };
 }
 
-async function buildOllamaProvider(): Promise<ProviderConfig> {
-  const models = await discoverOllamaModels();
+async function buildOllamaProvider(configuredBaseUrl?: string): Promise<ProviderConfig> {
+  const models = await discoverOllamaModels(configuredBaseUrl);
   return {
-    baseUrl: OLLAMA_BASE_URL,
+    baseUrl: configuredBaseUrl ?? OLLAMA_BASE_URL,
     api: "openai-completions",
     models,
   };
@@ -361,6 +379,7 @@ async function buildOllamaProvider(): Promise<ProviderConfig> {
 
 export async function resolveImplicitProviders(params: {
   agentDir: string;
+  explicitProviders?: Record<string, ProviderConfig> | null;
 }): Promise<ModelsConfig["providers"]> {
   const providers: Record<string, ProviderConfig> = {};
   const authStore = ensureAuthProfileStore(params.agentDir, {
@@ -410,12 +429,54 @@ export async function resolveImplicitProviders(params: {
     };
   }
 
+<<<<<<< HEAD
   // Ollama provider - only add if explicitly configured
+=======
+  const xiaomiKey =
+    resolveEnvApiKeyVarName("xiaomi") ??
+    resolveApiKeyFromProfiles({ provider: "xiaomi", store: authStore });
+  if (xiaomiKey) {
+    providers.xiaomi = { ...buildXiaomiProvider(), apiKey: xiaomiKey };
+  }
+
+  const cloudflareProfiles = listProfilesForProvider(authStore, "cloudflare-ai-gateway");
+  for (const profileId of cloudflareProfiles) {
+    const cred = authStore.profiles[profileId];
+    if (cred?.type !== "api_key") {
+      continue;
+    }
+    const accountId = cred.metadata?.accountId?.trim();
+    const gatewayId = cred.metadata?.gatewayId?.trim();
+    if (!accountId || !gatewayId) {
+      continue;
+    }
+    const baseUrl = resolveCloudflareAiGatewayBaseUrl({ accountId, gatewayId });
+    if (!baseUrl) {
+      continue;
+    }
+    const apiKey = resolveEnvApiKeyVarName("cloudflare-ai-gateway") ?? cred.key?.trim() ?? "";
+    if (!apiKey) {
+      continue;
+    }
+    providers["cloudflare-ai-gateway"] = {
+      baseUrl,
+      api: "anthropic-messages",
+      apiKey,
+      models: [buildCloudflareAiGatewayModelDefinition()],
+    };
+    break;
+  }
+
+  // Ollama provider - only add if explicitly configured.
+  // Use the user's configured baseUrl (from explicit providers) for model
+  // discovery so that remote / non-default Ollama instances are reachable.
+>>>>>>> 50a60b8be (fix: use configured base URL for Ollama model discovery (#14131))
   const ollamaKey =
     resolveEnvApiKeyVarName("ollama") ??
     resolveApiKeyFromProfiles({ provider: "ollama", store: authStore });
   if (ollamaKey) {
-    providers.ollama = { ...(await buildOllamaProvider()), apiKey: ollamaKey };
+    const ollamaBaseUrl = params.explicitProviders?.ollama?.baseUrl;
+    providers.ollama = { ...(await buildOllamaProvider(ollamaBaseUrl)), apiKey: ollamaKey };
   }
 
   return providers;

@@ -8,10 +8,26 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
 ## 2026.2.6-4
+=======
+## 2026.2.10
+
+### Changes
+
+- Version alignment: bump manifests and package versions to `2026.2.10`; keep `appcast.xml` unchanged until the next macOS release cut.
+- CLI: add `openclaw logs --local-time` to display log timestamps in local timezone. (#13818) Thanks @xialonglee.
+- Config: avoid redacting `maxTokens`-like fields during config snapshot redaction, preventing round-trip validation failures in `/config`. (#14006) Thanks @constansino.
+
+### Fixes
+
+- Ollama: use configured `models.providers.ollama.baseUrl` for model discovery and normalize `/v1` endpoints to the native Ollama API root. (#14131) Thanks @shtse8.
+
+## 2026.2.9
+>>>>>>> 50a60b8be (fix: use configured base URL for Ollama model discovery (#14131))
 
 ### Added
 

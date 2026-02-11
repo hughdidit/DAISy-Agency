@@ -79,8 +79,13 @@ export async function ensureMoltbotModelsJson(
   const cfg = config ?? loadConfig();
   const agentDir = agentDirOverride?.trim() ? agentDirOverride.trim() : resolveMoltbotAgentDir();
 
+<<<<<<< HEAD
   const explicitProviders = (cfg.models?.providers ?? {}) as Record<string, ProviderConfig>;
   const implicitProviders = await resolveImplicitProviders({ agentDir });
+=======
+  const explicitProviders = cfg.models?.providers ?? {};
+  const implicitProviders = await resolveImplicitProviders({ agentDir, explicitProviders });
+>>>>>>> 50a60b8be (fix: use configured base URL for Ollama model discovery (#14131))
   const providers: Record<string, ProviderConfig> = mergeProviders({
     implicit: implicitProviders,
     explicit: explicitProviders,
