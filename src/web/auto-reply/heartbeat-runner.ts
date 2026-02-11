@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import type { ReplyPayload } from "../../auto-reply/types.js";
+import { appendCronStyleCurrentTimeLine } from "../../agents/current-time.js";
+>>>>>>> d2c2f4185 (Heartbeat: inject cron-style current time into prompts (#13733))
 import {
   DEFAULT_HEARTBEAT_ACK_MAX_CHARS,
   resolveHeartbeatPrompt,
@@ -159,7 +164,11 @@ export async function runWebHeartbeatOnce(opts: {
 
     const replyResult = await replyResolver(
       {
-        Body: resolveHeartbeatPrompt(cfg.agents?.defaults?.heartbeat?.prompt),
+        Body: appendCronStyleCurrentTimeLine(
+          resolveHeartbeatPrompt(cfg.agents?.defaults?.heartbeat?.prompt),
+          cfg,
+          Date.now(),
+        ),
         From: to,
         To: to,
         MessageSid: sessionId ?? sessionSnapshot.entry?.sessionId,
