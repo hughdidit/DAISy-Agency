@@ -29,6 +29,7 @@ import {
   applyVeniceConfig,
   applyTogetherConfig,
   applyVercelAiGatewayConfig,
+  applyLitellmConfig,
   applyXaiConfig,
   applyXiaomiConfig,
   applyZaiConfig,
@@ -40,6 +41,7 @@ import {
 >>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   setGeminiApiKey,
   setKimiCodingApiKey,
+  setLitellmApiKey,
   setMinimaxApiKey,
   setMoonshotApiKey,
   setOpencodeZenApiKey,
@@ -345,6 +347,29 @@ export async function applyNonInteractiveAuthChoice(params: {
       mode: "api_key",
     });
     return applyOpenrouterConfig(nextConfig);
+  }
+
+  if (authChoice === "litellm-api-key") {
+    const resolved = await resolveNonInteractiveApiKey({
+      provider: "litellm",
+      cfg: baseConfig,
+      flagValue: opts.litellmApiKey,
+      flagName: "--litellm-api-key",
+      envVar: "LITELLM_API_KEY",
+      runtime,
+    });
+    if (!resolved) {
+      return null;
+    }
+    if (resolved.source !== "profile") {
+      await setLitellmApiKey(resolved.key);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "litellm:default",
+      provider: "litellm",
+      mode: "api_key",
+    });
+    return applyLitellmConfig(nextConfig);
   }
 
   if (authChoice === "ai-gateway-api-key") {

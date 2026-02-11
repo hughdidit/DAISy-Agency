@@ -325,6 +325,7 @@ Paste your gateway token.
 Moltbot runs in Docker, but Docker is not the source of truth.
 All long-lived state must survive restarts, rebuilds, and reboots.
 
+<<<<<<< HEAD:docs/platforms/hetzner.md
 | Component | Location | Persistence mechanism | Notes |
 |---|---|---|---|
 | Gateway config | `/home/node/.clawdbot/` | Host volume mount | Includes `moltbot.json`, tokens |
@@ -337,3 +338,38 @@ All long-lived state must survive restarts, rebuilds, and reboots.
 | Node runtime | Container filesystem | Docker image | Rebuilt every image build |
 | OS packages | Container filesystem | Docker image | Do not install at runtime |
 | Docker container | Ephemeral | Restartable | Safe to destroy |
+=======
+| Component           | Location                          | Persistence mechanism  | Notes                            |
+| ------------------- | --------------------------------- | ---------------------- | -------------------------------- |
+| Gateway config      | `/home/node/.openclaw/`           | Host volume mount      | Includes `openclaw.json`, tokens |
+| Model auth profiles | `/home/node/.openclaw/`           | Host volume mount      | OAuth tokens, API keys           |
+| Skill configs       | `/home/node/.openclaw/skills/`    | Host volume mount      | Skill-level state                |
+| Agent workspace     | `/home/node/.openclaw/workspace/` | Host volume mount      | Code and agent artifacts         |
+| WhatsApp session    | `/home/node/.openclaw/`           | Host volume mount      | Preserves QR login               |
+| Gmail keyring       | `/home/node/.openclaw/`           | Host volume + password | Requires `GOG_KEYRING_PASSWORD`  |
+| External binaries   | `/usr/local/bin/`                 | Docker image           | Must be baked at build time      |
+| Node runtime        | Container filesystem              | Docker image           | Rebuilt every image build        |
+| OS packages         | Container filesystem              | Docker image           | Do not install at runtime        |
+| Docker container    | Ephemeral                         | Restartable            | Safe to destroy                  |
+
+---
+
+## Infrastructure as Code (Terraform)
+
+For teams preferring infrastructure-as-code workflows, a community-maintained Terraform setup provides:
+
+- Modular Terraform configuration with remote state management
+- Automated provisioning via cloud-init
+- Deployment scripts (bootstrap, deploy, backup/restore)
+- Security hardening (firewall, UFW, SSH-only access)
+- SSH tunnel configuration for gateway access
+
+**Repositories:**
+
+- Infrastructure: [openclaw-terraform-hetzner](https://github.com/andreesg/openclaw-terraform-hetzner)
+- Docker config: [openclaw-docker-config](https://github.com/andreesg/openclaw-docker-config)
+
+This approach complements the Docker setup above with reproducible deployments, version-controlled infrastructure, and automated disaster recovery.
+
+> **Note:** Community-maintained. For issues or contributions, see the repository links above.
+>>>>>>> a36b9be24 (Feat/litellm provider (#12823)):docs/install/hetzner.md

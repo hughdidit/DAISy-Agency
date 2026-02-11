@@ -125,7 +125,11 @@ export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/
 export const TOGETHER_DEFAULT_MODEL_REF = "together/zai-org/GLM-4.7";
 =======
 export const TOGETHER_DEFAULT_MODEL_REF = "together/moonshotai/Kimi-K2.5";
+<<<<<<< HEAD
 >>>>>>> be6de9bb7 (Update Together default model to together/moonshotai/Kimi-K2.5 (#13324))
+=======
+export const LITELLM_DEFAULT_MODEL_REF = "litellm/claude-opus-4-6";
+>>>>>>> a36b9be24 (Feat/litellm provider (#12823))
 export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.6";
 >>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
 
@@ -185,6 +189,18 @@ export async function setCloudflareAiGatewayConfig(
         accountId: normalizedAccountId,
         gatewayId: normalizedGatewayId,
       },
+    },
+    agentDir: resolveAuthAgentDir(agentDir),
+  });
+}
+
+export async function setLitellmApiKey(key: string, agentDir?: string) {
+  upsertAuthProfile({
+    profileId: "litellm:default",
+    credential: {
+      type: "api_key",
+      provider: "litellm",
+      key,
     },
     agentDir: resolveAuthAgentDir(agentDir),
   });

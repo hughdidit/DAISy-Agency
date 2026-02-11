@@ -63,6 +63,7 @@ export function registerOnboardCommand(program: Command) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "Auth: setup-token|token|chutes|openai-codex|openai-api-key|openrouter-api-key|ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip",
 =======
       "Auth: setup-token|token|chutes|openai-codex|openai-api-key|openrouter-api-key|ai-gateway-api-key|moonshot-api-key|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|qianfan-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip",
@@ -79,6 +80,9 @@ export function registerOnboardCommand(program: Command) {
 =======
       "Auth: setup-token|token|chutes|openai-codex|openai-api-key|xai-api-key|qianfan-api-key|openrouter-api-key|ai-gateway-api-key|cloudflare-ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip|together-api-key",
 >>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
+=======
+      "Auth: setup-token|token|chutes|openai-codex|openai-api-key|xai-api-key|qianfan-api-key|openrouter-api-key|litellm-api-key|ai-gateway-api-key|cloudflare-ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip|together-api-key",
+>>>>>>> a36b9be24 (Feat/litellm provider (#12823))
     )
     .option(
       "--token-provider <id>",
@@ -109,6 +113,11 @@ export function registerOnboardCommand(program: Command) {
     .option("--together-api-key <key>", "Together AI API key")
     .option("--opencode-zen-api-key <key>", "OpenCode Zen API key")
     .option("--xai-api-key <key>", "xAI API key")
+<<<<<<< HEAD
+=======
+    .option("--litellm-api-key <key>", "LiteLLM API key")
+    .option("--qianfan-api-key <key>", "QIANFAN API key")
+>>>>>>> a36b9be24 (Feat/litellm provider (#12823))
     .option("--gateway-port <port>", "Gateway port")
     .option("--gateway-bind <mode>", "Gateway bind: loopback|tailnet|lan|auto|custom")
     .option("--gateway-auth <mode>", "Gateway auth: token|password")
@@ -166,6 +175,7 @@ export function registerOnboardCommand(program: Command) {
             togetherApiKey: opts.togetherApiKey as string | undefined,
             opencodeZenApiKey: opts.opencodeZenApiKey as string | undefined,
             xaiApiKey: opts.xaiApiKey as string | undefined,
+            litellmApiKey: opts.litellmApiKey as string | undefined,
             gatewayPort:
               typeof gatewayPort === "number" && Number.isFinite(gatewayPort)
                 ? gatewayPort
