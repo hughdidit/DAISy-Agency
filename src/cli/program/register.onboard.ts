@@ -64,6 +64,7 @@ export function registerOnboardCommand(program: Command) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "Auth: setup-token|token|chutes|openai-codex|openai-api-key|openrouter-api-key|ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip",
 =======
       "Auth: setup-token|token|chutes|openai-codex|openai-api-key|openrouter-api-key|ai-gateway-api-key|moonshot-api-key|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|qianfan-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip",
@@ -83,6 +84,9 @@ export function registerOnboardCommand(program: Command) {
 =======
       "Auth: setup-token|token|chutes|openai-codex|openai-api-key|xai-api-key|qianfan-api-key|openrouter-api-key|litellm-api-key|ai-gateway-api-key|cloudflare-ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip|together-api-key",
 >>>>>>> a36b9be24 (Feat/litellm provider (#12823))
+=======
+      "Auth: setup-token|token|chutes|openai-codex|openai-api-key|xai-api-key|qianfan-api-key|openrouter-api-key|litellm-api-key|ai-gateway-api-key|cloudflare-ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|custom-api-key|skip|together-api-key",
+>>>>>>> 029b77c85 (onboard: support custom provider in non-interactive flow (#14223))
     )
     .option(
       "--token-provider <id>",
@@ -117,7 +121,18 @@ export function registerOnboardCommand(program: Command) {
 =======
     .option("--litellm-api-key <key>", "LiteLLM API key")
     .option("--qianfan-api-key <key>", "QIANFAN API key")
+<<<<<<< HEAD
 >>>>>>> a36b9be24 (Feat/litellm provider (#12823))
+=======
+    .option("--custom-base-url <url>", "Custom provider base URL")
+    .option("--custom-api-key <key>", "Custom provider API key (optional)")
+    .option("--custom-model-id <id>", "Custom provider model ID")
+    .option("--custom-provider-id <id>", "Custom provider ID (optional; auto-derived by default)")
+    .option(
+      "--custom-compatibility <mode>",
+      "Custom provider API compatibility: openai|anthropic (default: openai)",
+    )
+>>>>>>> 029b77c85 (onboard: support custom provider in non-interactive flow (#14223))
     .option("--gateway-port <port>", "Gateway port")
     .option("--gateway-bind <mode>", "Gateway bind: loopback|tailnet|lan|auto|custom")
     .option("--gateway-auth <mode>", "Gateway auth: token|password")
@@ -176,6 +191,11 @@ export function registerOnboardCommand(program: Command) {
             opencodeZenApiKey: opts.opencodeZenApiKey as string | undefined,
             xaiApiKey: opts.xaiApiKey as string | undefined,
             litellmApiKey: opts.litellmApiKey as string | undefined,
+            customBaseUrl: opts.customBaseUrl as string | undefined,
+            customApiKey: opts.customApiKey as string | undefined,
+            customModelId: opts.customModelId as string | undefined,
+            customProviderId: opts.customProviderId as string | undefined,
+            customCompatibility: opts.customCompatibility as "openai" | "anthropic" | undefined,
             gatewayPort:
               typeof gatewayPort === "number" && Number.isFinite(gatewayPort)
                 ? gatewayPort

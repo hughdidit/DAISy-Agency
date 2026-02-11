@@ -112,9 +112,17 @@ export type OnboardOptions = {
   opencodeZenApiKey?: string;
 <<<<<<< HEAD
   qianfanApiKey?: string;
+<<<<<<< HEAD
 =======
   xaiApiKey?: string;
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
+=======
+  customBaseUrl?: string;
+  customApiKey?: string;
+  customModelId?: string;
+  customProviderId?: string;
+  customCompatibility?: "openai" | "anthropic";
+>>>>>>> 029b77c85 (onboard: support custom provider in non-interactive flow (#14223))
   gatewayPort?: number;
   gatewayBind?: GatewayBind;
   gatewayAuth?: GatewayAuthChoice;
