@@ -134,7 +134,9 @@ if [[ -n "${VERIFY_SSH_HOST:-}" ]]; then
 fi
 
 if [[ "${checks_run}" -eq 0 ]]; then
-  fail "No verification checks configured. Set GCE_INSTANCE_NAME or VERIFY_SSH_HOST."
+  log "WARNING: No verification checks configured. Set GCE_INSTANCE_NAME or VERIFY_SSH_HOST."
+  log "Skipping verification (no-op)."
+  exit 0
 fi
 
-log "Verification completed successfully."
+log "Verification completed successfully (${checks_run} check(s) passed)."

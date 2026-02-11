@@ -18,7 +18,6 @@ on:
       deployed_ref:
         required: false
         type: string
-    secrets: inherit
 
 permissions:
   contents: read

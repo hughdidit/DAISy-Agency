@@ -33,7 +33,7 @@ permissions:
   contents: read
   pull-requests: write
   checks: read
-  actions: write
+  actions: read
 
 concurrency:
   group: patchbot-${{ github.event.pull_request.number || inputs.pr_number || github.run_id }}
@@ -763,6 +763,7 @@ jobs:
     needs: router
     if: needs.router.outputs.skip != 'true' && needs.router.outputs.phase == 'merge-detect'
     runs-on: ubuntu-latest
+    environment: staging
     steps:
       - name: Handle merged PR
         uses: actions/github-script@v7
@@ -871,6 +872,12 @@ jobs:
     needs: router
     if: needs.router.outputs.skip != 'true' && needs.router.outputs.phase == 'deploy-complete'
     runs-on: ubuntu-latest
+    environment: staging
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: read
+      actions: write
     steps:
       - name: Process deploy result
         uses: actions/github-script@v7
@@ -943,7 +950,7 @@ jobs:
             const prUrl = `${{ github.server_url }}/${{ github.repository }}/pull/${prNumber}`;
             const webhookUrl = '${{ secrets.DISCORD_WEBHOOK_URL }}';
 
-            if (triggeringConclusion !== 'success' || deployOutcome === 'failure') {
+            if (deployOutcome === 'failure') {
               // ── Deploy failed ──
               sections.deploy = { status: 'fail', detail: 'Staging deploy failed' };
               sections.verify = { status: 'skip', detail: 'Skipped (deploy failed)' };
@@ -963,8 +970,10 @@ jobs:
                 );
               }
 
-            } else if (verifyOutcome === 'failure') {
+            } else if (verifyOutcome === 'failure' || (deployOutcome === 'success' && triggeringConclusion !== 'success')) {
               // ── Verify failed — trigger rollback ──
+              // Note: when verify fails, the overall run conclusion is 'failure' even though
+              // deploy succeeded. Check deployOutcome first to distinguish the two cases.
               sections.deploy = { status: 'pass', detail: 'Deployed to staging' };
               sections.verify = { status: 'fail', detail: 'Health check failed — rollback in progress' };
 
@@ -977,10 +986,10 @@ jobs:
 
               await updateComment(github, context, prNumber, sections, runId, runUrl);
 
-              // Trigger rollback using last-good state
-              const lastGoodRunId = '${{ vars.STAGING_LAST_GOOD_RUN_ID }}';
-              if (lastGoodRunId) {
-                core.info(`Triggering rollback with STAGING_LAST_GOOD_RUN_ID=${lastGoodRunId}`);
+              // Trigger rollback using last-good image ref (bypasses release-metadata artifact)
+              const lastGoodImage = '${{ vars.STAGING_LAST_GOOD_IMAGE }}';
+              if (lastGoodImage) {
+                core.info(`Triggering rollback with image_ref=${lastGoodImage}`);
                 await github.rest.actions.createWorkflowDispatch({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -988,13 +997,14 @@ jobs:
                   ref: 'daisy/dev',
                   inputs: {
                     environment: 'staging',
-                    release_run_id: lastGoodRunId,
+                    release_run_id: '0',
+                    image_ref: lastGoodImage,
                     dry_run: 'false',
                   },
                 });
                 core.info('Rollback deploy triggered');
               } else {
-                core.warning('No STAGING_LAST_GOOD_RUN_ID configured — cannot trigger rollback');
+                core.warning('No STAGING_LAST_GOOD_IMAGE configured — cannot trigger rollback');
               }
 
               if (webhookUrl) {
@@ -1025,11 +1035,10 @@ jobs:
 
               await updateComment(github, context, prNumber, sections, runId, runUrl);
 
-              // Save last-good state to repo variables
+              // Save last-good image ref to repo variable (used for rollback via image_ref)
               const imageRef = `ghcr.io/${{ github.repository }}:dev-${shortSha}`.toLowerCase();
 
               for (const [varName, varValue] of [
-                ['STAGING_LAST_GOOD_RUN_ID', String(triggeringRunId)],
                 ['STAGING_LAST_GOOD_IMAGE', imageRef],
               ]) {
                 try {
