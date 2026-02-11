@@ -9,10 +9,13 @@
 import { Type } from "@sinclair/typebox";
 import * as lancedb from "@lancedb/lancedb";
 import OpenAI from "openai";
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 import type { MoltbotPluginApi } from "clawdbot/plugin-sdk";
 import { stringEnum } from "clawdbot/plugin-sdk";
 
+=======
+>>>>>>> aade13397 (🤖 memory-lancedb: avoid plugin-sdk enum helper in local TypeBox schema (#13897))
 import {
   MEMORY_CATEGORIES,
   type MemoryCategory,
@@ -320,7 +323,12 @@ const memoryPlugin = {
         parameters: Type.Object({
           text: Type.String({ description: "Information to remember" }),
           importance: Type.Optional(Type.Number({ description: "Importance 0-1 (default: 0.7)" })),
-          category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
+          category: Type.Optional(
+            Type.Unsafe<MemoryCategory>({
+              type: "string",
+              enum: [...MEMORY_CATEGORIES],
+            }),
+          ),
         }),
         async execute(_toolCallId, params) {
           const {
