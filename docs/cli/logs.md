@@ -31,4 +31,4 @@ openclaw logs --follow --local-time
 >>>>>>> 851fcb261 (feat: Add --localTime option to logs command for local timezone display (#13818))
 ```
 
-Use `--local-time` to render timestamps in your local timezone. `--localTime` is supported as a compatibility alias.
+Use `--local-time` to render timestamps in your local timezone.
