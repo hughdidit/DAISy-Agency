@@ -27,6 +27,14 @@ Docs: https://docs.openclaw.ai
 - CLI: add `openclaw logs --local-time` to display log timestamps in local timezone. (#13818) Thanks @xialonglee.
 - Config: avoid redacting `maxTokens`-like fields during config snapshot redaction, preventing round-trip validation failures in `/config`. (#14006) Thanks @constansino.
 
+<<<<<<< HEAD
+=======
+### Fixes
+
+- Ollama: use configured `models.providers.ollama.baseUrl` for model discovery and normalize `/v1` endpoints to the native Ollama API root. (#14131) Thanks @shtse8.
+- Slack: detect control commands when channel messages start with bot mention prefixes (for example, `@Bot /new`). (#14142) Thanks @beefiker.
+
+>>>>>>> 2aa957046 (fix(slack): detect control commands when message starts with @mention (#14142))
 ## 2026.2.9
 >>>>>>> 851fcb261 (feat: Add --localTime option to logs command for local timezone display (#13818))
 
