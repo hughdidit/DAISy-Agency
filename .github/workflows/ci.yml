@@ -125,7 +125,6 @@ jobs:
     runs-on: windows-latest
     env:
       NODE_OPTIONS: --max-old-space-size=4096
-      CLAWDBOT_TEST_WORKERS: 1
     defaults:
       run:
         shell: bash
@@ -137,8 +136,14 @@ jobs:
             task: lint
             command: pnpm lint
           - runtime: node
-            task: test
-            command: pnpm canvas:a2ui:bundle && pnpm test -- --no-file-parallelism
+            task: test-unit
+            command: pnpm canvas:a2ui:bundle && pnpm vitest run --config vitest.unit.config.ts --no-file-parallelism --dangerouslyIgnoreUnhandledErrors
+          - runtime: node
+            task: test-extensions
+            command: pnpm canvas:a2ui:bundle && pnpm vitest run --config vitest.extensions.config.ts --no-file-parallelism --dangerouslyIgnoreUnhandledErrors
+          - runtime: node
+            task: test-gateway
+            command: pnpm canvas:a2ui:bundle && pnpm vitest run --config vitest.gateway.config.ts --no-file-parallelism --dangerouslyIgnoreUnhandledErrors
           - runtime: node
             task: build
             command: pnpm build
