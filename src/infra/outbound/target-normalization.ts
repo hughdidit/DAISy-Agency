@@ -9,8 +9,7 @@ export function normalizeTargetForProvider(provider: string, raw?: string): stri
   if (!raw) return undefined;
   const providerId = normalizeChannelId(provider);
   const plugin = providerId ? getChannelPlugin(providerId) : undefined;
-  const normalized =
-    plugin?.messaging?.normalizeTarget?.(raw) ?? (raw.trim().toLowerCase() || undefined);
+  const normalized = plugin?.messaging?.normalizeTarget?.(raw) ?? (raw.trim() || undefined);
   return normalized || undefined;
 }
 
