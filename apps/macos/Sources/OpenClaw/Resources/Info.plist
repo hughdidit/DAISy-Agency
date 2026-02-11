@@ -18,6 +18,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <string>2026.2.1</string>
 =======
     <string>2026.2.3</string>
@@ -28,6 +29,9 @@
 =======
     <string>2026.2.6</string>
 >>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
+=======
+    <string>2026.2.10</string>
+>>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
     <key>CFBundleVersion</key>
     <string>202602010</string>
     <key>CFBundleIconFile</key>

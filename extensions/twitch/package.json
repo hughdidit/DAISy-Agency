@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
@@ -17,6 +18,10 @@
 =======
   "version": "2026.2.6",
 >>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
+=======
+  "version": "2026.2.10",
+  "private": true,
+>>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
   "description": "OpenClaw Twitch channel plugin",
   "type": "module",
   "dependencies": {

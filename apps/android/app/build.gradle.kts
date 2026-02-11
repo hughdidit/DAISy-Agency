@@ -28,6 +28,7 @@ android {
     versionCode = 202602030
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     versionName = "2026.2.3"
 >>>>>>> e4b084c76 (chore: bump version to 2026.2.3)
 =======
@@ -36,6 +37,9 @@ android {
 =======
     versionName = "2026.2.6"
 >>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
+=======
+    versionName = "2026.2.10"
+>>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
   }
 
   buildTypes {
