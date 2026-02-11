@@ -14,6 +14,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.31
 =======
 =======
@@ -131,6 +132,14 @@ Docs: https://docs.openclaw.ai
 =======
 ## 2026.2.9
 =======
+=======
+## 2026.2.10
+
+### Changes
+
+- Version alignment: bump manifests and package versions to `2026.2.10`; keep `appcast.xml` unchanged until the next macOS release cut.
+
+>>>>>>> 5741b6cb3 (docs: start 2026.2.10 changelog section)
 ## 2026.2.9
 
 ### Added
