@@ -21,58 +21,69 @@ fi
 
 checks_run=0
 
-if [[ -n "${VERIFY_HEALTH_URL:-}" ]]; then
+if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
+  : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required for GCE verify}"
+  : "${GCP_ZONE:?GCP_ZONE is required for GCE verify}"
+
+  container="${VERIFY_GCE_CONTAINER:-moltbot-gateway}"
+  health_timeout="${VERIFY_HEALTH_TIMEOUT:-30}"
+
+  # Check 1: container is running
   checks_run=$((checks_run + 1))
-  log "Checking health endpoint: ${VERIFY_HEALTH_URL}"
-  response="$(
-    curl -fsS --max-time "${VERIFY_HTTP_TIMEOUT:-10}" "${VERIFY_HEALTH_URL}"
-  )" || fail "Health check failed for ${VERIFY_HEALTH_URL}"
+  log "Checking container ${container} on ${GCE_INSTANCE_NAME}..."
+  running_state="$(
+    gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+      --project "${GCP_PROJECT_ID}" \
+      --zone "${GCP_ZONE}" \
+      --tunnel-through-iap \
+      --quiet \
+      --command "sudo docker inspect --format '{{.State.Running}}' \$(sudo docker ps -qf 'name=${container}' | head -1) 2>/dev/null || echo false"
+  )" || fail "Failed to check container ${container} on ${GCE_INSTANCE_NAME}"
 
+  running_state="$(echo "${running_state}" | tr -d '[:space:]')"
+  if [[ "${running_state}" != "true" ]]; then
+    fail "Container ${container} is not running on ${GCE_INSTANCE_NAME}"
+  fi
+  log "Container ${container} is running."
+
+  # Check 2: moltbot health --json returns ok: true
+  checks_run=$((checks_run + 1))
+  log "Running moltbot health via docker exec (timeout: ${health_timeout}s)..."
+  health_output="$(
+    gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+      --project "${GCP_PROJECT_ID}" \
+      --zone "${GCP_ZONE}" \
+      --tunnel-through-iap \
+      --quiet \
+      --command "sudo docker exec \$(sudo docker ps -qf 'name=${container}' | head -1) node dist/index.js health --json --timeout ${health_timeout}000 2>/dev/null"
+  )" || fail "moltbot health check failed on ${GCE_INSTANCE_NAME}"
+
+  health_ok="$(echo "${health_output}" | python3 -c 'import json,sys; d=json.load(sys.stdin); print("true" if d.get("ok") else "false")' 2>/dev/null || echo "false")"
+  if [[ "${health_ok}" != "true" ]]; then
+    log "Health output: ${health_output}"
+    fail "moltbot health returned ok=false on ${GCE_INSTANCE_NAME}"
+  fi
+  log "moltbot health check passed."
+
+  # Check 3: verify deployed image matches DEPLOYED_REF (if set)
   if [[ -n "${DEPLOYED_REF:-}" ]]; then
-    version_result="$(
-      python - "${DEPLOYED_REF}" <<'PY' <<<"$response" || true
-import json
-import sys
+    checks_run=$((checks_run + 1))
+    log "Checking deployed image matches DEPLOYED_REF (${DEPLOYED_REF})..."
+    image_ref="$(
+      gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+        --project "${GCP_PROJECT_ID}" \
+        --zone "${GCP_ZONE}" \
+        --tunnel-through-iap \
+        --quiet \
+        --command "sudo docker inspect --format '{{.Config.Image}}' \$(sudo docker ps -qf 'name=${container}' | head -1) 2>/dev/null"
+    )" || fail "Failed to inspect image on ${GCE_INSTANCE_NAME}"
 
-deployed_ref = sys.argv[1] if len(sys.argv) > 1 else ""
-payload = sys.stdin.read()
-try:
-    data = json.loads(payload)
-except Exception:
-    sys.exit(0)
-
-if not isinstance(data, dict):
-    sys.exit(0)
-
-keys = [
-    "commit",
-    "git_sha",
-    "gitSha",
-    "version",
-    "ref",
-    "deployed_ref",
-    "build",
-]
-
-for key in keys:
-    if key in data:
-        value = str(data[key])
-        if deployed_ref and deployed_ref not in value:
-            print(f"MISMATCH:{value}")
-        else:
-            print(value)
-        sys.exit(0)
-PY
-    )"
-
-    if [[ -n "${version_result}" ]]; then
-      if [[ "${version_result}" == MISMATCH:* ]]; then
-        fail "Health endpoint version mismatch. Expected ${DEPLOYED_REF}, got ${version_result#MISMATCH:}."
-      fi
-      log "Health endpoint version: ${version_result}"
-    else
-      log "Health endpoint response did not include a version field to compare with DEPLOYED_REF."
+    image_ref="$(echo "${image_ref}" | tr -d '[:space:]')"
+    short_ref="$(echo "${DEPLOYED_REF}" | cut -c1-7)"
+    if [[ -n "${image_ref}" && "${image_ref}" != *"${short_ref}"* ]]; then
+      fail "Container image ${image_ref} does not match DEPLOYED_REF ${DEPLOYED_REF} (short: ${short_ref})"
     fi
+    log "Container image: ${image_ref}"
   fi
 fi
 
@@ -123,7 +134,7 @@ if [[ -n "${VERIFY_SSH_HOST:-}" ]]; then
 fi
 
 if [[ "${checks_run}" -eq 0 ]]; then
-  fail "No verification checks configured. Set VERIFY_HEALTH_URL or VERIFY_SSH_HOST with a service/container."
+  fail "No verification checks configured. Set GCE_INSTANCE_NAME or VERIFY_SSH_HOST."
 fi
 
 log "Verification completed successfully."
