@@ -1,6 +1,11 @@
-# PR Review Instructions
+# PR Workflow for Maintainers
 
 Please read this in full and do not skip sections.
+This is the single source of truth for the maintainer PR workflow.
+
+## Triage order
+
+Process PRs **oldest to newest**. Older PRs are more likely to have merge conflicts and stale dependencies; resolving them first keeps the queue healthy and avoids snowballing rebase pain.
 
 ## Working rule
 
@@ -9,9 +14,9 @@ Always pause between skills to evaluate technical direction, not just command su
 
 These three skills must be used in order:
 
-1. `review-pr`
-2. `prepare-pr`
-3. `merge-pr`
+1. `review-pr` — review only, produce findings
+2. `prepare-pr` — rebase, fix, gate, push to PR head branch
+3. `merge-pr` — squash-merge, verify MERGED state, clean up
 
 They are necessary, but not sufficient. Maintainers must steer between steps and understand the code before moving forward.
 
@@ -19,61 +24,6 @@ Treat PRs as reports first, code second.
 If submitted code is low quality, ignore it and implement the best solution for the problem.
 
 Do not continue if you cannot verify the problem is real or test the fix.
-
-## Script-first contract
-
-Skill runs should invoke these wrappers automatically. You only need to run them manually when debugging or doing an explicit script-only run:
-
-- `scripts/pr-review <PR>`
-- `scripts/pr review-checkout-main <PR>` or `scripts/pr review-checkout-pr <PR>` while reviewing
-- `scripts/pr review-guard <PR>` before writing review outputs
-- `scripts/pr review-validate-artifacts <PR>` after writing outputs
-- `scripts/pr-prepare init <PR>`
-- `scripts/pr-prepare validate-commit <PR>`
-- `scripts/pr-prepare gates <PR>`
-- `scripts/pr-prepare push <PR>`
-- Optional one-shot prepare: `scripts/pr-prepare run <PR>`
-- `scripts/pr-merge <PR>` (verify-only; short form remains backward compatible)
-- `scripts/pr-merge verify <PR>` (verify-only)
-- Optional one-shot merge: `scripts/pr-merge run <PR>`
-
-These wrappers run shared preflight checks and generate deterministic artifacts. They are designed to work from repo root or PR worktree cwd.
-
-## Required artifacts
-
-- `.local/pr-meta.json` and `.local/pr-meta.env` from review init.
-- `.local/review.md` and `.local/review.json` from review output.
-- `.local/prep-context.env` and `.local/prep.md` from prepare.
-- `.local/prep.env` from prepare completion.
-
-## Structured review handoff
-
-`review-pr` must write `.local/review.json`.
-In normal skill runs this is handled automatically. Use `scripts/pr review-artifacts-init <PR>` and `scripts/pr review-tests <PR> ...` manually only for debugging or explicit script-only runs.
-
-Minimum schema:
-
-```json
-{
-  "recommendation": "READY FOR /prepare-pr",
-  "findings": [
-    {
-      "id": "F1",
-      "severity": "IMPORTANT",
-      "title": "Missing changelog entry",
-      "area": "CHANGELOG.md",
-      "fix": "Add a Fixes entry for PR #<PR>"
-    }
-  ],
-  "tests": {
-    "ran": ["pnpm test -- ..."],
-    "gaps": ["..."],
-    "result": "pass"
-  }
-}
-```
-
-`prepare-pr` resolves all `BLOCKER` and `IMPORTANT` findings from this file.
 
 ## Coding Agent
 
@@ -90,8 +40,6 @@ Use ChatGPT 5.3 Codex High. Fall back to 5.2 Codex High or 5.3 Codex Medium if n
 - Harden changes. Always evaluate security impact and abuse paths.
 - Understand the system before changing it. Never make the codebase messier just to clear a PR queue.
 
-<<<<<<< HEAD
-=======
 ## Rebase and conflict resolution
 
 Before any substantive review or prep work, **always rebase the PR branch onto current `main` and resolve merge conflicts first**. A PR that cannot cleanly rebase is not ready for review — fix conflicts before evaluating correctness.
@@ -102,7 +50,7 @@ Before any substantive review or prep work, **always rebase the PR branch onto c
 
 ## Commit and changelog rules
 
-- In normal `prepare-pr` runs, commits are created via `scripts/committer "<msg>" <file...>`. Use it manually only when operating outside the skill flow; avoid manual `git add`/`git commit` so staging stays scoped.
+- Create commits with `scripts/committer "<msg>" <file...>`; avoid manual `git add`/`git commit` so staging stays scoped.
 - Follow concise, action-oriented commit messages (e.g., `CLI: add verbose flag to send`).
 - During `prepare-pr`, use this commit subject format: `fix: <summary> (openclaw#<PR>) thanks @<pr-author>`.
 - Group related changes; avoid bundling unrelated refactors.
@@ -110,19 +58,6 @@ Before any substantive review or prep work, **always rebase the PR branch onto c
 - When working on a PR: add a changelog entry with the PR number and thank the contributor.
 - When working on an issue: reference the issue in the changelog entry.
 - Pure test additions/fixes generally do **not** need a changelog entry unless they alter user-facing behavior or the user asks for one.
-
-## Gate policy
-
-In fresh worktrees, dependency bootstrap is handled by wrappers before local gates. Manual equivalent:
-
-```sh
-pnpm install --frozen-lockfile
-```
-
-Gate set:
-
-- Always: `pnpm build`, `pnpm check`
-- `pnpm test` required unless high-confidence docs-only criteria pass.
 
 ## Co-contributor and clawtributors
 
@@ -132,7 +67,7 @@ Gate set:
 - For squash merges, set `--author-email` to a reviewer-owned email with fallback candidates; if merge fails due to author-email validation, retry once with the next candidate.
 - If you review a PR and later do work on it, land via merge/squash (no direct-main commits) and always add the PR author as a co-contributor.
 - When merging a PR: leave a PR comment that explains exactly what we did, include the SHA hashes, and record the comment URL in the final report.
-- Manual post-merge step for new contributors: run `bun scripts/update-clawtributors.ts` to add their avatar to the README "Thanks to all clawtributors" list, then commit the regenerated README.
+- When merging a PR from a new contributor: run `bun scripts/update-clawtributors.ts` to add their avatar to the README "Thanks to all clawtributors" list, then commit the regenerated README.
 
 ## Review mode vs landing mode
 
@@ -141,12 +76,11 @@ Gate set:
 
 ## Pre-review safety checks
 
-- Before starting a review when a GH Issue/PR is pasted: `review-pr`/`scripts/pr-review` should create and use an isolated `.worktrees/pr-<PR>` checkout from `origin/main` automatically. Do not require a clean main checkout, and do not run `git pull` in a dirty main checkout.
+- Before starting a review when a GH Issue/PR is pasted: use an isolated `.worktrees/pr-<PR>` checkout from `origin/main`. Do not require a clean main checkout, and do not run `git pull` in a dirty main checkout.
 - PR review calls: prefer a single `gh pr view --json ...` to batch metadata/comments; run `gh pr diff` only when needed.
 - PRs should summarize scope, note testing performed, and mention any user-facing changes or new flags.
 - Read `docs/help/submitting-a-pr.md` ([Submitting a PR](https://docs.openclaw.ai/help/submitting-a-pr)) for what we expect from contributors.
 
->>>>>>> 72fbfaa75 (chore: making PR review chores deterministic + less token hungry)
 ## Unified workflow
 
 Entry criteria:
@@ -187,18 +121,14 @@ Stop and escalate instead of continuing if:
 Purpose:
 
 - Make the PR merge-ready on its head branch.
-<<<<<<< HEAD
-- Rebase onto current `main`, fix blocker/important findings, and run gates.
-=======
 - Rebase onto current `main` first, then fix blocker/important findings, then run gates.
 - In fresh worktrees, bootstrap dependencies before local gates (`pnpm install --frozen-lockfile`).
->>>>>>> 72fbfaa75 (chore: making PR review chores deterministic + less token hungry)
 
 Expected output:
 
 - Updated code and tests on the PR head branch.
 - `.local/prep.md` with changes, verification, and current HEAD SHA.
-- Final status: `PR is ready for /merge-pr`.
+- Final status: `PR is ready for /mergepr`.
 
 Maintainer checkpoint before `merge-pr`:
 
@@ -213,8 +143,8 @@ Do we need regression tests?
 Are tests using fake timers where appropriate? (e.g., debounce/throttle, retry backoff, timeout branches, delayed callbacks, polling loops)
 Do not add performative tests, ensure tests are real and there are no regressions.
 Do you see any follow-up refactors we should do?
-Did any changes introduce any potential security vulnerabilities?
 Take your time, fix it properly, refactor if necessary.
+Did any changes introduce any potential security vulnerabilities?
 ```
 
 Stop and escalate instead of continuing if:
@@ -248,3 +178,4 @@ Maintainer checkpoint after merge:
 
 - Were any refactors intentionally deferred and now need follow-up issue(s)?
 - Did this reveal broader architecture or test gaps we should address?
+- Run `bun scripts/update-clawtributors.ts` if the contributor is new.

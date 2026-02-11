@@ -1,30 +1,33 @@
 ---
 name: prepare-pr
+<<<<<<< HEAD
 description: Prepare a GitHub PR for merge by rebasing onto main, fixing review findings, running gates, committing fixes, and pushing to the PR head branch. Use after /reviewpr. Never merge or push to main.
+=======
+description: Script-first PR preparation with structured findings resolution, deterministic push safety, and explicit gate execution.
+>>>>>>> 72fbfaa75 (chore: making PR review chores deterministic + less token hungry)
 ---
 
 # Prepare PR
 
 ## Overview
 
-Prepare a PR branch for merge with review fixes, green gates, and an updated head branch.
+Prepare the PR head branch for merge after `/review-pr`.
 
 ## Inputs
 
 - Ask for PR number or URL.
-- If missing, auto-detect from conversation.
-- If ambiguous, ask.
+- If missing, use `.local/pr-meta.env` if present in the PR worktree.
 
 ## Safety
 
-- Never push to `main` or `origin/main`. Push only to the PR head branch.
-- Never run `git push` without specifying remote and branch explicitly. Do not run bare `git push`.
-- Do not run gateway stop commands. Do not kill processes. Do not touch port 18792.
+- Never push to `main`.
+- Only push to PR head with explicit `--force-with-lease` against known head SHA.
 - Do not run `git clean -fdx`.
-- Do not run `git add -A` or `git add .`. Stage only specific files changed.
+- Wrappers are cwd-agnostic; run from repo root or PR worktree.
 
-## Execution Rule
+## Execution Contract
 
+<<<<<<< HEAD
 - Execute the workflow. Do not stop after printing the TODO checklist.
 - If delegating, require the delegate to run commands and capture outputs.
 
@@ -51,20 +54,29 @@ Create a checklist of all prep steps, print it, then continue and execute the co
 ## Setup: Use a Worktree
 
 Use an isolated worktree for all prep work.
+=======
+1. Run setup:
+>>>>>>> 72fbfaa75 (chore: making PR review chores deterministic + less token hungry)
 
 ```sh
-cd ~/openclaw
-# Sanity: confirm you are in the repo
-git rev-parse --show-toplevel
-
-WORKTREE_DIR=".worktrees/pr-<PR>"
+scripts/pr-prepare init <PR>
 ```
 
-Run all commands inside the worktree directory.
+2. Resolve findings from structured review:
 
-## Load Review Findings (Mandatory)
+- `.local/review.json` is mandatory.
+- Resolve all `BLOCKER` and `IMPORTANT` items.
+
+3. Commit with required subject format and validate it.
+
+4. Run gates via wrapper.
+
+5. Push via wrapper (includes pre-push remote verification, one automatic lease-retry path, and post-push API propagation retry).
+
+Optional one-shot path:
 
 ```sh
+<<<<<<< HEAD
 if [ -f .local/review.md ]; then
   echo "Found review findings from /reviewpr"
 else
@@ -74,95 +86,71 @@ fi
 
 # Read it
 sed -n '1,200p' .local/review.md
+=======
+scripts/pr-prepare run <PR>
+>>>>>>> 72fbfaa75 (chore: making PR review chores deterministic + less token hungry)
 ```
 
 ## Steps
 
-1. Identify PR meta (author, head branch, head repo URL)
+1. Setup and artifacts
 
 ```sh
-gh pr view <PR> --json number,title,author,headRefName,baseRefName,headRepository,body --jq '{number,title,author:.author.login,head:.headRefName,base:.baseRefName,headRepo:.headRepository.nameWithOwner,body}'
-contrib=$(gh pr view <PR> --json author --jq .author.login)
-head=$(gh pr view <PR> --json headRefName --jq .headRefName)
-head_repo_url=$(gh pr view <PR> --json headRepository --jq .headRepository.url)
+scripts/pr-prepare init <PR>
+
+ls -la .local/review.md .local/review.json .local/pr-meta.env .local/prep-context.env
+jq . .local/review.json >/dev/null
 ```
 
-2. Fetch the PR branch tip into a local ref
+2. Resolve required findings
+
+List required items:
 
 ```sh
-git fetch origin pull/<PR>/head:pr-<PR>
+jq -r '.findings[] | select(.severity=="BLOCKER" or .severity=="IMPORTANT") | "- [\(.severity)] \(.id): \(.title) => \(.fix)"' .local/review.json
 ```
 
-3. Rebase PR commits onto latest main
+Fix all required findings. Keep scope tight.
+
+3. Update changelog/docs when required
 
 ```sh
-# Move worktree to the PR tip first
-git reset --hard pr-<PR>
-
-# Rebase onto current main
-git fetch origin main
-git rebase origin/main
+jq -r '.changelog' .local/review.json
+jq -r '.docs' .local/review.json
 ```
 
-If conflicts happen:
+4. Commit scoped changes
 
-- Resolve each conflicted file.
-- Run `git add <resolved_file>` for each file.
-- Run `git rebase --continue`.
+Required commit subject format:
 
-If the rebase gets confusing or you resolve conflicts 3 or more times, stop and report.
+- `fix: <summary> (openclaw#<PR>) thanks @<pr-author>`
 
-4. Fix issues from `.local/review.md`
-
-- Fix all BLOCKER and IMPORTANT items.
-- NITs are optional.
-- Keep scope tight.
-
-Keep a running log in `.local/prep.md`:
-
-- List which review items you fixed.
-- List which files you touched.
-- Note behavior changes.
-
-5. Update `CHANGELOG.md` if flagged in review
-
-Check `.local/review.md` section H for guidance.
-If flagged and user-facing:
-
-- Check if `CHANGELOG.md` exists.
+Use explicit file list:
 
 ```sh
-ls CHANGELOG.md 2>/dev/null
+source .local/pr-meta.env
+scripts/committer "fix: <summary> (openclaw#$PR_NUMBER) thanks @$PR_AUTHOR" <file1> <file2> ...
 ```
 
-- Follow existing format.
-- Add a concise entry with PR number and contributor.
-
-6. Update docs if flagged in review
-
-Check `.local/review.md` section G for guidance.
-If flagged, update only docs related to the PR changes.
-
-7. Commit prep fixes
-
-Stage only specific files:
+Validate commit subject:
 
 ```sh
-git add <file1> <file2> ...
+scripts/pr-prepare validate-commit <PR>
 ```
 
-Preferred commit tool:
+5. Run gates
 
 ```sh
-committer "fix: <summary> (#<PR>) (thanks @$contrib)" <changed files>
+scripts/pr-prepare gates <PR>
 ```
 
-If `committer` is not found:
+6. Push safely to PR head
 
 ```sh
-git commit -m "fix: <summary> (#<PR>) (thanks @$contrib)"
+scripts/pr-prepare push <PR>
 ```
 
+<<<<<<< HEAD
 8. Run full gates before pushing
 
 ```sh
@@ -246,3 +234,29 @@ Otherwise, list remaining failures and stop.
 - Do not run `gh pr merge`.
 - Never push to main. Only push to the PR head branch.
 - Run and pass all gates before pushing.
+=======
+This push step includes:
+
+- robust fork remote resolution from owner/name,
+- pre-push remote SHA verification,
+- one automatic rebase + gate rerun + retry if lease push fails,
+- post-push PR-head propagation retry,
+- idempotent behavior when local prep HEAD is already on the PR head,
+- post-push SHA verification and `.local/prep.env` generation.
+
+7. Verify handoff artifacts
+
+```sh
+ls -la .local/prep.md .local/prep.env
+```
+
+8. Output
+
+- Summarize resolved findings and gate results.
+- Print exactly: `PR is ready for /merge-pr`.
+
+## Guardrails
+
+- Do not run `gh pr merge` in this skill.
+- Do not delete worktree.
+>>>>>>> 72fbfaa75 (chore: making PR review chores deterministic + less token hungry)
