@@ -195,6 +195,28 @@ function isWithinActiveHours(
   return currentMin >= startMin || currentMin < endMin;
 }
 
+// Returns true when a system event should be treated as real cron reminder content.
+export function isCronSystemEvent(evt: string) {
+  const trimmed = evt.trim();
+  if (!trimmed) {
+    return false;
+  }
+
+  const lower = trimmed.toLowerCase();
+  const heartbeatOk = HEARTBEAT_TOKEN.toLowerCase();
+  if (lower === heartbeatOk || lower.startsWith(`${heartbeatOk} `)) {
+    return false;
+  }
+  if (lower.includes("heartbeat poll") || lower.includes("heartbeat wake")) {
+    return false;
+  }
+  if (lower.includes("exec finished")) {
+    return false;
+  }
+
+  return true;
+}
+
 type HeartbeatAgentState = {
   agentId: string;
   heartbeat?: HeartbeatConfig;
@@ -582,6 +604,7 @@ export async function runHeartbeatOnce(opts: {
   const pendingEvents = isExecEvent || isCronEvent ? peekSystemEvents(sessionKey) : [];
   const hasExecCompletion = pendingEvents.some((evt) => evt.includes("Exec finished"));
 <<<<<<< HEAD
+<<<<<<< HEAD
   const hasCronEvents = isCronEvent && pendingEvents.length > 0;
 
 =======
@@ -598,6 +621,9 @@ export async function runHeartbeatOnce(opts: {
     );
   });
 >>>>>>> 4f687a744 (fix: prevent ghost reminder notifications (#13317))
+=======
+  const hasCronEvents = isCronEvent && pendingEvents.some((evt) => isCronSystemEvent(evt));
+>>>>>>> 22593a272 (fix: refine cron heartbeat event detection)
   const prompt = hasExecCompletion
     ? EXEC_EVENT_PROMPT
     : hasCronEvents
