@@ -248,8 +248,19 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
 
 >>>>>>> e1e6e3f47 (fix: add curly braces to resolve-route.ts for eslint(curly) compliance)
   if (guildId) {
+<<<<<<< HEAD
     const guildMatch = bindings.find((b) => matchesGuild(b.match, guildId));
     if (guildMatch) return choose(guildMatch.agentId, "binding.guild");
+=======
+    const guildMatch = bindings.find(
+      (b) =>
+        matchesGuild(b.match, guildId) &&
+        (!Array.isArray(b.match?.roles) || b.match.roles.length === 0),
+    );
+    if (guildMatch) {
+      return choose(guildMatch.agentId, "binding.guild");
+    }
+>>>>>>> f7adc21d3 (fix: exclude role-restricted bindings from guild-only matching)
   }
 
   if (teamId) {
