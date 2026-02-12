@@ -71,7 +71,11 @@ function applyJobResult(
   }
 
   const shouldDelete =
+<<<<<<< HEAD
     job.schedule.kind === "at" && result.status === "ok" && job.deleteAfterRun === true;
+=======
+    job.schedule.kind === "at" && job.deleteAfterRun === true && result.status === "ok";
+>>>>>>> d31caa81e (fix(runtime): guard cleanup and preserve skipped cron jobs)
 
   if (!shouldDelete) {
     if (job.schedule.kind === "at") {

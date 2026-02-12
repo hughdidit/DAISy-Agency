@@ -157,6 +157,41 @@ export function markBackgrounded(session: ProcessSession) {
 
 function moveToFinished(session: ProcessSession, status: ProcessStatus) {
   runningSessions.delete(session.id);
+<<<<<<< HEAD
+=======
+
+  // Clean up child process stdio streams to prevent FD leaks
+  if (session.child) {
+    // Destroy stdio streams to release file descriptors
+    session.child.stdin?.destroy?.();
+    session.child.stdout?.destroy?.();
+    session.child.stderr?.destroy?.();
+
+    // Remove all event listeners to prevent memory leaks
+    session.child.removeAllListeners?.();
+
+    // Clear the reference
+    delete session.child;
+  }
+
+  // Clean up stdin wrapper - call destroy if available, otherwise just remove reference
+  if (session.stdin) {
+    // Try to call destroy/end method if exists
+    if (typeof session.stdin.destroy === "function") {
+      session.stdin.destroy();
+    } else if (typeof session.stdin.end === "function") {
+      session.stdin.end();
+    }
+    // Only set flag if writable
+    try {
+      (session.stdin as { destroyed?: boolean }).destroyed = true;
+    } catch {
+      // Ignore if read-only
+    }
+    delete session.stdin;
+  }
+
+>>>>>>> d31caa81e (fix(runtime): guard cleanup and preserve skipped cron jobs)
   if (!session.backgrounded) {
     return;
   }
