@@ -383,6 +383,102 @@ export async function runDueJobs(state: CronServiceState) {
   }
 }
 
+<<<<<<< HEAD
+=======
+async function executeJobCore(
+  state: CronServiceState,
+  job: CronJob,
+): Promise<{
+  status: "ok" | "error" | "skipped";
+  error?: string;
+  summary?: string;
+  sessionId?: string;
+  sessionKey?: string;
+}> {
+  if (job.sessionTarget === "main") {
+    const text = resolveJobPayloadTextForMain(job);
+    if (!text) {
+      const kind = job.payload.kind;
+      return {
+        status: "skipped",
+        error:
+          kind === "systemEvent"
+            ? "main job requires non-empty systemEvent text"
+            : 'main job requires payload.kind="systemEvent"',
+      };
+    }
+    state.deps.enqueueSystemEvent(text, { agentId: job.agentId });
+    if (job.wakeMode === "now" && state.deps.runHeartbeatOnce) {
+      const reason = `cron:${job.id}`;
+      const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+      const maxWaitMs = 2 * 60_000;
+      const waitStartedAt = state.deps.nowMs();
+
+      let heartbeatResult: HeartbeatRunResult;
+      for (;;) {
+        heartbeatResult = await state.deps.runHeartbeatOnce({ reason, agentId: job.agentId });
+        if (
+          heartbeatResult.status !== "skipped" ||
+          heartbeatResult.reason !== "requests-in-flight"
+        ) {
+          break;
+        }
+        if (state.deps.nowMs() - waitStartedAt > maxWaitMs) {
+          state.deps.requestHeartbeatNow({ reason });
+          return { status: "ok", summary: text };
+        }
+        await delay(250);
+      }
+
+      if (heartbeatResult.status === "ran") {
+        return { status: "ok", summary: text };
+      } else if (heartbeatResult.status === "skipped") {
+        return { status: "skipped", error: heartbeatResult.reason, summary: text };
+      } else {
+        return { status: "error", error: heartbeatResult.reason, summary: text };
+      }
+    } else {
+      state.deps.requestHeartbeatNow({ reason: `cron:${job.id}` });
+      return { status: "ok", summary: text };
+    }
+  }
+
+  if (job.payload.kind !== "agentTurn") {
+    return { status: "skipped", error: "isolated job requires payload.kind=agentTurn" };
+  }
+
+  const res = await state.deps.runIsolatedAgentJob({
+    job,
+    message: job.payload.message,
+  });
+
+  // Post a short summary back to the main session.
+  const summaryText = res.summary?.trim();
+  const deliveryPlan = resolveCronDeliveryPlan(job);
+  if (summaryText && deliveryPlan.requested) {
+    const prefix = "Cron";
+    const label =
+      res.status === "error" ? `${prefix} (error): ${summaryText}` : `${prefix}: ${summaryText}`;
+    state.deps.enqueueSystemEvent(label, { agentId: job.agentId });
+    if (job.wakeMode === "now") {
+      state.deps.requestHeartbeatNow({ reason: `cron:${job.id}` });
+    }
+  }
+
+  return {
+    status: res.status,
+    error: res.error,
+    summary: res.summary,
+    sessionId: res.sessionId,
+    sessionKey: res.sessionKey,
+  };
+}
+
+/**
+ * Execute a job. This version is used by the `run` command and other
+ * places that need the full execution with state updates.
+ */
+>>>>>>> 04e3a66f9 (fix(cron): pass agentId to runHeartbeatOnce for main-session jobs (#14140))
 export async function executeJob(
   state: CronServiceState,
   job: CronJob,
