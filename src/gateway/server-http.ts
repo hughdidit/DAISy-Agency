@@ -4,6 +4,7 @@ import {
   type IncomingMessage,
   type ServerResponse,
 } from "node:http";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { createServer as createHttpsServer } from "node:https";
 import type { TlsOptions } from "node:tls";
 import type { WebSocketServer } from "ws";
@@ -14,6 +15,7 @@ import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
+import { setSecurityHeaders } from "./http-common.js";
 import {
   extractHookToken,
   getHookChannelError,
@@ -51,12 +53,20 @@ type HookDispatchers = {
 };
 
 function sendJson(res: ServerResponse, status: number, body: unknown) {
+  setSecurityHeaders(res);
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.end(JSON.stringify(body));
 }
 
 export type HooksRequestHandler = (req: IncomingMessage, res: ServerResponse) => Promise<boolean>;
+
+function safeTokenEqual(a: string, b: string): boolean {
+  const key = "webhook-cmp";
+  const ha = createHmac("sha256", key).update(a).digest();
+  const hb = createHmac("sha256", key).update(b).digest();
+  return timingSafeEqual(ha, hb);
+}
 
 export function createHooksRequestHandler(
   opts: {
@@ -76,8 +86,11 @@ export function createHooksRequestHandler(
       return false;
     }
 
+    // Apply security headers to all hook responses (including error paths).
+    setSecurityHeaders(res);
+
     const { token, fromQuery } = extractHookToken(req, url);
-    if (!token || token !== hooksConfig.token) {
+    if (!token || !safeTokenEqual(token, hooksConfig.token)) {
       res.statusCode = 401;
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
       res.end("Unauthorized");

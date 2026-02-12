@@ -121,6 +121,13 @@ Shell chaining (`&&`, `||`, `;`) is allowed when every top-level segment satisfi
 
 Default safe bins: `jq`, `grep`, `cut`, `sort`, `uniq`, `head`, `tail`, `tr`, `wc`.
 
+## Command sanitization
+
+Command strings in approval requests are sanitized before broadcast and storage:
+control characters (below U+0020 except tab and newline), Unicode format/surrogate
+characters, and carriage returns are stripped. This prevents ANSI escape sequences
+or visual spoofing attacks from masking malicious content in the approval UI.
+
 ## Control UI editing
 
 Use the **Control UI → Nodes → Exec approvals** card to edit defaults, per‑agent
