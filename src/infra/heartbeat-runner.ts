@@ -498,8 +498,28 @@ export async function runHeartbeatOnce(opts: {
   const isExecEvent = opts.reason === "exec-event";
   const pendingEvents = isExecEvent ? peekSystemEvents(sessionKey) : [];
   const hasExecCompletion = pendingEvents.some((evt) => evt.includes("Exec finished"));
+<<<<<<< HEAD
 
   const prompt = hasExecCompletion ? EXEC_EVENT_PROMPT : resolveHeartbeatPrompt(cfg, heartbeat);
+=======
+  
+  // Fix for #13317: Only treat as cron event if there are actual cron-related messages,
+  // not just any system events (which could be heartbeat acks, exec completions, etc.)
+  const hasCronEvents = isCronEvent && pendingEvents.some((evt) => {
+    const trimmed = evt.trim();
+    // Exclude standard heartbeat acks and exec completion messages
+    return (
+      trimmed.length > 0 &&
+      !trimmed.includes("HEARTBEAT_OK") &&
+      !trimmed.includes("Exec finished")
+    );
+  });
+  const prompt = hasExecCompletion
+    ? EXEC_EVENT_PROMPT
+    : hasCronEvents
+      ? CRON_EVENT_PROMPT
+      : resolveHeartbeatPrompt(cfg, heartbeat);
+>>>>>>> 4f687a744 (fix: prevent ghost reminder notifications (#13317))
   const ctx = {
     Body: prompt,
     From: sender,
