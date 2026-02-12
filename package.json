@@ -31,11 +31,18 @@
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
+<<<<<<< HEAD
     "./plugin-sdk": "./dist/plugin-sdk/index.js",
 <<<<<<< HEAD
     "./plugin-sdk/*": "./dist/plugin-sdk/*",
     "./cli-entry": "./moltbot.mjs"
 =======
+=======
+    "./plugin-sdk": {
+      "types": "./dist/plugin-sdk/index.d.ts",
+      "default": "./dist/plugin-sdk/index.js"
+    },
+>>>>>>> d8016c30c (fix: add types condition to plugin-sdk export for moduleResolution NodeNext (#14485))
     "./cli-entry": "./openclaw.mjs"
 >>>>>>> 425003417 (fix: Remove `tsconfig.oxlint.json` AGAIN.)
   },
