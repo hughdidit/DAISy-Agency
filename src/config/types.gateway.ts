@@ -284,4 +284,15 @@ export type GatewayConfig = {
    * `x-real-ip`) to determine the client IP for local pairing and HTTP checks.
    */
   trustedProxies?: string[];
+<<<<<<< HEAD
+=======
+  /** Tool access restrictions for HTTP /tools/invoke endpoint. */
+  tools?: GatewayToolsConfig;
+  /**
+   * Channel health monitor interval in minutes.
+   * Periodically checks channel health and restarts unhealthy channels.
+   * Set to 0 to disable. Default: 5.
+   */
+  channelHealthCheckMinutes?: number;
+>>>>>>> 30ee12e40 (gateway: wire channel health monitor into startup with configurable interval)
 };
