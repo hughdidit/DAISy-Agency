@@ -36,6 +36,7 @@ const shardCount = isWindowsCi
     ? shardOverride
     : 2
   : 1;
+<<<<<<< HEAD
 const windowsCiArgs = isWindowsCi
   ? ["--no-file-parallelism", "--dangerouslyIgnoreUnhandledErrors"]
   : [];
@@ -45,6 +46,25 @@ const resolvedOverride =
 >>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
 const parallelRuns = isWindowsCi ? [] : runs.filter((entry) => entry.name !== "gateway");
 const serialRuns = isWindowsCi ? runs : runs.filter((entry) => entry.name === "gateway");
+=======
+const windowsCiArgs = isWindowsCi ? ["--dangerouslyIgnoreUnhandledErrors"] : [];
+const silentArgs =
+  process.env.OPENCLAW_TEST_SHOW_PASSED_LOGS === "1" ? [] : ["--silent=passed-only"];
+const rawPassthroughArgs = process.argv.slice(2);
+const passthroughArgs =
+  rawPassthroughArgs[0] === "--" ? rawPassthroughArgs.slice(1) : rawPassthroughArgs;
+const overrideWorkers = Number.parseInt(process.env.OPENCLAW_TEST_WORKERS ?? "", 10);
+const resolvedOverride =
+  Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
+// Keep gateway serial by default to avoid resource contention with unit/extensions.
+// Allow explicit opt-in parallel runs on non-Windows CI/local when requested.
+const keepGatewaySerial =
+  isWindowsCi ||
+  process.env.OPENCLAW_TEST_SERIAL_GATEWAY === "1" ||
+  process.env.OPENCLAW_TEST_PARALLEL_GATEWAY !== "1";
+const parallelRuns = keepGatewaySerial ? runs.filter((entry) => entry.name !== "gateway") : runs;
+const serialRuns = keepGatewaySerial ? runs.filter((entry) => entry.name === "gateway") : [];
+>>>>>>> 069670388 (perf(test): speed up test runs and harden temp cleanup)
 const localWorkers = Math.max(4, Math.min(16, os.cpus().length));
 const defaultUnitWorkers = localWorkers;
 const defaultExtensionsWorkers = Math.max(1, Math.min(4, Math.floor(localWorkers / 4)));
@@ -81,8 +101,21 @@ const runOnce = (entry, extraArgs = []) =>
   new Promise((resolve) => {
     const maxWorkers = maxWorkersForRun(entry.name);
     const args = maxWorkers
+<<<<<<< HEAD
       ? [...entry.args, "--maxWorkers", String(maxWorkers), ...windowsCiArgs, ...extraArgs]
       : [...entry.args, ...windowsCiArgs, ...extraArgs];
+=======
+      ? [
+          ...entry.args,
+          "--maxWorkers",
+          String(maxWorkers),
+          ...silentArgs,
+          ...reporterArgs,
+          ...windowsCiArgs,
+          ...extraArgs,
+        ]
+      : [...entry.args, ...silentArgs, ...reporterArgs, ...windowsCiArgs, ...extraArgs];
+>>>>>>> 069670388 (perf(test): speed up test runs and harden temp cleanup)
     const nodeOptions = process.env.NODE_OPTIONS ?? "";
     const nextNodeOptions = WARNING_SUPPRESSION_FLAGS.reduce(
       (acc, flag) => (acc.includes(flag) ? acc : `${acc} ${flag}`.trim()),
@@ -123,6 +156,42 @@ const shutdown = (signal) => {
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 
+<<<<<<< HEAD
+=======
+if (passthroughArgs.length > 0) {
+  const maxWorkers = maxWorkersForRun("unit");
+  const args = maxWorkers
+    ? [
+        "vitest",
+        "run",
+        "--maxWorkers",
+        String(maxWorkers),
+        ...silentArgs,
+        ...windowsCiArgs,
+        ...passthroughArgs,
+      ]
+    : ["vitest", "run", ...silentArgs, ...windowsCiArgs, ...passthroughArgs];
+  const nodeOptions = process.env.NODE_OPTIONS ?? "";
+  const nextNodeOptions = WARNING_SUPPRESSION_FLAGS.reduce(
+    (acc, flag) => (acc.includes(flag) ? acc : `${acc} ${flag}`.trim()),
+    nodeOptions,
+  );
+  const code = await new Promise((resolve) => {
+    const child = spawn(pnpm, args, {
+      stdio: "inherit",
+      env: { ...process.env, NODE_OPTIONS: nextNodeOptions },
+      shell: process.platform === "win32",
+    });
+    children.add(child);
+    child.on("exit", (exitCode, signal) => {
+      children.delete(child);
+      resolve(exitCode ?? (signal ? 1 : 0));
+    });
+  });
+  process.exit(Number(code) || 0);
+}
+
+>>>>>>> 069670388 (perf(test): speed up test runs and harden temp cleanup)
 const parallelCodes = await Promise.all(parallelRuns.map(run));
 const failedParallel = parallelCodes.find((code) => code !== 0);
 if (failedParallel !== undefined) {
