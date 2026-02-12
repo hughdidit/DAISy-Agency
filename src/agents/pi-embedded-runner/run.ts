@@ -27,7 +27,7 @@ import {
 import { normalizeProviderId } from "../model-selection.js";
 import { ensureMoltbotModelsJson } from "../models-config.js";
 import {
-  BILLING_ERROR_USER_MESSAGE,
+  formatBillingErrorMessage,
   classifyFailoverReason,
   formatAssistantErrorText,
   isAuthAssistantError,
@@ -371,6 +371,152 @@ export async function runEmbeddedPiAgent(
           });
 
           const { aborted, promptError, timedOut, sessionIdUsed, lastAssistant } = attempt;
+<<<<<<< HEAD
+=======
+          mergeUsageIntoAccumulator(
+            usageAccumulator,
+            attempt.attemptUsage ?? normalizeUsage(lastAssistant?.usage as UsageLike),
+          );
+          autoCompactionCount += Math.max(0, attempt.compactionCount ?? 0);
+          const formattedAssistantErrorText = lastAssistant
+            ? formatAssistantErrorText(lastAssistant, {
+                cfg: params.config,
+                sessionKey: params.sessionKey ?? params.sessionId,
+                provider,
+              })
+            : undefined;
+          const assistantErrorText =
+            lastAssistant?.stopReason === "error"
+              ? lastAssistant.errorMessage?.trim() || formattedAssistantErrorText
+              : undefined;
+
+          const contextOverflowError = !aborted
+            ? (() => {
+                if (promptError) {
+                  const errorText = describeUnknownError(promptError);
+                  if (isContextOverflowError(errorText)) {
+                    return { text: errorText, source: "promptError" as const };
+                  }
+                  // Prompt submission failed with a non-overflow error. Do not
+                  // inspect prior assistant errors from history for this attempt.
+                  return null;
+                }
+                if (assistantErrorText && isContextOverflowError(assistantErrorText)) {
+                  return { text: assistantErrorText, source: "assistantError" as const };
+                }
+                return null;
+              })()
+            : null;
+
+          if (contextOverflowError) {
+            const errorText = contextOverflowError.text;
+            const msgCount = attempt.messagesSnapshot?.length ?? 0;
+            log.warn(
+              `[context-overflow-diag] sessionKey=${params.sessionKey ?? params.sessionId} ` +
+                `provider=${provider}/${modelId} source=${contextOverflowError.source} ` +
+                `messages=${msgCount} sessionFile=${params.sessionFile} ` +
+                `compactionAttempts=${overflowCompactionAttempts} error=${errorText.slice(0, 200)}`,
+            );
+            const isCompactionFailure = isCompactionFailureError(errorText);
+            // Attempt auto-compaction on context overflow (not compaction_failure)
+            if (
+              !isCompactionFailure &&
+              overflowCompactionAttempts < MAX_OVERFLOW_COMPACTION_ATTEMPTS
+            ) {
+              overflowCompactionAttempts++;
+              log.warn(
+                `context overflow detected (attempt ${overflowCompactionAttempts}/${MAX_OVERFLOW_COMPACTION_ATTEMPTS}); attempting auto-compaction for ${provider}/${modelId}`,
+              );
+              const compactResult = await compactEmbeddedPiSessionDirect({
+                sessionId: params.sessionId,
+                sessionKey: params.sessionKey,
+                messageChannel: params.messageChannel,
+                messageProvider: params.messageProvider,
+                agentAccountId: params.agentAccountId,
+                authProfileId: lastProfileId,
+                sessionFile: params.sessionFile,
+                workspaceDir: resolvedWorkspace,
+                agentDir,
+                config: params.config,
+                skillsSnapshot: params.skillsSnapshot,
+                senderIsOwner: params.senderIsOwner,
+                provider,
+                model: modelId,
+                thinkLevel,
+                reasoningLevel: params.reasoningLevel,
+                bashElevated: params.bashElevated,
+                extraSystemPrompt: params.extraSystemPrompt,
+                ownerNumbers: params.ownerNumbers,
+              });
+              if (compactResult.compacted) {
+                autoCompactionCount += 1;
+                log.info(`auto-compaction succeeded for ${provider}/${modelId}; retrying prompt`);
+                continue;
+              }
+              log.warn(
+                `auto-compaction failed for ${provider}/${modelId}: ${compactResult.reason ?? "nothing to compact"}`,
+              );
+            }
+            // Fallback: try truncating oversized tool results in the session.
+            // This handles the case where a single tool result exceeds the
+            // context window and compaction cannot reduce it further.
+            if (!toolResultTruncationAttempted) {
+              const contextWindowTokens = ctxInfo.tokens;
+              const hasOversized = attempt.messagesSnapshot
+                ? sessionLikelyHasOversizedToolResults({
+                    messages: attempt.messagesSnapshot,
+                    contextWindowTokens,
+                  })
+                : false;
+
+              if (hasOversized) {
+                toolResultTruncationAttempted = true;
+                log.warn(
+                  `[context-overflow-recovery] Attempting tool result truncation for ${provider}/${modelId} ` +
+                    `(contextWindow=${contextWindowTokens} tokens)`,
+                );
+                const truncResult = await truncateOversizedToolResultsInSession({
+                  sessionFile: params.sessionFile,
+                  contextWindowTokens,
+                  sessionId: params.sessionId,
+                  sessionKey: params.sessionKey,
+                });
+                if (truncResult.truncated) {
+                  log.info(
+                    `[context-overflow-recovery] Truncated ${truncResult.truncatedCount} tool result(s); retrying prompt`,
+                  );
+                  // Session is now smaller; allow compaction retries again.
+                  overflowCompactionAttempts = 0;
+                  continue;
+                }
+                log.warn(
+                  `[context-overflow-recovery] Tool result truncation did not help: ${truncResult.reason ?? "unknown"}`,
+                );
+              }
+            }
+            const kind = isCompactionFailure ? "compaction_failure" : "context_overflow";
+            return {
+              payloads: [
+                {
+                  text:
+                    "Context overflow: prompt too large for the model. " +
+                    "Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+                  isError: true,
+                },
+              ],
+              meta: {
+                durationMs: Date.now() - started,
+                agentMeta: {
+                  sessionId: sessionIdUsed,
+                  provider,
+                  model: model.id,
+                },
+                systemPromptReport: attempt.systemPromptReport,
+                error: { kind, message: errorText },
+              },
+            };
+          }
+>>>>>>> bdd0c1232 (fix(providers): include provider name in billing error messages (#14697))
 
           if (promptError && !aborted) {
             const errorText = describeUnknownError(promptError);
@@ -604,6 +750,7 @@ export async function runEmbeddedPiAgent(
                   ? formatAssistantErrorText(lastAssistant, {
                       cfg: params.config,
                       sessionKey: params.sessionKey ?? params.sessionId,
+                      provider,
                     })
                   : undefined) ||
                 lastAssistant?.errorMessage?.trim() ||
@@ -612,7 +759,7 @@ export async function runEmbeddedPiAgent(
                   : rateLimitFailure
                     ? "LLM request rate limited."
                     : billingFailure
-                      ? BILLING_ERROR_USER_MESSAGE
+                      ? formatBillingErrorMessage(provider)
                       : authFailure
                         ? "LLM request unauthorized."
                         : "LLM request failed.");
@@ -644,6 +791,7 @@ export async function runEmbeddedPiAgent(
             lastToolError: attempt.lastToolError,
             config: params.config,
             sessionKey: params.sessionKey ?? params.sessionId,
+            provider,
             verboseLevel: params.verboseLevel,
             reasoningLevel: params.reasoningLevel,
             toolResultFormat: resolvedToolResultFormat,
