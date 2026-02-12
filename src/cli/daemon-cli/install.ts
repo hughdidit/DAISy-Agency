@@ -2,10 +2,21 @@ import {
   DEFAULT_GATEWAY_DAEMON_RUNTIME,
   isGatewayDaemonRuntime,
 } from "../../commands/daemon-runtime.js";
+<<<<<<< HEAD
 import { buildGatewayInstallPlan } from "../../commands/daemon-install-helpers.js";
 import { loadConfig, resolveGatewayPort } from "../../config/config.js";
+=======
+import { randomToken } from "../../commands/onboard-helpers.js";
+import {
+  loadConfig,
+  readConfigFileSnapshot,
+  resolveGatewayPort,
+  writeConfigFile,
+} from "../../config/config.js";
+>>>>>>> 94d685816 (fix(gateway): auto-generate token during `gateway install` to prevent launchd restart loop (#13813))
 import { resolveIsNixMode } from "../../config/paths.js";
 import { resolveGatewayService } from "../../daemon/service.js";
+import { resolveGatewayAuth } from "../../gateway/auth.js";
 import { defaultRuntime } from "../../runtime.js";
 import { formatCliCommand } from "../command-format.js";
 import { buildDaemonServiceSnapshot, createNullWriter, emitDaemonActionJson } from "./response.js";
@@ -93,10 +104,82 @@ export async function runDaemonInstall(opts: DaemonInstallOptions) {
     }
   }
 
+  // Resolve effective auth mode to determine if token auto-generation is needed.
+  // Password-mode and Tailscale-only installs do not need a token.
+  const resolvedAuth = resolveGatewayAuth({
+    authConfig: cfg.gateway?.auth,
+    tailscaleMode: cfg.gateway?.tailscale?.mode ?? "off",
+  });
+  const needsToken =
+    resolvedAuth.mode === "token" && !resolvedAuth.token && !resolvedAuth.allowTailscale;
+
+  let token: string | undefined =
+    opts.token ||
+    cfg.gateway?.auth?.token ||
+    process.env.OPENCLAW_GATEWAY_TOKEN ||
+    process.env.CLAWDBOT_GATEWAY_TOKEN;
+
+  if (!token && needsToken) {
+    token = randomToken();
+    const warnMsg = "No gateway token found. Auto-generated one and saving to config.";
+    if (json) {
+      warnings.push(warnMsg);
+    } else {
+      defaultRuntime.log(warnMsg);
+    }
+
+    // Persist to config file so the gateway reads it at runtime
+    // (launchd does not inherit shell env vars, and CLI tools also
+    // read gateway.auth.token from config for gateway calls).
+    try {
+      const snapshot = await readConfigFileSnapshot();
+      if (snapshot.exists && !snapshot.valid) {
+        // Config file exists but is corrupt/unparseable — don't risk overwriting.
+        // Token is still embedded in the plist EnvironmentVariables.
+        const msg = "Warning: config file exists but is invalid; skipping token persistence.";
+        if (json) {
+          warnings.push(msg);
+        } else {
+          defaultRuntime.log(msg);
+        }
+      } else {
+        const baseConfig = snapshot.exists ? snapshot.config : {};
+        if (!baseConfig.gateway?.auth?.token) {
+          await writeConfigFile({
+            ...baseConfig,
+            gateway: {
+              ...baseConfig.gateway,
+              auth: {
+                ...baseConfig.gateway?.auth,
+                mode: baseConfig.gateway?.auth?.mode ?? "token",
+                token,
+              },
+            },
+          });
+        } else {
+          // Another process wrote a token between loadConfig() and now.
+          token = baseConfig.gateway.auth.token;
+        }
+      }
+    } catch (err) {
+      // Non-fatal: token is still embedded in the plist EnvironmentVariables.
+      const msg = `Warning: could not persist token to config: ${String(err)}`;
+      if (json) {
+        warnings.push(msg);
+      } else {
+        defaultRuntime.log(msg);
+      }
+    }
+  }
+
   const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
     env: process.env,
     port,
+<<<<<<< HEAD
     token: opts.token || cfg.gateway?.auth?.token || process.env.CLAWDBOT_GATEWAY_TOKEN,
+=======
+    token,
+>>>>>>> 94d685816 (fix(gateway): auto-generate token during `gateway install` to prevent launchd restart loop (#13813))
     runtime: runtimeRaw,
     warn: (message) => {
       if (json) {
