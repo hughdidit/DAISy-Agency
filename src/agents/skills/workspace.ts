@@ -6,6 +6,7 @@ import {
   loadSkillsFromDir,
   type Skill,
 } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -19,6 +20,12 @@ import {
 } from "./frontmatter.js";
 import { resolvePluginSkillDirs } from "./plugin-skills.js";
 import { serializeByKey } from "./serialize.js";
+=======
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> d85150357 (feat: support .agents/skills/ directory for cross-agent skill discovery (#9966))
 import type {
   ParsedSkillFrontmatter,
   SkillEligibilityContext,
@@ -123,7 +130,7 @@ function loadSkillEntries(
   };
 
   const managedSkillsDir = opts?.managedSkillsDir ?? path.join(CONFIG_DIR, "skills");
-  const workspaceSkillsDir = path.join(workspaceDir, "skills");
+  const workspaceSkillsDir = path.resolve(workspaceDir, "skills");
   const bundledSkillsDir = opts?.bundledSkillsDir ?? resolveBundledSkillsDir();
   const extraDirsRaw = opts?.config?.skills?.load?.extraDirs ?? [];
   const extraDirs = extraDirsRaw
@@ -152,13 +159,23 @@ function loadSkillEntries(
     dir: managedSkillsDir,
     source: "moltbot-managed",
   });
+  const personalAgentsSkillsDir = path.resolve(os.homedir(), ".agents", "skills");
+  const personalAgentsSkills = loadSkills({
+    dir: personalAgentsSkillsDir,
+    source: "agents-skills-personal",
+  });
+  const projectAgentsSkillsDir = path.resolve(workspaceDir, ".agents", "skills");
+  const projectAgentsSkills = loadSkills({
+    dir: projectAgentsSkillsDir,
+    source: "agents-skills-project",
+  });
   const workspaceSkills = loadSkills({
     dir: workspaceSkillsDir,
     source: "moltbot-workspace",
   });
 
   const merged = new Map<string, Skill>();
-  // Precedence: extra < bundled < managed < workspace
+  // Precedence: extra < bundled < managed < agents-skills-personal < agents-skills-project < workspace
   for (const skill of extraSkills) {
     merged.set(skill.name, skill);
   }
@@ -166,6 +183,12 @@ function loadSkillEntries(
     merged.set(skill.name, skill);
   }
   for (const skill of managedSkills) {
+    merged.set(skill.name, skill);
+  }
+  for (const skill of personalAgentsSkills) {
+    merged.set(skill.name, skill);
+  }
+  for (const skill of projectAgentsSkills) {
     merged.set(skill.name, skill);
   }
   for (const skill of workspaceSkills) {
