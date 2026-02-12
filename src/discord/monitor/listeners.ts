@@ -190,12 +190,23 @@ async function handleDiscordReactionEvent(params: {
     if (!user || user.bot) {
       return;
     }
+<<<<<<< HEAD
 >>>>>>> 888f7dbbd (fix: process Discord DM reactions instead of silently dropping them)
     const guildInfo = resolveDiscordGuildEntry({
       guild: data.guild ?? undefined,
       guildEntries,
     });
     if (guildEntries && Object.keys(guildEntries).length > 0 && !guildInfo) {
+=======
+    const isGuildMessage = Boolean(data.guild_id);
+    const guildInfo = isGuildMessage
+      ? resolveDiscordGuildEntry({
+          guild: data.guild ?? undefined,
+          guildEntries,
+        })
+      : null;
+    if (isGuildMessage && guildEntries && Object.keys(guildEntries).length > 0 && !guildInfo) {
+>>>>>>> fb8e6156e (fix: handle discord dm reaction allowlist)
       return;
     }
 
@@ -256,7 +267,9 @@ async function handleDiscordReactionEvent(params: {
     const actorLabel = formatDiscordUserTag(user);
     const guildSlug =
       guildInfo?.slug ||
-      (data.guild?.name ? normalizeDiscordSlug(data.guild.name) : (data.guild_id ?? "dm"));
+      (data.guild?.name
+        ? normalizeDiscordSlug(data.guild.name)
+        : (data.guild_id ?? (isGroupDm ? "group-dm" : "dm")));
     const channelLabel = channelSlug
       ? `#${channelSlug}`
       : channelName
