@@ -55,6 +55,12 @@ This document covers security considerations for the `@moltbot/memory-mongodb` e
   - Emoji-heavy responses (>3 emoji)
 - Only content matching specific trigger patterns (preferences, contact info, decisions, explicit remember requests) is captured.
 
+### Configurable triggers
+- Capture triggers can be customized via the `captureTriggers` config field (array of regex pattern strings).
+- Custom patterns are validated at config parse time — invalid regex syntax is rejected.
+- Triggers are compiled once at plugin registration, not per-message.
+- Since triggers are admin-configured (same trust level as the connection string and API key), ReDoS from intentionally pathological patterns is accepted risk. Avoid patterns with nested quantifiers (e.g., `(a+)+$`) in production.
+
 ### Deduplication
 - A 0.95 cosine similarity threshold prevents near-exact duplicates from being stored, guarding against agent loops filling the database.
 

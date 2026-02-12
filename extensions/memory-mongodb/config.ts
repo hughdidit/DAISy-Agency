@@ -8,6 +8,7 @@ export type MemoryConfig = {
   databaseName: string;
   collectionName: string;
   vectorSearchIndexName: string;
+  captureTriggers: string[];
   autoCapture?: boolean;
   autoRecall?: boolean;
 };
@@ -19,6 +20,17 @@ const DEFAULT_MODEL = "text-embedding-3-small";
 const DEFAULT_DATABASE_NAME = "daisy_memory";
 const DEFAULT_COLLECTION_NAME = "memories";
 const DEFAULT_VECTOR_SEARCH_INDEX_NAME = "vector_index";
+
+export const DEFAULT_CAPTURE_TRIGGERS = [
+  "remember",
+  "prefer",
+  "decided|will use",
+  "\\+\\d{10,}",
+  "[\\w.-]+@[\\w.-]+\\.\\w+",
+  "my\\s+\\w+\\s+is|is\\s+my",
+  "i (like|prefer|hate|love|want|need)",
+  "always|never|important",
+];
 
 const EMBEDDING_DIMENSIONS: Record<string, number> = {
   "text-embedding-3-small": 1536,
@@ -124,6 +136,7 @@ export const memoryConfigSchema = {
         "databaseName",
         "collectionName",
         "vectorSearchIndexName",
+        "captureTriggers",
         "autoCapture",
         "autoRecall",
       ],
@@ -145,6 +158,25 @@ export const memoryConfigSchema = {
 
     validateConnectionUriTls(resolvedUri);
 
+    // Validate and compile capture triggers
+    const rawTriggers = Array.isArray(cfg.captureTriggers)
+      ? cfg.captureTriggers
+      : DEFAULT_CAPTURE_TRIGGERS;
+
+    const captureTriggers: string[] = [];
+    for (const t of rawTriggers) {
+      if (typeof t !== "string") {
+        throw new Error("captureTriggers must be an array of regex strings");
+      }
+      // Validate that each string is a valid regex
+      try {
+        new RegExp(t, "i");
+      } catch {
+        throw new Error(`Invalid captureTrigger regex: ${t}`);
+      }
+      captureTriggers.push(t);
+    }
+
     return {
       embedding: {
         provider: "openai",
@@ -164,6 +196,7 @@ export const memoryConfigSchema = {
         typeof cfg.vectorSearchIndexName === "string"
           ? cfg.vectorSearchIndexName
           : DEFAULT_VECTOR_SEARCH_INDEX_NAME,
+      captureTriggers,
       autoCapture: cfg.autoCapture !== false,
       autoRecall: cfg.autoRecall !== false,
     };
@@ -200,6 +233,11 @@ export const memoryConfigSchema = {
       label: "Vector Search Index Name",
       placeholder: DEFAULT_VECTOR_SEARCH_INDEX_NAME,
       advanced: true,
+    },
+    captureTriggers: {
+      label: "Capture Triggers",
+      advanced: true,
+      help: "Array of regex patterns that trigger auto-capture (case-insensitive)",
     },
     autoCapture: {
       label: "Auto-Capture",

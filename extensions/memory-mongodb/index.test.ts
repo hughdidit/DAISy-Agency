@@ -164,24 +164,47 @@ describe("memory-mongodb plugin", () => {
     expect(config?.connectionUri).toBe("mongodb://localhost:27017/test");
   });
 
-  test("shouldCapture filters correctly", async () => {
-    const { shouldCapture } = await import("./index.js");
+  test("shouldCapture filters correctly with default triggers", async () => {
+    const { shouldCapture, compileTriggers } = await import("./index.js");
+    const { DEFAULT_CAPTURE_TRIGGERS } = await import("./config.js");
+    const triggers = compileTriggers(DEFAULT_CAPTURE_TRIGGERS);
 
     // Should capture
-    expect(shouldCapture("I prefer dark mode for all applications")).toBe(true);
-    expect(shouldCapture("Remember that my name is John")).toBe(true);
-    expect(shouldCapture("My email is test@example.com")).toBe(true);
-    expect(shouldCapture("Call me at +1234567890123")).toBe(true);
-    expect(shouldCapture("We decided to use TypeScript")).toBe(true);
-    expect(shouldCapture("I always want verbose output")).toBe(true);
+    expect(shouldCapture("I prefer dark mode for all applications", triggers)).toBe(true);
+    expect(shouldCapture("Remember that my name is John", triggers)).toBe(true);
+    expect(shouldCapture("My email is test@example.com", triggers)).toBe(true);
+    expect(shouldCapture("Call me at +1234567890123", triggers)).toBe(true);
+    expect(shouldCapture("We decided to use TypeScript", triggers)).toBe(true);
+    expect(shouldCapture("I always want verbose output", triggers)).toBe(true);
 
     // Should NOT capture
-    expect(shouldCapture("x")).toBe(false); // Too short
-    expect(shouldCapture("Just a random short msg")).toBe(false); // No trigger
+    expect(shouldCapture("x", triggers)).toBe(false); // Too short
+    expect(shouldCapture("Just a random short msg", triggers)).toBe(false); // No trigger
     expect(
-      shouldCapture("<relevant-memories>injected content here</relevant-memories>"),
+      shouldCapture("<relevant-memories>injected content here</relevant-memories>", triggers),
     ).toBe(false); // Injected context
-    expect(shouldCapture("<system>some system output</system>")).toBe(false); // System content
+    expect(shouldCapture("<system>some system output</system>", triggers)).toBe(false); // System content
+  });
+
+  test("shouldCapture works with custom triggers", async () => {
+    const { shouldCapture, compileTriggers } = await import("./index.js");
+    const custom = compileTriggers(["banana", "rocket\\s+ship"]);
+
+    expect(shouldCapture("I really love banana smoothies", custom)).toBe(true);
+    expect(shouldCapture("Build me a rocket ship please", custom)).toBe(true);
+    expect(shouldCapture("I prefer dark mode for everything", custom)).toBe(false); // Not in custom triggers
+  });
+
+  test("config rejects invalid captureTrigger regex", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+
+    expect(() => {
+      memoryPlugin.configSchema?.parse?.({
+        embedding: { apiKey: OPENAI_API_KEY },
+        connectionUri: "mongodb+srv://user:pass@cluster.example.com/test",
+        captureTriggers: ["(invalid["],
+      });
+    }).toThrow("Invalid captureTrigger regex");
   });
 
   test("detectCategory classifies correctly", async () => {
@@ -191,7 +214,7 @@ describe("memory-mongodb plugin", () => {
     expect(detectCategory("We decided to use React")).toBe("decision");
     expect(detectCategory("My email is test@example.com")).toBe("entity");
     expect(detectCategory("The server is running on port 3000")).toBe("fact");
-    expect(detectCategory("zapamatuj si tohle číslo")).toBe("other");
+    expect(detectCategory("some random unique text xyz")).toBe("other");
   });
 });
 

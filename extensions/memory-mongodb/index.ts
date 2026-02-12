@@ -14,6 +14,7 @@ import { stringEnum } from "clawdbot/plugin-sdk";
 
 import {
   MEMORY_CATEGORIES,
+  DEFAULT_CAPTURE_TRIGGERS,
   type MemoryCategory,
   memoryConfigSchema,
   vectorDimsForModel,
@@ -52,19 +53,14 @@ class Embeddings {
 // Rule-based capture filter
 // ============================================================================
 
-const MEMORY_TRIGGERS = [
-  /zapamatuj si|pamatuj|remember/i,
-  /preferuji|radši|nechci|prefer/i,
-  /rozhodli jsme|budeme používat/i,
-  /\+\d{10,}/,
-  /[\w.-]+@[\w.-]+\.\w+/,
-  /můj\s+\w+\s+je|je\s+můj/i,
-  /my\s+\w+\s+is|is\s+my/i,
-  /i (like|prefer|hate|love|want|need)/i,
-  /always|never|important/i,
-];
+/**
+ * Compile an array of trigger pattern strings into RegExp objects.
+ */
+function compileTriggers(patterns: string[]): RegExp[] {
+  return patterns.map((p) => new RegExp(p, "i"));
+}
 
-function shouldCapture(text: string): boolean {
+function shouldCapture(text: string, triggers: RegExp[]): boolean {
   if (text.length < 10 || text.length > 500) return false;
   // Skip injected context from memory recall
   if (text.includes("<relevant-memories>")) return false;
@@ -75,16 +71,16 @@ function shouldCapture(text: string): boolean {
   // Skip emoji-heavy responses (likely agent output)
   const emojiCount = (text.match(/[\u{1F300}-\u{1F9FF}]/gu) || []).length;
   if (emojiCount > 3) return false;
-  return MEMORY_TRIGGERS.some((r) => r.test(text));
+  return triggers.some((r) => r.test(text));
 }
 
 function detectCategory(text: string): MemoryCategory {
   const lower = text.toLowerCase();
-  if (/prefer|radši|like|love|hate|want/i.test(lower)) return "preference";
-  if (/rozhodli|decided|will use|budeme/i.test(lower)) return "decision";
-  if (/\+\d{10,}|@[\w.-]+\.\w+|is called|jmenuje se/i.test(lower))
+  if (/prefer|like|love|hate|want/i.test(lower)) return "preference";
+  if (/decided|will use/i.test(lower)) return "decision";
+  if (/\+\d{10,}|@[\w.-]+\.\w+|is called/i.test(lower))
     return "entity";
-  if (/is|are|has|have|je|má|jsou/i.test(lower)) return "fact";
+  if (/is|are|has|have/i.test(lower)) return "fact";
   return "other";
 }
 
@@ -109,6 +105,7 @@ const memoryPlugin = {
       cfg.vectorSearchIndexName,
     );
     const embeddings = new Embeddings(cfg.embedding.apiKey, cfg.embedding.model!);
+    const triggers = compileTriggers(cfg.captureTriggers);
 
     // Log safe startup info (never log the connection URI)
     api.logger.info(
@@ -427,7 +424,7 @@ const memoryPlugin = {
 
           // Filter for capturable content
           const toCapture = texts.filter(
-            (text) => text && shouldCapture(text),
+            (text) => text && shouldCapture(text, triggers),
           );
           if (toCapture.length === 0) return;
 
@@ -481,4 +478,4 @@ const memoryPlugin = {
 export default memoryPlugin;
 
 // Re-export for tests
-export { shouldCapture, detectCategory };
+export { shouldCapture, detectCategory, compileTriggers };

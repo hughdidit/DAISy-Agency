@@ -40,8 +40,40 @@ Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector S
 | `databaseName` | No | `daisy_memory` | MongoDB database name |
 | `collectionName` | No | `memories` | MongoDB collection name |
 | `vectorSearchIndexName` | No | `vector_index` | Atlas Vector Search index name |
+| `captureTriggers` | No | *(see below)* | Array of regex patterns (case-insensitive) that trigger auto-capture |
 | `autoCapture` | No | `true` | Automatically capture important information from conversations |
 | `autoRecall` | No | `true` | Automatically inject relevant memories into context |
+
+### Capture Triggers
+
+The `captureTriggers` field controls which messages are auto-captured. Each entry is a regex pattern string (case-insensitive). A message is captured if it matches **any** trigger.
+
+Default triggers:
+```json
+[
+  "remember",
+  "prefer",
+  "decided|will use",
+  "\\+\\d{10,}",
+  "[\\w.-]+@[\\w.-]+\\.\\w+",
+  "my\\s+\\w+\\s+is|is\\s+my",
+  "i (like|prefer|hate|love|want|need)",
+  "always|never|important"
+]
+```
+
+To customize, provide your own array — it **replaces** the defaults entirely:
+
+```json
+{
+  "captureTriggers": [
+    "remember",
+    "prefer",
+    "project\\s+deadline",
+    "budget|cost|price"
+  ]
+}
+```
 
 ## Atlas Setup
 
