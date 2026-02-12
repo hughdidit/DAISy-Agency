@@ -1,9 +1,13 @@
 {
   "name": "@openclaw/imessage",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.6-3",
 =======
   "version": "2026.2.10",
+=======
+  "version": "2026.2.12",
+>>>>>>> 7695b4842 (chore: bump version to 2026.2.12)
   "private": true,
 >>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
   "description": "OpenClaw iMessage channel plugin",
