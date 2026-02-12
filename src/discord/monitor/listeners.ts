@@ -274,7 +274,7 @@ async function handleDiscordReactionEvent(params: {
       peer: { kind: "channel", id: data.channel_id },
 =======
       peer: {
-        kind: isDirectMessage ? "dm" : isGroupDm ? "group" : "channel",
+        kind: isDirectMessage ? "direct" : isGroupDm ? "group" : "channel",
         id: isDirectMessage ? user.id : data.channel_id,
       },
       parentPeer: parentId ? { kind: "channel", id: parentId } : undefined,
