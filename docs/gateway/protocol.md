@@ -145,6 +145,10 @@ Common scopes:
 - `operator.approvals`
 - `operator.pairing`
 
+When `scopes` is omitted or empty, operators default to `["operator.read"]`.
+Callers that need elevated access must request scopes explicitly in the connect
+handshake.
+
 ### Caps/commands/permissions (node)
 Nodes declare capability claims at connect time:
 - `caps`: high-level capability categories.

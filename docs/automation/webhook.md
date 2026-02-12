@@ -149,6 +149,8 @@ curl -X POST http://127.0.0.1:18789/hooks/gmail \
 
 - Keep hook endpoints behind loopback, tailnet, or trusted reverse proxy.
 - Use a dedicated hook token; do not reuse gateway auth tokens.
+- Hook token comparison uses constant-time HMAC digest comparison to prevent
+  timing side-channel attacks.
 - Avoid including sensitive raw payloads in webhook logs.
 - Hook payloads are treated as untrusted and wrapped with safety boundaries by default.
   If you must disable this for a specific hook, set `allowUnsafeExternalContent: true`
