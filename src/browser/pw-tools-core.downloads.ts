@@ -2,6 +2,7 @@ import type { Page } from "playwright-core";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 import {
   ensurePageState,
   getPageForTargetId,
@@ -20,7 +21,11 @@ import {
 function buildTempDownloadPath(fileName: string): string {
   const id = crypto.randomUUID();
   const safeName = fileName.trim() ? fileName.trim() : "download.bin";
+<<<<<<< HEAD
   return path.join("/tmp/openclaw/downloads", `${id}-${safeName}`);
+=======
+  return path.join(resolvePreferredOpenClawTmpDir(), "downloads", `${id}-${safeName}`);
+>>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 }
 
 function createPageDownloadWaiter(page: Page, timeoutMs: number) {
