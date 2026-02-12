@@ -206,8 +206,22 @@ export function splitMediaFromOutput(raw: string): {
         }
       }
 
+<<<<<<< HEAD
       if (hasValidMedia && invalidParts.length > 0) {
         pieces.push(invalidParts.join(" "));
+=======
+      if (hasValidMedia) {
+        if (invalidParts.length > 0) {
+          pieces.push(invalidParts.join(" "));
+        }
+      } else if (looksLikeLocalPath) {
+        // Strip MEDIA: lines with local paths even when invalid (e.g. absolute paths
+        // from internal tools like TTS). They should never leak as visible text.
+        foundMediaToken = true;
+      } else {
+        // If no valid media was found in this match, keep the original token text.
+        pieces.push(match[0]);
+>>>>>>> 94bc62ad4 (fix(media): strip MEDIA: lines with local paths instead of leaking as text (#14399))
       }
 
       cursor = start + match[0].length;
