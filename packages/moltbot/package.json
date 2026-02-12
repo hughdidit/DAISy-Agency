@@ -1,9 +1,13 @@
 {
   "name": "moltbot",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.2.10",
+=======
+  "version": "2026.2.12",
+>>>>>>> 7695b4842 (chore: bump version to 2026.2.12)
   "description": "Compatibility shim that forwards to openclaw",
   "bin": {
     "moltbot": "./bin/moltbot.js"

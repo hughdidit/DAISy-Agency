@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
@@ -19,6 +20,9 @@
 >>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
 =======
   "version": "2026.2.10",
+=======
+  "version": "2026.2.12",
+>>>>>>> 7695b4842 (chore: bump version to 2026.2.12)
   "private": true,
 >>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
   "description": "OpenClaw Google Chat channel plugin",

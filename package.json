@@ -9,6 +9,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29-beta.1",
 =======
   "version": "2026.1.29-beta.3",
@@ -37,6 +38,9 @@
   "description": "WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
 =======
   "version": "2026.2.10",
+=======
+  "version": "2026.2.12",
+>>>>>>> 7695b4842 (chore: bump version to 2026.2.12)
   "description": "Multi-channel AI gateway with extensible messaging integrations",
   "keywords": [],
   "license": "MIT",
