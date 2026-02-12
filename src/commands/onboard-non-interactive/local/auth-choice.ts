@@ -64,7 +64,11 @@ import {
   resolveCustomProviderId,
 } from "../../onboard-custom.js";
 import { applyOpenAIConfig } from "../../openai-model-default.js";
+<<<<<<< HEAD
 >>>>>>> 029b77c85 (onboard: support custom provider in non-interactive flow (#14223))
+=======
+import { detectZaiEndpoint } from "../../zai-endpoint-detect.js";
+>>>>>>> 5e7842a41 (feat(zai): auto-detect endpoint + default glm-5 (#14786))
 import { resolveNonInteractiveApiKey } from "../api-keys.js";
 import { shortenHomePath } from "../../../utils.js";
 
@@ -227,8 +231,10 @@ export async function applyNonInteractiveAuthChoice(params: {
       mode: "api_key",
     });
 
-    // Determine endpoint from authChoice or opts
+    // Determine endpoint from authChoice or detect from the API key.
     let endpoint: "global" | "cn" | "coding-global" | "coding-cn" | undefined;
+    let modelIdOverride: string | undefined;
+
     if (authChoice === "zai-coding-global") {
       endpoint = "coding-global";
     } else if (authChoice === "zai-coding-cn") {
@@ -238,9 +244,19 @@ export async function applyNonInteractiveAuthChoice(params: {
     } else if (authChoice === "zai-cn") {
       endpoint = "cn";
     } else {
-      endpoint = "coding-global";
+      const detected = await detectZaiEndpoint({ apiKey: resolved.key });
+      if (detected) {
+        endpoint = detected.endpoint;
+        modelIdOverride = detected.modelId;
+      } else {
+        endpoint = "global";
+      }
     }
-    return applyZaiConfig(nextConfig, { endpoint });
+
+    return applyZaiConfig(nextConfig, {
+      endpoint,
+      ...(modelIdOverride ? { modelId: modelIdOverride } : {}),
+    });
   }
 
   if (authChoice === "xiaomi-api-key") {
