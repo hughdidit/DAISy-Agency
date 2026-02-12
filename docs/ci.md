@@ -24,6 +24,7 @@ Tier 2 — After format (parallel, ~2 min)
 Tier 3 — Build (~3 min)
   build-artifacts   release-check
 
+<<<<<<< HEAD
 Tier 4 — Tests (~5 min)
   checks (node tsgo / test / protocol, bun test)
   checks-windows (lint / test / protocol)
@@ -145,6 +146,8 @@ This eliminates ~40 lines of duplicated YAML per job.
 | Push to `main` | Steps skipped (job passes)    | Run normally          |
 | Pull request   | Full analysis with `--strict` | Blocked on violations |
 
+=======
+>>>>>>> c2178e252 (chore: Cleanup useless CI job.)
 ## Runners
 
 | Name                            | OS           | vCPUs | Used by          |

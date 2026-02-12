@@ -147,7 +147,7 @@ jobs:
 
   # Build dist once for Node-relevant changes and share it with downstream jobs.
   build-artifacts:
-    needs: [docs-scope, changed-scope, code-analysis, check]
+    needs: [docs-scope, changed-scope, check]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
@@ -197,7 +197,7 @@ jobs:
         run: pnpm release:check
 
   checks:
-    needs: [docs-scope, changed-scope, code-analysis, check]
+    needs: [docs-scope, changed-scope, check]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-4vcpu-ubuntu-2404
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
@@ -379,37 +379,6 @@ jobs:
       - name: Check docs
         run: pnpm check:docs
 
-  # Check for files that grew past LOC threshold in this PR (delta-only).
-  # On push events, all steps are skipped and the job passes (no-op).
-  # Heavy downstream jobs depend on this to fail fast on violations.
-  code-analysis:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    steps:
-      - name: Checkout
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          submodules: false
-
-      - name: Setup Python
-        if: github.event_name == 'pull_request'
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Fetch base branch
-        if: github.event_name == 'pull_request'
-        run: git fetch origin ${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}
-
-      - name: Check code file sizes
-        if: github.event_name == 'pull_request'
-        run: |
-          python scripts/analyze_code_files.py \
-            --compare-to origin/${{ github.base_ref }} \
-            --threshold 1000 \
-            --strict
-
   secrets:
     name: Secrets Scan
     runs-on: ubuntu-latest
@@ -443,6 +412,7 @@ jobs:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     name: Windows / ${{ matrix.runtime }} / ${{ matrix.task }}
     runs-on: windows-latest
 =======
@@ -462,6 +432,9 @@ jobs:
 =======
     needs: [docs-scope, changed-scope, build-artifacts, code-analysis, check]
 >>>>>>> 039aaf176 (CI: cleanup and fix broken job references)
+=======
+    needs: [docs-scope, changed-scope, build-artifacts, check]
+>>>>>>> c2178e252 (chore: Cleanup useless CI job.)
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
 >>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     runs-on: blacksmith-4vcpu-windows-2025
@@ -632,7 +605,7 @@ jobs:
   # running 4 separate jobs per PR (as before) starved the queue. One job
   # per PR allows 5 PRs to run macOS checks simultaneously.
   macos:
-    needs: [docs-scope, changed-scope, code-analysis, check]
+    needs: [docs-scope, changed-scope, check]
     if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_macos == 'true'
     runs-on: macos-latest
 >>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
@@ -1012,6 +985,7 @@ jobs:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     name: Android / ${{ matrix.task }}
     runs-on: ubuntu-latest
 =======
@@ -1031,6 +1005,9 @@ jobs:
 =======
     needs: [docs-scope, changed-scope, code-analysis, check]
 >>>>>>> 039aaf176 (CI: cleanup and fix broken job references)
+=======
+    needs: [docs-scope, changed-scope, check]
+>>>>>>> c2178e252 (chore: Cleanup useless CI job.)
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_android == 'true')
 >>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     runs-on: blacksmith-4vcpu-ubuntu-2404
