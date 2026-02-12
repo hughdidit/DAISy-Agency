@@ -56,6 +56,53 @@ export type MonitorDiscordOpts = {
   replyToMode?: ReplyToMode;
 };
 
+<<<<<<< HEAD
+=======
+function createDiscordGatewayPlugin(params: {
+  discordConfig: DiscordAccountConfig;
+  runtime: RuntimeEnv;
+}): GatewayPlugin {
+  const intents = resolveDiscordGatewayIntents(params.discordConfig?.intents);
+  const proxy = params.discordConfig?.proxy?.trim();
+  const options = {
+    reconnect: { maxAttempts: 50 },
+    intents,
+    autoInteractions: true,
+  };
+
+  if (!proxy) {
+    return new GatewayPlugin(options);
+  }
+
+  try {
+    const agent = new HttpsProxyAgent<string>(proxy);
+
+    params.runtime.log?.("discord: gateway proxy enabled");
+
+    class ProxyGatewayPlugin extends GatewayPlugin {
+      #proxyAgent: HttpsProxyAgent<string>;
+
+      constructor(proxyAgent: HttpsProxyAgent<string>) {
+        super(options);
+        this.#proxyAgent = proxyAgent;
+      }
+
+      createWebSocket(url?: string) {
+        if (!url) {
+          throw new Error("Gateway URL is required");
+        }
+        return new WebSocket(url, { agent: this.#proxyAgent });
+      }
+    }
+
+    return new ProxyGatewayPlugin(agent);
+  } catch (err) {
+    params.runtime.error?.(danger(`discord: invalid gateway proxy: ${String(err)}`));
+    return new GatewayPlugin(options);
+  }
+}
+
+>>>>>>> e55431bf8 (fix(discord): restore gateway reconnect maxAttempts to 50)
 function summarizeAllowList(list?: Array<string | number>) {
   if (!list || list.length === 0) {
     return "any";
