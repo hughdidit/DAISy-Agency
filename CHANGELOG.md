@@ -167,6 +167,19 @@ Docs: https://docs.openclaw.ai
 - WhatsApp: convert Markdown bold/strikethrough to WhatsApp formatting. (#14285) Thanks @Raikan10.
 - WhatsApp: allow media-only sends and normalize leading blank payloads. (#14408) Thanks @karimnaguib.
 - WhatsApp: default MIME type for voice messages when Baileys omits it. (#14444) Thanks @mcaxtr.
+<<<<<<< HEAD
+=======
+- Telegram: handle no-text message in model picker editMessageText. (#14397) Thanks @0xRaini.
+- Telegram: surface REACTION_INVALID as non-fatal warning. (#14340) Thanks @0xRaini.
+- BlueBubbles: fix webhook auth bypass via loopback proxy trust. (#13787) Thanks @coygeek.
+- Slack: change default replyToMode from "off" to "all". (#14364) Thanks @nm-de.
+- Slack: detect control commands when channel messages start with bot mention prefixes (for example, `@Bot /new`). (#14142) Thanks @beefiker.
+- Discord: process DM reactions instead of silently dropping them. (#10418) Thanks @mcaxtr.
+- Signal: render mention placeholders as `@uuid`/`@phone` so mention gating and Clawdbot targeting work. (#2013) Thanks @alexgleason.
+- Discord: omit empty content fields for media-only messages while preserving caption whitespace. (#9507) Thanks @leszekszpunar.
+- Onboarding/Providers: add Z.AI endpoint-specific auth choices (`zai-coding-global`, `zai-coding-cn`, `zai-global`, `zai-cn`) and expand default Z.AI model wiring. (#13456) Thanks @tomsun28.
+- Onboarding/Providers: update MiniMax API default/recommended models from M2.1 to M2.5, add M2.5/M2.5-Lightning model entries, and include `minimax-m2.5` in modern model filtering. (#14865) Thanks @adao-max.
+>>>>>>> 033d5b5c1 (Changelog: note discord dm reaction fix)
 - Ollama: use configured `models.providers.ollama.baseUrl` for model discovery and normalize `/v1` endpoints to the native Ollama API root. (#14131) Thanks @shtse8.
 - Slack: detect control commands when channel messages start with bot mention prefixes (for example, `@Bot /new`). (#14142) Thanks @beefiker.
 - Discord tests: use a partial @buape/carbon mock in slash command coverage. (#13262) Thanks @arosstale.
