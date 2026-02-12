@@ -21,6 +21,112 @@ import { ensureLoaded, persist } from "./store.js";
 
 const MAX_TIMER_DELAY_MS = 60_000;
 
+<<<<<<< HEAD
+=======
+/**
+ * Maximum wall-clock time for a single job execution. Acts as a safety net
+ * on top of the per-provider / per-agent timeouts to prevent one stuck job
+ * from wedging the entire cron lane.
+ */
+const DEFAULT_JOB_TIMEOUT_MS = 10 * 60_000; // 10 minutes
+
+/**
+ * Exponential backoff delays (in ms) indexed by consecutive error count.
+ * After the last entry the delay stays constant.
+ */
+const ERROR_BACKOFF_SCHEDULE_MS = [
+  30_000, // 1st error  →  30 s
+  60_000, // 2nd error  →   1 min
+  5 * 60_000, // 3rd error  →   5 min
+  15 * 60_000, // 4th error  →  15 min
+  60 * 60_000, // 5th+ error →  60 min
+];
+
+function errorBackoffMs(consecutiveErrors: number): number {
+  const idx = Math.min(consecutiveErrors - 1, ERROR_BACKOFF_SCHEDULE_MS.length - 1);
+  return ERROR_BACKOFF_SCHEDULE_MS[Math.max(0, idx)];
+}
+
+/**
+ * Apply the result of a job execution to the job's state.
+ * Handles consecutive error tracking, exponential backoff, one-shot disable,
+ * and nextRunAtMs computation. Returns `true` if the job should be deleted.
+ */
+function applyJobResult(
+  state: CronServiceState,
+  job: CronJob,
+  result: {
+    status: "ok" | "error" | "skipped";
+    error?: string;
+    startedAt: number;
+    endedAt: number;
+  },
+): boolean {
+  job.state.runningAtMs = undefined;
+  job.state.lastRunAtMs = result.startedAt;
+  job.state.lastStatus = result.status;
+  job.state.lastDurationMs = Math.max(0, result.endedAt - result.startedAt);
+  job.state.lastError = result.error;
+  job.updatedAtMs = result.endedAt;
+
+  // Track consecutive errors for backoff / auto-disable.
+  if (result.status === "error") {
+    job.state.consecutiveErrors = (job.state.consecutiveErrors ?? 0) + 1;
+  } else {
+    job.state.consecutiveErrors = 0;
+  }
+
+  const shouldDelete =
+    job.schedule.kind === "at" &&
+    job.deleteAfterRun === true &&
+    (result.status === "ok" || result.status === "skipped");
+
+  if (!shouldDelete) {
+    if (job.schedule.kind === "at") {
+      // One-shot jobs are always disabled after ANY terminal status
+      // (ok, error, or skipped). This prevents tight-loop rescheduling
+      // when computeJobNextRunAtMs returns the past atMs value (#11452).
+      job.enabled = false;
+      job.state.nextRunAtMs = undefined;
+      if (result.status === "error") {
+        state.deps.log.warn(
+          {
+            jobId: job.id,
+            jobName: job.name,
+            consecutiveErrors: job.state.consecutiveErrors,
+            error: result.error,
+          },
+          "cron: disabling one-shot job after error",
+        );
+      }
+    } else if (result.status === "error" && job.enabled) {
+      // Apply exponential backoff for errored jobs to prevent retry storms.
+      const backoff = errorBackoffMs(job.state.consecutiveErrors ?? 1);
+      const normalNext = computeJobNextRunAtMs(job, result.endedAt);
+      const backoffNext = result.endedAt + backoff;
+      // Use whichever is later: the natural next run or the backoff delay.
+      job.state.nextRunAtMs =
+        normalNext !== undefined ? Math.max(normalNext, backoffNext) : backoffNext;
+      state.deps.log.info(
+        {
+          jobId: job.id,
+          consecutiveErrors: job.state.consecutiveErrors,
+          backoffMs: backoff,
+          nextRunAtMs: job.state.nextRunAtMs,
+        },
+        "cron: applying error backoff",
+      );
+    } else if (job.enabled) {
+      job.state.nextRunAtMs = computeJobNextRunAtMs(job, result.endedAt);
+    } else {
+      job.state.nextRunAtMs = undefined;
+    }
+  }
+
+  return shouldDelete;
+}
+
+>>>>>>> f7e05d013 (fix: exclude maxTokens from config redaction + honor deleteAfterRun on skipped cron jobs (#13342))
 export function armTimer(state: CronServiceState) {
   if (state.timer) clearTimeout(state.timer);
   state.timer = null;
