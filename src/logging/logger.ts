@@ -1,5 +1,9 @@
 import { createRequire } from "node:module";
+<<<<<<< HEAD
 import fs from "node:fs";
+=======
+import os from "node:os";
+>>>>>>> afbce7357 (fix: use os.tmpdir fallback paths for temp files (#14985))
 import path from "node:path";
 
 import { Logger as TsLogger } from "tslog";
@@ -10,10 +14,26 @@ import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
 import { readLoggingConfig } from "./config.js";
 import { loggingState } from "./state.js";
 
+<<<<<<< HEAD
 // Pin to /tmp so mac Debug UI and docs match; os.tmpdir() can be a per-user
 // randomized path on macOS which made the “Open log” button a no-op.
 export const DEFAULT_LOG_DIR = "/tmp/moltbot";
 export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "moltbot.log"); // legacy single-file path
+=======
+// Prefer /tmp/openclaw so macOS Debug UI and docs match, but fall back to
+// os.tmpdir() on platforms where /tmp is read-only (e.g. Termux/Android).
+function resolveDefaultLogDir(): string {
+  try {
+    fs.mkdirSync("/tmp/openclaw", { recursive: true });
+    return "/tmp/openclaw";
+  } catch {
+    return path.join(os.tmpdir(), "openclaw");
+  }
+}
+
+export const DEFAULT_LOG_DIR = resolveDefaultLogDir();
+export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "openclaw.log"); // legacy single-file path
+>>>>>>> afbce7357 (fix: use os.tmpdir fallback paths for temp files (#14985))
 
 const LOG_PREFIX = "moltbot";
 const LOG_SUFFIX = ".log";

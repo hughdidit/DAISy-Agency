@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 
 import type { Page } from "playwright-core";
@@ -22,7 +23,11 @@ import {
 function buildTempDownloadPath(fileName: string): string {
   const id = crypto.randomUUID();
   const safeName = fileName.trim() ? fileName.trim() : "download.bin";
+<<<<<<< HEAD
   return path.join("/tmp/moltbot/downloads", `${id}-${safeName}`);
+=======
+  return path.join(os.tmpdir(), "openclaw", "downloads", `${id}-${safeName}`);
+>>>>>>> afbce7357 (fix: use os.tmpdir fallback paths for temp files (#14985))
 }
 
 function createPageDownloadWaiter(page: Page, timeoutMs: number) {

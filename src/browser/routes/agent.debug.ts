@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 
 import type { BrowserRouteContext } from "../server-context.js";
@@ -112,7 +113,11 @@ export function registerBrowserAgentDebugRoutes(
       const pw = await requirePwAi(res, "trace stop");
       if (!pw) return;
       const id = crypto.randomUUID();
+<<<<<<< HEAD
       const dir = "/tmp/moltbot";
+=======
+      const dir = path.join(os.tmpdir(), "openclaw");
+>>>>>>> afbce7357 (fix: use os.tmpdir fallback paths for temp files (#14985))
       await fs.mkdir(dir, { recursive: true });
       const tracePath = out.trim() || path.join(dir, `browser-trace-${id}.zip`);
       await pw.traceStopViaPlaywright({
