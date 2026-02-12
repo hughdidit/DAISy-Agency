@@ -36,6 +36,14 @@ import {
   type ModelRef,
 } from "../agents/model-selection.js";
 import { resolveModel } from "../agents/pi-embedded-runner/model.js";
+<<<<<<< HEAD
+=======
+import { normalizeChannelId } from "../channels/plugins/index.js";
+import { logVerbose } from "../globals.js";
+import { stripMarkdown } from "../line/markdown-to-line.js";
+import { isVoiceCompatibleAudio } from "../media/audio.js";
+import { CONFIG_DIR, resolveUserPath } from "../utils.js";
+>>>>>>> a5ab9fac0 (fix(tts): strip markdown before sending text to TTS engines (#13237))
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_TTS_MAX_LENGTH = 1500;
@@ -1500,13 +1508,11 @@ export async function maybeApplyTtsToPayload(params: {
 
   if (textForAudio.length > maxLength) {
     if (!isSummarizationEnabled(prefsPath)) {
-      // Truncate text when summarization is disabled
       logVerbose(
         `TTS: truncating long text (${textForAudio.length} > ${maxLength}), summarization disabled.`,
       );
       textForAudio = `${textForAudio.slice(0, maxLength - 3)}...`;
     } else {
-      // Summarize text when enabled
       try {
         const summary = await summarizeText({
           text: textForAudio,
@@ -1529,6 +1535,11 @@ export async function maybeApplyTtsToPayload(params: {
         textForAudio = `${textForAudio.slice(0, maxLength - 3)}...`;
       }
     }
+  }
+
+  textForAudio = stripMarkdown(textForAudio).trim(); // strip markdown for TTS (### → "hashtag" etc.)
+  if (textForAudio.length < 10) {
+    return nextPayload;
   }
 
   const ttsStart = Date.now();
