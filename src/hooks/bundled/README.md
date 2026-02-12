@@ -32,6 +32,7 @@ Logs all command events to a centralized audit file.
 clawdbot hooks enable command-logger
 ```
 
+<<<<<<< HEAD
 ### 😈 soul-evil
 
 Swaps injected `SOUL.md` content with `SOUL_EVIL.md` during a purge window or by random chance.
@@ -47,6 +48,8 @@ Swaps injected `SOUL.md` content with `SOUL_EVIL.md` during a purge window or by
 clawdbot hooks enable soul-evil
 ```
 
+=======
+>>>>>>> 4c86010b0 (fix: remove bundled soul-evil hook (closes #8776) (#14757))
 ### 🚀 boot-md
 
 Runs `BOOT.md` whenever the gateway starts (after channels start).

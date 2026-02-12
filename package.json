@@ -9,6 +9,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29-beta.2",
 >>>>>>> 02576615c (fix: migrate legacy gateway services)
 =======
@@ -27,6 +28,28 @@
   "version": "2026.2.2-3",
 >>>>>>> 9c5941ba4 (fix: add legacy daemon-cli shim for updates)
   "description": "WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
+=======
+  "version": "2026.2.12",
+  "description": "Multi-channel AI gateway with extensible messaging integrations",
+  "keywords": [],
+  "license": "MIT",
+  "author": "",
+  "bin": {
+    "openclaw": "openclaw.mjs"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "LICENSE",
+    "openclaw.mjs",
+    "README-header.png",
+    "README.md",
+    "assets/",
+    "dist/",
+    "docs/",
+    "extensions/",
+    "skills/"
+  ],
+>>>>>>> 4c86010b0 (fix: remove bundled soul-evil hook (closes #8776) (#14757))
   "type": "module",
   "main": "dist/index.js",
   "exports": {

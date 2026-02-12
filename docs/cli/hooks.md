@@ -29,13 +29,12 @@ List all discovered hooks from workspace, managed, and bundled directories.
 **Example output:**
 
 ```
-Hooks (4/4 ready)
+Hooks (3/3 ready)
 
 Ready:
   🚀 boot-md ✓ - Run BOOT.md on gateway startup
   📝 command-logger ✓ - Log all command events to a centralized audit file
   💾 session-memory ✓ - Save session context to memory when /new command is issued
-  😈 soul-evil ✓ - Swap injected SOUL content during a purge window or by random chance
 ```
 
 **Example (verbose):**
@@ -263,6 +262,7 @@ grep '"action":"new"' ~/.clawdbot/logs/commands.log | jq .
 
 **See:** [command-logger documentation](/hooks#command-logger)
 
+<<<<<<< HEAD
 ### soul-evil
 
 Swaps injected `SOUL.md` content with `SOUL_EVIL.md` during a purge window or by random chance.
@@ -275,6 +275,8 @@ moltbot hooks enable soul-evil
 
 **See:** [SOUL Evil Hook](/hooks/soul-evil)
 
+=======
+>>>>>>> 4c86010b0 (fix: remove bundled soul-evil hook (closes #8776) (#14757))
 ### boot-md
 
 Runs `BOOT.md` when the gateway starts (after channels start).

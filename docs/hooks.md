@@ -37,12 +37,15 @@ The hooks system allows you to:
 
 ### Bundled Hooks
 
+<<<<<<< HEAD:docs/hooks.md
 Moltbot ships with four bundled hooks that are automatically discovered:
+=======
+OpenClaw ships with three bundled hooks that are automatically discovered:
+>>>>>>> 4c86010b0 (fix: remove bundled soul-evil hook (closes #8776) (#14757)):docs/automation/hooks.md
 
 - **💾 session-memory**: Saves session context to your agent workspace (default `~/clawd/memory/`) when you issue `/new`
 - **📝 command-logger**: Logs all command events to `~/.clawdbot/logs/commands.log`
 - **🚀 boot-md**: Runs `BOOT.md` when the gateway starts (requires internal hooks enabled)
-- **😈 soul-evil**: Swaps injected `SOUL.md` content with `SOUL_EVIL.md` during a purge window or by random chance
 
 List available hooks:
 
@@ -519,6 +522,7 @@ grep '"action":"new"' ~/.clawdbot/logs/commands.log | jq .
 moltbot hooks enable command-logger
 ```
 
+<<<<<<< HEAD:docs/hooks.md
 ### soul-evil
 
 Swaps injected `SOUL.md` content with `SOUL_EVIL.md` during a purge window or by random chance.
@@ -555,6 +559,8 @@ moltbot hooks enable soul-evil
 }
 ```
 
+=======
+>>>>>>> 4c86010b0 (fix: remove bundled soul-evil hook (closes #8776) (#14757)):docs/automation/hooks.md
 ### boot-md
 
 Runs `BOOT.md` when the gateway starts (after channels start).
