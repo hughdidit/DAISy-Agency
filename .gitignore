@@ -72,9 +72,13 @@ apps/ios/*.mobileprovision
 IDENTITY.md
 USER.md
 .tgz
+<<<<<<< HEAD
 .githooks/
 error.log
 *.bak
+=======
+.idea
+>>>>>>> 540996f10 (feat(provider): Z.AI endpoints + model catalog (#13456) (thanks @tomsun28) (#13456))
 
 # local tooling
 .serena/
