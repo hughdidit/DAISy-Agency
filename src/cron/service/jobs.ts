@@ -75,7 +75,14 @@ export function computeJobNextRunAtMs(job: CronJob, nowMs: number): number | und
   return computeNextRunAtMs(job.schedule, nowMs);
 }
 
+<<<<<<< HEAD
 export function recomputeNextRuns(state: CronServiceState) {
+=======
+/** Maximum consecutive schedule errors before auto-disabling a job. */
+const MAX_SCHEDULE_ERRORS = 3;
+
+export function recomputeNextRuns(state: CronServiceState): boolean {
+>>>>>>> 04f695e56 (fix(cron): isolate schedule errors to prevent one bad job from breaking all jobs (#14385))
   if (!state.store) {
     return;
   }
@@ -106,10 +113,36 @@ export function recomputeNextRuns(state: CronServiceState) {
     const nextRun = job.state.nextRunAtMs;
     const isDueOrMissing = nextRun === undefined || now >= nextRun;
     if (isDueOrMissing) {
-      const newNext = computeJobNextRunAtMs(job, now);
-      if (job.state.nextRunAtMs !== newNext) {
-        job.state.nextRunAtMs = newNext;
+      try {
+        const newNext = computeJobNextRunAtMs(job, now);
+        if (job.state.nextRunAtMs !== newNext) {
+          job.state.nextRunAtMs = newNext;
+          changed = true;
+        }
+        // Clear schedule error count on successful computation.
+        if (job.state.scheduleErrorCount) {
+          job.state.scheduleErrorCount = undefined;
+          changed = true;
+        }
+      } catch (err) {
+        const errorCount = (job.state.scheduleErrorCount ?? 0) + 1;
+        job.state.scheduleErrorCount = errorCount;
+        job.state.nextRunAtMs = undefined;
+        job.state.lastError = `schedule error: ${String(err)}`;
         changed = true;
+
+        if (errorCount >= MAX_SCHEDULE_ERRORS) {
+          job.enabled = false;
+          state.deps.log.error(
+            { jobId: job.id, name: job.name, errorCount, err: String(err) },
+            "cron: auto-disabled job after repeated schedule errors",
+          );
+        } else {
+          state.deps.log.warn(
+            { jobId: job.id, name: job.name, errorCount, err: String(err) },
+            "cron: failed to compute next run for job (skipping)",
+          );
+        }
       }
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     }
