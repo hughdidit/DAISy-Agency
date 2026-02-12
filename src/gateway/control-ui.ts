@@ -11,6 +11,7 @@ import {
   normalizeControlUiBasePath,
   resolveAssistantAvatarUrl,
 } from "./control-ui-shared.js";
+import { setSecurityHeaders } from "./http-common.js";
 
 const ROOT_PREFIX = "/";
 
@@ -87,6 +88,7 @@ type ControlUiAvatarMeta = {
 };
 
 function sendJson(res: ServerResponse, status: number, body: unknown) {
+  setSecurityHeaders(res);
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
@@ -152,12 +154,14 @@ export function handleControlUiAvatarRequest(
 }
 
 function respondNotFound(res: ServerResponse) {
+  setSecurityHeaders(res);
   res.statusCode = 404;
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.end("Not Found");
 }
 
 function serveFile(res: ServerResponse, filePath: string) {
+  setSecurityHeaders(res);
   const ext = path.extname(filePath).toLowerCase();
   res.setHeader("Content-Type", contentTypeForExt(ext));
   // Static UI should never be cached aggressively while iterating; allow the
@@ -200,6 +204,7 @@ interface ServeIndexHtmlOpts {
 }
 
 function serveIndexHtml(res: ServerResponse, indexPath: string, opts: ServeIndexHtmlOpts) {
+  setSecurityHeaders(res);
   const { basePath, config, agentId } = opts;
   const identity = config
     ? resolveAssistantIdentity({ cfg: config, agentId })
