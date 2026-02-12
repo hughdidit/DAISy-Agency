@@ -2,6 +2,11 @@ import { randomUUID } from "node:crypto";
 
 import { getChildLogger } from "../logging/logger.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
+<<<<<<< HEAD
+=======
+import { convertMarkdownTables } from "../markdown/tables.js";
+import { markdownToWhatsApp } from "../markdown/whatsapp.js";
+>>>>>>> e24d02308 (fix(whatsapp): convert Markdown bold/strikethrough to WhatsApp formatting (#14285))
 import { normalizePollInput, type PollInput } from "../polls.js";
 import { toWhatsappJid } from "../utils.js";
 import { loadConfig } from "../config/config.js";
@@ -35,6 +40,7 @@ export async function sendMessageWhatsApp(
     accountId: resolvedAccountId ?? options.accountId,
   });
   text = convertMarkdownTables(text ?? "", tableMode);
+  text = markdownToWhatsApp(text);
   const logger = getChildLogger({
     module: "web-outbound",
     correlationId,

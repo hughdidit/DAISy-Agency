@@ -2,9 +2,13 @@ import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chun
 import type { MarkdownTableMode } from "../../config/types.base.js";
 import { convertMarkdownTables } from "../../markdown/tables.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import { logVerbose, shouldLogVerbose } from "../../globals.js";
 =======
+=======
+import { markdownToWhatsApp } from "../../markdown/whatsapp.js";
+>>>>>>> e24d02308 (fix(whatsapp): convert Markdown bold/strikethrough to WhatsApp formatting (#14285))
 import { sleep } from "../../utils.js";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 import { loadWebMedia } from "../media.js";
@@ -32,7 +36,9 @@ export async function deliverWebReply(params: {
   const replyStarted = Date.now();
   const tableMode = params.tableMode ?? "code";
   const chunkMode = params.chunkMode ?? "length";
-  const convertedText = convertMarkdownTables(replyResult.text || "", tableMode);
+  const convertedText = markdownToWhatsApp(
+    convertMarkdownTables(replyResult.text || "", tableMode),
+  );
   const textChunks = chunkMarkdownTextWithMode(convertedText, textLimit, chunkMode);
   const mediaList = replyResult.mediaUrls?.length
     ? replyResult.mediaUrls
