@@ -392,7 +392,7 @@ jobs:
                 ref: headSha,
                 per_page: 100,
               },
-              (response) => response.data.check_runs
+              (response) => response.data?.check_runs ?? []
             );
 
             // Fetch commit statuses
@@ -403,7 +403,7 @@ jobs:
             });
 
             // Exclude Patchbot's own check runs (workflow name prefix)
-            const filtered = checkRuns.filter(cr => !cr.name.startsWith('Patchbot'));
+            const filtered = checkRuns.filter(cr => cr?.name && !cr.name.startsWith('Patchbot'));
 
             // Build check table
             const conclusionIcons = {
@@ -629,9 +629,9 @@ jobs:
             const checkRuns = await github.paginate(
               github.rest.checks.listForRef,
               { owner: context.repo.owner, repo: context.repo.repo, ref: headSha, per_page: 100 },
-              (response) => response.data.check_runs
+              (response) => response.data?.check_runs ?? []
             );
-            const ciFiltered = checkRuns.filter(cr => !cr.name.startsWith('Patchbot'));
+            const ciFiltered = checkRuns.filter(cr => cr?.name && !cr.name.startsWith('Patchbot'));
             const conclusionIcons = {
               success: '\u2705', failure: '\u274c', cancelled: '\u26d4',
               skipped: '\u23ed\ufe0f', timed_out: '\u23f0', action_required: '\u26a0\ufe0f',
