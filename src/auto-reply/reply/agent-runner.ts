@@ -371,6 +371,7 @@ export async function runReplyAgent(params: {
     }
 
     const usage = runResult.meta.agentMeta?.usage;
+    const promptTokens = runResult.meta.agentMeta?.promptTokens;
     const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
     const providerUsed =
       runResult.meta.agentMeta?.provider ?? fallbackProvider ?? followupRun.run.provider;
@@ -387,6 +388,11 @@ export async function runReplyAgent(params: {
       storePath,
       sessionKey,
       usage,
+<<<<<<< HEAD
+=======
+      lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
+      promptTokens,
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
       modelUsed,
       providerUsed,
       contextTokensUsed,

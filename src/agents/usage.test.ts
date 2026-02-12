@@ -47,4 +47,50 @@ describe("normalizeUsage", () => {
     expect(hasNonzeroUsage({ input: 1 })).toBe(true);
     expect(hasNonzeroUsage({ total: 1 })).toBe(true);
   });
+<<<<<<< HEAD
+=======
+
+  it("caps derived session total tokens to the context window", () => {
+    expect(
+      deriveSessionTotalTokens({
+        usage: {
+          input: 27,
+          cacheRead: 2_400_000,
+          cacheWrite: 0,
+          total: 2_402_300,
+        },
+        contextTokens: 200_000,
+      }),
+    ).toBe(200_000);
+  });
+
+  it("uses prompt tokens when within context window", () => {
+    expect(
+      deriveSessionTotalTokens({
+        usage: {
+          input: 1_200,
+          cacheRead: 300,
+          cacheWrite: 50,
+          total: 2_000,
+        },
+        contextTokens: 200_000,
+      }),
+    ).toBe(1_550);
+  });
+
+  it("prefers explicit prompt token overrides", () => {
+    expect(
+      deriveSessionTotalTokens({
+        usage: {
+          input: 1_200,
+          cacheRead: 300,
+          cacheWrite: 50,
+          total: 9_999,
+        },
+        promptTokens: 65_000,
+        contextTokens: 200_000,
+      }),
+    ).toBe(65_000);
+  });
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 });

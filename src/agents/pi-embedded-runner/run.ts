@@ -33,7 +33,7 @@ import {
   isAuthAssistantError,
   isBillingAssistantError,
   isCompactionFailureError,
-  isContextOverflowError,
+  isLikelyContextOverflowError,
   isFailoverAssistantError,
   isFailoverErrorMessage,
   parseImageSizeError,
@@ -43,8 +43,13 @@ import {
   pickFallbackThinkingLevel,
   type FailoverReason,
 } from "../pi-embedded-helpers.js";
+<<<<<<< HEAD
 import { normalizeUsage, type UsageLike } from "../usage.js";
 
+=======
+import { derivePromptTokens, normalizeUsage, type UsageLike } from "../usage.js";
+import { redactRunIdentifier, resolveRunWorkspaceDir } from "../workspace-run.js";
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { resolveGlobalLane, resolveSessionLane } from "./lanes.js";
 import { log } from "./logger.js";
@@ -306,7 +311,16 @@ export async function runEmbeddedPiAgent(
         }
       }
 
+<<<<<<< HEAD
       let overflowCompactionAttempted = false;
+=======
+      const MAX_OVERFLOW_COMPACTION_ATTEMPTS = 3;
+      let overflowCompactionAttempts = 0;
+      let toolResultTruncationAttempted = false;
+      const usageAccumulator = createUsageAccumulator();
+      let lastRunPromptUsage: ReturnType<typeof normalizeUsage> | undefined;
+      let autoCompactionCount = 0;
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
       try {
         while (true) {
           attemptedThinking.add(thinkLevel);
@@ -372,11 +386,20 @@ export async function runEmbeddedPiAgent(
 
           const { aborted, promptError, timedOut, sessionIdUsed, lastAssistant } = attempt;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
           mergeUsageIntoAccumulator(
             usageAccumulator,
             attempt.attemptUsage ?? normalizeUsage(lastAssistant?.usage as UsageLike),
           );
+=======
+          const lastAssistantUsage = normalizeUsage(lastAssistant?.usage as UsageLike);
+          const attemptUsage = attempt.attemptUsage ?? lastAssistantUsage;
+          mergeUsageIntoAccumulator(usageAccumulator, attemptUsage);
+          // Keep prompt size from the latest model call so session totalTokens
+          // reflects current context usage, not accumulated tool-loop usage.
+          lastRunPromptUsage = lastAssistantUsage ?? attemptUsage;
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
           autoCompactionCount += Math.max(0, attempt.compactionCount ?? 0);
           const formattedAssistantErrorText = lastAssistant
             ? formatAssistantErrorText(lastAssistant, {
@@ -394,14 +417,14 @@ export async function runEmbeddedPiAgent(
             ? (() => {
                 if (promptError) {
                   const errorText = describeUnknownError(promptError);
-                  if (isContextOverflowError(errorText)) {
+                  if (isLikelyContextOverflowError(errorText)) {
                     return { text: errorText, source: "promptError" as const };
                   }
                   // Prompt submission failed with a non-overflow error. Do not
                   // inspect prior assistant errors from history for this attempt.
                   return null;
                 }
-                if (assistantErrorText && isContextOverflowError(assistantErrorText)) {
+                if (assistantErrorText && isLikelyContextOverflowError(assistantErrorText)) {
                   return { text: assistantErrorText, source: "assistantError" as const };
                 }
                 return null;
@@ -776,12 +799,29 @@ export async function runEmbeddedPiAgent(
             }
           }
 
+<<<<<<< HEAD
           const usage = normalizeUsage(lastAssistant?.usage as UsageLike);
+=======
+          const usage = toNormalizedUsage(usageAccumulator);
+          // Extract the last individual API call's usage for context-window
+          // utilization display. The accumulated `usage` sums input tokens
+          // across all calls (tool-use loops, compaction retries), which
+          // overstates the actual context size. `lastCallUsage` reflects only
+          // the final call, giving an accurate snapshot of current context.
+          const lastCallUsage = normalizeUsage(lastAssistant?.usage as UsageLike);
+          const promptTokens = derivePromptTokens(lastRunPromptUsage);
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
           const agentMeta: EmbeddedPiAgentMeta = {
             sessionId: sessionIdUsed,
             provider: lastAssistant?.provider ?? provider,
             model: lastAssistant?.model ?? model.id,
             usage,
+<<<<<<< HEAD
+=======
+            lastCallUsage: lastCallUsage ?? undefined,
+            promptTokens,
+            compactionCount: autoCompactionCount > 0 ? autoCompactionCount : undefined,
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
           };
 
           const payloads = buildEmbeddedRunPayloads({

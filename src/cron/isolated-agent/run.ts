@@ -449,6 +449,7 @@ export async function runCronIsolatedAgentTurn(params: {
   // Update token+model fields in the session store.
   {
     const usage = runResult.meta.agentMeta?.usage;
+    const promptTokens = runResult.meta.agentMeta?.promptTokens;
     const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? model;
     const providerUsed = runResult.meta.agentMeta?.provider ?? fallbackProvider ?? provider;
     const contextTokens =
@@ -470,7 +471,15 @@ export async function runCronIsolatedAgentTurn(params: {
       cronSession.sessionEntry.inputTokens = input;
       cronSession.sessionEntry.outputTokens = output;
       cronSession.sessionEntry.totalTokens =
+<<<<<<< HEAD
         promptTokens > 0 ? promptTokens : (usage.total ?? input);
+=======
+        deriveSessionTotalTokens({
+          usage,
+          contextTokens,
+          promptTokens,
+        }) ?? input;
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
     }
     cronSession.store[agentSessionKey] = cronSession.sessionEntry;
     await updateSessionStore(cronSession.storePath, (store) => {

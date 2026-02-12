@@ -14,6 +14,7 @@ export async function persistSessionUsageUpdate(params: {
   modelUsed?: string;
   providerUsed?: string;
   contextTokensUsed?: number;
+  promptTokens?: number;
   systemPromptReport?: SessionSystemPromptReport;
   cliSessionId?: string;
   logLabel?: string;
@@ -37,7 +38,16 @@ export async function persistSessionUsageUpdate(params: {
           const patch: Partial<SessionEntry> = {
             inputTokens: input,
             outputTokens: output,
+<<<<<<< HEAD
             totalTokens: promptTokens > 0 ? promptTokens : (params.usage?.total ?? input),
+=======
+            totalTokens:
+              deriveSessionTotalTokens({
+                usage: usageForContext,
+                contextTokens: resolvedContextTokens,
+                promptTokens: params.promptTokens,
+              }) ?? input,
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
             modelProvider: params.providerUsed ?? entry.modelProvider,
             model: params.modelUsed ?? entry.model,
             contextTokens: params.contextTokensUsed ?? entry.contextTokens,

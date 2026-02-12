@@ -37,6 +37,11 @@ export async function updateSessionStoreAfterAgentRun(params: {
   } = params;
 
   const usage = result.meta.agentMeta?.usage;
+<<<<<<< HEAD
+=======
+  const promptTokens = result.meta.agentMeta?.promptTokens;
+  const compactionsThisRun = Math.max(0, result.meta.agentMeta?.compactionCount ?? 0);
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
   const modelUsed = result.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
   const providerUsed = result.meta.agentMeta?.provider ?? fallbackProvider ?? defaultProvider;
   const contextTokens =
@@ -67,7 +72,19 @@ export async function updateSessionStoreAfterAgentRun(params: {
     const promptTokens = input + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0);
     next.inputTokens = input;
     next.outputTokens = output;
+<<<<<<< HEAD
     next.totalTokens = promptTokens > 0 ? promptTokens : (usage.total ?? input);
+=======
+    next.totalTokens =
+      deriveSessionTotalTokens({
+        usage,
+        contextTokens,
+        promptTokens,
+      }) ?? input;
+  }
+  if (compactionsThisRun > 0) {
+    next.compactionCount = (entry.compactionCount ?? 0) + compactionsThisRun;
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
   }
   sessionStore[sessionKey] = next;
   await updateSessionStore(storePath, (store) => {

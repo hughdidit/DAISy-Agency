@@ -87,7 +87,26 @@ vi.mock("../failover-error.js", () => ({
 }));
 
 vi.mock("../usage.js", () => ({
+<<<<<<< HEAD
   normalizeUsage: vi.fn(() => undefined),
+=======
+  normalizeUsage: vi.fn((usage?: unknown) =>
+    usage && typeof usage === "object" ? usage : undefined,
+  ),
+  derivePromptTokens: vi.fn(
+    (usage?: { input?: number; cacheRead?: number; cacheWrite?: number }) => {
+      if (!usage) {
+        return undefined;
+      }
+      const input = usage.input ?? 0;
+      const cacheRead = usage.cacheRead ?? 0;
+      const cacheWrite = usage.cacheWrite ?? 0;
+      const sum = input + cacheRead + cacheWrite;
+      return sum > 0 ? sum : undefined;
+    },
+  ),
+  hasNonzeroUsage: vi.fn(() => false),
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 }));
 
 vi.mock("./lanes.js", () => ({
@@ -132,6 +151,18 @@ vi.mock("../pi-embedded-helpers.js", async () => {
       }
       const lower = msg.toLowerCase();
       return lower.includes("request_too_large") || lower.includes("request size exceeds");
+    },
+    isLikelyContextOverflowError: (msg?: string) => {
+      if (!msg) {
+        return false;
+      }
+      const lower = msg.toLowerCase();
+      return (
+        lower.includes("request_too_large") ||
+        lower.includes("request size exceeds") ||
+        lower.includes("context window exceeded") ||
+        lower.includes("prompt too large")
+      );
     },
     isFailoverAssistantError: vi.fn(() => false),
     isFailoverErrorMessage: vi.fn(() => false),
@@ -222,6 +253,31 @@ describe("overflow compaction in run loop", () => {
     expect(result.meta.error).toBeUndefined();
   });
 
+  it("retries after successful compaction on likely-overflow promptError variants", async () => {
+    const overflowHintError = new Error("Context window exceeded: requested 12000 tokens");
+
+    mockedRunEmbeddedAttempt
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowHintError }))
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
+
+    mockedCompactDirect.mockResolvedValueOnce({
+      ok: true,
+      compacted: true,
+      result: {
+        summary: "Compacted session",
+        firstKeptEntryId: "entry-6",
+        tokensBefore: 140000,
+      },
+    });
+
+    const result = await runEmbeddedPiAgent(baseParams);
+
+    expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
+    expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(2);
+    expect(log.warn).toHaveBeenCalledWith(expect.stringContaining("source=promptError"));
+    expect(result.meta.error).toBeUndefined();
+  });
+
   it("returns error if compaction fails", async () => {
     const overflowError = new Error("request_too_large: Request size exceeds model context window");
 
@@ -284,4 +340,82 @@ describe("overflow compaction in run loop", () => {
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(1);
     expect(result.meta.error?.kind).toBe("compaction_failure");
   });
+<<<<<<< HEAD
+=======
+
+  it("retries after successful compaction on assistant context overflow errors", async () => {
+    mockedRunEmbeddedAttempt
+      .mockResolvedValueOnce(
+        makeAttemptResult({
+          promptError: null,
+          lastAssistant: {
+            stopReason: "error",
+            errorMessage: "request_too_large: Request size exceeds model context window",
+          } as EmbeddedRunAttemptResult["lastAssistant"],
+        }),
+      )
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
+
+    mockedCompactDirect.mockResolvedValueOnce({
+      ok: true,
+      compacted: true,
+      result: {
+        summary: "Compacted session",
+        firstKeptEntryId: "entry-5",
+        tokensBefore: 150000,
+      },
+    });
+
+    const result = await runEmbeddedPiAgent(baseParams);
+
+    expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
+    expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(2);
+    expect(log.warn).toHaveBeenCalledWith(expect.stringContaining("source=assistantError"));
+    expect(result.meta.error).toBeUndefined();
+  });
+
+  it("does not treat stale assistant overflow as current-attempt overflow when promptError is non-overflow", async () => {
+    mockedRunEmbeddedAttempt.mockResolvedValue(
+      makeAttemptResult({
+        promptError: new Error("transport disconnected"),
+        lastAssistant: {
+          stopReason: "error",
+          errorMessage: "request_too_large: Request size exceeds model context window",
+        } as EmbeddedRunAttemptResult["lastAssistant"],
+      }),
+    );
+
+    await expect(runEmbeddedPiAgent(baseParams)).rejects.toThrow("transport disconnected");
+
+    expect(mockedCompactDirect).not.toHaveBeenCalled();
+    expect(log.warn).not.toHaveBeenCalledWith(expect.stringContaining("source=assistantError"));
+  });
+
+  it("sets promptTokens from the latest model call usage, not accumulated attempt usage", async () => {
+    mockedRunEmbeddedAttempt.mockResolvedValue(
+      makeAttemptResult({
+        attemptUsage: {
+          input: 4_000,
+          cacheRead: 120_000,
+          cacheWrite: 0,
+          total: 124_000,
+        },
+        lastAssistant: {
+          stopReason: "end_turn",
+          usage: {
+            input: 900,
+            cacheRead: 1_100,
+            cacheWrite: 0,
+            total: 2_000,
+          },
+        } as EmbeddedRunAttemptResult["lastAssistant"],
+      }),
+    );
+
+    const result = await runEmbeddedPiAgent(baseParams);
+
+    expect(result.meta.agentMeta?.usage?.input).toBe(4_000);
+    expect(result.meta.agentMeta?.promptTokens).toBe(2_000);
+  });
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 });

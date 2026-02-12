@@ -193,6 +193,18 @@ export function createFollowupRunner(params: {
         return;
       }
 
+<<<<<<< HEAD
+=======
+      const usage = runResult.meta.agentMeta?.usage;
+      const promptTokens = runResult.meta.agentMeta?.promptTokens;
+      const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
+      const contextTokensUsed =
+        agentCfgContextTokens ??
+        lookupContextTokens(modelUsed) ??
+        sessionEntry?.contextTokens ??
+        DEFAULT_CONTEXT_TOKENS;
+
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
       if (storePath && sessionKey) {
         const usage = runResult.meta.agentMeta?.usage;
         const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
@@ -206,6 +218,11 @@ export function createFollowupRunner(params: {
           storePath,
           sessionKey,
           usage,
+<<<<<<< HEAD
+=======
+          lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
+          promptTokens,
+>>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
           modelUsed,
           providerUsed: fallbackProvider,
           contextTokensUsed,
