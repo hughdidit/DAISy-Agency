@@ -483,6 +483,11 @@ async function runWebFetch(params: {
         title: wrappedTitle,
         extractMode: params.extractMode,
         extractor: "firecrawl",
+        externalContent: {
+          untrusted: true,
+          source: "web_fetch",
+          wrapped: true,
+        },
         truncated: wrapped.truncated,
         length: wrapped.wrappedLength,
         rawLength: wrapped.rawLength, // Actual content length, not wrapped
@@ -522,6 +527,11 @@ async function runWebFetch(params: {
           title: wrappedTitle,
           extractMode: params.extractMode,
           extractor: "firecrawl",
+          externalContent: {
+            untrusted: true,
+            source: "web_fetch",
+            wrapped: true,
+          },
           truncated: wrapped.truncated,
           length: wrapped.wrappedLength,
           rawLength: wrapped.rawLength, // Actual content length, not wrapped
@@ -599,6 +609,11 @@ async function runWebFetch(params: {
       title: wrappedTitle,
       extractMode: params.extractMode,
       extractor,
+      externalContent: {
+        untrusted: true,
+        source: "web_fetch",
+        wrapped: true,
+      },
       truncated: wrapped.truncated,
       length: wrapped.wrappedLength,
       rawLength: wrapped.rawLength, // Actual content length, not wrapped

@@ -348,6 +348,12 @@ async function runWebSearch(params: {
       provider: params.provider,
       model: params.perplexityModel ?? DEFAULT_PERPLEXITY_MODEL,
       tookMs: Date.now() - start,
+      externalContent: {
+        untrusted: true,
+        source: "web_search",
+        provider: params.provider,
+        wrapped: true,
+      },
       content: wrapWebContent(content),
       citations,
     };
@@ -355,6 +361,37 @@ async function runWebSearch(params: {
     return payload;
   }
 
+<<<<<<< HEAD
+=======
+  if (params.provider === "grok") {
+    const { content, citations, inlineCitations } = await runGrokSearch({
+      query: params.query,
+      apiKey: params.apiKey,
+      model: params.grokModel ?? DEFAULT_GROK_MODEL,
+      timeoutSeconds: params.timeoutSeconds,
+      inlineCitations: params.grokInlineCitations ?? false,
+    });
+
+    const payload = {
+      query: params.query,
+      provider: params.provider,
+      model: params.grokModel ?? DEFAULT_GROK_MODEL,
+      tookMs: Date.now() - start,
+      externalContent: {
+        untrusted: true,
+        source: "web_search",
+        provider: params.provider,
+        wrapped: true,
+      },
+      content: wrapWebContent(content),
+      citations,
+      inlineCitations,
+    };
+    writeCache(SEARCH_CACHE, cacheKey, payload, params.cacheTtlMs);
+    return payload;
+  }
+
+>>>>>>> da55d70fb (fix(security): harden untrusted web tool transcripts)
   if (params.provider !== "brave") {
     throw new Error("Unsupported web search provider.");
   }
@@ -410,6 +447,12 @@ async function runWebSearch(params: {
     provider: params.provider,
     count: mapped.length,
     tookMs: Date.now() - start,
+    externalContent: {
+      untrusted: true,
+      source: "web_search",
+      provider: params.provider,
+      wrapped: true,
+    },
     results: mapped,
   };
   writeCache(SEARCH_CACHE, cacheKey, payload, params.cacheTtlMs);
