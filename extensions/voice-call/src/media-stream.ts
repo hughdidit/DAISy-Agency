@@ -147,12 +147,34 @@ export class MediaStreamHandler {
     const callSid = message.start?.callSid || "";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     this.logger.info(
       `[MediaStream] Stream started: ${streamSid} (call: ${callSid})`,
     );
 =======
     console.log(`[MediaStream] Stream started: ${streamSid} (call: ${callSid})`);
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+=======
+    // Prefer token from start message customParameters (set via TwiML <Parameter>),
+    // falling back to query string token. Twilio strips query params from WebSocket
+    // URLs but reliably delivers <Parameter> values in customParameters.
+    const effectiveToken = message.start?.customParameters?.token ?? streamToken;
+
+    console.log(`[MediaStream] Stream started: ${streamSid} (call: ${callSid})`);
+    if (!callSid) {
+      console.warn("[MediaStream] Missing callSid; closing stream");
+      ws.close(1008, "Missing callSid");
+      return null;
+    }
+    if (
+      this.config.shouldAcceptStream &&
+      !this.config.shouldAcceptStream({ callId: callSid, streamSid, token: effectiveToken })
+    ) {
+      console.warn(`[MediaStream] Rejecting stream for unknown call: ${callSid}`);
+      ws.close(1008, "Unknown call");
+      return null;
+    }
+>>>>>>> f8cad44cd (fix(voice-call): pass Twilio stream auth token via <Parameter> instead of query string (#14029))
 
     // Create STT session
     const sttSession = this.config.sttProvider.createSession();
@@ -380,6 +402,7 @@ interface TwilioMediaMessage {
     accountSid: string;
     callSid: string;
     tracks: string[];
+    customParameters?: Record<string, string>;
     mediaFormat: {
       encoding: string;
       sampleRate: number;
