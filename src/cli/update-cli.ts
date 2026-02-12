@@ -90,6 +90,7 @@ import { installCompletion, isCompletionInstalled, resolveShellFromEnv } from ".
 import { installCompletion } from "./completion-cli.js";
 >>>>>>> dbaf0a8ae (update: use shared completion helpers for shell completion setup)
 import { formatHelpExamples } from "./help-format.js";
+<<<<<<< HEAD
 import {
   formatUpdateAvailableHint,
   formatUpdateOneLiner,
@@ -97,6 +98,9 @@ import {
 } from "../commands/status.update.js";
 import { syncPluginsForUpdateChannel, updateNpmInstalledPlugins } from "../plugins/update.js";
 import { runCommandWithTimeout } from "../process/exec.js";
+=======
+import { suppressDeprecations } from "./update-cli/suppress-deprecations.js";
+>>>>>>> 971ac0886 (fix(cli): guard against read-only process.noDeprecation on Node.js v23+ (#14152))
 
 export type UpdateCommandOptions = {
   json?: boolean;
@@ -723,8 +727,7 @@ function printResult(result: UpdateRunResult, opts: PrintResultOptions) {
 }
 
 export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
-  process.noDeprecation = true;
-  process.env.NODE_NO_WARNINGS = "1";
+  suppressDeprecations();
   const timeoutMs = opts.timeout ? Number.parseInt(opts.timeout, 10) * 1000 : undefined;
   const shouldRestart = opts.restart !== false;
 
