@@ -1,11 +1,17 @@
+import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
 import { CHANNEL_IDS } from "../channels/registry.js";
 import { VERSION } from "../version.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { MoltbotSchema } from "./zod-schema.js";
 =======
+=======
+import { applySensitiveHints, buildBaseHints } from "./schema.hints.js";
+>>>>>>> fa427f63b (refactor(config): restore schema.ts to use schema.hints)
 import { OpenClawSchema } from "./zod-schema.js";
 >>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
 
+<<<<<<< HEAD
 export type ConfigUiHint = {
   label?: string;
   help?: string;
@@ -23,6 +29,9 @@ export type ConfigUiHints = Record<string, ConfigUiHint>;
 >>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
 
 export type ConfigUiHints = Record<string, ConfigUiHint>;
+=======
+export type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
+>>>>>>> fa427f63b (refactor(config): restore schema.ts to use schema.hints)
 
 export type ConfigSchema = ReturnType<typeof MoltbotSchema.toJSONSchema>;
 
@@ -54,6 +63,7 @@ export type ChannelUiMetadata = {
   configUiHints?: Record<string, ConfigUiHint>;
 };
 
+<<<<<<< HEAD
 const GROUP_LABELS: Record<string, string> = {
   wizard: "Wizard",
   update: "Update",
@@ -951,6 +961,8 @@ function applySensitiveHints(hints: ConfigUiHints): ConfigUiHints {
   return next;
 }
 
+=======
+>>>>>>> fa427f63b (refactor(config): restore schema.ts to use schema.hints)
 function applyPluginHints(hints: ConfigUiHints, plugins: PluginUiMetadata[]): ConfigUiHints {
   const next: ConfigUiHints = { ...hints };
   for (const plugin of plugins) {
