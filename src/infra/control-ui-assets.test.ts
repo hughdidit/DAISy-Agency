@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveControlUiDistIndexPath, resolveControlUiRepoRoot } from "./control-ui-assets.js";
 =======
@@ -16,6 +17,35 @@ import {
   resolveControlUiRootSync,
 } from "./control-ui-assets.js";
 >>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
+=======
+import {
+  resolveControlUiDistIndexHealth,
+  resolveControlUiDistIndexPath,
+  resolveControlUiDistIndexPathForRoot,
+  resolveControlUiRepoRoot,
+  resolveControlUiRootOverrideSync,
+  resolveControlUiRootSync,
+} from "./control-ui-assets.js";
+import { resolveOpenClawPackageRoot } from "./openclaw-root.js";
+
+/** Try to create a symlink; returns false if the OS denies it (Windows CI without Developer Mode). */
+async function trySymlink(target: string, linkPath: string): Promise<boolean> {
+  try {
+    await fs.symlink(target, linkPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function canonicalPath(p: string): Promise<string> {
+  try {
+    return await fs.realpath(p);
+  } catch {
+    return path.resolve(p);
+  }
+}
+>>>>>>> 571a237d5 (chore: move local imports to the top)
 
 describe("control UI assets helpers", () => {
   it("resolves repo root from src argv1", async () => {
