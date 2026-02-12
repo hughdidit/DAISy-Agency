@@ -302,10 +302,14 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount> = {
       probe: snapshot.probe,
       lastProbeAt: snapshot.lastProbeAt ?? null,
     }),
+<<<<<<< HEAD
     probeAccount: async ({ cfg, accountId }) => {
       const account = resolveFeishuAccount({ cfg, accountId });
       return await probeFeishu(account);
     },
+=======
+    probeAccount: async ({ account }) => await probeFeishu(account),
+>>>>>>> a028c0512 (fix: use resolved feishu account in status probe (openclaw#11233) thanks @onevcat)
     buildAccountSnapshot: ({ account, runtime, probe }) => ({
       accountId: account.accountId,
       enabled: account.enabled,
