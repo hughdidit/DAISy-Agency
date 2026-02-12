@@ -166,8 +166,21 @@ export function selectAttachments(params: {
 }): MediaAttachment[] {
   const { capability, attachments, policy } = params;
   const matches = attachments.filter((item) => {
+<<<<<<< HEAD
     if (capability === "image") return isImageAttachment(item);
     if (capability === "audio") return isAudioAttachment(item);
+=======
+    // Skip already-transcribed audio attachments from preflight
+    if (capability === "audio" && item.alreadyTranscribed) {
+      return false;
+    }
+    if (capability === "image") {
+      return isImageAttachment(item);
+    }
+    if (capability === "audio") {
+      return isAudioAttachment(item);
+    }
+>>>>>>> a2ddcdade (fix: fix: transcribe audio before mention check in groups with requireMention (openclaw#9973) thanks @mcinteerj)
     return isVideoAttachment(item);
   });
   if (matches.length === 0) return [];

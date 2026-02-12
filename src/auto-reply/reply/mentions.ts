@@ -85,14 +85,30 @@ export function matchesMentionWithExplicit(params: {
   text: string;
   mentionRegexes: RegExp[];
   explicit?: ExplicitMentionSignal;
+  transcript?: string;
 }): boolean {
   const cleaned = normalizeMentionText(params.text ?? "");
   const explicit = params.explicit?.isExplicitlyMentioned === true;
   const explicitAvailable = params.explicit?.canResolveExplicit === true;
   const hasAnyMention = params.explicit?.hasAnyMention === true;
+<<<<<<< HEAD
   if (hasAnyMention && explicitAvailable) return explicit;
   if (!cleaned) return explicit;
   return explicit || params.mentionRegexes.some((re) => re.test(cleaned));
+=======
+
+  // Check transcript if text is empty and transcript is provided
+  const transcriptCleaned = params.transcript ? normalizeMentionText(params.transcript) : "";
+  const textToCheck = cleaned || transcriptCleaned;
+
+  if (hasAnyMention && explicitAvailable) {
+    return explicit || params.mentionRegexes.some((re) => re.test(textToCheck));
+  }
+  if (!textToCheck) {
+    return explicit;
+  }
+  return explicit || params.mentionRegexes.some((re) => re.test(textToCheck));
+>>>>>>> a2ddcdade (fix: fix: transcribe audio before mention check in groups with requireMention (openclaw#9973) thanks @mcinteerj)
 }
 
 export function stripStructuralPrefixes(text: string): string {
