@@ -173,7 +173,11 @@ Docs: https://docs.openclaw.ai
 - Telegram: handle no-text message in model picker editMessageText. (#14397) Thanks @0xRaini.
 - Slack: change default replyToMode from "off" to "all". (#14364) Thanks @nm-de.
 - Tests: update thread ID handling in Slack message collection tests. (#14108) Thanks @swizzmagik.
+<<<<<<< HEAD
 >>>>>>> 4094cef23 (changelog: add telegram and slack fix entries)
+=======
+- Telegram: surface REACTION_INVALID as non-fatal warning. (#14340) Thanks @0xRaini.
+>>>>>>> 16f249254 (changelog: add telegram reaction warning fix entry)
 
 >>>>>>> 5741b6cb3 (docs: start 2026.2.10 changelog section)
 ## 2026.2.9
