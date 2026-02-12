@@ -57,7 +57,14 @@ export function registerBrowserFilesAndDownloadsCommands(
   browser
     .command("waitfordownload")
     .description("Wait for the next download (and save it)")
+<<<<<<< HEAD
     .argument("[path]", "Save path (default: /tmp/moltbot/downloads/...)")
+=======
+    .argument(
+      "[path]",
+      "Save path (default: /tmp/openclaw/downloads/...; fallback: os.tmpdir()/openclaw/downloads/...)",
+    )
+>>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
     .option("--target-id <id>", "CDP target id (or unique prefix)")
     .option(
       "--timeout-ms <ms>",

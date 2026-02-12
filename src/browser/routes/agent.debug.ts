@@ -3,9 +3,16 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import type { BrowserRouteContext } from "../server-context.js";
+<<<<<<< HEAD
+=======
+import type { BrowserRouteRegistrar } from "./types.js";
+import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
+>>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 import { handleRouteError, readBody, requirePwAi, resolveProfileContext } from "./agent.shared.js";
 import { toBoolean, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
+
+const DEFAULT_TRACE_DIR = resolvePreferredOpenClawTmpDir();
 
 export function registerBrowserAgentDebugRoutes(
   app: BrowserRouteRegistrar,
@@ -132,7 +139,11 @@ export function registerBrowserAgentDebugRoutes(
         return;
       }
       const id = crypto.randomUUID();
+<<<<<<< HEAD
       const dir = "/tmp/moltbot";
+=======
+      const dir = DEFAULT_TRACE_DIR;
+>>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
       await fs.mkdir(dir, { recursive: true });
       const tracePath = out.trim() || path.join(dir, `browser-trace-${id}.zip`);
       await pw.traceStopViaPlaywright({

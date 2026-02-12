@@ -1,21 +1,36 @@
 import { createRequire } from "node:module";
+<<<<<<< HEAD
 import fs from "node:fs";
+=======
+>>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 import path from "node:path";
 
 import { Logger as TsLogger } from "tslog";
 
 import type { MoltbotConfig } from "../config/types.js";
 import type { ConsoleStyle } from "./console.js";
+<<<<<<< HEAD
+=======
+import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+import { readLoggingConfig } from "./config.js";
+>>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
 import { readLoggingConfig } from "./config.js";
 import { loggingState } from "./state.js";
 
+<<<<<<< HEAD
 // Pin to /tmp so mac Debug UI and docs match; os.tmpdir() can be a per-user
 // randomized path on macOS which made the “Open log” button a no-op.
 export const DEFAULT_LOG_DIR = "/tmp/moltbot";
 export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "moltbot.log"); // legacy single-file path
 
 const LOG_PREFIX = "moltbot";
+=======
+export const DEFAULT_LOG_DIR = resolvePreferredOpenClawTmpDir();
+export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "openclaw.log"); // legacy single-file path
+
+const LOG_PREFIX = "openclaw";
+>>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 const LOG_SUFFIX = ".log";
 const MAX_LOG_AGE_MS = 24 * 60 * 60 * 1000; // 24h
 
