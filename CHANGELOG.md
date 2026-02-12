@@ -174,6 +174,11 @@ Docs: https://docs.openclaw.ai
 - BlueBubbles: fix webhook auth bypass via loopback proxy trust. (#13787) Thanks @coygeek.
 - Slack: change default replyToMode from "off" to "all". (#14364) Thanks @nm-de.
 - Slack: detect control commands when channel messages start with bot mention prefixes (for example, `@Bot /new`). (#14142) Thanks @beefiker.
+<<<<<<< HEAD
+=======
+- Signal: enforce E.164 validation for the Signal bot account prompt so mistyped numbers are caught early. (#15063) Thanks @Duartemartins.
+- Discord: process DM reactions instead of silently dropping them. (#10418) Thanks @mcaxtr.
+>>>>>>> 92334b95d (changelog: keep signal entry while restoring removed rows)
 - Signal: enforce E.164 validation for the Signal bot account prompt so mistyped numbers are caught early. (#15063) Thanks @Duartemartins.
 - Signal: render mention placeholders as `@uuid`/`@phone` so mention gating and Clawdbot targeting work. (#2013) Thanks @alexgleason.
 - Onboarding/Providers: add Z.AI endpoint-specific auth choices (`zai-coding-global`, `zai-coding-cn`, `zai-global`, `zai-cn`) and expand default Z.AI model wiring. (#13456) Thanks @tomsun28.
