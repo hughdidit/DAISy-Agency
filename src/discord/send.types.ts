@@ -143,6 +143,9 @@ export type DiscordChannelEdit = {
   parentId?: string | null;
   nsfw?: boolean;
   rateLimitPerUser?: number;
+  archived?: boolean;
+  locked?: boolean;
+  autoArchiveDuration?: number;
 };
 
 export type DiscordChannelMove = {

@@ -316,6 +316,34 @@ describe("handleDiscordGuildAction - channel management", () => {
       parentId: undefined,
       nsfw: undefined,
       rateLimitPerUser: undefined,
+      archived: undefined,
+      locked: undefined,
+      autoArchiveDuration: undefined,
+    });
+  });
+
+  it("forwards thread edit fields", async () => {
+    await handleDiscordGuildAction(
+      "channelEdit",
+      {
+        channelId: "C1",
+        archived: true,
+        locked: false,
+        autoArchiveDuration: 1440,
+      },
+      channelsEnabled,
+    );
+    expect(editChannelDiscord).toHaveBeenCalledWith({
+      channelId: "C1",
+      name: undefined,
+      topic: undefined,
+      position: undefined,
+      parentId: undefined,
+      nsfw: undefined,
+      rateLimitPerUser: undefined,
+      archived: true,
+      locked: false,
+      autoArchiveDuration: 1440,
     });
   });
 
@@ -336,6 +364,9 @@ describe("handleDiscordGuildAction - channel management", () => {
       parentId: null,
       nsfw: undefined,
       rateLimitPerUser: undefined,
+      archived: undefined,
+      locked: undefined,
+      autoArchiveDuration: undefined,
     });
   });
 
@@ -356,6 +387,9 @@ describe("handleDiscordGuildAction - channel management", () => {
       parentId: null,
       nsfw: undefined,
       rateLimitPerUser: undefined,
+      archived: undefined,
+      locked: undefined,
+      autoArchiveDuration: undefined,
     });
   });
 
