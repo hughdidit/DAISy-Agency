@@ -11,6 +11,11 @@ import {
   promptDefaultModel,
   promptModelAllowlist,
 } from "./model-picker.js";
+<<<<<<< HEAD
+=======
+import { promptCustomApiConfig } from "./onboard-custom.js";
+import { randomToken } from "./onboard-helpers.js";
+>>>>>>> f8c91b3c5 (fix: prevent undefined token in gateway auth config (#13809))
 
 type GatewayAuthChoice = "token" | "password";
 
@@ -31,7 +36,9 @@ export function buildGatewayAuthConfig(params: {
   if (typeof allowTailscale === "boolean") base.allowTailscale = allowTailscale;
 
   if (params.mode === "token") {
-    return { ...base, mode: "token", token: params.token };
+    // Guard against undefined/empty token to prevent JSON.stringify from writing the string "undefined"
+    const safeToken = params.token?.trim() || randomToken();
+    return { ...base, mode: "token", token: safeToken };
   }
   return { ...base, mode: "password", password: params.password };
 }
