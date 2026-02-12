@@ -305,7 +305,14 @@ export function createGatewayHttpServer(opts: {
     try {
       const configSnapshot = loadConfig();
       const trustedProxies = configSnapshot.gateway?.trustedProxies ?? [];
+<<<<<<< HEAD
       if (await handleHooksRequest(req, res)) return;
+=======
+      const requestPath = new URL(req.url ?? "/", "http://localhost").pathname;
+      if (await handleHooksRequest(req, res)) {
+        return;
+      }
+>>>>>>> 647d929c9 (fix: Unauthenticated Nostr profile API allows remote config tampering (#13719))
       if (
         await handleToolsInvokeHttpRequest(req, res, {
           auth: resolvedAuth,
@@ -313,8 +320,36 @@ export function createGatewayHttpServer(opts: {
         })
       )
         return;
+<<<<<<< HEAD
       if (await handleSlackHttpRequest(req, res)) return;
       if (handlePluginRequest && (await handlePluginRequest(req, res))) return;
+=======
+      }
+      if (await handleSlackHttpRequest(req, res)) {
+        return;
+      }
+      if (handlePluginRequest) {
+        // Channel HTTP endpoints are gateway-auth protected by default.
+        // Non-channel plugin routes remain plugin-owned and must enforce
+        // their own auth when exposing sensitive functionality.
+        if (requestPath.startsWith("/api/channels/")) {
+          const token = getBearerToken(req);
+          const authResult = await authorizeGatewayConnect({
+            auth: resolvedAuth,
+            connectAuth: token ? { token, password: token } : null,
+            req,
+            trustedProxies,
+          });
+          if (!authResult.ok) {
+            sendUnauthorized(res);
+            return;
+          }
+        }
+        if (await handlePluginRequest(req, res)) {
+          return;
+        }
+      }
+>>>>>>> 647d929c9 (fix: Unauthenticated Nostr profile API allows remote config tampering (#13719))
       if (openResponsesEnabled) {
         if (
           await handleOpenResponsesHttpRequest(req, res, {
@@ -336,6 +371,7 @@ export function createGatewayHttpServer(opts: {
       }
       if (canvasHost) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (await handleA2uiHttpRequest(req, res)) return;
         if (await canvasHost.handleHttpRequest(req, res)) return;
 =======
@@ -343,6 +379,11 @@ export function createGatewayHttpServer(opts: {
         if (isCanvasPath(url.pathname)) {
           const token = getBearerToken(req);
           const authResult = await authorizeGatewayConnect({
+=======
+        if (isCanvasPath(requestPath)) {
+          const ok = await authorizeCanvasRequest({
+            req,
+>>>>>>> 647d929c9 (fix: Unauthenticated Nostr profile API allows remote config tampering (#13719))
             auth: resolvedAuth,
             connectAuth: token ? { token, password: token } : null,
             req,
