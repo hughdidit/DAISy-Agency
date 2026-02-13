@@ -34,11 +34,15 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
 =======
 =======
+=======
+- CLI: lazily load outbound provider dependencies and remove forced success-path exits so commands terminate naturally without killing intentional long-running foreground actions. (#12906) Thanks @DrCrinkle.
+>>>>>>> 874ff7089 (fix: ensure CLI exits after command completion (#12906))
 - Clawdock: avoid Zsh readonly variable collisions in helper scripts. (#15501) Thanks @nkelner.
 >>>>>>> 8c1e8bb2f (fix: note clawdock zsh compatibility (#15501) (thanks @nkelner))
 - Discord: route autoThread replies to existing threads instead of the root channel. (#8302) Thanks @gavinbmoore, @thewilloftheshadow.
