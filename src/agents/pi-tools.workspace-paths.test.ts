@@ -99,8 +99,16 @@ describe.sequential("workspace path resolution", () => {
   });
 
   it("defaults exec cwd to workspaceDir when workdir is omitted", async () => {
+<<<<<<< HEAD:src/agents/pi-tools.workspace-paths.test.ts
     await withTempDir("moltbot-ws-", async (workspaceDir) => {
       const tools = createMoltbotCodingTools({ workspaceDir });
+=======
+    await withTempDir("openclaw-ws-", async (workspaceDir) => {
+      const tools = createOpenClawCodingTools({
+        workspaceDir,
+        exec: { host: "gateway", ask: "off", security: "full" },
+      });
+>>>>>>> 1af0edf7f (fix: ensure exec approval is registered before returning (#2402) (#3357)):src/agents/pi-tools.workspace-paths.e2e.test.ts
       const execTool = tools.find((tool) => tool.name === "exec");
       expect(execTool).toBeDefined();
 
@@ -121,9 +129,18 @@ describe.sequential("workspace path resolution", () => {
   });
 
   it("lets exec workdir override the workspace default", async () => {
+<<<<<<< HEAD:src/agents/pi-tools.workspace-paths.test.ts
     await withTempDir("moltbot-ws-", async (workspaceDir) => {
       await withTempDir("moltbot-override-", async (overrideDir) => {
         const tools = createMoltbotCodingTools({ workspaceDir });
+=======
+    await withTempDir("openclaw-ws-", async (workspaceDir) => {
+      await withTempDir("openclaw-override-", async (overrideDir) => {
+        const tools = createOpenClawCodingTools({
+          workspaceDir,
+          exec: { host: "gateway", ask: "off", security: "full" },
+        });
+>>>>>>> 1af0edf7f (fix: ensure exec approval is registered before returning (#2402) (#3357)):src/agents/pi-tools.workspace-paths.e2e.test.ts
         const execTool = tools.find((tool) => tool.name === "exec");
         expect(execTool).toBeDefined();
 
