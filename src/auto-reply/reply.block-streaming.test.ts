@@ -109,6 +109,7 @@ describe("block streaming", () => {
     ]);
   });
 
+<<<<<<< HEAD
   it("waits for block replies before returning final payloads", async () => {
     await withTempHome(async (home) => {
       let releaseTyping: (() => void) | undefined;
@@ -172,6 +173,9 @@ describe("block streaming", () => {
   });
 
   it("preserves block reply ordering when typing start is slow", async () => {
+=======
+  it("waits for block replies and preserves ordering when typing start is slow", async () => {
+>>>>>>> e794ef047 (perf(test): reduce hot-suite setup and duplicate test work)
     await withTempHome(async (home) => {
       let releaseTyping: (() => void) | undefined;
       const typingGate = new Promise<void>((resolve) => {
@@ -208,7 +212,7 @@ describe("block streaming", () => {
           Body: "ping",
           From: "+1004",
           To: "+2000",
-          MessageSid: "msg-125",
+          MessageSid: "msg-123",
           Provider: "telegram",
         },
         {
@@ -320,7 +324,7 @@ describe("block streaming", () => {
         },
         {
           onBlockReply,
-          blockReplyTimeoutMs: 10,
+          blockReplyTimeoutMs: 1,
           disableBlockStreaming: false,
         },
         {
