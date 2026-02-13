@@ -9,8 +9,16 @@ import { ensureBrowserControlAuth, resolveBrowserControlAuth } from "./control-a
 import { ensureChromeExtensionRelayServer } from "./extension-relay.js";
 import { isPwAiLoaded } from "./pw-ai-state.js";
 import { registerBrowserRoutes } from "./routes/index.js";
+<<<<<<< HEAD
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 import { type BrowserServerState, createBrowserRouteContext } from "./server-context.js";
+=======
+import {
+  type BrowserServerState,
+  createBrowserRouteContext,
+  listKnownProfileNames,
+} from "./server-context.js";
+>>>>>>> 3bda3df72 (fix(browser): hot-reload profiles added after gateway start (#4841) (#8816))
 
 let state: BrowserServerState | null = null;
 const log = createSubsystemLogger("browser");
@@ -113,6 +121,7 @@ export async function startBrowserControlServerFromConfig(): Promise<BrowserServ
 
   const ctx = createBrowserRouteContext({
     getState: () => state,
+    refreshConfigFromDisk: true,
   });
   registerBrowserRoutes(app as unknown as BrowserRouteRegistrar, ctx);
 
@@ -161,12 +170,13 @@ export async function stopBrowserControlServer(): Promise<void> {
 
   const ctx = createBrowserRouteContext({
     getState: () => state,
+    refreshConfigFromDisk: true,
   });
 
   try {
     const current = state;
     if (current) {
-      for (const name of Object.keys(current.resolved.profiles)) {
+      for (const name of listKnownProfileNames(current)) {
         try {
           await ctx.forProfile(name).stopRunningBrowser();
         } catch {
