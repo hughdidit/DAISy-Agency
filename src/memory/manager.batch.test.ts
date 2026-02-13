@@ -1,9 +1,13 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+=======
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 
 const embedBatch = vi.fn(async () => []);
@@ -27,10 +31,20 @@ vi.mock("./embeddings.js", () => ({
 }));
 
 describe("memory indexing with OpenAI batches", () => {
+  let fixtureRoot: string;
+  let caseId = 0;
   let workspaceDir: string;
   let indexPath: string;
   let manager: MemoryIndexManager | null = null;
   let setTimeoutSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeAll(async () => {
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-batch-"));
+  });
+
+  afterAll(async () => {
+    await fs.rm(fixtureRoot, { recursive: true, force: true });
+  });
 
   beforeEach(async () => {
     embedBatch.mockClear();
@@ -50,9 +64,13 @@ describe("memory indexing with OpenAI batches", () => {
       }
       return realSetTimeout(handler, delay, ...args);
     }) as typeof setTimeout);
+<<<<<<< HEAD
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-batch-"));
+=======
+    workspaceDir = path.join(fixtureRoot, `case-${++caseId}`);
+>>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
     indexPath = path.join(workspaceDir, "index.sqlite");
-    await fs.mkdir(path.join(workspaceDir, "memory"));
+    await fs.mkdir(path.join(workspaceDir, "memory"), { recursive: true });
   });
 
   afterEach(async () => {
@@ -62,7 +80,6 @@ describe("memory indexing with OpenAI batches", () => {
       await manager.close();
       manager = null;
     }
-    await fs.rm(workspaceDir, { recursive: true, force: true });
   });
 
   it("uses OpenAI batch uploads when enabled", async () => {
