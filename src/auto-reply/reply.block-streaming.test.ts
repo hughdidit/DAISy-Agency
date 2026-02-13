@@ -241,6 +241,7 @@ describe("block streaming", () => {
     });
   });
 
+<<<<<<< HEAD
   it("drops final payloads when block replies streamed", async () => {
     await withTempHome(async (home) => {
       const onBlockReply = vi.fn().mockResolvedValue(undefined);
@@ -286,6 +287,8 @@ describe("block streaming", () => {
     });
   });
 
+=======
+>>>>>>> 5caf829d2 (perf(test): trim duplicate gateway and auto-reply test overhead)
   it("falls back to final payloads when block reply send times out", async () => {
     await withTempHome(async (home) => {
       let sawAbort = false;

@@ -220,6 +220,7 @@ describe("RawBody directive parsing", () => {
         },
         expectedIncludes: ["Verbose logging enabled."],
       });
+<<<<<<< HEAD
 
       await assertCommandReply({
         message: {
@@ -254,10 +255,12 @@ describe("RawBody directive parsing", () => {
         },
         expectedIncludes: ["Session: agent:main:whatsapp:group:g1", "anthropic/claude-opus-4-5"],
       });
+=======
+>>>>>>> 5caf829d2 (perf(test): trim duplicate gateway and auto-reply test overhead)
     });
   });
 
-  it("preserves history when RawBody is provided for command parsing", async () => {
+  it("preserves history and reuses non-default agent session files", async () => {
     await withTempHome(async (home) => {
       vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
         payloads: [{ text: "ok" }],
@@ -305,11 +308,6 @@ describe("RawBody directive parsing", () => {
       expect(prompt).toContain('"body": "hello"');
       expect(prompt).toContain("status please");
       expect(prompt).not.toContain("/think:high");
-    });
-  });
-
-  it("reuses non-default agent session files without throwing path validation errors", async () => {
-    await withTempHome(async (home) => {
       const agentId = "worker1";
       const sessionId = "sess-worker-1";
       const sessionKey = `agent:${agentId}:telegram:12345`;
@@ -326,6 +324,7 @@ describe("RawBody directive parsing", () => {
         },
       });
 
+      vi.mocked(runEmbeddedPiAgent).mockReset();
       vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
         payloads: [{ text: "ok" }],
         meta: {
@@ -334,7 +333,7 @@ describe("RawBody directive parsing", () => {
         },
       });
 
-      const res = await getReplyFromConfig(
+      const resWorker = await getReplyFromConfig(
         {
           Body: "hello",
           From: "telegram:12345",
@@ -355,8 +354,8 @@ describe("RawBody directive parsing", () => {
         },
       );
 
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
-      expect(text).toBe("ok");
+      const textWorker = Array.isArray(resWorker) ? resWorker[0]?.text : resWorker?.text;
+      expect(textWorker).toBe("ok");
       expect(runEmbeddedPiAgent).toHaveBeenCalledOnce();
       expect(vi.mocked(runEmbeddedPiAgent).mock.calls[0]?.[0]?.sessionFile).toBe(sessionFile);
     });
