@@ -13,6 +13,15 @@ import type {
   WizardFlow,
 } from "./onboarding.types.js";
 import type { WizardPrompter } from "./prompts.js";
+<<<<<<< HEAD
+=======
+import {
+  normalizeGatewayTokenInput,
+  randomToken,
+  validateGatewayPasswordInput,
+} from "../commands/onboard-helpers.js";
+import { findTailscaleBinary } from "../infra/tailscale.js";
+>>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))
 
 // These commands are "high risk" (privacy writes/recording) and should be
 // explicitly armed by the user when they want to use them.
@@ -210,7 +219,7 @@ export async function configureGatewayForOnboarding(
         ? quickstartGateway.password
         : await prompter.text({
             message: "Gateway password",
-            validate: (value) => (value?.trim() ? undefined : "Required"),
+            validate: validateGatewayPasswordInput,
           });
     nextConfig = {
       ...nextConfig,

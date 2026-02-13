@@ -1,6 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { openUrl, resolveBrowserOpenCommand, resolveControlUiLinks } from "./onboard-helpers.js";
+=======
+import {
+  normalizeGatewayTokenInput,
+  openUrl,
+  resolveBrowserOpenCommand,
+  resolveControlUiLinks,
+  validateGatewayPasswordInput,
+} from "./onboard-helpers.js";
+>>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))
 
 const mocks = vi.hoisted(() => ({
   runCommandWithTimeout: vi.fn(async () => ({
@@ -103,3 +113,49 @@ describe("resolveControlUiLinks", () => {
     expect(links.wsUrl).toBe("ws://127.0.0.1:18789");
   });
 });
+<<<<<<< HEAD
+=======
+
+describe("normalizeGatewayTokenInput", () => {
+  it("returns empty string for undefined or null", () => {
+    expect(normalizeGatewayTokenInput(undefined)).toBe("");
+    expect(normalizeGatewayTokenInput(null)).toBe("");
+  });
+
+  it("trims string input", () => {
+    expect(normalizeGatewayTokenInput("  token  ")).toBe("token");
+  });
+
+  it("returns empty string for non-string input", () => {
+    expect(normalizeGatewayTokenInput(123)).toBe("");
+  });
+
+  it('rejects the literal string "undefined"', () => {
+    expect(normalizeGatewayTokenInput("undefined")).toBe("");
+  });
+
+  it('rejects the literal string "null"', () => {
+    expect(normalizeGatewayTokenInput("null")).toBe("");
+  });
+});
+
+describe("validateGatewayPasswordInput", () => {
+  it("requires a non-empty password", () => {
+    expect(validateGatewayPasswordInput("")).toBe("Required");
+    expect(validateGatewayPasswordInput("   ")).toBe("Required");
+  });
+
+  it("rejects literal string coercion artifacts", () => {
+    expect(validateGatewayPasswordInput("undefined")).toBe(
+      'Cannot be the literal string "undefined" or "null"',
+    );
+    expect(validateGatewayPasswordInput("null")).toBe(
+      'Cannot be the literal string "undefined" or "null"',
+    );
+  });
+
+  it("accepts a normal password", () => {
+    expect(validateGatewayPasswordInput(" secret ")).toBeUndefined();
+  });
+});
+>>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))

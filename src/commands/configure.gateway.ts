@@ -5,7 +5,16 @@ import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { buildGatewayAuthConfig } from "./configure.gateway-auth.js";
 import { confirm, select, text } from "./configure.shared.js";
+<<<<<<< HEAD
 import { guardCancel, randomToken } from "./onboard-helpers.js";
+=======
+import {
+  guardCancel,
+  normalizeGatewayTokenInput,
+  randomToken,
+  validateGatewayPasswordInput,
+} from "./onboard-helpers.js";
+>>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))
 
 type GatewayAuthChoice = "token" | "password";
 
@@ -187,7 +196,7 @@ export async function promptGatewayConfig(
     const password = guardCancel(
       await text({
         message: "Gateway password",
-        validate: (value) => (value?.trim() ? undefined : "Required"),
+        validate: validateGatewayPasswordInput,
       }),
       runtime,
     );

@@ -15,6 +15,18 @@ import { promptCustomApiConfig } from "./onboard-custom.js";
 
 type GatewayAuthChoice = "token" | "password";
 
+/** Reject undefined, empty, and common JS string-coercion artifacts for token auth. */
+function sanitizeTokenValue(value: string | undefined): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  if (!trimmed || trimmed === "undefined" || trimmed === "null") {
+    return undefined;
+  }
+  return trimmed;
+}
+
 const ANTHROPIC_OAUTH_MODEL_KEYS = [
   "anthropic/claude-opus-4-5",
   "anthropic/claude-sonnet-4-5",
@@ -34,9 +46,16 @@ export function buildGatewayAuthConfig(params: {
   }
 
   if (params.mode === "token") {
+<<<<<<< HEAD
     return { ...base, mode: "token", token: params.token };
+=======
+    // Keep token mode always valid: treat empty/undefined/"undefined"/"null" as missing and generate a token.
+    const token = sanitizeTokenValue(params.token) ?? randomToken();
+    return { ...base, mode: "token", token };
+>>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))
   }
-  return { ...base, mode: "password", password: params.password };
+  const password = params.password?.trim();
+  return { ...base, mode: "password", ...(password && { password }) };
 }
 
 export async function promptAuthConfig(
