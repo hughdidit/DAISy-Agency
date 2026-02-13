@@ -13,9 +13,18 @@ import {
   renderMessageGroup,
   renderReadingIndicatorGroup,
   renderStreamingGroup,
+<<<<<<< HEAD
 } from "../chat/grouped-render";
 import { renderMarkdownSidebar } from "./markdown-sidebar";
 import "../components/resizable-divider";
+=======
+} from "../chat/grouped-render.ts";
+import { normalizeMessage, normalizeRoleForGrouping } from "../chat/message-normalizer.ts";
+import { icons } from "../icons.ts";
+import { detectTextDirection } from "../text-direction.ts";
+import { renderMarkdownSidebar } from "./markdown-sidebar.ts";
+import "../components/resizable-divider.ts";
+>>>>>>> ae7e37774 (feat(ui): add RTL support for Hebrew/Arabic text in webchat (openclaw#11498) thanks @dirbalak)
 
 export type CompactionIndicatorStatus = {
   active: boolean;
@@ -354,6 +363,7 @@ export function renderChat(props: ChatProps) {
             <textarea
               ${ref((el) => el && adjustTextareaHeight(el as HTMLTextAreaElement))}
               .value=${props.draft}
+              dir=${detectTextDirection(props.draft)}
               ?disabled=${!props.connected}
               @keydown=${(e: KeyboardEvent) => {
                 if (e.key !== "Enter") return;

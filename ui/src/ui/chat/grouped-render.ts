@@ -1,11 +1,19 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+<<<<<<< HEAD
 
 import type { AssistantIdentity } from "../assistant-identity";
 import { toSanitizedMarkdownHtml } from "../markdown";
 import type { MessageGroup } from "../types/chat-types";
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown";
 import { isToolResultMessage, normalizeRoleForGrouping } from "./message-normalizer";
+=======
+import type { AssistantIdentity } from "../assistant-identity.ts";
+import type { MessageGroup } from "../types/chat-types.ts";
+import { toSanitizedMarkdownHtml } from "../markdown.ts";
+import { detectTextDirection } from "../text-direction.ts";
+import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
+>>>>>>> ae7e37774 (feat(ui): add RTL support for Hebrew/Arabic text in webchat (openclaw#11498) thanks @dirbalak)
 import {
   extractTextCached,
   extractThinkingCached,
@@ -276,6 +284,7 @@ function renderGroupedMessage(
     <div class="${bubbleClasses}">
       ${canCopyMarkdown ? renderCopyAsMarkdownButton(markdown!) : nothing}
       ${renderMessageImages(images)}
+<<<<<<< HEAD
       ${reasoningMarkdown
         ? html`<div class="chat-thinking">${unsafeHTML(
             toSanitizedMarkdownHtml(reasoningMarkdown),
@@ -284,6 +293,20 @@ function renderGroupedMessage(
       ${markdown
         ? html`<div class="chat-text">${unsafeHTML(toSanitizedMarkdownHtml(markdown))}</div>`
         : nothing}
+=======
+      ${
+        reasoningMarkdown
+          ? html`<div class="chat-thinking">${unsafeHTML(
+              toSanitizedMarkdownHtml(reasoningMarkdown),
+            )}</div>`
+          : nothing
+      }
+      ${
+        markdown
+          ? html`<div class="chat-text" dir="${detectTextDirection(markdown)}">${unsafeHTML(toSanitizedMarkdownHtml(markdown))}</div>`
+          : nothing
+      }
+>>>>>>> ae7e37774 (feat(ui): add RTL support for Hebrew/Arabic text in webchat (openclaw#11498) thanks @dirbalak)
       ${toolCards.map((card) => renderToolCardSidebar(card, onOpenSidebar))}
     </div>
   `;

@@ -409,6 +409,7 @@ Docs: https://docs.openclaw.ai
 - Models: support Anthropic Opus 4.6 and OpenAI Codex gpt-5.3-codex (forward-compat fallbacks). (#9853, #10720, #9995) Thanks @TinyTb, @calvin-hpnet, @tyler6204.
 - Providers: add xAI (Grok) support. (#9885) Thanks @grp06.
 - Web UI: add token usage dashboard. (#10072) Thanks @Takhoffman.
+- Web UI: add RTL auto-direction support for Hebrew/Arabic text in chat composer and rendered messages. (#11498) Thanks @dirbalak.
 - Memory: native Voyage AI support. (#7078) Thanks @mcinteerj.
 - Sessions: cap sessions_history payloads to reduce context overflow. (#10000) Thanks @gut-puncture.
 - CLI: sort commands alphabetically in help output. (#8068) Thanks @deepsoumya617.
