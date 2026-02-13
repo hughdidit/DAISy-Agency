@@ -138,8 +138,12 @@ Docs: https://docs.openclaw.ai
 - Discord tests: use a partial @buape/carbon mock in slash command coverage. (#13262) Thanks @arosstale.
 >>>>>>> 04a1ed5e5 (chore: make changelog mandatory in PR skills)
 - Tests: update thread ID handling in Slack message collection tests. (#14108) Thanks @swizzmagik.
+<<<<<<< HEAD
 - Telegram: surface REACTION_INVALID as non-fatal warning. (#14340) Thanks @0xRaini.
 >>>>>>> 540996f10 (feat(provider): Z.AI endpoints + model catalog (#13456) (thanks @tomsun28) (#13456))
+=======
+- Update/Daemon: fix post-update restart compatibility by generating `dist/cli/daemon-cli.js` with alias-aware exports from hashed daemon bundles, preventing `registerDaemonCli` import failures during `openclaw update`.
+>>>>>>> 711597c02 (fix(update): repair daemon-cli compat exports after self-update)
 
 >>>>>>> 2aa957046 (fix(slack): detect control commands when message starts with @mention (#14142))
 ## 2026.2.9
