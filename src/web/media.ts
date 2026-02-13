@@ -25,6 +25,12 @@ type WebMediaOptions = {
   maxBytes?: number;
   optimizeImages?: boolean;
   ssrfPolicy?: SsrFPolicy;
+<<<<<<< HEAD
+=======
+  /** Allowed root directories for local path reads. "any" skips the check (caller already validated). */
+  localRoots?: string[] | "any";
+  readFile?: (filePath: string) => Promise<Buffer>;
+>>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 };
 
 const HEIC_MIME_RE = /^image\/hei[cf]$/i;
@@ -124,7 +130,17 @@ async function loadWebMediaInternal(
   mediaUrl: string,
   options: WebMediaOptions = {},
 ): Promise<WebMediaResult> {
+<<<<<<< HEAD
   const { maxBytes, optimizeImages = true, ssrfPolicy } = options;
+=======
+  const {
+    maxBytes,
+    optimizeImages = true,
+    ssrfPolicy,
+    localRoots,
+    readFile: readFileOverride,
+  } = options;
+>>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
   // Use fileURLToPath for proper handling of file:// URLs (handles file://localhost/path, etc.)
   if (mediaUrl.startsWith("file://")) {
     try {
@@ -223,7 +239,7 @@ async function loadWebMediaInternal(
   }
 
   // Local path
-  const data = await fs.readFile(mediaUrl);
+  const data = readFileOverride ? await readFileOverride(mediaUrl) : await fs.readFile(mediaUrl);
   const mime = await detectMime({ buffer: data, filePath: mediaUrl });
   const kind = mediaKindFromMime(mime);
   let fileName = path.basename(mediaUrl) || undefined;
@@ -243,25 +259,59 @@ async function loadWebMediaInternal(
 
 export async function loadWebMedia(
   mediaUrl: string,
+<<<<<<< HEAD
   maxBytes?: number,
   options?: { ssrfPolicy?: SsrFPolicy },
+=======
+  maxBytesOrOptions?: number | WebMediaOptions,
+  options?: { ssrfPolicy?: SsrFPolicy; localRoots?: string[] | "any" },
+>>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 ): Promise<WebMediaResult> {
+  if (typeof maxBytesOrOptions === "number" || maxBytesOrOptions === undefined) {
+    return await loadWebMediaInternal(mediaUrl, {
+      maxBytes: maxBytesOrOptions,
+      optimizeImages: true,
+      ssrfPolicy: options?.ssrfPolicy,
+      localRoots: options?.localRoots,
+    });
+  }
   return await loadWebMediaInternal(mediaUrl, {
+<<<<<<< HEAD
     maxBytes,
     optimizeImages: true,
     ssrfPolicy: options?.ssrfPolicy,
+=======
+    ...maxBytesOrOptions,
+    optimizeImages: maxBytesOrOptions.optimizeImages ?? true,
+>>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
   });
 }
 
 export async function loadWebMediaRaw(
   mediaUrl: string,
+<<<<<<< HEAD
   maxBytes?: number,
   options?: { ssrfPolicy?: SsrFPolicy },
+=======
+  maxBytesOrOptions?: number | WebMediaOptions,
+  options?: { ssrfPolicy?: SsrFPolicy; localRoots?: string[] | "any" },
+>>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 ): Promise<WebMediaResult> {
+  if (typeof maxBytesOrOptions === "number" || maxBytesOrOptions === undefined) {
+    return await loadWebMediaInternal(mediaUrl, {
+      maxBytes: maxBytesOrOptions,
+      optimizeImages: false,
+      ssrfPolicy: options?.ssrfPolicy,
+      localRoots: options?.localRoots,
+    });
+  }
   return await loadWebMediaInternal(mediaUrl, {
-    maxBytes,
+    ...maxBytesOrOptions,
     optimizeImages: false,
+<<<<<<< HEAD
     ssrfPolicy: options?.ssrfPolicy,
+=======
+>>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
   });
 }
 
