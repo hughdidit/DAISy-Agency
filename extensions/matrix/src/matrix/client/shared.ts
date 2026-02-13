@@ -1,6 +1,11 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
 import { LogService } from "@vector-im/matrix-bot-sdk";
+<<<<<<< HEAD
 import type { CoreConfig } from "../types.js";
+=======
+import { normalizeAccountId } from "openclaw/plugin-sdk";
+import type { CoreConfig } from "../../types.js";
+>>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
 import type { MatrixAuth } from "./types.js";
 import { resolveMatrixAuth } from "./config.js";
 import { createMatrixClient } from "./create-client.js";
@@ -18,12 +23,13 @@ let sharedClientPromise: Promise<SharedMatrixClientState> | null = null;
 let sharedClientStartPromise: Promise<void> | null = null;
 
 function buildSharedClientKey(auth: MatrixAuth, accountId?: string | null): string {
+  const normalizedAccountId = normalizeAccountId(accountId);
   return [
     auth.homeserver,
     auth.userId,
     auth.accessToken,
     auth.encryption ? "e2ee" : "plain",
-    accountId ?? DEFAULT_ACCOUNT_KEY,
+    normalizedAccountId || DEFAULT_ACCOUNT_KEY,
   ].join("|");
 }
 
@@ -97,8 +103,15 @@ export async function resolveSharedMatrixClient(
     accountId?: string | null;
   } = {},
 ): Promise<MatrixClient> {
+<<<<<<< HEAD
   const auth = params.auth ?? (await resolveMatrixAuth({ cfg: params.cfg, env: params.env }));
   const key = buildSharedClientKey(auth, params.accountId);
+=======
+  const accountId = normalizeAccountId(params.accountId);
+  const auth =
+    params.auth ?? (await resolveMatrixAuth({ cfg: params.cfg, env: params.env, accountId }));
+  const key = buildSharedClientKey(auth, accountId);
+>>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
   const shouldStart = params.startClient !== false;
 
   if (sharedClientState?.key === key) {
@@ -134,7 +147,7 @@ export async function resolveSharedMatrixClient(
   sharedClientPromise = createSharedMatrixClient({
     auth,
     timeoutMs: params.timeoutMs,
-    accountId: params.accountId,
+    accountId,
   });
   try {
     const created = await sharedClientPromise;
@@ -168,3 +181,16 @@ export function stopSharedClient(): void {
     sharedClientState = null;
   }
 }
+<<<<<<< HEAD
+=======
+
+/**
+ * Stop the shared client for a specific account.
+ * Use this instead of stopSharedClient() when shutting down a single account
+ * to avoid stopping all accounts.
+ */
+export function stopSharedClientForAccount(auth: MatrixAuth, accountId?: string | null): void {
+  const key = buildSharedClientKey(auth, normalizeAccountId(accountId));
+  stopSharedClient(key);
+}
+>>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))

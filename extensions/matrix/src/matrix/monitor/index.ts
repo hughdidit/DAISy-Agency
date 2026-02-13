@@ -213,7 +213,7 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
           ...cfg.channels?.matrix?.dm,
           allowFrom,
         },
-        ...(groupAllowFrom.length > 0 ? { groupAllowFrom } : {}),
+        groupAllowFrom,
         ...(roomsConfig ? { groups: roomsConfig } : {}),
       },
     },
