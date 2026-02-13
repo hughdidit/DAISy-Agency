@@ -19,6 +19,12 @@ import {
 >>>>>>> fa906b26a (feat: IRC — add first-class channel support)
 import { resolveDiscordAccount } from "../discord/accounts.js";
 import { resolveIMessageAccount } from "../imessage/accounts.js";
+<<<<<<< HEAD
+=======
+import { resolveLinqAccount } from "../linq/accounts.js";
+import { requireActivePluginRegistry } from "../plugins/runtime.js";
+import { normalizeAccountId } from "../routing/session-key.js";
+>>>>>>> d4a142fd8 (feat: add Linq channel — real iMessage via API, no Mac required)
 import { resolveSignalAccount } from "../signal/accounts.js";
 import { resolveSlackAccount, resolveSlackReplyToMode } from "../slack/accounts.js";
 import { buildSlackThreadingToolContext } from "../slack/threading-tool-context.js";
@@ -455,6 +461,23 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
           hasRepliedRef,
         };
       },
+    },
+  },
+  linq: {
+    id: "linq",
+    capabilities: {
+      chatTypes: ["direct", "group"],
+      reactions: true,
+      media: true,
+    },
+    outbound: { textChunkLimit: 4000 },
+    config: {
+      resolveAllowFrom: ({ cfg, accountId }) =>
+        (resolveLinqAccount({ cfg, accountId }).config.allowFrom ?? []).map((entry) =>
+          String(entry),
+        ),
+      formatAllowFrom: ({ allowFrom }) =>
+        allowFrom.map((entry) => String(entry).trim()).filter(Boolean),
     },
   },
 };

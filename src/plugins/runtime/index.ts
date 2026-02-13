@@ -73,8 +73,40 @@ import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { monitorIMessageProvider } from "../../imessage/monitor.js";
 import { probeIMessage } from "../../imessage/probe.js";
 import { sendMessageIMessage } from "../../imessage/send.js";
+<<<<<<< HEAD
 import { shouldLogVerbose } from "../../globals.js";
 import { convertMarkdownTables } from "../../markdown/tables.js";
+=======
+import { getChannelActivity, recordChannelActivity } from "../../infra/channel-activity.js";
+import { enqueueSystemEvent } from "../../infra/system-events.js";
+import {
+  listLineAccountIds,
+  normalizeAccountId as normalizeLineAccountId,
+  resolveDefaultLineAccountId,
+  resolveLineAccount,
+} from "../../line/accounts.js";
+import { monitorLineProvider } from "../../line/monitor.js";
+import { probeLineBot } from "../../line/probe.js";
+import {
+  createQuickReplyItems,
+  pushMessageLine,
+  pushMessagesLine,
+  pushFlexMessage,
+  pushTemplateMessage,
+  pushLocationMessage,
+  pushTextMessageWithQuickReplies,
+  sendMessageLine,
+} from "../../line/send.js";
+import { buildTemplateMessageFromPayload } from "../../line/template-messages.js";
+import {
+  listLinqAccountIds,
+  resolveDefaultLinqAccountId,
+  resolveLinqAccount,
+} from "../../linq/accounts.js";
+import { monitorLinqProvider } from "../../linq/monitor.js";
+import { probeLinq } from "../../linq/probe.js";
+import { sendMessageLinq } from "../../linq/send.js";
+>>>>>>> d4a142fd8 (feat: add Linq channel — real iMessage via API, no Mac required)
 import { getChildLogger } from "../../logging.js";
 import { normalizeLogLevel } from "../../logging/levels.js";
 import { isVoiceCompatibleAudio } from "../../media/audio.js";
@@ -301,6 +333,14 @@ export function createPluginRuntime(): PluginRuntime {
         monitorIMessageProvider,
         probeIMessage,
         sendMessageIMessage,
+      },
+      linq: {
+        sendMessageLinq,
+        probeLinq,
+        monitorLinqProvider,
+        listLinqAccountIds,
+        resolveDefaultLinqAccountId,
+        resolveLinqAccount,
       },
       whatsapp: {
         getActiveWebListener,

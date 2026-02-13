@@ -98,6 +98,7 @@ export {
   DiscordConfigSchema,
   GoogleChatConfigSchema,
   IMessageConfigSchema,
+  LinqConfigSchema,
   MSTeamsConfigSchema,
   SignalConfigSchema,
   SlackConfigSchema,
@@ -394,6 +395,7 @@ export {
 } from "../line/markdown-to-line.js";
 export type { ProcessedLineMessage } from "../line/markdown-to-line.js";
 
+<<<<<<< HEAD
 // Channel: Feishu
 export {
   listFeishuAccountIds,
@@ -410,6 +412,16 @@ export { feishuOutbound } from "../channels/plugins/outbound/feishu.js";
 export { normalizeFeishuTarget } from "../channels/plugins/normalize/feishu.js";
 export { probeFeishu, type FeishuProbe } from "../feishu/probe.js";
 export { monitorFeishuProvider } from "../feishu/monitor.js";
+=======
+// Channel: Linq
+export {
+  listLinqAccountIds,
+  resolveDefaultLinqAccountId,
+  resolveLinqAccount,
+  type ResolvedLinqAccount,
+} from "../linq/accounts.js";
+export type { LinqProbe } from "../linq/types.js";
+>>>>>>> d4a142fd8 (feat: add Linq channel — real iMessage via API, no Mac required)
 
 // Media utilities
 export { loadWebMedia, type WebMediaResult } from "../web/media.js";
