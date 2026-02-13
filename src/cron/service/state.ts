@@ -46,6 +46,15 @@ export type CronServiceDeps = {
     error?: string;
     sessionId?: string;
     sessionKey?: string;
+<<<<<<< HEAD
+=======
+    /**
+     * `true` when the isolated run already delivered its output to the target
+     * channel (including matching messaging-tool sends). See:
+     * https://github.com/openclaw/openclaw/issues/15692
+     */
+    delivered?: boolean;
+>>>>>>> 45a2cd55c (fix: harden isolated cron announce delivery fallback (#15739) (thanks @widingmarcus-cyber))
   }>;
   onEvent?: (evt: CronEvent) => void;
 };
