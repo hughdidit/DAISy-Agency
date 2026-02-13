@@ -7,6 +7,11 @@ import type { Duplex } from "node:stream";
 
 import chokidar from "chokidar";
 import { type WebSocket, WebSocketServer } from "ws";
+<<<<<<< HEAD
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import { resolveStateDir } from "../config/paths.js";
+>>>>>>> 41f2f359a (perf(test): reduce module reload overhead in key suites)
 import { isTruthyEnvValue } from "../infra/env.js";
 import { SafeOpenError, openFileWithinRoot } from "../infra/fs-safe.js";
 import { detectMime } from "../media/mime.js";
@@ -251,6 +256,21 @@ async function prepareCanvasRoot(rootDir: string) {
   return rootReal;
 }
 
+<<<<<<< HEAD
+=======
+function resolveDefaultCanvasRoot(): string {
+  const candidates = [path.join(resolveStateDir(), "canvas")];
+  const existing = candidates.find((dir) => {
+    try {
+      return fsSync.statSync(dir).isDirectory();
+    } catch {
+      return false;
+    }
+  });
+  return existing ?? candidates[0];
+}
+
+>>>>>>> 41f2f359a (perf(test): reduce module reload overhead in key suites)
 export async function createCanvasHostHandler(
   opts: CanvasHostHandlerOpts,
 ): Promise<CanvasHostHandler> {
