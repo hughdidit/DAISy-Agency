@@ -158,6 +158,10 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
           ...cfg.channels?.matrix?.dm,
           allowFrom,
         },
+<<<<<<< HEAD
+=======
+        groupAllowFrom,
+>>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
         ...(roomsConfig ? { groups: roomsConfig } : {}),
       },
     },

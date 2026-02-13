@@ -16,6 +16,7 @@ import { resolveMatrixGroupRequireMention, resolveMatrixGroupToolPolicy } from "
 import type { CoreConfig } from "./types.js";
 import {
   listMatrixAccountIds,
+  resolveMatrixAccountConfig,
   resolveDefaultMatrixAccountId,
   resolveMatrixAccount,
   type ResolvedMatrixAccount,
@@ -162,8 +163,8 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
       (account.config.dm?.allowFrom ?? []).map((entry) => String(entry)),
 =======
     resolveAllowFrom: ({ cfg, accountId }) => {
-      const account = resolveMatrixAccount({ cfg: cfg as CoreConfig, accountId });
-      return (account.config.dm?.allowFrom ?? []).map((entry: string | number) => String(entry));
+      const matrixConfig = resolveMatrixAccountConfig({ cfg: cfg as CoreConfig, accountId });
+      return (matrixConfig.dm?.allowFrom ?? []).map((entry: string | number) => String(entry));
     },
 >>>>>>> a76ac1344 (fix: resolveAllowFrom uses cfg+accountId params, not account)
     formatAllowFrom: ({ allowFrom }) => normalizeMatrixAllowList(allowFrom),
@@ -200,8 +201,13 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
     resolveToolPolicy: resolveMatrixGroupToolPolicy,
   },
   threading: {
+<<<<<<< HEAD
     resolveReplyToMode: ({ cfg }) =>
       (cfg as CoreConfig).channels?.matrix?.replyToMode ?? "off",
+=======
+    resolveReplyToMode: ({ cfg, accountId }) =>
+      resolveMatrixAccountConfig({ cfg: cfg as CoreConfig, accountId }).replyToMode ?? "off",
+>>>>>>> 2b685b08c (fix: harden matrix multi-account routing (#7286) (thanks @emonty))
     buildToolContext: ({ context, hasRepliedRef }) => {
       const currentTarget = context.To;
       return {
@@ -294,10 +300,10 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
         .map((id) => ({ kind: "group", id }) as const);
       return ids;
     },
-    listPeersLive: async ({ cfg, query, limit }) =>
-      listMatrixDirectoryPeersLive({ cfg, query, limit }),
-    listGroupsLive: async ({ cfg, query, limit }) =>
-      listMatrixDirectoryGroupsLive({ cfg, query, limit }),
+    listPeersLive: async ({ cfg, accountId, query, limit }) =>
+      listMatrixDirectoryPeersLive({ cfg, accountId, query, limit }),
+    listGroupsLive: async ({ cfg, accountId, query, limit }) =>
+      listMatrixDirectoryGroupsLive({ cfg, accountId, query, limit }),
   },
   resolver: {
     resolveTargets: async ({ cfg, inputs, kind, runtime }) =>
