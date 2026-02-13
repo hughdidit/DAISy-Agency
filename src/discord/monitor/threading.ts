@@ -260,7 +260,9 @@ export async function resolveDiscordAutoThreadReplyPlan(params: {
   agentId: string;
   channel: string;
 }): Promise<DiscordAutoThreadReplyPlan> {
-  const originalReplyTarget = `channel:${params.message.channelId}`;
+  // Prefer the resolved thread channel ID when available so replies stay in-thread.
+  const targetChannelId = params.threadChannel?.id ?? params.message.channelId;
+  const originalReplyTarget = `channel:${targetChannelId}`;
   const createdThreadId = await maybeCreateDiscordAutoThread({
     client: params.client,
     message: params.message,
@@ -334,6 +336,11 @@ export function resolveDiscordReplyDeliveryPlan(params: {
   const originalReplyTarget = params.replyTarget;
   let deliverTarget = originalReplyTarget;
   let replyTarget = originalReplyTarget;
+<<<<<<< HEAD
+=======
+
+  // When a new thread was created, route to the new thread.
+>>>>>>> 71939523a (fix: normalize Discord autoThread reply target (#8302) (thanks @gavinbmoore))
   if (params.createdThreadId) {
     deliverTarget = `channel:${params.createdThreadId}`;
     replyTarget = deliverTarget;
