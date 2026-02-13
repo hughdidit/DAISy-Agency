@@ -1,10 +1,10 @@
-<<<<<<< HEAD
-import crypto from "node:crypto";
 import { spawn } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
-import fsPromises from "node:fs/promises";
 import path from "node:path";
-
+import { resolveAgentConfig } from "../agents/agent-scope.js";
+import { loadConfig } from "../config/config.js";
+import { GatewayClient } from "../gateway/client.js";
 import {
   addAllowlistEntry,
   analyzeArgvCommand,
@@ -20,10 +20,10 @@ import {
   resolveExecApprovalsSocketPath,
   saveExecApprovals,
   type ExecAsk,
-  type ExecSecurity,
   type ExecApprovalsFile,
   type ExecAllowlistEntry,
   type ExecCommandSegment,
+  type ExecSecurity,
 } from "../infra/exec-approvals.js";
 import {
   requestExecHostViaSocket,
@@ -31,54 +31,27 @@ import {
   type ExecHostResponse,
   type ExecHostRunResult,
 } from "../infra/exec-host.js";
-import { getMachineDisplayName } from "../infra/machine-name.js";
-import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
-import { loadConfig } from "../config/config.js";
-import { resolveBrowserConfig } from "../browser/config.js";
-import {
-  createBrowserControlContext,
-  startBrowserControlServiceFromConfig,
-} from "../browser/control-service.js";
-import { createBrowserRouteDispatcher } from "../browser/routes/dispatcher.js";
-import { detectMime } from "../media/mime.js";
-import { resolveAgentConfig } from "../agents/agent-scope.js";
-import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
-=======
-import { resolveBrowserConfig } from "../browser/config.js";
-import { loadConfig } from "../config/config.js";
-import { GatewayClient } from "../gateway/client.js";
-import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
-import { getMachineDisplayName } from "../infra/machine-name.js";
-import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
-import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)
-import { VERSION } from "../version.js";
-import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
+import { runBrowserProxyCommand } from "./invoke-browser.js";
 
-import { ensureNodeHostConfig, saveNodeHostConfig, type NodeHostGatewayConfig } from "./config.js";
-<<<<<<< HEAD
-import { GatewayClient } from "../gateway/client.js";
-=======
-import {
-  coerceNodeInvokePayload,
-  handleInvoke,
-  type SkillBinsProvider,
-  buildNodeInvokeResultParams,
-} from "./invoke.js";
+const OUTPUT_CAP = 200_000;
+const OUTPUT_EVENT_TAIL = 20_000;
+const DEFAULT_NODE_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
 
-export { buildNodeInvokeResultParams };
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)
+const execHostEnforced = process.env.OPENCLAW_NODE_EXEC_HOST?.trim().toLowerCase() === "app";
+const execHostFallbackAllowed =
+  process.env.OPENCLAW_NODE_EXEC_FALLBACK?.trim().toLowerCase() !== "0";
 
-type NodeHostRunOptions = {
-  gatewayHost: string;
-  gatewayPort: number;
-  gatewayTls?: boolean;
-  gatewayTlsFingerprint?: string;
-  nodeId?: string;
-  displayName?: string;
-};
+const blockedEnvKeys = new Set([
+  "NODE_OPTIONS",
+  "PYTHONHOME",
+  "PYTHONPATH",
+  "PERL5LIB",
+  "PERL5OPT",
+  "RUBYOPT",
+]);
 
-<<<<<<< HEAD
+const blockedEnvPrefixes = ["DYLD_", "LD_"];
+
 type SystemRunParams = {
   command: string[];
   rawCommand?: string | null;
@@ -95,26 +68,6 @@ type SystemRunParams = {
 
 type SystemWhichParams = {
   bins: string[];
-};
-
-type BrowserProxyParams = {
-  method?: string;
-  path?: string;
-  query?: Record<string, string | number | boolean | null | undefined>;
-  body?: unknown;
-  timeoutMs?: number;
-  profile?: string;
-};
-
-type BrowserProxyFile = {
-  path: string;
-  base64: string;
-  mimeType?: string;
-};
-
-type BrowserProxyResult = {
-  result: unknown;
-  files?: BrowserProxyFile[];
 };
 
 type SystemExecApprovalsSetParams = {
@@ -139,14 +92,6 @@ type RunResult = {
   truncated: boolean;
 };
 
-function resolveExecSecurity(value?: string): ExecSecurity {
-  return value === "deny" || value === "allowlist" || value === "full" ? value : "allowlist";
-}
-
-function resolveExecAsk(value?: string): ExecAsk {
-  return value === "off" || value === "on-miss" || value === "always" ? value : "on-miss";
-}
-
 type ExecEventPayload = {
   sessionKey: string;
   runId: string;
@@ -159,7 +104,7 @@ type ExecEventPayload = {
   reason?: string;
 };
 
-type NodeInvokeRequestPayload = {
+export type NodeInvokeRequestPayload = {
   id: string;
   nodeId: string;
   command: string;
@@ -168,62 +113,27 @@ type NodeInvokeRequestPayload = {
   idempotencyKey?: string | null;
 };
 
-const OUTPUT_CAP = 200_000;
-const OUTPUT_EVENT_TAIL = 20_000;
-=======
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)
-const DEFAULT_NODE_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+export type SkillBinsProvider = {
+  current(force?: boolean): Promise<Set<string>>;
+};
 
-<<<<<<< HEAD
-const execHostEnforced = process.env.CLAWDBOT_NODE_EXEC_HOST?.trim().toLowerCase() === "app";
-const execHostFallbackAllowed =
-  process.env.CLAWDBOT_NODE_EXEC_FALLBACK?.trim().toLowerCase() !== "0";
-
-const blockedEnvKeys = new Set([
-  "NODE_OPTIONS",
-  "PYTHONHOME",
-  "PYTHONPATH",
-  "PERL5LIB",
-  "PERL5OPT",
-  "RUBYOPT",
-]);
-
-const blockedEnvPrefixes = ["DYLD_", "LD_"];
-
-class SkillBinsCache {
-=======
-class SkillBinsCache implements SkillBinsProvider {
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)
-  private bins = new Set<string>();
-  private lastRefresh = 0;
-  private readonly ttlMs = 90_000;
-  private readonly fetch: () => Promise<string[]>;
-
-  constructor(fetch: () => Promise<string[]>) {
-    this.fetch = fetch;
-  }
-
-  async current(force = false): Promise<Set<string>> {
-    if (force || Date.now() - this.lastRefresh > this.ttlMs) {
-      await this.refresh();
-    }
-    return this.bins;
-  }
-
-  private async refresh() {
-    try {
-      const bins = await this.fetch();
-      this.bins = new Set(bins);
-      this.lastRefresh = Date.now();
-    } catch {
-      if (!this.lastRefresh) {
-        this.bins = new Set();
-      }
-    }
-  }
+function resolveExecSecurity(value?: string): ExecSecurity {
+  return value === "deny" || value === "allowlist" || value === "full" ? value : "allowlist";
 }
 
-<<<<<<< HEAD
+function isCmdExeInvocation(argv: string[]): boolean {
+  const token = argv[0]?.trim();
+  if (!token) {
+    return false;
+  }
+  const base = path.win32.basename(token).toLowerCase();
+  return base === "cmd.exe" || base === "cmd";
+}
+
+function resolveExecAsk(value?: string): ExecAsk {
+  return value === "off" || value === "on-miss" || value === "always" ? value : "on-miss";
+}
+
 function sanitizeEnv(
   overrides?: Record<string, string> | null,
 ): Record<string, string> | undefined {
@@ -262,110 +172,6 @@ function sanitizeEnv(
     merged[key] = value;
   }
   return merged;
-}
-
-function normalizeProfileAllowlist(raw?: string[]): string[] {
-  return Array.isArray(raw) ? raw.map((entry) => entry.trim()).filter(Boolean) : [];
-}
-
-function resolveBrowserProxyConfig() {
-  const cfg = loadConfig();
-  const proxy = cfg.nodeHost?.browserProxy;
-  const allowProfiles = normalizeProfileAllowlist(proxy?.allowProfiles);
-  const enabled = proxy?.enabled !== false;
-  return { enabled, allowProfiles };
-}
-
-let browserControlReady: Promise<void> | null = null;
-
-async function ensureBrowserControlService(): Promise<void> {
-  if (browserControlReady) {
-    return browserControlReady;
-  }
-  browserControlReady = (async () => {
-    const cfg = loadConfig();
-    const resolved = resolveBrowserConfig(cfg.browser, cfg);
-    if (!resolved.enabled) {
-      throw new Error("browser control disabled");
-    }
-    const started = await startBrowserControlServiceFromConfig();
-    if (!started) {
-      throw new Error("browser control disabled");
-    }
-  })();
-  return browserControlReady;
-}
-
-async function withTimeout<T>(promise: Promise<T>, timeoutMs?: number, label?: string): Promise<T> {
-  const resolved =
-    typeof timeoutMs === "number" && Number.isFinite(timeoutMs)
-      ? Math.max(1, Math.floor(timeoutMs))
-      : undefined;
-  if (!resolved) {
-    return await promise;
-  }
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => {
-      reject(new Error(`${label ?? "request"} timed out`));
-    }, resolved);
-  });
-  try {
-    return await Promise.race([promise, timeoutPromise]);
-  } finally {
-    if (timer) {
-      clearTimeout(timer);
-    }
-  }
-}
-
-function isProfileAllowed(params: { allowProfiles: string[]; profile?: string | null }) {
-  const { allowProfiles, profile } = params;
-  if (!allowProfiles.length) {
-    return true;
-  }
-  if (!profile) {
-    return false;
-  }
-  return allowProfiles.includes(profile.trim());
-}
-
-function collectBrowserProxyPaths(payload: unknown): string[] {
-  const paths = new Set<string>();
-  const obj =
-    typeof payload === "object" && payload !== null ? (payload as Record<string, unknown>) : null;
-  if (!obj) {
-    return [];
-  }
-  if (typeof obj.path === "string" && obj.path.trim()) {
-    paths.add(obj.path.trim());
-  }
-  if (typeof obj.imagePath === "string" && obj.imagePath.trim()) {
-    paths.add(obj.imagePath.trim());
-  }
-  const download = obj.download;
-  if (download && typeof download === "object") {
-    const dlPath = (download as Record<string, unknown>).path;
-    if (typeof dlPath === "string" && dlPath.trim()) {
-      paths.add(dlPath.trim());
-    }
-  }
-  return [...paths];
-}
-
-async function readBrowserProxyFile(filePath: string): Promise<BrowserProxyFile | null> {
-  const stat = await fsPromises.stat(filePath).catch(() => null);
-  if (!stat || !stat.isFile()) {
-    return null;
-  }
-  if (stat.size > BROWSER_PROXY_MAX_FILE_BYTES) {
-    throw new Error(
-      `browser proxy file exceeds ${Math.round(BROWSER_PROXY_MAX_FILE_BYTES / (1024 * 1024))}MB`,
-    );
-  }
-  const buffer = await fsPromises.readFile(filePath);
-  const mimeType = await detectMime({ buffer, filePath });
-  return { path: filePath, base64: buffer.toString("base64"), mimeType };
 }
 
 function formatCommand(argv: string[]): string {
@@ -511,117 +317,67 @@ function resolveEnvPath(env?: Record<string, string>): string[] {
   return raw.split(path.delimiter).filter(Boolean);
 }
 
-=======
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)
-function ensureNodePathEnv(): string {
-  ensureMoltbotCliOnPath({ pathEnv: process.env.PATH ?? "" });
-  const current = process.env.PATH ?? "";
-  if (current.trim()) {
-    return current;
+function resolveExecutable(bin: string, env?: Record<string, string>) {
+  if (bin.includes("/") || bin.includes("\\")) {
+    return null;
   }
-  process.env.PATH = DEFAULT_NODE_PATH;
-  return DEFAULT_NODE_PATH;
+  const extensions =
+    process.platform === "win32"
+      ? (process.env.PATHEXT ?? process.env.PathExt ?? ".EXE;.CMD;.BAT;.COM")
+          .split(";")
+          .map((ext) => ext.toLowerCase())
+      : [""];
+  for (const dir of resolveEnvPath(env)) {
+    for (const ext of extensions) {
+      const candidate = path.join(dir, bin + ext);
+      if (fs.existsSync(candidate)) {
+        return candidate;
+      }
+    }
+  }
+  return null;
 }
 
-export async function runNodeHost(opts: NodeHostRunOptions): Promise<void> {
-  const config = await ensureNodeHostConfig();
-  const nodeId = opts.nodeId?.trim() || config.nodeId;
-  if (nodeId !== config.nodeId) {
-    config.nodeId = nodeId;
+async function handleSystemWhich(params: SystemWhichParams, env?: Record<string, string>) {
+  const bins = params.bins.map((bin) => bin.trim()).filter(Boolean);
+  const found: Record<string, string> = {};
+  for (const bin of bins) {
+    const path = resolveExecutable(bin, env);
+    if (path) {
+      found[bin] = path;
+    }
   }
-  const displayName =
-    opts.displayName?.trim() || config.displayName || (await getMachineDisplayName());
-  config.displayName = displayName;
-
-  const gateway: NodeHostGatewayConfig = {
-    host: opts.gatewayHost,
-    port: opts.gatewayPort,
-    tls: opts.gatewayTls ?? loadConfig().gateway?.tls?.enabled ?? false,
-    tlsFingerprint: opts.gatewayTlsFingerprint,
-  };
-  config.gateway = gateway;
-  await saveNodeHostConfig(config);
-
-  const cfg = loadConfig();
-  const resolvedBrowser = resolveBrowserConfig(cfg.browser, cfg);
-  const browserProxyEnabled =
-    cfg.nodeHost?.browserProxy?.enabled !== false && resolvedBrowser.enabled;
-  const isRemoteMode = cfg.gateway?.mode === "remote";
-  const token =
-    process.env.CLAWDBOT_GATEWAY_TOKEN?.trim() ||
-    (isRemoteMode ? cfg.gateway?.remote?.token : cfg.gateway?.auth?.token);
-  const password =
-    process.env.CLAWDBOT_GATEWAY_PASSWORD?.trim() ||
-    (isRemoteMode ? cfg.gateway?.remote?.password : cfg.gateway?.auth?.password);
-
-  const host = gateway.host ?? "127.0.0.1";
-  const port = gateway.port ?? 18789;
-  const scheme = gateway.tls ? "wss" : "ws";
-  const url = `${scheme}://${host}:${port}`;
-  const pathEnv = ensureNodePathEnv();
-  // eslint-disable-next-line no-console
-  console.log(`node host PATH: ${pathEnv}`);
-
-  const client = new GatewayClient({
-    url,
-    token: token?.trim() || undefined,
-    password: password?.trim() || undefined,
-    instanceId: nodeId,
-    clientName: GATEWAY_CLIENT_NAMES.NODE_HOST,
-    clientDisplayName: displayName,
-    clientVersion: VERSION,
-    platform: process.platform,
-    mode: GATEWAY_CLIENT_MODES.NODE,
-    role: "node",
-    scopes: [],
-    caps: ["system", ...(browserProxyEnabled ? ["browser"] : [])],
-    commands: [
-      "system.run",
-      "system.which",
-      "system.execApprovals.get",
-      "system.execApprovals.set",
-      ...(browserProxyEnabled ? ["browser.proxy"] : []),
-    ],
-    pathEnv,
-    permissions: undefined,
-    deviceIdentity: loadOrCreateDeviceIdentity(),
-    tlsFingerprint: gateway.tlsFingerprint,
-    onEvent: (evt) => {
-      if (evt.event !== "node.invoke.request") {
-        return;
-      }
-      const payload = coerceNodeInvokePayload(evt.payload);
-      if (!payload) {
-        return;
-      }
-      void handleInvoke(payload, client, skillBins);
-    },
-    onConnectError: (err) => {
-      // keep retrying (handled by GatewayClient)
-      // eslint-disable-next-line no-console
-      console.error(`node host gateway connect failed: ${err.message}`);
-    },
-    onClose: (code, reason) => {
-      // eslint-disable-next-line no-console
-      console.error(`node host gateway closed (${code}): ${reason}`);
-    },
-  });
-
-  const skillBins = new SkillBinsCache(async () => {
-    const res = await client.request<{ bins: Array<unknown> }>("skills.bins", {});
-    const bins = Array.isArray(res?.bins) ? res.bins.map((bin) => String(bin)) : [];
-    return bins;
-  });
-
-  client.start();
-  await new Promise(() => {});
+  return { bins: found };
 }
-<<<<<<< HEAD
 
-async function handleInvoke(
+function buildExecEventPayload(payload: ExecEventPayload): ExecEventPayload {
+  if (!payload.output) {
+    return payload;
+  }
+  const trimmed = payload.output.trim();
+  if (!trimmed) {
+    return payload;
+  }
+  const { text } = truncateOutput(trimmed, OUTPUT_EVENT_TAIL);
+  return { ...payload, output: text };
+}
+
+async function runViaMacAppExecHost(params: {
+  approvals: ReturnType<typeof resolveExecApprovals>;
+  request: ExecHostRequest;
+}): Promise<ExecHostResponse | null> {
+  const { approvals, request } = params;
+  return await requestExecHostViaSocket({
+    socketPath: approvals.socketPath,
+    token: approvals.token,
+    request,
+  });
+}
+
+export async function handleInvoke(
   frame: NodeInvokeRequestPayload,
   client: GatewayClient,
-  skillBins: SkillBinsCache,
+  skillBins: SkillBinsProvider,
 ) {
   const command = String(frame.command ?? "");
   if (command === "system.execApprovals.get") {
@@ -715,104 +471,10 @@ async function handleInvoke(
 
   if (command === "browser.proxy") {
     try {
-      const params = decodeParams<BrowserProxyParams>(frame.paramsJSON);
-      const pathValue = typeof params.path === "string" ? params.path.trim() : "";
-      if (!pathValue) {
-        throw new Error("INVALID_REQUEST: path required");
-      }
-      const proxyConfig = resolveBrowserProxyConfig();
-      if (!proxyConfig.enabled) {
-        throw new Error("UNAVAILABLE: node browser proxy disabled");
-      }
-      await ensureBrowserControlService();
-      const cfg = loadConfig();
-      const resolved = resolveBrowserConfig(cfg.browser, cfg);
-      const requestedProfile = typeof params.profile === "string" ? params.profile.trim() : "";
-      const allowedProfiles = proxyConfig.allowProfiles;
-      if (allowedProfiles.length > 0) {
-        if (pathValue !== "/profiles") {
-          const profileToCheck = requestedProfile || resolved.defaultProfile;
-          if (!isProfileAllowed({ allowProfiles: allowedProfiles, profile: profileToCheck })) {
-            throw new Error("INVALID_REQUEST: browser profile not allowed");
-          }
-        } else if (requestedProfile) {
-          if (!isProfileAllowed({ allowProfiles: allowedProfiles, profile: requestedProfile })) {
-            throw new Error("INVALID_REQUEST: browser profile not allowed");
-          }
-        }
-      }
-
-      const method = typeof params.method === "string" ? params.method.toUpperCase() : "GET";
-      const path = pathValue.startsWith("/") ? pathValue : `/${pathValue}`;
-      const body = params.body;
-      const query: Record<string, unknown> = {};
-      if (requestedProfile) {
-        query.profile = requestedProfile;
-      }
-      const rawQuery = params.query ?? {};
-      for (const [key, value] of Object.entries(rawQuery)) {
-        if (value === undefined || value === null) {
-          continue;
-        }
-        query[key] = typeof value === "string" ? value : String(value);
-      }
-      const dispatcher = createBrowserRouteDispatcher(createBrowserControlContext());
-      const response = await withTimeout(
-        dispatcher.dispatch({
-          method: method === "DELETE" ? "DELETE" : method === "POST" ? "POST" : "GET",
-          path,
-          query,
-          body,
-        }),
-        params.timeoutMs,
-        "browser proxy request",
-      );
-      if (response.status >= 400) {
-        const message =
-          response.body && typeof response.body === "object" && "error" in response.body
-            ? String((response.body as { error?: unknown }).error)
-            : `HTTP ${response.status}`;
-        throw new Error(message);
-      }
-      const result = response.body;
-      if (allowedProfiles.length > 0 && path === "/profiles") {
-        const obj =
-          typeof result === "object" && result !== null ? (result as Record<string, unknown>) : {};
-        const profiles = Array.isArray(obj.profiles) ? obj.profiles : [];
-        obj.profiles = profiles.filter((entry) => {
-          if (!entry || typeof entry !== "object") {
-            return false;
-          }
-          const name = (entry as Record<string, unknown>).name;
-          return typeof name === "string" && allowedProfiles.includes(name);
-        });
-      }
-      let files: BrowserProxyFile[] | undefined;
-      const paths = collectBrowserProxyPaths(result);
-      if (paths.length > 0) {
-        const loaded = await Promise.all(
-          paths.map(async (p) => {
-            try {
-              const file = await readBrowserProxyFile(p);
-              if (!file) {
-                throw new Error("file not found");
-              }
-              return file;
-            } catch (err) {
-              throw new Error(`browser proxy file read failed for ${p}: ${String(err)}`, {
-                cause: err,
-              });
-            }
-          }),
-        );
-        if (loaded.length > 0) {
-          files = loaded;
-        }
-      }
-      const payload: BrowserProxyResult = files ? { result, files } : { result };
+      const payload = await runBrowserProxyCommand(frame.paramsJSON);
       await sendInvokeResult(client, frame, {
         ok: true,
-        payloadJSON: JSON.stringify(payload),
+        payloadJSON: payload,
       });
     } catch (err) {
       await sendInvokeResult(client, frame, {
@@ -883,6 +545,7 @@ async function handleInvoke(
       env,
       skillBins: bins,
       autoAllowSkills,
+      platform: process.platform,
     });
     analysisOk = allowlistEval.analysisOk;
     allowlistMatches = allowlistEval.allowlistMatches;
@@ -904,6 +567,14 @@ async function handleInvoke(
     allowlistSatisfied =
       security === "allowlist" && analysisOk ? allowlistEval.allowlistSatisfied : false;
     segments = analysis.segments;
+  }
+  const isWindows = process.platform === "win32";
+  const cmdInvocation = rawCommand
+    ? isCmdExeInvocation(segments[0]?.argv ?? [])
+    : isCmdExeInvocation(argv);
+  if (security === "allowlist" && isWindows && cmdInvocation) {
+    analysisOk = false;
+    allowlistSatisfied = false;
   }
 
   const useMacAppExec = process.platform === "darwin";
@@ -1104,8 +775,22 @@ async function handleInvoke(
     return;
   }
 
+  let execArgv = argv;
+  if (
+    security === "allowlist" &&
+    isWindows &&
+    !approvedByAsk &&
+    rawCommand &&
+    analysisOk &&
+    allowlistSatisfied &&
+    segments.length === 1 &&
+    segments[0]?.argv.length > 0
+  ) {
+    execArgv = segments[0].argv;
+  }
+
   const result = await runCommand(
-    argv,
+    execArgv,
     params.cwd?.trim() || undefined,
     env,
     params.timeoutMs ?? undefined,
@@ -1154,7 +839,7 @@ function decodeParams<T>(raw?: string | null): T {
   return JSON.parse(raw) as T;
 }
 
-function coerceNodeInvokePayload(payload: unknown): NodeInvokeRequestPayload | null {
+export function coerceNodeInvokePayload(payload: unknown): NodeInvokeRequestPayload | null {
   if (!payload || typeof payload !== "object") {
     return null;
   }
@@ -1250,5 +935,3 @@ async function sendNodeEvent(client: GatewayClient, event: string, payload: unkn
     // ignore: node events are best-effort
   }
 }
-=======
->>>>>>> 1d46d3ae4 (refactor(node-host): extract invoke handlers)
