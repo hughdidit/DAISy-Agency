@@ -340,9 +340,62 @@ const connectNode = async (
   return { client, nodeId };
 };
 
+const fetchNodeList = async (
+  inst: GatewayInstance,
+  timeoutMs = 5_000,
+): Promise<NodeListPayload> => {
+  let settled = false;
+  let timer: NodeJS.Timeout | null = null;
+
+  return await new Promise<NodeListPayload>((resolve, reject) => {
+    const finish = (err?: Error, payload?: NodeListPayload) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      if (timer) {
+        clearTimeout(timer);
+      }
+      client.stop();
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(payload ?? {});
+    };
+
+    const client = new GatewayClient({
+      url: `ws://127.0.0.1:${inst.port}`,
+      token: inst.gatewayToken,
+      clientName: GATEWAY_CLIENT_NAMES.CLI,
+      clientDisplayName: `status-${inst.name}`,
+      clientVersion: "1.0.0",
+      platform: "test",
+      mode: GATEWAY_CLIENT_MODES.CLI,
+      onHelloOk: () => {
+        void client
+          .request<NodeListPayload>("node.list", {})
+          .then((payload) => finish(undefined, payload))
+          .catch((err) => finish(err instanceof Error ? err : new Error(String(err))));
+      },
+      onConnectError: (err) => finish(err),
+      onClose: (code, reason) => {
+        finish(new Error(`gateway closed (${code}): ${reason}`));
+      },
+    });
+
+    timer = setTimeout(() => {
+      finish(new Error("timeout waiting for node.list"));
+    }, timeoutMs);
+
+    client.start();
+  });
+};
+
 const waitForNodeStatus = async (inst: GatewayInstance, nodeId: string, timeoutMs = 10_000) => {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
+<<<<<<< HEAD
     const list = (await runCliJson(
       ["nodes", "status", "--json", "--url", `ws://127.0.0.1:${inst.port}`],
       {
@@ -350,6 +403,9 @@ const waitForNodeStatus = async (inst: GatewayInstance, nodeId: string, timeoutM
         CLAWDBOT_GATEWAY_PASSWORD: "",
       },
     )) as NodeListPayload;
+=======
+    const list = await fetchNodeList(inst);
+>>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
     const match = list.nodes?.find((n) => n.nodeId === nodeId);
     if (match?.connected && match?.paired) {
       return;

@@ -551,9 +551,14 @@ describe("applyAuthChoice", () => {
       }),
     };
 
-    const previousTty = process.stdin.isTTY;
-    const stdin = process.stdin as unknown as { isTTY?: boolean };
-    stdin.isTTY = true;
+    const stdin = process.stdin as NodeJS.ReadStream & { isTTY?: boolean };
+    const hadOwnIsTTY = Object.prototype.hasOwnProperty.call(stdin, "isTTY");
+    const previousIsTTYDescriptor = Object.getOwnPropertyDescriptor(stdin, "isTTY");
+    Object.defineProperty(stdin, "isTTY", {
+      configurable: true,
+      enumerable: true,
+      get: () => true,
+    });
 
     try {
       const result = await applyAuthChoice({
@@ -566,7 +571,11 @@ describe("applyAuthChoice", () => {
 
       expect(result.config.agents?.defaults?.model?.primary).toBe("github-copilot/gpt-4o");
     } finally {
-      stdin.isTTY = previousTty;
+      if (previousIsTTYDescriptor) {
+        Object.defineProperty(stdin, "isTTY", previousIsTTYDescriptor);
+      } else if (!hadOwnIsTTY) {
+        delete stdin.isTTY;
+      }
     }
   });
 

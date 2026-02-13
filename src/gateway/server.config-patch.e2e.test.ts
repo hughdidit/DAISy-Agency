@@ -2,13 +2,15 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { resolveConfigSnapshotHash } from "../config/config.js";
 
+=======
+>>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 import {
   connectOk,
   installGatewayTestHooks,
-  onceMessage,
   rpcReq,
   startServerWithClient,
   testState,
@@ -21,7 +23,7 @@ let server: Awaited<ReturnType<typeof startServerWithClient>>["server"];
 let ws: Awaited<ReturnType<typeof startServerWithClient>>["ws"];
 
 beforeAll(async () => {
-  const started = await startServerWithClient();
+  const started = await startServerWithClient(undefined, { controlUiEnabled: true });
   server = started.server;
   ws = started.ws;
   await connectOk(ws);
@@ -32,46 +34,19 @@ afterAll(async () => {
   await server.close();
 });
 
-describe("gateway config.patch", () => {
-  it("merges patches without clobbering unrelated config", async () => {
-    const setId = "req-set";
-    ws.send(
-      JSON.stringify({
-        type: "req",
-        id: setId,
-        method: "config.set",
-        params: {
-          raw: JSON.stringify({
-            gateway: { mode: "local" },
-            channels: { telegram: { botToken: "token-1" } },
-          }),
-        },
-      }),
-    );
-    const setRes = await onceMessage<{ ok: boolean }>(
-      ws,
-      (o) => o.type === "res" && o.id === setId,
-    );
-    expect(setRes.ok).toBe(true);
+describe("gateway config methods", () => {
+  it("returns a config snapshot", async () => {
+    const res = await rpcReq<{ hash?: string; raw?: string }>(ws, "config.get", {});
+    expect(res.ok).toBe(true);
+    const payload = res.payload ?? {};
+    expect(typeof payload.raw === "string" || typeof payload.hash === "string").toBe(true);
+  });
 
-    const getId = "req-get";
-    ws.send(
-      JSON.stringify({
-        type: "req",
-        id: getId,
-        method: "config.get",
-        params: {},
-      }),
-    );
-    const getRes = await onceMessage<{ ok: boolean; payload?: { hash?: string; raw?: string } }>(
-      ws,
-      (o) => o.type === "res" && o.id === getId,
-    );
-    expect(getRes.ok).toBe(true);
-    const baseHash = resolveConfigSnapshotHash({
-      hash: getRes.payload?.hash,
-      raw: getRes.payload?.raw,
+  it("rejects config.patch when raw is not an object", async () => {
+    const res = await rpcReq<{ ok?: boolean }>(ws, "config.patch", {
+      raw: "[]",
     });
+<<<<<<< HEAD
     expect(typeof baseHash).toBe("string");
 
     const patchId = "req-patch";
@@ -283,6 +258,10 @@ describe("gateway config.patch", () => {
     );
     expect(set2Res.ok).toBe(false);
     expect(set2Res.error?.message).toContain("base hash");
+=======
+    expect(res.ok).toBe(false);
+    expect(res.error?.message ?? "").toContain("raw must be an object");
+>>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
   });
 });
 

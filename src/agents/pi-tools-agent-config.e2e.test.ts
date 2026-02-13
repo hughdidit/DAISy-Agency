@@ -3,8 +3,27 @@ import "./test-helpers/fast-coding-tools.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { createMoltbotCodingTools } from "./pi-tools.js";
 import type { SandboxDockerConfig } from "./sandbox.js";
+<<<<<<< HEAD
+=======
+import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+import { createOpenClawCodingTools } from "./pi-tools.js";
+>>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 
 describe("Agent-specific tool filtering", () => {
+  const sandboxFsBridgeStub: SandboxFsBridge = {
+    resolvePath: () => ({
+      hostPath: "/tmp/sandbox",
+      relativePath: "",
+      containerPath: "/workspace",
+    }),
+    readFile: async () => Buffer.from(""),
+    writeFile: async () => {},
+    mkdirp: async () => {},
+    remove: async () => {},
+    rename: async () => {},
+    stat: async () => null,
+  };
+
   it("should apply global tool policy when no agent-specific policy exists", () => {
     const cfg: MoltbotConfig = {
       tools: {
@@ -483,6 +502,7 @@ describe("Agent-specific tool filtering", () => {
           allow: ["read", "write", "exec"],
           deny: [],
         },
+        fsBridge: sandboxFsBridgeStub,
         browserAllowHostControl: false,
       },
     });

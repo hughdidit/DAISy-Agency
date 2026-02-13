@@ -1,11 +1,19 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../src/config/config.js";
 import type { MsgContext } from "../src/auto-reply/templating.js";
+=======
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { MsgContext } from "../src/auto-reply/templating.js";
+import type { OpenClawConfig } from "../src/config/config.js";
+import { applyMediaUnderstanding } from "../src/media-understanding/apply.js";
+import { clearMediaUnderstandingBinaryCacheForTests } from "../src/media-understanding/runner.js";
+>>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 
 const makeTempDir = async (prefix: string) => await fs.mkdtemp(path.join(os.tmpdir(), prefix));
 
@@ -22,11 +30,6 @@ const makeTempMedia = async (ext: string) => {
   return { dir, filePath };
 };
 
-const loadApply = async () => {
-  vi.resetModules();
-  return await import("../src/media-understanding/apply.js");
-};
-
 const envSnapshot = () => ({
   PATH: process.env.PATH,
   SHERPA_ONNX_MODEL_DIR: process.env.SHERPA_ONNX_MODEL_DIR,
@@ -41,6 +44,10 @@ const restoreEnv = (snapshot: ReturnType<typeof envSnapshot>) => {
 
 describe("media understanding auto-detect (e2e)", () => {
   let tempPaths: string[] = [];
+
+  beforeEach(() => {
+    clearMediaUnderstandingBinaryCacheForTests();
+  });
 
   afterEach(async () => {
     for (const p of tempPaths) {
@@ -73,7 +80,6 @@ describe("media understanding auto-detect (e2e)", () => {
       const { filePath } = await makeTempMedia(".wav");
       tempPaths.push(path.dirname(filePath));
 
-      const { applyMediaUnderstanding } = await loadApply();
       const ctx: MsgContext = {
         Body: "<media:audio>",
         MediaPath: filePath,
@@ -118,7 +124,6 @@ describe("media understanding auto-detect (e2e)", () => {
       const { filePath } = await makeTempMedia(".wav");
       tempPaths.push(path.dirname(filePath));
 
-      const { applyMediaUnderstanding } = await loadApply();
       const ctx: MsgContext = {
         Body: "<media:audio>",
         MediaPath: filePath,
@@ -143,7 +148,7 @@ describe("media understanding auto-detect (e2e)", () => {
       await writeExecutable(
         binDir,
         "gemini",
-        `#!/usr/bin/env bash\necho '{\\"response\\":\\"gemini ok\\"' + "}'\n`,
+        `#!/usr/bin/env bash\necho '{"response":"gemini ok"}'\n`,
       );
 
       process.env.PATH = `${binDir}:/usr/bin:/bin`;
@@ -151,7 +156,6 @@ describe("media understanding auto-detect (e2e)", () => {
       const { filePath } = await makeTempMedia(".png");
       tempPaths.push(path.dirname(filePath));
 
-      const { applyMediaUnderstanding } = await loadApply();
       const ctx: MsgContext = {
         Body: "<media:image>",
         MediaPath: filePath,

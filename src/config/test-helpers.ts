@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 import { vi } from "vitest";
 
+=======
+>>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 
 export async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
@@ -7,7 +10,7 @@ export async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise
 }
 
 /**
- * Helper to test env var overrides. Saves/restores env vars and resets modules.
+ * Helper to test env var overrides. Saves/restores env vars for a callback.
  */
 export async function withEnvOverride<T>(
   overrides: Record<string, string | undefined>,
@@ -22,7 +25,6 @@ export async function withEnvOverride<T>(
       process.env[key] = overrides[key];
     }
   }
-  vi.resetModules();
   try {
     return await fn();
   } finally {
@@ -33,6 +35,5 @@ export async function withEnvOverride<T>(
         process.env[key] = saved[key];
       }
     }
-    vi.resetModules();
   }
 }

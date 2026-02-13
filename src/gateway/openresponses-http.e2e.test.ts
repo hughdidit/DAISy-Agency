@@ -505,4 +505,198 @@ describe("OpenResponses HTTP API (e2e)", () => {
       // shared server
     }
   });
+<<<<<<< HEAD
+=======
+
+  it("blocks unsafe URL-based file/image inputs", async () => {
+    const port = enabledPort;
+    agentCommand.mockReset();
+
+    const blockedPrivate = await postResponses(port, {
+      model: "openclaw",
+      input: [
+        {
+          type: "message",
+          role: "user",
+          content: [
+            { type: "input_text", text: "read this" },
+            {
+              type: "input_file",
+              source: { type: "url", url: "http://127.0.0.1:6379/info" },
+            },
+          ],
+        },
+      ],
+    });
+    expect(blockedPrivate.status).toBe(400);
+    const blockedPrivateJson = (await blockedPrivate.json()) as {
+      error?: { type?: string; message?: string };
+    };
+    expect(blockedPrivateJson.error?.type).toBe("invalid_request_error");
+    expect(blockedPrivateJson.error?.message ?? "").toMatch(
+      /invalid request|private|internal|blocked/i,
+    );
+
+    const blockedMetadata = await postResponses(port, {
+      model: "openclaw",
+      input: [
+        {
+          type: "message",
+          role: "user",
+          content: [
+            { type: "input_text", text: "read this" },
+            {
+              type: "input_image",
+              source: { type: "url", url: "http://metadata.google.internal/computeMetadata/v1" },
+            },
+          ],
+        },
+      ],
+    });
+    expect(blockedMetadata.status).toBe(400);
+    const blockedMetadataJson = (await blockedMetadata.json()) as {
+      error?: { type?: string; message?: string };
+    };
+    expect(blockedMetadataJson.error?.type).toBe("invalid_request_error");
+    expect(blockedMetadataJson.error?.message ?? "").toMatch(
+      /invalid request|blocked|metadata|internal/i,
+    );
+
+    const blockedScheme = await postResponses(port, {
+      model: "openclaw",
+      input: [
+        {
+          type: "message",
+          role: "user",
+          content: [
+            { type: "input_text", text: "read this" },
+            {
+              type: "input_file",
+              source: { type: "url", url: "file:///etc/passwd" },
+            },
+          ],
+        },
+      ],
+    });
+    expect(blockedScheme.status).toBe(400);
+    const blockedSchemeJson = (await blockedScheme.json()) as {
+      error?: { type?: string; message?: string };
+    };
+    expect(blockedSchemeJson.error?.type).toBe("invalid_request_error");
+    expect(blockedSchemeJson.error?.message ?? "").toMatch(/invalid request|http or https/i);
+    expect(agentCommand).not.toHaveBeenCalled();
+  });
+
+  it("enforces URL allowlist and URL part cap for responses inputs", async () => {
+    const allowlistConfig = {
+      gateway: {
+        http: {
+          endpoints: {
+            responses: {
+              enabled: true,
+              maxUrlParts: 1,
+              files: {
+                allowUrl: true,
+                urlAllowlist: ["cdn.example.com", "*.assets.example.com"],
+              },
+              images: {
+                allowUrl: true,
+                urlAllowlist: ["images.example.com"],
+              },
+            },
+          },
+        },
+      },
+    };
+    await writeGatewayConfig(allowlistConfig);
+
+    const allowlistPort = await getFreePort();
+    const allowlistServer = await startServer(allowlistPort, { openResponsesEnabled: true });
+    try {
+      agentCommand.mockReset();
+
+      const allowlistBlocked = await postResponses(allowlistPort, {
+        model: "openclaw",
+        input: [
+          {
+            type: "message",
+            role: "user",
+            content: [
+              { type: "input_text", text: "fetch this" },
+              {
+                type: "input_file",
+                source: { type: "url", url: "https://evil.example.org/secret.txt" },
+              },
+            ],
+          },
+        ],
+      });
+      expect(allowlistBlocked.status).toBe(400);
+      const allowlistBlockedJson = (await allowlistBlocked.json()) as {
+        error?: { type?: string; message?: string };
+      };
+      expect(allowlistBlockedJson.error?.type).toBe("invalid_request_error");
+      expect(allowlistBlockedJson.error?.message ?? "").toMatch(
+        /invalid request|allowlist|blocked/i,
+      );
+    } finally {
+      await allowlistServer.close({ reason: "responses allowlist hardening test done" });
+    }
+
+    const capConfig = {
+      gateway: {
+        http: {
+          endpoints: {
+            responses: {
+              enabled: true,
+              maxUrlParts: 0,
+              files: {
+                allowUrl: true,
+                urlAllowlist: ["cdn.example.com", "*.assets.example.com"],
+              },
+              images: {
+                allowUrl: true,
+                urlAllowlist: ["images.example.com"],
+              },
+            },
+          },
+        },
+      },
+    };
+    await writeGatewayConfig(capConfig);
+
+    const capPort = await getFreePort();
+    const capServer = await startServer(capPort, { openResponsesEnabled: true });
+    try {
+      agentCommand.mockReset();
+      const maxUrlBlocked = await postResponses(capPort, {
+        model: "openclaw",
+        input: [
+          {
+            type: "message",
+            role: "user",
+            content: [
+              { type: "input_text", text: "fetch this" },
+              {
+                type: "input_file",
+                source: { type: "url", url: "https://cdn.example.com/file-1.txt" },
+              },
+            ],
+          },
+        ],
+      });
+      expect(maxUrlBlocked.status).toBe(400);
+      const maxUrlBlockedJson = (await maxUrlBlocked.json()) as {
+        error?: { type?: string; message?: string };
+      };
+      expect(maxUrlBlockedJson.error?.type).toBe("invalid_request_error");
+      expect(maxUrlBlockedJson.error?.message ?? "").toMatch(
+        /invalid request|Too many URL-based input sources/i,
+      );
+      expect(agentCommand).not.toHaveBeenCalled();
+    } finally {
+      await capServer.close({ reason: "responses url cap hardening test done" });
+    }
+  });
+>>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 });
