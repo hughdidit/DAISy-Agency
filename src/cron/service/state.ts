@@ -33,6 +33,16 @@ export type CronServiceDeps = {
     /** Last non-empty agent text output (not truncated). */
     outputText?: string;
     error?: string;
+<<<<<<< HEAD
+=======
+    sessionId?: string;
+    sessionKey?: string;
+    /**
+     * `true` when the isolated run already delivered its output to the target
+     * channel.  See: https://github.com/openclaw/openclaw/issues/15692
+     */
+    delivered?: boolean;
+>>>>>>> ea95e88dd (fix(cron): prevent duplicate delivery for isolated jobs with announce mode)
   }>;
   onEvent?: (evt: CronEvent) => void;
 };
