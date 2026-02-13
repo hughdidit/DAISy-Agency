@@ -65,6 +65,17 @@ vi.mock("../runtime.js", () => ({
   },
 }));
 
+const { runGatewayUpdate } = await import("../infra/update-runner.js");
+const { resolveOpenClawPackageRoot } = await import("../infra/openclaw-root.js");
+const { readConfigFileSnapshot, writeConfigFile } = await import("../config/config.js");
+const { checkUpdateStatus, fetchNpmTagVersion, resolveNpmChannelTag } =
+  await import("../infra/update-check.js");
+const { runCommandWithTimeout } = await import("../process/exec.js");
+const { runDaemonRestart } = await import("./daemon-cli.js");
+const { defaultRuntime } = await import("../runtime.js");
+const { updateCommand, registerUpdateCli, updateStatusCommand, updateWizardCommand } =
+  await import("./update-cli.js");
+
 describe("update-cli", () => {
   const baseSnapshot = {
     valid: true,
@@ -86,14 +97,18 @@ describe("update-cli", () => {
     });
   };
 
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks();
+<<<<<<< HEAD
     const { resolveMoltbotPackageRoot } = await import("../infra/moltbot-root.js");
     const { readConfigFileSnapshot } = await import("../config/config.js");
     const { checkUpdateStatus, fetchNpmTagVersion, resolveNpmChannelTag } =
       await import("../infra/update-check.js");
     const { runCommandWithTimeout } = await import("../process/exec.js");
     vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(process.cwd());
+=======
+    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(process.cwd());
+>>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
     vi.mocked(readConfigFileSnapshot).mockResolvedValue(baseSnapshot);
     vi.mocked(fetchNpmTagVersion).mockResolvedValue({
       tag: "latest",
@@ -140,18 +155,12 @@ describe("update-cli", () => {
   });
 
   it("exports updateCommand and registerUpdateCli", async () => {
-    const { updateCommand, registerUpdateCli, updateWizardCommand } =
-      await import("./update-cli.js");
     expect(typeof updateCommand).toBe("function");
     expect(typeof registerUpdateCli).toBe("function");
     expect(typeof updateWizardCommand).toBe("function");
   }, 20_000);
 
   it("updateCommand runs update and outputs result", async () => {
-    const { runGatewayUpdate } = await import("../infra/update-runner.js");
-    const { defaultRuntime } = await import("../runtime.js");
-    const { updateCommand } = await import("./update-cli.js");
-
     const mockResult: UpdateRunResult = {
       status: "ok",
       mode: "git",
@@ -179,9 +188,6 @@ describe("update-cli", () => {
   });
 
   it("updateStatusCommand prints table output", async () => {
-    const { defaultRuntime } = await import("../runtime.js");
-    const { updateStatusCommand } = await import("./update-cli.js");
-
     await updateStatusCommand({ json: false });
 
     const logs = vi.mocked(defaultRuntime.log).mock.calls.map((call) => call[0]);
@@ -189,9 +195,6 @@ describe("update-cli", () => {
   });
 
   it("updateStatusCommand emits JSON", async () => {
-    const { defaultRuntime } = await import("../runtime.js");
-    const { updateStatusCommand } = await import("./update-cli.js");
-
     await updateStatusCommand({ json: true });
 
     const last = vi.mocked(defaultRuntime.log).mock.calls.at(-1)?.[0];
@@ -201,9 +204,6 @@ describe("update-cli", () => {
   });
 
   it("defaults to dev channel for git installs when unset", async () => {
-    const { runGatewayUpdate } = await import("../infra/update-runner.js");
-    const { updateCommand } = await import("./update-cli.js");
-
     vi.mocked(runGatewayUpdate).mockResolvedValue({
       status: "ok",
       mode: "git",
@@ -226,12 +226,16 @@ describe("update-cli", () => {
         "utf-8",
       );
 
+<<<<<<< HEAD
       const { resolveMoltbotPackageRoot } = await import("../infra/moltbot-root.js");
       const { runGatewayUpdate } = await import("../infra/update-runner.js");
       const { checkUpdateStatus } = await import("../infra/update-check.js");
       const { updateCommand } = await import("./update-cli.js");
 
       vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(tempDir);
+=======
+      vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
+>>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
       vi.mocked(checkUpdateStatus).mockResolvedValue({
         root: tempDir,
         installKind: "package",
@@ -261,10 +265,6 @@ describe("update-cli", () => {
   });
 
   it("uses stored beta channel when configured", async () => {
-    const { readConfigFileSnapshot } = await import("../config/config.js");
-    const { runGatewayUpdate } = await import("../infra/update-runner.js");
-    const { updateCommand } = await import("./update-cli.js");
-
     vi.mocked(readConfigFileSnapshot).mockResolvedValue({
       ...baseSnapshot,
       config: { update: { channel: "beta" } },
@@ -291,6 +291,7 @@ describe("update-cli", () => {
         "utf-8",
       );
 
+<<<<<<< HEAD
       const { resolveMoltbotPackageRoot } = await import("../infra/moltbot-root.js");
       const { readConfigFileSnapshot } = await import("../config/config.js");
       const { resolveNpmChannelTag } = await import("../infra/update-check.js");
@@ -299,6 +300,9 @@ describe("update-cli", () => {
       const { checkUpdateStatus } = await import("../infra/update-check.js");
 
       vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(tempDir);
+=======
+      vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
+>>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
       vi.mocked(readConfigFileSnapshot).mockResolvedValue({
         ...baseSnapshot,
         config: { update: { channel: "beta" } },
@@ -344,11 +348,15 @@ describe("update-cli", () => {
         "utf-8",
       );
 
+<<<<<<< HEAD
       const { resolveMoltbotPackageRoot } = await import("../infra/moltbot-root.js");
       const { runGatewayUpdate } = await import("../infra/update-runner.js");
       const { updateCommand } = await import("./update-cli.js");
 
       vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(tempDir);
+=======
+      vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
+>>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
       vi.mocked(runGatewayUpdate).mockResolvedValue({
         status: "ok",
         mode: "npm",
@@ -366,10 +374,6 @@ describe("update-cli", () => {
   });
 
   it("updateCommand outputs JSON when --json is set", async () => {
-    const { runGatewayUpdate } = await import("../infra/update-runner.js");
-    const { defaultRuntime } = await import("../runtime.js");
-    const { updateCommand } = await import("./update-cli.js");
-
     const mockResult: UpdateRunResult = {
       status: "ok",
       mode: "git",
@@ -395,10 +399,6 @@ describe("update-cli", () => {
   });
 
   it("updateCommand exits with error on failure", async () => {
-    const { runGatewayUpdate } = await import("../infra/update-runner.js");
-    const { defaultRuntime } = await import("../runtime.js");
-    const { updateCommand } = await import("./update-cli.js");
-
     const mockResult: UpdateRunResult = {
       status: "error",
       mode: "git",
@@ -416,10 +416,6 @@ describe("update-cli", () => {
   });
 
   it("updateCommand restarts daemon by default", async () => {
-    const { runGatewayUpdate } = await import("../infra/update-runner.js");
-    const { runDaemonRestart } = await import("./daemon-cli.js");
-    const { updateCommand } = await import("./update-cli.js");
-
     const mockResult: UpdateRunResult = {
       status: "ok",
       mode: "git",
@@ -436,10 +432,6 @@ describe("update-cli", () => {
   });
 
   it("updateCommand skips restart when --no-restart is set", async () => {
-    const { runGatewayUpdate } = await import("../infra/update-runner.js");
-    const { runDaemonRestart } = await import("./daemon-cli.js");
-    const { updateCommand } = await import("./update-cli.js");
-
     const mockResult: UpdateRunResult = {
       status: "ok",
       mode: "git",
@@ -455,11 +447,6 @@ describe("update-cli", () => {
   });
 
   it("updateCommand skips success message when restart does not run", async () => {
-    const { runGatewayUpdate } = await import("../infra/update-runner.js");
-    const { runDaemonRestart } = await import("./daemon-cli.js");
-    const { defaultRuntime } = await import("../runtime.js");
-    const { updateCommand } = await import("./update-cli.js");
-
     const mockResult: UpdateRunResult = {
       status: "ok",
       mode: "git",
@@ -478,9 +465,6 @@ describe("update-cli", () => {
   });
 
   it("updateCommand validates timeout option", async () => {
-    const { defaultRuntime } = await import("../runtime.js");
-    const { updateCommand } = await import("./update-cli.js");
-
     vi.mocked(defaultRuntime.error).mockClear();
     vi.mocked(defaultRuntime.exit).mockClear();
 
@@ -491,10 +475,6 @@ describe("update-cli", () => {
   });
 
   it("persists update channel when --channel is set", async () => {
-    const { writeConfigFile } = await import("../config/config.js");
-    const { runGatewayUpdate } = await import("../infra/update-runner.js");
-    const { updateCommand } = await import("./update-cli.js");
-
     const mockResult: UpdateRunResult = {
       status: "ok",
       mode: "git",
@@ -523,6 +503,7 @@ describe("update-cli", () => {
         "utf-8",
       );
 
+<<<<<<< HEAD
       const { resolveMoltbotPackageRoot } = await import("../infra/moltbot-root.js");
       const { resolveNpmChannelTag } = await import("../infra/update-check.js");
       const { runGatewayUpdate } = await import("../infra/update-runner.js");
@@ -531,6 +512,9 @@ describe("update-cli", () => {
       const { checkUpdateStatus } = await import("../infra/update-check.js");
 
       vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(tempDir);
+=======
+      vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
+>>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
       vi.mocked(checkUpdateStatus).mockResolvedValue({
         root: tempDir,
         installKind: "package",
@@ -576,6 +560,7 @@ describe("update-cli", () => {
         "utf-8",
       );
 
+<<<<<<< HEAD
       const { resolveMoltbotPackageRoot } = await import("../infra/moltbot-root.js");
       const { resolveNpmChannelTag } = await import("../infra/update-check.js");
       const { runGatewayUpdate } = await import("../infra/update-runner.js");
@@ -584,6 +569,9 @@ describe("update-cli", () => {
       const { checkUpdateStatus } = await import("../infra/update-check.js");
 
       vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(tempDir);
+=======
+      vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
+>>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
       vi.mocked(checkUpdateStatus).mockResolvedValue({
         root: tempDir,
         installKind: "package",
@@ -620,9 +608,6 @@ describe("update-cli", () => {
   });
 
   it("updateWizardCommand requires a TTY", async () => {
-    const { defaultRuntime } = await import("../runtime.js");
-    const { updateWizardCommand } = await import("./update-cli.js");
-
     setTty(false);
     vi.mocked(defaultRuntime.error).mockClear();
     vi.mocked(defaultRuntime.exit).mockClear();
@@ -641,10 +626,6 @@ describe("update-cli", () => {
     try {
       setTty(true);
       process.env.CLAWDBOT_GIT_DIR = tempDir;
-
-      const { checkUpdateStatus } = await import("../infra/update-check.js");
-      const { runGatewayUpdate } = await import("../infra/update-runner.js");
-      const { updateWizardCommand } = await import("./update-cli.js");
 
       vi.mocked(checkUpdateStatus).mockResolvedValue({
         root: "/test/path",
