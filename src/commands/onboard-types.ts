@@ -55,6 +55,7 @@ export type AuthChoice =
 export type AuthChoiceGroupId =
   | "openai"
   | "anthropic"
+  | "vllm"
   | "google"
   | "copilot"
   | "openrouter"
