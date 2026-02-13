@@ -477,6 +477,9 @@ export async function runEmbeddedAttempt(
         model: params.model,
       });
 
+      // Get hook runner early so it's available when creating tools
+      const hookRunner = getGlobalHookRunner();
+
       const { builtInTools, customTools } = splitSdkTools({
         tools,
         sandboxEnabled: !!sandbox?.enabled,
@@ -672,6 +675,7 @@ export async function runEmbeddedAttempt(
       const subscription = subscribeEmbeddedPiSession({
         session: activeSession,
         runId: params.runId,
+        hookRunner: getGlobalHookRunner() ?? undefined,
         verboseLevel: params.verboseLevel,
         reasoningMode: params.reasoningLevel ?? "off",
         toolResultFormat: params.toolResultFormat,
@@ -753,8 +757,7 @@ export async function runEmbeddedAttempt(
         }
       }
 
-      // Get hook runner once for both before_agent_start and agent_end hooks
-      const hookRunner = getGlobalHookRunner();
+      // Hook runner was already obtained earlier before tool creation
       const hookAgentId =
         typeof params.agentId === "string" && params.agentId.trim()
           ? normalizeAgentId(params.agentId)
