@@ -1,6 +1,11 @@
 import { CHANNEL_IDS } from "../channels/registry.js";
 import { VERSION } from "../version.js";
+<<<<<<< HEAD
 import { MoltbotSchema } from "./zod-schema.js";
+=======
+import { applySensitiveHints, buildBaseHints, mapSensitivePaths } from "./schema.hints.js";
+import { OpenClawSchema } from "./zod-schema.js";
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
 
 export type ConfigUiHint = {
   label?: string;
@@ -45,6 +50,7 @@ export type ChannelUiMetadata = {
   configUiHints?: Record<string, ConfigUiHint>;
 };
 
+<<<<<<< HEAD
 const GROUP_LABELS: Record<string, string> = {
   wizard: "Wizard",
   update: "Update",
@@ -786,6 +792,28 @@ function applySensitiveHints(hints: ConfigUiHints): ConfigUiHints {
     }
   }
   return next;
+=======
+function collectExtensionHintKeys(
+  hints: ConfigUiHints,
+  plugins: PluginUiMetadata[],
+  channels: ChannelUiMetadata[],
+): Set<string> {
+  const pluginPrefixes = plugins
+    .map((plugin) => plugin.id.trim())
+    .filter(Boolean)
+    .map((id) => `plugins.entries.${id}`);
+  const channelPrefixes = channels
+    .map((channel) => channel.id.trim())
+    .filter(Boolean)
+    .map((id) => `channels.${id}`);
+  const prefixes = [...pluginPrefixes, ...channelPrefixes];
+
+  return new Set(
+    Object.keys(hints).filter((key) =>
+      prefixes.some((prefix) => key === prefix || key.startsWith(`${prefix}.`)),
+    ),
+  );
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
 }
 
 function applyPluginHints(hints: ConfigUiHints, plugins: PluginUiMetadata[]): ConfigUiHints {
@@ -974,8 +1002,13 @@ function buildBaseConfigSchema(): ConfigSchemaResponse {
     target: "draft-07",
     unrepresentable: "any",
   });
+<<<<<<< HEAD
   schema.title = "MoltbotConfig";
   const hints = applySensitiveHints(buildBaseHints());
+=======
+  schema.title = "OpenClawConfig";
+  const hints = mapSensitivePaths(OpenClawSchema, "", buildBaseHints());
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
   const next = {
     schema: stripChannelSchema(schema),
     uiHints: hints,
@@ -993,13 +1026,28 @@ export function buildConfigSchema(params?: {
   const base = buildBaseConfigSchema();
   const plugins = params?.plugins ?? [];
   const channels = params?.channels ?? [];
+<<<<<<< HEAD
   if (plugins.length === 0 && channels.length === 0) return base;
   const mergedHints = applySensitiveHints(
     applyHeartbeatTargetHints(
       applyChannelHints(applyPluginHints(base.uiHints, plugins), channels),
       channels,
     ),
+=======
+  if (plugins.length === 0 && channels.length === 0) {
+    return base;
+  }
+  const mergedWithoutSensitiveHints = applyHeartbeatTargetHints(
+    applyChannelHints(applyPluginHints(base.uiHints, plugins), channels),
+    channels,
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
   );
+  const extensionHintKeys = collectExtensionHintKeys(
+    mergedWithoutSensitiveHints,
+    plugins,
+    channels,
+  );
+  const mergedHints = applySensitiveHints(mergedWithoutSensitiveHints, extensionHintKeys);
   const mergedSchema = applyChannelSchemas(applyPluginSchemas(base.schema, plugins), channels);
   return {
     ...base,

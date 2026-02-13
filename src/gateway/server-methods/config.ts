@@ -10,8 +10,17 @@ import {
 } from "../../config/config.js";
 import { applyLegacyMigrations } from "../../config/legacy.js";
 import { applyMergePatch } from "../../config/merge-patch.js";
+<<<<<<< HEAD
 import { buildConfigSchema } from "../../config/schema.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
+=======
+import {
+  redactConfigObject,
+  redactConfigSnapshot,
+  restoreRedactedValues,
+} from "../../config/redact-snapshot.js";
+import { buildConfigSchema, type ConfigSchemaResponse } from "../../config/schema.js";
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
@@ -82,6 +91,41 @@ function requireConfigBaseHash(
   return true;
 }
 
+function loadSchemaWithPlugins(): ConfigSchemaResponse {
+  const cfg = loadConfig();
+  const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
+  const pluginRegistry = loadOpenClawPlugins({
+    config: cfg,
+    cache: true,
+    workspaceDir,
+    logger: {
+      info: () => {},
+      warn: () => {},
+      error: () => {},
+      debug: () => {},
+    },
+  });
+  // Note: We can't easily cache this, as there are no callback that can invalidate
+  // our cache. However, both loadConfig() and loadOpenClawPlugins() already cache
+  // their results, and buildConfigSchema() is just a cheap transformation.
+  return buildConfigSchema({
+    plugins: pluginRegistry.plugins.map((plugin) => ({
+      id: plugin.id,
+      name: plugin.name,
+      description: plugin.description,
+      configUiHints: plugin.configUiHints,
+      configSchema: plugin.configJsonSchema,
+    })),
+    channels: listChannelPlugins().map((entry) => ({
+      id: entry.id,
+      label: entry.meta.label,
+      description: entry.meta.blurb,
+      configSchema: entry.configSchema?.schema,
+      configUiHints: entry.configSchema?.uiHints,
+    })),
+  });
+}
+
 export const configHandlers: GatewayRequestHandlers = {
   "config.get": async ({ params, respond }) => {
     if (!validateConfigGetParams(params)) {
@@ -96,7 +140,12 @@ export const configHandlers: GatewayRequestHandlers = {
       return;
     }
     const snapshot = await readConfigFileSnapshot();
+<<<<<<< HEAD
     respond(true, snapshot, undefined);
+=======
+    const schema = loadSchemaWithPlugins();
+    respond(true, redactConfigSnapshot(snapshot, schema.uiHints), undefined);
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
   },
   "config.schema": ({ params, respond }) => {
     if (!validateConfigSchemaParams(params)) {
@@ -110,6 +159,7 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
+<<<<<<< HEAD
     const cfg = loadConfig();
     const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
     const pluginRegistry = loadMoltbotPlugins({
@@ -139,6 +189,9 @@ export const configHandlers: GatewayRequestHandlers = {
       })),
     });
     respond(true, schema, undefined);
+=======
+    respond(true, loadSchemaWithPlugins(), undefined);
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
   },
   "config.set": async ({ params, respond }) => {
     if (!validateConfigSetParams(params)) {
@@ -170,7 +223,17 @@ export const configHandlers: GatewayRequestHandlers = {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, parsedRes.error));
       return;
     }
-    const validated = validateConfigObjectWithPlugins(parsedRes.parsed);
+    const schemaSet = loadSchemaWithPlugins();
+    const restored = restoreRedactedValues(parsedRes.parsed, snapshot.config, schemaSet.uiHints);
+    if (!restored.ok) {
+      respond(
+        false,
+        undefined,
+        errorShape(ErrorCodes.INVALID_REQUEST, restored.humanReadableMessage ?? "invalid config"),
+      );
+      return;
+    }
+    const validated = validateConfigObjectWithPlugins(restored.result);
     if (!validated.ok) {
       respond(
         false,
@@ -187,7 +250,11 @@ export const configHandlers: GatewayRequestHandlers = {
       {
         ok: true,
         path: CONFIG_PATH,
+<<<<<<< HEAD
         config: validated.config,
+=======
+        config: redactConfigObject(validated.config, schemaSet.uiHints),
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
       },
       undefined,
     );
@@ -246,8 +313,26 @@ export const configHandlers: GatewayRequestHandlers = {
       return;
     }
     const merged = applyMergePatch(snapshot.config, parsedRes.parsed);
+<<<<<<< HEAD
     const migrated = applyLegacyMigrations(merged);
     const resolved = migrated.next ?? merged;
+=======
+    const schemaPatch = loadSchemaWithPlugins();
+    const restoredMerge = restoreRedactedValues(merged, snapshot.config, schemaPatch.uiHints);
+    if (!restoredMerge.ok) {
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.INVALID_REQUEST,
+          restoredMerge.humanReadableMessage ?? "invalid config",
+        ),
+      );
+      return;
+    }
+    const migrated = applyLegacyMigrations(restoredMerge.result);
+    const resolved = migrated.next ?? restoredMerge.result;
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
     const validated = validateConfigObjectWithPlugins(resolved);
     if (!validated.ok) {
       respond(
@@ -302,7 +387,11 @@ export const configHandlers: GatewayRequestHandlers = {
       {
         ok: true,
         path: CONFIG_PATH,
+<<<<<<< HEAD
         config: validated.config,
+=======
+        config: redactConfigObject(validated.config, schemaPatch.uiHints),
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
         restart,
         sentinel: {
           path: sentinelPath,
@@ -345,7 +434,17 @@ export const configHandlers: GatewayRequestHandlers = {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, parsedRes.error));
       return;
     }
-    const validated = validateConfigObjectWithPlugins(parsedRes.parsed);
+    const schemaApply = loadSchemaWithPlugins();
+    const restored = restoreRedactedValues(parsedRes.parsed, snapshot.config, schemaApply.uiHints);
+    if (!restored.ok) {
+      respond(
+        false,
+        undefined,
+        errorShape(ErrorCodes.INVALID_REQUEST, restored.humanReadableMessage ?? "invalid config"),
+      );
+      return;
+    }
+    const validated = validateConfigObjectWithPlugins(restored.result);
     if (!validated.ok) {
       respond(
         false,
@@ -399,7 +498,11 @@ export const configHandlers: GatewayRequestHandlers = {
       {
         ok: true,
         path: CONFIG_PATH,
+<<<<<<< HEAD
         config: validated.config,
+=======
+        config: redactConfigObject(validated.config, schemaApply.uiHints),
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
         restart,
         sentinel: {
           path: sentinelPath,

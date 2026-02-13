@@ -5,7 +5,17 @@ import { AgentsSchema, AudioSchema, BindingsSchema, BroadcastSchema } from "./zo
 import { HexColorSchema, ModelsConfigSchema } from "./zod-schema.core.js";
 import { HookMappingSchema, HooksGmailSchema, InternalHooksSchema } from "./zod-schema.hooks.js";
 import { ChannelsSchema } from "./zod-schema.providers.js";
+<<<<<<< HEAD
 import { CommandsSchema, MessagesSchema, SessionSchema } from "./zod-schema.session.js";
+=======
+import { sensitive } from "./zod-schema.sensitive.js";
+import {
+  CommandsSchema,
+  MessagesSchema,
+  SessionSchema,
+  SessionSendPolicySchema,
+} from "./zod-schema.session.js";
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
 
 const BrowserSnapshotDefaultsSchema = z
   .object({
@@ -295,9 +305,13 @@ export const OpenClawSchema = z
       .object({
         enabled: z.boolean().optional(),
         path: z.string().optional(),
+<<<<<<< HEAD
         token: z.string().optional(),
 <<<<<<< HEAD
 =======
+=======
+        token: z.string().optional().register(sensitive),
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
         defaultSessionKey: z.string().optional(),
         allowRequestSessionKey: z.boolean().optional(),
         allowedSessionKeyPrefixes: z.array(z.string()).optional(),
@@ -362,7 +376,7 @@ export const OpenClawSchema = z
         voiceAliases: z.record(z.string(), z.string()).optional(),
         modelId: z.string().optional(),
         outputFormat: z.string().optional(),
-        apiKey: z.string().optional(),
+        apiKey: z.string().optional().register(sensitive),
         interruptOnSpeech: z.boolean().optional(),
       })
       .strict()
@@ -397,8 +411,8 @@ export const OpenClawSchema = z
         auth: z
           .object({
             mode: z.union([z.literal("token"), z.literal("password")]).optional(),
-            token: z.string().optional(),
-            password: z.string().optional(),
+            token: z.string().optional().register(sensitive),
+            password: z.string().optional().register(sensitive),
             allowTailscale: z.boolean().optional(),
           })
           .strict()
@@ -422,8 +436,8 @@ export const OpenClawSchema = z
           .object({
             url: z.string().optional(),
             transport: z.union([z.literal("ssh"), z.literal("direct")]).optional(),
-            token: z.string().optional(),
-            password: z.string().optional(),
+            token: z.string().optional().register(sensitive),
+            password: z.string().optional().register(sensitive),
             tlsFingerprint: z.string().optional(),
             sshTarget: z.string().optional(),
             sshIdentity: z.string().optional(),
@@ -553,7 +567,7 @@ export const OpenClawSchema = z
             z
               .object({
                 enabled: z.boolean().optional(),
-                apiKey: z.string().optional(),
+                apiKey: z.string().optional().register(sensitive),
                 env: z.record(z.string(), z.string()).optional(),
                 config: z.record(z.string(), z.unknown()).optional(),
               })

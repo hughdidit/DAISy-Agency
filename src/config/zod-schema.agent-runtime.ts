@@ -8,6 +8,7 @@ import {
   ToolsLinksSchema,
   ToolsMediaSchema,
 } from "./zod-schema.core.js";
+import { sensitive } from "./zod-schema.sensitive.js";
 
 export const HeartbeatSchema = z
   .object({
@@ -165,19 +166,35 @@ export const ToolPolicySchema = ToolPolicyBaseSchema.superRefine((value, ctx) =>
 export const ToolsWebSearchSchema = z
   .object({
     enabled: z.boolean().optional(),
+<<<<<<< HEAD
     provider: z.union([z.literal("brave"), z.literal("perplexity")]).optional(),
     apiKey: z.string().optional(),
+=======
+    provider: z.union([z.literal("brave"), z.literal("perplexity"), z.literal("grok")]).optional(),
+    apiKey: z.string().optional().register(sensitive),
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
     maxResults: z.number().int().positive().optional(),
     timeoutSeconds: z.number().int().positive().optional(),
     cacheTtlMinutes: z.number().nonnegative().optional(),
     perplexity: z
       .object({
-        apiKey: z.string().optional(),
+        apiKey: z.string().optional().register(sensitive),
         baseUrl: z.string().optional(),
         model: z.string().optional(),
       })
       .strict()
       .optional(),
+<<<<<<< HEAD
+=======
+    grok: z
+      .object({
+        apiKey: z.string().optional().register(sensitive),
+        model: z.string().optional(),
+        inlineCitations: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
   })
   .strict()
   .optional();
@@ -315,7 +332,7 @@ export const MemorySearchSchema = z
     remote: z
       .object({
         baseUrl: z.string().optional(),
-        apiKey: z.string().optional(),
+        apiKey: z.string().optional().register(sensitive),
         headers: z.record(z.string(), z.string()).optional(),
         batch: z
           .object({
