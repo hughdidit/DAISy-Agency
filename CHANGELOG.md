@@ -184,6 +184,7 @@ Docs: https://docs.openclaw.ai
 - CI: Implement pipeline and workflow order. Thanks @quotentiroler.
 >>>>>>> e19a23520 (fix: unify session maintenance and cron run pruning (#13083))
 - WhatsApp: preserve original filenames for inbound documents. (#12691) Thanks @akramcodez.
+- Feishu: enforce DM `dmPolicy`/pairing gating and sender allow checks for inbound DMs. (#14876) Thanks @coygeek.
 - Telegram: harden quote parsing; preserve quote context; avoid QUOTE_TEXT_INVALID; avoid nested reply quote misclassification. (#12156) Thanks @rybnikov.
 - Telegram: recover proactive sends when stale topic thread IDs are used by retrying without `message_thread_id`. (#11620)
 <<<<<<< HEAD
