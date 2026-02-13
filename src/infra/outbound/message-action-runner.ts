@@ -882,6 +882,8 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
     mediaUrls: mergedMediaUrls.length ? mergedMediaUrls : undefined,
     gifPlayback,
     bestEffort: bestEffort ?? undefined,
+    replyToId: replyToId ?? undefined,
+    threadId: resolvedThreadId ?? undefined,
   });
 
   return {
