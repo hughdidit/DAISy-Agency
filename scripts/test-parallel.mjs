@@ -3,6 +3,7 @@ import os from "node:os";
 
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
+<<<<<<< HEAD
 const runs = [
   {
     name: "unit",
@@ -16,6 +17,28 @@ const runs = [
     name: "gateway",
     args: ["vitest", "run", "--config", "vitest.gateway.config.ts"],
   },
+=======
+const unitIsolatedFiles = [
+  "src/plugins/loader.test.ts",
+  "src/plugins/tools.optional.test.ts",
+  "src/agents/session-tool-result-guard.tool-result-persist-hook.test.ts",
+  "src/security/fix.test.ts",
+  "src/security/audit.test.ts",
+  "src/utils.test.ts",
+  "src/auto-reply/tool-meta.test.ts",
+  "src/auto-reply/envelope.test.ts",
+  "src/commands/auth-choice.test.ts",
+  "src/media/store.header-ext.test.ts",
+  "src/browser/server.covers-additional-endpoint-branches.test.ts",
+  "src/browser/server.post-tabs-open-profile-unknown-returns-404.test.ts",
+  "src/browser/server.agent-contract-snapshot-endpoints.test.ts",
+  "src/browser/server.agent-contract-form-layout-act-commands.test.ts",
+  "src/browser/server.serves-status-starts-browser-requested.test.ts",
+  "src/browser/server.skips-default-maxchars-explicitly-set-zero.test.ts",
+  "src/browser/server.auth-token-gates-http.test.ts",
+  "src/browser/server-context.remote-tab-ops.test.ts",
+  "src/browser/server-context.ensure-tab-available.prefers-last-target.test.ts",
+>>>>>>> 78ec0a1ed (fix: stabilize test runner and daemon-cli compat)
 ];
 
 const children = new Set();
