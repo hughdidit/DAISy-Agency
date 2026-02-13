@@ -3,6 +3,7 @@ import { acquireGatewayLock } from "../../infra/gateway-lock.js";
 import {
   consumeGatewaySigusr1RestartAuthorization,
   isGatewaySigusr1RestartExternallyAllowed,
+  markGatewaySigusr1RestartHandled,
 } from "../../infra/restart.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 <<<<<<< HEAD
@@ -106,6 +107,7 @@ export async function runGatewayLoop(params: {
       );
       return;
     }
+    markGatewaySigusr1RestartHandled();
     request("restart", "SIGUSR1");
   };
 

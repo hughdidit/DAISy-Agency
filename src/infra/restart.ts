@@ -13,10 +13,58 @@ export type RestartAttempt = {
 
 const SPAWN_TIMEOUT_MS = 2000;
 const SIGUSR1_AUTH_GRACE_MS = 5000;
+const DEFAULT_DEFERRAL_POLL_MS = 500;
+const DEFAULT_DEFERRAL_MAX_WAIT_MS = 30_000;
 
 let sigusr1AuthorizedCount = 0;
 let sigusr1AuthorizedUntil = 0;
 let sigusr1ExternalAllowed = false;
+<<<<<<< HEAD
+=======
+let preRestartCheck: (() => number) | null = null;
+let restartCycleToken = 0;
+let emittedRestartToken = 0;
+let consumedRestartToken = 0;
+
+function hasUnconsumedRestartSignal(): boolean {
+  return emittedRestartToken > consumedRestartToken;
+}
+
+/**
+ * Register a callback that scheduleGatewaySigusr1Restart checks before emitting SIGUSR1.
+ * The callback should return the number of pending items (0 = safe to restart).
+ */
+export function setPreRestartDeferralCheck(fn: () => number): void {
+  preRestartCheck = fn;
+}
+
+/**
+ * Emit an authorized SIGUSR1 gateway restart, guarded against duplicate emissions.
+ * Returns true if SIGUSR1 was emitted, false if a restart was already emitted.
+ * Both scheduleGatewaySigusr1Restart and the config watcher should use this
+ * to ensure only one restart fires.
+ */
+export function emitGatewayRestart(): boolean {
+  if (hasUnconsumedRestartSignal()) {
+    return false;
+  }
+  const cycleToken = ++restartCycleToken;
+  emittedRestartToken = cycleToken;
+  authorizeGatewaySigusr1Restart();
+  try {
+    if (process.listenerCount("SIGUSR1") > 0) {
+      process.emit("SIGUSR1");
+    } else {
+      process.kill(process.pid, "SIGUSR1");
+    }
+  } catch {
+    // Roll back the cycle marker so future restart requests can still proceed.
+    emittedRestartToken = consumedRestartToken;
+    return false;
+  }
+  return true;
+}
+>>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
 
 function resetSigusr1AuthorizationIfExpired(now = Date.now()) {
   if (sigusr1AuthorizedCount <= 0) {
@@ -56,6 +104,80 @@ export function consumeGatewaySigusr1RestartAuthorization(): boolean {
     sigusr1AuthorizedUntil = 0;
   }
   return true;
+}
+
+/**
+ * Mark the currently emitted SIGUSR1 restart cycle as consumed by the run loop.
+ * This explicitly advances the cycle state instead of resetting emit guards inside
+ * consumeGatewaySigusr1RestartAuthorization().
+ */
+export function markGatewaySigusr1RestartHandled(): void {
+  if (hasUnconsumedRestartSignal()) {
+    consumedRestartToken = emittedRestartToken;
+  }
+}
+
+export type RestartDeferralHooks = {
+  onDeferring?: (pending: number) => void;
+  onReady?: () => void;
+  onTimeout?: (pending: number, elapsedMs: number) => void;
+  onCheckError?: (err: unknown) => void;
+};
+
+/**
+ * Poll pending work until it drains (or times out), then emit one restart signal.
+ * Shared by both the direct RPC restart path and the config watcher path.
+ */
+export function deferGatewayRestartUntilIdle(opts: {
+  getPendingCount: () => number;
+  hooks?: RestartDeferralHooks;
+  pollMs?: number;
+  maxWaitMs?: number;
+}): void {
+  const pollMsRaw = opts.pollMs ?? DEFAULT_DEFERRAL_POLL_MS;
+  const pollMs = Math.max(10, Math.floor(pollMsRaw));
+  const maxWaitMsRaw = opts.maxWaitMs ?? DEFAULT_DEFERRAL_MAX_WAIT_MS;
+  const maxWaitMs = Math.max(pollMs, Math.floor(maxWaitMsRaw));
+
+  let pending: number;
+  try {
+    pending = opts.getPendingCount();
+  } catch (err) {
+    opts.hooks?.onCheckError?.(err);
+    emitGatewayRestart();
+    return;
+  }
+  if (pending <= 0) {
+    opts.hooks?.onReady?.();
+    emitGatewayRestart();
+    return;
+  }
+
+  opts.hooks?.onDeferring?.(pending);
+  const startedAt = Date.now();
+  const poll = setInterval(() => {
+    let current: number;
+    try {
+      current = opts.getPendingCount();
+    } catch (err) {
+      clearInterval(poll);
+      opts.hooks?.onCheckError?.(err);
+      emitGatewayRestart();
+      return;
+    }
+    if (current <= 0) {
+      clearInterval(poll);
+      opts.hooks?.onReady?.();
+      emitGatewayRestart();
+      return;
+    }
+    const elapsedMs = Date.now() - startedAt;
+    if (elapsedMs >= maxWaitMs) {
+      clearInterval(poll);
+      opts.hooks?.onTimeout?.(current, elapsedMs);
+      emitGatewayRestart();
+    }
+  }, pollMs);
 }
 
 function formatSpawnDetail(result: {
@@ -189,6 +311,7 @@ export function scheduleGatewaySigusr1Restart(opts?: {
     typeof opts?.reason === "string" && opts.reason.trim()
       ? opts.reason.trim().slice(0, 200)
       : undefined;
+<<<<<<< HEAD
   authorizeGatewaySigusr1Restart(delayMs);
   const pid = process.pid;
   const hasListener = process.listenerCount("SIGUSR1") > 0;
@@ -202,6 +325,16 @@ export function scheduleGatewaySigusr1Restart(opts?: {
     } catch {
       /* ignore */
     }
+=======
+
+  setTimeout(() => {
+    const pendingCheck = preRestartCheck;
+    if (!pendingCheck) {
+      emitGatewayRestart();
+      return;
+    }
+    deferGatewayRestartUntilIdle({ getPendingCount: pendingCheck });
+>>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
   }, delayMs);
   return {
     ok: true,
@@ -218,5 +351,12 @@ export const __testing = {
     sigusr1AuthorizedCount = 0;
     sigusr1AuthorizedUntil = 0;
     sigusr1ExternalAllowed = false;
+<<<<<<< HEAD
+=======
+    preRestartCheck = null;
+    restartCycleToken = 0;
+    emittedRestartToken = 0;
+    consumedRestartToken = 0;
+>>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
   },
 };

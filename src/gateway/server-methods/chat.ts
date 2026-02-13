@@ -15,7 +15,7 @@ import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveThinkingDefault } from "../../agents/model-selection.js";
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
-import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
+import { dispatchInboundMessage, withReplyDispatcher } from "../../auto-reply/dispatch.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
 <<<<<<< HEAD
 import {
@@ -531,10 +531,9 @@ export const chatHandlers: GatewayRequestHandlers = {
       });
 
       let agentRunStarted = false;
-      void dispatchInboundMessage({
-        ctx,
-        cfg,
+      void withReplyDispatcher({
         dispatcher,
+<<<<<<< HEAD
         replyOptions: {
           runId: clientRunId,
           abortSignal: abortController.signal,
@@ -564,6 +563,40 @@ export const chatHandlers: GatewayRequestHandlers = {
           },
           onModelSelected,
         },
+=======
+        run: () =>
+          dispatchInboundMessage({
+            ctx,
+            cfg,
+            dispatcher,
+            replyOptions: {
+              runId: clientRunId,
+              abortSignal: abortController.signal,
+              images: parsedImages.length > 0 ? parsedImages : undefined,
+              disableBlockStreaming: true,
+              onAgentRunStart: (runId) => {
+                agentRunStarted = true;
+                const connId = typeof client?.connId === "string" ? client.connId : undefined;
+                const wantsToolEvents = hasGatewayClientCap(
+                  client?.connect?.caps,
+                  GATEWAY_CLIENT_CAPS.TOOL_EVENTS,
+                );
+                if (connId && wantsToolEvents) {
+                  context.registerToolEventRecipient(runId, connId);
+                  // Register for any other active runs *in the same session* so
+                  // late-joining clients (e.g. page refresh mid-response) receive
+                  // in-progress tool events without leaking cross-session data.
+                  for (const [activeRunId, active] of context.chatAbortControllers) {
+                    if (activeRunId !== runId && active.sessionKey === p.sessionKey) {
+                      context.registerToolEventRecipient(activeRunId, connId);
+                    }
+                  }
+                }
+              },
+              onModelSelected,
+            },
+          }),
+>>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
       })
         .then(() => {
           if (!agentRunStarted) {

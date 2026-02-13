@@ -4,11 +4,19 @@ import { startGmailWatcher, stopGmailWatcher } from "../hooks/gmail-watcher.js";
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import { resetDirectoryCache } from "../infra/outbound/target-resolver.js";
 import {
+<<<<<<< HEAD
   authorizeGatewaySigusr1Restart,
   setGatewaySigusr1RestartPolicy,
 } from "../infra/restart.js";
 import { setCommandLaneConcurrency } from "../process/command-queue.js";
 import { resolveAgentMaxConcurrent, resolveSubagentMaxConcurrent } from "../config/agent-limits.js";
+=======
+  deferGatewayRestartUntilIdle,
+  emitGatewayRestart,
+  setGatewaySigusr1RestartPolicy,
+} from "../infra/restart.js";
+import { setCommandLaneConcurrency, getTotalQueueSize } from "../process/command-queue.js";
+>>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
 import { CommandLane } from "../process/lanes.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
@@ -153,8 +161,82 @@ export function createGatewayReloadHandlers(params: {
       params.logReload.warn("no SIGUSR1 listener found; restart skipped");
       return;
     }
+<<<<<<< HEAD
     authorizeGatewaySigusr1Restart();
     process.emit("SIGUSR1");
+=======
+
+    const getActiveCounts = () => {
+      const queueSize = getTotalQueueSize();
+      const pendingReplies = getTotalPendingReplies();
+      const embeddedRuns = getActiveEmbeddedRunCount();
+      return {
+        queueSize,
+        pendingReplies,
+        embeddedRuns,
+        totalActive: queueSize + pendingReplies + embeddedRuns,
+      };
+    };
+    const formatActiveDetails = (counts: ReturnType<typeof getActiveCounts>) => {
+      const details = [];
+      if (counts.queueSize > 0) {
+        details.push(`${counts.queueSize} operation(s)`);
+      }
+      if (counts.pendingReplies > 0) {
+        details.push(`${counts.pendingReplies} reply(ies)`);
+      }
+      if (counts.embeddedRuns > 0) {
+        details.push(`${counts.embeddedRuns} embedded run(s)`);
+      }
+      return details;
+    };
+    const active = getActiveCounts();
+
+    if (active.totalActive > 0) {
+      // Avoid spinning up duplicate polling loops from repeated config changes.
+      if (restartPending) {
+        params.logReload.info(
+          `config change requires gateway restart (${reasons}) — already waiting for operations to complete`,
+        );
+        return;
+      }
+      restartPending = true;
+      const initialDetails = formatActiveDetails(active);
+      params.logReload.warn(
+        `config change requires gateway restart (${reasons}) — deferring until ${initialDetails.join(", ")} complete`,
+      );
+
+      deferGatewayRestartUntilIdle({
+        getPendingCount: () => getActiveCounts().totalActive,
+        hooks: {
+          onReady: () => {
+            restartPending = false;
+            params.logReload.info("all operations and replies completed; restarting gateway now");
+          },
+          onTimeout: (_pending, elapsedMs) => {
+            const remaining = formatActiveDetails(getActiveCounts());
+            restartPending = false;
+            params.logReload.warn(
+              `restart timeout after ${elapsedMs}ms with ${remaining.join(", ")} still active; restarting anyway`,
+            );
+          },
+          onCheckError: (err) => {
+            restartPending = false;
+            params.logReload.warn(
+              `restart deferral check failed (${String(err)}); restarting gateway now`,
+            );
+          },
+        },
+      });
+    } else {
+      // No active operations or pending replies, restart immediately
+      params.logReload.warn(`config change requires gateway restart (${reasons})`);
+      const emitted = emitGatewayRestart();
+      if (!emitted) {
+        params.logReload.info("gateway restart already scheduled; skipping duplicate signal");
+      }
+    }
+>>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
   };
 
   return { applyHotReload, requestGatewayRestart };

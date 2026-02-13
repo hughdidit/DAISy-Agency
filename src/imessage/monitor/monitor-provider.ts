@@ -3,6 +3,10 @@ import fs from "node:fs/promises";
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
+<<<<<<< HEAD
+=======
+import { dispatchInboundMessage, withReplyDispatcher } from "../../auto-reply/dispatch.js";
+>>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
 import {
   formatInboundEnvelope,
   formatInboundFromLabel,
@@ -647,17 +651,21 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
       },
     });
 
-    const { queuedFinal } = await dispatchInboundMessage({
-      ctx: ctxPayload,
-      cfg,
+    const { queuedFinal } = await withReplyDispatcher({
       dispatcher,
-      replyOptions: {
-        disableBlockStreaming:
-          typeof accountInfo.config.blockStreaming === "boolean"
-            ? !accountInfo.config.blockStreaming
-            : undefined,
-        onModelSelected,
-      },
+      run: () =>
+        dispatchInboundMessage({
+          ctx: ctxPayload,
+          cfg,
+          dispatcher,
+          replyOptions: {
+            disableBlockStreaming:
+              typeof accountInfo.config.blockStreaming === "boolean"
+                ? !accountInfo.config.blockStreaming
+                : undefined,
+            onModelSelected,
+          },
+        }),
     });
     if (!queuedFinal) {
       if (isGroup && historyKey) {
