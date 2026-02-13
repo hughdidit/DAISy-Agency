@@ -7,8 +7,15 @@
  */
 
 import { randomUUID } from "node:crypto";
+<<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 
+=======
+import type { ClientToolDefinition } from "../agents/pi-embedded-runner/run/params.js";
+import type { ImageContent } from "../commands/agent/types.js";
+import type { GatewayHttpResponsesConfig } from "../config/types.gateway.js";
+import type { AuthRateLimiter } from "./auth-rate-limit.js";
+>>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import { buildHistoryContextFromEntries, type HistoryEntry } from "../auto-reply/reply/history.js";
 import { createDefaultDeps } from "../cli/deps.js";
 import { agentCommand } from "../commands/agent.js";
@@ -55,12 +62,37 @@ import {
   type InputImageLimits,
   type InputImageSource,
 } from "../media/input-files.js";
+<<<<<<< HEAD
+=======
+import { defaultRuntime } from "../runtime.js";
+import { authorizeGatewayConnect, type ResolvedGatewayAuth } from "./auth.js";
+import {
+  readJsonBodyOrError,
+  sendGatewayAuthFailure,
+  sendJson,
+  sendMethodNotAllowed,
+  setSseHeaders,
+  writeDone,
+} from "./http-common.js";
+import { getBearerToken, resolveAgentIdForRequest, resolveSessionKey } from "./http-utils.js";
+import {
+  CreateResponseBodySchema,
+  type ContentPart,
+  type CreateResponseBody,
+  type ItemParam,
+  type OutputItem,
+  type ResponseResource,
+  type StreamingEvent,
+  type Usage,
+} from "./open-responses.schema.js";
+>>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 
 type OpenResponsesHttpOptions = {
   auth: ResolvedGatewayAuth;
   maxBodyBytes?: number;
   config?: GatewayHttpResponsesConfig;
   trustedProxies?: string[];
+  rateLimiter?: AuthRateLimiter;
 };
 
 const DEFAULT_BODY_BYTES = 20 * 1024 * 1024;
@@ -349,9 +381,10 @@ export async function handleOpenResponsesHttpRequest(
     connectAuth: { token, password: token },
     req,
     trustedProxies: opts.trustedProxies,
+    rateLimiter: opts.rateLimiter,
   });
   if (!authResult.ok) {
-    sendUnauthorized(res);
+    sendGatewayAuthFailure(res, authResult);
     return true;
   }
 

@@ -13,6 +13,7 @@ import type { CanvasHostHandler } from "../canvas-host/server.js";
 <<<<<<< HEAD
 =======
 import type { createSubsystemLogger } from "../logging/subsystem.js";
+import type { AuthRateLimiter } from "./auth-rate-limit.js";
 import type { GatewayWsClient } from "./server/ws-types.js";
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import {
@@ -27,6 +28,7 @@ import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
 import { setSecurityHeaders } from "./http-common.js";
@@ -34,6 +36,14 @@ import { setSecurityHeaders } from "./http-common.js";
 =======
 import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
 >>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
+=======
+import {
+  authorizeGatewayConnect,
+  isLocalDirectRequest,
+  type GatewayAuthResult,
+  type ResolvedGatewayAuth,
+} from "./auth.js";
+>>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import {
   handleControlUiAvatarRequest,
   handleControlUiHttpRequest,
@@ -57,9 +67,13 @@ import {
   resolveHookDeliver,
 } from "./hooks.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { applyHookMappings } from "./hooks-mapping.js";
 =======
 import { sendUnauthorized } from "./http-common.js";
+=======
+import { sendGatewayAuthFailure } from "./http-common.js";
+>>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import { getBearerToken, getHeader } from "./http-utils.js";
 import { resolveGatewayClientIp } from "./net.js";
 >>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
@@ -120,12 +134,14 @@ async function authorizeCanvasRequest(params: {
   auth: ResolvedGatewayAuth;
   trustedProxies: string[];
   clients: Set<GatewayWsClient>;
-}): Promise<boolean> {
-  const { req, auth, trustedProxies, clients } = params;
+  rateLimiter?: AuthRateLimiter;
+}): Promise<GatewayAuthResult> {
+  const { req, auth, trustedProxies, clients, rateLimiter } = params;
   if (isLocalDirectRequest(req, trustedProxies)) {
-    return true;
+    return { ok: true };
   }
 
+  let lastAuthFailure: GatewayAuthResult | null = null;
   const token = getBearerToken(req);
   if (token) {
     const authResult = await authorizeGatewayConnect({
@@ -133,10 +149,12 @@ async function authorizeCanvasRequest(params: {
       connectAuth: { token, password: token },
       req,
       trustedProxies,
+      rateLimiter,
     });
     if (authResult.ok) {
-      return true;
+      return authResult;
     }
+    lastAuthFailure = authResult;
   }
 
   const clientIp = resolveGatewayClientIp({
@@ -146,9 +164,41 @@ async function authorizeCanvasRequest(params: {
     trustedProxies,
   });
   if (!clientIp) {
-    return false;
+    return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
   }
-  return hasAuthorizedWsClientForIp(clients, clientIp);
+  if (hasAuthorizedWsClientForIp(clients, clientIp)) {
+    return { ok: true };
+  }
+  return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
+}
+
+function writeUpgradeAuthFailure(
+  socket: { write: (chunk: string) => void },
+  auth: GatewayAuthResult,
+) {
+  if (auth.rateLimited) {
+    const retryAfterSeconds =
+      auth.retryAfterMs && auth.retryAfterMs > 0 ? Math.ceil(auth.retryAfterMs / 1000) : undefined;
+    socket.write(
+      [
+        "HTTP/1.1 429 Too Many Requests",
+        retryAfterSeconds ? `Retry-After: ${retryAfterSeconds}` : undefined,
+        "Content-Type: application/json; charset=utf-8",
+        "Connection: close",
+        "",
+        JSON.stringify({
+          error: {
+            message: "Too many failed authentication attempts. Please try again later.",
+            type: "rate_limited",
+          },
+        }),
+      ]
+        .filter(Boolean)
+        .join("\r\n"),
+    );
+    return;
+  }
+  socket.write("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n");
 }
 
 >>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
@@ -332,6 +382,8 @@ export function createGatewayHttpServer(opts: {
   handleHooksRequest: HooksRequestHandler;
   handlePluginRequest?: HooksRequestHandler;
   resolvedAuth: ResolvedGatewayAuth;
+  /** Optional rate limiter for auth brute-force protection. */
+  rateLimiter?: AuthRateLimiter;
   tlsOptions?: TlsOptions;
 }): HttpServer {
   const {
@@ -346,6 +398,7 @@ export function createGatewayHttpServer(opts: {
     handleHooksRequest,
     handlePluginRequest,
     resolvedAuth,
+    rateLimiter,
   } = opts;
   const httpServer: HttpServer = opts.tlsOptions
     ? createHttpsServer(opts.tlsOptions, (req, res) => {
@@ -371,6 +424,7 @@ export function createGatewayHttpServer(opts: {
         await handleToolsInvokeHttpRequest(req, res, {
           auth: resolvedAuth,
           trustedProxies,
+          rateLimiter,
         })
       ) {
         return;
@@ -378,8 +432,32 @@ export function createGatewayHttpServer(opts: {
       if (await handleSlackHttpRequest(req, res)) {
         return;
       }
+<<<<<<< HEAD
       if (handlePluginRequest && (await handlePluginRequest(req, res))) {
         return;
+=======
+      if (handlePluginRequest) {
+        // Channel HTTP endpoints are gateway-auth protected by default.
+        // Non-channel plugin routes remain plugin-owned and must enforce
+        // their own auth when exposing sensitive functionality.
+        if (requestPath.startsWith("/api/channels/")) {
+          const token = getBearerToken(req);
+          const authResult = await authorizeGatewayConnect({
+            auth: resolvedAuth,
+            connectAuth: token ? { token, password: token } : null,
+            req,
+            trustedProxies,
+            rateLimiter,
+          });
+          if (!authResult.ok) {
+            sendGatewayAuthFailure(res, authResult);
+            return;
+          }
+        }
+        if (await handlePluginRequest(req, res)) {
+          return;
+        }
+>>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
       }
       if (openResponsesEnabled) {
         if (
@@ -387,6 +465,7 @@ export function createGatewayHttpServer(opts: {
             auth: resolvedAuth,
             config: openResponsesConfig,
             trustedProxies,
+            rateLimiter,
           })
         ) {
           return;
@@ -397,6 +476,7 @@ export function createGatewayHttpServer(opts: {
           await handleOpenAiHttpRequest(req, res, {
             auth: resolvedAuth,
             trustedProxies,
+            rateLimiter,
           })
         ) {
           return;
@@ -412,9 +492,10 @@ export function createGatewayHttpServer(opts: {
             auth: resolvedAuth,
             trustedProxies,
             clients,
+            rateLimiter,
           });
-          if (!ok) {
-            sendUnauthorized(res);
+          if (!ok.ok) {
+            sendGatewayAuthFailure(res, ok);
             return;
           }
         }
@@ -482,8 +563,10 @@ export function attachGatewayUpgradeHandler(opts: {
 =======
   clients: Set<GatewayWsClient>;
   resolvedAuth: ResolvedGatewayAuth;
+  /** Optional rate limiter for auth brute-force protection. */
+  rateLimiter?: AuthRateLimiter;
 }) {
-  const { httpServer, wss, canvasHost, clients, resolvedAuth } = opts;
+  const { httpServer, wss, canvasHost, clients, resolvedAuth, rateLimiter } = opts;
   httpServer.on("upgrade", (req, socket, head) => {
     void (async () => {
       if (canvasHost) {
@@ -496,9 +579,10 @@ export function attachGatewayUpgradeHandler(opts: {
             auth: resolvedAuth,
             trustedProxies,
             clients,
+            rateLimiter,
           });
-          if (!ok) {
-            socket.write("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n");
+          if (!ok.ok) {
+            writeUpgradeAuthFailure(socket, ok);
             socket.destroy();
             return;
           }

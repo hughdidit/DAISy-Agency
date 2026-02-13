@@ -368,6 +368,41 @@ function collectGatewayConfigFindings(
     });
   }
 
+<<<<<<< HEAD
+=======
+  const chatCompletionsEnabled = cfg.gateway?.http?.endpoints?.chatCompletions?.enabled === true;
+  const responsesEnabled = cfg.gateway?.http?.endpoints?.responses?.enabled === true;
+  if (chatCompletionsEnabled || responsesEnabled) {
+    const enabledEndpoints = [
+      chatCompletionsEnabled ? "/v1/chat/completions" : null,
+      responsesEnabled ? "/v1/responses" : null,
+    ].filter((value): value is string => Boolean(value));
+    findings.push({
+      checkId: "gateway.http.session_key_override_enabled",
+      severity: remotelyExposed ? "warn" : "info",
+      title: "HTTP APIs accept explicit session key override headers",
+      detail:
+        `${enabledEndpoints.join(", ")} support x-openclaw-session-key. ` +
+        "Any authenticated caller can route requests into arbitrary sessions.",
+      remediation:
+        "Treat HTTP API credentials as full-trust, disable unused endpoints, and avoid sharing tokens across tenants.",
+    });
+  }
+
+  if (bind !== "loopback" && !cfg.gateway?.auth?.rateLimit) {
+    findings.push({
+      checkId: "gateway.auth_no_rate_limit",
+      severity: "warn",
+      title: "No auth rate limiting configured",
+      detail:
+        "gateway.bind is not loopback but no gateway.auth.rateLimit is configured. " +
+        "Without rate limiting, brute-force auth attacks are not mitigated.",
+      remediation:
+        "Set gateway.auth.rateLimit (e.g. { maxAttempts: 10, windowMs: 60000, lockoutMs: 300000 }).",
+    });
+  }
+
+>>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
   return findings;
 }
 

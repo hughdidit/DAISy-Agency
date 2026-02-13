@@ -28,7 +28,11 @@ Notes:
 
 - When `gateway.auth.mode="token"`, use `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`).
 - When `gateway.auth.mode="password"`, use `gateway.auth.password` (or `OPENCLAW_GATEWAY_PASSWORD`).
+<<<<<<< HEAD
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+=======
+- If `gateway.auth.rateLimit` is configured and too many auth failures occur, the endpoint returns `429` with `Retry-After`.
+>>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 
 ## Request body
 
@@ -77,6 +81,7 @@ To help group policies resolve context, you can optionally set:
 - `200` → `{ ok: true, result }`
 - `400` → `{ ok: false, error: { type, message } }` (invalid request or tool error)
 - `401` → unauthorized
+- `429` → auth rate-limited (`Retry-After` set)
 - `404` → tool not available (not found or not allowlisted)
 - `405` → method not allowed
 
