@@ -5,6 +5,10 @@ import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
 import { createOpenClawCodingTools } from "./pi-tools.js";
+<<<<<<< HEAD
+=======
+import { createHostSandboxFsBridge } from "./test-helpers/host-sandbox-fs-bridge.js";
+>>>>>>> 31c6a12cf (fix(agents): restore missing runtime helpers and sandbox types)
 
 const defaultTools = createOpenClawCodingTools();
 
