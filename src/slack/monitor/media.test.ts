@@ -1,4 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
+=======
+import * as ssrf from "../../infra/net/ssrf.js";
+import * as mediaStore from "../../media/store.js";
+import { fetchWithSlackAuth, resolveSlackMedia, resolveSlackThreadHistory } from "./media.js";
+>>>>>>> faec6ccb1 (perf(test): reduce module reload churn in unit suites)
 
 // Store original fetch
 const originalFetch = globalThis.fetch;
@@ -14,13 +20,9 @@ describe("fetchWithSlackAuth", () => {
   afterEach(() => {
     // Restore original fetch
     globalThis.fetch = originalFetch;
-    vi.resetModules();
   });
 
   it("sends Authorization header on initial request with manual redirect", async () => {
-    // Import after mocking fetch
-    const { fetchWithSlackAuth } = await import("./media.js");
-
     // Simulate direct 200 response (no redirect)
     const mockResponse = new Response(Buffer.from("image data"), {
       status: 200,
@@ -40,9 +42,19 @@ describe("fetchWithSlackAuth", () => {
     });
   });
 
-  it("follows redirects without Authorization header", async () => {
-    const { fetchWithSlackAuth } = await import("./media.js");
+<<<<<<< HEAD
+=======
+  it("rejects non-Slack hosts to avoid leaking tokens", async () => {
+    await expect(
+      fetchWithSlackAuth("https://example.com/test.jpg", "xoxb-test-token"),
+    ).rejects.toThrow(/non-Slack host|non-Slack/i);
 
+    // Should fail fast without attempting a fetch.
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+>>>>>>> faec6ccb1 (perf(test): reduce module reload churn in unit suites)
+  it("follows redirects without Authorization header", async () => {
     // First call: redirect response from Slack
     const redirectResponse = new Response(null, {
       status: 302,
@@ -77,8 +89,6 @@ describe("fetchWithSlackAuth", () => {
   });
 
   it("handles relative redirect URLs", async () => {
-    const { fetchWithSlackAuth } = await import("./media.js");
-
     // Redirect with relative URL
     const redirectResponse = new Response(null, {
       status: 302,
@@ -101,8 +111,6 @@ describe("fetchWithSlackAuth", () => {
   });
 
   it("returns redirect response when no location header is provided", async () => {
-    const { fetchWithSlackAuth } = await import("./media.js");
-
     // Redirect without location header
     const redirectResponse = new Response(null, {
       status: 302,
@@ -119,8 +127,6 @@ describe("fetchWithSlackAuth", () => {
   });
 
   it("returns 4xx/5xx responses directly without following", async () => {
-    const { fetchWithSlackAuth } = await import("./media.js");
-
     const errorResponse = new Response("Not Found", {
       status: 404,
     });
@@ -134,8 +140,6 @@ describe("fetchWithSlackAuth", () => {
   });
 
   it("handles 301 permanent redirects", async () => {
-    const { fetchWithSlackAuth } = await import("./media.js");
-
     const redirectResponse = new Response(null, {
       status: 301,
       headers: { location: "https://cdn.slack.com/new-url" },
@@ -164,19 +168,18 @@ describe("resolveSlackMedia", () => {
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
+<<<<<<< HEAD
     vi.resetModules();
+=======
+    vi.restoreAllMocks();
+>>>>>>> faec6ccb1 (perf(test): reduce module reload churn in unit suites)
   });
 
   it("prefers url_private_download over url_private", async () => {
-    // Mock the store module
-    vi.doMock("../../media/store.js", () => ({
-      saveMediaBuffer: vi.fn().mockResolvedValue({
-        path: "/tmp/test.jpg",
-        contentType: "image/jpeg",
-      }),
-    }));
-
-    const { resolveSlackMedia } = await import("./media.js");
+    vi.spyOn(mediaStore, "saveMediaBuffer").mockResolvedValue({
+      path: "/tmp/test.jpg",
+      contentType: "image/jpeg",
+    });
 
     const mockResponse = new Response(Buffer.from("image data"), {
       status: 200,
@@ -203,8 +206,6 @@ describe("resolveSlackMedia", () => {
   });
 
   it("returns null when download fails", async () => {
-    const { resolveSlackMedia } = await import("./media.js");
-
     // Simulate a network error
     mockFetch.mockRejectedValueOnce(new Error("Network error"));
 
@@ -218,8 +219,6 @@ describe("resolveSlackMedia", () => {
   });
 
   it("returns null when no files are provided", async () => {
-    const { resolveSlackMedia } = await import("./media.js");
-
     const result = await resolveSlackMedia({
       files: [],
       token: "xoxb-test-token",
@@ -230,8 +229,6 @@ describe("resolveSlackMedia", () => {
   });
 
   it("skips files without url_private", async () => {
-    const { resolveSlackMedia } = await import("./media.js");
-
     const result = await resolveSlackMedia({
       files: [{ name: "test.jpg" }], // No url_private
       token: "xoxb-test-token",
@@ -243,15 +240,10 @@ describe("resolveSlackMedia", () => {
   });
 
   it("falls through to next file when first file returns error", async () => {
-    // Mock the store module
-    vi.doMock("../../media/store.js", () => ({
-      saveMediaBuffer: vi.fn().mockResolvedValue({
-        path: "/tmp/test.jpg",
-        contentType: "image/jpeg",
-      }),
-    }));
-
-    const { resolveSlackMedia } = await import("./media.js");
+    vi.spyOn(mediaStore, "saveMediaBuffer").mockResolvedValue({
+      path: "/tmp/test.jpg",
+      contentType: "image/jpeg",
+    });
 
     // First file: 404
     const errorResponse = new Response("Not Found", { status: 404 });
@@ -279,7 +271,6 @@ describe("resolveSlackMedia", () => {
 
 describe("resolveSlackThreadHistory", () => {
   afterEach(() => {
-    vi.resetModules();
     vi.restoreAllMocks();
   });
 
@@ -302,7 +293,6 @@ describe("resolveSlackThreadHistory", () => {
         })),
         response_metadata: { next_cursor: "" },
       });
-    const { resolveSlackThreadHistory } = await import("./media.js");
     const client = {
       conversations: { replies },
     } as Parameters<typeof resolveSlackThreadHistory>[0]["client"];
@@ -353,7 +343,6 @@ describe("resolveSlackThreadHistory", () => {
       ],
       response_metadata: { next_cursor: "" },
     });
-    const { resolveSlackThreadHistory } = await import("./media.js");
     const client = {
       conversations: { replies },
     } as Parameters<typeof resolveSlackThreadHistory>[0]["client"];
@@ -372,7 +361,6 @@ describe("resolveSlackThreadHistory", () => {
 
   it("returns empty when limit is zero without calling Slack API", async () => {
     const replies = vi.fn();
-    const { resolveSlackThreadHistory } = await import("./media.js");
     const client = {
       conversations: { replies },
     } as Parameters<typeof resolveSlackThreadHistory>[0]["client"];
@@ -390,7 +378,6 @@ describe("resolveSlackThreadHistory", () => {
 
   it("returns empty when Slack API throws", async () => {
     const replies = vi.fn().mockRejectedValueOnce(new Error("slack down"));
-    const { resolveSlackThreadHistory } = await import("./media.js");
     const client = {
       conversations: { replies },
     } as Parameters<typeof resolveSlackThreadHistory>[0]["client"];
