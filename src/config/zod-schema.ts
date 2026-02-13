@@ -296,6 +296,13 @@ export const OpenClawSchema = z
         enabled: z.boolean().optional(),
         path: z.string().optional(),
         token: z.string().optional(),
+<<<<<<< HEAD
+=======
+        defaultSessionKey: z.string().optional(),
+        allowRequestSessionKey: z.boolean().optional(),
+        allowedSessionKeyPrefixes: z.array(z.string()).optional(),
+        allowedAgentIds: z.array(z.string()).optional(),
+>>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
         maxBodyBytes: z.number().int().positive().optional(),
         presets: z.array(z.string()).optional(),
         transformsDir: z.string().optional(),

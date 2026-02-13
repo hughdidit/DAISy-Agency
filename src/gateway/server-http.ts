@@ -47,6 +47,11 @@ import {
   normalizeHookHeaders,
   normalizeWakePayload,
   readJsonBody,
+<<<<<<< HEAD
+=======
+  resolveHookSessionKey,
+  resolveHookTargetAgentId,
+>>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
   resolveHookChannel,
   resolveHookDeliver,
 } from "./hooks.js";
@@ -201,7 +206,28 @@ export function createHooksRequestHandler(
         sendJson(res, 400, { ok: false, error: normalized.error });
         return true;
       }
+<<<<<<< HEAD
       const runId = dispatchAgentHook(normalized.value);
+=======
+      if (!isHookAgentAllowed(hooksConfig, normalized.value.agentId)) {
+        sendJson(res, 400, { ok: false, error: getHookAgentPolicyError() });
+        return true;
+      }
+      const sessionKey = resolveHookSessionKey({
+        hooksConfig,
+        source: "request",
+        sessionKey: normalized.value.sessionKey,
+      });
+      if (!sessionKey.ok) {
+        sendJson(res, 400, { ok: false, error: sessionKey.error });
+        return true;
+      }
+      const runId = dispatchAgentHook({
+        ...normalized.value,
+        sessionKey: sessionKey.value,
+        agentId: resolveHookTargetAgentId(hooksConfig, normalized.value.agentId),
+      });
+>>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
       sendJson(res, 202, { ok: true, runId });
       return true;
     }
@@ -237,11 +263,27 @@ export function createHooksRequestHandler(
             sendJson(res, 400, { ok: false, error: getHookChannelError() });
             return true;
           }
+<<<<<<< HEAD
+=======
+          if (!isHookAgentAllowed(hooksConfig, mapped.action.agentId)) {
+            sendJson(res, 400, { ok: false, error: getHookAgentPolicyError() });
+            return true;
+          }
+          const sessionKey = resolveHookSessionKey({
+            hooksConfig,
+            source: "mapping",
+            sessionKey: mapped.action.sessionKey,
+          });
+          if (!sessionKey.ok) {
+            sendJson(res, 400, { ok: false, error: sessionKey.error });
+            return true;
+          }
+>>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
           const runId = dispatchAgentHook({
             message: mapped.action.message,
             name: mapped.action.name ?? "Hook",
             wakeMode: mapped.action.wakeMode,
-            sessionKey: mapped.action.sessionKey ?? "",
+            sessionKey: sessionKey.value,
             deliver: resolveHookDeliver(mapped.action.deliver),
             channel,
             to: mapped.action.to,

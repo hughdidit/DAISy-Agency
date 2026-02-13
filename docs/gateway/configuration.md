@@ -97,7 +97,204 @@ moltbot gateway call config.patch --params '{
 }'
 ```
 
+<<<<<<< HEAD
 ## Minimal config (recommended starting point)
+=======
+  <Accordion title="Set up group chat mention gating">
+    Group messages default to **require mention**. Configure patterns per agent:
+
+    ```json5
+    {
+      agents: {
+        list: [
+          {
+            id: "main",
+            groupChat: {
+              mentionPatterns: ["@openclaw", "openclaw"],
+            },
+          },
+        ],
+      },
+      channels: {
+        whatsapp: {
+          groups: { "*": { requireMention: true } },
+        },
+      },
+    }
+    ```
+
+    - **Metadata mentions**: native @-mentions (WhatsApp tap-to-mention, Telegram @bot, etc.)
+    - **Text patterns**: regex patterns in `mentionPatterns`
+    - See [full reference](/gateway/configuration-reference#group-chat-mention-gating) for per-channel overrides and self-chat mode.
+
+  </Accordion>
+
+  <Accordion title="Configure sessions and resets">
+    Sessions control conversation continuity and isolation:
+
+    ```json5
+    {
+      session: {
+        dmScope: "per-channel-peer",  // recommended for multi-user
+        reset: {
+          mode: "daily",
+          atHour: 4,
+          idleMinutes: 120,
+        },
+      },
+    }
+    ```
+
+    - `dmScope`: `main` (shared) | `per-peer` | `per-channel-peer` | `per-account-channel-peer`
+    - See [Session Management](/concepts/session) for scoping, identity links, and send policy.
+    - See [full reference](/gateway/configuration-reference#session) for all fields.
+
+  </Accordion>
+
+  <Accordion title="Enable sandboxing">
+    Run agent sessions in isolated Docker containers:
+
+    ```json5
+    {
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "non-main",  // off | non-main | all
+            scope: "agent",    // session | agent | shared
+          },
+        },
+      },
+    }
+    ```
+
+    Build the image first: `scripts/sandbox-setup.sh`
+
+    See [Sandboxing](/gateway/sandboxing) for the full guide and [full reference](/gateway/configuration-reference#sandbox) for all options.
+
+  </Accordion>
+
+  <Accordion title="Set up heartbeat (periodic check-ins)">
+    ```json5
+    {
+      agents: {
+        defaults: {
+          heartbeat: {
+            every: "30m",
+            target: "last",
+          },
+        },
+      },
+    }
+    ```
+
+    - `every`: duration string (`30m`, `2h`). Set `0m` to disable.
+    - `target`: `last` | `whatsapp` | `telegram` | `discord` | `none`
+    - See [Heartbeat](/gateway/heartbeat) for the full guide.
+
+  </Accordion>
+
+  <Accordion title="Configure cron jobs">
+    ```json5
+    {
+      cron: {
+        enabled: true,
+        maxConcurrentRuns: 2,
+        sessionRetention: "24h",
+      },
+    }
+    ```
+
+    See [Cron jobs](/automation/cron-jobs) for the feature overview and CLI examples.
+
+  </Accordion>
+
+  <Accordion title="Set up webhooks (hooks)">
+    Enable HTTP webhook endpoints on the Gateway:
+
+    ```json5
+    {
+      hooks: {
+        enabled: true,
+        token: "shared-secret",
+        path: "/hooks",
+        defaultSessionKey: "hook:ingress",
+        allowRequestSessionKey: false,
+        allowedSessionKeyPrefixes: ["hook:"],
+        mappings: [
+          {
+            match: { path: "gmail" },
+            action: "agent",
+            agentId: "main",
+            deliver: true,
+          },
+        ],
+      },
+    }
+    ```
+
+    See [full reference](/gateway/configuration-reference#hooks) for all mapping options and Gmail integration.
+
+  </Accordion>
+
+  <Accordion title="Configure multi-agent routing">
+    Run multiple isolated agents with separate workspaces and sessions:
+
+    ```json5
+    {
+      agents: {
+        list: [
+          { id: "home", default: true, workspace: "~/.openclaw/workspace-home" },
+          { id: "work", workspace: "~/.openclaw/workspace-work" },
+        ],
+      },
+      bindings: [
+        { agentId: "home", match: { channel: "whatsapp", accountId: "personal" } },
+        { agentId: "work", match: { channel: "whatsapp", accountId: "biz" } },
+      ],
+    }
+    ```
+
+    See [Multi-Agent](/concepts/multi-agent) and [full reference](/gateway/configuration-reference#multi-agent-routing) for binding rules and per-agent access profiles.
+
+  </Accordion>
+
+  <Accordion title="Split config into multiple files ($include)">
+    Use `$include` to organize large configs:
+
+    ```json5
+    // ~/.openclaw/openclaw.json
+    {
+      gateway: { port: 18789 },
+      agents: { $include: "./agents.json5" },
+      broadcast: {
+        $include: ["./clients/a.json5", "./clients/b.json5"],
+      },
+    }
+    ```
+
+    - **Single file**: replaces the containing object
+    - **Array of files**: deep-merged in order (later wins)
+    - **Sibling keys**: merged after includes (override included values)
+    - **Nested includes**: supported up to 10 levels deep
+    - **Relative paths**: resolved relative to the including file
+    - **Error handling**: clear errors for missing files, parse errors, and circular includes
+
+  </Accordion>
+</AccordionGroup>
+
+## Config hot reload
+
+The Gateway watches `~/.openclaw/openclaw.json` and applies changes automatically — no manual restart needed for most settings.
+
+### Reload modes
+
+| Mode                   | Behavior                                                                                |
+| ---------------------- | --------------------------------------------------------------------------------------- |
+| **`hybrid`** (default) | Hot-applies safe changes instantly. Automatically restarts for critical ones.           |
+| **`hot`**              | Hot-applies safe changes only. Logs a warning when a restart is needed — you handle it. |
+| **`restart`**          | Restarts the Gateway on any config change, safe or not.                                 |
+| **`off`**              | Disables file watching. Changes take effect on the next manual restart.                 |
+>>>>>>> 3421b2ec1 (fix: harden hook session key routing defaults)
 
 ```json5
 {
