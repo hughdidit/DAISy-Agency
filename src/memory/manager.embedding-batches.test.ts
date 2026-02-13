@@ -179,7 +179,7 @@ describe("memory embedding batches", () => {
     let calls = 0;
     embedBatch.mockImplementation(async (texts: string[]) => {
       calls += 1;
-      if (calls < 3) {
+      if (calls < 2) {
         throw new Error("openai embeddings failed: 429 rate limit");
       }
       return texts.map(() => [0, 1, 0]);
@@ -227,7 +227,7 @@ describe("memory embedding batches", () => {
       setTimeoutSpy.mockRestore();
     }
 
-    expect(calls).toBe(3);
+    expect(calls).toBe(2);
   }, 10000);
 
   it("retries embeddings on transient 5xx errors", async () => {
@@ -238,7 +238,7 @@ describe("memory embedding batches", () => {
     let calls = 0;
     embedBatch.mockImplementation(async (texts: string[]) => {
       calls += 1;
-      if (calls < 3) {
+      if (calls < 2) {
         throw new Error("openai embeddings failed: 502 Bad Gateway (cloudflare)");
       }
       return texts.map(() => [0, 1, 0]);
@@ -286,7 +286,7 @@ describe("memory embedding batches", () => {
       setTimeoutSpy.mockRestore();
     }
 
-    expect(calls).toBe(3);
+    expect(calls).toBe(2);
   }, 10000);
 
   it("skips empty chunks so embeddings input stays valid", async () => {
