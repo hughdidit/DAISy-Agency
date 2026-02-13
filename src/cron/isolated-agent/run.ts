@@ -106,6 +106,17 @@ export type RunCronAgentTurnResult = {
   error?: string;
   sessionId?: string;
   sessionKey?: string;
+<<<<<<< HEAD
+=======
+  /**
+   * `true` when the isolated run already delivered its output to the target
+   * channel (via outbound payloads, the subagent announce flow, or a matching
+   * messaging-tool send). Callers should skip posting a summary to the main
+   * session to avoid duplicate
+   * messages.  See: https://github.com/openclaw/openclaw/issues/15692
+   */
+  delivered?: boolean;
+>>>>>>> 45a2cd55c (fix: harden isolated cron announce delivery fallback (#15739) (thanks @widingmarcus-cyber))
 };
 
 export async function runCronIsolatedAgentTurn(params: {
@@ -525,6 +536,12 @@ export async function runCronIsolatedAgentTurn(params: {
       }),
     );
 
+<<<<<<< HEAD
+=======
+  // `true` means we confirmed at least one outbound send reached the target.
+  // Keep this strict so timer fallback can safely decide whether to wake main.
+  let delivered = skipMessagingToolDelivery;
+>>>>>>> 45a2cd55c (fix: harden isolated cron announce delivery fallback (#15739) (thanks @widingmarcus-cyber))
   if (deliveryRequested && !skipHeartbeatDelivery && !skipMessagingToolDelivery) {
 <<<<<<< HEAD
     if (!resolvedDelivery.to) {
@@ -580,6 +597,7 @@ export async function runCronIsolatedAgentTurn(params: {
       return withRunSession({ status: "ok", summary, outputText });
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
     }
+<<<<<<< HEAD
     try {
       await deliverOutboundPayloads({
         cfg: cfgWithAgentDefaults,
@@ -590,6 +608,32 @@ export async function runCronIsolatedAgentTurn(params: {
         payloads: deliveryPayloads,
         bestEffort: deliveryBestEffort,
         deps: createOutboundSendDeps(params.deps),
+=======
+    // Shared subagent announce flow is text-based; keep direct outbound delivery
+    // for media/channel payloads so structured content is preserved.
+    if (deliveryPayloadHasStructuredContent) {
+      try {
+        const deliveryResults = await deliverOutboundPayloads({
+          cfg: cfgWithAgentDefaults,
+          channel: resolvedDelivery.channel,
+          to: resolvedDelivery.to,
+          accountId: resolvedDelivery.accountId,
+          threadId: resolvedDelivery.threadId,
+          payloads: deliveryPayloads,
+          bestEffort: deliveryBestEffort,
+          deps: createOutboundSendDeps(params.deps),
+        });
+        delivered = deliveryResults.length > 0;
+      } catch (err) {
+        if (!deliveryBestEffort) {
+          return withRunSession({ status: "error", summary, outputText, error: String(err) });
+        }
+      }
+    } else if (synthesizedText) {
+      const announceSessionKey = resolveAgentMainSessionKey({
+        cfg: params.cfg,
+        agentId,
+>>>>>>> 45a2cd55c (fix: harden isolated cron announce delivery fallback (#15739) (thanks @widingmarcus-cyber))
       });
     } catch (err) {
       if (!deliveryBestEffort) {
