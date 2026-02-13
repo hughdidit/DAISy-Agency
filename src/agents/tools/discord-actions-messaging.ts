@@ -229,21 +229,43 @@ export async function handleDiscordMessagingAction(
         throw new Error("Discord message sends are disabled.");
       }
       const to = readStringParam(params, "to", { required: true });
-      const content = readStringParam(params, "content", {
-        required: true,
-        allowEmpty: true,
-      });
-      const mediaUrl = readStringParam(params, "mediaUrl");
-      const replyTo = readStringParam(params, "replyTo");
       const asVoice = params.asVoice === true;
       const silent = params.silent === true;
+      const content = readStringParam(params, "content", {
+        required: !asVoice,
+        allowEmpty: true,
+      });
+      const mediaUrl =
+        readStringParam(params, "mediaUrl", { trim: false }) ??
+        readStringParam(params, "path", { trim: false }) ??
+        readStringParam(params, "filePath", { trim: false });
+      const replyTo = readStringParam(params, "replyTo");
       const embeds =
         Array.isArray(params.embeds) && params.embeds.length > 0 ? params.embeds : undefined;
 
       // Handle voice message sending
+<<<<<<< HEAD
       if (asVoice && mediaUrl) {
         // Voice messages require a local file path or downloadable URL
         // They cannot include text content (Discord limitation)
+=======
+      if (asVoice) {
+        if (!mediaUrl) {
+          throw new Error(
+            "Voice messages require a local media file path (mediaUrl, path, or filePath).",
+          );
+        }
+        if (content && content.trim()) {
+          throw new Error(
+            "Voice messages cannot include text content (Discord limitation). Remove the content parameter.",
+          );
+        }
+        if (mediaUrl.startsWith("http://") || mediaUrl.startsWith("https://")) {
+          throw new Error(
+            "Voice messages require a local file path, not a URL. Download the file first.",
+          );
+        }
+>>>>>>> 1c9c01ff4 (Discord: refine voice message handling)
         const result = await sendVoiceMessageDiscord(to, mediaUrl, {
           ...(accountId ? { accountId } : {}),
           replyTo,
@@ -252,7 +274,7 @@ export async function handleDiscordMessagingAction(
         return jsonResult({ ok: true, result, voiceMessage: true });
       }
 
-      const result = await sendMessageDiscord(to, content, {
+      const result = await sendMessageDiscord(to, content ?? "", {
         ...(accountId ? { accountId } : {}),
         mediaUrl,
         replyTo,
