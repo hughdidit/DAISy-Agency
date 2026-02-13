@@ -41,6 +41,11 @@ import { normalizeAgentId, toAgentStoreSessionKey } from "../routing/session-key
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 import { formatErrorMessage } from "./errors.js";
 import { isWithinActiveHours } from "./heartbeat-active-hours.js";
+import {
+  buildCronEventPrompt,
+  isCronSystemEvent,
+  isExecCompletionEvent,
+} from "./heartbeat-events-filter.js";
 import { emitHeartbeatEvent, resolveIndicatorType } from "./heartbeat-events.js";
 import { resolveHeartbeatVisibility } from "./heartbeat-visibility.js";
 import {
@@ -95,6 +100,7 @@ const EXEC_EVENT_PROMPT =
   "An async command you ran earlier has completed. The result is shown in the system messages above. " +
   "Please relay the command output to the user in a helpful way. If the command succeeded, share the relevant output. " +
   "If it failed, explain what went wrong.";
+<<<<<<< HEAD
 
 // Build a dynamic prompt for cron events by embedding the actual event content.
 // This ensures the model sees the reminder text directly instead of relying on
@@ -113,6 +119,9 @@ function buildCronEventPrompt(pendingEvents: string[]): string {
     "\n\nPlease relay this reminder to the user in a helpful and friendly way."
   );
 }
+=======
+export { isCronSystemEvent };
+>>>>>>> 5a431f57f (refactor(infra): split heartbeat event filters)
 
 type HeartbeatAgentState = {
   agentId: string;
