@@ -1,0 +1,16 @@
+{
+  "name": "@moltbot/memory-mongodb",
+  "version": "2026.1.27-beta.1",
+  "type": "module",
+  "description": "Moltbot MongoDB Atlas-backed long-term memory plugin with vector search",
+  "dependencies": {
+    "mongodb": "^6.12.0",
+    "@sinclair/typebox": "0.34.47",
+    "openai": "^6.16.0"
+  },
+  "moltbot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

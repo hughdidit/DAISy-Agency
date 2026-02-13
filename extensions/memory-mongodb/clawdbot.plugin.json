@@ -1,0 +1,105 @@
+{
+  "id": "memory-mongodb",
+  "kind": "memory",
+  "uiHints": {
+    "embedding.apiKey": {
+      "label": "OpenAI API Key",
+      "sensitive": true,
+      "placeholder": "sk-proj-...",
+      "help": "API key for OpenAI embeddings (or use ${OPENAI_API_KEY})"
+    },
+    "embedding.model": {
+      "label": "Embedding Model",
+      "placeholder": "text-embedding-3-small",
+      "help": "OpenAI embedding model to use"
+    },
+    "connectionUri": {
+      "label": "MongoDB Connection URI",
+      "sensitive": true,
+      "placeholder": "${MONGODB_URI}",
+      "help": "MongoDB Atlas connection string (use ${MONGODB_URI} env var)"
+    },
+    "databaseName": {
+      "label": "Database Name",
+      "placeholder": "daisy_memory",
+      "advanced": true
+    },
+    "collectionName": {
+      "label": "Collection Name",
+      "placeholder": "memories",
+      "advanced": true
+    },
+    "vectorSearchIndexName": {
+      "label": "Vector Search Index Name",
+      "placeholder": "vector_index",
+      "advanced": true
+    },
+    "captureTriggers": {
+      "label": "Capture Triggers",
+      "advanced": true,
+      "help": "Array of regex patterns (case-insensitive) that trigger auto-capture"
+    },
+    "autoCapture": {
+      "label": "Auto-Capture",
+      "help": "Automatically capture important information from conversations"
+    },
+    "autoRecall": {
+      "label": "Auto-Recall",
+      "help": "Automatically inject relevant memories into context"
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "embedding": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "apiKey": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string",
+            "enum": [
+              "text-embedding-3-small",
+              "text-embedding-3-large"
+            ]
+          }
+        },
+        "required": [
+          "apiKey"
+        ]
+      },
+      "connectionUri": {
+        "type": "string"
+      },
+      "databaseName": {
+        "type": "string"
+      },
+      "collectionName": {
+        "type": "string"
+      },
+      "vectorSearchIndexName": {
+        "type": "string"
+      },
+      "captureTriggers": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Regex patterns (case-insensitive) that trigger auto-capture"
+      },
+      "autoCapture": {
+        "type": "boolean"
+      },
+      "autoRecall": {
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "embedding",
+      "connectionUri"
+    ]
+  }
+}
