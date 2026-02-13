@@ -149,16 +149,19 @@ describe("browser config", () => {
     expect(resolveProfile(resolved, "chrome")).toBe(null);
     expect(resolved.defaultProfile).toBe("daisy");
   });
-  
-  it("maps legacy configured default profile clawd to daisy when alias profile is absent", () => {
-    const resolved = resolveBrowserConfig({
-      defaultProfile: "clawd",
-      profiles: {
-        daisy: { cdpPort: 18800, color: "#FF4500" },
-      },
-    });
 
-    expect(resolved.defaultProfile).toBe("daisy");
-    expect(resolveProfile(resolved, resolved.defaultProfile)?.cdpPort).toBe(18800);
-  });
+  it(
+    "maps legacy configured default profile clawd to daisy when alias profile is absent",
+    () => {
+      const resolved = resolveBrowserConfig({
+        defaultProfile: "clawd",
+        profiles: {
+          daisy: { cdpPort: 18800, color: "#FF4500" },
+        },
+      });
+
+      expect(resolved.defaultProfile).toBe("daisy");
+      expect(resolveProfile(resolved, resolved.defaultProfile)?.cdpPort).toBe(18800);
+    },
+  );
 });
