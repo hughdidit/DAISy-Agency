@@ -64,7 +64,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 5378583da (fix(discord): Apply historyLimit to channel/group sessions to prevent compaction bypass (openclaw#11356) thanks @shadril238)
 =======
 - Telegram: scope skill commands to the resolved agent for default accounts so `setMyCommands` no longer triggers `BOT_COMMANDS_TOO_MUCH` when multiple agents are configured. (#15599)
+<<<<<<< HEAD
 >>>>>>> 1d01bb1c8 (fix(telegram): scope default account skill commands to resolved agent (#15599))
+=======
+- Plugins/Hooks: fire `before_tool_call` hook exactly once per tool invocation instead of twice when tools pass through both `wrapToolWithBeforeToolCallHook` and `toToolDefinitions`. (#15635) Thanks @lailoo.
+>>>>>>> 534e4213a (fix(hooks): deduplicate before_tool_call hook in toToolDefinitions (#15502))
 - Agents/Image tool: cap image-analysis completion `maxTokens` by model capability (`min(4096, model.maxTokens)`) to avoid over-limit provider failures while still preventing truncation. (#11770) Thanks @detecti1.
 - TUI/Streaming: preserve richer streamed assistant text when final payload drops pre-tool-call text blocks, while keeping non-empty final payload authoritative for plain-text updates. (#15452) Thanks @TsekaLuk.
 - Inbound/Web UI: preserve literal `\n` sequences when normalizing inbound text so Windows paths like `C:\\Work\\nxxx\\README.md` are not corrupted. (#11547) Thanks @mcaxtr.

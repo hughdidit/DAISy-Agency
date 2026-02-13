@@ -79,7 +79,36 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
         // KNOWN: pi-coding-agent `ToolDefinition.execute` has a different signature/order
         // than pi-agent-core `AgentTool.execute`. This adapter keeps our existing tools intact.
         try {
+<<<<<<< HEAD
           return await tool.execute(toolCallId, params, signal, onUpdate);
+=======
+          // NOTE: before_tool_call hook is NOT called here — it is already
+          // invoked by wrapToolWithBeforeToolCallHook (applied in pi-tools.ts)
+          // before the tool reaches toToolDefinitions.  Calling it again would
+          // fire the hook twice per invocation (#15502).
+          const result = await tool.execute(toolCallId, params, signal, onUpdate);
+
+          // Call after_tool_call hook
+          const hookRunner = getGlobalHookRunner();
+          if (hookRunner?.hasHooks("after_tool_call")) {
+            try {
+              await hookRunner.runAfterToolCall(
+                {
+                  toolName: name,
+                  params: isPlainObject(params) ? params : {},
+                  result,
+                },
+                { toolName: name },
+              );
+            } catch (hookErr) {
+              logDebug(
+                `after_tool_call hook failed: tool=${normalizedName} error=${String(hookErr)}`,
+              );
+            }
+          }
+
+          return result;
+>>>>>>> 534e4213a (fix(hooks): deduplicate before_tool_call hook in toToolDefinitions (#15502))
         } catch (err) {
           if (signal?.aborted) {
             throw err;
