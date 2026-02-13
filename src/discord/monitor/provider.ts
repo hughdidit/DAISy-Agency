@@ -48,7 +48,11 @@ import {
   createDiscordCommandArgFallbackButton,
   createDiscordNativeCommand,
 } from "./native-command.js";
+<<<<<<< HEAD
 import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
+=======
+import { resolveDiscordPresenceUpdate } from "./presence.js";
+>>>>>>> 6acea69b2 (Discord: refine presence config defaults (#10855) (thanks @h0tp-ftw))
 
 export type MonitorDiscordOpts = {
   token?: string;
