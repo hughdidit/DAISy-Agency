@@ -108,8 +108,12 @@ Docs: https://docs.openclaw.ai
 - Discord: avoid misrouting numeric guild allowlist entries to `/channels/<guildId>` by prefixing guild-only inputs with `guild:` during resolution. (#12326) Thanks @headswim.
 - Config: preserve `${VAR}` env references when writing config files so `openclaw config set/apply/patch` does not persist secrets to disk. Thanks @thewilloftheshadow.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> f59df9589 (Config: preserve env var references on write (#15600))
 =======
+=======
+- Config: log overwrite audit entries (path, backup target, and hash transition) whenever an existing config file is replaced, improving traceability for unexpected config clobbers.
+>>>>>>> 1655df7ac (fix(config): log config overwrite audits)
 - Process/Exec: avoid shell execution for `.exe` commands on Windows so env overrides work reliably in `runCommandWithTimeout`. Thanks @thewilloftheshadow.
 >>>>>>> be18f5f0f (Process: fix Windows exec env overrides)
 - Web tools/web_fetch: prefer `text/markdown` responses for Cloudflare Markdown for Agents, add `cf-markdown` extraction for markdown bodies, and redact fetched URLs in `x-markdown-tokens` debug logs to avoid leaking raw paths/query params. (#15376) Thanks @Yaxuan42.
