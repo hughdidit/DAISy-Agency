@@ -93,6 +93,12 @@ interface OllamaTagsResponse {
   models: OllamaModel[];
 }
 
+type VllmModelsResponse = {
+  data?: Array<{
+    id?: string;
+  }>;
+};
+
 /**
  * Derive the Ollama native API base URL from a configured base URL.
  *
@@ -307,6 +313,7 @@ function buildMoonshotProvider(): ProviderConfig {
   };
 }
 
+<<<<<<< HEAD
 function buildKimiCodeProvider(): ProviderConfig {
   return {
     baseUrl: KIMI_CODE_BASE_URL,
@@ -327,6 +334,8 @@ function buildKimiCodeProvider(): ProviderConfig {
   };
 }
 
+=======
+>>>>>>> 3bcde8df3 (fix: finalize vLLM onboarding integration (#12577) (thanks @gejifeng))
 function buildQwenPortalProvider(): ProviderConfig {
   return {
     baseUrl: QWEN_PORTAL_BASE_URL,
