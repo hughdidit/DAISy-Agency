@@ -98,6 +98,7 @@ export {
   DiscordConfigSchema,
   GoogleChatConfigSchema,
   IMessageConfigSchema,
+  LinqConfigSchema,
   MSTeamsConfigSchema,
   SignalConfigSchema,
   SlackConfigSchema,
@@ -394,6 +395,15 @@ export {
   stripMarkdown,
 } from "../line/markdown-to-line.js";
 export type { ProcessedLineMessage } from "../line/markdown-to-line.js";
+
+// Channel: Linq
+export {
+  listLinqAccountIds,
+  resolveDefaultLinqAccountId,
+  resolveLinqAccount,
+  type ResolvedLinqAccount,
+} from "../linq/accounts.js";
+export type { LinqProbe } from "../linq/types.js";
 
 // Media utilities
 export { loadWebMedia, type WebMediaResult } from "../web/media.js";
