@@ -142,6 +142,7 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
       configured: account.configured,
       baseUrl: account.homeserver,
     }),
+<<<<<<< HEAD
     resolveAllowFrom: ({ cfg }) =>
       ((cfg as CoreConfig).channels?.matrix?.dm?.allowFrom ?? []).map((entry) => String(entry)),
     formatAllowFrom: ({ allowFrom }) => normalizeAllowListLower(allowFrom),
@@ -155,6 +156,28 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
       approveHint: formatPairingApproveHint("matrix"),
       normalizeEntry: (raw) => raw.replace(/^matrix:/i, "").trim().toLowerCase(),
     }),
+=======
+    resolveAllowFrom: ({ account }) =>
+      (account.config.dm?.allowFrom ?? []).map((entry) => String(entry)),
+    formatAllowFrom: ({ allowFrom }) => normalizeMatrixAllowList(allowFrom),
+  },
+  security: {
+    resolveDmPolicy: ({ account }) => {
+      const accountId = account.accountId;
+      const prefix =
+        accountId && accountId !== "default"
+          ? `channels.matrix.accounts.${accountId}.dm`
+          : "channels.matrix.dm";
+      return {
+        policy: account.config.dm?.policy ?? "pairing",
+        allowFrom: account.config.dm?.allowFrom ?? [],
+        policyPath: `${prefix}.policy`,
+        allowFromPath: `${prefix}.allowFrom`,
+        approveHint: formatPairingApproveHint("matrix"),
+        normalizeEntry: (raw) => normalizeMatrixUserId(raw),
+      };
+    },
+>>>>>>> 1a17466a6 (fix: use account-aware config paths in resolveDmPolicy and resolveAllowFrom)
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = (cfg as CoreConfig).channels?.defaults?.groupPolicy;
       const groupPolicy =
