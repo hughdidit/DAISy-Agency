@@ -18,11 +18,14 @@ import { applyAuthProfileConfig } from "../onboard-auth.js";
 import { isRemoteEnvironment } from "../oauth-env.js";
 import { openUrl } from "../onboard-helpers.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createVpsAwareOAuthHandlers } from "../oauth-flow.js";
 =======
 import { OPENAI_CODEX_DEFAULT_MODEL } from "../openai-codex-model-default.js";
 import { loginOpenAICodexOAuth } from "../openai-codex-oauth.js";
 >>>>>>> 86e4fe0a7 (Auth: land codex oauth onboarding flow (#15406))
+=======
+>>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
 import { updateConfig } from "./shared.js";
 import { resolvePluginProviders } from "../../plugins/providers.js";
 import { createClackPrompter } from "../../wizard/clack-prompter.js";
@@ -264,6 +267,28 @@ function resolveProviderMatch(
   );
 }
 
+export function resolveRequestedLoginProviderOrThrow(
+  providers: ProviderPlugin[],
+  rawProvider?: string,
+): ProviderPlugin | null {
+  const requested = rawProvider?.trim();
+  if (!requested) {
+    return null;
+  }
+  const matched = resolveProviderMatch(providers, requested);
+  if (matched) {
+    return matched;
+  }
+  const available = providers
+    .map((provider) => provider.id)
+    .filter(Boolean)
+    .toSorted((a, b) => a.localeCompare(b));
+  const availableText = available.length > 0 ? available.join(", ") : "(none)";
+  throw new Error(
+    `Unknown provider "${requested}". Loaded providers: ${availableText}. Verify plugins via \`${formatCliCommand("openclaw plugins list --json")}\`.`,
+  );
+}
+
 function pickAuthMethod(provider: ProviderPlugin, rawMethod?: string): ProviderAuthMethod | null {
   const raw = rawMethod?.trim();
   if (!raw) {
@@ -348,59 +373,6 @@ export async function modelsAuthLoginCommand(opts: LoginOptions, runtime: Runtim
   const workspaceDir =
     resolveAgentWorkspaceDir(config, defaultAgentId) ?? resolveDefaultAgentWorkspaceDir();
 
-  const prompter = createClackPrompter();
-  const requestedProvider = opts.provider ? normalizeProviderId(opts.provider) : null;
-  if (requestedProvider === "openai-codex") {
-    const method = opts.method?.trim().toLowerCase();
-    if (method && method !== "oauth") {
-      throw new Error('OpenAI Codex auth only supports --method "oauth".');
-    }
-
-    const creds = await loginOpenAICodexOAuth({
-      prompter,
-      runtime,
-      isRemote: isRemoteEnvironment(),
-      openUrl: async (url) => {
-        await openUrl(url);
-      },
-    });
-    if (!creds) {
-      return;
-    }
-
-    const profileId = "openai-codex:default";
-    upsertAuthProfile({
-      profileId,
-      credential: {
-        type: "oauth",
-        provider: "openai-codex",
-        ...creds,
-      },
-      agentDir,
-    });
-
-    await updateConfig((cfg) => {
-      let next = applyAuthProfileConfig(cfg, {
-        profileId,
-        provider: "openai-codex",
-        mode: "oauth",
-      });
-      if (opts.setDefault) {
-        next = applyDefaultModel(next, OPENAI_CODEX_DEFAULT_MODEL);
-      }
-      return next;
-    });
-
-    logConfigUpdated(runtime);
-    runtime.log(`Auth profile: ${profileId} (openai-codex/oauth)`);
-    runtime.log(
-      opts.setDefault
-        ? `Default model set to ${OPENAI_CODEX_DEFAULT_MODEL}`
-        : `Default model available: ${OPENAI_CODEX_DEFAULT_MODEL} (use --set-default to apply)`,
-    );
-    return;
-  }
-
   const providers = resolvePluginProviders({ config, workspaceDir });
   if (providers.length === 0) {
     throw new Error(
@@ -408,8 +380,10 @@ export async function modelsAuthLoginCommand(opts: LoginOptions, runtime: Runtim
     );
   }
 
+  const prompter = createClackPrompter();
+  const requestedProvider = resolveRequestedLoginProviderOrThrow(providers, opts.provider);
   const selectedProvider =
-    resolveProviderMatch(providers, opts.provider) ??
+    requestedProvider ??
     (await prompter
       .select({
         message: "Select a provider",
