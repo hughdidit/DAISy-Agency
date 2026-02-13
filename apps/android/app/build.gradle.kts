@@ -22,6 +22,7 @@ android {
     minSdk = 31
     targetSdk = 36
 <<<<<<< HEAD
+<<<<<<< HEAD
     versionCode = 202602030
 <<<<<<< HEAD
     versionName = "2026.2.6"
@@ -32,6 +33,10 @@ android {
     versionCode = 202602120
     versionName = "2026.2.12"
 >>>>>>> 7695b4842 (chore: bump version to 2026.2.12)
+=======
+    versionCode = 202602130
+    versionName = "2026.2.13"
+>>>>>>> 63bb1e02b (chore(release): bump version to 2026.2.13)
   }
 
   buildTypes {
