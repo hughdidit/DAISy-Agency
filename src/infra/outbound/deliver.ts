@@ -21,7 +21,14 @@ import {
   appendAssistantMessageToSessionTranscript,
   resolveMirroredTranscriptText,
 } from "../../config/sessions.js";
+<<<<<<< HEAD
 import type { NormalizedOutboundPayload } from "./payloads.js";
+=======
+import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
+import { sendMessageSignal } from "../../signal/send.js";
+import { throwIfAborted } from "./abort.js";
+>>>>>>> 2655041f6 (fix: wire 9 unwired plugin hooks to core code (openclaw#14882) thanks @shtse8)
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
 import type { OutboundChannel } from "./targets.js";
 
@@ -311,7 +318,36 @@ export async function deliverOutboundPayloads(params: {
       })),
     };
   };
+<<<<<<< HEAD
   const normalizedPayloads = normalizeReplyPayloadsForDelivery(payloads);
+=======
+  const normalizeWhatsAppPayload = (payload: ReplyPayload): ReplyPayload | null => {
+    const hasMedia = Boolean(payload.mediaUrl) || (payload.mediaUrls?.length ?? 0) > 0;
+    const rawText = typeof payload.text === "string" ? payload.text : "";
+    const normalizedText = rawText.replace(/^(?:[ \t]*\r?\n)+/, "");
+    if (!normalizedText.trim()) {
+      if (!hasMedia) {
+        return null;
+      }
+      return {
+        ...payload,
+        text: "",
+      };
+    }
+    return {
+      ...payload,
+      text: normalizedText,
+    };
+  };
+  const normalizedPayloads = normalizeReplyPayloadsForDelivery(payloads).flatMap((payload) => {
+    if (channel !== "whatsapp") {
+      return [payload];
+    }
+    const normalized = normalizeWhatsAppPayload(payload);
+    return normalized ? [normalized] : [];
+  });
+  const hookRunner = getGlobalHookRunner();
+>>>>>>> 2655041f6 (fix: wire 9 unwired plugin hooks to core code (openclaw#14882) thanks @shtse8)
   for (const payload of normalizedPayloads) {
     const payloadSummary: NormalizedOutboundPayload = {
       text: payload.text ?? "",
@@ -320,9 +356,37 @@ export async function deliverOutboundPayloads(params: {
     };
     try {
       throwIfAborted(abortSignal);
+
+      // Run message_sending plugin hook (may modify content or cancel)
+      let effectivePayload = payload;
+      if (hookRunner?.hasHooks("message_sending")) {
+        try {
+          const sendingResult = await hookRunner.runMessageSending(
+            {
+              to,
+              content: payloadSummary.text,
+              metadata: { channel, accountId, mediaUrls: payloadSummary.mediaUrls },
+            },
+            {
+              channelId: channel,
+              accountId: accountId ?? undefined,
+            },
+          );
+          if (sendingResult?.cancel) {
+            continue;
+          }
+          if (sendingResult?.content != null) {
+            effectivePayload = { ...payload, text: sendingResult.content };
+            payloadSummary.text = sendingResult.content;
+          }
+        } catch {
+          // Don't block delivery on hook failure
+        }
+      }
+
       params.onPayload?.(payloadSummary);
-      if (handler.sendPayload && payload.channelData) {
-        results.push(await handler.sendPayload(payload));
+      if (handler.sendPayload && effectivePayload.channelData) {
+        results.push(await handler.sendPayload(effectivePayload));
         continue;
       }
       if (payloadSummary.mediaUrls.length === 0) {
@@ -345,8 +409,47 @@ export async function deliverOutboundPayloads(params: {
           results.push(await handler.sendMedia(caption, url));
         }
       }
+      // Run message_sent plugin hook (fire-and-forget) on success
+      if (hookRunner?.hasHooks("message_sent")) {
+        void hookRunner
+          .runMessageSent(
+            {
+              to,
+              content: payloadSummary.text,
+              success: true,
+            },
+            {
+              channelId: channel,
+              accountId: accountId ?? undefined,
+            },
+          )
+          .catch(() => {});
+      }
     } catch (err) {
+<<<<<<< HEAD
       if (!params.bestEffort) throw err;
+=======
+      // Run message_sent plugin hook on failure (fire-and-forget)
+      if (hookRunner?.hasHooks("message_sent")) {
+        void hookRunner
+          .runMessageSent(
+            {
+              to,
+              content: payloadSummary.text,
+              success: false,
+              error: err instanceof Error ? err.message : String(err),
+            },
+            {
+              channelId: channel,
+              accountId: accountId ?? undefined,
+            },
+          )
+          .catch(() => {});
+      }
+      if (!params.bestEffort) {
+        throw err;
+      }
+>>>>>>> 2655041f6 (fix: wire 9 unwired plugin hooks to core code (openclaw#14882) thanks @shtse8)
       params.onError?.(err, payloadSummary);
     }
   }

@@ -25,6 +25,11 @@ import {
   type SessionScope,
   updateSessionStore,
 } from "../../config/sessions.js";
+<<<<<<< HEAD
+=======
+import { deliverSessionMaintenanceWarning } from "../../infra/session-maintenance-warning.js";
+import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+>>>>>>> 2655041f6 (fix: wire 9 unwired plugin hooks to core code (openclaw#14882) thanks @shtse8)
 import { normalizeMainKey } from "../../routing/session-key.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
 import type { MsgContext, TemplateContext } from "../templating.js";
@@ -354,6 +359,46 @@ export async function initSessionState(params: {
     SessionId: sessionId,
     IsNewSession: isNewSession ? "true" : "false",
   };
+
+  // Run session plugin hooks (fire-and-forget)
+  const hookRunner = getGlobalHookRunner();
+  if (hookRunner && isNewSession) {
+    const effectiveSessionId = sessionId ?? "";
+
+    // If replacing an existing session, fire session_end for the old one
+    if (previousSessionEntry?.sessionId && previousSessionEntry.sessionId !== effectiveSessionId) {
+      if (hookRunner.hasHooks("session_end")) {
+        void hookRunner
+          .runSessionEnd(
+            {
+              sessionId: previousSessionEntry.sessionId,
+              messageCount: 0,
+            },
+            {
+              sessionId: previousSessionEntry.sessionId,
+              agentId: resolveSessionAgentId({ sessionKey, config: cfg }),
+            },
+          )
+          .catch(() => {});
+      }
+    }
+
+    // Fire session_start for the new session
+    if (hookRunner.hasHooks("session_start")) {
+      void hookRunner
+        .runSessionStart(
+          {
+            sessionId: effectiveSessionId,
+            resumedFrom: previousSessionEntry?.sessionId,
+          },
+          {
+            sessionId: effectiveSessionId,
+            agentId: resolveSessionAgentId({ sessionKey, config: cfg }),
+          },
+        )
+        .catch(() => {});
+    }
+  }
 
   return {
     sessionCtx,
