@@ -10,6 +10,7 @@ import type { MoltbotConfig } from "../config/config.js";
 import {
   resolveMainSessionKey,
   resolveSessionFilePath,
+  resolveSessionFilePathOptions,
   type SessionEntry,
   type SessionScope,
 } from "../config/sessions.js";
@@ -18,7 +19,11 @@ import {
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 import { resolveCommitHash } from "../infra/git-commit.js";
 import { listPluginCommands } from "../plugins/commands.js";
+<<<<<<< HEAD
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
+=======
+import { resolveAgentIdFromSessionKey } from "../routing/session-key.js";
+>>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
 import {
   getTtsMaxLength,
   getTtsProvider,
@@ -65,6 +70,7 @@ type StatusArgs = {
   sessionEntry?: SessionEntry;
   sessionKey?: string;
   sessionScope?: SessionScope;
+  sessionStorePath?: string;
   groupActivation?: "mention" | "always";
   resolvedThink?: ThinkLevel;
   resolvedVerbose?: VerboseLevel;
@@ -171,6 +177,8 @@ const formatQueueDetails = (queue?: QueueStatus) => {
 const readUsageFromSessionLog = (
   sessionId?: string,
   sessionEntry?: SessionEntry,
+  sessionKey?: string,
+  storePath?: string,
 ):
   | {
       input: number;
@@ -188,8 +196,22 @@ const readUsageFromSessionLog = (
   if (!sessionId) {
     return undefined;
   }
+<<<<<<< HEAD
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   const logPath = resolveSessionFilePath(sessionId, sessionEntry);
+=======
+  let logPath: string;
+  try {
+    const agentId = sessionKey ? resolveAgentIdFromSessionKey(sessionKey) : undefined;
+    logPath = resolveSessionFilePath(
+      sessionId,
+      sessionEntry,
+      resolveSessionFilePathOptions({ agentId, storePath }),
+    );
+  } catch {
+    return undefined;
+  }
+>>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
   if (!fs.existsSync(logPath)) {
     return undefined;
   }
@@ -344,7 +366,12 @@ export function buildStatusMessage(args: StatusArgs): string {
   // Prefer prompt-size tokens from the session transcript when it looks larger
   // (cached prompt tokens are often missing from agent meta/store).
   if (args.includeTranscriptUsage) {
-    const logUsage = readUsageFromSessionLog(entry?.sessionId, entry);
+    const logUsage = readUsageFromSessionLog(
+      entry?.sessionId,
+      entry,
+      args.sessionKey,
+      args.sessionStorePath,
+    );
     if (logUsage) {
       const candidate = logUsage.promptTokens || logUsage.total;
       if (!totalTokens || totalTokens === 0 || candidate > totalTokens) {

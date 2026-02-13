@@ -4,8 +4,12 @@ import {
   isEmbeddedPiRunActive,
   waitForEmbeddedPiRunEnd,
 } from "../../agents/pi-embedded.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveSessionFilePath } from "../../config/sessions.js";
+=======
+import { resolveSessionFilePath, resolveSessionFilePathOptions } from "../../config/sessions.js";
+>>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
 import { logVerbose } from "../../globals.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { formatContextUsageShort, formatTokenCount } from "../status.js";
@@ -79,7 +83,14 @@ export const handleCompactCommand: CommandHandler = async (params) => {
     groupChannel: params.sessionEntry.groupChannel,
     groupSpace: params.sessionEntry.space,
     spawnedBy: params.sessionEntry.spawnedBy,
-    sessionFile: resolveSessionFilePath(sessionId, params.sessionEntry),
+    sessionFile: resolveSessionFilePath(
+      sessionId,
+      params.sessionEntry,
+      resolveSessionFilePathOptions({
+        agentId: params.agentId,
+        storePath: params.storePath,
+      }),
+    ),
     workspaceDir: params.workspaceDir,
     config: params.cfg,
     skillsSnapshot: params.sessionEntry.skillsSnapshot,

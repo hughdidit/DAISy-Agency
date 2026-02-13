@@ -19,7 +19,10 @@ import type {
 } from "../../infra/session-cost-usage.js";
 import type { GatewayRequestHandlers } from "./types.js";
 import { loadConfig } from "../../config/config.js";
-import { resolveSessionFilePath } from "../../config/sessions/paths.js";
+import {
+  resolveSessionFilePath,
+  resolveSessionFilePathOptions,
+} from "../../config/sessions/paths.js";
 import { loadProviderUsageSummary } from "../../infra/provider-usage.js";
 import {
   loadCostUsageSummary,
@@ -343,9 +346,27 @@ export const usageHandlers: GatewayRequestHandlers = {
       const sessionId = storeEntry?.sessionId ?? keyRest;
 
       // Resolve the session file path
+<<<<<<< HEAD
       const sessionFile = resolveSessionFilePath(sessionId, storeEntry, {
         agentId: agentIdFromKey,
       });
+=======
+      let sessionFile: string;
+      try {
+        const pathOpts = resolveSessionFilePathOptions({
+          storePath: storePath !== "(multiple)" ? storePath : undefined,
+          agentId: agentIdFromKey,
+        });
+        sessionFile = resolveSessionFilePath(sessionId, storeEntry, pathOpts);
+      } catch {
+        respond(
+          false,
+          undefined,
+          errorShape(ErrorCodes.INVALID_REQUEST, `Invalid session reference: ${specificKey}`),
+        );
+        return;
+      }
+>>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
 
       try {
         const stats = fs.statSync(sessionFile);
@@ -775,8 +796,23 @@ export const usageHandlers: GatewayRequestHandlers = {
     const agentId = parsed?.agentId;
     const rawSessionId = parsed?.rest ?? key;
     const sessionId = entry?.sessionId ?? rawSessionId;
+<<<<<<< HEAD
     const sessionFile =
       entry?.sessionFile ?? resolveSessionFilePath(rawSessionId, entry, { agentId });
+=======
+    let sessionFile: string;
+    try {
+      const pathOpts = resolveSessionFilePathOptions({ storePath, agentId });
+      sessionFile = resolveSessionFilePath(sessionId, entry, pathOpts);
+    } catch {
+      respond(
+        false,
+        undefined,
+        errorShape(ErrorCodes.INVALID_REQUEST, `Invalid session key: ${key}`),
+      );
+      return;
+    }
+>>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
 
     const timeseries = await loadSessionUsageTimeSeries({
       sessionId,
@@ -817,8 +853,23 @@ export const usageHandlers: GatewayRequestHandlers = {
     const agentId = parsed?.agentId;
     const rawSessionId = parsed?.rest ?? key;
     const sessionId = entry?.sessionId ?? rawSessionId;
+<<<<<<< HEAD
     const sessionFile =
       entry?.sessionFile ?? resolveSessionFilePath(rawSessionId, entry, { agentId });
+=======
+    let sessionFile: string;
+    try {
+      const pathOpts = resolveSessionFilePathOptions({ storePath, agentId });
+      sessionFile = resolveSessionFilePath(sessionId, entry, pathOpts);
+    } catch {
+      respond(
+        false,
+        undefined,
+        errorShape(ErrorCodes.INVALID_REQUEST, `Invalid session key: ${key}`),
+      );
+      return;
+    }
+>>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
 
     const { loadSessionLogs } = await import("../../infra/session-cost-usage.js");
     const logs = await loadSessionLogs({
