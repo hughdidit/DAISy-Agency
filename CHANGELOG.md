@@ -29,8 +29,13 @@ Docs: https://docs.openclaw.ai
 - CLI: add `openclaw logs --local-time` to display log timestamps in local timezone. (#13818) Thanks @xialonglee.
 >>>>>>> 57d0f65e7 (CLI: add plugins uninstall command (#5985) (openclaw#6141) thanks @JustasMonkev)
 - Telegram: render blockquotes as native `<blockquote>` tags instead of stripping them. (#14608)
+<<<<<<< HEAD
 - Version alignment: bump manifests and package versions to `2026.2.10`; keep `appcast.xml` unchanged until the next macOS release cut.
 - CLI: add `openclaw logs --local-time` to display log timestamps in local timezone. (#13818) Thanks @xialonglee.
+=======
+- Telegram: expose `/compact` in the native command menu. (#10352) Thanks @akramcodez.
+- Discord: add role-based allowlists and role-based agent routing. (#10650) Thanks @Minidoracat.
+>>>>>>> 7cbf607a8 (feat: expose /compact command in Telegram native menu (openclaw#10352) thanks @akramcodez)
 - Config: avoid redacting `maxTokens`-like fields during config snapshot redaction, preventing round-trip validation failures in `/config`. (#14006) Thanks @constansino.
 
 <<<<<<< HEAD
