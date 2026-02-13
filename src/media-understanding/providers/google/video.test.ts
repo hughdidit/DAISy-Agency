@@ -19,26 +19,38 @@ const resolveRequestUrl = (input: RequestInfo | URL) => {
   return input.url;
 };
 
+function stubPinnedHostname(hostname: string) {
+  const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
+  const addresses = [TEST_NET_IP];
+  return {
+    hostname: normalized,
+    addresses,
+    lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
+  };
+}
+
 describe("describeGeminiVideo", () => {
+<<<<<<< HEAD
   let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> | undefined;
+=======
+  let resolvePinnedHostnameWithPolicySpy: ReturnType<typeof vi.spyOn>;
+  let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn>;
+>>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 
   beforeEach(() => {
-    resolvePinnedHostnameSpy = vi
+    // Stub both entry points so fetch-guard never does live DNS (CI can use either path).
+    resolvePinnedHostnameWithPolicySpy = vi
       .spyOn(ssrf, "resolvePinnedHostnameWithPolicy")
-      .mockImplementation(async (hostname) => {
-        // SSRF guard pins DNS; stub resolution to avoid live lookups in unit tests.
-        const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
-        const addresses = [TEST_NET_IP];
-        return {
-          hostname: normalized,
-          addresses,
-          lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
-        };
-      });
+      .mockImplementation(async (hostname) => stubPinnedHostname(hostname));
+    resolvePinnedHostnameSpy = vi
+      .spyOn(ssrf, "resolvePinnedHostname")
+      .mockImplementation(async (hostname) => stubPinnedHostname(hostname));
   });
 
   afterEach(() => {
+    resolvePinnedHostnameWithPolicySpy?.mockRestore();
     resolvePinnedHostnameSpy?.mockRestore();
+    resolvePinnedHostnameWithPolicySpy = undefined;
     resolvePinnedHostnameSpy = undefined;
   });
 

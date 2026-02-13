@@ -6,6 +6,13 @@ export { VENICE_DEFAULT_MODEL_ID, VENICE_DEFAULT_MODEL_REF } from "../agents/ven
 export {
   applyAuthProfileConfig,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  applyCloudflareAiGatewayConfig,
+  applyCloudflareAiGatewayProviderConfig,
+  applyHuggingfaceConfig,
+  applyHuggingfaceProviderConfig,
+>>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
   applyQianfanConfig,
   applyQianfanProviderConfig,
 =======
@@ -68,12 +75,14 @@ export {
   setOpenrouterApiKey,
   setSyntheticApiKey,
   setTogetherApiKey,
+  setHuggingfaceApiKey,
   setVeniceApiKey,
   setVercelAiGatewayApiKey,
   setXiaomiApiKey,
   setZaiApiKey,
   setXaiApiKey,
   writeOAuthCredentials,
+  HUGGINGFACE_DEFAULT_MODEL_REF,
   VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF,
   XIAOMI_DEFAULT_MODEL_REF,
   ZAI_DEFAULT_MODEL_REF,

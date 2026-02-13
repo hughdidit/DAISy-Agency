@@ -67,6 +67,7 @@ export function registerOnboardCommand(program: Command) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "Auth: setup-token|token|chutes|openai-codex|openai-api-key|openrouter-api-key|ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip",
 =======
       "Auth: setup-token|token|chutes|openai-codex|openai-api-key|openrouter-api-key|ai-gateway-api-key|moonshot-api-key|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|qianfan-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip",
@@ -95,6 +96,10 @@ export function registerOnboardCommand(program: Command) {
 =======
       "Auth: setup-token|token|chutes|vllm|openai-codex|openai-api-key|xai-api-key|qianfan-api-key|openrouter-api-key|litellm-api-key|ai-gateway-api-key|cloudflare-ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|zai-coding-global|zai-coding-cn|zai-global|zai-cn|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|custom-api-key|skip|together-api-key",
 >>>>>>> e73d881c5 (Onboarding: add vLLM provider support)
+=======
+      "Auth: setup-token|token|chutes|openai-codex|openai-api-key|xai-api-key|qianfan-api-key|openrouter-api-key|litellm-api-key|ai-gateway-api-key|cloudflare-ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|zai-coding-global|zai-coding-cn|zai-global|zai-cn|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|custom-api-key|skip|together-api-key|huggingface-api-key",
+      "Auth: setup-token|token|chutes|vllm|openai-codex|openai-api-key|xai-api-key|qianfan-api-key|openrouter-api-key|litellm-api-key|ai-gateway-api-key|cloudflare-ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|zai-coding-global|zai-coding-cn|zai-global|zai-cn|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|custom-api-key|skip|together-api-key|huggingface-api-key",
+>>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
     )
     .option(
       "--token-provider <id>",
@@ -123,6 +128,7 @@ export function registerOnboardCommand(program: Command) {
     .option("--synthetic-api-key <key>", "Synthetic API key")
     .option("--venice-api-key <key>", "Venice API key")
     .option("--together-api-key <key>", "Together AI API key")
+    .option("--huggingface-api-key <key>", "Hugging Face API key (HF token)")
     .option("--opencode-zen-api-key <key>", "OpenCode Zen API key")
     .option("--xai-api-key <key>", "xAI API key")
 <<<<<<< HEAD
@@ -196,6 +202,7 @@ export function registerOnboardCommand(program: Command) {
             syntheticApiKey: opts.syntheticApiKey as string | undefined,
             veniceApiKey: opts.veniceApiKey as string | undefined,
             togetherApiKey: opts.togetherApiKey as string | undefined,
+            huggingfaceApiKey: opts.huggingfaceApiKey as string | undefined,
             opencodeZenApiKey: opts.opencodeZenApiKey as string | undefined,
             xaiApiKey: opts.xaiApiKey as string | undefined,
             litellmApiKey: opts.litellmApiKey as string | undefined,

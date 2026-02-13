@@ -120,10 +120,14 @@ export const XIAOMI_DEFAULT_MODEL_REF = "xiaomi/mimo-v2-flash";
 export const OPENROUTER_DEFAULT_MODEL_REF = "openrouter/auto";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 export const VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF = "vercel-ai-gateway/anthropic/claude-opus-4.5";
 =======
 export const TOGETHER_DEFAULT_MODEL_REF = "together/zai-org/GLM-4.7";
 =======
+=======
+export const HUGGINGFACE_DEFAULT_MODEL_REF = "huggingface/deepseek-ai/DeepSeek-R1";
+>>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 export const TOGETHER_DEFAULT_MODEL_REF = "together/moonshotai/Kimi-K2.5";
 <<<<<<< HEAD
 >>>>>>> be6de9bb7 (Update Together default model to together/moonshotai/Kimi-K2.5 (#13324))
@@ -159,12 +163,14 @@ export async function setXiaomiApiKey(key: string, agentDir?: string) {
 }
 
 export async function setOpenrouterApiKey(key: string, agentDir?: string) {
+  // Never persist the literal "undefined" (e.g. when prompt returns undefined and caller used String(key)).
+  const safeKey = key === "undefined" ? "" : key;
   upsertAuthProfile({
     profileId: "openrouter:default",
     credential: {
       type: "api_key",
       provider: "openrouter",
-      key,
+      key: safeKey,
     },
     agentDir: resolveAuthAgentDir(agentDir),
   });
@@ -246,7 +252,22 @@ export async function setTogetherApiKey(key: string, agentDir?: string) {
   });
 }
 
+<<<<<<< HEAD
 >>>>>>> 661279cbf (feat: adding support for Together ai provider (#10304))
+=======
+export async function setHuggingfaceApiKey(key: string, agentDir?: string) {
+  upsertAuthProfile({
+    profileId: "huggingface:default",
+    credential: {
+      type: "api_key",
+      provider: "huggingface",
+      key,
+    },
+    agentDir: resolveAuthAgentDir(agentDir),
+  });
+}
+
+>>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 export function setQianfanApiKey(key: string, agentDir?: string) {
   upsertAuthProfile({
     profileId: "qianfan:default",
