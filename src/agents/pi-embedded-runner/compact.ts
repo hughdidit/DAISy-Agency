@@ -75,7 +75,11 @@ import { splitSdkTools } from "./tool-split.js";
 import type { EmbeddedPiCompactResult } from "./types.js";
 import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
 import { describeUnknownError, mapThinkingLevel, resolveExecToolDefaults } from "./utils.js";
+<<<<<<< HEAD
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
+=======
+import { flushPendingToolResultsAfterIdle } from "./wait-for-idle-before-flush.js";
+>>>>>>> d3b2135f8 (fix(agents): wait for agent idle before flushing pending tool results (#13746))
 
 export type CompactEmbeddedPiSessionParams = {
   sessionId: string;
@@ -493,7 +497,10 @@ export async function compactEmbeddedPiSessionDirect(
           },
         };
       } finally {
-        sessionManager.flushPendingToolResults?.();
+        await flushPendingToolResultsAfterIdle({
+          agent: session?.agent,
+          sessionManager,
+        });
         session.dispose();
       }
     } finally {
