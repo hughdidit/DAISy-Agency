@@ -6,6 +6,8 @@ import {
   normalizeApiKeyInput,
   validateApiKeyInput,
 } from "./auth-choice.api-key.js";
+import { applyAuthChoiceHuggingface } from "./auth-choice.apply.huggingface.js";
+import { applyAuthChoiceOpenRouter } from "./auth-choice.apply.openrouter.js";
 import { applyDefaultModelChoice } from "./auth-choice.default-model.js";
 import {
   applyGoogleGeminiModelDefault,
@@ -27,8 +29,6 @@ import {
   applyMoonshotProviderConfigCn,
   applyOpencodeZenConfig,
   applyOpencodeZenProviderConfig,
-  applyOpenrouterConfig,
-  applyOpenrouterProviderConfig,
   applySyntheticConfig,
   applySyntheticProviderConfig,
   applyTogetherConfig,
@@ -46,7 +46,6 @@ import {
   QIANFAN_DEFAULT_MODEL_REF,
   KIMI_CODING_MODEL_REF,
   MOONSHOT_DEFAULT_MODEL_REF,
-  OPENROUTER_DEFAULT_MODEL_REF,
   SYNTHETIC_DEFAULT_MODEL_REF,
   TOGETHER_DEFAULT_MODEL_REF,
   VENICE_DEFAULT_MODEL_REF,
@@ -59,7 +58,6 @@ import {
   setKimiCodingApiKey,
   setMoonshotApiKey,
   setOpencodeZenApiKey,
-  setOpenrouterApiKey,
   setSyntheticApiKey,
   setTogetherApiKey,
   setVeniceApiKey,
@@ -120,6 +118,8 @@ export async function applyAuthChoiceApiProviders(
       authChoice = "venice-api-key";
     } else if (params.opts.tokenProvider === "together") {
       authChoice = "together-api-key";
+    } else if (params.opts.tokenProvider === "huggingface") {
+      authChoice = "huggingface-api-key";
     } else if (params.opts.tokenProvider === "opencode") {
       authChoice = "opencode-zen";
     } else if (params.opts.tokenProvider === "qianfan") {
@@ -128,6 +128,7 @@ export async function applyAuthChoiceApiProviders(
   }
 
   if (authChoice === "openrouter-api-key") {
+<<<<<<< HEAD
     const store = ensureAuthProfileStore(params.agentDir, {
       allowKeychainPrompt: false,
     });
@@ -203,6 +204,9 @@ export async function applyAuthChoiceApiProviders(
       agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
     }
     return { config: nextConfig, agentModelOverride };
+=======
+    return applyAuthChoiceOpenRouter(params);
+>>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
   }
 
   if (authChoice === "litellm-api-key") {
@@ -991,6 +995,10 @@ export async function applyAuthChoiceApiProviders(
       agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
     }
     return { config: nextConfig, agentModelOverride };
+  }
+
+  if (authChoice === "huggingface-api-key") {
+    return applyAuthChoiceHuggingface({ ...params, authChoice });
   }
 
   if (authChoice === "qianfan-api-key") {
