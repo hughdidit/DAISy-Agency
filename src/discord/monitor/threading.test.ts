@@ -83,6 +83,88 @@ describe("resolveDiscordReplyDeliveryPlan", () => {
       createdThreadId: null,
     });
     expect(plan.replyReference.use()).toBe("m1");
+<<<<<<< HEAD
+=======
+    expect(plan.replyReference.use()).toBe("m1");
+  });
+
+  it("uses existingId only on first call with replyToMode first inside a thread", () => {
+    const plan = resolveDiscordReplyDeliveryPlan({
+      replyTarget: "channel:thread",
+      replyToMode: "first",
+      messageId: "m1",
+      threadChannel: { id: "thread" },
+      createdThreadId: null,
+    });
+    // "first" returns the reference only once.
+    expect(plan.replyReference.use()).toBe("m1");
+    expect(plan.replyReference.use()).toBeUndefined();
+  });
+});
+
+describe("maybeCreateDiscordAutoThread", () => {
+  it("returns existing thread ID when creation fails due to race condition", async () => {
+    // First call succeeds (simulating another agent creating the thread)
+    const client = {
+      rest: {
+        post: async () => {
+          throw new Error("A thread has already been created on this message");
+        },
+        get: async () => {
+          // Return message with existing thread (simulating race condition resolution)
+          return { thread: { id: "existing-thread" } };
+        },
+      },
+    } as unknown as Client;
+
+    const result = await maybeCreateDiscordAutoThread({
+      client,
+      message: {
+        id: "m1",
+        channelId: "parent",
+      } as unknown as import("./listeners.js").DiscordMessageEvent["message"],
+      isGuildMessage: true,
+      channelConfig: {
+        autoThread: true,
+      } as unknown as import("./allow-list.js").DiscordChannelConfigResolved,
+      threadChannel: null,
+      baseText: "hello",
+      combinedBody: "hello",
+    });
+
+    expect(result).toBe("existing-thread");
+  });
+
+  it("returns undefined when creation fails and no existing thread found", async () => {
+    const client = {
+      rest: {
+        post: async () => {
+          throw new Error("Some other error");
+        },
+        get: async () => {
+          // Message has no thread
+          return { thread: null };
+        },
+      },
+    } as unknown as Client;
+
+    const result = await maybeCreateDiscordAutoThread({
+      client,
+      message: {
+        id: "m1",
+        channelId: "parent",
+      } as unknown as import("./listeners.js").DiscordMessageEvent["message"],
+      isGuildMessage: true,
+      channelConfig: {
+        autoThread: true,
+      } as unknown as import("./allow-list.js").DiscordChannelConfigResolved,
+      threadChannel: null,
+      baseText: "hello",
+      combinedBody: "hello",
+    });
+
+    expect(result).toBeUndefined();
+>>>>>>> 7f0489e47 (Security/Browser: constrain trace and download output paths to OpenClaw temp roots (#15652))
   });
 });
 
