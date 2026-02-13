@@ -154,6 +154,9 @@ vi.mock("./screenshot.js", () => ({
   })),
 }));
 
+const { startBrowserControlServerFromConfig, stopBrowserControlServer } =
+  await import("./server.js");
+
 async function getFreePort(): Promise<number> {
   while (true) {
     const port = await new Promise<number>((resolve, reject) => {
@@ -271,12 +274,10 @@ describe("browser control server", () => {
     } else {
       process.env.CLAWDBOT_GATEWAY_PORT = prevGatewayPort;
     }
-    const { stopBrowserControlServer } = await import("./server.js");
     await stopBrowserControlServer();
   });
 
   it("POST /tabs/open?profile=unknown returns 404", async () => {
-    const { startBrowserControlServerFromConfig } = await import("./server.js");
     await startBrowserControlServerFromConfig();
     const base = `http://127.0.0.1:${testPort}`;
 
@@ -308,9 +309,12 @@ describe("profile CRUD endpoints", () => {
     prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
     process.env.CLAWDBOT_GATEWAY_PORT = String(testPort - 2);
 
+<<<<<<< HEAD
     prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
     process.env.CLAWDBOT_GATEWAY_PORT = String(testPort - 2);
 
+=======
+>>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
     vi.stubGlobal(
       "fetch",
       vi.fn(async (url: string) => {
@@ -331,12 +335,10 @@ describe("profile CRUD endpoints", () => {
     } else {
       process.env.CLAWDBOT_GATEWAY_PORT = prevGatewayPort;
     }
-    const { stopBrowserControlServer } = await import("./server.js");
     await stopBrowserControlServer();
   });
 
   it("POST /profiles/create returns 400 for missing name", async () => {
-    const { startBrowserControlServerFromConfig } = await import("./server.js");
     await startBrowserControlServerFromConfig();
     const base = `http://127.0.0.1:${testPort}`;
 
@@ -351,7 +353,6 @@ describe("profile CRUD endpoints", () => {
   });
 
   it("POST /profiles/create returns 400 for invalid name format", async () => {
-    const { startBrowserControlServerFromConfig } = await import("./server.js");
     await startBrowserControlServerFromConfig();
     const base = `http://127.0.0.1:${testPort}`;
 
@@ -366,7 +367,6 @@ describe("profile CRUD endpoints", () => {
   });
 
   it("POST /profiles/create returns 409 for duplicate name", async () => {
-    const { startBrowserControlServerFromConfig } = await import("./server.js");
     await startBrowserControlServerFromConfig();
     const base = `http://127.0.0.1:${testPort}`;
 
@@ -382,7 +382,6 @@ describe("profile CRUD endpoints", () => {
   });
 
   it("POST /profiles/create accepts cdpUrl for remote profiles", async () => {
-    const { startBrowserControlServerFromConfig } = await import("./server.js");
     await startBrowserControlServerFromConfig();
     const base = `http://127.0.0.1:${testPort}`;
 
@@ -403,7 +402,6 @@ describe("profile CRUD endpoints", () => {
   });
 
   it("POST /profiles/create returns 400 for invalid cdpUrl", async () => {
-    const { startBrowserControlServerFromConfig } = await import("./server.js");
     await startBrowserControlServerFromConfig();
     const base = `http://127.0.0.1:${testPort}`;
 
@@ -418,7 +416,6 @@ describe("profile CRUD endpoints", () => {
   });
 
   it("DELETE /profiles/:name returns 404 for non-existent profile", async () => {
-    const { startBrowserControlServerFromConfig } = await import("./server.js");
     await startBrowserControlServerFromConfig();
     const base = `http://127.0.0.1:${testPort}`;
 
@@ -431,7 +428,6 @@ describe("profile CRUD endpoints", () => {
   });
 
   it("DELETE /profiles/:name returns 400 for default profile deletion", async () => {
-    const { startBrowserControlServerFromConfig } = await import("./server.js");
     await startBrowserControlServerFromConfig();
     const base = `http://127.0.0.1:${testPort}`;
 
@@ -445,7 +441,6 @@ describe("profile CRUD endpoints", () => {
   });
 
   it("DELETE /profiles/:name returns 400 for invalid name format", async () => {
-    const { startBrowserControlServerFromConfig } = await import("./server.js");
     await startBrowserControlServerFromConfig();
     const base = `http://127.0.0.1:${testPort}`;
 

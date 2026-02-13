@@ -3,19 +3,29 @@ import os from "node:os";
 import path from "node:path";
 
 import sharp from "sharp";
+<<<<<<< HEAD
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+=======
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import * as ssrf from "../infra/net/ssrf.js";
+>>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 import { optimizeImageToPng } from "../media/image-ops.js";
 import { loadWebMedia, optimizeImageToJpeg } from "./media.js";
 
-const tmpFiles: string[] = [];
+let fixtureRoot = "";
+let fixtureFileCount = 0;
 
 async function writeTempFile(buffer: Buffer, ext: string): Promise<string> {
+<<<<<<< HEAD
   const file = path.join(
     os.tmpdir(),
     `moltbot-media-${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`,
   );
   tmpFiles.push(file);
+=======
+  const file = path.join(fixtureRoot, `media-${fixtureFileCount++}${ext}`);
+>>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
   await fs.writeFile(file, buffer);
   return file;
 }
@@ -30,9 +40,38 @@ function buildDeterministicBytes(length: number): Buffer {
   return buffer;
 }
 
+<<<<<<< HEAD
 afterEach(async () => {
   await Promise.all(tmpFiles.map((file) => fs.rm(file, { force: true })));
   tmpFiles.length = 0;
+=======
+async function createLargeTestJpeg(): Promise<{ buffer: Buffer; file: string }> {
+  const buffer = await sharp({
+    create: {
+      width: 1600,
+      height: 1600,
+      channels: 3,
+      background: "#ff0000",
+    },
+  })
+    .jpeg({ quality: 95 })
+    .toBuffer();
+
+  const file = await writeTempFile(buffer, ".jpg");
+  return { buffer, file };
+}
+
+beforeAll(async () => {
+  fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-test-"));
+});
+
+afterAll(async () => {
+  await fs.rm(fixtureRoot, { recursive: true, force: true });
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+>>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 });
 
 describe("web media loading", () => {

@@ -4,28 +4,33 @@ import os from "node:os";
 import path from "node:path";
 import JSZip from "jszip";
 import * as tar from "tar";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 
-const tempDirs: string[] = [];
+const fixtureRoot = path.join(os.tmpdir(), `openclaw-hook-install-${randomUUID()}`);
+let tempDirIndex = 0;
 
 vi.mock("../process/exec.js", () => ({
   runCommandWithTimeout: vi.fn(),
 }));
 
 function makeTempDir() {
+<<<<<<< HEAD
   const dir = path.join(os.tmpdir(), `moltbot-hook-install-${randomUUID()}`);
+=======
+  const dir = path.join(fixtureRoot, `case-${tempDirIndex++}`);
+>>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
   fs.mkdirSync(dir, { recursive: true });
-  tempDirs.push(dir);
   return dir;
 }
 
-afterEach(() => {
-  for (const dir of tempDirs.splice(0)) {
-    try {
-      fs.rmSync(dir, { recursive: true, force: true });
-    } catch {
-      // ignore cleanup failures
-    }
+const { runCommandWithTimeout } = await import("../process/exec.js");
+const { installHooksFromArchive, installHooksFromPath } = await import("./install.js");
+
+afterAll(() => {
+  try {
+    fs.rmSync(fixtureRoot, { recursive: true, force: true });
+  } catch {
+    // ignore cleanup failures
   }
 });
 
@@ -61,7 +66,6 @@ describe("installHooksFromArchive", () => {
     fs.writeFileSync(archivePath, buffer);
 
     const hooksDir = path.join(stateDir, "hooks");
-    const { installHooksFromArchive } = await import("./install.js");
     const result = await installHooksFromArchive({ archivePath, hooksDir });
 
     expect(result.ok).toBe(true);
@@ -111,7 +115,6 @@ describe("installHooksFromArchive", () => {
     await tar.c({ cwd: workDir, file: archivePath }, ["package"]);
 
     const hooksDir = path.join(stateDir, "hooks");
-    const { installHooksFromArchive } = await import("./install.js");
     const result = await installHooksFromArchive({ archivePath, hooksDir });
 
     expect(result.ok).toBe(true);
@@ -122,6 +125,101 @@ describe("installHooksFromArchive", () => {
     expect(result.hooks).toContain("tar-hook");
     expect(result.targetDir).toBe(path.join(stateDir, "hooks", "tar-hooks"));
   });
+<<<<<<< HEAD
+=======
+
+  it("rejects hook packs with traversal-like ids", async () => {
+    const stateDir = makeTempDir();
+    const workDir = makeTempDir();
+    const archivePath = path.join(workDir, "hooks.tar");
+    const pkgDir = path.join(workDir, "package");
+
+    fs.mkdirSync(path.join(pkgDir, "hooks", "evil-hook"), { recursive: true });
+    fs.writeFileSync(
+      path.join(pkgDir, "package.json"),
+      JSON.stringify({
+        name: "@evil/..",
+        version: "0.0.1",
+        openclaw: { hooks: ["./hooks/evil-hook"] },
+      }),
+      "utf-8",
+    );
+    fs.writeFileSync(
+      path.join(pkgDir, "hooks", "evil-hook", "HOOK.md"),
+      [
+        "---",
+        "name: evil-hook",
+        "description: Evil hook",
+        'metadata: {"openclaw":{"events":["command:new"]}}',
+        "---",
+        "",
+        "# Evil Hook",
+      ].join("\n"),
+      "utf-8",
+    );
+    fs.writeFileSync(
+      path.join(pkgDir, "hooks", "evil-hook", "handler.ts"),
+      "export default async () => {};\n",
+      "utf-8",
+    );
+    await tar.c({ cwd: workDir, file: archivePath }, ["package"]);
+
+    const hooksDir = path.join(stateDir, "hooks");
+    const result = await installHooksFromArchive({ archivePath, hooksDir });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+    expect(result.error).toContain("reserved path segment");
+  });
+
+  it("rejects hook packs with reserved ids", async () => {
+    const stateDir = makeTempDir();
+    const workDir = makeTempDir();
+    const archivePath = path.join(workDir, "hooks.tar");
+    const pkgDir = path.join(workDir, "package");
+
+    fs.mkdirSync(path.join(pkgDir, "hooks", "reserved-hook"), { recursive: true });
+    fs.writeFileSync(
+      path.join(pkgDir, "package.json"),
+      JSON.stringify({
+        name: "@evil/.",
+        version: "0.0.1",
+        openclaw: { hooks: ["./hooks/reserved-hook"] },
+      }),
+      "utf-8",
+    );
+    fs.writeFileSync(
+      path.join(pkgDir, "hooks", "reserved-hook", "HOOK.md"),
+      [
+        "---",
+        "name: reserved-hook",
+        "description: Reserved hook",
+        'metadata: {"openclaw":{"events":["command:new"]}}',
+        "---",
+        "",
+        "# Reserved Hook",
+      ].join("\n"),
+      "utf-8",
+    );
+    fs.writeFileSync(
+      path.join(pkgDir, "hooks", "reserved-hook", "handler.ts"),
+      "export default async () => {};\n",
+      "utf-8",
+    );
+    await tar.c({ cwd: workDir, file: archivePath }, ["package"]);
+
+    const hooksDir = path.join(stateDir, "hooks");
+    const result = await installHooksFromArchive({ archivePath, hooksDir });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+    expect(result.error).toContain("reserved path segment");
+  });
+>>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 });
 
 describe("installHooksFromPath", () => {
@@ -159,11 +257,9 @@ describe("installHooksFromPath", () => {
       "utf-8",
     );
 
-    const { runCommandWithTimeout } = await import("../process/exec.js");
     const run = vi.mocked(runCommandWithTimeout);
     run.mockResolvedValue({ code: 0, stdout: "", stderr: "" });
 
-    const { installHooksFromPath } = await import("./install.js");
     const res = await installHooksFromPath({
       path: pkgDir,
       hooksDir: path.join(stateDir, "hooks"),
@@ -207,7 +303,6 @@ describe("installHooksFromPath", () => {
     fs.writeFileSync(path.join(hookDir, "handler.ts"), "export default async () => {};\n");
 
     const hooksDir = path.join(stateDir, "hooks");
-    const { installHooksFromPath } = await import("./install.js");
     const result = await installHooksFromPath({ path: hookDir, hooksDir });
 
     expect(result.ok).toBe(true);

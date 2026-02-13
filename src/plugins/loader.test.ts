@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { afterEach, describe, expect, it } from "vitest";
 
 import { loadMoltbotPlugins } from "./loader.js";
@@ -14,8 +15,21 @@ const EMPTY_PLUGIN_SCHEMA = { type: "object", additionalProperties: false, prope
 
 function makeTempDir() {
   const dir = path.join(os.tmpdir(), `moltbot-plugin-${randomUUID()}`);
+=======
+import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { loadOpenClawPlugins } from "./loader.js";
+
+type TempPlugin = { dir: string; file: string; id: string };
+
+const fixtureRoot = path.join(os.tmpdir(), `openclaw-plugin-${randomUUID()}`);
+let tempDirIndex = 0;
+const prevBundledDir = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+const EMPTY_PLUGIN_SCHEMA = { type: "object", additionalProperties: false, properties: {} };
+
+function makeTempDir() {
+  const dir = path.join(fixtureRoot, `case-${tempDirIndex++}`);
+>>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
   fs.mkdirSync(dir, { recursive: true });
-  tempDirs.push(dir);
   return dir;
 }
 
@@ -45,13 +59,6 @@ function writePlugin(params: {
 }
 
 afterEach(() => {
-  for (const dir of tempDirs.splice(0)) {
-    try {
-      fs.rmSync(dir, { recursive: true, force: true });
-    } catch {
-      // ignore cleanup failures
-    }
-  }
   if (prevBundledDir === undefined) {
     delete process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR;
   } else {
@@ -59,7 +66,19 @@ afterEach(() => {
   }
 });
 
+<<<<<<< HEAD
 describe("loadMoltbotPlugins", () => {
+=======
+afterAll(() => {
+  try {
+    fs.rmSync(fixtureRoot, { recursive: true, force: true });
+  } catch {
+    // ignore cleanup failures
+  }
+});
+
+describe("loadOpenClawPlugins", () => {
+>>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
   it("disables bundled plugins by default", () => {
     const bundledDir = makeTempDir();
     writePlugin({

@@ -53,6 +53,17 @@ function canConnect(port: number): Promise<boolean> {
   });
 }
 
+async function waitForPortClosed(port: number, timeoutMs = 1_000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() <= deadline) {
+    if (!(await canConnect(port))) {
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  throw new Error("timeout waiting for port to close");
+}
+
 describe("attachChildProcessBridge", () => {
   const children: Array<{ kill: (signal?: NodeJS.Signals) => boolean }> = [];
   const detachments: Array<() => void> = [];
@@ -113,7 +124,7 @@ describe("attachChildProcessBridge", () => {
       });
     });
 
-    await new Promise((r) => setTimeout(r, 250));
+    await waitForPortClosed(port);
     expect(await canConnect(port)).toBe(false);
   }, 20_000);
 });
