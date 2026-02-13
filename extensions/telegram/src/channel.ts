@@ -404,6 +404,7 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount> = {
         webhookUrl: account.config.webhookUrl,
         webhookSecret: account.config.webhookSecret,
         webhookPath: account.config.webhookPath,
+        webhookHost: account.config.webhookHost,
       });
     },
     logoutAccount: async ({ accountId, cfg }) => {

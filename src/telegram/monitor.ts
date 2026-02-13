@@ -24,6 +24,7 @@ export type MonitorTelegramOpts = {
   webhookPath?: string;
   webhookPort?: number;
   webhookSecret?: string;
+  webhookHost?: string;
   proxyFetch?: typeof fetch;
   webhookUrl?: string;
 };
@@ -164,10 +165,40 @@ export async function monitorTelegramProvider(opts: MonitorTelegramOpts = {}) {
         void runner.stop();
       }
     };
+<<<<<<< HEAD
     opts.abortSignal?.addEventListener("abort", stopOnAbort, { once: true });
     try {
       // runner.task() returns a promise that resolves when the runner stops
       await runner.task();
+=======
+
+    const bot = createTelegramBot({
+      token,
+      runtime: opts.runtime,
+      proxyFetch,
+      config: cfg,
+      accountId: account.accountId,
+      updateOffset: {
+        lastUpdateId,
+        onUpdateId: persistUpdateId,
+      },
+    });
+
+    if (opts.useWebhook) {
+      await startTelegramWebhook({
+        token,
+        accountId: account.accountId,
+        config: cfg,
+        path: opts.webhookPath,
+        port: opts.webhookPort,
+        secret: opts.webhookSecret,
+        host: opts.webhookHost ?? account.config.webhookHost,
+        runtime: opts.runtime as RuntimeEnv,
+        fetch: proxyFetch,
+        abortSignal: opts.abortSignal,
+        publicUrl: opts.webhookUrl,
+      });
+>>>>>>> 5643a9347 (fix(security): default standalone servers to loopback bind (#13184))
       return;
     } catch (err) {
       if (opts.abortSignal?.aborted) {
