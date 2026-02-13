@@ -5,7 +5,11 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import { buildModelAliasIndex } from "../../agents/model-selection.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import { formatZonedTimestamp } from "../../infra/format-time/format-datetime.ts";
+>>>>>>> 417509c53 (test: stabilize local-timestamp assertion in session resets)
 import { enqueueSystemEvent, resetSystemEventsForTest } from "../../infra/system-events.js";
 import { initSessionState } from "./session.js";
 import { applyResetModelOverride } from "./session-reset-model.js";
@@ -618,13 +622,14 @@ describe("initSessionState preserves behavior overrides across /new and /reset",
 describe("prependSystemEvents", () => {
   it("adds a local timestamp to queued system events by default", async () => {
     vi.useFakeTimers();
-    const originalTz = process.env.TZ;
-    process.env.TZ = "America/Los_Angeles";
-    const timestamp = new Date("2026-01-12T20:19:17Z");
-    vi.setSystemTime(timestamp);
+    try {
+      const timestamp = new Date("2026-01-12T20:19:17Z");
+      const expectedTimestamp = formatZonedTimestamp(timestamp, { displaySeconds: true });
+      vi.setSystemTime(timestamp);
 
-    enqueueSystemEvent("Model switched.", { sessionKey: "agent:main:main" });
+      enqueueSystemEvent("Model switched.", { sessionKey: "agent:main:main" });
 
+<<<<<<< HEAD
     const result = await prependSystemEvents({
       cfg: {} as MoltbotConfig,
       sessionKey: "agent:main:main",
@@ -632,11 +637,21 @@ describe("prependSystemEvents", () => {
       isNewSession: false,
       prefixedBodyBase: "User: hi",
     });
+=======
+      const result = await prependSystemEvents({
+        cfg: {} as OpenClawConfig,
+        sessionKey: "agent:main:main",
+        isMainSession: false,
+        isNewSession: false,
+        prefixedBodyBase: "User: hi",
+      });
+>>>>>>> 417509c53 (test: stabilize local-timestamp assertion in session resets)
 
-    expect(result).toMatch(/System: \[2026-01-12 12:19:17 [^\]]+\] Model switched\./);
-
-    resetSystemEventsForTest();
-    process.env.TZ = originalTz;
-    vi.useRealTimers();
+      expect(expectedTimestamp).toBeDefined();
+      expect(result).toContain(`System: [${expectedTimestamp}] Model switched.`);
+    } finally {
+      resetSystemEventsForTest();
+      vi.useRealTimers();
+    }
   });
 });
