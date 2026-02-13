@@ -9,9 +9,15 @@ import {
   resolveAwsSdkEnvVarName,
   resolveEnvApiKey,
 } from "../../agents/model-auth.js";
+<<<<<<< HEAD
 import { ensureMoltbotModelsJson } from "../../agents/models-config.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ModelRow } from "./list.types.js";
+=======
+import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
+import { ensurePiAuthJsonFromAuthProfiles } from "../../agents/pi-auth-json.js";
+import { discoverAuthStorage, discoverModels } from "../../agents/pi-model-discovery.js";
+>>>>>>> 07faab6ac (openai-codex: bridge OAuth profiles into pi auth.json for model discovery (#15184))
 import { modelKey } from "./shared.js";
 
 const isLocalBaseUrl = (baseUrl: string) => {
@@ -54,9 +60,16 @@ const hasAuthForProvider = (provider: string, cfg: OpenClawConfig, authStore: Au
   return false;
 };
 
+<<<<<<< HEAD
 export async function loadModelRegistry(cfg: MoltbotConfig) {
   await ensureMoltbotModelsJson(cfg);
   const agentDir = resolveMoltbotAgentDir();
+=======
+export async function loadModelRegistry(cfg: OpenClawConfig) {
+  await ensureOpenClawModelsJson(cfg);
+  const agentDir = resolveOpenClawAgentDir();
+  await ensurePiAuthJsonFromAuthProfiles(agentDir);
+>>>>>>> 07faab6ac (openai-codex: bridge OAuth profiles into pi auth.json for model discovery (#15184))
   const authStorage = discoverAuthStorage(agentDir);
   const registry = discoverModels(authStorage, agentDir);
   const models = registry.getAll();

@@ -90,7 +90,14 @@ export async function loadModelCatalog(params?: {
       });
     try {
       const cfg = params?.config ?? loadConfig();
+<<<<<<< HEAD
       await ensureMoltbotModelsJson(cfg);
+=======
+      await ensureOpenClawModelsJson(cfg);
+      await (
+        await import("./pi-auth-json.js")
+      ).ensurePiAuthJsonFromAuthProfiles(resolveOpenClawAgentDir());
+>>>>>>> 07faab6ac (openai-codex: bridge OAuth profiles into pi auth.json for model discovery (#15184))
       // IMPORTANT: keep the dynamic import *inside* the try/catch.
       // If this fails once (e.g. during a pnpm install that temporarily swaps node_modules),
       // we must not poison the cache with a rejected promise (otherwise all channel handlers
