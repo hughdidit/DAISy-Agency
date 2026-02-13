@@ -283,6 +283,28 @@ describe("POST /tools/invoke", () => {
       // oxlint-disable-next-line typescript/no-explicit-any
     } as any);
 
+<<<<<<< HEAD
+=======
+    const profileRes = await invokeAgentsList({
+      port: sharedPort,
+      headers: { authorization: `Bearer ${token}` },
+      sessionKey: "main",
+    });
+    expect(profileRes.status).toBe(404);
+  });
+
+  it("denies sessions_spawn via HTTP even when agent policy allows", async () => {
+    testState.agentsConfig = {
+      list: [
+        {
+          id: "main",
+          tools: { allow: ["sessions_spawn"] },
+        },
+      ],
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any;
+
+>>>>>>> ee31cd47b (fix: close OC-02 gaps in ACP permission + gateway HTTP deny config (#15390) (thanks @aether-ai-agent))
     const port = await getFreePort();
     const server = await startGatewayServer(port, { bind: "loopback" });
     const token = resolveGatewayToken();
@@ -298,6 +320,49 @@ describe("POST /tools/invoke", () => {
     await server.close();
   });
 
+<<<<<<< HEAD
+=======
+  it("denies sessions_send via HTTP gateway", async () => {
+    testState.agentsConfig = {
+      list: [{ id: "main", tools: { allow: ["sessions_send"] } }],
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any;
+
+    const port = await getFreePort();
+    const server = await startGatewayServer(port, { bind: "loopback" });
+    const token = resolveGatewayToken();
+
+    const res = await fetch(`http://127.0.0.1:${port}/tools/invoke`, {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+      body: JSON.stringify({ tool: "sessions_send", args: {}, sessionKey: "main" }),
+    });
+
+    expect(res.status).toBe(404);
+    await server.close();
+  });
+
+  it("denies gateway tool via HTTP", async () => {
+    testState.agentsConfig = {
+      list: [{ id: "main", tools: { allow: ["gateway"] } }],
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any;
+
+    const port = await getFreePort();
+    const server = await startGatewayServer(port, { bind: "loopback" });
+    const token = resolveGatewayToken();
+
+    const res = await fetch(`http://127.0.0.1:${port}/tools/invoke`, {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+      body: JSON.stringify({ tool: "gateway", args: {}, sessionKey: "main" }),
+    });
+
+    expect(res.status).toBe(404);
+    await server.close();
+  });
+
+>>>>>>> ee31cd47b (fix: close OC-02 gaps in ACP permission + gateway HTTP deny config (#15390) (thanks @aether-ai-agent))
   it("uses the configured main session key when sessionKey is missing or main", async () => {
     testState.agentsConfig = {
       list: [
