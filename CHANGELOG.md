@@ -73,7 +73,13 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 =======
 - Signal/Install: auto-install `signal-cli` via Homebrew on non-x64 Linux architectures, avoiding x86_64 native binary `Exec format error` failures on arm64/arm hosts. (#15443) Thanks @jogvan-k.
+<<<<<<< HEAD
 >>>>>>> 8307f9738 (fix: add changelog entry for signal-cli arch-aware install (#15443) (thanks @jogvan-k))
+=======
+- Discord: avoid misrouting numeric guild allowlist entries to `/channels/<guildId>` by prefixing guild-only inputs with `guild:` during resolution. (#12326) Thanks @headswim.
+- Web tools/web_fetch: prefer `text/markdown` responses for Cloudflare Markdown for Agents, add `cf-markdown` extraction for markdown bodies, and redact fetched URLs in `x-markdown-tokens` debug logs to avoid leaking raw paths/query params. (#15376) Thanks @Yaxuan42.
+- Config: keep legacy audio transcription migration strict by rejecting non-string/unsafe command tokens while still migrating valid custom script executables. (#5042) Thanks @shayan919293.
+>>>>>>> 1f4943af3 (fix: note Discord guild allowlist resolution (#12326) (thanks @headswim))
 
 ## 2026.2.12
 >>>>>>> c32b92b7a (fix(macos): prevent Voice Wake crash on CJK trigger transcripts (openclaw#11052) thanks @Flash-LHR)
