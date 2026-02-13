@@ -880,6 +880,7 @@ export function startHeartbeatRunner(opts: {
     if (!Number.isFinite(nextDue)) return;
     const delay = Math.max(0, nextDue - now);
     state.timer = setTimeout(() => {
+      state.timer = null;
       requestHeartbeatNow({ reason: "interval", coalesceMs: 0 });
     }, delay);
     state.timer.unref?.();
@@ -929,6 +930,12 @@ export function startHeartbeatRunner(opts: {
   };
 
   const run: HeartbeatWakeHandler = async (params) => {
+    if (state.stopped) {
+      return {
+        status: "skipped",
+        reason: "disabled",
+      } satisfies HeartbeatRunResult;
+    }
     if (!heartbeatsEnabled) {
       return { status: "skipped", reason: "disabled" } satisfies HeartbeatRunResult;
     }
@@ -980,13 +987,24 @@ export function startHeartbeatRunner(opts: {
     return { status: "skipped", reason: isInterval ? "not-due" : "disabled" };
   };
 
-  setHeartbeatWakeHandler(async (params) => run({ reason: params.reason }));
+  const wakeHandler: HeartbeatWakeHandler = async (params) => run({ reason: params.reason });
+  const disposeWakeHandler = setHeartbeatWakeHandler(wakeHandler);
   updateConfig(state.cfg);
 
   const cleanup = () => {
+    if (state.stopped) {
+      return;
+    }
     state.stopped = true;
+<<<<<<< HEAD
     setHeartbeatWakeHandler(null);
     if (state.timer) clearTimeout(state.timer);
+=======
+    disposeWakeHandler();
+    if (state.timer) {
+      clearTimeout(state.timer);
+    }
+>>>>>>> 40aff672c (fix: prevent heartbeat scheduler silent death from wake handler race (#15108))
     state.timer = null;
   };
 
