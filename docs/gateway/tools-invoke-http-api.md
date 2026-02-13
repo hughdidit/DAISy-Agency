@@ -82,10 +82,11 @@ To help group policies resolve context, you can optionally set:
 ## Responses
 
 - `200` → `{ ok: true, result }`
-- `400` → `{ ok: false, error: { type, message } }` (invalid request or tool error)
+- `400` → `{ ok: false, error: { type, message } }` (invalid request or tool input error)
 - `401` → unauthorized
 - `404` → tool not available (not found or not allowlisted)
 - `405` → method not allowed
+- `500` → `{ ok: false, error: { type, message } }` (unexpected tool execution error; sanitized message)
 
 ## Example
 
