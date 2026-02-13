@@ -1,6 +1,10 @@
 {
   "name": "@openclaw/discord",
+<<<<<<< HEAD
   "version": "2026.2.9",
+=======
+  "version": "2026.2.13",
+>>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
   "description": "OpenClaw Discord channel plugin",
   "type": "module",
   "devDependencies": {
