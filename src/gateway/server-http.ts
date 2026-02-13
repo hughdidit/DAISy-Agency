@@ -32,7 +32,13 @@ import {
   resolveHookChannel,
   resolveHookDeliver,
 } from "./hooks.js";
+<<<<<<< HEAD
 import { applyHookMappings } from "./hooks-mapping.js";
+=======
+import { sendGatewayAuthFailure } from "./http-common.js";
+import { getBearerToken, getHeader } from "./http-utils.js";
+import { isPrivateOrLoopbackAddress, resolveGatewayClientIp } from "./net.js";
+>>>>>>> 14fc74200 (fix(security): restrict canvas IP-based auth to private networks (#14661))
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
@@ -68,6 +74,107 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
   res.end(JSON.stringify(body));
 }
 
+<<<<<<< HEAD
+=======
+function isCanvasPath(pathname: string): boolean {
+  return (
+    pathname === A2UI_PATH ||
+    pathname.startsWith(`${A2UI_PATH}/`) ||
+    pathname === CANVAS_HOST_PATH ||
+    pathname.startsWith(`${CANVAS_HOST_PATH}/`) ||
+    pathname === CANVAS_WS_PATH
+  );
+}
+
+function hasAuthorizedWsClientForIp(clients: Set<GatewayWsClient>, clientIp: string): boolean {
+  for (const client of clients) {
+    if (client.clientIp && client.clientIp === clientIp) {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function authorizeCanvasRequest(params: {
+  req: IncomingMessage;
+  auth: ResolvedGatewayAuth;
+  trustedProxies: string[];
+  clients: Set<GatewayWsClient>;
+  rateLimiter?: AuthRateLimiter;
+}): Promise<GatewayAuthResult> {
+  const { req, auth, trustedProxies, clients, rateLimiter } = params;
+  if (isLocalDirectRequest(req, trustedProxies)) {
+    return { ok: true };
+  }
+
+  let lastAuthFailure: GatewayAuthResult | null = null;
+  const token = getBearerToken(req);
+  if (token) {
+    const authResult = await authorizeGatewayConnect({
+      auth: { ...auth, allowTailscale: false },
+      connectAuth: { token, password: token },
+      req,
+      trustedProxies,
+      rateLimiter,
+    });
+    if (authResult.ok) {
+      return authResult;
+    }
+    lastAuthFailure = authResult;
+  }
+
+  const clientIp = resolveGatewayClientIp({
+    remoteAddr: req.socket?.remoteAddress ?? "",
+    forwardedFor: getHeader(req, "x-forwarded-for"),
+    realIp: getHeader(req, "x-real-ip"),
+    trustedProxies,
+  });
+  if (!clientIp) {
+    return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
+  }
+
+  // IP-based fallback is only safe for machine-scoped addresses.
+  // Only allow IP-based fallback for private/loopback addresses to prevent
+  // cross-session access in shared-IP environments (corporate NAT, cloud).
+  if (!isPrivateOrLoopbackAddress(clientIp)) {
+    return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
+  }
+  if (hasAuthorizedWsClientForIp(clients, clientIp)) {
+    return { ok: true };
+  }
+  return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
+}
+
+function writeUpgradeAuthFailure(
+  socket: { write: (chunk: string) => void },
+  auth: GatewayAuthResult,
+) {
+  if (auth.rateLimited) {
+    const retryAfterSeconds =
+      auth.retryAfterMs && auth.retryAfterMs > 0 ? Math.ceil(auth.retryAfterMs / 1000) : undefined;
+    socket.write(
+      [
+        "HTTP/1.1 429 Too Many Requests",
+        retryAfterSeconds ? `Retry-After: ${retryAfterSeconds}` : undefined,
+        "Content-Type: application/json; charset=utf-8",
+        "Connection: close",
+        "",
+        JSON.stringify({
+          error: {
+            message: "Too many failed authentication attempts. Please try again later.",
+            type: "rate_limited",
+          },
+        }),
+      ]
+        .filter(Boolean)
+        .join("\r\n"),
+    );
+    return;
+  }
+  socket.write("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n");
+}
+
+>>>>>>> 14fc74200 (fix(security): restrict canvas IP-based auth to private networks (#14661))
 export type HooksRequestHandler = (req: IncomingMessage, res: ServerResponse) => Promise<boolean>;
 
 function safeTokenEqual(a: string, b: string): boolean {
