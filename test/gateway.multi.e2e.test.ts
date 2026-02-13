@@ -305,15 +305,15 @@ const connectNode = async (
   return { client, nodeId };
 };
 
-const fetchNodeList = async (
+const connectStatusClient = async (
   inst: GatewayInstance,
   timeoutMs = 5_000,
-): Promise<NodeListPayload> => {
+): Promise<GatewayClient> => {
   let settled = false;
   let timer: NodeJS.Timeout | null = null;
 
-  return await new Promise<NodeListPayload>((resolve, reject) => {
-    const finish = (err?: Error, payload?: NodeListPayload) => {
+  return await new Promise<GatewayClient>((resolve, reject) => {
+    const finish = (err?: Error) => {
       if (settled) {
         return;
       }
@@ -321,12 +321,11 @@ const fetchNodeList = async (
       if (timer) {
         clearTimeout(timer);
       }
-      client.stop();
       if (err) {
         reject(err);
         return;
       }
-      resolve(payload ?? {});
+      resolve(client);
     };
 
     const client = new GatewayClient({
@@ -338,10 +337,7 @@ const fetchNodeList = async (
       platform: "test",
       mode: GATEWAY_CLIENT_MODES.CLI,
       onHelloOk: () => {
-        void client
-          .request<NodeListPayload>("node.list", {})
-          .then((payload) => finish(undefined, payload))
-          .catch((err) => finish(err instanceof Error ? err : new Error(String(err))));
+        finish();
       },
       onConnectError: (err) => finish(err),
       onClose: (code, reason) => {
@@ -359,6 +355,7 @@ const fetchNodeList = async (
 
 const waitForNodeStatus = async (inst: GatewayInstance, nodeId: string, timeoutMs = 10_000) => {
   const deadline = Date.now() + timeoutMs;
+<<<<<<< HEAD
   while (Date.now() < deadline) {
 <<<<<<< HEAD
     const list = (await runCliJson(
@@ -374,8 +371,20 @@ const waitForNodeStatus = async (inst: GatewayInstance, nodeId: string, timeoutM
     const match = list.nodes?.find((n) => n.nodeId === nodeId);
     if (match?.connected && match?.paired) {
       return;
+=======
+  const client = await connectStatusClient(inst);
+  try {
+    while (Date.now() < deadline) {
+      const list = await client.request<NodeListPayload>("node.list", {});
+      const match = list.nodes?.find((n) => n.nodeId === nodeId);
+      if (match?.connected && match?.paired) {
+        return;
+      }
+      await sleep(50);
+>>>>>>> b05c41f34 (perf: reduce gateway multi e2e websocket churn)
     }
-    await sleep(50);
+  } finally {
+    client.stop();
   }
   throw new Error(`timeout waiting for node status for ${nodeId}`);
 };
