@@ -240,6 +240,72 @@ describe("POST /tools/invoke", () => {
     expect(profileRes.status).toBe(404);
   });
 
+<<<<<<< HEAD
+=======
+  it("denies sessions_spawn via HTTP even when agent policy allows", async () => {
+    testState.agentsConfig = {
+      list: [
+        {
+          id: "main",
+          tools: { allow: ["sessions_spawn"] },
+        },
+      ],
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any;
+
+    const token = resolveGatewayToken();
+
+    const res = await invokeTool({
+      port: sharedPort,
+      tool: "sessions_spawn",
+      args: { task: "test" },
+      headers: { authorization: `Bearer ${token}` },
+      sessionKey: "main",
+    });
+
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.ok).toBe(false);
+    expect(body.error.type).toBe("not_found");
+  });
+
+  it("denies sessions_send via HTTP gateway", async () => {
+    testState.agentsConfig = {
+      list: [{ id: "main", tools: { allow: ["sessions_send"] } }],
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any;
+
+    const token = resolveGatewayToken();
+
+    const res = await invokeTool({
+      port: sharedPort,
+      tool: "sessions_send",
+      headers: { authorization: `Bearer ${token}` },
+      sessionKey: "main",
+    });
+
+    expect(res.status).toBe(404);
+  });
+
+  it("denies gateway tool via HTTP", async () => {
+    testState.agentsConfig = {
+      list: [{ id: "main", tools: { allow: ["gateway"] } }],
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any;
+
+    const token = resolveGatewayToken();
+
+    const res = await invokeTool({
+      port: sharedPort,
+      tool: "gateway",
+      headers: { authorization: `Bearer ${token}` },
+      sessionKey: "main",
+    });
+
+    expect(res.status).toBe(404);
+  });
+
+>>>>>>> 644251295 (perf: reduce hotspot test startup and timeout costs)
   it("uses the configured main session key when sessionKey is missing or main", async () => {
     testState.agentsConfig = {
       list: [
