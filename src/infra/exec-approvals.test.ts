@@ -133,6 +133,119 @@ describe("exec approvals shell parsing", () => {
     expect(res.ok).toBe(true);
     expect(res.segments[0]?.argv).toEqual(["/bin/echo", "ok"]);
   });
+<<<<<<< HEAD
+=======
+
+  it("rejects command substitution inside double quotes", () => {
+    const res = analyzeShellCommand({ command: 'echo "output: $(whoami)"' });
+    expect(res.ok).toBe(false);
+    expect(res.reason).toBe("unsupported shell token: $()");
+  });
+
+  it("rejects backticks inside double quotes", () => {
+    const res = analyzeShellCommand({ command: 'echo "output: `id`"' });
+    expect(res.ok).toBe(false);
+    expect(res.reason).toBe("unsupported shell token: `");
+  });
+
+  it("rejects command substitution outside quotes", () => {
+    const res = analyzeShellCommand({ command: "echo $(whoami)" });
+    expect(res.ok).toBe(false);
+    expect(res.reason).toBe("unsupported shell token: $()");
+  });
+
+  it("allows escaped command substitution inside double quotes", () => {
+    const res = analyzeShellCommand({ command: 'echo "output: \\$(whoami)"' });
+    expect(res.ok).toBe(true);
+    expect(res.segments[0]?.argv[0]).toBe("echo");
+  });
+
+  it("allows command substitution syntax inside single quotes", () => {
+    const res = analyzeShellCommand({ command: "echo 'output: $(whoami)'" });
+    expect(res.ok).toBe(true);
+    expect(res.segments[0]?.argv[0]).toBe("echo");
+  });
+
+  it("rejects input redirection (<)", () => {
+    const res = analyzeShellCommand({ command: "cat < input.txt" });
+    expect(res.ok).toBe(false);
+    expect(res.reason).toBe("unsupported shell token: <");
+  });
+
+  it("rejects output redirection (>)", () => {
+    const res = analyzeShellCommand({ command: "echo ok > output.txt" });
+    expect(res.ok).toBe(false);
+    expect(res.reason).toBe("unsupported shell token: >");
+  });
+
+  it("allows heredoc operator (<<)", () => {
+    const res = analyzeShellCommand({ command: "/usr/bin/tee /tmp/file << 'EOF'" });
+    expect(res.ok).toBe(true);
+    expect(res.segments[0]?.argv[0]).toBe("/usr/bin/tee");
+  });
+
+  it("allows heredoc without space before delimiter", () => {
+    const res = analyzeShellCommand({ command: "/usr/bin/tee /tmp/file <<EOF" });
+    expect(res.ok).toBe(true);
+    expect(res.segments[0]?.argv[0]).toBe("/usr/bin/tee");
+  });
+
+  it("allows heredoc with strip-tabs operator (<<-)", () => {
+    const res = analyzeShellCommand({ command: "/usr/bin/cat <<-DELIM" });
+    expect(res.ok).toBe(true);
+    expect(res.segments[0]?.argv[0]).toBe("/usr/bin/cat");
+  });
+
+  it("allows heredoc in pipeline", () => {
+    const res = analyzeShellCommand({ command: "/usr/bin/cat << 'EOF' | /usr/bin/grep pattern" });
+    expect(res.ok).toBe(true);
+    expect(res.segments).toHaveLength(2);
+    expect(res.segments[0]?.argv[0]).toBe("/usr/bin/cat");
+    expect(res.segments[1]?.argv[0]).toBe("/usr/bin/grep");
+  });
+
+  it("allows multiline heredoc body", () => {
+    const res = analyzeShellCommand({
+      command: "/usr/bin/tee /tmp/file << 'EOF'\nline one\nline two\nEOF",
+    });
+    expect(res.ok).toBe(true);
+    expect(res.segments[0]?.argv[0]).toBe("/usr/bin/tee");
+  });
+
+  it("allows multiline heredoc body with strip-tabs operator (<<-)", () => {
+    const res = analyzeShellCommand({
+      command: "/usr/bin/cat <<-EOF\n\tline one\n\tline two\n\tEOF",
+    });
+    expect(res.ok).toBe(true);
+    expect(res.segments[0]?.argv[0]).toBe("/usr/bin/cat");
+  });
+
+  it("rejects multiline commands without heredoc", () => {
+    const res = analyzeShellCommand({
+      command: "/usr/bin/echo first line\n/usr/bin/echo second line",
+    });
+    expect(res.ok).toBe(false);
+    expect(res.reason).toBe("unsupported shell token: \n");
+  });
+
+  it("rejects windows shell metacharacters", () => {
+    const res = analyzeShellCommand({
+      command: "ping 127.0.0.1 -n 1 & whoami",
+      platform: "win32",
+    });
+    expect(res.ok).toBe(false);
+    expect(res.reason).toBe("unsupported windows shell token: &");
+  });
+
+  it("parses windows quoted executables", () => {
+    const res = analyzeShellCommand({
+      command: '"C:\\Program Files\\Tool\\tool.exe" --version',
+      platform: "win32",
+    });
+    expect(res.ok).toBe(true);
+    expect(res.segments[0]?.argv).toEqual(["C:\\Program Files\\Tool\\tool.exe", "--version"]);
+  });
+>>>>>>> e90caa66d (fix(exec): allow heredoc operator (<<) in allowlist security mode (#13811))
 });
 
 describe("exec approvals shell allowlist (chained commands)", () => {
