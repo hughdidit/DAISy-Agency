@@ -225,14 +225,6 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     const port = await getFreeGatewayPort();
     const workspace = path.join(stateDir, "clawd");
 
-    // Other test files mock ../config/config.js. This onboarding flow needs the real
-    // implementation so it can persist the config and then read it back (Windows CI
-    // otherwise sees a mocked writeConfigFile and the config never lands on disk).
-    vi.resetModules();
-    vi.doMock("../config/config.js", async () => {
-      return await vi.importActual("../config/config.js");
-    });
-
     const { runNonInteractiveOnboarding } = await import("./onboard-non-interactive.js");
     await runNonInteractiveOnboarding(
       {
