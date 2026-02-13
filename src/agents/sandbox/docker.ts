@@ -155,6 +155,15 @@ export function buildSandboxCreateArgs(params: {
   if (params.cfg.user) {
     args.push("--user", params.cfg.user);
   }
+<<<<<<< HEAD
+=======
+  for (const [key, value] of Object.entries(params.cfg.env ?? {})) {
+    if (!key.trim()) {
+      continue;
+    }
+    args.push("--env", key + "=" + value);
+  }
+>>>>>>> a067565db (fix: pass sandbox docker env into containers (#15138) (thanks @stevebot-alive))
   for (const cap of params.cfg.capDrop) {
     args.push("--cap-drop", cap);
   }
