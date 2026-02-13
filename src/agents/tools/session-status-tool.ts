@@ -416,6 +416,7 @@ export function createSessionStatusTool(opts?: {
           ...agentDefaults,
           model: agentModel,
         },
+        agentId,
         sessionEntry: resolved.entry,
         sessionKey: resolved.key,
         groupActivation,

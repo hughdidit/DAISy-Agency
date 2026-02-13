@@ -9,7 +9,6 @@ import { derivePromptTokens, normalizeUsage, type UsageLike } from "../agents/us
 import type { MoltbotConfig } from "../config/config.js";
 import {
   resolveMainSessionKey,
-  resolveFreshSessionTotalTokens,
   resolveSessionFilePath,
   type SessionEntry,
   type SessionScope,
@@ -57,6 +56,7 @@ type QueueStatus = {
 type StatusArgs = {
   config?: MoltbotConfig;
   agent: AgentConfig;
+  agentId?: string;
   sessionEntry?: SessionEntry;
   sessionKey?: string;
   sessionScope?: SessionScope;
@@ -161,6 +161,12 @@ const formatQueueDetails = (queue?: QueueStatus) => {
 const readUsageFromSessionLog = (
   sessionId?: string,
   sessionEntry?: SessionEntry,
+<<<<<<< HEAD
+=======
+  agentId?: string,
+  sessionKey?: string,
+  storePath?: string,
+>>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 ):
   | {
       input: number;
@@ -170,10 +176,32 @@ const readUsageFromSessionLog = (
       model?: string;
     }
   | undefined => {
+<<<<<<< HEAD
   // Transcripts are stored at the session file path (fallback: ~/.clawdbot/sessions/<SessionId>.jsonl)
   if (!sessionId) return undefined;
   const logPath = resolveSessionFilePath(sessionId, sessionEntry);
   if (!fs.existsSync(logPath)) return undefined;
+=======
+  // Transcripts are stored at the session file path (fallback: ~/.openclaw/sessions/<SessionId>.jsonl)
+  if (!sessionId) {
+    return undefined;
+  }
+  let logPath: string;
+  try {
+    const resolvedAgentId =
+      agentId ?? (sessionKey ? resolveAgentIdFromSessionKey(sessionKey) : undefined);
+    logPath = resolveSessionFilePath(
+      sessionId,
+      sessionEntry,
+      resolveSessionFilePathOptions({ agentId: resolvedAgentId, storePath }),
+    );
+  } catch {
+    return undefined;
+  }
+  if (!fs.existsSync(logPath)) {
+    return undefined;
+  }
+>>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 
   try {
     const lines = fs.readFileSync(logPath, "utf-8").split(/\n+/);
@@ -300,12 +328,22 @@ export function buildStatusMessage(args: StatusArgs): string {
 
   let inputTokens = entry?.inputTokens;
   let outputTokens = entry?.outputTokens;
-  let totalTokens = resolveFreshSessionTotalTokens(entry);
+  let totalTokens = entry?.totalTokens ?? (entry?.inputTokens ?? 0) + (entry?.outputTokens ?? 0);
 
   // Prefer prompt-size tokens from the session transcript when it looks larger
   // (cached prompt tokens are often missing from agent meta/store).
   if (args.includeTranscriptUsage) {
+<<<<<<< HEAD
     const logUsage = readUsageFromSessionLog(entry?.sessionId, entry);
+=======
+    const logUsage = readUsageFromSessionLog(
+      entry?.sessionId,
+      entry,
+      args.agentId,
+      args.sessionKey,
+      args.sessionStorePath,
+    );
+>>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
     if (logUsage) {
       const candidate = logUsage.promptTokens || logUsage.total;
       if (!totalTokens || totalTokens === 0 || candidate > totalTokens) {

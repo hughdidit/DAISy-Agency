@@ -39,8 +39,12 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 13bfd9da8 (fix: thread replyToId and threadId through message tool send action (#14948))
 =======
 - Sessions/Agents: pass `agentId` when resolving existing transcript paths in reply runs so non-default agents and heartbeat/chat handlers no longer fail with `Session file path must be within sessions directory`. (#15141) Thanks @Goldenmonstew.
+<<<<<<< HEAD
 - Status/Sessions: stop clamping derived `totalTokens` to context-window size, keep prompt-token snapshots wired through session accounting, and surface context usage as unknown when fresh snapshot data is missing to avoid false 100% reports. (#15114) Thanks @echoVic.
 >>>>>>> fd076eb43 (fix: /status shows incorrect context percentage — totalTokens clamped to contextTokens (#15114) (#15133))
+=======
+- Sessions/Agents: pass `agentId` through status and usage transcript-resolution paths (auto-reply, gateway usage APIs, and session cost/log loaders) so non-default agents can resolve absolute session files without path-validation failures. (#15103) Thanks @jalehman.
+>>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 
 ## 2026.2.12
 >>>>>>> c32b92b7a (fix(macos): prevent Voice Wake crash on CJK trigger transcripts (openclaw#11052) thanks @Flash-LHR)
@@ -189,7 +193,6 @@ Docs: https://docs.openclaw.ai
 - CI: Implement pipeline and workflow order. Thanks @quotentiroler.
 >>>>>>> e19a23520 (fix: unify session maintenance and cron run pruning (#13083))
 - WhatsApp: preserve original filenames for inbound documents. (#12691) Thanks @akramcodez.
-- Feishu: enforce DM `dmPolicy`/pairing gating and sender allow checks for inbound DMs. (#14876) Thanks @coygeek.
 - Telegram: harden quote parsing; preserve quote context; avoid QUOTE_TEXT_INVALID; avoid nested reply quote misclassification. (#12156) Thanks @rybnikov.
 - Telegram: recover proactive sends when stale topic thread IDs are used by retrying without `message_thread_id`. (#11620)
 <<<<<<< HEAD
