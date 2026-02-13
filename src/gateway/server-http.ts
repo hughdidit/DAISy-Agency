@@ -41,7 +41,7 @@ import {
 } from "./hooks.js";
 import { sendUnauthorized } from "./http-common.js";
 import { getBearerToken, getHeader } from "./http-utils.js";
-import { resolveGatewayClientIp } from "./net.js";
+import { isPrivateOrLoopbackAddress, resolveGatewayClientIp } from "./net.js";
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
@@ -128,7 +128,50 @@ async function authorizeCanvasRequest(params: {
   if (!clientIp) {
     return false;
   }
+<<<<<<< HEAD
   return hasAuthorizedWsClientForIp(clients, clientIp);
+=======
+
+  // IP-based fallback is only safe for machine-scoped addresses.
+  // Only allow IP-based fallback for private/loopback addresses to prevent
+  // cross-session access in shared-IP environments (corporate NAT, cloud).
+  if (!isPrivateOrLoopbackAddress(clientIp)) {
+    return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
+  }
+  if (hasAuthorizedWsClientForIp(clients, clientIp)) {
+    return { ok: true };
+  }
+  return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
+}
+
+function writeUpgradeAuthFailure(
+  socket: { write: (chunk: string) => void },
+  auth: GatewayAuthResult,
+) {
+  if (auth.rateLimited) {
+    const retryAfterSeconds =
+      auth.retryAfterMs && auth.retryAfterMs > 0 ? Math.ceil(auth.retryAfterMs / 1000) : undefined;
+    socket.write(
+      [
+        "HTTP/1.1 429 Too Many Requests",
+        retryAfterSeconds ? `Retry-After: ${retryAfterSeconds}` : undefined,
+        "Content-Type: application/json; charset=utf-8",
+        "Connection: close",
+        "",
+        JSON.stringify({
+          error: {
+            message: "Too many failed authentication attempts. Please try again later.",
+            type: "rate_limited",
+          },
+        }),
+      ]
+        .filter(Boolean)
+        .join("\r\n"),
+    );
+    return;
+  }
+  socket.write("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n");
+>>>>>>> 14fc74200 (fix(security): restrict canvas IP-based auth to private networks (#14661))
 }
 
 export type HooksRequestHandler = (req: IncomingMessage, res: ServerResponse) => Promise<boolean>;
