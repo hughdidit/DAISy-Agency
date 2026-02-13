@@ -2,7 +2,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { DEFAULT_COPILOT_API_BASE_URL } from "../providers/github-copilot-token.js";
+import { ensureOpenClawModelsJson } from "./models-config.js";
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-models-" });
@@ -34,6 +39,7 @@ const _MODELS_CONFIG: MoltbotConfig = {
 
 describe("models-config", () => {
   let previousHome: string | undefined;
+  const originalFetch = globalThis.fetch;
 
   beforeEach(() => {
     previousHome = process.env.HOME;
@@ -41,14 +47,24 @@ describe("models-config", () => {
 
   afterEach(() => {
     process.env.HOME = previousHome;
+    if (originalFetch) {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   it("falls back to default baseUrl when token exchange fails", async () => {
     await withTempHome(async () => {
       const previous = process.env.COPILOT_GITHUB_TOKEN;
       process.env.COPILOT_GITHUB_TOKEN = "gh-token";
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: async () => ({ message: "boom" }),
+      });
+      globalThis.fetch = fetchMock as unknown as typeof fetch;
 
       try {
+<<<<<<< HEAD
         vi.resetModules();
 
         vi.doMock("../providers/github-copilot-token.js", () => ({
@@ -62,17 +78,23 @@ describe("models-config", () => {
         await ensureMoltbotModelsJson({ models: { providers: {} } });
 
         const agentDir = resolveMoltbotAgentDir();
+=======
+        await ensureOpenClawModelsJson({ models: { providers: {} } });
+
+        const agentDir = path.join(process.env.HOME ?? "", ".openclaw", "agents", "main", "agent");
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
         const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
         const parsed = JSON.parse(raw) as {
           providers: Record<string, { baseUrl?: string }>;
         };
 
-        expect(parsed.providers["github-copilot"]?.baseUrl).toBe("https://api.default.test");
+        expect(parsed.providers["github-copilot"]?.baseUrl).toBe(DEFAULT_COPILOT_API_BASE_URL);
       } finally {
         process.env.COPILOT_GITHUB_TOKEN = previous;
       }
     });
   });
+
   it("uses agentDir override auth profiles for copilot injection", async () => {
     await withTempHome(async (home) => {
       const previous = process.env.COPILOT_GITHUB_TOKEN;
@@ -82,9 +104,17 @@ describe("models-config", () => {
       delete process.env.GH_TOKEN;
       delete process.env.GITHUB_TOKEN;
 
-      try {
-        vi.resetModules();
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          token: "copilot-token;proxy-ep=proxy.copilot.example",
+          expires_at: Math.floor(Date.now() / 1000) + 3600,
+        }),
+      });
+      globalThis.fetch = fetchMock as unknown as typeof fetch;
 
+      try {
         const agentDir = path.join(home, "agent-override");
         await fs.mkdir(agentDir, { recursive: true });
         await fs.writeFile(
@@ -105,6 +135,7 @@ describe("models-config", () => {
           ),
         );
 
+<<<<<<< HEAD
         vi.doMock("../providers/github-copilot-token.js", () => ({
           DEFAULT_COPILOT_API_BASE_URL: "https://api.individual.githubcopilot.com",
           resolveCopilotApiToken: vi.fn().mockResolvedValue({
@@ -118,6 +149,9 @@ describe("models-config", () => {
         const { ensureMoltbotModelsJson } = await import("./models-config.js");
 
         await ensureMoltbotModelsJson({ models: { providers: {} } }, agentDir);
+=======
+        await ensureOpenClawModelsJson({ models: { providers: {} } }, agentDir);
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
         const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
         const parsed = JSON.parse(raw) as {

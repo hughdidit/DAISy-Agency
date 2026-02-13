@@ -1,8 +1,16 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
+import { resolveOpenClawAgentDir } from "./agent-paths.js";
+import { ensureOpenClawModelsJson } from "./models-config.js";
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-models-" });
@@ -65,9 +73,12 @@ describe("models-config", () => {
       delete process.env.XIAOMI_API_KEY;
 
       try {
+<<<<<<< HEAD
         vi.resetModules();
         const { ensureMoltbotModelsJson } = await import("./models-config.js");
 
+=======
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
         const agentDir = path.join(home, "agent-empty");
         const result = await ensureMoltbotModelsJson(
           {
@@ -129,11 +140,15 @@ describe("models-config", () => {
   });
   it("writes models.json for configured providers", async () => {
     await withTempHome(async () => {
+<<<<<<< HEAD
       vi.resetModules();
       const { ensureMoltbotModelsJson } = await import("./models-config.js");
       const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
       await ensureMoltbotModelsJson(MODELS_CONFIG);
+=======
+      await ensureOpenClawModelsJson(MODELS_CONFIG);
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
       const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
       const raw = await fs.readFile(modelPath, "utf8");
@@ -146,14 +161,17 @@ describe("models-config", () => {
   });
   it("adds minimax provider when MINIMAX_API_KEY is set", async () => {
     await withTempHome(async () => {
-      vi.resetModules();
       const prevKey = process.env.MINIMAX_API_KEY;
       process.env.MINIMAX_API_KEY = "sk-minimax-test";
       try {
+<<<<<<< HEAD
         const { ensureMoltbotModelsJson } = await import("./models-config.js");
         const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
         await ensureMoltbotModelsJson({});
+=======
+        await ensureOpenClawModelsJson({});
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
         const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
         const raw = await fs.readFile(modelPath, "utf8");
@@ -183,14 +201,17 @@ describe("models-config", () => {
   });
   it("adds synthetic provider when SYNTHETIC_API_KEY is set", async () => {
     await withTempHome(async () => {
-      vi.resetModules();
       const prevKey = process.env.SYNTHETIC_API_KEY;
       process.env.SYNTHETIC_API_KEY = "sk-synthetic-test";
       try {
+<<<<<<< HEAD
         const { ensureMoltbotModelsJson } = await import("./models-config.js");
         const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
         await ensureMoltbotModelsJson({});
+=======
+        await ensureOpenClawModelsJson({});
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
         const modelPath = path.join(resolveMoltbotAgentDir(), "models.json");
         const raw = await fs.readFile(modelPath, "utf8");

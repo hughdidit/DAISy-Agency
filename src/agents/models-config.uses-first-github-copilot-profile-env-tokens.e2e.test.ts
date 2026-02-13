@@ -2,7 +2,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { resolveOpenClawAgentDir } from "./agent-paths.js";
+import { ensureOpenClawModelsJson } from "./models-config.js";
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-models-" });
@@ -34,6 +39,7 @@ const _MODELS_CONFIG: MoltbotConfig = {
 
 describe("models-config", () => {
   let previousHome: string | undefined;
+  const originalFetch = globalThis.fetch;
 
   beforeEach(() => {
     previousHome = process.env.HOME;
@@ -41,6 +47,9 @@ describe("models-config", () => {
 
   afterEach(() => {
     process.env.HOME = previousHome;
+    if (originalFetch) {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   it("uses the first github-copilot profile when env tokens are missing", async () => {
@@ -52,9 +61,17 @@ describe("models-config", () => {
       delete process.env.GH_TOKEN;
       delete process.env.GITHUB_TOKEN;
 
-      try {
-        vi.resetModules();
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          token: "copilot-token;proxy-ep=proxy.copilot.example",
+          expires_at: Math.floor(Date.now() / 1000) + 3600,
+        }),
+      });
+      globalThis.fetch = fetchMock as unknown as typeof fetch;
 
+      try {
         const agentDir = path.join(home, "agent-profiles");
         await fs.mkdir(agentDir, { recursive: true });
         await fs.writeFile(
@@ -80,6 +97,7 @@ describe("models-config", () => {
           ),
         );
 
+<<<<<<< HEAD
         const resolveCopilotApiToken = vi.fn().mockResolvedValue({
           token: "copilot",
           expiresAt: Date.now() + 60 * 60 * 1000,
@@ -95,10 +113,12 @@ describe("models-config", () => {
         const { ensureMoltbotModelsJson } = await import("./models-config.js");
 
         await ensureMoltbotModelsJson({ models: { providers: {} } }, agentDir);
+=======
+        await ensureOpenClawModelsJson({ models: { providers: {} } }, agentDir);
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
-        expect(resolveCopilotApiToken).toHaveBeenCalledWith(
-          expect.objectContaining({ githubToken: "alpha-token" }),
-        );
+        const [, opts] = fetchMock.mock.calls[0] as [string, { headers?: Record<string, string> }];
+        expect(opts?.headers?.Authorization).toBe("Bearer alpha-token");
       } finally {
         if (previous === undefined) {
           delete process.env.COPILOT_GITHUB_TOKEN;
@@ -118,12 +138,23 @@ describe("models-config", () => {
       }
     });
   });
+
   it("does not override explicit github-copilot provider config", async () => {
     await withTempHome(async () => {
       const previous = process.env.COPILOT_GITHUB_TOKEN;
       process.env.COPILOT_GITHUB_TOKEN = "gh-token";
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          token: "copilot-token;proxy-ep=proxy.copilot.example",
+          expires_at: Math.floor(Date.now() / 1000) + 3600,
+        }),
+      });
+      globalThis.fetch = fetchMock as unknown as typeof fetch;
 
       try {
+<<<<<<< HEAD
         vi.resetModules();
 
         vi.doMock("../providers/github-copilot-token.js", () => ({
@@ -140,6 +171,9 @@ describe("models-config", () => {
         const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
         await ensureMoltbotModelsJson({
+=======
+        await ensureOpenClawModelsJson({
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
           models: {
             providers: {
               "github-copilot": {

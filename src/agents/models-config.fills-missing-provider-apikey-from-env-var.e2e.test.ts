@@ -1,8 +1,16 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
+import { resolveOpenClawAgentDir } from "./agent-paths.js";
+import { ensureOpenClawModelsJson } from "./models-config.js";
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-models-" });
@@ -45,14 +53,17 @@ describe("models-config", () => {
 
   it("fills missing provider.apiKey from env var name when models exist", async () => {
     await withTempHome(async () => {
-      vi.resetModules();
       const prevKey = process.env.MINIMAX_API_KEY;
       process.env.MINIMAX_API_KEY = "sk-minimax-test";
       try {
+<<<<<<< HEAD
         const { ensureMoltbotModelsJson } = await import("./models-config.js");
         const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
         const cfg: MoltbotConfig = {
+=======
+        const cfg: OpenClawConfig = {
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
           models: {
             providers: {
               minimax: {
@@ -95,11 +106,15 @@ describe("models-config", () => {
   });
   it("merges providers by default", async () => {
     await withTempHome(async () => {
+<<<<<<< HEAD
       vi.resetModules();
       const { ensureMoltbotModelsJson } = await import("./models-config.js");
       const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 
       const agentDir = resolveMoltbotAgentDir();
+=======
+      const agentDir = resolveOpenClawAgentDir();
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
       await fs.mkdir(agentDir, { recursive: true });
       await fs.writeFile(
         path.join(agentDir, "models.json"),

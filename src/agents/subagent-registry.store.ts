@@ -1,6 +1,11 @@
 import path from "node:path";
+<<<<<<< HEAD
 
 import { STATE_DIR } from "../config/paths.js";
+=======
+import type { SubagentRunRecord } from "./subagent-registry.js";
+import { resolveStateDir } from "../config/paths.js";
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 import { loadJsonFile, saveJsonFile } from "../infra/json-file.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 import type { SubagentRunRecord } from "./subagent-registry.js";
@@ -31,7 +36,7 @@ type LegacySubagentRunRecord = PersistedSubagentRunRecord & {
 };
 
 export function resolveSubagentRegistryPath(): string {
-  return path.join(STATE_DIR, "subagents", "runs.json");
+  return path.join(resolveStateDir(), "subagents", "runs.json");
 }
 
 export function loadSubagentRegistryFromDisk(): Map<string, SubagentRunRecord> {

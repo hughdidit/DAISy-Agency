@@ -3,6 +3,12 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  initSubagentRegistry,
+  registerSubagentRun,
+  resetSubagentRegistryForTests,
+} from "./subagent-registry.js";
+import { loadSubagentRegistryFromDisk } from "./subagent-registry.store.js";
 
 const noop = () => {};
 
@@ -29,7 +35,7 @@ describe("subagent registry persistence", () => {
 
   afterEach(async () => {
     announceSpy.mockClear();
-    vi.resetModules();
+    resetSubagentRegistryForTests({ persist: false });
     if (tempStateDir) {
       await fs.rm(tempStateDir, { recursive: true, force: true });
       tempStateDir = null;
@@ -45,10 +51,7 @@ describe("subagent registry persistence", () => {
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-subagent-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
 
-    vi.resetModules();
-    const mod1 = await import("./subagent-registry.js");
-
-    mod1.registerSubagentRun({
+    registerSubagentRun({
       runId: "run-1",
       childSessionKey: "agent:main:subagent:test",
       requesterSessionKey: "agent:main:main",
@@ -77,9 +80,8 @@ describe("subagent registry persistence", () => {
 
     // Simulate a process restart: module re-import should load persisted runs
     // and trigger the announce flow once the run resolves.
-    vi.resetModules();
-    const mod2 = await import("./subagent-registry.js");
-    mod2.initSubagentRegistry();
+    resetSubagentRegistryForTests({ persist: false });
+    initSubagentRegistry();
 
     // allow queued async wait/cleanup to execute
     await new Promise((r) => setTimeout(r, 0));
@@ -126,9 +128,8 @@ describe("subagent registry persistence", () => {
     await fs.mkdir(path.dirname(registryPath), { recursive: true });
     await fs.writeFile(registryPath, `${JSON.stringify(persisted)}\n`, "utf8");
 
-    vi.resetModules();
-    const mod = await import("./subagent-registry.js");
-    mod.initSubagentRegistry();
+    resetSubagentRegistryForTests({ persist: false });
+    initSubagentRegistry();
 
     await new Promise((r) => setTimeout(r, 0));
 
@@ -169,8 +170,6 @@ describe("subagent registry persistence", () => {
     await fs.mkdir(path.dirname(registryPath), { recursive: true });
     await fs.writeFile(registryPath, `${JSON.stringify(persisted)}\n`, "utf8");
 
-    vi.resetModules();
-    const { loadSubagentRegistryFromDisk } = await import("./subagent-registry.store.js");
     const runs = loadSubagentRegistryFromDisk();
     const entry = runs.get("run-legacy");
     expect(entry?.cleanupHandled).toBe(true);
@@ -207,9 +206,8 @@ describe("subagent registry persistence", () => {
     await fs.writeFile(registryPath, `${JSON.stringify(persisted)}\n`, "utf8");
 
     announceSpy.mockResolvedValueOnce(false);
-    vi.resetModules();
-    const mod1 = await import("./subagent-registry.js");
-    mod1.initSubagentRegistry();
+    resetSubagentRegistryForTests({ persist: false });
+    initSubagentRegistry();
     await new Promise((r) => setTimeout(r, 0));
 
     expect(announceSpy).toHaveBeenCalledTimes(1);
@@ -220,9 +218,8 @@ describe("subagent registry persistence", () => {
     expect(afterFirst.runs["run-3"].cleanupCompletedAt).toBeUndefined();
 
     announceSpy.mockResolvedValueOnce(true);
-    vi.resetModules();
-    const mod2 = await import("./subagent-registry.js");
-    mod2.initSubagentRegistry();
+    resetSubagentRegistryForTests({ persist: false });
+    initSubagentRegistry();
     await new Promise((r) => setTimeout(r, 0));
 
     expect(announceSpy).toHaveBeenCalledTimes(2);
@@ -231,4 +228,54 @@ describe("subagent registry persistence", () => {
     };
     expect(afterSecond.runs["run-3"].cleanupCompletedAt).toBeDefined();
   });
+<<<<<<< HEAD
+=======
+
+  it("keeps delete-mode runs retryable when announce is deferred", async () => {
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-subagent-"));
+    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+
+    const registryPath = path.join(tempStateDir, "subagents", "runs.json");
+    const persisted = {
+      version: 2,
+      runs: {
+        "run-4": {
+          runId: "run-4",
+          childSessionKey: "agent:main:subagent:four",
+          requesterSessionKey: "agent:main:main",
+          requesterDisplayKey: "main",
+          task: "deferred announce",
+          cleanup: "delete",
+          createdAt: 1,
+          startedAt: 1,
+          endedAt: 2,
+        },
+      },
+    };
+    await fs.mkdir(path.dirname(registryPath), { recursive: true });
+    await fs.writeFile(registryPath, `${JSON.stringify(persisted)}\n`, "utf8");
+
+    announceSpy.mockResolvedValueOnce(false);
+    resetSubagentRegistryForTests({ persist: false });
+    initSubagentRegistry();
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(announceSpy).toHaveBeenCalledTimes(1);
+    const afterFirst = JSON.parse(await fs.readFile(registryPath, "utf8")) as {
+      runs: Record<string, { cleanupHandled?: boolean }>;
+    };
+    expect(afterFirst.runs["run-4"]?.cleanupHandled).toBe(false);
+
+    announceSpy.mockResolvedValueOnce(true);
+    resetSubagentRegistryForTests({ persist: false });
+    initSubagentRegistry();
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(announceSpy).toHaveBeenCalledTimes(2);
+    const afterSecond = JSON.parse(await fs.readFile(registryPath, "utf8")) as {
+      runs?: Record<string, unknown>;
+    };
+    expect(afterSecond.runs?.["run-4"]).toBeUndefined();
+  });
+>>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 });
