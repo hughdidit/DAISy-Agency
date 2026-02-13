@@ -3,6 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 
 const note = vi.hoisted(() => vi.fn());
+<<<<<<< HEAD:src/commands/doctor-security.test.ts
+=======
+const pluginRegistry = vi.hoisted(() => ({ list: [] as unknown[] }));
+>>>>>>> 4337fa209 (fix: remove any from doctor-security dmScope regression test (#13129) (thanks @VintLin)):src/commands/doctor-security.e2e.test.ts
 
 vi.mock("../terminal/note.js", () => ({
   note,
