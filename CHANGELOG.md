@@ -44,7 +44,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> fd076eb43 (fix: /status shows incorrect context percentage — totalTokens clamped to contextTokens (#15114) (#15133))
 =======
 - Sessions/Agents: pass `agentId` through status and usage transcript-resolution paths (auto-reply, gateway usage APIs, and session cost/log loaders) so non-default agents can resolve absolute session files without path-validation failures. (#15103) Thanks @jalehman.
+<<<<<<< HEAD
 >>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
+=======
+- Signal/Install: auto-install `signal-cli` via Homebrew on non-x64 Linux architectures, avoiding x86_64 native binary `Exec format error` failures on arm64/arm hosts. (#15443) Thanks @jogvan-k.
+>>>>>>> 8307f9738 (fix: add changelog entry for signal-cli arch-aware install (#15443) (thanks @jogvan-k))
 
 ## 2026.2.12
 >>>>>>> c32b92b7a (fix(macos): prevent Voice Wake crash on CJK trigger transcripts (openclaw#11052) thanks @Flash-LHR)
