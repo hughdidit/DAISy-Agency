@@ -48,6 +48,10 @@ Before any substantive review or prep work, **always rebase the PR branch onto c
 
 - Create commits with `scripts/committer "<msg>" <file...>`; avoid manual `git add`/`git commit` so staging stays scoped.
 - Follow concise, action-oriented commit messages (e.g., `CLI: add verbose flag to send`).
+<<<<<<< HEAD
+=======
+- During `prepare-pr`, use concise, action-oriented subjects **without** PR numbers or thanks; reserve `(#<PR>) thanks @<pr-author>` for the final merge/squash commit.
+>>>>>>> 607b625aa (Docs: update PR commit guidance)
 - Group related changes; avoid bundling unrelated refactors.
 - Changelog workflow: keep latest released version at top (no `Unreleased`); after publishing, bump version and start a new top section.
 - When working on a PR: add a changelog entry with the PR number and thank the contributor.
