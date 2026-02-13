@@ -117,7 +117,7 @@ describe("RawBody directive parsing", () => {
     vi.clearAllMocks();
   });
 
-  it("detects command directives from RawBody/CommandBody in wrapped group messages", async () => {
+  it("handles directives, history, and non-default agent session files", async () => {
     await withTempHome(async (home) => {
       const assertCommandReply = async (input: {
         message: ReplyMessage;
@@ -221,6 +221,7 @@ describe("RawBody directive parsing", () => {
         expectedIncludes: ["Verbose logging enabled."],
       });
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       await assertCommandReply({
         message: {
@@ -259,9 +260,9 @@ describe("RawBody directive parsing", () => {
 >>>>>>> 5caf829d2 (perf(test): trim duplicate gateway and auto-reply test overhead)
     });
   });
+=======
+>>>>>>> 4bef423d8 (perf(test): reduce gateway reload waits and trim duplicate invoke coverage)
 
-  it("preserves history and reuses non-default agent session files", async () => {
-    await withTempHome(async (home) => {
       vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
         payloads: [{ text: "ok" }],
         meta: {

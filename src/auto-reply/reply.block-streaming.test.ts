@@ -242,6 +242,7 @@ describe("block streaming", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("drops final payloads when block replies streamed", async () => {
     await withTempHome(async (home) => {
       const onBlockReply = vi.fn().mockResolvedValue(undefined);
@@ -290,6 +291,9 @@ describe("block streaming", () => {
 =======
 >>>>>>> 5caf829d2 (perf(test): trim duplicate gateway and auto-reply test overhead)
   it("falls back to final payloads when block reply send times out", async () => {
+=======
+  it("falls back to final payloads and respects telegram streamMode block", async () => {
+>>>>>>> 4bef423d8 (perf(test): reduce gateway reload waits and trim duplicate invoke coverage)
     await withTempHome(async (home) => {
       let sawAbort = false;
       const onBlockReply = vi.fn((_, context) => {
@@ -345,32 +349,26 @@ describe("block streaming", () => {
       const res = await replyPromise;
       expect(res).toMatchObject({ text: "final" });
       expect(sawAbort).toBe(true);
-    });
-  });
 
-  it("does not enable block streaming for telegram streamMode block", async () => {
-    await withTempHome(async (home) => {
-      const onBlockReply = vi.fn().mockResolvedValue(undefined);
-
-      const impl = async () => ({
+      const onBlockReplyStreamMode = vi.fn().mockResolvedValue(undefined);
+      piEmbeddedMock.runEmbeddedPiAgent.mockImplementation(async () => ({
         payloads: [{ text: "final" }],
         meta: {
           durationMs: 5,
           agentMeta: { sessionId: "s", provider: "p", model: "m" },
         },
-      });
-      piEmbeddedMock.runEmbeddedPiAgent.mockImplementation(impl);
+      }));
 
-      const res = await getReplyFromConfig(
+      const resStreamMode = await getReplyFromConfig(
         {
           Body: "ping",
           From: "+1004",
           To: "+2000",
-          MessageSid: "msg-126",
+          MessageSid: "msg-127",
           Provider: "telegram",
         },
         {
-          onBlockReply,
+          onBlockReply: onBlockReplyStreamMode,
         },
         {
           agents: {
@@ -384,8 +382,8 @@ describe("block streaming", () => {
         },
       );
 
-      expect(res?.text).toBe("final");
-      expect(onBlockReply).not.toHaveBeenCalled();
+      expect(resStreamMode?.text).toBe("final");
+      expect(onBlockReplyStreamMode).not.toHaveBeenCalled();
     });
   });
 });
