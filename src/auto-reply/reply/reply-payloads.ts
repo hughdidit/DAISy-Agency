@@ -58,8 +58,19 @@ export function applyReplyThreading(params: {
 }): ReplyPayload[] {
   const { payloads, replyToMode, replyToChannel, currentMessageId } = params;
   const applyReplyToMode = createReplyToModeFilterForChannel(replyToMode, replyToChannel);
+  const implicitReplyToId = currentMessageId?.trim() || undefined;
   return payloads
+<<<<<<< HEAD
     .map((payload) => applyReplyTagsToPayload(payload, currentMessageId))
+=======
+    .map((payload) => {
+      const autoThreaded =
+        payload.replyToId || payload.replyToCurrent === false || !implicitReplyToId
+          ? payload
+          : { ...payload, replyToId: implicitReplyToId };
+      return applyReplyTagsToPayload(autoThreaded, currentMessageId);
+    })
+>>>>>>> 79a38858a (fix: preserve off-mode semantics in auto reply threading (#14976) (thanks @Diaspar4u))
     .filter(isRenderablePayload)
     .map(applyReplyToMode);
 }
