@@ -202,8 +202,13 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     });
   });
 
+<<<<<<< HEAD
   it("applies allowFrom fallback for WhatsApp targets", () => {
     const cfg: MoltbotConfig = {
+=======
+  it("rejects WhatsApp target not in allowFrom (no silent fallback)", () => {
+    const cfg: OpenClawConfig = {
+>>>>>>> 39ee708df (fix(outbound): return error instead of silently redirecting to allowList[0] (#13578))
       agents: { defaults: { heartbeat: { target: "whatsapp", to: "+1999" } } },
       channels: { whatsapp: { allowFrom: ["+1555", "+1666"] } },
     };
@@ -213,9 +218,8 @@ describe("resolveHeartbeatDeliveryTarget", () => {
       lastTo: "+1222",
     };
     expect(resolveHeartbeatDeliveryTarget({ cfg, entry })).toEqual({
-      channel: "whatsapp",
-      to: "+1555",
-      reason: "allowFrom-fallback",
+      channel: "none",
+      reason: "no-target",
       accountId: undefined,
       lastChannel: "whatsapp",
       lastAccountId: undefined,
