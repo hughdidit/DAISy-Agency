@@ -2,9 +2,13 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 =======
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+=======
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
 import { escapeRegExp, formatEnvelopeTimestamp } from "../../test/helpers/envelope-timestamp.js";
 import { expectInboundContextContract } from "../../test/helpers/inbound-contract.js";
 >>>>>>> 9d2784cdb (test: speed up telegram suites)
@@ -32,6 +36,13 @@ vi.mock("../auto-reply/skill-commands.js", () => ({
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/moltbot-telegram-bot-${Math.random().toString(16).slice(2)}.json`,
 }));
+const tempDirs: string[] = [];
+
+function createTempDir(prefix: string): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  tempDirs.push(dir);
+  return dir;
+}
 
 function resolveSkillCommands(config: Parameters<typeof listNativeCommandSpecsForConfig>[0]) {
   return listSkillCommandsForAgents({ cfg: config });
@@ -215,6 +226,13 @@ describe("createTelegramBot", () => {
   });
   afterEach(() => {
     process.env.TZ = ORIGINAL_TZ;
+  });
+
+  afterAll(() => {
+    for (const dir of tempDirs) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+    tempDirs.length = 0;
   });
 
   it("installs grammY throttler", () => {
@@ -1223,7 +1241,11 @@ describe("createTelegramBot", () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
+<<<<<<< HEAD
     const storeDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-telegram-"));
+=======
+    const storeDir = createTempDir("openclaw-telegram-");
+>>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
     const storePath = path.join(storeDir, "sessions.json");
     fs.writeFileSync(
       storePath,

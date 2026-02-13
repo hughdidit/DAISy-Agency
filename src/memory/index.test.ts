@@ -1,9 +1,13 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+=======
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 
 let embedBatchCalls = 0;
@@ -36,14 +40,29 @@ vi.mock("./embeddings.js", () => {
 });
 
 describe("memory index", () => {
+  let fixtureRoot = "";
+  let fixtureCount = 0;
   let workspaceDir: string;
   let indexPath: string;
   let manager: MemoryIndexManager | null = null;
 
+  beforeAll(async () => {
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-fixtures-"));
+  });
+
+  afterAll(async () => {
+    await fs.rm(fixtureRoot, { recursive: true, force: true });
+  });
+
   beforeEach(async () => {
     embedBatchCalls = 0;
     failEmbeddings = false;
+<<<<<<< HEAD
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
+=======
+    workspaceDir = path.join(fixtureRoot, `case-${fixtureCount++}`);
+    await fs.mkdir(workspaceDir, { recursive: true });
+>>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
     indexPath = path.join(workspaceDir, "index.sqlite");
     await fs.mkdir(path.join(workspaceDir, "memory"));
     await fs.writeFile(
@@ -58,7 +77,6 @@ describe("memory index", () => {
       await manager.close();
       manager = null;
     }
-    await fs.rm(workspaceDir, { recursive: true, force: true });
   });
 
   it("indexes memory files and searches by vector", async () => {
@@ -272,7 +290,7 @@ describe("memory index", () => {
   });
 
   it("hybrid weights can favor vector-only matches over keyword-only matches", async () => {
-    const manyAlpha = Array.from({ length: 200 }, () => "Alpha").join(" ");
+    const manyAlpha = Array.from({ length: 80 }, () => "Alpha").join(" ");
     await fs.writeFile(
       path.join(workspaceDir, "memory", "vector-only.md"),
       "Alpha beta. Alpha beta. Alpha beta. Alpha beta.",
@@ -330,7 +348,7 @@ describe("memory index", () => {
   });
 
   it("hybrid weights can favor keyword matches when text weight dominates", async () => {
-    const manyAlpha = Array.from({ length: 200 }, () => "Alpha").join(" ");
+    const manyAlpha = Array.from({ length: 80 }, () => "Alpha").join(" ");
     await fs.writeFile(
       path.join(workspaceDir, "memory", "vector-only.md"),
       "Alpha beta. Alpha beta. Alpha beta. Alpha beta.",

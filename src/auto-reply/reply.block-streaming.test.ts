@@ -41,23 +41,20 @@ describe("block streaming", () => {
     ]);
   });
 
-  async function waitForCalls(fn: () => number, calls: number) {
-    const deadline = Date.now() + 5000;
-    while (fn() < calls) {
-      if (Date.now() > deadline) {
-        throw new Error(`Expected ${calls} call(s), got ${fn()}`);
-      }
-      await new Promise((resolve) => setTimeout(resolve, 5));
-    }
-  }
-
   it("waits for block replies before returning final payloads", async () => {
     await withTempHome(async (home) => {
       let releaseTyping: (() => void) | undefined;
       const typingGate = new Promise<void>((resolve) => {
         releaseTyping = resolve;
       });
-      const onReplyStart = vi.fn(() => typingGate);
+      let resolveOnReplyStart: (() => void) | undefined;
+      const onReplyStartCalled = new Promise<void>((resolve) => {
+        resolveOnReplyStart = resolve;
+      });
+      const onReplyStart = vi.fn(() => {
+        resolveOnReplyStart?.();
+        return typingGate;
+      });
       const onBlockReply = vi.fn().mockResolvedValue(undefined);
 
       const impl = async (params: RunEmbeddedPiAgentParams) => {
@@ -97,7 +94,7 @@ describe("block streaming", () => {
         },
       );
 
-      await waitForCalls(() => onReplyStart.mock.calls.length, 1);
+      await onReplyStartCalled;
       releaseTyping?.();
 
       const res = await replyPromise;
@@ -112,7 +109,14 @@ describe("block streaming", () => {
       const typingGate = new Promise<void>((resolve) => {
         releaseTyping = resolve;
       });
-      const onReplyStart = vi.fn(() => typingGate);
+      let resolveOnReplyStart: (() => void) | undefined;
+      const onReplyStartCalled = new Promise<void>((resolve) => {
+        resolveOnReplyStart = resolve;
+      });
+      const onReplyStart = vi.fn(() => {
+        resolveOnReplyStart?.();
+        return typingGate;
+      });
       const seen: string[] = [];
       const onBlockReply = vi.fn(async (payload) => {
         seen.push(payload.text ?? "");
@@ -156,7 +160,7 @@ describe("block streaming", () => {
         },
       );
 
-      await waitForCalls(() => onReplyStart.mock.calls.length, 1);
+      await onReplyStartCalled;
       releaseTyping?.();
 
       const res = await replyPromise;

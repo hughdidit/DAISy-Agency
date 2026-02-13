@@ -1,5 +1,7 @@
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -7,6 +9,15 @@ import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.j
 import type { CliDeps } from "../cli/deps.js";
 import type { MoltbotConfig } from "../config/config.js";
 import type { CronJob } from "./types.js";
+=======
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { CliDeps } from "../cli/deps.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { CronJob } from "./types.js";
+import { telegramOutbound } from "../channels/plugins/outbound/telegram.js";
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
+>>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
 
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
@@ -25,8 +36,17 @@ import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 
+let fixtureRoot = "";
+let fixtureCount = 0;
+
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
+<<<<<<< HEAD
   return withTempHomeBase(fn, { prefix: "moltbot-cron-" });
+=======
+  const home = path.join(fixtureRoot, `home-${fixtureCount++}`);
+  await fs.mkdir(path.join(home, ".openclaw", "agents", "main", "sessions"), { recursive: true });
+  return await fn(home);
+>>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
 }
 
 async function writeSessionStore(home: string) {
@@ -86,6 +106,14 @@ function makeJob(payload: CronJob["payload"]): CronJob {
 }
 
 describe("runCronIsolatedAgentTurn", () => {
+  beforeAll(async () => {
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-fixtures-"));
+  });
+
+  afterAll(async () => {
+    await fs.rm(fixtureRoot, { recursive: true, force: true });
+  });
+
   beforeEach(() => {
     vi.mocked(runEmbeddedPiAgent).mockReset();
     vi.mocked(loadModelCatalog).mockResolvedValue([]);
