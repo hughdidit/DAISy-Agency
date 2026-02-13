@@ -49,10 +49,18 @@ The hooks system allows you to:
 
 ### Bundled Hooks
 
+<<<<<<< HEAD
 Moltbot ships with four bundled hooks that are automatically discovered:
 
 - **💾 session-memory**: Saves session context to your agent workspace (default `~/clawd/memory/`) when you issue `/new`
 - **📝 command-logger**: Logs all command events to `~/.clawdbot/logs/commands.log`
+=======
+OpenClaw ships with four bundled hooks that are automatically discovered:
+
+- **💾 session-memory**: Saves session context to your agent workspace (default `~/.openclaw/workspace/memory/`) when you issue `/new`
+- **📎 bootstrap-extra-files**: Injects additional workspace bootstrap files from configured glob/path patterns during `agent:bootstrap`
+- **📝 command-logger**: Logs all command events to `~/.openclaw/logs/commands.log`
+>>>>>>> ab71fdf82 (Plugin API: compaction/reset hooks, bootstrap file globs, memory plugin status (#13287))
 - **🚀 boot-md**: Runs `BOOT.md` when the gateway starts (requires internal hooks enabled)
 - **😈 soul-evil**: Swaps injected `SOUL.md` content with `SOUL_EVIL.md` during a purge window or by random chance
 
@@ -502,6 +510,47 @@ Saves session context to memory when you issue `/new`.
 moltbot hooks enable session-memory
 ```
 
+### bootstrap-extra-files
+
+Injects additional bootstrap files (for example monorepo-local `AGENTS.md` / `TOOLS.md`) during `agent:bootstrap`.
+
+**Events**: `agent:bootstrap`
+
+**Requirements**: `workspace.dir` must be configured
+
+**Output**: No files written; bootstrap context is modified in-memory only.
+
+**Config**:
+
+```json
+{
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "bootstrap-extra-files": {
+          "enabled": true,
+          "paths": ["packages/*/AGENTS.md", "packages/*/TOOLS.md"]
+        }
+      }
+    }
+  }
+}
+```
+
+**Notes**:
+
+- Paths are resolved relative to workspace.
+- Files must stay inside workspace (realpath-checked).
+- Only recognized bootstrap basenames are loaded.
+- Subagent allowlist is preserved (`AGENTS.md` and `TOOLS.md` only).
+
+**Enable**:
+
+```bash
+openclaw hooks enable bootstrap-extra-files
+```
+
 ### command-logger
 
 Logs all command events to a centralized audit file.
@@ -680,6 +729,7 @@ The gateway logs hook loading at startup:
 
 ```
 Registered hook: session-memory -> command:new
+Registered hook: bootstrap-extra-files -> agent:bootstrap
 Registered hook: command-logger -> command
 Registered hook: boot-md -> gateway:startup
 ```

@@ -35,6 +35,7 @@ Hooks (4/4 ready)
 
 Ready:
   🚀 boot-md ✓ - Run BOOT.md on gateway startup
+  📎 bootstrap-extra-files ✓ - Inject extra workspace bootstrap files during agent bootstrap
   📝 command-logger ✓ - Log all command events to a centralized audit file
   💾 session-memory ✓ - Save session context to memory when /new command is issued
   😈 soul-evil ✓ - Swap injected SOUL content during a purge window or by random chance
@@ -252,6 +253,18 @@ moltbot hooks enable session-memory
 **Output:** `~/clawd/memory/YYYY-MM-DD-slug.md`
 
 **See:** [session-memory documentation](/automation/hooks#session-memory)
+
+### bootstrap-extra-files
+
+Injects additional bootstrap files (for example monorepo-local `AGENTS.md` / `TOOLS.md`) during `agent:bootstrap`.
+
+**Enable:**
+
+```bash
+openclaw hooks enable bootstrap-extra-files
+```
+
+**See:** [bootstrap-extra-files documentation](/automation/hooks#bootstrap-extra-files)
 
 ### command-logger
 
