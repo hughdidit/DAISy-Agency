@@ -171,26 +171,47 @@ function isWithinActiveHours(
   return currentMin >= startMin || currentMin < endMin;
 }
 
-// Returns true when a system event should be treated as real cron reminder content.
-export function isCronSystemEvent(evt: string) {
+const HEARTBEAT_OK_PREFIX = HEARTBEAT_TOKEN.toLowerCase();
+
+// Detect heartbeat-specific noise so cron reminders don't trigger on non-reminder events.
+function isHeartbeatAckEvent(evt: string): boolean {
   const trimmed = evt.trim();
   if (!trimmed) {
     return false;
   }
-
   const lower = trimmed.toLowerCase();
-  const heartbeatOk = HEARTBEAT_TOKEN.toLowerCase();
-  if (lower === heartbeatOk || lower.startsWith(`${heartbeatOk} `)) {
+  if (!lower.startsWith(HEARTBEAT_OK_PREFIX)) {
     return false;
   }
-  if (lower.includes("heartbeat poll") || lower.includes("heartbeat wake")) {
-    return false;
+  const suffix = lower.slice(HEARTBEAT_OK_PREFIX.length);
+  if (suffix.length === 0) {
+    return true;
   }
-  if (lower.includes("exec finished")) {
-    return false;
-  }
+  return !/[a-z0-9_]/.test(suffix[0]);
+}
 
-  return true;
+function isHeartbeatNoiseEvent(evt: string): boolean {
+  const lower = evt.trim().toLowerCase();
+  if (!lower) {
+    return false;
+  }
+  return (
+    isHeartbeatAckEvent(lower) ||
+    lower.includes("heartbeat poll") ||
+    lower.includes("heartbeat wake")
+  );
+}
+
+function isExecCompletionEvent(evt: string): boolean {
+  return evt.toLowerCase().includes("exec finished");
+}
+
+// Returns true when a system event should be treated as real cron reminder content.
+export function isCronSystemEvent(evt: string) {
+  if (!evt.trim()) {
+    return false;
+  }
+  return !isHeartbeatNoiseEvent(evt) && !isExecCompletionEvent(evt);
 }
 
 type HeartbeatAgentState = {
@@ -518,6 +539,7 @@ export async function runHeartbeatOnce(opts: {
   // If so, use a specialized prompt that instructs the model to relay the result
   // instead of the standard heartbeat prompt with "reply HEARTBEAT_OK".
   const isExecEvent = opts.reason === "exec-event";
+<<<<<<< HEAD
   const pendingEvents = isExecEvent ? peekSystemEvents(sessionKey) : [];
   const hasExecCompletion = pendingEvents.some((evt) => evt.includes("Exec finished"));
 <<<<<<< HEAD
@@ -544,6 +566,17 @@ export async function runHeartbeatOnce(opts: {
     ? EXEC_EVENT_PROMPT
     : hasCronEvents
       ? CRON_EVENT_PROMPT
+=======
+  const isCronEvent = Boolean(opts.reason?.startsWith("cron:"));
+  const pendingEvents = isExecEvent || isCronEvent ? peekSystemEvents(sessionKey) : [];
+  const cronEvents = pendingEvents.filter((evt) => isCronSystemEvent(evt));
+  const hasExecCompletion = pendingEvents.some(isExecCompletionEvent);
+  const hasCronEvents = isCronEvent && cronEvents.length > 0;
+  const prompt = hasExecCompletion
+    ? EXEC_EVENT_PROMPT
+    : hasCronEvents
+      ? buildCronEventPrompt(cronEvents)
+>>>>>>> 54513f424 (fix: align cron prompt content with filtered reminder events)
       : resolveHeartbeatPrompt(cfg, heartbeat);
 >>>>>>> 4f687a744 (fix: prevent ghost reminder notifications (#13317))
   const ctx = {
