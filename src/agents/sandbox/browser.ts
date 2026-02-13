@@ -59,9 +59,9 @@ function buildSandboxBrowserResolvedConfig(params: {
     headless: params.headless,
     noSandbox: false,
     attachOnly: true,
-    defaultProfile: "clawd",
+    defaultProfile: "daisy",
     profiles: {
-      clawd: { cdpPort: params.cdpPort, color: DEFAULT_CLAWD_BROWSER_COLOR },
+      daisy: { cdpPort: params.cdpPort, color: DEFAULT_CLAWD_BROWSER_COLOR },
     },
   };
 }
@@ -137,7 +137,7 @@ export async function ensureSandboxBrowser(params: {
       : null;
 
   const existing = BROWSER_BRIDGES.get(params.scopeKey);
-  const existingProfile = existing ? resolveProfile(existing.bridge.state.resolved, "clawd") : null;
+  const existingProfile = existing ? resolveProfile(existing.bridge.state.resolved, "daisy") : null;
   const shouldReuse =
     existing && existing.containerName === containerName && existingProfile?.cdpPort === mappedCdp;
   if (existing && !shouldReuse) {
