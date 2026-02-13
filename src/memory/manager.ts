@@ -1,7 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
-import chokidar, { type FSWatcher } from "chokidar";
-import { randomUUID } from "node:crypto";
-import fsSync from "node:fs";
+import { type FSWatcher } from "chokidar";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
@@ -16,22 +14,7 @@ import type {
 } from "./types.js";
 import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
 import { resolveMemorySearchConfig } from "../agents/memory-search.js";
-import { resolveSessionTranscriptsDirForAgent } from "../config/sessions/paths.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { onSessionTranscriptUpdate } from "../sessions/transcript-events.js";
-import { resolveUserPath } from "../utils.js";
-import { runGeminiEmbeddingBatches, type GeminiBatchRequest } from "./batch-gemini.js";
-import {
-  OPENAI_BATCH_ENDPOINT,
-  type OpenAiBatchRequest,
-  runOpenAiEmbeddingBatches,
-} from "./batch-openai.js";
-import { type VoyageBatchRequest, runVoyageEmbeddingBatches } from "./batch-voyage.js";
-import { enforceEmbeddingMaxInputTokens } from "./embedding-chunk-limits.js";
-import { estimateUtf8Bytes } from "./embedding-input-limits.js";
-import { DEFAULT_GEMINI_EMBEDDING_MODEL } from "./embeddings-gemini.js";
-import { DEFAULT_OPENAI_EMBEDDING_MODEL } from "./embeddings-openai.js";
-import { DEFAULT_VOYAGE_EMBEDDING_MODEL } from "./embeddings-voyage.js";
 import {
   createEmbeddingProvider,
   type EmbeddingProvider,
@@ -41,6 +24,7 @@ import {
   type VoyageEmbeddingClient,
 } from "./embeddings.js";
 import { bm25RankToScore, buildFtsQuery, mergeHybridResults } from "./hybrid.js";
+<<<<<<< HEAD
 import {
   buildFileEntry,
   chunkMarkdown,
@@ -85,32 +69,25 @@ type MemorySyncProgressState = {
 };
 
 const META_KEY = "memory_index_meta_v1";
+=======
+import { isMemoryPath, normalizeExtraMemoryPaths } from "./internal.js";
+import { memoryManagerEmbeddingOps } from "./manager-embedding-ops.js";
+import { searchKeyword, searchVector } from "./manager-search.js";
+import { memoryManagerSyncOps } from "./manager-sync-ops.js";
+>>>>>>> 4c401d336 (refactor(memory): extract manager sync and embedding ops)
 const SNIPPET_MAX_CHARS = 700;
 const VECTOR_TABLE = "chunks_vec";
 const FTS_TABLE = "chunks_fts";
 const EMBEDDING_CACHE_TABLE = "embedding_cache";
-const SESSION_DIRTY_DEBOUNCE_MS = 5000;
-const EMBEDDING_BATCH_MAX_TOKENS = 8000;
-const EMBEDDING_INDEX_CONCURRENCY = 4;
-const EMBEDDING_RETRY_MAX_ATTEMPTS = 3;
-const EMBEDDING_RETRY_BASE_DELAY_MS = 500;
-const EMBEDDING_RETRY_MAX_DELAY_MS = 8000;
 const BATCH_FAILURE_LIMIT = 2;
-const SESSION_DELTA_READ_CHUNK_BYTES = 64 * 1024;
-const VECTOR_LOAD_TIMEOUT_MS = 30_000;
-const EMBEDDING_QUERY_TIMEOUT_REMOTE_MS = 60_000;
-const EMBEDDING_QUERY_TIMEOUT_LOCAL_MS = 5 * 60_000;
-const EMBEDDING_BATCH_TIMEOUT_REMOTE_MS = 2 * 60_000;
-const EMBEDDING_BATCH_TIMEOUT_LOCAL_MS = 10 * 60_000;
 
 const log = createSubsystemLogger("memory");
 
 const INDEX_CACHE = new Map<string, MemoryIndexManager>();
 
-const vectorToBlob = (embedding: number[]): Buffer =>
-  Buffer.from(new Float32Array(embedding).buffer);
-
 export class MemoryIndexManager implements MemorySearchManager {
+  // oxlint-disable-next-line typescript/no-explicit-any
+  [key: string]: any;
   private readonly cacheKey: string;
   private readonly cfg: OpenClawConfig;
   private readonly agentId: string;
@@ -295,7 +272,7 @@ export class MemoryIndexManager implements MemorySearchManager {
       ? await this.searchKeyword(cleaned, candidates).catch(() => [])
       : [];
 
-    const queryVec = await this.embedQueryWithTimeout(cleaned);
+    const queryVec = (await this.embedQueryWithTimeout(cleaned)) as number[];
     const hasVector = queryVec.some((v) => v !== 0);
     const vectorResults = hasVector
       ? await this.searchVector(queryVec, candidates).catch(() => [])
@@ -401,7 +378,7 @@ export class MemoryIndexManager implements MemorySearchManager {
     this.syncing = this.runSync(params).finally(() => {
       this.syncing = null;
     });
-    return this.syncing;
+    return this.syncing ?? Promise.resolve();
   }
 
   async readFile(params: {
@@ -611,302 +588,21 @@ export class MemoryIndexManager implements MemorySearchManager {
     this.db.close();
     INDEX_CACHE.delete(this.cacheKey);
   }
+}
 
-  private async ensureVectorReady(dimensions?: number): Promise<boolean> {
-    if (!this.vector.enabled) {
-      return false;
-    }
-    if (!this.vectorReady) {
-      this.vectorReady = this.withTimeout(
-        this.loadVectorExtension(),
-        VECTOR_LOAD_TIMEOUT_MS,
-        `sqlite-vec load timed out after ${Math.round(VECTOR_LOAD_TIMEOUT_MS / 1000)}s`,
-      );
-    }
-    let ready = false;
-    try {
-      ready = await this.vectorReady;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      this.vector.available = false;
-      this.vector.loadError = message;
-      this.vectorReady = null;
-      log.warn(`sqlite-vec unavailable: ${message}`);
-      return false;
-    }
-    if (ready && typeof dimensions === "number" && dimensions > 0) {
-      this.ensureVectorTable(dimensions);
-    }
-    return ready;
-  }
-
-  private async loadVectorExtension(): Promise<boolean> {
-    if (this.vector.available !== null) {
-      return this.vector.available;
-    }
-    if (!this.vector.enabled) {
-      this.vector.available = false;
-      return false;
-    }
-    try {
-      const resolvedPath = this.vector.extensionPath?.trim()
-        ? resolveUserPath(this.vector.extensionPath)
-        : undefined;
-      const loaded = await loadSqliteVecExtension({ db: this.db, extensionPath: resolvedPath });
-      if (!loaded.ok) {
-        throw new Error(loaded.error ?? "unknown sqlite-vec load error");
-      }
-      this.vector.extensionPath = loaded.extensionPath;
-      this.vector.available = true;
-      return true;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      this.vector.available = false;
-      this.vector.loadError = message;
-      log.warn(`sqlite-vec unavailable: ${message}`);
-      return false;
-    }
-  }
-
-  private ensureVectorTable(dimensions: number): void {
-    if (this.vector.dims === dimensions) {
-      return;
-    }
-    if (this.vector.dims && this.vector.dims !== dimensions) {
-      this.dropVectorTable();
-    }
-    this.db.exec(
-      `CREATE VIRTUAL TABLE IF NOT EXISTS ${VECTOR_TABLE} USING vec0(\n` +
-        `  id TEXT PRIMARY KEY,\n` +
-        `  embedding FLOAT[${dimensions}]\n` +
-        `)`,
-    );
-    this.vector.dims = dimensions;
-  }
-
-  private dropVectorTable(): void {
-    try {
-      this.db.exec(`DROP TABLE IF EXISTS ${VECTOR_TABLE}`);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      log.debug(`Failed to drop ${VECTOR_TABLE}: ${message}`);
-    }
-  }
-
-  private buildSourceFilter(alias?: string): { sql: string; params: MemorySource[] } {
-    const sources = Array.from(this.sources);
-    if (sources.length === 0) {
-      return { sql: "", params: [] };
-    }
-    const column = alias ? `${alias}.source` : "source";
-    const placeholders = sources.map(() => "?").join(", ");
-    return { sql: ` AND ${column} IN (${placeholders})`, params: sources };
-  }
-
-  private openDatabase(): DatabaseSync {
-    const dbPath = resolveUserPath(this.settings.store.path);
-    return this.openDatabaseAtPath(dbPath);
-  }
-
-  private openDatabaseAtPath(dbPath: string): DatabaseSync {
-    const dir = path.dirname(dbPath);
-    ensureDir(dir);
-    const { DatabaseSync } = requireNodeSqlite();
-    return new DatabaseSync(dbPath, { allowExtension: this.settings.store.vector.enabled });
-  }
-
-  private seedEmbeddingCache(sourceDb: DatabaseSync): void {
-    if (!this.cache.enabled) {
-      return;
-    }
-    try {
-      const rows = sourceDb
-        .prepare(
-          `SELECT provider, model, provider_key, hash, embedding, dims, updated_at FROM ${EMBEDDING_CACHE_TABLE}`,
-        )
-        .all() as Array<{
-        provider: string;
-        model: string;
-        provider_key: string;
-        hash: string;
-        embedding: string;
-        dims: number | null;
-        updated_at: number;
-      }>;
-      if (!rows.length) {
-        return;
-      }
-      const insert = this.db.prepare(
-        `INSERT INTO ${EMBEDDING_CACHE_TABLE} (provider, model, provider_key, hash, embedding, dims, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)
-         ON CONFLICT(provider, model, provider_key, hash) DO UPDATE SET
-           embedding=excluded.embedding,
-           dims=excluded.dims,
-           updated_at=excluded.updated_at`,
-      );
-      this.db.exec("BEGIN");
-      for (const row of rows) {
-        insert.run(
-          row.provider,
-          row.model,
-          row.provider_key,
-          row.hash,
-          row.embedding,
-          row.dims,
-          row.updated_at,
-        );
-      }
-      this.db.exec("COMMIT");
-    } catch (err) {
-      try {
-        this.db.exec("ROLLBACK");
-      } catch {}
-      throw err;
-    }
-  }
-
-  private async swapIndexFiles(targetPath: string, tempPath: string): Promise<void> {
-    const backupPath = `${targetPath}.backup-${randomUUID()}`;
-    await this.moveIndexFiles(targetPath, backupPath);
-    try {
-      await this.moveIndexFiles(tempPath, targetPath);
-    } catch (err) {
-      await this.moveIndexFiles(backupPath, targetPath);
-      throw err;
-    }
-    await this.removeIndexFiles(backupPath);
-  }
-
-  private async moveIndexFiles(sourceBase: string, targetBase: string): Promise<void> {
-    const suffixes = ["", "-wal", "-shm"];
-    for (const suffix of suffixes) {
-      const source = `${sourceBase}${suffix}`;
-      const target = `${targetBase}${suffix}`;
-      try {
-        await fs.rename(source, target);
-      } catch (err) {
-        if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-          throw err;
-        }
-      }
-    }
-  }
-
-  private async removeIndexFiles(basePath: string): Promise<void> {
-    const suffixes = ["", "-wal", "-shm"];
-    await Promise.all(suffixes.map((suffix) => fs.rm(`${basePath}${suffix}`, { force: true })));
-  }
-
-  private ensureSchema() {
-    const result = ensureMemoryIndexSchema({
-      db: this.db,
-      embeddingCacheTable: EMBEDDING_CACHE_TABLE,
-      ftsTable: FTS_TABLE,
-      ftsEnabled: this.fts.enabled,
-    });
-    this.fts.available = result.ftsAvailable;
-    if (result.ftsError) {
-      this.fts.loadError = result.ftsError;
-      log.warn(`fts unavailable: ${result.ftsError}`);
-    }
-  }
-
-  private ensureWatcher() {
-    if (!this.sources.has("memory") || !this.settings.sync.watch || this.watcher) {
-      return;
-    }
-    const additionalPaths = normalizeExtraMemoryPaths(this.workspaceDir, this.settings.extraPaths)
-      .map((entry) => {
-        try {
-          const stat = fsSync.lstatSync(entry);
-          return stat.isSymbolicLink() ? null : entry;
-        } catch {
-          return null;
-        }
-      })
-      .filter((entry): entry is string => Boolean(entry));
-    const watchPaths = new Set<string>([
-      path.join(this.workspaceDir, "MEMORY.md"),
-      path.join(this.workspaceDir, "memory.md"),
-      path.join(this.workspaceDir, "memory"),
-      ...additionalPaths,
-    ]);
-    this.watcher = chokidar.watch(Array.from(watchPaths), {
-      ignoreInitial: true,
-      awaitWriteFinish: {
-        stabilityThreshold: this.settings.sync.watchDebounceMs,
-        pollInterval: 100,
-      },
-    });
-    const markDirty = () => {
-      this.dirty = true;
-      this.scheduleWatchSync();
-    };
-    this.watcher.on("add", markDirty);
-    this.watcher.on("change", markDirty);
-    this.watcher.on("unlink", markDirty);
-  }
-
-  private ensureSessionListener() {
-    if (!this.sources.has("sessions") || this.sessionUnsubscribe) {
-      return;
-    }
-    this.sessionUnsubscribe = onSessionTranscriptUpdate((update) => {
-      if (this.closed) {
-        return;
-      }
-      const sessionFile = update.sessionFile;
-      if (!this.isSessionFileForAgent(sessionFile)) {
-        return;
-      }
-      this.scheduleSessionDirty(sessionFile);
-    });
-  }
-
-  private scheduleSessionDirty(sessionFile: string) {
-    this.sessionPendingFiles.add(sessionFile);
-    if (this.sessionWatchTimer) {
-      return;
-    }
-    this.sessionWatchTimer = setTimeout(() => {
-      this.sessionWatchTimer = null;
-      void this.processSessionDeltaBatch().catch((err) => {
-        log.warn(`memory session delta failed: ${String(err)}`);
-      });
-    }, SESSION_DIRTY_DEBOUNCE_MS);
-  }
-
-  private async processSessionDeltaBatch(): Promise<void> {
-    if (this.sessionPendingFiles.size === 0) {
-      return;
-    }
-    const pending = Array.from(this.sessionPendingFiles);
-    this.sessionPendingFiles.clear();
-    let shouldSync = false;
-    for (const sessionFile of pending) {
-      const delta = await this.updateSessionDelta(sessionFile);
-      if (!delta) {
+function applyPrototypeMixins(target: object, ...sources: object[]): void {
+  for (const source of sources) {
+    for (const name of Object.getOwnPropertyNames(source)) {
+      if (name === "constructor") {
         continue;
       }
-      const bytesThreshold = delta.deltaBytes;
-      const messagesThreshold = delta.deltaMessages;
-      const bytesHit =
-        bytesThreshold <= 0 ? delta.pendingBytes > 0 : delta.pendingBytes >= bytesThreshold;
-      const messagesHit =
-        messagesThreshold <= 0
-          ? delta.pendingMessages > 0
-          : delta.pendingMessages >= messagesThreshold;
-      if (!bytesHit && !messagesHit) {
+      const descriptor = Object.getOwnPropertyDescriptor(source, name);
+      if (!descriptor) {
         continue;
       }
-      this.sessionsDirtyFiles.add(sessionFile);
-      this.sessionsDirty = true;
-      delta.pendingBytes =
-        bytesThreshold > 0 ? Math.max(0, delta.pendingBytes - bytesThreshold) : 0;
-      delta.pendingMessages =
-        messagesThreshold > 0 ? Math.max(0, delta.pendingMessages - messagesThreshold) : 0;
-      shouldSync = true;
+      Object.defineProperty(target, name, descriptor);
     }
+<<<<<<< HEAD
     if (shouldSync) {
       void this.sync({ reason: "session-delta" }).catch((err) => {
         log.warn(`memory sync failed (session-delta): ${String(err)}`);
@@ -2414,5 +2110,9 @@ export class MemoryIndexManager implements MemorySearchManager {
            size=excluded.size`,
       )
       .run(entry.path, options.source, entry.hash, entry.mtimeMs, entry.size);
+=======
+>>>>>>> 4c401d336 (refactor(memory): extract manager sync and embedding ops)
   }
 }
+
+applyPrototypeMixins(MemoryIndexManager.prototype, memoryManagerSyncOps, memoryManagerEmbeddingOps);
