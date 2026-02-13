@@ -86,8 +86,12 @@ Docs: https://docs.openclaw.ai
 =======
 - Sessions/Agents: pass `agentId` through status and usage transcript-resolution paths (auto-reply, gateway usage APIs, and session cost/log loaders) so non-default agents can resolve absolute session files without path-validation failures. (#15103) Thanks @jalehman.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 990413534 (fix: land multi-agent session path fix + regressions (#15103) (#15448))
 =======
+=======
+- Sessions: archive previous transcript files on `/new` and `/reset` session resets (including gateway `sessions.reset`) so stale transcripts do not accumulate on disk. (#14869) Thanks @mcaxtr.
+>>>>>>> 31537c669 (fix: archive old transcript files on /new and /reset (#14949))
 - Signal/Install: auto-install `signal-cli` via Homebrew on non-x64 Linux architectures, avoiding x86_64 native binary `Exec format error` failures on arm64/arm hosts. (#15443) Thanks @jogvan-k.
 <<<<<<< HEAD
 >>>>>>> 8307f9738 (fix: add changelog entry for signal-cli arch-aware install (#15443) (thanks @jogvan-k))
