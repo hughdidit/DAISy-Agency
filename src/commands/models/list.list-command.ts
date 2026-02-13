@@ -2,6 +2,7 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 
 import { ensureAuthProfileStore } from "../../agents/auth-profiles.js";
 import { parseModelRef } from "../../agents/model-selection.js";
+import { resolveModel } from "../../agents/pi-embedded-runner/model.js";
 import { loadConfig } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { resolveConfiguredEntries } from "./list.configured.js";
@@ -100,7 +101,13 @@ export async function modelsListCommand(
       if (providerFilter && entry.ref.provider.toLowerCase() !== providerFilter) {
         continue;
       }
-      const model = modelByKey.get(entry.key);
+      let model = modelByKey.get(entry.key);
+      if (!model) {
+        const resolved = resolveModel(entry.ref.provider, entry.ref.model, undefined, cfg);
+        if (resolved.model && !resolved.error) {
+          model = resolved.model;
+        }
+      }
       if (opts.local && model && !isLocalBaseUrl(model.baseUrl)) {
         continue;
       }
