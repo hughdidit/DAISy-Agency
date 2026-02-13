@@ -318,11 +318,36 @@ export async function deliverOutboundPayloads(params: {
       mediaUrls: payload.mediaUrls ?? (payload.mediaUrl ? [payload.mediaUrl] : []),
       channelData: payload.channelData,
     };
+    const emitMessageSent = (success: boolean, error?: string) => {
+      if (!hookRunner?.hasHooks("message_sent")) {
+        return;
+      }
+      void hookRunner
+        .runMessageSent(
+          {
+            to,
+            content: payloadSummary.text,
+            success,
+            ...(error ? { error } : {}),
+          },
+          {
+            channelId: channel,
+            accountId: accountId ?? undefined,
+          },
+        )
+        .catch(() => {});
+    };
     try {
       throwIfAborted(abortSignal);
       params.onPayload?.(payloadSummary);
+<<<<<<< HEAD
       if (handler.sendPayload && payload.channelData) {
         results.push(await handler.sendPayload(payload));
+=======
+      if (handler.sendPayload && effectivePayload.channelData) {
+        results.push(await handler.sendPayload(effectivePayload));
+        emitMessageSent(true);
+>>>>>>> 1d8bda4a2 (fix: emit message_sent hook for all successful outbound paths (#15104))
         continue;
       }
       if (payloadSummary.mediaUrls.length === 0) {
@@ -331,6 +356,7 @@ export async function deliverOutboundPayloads(params: {
         } else {
           await sendTextChunks(payloadSummary.text);
         }
+        emitMessageSent(true);
         continue;
       }
 
@@ -345,8 +371,17 @@ export async function deliverOutboundPayloads(params: {
           results.push(await handler.sendMedia(caption, url));
         }
       }
+<<<<<<< HEAD
     } catch (err) {
       if (!params.bestEffort) throw err;
+=======
+      emitMessageSent(true);
+    } catch (err) {
+      emitMessageSent(false, err instanceof Error ? err.message : String(err));
+      if (!params.bestEffort) {
+        throw err;
+      }
+>>>>>>> 1d8bda4a2 (fix: emit message_sent hook for all successful outbound paths (#15104))
       params.onError?.(err, payloadSummary);
     }
   }
