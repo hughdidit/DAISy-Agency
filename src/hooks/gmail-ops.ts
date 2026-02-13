@@ -331,11 +331,17 @@ export async function runGmailService(opts: GmailRunOptions) {
     void startGmailWatch(runtimeConfig);
   }, renewMs);
 
+  const detachSignals = () => {
+    process.off("SIGINT", shutdown);
+    process.off("SIGTERM", shutdown);
+  };
+
   const shutdown = () => {
     if (shuttingDown) {
       return;
     }
     shuttingDown = true;
+    detachSignals();
     clearInterval(renewTimer);
     child.kill("SIGTERM");
   };
@@ -345,6 +351,7 @@ export async function runGmailService(opts: GmailRunOptions) {
 
   child.on("exit", () => {
     if (shuttingDown) {
+      detachSignals();
       return;
     }
     defaultRuntime.log("gog watch serve exited; restarting in 2s");

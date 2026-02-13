@@ -107,9 +107,19 @@ async function resetGatewayTestState(options: { uniqueConfigRoot: boolean }) {
     throw new Error("resetGatewayTestState called before temp home was initialized");
   }
   applyGatewaySkipEnv();
+<<<<<<< HEAD
   tempConfigRoot = options.uniqueConfigRoot
     ? await fs.mkdtemp(path.join(tempHome, "moltbot-test-"))
     : path.join(tempHome, ".clawdbot-test");
+=======
+  if (options.uniqueConfigRoot) {
+    tempConfigRoot = await fs.mkdtemp(path.join(tempHome, "openclaw-test-"));
+  } else {
+    tempConfigRoot = path.join(tempHome, ".openclaw-test");
+    await fs.rm(tempConfigRoot, { recursive: true, force: true });
+    await fs.mkdir(tempConfigRoot, { recursive: true });
+  }
+>>>>>>> 1eccfa893 (perf(test): trim duplicate e2e suites and harden signal hooks)
   setTestConfigRoot(tempConfigRoot);
   sessionStoreSaveDelayMs.value = 0;
   testTailnetIPv4.value = undefined;
@@ -223,10 +233,10 @@ export function installGatewayTestHooks(options?: { scope?: "test" | "suite" }) 
   if (scope === "suite") {
     beforeAll(async () => {
       await setupGatewayTestHome();
-      await resetGatewayTestState({ uniqueConfigRoot: true });
+      await resetGatewayTestState({ uniqueConfigRoot: false });
     });
     beforeEach(async () => {
-      await resetGatewayTestState({ uniqueConfigRoot: true });
+      await resetGatewayTestState({ uniqueConfigRoot: false });
     }, 60_000);
     afterEach(async () => {
       await cleanupGatewayTestHome({ restoreEnv: false });
