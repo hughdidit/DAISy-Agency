@@ -1,5 +1,9 @@
 import { CHANNEL_IDS } from "../channels/registry.js";
 import { VERSION } from "../version.js";
+<<<<<<< HEAD
+=======
+import { applySensitiveHints, buildBaseHints, mapSensitivePaths } from "./schema.hints.js";
+>>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
 import { OpenClawSchema } from "./zod-schema.js";
 
 export type ConfigUiHint = {
@@ -867,6 +871,28 @@ function applySensitiveHints(hints: ConfigUiHints): ConfigUiHints {
   return next;
 }
 
+function collectExtensionHintKeys(
+  hints: ConfigUiHints,
+  plugins: PluginUiMetadata[],
+  channels: ChannelUiMetadata[],
+): Set<string> {
+  const pluginPrefixes = plugins
+    .map((plugin) => plugin.id.trim())
+    .filter(Boolean)
+    .map((id) => `plugins.entries.${id}`);
+  const channelPrefixes = channels
+    .map((channel) => channel.id.trim())
+    .filter(Boolean)
+    .map((id) => `channels.${id}`);
+  const prefixes = [...pluginPrefixes, ...channelPrefixes];
+
+  return new Set(
+    Object.keys(hints).filter((key) =>
+      prefixes.some((prefix) => key === prefix || key.startsWith(`${prefix}.`)),
+    ),
+  );
+}
+
 function applyPluginHints(hints: ConfigUiHints, plugins: PluginUiMetadata[]): ConfigUiHints {
   const next: ConfigUiHints = { ...hints };
   for (const plugin of plugins) {
@@ -1078,7 +1104,7 @@ function buildBaseConfigSchema(): ConfigSchemaResponse {
     unrepresentable: "any",
   });
   schema.title = "OpenClawConfig";
-  const hints = applySensitiveHints(buildBaseHints());
+  const hints = mapSensitivePaths(OpenClawSchema, "", buildBaseHints());
   const next = {
     schema: stripChannelSchema(schema),
     uiHints: hints,
@@ -1099,12 +1125,16 @@ export function buildConfigSchema(params?: {
   if (plugins.length === 0 && channels.length === 0) {
     return base;
   }
-  const mergedHints = applySensitiveHints(
-    applyHeartbeatTargetHints(
-      applyChannelHints(applyPluginHints(base.uiHints, plugins), channels),
-      channels,
-    ),
+  const mergedWithoutSensitiveHints = applyHeartbeatTargetHints(
+    applyChannelHints(applyPluginHints(base.uiHints, plugins), channels),
+    channels,
   );
+  const extensionHintKeys = collectExtensionHintKeys(
+    mergedWithoutSensitiveHints,
+    plugins,
+    channels,
+  );
+  const mergedHints = applySensitiveHints(mergedWithoutSensitiveHints, extensionHintKeys);
   const mergedSchema = applyChannelSchemas(applyPluginSchemas(base.schema, plugins), channels);
   return {
     ...base,
