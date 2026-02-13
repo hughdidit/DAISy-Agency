@@ -87,10 +87,7 @@ function createDiscordGatewayPlugin(params: {
         this.#proxyAgent = proxyAgent;
       }
 
-      createWebSocket(url?: string) {
-        if (!url) {
-          throw new Error("Gateway URL is required");
-        }
+      createWebSocket(url: string) {
         return new WebSocket(url, { agent: this.#proxyAgent });
       }
     }
@@ -740,3 +737,7 @@ async function clearDiscordNativeCommands(params: {
     params.runtime.error?.(danger(`discord: failed to clear native commands: ${String(err)}`));
   }
 }
+
+export const __testing = {
+  createDiscordGatewayPlugin,
+};
