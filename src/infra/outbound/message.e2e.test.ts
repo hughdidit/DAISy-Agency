@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ChannelOutboundAdapter, ChannelPlugin } from "../../channels/plugins/types.js";
+import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createIMessageTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
-const loadMessage = async () => await import("./message.js");
+import { sendMessage, sendPoll } from "./message.js";
 
-const setRegistry = async (registry: ReturnType<typeof createTestRegistry>) => {
-  const { setActivePluginRegistry } = await import("../../plugins/runtime.js");
+const setRegistry = (registry: ReturnType<typeof createTestRegistry>) => {
   setActivePluginRegistry(registry);
 };
 
@@ -16,23 +16,21 @@ vi.mock("../../gateway/call.js", () => ({
 }));
 
 describe("sendMessage channel normalization", () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     callGatewayMock.mockReset();
-    vi.resetModules();
-    await setRegistry(emptyRegistry);
+    setRegistry(emptyRegistry);
   });
 
-  afterEach(async () => {
-    await setRegistry(emptyRegistry);
+  afterEach(() => {
+    setRegistry(emptyRegistry);
   });
 
   it("normalizes Teams alias", async () => {
-    const { sendMessage } = await loadMessage();
     const sendMSTeams = vi.fn(async () => ({
       messageId: "m1",
       conversationId: "c1",
     }));
-    await setRegistry(
+    setRegistry(
       createTestRegistry([
         {
           pluginId: "msteams",
@@ -57,9 +55,8 @@ describe("sendMessage channel normalization", () => {
   });
 
   it("normalizes iMessage alias", async () => {
-    const { sendMessage } = await loadMessage();
     const sendIMessage = vi.fn(async () => ({ messageId: "i1" }));
-    await setRegistry(
+    setRegistry(
       createTestRegistry([
         {
           pluginId: "imessage",
@@ -81,21 +78,75 @@ describe("sendMessage channel normalization", () => {
   });
 });
 
-describe("sendPoll channel normalization", () => {
-  beforeEach(async () => {
+<<<<<<< HEAD
+=======
+describe("sendMessage replyToId threading", () => {
+  beforeEach(() => {
     callGatewayMock.mockReset();
-    vi.resetModules();
-    await setRegistry(emptyRegistry);
+    setRegistry(emptyRegistry);
   });
 
-  afterEach(async () => {
-    await setRegistry(emptyRegistry);
+  afterEach(() => {
+    setRegistry(emptyRegistry);
+  });
+
+  it("passes replyToId through to the outbound adapter", async () => {
+    const capturedCtx: Record<string, unknown>[] = [];
+    const plugin = createMattermostLikePlugin({
+      onSendText: (ctx) => {
+        capturedCtx.push(ctx);
+      },
+    });
+    setRegistry(createTestRegistry([{ pluginId: "mattermost", source: "test", plugin }]));
+
+    await sendMessage({
+      cfg: {},
+      to: "channel:town-square",
+      content: "thread reply",
+      channel: "mattermost",
+      replyToId: "post123",
+    });
+
+    expect(capturedCtx).toHaveLength(1);
+    expect(capturedCtx[0]?.replyToId).toBe("post123");
+  });
+
+  it("passes threadId through to the outbound adapter", async () => {
+    const capturedCtx: Record<string, unknown>[] = [];
+    const plugin = createMattermostLikePlugin({
+      onSendText: (ctx) => {
+        capturedCtx.push(ctx);
+      },
+    });
+    setRegistry(createTestRegistry([{ pluginId: "mattermost", source: "test", plugin }]));
+
+    await sendMessage({
+      cfg: {},
+      to: "channel:town-square",
+      content: "topic reply",
+      channel: "mattermost",
+      threadId: "topic456",
+    });
+
+    expect(capturedCtx).toHaveLength(1);
+    expect(capturedCtx[0]?.threadId).toBe("topic456");
+  });
+});
+
+>>>>>>> de7d94d9e (perf(test): remove resetModules from config/sandbox/message suites)
+describe("sendPoll channel normalization", () => {
+  beforeEach(() => {
+    callGatewayMock.mockReset();
+    setRegistry(emptyRegistry);
+  });
+
+  afterEach(() => {
+    setRegistry(emptyRegistry);
   });
 
   it("normalizes Teams alias for polls", async () => {
-    const { sendPoll } = await loadMessage();
     callGatewayMock.mockResolvedValueOnce({ messageId: "p1" });
-    await setRegistry(
+    setRegistry(
       createTestRegistry([
         {
           pluginId: "msteams",
