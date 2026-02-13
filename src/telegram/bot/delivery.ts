@@ -18,6 +18,17 @@ import { isGifMedia } from "../../media/mime.js";
 import { saveMediaBuffer } from "../../media/store.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { loadWebMedia } from "../../web/media.js";
+<<<<<<< HEAD
+=======
+import { withTelegramApiErrorLogging } from "../api-logging.js";
+import { splitTelegramCaption } from "../caption.js";
+import {
+  markdownToTelegramChunks,
+  markdownToTelegramHtml,
+  renderTelegramHtmlText,
+  wrapFileReferencesInHtml,
+} from "../format.js";
+>>>>>>> 1055e71c4 (fix(telegram): auto-wrap .md file references in backticks to prevent URL previews (#8649))
 import { buildInlineKeyboard } from "../send.js";
 import { resolveTelegramVoiceSend } from "../voice.js";
 import { buildTelegramThreadParams, resolveTelegramReplyId } from "./helpers.js";
@@ -71,7 +82,9 @@ export async function deliverReplies(params: {
       const nested = markdownToTelegramChunks(chunk, textLimit, { tableMode: params.tableMode });
       if (!nested.length && chunk) {
         chunks.push({
-          html: markdownToTelegramHtml(chunk, { tableMode: params.tableMode }),
+          html: wrapFileReferencesInHtml(
+            markdownToTelegramHtml(chunk, { tableMode: params.tableMode, wrapFileRefs: false }),
+          ),
           text: chunk,
         });
         continue;
