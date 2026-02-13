@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import * as ssrf from "../infra/net/ssrf.js";
-import { MEDIA_GROUP_TIMEOUT_MS } from "./bot-updates.js";
 
 const useSpy = vi.fn();
 const middlewareUseSpy = vi.fn();
@@ -11,7 +10,17 @@ const sendChatActionSpy = vi.fn();
 const cacheStickerSpy = vi.fn();
 const getCachedStickerSpy = vi.fn();
 const describeStickerImageSpy = vi.fn();
+<<<<<<< HEAD
 const ssrfResolveSpy = vi.spyOn(ssrf, "resolvePinnedHostname");
+=======
+const resolvePinnedHostname = ssrf.resolvePinnedHostname;
+const lookupMock = vi.fn();
+let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> = null;
+const TELEGRAM_TEST_TIMINGS = {
+  mediaGroupFlushMs: 75,
+  textFragmentGapMs: 120,
+} as const;
+>>>>>>> e746a67cc (perf: speed up telegram media e2e flush timing)
 
 const sleep = async (ms: number) => {
   await new Promise<void>((resolve) => setTimeout(resolve, ms));
@@ -138,6 +147,7 @@ describe("telegram inbound media", () => {
       const runtimeError = vi.fn();
       createTelegramBot({
         token: "tok",
+        testTimings: TELEGRAM_TEST_TIMINGS,
         runtime: {
           log: runtimeLog,
           error: runtimeError,
@@ -204,6 +214,7 @@ describe("telegram inbound media", () => {
 
     createTelegramBot({
       token: "tok",
+      testTimings: TELEGRAM_TEST_TIMINGS,
       proxyFetch: proxyFetch as unknown as typeof fetch,
       runtime: {
         log: runtimeLog,
@@ -251,6 +262,7 @@ describe("telegram inbound media", () => {
 
     createTelegramBot({
       token: "tok",
+      testTimings: TELEGRAM_TEST_TIMINGS,
       runtime: {
         log: runtimeLog,
         error: runtimeError,
@@ -291,7 +303,7 @@ describe("telegram media groups", () => {
   });
 
   const MEDIA_GROUP_TEST_TIMEOUT_MS = process.platform === "win32" ? 45_000 : 20_000;
-  const MEDIA_GROUP_FLUSH_MS = MEDIA_GROUP_TIMEOUT_MS + 25;
+  const MEDIA_GROUP_FLUSH_MS = TELEGRAM_TEST_TIMINGS.mediaGroupFlushMs + 120;
 
   it(
     "buffers messages with same media_group_id and processes them together",
@@ -314,6 +326,7 @@ describe("telegram media groups", () => {
 
       createTelegramBot({
         token: "tok",
+        testTimings: TELEGRAM_TEST_TIMINGS,
         runtime: {
           log: vi.fn(),
           error: runtimeError,
@@ -387,7 +400,7 @@ describe("telegram media groups", () => {
         arrayBuffer: async () => new Uint8Array([0x89, 0x50, 0x4e, 0x47]).buffer,
       } as Response);
 
-      createTelegramBot({ token: "tok" });
+      createTelegramBot({ token: "tok", testTimings: TELEGRAM_TEST_TIMINGS });
       const handler = onSpy.mock.calls.find((call) => call[0] === "message")?.[1] as (
         ctx: Record<string, unknown>,
       ) => Promise<void>;
@@ -456,6 +469,7 @@ describe("telegram stickers", () => {
       const runtimeError = vi.fn();
       createTelegramBot({
         token: "tok",
+        testTimings: TELEGRAM_TEST_TIMINGS,
         runtime: {
           log: runtimeLog,
           error: runtimeError,
@@ -538,6 +552,7 @@ describe("telegram stickers", () => {
       const runtimeError = vi.fn();
       createTelegramBot({
         token: "tok",
+        testTimings: TELEGRAM_TEST_TIMINGS,
         runtime: {
           log: vi.fn(),
           error: runtimeError,
@@ -612,6 +627,7 @@ describe("telegram stickers", () => {
 
       createTelegramBot({
         token: "tok",
+        testTimings: TELEGRAM_TEST_TIMINGS,
         runtime: {
           log: vi.fn(),
           error: runtimeError,
@@ -672,6 +688,7 @@ describe("telegram stickers", () => {
 
       createTelegramBot({
         token: "tok",
+        testTimings: TELEGRAM_TEST_TIMINGS,
         runtime: {
           log: vi.fn(),
           error: runtimeError,
@@ -723,7 +740,7 @@ describe("telegram text fragments", () => {
   });
 
   const TEXT_FRAGMENT_TEST_TIMEOUT_MS = process.platform === "win32" ? 45_000 : 20_000;
-  const TEXT_FRAGMENT_FLUSH_MS = 1600;
+  const TEXT_FRAGMENT_FLUSH_MS = TELEGRAM_TEST_TIMINGS.textFragmentGapMs + 160;
 
   it(
     "buffers near-limit text and processes sequential parts as one message",
@@ -735,7 +752,7 @@ describe("telegram text fragments", () => {
       onSpy.mockReset();
       replySpy.mockReset();
 
-      createTelegramBot({ token: "tok" });
+      createTelegramBot({ token: "tok", testTimings: TELEGRAM_TEST_TIMINGS });
       const handler = onSpy.mock.calls.find((call) => call[0] === "message")?.[1] as (
         ctx: Record<string, unknown>,
       ) => Promise<void>;
