@@ -149,5 +149,4 @@ describe("browser config", () => {
     expect(resolveProfile(resolved, "chrome")).toBe(null);
     expect(resolved.defaultProfile).toBe("daisy");
   });
-
 });
