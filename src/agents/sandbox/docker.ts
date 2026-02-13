@@ -34,6 +34,30 @@ export function execDocker(args: string[], opts?: { allowFailure?: boolean }) {
   });
 }
 
+<<<<<<< HEAD
+=======
+import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
+import { formatCliCommand } from "../../cli/command-format.js";
+import { defaultRuntime } from "../../runtime.js";
+import { computeSandboxConfigHash } from "./config-hash.js";
+import { DEFAULT_SANDBOX_IMAGE, SANDBOX_AGENT_WORKSPACE_MOUNT } from "./constants.js";
+import { readRegistry, updateRegistry } from "./registry.js";
+import { resolveSandboxAgentId, resolveSandboxScopeKey, slugifySessionKey } from "./shared.js";
+
+const HOT_CONTAINER_WINDOW_MS = 5 * 60 * 1000;
+
+export type ExecDockerOptions = ExecDockerRawOptions;
+
+export async function execDocker(args: string[], opts?: ExecDockerOptions) {
+  const result = await execDockerRaw(args, opts);
+  return {
+    stdout: result.stdout.toString("utf8"),
+    stderr: result.stderr.toString("utf8"),
+    code: result.code,
+  };
+}
+
+>>>>>>> 31c6a12cf (fix(agents): restore missing runtime helpers and sandbox types)
 export async function readDockerPort(containerName: string, port: number) {
   const result = await execDocker(["port", containerName, `${port}/tcp`], {
     allowFailure: true,

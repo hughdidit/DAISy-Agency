@@ -72,9 +72,14 @@ const applyPatchSchema = Type.Object({
 });
 
 export function createApplyPatchTool(
+<<<<<<< HEAD
   options: { cwd?: string; sandboxRoot?: string } = {},
   // oxlint-disable-next-line typescript/no-explicit-any
 ): AgentTool<any, ApplyPatchToolDetails> {
+=======
+  options: { cwd?: string; sandbox?: SandboxApplyPatchConfig } = {},
+): AgentTool<typeof applyPatchSchema, ApplyPatchToolDetails> {
+>>>>>>> 31c6a12cf (fix(agents): restore missing runtime helpers and sandbox types)
   const cwd = options.cwd ?? process.cwd();
   const sandboxRoot = options.sandboxRoot;
 
