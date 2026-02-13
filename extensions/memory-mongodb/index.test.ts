@@ -12,11 +12,10 @@
  * - Full tool flow: store → recall → duplicate detection → forget → verify
  */
 
-import { describe, test, expect, beforeEach, afterEach } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 import { randomUUID } from "node:crypto";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? "test-key";
-const MONGODB_URI = process.env.MONGODB_URI ?? "mongodb+srv://test:test@localhost/test";
 const HAS_OPENAI_KEY = Boolean(process.env.OPENAI_API_KEY);
 const HAS_MONGODB_URI = Boolean(process.env.MONGODB_URI);
 const liveEnabled =

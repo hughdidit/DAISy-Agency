@@ -20,7 +20,8 @@ This document covers security considerations for the `@moltbot/memory-mongodb` e
   - The host is localhost (`localhost`, `127.0.0.1`, `::1`), or
   - The query string includes `tls=true` (or `ssl=true`)
 - Connections to remote hosts over plaintext are **rejected at config parse time**.
-- The plugin **never sets** `tlsInsecure` or `tlsAllowInvalidCertificates` on the MongoClient — certificate validation is always enforced.
+- The plugin **never sets** `tlsInsecure` or `tlsAllowInvalidCertificates` on the MongoClient.
+- The config parser **rejects** connection URIs containing `tlsInsecure=true` or `tlsAllowInvalidCertificates=true` in query parameters.
 
 ## Query Safety
 

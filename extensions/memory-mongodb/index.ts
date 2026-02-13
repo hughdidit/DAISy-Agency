@@ -238,7 +238,13 @@ const memoryPlugin = {
           const { query, memoryId } = params as { query?: string; memoryId?: string };
 
           if (memoryId) {
-            await db.delete(memoryId);
+            const deleted = await db.delete(memoryId);
+            if (!deleted) {
+              return {
+                content: [{ type: "text", text: `Memory ${memoryId} not found.` }],
+                details: { action: "not_found", id: memoryId },
+              };
+            }
             return {
               content: [{ type: "text", text: `Memory ${memoryId} forgotten.` }],
               details: { action: "deleted", id: memoryId },

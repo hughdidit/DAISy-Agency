@@ -197,17 +197,45 @@ function validateUUID(id: string): void {
 }
 
 /**
- * Strip the connection URI from error messages to prevent credential leakage.
+ * Strip the connection URI and credential fragments from error messages
+ * to prevent credential leakage. Handles exact URI matches, URI variants
+ * (with/without query params), and userinfo patterns the driver may log.
  */
 function sanitizeErrorMessage(message: string, uri: string): string {
   if (!uri) return message;
-  // Replace the full URI and common sub-parts (host, userinfo) with [redacted]
-  let sanitized = message.replaceAll(uri, "[redacted]");
+  let sanitized = message;
 
-  // Also strip the URI without query params in case the driver logs a variant
+  // Replace the full URI
+  sanitized = sanitized.replaceAll(uri, "[redacted]");
+
+  // Replace URI without query params (driver may log a variant)
   const qIdx = uri.indexOf("?");
   if (qIdx > 0) {
     sanitized = sanitized.replaceAll(uri.slice(0, qIdx), "[redacted]");
+  }
+
+  // Extract and scrub userinfo (user:pass) if present
+  try {
+    const schemeEnd = uri.indexOf("://");
+    if (schemeEnd > 0) {
+      const afterScheme = uri.slice(schemeEnd + 3);
+      const atIdx = afterScheme.indexOf("@");
+      if (atIdx > 0) {
+        const userinfo = afterScheme.slice(0, atIdx);
+        sanitized = sanitized.replaceAll(userinfo, "[credentials]");
+        // Also scrub URL-decoded variants
+        try {
+          const decoded = decodeURIComponent(userinfo);
+          if (decoded !== userinfo) {
+            sanitized = sanitized.replaceAll(decoded, "[credentials]");
+          }
+        } catch {
+          // Ignore decode errors
+        }
+      }
+    }
+  } catch {
+    // Ignore parse errors — best-effort sanitization
   }
 
   return sanitized;

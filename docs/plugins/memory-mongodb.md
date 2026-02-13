@@ -1,4 +1,4 @@
-# Memory Plugin — MongoDB Atlas
+# Memory Plugin - MongoDB Atlas
 
 Persistent, cloud-based long-term memory using MongoDB Atlas with Atlas Vector Search for semantic retrieval.
 
@@ -192,4 +192,4 @@ Content that looks like system output, injected context, or agent summaries is a
 
 ## Security
 
-See [Security: MongoDB Atlas Memory](../security/memory-mongodb.md) for details on credential handling, TLS enforcement, query safety, and data protection.
+See [Security: MongoDB Atlas Memory](/security/memory-mongodb) for details on credential handling, TLS enforcement, query safety, and data protection.

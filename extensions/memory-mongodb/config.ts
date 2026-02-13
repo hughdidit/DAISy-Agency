@@ -56,7 +56,7 @@ export function vectorDimsForModel(model: string): number {
 }
 
 function resolveEnvVars(value: string): string {
-  return value.replace(/\$\{([^}]+)\}/g, (_, envVar) => {
+  return value.replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g, (_, envVar) => {
     const envValue = process.env[envVar];
     if (!envValue) {
       throw new Error(`Environment variable ${envVar} is not set`);
@@ -71,12 +71,49 @@ function resolveEmbeddingModel(embedding: Record<string, unknown>): string {
   return model;
 }
 
+const LOCALHOST_NAMES = new Set(["localhost", "127.0.0.1", "::1"]);
+
+/**
+ * Extract the hostname from a single MongoDB host entry, handling
+ * bracketed IPv6 addresses (e.g., `[::1]:27017` → `::1`).
+ */
+function extractHostname(hostEntry: string): string {
+  const trimmed = hostEntry.trim();
+  if (trimmed.startsWith("[")) {
+    // Bracketed IPv6: [::1]:27017
+    const closeBracket = trimmed.indexOf("]");
+    if (closeBracket > 0) {
+      return trimmed.slice(1, closeBracket).toLowerCase();
+    }
+  }
+  // Plain host or IPv4: strip port
+  return trimmed.split(":")[0].toLowerCase();
+}
+
 /**
  * Validate that the connection URI enforces TLS for non-localhost hosts.
  * - `mongodb+srv://` always uses TLS (enforced by the protocol).
  * - `mongodb://` requires `tls=true` in query params for non-localhost hosts.
+ * - Rejects `tlsInsecure=true` and `tlsAllowInvalidCertificates=true`.
+ * - Checks ALL hosts in comma-separated replica set URIs.
  */
 function validateConnectionUriTls(uri: string): void {
+  // Reject insecure TLS options in any URI scheme
+  const qIdx = uri.indexOf("?");
+  if (qIdx >= 0) {
+    const params = new URLSearchParams(uri.slice(qIdx + 1));
+    if (params.get("tlsInsecure") === "true") {
+      throw new Error(
+        "connectionUri sets tlsInsecure=true, which disables certificate validation. Remove this option.",
+      );
+    }
+    if (params.get("tlsAllowInvalidCertificates") === "true") {
+      throw new Error(
+        "connectionUri sets tlsAllowInvalidCertificates=true, which disables certificate validation. Remove this option.",
+      );
+    }
+  }
+
   if (uri.startsWith("mongodb+srv://")) return;
 
   if (!uri.startsWith("mongodb://")) {
@@ -91,18 +128,13 @@ function validateConnectionUriTls(uri: string): void {
   const slashIdx = hostPart.indexOf("/");
   const hostSection = slashIdx >= 0 ? hostPart.slice(0, slashIdx) : hostPart;
 
-  // Extract first host (before any comma for replica sets)
-  const firstHost = hostSection.split(",")[0];
-  // Strip port
-  const hostname = firstHost.split(":")[0].toLowerCase();
+  // Check ALL hosts in comma-separated replica set URIs
+  const hosts = hostSection.split(",");
+  const allLocalhost = hosts.every((h) => LOCALHOST_NAMES.has(extractHostname(h)));
 
-  const isLocalhost =
-    hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+  if (allLocalhost) return;
 
-  if (isLocalhost) return;
-
-  // Check for tls=true in query params
-  const qIdx = uri.indexOf("?");
+  // At least one remote host — require TLS
   if (qIdx < 0) {
     throw new Error(
       "connectionUri uses plain mongodb:// to a remote host without TLS. " +
@@ -110,8 +142,7 @@ function validateConnectionUriTls(uri: string): void {
     );
   }
 
-  const queryString = uri.slice(qIdx + 1);
-  const params = new URLSearchParams(queryString);
+  const params = new URLSearchParams(uri.slice(qIdx + 1));
   const tlsValue = params.get("tls") ?? params.get("ssl");
 
   if (tlsValue !== "true") {
