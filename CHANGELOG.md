@@ -23,6 +23,11 @@ Docs: https://docs.openclaw.ai
 
 ### Changes
 
+<<<<<<< HEAD
+=======
+- CLI/Plugins: add `openclaw plugins uninstall <id>` with `--dry-run`, `--force`, and `--keep-files` options, including safe uninstall path handling and plugin uninstall docs. (#5985) Thanks @JustasMonkev.
+- CLI: add `openclaw logs --local-time` to display log timestamps in local timezone. (#13818) Thanks @xialonglee.
+>>>>>>> 57d0f65e7 (CLI: add plugins uninstall command (#5985) (openclaw#6141) thanks @JustasMonkev)
 - Telegram: render blockquotes as native `<blockquote>` tags instead of stripping them. (#14608)
 - Version alignment: bump manifests and package versions to `2026.2.10`; keep `appcast.xml` unchanged until the next macOS release cut.
 - CLI: add `openclaw logs --local-time` to display log timestamps in local timezone. (#13818) Thanks @xialonglee.
