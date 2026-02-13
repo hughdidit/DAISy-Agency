@@ -2,11 +2,16 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import lockfile from "proper-lockfile";
+=======
+import type { ChannelId, ChannelPairingAdapter } from "../channels/plugins/types.js";
+>>>>>>> 201ac2b72 (perf: replace proper-lockfile with lightweight file locks)
 import { getPairingAdapter } from "../channels/plugins/pairing.js";
 import type { ChannelId, ChannelPairingAdapter } from "../channels/plugins/types.js";
 import { resolveOAuthDir, resolveStateDir } from "../config/paths.js";
+import { withFileLock as withPathLock } from "../infra/file-lock.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
 import { safeParseJson } from "../utils.js";
 
@@ -119,19 +124,9 @@ async function withFileLock<T>(
   fn: () => Promise<T>,
 ): Promise<T> {
   await ensureJsonFile(filePath, fallback);
-  let release: (() => Promise<void>) | undefined;
-  try {
-    release = await lockfile.lock(filePath, PAIRING_STORE_LOCK_OPTIONS);
+  return await withPathLock(filePath, PAIRING_STORE_LOCK_OPTIONS, async () => {
     return await fn();
-  } finally {
-    if (release) {
-      try {
-        await release();
-      } catch {
-        // ignore unlock errors
-      }
-    }
-  }
+  });
 }
 
 function parseTimestamp(value: string | undefined): number | null {

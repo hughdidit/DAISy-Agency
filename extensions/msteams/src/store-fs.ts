@@ -5,8 +5,12 @@ import path from "node:path";
 
 =======
 import { safeParseJson } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> f0924d3c4 (refactor: consolidate PNG encoder and safeParseJson utilities (#12457))
 import lockfile from "proper-lockfile";
+=======
+import { withFileLock as withPathLock } from "./file-lock.js";
+>>>>>>> 201ac2b72 (perf: replace proper-lockfile with lightweight file locks)
 
 const STORE_LOCK_OPTIONS = {
   retries: {
@@ -64,17 +68,7 @@ export async function withFileLock<T>(
   fn: () => Promise<T>,
 ): Promise<T> {
   await ensureJsonFile(filePath, fallback);
-  let release: (() => Promise<void>) | undefined;
-  try {
-    release = await lockfile.lock(filePath, STORE_LOCK_OPTIONS);
+  return await withPathLock(filePath, STORE_LOCK_OPTIONS, async () => {
     return await fn();
-  } finally {
-    if (release) {
-      try {
-        await release();
-      } catch {
-        // ignore unlock errors
-      }
-    }
-  }
+  });
 }
