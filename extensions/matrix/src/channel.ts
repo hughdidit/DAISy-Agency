@@ -143,6 +143,7 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
       baseUrl: account.homeserver,
     }),
 <<<<<<< HEAD
+<<<<<<< HEAD
     resolveAllowFrom: ({ cfg }) =>
       ((cfg as CoreConfig).channels?.matrix?.dm?.allowFrom ?? []).map((entry) => String(entry)),
     formatAllowFrom: ({ allowFrom }) => normalizeAllowListLower(allowFrom),
@@ -159,6 +160,12 @@ export const matrixPlugin: ChannelPlugin<ResolvedMatrixAccount> = {
 =======
     resolveAllowFrom: ({ account }) =>
       (account.config.dm?.allowFrom ?? []).map((entry) => String(entry)),
+=======
+    resolveAllowFrom: ({ cfg, accountId }) => {
+      const account = resolveMatrixAccount({ cfg: cfg as CoreConfig, accountId });
+      return (account.config.dm?.allowFrom ?? []).map((entry: string | number) => String(entry));
+    },
+>>>>>>> a76ac1344 (fix: resolveAllowFrom uses cfg+accountId params, not account)
     formatAllowFrom: ({ allowFrom }) => normalizeMatrixAllowList(allowFrom),
   },
   security: {
