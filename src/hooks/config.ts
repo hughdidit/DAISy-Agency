@@ -54,6 +54,13 @@ export function resolveRuntimePlatform(): string {
 export function hasBinary(bin: string): boolean {
   const pathEnv = process.env.PATH ?? "";
   const parts = pathEnv.split(path.delimiter).filter(Boolean);
+<<<<<<< HEAD
+=======
+  const extensions =
+    process.platform === "win32"
+      ? ["", ...(process.env.PATHEXT ?? ".EXE;.CMD;.BAT;.COM").split(";").filter(Boolean)]
+      : [""];
+>>>>>>> 397011bd7 (fix: increase image tool maxTokens from 512 to 4096 (#11770))
   for (const part of parts) {
     const candidate = path.join(part, bin);
     try {

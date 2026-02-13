@@ -50,9 +50,25 @@ const DEFAULT_PROMPT = "Describe the image.";
 export const __testing = {
   decodeDataUrl,
   coerceImageAssistantText,
+  resolveImageToolMaxTokens,
 } as const;
 
+<<<<<<< HEAD
 function resolveDefaultModelRef(cfg?: MoltbotConfig): {
+=======
+function resolveImageToolMaxTokens(modelMaxTokens: number | undefined, requestedMaxTokens = 4096) {
+  if (
+    typeof modelMaxTokens !== "number" ||
+    !Number.isFinite(modelMaxTokens) ||
+    modelMaxTokens <= 0
+  ) {
+    return requestedMaxTokens;
+  }
+  return Math.min(requestedMaxTokens, modelMaxTokens);
+}
+
+function resolveDefaultModelRef(cfg?: OpenClawConfig): {
+>>>>>>> 397011bd7 (fix: increase image tool maxTokens from 512 to 4096 (#11770))
   provider: string;
   model: string;
 } {
@@ -291,8 +307,13 @@ async function runImagePrompt(params: {
       const context = buildImageContext(params.prompt, params.base64, params.mimeType);
       const message = (await complete(model, context, {
         apiKey,
+<<<<<<< HEAD
         maxTokens: 512,
       })) as AssistantMessage;
+=======
+        maxTokens: resolveImageToolMaxTokens(model.maxTokens),
+      });
+>>>>>>> 397011bd7 (fix: increase image tool maxTokens from 512 to 4096 (#11770))
       const text = coerceImageAssistantText({
         message,
         provider: model.provider,
