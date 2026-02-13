@@ -278,14 +278,21 @@ async function handleDiscordReactionEvent(params: {
     const authorLabel = message?.author ? formatDiscordUserTag(message.author) : undefined;
     const baseText = `Discord reaction ${action}: ${emojiLabel} by ${actorLabel} on ${guildSlug} ${channelLabel} msg ${data.message_id}`;
     const text = authorLabel ? `${baseText} from ${authorLabel}` : baseText;
+    const memberRoleIds = Array.isArray(data.member?.roles)
+      ? data.member.roles.map((roleId: string) => String(roleId))
+      : [];
     const route = resolveAgentRoute({
       cfg: params.cfg,
       channel: "discord",
       accountId: params.accountId,
       guildId: data.guild_id ?? undefined,
 <<<<<<< HEAD
+<<<<<<< HEAD
       peer: { kind: "channel", id: data.channel_id },
 =======
+=======
+      memberRoleIds,
+>>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
       peer: {
         kind: isDirectMessage ? "direct" : isGroupDm ? "group" : "channel",
         id: isDirectMessage ? user.id : data.channel_id,

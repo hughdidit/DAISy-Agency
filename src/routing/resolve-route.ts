@@ -169,7 +169,7 @@ function matchesRoles(
   if (!Array.isArray(roles) || roles.length === 0) {
     return false;
   }
-  return roles.some((r) => memberRoleIds.includes(r));
+  return roles.some((role) => memberRoleIds.includes(role));
 }
 
 export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentRoute {
@@ -225,6 +225,7 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (guildId && memberRoleIds.length > 0) {
     const guildRolesMatch = bindings.find(
@@ -235,6 +236,8 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
     }
   }
 
+=======
+>>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
   // Thread parent inheritance: if peer (thread) didn't match, check parent peer binding
   const parentPeer = input.parentPeer
     ? { kind: input.parentPeer.kind, id: normalizeId(input.parentPeer.id) }
@@ -246,7 +249,19 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
     }
   }
 
+<<<<<<< HEAD
 >>>>>>> e1e6e3f47 (fix: add curly braces to resolve-route.ts for eslint(curly) compliance)
+=======
+  if (guildId && memberRoleIds.length > 0) {
+    const guildRolesMatch = bindings.find(
+      (b) => matchesGuild(b.match, guildId) && matchesRoles(b.match, memberRoleIds),
+    );
+    if (guildRolesMatch) {
+      return choose(guildRolesMatch.agentId, "binding.guild+roles");
+    }
+  }
+
+>>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
   if (guildId) {
 <<<<<<< HEAD
     const guildMatch = bindings.find((b) => matchesGuild(b.match, guildId));

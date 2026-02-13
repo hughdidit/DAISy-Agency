@@ -20,6 +20,11 @@ Docs: https://docs.openclaw.ai
 
 - Version alignment: bump manifests and package versions to `2026.2.10`; keep `appcast.xml` unchanged until the next macOS release cut.
 - CLI: add `openclaw logs --local-time` to display log timestamps in local timezone. (#13818) Thanks @xialonglee.
+<<<<<<< HEAD
+=======
+- Telegram: render blockquotes as native `<blockquote>` tags instead of stripping them. (#14608)
+- Discord: add role-based allowlists and role-based agent routing. (#10650) Thanks @Minidoracat.
+>>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
 - Config: avoid redacting `maxTokens`-like fields during config snapshot redaction, preventing round-trip validation failures in `/config`. (#14006) Thanks @constansino.
 
 ### Breaking

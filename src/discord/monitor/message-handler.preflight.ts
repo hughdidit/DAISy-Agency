@@ -36,9 +36,8 @@ import {
   resolveDiscordAllowListMatch,
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
+  resolveDiscordMemberAllowed,
   resolveDiscordShouldRequireMention,
-  resolveDiscordRoleAllowed,
-  resolveDiscordUserAllowed,
   resolveGroupDmAllow,
 } from "./allow-list.js";
 import {
@@ -195,9 +194,15 @@ export async function preflightDiscordMessage(
   }
 
   // Fresh config for bindings lookup; other routing inputs are payload-derived.
+<<<<<<< HEAD
   // member.roles is already string[] (Snowflake IDs) per Discord API types
   const memberRoleIds: string[] = params.data.member?.roles ?? [];
 >>>>>>> ad508c8c8 (fix: use member.roles as string[] per Discord API types)
+=======
+  const memberRoleIds = Array.isArray(params.data.member?.roles)
+    ? params.data.member.roles.map((roleId: string) => String(roleId))
+    : [];
+>>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
   const route = resolveAgentRoute({
     cfg: params.cfg,
     channel: "discord",
@@ -444,6 +449,19 @@ export async function preflightDiscordMessage(
     surface: "discord",
   });
   const hasControlCommandInMessage = hasControlCommand(baseText, params.cfg);
+  const channelUsers = channelConfig?.users ?? guildInfo?.users;
+  const channelRoles = channelConfig?.roles ?? guildInfo?.roles;
+  const hasAccessRestrictions =
+    (Array.isArray(channelUsers) && channelUsers.length > 0) ||
+    (Array.isArray(channelRoles) && channelRoles.length > 0);
+  const memberAllowed = resolveDiscordMemberAllowed({
+    userAllowList: channelUsers,
+    roleAllowList: channelRoles,
+    memberRoleIds,
+    userId: sender.id,
+    userName: sender.name,
+    userTag: sender.tag,
+  });
 
   if (!isDirectMessage) {
     const ownerAllowList = normalizeDiscordAllowList(params.allowFrom, ["discord:", "user:"]);
@@ -454,6 +472,7 @@ export async function preflightDiscordMessage(
           tag: formatDiscordUserTag(author),
         })
       : false;
+<<<<<<< HEAD
     const channelUsers = channelConfig?.users ?? guildInfo?.users;
     const usersOk =
       Array.isArray(channelUsers) && channelUsers.length > 0
@@ -464,12 +483,14 @@ export async function preflightDiscordMessage(
             userTag: formatDiscordUserTag(author),
           })
         : false;
+=======
+>>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
     const useAccessGroups = params.cfg.commands?.useAccessGroups !== false;
     const commandGate = resolveControlCommandGate({
       useAccessGroups,
       authorizers: [
         { configured: ownerAllowList != null, allowed: ownerOk },
-        { configured: Array.isArray(channelUsers) && channelUsers.length > 0, allowed: usersOk },
+        { configured: hasAccessRestrictions, allowed: memberAllowed },
       ],
       modeWhenAccessGroupsOff: "configured",
       allowTextCommands,
@@ -521,6 +542,7 @@ export async function preflightDiscordMessage(
     }
   }
 
+<<<<<<< HEAD
   if (isGuildMessage) {
     const channelUsers = channelConfig?.users ?? guildInfo?.users;
 <<<<<<< HEAD
@@ -562,6 +584,11 @@ export async function preflightDiscordMessage(
         return null;
       }
     }
+=======
+  if (isGuildMessage && hasAccessRestrictions && !memberAllowed) {
+    logVerbose(`Blocked discord guild sender ${sender.id} (not in users/roles allowlist)`);
+    return null;
+>>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
   }
 
   const systemLocation = resolveDiscordSystemLocation({
