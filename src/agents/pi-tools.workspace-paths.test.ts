@@ -1,9 +1,15 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD:src/agents/pi-tools.workspace-paths.test.ts
 
 import { describe, expect, it } from "vitest";
 import { createMoltbotCodingTools } from "./pi-tools.js";
+=======
+import { describe, expect, it, vi } from "vitest";
+import { createOpenClawCodingTools } from "./pi-tools.js";
+import { createHostSandboxFsBridge } from "./test-helpers/host-sandbox-fs-bridge.js";
+>>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026)):src/agents/pi-tools.workspace-paths.e2e.test.ts
 
 async function withTempDir<T>(prefix: string, fn: (dir: string) => Promise<T>) {
   // Capture cwd BEFORE creating temp dir to avoid ENOENT if cwd is a deleted temp dir
@@ -152,6 +158,7 @@ describe.sequential("sandboxed workspace paths", () => {
           workspaceAccess: "rw",
           containerName: "moltbot-sbx-test",
           containerWorkdir: "/workspace",
+          fsBridge: createHostSandboxFsBridge(sandboxDir),
           docker: {
             image: "moltbot-sandbox:bookworm-slim",
             containerPrefix: "moltbot-sbx-",

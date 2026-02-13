@@ -1,4 +1,11 @@
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { GatewayMessageChannel } from "../utils/message-channel.js";
+import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+import type { AnyAgentTool } from "./tools/common.js";
+>>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026)):src/agents/openclaw-tools.ts
 import { resolvePluginTools } from "../plugins/tools.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveSessionAgentId } from "./agent-scope.js";
@@ -37,6 +44,7 @@ export function createMoltbotTools(options?: {
   agentGroupSpace?: string | null;
   agentDir?: string;
   sandboxRoot?: string;
+  sandboxFsBridge?: SandboxFsBridge;
   workspaceDir?: string;
   sandboxed?: boolean;
   config?: MoltbotConfig;
@@ -58,7 +66,10 @@ export function createMoltbotTools(options?: {
     ? createImageTool({
         config: options?.config,
         agentDir: options.agentDir,
-        sandboxRoot: options?.sandboxRoot,
+        sandbox:
+          options?.sandboxRoot && options?.sandboxFsBridge
+            ? { root: options.sandboxRoot, bridge: options.sandboxFsBridge }
+            : undefined,
         modelHasVision: options?.modelHasVision,
       })
     : null;
