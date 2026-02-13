@@ -74,6 +74,10 @@ class SecurePrefs(context: Context) {
     MutableStateFlow(readBoolWithMigration("gateway.manual.tls", null, true))
   val manualTls: StateFlow<Boolean> = _manualTls
 
+  private val _gatewayToken =
+    MutableStateFlow(prefs.getString("gateway.manual.token", "") ?: "")
+  val gatewayToken: StateFlow<String> = _gatewayToken
+
   private val _lastDiscoveredStableId =
     MutableStateFlow(
       readStringWithMigration(
@@ -150,12 +154,19 @@ class SecurePrefs(context: Context) {
     _manualTls.value = value
   }
 
+  fun setGatewayToken(value: String) {
+    prefs.edit { putString("gateway.manual.token", value) }
+    _gatewayToken.value = value
+  }
+
   fun setCanvasDebugStatusEnabled(value: Boolean) {
     prefs.edit { putBoolean("canvas.debugStatusEnabled", value) }
     _canvasDebugStatusEnabled.value = value
   }
 
   fun loadGatewayToken(): String? {
+    val manual = _gatewayToken.value.trim()
+    if (manual.isNotEmpty()) return manual
     val key = "gateway.token.${_instanceId.value}"
     val stored = prefs.getString(key, null)?.trim()
     if (!stored.isNullOrEmpty()) return stored

@@ -3,10 +3,9 @@ package bot.molt.android
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.LocationManager
-import android.os.Build
 import android.os.SystemClock
 import androidx.core.content.ContextCompat
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
 import bot.molt.android.chat.ChatController
 import bot.molt.android.chat.ChatMessage
 import bot.molt.android.chat.ChatPendingToolCall
@@ -36,23 +35,35 @@ import bot.molt.android.protocol.MoltbotLocationCommand
 import bot.molt.android.protocol.MoltbotSmsCommand
 import bot.molt.android.voice.TalkModeManager
 import bot.molt.android.voice.VoiceWakeManager
+=======
+import ai.openclaw.android.chat.ChatController
+import ai.openclaw.android.chat.ChatMessage
+import ai.openclaw.android.chat.ChatPendingToolCall
+import ai.openclaw.android.chat.ChatSessionEntry
+import ai.openclaw.android.chat.OutgoingAttachment
+import ai.openclaw.android.gateway.DeviceAuthStore
+import ai.openclaw.android.gateway.DeviceIdentityStore
+import ai.openclaw.android.gateway.GatewayDiscovery
+import ai.openclaw.android.gateway.GatewayEndpoint
+import ai.openclaw.android.gateway.GatewaySession
+import ai.openclaw.android.node.*
+import ai.openclaw.android.protocol.OpenClawCanvasA2UIAction
+import ai.openclaw.android.voice.TalkModeManager
+import ai.openclaw.android.voice.VoiceWakeManager
+>>>>>>> c179f71f4 (feat: Android companion app improvements & gateway URL camera payloads (#13541)):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -112,6 +123,80 @@ class NodeRuntime(context: Context) {
   val discoveryStatusText: StateFlow<String> = discovery.statusText
 
   private val identityStore = DeviceIdentityStore(appContext)
+  private var connectedEndpoint: GatewayEndpoint? = null
+
+  private val cameraHandler: CameraHandler = CameraHandler(
+    appContext = appContext,
+    camera = camera,
+    prefs = prefs,
+    connectedEndpoint = { connectedEndpoint },
+    externalAudioCaptureActive = externalAudioCaptureActive,
+    showCameraHud = ::showCameraHud,
+    triggerCameraFlash = ::triggerCameraFlash,
+    invokeErrorFromThrowable = { invokeErrorFromThrowable(it) },
+  )
+
+  private val debugHandler: DebugHandler = DebugHandler(
+    appContext = appContext,
+    identityStore = identityStore,
+  )
+
+  private val appUpdateHandler: AppUpdateHandler = AppUpdateHandler(
+    appContext = appContext,
+    connectedEndpoint = { connectedEndpoint },
+  )
+
+  private val locationHandler: LocationHandler = LocationHandler(
+    appContext = appContext,
+    location = location,
+    json = json,
+    isForeground = { _isForeground.value },
+    locationMode = { locationMode.value },
+    locationPreciseEnabled = { locationPreciseEnabled.value },
+  )
+
+  private val screenHandler: ScreenHandler = ScreenHandler(
+    screenRecorder = screenRecorder,
+    setScreenRecordActive = { _screenRecordActive.value = it },
+    invokeErrorFromThrowable = { invokeErrorFromThrowable(it) },
+  )
+
+  private val smsHandlerImpl: SmsHandler = SmsHandler(
+    sms = sms,
+  )
+
+  private val a2uiHandler: A2UIHandler = A2UIHandler(
+    canvas = canvas,
+    json = json,
+    getNodeCanvasHostUrl = { nodeSession.currentCanvasHostUrl() },
+    getOperatorCanvasHostUrl = { operatorSession.currentCanvasHostUrl() },
+  )
+
+  private val connectionManager: ConnectionManager = ConnectionManager(
+    prefs = prefs,
+    cameraEnabled = { cameraEnabled.value },
+    locationMode = { locationMode.value },
+    voiceWakeMode = { voiceWakeMode.value },
+    smsAvailable = { sms.canSendSms() },
+    hasRecordAudioPermission = { hasRecordAudioPermission() },
+    manualTls = { manualTls.value },
+  )
+
+  private val invokeDispatcher: InvokeDispatcher = InvokeDispatcher(
+    canvas = canvas,
+    cameraHandler = cameraHandler,
+    locationHandler = locationHandler,
+    screenHandler = screenHandler,
+    smsHandler = smsHandlerImpl,
+    a2uiHandler = a2uiHandler,
+    debugHandler = debugHandler,
+    appUpdateHandler = appUpdateHandler,
+    isForeground = { _isForeground.value },
+    cameraEnabled = { cameraEnabled.value },
+    locationEnabled = { locationMode.value != LocationMode.Off },
+  )
+
+  private lateinit var gatewayEventHandler: GatewayEventHandler
 
   private val _isConnected = MutableStateFlow(false)
   val isConnected: StateFlow<Boolean> = _isConnected.asStateFlow()
@@ -149,7 +234,6 @@ class NodeRuntime(context: Context) {
   private var nodeConnected = false
   private var operatorStatusText: String = "Offline"
   private var nodeStatusText: String = "Offline"
-  private var connectedEndpoint: GatewayEndpoint? = null
 
   private val operatorSession =
     GatewaySession(
@@ -165,7 +249,7 @@ class NodeRuntime(context: Context) {
         applyMainSessionKey(mainSessionKey)
         updateStatus()
         scope.launch { refreshBrandingFromGateway() }
-        scope.launch { refreshWakeWordsFromGateway() }
+        scope.launch { gatewayEventHandler.refreshWakeWordsFromGateway() }
       },
       onDisconnected = { message ->
         operatorConnected = false
@@ -206,7 +290,7 @@ class NodeRuntime(context: Context) {
       },
       onEvent = { _, _ -> },
       onInvoke = { req ->
-        handleInvoke(req.command, req.paramsJson)
+        invokeDispatcher.handleInvoke(req.command, req.paramsJson)
       },
       onTlsFingerprint = { stableId, fingerprint ->
         prefs.saveGatewayTlsFingerprint(stableId, fingerprint)
@@ -231,8 +315,7 @@ class NodeRuntime(context: Context) {
   }
 
   private fun applyMainSessionKey(candidate: String?) {
-    val trimmed = candidate?.trim().orEmpty()
-    if (trimmed.isEmpty()) return
+    val trimmed = normalizeMainKey(candidate) ?: return
     if (isCanonicalMainSessionKey(_mainSessionKey.value)) return
     if (_mainSessionKey.value == trimmed) return
     _mainSessionKey.value = trimmed
@@ -258,7 +341,7 @@ class NodeRuntime(context: Context) {
   }
 
   private fun maybeNavigateToA2uiOnConnect() {
-    val a2uiUrl = resolveA2uiHostUrl() ?: return
+    val a2uiUrl = a2uiHandler.resolveA2uiHostUrl() ?: return
     val current = canvas.currentUrl()?.trim().orEmpty()
     if (current.isEmpty() || current == lastAutoA2uiUrl) {
       lastAutoA2uiUrl = a2uiUrl
@@ -284,12 +367,12 @@ class NodeRuntime(context: Context) {
   val manualHost: StateFlow<String> = prefs.manualHost
   val manualPort: StateFlow<Int> = prefs.manualPort
   val manualTls: StateFlow<Boolean> = prefs.manualTls
+  val gatewayToken: StateFlow<String> = prefs.gatewayToken
+  fun setGatewayToken(value: String) = prefs.setGatewayToken(value)
   val lastDiscoveredStableId: StateFlow<String> = prefs.lastDiscoveredStableId
   val canvasDebugStatusEnabled: StateFlow<Boolean> = prefs.canvasDebugStatusEnabled
 
   private var didAutoConnect = false
-  private var suppressWakeWordsSync = false
-  private var wakeWordsSyncJob: Job? = null
 
   val chatSessionKey: StateFlow<String> = chat.sessionKey
   val chatSessionId: StateFlow<String?> = chat.sessionId
@@ -303,6 +386,14 @@ class NodeRuntime(context: Context) {
   val pendingRunCount: StateFlow<Int> = chat.pendingRunCount
 
   init {
+    gatewayEventHandler = GatewayEventHandler(
+      scope = scope,
+      prefs = prefs,
+      json = json,
+      operatorSession = operatorSession,
+      isConnected = { _isConnected.value },
+    )
+
     scope.launch {
       combine(
         voiceWakeMode,
@@ -434,7 +525,7 @@ class NodeRuntime(context: Context) {
 
   fun setWakeWords(words: List<String>) {
     prefs.setWakeWords(words)
-    scheduleWakeWordsSyncIfNeeded()
+    gatewayEventHandler.scheduleWakeWordsSyncIfNeeded()
   }
 
   fun resetWakeWordsDefaults() {
@@ -449,6 +540,7 @@ class NodeRuntime(context: Context) {
     prefs.setTalkEnabled(value)
   }
 
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
   private fun buildInvokeCommands(): List<String> =
     buildList {
       add(MoltbotCanvasCommand.Present.rawValue)
@@ -546,13 +638,15 @@ class NodeRuntime(context: Context) {
     )
   }
 
+=======
+>>>>>>> c179f71f4 (feat: Android companion app improvements & gateway URL camera payloads (#13541)):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
   fun refreshGatewayConnection() {
     val endpoint = connectedEndpoint ?: return
     val token = prefs.loadGatewayToken()
     val password = prefs.loadGatewayPassword()
-    val tls = resolveTlsParams(endpoint)
-    operatorSession.connect(endpoint, token, password, buildOperatorConnectOptions(), tls)
-    nodeSession.connect(endpoint, token, password, buildNodeConnectOptions(), tls)
+    val tls = connectionManager.resolveTlsParams(endpoint)
+    operatorSession.connect(endpoint, token, password, connectionManager.buildOperatorConnectOptions(), tls)
+    nodeSession.connect(endpoint, token, password, connectionManager.buildNodeConnectOptions(), tls)
     operatorSession.reconnect()
     nodeSession.reconnect()
   }
@@ -564,35 +658,14 @@ class NodeRuntime(context: Context) {
     updateStatus()
     val token = prefs.loadGatewayToken()
     val password = prefs.loadGatewayPassword()
-    val tls = resolveTlsParams(endpoint)
-    operatorSession.connect(endpoint, token, password, buildOperatorConnectOptions(), tls)
-    nodeSession.connect(endpoint, token, password, buildNodeConnectOptions(), tls)
+    val tls = connectionManager.resolveTlsParams(endpoint)
+    operatorSession.connect(endpoint, token, password, connectionManager.buildOperatorConnectOptions(), tls)
+    nodeSession.connect(endpoint, token, password, connectionManager.buildNodeConnectOptions(), tls)
   }
 
   private fun hasRecordAudioPermission(): Boolean {
     return (
       ContextCompat.checkSelfPermission(appContext, Manifest.permission.RECORD_AUDIO) ==
-        PackageManager.PERMISSION_GRANTED
-      )
-  }
-
-  private fun hasFineLocationPermission(): Boolean {
-    return (
-      ContextCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_FINE_LOCATION) ==
-        PackageManager.PERMISSION_GRANTED
-      )
-  }
-
-  private fun hasCoarseLocationPermission(): Boolean {
-    return (
-      ContextCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_COARSE_LOCATION) ==
-        PackageManager.PERMISSION_GRANTED
-      )
-  }
-
-  private fun hasBackgroundLocationPermission(): Boolean {
-    return (
-      ContextCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_BACKGROUND_LOCATION) ==
         PackageManager.PERMISSION_GRANTED
       )
   }
@@ -611,42 +684,6 @@ class NodeRuntime(context: Context) {
     connectedEndpoint = null
     operatorSession.disconnect()
     nodeSession.disconnect()
-  }
-
-  private fun resolveTlsParams(endpoint: GatewayEndpoint): GatewayTlsParams? {
-    val stored = prefs.loadGatewayTlsFingerprint(endpoint.stableId)
-    val hinted = endpoint.tlsEnabled || !endpoint.tlsFingerprintSha256.isNullOrBlank()
-    val manual = endpoint.stableId.startsWith("manual|")
-
-    if (manual) {
-      if (!manualTls.value) return null
-      return GatewayTlsParams(
-        required = true,
-        expectedFingerprint = endpoint.tlsFingerprintSha256 ?: stored,
-        allowTOFU = stored == null,
-        stableId = endpoint.stableId,
-      )
-    }
-
-    if (hinted) {
-      return GatewayTlsParams(
-        required = true,
-        expectedFingerprint = endpoint.tlsFingerprintSha256 ?: stored,
-        allowTOFU = stored == null,
-        stableId = endpoint.stableId,
-      )
-    }
-
-    if (!stored.isNullOrBlank()) {
-      return GatewayTlsParams(
-        required = true,
-        expectedFingerprint = stored,
-        allowTOFU = false,
-        stableId = endpoint.stableId,
-      )
-    }
-
-    return null
   }
 
   fun handleCanvasA2UIActionFromWebView(payloadJson: String) {
@@ -752,58 +789,12 @@ class NodeRuntime(context: Context) {
 
   private fun handleGatewayEvent(event: String, payloadJson: String?) {
     if (event == "voicewake.changed") {
-      if (payloadJson.isNullOrBlank()) return
-      try {
-        val payload = json.parseToJsonElement(payloadJson).asObjectOrNull() ?: return
-        val array = payload["triggers"] as? JsonArray ?: return
-        val triggers = array.mapNotNull { it.asStringOrNull() }
-        applyWakeWordsFromGateway(triggers)
-      } catch (_: Throwable) {
-        // ignore
-      }
+      gatewayEventHandler.handleVoiceWakeChangedEvent(payloadJson)
       return
     }
 
     talkMode.handleGatewayEvent(event, payloadJson)
     chat.handleGatewayEvent(event, payloadJson)
-  }
-
-  private fun applyWakeWordsFromGateway(words: List<String>) {
-    suppressWakeWordsSync = true
-    prefs.setWakeWords(words)
-    suppressWakeWordsSync = false
-  }
-
-  private fun scheduleWakeWordsSyncIfNeeded() {
-    if (suppressWakeWordsSync) return
-    if (!_isConnected.value) return
-
-    val snapshot = prefs.wakeWords.value
-    wakeWordsSyncJob?.cancel()
-    wakeWordsSyncJob =
-      scope.launch {
-        delay(650)
-        val jsonList = snapshot.joinToString(separator = ",") { it.toJsonString() }
-        val params = """{"triggers":[$jsonList]}"""
-        try {
-          operatorSession.request("voicewake.set", params)
-        } catch (_: Throwable) {
-          // ignore
-        }
-      }
-  }
-
-  private suspend fun refreshWakeWordsFromGateway() {
-    if (!_isConnected.value) return
-    try {
-      val res = operatorSession.request("voicewake.get", "{}")
-      val payload = json.parseToJsonElement(res).asObjectOrNull() ?: return
-      val array = payload["triggers"] as? JsonArray ?: return
-      val triggers = array.mapNotNull { it.asStringOrNull() }
-      applyWakeWordsFromGateway(triggers)
-    } catch (_: Throwable) {
-      // ignore
-    }
   }
 
   private suspend fun refreshBrandingFromGateway() {
@@ -825,6 +816,7 @@ class NodeRuntime(context: Context) {
     }
   }
 
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
   private suspend fun handleInvoke(command: String, paramsJson: String?): GatewaySession.InvokeResult {
     if (
       command.startsWith(MoltbotCanvasCommand.NamespacePrefix) ||
@@ -1061,6 +1053,8 @@ class NodeRuntime(context: Context) {
     }
   }
 
+=======
+>>>>>>> c179f71f4 (feat: Android companion app improvements & gateway URL camera payloads (#13541)):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
   private fun triggerCameraFlash() {
     // Token is used as a pulse trigger; value doesn't matter as long as it changes.
     _cameraFlashToken.value = SystemClock.elapsedRealtimeNanos()
@@ -1078,6 +1072,7 @@ class NodeRuntime(context: Context) {
     }
   }
 
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/NodeRuntime.kt
   private fun invokeErrorFromThrowable(err: Throwable): Pair<String, String> {
     val raw = (err.message ?: "").trim()
     if (raw.isEmpty()) return "UNAVAILABLE" to "UNAVAILABLE: camera error"
@@ -1265,4 +1260,6 @@ private fun parseHexColorArgb(raw: String?): Long? {
   if (hex.length != 6) return null
   val rgb = hex.toLongOrNull(16) ?: return null
   return 0xFF000000L or rgb
+=======
+>>>>>>> c179f71f4 (feat: Android companion app improvements & gateway URL camera payloads (#13541)):apps/android/app/src/main/java/ai/openclaw/android/NodeRuntime.kt
 }
