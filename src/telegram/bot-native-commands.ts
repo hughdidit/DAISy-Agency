@@ -338,8 +338,16 @@ export const registerTelegramNativeCommands = ({
   shouldSkipUpdate,
   opts,
 }: RegisterTelegramNativeCommandsParams) => {
+<<<<<<< HEAD
   const boundRoute = resolveAgentRoute({ cfg, channel: "telegram", accountId });
   const boundAgentIds = boundRoute?.agentId ? [boundRoute.agentId] : undefined;
+=======
+  const boundRoute =
+    nativeEnabled && nativeSkillsEnabled
+      ? resolveAgentRoute({ cfg, channel: "telegram", accountId })
+      : null;
+  const boundAgentIds = boundRoute ? [boundRoute.agentId] : null;
+>>>>>>> 1d01bb1c8 (fix(telegram): scope default account skill commands to resolved agent (#15599))
   const skillCommands =
     nativeEnabled && nativeSkillsEnabled
       ? listSkillCommandsForAgents({ cfg, agentIds: boundAgentIds })
