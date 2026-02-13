@@ -159,6 +159,69 @@ export function injectHistoryImagesIntoMessages(
   return didMutate;
 }
 
+function summarizeMessagePayload(msg: AgentMessage): { textChars: number; imageBlocks: number } {
+  const content = (msg as { content?: unknown }).content;
+  if (typeof content === "string") {
+    return { textChars: content.length, imageBlocks: 0 };
+  }
+  if (!Array.isArray(content)) {
+    return { textChars: 0, imageBlocks: 0 };
+  }
+
+  let textChars = 0;
+  let imageBlocks = 0;
+  for (const block of content) {
+    if (!block || typeof block !== "object") {
+      continue;
+    }
+    const typedBlock = block as { type?: unknown; text?: unknown };
+    if (typedBlock.type === "image") {
+      imageBlocks++;
+      continue;
+    }
+    if (typeof typedBlock.text === "string") {
+      textChars += typedBlock.text.length;
+    }
+  }
+
+  return { textChars, imageBlocks };
+}
+
+function summarizeSessionContext(messages: AgentMessage[]): {
+  roleCounts: string;
+  totalTextChars: number;
+  totalImageBlocks: number;
+  maxMessageTextChars: number;
+} {
+  const roleCounts = new Map<string, number>();
+  let totalTextChars = 0;
+  let totalImageBlocks = 0;
+  let maxMessageTextChars = 0;
+
+  for (const msg of messages) {
+    const role = typeof msg.role === "string" ? msg.role : "unknown";
+    roleCounts.set(role, (roleCounts.get(role) ?? 0) + 1);
+
+    const payload = summarizeMessagePayload(msg);
+    totalTextChars += payload.textChars;
+    totalImageBlocks += payload.imageBlocks;
+    if (payload.textChars > maxMessageTextChars) {
+      maxMessageTextChars = payload.textChars;
+    }
+  }
+
+  return {
+    roleCounts:
+      [...roleCounts.entries()]
+        .toSorted((a, b) => a[0].localeCompare(b[0]))
+        .map(([role, count]) => `${role}:${count}`)
+        .join(",") || "none",
+    totalTextChars,
+    totalImageBlocks,
+    maxMessageTextChars,
+  };
+}
+
 export async function runEmbeddedAttempt(
   params: EmbeddedRunAttemptParams,
 ): Promise<EmbeddedRunAttemptResult> {
@@ -837,6 +900,7 @@ export async function runEmbeddedAttempt(
             note: `images: prompt=${imageResult.images.length} history=${imageResult.historyImagesByIndex.size}`,
           });
 
+<<<<<<< HEAD
           const shouldTrackCacheTtl =
             params.config?.agents?.defaults?.contextPruning?.mode === "cache-ttl" &&
             isCacheTtlEligibleProvider(params.provider, params.modelId);
@@ -846,6 +910,25 @@ export async function runEmbeddedAttempt(
               provider: params.provider,
               modelId: params.modelId,
             });
+=======
+          // Diagnostic: log context sizes before prompt to help debug early overflow errors.
+          if (log.isEnabled("debug")) {
+            const msgCount = activeSession.messages.length;
+            const systemLen = systemPromptText?.length ?? 0;
+            const promptLen = effectivePrompt.length;
+            const sessionSummary = summarizeSessionContext(activeSession.messages);
+            log.debug(
+              `[context-diag] pre-prompt: sessionKey=${params.sessionKey ?? params.sessionId} ` +
+                `messages=${msgCount} roleCounts=${sessionSummary.roleCounts} ` +
+                `historyTextChars=${sessionSummary.totalTextChars} ` +
+                `maxMessageTextChars=${sessionSummary.maxMessageTextChars} ` +
+                `historyImageBlocks=${sessionSummary.totalImageBlocks} ` +
+                `systemPromptChars=${systemLen} promptChars=${promptLen} ` +
+                `promptImages=${imageResult.images.length} ` +
+                `historyImageMessages=${imageResult.historyImagesByIndex.size} ` +
+                `provider=${params.provider}/${params.modelId} sessionFile=${params.sessionFile}`,
+            );
+>>>>>>> 9bd2ccb01 (feat: add pre-prompt context size diagnostic logging (openclaw#8930) thanks @Glucksberg)
           }
 
           // Only pass images option if there are actually images to pass
