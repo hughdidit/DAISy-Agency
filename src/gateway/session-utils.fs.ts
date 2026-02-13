@@ -12,6 +12,7 @@ import {
   resolveSessionTranscriptPathInDir,
 } from "../config/sessions.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
+import { hasInterSessionUserProvenance } from "../sessions/input-provenance.js";
 import { extractToolCallNames, hasToolCall } from "../utils/transcript-tools.js";
 >>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 import { stripEnvelope } from "./chat-sanitize.js";
@@ -131,6 +132,7 @@ const MAX_LINES_TO_SCAN = 10;
 type TranscriptMessage = {
   role?: string;
   content?: string | Array<{ type: string; text?: string }>;
+  provenance?: unknown;
 };
 
 function extractTextFromContent(content: TranscriptMessage["content"]): string | null {
@@ -151,6 +153,7 @@ export function readFirstUserMessageFromTranscript(
   storePath: string | undefined,
   sessionFile?: string,
   agentId?: string,
+  opts?: { includeInterSession?: boolean },
 ): string | null {
   const candidates = resolveSessionTranscriptCandidates(sessionId, storePath, sessionFile, agentId);
   const filePath = candidates.find((p) => fs.existsSync(p));
@@ -171,6 +174,9 @@ export function readFirstUserMessageFromTranscript(
         const parsed = JSON.parse(line);
         const msg = parsed?.message as TranscriptMessage | undefined;
         if (msg?.role === "user") {
+          if (opts?.includeInterSession !== true && hasInterSessionUserProvenance(msg)) {
+            continue;
+          }
           const text = extractTextFromContent(msg.content);
           if (text) return text;
         }

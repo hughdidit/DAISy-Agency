@@ -109,6 +109,10 @@ export function installSessionToolResultGuard(
   sessionManager: SessionManager,
   opts?: {
     /**
+     * Optional transform applied to any message before persistence.
+     */
+    transformMessageForPersistence?: (message: AgentMessage) => AgentMessage;
+    /**
      * Optional, synchronous transform applied to toolResult messages *before* they are
      * persisted to the session transcript.
      */
@@ -128,6 +132,10 @@ export function installSessionToolResultGuard(
 } {
   const originalAppend = sessionManager.appendMessage.bind(sessionManager);
   const pending = new Map<string, string | undefined>();
+  const persistMessage = (message: AgentMessage) => {
+    const transformer = opts?.transformMessageForPersistence;
+    return transformer ? transformer(message) : message;
+  };
 
   const persistToolResult = (
     message: AgentMessage,
@@ -145,7 +153,7 @@ export function installSessionToolResultGuard(
       for (const [id, name] of pending.entries()) {
         const synthetic = makeMissingToolResult({ toolCallId: id, toolName: name });
         originalAppend(
-          persistToolResult(synthetic, {
+          persistToolResult(persistMessage(synthetic), {
             toolCallId: id,
             toolName: name,
             isSynthetic: true,
@@ -172,7 +180,7 @@ export function installSessionToolResultGuard(
       }
       // Apply hard size cap before persistence to prevent oversized tool results
       // from consuming the entire context window on subsequent LLM calls.
-      const capped = capToolResultSize(nextMessage);
+      const capped = capToolResultSize(persistMessage(nextMessage));
       return originalAppend(
         persistToolResult(capped, {
 >>>>>>> 0deb8b0da (fix: recover from context overflow caused by oversized tool results (#11579))
@@ -199,7 +207,11 @@ export function installSessionToolResultGuard(
       }
     }
 
+<<<<<<< HEAD
     const result = originalAppend(message as never);
+=======
+    const result = originalAppend(persistMessage(nextMessage) as never);
+>>>>>>> 85409e401 (fix: preserve inter-session input provenance (thanks @anbecker))
 
     const sessionFile = (
       sessionManager as { getSessionFile?: () => string | null }

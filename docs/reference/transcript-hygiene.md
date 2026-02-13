@@ -17,6 +17,7 @@ Scope includes:
 - Turn validation / ordering
 - Thought signature cleanup
 - Image payload sanitization
+- User-input provenance tagging (for inter-session routed prompts)
 
 If you need transcript storage details, see:
 - [/reference/session-management-compaction](/reference/session-management-compaction)
@@ -44,6 +45,39 @@ Implementation:
 
 ---
 
+<<<<<<< HEAD
+=======
+## Global rule: malformed tool calls
+
+Assistant tool-call blocks that are missing both `input` and `arguments` are dropped
+before model context is built. This prevents provider rejections from partially
+persisted tool calls (for example, after a rate limit failure).
+
+Implementation:
+
+- `sanitizeToolCallInputs` in `src/agents/session-transcript-repair.ts`
+- Applied in `sanitizeSessionHistory` in `src/agents/pi-embedded-runner/google.ts`
+
+---
+
+## Global rule: inter-session input provenance
+
+When an agent sends a prompt into another session via `sessions_send` (including
+agent-to-agent reply/announce steps), OpenClaw persists the created user turn with:
+
+- `message.provenance.kind = "inter_session"`
+
+This metadata is written at transcript append time and does not change role
+(`role: "user"` remains for provider compatibility). Transcript readers can use
+this to avoid treating routed internal prompts as end-user-authored instructions.
+
+During context rebuild, OpenClaw also prepends a short `[Inter-session message]`
+marker to those user turns in-memory so the model can distinguish them from
+external end-user instructions.
+
+---
+
+>>>>>>> 85409e401 (fix: preserve inter-session input provenance (thanks @anbecker))
 ## Provider matrix (current behavior)
 
 **OpenAI / OpenAI Codex**

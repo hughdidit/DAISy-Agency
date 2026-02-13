@@ -25,6 +25,9 @@ export async function runAgentStep(params: {
   timeoutMs: number;
   channel?: string;
   lane?: string;
+  sourceSessionKey?: string;
+  sourceChannel?: string;
+  sourceTool?: string;
 }): Promise<string | undefined> {
   const stepIdem = crypto.randomUUID();
   const response = (await callGateway({
@@ -37,6 +40,12 @@ export async function runAgentStep(params: {
       channel: params.channel ?? INTERNAL_MESSAGE_CHANNEL,
       lane: params.lane ?? AGENT_LANE_NESTED,
       extraSystemPrompt: params.extraSystemPrompt,
+      inputProvenance: {
+        kind: "inter_session",
+        sourceSessionKey: params.sourceSessionKey,
+        sourceChannel: params.sourceChannel,
+        sourceTool: params.sourceTool ?? "sessions_send",
+      },
     },
     timeoutMs: 10_000,
   })) as { runId?: string; acceptedAt?: number };

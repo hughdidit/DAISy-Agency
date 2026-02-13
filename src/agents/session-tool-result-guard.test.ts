@@ -252,5 +252,38 @@ describe("installSessionToolResultGuard", () => {
     };
     expect(textBlock.text).toBe(originalText);
   });
+<<<<<<< HEAD
 >>>>>>> 0deb8b0da (fix: recover from context overflow caused by oversized tool results (#11579))
+=======
+
+  it("applies message persistence transform to user messages", () => {
+    const sm = SessionManager.inMemory();
+    installSessionToolResultGuard(sm, {
+      transformMessageForPersistence: (message) =>
+        (message as { role?: string }).role === "user"
+          ? ({
+              ...(message as unknown as Record<string, unknown>),
+              provenance: { kind: "inter_session", sourceTool: "sessions_send" },
+            } as AgentMessage)
+          : message,
+    });
+
+    sm.appendMessage(
+      asAppendMessage({
+        role: "user",
+        content: "forwarded",
+        timestamp: Date.now(),
+      }),
+    );
+
+    const persisted = sm.getEntries().find((e) => e.type === "message") as
+      | { message?: Record<string, unknown> }
+      | undefined;
+    expect(persisted?.message?.role).toBe("user");
+    expect(persisted?.message?.provenance).toEqual({
+      kind: "inter_session",
+      sourceTool: "sessions_send",
+    });
+  });
+>>>>>>> 85409e401 (fix: preserve inter-session input provenance (thanks @anbecker))
 });
