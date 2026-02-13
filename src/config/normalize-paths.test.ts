@@ -1,15 +1,17 @@
 import path from "node:path";
+<<<<<<< HEAD
 
 import { describe, expect, it, vi } from "vitest";
 
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> 79f4c4c58 (perf(test): trim module resets in config suites)
 import { withTempHome } from "../../test/helpers/temp-home.js";
+import { normalizeConfigPaths } from "./normalize-paths.js";
 
 describe("normalizeConfigPaths", () => {
   it("expands tilde for path-ish keys only", async () => {
     await withTempHome(async (home) => {
-      vi.resetModules();
-      const { normalizeConfigPaths } = await import("./normalize-paths.js");
-
       const cfg = normalizeConfigPaths({
         tools: { exec: { pathPrepend: ["~/bin"] } },
         plugins: { load: { paths: ["~/plugins/a"] } },
