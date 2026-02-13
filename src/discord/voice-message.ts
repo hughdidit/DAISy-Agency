@@ -49,7 +49,9 @@ export async function getAudioDuration(filePath: string): Promise<number> {
     }
     return Math.round(duration * 100) / 100; // Round to 2 decimal places
   } catch (err) {
-    throw new Error(`Failed to get audio duration: ${err instanceof Error ? err.message : err}`);
+    throw new Error(`Failed to get audio duration: ${err instanceof Error ? err.message : err}`, {
+      cause: err,
+    });
   }
 }
 
@@ -121,7 +123,7 @@ async function generateWaveformFromPcm(filePath: string): Promise<string> {
       let sum = 0;
       let count = 0;
       for (let j = 0; j < step && i * step + j < samples.length; j++) {
-        sum += Math.abs(samples[i * step + j]!);
+        sum += Math.abs(samples[i * step + j]);
         count++;
       }
       const avg = count > 0 ? sum / count : 0;
@@ -242,12 +244,12 @@ export async function sendDiscordVoiceMessage(
   metadata: VoiceMessageMetadata,
   replyTo: string | undefined,
   request: RetryRunner,
-  token: string,
   silent?: boolean,
 ): Promise<{ id: string; channel_id: string }> {
   const filename = "voice-message.ogg";
   const fileSize = audioBuffer.byteLength;
 
+<<<<<<< HEAD
   // Step 1: Request upload URL (using fetch directly for proper headers)
   const uploadUrlRes = await fetch(
     `https://discord.com/api/v10/channels/${channelId}/attachments`,
@@ -275,6 +277,24 @@ export async function sendDiscordVoiceMessage(
   }
 
   const uploadUrlResponse = (await uploadUrlRes.json()) as UploadUrlResponse;
+=======
+  // Step 1: Request upload URL from Discord
+  const uploadUrlResponse = await request(
+    () =>
+      rest.post(`/channels/${channelId}/attachments`, {
+        body: {
+          files: [
+            {
+              filename,
+              file_size: fileSize,
+              id: "0",
+            },
+          ],
+        },
+      }) as Promise<UploadUrlResponse>,
+    "voice-upload-url",
+  );
+>>>>>>> 1c9c01ff4 (Discord: refine voice message handling)
 
   if (!uploadUrlResponse.attachments?.[0]) {
     throw new Error("Failed to get upload URL for voice message");
