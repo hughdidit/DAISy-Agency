@@ -33,7 +33,18 @@ import { shouldIncludeHook } from "./config.js";
  * console.log(`Loaded ${count} hook handlers`);
  * ```
  */
+<<<<<<< HEAD
 export async function loadInternalHooks(cfg: MoltbotConfig, workspaceDir: string): Promise<number> {
+=======
+export async function loadInternalHooks(
+  cfg: OpenClawConfig,
+  workspaceDir: string,
+  opts?: {
+    managedHooksDir?: string;
+    bundledHooksDir?: string;
+  },
+): Promise<number> {
+>>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
   // Check if hooks are enabled
   if (!cfg.hooks?.internal?.enabled) {
     return 0;
@@ -43,7 +54,11 @@ export async function loadInternalHooks(cfg: MoltbotConfig, workspaceDir: string
 
   // 1. Load hooks from directories (new system)
   try {
-    const hookEntries = loadWorkspaceHookEntries(workspaceDir, { config: cfg });
+    const hookEntries = loadWorkspaceHookEntries(workspaceDir, {
+      config: cfg,
+      managedHooksDir: opts?.managedHooksDir,
+      bundledHooksDir: opts?.bundledHooksDir,
+    });
 
     // Filter by eligibility
     const eligible = hookEntries.filter((entry) => shouldIncludeHook({ entry, config: cfg }));

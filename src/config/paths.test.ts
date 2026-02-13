@@ -1,10 +1,15 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
 import {
   resolveDefaultConfigCandidates,
+  resolveConfigPathCandidate,
   resolveConfigPath,
   resolveOAuthDir,
   resolveOAuthPath,
@@ -124,6 +129,7 @@ describe("state + config path candidates", () => {
     }
   });
 
+<<<<<<< HEAD
   it("CONFIG_PATH prefers existing legacy filename when present", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-config-"));
     const previousHome = process.env.HOME;
@@ -134,12 +140,17 @@ describe("state + config path candidates", () => {
     const previousClawdbotConfig = process.env.CLAWDBOT_CONFIG_PATH;
     const previousMoltbotState = process.env.MOLTBOT_STATE_DIR;
     const previousClawdbotState = process.env.CLAWDBOT_STATE_DIR;
+=======
+  it("CONFIG_PATH prefers existing config when present", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-config-"));
+>>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
     try {
       const legacyDir = path.join(root, ".clawdbot");
       await fs.mkdir(legacyDir, { recursive: true });
       const legacyPath = path.join(legacyDir, "clawdbot.json");
       await fs.writeFile(legacyPath, "{}", "utf-8");
 
+<<<<<<< HEAD
       process.env.HOME = root;
       if (process.platform === "win32") {
         process.env.USERPROFILE = root;
@@ -213,8 +224,12 @@ describe("state + config path candidates", () => {
         process.env.OPENCLAW_STATE_DIR = previousOpenClawState;
       }
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+=======
+      const resolved = resolveConfigPathCandidate({} as NodeJS.ProcessEnv, () => root);
+      expect(resolved).toBe(legacyPath);
+    } finally {
+>>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
       await fs.rm(root, { recursive: true, force: true });
-      vi.resetModules();
     }
   });
 
