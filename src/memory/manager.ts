@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
+=======
+import type { DatabaseSync } from "node:sqlite";
+import { type FSWatcher } from "chokidar";
+>>>>>>> 4c401d336 (refactor(memory): extract manager sync and embedding ops)
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -71,22 +76,7 @@ import type {
 =======
 import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
 import { resolveMemorySearchConfig } from "../agents/memory-search.js";
-import { resolveSessionTranscriptsDirForAgent } from "../config/sessions/paths.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { onSessionTranscriptUpdate } from "../sessions/transcript-events.js";
-import { resolveUserPath } from "../utils.js";
-import { runGeminiEmbeddingBatches, type GeminiBatchRequest } from "./batch-gemini.js";
-import {
-  OPENAI_BATCH_ENDPOINT,
-  type OpenAiBatchRequest,
-  runOpenAiEmbeddingBatches,
-} from "./batch-openai.js";
-import { type VoyageBatchRequest, runVoyageEmbeddingBatches } from "./batch-voyage.js";
-import { enforceEmbeddingMaxInputTokens } from "./embedding-chunk-limits.js";
-import { estimateUtf8Bytes } from "./embedding-input-limits.js";
-import { DEFAULT_GEMINI_EMBEDDING_MODEL } from "./embeddings-gemini.js";
-import { DEFAULT_OPENAI_EMBEDDING_MODEL } from "./embeddings-openai.js";
-import { DEFAULT_VOYAGE_EMBEDDING_MODEL } from "./embeddings-voyage.js";
 import {
   createEmbeddingProvider,
   type EmbeddingProvider,
@@ -96,6 +86,7 @@ import {
   type VoyageEmbeddingClient,
 } from "./embeddings.js";
 import { bm25RankToScore, buildFtsQuery, mergeHybridResults } from "./hybrid.js";
+<<<<<<< HEAD
 import {
   buildFileEntry,
   chunkMarkdown,
@@ -141,32 +132,25 @@ type MemorySyncProgressState = {
 };
 
 const META_KEY = "memory_index_meta_v1";
+=======
+import { isMemoryPath, normalizeExtraMemoryPaths } from "./internal.js";
+import { memoryManagerEmbeddingOps } from "./manager-embedding-ops.js";
+import { searchKeyword, searchVector } from "./manager-search.js";
+import { memoryManagerSyncOps } from "./manager-sync-ops.js";
+>>>>>>> 4c401d336 (refactor(memory): extract manager sync and embedding ops)
 const SNIPPET_MAX_CHARS = 700;
 const VECTOR_TABLE = "chunks_vec";
 const FTS_TABLE = "chunks_fts";
 const EMBEDDING_CACHE_TABLE = "embedding_cache";
-const SESSION_DIRTY_DEBOUNCE_MS = 5000;
-const EMBEDDING_BATCH_MAX_TOKENS = 8000;
-const EMBEDDING_INDEX_CONCURRENCY = 4;
-const EMBEDDING_RETRY_MAX_ATTEMPTS = 3;
-const EMBEDDING_RETRY_BASE_DELAY_MS = 500;
-const EMBEDDING_RETRY_MAX_DELAY_MS = 8000;
 const BATCH_FAILURE_LIMIT = 2;
-const SESSION_DELTA_READ_CHUNK_BYTES = 64 * 1024;
-const VECTOR_LOAD_TIMEOUT_MS = 30_000;
-const EMBEDDING_QUERY_TIMEOUT_REMOTE_MS = 60_000;
-const EMBEDDING_QUERY_TIMEOUT_LOCAL_MS = 5 * 60_000;
-const EMBEDDING_BATCH_TIMEOUT_REMOTE_MS = 2 * 60_000;
-const EMBEDDING_BATCH_TIMEOUT_LOCAL_MS = 10 * 60_000;
 
 const log = createSubsystemLogger("memory");
 
 const INDEX_CACHE = new Map<string, MemoryIndexManager>();
 
-const vectorToBlob = (embedding: number[]): Buffer =>
-  Buffer.from(new Float32Array(embedding).buffer);
-
 export class MemoryIndexManager implements MemorySearchManager {
+  // oxlint-disable-next-line typescript/no-explicit-any
+  [key: string]: any;
   private readonly cacheKey: string;
   private readonly cfg: MoltbotConfig;
   private readonly agentId: string;
@@ -339,7 +323,7 @@ export class MemoryIndexManager implements MemorySearchManager {
       ? await this.searchKeyword(cleaned, candidates).catch(() => [])
       : [];
 
-    const queryVec = await this.embedQueryWithTimeout(cleaned);
+    const queryVec = (await this.embedQueryWithTimeout(cleaned)) as number[];
     const hasVector = queryVec.some((v) => v !== 0);
     const vectorResults = hasVector
       ? await this.searchVector(queryVec, candidates).catch(() => [])
@@ -441,7 +425,7 @@ export class MemoryIndexManager implements MemorySearchManager {
     this.syncing = this.runSync(params).finally(() => {
       this.syncing = null;
     });
-    return this.syncing;
+    return this.syncing ?? Promise.resolve();
   }
 
   async readFile(params: {
@@ -603,7 +587,9 @@ export class MemoryIndexManager implements MemorySearchManager {
     this.db.close();
     INDEX_CACHE.delete(this.cacheKey);
   }
+}
 
+<<<<<<< HEAD
   private async ensureVectorReady(dimensions?: number): Promise<boolean> {
     if (!this.vector.enabled) return false;
     if (!this.vectorReady) {
@@ -2300,5 +2286,21 @@ export class MemoryIndexManager implements MemorySearchManager {
            size=excluded.size`,
       )
       .run(entry.path, options.source, entry.hash, entry.mtimeMs, entry.size);
+=======
+function applyPrototypeMixins(target: object, ...sources: object[]): void {
+  for (const source of sources) {
+    for (const name of Object.getOwnPropertyNames(source)) {
+      if (name === "constructor") {
+        continue;
+      }
+      const descriptor = Object.getOwnPropertyDescriptor(source, name);
+      if (!descriptor) {
+        continue;
+      }
+      Object.defineProperty(target, name, descriptor);
+    }
+>>>>>>> 4c401d336 (refactor(memory): extract manager sync and embedding ops)
   }
 }
+
+applyPrototypeMixins(MemoryIndexManager.prototype, memoryManagerSyncOps, memoryManagerEmbeddingOps);
