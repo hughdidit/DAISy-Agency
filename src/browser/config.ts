@@ -192,8 +192,14 @@ export function resolveBrowserConfig(
     controlPort,
   );
   const cdpProtocol = cdpInfo.parsed.protocol === "https:" ? "https" : "http";
+  const normalizedConfiguredDefaultProfile =
+    defaultProfileFromConfig?.toLowerCase() === "clawd" &&
+    !profiles[defaultProfileFromConfig] &&
+    profiles[DEFAULT_CLAWD_BROWSER_PROFILE_NAME]
+      ? DEFAULT_CLAWD_BROWSER_PROFILE_NAME
+      : defaultProfileFromConfig;
   const defaultProfile =
-    defaultProfileFromConfig ??
+    normalizedConfiguredDefaultProfile ??
     (profiles[DEFAULT_BROWSER_DEFAULT_PROFILE_NAME]
       ? DEFAULT_BROWSER_DEFAULT_PROFILE_NAME
       : DEFAULT_CLAWD_BROWSER_PROFILE_NAME);
