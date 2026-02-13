@@ -502,6 +502,37 @@ describe("resolveSessionTranscriptCandidates", () => {
 
     const candidates = resolveSessionTranscriptCandidates("sess-1", undefined);
     const fallback = candidates[candidates.length - 1];
+<<<<<<< HEAD
     expect(fallback).toBe(path.join("/srv/openclaw-home", ".openclaw", "sessions", "sess-1.jsonl"));
+=======
+    expect(fallback).toBe(
+      path.join(path.resolve("/srv/openclaw-home"), ".openclaw", "sessions", "sess-1.jsonl"),
+    );
+  });
+});
+
+describe("resolveSessionTranscriptCandidates safety", () => {
+  test("drops unsafe session IDs instead of producing traversal paths", () => {
+    const candidates = resolveSessionTranscriptCandidates(
+      "../etc/passwd",
+      "/tmp/openclaw/agents/main/sessions/sessions.json",
+    );
+
+    expect(candidates).toEqual([]);
+  });
+
+  test("drops unsafe sessionFile candidates and keeps safe fallbacks", () => {
+    const storePath = "/tmp/openclaw/agents/main/sessions/sessions.json";
+    const candidates = resolveSessionTranscriptCandidates(
+      "sess-safe",
+      storePath,
+      "../../etc/passwd",
+    );
+    const normalizedCandidates = candidates.map((value) => path.resolve(value));
+    const expectedFallback = path.resolve(path.dirname(storePath), "sess-safe.jsonl");
+
+    expect(candidates.some((value) => value.includes("etc/passwd"))).toBe(false);
+    expect(normalizedCandidates).toContain(expectedFallback);
+>>>>>>> 8ff89ba14 (fix(ci): resolve windows test path assertion and sync protocol swift models)
   });
 });
