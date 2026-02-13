@@ -14,7 +14,15 @@ describe("resolvePythonExecutablePath", () => {
   itUnix(
     "resolves a working python path and caches the result",
     async () => {
+<<<<<<< HEAD
       const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-python-"));
+=======
+      vi.doMock("../process/exec.js", () => ({
+        runCommandWithTimeout: vi.fn(),
+      }));
+
+      const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-python-"));
+>>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
       const originalPath = process.env.PATH;
       try {
         const realPython = path.join(tmp, "python-real");
@@ -24,16 +32,21 @@ describe("resolvePythonExecutablePath", () => {
         const shimDir = path.join(tmp, "shims");
         await fs.mkdir(shimDir, { recursive: true });
         const shim = path.join(shimDir, "python3");
-        await fs.writeFile(
-          shim,
-          `#!/bin/sh\nif [ "$1" = "-c" ]; then\n  echo "${realPython}"\n  exit 0\nfi\nexit 1\n`,
-          "utf-8",
-        );
+        await fs.writeFile(shim, "#!/bin/sh\nexit 0\n", "utf-8");
         await fs.chmod(shim, 0o755);
 
         process.env.PATH = `${shimDir}${path.delimiter}/usr/bin`;
 
         const { resolvePythonExecutablePath } = await import("./gmail-setup-utils.js");
+        const { runCommandWithTimeout } = await import("../process/exec.js");
+        const runCommand = vi.mocked(runCommandWithTimeout);
+        runCommand.mockResolvedValue({
+          stdout: `${realPython}\n`,
+          stderr: "",
+          code: 0,
+          signal: null,
+          killed: false,
+        });
 
         const resolved = await resolvePythonExecutablePath();
         expect(resolved).toBe(realPython);
@@ -41,6 +54,7 @@ describe("resolvePythonExecutablePath", () => {
         process.env.PATH = "/bin";
         const cached = await resolvePythonExecutablePath();
         expect(cached).toBe(realPython);
+        expect(runCommand).toHaveBeenCalledTimes(1);
       } finally {
         process.env.PATH = originalPath;
         await fs.rm(tmp, { recursive: true, force: true });

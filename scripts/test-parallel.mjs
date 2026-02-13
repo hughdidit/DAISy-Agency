@@ -45,6 +45,7 @@ const supportsVmForks = Number.isFinite(nodeMajor) ? nodeMajor < 24 : true;
 const useVmForks =
   process.env.OPENCLAW_TEST_VM_FORKS === "1" ||
   (process.env.OPENCLAW_TEST_VM_FORKS !== "0" && !isWindows && supportsVmForks);
+const disableIsolation = process.env.OPENCLAW_TEST_NO_ISOLATE === "1";
 const runs = [
   ...(useVmForks
     ? [
@@ -56,6 +57,7 @@ const runs = [
             "--config",
             "vitest.unit.config.ts",
             "--pool=vmForks",
+            ...(disableIsolation ? ["--isolate=false"] : []),
             ...unitIsolatedFiles.flatMap((file) => ["--exclude", file]),
           ],
         },
@@ -167,6 +169,7 @@ const WARNING_SUPPRESSION_FLAGS = [
   "--disable-warning=ExperimentalWarning",
   "--disable-warning=DEP0040",
   "--disable-warning=DEP0060",
+  "--disable-warning=MaxListenersExceededWarning",
 ];
 
 const runOnce = (entry, extraArgs = []) =>

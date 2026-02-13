@@ -13,6 +13,71 @@ import {
   resolveLaunchAgentPlistPath,
 } from "./launchd.js";
 
+function parseLaunchctlCalls(raw: string): string[][] {
+  return raw
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.split(/\s+/));
+}
+
+async function writeLaunchctlStub(binDir: string) {
+  if (process.platform === "win32") {
+    const stubJsPath = path.join(binDir, "launchctl.js");
+    await fs.writeFile(
+      stubJsPath,
+      [
+        'import fs from "node:fs";',
+        "const args = process.argv.slice(2);",
+        "const logPath = process.env.OPENCLAW_TEST_LAUNCHCTL_LOG;",
+        "if (logPath) {",
+        '  fs.appendFileSync(logPath, args.join("\\t") + "\\n", "utf8");',
+        "}",
+        'if (args[0] === "list") {',
+        '  const output = process.env.OPENCLAW_TEST_LAUNCHCTL_LIST_OUTPUT || "";',
+        "  process.stdout.write(output);",
+        "}",
+        "process.exit(0);",
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(binDir, "launchctl.cmd"),
+      `@echo off\r\nnode "%~dp0\\launchctl.js" %*\r\n`,
+      "utf8",
+    );
+    return;
+  }
+
+  const shPath = path.join(binDir, "launchctl");
+  await fs.writeFile(
+    shPath,
+    [
+      "#!/bin/sh",
+      'log_path="${OPENCLAW_TEST_LAUNCHCTL_LOG:-}"',
+      'if [ -n "$log_path" ]; then',
+      '  line=""',
+      '  for arg in "$@"; do',
+      '    if [ -n "$line" ]; then',
+      '      line="$line $arg"',
+      "    else",
+      '      line="$arg"',
+      "    fi",
+      "  done",
+      '  printf \'%s\\n\' "$line" >> "$log_path"',
+      "fi",
+      'if [ "$1" = "list" ]; then',
+      "  printf '%s' \"${OPENCLAW_TEST_LAUNCHCTL_LIST_OUTPUT:-}\"",
+      "fi",
+      "exit 0",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+  await fs.chmod(shPath, 0o755);
+}
+
 async function withLaunchctlStub(
   options: { listOutput?: string },
   run: (context: { env: Record<string, string | undefined>; logPath: string }) => Promise<void>,
@@ -29,6 +94,7 @@ async function withLaunchctlStub(
     await fs.mkdir(binDir, { recursive: true });
     await fs.mkdir(homeDir, { recursive: true });
 
+<<<<<<< HEAD
     const stubJsPath = path.join(binDir, "launchctl.js");
     await fs.writeFile(
       stubJsPath,
@@ -60,6 +126,9 @@ async function withLaunchctlStub(
       await fs.writeFile(shPath, `#!/bin/sh\nnode "$(dirname "$0")/launchctl.js" "$@"\n`, "utf8");
       await fs.chmod(shPath, 0o755);
     }
+=======
+    await writeLaunchctlStub(binDir);
+>>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
 
     process.env.CLAWDBOT_TEST_LAUNCHCTL_LOG = logPath;
     process.env.CLAWDBOT_TEST_LAUNCHCTL_LIST_OUTPUT = options.listOutput ?? "";
@@ -127,10 +196,7 @@ describe("launchd bootstrap repair", () => {
       const repair = await repairLaunchAgentBootstrap({ env });
       expect(repair.ok).toBe(true);
 
-      const calls = (await fs.readFile(logPath, "utf8"))
-        .split("\n")
-        .filter(Boolean)
-        .map((line) => JSON.parse(line) as string[]);
+      const calls = parseLaunchctlCalls(await fs.readFile(logPath, "utf8"));
 
       const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
       const label = "bot.molt.gateway";
@@ -155,6 +221,7 @@ describe("launchd install", () => {
       await fs.mkdir(binDir, { recursive: true });
       await fs.mkdir(homeDir, { recursive: true });
 
+<<<<<<< HEAD
       const stubJsPath = path.join(binDir, "launchctl.js");
       await fs.writeFile(
         stubJsPath,
@@ -181,6 +248,9 @@ describe("launchd install", () => {
         await fs.writeFile(shPath, `#!/bin/sh\nnode "$(dirname "$0")/launchctl.js" "$@"\n`, "utf8");
         await fs.chmod(shPath, 0o755);
       }
+=======
+      await writeLaunchctlStub(binDir);
+>>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
 
       process.env.CLAWDBOT_TEST_LAUNCHCTL_LOG = logPath;
       process.env.PATH = `${binDir}${path.delimiter}${originalPath ?? ""}`;
@@ -195,10 +265,7 @@ describe("launchd install", () => {
         programArguments: ["node", "-e", "process.exit(0)"],
       });
 
-      const calls = (await fs.readFile(logPath, "utf8"))
-        .split("\n")
-        .filter(Boolean)
-        .map((line) => JSON.parse(line) as string[]);
+      const calls = parseLaunchctlCalls(await fs.readFile(logPath, "utf8"));
 
       const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
       const label = "bot.molt.gateway";
