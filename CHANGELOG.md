@@ -70,9 +70,13 @@ Docs: https://docs.openclaw.ai
 =======
 - Discord: process DM reactions instead of silently dropping them. (#10418) Thanks @mcaxtr.
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Signal: enforce E.164 validation for the Signal bot account prompt so mistyped numbers are caught early. (#15063) Thanks @Duartemartins.
 >>>>>>> 22593a272 (fix: refine cron heartbeat event detection)
 =======
+=======
+- Discord: respect replyToMode in threads. (#11062) Thanks @cordx56.
+>>>>>>> 926bf8477 (fix: update replyToMode notes (#11062) (thanks @cordx56))
 - Heartbeat: filter noise-only system events so scheduled reminder notifications do not fire when cron runs carry only heartbeat markers. (#13317) Thanks @pvtclawn.
 >>>>>>> 54513f424 (fix: align cron prompt content with filtered reminder events)
 - Signal: render mention placeholders as `@uuid`/`@phone` so mention gating and Clawdbot targeting work. (#2013) Thanks @alexgleason.
