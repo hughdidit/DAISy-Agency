@@ -212,6 +212,9 @@ export async function launchClawdChrome(
       args.push("--disable-dev-shm-usage");
     }
 
+    // Stealth: hide navigator.webdriver from automation detection (#80)
+    args.push("--disable-blink-features=AutomationControlled");
+
     // Always open a blank tab to ensure a target exists.
     args.push("about:blank");
 
