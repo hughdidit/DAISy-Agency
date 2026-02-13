@@ -17,6 +17,7 @@ export { MoltbotSchema } from "./zod-schema.js";
 export {
   validateConfigObject,
   validateConfigObjectRaw,
+  validateConfigObjectRawWithPlugins,
   validateConfigObjectWithPlugins,
 } from "./validation.js";
 export { OpenClawSchema } from "./zod-schema.js";
