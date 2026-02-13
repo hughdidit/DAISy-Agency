@@ -4,12 +4,21 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 =======
 =======
 ## 2026.2.3
 =======
 =======
+=======
+## 2026.2.13
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+>>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
 ## 2026.2.6-3
 
 ### Changes

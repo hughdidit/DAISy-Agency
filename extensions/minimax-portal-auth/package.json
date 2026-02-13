@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.3",
 =======
   "version": "2026.2.6-2",
@@ -13,6 +14,10 @@
 =======
   "version": "2026.2.9",
 >>>>>>> fb8c653f5 (chore(release): 2026.2.9)
+=======
+  "version": "2026.2.13",
+  "private": true,
+>>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
   "description": "OpenClaw MiniMax Portal OAuth provider plugin",
   "type": "module",
   "devDependencies": {
