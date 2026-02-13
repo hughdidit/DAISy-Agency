@@ -185,22 +185,6 @@ private struct SkillRow: View {
         self.skill.missing.config
     }
 
-    init(
-        skill: SkillStatus,
-        isBusy: Bool,
-        connectionMode: AppState.ConnectionMode,
-        onToggleEnabled: @escaping (Bool) -> Void,
-        onInstall: @escaping (SkillInstallOption, InstallTarget) -> Void,
-        onSetEnv: @escaping (String, Bool) -> Void)
-    {
-        self.skill = skill
-        self.isBusy = isBusy
-        self.connectionMode = connectionMode
-        self.onToggleEnabled = onToggleEnabled
-        self.onInstall = onInstall
-        self.onSetEnv = onSetEnv
-    }
-
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Text(self.skill.emoji ?? "✨")
