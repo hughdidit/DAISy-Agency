@@ -203,7 +203,7 @@ export async function configureGatewayForOnboarding(
         auth: {
           ...nextConfig.gateway?.auth,
           mode: "password",
-          password: String(password).trim(),
+          password: String(password ?? "").trim(),
         },
       },
     };

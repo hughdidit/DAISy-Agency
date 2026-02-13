@@ -189,7 +189,7 @@ export async function promptGatewayConfig(
       }),
       runtime,
     );
-    gatewayPassword = String(password).trim();
+    gatewayPassword = String(password ?? "").trim();
   }
 
   const authConfig = buildGatewayAuthConfig({
