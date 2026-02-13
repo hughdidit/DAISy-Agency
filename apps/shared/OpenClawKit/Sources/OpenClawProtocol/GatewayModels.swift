@@ -2349,6 +2349,7 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
     public let resolvedpath: AnyCodable?
     public let sessionkey: AnyCodable?
     public let timeoutms: Int?
+    public let twophase: Bool?
 
     public init(
         id: String?,
@@ -2360,7 +2361,8 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
         agentid: AnyCodable?,
         resolvedpath: AnyCodable?,
         sessionkey: AnyCodable?,
-        timeoutms: Int?
+        timeoutms: Int?,
+        twophase: Bool?
     ) {
         self.id = id
         self.command = command
@@ -2372,6 +2374,7 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
         self.resolvedpath = resolvedpath
         self.sessionkey = sessionkey
         self.timeoutms = timeoutms
+        self.twophase = twophase
     }
     private enum CodingKeys: String, CodingKey {
         case id
@@ -2384,6 +2387,7 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
         case resolvedpath = "resolvedPath"
         case sessionkey = "sessionKey"
         case timeoutms = "timeoutMs"
+        case twophase = "twoPhase"
     }
 }
 
