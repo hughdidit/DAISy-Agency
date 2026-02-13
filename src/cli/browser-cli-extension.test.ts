@@ -49,7 +49,6 @@ describe("browser extension install", () => {
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, "manifest.json"), JSON.stringify({ manifest_version: 3 }));
 
-      vi.resetModules();
       const { Command } = await import("commander");
       const { registerBrowserExtensionCommands } = await import("./browser-cli-extension.js");
 

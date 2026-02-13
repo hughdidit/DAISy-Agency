@@ -1,10 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 
 import type { Command } from "commander";
 
 import { STATE_DIR } from "../config/paths.js";
+=======
+import { movePathToTrash } from "../browser/trash.js";
+import { resolveStateDir } from "../config/paths.js";
+>>>>>>> e665d7791 (perf(test): remove extra module resets in cli and message suites)
 import { danger, info } from "../globals.js";
 import { copyToClipboard } from "../infra/clipboard.js";
 import { defaultRuntime } from "../runtime.js";
@@ -37,7 +42,7 @@ function bundledExtensionRootDir() {
 }
 
 function installedExtensionRootDir() {
-  return path.join(STATE_DIR, "browser", "chrome-extension");
+  return path.join(resolveStateDir(), "browser", "chrome-extension");
 }
 
 function hasManifest(dir: string) {
@@ -53,7 +58,7 @@ export async function installChromeExtension(opts?: {
     throw new Error("Bundled Chrome extension is missing. Reinstall Moltbot and try again.");
   }
 
-  const stateDir = opts?.stateDir ?? STATE_DIR;
+  const stateDir = opts?.stateDir ?? resolveStateDir();
   const dest = path.join(stateDir, "browser", "chrome-extension");
   fs.mkdirSync(path.dirname(dest), { recursive: true });
 
