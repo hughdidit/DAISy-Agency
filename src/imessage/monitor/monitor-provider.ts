@@ -4,9 +4,13 @@ import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { dispatchInboundMessage, withReplyDispatcher } from "../../auto-reply/dispatch.js";
 >>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
+=======
+import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
+>>>>>>> d5e25e0ad (refactor: centralize dispatcher lifecycle ownership)
 import {
   formatInboundEnvelope,
   formatInboundFromLabel,
@@ -651,21 +655,17 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
       },
     });
 
-    const { queuedFinal } = await withReplyDispatcher({
+    const { queuedFinal } = await dispatchInboundMessage({
+      ctx: ctxPayload,
+      cfg,
       dispatcher,
-      run: () =>
-        dispatchInboundMessage({
-          ctx: ctxPayload,
-          cfg,
-          dispatcher,
-          replyOptions: {
-            disableBlockStreaming:
-              typeof accountInfo.config.blockStreaming === "boolean"
-                ? !accountInfo.config.blockStreaming
-                : undefined,
-            onModelSelected,
-          },
-        }),
+      replyOptions: {
+        disableBlockStreaming:
+          typeof accountInfo.config.blockStreaming === "boolean"
+            ? !accountInfo.config.blockStreaming
+            : undefined,
+        onModelSelected,
+      },
     });
     if (!queuedFinal) {
       if (isGroup && historyKey) {

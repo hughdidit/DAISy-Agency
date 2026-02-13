@@ -15,7 +15,7 @@ import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveThinkingDefault } from "../../agents/model-selection.js";
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
-import { dispatchInboundMessage, withReplyDispatcher } from "../../auto-reply/dispatch.js";
+import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
 <<<<<<< HEAD
 import {
@@ -531,18 +531,28 @@ export const chatHandlers: GatewayRequestHandlers = {
       });
 
       let agentRunStarted = false;
-      void withReplyDispatcher({
+      void dispatchInboundMessage({
+        ctx,
+        cfg,
         dispatcher,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d5e25e0ad (refactor: centralize dispatcher lifecycle ownership)
         replyOptions: {
           runId: clientRunId,
           abortSignal: abortController.signal,
           images: parsedImages.length > 0 ? parsedImages : undefined,
           disableBlockStreaming: true,
+<<<<<<< HEAD
           onAgentRunStart: () => {
             agentRunStarted = true;
 <<<<<<< HEAD
 =======
+=======
+          onAgentRunStart: (runId) => {
+            agentRunStarted = true;
+>>>>>>> d5e25e0ad (refactor: centralize dispatcher lifecycle ownership)
             const connId = typeof client?.connId === "string" ? client.connId : undefined;
             const wantsToolEvents = hasGatewayClientCap(
               client?.connect?.caps,
@@ -556,6 +566,7 @@ export const chatHandlers: GatewayRequestHandlers = {
               for (const [activeRunId, active] of context.chatAbortControllers) {
                 if (activeRunId !== runId && active.sessionKey === p.sessionKey) {
                   context.registerToolEventRecipient(activeRunId, connId);
+<<<<<<< HEAD
                 }
               }
             }
@@ -597,6 +608,14 @@ export const chatHandlers: GatewayRequestHandlers = {
             },
           }),
 >>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
+=======
+                }
+              }
+            }
+          },
+          onModelSelected,
+        },
+>>>>>>> d5e25e0ad (refactor: centralize dispatcher lifecycle ownership)
       })
         .then(() => {
           if (!agentRunStarted) {
