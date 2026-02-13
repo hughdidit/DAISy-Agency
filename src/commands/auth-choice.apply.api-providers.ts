@@ -163,7 +163,7 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter OpenRouter API key",
         validate: validateApiKeyInput,
       });
-      await setOpenrouterApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      await setOpenrouterApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
       hasCredential = true;
     }
 
@@ -191,6 +191,72 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
+<<<<<<< HEAD
+=======
+  if (authChoice === "litellm-api-key") {
+    const store = ensureAuthProfileStore(params.agentDir, { allowKeychainPrompt: false });
+    const profileOrder = resolveAuthProfileOrder({ cfg: nextConfig, store, provider: "litellm" });
+    const existingProfileId = profileOrder.find((profileId) => Boolean(store.profiles[profileId]));
+    const existingCred = existingProfileId ? store.profiles[existingProfileId] : undefined;
+    let profileId = "litellm:default";
+    let hasCredential = false;
+
+    if (existingProfileId && existingCred?.type === "api_key") {
+      profileId = existingProfileId;
+      hasCredential = true;
+    }
+    if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "litellm") {
+      await setLitellmApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      hasCredential = true;
+    }
+    if (!hasCredential) {
+      await params.prompter.note(
+        "LiteLLM provides a unified API to 100+ LLM providers.\nGet your API key from your LiteLLM proxy or https://litellm.ai\nDefault proxy runs on http://localhost:4000",
+        "LiteLLM",
+      );
+      const envKey = resolveEnvApiKey("litellm");
+      if (envKey) {
+        const useExisting = await params.prompter.confirm({
+          message: `Use existing LITELLM_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
+          initialValue: true,
+        });
+        if (useExisting) {
+          await setLitellmApiKey(envKey.apiKey, params.agentDir);
+          hasCredential = true;
+        }
+      }
+      if (!hasCredential) {
+        const key = await params.prompter.text({
+          message: "Enter LiteLLM API key",
+          validate: validateApiKeyInput,
+        });
+        await setLitellmApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
+        hasCredential = true;
+      }
+    }
+    if (hasCredential) {
+      nextConfig = applyAuthProfileConfig(nextConfig, {
+        profileId,
+        provider: "litellm",
+        mode: "api_key",
+      });
+    }
+    const applied = await applyDefaultModelChoice({
+      config: nextConfig,
+      setDefaultModel: params.setDefaultModel,
+      defaultModel: LITELLM_DEFAULT_MODEL_REF,
+      applyDefaultConfig: applyLitellmConfig,
+      applyProviderConfig: applyLitellmProviderConfig,
+      noteDefault: LITELLM_DEFAULT_MODEL_REF,
+      noteAgentModel,
+      prompter: params.prompter,
+    });
+    nextConfig = applied.config;
+    agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+    return { config: nextConfig, agentModelOverride };
+  }
+
+>>>>>>> ec44e262b (fix(security): prevent String(undefined) coercion in credential inputs (#12287))
   if (authChoice === "ai-gateway-api-key") {
     let hasCredential = false;
 
@@ -219,7 +285,7 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter Vercel AI Gateway API key",
         validate: validateApiKeyInput,
       });
-      await setVercelAiGatewayApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      await setVercelAiGatewayApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "vercel-ai-gateway:default",
@@ -252,16 +318,16 @@ export async function applyAuthChoiceApiProviders(
       if (!accountId) {
         const value = await params.prompter.text({
           message: "Enter Cloudflare Account ID",
-          validate: (val) => (String(val).trim() ? undefined : "Account ID is required"),
+          validate: (val) => (String(val ?? "").trim() ? undefined : "Account ID is required"),
         });
-        accountId = String(value).trim();
+        accountId = String(value ?? "").trim();
       }
       if (!gatewayId) {
         const value = await params.prompter.text({
           message: "Enter Cloudflare AI Gateway ID",
-          validate: (val) => (String(val).trim() ? undefined : "Gateway ID is required"),
+          validate: (val) => (String(val ?? "").trim() ? undefined : "Gateway ID is required"),
         });
-        gatewayId = String(value).trim();
+        gatewayId = String(value ?? "").trim();
       }
     };
 
@@ -304,7 +370,7 @@ export async function applyAuthChoiceApiProviders(
       await setCloudflareAiGatewayConfig(
         accountId,
         gatewayId,
-        normalizeApiKeyInput(String(key)),
+        normalizeApiKeyInput(String(key ?? "")),
         params.agentDir,
       );
       hasCredential = true;
@@ -366,7 +432,7 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter Moonshot API key",
         validate: validateApiKeyInput,
       });
-      await setMoonshotApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      await setMoonshotApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "moonshot:default",
@@ -413,7 +479,7 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter Moonshot API key (.cn)",
         validate: validateApiKeyInput,
       });
-      await setMoonshotApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      await setMoonshotApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "moonshot:default",
@@ -473,7 +539,7 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter Kimi Coding API key",
         validate: validateApiKeyInput,
       });
-      await setKimiCodingApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      await setKimiCodingApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "kimi-coding:default",
@@ -521,7 +587,7 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter Gemini API key",
         validate: validateApiKeyInput,
       });
-      await setGeminiApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      await setGeminiApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "google:default",
@@ -568,7 +634,12 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter Z.AI API key",
         validate: validateApiKeyInput,
       });
+<<<<<<< HEAD
       await setZaiApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+=======
+      apiKey = normalizeApiKeyInput(String(key ?? ""));
+      await setZaiApiKey(apiKey, params.agentDir);
+>>>>>>> ec44e262b (fix(security): prevent String(undefined) coercion in credential inputs (#12287))
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "zai:default",
@@ -631,7 +702,7 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter Xiaomi API key",
         validate: validateApiKeyInput,
       });
-      await setXiaomiApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      await setXiaomiApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "xiaomi:default",
@@ -657,13 +728,13 @@ export async function applyAuthChoiceApiProviders(
 
   if (authChoice === "synthetic-api-key") {
     if (params.opts?.token && params.opts?.tokenProvider === "synthetic") {
-      await setSyntheticApiKey(String(params.opts.token).trim(), params.agentDir);
+      await setSyntheticApiKey(String(params.opts.token ?? "").trim(), params.agentDir);
     } else {
       const key = await params.prompter.text({
         message: "Enter Synthetic API key",
         validate: (value) => (value?.trim() ? undefined : "Required"),
       });
-      await setSyntheticApiKey(String(key).trim(), params.agentDir);
+      await setSyntheticApiKey(String(key ?? "").trim(), params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "synthetic:default",
@@ -722,7 +793,7 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter Venice AI API key",
         validate: validateApiKeyInput,
       });
-      await setVeniceApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      await setVeniceApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "venice:default",
@@ -779,7 +850,7 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter OpenCode Zen API key",
         validate: validateApiKeyInput,
       });
-      await setOpencodeZenApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      await setOpencodeZenApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "opencode:default",
@@ -803,6 +874,67 @@ export async function applyAuthChoiceApiProviders(
     return { config: nextConfig, agentModelOverride };
   }
 
+<<<<<<< HEAD
+=======
+  if (authChoice === "together-api-key") {
+    let hasCredential = false;
+
+    if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "together") {
+      await setTogetherApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      hasCredential = true;
+    }
+
+    if (!hasCredential) {
+      await params.prompter.note(
+        [
+          "Together AI provides access to leading open-source models including Llama, DeepSeek, Qwen, and more.",
+          "Get your API key at: https://api.together.xyz/settings/api-keys",
+        ].join("\n"),
+        "Together AI",
+      );
+    }
+
+    const envKey = resolveEnvApiKey("together");
+    if (envKey) {
+      const useExisting = await params.prompter.confirm({
+        message: `Use existing TOGETHER_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
+        initialValue: true,
+      });
+      if (useExisting) {
+        await setTogetherApiKey(envKey.apiKey, params.agentDir);
+        hasCredential = true;
+      }
+    }
+    if (!hasCredential) {
+      const key = await params.prompter.text({
+        message: "Enter Together AI API key",
+        validate: validateApiKeyInput,
+      });
+      await setTogetherApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "together:default",
+      provider: "together",
+      mode: "api_key",
+    });
+    {
+      const applied = await applyDefaultModelChoice({
+        config: nextConfig,
+        setDefaultModel: params.setDefaultModel,
+        defaultModel: TOGETHER_DEFAULT_MODEL_REF,
+        applyDefaultConfig: applyTogetherConfig,
+        applyProviderConfig: applyTogetherProviderConfig,
+        noteDefault: TOGETHER_DEFAULT_MODEL_REF,
+        noteAgentModel,
+        prompter: params.prompter,
+      });
+      nextConfig = applied.config;
+      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+    }
+    return { config: nextConfig, agentModelOverride };
+  }
+
+>>>>>>> ec44e262b (fix(security): prevent String(undefined) coercion in credential inputs (#12287))
   if (authChoice === "qianfan-api-key") {
     let hasCredential = false;
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "qianfan") {
@@ -835,7 +967,7 @@ export async function applyAuthChoiceApiProviders(
         message: "Enter QIANFAN API key",
         validate: validateApiKeyInput,
       });
-      setQianfanApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
+      setQianfanApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
     }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "qianfan:default",
