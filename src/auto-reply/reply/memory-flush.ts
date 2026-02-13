@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 import { lookupContextTokens } from "../../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
 import { DEFAULT_PI_COMPACTION_RESERVE_TOKENS_FLOOR } from "../../agents/pi-settings.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { lookupContextTokens } from "../../agents/context.js";
+import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
+import { DEFAULT_PI_COMPACTION_RESERVE_TOKENS_FLOOR } from "../../agents/pi-settings.js";
+import { resolveFreshSessionTotalTokens, type SessionEntry } from "../../config/sessions.js";
+>>>>>>> fd076eb43 (fix: /status shows incorrect context percentage — totalTokens clamped to contextTokens (#15114) (#15133))
 import { SILENT_REPLY_TOKEN } from "../tokens.js";
 
 export const DEFAULT_MEMORY_FLUSH_SOFT_TOKENS = 4000;
@@ -69,13 +77,23 @@ export function resolveMemoryFlushContextWindowTokens(params: {
 }
 
 export function shouldRunMemoryFlush(params: {
-  entry?: Pick<SessionEntry, "totalTokens" | "compactionCount" | "memoryFlushCompactionCount">;
+  entry?: Pick<
+    SessionEntry,
+    "totalTokens" | "totalTokensFresh" | "compactionCount" | "memoryFlushCompactionCount"
+  >;
   contextWindowTokens: number;
   reserveTokensFloor: number;
   softThresholdTokens: number;
 }): boolean {
+<<<<<<< HEAD
   const totalTokens = params.entry?.totalTokens;
   if (!totalTokens || totalTokens <= 0) return false;
+=======
+  const totalTokens = resolveFreshSessionTotalTokens(params.entry);
+  if (!totalTokens || totalTokens <= 0) {
+    return false;
+  }
+>>>>>>> fd076eb43 (fix: /status shows incorrect context percentage — totalTokens clamped to contextTokens (#15114) (#15133))
   const contextWindow = Math.max(1, Math.floor(params.contextWindowTokens));
   const reserveTokens = Math.max(0, Math.floor(params.reserveTokensFloor));
   const softThreshold = Math.max(0, Math.floor(params.softThresholdTokens));

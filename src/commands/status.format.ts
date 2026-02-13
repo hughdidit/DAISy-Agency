@@ -29,9 +29,18 @@ export const shortenText = (value: string, maxLen: number) => {
 export const formatTokensCompact = (
   sess: Pick<SessionStatus, "totalTokens" | "contextTokens" | "percentUsed">,
 ) => {
-  const used = sess.totalTokens ?? 0;
+  const used = sess.totalTokens;
   const ctx = sess.contextTokens;
+<<<<<<< HEAD
   if (!ctx) return `${formatKTokens(used)} used`;
+=======
+  if (used == null) {
+    return ctx ? `unknown/${formatKTokens(ctx)} (?%)` : "unknown used";
+  }
+  if (!ctx) {
+    return `${formatKTokens(used)} used`;
+  }
+>>>>>>> fd076eb43 (fix: /status shows incorrect context percentage — totalTokens clamped to contextTokens (#15114) (#15133))
   const pctLabel = sess.percentUsed != null ? `${sess.percentUsed}%` : "?%";
   return `${formatKTokens(used)}/${formatKTokens(ctx)} (${pctLabel})`;
 };

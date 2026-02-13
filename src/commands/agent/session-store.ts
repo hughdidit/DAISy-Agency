@@ -67,13 +67,15 @@ export async function updateSessionStoreAfterAgentRun(params: {
   if (hasNonzeroUsage(usage)) {
     const input = usage.input ?? 0;
     const output = usage.output ?? 0;
-    next.inputTokens = input;
-    next.outputTokens = output;
-    next.totalTokens =
+    const totalTokens =
       deriveSessionTotalTokens({
         usage,
         contextTokens,
       }) ?? input;
+    next.inputTokens = input;
+    next.outputTokens = output;
+    next.totalTokens = totalTokens;
+    next.totalTokensFresh = true;
   }
   if (compactionsThisRun > 0) {
     next.compactionCount = (entry.compactionCount ?? 0) + compactionsThisRun;

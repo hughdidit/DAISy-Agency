@@ -4,8 +4,16 @@ import {
   isEmbeddedPiRunActive,
   waitForEmbeddedPiRunEnd,
 } from "../../agents/pi-embedded.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveSessionFilePath } from "../../config/sessions.js";
+=======
+import {
+  resolveFreshSessionTotalTokens,
+  resolveSessionFilePath,
+  resolveSessionFilePathOptions,
+} from "../../config/sessions.js";
+>>>>>>> fd076eb43 (fix: /status shows incorrect context percentage — totalTokens clamped to contextTokens (#15114) (#15133))
 import { logVerbose } from "../../globals.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { formatContextUsageShort, formatTokenCount } from "../status.js";
@@ -108,12 +116,9 @@ export const handleCompactCommand: CommandHandler = async (params) => {
   }
   // Use the post-compaction token count for context summary if available
   const tokensAfterCompaction = result.result?.tokensAfter;
-  const totalTokens =
-    tokensAfterCompaction ??
-    params.sessionEntry.totalTokens ??
-    (params.sessionEntry.inputTokens ?? 0) + (params.sessionEntry.outputTokens ?? 0);
+  const totalTokens = tokensAfterCompaction ?? resolveFreshSessionTotalTokens(params.sessionEntry);
   const contextSummary = formatContextUsageShort(
-    totalTokens > 0 ? totalTokens : null,
+    typeof totalTokens === "number" && totalTokens > 0 ? totalTokens : null,
     params.contextTokens ?? params.sessionEntry.contextTokens ?? null,
   );
   const reason = result.reason?.trim();
