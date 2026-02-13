@@ -24,6 +24,10 @@ Docs: https://docs.openclaw.ai
 =======
 ## 2026.2.13 (Unreleased)
 
+### Changes
+
+- Skills: remove duplicate `local-places` Google Places skill/proxy and keep `goplaces` as the single supported Google Places path.
+
 ### Fixes
 
 - Security/Audit: distinguish external webhooks (`hooks.enabled`) from internal hooks (`hooks.internal.enabled`) in attack-surface summaries to avoid false exposure signals when only internal hooks are enabled. (#13474) Thanks @mcaxtr.
