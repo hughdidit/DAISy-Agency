@@ -11,6 +11,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -20,6 +21,15 @@ Docs: https://docs.openclaw.ai
 ## 2026.2.6-4
 =======
 ## 2026.2.10
+=======
+## 2026.2.13 (Unreleased)
+
+### Fixes
+
+- Onboarding/CLI: restore terminal state without resuming paused `stdin`, so onboarding exits cleanly after choosing Web UI and the installer returns instead of appearing stuck.
+
+## 2026.2.12
+>>>>>>> cd50b5ded (fix(onboarding): exit cleanly after web ui hatch)
 
 ### Changes
 
