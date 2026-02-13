@@ -19,6 +19,14 @@ Docs: https://docs.openclaw.ai
 =======
 ## 2026.2.13 (Unreleased)
 
+<<<<<<< HEAD
+=======
+### Changes
+
+- Skills: remove duplicate `local-places` Google Places skill/proxy and keep `goplaces` as the single supported Google Places path.
+- Discord: send voice messages with waveform previews from local audio files (including silent delivery). (#7253) Thanks @nyanjou.
+
+>>>>>>> a15033876 (fix: add Discord voice message changelog (#7253) (thanks @nyanjou))
 ### Fixes
 
 <<<<<<< HEAD
