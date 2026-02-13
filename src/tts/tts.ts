@@ -25,6 +25,7 @@ import type {
   TtsProvider,
   TtsModelOverrideConfig,
 } from "../config/types.tts.js";
+<<<<<<< HEAD
 import { logVerbose } from "../globals.js";
 import { isVoiceCompatibleAudio } from "../media/audio.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
@@ -38,18 +39,37 @@ import {
 import { resolveModel } from "../agents/pi-embedded-runner/model.js";
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> 3f5e72835 (refactor(tts): extract directives and provider core)
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { logVerbose } from "../globals.js";
 import { stripMarkdown } from "../line/markdown-to-line.js";
 import { isVoiceCompatibleAudio } from "../media/audio.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
+<<<<<<< HEAD
 >>>>>>> a5ab9fac0 (fix(tts): strip markdown before sending text to TTS engines (#13237))
+=======
+import {
+  edgeTTS,
+  elevenLabsTTS,
+  inferEdgeExtension,
+  isValidOpenAIModel,
+  isValidOpenAIVoice,
+  isValidVoiceId,
+  OPENAI_TTS_MODELS,
+  OPENAI_TTS_VOICES,
+  openaiTTS,
+  parseTtsDirectives,
+  scheduleCleanup,
+  summarizeText,
+} from "./tts-core.js";
+export { OPENAI_TTS_MODELS, OPENAI_TTS_VOICES } from "./tts-core.js";
+>>>>>>> 3f5e72835 (refactor(tts): extract directives and provider core)
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_TTS_MAX_LENGTH = 1500;
 const DEFAULT_TTS_SUMMARIZE = true;
 const DEFAULT_MAX_TEXT_LENGTH = 4096;
-const TEMP_FILE_CLEANUP_DELAY_MS = 5 * 60 * 1000; // 5 minutes
 
 const DEFAULT_ELEVENLABS_BASE_URL = "https://api.elevenlabs.io";
 const DEFAULT_ELEVENLABS_VOICE_ID = "pMsXgVXv3BLzUgSXRplE";
@@ -147,7 +167,7 @@ type TtsUserPrefs = {
   };
 };
 
-type ResolvedTtsModelOverrides = {
+export type ResolvedTtsModelOverrides = {
   enabled: boolean;
   allowText: boolean;
   allowProvider: boolean;
@@ -158,7 +178,7 @@ type ResolvedTtsModelOverrides = {
   allowSeed: boolean;
 };
 
-type TtsDirectiveOverrides = {
+export type TtsDirectiveOverrides = {
   ttsText?: string;
   provider?: TtsProvider;
   openai?: {
@@ -175,7 +195,7 @@ type TtsDirectiveOverrides = {
   };
 };
 
-type TtsDirectiveParseResult = {
+export type TtsDirectiveParseResult = {
   cleanedText: string;
   ttsText?: string;
   hasDirective: boolean;
@@ -530,6 +550,7 @@ export function isTtsProviderConfigured(config: ResolvedTtsConfig, provider: Tts
   return Boolean(resolveTtsApiKey(config, provider));
 }
 
+<<<<<<< HEAD
 function isValidVoiceId(voiceId: string): boolean {
   return /^[a-zA-Z0-9]{10,40}$/.test(voiceId);
 }
@@ -1179,6 +1200,8 @@ async function edgeTTS(params: {
   await tts.ttsPromise(text, outputPath);
 }
 
+=======
+>>>>>>> 3f5e72835 (refactor(tts): extract directives and provider core)
 export async function textToSpeech(params: {
   text: string;
   cfg: MoltbotConfig;
