@@ -170,6 +170,9 @@ describe("Ghost reminder bug (issue #13317)", () => {
       const calledCtx = getReplySpy.mock.calls[0]?.[0];
       expect(calledCtx?.Provider).toBe("cron-event");
       expect(calledCtx?.Body).toContain("scheduled reminder has been triggered");
+      expect(calledCtx?.Body).toContain("Reminder: Check Base Scout results");
+      expect(calledCtx?.Body).not.toContain("HEARTBEAT_OK");
+      expect(calledCtx?.Body).not.toContain("heartbeat poll");
       expect(sendTelegram).toHaveBeenCalled();
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
@@ -205,6 +208,9 @@ describe("Ghost reminder bug (issue #13317)", () => {
       const calledCtx = getReplySpy.mock.calls[0]?.[0];
       expect(calledCtx?.Provider).toBe("cron-event");
       expect(calledCtx?.Body).toContain("scheduled reminder has been triggered");
+      expect(calledCtx?.Body).toContain("Reminder: Check Base Scout results");
+      expect(calledCtx?.Body).not.toContain("HEARTBEAT_OK");
+      expect(calledCtx?.Body).not.toContain("heartbeat poll");
       expect(sendTelegram).toHaveBeenCalled();
 >>>>>>> 22593a272 (fix: refine cron heartbeat event detection)
     } finally {
