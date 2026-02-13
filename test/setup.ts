@@ -166,7 +166,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  setActivePluginRegistry(createDefaultRegistry());
   // Guard against leaked fake timers across test files/workers.
   vi.useRealTimers();
 });
