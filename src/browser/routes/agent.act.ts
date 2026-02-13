@@ -13,6 +13,7 @@ import {
   resolveProfileContext,
   SELECTOR_UNSUPPORTED_MESSAGE,
 } from "./agent.shared.js";
+import { DEFAULT_DOWNLOAD_DIR, resolvePathWithinRoot } from "./path-output.js";
 import { jsonError, toBoolean, toNumber, toStringArray, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 
@@ -368,16 +369,35 @@ export function registerBrowserAgentActRoutes(
     if (!profileCtx) return;
     const body = readBody(req);
     const targetId = toStringOrEmpty(body.targetId) || undefined;
-    const out = toStringOrEmpty(body.path) || undefined;
+    const out = toStringOrEmpty(body.path) || "";
     const timeoutMs = toNumber(body.timeoutMs);
     try {
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "wait for download");
+<<<<<<< HEAD
       if (!pw) return;
+=======
+      if (!pw) {
+        return;
+      }
+      let downloadPath: string | undefined;
+      if (out.trim()) {
+        const downloadPathResult = resolvePathWithinRoot({
+          rootDir: DEFAULT_DOWNLOAD_DIR,
+          requestedPath: out,
+          scopeLabel: "downloads directory",
+        });
+        if (!downloadPathResult.ok) {
+          res.status(400).json({ error: downloadPathResult.error });
+          return;
+        }
+        downloadPath = downloadPathResult.path;
+      }
+>>>>>>> 7f0489e47 (Security/Browser: constrain trace and download output paths to OpenClaw temp roots (#15652))
       const result = await pw.waitForDownloadViaPlaywright({
         cdpUrl: profileCtx.profile.cdpUrl,
         targetId: tab.targetId,
-        path: out,
+        path: downloadPath,
         timeoutMs: timeoutMs ?? undefined,
       });
       res.json({ ok: true, targetId: tab.targetId, download: result });
@@ -397,6 +417,15 @@ export function registerBrowserAgentActRoutes(
     if (!ref) return jsonError(res, 400, "ref is required");
     if (!out) return jsonError(res, 400, "path is required");
     try {
+      const downloadPathResult = resolvePathWithinRoot({
+        rootDir: DEFAULT_DOWNLOAD_DIR,
+        requestedPath: out,
+        scopeLabel: "downloads directory",
+      });
+      if (!downloadPathResult.ok) {
+        res.status(400).json({ error: downloadPathResult.error });
+        return;
+      }
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "download");
       if (!pw) return;
@@ -404,7 +433,7 @@ export function registerBrowserAgentActRoutes(
         cdpUrl: profileCtx.profile.cdpUrl,
         targetId: tab.targetId,
         ref,
-        path: out,
+        path: downloadPathResult.path,
         timeoutMs: timeoutMs ?? undefined,
       });
       res.json({ ok: true, targetId: tab.targetId, download: result });
