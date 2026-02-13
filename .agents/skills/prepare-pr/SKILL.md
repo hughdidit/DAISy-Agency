@@ -62,7 +62,20 @@ WORKTREE_DIR=".worktrees/pr-<PR>"
 
 Run all commands inside the worktree directory.
 
+<<<<<<< HEAD
 ## Load Review Findings (Mandatory)
+=======
+- `.local/review.json` is mandatory.
+- Resolve all `BLOCKER` and `IMPORTANT` items.
+
+3. Commit scoped changes with concise subjects (no PR number/thanks; those belong on the final merge/squash commit).
+
+4. Run gates via wrapper.
+
+5. Push via wrapper (includes pre-push remote verification, one automatic lease-retry path, and post-push API propagation retry).
+
+Optional one-shot path:
+>>>>>>> 607b625aa (Docs: update PR commit guidance)
 
 ```sh
 if [ -f .local/review.md ]; then
@@ -106,11 +119,15 @@ git rebase origin/main
 
 If conflicts happen:
 
+<<<<<<< HEAD
 - Resolve each conflicted file.
 - Run `git add <resolved_file>` for each file.
 - Run `git rebase --continue`.
 
 If the rebase gets confusing or you resolve conflicts 3 or more times, stop and report.
+=======
+Use concise, action-oriented subject lines without PR numbers/thanks. The final merge/squash commit is the only place we include PR numbers and contributor thanks.
+>>>>>>> 607b625aa (Docs: update PR commit guidance)
 
 4. Fix issues from `.local/review.md`
 
@@ -132,6 +149,7 @@ If flagged and user-facing:
 - Check if `CHANGELOG.md` exists.
 
 ```sh
+<<<<<<< HEAD
 ls CHANGELOG.md 2>/dev/null
 ```
 
@@ -149,6 +167,9 @@ Stage only specific files:
 
 ```sh
 git add <file1> <file2> ...
+=======
+scripts/committer "fix: <summary>" <file1> <file2> ...
+>>>>>>> 607b625aa (Docs: update PR commit guidance)
 ```
 
 Preferred commit tool:
