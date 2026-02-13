@@ -211,7 +211,14 @@ export async function runPreparedReply(
     ((baseBodyTrimmedRaw.length === 0 && rawBodyTrimmed.length > 0) || isBareNewOrReset);
   const baseBodyFinal = isBareSessionReset ? BARE_SESSION_RESET_PROMPT : baseBody;
   const inboundUserContext = buildInboundUserContextPrefix(
-    isNewSession ? sessionCtx : { ...sessionCtx, ThreadStarterBody: undefined },
+    isNewSession
+      ? {
+          ...sessionCtx,
+          ...(sessionCtx.ThreadHistoryBody?.trim()
+            ? { InboundHistory: undefined, ThreadStarterBody: undefined }
+            : {}),
+        }
+      : { ...sessionCtx, ThreadStarterBody: undefined },
   );
   const baseBodyForPrompt = isBareSessionReset
     ? baseBodyFinal
@@ -251,7 +258,18 @@ export async function runPreparedReply(
       : undefined;
 =======
   prefixedBodyBase = appendUntrustedContext(prefixedBodyBase, sessionCtx.UntrustedContext);
+<<<<<<< HEAD
 >>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
+=======
+  const threadStarterBody = ctx.ThreadStarterBody?.trim();
+  const threadHistoryBody = ctx.ThreadHistoryBody?.trim();
+  const threadContextNote =
+    isNewSession && threadHistoryBody
+      ? `[Thread history - for context]\n${threadHistoryBody}`
+      : isNewSession && threadStarterBody
+        ? `[Thread starter - for context]\n${threadStarterBody}`
+        : undefined;
+>>>>>>> b93ad2cd4 (fix(slack): populate thread session with existing thread history (#7610))
   const skillResult = await ensureSkillSnapshot({
     sessionEntry,
     sessionStore,
@@ -266,7 +284,7 @@ export async function runPreparedReply(
   sessionEntry = skillResult.sessionEntry ?? sessionEntry;
   currentSystemSent = skillResult.systemSent;
   const skillsSnapshot = skillResult.skillsSnapshot;
-  const prefixedBody = prefixedBodyBase;
+  const prefixedBody = [threadContextNote, prefixedBodyBase].filter(Boolean).join("\n\n");
   const mediaNote = buildInboundMediaNote(ctx);
   const mediaReplyHint = mediaNote
     ? "To send an image back, prefer the message tool (media/path/filePath). If you must inline, use MEDIA:/path or MEDIA:https://example.com/image.jpg (spaces ok, quote if needed). Keep caption in the text body."
@@ -333,7 +351,7 @@ export async function runPreparedReply(
     sessionEntry,
     resolveSessionFilePathOptions({ agentId, storePath }),
   );
-  const queueBodyBase = baseBodyForPrompt;
+  const queueBodyBase = [threadContextNote, baseBodyForPrompt].filter(Boolean).join("\n\n");
   const queuedBody = mediaNote
     ? [mediaNote, mediaReplyHint, queueBodyBase].filter(Boolean).join("\n").trim()
     : queueBodyBase;

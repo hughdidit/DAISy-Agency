@@ -34,6 +34,16 @@ export function finalizeInboundContext<T extends Record<string, unknown>>(
   normalized.CommandBody = normalizeTextField(normalized.CommandBody);
   normalized.Transcript = normalizeTextField(normalized.Transcript);
   normalized.ThreadStarterBody = normalizeTextField(normalized.ThreadStarterBody);
+<<<<<<< HEAD
+=======
+  normalized.ThreadHistoryBody = normalizeTextField(normalized.ThreadHistoryBody);
+  if (Array.isArray(normalized.UntrustedContext)) {
+    const normalizedUntrusted = normalized.UntrustedContext.map((entry) =>
+      normalizeInboundTextNewlines(entry),
+    ).filter((entry) => Boolean(entry));
+    normalized.UntrustedContext = normalizedUntrusted;
+  }
+>>>>>>> b93ad2cd4 (fix(slack): populate thread session with existing thread history (#7610))
 
   const chatType = normalizeChatType(normalized.ChatType);
   if (chatType && (opts.forceChatType || normalized.ChatType !== chatType)) {
