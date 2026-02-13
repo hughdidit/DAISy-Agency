@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+import { safeEqualSecret } from "../security/secret-equal.js";
 
 export type DevicePairingPendingRequest = {
   requestId: string;
@@ -391,9 +392,21 @@ export async function verifyDeviceToken(params: {
     const role = normalizeRole(params.role);
     if (!role) return { ok: false, reason: "role-missing" };
     const entry = device.tokens?.[role];
+<<<<<<< HEAD
     if (!entry) return { ok: false, reason: "token-missing" };
     if (entry.revokedAtMs) return { ok: false, reason: "token-revoked" };
     if (entry.token !== params.token) return { ok: false, reason: "token-mismatch" };
+=======
+    if (!entry) {
+      return { ok: false, reason: "token-missing" };
+    }
+    if (entry.revokedAtMs) {
+      return { ok: false, reason: "token-revoked" };
+    }
+    if (!safeEqualSecret(params.token, entry.token)) {
+      return { ok: false, reason: "token-mismatch" };
+    }
+>>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
     const requestedScopes = normalizeScopes(params.scopes);
     if (!scopesAllow(requestedScopes, entry.scopes)) {
       return { ok: false, reason: "scope-mismatch" };

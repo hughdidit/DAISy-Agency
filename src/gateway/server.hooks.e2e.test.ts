@@ -156,4 +156,182 @@ describe("gateway server hooks", () => {
       await server.close();
     }
   });
+<<<<<<< HEAD
+=======
+
+  test("enforces hooks.allowedAgentIds for explicit agent routing", async () => {
+    testState.hooksConfig = {
+      enabled: true,
+      token: "hook-secret",
+      allowedAgentIds: ["hooks"],
+      mappings: [
+        {
+          match: { path: "mapped" },
+          action: "agent",
+          agentId: "main",
+          messageTemplate: "Mapped: {{payload.subject}}",
+        },
+      ],
+    };
+    testState.agentsConfig = {
+      list: [{ id: "main", default: true }, { id: "hooks" }],
+    };
+    const port = await getFreePort();
+    const server = await startGatewayServer(port);
+    try {
+      cronIsolatedRun.mockReset();
+      cronIsolatedRun.mockResolvedValueOnce({
+        status: "ok",
+        summary: "done",
+      });
+      const resNoAgent = await fetch(`http://127.0.0.1:${port}/hooks/agent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer hook-secret",
+        },
+        body: JSON.stringify({ message: "No explicit agent" }),
+      });
+      expect(resNoAgent.status).toBe(202);
+      await waitForSystemEvent();
+      const noAgentCall = cronIsolatedRun.mock.calls[0]?.[0] as {
+        job?: { agentId?: string };
+      };
+      expect(noAgentCall?.job?.agentId).toBeUndefined();
+      drainSystemEvents(resolveMainKey());
+
+      cronIsolatedRun.mockReset();
+      cronIsolatedRun.mockResolvedValueOnce({
+        status: "ok",
+        summary: "done",
+      });
+      const resAllowed = await fetch(`http://127.0.0.1:${port}/hooks/agent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer hook-secret",
+        },
+        body: JSON.stringify({ message: "Allowed", agentId: "hooks" }),
+      });
+      expect(resAllowed.status).toBe(202);
+      await waitForSystemEvent();
+      const allowedCall = cronIsolatedRun.mock.calls[0]?.[0] as {
+        job?: { agentId?: string };
+      };
+      expect(allowedCall?.job?.agentId).toBe("hooks");
+      drainSystemEvents(resolveMainKey());
+
+      const resDenied = await fetch(`http://127.0.0.1:${port}/hooks/agent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer hook-secret",
+        },
+        body: JSON.stringify({ message: "Denied", agentId: "main" }),
+      });
+      expect(resDenied.status).toBe(400);
+      const deniedBody = (await resDenied.json()) as { error?: string };
+      expect(deniedBody.error).toContain("hooks.allowedAgentIds");
+
+      const resMappedDenied = await fetch(`http://127.0.0.1:${port}/hooks/mapped`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer hook-secret",
+        },
+        body: JSON.stringify({ subject: "hello" }),
+      });
+      expect(resMappedDenied.status).toBe(400);
+      const mappedDeniedBody = (await resMappedDenied.json()) as { error?: string };
+      expect(mappedDeniedBody.error).toContain("hooks.allowedAgentIds");
+      expect(peekSystemEvents(resolveMainKey()).length).toBe(0);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("denies explicit agentId when hooks.allowedAgentIds is empty", async () => {
+    testState.hooksConfig = {
+      enabled: true,
+      token: "hook-secret",
+      allowedAgentIds: [],
+    };
+    testState.agentsConfig = {
+      list: [{ id: "main", default: true }, { id: "hooks" }],
+    };
+    const port = await getFreePort();
+    const server = await startGatewayServer(port);
+    try {
+      const resDenied = await fetch(`http://127.0.0.1:${port}/hooks/agent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer hook-secret",
+        },
+        body: JSON.stringify({ message: "Denied", agentId: "hooks" }),
+      });
+      expect(resDenied.status).toBe(400);
+      const deniedBody = (await resDenied.json()) as { error?: string };
+      expect(deniedBody.error).toContain("hooks.allowedAgentIds");
+      expect(peekSystemEvents(resolveMainKey()).length).toBe(0);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("throttles repeated hook auth failures and resets after success", async () => {
+    testState.hooksConfig = { enabled: true, token: "hook-secret" };
+    const port = await getFreePort();
+    const server = await startGatewayServer(port);
+    try {
+      const firstFail = await fetch(`http://127.0.0.1:${port}/hooks/wake`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer wrong",
+        },
+        body: JSON.stringify({ text: "blocked" }),
+      });
+      expect(firstFail.status).toBe(401);
+
+      let throttled: Response | null = null;
+      for (let i = 0; i < 20; i++) {
+        throttled = await fetch(`http://127.0.0.1:${port}/hooks/wake`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer wrong",
+          },
+          body: JSON.stringify({ text: "blocked" }),
+        });
+      }
+      expect(throttled?.status).toBe(429);
+      expect(throttled?.headers.get("retry-after")).toBeTruthy();
+
+      const allowed = await fetch(`http://127.0.0.1:${port}/hooks/wake`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer hook-secret",
+        },
+        body: JSON.stringify({ text: "auth reset" }),
+      });
+      expect(allowed.status).toBe(200);
+      await waitForSystemEvent();
+      drainSystemEvents(resolveMainKey());
+
+      const failAfterSuccess = await fetch(`http://127.0.0.1:${port}/hooks/wake`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer wrong",
+        },
+        body: JSON.stringify({ text: "blocked" }),
+      });
+      expect(failAfterSuccess.status).toBe(401);
+    } finally {
+      await server.close();
+    }
+  });
+>>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 });

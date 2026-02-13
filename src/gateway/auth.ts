@@ -1,8 +1,21 @@
+<<<<<<< HEAD
 import { timingSafeEqual } from "node:crypto";
 import type { IncomingMessage } from "node:http";
 import type { GatewayAuthConfig, GatewayTailscaleMode } from "../config/config.js";
 import { readTailscaleWhoisIdentity, type TailscaleWhoisIdentity } from "../infra/tailscale.js";
 import { isTrustedProxyAddress, parseForwardedForClientIp, resolveGatewayClientIp } from "./net.js";
+=======
+import type { IncomingMessage } from "node:http";
+import type { GatewayAuthConfig, GatewayTailscaleMode } from "../config/config.js";
+import { readTailscaleWhoisIdentity, type TailscaleWhoisIdentity } from "../infra/tailscale.js";
+import { safeEqualSecret } from "../security/secret-equal.js";
+import {
+  isLoopbackAddress,
+  isTrustedProxyAddress,
+  parseForwardedForClientIp,
+  resolveGatewayClientIp,
+} from "./net.js";
+>>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 export type ResolvedGatewayAuthMode = "token" | "password";
 
 export type ResolvedGatewayAuth = {
@@ -32,11 +45,14 @@ type TailscaleUser = {
 
 type TailscaleWhoisLookup = (ip: string) => Promise<TailscaleWhoisIdentity | null>;
 
+<<<<<<< HEAD
 function safeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   return timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
 
+=======
+>>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 function normalizeLogin(login: string): string {
   return login.trim().toLowerCase();
 }
@@ -233,7 +249,7 @@ export async function authorizeGatewayConnect(params: {
     if (!connectAuth?.token) {
       return { ok: false, reason: "token_missing" };
     }
-    if (!safeEqual(connectAuth.token, auth.token)) {
+    if (!safeEqualSecret(connectAuth.token, auth.token)) {
       return { ok: false, reason: "token_mismatch" };
     }
     return { ok: true, method: "token" };
@@ -247,7 +263,7 @@ export async function authorizeGatewayConnect(params: {
     if (!password) {
       return { ok: false, reason: "password_missing" };
     }
-    if (!safeEqual(password, auth.password)) {
+    if (!safeEqualSecret(password, auth.password)) {
       return { ok: false, reason: "password_mismatch" };
     }
     return { ok: true, method: "password" };
