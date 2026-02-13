@@ -4,6 +4,11 @@ import path from "node:path";
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 
 import type { SessionEntry } from "./types.js";
+<<<<<<< HEAD
+=======
+import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
+import { resolveDefaultSessionStorePath, resolveSessionFilePath } from "./paths.js";
+>>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 import { loadSessionStore, updateSessionStore } from "./store.js";
 import { resolveDefaultSessionStorePath, resolveSessionTranscriptPath } from "./paths.js";
 import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
@@ -89,8 +94,17 @@ export async function appendAssistantMessageToSessionTranscript(params: {
   const entry = store[sessionKey] as SessionEntry | undefined;
   if (!entry?.sessionId) return { ok: false, reason: `unknown sessionKey: ${sessionKey}` };
 
-  const sessionFile =
-    entry.sessionFile?.trim() || resolveSessionTranscriptPath(entry.sessionId, params.agentId);
+  let sessionFile: string;
+  try {
+    sessionFile = resolveSessionFilePath(entry.sessionId, entry, {
+      sessionsDir: path.dirname(storePath),
+    });
+  } catch (err) {
+    return {
+      ok: false,
+      reason: err instanceof Error ? err.message : String(err),
+    };
+  }
 
   await ensureSessionHeader({ sessionFile, sessionId: entry.sessionId });
 

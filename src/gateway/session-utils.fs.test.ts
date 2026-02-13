@@ -423,4 +423,30 @@ describe("resolveSessionTranscriptCandidates", () => {
     );
   });
 });
+<<<<<<< HEAD
 >>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
+=======
+
+describe("resolveSessionTranscriptCandidates safety", () => {
+  test("drops unsafe session IDs instead of producing traversal paths", () => {
+    const candidates = resolveSessionTranscriptCandidates(
+      "../etc/passwd",
+      "/tmp/openclaw/agents/main/sessions/sessions.json",
+    );
+
+    expect(candidates).toEqual([]);
+  });
+
+  test("drops unsafe sessionFile candidates and keeps safe fallbacks", () => {
+    const storePath = "/tmp/openclaw/agents/main/sessions/sessions.json";
+    const candidates = resolveSessionTranscriptCandidates(
+      "sess-safe",
+      storePath,
+      "../../etc/passwd",
+    );
+
+    expect(candidates.some((value) => value.includes("etc/passwd"))).toBe(false);
+    expect(candidates).toContain(path.join(path.dirname(storePath), "sess-safe.jsonl"));
+  });
+});
+>>>>>>> 4199f9889 (fix: harden session transcript path resolution)

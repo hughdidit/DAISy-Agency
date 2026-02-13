@@ -9,11 +9,16 @@ import { resolveThinkingDefault } from "../../agents/model-selection.js";
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
+<<<<<<< HEAD
 import {
   extractShortModelName,
   type ResponsePrefixContext,
 } from "../../auto-reply/reply/response-prefix-template.js";
 import type { MsgContext } from "../../auto-reply/templating.js";
+=======
+import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
+import { resolveSessionFilePath } from "../../config/sessions.js";
+>>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
 import {
@@ -56,9 +61,25 @@ function resolveTranscriptPath(params: {
   sessionFile?: string;
 }): string | null {
   const { sessionId, storePath, sessionFile } = params;
+<<<<<<< HEAD
   if (sessionFile) return sessionFile;
   if (!storePath) return null;
   return path.join(path.dirname(storePath), `${sessionId}.jsonl`);
+=======
+  if (!storePath && !sessionFile) {
+    return null;
+  }
+  try {
+    const sessionsDir = storePath ? path.dirname(storePath) : undefined;
+    return resolveSessionFilePath(
+      sessionId,
+      sessionFile ? { sessionFile } : undefined,
+      sessionsDir ? { sessionsDir } : undefined,
+    );
+  } catch {
+    return null;
+  }
+>>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 }
 
 function ensureTranscriptFile(params: { transcriptPath: string; sessionId: string }): {
