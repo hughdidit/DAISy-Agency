@@ -1,9 +1,14 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Client } from "@buape/carbon";
 =======
 import { Client, ReadyListener, type BaseMessageInteractiveComponent } from "@buape/carbon";
 >>>>>>> 5d8c6ef91 (feat(discord): add configurable presence (activity/status/type))
 import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway";
+=======
+import type { GatewayPlugin } from "@buape/carbon/gateway";
+import { Client, ReadyListener, type BaseMessageInteractiveComponent } from "@buape/carbon";
+>>>>>>> 644251295 (perf: reduce hotspot test startup and timeout costs)
 import { Routes } from "discord-api-types/v10";
 import { inspect } from "node:util";
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
@@ -31,6 +36,7 @@ import { resolveDiscordChannelAllowlist } from "../resolve-channels.js";
 import { resolveDiscordUserAllowlist } from "../resolve-users.js";
 import { normalizeDiscordToken } from "../token.js";
 import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
+import { createDiscordGatewayPlugin } from "./gateway-plugin.js";
 import { registerGateway, unregisterGateway } from "./gateway-registry.js";
 import {
   DiscordMessageListener,
@@ -58,6 +64,7 @@ export type MonitorDiscordOpts = {
   replyToMode?: ReplyToMode;
 };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 function createDiscordGatewayPlugin(params: {
@@ -99,6 +106,8 @@ function createDiscordGatewayPlugin(params: {
 }
 
 >>>>>>> e55431bf8 (fix(discord): restore gateway reconnect maxAttempts to 50)
+=======
+>>>>>>> 644251295 (perf: reduce hotspot test startup and timeout costs)
 function summarizeAllowList(list?: Array<string | number>) {
   if (!list || list.length === 0) {
     return "any";
@@ -166,25 +175,6 @@ function formatDiscordDeployErrorDetails(err: unknown): string {
     }
   }
   return details.length > 0 ? ` (${details.join(", ")})` : "";
-}
-
-function resolveDiscordGatewayIntents(
-  intentsConfig?: import("../../config/types.discord.js").DiscordIntentsConfig,
-): number {
-  let intents =
-    GatewayIntents.Guilds |
-    GatewayIntents.GuildMessages |
-    GatewayIntents.MessageContent |
-    GatewayIntents.DirectMessages |
-    GatewayIntents.GuildMessageReactions |
-    GatewayIntents.DirectMessageReactions;
-  if (intentsConfig?.presence) {
-    intents |= GatewayIntents.GuildPresences;
-  }
-  if (intentsConfig?.guildMembers) {
-    intents |= GatewayIntents.GuildMembers;
-  }
-  return intents;
 }
 
 export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
