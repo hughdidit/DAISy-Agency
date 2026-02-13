@@ -106,6 +106,12 @@ interface OllamaTagsResponse {
   models: OllamaModel[];
 }
 
+type VllmModelsResponse = {
+  data?: Array<{
+    id?: string;
+  }>;
+};
+
 /**
  * Derive the Ollama native API base URL from a configured base URL.
  *
