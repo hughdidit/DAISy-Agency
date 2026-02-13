@@ -8,6 +8,11 @@ const OPENAI_MODELS = ["gpt-5.2", "gpt-5.0"];
 const CODEX_MODELS = [
   "gpt-5.2",
   "gpt-5.2-codex",
+<<<<<<< HEAD
+=======
+  "gpt-5.3-codex",
+  "gpt-5.3-codex-spark",
+>>>>>>> e3cb2564d (Agents: allow gpt-5.3-codex-spark in fallback and thinking (#14990))
   "gpt-5.1-codex",
   "gpt-5.1-codex-mini",
   "gpt-5.1-codex-max",

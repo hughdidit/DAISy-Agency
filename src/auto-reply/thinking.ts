@@ -23,6 +23,11 @@ export function isBinaryThinkingProvider(provider?: string | null): boolean {
 
 export const XHIGH_MODEL_REFS = [
   "openai/gpt-5.2",
+<<<<<<< HEAD
+=======
+  "openai-codex/gpt-5.3-codex",
+  "openai-codex/gpt-5.3-codex-spark",
+>>>>>>> e3cb2564d (Agents: allow gpt-5.3-codex-spark in fallback and thinking (#14990))
   "openai-codex/gpt-5.2-codex",
   "openai-codex/gpt-5.1-codex",
   "github-copilot/gpt-5.2-codex",

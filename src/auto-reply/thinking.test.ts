@@ -28,6 +28,11 @@ describe("normalizeThinkLevel", () => {
 describe("listThinkingLevels", () => {
   it("includes xhigh for codex models", () => {
     expect(listThinkingLevels(undefined, "gpt-5.2-codex")).toContain("xhigh");
+<<<<<<< HEAD
+=======
+    expect(listThinkingLevels(undefined, "gpt-5.3-codex")).toContain("xhigh");
+    expect(listThinkingLevels(undefined, "gpt-5.3-codex-spark")).toContain("xhigh");
+>>>>>>> e3cb2564d (Agents: allow gpt-5.3-codex-spark in fallback and thinking (#14990))
   });
 
   it("includes xhigh for openai gpt-5.2", () => {
