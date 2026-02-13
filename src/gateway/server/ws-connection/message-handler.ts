@@ -69,12 +69,21 @@ import {
   incrementPresenceVersion,
   refreshGatewayHealthSnapshot,
 } from "../health-state.js";
+<<<<<<< HEAD
 import type { GatewayWsClient } from "../ws-types.js";
+=======
+import {
+  formatGatewayAuthFailureMessage,
+  resolveHostName,
+  type AuthProvidedKind,
+} from "./auth-messages.js";
+>>>>>>> a79c2de95 (refactor(gateway): extract ws auth message helpers)
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
 const DEVICE_SIGNATURE_SKEW_MS = 10 * 60 * 1000;
 
+<<<<<<< HEAD
 function resolveHostName(hostHeader?: string): string {
   const host = (hostHeader ?? "").trim().toLowerCase();
   if (!host) {
@@ -151,6 +160,8 @@ function formatGatewayAuthFailureMessage(params: {
   return "unauthorized";
 }
 
+=======
+>>>>>>> a79c2de95 (refactor(gateway): extract ws auth message helpers)
 export function attachGatewayWsMessageHandler(params: {
   socket: WebSocket;
   upgradeReq: IncomingMessage;
