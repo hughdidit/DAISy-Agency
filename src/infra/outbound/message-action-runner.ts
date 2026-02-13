@@ -1,7 +1,20 @@
+<<<<<<< HEAD
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+=======
+import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import type {
+  ChannelId,
+  ChannelMessageActionName,
+  ChannelThreadingToolContext,
+} from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { OutboundSendDeps } from "./deliver.js";
+import type { MessagePollResult, MessageSendResult } from "./message.js";
+import { resolveSessionAgentId } from "../../agents/agent-scope.js";
+>>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 import {
   readNumberParam,
   readStringArrayParam,
@@ -10,6 +23,7 @@ import {
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type {
   ChannelId,
@@ -22,6 +36,8 @@ import { extensionForMime } from "../../media/mime.js";
 import { parseSlackTarget } from "../../slack/targets.js";
 // parseTelegramTarget no longer used (telegram auto-threading uses string matching)
 >>>>>>> 6ac5dd2c0 (test: cover telegram topic threadId auto-injection and subagent origin threading)
+=======
+>>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -29,8 +45,11 @@ import {
   type GatewayClientName,
 } from "../../utils/message-channel.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { loadWebMedia } from "../../web/media.js";
+=======
+>>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 import { throwIfAborted } from "./abort.js";
 >>>>>>> 79c246666 (refactor: consolidate throwIfAborted + fix isCompactionFailureError (#12463))
 import {
@@ -38,9 +57,24 @@ import {
   resolveMessageChannelSelection,
 } from "./channel-selection.js";
 import { applyTargetToParams } from "./channel-target.js";
+<<<<<<< HEAD
 import { ensureOutboundSessionEntry, resolveOutboundSessionRoute } from "./outbound-session.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
+=======
+import {
+  hydrateSendAttachmentParams,
+  hydrateSetGroupIconParams,
+  normalizeSandboxMediaList,
+  normalizeSandboxMediaParams,
+  parseButtonsParam,
+  parseCardParam,
+  readBooleanParam,
+  resolveSlackAutoThreadId,
+  resolveTelegramAutoThreadId,
+} from "./message-action-params.js";
+import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js";
+>>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 import {
   applyCrossContextDecoration,
   buildCrossContextDecoration,
@@ -212,6 +246,7 @@ async function maybeApplyCrossContextMarker(params: {
   });
 }
 
+<<<<<<< HEAD
 function readBooleanParam(params: Record<string, unknown>, key: string): boolean | undefined {
   const raw = params[key];
   if (typeof raw === "boolean") {
@@ -526,6 +561,9 @@ function parseCardParam(params: Record<string, unknown>): void {
 }
 
 async function resolveChannel(cfg: MoltbotConfig, params: Record<string, unknown>) {
+=======
+async function resolveChannel(cfg: OpenClawConfig, params: Record<string, unknown>) {
+>>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
   const channelHint = readStringParam(params, "channel");
   const selection = await resolveMessageChannelSelection({
     cfg,
