@@ -918,6 +918,331 @@ private extension NodeAppModel {
     }
 }
 
+<<<<<<< HEAD
+=======
+extension NodeAppModel {
+    func connectToGateway(
+        url: URL,
+        gatewayStableID: String,
+        tls: GatewayTLSParams?,
+        token: String?,
+        password: String?,
+        connectOptions: GatewayConnectOptions)
+    {
+        let stableID = gatewayStableID.trimmingCharacters(in: .whitespacesAndNewlines)
+        let effectiveStableID = stableID.isEmpty ? url.absoluteString : stableID
+        let sessionBox = tls.map { WebSocketSessionBox(session: GatewayTLSPinningSession(params: $0)) }
+
+        self.activeGatewayConnectConfig = GatewayConnectConfig(
+            url: url,
+            stableID: stableID,
+            tls: tls,
+            token: token,
+            password: password,
+            nodeOptions: connectOptions)
+        self.prepareForGatewayConnect(url: url, stableID: effectiveStableID)
+        self.startOperatorGatewayLoop(
+            url: url,
+            stableID: effectiveStableID,
+            token: token,
+            password: password,
+            nodeOptions: connectOptions,
+            sessionBox: sessionBox)
+        self.startNodeGatewayLoop(
+            url: url,
+            stableID: effectiveStableID,
+            token: token,
+            password: password,
+            nodeOptions: connectOptions,
+            sessionBox: sessionBox)
+    }
+
+    /// Preferred entry-point: apply a single config object and start both sessions.
+    func applyGatewayConnectConfig(_ cfg: GatewayConnectConfig) {
+        self.activeGatewayConnectConfig = cfg
+        self.connectToGateway(
+            url: cfg.url,
+            // Preserve the caller-provided stableID (may be empty) and let connectToGateway
+            // derive the effective stable id consistently for persistence keys.
+            gatewayStableID: cfg.stableID,
+            tls: cfg.tls,
+            token: cfg.token,
+            password: cfg.password,
+            connectOptions: cfg.nodeOptions)
+    }
+
+    func disconnectGateway() {
+        self.gatewayAutoReconnectEnabled = false
+        self.nodeGatewayTask?.cancel()
+        self.nodeGatewayTask = nil
+        self.operatorGatewayTask?.cancel()
+        self.operatorGatewayTask = nil
+        self.voiceWakeSyncTask?.cancel()
+        self.voiceWakeSyncTask = nil
+        self.gatewayHealthMonitor.stop()
+        Task {
+            await self.operatorGateway.disconnect()
+            await self.nodeGateway.disconnect()
+        }
+        self.gatewayStatusText = "Offline"
+        self.gatewayServerName = nil
+        self.gatewayRemoteAddress = nil
+        self.connectedGatewayID = nil
+        self.activeGatewayConnectConfig = nil
+        self.gatewayConnected = false
+        self.operatorConnected = false
+        self.talkMode.updateGatewayConnected(false)
+        self.seamColorHex = nil
+        self.mainSessionBaseKey = "main"
+        self.talkMode.updateMainSessionKey(self.mainSessionKey)
+        self.showLocalCanvasOnDisconnect()
+    }
+}
+
+private extension NodeAppModel {
+    func prepareForGatewayConnect(url: URL, stableID: String) {
+        self.gatewayAutoReconnectEnabled = true
+        self.nodeGatewayTask?.cancel()
+        self.operatorGatewayTask?.cancel()
+        self.gatewayHealthMonitor.stop()
+        self.gatewayServerName = nil
+        self.gatewayRemoteAddress = nil
+        self.connectedGatewayID = stableID
+        self.gatewayConnected = false
+        self.operatorConnected = false
+        self.voiceWakeSyncTask?.cancel()
+        self.voiceWakeSyncTask = nil
+        self.gatewayDefaultAgentId = nil
+        self.gatewayAgents = []
+        self.selectedAgentId = GatewaySettingsStore.loadGatewaySelectedAgentId(stableID: stableID)
+    }
+
+    func startOperatorGatewayLoop(
+        url: URL,
+        stableID: String,
+        token: String?,
+        password: String?,
+        nodeOptions: GatewayConnectOptions,
+        sessionBox: WebSocketSessionBox?)
+    {
+        // Operator session reconnects independently (chat/talk/config/voicewake), but we tie its
+        // lifecycle to the current gateway config so it doesn't keep running across Disconnect.
+        self.operatorGatewayTask = Task { [weak self] in
+            guard let self else { return }
+            var attempt = 0
+            while !Task.isCancelled {
+                if await self.isOperatorConnected() {
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                    continue
+                }
+
+                let effectiveClientId =
+                    GatewaySettingsStore.loadGatewayClientIdOverride(stableID: stableID) ?? nodeOptions.clientId
+                let operatorOptions = self.makeOperatorConnectOptions(
+                    clientId: effectiveClientId,
+                    displayName: nodeOptions.clientDisplayName)
+
+                do {
+                    try await self.operatorGateway.connect(
+                        url: url,
+                        token: token,
+                        password: password,
+                        connectOptions: operatorOptions,
+                        sessionBox: sessionBox,
+                        onConnected: { [weak self] in
+                            guard let self else { return }
+                            await MainActor.run {
+                                self.operatorConnected = true
+                                self.talkMode.updateGatewayConnected(true)
+                            }
+                            GatewayDiagnostics.log(
+                                "operator gateway connected host=\(url.host ?? "?") scheme=\(url.scheme ?? "?")")
+                            await self.refreshBrandingFromGateway()
+                            await self.refreshAgentsFromGateway()
+                            await self.startVoiceWakeSync()
+                            await MainActor.run { self.startGatewayHealthMonitor() }
+                        },
+                        onDisconnected: { [weak self] reason in
+                            guard let self else { return }
+                            await MainActor.run {
+                                self.operatorConnected = false
+                                self.talkMode.updateGatewayConnected(false)
+                            }
+                            GatewayDiagnostics.log("operator gateway disconnected reason=\(reason)")
+                            await MainActor.run { self.stopGatewayHealthMonitor() }
+                        },
+                        onInvoke: { req in
+                            // Operator session should not handle node.invoke requests.
+                            BridgeInvokeResponse(
+                                id: req.id,
+                                ok: false,
+                                error: OpenClawNodeError(
+                                    code: .invalidRequest,
+                                    message: "INVALID_REQUEST: operator session cannot invoke node commands"))
+                        })
+
+                    attempt = 0
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                } catch {
+                    attempt += 1
+                    GatewayDiagnostics.log("operator gateway connect error: \(error.localizedDescription)")
+                    let sleepSeconds = min(8.0, 0.5 * pow(1.7, Double(attempt)))
+                    try? await Task.sleep(nanoseconds: UInt64(sleepSeconds * 1_000_000_000))
+                }
+            }
+        }
+    }
+
+    func startNodeGatewayLoop(
+        url: URL,
+        stableID: String,
+        token: String?,
+        password: String?,
+        nodeOptions: GatewayConnectOptions,
+        sessionBox: WebSocketSessionBox?)
+    {
+        self.nodeGatewayTask = Task { [weak self] in
+            guard let self else { return }
+            var attempt = 0
+            var currentOptions = nodeOptions
+            var didFallbackClientId = false
+
+            while !Task.isCancelled {
+                if await self.isGatewayConnected() {
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                    continue
+                }
+                await MainActor.run {
+                    self.gatewayStatusText = (attempt == 0) ? "Connecting…" : "Reconnecting…"
+                    self.gatewayServerName = nil
+                    self.gatewayRemoteAddress = nil
+                }
+
+                do {
+                    let epochMs = Int(Date().timeIntervalSince1970 * 1000)
+                    GatewayDiagnostics.log("connect attempt epochMs=\(epochMs) url=\(url.absoluteString)")
+                    try await self.nodeGateway.connect(
+                        url: url,
+                        token: token,
+                        password: password,
+                        connectOptions: currentOptions,
+                        sessionBox: sessionBox,
+                        onConnected: { [weak self] in
+                            guard let self else { return }
+                            await MainActor.run {
+                                self.gatewayStatusText = "Connected"
+                                self.gatewayServerName = url.host ?? "gateway"
+                                self.gatewayConnected = true
+                                self.screen.errorText = nil
+                                UserDefaults.standard.set(true, forKey: "gateway.autoconnect")
+                            }
+                            GatewayDiagnostics.log(
+                                "gateway connected host=\(url.host ?? "?") scheme=\(url.scheme ?? "?")")
+                            if let addr = await self.nodeGateway.currentRemoteAddress() {
+                                await MainActor.run { self.gatewayRemoteAddress = addr }
+                            }
+                            await self.showA2UIOnConnectIfNeeded()
+                        },
+                        onDisconnected: { [weak self] reason in
+                            guard let self else { return }
+                            await MainActor.run {
+                                self.gatewayStatusText = "Disconnected: \(reason)"
+                                self.gatewayServerName = nil
+                                self.gatewayRemoteAddress = nil
+                                self.gatewayConnected = false
+                                self.showLocalCanvasOnDisconnect()
+                            }
+                            GatewayDiagnostics.log("gateway disconnected reason: \(reason)")
+                        },
+                        onInvoke: { [weak self] req in
+                            guard let self else {
+                                return BridgeInvokeResponse(
+                                    id: req.id,
+                                    ok: false,
+                                    error: OpenClawNodeError(
+                                        code: .unavailable,
+                                        message: "UNAVAILABLE: node not ready"))
+                            }
+                            return await self.handleInvoke(req)
+                        })
+
+                    attempt = 0
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                } catch {
+                    if Task.isCancelled { break }
+                    if !didFallbackClientId,
+                       let fallbackClientId = self.legacyClientIdFallback(
+                        currentClientId: currentOptions.clientId,
+                        error: error)
+                    {
+                        didFallbackClientId = true
+                        currentOptions.clientId = fallbackClientId
+                        GatewaySettingsStore.saveGatewayClientIdOverride(
+                            stableID: stableID,
+                            clientId: fallbackClientId)
+                        await MainActor.run { self.gatewayStatusText = "Gateway rejected client id. Retrying…" }
+                        continue
+                    }
+
+                    attempt += 1
+                    await MainActor.run {
+                        self.gatewayStatusText = "Gateway error: \(error.localizedDescription)"
+                        self.gatewayServerName = nil
+                        self.gatewayRemoteAddress = nil
+                        self.gatewayConnected = false
+                        self.showLocalCanvasOnDisconnect()
+                    }
+                    GatewayDiagnostics.log("gateway connect error: \(error.localizedDescription)")
+                    let sleepSeconds = min(8.0, 0.5 * pow(1.7, Double(attempt)))
+                    try? await Task.sleep(nanoseconds: UInt64(sleepSeconds * 1_000_000_000))
+                }
+            }
+
+            await MainActor.run {
+                self.gatewayStatusText = "Offline"
+                self.gatewayServerName = nil
+                self.gatewayRemoteAddress = nil
+                self.connectedGatewayID = nil
+                self.gatewayConnected = false
+                self.operatorConnected = false
+                self.talkMode.updateGatewayConnected(false)
+                self.seamColorHex = nil
+                self.mainSessionBaseKey = "main"
+                self.talkMode.updateMainSessionKey(self.mainSessionKey)
+                self.showLocalCanvasOnDisconnect()
+            }
+        }
+    }
+
+    func makeOperatorConnectOptions(clientId: String, displayName: String?) -> GatewayConnectOptions {
+        GatewayConnectOptions(
+            role: "operator",
+            scopes: ["operator.read", "operator.write", "operator.talk.secrets"],
+            caps: [],
+            commands: [],
+            permissions: [:],
+            clientId: clientId,
+            clientMode: "ui",
+            clientDisplayName: displayName,
+            includeDeviceIdentity: false)
+    }
+
+    func legacyClientIdFallback(currentClientId: String, error: Error) -> String? {
+        let normalizedClientId = currentClientId.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard normalizedClientId == "openclaw-ios" else { return nil }
+        let message = error.localizedDescription.lowercased()
+        guard message.contains("invalid connect params"), message.contains("/client/id") else {
+            return nil
+        }
+        return "moltbot-ios"
+    }
+
+    func isOperatorConnected() async -> Bool {
+        self.operatorConnected
+    }
+}
+
+>>>>>>> 4c86821ac (fix: allow device-paired clients to retrieve TTS API keys (#14613))
 #if DEBUG
 extension NodeAppModel {
     func _test_handleInvoke(_ req: BridgeInvokeRequest) async -> BridgeInvokeResponse {
