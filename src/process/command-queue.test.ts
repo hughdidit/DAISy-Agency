@@ -105,8 +105,6 @@ describe("command queue", () => {
       await blocker;
     });
 
-    // Give the event loop a tick for the task to start.
-    await new Promise((r) => setTimeout(r, 5));
     expect(getActiveTaskCount()).toBe(1);
 
     resolve1();
@@ -129,18 +127,21 @@ describe("command queue", () => {
       await blocker;
     });
 
-    // Give the task a tick to start.
-    await new Promise((r) => setTimeout(r, 5));
+    vi.useFakeTimers();
+    try {
+      const drainPromise = waitForActiveTasks(5000);
 
-    const drainPromise = waitForActiveTasks(5000);
+      // Resolve the blocker after a short delay.
+      setTimeout(() => resolve1(), 10);
+      await vi.advanceTimersByTimeAsync(100);
 
-    // Resolve the blocker after a short delay.
-    setTimeout(() => resolve1(), 50);
+      const { drained } = await drainPromise;
+      expect(drained).toBe(true);
 
-    const { drained } = await drainPromise;
-    expect(drained).toBe(true);
-
-    await task;
+      await task;
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("waitForActiveTasks returns drained=false on timeout", async () => {
@@ -153,13 +154,18 @@ describe("command queue", () => {
       await blocker;
     });
 
-    await new Promise((r) => setTimeout(r, 5));
+    vi.useFakeTimers();
+    try {
+      const waitPromise = waitForActiveTasks(50);
+      await vi.advanceTimersByTimeAsync(100);
+      const { drained } = await waitPromise;
+      expect(drained).toBe(false);
 
-    const { drained } = await waitForActiveTasks(50);
-    expect(drained).toBe(false);
-
-    resolve1();
-    await task;
+      resolve1();
+      await task;
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("waitForActiveTasks ignores tasks that start after the call", async () => {
@@ -178,15 +184,12 @@ describe("command queue", () => {
     const first = enqueueCommandInLane(lane, async () => {
       await blocker1;
     });
-    await new Promise((r) => setTimeout(r, 5));
-
     const drainPromise = waitForActiveTasks(2000);
 
     // Starts after waitForActiveTasks snapshot and should not block drain completion.
     const second = enqueueCommandInLane(lane, async () => {
       await blocker2;
     });
-    await new Promise((r) => setTimeout(r, 5));
     expect(getActiveTaskCount()).toBeGreaterThanOrEqual(2);
 
     resolve1();
@@ -211,9 +214,6 @@ describe("command queue", () => {
 
     // Second task is queued behind the first.
     const second = enqueueCommand(async () => "second");
-
-    // Give the first task a tick to start.
-    await new Promise((r) => setTimeout(r, 5));
 
     const removed = clearCommandLane();
     expect(removed).toBe(1); // only the queued (not active) entry
