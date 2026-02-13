@@ -1,13 +1,26 @@
+<<<<<<< HEAD
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import type { ChannelId } from "../channels/plugins/types.js";
+=======
+>>>>>>> 23555de5d (refactor(security): extract channel audit checks)
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
+<<<<<<< HEAD
+=======
+import { resolveBrowserControlAuth } from "../browser/control-auth.js";
+import { listChannelPlugins } from "../channels/plugins/index.js";
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> 23555de5d (refactor(security): extract channel audit checks)
 import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
 import { probeGateway } from "../gateway/probe.js";
+<<<<<<< HEAD
+=======
+import { collectChannelSecurityFindings } from "./audit-channel.js";
+>>>>>>> 23555de5d (refactor(security): extract channel audit checks)
 import {
   collectAttackSurfaceSummaryFindings,
   collectExposureMatrixFindings,
@@ -102,24 +115,6 @@ function countBySeverity(findings: SecurityAuditFinding[]): SecurityAuditSummary
 function normalizeAllowFromList(list: Array<string | number> | undefined | null): string[] {
   if (!Array.isArray(list)) return [];
   return list.map((v) => String(v).trim()).filter(Boolean);
-}
-
-function classifyChannelWarningSeverity(message: string): SecurityAuditSeverity {
-  const s = message.toLowerCase();
-  if (
-    s.includes("dms: open") ||
-    s.includes('grouppolicy="open"') ||
-    s.includes('dmpolicy="open"')
-  ) {
-    return "critical";
-  }
-  if (s.includes("allows any") || s.includes("anyone can dm") || s.includes("public")) {
-    return "critical";
-  }
-  if (s.includes("locked") || s.includes("disabled")) {
-    return "info";
-  }
-  return "warn";
 }
 
 async function collectFilesystemFindings(params: {
@@ -448,6 +443,7 @@ function collectElevatedFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   return findings;
 }
 
+<<<<<<< HEAD
 async function collectChannelSecurityFindings(params: {
   cfg: OpenClawConfig;
   plugins: ReturnType<typeof listChannelPlugins>;
@@ -804,6 +800,8 @@ async function collectChannelSecurityFindings(params: {
   return findings;
 }
 
+=======
+>>>>>>> 23555de5d (refactor(security): extract channel audit checks)
 async function maybeProbeGateway(params: {
   cfg: OpenClawConfig;
   timeoutMs: number;
