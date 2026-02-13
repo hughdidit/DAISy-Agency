@@ -44,18 +44,17 @@ describe("exec approvals", () => {
   it("reuses approval id as the node runId", async () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
     let invokeParams: unknown;
-    let resolveInvoke: (() => void) | undefined;
-    const invokeSeen = new Promise<void>((resolve) => {
-      resolveInvoke = resolve;
-    });
 
     vi.mocked(callGatewayTool).mockImplementation(async (method, _opts, params) => {
       if (method === "exec.approval.request") {
+<<<<<<< HEAD
+=======
+        // Approval request now carries the decision directly.
+>>>>>>> 7d1be585d (test: fix exec approval and pty fallback e2e flows)
         return { decision: "allow-once" };
       }
       if (method === "node.invoke") {
         invokeParams = params;
-        resolveInvoke?.();
         return { ok: true };
       }
       return { ok: true };
@@ -72,10 +71,12 @@ describe("exec approvals", () => {
     expect(result.details.status).toBe("approval-pending");
     const approvalId = (result.details as { approvalId: string }).approvalId;
 
-    await invokeSeen;
-
-    const runId = (invokeParams as { params?: { runId?: string } } | undefined)?.params?.runId;
-    expect(runId).toBe(approvalId);
+    await expect
+      .poll(() => (invokeParams as { params?: { runId?: string } } | undefined)?.params?.runId, {
+        timeout: 2000,
+        interval: 20,
+      })
+      .toBe(approvalId);
   });
 
   it("defaults ask to always when not configured", async () => {
