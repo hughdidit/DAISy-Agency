@@ -13,6 +13,10 @@ const getCachedStickerSpy = vi.fn();
 const describeStickerImageSpy = vi.fn();
 const ssrfResolveSpy = vi.spyOn(ssrf, "resolvePinnedHostname");
 
+const sleep = async (ms: number) => {
+  await new Promise<void>((resolve) => setTimeout(resolve, ms));
+};
+
 type ApiStub = {
   config: { use: (arg: unknown) => void };
   sendChatAction: typeof sendChatActionSpy;
@@ -282,12 +286,8 @@ describe("telegram inbound media", () => {
 });
 
 describe("telegram media groups", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
   afterEach(() => {
-    vi.useRealTimers();
+    vi.clearAllTimers();
   });
 
   const MEDIA_GROUP_TEST_TIMEOUT_MS = process.platform === "win32" ? 45_000 : 20_000;
@@ -356,7 +356,7 @@ describe("telegram media groups", () => {
       await second;
 
       expect(replySpy).not.toHaveBeenCalled();
-      await vi.advanceTimersByTimeAsync(MEDIA_GROUP_FLUSH_MS);
+      await sleep(MEDIA_GROUP_FLUSH_MS);
 
       expect(runtimeError).not.toHaveBeenCalled();
       expect(replySpy).toHaveBeenCalledTimes(1);
@@ -422,7 +422,7 @@ describe("telegram media groups", () => {
       await Promise.all([first, second]);
 
       expect(replySpy).not.toHaveBeenCalled();
-      await vi.advanceTimersByTimeAsync(MEDIA_GROUP_FLUSH_MS);
+      await sleep(MEDIA_GROUP_FLUSH_MS);
 
       expect(replySpy).toHaveBeenCalledTimes(2);
 
@@ -718,12 +718,8 @@ describe("telegram stickers", () => {
 });
 
 describe("telegram text fragments", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
   afterEach(() => {
-    vi.useRealTimers();
+    vi.clearAllTimers();
   });
 
   const TEXT_FRAGMENT_TEST_TIMEOUT_MS = process.platform === "win32" ? 45_000 : 20_000;
@@ -771,7 +767,7 @@ describe("telegram text fragments", () => {
       });
 
       expect(replySpy).not.toHaveBeenCalled();
-      await vi.advanceTimersByTimeAsync(TEXT_FRAGMENT_FLUSH_MS);
+      await sleep(TEXT_FRAGMENT_FLUSH_MS);
 
       expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0] as { RawBody?: string; Body?: string };
