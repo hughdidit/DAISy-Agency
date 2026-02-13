@@ -140,8 +140,10 @@ describe("runMessageAction Slack threading", () => {
     });
 
     const call = mocks.executeSendAction.mock.calls[0]?.[0] as {
+      threadId?: string;
       ctx?: { params?: Record<string, unknown> };
     };
+    expect(call?.threadId).toBe("42");
     expect(call?.ctx?.params?.threadId).toBe("42");
   });
 
@@ -222,9 +224,44 @@ describe("runMessageAction Slack threading", () => {
     });
 
     const call = mocks.executeSendAction.mock.calls[0]?.[0] as {
+      threadId?: string;
       ctx?: { params?: Record<string, unknown> };
     };
+    expect(call?.threadId).toBe("999");
     expect(call?.ctx?.params?.threadId).toBe("999");
   });
+<<<<<<< HEAD
 >>>>>>> 01db1dde1 (fix: telegram topic auto-threading — use parseTelegramTarget, add tests (#7235) (thanks @Lukavyi))
+=======
+
+  it("threads explicit replyTo through executeSendAction", async () => {
+    mocks.executeSendAction.mockResolvedValue({
+      handledBy: "plugin",
+      payload: {},
+    });
+
+    await runMessageAction({
+      cfg: telegramConfig,
+      action: "send",
+      params: {
+        channel: "telegram",
+        target: "telegram:123",
+        message: "hi",
+        replyTo: "777",
+      },
+      toolContext: {
+        currentChannelId: "telegram:123",
+        currentThreadTs: "42",
+      },
+      agentId: "main",
+    });
+
+    const call = mocks.executeSendAction.mock.calls[0]?.[0] as {
+      replyToId?: string;
+      ctx?: { params?: Record<string, unknown> };
+    };
+    expect(call?.replyToId).toBe("777");
+    expect(call?.ctx?.params?.replyTo).toBe("777");
+  });
+>>>>>>> 13bfd9da8 (fix: thread replyToId and threadId through message tool send action (#14948))
 });

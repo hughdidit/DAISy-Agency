@@ -73,6 +73,8 @@ export async function executeSendAction(params: {
   mediaUrls?: string[];
   gifPlayback?: boolean;
   bestEffort?: boolean;
+  replyToId?: string;
+  threadId?: string | number;
 }): Promise<{
   handledBy: "plugin" | "core";
   payload: unknown;
@@ -122,6 +124,8 @@ export async function executeSendAction(params: {
     mediaUrls: params.mediaUrls,
     channel: params.ctx.channel || undefined,
     accountId: params.ctx.accountId ?? undefined,
+    replyToId: params.replyToId,
+    threadId: params.threadId,
     gifPlayback: params.gifPlayback,
     dryRun: params.ctx.dryRun,
     bestEffort: params.bestEffort ?? undefined,
