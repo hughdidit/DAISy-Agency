@@ -6,6 +6,7 @@ import {
   DEFAULT_MINIMAX_CONTEXT_WINDOW,
   DEFAULT_MINIMAX_MAX_TOKENS,
   MINIMAX_API_BASE_URL,
+  MINIMAX_CN_API_BASE_URL,
   MINIMAX_HOSTED_COST,
   MINIMAX_HOSTED_MODEL_ID,
   MINIMAX_HOSTED_MODEL_REF,
@@ -147,9 +148,45 @@ export function applyMinimaxHostedConfig(
 
 // MiniMax Anthropic-compatible API (platform.minimax.io/anthropic)
 export function applyMinimaxApiProviderConfig(
+<<<<<<< HEAD
   cfg: MoltbotConfig,
   modelId: string = "MiniMax-M2.1",
 ): MoltbotConfig {
+=======
+  cfg: OpenClawConfig,
+  modelId: string = "MiniMax-M2.5",
+): OpenClawConfig {
+  return applyMinimaxApiProviderConfigWithBaseUrl(cfg, modelId, MINIMAX_API_BASE_URL);
+}
+
+export function applyMinimaxApiConfig(
+  cfg: OpenClawConfig,
+  modelId: string = "MiniMax-M2.5",
+): OpenClawConfig {
+  return applyMinimaxApiConfigWithBaseUrl(cfg, modelId, MINIMAX_API_BASE_URL);
+}
+
+// MiniMax China API (api.minimaxi.com)
+export function applyMinimaxApiProviderConfigCn(
+  cfg: OpenClawConfig,
+  modelId: string = "MiniMax-M2.5",
+): OpenClawConfig {
+  return applyMinimaxApiProviderConfigWithBaseUrl(cfg, modelId, MINIMAX_CN_API_BASE_URL);
+}
+
+export function applyMinimaxApiConfigCn(
+  cfg: OpenClawConfig,
+  modelId: string = "MiniMax-M2.5",
+): OpenClawConfig {
+  return applyMinimaxApiConfigWithBaseUrl(cfg, modelId, MINIMAX_CN_API_BASE_URL);
+}
+
+function applyMinimaxApiProviderConfigWithBaseUrl(
+  cfg: OpenClawConfig,
+  modelId: string,
+  baseUrl: string,
+): OpenClawConfig {
+>>>>>>> 9bb099736 (feat: add minimax-api-key-cn option for China API endpoint)
   const providers = { ...cfg.models?.providers };
   const existingProvider = providers.minimax;
   const existingModels = Array.isArray(existingProvider?.models) ? existingProvider.models : [];
@@ -164,7 +201,7 @@ export function applyMinimaxApiProviderConfig(
   const normalizedApiKey = resolvedApiKey?.trim() === "minimax" ? "" : resolvedApiKey;
   providers.minimax = {
     ...existingProviderRest,
-    baseUrl: MINIMAX_API_BASE_URL,
+    baseUrl,
     api: "anthropic-messages",
     ...(normalizedApiKey?.trim() ? { apiKey: normalizedApiKey } : {}),
     models: mergedModels.length > 0 ? mergedModels : [apiModel],
@@ -189,11 +226,20 @@ export function applyMinimaxApiProviderConfig(
   };
 }
 
+<<<<<<< HEAD
 export function applyMinimaxApiConfig(
   cfg: MoltbotConfig,
   modelId: string = "MiniMax-M2.1",
 ): MoltbotConfig {
   const next = applyMinimaxApiProviderConfig(cfg, modelId);
+=======
+function applyMinimaxApiConfigWithBaseUrl(
+  cfg: OpenClawConfig,
+  modelId: string,
+  baseUrl: string,
+): OpenClawConfig {
+  const next = applyMinimaxApiProviderConfigWithBaseUrl(cfg, modelId, baseUrl);
+>>>>>>> 9bb099736 (feat: add minimax-api-key-cn option for China API endpoint)
   return {
     ...next,
     agents: {
