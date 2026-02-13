@@ -9,6 +9,7 @@ import { loadConfig } from "../../config/config.js";
 import type { SessionScope } from "../../config/sessions.js";
 import type { DmPolicy, GroupPolicy } from "../../config/types.js";
 import { warn } from "../../globals.js";
+import { installRequestBodyLimitGuard } from "../../infra/http-body.js";
 import { normalizeMainKey } from "../../routing/session-key.js";
 import type { RuntimeEnv } from "../../runtime.js";
 
@@ -35,6 +36,10 @@ const slackBoltModule = SlackBolt as typeof import("@slack/bolt") & {
 const slackBolt =
   (slackBoltModule.App ? slackBoltModule : slackBoltModule.default) ?? slackBoltModule;
 const { App, HTTPReceiver } = slackBolt;
+
+const SLACK_WEBHOOK_MAX_BODY_BYTES = 1024 * 1024;
+const SLACK_WEBHOOK_BODY_TIMEOUT_MS = 30_000;
+
 function parseApiAppIdFromAppToken(raw?: string) {
   const token = raw?.trim();
   if (!token) return undefined;
@@ -149,7 +154,23 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
   const slackHttpHandler =
     slackMode === "http" && receiver
       ? async (req: IncomingMessage, res: ServerResponse) => {
-          await Promise.resolve(receiver.requestListener(req, res));
+          const guard = installRequestBodyLimitGuard(req, res, {
+            maxBytes: SLACK_WEBHOOK_MAX_BODY_BYTES,
+            timeoutMs: SLACK_WEBHOOK_BODY_TIMEOUT_MS,
+            responseFormat: "text",
+          });
+          if (guard.isTripped()) {
+            return;
+          }
+          try {
+            await Promise.resolve(receiver.requestListener(req, res));
+          } catch (err) {
+            if (!guard.isTripped()) {
+              throw err;
+            }
+          } finally {
+            guard.dispose();
+          }
         }
       : null;
   let unregisterHttpHandler: (() => void) | null = null;

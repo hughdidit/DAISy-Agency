@@ -1,7 +1,15 @@
 import { spawn } from "node:child_process";
 import http from "node:http";
 import { URL } from "node:url";
+<<<<<<< HEAD
 
+=======
+import {
+  isRequestBodyLimitError,
+  readRequestBodyWithLimit,
+  requestBodyErrorToText,
+} from "openclaw/plugin-sdk";
+>>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 import type { VoiceCallConfig } from "./config.js";
 import type { CoreConfig } from "./core-bridge.js";
 import type { CallManager } from "./manager.js";
@@ -253,7 +261,26 @@ export class VoiceCallWebhookServer {
     }
 
     // Read body
+<<<<<<< HEAD
     const body = await this.readBody(req);
+=======
+    let body = "";
+    try {
+      body = await this.readBody(req, MAX_WEBHOOK_BODY_BYTES);
+    } catch (err) {
+      if (isRequestBodyLimitError(err, "PAYLOAD_TOO_LARGE")) {
+        res.statusCode = 413;
+        res.end("Payload Too Large");
+        return;
+      }
+      if (isRequestBodyLimitError(err, "REQUEST_BODY_TIMEOUT")) {
+        res.statusCode = 408;
+        res.end(requestBodyErrorToText("REQUEST_BODY_TIMEOUT"));
+        return;
+      }
+      throw err;
+    }
+>>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 
     // Build webhook context
     const ctx: WebhookContext = {
@@ -307,6 +334,7 @@ export class VoiceCallWebhookServer {
   /**
    * Read request body as string.
    */
+<<<<<<< HEAD
   private readBody(req: http.IncomingMessage): Promise<string> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
@@ -314,6 +342,14 @@ export class VoiceCallWebhookServer {
       req.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
       req.on("error", reject);
     });
+=======
+  private readBody(
+    req: http.IncomingMessage,
+    maxBytes: number,
+    timeoutMs = 30_000,
+  ): Promise<string> {
+    return readRequestBodyWithLimit(req, { maxBytes, timeoutMs });
+>>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
   }
 
   /**

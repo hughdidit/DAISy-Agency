@@ -3,6 +3,13 @@ import type { IncomingMessage } from "node:http";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
+=======
+import { listAgentIds, resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { listChannelPlugins } from "../channels/plugins/index.js";
+import { readJsonBodyWithLimit, requestBodyErrorToText } from "../infra/http-body.js";
+import { normalizeAgentId } from "../routing/session-key.js";
+>>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 import { normalizeMessageChannel } from "../utils/message-channel.js";
 import { type HookMappingResolved, resolveHookMappings } from "./hooks-mapping.js";
 
@@ -67,6 +74,7 @@ export async function readJsonBody(
   req: IncomingMessage,
   maxBytes: number,
 ): Promise<{ ok: true; value: unknown } | { ok: false; error: string }> {
+<<<<<<< HEAD
   return await new Promise((resolve) => {
     let done = false;
     let total = 0;
@@ -103,6 +111,22 @@ export async function readJsonBody(
       resolve({ ok: false, error: String(err) });
     });
   });
+=======
+  const result = await readJsonBodyWithLimit(req, { maxBytes, emptyObjectOnEmpty: true });
+  if (result.ok) {
+    return result;
+  }
+  if (result.code === "PAYLOAD_TOO_LARGE") {
+    return { ok: false, error: "payload too large" };
+  }
+  if (result.code === "REQUEST_BODY_TIMEOUT") {
+    return { ok: false, error: "request body timeout" };
+  }
+  if (result.code === "CONNECTION_CLOSED") {
+    return { ok: false, error: requestBodyErrorToText("CONNECTION_CLOSED") };
+  }
+  return { ok: false, error: result.error };
+>>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 }
 
 export function normalizeHookHeaders(req: IncomingMessage) {

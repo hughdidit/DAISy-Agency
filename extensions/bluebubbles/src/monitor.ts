@@ -2,11 +2,18 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import {
+<<<<<<< HEAD
+=======
+  createReplyPrefixOptions,
+  isRequestBodyLimitError,
+>>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
   logAckFailure,
   logInboundDrop,
   logTypingFailure,
+  readRequestBodyWithLimit,
   resolveAckReaction,
   resolveControlCommandGate,
+  requestBodyErrorToText,
 } from "openclaw/plugin-sdk";
 import { markBlueBubblesChatRead, sendBlueBubblesTyping } from "./chat.js";
 import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
@@ -450,6 +457,7 @@ export function registerBlueBubblesWebhookTarget(target: WebhookTarget): () => v
   };
 }
 
+<<<<<<< HEAD
 async function readJsonBody(req: IncomingMessage, maxBytes: number) {
   const chunks: Buffer[] = [];
   let total = 0;
@@ -490,6 +498,43 @@ async function readJsonBody(req: IncomingMessage, maxBytes: number) {
       resolve({ ok: false, error: err instanceof Error ? err.message : String(err) });
     });
   });
+=======
+async function readJsonBody(req: IncomingMessage, maxBytes: number, timeoutMs = 30_000) {
+  let rawBody = "";
+  try {
+    rawBody = await readRequestBodyWithLimit(req, { maxBytes, timeoutMs });
+  } catch (error) {
+    if (isRequestBodyLimitError(error, "PAYLOAD_TOO_LARGE")) {
+      return { ok: false, error: "payload too large" };
+    }
+    if (isRequestBodyLimitError(error, "REQUEST_BODY_TIMEOUT")) {
+      return { ok: false, error: requestBodyErrorToText("REQUEST_BODY_TIMEOUT") };
+    }
+    if (isRequestBodyLimitError(error, "CONNECTION_CLOSED")) {
+      return { ok: false, error: requestBodyErrorToText("CONNECTION_CLOSED") };
+    }
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+
+  try {
+    const raw = rawBody.toString();
+    if (!raw.trim()) {
+      return { ok: false, error: "empty payload" };
+    }
+    try {
+      return { ok: true, value: JSON.parse(raw) as unknown };
+    } catch {
+      const params = new URLSearchParams(raw);
+      const payload = params.get("payload") ?? params.get("data") ?? params.get("message");
+      if (payload) {
+        return { ok: true, value: JSON.parse(payload) as unknown };
+      }
+      throw new Error("invalid json");
+    }
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+>>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -1283,7 +1328,12 @@ export async function handleBlueBubblesWebhookRequest(
 
   const body = await readJsonBody(req, 1024 * 1024);
   if (!body.ok) {
-    res.statusCode = body.error === "payload too large" ? 413 : 400;
+    res.statusCode =
+      body.error === "payload too large"
+        ? 413
+        : body.error === requestBodyErrorToText("REQUEST_BODY_TIMEOUT")
+          ? 408
+          : 400;
     res.end(body.error ?? "invalid payload");
     console.warn(`[bluebubbles] webhook rejected: ${body.error ?? "invalid payload"}`);
     return true;

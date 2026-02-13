@@ -4,8 +4,12 @@ import { webhookCallback } from "grammy";
 import type { OpenClawConfig } from "../config/config.js";
 import { isDiagnosticsEnabled } from "../infra/diagnostic-events.js";
 import { formatErrorMessage } from "../infra/errors.js";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
+=======
+import { installRequestBodyLimitGuard } from "../infra/http-body.js";
+>>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 import {
   logWebhookError,
   logWebhookProcessed,
@@ -16,6 +20,9 @@ import {
 import { resolveTelegramAllowedUpdates } from "./allowed-updates.js";
 import { createTelegramBot } from "./bot.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
+
+const TELEGRAM_WEBHOOK_MAX_BODY_BYTES = 1024 * 1024;
+const TELEGRAM_WEBHOOK_BODY_TIMEOUT_MS = 30_000;
 
 export async function startTelegramWebhook(opts: {
   token: string;
@@ -67,6 +74,14 @@ export async function startTelegramWebhook(opts: {
     if (diagnosticsEnabled) {
       logWebhookReceived({ channel: "telegram", updateType: "telegram-post" });
     }
+    const guard = installRequestBodyLimitGuard(req, res, {
+      maxBytes: TELEGRAM_WEBHOOK_MAX_BODY_BYTES,
+      timeoutMs: TELEGRAM_WEBHOOK_BODY_TIMEOUT_MS,
+      responseFormat: "text",
+    });
+    if (guard.isTripped()) {
+      return;
+    }
     const handled = handler(req, res);
     if (handled && typeof (handled as Promise<void>).catch === "function") {
       void (handled as Promise<void>)
@@ -80,6 +95,9 @@ export async function startTelegramWebhook(opts: {
           }
         })
         .catch((err) => {
+          if (guard.isTripped()) {
+            return;
+          }
           const errMsg = formatErrorMessage(err);
           if (diagnosticsEnabled) {
             logWebhookError({
@@ -91,8 +109,13 @@ export async function startTelegramWebhook(opts: {
           runtime.log?.(`webhook handler failed: ${errMsg}`);
           if (!res.headersSent) res.writeHead(500);
           res.end();
+        })
+        .finally(() => {
+          guard.dispose();
         });
+      return;
     }
+    guard.dispose();
   });
 
   const publicUrl =

@@ -1,11 +1,29 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import { resolveMentionGatingWithBypass } from "openclaw/plugin-sdk";
 
 import {
   type ResolvedGoogleChatAccount
 } from "./accounts.js";
+=======
+import {
+  createReplyPrefixOptions,
+  readJsonBodyWithLimit,
+  requestBodyErrorToText,
+  resolveMentionGatingWithBypass,
+} from "openclaw/plugin-sdk";
+import type {
+  GoogleChatAnnotation,
+  GoogleChatAttachment,
+  GoogleChatEvent,
+  GoogleChatSpace,
+  GoogleChatMessage,
+  GoogleChatUser,
+} from "./types.js";
+import { type ResolvedGoogleChatAccount } from "./accounts.js";
+>>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 import {
   downloadGoogleChatMedia,
   deleteGoogleChatMessage,
@@ -84,6 +102,7 @@ function resolveWebhookPath(webhookPath?: string, webhookUrl?: string): string |
   return "/googlechat";
 }
 
+<<<<<<< HEAD
 async function readJsonBody(req: IncomingMessage, maxBytes: number) {
   const chunks: Buffer[] = [];
   let total = 0;
@@ -122,6 +141,8 @@ async function readJsonBody(req: IncomingMessage, maxBytes: number) {
   });
 }
 
+=======
+>>>>>>> 3cbcba10c (fix(security): enforce bounded webhook body handling)
 export function registerGoogleChatWebhookTarget(target: WebhookTarget): () => void {
   const key = normalizeWebhookPath(target.path);
   const normalizedTarget = { ...target, path: key };
@@ -170,10 +191,19 @@ export async function handleGoogleChatWebhookRequest(
     ? authHeader.slice("bearer ".length)
     : "";
 
-  const body = await readJsonBody(req, 1024 * 1024);
+  const body = await readJsonBodyWithLimit(req, {
+    maxBytes: 1024 * 1024,
+    timeoutMs: 30_000,
+    emptyObjectOnEmpty: false,
+  });
   if (!body.ok) {
-    res.statusCode = body.error === "payload too large" ? 413 : 400;
-    res.end(body.error ?? "invalid payload");
+    res.statusCode =
+      body.code === "PAYLOAD_TOO_LARGE" ? 413 : body.code === "REQUEST_BODY_TIMEOUT" ? 408 : 400;
+    res.end(
+      body.code === "REQUEST_BODY_TIMEOUT"
+        ? requestBodyErrorToText("REQUEST_BODY_TIMEOUT")
+        : body.error,
+    );
     return true;
   }
 
