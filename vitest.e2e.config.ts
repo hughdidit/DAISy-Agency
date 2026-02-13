@@ -3,12 +3,26 @@ import { defineConfig } from "vitest/config";
 
 const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 const cpuCount = os.cpus().length;
-const e2eWorkers = isCI ? 2 : Math.min(4, Math.max(1, Math.floor(cpuCount * 0.25)));
+const defaultWorkers = isCI
+  ? Math.min(4, Math.max(2, Math.floor(cpuCount * 0.5)))
+  : Math.min(8, Math.max(4, Math.floor(cpuCount * 0.6)));
+const requestedWorkers = Number.parseInt(process.env.OPENCLAW_E2E_WORKERS ?? "", 10);
+const e2eWorkers =
+  Number.isFinite(requestedWorkers) && requestedWorkers > 0
+    ? Math.min(16, requestedWorkers)
+    : defaultWorkers;
+const verboseE2E = process.env.OPENCLAW_E2E_VERBOSE === "1";
 
 export default defineConfig({
   test: {
+<<<<<<< HEAD
     pool: "forks",
+=======
+    ...baseTest,
+    pool: "vmForks",
+>>>>>>> 945d30295 (test: speed up e2e vitest runtime)
     maxWorkers: e2eWorkers,
+    silent: !verboseE2E,
     include: ["test/**/*.e2e.test.ts", "src/**/*.e2e.test.ts"],
     setupFiles: ["test/setup.ts"],
     exclude: [
