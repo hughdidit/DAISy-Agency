@@ -2,16 +2,37 @@ import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { MsgContext } from "../auto-reply/templating.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type {
+  MediaUnderstandingConfig,
+  MediaUnderstandingModelConfig,
+} from "../config/types.tools.js";
+import type {
+  MediaAttachment,
+  MediaUnderstandingCapability,
+  MediaUnderstandingDecision,
+  MediaUnderstandingModelDecision,
+  MediaUnderstandingOutput,
+  MediaUnderstandingProvider,
+} from "./types.js";
+import { resolveApiKeyForProvider } from "../agents/model-auth.js";
+>>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 import {
   findModelInCatalog,
   loadModelCatalog,
   modelSupportsVision,
 } from "../agents/model-catalog.js";
+<<<<<<< HEAD
 import type { MsgContext } from "../auto-reply/templating.js";
 import { applyTemplate } from "../auto-reply/templating.js";
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
+=======
+>>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { runExec } from "../process/exec.js";
 import type {
@@ -23,11 +44,9 @@ import {
   AUTO_AUDIO_KEY_PROVIDERS,
   AUTO_IMAGE_KEY_PROVIDERS,
   AUTO_VIDEO_KEY_PROVIDERS,
-  CLI_OUTPUT_MAX_BUFFER,
-  DEFAULT_AUDIO_MODELS,
   DEFAULT_IMAGE_MODELS,
-  DEFAULT_TIMEOUT_SECONDS,
 } from "./defaults.js";
+<<<<<<< HEAD
 import { isMediaUnderstandingSkipError, MediaUnderstandingSkipError } from "./errors.js";
 import {
   resolveMaxBytes,
@@ -52,6 +71,21 @@ import {
 } from "./providers/index.js";
 import { describeImageWithModel } from "./providers/image.js";
 import { estimateBase64Size, resolveVideoMaxBase64Bytes } from "./video.js";
+=======
+import { isMediaUnderstandingSkipError } from "./errors.js";
+import {
+  buildMediaUnderstandingRegistry,
+  getMediaUnderstandingProvider,
+  normalizeMediaProviderId,
+} from "./providers/index.js";
+import { resolveModelEntries, resolveScopeDecision } from "./resolve.js";
+import {
+  buildModelDecision,
+  formatDecisionSummary,
+  runCliEntry,
+  runProviderEntry,
+} from "./runner.entries.js";
+>>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 
 <<<<<<< HEAD
 const AUTO_AUDIO_KEY_PROVIDERS = ["openai", "groq", "deepgram", "google"] as const;
@@ -232,49 +266,6 @@ function extractGeminiResponse(raw: string): string | null {
   }
   const trimmed = response.trim();
   return trimmed || null;
-}
-
-function extractSherpaOnnxText(raw: string): string | null {
-  const tryParse = (value: string): string | null => {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      return null;
-    }
-    const head = trimmed[0];
-    if (head !== "{" && head !== '"') {
-      return null;
-    }
-    try {
-      const parsed = JSON.parse(trimmed) as unknown;
-      if (typeof parsed === "string") {
-        return tryParse(parsed);
-      }
-      if (parsed && typeof parsed === "object") {
-        const text = (parsed as { text?: unknown }).text;
-        if (typeof text === "string" && text.trim()) {
-          return text.trim();
-        }
-      }
-    } catch {}
-    return null;
-  };
-
-  const direct = tryParse(raw);
-  if (direct) {
-    return direct;
-  }
-
-  const lines = raw
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-  for (let i = lines.length - 1; i >= 0; i -= 1) {
-    const parsed = tryParse(lines[i] ?? "");
-    if (parsed) {
-      return parsed;
-    }
-  }
-  return null;
 }
 
 async function probeGeminiCli(): Promise<boolean> {
@@ -605,6 +596,7 @@ async function resolveActiveModelEntry(params: {
   };
 }
 
+<<<<<<< HEAD
 function trimOutput(text: string, maxChars?: number): string {
   const trimmed = text.trim();
   if (!maxChars || trimmed.length <= maxChars) {
@@ -1081,6 +1073,8 @@ async function runCliEntry(params: {
   }
 }
 
+=======
+>>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 async function runAttachmentEntries(params: {
   capability: MediaUnderstandingCapability;
   cfg: MoltbotConfig;
