@@ -179,10 +179,16 @@ Docs: https://docs.openclaw.ai
 - Signal: enforce E.164 validation for the Signal bot account prompt so mistyped numbers are caught early. (#15063) Thanks @Duartemartins.
 - Discord: process DM reactions instead of silently dropping them. (#10418) Thanks @mcaxtr.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 92334b95d (changelog: keep signal entry while restoring removed rows)
 - Signal: enforce E.164 validation for the Signal bot account prompt so mistyped numbers are caught early. (#15063) Thanks @Duartemartins.
 =======
 >>>>>>> 7a8a57b57 (changelog: dedupe signal entry restored by merge conflict fix)
+=======
+- Discord: treat Administrator as full permissions in channel permission checks. Thanks @thewilloftheshadow.
+- Discord: respect replyToMode in threads. (#11062) Thanks @cordx56.
+- Heartbeat: filter noise-only system events so scheduled reminder notifications do not fire when cron runs carry only heartbeat markers. (#13317) Thanks @pvtclawn.
+>>>>>>> e982489f7 (Changelog: note Discord admin permission fix)
 - Signal: render mention placeholders as `@uuid`/`@phone` so mention gating and Clawdbot targeting work. (#2013) Thanks @alexgleason.
 - Onboarding/Providers: add Z.AI endpoint-specific auth choices (`zai-coding-global`, `zai-coding-cn`, `zai-global`, `zai-cn`) and expand default Z.AI model wiring. (#13456) Thanks @tomsun28.
 - Onboarding/Providers: update MiniMax API default/recommended models from M2.1 to M2.5, add M2.5/M2.5-Lightning model entries, and include `minimax-m2.5` in modern model filtering. (#14865) Thanks @adao-max.
