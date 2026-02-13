@@ -7,6 +7,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { AnyAgentTool } from "./common.js";
 import { fetchWithSsrFGuard } from "../../infra/net/fetch-guard.js";
 import { SsrFBlockedError } from "../../infra/net/ssrf.js";
+import { logDebug } from "../../logger.js";
 import { wrapExternalContent, wrapWebContent } from "../../security/external-content.js";
 import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
 import { stringEnum } from "../schema/typebox.js";
@@ -299,6 +300,92 @@ function formatWebFetchErrorDetail(params: {
   const truncated = truncateText(text.trim(), maxChars);
   return truncated.text;
 }
+<<<<<<< HEAD
+=======
+
+function redactUrlForDebugLog(rawUrl: string): string {
+  try {
+    const parsed = new URL(rawUrl);
+    return parsed.pathname && parsed.pathname !== "/" ? `${parsed.origin}/...` : parsed.origin;
+  } catch {
+    return "[invalid-url]";
+  }
+}
+
+const WEB_FETCH_WRAPPER_WITH_WARNING_OVERHEAD = wrapWebContent("", "web_fetch").length;
+const WEB_FETCH_WRAPPER_NO_WARNING_OVERHEAD = wrapExternalContent("", {
+  source: "web_fetch",
+  includeWarning: false,
+}).length;
+
+function wrapWebFetchContent(
+  value: string,
+  maxChars: number,
+): {
+  text: string;
+  truncated: boolean;
+  rawLength: number;
+  wrappedLength: number;
+} {
+  if (maxChars <= 0) {
+    return { text: "", truncated: true, rawLength: 0, wrappedLength: 0 };
+  }
+  const includeWarning = maxChars >= WEB_FETCH_WRAPPER_WITH_WARNING_OVERHEAD;
+  const wrapperOverhead = includeWarning
+    ? WEB_FETCH_WRAPPER_WITH_WARNING_OVERHEAD
+    : WEB_FETCH_WRAPPER_NO_WARNING_OVERHEAD;
+  if (wrapperOverhead > maxChars) {
+    const minimal = includeWarning
+      ? wrapWebContent("", "web_fetch")
+      : wrapExternalContent("", { source: "web_fetch", includeWarning: false });
+    const truncatedWrapper = truncateText(minimal, maxChars);
+    return {
+      text: truncatedWrapper.text,
+      truncated: true,
+      rawLength: 0,
+      wrappedLength: truncatedWrapper.text.length,
+    };
+  }
+  const maxInner = Math.max(0, maxChars - wrapperOverhead);
+  let truncated = truncateText(value, maxInner);
+  let wrappedText = includeWarning
+    ? wrapWebContent(truncated.text, "web_fetch")
+    : wrapExternalContent(truncated.text, { source: "web_fetch", includeWarning: false });
+
+  if (wrappedText.length > maxChars) {
+    const excess = wrappedText.length - maxChars;
+    const adjustedMaxInner = Math.max(0, maxInner - excess);
+    truncated = truncateText(value, adjustedMaxInner);
+    wrappedText = includeWarning
+      ? wrapWebContent(truncated.text, "web_fetch")
+      : wrapExternalContent(truncated.text, { source: "web_fetch", includeWarning: false });
+  }
+
+  return {
+    text: wrappedText,
+    truncated: truncated.truncated,
+    rawLength: truncated.text.length,
+    wrappedLength: wrappedText.length,
+  };
+}
+
+function wrapWebFetchField(value: string | undefined): string | undefined {
+  if (!value) {
+    return value;
+  }
+  return wrapExternalContent(value, { source: "web_fetch", includeWarning: false });
+}
+
+function normalizeContentType(value: string | null | undefined): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const [raw] = value.split(";");
+  const trimmed = raw?.trim();
+  return trimmed || undefined;
+}
+
+>>>>>>> 54bf5d0f4 (feat(web-fetch): support Cloudflare Markdown for Agents (#15376))
 export async function fetchFirecrawlContent(params: {
   url: string;
   extractMode: ExtractMode;
@@ -418,12 +505,35 @@ async function runWebFetch(params: {
     const result = await fetchWithRedirects({
       url: params.url,
       maxRedirects: params.maxRedirects,
+<<<<<<< HEAD
       timeoutSeconds: params.timeoutSeconds,
       userAgent: params.userAgent,
     });
     res = result.response;
     finalUrl = result.finalUrl;
     dispatcher = result.dispatcher;
+=======
+      timeoutMs: params.timeoutSeconds * 1000,
+      init: {
+        headers: {
+          Accept: "text/markdown, text/html;q=0.9, */*;q=0.1",
+          "User-Agent": params.userAgent,
+          "Accept-Language": "en-US,en;q=0.9",
+        },
+      },
+    });
+    res = result.response;
+    finalUrl = result.finalUrl;
+    release = result.release;
+
+    // Cloudflare Markdown for Agents — log token budget hint when present
+    const markdownTokens = res.headers.get("x-markdown-tokens");
+    if (markdownTokens) {
+      logDebug(
+        `[web-fetch] x-markdown-tokens: ${markdownTokens} (${redactUrlForDebugLog(finalUrl)})`,
+      );
+    }
+>>>>>>> 54bf5d0f4 (feat(web-fetch): support Cloudflare Markdown for Agents (#15376))
   } catch (error) {
     if (error instanceof SsrFBlockedError) {
       throw error;
@@ -510,7 +620,13 @@ async function runWebFetch(params: {
     let title: string | undefined;
     let extractor = "raw";
     let text = body;
-    if (contentType.includes("text/html")) {
+    if (contentType.includes("text/markdown")) {
+      // Cloudflare Markdown for Agents: server returned pre-rendered markdown
+      extractor = "cf-markdown";
+      if (params.extractMode === "text") {
+        text = markdownToText(body);
+      }
+    } else if (contentType.includes("text/html")) {
       if (params.readabilityEnabled) {
         const readable = await extractReadableContent({
           html: body,
