@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { confirm, isCancel, select, spinner } from "@clack/prompts";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
@@ -1291,6 +1292,24 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
     defaultRuntime.exit(1);
   }
 }
+=======
+import type { Command } from "commander";
+import { defaultRuntime } from "../runtime.js";
+import { formatDocsLink } from "../terminal/links.js";
+import { theme } from "../terminal/theme.js";
+import { formatHelpExamples } from "./help-format.js";
+import {
+  type UpdateCommandOptions,
+  type UpdateStatusOptions,
+  type UpdateWizardOptions,
+} from "./update-cli/shared.js";
+import { updateStatusCommand } from "./update-cli/status.js";
+import { updateCommand } from "./update-cli/update-command.js";
+import { updateWizardCommand } from "./update-cli/wizard.js";
+
+export { updateCommand, updateStatusCommand, updateWizardCommand };
+export type { UpdateCommandOptions, UpdateStatusOptions, UpdateWizardOptions };
+>>>>>>> 02684b913 (refactor(cli): split update command modules)
 
 export function registerUpdateCli(program: Command) {
   const update = program
