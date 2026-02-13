@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+import type { ChannelId } from "../channels/plugins/types.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { ExecFn } from "./windows-acl.js";
+import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
+import { resolveBrowserControlAuth } from "../browser/control-auth.js";
+import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
+>>>>>>> 9230a2ae1 (fix(browser): require auth on control HTTP and auto-bootstrap token)
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import type { ChannelId } from "../channels/plugins/types.js";
@@ -362,7 +371,14 @@ function collectGatewayConfigFindings(
   return findings;
 }
 
+<<<<<<< HEAD
 function collectBrowserControlFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
+=======
+function collectBrowserControlFindings(
+  cfg: OpenClawConfig,
+  env: NodeJS.ProcessEnv,
+): SecurityAuditFinding[] {
+>>>>>>> 9230a2ae1 (fix(browser): require auth on control HTTP and auto-bootstrap token)
   const findings: SecurityAuditFinding[] = [];
 
   let resolved: ReturnType<typeof resolveBrowserConfig>;
@@ -381,6 +397,20 @@ function collectBrowserControlFindings(cfg: MoltbotConfig): SecurityAuditFinding
 
   if (!resolved.enabled) {
     return findings;
+  }
+
+  const browserAuth = resolveBrowserControlAuth(cfg, env);
+  if (!browserAuth.token && !browserAuth.password) {
+    findings.push({
+      checkId: "browser.control_no_auth",
+      severity: "critical",
+      title: "Browser control has no auth",
+      detail:
+        "Browser control HTTP routes are enabled but no gateway.auth token/password is configured. " +
+        "Any local process (or SSRF to loopback) can call browser control endpoints.",
+      remediation:
+        "Set gateway.auth.token (recommended) or gateway.auth.password so browser control HTTP routes require authentication. Restarting the gateway will auto-generate gateway.auth.token when browser control is enabled.",
+    });
   }
 
   for (const name of Object.keys(resolved.profiles)) {
@@ -922,7 +952,7 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
   findings.push(...collectSyncedFolderFindings({ stateDir, configPath }));
 
   findings.push(...collectGatewayConfigFindings(cfg, env));
-  findings.push(...collectBrowserControlFindings(cfg));
+  findings.push(...collectBrowserControlFindings(cfg, env));
   findings.push(...collectLoggingFindings(cfg));
   findings.push(...collectElevatedFindings(cfg));
   findings.push(...collectHooksHardeningFindings(cfg));
