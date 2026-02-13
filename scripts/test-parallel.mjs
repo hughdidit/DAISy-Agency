@@ -30,6 +30,7 @@ const isWindows = process.platform === "win32" || process.env.RUNNER_OS === "Win
 const isWindowsCi = isCI && isWindows;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 const shardOverride = Number.parseInt(process.env.CLAWDBOT_TEST_SHARDS ?? "", 10);
 const shardCount = isWindowsCi ? (Number.isFinite(shardOverride) && shardOverride > 1 ? shardOverride : 2) : 1;
 const windowsCiArgs = isWindowsCi ? ["--no-file-parallelism", "--dangerouslyIgnoreUnhandledErrors"] : [];
@@ -37,9 +38,13 @@ const overrideWorkers = Number.parseInt(process.env.CLAWDBOT_TEST_WORKERS ?? "",
 const resolvedOverride = Number.isFinite(overrideWorkers) && overrideWorkers > 0 ? overrideWorkers : null;
 =======
 =======
+=======
+const nodeMajor = Number.parseInt(process.versions.node.split(".")[0] ?? "", 10);
+const supportsVmForks = Number.isFinite(nodeMajor) ? nodeMajor < 24 : true;
+>>>>>>> 5d37b204c (Tests: disable vmForks on Node 24 and document override)
 const useVmForks =
   process.env.OPENCLAW_TEST_VM_FORKS === "1" ||
-  (process.env.OPENCLAW_TEST_VM_FORKS !== "0" && !isWindows);
+  (process.env.OPENCLAW_TEST_VM_FORKS !== "0" && !isWindows && supportsVmForks);
 const runs = [
   ...(useVmForks
     ? [
