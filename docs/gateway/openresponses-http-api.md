@@ -179,7 +179,11 @@ PDF.js build expects browser workers/DOM globals, so it is not used in the Gatew
 URL fetch defaults:
 - `files.allowUrl`: `true`
 - `images.allowUrl`: `true`
+- `maxUrlParts`: `8` (total URL-based `input_file` + `input_image` parts per request)
 - Requests are guarded (DNS resolution, private IP blocking, redirect caps, timeouts).
+- Optional hostname allowlists are supported per input type (`files.urlAllowlist`, `images.urlAllowlist`).
+  - Exact host: `"cdn.example.com"`
+  - Wildcard subdomains: `"*.assets.example.com"` (does not match apex)
 
 ## File + image limits (config)
 
@@ -193,9 +197,22 @@ Defaults can be tuned under `gateway.http.endpoints.responses`:
         responses: {
           enabled: true,
           maxBodyBytes: 20000000,
+          maxUrlParts: 8,
           files: {
             allowUrl: true,
+<<<<<<< HEAD
             allowedMimes: ["text/plain", "text/markdown", "text/html", "text/csv", "application/json", "application/pdf"],
+=======
+            urlAllowlist: ["cdn.example.com", "*.assets.example.com"],
+            allowedMimes: [
+              "text/plain",
+              "text/markdown",
+              "text/html",
+              "text/csv",
+              "application/json",
+              "application/pdf",
+            ],
+>>>>>>> 99f28031e (fix: harden OpenResponses URL input fetching)
             maxBytes: 5242880,
             maxChars: 200000,
             maxRedirects: 3,
@@ -208,6 +225,7 @@ Defaults can be tuned under `gateway.http.endpoints.responses`:
           },
           images: {
             allowUrl: true,
+            urlAllowlist: ["images.example.com"],
             allowedMimes: ["image/jpeg", "image/png", "image/gif", "image/webp"],
             maxBytes: 10485760,
             maxRedirects: 3,
@@ -222,6 +240,7 @@ Defaults can be tuned under `gateway.http.endpoints.responses`:
 
 Defaults when omitted:
 - `maxBodyBytes`: 20MB
+- `maxUrlParts`: 8
 - `files.maxBytes`: 5MB
 - `files.maxChars`: 200k
 - `files.maxRedirects`: 3
@@ -232,6 +251,13 @@ Defaults when omitted:
 - `images.maxBytes`: 10MB
 - `images.maxRedirects`: 3
 - `images.timeoutMs`: 10s
+
+Security note:
+
+- URL allowlists are enforced before fetch and on redirect hops.
+- Allowlisting a hostname does not bypass private/internal IP blocking.
+- For internet-exposed gateways, apply network egress controls in addition to app-level guards.
+  See [Security](/gateway/security).
 
 ## Streaming (SSE)
 
