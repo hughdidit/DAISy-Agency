@@ -51,7 +51,15 @@ import { formatErrorMessage } from "./errors.js";
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 =======
 import { isWithinActiveHours } from "./heartbeat-active-hours.js";
+<<<<<<< HEAD
 >>>>>>> 4200782a5 (fix(heartbeat): honor heartbeat.model config for heartbeat turns (#14103))
+=======
+import {
+  buildCronEventPrompt,
+  isCronSystemEvent,
+  isExecCompletionEvent,
+} from "./heartbeat-events-filter.js";
+>>>>>>> 5a431f57f (refactor(infra): split heartbeat event filters)
 import { emitHeartbeatEvent, resolveIndicatorType } from "./heartbeat-events.js";
 import { resolveHeartbeatVisibility } from "./heartbeat-visibility.js";
 import {
@@ -107,6 +115,7 @@ const EXEC_EVENT_PROMPT =
   "An async command you ran earlier has completed. The result is shown in the system messages above. " +
   "Please relay the command output to the user in a helpful way. If the command succeeded, share the relevant output. " +
   "If it failed, explain what went wrong.";
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -231,6 +240,9 @@ function isWithinActiveHours(
   }
   return currentMin >= startMin || currentMin < endMin;
 }
+=======
+export { isCronSystemEvent };
+>>>>>>> 5a431f57f (refactor(infra): split heartbeat event filters)
 
 =======
 >>>>>>> 4200782a5 (fix(heartbeat): honor heartbeat.model config for heartbeat turns (#14103))
