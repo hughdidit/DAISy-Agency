@@ -395,7 +395,15 @@ export async function prepareSlackMessage(params: {
       GroupSubject: isRoomish ? roomLabel : undefined,
       From: slackFrom,
     }) ?? (isDirectMessage ? senderName : roomLabel);
+<<<<<<< HEAD
   const textWithId = `${rawBody}\n[slack message id: ${message.ts} channel: ${message.channel}]`;
+=======
+  const threadInfo =
+    isThreadReply && threadTs
+      ? ` thread_ts: ${threadTs}${message.parent_user_id ? ` parent_user_id: ${message.parent_user_id}` : ""}`
+      : "";
+  const textWithId = `${rawBody}\n[slack message id: ${message.ts} channel: ${message.channel}${threadInfo}]`;
+>>>>>>> a43136c85 (fix: align slack thread footer metadata with reply semantics (#14625) (thanks @bennewton999))
   const storePath = resolveStorePath(ctx.cfg.session?.store, {
     agentId: route.agentId,
   });
