@@ -9,12 +9,23 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
 ## 2026.2.6-4
 =======
 ## 2026.2.10
+=======
+## 2026.2.13 (Unreleased)
+
+### Fixes
+
+- Onboarding/CLI: restore terminal state without resuming paused `stdin`, so onboarding exits cleanly after choosing Web UI and the installer returns instead of appearing stuck.
+- macOS Voice Wake: fix a crash in trigger trimming for CJK/Unicode transcripts by matching and slicing on original-string ranges instead of transformed-string indices. (#11052) Thanks @Flash-LHR.
+
+## 2026.2.12
+>>>>>>> c32b92b7a (fix(macos): prevent Voice Wake crash on CJK trigger transcripts (openclaw#11052) thanks @Flash-LHR)
 
 ### Changes
 
