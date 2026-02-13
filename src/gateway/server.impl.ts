@@ -1,7 +1,14 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
+<<<<<<< HEAD
 import { initSubagentRegistry } from "../agents/subagent-registry.js";
 import { registerSkillsChangeListener } from "../agents/skills/refresh.js";
 import type { CanvasHostServer } from "../canvas-host/server.js";
+=======
+import { getActiveEmbeddedRunCount } from "../agents/pi-embedded-runner/runs.js";
+import { registerSkillsChangeListener } from "../agents/skills/refresh.js";
+import { initSubagentRegistry } from "../agents/subagent-registry.js";
+import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
+>>>>>>> ab4a08a82 (fix: defer gateway restart until all replies are sent (#12970))
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
 import { createDefaultDeps } from "../cli/deps.js";
 import { formatCliCommand } from "../cli/command-format.js";
@@ -20,7 +27,12 @@ import { clearAgentRunContext, onAgentEvent } from "../infra/agent-events.js";
 import { onHeartbeatEvent } from "../infra/heartbeat-events.js";
 import { startHeartbeatRunner } from "../infra/heartbeat-runner.js";
 import { getMachineDisplayName } from "../infra/machine-name.js";
+<<<<<<< HEAD
 import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
+=======
+import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
+import { setGatewaySigusr1RestartPolicy, setPreRestartDeferralCheck } from "../infra/restart.js";
+>>>>>>> ab4a08a82 (fix: defer gateway restart until all replies are sent (#12970))
 import {
   primeRemoteSkillsCache,
   refreshRemoteBinsForConnectedNodes,
@@ -30,8 +42,13 @@ import { scheduleGatewayUpdateCheck } from "../infra/update-startup.js";
 import { setGatewaySigusr1RestartPolicy } from "../infra/restart.js";
 import { startDiagnosticHeartbeat, stopDiagnosticHeartbeat } from "../logging/diagnostic.js";
 import { createSubsystemLogger, runtimeForLogger } from "../logging/subsystem.js";
+<<<<<<< HEAD
 import type { PluginServicesHandle } from "../plugins/services.js";
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
+import { getTotalQueueSize } from "../process/command-queue.js";
+>>>>>>> ab4a08a82 (fix: defer gateway restart until all replies are sent (#12970))
 import { runOnboardingWizard } from "../wizard/onboarding.js";
 import { startGatewayConfigReloader } from "./config-reload.js";
 import {
@@ -215,6 +232,9 @@ export async function startGatewayServer(
     startDiagnosticHeartbeat();
   }
   setGatewaySigusr1RestartPolicy({ allowExternal: cfgAtStart.commands?.restart === true });
+  setPreRestartDeferralCheck(
+    () => getTotalQueueSize() + getTotalPendingReplies() + getActiveEmbeddedRunCount(),
+  );
   initSubagentRegistry();
   const defaultAgentId = resolveDefaultAgentId(cfgAtStart);
   const defaultWorkspaceDir = resolveAgentWorkspaceDir(cfgAtStart, defaultAgentId);

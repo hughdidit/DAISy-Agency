@@ -566,6 +566,7 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
         onModelSelected: prefixContext.onModelSelected,
       },
     });
+
     if (!queuedFinal) {
       if (isGroup && historyKey) {
         clearHistoryEntriesIfEnabled({
