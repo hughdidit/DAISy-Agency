@@ -239,7 +239,19 @@ export async function handleToolsInvokeHttpRequest(
     ? filterToolsByPolicy(groupFiltered, subagentPolicyExpanded)
     : groupFiltered;
 
+<<<<<<< HEAD
   const tool = subagentFiltered.find((t) => t.name === toolName);
+=======
+  // Gateway HTTP-specific deny list — applies to ALL sessions via HTTP.
+  const gatewayToolsCfg = cfg.gateway?.tools;
+  const gatewayDenyNames = DEFAULT_GATEWAY_HTTP_TOOL_DENY.filter(
+    (name) => !gatewayToolsCfg?.allow?.includes(name),
+  ).concat(Array.isArray(gatewayToolsCfg?.deny) ? gatewayToolsCfg.deny : []);
+  const gatewayDenySet = new Set(gatewayDenyNames);
+  const gatewayFiltered = subagentFiltered.filter((t) => !gatewayDenySet.has(t.name));
+
+  const tool = gatewayFiltered.find((t) => t.name === toolName);
+>>>>>>> ee31cd47b (fix: close OC-02 gaps in ACP permission + gateway HTTP deny config (#15390) (thanks @aether-ai-agent))
   if (!tool) {
     sendJson(res, 404, {
       ok: false,

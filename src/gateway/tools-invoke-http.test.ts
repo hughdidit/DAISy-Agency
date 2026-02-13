@@ -239,6 +239,7 @@ describe("POST /tools/invoke", () => {
           },
         },
       ],
+      // oxlint-disable-next-line typescript/no-explicit-any
     } as any;
 
     const port = await getFreePort();
@@ -258,6 +259,7 @@ describe("POST /tools/invoke", () => {
 
   it("respects tools.profile allowlist", async () => {
     testState.agentsConfig = {
+<<<<<<< HEAD
       list: [
         {
           id: "main",
@@ -266,6 +268,10 @@ describe("POST /tools/invoke", () => {
           },
         },
       ],
+=======
+      list: [{ id: "main", tools: { allow: ["sessions_send"] } }],
+      // oxlint-disable-next-line typescript/no-explicit-any
+>>>>>>> ee31cd47b (fix: close OC-02 gaps in ACP permission + gateway HTTP deny config (#15390) (thanks @aether-ai-agent))
     } as any;
 
     const { writeConfigFile } = await import("../config/config.js");
@@ -285,6 +291,26 @@ describe("POST /tools/invoke", () => {
 
     expect(res.status).toBe(404);
 
+<<<<<<< HEAD
+=======
+  it("denies gateway tool via HTTP", async () => {
+    testState.agentsConfig = {
+      list: [{ id: "main", tools: { allow: ["gateway"] } }],
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any;
+
+    const port = await getFreePort();
+    const server = await startGatewayServer(port, { bind: "loopback" });
+    const token = resolveGatewayToken();
+
+    const res = await fetch(`http://127.0.0.1:${port}/tools/invoke`, {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+      body: JSON.stringify({ tool: "gateway", args: {}, sessionKey: "main" }),
+    });
+
+    expect(res.status).toBe(404);
+>>>>>>> ee31cd47b (fix: close OC-02 gaps in ACP permission + gateway HTTP deny config (#15390) (thanks @aether-ai-agent))
     await server.close();
   });
 
