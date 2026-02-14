@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -8,9 +8,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 50900721c (perf(test): speed up cron one-shot suite)
+=======
+import { afterEach, describe, expect, it, vi } from "vitest";
+>>>>>>> a6cd7ef49 (refactor(test): share cron service fixtures)
 import type { HeartbeatRunResult } from "../infra/heartbeat-wake.js";
 import { CronService } from "./service.js";
+import {
+  createCronStoreHarness,
+  createNoopLogger,
+  installCronTestHooks,
+} from "./service.test-harness.js";
 
+<<<<<<< HEAD
 const noopLogger = {
   debug: vi.fn(),
   info: vi.fn(),
@@ -43,21 +52,13 @@ async function makeStorePath() {
     cleanup: async () => {},
   };
 }
+=======
+const noopLogger = createNoopLogger();
+const { makeStorePath } = createCronStoreHarness();
+installCronTestHooks({ logger: noopLogger });
+>>>>>>> a6cd7ef49 (refactor(test): share cron service fixtures)
 
 describe("CronService", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2025-12-13T00:00:00.000Z"));
-    noopLogger.debug.mockClear();
-    noopLogger.info.mockClear();
-    noopLogger.warn.mockClear();
-    noopLogger.error.mockClear();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it("runs a one-shot main job and disables it after success when requested", async () => {
     const store = await makeStorePath();
     const enqueueSystemEvent = vi.fn();

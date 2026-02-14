@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
@@ -8,6 +8,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> badde6e29 (perf(test): speed up cron schedule suite)
+=======
+import { describe, expect, it, vi } from "vitest";
+>>>>>>> a6cd7ef49 (refactor(test): share cron service fixtures)
 import type { CronEvent } from "./service.js";
 <<<<<<< HEAD
 import type { CronJob } from "./types.js";
@@ -15,35 +18,15 @@ import type { CronJob } from "./types.js";
 =======
 >>>>>>> 4335668d2 (chore(test): fix cron every-jobs-fire unused import)
 import { CronService } from "./service.js";
+import {
+  createCronStoreHarness,
+  createNoopLogger,
+  installCronTestHooks,
+} from "./service.test-harness.js";
 
-const noopLogger = {
-  debug: vi.fn(),
-  info: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-};
-
-let fixtureRoot = "";
-let caseId = 0;
-
-beforeAll(async () => {
-  fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-"));
-});
-
-afterAll(async () => {
-  if (fixtureRoot) {
-    await fs.rm(fixtureRoot, { recursive: true, force: true });
-  }
-});
-
-async function makeStorePath() {
-  const dir = path.join(fixtureRoot, `case-${caseId++}`);
-  await fs.mkdir(dir, { recursive: true });
-  return {
-    storePath: path.join(dir, "cron", "jobs.json"),
-    cleanup: async () => {},
-  };
-}
+const noopLogger = createNoopLogger();
+const { makeStorePath } = createCronStoreHarness();
+installCronTestHooks({ logger: noopLogger });
 
 <<<<<<< HEAD
 =======
@@ -70,19 +53,6 @@ function createFinishedBarrier() {
 
 >>>>>>> e6d5b5fb1 (perf(test): remove slow port inspection and reconnect sleeps)
 describe("CronService interval/cron jobs fire on time", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2025-12-13T00:00:00.000Z"));
-    noopLogger.debug.mockClear();
-    noopLogger.info.mockClear();
-    noopLogger.warn.mockClear();
-    noopLogger.error.mockClear();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it("fires an every-type main job when the timer fires a few ms late", async () => {
     const store = await makeStorePath();
     const enqueueSystemEvent = vi.fn();
