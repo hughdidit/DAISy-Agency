@@ -220,6 +220,63 @@ export function createHooksRequestHandler(
   } & HookDispatchers,
 ): HooksRequestHandler {
   const { getHooksConfig, bindHost, port, logHooks, dispatchAgentHook, dispatchWakeHook } = opts;
+<<<<<<< HEAD
+=======
+  const hookAuthFailures = new Map<string, HookAuthFailure>();
+
+  const resolveHookClientKey = (req: IncomingMessage): string => {
+    return req.socket?.remoteAddress?.trim() || "unknown";
+  };
+
+  const recordHookAuthFailure = (
+    clientKey: string,
+    nowMs: number,
+  ): { throttled: boolean; retryAfterSeconds?: number } => {
+    if (!hookAuthFailures.has(clientKey) && hookAuthFailures.size >= HOOK_AUTH_FAILURE_TRACK_MAX) {
+      // Prune expired entries instead of clearing all state.
+      for (const [key, entry] of hookAuthFailures) {
+        if (nowMs - entry.windowStartedAtMs >= HOOK_AUTH_FAILURE_WINDOW_MS) {
+          hookAuthFailures.delete(key);
+        }
+      }
+      // If still at capacity after pruning, drop the oldest half.
+      if (hookAuthFailures.size >= HOOK_AUTH_FAILURE_TRACK_MAX) {
+        let toRemove = Math.floor(hookAuthFailures.size / 2);
+        for (const key of hookAuthFailures.keys()) {
+          if (toRemove <= 0) {
+            break;
+          }
+          hookAuthFailures.delete(key);
+          toRemove--;
+        }
+      }
+    }
+    const current = hookAuthFailures.get(clientKey);
+    const expired = !current || nowMs - current.windowStartedAtMs >= HOOK_AUTH_FAILURE_WINDOW_MS;
+    const next: HookAuthFailure = expired
+      ? { count: 1, windowStartedAtMs: nowMs }
+      : { count: current.count + 1, windowStartedAtMs: current.windowStartedAtMs };
+    // Delete-before-set refreshes Map insertion order so recently-active
+    // clients are not evicted before dormant ones during oldest-half eviction.
+    if (hookAuthFailures.has(clientKey)) {
+      hookAuthFailures.delete(clientKey);
+    }
+    hookAuthFailures.set(clientKey, next);
+    if (next.count <= HOOK_AUTH_FAILURE_LIMIT) {
+      return { throttled: false };
+    }
+    const retryAfterMs = Math.max(1, next.windowStartedAtMs + HOOK_AUTH_FAILURE_WINDOW_MS - nowMs);
+    return {
+      throttled: true,
+      retryAfterSeconds: Math.ceil(retryAfterMs / 1000),
+    };
+  };
+
+  const clearHookAuthFailure = (clientKey: string) => {
+    hookAuthFailures.delete(clientKey);
+  };
+
+>>>>>>> 28431b84c (fix(gateway): prune expired entries instead of clearing all hook auth failure state (#15848))
   return async (req, res) => {
     const hooksConfig = getHooksConfig();
     if (!hooksConfig) {
