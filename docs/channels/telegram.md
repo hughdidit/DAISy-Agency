@@ -121,9 +121,192 @@ group messages, so use admin if you need full visibility.
 Moltbot registers native commands (like `/status`, `/reset`, `/model`) with Telegram’s bot menu on startup.
 =======
 
+<<<<<<< HEAD
 OpenClaw registers native commands (like `/status`, `/reset`, `/model`) with Telegram’s bot menu on startup.
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 You can add custom commands to the menu via config:
+=======
+  <Accordion title="Helpful BotFather toggles">
+
+    - `/setjoingroups` to allow/deny group adds
+    - `/setprivacy` for group visibility behavior
+
+  </Accordion>
+</AccordionGroup>
+
+## Access control and activation
+
+<Tabs>
+  <Tab title="DM policy">
+    `channels.telegram.dmPolicy` controls direct message access:
+
+    - `pairing` (default)
+    - `allowlist`
+    - `open` (requires `allowFrom` to include `"*"`)
+    - `disabled`
+
+    `channels.telegram.allowFrom` accepts numeric Telegram user IDs. `telegram:` / `tg:` prefixes are accepted and normalized.
+    The onboarding wizard accepts `@username` input and resolves it to numeric IDs.
+
+    ### Finding your Telegram user ID
+
+    Safer (no third-party bot):
+
+    1. DM your bot.
+    2. Run `openclaw logs --follow`.
+    3. Read `from.id`.
+
+    Official Bot API method:
+
+```bash
+curl "https://api.telegram.org/bot<bot_token>/getUpdates"
+```
+
+    Third-party method (less private): `@userinfobot` or `@getidsbot`.
+
+  </Tab>
+
+  <Tab title="Group policy and allowlists">
+    There are two independent controls:
+
+    1. **Which groups are allowed** (`channels.telegram.groups`)
+       - no `groups` config: all groups allowed
+       - `groups` configured: acts as allowlist (explicit IDs or `"*"`)
+
+    2. **Which senders are allowed in groups** (`channels.telegram.groupPolicy`)
+       - `open`
+       - `allowlist` (default)
+       - `disabled`
+
+    `groupAllowFrom` is used for group sender filtering. If not set, Telegram falls back to `allowFrom`.
+
+    Example: allow any member in one specific group:
+
+```json5
+{
+  channels: {
+    telegram: {
+      groups: {
+        "-1001234567890": {
+          groupPolicy: "open",
+          requireMention: false,
+        },
+      },
+    },
+  },
+}
+```
+
+  </Tab>
+
+  <Tab title="Mention behavior">
+    Group replies require mention by default.
+
+    Mention can come from:
+
+    - native `@botusername` mention, or
+    - mention patterns in:
+      - `agents.list[].groupChat.mentionPatterns`
+      - `messages.groupChat.mentionPatterns`
+
+    Session-level command toggles:
+
+    - `/activation always`
+    - `/activation mention`
+
+    These update session state only. Use config for persistence.
+
+    Persistent config example:
+
+```json5
+{
+  channels: {
+    telegram: {
+      groups: {
+        "*": { requireMention: false },
+      },
+    },
+  },
+}
+```
+
+    Getting the group chat ID:
+
+    - forward a group message to `@userinfobot` / `@getidsbot`
+    - or read `chat.id` from `openclaw logs --follow`
+    - or inspect Bot API `getUpdates`
+
+  </Tab>
+</Tabs>
+
+## Runtime behavior
+
+- Telegram is owned by the gateway process.
+- Routing is deterministic: Telegram inbound replies back to Telegram (the model does not pick channels).
+- Inbound messages normalize into the shared channel envelope with reply metadata and media placeholders.
+- Group sessions are isolated by group ID. Forum topics append `:topic:<threadId>` to keep topics isolated.
+- DM messages can carry `message_thread_id`; OpenClaw routes them with thread-aware session keys and preserves thread ID for replies.
+- Long polling uses grammY runner with per-chat/per-thread sequencing. Overall runner sink concurrency uses `agents.defaults.maxConcurrent`.
+- Telegram Bot API has no read-receipt support (`sendReadReceipts` does not apply).
+
+## Feature reference
+
+<AccordionGroup>
+  <Accordion title="Draft streaming in Telegram DMs">
+    OpenClaw can stream partial replies with Telegram draft bubbles (`sendMessageDraft`).
+
+    Requirements:
+
+    - `channels.telegram.streamMode` is not `"off"` (default: `"partial"`)
+    - private chat
+    - inbound update includes `message_thread_id`
+    - bot topics are enabled (`getMe().has_topics_enabled`)
+
+    Modes:
+
+    - `off`: no draft streaming
+    - `partial`: frequent draft updates from partial text
+    - `block`: chunked draft updates using `channels.telegram.draftChunk`
+
+    `draftChunk` defaults for block mode:
+
+    - `minChars: 200`
+    - `maxChars: 800`
+    - `breakPreference: "paragraph"`
+
+    `maxChars` is clamped by `channels.telegram.textChunkLimit`.
+
+    Draft streaming is DM-only; groups/channels do not use draft bubbles.
+
+    If you want early real Telegram messages instead of draft updates, use block streaming (`channels.telegram.blockStreaming: true`).
+
+    Telegram-only reasoning stream:
+
+    - `/reasoning stream` sends reasoning to the draft bubble while generating
+    - final answer is sent without reasoning text
+
+  </Accordion>
+
+  <Accordion title="Formatting and HTML fallback">
+    Outbound text uses Telegram `parse_mode: "HTML"`.
+
+    - Markdown-ish text is rendered to Telegram-safe HTML.
+    - Raw model HTML is escaped to reduce Telegram parse failures.
+    - If Telegram rejects parsed HTML, OpenClaw retries as plain text.
+
+    Link previews are enabled by default and can be disabled with `channels.telegram.linkPreview: false`.
+
+  </Accordion>
+
+  <Accordion title="Native commands and custom commands">
+    Telegram command menu registration is handled at startup with `setMyCommands`.
+
+    Native command defaults:
+
+    - `commands.native: "auto"` enables native commands for Telegram
+
+    Add custom command menu entries:
+>>>>>>> e3b432e48 (fix(telegram): require sender ids for allowlist auth)
 
 ```json5
 {
@@ -784,9 +967,9 @@ Provider options:
 - `channels.telegram.botToken`: bot token (BotFather).
 - `channels.telegram.tokenFile`: read token from file path.
 - `channels.telegram.dmPolicy`: `pairing | allowlist | open | disabled` (default: pairing).
-- `channels.telegram.allowFrom`: DM allowlist (ids/usernames). `open` requires `"*"`.
+- `channels.telegram.allowFrom`: DM allowlist (numeric Telegram user IDs). `open` requires `"*"`.
 - `channels.telegram.groupPolicy`: `open | allowlist | disabled` (default: allowlist).
-- `channels.telegram.groupAllowFrom`: group sender allowlist (ids/usernames).
+- `channels.telegram.groupAllowFrom`: group sender allowlist (numeric Telegram user IDs).
 - `channels.telegram.groups`: per-group defaults + allowlist (use `"*"` for global defaults).
   - `channels.telegram.groups.<id>.groupPolicy`: per-group override for groupPolicy (`open | allowlist | disabled`).
   - `channels.telegram.groups.<id>.requireMention`: mention gating default.
