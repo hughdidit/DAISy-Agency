@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { chmod, copyFile, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -46,8 +46,8 @@ async function createDockerSetupSandbox(): Promise<DockerSetupSandbox> {
   const binDir = join(rootDir, "bin");
   const logPath = join(rootDir, "docker-stub.log");
 
-  const script = await readFile(join(repoRoot, "docker-setup.sh"), "utf8");
-  await writeFile(scriptPath, script, { mode: 0o755 });
+  await copyFile(join(repoRoot, "docker-setup.sh"), scriptPath);
+  await chmod(scriptPath, 0o755);
   await writeFile(dockerfilePath, "FROM scratch\n");
   await writeFile(
     composePath,
@@ -133,8 +133,12 @@ describe("docker-setup.sh", () => {
         OPENCLAW_EXTRA_MOUNTS: undefined,
         OPENCLAW_HOME_VOLUME: undefined,
       }),
+<<<<<<< HEAD
 >>>>>>> 59d2d89fe (perf(test): collapse docker setup sandbox churn)
       encoding: "utf8",
+=======
+      stdio: ["ignore", "ignore", "pipe"],
+>>>>>>> ad5e7b968 (perf(test): speed up docker-setup suite)
     });
     expect(defaultsResult.status).toBe(0);
     const defaultsEnvFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
@@ -217,7 +221,7 @@ describe("docker-setup.sh", () => {
         OPENCLAW_EXTRA_MOUNTS: "",
         OPENCLAW_HOME_VOLUME: "openclaw-home",
       }),
-      encoding: "utf8",
+      stdio: ["ignore", "ignore", "pipe"],
     });
 <<<<<<< HEAD
 <<<<<<< HEAD
