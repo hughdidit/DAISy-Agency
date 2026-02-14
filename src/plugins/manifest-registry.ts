@@ -5,7 +5,37 @@ import { resolveUserPath } from "../utils.js";
 import { normalizePluginsConfig, type NormalizedPluginsConfig } from "./config-state.js";
 import { discoverMoltbotPlugins, type PluginCandidate } from "./discovery.js";
 import { loadPluginManifest, type PluginManifest } from "./manifest.js";
+<<<<<<< HEAD
 import type { PluginConfigUiHint, PluginDiagnostic, PluginKind, PluginOrigin } from "./types.js";
+=======
+
+type SeenIdEntry = {
+  candidate: PluginCandidate;
+  recordIndex: number;
+};
+
+// Precedence: config > workspace > global > bundled
+const PLUGIN_ORIGIN_RANK: Readonly<Record<PluginOrigin, number>> = {
+  config: 0,
+  workspace: 1,
+  global: 2,
+  bundled: 3,
+};
+
+function safeRealpathSync(rootDir: string, cache: Map<string, string>): string | null {
+  const cached = cache.get(rootDir);
+  if (cached) {
+    return cached;
+  }
+  try {
+    const resolved = fs.realpathSync(rootDir);
+    cache.set(rootDir, resolved);
+    return resolved;
+  } catch {
+    return null;
+  }
+}
+>>>>>>> 497b060e4 (refactor: simplify manifest registry duplicate detection (#16260))
 
 export type PluginManifestRecord = {
   id: string;
@@ -150,7 +180,12 @@ export function loadPluginManifestRegistry(params: {
   const diagnostics: PluginDiagnostic[] = [...discovery.diagnostics];
   const candidates: PluginCandidate[] = discovery.candidates;
   const records: PluginManifestRecord[] = [];
+<<<<<<< HEAD
   const seenIds = new Set<string>();
+=======
+  const seenIds = new Map<string, SeenIdEntry>();
+  const realpathCache = new Map<string, string>();
+>>>>>>> 497b060e4 (refactor: simplify manifest registry duplicate detection (#16260))
 
   for (const candidate of candidates) {
     const manifestRes = loadPluginManifest(candidate.rootDir);
@@ -173,7 +208,39 @@ export function loadPluginManifestRegistry(params: {
       });
     }
 
+<<<<<<< HEAD
     if (seenIds.has(manifest.id)) {
+=======
+    const configSchema = manifest.configSchema;
+    const manifestMtime = safeStatMtimeMs(manifestRes.manifestPath);
+    const schemaCacheKey = manifestMtime
+      ? `${manifestRes.manifestPath}:${manifestMtime}`
+      : manifestRes.manifestPath;
+
+    const existing = seenIds.get(manifest.id);
+    if (existing) {
+      // Check whether both candidates point to the same physical directory
+      // (e.g. via symlinks or different path representations). If so, this
+      // is a false-positive duplicate and can be silently skipped.
+      const existingReal = safeRealpathSync(existing.candidate.rootDir, realpathCache);
+      const candidateReal = safeRealpathSync(candidate.rootDir, realpathCache);
+      const samePlugin = Boolean(existingReal && candidateReal && existingReal === candidateReal);
+      if (samePlugin) {
+        // Prefer higher-precedence origins even if candidates are passed in
+        // an unexpected order (config > workspace > global > bundled).
+        if (PLUGIN_ORIGIN_RANK[candidate.origin] < PLUGIN_ORIGIN_RANK[existing.candidate.origin]) {
+          records[existing.recordIndex] = buildRecord({
+            manifest,
+            candidate,
+            manifestPath: manifestRes.manifestPath,
+            schemaCacheKey,
+            configSchema,
+          });
+          seenIds.set(manifest.id, { candidate, recordIndex: existing.recordIndex });
+        }
+        continue;
+      }
+>>>>>>> 497b060e4 (refactor: simplify manifest registry duplicate detection (#16260))
       diagnostics.push({
         level: "warn",
         pluginId: manifest.id,
