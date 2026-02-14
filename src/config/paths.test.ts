@@ -72,6 +72,7 @@ describe("state + config path candidates", () => {
     const home = "/home/test";
     const candidates = resolveDefaultConfigCandidates({} as NodeJS.ProcessEnv, () => home);
     const expected = [
+<<<<<<< HEAD
       path.join(home, ".openclaw", "openclaw.json"),
       path.join(home, ".openclaw", "clawdbot.json"),
       path.join(home, ".openclaw", "moltbot.json"),
@@ -88,6 +89,17 @@ describe("state + config path candidates", () => {
       path.join(home, ".moldbot", "clawdbot.json"),
       path.join(home, ".moldbot", "moltbot.json"),
       path.join(home, ".moldbot", "moldbot.json"),
+=======
+      path.join(resolvedHome, ".openclaw", "openclaw.json"),
+      path.join(resolvedHome, ".openclaw", "clawdbot.json"),
+      path.join(resolvedHome, ".openclaw", "moldbot.json"),
+      path.join(resolvedHome, ".clawdbot", "openclaw.json"),
+      path.join(resolvedHome, ".clawdbot", "clawdbot.json"),
+      path.join(resolvedHome, ".clawdbot", "moldbot.json"),
+      path.join(resolvedHome, ".moldbot", "openclaw.json"),
+      path.join(resolvedHome, ".moldbot", "clawdbot.json"),
+      path.join(resolvedHome, ".moldbot", "moldbot.json"),
+>>>>>>> 3b56a6252 (chore!: remove moltbot legacy state/config support)
     ];
     expect(candidates).toEqual(expected);
   });
