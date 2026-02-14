@@ -1,75 +1,8 @@
-import { vi } from "vitest";
-
-vi.mock("../media/store.js", () => ({
-  saveMediaBuffer: vi.fn().mockResolvedValue({
-    id: "mid",
-    path: "/tmp/mid",
-    size: 1,
-    contentType: "image/jpeg",
-  }),
-}));
-
-const mockLoadConfig = vi.fn().mockReturnValue({
-  channels: {
-    whatsapp: {
-      // Allow all in tests by default
-      allowFrom: ["*"],
-    },
-  },
-  messages: {
-    messagePrefix: undefined,
-    responsePrefix: undefined,
-  },
-});
-
-const readAllowFromStoreMock = vi.fn().mockResolvedValue([]);
-const upsertPairingRequestMock = vi.fn().mockResolvedValue({ code: "PAIRCODE", created: true });
-
-vi.mock("../config/config.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../config/config.js")>();
-  return {
-    ...actual,
-    loadConfig: () => mockLoadConfig(),
-  };
-});
-
-vi.mock("../pairing/pairing-store.js", () => ({
-  readChannelAllowFromStore: (...args: unknown[]) => readAllowFromStoreMock(...args),
-  upsertChannelPairingRequest: (...args: unknown[]) => upsertPairingRequestMock(...args),
-}));
-
-vi.mock("./session.js", () => {
-  const { EventEmitter } = require("node:events");
-  const ev = new EventEmitter();
-  const sock = {
-    ev,
-    ws: { close: vi.fn() },
-    sendPresenceUpdate: vi.fn().mockResolvedValue(undefined),
-    sendMessage: vi.fn().mockResolvedValue(undefined),
-    readMessages: vi.fn().mockResolvedValue(undefined),
-    updateMediaMessage: vi.fn(),
-    logger: {},
-    signalRepository: {
-      lidMapping: {
-        getPNForLID: vi.fn().mockResolvedValue(null),
-      },
-    },
-    user: { id: "123@s.whatsapp.net" },
-  };
-  return {
-    createWaSocket: vi.fn().mockResolvedValue(sock),
-    waitForWaConnection: vi.fn().mockResolvedValue(undefined),
-    getStatusCode: vi.fn(() => 500),
-  };
-});
-
-const { createWaSocket } = await import("./session.js");
-const _getSock = () => (createWaSocket as unknown as () => Promise<ReturnType<typeof mockSock>>)();
-
 import crypto from "node:crypto";
 import fsSync from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -97,11 +30,25 @@ describe("web monitor inbox", () => {
     vi.useRealTimers();
     fsSync.rmSync(authDir, { recursive: true, force: true });
   });
+=======
+import "./monitor-inbox.test-harness.js";
+import { describe, expect, it, vi } from "vitest";
+import { setLoggerOverride } from "../logging.js";
+import { monitorWebInbox } from "./inbound.js";
+import {
+  getSock,
+  installWebMonitorInboxUnitTestHooks,
+  mockLoadConfig,
+} from "./monitor-inbox.test-harness.js";
+
+describe("web monitor inbox", () => {
+  installWebMonitorInboxUnitTestHooks();
+>>>>>>> b8b7a6e0f (refactor(test): dedupe web monitor inbox test setup)
 
   it("captures media path for image messages", async () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({ verbose: false, onMessage });
-    const sock = await createWaSocket();
+    const sock = getSock();
     const upsert = {
       type: "notify",
       messages: [
@@ -136,7 +83,7 @@ describe("web monitor inbox", () => {
   it("sets gifPlayback on outbound video payloads when requested", async () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({ verbose: false, onMessage });
-    const sock = await createWaSocket();
+    const sock = getSock();
     const buf = Buffer.from("gifvid");
 
     await listener.sendMessage("+1555", "gif", buf, "video/mp4", {
@@ -158,7 +105,7 @@ describe("web monitor inbox", () => {
       verbose: false,
       onMessage: vi.fn(),
     });
-    const sock = await createWaSocket();
+    const sock = getSock();
     const reasonPromise = listener.onClose;
     sock.ev.emit("connection.update", {
       connection: "close",
@@ -176,7 +123,7 @@ describe("web monitor inbox", () => {
 
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({ verbose: false, onMessage });
-    const sock = await createWaSocket();
+    const sock = getSock();
     const upsert = {
       type: "notify",
       messages: [
@@ -201,7 +148,7 @@ describe("web monitor inbox", () => {
   it("includes participant when marking group messages read", async () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({ verbose: false, onMessage });
-    const sock = await createWaSocket();
+    const sock = getSock();
     const upsert = {
       type: "notify",
       messages: [
@@ -234,7 +181,7 @@ describe("web monitor inbox", () => {
   it("passes through group messages with participant metadata", async () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({ verbose: false, onMessage });
-    const sock = await createWaSocket();
+    const sock = getSock();
     const upsert = {
       type: "notify",
       messages: [
@@ -274,7 +221,7 @@ describe("web monitor inbox", () => {
   it("unwraps ephemeral messages, preserves mentions, and still delivers group pings", async () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({ verbose: false, onMessage });
-    const sock = await createWaSocket();
+    const sock = getSock();
     const upsert = {
       type: "notify",
       messages: [
@@ -333,7 +280,7 @@ describe("web monitor inbox", () => {
 
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({ verbose: false, onMessage });
-    const sock = await createWaSocket();
+    const sock = getSock();
     const upsert = {
       type: "notify",
       messages: [

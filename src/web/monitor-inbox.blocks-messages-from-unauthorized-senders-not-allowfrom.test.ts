@@ -1,5 +1,15 @@
-import { vi } from "vitest";
+import "./monitor-inbox.test-harness.js";
+import { describe, expect, it, vi } from "vitest";
+import { monitorWebInbox } from "./inbound.js";
+import {
+  DEFAULT_ACCOUNT_ID,
+  getAuthDir,
+  getSock,
+  installWebMonitorInboxUnitTestHooks,
+  mockLoadConfig,
+} from "./monitor-inbox.test-harness.js";
 
+<<<<<<< HEAD
 vi.mock("../media/store.js", () => ({
   saveMediaBuffer: vi.fn().mockResolvedValue({
     id: "mid",
@@ -76,10 +86,12 @@ import { resetLogger, setLoggerOverride } from "../logging.js";
 import { monitorWebInbox, resetWebInboundDedupe } from "./inbound.js";
 
 const _ACCOUNT_ID = "default";
+=======
+>>>>>>> b8b7a6e0f (refactor(test): dedupe web monitor inbox test setup)
 const nowSeconds = (offsetMs = 0) => Math.floor((Date.now() + offsetMs) / 1000);
-let authDir: string;
 
 describe("web monitor inbox", () => {
+<<<<<<< HEAD
   beforeEach(() => {
     vi.clearAllMocks();
     readAllowFromStoreMock.mockResolvedValue([]);
@@ -97,6 +109,9 @@ describe("web monitor inbox", () => {
     vi.useRealTimers();
     fsSync.rmSync(authDir, { recursive: true, force: true });
   });
+=======
+  installWebMonitorInboxUnitTestHooks();
+>>>>>>> b8b7a6e0f (refactor(test): dedupe web monitor inbox test setup)
 
   it("blocks messages from unauthorized senders not in allowFrom", async () => {
     // Test for auto-recovery fix: early allowFrom filtering prevents Bad MAC errors
@@ -117,11 +132,11 @@ describe("web monitor inbox", () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({
       verbose: false,
-      accountId: _ACCOUNT_ID,
-      authDir,
+      accountId: DEFAULT_ACCOUNT_ID,
+      authDir: getAuthDir(),
       onMessage,
     });
-    const sock = await createWaSocket();
+    const sock = getSock();
 
     // Message from unauthorized sender +999 (not in allowFrom)
     const upsert = {
@@ -154,15 +169,6 @@ describe("web monitor inbox", () => {
       text: expect.stringContaining("Pairing code: PAIRCODE"),
     });
 
-    // Reset mock for other tests
-    mockLoadConfig.mockReturnValue({
-      channels: { whatsapp: { allowFrom: ["*"] } },
-      messages: {
-        messagePrefix: undefined,
-        responsePrefix: undefined,
-      },
-    });
-
     await listener.close();
   });
 
@@ -183,11 +189,11 @@ describe("web monitor inbox", () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({
       verbose: false,
-      accountId: _ACCOUNT_ID,
-      authDir,
+      accountId: DEFAULT_ACCOUNT_ID,
+      authDir: getAuthDir(),
       onMessage,
     });
-    const sock = await createWaSocket();
+    const sock = getSock();
 
     const upsert = {
       type: "notify",
@@ -209,15 +215,6 @@ describe("web monitor inbox", () => {
     );
     expect(sock.readMessages).not.toHaveBeenCalled();
 
-    // Reset mock for other tests
-    mockLoadConfig.mockReturnValue({
-      channels: { whatsapp: { allowFrom: ["*"] } },
-      messages: {
-        messagePrefix: undefined,
-        responsePrefix: undefined,
-      },
-    });
-
     await listener.close();
   });
 
@@ -225,12 +222,12 @@ describe("web monitor inbox", () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({
       verbose: false,
-      accountId: _ACCOUNT_ID,
-      authDir,
+      accountId: DEFAULT_ACCOUNT_ID,
+      authDir: getAuthDir(),
       onMessage,
       sendReadReceipts: false,
     });
-    const sock = await createWaSocket();
+    const sock = getSock();
 
     const upsert = {
       type: "notify",
@@ -264,11 +261,11 @@ describe("web monitor inbox", () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({
       verbose: false,
-      accountId: _ACCOUNT_ID,
-      authDir,
+      accountId: DEFAULT_ACCOUNT_ID,
+      authDir: getAuthDir(),
       onMessage,
     });
-    const sock = await createWaSocket();
+    const sock = getSock();
 
     const upsert = {
       type: "notify",
@@ -310,11 +307,11 @@ describe("web monitor inbox", () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({
       verbose: false,
-      accountId: _ACCOUNT_ID,
-      authDir,
+      accountId: DEFAULT_ACCOUNT_ID,
+      authDir: getAuthDir(),
       onMessage,
     });
-    const sock = await createWaSocket();
+    const sock = getSock();
 
     const upsert = {
       type: "notify",
@@ -359,11 +356,11 @@ describe("web monitor inbox", () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({
       verbose: false,
-      accountId: _ACCOUNT_ID,
-      authDir,
+      accountId: DEFAULT_ACCOUNT_ID,
+      authDir: getAuthDir(),
       onMessage,
     });
-    const sock = await createWaSocket();
+    const sock = getSock();
 
     const upsert = {
       type: "notify",
@@ -408,11 +405,11 @@ describe("web monitor inbox", () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({
       verbose: false,
-      accountId: _ACCOUNT_ID,
-      authDir,
+      accountId: DEFAULT_ACCOUNT_ID,
+      authDir: getAuthDir(),
       onMessage,
     });
-    const sock = await createWaSocket();
+    const sock = getSock();
 
     const upsert = {
       type: "notify",
@@ -460,11 +457,11 @@ describe("web monitor inbox", () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({
       verbose: false,
-      accountId: _ACCOUNT_ID,
-      authDir,
+      accountId: DEFAULT_ACCOUNT_ID,
+      authDir: getAuthDir(),
       onMessage,
     });
-    const sock = await createWaSocket();
+    const sock = getSock();
 
     const upsert = {
       type: "notify",
@@ -510,11 +507,11 @@ describe("web monitor inbox", () => {
     const onMessage = vi.fn();
     const listener = await monitorWebInbox({
       verbose: false,
-      accountId: _ACCOUNT_ID,
-      authDir,
+      accountId: DEFAULT_ACCOUNT_ID,
+      authDir: getAuthDir(),
       onMessage,
     });
-    const sock = await createWaSocket();
+    const sock = getSock();
 
     const upsert = {
       type: "notify",
