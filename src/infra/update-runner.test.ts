@@ -192,7 +192,11 @@ describe("runGatewayUpdate", () => {
     expect(calls.some((call) => call.startsWith("npm i -g"))).toBe(false);
   });
 
-  it("updates global npm installs when detected", async () => {
+  async function runNpmGlobalUpdateCase(params: {
+    expectedInstallCommand: string;
+    channel?: "stable" | "beta";
+    tag?: string;
+  }): Promise<{ calls: string[]; result: Awaited<ReturnType<typeof runGatewayUpdate>> }> {
     const nodeModules = path.join(tempDir, "node_modules");
     const pkgRoot = path.join(nodeModules, "moltbot");
     await fs.mkdir(pkgRoot, { recursive: true });
@@ -212,7 +216,11 @@ describe("runGatewayUpdate", () => {
       if (key === "npm root -g") {
         return { stdout: nodeModules, stderr: "", code: 0 };
       }
+<<<<<<< HEAD
       if (key === "npm i -g moltbot@latest") {
+=======
+      if (key === params.expectedInstallCommand) {
+>>>>>>> 0465d314b (refactor(test): table npm global update cases)
         await fs.writeFile(
           path.join(pkgRoot, "package.json"),
           JSON.stringify({ name: "moltbot", version: "2.0.0" }),
@@ -230,12 +238,40 @@ describe("runGatewayUpdate", () => {
       cwd: pkgRoot,
       runCommand: async (argv, _options) => runCommand(argv),
       timeoutMs: 5000,
+      channel: params.channel,
+      tag: params.tag,
+    });
+
+    return { calls, result };
+  }
+
+  it.each([
+    {
+      title: "updates global npm installs when detected",
+      expectedInstallCommand: "npm i -g openclaw@latest",
+    },
+    {
+      title: "uses update channel for global npm installs when tag is omitted",
+      expectedInstallCommand: "npm i -g openclaw@beta",
+      channel: "beta" as const,
+    },
+    {
+      title: "updates global npm installs with tag override",
+      expectedInstallCommand: "npm i -g openclaw@beta",
+      tag: "beta",
+    },
+  ])("$title", async ({ expectedInstallCommand, channel, tag }) => {
+    const { calls, result } = await runNpmGlobalUpdateCase({
+      expectedInstallCommand,
+      channel,
+      tag,
     });
 
     expect(result.status).toBe("ok");
     expect(result.mode).toBe("npm");
     expect(result.before?.version).toBe("1.0.0");
     expect(result.after?.version).toBe("2.0.0");
+<<<<<<< HEAD
     expect(calls.some((call) => call === "npm i -g moltbot@latest")).toBe(true);
   });
 
@@ -285,6 +321,9 @@ describe("runGatewayUpdate", () => {
     expect(result.before?.version).toBe("1.0.0");
     expect(result.after?.version).toBe("2.0.0");
     expect(calls.some((call) => call === "npm i -g openclaw@beta")).toBe(true);
+=======
+    expect(calls.some((call) => call === expectedInstallCommand)).toBe(true);
+>>>>>>> 0465d314b (refactor(test): table npm global update cases)
   });
 
   it("cleans stale npm rename dirs before global update", async () => {
@@ -329,6 +368,7 @@ describe("runGatewayUpdate", () => {
     expect(await pathExists(staleDir)).toBe(false);
   });
 
+<<<<<<< HEAD
   it("updates global npm installs with tag override", async () => {
     const nodeModules = path.join(tempDir, "node_modules");
     const pkgRoot = path.join(nodeModules, "moltbot");
@@ -377,6 +417,8 @@ describe("runGatewayUpdate", () => {
     expect(calls.some((call) => call === "npm i -g moltbot@beta")).toBe(true);
   });
 
+=======
+>>>>>>> 0465d314b (refactor(test): table npm global update cases)
   it("updates global bun installs when detected", async () => {
     const oldBunInstall = process.env.BUN_INSTALL;
     const bunInstall = path.join(tempDir, "bun-install");
