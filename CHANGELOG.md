@@ -933,8 +933,12 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 561a10c49 (fix(telegram): recover from grammY long-poll timeouts (#7466) (thanks @macmimi23))
 =======
 - Security: enforce access-group gating for Slack slash commands when channel type lookup fails.
+<<<<<<< HEAD
 - Security: require validated shared-secret auth before skipping device identity on gateway connect.
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
+=======
+- Security: require validated shared-secret auth before skipping device identity on gateway connect. Thanks @simecek.
+>>>>>>> 576f7072a (docs(changelog): credit @simecek for gateway connect auth fix)
 - Security: guard skill installer downloads with SSRF checks (block private/localhost URLs).
 <<<<<<< HEAD
 =======
