@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 import crypto from "node:crypto";
 
+=======
+>>>>>>> 212da860a (perf(test): speed up screenshot normalization e2e fixture)
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 
@@ -7,10 +10,14 @@ import { normalizeBrowserScreenshot } from "./screenshot.js";
 
 describe("browser screenshot normalization", () => {
   it("shrinks oversized images to <=2000x2000 and <=5MB", async () => {
-    const width = 2300;
-    const height = 2300;
-    const raw = crypto.randomBytes(width * height * 3);
-    const bigPng = await sharp(raw, { raw: { width, height, channels: 3 } })
+    const bigPng = await sharp({
+      create: {
+        width: 2100,
+        height: 2100,
+        channels: 3,
+        background: { r: 12, g: 34, b: 56 },
+      },
+    })
       .png({ compressionLevel: 0 })
       .toBuffer();
 
