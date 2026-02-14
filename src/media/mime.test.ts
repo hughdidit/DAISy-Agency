@@ -1,7 +1,17 @@
 import JSZip from "jszip";
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { detectMime, extensionForMime, imageMimeFromFormat } from "./mime.js";
+=======
+import {
+  detectMime,
+  extensionForMime,
+  imageMimeFromFormat,
+  isAudioFileName,
+  normalizeMimeType,
+} from "./mime.js";
+>>>>>>> 6ebf503fa (refactor(media): centralize voice compatibility policy)
 
 async function makeOoxmlZip(opts: { mainMime: string; partPath: string }): Promise<Buffer> {
   const zip = new JSZip();
@@ -97,3 +107,32 @@ describe("extensionForMime", () => {
     expect(extensionForMime(undefined)).toBeUndefined();
   });
 });
+<<<<<<< HEAD
+=======
+
+describe("isAudioFileName", () => {
+  it("matches known audio extensions", () => {
+    const cases = [
+      { fileName: "voice.mp3", expected: true },
+      { fileName: "voice.caf", expected: true },
+      { fileName: "voice.bin", expected: false },
+    ] as const;
+
+    for (const testCase of cases) {
+      expect(isAudioFileName(testCase.fileName)).toBe(testCase.expected);
+    }
+  });
+});
+
+describe("normalizeMimeType", () => {
+  it("normalizes case and strips parameters", () => {
+    expect(normalizeMimeType("Audio/MP4; codecs=mp4a.40.2")).toBe("audio/mp4");
+  });
+
+  it("returns undefined for empty input", () => {
+    expect(normalizeMimeType("   ")).toBeUndefined();
+    expect(normalizeMimeType(null)).toBeUndefined();
+    expect(normalizeMimeType(undefined)).toBeUndefined();
+  });
+});
+>>>>>>> 6ebf503fa (refactor(media): centralize voice compatibility policy)
