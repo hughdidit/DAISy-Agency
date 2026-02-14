@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 
 import { resolveBlueBubblesAccount } from "./accounts.js";
+import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 import {
   extractHandleFromChatGuid,
   normalizeBlueBubblesHandle,
@@ -341,8 +342,18 @@ export async function sendMessageBlueBubbles(
   });
   const baseUrl = opts.serverUrl?.trim() || account.config.serverUrl?.trim();
   const password = opts.password?.trim() || account.config.password?.trim();
+<<<<<<< HEAD
   if (!baseUrl) throw new Error("BlueBubbles serverUrl is required");
   if (!password) throw new Error("BlueBubbles password is required");
+=======
+  if (!baseUrl) {
+    throw new Error("BlueBubbles serverUrl is required");
+  }
+  if (!password) {
+    throw new Error("BlueBubbles password is required");
+  }
+  const privateApiStatus = getCachedBlueBubblesPrivateApiStatus(account.accountId);
+>>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 
   const target = resolveSendTarget(to);
   const chatGuid = await resolveChatGuidForTarget({
@@ -368,18 +379,26 @@ export async function sendMessageBlueBubbles(
     );
   }
   const effectId = resolveEffectId(opts.effectId);
-  const needsPrivateApi = Boolean(opts.replyToMessageGuid || effectId);
+  const wantsReplyThread = Boolean(opts.replyToMessageGuid?.trim());
+  const wantsEffect = Boolean(effectId);
+  const needsPrivateApi = wantsReplyThread || wantsEffect;
+  const canUsePrivateApi = needsPrivateApi && privateApiStatus !== false;
+  if (wantsEffect && privateApiStatus === false) {
+    throw new Error(
+      "BlueBubbles send failed: reply/effect requires Private API, but it is disabled on the BlueBubbles server.",
+    );
+  }
   const payload: Record<string, unknown> = {
     chatGuid,
     tempGuid: crypto.randomUUID(),
     message: trimmedText,
   };
-  if (needsPrivateApi) {
+  if (canUsePrivateApi) {
     payload.method = "private-api";
   }
 
   // Add reply threading support
-  if (opts.replyToMessageGuid) {
+  if (wantsReplyThread && canUsePrivateApi) {
     payload.selectedMessageGuid = opts.replyToMessageGuid;
     payload.partIndex = typeof opts.replyToPartIndex === "number" ? opts.replyToPartIndex : 0;
   }

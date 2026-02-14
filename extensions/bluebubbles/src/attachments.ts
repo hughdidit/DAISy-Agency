@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { resolveBlueBubblesAccount } from "./accounts.js";
+import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 import { resolveChatGuidForTarget } from "./send.js";
 import { parseBlueBubblesTarget, normalizeBlueBubblesHandle } from "./targets.js";
 import {
@@ -52,9 +53,19 @@ function resolveAccount(params: BlueBubblesAttachmentOpts) {
   });
   const baseUrl = params.serverUrl?.trim() || account.config.serverUrl?.trim();
   const password = params.password?.trim() || account.config.password?.trim();
+<<<<<<< HEAD
   if (!baseUrl) throw new Error("BlueBubbles serverUrl is required");
   if (!password) throw new Error("BlueBubbles password is required");
   return { baseUrl, password };
+=======
+  if (!baseUrl) {
+    throw new Error("BlueBubbles serverUrl is required");
+  }
+  if (!password) {
+    throw new Error("BlueBubbles password is required");
+  }
+  return { baseUrl, password, accountId: account.accountId };
+>>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 }
 
 export async function downloadBlueBubblesAttachment(
@@ -148,7 +159,8 @@ export async function sendBlueBubblesAttachment(params: {
   const fallbackName = wantsVoice ? "Audio Message" : "attachment";
   filename = sanitizeFilename(filename, fallbackName);
   contentType = contentType?.trim() || undefined;
-  const { baseUrl, password } = resolveAccount(opts);
+  const { baseUrl, password, accountId } = resolveAccount(opts);
+  const privateApiStatus = getCachedBlueBubblesPrivateApiStatus(accountId);
 
   // Validate voice memo format when requested (BlueBubbles converts MP3 -> CAF when isAudioMessage).
   const isAudioMessage = wantsVoice;
@@ -219,7 +231,9 @@ export async function sendBlueBubblesAttachment(params: {
   addField("chatGuid", chatGuid);
   addField("name", filename);
   addField("tempGuid", `temp-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`);
-  addField("method", "private-api");
+  if (privateApiStatus !== false) {
+    addField("method", "private-api");
+  }
 
   // Add isAudioMessage flag for voice memos
   if (isAudioMessage) {
@@ -227,7 +241,7 @@ export async function sendBlueBubblesAttachment(params: {
   }
 
   const trimmedReplyTo = replyToMessageGuid?.trim();
-  if (trimmedReplyTo) {
+  if (trimmedReplyTo && privateApiStatus !== false) {
     addField("selectedMessageGuid", trimmedReplyTo);
     addField(
       "partIndex",

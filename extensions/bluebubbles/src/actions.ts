@@ -26,7 +26,14 @@ import {
   removeBlueBubblesParticipant,
   leaveBlueBubblesChat,
 } from "./chat.js";
+<<<<<<< HEAD
 import { sendBlueBubblesAttachment } from "./attachments.js";
+=======
+import { resolveBlueBubblesMessageId } from "./monitor.js";
+import { getCachedBlueBubblesPrivateApiStatus, isMacOS26OrHigher } from "./probe.js";
+import { sendBlueBubblesReaction } from "./reactions.js";
+import { resolveChatGuidForTarget, sendMessageBlueBubbles } from "./send.js";
+>>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 import { normalizeBlueBubblesHandle, parseBlueBubblesTarget } from "./targets.js";
 import type { BlueBubblesSendTarget } from "./types.js";
 
@@ -63,6 +70,18 @@ function readBooleanParam(params: Record<string, unknown>, key: string): boolean
 
 /** Supported action names for BlueBubbles */
 const SUPPORTED_ACTIONS = new Set<ChannelMessageActionName>(BLUEBUBBLES_ACTION_NAMES);
+const PRIVATE_API_ACTIONS = new Set<ChannelMessageActionName>([
+  "react",
+  "edit",
+  "unsend",
+  "reply",
+  "sendWithEffect",
+  "renameGroup",
+  "setGroupIcon",
+  "addParticipant",
+  "removeParticipant",
+  "leaveGroup",
+]);
 
 export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
   listActions: ({ cfg }) => {
@@ -71,11 +90,27 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
     const gate = createActionGate((cfg as MoltbotConfig).channels?.bluebubbles?.actions);
     const actions = new Set<ChannelMessageActionName>();
     const macOS26 = isMacOS26OrHigher(account.accountId);
+    const privateApiStatus = getCachedBlueBubblesPrivateApiStatus(account.accountId);
     for (const action of BLUEBUBBLES_ACTION_NAMES) {
       const spec = BLUEBUBBLES_ACTIONS[action];
+<<<<<<< HEAD
       if (!spec?.gate) continue;
       if (spec.unsupportedOnMacOS26 && macOS26) continue;
       if (gate(spec.gate)) actions.add(action);
+=======
+      if (!spec?.gate) {
+        continue;
+      }
+      if (privateApiStatus === false && PRIVATE_API_ACTIONS.has(action)) {
+        continue;
+      }
+      if ("unsupportedOnMacOS26" in spec && spec.unsupportedOnMacOS26 && macOS26) {
+        continue;
+      }
+      if (gate(spec.gate)) {
+        actions.add(action);
+      }
+>>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
     }
     return Array.from(actions);
   },
@@ -95,7 +130,18 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
     });
     const baseUrl = account.config.serverUrl?.trim();
     const password = account.config.password?.trim();
+<<<<<<< HEAD
     const opts = { cfg: cfg as MoltbotConfig, accountId: accountId ?? undefined };
+=======
+    const opts = { cfg: cfg, accountId: accountId ?? undefined };
+    const assertPrivateApiEnabled = () => {
+      if (getCachedBlueBubblesPrivateApiStatus(account.accountId) === false) {
+        throw new Error(
+          `BlueBubbles ${action} requires Private API, but it is disabled on the BlueBubbles server.`,
+        );
+      }
+    };
+>>>>>>> 45e12d238 (bluebubbles: gracefully handle disabled private API with action/tool filtering and fallbacks (#16002))
 
     // Helper to resolve chatGuid from various params or session context
     const resolveChatGuid = async (): Promise<string> => {
@@ -137,6 +183,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
 
     // Handle react action
     if (action === "react") {
+      assertPrivateApiEnabled();
       const { emoji, remove, isEmpty } = readReactionParams(params, {
         removeErrorMessage: "Emoji is required to remove a BlueBubbles reaction.",
       });
@@ -171,6 +218,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
 
     // Handle edit action
     if (action === "edit") {
+      assertPrivateApiEnabled();
       // Edit is not supported on macOS 26+
       if (isMacOS26OrHigher(accountId ?? undefined)) {
         throw new Error(
@@ -208,6 +256,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
 
     // Handle unsend action
     if (action === "unsend") {
+      assertPrivateApiEnabled();
       const rawMessageId = readStringParam(params, "messageId");
       if (!rawMessageId) {
         throw new Error(
@@ -229,6 +278,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
 
     // Handle reply action
     if (action === "reply") {
+      assertPrivateApiEnabled();
       const rawMessageId = readStringParam(params, "messageId");
       const text = readMessageText(params);
       const to = readStringParam(params, "to") ?? readStringParam(params, "target");
@@ -257,6 +307,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
 
     // Handle sendWithEffect action
     if (action === "sendWithEffect") {
+      assertPrivateApiEnabled();
       const text = readMessageText(params);
       const to = readStringParam(params, "to") ?? readStringParam(params, "target");
       const effectId = readStringParam(params, "effectId") ?? readStringParam(params, "effect");
@@ -284,6 +335,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
 
     // Handle renameGroup action
     if (action === "renameGroup") {
+      assertPrivateApiEnabled();
       const resolvedChatGuid = await resolveChatGuid();
       const displayName = readStringParam(params, "displayName") ?? readStringParam(params, "name");
       if (!displayName) {
@@ -297,6 +349,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
 
     // Handle setGroupIcon action
     if (action === "setGroupIcon") {
+      assertPrivateApiEnabled();
       const resolvedChatGuid = await resolveChatGuid();
       const base64Buffer = readStringParam(params, "buffer");
       const filename =
@@ -326,6 +379,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
 
     // Handle addParticipant action
     if (action === "addParticipant") {
+      assertPrivateApiEnabled();
       const resolvedChatGuid = await resolveChatGuid();
       const address = readStringParam(params, "address") ?? readStringParam(params, "participant");
       if (!address) {
@@ -339,6 +393,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
 
     // Handle removeParticipant action
     if (action === "removeParticipant") {
+      assertPrivateApiEnabled();
       const resolvedChatGuid = await resolveChatGuid();
       const address = readStringParam(params, "address") ?? readStringParam(params, "participant");
       if (!address) {
@@ -352,6 +407,7 @@ export const bluebubblesMessageActions: ChannelMessageActionAdapter = {
 
     // Handle leaveGroup action
     if (action === "leaveGroup") {
+      assertPrivateApiEnabled();
       const resolvedChatGuid = await resolveChatGuid();
 
       await leaveBlueBubblesChat(resolvedChatGuid, opts);
