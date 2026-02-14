@@ -44,8 +44,13 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 28d9dd7a7 (fix(macos): harden openclaw deep links)
 - Security/Hooks: restrict hook transform modules to `~/.openclaw/hooks/transforms` (prevents path traversal/escape module loads via config). Config note: `hooks.transformsDir` must now be within that directory. Thanks @akhmittra.
 - Security/Hooks: ignore hook package manifest entries that point outside the package directory (prevents out-of-tree handler loads during hook discovery).
+<<<<<<< HEAD
 
 >>>>>>> d69b32a07 (docs(changelog): clarify hooks transform dir restriction)
+=======
+- Ollama/Agents: avoid forcing `<final>` tag enforcement for Ollama models, which could suppress all output as `(no output)`. (#16191) Thanks @Glucksberg.
+
+>>>>>>> e53a221e5 (chore: format changelog)
 ## 2026.2.13
 >>>>>>> e91d957d7 (chore(release): publish 2026.2.13 appcast)
 
