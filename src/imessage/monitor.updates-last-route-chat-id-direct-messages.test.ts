@@ -1,15 +1,25 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> b4e406b6c (refactor(test): share iMessage monitor test harness)
 import { monitorIMessageProvider } from "./monitor.js";
+import {
+  flush,
+  getCloseResolve,
+  getNotificationHandler,
+  getReplyMock,
+  getRequestMock,
+  getStopMock,
+  getUpdateLastRouteMock,
+  installMonitorIMessageProviderTestHooks,
+  waitForSubscribe,
+} from "./monitor.test-harness.js";
 
-const requestMock = vi.fn();
-const stopMock = vi.fn();
-const sendMock = vi.fn();
-const replyMock = vi.fn();
-const updateLastRouteMock = vi.fn();
-const readAllowFromStoreMock = vi.fn();
-const upsertPairingRequestMock = vi.fn();
+installMonitorIMessageProviderTestHooks();
 
+<<<<<<< HEAD
 let config: Record<string, unknown> = {};
 let notificationHandler: ((msg: { method: string; params?: unknown }) => void) | undefined;
 let closeResolve: (() => void) | undefined;
@@ -100,6 +110,12 @@ beforeEach(() => {
   notificationHandler = undefined;
   closeResolve = undefined;
 });
+=======
+const replyMock = getReplyMock();
+const requestMock = getRequestMock();
+const stopMock = getStopMock();
+const updateLastRouteMock = getUpdateLastRouteMock();
+>>>>>>> b4e406b6c (refactor(test): share iMessage monitor test harness)
 
 describe("monitorIMessageProvider", () => {
   it("updates last route with sender handle for direct messages", async () => {
@@ -107,7 +123,7 @@ describe("monitorIMessageProvider", () => {
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -122,7 +138,7 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(updateLastRouteMock).toHaveBeenCalledWith(
@@ -163,7 +179,7 @@ describe("monitorIMessageProvider", () => {
       abortController.abort();
       await flush();
 
-      closeResolve?.();
+      getCloseResolve()?.();
       await run;
     } finally {
       process.off("unhandledRejection", onUnhandled);

@@ -1,27 +1,37 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> b4e406b6c (refactor(test): share iMessage monitor test harness)
 import { monitorIMessageProvider } from "./monitor.js";
+import {
+  flush,
+  getCloseResolve,
+  getConfigMock,
+  getNotificationHandler,
+  getReplyMock,
+  getSendMock,
+  getUpsertPairingRequestMock,
+  installMonitorIMessageProviderTestHooks,
+  setConfigMock,
+  waitForSubscribe,
+} from "./monitor.test-harness.js";
 
-const requestMock = vi.fn();
-const stopMock = vi.fn();
-const sendMock = vi.fn();
-const replyMock = vi.fn();
-const updateLastRouteMock = vi.fn();
-const readAllowFromStoreMock = vi.fn();
-const upsertPairingRequestMock = vi.fn();
+installMonitorIMessageProviderTestHooks();
 
-let config: Record<string, unknown> = {};
-let notificationHandler: ((msg: { method: string; params?: unknown }) => void) | undefined;
-let closeResolve: (() => void) | undefined;
+const replyMock = getReplyMock();
+const sendMock = getSendMock();
+const upsertPairingRequestMock = getUpsertPairingRequestMock();
 
-vi.mock("../config/config.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../config/config.js")>();
-  return {
-    ...actual,
-    loadConfig: () => config,
-  };
-});
+type TestConfig = {
+  channels: Record<string, unknown> & { imessage: Record<string, unknown> };
+  messages: Record<string, unknown>;
+  session: Record<string, unknown>;
+  [k: string]: unknown;
+};
 
+<<<<<<< HEAD
 vi.mock("../auto-reply/reply.js", () => ({
   getReplyFromConfig: (...args: unknown[]) => replyMock(...args),
 }));
@@ -101,12 +111,18 @@ beforeEach(() => {
   closeResolve = undefined;
 });
 
+=======
+function getConfig(): TestConfig {
+  return getConfigMock() as unknown as TestConfig;
+}
+
+>>>>>>> b4e406b6c (refactor(test): share iMessage monitor test harness)
 describe("monitorIMessageProvider", () => {
   it("skips group messages without a mention by default", async () => {
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -121,7 +137,7 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(replyMock).not.toHaveBeenCalled();
@@ -129,21 +145,22 @@ describe("monitorIMessageProvider", () => {
   });
 
   it("allows group messages when imessage groups default disables mention gating", async () => {
-    config = {
+    const config = getConfig();
+    setConfigMock({
       ...config,
       channels: {
         ...config.channels,
         imessage: {
-          ...config.channels?.imessage,
+          ...config.channels.imessage,
           groupPolicy: "open",
           groups: { "*": { requireMention: false } },
         },
       },
-    };
+    });
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -158,29 +175,30 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(replyMock).toHaveBeenCalled();
   });
 
   it("allows group messages when requireMention is true but no mentionPatterns exist", async () => {
-    config = {
+    const config = getConfig();
+    setConfigMock({
       ...config,
       messages: { groupChat: { mentionPatterns: [] } },
       channels: {
         ...config.channels,
         imessage: {
-          ...config.channels?.imessage,
+          ...config.channels.imessage,
           groupPolicy: "open",
           groups: { "*": { requireMention: true } },
         },
       },
-    };
+    });
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -195,27 +213,28 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(replyMock).toHaveBeenCalled();
   });
 
   it("blocks group messages when imessage.groups is set without a wildcard", async () => {
-    config = {
+    const config = getConfig();
+    setConfigMock({
       ...config,
       channels: {
         ...config.channels,
         imessage: {
-          ...config.channels?.imessage,
+          ...config.channels.imessage,
           groups: { "99": { requireMention: false } },
         },
       },
-    };
+    });
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -230,7 +249,7 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(replyMock).not.toHaveBeenCalled();
@@ -238,23 +257,24 @@ describe("monitorIMessageProvider", () => {
   });
 
   it("treats configured chat_id as a group session even when is_group is false", async () => {
-    config = {
+    const config = getConfig();
+    setConfigMock({
       ...config,
       channels: {
         ...config.channels,
         imessage: {
-          ...config.channels?.imessage,
+          ...config.channels.imessage,
           dmPolicy: "open",
           allowFrom: ["*"],
           groups: { "2": { requireMention: false } },
         },
       },
-    };
+    });
 
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -269,7 +289,7 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(replyMock).toHaveBeenCalled();
@@ -282,15 +302,16 @@ describe("monitorIMessageProvider", () => {
   });
 
   it("prefixes final replies with responsePrefix", async () => {
-    config = {
+    const config = getConfig();
+    setConfigMock({
       ...config,
       messages: { responsePrefix: "PFX" },
-    };
+    });
     replyMock.mockResolvedValue({ text: "final reply" });
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -305,7 +326,7 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(sendMock).toHaveBeenCalledTimes(1);
@@ -313,22 +334,23 @@ describe("monitorIMessageProvider", () => {
   });
 
   it("defaults to dmPolicy=pairing behavior when allowFrom is empty", async () => {
-    config = {
+    const config = getConfig();
+    setConfigMock({
       ...config,
       channels: {
         ...config.channels,
         imessage: {
-          ...config.channels?.imessage,
+          ...config.channels.imessage,
           dmPolicy: "pairing",
           allowFrom: [],
           groups: { "*": { requireMention: true } },
         },
       },
-    };
+    });
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -343,7 +365,7 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(replyMock).not.toHaveBeenCalled();
@@ -360,7 +382,7 @@ describe("monitorIMessageProvider", () => {
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -377,7 +399,7 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(replyMock).toHaveBeenCalledOnce();
@@ -395,21 +417,22 @@ describe("monitorIMessageProvider", () => {
   });
 
   it("honors group allowlist when groupPolicy is allowlist", async () => {
-    config = {
+    const config = getConfig();
+    setConfigMock({
       ...config,
       channels: {
         ...config.channels,
         imessage: {
-          ...config.channels?.imessage,
+          ...config.channels.imessage,
           groupPolicy: "allowlist",
           groupAllowFrom: ["chat_id:101"],
         },
       },
-    };
+    });
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -424,27 +447,28 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(replyMock).not.toHaveBeenCalled();
   });
 
   it("blocks group messages when groupPolicy is disabled", async () => {
-    config = {
+    const config = getConfig();
+    setConfigMock({
       ...config,
       channels: {
         ...config.channels,
         imessage: {
-          ...config.channels?.imessage,
+          ...config.channels.imessage,
           groupPolicy: "disabled",
         },
       },
-    };
+    });
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -459,7 +483,7 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(replyMock).not.toHaveBeenCalled();
@@ -469,7 +493,7 @@ describe("monitorIMessageProvider", () => {
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -486,7 +510,7 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(replyMock).toHaveBeenCalled();
@@ -500,7 +524,7 @@ describe("monitorIMessageProvider", () => {
     const run = monitorIMessageProvider();
     await waitForSubscribe();
 
-    notificationHandler?.({
+    getNotificationHandler()?.({
       method: "message",
       params: {
         message: {
@@ -518,7 +542,7 @@ describe("monitorIMessageProvider", () => {
     });
 
     await flush();
-    closeResolve?.();
+    getCloseResolve()?.();
     await run;
 
     expect(replyMock).toHaveBeenCalled();
