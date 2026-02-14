@@ -351,11 +351,17 @@ Two independent controls:
 - With `groups` config = only listed groups or `"*"` are allowed
 - Example: `"groups": { "-1001234567890": {}, "*": {} }` allows all groups
 
+<<<<<<< HEAD
 **2. Which senders are allowed** (sender filtering via `channels.telegram.groupPolicy`):
 - `"open"` = all senders in allowed groups can message
 - `"allowlist"` = only senders in `channels.telegram.groupAllowFrom` can message
 - `"disabled"` = no group messages accepted at all
 Default is `groupPolicy: "allowlist"` (blocked unless you add `groupAllowFrom`).
+=======
+    - `off` (default)
+    - `first`
+    - `all`
+>>>>>>> c17a109da (fix: align extension plugin and docs with new replyToMode default)
 
 Most users want: `groupPolicy: "allowlist"` + `groupAllowFrom` + specific groups listed in `channels.telegram.groups`
 
@@ -661,7 +667,7 @@ Provider options:
   - `channels.telegram.groups.<id>.topics.<threadId>.requireMention`: per-topic mention gating override.
 - `channels.telegram.capabilities.inlineButtons`: `off | dm | group | all | allowlist` (default: allowlist).
 - `channels.telegram.accounts.<account>.capabilities.inlineButtons`: per-account override.
-- `channels.telegram.replyToMode`: `off | first | all` (default: `first`).
+- `channels.telegram.replyToMode`: `off | first | all` (default: `off`).
 - `channels.telegram.textChunkLimit`: outbound chunk size (chars).
 - `channels.telegram.chunkMode`: `length` (default) or `newline` to split on blank lines (paragraph boundaries) before length chunking.
 - `channels.telegram.linkPreview`: toggle link previews for outbound messages (default: true).

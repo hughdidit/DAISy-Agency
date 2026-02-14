@@ -158,7 +158,7 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount> = {
     resolveToolPolicy: resolveTelegramGroupToolPolicy,
   },
   threading: {
-    resolveReplyToMode: ({ cfg }) => cfg.channels?.telegram?.replyToMode ?? "first",
+    resolveReplyToMode: ({ cfg }) => cfg.channels?.telegram?.replyToMode ?? "off",
   },
   messaging: {
     normalizeTarget: normalizeTelegramMessagingTarget,
