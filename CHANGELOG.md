@@ -175,6 +175,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> f24d70ec8 (fix(providers): switch MiniMax API-key provider to anthropic-messages (#15297))
 =======
 - Providers/MiniMax: switch implicit MiniMax API-key provider from `openai-completions` to `anthropic-messages` with the correct Anthropic-compatible base URL, fixing `invalid role: developer (2013)` errors on MiniMax M2.5. (#15275) Thanks @lailoo.
+<<<<<<< HEAD
+=======
+- Routing: enforce strict binding-scope matching across peer/guild/team/roles so peer-scoped Discord/Slack bindings no longer match unrelated guild/team contexts or fallback tiers. (#15274) Thanks @lailoo.
+- Web UI: add `img` to DOMPurify allowed tags and `src`/`alt` to allowed attributes so markdown images render in webchat instead of being stripped. (#15437) Thanks @lailoo.
+>>>>>>> dbe026214 (fix(routing): exclude peer-specific bindings from guild-wide matching (#15274))
 - Ollama/Agents: use resolved model/provider base URLs for native `/api/chat` streaming (including aliased providers), normalize `/v1` endpoints, and forward abort + `maxTokens` stream options for reliable cancellation and token caps. (#11853) Thanks @BrokenFinger98.
 >>>>>>> 11702290f (feat(ollama): add native /api/chat provider for streaming + tool calling (#11853))
 
