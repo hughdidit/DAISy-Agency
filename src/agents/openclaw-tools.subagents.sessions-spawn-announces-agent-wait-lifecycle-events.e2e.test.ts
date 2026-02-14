@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 
@@ -28,6 +29,9 @@ import { createMoltbotTools } from "./moltbot-tools.js";
 =======
 =======
 >>>>>>> 615f6e1e4 (refactor(test): share sessions_spawn e2e mocks)
+=======
+import { beforeEach, describe, expect, it } from "vitest";
+>>>>>>> 5f4dda6c7 (fix(test): remove unused vitest imports)
 import { sleep } from "../utils.js";
 import "./test-helpers/fast-core-tools.js";
 import { createOpenClawTools } from "./openclaw-tools.js";
