@@ -374,8 +374,14 @@ Safer (no third-party bot):
 
 Alternate (official Bot API):
 
+<<<<<<< HEAD
 1. DM your bot.
 2. Fetch updates with your bot token and read `message.from.id`:
+=======
+    - `off` (default)
+    - `first`
+    - `all`
+>>>>>>> c17a109da (fix: align extension plugin and docs with new replyToMode default)
 
    ```bash
    curl "https://api.telegram.org/bot<bot_token>/getUpdates"
@@ -754,7 +760,7 @@ Provider options:
   - `channels.telegram.groups.<id>.topics.<threadId>.requireMention`: per-topic mention gating override.
 - `channels.telegram.capabilities.inlineButtons`: `off | dm | group | all | allowlist` (default: allowlist).
 - `channels.telegram.accounts.<account>.capabilities.inlineButtons`: per-account override.
-- `channels.telegram.replyToMode`: `off | first | all` (default: `first`).
+- `channels.telegram.replyToMode`: `off | first | all` (default: `off`).
 - `channels.telegram.textChunkLimit`: outbound chunk size (chars).
 - `channels.telegram.chunkMode`: `length` (default) or `newline` to split on blank lines (paragraph boundaries) before length chunking.
 - `channels.telegram.linkPreview`: toggle link previews for outbound messages (default: true).
