@@ -6,12 +6,22 @@ const args = process.argv.slice(2);
 const env = { ...process.env };
 const cwd = process.cwd();
 <<<<<<< HEAD
+<<<<<<< HEAD
 const compiler = env.CLAWDBOT_TS_COMPILER === "tsc" ? "tsc" : "tsgo";
 =======
 const compilerOverride = env.OPENCLAW_TS_COMPILER ?? env.CLAWDBOT_TS_COMPILER;
 const compiler = compilerOverride === "tsc" ? "tsc" : "tsgo";
 >>>>>>> fd00d5688 (chore: update openclaw naming)
 const projectArgs = ["--project", "tsconfig.json"];
+=======
+const compiler = "tsdown";
+const watchSession = `${Date.now()}-${process.pid}`;
+env.OPENCLAW_WATCH_MODE = "1";
+env.OPENCLAW_WATCH_SESSION = watchSession;
+if (args.length > 0) {
+  env.OPENCLAW_WATCH_COMMAND = args.join(" ");
+}
+>>>>>>> 748d6821d (fix(config): add forensic config write audit and watch attribution)
 
 const initialBuild = spawnSync("pnpm", ["exec", compiler, ...projectArgs], {
   cwd,
