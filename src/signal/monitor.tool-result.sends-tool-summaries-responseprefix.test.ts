@@ -95,7 +95,7 @@ beforeEach(() => {
 =======
 =======
 // Import after the harness registers `vi.mock(...)` for Signal internals.
-const { monitorSignalProvider } = await import("./monitor.js");
+await import("./monitor.js");
 
 >>>>>>> 43f75e53b (test: fix TS2742 in harness exports)
 const {
