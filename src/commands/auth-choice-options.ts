@@ -208,11 +208,171 @@ const AUTH_CHOICE_GROUP_DEFS: {
   },
 ];
 
+const BASE_AUTH_CHOICE_OPTIONS: ReadonlyArray<AuthChoiceOption> = [
+  {
+    value: "token",
+    label: "Anthropic token (paste setup-token)",
+    hint: "run `claude setup-token` elsewhere, then paste the token here",
+  },
+  {
+    value: "openai-codex",
+    label: "OpenAI Codex (ChatGPT OAuth)",
+  },
+  { value: "chutes", label: "Chutes (OAuth)" },
+  {
+    value: "vllm",
+    label: "vLLM (custom URL + model)",
+    hint: "Local/self-hosted OpenAI-compatible server",
+  },
+  { value: "openai-api-key", label: "OpenAI API key" },
+  { value: "xai-api-key", label: "xAI (Grok) API key" },
+  {
+    value: "qianfan-api-key",
+    label: "Qianfan API key",
+  },
+  { value: "openrouter-api-key", label: "OpenRouter API key" },
+  {
+    value: "litellm-api-key",
+    label: "LiteLLM API key",
+    hint: "Unified gateway for 100+ LLM providers",
+  },
+  {
+    value: "ai-gateway-api-key",
+    label: "Vercel AI Gateway API key",
+  },
+  {
+    value: "cloudflare-ai-gateway-api-key",
+    label: "Cloudflare AI Gateway",
+    hint: "Account ID + Gateway ID + API key",
+  },
+  {
+    value: "moonshot-api-key",
+    label: "Kimi API key (.ai)",
+  },
+  {
+    value: "moonshot-api-key-cn",
+    label: "Kimi API key (.cn)",
+  },
+  {
+    value: "kimi-code-api-key",
+    label: "Kimi Code API key (subscription)",
+  },
+  { value: "synthetic-api-key", label: "Synthetic API key" },
+  {
+    value: "venice-api-key",
+    label: "Venice AI API key",
+    hint: "Privacy-focused inference (uncensored models)",
+  },
+  {
+    value: "together-api-key",
+    label: "Together AI API key",
+    hint: "Access to Llama, DeepSeek, Qwen, and more open models",
+  },
+  {
+    value: "huggingface-api-key",
+    label: "Hugging Face API key (HF token)",
+    hint: "Inference Providers — OpenAI-compatible chat",
+  },
+  {
+    value: "github-copilot",
+    label: "GitHub Copilot (GitHub device login)",
+    hint: "Uses GitHub device flow",
+  },
+  { value: "gemini-api-key", label: "Google Gemini API key" },
+  {
+    value: "google-antigravity",
+    label: "Google Antigravity OAuth",
+    hint: "Uses the bundled Antigravity auth plugin",
+  },
+  {
+    value: "google-gemini-cli",
+    label: "Google Gemini CLI OAuth",
+    hint: "Uses the bundled Gemini CLI auth plugin",
+  },
+  { value: "zai-api-key", label: "Z.AI API key" },
+  {
+    value: "zai-coding-global",
+    label: "Coding-Plan-Global",
+    hint: "GLM Coding Plan Global (api.z.ai)",
+  },
+  {
+    value: "zai-coding-cn",
+    label: "Coding-Plan-CN",
+    hint: "GLM Coding Plan CN (open.bigmodel.cn)",
+  },
+  {
+    value: "zai-global",
+    label: "Global",
+    hint: "Z.AI Global (api.z.ai)",
+  },
+  {
+    value: "zai-cn",
+    label: "CN",
+    hint: "Z.AI CN (open.bigmodel.cn)",
+  },
+  {
+    value: "xiaomi-api-key",
+    label: "Xiaomi API key",
+  },
+  {
+    value: "minimax-portal",
+    label: "MiniMax OAuth",
+    hint: "Oauth plugin for MiniMax",
+  },
+  { value: "qwen-portal", label: "Qwen OAuth" },
+  {
+    value: "copilot-proxy",
+    label: "Copilot Proxy (local)",
+    hint: "Local proxy for VS Code Copilot models",
+  },
+  { value: "apiKey", label: "Anthropic API key" },
+  {
+    value: "opencode-zen",
+    label: "OpenCode Zen (multi-model proxy)",
+    hint: "Claude, GPT, Gemini via opencode.ai/zen",
+  },
+  { value: "minimax-api", label: "MiniMax M2.5" },
+  {
+    value: "minimax-api-lightning",
+    label: "MiniMax M2.5 Lightning",
+    hint: "Faster, higher output cost",
+  },
+  { value: "custom-api-key", label: "Custom Provider" },
+];
+
+const LEGACY_AUTH_CHOICE_ALIASES: ReadonlyArray<AuthChoice> = [
+  "setup-token",
+  "oauth",
+  "claude-cli",
+  "codex-cli",
+  "minimax-cloud",
+  "minimax",
+];
+
+export function formatAuthChoiceChoicesForCli(params?: {
+  includeSkip?: boolean;
+  includeLegacyAliases?: boolean;
+}): string {
+  const includeSkip = params?.includeSkip ?? true;
+  const includeLegacyAliases = params?.includeLegacyAliases ?? false;
+  const values = BASE_AUTH_CHOICE_OPTIONS.map((opt) => opt.value);
+
+  if (includeSkip) {
+    values.push("skip");
+  }
+  if (includeLegacyAliases) {
+    values.push(...LEGACY_AUTH_CHOICE_ALIASES);
+  }
+
+  return values.join("|");
+}
+
 export function buildAuthChoiceOptions(params: {
   store: AuthProfileStore;
   includeSkip: boolean;
 }): AuthChoiceOption[] {
   void params.store;
+<<<<<<< HEAD
   const options: AuthChoiceOption[] = [];
 
   options.push({
@@ -355,6 +515,9 @@ export function buildAuthChoiceOptions(params: {
 =======
   options.push({ value: "custom-api-key", label: "Custom Provider" });
 >>>>>>> 2914cb1d4 (Onboard: rename Custom API Endpoint to Custom Provider)
+=======
+  const options: AuthChoiceOption[] = [...BASE_AUTH_CHOICE_OPTIONS];
+>>>>>>> eab9dc538 (refactor(onboard): unify auth-choice catalog for CLI help)
 
 >>>>>>> c0befdee0 (feat(onboard): add custom/local API configuration flow (#11106))
   if (params.includeSkip) {
