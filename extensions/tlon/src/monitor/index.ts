@@ -10,6 +10,11 @@ import { getTlonRuntime } from "../runtime.js";
 import { resolveTlonAccount } from "../types.js";
 import { normalizeShip, parseChannelNest } from "../targets.js";
 import { authenticate } from "../urbit/auth.js";
+<<<<<<< HEAD
+=======
+import { ssrfPolicyFromAllowPrivateNetwork } from "../urbit/context.js";
+import { sendDm, sendGroupMessage } from "../urbit/send.js";
+>>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
 import { UrbitSSEClient } from "../urbit/sse-client.js";
 import { sendDm, sendGroupMessage } from "../urbit/send.js";
 import { cacheMessage, getChannelHistory } from "./history.js";
@@ -123,6 +128,10 @@ export async function monitorTlonProvider(opts: MonitorTlonOpts = {}): Promise<v
 
   let api: UrbitSSEClient | null = null;
   try {
+<<<<<<< HEAD
+=======
+    const ssrfPolicy = ssrfPolicyFromAllowPrivateNetwork(account.allowPrivateNetwork);
+>>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
     runtime.log?.(`[tlon] Attempting authentication to ${account.url}...`);
     const cookie = await authenticate(account.url, account.code);
     api = new UrbitSSEClient(account.url, cookie, {
