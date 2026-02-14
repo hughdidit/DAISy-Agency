@@ -1,10 +1,16 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
 import { ensureMoltbotModelsJson } from "./models-config.js";
+=======
+import { describe, expect, it } from "vitest";
+import type { SandboxContext } from "./sandbox.js";
+>>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
 import { buildEmbeddedSandboxInfo } from "./pi-embedded-runner.js";
 import type { SandboxContext } from "./sandbox.js";
 
+<<<<<<< HEAD
 vi.mock("@mariozechner/pi-ai", async () => {
   const actual = await vi.importActual<typeof import("@mariozechner/pi-ai")>("@mariozechner/pi-ai");
   return {
@@ -99,10 +105,13 @@ const _readSessionMessages = async (sessionFile: string) => {
     .map((entry) => entry.message as { role?: string; content?: unknown });
 };
 
+=======
+>>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
 describe("buildEmbeddedSandboxInfo", () => {
   it("returns undefined when sandbox is missing", () => {
     expect(buildEmbeddedSandboxInfo()).toBeUndefined();
   });
+
   it("maps sandbox context into prompt info", () => {
     const sandbox = {
       enabled: true,
@@ -145,6 +154,7 @@ describe("buildEmbeddedSandboxInfo", () => {
       hostBrowserAllowed: true,
     });
   });
+
   it("includes elevated info when allowed", () => {
     const sandbox = {
       enabled: true,

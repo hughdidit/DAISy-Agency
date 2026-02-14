@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
@@ -97,6 +98,11 @@ const _readSessionMessages = async (sessionFile: string) => {
     .filter((entry) => entry.type === "message")
     .map((entry) => entry.message as { role?: string; content?: unknown });
 };
+=======
+import { describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveSessionAgentIds } from "./agent-scope.js";
+>>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
 
 describe("resolveSessionAgentIds", () => {
   const cfg = {
@@ -112,6 +118,7 @@ describe("resolveSessionAgentIds", () => {
     expect(defaultAgentId).toBe("beta");
     expect(sessionAgentId).toBe("beta");
   });
+
   it("falls back to the configured default when sessionKey is non-agent", () => {
     const { sessionAgentId } = resolveSessionAgentIds({
       sessionKey: "telegram:slash:123",
@@ -119,6 +126,7 @@ describe("resolveSessionAgentIds", () => {
     });
     expect(sessionAgentId).toBe("beta");
   });
+
   it("falls back to the configured default for global sessions", () => {
     const { sessionAgentId } = resolveSessionAgentIds({
       sessionKey: "global",
@@ -126,6 +134,7 @@ describe("resolveSessionAgentIds", () => {
     });
     expect(sessionAgentId).toBe("beta");
   });
+
   it("keeps the agent id for provider-qualified agent sessions", () => {
     const { sessionAgentId } = resolveSessionAgentIds({
       sessionKey: "agent:beta:slack:channel:c1",
@@ -133,6 +142,7 @@ describe("resolveSessionAgentIds", () => {
     });
     expect(sessionAgentId).toBe("beta");
   });
+
   it("uses the agent id from agent session keys", () => {
     const { sessionAgentId } = resolveSessionAgentIds({
       sessionKey: "agent:main:main",

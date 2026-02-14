@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { SessionManager } from "@mariozechner/pi-coding-agent";
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { ensureMoltbotModelsJson } from "./models-config.js";
 import { applyGoogleTurnOrderingFix } from "./pi-embedded-runner.js";
@@ -100,6 +101,10 @@ const _readSessionMessages = async (sessionFile: string) => {
     .map((entry) => entry.message as { role?: string; content?: unknown });
 };
 
+=======
+import { applyGoogleTurnOrderingFix } from "./pi-embedded-runner.js";
+
+>>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
 describe("applyGoogleTurnOrderingFix", () => {
   const makeAssistantFirst = () =>
     [
@@ -141,6 +146,7 @@ describe("applyGoogleTurnOrderingFix", () => {
     });
     expect(warn).toHaveBeenCalledTimes(1);
   });
+
   it("skips non-Google models", () => {
     const sessionManager = SessionManager.inMemory();
     const warn = vi.fn();
