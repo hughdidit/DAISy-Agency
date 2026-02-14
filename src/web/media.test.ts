@@ -4,10 +4,14 @@ import path from "node:path";
 
 import sharp from "sharp";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+=======
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+>>>>>>> 2c849ea4c (perf(test): reuse SSRF mock setup in web media tests)
 import * as ssrf from "../infra/net/ssrf.js";
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 import { optimizeImageToPng } from "../media/image-ops.js";
@@ -76,11 +80,30 @@ afterAll(async () => {
 });
 
 afterEach(() => {
+<<<<<<< HEAD
   vi.restoreAllMocks();
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 });
 
 describe("web media loading", () => {
+=======
+  vi.clearAllMocks();
+});
+
+describe("web media loading", () => {
+  beforeAll(() => {
+    vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
+      const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
+      const addresses = ["93.184.216.34"];
+      return {
+        hostname: normalized,
+        addresses,
+        lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
+      };
+    });
+  });
+
+>>>>>>> 2c849ea4c (perf(test): reuse SSRF mock setup in web media tests)
   it("compresses large local images under the provided cap", async () => {
     const { buffer, file } = await createLargeTestJpeg();
 
