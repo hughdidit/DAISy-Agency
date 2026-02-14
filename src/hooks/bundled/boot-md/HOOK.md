@@ -1,7 +1,11 @@
 ---
 name: boot-md
 description: "Run BOOT.md on gateway startup"
+<<<<<<< HEAD
 homepage: https://docs.molt.bot/hooks#boot-md
+=======
+homepage: https://docs.openclaw.ai/automation/hooks#boot-md
+>>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
 metadata:
   {
     "moltbot":

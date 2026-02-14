@@ -96,7 +96,11 @@ session-memory/
 ---
 name: my-hook
 description: "Short description"
+<<<<<<< HEAD
 homepage: https://docs.molt.bot/hooks#my-hook
+=======
+homepage: https://docs.openclaw.ai/automation/hooks#my-hook
+>>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
 metadata:
   { "clawdbot": { "emoji": "🔗", "events": ["command:new"], "requires": { "bins": ["node"] } } }
 ---
@@ -235,4 +239,8 @@ Test your hooks by:
 
 ## Documentation
 
+<<<<<<< HEAD
 Full documentation: https://docs.molt.bot/hooks
+=======
+Full documentation: https://docs.openclaw.ai/automation/hooks
+>>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))

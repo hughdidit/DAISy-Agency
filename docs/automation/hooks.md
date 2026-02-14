@@ -145,10 +145,14 @@ The `HOOK.md` file contains metadata in YAML frontmatter plus Markdown documenta
 name: my-hook
 description: "Short description of what this hook does"
 <<<<<<< HEAD
+<<<<<<< HEAD
 homepage: https://docs.molt.bot/hooks#my-hook
 metadata: {"moltbot":{"emoji":"🔗","events":["command:new"],"requires":{"bins":["node"]}}}
 =======
 homepage: https://docs.openclaw.ai/hooks#my-hook
+=======
+homepage: https://docs.openclaw.ai/automation/hooks#my-hook
+>>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
 metadata:
   { "openclaw": { "emoji": "🔗", "events": ["command:new"], "requires": { "bins": ["node"] } } }
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)

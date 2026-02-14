@@ -16,7 +16,11 @@ const report: HookStatusReport = {
       handlerPath: "/tmp/hooks/session-memory/handler.js",
       hookKey: "session-memory",
       emoji: "💾",
+<<<<<<< HEAD
       homepage: "https://docs.molt.bot/hooks#session-memory",
+=======
+      homepage: "https://docs.openclaw.ai/automation/hooks#session-memory",
+>>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
       events: ["command:new"],
       always: false,
       disabled: false,

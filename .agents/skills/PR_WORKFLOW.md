@@ -221,6 +221,33 @@ Stop and escalate instead of continuing if:
 - Fixing findings requires broad architecture changes outside safe PR scope.
 - Security hardening requirements remain unresolved.
 
+<<<<<<< HEAD
+=======
+### Security advisory companion flow
+
+Use this for GHSA-linked fixes and private reports.
+
+1. Implement and test the fix locally first, do not edit advisory content yet.
+2. Land the code fix PR through normal flow, including attribution and changelog where needed.
+3. Prepare public-safe advisory text:
+   - No internal workflow chatter.
+   - No unnecessary exploit detail.
+   - Clear impact, affected range, fixed range, remediation, credits.
+4. In GitHub advisory UI, set package ranges in the structured fields:
+   - `Affected versions`: `< fixed_version`
+   - `Patched versions`: `>= fixed_version`
+     Do not rely on description text alone.
+5. If collaborator can edit text but cannot change advisory state, hand off to a Publisher to move triage -> accepted draft -> publish.
+6. Advisory comments are posted manually in UI when required by policy. Do not rely on `gh api` automation for advisory comments.
+
+Maintainer checkpoint for security advisories:
+
+- Is the rewrite public-safe and free of internal/process notes?
+- Are affected and patched ranges correctly set in the advisory form fields?
+- Are credits present and accurate?
+- Do we have Publisher action if state controls are unavailable?
+
+>>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
 ### 3) `merge-pr`
 
 Purpose:

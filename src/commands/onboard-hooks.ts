@@ -15,7 +15,11 @@ export async function setupInternalHooks(
       "Hooks let you automate actions when agent commands are issued.",
       "Example: Save session context to memory when you issue /new.",
       "",
+<<<<<<< HEAD
       "Learn more: https://docs.molt.bot/hooks",
+=======
+      "Learn more: https://docs.openclaw.ai/automation/hooks",
+>>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
     ].join("\n"),
     "Hooks",
   );

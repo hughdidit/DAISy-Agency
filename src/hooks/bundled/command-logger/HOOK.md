@@ -1,7 +1,11 @@
 ---
 name: command-logger
 description: "Log all command events to a centralized audit file"
+<<<<<<< HEAD
 homepage: https://docs.molt.bot/hooks#command-logger
+=======
+homepage: https://docs.openclaw.ai/automation/hooks#command-logger
+>>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
 metadata:
   {
     "moltbot":
