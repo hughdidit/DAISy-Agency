@@ -16,7 +16,11 @@ describe("resolveDefaultAgentWorkspaceDir", () => {
       HOME: "/home/other",
     } as NodeJS.ProcessEnv);
 
+<<<<<<< HEAD
     expect(dir).toBe(path.join("/srv/openclaw-home", ".openclaw", "workspace"));
+=======
+    expect(dir).toBe(path.join(path.resolve("/srv/openclaw-home"), ".openclaw", "workspace"));
+>>>>>>> 274da72c3 (Revert "fix: don't auto-create HEARTBEAT.md on workspace init (openclaw#12027) thanks @shadril238" (#16183))
   });
 });
 
