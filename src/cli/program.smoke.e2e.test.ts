@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 const messageCommand = vi.fn();
 const statusCommand = vi.fn();
@@ -61,6 +62,25 @@ vi.mock("../gateway/call.js", () => ({
 }));
 vi.mock("./deps.js", () => ({ createDefaultDeps: () => ({}) }));
 vi.mock("./preaction.js", () => ({ registerPreActionHooks: () => {} }));
+=======
+import {
+  configureCommand,
+  ensureConfigReady,
+  installBaseProgramMocks,
+  installSmokeProgramMocks,
+  messageCommand,
+  onboardCommand,
+  runChannelLogin,
+  runChannelLogout,
+  runTui,
+  runtime,
+  setupCommand,
+  statusCommand,
+} from "./program.test-mocks.js";
+
+installBaseProgramMocks();
+installSmokeProgramMocks();
+>>>>>>> af784b9a8 (refactor(test): share cli program e2e mocks)
 
 const { buildProgram } = await import("./program.js");
 
