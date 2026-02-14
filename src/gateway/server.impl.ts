@@ -50,8 +50,13 @@ import { scheduleGatewayUpdateCheck } from "../infra/update-startup.js";
 import { setGatewaySigusr1RestartPolicy } from "../infra/restart.js";
 import { startDiagnosticHeartbeat, stopDiagnosticHeartbeat } from "../logging/diagnostic.js";
 import { createSubsystemLogger, runtimeForLogger } from "../logging/subsystem.js";
+<<<<<<< HEAD
 import type { PluginServicesHandle } from "../plugins/services.js";
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import { getGlobalHookRunner, runGlobalGatewayStopSafely } from "../plugins/hook-runner-global.js";
+import { getTotalQueueSize } from "../process/command-queue.js";
+>>>>>>> 8217d77ec (fix(cli): run plugin gateway_stop hooks before message exit (#16580))
 import { runOnboardingWizard } from "../wizard/onboarding.js";
 import { createAuthRateLimiter, type AuthRateLimiter } from "./auth-rate-limit.js";
 import { startGatewayConfigReloader } from "./config-reload.js";
@@ -777,6 +782,15 @@ export async function startGatewayServer(
 
   return {
     close: async (opts) => {
+<<<<<<< HEAD
+=======
+      // Run gateway_stop plugin hook before shutdown
+      await runGlobalGatewayStopSafely({
+        event: { reason: opts?.reason ?? "gateway stopping" },
+        ctx: { port },
+        onError: (err) => log.warn(`gateway_stop hook failed: ${String(err)}`),
+      });
+>>>>>>> 8217d77ec (fix(cli): run plugin gateway_stop hooks before message exit (#16580))
       if (diagnosticsEnabled) {
         stopDiagnosticHeartbeat();
       }

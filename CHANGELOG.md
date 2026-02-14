@@ -119,7 +119,11 @@ Docs: https://docs.openclaw.ai
 =======
 - CLI/Dashboard: when `gateway.bind=lan`, generate localhost dashboard URLs to satisfy browser secure-context requirements while preserving non-LAN bind behavior. (#16434) Thanks @BinHPdev.
 - CLI/Plugins: ensure `openclaw message send` exits after successful delivery across plugin-backed channels so one-shot sends do not hang. (#16491) Thanks @yinghaosang.
+<<<<<<< HEAD
 >>>>>>> 8927c69b3 (fix(cli): stop message send from hanging forever after delivery (#16460) (#16491))
+=======
+- CLI/Plugins: run registered plugin `gateway_stop` hooks before `openclaw message` exits (success and failure paths), so plugin-backed channels can clean up one-shot CLI resources. (#16580) Thanks @gumadeiras.
+>>>>>>> 8217d77ec (fix(cli): run plugin gateway_stop hooks before message exit (#16580))
 - Cron: repair missing/corrupt `nextRunAtMs` for the updated job without globally recomputing unrelated due jobs during `cron update`. (#15750)
 >>>>>>> c60844931 (fix(cron): prevent list/status from silently skipping recurring jobs (openclaw#16201) thanks @zerone0x)
 - Discord: prefer gateway guild id when logging inbound messages so cached-miss guilds do not appear as `guild=dm`. Thanks @thewilloftheshadow.
