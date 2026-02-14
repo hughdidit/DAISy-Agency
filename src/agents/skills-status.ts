@@ -7,7 +7,6 @@ import {
   isConfigPathTruthy,
   loadWorkspaceSkillEntries,
   resolveBundledAllowlist,
-  resolveConfigPath,
   resolveSkillConfig,
   resolveSkillsInstallPreferences,
   type SkillEntry,
