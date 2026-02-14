@@ -289,8 +289,16 @@ Docs: https://docs.openclaw.ai
 - Process/Exec: avoid shell execution for `.exe` commands on Windows so env overrides work reliably in `runCommandWithTimeout`. Thanks @thewilloftheshadow.
 >>>>>>> a4f4b0636 (fix: preserve ${VAR} env var references when writing config back to disk (#11560))
 - Web tools/web_fetch: prefer `text/markdown` responses for Cloudflare Markdown for Agents, add `cf-markdown` extraction for markdown bodies, and redact fetched URLs in `x-markdown-tokens` debug logs to avoid leaking raw paths/query params. (#15376) Thanks @Yaxuan42.
+<<<<<<< HEAD
 - Config: keep legacy audio transcription migration strict by rejecting non-string/unsafe command tokens while still migrating valid custom script executables. (#5042) Thanks @shayan919293.
 >>>>>>> 1f4943af3 (fix: note Discord guild allowlist resolution (#12326) (thanks @headswim))
+=======
+- Tools/web_search: support `freshness` for the Perplexity provider by mapping `pd`/`pw`/`pm`/`py` to Perplexity `search_recency_filter` values and including freshness in the Perplexity cache key. (#15343) Thanks @echoVic.
+- Clawdock: avoid Zsh readonly variable collisions in helper scripts. (#15501) Thanks @nkelner.
+- Memory: switch default local embedding model to the QAT `embeddinggemma-300m-qat-Q8_0` variant for better quality at the same footprint. (#15429) Thanks @azade-c.
+- Docs/Mermaid: remove hardcoded Mermaid init theme blocks from four docs diagrams so dark mode inherits readable theme defaults. (#15157) Thanks @heytulsiprasad.
+- Security/Pairing: generate 256-bit base64url device and node pairing tokens and use byte-safe constant-time verification to avoid token-compare edge-case failures. (#16535) Thanks @FaizanKolega, @gumadeiras.
+>>>>>>> 48b3d7096 (fix: harden device pairing token generation and verification (#16535))
 
 ## 2026.2.12
 >>>>>>> c32b92b7a (fix(macos): prevent Voice Wake crash on CJK trigger transcripts (openclaw#11052) thanks @Flash-LHR)

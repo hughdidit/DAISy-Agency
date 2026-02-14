@@ -1,7 +1,18 @@
 import { randomUUID } from "node:crypto";
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+=======
+import {
+  createAsyncLock,
+  pruneExpiredPending,
+  readJsonFile,
+  resolvePairingPaths,
+  writeJsonAtomic,
+} from "./pairing-files.js";
+import { generatePairingToken, verifyPairingToken } from "./pairing-token.js";
+>>>>>>> 48b3d7096 (fix: harden device pairing token generation and verification (#16535))
 
 export type DevicePairingPendingRequest = {
   requestId: string;
@@ -210,7 +221,7 @@ function scopesAllow(requested: string[], allowed: string[]): boolean {
 }
 
 function newToken() {
-  return randomUUID().replaceAll("-", "");
+  return generatePairingToken();
 }
 
 export async function listDevicePairing(baseDir?: string): Promise<DevicePairingList> {
@@ -391,9 +402,21 @@ export async function verifyDeviceToken(params: {
     const role = normalizeRole(params.role);
     if (!role) return { ok: false, reason: "role-missing" };
     const entry = device.tokens?.[role];
+<<<<<<< HEAD
     if (!entry) return { ok: false, reason: "token-missing" };
     if (entry.revokedAtMs) return { ok: false, reason: "token-revoked" };
     if (entry.token !== params.token) return { ok: false, reason: "token-mismatch" };
+=======
+    if (!entry) {
+      return { ok: false, reason: "token-missing" };
+    }
+    if (entry.revokedAtMs) {
+      return { ok: false, reason: "token-revoked" };
+    }
+    if (!verifyPairingToken(params.token, entry.token)) {
+      return { ok: false, reason: "token-mismatch" };
+    }
+>>>>>>> 48b3d7096 (fix: harden device pairing token generation and verification (#16535))
     const requestedScopes = normalizeScopes(params.scopes);
     if (!scopesAllow(requestedScopes, entry.scopes)) {
       return { ok: false, reason: "scope-mismatch" };
