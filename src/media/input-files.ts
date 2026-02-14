@@ -1,10 +1,14 @@
 import { logWarn } from "../logger.js";
+<<<<<<< HEAD
 import {
   closeDispatcher,
   createPinnedDispatcher,
   resolvePinnedHostname,
 } from "../infra/net/ssrf.js";
 import type { Dispatcher } from "undici";
+=======
+import { estimateBase64DecodedBytes } from "./base64.js";
+>>>>>>> 31791233d (fix(security): reject oversized base64 before decode)
 
 type CanvasModule = typeof import("@napi-rs/canvas");
 type PdfJsModule = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
@@ -112,8 +116,22 @@ export const DEFAULT_INPUT_PDF_MAX_PAGES = 4;
 export const DEFAULT_INPUT_PDF_MAX_PIXELS = 4_000_000;
 export const DEFAULT_INPUT_PDF_MIN_TEXT_CHARS = 200;
 
+<<<<<<< HEAD
 function isRedirectStatus(status: number): boolean {
   return status === 301 || status === 302 || status === 303 || status === 307 || status === 308;
+=======
+function rejectOversizedBase64Payload(params: {
+  data: string;
+  maxBytes: number;
+  label: "Image" | "File";
+}): void {
+  const estimated = estimateBase64DecodedBytes(params.data);
+  if (estimated > params.maxBytes) {
+    throw new Error(
+      `${params.label} too large: ${estimated} bytes (limit: ${params.maxBytes} bytes)`,
+    );
+  }
+>>>>>>> 31791233d (fix(security): reject oversized base64 before decode)
 }
 
 export function normalizeMimeType(value: string | undefined): string | undefined {
