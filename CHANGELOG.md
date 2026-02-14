@@ -936,6 +936,12 @@ Docs: https://docs.openclaw.ai
 - Security: require validated shared-secret auth before skipping device identity on gateway connect.
 >>>>>>> 1c4db9159 (chore: prepare 2026.2.2 release)
 - Security: guard skill installer downloads with SSRF checks (block private/localhost URLs).
+<<<<<<< HEAD
+=======
+- Security/Gateway: require `operator.approvals` for in-chat `/approve` when invoked from gateway clients. Thanks @yueyueL.
+- Security: harden Windows exec allowlist; block cmd.exe bypass via single &. Thanks @simecek.
+- Discord: route autoThread replies to existing threads instead of the root channel. (#8302) Thanks @gavinbmoore, @thewilloftheshadow.
+>>>>>>> 0b20ee272 (docs(changelog): note gateway /approve scope fix)
 - Media understanding: apply SSRF guardrails to provider fetches; allow private baseUrl overrides explicitly.
 <<<<<<< HEAD
 <<<<<<< HEAD
