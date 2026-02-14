@@ -12,9 +12,16 @@ import type {
 >>>>>>> d34138dfe (fix: dispatch before_tool_call and after_tool_call hooks from both tool execution paths (openclaw#15012) thanks @Patrick-Barletta)
 =======
 import type { PluginHookAfterToolCallEvent } from "../plugins/types.js";
+<<<<<<< HEAD
 >>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo))
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 >>>>>>> 8eb11bd30 (fix: wire before_tool_call hook into tool execution (#6570) (thanks @ryancnelson) (#6660))
+=======
+import type {
+  EmbeddedPiSubscribeContext,
+  ToolCallSummary,
+} from "./pi-embedded-subscribe.handlers.types.js";
+>>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131))
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
 import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
@@ -27,8 +34,24 @@ import {
   sanitizeToolResult,
 } from "./pi-embedded-subscribe.tools.js";
 import { inferToolMetaFromArgs } from "./pi-embedded-utils.js";
+import { buildToolMutationState, isSameToolMutationAction } from "./tool-mutation.js";
 import { normalizeToolName } from "./tool-policy.js";
 
+<<<<<<< HEAD
+=======
+/** Track tool execution start times and args for after_tool_call hook */
+const toolStartData = new Map<string, { startTime: number; args: unknown }>();
+
+function buildToolCallSummary(toolName: string, args: unknown, meta?: string): ToolCallSummary {
+  const mutation = buildToolMutationState(toolName, args, meta);
+  return {
+    meta,
+    mutatingAction: mutation.mutatingAction,
+    actionFingerprint: mutation.actionFingerprint,
+  };
+}
+
+>>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131))
 function extendExecMeta(toolName: string, args: unknown, meta?: string): string | undefined {
   const normalized = toolName.trim().toLowerCase();
   if (normalized !== "exec" && normalized !== "bash") return meta;
@@ -92,7 +115,7 @@ export async function handleToolExecutionStart(
   }
 
   const meta = extendExecMeta(toolName, args, inferToolMetaFromArgs(toolName, args));
-  ctx.state.toolMetaById.set(toolCallId, meta);
+  ctx.state.toolMetaById.set(toolCallId, buildToolCallSummary(toolName, args, meta));
   ctx.log.debug(
     `embedded run tool start: runId=${ctx.params.runId} tool=${toolName} toolCallId=${toolCallId}`,
   );
@@ -189,7 +212,8 @@ export async function handleToolExecutionEnd(
   const result = evt.result;
   const isToolError = isError || isToolResultError(result);
   const sanitizedResult = sanitizeToolResult(result);
-  const meta = ctx.state.toolMetaById.get(toolCallId);
+  const callSummary = ctx.state.toolMetaById.get(toolCallId);
+  const meta = callSummary?.meta;
   ctx.state.toolMetas.push({ toolName, meta });
   ctx.state.toolMetaById.delete(toolCallId);
   ctx.state.toolSummaryById.delete(toolCallId);
@@ -199,7 +223,24 @@ export async function handleToolExecutionEnd(
       toolName,
       meta,
       error: errorMessage,
+      mutatingAction: callSummary?.mutatingAction,
+      actionFingerprint: callSummary?.actionFingerprint,
     };
+  } else if (ctx.state.lastToolError) {
+    // Keep unresolved mutating failures until the same action succeeds.
+    if (ctx.state.lastToolError.mutatingAction) {
+      if (
+        isSameToolMutationAction(ctx.state.lastToolError, {
+          toolName,
+          meta,
+          actionFingerprint: callSummary?.actionFingerprint,
+        })
+      ) {
+        ctx.state.lastToolError = undefined;
+      }
+    } else {
+      ctx.state.lastToolError = undefined;
+    }
   }
 
   // Commit messaging tool text on success, discard on error.

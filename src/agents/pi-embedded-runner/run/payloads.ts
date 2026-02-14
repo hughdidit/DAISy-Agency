@@ -16,7 +16,11 @@ import {
   extractAssistantThinking,
   formatReasoningMessage,
 } from "../../pi-embedded-utils.js";
+<<<<<<< HEAD
 import type { ToolResultFormat } from "../../pi-embedded-subscribe.js";
+=======
+import { isLikelyMutatingToolName } from "../../tool-mutation.js";
+>>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131))
 
 type ToolMetaEntry = { toolName: string; meta?: string };
 
@@ -24,8 +28,19 @@ export function buildEmbeddedRunPayloads(params: {
   assistantTexts: string[];
   toolMetas: ToolMetaEntry[];
   lastAssistant: AssistantMessage | undefined;
+<<<<<<< HEAD
   lastToolError?: { toolName: string; meta?: string; error?: string };
   config?: MoltbotConfig;
+=======
+  lastToolError?: {
+    toolName: string;
+    meta?: string;
+    error?: string;
+    mutatingAction?: boolean;
+    actionFingerprint?: string;
+  };
+  config?: OpenClawConfig;
+>>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131))
   sessionKey: string;
   verboseLevel?: VerboseLevel;
   reasoningLevel?: ReasoningLevel;
@@ -190,22 +205,37 @@ export function buildEmbeddedRunPayloads(params: {
       errorLower.includes("must have") ||
       errorLower.includes("needs") ||
       errorLower.includes("requires");
+    const isMutatingToolError =
+      params.lastToolError.mutatingAction ??
+      isLikelyMutatingToolName(params.lastToolError.toolName);
+    const shouldShowToolError = isMutatingToolError || (!hasUserFacingReply && !isRecoverableError);
 
-    // Show tool errors only when:
-    // 1. There's no user-facing reply AND the error is not recoverable
-    // Recoverable errors (validation, missing params) are already in the model's context
-    // and shouldn't be surfaced to users since the model should retry.
-    if (!hasUserFacingReply && !isRecoverableError) {
+    // Always surface mutating tool failures so we do not silently confirm actions that did not happen.
+    // Otherwise, keep the previous behavior and only surface non-recoverable failures when no reply exists.
+    if (shouldShowToolError) {
       const toolSummary = formatToolAggregate(
         params.lastToolError.toolName,
         params.lastToolError.meta ? [params.lastToolError.meta] : undefined,
         { markdown: useMarkdown },
       );
       const errorSuffix = params.lastToolError.error ? `: ${params.lastToolError.error}` : "";
-      replyItems.push({
-        text: `⚠️ ${toolSummary} failed${errorSuffix}`,
-        isError: true,
-      });
+      const warningText = `⚠️ ${toolSummary} failed${errorSuffix}`;
+      const normalizedWarning = normalizeTextForComparison(warningText);
+      const duplicateWarning = normalizedWarning
+        ? replyItems.some((item) => {
+            if (!item.text) {
+              return false;
+            }
+            const normalizedExisting = normalizeTextForComparison(item.text);
+            return normalizedExisting.length > 0 && normalizedExisting === normalizedWarning;
+          })
+        : false;
+      if (!duplicateWarning) {
+        replyItems.push({
+          text: warningText,
+          isError: true,
+        });
+      }
     }
   }
 
