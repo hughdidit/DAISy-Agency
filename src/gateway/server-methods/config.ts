@@ -4,6 +4,7 @@ import {
   loadConfig,
   parseConfigJson5,
   readConfigFileSnapshot,
+  readConfigFileSnapshotForWrite,
   resolveConfigSnapshotHash,
   validateConfigObjectWithPlugins,
   writeConfigFile,
@@ -209,7 +210,7 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const snapshot = await readConfigFileSnapshot();
+    const { snapshot, writeOptions } = await readConfigFileSnapshotForWrite();
     if (!requireConfigBaseHash(params, snapshot, respond)) {
       return;
     }
@@ -248,7 +249,7 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    await writeConfigFile(validated.config);
+    await writeConfigFile(validated.config, writeOptions);
     respond(
       true,
       {
@@ -275,7 +276,7 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const snapshot = await readConfigFileSnapshot();
+    const { snapshot, writeOptions } = await readConfigFileSnapshotForWrite();
     if (!requireConfigBaseHash(params, snapshot, respond)) {
       return;
     }
@@ -348,7 +349,7 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    await writeConfigFile(validated.config);
+    await writeConfigFile(validated.config, writeOptions);
 
     const sessionKey =
       typeof (params as { sessionKey?: unknown }).sessionKey === "string"
@@ -423,7 +424,7 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const snapshot = await readConfigFileSnapshot();
+    const { snapshot, writeOptions } = await readConfigFileSnapshotForWrite();
     if (!requireConfigBaseHash(params, snapshot, respond)) {
       return;
     }
@@ -465,7 +466,7 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    await writeConfigFile(validated.config);
+    await writeConfigFile(validated.config, writeOptions);
 
     const sessionKey =
       typeof (params as { sessionKey?: unknown }).sessionKey === "string"
