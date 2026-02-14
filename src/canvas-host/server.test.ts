@@ -11,6 +11,10 @@ import { CANVAS_HOST_PATH, CANVAS_WS_PATH, injectCanvasLiveReload } from "./a2ui
 import { createCanvasHostHandler, startCanvasHost } from "./server.js";
 
 describe("canvas host", () => {
+  const quietRuntime = {
+    ...defaultRuntime,
+    log: (..._args: Parameters<typeof console.log>) => {},
+  };
   let fixtureRoot = "";
   let fixtureCount = 0;
 
@@ -44,7 +48,7 @@ describe("canvas host", () => {
 >>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
 
     const server = await startCanvasHost({
-      runtime: defaultRuntime,
+      runtime: quietRuntime,
       rootDir: dir,
       port: 0,
       listenHost: "127.0.0.1",
@@ -72,7 +76,7 @@ describe("canvas host", () => {
     await fs.writeFile(path.join(dir, "index.html"), "<html><body>no-reload</body></html>", "utf8");
 
     const server = await startCanvasHost({
-      runtime: defaultRuntime,
+      runtime: quietRuntime,
       rootDir: dir,
       port: 0,
       listenHost: "127.0.0.1",
@@ -103,7 +107,7 @@ describe("canvas host", () => {
     await fs.writeFile(path.join(dir, "index.html"), "<html><body>v1</body></html>", "utf8");
 
     const handler = await createCanvasHostHandler({
-      runtime: defaultRuntime,
+      runtime: quietRuntime,
       rootDir: dir,
       basePath: CANVAS_HOST_PATH,
       allowInTests: true,
@@ -155,7 +159,7 @@ describe("canvas host", () => {
     await fs.writeFile(path.join(dir, "index.html"), "<html><body>v1</body></html>", "utf8");
 
     const handler = await createCanvasHostHandler({
-      runtime: defaultRuntime,
+      runtime: quietRuntime,
       rootDir: dir,
       basePath: CANVAS_HOST_PATH,
       allowInTests: true,
@@ -165,7 +169,7 @@ describe("canvas host", () => {
     handler.close = closeSpy;
 
     const server = await startCanvasHost({
-      runtime: defaultRuntime,
+      runtime: quietRuntime,
       handler,
       ownsHandler: false,
       port: 0,
@@ -192,7 +196,7 @@ describe("canvas host", () => {
     await fs.writeFile(index, "<html><body>v1</body></html>", "utf8");
 
     const server = await startCanvasHost({
-      runtime: defaultRuntime,
+      runtime: quietRuntime,
       rootDir: dir,
       port: 0,
       listenHost: "127.0.0.1",
@@ -235,6 +239,7 @@ describe("canvas host", () => {
     }
   }, 20_000);
 
+<<<<<<< HEAD
   it("serves the gateway-hosted A2UI scaffold", async () => {
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-canvas-"));
@@ -317,6 +322,9 @@ describe("canvas host", () => {
   });
 
   it("rejects A2UI symlink escapes", async () => {
+=======
+  it("serves A2UI scaffold and blocks traversal/symlink escapes", async () => {
+>>>>>>> 8796bfaaa (perf(test): consolidate browser and canvas hotspot suites)
     const dir = await createCaseDir();
     const a2uiRoot = path.resolve(process.cwd(), "src/canvas-host/a2ui");
     const bundlePath = path.join(a2uiRoot, "a2ui.bundle.js");
@@ -336,7 +344,7 @@ describe("canvas host", () => {
     createdLink = true;
 
     const server = await startCanvasHost({
-      runtime: defaultRuntime,
+      runtime: quietRuntime,
       rootDir: dir,
       port: 0,
       listenHost: "127.0.0.1",
@@ -344,9 +352,26 @@ describe("canvas host", () => {
     });
 
     try {
-      const res = await fetch(`http://127.0.0.1:${server.port}${A2UI_PATH}/${linkName}`);
-      expect(res.status).toBe(404);
-      expect(await res.text()).toBe("not found");
+      const res = await fetch(`http://127.0.0.1:${server.port}/__openclaw__/a2ui/`);
+      const html = await res.text();
+      expect(res.status).toBe(200);
+      expect(html).toContain("openclaw-a2ui-host");
+      expect(html).toContain("openclawCanvasA2UIAction");
+
+      const bundleRes = await fetch(
+        `http://127.0.0.1:${server.port}/__openclaw__/a2ui/a2ui.bundle.js`,
+      );
+      const js = await bundleRes.text();
+      expect(bundleRes.status).toBe(200);
+      expect(js).toContain("openclawA2UI");
+      const traversalRes = await fetch(
+        `http://127.0.0.1:${server.port}${A2UI_PATH}/%2e%2e%2fpackage.json`,
+      );
+      expect(traversalRes.status).toBe(404);
+      expect(await traversalRes.text()).toBe("not found");
+      const symlinkRes = await fetch(`http://127.0.0.1:${server.port}${A2UI_PATH}/${linkName}`);
+      expect(symlinkRes.status).toBe(404);
+      expect(await symlinkRes.text()).toBe("not found");
     } finally {
       await server.close();
       if (createdLink) {
