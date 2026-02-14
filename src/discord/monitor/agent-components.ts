@@ -35,6 +35,108 @@ type DiscordUser = Parameters<typeof formatDiscordUserTag>[0];
 
 type AgentComponentInteraction = ButtonInteraction | StringSelectMenuInteraction;
 
+type DiscordChannelContext = {
+  channelName: string | undefined;
+  channelSlug: string;
+  channelType: number | undefined;
+  isThread: boolean;
+  parentId: string | undefined;
+  parentName: string | undefined;
+  parentSlug: string;
+};
+
+function resolveDiscordChannelContext(
+  interaction: AgentComponentInteraction,
+): DiscordChannelContext {
+  const channel = interaction.channel;
+  const channelName = channel && "name" in channel ? (channel.name as string) : undefined;
+  const channelSlug = channelName ? normalizeDiscordSlug(channelName) : "";
+  const channelType = channel && "type" in channel ? (channel.type as number) : undefined;
+  const isThread = isThreadChannelType(channelType);
+
+  let parentId: string | undefined;
+  let parentName: string | undefined;
+  let parentSlug = "";
+  if (isThread && channel && "parentId" in channel) {
+    parentId = (channel.parentId as string) ?? undefined;
+    if ("parent" in channel) {
+      const parent = (channel as { parent?: { name?: string } }).parent;
+      if (parent?.name) {
+        parentName = parent.name;
+        parentSlug = normalizeDiscordSlug(parentName);
+      }
+    }
+  }
+
+  return { channelName, channelSlug, channelType, isThread, parentId, parentName, parentSlug };
+}
+
+async function ensureGuildComponentMemberAllowed(params: {
+  interaction: AgentComponentInteraction;
+  guildInfo: ReturnType<typeof resolveDiscordGuildEntry>;
+  channelId: string;
+  rawGuildId: string | undefined;
+  channelCtx: DiscordChannelContext;
+  memberRoleIds: string[];
+  user: DiscordUser;
+  replyOpts: { ephemeral?: boolean };
+  componentLabel: string;
+  unauthorizedReply: string;
+}): Promise<boolean> {
+  const {
+    interaction,
+    guildInfo,
+    channelId,
+    rawGuildId,
+    channelCtx,
+    memberRoleIds,
+    user,
+    replyOpts,
+    componentLabel,
+    unauthorizedReply,
+  } = params;
+
+  if (!rawGuildId) {
+    return true;
+  }
+
+  const channelConfig = resolveDiscordChannelConfigWithFallback({
+    guildInfo,
+    channelId,
+    channelName: channelCtx.channelName,
+    channelSlug: channelCtx.channelSlug,
+    parentId: channelCtx.parentId,
+    parentName: channelCtx.parentName,
+    parentSlug: channelCtx.parentSlug,
+    scope: channelCtx.isThread ? "thread" : "channel",
+  });
+
+  const channelUsers = channelConfig?.users ?? guildInfo?.users;
+  const channelRoles = channelConfig?.roles ?? guildInfo?.roles;
+  const memberAllowed = resolveDiscordMemberAllowed({
+    userAllowList: channelUsers,
+    roleAllowList: channelRoles,
+    memberRoleIds,
+    userId: user.id,
+    userName: user.username,
+    userTag: user.discriminator ? `${user.username}#${user.discriminator}` : undefined,
+  });
+  if (memberAllowed) {
+    return true;
+  }
+
+  logVerbose(`agent ${componentLabel}: blocked user ${user.id} (not in users/roles allowlist)`);
+  try {
+    await interaction.reply({
+      content: unauthorizedReply,
+      ...replyOpts,
+    });
+  } catch {
+    // Interaction may have expired
+  }
+  return false;
+}
+
 export type AgentComponentContext = {
   cfg: OpenClawConfig;
   accountId: string;
@@ -262,11 +364,11 @@ export class AgentComponentButton extends Button {
 
     // P2 FIX: Check user allowlist before processing component interaction
     // This prevents unauthorized users from injecting system events
-    const guild = interaction.guild;
     const guildInfo = resolveDiscordGuildEntry({
-      guild: guild ?? undefined,
+      guild: interaction.guild ?? undefined,
       guildEntries: this.ctx.guildEntries,
     });
+<<<<<<< HEAD
 
     // Resolve channel info for thread detection and allowlist inheritance
     const channel = interaction.channel;
@@ -349,6 +451,24 @@ export class AgentComponentButton extends Button {
 >>>>>>> 078642b30 (fix(discord): defer component interactions to prevent timeout (#16287))
         }
       }
+=======
+    const channelCtx = resolveDiscordChannelContext(interaction);
+    const { parentId } = channelCtx;
+    const memberAllowed = await ensureGuildComponentMemberAllowed({
+      interaction,
+      guildInfo,
+      channelId,
+      rawGuildId,
+      channelCtx,
+      memberRoleIds,
+      user,
+      replyOpts,
+      componentLabel: "button",
+      unauthorizedReply: "You are not authorized to use this button.",
+    });
+    if (!memberAllowed) {
+      return;
+>>>>>>> cd747dc58 (refactor(discord): share component allowlist checks)
     }
 
     // Resolve route with full context (guildId, proper peer kind, parentPeer)
@@ -461,11 +581,11 @@ export class AgentSelectMenu extends StringSelectMenu {
     }
 
     // Check user allowlist before processing component interaction
-    const guild = interaction.guild;
     const guildInfo = resolveDiscordGuildEntry({
-      guild: guild ?? undefined,
+      guild: interaction.guild ?? undefined,
       guildEntries: this.ctx.guildEntries,
     });
+<<<<<<< HEAD
 
     // Resolve channel info for thread detection and allowlist inheritance
     const channel = interaction.channel;
@@ -545,6 +665,24 @@ export class AgentSelectMenu extends StringSelectMenu {
 >>>>>>> 078642b30 (fix(discord): defer component interactions to prevent timeout (#16287))
         }
       }
+=======
+    const channelCtx = resolveDiscordChannelContext(interaction);
+    const { parentId } = channelCtx;
+    const memberAllowed = await ensureGuildComponentMemberAllowed({
+      interaction,
+      guildInfo,
+      channelId,
+      rawGuildId,
+      channelCtx,
+      memberRoleIds,
+      user,
+      replyOpts,
+      componentLabel: "select",
+      unauthorizedReply: "You are not authorized to use this select menu.",
+    });
+    if (!memberAllowed) {
+      return;
+>>>>>>> cd747dc58 (refactor(discord): share component allowlist checks)
     }
 
     // Extract selected values
