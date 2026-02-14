@@ -1,5 +1,4 @@
 import type { WebhookRequestBody } from "@line/bot-sdk";
-import type { IncomingMessage, ServerResponse } from "node:http";
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { LineChannelData, ResolvedLineAccount } from "./types.js";
@@ -26,8 +25,8 @@ import {
   createImageMessage,
   createLocationMessage,
 } from "./send.js";
-import { validateLineSignature } from "./signature.js";
 import { buildTemplateMessageFromPayload } from "./template-messages.js";
+import { createLineNodeWebhookHandler } from "./webhook-node.js";
 
 export interface MonitorLineProviderOptions {
   channelAccessToken: string;
@@ -85,6 +84,7 @@ export function getLineRuntimeState(accountId: string) {
   return runtimeState.get(`line:${accountId}`);
 }
 
+<<<<<<< HEAD
 async function readRequestBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
@@ -94,6 +94,8 @@ async function readRequestBody(req: IncomingMessage): Promise<string> {
   });
 }
 
+=======
+>>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
 function startLineLoadingKeepalive(params: {
   userId: string;
   accountId?: string;
@@ -291,6 +293,7 @@ export async function monitorLineProvider(
     pluginId: "line",
     accountId: resolvedAccountId,
     log: (msg) => logVerbose(msg),
+<<<<<<< HEAD
     handler: async (req: IncomingMessage, res: ServerResponse) => {
       // Handle GET requests for webhook verification
       if (req.method === "GET") {
@@ -370,6 +373,9 @@ export async function monitorLineProvider(
         }
       }
     },
+=======
+    handler: createLineNodeWebhookHandler({ channelSecret, bot, runtime }),
+>>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
   });
 
   logVerbose(`line: registered webhook handler at ${normalizedPath}`);
