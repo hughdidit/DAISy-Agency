@@ -218,7 +218,7 @@ export async function channelsAddCommand(
     cfg: nextConfig,
     channel,
     accountId,
-    ...input,
+    input,
   });
 
   await writeConfigFile(nextConfig);
