@@ -162,7 +162,13 @@ export function verifyTwilioWebhook(
   options?: {
     /** Override the public URL (e.g., from config) */
     publicUrl?: string;
-    /** Allow ngrok free tier compatibility mode (loopback only, less secure) */
+    /**
+     * Allow ngrok free tier compatibility mode (loopback only).
+     *
+     * IMPORTANT: This does NOT bypass signature verification.
+     * It only enables trusting forwarded headers on loopback so we can
+     * reconstruct the public ngrok URL that Twilio used for signing.
+     */
     allowNgrokFreeTierLoopbackBypass?: boolean;
     /** Skip verification entirely (only for development) */
     skipVerification?: boolean;
@@ -202,6 +208,7 @@ export function verifyTwilioWebhook(
     verificationUrl.includes(".ngrok-free.app") ||
     verificationUrl.includes(".ngrok.io");
 
+<<<<<<< HEAD
   if (
     isNgrokFreeTier &&
     options?.allowNgrokFreeTierLoopbackBypass &&
@@ -218,6 +225,8 @@ export function verifyTwilioWebhook(
     };
   }
 
+=======
+>>>>>>> ff11d8793 (fix(voice-call): require Twilio signature in ngrok loopback mode)
   return {
     ok: false,
     reason: `Invalid signature for URL: ${verificationUrl}`,

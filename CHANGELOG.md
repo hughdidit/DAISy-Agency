@@ -34,6 +34,11 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 =======
 - macOS: hard-limit unkeyed `openclaw://agent` deep links and ignore `deliver` / `to` / `channel` unless a valid unattended key is provided. Thanks @Cillian-Collins.
+<<<<<<< HEAD
+=======
+- Plugins: suppress false duplicate plugin id warnings when the same extension is discovered via multiple paths (config/workspace/global vs bundled), while still warning on genuine duplicates. (#16222) Thanks @shadril238.
+- Security/Voice Call: require valid Twilio webhook signatures even when ngrok free tier loopback compatibility mode is enabled. Thanks @p80n-sec.
+>>>>>>> ff11d8793 (fix(voice-call): require Twilio signature in ngrok loopback mode)
 - Security/Google Chat: deprecate `users/<email>` allowlists (treat `users/...` as immutable user id only); keep raw email allowlists for usability. Thanks @vincentkoc.
 <<<<<<< HEAD
 <<<<<<< HEAD
