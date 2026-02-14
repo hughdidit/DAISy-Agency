@@ -2,6 +2,7 @@
 =======
 import path from "node:path";
 import type { CanvasHostServer } from "../canvas-host/server.js";
+import type { PluginRegistry } from "../plugins/registry.js";
 import type { PluginServicesHandle } from "../plugins/services.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { ControlUiRootState } from "./control-ui.js";
@@ -37,7 +38,7 @@ import { logAcceptedEnvOption } from "../infra/env.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
 import { clearAgentRunContext, onAgentEvent } from "../infra/agent-events.js";
 import { onHeartbeatEvent } from "../infra/heartbeat-events.js";
-import { startHeartbeatRunner } from "../infra/heartbeat-runner.js";
+import { startHeartbeatRunner, type HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import { getMachineDisplayName } from "../infra/machine-name.js";
 import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
 import {
@@ -169,6 +170,9 @@ export async function startGatewayServer(
   port = 18789,
   opts: GatewayServerOptions = {},
 ): Promise<GatewayServer> {
+  const minimalTestGateway =
+    process.env.VITEST === "1" && process.env.OPENCLAW_TEST_MINIMAL_GATEWAY === "1";
+
   // Ensure all default port derivations (browser/canvas) see the actual runtime port.
   process.env.CLAWDBOT_GATEWAY_PORT = String(port);
   logAcceptedEnvOption({
@@ -240,13 +244,30 @@ export async function startGatewayServer(
   const defaultAgentId = resolveDefaultAgentId(cfgAtStart);
   const defaultWorkspaceDir = resolveAgentWorkspaceDir(cfgAtStart, defaultAgentId);
   const baseMethods = listGatewayMethods();
-  const { pluginRegistry, gatewayMethods: baseGatewayMethods } = loadGatewayPlugins({
-    cfg: cfgAtStart,
-    workspaceDir: defaultWorkspaceDir,
-    log,
-    coreGatewayHandlers,
-    baseMethods,
-  });
+  const emptyPluginRegistry: PluginRegistry = {
+    plugins: [],
+    tools: [],
+    hooks: [],
+    typedHooks: [],
+    channels: [],
+    providers: [],
+    gatewayHandlers: {},
+    httpHandlers: [],
+    httpRoutes: [],
+    cliRegistrars: [],
+    services: [],
+    commands: [],
+    diagnostics: [],
+  };
+  const { pluginRegistry, gatewayMethods: baseGatewayMethods } = minimalTestGateway
+    ? { pluginRegistry: emptyPluginRegistry, gatewayMethods: baseMethods }
+    : loadGatewayPlugins({
+        cfg: cfgAtStart,
+        workspaceDir: defaultWorkspaceDir,
+        log,
+        coreGatewayHandlers,
+        baseMethods,
+      });
   const channelLogs = Object.fromEntries(
     listChannelPlugins().map((plugin) => [plugin.id, logChannels.child(plugin.id)]),
   ) as Record<ChannelId, ReturnType<typeof createSubsystemLogger>>;
@@ -405,6 +426,7 @@ export async function startGatewayServer(
   const { getRuntimeSnapshot, startChannels, startChannel, stopChannel, markChannelLoggedOut } =
     channelManager;
 
+<<<<<<< HEAD
   const machineDisplayName = await getMachineDisplayName();
   const discovery = await startGatewayDiscovery({
     machineDisplayName,
@@ -418,48 +440,58 @@ export async function startGatewayServer(
     logDiscovery,
   });
   bonjourStop = discovery.bonjourStop;
+=======
+  if (!minimalTestGateway) {
+    const machineDisplayName = await getMachineDisplayName();
+    const discovery = await startGatewayDiscovery({
+      machineDisplayName,
+      port,
+      gatewayTls: gatewayTls.enabled
+        ? { enabled: true, fingerprintSha256: gatewayTls.fingerprintSha256 }
+        : undefined,
+      wideAreaDiscoveryEnabled: cfgAtStart.discovery?.wideArea?.enabled === true,
+      wideAreaDiscoveryDomain: cfgAtStart.discovery?.wideArea?.domain,
+      tailscaleMode,
+      mdnsMode: cfgAtStart.discovery?.mdns?.mode,
+      logDiscovery,
+    });
+    bonjourStop = discovery.bonjourStop;
+  }
+>>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
 
-  setSkillsRemoteRegistry(nodeRegistry);
-  void primeRemoteSkillsCache();
+  if (!minimalTestGateway) {
+    setSkillsRemoteRegistry(nodeRegistry);
+    void primeRemoteSkillsCache();
+  }
   // Debounce skills-triggered node probes to avoid feedback loops and rapid-fire invokes.
   // Skills changes can happen in bursts (e.g., file watcher events), and each probe
   // takes time to complete. A 30-second delay ensures we batch changes together.
   let skillsRefreshTimer: ReturnType<typeof setTimeout> | null = null;
   const skillsRefreshDelayMs = 30_000;
-  const skillsChangeUnsub = registerSkillsChangeListener((event) => {
-    if (event.reason === "remote-node") {
-      return;
-    }
-    if (skillsRefreshTimer) {
-      clearTimeout(skillsRefreshTimer);
-    }
-    skillsRefreshTimer = setTimeout(() => {
-      skillsRefreshTimer = null;
-      const latest = loadConfig();
-      void refreshRemoteBinsForConnectedNodes(latest);
-    }, skillsRefreshDelayMs);
-  });
+  const skillsChangeUnsub = minimalTestGateway
+    ? () => {}
+    : registerSkillsChangeListener((event) => {
+        if (event.reason === "remote-node") {
+          return;
+        }
+        if (skillsRefreshTimer) {
+          clearTimeout(skillsRefreshTimer);
+        }
+        skillsRefreshTimer = setTimeout(() => {
+          skillsRefreshTimer = null;
+          const latest = loadConfig();
+          void refreshRemoteBinsForConnectedNodes(latest);
+        }, skillsRefreshDelayMs);
+      });
 
-  const { tickInterval, healthInterval, dedupeCleanup } = startGatewayMaintenanceTimers({
-    broadcast,
-    nodeSendToAllSubscribed,
-    getPresenceVersion,
-    getHealthVersion,
-    refreshGatewayHealthSnapshot,
-    logHealth,
-    dedupe,
-    chatAbortControllers,
-    chatRunState,
-    chatRunBuffers,
-    chatDeltaSentAt,
-    removeChatRun,
-    agentRunSeq,
-    nodeSendToSession,
-  });
-
-  const agentUnsub = onAgentEvent(
-    createAgentEventHandler({
+  const noopInterval = () => setInterval(() => {}, 1 << 30);
+  let tickInterval = noopInterval();
+  let healthInterval = noopInterval();
+  let dedupeCleanup = noopInterval();
+  if (!minimalTestGateway) {
+    ({ tickInterval, healthInterval, dedupeCleanup } = startGatewayMaintenanceTimers({
       broadcast,
+<<<<<<< HEAD
       nodeSendToSession,
       agentRunSeq,
       chatRunState,
@@ -467,15 +499,73 @@ export async function startGatewayServer(
       clearAgentRunContext,
     }),
   );
+=======
+      nodeSendToAllSubscribed,
+      getPresenceVersion,
+      getHealthVersion,
+      refreshGatewayHealthSnapshot,
+      logHealth,
+      dedupe,
+      chatAbortControllers,
+      chatRunState,
+      chatRunBuffers,
+      chatDeltaSentAt,
+      removeChatRun,
+      agentRunSeq,
+      nodeSendToSession,
+    }));
+  }
+>>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
 
-  const heartbeatUnsub = onHeartbeatEvent((evt) => {
-    broadcast("heartbeat", evt, { dropIfSlow: true });
-  });
+  const agentUnsub = minimalTestGateway
+    ? null
+    : onAgentEvent(
+        createAgentEventHandler({
+          broadcast,
+          broadcastToConnIds,
+          nodeSendToSession,
+          agentRunSeq,
+          chatRunState,
+          resolveSessionKeyForRun,
+          clearAgentRunContext,
+          toolEventRecipients,
+        }),
+      );
 
-  let heartbeatRunner = startHeartbeatRunner({ cfg: cfgAtStart });
+  const heartbeatUnsub = minimalTestGateway
+    ? null
+    : onHeartbeatEvent((evt) => {
+        broadcast("heartbeat", evt, { dropIfSlow: true });
+      });
 
-  void cron.start().catch((err) => logCron.error(`failed to start: ${String(err)}`));
+  let heartbeatRunner: HeartbeatRunner = minimalTestGateway
+    ? {
+        stop: () => {},
+        updateConfig: () => {},
+      }
+    : startHeartbeatRunner({ cfg: cfgAtStart });
 
+  if (!minimalTestGateway) {
+    void cron.start().catch((err) => logCron.error(`failed to start: ${String(err)}`));
+  }
+
+<<<<<<< HEAD
+=======
+  // Recover pending outbound deliveries from previous crash/restart.
+  if (!minimalTestGateway) {
+    void (async () => {
+      const { recoverPendingDeliveries } = await import("../infra/outbound/delivery-queue.js");
+      const { deliverOutboundPayloads } = await import("../infra/outbound/deliver.js");
+      const logRecovery = log.child("delivery-recovery");
+      await recoverPendingDeliveries({
+        deliver: deliverOutboundPayloads,
+        log: logRecovery,
+        cfg: cfgAtStart,
+      });
+    })().catch((err) => log.error(`Delivery recovery failed: ${String(err)}`));
+  }
+
+>>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
   const execApprovalManager = new ExecApprovalManager();
   const execApprovalForwarder = createExecApprovalForwarder();
   const execApprovalHandlers = createExecApprovalHandlers(execApprovalManager, {
@@ -550,28 +640,35 @@ export async function startGatewayServer(
     log,
     isNixMode,
   });
-  scheduleGatewayUpdateCheck({ cfg: cfgAtStart, log, isNixMode });
-  const tailscaleCleanup = await startGatewayTailscaleExposure({
-    tailscaleMode,
-    resetOnExit: tailscaleConfig.resetOnExit,
-    port,
-    controlUiBasePath,
-    logTailscale,
-  });
+  if (!minimalTestGateway) {
+    scheduleGatewayUpdateCheck({ cfg: cfgAtStart, log, isNixMode });
+  }
+  const tailscaleCleanup = minimalTestGateway
+    ? null
+    : await startGatewayTailscaleExposure({
+        tailscaleMode,
+        resetOnExit: tailscaleConfig.resetOnExit,
+        port,
+        controlUiBasePath,
+        logTailscale,
+      });
 
   let browserControl: Awaited<ReturnType<typeof startBrowserControlServerIfEnabled>> = null;
-  ({ browserControl, pluginServices } = await startGatewaySidecars({
-    cfg: cfgAtStart,
-    pluginRegistry,
-    defaultWorkspaceDir,
-    deps,
-    startChannels,
-    log,
-    logHooks,
-    logChannels,
-    logBrowser,
-  }));
+  if (!minimalTestGateway) {
+    ({ browserControl, pluginServices } = await startGatewaySidecars({
+      cfg: cfgAtStart,
+      pluginRegistry,
+      defaultWorkspaceDir,
+      deps,
+      startChannels,
+      log,
+      logHooks,
+      logChannels,
+      logBrowser,
+    }));
+  }
 
+<<<<<<< HEAD
   const { applyHotReload, requestGatewayRestart } = createGatewayReloadHandlers({
     deps,
     broadcast,
@@ -597,19 +694,60 @@ export async function startGatewayServer(
     logCron,
     logReload,
   });
+=======
+  // Run gateway_start plugin hook (fire-and-forget)
+  if (!minimalTestGateway) {
+    const hookRunner = getGlobalHookRunner();
+    if (hookRunner?.hasHooks("gateway_start")) {
+      void hookRunner.runGatewayStart({ port }, { port }).catch((err) => {
+        log.warn(`gateway_start hook failed: ${String(err)}`);
+      });
+    }
+  }
 
-  const configReloader = startGatewayConfigReloader({
-    initialConfig: cfgAtStart,
-    readSnapshot: readConfigFileSnapshot,
-    onHotReload: applyHotReload,
-    onRestart: requestGatewayRestart,
-    log: {
-      info: (msg) => logReload.info(msg),
-      warn: (msg) => logReload.warn(msg),
-      error: (msg) => logReload.error(msg),
-    },
-    watchPath: CONFIG_PATH,
-  });
+  const configReloader = minimalTestGateway
+    ? { stop: async () => {} }
+    : (() => {
+        const { applyHotReload, requestGatewayRestart } = createGatewayReloadHandlers({
+          deps,
+          broadcast,
+          getState: () => ({
+            hooksConfig,
+            heartbeatRunner,
+            cronState,
+            browserControl,
+          }),
+          setState: (nextState) => {
+            hooksConfig = nextState.hooksConfig;
+            heartbeatRunner = nextState.heartbeatRunner;
+            cronState = nextState.cronState;
+            cron = cronState.cron;
+            cronStorePath = cronState.storePath;
+            browserControl = nextState.browserControl;
+          },
+          startChannel,
+          stopChannel,
+          logHooks,
+          logBrowser,
+          logChannels,
+          logCron,
+          logReload,
+        });
+>>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
+
+        return startGatewayConfigReloader({
+          initialConfig: cfgAtStart,
+          readSnapshot: readConfigFileSnapshot,
+          onHotReload: applyHotReload,
+          onRestart: requestGatewayRestart,
+          log: {
+            info: (msg) => logReload.info(msg),
+            warn: (msg) => logReload.warn(msg),
+            error: (msg) => logReload.error(msg),
+          },
+          watchPath: CONFIG_PATH,
+        });
+      })();
 
   const close = createGatewayCloseHandler({
     bonjourStop,

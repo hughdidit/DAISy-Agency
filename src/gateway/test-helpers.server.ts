@@ -52,6 +52,14 @@ let previousConfigPath: string | undefined;
 let previousSkipBrowserControl: string | undefined;
 let previousSkipGmailWatcher: string | undefined;
 let previousSkipCanvasHost: string | undefined;
+<<<<<<< HEAD
+=======
+let previousBundledPluginsDir: string | undefined;
+let previousSkipChannels: string | undefined;
+let previousSkipProviders: string | undefined;
+let previousSkipCron: string | undefined;
+let previousMinimalGateway: string | undefined;
+>>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
 let tempHome: string | undefined;
 let tempConfigRoot: string | undefined;
 
@@ -86,12 +94,26 @@ export async function writeSessionStore(params: {
 async function setupGatewayTestHome() {
   previousHome = process.env.HOME;
   previousUserProfile = process.env.USERPROFILE;
+<<<<<<< HEAD
   previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   previousConfigPath = process.env.CLAWDBOT_CONFIG_PATH;
   previousSkipBrowserControl = process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER;
   previousSkipGmailWatcher = process.env.CLAWDBOT_SKIP_GMAIL_WATCHER;
   previousSkipCanvasHost = process.env.CLAWDBOT_SKIP_CANVAS_HOST;
   tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gateway-home-"));
+=======
+  previousStateDir = process.env.OPENCLAW_STATE_DIR;
+  previousConfigPath = process.env.OPENCLAW_CONFIG_PATH;
+  previousSkipBrowserControl = process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER;
+  previousSkipGmailWatcher = process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
+  previousSkipCanvasHost = process.env.OPENCLAW_SKIP_CANVAS_HOST;
+  previousBundledPluginsDir = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+  previousSkipChannels = process.env.OPENCLAW_SKIP_CHANNELS;
+  previousSkipProviders = process.env.OPENCLAW_SKIP_PROVIDERS;
+  previousSkipCron = process.env.OPENCLAW_SKIP_CRON;
+  previousMinimalGateway = process.env.OPENCLAW_TEST_MINIMAL_GATEWAY;
+  tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gateway-home-"));
+>>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
   process.env.HOME = tempHome;
   process.env.USERPROFILE = tempHome;
   process.env.CLAWDBOT_STATE_DIR = path.join(tempHome, ".clawdbot");
@@ -99,9 +121,22 @@ async function setupGatewayTestHome() {
 }
 
 function applyGatewaySkipEnv() {
+<<<<<<< HEAD
   process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = "1";
   process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = "1";
   process.env.CLAWDBOT_SKIP_CANVAS_HOST = "1";
+=======
+  process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = "1";
+  process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
+  process.env.OPENCLAW_SKIP_CANVAS_HOST = "1";
+  process.env.OPENCLAW_SKIP_CHANNELS = "1";
+  process.env.OPENCLAW_SKIP_PROVIDERS = "1";
+  process.env.OPENCLAW_SKIP_CRON = "1";
+  process.env.OPENCLAW_TEST_MINIMAL_GATEWAY = "1";
+  process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = tempHome
+    ? path.join(tempHome, "openclaw-test-no-bundled-extensions")
+    : "openclaw-test-no-bundled-extensions";
+>>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
 }
 
 async function resetGatewayTestState(options: { uniqueConfigRoot: boolean }) {
@@ -219,7 +254,35 @@ async function cleanupGatewayTestHome(options: { restoreEnv: boolean }) {
     } else {
       process.env.OPENCLAW_SKIP_CANVAS_HOST = previousSkipCanvasHost;
     }
+<<<<<<< HEAD
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+=======
+    if (previousBundledPluginsDir === undefined) {
+      delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+    } else {
+      process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
+    }
+    if (previousSkipChannels === undefined) {
+      delete process.env.OPENCLAW_SKIP_CHANNELS;
+    } else {
+      process.env.OPENCLAW_SKIP_CHANNELS = previousSkipChannels;
+    }
+    if (previousSkipProviders === undefined) {
+      delete process.env.OPENCLAW_SKIP_PROVIDERS;
+    } else {
+      process.env.OPENCLAW_SKIP_PROVIDERS = previousSkipProviders;
+    }
+    if (previousSkipCron === undefined) {
+      delete process.env.OPENCLAW_SKIP_CRON;
+    } else {
+      process.env.OPENCLAW_SKIP_CRON = previousSkipCron;
+    }
+    if (previousMinimalGateway === undefined) {
+      delete process.env.OPENCLAW_TEST_MINIMAL_GATEWAY;
+    } else {
+      process.env.OPENCLAW_TEST_MINIMAL_GATEWAY = previousMinimalGateway;
+    }
+>>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
   }
   if (options.restoreEnv && tempHome) {
     await fs.rm(tempHome, {
