@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
+import {
+  buildChannelAccountSnapshot,
+  formatChannelAllowFrom,
+} from "../channels/account-summary.js";
+>>>>>>> 64df78744 (refactor(channels): share account summary helpers)
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
 import { type MoltbotConfig, loadConfig } from "../config/config.js";
@@ -60,6 +68,7 @@ const resolveAccountConfigured = async (
   return true;
 };
 
+<<<<<<< HEAD
 const buildAccountSnapshot = (params: {
   plugin: ChannelPlugin;
   account: unknown;
@@ -95,6 +104,8 @@ const formatAllowFrom = (params: {
   return params.allowFrom.map((entry) => String(entry).trim()).filter(Boolean);
 };
 
+=======
+>>>>>>> 64df78744 (refactor(channels): share account summary helpers)
 const buildAccountDetails = (params: {
   entry: ChannelAccountEntry;
   plugin: ChannelPlugin;
@@ -132,7 +143,7 @@ const buildAccountDetails = (params: {
   }
 
   if (params.includeAllowFrom && snapshot.allowFrom?.length) {
-    const formatted = formatAllowFrom({
+    const formatted = formatChannelAllowFrom({
       plugin: params.plugin,
       cfg: params.cfg,
       accountId: snapshot.accountId,
@@ -166,7 +177,7 @@ export async function buildChannelSummary(
       const account = plugin.config.resolveAccount(effective, accountId);
       const enabled = resolveAccountEnabled(plugin, account, effective);
       const configured = await resolveAccountConfigured(plugin, account, effective);
-      const snapshot = buildAccountSnapshot({
+      const snapshot = buildChannelAccountSnapshot({
         plugin,
         account,
         cfg: effective,

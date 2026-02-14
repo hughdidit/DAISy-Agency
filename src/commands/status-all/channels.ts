@@ -12,6 +12,10 @@ import type { MoltbotConfig } from "../../config/config.js";
 import { formatAge } from "./format.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+import {
+  buildChannelAccountSnapshot,
+  formatChannelAllowFrom,
+} from "../../channels/account-summary.js";
 import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import { sha256HexPrefix } from "../../logging/redact-identifier.js";
@@ -117,6 +121,7 @@ const resolveAccountConfigured = async (
   return configured !== false;
 };
 
+<<<<<<< HEAD
 const buildAccountSnapshot = (params: {
   plugin: ChannelPlugin;
   account: unknown;
@@ -150,6 +155,8 @@ const formatAllowFrom = (params: {
   return params.allowFrom.map((entry) => String(entry).trim()).filter(Boolean);
 };
 
+=======
+>>>>>>> 64df78744 (refactor(channels): share account summary helpers)
 const buildAccountNotes = (params: {
   plugin: ChannelPlugin;
   cfg: MoltbotConfig;
@@ -189,7 +196,7 @@ const buildAccountNotes = (params: {
   const allowFrom =
     plugin.config.resolveAllowFrom?.({ cfg, accountId: snapshot.accountId }) ?? snapshot.allowFrom;
   if (allowFrom?.length) {
-    const formatted = formatAllowFrom({
+    const formatted = formatChannelAllowFrom({
       plugin,
       cfg,
       accountId: snapshot.accountId,
@@ -361,7 +368,7 @@ export async function buildChannelsTable(
       const account = plugin.config.resolveAccount(cfg, accountId);
       const enabled = resolveAccountEnabled(plugin, account, cfg);
       const configured = await resolveAccountConfigured(plugin, account, cfg);
-      const snapshot = buildAccountSnapshot({
+      const snapshot = buildChannelAccountSnapshot({
         plugin,
         cfg,
         accountId,
