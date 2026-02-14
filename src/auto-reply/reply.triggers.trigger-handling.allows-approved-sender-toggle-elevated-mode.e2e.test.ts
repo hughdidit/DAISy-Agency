@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
-import { getReplyFromConfig } from "./reply.js";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
@@ -9,6 +8,7 @@ import {
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
@@ -52,6 +52,13 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 =======
+=======
+let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
+beforeAll(async () => {
+  ({ getReplyFromConfig } = await import("./reply.js"));
+});
+
+>>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 

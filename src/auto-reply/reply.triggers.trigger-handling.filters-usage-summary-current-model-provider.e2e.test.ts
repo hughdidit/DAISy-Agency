@@ -1,12 +1,15 @@
 import { join } from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { readFile } from "node:fs/promises";
 import { afterEach, describe, expect, it, vi } from "vitest";
 =======
 import { describe, expect, it } from "vitest";
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
+=======
+import { beforeAll, describe, expect, it } from "vitest";
+>>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 import { normalizeTestText } from "../../test/helpers/normalize-text.js";
-import { getReplyFromConfig } from "./reply.js";
 import {
   getProviderUsageMocks,
   getRunEmbeddedPiAgentMock,
@@ -14,6 +17,11 @@ import {
   makeCfg,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
+
+let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
+beforeAll(async () => {
+  ({ getReplyFromConfig } = await import("./reply.js"));
+});
 
 installTriggerHandlingE2eTestHooks();
 

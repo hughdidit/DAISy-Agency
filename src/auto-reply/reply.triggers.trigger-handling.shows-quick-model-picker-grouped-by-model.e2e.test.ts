@@ -1,13 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { normalizeTestText } from "../../test/helpers/normalize-text.js";
 import { loadSessionStore } from "../config/sessions.js";
-import { getReplyFromConfig } from "./reply.js";
 import {
   installTriggerHandlingE2eTestHooks,
   makeCfg,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 const _MAIN_SESSION_KEY = "agent:main:main";
 
@@ -51,6 +51,13 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 =======
+=======
+let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
+beforeAll(async () => {
+  ({ getReplyFromConfig } = await import("./reply.js"));
+});
+
+>>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
