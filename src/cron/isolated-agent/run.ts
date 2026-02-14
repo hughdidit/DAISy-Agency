@@ -173,6 +173,7 @@ export async function runCronIsolatedAgentTurn(params: {
   agentId?: string;
   lane?: string;
 }): Promise<RunCronAgentTurnResult> {
+  const isFastTestEnv = process.env.OPENCLAW_TEST_FAST === "1";
   const defaultAgentId = resolveDefaultAgentId(params.cfg);
   const requestedAgentId =
     typeof params.agentId === "string" && params.agentId.trim()
@@ -214,7 +215,7 @@ export async function runCronIsolatedAgentTurn(params: {
   const agentDir = resolveAgentDir(params.cfg, agentId);
   const workspace = await ensureAgentWorkspace({
     dir: workspaceDirRaw,
-    ensureBootstrapFiles: !agentCfg?.skipBootstrap,
+    ensureBootstrapFiles: !agentCfg?.skipBootstrap && !isFastTestEnv,
   });
   const workspaceDir = workspace.dir;
 
@@ -279,6 +280,64 @@ export async function runCronIsolatedAgentTurn(params: {
     agentId,
     nowMs: now,
   });
+<<<<<<< HEAD
+=======
+  const runSessionId = cronSession.sessionEntry.sessionId;
+  const runSessionKey = baseSessionKey.startsWith("cron:")
+    ? `${agentSessionKey}:run:${runSessionId}`
+    : agentSessionKey;
+  const persistSessionEntry = async () => {
+    if (isFastTestEnv) {
+      return;
+    }
+    cronSession.store[agentSessionKey] = cronSession.sessionEntry;
+    if (runSessionKey !== agentSessionKey) {
+      cronSession.store[runSessionKey] = cronSession.sessionEntry;
+    }
+    await updateSessionStore(cronSession.storePath, (store) => {
+      store[agentSessionKey] = cronSession.sessionEntry;
+      if (runSessionKey !== agentSessionKey) {
+        store[runSessionKey] = cronSession.sessionEntry;
+      }
+    });
+  };
+  const withRunSession = (
+    result: Omit<RunCronAgentTurnResult, "sessionId" | "sessionKey">,
+  ): RunCronAgentTurnResult => ({
+    ...result,
+    sessionId: runSessionId,
+    sessionKey: runSessionKey,
+  });
+  if (!cronSession.sessionEntry.label?.trim() && baseSessionKey.startsWith("cron:")) {
+    const labelSuffix =
+      typeof params.job.name === "string" && params.job.name.trim()
+        ? params.job.name.trim()
+        : params.job.id;
+    cronSession.sessionEntry.label = `Cron: ${labelSuffix}`;
+  }
+
+  // Respect session model override — check session.modelOverride before falling
+  // back to the default config model. This ensures /model changes are honoured
+  // by cron and isolated agent runs.
+  if (!modelOverride && !hooksGmailModelApplied) {
+    const sessionModelOverride = cronSession.sessionEntry.modelOverride?.trim();
+    if (sessionModelOverride) {
+      const sessionProviderOverride =
+        cronSession.sessionEntry.providerOverride?.trim() || resolvedDefault.provider;
+      const resolvedSessionOverride = resolveAllowedModelRef({
+        cfg: cfgWithAgentDefaults,
+        catalog: await loadCatalog(),
+        raw: `${sessionProviderOverride}/${sessionModelOverride}`,
+        defaultProvider: resolvedDefault.provider,
+        defaultModel: resolvedDefault.model,
+      });
+      if (!("error" in resolvedSessionOverride)) {
+        provider = resolvedSessionOverride.ref.provider;
+        model = resolvedSessionOverride.ref.model;
+      }
+    }
+  }
+>>>>>>> e1220c48f (perf(test): skip skills snapshot work in fast env)
 
   // Resolve thinking level - job thinking > hooks.gmail.thinking > agent default
   const hooksGmailThinking = isGmailHook
@@ -361,15 +420,21 @@ export async function runCronIsolatedAgentTurn(params: {
       `${commandBody}\n\nReturn your summary as plain text; it will be delivered by the main agent. If the task explicitly calls for messaging a specific external recipient, note who/where it should go instead of sending it yourself.`.trim();
   }
 
-  const existingSnapshot = cronSession.sessionEntry.skillsSnapshot;
-  const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
-  const needsSkillsSnapshot =
-    !existingSnapshot || existingSnapshot.version !== skillsSnapshotVersion;
-  const skillsSnapshot = needsSkillsSnapshot
-    ? buildWorkspaceSkillSnapshot(workspaceDir, {
+  let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
+  if (isFastTestEnv) {
+    // Fast unit-test mode: avoid scanning the workspace and writing session stores.
+    skillsSnapshot = skillsSnapshot ?? { prompt: "", skills: [] };
+  } else {
+    const existingSnapshot = cronSession.sessionEntry.skillsSnapshot;
+    const skillsSnapshotVersion = getSkillsSnapshotVersion(workspaceDir);
+    const needsSkillsSnapshot =
+      !existingSnapshot || existingSnapshot.version !== skillsSnapshotVersion;
+    if (needsSkillsSnapshot) {
+      skillsSnapshot = buildWorkspaceSkillSnapshot(workspaceDir, {
         config: cfgWithAgentDefaults,
         eligibility: { remote: getRemoteSkillEligibility() },
         snapshotVersion: skillsSnapshotVersion,
+<<<<<<< HEAD
       })
     : cronSession.sessionEntry.skillsSnapshot;
   if (needsSkillsSnapshot && skillsSnapshot) {
@@ -382,6 +447,18 @@ export async function runCronIsolatedAgentTurn(params: {
     await updateSessionStore(cronSession.storePath, (store) => {
       store[agentSessionKey] = cronSession.sessionEntry;
     });
+=======
+      });
+      if (skillsSnapshot) {
+        cronSession.sessionEntry = {
+          ...cronSession.sessionEntry,
+          updatedAt: Date.now(),
+          skillsSnapshot,
+        };
+        await persistSessionEntry();
+      }
+    }
+>>>>>>> e1220c48f (perf(test): skip skills snapshot work in fast env)
   }
 
   // Persist systemSent before the run, mirroring the inbound auto-reply behavior.
