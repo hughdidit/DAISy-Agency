@@ -1,7 +1,11 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+=======
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
+>>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { getMatrixRuntime } from "../../runtime.js";

@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import type { MoltbotConfig, WizardPrompter } from "clawdbot/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig, WizardPrompter } from "openclaw/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
+>>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 
 type PromptAccountIdParams = {
   cfg: MoltbotConfig;

@@ -11,9 +11,23 @@ const ciWorkers = isWindows ? 1 : 3;
 
 export default defineConfig({
   resolve: {
+<<<<<<< HEAD
     alias: {
       "clawdbot/plugin-sdk": path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
     },
+=======
+    // Keep this ordered: the base `openclaw/plugin-sdk` alias is a prefix match.
+    alias: [
+      {
+        find: "openclaw/plugin-sdk/account-id",
+        replacement: path.join(repoRoot, "src", "plugin-sdk", "account-id.ts"),
+      },
+      {
+        find: "openclaw/plugin-sdk",
+        replacement: path.join(repoRoot, "src", "plugin-sdk", "index.ts"),
+      },
+    ],
+>>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
   },
   test: {
     fileParallelism: false,

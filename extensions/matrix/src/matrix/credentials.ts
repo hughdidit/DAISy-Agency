@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
+>>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import { getMatrixRuntime } from "../runtime.js";
 
 export type MatrixStoredCredentials = {
