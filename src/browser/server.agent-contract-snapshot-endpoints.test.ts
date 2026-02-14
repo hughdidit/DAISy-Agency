@@ -1,16 +1,25 @@
-import fs from "node:fs/promises";
-import { type AddressInfo, createServer } from "node:net";
-import os from "node:os";
-import path from "node:path";
 import { fetch as realFetch } from "undici";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> dee3abfcd (refactor(test): share browser control server harness)
 import { DEFAULT_AI_SNAPSHOT_MAX_CHARS } from "./constants.js";
+import {
+  getBrowserControlServerBaseUrl,
+  getBrowserControlServerTestState,
+  getCdpMocks,
+  getPwMocks,
+  installBrowserControlServerHooks,
+  startBrowserControlServerFromConfig,
+} from "./server.control-server.test-harness.js";
 
+<<<<<<< HEAD
 let testPort = 0;
 let cdpBaseUrl = "";
 let reachable = false;
@@ -303,10 +312,18 @@ describe("browser control server", () => {
     }
     await stopBrowserControlServer();
   });
+=======
+const state = getBrowserControlServerTestState();
+const cdpMocks = getCdpMocks();
+const pwMocks = getPwMocks();
+
+describe("browser control server", () => {
+  installBrowserControlServerHooks();
+>>>>>>> dee3abfcd (refactor(test): share browser control server harness)
 
   const startServerAndBase = async () => {
     await startBrowserControlServerFromConfig();
-    const base = `http://127.0.0.1:${testPort}`;
+    const base = getBrowserControlServerBaseUrl();
     await realFetch(`${base}/start`, { method: "POST" }).then((r) => r.json());
     return base;
   };
@@ -340,7 +357,7 @@ describe("browser control server", () => {
     expect(snapAi.ok).toBe(true);
     expect(snapAi.format).toBe("ai");
     expect(pwMocks.snapshotAiViaPlaywright).toHaveBeenCalledWith({
-      cdpUrl: cdpBaseUrl,
+      cdpUrl: state.cdpBaseUrl,
       targetId: "abcd1234",
       maxChars: DEFAULT_AI_SNAPSHOT_MAX_CHARS,
     });
@@ -352,7 +369,7 @@ describe("browser control server", () => {
     expect(snapAiZero.format).toBe("ai");
     const [lastCall] = pwMocks.snapshotAiViaPlaywright.mock.calls.at(-1) ?? [];
     expect(lastCall).toEqual({
-      cdpUrl: cdpBaseUrl,
+      cdpUrl: state.cdpBaseUrl,
       targetId: "abcd1234",
     });
   });
@@ -366,7 +383,7 @@ describe("browser control server", () => {
     expect(nav.ok).toBe(true);
     expect(typeof nav.targetId).toBe("string");
     expect(pwMocks.navigateViaPlaywright).toHaveBeenCalledWith({
-      cdpUrl: cdpBaseUrl,
+      cdpUrl: state.cdpBaseUrl,
       targetId: "abcd1234",
       url: "https://example.com",
     });
@@ -379,7 +396,7 @@ describe("browser control server", () => {
     });
     expect(click.ok).toBe(true);
     expect(pwMocks.clickViaPlaywright).toHaveBeenNthCalledWith(1, {
-      cdpUrl: cdpBaseUrl,
+      cdpUrl: state.cdpBaseUrl,
       targetId: "abcd1234",
       ref: "1",
       doubleClick: false,
@@ -404,7 +421,7 @@ describe("browser control server", () => {
     });
     expect(type.ok).toBe(true);
     expect(pwMocks.typeViaPlaywright).toHaveBeenNthCalledWith(1, {
-      cdpUrl: cdpBaseUrl,
+      cdpUrl: state.cdpBaseUrl,
       targetId: "abcd1234",
       ref: "1",
       text: "",
@@ -418,7 +435,7 @@ describe("browser control server", () => {
     });
     expect(press.ok).toBe(true);
     expect(pwMocks.pressKeyViaPlaywright).toHaveBeenCalledWith({
-      cdpUrl: cdpBaseUrl,
+      cdpUrl: state.cdpBaseUrl,
       targetId: "abcd1234",
       key: "Enter",
     });
@@ -429,7 +446,7 @@ describe("browser control server", () => {
     });
     expect(hover.ok).toBe(true);
     expect(pwMocks.hoverViaPlaywright).toHaveBeenCalledWith({
-      cdpUrl: cdpBaseUrl,
+      cdpUrl: state.cdpBaseUrl,
       targetId: "abcd1234",
       ref: "2",
     });
@@ -440,7 +457,7 @@ describe("browser control server", () => {
     });
     expect(scroll.ok).toBe(true);
     expect(pwMocks.scrollIntoViewViaPlaywright).toHaveBeenCalledWith({
-      cdpUrl: cdpBaseUrl,
+      cdpUrl: state.cdpBaseUrl,
       targetId: "abcd1234",
       ref: "2",
     });
@@ -452,7 +469,7 @@ describe("browser control server", () => {
     });
     expect(drag.ok).toBe(true);
     expect(pwMocks.dragViaPlaywright).toHaveBeenCalledWith({
-      cdpUrl: cdpBaseUrl,
+      cdpUrl: state.cdpBaseUrl,
       targetId: "abcd1234",
       startRef: "3",
       endRef: "4",

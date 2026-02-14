@@ -1,8 +1,5 @@
-import fs from "node:fs/promises";
-import { type AddressInfo, createServer } from "node:net";
-import os from "node:os";
-import path from "node:path";
 import { fetch as realFetch } from "undici";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -302,10 +299,31 @@ describe("browser control server", () => {
     }
     await stopBrowserControlServer();
   });
+=======
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  getBrowserControlServerBaseUrl,
+  getBrowserControlServerTestState,
+  getCdpMocks,
+  getFreePort,
+  installBrowserControlServerHooks,
+  makeResponse,
+  getPwMocks,
+  startBrowserControlServerFromConfig,
+  stopBrowserControlServer,
+} from "./server.control-server.test-harness.js";
+
+const state = getBrowserControlServerTestState();
+const cdpMocks = getCdpMocks();
+const pwMocks = getPwMocks();
+
+describe("browser control server", () => {
+  installBrowserControlServerHooks();
+>>>>>>> dee3abfcd (refactor(test): share browser control server harness)
 
   it("POST /tabs/open?profile=unknown returns 404", async () => {
     await startBrowserControlServerFromConfig();
-    const base = `http://127.0.0.1:${testPort}`;
+    const base = getBrowserControlServerBaseUrl();
 
     const result = await realFetch(`${base}/tabs/open?profile=unknown`, {
       method: "POST",
@@ -320,8 +338,8 @@ describe("browser control server", () => {
 
 describe("profile CRUD endpoints", () => {
   beforeEach(async () => {
-    reachable = false;
-    cfgAttachOnly = false;
+    state.reachable = false;
+    state.cfgAttachOnly = false;
 
     for (const fn of Object.values(pwMocks)) {
       fn.mockClear();
@@ -330,10 +348,17 @@ describe("profile CRUD endpoints", () => {
       fn.mockClear();
     }
 
+<<<<<<< HEAD
     testPort = await getFreePort();
     _cdpBaseUrl = `http://127.0.0.1:${testPort + 1}`;
     prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
     process.env.CLAWDBOT_GATEWAY_PORT = String(testPort - 2);
+=======
+    state.testPort = await getFreePort();
+    state.cdpBaseUrl = `http://127.0.0.1:${state.testPort + 1}`;
+    state.prevGatewayPort = process.env.OPENCLAW_GATEWAY_PORT;
+    process.env.OPENCLAW_GATEWAY_PORT = String(state.testPort - 2);
+>>>>>>> dee3abfcd (refactor(test): share browser control server harness)
 
 <<<<<<< HEAD
     prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
@@ -356,17 +381,24 @@ describe("profile CRUD endpoints", () => {
   afterEach(async () => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+<<<<<<< HEAD
     if (prevGatewayPort === undefined) {
       delete process.env.CLAWDBOT_GATEWAY_PORT;
     } else {
       process.env.CLAWDBOT_GATEWAY_PORT = prevGatewayPort;
+=======
+    if (state.prevGatewayPort === undefined) {
+      delete process.env.OPENCLAW_GATEWAY_PORT;
+    } else {
+      process.env.OPENCLAW_GATEWAY_PORT = state.prevGatewayPort;
+>>>>>>> dee3abfcd (refactor(test): share browser control server harness)
     }
     await stopBrowserControlServer();
   });
 
   it("validates profile create/delete endpoints", async () => {
     await startBrowserControlServerFromConfig();
-    const base = `http://127.0.0.1:${testPort}`;
+    const base = getBrowserControlServerBaseUrl();
 
     const createMissingName = await realFetch(`${base}/profiles/create`, {
       method: "POST",
