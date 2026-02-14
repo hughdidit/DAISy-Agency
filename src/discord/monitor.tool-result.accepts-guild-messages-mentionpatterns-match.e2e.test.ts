@@ -92,6 +92,7 @@ beforeEach(() => {
   __resetDiscordChannelInfoCacheForTest();
 });
 
+<<<<<<< HEAD
 describe("discord tool result dispatch", () => {
   it("accepts guild messages when mentionPatterns match", async () => {
     const { createDiscordMessageHandler } = await import("./monitor.js");
@@ -100,6 +101,52 @@ describe("discord tool result dispatch", () => {
         defaults: {
           model: "anthropic/claude-opus-4-5",
           workspace: "/tmp/clawd",
+=======
+const MENTION_PATTERNS_TEST_TIMEOUT_MS = process.platform === "win32" ? 90_000 : 60_000;
+
+type LoadedConfig = ReturnType<(typeof import("../config/config.js"))["loadConfig"]>;
+
+function makeRuntime() {
+  return {
+    log: vi.fn(),
+    error: vi.fn(),
+    exit: (code: number): never => {
+      throw new Error(`exit ${code}`);
+    },
+  };
+}
+
+async function createHandler(cfg: LoadedConfig) {
+  const { createDiscordMessageHandler } = await import("./monitor.js");
+  return createDiscordMessageHandler({
+    cfg,
+    discordConfig: cfg.channels.discord,
+    accountId: "default",
+    token: "token",
+    runtime: makeRuntime(),
+    botUserId: "bot-id",
+    guildHistories: new Map(),
+    historyLimit: 0,
+    mediaMaxBytes: 10_000,
+    textLimit: 2000,
+    replyToMode: "off",
+    dmEnabled: true,
+    groupDmEnabled: false,
+    guildEntries: cfg.channels.discord.guilds,
+  });
+}
+
+describe("discord tool result dispatch", () => {
+  it(
+    "accepts guild messages when mentionPatterns match",
+    async () => {
+      const cfg = {
+        agents: {
+          defaults: {
+            model: "anthropic/claude-opus-4-5",
+            workspace: "/tmp/openclaw",
+          },
+>>>>>>> 384a2f6a1 (refactor(test): dedupe discord handler setup)
         },
       },
       session: { store: "/tmp/moltbot-sessions.json" },
@@ -116,6 +163,7 @@ describe("discord tool result dispatch", () => {
       },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
 
+<<<<<<< HEAD
     const handler = createDiscordMessageHandler({
       cfg,
       discordConfig: cfg.channels.discord,
@@ -138,6 +186,9 @@ describe("discord tool result dispatch", () => {
       groupDmEnabled: false,
       guildEntries: { "*": { requireMention: true } },
     });
+=======
+      const handler = await createHandler(cfg);
+>>>>>>> 384a2f6a1 (refactor(test): dedupe discord handler setup)
 
     const client = {
       fetchChannel: vi.fn().mockResolvedValue({
@@ -307,7 +358,6 @@ describe("discord tool result dispatch", () => {
 >>>>>>> 9131b22a2 (test: migrate suites to e2e coverage layout):src/discord/monitor.tool-result.accepts-guild-messages-mentionpatterns-match.e2e.test.ts
 
   it("accepts guild reply-to-bot messages as implicit mentions", async () => {
-    const { createDiscordMessageHandler } = await import("./monitor.js");
     const cfg = {
       agents: {
         defaults: {
@@ -325,28 +375,7 @@ describe("discord tool result dispatch", () => {
       },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
 
-    const handler = createDiscordMessageHandler({
-      cfg,
-      discordConfig: cfg.channels.discord,
-      accountId: "default",
-      token: "token",
-      runtime: {
-        log: vi.fn(),
-        error: vi.fn(),
-        exit: (code: number): never => {
-          throw new Error(`exit ${code}`);
-        },
-      },
-      botUserId: "bot-id",
-      guildHistories: new Map(),
-      historyLimit: 0,
-      mediaMaxBytes: 10_000,
-      textLimit: 2000,
-      replyToMode: "off",
-      dmEnabled: true,
-      groupDmEnabled: false,
-      guildEntries: { "*": { requireMention: true } },
-    });
+    const handler = await createHandler(cfg);
 
     const client = {
       fetchChannel: vi.fn().mockResolvedValue({
@@ -407,7 +436,6 @@ describe("discord tool result dispatch", () => {
   });
 
   it("forks thread sessions and injects starter context", async () => {
-    const { createDiscordMessageHandler } = await import("./monitor.js");
     let capturedCtx:
       | {
           SessionKey?: string;
@@ -440,28 +468,7 @@ describe("discord tool result dispatch", () => {
       },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
 
-    const handler = createDiscordMessageHandler({
-      cfg,
-      discordConfig: cfg.channels.discord,
-      accountId: "default",
-      token: "token",
-      runtime: {
-        log: vi.fn(),
-        error: vi.fn(),
-        exit: (code: number): never => {
-          throw new Error(`exit ${code}`);
-        },
-      },
-      botUserId: "bot-id",
-      guildHistories: new Map(),
-      historyLimit: 0,
-      mediaMaxBytes: 10_000,
-      textLimit: 2000,
-      replyToMode: "off",
-      dmEnabled: true,
-      groupDmEnabled: false,
-      guildEntries: { "*": { requireMention: false } },
-    });
+    const handler = await createHandler(cfg);
 
     const threadChannel = {
       type: ChannelType.GuildText,
@@ -521,7 +528,6 @@ describe("discord tool result dispatch", () => {
   });
 
   it("skips thread starter context when disabled", async () => {
-    const { createDiscordMessageHandler } = await import("./monitor.js");
     let capturedCtx:
       | {
           ThreadStarterBody?: string;
@@ -557,28 +563,7 @@ describe("discord tool result dispatch", () => {
       },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
 
-    const handler = createDiscordMessageHandler({
-      cfg,
-      discordConfig: cfg.channels.discord,
-      accountId: "default",
-      token: "token",
-      runtime: {
-        log: vi.fn(),
-        error: vi.fn(),
-        exit: (code: number): never => {
-          throw new Error(`exit ${code}`);
-        },
-      },
-      botUserId: "bot-id",
-      guildHistories: new Map(),
-      historyLimit: 0,
-      mediaMaxBytes: 10_000,
-      textLimit: 2000,
-      replyToMode: "off",
-      dmEnabled: true,
-      groupDmEnabled: false,
-      guildEntries: cfg.channels.discord.guilds,
-    });
+    const handler = await createHandler(cfg);
 
     const threadChannel = {
       type: ChannelType.GuildText,
@@ -630,7 +615,6 @@ describe("discord tool result dispatch", () => {
   });
 
   it("treats forum threads as distinct sessions without channel payloads", async () => {
-    const { createDiscordMessageHandler } = await import("./monitor.js");
     let capturedCtx:
       | {
           SessionKey?: string;
@@ -658,28 +642,7 @@ describe("discord tool result dispatch", () => {
       routing: { allowFrom: [] },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
 
-    const handler = createDiscordMessageHandler({
-      cfg,
-      discordConfig: cfg.channels.discord,
-      accountId: "default",
-      token: "token",
-      runtime: {
-        log: vi.fn(),
-        error: vi.fn(),
-        exit: (code: number): never => {
-          throw new Error(`exit ${code}`);
-        },
-      },
-      botUserId: "bot-id",
-      guildHistories: new Map(),
-      historyLimit: 0,
-      mediaMaxBytes: 10_000,
-      textLimit: 2000,
-      replyToMode: "off",
-      dmEnabled: true,
-      groupDmEnabled: false,
-      guildEntries: { "*": { requireMention: false } },
-    });
+    const handler = await createHandler(cfg);
 
     const fetchChannel = vi
       .fn()
@@ -735,8 +698,6 @@ describe("discord tool result dispatch", () => {
   });
 
   it("scopes thread sessions to the routed agent", async () => {
-    const { createDiscordMessageHandler } = await import("./monitor.js");
-
     let capturedCtx:
       | {
           SessionKey?: string;
@@ -769,28 +730,7 @@ describe("discord tool result dispatch", () => {
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
     loadConfigMock.mockReturnValue(cfg);
 
-    const handler = createDiscordMessageHandler({
-      cfg,
-      discordConfig: cfg.channels.discord,
-      accountId: "default",
-      token: "token",
-      runtime: {
-        log: vi.fn(),
-        error: vi.fn(),
-        exit: (code: number): never => {
-          throw new Error(`exit ${code}`);
-        },
-      },
-      botUserId: "bot-id",
-      guildHistories: new Map(),
-      historyLimit: 0,
-      mediaMaxBytes: 10_000,
-      textLimit: 2000,
-      replyToMode: "off",
-      dmEnabled: true,
-      groupDmEnabled: false,
-      guildEntries: { "*": { requireMention: false } },
-    });
+    const handler = await createHandler(cfg);
 
     const threadChannel = {
       type: ChannelType.GuildText,
