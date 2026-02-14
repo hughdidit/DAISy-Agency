@@ -1,4 +1,10 @@
 import { formatCliCommand } from "../cli/command-format.js";
+<<<<<<< HEAD
+=======
+import { loadConfig } from "../config/config.js";
+import { getBridgeAuthForPort } from "./bridge-auth-registry.js";
+import { resolveBrowserControlAuth } from "./control-auth.js";
+>>>>>>> 6dd6bce99 (fix(security): enforce sandbox bridge auth)
 import {
   createBrowserControlContext,
   startBrowserControlServiceFromConfig,
@@ -9,6 +15,68 @@ function isAbsoluteHttp(url: string): boolean {
   return /^https?:\/\//i.test(url.trim());
 }
 
+<<<<<<< HEAD
+=======
+function isLoopbackHttpUrl(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.trim().toLowerCase();
+    return host === "127.0.0.1" || host === "localhost" || host === "::1";
+  } catch {
+    return false;
+  }
+}
+
+function withLoopbackBrowserAuth(
+  url: string,
+  init: (RequestInit & { timeoutMs?: number }) | undefined,
+): RequestInit & { timeoutMs?: number } {
+  const headers = new Headers(init?.headers ?? {});
+  if (headers.has("authorization") || headers.has("x-openclaw-password")) {
+    return { ...init, headers };
+  }
+  if (!isLoopbackHttpUrl(url)) {
+    return { ...init, headers };
+  }
+
+  try {
+    const cfg = loadConfig();
+    const auth = resolveBrowserControlAuth(cfg);
+    if (auth.token) {
+      headers.set("Authorization", `Bearer ${auth.token}`);
+      return { ...init, headers };
+    }
+    if (auth.password) {
+      headers.set("x-openclaw-password", auth.password);
+      return { ...init, headers };
+    }
+  } catch {
+    // ignore config/auth lookup failures and continue without auth headers
+  }
+
+  // Sandbox bridge servers can run with per-process ephemeral auth on dynamic ports.
+  // Fall back to the in-memory registry if config auth is not available.
+  try {
+    const parsed = new URL(url);
+    const port =
+      parsed.port && Number.parseInt(parsed.port, 10) > 0
+        ? Number.parseInt(parsed.port, 10)
+        : parsed.protocol === "https:"
+          ? 443
+          : 80;
+    const bridgeAuth = getBridgeAuthForPort(port);
+    if (bridgeAuth?.token) {
+      headers.set("Authorization", `Bearer ${bridgeAuth.token}`);
+    } else if (bridgeAuth?.password) {
+      headers.set("x-openclaw-password", bridgeAuth.password);
+    }
+  } catch {
+    // ignore
+  }
+
+  return { ...init, headers };
+}
+
+>>>>>>> 6dd6bce99 (fix(security): enforce sandbox bridge auth)
 function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number): Error {
   const hint = isAbsoluteHttp(url)
     ? "If this is a sandboxed session, ensure the sandbox browser is running and try again."
