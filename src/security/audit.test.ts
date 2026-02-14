@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { MoltbotConfig } from "../config/config.js";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
+<<<<<<< HEAD
 import { runSecurityAudit } from "./audit.js";
 import { discordPlugin } from "../../extensions/discord/src/channel.js";
 import { slackPlugin } from "../../extensions/slack/src/channel.js";
@@ -11,12 +12,63 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 =======
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 72e9364ba (perf(test): speed up hot test files)
 import { collectPluginsCodeSafetyFindings } from "./audit-extra.js";
 import { runSecurityAudit } from "./audit.js";
 import * as skillScanner from "./skill-scanner.js";
 >>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
 
 const isWindows = process.platform === "win32";
+
+function stubChannelPlugin(params: {
+  id: "discord" | "slack" | "telegram";
+  label: string;
+  resolveAccount: (cfg: OpenClawConfig) => unknown;
+}): ChannelPlugin {
+  return {
+    id: params.id,
+    meta: {
+      id: params.id,
+      label: params.label,
+      selectionLabel: params.label,
+      docsPath: "/docs/testing",
+      blurb: "test stub",
+    },
+    capabilities: {
+      chatTypes: ["dm", "group"],
+    },
+    security: {},
+    config: {
+      listAccountIds: (cfg) => {
+        const enabled = Boolean((cfg.channels as Record<string, unknown> | undefined)?.[params.id]);
+        return enabled ? ["default"] : [];
+      },
+      resolveAccount: (cfg) => params.resolveAccount(cfg),
+      isEnabled: () => true,
+      isConfigured: () => true,
+    },
+  };
+}
+
+const discordPlugin = stubChannelPlugin({
+  id: "discord",
+  label: "Discord",
+  resolveAccount: (cfg) => ({ config: cfg.channels?.discord ?? {} }),
+});
+
+const slackPlugin = stubChannelPlugin({
+  id: "slack",
+  label: "Slack",
+  resolveAccount: (cfg) => ({ config: cfg.channels?.slack ?? {} }),
+});
+
+const telegramPlugin = stubChannelPlugin({
+  id: "telegram",
+  label: "Telegram",
+  resolveAccount: (cfg) => ({ config: cfg.channels?.telegram ?? {} }),
+});
 
 function successfulProbeResult(url: string) {
   return {
