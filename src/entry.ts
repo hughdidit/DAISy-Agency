@@ -5,9 +5,13 @@ import process from "node:process";
 
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { isTruthyEnvValue } from "./infra/env.js";
 import { installProcessWarningFilter } from "./infra/warnings.js";
 =======
+=======
+import { shouldSkipRespawnForArgv } from "./cli/respawn-policy.js";
+>>>>>>> 4d1461011 (perf(cli): speed up help/config paths and route config get/unset)
 import { isTruthyEnvValue, normalizeEnv } from "./infra/env.js";
 import { installProcessWarningFilter } from "./infra/warning-filter.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
@@ -38,9 +42,15 @@ function hasExperimentalWarningSuppressed(): boolean {
 
 function ensureExperimentalWarningSuppressed(): boolean {
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (isTruthyEnvValue(process.env.CLAWDBOT_NO_RESPAWN)) return false;
   if (isTruthyEnvValue(process.env.CLAWDBOT_NODE_OPTIONS_READY)) return false;
 =======
+=======
+  if (shouldSkipRespawnForArgv(process.argv)) {
+    return false;
+  }
+>>>>>>> 4d1461011 (perf(cli): speed up help/config paths and route config get/unset)
   if (isTruthyEnvValue(process.env.OPENCLAW_NO_RESPAWN)) {
     return false;
   }
