@@ -28,6 +28,20 @@ Status: beta.
 =======
 ## Unreleased
 
+<<<<<<< HEAD
+=======
+### Changes
+
+- Sandbox: add `sandbox.browser.binds` to configure browser-container bind mounts separately from exec containers. (#16230) Thanks @seheepeak.
+
+### Fixes
+
+- Security: fix Chutes manual OAuth login state validation (thanks @aether-ai-agent). (#16058)
+- macOS: hard-limit unkeyed `openclaw://agent` deep links and ignore `deliver` / `to` / `channel` unless a valid unattended key is provided. Thanks @Cillian-Collins.
+
+## 2026.2.14
+
+>>>>>>> 3967ece62 (fix(security): OC-25 — Validate OAuth state parameter to prevent CSRF attacks (#16058))
 ### Fixes
 
 <<<<<<< HEAD
