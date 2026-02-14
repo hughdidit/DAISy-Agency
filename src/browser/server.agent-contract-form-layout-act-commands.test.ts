@@ -1,8 +1,6 @@
-import fs from "node:fs/promises";
-import { type AddressInfo, createServer } from "node:net";
-import os from "node:os";
 import path from "node:path";
 import { fetch as realFetch } from "undici";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -305,10 +303,28 @@ describe("browser control server", () => {
     }
     await stopBrowserControlServer();
   });
+=======
+import { describe, expect, it } from "vitest";
+import { DEFAULT_UPLOAD_DIR } from "./paths.js";
+import {
+  getBrowserControlServerBaseUrl,
+  getBrowserControlServerTestState,
+  getPwMocks,
+  installBrowserControlServerHooks,
+  setBrowserControlServerEvaluateEnabled,
+  startBrowserControlServerFromConfig,
+} from "./server.control-server.test-harness.js";
+
+const state = getBrowserControlServerTestState();
+const pwMocks = getPwMocks();
+
+describe("browser control server", () => {
+  installBrowserControlServerHooks();
+>>>>>>> 186ecd216 (refactor(test): reuse browser control server harness)
 
   const startServerAndBase = async () => {
     await startBrowserControlServerFromConfig();
-    const base = `http://127.0.0.1:${testPort}`;
+    const base = getBrowserControlServerBaseUrl();
     await realFetch(`${base}/start`, { method: "POST" }).then((r) => r.json());
     return base;
   };
@@ -336,7 +352,7 @@ describe("browser control server", () => {
       });
       expect(select.ok).toBe(true);
       expect(pwMocks.selectOptionViaPlaywright).toHaveBeenCalledWith({
-        cdpUrl: cdpBaseUrl,
+        cdpUrl: state.cdpBaseUrl,
         targetId: "abcd1234",
         ref: "5",
         values: ["a", "b"],
@@ -348,7 +364,7 @@ describe("browser control server", () => {
       });
       expect(fill.ok).toBe(true);
       expect(pwMocks.fillFormViaPlaywright).toHaveBeenCalledWith({
-        cdpUrl: cdpBaseUrl,
+        cdpUrl: state.cdpBaseUrl,
         targetId: "abcd1234",
         fields: [{ ref: "6", type: "textbox", value: "hello" }],
       });
@@ -360,7 +376,7 @@ describe("browser control server", () => {
       });
       expect(resize.ok).toBe(true);
       expect(pwMocks.resizeViewportViaPlaywright).toHaveBeenCalledWith({
-        cdpUrl: cdpBaseUrl,
+        cdpUrl: state.cdpBaseUrl,
         targetId: "abcd1234",
         width: 800,
         height: 600,
@@ -372,7 +388,7 @@ describe("browser control server", () => {
       });
       expect(wait.ok).toBe(true);
       expect(pwMocks.waitForViaPlaywright).toHaveBeenCalledWith({
-        cdpUrl: cdpBaseUrl,
+        cdpUrl: state.cdpBaseUrl,
         targetId: "abcd1234",
         timeMs: 5,
         text: undefined,
@@ -385,12 +401,24 @@ describe("browser control server", () => {
       });
       expect(evalRes.ok).toBe(true);
       expect(evalRes.result).toBe("ok");
+<<<<<<< HEAD
       expect(pwMocks.evaluateViaPlaywright).toHaveBeenCalledWith({
         cdpUrl: cdpBaseUrl,
         targetId: "abcd1234",
         fn: "() => 1",
         ref: undefined,
       });
+=======
+      expect(pwMocks.evaluateViaPlaywright).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cdpUrl: state.cdpBaseUrl,
+          targetId: "abcd1234",
+          fn: "() => 1",
+          ref: undefined,
+          signal: expect.any(AbortSignal),
+        }),
+      );
+>>>>>>> 186ecd216 (refactor(test): reuse browser control server harness)
     },
     slowTimeoutMs,
   );
@@ -398,7 +426,7 @@ describe("browser control server", () => {
   it(
     "blocks act:evaluate when browser.evaluateEnabled=false",
     async () => {
-      cfgEvaluateEnabled = false;
+      setBrowserControlServerEvaluateEnabled(false);
       const base = await startServerAndBase();
 
       const waitRes = await postJson(`${base}/act`, {
@@ -428,7 +456,7 @@ describe("browser control server", () => {
     });
     expect(upload).toMatchObject({ ok: true });
     expect(pwMocks.armFileUploadViaPlaywright).toHaveBeenCalledWith({
-      cdpUrl: cdpBaseUrl,
+      cdpUrl: state.cdpBaseUrl,
       targetId: "abcd1234",
 <<<<<<< HEAD
       paths: ["/tmp/a.txt"],
@@ -510,4 +538,86 @@ describe("browser control server", () => {
     expect(stopped.ok).toBe(true);
     expect(stopped.stopped).toBe(true);
   });
+<<<<<<< HEAD
+=======
+
+  it("trace stop rejects traversal path outside trace dir", async () => {
+    const base = await startServerAndBase();
+    const res = await postJson<{ error?: string }>(`${base}/trace/stop`, {
+      path: "../../pwned.zip",
+    });
+    expect(res.error).toContain("Invalid path");
+    expect(pwMocks.traceStopViaPlaywright).not.toHaveBeenCalled();
+  });
+
+  it("trace stop accepts in-root relative output path", async () => {
+    const base = await startServerAndBase();
+    const res = await postJson<{ ok?: boolean; path?: string }>(`${base}/trace/stop`, {
+      path: "safe-trace.zip",
+    });
+    expect(res.ok).toBe(true);
+    expect(res.path).toContain("safe-trace.zip");
+    expect(pwMocks.traceStopViaPlaywright).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cdpUrl: state.cdpBaseUrl,
+        targetId: "abcd1234",
+        path: expect.stringContaining("safe-trace.zip"),
+      }),
+    );
+  });
+
+  it("wait/download rejects traversal path outside downloads dir", async () => {
+    const base = await startServerAndBase();
+    const waitRes = await postJson<{ error?: string }>(`${base}/wait/download`, {
+      path: "../../pwned.pdf",
+    });
+    expect(waitRes.error).toContain("Invalid path");
+    expect(pwMocks.waitForDownloadViaPlaywright).not.toHaveBeenCalled();
+  });
+
+  it("download rejects traversal path outside downloads dir", async () => {
+    const base = await startServerAndBase();
+    const downloadRes = await postJson<{ error?: string }>(`${base}/download`, {
+      ref: "e12",
+      path: "../../pwned.pdf",
+    });
+    expect(downloadRes.error).toContain("Invalid path");
+    expect(pwMocks.downloadViaPlaywright).not.toHaveBeenCalled();
+  });
+
+  it("wait/download accepts in-root relative output path", async () => {
+    const base = await startServerAndBase();
+    const res = await postJson<{ ok?: boolean; download?: { path?: string } }>(
+      `${base}/wait/download`,
+      {
+        path: "safe-wait.pdf",
+      },
+    );
+    expect(res.ok).toBe(true);
+    expect(pwMocks.waitForDownloadViaPlaywright).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cdpUrl: state.cdpBaseUrl,
+        targetId: "abcd1234",
+        path: expect.stringContaining("safe-wait.pdf"),
+      }),
+    );
+  });
+
+  it("download accepts in-root relative output path", async () => {
+    const base = await startServerAndBase();
+    const res = await postJson<{ ok?: boolean; download?: { path?: string } }>(`${base}/download`, {
+      ref: "e12",
+      path: "safe-download.pdf",
+    });
+    expect(res.ok).toBe(true);
+    expect(pwMocks.downloadViaPlaywright).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cdpUrl: state.cdpBaseUrl,
+        targetId: "abcd1234",
+        ref: "e12",
+        path: expect.stringContaining("safe-download.pdf"),
+      }),
+    );
+  });
+>>>>>>> 186ecd216 (refactor(test): reuse browser control server harness)
 });
