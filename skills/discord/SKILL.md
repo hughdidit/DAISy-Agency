@@ -1,60 +1,81 @@
 ---
 name: discord
+<<<<<<< HEAD
 description: Use when you need to control Discord from Moltbot via the discord tool: send messages, react, post or upload stickers, upload emojis, run polls, manage threads/pins/search, create/edit/delete channels and categories, fetch permissions or member/role/channel info, or handle moderation actions in Discord DMs or channels.
 metadata: {"moltbot":{"emoji":"🎮","requires":{"config":["channels.discord"]}}}
+=======
+description: "Discord ops via the message tool (channel=discord)."
+metadata: { "openclaw": { "emoji": "🎮", "requires": { "config": ["channels.discord.token"] } } }
+allowed-tools: ["message"]
+>>>>>>> d3428053d (fix: redact config values in skills status)
 ---
 
-# Discord Actions
+# Discord (Via `message`)
 
-## Overview
+Use the `message` tool. No provider-specific `discord` tool exposed to the agent.
 
+<<<<<<< HEAD
 Use `discord` to manage messages, reactions, threads, polls, and moderation. You can disable groups via `discord.actions.*` (defaults to enabled, except roles/moderation). The tool uses the bot token configured for Moltbot.
+=======
+## Musts
+>>>>>>> d3428053d (fix: redact config values in skills status)
 
-## Inputs to collect
+- Always: `channel: "discord"`.
+- Respect gating: `channels.discord.actions.*` (some default off: `roles`, `moderation`, `presence`, `channels`).
+- Prefer explicit ids: `guildId`, `channelId`, `messageId`, `userId`.
+- Multi-account: optional `accountId`.
 
-- For reactions: `channelId`, `messageId`, and an `emoji`.
-- For fetchMessage: `guildId`, `channelId`, `messageId`, or a `messageLink` like `https://discord.com/channels/<guildId>/<channelId>/<messageId>`.
-- For stickers/polls/sendMessage: a `to` target (`channel:<id>` or `user:<id>`). Optional `content` text.
-- Polls also need a `question` plus 2–10 `answers`.
-- For media: `mediaUrl` with `file:///path` for local files or `https://...` for remote.
-- For emoji uploads: `guildId`, `name`, `mediaUrl`, optional `roleIds` (limit 256KB, PNG/JPG/GIF).
-- For sticker uploads: `guildId`, `name`, `description`, `tags`, `mediaUrl` (limit 512KB, PNG/APNG/Lottie JSON).
+## Targets
 
-Message context lines include `discord message id` and `channel` fields you can reuse directly.
+- Send-like actions: `to: "channel:<id>"` or `to: "user:<id>"`.
+- Message-specific actions: `channelId: "<id>"` (or `to`) + `messageId: "<id>"`.
 
-**Note:** `sendMessage` uses `to: "channel:<id>"` format, not `channelId`. Other actions like `react`, `readMessages`, `editMessage` use `channelId` directly.
-**Note:** `fetchMessage` accepts message IDs or full links like `https://discord.com/channels/<guildId>/<channelId>/<messageId>`.
+## Common Actions (Examples)
 
-## Actions
+Send message:
 
-### React to a message
+```json
+{
+  "action": "send",
+  "channel": "discord",
+  "to": "channel:123",
+  "message": "hello",
+  "silent": true
+}
+```
+
+Send with media:
+
+```json
+{
+  "action": "send",
+  "channel": "discord",
+  "to": "channel:123",
+  "message": "see attachment",
+  "media": "file:///tmp/example.png"
+}
+```
+
+React:
 
 ```json
 {
   "action": "react",
+  "channel": "discord",
   "channelId": "123",
   "messageId": "456",
   "emoji": "✅"
 }
 ```
 
-### List reactions + users
+Read:
 
 ```json
 {
-  "action": "reactions",
-  "channelId": "123",
-  "messageId": "456",
-  "limit": 100
-}
-```
-
-### Send a sticker
-
-```json
-{
-  "action": "sticker",
+  "action": "read",
+  "channel": "discord",
   "to": "channel:123",
+<<<<<<< HEAD
   "stickerIds": ["9876543210"],
   "content": "Nice work!"
 }
@@ -144,14 +165,17 @@ Use `discord.actions.*` to disable action groups:
 {
   "action": "readMessages",
   "channelId": "123",
+=======
+>>>>>>> d3428053d (fix: redact config values in skills status)
   "limit": 20
 }
 ```
 
-### Fetch a single message
+Edit / delete:
 
 ```json
 {
+<<<<<<< HEAD
   "action": "fetchMessage",
   "guildId": "999",
   "channelId": "123",
@@ -194,79 +218,80 @@ Use `discord.actions.*` to disable action groups:
 ```json
 {
   "action": "editMessage",
+=======
+  "action": "edit",
+  "channel": "discord",
+>>>>>>> d3428053d (fix: redact config values in skills status)
   "channelId": "123",
   "messageId": "456",
-  "content": "Fixed typo"
+  "message": "fixed typo"
 }
 ```
 
 ```json
 {
-  "action": "deleteMessage",
+  "action": "delete",
+  "channel": "discord",
   "channelId": "123",
   "messageId": "456"
 }
 ```
 
-### Threads
+Poll:
 
 ```json
 {
-  "action": "threadCreate",
-  "channelId": "123",
-  "name": "Bug triage",
-  "messageId": "456"
+  "action": "poll",
+  "channel": "discord",
+  "to": "channel:123",
+  "pollQuestion": "Lunch?",
+  "pollOption": ["Pizza", "Sushi", "Salad"],
+  "pollMulti": false,
+  "pollDurationHours": 24
 }
 ```
 
-```json
-{
-  "action": "threadList",
-  "guildId": "999"
-}
-```
+Pins:
 
 ```json
 {
-  "action": "threadReply",
-  "channelId": "777",
-  "content": "Replying in thread"
-}
-```
-
-### Pins
-
-```json
-{
-  "action": "pinMessage",
+  "action": "pin",
+  "channel": "discord",
   "channelId": "123",
   "messageId": "456"
 }
 ```
 
+Threads:
+
 ```json
 {
-  "action": "listPins",
-  "channelId": "123"
+  "action": "thread-create",
+  "channel": "discord",
+  "channelId": "123",
+  "messageId": "456",
+  "threadName": "bug triage"
 }
 ```
 
-### Search messages
+Search:
 
 ```json
 {
-  "action": "searchMessages",
+  "action": "search",
+  "channel": "discord",
   "guildId": "999",
-  "content": "release notes",
+  "query": "release notes",
   "channelIds": ["123", "456"],
   "limit": 10
 }
 ```
 
-### Member + role info
+Presence (often gated):
 
 ```json
 {
+<<<<<<< HEAD
   "action": "memberInfo",
   "guildId": "999",
   "userId": "111"
@@ -473,3 +498,18 @@ CalVer uses date-based versions like...
 ```
 versioning options: semver (1.2.3), calver (2026.01.04), or yolo (`latest` forever). what fits your release cadence?
 ```
+=======
+  "action": "set-presence",
+  "channel": "discord",
+  "activityType": "playing",
+  "activityName": "with fire",
+  "status": "online"
+}
+```
+
+## Writing Style (Discord)
+
+- Short, conversational, low ceremony.
+- No markdown tables.
+- Prefer multiple small replies over one wall of text.
+>>>>>>> d3428053d (fix: redact config values in skills status)

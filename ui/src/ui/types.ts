@@ -465,7 +465,6 @@ export type CronRunLogEntry = {
 
 export type SkillsStatusConfigCheck = {
   path: string;
-  value: unknown;
   satisfied: boolean;
 };
 
