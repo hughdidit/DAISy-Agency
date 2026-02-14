@@ -1,8 +1,17 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { escapeRegExp, formatEnvelopeTimestamp } from "../../test/helpers/envelope-timestamp.js";
-import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
+import {
+  getOnHandler,
+  getLoadConfigMock,
+  onSpy,
+  replySpy,
+  sendMessageSpy,
+  setMessageReactionSpy,
+  setMyCommandsSpy,
+} from "./bot.create-telegram-bot.test-harness.js";
 import { createTelegramBot } from "./bot.js";
 
+<<<<<<< HEAD
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/moltbot-telegram-${Math.random().toString(16).slice(2)}.json`,
 }));
@@ -133,31 +142,14 @@ const getOnHandler = (event: string) => {
   }
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
+=======
+const loadConfig = getLoadConfigMock();
+>>>>>>> 60898821f (refactor(test): share telegram create bot harness)
 
 const ORIGINAL_TZ = process.env.TZ;
 describe("createTelegramBot", () => {
-  beforeAll(async () => {
-    replyModule = await import("../auto-reply/reply.js");
-  });
-
   beforeEach(() => {
     process.env.TZ = "UTC";
-    resetInboundDedupe();
-    loadConfig.mockReturnValue({
-      channels: {
-        telegram: { dmPolicy: "open", allowFrom: ["*"] },
-      },
-    });
-    loadWebMedia.mockReset();
-    sendAnimationSpy.mockReset();
-    sendPhotoSpy.mockReset();
-    setMessageReactionSpy.mockReset();
-    answerCallbackQuerySpy.mockReset();
-    setMyCommandsSpy.mockReset();
-    middlewareUseSpy.mockReset();
-    sequentializeSpy.mockReset();
-    botCtorSpy.mockReset();
-    _sequentializeKey = undefined;
   });
   afterEach(() => {
     process.env.TZ = ORIGINAL_TZ;
@@ -167,7 +159,6 @@ describe("createTelegramBot", () => {
 
   it("accepts group messages when mentionPatterns match (without @botUsername)", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     loadConfig.mockReturnValue({
@@ -215,7 +206,6 @@ describe("createTelegramBot", () => {
 
   it("accepts group messages when mentionPatterns match even if another user is mentioned", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     loadConfig.mockReturnValue({
@@ -256,7 +246,6 @@ describe("createTelegramBot", () => {
 
   it("keeps group envelope headers stable (sender identity is separate)", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     loadConfig.mockReturnValue({
@@ -307,7 +296,6 @@ describe("createTelegramBot", () => {
   it("reacts to mention-gated group messages when ackReaction is enabled", async () => {
     onSpy.mockReset();
     setMessageReactionSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     loadConfig.mockReturnValue({
@@ -352,7 +340,6 @@ describe("createTelegramBot", () => {
   });
   it("skips group messages when requireMention is enabled and no mention matches", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     loadConfig.mockReturnValue({
@@ -384,7 +371,6 @@ describe("createTelegramBot", () => {
   });
   it("allows group messages when requireMention is enabled but mentions cannot be detected", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     loadConfig.mockReturnValue({
@@ -419,7 +405,6 @@ describe("createTelegramBot", () => {
   it("includes reply-to context when a Telegram reply is received", async () => {
     onSpy.mockReset();
     sendMessageSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     createTelegramBot({ token: "tok" });

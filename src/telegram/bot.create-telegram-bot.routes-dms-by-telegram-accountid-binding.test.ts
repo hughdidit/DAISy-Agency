@@ -1,7 +1,16 @@
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
+import { describe, expect, it } from "vitest";
+import {
+  getLoadConfigMock,
+  getLoadWebMediaMock,
+  getOnHandler,
+  onSpy,
+  replySpy,
+  sendAnimationSpy,
+  sendPhotoSpy,
+} from "./bot.create-telegram-bot.test-harness.js";
 import { createTelegramBot } from "./bot.js";
 
+<<<<<<< HEAD
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/moltbot-telegram-${Math.random().toString(16).slice(2)}.json`,
 }));
@@ -132,36 +141,16 @@ const getOnHandler = (event: string) => {
   }
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
+=======
+const loadConfig = getLoadConfigMock();
+const loadWebMedia = getLoadWebMediaMock();
+>>>>>>> 60898821f (refactor(test): share telegram create bot harness)
 
 describe("createTelegramBot", () => {
-  beforeAll(async () => {
-    replyModule = await import("../auto-reply/reply.js");
-  });
-
-  beforeEach(() => {
-    resetInboundDedupe();
-    loadConfig.mockReturnValue({
-      channels: {
-        telegram: { dmPolicy: "open", allowFrom: ["*"] },
-      },
-    });
-    loadWebMedia.mockReset();
-    sendAnimationSpy.mockReset();
-    sendPhotoSpy.mockReset();
-    setMessageReactionSpy.mockReset();
-    answerCallbackQuerySpy.mockReset();
-    setMyCommandsSpy.mockReset();
-    middlewareUseSpy.mockReset();
-    sequentializeSpy.mockReset();
-    botCtorSpy.mockReset();
-    _sequentializeKey = undefined;
-  });
-
   // groupPolicy tests
 
   it("routes DMs by telegram accountId binding", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     loadConfig.mockReturnValue({
@@ -205,7 +194,6 @@ describe("createTelegramBot", () => {
   });
   it("allows per-group requireMention override", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
     loadConfig.mockReturnValue({
       channels: {
@@ -236,7 +224,6 @@ describe("createTelegramBot", () => {
   });
   it("allows per-topic requireMention override", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
     loadConfig.mockReturnValue({
       channels: {
@@ -278,7 +265,6 @@ describe("createTelegramBot", () => {
   });
   it("honors groups default when no explicit group override exists", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
     loadConfig.mockReturnValue({
       channels: {
@@ -306,7 +292,6 @@ describe("createTelegramBot", () => {
   });
   it("does not block group messages when bot username is unknown", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
     loadConfig.mockReturnValue({
       channels: {
@@ -333,7 +318,6 @@ describe("createTelegramBot", () => {
   });
   it("routes forum topic messages using parent group binding", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     // Binding specifies the base group ID without topic suffix.
@@ -389,7 +373,6 @@ describe("createTelegramBot", () => {
 
   it("prefers specific topic binding over parent group binding", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     // Both a specific topic binding and a parent group binding are configured.
@@ -451,7 +434,6 @@ describe("createTelegramBot", () => {
 
   it("sends GIF replies as animations", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     replySpy.mockResolvedValueOnce({

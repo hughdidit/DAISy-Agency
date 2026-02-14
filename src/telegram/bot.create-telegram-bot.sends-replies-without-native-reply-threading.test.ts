@@ -1,10 +1,17 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
+import { describe, expect, it } from "vitest";
+import {
+  getOnHandler,
+  getLoadConfigMock,
+  onSpy,
+  replySpy,
+  sendMessageSpy,
+} from "./bot.create-telegram-bot.test-harness.js";
 import { createTelegramBot } from "./bot.js";
 
+<<<<<<< HEAD
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/moltbot-telegram-reply-threading-${Math.random()
     .toString(16)
@@ -137,37 +144,16 @@ const getOnHandler = (event: string) => {
   }
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
+=======
+const loadConfig = getLoadConfigMock();
+>>>>>>> 60898821f (refactor(test): share telegram create bot harness)
 
 describe("createTelegramBot", () => {
-  beforeAll(async () => {
-    replyModule = await import("../auto-reply/reply.js");
-  });
-
-  beforeEach(() => {
-    resetInboundDedupe();
-    loadConfig.mockReturnValue({
-      channels: {
-        telegram: { dmPolicy: "open", allowFrom: ["*"] },
-      },
-    });
-    loadWebMedia.mockReset();
-    sendAnimationSpy.mockReset();
-    sendPhotoSpy.mockReset();
-    setMessageReactionSpy.mockReset();
-    answerCallbackQuerySpy.mockReset();
-    setMyCommandsSpy.mockReset();
-    middlewareUseSpy.mockReset();
-    sequentializeSpy.mockReset();
-    botCtorSpy.mockReset();
-    _sequentializeKey = undefined;
-  });
-
   // groupPolicy tests
 
   it("sends replies without native reply threading", async () => {
     onSpy.mockReset();
     sendMessageSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
     replySpy.mockResolvedValue({ text: "a".repeat(4500) });
 
@@ -192,7 +178,6 @@ describe("createTelegramBot", () => {
   it("honors replyToMode=first for threaded replies", async () => {
     onSpy.mockReset();
     sendMessageSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
     replySpy.mockResolvedValue({
       text: "a".repeat(4500),
@@ -222,7 +207,6 @@ describe("createTelegramBot", () => {
   it("prefixes final replies with responsePrefix", async () => {
     onSpy.mockReset();
     sendMessageSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
     replySpy.mockResolvedValue({ text: "final reply" });
     loadConfig.mockReturnValue({
@@ -250,7 +234,6 @@ describe("createTelegramBot", () => {
   it("honors replyToMode=all for threaded replies", async () => {
     onSpy.mockReset();
     sendMessageSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
     replySpy.mockResolvedValue({
       text: "a".repeat(4500),
@@ -277,7 +260,6 @@ describe("createTelegramBot", () => {
   });
   it("blocks group messages when telegram.groups is set without a wildcard", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
     loadConfig.mockReturnValue({
       channels: {
@@ -306,7 +288,6 @@ describe("createTelegramBot", () => {
   });
   it("skips group messages without mention when requireMention is enabled", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
     loadConfig.mockReturnValue({
       channels: {
@@ -331,7 +312,6 @@ describe("createTelegramBot", () => {
   });
   it("honors routed group activation from session store", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
     const storeDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-telegram-"));
     const storePath = path.join(storeDir, "sessions.json");

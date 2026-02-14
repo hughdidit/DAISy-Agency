@@ -1,9 +1,31 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { escapeRegExp, formatEnvelopeTimestamp } from "../../test/helpers/envelope-timestamp.js";
-import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
+import {
+  answerCallbackQuerySpy,
+  botCtorSpy,
+  getLoadConfigMock,
+  getLoadWebMediaMock,
+  getOnHandler,
+  getReadChannelAllowFromStoreMock,
+  getUpsertChannelPairingRequestMock,
+  middlewareUseSpy,
+  onSpy,
+  replySpy,
+  sendAnimationSpy,
+  sendChatActionSpy,
+  sendMessageSpy,
+  sendPhotoSpy,
+  sequentializeKey,
+  sequentializeSpy,
+  setMessageReactionSpy,
+  setMyCommandsSpy,
+  throttlerSpy,
+  useSpy,
+} from "./bot.create-telegram-bot.test-harness.js";
 import { createTelegramBot, getTelegramSequentialKey } from "./bot.js";
 import { resolveTelegramFetch } from "./fetch.js";
 
+<<<<<<< HEAD
 const { sessionStorePath } = vi.hoisted(() => ({
   sessionStorePath: `/tmp/moltbot-telegram-throttler-${Math.random().toString(16).slice(2)}.json`,
 }));
@@ -135,17 +157,18 @@ const getOnHandler = (event: string) => {
   }
   return handler as (ctx: Record<string, unknown>) => Promise<void>;
 };
+=======
+const loadConfig = getLoadConfigMock();
+const loadWebMedia = getLoadWebMediaMock();
+const readChannelAllowFromStore = getReadChannelAllowFromStoreMock();
+const upsertChannelPairingRequest = getUpsertChannelPairingRequestMock();
+>>>>>>> 60898821f (refactor(test): share telegram create bot harness)
 
 const ORIGINAL_TZ = process.env.TZ;
 
 describe("createTelegramBot", () => {
-  beforeAll(async () => {
-    replyModule = await import("../auto-reply/reply.js");
-  });
-
   beforeEach(() => {
     process.env.TZ = "UTC";
-    resetInboundDedupe();
     loadConfig.mockReturnValue({
       agents: {
         defaults: {
@@ -165,7 +188,6 @@ describe("createTelegramBot", () => {
     middlewareUseSpy.mockReset();
     sequentializeSpy.mockReset();
     botCtorSpy.mockReset();
-    sequentializeKey = undefined;
   });
   afterEach(() => {
     process.env.TZ = ORIGINAL_TZ;
@@ -274,7 +296,6 @@ describe("createTelegramBot", () => {
   });
   it("routes callback_query payloads as messages and answers callbacks", async () => {
     onSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     createTelegramBot({ token: "tok" });
@@ -309,7 +330,6 @@ describe("createTelegramBot", () => {
 
     try {
       onSpy.mockReset();
-      const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
       replySpy.mockReset();
 
       createTelegramBot({ token: "tok" });
@@ -349,7 +369,6 @@ describe("createTelegramBot", () => {
   it("requests pairing by default for unknown DM senders", async () => {
     onSpy.mockReset();
     sendMessageSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     loadConfig.mockReturnValue({
@@ -388,7 +407,6 @@ describe("createTelegramBot", () => {
   it("does not resend pairing code when a request is already pending", async () => {
     onSpy.mockReset();
     sendMessageSpy.mockReset();
-    const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
     replySpy.mockReset();
 
     loadConfig.mockReturnValue({
