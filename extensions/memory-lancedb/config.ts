@@ -24,11 +24,15 @@ export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
 const DEFAULT_MODEL = "text-embedding-3-small";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 const DEFAULT_DB_PATH = join(homedir(), ".clawdbot", "memory", "lancedb");
 =======
 =======
 const DEFAULT_CAPTURE_MAX_CHARS = 1500;
 >>>>>>> 3e00460cd (feat(memory-lancedb): make auto-capture max length configurable)
+=======
+export const DEFAULT_CAPTURE_MAX_CHARS = 500;
+>>>>>>> 8cb0373bc (Memory-lancedb: configurable capture limit (#16624) (thanks @ciberponk))
 const LEGACY_STATE_DIRS: string[] = [];
 
 function resolveDefaultDbPath(): string {

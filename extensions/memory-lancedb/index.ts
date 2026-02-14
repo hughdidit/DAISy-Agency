@@ -17,6 +17,7 @@ import { stringEnum } from "clawdbot/plugin-sdk";
 =======
 >>>>>>> aade13397 (🤖 memory-lancedb: avoid plugin-sdk enum helper in local TypeBox schema (#13897))
 import {
+  DEFAULT_CAPTURE_MAX_CHARS,
   MEMORY_CATEGORIES,
   type MemoryCategory,
   memoryConfigSchema,
@@ -202,7 +203,7 @@ const MEMORY_TRIGGERS = [
 ];
 
 export function shouldCapture(text: string, options?: { maxChars?: number }): boolean {
-  const maxChars = options?.maxChars ?? 1500;
+  const maxChars = options?.maxChars ?? DEFAULT_CAPTURE_MAX_CHARS;
   if (text.length < 10 || text.length > maxChars) {
     return false;
   }
