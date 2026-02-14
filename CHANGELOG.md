@@ -100,8 +100,14 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 71f357d94 (bluebubbles: harden local media path handling against LFI (#16322))
 - Cron/Slack: preserve agent identity (name and icon) when cron jobs deliver outbound messages. (#16242) Thanks @robbyczgw-cla.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 09e1cbc35 (fix(cron): pass agent identity through delivery path (#16218) (#16242))
 =======
+=======
+- Cron: deliver text-only output directly when `delivery.to` is set so cron recipients get full output instead of summaries. (#16360) Thanks @rubyrunsstuff.
+- Cron: prevent `cron list`/`cron status` from silently skipping past-due recurring jobs by using maintenance recompute semantics. (#16156) Thanks @zerone0x.
+- Cron: repair missing/corrupt `nextRunAtMs` for the updated job without globally recomputing unrelated due jobs during `cron update`. (#15750)
+>>>>>>> c60844931 (fix(cron): prevent list/status from silently skipping recurring jobs (openclaw#16201) thanks @zerone0x)
 - Discord: prefer gateway guild id when logging inbound messages so cached-miss guilds do not appear as `guild=dm`. Thanks @thewilloftheshadow.
 <<<<<<< HEAD
 >>>>>>> ff32f4345 (Discord: prefer gateway guild id in verbose log)
