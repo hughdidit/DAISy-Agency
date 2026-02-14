@@ -564,7 +564,7 @@ describe("runCronIsolatedAgentTurn", () => {
       const cfg = makeCfg(home, storePath);
       const job = makeJob({ kind: "agentTurn", message: "ping", deliver: false });
 
-      await runCronIsolatedAgentTurn({
+      const first = await runCronIsolatedAgentTurn({
         cfg,
         deps,
         job,
@@ -572,9 +572,8 @@ describe("runCronIsolatedAgentTurn", () => {
         sessionKey: "cron:job-1",
         lane: "cron",
       });
-      const first = await readSessionEntry(storePath, "agent:main:cron:job-1");
 
-      await runCronIsolatedAgentTurn({
+      const second = await runCronIsolatedAgentTurn({
         cfg,
         deps,
         job,
@@ -582,11 +581,60 @@ describe("runCronIsolatedAgentTurn", () => {
         sessionKey: "cron:job-1",
         lane: "cron",
       });
-      const second = await readSessionEntry(storePath, "agent:main:cron:job-1");
 
+<<<<<<< HEAD
       expect(first?.sessionId).toBeDefined();
       expect(second?.sessionId).toBeDefined();
       expect(second?.sessionId).not.toBe(first?.sessionId);
+=======
+      expect(first.sessionId).toBeDefined();
+      expect(second.sessionId).toBeDefined();
+      expect(second.sessionId).not.toBe(first.sessionId);
+      expect(first.sessionKey).toMatch(/^agent:main:cron:job-1:run:/);
+      expect(second.sessionKey).toMatch(/^agent:main:cron:job-1:run:/);
+      expect(second.sessionKey).not.toBe(first.sessionKey);
+    });
+  });
+
+  it("preserves an existing cron session label", async () => {
+    await withTempHome(async (home) => {
+      const storePath = await writeSessionStore(home);
+      const raw = await fs.readFile(storePath, "utf-8");
+      const store = JSON.parse(raw) as Record<string, Record<string, unknown>>;
+      store["agent:main:cron:job-1"] = {
+        sessionId: "old",
+        updatedAt: Date.now(),
+        label: "Nightly digest",
+      };
+      await fs.writeFile(storePath, JSON.stringify(store, null, 2), "utf-8");
+
+      const deps: CliDeps = {
+        sendMessageWhatsApp: vi.fn(),
+        sendMessageTelegram: vi.fn(),
+        sendMessageDiscord: vi.fn(),
+        sendMessageSignal: vi.fn(),
+        sendMessageIMessage: vi.fn(),
+      };
+      vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
+        payloads: [{ text: "ok" }],
+        meta: {
+          durationMs: 5,
+          agentMeta: { sessionId: "s", provider: "p", model: "m" },
+        },
+      });
+
+      await runCronIsolatedAgentTurn({
+        cfg: makeCfg(home, storePath),
+        deps,
+        job: makeJob({ kind: "agentTurn", message: "ping", deliver: false }),
+        message: "ping",
+        sessionKey: "cron:job-1",
+        lane: "cron",
+      });
+      const entry = await readSessionEntry(storePath, "agent:main:cron:job-1");
+
+      expect(entry?.label).toBe("Nightly digest");
+>>>>>>> 5c6318b58 (test(cron): assert cron run session ids)
     });
   });
 });
