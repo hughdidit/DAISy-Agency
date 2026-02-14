@@ -1,14 +1,23 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
+=======
+import { describe, expect, it, vi } from "vitest";
+>>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
+import {
+  installModelsConfigTestHooks,
+  withModelsTempHome as withTempHome,
+} from "./models-config.e2e-harness.js";
 import { ensureOpenClawModelsJson } from "./models-config.js";
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
+<<<<<<< HEAD
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-models-" });
 }
@@ -36,22 +45,11 @@ const _MODELS_CONFIG: MoltbotConfig = {
     },
   },
 };
+=======
+installModelsConfigTestHooks({ restoreFetch: true });
+>>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 
 describe("models-config", () => {
-  let previousHome: string | undefined;
-  const originalFetch = globalThis.fetch;
-
-  beforeEach(() => {
-    previousHome = process.env.HOME;
-  });
-
-  afterEach(() => {
-    process.env.HOME = previousHome;
-    if (originalFetch) {
-      globalThis.fetch = originalFetch;
-    }
-  });
-
   it("uses the first github-copilot profile when env tokens are missing", async () => {
     await withTempHome(async (home) => {
       const previous = process.env.COPILOT_GITHUB_TOKEN;
@@ -193,7 +191,11 @@ describe("models-config", () => {
 
         expect(parsed.providers["github-copilot"]?.baseUrl).toBe("https://copilot.local");
       } finally {
-        process.env.COPILOT_GITHUB_TOKEN = previous;
+        if (previous === undefined) {
+          delete process.env.COPILOT_GITHUB_TOKEN;
+        } else {
+          process.env.COPILOT_GITHUB_TOKEN = previous;
+        }
       }
     });
   });

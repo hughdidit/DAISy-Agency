@@ -1,17 +1,26 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 import type { OpenClawConfig } from "../config/config.js";
-import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
+import {
+  CUSTOM_PROXY_MODELS_CONFIG,
+  installModelsConfigTestHooks,
+  withModelsTempHome as withTempHome,
+} from "./models-config.e2e-harness.js";
 import { ensureOpenClawModelsJson } from "./models-config.js";
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 
+<<<<<<< HEAD
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-models-" });
 }
@@ -39,18 +48,11 @@ const MODELS_CONFIG: MoltbotConfig = {
     },
   },
 };
+=======
+installModelsConfigTestHooks();
+>>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 
 describe("models-config", () => {
-  let previousHome: string | undefined;
-
-  beforeEach(() => {
-    previousHome = process.env.HOME;
-  });
-
-  afterEach(() => {
-    process.env.HOME = previousHome;
-  });
-
   it("fills missing provider.apiKey from env var name when models exist", async () => {
     await withTempHome(async () => {
       const prevKey = process.env.MINIMAX_API_KEY;
@@ -146,7 +148,11 @@ describe("models-config", () => {
         "utf8",
       );
 
+<<<<<<< HEAD
       await ensureMoltbotModelsJson(MODELS_CONFIG);
+=======
+      await ensureOpenClawModelsJson(CUSTOM_PROXY_MODELS_CONFIG);
+>>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
 
       const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
       const parsed = JSON.parse(raw) as {
