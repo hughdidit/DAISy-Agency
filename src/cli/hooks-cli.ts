@@ -118,6 +118,31 @@ async function readInstalledPackageVersion(dir: string): Promise<string | undefi
   }
 }
 
+type HookInternalEntryLike = Record<string, unknown> & { enabled?: boolean };
+
+function enableInternalHookEntries(config: OpenClawConfig, hookNames: string[]): OpenClawConfig {
+  const entries = { ...config.hooks?.internal?.entries } as Record<string, HookInternalEntryLike>;
+
+  for (const hookName of hookNames) {
+    entries[hookName] = {
+      ...entries[hookName],
+      enabled: true,
+    };
+  }
+
+  return {
+    ...config,
+    hooks: {
+      ...config.hooks,
+      internal: {
+        ...config.hooks?.internal,
+        enabled: true,
+        entries,
+      },
+    },
+  };
+}
+
 /**
  * Format the hooks list output
  */
@@ -565,24 +590,7 @@ export function registerHooksCli(program: Command): void {
             },
           };
 
-          for (const hookName of probe.hooks) {
-            next = {
-              ...next,
-              hooks: {
-                ...next.hooks,
-                internal: {
-                  ...next.hooks?.internal,
-                  entries: {
-                    ...next.hooks?.internal?.entries,
-                    [hookName]: {
-                      ...(next.hooks?.internal?.entries?.[hookName] as object | undefined),
-                      enabled: true,
-                    },
-                  },
-                },
-              },
-            };
-          }
+          next = enableInternalHookEntries(next, probe.hooks);
 
           next = recordHookInstall(next, {
             hookId: probe.hookPackId,
@@ -611,6 +619,7 @@ export function registerHooksCli(program: Command): void {
           process.exit(1);
         }
 
+<<<<<<< HEAD
         let next: MoltbotConfig = {
           ...cfg,
           hooks: {
@@ -643,6 +652,9 @@ export function registerHooksCli(program: Command): void {
             },
           };
         }
+=======
+        let next = enableInternalHookEntries(cfg, result.hooks);
+>>>>>>> 29e84dc13 (refactor(cli): dedupe hooks install config updates)
 
         const source: "archive" | "path" = resolveArchiveKind(resolved) ? "archive" : "path";
 
@@ -691,6 +703,7 @@ export function registerHooksCli(program: Command): void {
         process.exit(1);
       }
 
+<<<<<<< HEAD
       let next: MoltbotConfig = {
         ...cfg,
         hooks: {
@@ -723,6 +736,9 @@ export function registerHooksCli(program: Command): void {
           },
         };
       }
+=======
+      let next = enableInternalHookEntries(cfg, result.hooks);
+>>>>>>> 29e84dc13 (refactor(cli): dedupe hooks install config updates)
 
       next = recordHookInstall(next, {
         hookId: result.hookPackId,
