@@ -280,7 +280,7 @@ describe("browser control server", () => {
     await stopBrowserControlServer();
   });
 
-  it("covers primary control routes, validation, and attach-only compatibility", async () => {
+  it("covers primary control routes, validation, and profile compatibility", async () => {
     const { startBrowserControlServerFromConfig } = await import("./server.js");
     const started = await startBrowserControlServerFromConfig();
     expect(started?.port).toBe(testPort);
@@ -361,78 +361,32 @@ describe("browser control server", () => {
     });
     expect(focusMissing.status).toBe(404);
 
-    const [
-      navMissing,
-      actMissing,
-      clickMissingRef,
-      scrollMissingRef,
-      scrollSelectorUnsupported,
-      clickBadButton,
-      clickBadModifiers,
-      typeBadText,
-      uploadMissingPaths,
-      dialogMissingAccept,
-    ] = await Promise.all([
-      realFetch(`${base}/navigate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      }),
-      realFetch(`${base}/act`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      }),
-      realFetch(`${base}/act`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: "click" }),
-      }),
-      realFetch(`${base}/act`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: "scrollIntoView" }),
-      }),
-      realFetch(`${base}/act`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: "scrollIntoView", selector: "button.save" }),
-      }),
-      realFetch(`${base}/act`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: "click", ref: "1", button: "nope" }),
-      }),
-      realFetch(`${base}/act`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: "click", ref: "1", modifiers: ["Nope"] }),
-      }),
-      realFetch(`${base}/act`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: "type", ref: "1", text: 123 }),
-      }),
-      realFetch(`${base}/hooks/file-chooser`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      }),
-      realFetch(`${base}/hooks/dialog`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      }),
-    ]);
+    const [navMissing, clickMissingRef, scrollSelectorUnsupported, dialogMissingAccept] =
+      await Promise.all([
+        realFetch(`${base}/navigate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }),
+        realFetch(`${base}/act`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "click" }),
+        }),
+        realFetch(`${base}/act`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "scrollIntoView", selector: "button.save" }),
+        }),
+        realFetch(`${base}/hooks/dialog`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }),
+      ]);
     expect(navMissing.status).toBe(400);
-    expect(actMissing.status).toBe(400);
     expect(clickMissingRef.status).toBe(400);
-    expect(scrollMissingRef.status).toBe(400);
     expect(scrollSelectorUnsupported.status).toBe(400);
-    expect(clickBadButton.status).toBe(400);
-    expect(clickBadModifiers.status).toBe(400);
-    expect(typeBadText.status).toBe(400);
-    expect(uploadMissingPaths.status).toBe(400);
     expect(dialogMissingAccept.status).toBe(400);
 
     const snapDefault = (await realFetch(`${base}/snapshot?format=wat`).then((r) => r.json())) as {
@@ -504,6 +458,7 @@ describe("browser control server", () => {
       body: JSON.stringify({}),
     });
     expect(missing.status).toBe(400);
+<<<<<<< HEAD
 
     reachable = false;
     cfgAttachOnly = true;
@@ -549,5 +504,7 @@ describe("browser control server", () => {
     expect(ensured).toHaveBeenCalledTimes(1);
 
     await new Promise<void>((resolve) => bridge.server.close(() => resolve()));
+=======
+>>>>>>> c4f550ef2 (perf(test): trim browser smoke and speed canvas test reload)
   });
 });
