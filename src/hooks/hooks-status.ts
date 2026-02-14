@@ -7,7 +7,6 @@ import { loadWorkspaceHookEntries } from "./workspace.js";
 
 export type HookStatusConfigCheck = {
   path: string;
-  value: unknown;
   satisfied: boolean;
 };
 
@@ -109,6 +108,7 @@ function buildHookStatus(
   const homepage = homepageRaw?.trim() ? homepageRaw.trim() : undefined;
   const events = entry.metadata?.events ?? [];
 
+<<<<<<< HEAD
   const requiredBins = entry.metadata?.requires?.bins ?? [];
   const requiredAnyBins = entry.metadata?.requires?.anyBins ?? [];
   const requiredEnv = entry.metadata?.requires?.env ?? [];
@@ -123,6 +123,23 @@ function buildHookStatus(
       return false;
     }
     return true;
+=======
+  const {
+    required,
+    missing,
+    eligible: requirementsSatisfied,
+    configChecks,
+  } = evaluateRequirementsFromMetadata({
+    always,
+    metadata: entry.metadata,
+    hasLocalBin: hasBinary,
+    hasRemoteBin: eligibility?.remote?.hasBin,
+    hasRemoteAnyBin: eligibility?.remote?.hasAnyBin,
+    localPlatform: process.platform,
+    remotePlatforms: eligibility?.remote?.platforms,
+    isEnvSatisfied: (envName) => Boolean(process.env[envName] || hookConfig?.env?.[envName]),
+    isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
+>>>>>>> d3428053d (fix: redact config values in skills status)
   });
 
   const missingAnyBins =
