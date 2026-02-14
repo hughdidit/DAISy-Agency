@@ -1,7 +1,14 @@
+import fs from "node:fs/promises";
 import { type AddressInfo, createServer } from "node:net";
+import os from "node:os";
+import path from "node:path";
 import { fetch as realFetch } from "undici";
+<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+=======
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
 
 let testPort = 0;
 let cdpBaseUrl = "";
@@ -62,6 +69,16 @@ const pwMocks = vi.hoisted(() => ({
   waitForViaPlaywright: vi.fn(async () => {}),
 }));
 
+const chromeUserDataDir = vi.hoisted(() => ({ dir: "/tmp/openclaw" }));
+
+beforeAll(async () => {
+  chromeUserDataDir.dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-chrome-user-data-"));
+});
+
+afterAll(async () => {
+  await fs.rm(chromeUserDataDir.dir, { recursive: true, force: true });
+});
+
 function makeProc(pid = 123) {
   const handlers = new Map<string, Array<(...args: unknown[]) => void>>();
   return {
@@ -116,14 +133,23 @@ vi.mock("./chrome.js", () => ({
     return {
       pid: 123,
       exe: { kind: "chrome", path: "/fake/chrome" },
+<<<<<<< HEAD
       userDataDir: "/tmp/clawd",
+=======
+      userDataDir: chromeUserDataDir.dir,
+>>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
       cdpPort: profile.cdpPort,
       startedAt: Date.now(),
       proc,
     };
   }),
+<<<<<<< HEAD
   resolveClawdUserDataDir: vi.fn(() => "/tmp/clawd"),
   stopClawdChrome: vi.fn(async () => {
+=======
+  resolveOpenClawUserDataDir: vi.fn(() => chromeUserDataDir.dir),
+  stopOpenClawChrome: vi.fn(async () => {
+>>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
     reachable = false;
   }),
 }));
