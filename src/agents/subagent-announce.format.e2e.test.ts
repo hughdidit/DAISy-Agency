@@ -287,7 +287,7 @@ describe("subagent announce formatting", () => {
         lastChannel: "whatsapp",
         lastTo: "+1555",
         queueMode: "collect",
-        queueDebounceMs: 80,
+        queueDebounceMs: 0,
       },
     };
 
@@ -322,7 +322,7 @@ describe("subagent announce formatting", () => {
       }),
     ]);
 
-    await new Promise((r) => setTimeout(r, 120));
+    await expect.poll(() => agentSpy.mock.calls.length).toBe(2);
     expect(agentSpy).toHaveBeenCalledTimes(2);
     const accountIds = agentSpy.mock.calls.map(
       (call) => (call?.[0] as { params?: { accountId?: string } })?.params?.accountId,
@@ -382,6 +382,7 @@ describe("subagent announce formatting", () => {
     expect(call?.params?.accountId).toBe("acct-987");
   });
 
+<<<<<<< HEAD
   it("splits collect-mode announces when accountId differs", async () => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
@@ -391,16 +392,35 @@ describe("subagent announce formatting", () => {
         sessionId: "session-789",
         lastChannel: "whatsapp",
         lastTo: "+1555",
+=======
+  it("prefers requesterOrigin channel over stale session lastChannel in queued announce", async () => {
+    const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
+    embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
+    embeddedRunMock.isEmbeddedPiRunStreaming.mockReturnValue(false);
+    // Session store has stale whatsapp channel, but the requesterOrigin says bluebubbles.
+    sessionStore = {
+      "agent:main:main": {
+        sessionId: "session-stale",
+        lastChannel: "whatsapp",
+>>>>>>> 6daa4911e (perf(subagents): speed announce retry polling and trim duplicate e2e coverage)
         queueMode: "collect",
         queueDebounceMs: 0,
       },
     };
 
+<<<<<<< HEAD
     await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:test",
       childRunId: "run-a",
       requesterSessionKey: "main",
       requesterOrigin: { accountId: "acct-a" },
+=======
+    const didAnnounce = await runSubagentAnnounceFlow({
+      childSessionKey: "agent:main:subagent:test",
+      childRunId: "run-stale-channel",
+      requesterSessionKey: "main",
+      requesterOrigin: { channel: "bluebubbles", to: "bluebubbles:chat_guid:123" },
+>>>>>>> 6daa4911e (perf(subagents): speed announce retry polling and trim duplicate e2e coverage)
       requesterDisplayKey: "main",
       task: "do thing",
       timeoutMs: 1000,
@@ -411,6 +431,7 @@ describe("subagent announce formatting", () => {
       outcome: { status: "ok" },
     });
 
+<<<<<<< HEAD
     await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:test",
       childRunId: "run-b",
@@ -434,5 +455,14 @@ describe("subagent announce formatting", () => {
     expect(accountIds).toContain("acct-a");
     expect(accountIds).toContain("acct-b");
     expect(agentSpy).toHaveBeenCalledTimes(2);
+=======
+    expect(didAnnounce).toBe(true);
+    await expect.poll(() => agentSpy.mock.calls.length).toBe(1);
+
+    const call = agentSpy.mock.calls[0]?.[0] as { params?: Record<string, unknown> };
+    // The channel should match requesterOrigin, NOT the stale session entry.
+    expect(call?.params?.channel).toBe("bluebubbles");
+    expect(call?.params?.to).toBe("bluebubbles:chat_guid:123");
+>>>>>>> 6daa4911e (perf(subagents): speed announce retry polling and trim duplicate e2e coverage)
   });
 });
