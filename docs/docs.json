@@ -1612,8 +1612,12 @@
               },
               {
                 "group": "Contributing",
+<<<<<<< HEAD
                 "pages": ["help/submitting-a-pr", "help/submitting-an-issue", "ci"]
 >>>>>>> e4a04f32e (docs: add ci.md to Contributing navigation)
+=======
+                "pages": ["ci"]
+>>>>>>> 302dafbe1 (Docs: move submission guidance to GitHub templates (#16232))
               },
               {
                 "group": "Docs meta",
