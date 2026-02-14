@@ -47,4 +47,45 @@ describe("applyReplyThreading auto-injects replyToCurrent", () => {
     expect(result).toHaveLength(1);
     expect(result[0].replyToId).toBeUndefined();
   });
+<<<<<<< HEAD
+=======
+
+  it("does not bypass off mode for Slack when reply is implicit", () => {
+    const result = applyReplyThreading({
+      payloads: [{ text: "A" }],
+      replyToMode: "off",
+      replyToChannel: "slack",
+      currentMessageId: "42",
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result[0].replyToId).toBeUndefined();
+  });
+
+  it("keeps explicit tags for Slack when off mode allows tags", () => {
+    const result = applyReplyThreading({
+      payloads: [{ text: "[[reply_to_current]]A" }],
+      replyToMode: "off",
+      replyToChannel: "slack",
+      currentMessageId: "42",
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result[0].replyToId).toBe("42");
+    expect(result[0].replyToTag).toBe(true);
+  });
+
+  it("keeps explicit tags for Telegram when off mode is enabled", () => {
+    const result = applyReplyThreading({
+      payloads: [{ text: "[[reply_to_current]]A" }],
+      replyToMode: "off",
+      replyToChannel: "telegram",
+      currentMessageId: "42",
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result[0].replyToId).toBe("42");
+    expect(result[0].replyToTag).toBe(true);
+  });
+>>>>>>> 7b39543e8 (fix(reply): honour explicit [[reply_to_*]] tags when replyToMode is off (#16174))
 });

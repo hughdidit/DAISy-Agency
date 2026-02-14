@@ -377,9 +377,15 @@ Alternate (official Bot API):
 1. DM your bot.
 2. Fetch updates with your bot token and read `message.from.id`:
 
+<<<<<<< HEAD
    ```bash
    curl "https://api.telegram.org/bot<bot_token>/getUpdates"
    ```
+=======
+    Note: `off` disables implicit reply threading. Explicit `[[reply_to_*]]` tags are still honored.
+
+  </Accordion>
+>>>>>>> 7b39543e8 (fix(reply): honour explicit [[reply_to_*]] tags when replyToMode is off (#16174))
 
 Third-party (less private):
 
