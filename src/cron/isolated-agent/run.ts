@@ -13,6 +13,8 @@ import { lookupContextTokens } from "../../agents/context.js";
 import { resolveCronStyleNow } from "../../agents/current-time.js";
 >>>>>>> d2c2f4185 (Heartbeat: inject cron-style current time into prompts (#13733))
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../../agents/defaults.js";
+import { resolveAgentAvatar } from "../../agents/identity-avatar.js";
+import { resolveAgentIdentity } from "../../agents/identity.js";
 import { loadModelCatalog } from "../../agents/model-catalog.js";
 import { runWithModelFallback } from "../../agents/model-fallback.js";
 import {
@@ -569,10 +571,20 @@ export async function runCronIsolatedAgentTurn(params: {
       logWarn(`[cron:${params.job.id}] ${message}`);
       return withRunSession({ status: "ok", summary, outputText });
     }
-    // Shared subagent announce flow is text-based; keep direct outbound delivery
-    // for media/channel payloads so structured content is preserved.
-    if (deliveryPayloadHasStructuredContent) {
+    const agentIdentity = resolveAgentIdentity(cfgWithAgentDefaults, agentId);
+    const avatar = resolveAgentAvatar(cfgWithAgentDefaults, agentId);
+    const icon_url = avatar.kind === "remote" ? avatar.url : undefined;
+    const username = agentIdentity?.name?.trim() || undefined;
+    const rawEmoji = agentIdentity?.emoji?.trim();
+    // Slack `icon_emoji` requires :emoji_name: (not a Unicode emoji).
+    const icon_emoji =
+      !icon_url && rawEmoji && /^:[^:\\s]+:$/.test(rawEmoji) ? rawEmoji : undefined;
+
+    // Shared subagent announce flow is text-based. When we have an explicit sender
+    // identity to preserve, prefer direct outbound delivery even for plain-text payloads.
+    if (deliveryPayloadHasStructuredContent || username || icon_url || icon_emoji) {
       try {
+<<<<<<< HEAD
         await deliverOutboundPayloads({
           cfg: cfgWithAgentDefaults,
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
@@ -612,6 +624,30 @@ export async function runCronIsolatedAgentTurn(params: {
           deps: createOutboundSendDeps(params.deps),
         });
         delivered = true;
+=======
+        const payloadsForDelivery =
+          deliveryPayloadHasStructuredContent && deliveryPayloads.length > 0
+            ? deliveryPayloads
+            : synthesizedText
+              ? [{ text: synthesizedText }]
+              : [];
+        if (payloadsForDelivery.length > 0) {
+          const deliveryResults = await deliverOutboundPayloads({
+            cfg: cfgWithAgentDefaults,
+            channel: resolvedDelivery.channel,
+            to: resolvedDelivery.to,
+            accountId: resolvedDelivery.accountId,
+            threadId: resolvedDelivery.threadId,
+            payloads: payloadsForDelivery,
+            username,
+            icon_url,
+            icon_emoji,
+            bestEffort: deliveryBestEffort,
+            deps: createOutboundSendDeps(params.deps),
+          });
+          delivered = deliveryResults.length > 0;
+        }
+>>>>>>> 09e1cbc35 (fix(cron): pass agent identity through delivery path (#16218) (#16242))
       } catch (err) {
         if (!deliveryBestEffort) {
           return withRunSession({ status: "error", summary, outputText, error: String(err) });

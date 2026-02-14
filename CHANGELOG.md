@@ -38,7 +38,13 @@ Docs: https://docs.openclaw.ai
 =======
 - Security/Google Chat: deprecate `users/<email>` allowlists (treat `users/...` as immutable user id only); keep raw email allowlists for usability. Thanks @vincentkoc.
 - Security/Archive: enforce archive extraction entry/size limits to prevent resource exhaustion from high-expansion ZIP/TAR archives. Thanks @vincentkoc.
+<<<<<<< HEAD
 >>>>>>> d3ee5deb8 (fix(archive): enforce extraction resource limits)
+=======
+- Security/Media: reject oversized base64-backed input media before decoding to avoid large allocations. Thanks @vincentkoc.
+- Security/Gateway: reject oversized base64 chat attachments before decoding to avoid large allocations. Thanks @vincentkoc.
+- Cron/Slack: preserve agent identity (name and icon) when cron jobs deliver outbound messages. (#16242) Thanks @robbyczgw-cla.
+>>>>>>> 09e1cbc35 (fix(cron): pass agent identity through delivery path (#16218) (#16242))
 
 ## 2026.2.14
 
