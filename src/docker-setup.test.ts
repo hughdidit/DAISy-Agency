@@ -85,14 +85,10 @@ function resolveBashForCompatCheck(): string | null {
 }
 
 describe("docker-setup.sh", () => {
-  it("handles unset optional env vars under strict mode", async () => {
+  it("handles env defaults, home-volume mounts, and apt build args", async () => {
     const sandbox = await createDockerSetupSandbox();
-    const env = createEnv(sandbox, {
-      OPENCLAW_DOCKER_APT_PACKAGES: undefined,
-      OPENCLAW_EXTRA_MOUNTS: undefined,
-      OPENCLAW_HOME_VOLUME: undefined,
-    });
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     const rootDir = await mkdtemp(join(tmpdir(), "moltbot-docker-setup-"));
     const scriptPath = join(rootDir, "docker-setup.sh");
@@ -129,9 +125,24 @@ describe("docker-setup.sh", () => {
       cwd: sandbox.rootDir,
 >>>>>>> 6731c6a1c (fix(docker): support Bash 3.2 in docker-setup.sh (#9441))
       env,
+=======
+    const defaultsResult = spawnSync("bash", [sandbox.scriptPath], {
+      cwd: sandbox.rootDir,
+      env: createEnv(sandbox, {
+        OPENCLAW_DOCKER_APT_PACKAGES: undefined,
+        OPENCLAW_EXTRA_MOUNTS: undefined,
+        OPENCLAW_HOME_VOLUME: undefined,
+      }),
+>>>>>>> 59d2d89fe (perf(test): collapse docker setup sandbox churn)
       encoding: "utf8",
     });
+    expect(defaultsResult.status).toBe(0);
+    const defaultsEnvFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
+    expect(defaultsEnvFile).toContain("OPENCLAW_DOCKER_APT_PACKAGES=");
+    expect(defaultsEnvFile).toContain("OPENCLAW_EXTRA_MOUNTS=");
+    expect(defaultsEnvFile).toContain("OPENCLAW_HOME_VOLUME=");
 
+<<<<<<< HEAD
     expect(result.status).toBe(0);
 
 <<<<<<< HEAD
@@ -192,10 +203,17 @@ describe("docker-setup.sh", () => {
 >>>>>>> 6731c6a1c (fix(docker): support Bash 3.2 in docker-setup.sh (#9441))
 
     const result = spawnSync("bash", [sandbox.scriptPath], {
+=======
+    const homeVolumeResult = spawnSync("bash", [sandbox.scriptPath], {
+>>>>>>> 59d2d89fe (perf(test): collapse docker setup sandbox churn)
       cwd: sandbox.rootDir,
-      env,
+      env: createEnv(sandbox, {
+        OPENCLAW_EXTRA_MOUNTS: "",
+        OPENCLAW_HOME_VOLUME: "openclaw-home",
+      }),
       encoding: "utf8",
     });
+<<<<<<< HEAD
 
     expect(result.status).toBe(0);
 
@@ -206,10 +224,29 @@ describe("docker-setup.sh", () => {
     const log = await readFile(logPath, "utf8");
     expect(log).toContain("--build-arg CLAWDBOT_DOCKER_APT_PACKAGES=ffmpeg build-essential");
 =======
+=======
+    expect(homeVolumeResult.status).toBe(0);
+>>>>>>> 59d2d89fe (perf(test): collapse docker setup sandbox churn)
     const extraCompose = await readFile(join(sandbox.rootDir, "docker-compose.extra.yml"), "utf8");
     expect(extraCompose).toContain("openclaw-home:/home/node");
     expect(extraCompose).toContain("volumes:");
     expect(extraCompose).toContain("openclaw-home:");
+
+    await writeFile(sandbox.logPath, "");
+    const aptResult = spawnSync("bash", [sandbox.scriptPath], {
+      cwd: sandbox.rootDir,
+      env: createEnv(sandbox, {
+        OPENCLAW_DOCKER_APT_PACKAGES: "ffmpeg build-essential",
+        OPENCLAW_EXTRA_MOUNTS: "",
+        OPENCLAW_HOME_VOLUME: "",
+      }),
+      encoding: "utf8",
+    });
+    expect(aptResult.status).toBe(0);
+    const aptEnvFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
+    expect(aptEnvFile).toContain("OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
+    const log = await readFile(sandbox.logPath, "utf8");
+    expect(log).toContain("--build-arg OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
   });
 
   it("avoids associative arrays so the script remains Bash 3.2-compatible", async () => {
@@ -245,6 +282,7 @@ describe("docker-setup.sh", () => {
     expect(result.stderr).not.toContain("declare: -A: invalid option");
   });
 
+<<<<<<< HEAD
   it("plumbs OPENCLAW_DOCKER_APT_PACKAGES into .env and docker build args", async () => {
     const sandbox = await createDockerSetupSandbox();
     const env = createEnv(sandbox, {
@@ -269,6 +307,8 @@ describe("docker-setup.sh", () => {
 >>>>>>> 6731c6a1c (fix(docker): support Bash 3.2 in docker-setup.sh (#9441))
   });
 
+=======
+>>>>>>> 59d2d89fe (perf(test): collapse docker setup sandbox churn)
   it("keeps docker-compose gateway command in sync", async () => {
     const compose = await readFile(join(repoRoot, "docker-compose.yml"), "utf8");
     expect(compose).not.toContain("gateway-daemon");
