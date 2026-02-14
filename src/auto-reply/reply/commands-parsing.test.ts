@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import type { MsgContext } from "../templating.js";
@@ -45,6 +46,14 @@ function buildParams(commandBody: string, cfg: MoltbotConfig, ctxOverrides?: Par
     isGroup: false,
   };
 }
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { extractMessageText } from "./commands-subagents.js";
+import { handleCommands } from "./commands.js";
+import { buildCommandTestParams } from "./commands.test-harness.js";
+import { parseConfigCommand } from "./config-commands.js";
+import { parseDebugCommand } from "./debug-commands.js";
+>>>>>>> 8f535285d (refactor(test): share command handler params)
 
 describe("parseConfigCommand", () => {
   it("parses show/unset", () => {
@@ -116,8 +125,13 @@ describe("handleCommands /config configWrites gating", () => {
     const cfg = {
       commands: { config: true, text: true },
       channels: { whatsapp: { allowFrom: ["*"], configWrites: false } },
+<<<<<<< HEAD
     } as MoltbotConfig;
     const params = buildParams('/config set messages.ackReaction=":)"', cfg);
+=======
+    } as OpenClawConfig;
+    const params = buildCommandTestParams('/config set messages.ackReaction=":)"', cfg);
+>>>>>>> 8f535285d (refactor(test): share command handler params)
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
     expect(result.reply?.text).toContain("Config writes are disabled");
