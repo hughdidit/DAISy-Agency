@@ -1,3 +1,17 @@
+<<<<<<< HEAD
+=======
+import type { ReplyPayload } from "../../auto-reply/types.js";
+import type { ChannelOutboundAdapter } from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { sendMessageDiscord } from "../../discord/send.js";
+import type { sendMessageIMessage } from "../../imessage/send.js";
+import type { sendMessageSlack } from "../../slack/send.js";
+import type { sendMessageTelegram } from "../../telegram/send.js";
+import type { sendMessageWhatsApp } from "../../web/outbound.js";
+import type { OutboundIdentity } from "./identity.js";
+import type { NormalizedOutboundPayload } from "./payloads.js";
+import type { OutboundChannel } from "./targets.js";
+>>>>>>> 50645b905 (refactor(outbound): centralize outbound identity)
 import {
   chunkByParagraph,
   chunkMarkdownTextWithMode,
@@ -88,9 +102,7 @@ async function createChannelHandler(params: {
   accountId?: string;
   replyToId?: string | null;
   threadId?: string | number | null;
-  username?: string;
-  icon_url?: string;
-  icon_emoji?: string;
+  identity?: OutboundIdentity;
   deps?: OutboundSendDeps;
   gifPlayback?: boolean;
   silent?: boolean;
@@ -107,9 +119,7 @@ async function createChannelHandler(params: {
     accountId: params.accountId,
     replyToId: params.replyToId,
     threadId: params.threadId,
-    username: params.username,
-    icon_url: params.icon_url,
-    icon_emoji: params.icon_emoji,
+    identity: params.identity,
     deps: params.deps,
     gifPlayback: params.gifPlayback,
     silent: params.silent,
@@ -128,9 +138,7 @@ function createPluginHandler(params: {
   accountId?: string;
   replyToId?: string | null;
   threadId?: string | number | null;
-  username?: string;
-  icon_url?: string;
-  icon_emoji?: string;
+  identity?: OutboundIdentity;
   deps?: OutboundSendDeps;
   gifPlayback?: boolean;
   silent?: boolean;
@@ -157,9 +165,7 @@ function createPluginHandler(params: {
             accountId: params.accountId,
             replyToId: params.replyToId,
             threadId: params.threadId,
-            username: params.username,
-            icon_url: params.icon_url,
-            icon_emoji: params.icon_emoji,
+            identity: params.identity,
             gifPlayback: params.gifPlayback,
             deps: params.deps,
             silent: params.silent,
@@ -174,9 +180,7 @@ function createPluginHandler(params: {
         accountId: params.accountId,
         replyToId: params.replyToId,
         threadId: params.threadId,
-        username: params.username,
-        icon_url: params.icon_url,
-        icon_emoji: params.icon_emoji,
+        identity: params.identity,
         gifPlayback: params.gifPlayback,
         deps: params.deps,
         silent: params.silent,
@@ -190,9 +194,7 @@ function createPluginHandler(params: {
         accountId: params.accountId,
         replyToId: params.replyToId,
         threadId: params.threadId,
-        username: params.username,
-        icon_url: params.icon_url,
-        icon_emoji: params.icon_emoji,
+        identity: params.identity,
         gifPlayback: params.gifPlayback,
         deps: params.deps,
         silent: params.silent,
@@ -211,9 +213,7 @@ export async function deliverOutboundPayloads(params: {
   payloads: ReplyPayload[];
   replyToId?: string | null;
   threadId?: string | number | null;
-  username?: string;
-  icon_url?: string;
-  icon_emoji?: string;
+  identity?: OutboundIdentity;
   deps?: OutboundSendDeps;
   gifPlayback?: boolean;
   abortSignal?: AbortSignal;
@@ -297,9 +297,7 @@ async function deliverOutboundPayloadsCore(params: {
   payloads: ReplyPayload[];
   replyToId?: string | null;
   threadId?: string | number | null;
-  username?: string;
-  icon_url?: string;
-  icon_emoji?: string;
+  identity?: OutboundIdentity;
   deps?: OutboundSendDeps;
   gifPlayback?: boolean;
   abortSignal?: AbortSignal;
@@ -328,9 +326,7 @@ async function deliverOutboundPayloadsCore(params: {
     accountId,
     replyToId: params.replyToId,
     threadId: params.threadId,
-    username: params.username,
-    icon_url: params.icon_url,
-    icon_emoji: params.icon_emoji,
+    identity: params.identity,
     gifPlayback: params.gifPlayback,
     silent: params.silent,
   });
