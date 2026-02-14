@@ -1,6 +1,7 @@
 import type { AgentEvent } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 =======
@@ -9,6 +10,9 @@ import type {
   PluginHookBeforeToolCallEvent,
 } from "../plugins/types.js";
 >>>>>>> d34138dfe (fix: dispatch before_tool_call and after_tool_call hooks from both tool execution paths (openclaw#15012) thanks @Patrick-Barletta)
+=======
+import type { PluginHookAfterToolCallEvent } from "../plugins/types.js";
+>>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo))
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 >>>>>>> 8eb11bd30 (fix: wire before_tool_call hook into tool execution (#6570) (thanks @ryancnelson) (#6660))
 import { emitAgentEvent } from "../infra/agent-events.js";
@@ -58,6 +62,7 @@ export async function handleToolExecutionStart(
   // Track start time and args for after_tool_call hook
   toolStartData.set(toolCallId, { startTime: Date.now(), args });
 
+<<<<<<< HEAD
   // Call before_tool_call hook
   const hookRunner = ctx.hookRunner ?? getGlobalHookRunner();
   if (hookRunner?.hasHooks?.("before_tool_call")) {
@@ -73,6 +78,8 @@ export async function handleToolExecutionStart(
   }
 
 >>>>>>> d34138dfe (fix: dispatch before_tool_call and after_tool_call hooks from both tool execution paths (openclaw#15012) thanks @Patrick-Barletta)
+=======
+>>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo))
   if (toolName === "read") {
     const record = args && typeof args === "object" ? (args as Record<string, unknown>) : {};
     const filePath = typeof record.path === "string" ? record.path.trim() : "";
