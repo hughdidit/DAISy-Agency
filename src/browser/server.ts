@@ -4,6 +4,11 @@ import express from "express";
 import { loadConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveBrowserConfig, resolveProfile } from "./config.js";
+<<<<<<< HEAD
+=======
+import { ensureBrowserControlAuth, resolveBrowserControlAuth } from "./control-auth.js";
+import { browserMutationGuardMiddleware } from "./csrf.js";
+>>>>>>> b566b09f8 (fix(security): block cross-origin mutations on loopback browser routes)
 import { ensureChromeExtensionRelayServer } from "./extension-relay.js";
 import { registerBrowserRoutes } from "./routes/index.js";
 import type { BrowserRouteRegistrar } from "./routes/types.js";
@@ -22,6 +27,7 @@ export async function startBrowserControlServerFromConfig(): Promise<BrowserServ
 
   const app = express();
   app.use(express.json({ limit: "1mb" }));
+  app.use(browserMutationGuardMiddleware());
 
   const ctx = createBrowserRouteContext({
     getState: () => state,

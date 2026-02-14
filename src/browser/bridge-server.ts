@@ -9,7 +9,12 @@ import type { BrowserRouteRegistrar } from "./routes/types.js";
 import { isLoopbackHost } from "../gateway/net.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
 import { deleteBridgeAuthForPort, setBridgeAuthForPort } from "./bridge-auth-registry.js";
+<<<<<<< HEAD
 >>>>>>> 6dd6bce99 (fix(security): enforce sandbox bridge auth)
+=======
+import { browserMutationGuardMiddleware } from "./csrf.js";
+import { isAuthorizedBrowserRequest } from "./http-auth.js";
+>>>>>>> b566b09f8 (fix(security): block cross-origin mutations on loopback browser routes)
 import { registerBrowserRoutes } from "./routes/index.js";
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 import {
@@ -40,6 +45,7 @@ export async function startBrowserBridgeServer(params: {
 
   const app = express();
   app.use(express.json({ limit: "1mb" }));
+  app.use(browserMutationGuardMiddleware());
 
 <<<<<<< HEAD
   const authToken = params.authToken?.trim();
