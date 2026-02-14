@@ -314,6 +314,7 @@ export function sanitizeUserFacingText(text: string): string {
   if (!text) return text;
   const stripped = stripFinalTagsFromText(text);
   const trimmed = stripped.trim();
+<<<<<<< HEAD
   if (!trimmed) return stripped;
 
   if (/incorrect role information|roles must alternate/i.test(trimmed)) {
@@ -321,6 +322,10 @@ export function sanitizeUserFacingText(text: string): string {
       "Message ordering conflict - please try again. " +
       "If this persists, use /new to start a fresh session."
     );
+=======
+  if (!trimmed) {
+    return "";
+>>>>>>> 3881af5b3 (fix: strip leading whitespace from sanitizeUserFacingText output (#16158))
   }
 
   if (isContextOverflowError(trimmed)) {
@@ -353,7 +358,7 @@ export function sanitizeUserFacingText(text: string): string {
     return formatRawAssistantErrorForUi(trimmed);
   }
 
-  return collapseConsecutiveDuplicateBlocks(stripped);
+  return collapseConsecutiveDuplicateBlocks(stripped).trimStart();
 }
 
 export function isRateLimitAssistantError(msg: AssistantMessage | undefined): boolean {
