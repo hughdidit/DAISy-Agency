@@ -203,8 +203,13 @@ describe("gateway-cli coverage", () => {
     expect(out).toContain("Found 1 gateway(s)");
     expect(out).toContain("- Studio moltbot.internal.");
     expect(out).toContain("  tailnet: studio.tailnet.ts.net");
+<<<<<<< HEAD
     expect(out).toContain("  host: studio.clawdbot.internal");
     expect(out).toContain("  ws: ws://studio.tailnet.ts.net:18789");
+=======
+    expect(out).toContain("  host: studio.openclaw.internal");
+    expect(out).toContain("  ws: ws://studio.openclaw.internal:18789");
+>>>>>>> c06a962bb (test(e2e): stabilize suite)
   });
 
   it("validates gateway discover timeout", async () => {
