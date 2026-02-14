@@ -1,12 +1,20 @@
+<<<<<<< HEAD
 import { spawnSync } from "node:child_process";
+=======
+import JSZip from "jszip";
+>>>>>>> 93dc3bb79 (perf(test): avoid npm pack in plugin install e2e fixtures)
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import JSZip from "jszip";
 import { afterEach, describe, expect, it } from "vitest";
 =======
+=======
+import * as tar from "tar";
+>>>>>>> 93dc3bb79 (perf(test): avoid npm pack in plugin install e2e fixtures)
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as skillScanner from "../security/skill-scanner.js";
 >>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
@@ -24,40 +32,7 @@ function makeTempDir() {
   return dir;
 }
 
-function resolveNpmCliJs() {
-  const fromEnv = process.env.npm_execpath;
-  if (fromEnv?.includes(`${path.sep}npm${path.sep}`) && fromEnv?.endsWith("npm-cli.js")) {
-    return fromEnv ?? null;
-  }
-
-  const fromNodeDir = path.join(
-    path.dirname(process.execPath),
-    "node_modules",
-    "npm",
-    "bin",
-    "npm-cli.js",
-  );
-  if (fs.existsSync(fromNodeDir)) {
-    return fromNodeDir;
-  }
-
-  const fromLibNodeModules = path.resolve(
-    path.dirname(process.execPath),
-    "..",
-    "lib",
-    "node_modules",
-    "npm",
-    "bin",
-    "npm-cli.js",
-  );
-  if (fs.existsSync(fromLibNodeModules)) {
-    return fromLibNodeModules;
-  }
-
-  return null;
-}
-
-function packToArchive({
+async function packToArchive({
   pkgDir,
   outDir,
   outName,
@@ -66,27 +41,16 @@ function packToArchive({
   outDir: string;
   outName: string;
 }) {
-  const npmCli = resolveNpmCliJs();
-  const cmd = npmCli ? process.execPath : "npm";
-  const args = npmCli
-    ? [npmCli, "pack", "--silent", "--pack-destination", outDir, pkgDir]
-    : ["pack", "--silent", "--pack-destination", outDir, pkgDir];
-
-  const res = spawnSync(cmd, args, { encoding: "utf-8" });
-  expect(res.status).toBe(0);
-  if (res.status !== 0) {
-    throw new Error(`npm pack failed: ${res.stderr || res.stdout || "<no output>"}`);
-  }
-
-  const packed = (res.stdout || "").trim().split(/\r?\n/).filter(Boolean).at(-1);
-  if (!packed) {
-    throw new Error(`npm pack did not output a filename: ${res.stdout || "<no stdout>"}`);
-  }
-
-  const src = path.join(outDir, packed);
   const dest = path.join(outDir, outName);
   fs.rmSync(dest, { force: true });
-  fs.renameSync(src, dest);
+  await tar.c(
+    {
+      gzip: true,
+      file: dest,
+      cwd: path.dirname(pkgDir),
+    },
+    [path.basename(pkgDir)],
+  );
   return dest;
 }
 
@@ -117,7 +81,7 @@ describe("installPluginFromArchive", () => {
     );
     fs.writeFileSync(path.join(pkgDir, "dist", "index.js"), "export {};", "utf-8");
 
-    const archivePath = packToArchive({
+    const archivePath = await packToArchive({
       pkgDir,
       outDir: workDir,
       outName: "plugin.tgz",
@@ -152,7 +116,7 @@ describe("installPluginFromArchive", () => {
     );
     fs.writeFileSync(path.join(pkgDir, "dist", "index.js"), "export {};", "utf-8");
 
-    const archivePath = packToArchive({
+    const archivePath = await packToArchive({
       pkgDir,
       outDir: workDir,
       outName: "plugin.tgz",
@@ -219,13 +183,13 @@ describe("installPluginFromArchive", () => {
     );
     fs.writeFileSync(path.join(pkgDir, "dist", "index.js"), "export {};", "utf-8");
 
-    const archiveV1 = packToArchive({
+    const archiveV1 = await packToArchive({
       pkgDir,
       outDir: workDir,
       outName: "plugin-v1.tgz",
     });
 
-    const archiveV2 = (() => {
+    const archiveV2 = await (async () => {
       fs.writeFileSync(
         path.join(pkgDir, "package.json"),
         JSON.stringify({
@@ -235,7 +199,7 @@ describe("installPluginFromArchive", () => {
         }),
         "utf-8",
       );
-      return packToArchive({
+      return await packToArchive({
         pkgDir,
         outDir: workDir,
         outName: "plugin-v2.tgz",
@@ -265,7 +229,83 @@ describe("installPluginFromArchive", () => {
     expect(manifest.version).toBe("0.0.2");
   });
 
+<<<<<<< HEAD
   it("rejects packages without moltbot.extensions", async () => {
+=======
+  it("rejects traversal-like plugin names", async () => {
+    const stateDir = makeTempDir();
+    const workDir = makeTempDir();
+    const pkgDir = path.join(workDir, "package");
+    fs.mkdirSync(path.join(pkgDir, "dist"), { recursive: true });
+    fs.writeFileSync(
+      path.join(pkgDir, "package.json"),
+      JSON.stringify({
+        name: "@evil/..",
+        version: "0.0.1",
+        openclaw: { extensions: ["./dist/index.js"] },
+      }),
+      "utf-8",
+    );
+    fs.writeFileSync(path.join(pkgDir, "dist", "index.js"), "export {};", "utf-8");
+
+    const archivePath = await packToArchive({
+      pkgDir,
+      outDir: workDir,
+      outName: "traversal.tgz",
+    });
+
+    const extensionsDir = path.join(stateDir, "extensions");
+    const { installPluginFromArchive } = await import("./install.js");
+    const result = await installPluginFromArchive({
+      archivePath,
+      extensionsDir,
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+    expect(result.error).toContain("reserved path segment");
+  });
+
+  it("rejects reserved plugin ids", async () => {
+    const stateDir = makeTempDir();
+    const workDir = makeTempDir();
+    const pkgDir = path.join(workDir, "package");
+    fs.mkdirSync(path.join(pkgDir, "dist"), { recursive: true });
+    fs.writeFileSync(
+      path.join(pkgDir, "package.json"),
+      JSON.stringify({
+        name: "@evil/.",
+        version: "0.0.1",
+        openclaw: { extensions: ["./dist/index.js"] },
+      }),
+      "utf-8",
+    );
+    fs.writeFileSync(path.join(pkgDir, "dist", "index.js"), "export {};", "utf-8");
+
+    const archivePath = await packToArchive({
+      pkgDir,
+      outDir: workDir,
+      outName: "reserved.tgz",
+    });
+
+    const extensionsDir = path.join(stateDir, "extensions");
+    const { installPluginFromArchive } = await import("./install.js");
+    const result = await installPluginFromArchive({
+      archivePath,
+      extensionsDir,
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+    expect(result.error).toContain("reserved path segment");
+  });
+
+  it("rejects packages without openclaw.extensions", async () => {
+>>>>>>> 93dc3bb79 (perf(test): avoid npm pack in plugin install e2e fixtures)
     const stateDir = makeTempDir();
     const workDir = makeTempDir();
     const pkgDir = path.join(workDir, "package");
@@ -276,7 +316,7 @@ describe("installPluginFromArchive", () => {
       "utf-8",
     );
 
-    const archivePath = packToArchive({
+    const archivePath = await packToArchive({
       pkgDir,
       outDir: workDir,
       outName: "bad.tgz",
