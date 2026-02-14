@@ -228,7 +228,13 @@ You can add custom commands to the menu via config:
     - `open` (requires `allowFrom` to include `"*"`)
     - `disabled`
 
+<<<<<<< HEAD
     `channels.telegram.allowFrom` accepts numeric IDs and usernames. `telegram:` / `tg:` prefixes are accepted and normalized.
+=======
+    `channels.telegram.allowFrom` accepts numeric Telegram user IDs. `telegram:` / `tg:` prefixes are accepted and normalized.
+    The onboarding wizard accepts `@username` input and resolves it to numeric IDs.
+    If you upgraded and your config contains `@username` allowlist entries, run `openclaw doctor --fix` to resolve them (best-effort; requires a Telegram bot token).
+>>>>>>> 226bf7463 (docs(telegram): document allowlist id requirement)
 
     ### Finding your Telegram user ID
 
@@ -261,6 +267,7 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
        - `disabled`
 
     `groupAllowFrom` is used for group sender filtering. If not set, Telegram falls back to `allowFrom`.
+    `groupAllowFrom` entries must be numeric Telegram user IDs.
 
     Example: allow any member in one specific group:
 
@@ -1227,7 +1234,7 @@ openclaw message send --channel telegram --target @name --message "hi"
 
   <Accordion title="Commands work partially or not at all">
 
-    - authorize your sender identity (pairing and/or `allowFrom`)
+    - authorize your sender identity (pairing and/or numeric `allowFrom`)
     - command authorization still applies even when group policy is `open`
     - `setMyCommands failed` usually indicates DNS/HTTPS reachability issues to `api.telegram.org`
 
@@ -1253,6 +1260,48 @@ More help: [Channel troubleshooting](/channels/troubleshooting).
 
 Primary reference:
 
+<<<<<<< HEAD
+=======
+- `channels.telegram.enabled`: enable/disable channel startup.
+- `channels.telegram.botToken`: bot token (BotFather).
+- `channels.telegram.tokenFile`: read token from file path.
+- `channels.telegram.dmPolicy`: `pairing | allowlist | open | disabled` (default: pairing).
+- `channels.telegram.allowFrom`: DM allowlist (numeric Telegram user IDs). `open` requires `"*"`. `openclaw doctor --fix` can resolve legacy `@username` entries to IDs.
+- `channels.telegram.groupPolicy`: `open | allowlist | disabled` (default: allowlist).
+- `channels.telegram.groupAllowFrom`: group sender allowlist (numeric Telegram user IDs). `openclaw doctor --fix` can resolve legacy `@username` entries to IDs.
+- `channels.telegram.groups`: per-group defaults + allowlist (use `"*"` for global defaults).
+  - `channels.telegram.groups.<id>.groupPolicy`: per-group override for groupPolicy (`open | allowlist | disabled`).
+  - `channels.telegram.groups.<id>.requireMention`: mention gating default.
+  - `channels.telegram.groups.<id>.skills`: skill filter (omit = all skills, empty = none).
+  - `channels.telegram.groups.<id>.allowFrom`: per-group sender allowlist override.
+  - `channels.telegram.groups.<id>.systemPrompt`: extra system prompt for the group.
+  - `channels.telegram.groups.<id>.enabled`: disable the group when `false`.
+  - `channels.telegram.groups.<id>.topics.<threadId>.*`: per-topic overrides (same fields as group).
+  - `channels.telegram.groups.<id>.topics.<threadId>.groupPolicy`: per-topic override for groupPolicy (`open | allowlist | disabled`).
+  - `channels.telegram.groups.<id>.topics.<threadId>.requireMention`: per-topic mention gating override.
+- `channels.telegram.capabilities.inlineButtons`: `off | dm | group | all | allowlist` (default: allowlist).
+- `channels.telegram.accounts.<account>.capabilities.inlineButtons`: per-account override.
+- `channels.telegram.replyToMode`: `off | first | all` (default: `off`).
+- `channels.telegram.textChunkLimit`: outbound chunk size (chars).
+- `channels.telegram.chunkMode`: `length` (default) or `newline` to split on blank lines (paragraph boundaries) before length chunking.
+- `channels.telegram.linkPreview`: toggle link previews for outbound messages (default: true).
+- `channels.telegram.streamMode`: `off | partial | block` (draft streaming).
+- `channels.telegram.mediaMaxMb`: inbound/outbound media cap (MB).
+- `channels.telegram.retry`: retry policy for outbound Telegram API calls (attempts, minDelayMs, maxDelayMs, jitter).
+- `channels.telegram.network.autoSelectFamily`: override Node autoSelectFamily (true=enable, false=disable). Defaults to disabled on Node 22 to avoid Happy Eyeballs timeouts.
+- `channels.telegram.proxy`: proxy URL for Bot API calls (SOCKS/HTTP).
+- `channels.telegram.webhookUrl`: enable webhook mode (requires `channels.telegram.webhookSecret`).
+- `channels.telegram.webhookSecret`: webhook secret (required when webhookUrl is set).
+- `channels.telegram.webhookPath`: local webhook path (default `/telegram-webhook`).
+- `channels.telegram.webhookHost`: local webhook bind host (default `127.0.0.1`).
+- `channels.telegram.actions.reactions`: gate Telegram tool reactions.
+- `channels.telegram.actions.sendMessage`: gate Telegram tool message sends.
+- `channels.telegram.actions.deleteMessage`: gate Telegram tool message deletes.
+- `channels.telegram.actions.sticker`: gate Telegram sticker actions — send and search (default: false).
+- `channels.telegram.reactionNotifications`: `off | own | all` — control which reactions trigger system events (default: `own` when not set).
+- `channels.telegram.reactionLevel`: `off | ack | minimal | extensive` — control agent's reaction capability (default: `minimal` when not set).
+
+>>>>>>> 226bf7463 (docs(telegram): document allowlist id requirement)
 - [Configuration reference - Telegram](/gateway/configuration-reference#telegram)
 
 Telegram-specific high-signal fields:
