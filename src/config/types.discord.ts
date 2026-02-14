@@ -124,6 +124,11 @@ export type DiscordUiConfig = {
   components?: DiscordUiComponentsConfig;
 };
 
+export type DiscordSlashCommandConfig = {
+  /** Reply ephemerally (default: true). */
+  ephemeral?: boolean;
+};
+
 export type DiscordAccountConfig = {
   /** Optional display name for this account (used in CLI/UI lists). */
   name?: string;
@@ -208,7 +213,12 @@ export type DiscordAccountConfig = {
   agentComponents?: DiscordAgentComponentsConfig;
   /** Discord UI customization (components, modals, etc.). */
   ui?: DiscordUiConfig;
+<<<<<<< HEAD
 >>>>>>> 9203a2fdb (Discord: CV2! (#16364))
+=======
+  /** Slash command configuration. */
+  slashCommand?: DiscordSlashCommandConfig;
+>>>>>>> 122bdfa4e (feat(discord): add configurable ephemeral option for slash commands)
   /** Privileged Gateway Intents (must also be enabled in Discord Developer Portal). */
   intents?: DiscordIntentsConfig;
   /** PluralKit identity resolution for proxied messages. */

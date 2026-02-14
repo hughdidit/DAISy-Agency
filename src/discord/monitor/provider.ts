@@ -107,7 +107,11 @@ import {
   createDiscordComponentStringSelect,
   createDiscordComponentUserSelect,
 } from "./agent-components.js";
+<<<<<<< HEAD
 >>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
+=======
+import { resolveDiscordSlashCommandConfig } from "./commands.js";
+>>>>>>> 122bdfa4e (feat(discord): add configurable ephemeral option for slash commands)
 import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
 import { createDiscordGatewayPlugin } from "./gateway-plugin.js";
 import { registerGateway, unregisterGateway } from "./gateway-registry.js";
@@ -347,8 +351,14 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     globalSetting: cfg.commands?.native,
   });
   const useAccessGroups = cfg.commands?.useAccessGroups !== false;
+  const slashCommand = resolveDiscordSlashCommandConfig(discordCfg.slashCommand);
   const sessionPrefix = "discord:slash";
+<<<<<<< HEAD
   const ephemeralDefault = true;
+=======
+  const ephemeralDefault = slashCommand.ephemeral;
+  const voiceEnabled = discordCfg.voice?.enabled !== false;
+>>>>>>> 122bdfa4e (feat(discord): add configurable ephemeral option for slash commands)
 
   if (token) {
     if (guildEntries && Object.keys(guildEntries).length > 0) {
