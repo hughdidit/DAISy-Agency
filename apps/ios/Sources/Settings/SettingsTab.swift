@@ -273,13 +273,37 @@ struct SettingsTab: View {
                 }
             }
         }
+        .gatewayTrustPromptAlert()
     }
 
     @ViewBuilder
     private func gatewayList(showing: GatewayListMode) -> some View {
         if self.gatewayController.gateways.isEmpty {
+<<<<<<< HEAD
             Text("No gateways found yet.")
                 .foregroundStyle(.secondary)
+=======
+            VStack(alignment: .leading, spacing: 12) {
+                Text("No gateways found yet.")
+                    .foregroundStyle(.secondary)
+                Text("If your gateway is on another network, connect it and ensure DNS is working.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                if let lastKnown = GatewaySettingsStore.loadLastGatewayConnection(),
+                   case let .manual(host, port, _, _) = lastKnown
+                {
+                    Button {
+                        Task { await self.connectLastKnown() }
+                    } label: {
+                        self.lastKnownButtonLabel(host: host, port: port)
+                    }
+                    .disabled(self.connectingGatewayID != nil)
+                    .buttonStyle(.borderedProminent)
+                    .tint(self.appModel.seamColor)
+                }
+            }
+>>>>>>> 054366dea (fix(security): require explicit trust for first-time TLS pins)
         } else {
             let connectedID = self.appModel.connectedGatewayID
             let rows = self.gatewayController.gateways.filter { gateway in
