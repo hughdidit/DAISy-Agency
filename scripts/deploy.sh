@@ -89,9 +89,24 @@ CLAUDE_WEB_SESSION_KEY="${CLAUDE_WEB_SESSION_KEY:-}"
 CLAUDE_WEB_COOKIE="${CLAUDE_WEB_COOKIE:-}"
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
-CLAWDBOT_GATEWAY_PORT="${CLAWDBOT_GATEWAY_PORT:-18789}"
-CLAWDBOT_BRIDGE_PORT="${CLAWDBOT_BRIDGE_PORT:-18790}"
+CLAWDBOT_GATEWAY_BIND="${CLAWDBOT_GATEWAY_BIND:-loopback}"
+: "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required for real deploy}"
+: "${CLAWDBOT_BRIDGE_PORT:?CLAWDBOT_BRIDGE_PORT is required for real deploy}"
 
+# Validate that ports are numeric and that bridge port = gateway port + 1
+if ! [[ "${CLAWDBOT_GATEWAY_PORT}" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: CLAWDBOT_GATEWAY_PORT must be a numeric port (got: ${CLAWDBOT_GATEWAY_PORT})" >&2
+  exit 1
+fi
+if ! [[ "${CLAWDBOT_BRIDGE_PORT}" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: CLAWDBOT_BRIDGE_PORT must be a numeric port (got: ${CLAWDBOT_BRIDGE_PORT})" >&2
+  exit 1
+fi
+expected_bridge_port=$((CLAWDBOT_GATEWAY_PORT + 1))
+if [[ "${CLAWDBOT_BRIDGE_PORT}" -ne "${expected_bridge_port}" ]]; then
+  echo "ERROR: CLAWDBOT_BRIDGE_PORT (${CLAWDBOT_BRIDGE_PORT}) must equal CLAWDBOT_GATEWAY_PORT + 1 (${expected_bridge_port})" >&2
+  exit 1
+fi
 echo "Deploying to ${GCE_INSTANCE_NAME} via IAP (dir: ${DEPLOY_DIR})..."
 echo "Provision: ${PROVISION}"
 
@@ -123,8 +138,12 @@ set -euo pipefail
 DEPLOY_REF="$1"
 DEPLOY_DIR="$2"
 GHCR_USERNAME="$3"
-CLAWDBOT_GATEWAY_PORT="${4:-18789}"
-CLAWDBOT_BRIDGE_PORT="${5:-18790}"
+CLAWDBOT_GATEWAY_PORT="$4"
+CLAWDBOT_BRIDGE_PORT="$5"
+CLAWDBOT_GATEWAY_BIND="${6:-loopback}"
+
+: "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required}"
+: "${CLAWDBOT_BRIDGE_PORT:?CLAWDBOT_BRIDGE_PORT is required}"
 
 # Read secrets from stdin (one per line, passed by outer script)
 read -r GHCR_TOKEN
@@ -172,6 +191,7 @@ export CLAUDE_WEB_SESSION_KEY
 export CLAUDE_WEB_COOKIE
 export CLAWDBOT_CONFIG_DIR="${DEPLOY_DIR}/config"
 export CLAWDBOT_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
+export CLAWDBOT_GATEWAY_BIND
 export CLAWDBOT_GATEWAY_PORT
 export CLAWDBOT_BRIDGE_PORT
 
@@ -201,6 +221,7 @@ printf -v DEPLOY_DIR_ESCAPED '%q' "${DEPLOY_DIR}"
 printf -v GHCR_USERNAME_ESCAPED '%q' "${GHCR_USERNAME}"
 printf -v GATEWAY_PORT_ESCAPED '%q' "${CLAWDBOT_GATEWAY_PORT}"
 printf -v BRIDGE_PORT_ESCAPED '%q' "${CLAWDBOT_BRIDGE_PORT}"
+printf -v GATEWAY_BIND_ESCAPED '%q' "${CLAWDBOT_GATEWAY_BIND}"
 
 # Pass all secrets via stdin (one per line)
 {
@@ -216,4 +237,4 @@ printf -v BRIDGE_PORT_ESCAPED '%q' "${CLAWDBOT_BRIDGE_PORT}"
   --zone "${GCP_ZONE}" \
   --tunnel-through-iap \
   --quiet \
-  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED}"
+  --command "bash -c '${REMOTE_SCRIPT}' -- ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED}"

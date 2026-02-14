@@ -11,12 +11,14 @@ services:
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       CLAWDBOT_STATE_DIR: /home/node/.clawdbot
+      CLAWDBOT_GATEWAY_PORT: ${CLAWDBOT_GATEWAY_PORT}
+      CLAWDBOT_BRIDGE_PORT: ${CLAWDBOT_BRIDGE_PORT}
     volumes:
       - ${CLAWDBOT_CONFIG_DIR}:/home/node/.clawdbot
       - ${CLAWDBOT_WORKSPACE_DIR}:/home/node/clawd
     ports:
-      - "${CLAWDBOT_GATEWAY_PORT:-18789}:18789"
-      - "${CLAWDBOT_BRIDGE_PORT:-18790}:18790"
+      - "${CLAWDBOT_GATEWAY_PORT}:${CLAWDBOT_GATEWAY_PORT}"
+      - "${CLAWDBOT_BRIDGE_PORT}:${CLAWDBOT_BRIDGE_PORT}"
     init: true
     restart: unless-stopped
     command:
@@ -25,9 +27,9 @@ services:
         "dist/index.js",
         "gateway",
         "--bind",
-        "${CLAWDBOT_GATEWAY_BIND:-lan}",
+        "${CLAWDBOT_GATEWAY_BIND:-loopback}",
         "--port",
-        "18789",
+        "${CLAWDBOT_GATEWAY_PORT}",
         "--allow-unconfigured"
       ]
 
