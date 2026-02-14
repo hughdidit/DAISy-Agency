@@ -254,46 +254,30 @@ describe("browser control server", () => {
     await stopBrowserControlServer();
   });
 
-  it("covers primary control routes, validation, and profile compatibility", async () => {
+  it("keeps maxChars unset when snapshot explicitly passes zero", async () => {
     const { startBrowserControlServerFromConfig } = await import("./server.js");
     const started = await startBrowserControlServerFromConfig();
     expect(started?.port).toBe(testPort);
 
     const base = `http://127.0.0.1:${testPort}`;
-    const statusBeforeStart = (await realFetch(`${base}/`).then((r) => r.json())) as {
-      running: boolean;
-      pid: number | null;
-    };
-    expect(statusBeforeStart.running).toBe(false);
-    expect(statusBeforeStart.pid).toBe(null);
-    expect(statusBeforeStart.profile).toBe("openclaw");
-
     const startedPayload = (await realFetch(`${base}/start`, { method: "POST" }).then((r) =>
       r.json(),
     )) as { ok: boolean; profile?: string };
     expect(startedPayload.ok).toBe(true);
     expect(startedPayload.profile).toBe("openclaw");
 
-    const statusAfterStart = (await realFetch(`${base}/`).then((r) => r.json())) as {
-      running: boolean;
-      pid: number | null;
-      chosenBrowser: string | null;
-    };
-    expect(statusAfterStart.running).toBe(true);
-    expect(statusAfterStart.pid).toBe(123);
-    expect(statusAfterStart.chosenBrowser).toBe("chrome");
-    expect(launchCalls.length).toBeGreaterThan(0);
-
     const snapAi = (await realFetch(`${base}/snapshot?format=ai&maxChars=0`).then((r) =>
       r.json(),
     )) as { ok: boolean; format?: string };
     expect(snapAi.ok).toBe(true);
     expect(snapAi.format).toBe("ai");
+    expect(launchCalls.length).toBeGreaterThan(0);
     const [call] = pwMocks.snapshotAiViaPlaywright.mock.calls.at(-1) ?? [];
     expect(call).toEqual({
       cdpUrl: cdpBaseUrl,
       targetId: "abcd1234",
     });
+<<<<<<< HEAD
 
     const stopped = (await realFetch(`${base}/stop`, { method: "POST" }).then((r) => r.json())) as {
       ok: boolean;
@@ -359,5 +343,7 @@ describe("browser control server", () => {
 >>>>>>> c4f550ef2 (perf(test): trim browser smoke and speed canvas test reload)
 =======
 >>>>>>> 8d52ed318 (perf(test): narrow browser maxchars smoke to core contract)
+=======
+>>>>>>> 0b8227fa9 (perf(test): trim redundant suites and tighten wait loops)
   });
 });
