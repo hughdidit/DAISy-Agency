@@ -397,7 +397,13 @@ Alternate (official Bot API):
    curl "https://api.telegram.org/bot<bot_token>/getUpdates"
    ```
 
+<<<<<<< HEAD
 Third-party (less private):
+=======
+    Note: `off` disables implicit reply threading. Explicit `[[reply_to_*]]` tags are still honored.
+
+  </Accordion>
+>>>>>>> 7b39543e8 (fix(reply): honour explicit [[reply_to_*]] tags when replyToMode is off (#16174))
 
 - DM `@userinfobot` or `@getidsbot` and use the returned user id.
 
