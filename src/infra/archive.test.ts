@@ -167,7 +167,7 @@ describe("archive utils", () => {
         destDir: extractDir,
         timeoutMs: 5_000,
       }),
-    ).rejects.toThrow(/absolute|escapes destination/i);
+    ).rejects.toThrow(/absolute|drive path|escapes destination/i);
   });
 >>>>>>> 5f4b29145 (test(archive): cover archive size and absolute tar paths)
 });
