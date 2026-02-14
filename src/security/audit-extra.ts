@@ -30,6 +30,7 @@ import {
 } from "./audit-fs.js";
 import { scanDirectoryWithSummary, type SkillScanFinding } from "./skill-scanner.js";
 
+<<<<<<< HEAD
 export type SecurityAuditFinding = {
   checkId: string;
   severity: "info" | "warn" | "critical";
@@ -37,6 +38,23 @@ export type SecurityAuditFinding = {
   detail: string;
   remediation?: string;
 };
+=======
+// Sync collectors
+export {
+  collectAttackSurfaceSummaryFindings,
+  collectExposureMatrixFindings,
+  collectGatewayHttpSessionKeyOverrideFindings,
+  collectHooksHardeningFindings,
+  collectMinimalProfileOverrideFindings,
+  collectModelHygieneFindings,
+  collectNodeDenyCommandPatternFindings,
+  collectSandboxDockerNoopFindings,
+  collectSecretsInConfigFindings,
+  collectSmallModelRiskFindings,
+  collectSyncedFolderFindings,
+  type SecurityAuditFinding,
+} from "./audit-extra.sync.js";
+>>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
 
 const SMALL_MODEL_PARAM_B_MAX = 300;
 
