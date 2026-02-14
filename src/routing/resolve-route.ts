@@ -194,6 +194,57 @@ type BindingScope = {
   memberRoleIds: Set<string>;
 };
 
+type EvaluatedBindingsCache = {
+  bindingsRef: OpenClawConfig["bindings"];
+  byChannelAccount: Map<string, EvaluatedBinding[]>;
+};
+
+const evaluatedBindingsCacheByCfg = new WeakMap<OpenClawConfig, EvaluatedBindingsCache>();
+const MAX_EVALUATED_BINDINGS_CACHE_KEYS = 2000;
+
+function getEvaluatedBindingsForChannelAccount(
+  cfg: OpenClawConfig,
+  channel: string,
+  accountId: string,
+): EvaluatedBinding[] {
+  const bindingsRef = cfg.bindings;
+  const existing = evaluatedBindingsCacheByCfg.get(cfg);
+  const cache =
+    existing && existing.bindingsRef === bindingsRef
+      ? existing
+      : { bindingsRef, byChannelAccount: new Map<string, EvaluatedBinding[]>() };
+  if (cache !== existing) {
+    evaluatedBindingsCacheByCfg.set(cfg, cache);
+  }
+
+  const cacheKey = `${channel}\t${accountId}`;
+  const hit = cache.byChannelAccount.get(cacheKey);
+  if (hit) {
+    return hit;
+  }
+
+  const evaluated: EvaluatedBinding[] = listBindings(cfg).flatMap((binding) => {
+    if (!binding || typeof binding !== "object") {
+      return [];
+    }
+    if (!matchesChannel(binding.match, channel)) {
+      return [];
+    }
+    if (!matchesAccountId(binding.match?.accountId, accountId)) {
+      return [];
+    }
+    return [{ binding, match: normalizeBindingMatch(binding.match) }];
+  });
+
+  cache.byChannelAccount.set(cacheKey, evaluated);
+  if (cache.byChannelAccount.size > MAX_EVALUATED_BINDINGS_CACHE_KEYS) {
+    cache.byChannelAccount.clear();
+    cache.byChannelAccount.set(cacheKey, evaluated);
+  }
+
+  return evaluated;
+}
+
 function normalizePeerConstraint(
   peer: { kind?: string; id?: string } | undefined,
 ): NormalizedPeerConstraint {
@@ -299,6 +350,7 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
   const memberRoleIds = input.memberRoleIds ?? [];
   const memberRoleIdSet = new Set(memberRoleIds);
 
+<<<<<<< HEAD
   const bindings: EvaluatedBinding[] = listBindings(input.cfg).flatMap((binding) => {
     if (!binding || typeof binding !== "object") {
       return [];
@@ -312,6 +364,9 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
     return [{ binding, match: normalizeBindingMatch(binding.match) }];
 >>>>>>> 2583de530 (refactor(routing): normalize binding matching and harden qmd boot-update tests)
   });
+=======
+  const bindings = getEvaluatedBindingsForChannelAccount(input.cfg, channel, accountId);
+>>>>>>> 586176730 (perf(gateway): optimize sessions/ws/routing)
 
   const dmScope = input.cfg.session?.dmScope ?? "main";
   const identityLinks = input.cfg.session?.identityLinks;

@@ -27,6 +27,7 @@ import {
   parseAgentSessionKey,
 } from "../routing/session-key.js";
 import { normalizeSessionDeliveryFields } from "../utils/delivery-context.js";
+<<<<<<< HEAD
 import {
   readFirstUserMessageFromTranscript,
   readLastMessagePreviewFromTranscript,
@@ -37,12 +38,16 @@ import type {
   GatewaySessionsDefaults,
   SessionsListResult,
 } from "./session-utils.types.js";
+=======
+import { readSessionTitleFieldsFromTranscript } from "./session-utils.fs.js";
+>>>>>>> 586176730 (perf(gateway): optimize sessions/ws/routing)
 
 export {
   archiveFileOnDisk,
   capArrayByJsonBytes,
   readFirstUserMessageFromTranscript,
   readLastMessagePreviewFromTranscript,
+  readSessionTitleFieldsFromTranscript,
   readSessionPreviewItemsFromTranscript,
   readSessionMessages,
   resolveSessionTranscriptCandidates,
@@ -805,22 +810,21 @@ export function listSessionsFromStore(params: {
     let derivedTitle: string | undefined;
     let lastMessagePreview: string | undefined;
     if (entry?.sessionId) {
-      if (includeDerivedTitles) {
-        const firstUserMsg = readFirstUserMessageFromTranscript(
+      if (includeDerivedTitles || includeLastMessage) {
+        const parsed = parseAgentSessionKey(s.key);
+        const agentId =
+          parsed && parsed.agentId ? normalizeAgentId(parsed.agentId) : resolveDefaultAgentId(cfg);
+        const fields = readSessionTitleFieldsFromTranscript(
           entry.sessionId,
           storePath,
           entry.sessionFile,
+          agentId,
         );
-        derivedTitle = deriveSessionTitle(entry, firstUserMsg);
-      }
-      if (includeLastMessage) {
-        const lastMsg = readLastMessagePreviewFromTranscript(
-          entry.sessionId,
-          storePath,
-          entry.sessionFile,
-        );
-        if (lastMsg) {
-          lastMessagePreview = lastMsg;
+        if (includeDerivedTitles) {
+          derivedTitle = deriveSessionTitle(entry, fields.firstUserMessage);
+        }
+        if (includeLastMessage && fields.lastMessagePreview) {
+          lastMessagePreview = fields.lastMessagePreview;
         }
       }
     }
