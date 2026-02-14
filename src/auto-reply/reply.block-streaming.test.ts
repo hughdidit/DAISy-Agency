@@ -267,6 +267,7 @@ describe("block streaming", () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("drops final payloads when block replies streamed", async () => {
     await withTempHome(async (home) => {
       const onBlockReply = vi.fn().mockResolvedValue(undefined);
@@ -376,6 +377,8 @@ describe("block streaming", () => {
       expect(timeoutRes).toMatchObject({ text: "final" });
       expect(sawAbort).toBe(true);
 
+=======
+>>>>>>> 9762e4813 (perf(test): speed up block streaming tests)
       const onBlockReplyStreamMode = vi.fn().mockResolvedValue(undefined);
       piEmbeddedMock.runEmbeddedPiAgent.mockImplementation(async () => ({
         payloads: [{ text: "final" }],
