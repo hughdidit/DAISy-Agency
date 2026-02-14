@@ -2,10 +2,15 @@ import { resolveAgentConfig } from "../../agents/agent-scope.js";
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 import { CHAT_CHANNEL_ORDER } from "../../channels/registry.js";
+<<<<<<< HEAD
 import type { AgentElevatedAllowFromConfig, MoltbotConfig } from "../../config/config.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import type { MsgContext } from "../templating.js";
+=======
+import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
+export { formatElevatedUnavailableMessage } from "./elevated-unavailable.js";
+>>>>>>> e401e2584 (refactor(auto-reply): share elevated unavailable message)
 
 function normalizeAllowToken(value?: string) {
   if (!value) {
@@ -202,6 +207,7 @@ export function resolveElevatedPermissions(params: {
   }
   return { enabled, allowed: globalAllowed && agentAllowed, failures };
 }
+<<<<<<< HEAD
 
 export function formatElevatedUnavailableMessage(params: {
   runtimeSandboxed: boolean;
@@ -231,3 +237,5 @@ export function formatElevatedUnavailableMessage(params: {
   }
   return lines.join("\n");
 }
+=======
+>>>>>>> e401e2584 (refactor(auto-reply): share elevated unavailable message)

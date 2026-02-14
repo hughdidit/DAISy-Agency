@@ -3,12 +3,18 @@ import { getFinishedSession, getSession, markExited } from "../../agents/bash-pr
 import { createExecTool } from "../../agents/bash-tools.js";
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
 import { killProcessTree } from "../../agents/shell-utils.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import { logVerbose } from "../../globals.js";
 import { clampInt } from "../../utils.js";
 import type { MsgContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
+=======
+import { logVerbose } from "../../globals.js";
+import { clampInt } from "../../utils.js";
+import { formatElevatedUnavailableMessage } from "./elevated-unavailable.js";
+>>>>>>> e401e2584 (refactor(auto-reply): share elevated unavailable message)
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
 
 const CHAT_BASH_SCOPE_KEY = "chat:bash";
@@ -174,6 +180,7 @@ function buildUsageReply(): ReplyPayload {
   };
 }
 
+<<<<<<< HEAD
 function formatElevatedUnavailableMessage(params: {
   runtimeSandboxed: boolean;
   failures: Array<{ gate: string; key: string }>;
@@ -203,6 +210,8 @@ function formatElevatedUnavailableMessage(params: {
   return lines.join("\n");
 }
 
+=======
+>>>>>>> e401e2584 (refactor(auto-reply): share elevated unavailable message)
 export async function handleBashChatCommand(params: {
   ctx: MsgContext;
   cfg: MoltbotConfig;
