@@ -1,4 +1,6 @@
+import "./isolated-agent.mocks.js";
 import fs from "node:fs/promises";
+<<<<<<< HEAD
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
@@ -31,10 +33,18 @@ vi.mock("../agents/subagent-announce.js", () => ({
   runSubagentAnnounceFlow: vi.fn(),
 }));
 
+=======
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { CliDeps } from "../cli/deps.js";
+>>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
+import { telegramOutbound } from "../channels/plugins/outbound/telegram.js";
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
+<<<<<<< HEAD
 
 let fixtureRoot = "";
 let fixtureCount = 0;
@@ -104,16 +114,16 @@ function makeJob(payload: CronJob["payload"]): CronJob {
     state: {},
   };
 }
+=======
+import {
+  makeCfg,
+  makeJob,
+  withTempCronHome,
+  writeSessionStore,
+} from "./isolated-agent.test-harness.js";
+>>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
 
 describe("runCronIsolatedAgentTurn", () => {
-  beforeAll(async () => {
-    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-fixtures-"));
-  });
-
-  afterAll(async () => {
-    await fs.rm(fixtureRoot, { recursive: true, force: true });
-  });
-
   beforeEach(() => {
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
     vi.mocked(runEmbeddedPiAgent).mockReset();
@@ -134,8 +144,12 @@ describe("runCronIsolatedAgentTurn", () => {
   });
 
   it("handles media heartbeat delivery and announce cleanup modes", async () => {
-    await withTempHome(async (home) => {
-      const storePath = await writeSessionStore(home);
+    await withTempCronHome(async (home) => {
+      const storePath = await writeSessionStore(home, {
+        lastProvider: "telegram",
+        lastChannel: "telegram",
+        lastTo: "123",
+      });
       const deps: CliDeps = {
         sendMessageWhatsApp: vi.fn(),
         sendMessageTelegram: vi.fn().mockResolvedValue({

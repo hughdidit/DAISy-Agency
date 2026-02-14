@@ -1,7 +1,9 @@
+import "./isolated-agent.mocks.js";
 import fs from "node:fs/promises";
 import path from "node:path";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -29,11 +31,24 @@ vi.mock("../agents/subagent-announce.js", () => ({
   runSubagentAnnounceFlow: vi.fn(),
 }));
 
+=======
+import type { CliDeps } from "../cli/deps.js";
+>>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
+import { telegramOutbound } from "../channels/plugins/outbound/telegram.js";
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
+import {
+  makeCfg,
+  makeJob,
+  withTempCronHome,
+  writeSessionStore,
+} from "./isolated-agent.test-harness.js";
 
+<<<<<<< HEAD
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-cron-" });
 }
@@ -51,16 +66,48 @@ async function writeSessionStore(home: string) {
           updatedAt: Date.now(),
           lastProvider: "webchat",
           lastTo: "",
+=======
+async function expectBestEffortTelegramNotDelivered(
+  payload: Record<string, unknown>,
+): Promise<void> {
+  await withTempCronHome(async (home) => {
+    const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
+    const deps: CliDeps = {
+      sendMessageWhatsApp: vi.fn(),
+      sendMessageTelegram: vi.fn().mockRejectedValue(new Error("boom")),
+      sendMessageDiscord: vi.fn(),
+      sendMessageSignal: vi.fn(),
+      sendMessageIMessage: vi.fn(),
+    };
+    vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
+      payloads: [payload],
+      meta: {
+        durationMs: 5,
+        agentMeta: { sessionId: "s", provider: "p", model: "m" },
+      },
+    });
+
+    const res = await runCronIsolatedAgentTurn({
+      cfg: makeCfg(home, storePath, {
+        channels: { telegram: { botToken: "t-1" } },
+      }),
+      deps,
+      job: {
+        ...makeJob({ kind: "agentTurn", message: "do it" }),
+        delivery: {
+          mode: "announce",
+          channel: "telegram",
+          to: "123",
+          bestEffort: true,
+>>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
         },
       },
-      null,
-      2,
-    ),
-    "utf-8",
-  );
-  return storePath;
-}
+      message: "do it",
+      sessionKey: "cron:job-1",
+      lane: "cron",
+    });
 
+<<<<<<< HEAD
 function makeCfg(
   home: string,
   storePath: string,
@@ -92,6 +139,13 @@ function makeJob(payload: CronJob["payload"]): CronJob {
     payload,
     state: {},
   };
+=======
+    expect(res.status).toBe("ok");
+    expect(res.delivered).toBe(false);
+    expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
+    expect(deps.sendMessageTelegram).toHaveBeenCalledTimes(1);
+  });
+>>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
 }
 
 describe("runCronIsolatedAgentTurn", () => {
@@ -115,9 +169,15 @@ describe("runCronIsolatedAgentTurn", () => {
     );
   });
 
+<<<<<<< HEAD
   it("announces via shared subagent flow when delivery is requested", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
+=======
+  it("delivers directly when delivery has an explicit target", async () => {
+    await withTempCronHome(async (home) => {
+      const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
+>>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
       const deps: CliDeps = {
         sendMessageWhatsApp: vi.fn(),
         sendMessageTelegram: vi.fn(),
@@ -161,9 +221,15 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
+<<<<<<< HEAD
   it("passes final payload text into shared subagent announce flow", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
+=======
+  it("delivers the final payload text when delivery has an explicit target", async () => {
+    await withTempCronHome(async (home) => {
+      const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
+>>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
       const deps: CliDeps = {
         sendMessageWhatsApp: vi.fn(),
         sendMessageTelegram: vi.fn(),
@@ -204,8 +270,8 @@ describe("runCronIsolatedAgentTurn", () => {
   });
 
   it("passes resolved threadId into shared subagent announce flow", async () => {
-    await withTempHome(async (home) => {
-      const storePath = await writeSessionStore(home);
+    await withTempCronHome(async (home) => {
+      const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
       await fs.writeFile(
         storePath,
         JSON.stringify(
@@ -264,8 +330,8 @@ describe("runCronIsolatedAgentTurn", () => {
   });
 
   it("skips announce when messaging tool already sent to target", async () => {
-    await withTempHome(async (home) => {
-      const storePath = await writeSessionStore(home);
+    await withTempCronHome(async (home) => {
+      const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
       const deps: CliDeps = {
         sendMessageWhatsApp: vi.fn(),
         sendMessageTelegram: vi.fn(),
@@ -302,13 +368,23 @@ describe("runCronIsolatedAgentTurn", () => {
 <<<<<<< HEAD
 =======
       expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
+<<<<<<< HEAD
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+=======
+    });
+  });
+
+  it("reports not-delivered when best-effort structured outbound sends all fail", async () => {
+    await expectBestEffortTelegramNotDelivered({
+      text: "caption",
+      mediaUrl: "https://example.com/img.png",
+>>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
     });
   });
 
   it("skips announce for heartbeat-only output", async () => {
-    await withTempHome(async (home) => {
-      const storePath = await writeSessionStore(home);
+    await withTempCronHome(async (home) => {
+      const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
       const deps: CliDeps = {
         sendMessageWhatsApp: vi.fn(),
         sendMessageTelegram: vi.fn(),
@@ -347,9 +423,15 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
+<<<<<<< HEAD
   it("fails when shared announce flow fails and best-effort is disabled", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
+=======
+  it("fails when direct delivery fails and best-effort is disabled", async () => {
+    await withTempCronHome(async (home) => {
+      const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
+>>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
       const deps: CliDeps = {
         sendMessageWhatsApp: vi.fn(),
         sendMessageTelegram: vi.fn(),
@@ -388,6 +470,7 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
+<<<<<<< HEAD
   it("ignores shared announce flow failures when best-effort is enabled", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
@@ -436,5 +519,9 @@ describe("runCronIsolatedAgentTurn", () => {
       expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     });
+=======
+  it("ignores direct delivery failures when best-effort is enabled", async () => {
+    await expectBestEffortTelegramNotDelivered({ text: "hello from cron" });
+>>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
   });
 });
