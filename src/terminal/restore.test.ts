@@ -46,4 +46,41 @@ describe("restoreTerminalState", () => {
     expect(setRawMode).toHaveBeenCalledWith(false);
     expect(resume).not.toHaveBeenCalled();
   });
+<<<<<<< HEAD
+=======
+
+  it("resumes paused stdin when resumeStdin is true", () => {
+    const setRawMode = vi.fn();
+    const resume = vi.fn();
+    const isPaused = vi.fn(() => true);
+
+    Object.defineProperty(process.stdin, "isTTY", { value: true, configurable: true });
+    Object.defineProperty(process.stdout, "isTTY", { value: false, configurable: true });
+    (process.stdin as { setRawMode?: (mode: boolean) => void }).setRawMode = setRawMode;
+    (process.stdin as { resume?: () => void }).resume = resume;
+    (process.stdin as { isPaused?: () => boolean }).isPaused = isPaused;
+
+    restoreTerminalState("test", { resumeStdinIfPaused: true });
+
+    expect(setRawMode).toHaveBeenCalledWith(false);
+    expect(resume).toHaveBeenCalledOnce();
+  });
+
+  it("does not touch stdin when stdin is not a TTY", () => {
+    const setRawMode = vi.fn();
+    const resume = vi.fn();
+    const isPaused = vi.fn(() => true);
+
+    Object.defineProperty(process.stdin, "isTTY", { value: false, configurable: true });
+    Object.defineProperty(process.stdout, "isTTY", { value: false, configurable: true });
+    (process.stdin as { setRawMode?: (mode: boolean) => void }).setRawMode = setRawMode;
+    (process.stdin as { resume?: () => void }).resume = resume;
+    (process.stdin as { isPaused?: () => boolean }).isPaused = isPaused;
+
+    restoreTerminalState("test", { resumeStdinIfPaused: true });
+
+    expect(setRawMode).not.toHaveBeenCalled();
+    expect(resume).not.toHaveBeenCalled();
+  });
+>>>>>>> 994bcbf67 (refactor: clarify restoreTerminalState stdin resume option)
 });

@@ -20,6 +20,14 @@ export async function runInteractiveOnboarding(
     }
     throw err;
   } finally {
+<<<<<<< HEAD
     restoreTerminalState("onboarding finish");
+=======
+    // Keep stdin paused so non-daemon runs can exit cleanly (e.g. Docker setup).
+    restoreTerminalState("onboarding finish", { resumeStdinIfPaused: false });
+    if (exitCode !== null) {
+      runtime.exit(exitCode);
+    }
+>>>>>>> 994bcbf67 (refactor: clarify restoreTerminalState stdin resume option)
   }
 }
