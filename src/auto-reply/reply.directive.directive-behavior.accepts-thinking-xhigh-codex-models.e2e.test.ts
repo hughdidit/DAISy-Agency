@@ -1,13 +1,13 @@
+import "./reply.directive.directive-behavior.e2e-mocks.js";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
-import { loadModelCatalog } from "../agents/model-catalog.js";
-import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
-import { loadSessionStore } from "../config/sessions.js";
+import { describe, expect, it, vi } from "vitest";
+import {
+  installDirectiveBehaviorE2EHooks,
+  runEmbeddedPiAgent,
+  withTempHome,
+} from "./reply.directive.directive-behavior.e2e-harness.js";
 import { getReplyFromConfig } from "./reply.js";
-
-const MAIN_SESSION_KEY = "agent:main:main";
 
 async function writeSkill(params: { workspaceDir: string; name: string; description: string }) {
   const { workspaceDir, name, description } = params;
@@ -20,6 +20,7 @@ async function writeSkill(params: { workspaceDir: string; name: string; descript
   );
 }
 
+<<<<<<< HEAD
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
   runEmbeddedPiAgent: vi.fn(),
@@ -58,19 +59,10 @@ function _assertModelSelection(
   expect(entry?.providerOverride).toBe(selection.provider);
 }
 
+=======
+>>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
 describe("directive behavior", () => {
-  beforeEach(() => {
-    vi.mocked(runEmbeddedPiAgent).mockReset();
-    vi.mocked(loadModelCatalog).mockResolvedValue([
-      { id: "claude-opus-4-5", name: "Opus 4.5", provider: "anthropic" },
-      { id: "claude-sonnet-4-1", name: "Sonnet 4.1", provider: "anthropic" },
-      { id: "gpt-4.1-mini", name: "GPT-4.1 Mini", provider: "openai" },
-    ]);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
+  installDirectiveBehaviorE2EHooks();
 
   it("accepts /thinking xhigh for codex models", async () => {
     await withTempHome(async (home) => {
@@ -168,8 +160,6 @@ describe("directive behavior", () => {
   });
   it("keeps reserved command aliases from matching after trimming", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockReset();
-
       const res = await getReplyFromConfig(
         {
           Body: "/help",
@@ -200,8 +190,12 @@ describe("directive behavior", () => {
   });
   it("treats skill commands as reserved for model aliases", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       vi.mocked(runEmbeddedPiAgent).mockReset();
       const workspace = path.join(home, "clawd");
+=======
+      const workspace = path.join(home, "openclaw");
+>>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
       await writeSkill({
         workspaceDir: workspace,
         name: "demo-skill",
@@ -238,8 +232,6 @@ describe("directive behavior", () => {
   });
   it("errors on invalid queue options", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockReset();
-
       const res = await getReplyFromConfig(
         {
           Body: "/queue collect debounce:bogus cap:zero drop:maybe",
@@ -269,8 +261,6 @@ describe("directive behavior", () => {
   });
   it("shows current queue settings when /queue has no arguments", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockReset();
-
       const res = await getReplyFromConfig(
         {
           Body: "/queue",
@@ -312,8 +302,6 @@ describe("directive behavior", () => {
   });
   it("shows current think level when /think has no argument", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockReset();
-
       const res = await getReplyFromConfig(
         { Body: "/think", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},

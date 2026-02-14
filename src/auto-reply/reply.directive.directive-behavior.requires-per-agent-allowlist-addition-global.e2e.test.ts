@@ -1,11 +1,14 @@
+import "./reply.directive.directive-behavior.e2e-mocks.js";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
-import { loadModelCatalog } from "../agents/model-catalog.js";
-import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
-import { loadSessionStore } from "../config/sessions.js";
+import { describe, expect, it } from "vitest";
+import {
+  installDirectiveBehaviorE2EHooks,
+  runEmbeddedPiAgent,
+  withTempHome,
+} from "./reply.directive.directive-behavior.e2e-harness.js";
 import { getReplyFromConfig } from "./reply.js";
 
+<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -46,24 +49,13 @@ function _assertModelSelection(
   expect(entry?.providerOverride).toBe(selection.provider);
 }
 
+=======
+>>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
 describe("directive behavior", () => {
-  beforeEach(() => {
-    vi.mocked(runEmbeddedPiAgent).mockReset();
-    vi.mocked(loadModelCatalog).mockResolvedValue([
-      { id: "claude-opus-4-5", name: "Opus 4.5", provider: "anthropic" },
-      { id: "claude-sonnet-4-1", name: "Sonnet 4.1", provider: "anthropic" },
-      { id: "gpt-4.1-mini", name: "GPT-4.1 Mini", provider: "openai" },
-    ]);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
+  installDirectiveBehaviorE2EHooks();
 
   it("requires per-agent allowlist in addition to global", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockReset();
-
       const res = await getReplyFromConfig(
         {
           Body: "/elevated on",
@@ -109,8 +101,6 @@ describe("directive behavior", () => {
   });
   it("allows elevated when both global and per-agent allowlists match", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockReset();
-
       const res = await getReplyFromConfig(
         {
           Body: "/elevated on",
@@ -156,8 +146,6 @@ describe("directive behavior", () => {
   });
   it("warns when elevated is used in direct runtime", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockReset();
-
       const res = await getReplyFromConfig(
         {
           Body: "/elevated off",
@@ -194,8 +182,6 @@ describe("directive behavior", () => {
   });
   it("rejects invalid elevated level", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockReset();
-
       const res = await getReplyFromConfig(
         {
           Body: "/elevated maybe",
@@ -230,8 +216,6 @@ describe("directive behavior", () => {
   });
   it("handles multiple directives in a single message", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockReset();
-
       const res = await getReplyFromConfig(
         {
           Body: "/elevated off\n/verbose on",
