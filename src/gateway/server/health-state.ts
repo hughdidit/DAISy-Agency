@@ -3,8 +3,12 @@ import { getHealthSnapshot, type HealthSummary } from "../../commands/health.js"
 import { CONFIG_PATH, STATE_DIR, loadConfig } from "../../config/config.js";
 import { resolveMainSessionKey } from "../../config/sessions.js";
 import { normalizeMainKey } from "../../routing/session-key.js";
+<<<<<<< HEAD
 import { listSystemPresence } from "../../infra/system-presence.js";
 import type { Snapshot } from "../protocol/index.js";
+=======
+import { resolveGatewayAuth } from "../auth.js";
+>>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
 
 let presenceVersion = 1;
 let healthVersion = 1;
@@ -20,6 +24,7 @@ export function buildGatewaySnapshot(): Snapshot {
   const scope = cfg.session?.scope ?? "per-sender";
   const presence = listSystemPresence();
   const uptimeMs = Math.round(process.uptime() * 1000);
+  const auth = resolveGatewayAuth({ authConfig: cfg.gateway?.auth, env: process.env });
   // Health is async; caller should await getHealthSnapshot and replace later if needed.
   const emptyHealth: unknown = {};
   return {
@@ -36,6 +41,7 @@ export function buildGatewaySnapshot(): Snapshot {
       mainSessionKey,
       scope,
     },
+    authMode: auth.mode,
   };
 }
 

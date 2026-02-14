@@ -13,7 +13,7 @@ import {
 } from "./model-picker.js";
 import { promptCustomApiConfig } from "./onboard-custom.js";
 
-type GatewayAuthChoice = "token" | "password";
+type GatewayAuthChoice = "token" | "password" | "trusted-proxy";
 
 /** Reject undefined, empty, and common JS string-coercion artifacts for token auth. */
 function sanitizeTokenValue(value: string | undefined): string | undefined {
@@ -38,6 +38,11 @@ export function buildGatewayAuthConfig(params: {
   mode: GatewayAuthChoice;
   token?: string;
   password?: string;
+  trustedProxy?: {
+    userHeader: string;
+    requiredHeaders?: string[];
+    allowUsers?: string[];
+  };
 }): GatewayAuthConfig | undefined {
   const allowTailscale = params.existing?.allowTailscale;
   const base: GatewayAuthConfig = {};
@@ -54,8 +59,17 @@ export function buildGatewayAuthConfig(params: {
     return { ...base, mode: "token", token };
 >>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))
   }
-  const password = params.password?.trim();
-  return { ...base, mode: "password", ...(password && { password }) };
+  if (params.mode === "password") {
+    const password = params.password?.trim();
+    return { ...base, mode: "password", ...(password && { password }) };
+  }
+  if (params.mode === "trusted-proxy") {
+    if (!params.trustedProxy) {
+      throw new Error("trustedProxy config is required when mode is trusted-proxy");
+    }
+    return { ...base, mode: "trusted-proxy", trustedProxy: params.trustedProxy };
+  }
+  return base;
 }
 
 export async function promptAuthConfig(

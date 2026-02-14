@@ -1,7 +1,25 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
+<<<<<<< HEAD
 import JSON5 from "json5";
+=======
+// Sync collectors
+export {
+  collectAttackSurfaceSummaryFindings,
+  collectExposureMatrixFindings,
+  collectGatewayHttpSessionKeyOverrideFindings,
+  collectHooksHardeningFindings,
+  collectMinimalProfileOverrideFindings,
+  collectModelHygieneFindings,
+  collectNodeDenyCommandPatternFindings,
+  collectSandboxDockerNoopFindings,
+  collectSecretsInConfigFindings,
+  collectSmallModelRiskFindings,
+  collectSyncedFolderFindings,
+  type SecurityAuditFinding,
+} from "./audit-extra.sync.js";
+>>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
 
 import type { MoltbotConfig, ConfigFileSnapshot } from "../config/config.js";
 import { createConfigIO } from "../config/config.js";
