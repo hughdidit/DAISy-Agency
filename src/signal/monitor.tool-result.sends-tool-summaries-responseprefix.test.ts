@@ -1,20 +1,28 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-events.js";
+=======
+import { describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { peekSystemEvents } from "../infra/system-events.js";
+>>>>>>> 20cefd78c (refactor(test): share signal tool result test setup)
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { normalizeE164 } from "../utils.js";
 import { monitorSignalProvider } from "./monitor.js";
+import {
+  config,
+  flush,
+  getSignalToolResultTestMocks,
+  installSignalToolResultTestHooks,
+  setSignalToolResultTestConfig,
+} from "./monitor.tool-result.test-harness.js";
 
-const waitForTransportReadyMock = vi.hoisted(() => vi.fn());
-const sendMock = vi.fn();
-const replyMock = vi.fn();
-const updateLastRouteMock = vi.fn();
-let config: Record<string, unknown> = {};
-const readAllowFromStoreMock = vi.fn();
-const upsertPairingRequestMock = vi.fn();
+installSignalToolResultTestHooks();
 
+<<<<<<< HEAD
 vi.mock("../config/config.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/config.js")>();
   return {
@@ -84,6 +92,16 @@ beforeEach(() => {
   waitForTransportReadyMock.mockReset().mockResolvedValue(undefined);
   resetSystemEventsForTest();
 });
+=======
+const {
+  replyMock,
+  sendMock,
+  streamMock,
+  updateLastRouteMock,
+  upsertPairingRequestMock,
+  waitForTransportReadyMock,
+} = getSignalToolResultTestMocks();
+>>>>>>> 20cefd78c (refactor(test): share signal tool result test setup)
 
 describe("monitorSignalProvider tool results", () => {
   it("uses bounded readiness checks when auto-starting the daemon", async () => {
@@ -94,13 +112,13 @@ describe("monitorSignalProvider tool results", () => {
         throw new Error(`exit ${code}`);
       }) as (code: number) => never,
     };
-    config = {
+    setSignalToolResultTestConfig({
       ...config,
       channels: {
         ...config.channels,
         signal: { autoStart: true, dmPolicy: "open", allowFrom: ["*"] },
       },
-    };
+    });
     const abortController = new AbortController();
     streamMock.mockImplementation(async () => {
       abortController.abort();
@@ -135,7 +153,7 @@ describe("monitorSignalProvider tool results", () => {
         throw new Error(`exit ${code}`);
       }) as (code: number) => never,
     };
-    config = {
+    setSignalToolResultTestConfig({
       ...config,
       channels: {
         ...config.channels,
@@ -146,7 +164,7 @@ describe("monitorSignalProvider tool results", () => {
           startupTimeoutMs: 60_000,
         },
       },
-    };
+    });
     const abortController = new AbortController();
     streamMock.mockImplementation(async () => {
       abortController.abort();
@@ -177,7 +195,7 @@ describe("monitorSignalProvider tool results", () => {
         throw new Error(`exit ${code}`);
       }) as (code: number) => never,
     };
-    config = {
+    setSignalToolResultTestConfig({
       ...config,
       channels: {
         ...config.channels,
@@ -188,7 +206,7 @@ describe("monitorSignalProvider tool results", () => {
           startupTimeoutMs: 180_000,
         },
       },
-    };
+    });
     const abortController = new AbortController();
     streamMock.mockImplementation(async () => {
       abortController.abort();
@@ -245,7 +263,7 @@ describe("monitorSignalProvider tool results", () => {
   });
 
   it("replies with pairing code when dmPolicy is pairing and no allowFrom is set", async () => {
-    config = {
+    setSignalToolResultTestConfig({
       ...config,
       channels: {
         ...config.channels,
@@ -256,7 +274,7 @@ describe("monitorSignalProvider tool results", () => {
           allowFrom: [],
         },
       },
-    };
+    });
     const abortController = new AbortController();
 
     streamMock.mockImplementation(async ({ onEvent }) => {
@@ -368,7 +386,7 @@ describe("monitorSignalProvider tool results", () => {
   });
 
   it("enqueues system events for reaction notifications", async () => {
-    config = {
+    setSignalToolResultTestConfig({
       ...config,
       channels: {
         ...config.channels,
@@ -380,7 +398,7 @@ describe("monitorSignalProvider tool results", () => {
           reactionNotifications: "all",
         },
       },
-    };
+    });
     const abortController = new AbortController();
 
     streamMock.mockImplementation(async ({ onEvent }) => {
@@ -422,7 +440,7 @@ describe("monitorSignalProvider tool results", () => {
   });
 
   it("notifies on own reactions when target includes uuid + phone", async () => {
-    config = {
+    setSignalToolResultTestConfig({
       ...config,
       channels: {
         ...config.channels,
@@ -435,7 +453,7 @@ describe("monitorSignalProvider tool results", () => {
           reactionNotifications: "own",
         },
       },
-    };
+    });
     const abortController = new AbortController();
 
     streamMock.mockImplementation(async ({ onEvent }) => {
@@ -517,7 +535,7 @@ describe("monitorSignalProvider tool results", () => {
   });
 
   it("does not resend pairing code when a request is already pending", async () => {
-    config = {
+    setSignalToolResultTestConfig({
       ...config,
       channels: {
         ...config.channels,
@@ -528,7 +546,7 @@ describe("monitorSignalProvider tool results", () => {
           allowFrom: [],
         },
       },
-    };
+    });
     const abortController = new AbortController();
     upsertPairingRequestMock
       .mockResolvedValueOnce({ code: "PAIRCODE", created: true })

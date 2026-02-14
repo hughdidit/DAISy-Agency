@@ -1,16 +1,23 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import { resetSystemEventsForTest } from "../infra/system-events.js";
+=======
+import { describe, expect, it, vi } from "vitest";
+>>>>>>> 20cefd78c (refactor(test): share signal tool result test setup)
 import { monitorSignalProvider } from "./monitor.js";
+import {
+  config,
+  flush,
+  getSignalToolResultTestMocks,
+  installSignalToolResultTestHooks,
+  setSignalToolResultTestConfig,
+} from "./monitor.tool-result.test-harness.js";
 
-const sendMock = vi.fn();
-const replyMock = vi.fn();
-const updateLastRouteMock = vi.fn();
-let config: Record<string, unknown> = {};
-const readAllowFromStoreMock = vi.fn();
-const upsertPairingRequestMock = vi.fn();
+installSignalToolResultTestHooks();
 
+<<<<<<< HEAD
 vi.mock("../config/config.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/config.js")>();
   return {
@@ -75,10 +82,14 @@ beforeEach(() => {
   upsertPairingRequestMock.mockReset().mockResolvedValue({ code: "PAIRCODE", created: true });
   resetSystemEventsForTest();
 });
+=======
+const { replyMock, sendMock, streamMock, upsertPairingRequestMock } =
+  getSignalToolResultTestMocks();
+>>>>>>> 20cefd78c (refactor(test): share signal tool result test setup)
 
 describe("monitorSignalProvider tool results", () => {
   it("pairs uuid-only senders with a uuid allowlist entry", async () => {
-    config = {
+    setSignalToolResultTestConfig({
       ...config,
       channels: {
         ...config.channels,
@@ -89,7 +100,7 @@ describe("monitorSignalProvider tool results", () => {
           allowFrom: [],
         },
       },
-    };
+    });
     const abortController = new AbortController();
     const uuid = "123e4567-e89b-12d3-a456-426614174000";
 
