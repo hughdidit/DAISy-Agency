@@ -327,6 +327,10 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     })) as "tui" | "web" | "later";
 
     if (hatchChoice === "tui") {
+<<<<<<< HEAD
+=======
+      restoreTerminalState("pre-onboarding tui", { resumeStdin: true });
+>>>>>>> a042b32d2 (fix: Docker installation keeps hanging on MacOS (#12972))
       await runTui({
         url: links.wsUrl,
         token: settings.authMode === "token" ? settings.gatewayToken : undefined,
