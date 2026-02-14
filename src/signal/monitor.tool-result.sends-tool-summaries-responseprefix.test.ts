@@ -114,7 +114,6 @@ async function runMonitorWithMocks(
   const { monitorSignalProvider } = await import("./monitor.js");
   return monitorSignalProvider(opts);
 }
-
 describe("monitorSignalProvider tool results", () => {
   it("uses bounded readiness checks when auto-starting the daemon", async () => {
     const runtime = {
