@@ -1,10 +1,14 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 
 =======
+=======
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> 696a35821 (perf(test): speed up update-runner suite)
 import { pathExists } from "../utils.js";
 >>>>>>> 53910f364 (Deduplicate more)
 import { runGatewayUpdate } from "./update-runner.js";
@@ -27,19 +31,36 @@ function createRunner(responses: Record<string, CommandResult>) {
 }
 
 describe("runGatewayUpdate", () => {
+  let fixtureRoot = "";
+  let caseId = 0;
   let tempDir: string;
 
+  beforeAll(async () => {
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-update-"));
+  });
+
+  afterAll(async () => {
+    if (fixtureRoot) {
+      await fs.rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
   beforeEach(async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-update-"));
 =======
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-update-"));
+=======
+    tempDir = path.join(fixtureRoot, `case-${caseId++}`);
+    await fs.mkdir(tempDir, { recursive: true });
+>>>>>>> 696a35821 (perf(test): speed up update-runner suite)
     await fs.writeFile(path.join(tempDir, "openclaw.mjs"), "export {};\n", "utf-8");
 >>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
   });
 
   afterEach(async () => {
-    await fs.rm(tempDir, { recursive: true, force: true });
+    // Shared fixtureRoot cleaned up in afterAll.
   });
 
   it("skips git update when worktree is dirty", async () => {
