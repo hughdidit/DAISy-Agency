@@ -22,9 +22,16 @@ import crypto from "node:crypto";
 
 import { resolveBrowserConfig } from "../../browser/config.js";
 import { DEFAULT_AI_SNAPSHOT_MAX_CHARS } from "../../browser/constants.js";
+<<<<<<< HEAD
 import { loadConfig } from "../../config/config.js";
 import { saveMediaBuffer } from "../../media/store.js";
 import { listNodes, resolveNodeIdFromList, type NodeListNode } from "./nodes-utils.js";
+=======
+import { DEFAULT_UPLOAD_DIR, resolvePathsWithinRoot } from "../../browser/paths.js";
+import { applyBrowserProxyPaths, persistBrowserProxyFiles } from "../../browser/proxy-files.js";
+import { loadConfig } from "../../config/config.js";
+import { wrapExternalContent } from "../../security/external-content.js";
+>>>>>>> b769b65b4 (refactor(browser): share proxy file helpers)
 import { BrowserToolSchema } from "./browser-tool.schema.js";
 import { type AnyAgentTool, imageResultFromFile, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool } from "./gateway.js";
@@ -156,36 +163,11 @@ async function callBrowserProxy(params: {
 }
 
 async function persistProxyFiles(files: BrowserProxyFile[] | undefined) {
-  if (!files || files.length === 0) {
-    return new Map<string, string>();
-  }
-  const mapping = new Map<string, string>();
-  for (const file of files) {
-    const buffer = Buffer.from(file.base64, "base64");
-    const saved = await saveMediaBuffer(buffer, file.mimeType, "browser", buffer.byteLength);
-    mapping.set(file.path, saved.path);
-  }
-  return mapping;
+  return await persistBrowserProxyFiles(files);
 }
 
 function applyProxyPaths(result: unknown, mapping: Map<string, string>) {
-  if (!result || typeof result !== "object") {
-    return;
-  }
-  const obj = result as Record<string, unknown>;
-  if (typeof obj.path === "string" && mapping.has(obj.path)) {
-    obj.path = mapping.get(obj.path);
-  }
-  if (typeof obj.imagePath === "string" && mapping.has(obj.imagePath)) {
-    obj.imagePath = mapping.get(obj.imagePath);
-  }
-  const download = obj.download;
-  if (download && typeof download === "object") {
-    const d = download as Record<string, unknown>;
-    if (typeof d.path === "string" && mapping.has(d.path)) {
-      d.path = mapping.get(d.path);
-    }
-  }
+  applyBrowserProxyPaths(result, mapping);
 }
 
 function resolveBrowserBaseUrl(params: {
