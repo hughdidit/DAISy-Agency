@@ -28,9 +28,11 @@ export async function dashboardCommand(
 =======
 >>>>>>> 717129f7f (fix: silence unused hook token url param (#9436))
 
+  // LAN URLs fail secure-context checks in browsers.
+  // Coerce only lan->loopback and preserve other bind modes.
   const links = resolveControlUiLinks({
     port,
-    bind,
+    bind: bind === "lan" ? "loopback" : bind,
     customBindHost,
     basePath,
   });
