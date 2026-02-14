@@ -67,6 +67,11 @@ export type EmbeddedPiSubscribeContext = {
   log: EmbeddedSubscribeLogger;
   blockChunking?: BlockReplyChunking;
   blockChunker: EmbeddedBlockChunker | null;
+<<<<<<< HEAD
+=======
+  hookRunner?: HookRunner;
+  noteLastAssistant: (msg: AgentMessage) => void;
+>>>>>>> d714ac779 (refactor(agents): dedupe transient error copy (#16324))
 
   shouldEmitToolResult: () => boolean;
   shouldEmitToolOutput: () => boolean;

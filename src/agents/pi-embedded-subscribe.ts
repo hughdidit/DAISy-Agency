@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+=======
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import type { InlineCodeState } from "../markdown/code-spans.js";
+import type {
+  EmbeddedPiSubscribeContext,
+  EmbeddedPiSubscribeState,
+} from "./pi-embedded-subscribe.handlers.types.js";
+import type { SubscribeEmbeddedPiSessionParams } from "./pi-embedded-subscribe.types.js";
+>>>>>>> d714ac779 (refactor(agents): dedupe transient error copy (#16324))
 import { parseReplyDirectives } from "../auto-reply/reply/reply-directives.js";
 import { createStreamingDirectiveAccumulator } from "../auto-reply/reply/streaming-directives.js";
 import { formatToolAggregate } from "../auto-reply/tool-meta.js";
@@ -516,12 +526,23 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     resetAssistantMessageState(0);
   };
 
+  const noteLastAssistant = (msg: AgentMessage) => {
+    if (msg?.role === "assistant") {
+      state.lastAssistant = msg;
+    }
+  };
+
   const ctx: EmbeddedPiSubscribeContext = {
     params,
     state,
     log,
     blockChunking,
     blockChunker,
+<<<<<<< HEAD
+=======
+    hookRunner: params.hookRunner,
+    noteLastAssistant,
+>>>>>>> d714ac779 (refactor(agents): dedupe transient error copy (#16324))
     shouldEmitToolResult,
     shouldEmitToolOutput,
     emitToolSummary,

@@ -46,7 +46,7 @@ export function handleMessageUpdate(
     return;
   }
 
-  ctx.state.lastAssistant = msg;
+  ctx.noteLastAssistant(msg);
 
   const assistantEvent = evt.assistantMessageEvent;
   const assistantRecord =
@@ -171,8 +171,12 @@ export function handleMessageEnd(
 
   const assistantMessage = msg;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   ctx.state.lastAssistant = assistantMessage;
+=======
+  ctx.noteLastAssistant(assistantMessage);
+>>>>>>> d714ac779 (refactor(agents): dedupe transient error copy (#16324))
   ctx.recordAssistantUsage((assistantMessage as { usage?: unknown }).usage);
 >>>>>>> 478af8170 (Return user-facing message if API reuturn 429 API rate limit reached #2202 (#10415))
   promoteThinkingTagsToBlocks(assistantMessage);
