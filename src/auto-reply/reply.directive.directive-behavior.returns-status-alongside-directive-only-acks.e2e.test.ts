@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { loadSessionStore } from "../config/sessions.js";
 import {
   installDirectiveBehaviorE2EHooks,
+  makeRestrictedElevatedDisabledConfig,
   runEmbeddedPiAgent,
   withTempHome,
 } from "./reply.directive.directive-behavior.e2e-harness.js";
@@ -111,6 +112,7 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -134,6 +136,9 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["+1222"] } },
           session: { store: path.join(home, "sessions.json") },
         },
+=======
+        makeRestrictedElevatedDisabledConfig(home),
+>>>>>>> 165dbc232 (refactor(test): share directive elevated config)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
