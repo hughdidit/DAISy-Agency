@@ -36,6 +36,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -43,6 +44,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Agents/Compaction: centralize exec default resolution in the shared tool factory so per-agent `tools.exec` overrides (host/security/ask/node and related defaults) persist across compaction retries. (#15833) Thanks @napetrov.
+- CLI/Completion: route plugin-load logs to stderr and write generated completion scripts directly to stdout to avoid `source <(openclaw completion ...)` corruption. (#15481) Thanks @arosstale.
+- Gateway/Agents: stop injecting a phantom `main` agent into gateway agent listings when `agents.list` explicitly excludes it. (#11450) Thanks @arosstale.
+>>>>>>> 3b5a9c14d (Fix: Preserve Per-Agent Exec Override After Session Compaction (#15833))
 - Agents/Heartbeat: stop auto-creating `HEARTBEAT.md` during workspace bootstrap so missing files continue to run heartbeat as documented. (#11766) Thanks @shadril238.
 <<<<<<< HEAD
 >>>>>>> 386bb0c61 (fix: don't auto-create HEARTBEAT.md on workspace init (openclaw#12027) thanks @shadril238)

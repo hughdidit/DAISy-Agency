@@ -69,10 +69,15 @@ import {
   createSystemPromptOverride,
 } from "./system-prompt.js";
 import { splitSdkTools } from "./tool-split.js";
+<<<<<<< HEAD
 import type { EmbeddedPiCompactResult } from "./types.js";
 import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
 import { describeUnknownError, mapThinkingLevel, resolveExecToolDefaults } from "./utils.js";
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
+=======
+import { describeUnknownError, mapThinkingLevel } from "./utils.js";
+import { flushPendingToolResultsAfterIdle } from "./wait-for-idle-before-flush.js";
+>>>>>>> 3b5a9c14d (Fix: Preserve Per-Agent Exec Override After Session Compaction (#15833))
 
 export type CompactEmbeddedPiSessionParams = {
   sessionId: string;
@@ -217,7 +222,6 @@ export async function compactEmbeddedPiSessionDirect(
     const runAbortController = new AbortController();
     const toolsRaw = createMoltbotCodingTools({
       exec: {
-        ...resolveExecToolDefaults(params.config),
         elevated: params.bashElevated,
       },
       sandbox,
