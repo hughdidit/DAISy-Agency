@@ -48,9 +48,13 @@ Status: beta.
 =======
 - Media: accept `MEDIA:`-prefixed paths (lenient whitespace) when loading outbound media to prevent `ENOENT` for tool-returned local media paths. (#13107) Thanks @mcaxtr.
 - Security/Gateway: harden tool-supplied `gatewayUrl` overrides by restricting them to loopback or the configured `gateway.remote.url`. Thanks @p80n-sec.
+<<<<<<< HEAD
 >>>>>>> e95ce05c1 (chore(security): soften gatewayUrl override messaging)
 
 >>>>>>> 2d5647a80 (fix(security): restrict tool gatewayUrl overrides)
+=======
+- Security/Net: fix SSRF guard bypass via full-form IPv4-mapped IPv6 literals (blocks loopback/private/metadata access). Thanks @yueyueL.
+>>>>>>> c0c0e0f9a (fix(security): block full-form IPv4-mapped IPv6 in SSRF guard)
 - Security/Node Host: enforce `system.run` rawCommand/argv consistency to prevent allowlist/approval bypass. Thanks @christos-eth.
 - Security/Exec approvals: prevent safeBins allowlist bypass via shell expansion (host exec allowlist mode only; not enabled by default). Thanks @christos-eth.
 - Security/Gateway: block `system.execApprovals.*` via `node.invoke` (use `exec.approvals.node.*` instead). Thanks @christos-eth.
