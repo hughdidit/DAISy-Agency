@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 const callGatewayMock = vi.fn();
 vi.mock("../gateway/call.js", () => ({
@@ -25,19 +26,24 @@ import "./test-helpers/fast-core-tools.js";
 <<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-announces-agent-wait-lifecycle-events.test.ts
 import { createMoltbotTools } from "./moltbot-tools.js";
 =======
+=======
+>>>>>>> 615f6e1e4 (refactor(test): share sessions_spawn e2e mocks)
 import { sleep } from "../utils.js";
+import "./test-helpers/fast-core-tools.js";
 import { createOpenClawTools } from "./openclaw-tools.js";
+<<<<<<< HEAD
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:):src/agents/openclaw-tools.subagents.sessions-spawn-announces-agent-wait-lifecycle-events.test.ts
+=======
+import {
+  callGatewayMock,
+  resetConfigOverride,
+} from "./openclaw-tools.subagents.sessions-spawn.mocks.js";
+>>>>>>> 615f6e1e4 (refactor(test): share sessions_spawn e2e mocks)
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 describe("moltbot-tools: subagents", () => {
   beforeEach(() => {
-    configOverride = {
-      session: {
-        mainKey: "main",
-        scope: "per-sender",
-      },
-    };
+    resetConfigOverride();
   });
 
   it("sessions_spawn deletes session when cleanup=delete via agent.wait", async () => {

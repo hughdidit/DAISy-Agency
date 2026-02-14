@@ -1,27 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-const callGatewayMock = vi.fn();
-vi.mock("../gateway/call.js", () => ({
-  callGateway: (opts: unknown) => callGatewayMock(opts),
-}));
-
-let configOverride: ReturnType<(typeof import("../config/config.js"))["loadConfig"]> = {
-  session: {
-    mainKey: "main",
-    scope: "per-sender",
-  },
-};
-
-vi.mock("../config/config.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../config/config.js")>();
-  return {
-    ...actual,
-    loadConfig: () => configOverride,
-    resolveGatewayPort: () => 18789,
-  };
-});
-
 import { emitAgentEvent } from "../infra/agent-events.js";
+<<<<<<< HEAD
 import "./test-helpers/fast-core-tools.js";
 <<<<<<< HEAD:src/agents/clawdbot-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
 import { createMoltbotTools } from "./moltbot-tools.js";
@@ -29,22 +8,26 @@ import { createMoltbotTools } from "./moltbot-tools.js";
 import { sleep } from "../utils.js";
 import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:):src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.test.ts
+=======
+import { createOpenClawTools } from "./openclaw-tools.js";
+import "./test-helpers/fast-core-tools.js";
+import {
+  callGatewayMock,
+  resetConfigOverride,
+  setConfigOverride,
+} from "./openclaw-tools.subagents.sessions-spawn.mocks.js";
+>>>>>>> 615f6e1e4 (refactor(test): share sessions_spawn e2e mocks)
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 describe("moltbot-tools: subagents", () => {
   beforeEach(() => {
-    configOverride = {
-      session: {
-        mainKey: "main",
-        scope: "per-sender",
-      },
-    };
+    resetConfigOverride();
   });
 
   it("sessions_spawn normalizes allowlisted agent ids", async () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
-    configOverride = {
+    setConfigOverride({
       session: {
         mainKey: "main",
         scope: "per-sender",
@@ -59,7 +42,7 @@ describe("moltbot-tools: subagents", () => {
           },
         ],
       },
-    };
+    });
 
     let childSessionKey: string | undefined;
     callGatewayMock.mockImplementation(async (opts: unknown) => {
@@ -97,7 +80,7 @@ describe("moltbot-tools: subagents", () => {
   it("sessions_spawn forbids cross-agent spawning when not allowed", async () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
-    configOverride = {
+    setConfigOverride({
       session: {
         mainKey: "main",
         scope: "per-sender",
@@ -112,7 +95,7 @@ describe("moltbot-tools: subagents", () => {
           },
         ],
       },
-    };
+    });
 
     const tool = createMoltbotTools({
       agentSessionKey: "main",
