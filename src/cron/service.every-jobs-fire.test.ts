@@ -1,9 +1,13 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 =======
+=======
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> badde6e29 (perf(test): speed up cron schedule suite)
 import type { CronEvent } from "./service.js";
 <<<<<<< HEAD
 import type { CronJob } from "./types.js";
@@ -19,13 +23,25 @@ const noopLogger = {
   error: vi.fn(),
 };
 
+let fixtureRoot = "";
+let caseId = 0;
+
+beforeAll(async () => {
+  fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-"));
+});
+
+afterAll(async () => {
+  if (fixtureRoot) {
+    await fs.rm(fixtureRoot, { recursive: true, force: true });
+  }
+});
+
 async function makeStorePath() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-"));
+  const dir = path.join(fixtureRoot, `case-${caseId++}`);
+  await fs.mkdir(dir, { recursive: true });
   return {
     storePath: path.join(dir, "cron", "jobs.json"),
-    cleanup: async () => {
-      await fs.rm(dir, { recursive: true, force: true });
-    },
+    cleanup: async () => {},
   };
 }
 
