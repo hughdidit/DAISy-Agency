@@ -136,7 +136,13 @@ Configure your tunnel's ingress rules to only route the webhook path:
 
 ## Targets
 Use these identifiers for delivery and allowlists:
+<<<<<<< HEAD
 - Direct messages: `users/<userId>` or `users/<email>` (email addresses are accepted).
+=======
+
+- Direct messages: `users/<userId>` (recommended) or raw email `name@example.com` (mutable principal).
+- Deprecated: `users/<email>` is treated as a user id, not an email allowlist.
+>>>>>>> c8424bf29 (fix(googlechat): deprecate users/<email> allowlists (#16243))
 - Spaces: `spaces/<spaceId>`.
 
 ## Config highlights
