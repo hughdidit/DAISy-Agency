@@ -139,6 +139,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 4133f4bd3 (refactor(tui): clarify searchable select list width layout (#16378))
 =======
 - Memory/QMD: cap QMD command output buffering to prevent memory exhaustion from pathological `qmd` command output.
+- Memory/QMD: query QMD index using exact docid matches before falling back to prefix lookup for better recall correctness and index efficiency.
 - Models/CLI: guard `models status` string trimming paths to prevent crashes from malformed non-string config values. (#16395) Thanks @BinHPdev.
 >>>>>>> f9f816d13 (Memory/QMD: cap qmd command output buffering)
 
