@@ -1,9 +1,13 @@
 import { createServer } from "node:http";
+<<<<<<< HEAD
 import type { AddressInfo } from "node:net";
 
 import { describe, expect, it } from "vitest";
 
 import type { OpenClawConfig, PluginRuntime } from "openclaw/plugin-sdk";
+=======
+import { describe, expect, it, vi } from "vitest";
+>>>>>>> 188c4cd07 (fix(security): reject ambiguous webhook target matches)
 import type { ResolvedZaloAccount } from "./types.js";
 import { handleZaloWebhookRequest, registerZaloWebhookTarget } from "./monitor.js";
 
@@ -65,6 +69,70 @@ describe("handleZaloWebhookRequest", () => {
       });
     } finally {
       unregister();
+    }
+  });
+
+  it("rejects ambiguous routing when multiple targets match the same secret", async () => {
+    const core = {} as PluginRuntime;
+    const account: ResolvedZaloAccount = {
+      accountId: "default",
+      enabled: true,
+      token: "tok",
+      tokenSource: "config",
+      config: {},
+    };
+    const sinkA = vi.fn();
+    const sinkB = vi.fn();
+    const unregisterA = registerZaloWebhookTarget({
+      token: "tok",
+      account,
+      config: {} as OpenClawConfig,
+      runtime: {},
+      core,
+      secret: "secret",
+      path: "/hook",
+      mediaMaxMb: 5,
+      statusSink: sinkA,
+    });
+    const unregisterB = registerZaloWebhookTarget({
+      token: "tok",
+      account,
+      config: {} as OpenClawConfig,
+      runtime: {},
+      core,
+      secret: "secret",
+      path: "/hook",
+      mediaMaxMb: 5,
+      statusSink: sinkB,
+    });
+
+    try {
+      await withServer(
+        async (req, res) => {
+          const handled = await handleZaloWebhookRequest(req, res);
+          if (!handled) {
+            res.statusCode = 404;
+            res.end("not found");
+          }
+        },
+        async (baseUrl) => {
+          const response = await fetch(`${baseUrl}/hook`, {
+            method: "POST",
+            headers: {
+              "x-bot-api-secret-token": "secret",
+              "content-type": "application/json",
+            },
+            body: "{}",
+          });
+
+          expect(response.status).toBe(401);
+          expect(sinkA).not.toHaveBeenCalled();
+          expect(sinkB).not.toHaveBeenCalled();
+        },
+      );
+    } finally {
+      unregisterA();
+      unregisterB();
     }
   });
 });
