@@ -36,6 +36,7 @@ Status: beta.
 
 ### Fixes
 
+- Security/Agents: scope CLI process cleanup to owned child PIDs to avoid killing unrelated processes on shared hosts. Thanks @aether-ai-agent.
 - Security: fix Chutes manual OAuth login state validation (thanks @aether-ai-agent). (#16058)
 - macOS: hard-limit unkeyed `openclaw://agent` deep links and ignore `deliver` / `to` / `channel` unless a valid unattended key is provided. Thanks @Cillian-Collins.
 <<<<<<< HEAD
