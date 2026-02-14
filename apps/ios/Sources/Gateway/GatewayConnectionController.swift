@@ -16,6 +16,7 @@ final class GatewayConnectionController {
     private let discovery = GatewayDiscoveryModel()
     private weak var appModel: NodeAppModel?
     private var didAutoConnect = false
+    private var pendingServiceResolvers: [String: GatewayServiceResolver] = [:]
 
     init(appModel: NodeAppModel, startDiscovery: Bool = true) {
         self.appModel = appModel
@@ -48,18 +49,35 @@ final class GatewayConnectionController {
     }
 
     func connect(_ gateway: GatewayDiscoveryModel.DiscoveredGateway) async {
+        await self.connectDiscoveredGateway(gateway, allowTOFU: true)
+    }
+
+    private func connectDiscoveredGateway(
+        _ gateway: GatewayDiscoveryModel.DiscoveredGateway,
+        allowTOFU: Bool) async
+    {
         let instanceId = UserDefaults.standard.string(forKey: "node.instanceId")?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let token = GatewaySettingsStore.loadGatewayToken(instanceId: instanceId)
         let password = GatewaySettingsStore.loadGatewayPassword(instanceId: instanceId)
-        guard let host = self.resolveGatewayHost(gateway) else { return }
-        let port = gateway.gatewayPort ?? 18789
-        let tlsParams = self.resolveDiscoveredTLSParams(gateway: gateway)
+
+        // Resolve the service endpoint (SRV/A/AAAA). TXT is unauthenticated; do not route via TXT.
+        guard let target = await self.resolveServiceEndpoint(gateway.endpoint) else { return }
+
+        let tlsParams = self.resolveDiscoveredTLSParams(gateway: gateway, allowTOFU: allowTOFU)
         guard let url = self.buildGatewayURL(
-            host: host,
-            port: port,
+            host: target.host,
+            port: target.port,
             useTLS: tlsParams?.required == true)
         else { return }
+<<<<<<< HEAD
+=======
+        GatewaySettingsStore.saveLastGatewayConnection(
+            host: target.host,
+            port: target.port,
+            useTLS: tlsParams?.required == true,
+            stableID: gateway.stableID)
+>>>>>>> d583782ee (fix(security): harden discovery routing and TLS pins)
         self.didAutoConnect = true
         self.startAutoConnect(
             url: url,
@@ -164,6 +182,7 @@ final class GatewayConnectionController {
         let candidates = [preferredStableID, lastDiscoveredStableID].filter { !$0.isEmpty }
         guard let targetStableID = candidates.first(where: { id in
             self.gateways.contains(where: { $0.stableID == id })
+<<<<<<< HEAD
         }) else { return }
 
         guard let target = self.gateways.first(where: { $0.stableID == targetStableID }) else { return }
@@ -180,6 +199,42 @@ final class GatewayConnectionController {
             tls: tlsParams,
             token: token,
             password: password)
+=======
+        }) {
+            guard let target = self.gateways.first(where: { $0.stableID == targetStableID }) else { return }
+            // Security: autoconnect only to previously trusted gateways (stored TLS pin).
+            guard GatewayTLSStore.loadFingerprint(stableID: target.stableID) != nil else { return }
+
+            self.didAutoConnect = true
+            Task { [weak self] in
+                guard let self else { return }
+                await self.connectDiscoveredGateway(target, allowTOFU: false)
+            }
+            return
+        }
+
+        if self.gateways.count == 1, let gateway = self.gateways.first {
+            // Security: autoconnect only to previously trusted gateways (stored TLS pin).
+            guard GatewayTLSStore.loadFingerprint(stableID: gateway.stableID) != nil else { return }
+
+            self.didAutoConnect = true
+            Task { [weak self] in
+                guard let self else { return }
+                await self.connectDiscoveredGateway(gateway, allowTOFU: false)
+            }
+            return
+        }
+    }
+
+    private func attemptAutoReconnectIfNeeded() {
+        guard let appModel = self.appModel else { return }
+        guard appModel.gatewayAutoReconnectEnabled else { return }
+        // Avoid starting duplicate connect loops while a prior config is active.
+        guard appModel.activeGatewayConnectConfig == nil else { return }
+        guard UserDefaults.standard.bool(forKey: "gateway.autoconnect") else { return }
+        self.didAutoConnect = false
+        self.maybeAutoConnect()
+>>>>>>> d583782ee (fix(security): harden discovery routing and TLS pins)
     }
 
     private func updateLastDiscoveredGateway(from gateways: [GatewayDiscoveryModel.DiscoveredGateway]) {
@@ -222,15 +277,27 @@ final class GatewayConnectionController {
         }
     }
 
-    private func resolveDiscoveredTLSParams(gateway: GatewayDiscoveryModel.DiscoveredGateway) -> GatewayTLSParams? {
+    private func resolveDiscoveredTLSParams(
+        gateway: GatewayDiscoveryModel.DiscoveredGateway,
+        allowTOFU: Bool) -> GatewayTLSParams?
+    {
         let stableID = gateway.stableID
         let stored = GatewayTLSStore.loadFingerprint(stableID: stableID)
 
-        if gateway.tlsEnabled || gateway.tlsFingerprintSha256 != nil || stored != nil {
+        // Never let unauthenticated discovery (TXT) override a stored pin.
+        if let stored {
             return GatewayTLSParams(
                 required: true,
-                expectedFingerprint: gateway.tlsFingerprintSha256 ?? stored,
-                allowTOFU: stored == nil,
+                expectedFingerprint: stored,
+                allowTOFU: false,
+                storeKey: stableID)
+        }
+
+        if gateway.tlsEnabled || gateway.tlsFingerprintSha256 != nil {
+            return GatewayTLSParams(
+                required: true,
+                expectedFingerprint: nil,
+                allowTOFU: allowTOFU,
                 storeKey: stableID)
         }
 
@@ -250,6 +317,7 @@ final class GatewayConnectionController {
         return nil
     }
 
+<<<<<<< HEAD
     private func resolveGatewayHost(_ gateway: GatewayDiscoveryModel.DiscoveredGateway) -> String? {
         if let lanHost = gateway.lanHost?.trimmingCharacters(in: .whitespacesAndNewlines), !lanHost.isEmpty {
             return lanHost
@@ -258,6 +326,21 @@ final class GatewayConnectionController {
             return tailnet
         }
         return nil
+=======
+    private func resolveServiceEndpoint(_ endpoint: NWEndpoint) async -> (host: String, port: Int)? {
+        guard case let .service(name, type, domain, _) = endpoint else { return nil }
+        let key = "\(domain)|\(type)|\(name)"
+        return await withCheckedContinuation { continuation in
+            let resolver = GatewayServiceResolver(name: name, type: type, domain: domain) { [weak self] result in
+                Task { @MainActor in
+                    self?.pendingServiceResolvers[key] = nil
+                    continuation.resume(returning: result)
+                }
+            }
+            self.pendingServiceResolvers[key] = resolver
+            resolver.start()
+        }
+>>>>>>> d583782ee (fix(security): harden discovery routing and TLS pins)
     }
 
     private func buildGatewayURL(host: String, port: Int, useTLS: Bool) -> URL? {
@@ -429,6 +512,17 @@ extension GatewayConnectionController {
 
     func _test_triggerAutoConnect() {
         self.maybeAutoConnect()
+    }
+
+    func _test_didAutoConnect() -> Bool {
+        self.didAutoConnect
+    }
+
+    func _test_resolveDiscoveredTLSParams(
+        gateway: GatewayDiscoveryModel.DiscoveredGateway,
+        allowTOFU: Bool) -> GatewayTLSParams?
+    {
+        self.resolveDiscoveredTLSParams(gateway: gateway, allowTOFU: allowTOFU)
     }
 }
 #endif
