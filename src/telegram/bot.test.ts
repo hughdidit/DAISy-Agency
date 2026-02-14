@@ -235,12 +235,6 @@ describe("createTelegramBot", () => {
     tempDirs.length = 0;
   });
 
-  it("installs grammY throttler", () => {
-    createTelegramBot({ token: "tok" });
-    expect(throttlerSpy).toHaveBeenCalledTimes(1);
-    expect(useSpy).toHaveBeenCalledWith("throttler");
-  });
-
   it("merges custom commands with native commands", () => {
     const config = {
       channels: {
@@ -342,6 +336,7 @@ describe("createTelegramBot", () => {
     expect(registered.some((command) => reserved.has(command.command))).toBe(false);
   });
 
+<<<<<<< HEAD
   it("uses wrapped fetch when global fetch is available", () => {
     const originalFetch = globalThis.fetch;
     const fetchSpy = vi.fn() as unknown as typeof fetch;
@@ -420,6 +415,8 @@ describe("createTelegramBot", () => {
     expect(answerCallbackQuerySpy).toHaveBeenCalledWith("cbq-1");
   });
 
+=======
+>>>>>>> 63711330e (perf(test): dedupe browser/telegram coverage and trim batch retry cost)
   it("blocks callback_query when inline buttons are allowlist-only and sender not authorized", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -542,6 +539,7 @@ describe("createTelegramBot", () => {
     expect(answerCallbackQuerySpy).toHaveBeenCalledWith("cbq-4");
   });
 
+<<<<<<< HEAD
   it("wraps inbound message with Telegram envelope", async () => {
     const originalTz = process.env.TZ;
     process.env.TZ = "Europe/Vienna";
@@ -729,6 +727,8 @@ describe("createTelegramBot", () => {
     expect(payload.SenderId).toBe("9");
   });
 
+=======
+>>>>>>> 63711330e (perf(test): dedupe browser/telegram coverage and trim batch retry cost)
   it("includes sender identity in group envelope headers", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -781,6 +781,7 @@ describe("createTelegramBot", () => {
     expect(payload.SenderUsername).toBe("ada");
   });
 
+<<<<<<< HEAD
   it("reacts to mention-gated group messages when ackReaction is enabled", async () => {
     onSpy.mockReset();
     setMessageReactionSpy.mockReset();
@@ -930,6 +931,8 @@ describe("createTelegramBot", () => {
     expect(payload.ReplyToSender).toBe("Ada");
   });
 
+=======
+>>>>>>> 63711330e (perf(test): dedupe browser/telegram coverage and trim batch retry cost)
   it("uses quote text when a Telegram partial reply is received", async () => {
     onSpy.mockReset();
     sendMessageSpy.mockReset();
@@ -1033,6 +1036,7 @@ describe("createTelegramBot", () => {
     expect(payload.ReplyToSender).toBe("Ada");
   });
 
+<<<<<<< HEAD
   it("sends replies without native reply threading", async () => {
     onSpy.mockReset();
     sendMessageSpy.mockReset();
@@ -1204,6 +1208,8 @@ describe("createTelegramBot", () => {
     expect(replySpy).not.toHaveBeenCalled();
   });
 
+=======
+>>>>>>> 63711330e (perf(test): dedupe browser/telegram coverage and trim batch retry cost)
   it("accepts group replies to the bot without explicit mention when requireMention is enabled", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -1237,6 +1243,7 @@ describe("createTelegramBot", () => {
     expect(payload.WasMentioned).toBe(true);
   });
 
+<<<<<<< HEAD
   it("honors routed group activation from session store", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -1409,6 +1416,8 @@ describe("createTelegramBot", () => {
     expect(replySpy).toHaveBeenCalledTimes(1);
   });
 
+=======
+>>>>>>> 63711330e (perf(test): dedupe browser/telegram coverage and trim batch retry cost)
   it("inherits group allowlist + requireMention in topics", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -1496,6 +1505,7 @@ describe("createTelegramBot", () => {
     expect(replySpy).toHaveBeenCalledTimes(0);
   });
 
+<<<<<<< HEAD
   it("honors groups default when no explicit group override exists", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -2092,6 +2102,8 @@ describe("createTelegramBot", () => {
     expect(replySpy).not.toHaveBeenCalled();
   });
 
+=======
+>>>>>>> 63711330e (perf(test): dedupe browser/telegram coverage and trim batch retry cost)
   it("allows group messages for per-group groupPolicy open override (global groupPolicy allowlist)", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -2163,6 +2175,7 @@ describe("createTelegramBot", () => {
 
     expect(replySpy).not.toHaveBeenCalled();
   });
+<<<<<<< HEAD
 
   it("allows control commands with TG-prefixed groupAllowFrom entries", async () => {
     onSpy.mockReset();
@@ -2469,6 +2482,8 @@ describe("createTelegramBot", () => {
       expect.objectContaining({ message_thread_id: 99 }),
     );
   });
+=======
+>>>>>>> 63711330e (perf(test): dedupe browser/telegram coverage and trim batch retry cost)
   it("sets command target session key for dm topic commands", async () => {
     onSpy.mockReset();
     sendMessageSpy.mockReset();
@@ -2600,6 +2615,7 @@ describe("createTelegramBot", () => {
     );
   });
 
+<<<<<<< HEAD
   it("skips tool summaries for native slash commands", async () => {
     onSpy.mockReset();
     sendMessageSpy.mockReset();
@@ -2764,6 +2780,8 @@ describe("createTelegramBot", () => {
     expect(replySpy).toHaveBeenCalledTimes(2);
   });
 
+=======
+>>>>>>> 63711330e (perf(test): dedupe browser/telegram coverage and trim batch retry cost)
   it("registers message_reaction handler", () => {
     onSpy.mockReset();
     createTelegramBot({ token: "tok" });
