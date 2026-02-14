@@ -598,6 +598,7 @@ export async function runCronIsolatedAgentTurn(params: {
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     try {
       await deliverOutboundPayloads({
         cfg: cfgWithAgentDefaults,
@@ -612,6 +613,16 @@ export async function runCronIsolatedAgentTurn(params: {
     // Shared subagent announce flow is text-based; keep direct outbound delivery
     // for media/channel payloads so structured content is preserved.
     if (deliveryPayloadHasStructuredContent) {
+=======
+    const identity = resolveAgentOutboundIdentity(cfgWithAgentDefaults, agentId);
+
+    // Shared subagent announce flow is text-based and prompts the main agent to
+    // summarize. When we have an explicit delivery target (delivery.to), sender
+    // identity, or structured content, prefer direct outbound delivery to send
+    // the actual cron output without summarization.
+    const hasExplicitDeliveryTarget = Boolean(deliveryPlan.to);
+    if (deliveryPayloadHasStructuredContent || identity || hasExplicitDeliveryTarget) {
+>>>>>>> a73ccf2b5 (fix: deliver cron output to explicit targets (#16360) (thanks @rubyrunsstuff))
       try {
         const deliveryResults = await deliverOutboundPayloads({
           cfg: cfgWithAgentDefaults,
