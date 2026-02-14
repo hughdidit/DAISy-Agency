@@ -146,7 +146,10 @@ export async function executePollAction(params: {
   question: string;
   options: string[];
   maxSelections: number;
+  durationSeconds?: number;
   durationHours?: number;
+  threadId?: string;
+  isAnonymous?: boolean;
 }): Promise<{
   handledBy: "plugin" | "core";
   payload: unknown;
@@ -179,8 +182,13 @@ export async function executePollAction(params: {
     question: params.question,
     options: params.options,
     maxSelections: params.maxSelections,
+    durationSeconds: params.durationSeconds ?? undefined,
     durationHours: params.durationHours ?? undefined,
     channel: params.ctx.channel,
+    accountId: params.ctx.accountId ?? undefined,
+    threadId: params.threadId ?? undefined,
+    silent: params.ctx.silent ?? undefined,
+    isAnonymous: params.isAnonymous ?? undefined,
     dryRun: params.ctx.dryRun,
     gateway: params.ctx.gateway,
   });

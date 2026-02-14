@@ -150,6 +150,7 @@ describe("web outbound", () => {
       question: "Lunch?",
       options: ["Pizza", "Sushi"],
       maxSelections: 2,
+      durationSeconds: undefined,
       durationHours: undefined,
     });
   });
