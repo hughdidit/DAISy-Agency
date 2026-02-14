@@ -1,7 +1,12 @@
 import { readConfigFileSnapshot } from "../../config/config.js";
 import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-flow.js";
 import { colorize, isRich, theme } from "../../terminal/theme.js";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
+=======
+import { shortenHomePath } from "../../utils.js";
+import { shouldMigrateStateFromPath } from "../argv.js";
+>>>>>>> f86840f4d (perf(cli): reduce read-only startup overhead)
 import { formatCliCommand } from "../command-format.js";
 import { shortenHomePath } from "../../utils.js";
 
@@ -28,7 +33,8 @@ export async function ensureConfigReady(params: {
   runtime: RuntimeEnv;
   commandPath?: string[];
 }): Promise<void> {
-  if (!didRunDoctorConfigFlow) {
+  const commandPath = params.commandPath ?? [];
+  if (!didRunDoctorConfigFlow && shouldMigrateStateFromPath(commandPath)) {
     didRunDoctorConfigFlow = true;
     await loadAndMaybeMigrateDoctorConfig({
       options: { nonInteractive: true },
@@ -37,8 +43,8 @@ export async function ensureConfigReady(params: {
   }
 
   const snapshot = await readConfigFileSnapshot();
-  const commandName = params.commandPath?.[0];
-  const subcommandName = params.commandPath?.[1];
+  const commandName = commandPath[0];
+  const subcommandName = commandPath[1];
   const allowInvalid = commandName
     ? ALLOWED_INVALID_COMMANDS.has(commandName) ||
       (commandName === "gateway" &&

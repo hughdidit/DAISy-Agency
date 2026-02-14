@@ -140,6 +140,7 @@ describe("argv helpers", () => {
   });
 
   it("decides when to migrate state", () => {
+<<<<<<< HEAD
     expect(shouldMigrateState(["node", "moltbot", "status"])).toBe(false);
     expect(shouldMigrateState(["node", "moltbot", "health"])).toBe(false);
     expect(shouldMigrateState(["node", "moltbot", "sessions"])).toBe(false);
@@ -147,10 +148,25 @@ describe("argv helpers", () => {
     expect(shouldMigrateState(["node", "moltbot", "agent", "--message", "hi"])).toBe(false);
     expect(shouldMigrateState(["node", "moltbot", "agents", "list"])).toBe(true);
     expect(shouldMigrateState(["node", "moltbot", "message", "send"])).toBe(true);
+=======
+    expect(shouldMigrateState(["node", "openclaw", "status"])).toBe(false);
+    expect(shouldMigrateState(["node", "openclaw", "health"])).toBe(false);
+    expect(shouldMigrateState(["node", "openclaw", "sessions"])).toBe(false);
+    expect(shouldMigrateState(["node", "openclaw", "config", "get", "update"])).toBe(false);
+    expect(shouldMigrateState(["node", "openclaw", "config", "unset", "update"])).toBe(false);
+    expect(shouldMigrateState(["node", "openclaw", "models", "list"])).toBe(false);
+    expect(shouldMigrateState(["node", "openclaw", "models", "status"])).toBe(false);
+    expect(shouldMigrateState(["node", "openclaw", "memory", "status"])).toBe(false);
+    expect(shouldMigrateState(["node", "openclaw", "agent", "--message", "hi"])).toBe(false);
+    expect(shouldMigrateState(["node", "openclaw", "agents", "list"])).toBe(true);
+    expect(shouldMigrateState(["node", "openclaw", "message", "send"])).toBe(true);
+>>>>>>> f86840f4d (perf(cli): reduce read-only startup overhead)
   });
 
   it("reuses command path for migrate state decisions", () => {
     expect(shouldMigrateStateFromPath(["status"])).toBe(false);
+    expect(shouldMigrateStateFromPath(["config", "get"])).toBe(false);
+    expect(shouldMigrateStateFromPath(["models", "status"])).toBe(false);
     expect(shouldMigrateStateFromPath(["agents", "list"])).toBe(true);
   });
 });

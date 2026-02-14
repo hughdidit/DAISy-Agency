@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -32,6 +32,7 @@ const distEntry = path.join(distRoot, "/entry.js");
 const buildStampPath = path.join(distRoot, ".buildstamp");
 const srcRoot = path.join(cwd, "src");
 const configFiles = [path.join(cwd, "tsconfig.json"), path.join(cwd, "package.json")];
+const gitWatchedPaths = ["src", "tsconfig.json", "package.json"];
 
 const statMtime = (filePath) => {
   try {
@@ -91,6 +92,64 @@ const findLatestMtime = (dirPath, shouldSkip) => {
   return latest;
 };
 
+const runGit = (args) => {
+  try {
+    const result = spawnSync("git", args, {
+      cwd,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    if (result.status !== 0) {
+      return null;
+    }
+    return (result.stdout ?? "").trim();
+  } catch {
+    return null;
+  }
+};
+
+const resolveGitHead = () => {
+  const head = runGit(["rev-parse", "HEAD"]);
+  return head || null;
+};
+
+const hasDirtySourceTree = () => {
+  const output = runGit([
+    "status",
+    "--porcelain",
+    "--untracked-files=normal",
+    "--",
+    ...gitWatchedPaths,
+  ]);
+  if (output === null) {
+    return null;
+  }
+  return output.length > 0;
+};
+
+const readBuildStamp = () => {
+  const mtime = statMtime(buildStampPath);
+  if (mtime == null) {
+    return { mtime: null, head: null };
+  }
+  try {
+    const raw = fs.readFileSync(buildStampPath, "utf8").trim();
+    if (!raw.startsWith("{")) {
+      return { mtime, head: null };
+    }
+    const parsed = JSON.parse(raw);
+    const head = typeof parsed?.head === "string" && parsed.head.trim() ? parsed.head.trim() : null;
+    return { mtime, head };
+  } catch {
+    return { mtime, head: null };
+  }
+};
+
+const hasSourceMtimeChanged = (stampMtime) => {
+  const srcMtime = findLatestMtime(srcRoot, isExcludedSource);
+  return srcMtime != null && srcMtime > stampMtime;
+};
+
 const shouldBuild = () => {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -102,9 +161,14 @@ const shouldBuild = () => {
   if (env.OPENCLAW_FORCE_BUILD === "1") {
     return true;
   }
+<<<<<<< HEAD
 >>>>>>> 1838ab019 (chore: Enable linting in `scripts`.)
   const stampMtime = statMtime(buildStampPath);
   if (stampMtime == null) {
+=======
+  const stamp = readBuildStamp();
+  if (stamp.mtime == null) {
+>>>>>>> f86840f4d (perf(cli): reduce read-only startup overhead)
     return true;
   }
   if (statMtime(distEntry) == null) {
@@ -113,13 +177,29 @@ const shouldBuild = () => {
 
   for (const filePath of configFiles) {
     const mtime = statMtime(filePath);
-    if (mtime != null && mtime > stampMtime) {
+    if (mtime != null && mtime > stamp.mtime) {
       return true;
     }
   }
 
-  const srcMtime = findLatestMtime(srcRoot, isExcludedSource);
-  if (srcMtime != null && srcMtime > stampMtime) {
+  const currentHead = resolveGitHead();
+  if (currentHead && !stamp.head) {
+    return hasSourceMtimeChanged(stamp.mtime);
+  }
+  if (currentHead && stamp.head && currentHead !== stamp.head) {
+    return hasSourceMtimeChanged(stamp.mtime);
+  }
+  if (currentHead) {
+    const dirty = hasDirtySourceTree();
+    if (dirty === true) {
+      return true;
+    }
+    if (dirty === false) {
+      return false;
+    }
+  }
+
+  if (hasSourceMtimeChanged(stamp.mtime)) {
     return true;
   }
   return false;
@@ -163,7 +243,11 @@ const runNode = () => {
 const writeBuildStamp = () => {
   try {
     fs.mkdirSync(distRoot, { recursive: true });
-    fs.writeFileSync(buildStampPath, `${Date.now()}\n`);
+    const stamp = {
+      builtAt: Date.now(),
+      head: resolveGitHead(),
+    };
+    fs.writeFileSync(buildStampPath, `${JSON.stringify(stamp)}\n`);
   } catch (error) {
     // Best-effort stamp; still allow the runner to start.
     logRunner(`Failed to write build stamp: ${error?.message ?? "unknown error"}`);
