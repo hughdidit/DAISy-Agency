@@ -95,9 +95,6 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 }
 
 describe("RawBody directive parsing", () => {
-  type ReplyMessage = Parameters<typeof getReplyFromConfig>[0];
-  type ReplyConfig = Parameters<typeof getReplyFromConfig>[2];
-
   beforeAll(async () => {
     fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-rawbody-"));
   });
@@ -119,6 +116,7 @@ describe("RawBody directive parsing", () => {
 
   it("handles directives, history, and non-default agent session files", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const assertCommandReply = async (input: {
         message: ReplyMessage;
         config: ReplyConfig;
@@ -266,6 +264,8 @@ describe("RawBody directive parsing", () => {
 
 =======
 >>>>>>> fecb3f326 (perf(test): trim models/browser suite overhead)
+=======
+>>>>>>> b4430c126 (perf(test): trim duplicate raw-body and streaming queue scenarios)
       vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
         payloads: [{ text: "ok" }],
         meta: {
