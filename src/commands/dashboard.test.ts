@@ -1,13 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
+=======
+import type { GatewayBindMode } from "../config/types.gateway.js";
+>>>>>>> b9d14855d (Fix: Force dashboard command to use localhost URL (#16434))
 import { dashboardCommand } from "./dashboard.js";
 
 const mocks = vi.hoisted(() => ({
   readConfigFileSnapshot: vi.fn(),
   resolveGatewayPort: vi.fn(),
   resolveControlUiLinks: vi.fn(),
+<<<<<<< HEAD
   detectBrowserOpenSupport: vi.fn(),
   openUrl: vi.fn(),
   formatControlUiSshHint: vi.fn(),
+=======
+>>>>>>> b9d14855d (Fix: Force dashboard command to use localhost URL (#16434))
   copyToClipboard: vi.fn(),
 }));
 
@@ -18,9 +25,15 @@ vi.mock("../config/config.js", () => ({
 
 vi.mock("./onboard-helpers.js", () => ({
   resolveControlUiLinks: mocks.resolveControlUiLinks,
+<<<<<<< HEAD
   detectBrowserOpenSupport: mocks.detectBrowserOpenSupport,
   openUrl: mocks.openUrl,
   formatControlUiSshHint: mocks.formatControlUiSshHint,
+=======
+  detectBrowserOpenSupport: vi.fn(),
+  openUrl: vi.fn(),
+  formatControlUiSshHint: vi.fn(() => "ssh hint"),
+>>>>>>> b9d14855d (Fix: Force dashboard command to use localhost URL (#16434))
 }));
 
 vi.mock("../infra/clipboard.js", () => ({
@@ -33,6 +46,7 @@ const runtime = {
   exit: vi.fn(),
 };
 
+<<<<<<< HEAD
 function resetRuntime() {
   runtime.log.mockClear();
   runtime.error.mockClear();
@@ -40,13 +54,31 @@ function resetRuntime() {
 }
 
 function mockSnapshot(token = "abc") {
+=======
+function mockSnapshot(params?: {
+  token?: string;
+  bind?: GatewayBindMode;
+  customBindHost?: string;
+}) {
+  const token = params?.token ?? "abc123";
+>>>>>>> b9d14855d (Fix: Force dashboard command to use localhost URL (#16434))
   mocks.readConfigFileSnapshot.mockResolvedValue({
     path: "/tmp/openclaw.json",
     exists: true,
     raw: "{}",
     parsed: {},
     valid: true,
+<<<<<<< HEAD
     config: { gateway: { auth: { token } } },
+=======
+    config: {
+      gateway: {
+        auth: { token },
+        bind: params?.bind,
+        customBindHost: params?.customBindHost,
+      },
+    },
+>>>>>>> b9d14855d (Fix: Force dashboard command to use localhost URL (#16434))
     issues: [],
     legacyIssues: [],
   });
@@ -55,6 +87,7 @@ function mockSnapshot(token = "abc") {
     httpUrl: "http://127.0.0.1:18789/",
     wsUrl: "ws://127.0.0.1:18789",
   });
+<<<<<<< HEAD
 }
 
 describe("dashboardCommand", () => {
@@ -76,6 +109,26 @@ describe("dashboardCommand", () => {
     mocks.openUrl.mockResolvedValue(true);
 
     await dashboardCommand(runtime);
+=======
+  mocks.copyToClipboard.mockResolvedValue(true);
+}
+
+describe("dashboardCommand bind selection", () => {
+  beforeEach(() => {
+    mocks.readConfigFileSnapshot.mockReset();
+    mocks.resolveGatewayPort.mockReset();
+    mocks.resolveControlUiLinks.mockReset();
+    mocks.copyToClipboard.mockReset();
+    runtime.log.mockReset();
+    runtime.error.mockReset();
+    runtime.exit.mockReset();
+  });
+
+  it("maps lan bind to loopback for dashboard URLs", async () => {
+    mockSnapshot({ bind: "lan" });
+
+    await dashboardCommand(runtime, { noOpen: true });
+>>>>>>> b9d14855d (Fix: Force dashboard command to use localhost URL (#16434))
 
     expect(mocks.resolveControlUiLinks).toHaveBeenCalledWith({
       port: 18789,
@@ -83,6 +136,7 @@ describe("dashboardCommand", () => {
       customBindHost: undefined,
       basePath: undefined,
     });
+<<<<<<< HEAD
     expect(mocks.copyToClipboard).toHaveBeenCalledWith("http://127.0.0.1:18789/#token=abc123");
     expect(mocks.openUrl).toHaveBeenCalledWith("http://127.0.0.1:18789/#token=abc123");
     expect(runtime.log).toHaveBeenCalledWith(
@@ -116,5 +170,46 @@ describe("dashboardCommand", () => {
     expect(runtime.log).toHaveBeenCalledWith(
       "Browser launch disabled (--no-open). Use the URL above.",
     );
+=======
+  });
+
+  it("defaults to loopback when bind is unset", async () => {
+    mockSnapshot();
+
+    await dashboardCommand(runtime, { noOpen: true });
+
+    expect(mocks.resolveControlUiLinks).toHaveBeenCalledWith({
+      port: 18789,
+      bind: "loopback",
+      customBindHost: undefined,
+      basePath: undefined,
+    });
+  });
+
+  it("preserves custom bind mode", async () => {
+    mockSnapshot({ bind: "custom", customBindHost: "10.0.0.5" });
+
+    await dashboardCommand(runtime, { noOpen: true });
+
+    expect(mocks.resolveControlUiLinks).toHaveBeenCalledWith({
+      port: 18789,
+      bind: "custom",
+      customBindHost: "10.0.0.5",
+      basePath: undefined,
+    });
+  });
+
+  it("preserves tailnet bind mode", async () => {
+    mockSnapshot({ bind: "tailnet" });
+
+    await dashboardCommand(runtime, { noOpen: true });
+
+    expect(mocks.resolveControlUiLinks).toHaveBeenCalledWith({
+      port: 18789,
+      bind: "tailnet",
+      customBindHost: undefined,
+      basePath: undefined,
+    });
+>>>>>>> b9d14855d (Fix: Force dashboard command to use localhost URL (#16434))
   });
 });
