@@ -1,5 +1,9 @@
 import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
 import { LogService } from "@vector-im/matrix-bot-sdk";
+<<<<<<< HEAD
+=======
+import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
+>>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 import type { MatrixAuth } from "./types.js";
 import { resolveMatrixAuth } from "./config.js";

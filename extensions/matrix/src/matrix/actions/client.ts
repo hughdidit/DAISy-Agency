@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
+>>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
 import { getMatrixRuntime } from "../../runtime.js";
