@@ -7,7 +7,11 @@ description: Review-only GitHub pull request analysis with the gh CLI. Use when 
 
 ## Overview
 
+<<<<<<< HEAD
 Perform a thorough review-only PR assessment and return a structured recommendation on readiness for /prepare-pr.
+=======
+Perform a thorough review-only PR assessment and return a structured recommendation on readiness for /preparepr.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 ## Inputs
 
@@ -20,6 +24,10 @@ Perform a thorough review-only PR assessment and return a structured recommendat
 - Never push to `main` or `origin/main`, not during review, not ever.
 - Do not run `git push` at all during review. Treat review as read only.
 - Do not stop or kill the gateway. Do not run gateway stop commands. Do not kill processes on port 18792.
+<<<<<<< HEAD
+=======
+- Do not perform any GitHub write action (comments, assignees, labels, state changes) unless maintainer explicitly approves it.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 ## Execution Rule
 
@@ -69,7 +77,11 @@ else
   cd "$WORKTREE_DIR"
 fi
 
+<<<<<<< HEAD
 # Create local scratch space that persists across /review-pr to /prepare-pr to /merge-pr
+=======
+# Create local scratch space that persists across /reviewpr to /preparepr to /mergepr
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 mkdir -p .local
 ```
 
@@ -99,9 +111,15 @@ git log --oneline --all --grep="<keyword_from_pr_title>" | head -20
 
 If it already exists, call it out as a BLOCKER or at least IMPORTANT.
 
+<<<<<<< HEAD
 3. Claim the PR
 
 Assign yourself so others know someone is reviewing. Skip if the PR looks like spam or is a draft you plan to recommend closing.
+=======
+3. Optional claim step, only with explicit approval
+
+If the maintainer asks to claim the PR, assign yourself. Otherwise skip this.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 ```sh
 gh_user=$(gh api user --jq .login)
@@ -170,11 +188,19 @@ Check if the PR touches code with related documentation such as README, docs, in
 Check if `CHANGELOG.md` exists and whether the PR warrants an entry.
 
 - If the project has a changelog and the PR is user-facing, flag missing entry as IMPORTANT.
+<<<<<<< HEAD
 - Leave the change for /prepare-pr, only flag it here.
 
 12. Answer the key question
 
 Decide if /prepare-pr can fix issues or the contributor must update the PR.
+=======
+- Leave the change for /preparepr, only flag it here.
+
+12. Answer the key question
+
+Decide if /preparepr can fix issues or the contributor must update the PR.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 13. Save findings to the worktree
 
@@ -192,7 +218,11 @@ Produce a review that matches what you saved to `.local/review.md`.
 
 A) TL;DR recommendation
 
+<<<<<<< HEAD
 - One of: READY FOR /prepare-pr | NEEDS WORK | NEEDS DISCUSSION | NOT USEFUL (CLOSE)
+=======
+- One of: READY FOR /preparepr | NEEDS WORK | NEEDS DISCUSSION | NOT USEFUL (CLOSE)
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 - 1 to 3 sentences.
 
 B) What changed

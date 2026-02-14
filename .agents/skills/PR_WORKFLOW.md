@@ -1,22 +1,18 @@
-# PR Workflow for Maintainers
+# PR Review Instructions
 
 Please read this in full and do not skip sections.
-This is the single source of truth for the maintainer PR workflow.
-
-## Triage order
-
-Process PRs **oldest to newest**. Older PRs are more likely to have merge conflicts and stale dependencies; resolving them first keeps the queue healthy and avoids snowballing rebase pain.
 
 ## Working rule
 
 Skills execute workflow, maintainers provide judgment.
 Always pause between skills to evaluate technical direction, not just command success.
+Default mode is local-first, do not write to GitHub until maintainer explicitly says go.
 
 These three skills must be used in order:
 
-1. `review-pr` — review only, produce findings
-2. `prepare-pr` — rebase, fix, gate, push to PR head branch
-3. `merge-pr` — squash-merge, verify MERGED state, clean up
+1. `review-pr`
+2. `prepare-pr`
+3. `merge-pr`
 
 They are necessary, but not sufficient. Maintainers must steer between steps and understand the code before moving forward.
 
@@ -25,6 +21,30 @@ If submitted code is low quality, ignore it and implement the best solution for 
 
 Do not continue if you cannot verify the problem is real or test the fix.
 
+<<<<<<< HEAD
+=======
+## Remote write policy
+
+Until the maintainer explicitly approves remote actions, stay local-only.
+
+Remote actions include:
+
+- Pushing branches.
+- Posting PR comments.
+- Editing PR metadata (labels, assignees, state).
+- Merging PRs.
+- Editing advisory state or publishing advisories.
+
+Allowed before approval:
+
+- Local code changes.
+- Local tests and validation.
+- Drafting copy for PR/advisory comments.
+- Read-only `gh` commands.
+
+When approved, perform only the approved remote action, then pause for next instruction.
+
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 ## PR quality bar
 
 - Do not trust PR code by default.
@@ -36,6 +56,7 @@ Do not continue if you cannot verify the problem is real or test the fix.
 - Harden changes. Always evaluate security impact and abuse paths.
 - Understand the system before changing it. Never make the codebase messier just to clear a PR queue.
 
+<<<<<<< HEAD
 ## Rebase and conflict resolution
 
 Before any substantive review or prep work, **always rebase the PR branch onto current `main` and resolve merge conflicts first**. A PR that cannot cleanly rebase is not ready for review — fix conflicts before evaluating correctness.
@@ -77,6 +98,8 @@ Before any substantive review or prep work, **always rebase the PR branch onto c
 - PRs should summarize scope, note testing performed, and mention any user-facing changes or new flags.
 - Read `docs/help/submitting-a-pr.md` ([Submitting a PR](https://docs.openclaw.ai/help/submitting-a-pr)) for what we expect from contributors.
 
+=======
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 ## Unified workflow
 
 Entry criteria:
@@ -118,7 +141,11 @@ Stop and escalate instead of continuing if:
 Purpose:
 
 - Make the PR merge-ready on its head branch.
+<<<<<<< HEAD
 - Rebase onto current `main` first, then fix blocker/important findings, then run gates.
+=======
+- Rebase onto current `main`, fix blocker/important findings, and run gates.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 Expected output:
 
@@ -147,6 +174,30 @@ Stop and escalate instead of continuing if:
 - Fixing findings requires broad architecture changes outside safe PR scope.
 - Security hardening requirements remain unresolved.
 
+### Security advisory companion flow
+
+Use this for GHSA-linked fixes and private reports.
+
+1. Implement and test the fix locally first, do not edit advisory content yet.
+2. Land the code fix PR through normal flow, including attribution and changelog where needed.
+3. Prepare public-safe advisory text:
+   - No internal workflow chatter.
+   - No unnecessary exploit detail.
+   - Clear impact, affected range, fixed range, remediation, credits.
+4. In GitHub advisory UI, set package ranges in the structured fields:
+   - `Affected versions`: `< fixed_version`
+   - `Patched versions`: `>= fixed_version`
+   Do not rely on description text alone.
+5. If collaborator can edit text but cannot change advisory state, hand off to a Publisher to move triage -> accepted draft -> publish.
+6. Advisory comments are posted manually in UI when required by policy. Do not rely on `gh api` automation for advisory comments.
+
+Maintainer checkpoint for security advisories:
+
+- Is the rewrite public-safe and free of internal/process notes?
+- Are affected and patched ranges correctly set in the advisory form fields?
+- Are credits present and accurate?
+- Do we have Publisher action if state controls are unavailable?
+
 ### 3) `merge-pr`
 
 Purpose:
@@ -170,4 +221,12 @@ Maintainer checkpoint after merge:
 
 - Were any refactors intentionally deferred and now need follow-up issue(s)?
 - Did this reveal broader architecture or test gaps we should address?
-- Run `bun scripts/update-clawtributors.ts` if the contributor is new.
+
+## Chasing main mitigation
+
+To reduce repeated "branch behind main" loops:
+
+1. Keep prep and merge windows short.
+2. Rebase/update once, as late as possible, right before final checks.
+3. Avoid non-essential commits on the PR branch after checks start.
+4. Prefer merge queue or auto-merge when available.

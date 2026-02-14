@@ -1,6 +1,10 @@
 ---
 name: merge-pr
+<<<<<<< HEAD
 description: Merge a GitHub PR via squash after /prepare-pr. Use when asked to merge a ready PR. Do not push to main or modify code. Ensure the PR ends in MERGED state and clean up worktrees after success.
+=======
+description: Merge a GitHub PR via squash after /preparepr. Use when asked to merge a ready PR. Do not push to main or modify code. Ensure the PR ends in MERGED state and clean up worktrees after success.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 ---
 
 # Merge PR
@@ -20,6 +24,10 @@ Merge a prepared PR via `gh pr merge --squash` and clean up the worktree after s
 - Use `gh pr merge --squash` as the only path to `main`.
 - Do not run `git push` at all during merge.
 - Do not run gateway stop commands. Do not kill processes. Do not touch port 18792.
+<<<<<<< HEAD
+=======
+- Do not execute merge or PR-comment GitHub write actions until maintainer explicitly approves.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 ## Execution Rule
 
@@ -63,7 +71,11 @@ Run all commands inside the worktree directory.
 Expect these files from earlier steps:
 
 - `.local/review.md` from `/reviewpr`
+<<<<<<< HEAD
 - `.local/prep.md` from `/prepare-pr`
+=======
+- `.local/prep.md` from `/preparepr`
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 ```sh
 ls -la .local || true
@@ -72,7 +84,11 @@ if [ -f .local/review.md ]; then
   echo "Found .local/review.md"
   sed -n '1,120p' .local/review.md
 else
+<<<<<<< HEAD
   echo "Missing .local/review.md. Stop and run /reviewpr, then /prepare-pr."
+=======
+  echo "Missing .local/review.md. Stop and run /reviewpr, then /preparepr."
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
   exit 1
 fi
 
@@ -80,7 +96,11 @@ if [ -f .local/prep.md ]; then
   echo "Found .local/prep.md"
   sed -n '1,120p' .local/prep.md
 else
+<<<<<<< HEAD
   echo "Missing .local/prep.md. Stop and run /prepare-pr first."
+=======
+  echo "Missing .local/prep.md. Stop and run /preparepr first."
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
   exit 1
 fi
 ```
@@ -103,8 +123,11 @@ Stop if any are true:
 - PR is a draft.
 - Required checks are failing.
 - Branch is behind main.
+<<<<<<< HEAD
 
 If `.local/prep.md` contains `Docs-only change detected with high confidence; skipping pnpm test.`, that local test skip is allowed. CI checks still must be green.
+=======
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 ```sh
 # Checks
@@ -113,10 +136,17 @@ gh pr checks <PR>
 # Check behind main
 git fetch origin main
 git fetch origin pull/<PR>/head:pr-<PR>
+<<<<<<< HEAD
 git merge-base --is-ancestor origin/main pr-<PR> || echo "PR branch is behind main, run /prepare-pr"
 ```
 
 If anything is failing or behind, stop and say to run `/prepare-pr`.
+=======
+git merge-base --is-ancestor origin/main pr-<PR> || echo "PR branch is behind main, run /preparepr"
+```
+
+If anything is failing or behind, stop and say to run `/preparepr`.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 3. Merge PR and delete branch
 
@@ -134,9 +164,17 @@ else
 fi
 ```
 
+<<<<<<< HEAD
 If merge fails, report the error and stop. Do not retry in a loop.
 If the PR needs changes beyond what `/prepare-pr` already did, stop and say to run `/prepare-pr` again.
 
+=======
+Before running merge command, pause and ask for explicit maintainer go-ahead.
+
+If merge fails, report the error and stop. Do not retry in a loop.
+If the PR needs changes beyond what `/preparepr` already did, stop and say to run `/preparepr` again.
+
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 4. Get merge SHA
 
 ```sh
@@ -144,7 +182,11 @@ merge_sha=$(gh pr view <PR> --json mergeCommit --jq '.mergeCommit.oid')
 echo "merge_sha=$merge_sha"
 ```
 
+<<<<<<< HEAD
 5. PR comment
+=======
+5. Optional comment
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 Use a literal multiline string or heredoc for newlines.
 
