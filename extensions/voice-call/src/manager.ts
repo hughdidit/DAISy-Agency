@@ -6,15 +6,18 @@ import path from "node:path";
 
 import { resolveUserPath } from "./utils.js";
 import type { CallMode, VoiceCallConfig } from "./config.js";
+<<<<<<< HEAD
 import type { Logger } from "./manager/context.js";
 import { defaultLogger } from "./manager/context.js";
+=======
+import type { CallManagerContext } from "./manager/context.js";
+>>>>>>> 9443c638f (voice-call: hang up rejected inbounds, idempotency and logging (#15892))
 import type { VoiceCallProvider } from "./providers/base.js";
-import { isAllowlistedCaller, normalizePhoneNumber } from "./allowlist.js";
+import { processEvent as processManagerEvent } from "./manager/events.js";
 import {
   type CallId,
   type CallRecord,
   CallRecordSchema,
-  type CallState,
   type NormalizedEvent,
   type OutboundCallOptions,
   TerminalStates,
@@ -29,6 +32,7 @@ export class CallManager {
   private activeCalls = new Map<CallId, CallRecord>();
   private providerCallIdMap = new Map<string, CallId>(); // providerCallId -> internal callId
   private processedEventIds = new Set<string>();
+  private rejectedProviderCallIds = new Set<string>();
   private provider: VoiceCallProvider | null = null;
   private config: VoiceCallConfig;
   private storePath: string;
@@ -294,6 +298,7 @@ export class CallManager {
   }
 
   /**
+<<<<<<< HEAD
    * Start max duration timer for a call.
    * Auto-hangup when maxDurationSeconds is reached.
    */
@@ -323,6 +328,8 @@ export class CallManager {
   }
 
   /**
+=======
+>>>>>>> 9443c638f (voice-call: hang up rejected inbounds, idempotency and logging (#15892))
    * Clear max duration timer for a call.
    */
   private clearMaxDurationTimer(callId: CallId): void {
@@ -347,6 +354,7 @@ export class CallManager {
     waiter.reject(new Error(reason));
   }
 
+<<<<<<< HEAD
   private resolveTranscriptWaiter(callId: CallId, transcript: string): void {
     const waiter = this.transcriptWaiters.get(callId);
     if (!waiter) return;
@@ -354,6 +362,8 @@ export class CallManager {
     waiter.resolve(transcript);
   }
 
+=======
+>>>>>>> 9443c638f (voice-call: hang up rejected inbounds, idempotency and logging (#15892))
   private waitForFinalTranscript(callId: CallId): Promise<string> {
     // Only allow one in-flight waiter per call.
     this.rejectTranscriptWaiter(callId, "Transcript waiter replaced");
@@ -465,6 +475,7 @@ export class CallManager {
     }
   }
 
+<<<<<<< HEAD
   /**
    * Check if an inbound call should be accepted based on policy.
    */
@@ -535,8 +546,25 @@ export class CallManager {
       metadata: {
         initialMessage:
           this.config.inboundGreeting || "Hello! How can I help you today?",
+=======
+  private getContext(): CallManagerContext {
+    return {
+      activeCalls: this.activeCalls,
+      providerCallIdMap: this.providerCallIdMap,
+      processedEventIds: this.processedEventIds,
+      rejectedProviderCallIds: this.rejectedProviderCallIds,
+      onCallAnswered: (call) => {
+        this.maybeSpeakInitialMessageOnAnswered(call);
+>>>>>>> 9443c638f (voice-call: hang up rejected inbounds, idempotency and logging (#15892))
       },
+      provider: this.provider,
+      config: this.config,
+      storePath: this.storePath,
+      webhookUrl: this.webhookUrl,
+      transcriptWaiters: this.transcriptWaiters,
+      maxDurationTimers: this.maxDurationTimers,
     };
+<<<<<<< HEAD
 
     this.activeCalls.set(callId, callRecord);
     this.providerCallIdMap.set(providerCallId, callId); // Map providerCallId to internal callId
@@ -558,11 +586,14 @@ export class CallManager {
 
     // Try lookup by providerCallId
     return this.getCallByProviderCallId(callIdOrProviderCallId);
+=======
+>>>>>>> 9443c638f (voice-call: hang up rejected inbounds, idempotency and logging (#15892))
   }
 
   /**
    * Process a webhook event.
    */
+<<<<<<< HEAD
   async processEvent(event: NormalizedEvent): Promise<void> {
     // Idempotency check
     if (this.processedEventIds.has(event.id)) {
@@ -711,6 +742,10 @@ export class CallManager {
         err instanceof Error ? err.message : err,
       );
     }
+=======
+  processEvent(event: NormalizedEvent): void {
+    processManagerEvent(this.getContext(), event);
+>>>>>>> 9443c638f (voice-call: hang up rejected inbounds, idempotency and logging (#15892))
   }
 
   private maybeSpeakInitialMessageOnAnswered(call: CallRecord): void {
@@ -793,6 +828,7 @@ export class CallManager {
     return calls;
   }
 
+<<<<<<< HEAD
   // States that can cycle during multi-turn conversations
   private static readonly ConversationStates = new Set<CallState>([
     "speaking",
@@ -840,6 +876,8 @@ export class CallManager {
     }
   }
 
+=======
+>>>>>>> 9443c638f (voice-call: hang up rejected inbounds, idempotency and logging (#15892))
   /**
    * Add an entry to the call transcript.
    */

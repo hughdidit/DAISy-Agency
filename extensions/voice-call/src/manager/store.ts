@@ -18,6 +18,7 @@ export function loadActiveCallsFromStore(storePath: string): {
   activeCalls: Map<CallId, CallRecord>;
   providerCallIdMap: Map<string, CallId>;
   processedEventIds: Set<string>;
+  rejectedProviderCallIds: Set<string>;
 } {
   const logPath = path.join(storePath, "calls.jsonl");
   if (!fs.existsSync(logPath)) {
@@ -25,6 +26,7 @@ export function loadActiveCallsFromStore(storePath: string): {
       activeCalls: new Map(),
       providerCallIdMap: new Map(),
       processedEventIds: new Set(),
+      rejectedProviderCallIds: new Set(),
     };
   }
 
@@ -45,6 +47,7 @@ export function loadActiveCallsFromStore(storePath: string): {
   const activeCalls = new Map<CallId, CallRecord>();
   const providerCallIdMap = new Map<string, CallId>();
   const processedEventIds = new Set<string>();
+  const rejectedProviderCallIds = new Set<string>();
 
   for (const [callId, call] of callMap) {
     if (TerminalStates.has(call.state)) continue;
@@ -57,7 +60,7 @@ export function loadActiveCallsFromStore(storePath: string): {
     }
   }
 
-  return { activeCalls, providerCallIdMap, processedEventIds };
+  return { activeCalls, providerCallIdMap, processedEventIds, rejectedProviderCallIds };
 }
 
 export async function getCallHistoryFromStore(
