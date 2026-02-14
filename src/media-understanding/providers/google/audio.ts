@@ -1,27 +1,19 @@
 import type { AudioTranscriptionRequest, AudioTranscriptionResult } from "../../types.js";
+<<<<<<< HEAD
 import { normalizeGoogleModelId } from "../../../agents/models-config.providers.js";
 import { fetchWithTimeout, normalizeBaseUrl, readErrorResponse } from "../shared.js";
+=======
+import { generateGeminiInlineDataText } from "./inline-data.js";
+>>>>>>> cdc31903c (refactor(media-understanding): share gemini inline-data helper)
 
 export const DEFAULT_GOOGLE_AUDIO_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 const DEFAULT_GOOGLE_AUDIO_MODEL = "gemini-3-flash-preview";
 const DEFAULT_GOOGLE_AUDIO_PROMPT = "Transcribe the audio.";
 
-function resolveModel(model?: string): string {
-  const trimmed = model?.trim();
-  if (!trimmed) {
-    return DEFAULT_GOOGLE_AUDIO_MODEL;
-  }
-  return normalizeGoogleModelId(trimmed);
-}
-
-function resolvePrompt(prompt?: string): string {
-  const trimmed = prompt?.trim();
-  return trimmed || DEFAULT_GOOGLE_AUDIO_PROMPT;
-}
-
 export async function transcribeGeminiAudio(
   params: AudioTranscriptionRequest,
 ): Promise<AudioTranscriptionResult> {
+<<<<<<< HEAD
   const fetchFn = params.fetchFn ?? fetch;
   const baseUrl = normalizeBaseUrl(params.baseUrl, DEFAULT_GOOGLE_AUDIO_BASE_URL);
   const model = resolveModel(params.model);
@@ -82,5 +74,16 @@ export async function transcribeGeminiAudio(
   if (!text) {
     throw new Error("Audio transcription response missing text");
   }
+=======
+  const { text, model } = await generateGeminiInlineDataText({
+    ...params,
+    defaultBaseUrl: DEFAULT_GOOGLE_AUDIO_BASE_URL,
+    defaultModel: DEFAULT_GOOGLE_AUDIO_MODEL,
+    defaultPrompt: DEFAULT_GOOGLE_AUDIO_PROMPT,
+    defaultMime: "audio/wav",
+    httpErrorLabel: "Audio transcription failed",
+    missingTextError: "Audio transcription response missing text",
+  });
+>>>>>>> cdc31903c (refactor(media-understanding): share gemini inline-data helper)
   return { text, model };
 }
