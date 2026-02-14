@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getLoadConfigMock,
   getOnHandler,
+  makeForumGroupMessageCtx,
   onSpy,
   replySpy,
   sendChatActionSpy,
@@ -251,6 +252,7 @@ describe("createTelegramBot", () => {
     createTelegramBot({ token: "tok" });
     const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
 
+<<<<<<< HEAD
     await handler({
       message: {
         chat: {
@@ -268,6 +270,9 @@ describe("createTelegramBot", () => {
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
+=======
+    await handler(makeForumGroupMessageCtx({ threadId: 99 }));
+>>>>>>> de34a809f (refactor(test): share telegram forum ctx helper)
 
     expect(replySpy).toHaveBeenCalledTimes(1);
     const payload = replySpy.mock.calls[0][0];
@@ -296,6 +301,7 @@ describe("createTelegramBot", () => {
     createTelegramBot({ token: "tok" });
     const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
 
+<<<<<<< HEAD
     await handler({
       message: {
         chat: {
@@ -312,6 +318,9 @@ describe("createTelegramBot", () => {
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
     });
+=======
+    await handler(makeForumGroupMessageCtx({ threadId: undefined }));
+>>>>>>> de34a809f (refactor(test): share telegram forum ctx helper)
 
     expect(replySpy).toHaveBeenCalledTimes(1);
     expect(sendChatActionSpy).toHaveBeenCalledWith(-1001234567890, "typing", {
