@@ -177,11 +177,15 @@ services:
     ports:
       # Recommended: keep the Gateway loopback-only on the VPS; access via SSH tunnel.
       # To expose it publicly, remove the `127.0.0.1:` prefix and firewall accordingly.
+<<<<<<< HEAD:docs/platforms/hetzner.md
       - '127.0.0.1:${OPENCLAW_GATEWAY_PORT}:18789'
 
       # Optional: only if you run iOS/Android nodes against this VPS and need Canvas host.
       # If you expose this publicly, read /gateway/security and firewall accordingly.
       # - "18793:18793"
+=======
+      - "127.0.0.1:${OPENCLAW_GATEWAY_PORT}:18789"
+>>>>>>> 6a386a788 (docs(security): clarify canvas host exposure and auth):docs/install/hetzner.md
     command:
       [
         'node',
