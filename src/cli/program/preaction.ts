@@ -1,11 +1,14 @@
 import type { Command } from "commander";
 import { defaultRuntime } from "../../runtime.js";
 import { emitCliBanner } from "../banner.js";
+<<<<<<< HEAD
 import { getCommandPath, getVerboseFlag, hasHelpOrVersion } from "../argv.js";
 import { ensureConfigReady } from "./config-guard.js";
 import { ensurePluginRegistryLoaded } from "../plugin-registry.js";
 import { isTruthyEnvValue } from "../../infra/env.js";
 import { setVerbose } from "../../globals.js";
+=======
+>>>>>>> c90b3e4d5 (perf(cli): speed up startup)
 import { resolveCliName } from "../cli-name.js";
 
 function setProcessTitleForCommand(actionCommand: Command) {
@@ -50,10 +53,15 @@ export function registerPreActionHooks(program: Command, programVersion: string)
     if (commandPath[0] === "doctor" || commandPath[0] === "completion") {
       return;
     }
+<<<<<<< HEAD
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+=======
+    const { ensureConfigReady } = await import("./config-guard.js");
+>>>>>>> c90b3e4d5 (perf(cli): speed up startup)
     await ensureConfigReady({ runtime: defaultRuntime, commandPath });
     // Load plugins for commands that need channel access
     if (PLUGIN_REQUIRED_COMMANDS.has(commandPath[0])) {
+      const { ensurePluginRegistryLoaded } = await import("../plugin-registry.js");
       ensurePluginRegistryLoaded();
     }
   });
