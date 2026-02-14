@@ -14,6 +14,7 @@ import {
   applyQianfanConfig,
   applyKimiCodeConfig,
   applyMinimaxApiConfig,
+  applyMinimaxApiConfigCn,
   applyMinimaxConfig,
   applyMoonshotConfig,
   applyMoonshotConfigCn,
@@ -490,6 +491,7 @@ export async function applyNonInteractiveAuthChoice(params: {
   if (
     authChoice === "minimax-cloud" ||
     authChoice === "minimax-api" ||
+    authChoice === "minimax-api-key-cn" ||
     authChoice === "minimax-api-lightning"
   ) {
     const resolved = await resolveNonInteractiveApiKey({
@@ -512,8 +514,10 @@ export async function applyNonInteractiveAuthChoice(params: {
       mode: "api_key",
     });
     const modelId =
-      authChoice === "minimax-api-lightning" ? "MiniMax-M2.1-lightning" : "MiniMax-M2.1";
-    return applyMinimaxApiConfig(nextConfig, modelId);
+      authChoice === "minimax-api-lightning" ? "MiniMax-M2.5-Lightning" : "MiniMax-M2.5";
+    return authChoice === "minimax-api-key-cn"
+      ? applyMinimaxApiConfigCn(nextConfig, modelId)
+      : applyMinimaxApiConfig(nextConfig, modelId);
   }
 
   if (authChoice === "minimax") {
