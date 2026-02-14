@@ -71,7 +71,11 @@ Status: beta.
 =======
 - Security/BlueBubbles: harden BlueBubbles webhook auth behind reverse proxies by only accepting passwordless webhooks for direct localhost loopback requests (forwarded/proxied requests now require a password). Thanks @simecek.
 - Security/BlueBubbles: require explicit `mediaLocalRoots` allowlists for local outbound media path reads to prevent local file disclosure. (#16322) Thanks @mbelinky.
+<<<<<<< HEAD
 >>>>>>> 743f4b284 (fix(security): harden BlueBubbles webhook auth behind proxies)
+=======
+- Security/Agents: enforce workspace-root path bounds for `apply_patch` in non-sandbox mode to block traversal and symlink escape writes. Thanks @p80n-sec.
+>>>>>>> 5544646a0 (security: block apply_patch path traversal outside workspace (#16405))
 - Cron/Slack: preserve agent identity (name and icon) when cron jobs deliver outbound messages. (#16242) Thanks @robbyczgw-cla.
 >>>>>>> 188c4cd07 (fix(security): reject ambiguous webhook target matches)
 

@@ -1,5 +1,4 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
@@ -15,7 +14,6 @@ const MOVE_TO_MARKER = "*** Move to: ";
 const EOF_MARKER = "*** End of File";
 const CHANGE_CONTEXT_MARKER = "@@ ";
 const EMPTY_CHANGE_CONTEXT_MARKER = "@@";
-const UNICODE_SPACES = /[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g;
 
 type AddFileHunk = {
   kind: "add";
@@ -218,13 +216,18 @@ async function resolvePatchPath(
     };
   }
 
-  const resolved = resolvePathFromCwd(filePath, options.cwd);
+  const resolved = await assertSandboxPath({
+    filePath,
+    cwd: options.cwd,
+    root: options.cwd,
+  });
   return {
-    resolved,
-    display: toDisplayPath(resolved, options.cwd),
+    resolved: resolved.resolved,
+    display: toDisplayPath(resolved.resolved, options.cwd),
   };
 }
 
+<<<<<<< HEAD
 function normalizeUnicodeSpaces(value: string): string {
   return value.replace(UNICODE_SPACES, " ");
 }
@@ -242,6 +245,8 @@ function resolvePathFromCwd(filePath: string, cwd: string): string {
   return path.resolve(cwd, expanded);
 }
 
+=======
+>>>>>>> 5544646a0 (security: block apply_patch path traversal outside workspace (#16405))
 function toDisplayPath(resolved: string, cwd: string): string {
   const relative = path.relative(cwd, resolved);
   if (!relative || relative === "") return path.basename(resolved);
