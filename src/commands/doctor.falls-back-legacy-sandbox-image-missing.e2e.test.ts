@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -325,6 +326,10 @@ vi.mock("./doctor-state-migrations.js", () => ({
     warnings: [],
   }),
 }));
+=======
+import { describe, expect, it, vi } from "vitest";
+import { confirm, readConfigFileSnapshot } from "./doctor.e2e-harness.js";
+>>>>>>> d2857fbea (refactor(test): reuse doctor e2e harness)
 
 describe("doctor command", () => {
   it("runs legacy state migrations in non-interactive mode without prompting", async () => {
