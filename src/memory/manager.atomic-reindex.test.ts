@@ -42,6 +42,7 @@ describe("memory manager atomic reindex", () => {
   let manager: MemoryIndexManager | null = null;
 
   beforeEach(async () => {
+    vi.stubEnv("OPENCLAW_TEST_MEMORY_UNSAFE_REINDEX", "0");
     shouldFail = false;
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
     indexPath = path.join(workspaceDir, "index.sqlite");
