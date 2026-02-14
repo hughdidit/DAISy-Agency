@@ -9,6 +9,7 @@ import {
 import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -51,6 +52,36 @@ function _assertModelSelection(
 
 =======
 >>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
+=======
+function makeWorkElevatedAllowlistConfig(home: string) {
+  return {
+    agents: {
+      defaults: {
+        model: "anthropic/claude-opus-4-5",
+        workspace: path.join(home, "openclaw"),
+      },
+      list: [
+        {
+          id: "work",
+          tools: {
+            elevated: {
+              allowFrom: { whatsapp: ["+1333"] },
+            },
+          },
+        },
+      ],
+    },
+    tools: {
+      elevated: {
+        allowFrom: { whatsapp: ["+1222", "+1333"] },
+      },
+    },
+    channels: { whatsapp: { allowFrom: ["+1222", "+1333"] } },
+    session: { store: path.join(home, "sessions.json") },
+  } as const;
+}
+
+>>>>>>> b7ef0a5d0 (refactor(test): reuse directive per-agent allowlist config)
 describe("directive behavior", () => {
   installDirectiveBehaviorE2EHooks();
 
@@ -67,6 +98,7 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -92,6 +124,9 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["+1222", "+1333"] } },
           session: { store: path.join(home, "sessions.json") },
         },
+=======
+        makeWorkElevatedAllowlistConfig(home),
+>>>>>>> b7ef0a5d0 (refactor(test): reuse directive per-agent allowlist config)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
@@ -112,6 +147,7 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -137,6 +173,9 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["+1222", "+1333"] } },
           session: { store: path.join(home, "sessions.json") },
         },
+=======
+        makeWorkElevatedAllowlistConfig(home),
+>>>>>>> b7ef0a5d0 (refactor(test): reuse directive per-agent allowlist config)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
