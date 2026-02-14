@@ -136,8 +136,12 @@ Docs: https://docs.openclaw.ai
 - Docs/Mermaid: remove hardcoded Mermaid init theme blocks from four docs diagrams so dark mode inherits readable theme defaults. (#15157) Thanks @heytulsiprasad.
 - Outbound/Threading: pass `replyTo` and `threadId` from `message send` tool actions through the core outbound send path to channel adapters, preserving thread/reply routing. (#14948) Thanks @mcaxtr.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 39ee708df (fix(outbound): return error instead of silently redirecting to allowList[0] (#13578))
 =======
+=======
+- Telegram/Matrix: treat MP3 and M4A (including `audio/mp4`) as voice-compatible for `asVoice` routing, and keep WAV/AAC falling back to regular audio sends. (#15438) Thanks @azade-c.
+>>>>>>> 1b95220a9 (fix(media): recognize MP3 and M4A as voice-compatible audio (#15438))
 - Sessions/Agents: pass `agentId` when resolving existing transcript paths in reply runs so non-default agents and heartbeat/chat handlers no longer fail with `Session file path must be within sessions directory`. (#15141) Thanks @Goldenmonstew.
 <<<<<<< HEAD
 >>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
