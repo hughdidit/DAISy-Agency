@@ -1,10 +1,14 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 =======
 import { describe, expect, it } from "vitest";
 >>>>>>> b4e406b6c (refactor(test): share iMessage monitor test harness)
 import { monitorIMessageProvider } from "./monitor.js";
+=======
+import { beforeAll, describe, expect, it } from "vitest";
+>>>>>>> 5b7a33272 (test: stabilize vitest mocks and harness typing)
 import {
   flush,
   getCloseResolve,
@@ -19,6 +23,12 @@ import {
 } from "./monitor.test-harness.js";
 
 installMonitorIMessageProviderTestHooks();
+
+let monitorIMessageProvider: typeof import("./monitor.js").monitorIMessageProvider;
+
+beforeAll(async () => {
+  ({ monitorIMessageProvider } = await import("./monitor.js"));
+});
 
 const replyMock = getReplyMock();
 const sendMock = getSendMock();

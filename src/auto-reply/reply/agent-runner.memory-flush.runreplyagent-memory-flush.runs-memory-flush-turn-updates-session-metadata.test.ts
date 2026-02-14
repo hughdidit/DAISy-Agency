@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 import type { TemplateContext } from "../templating.js";
 import { DEFAULT_MEMORY_FLUSH_PROMPT } from "./memory-flush.js";
@@ -55,6 +56,9 @@ vi.mock("./queue.js", async () => {
 import { describe, expect, it } from "vitest";
 >>>>>>> 4d8a4fbb4 (refactor(test): share runReplyAgent memory flush harness)
 import { runReplyAgent } from "./agent-runner.js";
+=======
+import { beforeAll, describe, expect, it } from "vitest";
+>>>>>>> 5b7a33272 (test: stabilize vitest mocks and harness typing)
 import {
   createBaseRun,
   getRunEmbeddedPiAgentMock,
@@ -62,6 +66,12 @@ import {
   type EmbeddedRunParams,
 } from "./agent-runner.memory-flush.test-harness.js";
 import { DEFAULT_MEMORY_FLUSH_PROMPT } from "./memory-flush.js";
+
+let runReplyAgent: typeof import("./agent-runner.js").runReplyAgent;
+
+beforeAll(async () => {
+  ({ runReplyAgent } = await import("./agent-runner.js"));
+});
 
 describe("runReplyAgent memory flush", () => {
   it("runs a memory flush turn and updates session metadata", async () => {

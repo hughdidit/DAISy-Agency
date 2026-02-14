@@ -53,8 +53,11 @@ vi.mock("./queue.js", async () => {
 
 =======
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 >>>>>>> 4d8a4fbb4 (refactor(test): share runReplyAgent memory flush harness)
 import { runReplyAgent } from "./agent-runner.js";
+=======
+>>>>>>> 5b7a33272 (test: stabilize vitest mocks and harness typing)
 import {
   createBaseRun,
   getRunEmbeddedPiAgentMock,
@@ -65,6 +68,7 @@ import { DEFAULT_MEMORY_FLUSH_PROMPT } from "./memory-flush.js";
 
 describe("runReplyAgent memory flush", () => {
   it("increments compaction count when flush compaction completes", async () => {
+    const { runReplyAgent } = await import("./agent-runner.js");
     const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
     runEmbeddedPiAgentMock.mockReset();
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-flush-"));

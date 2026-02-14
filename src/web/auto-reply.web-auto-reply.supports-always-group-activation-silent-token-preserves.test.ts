@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -23,6 +24,11 @@ import { expectInboundContextContract } from "../../test/helpers/inbound-contrac
 import { setLoggerOverride } from "../logging.js";
 >>>>>>> 5faba6a48 (refactor(test): reuse web auto-reply harness in more tests)
 import { monitorWebChannel, SILENT_REPLY_TOKEN } from "./auto-reply.js";
+=======
+import { beforeAll, describe, expect, it, vi } from "vitest";
+import { expectInboundContextContract } from "../../test/helpers/inbound-contract.js";
+import { setLoggerOverride } from "../logging.js";
+>>>>>>> 5b7a33272 (test: stabilize vitest mocks and harness typing)
 import {
   installWebAutoReplyTestHomeHooks,
   installWebAutoReplyUnitTestHooks,
@@ -108,6 +114,13 @@ const makeSessionStore = async (
 =======
 installWebAutoReplyTestHomeHooks();
 >>>>>>> 5faba6a48 (refactor(test): reuse web auto-reply harness in more tests)
+
+let monitorWebChannel: typeof import("./auto-reply.js").monitorWebChannel;
+let SILENT_REPLY_TOKEN: typeof import("./auto-reply.js").SILENT_REPLY_TOKEN;
+
+beforeAll(async () => {
+  ({ monitorWebChannel, SILENT_REPLY_TOKEN } = await import("./auto-reply.js"));
+});
 
 describe("web auto-reply", () => {
   installWebAutoReplyUnitTestHooks();

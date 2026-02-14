@@ -1,5 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
-import { monitorWebChannel } from "./auto-reply.js";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import {
   installWebAutoReplyTestHomeHooks,
   installWebAutoReplyUnitTestHooks,
@@ -84,6 +83,12 @@ const _makeSessionStore = async (
 =======
 installWebAutoReplyTestHomeHooks();
 >>>>>>> 95b077ad2 (refactor(test): reuse web auto-reply harness)
+
+let monitorWebChannel: typeof import("./auto-reply.js").monitorWebChannel;
+
+beforeAll(async () => {
+  ({ monitorWebChannel } = await import("./auto-reply.js"));
+});
 
 describe("web auto-reply", () => {
   installWebAutoReplyUnitTestHooks();

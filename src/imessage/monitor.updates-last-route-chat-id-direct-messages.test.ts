@@ -1,10 +1,14 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 =======
 import { describe, expect, it } from "vitest";
 >>>>>>> b4e406b6c (refactor(test): share iMessage monitor test harness)
 import { monitorIMessageProvider } from "./monitor.js";
+=======
+import { beforeAll, describe, expect, it } from "vitest";
+>>>>>>> 5b7a33272 (test: stabilize vitest mocks and harness typing)
 import {
   flush,
   getCloseResolve,
@@ -19,6 +23,7 @@ import {
 
 installMonitorIMessageProviderTestHooks();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 let config: Record<string, unknown> = {};
 let notificationHandler: ((msg: { method: string; params?: unknown }) => void) | undefined;
@@ -111,6 +116,14 @@ beforeEach(() => {
   closeResolve = undefined;
 });
 =======
+=======
+let monitorIMessageProvider: typeof import("./monitor.js").monitorIMessageProvider;
+
+beforeAll(async () => {
+  ({ monitorIMessageProvider } = await import("./monitor.js"));
+});
+
+>>>>>>> 5b7a33272 (test: stabilize vitest mocks and harness typing)
 const replyMock = getReplyMock();
 const requestMock = getRequestMock();
 const stopMock = getStopMock();
