@@ -16,6 +16,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.31
 =======
 =======
@@ -23,6 +24,9 @@ Docs: https://docs.openclaw.ai
 ## 2026.2.3
 =======
 ## 2026.2.13 (Unreleased)
+=======
+## 2026.2.13
+>>>>>>> e91d957d7 (chore(release): publish 2026.2.13 appcast)
 
 ### Changes
 
