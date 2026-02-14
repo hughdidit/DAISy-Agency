@@ -1,7 +1,11 @@
 import { join } from "node:path";
+<<<<<<< HEAD
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+=======
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> 387fb4074 (perf(test): skip heavy boot paths in reply suites)
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 
 const runEmbeddedPiAgentMock = vi.fn();
@@ -73,6 +77,10 @@ afterEach(() => {
 });
 
 describe("getReplyFromConfig typing (heartbeat)", () => {
+  beforeEach(() => {
+    vi.stubEnv("OPENCLAW_TEST_FAST", "1");
+  });
+
   it("starts typing for normal runs", async () => {
     await withTempHome(async (home) => {
       runEmbeddedPiAgentMock.mockResolvedValueOnce({
