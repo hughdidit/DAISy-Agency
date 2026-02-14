@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 vi.mock("./run/attempt.js", () => ({
@@ -56,11 +57,16 @@ vi.mock("../context-window-guard.js", () => ({
 vi.mock("../../process/command-queue.js", () => ({
   enqueueCommandInLane: vi.fn((_lane: string, task: () => unknown) => task()),
 }));
+=======
+import "./run.overflow-compaction.mocks.shared.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> b744ba341 (refactor(test): share overflow compaction mocks)
 
 vi.mock("../../utils.js", () => ({
   resolveUserPath: vi.fn((p: string) => p),
 }));
 
+<<<<<<< HEAD
 vi.mock("../../utils/message-channel.js", () => ({
   isMarkdownCapableMessageChannel: vi.fn(() => true),
 }));
@@ -69,21 +75,12 @@ vi.mock("../agent-paths.js", () => ({
   resolveMoltbotAgentDir: vi.fn(() => "/tmp/agent-dir"),
 }));
 
+=======
+>>>>>>> b744ba341 (refactor(test): share overflow compaction mocks)
 vi.mock("../auth-profiles.js", () => ({
   markAuthProfileFailure: vi.fn(async () => {}),
   markAuthProfileGood: vi.fn(async () => {}),
   markAuthProfileUsed: vi.fn(async () => {}),
-}));
-
-vi.mock("../defaults.js", () => ({
-  DEFAULT_CONTEXT_TOKENS: 200000,
-  DEFAULT_MODEL: "test-model",
-  DEFAULT_PROVIDER: "anthropic",
-}));
-
-vi.mock("../failover-error.js", () => ({
-  FailoverError: class extends Error {},
-  resolveFailoverStatus: vi.fn(),
 }));
 
 vi.mock("../usage.js", () => ({
@@ -109,6 +106,7 @@ vi.mock("../usage.js", () => ({
 >>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
 }));
 
+<<<<<<< HEAD
 vi.mock("./lanes.js", () => ({
   resolveSessionLane: vi.fn(() => "session-lane"),
   resolveGlobalLane: vi.fn(() => "global-lane"),
@@ -137,6 +135,8 @@ vi.mock("./utils.js", () => ({
   }),
 }));
 
+=======
+>>>>>>> b744ba341 (refactor(test): share overflow compaction mocks)
 vi.mock("../pi-embedded-helpers.js", async () => {
   return {
     isCompactionFailureError: (msg?: string) => {
@@ -177,7 +177,13 @@ vi.mock("../pi-embedded-helpers.js", async () => {
   };
 });
 
+<<<<<<< HEAD
+=======
+import { compactEmbeddedPiSessionDirect } from "./compact.js";
+import { log } from "./logger.js";
+>>>>>>> b744ba341 (refactor(test): share overflow compaction mocks)
 import { runEmbeddedPiAgent } from "./run.js";
+import { makeAttemptResult } from "./run.overflow-compaction.fixture.js";
 import { runEmbeddedAttempt } from "./run/attempt.js";
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { log } from "./logger.js";
@@ -186,27 +192,6 @@ import type { EmbeddedRunAttemptResult } from "./run/types.js";
 
 const mockedRunEmbeddedAttempt = vi.mocked(runEmbeddedAttempt);
 const mockedCompactDirect = vi.mocked(compactEmbeddedPiSessionDirect);
-
-function makeAttemptResult(
-  overrides: Partial<EmbeddedRunAttemptResult> = {},
-): EmbeddedRunAttemptResult {
-  return {
-    aborted: false,
-    timedOut: false,
-    timedOutDuringCompaction: false,
-    promptError: null,
-    sessionIdUsed: "test-session",
-    assistantTexts: ["Hello!"],
-    toolMetas: [],
-    lastAssistant: undefined,
-    messagesSnapshot: [],
-    didSendViaMessagingTool: false,
-    messagingToolSentTexts: [],
-    messagingToolSentTargets: [],
-    cloudCodeAssistFormatError: false,
-    ...overrides,
-  };
-}
 
 const baseParams = {
   sessionId: "test-session",
