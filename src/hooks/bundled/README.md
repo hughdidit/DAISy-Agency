@@ -96,7 +96,7 @@ session-memory/
 ---
 name: my-hook
 description: "Short description"
-homepage: https://docs.openclaw.ai/hooks#my-hook
+homepage: https://docs.openclaw.ai/automation/hooks#my-hook
 metadata:
   { "openclaw": { "emoji": "🔗", "events": ["command:new"], "requires": { "bins": ["node"] } } }
 ---
@@ -235,4 +235,4 @@ Test your hooks by:
 
 ## Documentation
 
-Full documentation: https://docs.openclaw.ai/hooks
+Full documentation: https://docs.openclaw.ai/automation/hooks
