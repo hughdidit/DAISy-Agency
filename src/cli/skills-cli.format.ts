@@ -1,12 +1,9 @@
-import type { Command } from "commander";
-import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { loadConfig } from "../config/config.js";
-import { defaultRuntime } from "../runtime.js";
-import { formatDocsLink } from "../terminal/links.js";
+import type { SkillStatusEntry, SkillStatusReport } from "../agents/skills-status.js";
+import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
-import { formatSkillInfo, formatSkillsCheck, formatSkillsList } from "./skills-cli.format.js";
+import { shortenHomePath } from "../utils.js";
+import { formatCliCommand } from "./command-format.js";
 
-<<<<<<< HEAD
 export type SkillsListOptions = {
   json?: boolean;
   eligible?: boolean;
@@ -66,9 +63,6 @@ function formatSkillMissingSummary(skill: SkillStatusEntry): string {
   return missing.join("; ");
 }
 
-/**
- * Format the skills list output
- */
 export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOptions): string {
   const skills = opts.eligible ? report.skills.filter((s) => s.eligible) : report.skills;
 
@@ -95,7 +89,7 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
 
   if (skills.length === 0) {
     const message = opts.eligible
-      ? `No eligible skills found. Run \`${formatCliCommand("moltbot skills list")}\` to see all skills.`
+      ? `No eligible skills found. Run \`${formatCliCommand("openclaw skills list")}\` to see all skills.`
       : "No skills found.";
     return appendClawHubHint(message, opts.json);
   }
@@ -138,9 +132,6 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
   return appendClawHubHint(lines.join("\n"), opts.json);
 }
 
-/**
- * Format detailed info for a single skill
- */
 export function formatSkillInfo(
   report: SkillStatusReport,
   skillName: string,
@@ -152,13 +143,8 @@ export function formatSkillInfo(
     if (opts.json) {
       return JSON.stringify({ error: "not found", skill: skillName }, null, 2);
     }
-<<<<<<< HEAD
-    return appendClawdHubHint(
-      `Skill "${skillName}" not found. Run \`${formatCliCommand("moltbot skills list")}\` to see available skills.`,
-=======
     return appendClawHubHint(
       `Skill "${skillName}" not found. Run \`${formatCliCommand("openclaw skills list")}\` to see available skills.`,
->>>>>>> fd00d5688 (chore: update openclaw naming)
       opts.json,
     );
   }
@@ -182,7 +168,6 @@ export function formatSkillInfo(
   lines.push(skill.description);
   lines.push("");
 
-  // Details
   lines.push(theme.heading("Details:"));
   lines.push(`${theme.muted("  Source:")} ${skill.source}`);
   lines.push(`${theme.muted("  Path:")} ${shortenHomePath(skill.filePath)}`);
@@ -193,7 +178,6 @@ export function formatSkillInfo(
     lines.push(`${theme.muted("  Primary env:")} ${skill.primaryEnv}`);
   }
 
-  // Requirements
   const hasRequirements =
     skill.requirements.bins.length > 0 ||
     skill.requirements.anyBins.length > 0 ||
@@ -242,7 +226,6 @@ export function formatSkillInfo(
     }
   }
 
-  // Install options
   if (skill.install.length > 0 && !skill.eligible) {
     lines.push("");
     lines.push(theme.heading("Install options:"));
@@ -254,9 +237,6 @@ export function formatSkillInfo(
   return appendClawHubHint(lines.join("\n"), opts.json);
 }
 
-/**
- * Format a check/summary of all skills status
- */
 export function formatSkillsCheck(report: SkillStatusReport, opts: SkillsCheckOptions): string {
   const eligible = report.skills.filter((s) => s.eligible);
   const disabled = report.skills.filter((s) => s.disabled);
@@ -333,94 +313,4 @@ export function formatSkillsCheck(report: SkillStatusReport, opts: SkillsCheckOp
   }
 
   return appendClawHubHint(lines.join("\n"), opts.json);
-}
-=======
-export type {
-  SkillInfoOptions,
-  SkillsCheckOptions,
-  SkillsListOptions,
-} from "./skills-cli.format.js";
-export { formatSkillInfo, formatSkillsCheck, formatSkillsList } from "./skills-cli.format.js";
->>>>>>> ebcc6480c (perf(cli): split skills formatting)
-
-/**
- * Register the skills CLI commands
- */
-export function registerSkillsCli(program: Command) {
-  const skills = program
-    .command("skills")
-    .description("List and inspect available skills")
-    .addHelpText(
-      "after",
-      () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/skills", "docs.molt.bot/cli/skills")}\n`,
-    );
-
-  skills
-    .command("list")
-    .description("List all available skills")
-    .option("--json", "Output as JSON", false)
-    .option("--eligible", "Show only eligible (ready to use) skills", false)
-    .option("-v, --verbose", "Show more details including missing requirements", false)
-    .action(async (opts) => {
-      try {
-        const config = loadConfig();
-        const workspaceDir = resolveAgentWorkspaceDir(config, resolveDefaultAgentId(config));
-        const { buildWorkspaceSkillStatus } = await import("../agents/skills-status.js");
-        const report = buildWorkspaceSkillStatus(workspaceDir, { config });
-        defaultRuntime.log(formatSkillsList(report, opts));
-      } catch (err) {
-        defaultRuntime.error(String(err));
-        defaultRuntime.exit(1);
-      }
-    });
-
-  skills
-    .command("info")
-    .description("Show detailed information about a skill")
-    .argument("<name>", "Skill name")
-    .option("--json", "Output as JSON", false)
-    .action(async (name, opts) => {
-      try {
-        const config = loadConfig();
-        const workspaceDir = resolveAgentWorkspaceDir(config, resolveDefaultAgentId(config));
-        const { buildWorkspaceSkillStatus } = await import("../agents/skills-status.js");
-        const report = buildWorkspaceSkillStatus(workspaceDir, { config });
-        defaultRuntime.log(formatSkillInfo(report, name, opts));
-      } catch (err) {
-        defaultRuntime.error(String(err));
-        defaultRuntime.exit(1);
-      }
-    });
-
-  skills
-    .command("check")
-    .description("Check which skills are ready vs missing requirements")
-    .option("--json", "Output as JSON", false)
-    .action(async (opts) => {
-      try {
-        const config = loadConfig();
-        const workspaceDir = resolveAgentWorkspaceDir(config, resolveDefaultAgentId(config));
-        const { buildWorkspaceSkillStatus } = await import("../agents/skills-status.js");
-        const report = buildWorkspaceSkillStatus(workspaceDir, { config });
-        defaultRuntime.log(formatSkillsCheck(report, opts));
-      } catch (err) {
-        defaultRuntime.error(String(err));
-        defaultRuntime.exit(1);
-      }
-    });
-
-  // Default action (no subcommand) - show list
-  skills.action(async () => {
-    try {
-      const config = loadConfig();
-      const workspaceDir = resolveAgentWorkspaceDir(config, resolveDefaultAgentId(config));
-      const { buildWorkspaceSkillStatus } = await import("../agents/skills-status.js");
-      const report = buildWorkspaceSkillStatus(workspaceDir, { config });
-      defaultRuntime.log(formatSkillsList(report, {}));
-    } catch (err) {
-      defaultRuntime.error(String(err));
-      defaultRuntime.exit(1);
-    }
-  });
 }
