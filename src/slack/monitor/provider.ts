@@ -1,7 +1,12 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 import SlackBolt from "@slack/bolt";
+<<<<<<< HEAD
 
+=======
+import type { SessionScope } from "../../config/sessions.js";
+import type { MonitorSlackOpts } from "./types.js";
+>>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { DEFAULT_GROUP_HISTORY_LIMIT } from "../../auto-reply/reply/history.js";
 import { mergeAllowlist, summarizeMapping } from "../../channels/allowlists/resolve-utils.js";
@@ -9,8 +14,12 @@ import { loadConfig } from "../../config/config.js";
 import type { SessionScope } from "../../config/sessions.js";
 import { warn } from "../../globals.js";
 import { normalizeMainKey } from "../../routing/session-key.js";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 
+=======
+import { createNonExitingRuntime, type RuntimeEnv } from "../../runtime.js";
+>>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
 import { resolveSlackAccount } from "../accounts.js";
 import { resolveSlackChannelAllowlist } from "../resolve-channels.js";
 import { resolveSlackUserAllowlist } from "../resolve-users.js";
@@ -80,13 +89,7 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
     );
   }
 
-  const runtime: RuntimeEnv = opts.runtime ?? {
-    log: console.log,
-    error: console.error,
-    exit: (code: number): never => {
-      throw new Error(`exit ${code}`);
-    },
-  };
+  const runtime: RuntimeEnv = opts.runtime ?? createNonExitingRuntime();
 
   const slackCfg = account.config;
   const dmConfig = slackCfg.dm;
