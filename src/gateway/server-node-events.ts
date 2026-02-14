@@ -19,6 +19,20 @@ import {
 >>>>>>> 4225206f0 (fix(gateway): normalize session key casing to prevent ghost sessions (#12846))
 import { formatForLog } from "./ws-log.js";
 
+const MAX_EXEC_EVENT_OUTPUT_CHARS = 180;
+
+function compactExecEventOutput(raw: string) {
+  const normalized = raw.replace(/\s+/g, " ").trim();
+  if (!normalized) {
+    return "";
+  }
+  if (normalized.length <= MAX_EXEC_EVENT_OUTPUT_CHARS) {
+    return normalized;
+  }
+  const safe = Math.max(1, MAX_EXEC_EVENT_OUTPUT_CHARS - 1);
+  return `${normalized.slice(0, safe)}…`;
+}
+
 export const handleNodeEvent = async (ctx: NodeEventContext, nodeId: string, evt: NodeEvent) => {
   switch (evt.event) {
     case "voice.transcript": {
@@ -248,9 +262,14 @@ export const handleNodeEvent = async (ctx: NodeEventContext, nodeId: string, evt
         }
       } else if (evt.event === "exec.finished") {
         const exitLabel = timedOut ? "timeout" : `code ${exitCode ?? "?"}`;
+        const compactOutput = compactExecEventOutput(output);
+        const shouldNotify = timedOut || exitCode !== 0 || compactOutput.length > 0;
+        if (!shouldNotify) {
+          return;
+        }
         text = `Exec finished (node=${nodeId}${runId ? ` id=${runId}` : ""}, ${exitLabel})`;
-        if (output) {
-          text += `\n${output}`;
+        if (compactOutput) {
+          text += `\n${compactOutput}`;
         }
       } else {
         text = `Exec denied (node=${nodeId}${runId ? ` id=${runId}` : ""}${reason ? `, ${reason}` : ""})`;

@@ -1,5 +1,13 @@
 import type { MoltbotConfig } from "../config/config.js";
 import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
+<<<<<<< HEAD
+=======
+import {
+  buildBootstrapContextFiles,
+  resolveBootstrapMaxChars,
+  resolveBootstrapTotalMaxChars,
+} from "./pi-embedded-helpers.js";
+>>>>>>> dec685970 (agents: reduce prompt token bloat from exec and context (#16539))
 import {
   filterBootstrapFilesForSession,
   loadWorkspaceBootstrapFiles,
@@ -55,6 +63,7 @@ export async function resolveBootstrapContextForRun(params: {
   const bootstrapFiles = await resolveBootstrapFilesForRun(params);
   const contextFiles = buildBootstrapContextFiles(bootstrapFiles, {
     maxChars: resolveBootstrapMaxChars(params.config),
+    totalMaxChars: resolveBootstrapTotalMaxChars(params.config),
     warn: params.warn,
   });
   return { bootstrapFiles, contextFiles };

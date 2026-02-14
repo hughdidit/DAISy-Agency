@@ -238,6 +238,7 @@ export type ExecToolDefaults = {
   sessionKey?: string;
   messageProvider?: string;
   notifyOnExit?: boolean;
+  notifyOnExitEmptySuccess?: boolean;
   cwd?: string;
 };
 
@@ -294,6 +295,7 @@ export function createExecTool(
   const defaultPathPrepend = normalizePathPrepend(defaults?.pathPrepend);
   const safeBins = resolveSafeBins(defaults?.safeBins);
   const notifyOnExit = defaults?.notifyOnExit !== false;
+  const notifyOnExitEmptySuccess = defaults?.notifyOnExitEmptySuccess === true;
   const notifySessionKey = defaults?.sessionKey?.trim() || undefined;
   const approvalRunningNoticeMs = resolveApprovalRunningNoticeMs(defaults?.approvalRunningNoticeMs);
   // Derive agentId only when sessionKey is an agent session key.
@@ -885,6 +887,7 @@ export function createExecTool(
                 maxOutput,
                 pendingMaxOutput,
                 notifyOnExit: false,
+                notifyOnExitEmptySuccess: false,
                 scopeKey: defaults?.scopeKey,
                 sessionKey: notifySessionKey,
                 timeoutSec: effectiveTimeout,
@@ -981,6 +984,7 @@ export function createExecTool(
         maxOutput,
         pendingMaxOutput,
         notifyOnExit,
+        notifyOnExitEmptySuccess,
         scopeKey: defaults?.scopeKey,
         sessionKey: notifySessionKey,
         timeoutSec: effectiveTimeout,
