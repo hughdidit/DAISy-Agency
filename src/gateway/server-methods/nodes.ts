@@ -22,7 +22,6 @@ import {
   validateNodeDescribeParams,
   validateNodeEventParams,
   validateNodeInvokeParams,
-  validateNodeInvokeResultParams,
   validateNodeListParams,
   validateNodePairApproveParams,
   validateNodePairListParams,

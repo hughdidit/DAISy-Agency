@@ -61,6 +61,8 @@ afterAll(async () => {
 });
 =======
 import { describe, expect, test, vi } from "vitest";
+import type { RequestFrame } from "./protocol/index.js";
+import type { GatewayClient, GatewayRequestContext, RespondFn } from "./server-methods/types.js";
 import { handleNodeInvokeResult } from "./server-methods/nodes.handlers.invoke-result.js";
 >>>>>>> 615c9c3c9 (perf(test): avoid gateway boot for late invoke results)
 
@@ -81,18 +83,18 @@ describe("late-arriving invoke results", () => {
     ] as const;
 
     for (const params of cases) {
-      const respond = vi.fn();
+      const respond = vi.fn<RespondFn>();
       const context = {
         nodeRegistry: { handleInvokeResult: () => false },
         logGateway: { debug: vi.fn() },
-      } as any;
+      } as unknown as GatewayRequestContext;
       const client = {
         connect: { device: { id: nodeId } },
-      } as any;
+      } as unknown as GatewayClient;
 
       await handleNodeInvokeResult({
-        req: { method: "node.invoke.result" } as any,
-        params: { ...params, nodeId } as any,
+        req: { method: "node.invoke.result" } as unknown as RequestFrame,
+        params: { ...params, nodeId } as unknown as Record<string, unknown>,
         client,
         isWebchatConnect: () => false,
         respond,
