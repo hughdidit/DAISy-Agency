@@ -1,7 +1,18 @@
 import { randomUUID } from "node:crypto";
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+=======
+import {
+  createAsyncLock,
+  pruneExpiredPending,
+  readJsonFile,
+  resolvePairingPaths,
+  writeJsonAtomic,
+} from "./pairing-files.js";
+import { generatePairingToken, verifyPairingToken } from "./pairing-token.js";
+>>>>>>> 48b3d7096 (fix: harden device pairing token generation and verification (#16535))
 
 export type DevicePairingPendingRequest = {
   requestId: string;
@@ -232,7 +243,7 @@ function scopesAllow(requested: string[], allowed: string[]): boolean {
 }
 
 function newToken() {
-  return randomUUID().replaceAll("-", "");
+  return generatePairingToken();
 }
 
 export async function listDevicePairing(baseDir?: string): Promise<DevicePairingList> {
@@ -431,7 +442,11 @@ export async function verifyDeviceToken(params: {
     if (entry.revokedAtMs) {
       return { ok: false, reason: "token-revoked" };
     }
+<<<<<<< HEAD
     if (entry.token !== params.token) {
+=======
+    if (!verifyPairingToken(params.token, entry.token)) {
+>>>>>>> 48b3d7096 (fix: harden device pairing token generation and verification (#16535))
       return { ok: false, reason: "token-mismatch" };
     }
     const requestedScopes = normalizeScopes(params.scopes);
