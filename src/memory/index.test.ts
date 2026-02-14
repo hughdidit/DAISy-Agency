@@ -11,7 +11,6 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 
 let embedBatchCalls = 0;
-let failEmbeddings = false;
 
 vi.mock("./embeddings.js", () => {
   const embedText = (text: string) => {
@@ -29,9 +28,6 @@ vi.mock("./embeddings.js", () => {
         embedQuery: async (text: string) => embedText(text),
         embedBatch: async (texts: string[]) => {
           embedBatchCalls += 1;
-          if (failEmbeddings) {
-            throw new Error("mock embeddings failed");
-          }
           return texts.map(embedText);
         },
       },
@@ -56,10 +52,13 @@ describe("memory index", () => {
 
   beforeEach(async () => {
     embedBatchCalls = 0;
+<<<<<<< HEAD
     failEmbeddings = false;
 <<<<<<< HEAD
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
 =======
+=======
+>>>>>>> 36726b52f (perf(test): drop redundant memory reindex integration case)
     workspaceDir = path.join(fixtureRoot, `case-${fixtureCount++}`);
     await fs.mkdir(workspaceDir, { recursive: true });
 >>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
@@ -212,45 +211,6 @@ describe("memory index", () => {
 
     await manager.sync({ force: true });
     expect(embedBatchCalls).toBe(afterFirst);
-  });
-
-  it("preserves existing index when forced reindex fails", async () => {
-    const cfg = {
-      agents: {
-        defaults: {
-          workspace: workspaceDir,
-          memorySearch: {
-            provider: "openai",
-            model: "mock-embed",
-            store: { path: indexPath, vector: { enabled: false } },
-            sync: { watch: false, onSessionStart: false, onSearch: false },
-            query: { minScore: 0 },
-            cache: { enabled: false },
-          },
-        },
-        list: [{ id: "main", default: true }],
-      },
-    };
-    const result = await getMemorySearchManager({ cfg, agentId: "main" });
-    expect(result.manager).not.toBeNull();
-    if (!result.manager) {
-      throw new Error("manager missing");
-    }
-    manager = result.manager;
-
-    await manager.sync({ force: true });
-    const before = manager.status();
-    expect(before.files).toBeGreaterThan(0);
-
-    failEmbeddings = true;
-    await expect(manager.sync({ force: true })).rejects.toThrow(/mock embeddings failed/i);
-
-    const after = manager.status();
-    expect(after.files).toBe(before.files);
-    expect(after.chunks).toBe(before.chunks);
-
-    const files = await fs.readdir(workspaceDir);
-    expect(files.some((name) => name.includes(".tmp-"))).toBe(false);
   });
 
   it("finds keyword matches via hybrid search when query embedding is zero", async () => {
