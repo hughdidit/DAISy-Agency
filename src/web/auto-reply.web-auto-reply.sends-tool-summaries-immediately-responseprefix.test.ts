@@ -1,23 +1,14 @@
+import { describe, expect, it, vi } from "vitest";
 import "./test-helpers.js";
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
-vi.mock("../agents/pi-embedded.js", () => ({
-  abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
-  isEmbeddedPiRunActive: vi.fn().mockReturnValue(false),
-  isEmbeddedPiRunStreaming: vi.fn().mockReturnValue(false),
-  runEmbeddedPiAgent: vi.fn(),
-  queueEmbeddedPiMessage: vi.fn().mockReturnValue(false),
-  resolveEmbeddedSessionLane: (key: string) => `session:${key.trim() || "main"}`,
-}));
-
-import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
-import { resetLogger, setLoggerOverride } from "../logging.js";
 import { monitorWebChannel } from "./auto-reply.js";
-import { resetBaileysMocks, resetLoadConfigMock, setLoadConfigMock } from "./test-helpers.js";
+import {
+  installWebAutoReplyTestHomeHooks,
+  installWebAutoReplyUnitTestHooks,
+  resetLoadConfigMock,
+  setLoadConfigMock,
+} from "./auto-reply.test-harness.js";
 
+<<<<<<< HEAD
 let previousHome: string | undefined;
 let tempHome: string | undefined;
 
@@ -91,19 +82,12 @@ const _makeSessionStore = async (
     cleanup,
   };
 };
+=======
+installWebAutoReplyTestHomeHooks();
+>>>>>>> 01ec81dae (refactor(test): migrate web auto-reply tests to harness)
 
 describe("web auto-reply", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    resetBaileysMocks();
-    resetLoadConfigMock();
-  });
-
-  afterEach(() => {
-    resetLogger();
-    setLoggerOverride(null);
-    vi.useRealTimers();
-  });
+  installWebAutoReplyUnitTestHooks();
 
   it("skips tool summaries and sends final reply with responsePrefix", async () => {
     setLoadConfigMock(() => ({
