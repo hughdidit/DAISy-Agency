@@ -37,6 +37,17 @@ export function createLineWebhookMiddleware(options: LineWebhookOptions) {
       const signature = req.headers["x-line-signature"];
 
       if (!signature || typeof signature !== "string") {
+<<<<<<< HEAD
+=======
+        if (rawBody) {
+          const body = parseWebhookBody(req, rawBody);
+          if (body && Array.isArray(body.events) && body.events.length === 0) {
+            logVerbose("line: webhook verification request (empty events, no signature) - 200 OK");
+            res.status(200).json({ status: "ok" });
+            return;
+          }
+        }
+>>>>>>> abf42abd4 (fix: LINE webhook verification 200; fix tsgo error (#16582) (thanks @arosstale))
         res.status(400).json({ error: "Missing X-Line-Signature header" });
         return;
       }
