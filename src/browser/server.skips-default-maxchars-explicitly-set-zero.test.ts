@@ -1,7 +1,11 @@
 import { type AddressInfo, createServer } from "node:net";
 import { fetch as realFetch } from "undici";
+<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+=======
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+>>>>>>> db8cabedd (perf(test): reduce lock wait and fixture setup overhead)
 
 let testPort = 0;
 let cdpBaseUrl = "";
@@ -186,10 +190,11 @@ function makeResponse(
 }
 
 describe("browser control server", () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
     reachable = false;
     cfgAttachOnly = false;
     createTargetId = null;
+    launchCalls.length = 0;
 
     cdpMocks.createTargetViaCdp.mockImplementation(async () => {
       if (createTargetId) {
@@ -263,7 +268,7 @@ describe("browser control server", () => {
     );
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
     if (prevGatewayPort === undefined) {
@@ -275,7 +280,7 @@ describe("browser control server", () => {
     await stopBrowserControlServer();
   });
 
-  it("covers primary control routes, validation, and profile compatibility", async () => {
+  it("covers primary control routes, validation, and attach-only compatibility", async () => {
     const { startBrowserControlServerFromConfig } = await import("./server.js");
     const started = await startBrowserControlServerFromConfig();
     expect(started?.port).toBe(testPort);
@@ -492,13 +497,6 @@ describe("browser control server", () => {
     };
     expect(stopped.ok).toBe(true);
     expect(stopped.profile).toBe("openclaw");
-  });
-
-  it("covers common error branches", async () => {
-    cfgAttachOnly = true;
-    const { startBrowserControlServerFromConfig } = await import("./server.js");
-    await startBrowserControlServerFromConfig();
-    const base = `http://127.0.0.1:${testPort}`;
 
     const missing = await realFetch(`${base}/tabs/open`, {
       method: "POST",
@@ -508,15 +506,12 @@ describe("browser control server", () => {
     expect(missing.status).toBe(400);
 
     reachable = false;
-    const started = (await realFetch(`${base}/start`, {
+    cfgAttachOnly = true;
+    const attachStarted = (await realFetch(`${base}/start`, {
       method: "POST",
     }).then((r) => r.json())) as { error?: string };
-    expect(started.error ?? "").toMatch(/attachOnly/i);
-  });
+    expect(attachStarted.error ?? "").toMatch(/attachOnly/i);
 
-  it("allows attachOnly servers to ensure reachability via callback", async () => {
-    cfgAttachOnly = true;
-    reachable = false;
     const { startBrowserBridgeServer } = await import("./bridge-server.js");
 
     const ensured = vi.fn(async () => {
@@ -542,11 +537,11 @@ describe("browser control server", () => {
       onEnsureAttachTarget: ensured,
     });
 
-    const started = (await realFetch(`${bridge.baseUrl}/start`, {
+    const bridgeStarted = (await realFetch(`${bridge.baseUrl}/start`, {
       method: "POST",
     }).then((r) => r.json())) as { ok?: boolean; error?: string };
-    expect(started.error).toBeUndefined();
-    expect(started.ok).toBe(true);
+    expect(bridgeStarted.error).toBeUndefined();
+    expect(bridgeStarted.ok).toBe(true);
     const status = (await realFetch(`${bridge.baseUrl}/`).then((r) => r.json())) as {
       running?: boolean;
     };
