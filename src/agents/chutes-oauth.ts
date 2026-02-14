@@ -51,14 +51,23 @@ export function parseOAuthCallbackInput(
       return { error: "Missing 'code' parameter in URL" };
     }
     if (!state) {
-      return { error: "Missing 'state' parameter. Paste the full URL." };
+      return { error: "Missing 'state' parameter. Paste the full URL (or just the code)." };
     }
     return { code, state };
   } catch {
+<<<<<<< HEAD
     if (!expectedState) {
       return { error: "Paste the full redirect URL, not just the code." };
     }
     return { code: trimmed, state: expectedState };
+=======
+    // Manual flow: users often paste only the authorization code.
+    // In that case we can't validate state, but the user is explicitly opting in by pasting it.
+    if (!/\s/.test(trimmed) && !trimmed.includes("://") && trimmed.length > 0) {
+      return { code: trimmed, state: expectedState };
+    }
+    return { error: "Paste the redirect URL (or authorization code)." };
+>>>>>>> ee8d8be2e (fix(chutes): accept manual OAuth code input)
   }
 }
 
