@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import * as ssrf from "../infra/net/ssrf.js";
 import { optimizeImageToPng } from "../media/image-ops.js";
 import { loadWebMedia, loadWebMediaRaw, optimizeImageToJpeg } from "./media.js";
@@ -62,12 +62,16 @@ afterAll(async () => {
 });
 
 afterEach(() => {
+<<<<<<< HEAD
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
   vi.restoreAllMocks();
+=======
+  vi.clearAllMocks();
+>>>>>>> 2c849ea4c (perf(test): reuse SSRF mock setup in web media tests)
 });
 
 describe("web media loading", () => {
-  beforeEach(() => {
+  beforeAll(() => {
     vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
       const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
       const addresses = ["93.184.216.34"];
