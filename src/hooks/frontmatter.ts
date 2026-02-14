@@ -1,8 +1,11 @@
+<<<<<<< HEAD
 import JSON5 from "json5";
 
 import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
 import { parseFrontmatterBlock } from "../markdown/frontmatter.js";
 import { parseBooleanValue } from "../utils/boolean.js";
+=======
+>>>>>>> ece55b468 (refactor(shared): dedupe frontmatter parsing)
 import type {
   MoltbotHookMetadata,
   HookEntry,
@@ -10,25 +13,19 @@ import type {
   HookInvocationPolicy,
   ParsedHookFrontmatter,
 } from "./types.js";
+<<<<<<< HEAD
+=======
+import { parseFrontmatterBlock } from "../markdown/frontmatter.js";
+import {
+  getFrontmatterString,
+  normalizeStringList,
+  parseFrontmatterBool,
+  resolveOpenClawManifestBlock,
+} from "../shared/frontmatter.js";
+>>>>>>> ece55b468 (refactor(shared): dedupe frontmatter parsing)
 
 export function parseFrontmatter(content: string): ParsedHookFrontmatter {
   return parseFrontmatterBlock(content);
-}
-
-function normalizeStringList(input: unknown): string[] {
-  if (!input) {
-    return [];
-  }
-  if (Array.isArray(input)) {
-    return input.map((value) => String(value).trim()).filter(Boolean);
-  }
-  if (typeof input === "string") {
-    return input
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean);
-  }
-  return [];
 }
 
 function parseInstallSpec(input: unknown): HookInstallSpec | undefined {
@@ -67,6 +64,7 @@ function parseInstallSpec(input: unknown): HookInstallSpec | undefined {
   return spec;
 }
 
+<<<<<<< HEAD
 function getFrontmatterValue(frontmatter: ParsedHookFrontmatter, key: string): string | undefined {
   const raw = frontmatter[key];
   return typeof raw === "string" ? raw : undefined;
@@ -143,15 +141,50 @@ export function resolveMoltbotMetadata(
       install: install.length > 0 ? install : undefined,
     };
   } catch {
+=======
+export function resolveOpenClawMetadata(
+  frontmatter: ParsedHookFrontmatter,
+): OpenClawHookMetadata | undefined {
+  const metadataObj = resolveOpenClawManifestBlock({ frontmatter });
+  if (!metadataObj) {
+>>>>>>> ece55b468 (refactor(shared): dedupe frontmatter parsing)
     return undefined;
   }
+  const requiresRaw =
+    typeof metadataObj.requires === "object" && metadataObj.requires !== null
+      ? (metadataObj.requires as Record<string, unknown>)
+      : undefined;
+  const installRaw = Array.isArray(metadataObj.install) ? (metadataObj.install as unknown[]) : [];
+  const install = installRaw
+    .map((entry) => parseInstallSpec(entry))
+    .filter((entry): entry is HookInstallSpec => Boolean(entry));
+  const osRaw = normalizeStringList(metadataObj.os);
+  const eventsRaw = normalizeStringList(metadataObj.events);
+  return {
+    always: typeof metadataObj.always === "boolean" ? metadataObj.always : undefined,
+    emoji: typeof metadataObj.emoji === "string" ? metadataObj.emoji : undefined,
+    homepage: typeof metadataObj.homepage === "string" ? metadataObj.homepage : undefined,
+    hookKey: typeof metadataObj.hookKey === "string" ? metadataObj.hookKey : undefined,
+    export: typeof metadataObj.export === "string" ? metadataObj.export : undefined,
+    os: osRaw.length > 0 ? osRaw : undefined,
+    events: eventsRaw.length > 0 ? eventsRaw : [],
+    requires: requiresRaw
+      ? {
+          bins: normalizeStringList(requiresRaw.bins),
+          anyBins: normalizeStringList(requiresRaw.anyBins),
+          env: normalizeStringList(requiresRaw.env),
+          config: normalizeStringList(requiresRaw.config),
+        }
+      : undefined,
+    install: install.length > 0 ? install : undefined,
+  };
 }
 
 export function resolveHookInvocationPolicy(
   frontmatter: ParsedHookFrontmatter,
 ): HookInvocationPolicy {
   return {
-    enabled: parseFrontmatterBool(getFrontmatterValue(frontmatter, "enabled"), true),
+    enabled: parseFrontmatterBool(getFrontmatterString(frontmatter, "enabled"), true),
   };
 }
 
