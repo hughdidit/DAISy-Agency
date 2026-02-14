@@ -31,7 +31,11 @@ export const defaultRuntime: RuntimeEnv = {
     console.error(...args);
   },
   exit: (code) => {
+<<<<<<< HEAD
     restoreTerminalState("runtime exit");
+=======
+    restoreTerminalState("runtime exit", { resumeStdinIfPaused: false });
+>>>>>>> 994bcbf67 (refactor: clarify restoreTerminalState stdin resume option)
     process.exit(code);
     throw new Error("unreachable"); // satisfies tests when mocked
   },

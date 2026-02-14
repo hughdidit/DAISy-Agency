@@ -46,7 +46,13 @@ describe("runInteractiveOnboarding", () => {
     await runInteractiveOnboarding({} as never, runtime);
 
     expect(runtime.exit).toHaveBeenCalledWith(1);
+<<<<<<< HEAD
     expect(mocks.restoreTerminalState).toHaveBeenCalledWith("onboarding finish");
+=======
+    expect(mocks.restoreTerminalState).toHaveBeenCalledWith("onboarding finish", {
+      resumeStdinIfPaused: false,
+    });
+>>>>>>> 994bcbf67 (refactor: clarify restoreTerminalState stdin resume option)
   });
 
   it("rethrows non-cancel errors", async () => {
@@ -56,6 +62,12 @@ describe("runInteractiveOnboarding", () => {
     await expect(runInteractiveOnboarding({} as never, runtime)).rejects.toThrow("boom");
 
     expect(runtime.exit).not.toHaveBeenCalled();
+<<<<<<< HEAD
     expect(mocks.restoreTerminalState).toHaveBeenCalledWith("onboarding finish");
+=======
+    expect(mocks.restoreTerminalState).toHaveBeenCalledWith("onboarding finish", {
+      resumeStdinIfPaused: false,
+    });
+>>>>>>> 994bcbf67 (refactor: clarify restoreTerminalState stdin resume option)
   });
 });
