@@ -41,8 +41,9 @@ async function writeSessionStore(home: string) {
         "agent:main:main": {
           sessionId: "main-session",
           updatedAt: Date.now(),
-          lastProvider: "webchat",
-          lastTo: "",
+          lastProvider: "telegram",
+          lastChannel: "telegram",
+          lastTo: "123",
         },
       },
       null,
@@ -183,7 +184,7 @@ describe("runCronIsolatedAgentTurn", () => {
             kind: "agentTurn",
             message: "do it",
           }),
-          delivery: { mode: "announce", channel: "telegram", to: "123" },
+          delivery: { mode: "announce", channel: "last" },
         },
         message: "do it",
         sessionKey: "cron:job-1",
@@ -192,6 +193,39 @@ describe("runCronIsolatedAgentTurn", () => {
 
       expect(res.status).toBe("ok");
       expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
+<<<<<<< HEAD
+=======
+      const keepArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
+        | { cleanup?: "keep" | "delete" }
+        | undefined;
+      expect(keepArgs?.cleanup).toBe("keep");
+      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
+
+      vi.mocked(runSubagentAnnounceFlow).mockClear();
+
+      const deleteRes = await runCronIsolatedAgentTurn({
+        cfg,
+        deps,
+        job: {
+          ...makeJob({
+            kind: "agentTurn",
+            message: "do it",
+          }),
+          deleteAfterRun: true,
+          delivery: { mode: "announce", channel: "last" },
+        },
+        message: "do it",
+        sessionKey: "cron:job-1",
+        lane: "cron",
+      });
+
+      expect(deleteRes.status).toBe("ok");
+      expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
+      const deleteArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
+        | { cleanup?: "keep" | "delete" }
+        | undefined;
+      expect(deleteArgs?.cleanup).toBe("delete");
+>>>>>>> a73ccf2b5 (fix: deliver cron output to explicit targets (#16360) (thanks @rubyrunsstuff))
       expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
     });
   });
