@@ -1,4 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD:src/infra/outbound/message.test.ts
+=======
+import type { ChannelOutboundAdapter, ChannelPlugin } from "../../channels/plugins/types.js";
+import { setActivePluginRegistry } from "../../plugins/runtime.js";
+import { createTestRegistry } from "../../test-utils/channel-plugins.js";
+import { createIMessageTestPlugin } from "../../test-utils/imessage-test-plugin.js";
+import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
+import { sendMessage, sendPoll } from "./message.js";
+>>>>>>> c5406e1d2 (fix(security): prevent gatewayUrl SSRF):src/infra/outbound/message.e2e.test.ts
 
 import type { ChannelOutboundAdapter, ChannelPlugin } from "../../channels/plugins/types.js";
 import { createIMessageTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
@@ -121,6 +130,56 @@ describe("sendPoll channel normalization", () => {
     };
     expect(call?.params?.channel).toBe("msteams");
     expect(result.channel).toBe("msteams");
+  });
+});
+
+describe("gateway url override hardening", () => {
+  beforeEach(() => {
+    callGatewayMock.mockReset();
+    setRegistry(emptyRegistry);
+  });
+
+  afterEach(() => {
+    setRegistry(emptyRegistry);
+  });
+
+  it("drops gateway url overrides in backend mode (SSRF hardening)", async () => {
+    setRegistry(
+      createTestRegistry([
+        {
+          pluginId: "mattermost",
+          source: "test",
+          plugin: {
+            ...createMattermostLikePlugin({ onSendText: () => {} }),
+            outbound: { deliveryMode: "gateway" },
+          },
+        },
+      ]),
+    );
+
+    callGatewayMock.mockResolvedValueOnce({ messageId: "m1" });
+    await sendMessage({
+      cfg: {},
+      to: "channel:town-square",
+      content: "hi",
+      channel: "mattermost",
+      gateway: {
+        url: "ws://169.254.169.254:80/latest/meta-data/",
+        token: "t",
+        timeoutMs: 5000,
+        clientName: GATEWAY_CLIENT_NAMES.GATEWAY_CLIENT,
+        clientDisplayName: "agent",
+        mode: GATEWAY_CLIENT_MODES.BACKEND,
+      },
+    });
+
+    expect(callGatewayMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: undefined,
+        token: "t",
+        timeoutMs: 5000,
+      }),
+    );
   });
 });
 
