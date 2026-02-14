@@ -44,7 +44,11 @@ Docs: https://docs.openclaw.ai
 - Security/Media: reject oversized base64-backed input media before decoding to avoid large allocations. Thanks @vincentkoc.
 - Security/Gateway: reject oversized base64 chat attachments before decoding to avoid large allocations. Thanks @vincentkoc.
 - Cron/Slack: preserve agent identity (name and icon) when cron jobs deliver outbound messages. (#16242) Thanks @robbyczgw-cla.
+<<<<<<< HEAD
 >>>>>>> 09e1cbc35 (fix(cron): pass agent identity through delivery path (#16218) (#16242))
+=======
+- Discord: prefer gateway guild id when logging inbound messages so cached-miss guilds do not appear as `guild=dm`. Thanks @thewilloftheshadow.
+>>>>>>> ff32f4345 (Discord: prefer gateway guild id in verbose log)
 
 ## 2026.2.14
 
