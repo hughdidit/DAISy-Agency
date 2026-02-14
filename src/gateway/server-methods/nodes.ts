@@ -10,8 +10,12 @@ import {
 import { listDevicePairing } from "../../infra/device-pairing.js";
 =======
 import { isNodeCommandAllowed, resolveNodeCommandAllowlist } from "../node-command-policy.js";
+<<<<<<< HEAD
 import { sanitizeSystemRunParamsForForwarding } from "../node-invoke-system-run-approval.js";
 >>>>>>> 318379cdb (fix(gateway): bind system.run approvals to exec approvals)
+=======
+import { sanitizeNodeInvokeParamsForForwarding } from "../node-invoke-sanitize.js";
+>>>>>>> 0af76f5f0 (refactor(gateway): centralize node.invoke param sanitization)
 import {
   ErrorCodes,
   errorShape,
@@ -422,14 +426,12 @@ export const nodeHandlers: GatewayRequestHandlers = {
         );
         return;
       }
-      const forwardedParams =
-        command === "system.run"
-          ? sanitizeSystemRunParamsForForwarding({
-              rawParams: p.params,
-              client,
-              execApprovalManager: context.execApprovalManager,
-            })
-          : ({ ok: true, params: p.params } as const);
+      const forwardedParams = sanitizeNodeInvokeParamsForForwarding({
+        command,
+        rawParams: p.params,
+        client,
+        execApprovalManager: context.execApprovalManager,
+      });
       if (!forwardedParams.ok) {
         respond(
           false,
