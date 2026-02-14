@@ -32,8 +32,7 @@
   "description": "OpenClaw Tlon/Urbit channel plugin",
 =======
   "dependencies": {
-    "@urbit/aura": "^3.0.0",
-    "@urbit/http-api": "^3.0.0"
+    "@urbit/aura": "^3.0.0"
   },
   "devDependencies": {
     "openclaw": "workspace:*"
