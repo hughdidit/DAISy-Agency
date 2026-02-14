@@ -117,6 +117,9 @@ jobs:
           GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
           GCP_ZONE: ${{ vars.GCP_ZONE }}
           GCE_INSTANCE_NAME: ${{ vars.GCE_INSTANCE_NAME }}
+          CLAWDBOT_GATEWAY_BIND: ${{ vars.CLAWDBOT_GATEWAY_BIND || 'loopback' }}
+          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
+          CLAWDBOT_BRIDGE_PORT: ${{ vars.CLAWDBOT_BRIDGE_PORT }}
           # Secrets (sensitive credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
@@ -132,6 +135,8 @@ jobs:
           : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required}"
           : "${GCP_ZONE:?GCP_ZONE is required}"
           : "${GCE_INSTANCE_NAME:?GCE_INSTANCE_NAME is required}"
+          : "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required}"
+          : "${CLAWDBOT_BRIDGE_PORT:?CLAWDBOT_BRIDGE_PORT is required}"
           : "${GHCR_USERNAME:?GHCR_USERNAME is required}"
           : "${GHCR_TOKEN:?GHCR_TOKEN is required}"
           : "${CLAWDBOT_GATEWAY_TOKEN:?CLAWDBOT_GATEWAY_TOKEN is required}"
@@ -175,6 +180,7 @@ jobs:
           GCP_ZONE: ${{ vars.GCP_ZONE }}
           GCE_INSTANCE_NAME: ${{ vars.GCE_INSTANCE_NAME }}
           DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+          CLAWDBOT_GATEWAY_BIND: ${{ vars.CLAWDBOT_GATEWAY_BIND || 'loopback' }}
           CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
           CLAWDBOT_BRIDGE_PORT: ${{ vars.CLAWDBOT_BRIDGE_PORT }}
           # Secrets (sensitive credentials)
@@ -201,7 +207,8 @@ jobs:
           GCE_INSTANCE_NAME: ${{ vars.GCE_INSTANCE_NAME }}
           CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
         run: |
-          PORT="${CLAWDBOT_GATEWAY_PORT:-18789}"
+          : "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required}"
+          PORT="${CLAWDBOT_GATEWAY_PORT}"
           echo ""
           echo "=== Deploy complete ==="
           echo "Dashboard: http://localhost:${PORT}/ui/overview?token=<CLAWDBOT_GATEWAY_TOKEN>"
