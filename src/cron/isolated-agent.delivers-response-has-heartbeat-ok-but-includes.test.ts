@@ -227,7 +227,70 @@ describe("runCronIsolatedAgentTurn", () => {
       expect(res.status).toBe("ok");
       expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+      const announceArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
+        | { cleanup?: "keep" | "delete" }
+        | undefined;
+      expect(announceArgs?.cleanup).toBe("keep");
+      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
+    });
+  });
+
+  it("passes cleanup=delete to announce flow when job.deleteAfterRun is true", async () => {
+    await withTempHome(async (home) => {
+      const storePath = await writeSessionStore(home);
+      const deps: CliDeps = {
+        sendMessageWhatsApp: vi.fn(),
+        sendMessageTelegram: vi.fn().mockResolvedValue({
+          messageId: "t1",
+          chatId: "123",
+        }),
+        sendMessageDiscord: vi.fn(),
+        sendMessageSignal: vi.fn(),
+        sendMessageIMessage: vi.fn(),
+      };
+      vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
+        payloads: [{ text: "HEARTBEAT_OK 🦞" }],
+        meta: {
+          durationMs: 5,
+          agentMeta: { sessionId: "s", provider: "p", model: "m" },
+        },
+      });
+
+      const cfg = makeCfg(home, storePath);
+      cfg.agents = {
+        ...cfg.agents,
+        defaults: {
+          ...cfg.agents?.defaults,
+          heartbeat: { ackMaxChars: 0 },
+        },
+      };
+
+      const res = await runCronIsolatedAgentTurn({
+        cfg,
+        deps,
+        job: {
+          ...makeJob({
+            kind: "agentTurn",
+            message: "do it",
+          }),
+          deleteAfterRun: true,
+          delivery: { mode: "announce", channel: "telegram", to: "123" },
+        },
+        message: "do it",
+        sessionKey: "cron:job-1",
+        lane: "cron",
+      });
+
+      expect(res.status).toBe("ok");
+      expect(runSubagentAnnounceFlow).toHaveBeenCalledTimes(1);
+      const announceArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
+        | { cleanup?: "keep" | "delete" }
+        | undefined;
+      expect(announceArgs?.cleanup).toBe("delete");
+>>>>>>> 0942ecb54 (fix(cron): use job config for cleanup instead of hardcoded "keep" (openclaw#15427) thanks @arosstale)
       expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     });
