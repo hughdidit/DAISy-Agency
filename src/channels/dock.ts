@@ -303,7 +303,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
     threading: {
       resolveReplyToMode: ({ cfg, accountId, chatType }) =>
         resolveSlackReplyToMode(resolveSlackAccount({ cfg, accountId }), chatType),
-      allowTagsWhenOff: true,
+      allowExplicitReplyTagsWhenOff: true,
       buildToolContext: (params) => buildSlackThreadingToolContext(params),
     },
   },
