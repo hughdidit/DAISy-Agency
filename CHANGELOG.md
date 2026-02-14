@@ -114,7 +114,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
 =======
 - Gateway/Routing: speed up hot paths for session listing (derived titles + previews), WS broadcast, and binding resolution.
+<<<<<<< HEAD
 >>>>>>> c90b3e4d5 (perf(cli): speed up startup)
+=======
+- Gateway/Sessions: cache derived title + last-message transcript reads to speed up repeated sessions list refreshes.
+>>>>>>> 3bbd29bef (perf(gateway): cache session list transcript fields)
 - CLI/Completion: route plugin-load logs to stderr and write generated completion scripts directly to stdout to avoid `source <(openclaw completion ...)` corruption. (#15481) Thanks @arosstale.
 >>>>>>> 643288fda (fix(cli): route logs to stderr during shell completion output (openclaw#15496) thanks @arosstale)
 - Gateway/Agents: stop injecting a phantom `main` agent into gateway agent listings when `agents.list` explicitly excludes it. (#11450) Thanks @arosstale.
