@@ -78,6 +78,41 @@ function createHarness(overrides?: {
   return { commands, ctx, account, postEphemeral, channelId, channelName };
 }
 
+async function runSlashHandler(params: {
+  commands: Map<unknown, (args: unknown) => Promise<void>>;
+  command: Partial<{
+    user_id: string;
+    user_name: string;
+    channel_id: string;
+    channel_name: string;
+    text: string;
+    trigger_id: string;
+  }> &
+    Pick<{ channel_id: string; channel_name: string }, "channel_id" | "channel_name">;
+}): Promise<{ respond: ReturnType<typeof vi.fn>; ack: ReturnType<typeof vi.fn> }> {
+  const handler = [...params.commands.values()][0];
+  if (!handler) {
+    throw new Error("Missing slash handler");
+  }
+
+  const respond = vi.fn().mockResolvedValue(undefined);
+  const ack = vi.fn().mockResolvedValue(undefined);
+
+  await handler({
+    command: {
+      user_id: "U1",
+      user_name: "Ada",
+      text: "hello",
+      trigger_id: "t1",
+      ...params.command,
+    },
+    ack,
+    respond,
+  });
+
+  return { respond, ack };
+}
+
 beforeEach(() => {
   dispatchMock.mockReset().mockResolvedValue({ counts: { final: 1, tool: 0, block: 0 } });
   readAllowFromStoreMock.mockReset().mockResolvedValue([]);
@@ -99,23 +134,12 @@ describe("slack slash commands channel policy", () => {
     });
     registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
 
-    const handler = [...commands.values()][0];
-    if (!handler) {
-      throw new Error("Missing slash handler");
-    }
-
-    const respond = vi.fn().mockResolvedValue(undefined);
-    await handler({
+    const { respond } = await runSlashHandler({
+      commands,
       command: {
-        user_id: "U1",
-        user_name: "Ada",
         channel_id: channelId,
         channel_name: channelName,
-        text: "hello",
-        trigger_id: "t1",
       },
-      ack: vi.fn().mockResolvedValue(undefined),
-      respond,
     });
 
     expect(dispatchMock).toHaveBeenCalledTimes(1);
@@ -133,23 +157,12 @@ describe("slack slash commands channel policy", () => {
     });
     registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
 
-    const handler = [...commands.values()][0];
-    if (!handler) {
-      throw new Error("Missing slash handler");
-    }
-
-    const respond = vi.fn().mockResolvedValue(undefined);
-    await handler({
+    const { respond } = await runSlashHandler({
+      commands,
       command: {
-        user_id: "U1",
-        user_name: "Ada",
         channel_id: channelId,
         channel_name: channelName,
-        text: "hello",
-        trigger_id: "t1",
       },
-      ack: vi.fn().mockResolvedValue(undefined),
-      respond,
     });
 
     expect(dispatchMock).not.toHaveBeenCalled();
@@ -168,23 +181,12 @@ describe("slack slash commands channel policy", () => {
     });
     registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
 
-    const handler = [...commands.values()][0];
-    if (!handler) {
-      throw new Error("Missing slash handler");
-    }
-
-    const respond = vi.fn().mockResolvedValue(undefined);
-    await handler({
+    const { respond } = await runSlashHandler({
+      commands,
       command: {
-        user_id: "U1",
-        user_name: "Ada",
         channel_id: channelId,
         channel_name: channelName,
-        text: "hello",
-        trigger_id: "t1",
       },
-      ack: vi.fn().mockResolvedValue(undefined),
-      respond,
     });
 
     expect(dispatchMock).not.toHaveBeenCalled();
@@ -205,23 +207,12 @@ describe("slack slash commands access groups", () => {
     });
     registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
 
-    const handler = [...commands.values()][0];
-    if (!handler) {
-      throw new Error("Missing slash handler");
-    }
-
-    const respond = vi.fn().mockResolvedValue(undefined);
-    await handler({
+    const { respond } = await runSlashHandler({
+      commands,
       command: {
-        user_id: "U1",
-        user_name: "Ada",
         channel_id: channelId,
         channel_name: channelName,
-        text: "hello",
-        trigger_id: "t1",
       },
-      ack: vi.fn().mockResolvedValue(undefined),
-      respond,
     });
 
     expect(dispatchMock).not.toHaveBeenCalled();
@@ -240,23 +231,12 @@ describe("slack slash commands access groups", () => {
     });
     registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
 
-    const handler = [...commands.values()][0];
-    if (!handler) {
-      throw new Error("Missing slash handler");
-    }
-
-    const respond = vi.fn().mockResolvedValue(undefined);
-    await handler({
+    const { respond } = await runSlashHandler({
+      commands,
       command: {
-        user_id: "U1",
-        user_name: "Ada",
         channel_id: "D123",
         channel_name: "notdirectmessage",
-        text: "hello",
-        trigger_id: "t1",
       },
-      ack: vi.fn().mockResolvedValue(undefined),
-      respond,
     });
 
     expect(dispatchMock).toHaveBeenCalledTimes(1);
@@ -278,23 +258,14 @@ describe("slack slash commands access groups", () => {
     });
     registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
 
-    const handler = [...commands.values()][0];
-    if (!handler) {
-      throw new Error("Missing slash handler");
-    }
-
-    const respond = vi.fn().mockResolvedValue(undefined);
-    await handler({
+    await runSlashHandler({
+      commands,
       command: {
         user_id: "U_ATTACKER",
         user_name: "Mallory",
         channel_id: "D999",
         channel_name: "directmessage",
-        text: "hello",
-        trigger_id: "t1",
       },
-      ack: vi.fn().mockResolvedValue(undefined),
-      respond,
     });
 
     expect(dispatchMock).toHaveBeenCalledTimes(1);
@@ -313,23 +284,12 @@ describe("slack slash commands access groups", () => {
     });
     registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
 
-    const handler = [...commands.values()][0];
-    if (!handler) {
-      throw new Error("Missing slash handler");
-    }
-
-    const respond = vi.fn().mockResolvedValue(undefined);
-    await handler({
+    const { respond } = await runSlashHandler({
+      commands,
       command: {
-        user_id: "U1",
-        user_name: "Ada",
         channel_id: channelId,
         channel_name: channelName,
-        text: "hello",
-        trigger_id: "t1",
       },
-      ack: vi.fn().mockResolvedValue(undefined),
-      respond,
     });
 
     expect(dispatchMock).not.toHaveBeenCalled();
