@@ -1,8 +1,10 @@
-import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import { promisify } from "node:util";
 
+=======
+>>>>>>> 2004ce919 (refactor(daemon): share schtasks exec helper)
 import {
   GATEWAY_SERVICE_KIND,
   GATEWAY_SERVICE_MARKER,
@@ -13,6 +15,7 @@ import {
   resolveGatewayWindowsTaskName,
   resolveLegacyGatewayLaunchAgentLabels,
 } from "./constants.js";
+import { execSchtasks } from "./schtasks-exec.js";
 
 export type ExtraGatewayService = {
   platform: "darwin" | "linux" | "win32";
@@ -25,8 +28,12 @@ export type FindExtraGatewayServicesOptions = {
   deep?: boolean;
 };
 
+<<<<<<< HEAD
 const EXTRA_MARKERS = ["moltbot"];
 const execFileAsync = promisify(execFile);
+=======
+const EXTRA_MARKERS = ["openclaw", "clawdbot", "moltbot"] as const;
+>>>>>>> 2004ce919 (refactor(daemon): share schtasks exec helper)
 
 export function renderGatewayServiceCleanupHints(
   env: Record<string, string | undefined> = process.env as Record<string, string | undefined>,
@@ -312,35 +319,6 @@ function parseSchtasksList(output: string): ScheduledTaskInfo[] {
     tasks.push(current);
   }
   return tasks;
-}
-
-async function execSchtasks(
-  args: string[],
-): Promise<{ stdout: string; stderr: string; code: number }> {
-  try {
-    const { stdout, stderr } = await execFileAsync("schtasks", args, {
-      encoding: "utf8",
-      windowsHide: true,
-    });
-    return {
-      stdout: String(stdout ?? ""),
-      stderr: String(stderr ?? ""),
-      code: 0,
-    };
-  } catch (error) {
-    const e = error as {
-      stdout?: unknown;
-      stderr?: unknown;
-      code?: unknown;
-      message?: unknown;
-    };
-    return {
-      stdout: typeof e.stdout === "string" ? e.stdout : "",
-      stderr:
-        typeof e.stderr === "string" ? e.stderr : typeof e.message === "string" ? e.message : "",
-      code: typeof e.code === "number" ? e.code : 1,
-    };
-  }
 }
 
 export async function findExtraGatewayServices(
