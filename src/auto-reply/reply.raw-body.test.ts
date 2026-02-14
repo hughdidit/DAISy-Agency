@@ -159,6 +159,7 @@ describe("RawBody directive parsing", () => {
         expectedIncludes: ["Thinking level set to high."],
       });
 
+<<<<<<< HEAD
       await assertCommandReply({
         message: {
 <<<<<<< HEAD
@@ -263,6 +264,8 @@ describe("RawBody directive parsing", () => {
 =======
 >>>>>>> 4bef423d8 (perf(test): reduce gateway reload waits and trim duplicate invoke coverage)
 
+=======
+>>>>>>> fecb3f326 (perf(test): trim models/browser suite overhead)
       vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
         payloads: [{ text: "ok" }],
         meta: {
