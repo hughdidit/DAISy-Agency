@@ -70,9 +70,15 @@ Example:
 - `host=sandbox`: runs `sh -lc` (login shell) inside the container, so `/etc/profile` may reset `PATH`.
   Moltbot prepends `env.PATH` after profile sourcing via an internal env var (no shell interpolation);
   `tools.exec.pathPrepend` applies here too.
+<<<<<<< HEAD
 - `host=node`: only env overrides you pass are sent to the node. `tools.exec.pathPrepend` only applies
   if the exec call already sets `env.PATH`. Headless node hosts accept `PATH` only when it prepends
   the node host PATH (no replacement). macOS nodes drop `PATH` overrides entirely.
+=======
+- `host=node`: only non-blocked env overrides you pass are sent to the node. `env.PATH` overrides are
+  rejected for host execution and ignored by node hosts. If you need additional PATH entries on a node,
+  configure the node host service environment (systemd/launchd) or install tools in standard locations.
+>>>>>>> 65eefd65e (docs: clarify node host PATH override behavior)
 
 Per-agent node binding (use the agent list index in config):
 
