@@ -16,10 +16,14 @@ import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { discoverModels } from "../pi-model-discovery.js";
 >>>>>>> 370bbcd89 (Model: add strict gpt-5.3-codex fallback for OpenAI Codex (fixes #9989) (#9995))
 =======
 >>>>>>> e63dcc320 (refactor(test): share pi embedded model fixtures)
+=======
+import { discoverModels } from "../pi-model-discovery.js";
+>>>>>>> 200aa441d (test: fix vitest harness typing)
 import { buildInlineProviderModels, resolveModel } from "./model.js";
 import {
   makeModel,
