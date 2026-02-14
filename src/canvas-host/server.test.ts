@@ -71,8 +71,13 @@ describe("canvas host", () => {
     }
   });
 
+<<<<<<< HEAD
   it("serves canvas content from the mounted base path", async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-canvas-"));
+=======
+  it("serves canvas content from the mounted base path and reuses handlers without double close", async () => {
+    const dir = await createCaseDir();
+>>>>>>> 53055aeaf (perf(test): consolidate cron and canvas regression setups)
     await fs.writeFile(path.join(dir, "index.html"), "<html><body>v1</body></html>", "utf8");
 
     const handler = await createCanvasHostHandler({
@@ -108,12 +113,12 @@ describe("canvas host", () => {
       const miss = await fetch(`http://127.0.0.1:${port}/`);
       expect(miss.status).toBe(404);
     } finally {
-      await handler.close();
       await new Promise<void>((resolve, reject) =>
         server.close((err) => (err ? reject(err) : resolve())),
       );
       await fs.rm(dir, { recursive: true, force: true });
     }
+<<<<<<< HEAD
   });
 
   it("reuses a handler without closing it twice", async () => {
@@ -126,12 +131,19 @@ describe("canvas host", () => {
       basePath: CANVAS_HOST_PATH,
       allowInTests: true,
     });
+=======
+>>>>>>> 53055aeaf (perf(test): consolidate cron and canvas regression setups)
     const originalClose = handler.close;
     const closeSpy = vi.fn(async () => originalClose());
     handler.close = closeSpy;
 
+<<<<<<< HEAD
     const server = await startCanvasHost({
       runtime: defaultRuntime,
+=======
+    const hosted = await startCanvasHost({
+      runtime: quietRuntime,
+>>>>>>> 53055aeaf (perf(test): consolidate cron and canvas regression setups)
       handler,
       ownsHandler: false,
       port: 0,
@@ -140,9 +152,9 @@ describe("canvas host", () => {
     });
 
     try {
-      expect(server.port).toBeGreaterThan(0);
+      expect(hosted.port).toBeGreaterThan(0);
     } finally {
-      await server.close();
+      await hosted.close();
       expect(closeSpy).not.toHaveBeenCalled();
       await originalClose();
       await fs.rm(dir, { recursive: true, force: true });
