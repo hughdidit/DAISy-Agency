@@ -328,6 +328,7 @@ vi.mock("./doctor-state-migrations.js", () => ({
 =======
 import { describe, expect, it, vi } from "vitest";
 import {
+  arrangeLegacyStateMigrationTest,
   confirm,
   ensureAuthProfileStore,
   readConfigFileSnapshot,
@@ -339,6 +340,7 @@ import {
 
 describe("doctor command", () => {
   it("runs legacy state migrations in yes mode without prompting", async () => {
+<<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
@@ -390,6 +392,10 @@ describe("doctor command", () => {
 
     runLegacyStateMigrations.mockClear();
     confirm.mockClear();
+=======
+    const { doctorCommand, runtime, runLegacyStateMigrations } =
+      await arrangeLegacyStateMigrationTest();
+>>>>>>> 5f55a53f0 (refactor(test): share doctor legacy migration setup)
 
     await doctorCommand(runtime, { yes: true });
 

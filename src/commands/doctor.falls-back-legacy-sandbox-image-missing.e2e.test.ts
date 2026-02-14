@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -383,6 +384,15 @@ describe("doctor command", () => {
     });
 
     confirm.mockClear();
+=======
+import { describe, expect, it } from "vitest";
+import { arrangeLegacyStateMigrationTest, confirm } from "./doctor.e2e-harness.js";
+
+describe("doctor command", () => {
+  it("runs legacy state migrations in non-interactive mode without prompting", async () => {
+    const { doctorCommand, runtime, runLegacyStateMigrations } =
+      await arrangeLegacyStateMigrationTest();
+>>>>>>> 5f55a53f0 (refactor(test): share doctor legacy migration setup)
 
     await doctorCommand(runtime, { nonInteractive: true });
 
