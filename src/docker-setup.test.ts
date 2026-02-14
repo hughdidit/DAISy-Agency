@@ -90,6 +90,7 @@ describe("docker-setup.sh", () => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     const rootDir = await mkdtemp(join(tmpdir(), "moltbot-docker-setup-"));
     const scriptPath = join(rootDir, "docker-setup.sh");
     const dockerfilePath = join(rootDir, "Dockerfile");
@@ -215,14 +216,18 @@ describe("docker-setup.sh", () => {
     await writeFile(sandbox.logPath, "");
     const aptAndHomeVolumeResult = spawnSync("bash", [sandbox.scriptPath], {
 >>>>>>> 72e9364ba (perf(test): speed up hot test files)
+=======
+    const result = spawnSync("bash", [sandbox.scriptPath], {
+>>>>>>> e9294ff92 (perf(test): speed up docker-setup and web media fallback)
       cwd: sandbox.rootDir,
       env: createEnv(sandbox, {
         OPENCLAW_DOCKER_APT_PACKAGES: "ffmpeg build-essential",
-        OPENCLAW_EXTRA_MOUNTS: "",
+        OPENCLAW_EXTRA_MOUNTS: undefined,
         OPENCLAW_HOME_VOLUME: "openclaw-home",
       }),
       stdio: ["ignore", "ignore", "pipe"],
     });
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -243,6 +248,13 @@ describe("docker-setup.sh", () => {
     const aptEnvFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
     expect(aptEnvFile).toContain("OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
 >>>>>>> 72e9364ba (perf(test): speed up hot test files)
+=======
+    expect(result.status).toBe(0);
+    const envFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
+    expect(envFile).toContain("OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
+    expect(envFile).toContain("OPENCLAW_EXTRA_MOUNTS=");
+    expect(envFile).toContain("OPENCLAW_HOME_VOLUME=openclaw-home");
+>>>>>>> e9294ff92 (perf(test): speed up docker-setup and web media fallback)
     const extraCompose = await readFile(join(sandbox.rootDir, "docker-compose.extra.yml"), "utf8");
     expect(extraCompose).toContain("openclaw-home:/home/node");
     expect(extraCompose).toContain("volumes:");
