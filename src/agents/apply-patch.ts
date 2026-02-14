@@ -1,9 +1,10 @@
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
 import { applyUpdateHunk } from "./apply-patch-update.js";
-import { assertSandboxPath } from "./sandbox-paths.js";
+import { assertSandboxPath, resolveSandboxPath } from "./sandbox-paths.js";
 
 const BEGIN_PATCH_MARKER = "*** Begin Patch";
 const END_PATCH_MARKER = "*** End Patch";
@@ -59,7 +60,13 @@ export type ApplyPatchToolDetails = {
 
 type ApplyPatchOptions = {
   cwd: string;
+<<<<<<< HEAD
   sandboxRoot?: string;
+=======
+  sandbox?: SandboxApplyPatchConfig;
+  /** When true, restrict patch paths to the workspace root (cwd). Default: false. */
+  workspaceOnly?: boolean;
+>>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
   signal?: AbortSignal;
 };
 
@@ -70,11 +77,19 @@ const applyPatchSchema = Type.Object({
 });
 
 export function createApplyPatchTool(
+<<<<<<< HEAD
   options: { cwd?: string; sandboxRoot?: string } = {},
   // biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.
 ): AgentTool<any, ApplyPatchToolDetails> {
   const cwd = options.cwd ?? process.cwd();
   const sandboxRoot = options.sandboxRoot;
+=======
+  options: { cwd?: string; sandbox?: SandboxApplyPatchConfig; workspaceOnly?: boolean } = {},
+): AgentTool<typeof applyPatchSchema, ApplyPatchToolDetails> {
+  const cwd = options.cwd ?? process.cwd();
+  const sandbox = options.sandbox;
+  const workspaceOnly = options.workspaceOnly === true;
+>>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
 
   return {
     name: "apply_patch",
@@ -96,7 +111,12 @@ export function createApplyPatchTool(
 
       const result = await applyPatch(input, {
         cwd,
+<<<<<<< HEAD
         sandboxRoot,
+=======
+        sandbox,
+        workspaceOnly,
+>>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
         signal,
       });
 
@@ -144,8 +164,13 @@ export async function applyPatch(
     }
 
     if (hunk.kind === "delete") {
+<<<<<<< HEAD
       const target = await resolvePatchPath(hunk.path, options);
       await fs.rm(target.resolved);
+=======
+      const target = await resolvePatchPath(hunk.path, options, "unlink");
+      await fileOps.remove(target.resolved);
+>>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
       recordSummary(summary, seen, "deleted", target.display);
       continue;
     }
@@ -203,6 +228,7 @@ async function ensureDir(filePath: string) {
 async function resolvePatchPath(
   filePath: string,
   options: ApplyPatchOptions,
+  purpose: "readWrite" | "unlink" = "readWrite",
 ): Promise<{ resolved: string; display: string }> {
   if (options.sandboxRoot) {
     const resolved = await assertSandboxPath({
@@ -216,37 +242,66 @@ async function resolvePatchPath(
     };
   }
 
-  const resolved = await assertSandboxPath({
-    filePath,
-    cwd: options.cwd,
-    root: options.cwd,
-  });
+  const resolved = options.workspaceOnly
+    ? purpose === "unlink"
+      ? resolveSandboxPath({ filePath, cwd: options.cwd, root: options.cwd }).resolved
+      : (
+          await assertSandboxPath({
+            filePath,
+            cwd: options.cwd,
+            root: options.cwd,
+          })
+        ).resolved
+    : resolvePathFromCwd(filePath, options.cwd);
   return {
-    resolved: resolved.resolved,
-    display: toDisplayPath(resolved.resolved, options.cwd),
+    resolved,
+    display: toDisplayPath(resolved, options.cwd),
   };
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+const UNICODE_SPACES = /[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g;
+
+>>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
 function normalizeUnicodeSpaces(value: string): string {
   return value.replace(UNICODE_SPACES, " ");
 }
 
 function expandPath(filePath: string): string {
   const normalized = normalizeUnicodeSpaces(filePath);
+<<<<<<< HEAD
   if (normalized === "~") return os.homedir();
   if (normalized.startsWith("~/")) return os.homedir() + normalized.slice(1);
+=======
+  if (normalized === "~") {
+    return os.homedir();
+  }
+  if (normalized.startsWith("~/")) {
+    return os.homedir() + normalized.slice(1);
+  }
+>>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
   return normalized;
 }
 
 function resolvePathFromCwd(filePath: string, cwd: string): string {
   const expanded = expandPath(filePath);
+<<<<<<< HEAD
   if (path.isAbsolute(expanded)) return path.normalize(expanded);
   return path.resolve(cwd, expanded);
 }
 
 =======
 >>>>>>> 5544646a0 (security: block apply_patch path traversal outside workspace (#16405))
+=======
+  if (path.isAbsolute(expanded)) {
+    return path.normalize(expanded);
+  }
+  return path.resolve(cwd, expanded);
+}
+
+>>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
 function toDisplayPath(resolved: string, cwd: string): string {
   const relative = path.relative(cwd, resolved);
   if (!relative || relative === "") return path.basename(resolved);

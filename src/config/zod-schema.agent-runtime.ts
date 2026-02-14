@@ -274,10 +274,17 @@ export const AgentToolsSchema = z
         applyPatch: z
           .object({
             enabled: z.boolean().optional(),
+            workspaceOnly: z.boolean().optional(),
             allowModels: z.array(z.string()).optional(),
           })
           .strict()
           .optional(),
+      })
+      .strict()
+      .optional(),
+    fs: z
+      .object({
+        workspaceOnly: z.boolean().optional(),
       })
       .strict()
       .optional(),
@@ -515,10 +522,17 @@ export const ToolsSchema = z
         applyPatch: z
           .object({
             enabled: z.boolean().optional(),
+            workspaceOnly: z.boolean().optional(),
             allowModels: z.array(z.string()).optional(),
           })
           .strict()
           .optional(),
+      })
+      .strict()
+      .optional(),
+    fs: z
+      .object({
+        workspaceOnly: z.boolean().optional(),
       })
       .strict()
       .optional(),

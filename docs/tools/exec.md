@@ -156,9 +156,15 @@ Enable it explicitly:
 {
   tools: {
     exec: {
+<<<<<<< HEAD
       applyPatch: { enabled: true, allowModels: ["gpt-5.2"] }
     }
   }
+=======
+      applyPatch: { enabled: true, workspaceOnly: true, allowModels: ["gpt-5.2"] },
+    },
+  },
+>>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
 }
 ```
 
@@ -166,3 +172,4 @@ Notes:
 - Only available for OpenAI/OpenAI Codex models.
 - Tool policy still applies; `allow: ["exec"]` implicitly allows `apply_patch`.
 - Config lives under `tools.exec.applyPatch`.
+- Optional: set `tools.exec.applyPatch.workspaceOnly: true` to restrict patch paths to the workspace directory (recommended when untrusted users can trigger tool execution).

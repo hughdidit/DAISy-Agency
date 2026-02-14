@@ -168,6 +168,7 @@ Optional plugin tools:
 ### `apply_patch`
 Apply structured patches across one or more files. Use for multi-hunk edits.
 Experimental: enable via `tools.exec.applyPatch.enabled` (OpenAI models only).
+Optional: restrict patch paths to the workspace directory with `tools.exec.applyPatch.workspaceOnly: true`.
 
 ### `exec`
 Run shell commands in the workspace.

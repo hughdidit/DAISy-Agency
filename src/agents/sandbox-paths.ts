@@ -46,7 +46,7 @@ export function resolveSandboxPath(params: { filePath: string; cwd: string; root
 
 export async function assertSandboxPath(params: { filePath: string; cwd: string; root: string }) {
   const resolved = resolveSandboxPath(params);
-  await assertNoSymlink(resolved.relative, path.resolve(params.root));
+  await assertNoSymlinkEscape(resolved.relative, path.resolve(params.root));
   return resolved;
 }
 
@@ -84,8 +84,16 @@ export async function resolveSandboxedMediaSource(params: {
   return resolved.resolved;
 }
 
+<<<<<<< HEAD
 async function assertNoSymlink(relative: string, root: string) {
   if (!relative) return;
+=======
+async function assertNoSymlinkEscape(relative: string, root: string) {
+  if (!relative) {
+    return;
+  }
+  const rootReal = await tryRealpath(root);
+>>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
   const parts = relative.split(path.sep).filter(Boolean);
   let current = root;
   for (const part of parts) {
@@ -93,7 +101,13 @@ async function assertNoSymlink(relative: string, root: string) {
     try {
       const stat = await fs.lstat(current);
       if (stat.isSymbolicLink()) {
-        throw new Error(`Symlink not allowed in sandbox path: ${current}`);
+        const target = await tryRealpath(current);
+        if (!isPathInside(rootReal, target)) {
+          throw new Error(
+            `Symlink escapes sandbox root (${shortPath(rootReal)}): ${shortPath(current)}`,
+          );
+        }
+        current = target;
       }
     } catch (err) {
       const anyErr = err as { code?: string };
@@ -103,6 +117,22 @@ async function assertNoSymlink(relative: string, root: string) {
       throw err;
     }
   }
+}
+
+async function tryRealpath(value: string): Promise<string> {
+  try {
+    return await fs.realpath(value);
+  } catch {
+    return path.resolve(value);
+  }
+}
+
+function isPathInside(root: string, target: string): boolean {
+  const relative = path.relative(root, target);
+  if (!relative || relative === "") {
+    return true;
+  }
+  return !(relative.startsWith("..") || path.isAbsolute(relative));
 }
 
 function shortPath(value: string) {
