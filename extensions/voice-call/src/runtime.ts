@@ -57,8 +57,7 @@ function resolveProvider(config: VoiceCallConfig, logger?: Logger): VoiceCallPro
           publicKey: config.telnyx?.publicKey,
         },
         {
-          allowUnsignedWebhooks:
-            config.inboundPolicy === "open" || config.inboundPolicy === "disabled",
+          skipVerification: config.skipSignatureVerification,
         },
       );
 >>>>>>> f8dfd034f (fix(voice-call): harden inbound policy)
