@@ -1,57 +1,15 @@
 import fs from "node:fs/promises";
-import { join } from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
-
-vi.mock("../agents/pi-embedded.js", () => ({
-  abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
-  compactEmbeddedPiSession: vi.fn(),
-  runEmbeddedPiAgent: vi.fn(),
-  queueEmbeddedPiMessage: vi.fn().mockReturnValue(false),
-  resolveEmbeddedSessionLane: (key: string) => `session:${key.trim() || "main"}`,
-  isEmbeddedPiRunActive: vi.fn().mockReturnValue(false),
-  isEmbeddedPiRunStreaming: vi.fn().mockReturnValue(false),
-}));
-
-const usageMocks = vi.hoisted(() => ({
-  loadProviderUsageSummary: vi.fn().mockResolvedValue({
-    updatedAt: 0,
-    providers: [],
-  }),
-  formatUsageSummaryLine: vi.fn().mockReturnValue("📊 Usage: Claude 80% left"),
-  resolveUsageProviderId: vi.fn((provider: string) => provider.split("/")[0]),
-}));
-
-vi.mock("../infra/provider-usage.js", () => usageMocks);
-
-const modelCatalogMocks = vi.hoisted(() => ({
-  loadModelCatalog: vi.fn().mockResolvedValue([
-    {
-      provider: "anthropic",
-      id: "claude-opus-4-5",
-      name: "Claude Opus 4.5",
-      contextWindow: 200000,
-    },
-    {
-      provider: "openrouter",
-      id: "anthropic/claude-opus-4-5",
-      name: "Claude Opus 4.5 (OpenRouter)",
-      contextWindow: 200000,
-    },
-    { provider: "openai", id: "gpt-4.1-mini", name: "GPT-4.1 mini" },
-    { provider: "openai", id: "gpt-5.2", name: "GPT-5.2" },
-    { provider: "openai-codex", id: "gpt-5.2", name: "GPT-5.2 (Codex)" },
-    { provider: "minimax", id: "MiniMax-M2.1", name: "MiniMax M2.1" },
-  ]),
-  resetModelCatalogCacheForTest: vi.fn(),
-}));
-
-vi.mock("../agents/model-catalog.js", () => modelCatalogMocks);
-
-import { abortEmbeddedPiRun, runEmbeddedPiAgent } from "../agents/pi-embedded.js";
+import { describe, expect, it } from "vitest";
 import { loadSessionStore } from "../config/sessions.js";
 import { getReplyFromConfig } from "./reply.js";
+import {
+  installTriggerHandlingE2eTestHooks,
+  MAIN_SESSION_KEY,
+  makeCfg,
+  withTempHome,
+} from "./reply.triggers.trigger-handling.test-harness.js";
 
+<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 const webMocks = vi.hoisted(() => ({
@@ -93,36 +51,37 @@ function _makeCfg(home: string) {
 afterEach(() => {
   vi.restoreAllMocks();
 });
+=======
+installTriggerHandlingE2eTestHooks();
+>>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
 describe("trigger handling", () => {
   it("allows elevated off in groups without mention", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
-        payloads: [{ text: "ok" }],
-        meta: {
-          durationMs: 1,
-          agentMeta: { sessionId: "s", provider: "p", model: "m" },
-        },
-      });
+      const baseCfg = makeCfg(home);
       const cfg = {
+<<<<<<< HEAD
         agents: {
           defaults: {
             model: "anthropic/claude-opus-4-5",
             workspace: join(home, "clawd"),
           },
         },
+=======
+        ...baseCfg,
+>>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         tools: {
           elevated: {
             allowFrom: { whatsapp: ["+1000"] },
           },
         },
         channels: {
+          ...baseCfg.channels,
           whatsapp: {
             allowFrom: ["+1000"],
             groups: { "*": { requireMention: false } },
           },
         },
-        session: { store: join(home, "sessions.json") },
       };
 
       const res = await getReplyFromConfig(
@@ -146,27 +105,33 @@ describe("trigger handling", () => {
       expect(store["agent:main:whatsapp:group:123@g.us"]?.elevatedLevel).toBe("off");
     });
   });
+
   it("allows elevated directive in groups when mentioned", async () => {
     await withTempHome(async (home) => {
+      const baseCfg = makeCfg(home);
       const cfg = {
+<<<<<<< HEAD
         agents: {
           defaults: {
             model: "anthropic/claude-opus-4-5",
             workspace: join(home, "clawd"),
           },
         },
+=======
+        ...baseCfg,
+>>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         tools: {
           elevated: {
             allowFrom: { whatsapp: ["+1000"] },
           },
         },
         channels: {
+          ...baseCfg.channels,
           whatsapp: {
             allowFrom: ["+1000"],
             groups: { "*": { requireMention: true } },
           },
         },
-        session: { store: join(home, "sessions.json") },
       };
 
       const res = await getReplyFromConfig(
@@ -191,26 +156,32 @@ describe("trigger handling", () => {
       expect(store["agent:main:whatsapp:group:123@g.us"]?.elevatedLevel).toBe("on");
     });
   });
+
   it("allows elevated directive in direct chats without mentions", async () => {
     await withTempHome(async (home) => {
+      const baseCfg = makeCfg(home);
       const cfg = {
+<<<<<<< HEAD
         agents: {
           defaults: {
             model: "anthropic/claude-opus-4-5",
             workspace: join(home, "clawd"),
           },
         },
+=======
+        ...baseCfg,
+>>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         tools: {
           elevated: {
             allowFrom: { whatsapp: ["+1000"] },
           },
         },
         channels: {
+          ...baseCfg.channels,
           whatsapp: {
             allowFrom: ["+1000"],
           },
         },
-        session: { store: join(home, "sessions.json") },
       };
 
       const res = await getReplyFromConfig(

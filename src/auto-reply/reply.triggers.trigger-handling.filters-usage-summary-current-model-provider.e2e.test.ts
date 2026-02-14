@@ -1,60 +1,23 @@
 import { join } from "node:path";
+<<<<<<< HEAD
 import { readFile } from "node:fs/promises";
 import { afterEach, describe, expect, it, vi } from "vitest";
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 import { normalizeTestText } from "../../test/helpers/normalize-text.js";
-import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
-
-vi.mock("../agents/pi-embedded.js", () => ({
-  abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
-  compactEmbeddedPiSession: vi.fn(),
-  runEmbeddedPiAgent: vi.fn(),
-  queueEmbeddedPiMessage: vi.fn().mockReturnValue(false),
-  resolveEmbeddedSessionLane: (key: string) => `session:${key.trim() || "main"}`,
-  isEmbeddedPiRunActive: vi.fn().mockReturnValue(false),
-  isEmbeddedPiRunStreaming: vi.fn().mockReturnValue(false),
-}));
-
-const usageMocks = vi.hoisted(() => ({
-  loadProviderUsageSummary: vi.fn().mockResolvedValue({
-    updatedAt: 0,
-    providers: [],
-  }),
-  formatUsageSummaryLine: vi.fn().mockReturnValue("📊 Usage: Claude 80% left"),
-  formatUsageWindowSummary: vi.fn().mockReturnValue("Claude 80% left"),
-  resolveUsageProviderId: vi.fn((provider: string) => provider.split("/")[0]),
-}));
-
-vi.mock("../infra/provider-usage.js", () => usageMocks);
-
-const modelCatalogMocks = vi.hoisted(() => ({
-  loadModelCatalog: vi.fn().mockResolvedValue([
-    {
-      provider: "anthropic",
-      id: "claude-opus-4-5",
-      name: "Claude Opus 4.5",
-      contextWindow: 200000,
-    },
-    {
-      provider: "openrouter",
-      id: "anthropic/claude-opus-4-5",
-      name: "Claude Opus 4.5 (OpenRouter)",
-      contextWindow: 200000,
-    },
-    { provider: "openai", id: "gpt-4.1-mini", name: "GPT-4.1 mini" },
-    { provider: "openai", id: "gpt-5.2", name: "GPT-5.2" },
-    { provider: "openai-codex", id: "gpt-5.2", name: "GPT-5.2 (Codex)" },
-    { provider: "minimax", id: "MiniMax-M2.1", name: "MiniMax M2.1" },
-  ]),
-  resetModelCatalogCacheForTest: vi.fn(),
-}));
-
-vi.mock("../agents/model-catalog.js", () => modelCatalogMocks);
-
-import { abortEmbeddedPiRun, runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { getReplyFromConfig } from "./reply.js";
+import {
+  getProviderUsageMocks,
+  getRunEmbeddedPiAgentMock,
+  installTriggerHandlingE2eTestHooks,
+  makeCfg,
+  withTempHome,
+} from "./reply.triggers.trigger-handling.test-harness.js";
 
-const _MAIN_SESSION_KEY = "agent:main:main";
+installTriggerHandlingE2eTestHooks();
 
+<<<<<<< HEAD
 const webMocks = vi.hoisted(() => ({
   webAuthExists: vi.fn().mockResolvedValue(true),
   getWebAuthAgeMs: vi.fn().mockReturnValue(120_000),
@@ -90,6 +53,9 @@ function makeCfg(home: string) {
     session: { store: join(home, "sessions.json") },
   };
 }
+=======
+const usageMocks = getProviderUsageMocks();
+>>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
 async function readSessionStore(home: string): Promise<Record<string, unknown>> {
   const raw = await readFile(join(home, "sessions.json"), "utf-8");
@@ -100,10 +66,6 @@ function pickFirstStoreEntry<T>(store: Record<string, unknown>): T | undefined {
   const entries = Object.values(store) as T[];
   return entries[0];
 }
-
-afterEach(() => {
-  vi.restoreAllMocks();
-});
 
 describe("trigger handling", () => {
   it("filters usage summary to the current model provider", async () => {
@@ -193,7 +155,7 @@ describe("trigger handling", () => {
       expect(blockReplies.length).toBe(0);
       expect(replies.length).toBe(1);
       expect(String(replies[0]?.text ?? "")).toContain("Usage footer: tokens");
-      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
+      expect(getRunEmbeddedPiAgentMock()).not.toHaveBeenCalled();
     });
   });
 
@@ -255,7 +217,7 @@ describe("trigger handling", () => {
       const s3 = await readSessionStore(home);
       expect(pickFirstStoreEntry<{ responseUsage?: string }>(s3)?.responseUsage).toBeUndefined();
 
-      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
+      expect(getRunEmbeddedPiAgentMock()).not.toHaveBeenCalled();
     });
   });
 
@@ -281,12 +243,12 @@ describe("trigger handling", () => {
       const store = await readSessionStore(home);
       expect(pickFirstStoreEntry<{ responseUsage?: string }>(store)?.responseUsage).toBe("tokens");
 
-      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
+      expect(getRunEmbeddedPiAgentMock()).not.toHaveBeenCalled();
     });
   });
   it("sends one inline status and still returns agent reply for mixed text", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
+      getRunEmbeddedPiAgentMock().mockResolvedValue({
         payloads: [{ text: "agent says hi" }],
         meta: {
           durationMs: 1,
@@ -315,7 +277,7 @@ describe("trigger handling", () => {
       expect(String(blockReplies[0]?.text ?? "")).toContain("Model:");
       expect(replies.length).toBe(1);
       expect(replies[0]?.text).toBe("agent says hi");
-      const prompt = vi.mocked(runEmbeddedPiAgent).mock.calls[0]?.[0]?.prompt ?? "";
+      const prompt = getRunEmbeddedPiAgentMock().mock.calls[0]?.[0]?.prompt ?? "";
       expect(prompt).not.toContain("/status");
     });
   });
@@ -333,7 +295,7 @@ describe("trigger handling", () => {
       );
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(text).toBe("⚙️ Agent was aborted.");
-      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
+      expect(getRunEmbeddedPiAgentMock()).not.toHaveBeenCalled();
     });
   });
   it("handles /stop without invoking the agent", async () => {
@@ -350,7 +312,7 @@ describe("trigger handling", () => {
       );
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(text).toBe("⚙️ Agent was aborted.");
-      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
+      expect(getRunEmbeddedPiAgentMock()).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,55 +1,13 @@
-import { join } from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
-
-vi.mock("../agents/pi-embedded.js", () => ({
-  abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
-  compactEmbeddedPiSession: vi.fn(),
-  runEmbeddedPiAgent: vi.fn(),
-  queueEmbeddedPiMessage: vi.fn().mockReturnValue(false),
-  resolveEmbeddedSessionLane: (key: string) => `session:${key.trim() || "main"}`,
-  isEmbeddedPiRunActive: vi.fn().mockReturnValue(false),
-  isEmbeddedPiRunStreaming: vi.fn().mockReturnValue(false),
-}));
-
-const usageMocks = vi.hoisted(() => ({
-  loadProviderUsageSummary: vi.fn().mockResolvedValue({
-    updatedAt: 0,
-    providers: [],
-  }),
-  formatUsageSummaryLine: vi.fn().mockReturnValue("📊 Usage: Claude 80% left"),
-  resolveUsageProviderId: vi.fn((provider: string) => provider.split("/")[0]),
-}));
-
-vi.mock("../infra/provider-usage.js", () => usageMocks);
-
-const modelCatalogMocks = vi.hoisted(() => ({
-  loadModelCatalog: vi.fn().mockResolvedValue([
-    {
-      provider: "anthropic",
-      id: "claude-opus-4-5",
-      name: "Claude Opus 4.5",
-      contextWindow: 200000,
-    },
-    {
-      provider: "openrouter",
-      id: "anthropic/claude-opus-4-5",
-      name: "Claude Opus 4.5 (OpenRouter)",
-      contextWindow: 200000,
-    },
-    { provider: "openai", id: "gpt-4.1-mini", name: "GPT-4.1 mini" },
-    { provider: "openai", id: "gpt-5.2", name: "GPT-5.2" },
-    { provider: "openai-codex", id: "gpt-5.2", name: "GPT-5.2 (Codex)" },
-    { provider: "minimax", id: "MiniMax-M2.1", name: "MiniMax M2.1" },
-  ]),
-  resetModelCatalogCacheForTest: vi.fn(),
-}));
-
-vi.mock("../agents/model-catalog.js", () => modelCatalogMocks);
-
-import { abortEmbeddedPiRun, runEmbeddedPiAgent } from "../agents/pi-embedded.js";
+import { describe, expect, it } from "vitest";
 import { getReplyFromConfig } from "./reply.js";
+import {
+  getRunEmbeddedPiAgentMock,
+  installTriggerHandlingE2eTestHooks,
+  makeCfg,
+  withTempHome,
+} from "./reply.triggers.trigger-handling.test-harness.js";
 
+<<<<<<< HEAD
 const _MAIN_SESSION_KEY = "agent:main:main";
 
 const webMocks = vi.hoisted(() => ({
@@ -91,17 +49,22 @@ function makeCfg(home: string) {
 afterEach(() => {
   vi.restoreAllMocks();
 });
+=======
+installTriggerHandlingE2eTestHooks();
+>>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
 describe("trigger handling", () => {
   it("handles inline /commands and strips it before the agent", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
+      const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
+      runEmbeddedPiAgentMock.mockResolvedValue({
         payloads: [{ text: "ok" }],
         meta: {
           durationMs: 1,
           agentMeta: { sessionId: "s", provider: "p", model: "m" },
         },
       });
+
       const blockReplies: Array<{ text?: string }> = [];
       const res = await getReplyFromConfig(
         {
@@ -117,24 +80,28 @@ describe("trigger handling", () => {
         },
         makeCfg(home),
       );
+
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(blockReplies.length).toBe(1);
       expect(blockReplies[0]?.text).toContain("Slash commands");
-      expect(runEmbeddedPiAgent).toHaveBeenCalled();
-      const prompt = vi.mocked(runEmbeddedPiAgent).mock.calls[0]?.[0]?.prompt ?? "";
+      expect(runEmbeddedPiAgentMock).toHaveBeenCalled();
+      const prompt = runEmbeddedPiAgentMock.mock.calls[0]?.[0]?.prompt ?? "";
       expect(prompt).not.toContain("/commands");
       expect(text).toBe("ok");
     });
   });
+
   it("handles inline /whoami and strips it before the agent", async () => {
     await withTempHome(async (home) => {
-      vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
+      const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
+      runEmbeddedPiAgentMock.mockResolvedValue({
         payloads: [{ text: "ok" }],
         meta: {
           durationMs: 1,
           agentMeta: { sessionId: "s", provider: "p", model: "m" },
         },
       });
+
       const blockReplies: Array<{ text?: string }> = [];
       const res = await getReplyFromConfig(
         {
@@ -151,31 +118,40 @@ describe("trigger handling", () => {
         },
         makeCfg(home),
       );
+
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(blockReplies.length).toBe(1);
       expect(blockReplies[0]?.text).toContain("Identity");
-      expect(runEmbeddedPiAgent).toHaveBeenCalled();
-      const prompt = vi.mocked(runEmbeddedPiAgent).mock.calls[0]?.[0]?.prompt ?? "";
+      expect(runEmbeddedPiAgentMock).toHaveBeenCalled();
+      const prompt = runEmbeddedPiAgentMock.mock.calls[0]?.[0]?.prompt ?? "";
       expect(prompt).not.toContain("/whoami");
       expect(text).toBe("ok");
     });
   });
+
   it("drops /status for unauthorized senders", async () => {
     await withTempHome(async (home) => {
+      const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
+      const baseCfg = makeCfg(home);
       const cfg = {
+<<<<<<< HEAD
         agents: {
           defaults: {
             model: "anthropic/claude-opus-4-5",
             workspace: join(home, "clawd"),
           },
         },
+=======
+        ...baseCfg,
+>>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         channels: {
+          ...baseCfg.channels,
           whatsapp: {
             allowFrom: ["+1000"],
           },
         },
-        session: { store: join(home, "sessions.json") },
       };
+
       const res = await getReplyFromConfig(
         {
           Body: "/status",
@@ -187,26 +163,35 @@ describe("trigger handling", () => {
         {},
         cfg,
       );
+
       expect(res).toBeUndefined();
-      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
+      expect(runEmbeddedPiAgentMock).not.toHaveBeenCalled();
     });
   });
+
   it("drops /whoami for unauthorized senders", async () => {
     await withTempHome(async (home) => {
+      const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
+      const baseCfg = makeCfg(home);
       const cfg = {
+<<<<<<< HEAD
         agents: {
           defaults: {
             model: "anthropic/claude-opus-4-5",
             workspace: join(home, "clawd"),
           },
         },
+=======
+        ...baseCfg,
+>>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         channels: {
+          ...baseCfg.channels,
           whatsapp: {
             allowFrom: ["+1000"],
           },
         },
-        session: { store: join(home, "sessions.json") },
       };
+
       const res = await getReplyFromConfig(
         {
           Body: "/whoami",
@@ -218,8 +203,9 @@ describe("trigger handling", () => {
         {},
         cfg,
       );
+
       expect(res).toBeUndefined();
-      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
+      expect(runEmbeddedPiAgentMock).not.toHaveBeenCalled();
     });
   });
 });
