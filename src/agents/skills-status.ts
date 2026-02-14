@@ -5,6 +5,7 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   buildConfigChecks,
   resolveMissingAnyBins,
@@ -16,6 +17,9 @@ import {
 =======
 import { evaluateRequirements } from "../shared/requirements.js";
 >>>>>>> 4f61a3f52 (refactor(shared): centralize requirements evaluation)
+=======
+import { evaluateRequirementsFromMetadata } from "../shared/requirements.js";
+>>>>>>> 270779b2c (refactor(shared): derive requirements from metadata)
 import { CONFIG_DIR } from "../utils.js";
 import {
   hasBinary,
@@ -205,25 +209,14 @@ function buildSkillStatus(
       ? bundledNames.has(entry.skill.name)
       : entry.skill.source === "openclaw-bundled";
 
-  const requiredBins = entry.metadata?.requires?.bins ?? [];
-  const requiredAnyBins = entry.metadata?.requires?.anyBins ?? [];
-  const requiredEnv = entry.metadata?.requires?.env ?? [];
-  const requiredConfig = entry.metadata?.requires?.config ?? [];
-  const requiredOs = entry.metadata?.os ?? [];
-
   const {
+    required,
     missing,
     eligible: requirementsSatisfied,
     configChecks,
-  } = evaluateRequirements({
+  } = evaluateRequirementsFromMetadata({
     always,
-    required: {
-      bins: requiredBins,
-      anyBins: requiredAnyBins,
-      env: requiredEnv,
-      config: requiredConfig,
-      os: requiredOs,
-    },
+    metadata: entry.metadata,
     hasLocalBin: hasBinary,
     hasRemoteBin: eligibility?.remote?.hasBin,
     hasRemoteAnyBin: eligibility?.remote?.hasAnyBin,
@@ -255,13 +248,7 @@ function buildSkillStatus(
     disabled,
     blockedByAllowlist,
     eligible,
-    requirements: {
-      bins: requiredBins,
-      anyBins: requiredAnyBins,
-      env: requiredEnv,
-      config: requiredConfig,
-      os: requiredOs,
-    },
+    requirements: required,
     missing,
     configChecks,
     install: normalizeInstallOptions(entry, prefs ?? resolveSkillsInstallPreferences(config)),
