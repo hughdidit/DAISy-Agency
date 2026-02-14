@@ -15,7 +15,13 @@ import { monitorTlonProvider } from "./monitor/index.js";
 import { tlonOnboardingAdapter } from "./onboarding.js";
 import { formatTargetHint, normalizeShip, parseTlonTarget } from "./targets.js";
 import { resolveTlonAccount, listTlonAccountIds } from "./types.js";
+<<<<<<< HEAD
 import { ensureUrbitConnectPatched, Urbit } from "./urbit/http-api.js";
+=======
+import { authenticate } from "./urbit/auth.js";
+import { UrbitChannelClient } from "./urbit/channel-client.js";
+import { ssrfPolicyFromAllowPrivateNetwork } from "./urbit/context.js";
+>>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
 import { buildMediaText, sendDm, sendGroupMessage } from "./urbit/send.js";
 
 const TLON_CHANNEL_ID = "tlon" as const;
@@ -118,8 +124,14 @@ const tlonOutbound: ChannelOutboundAdapter = {
       throw new Error(`Invalid Tlon target. Use ${formatTargetHint()}`);
     }
 
+<<<<<<< HEAD
     ensureUrbitConnectPatched();
     const api = await Urbit.authenticate({
+=======
+    const ssrfPolicy = ssrfPolicyFromAllowPrivateNetwork(account.allowPrivateNetwork);
+    const cookie = await authenticate(account.url, account.code, { ssrfPolicy });
+    const api = new UrbitChannelClient(account.url, cookie, {
+>>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
       ship: account.ship.replace(/^~/, ""),
       url: account.url,
       code: account.code,
@@ -345,8 +357,14 @@ export const tlonPlugin: ChannelPlugin = {
         return { ok: false, error: "Not configured" };
       }
       try {
+<<<<<<< HEAD
         ensureUrbitConnectPatched();
         const api = await Urbit.authenticate({
+=======
+        const ssrfPolicy = ssrfPolicyFromAllowPrivateNetwork(account.allowPrivateNetwork);
+        const cookie = await authenticate(account.url, account.code, { ssrfPolicy });
+        const api = new UrbitChannelClient(account.url, cookie, {
+>>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
           ship: account.ship.replace(/^~/, ""),
           url: account.url,
           code: account.code,
