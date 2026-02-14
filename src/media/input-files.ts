@@ -112,8 +112,32 @@ export const DEFAULT_INPUT_PDF_MAX_PAGES = 4;
 export const DEFAULT_INPUT_PDF_MAX_PIXELS = 4_000_000;
 export const DEFAULT_INPUT_PDF_MIN_TEXT_CHARS = 200;
 
+<<<<<<< HEAD
 function isRedirectStatus(status: number): boolean {
   return status === 301 || status === 302 || status === 303 || status === 307 || status === 308;
+=======
+function estimateBase64DecodedBytes(base64: string): number {
+  const cleaned = base64.trim().replace(/\s+/g, "");
+  if (!cleaned) {
+    return 0;
+  }
+  const padding = cleaned.endsWith("==") ? 2 : cleaned.endsWith("=") ? 1 : 0;
+  const estimated = Math.floor((cleaned.length * 3) / 4) - padding;
+  return Math.max(0, estimated);
+}
+
+function rejectOversizedBase64Payload(params: {
+  data: string;
+  maxBytes: number;
+  label: "Image" | "File";
+}): void {
+  const estimated = estimateBase64DecodedBytes(params.data);
+  if (estimated > params.maxBytes) {
+    throw new Error(
+      `${params.label} too large: ${estimated} bytes (limit: ${params.maxBytes} bytes)`,
+    );
+  }
+>>>>>>> 00a089088 (fix(media): bound input media payload sizes)
 }
 
 export function normalizeMimeType(value: string | undefined): string | undefined {
@@ -166,6 +190,7 @@ export async function fetchWithGuard(params: {
       const pinned = await resolvePinnedHostname(parsedUrl.hostname);
       const dispatcher = createPinnedDispatcher(pinned);
 
+<<<<<<< HEAD
       try {
         const response = await fetch(parsedUrl, {
           signal: controller.signal,
@@ -215,9 +240,67 @@ export async function fetchWithGuard(params: {
         await closeDispatcher(dispatcher);
       }
     }
+=======
+    const contentLength = response.headers.get("content-length");
+    if (contentLength) {
+      const size = Number(contentLength);
+      if (Number.isFinite(size) && size > params.maxBytes) {
+        throw new Error(`Content too large: ${size} bytes (limit: ${params.maxBytes} bytes)`);
+      }
+    }
+
+    const buffer = await readResponseWithLimit(response, params.maxBytes);
+
+    const contentType = response.headers.get("content-type") || undefined;
+    const parsed = parseContentType(contentType);
+    const mimeType = parsed.mimeType ?? "application/octet-stream";
+    return { buffer, mimeType, contentType };
+>>>>>>> 00a089088 (fix(media): bound input media payload sizes)
   } finally {
     clearTimeout(timeoutId);
   }
+}
+
+async function readResponseWithLimit(res: Response, maxBytes: number): Promise<Buffer> {
+  const body = res.body;
+  if (!body || typeof body.getReader !== "function") {
+    const fallback = Buffer.from(await res.arrayBuffer());
+    if (fallback.byteLength > maxBytes) {
+      throw new Error(`Content too large: ${fallback.byteLength} bytes (limit: ${maxBytes} bytes)`);
+    }
+    return fallback;
+  }
+
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      if (value?.length) {
+        total += value.length;
+        if (total > maxBytes) {
+          try {
+            await reader.cancel();
+          } catch {}
+          throw new Error(`Content too large: ${total} bytes (limit: ${maxBytes} bytes)`);
+        }
+        chunks.push(value);
+      }
+    }
+  } finally {
+    try {
+      reader.releaseLock();
+    } catch {}
+  }
+
+  return Buffer.concat(
+    chunks.map((chunk) => Buffer.from(chunk)),
+    total,
+  );
 }
 
 function decodeTextContent(buffer: Buffer, charset: string | undefined): string {
@@ -303,6 +386,7 @@ export async function extractImageContentFromSource(
     if (!source.data) {
       throw new Error("input_image base64 source missing 'data' field");
     }
+    rejectOversizedBase64Payload({ data: source.data, maxBytes: limits.maxBytes, label: "Image" });
     const mimeType = normalizeMimeType(source.mediaType) ?? "image/png";
     if (!limits.allowedMimes.has(mimeType)) {
       throw new Error(`Unsupported image MIME type: ${mimeType}`);
@@ -350,6 +434,7 @@ export async function extractFileContentFromSource(params: {
     if (!source.data) {
       throw new Error("input_file base64 source missing 'data' field");
     }
+    rejectOversizedBase64Payload({ data: source.data, maxBytes: limits.maxBytes, label: "File" });
     const parsed = parseContentType(source.mediaType);
     mimeType = parsed.mimeType;
     charset = parsed.charset;
