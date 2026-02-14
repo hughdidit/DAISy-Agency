@@ -1,9 +1,24 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
 import type { SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
+=======
+import type { SandboxBrowserConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
+>>>>>>> 1f1fc095a (refactor(sandbox): auto-recreate browser container on config changes (#16254))
 
 type SandboxHashInput = {
   docker: SandboxDockerConfig;
+  workspaceAccess: SandboxWorkspaceAccess;
+  workspaceDir: string;
+  agentWorkspaceDir: string;
+};
+
+type SandboxBrowserHashInput = {
+  docker: SandboxDockerConfig;
+  browser: Pick<
+    SandboxBrowserConfig,
+    "cdpPort" | "vncPort" | "noVncPort" | "headless" | "enableNoVnc"
+  >;
   workspaceAccess: SandboxWorkspaceAccess;
   workspaceDir: string;
   agentWorkspaceDir: string;
@@ -59,6 +74,14 @@ function primitiveToString(value: unknown): string {
 }
 
 export function computeSandboxConfigHash(input: SandboxHashInput): string {
+  return computeHash(input);
+}
+
+export function computeSandboxBrowserConfigHash(input: SandboxBrowserHashInput): string {
+  return computeHash(input);
+}
+
+function computeHash(input: unknown): string {
   const payload = normalizeForHash(input);
   const raw = JSON.stringify(payload);
   return crypto.createHash("sha1").update(raw).digest("hex");

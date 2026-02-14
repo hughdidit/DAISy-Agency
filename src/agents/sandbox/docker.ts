@@ -57,7 +57,28 @@ export async function execDocker(args: string[], opts?: ExecDockerOptions) {
   };
 }
 
+<<<<<<< HEAD
 >>>>>>> 31c6a12cf (fix(agents): restore missing runtime helpers and sandbox types)
+=======
+export async function readDockerContainerLabel(
+  containerName: string,
+  label: string,
+): Promise<string | null> {
+  const result = await execDocker(
+    ["inspect", "-f", `{{ index .Config.Labels "${label}" }}`, containerName],
+    { allowFailure: true },
+  );
+  if (result.code !== 0) {
+    return null;
+  }
+  const raw = result.stdout.trim();
+  if (!raw || raw === "<no value>") {
+    return null;
+  }
+  return raw;
+}
+
+>>>>>>> 1f1fc095a (refactor(sandbox): auto-recreate browser container on config changes (#16254))
 export async function readDockerPort(containerName: string, port: number) {
   const result = await execDocker(["port", containerName, `${port}/tcp`], {
     allowFailure: true,
@@ -275,6 +296,7 @@ async function createSandboxContainer(params: {
 
 async function readContainerConfigHash(containerName: string): Promise<string | null> {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const result = await execDocker(
     ["inspect", "-f", '{{ index .Config.Labels "moltbot.configHash" }}', containerName],
     { allowFailure: true },
@@ -300,6 +322,9 @@ async function readContainerConfigHash(containerName: string): Promise<string | 
   };
   return await readLabel("openclaw.configHash");
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+=======
+  return await readDockerContainerLabel(containerName, "openclaw.configHash");
+>>>>>>> 1f1fc095a (refactor(sandbox): auto-recreate browser container on config changes (#16254))
 }
 
 function formatSandboxRecreateHint(params: { scope: SandboxConfig["scope"]; sessionKey: string }) {
