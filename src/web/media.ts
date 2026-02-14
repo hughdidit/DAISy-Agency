@@ -165,7 +165,20 @@ async function loadWebMediaInternal(
   mediaUrl: string,
   options: WebMediaOptions = {},
 ): Promise<WebMediaResult> {
+<<<<<<< HEAD
   const { maxBytes, optimizeImages = true, ssrfPolicy, localRoots } = options;
+=======
+  const {
+    maxBytes,
+    optimizeImages = true,
+    ssrfPolicy,
+    localRoots,
+    readFile: readFileOverride,
+  } = options;
+  // Strip MEDIA: prefix used by agent tools (e.g. TTS) to tag media paths.
+  // Be lenient: LLM output may add extra whitespace (e.g. "  MEDIA :  /tmp/x.png").
+  mediaUrl = mediaUrl.replace(/^\s*MEDIA\s*:\s*/i, "");
+>>>>>>> 07850e8a9 (fix(media): strip MEDIA: prefix in loadWebMediaInternal (#13107))
   // Use fileURLToPath for proper handling of file:// URLs (handles file://localhost/path, etc.)
   if (mediaUrl.startsWith("file://")) {
     try {
