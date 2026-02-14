@@ -25,8 +25,51 @@ If the file is missing, OpenClaw uses safe-ish defaults (embedded Pi agent + per
 
 ## Strict config validation
 
+<<<<<<< HEAD
 Moltbot only accepts configurations that fully match the schema.
 Unknown keys, malformed types, or invalid values cause the Gateway to **refuse to start** for safety.
+=======
+## Minimal config
+
+```json5
+// ~/.openclaw/openclaw.json
+{
+  agents: { defaults: { workspace: "~/.openclaw/workspace" } },
+  channels: { whatsapp: { allowFrom: ["+15555550123"] } },
+}
+```
+
+## Editing config
+
+<Tabs>
+  <Tab title="Interactive wizard">
+    ```bash
+    openclaw onboard       # full setup wizard
+    openclaw configure     # config wizard
+    ```
+  </Tab>
+  <Tab title="CLI (one-liners)">
+    ```bash
+    openclaw config get agents.defaults.workspace
+    openclaw config set agents.defaults.heartbeat.every "2h"
+    openclaw config unset tools.web.search.apiKey
+    ```
+  </Tab>
+  <Tab title="Control UI">
+    Open [http://127.0.0.1:18789](http://127.0.0.1:18789) and use the **Config** tab.
+    The Control UI renders a form from the config schema, with a **Raw JSON** editor as an escape hatch.
+  </Tab>
+  <Tab title="Direct edit">
+    Edit `~/.openclaw/openclaw.json` directly. The Gateway watches the file and applies changes automatically (see [hot reload](#config-hot-reload)).
+  </Tab>
+</Tabs>
+
+## Strict validation
+
+<Warning>
+OpenClaw only accepts configurations that fully match the schema. Unknown keys, malformed types, or invalid values cause the Gateway to **refuse to start**. The only root-level exception is `$schema` (string), so editors can attach JSON Schema metadata.
+</Warning>
+>>>>>>> 13aface86 (fix(config): accept $schema key in root config (#15280))
 
 When validation fails:
 

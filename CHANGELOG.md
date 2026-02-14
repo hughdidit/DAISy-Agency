@@ -176,7 +176,11 @@ Docs: https://docs.openclaw.ai
 =======
 - Providers/MiniMax: switch implicit MiniMax API-key provider from `openai-completions` to `anthropic-messages` with the correct Anthropic-compatible base URL, fixing `invalid role: developer (2013)` errors on MiniMax M2.5. (#15275) Thanks @lailoo.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+- Config: accept `$schema` key in config file so JSON Schema editor tooling works without validation errors. (#14998)
+>>>>>>> 13aface86 (fix(config): accept $schema key in root config (#15280))
 - Routing: enforce strict binding-scope matching across peer/guild/team/roles so peer-scoped Discord/Slack bindings no longer match unrelated guild/team contexts or fallback tiers. (#15274) Thanks @lailoo.
 - Web UI: add `img` to DOMPurify allowed tags and `src`/`alt` to allowed attributes so markdown images render in webchat instead of being stripped. (#15437) Thanks @lailoo.
 >>>>>>> dbe026214 (fix(routing): exclude peer-specific bindings from guild-wide matching (#15274))
