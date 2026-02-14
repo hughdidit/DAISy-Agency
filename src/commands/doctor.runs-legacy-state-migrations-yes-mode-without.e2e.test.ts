@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -324,6 +325,17 @@ vi.mock("./doctor-state-migrations.js", () => ({
     warnings: [],
   }),
 }));
+=======
+import { describe, expect, it, vi } from "vitest";
+import {
+  confirm,
+  ensureAuthProfileStore,
+  readConfigFileSnapshot,
+  serviceIsLoaded,
+  serviceRestart,
+  writeConfigFile,
+} from "./doctor.e2e-harness.js";
+>>>>>>> ae97f8f79 (refactor(test): share doctor e2e harness)
 
 describe("doctor command", () => {
   it("runs legacy state migrations in yes mode without prompting", async () => {

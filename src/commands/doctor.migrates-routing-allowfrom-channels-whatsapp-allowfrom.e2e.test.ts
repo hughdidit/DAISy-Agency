@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -220,110 +221,22 @@ vi.mock("../infra/moltbot-root.js", () => ({
 }));
 
 vi.mock("../infra/update-runner.js", () => ({
+=======
+import { describe, expect, it, vi } from "vitest";
+import {
+  findLegacyGatewayServices,
+  note,
+  readConfigFileSnapshot,
+  resolveOpenClawPackageRoot,
+  runCommandWithTimeout,
+>>>>>>> ae97f8f79 (refactor(test): share doctor e2e harness)
   runGatewayUpdate,
-}));
-
-vi.mock("../agents/auth-profiles.js", async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    ...actual,
-    ensureAuthProfileStore,
-  };
-});
-
-vi.mock("../daemon/service.js", () => ({
-  resolveGatewayService: () => ({
-    label: "LaunchAgent",
-    loadedText: "loaded",
-    notLoadedText: "not loaded",
-    install: serviceInstall,
-    uninstall: serviceUninstall,
-    stop: serviceStop,
-    restart: serviceRestart,
-    isLoaded: serviceIsLoaded,
-    readCommand: vi.fn(),
-    readRuntime: vi.fn().mockResolvedValue({ status: "running" }),
-  }),
-}));
-
-vi.mock("../pairing/pairing-store.js", () => ({
-  readChannelAllowFromStore: vi.fn().mockResolvedValue([]),
-  upsertChannelPairingRequest: vi.fn().mockResolvedValue({ code: "000000", created: false }),
-}));
-
-vi.mock("../telegram/token.js", () => ({
-  resolveTelegramToken: vi.fn(() => ({ token: "", source: "none" })),
-}));
-
-vi.mock("../runtime.js", () => ({
-  defaultRuntime: {
-    log: () => {},
-    error: () => {},
-    exit: () => {
-      throw new Error("exit");
-    },
-  },
-}));
-
-vi.mock("../utils.js", async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    ...actual,
-    resolveUserPath: (value: string) => value,
-    sleep: vi.fn(),
-  };
-});
-
-vi.mock("./health.js", () => ({
-  healthCommand: vi.fn().mockResolvedValue(undefined),
-}));
-
-vi.mock("./onboard-helpers.js", () => ({
-  applyWizardMetadata: (cfg: Record<string, unknown>) => cfg,
-  DEFAULT_WORKSPACE: "/tmp",
-  guardCancel: (value: unknown) => value,
-  printWizardHeader: vi.fn(),
-  randomToken: vi.fn(() => "test-gateway-token"),
-}));
-
-vi.mock("./doctor-state-migrations.js", () => ({
-  autoMigrateLegacyStateDir: vi.fn().mockResolvedValue({
-    migrated: false,
-    skipped: false,
-    changes: [],
-    warnings: [],
-  }),
-  detectLegacyStateMigrations: vi.fn().mockResolvedValue({
-    targetAgentId: "main",
-    targetMainKey: "main",
-    targetScope: undefined,
-    stateDir: "/tmp/state",
-    oauthDir: "/tmp/oauth",
-    sessions: {
-      legacyDir: "/tmp/state/sessions",
-      legacyStorePath: "/tmp/state/sessions/sessions.json",
-      targetDir: "/tmp/state/agents/main/sessions",
-      targetStorePath: "/tmp/state/agents/main/sessions/sessions.json",
-      hasLegacy: false,
-      legacyKeys: [],
-    },
-    agentDir: {
-      legacyDir: "/tmp/state/agent",
-      targetDir: "/tmp/state/agents/main/agent",
-      hasLegacy: false,
-    },
-    whatsappAuth: {
-      legacyDir: "/tmp/oauth",
-      targetDir: "/tmp/oauth/whatsapp/default",
-      hasLegacy: false,
-    },
-    preview: [],
-  }),
-  runLegacyStateMigrations: vi.fn().mockResolvedValue({
-    changes: [],
-    warnings: [],
-  }),
-}));
+  serviceInstall,
+  serviceIsLoaded,
+  uninstallLegacyGatewayServices,
+  migrateLegacyConfig,
+  writeConfigFile,
+} from "./doctor.e2e-harness.js";
 
 describe("doctor command", () => {
   it("migrates routing.allowFrom to channels.whatsapp.allowFrom", { timeout: 60_000 }, async () => {

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let originalIsTTY: boolean | undefined;
@@ -324,6 +325,10 @@ vi.mock("./doctor-state-migrations.js", () => ({
     warnings: [],
   }),
 }));
+=======
+import { describe, expect, it, vi } from "vitest";
+import { note, readConfigFileSnapshot } from "./doctor.e2e-harness.js";
+>>>>>>> ae97f8f79 (refactor(test): share doctor e2e harness)
 
 describe("doctor command", () => {
   it("warns when per-agent sandbox docker/browser/prune overrides are ignored under shared scope", async () => {
