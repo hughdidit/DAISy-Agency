@@ -3,9 +3,13 @@
 Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.2.10
 =======
 ## 2026.2.13 (Unreleased)
+=======
+## 2026.2.13
+>>>>>>> e91d957d7 (chore(release): publish 2026.2.13 appcast)
 
 ### Changes
 
