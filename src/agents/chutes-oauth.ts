@@ -41,7 +41,10 @@ export function parseOAuthCallbackInput(
   const trimmed = input.trim();
   if (!trimmed) return { error: "No input provided" };
 
+  // Manual flow must validate CSRF state; require URL (or querystring) that includes `state`.
+  let url: URL;
   try {
+<<<<<<< HEAD
     const url = new URL(trimmed);
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state");
@@ -55,7 +58,41 @@ export function parseOAuthCallbackInput(
       return { error: "Paste the full redirect URL, not just the code." };
     }
     return { code: trimmed, state: expectedState };
+=======
+    url = new URL(trimmed);
+  } catch {
+    // Code-only paste (common) is no longer accepted because it defeats state validation.
+    if (
+      !/\s/.test(trimmed) &&
+      !trimmed.includes("://") &&
+      !trimmed.includes("?") &&
+      !trimmed.includes("=")
+    ) {
+      return { error: "Paste the full redirect URL (must include code + state)." };
+    }
+
+    // Users sometimes paste only the query string: `?code=...&state=...` or `code=...&state=...`
+    const qs = trimmed.startsWith("?") ? trimmed : `?${trimmed}`;
+    try {
+      url = new URL(`http://localhost/${qs}`);
+    } catch {
+      return { error: "Paste the full redirect URL (must include code + state)." };
+    }
+>>>>>>> a99ad11a4 (fix: validate state for manual Chutes OAuth)
   }
+
+  const code = url.searchParams.get("code")?.trim();
+  const state = url.searchParams.get("state")?.trim();
+  if (!code) {
+    return { error: "Missing 'code' parameter in URL" };
+  }
+  if (!state) {
+    return { error: "Missing 'state' parameter. Paste the full redirect URL." };
+  }
+  if (state !== expectedState) {
+    return { error: "OAuth state mismatch - possible CSRF attack. Please retry login." };
+  }
+  return { code, state };
 }
 
 function coerceExpiresAt(expiresInSeconds: number, now: number): number {
