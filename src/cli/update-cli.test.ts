@@ -14,6 +14,10 @@ const select = vi.fn();
 const spinner = vi.fn(() => ({ start: vi.fn(), stop: vi.fn() }));
 const isCancel = (value: unknown) => value === "cancel";
 
+const readPackageName = vi.fn();
+const readPackageVersion = vi.fn();
+const resolveGlobalManager = vi.fn();
+
 vi.mock("@clack/prompts", () => ({
   confirm,
   select,
@@ -50,6 +54,16 @@ vi.mock("../infra/update-check.js", async () => {
 vi.mock("../process/exec.js", () => ({
   runCommandWithTimeout: vi.fn(),
 }));
+
+vi.mock("./update-cli/shared.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./update-cli/shared.js")>();
+  return {
+    ...actual,
+    readPackageName,
+    readPackageVersion,
+    resolveGlobalManager,
+  };
+});
 
 // Mock doctor (heavy module; should not run in unit tests)
 vi.mock("../commands/doctor.js", () => ({
@@ -119,6 +133,7 @@ describe("update-cli", () => {
   };
 
   beforeEach(() => {
+<<<<<<< HEAD
     vi.clearAllMocks();
 <<<<<<< HEAD
     const { resolveMoltbotPackageRoot } = await import("../infra/moltbot-root.js");
@@ -128,6 +143,25 @@ describe("update-cli", () => {
     const { runCommandWithTimeout } = await import("../process/exec.js");
     vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue(process.cwd());
 =======
+=======
+    confirm.mockReset();
+    select.mockReset();
+    vi.mocked(runGatewayUpdate).mockReset();
+    vi.mocked(resolveOpenClawPackageRoot).mockReset();
+    vi.mocked(readConfigFileSnapshot).mockReset();
+    vi.mocked(writeConfigFile).mockReset();
+    vi.mocked(checkUpdateStatus).mockReset();
+    vi.mocked(fetchNpmTagVersion).mockReset();
+    vi.mocked(resolveNpmChannelTag).mockReset();
+    vi.mocked(runCommandWithTimeout).mockReset();
+    vi.mocked(runDaemonRestart).mockReset();
+    vi.mocked(defaultRuntime.log).mockReset();
+    vi.mocked(defaultRuntime.error).mockReset();
+    vi.mocked(defaultRuntime.exit).mockReset();
+    readPackageName.mockReset();
+    readPackageVersion.mockReset();
+    resolveGlobalManager.mockReset();
+>>>>>>> 76e4e9d17 (perf(test): reduce skills + update + memory suite overhead)
     vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(process.cwd());
 >>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
     vi.mocked(readConfigFileSnapshot).mockResolvedValue(baseSnapshot);
@@ -171,6 +205,9 @@ describe("update-cli", () => {
       signal: null,
       killed: false,
     });
+    readPackageName.mockResolvedValue("openclaw");
+    readPackageVersion.mockResolvedValue("1.0.0");
+    resolveGlobalManager.mockResolvedValue("npm");
     setTty(false);
     setStdoutTty(false);
   });
@@ -272,11 +309,6 @@ describe("update-cli", () => {
       vi.mocked(runGatewayUpdate).mockResolvedValue({
 =======
     const tempDir = await createCaseDir("openclaw-update");
-    await fs.writeFile(
-      path.join(tempDir, "package.json"),
-      JSON.stringify({ name: "openclaw", version: "1.0.0" }),
-      "utf-8",
-    );
 
     vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
     vi.mocked(checkUpdateStatus).mockResolvedValue({
@@ -367,11 +399,6 @@ describe("update-cli", () => {
       vi.mocked(runGatewayUpdate).mockResolvedValue({
 =======
     const tempDir = await createCaseDir("openclaw-update");
-    await fs.writeFile(
-      path.join(tempDir, "package.json"),
-      JSON.stringify({ name: "openclaw", version: "1.0.0" }),
-      "utf-8",
-    );
 
     vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
     vi.mocked(readConfigFileSnapshot).mockResolvedValue({
@@ -435,11 +462,6 @@ describe("update-cli", () => {
       });
 =======
     const tempDir = await createCaseDir("openclaw-update");
-    await fs.writeFile(
-      path.join(tempDir, "package.json"),
-      JSON.stringify({ name: "openclaw", version: "1.0.0" }),
-      "utf-8",
-    );
 
     vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
     vi.mocked(runGatewayUpdate).mockResolvedValue({
@@ -618,11 +640,7 @@ describe("update-cli", () => {
 =======
     const tempDir = await createCaseDir("openclaw-update");
     setTty(false);
-    await fs.writeFile(
-      path.join(tempDir, "package.json"),
-      JSON.stringify({ name: "openclaw", version: "2.0.0" }),
-      "utf-8",
-    );
+    readPackageVersion.mockResolvedValue("2.0.0");
 
     vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
     vi.mocked(checkUpdateStatus).mockResolvedValue({
@@ -700,11 +718,7 @@ describe("update-cli", () => {
 =======
     const tempDir = await createCaseDir("openclaw-update");
     setTty(false);
-    await fs.writeFile(
-      path.join(tempDir, "package.json"),
-      JSON.stringify({ name: "openclaw", version: "2.0.0" }),
-      "utf-8",
-    );
+    readPackageVersion.mockResolvedValue("2.0.0");
 
     vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
     vi.mocked(checkUpdateStatus).mockResolvedValue({
