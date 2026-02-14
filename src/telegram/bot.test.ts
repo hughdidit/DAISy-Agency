@@ -1625,6 +1625,7 @@ describe("createTelegramBot", () => {
     expect(replySpy).not.toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
   it("blocks group messages from senders not in allowFrom when groupPolicy is 'allowlist'", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -1779,6 +1780,8 @@ describe("createTelegramBot", () => {
     expect(replySpy).toHaveBeenCalledTimes(1);
   });
 
+=======
+>>>>>>> d3eb01489 (perf(test): dedupe telegram/node coverage and speed fixtures)
   it("allows all group messages when groupPolicy is 'open'", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -1809,6 +1812,7 @@ describe("createTelegramBot", () => {
     expect(replySpy).toHaveBeenCalledTimes(1);
   });
 
+<<<<<<< HEAD
   it("matches usernames case-insensitively when groupPolicy is 'allowlist'", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -1840,6 +1844,8 @@ describe("createTelegramBot", () => {
     expect(replySpy).toHaveBeenCalledTimes(1);
   });
 
+=======
+>>>>>>> d3eb01489 (perf(test): dedupe telegram/node coverage and speed fixtures)
   it("allows direct messages regardless of groupPolicy", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -1899,6 +1905,7 @@ describe("createTelegramBot", () => {
     expect(replySpy).toHaveBeenCalledTimes(1);
   });
 
+<<<<<<< HEAD
   it("allows direct messages with telegram:-prefixed allowFrom entries", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;
@@ -2053,6 +2060,8 @@ describe("createTelegramBot", () => {
     expect(replySpy).toHaveBeenCalled();
   });
 
+=======
+>>>>>>> d3eb01489 (perf(test): dedupe telegram/node coverage and speed fixtures)
   it("blocks group messages when groupPolicy allowlist has no groupAllowFrom", async () => {
     onSpy.mockReset();
     const replySpy = replyModule.__replySpy as unknown as ReturnType<typeof vi.fn>;

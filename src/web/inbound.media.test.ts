@@ -89,6 +89,17 @@ vi.mock("./session.js", () => {
 
 import { monitorWebInbox, resetWebInboundDedupe } from "./inbound.js";
 
+<<<<<<< HEAD
+=======
+async function waitForMessage(onMessage: ReturnType<typeof vi.fn>) {
+  await vi.waitFor(() => expect(onMessage).toHaveBeenCalledTimes(1), {
+    interval: 1,
+    timeout: 250,
+  });
+  return onMessage.mock.calls[0][0];
+}
+
+>>>>>>> d3eb01489 (perf(test): dedupe telegram/node coverage and speed fixtures)
 describe("web inbound media saves with extension", () => {
   beforeEach(() => {
     saveMediaBufferSpy.mockClear();
