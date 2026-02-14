@@ -82,6 +82,12 @@ Docs: https://docs.openclaw.ai
 - Security/Zalo: reject ambiguous shared-path webhook routing when multiple webhook targets match the same secret.
 - Security/BlueBubbles: reject ambiguous shared-path webhook routing when multiple webhook targets match the same guid/password.
 - Cron/Slack: preserve agent identity (name and icon) when cron jobs deliver outbound messages. (#16242) Thanks @robbyczgw-cla.
+<<<<<<< HEAD
+=======
+- Cron: deliver text-only output directly when `delivery.to` is set so cron recipients get full output instead of summaries. (#16360) Thanks @thewilloftheshadow.
+- Cron: prevent `cron list`/`cron status` from silently skipping past-due recurring jobs by using maintenance recompute semantics. (#16156) Thanks @zerone0x.
+- Cron: repair missing/corrupt `nextRunAtMs` for the updated job without globally recomputing unrelated due jobs during `cron update`. (#15750)
+>>>>>>> 2fa78c17d (Changelog: credit cron delivery fix)
 - Discord: prefer gateway guild id when logging inbound messages so cached-miss guilds do not appear as `guild=dm`. Thanks @thewilloftheshadow.
 >>>>>>> 3e6d1e9cf (docs: update changelog)
 
