@@ -38,6 +38,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 =======
 - Security/Browser: block cross-origin mutating requests to loopback browser control routes (CSRF hardening). Thanks @vincentkoc.
+- Security/Nostr: require loopback source and block cross-origin profile mutation/import attempts. Thanks @vincentkoc.
 - Security/Archive: enforce archive extraction entry/size limits to prevent resource exhaustion from high-expansion ZIP/TAR archives. Thanks @vincentkoc.
 - Security/Media: reject oversized base64-backed input media before decoding to avoid large allocations. Thanks @vincentkoc.
 - Security/Gateway: reject oversized base64 chat attachments before decoding to avoid large allocations. Thanks @vincentkoc.
