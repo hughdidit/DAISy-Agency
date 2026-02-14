@@ -77,6 +77,7 @@ error.log
 # local tooling
 .serena/
 
+<<<<<<< HEAD
 # Claude Code local (personal / machine-specific) settings
 .claude/settings.local.json
 .claude/*.local.*
@@ -92,3 +93,11 @@ secrets/
 .var/
 AGENTS.md
 AGENTS.md.bak.md
+=======
+# Agent credentials and memory (NEVER COMMIT)
+/memory/
+.agent/*.json
+!.agent/workflows/
+/local/
+package-lock.json
+>>>>>>> 0cfea4629 (fix: wire minimax-api-key-cn onboarding (#15191) (thanks @liuy))

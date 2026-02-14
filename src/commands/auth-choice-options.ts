@@ -50,8 +50,37 @@ const AUTH_CHOICE_GROUP_DEFS: {
   {
     value: "minimax",
     label: "MiniMax",
+<<<<<<< HEAD
     hint: "M2.1 (recommended)",
     choices: ["minimax-api", "minimax-api-lightning"],
+=======
+    hint: "M2.5 (recommended)",
+    choices: ["minimax-portal", "minimax-api", "minimax-api-key-cn", "minimax-api-lightning"],
+  },
+  {
+    value: "moonshot",
+    label: "Moonshot AI (Kimi K2.5)",
+    hint: "Kimi K2.5 + Kimi Coding",
+    choices: ["moonshot-api-key", "moonshot-api-key-cn", "kimi-code-api-key"],
+  },
+  {
+    value: "google",
+    label: "Google",
+    hint: "Gemini API key + OAuth",
+    choices: ["gemini-api-key", "google-antigravity", "google-gemini-cli"],
+  },
+  {
+    value: "xai",
+    label: "xAI (Grok)",
+    hint: "API key",
+    choices: ["xai-api-key"],
+  },
+  {
+    value: "openrouter",
+    label: "OpenRouter",
+    hint: "API key",
+    choices: ["openrouter-api-key"],
+>>>>>>> 0cfea4629 (fix: wire minimax-api-key-cn onboarding (#15191) (thanks @liuy))
   },
   {
     value: "qwen",
@@ -113,6 +142,21 @@ const AUTH_CHOICE_GROUP_DEFS: {
     hint: "API key",
     choices: ["opencode-zen"],
   },
+<<<<<<< HEAD
+=======
+  { value: "minimax-api", label: "MiniMax M2.5" },
+  {
+    value: "minimax-api-key-cn",
+    label: "MiniMax M2.5 (CN)",
+    hint: "China endpoint (api.minimaxi.com)",
+  },
+  {
+    value: "minimax-api-lightning",
+    label: "MiniMax M2.5 Lightning",
+    hint: "Faster, higher output cost",
+  },
+  { value: "custom-api-key", label: "Custom Provider" },
+>>>>>>> 0cfea4629 (fix: wire minimax-api-key-cn onboarding (#15191) (thanks @liuy))
 ];
 
 export function buildAuthChoiceOptions(params: {
