@@ -14,7 +14,8 @@ import { monitorTlonProvider } from "./monitor/index.js";
 import { tlonOnboardingAdapter } from "./onboarding.js";
 import { formatTargetHint, normalizeShip, parseTlonTarget } from "./targets.js";
 import { resolveTlonAccount, listTlonAccountIds } from "./types.js";
-import { ensureUrbitConnectPatched, Urbit } from "./urbit/http-api.js";
+import { authenticate } from "./urbit/auth.js";
+import { UrbitChannelClient } from "./urbit/channel-client.js";
 import { buildMediaText, sendDm, sendGroupMessage } from "./urbit/send.js";
 
 const TLON_CHANNEL_ID = "tlon" as const;
@@ -23,6 +24,7 @@ type TlonSetupInput = ChannelSetupInput & {
   ship?: string;
   url?: string;
   code?: string;
+  allowPrivateNetwork?: boolean;
   groupChannels?: string[];
   dmAllowlist?: string[];
   autoDiscoverChannels?: boolean;
@@ -47,6 +49,9 @@ function applyTlonSetupConfig(params: {
     ...(input.ship ? { ship: input.ship } : {}),
     ...(input.url ? { url: input.url } : {}),
     ...(input.code ? { code: input.code } : {}),
+    ...(typeof input.allowPrivateNetwork === "boolean"
+      ? { allowPrivateNetwork: input.allowPrivateNetwork }
+      : {}),
     ...(input.groupChannels ? { groupChannels: input.groupChannels } : {}),
     ...(input.dmAllowlist ? { dmAllowlist: input.dmAllowlist } : {}),
     ...(typeof input.autoDiscoverChannels === "boolean"
@@ -117,12 +122,11 @@ const tlonOutbound: ChannelOutboundAdapter = {
       throw new Error(`Invalid Tlon target. Use ${formatTargetHint()}`);
     }
 
-    ensureUrbitConnectPatched();
-    const api = await Urbit.authenticate({
+    const ssrfPolicy = account.allowPrivateNetwork ? { allowPrivateNetwork: true } : undefined;
+    const cookie = await authenticate(account.url, account.code, { ssrfPolicy });
+    const api = new UrbitChannelClient(account.url, cookie, {
       ship: account.ship.replace(/^~/, ""),
-      url: account.url,
-      code: account.code,
-      verbose: false,
+      ssrfPolicy,
     });
 
     try {
@@ -145,11 +149,7 @@ const tlonOutbound: ChannelOutboundAdapter = {
         replyToId: replyId,
       });
     } finally {
-      try {
-        await api.delete();
-      } catch {
-        // ignore cleanup errors
-      }
+      await api.close();
     }
   },
   sendMedia: async ({ cfg, to, text, mediaUrl, accountId, replyToId, threadId }) => {
@@ -342,18 +342,17 @@ export const tlonPlugin: ChannelPlugin = {
         return { ok: false, error: "Not configured" };
       }
       try {
-        ensureUrbitConnectPatched();
-        const api = await Urbit.authenticate({
+        const ssrfPolicy = account.allowPrivateNetwork ? { allowPrivateNetwork: true } : undefined;
+        const cookie = await authenticate(account.url, account.code, { ssrfPolicy });
+        const api = new UrbitChannelClient(account.url, cookie, {
           ship: account.ship.replace(/^~/, ""),
-          url: account.url,
-          code: account.code,
-          verbose: false,
+          ssrfPolicy,
         });
         try {
           await api.getOurName();
           return { ok: true };
         } finally {
-          await api.delete();
+          await api.close();
         }
       } catch (error) {
         return { ok: false, error: error?.message ?? String(error) };
