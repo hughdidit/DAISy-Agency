@@ -17,6 +17,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.31
 =======
 =======
@@ -25,6 +26,15 @@ Docs: https://docs.openclaw.ai
 =======
 ## 2026.2.13 (Unreleased)
 =======
+=======
+## Unreleased
+
+### Fixes
+
+- Security/Hooks: restrict hook transform modules to `~/.openclaw/hooks/transforms` (prevents path traversal/escape module loads via config). Config note: `hooks.transformsDir` must now be within that directory. Thanks @akhmittra.
+- Security/Hooks: ignore hook package manifest entries that point outside the package directory (prevents out-of-tree handler loads during hook discovery).
+
+>>>>>>> d69b32a07 (docs(changelog): clarify hooks transform dir restriction)
 ## 2026.2.13
 >>>>>>> e91d957d7 (chore(release): publish 2026.2.13 appcast)
 
