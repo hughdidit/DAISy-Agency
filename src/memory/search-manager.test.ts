@@ -22,6 +22,42 @@ const mockPrimary = {
   close: vi.fn(async () => {}),
 };
 
+<<<<<<< HEAD
+=======
+const fallbackSearch = vi.fn(async () => [
+  {
+    path: "MEMORY.md",
+    startLine: 1,
+    endLine: 1,
+    score: 1,
+    snippet: "fallback",
+    source: "memory" as const,
+  },
+]);
+
+const fallbackManager = {
+  search: fallbackSearch,
+  readFile: vi.fn(async () => ({ text: "", path: "MEMORY.md" })),
+  status: vi.fn(() => ({
+    backend: "builtin" as const,
+    provider: "openai",
+    model: "text-embedding-3-small",
+    requestedProvider: "openai",
+    files: 0,
+    chunks: 0,
+    dirty: false,
+    workspaceDir: "/tmp",
+    dbPath: "/tmp/index.sqlite",
+  })),
+  sync: vi.fn(async () => {}),
+  probeEmbeddingAvailability: vi.fn(async () => ({ ok: true })),
+  probeVectorAvailability: vi.fn(async () => true),
+  close: vi.fn(async () => {}),
+};
+
+const mockMemoryIndexGet = vi.fn(async () => fallbackManager);
+
+>>>>>>> c4dbcc344 (Memory/QMD: make status checks side-effect free)
 vi.mock("./qmd-manager.js", () => ({
   QmdMemoryManager: {
     create: vi.fn(async () => mockPrimary),
@@ -30,6 +66,7 @@ vi.mock("./qmd-manager.js", () => ({
 
 vi.mock("./manager.js", () => ({
   MemoryIndexManager: {
+<<<<<<< HEAD
     get: vi.fn(async () => ({
       search: vi.fn(async () => [
         {
@@ -58,6 +95,9 @@ vi.mock("./manager.js", () => ({
       probeVectorAvailability: vi.fn(async () => true),
       close: vi.fn(async () => {}),
     })),
+=======
+    get: mockMemoryIndexGet,
+>>>>>>> c4dbcc344 (Memory/QMD: make status checks side-effect free)
   },
 }));
 
@@ -72,6 +112,18 @@ beforeEach(() => {
   mockPrimary.probeEmbeddingAvailability.mockClear();
   mockPrimary.probeVectorAvailability.mockClear();
   mockPrimary.close.mockClear();
+<<<<<<< HEAD
+=======
+  fallbackSearch.mockClear();
+  fallbackManager.readFile.mockClear();
+  fallbackManager.status.mockClear();
+  fallbackManager.sync.mockClear();
+  fallbackManager.probeEmbeddingAvailability.mockClear();
+  fallbackManager.probeVectorAvailability.mockClear();
+  fallbackManager.close.mockClear();
+  mockMemoryIndexGet.mockReset();
+  mockMemoryIndexGet.mockResolvedValue(fallbackManager);
+>>>>>>> c4dbcc344 (Memory/QMD: make status checks side-effect free)
   QmdMemoryManager.create.mockClear();
 });
 
@@ -113,6 +165,32 @@ describe("getMemorySearchManager caching", () => {
     expect(second.manager).not.toBe(first.manager);
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(QmdMemoryManager.create).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not cache status-only qmd managers", async () => {
+    const agentId = "status-agent";
+    const cfg = {
+      memory: { backend: "qmd", qmd: {} },
+      agents: { list: [{ id: agentId, default: true, workspace: "/tmp/workspace" }] },
+    } as const;
+
+    const first = await getMemorySearchManager({ cfg, agentId, purpose: "status" });
+    const second = await getMemorySearchManager({ cfg, agentId, purpose: "status" });
+
+    expect(first.manager).toBeTruthy();
+    expect(second.manager).toBeTruthy();
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(QmdMemoryManager.create).toHaveBeenCalledTimes(2);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(QmdMemoryManager.create).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ agentId, mode: "status" }),
+    );
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(QmdMemoryManager.create).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ agentId, mode: "status" }),
+    );
   });
 
   it("does not evict a newer cached wrapper when closing an older failed wrapper", async () => {
