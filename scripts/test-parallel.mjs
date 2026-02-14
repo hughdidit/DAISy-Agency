@@ -42,8 +42,15 @@ const resolvedOverride = Number.isFinite(overrideWorkers) && overrideWorkers > 0
 =======
 =======
 const nodeMajor = Number.parseInt(process.versions.node.split(".")[0] ?? "", 10);
+<<<<<<< HEAD
 const supportsVmForks = Number.isFinite(nodeMajor) ? nodeMajor < 24 : true;
 >>>>>>> 5d37b204c (Tests: disable vmForks on Node 24 and document override)
+=======
+// vmForks is a big win for transform/import heavy suites, but Node 24 had
+// regressions with Vitest's vm runtime in this repo. Keep it opt-out via
+// OPENCLAW_TEST_VM_FORKS=0, and let users force-enable with =1.
+const supportsVmForks = Number.isFinite(nodeMajor) ? nodeMajor !== 24 : true;
+>>>>>>> d1f01de59 (perf(test): default to vmForks on Node 25; unstub envs)
 const useVmForks =
   process.env.OPENCLAW_TEST_VM_FORKS === "1" ||
   (process.env.OPENCLAW_TEST_VM_FORKS !== "0" && !isWindows && supportsVmForks);
