@@ -4,9 +4,17 @@ import type { MoltbotConfig } from "../../config/config.js";
 import { GatewayClient } from "../../gateway/client.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 import type { EventFrame } from "../../gateway/protocol/index.js";
+<<<<<<< HEAD
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
 <<<<<<< HEAD
 =======
+=======
+import type {
+  ExecApprovalDecision,
+  ExecApprovalRequest,
+  ExecApprovalResolved,
+} from "../../infra/exec-approvals.js";
+>>>>>>> e9de24215 (refactor(exec-approvals): share request event types)
 import type { RuntimeEnv } from "../../runtime.js";
 import { buildGatewayConnectionDetails } from "../../gateway/call.js";
 import { GatewayClient } from "../../gateway/client.js";
@@ -20,28 +28,7 @@ import type { RuntimeEnv } from "../../runtime.js";
 
 const EXEC_APPROVAL_KEY = "execapproval";
 
-export type ExecApprovalRequest = {
-  id: string;
-  request: {
-    command: string;
-    cwd?: string | null;
-    host?: string | null;
-    security?: string | null;
-    ask?: string | null;
-    agentId?: string | null;
-    resolvedPath?: string | null;
-    sessionKey?: string | null;
-  };
-  createdAtMs: number;
-  expiresAtMs: number;
-};
-
-export type ExecApprovalResolved = {
-  id: string;
-  decision: ExecApprovalDecision;
-  resolvedBy?: string | null;
-  ts: number;
-};
+export type { ExecApprovalRequest, ExecApprovalResolved };
 
 type PendingApproval = {
   discordMessageId: string;
