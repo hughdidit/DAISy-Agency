@@ -339,7 +339,7 @@ export const registerTelegramNativeCommands = ({
       command: command.name,
       description: command.description,
     })),
-    ...pluginCatalog.commands,
+    ...(nativeEnabled ? pluginCatalog.commands : []),
     ...customCommands,
   ];
 <<<<<<< HEAD
@@ -394,7 +394,11 @@ export const registerTelegramNativeCommands = ({
   syncTelegramMenuCommands({ bot, runtime, commandsToRegister });
 >>>>>>> cc2249a43 (refactor(telegram): extract native command menu helpers)
 
+<<<<<<< HEAD
   if (allCommands.length > 0) {
+=======
+  if (commandsToRegister.length > 0 || pluginCatalog.commands.length > 0) {
+>>>>>>> f537bd179 (fix(telegram): exclude plugin commands from setMyCommands when native=false (openclaw#15164) thanks @Glucksberg)
     if (typeof (bot as unknown as { command?: unknown }).command !== "function") {
       logVerbose("telegram: bot.command unavailable; skipping native handlers");
     } else {
