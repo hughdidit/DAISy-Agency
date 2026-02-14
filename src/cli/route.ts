@@ -4,8 +4,15 @@ import { isTruthyEnvValue } from "../infra/env.js";
 import { emitCliBanner } from "./banner.js";
 import { VERSION } from "../version.js";
 import { getCommandPath, hasHelpOrVersion } from "./argv.js";
+<<<<<<< HEAD
 import { ensureConfigReady } from "./program/config-guard.js";
 import { findRoutedCommand } from "./program/command-registry.js";
+=======
+import { emitCliBanner } from "./banner.js";
+import { ensurePluginRegistryLoaded } from "./plugin-registry.js";
+import { ensureConfigReady } from "./program/config-guard.js";
+import { findRoutedCommand } from "./program/routes.js";
+>>>>>>> 2f49d8858 (perf(cli): slim route-first bootstrap with lazy route handlers)
 
 async function prepareRoutedCommand(params: {
   argv: string[];
