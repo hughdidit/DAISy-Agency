@@ -223,4 +223,48 @@ describe("getMemorySearchManager caching", () => {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(QmdMemoryManager.create).toHaveBeenCalledTimes(2);
   });
+<<<<<<< HEAD
+=======
+
+  it("falls back to builtin search when qmd fails with sqlite busy", async () => {
+    const retryAgentId = "retry-agent-busy";
+    const cfg = {
+      memory: { backend: "qmd", qmd: {} },
+      agents: { list: [{ id: retryAgentId, default: true, workspace: "/tmp/workspace" }] },
+    } as const;
+
+    mockPrimary.search.mockRejectedValueOnce(
+      new Error("qmd index busy while reading results: SQLITE_BUSY: database is locked"),
+    );
+
+    const first = await getMemorySearchManager({ cfg, agentId: retryAgentId });
+    expect(first.manager).toBeTruthy();
+    if (!first.manager) {
+      throw new Error("manager missing");
+    }
+
+    const results = await first.manager.search("hello");
+    expect(results).toHaveLength(1);
+    expect(results[0]?.path).toBe("MEMORY.md");
+    expect(fallbackSearch).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps original qmd error when fallback manager initialization fails", async () => {
+    const retryAgentId = "retry-agent-no-fallback-auth";
+    const cfg = {
+      memory: { backend: "qmd", qmd: {} },
+      agents: { list: [{ id: retryAgentId, default: true, workspace: "/tmp/workspace" }] },
+    } as const;
+
+    mockPrimary.search.mockRejectedValueOnce(new Error("qmd query failed"));
+    mockMemoryIndexGet.mockRejectedValueOnce(new Error("No API key found for provider openai"));
+
+    const first = await getMemorySearchManager({ cfg, agentId: retryAgentId });
+    if (!first.manager) {
+      throw new Error("manager missing");
+    }
+
+    await expect(first.manager.search("hello")).rejects.toThrow("qmd query failed");
+  });
+>>>>>>> 53a8f474e (Memory/QMD: handle fallback init failures gracefully)
 });
