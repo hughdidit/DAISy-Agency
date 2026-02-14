@@ -3,6 +3,7 @@ import type { WebhookRequestBody } from "@line/bot-sdk";
 import { logVerbose, danger } from "../globals.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { validateLineSignature } from "./signature.js";
+import { isLineWebhookVerificationRequest, parseLineWebhookBody } from "./webhook-utils.js";
 
 export interface LineWebhookOptions {
   channelSecret: string;
@@ -20,15 +21,14 @@ function readRawBody(req: Request): string | null {
   return Buffer.isBuffer(rawBody) ? rawBody.toString("utf-8") : rawBody;
 }
 
-function parseWebhookBody(req: Request, rawBody: string): WebhookRequestBody | null {
+function parseWebhookBody(req: Request, rawBody?: string | null): WebhookRequestBody | null {
   if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) {
     return req.body as WebhookRequestBody;
   }
-  try {
-    return JSON.parse(rawBody) as WebhookRequestBody;
-  } catch {
+  if (!rawBody) {
     return null;
   }
+  return parseLineWebhookBody(rawBody);
 }
 
 export function createLineWebhookMiddleware(
@@ -40,11 +40,13 @@ export function createLineWebhookMiddleware(
     try {
       const signature = req.headers["x-line-signature"];
       const rawBody = readRawBody(req);
+      const body = parseWebhookBody(req, rawBody);
 
       // LINE webhook verification sends POST {"events":[]} without a
       // signature header.  Return 200 immediately so the LINE Developers
       // Console "Verify" button succeeds.
       if (!signature || typeof signature !== "string") {
+<<<<<<< HEAD
         if (rawBody) {
           const body = parseWebhookBody(req, rawBody);
           if (body && Array.isArray(body.events) && body.events.length === 0) {
@@ -52,6 +54,12 @@ export function createLineWebhookMiddleware(
             res.status(200).json({ status: "ok" });
             return;
           }
+=======
+        if (isLineWebhookVerificationRequest(body)) {
+          logVerbose("line: webhook verification request (empty events, no signature) - 200 OK");
+          res.status(200).json({ status: "ok" });
+          return;
+>>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
         }
         res.status(400).json({ error: "Missing X-Line-Signature header" });
         return;
@@ -68,7 +76,6 @@ export function createLineWebhookMiddleware(
         return;
       }
 
-      const body = parseWebhookBody(req, rawBody);
       if (!body) {
         res.status(400).json({ error: "Invalid webhook payload" });
         return;

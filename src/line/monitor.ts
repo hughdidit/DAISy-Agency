@@ -1,8 +1,11 @@
 import type { WebhookRequestBody } from "@line/bot-sdk";
+<<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
+=======
+>>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { LineChannelData, ResolvedLineAccount } from "./types.js";
@@ -11,9 +14,12 @@ import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/pr
 import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { danger, logVerbose } from "../globals.js";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import { createLineBot } from "./bot.js";
 import { validateLineSignature } from "./signature.js";
+=======
+>>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
 import { normalizePluginHttpPath } from "../plugins/http-path.js";
 import { registerPluginHttpRoute } from "../plugins/http-registry.js";
 import {
@@ -30,6 +36,7 @@ import {
   createLocationMessage,
 } from "./send.js";
 import { buildTemplateMessageFromPayload } from "./template-messages.js";
+<<<<<<< HEAD
 import type { LineChannelData, ResolvedLineAccount } from "./types.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
 import { resolveEffectiveMessagesConfig } from "../agents/identity.js";
@@ -37,6 +44,9 @@ import { chunkMarkdownText } from "../auto-reply/chunk.js";
 import { processLineMessage } from "./markdown-to-line.js";
 import { sendLineReplyChunks } from "./reply-chunks.js";
 import { deliverLineAutoReply } from "./auto-reply-delivery.js";
+=======
+import { createLineNodeWebhookHandler } from "./webhook-node.js";
+>>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
 
 export interface MonitorLineProviderOptions {
   channelAccessToken: string;
@@ -94,6 +104,7 @@ export function getLineRuntimeState(accountId: string) {
   return runtimeState.get(`line:${accountId}`);
 }
 
+<<<<<<< HEAD
 async function readRequestBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
@@ -103,6 +114,8 @@ async function readRequestBody(req: IncomingMessage): Promise<string> {
   });
 }
 
+=======
+>>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
 function startLineLoadingKeepalive(params: {
   userId: string;
   accountId?: string;
@@ -300,6 +313,7 @@ export async function monitorLineProvider(
     pluginId: "line",
     accountId: resolvedAccountId,
     log: (msg) => logVerbose(msg),
+<<<<<<< HEAD
     handler: async (req: IncomingMessage, res: ServerResponse) => {
       // Handle GET requests for webhook verification
       if (req.method === "GET") {
@@ -379,6 +393,9 @@ export async function monitorLineProvider(
         }
       }
     },
+=======
+    handler: createLineNodeWebhookHandler({ channelSecret, bot, runtime }),
+>>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
   });
 
   logVerbose(`line: registered webhook handler at ${normalizedPath}`);
