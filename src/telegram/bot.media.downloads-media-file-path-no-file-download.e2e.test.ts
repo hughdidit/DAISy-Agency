@@ -17,8 +17,8 @@ const resolvePinnedHostname = ssrf.resolvePinnedHostname;
 const lookupMock = vi.fn();
 let resolvePinnedHostnameSpy: ReturnType<typeof vi.spyOn> = null;
 const TELEGRAM_TEST_TIMINGS = {
-  mediaGroupFlushMs: 75,
-  textFragmentGapMs: 120,
+  mediaGroupFlushMs: 20,
+  textFragmentGapMs: 30,
 } as const;
 >>>>>>> e746a67cc (perf: speed up telegram media e2e flush timing)
 
@@ -303,7 +303,7 @@ describe("telegram media groups", () => {
   });
 
   const MEDIA_GROUP_TEST_TIMEOUT_MS = process.platform === "win32" ? 45_000 : 20_000;
-  const MEDIA_GROUP_FLUSH_MS = TELEGRAM_TEST_TIMINGS.mediaGroupFlushMs + 120;
+  const MEDIA_GROUP_FLUSH_MS = TELEGRAM_TEST_TIMINGS.mediaGroupFlushMs + 60;
 
   it(
     "buffers messages with same media_group_id and processes them together",
@@ -740,7 +740,7 @@ describe("telegram text fragments", () => {
   });
 
   const TEXT_FRAGMENT_TEST_TIMEOUT_MS = process.platform === "win32" ? 45_000 : 20_000;
-  const TEXT_FRAGMENT_FLUSH_MS = TELEGRAM_TEST_TIMINGS.textFragmentGapMs + 160;
+  const TEXT_FRAGMENT_FLUSH_MS = TELEGRAM_TEST_TIMINGS.textFragmentGapMs + 80;
 
   it(
     "buffers near-limit text and processes sequential parts as one message",
