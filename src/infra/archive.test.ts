@@ -104,6 +104,27 @@ describe("archive utils", () => {
     ).rejects.toThrow("archive extracted size exceeds limit");
   });
 
+  it("rejects archives that exceed archive size budget", async () => {
+    const workDir = await makeTempDir();
+    const archivePath = path.join(workDir, "bundle.zip");
+    const extractDir = path.join(workDir, "extract");
+
+    const zip = new JSZip();
+    zip.file("package/file.txt", "ok");
+    await fs.writeFile(archivePath, await zip.generateAsync({ type: "nodebuffer" }));
+    const stat = await fs.stat(archivePath);
+
+    await fs.mkdir(extractDir, { recursive: true });
+    await expect(
+      extractArchive({
+        archivePath,
+        destDir: extractDir,
+        timeoutMs: 5_000,
+        limits: { maxArchiveBytes: Math.max(1, stat.size - 1) },
+      }),
+    ).rejects.toThrow("archive size exceeds limit");
+  });
+
   it("rejects tar archives that exceed extracted size budget", async () => {
     const workDir = await makeTempDir();
     const archivePath = path.join(workDir, "bundle.tar");
@@ -124,5 +145,29 @@ describe("archive utils", () => {
       }),
     ).rejects.toThrow("archive extracted size exceeds limit");
   });
+<<<<<<< HEAD
 >>>>>>> d3ee5deb8 (fix(archive): enforce extraction resource limits)
+=======
+
+  it("rejects tar entries with absolute extraction paths", async () => {
+    const workDir = await makeTempDir();
+    const archivePath = path.join(workDir, "bundle.tar");
+    const extractDir = path.join(workDir, "extract");
+
+    const inputDir = path.join(workDir, "input");
+    const outsideFile = path.join(inputDir, "outside.txt");
+    await fs.mkdir(inputDir, { recursive: true });
+    await fs.writeFile(outsideFile, "owned");
+    await tar.c({ file: archivePath, preservePaths: true }, [outsideFile]);
+
+    await fs.mkdir(extractDir, { recursive: true });
+    await expect(
+      extractArchive({
+        archivePath,
+        destDir: extractDir,
+        timeoutMs: 5_000,
+      }),
+    ).rejects.toThrow(/absolute|escapes destination/i);
+  });
+>>>>>>> 5f4b29145 (test(archive): cover archive size and absolute tar paths)
 });
