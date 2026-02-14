@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import { join } from "node:path";
@@ -13,6 +14,10 @@ import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.j
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> cfc2604d3 (perf(test): speed up heartbeat typing suite)
+=======
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createTempHomeHarness, makeReplyConfig } from "./reply.test-harness.js";
+>>>>>>> cf26c409c (refactor(test): share auto-reply temp home harness)
 
 const runEmbeddedPiAgentMock = vi.fn();
 
@@ -51,45 +56,12 @@ vi.mock("../web/session.js", () => webMocks);
 
 import { getReplyFromConfig } from "./reply.js";
 
-type HomeEnvSnapshot = {
-  HOME: string | undefined;
-  USERPROFILE: string | undefined;
-  HOMEDRIVE: string | undefined;
-  HOMEPATH: string | undefined;
-  OPENCLAW_STATE_DIR: string | undefined;
-  OPENCLAW_AGENT_DIR: string | undefined;
-  PI_CODING_AGENT_DIR: string | undefined;
-};
-
-function snapshotHomeEnv(): HomeEnvSnapshot {
-  return {
-    HOME: process.env.HOME,
-    USERPROFILE: process.env.USERPROFILE,
-    HOMEDRIVE: process.env.HOMEDRIVE,
-    HOMEPATH: process.env.HOMEPATH,
-    OPENCLAW_STATE_DIR: process.env.OPENCLAW_STATE_DIR,
-    OPENCLAW_AGENT_DIR: process.env.OPENCLAW_AGENT_DIR,
-    PI_CODING_AGENT_DIR: process.env.PI_CODING_AGENT_DIR,
-  };
-}
-
-function restoreHomeEnv(snapshot: HomeEnvSnapshot) {
-  for (const [key, value] of Object.entries(snapshot)) {
-    if (value === undefined) {
-      delete process.env[key];
-    } else {
-      process.env[key] = value;
-    }
-  }
-}
-
-let fixtureRoot = "";
-let caseId = 0;
-
-beforeAll(async () => {
-  fixtureRoot = await fs.mkdtemp(join(os.tmpdir(), "openclaw-typing-"));
+const { withTempHome } = createTempHomeHarness({
+  prefix: "openclaw-typing-",
+  beforeEachCase: () => runEmbeddedPiAgentMock.mockClear(),
 });
 
+<<<<<<< HEAD
 afterAll(async () => {
   if (!fixtureRoot) {
     return;
@@ -150,6 +122,8 @@ function makeCfg(home: string) {
   };
 }
 
+=======
+>>>>>>> cf26c409c (refactor(test): share auto-reply temp home harness)
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -170,7 +144,7 @@ describe("getReplyFromConfig typing (heartbeat)", () => {
       await getReplyFromConfig(
         { Body: "hi", From: "+1000", To: "+2000", Provider: "whatsapp" },
         { onReplyStart, isHeartbeat: false },
-        makeCfg(home),
+        makeReplyConfig(home),
       );
 
       expect(onReplyStart).toHaveBeenCalled();
@@ -188,7 +162,7 @@ describe("getReplyFromConfig typing (heartbeat)", () => {
       await getReplyFromConfig(
         { Body: "hi", From: "+1000", To: "+2000", Provider: "whatsapp" },
         { onReplyStart, isHeartbeat: true },
-        makeCfg(home),
+        makeReplyConfig(home),
       );
 
       expect(onReplyStart).not.toHaveBeenCalled();

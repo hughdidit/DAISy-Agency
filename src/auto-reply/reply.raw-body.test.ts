@@ -1,7 +1,5 @@
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createTempHomeHarness, makeReplyConfig } from "./reply.test-harness.js";
 
 const agentMocks = vi.hoisted(() => ({
   runEmbeddedPiAgent: vi.fn(),
@@ -32,6 +30,7 @@ vi.mock("../web/session.js", () => ({
 
 import { getReplyFromConfig } from "./reply.js";
 
+<<<<<<< HEAD
 type HomeEnvSnapshot = {
   HOME: string | undefined;
   USERPROFILE: string | undefined;
@@ -106,16 +105,11 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   }
 >>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
 }
+=======
+const { withTempHome } = createTempHomeHarness({ prefix: "openclaw-rawbody-" });
+>>>>>>> cf26c409c (refactor(test): share auto-reply temp home harness)
 
 describe("RawBody directive parsing", () => {
-  beforeAll(async () => {
-    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-rawbody-"));
-  });
-
-  afterAll(async () => {
-    await fs.rm(fixtureRoot, { recursive: true, force: true });
-  });
-
   beforeEach(() => {
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
     agentMocks.runEmbeddedPiAgent.mockReset();
@@ -307,6 +301,7 @@ describe("RawBody directive parsing", () => {
         CommandAuthorized: true,
       };
 
+<<<<<<< HEAD
       const res = await getReplyFromConfig(
         groupMessageCtx,
         {},
@@ -321,6 +316,9 @@ describe("RawBody directive parsing", () => {
           session: { store: path.join(home, "sessions.json") },
         },
       );
+=======
+      const res = await getReplyFromConfig(groupMessageCtx, {}, makeReplyConfig(home));
+>>>>>>> cf26c409c (refactor(test): share auto-reply temp home harness)
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(text).toBe("ok");
