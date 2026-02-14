@@ -46,7 +46,11 @@ import {
   formatPermissionRemediation,
   inspectPathPermissions,
 } from "./audit-fs.js";
+<<<<<<< HEAD
 import type { ExecFn } from "./windows-acl.js";
+=======
+import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
+>>>>>>> 233483d2b (refactor(security): centralize dangerous tool lists)
 
 export type SecurityAuditSeverity = "info" | "warn" | "critical";
 
@@ -280,8 +284,9 @@ function collectGatewayConfigFindings(
       .map((v) => (typeof v === "string" ? v.trim().toLowerCase() : ""))
       .filter(Boolean),
   );
-  const defaultHttpDeniedTools = ["sessions_spawn", "sessions_send", "gateway", "whatsapp_login"];
-  const reenabledOverHttp = defaultHttpDeniedTools.filter((name) => gatewayToolsAllow.has(name));
+  const reenabledOverHttp = DEFAULT_GATEWAY_HTTP_TOOL_DENY.filter((name) =>
+    gatewayToolsAllow.has(name),
+  );
   if (reenabledOverHttp.length > 0) {
     const extraRisk = bind !== "loopback" || tailscaleMode === "funnel";
     findings.push({
