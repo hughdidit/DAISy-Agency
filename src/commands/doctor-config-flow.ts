@@ -168,8 +168,21 @@ function moveLegacyConfigFile(legacyPath: string, canonicalPath: string) {
   try {
     fs.renameSync(legacyPath, canonicalPath);
   } catch {
+<<<<<<< HEAD
     fs.copyFileSync(legacyPath, canonicalPath);
     fs.chmodSync(canonicalPath, 0o600);
+=======
+    // missing config
+  }
+
+  const legacyCandidates = [
+    path.join(home, ".clawdbot", "clawdbot.json"),
+    path.join(home, ".moldbot", "moldbot.json"),
+  ];
+
+  let legacyPath: string | null = null;
+  for (const candidate of legacyCandidates) {
+>>>>>>> 3b56a6252 (chore!: remove moltbot legacy state/config support)
     try {
       fs.unlinkSync(legacyPath);
     } catch {

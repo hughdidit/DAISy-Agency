@@ -21,7 +21,11 @@ describe("noteMacLaunchctlGatewayEnvOverrides", () => {
     await noteMacLaunchctlGatewayEnvOverrides(cfg, { platform: "darwin", getenv, noteFn });
 
     expect(noteFn).toHaveBeenCalledTimes(1);
+<<<<<<< HEAD
     expect(getenv).toHaveBeenCalledTimes(2);
+=======
+    expect(getenv).toHaveBeenCalledTimes(4);
+>>>>>>> 3b56a6252 (chore!: remove moltbot legacy state/config support)
 
     const [message, title] = noteFn.mock.calls[0] ?? [];
     expect(title).toBe("Gateway (macOS)");

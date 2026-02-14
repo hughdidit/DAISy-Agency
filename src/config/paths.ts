@@ -21,10 +21,17 @@ export function resolveIsNixMode(env: NodeJS.ProcessEnv = process.env): boolean 
 
 export const isNixMode = resolveIsNixMode();
 
+<<<<<<< HEAD
 const LEGACY_STATE_DIRNAME = ".clawdbot";
 const NEW_STATE_DIRNAME = ".moltbot";
 const CONFIG_FILENAME = "moltbot.json";
 const LEGACY_CONFIG_FILENAME = "clawdbot.json";
+=======
+const LEGACY_STATE_DIRNAMES = [".clawdbot", ".moldbot"] as const;
+const NEW_STATE_DIRNAME = ".openclaw";
+const CONFIG_FILENAME = "openclaw.json";
+const LEGACY_CONFIG_FILENAMES = ["clawdbot.json", "moldbot.json"] as const;
+>>>>>>> 3b56a6252 (chore!: remove moltbot legacy state/config support)
 
 <<<<<<< HEAD
 function legacyStateDir(homedir: () => string = os.homedir): string {
