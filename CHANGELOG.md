@@ -34,6 +34,11 @@ Docs: https://docs.openclaw.ai
 ### Fixes
 
 - macOS: hard-limit unkeyed `openclaw://agent` deep links and ignore `deliver` / `to` / `channel` unless a valid unattended key is provided. Thanks @Cillian-Collins.
+<<<<<<< HEAD
+=======
+- Security/Google Chat: deprecate `users/<email>` allowlists (treat `users/...` as immutable user id only); keep raw email allowlists for usability. Thanks @vincentkoc.
+- Security/Archive: enforce archive extraction entry/size limits to prevent resource exhaustion from high-expansion ZIP/TAR archives. Thanks @vincentkoc.
+>>>>>>> d3ee5deb8 (fix(archive): enforce extraction resource limits)
 
 ## 2026.2.14
 
