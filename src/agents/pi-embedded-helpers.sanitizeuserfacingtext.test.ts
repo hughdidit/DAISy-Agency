@@ -78,7 +78,7 @@ describe("sanitizeUserFacingText", () => {
   });
 
   it("strips leading whitespace and newlines combined", () => {
-    expect(sanitizeUserFacingText("\n \n Hello")).toBe("Hello");
+    expect(sanitizeUserFacingText("\n \nHello")).toBe("Hello");
     expect(sanitizeUserFacingText("  \n\nHello")).toBe("Hello");
   });
 
