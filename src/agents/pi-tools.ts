@@ -38,12 +38,19 @@ import {
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
 import {
   buildPluginToolGroups,
 =======
 import { applyToolPolicyPipeline } from "./tool-policy-pipeline.js";
+=======
+import {
+  applyToolPolicyPipeline,
+  buildDefaultToolPolicyPipelineSteps,
+} from "./tool-policy-pipeline.js";
+>>>>>>> 268c14f02 (refactor(tools): centralize default policy steps)
 import {
   applyOwnerOnlyToolPolicy,
 >>>>>>> f97ad8f28 (refactor(tools): share tool policy pipeline)
@@ -380,37 +387,18 @@ export function createMoltbotCodingTools(options?: {
     toolMeta: (tool) => getPluginToolMeta(tool),
     warn: logWarn,
     steps: [
-      {
-        policy: profilePolicyWithAlsoAllow,
-        label: profile ? `tools.profile (${profile})` : "tools.profile",
-        stripPluginOnlyAllowlist: true,
-      },
-      {
-        policy: providerProfilePolicyWithAlsoAllow,
-        label: providerProfile
-          ? `tools.byProvider.profile (${providerProfile})`
-          : "tools.byProvider.profile",
-        stripPluginOnlyAllowlist: true,
-      },
-      { policy: globalPolicy, label: "tools.allow", stripPluginOnlyAllowlist: true },
-      {
-        policy: globalProviderPolicy,
-        label: "tools.byProvider.allow",
-        stripPluginOnlyAllowlist: true,
-      },
-      {
-        policy: agentPolicy,
-        label: agentId ? `agents.${agentId}.tools.allow` : "agent tools.allow",
-        stripPluginOnlyAllowlist: true,
-      },
-      {
-        policy: agentProviderPolicy,
-        label: agentId
-          ? `agents.${agentId}.tools.byProvider.allow`
-          : "agent tools.byProvider.allow",
-        stripPluginOnlyAllowlist: true,
-      },
-      { policy: groupPolicy, label: "group tools.allow", stripPluginOnlyAllowlist: true },
+      ...buildDefaultToolPolicyPipelineSteps({
+        profilePolicy: profilePolicyWithAlsoAllow,
+        profile,
+        providerProfilePolicy: providerProfilePolicyWithAlsoAllow,
+        providerProfile,
+        globalPolicy,
+        globalProviderPolicy,
+        agentPolicy,
+        agentProviderPolicy,
+        groupPolicy,
+        agentId,
+      }),
       { policy: sandbox?.tools, label: "sandbox tools.allow" },
       { policy: subagentPolicy, label: "subagent tools.allow" },
     ],

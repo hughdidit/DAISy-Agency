@@ -12,6 +12,7 @@ import {
   resolveSubagentToolPolicy,
 } from "../agents/pi-tools.policy.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   buildPluginToolGroups,
   collectExplicitAllowlist,
@@ -22,6 +23,12 @@ import {
 } from "../agents/tool-policy.js";
 =======
 import { applyToolPolicyPipeline } from "../agents/tool-policy-pipeline.js";
+=======
+import {
+  applyToolPolicyPipeline,
+  buildDefaultToolPolicyPipelineSteps,
+} from "../agents/tool-policy-pipeline.js";
+>>>>>>> 268c14f02 (refactor(tools): centralize default policy steps)
 import { collectExplicitAllowlist, resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import { ToolInputError } from "../agents/tools/common.js";
 >>>>>>> f97ad8f28 (refactor(tools): share tool policy pipeline)
@@ -251,37 +258,18 @@ export async function handleToolsInvokeHttpRequest(
     toolMeta: (tool) => getPluginToolMeta(tool as any),
     warn: logWarn,
     steps: [
-      {
-        policy: profilePolicyWithAlsoAllow,
-        label: profile ? `tools.profile (${profile})` : "tools.profile",
-        stripPluginOnlyAllowlist: true,
-      },
-      {
-        policy: providerProfilePolicyWithAlsoAllow,
-        label: providerProfile
-          ? `tools.byProvider.profile (${providerProfile})`
-          : "tools.byProvider.profile",
-        stripPluginOnlyAllowlist: true,
-      },
-      { policy: globalPolicy, label: "tools.allow", stripPluginOnlyAllowlist: true },
-      {
-        policy: globalProviderPolicy,
-        label: "tools.byProvider.allow",
-        stripPluginOnlyAllowlist: true,
-      },
-      {
-        policy: agentPolicy,
-        label: agentId ? `agents.${agentId}.tools.allow` : "agent tools.allow",
-        stripPluginOnlyAllowlist: true,
-      },
-      {
-        policy: agentProviderPolicy,
-        label: agentId
-          ? `agents.${agentId}.tools.byProvider.allow`
-          : "agent tools.byProvider.allow",
-        stripPluginOnlyAllowlist: true,
-      },
-      { policy: groupPolicy, label: "group tools.allow", stripPluginOnlyAllowlist: true },
+      ...buildDefaultToolPolicyPipelineSteps({
+        profilePolicy: profilePolicyWithAlsoAllow,
+        profile,
+        providerProfilePolicy: providerProfilePolicyWithAlsoAllow,
+        providerProfile,
+        globalPolicy,
+        globalProviderPolicy,
+        agentPolicy,
+        agentProviderPolicy,
+        groupPolicy,
+        agentId,
+      }),
       { policy: subagentPolicy, label: "subagent tools.allow" },
     ],
   });
