@@ -4,6 +4,10 @@ import { normalizeFingerprint } from "../infra/tls/fingerprint.js";
 import { rawDataToString } from "../infra/ws.js";
 import { logDebug, logError } from "../logger.js";
 import type { DeviceIdentity } from "../infra/device-identity.js";
+<<<<<<< HEAD
+=======
+import { loadDeviceAuthToken, storeDeviceAuthToken } from "../infra/device-auth-store.js";
+>>>>>>> 00b7ab7db (fix(gateway): remove unused device auth import)
 import {
   loadOrCreateDeviceIdentity,
   publicKeyRawBase64UrlFromPem,
