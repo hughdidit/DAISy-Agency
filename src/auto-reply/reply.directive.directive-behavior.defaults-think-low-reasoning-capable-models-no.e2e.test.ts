@@ -10,6 +10,7 @@ import {
 import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -52,6 +53,56 @@ function _assertModelSelection(
 
 =======
 >>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
+=======
+function makeThinkConfig(home: string) {
+  return {
+    agents: {
+      defaults: {
+        model: "anthropic/claude-opus-4-5",
+        workspace: path.join(home, "openclaw"),
+      },
+    },
+    session: { store: path.join(home, "sessions.json") },
+  } as const;
+}
+
+function makeWhatsAppConfig(home: string) {
+  return {
+    agents: {
+      defaults: {
+        model: "anthropic/claude-opus-4-5",
+        workspace: path.join(home, "openclaw"),
+      },
+    },
+    channels: { whatsapp: { allowFrom: ["*"] } },
+    session: { store: path.join(home, "sessions.json") },
+  } as const;
+}
+
+async function runReplyToCurrentCase(home: string, text: string) {
+  vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
+    payloads: [{ text }],
+    meta: {
+      durationMs: 5,
+      agentMeta: { sessionId: "s", provider: "p", model: "m" },
+    },
+  });
+
+  const res = await getReplyFromConfig(
+    {
+      Body: "ping",
+      From: "+1004",
+      To: "+2000",
+      MessageSid: "msg-123",
+    },
+    {},
+    makeWhatsAppConfig(home),
+  );
+
+  return Array.isArray(res) ? res[0] : res;
+}
+
+>>>>>>> 98f2ad56a (refactor(test): reuse think directive fixtures)
 describe("directive behavior", () => {
   installDirectiveBehaviorE2EHooks();
 
@@ -69,6 +120,7 @@ describe("directive behavior", () => {
       const res = await getReplyFromConfig(
         { Body: "/think", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -78,6 +130,9 @@ describe("directive behavior", () => {
           },
           session: { store: path.join(home, "sessions.json") },
         },
+=======
+        makeThinkConfig(home),
+>>>>>>> 98f2ad56a (refactor(test): reuse think directive fixtures)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
@@ -100,6 +155,7 @@ describe("directive behavior", () => {
       const res = await getReplyFromConfig(
         { Body: "/think", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -109,6 +165,9 @@ describe("directive behavior", () => {
           },
           session: { store: path.join(home, "sessions.json") },
         },
+=======
+        makeThinkConfig(home),
+>>>>>>> 98f2ad56a (refactor(test): reuse think directive fixtures)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
@@ -119,6 +178,7 @@ describe("directive behavior", () => {
   });
   it("strips reply tags and maps reply_to_current to MessageSid", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
         payloads: [{ text: "hello [[reply_to_current]]" }],
         meta: {
@@ -148,12 +208,16 @@ describe("directive behavior", () => {
       );
 
       const payload = Array.isArray(res) ? res[0] : res;
+=======
+      const payload = await runReplyToCurrentCase(home, "hello [[reply_to_current]]");
+>>>>>>> 98f2ad56a (refactor(test): reuse think directive fixtures)
       expect(payload?.text).toBe("hello");
       expect(payload?.replyToId).toBe("msg-123");
     });
   });
   it("strips reply tags with whitespace and maps reply_to_current to MessageSid", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
         payloads: [{ text: "hello [[ reply_to_current ]]" }],
         meta: {
@@ -183,6 +247,9 @@ describe("directive behavior", () => {
       );
 
       const payload = Array.isArray(res) ? res[0] : res;
+=======
+      const payload = await runReplyToCurrentCase(home, "hello [[ reply_to_current ]]");
+>>>>>>> 98f2ad56a (refactor(test): reuse think directive fixtures)
       expect(payload?.text).toBe("hello");
       expect(payload?.replyToId).toBe("msg-123");
     });
