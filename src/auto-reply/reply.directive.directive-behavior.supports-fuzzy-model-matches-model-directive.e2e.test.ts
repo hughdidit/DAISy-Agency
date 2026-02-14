@@ -10,6 +10,7 @@ import {
 import { getReplyFromConfig } from "./reply.js";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
 
 vi.mock("../agents/pi-embedded.js", () => ({
@@ -52,6 +53,35 @@ function assertModelSelection(
 
 =======
 >>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
+=======
+function makeMoonshotConfig(home: string, storePath: string) {
+  return {
+    agents: {
+      defaults: {
+        model: { primary: "anthropic/claude-opus-4-5" },
+        workspace: path.join(home, "openclaw"),
+        models: {
+          "anthropic/claude-opus-4-5": {},
+          "moonshot/kimi-k2-0905-preview": {},
+        },
+      },
+    },
+    models: {
+      mode: "merge",
+      providers: {
+        moonshot: {
+          baseUrl: "https://api.moonshot.ai/v1",
+          apiKey: "sk-test",
+          api: "openai-completions",
+          models: [{ id: "kimi-k2-0905-preview", name: "Kimi K2" }],
+        },
+      },
+    },
+    session: { store: storePath },
+  };
+}
+
+>>>>>>> a54707b86 (refactor(test): dedupe fuzzy model directive config)
 describe("directive behavior", () => {
   installDirectiveBehaviorE2EHooks();
 
@@ -62,6 +92,7 @@ describe("directive behavior", () => {
       const res = await getReplyFromConfig(
         { Body: "/model kimi", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -86,6 +117,9 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
+=======
+        makeMoonshotConfig(home, storePath),
+>>>>>>> a54707b86 (refactor(test): dedupe fuzzy model directive config)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
@@ -109,6 +143,7 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -133,6 +168,9 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
+=======
+        makeMoonshotConfig(home, storePath),
+>>>>>>> a54707b86 (refactor(test): dedupe fuzzy model directive config)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
@@ -151,6 +189,7 @@ describe("directive behavior", () => {
       const res = await getReplyFromConfig(
         { Body: "/model moonshot/kimi", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -175,6 +214,9 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
+=======
+        makeMoonshotConfig(home, storePath),
+>>>>>>> a54707b86 (refactor(test): dedupe fuzzy model directive config)
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
