@@ -260,6 +260,12 @@ Docs: https://docs.openclaw.ai
 - Agents: prevent double compaction caused by cache TTL bypassing guard. (#13514) Thanks @taw0002.
 - Agents: use last API call's cache tokens for context display instead of accumulated sum. (#13805) Thanks @akari-musubi.
 - Agents: keep followup-runner session `totalTokens` aligned with post-compaction context by using last-call usage and shared token-accounting logic. (#14979) Thanks @shtse8.
+<<<<<<< HEAD
+=======
+- Hooks/Plugins: wire 9 previously unwired plugin lifecycle hooks into core runtime paths (session, compaction, gateway, and outbound message hooks). (#14882) Thanks @shtse8.
+- Hooks/Tools: dispatch `before_tool_call` and `after_tool_call` hooks from both tool execution paths with rebased conflict fixes. (#15012) Thanks @Patrick-Barletta, @Takhoffman.
+- Hooks: replace loader `console.*` output with subsystem logger messages so hook loading errors/warnings route through standard logging. (#11029) Thanks @shadril238.
+>>>>>>> 1c928e493 (fix(hooks): replace console logging with proper subsystem logging in loader (openclaw#11029) thanks @shadril238)
 - Discord: allow channel-edit to archive/lock threads and set auto-archive duration. (#5542) Thanks @stumct.
 - Discord tests: use a partial @buape/carbon mock in slash command coverage. (#13262) Thanks @arosstale.
 >>>>>>> 04a1ed5e5 (chore: make changelog mandatory in PR skills)
