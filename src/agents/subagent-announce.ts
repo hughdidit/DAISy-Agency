@@ -227,8 +227,23 @@ async function buildSubagentStatsLine(params: {
   });
 
   const sessionId = entry?.sessionId;
+<<<<<<< HEAD
   const transcriptPath =
     sessionId && storePath ? path.join(path.dirname(storePath), `${sessionId}.jsonl`) : undefined;
+=======
+  const agentId = resolveAgentIdFromSessionKey(params.sessionKey);
+  let transcriptPath: string | undefined;
+  if (sessionId && storePath) {
+    try {
+      transcriptPath = resolveSessionFilePath(sessionId, entry, {
+        agentId,
+        sessionsDir: path.dirname(storePath),
+      });
+    } catch {
+      transcriptPath = undefined;
+    }
+  }
+>>>>>>> cab0abf52 (fix(sessions): resolve transcript paths with explicit agent context (#16288))
 
   const input = entry?.inputTokens;
   const output = entry?.outputTokens;

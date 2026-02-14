@@ -154,10 +154,30 @@ export function createSessionsListTool(opts?: {
         });
 
         const sessionId = typeof entry.sessionId === "string" ? entry.sessionId : undefined;
+<<<<<<< HEAD
         const transcriptPath =
           sessionId && storePath
             ? path.join(path.dirname(storePath), `${sessionId}.jsonl`)
             : undefined;
+=======
+        const sessionFileRaw = (entry as { sessionFile?: unknown }).sessionFile;
+        const sessionFile = typeof sessionFileRaw === "string" ? sessionFileRaw : undefined;
+        let transcriptPath: string | undefined;
+        if (sessionId && storePath) {
+          try {
+            transcriptPath = resolveSessionFilePath(
+              sessionId,
+              sessionFile ? { sessionFile } : undefined,
+              {
+                agentId: resolveAgentIdFromSessionKey(key),
+                sessionsDir: path.dirname(storePath),
+              },
+            );
+          } catch {
+            transcriptPath = undefined;
+          }
+        }
+>>>>>>> cab0abf52 (fix(sessions): resolve transcript paths with explicit agent context (#16288))
 
         const row: SessionListRow = {
           key: displayKey,

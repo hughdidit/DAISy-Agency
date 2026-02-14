@@ -68,12 +68,28 @@ function resolveTranscriptPath(params: {
   sessionId: string;
   storePath: string | undefined;
   sessionFile?: string;
+  agentId?: string;
 }): string | null {
+<<<<<<< HEAD
   const { sessionId, storePath, sessionFile } = params;
   if (sessionFile) {
     return sessionFile;
   }
   if (!storePath) {
+=======
+  const { sessionId, storePath, sessionFile, agentId } = params;
+  if (!storePath && !sessionFile) {
+    return null;
+  }
+  try {
+    const sessionsDir = storePath ? path.dirname(storePath) : undefined;
+    return resolveSessionFilePath(
+      sessionId,
+      sessionFile ? { sessionFile } : undefined,
+      sessionsDir || agentId ? { sessionsDir, agentId } : undefined,
+    );
+  } catch {
+>>>>>>> cab0abf52 (fix(sessions): resolve transcript paths with explicit agent context (#16288))
     return null;
   }
   return path.join(path.dirname(storePath), `${sessionId}.jsonl`);
@@ -108,12 +124,14 @@ function appendAssistantTranscriptMessage(params: {
   sessionId: string;
   storePath: string | undefined;
   sessionFile?: string;
+  agentId?: string;
   createIfMissing?: boolean;
 }): TranscriptAppendResult {
   const transcriptPath = resolveTranscriptPath({
     sessionId: params.sessionId,
     storePath: params.storePath,
     sessionFile: params.sessionFile,
+    agentId: params.agentId,
   });
   if (!transcriptPath) {
     return { ok: false, error: "transcript path not resolved" };
@@ -634,6 +652,7 @@ export const chatHandlers: GatewayRequestHandlers = {
                 sessionId,
                 storePath: latestStorePath,
                 sessionFile: latestEntry?.sessionFile,
+                agentId,
                 createIfMissing: true,
               });
               if (appended.ok) {
@@ -728,7 +747,7 @@ export const chatHandlers: GatewayRequestHandlers = {
 
     // Load session to find transcript file
     const rawSessionKey = p.sessionKey;
-    const { storePath, entry } = loadSessionEntry(rawSessionKey);
+    const { cfg, storePath, entry } = loadSessionEntry(rawSessionKey);
     const sessionId = entry?.sessionId;
     if (!sessionId || !storePath) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "session not found"));
@@ -741,6 +760,7 @@ export const chatHandlers: GatewayRequestHandlers = {
       sessionId,
       storePath,
       sessionFile: entry?.sessionFile,
+      agentId: resolveSessionAgentId({ sessionKey: rawSessionKey, config: cfg }),
       createIfMissing: false,
     });
     if (!appended.ok || !appended.messageId || !appended.message) {

@@ -120,8 +120,27 @@ export function resolveSessionTranscriptCandidates(
     candidates.push(sessionFile);
   }
   if (storePath) {
+<<<<<<< HEAD
     const dir = path.dirname(storePath);
     candidates.push(path.join(dir, `${sessionId}.jsonl`));
+=======
+    const sessionsDir = path.dirname(storePath);
+    if (sessionFile) {
+      pushCandidate(() =>
+        resolveSessionFilePath(sessionId, { sessionFile }, { sessionsDir, agentId }),
+      );
+    }
+    pushCandidate(() => resolveSessionTranscriptPathInDir(sessionId, sessionsDir));
+  } else if (sessionFile) {
+    if (agentId) {
+      pushCandidate(() => resolveSessionFilePath(sessionId, { sessionFile }, { agentId }));
+    } else {
+      const trimmed = sessionFile.trim();
+      if (trimmed) {
+        candidates.push(path.resolve(trimmed));
+      }
+    }
+>>>>>>> cab0abf52 (fix(sessions): resolve transcript paths with explicit agent context (#16288))
   }
   if (agentId) {
     candidates.push(resolveSessionTranscriptPath(sessionId, agentId));
