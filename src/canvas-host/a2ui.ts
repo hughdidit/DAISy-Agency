@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { detectMime } from "../media/mime.js";
+import { resolveFileWithinRoot } from "./file-resolver.js";
 
 export const A2UI_PATH = "/__openclaw__/a2ui";
 
@@ -56,6 +57,7 @@ async function resolveA2uiRootReal(): Promise<string | null> {
   return resolvingA2uiRoot;
 }
 
+<<<<<<< HEAD
 function normalizeUrlPath(rawPath: string): string {
   const decoded = decodeURIComponent(rawPath || "/");
   const normalized = path.posix.normalize(decoded);
@@ -99,6 +101,8 @@ async function resolveA2uiFilePath(rootReal: string, urlPath: string) {
   }
 }
 
+=======
+>>>>>>> 1a4fb3503 (refactor(canvas-host): share static file resolver)
 export function injectCanvasLiveReload(html: string): string {
   const snippet = `
 <script>
@@ -190,8 +194,13 @@ export async function handleA2uiHttpRequest(
   }
 
   const rel = url.pathname.slice(basePath.length);
+<<<<<<< HEAD
   const filePath = await resolveA2uiFilePath(a2uiRootReal, rel || "/");
   if (!filePath) {
+=======
+  const result = await resolveFileWithinRoot(a2uiRootReal, rel || "/");
+  if (!result) {
+>>>>>>> 1a4fb3503 (refactor(canvas-host): share static file resolver)
     res.statusCode = 404;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.end("not found");
