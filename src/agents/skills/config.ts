@@ -1,6 +1,17 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
 import type { MoltbotConfig, SkillConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig, SkillConfig } from "../../config/config.js";
+import type { SkillEligibilityContext, SkillEntry } from "./types.js";
+import {
+  hasBinary,
+  isConfigPathTruthyWithDefaults,
+  resolveConfigPath,
+  resolveRuntimePlatform,
+} from "../../shared/config-eval.js";
+>>>>>>> 25ecd4216 (refactor(shared): dedupe config path eval)
 import { resolveSkillKey } from "./frontmatter.js";
 import type { SkillEligibilityContext, SkillEntry } from "./types.js";
 
@@ -9,6 +20,7 @@ const DEFAULT_CONFIG_VALUES: Record<string, boolean> = {
   "browser.evaluateEnabled": true,
 };
 
+<<<<<<< HEAD
 function isTruthy(value: unknown): boolean {
   if (value === undefined || value === null) {
     return false;
@@ -43,6 +55,12 @@ export function isConfigPathTruthy(config: MoltbotConfig | undefined, pathStr: s
     return DEFAULT_CONFIG_VALUES[pathStr];
   }
   return isTruthy(value);
+=======
+export { hasBinary, resolveConfigPath, resolveRuntimePlatform };
+
+export function isConfigPathTruthy(config: OpenClawConfig | undefined, pathStr: string): boolean {
+  return isConfigPathTruthyWithDefaults(config, pathStr, DEFAULT_CONFIG_VALUES);
+>>>>>>> 25ecd4216 (refactor(shared): dedupe config path eval)
 }
 
 export function resolveSkillConfig(
@@ -58,10 +76,6 @@ export function resolveSkillConfig(
     return undefined;
   }
   return entry;
-}
-
-export function resolveRuntimePlatform(): string {
-  return process.platform;
 }
 
 function normalizeAllowlist(input: unknown): string[] | undefined {
@@ -92,29 +106,6 @@ export function isBundledSkillAllowed(entry: SkillEntry, allowlist?: string[]): 
   }
   const key = resolveSkillKey(entry.skill, entry);
   return allowlist.includes(key) || allowlist.includes(entry.skill.name);
-}
-
-export function hasBinary(bin: string): boolean {
-  const pathEnv = process.env.PATH ?? "";
-  const parts = pathEnv.split(path.delimiter).filter(Boolean);
-  const winPathExt = process.env.PATHEXT;
-  const winExtensions =
-    winPathExt !== undefined
-      ? winPathExt.split(";").filter(Boolean)
-      : [".EXE", ".CMD", ".BAT", ".COM"];
-  const extensions = process.platform === "win32" ? ["", ...winExtensions] : [""];
-  for (const part of parts) {
-    for (const ext of extensions) {
-      const candidate = path.join(part, bin + ext);
-      try {
-        fs.accessSync(candidate, fs.constants.X_OK);
-        return true;
-      } catch {
-        // keep scanning
-      }
-    }
-  }
-  return false;
 }
 
 export function shouldIncludeSkill(params: {
