@@ -1,3 +1,4 @@
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { InlineCodeState } from "../markdown/code-spans.js";
 import type {
   EmbeddedPiSubscribeContext,
@@ -569,12 +570,23 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     resetAssistantMessageState(0);
   };
 
+  const noteLastAssistant = (msg: AgentMessage) => {
+    if (msg?.role === "assistant") {
+      state.lastAssistant = msg;
+    }
+  };
+
   const ctx: EmbeddedPiSubscribeContext = {
     params,
     state,
     log,
     blockChunking,
     blockChunker,
+<<<<<<< HEAD
+=======
+    hookRunner: params.hookRunner,
+    noteLastAssistant,
+>>>>>>> d714ac779 (refactor(agents): dedupe transient error copy (#16324))
     shouldEmitToolResult,
     shouldEmitToolOutput,
     emitToolSummary,
