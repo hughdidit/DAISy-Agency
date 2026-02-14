@@ -1,5 +1,6 @@
 import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
 import { logWarn } from "../logger.js";
+import { estimateBase64DecodedBytes } from "./base64.js";
 
 type CanvasModule = typeof import("@napi-rs/canvas");
 type PdfJsModule = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
@@ -107,6 +108,22 @@ export const DEFAULT_INPUT_PDF_MAX_PAGES = 4;
 export const DEFAULT_INPUT_PDF_MAX_PIXELS = 4_000_000;
 export const DEFAULT_INPUT_PDF_MIN_TEXT_CHARS = 200;
 
+<<<<<<< HEAD
+=======
+function rejectOversizedBase64Payload(params: {
+  data: string;
+  maxBytes: number;
+  label: "Image" | "File";
+}): void {
+  const estimated = estimateBase64DecodedBytes(params.data);
+  if (estimated > params.maxBytes) {
+    throw new Error(
+      `${params.label} too large: ${estimated} bytes (limit: ${params.maxBytes} bytes)`,
+    );
+  }
+}
+
+>>>>>>> 31791233d (fix(security): reject oversized base64 before decode)
 export function normalizeMimeType(value: string | undefined): string | undefined {
   if (!value) {
     return undefined;
