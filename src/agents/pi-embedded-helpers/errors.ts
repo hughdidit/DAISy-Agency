@@ -407,7 +407,7 @@ export function sanitizeUserFacingText(text: string): string {
   const stripped = stripFinalTagsFromText(text);
   const trimmed = stripped.trim();
   if (!trimmed) {
-    return stripped;
+    return "";
   }
 
   if (/incorrect role information|roles must alternate/i.test(trimmed)) {
@@ -451,7 +451,7 @@ export function sanitizeUserFacingText(text: string): string {
     return formatRawAssistantErrorForUi(trimmed);
   }
 
-  return collapseConsecutiveDuplicateBlocks(stripped);
+  return collapseConsecutiveDuplicateBlocks(stripped).trimStart();
 }
 
 export function isRateLimitAssistantError(msg: AssistantMessage | undefined): boolean {
