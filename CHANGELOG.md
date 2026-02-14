@@ -59,7 +59,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> ab0d8ef8c (fix(daemon): preserve backslashes in parseCommandLine on Windows (#15642))
 - Security/Canvas: serve A2UI assets via the shared safe-open path (`openFileWithinRoot`) to close traversal/TOCTOU gaps, with traversal and symlink regression coverage. (#10525) Thanks @abdelsfane.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+- Media: classify `text/*` MIME types as documents in media-kind routing so text attachments are no longer treated as unknown. (#12237) Thanks @arosstale.
+>>>>>>> fdacfc571 (fix(media): classify text/* MIME types as documents (openclaw#12341) thanks @arosstale)
 - Security/Gateway: breaking default-behavior change - canvas IP-based auth fallback now only accepts machine-scoped addresses (RFC1918, link-local, ULA IPv6, CGNAT); public-source IP matches now require bearer token auth. (#14661) Thanks @sumleo.
 - Security/Gateway: sanitize and truncate untrusted WebSocket header values in pre-handshake close logs to reduce log-poisoning risk. Thanks @thewilloftheshadow.
 >>>>>>> d637a2635 (Gateway: sanitize WebSocket log headers (#15592))
