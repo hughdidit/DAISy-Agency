@@ -47,11 +47,15 @@
     "@lancedb/lancedb": "^0.26.2",
     "@sinclair/typebox": "0.34.48",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "openai": "^6.19.0"
 >>>>>>> fa21050af (chore: Update deps.)
 =======
     "openai": "^6.21.0"
 >>>>>>> 9df89ceda (chore: Update deps.)
+=======
+    "openai": "^6.22.0"
+>>>>>>> 185792b6c (chore(deps): update dependencies)
   },
   "devDependencies": {
     "openclaw": "workspace:*"
