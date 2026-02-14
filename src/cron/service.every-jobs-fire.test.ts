@@ -5,8 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 =======
 import type { CronEvent } from "./service.js";
+<<<<<<< HEAD
 import type { CronJob } from "./types.js";
 >>>>>>> e6d5b5fb1 (perf(test): remove slow port inspection and reconnect sleeps)
+=======
+>>>>>>> 4335668d2 (chore(test): fix cron every-jobs-fire unused import)
 import { CronService } from "./service.js";
 
 const noopLogger = {
