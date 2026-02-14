@@ -15,7 +15,7 @@ export function createExecApprovalHandlers(
   opts?: { forwarder?: ExecApprovalForwarder },
 ): GatewayRequestHandlers {
   return {
-    "exec.approval.request": async ({ params, respond, context }) => {
+    "exec.approval.request": async ({ params, respond, context, client }) => {
       if (!validateExecApprovalRequestParams(params)) {
         respond(
           false,
@@ -62,7 +62,28 @@ export function createExecApprovalHandlers(
         sessionKey: p.sessionKey ?? null,
       };
       const record = manager.create(request, timeoutMs, explicitId);
+<<<<<<< HEAD
       const decisionPromise = manager.waitForDecision(record, timeoutMs);
+=======
+      record.requestedByConnId = client?.connId ?? null;
+      record.requestedByDeviceId = client?.connect?.device?.id ?? null;
+      record.requestedByClientId = client?.connect?.client?.id ?? null;
+      // Use register() to synchronously add to pending map before sending any response.
+      // This ensures the approval ID is valid immediately after the "accepted" response.
+      let decisionPromise: Promise<
+        import("../../infra/exec-approvals.js").ExecApprovalDecision | null
+      >;
+      try {
+        decisionPromise = manager.register(record, timeoutMs);
+      } catch (err) {
+        respond(
+          false,
+          undefined,
+          errorShape(ErrorCodes.INVALID_REQUEST, `registration failed: ${String(err)}`),
+        );
+        return;
+      }
+>>>>>>> 318379cdb (fix(gateway): bind system.run approvals to exec approvals)
       context.broadcast(
         "exec.approval.requested",
         {
