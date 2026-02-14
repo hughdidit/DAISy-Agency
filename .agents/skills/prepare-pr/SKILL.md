@@ -1,6 +1,10 @@
 ---
 name: prepare-pr
+<<<<<<< HEAD
 description: Prepare a GitHub PR for merge by rebasing onto main, fixing review findings, running gates, committing fixes, and pushing to the PR head branch. Use after /review-pr. Never merge or push to main.
+=======
+description: Prepare a GitHub PR for merge by rebasing onto main, fixing review findings, running gates, committing fixes, and pushing to the PR head branch. Use after /reviewpr. Never merge or push to main.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 ---
 
 # Prepare PR
@@ -22,6 +26,10 @@ Prepare a PR branch for merge with review fixes, green gates, and an updated hea
 - Do not run gateway stop commands. Do not kill processes. Do not touch port 18792.
 - Do not run `git clean -fdx`.
 - Do not run `git add -A` or `git add .`. Stage only specific files changed.
+<<<<<<< HEAD
+=======
+- Do not push to GitHub until the maintainer explicitly approves the push step.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 ## Execution Rule
 
@@ -38,7 +46,11 @@ Prepare a PR branch for merge with review fixes, green gates, and an updated hea
 
 - Rebase PR commits onto `origin/main`.
 - Fix all BLOCKER and IMPORTANT items from `.local/review.md`.
+<<<<<<< HEAD
 - Run required gates and pass (docs-only PRs may skip `pnpm test` when high-confidence docs-only criteria are met and documented).
+=======
+- Run gates and pass.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 - Commit prep changes.
 - Push the updated HEAD back to the PR head branch.
 - Write `.local/prep.md` with a prep summary.
@@ -63,6 +75,7 @@ WORKTREE_DIR=".worktrees/pr-<PR>"
 Run all commands inside the worktree directory.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Load Review Findings (Mandatory)
 =======
 - `.local/review.json` is mandatory.
@@ -82,6 +95,15 @@ if [ -f .local/review.md ]; then
   echo "Found review findings from /review-pr"
 else
   echo "Missing .local/review.md. Run /review-pr first and save findings."
+=======
+## Load Review Findings (Mandatory)
+
+```sh
+if [ -f .local/review.md ]; then
+  echo "Found review findings from /reviewpr"
+else
+  echo "Missing .local/review.md. Run /reviewpr first and save findings."
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
   exit 1
 fi
 
@@ -120,6 +142,7 @@ git rebase origin/main
 If conflicts happen:
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Resolve each conflicted file.
 - Run `git add <resolved_file>` for each file.
 - Run `git rebase --continue`.
@@ -129,6 +152,14 @@ If the rebase gets confusing or you resolve conflicts 3 or more times, stop and 
 Use concise, action-oriented subject lines without PR numbers/thanks. The final merge/squash commit is the only place we include PR numbers and contributor thanks.
 >>>>>>> 607b625aa (Docs: update PR commit guidance)
 
+=======
+- Resolve each conflicted file.
+- Run `git add <resolved_file>` for each file.
+- Run `git rebase --continue`.
+
+If the rebase gets confusing or you resolve conflicts 3 or more times, stop and report.
+
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 4. Fix issues from `.local/review.md`
 
 - Fix all BLOCKER and IMPORTANT items.
@@ -149,6 +180,7 @@ If flagged and user-facing:
 - Check if `CHANGELOG.md` exists.
 
 ```sh
+<<<<<<< HEAD
 <<<<<<< HEAD
 ls CHANGELOG.md 2>/dev/null
 ```
@@ -209,12 +241,47 @@ echo "docs_only=$docs_only"
 ```
 
 Run required gates:
+=======
+ls CHANGELOG.md 2>/dev/null
+```
+
+- Follow existing format.
+- Add a concise entry with PR number and contributor.
+
+6. Update docs if flagged in review
+
+Check `.local/review.md` section G for guidance.
+If flagged, update only docs related to the PR changes.
+
+7. Commit prep fixes
+
+Stage only specific files:
+
+```sh
+git add <file1> <file2> ...
+```
+
+Preferred commit tool:
+
+```sh
+committer "fix: <summary> (#<PR>) (thanks @$contrib)" <changed files>
+```
+
+If `committer` is not found:
+
+```sh
+git commit -m "fix: <summary> (#<PR>) (thanks @$contrib)"
+```
+
+8. Run full gates before pushing
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 ```sh
 pnpm install
 pnpm build
 pnpm ui:build
 pnpm check
+<<<<<<< HEAD
 
 if [ "$docs_only" = "true" ]; then
   echo "Docs-only change detected with high confidence; skipping pnpm test." | tee -a .local/prep.md
@@ -224,6 +291,12 @@ fi
 ```
 
 Require all required gates to pass. If something fails, fix, commit, and rerun. Allow at most 3 fix and rerun cycles. If gates still fail after 3 attempts, stop and report the failures. Do not loop indefinitely.
+=======
+pnpm test
+```
+
+Require all to pass. If something fails, fix, commit, and rerun. Allow at most 3 fix and rerun cycles. If gates still fail after 3 attempts, stop and report the failures. Do not loop indefinitely.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 
 9. Push updates back to the PR head branch
 
@@ -241,6 +314,11 @@ fi
 git push --force-with-lease prhead HEAD:$head
 ```
 
+<<<<<<< HEAD
+=======
+Before running the command above, pause and ask for explicit maintainer go-ahead to perform the push.
+
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
 10. Verify PR is not behind main (Mandatory)
 
 ```sh
@@ -295,4 +373,8 @@ Otherwise, list remaining failures and stop.
 - Do not delete the worktree on success. `/mergepr` may reuse it.
 - Do not run `gh pr merge`.
 - Never push to main. Only push to the PR head branch.
+<<<<<<< HEAD
 - Run and pass all required gates before pushing. `pnpm test` may be skipped only for high-confidence docs-only changes, and the skip must be explicitly recorded in `.local/prep.md`.
+=======
+- Run and pass all gates before pushing.
+>>>>>>> 01d2ad205 (docs: harden maintainer and advisory workflow (#16173))
