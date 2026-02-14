@@ -20,7 +20,6 @@ import { createMoltbotTools } from "./moltbot-tools.js";
 import type { ModelAuthMode } from "./model-auth.js";
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
 import {
-  filterToolsByPolicy,
   isToolAllowedByPolicies,
   resolveEffectiveToolPolicy,
   resolveGroupToolPolicy,
@@ -38,15 +37,18 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
+<<<<<<< HEAD
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
 import {
   buildPluginToolGroups,
+=======
+import { applyToolPolicyPipeline } from "./tool-policy-pipeline.js";
+import {
+  applyOwnerOnlyToolPolicy,
+>>>>>>> f97ad8f28 (refactor(tools): share tool policy pipeline)
   collectExplicitAllowlist,
-  expandPolicyWithPluginGroups,
-  normalizeToolName,
   resolveToolProfilePolicy,
-  stripPluginOnlyAllowlist,
 } from "./tool-policy.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 import { logWarn } from "../logger.js";
@@ -359,6 +361,7 @@ export function createMoltbotCodingTools(options?: {
       requesterAgentIdOverride: agentId,
     }),
   ];
+<<<<<<< HEAD
   const coreToolNames = new Set(
     tools
       .filter((tool) => !getPluginToolMeta(tool))
@@ -367,8 +370,52 @@ export function createMoltbotCodingTools(options?: {
   );
   const pluginGroups = buildPluginToolGroups({
     tools,
+=======
+  // Security: treat unknown/undefined as unauthorized (opt-in, not opt-out)
+  const senderIsOwner = options?.senderIsOwner === true;
+  const toolsByAuthorization = applyOwnerOnlyToolPolicy(tools, senderIsOwner);
+  const subagentFiltered = applyToolPolicyPipeline({
+    tools: toolsByAuthorization,
+>>>>>>> f97ad8f28 (refactor(tools): share tool policy pipeline)
     toolMeta: (tool) => getPluginToolMeta(tool),
+    warn: logWarn,
+    steps: [
+      {
+        policy: profilePolicyWithAlsoAllow,
+        label: profile ? `tools.profile (${profile})` : "tools.profile",
+        stripPluginOnlyAllowlist: true,
+      },
+      {
+        policy: providerProfilePolicyWithAlsoAllow,
+        label: providerProfile
+          ? `tools.byProvider.profile (${providerProfile})`
+          : "tools.byProvider.profile",
+        stripPluginOnlyAllowlist: true,
+      },
+      { policy: globalPolicy, label: "tools.allow", stripPluginOnlyAllowlist: true },
+      {
+        policy: globalProviderPolicy,
+        label: "tools.byProvider.allow",
+        stripPluginOnlyAllowlist: true,
+      },
+      {
+        policy: agentPolicy,
+        label: agentId ? `agents.${agentId}.tools.allow` : "agent tools.allow",
+        stripPluginOnlyAllowlist: true,
+      },
+      {
+        policy: agentProviderPolicy,
+        label: agentId
+          ? `agents.${agentId}.tools.byProvider.allow`
+          : "agent tools.byProvider.allow",
+        stripPluginOnlyAllowlist: true,
+      },
+      { policy: groupPolicy, label: "group tools.allow", stripPluginOnlyAllowlist: true },
+      { policy: sandbox?.tools, label: "sandbox tools.allow" },
+      { policy: subagentPolicy, label: "subagent tools.allow" },
+    ],
   });
+<<<<<<< HEAD
   const resolvePolicy = (policy: typeof profilePolicy, label: string) => {
     const resolved = stripPluginOnlyAllowlist(policy, pluginGroups, coreToolNames);
     if (resolved.unknownAllowlist.length > 0) {
@@ -429,6 +476,8 @@ export function createMoltbotCodingTools(options?: {
   const subagentFiltered = subagentPolicyExpanded
     ? filterToolsByPolicy(sandboxed, subagentPolicyExpanded)
     : sandboxed;
+=======
+>>>>>>> f97ad8f28 (refactor(tools): share tool policy pipeline)
   // Always normalize tool JSON Schemas before handing them to pi-agent/pi-ai.
   // Without this, some providers (notably OpenAI) will reject root-level union schemas.
   const normalized = subagentFiltered.map(normalizeToolParameters);
