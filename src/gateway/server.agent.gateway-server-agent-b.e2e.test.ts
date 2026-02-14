@@ -5,10 +5,15 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi 
 import { WebSocket } from "ws";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 import { emitAgentEvent, registerAgentRunContext } from "../infra/agent-events.js";
+<<<<<<< HEAD
 import type { PluginRegistry } from "../plugins/registry.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
+=======
+import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
+import { setRegistry } from "./server.agent.gateway-server-agent.mocks.js";
+>>>>>>> e0d7f97c5 (refactor(test): share gateway server plugin mocks)
 import {
   agentCommand,
   connectOk,
@@ -39,34 +44,6 @@ beforeAll(async () => {
 afterAll(async () => {
   ws.close();
   await server.close();
-});
-
-const registryState = vi.hoisted(() => ({
-  registry: {
-    plugins: [],
-    tools: [],
-    channels: [],
-    providers: [],
-    gatewayHandlers: {},
-    httpHandlers: [],
-    httpRoutes: [],
-    cliRegistrars: [],
-    services: [],
-    diagnostics: [],
-  } as PluginRegistry,
-}));
-
-vi.mock("./server-plugins.js", async () => {
-  const { setActivePluginRegistry } = await import("../plugins/runtime.js");
-  return {
-    loadGatewayPlugins: (params: { baseMethods: string[] }) => {
-      setActivePluginRegistry(registryState.registry);
-      return {
-        pluginRegistry: registryState.registry,
-        gatewayMethods: params.baseMethods ?? [],
-      };
-    },
-  };
 });
 
 const _BASE_IMAGE_PNG =
@@ -123,13 +100,11 @@ async function useTempSessionStorePath() {
 
 describe("gateway server agent", () => {
   beforeEach(() => {
-    registryState.registry = defaultRegistry;
-    setActivePluginRegistry(defaultRegistry);
+    setRegistry(defaultRegistry);
   });
 
   afterEach(() => {
-    registryState.registry = emptyRegistry;
-    setActivePluginRegistry(emptyRegistry);
+    setRegistry(emptyRegistry);
   });
 
   test("agent falls back when last-channel plugin is unavailable", async () => {
@@ -140,12 +115,16 @@ describe("gateway server agent", () => {
         plugin: createMSTeamsPlugin(),
       },
     ]);
+<<<<<<< HEAD
     registryState.registry = registry;
     setActivePluginRegistry(registry);
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
 =======
+=======
+    setRegistry(registry);
+>>>>>>> e0d7f97c5 (refactor(test): share gateway server plugin mocks)
     await useTempSessionStorePath();
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
     await writeSessionStore({
@@ -184,12 +163,16 @@ describe("gateway server agent", () => {
         plugin: createMSTeamsPlugin({ aliases: ["teams"] }),
       },
     ]);
+<<<<<<< HEAD
     registryState.registry = registry;
     setActivePluginRegistry(registry);
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
 =======
+=======
+    setRegistry(registry);
+>>>>>>> e0d7f97c5 (refactor(test): share gateway server plugin mocks)
     await useTempSessionStorePath();
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
     await writeSessionStore({
