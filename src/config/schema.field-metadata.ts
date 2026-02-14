@@ -705,6 +705,8 @@ export const FIELD_HELP: Record<string, string> = {
     'Direct message access control ("pairing" recommended). "open" requires channels.imessage.allowFrom=["*"].',
   "channels.bluebubbles.dmPolicy":
     'Direct message access control ("pairing" recommended). "open" requires channels.bluebubbles.allowFrom=["*"].',
+  "channels.discord.dmPolicy":
+    'Direct message access control ("pairing" recommended). "open" requires channels.discord.allowFrom=["*"].',
   "channels.discord.dm.policy":
     'Direct message access control ("pairing" recommended). "open" requires channels.discord.dm.allowFrom=["*"].',
   "channels.discord.retry.attempts":
@@ -728,6 +730,8 @@ export const FIELD_HELP: Record<string, string> = {
   "channels.discord.activityUrl": "Discord presence streaming URL (required for activityType=1).",
   "channels.slack.dm.policy":
     'Direct message access control ("pairing" recommended). "open" requires channels.slack.dm.allowFrom=["*"].',
+  "channels.slack.dmPolicy":
+    'Direct message access control ("pairing" recommended). "open" requires channels.slack.allowFrom=["*"].',
 };
 
 export const FIELD_PLACEHOLDERS: Record<string, string> = {
