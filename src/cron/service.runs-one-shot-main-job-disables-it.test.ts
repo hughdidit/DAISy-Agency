@@ -224,6 +224,9 @@ describe("CronService", () => {
       storePath: store.storePath,
       cronEnabled: true,
       log: noopLogger,
+      // Perf: avoid advancing fake timers by 2+ minutes for the busy-heartbeat fallback.
+      wakeNowHeartbeatBusyMaxWaitMs: 1,
+      wakeNowHeartbeatBusyRetryDelayMs: 2,
       enqueueSystemEvent,
       requestHeartbeatNow,
       runHeartbeatOnce,
@@ -265,11 +268,20 @@ describe("CronService", () => {
       status: "skipped" as const,
       reason: "requests-in-flight",
     }));
+    let now = 0;
+    const nowMs = () => {
+      now += 10;
+      return now;
+    };
 
     const cron = new CronService({
       storePath: store.storePath,
       cronEnabled: true,
       log: noopLogger,
+      nowMs,
+      // Perf: avoid advancing fake timers by 2+ minutes for the busy-heartbeat fallback.
+      wakeNowHeartbeatBusyMaxWaitMs: 1,
+      wakeNowHeartbeatBusyRetryDelayMs: 2,
       enqueueSystemEvent,
       requestHeartbeatNow,
       runHeartbeatOnce,
@@ -286,9 +298,7 @@ describe("CronService", () => {
       payload: { kind: "systemEvent", text: "hello" },
     });
 
-    const runPromise = cron.run(job.id, "force");
-    await vi.advanceTimersByTimeAsync(125_000);
-    await runPromise;
+    await cron.run(job.id, "force");
 
     expect(runHeartbeatOnce).toHaveBeenCalled();
     expect(requestHeartbeatNow).toHaveBeenCalled();
