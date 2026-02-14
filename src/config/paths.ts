@@ -17,6 +17,7 @@ export function resolveIsNixMode(env: NodeJS.ProcessEnv = process.env): boolean 
 export const isNixMode = resolveIsNixMode();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const LEGACY_STATE_DIRNAME = ".clawdbot";
 const NEW_STATE_DIRNAME = ".moltbot";
 const CONFIG_FILENAME = "moltbot.json";
@@ -27,6 +28,13 @@ const NEW_STATE_DIRNAME = ".openclaw";
 const CONFIG_FILENAME = "openclaw.json";
 const LEGACY_CONFIG_FILENAMES = ["clawdbot.json", "moltbot.json", "moldbot.json"] as const;
 >>>>>>> 9886fd1a5 (fix: migrate legacy state dirs)
+=======
+// Support historical (and occasionally misspelled) legacy state dirs.
+const LEGACY_STATE_DIRNAMES = [".clawdbot", ".moldbot", ".moltbot"] as const;
+const NEW_STATE_DIRNAME = ".openclaw";
+const CONFIG_FILENAME = "openclaw.json";
+const LEGACY_CONFIG_FILENAMES = ["clawdbot.json", "moldbot.json", "moltbot.json"] as const;
+>>>>>>> 571c195c5 (fix: support moltbot legacy state dir)
 
 function legacyStateDir(homedir: () => string = os.homedir): string {
   return path.join(homedir(), LEGACY_STATE_DIRNAME);
