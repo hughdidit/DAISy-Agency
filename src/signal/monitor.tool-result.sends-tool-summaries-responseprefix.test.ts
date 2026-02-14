@@ -108,6 +108,13 @@ const {
 } = getSignalToolResultTestMocks();
 >>>>>>> 20cefd78c (refactor(test): share signal tool result test setup)
 
+async function runMonitorWithMocks(
+  opts: Parameters<(typeof import("./monitor.js"))["monitorSignalProvider"]>[0],
+) {
+  const { monitorSignalProvider } = await import("./monitor.js");
+  return monitorSignalProvider(opts);
+}
+
 describe("monitorSignalProvider tool results", () => {
   it("uses bounded readiness checks when auto-starting the daemon", async () => {
     const runtime = {
@@ -129,7 +136,7 @@ describe("monitorSignalProvider tool results", () => {
       abortController.abort();
       return;
     });
-    await monitorSignalProvider({
+    await runMonitorWithMocks({
       autoStart: true,
       baseUrl: "http://127.0.0.1:8080",
       abortSignal: abortController.signal,
@@ -176,7 +183,7 @@ describe("monitorSignalProvider tool results", () => {
       return;
     });
 
-    await monitorSignalProvider({
+    await runMonitorWithMocks({
       autoStart: true,
       baseUrl: "http://127.0.0.1:8080",
       abortSignal: abortController.signal,
@@ -218,7 +225,7 @@ describe("monitorSignalProvider tool results", () => {
       return;
     });
 
-    await monitorSignalProvider({
+    await runMonitorWithMocks({
       autoStart: true,
       baseUrl: "http://127.0.0.1:8080",
       abortSignal: abortController.signal,
@@ -255,7 +262,7 @@ describe("monitorSignalProvider tool results", () => {
       abortController.abort();
     });
 
-    await monitorSignalProvider({
+    await runMonitorWithMocks({
       autoStart: false,
       baseUrl: "http://127.0.0.1:8080",
       abortSignal: abortController.signal,
@@ -300,7 +307,7 @@ describe("monitorSignalProvider tool results", () => {
       abortController.abort();
     });
 
-    await monitorSignalProvider({
+    await runMonitorWithMocks({
       autoStart: false,
       baseUrl: "http://127.0.0.1:8080",
       abortSignal: abortController.signal,
@@ -338,7 +345,7 @@ describe("monitorSignalProvider tool results", () => {
       abortController.abort();
     });
 
-    await monitorSignalProvider({
+    await runMonitorWithMocks({
       autoStart: false,
       baseUrl: "http://127.0.0.1:8080",
       abortSignal: abortController.signal,
@@ -377,7 +384,7 @@ describe("monitorSignalProvider tool results", () => {
       abortController.abort();
     });
 
-    await monitorSignalProvider({
+    await runMonitorWithMocks({
       autoStart: false,
       baseUrl: "http://127.0.0.1:8080",
       abortSignal: abortController.signal,
@@ -426,7 +433,7 @@ describe("monitorSignalProvider tool results", () => {
       abortController.abort();
     });
 
-    await monitorSignalProvider({
+    await runMonitorWithMocks({
       autoStart: false,
       baseUrl: "http://127.0.0.1:8080",
       abortSignal: abortController.signal,
@@ -482,7 +489,7 @@ describe("monitorSignalProvider tool results", () => {
       abortController.abort();
     });
 
-    await monitorSignalProvider({
+    await runMonitorWithMocks({
       autoStart: false,
       baseUrl: "http://127.0.0.1:8080",
       abortSignal: abortController.signal,
@@ -527,7 +534,7 @@ describe("monitorSignalProvider tool results", () => {
       abortController.abort();
     });
 
-    await monitorSignalProvider({
+    await runMonitorWithMocks({
       autoStart: false,
       baseUrl: "http://127.0.0.1:8080",
       abortSignal: abortController.signal,
@@ -582,7 +589,7 @@ describe("monitorSignalProvider tool results", () => {
       abortController.abort();
     });
 
-    await monitorSignalProvider({
+    await runMonitorWithMocks({
       autoStart: false,
       baseUrl: "http://127.0.0.1:8080",
       abortSignal: abortController.signal,
