@@ -17,43 +17,12 @@ import {
   uploadEmojiDiscord,
   uploadStickerDiscord,
 } from "./send.js";
+import { makeDiscordRest } from "./send.test-harness.js";
 
-vi.mock("../web/media.js", () => ({
-  loadWebMedia: vi.fn().mockResolvedValue({
-    buffer: Buffer.from("img"),
-    fileName: "photo.jpg",
-    contentType: "image/jpeg",
-    kind: "image",
-  }),
-  loadWebMediaRaw: vi.fn().mockResolvedValue({
-    buffer: Buffer.from("img"),
-    fileName: "asset.png",
-    contentType: "image/png",
-    kind: "image",
-  }),
-}));
-
-const makeRest = () => {
-  const postMock = vi.fn();
-  const putMock = vi.fn();
-  const getMock = vi.fn();
-  const patchMock = vi.fn();
-  const deleteMock = vi.fn();
-  return {
-    rest: {
-      post: postMock,
-      put: putMock,
-      get: getMock,
-      patch: patchMock,
-      delete: deleteMock,
-    } as unknown as import("@buape/carbon").RequestClient,
-    postMock,
-    putMock,
-    getMock,
-    patchMock,
-    deleteMock,
-  };
-};
+vi.mock("../web/media.js", async () => {
+  const { discordWebMediaMockFactory } = await import("./send.test-harness.js");
+  return discordWebMediaMockFactory();
+});
 
 describe("sendMessageDiscord", () => {
   beforeEach(() => {
@@ -61,7 +30,7 @@ describe("sendMessageDiscord", () => {
   });
 
   it("creates a thread", async () => {
-    const { rest, getMock, postMock } = makeRest();
+    const { rest, getMock, postMock } = makeDiscordRest();
     postMock.mockResolvedValue({ id: "t1" });
     await createThreadDiscord("chan1", { name: "thread", messageId: "m1" }, { rest, token: "t" });
     expect(getMock).not.toHaveBeenCalled();
@@ -72,7 +41,7 @@ describe("sendMessageDiscord", () => {
   });
 
   it("creates forum threads with an initial message", async () => {
-    const { rest, getMock, postMock } = makeRest();
+    const { rest, getMock, postMock } = makeDiscordRest();
     getMock.mockResolvedValue({ type: ChannelType.GuildForum });
     postMock.mockResolvedValue({ id: "t1" });
     await createThreadDiscord("chan1", { name: "thread" }, { rest, token: "t" });
@@ -89,7 +58,7 @@ describe("sendMessageDiscord", () => {
   });
 
   it("creates media threads with provided content", async () => {
-    const { rest, getMock, postMock } = makeRest();
+    const { rest, getMock, postMock } = makeDiscordRest();
     getMock.mockResolvedValue({ type: ChannelType.GuildMedia });
     postMock.mockResolvedValue({ id: "t1" });
     await createThreadDiscord(
@@ -109,7 +78,7 @@ describe("sendMessageDiscord", () => {
   });
 
   it("falls back when channel lookup is unavailable", async () => {
-    const { rest, getMock, postMock } = makeRest();
+    const { rest, getMock, postMock } = makeDiscordRest();
     getMock.mockRejectedValue(new Error("lookup failed"));
     postMock.mockResolvedValue({ id: "t1" });
     await createThreadDiscord("chan1", { name: "thread" }, { rest, token: "t" });
@@ -122,7 +91,7 @@ describe("sendMessageDiscord", () => {
   });
 
   it("respects explicit thread type for standalone threads", async () => {
-    const { rest, getMock, postMock } = makeRest();
+    const { rest, getMock, postMock } = makeDiscordRest();
     getMock.mockResolvedValue({ type: ChannelType.GuildText });
     postMock.mockResolvedValue({ id: "t1" });
     await createThreadDiscord(
@@ -140,14 +109,14 @@ describe("sendMessageDiscord", () => {
   });
 
   it("lists active threads by guild", async () => {
-    const { rest, getMock } = makeRest();
+    const { rest, getMock } = makeDiscordRest();
     getMock.mockResolvedValue({ threads: [] });
     await listThreadsDiscord({ guildId: "g1" }, { rest, token: "t" });
     expect(getMock).toHaveBeenCalledWith(Routes.guildActiveThreads("g1"));
   });
 
   it("times out a member", async () => {
-    const { rest, patchMock } = makeRest();
+    const { rest, patchMock } = makeDiscordRest();
     patchMock.mockResolvedValue({ id: "m1" });
     await timeoutMemberDiscord(
       { guildId: "g1", userId: "u1", durationMinutes: 10 },
@@ -164,7 +133,7 @@ describe("sendMessageDiscord", () => {
   });
 
   it("adds and removes roles", async () => {
-    const { rest, putMock, deleteMock } = makeRest();
+    const { rest, putMock, deleteMock } = makeDiscordRest();
     putMock.mockResolvedValue({});
     deleteMock.mockResolvedValue({});
     await addRoleDiscord({ guildId: "g1", userId: "u1", roleId: "r1" }, { rest, token: "t" });
@@ -174,7 +143,7 @@ describe("sendMessageDiscord", () => {
   });
 
   it("bans a member", async () => {
-    const { rest, putMock } = makeRest();
+    const { rest, putMock } = makeDiscordRest();
     putMock.mockResolvedValue({});
     await banMemberDiscord(
       { guildId: "g1", userId: "u1", deleteMessageDays: 2 },
@@ -193,7 +162,7 @@ describe("listGuildEmojisDiscord", () => {
   });
 
   it("lists emojis for a guild", async () => {
-    const { rest, getMock } = makeRest();
+    const { rest, getMock } = makeDiscordRest();
     getMock.mockResolvedValue([{ id: "e1", name: "party" }]);
     await listGuildEmojisDiscord("g1", { rest, token: "t" });
     expect(getMock).toHaveBeenCalledWith(Routes.guildEmojis("g1"));
@@ -206,7 +175,7 @@ describe("uploadEmojiDiscord", () => {
   });
 
   it("uploads emoji assets", async () => {
-    const { rest, postMock } = makeRest();
+    const { rest, postMock } = makeDiscordRest();
     postMock.mockResolvedValue({ id: "e1" });
     await uploadEmojiDiscord(
       {
@@ -236,7 +205,7 @@ describe("uploadStickerDiscord", () => {
   });
 
   it("uploads sticker assets", async () => {
-    const { rest, postMock } = makeRest();
+    const { rest, postMock } = makeDiscordRest();
     postMock.mockResolvedValue({ id: "s1" });
     await uploadStickerDiscord(
       {
@@ -273,7 +242,7 @@ describe("sendStickerDiscord", () => {
   });
 
   it("sends sticker payloads", async () => {
-    const { rest, postMock } = makeRest();
+    const { rest, postMock } = makeDiscordRest();
     postMock.mockResolvedValue({ id: "msg1", channel_id: "789" });
     const res = await sendStickerDiscord("channel:789", ["123"], {
       rest,
@@ -299,7 +268,7 @@ describe("sendPollDiscord", () => {
   });
 
   it("sends polls with answers", async () => {
-    const { rest, postMock } = makeRest();
+    const { rest, postMock } = makeDiscordRest();
     postMock.mockResolvedValue({ id: "msg1", channel_id: "789" });
     const res = await sendPollDiscord(
       "channel:789",
@@ -351,7 +320,7 @@ describe("retry rate limits", () => {
   });
 
   it("retries on Discord rate limits", async () => {
-    const { rest, postMock } = makeRest();
+    const { rest, postMock } = makeDiscordRest();
     const rateLimitError = createMockRateLimitError(0);
 
     postMock
@@ -371,7 +340,7 @@ describe("retry rate limits", () => {
   it("uses retry_after delays when rate limited", async () => {
     vi.useFakeTimers();
     const setTimeoutSpy = vi.spyOn(global, "setTimeout");
-    const { rest, postMock } = makeRest();
+    const { rest, postMock } = makeDiscordRest();
     const rateLimitError = createMockRateLimitError(0.5);
 
     postMock
@@ -395,7 +364,7 @@ describe("retry rate limits", () => {
   });
 
   it("stops after max retry attempts", async () => {
-    const { rest, postMock } = makeRest();
+    const { rest, postMock } = makeDiscordRest();
     const rateLimitError = createMockRateLimitError(0);
 
     postMock.mockRejectedValue(rateLimitError);
@@ -411,7 +380,7 @@ describe("retry rate limits", () => {
   });
 
   it("does not retry non-rate-limit errors", async () => {
-    const { rest, postMock } = makeRest();
+    const { rest, postMock } = makeDiscordRest();
     postMock.mockRejectedValueOnce(new Error("network error"));
 
     await expect(sendMessageDiscord("channel:789", "hello", { rest, token: "t" })).rejects.toThrow(
@@ -421,7 +390,7 @@ describe("retry rate limits", () => {
   });
 
   it("retries reactions on rate limits", async () => {
-    const { rest, putMock } = makeRest();
+    const { rest, putMock } = makeDiscordRest();
     const rateLimitError = createMockRateLimitError(0);
 
     putMock.mockRejectedValueOnce(rateLimitError).mockResolvedValueOnce(undefined);
@@ -437,7 +406,7 @@ describe("retry rate limits", () => {
   });
 
   it("retries media upload without duplicating overflow text", async () => {
-    const { rest, postMock } = makeRest();
+    const { rest, postMock } = makeDiscordRest();
     const rateLimitError = createMockRateLimitError(0);
     const text = "a".repeat(2005);
 
