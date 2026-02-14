@@ -10,6 +10,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -18,6 +19,17 @@ Docs: https://docs.openclaw.ai
 ## 2026.2.10
 =======
 ## 2026.2.13 (Unreleased)
+=======
+## Unreleased
+
+### Fixes
+
+- Security/Hooks: restrict hook transform modules to `~/.openclaw/hooks/transforms` (prevents path traversal/escape module loads via config). Config note: `hooks.transformsDir` must now be within that directory. Thanks @akhmittra.
+- Security/Hooks: ignore hook package manifest entries that point outside the package directory (prevents out-of-tree handler loads during hook discovery).
+- Ollama/Agents: avoid forcing `<final>` tag enforcement for Ollama models, which could suppress all output as `(no output)`. (#16191) Thanks @Glucksberg.
+
+## 2026.2.13
+>>>>>>> 7d3e5788e (fix: stop enforcing <final> for ollama (#16191) (thanks @Glucksberg))
 
 <<<<<<< HEAD
 =======
