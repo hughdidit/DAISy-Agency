@@ -1,28 +1,15 @@
-import "./test-helpers.js";
 import crypto from "node:crypto";
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
 import sharp from "sharp";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as ssrf from "../infra/net/ssrf.js";
-
-const TEST_NET_IP = "203.0.113.10";
-
-vi.mock("../agents/pi-embedded.js", () => ({
-  abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
-  isEmbeddedPiRunActive: vi.fn().mockReturnValue(false),
-  isEmbeddedPiRunStreaming: vi.fn().mockReturnValue(false),
-  runEmbeddedPiAgent: vi.fn(),
-  queueEmbeddedPiMessage: vi.fn().mockReturnValue(false),
-  resolveEmbeddedSessionLane: (key: string) => `session:${key.trim() || "main"}`,
-}));
-
-import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
-import { resetLogger, setLoggerOverride } from "../logging.js";
+import { describe, expect, it, vi } from "vitest";
 import { monitorWebChannel } from "./auto-reply.js";
-import { resetBaileysMocks, resetLoadConfigMock, setLoadConfigMock } from "./test-helpers.js";
+import {
+  installWebAutoReplyTestHomeHooks,
+  installWebAutoReplyUnitTestHooks,
+  resetLoadConfigMock,
+  setLoadConfigMock,
+} from "./auto-reply.test-harness.js";
 
+<<<<<<< HEAD
 let previousHome: string | undefined;
 let tempHome: string | undefined;
 
@@ -125,6 +112,12 @@ describe("web auto-reply", () => {
     setLoggerOverride(null);
     vi.useRealTimers();
   });
+=======
+installWebAutoReplyTestHomeHooks();
+
+describe("web auto-reply", () => {
+  installWebAutoReplyUnitTestHooks({ pinDns: true });
+>>>>>>> 03ff4960b (refactor(test): share web auto-reply harness)
 
   it("compresses common formats to jpeg under the cap", { timeout: 45_000 }, async () => {
     const formats = [
