@@ -11,6 +11,9 @@ type HookContext = {
 type HookOutcome = { blocked: true; reason: string } | { blocked: false; params: unknown };
 
 const log = createSubsystemLogger("agents/tools");
+const BEFORE_TOOL_CALL_WRAPPED = Symbol("beforeToolCallWrapped");
+const adjustedParamsByToolCallId = new Map<string, unknown>();
+const MAX_TRACKED_ADJUSTED_PARAMS = 1024;
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -73,7 +76,7 @@ export function wrapToolWithBeforeToolCallHook(
     return tool;
   }
   const toolName = tool.name || "tool";
-  return {
+  const wrappedTool: AnyAgentTool = {
     ...tool,
     execute: async (toolCallId, params, signal, onUpdate) => {
       const outcome = await runBeforeToolCallHook({
@@ -85,12 +88,39 @@ export function wrapToolWithBeforeToolCallHook(
       if (outcome.blocked) {
         throw new Error(outcome.reason);
       }
+      if (toolCallId) {
+        adjustedParamsByToolCallId.set(toolCallId, outcome.params);
+        if (adjustedParamsByToolCallId.size > MAX_TRACKED_ADJUSTED_PARAMS) {
+          const oldest = adjustedParamsByToolCallId.keys().next().value;
+          if (oldest) {
+            adjustedParamsByToolCallId.delete(oldest);
+          }
+        }
+      }
       return await execute(toolCallId, outcome.params, signal, onUpdate);
     },
   };
+  Object.defineProperty(wrappedTool, BEFORE_TOOL_CALL_WRAPPED, {
+    value: true,
+    enumerable: false,
+  });
+  return wrappedTool;
+}
+
+export function isToolWrappedWithBeforeToolCallHook(tool: AnyAgentTool): boolean {
+  const taggedTool = tool as unknown as Record<symbol, unknown>;
+  return taggedTool[BEFORE_TOOL_CALL_WRAPPED] === true;
+}
+
+export function consumeAdjustedParamsForToolCall(toolCallId: string): unknown {
+  const params = adjustedParamsByToolCallId.get(toolCallId);
+  adjustedParamsByToolCallId.delete(toolCallId);
+  return params;
 }
 
 export const __testing = {
+  BEFORE_TOOL_CALL_WRAPPED,
+  adjustedParamsByToolCallId,
   runBeforeToolCallHook,
   isPlainObject,
 };

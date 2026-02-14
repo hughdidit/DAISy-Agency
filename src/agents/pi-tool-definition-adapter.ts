@@ -10,8 +10,16 @@ import { logDebug, logError } from "../logger.js";
 =======
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { isPlainObject } from "../utils.js";
+<<<<<<< HEAD
 >>>>>>> d34138dfe (fix: dispatch before_tool_call and after_tool_call hooks from both tool execution paths (openclaw#15012) thanks @Patrick-Barletta)
 import { runBeforeToolCallHook } from "./pi-tools.before-tool-call.js";
+=======
+import {
+  consumeAdjustedParamsForToolCall,
+  isToolWrappedWithBeforeToolCallHook,
+  runBeforeToolCallHook,
+} from "./pi-tools.before-tool-call.js";
+>>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo))
 import { normalizeToolName } from "./tool-policy.js";
 import { jsonResult } from "./tools/common.js";
 
@@ -90,6 +98,7 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
   return tools.map((tool) => {
     const name = tool.name || "tool";
     const normalizedName = normalizeToolName(name);
+    const beforeHookWrapped = isToolWrappedWithBeforeToolCallHook(tool);
     return {
       name,
       label: tool.label ?? name,
@@ -97,7 +106,9 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
       parameters: tool.parameters,
       execute: async (...args: ToolExecuteArgs): Promise<AgentToolResult<unknown>> => {
         const { toolCallId, params, onUpdate, signal } = splitToolExecuteArgs(args);
+        let executeParams = params;
         try {
+<<<<<<< HEAD
           // Call before_tool_call hook
           const hookOutcome = await runBeforeToolCallHook({
             toolName: name,
@@ -109,6 +120,23 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
           }
           const adjustedParams = hookOutcome.params;
           const result = await tool.execute(toolCallId, adjustedParams, signal, onUpdate);
+=======
+          if (!beforeHookWrapped) {
+            const hookOutcome = await runBeforeToolCallHook({
+              toolName: name,
+              params,
+              toolCallId,
+            });
+            if (hookOutcome.blocked) {
+              throw new Error(hookOutcome.reason);
+            }
+            executeParams = hookOutcome.params;
+          }
+          const result = await tool.execute(toolCallId, executeParams, signal, onUpdate);
+          const afterParams = beforeHookWrapped
+            ? (consumeAdjustedParamsForToolCall(toolCallId) ?? executeParams)
+            : executeParams;
+>>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo))
 
           // Call after_tool_call hook
           const hookRunner = getGlobalHookRunner();
@@ -117,7 +145,11 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
               await hookRunner.runAfterToolCall(
                 {
                   toolName: name,
+<<<<<<< HEAD
                   params: isPlainObject(adjustedParams) ? adjustedParams : {},
+=======
+                  params: isPlainObject(afterParams) ? afterParams : {},
+>>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo))
                   result,
                 },
                 { toolName: name },
@@ -140,6 +172,9 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
               : "";
           if (name === "AbortError") {
             throw err;
+          }
+          if (beforeHookWrapped) {
+            consumeAdjustedParamsForToolCall(toolCallId);
           }
           const described = describeToolExecutionError(err);
           if (described.stack && described.stack !== described.message) {

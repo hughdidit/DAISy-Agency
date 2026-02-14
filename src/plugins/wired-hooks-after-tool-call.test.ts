@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const hookMocks = vi.hoisted(() => ({
   runner: {
     hasHooks: vi.fn(() => false),
+    runBeforeToolCall: vi.fn(async () => {}),
     runAfterToolCall: vi.fn(async () => {}),
   },
 }));
@@ -23,6 +24,8 @@ describe("after_tool_call hook wiring", () => {
   beforeEach(() => {
     hookMocks.runner.hasHooks.mockReset();
     hookMocks.runner.hasHooks.mockReturnValue(false);
+    hookMocks.runner.runBeforeToolCall.mockReset();
+    hookMocks.runner.runBeforeToolCall.mockResolvedValue(undefined);
     hookMocks.runner.runAfterToolCall.mockReset();
     hookMocks.runner.runAfterToolCall.mockResolvedValue(undefined);
   });
@@ -83,9 +86,14 @@ describe("after_tool_call hook wiring", () => {
       } as never,
     );
 
+<<<<<<< HEAD:src/plugins/wired-hooks-after-tool-call.test.ts
     await vi.waitFor(() => {
       expect(hookMocks.runner.runAfterToolCall).toHaveBeenCalledTimes(1);
     });
+=======
+    expect(hookMocks.runner.runAfterToolCall).toHaveBeenCalledTimes(1);
+    expect(hookMocks.runner.runBeforeToolCall).not.toHaveBeenCalled();
+>>>>>>> 8c3cc793b (fix: dedupe before_tool_call in embedded runtime (#15635) (thanks @lailoo)):src/plugins/wired-hooks-after-tool-call.e2e.test.ts
 
     const [event, context] = hookMocks.runner.runAfterToolCall.mock.calls[0];
     expect(event.toolName).toBe("read");
