@@ -24,6 +24,7 @@ describe("browser extension install", () => {
 >>>>>>> 1008c28f5 (test(cli): use unique temp dir for extension install)
 
     try {
+<<<<<<< HEAD
       const result = await installChromeExtension({ stateDir: tmp });
 
 <<<<<<< HEAD
@@ -31,6 +32,23 @@ describe("browser extension install", () => {
     expect(fs.existsSync(path.join(result.path, "manifest.json"))).toBe(true);
 <<<<<<< HEAD
     expect(result.path.includes("node_modules")).toBe(false);
+=======
+      const { installChromeExtension } = await import("./browser-cli-extension.js");
+      // Keep this test hermetic + fast: use a tiny fixture instead of copying the
+      // full repo assets tree.
+      const sourceDir = path.join(tmp, "source-ext");
+      writeManifest(sourceDir);
+      fs.writeFileSync(path.join(sourceDir, "test.txt"), "ok");
+      const result = await installChromeExtension({ stateDir: tmp, sourceDir });
+
+      expect(result.path).toBe(path.join(tmp, "browser", "chrome-extension"));
+      expect(fs.existsSync(path.join(result.path, "manifest.json"))).toBe(true);
+      expect(fs.existsSync(path.join(result.path, "test.txt"))).toBe(true);
+      expect(result.path.includes("node_modules")).toBe(false);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+>>>>>>> 9a01d2bba (perf(test): use tiny fixture for browser extension install test)
   });
 
   it("copies extension path to clipboard", async () => {
