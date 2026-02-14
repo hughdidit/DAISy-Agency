@@ -17,7 +17,12 @@ Compaction **summarizes older conversation** into a compact summary entry and ke
 Compaction **persists** in the session’s JSONL history.
 
 ## Configuration
+<<<<<<< HEAD
 See [Compaction config & modes](/concepts/compaction) for the `agents.defaults.compaction` settings.
+=======
+
+Use the `agents.defaults.compaction` setting in your `openclaw.json` to configure compaction behavior (mode, target tokens, etc.).
+>>>>>>> 9cb630ca7 (docs: fix compaction config note)
 
 ## Auto-compaction (default on)
 When a session nears or exceeds the model’s context window, Moltbot triggers auto-compaction and may retry the original request using the compacted context.
