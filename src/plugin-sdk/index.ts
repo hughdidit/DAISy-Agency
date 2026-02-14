@@ -451,5 +451,18 @@ export {
 } from "../line/markdown-to-line.js";
 export type { ProcessedLineMessage } from "../line/markdown-to-line.js";
 
+<<<<<<< HEAD
+=======
+// Channel: Linq
+export {
+  listLinqAccountIds,
+  resolveDefaultLinqAccountId,
+  resolveLinqAccount,
+  type ResolvedLinqAccount,
+} from "../linq/accounts.js";
+export { linqOnboardingAdapter } from "../channels/plugins/onboarding/linq.js";
+export type { LinqProbe } from "../linq/types.js";
+
+>>>>>>> b91e43714 (feat(linq): add interactive onboarding adapter)
 // Media utilities
 export { loadWebMedia, type WebMediaResult } from "../web/media.js";
