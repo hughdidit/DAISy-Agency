@@ -352,6 +352,7 @@ export function attachGatewayWsMessageHandler(params: {
           close(1008, "invalid role");
           return;
         }
+<<<<<<< HEAD
         const requestedScopes = Array.isArray(connectParams.scopes) ? connectParams.scopes : [];
         const scopes =
           requestedScopes.length > 0
@@ -359,6 +360,12 @@ export function attachGatewayWsMessageHandler(params: {
             : role === "operator"
               ? ["operator.read"]
               : [];
+=======
+        // Default-deny: scopes must be explicit. Empty/missing scopes means no permissions.
+        // Note: If the client does not present a device identity, we can't bind scopes to a paired
+        // device/token, so we will clear scopes after auth to avoid self-declared permissions.
+        let scopes = Array.isArray(connectParams.scopes) ? connectParams.scopes : [];
+>>>>>>> 35c0e66ed (fix(security): harden hooks module loading)
         connectParams.role = role;
         connectParams.scopes = scopes;
 
@@ -375,7 +382,15 @@ export function attachGatewayWsMessageHandler(params: {
         const allowControlUiBypass = allowInsecureControlUi || disableControlUiDeviceAuth;
         const device = disableControlUiDeviceAuth ? null : deviceRaw;
         if (!device) {
+<<<<<<< HEAD
           const canSkipDevice = allowControlUiBypass ? hasSharedAuth : hasTokenAuth;
+=======
+          if (scopes.length > 0) {
+            scopes = [];
+            connectParams.scopes = scopes;
+          }
+          const canSkipDevice = sharedAuthOk;
+>>>>>>> 35c0e66ed (fix(security): harden hooks module loading)
 
           if (isControlUi && !allowControlUiBypass) {
             const errorMessage = "control ui requires HTTPS or localhost (secure context)";

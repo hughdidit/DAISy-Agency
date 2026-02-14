@@ -38,7 +38,11 @@ Status: beta.
 - Security/Hooks: restrict hook transform modules to `~/.openclaw/hooks/transforms` (prevents path traversal/escape module loads via config). Config note: `hooks.transformsDir` must now be within that directory. Thanks @akhmittra.
 >>>>>>> 3aa94afcf (fix(security): harden archive extraction (#16203))
 - Security/Hooks: ignore hook package manifest entries that point outside the package directory (prevents out-of-tree handler loads during hook discovery).
+<<<<<<< HEAD
 
+=======
+- Ollama/Agents: avoid forcing `<final>` tag enforcement for Ollama models, which could suppress all output as `(no output)`. (#16191) Thanks @Glucksberg.
+>>>>>>> 35c0e66ed (fix(security): harden hooks module loading)
 ## 2026.2.13
 
 ### Changes

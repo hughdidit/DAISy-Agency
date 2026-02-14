@@ -84,6 +84,182 @@ describe("gateway server auth/connect", () => {
       ws.close();
     });
 
+<<<<<<< HEAD
+=======
+    test("does not grant admin when scopes are empty", async () => {
+      const ws = await openWs(port);
+      const res = await connectReq(ws, { scopes: [] });
+      expect(res.ok).toBe(true);
+
+      const health = await rpcReq(ws, "health");
+      expect(health.ok).toBe(false);
+      expect(health.error?.message).toContain("missing scope");
+
+      ws.close();
+    });
+
+    test("does not grant admin when scopes are omitted", async () => {
+      const ws = await openWs(port);
+      const token =
+        typeof (testState.gatewayAuth as { token?: unknown } | undefined)?.token === "string"
+          ? ((testState.gatewayAuth as { token?: string }).token ?? undefined)
+          : process.env.OPENCLAW_GATEWAY_TOKEN;
+      expect(typeof token).toBe("string");
+
+      const { loadOrCreateDeviceIdentity, publicKeyRawBase64UrlFromPem, signDevicePayload } =
+        await import("../infra/device-identity.js");
+      const { randomUUID } = await import("node:crypto");
+      const os = await import("node:os");
+      const path = await import("node:path");
+      // Fresh identity: avoid leaking prior scopes (presence merges lists).
+      const identity = loadOrCreateDeviceIdentity(
+        path.join(os.tmpdir(), `openclaw-test-device-${randomUUID()}.json`),
+      );
+      const signedAtMs = Date.now();
+      const payload = buildDeviceAuthPayload({
+        deviceId: identity.deviceId,
+        clientId: GATEWAY_CLIENT_NAMES.TEST,
+        clientMode: GATEWAY_CLIENT_MODES.TEST,
+        role: "operator",
+        scopes: [],
+        signedAtMs,
+        token: token ?? null,
+      });
+
+      test("ignores requested scopes when device identity is omitted", async () => {
+        const ws = await openWs(port);
+        const res = await connectReq(ws, { device: null });
+        expect(res.ok).toBe(true);
+
+        const health = await rpcReq(ws, "health");
+        expect(health.ok).toBe(false);
+        expect(health.error?.message).toContain("missing scope");
+
+        ws.close();
+      });
+      const device = {
+        id: identity.deviceId,
+        publicKey: publicKeyRawBase64UrlFromPem(identity.publicKeyPem),
+        signature: signDevicePayload(identity.privateKeyPem, payload),
+        signedAt: signedAtMs,
+      };
+
+      ws.send(
+        JSON.stringify({
+          type: "req",
+          id: "c-no-scopes",
+          method: "connect",
+          params: {
+            minProtocol: PROTOCOL_VERSION,
+            maxProtocol: PROTOCOL_VERSION,
+            client: {
+              id: GATEWAY_CLIENT_NAMES.TEST,
+              version: "1.0.0",
+              platform: "test",
+              mode: GATEWAY_CLIENT_MODES.TEST,
+            },
+            caps: [],
+            role: "operator",
+            auth: token ? { token } : undefined,
+            device,
+          },
+        }),
+      );
+      const connectRes = await onceMessage<{ ok: boolean; payload?: unknown }>(ws, (o) => {
+        if (!o || typeof o !== "object" || Array.isArray(o)) {
+          return false;
+        }
+        const rec = o as Record<string, unknown>;
+        return rec.type === "res" && rec.id === "c-no-scopes";
+      });
+      expect(connectRes.ok).toBe(true);
+      const helloOk = connectRes.payload as
+        | {
+            snapshot?: {
+              presence?: Array<{ deviceId?: unknown; scopes?: unknown }>;
+            };
+          }
+        | undefined;
+      const presence = helloOk?.snapshot?.presence;
+      expect(Array.isArray(presence)).toBe(true);
+      const mine = presence?.find((entry) => entry.deviceId === identity.deviceId);
+      expect(mine).toBeTruthy();
+      const presenceScopes = Array.isArray(mine?.scopes) ? mine?.scopes : [];
+      expect(presenceScopes).toEqual([]);
+      expect(presenceScopes).not.toContain("operator.admin");
+
+      const health = await rpcReq(ws, "health");
+      expect(health.ok).toBe(false);
+      expect(health.error?.message).toContain("missing scope");
+
+      ws.close();
+    });
+
+    test("rejects device signature when scopes are omitted but signed with admin", async () => {
+      const ws = await openWs(port);
+      const token =
+        typeof (testState.gatewayAuth as { token?: unknown } | undefined)?.token === "string"
+          ? ((testState.gatewayAuth as { token?: string }).token ?? undefined)
+          : process.env.OPENCLAW_GATEWAY_TOKEN;
+      expect(typeof token).toBe("string");
+
+      const { loadOrCreateDeviceIdentity, publicKeyRawBase64UrlFromPem, signDevicePayload } =
+        await import("../infra/device-identity.js");
+      const identity = loadOrCreateDeviceIdentity();
+      const signedAtMs = Date.now();
+      const payload = buildDeviceAuthPayload({
+        deviceId: identity.deviceId,
+        clientId: GATEWAY_CLIENT_NAMES.TEST,
+        clientMode: GATEWAY_CLIENT_MODES.TEST,
+        role: "operator",
+        scopes: ["operator.admin"],
+        signedAtMs,
+        token: token ?? null,
+      });
+      const device = {
+        id: identity.deviceId,
+        publicKey: publicKeyRawBase64UrlFromPem(identity.publicKeyPem),
+        signature: signDevicePayload(identity.privateKeyPem, payload),
+        signedAt: signedAtMs,
+      };
+
+      ws.send(
+        JSON.stringify({
+          type: "req",
+          id: "c-no-scopes-signed-admin",
+          method: "connect",
+          params: {
+            minProtocol: PROTOCOL_VERSION,
+            maxProtocol: PROTOCOL_VERSION,
+            client: {
+              id: GATEWAY_CLIENT_NAMES.TEST,
+              version: "1.0.0",
+              platform: "test",
+              mode: GATEWAY_CLIENT_MODES.TEST,
+            },
+            caps: [],
+            role: "operator",
+            auth: token ? { token } : undefined,
+            device,
+          },
+        }),
+      );
+      const connectRes = await onceMessage<{ ok: boolean; error?: { message?: string } }>(
+        ws,
+        (o) => {
+          if (!o || typeof o !== "object" || Array.isArray(o)) {
+            return false;
+          }
+          const rec = o as Record<string, unknown>;
+          return rec.type === "res" && rec.id === "c-no-scopes-signed-admin";
+        },
+      );
+      expect(connectRes.ok).toBe(false);
+      expect(connectRes.error?.message ?? "").toContain("device signature invalid");
+      await new Promise<void>((resolve) => ws.once("close", () => resolve()));
+    });
+
+>>>>>>> 35c0e66ed (fix(security): harden hooks module loading)
     test("sends connect challenge on open", async () => {
       const ws = new WebSocket(`ws://127.0.0.1:${port}`);
       const evtPromise = onceMessage<{ payload?: unknown }>(
@@ -277,6 +453,50 @@ describe("gateway server auth/connect", () => {
     });
   });
 
+<<<<<<< HEAD
+=======
+  describe("tailscale auth", () => {
+    let server: Awaited<ReturnType<typeof startGatewayServer>>;
+    let port: number;
+
+    beforeAll(async () => {
+      testState.gatewayAuth = { mode: "token", token: "secret", allowTailscale: true };
+      port = await getFreePort();
+      server = await startGatewayServer(port);
+    });
+
+    afterAll(async () => {
+      await server.close();
+    });
+
+    beforeEach(() => {
+      testTailscaleWhois.value = { login: "peter", name: "Peter" };
+    });
+
+    afterEach(() => {
+      testTailscaleWhois.value = null;
+    });
+
+    test("requires device identity when only tailscale auth is available", async () => {
+      const ws = await openTailscaleWs(port);
+      const res = await connectReq(ws, { token: "dummy", device: null });
+      expect(res.ok).toBe(false);
+      expect(res.error?.message ?? "").toContain("device identity required");
+      ws.close();
+    });
+
+    test("allows shared token to skip device when tailscale auth is enabled", async () => {
+      const ws = await openTailscaleWs(port);
+      const res = await connectReq(ws, { token: "secret", device: null });
+      expect(res.ok).toBe(true);
+      const health = await rpcReq(ws, "health");
+      expect(health.ok).toBe(false);
+      expect(health.error?.message).toContain("missing scope");
+      ws.close();
+    });
+  });
+
+>>>>>>> 35c0e66ed (fix(security): harden hooks module loading)
   test("allows control ui without device identity when insecure auth is enabled", async () => {
     testState.gatewayControlUi = { allowInsecureAuth: true };
     const { server, ws, prevToken } = await startServerWithClient("secret");
