@@ -1,8 +1,12 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+=======
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> 096a7a571 (perf(test): speed up update-startup and docker-setup suites)
 import type { UpdateCheckResult } from "./update-check.js";
 
 vi.mock("./moltbot-root.js", () => ({
@@ -25,15 +29,41 @@ vi.mock("../version.js", () => ({
 
 describe("update-startup", () => {
   const originalEnv = { ...process.env };
+  let suiteRoot = "";
+  let suiteCase = 0;
   let tempDir: string;
+
+  let resolveOpenClawPackageRoot: (typeof import("./openclaw-root.js"))["resolveOpenClawPackageRoot"];
+  let checkUpdateStatus: (typeof import("./update-check.js"))["checkUpdateStatus"];
+  let resolveNpmChannelTag: (typeof import("./update-check.js"))["resolveNpmChannelTag"];
+  let runGatewayUpdateCheck: (typeof import("./update-startup.js"))["runGatewayUpdateCheck"];
+  let loaded = false;
+
+  beforeAll(async () => {
+    suiteRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-update-check-suite-"));
+  });
 
   beforeEach(async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-01-17T10:00:00Z"));
+<<<<<<< HEAD
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-update-check-"));
     process.env.CLAWDBOT_STATE_DIR = tempDir;
+=======
+    tempDir = path.join(suiteRoot, `case-${++suiteCase}`);
+    await fs.mkdir(tempDir, { recursive: true });
+    process.env.OPENCLAW_STATE_DIR = tempDir;
+>>>>>>> 096a7a571 (perf(test): speed up update-startup and docker-setup suites)
     delete process.env.VITEST;
     process.env.NODE_ENV = "test";
+
+    // Perf: load mocked modules once (after timers/env are set up).
+    if (!loaded) {
+      ({ resolveOpenClawPackageRoot } = await import("./openclaw-root.js"));
+      ({ checkUpdateStatus, resolveNpmChannelTag } = await import("./update-check.js"));
+      ({ runGatewayUpdateCheck } = await import("./update-startup.js"));
+      loaded = true;
+    }
   });
 
   afterEach(async () => {
@@ -42,12 +72,25 @@ describe("update-startup", () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 
+<<<<<<< HEAD
   it("logs update hint for npm installs when newer tag exists", async () => {
     const { resolveMoltbotPackageRoot } = await import("./moltbot-root.js");
     const { checkUpdateStatus, resolveNpmChannelTag } = await import("./update-check.js");
     const { runGatewayUpdateCheck } = await import("./update-startup.js");
 
     vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue("/opt/moltbot");
+=======
+  afterAll(async () => {
+    if (suiteRoot) {
+      await fs.rm(suiteRoot, { recursive: true, force: true });
+    }
+    suiteRoot = "";
+    suiteCase = 0;
+  });
+
+  it("logs update hint for npm installs when newer tag exists", async () => {
+    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue("/opt/openclaw");
+>>>>>>> 096a7a571 (perf(test): speed up update-startup and docker-setup suites)
     vi.mocked(checkUpdateStatus).mockResolvedValue({
       root: "/opt/moltbot",
       installKind: "package",
@@ -77,11 +120,15 @@ describe("update-startup", () => {
   });
 
   it("uses latest when beta tag is older than release", async () => {
+<<<<<<< HEAD
     const { resolveMoltbotPackageRoot } = await import("./moltbot-root.js");
     const { checkUpdateStatus, resolveNpmChannelTag } = await import("./update-check.js");
     const { runGatewayUpdateCheck } = await import("./update-startup.js");
 
     vi.mocked(resolveMoltbotPackageRoot).mockResolvedValue("/opt/moltbot");
+=======
+    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue("/opt/openclaw");
+>>>>>>> 096a7a571 (perf(test): speed up update-startup and docker-setup suites)
     vi.mocked(checkUpdateStatus).mockResolvedValue({
       root: "/opt/moltbot",
       installKind: "package",
@@ -111,7 +158,6 @@ describe("update-startup", () => {
   });
 
   it("skips update check when disabled in config", async () => {
-    const { runGatewayUpdateCheck } = await import("./update-startup.js");
     const log = { info: vi.fn() };
 
     await runGatewayUpdateCheck({
