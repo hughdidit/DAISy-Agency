@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import type { AgentEvent } from "@mariozechner/pi-agent-core";
 
+=======
+import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
+>>>>>>> 77e8a8090 (chore: fix lint after compaction handler split)
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { createInlineCodeState } from "../markdown/code-spans.js";
 <<<<<<< HEAD
