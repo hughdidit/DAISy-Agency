@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
@@ -42,8 +43,51 @@ describe("ensureMoltbotCliOnPath", () => {
         }
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       }
+=======
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { ensureOpenClawCliOnPath } from "./path-env.js";
+
+describe("ensureOpenClawCliOnPath", () => {
+  let fixtureRoot = "";
+  let fixtureCount = 0;
+
+  beforeAll(async () => {
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-path-"));
+  });
+
+  afterAll(async () => {
+    await fs.rm(fixtureRoot, { recursive: true, force: true });
+  });
+
+  it("prepends the bundled app bin dir when a sibling openclaw exists", async () => {
+    const tmp = path.join(fixtureRoot, `case-${fixtureCount++}`);
+    const appBinDir = path.join(tmp, "AppBin");
+    await fs.mkdir(appBinDir, { recursive: true });
+    const cliPath = path.join(appBinDir, "openclaw");
+    await fs.writeFile(cliPath, "#!/bin/sh\necho ok\n", "utf-8");
+    await fs.chmod(cliPath, 0o755);
+
+    const originalPath = process.env.PATH;
+    const originalFlag = process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+    process.env.PATH = "/usr/bin";
+    delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+    try {
+      ensureOpenClawCliOnPath({
+        execPath: cliPath,
+        cwd: tmp,
+        homeDir: tmp,
+        platform: "darwin",
+      });
+      const updated = process.env.PATH ?? "";
+      expect(updated.split(path.delimiter)[0]).toBe(appBinDir);
+>>>>>>> 6bc5987d6 (perf(test): speed up path env suite)
     } finally {
-      await fs.rm(tmp, { recursive: true, force: true });
+      process.env.PATH = originalPath;
+      if (originalFlag === undefined) {
+        delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+      } else {
+        process.env.OPENCLAW_PATH_BOOTSTRAPPED = originalFlag;
+      }
     }
   });
 
@@ -76,7 +120,11 @@ describe("ensureMoltbotCliOnPath", () => {
   });
 
   it("prepends mise shims when available", async () => {
+<<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-path-"));
+=======
+    const tmp = path.join(fixtureRoot, `case-${fixtureCount++}`);
+>>>>>>> 6bc5987d6 (perf(test): speed up path env suite)
     const originalPath = process.env.PATH;
     const originalFlag = process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
     const originalMiseDataDir = process.env.MISE_DATA_DIR;
@@ -133,13 +181,74 @@ describe("ensureMoltbotCliOnPath", () => {
       } else {
         process.env.MISE_DATA_DIR = originalMiseDataDir;
       }
+<<<<<<< HEAD
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       await fs.rm(tmp, { recursive: true, force: true });
+=======
+    }
+  });
+
+  it("only appends project-local node_modules/.bin when explicitly enabled", async () => {
+    const tmp = path.join(fixtureRoot, `case-${fixtureCount++}`);
+    const originalPath = process.env.PATH;
+    const originalFlag = process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+    try {
+      const appBinDir = path.join(tmp, "AppBin");
+      await fs.mkdir(appBinDir, { recursive: true });
+      const appCli = path.join(appBinDir, "openclaw");
+      await fs.writeFile(appCli, "#!/bin/sh\necho ok\n", "utf-8");
+      await fs.chmod(appCli, 0o755);
+
+      const localBinDir = path.join(tmp, "node_modules", ".bin");
+      await fs.mkdir(localBinDir, { recursive: true });
+      const localCli = path.join(localBinDir, "openclaw");
+      await fs.writeFile(localCli, "#!/bin/sh\necho ok\n", "utf-8");
+      await fs.chmod(localCli, 0o755);
+
+      process.env.PATH = "/usr/bin";
+      delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+
+      ensureOpenClawCliOnPath({
+        execPath: appCli,
+        cwd: tmp,
+        homeDir: tmp,
+        platform: "darwin",
+      });
+      const withoutOptIn = (process.env.PATH ?? "").split(path.delimiter);
+      expect(withoutOptIn.includes(localBinDir)).toBe(false);
+
+      process.env.PATH = "/usr/bin";
+      delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+
+      ensureOpenClawCliOnPath({
+        execPath: appCli,
+        cwd: tmp,
+        homeDir: tmp,
+        platform: "darwin",
+        allowProjectLocalBin: true,
+      });
+      const withOptIn = (process.env.PATH ?? "").split(path.delimiter);
+      const usrBinIndex = withOptIn.indexOf("/usr/bin");
+      const localIndex = withOptIn.indexOf(localBinDir);
+      expect(usrBinIndex).toBeGreaterThanOrEqual(0);
+      expect(localIndex).toBeGreaterThan(usrBinIndex);
+    } finally {
+      process.env.PATH = originalPath;
+      if (originalFlag === undefined) {
+        delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+      } else {
+        process.env.OPENCLAW_PATH_BOOTSTRAPPED = originalFlag;
+      }
+>>>>>>> 6bc5987d6 (perf(test): speed up path env suite)
     }
   });
 
   it("prepends Linuxbrew dirs when present", async () => {
+<<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-path-"));
+=======
+    const tmp = path.join(fixtureRoot, `case-${fixtureCount++}`);
+>>>>>>> 6bc5987d6 (perf(test): speed up path env suite)
     const originalPath = process.env.PATH;
     const originalFlag = process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
     const originalHomebrewPrefix = process.env.HOMEBREW_PREFIX;
@@ -203,8 +312,11 @@ describe("ensureMoltbotCliOnPath", () => {
       } else {
         process.env.XDG_BIN_HOME = originalXdgBinHome;
       }
+<<<<<<< HEAD
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       await fs.rm(tmp, { recursive: true, force: true });
+=======
+>>>>>>> 6bc5987d6 (perf(test): speed up path env suite)
     }
   });
 });
