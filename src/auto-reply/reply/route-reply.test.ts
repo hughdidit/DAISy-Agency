@@ -4,6 +4,7 @@ import type { ChannelOutboundAdapter, ChannelPlugin } from "../../channels/plugi
 import type { MoltbotConfig } from "../../config/config.js";
 import type { PluginRegistry } from "../../plugins/registry.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
+<<<<<<< HEAD
 import {
   createIMessageTestPlugin,
   createOutboundTestPlugin,
@@ -15,6 +16,10 @@ import { signalOutbound } from "../../channels/plugins/outbound/signal.js";
 import { slackOutbound } from "../../channels/plugins/outbound/slack.js";
 import { telegramOutbound } from "../../channels/plugins/outbound/telegram.js";
 import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
+=======
+import { createOutboundTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
+import { createIMessageTestPlugin } from "../../test-utils/imessage-test-plugin.js";
+>>>>>>> eb4215d57 (perf(test): speed up Vitest bootstrap)
 import { SILENT_REPLY_TOKEN } from "../tokens.js";
 
 const mocks = vi.hoisted(() => ({

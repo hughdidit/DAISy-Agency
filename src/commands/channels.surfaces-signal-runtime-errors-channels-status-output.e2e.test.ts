@@ -2,8 +2,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RuntimeEnv } from "../runtime.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
+<<<<<<< HEAD
 import { createIMessageTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { signalPlugin } from "../../extensions/signal/src/channel.js";
+=======
+import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import { createIMessageTestPlugin } from "../test-utils/imessage-test-plugin.js";
+>>>>>>> eb4215d57 (perf(test): speed up Vitest bootstrap)
 
 const configMocks = vi.hoisted(() => ({
   readConfigFileSnapshot: vi.fn(),

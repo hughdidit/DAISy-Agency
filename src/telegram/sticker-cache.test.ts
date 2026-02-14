@@ -10,9 +10,19 @@ import {
 } from "./sticker-cache.js";
 
 // Mock the state directory to use a temp location
+<<<<<<< HEAD
 vi.mock("../config/paths.js", () => ({
   STATE_DIR: "/tmp/moltbot-test-sticker-cache",
 }));
+=======
+vi.mock("../config/paths.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../config/paths.js")>();
+  return {
+    ...actual,
+    STATE_DIR: "/tmp/openclaw-test-sticker-cache",
+  };
+});
+>>>>>>> eb4215d57 (perf(test): speed up Vitest bootstrap)
 
 const TEST_CACHE_DIR = "/tmp/moltbot-test-sticker-cache/telegram";
 const TEST_CACHE_FILE = path.join(TEST_CACHE_DIR, "sticker-cache.json");
