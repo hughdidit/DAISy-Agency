@@ -34,6 +34,10 @@ const PREFERRED_PROVIDER_BY_AUTH_CHOICE: Partial<Record<AuthChoice, string>> = {
   "copilot-proxy": "copilot-proxy",
   "minimax-cloud": "minimax",
   "minimax-api": "minimax",
+<<<<<<< HEAD
+=======
+  "minimax-api-key-cn": "minimax-cn",
+>>>>>>> 1ba266a8e (refactor: split minimax-cn provider)
   "minimax-api-lightning": "minimax",
   minimax: "lmstudio",
   "opencode-zen": "opencode",
