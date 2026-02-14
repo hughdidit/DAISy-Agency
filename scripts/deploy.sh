@@ -93,6 +93,20 @@ CLAWDBOT_GATEWAY_BIND="${CLAWDBOT_GATEWAY_BIND:-loopback}"
 : "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required for real deploy}"
 : "${CLAWDBOT_BRIDGE_PORT:?CLAWDBOT_BRIDGE_PORT is required for real deploy}"
 
+# Validate that ports are numeric and that bridge port = gateway port + 1
+if ! [[ "${CLAWDBOT_GATEWAY_PORT}" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: CLAWDBOT_GATEWAY_PORT must be a numeric port (got: ${CLAWDBOT_GATEWAY_PORT})" >&2
+  exit 1
+fi
+if ! [[ "${CLAWDBOT_BRIDGE_PORT}" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: CLAWDBOT_BRIDGE_PORT must be a numeric port (got: ${CLAWDBOT_BRIDGE_PORT})" >&2
+  exit 1
+fi
+expected_bridge_port=$((CLAWDBOT_GATEWAY_PORT + 1))
+if [[ "${CLAWDBOT_BRIDGE_PORT}" -ne "${expected_bridge_port}" ]]; then
+  echo "ERROR: CLAWDBOT_BRIDGE_PORT (${CLAWDBOT_BRIDGE_PORT}) must equal CLAWDBOT_GATEWAY_PORT + 1 (${expected_bridge_port})" >&2
+  exit 1
+fi
 echo "Deploying to ${GCE_INSTANCE_NAME} via IAP (dir: ${DEPLOY_DIR})..."
 echo "Provision: ${PROVISION}"
 
