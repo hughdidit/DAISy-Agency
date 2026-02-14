@@ -4,6 +4,7 @@ import path from "node:path";
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 import {
   buildConfigChecks,
   resolveMissingAnyBins,
@@ -12,6 +13,9 @@ import {
   resolveMissingOs,
 } from "../shared/requirements.js";
 >>>>>>> bc0160d0f (refactor(shared): dedupe requirements evaluation)
+=======
+import { evaluateRequirements } from "../shared/requirements.js";
+>>>>>>> 4f61a3f52 (refactor(shared): centralize requirements evaluation)
 import { CONFIG_DIR } from "../utils.js";
 import {
   hasBinary,
@@ -207,57 +211,34 @@ function buildSkillStatus(
   const requiredConfig = entry.metadata?.requires?.config ?? [];
   const requiredOs = entry.metadata?.os ?? [];
 
-  const missingBins = resolveMissingBins({
-    required: requiredBins,
+  const {
+    missing,
+    eligible: requirementsSatisfied,
+    configChecks,
+  } = evaluateRequirements({
+    always,
+    required: {
+      bins: requiredBins,
+      anyBins: requiredAnyBins,
+      env: requiredEnv,
+      config: requiredConfig,
+      os: requiredOs,
+    },
     hasLocalBin: hasBinary,
     hasRemoteBin: eligibility?.remote?.hasBin,
-  });
-  const missingAnyBins = resolveMissingAnyBins({
-    required: requiredAnyBins,
-    hasLocalBin: hasBinary,
     hasRemoteAnyBin: eligibility?.remote?.hasAnyBin,
-  });
-  const missingOs = resolveMissingOs({
-    required: requiredOs,
     localPlatform: process.platform,
     remotePlatforms: eligibility?.remote?.platforms,
-  });
-
-  const missingEnv = resolveMissingEnv({
-    required: requiredEnv,
-    isSatisfied: (envName) =>
+    isEnvSatisfied: (envName) =>
       Boolean(
         process.env[envName] ||
         skillConfig?.env?.[envName] ||
         (skillConfig?.apiKey && entry.metadata?.primaryEnv === envName),
       ),
+    resolveConfigValue: (pathStr) => resolveConfigPath(config, pathStr),
+    isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
   });
-
-  const configChecks: SkillStatusConfigCheck[] = buildConfigChecks({
-    required: requiredConfig,
-    resolveValue: (pathStr) => resolveConfigPath(config, pathStr),
-    isSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
-  });
-  const missingConfig = configChecks.filter((check) => !check.satisfied).map((check) => check.path);
-
-  const missing = always
-    ? { bins: [], anyBins: [], env: [], config: [], os: [] }
-    : {
-        bins: missingBins,
-        anyBins: missingAnyBins,
-        env: missingEnv,
-        config: missingConfig,
-        os: missingOs,
-      };
-  const eligible =
-    !disabled &&
-    !blockedByAllowlist &&
-    (always ||
-      (missing.bins.length === 0 &&
-        missing.anyBins.length === 0 &&
-        missing.env.length === 0 &&
-        missing.config.length === 0 &&
-        missing.os.length === 0));
+  const eligible = !disabled && !blockedByAllowlist && requirementsSatisfied;
 
   return {
     name: entry.skill.name,
