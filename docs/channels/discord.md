@@ -648,12 +648,18 @@ Allowlist matching notes:
 
 Native command notes:
 
+<<<<<<< HEAD
 - The registered commands mirror OpenClaw’s chat commands.
 - Native commands honor the same allowlists as DMs/guild messages (`channels.discord.dm.allowFrom`, `channels.discord.guilds`, per-channel rules).
 - Slash commands may still be visible in Discord UI to users who aren’t allowlisted; OpenClaw enforces allowlists on execution and replies “not authorized”.
+=======
+  <Accordion title="Exec approvals in Discord">
+    Discord supports button-based exec approvals in DMs and can optionally post approval prompts in the originating channel.
+>>>>>>> 5ba72bd9b (fix: add discord exec approval channel targeting (#16051) (thanks @leonnardo))
 
 ## Tool actions
 
+<<<<<<< HEAD
 The agent can call `discord` with actions like:
 
 - `react` / `reactions` (add or list reactions)
@@ -666,6 +672,16 @@ The agent can call `discord` with actions like:
 - `channelInfo`, `channelList`, `voiceStatus`, `eventList`, `eventCreate`
 - `timeout`, `kick`, `ban`
 - `setPresence` (bot activity and online status)
+=======
+    - `channels.discord.execApprovals.enabled`
+    - `channels.discord.execApprovals.approvers`
+    - `channels.discord.execApprovals.target` (`dm` | `channel` | `both`, default: `dm`)
+    - `agentFilter`, `sessionFilter`, `cleanupAfterResolve`
+
+    When `target` is `channel` or `both`, the approval prompt is visible in the channel. Only configured approvers can use the buttons; other users receive an ephemeral denial. Approval prompts include the command text, so only enable channel delivery in trusted channels. If the channel ID cannot be derived from the session key, OpenClaw falls back to DM delivery.
+
+    If approvals fail with unknown approval IDs, verify approver list and feature enablement.
+>>>>>>> 5ba72bd9b (fix: add discord exec approval channel targeting (#16051) (thanks @leonnardo))
 
 Discord message ids are surfaced in the injected context (`[discord message id: …]` and history lines) so the agent can target them.
 Emoji can be unicode (e.g., `✅`) or custom emoji syntax like `<:party_blob:1234567890>`.
