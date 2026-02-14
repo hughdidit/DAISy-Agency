@@ -1,7 +1,13 @@
 import { confirm as clackConfirm, select as clackSelect, text as clackText } from "@clack/prompts";
+<<<<<<< HEAD
 
 import { upsertAuthProfile } from "../../agents/auth-profiles.js";
 import { normalizeProviderId } from "../../agents/model-selection.js";
+=======
+import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js";
+import type { ProviderAuthResult, ProviderPlugin } from "../../plugins/types.js";
+import type { RuntimeEnv } from "../../runtime.js";
+>>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import {
   resolveAgentDir,
   resolveAgentWorkspaceDir,
@@ -9,14 +15,19 @@ import {
 } from "../../agents/agent-scope.js";
 import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 import { readConfigFileSnapshot, type MoltbotConfig } from "../../config/config.js";
+=======
+import { readConfigFileSnapshot } from "../../config/config.js";
+>>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import { logConfigUpdated } from "../../config/logging.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { stylePromptHint, stylePromptMessage } from "../../terminal/prompt-style.js";
 import { applyAuthProfileConfig } from "../onboard-auth.js";
 import { isRemoteEnvironment } from "../oauth-env.js";
 import { openUrl } from "../onboard-helpers.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { createVpsAwareOAuthHandlers } from "../oauth-flow.js";
@@ -26,6 +37,14 @@ import { loginOpenAICodexOAuth } from "../openai-codex-oauth.js";
 >>>>>>> 86e4fe0a7 (Auth: land codex oauth onboarding flow (#15406))
 =======
 >>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
+=======
+import {
+  applyDefaultModel,
+  mergeConfigPatch,
+  pickAuthMethod,
+  resolveProviderMatch,
+} from "../provider-auth-helpers.js";
+>>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import { updateConfig } from "./shared.js";
 import { resolvePluginProviders } from "../../plugins/providers.js";
 import { createClackPrompter } from "../../wizard/clack-prompter.js";
@@ -248,25 +267,6 @@ type LoginOptions = {
   setDefault?: boolean;
 };
 
-function resolveProviderMatch(
-  providers: ProviderPlugin[],
-  rawProvider?: string,
-): ProviderPlugin | null {
-  const raw = rawProvider?.trim();
-  if (!raw) {
-    return null;
-  }
-  const normalized = normalizeProviderId(raw);
-  return (
-    providers.find((provider) => normalizeProviderId(provider.id) === normalized) ??
-    providers.find(
-      (provider) =>
-        provider.aliases?.some((alias) => normalizeProviderId(alias) === normalized) ?? false,
-    ) ??
-    null
-  );
-}
-
 export function resolveRequestedLoginProviderOrThrow(
   providers: ProviderPlugin[],
   rawProvider?: string,
@@ -289,6 +289,7 @@ export function resolveRequestedLoginProviderOrThrow(
   );
 }
 
+<<<<<<< HEAD
 function pickAuthMethod(provider: ProviderPlugin, rawMethod?: string): ProviderAuthMethod | null {
   const raw = rawMethod?.trim();
   if (!raw) {
@@ -346,6 +347,8 @@ function applyDefaultModel(cfg: MoltbotConfig, model: string): MoltbotConfig {
   };
 }
 
+=======
+>>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 function credentialMode(credential: AuthProfileCredential): "api_key" | "oauth" | "token" {
   if (credential.type === "api_key") {
     return "api_key";

@@ -1,11 +1,15 @@
+<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../agents/agent-paths.js";
+=======
+import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
+import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
+>>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import {
   resolveDefaultAgentId,
   resolveAgentDir,
   resolveAgentWorkspaceDir,
 } from "../agents/agent-scope.js";
 import { upsertAuthProfile } from "../agents/auth-profiles.js";
-import { normalizeProviderId } from "../agents/model-selection.js";
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { enablePluginInConfig } from "../plugins/enable.js";
@@ -14,8 +18,17 @@ import type { ProviderAuthMethod, ProviderPlugin } from "../plugins/types.js";
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { applyAuthProfileConfig } from "./onboard-auth.js";
 import { openUrl } from "./onboard-helpers.js";
+<<<<<<< HEAD
 import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
+=======
+import {
+  applyDefaultModel,
+  mergeConfigPatch,
+  pickAuthMethod,
+  resolveProviderMatch,
+} from "./provider-auth-helpers.js";
+>>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 
 export type PluginProviderAuthChoiceOptions = {
   authChoice: string;
@@ -25,6 +38,7 @@ export type PluginProviderAuthChoiceOptions = {
   label: string;
 };
 
+<<<<<<< HEAD
 function resolveProviderMatch(
   providers: ProviderPlugin[],
   rawProvider: string,
@@ -97,6 +111,8 @@ function applyDefaultModel(cfg: MoltbotConfig, model: string): MoltbotConfig {
   };
 }
 
+=======
+>>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 export async function applyAuthChoicePluginProvider(
   params: ApplyAuthChoiceParams,
   options: PluginProviderAuthChoiceOptions,

@@ -18,6 +18,7 @@ import {
 } from "../../agents/model-auth.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureMoltbotModelsJson } from "../../agents/models-config.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ModelRow } from "./list.types.js";
@@ -25,6 +26,12 @@ import type { ModelRow } from "./list.types.js";
 =======
 import { resolveForwardCompatModel } from "../../agents/model-forward-compat.js";
 >>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
+=======
+import {
+  ANTIGRAVITY_OPUS_46_FORWARD_COMPAT_CANDIDATES,
+  resolveForwardCompatModel,
+} from "../../agents/model-forward-compat.js";
+>>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
 import { discoverAuthStorage, discoverModels } from "../../agents/pi-model-discovery.js";
 <<<<<<< HEAD
@@ -35,6 +42,7 @@ import {
   MODEL_AVAILABILITY_UNAVAILABLE_CODE,
   shouldFallbackToAuthHeuristics,
 } from "./list.errors.js";
+<<<<<<< HEAD
 >>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
 import { modelKey } from "./shared.js";
 
@@ -53,6 +61,9 @@ const isLocalBaseUrl = (baseUrl: string) => {
     return false;
   }
 };
+=======
+import { isLocalBaseUrl, modelKey } from "./shared.js";
+>>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -190,34 +201,17 @@ export async function loadModelRegistry(cfg: OpenClawConfig) {
 
 type SynthesizedForwardCompat = {
   key: string;
-  templatePrefixes: string[];
+  templatePrefixes: readonly string[];
 };
 
 function appendAntigravityForwardCompatModels(
   models: Model<Api>[],
   modelRegistry: ModelRegistry,
 ): { models: Model<Api>[]; synthesizedForwardCompat: SynthesizedForwardCompat[] } {
-  const candidates = [
-    {
-      id: "claude-opus-4-6-thinking",
-      templatePrefixes: [
-        "google-antigravity/claude-opus-4-5-thinking",
-        "google-antigravity/claude-opus-4.5-thinking",
-      ],
-    },
-    {
-      id: "claude-opus-4-6",
-      templatePrefixes: [
-        "google-antigravity/claude-opus-4-5",
-        "google-antigravity/claude-opus-4.5",
-      ],
-    },
-  ];
-
   const nextModels = [...models];
   const synthesizedForwardCompat: SynthesizedForwardCompat[] = [];
 
-  for (const candidate of candidates) {
+  for (const candidate of ANTIGRAVITY_OPUS_46_FORWARD_COMPAT_CANDIDATES) {
     const key = modelKey("google-antigravity", candidate.id);
     const hasForwardCompat = nextModels.some((model) => modelKey(model.provider, model.id) === key);
     if (hasForwardCompat) {
@@ -239,7 +233,10 @@ function appendAntigravityForwardCompatModels(
   return { models: nextModels, synthesizedForwardCompat };
 }
 
-function hasAvailableTemplate(availableKeys: Set<string>, templatePrefixes: string[]): boolean {
+function hasAvailableTemplate(
+  availableKeys: Set<string>,
+  templatePrefixes: readonly string[],
+): boolean {
   for (const key of availableKeys) {
     if (templatePrefixes.some((prefix) => key.startsWith(prefix))) {
       return true;
