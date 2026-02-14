@@ -389,6 +389,92 @@ async function buildOllamaProvider(configuredBaseUrl?: string): Promise<Provider
   };
 }
 
+<<<<<<< HEAD
+=======
+function buildTogetherProvider(): ProviderConfig {
+  return {
+    baseUrl: TOGETHER_BASE_URL,
+    api: "openai-completions",
+    models: TOGETHER_MODEL_CATALOG.map(buildTogetherModelDefinition),
+  };
+}
+
+async function buildVllmProvider(params?: {
+  baseUrl?: string;
+  apiKey?: string;
+}): Promise<ProviderConfig> {
+  const baseUrl = (params?.baseUrl?.trim() || VLLM_BASE_URL).replace(/\/+$/, "");
+  const models = await discoverVllmModels(baseUrl, params?.apiKey);
+  return {
+    baseUrl,
+    api: "openai-completions",
+    models,
+  };
+}
+export function buildQianfanProvider(): ProviderConfig {
+  return {
+    baseUrl: QIANFAN_BASE_URL,
+    api: "openai-completions",
+    models: [
+      {
+        id: QIANFAN_DEFAULT_MODEL_ID,
+        name: "DEEPSEEK V3.2",
+        reasoning: true,
+        input: ["text"],
+        cost: QIANFAN_DEFAULT_COST,
+        contextWindow: QIANFAN_DEFAULT_CONTEXT_WINDOW,
+        maxTokens: QIANFAN_DEFAULT_MAX_TOKENS,
+      },
+      {
+        id: "ernie-5.0-thinking-preview",
+        name: "ERNIE-5.0-Thinking-Preview",
+        reasoning: true,
+        input: ["text", "image"],
+        cost: QIANFAN_DEFAULT_COST,
+        contextWindow: 119000,
+        maxTokens: 64000,
+      },
+    ],
+  };
+}
+
+export function buildNvidiaProvider(): ProviderConfig {
+  return {
+    baseUrl: NVIDIA_BASE_URL,
+    api: "openai-completions",
+    models: [
+      {
+        id: NVIDIA_DEFAULT_MODEL_ID,
+        name: "NVIDIA Llama 3.1 Nemotron 70B Instruct",
+        reasoning: false,
+        input: ["text"],
+        cost: NVIDIA_DEFAULT_COST,
+        contextWindow: NVIDIA_DEFAULT_CONTEXT_WINDOW,
+        maxTokens: NVIDIA_DEFAULT_MAX_TOKENS,
+      },
+      {
+        id: "meta/llama-3.3-70b-instruct",
+        name: "Meta Llama 3.3 70B Instruct",
+        reasoning: false,
+        input: ["text"],
+        cost: NVIDIA_DEFAULT_COST,
+        contextWindow: 131072,
+        maxTokens: 4096,
+      },
+      {
+        id: "nvidia/mistral-nemo-minitron-8b-8k-instruct",
+        name: "NVIDIA Mistral NeMo Minitron 8B Instruct",
+        reasoning: false,
+        input: ["text"],
+        cost: NVIDIA_DEFAULT_COST,
+        contextWindow: 8192,
+        maxTokens: 2048,
+      },
+    ],
+  };
+}
+
+>>>>>>> fdda26147 (fix: align NVIDIA provider docs and model ids (#11606))
 export async function resolveImplicitProviders(params: {
   agentDir: string;
   explicitProviders?: Record<string, ProviderConfig> | null;
