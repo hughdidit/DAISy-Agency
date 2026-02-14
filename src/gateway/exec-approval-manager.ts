@@ -18,6 +18,10 @@ export type ExecApprovalRecord = {
   request: ExecApprovalRequestPayload;
   createdAtMs: number;
   expiresAtMs: number;
+  // Caller metadata (best-effort). Used to prevent other clients from replaying an approval id.
+  requestedByConnId?: string | null;
+  requestedByDeviceId?: string | null;
+  requestedByClientId?: string | null;
   resolvedAtMs?: number;
   decision?: ExecApprovalDecision;
   resolvedBy?: string | null;

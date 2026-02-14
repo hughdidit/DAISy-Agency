@@ -597,6 +597,7 @@ export async function startGatewayServer(
       deps,
       cron,
       cronStorePath,
+      execApprovalManager,
       loadGatewayModelCatalog,
       getHealthCache,
       refreshHealthSnapshot: refreshGatewayHealthSnapshot,

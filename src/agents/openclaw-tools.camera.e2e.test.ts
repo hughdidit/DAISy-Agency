@@ -150,6 +150,7 @@ describe("nodes run", () => {
 
   it("requests approval and retries with allow-once decision", async () => {
     let invokeCalls = 0;
+    let approvalId: string | null = null;
     callGateway.mockImplementation(async ({ method, params }) => {
       if (method === "node.list") {
         return { nodes: [{ nodeId: "mac-1", commands: ["system.run"] }] };
@@ -164,6 +165,7 @@ describe("nodes run", () => {
           command: "system.run",
           params: {
             command: ["echo", "hi"],
+            runId: approvalId,
             approved: true,
             approvalDecision: "allow-once",
           },
@@ -172,10 +174,15 @@ describe("nodes run", () => {
       }
       if (method === "exec.approval.request") {
         expect(params).toMatchObject({
+          id: expect.any(String),
           command: "echo hi",
           host: "node",
           timeoutMs: 120_000,
         });
+        approvalId =
+          typeof (params as { id?: unknown } | undefined)?.id === "string"
+            ? ((params as { id: string }).id ?? null)
+            : null;
         return { decision: "allow-once" };
       }
       throw new Error(`unexpected method: ${String(method)}`);
