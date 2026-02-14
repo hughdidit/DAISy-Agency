@@ -32,6 +32,11 @@ import { resolveSessionAgentIds } from "../../agent-scope.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../../bootstrap-files.js";
 import { resolveMoltbotDocsPath } from "../../docs-path.js";
 import { resolveModelAuthMode } from "../../model-auth.js";
+<<<<<<< HEAD
+=======
+import { resolveDefaultModelForAgent } from "../../model-selection.js";
+import { createOllamaStreamFn, OLLAMA_NATIVE_BASE_URL } from "../../ollama-stream.js";
+>>>>>>> 11702290f (feat(ollama): add native /api/chat provider for streaming + tool calling (#11853))
 import {
   isCloudCodeAssistFormatError,
   resolveBootstrapMaxChars,
@@ -607,8 +612,21 @@ export async function runEmbeddedAttempt(
         workspaceDir: params.workspaceDir,
       });
 
-      // Force a stable streamFn reference so vitest can reliably mock @mariozechner/pi-ai.
-      activeSession.agent.streamFn = streamSimple;
+      // Ollama native API: bypass SDK's streamSimple and use direct /api/chat calls
+      // for reliable streaming + tool calling support (#11828).
+      if (params.model.api === "ollama") {
+        // Use the resolved model baseUrl first so custom provider aliases work.
+        const providerConfig = params.config?.models?.providers?.[params.model.provider];
+        const modelBaseUrl =
+          typeof params.model.baseUrl === "string" ? params.model.baseUrl.trim() : "";
+        const providerBaseUrl =
+          typeof providerConfig?.baseUrl === "string" ? providerConfig.baseUrl.trim() : "";
+        const ollamaBaseUrl = modelBaseUrl || providerBaseUrl || OLLAMA_NATIVE_BASE_URL;
+        activeSession.agent.streamFn = createOllamaStreamFn(ollamaBaseUrl);
+      } else {
+        // Force a stable streamFn reference so vitest can reliably mock @mariozechner/pi-ai.
+        activeSession.agent.streamFn = streamSimple;
+      }
 
       applyExtraParamsToAgent(
         activeSession.agent,

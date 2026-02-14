@@ -134,8 +134,13 @@ Docs: https://docs.openclaw.ai
 >>>>>>> ab4adf717 (fix(macos): ensure exec approval prompt displays the command (#5042))
 =======
 - Status/Sessions: stop clamping derived `totalTokens` to context-window size, keep prompt-token snapshots wired through session accounting, and surface context usage as unknown when fresh snapshot data is missing to avoid false 100% reports. (#15114) Thanks @echoVic.
+<<<<<<< HEAD
 - Providers/MiniMax: switch implicit MiniMax API-key provider from `openai-completions` to `anthropic-messages` with the correct Anthropic-compatible base URL, fixing `invalid role: developer (2013)` errors on MiniMax M2.5. (#15275)
 >>>>>>> f24d70ec8 (fix(providers): switch MiniMax API-key provider to anthropic-messages (#15297))
+=======
+- Providers/MiniMax: switch implicit MiniMax API-key provider from `openai-completions` to `anthropic-messages` with the correct Anthropic-compatible base URL, fixing `invalid role: developer (2013)` errors on MiniMax M2.5. (#15275) Thanks @lailoo.
+- Ollama/Agents: use resolved model/provider base URLs for native `/api/chat` streaming (including aliased providers), normalize `/v1` endpoints, and forward abort + `maxTokens` stream options for reliable cancellation and token caps. (#11853) Thanks @BrokenFinger98.
+>>>>>>> 11702290f (feat(ollama): add native /api/chat provider for streaming + tool calling (#11853))
 
 ## 2026.2.12
 >>>>>>> cd50b5ded (fix(onboarding): exit cleanly after web ui hatch)

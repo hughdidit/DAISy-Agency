@@ -23,7 +23,11 @@ import {
 } from "./huggingface-models.js";
 >>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 import { resolveAwsSdkEnvVarName, resolveEnvApiKey } from "./model-auth.js";
+<<<<<<< HEAD
 import { discoverBedrockModels } from "./bedrock-discovery.js";
+=======
+import { OLLAMA_NATIVE_BASE_URL } from "./ollama-stream.js";
+>>>>>>> 11702290f (feat(ollama): add native /api/chat provider for streaming + tool calling (#11853))
 import {
   buildSyntheticModelDefinition,
   SYNTHETIC_BASE_URL,
@@ -91,8 +95,8 @@ const QWEN_PORTAL_DEFAULT_COST = {
   cacheWrite: 0,
 };
 
-const OLLAMA_BASE_URL = "http://127.0.0.1:11434/v1";
-const OLLAMA_API_BASE_URL = "http://127.0.0.1:11434";
+const OLLAMA_BASE_URL = OLLAMA_NATIVE_BASE_URL;
+const OLLAMA_API_BASE_URL = OLLAMA_BASE_URL;
 const OLLAMA_DEFAULT_CONTEXT_WINDOW = 128000;
 const OLLAMA_DEFAULT_MAX_TOKENS = 8192;
 const OLLAMA_DEFAULT_COST = {
@@ -198,11 +202,6 @@ type VllmModelsResponse = {
         cost: OLLAMA_DEFAULT_COST,
         contextWindow: OLLAMA_DEFAULT_CONTEXT_WINDOW,
         maxTokens: OLLAMA_DEFAULT_MAX_TOKENS,
-        // Disable streaming by default for Ollama to avoid SDK issue #1205
-        // See: https://github.com/badlogic/pi-mono/issues/1205
-        params: {
-          streaming: false,
-        },
       };
     });
   } catch (error) {
@@ -570,8 +569,13 @@ async function buildVeniceProvider(): Promise<ProviderConfig> {
 async function buildOllamaProvider(): Promise<ProviderConfig> {
   const models = await discoverOllamaModels();
   return {
+<<<<<<< HEAD
     baseUrl: OLLAMA_BASE_URL,
     api: "openai-completions",
+=======
+    baseUrl: resolveOllamaApiBase(configuredBaseUrl),
+    api: "ollama",
+>>>>>>> 11702290f (feat(ollama): add native /api/chat provider for streaming + tool calling (#11853))
     models,
   };
 }
