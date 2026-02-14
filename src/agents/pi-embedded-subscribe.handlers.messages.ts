@@ -46,6 +46,8 @@ export function handleMessageUpdate(
     return;
   }
 
+  ctx.state.lastAssistant = msg;
+
   const assistantEvent = evt.assistantMessageEvent;
   const assistantRecord =
     assistantEvent && typeof assistantEvent === "object"
@@ -168,6 +170,11 @@ export function handleMessageEnd(
   }
 
   const assistantMessage = msg;
+<<<<<<< HEAD
+=======
+  ctx.state.lastAssistant = assistantMessage;
+  ctx.recordAssistantUsage((assistantMessage as { usage?: unknown }).usage);
+>>>>>>> 478af8170 (Return user-facing message if API reuturn 429 API rate limit reached #2202 (#10415))
   promoteThinkingTagsToBlocks(assistantMessage);
 
   const rawText = extractAssistantText(assistantMessage);
