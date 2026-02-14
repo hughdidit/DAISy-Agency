@@ -15,7 +15,11 @@ x-i18n:
 
 # 系统提示词
 
+<<<<<<< HEAD
 OpenClaw 为每次智能体运行构建自定义系统提示词。该提示词由 **OpenClaw 自有**，不使用 p-coding-agent 的默认提示词。
+=======
+OpenClaw 为每次智能体运行构建自定义系统提示词。该提示词由 **OpenClaw 拥有**，不使用 pi-coding-agent 默认提示词。
+>>>>>>> aa1dbd34a (docs: fix typo p-coding-agent -> pi-coding-agent)
 
 提示词由 OpenClaw 组装并注入到每次智能体运行中。
 

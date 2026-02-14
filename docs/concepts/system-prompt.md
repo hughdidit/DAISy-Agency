@@ -7,7 +7,11 @@ title: "System Prompt"
 ---
 # System Prompt
 
+<<<<<<< HEAD
 Moltbot builds a custom system prompt for every agent run. The prompt is **Moltbot-owned** and does not use the p-coding-agent default prompt.
+=======
+OpenClaw builds a custom system prompt for every agent run. The prompt is **OpenClaw-owned** and does not use the pi-coding-agent default prompt.
+>>>>>>> aa1dbd34a (docs: fix typo p-coding-agent -> pi-coding-agent)
 
 The prompt is assembled by Moltbot and injected into each agent run.
 
