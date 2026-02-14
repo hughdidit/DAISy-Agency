@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { describe, expect, it, vi, beforeEach } from "vitest";
+=======
+import { beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
 
 vi.mock("./run/attempt.js", () => ({
   runEmbeddedAttempt: vi.fn(),
@@ -57,10 +61,13 @@ vi.mock("../../process/command-queue.js", () => ({
   enqueueCommandInLane: vi.fn((_lane: string, task: () => unknown) => task()),
 }));
 
+<<<<<<< HEAD
 vi.mock("../../utils.js", () => ({
   resolveUserPath: vi.fn((p: string) => p),
 }));
 
+=======
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
 vi.mock("../../utils/message-channel.js", () => ({
   isMarkdownCapableMessageChannel: vi.fn(() => true),
 }));
@@ -70,6 +77,10 @@ vi.mock("../agent-paths.js", () => ({
 }));
 
 vi.mock("../auth-profiles.js", () => ({
+<<<<<<< HEAD
+=======
+  isProfileInCooldown: vi.fn(() => false),
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
   markAuthProfileFailure: vi.fn(async () => {}),
   markAuthProfileGood: vi.fn(async () => {}),
   markAuthProfileUsed: vi.fn(async () => {}),
@@ -87,8 +98,36 @@ vi.mock("../failover-error.js", () => ({
 }));
 
 vi.mock("../usage.js", () => ({
+<<<<<<< HEAD
   normalizeUsage: vi.fn(() => undefined),
   hasNonzeroUsage: vi.fn(() => false),
+=======
+  normalizeUsage: vi.fn((usage?: unknown) =>
+    usage && typeof usage === "object" ? usage : undefined,
+  ),
+  derivePromptTokens: vi.fn(
+    (usage?: { input?: number; cacheRead?: number; cacheWrite?: number }) => {
+      if (!usage) {
+        return undefined;
+      }
+      const input = usage.input ?? 0;
+      const cacheRead = usage.cacheRead ?? 0;
+      const cacheWrite = usage.cacheWrite ?? 0;
+      const sum = input + cacheRead + cacheWrite;
+      return sum > 0 ? sum : undefined;
+    },
+  ),
+}));
+
+vi.mock("../workspace-run.js", () => ({
+  resolveRunWorkspaceDir: vi.fn((params: { workspaceDir: string }) => ({
+    workspaceDir: params.workspaceDir,
+    usedFallback: false,
+    fallbackReason: undefined,
+    agentId: "main",
+  })),
+  redactRunIdentifier: vi.fn((value?: string) => value ?? ""),
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
 }));
 
 vi.mock("./lanes.js", () => ({
@@ -102,6 +141,10 @@ vi.mock("./logger.js", () => ({
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
+<<<<<<< HEAD
+=======
+    isEnabled: vi.fn(() => false),
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
   },
 }));
 
@@ -127,6 +170,7 @@ vi.mock("./utils.js", () => ({
   }),
 }));
 
+<<<<<<< HEAD
 vi.mock("../pi-embedded-helpers.js", async () => {
   return {
     isCompactionFailureError: (msg?: string) => {
@@ -173,6 +217,35 @@ const mockedSessionLikelyHasOversizedToolResults = vi.mocked(sessionLikelyHasOve
 const mockedTruncateOversizedToolResultsInSession = vi.mocked(
   truncateOversizedToolResultsInSession,
 );
+=======
+vi.mock("../pi-embedded-helpers.js", () => ({
+  formatBillingErrorMessage: vi.fn(() => ""),
+  classifyFailoverReason: vi.fn(() => null),
+  formatAssistantErrorText: vi.fn(() => ""),
+  isAuthAssistantError: vi.fn(() => false),
+  isBillingAssistantError: vi.fn(() => false),
+  isCompactionFailureError: vi.fn(() => false),
+  isLikelyContextOverflowError: vi.fn((msg?: string) => {
+    const lower = (msg ?? "").toLowerCase();
+    return lower.includes("request_too_large") || lower.includes("context window exceeded");
+  }),
+  isFailoverAssistantError: vi.fn(() => false),
+  isFailoverErrorMessage: vi.fn(() => false),
+  parseImageSizeError: vi.fn(() => null),
+  parseImageDimensionError: vi.fn(() => null),
+  isRateLimitAssistantError: vi.fn(() => false),
+  isTimeoutErrorMessage: vi.fn(() => false),
+  pickFallbackThinkingLevel: vi.fn(() => null),
+}));
+
+import type { EmbeddedRunAttemptResult } from "./run/types.js";
+import { compactEmbeddedPiSessionDirect } from "./compact.js";
+import { runEmbeddedPiAgent } from "./run.js";
+import { runEmbeddedAttempt } from "./run/attempt.js";
+
+const mockedRunEmbeddedAttempt = vi.mocked(runEmbeddedAttempt);
+const mockedCompactDirect = vi.mocked(compactEmbeddedPiSessionDirect);
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
 
 function makeAttemptResult(
   overrides: Partial<EmbeddedRunAttemptResult> = {},
@@ -180,6 +253,10 @@ function makeAttemptResult(
   return {
     aborted: false,
     timedOut: false,
+<<<<<<< HEAD
+=======
+    timedOutDuringCompaction: false,
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
     promptError: null,
     sessionIdUsed: "test-session",
     assistantTexts: ["Hello!"],
@@ -194,6 +271,7 @@ function makeAttemptResult(
   };
 }
 
+<<<<<<< HEAD
 const baseParams = {
   sessionId: "test-session",
   sessionKey: "test-key",
@@ -216,6 +294,14 @@ describe("overflow compaction in run loop", () => {
   });
 
   it("retries after successful compaction on context overflow promptError", async () => {
+=======
+describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("passes trigger=overflow when retrying compaction after context overflow", async () => {
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
     const overflowError = new Error("request_too_large: Request size exceeds model context window");
 
     mockedRunEmbeddedAttempt
@@ -232,6 +318,7 @@ describe("overflow compaction in run loop", () => {
       },
     });
 
+<<<<<<< HEAD
     const result = await runEmbeddedPiAgent(baseParams);
 
     expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
@@ -432,5 +519,24 @@ describe("overflow compaction in run loop", () => {
 
     expect(mockedCompactDirect).not.toHaveBeenCalled();
     expect(log.warn).not.toHaveBeenCalledWith(expect.stringContaining("source=assistantError"));
+=======
+    await runEmbeddedPiAgent({
+      sessionId: "test-session",
+      sessionKey: "test-key",
+      sessionFile: "/tmp/session.json",
+      workspaceDir: "/tmp/workspace",
+      prompt: "hello",
+      timeoutMs: 30000,
+      runId: "run-1",
+    });
+
+    expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
+    expect(mockedCompactDirect).toHaveBeenCalledWith(
+      expect.objectContaining({
+        trigger: "overflow",
+        authProfileId: "test-profile",
+      }),
+    );
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
   });
 });
