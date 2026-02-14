@@ -271,6 +271,11 @@ export const DiscordAccountSchema = z
         approvers: z.array(z.union([z.string(), z.number()])).optional(),
         agentFilter: z.array(z.string()).optional(),
         sessionFilter: z.array(z.string()).optional(),
+<<<<<<< HEAD
+=======
+        cleanupAfterResolve: z.boolean().optional(),
+        target: z.enum(["dm", "channel", "both"]).optional(),
+>>>>>>> 5ba72bd9b (fix: add discord exec approval channel targeting (#16051) (thanks @leonnardo))
       })
       .strict()
       .optional(),

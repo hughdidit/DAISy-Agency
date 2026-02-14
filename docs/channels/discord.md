@@ -701,7 +701,168 @@ The agent can call `discord` with actions like:
 Discord message ids are surfaced in the injected context (`[discord message id: …]` and history lines) so the agent can target them.
 Emoji can be unicode (e.g., `✅`) or custom emoji syntax like `<:party_blob:1234567890>`.
 
+<<<<<<< HEAD
 ## Safety & ops
 - Treat the bot token like a password; prefer the `DISCORD_BOT_TOKEN` env var on supervised hosts or lock down the config file permissions.
 - Only grant the bot permissions it needs (typically Read/Send Messages).
 - If the bot is stuck or rate limited, restart the gateway (`moltbot gateway --force`) after confirming no other processes own the Discord session.
+=======
+    Activity type map:
+
+    - 0: Playing
+    - 1: Streaming (requires `activityUrl`)
+    - 2: Listening
+    - 3: Watching
+    - 4: Custom (uses the activity text as the status state; emoji is optional)
+    - 5: Competing
+
+  </Accordion>
+
+  <Accordion title="Exec approvals in Discord">
+    Discord supports button-based exec approvals in DMs and can optionally post approval prompts in the originating channel.
+
+    Config path:
+
+    - `channels.discord.execApprovals.enabled`
+    - `channels.discord.execApprovals.approvers`
+    - `channels.discord.execApprovals.target` (`dm` | `channel` | `both`, default: `dm`)
+    - `agentFilter`, `sessionFilter`, `cleanupAfterResolve`
+
+    When `target` is `channel` or `both`, the approval prompt is visible in the channel. Only configured approvers can use the buttons; other users receive an ephemeral denial. Approval prompts include the command text, so only enable channel delivery in trusted channels. If the channel ID cannot be derived from the session key, OpenClaw falls back to DM delivery.
+
+    If approvals fail with unknown approval IDs, verify approver list and feature enablement.
+
+    Related docs: [Exec approvals](/tools/exec-approvals)
+
+  </Accordion>
+</AccordionGroup>
+
+## Tools and action gates
+
+Discord message actions include messaging, channel admin, moderation, presence, and metadata actions.
+
+Core examples:
+
+- messaging: `sendMessage`, `readMessages`, `editMessage`, `deleteMessage`, `threadReply`
+- reactions: `react`, `reactions`, `emojiList`
+- moderation: `timeout`, `kick`, `ban`
+- presence: `setPresence`
+
+Action gates live under `channels.discord.actions.*`.
+
+Default gate behavior:
+
+| Action group                                                                                                                                                             | Default  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
+| reactions, messages, threads, pins, polls, search, memberInfo, roleInfo, channelInfo, channels, voiceStatus, events, stickers, emojiUploads, stickerUploads, permissions | enabled  |
+| roles                                                                                                                                                                    | disabled |
+| moderation                                                                                                                                                               | disabled |
+| presence                                                                                                                                                                 | disabled |
+
+## Voice messages
+
+Discord voice messages show a waveform preview and require OGG/Opus audio plus metadata. OpenClaw generates the waveform automatically, but it needs `ffmpeg` and `ffprobe` available on the gateway host to inspect and convert audio files.
+
+Requirements and constraints:
+
+- Provide a **local file path** (URLs are rejected).
+- Omit text content (Discord does not allow text + voice message in the same payload).
+- Any audio format is accepted; OpenClaw converts to OGG/Opus when needed.
+
+Example:
+
+```bash
+message(action="send", channel="discord", target="channel:123", path="/path/to/audio.mp3", asVoice=true)
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Used disallowed intents or bot sees no guild messages">
+
+    - enable Message Content Intent
+    - enable Server Members Intent when you depend on user/member resolution
+    - restart gateway after changing intents
+
+  </Accordion>
+
+  <Accordion title="Guild messages blocked unexpectedly">
+
+    - verify `groupPolicy`
+    - verify guild allowlist under `channels.discord.guilds`
+    - if guild `channels` map exists, only listed channels are allowed
+    - verify `requireMention` behavior and mention patterns
+
+    Useful checks:
+
+```bash
+openclaw doctor
+openclaw channels status --probe
+openclaw logs --follow
+```
+
+  </Accordion>
+
+  <Accordion title="Require mention false but still blocked">
+    Common causes:
+
+    - `groupPolicy="allowlist"` without matching guild/channel allowlist
+    - `requireMention` configured in the wrong place (must be under `channels.discord.guilds` or channel entry)
+    - sender blocked by guild/channel `users` allowlist
+
+  </Accordion>
+
+  <Accordion title="Permissions audit mismatches">
+    `channels status --probe` permission checks only work for numeric channel IDs.
+
+    If you use slug keys, runtime matching can still work, but probe cannot fully verify permissions.
+
+  </Accordion>
+
+  <Accordion title="DM and pairing issues">
+
+    - DM disabled: `channels.discord.dm.enabled=false`
+    - DM policy disabled: `channels.discord.dm.policy="disabled"`
+    - awaiting pairing approval in `pairing` mode
+
+  </Accordion>
+
+  <Accordion title="Bot to bot loops">
+    By default bot-authored messages are ignored.
+
+    If you set `channels.discord.allowBots=true`, use strict mention and allowlist rules to avoid loop behavior.
+
+  </Accordion>
+</AccordionGroup>
+
+## Configuration reference pointers
+
+Primary reference:
+
+- [Configuration reference - Discord](/gateway/configuration-reference#discord)
+
+High-signal Discord fields:
+
+- startup/auth: `enabled`, `token`, `accounts.*`, `allowBots`
+- policy: `groupPolicy`, `dm.*`, `guilds.*`, `guilds.*.channels.*`
+- command: `commands.native`, `commands.useAccessGroups`, `configWrites`
+- reply/history: `replyToMode`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
+- delivery: `textChunkLimit`, `chunkMode`, `maxLinesPerMessage`
+- media/retry: `mediaMaxMb`, `retry`
+- actions: `actions.*`
+- presence: `activity`, `status`, `activityType`, `activityUrl`
+- features: `pluralkit`, `execApprovals`, `intents`, `agentComponents`, `heartbeat`, `responsePrefix`
+
+## Safety and operations
+
+- Treat bot tokens as secrets (`DISCORD_BOT_TOKEN` preferred in supervised environments).
+- Grant least-privilege Discord permissions.
+- If command deploy/state is stale, restart gateway and re-check with `openclaw channels status --probe`.
+
+## Related
+
+- [Pairing](/channels/pairing)
+- [Channel routing](/channels/channel-routing)
+- [Troubleshooting](/channels/troubleshooting)
+- [Slash commands](/tools/slash-commands)
+>>>>>>> 5ba72bd9b (fix: add discord exec approval channel targeting (#16051) (thanks @leonnardo))

@@ -28,6 +28,11 @@ Docs: https://docs.openclaw.ai
 
 - Sandbox: add `sandbox.browser.binds` to configure browser-container bind mounts separately from exec containers. (#16230) Thanks @seheepeak.
 - Discord: add debug logging for message routing decisions to improve `--debug` tracing. (#16202) Thanks @jayleekr.
+<<<<<<< HEAD
+=======
+- Discord: allow exec approval prompts to target channels or both DM+channel via `channels.discord.execApprovals.target`. (#16051) Thanks @leonnardo.
+- Telegram: add poll sending via `openclaw message poll` (duration seconds, silent delivery, anonymity controls). (#16209) Thanks @robbyczgw-cla.
+>>>>>>> 5ba72bd9b (fix: add discord exec approval channel targeting (#16051) (thanks @leonnardo))
 
 >>>>>>> c16bc7127 (fix: add discord routing debug logging (#16202) (thanks @jayleekr))
 ### Fixes
