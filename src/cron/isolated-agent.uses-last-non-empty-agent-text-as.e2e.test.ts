@@ -25,8 +25,45 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-cron-" });
 }
 
+<<<<<<< HEAD
 async function writeSessionStore(home: string) {
   const dir = path.join(home, ".clawdbot", "sessions");
+=======
+function makeDeps(): CliDeps {
+  return {
+    sendMessageWhatsApp: vi.fn(),
+    sendMessageTelegram: vi.fn(),
+    sendMessageDiscord: vi.fn(),
+    sendMessageSignal: vi.fn(),
+    sendMessageIMessage: vi.fn(),
+  };
+}
+
+function mockEmbeddedOk() {
+  vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
+    payloads: [{ text: "ok" }],
+    meta: {
+      durationMs: 5,
+      agentMeta: { sessionId: "s", provider: "p", model: "m" },
+    },
+  });
+}
+
+function expectEmbeddedProviderModel(expected: { provider: string; model: string }) {
+  const call = vi.mocked(runEmbeddedPiAgent).mock.calls[0]?.[0] as {
+    provider?: string;
+    model?: string;
+  };
+  expect(call?.provider).toBe(expected.provider);
+  expect(call?.model).toBe(expected.model);
+}
+
+async function writeSessionStore(
+  home: string,
+  entries: Record<string, Record<string, unknown>> = {},
+) {
+  const dir = path.join(home, ".openclaw", "sessions");
+>>>>>>> 775a6c662 (refactor(test): reuse isolated agent turn helpers)
   await fs.mkdir(dir, { recursive: true });
   const storePath = path.join(dir, "sessions.json");
   await fs.writeFile(
@@ -267,20 +304,8 @@ describe("runCronIsolatedAgentTurn", () => {
   it("uses hooks.gmail.model for Gmail hook sessions", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
-      const deps: CliDeps = {
-        sendMessageWhatsApp: vi.fn(),
-        sendMessageTelegram: vi.fn(),
-        sendMessageDiscord: vi.fn(),
-        sendMessageSignal: vi.fn(),
-        sendMessageIMessage: vi.fn(),
-      };
-      vi.mocked(runEmbeddedPiAgent).mockResolvedValue({
-        payloads: [{ text: "ok" }],
-        meta: {
-          durationMs: 5,
-          agentMeta: { sessionId: "s", provider: "p", model: "m" },
-        },
-      });
+      const deps = makeDeps();
+      mockEmbeddedOk();
 
       const res = await runCronIsolatedAgentTurn({
         cfg: makeCfg(home, storePath, {
@@ -298,15 +323,52 @@ describe("runCronIsolatedAgentTurn", () => {
       });
 
       expect(res.status).toBe("ok");
-      const call = vi.mocked(runEmbeddedPiAgent).mock.calls[0]?.[0] as {
-        provider?: string;
-        model?: string;
-      };
-      expect(call?.provider).toBe("openrouter");
-      expect(call?.model).toBe("meta-llama/llama-3.3-70b:free");
+      expectEmbeddedProviderModel({
+        provider: "openrouter",
+        model: "meta-llama/llama-3.3-70b:free",
+      });
     });
   });
 
+<<<<<<< HEAD
+=======
+  it("keeps hooks.gmail.model precedence over stored session override", async () => {
+    await withTempHome(async (home) => {
+      const storePath = await writeSessionStore(home, {
+        "agent:main:hook:gmail:msg-1": {
+          sessionId: "existing-gmail-session",
+          updatedAt: Date.now(),
+          providerOverride: "anthropic",
+          modelOverride: "claude-opus-4-5",
+        },
+      });
+      const deps = makeDeps();
+      mockEmbeddedOk();
+
+      const res = await runCronIsolatedAgentTurn({
+        cfg: makeCfg(home, storePath, {
+          hooks: {
+            gmail: {
+              model: "openrouter/meta-llama/llama-3.3-70b:free",
+            },
+          },
+        }),
+        deps,
+        job: makeJob({ kind: "agentTurn", message: "do it", deliver: false }),
+        message: "do it",
+        sessionKey: "hook:gmail:msg-1",
+        lane: "cron",
+      });
+
+      expect(res.status).toBe("ok");
+      expectEmbeddedProviderModel({
+        provider: "openrouter",
+        model: "meta-llama/llama-3.3-70b:free",
+      });
+    });
+  });
+
+>>>>>>> 775a6c662 (refactor(test): reuse isolated agent turn helpers)
   it("wraps external hook content by default", async () => {
     await withTempHome(async (home) => {
       const storePath = await writeSessionStore(home);
