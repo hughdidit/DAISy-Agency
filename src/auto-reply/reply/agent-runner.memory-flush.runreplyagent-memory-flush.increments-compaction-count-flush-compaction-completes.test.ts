@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 import type { TemplateContext } from "../templating.js";
 import { DEFAULT_MEMORY_FLUSH_PROMPT } from "./memory-flush.js";
@@ -50,79 +51,21 @@ vi.mock("./queue.js", async () => {
   };
 });
 
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> 4d8a4fbb4 (refactor(test): share runReplyAgent memory flush harness)
 import { runReplyAgent } from "./agent-runner.js";
-
-async function seedSessionStore(params: {
-  storePath: string;
-  sessionKey: string;
-  entry: Record<string, unknown>;
-}) {
-  await fs.mkdir(path.dirname(params.storePath), { recursive: true });
-  await fs.writeFile(
-    params.storePath,
-    JSON.stringify({ [params.sessionKey]: params.entry }, null, 2),
-    "utf-8",
-  );
-}
-
-function createBaseRun(params: {
-  storePath: string;
-  sessionEntry: Record<string, unknown>;
-  config?: Record<string, unknown>;
-  runOverrides?: Partial<FollowupRun["run"]>;
-}) {
-  const typing = createMockTypingController();
-  const sessionCtx = {
-    Provider: "whatsapp",
-    OriginatingTo: "+15550001111",
-    AccountId: "primary",
-    MessageSid: "msg",
-  } as unknown as TemplateContext;
-  const resolvedQueue = { mode: "interrupt" } as unknown as QueueSettings;
-  const followupRun = {
-    prompt: "hello",
-    summaryLine: "hello",
-    enqueuedAt: Date.now(),
-    run: {
-      agentId: "main",
-      agentDir: "/tmp/agent",
-      sessionId: "session",
-      sessionKey: "main",
-      messageProvider: "whatsapp",
-      sessionFile: "/tmp/session.jsonl",
-      workspaceDir: "/tmp",
-      config: params.config ?? {},
-      skillsSnapshot: {},
-      provider: "anthropic",
-      model: "claude",
-      thinkLevel: "low",
-      verboseLevel: "off",
-      elevatedLevel: "off",
-      bashElevated: {
-        enabled: false,
-        allowed: false,
-        defaultLevel: "off",
-      },
-      timeoutMs: 1_000,
-      blockReplyBreak: "message_end",
-    },
-  } as unknown as FollowupRun;
-  const run = {
-    ...followupRun.run,
-    ...params.runOverrides,
-    config: params.config ?? followupRun.run.config,
-  };
-
-  return {
-    typing,
-    sessionCtx,
-    resolvedQueue,
-    followupRun: { ...followupRun, run },
-  };
-}
+import {
+  createBaseRun,
+  getRunEmbeddedPiAgentMock,
+  seedSessionStore,
+  type EmbeddedRunParams,
+} from "./agent-runner.memory-flush.test-harness.js";
+import { DEFAULT_MEMORY_FLUSH_PROMPT } from "./memory-flush.js";
 
 describe("runReplyAgent memory flush", () => {
   it("increments compaction count when flush compaction completes", async () => {
+    const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
     runEmbeddedPiAgentMock.mockReset();
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-flush-"));
     const storePath = path.join(tmp, "sessions.json");
