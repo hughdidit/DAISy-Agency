@@ -1,8 +1,17 @@
+<<<<<<< HEAD:src/agents/workspace.test.ts
+=======
+import fs from "node:fs/promises";
+import path from "node:path";
+>>>>>>> 386bb0c61 (fix: don't auto-create HEARTBEAT.md on workspace init (openclaw#12027) thanks @shadril238):src/agents/workspace.e2e.test.ts
 import { describe, expect, it } from "vitest";
 import { makeTempWorkspace, writeWorkspaceFile } from "../test-helpers/workspace.js";
 import {
+  DEFAULT_AGENTS_FILENAME,
+  DEFAULT_BOOTSTRAP_FILENAME,
+  DEFAULT_HEARTBEAT_FILENAME,
   DEFAULT_MEMORY_ALT_FILENAME,
   DEFAULT_MEMORY_FILENAME,
+  ensureAgentWorkspace,
   loadWorkspaceBootstrapFiles,
 } from "./workspace.js";
 
@@ -19,7 +28,25 @@ describe("resolveDefaultAgentWorkspaceDir", () => {
   });
 });
 
+<<<<<<< HEAD:src/agents/workspace.test.ts
 >>>>>>> 456bd5874 (fix(paths): structurally resolve home dir to prevent Windows path bugs (#12125))
+=======
+describe("ensureAgentWorkspace", () => {
+  it("does not create HEARTBEAT.md during bootstrap file initialization", async () => {
+    const tempDir = await makeTempWorkspace("openclaw-workspace-init-");
+
+    const result = await ensureAgentWorkspace({ dir: tempDir, ensureBootstrapFiles: true });
+
+    await expect(fs.access(path.join(tempDir, DEFAULT_AGENTS_FILENAME))).resolves.toBeUndefined();
+    await expect(
+      fs.access(path.join(tempDir, DEFAULT_BOOTSTRAP_FILENAME)),
+    ).resolves.toBeUndefined();
+    await expect(fs.access(path.join(tempDir, DEFAULT_HEARTBEAT_FILENAME))).rejects.toThrow();
+    expect("heartbeatPath" in result).toBe(false);
+  });
+});
+
+>>>>>>> 386bb0c61 (fix: don't auto-create HEARTBEAT.md on workspace init (openclaw#12027) thanks @shadril238):src/agents/workspace.e2e.test.ts
 describe("loadWorkspaceBootstrapFiles", () => {
   it("includes MEMORY.md when present", async () => {
     const tempDir = await makeTempWorkspace("openclaw-workspace-");
