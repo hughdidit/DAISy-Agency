@@ -44,7 +44,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Agents/Heartbeat: stop auto-creating `HEARTBEAT.md` during workspace bootstrap so missing files continue to run heartbeat as documented. (#11766) Thanks @shadril238.
+<<<<<<< HEAD
 >>>>>>> 386bb0c61 (fix: don't auto-create HEARTBEAT.md on workspace init (openclaw#12027) thanks @shadril238)
+=======
+- Telegram: cap bot menu registration to Telegram's 100-command limit with an overflow warning while keeping typed hidden commands available. (#15844) Thanks @battman21.
+>>>>>>> 11ab1c693 (fix: enforce Telegram 100-command limit with warning (#5787) (#15844))
 - CLI: lazily load outbound provider dependencies and remove forced success-path exits so commands terminate naturally without killing intentional long-running foreground actions. (#12906) Thanks @DrCrinkle.
 >>>>>>> 874ff7089 (fix: ensure CLI exits after command completion (#12906))
 - Clawdock: avoid Zsh readonly variable collisions in helper scripts. (#15501) Thanks @nkelner.
