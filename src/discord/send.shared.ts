@@ -2,19 +2,25 @@ import { RequestClient } from "@buape/carbon";
 import { PollLayoutType } from "discord-api-types/payloads/v10";
 import type { RESTAPIPoll } from "discord-api-types/rest/v10";
 import { Routes } from "discord-api-types/v10";
+<<<<<<< HEAD
 
 import { loadConfig } from "../config/config.js";
 import type { RetryConfig } from "../infra/retry.js";
 import { createDiscordRetryRunner, type RetryRunner } from "../infra/retry-policy.js";
+=======
+import type { ChunkMode } from "../auto-reply/chunk.js";
+import type { RetryRunner } from "../infra/retry-policy.js";
+import { loadConfig } from "../config/config.js";
+>>>>>>> 4734c985c (refactor(discord): share client rest helpers)
 import { normalizePollDurationHours, normalizePollInput, type PollInput } from "../polls.js";
 import { loadWebMedia } from "../web/media.js";
 import { resolveDiscordAccount } from "./accounts.js";
 import type { ChunkMode } from "../auto-reply/chunk.js";
 import { chunkDiscordTextWithMode } from "./chunk.js";
+import { createDiscordClient, resolveDiscordRest } from "./client.js";
 import { fetchChannelPermissionsDiscord, isThreadChannelType } from "./send.permissions.js";
 import { DiscordSendError } from "./send.types.js";
 import { parseDiscordTarget, resolveDiscordTarget } from "./targets.js";
-import { normalizeDiscordToken } from "./token.js";
 
 const DISCORD_TEXT_LIMIT = 2000;
 const DISCORD_MAX_STICKERS = 3;
@@ -34,52 +40,6 @@ type DiscordRecipient =
       kind: "channel";
       id: string;
     };
-
-type DiscordClientOpts = {
-  token?: string;
-  accountId?: string;
-  rest?: RequestClient;
-  retry?: RetryConfig;
-  verbose?: boolean;
-};
-
-function resolveToken(params: { explicit?: string; accountId: string; fallbackToken?: string }) {
-  const explicit = normalizeDiscordToken(params.explicit);
-  if (explicit) {
-    return explicit;
-  }
-  const fallback = normalizeDiscordToken(params.fallbackToken);
-  if (!fallback) {
-    throw new Error(
-      `Discord bot token missing for account "${params.accountId}" (set discord.accounts.${params.accountId}.token or DISCORD_BOT_TOKEN for default).`,
-    );
-  }
-  return fallback;
-}
-
-function resolveRest(token: string, rest?: RequestClient) {
-  return rest ?? new RequestClient(token);
-}
-
-function createDiscordClient(opts: DiscordClientOpts, cfg = loadConfig()) {
-  const account = resolveDiscordAccount({ cfg, accountId: opts.accountId });
-  const token = resolveToken({
-    explicit: opts.token,
-    accountId: account.accountId,
-    fallbackToken: account.token,
-  });
-  const rest = resolveRest(token, opts.rest);
-  const request = createDiscordRetryRunner({
-    retry: opts.retry,
-    configRetry: account.config.retry,
-    verbose: opts.verbose,
-  });
-  return { token, rest, request };
-}
-
-function resolveDiscordRest(opts: DiscordClientOpts) {
-  return createDiscordClient(opts).rest;
-}
 
 function normalizeReactionEmoji(raw: string) {
   const trimmed = raw.trim();
