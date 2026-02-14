@@ -9,7 +9,12 @@ import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
 import { jsonResult } from "../../agents/tools/common.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
+<<<<<<< HEAD
 import { createIMessageTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
+=======
+import { createOutboundTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
+import { createIMessageTestPlugin } from "../../test-utils/imessage-test-plugin.js";
+>>>>>>> eb4215d57 (perf(test): speed up Vitest bootstrap)
 import { loadWebMedia } from "../../web/media.js";
 import { runMessageAction } from "./message-action-runner.js";
 
