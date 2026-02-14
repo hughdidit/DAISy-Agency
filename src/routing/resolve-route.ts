@@ -1,5 +1,11 @@
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { normalizeChatType } from "../channels/chat-type.js";
+import { shouldLogVerbose } from "../globals.js";
+import { logDebug } from "../logger.js";
+>>>>>>> c16bc7127 (fix: add discord routing debug logging (#16202) (thanks @jayleekr))
 import { listBindings } from "./bindings.js";
 import {
   buildAgentMainSessionKey,
@@ -217,6 +223,7 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
     };
   };
 
+<<<<<<< HEAD
   if (peer) {
     const peerMatch = bindings.find((b) => matchesPeer(b.match, peer));
     if (peerMatch) {
@@ -238,6 +245,31 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
 
 =======
 >>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
+=======
+  const shouldLogDebug = shouldLogVerbose();
+  const formatPeer = (value?: RoutePeer | null) =>
+    value?.kind && value?.id ? `${value.kind}:${value.id}` : "none";
+  const formatNormalizedPeer = (value: NormalizedPeerConstraint) => {
+    if (value.state === "none") {
+      return "none";
+    }
+    if (value.state === "invalid") {
+      return "invalid";
+    }
+    return `${value.kind}:${value.id}`;
+  };
+
+  if (shouldLogDebug) {
+    logDebug(
+      `[routing] resolveAgentRoute: channel=${channel} accountId=${accountId} peer=${formatPeer(peer)} guildId=${guildId || "none"} teamId=${teamId || "none"} bindings=${bindings.length}`,
+    );
+    for (const entry of bindings) {
+      logDebug(
+        `[routing] binding: agentId=${entry.binding.agentId} accountPattern=${entry.match.accountPattern || "default"} peer=${formatNormalizedPeer(entry.match.peer)} guildId=${entry.match.guildId ?? "none"} teamId=${entry.match.teamId ?? "none"} roles=${entry.match.roles?.length ?? 0}`,
+      );
+    }
+  }
+>>>>>>> c16bc7127 (fix: add discord routing debug logging (#16202) (thanks @jayleekr))
   // Thread parent inheritance: if peer (thread) didn't match, check parent peer binding
   const parentPeer = input.parentPeer
     ? { kind: input.parentPeer.kind, id: normalizeId(input.parentPeer.id) }
@@ -256,8 +288,16 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
     const guildRolesMatch = bindings.find(
       (b) => matchesGuild(b.match, guildId) && matchesRoles(b.match, memberRoleIds),
     );
+<<<<<<< HEAD
     if (guildRolesMatch) {
       return choose(guildRolesMatch.agentId, "binding.guild+roles");
+=======
+    if (matched) {
+      if (shouldLogDebug) {
+        logDebug(`[routing] match: matchedBy=${tier.matchedBy} agentId=${matched.binding.agentId}`);
+      }
+      return choose(matched.binding.agentId, tier.matchedBy);
+>>>>>>> c16bc7127 (fix: add discord routing debug logging (#16202) (thanks @jayleekr))
     }
   }
 

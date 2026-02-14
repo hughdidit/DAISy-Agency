@@ -16,6 +16,7 @@ import {
 import { logVerbose, shouldLogVerbose } from "../../globals.js";
 import { recordChannelActivity } from "../../infra/channel-activity.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
+import { logDebug } from "../../logger.js";
 import { getChildLogger } from "../../logging.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
@@ -76,6 +77,9 @@ export async function preflightDiscordMessage(
   const channelInfo = await resolveDiscordChannelInfo(params.client, message.channelId);
   const isDirectMessage = channelInfo?.type === ChannelType.DM;
   const isGroupDm = channelInfo?.type === ChannelType.GroupDM;
+  logDebug(
+    `[discord-preflight] channelId=${message.channelId} guild_id=${params.data.guild_id} channelType=${channelInfo?.type} isGuild=${isGuildMessage} isDM=${isDirectMessage} isGroupDm=${isGroupDm}`,
+  );
 
   if (isGroupDm && !params.groupDmEnabled) {
     logVerbose("discord: drop group dm (group dms disabled)");
@@ -240,12 +244,18 @@ export async function preflightDiscordMessage(
         guildEntries: params.guildEntries,
       })
     : null;
+  logDebug(
+    `[discord-preflight] guild_id=${params.data.guild_id} guild_obj=${!!params.data.guild} guild_obj_id=${params.data.guild?.id} guildInfo=${!!guildInfo} guildEntries=${params.guildEntries ? Object.keys(params.guildEntries).join(",") : "none"}`,
+  );
   if (
     isGuildMessage &&
     params.guildEntries &&
     Object.keys(params.guildEntries).length > 0 &&
     !guildInfo
   ) {
+    logDebug(
+      `[discord-preflight] guild blocked: guild_id=${params.data.guild_id} guildEntries keys=${Object.keys(params.guildEntries).join(",")}`,
+    );
     logVerbose(
       `Blocked discord guild ${params.data.guild_id ?? "unknown"} (not in discord.guilds)`,
     );
@@ -301,7 +311,16 @@ export async function preflightDiscordMessage(
       })
     : null;
   const channelMatchMeta = formatAllowlistMatchMeta(channelConfig);
+  if (shouldLogVerbose()) {
+    const channelConfigSummary = channelConfig
+      ? `allowed=${channelConfig.allowed} enabled=${channelConfig.enabled ?? "unset"} requireMention=${channelConfig.requireMention ?? "unset"} matchKey=${channelConfig.matchKey ?? "none"} matchSource=${channelConfig.matchSource ?? "none"} users=${channelConfig.users?.length ?? 0} roles=${channelConfig.roles?.length ?? 0} skills=${channelConfig.skills?.length ?? 0}`
+      : "none";
+    logDebug(
+      `[discord-preflight] channelConfig=${channelConfigSummary} channelMatchMeta=${channelMatchMeta} channelId=${message.channelId}`,
+    );
+  }
   if (isGuildMessage && channelConfig?.enabled === false) {
+    logDebug(`[discord-preflight] drop: channel disabled`);
     logVerbose(
       `Blocked discord channel ${message.channelId} (channel disabled, ${channelMatchMeta})`,
     );
@@ -345,12 +364,14 @@ export async function preflightDiscordMessage(
   }
 
   if (isGuildMessage && channelConfig?.allowed === false) {
+    logDebug(`[discord-preflight] drop: channelConfig.allowed===false`);
     logVerbose(
       `Blocked discord channel ${message.channelId} not in guild channel allowlist (${channelMatchMeta})`,
     );
     return null;
   }
   if (isGuildMessage) {
+    logDebug(`[discord-preflight] pass: channel allowed`);
     logVerbose(`discord: allow channel ${message.channelId} (${channelMatchMeta})`);
   }
 
@@ -522,8 +543,12 @@ export async function preflightDiscordMessage(
     commandAuthorized,
   });
   const effectiveWasMentioned = mentionGate.effectiveWasMentioned;
+  logDebug(
+    `[discord-preflight] shouldRequireMention=${shouldRequireMention} mentionGate.shouldSkip=${mentionGate.shouldSkip} wasMentioned=${wasMentioned}`,
+  );
   if (isGuildMessage && shouldRequireMention) {
     if (botId && mentionGate.shouldSkip) {
+      logDebug(`[discord-preflight] drop: no-mention`);
       logVerbose(`discord: drop guild message (mention required, botId=${botId})`);
       logger.info(
         {
@@ -586,6 +611,7 @@ export async function preflightDiscordMessage(
     }
 =======
   if (isGuildMessage && hasAccessRestrictions && !memberAllowed) {
+    logDebug(`[discord-preflight] drop: member not allowed`);
     logVerbose(`Blocked discord guild sender ${sender.id} (not in users/roles allowlist)`);
     return null;
 >>>>>>> 22fe30c1d (fix: add discord role allowlists (#10650) (thanks @Minidoracat))
@@ -599,6 +625,7 @@ export async function preflightDiscordMessage(
   });
   const systemText = resolveDiscordSystemEvent(message, systemLocation);
   if (systemText) {
+    logDebug(`[discord-preflight] drop: system event`);
     enqueueSystemEvent(systemText, {
       sessionKey: route.sessionKey,
       contextKey: `discord:system:${message.channelId}:${message.id}`,
@@ -607,10 +634,12 @@ export async function preflightDiscordMessage(
   }
 
   if (!messageText) {
+    logDebug(`[discord-preflight] drop: empty content`);
     logVerbose(`discord: drop message ${message.id} (empty content)`);
     return null;
   }
 
+  logDebug(`[discord-preflight] success: route=${route.agentId} sessionKey=${route.sessionKey}`);
   return {
     cfg: params.cfg,
     discordConfig: params.discordConfig,

@@ -22,6 +22,14 @@ Docs: https://docs.openclaw.ai
 =======
 ## Unreleased
 
+<<<<<<< HEAD
+=======
+### Changes
+
+- Sandbox: add `sandbox.browser.binds` to configure browser-container bind mounts separately from exec containers. (#16230) Thanks @seheepeak.
+- Discord: add debug logging for message routing decisions to improve `--debug` tracing. (#16202) Thanks @jayleekr.
+
+>>>>>>> c16bc7127 (fix: add discord routing debug logging (#16202) (thanks @jayleekr))
 ### Fixes
 
 <<<<<<< HEAD
