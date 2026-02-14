@@ -51,6 +51,11 @@ import {
   resolveSkillsPromptForRun,
   type SkillSnapshot,
 } from "../skills.js";
+<<<<<<< HEAD
+=======
+import { resolveTranscriptPolicy } from "../transcript-policy.js";
+import { compactWithSafetyTimeout } from "./compaction-safety-timeout.js";
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
 import { buildEmbeddedExtensionPaths } from "./extensions.js";
 import {
   logToolSchemasForGoogle,
@@ -105,6 +110,13 @@ export type CompactEmbeddedPiSessionParams = {
   reasoningLevel?: ReasoningLevel;
   bashElevated?: ExecElevatedDefaults;
   customInstructions?: string;
+<<<<<<< HEAD
+=======
+  trigger?: "overflow" | "manual";
+  diagId?: string;
+  attempt?: number;
+  maxAttempts?: number;
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
   lane?: string;
   enqueue?: typeof enqueueCommand;
   extraSystemPrompt?: string;
@@ -493,7 +505,57 @@ export async function compactEmbeddedPiSessionDirect(
         if (limited.length > 0) {
           session.agent.replaceMessages(limited);
         }
+<<<<<<< HEAD
         const result = await session.compact(params.customInstructions);
+=======
+        // Run before_compaction hooks (fire-and-forget).
+        // The session JSONL already contains all messages on disk, so plugins
+        // can read sessionFile asynchronously and process in parallel with
+        // the compaction LLM call — no need to block or wait for after_compaction.
+        const hookRunner = getGlobalHookRunner();
+        const hookCtx = {
+          agentId: params.sessionKey?.split(":")[0] ?? "main",
+          sessionKey: params.sessionKey,
+          sessionId: params.sessionId,
+          workspaceDir: params.workspaceDir,
+          messageProvider: params.messageChannel ?? params.messageProvider,
+        };
+        if (hookRunner?.hasHooks("before_compaction")) {
+          hookRunner
+            .runBeforeCompaction(
+              {
+                messageCount: preCompactionMessages.length,
+                compactingCount: limited.length,
+                messages: preCompactionMessages,
+                sessionFile: params.sessionFile,
+              },
+              hookCtx,
+            )
+            .catch((hookErr: unknown) => {
+              log.warn(`before_compaction hook failed: ${String(hookErr)}`);
+            });
+        }
+
+        const diagEnabled = log.isEnabled("debug");
+        const preMetrics = diagEnabled ? summarizeCompactionMessages(session.messages) : undefined;
+        if (diagEnabled && preMetrics) {
+          log.debug(
+            `[compaction-diag] start runId=${runId} sessionKey=${params.sessionKey ?? params.sessionId} ` +
+              `diagId=${diagId} trigger=${trigger} provider=${provider}/${modelId} ` +
+              `attempt=${attempt} maxAttempts=${maxAttempts} ` +
+              `pre.messages=${preMetrics.messages} pre.historyTextChars=${preMetrics.historyTextChars} ` +
+              `pre.toolResultChars=${preMetrics.toolResultChars} pre.estTokens=${preMetrics.estTokens ?? "unknown"}`,
+          );
+          log.debug(
+            `[compaction-diag] contributors diagId=${diagId} top=${JSON.stringify(preMetrics.contributors)}`,
+          );
+        }
+
+        const compactStartedAt = Date.now();
+        const result = await compactWithSafetyTimeout(() =>
+          session.compact(params.customInstructions),
+        );
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
         // Estimate tokens after compaction by summing token estimates for remaining messages
         let tokensAfter: number | undefined;
         try {

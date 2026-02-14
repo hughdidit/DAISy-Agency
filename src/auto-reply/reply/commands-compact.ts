@@ -92,6 +92,11 @@ export const handleCompactCommand: CommandHandler = async (params) => {
       defaultLevel: "off",
     },
     customInstructions,
+<<<<<<< HEAD
+=======
+    trigger: "manual",
+    senderIsOwner: params.command.senderIsOwner,
+>>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
     ownerNumbers: params.command.ownerList.length > 0 ? params.command.ownerList : undefined,
   });
 
