@@ -90,7 +90,7 @@ export async function add(state: CronServiceState, input: CronJobCreate) {
 export async function update(state: CronServiceState, id: string, patch: CronJobPatch) {
   return await locked(state, async () => {
     warnIfDisabled(state, "update");
-    await ensureLoaded(state);
+    await ensureLoaded(state, { skipRecompute: true });
     const job = findJobOrThrow(state, id);
     const now = state.deps.nowMs();
     applyJobPatch(job, patch);
@@ -111,11 +111,28 @@ export async function update(state: CronServiceState, id: string, patch: CronJob
       }
     }
     job.updatedAtMs = now;
+<<<<<<< HEAD
     if (job.enabled) {
       job.state.nextRunAtMs = computeJobNextRunAtMs(job, now);
     } else {
       job.state.nextRunAtMs = undefined;
       job.state.runningAtMs = undefined;
+=======
+    if (scheduleChanged || enabledChanged) {
+      if (job.enabled) {
+        job.state.nextRunAtMs = computeJobNextRunAtMs(job, now);
+      } else {
+        job.state.nextRunAtMs = undefined;
+        job.state.runningAtMs = undefined;
+      }
+    } else if (job.enabled) {
+      // Non-schedule edits should not mutate other jobs, but still repair a
+      // missing/corrupt nextRunAtMs for the updated job.
+      const nextRun = job.state.nextRunAtMs;
+      if (typeof nextRun !== "number" || !Number.isFinite(nextRun)) {
+        job.state.nextRunAtMs = computeJobNextRunAtMs(job, now);
+      }
+>>>>>>> 80407cbc6 (fix: recompute all cron next-run times after job update (openclaw#15905) thanks @echoVic)
     }
 
     await persist(state);
