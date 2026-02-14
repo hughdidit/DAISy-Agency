@@ -23,6 +23,53 @@ import { resolveSandboxScopeKey, resolveSandboxWorkspaceDir } from "./shared.js"
 import type { SandboxContext, SandboxWorkspaceInfo } from "./types.js";
 import { ensureSandboxWorkspace } from "./workspace.js";
 
+async function ensureSandboxWorkspaceLayout(params: {
+  cfg: ReturnType<typeof resolveSandboxConfigForAgent>;
+  rawSessionKey: string;
+  config?: OpenClawConfig;
+  workspaceDir?: string;
+}): Promise<{
+  agentWorkspaceDir: string;
+  scopeKey: string;
+  sandboxWorkspaceDir: string;
+  workspaceDir: string;
+}> {
+  const { cfg, rawSessionKey } = params;
+
+  const agentWorkspaceDir = resolveUserPath(
+    params.workspaceDir?.trim() || DEFAULT_AGENT_WORKSPACE_DIR,
+  );
+  const workspaceRoot = resolveUserPath(cfg.workspaceRoot);
+  const scopeKey = resolveSandboxScopeKey(cfg.scope, rawSessionKey);
+  const sandboxWorkspaceDir =
+    cfg.scope === "shared" ? workspaceRoot : resolveSandboxWorkspaceDir(workspaceRoot, scopeKey);
+  const workspaceDir = cfg.workspaceAccess === "rw" ? agentWorkspaceDir : sandboxWorkspaceDir;
+
+  if (workspaceDir === sandboxWorkspaceDir) {
+    await ensureSandboxWorkspace(
+      sandboxWorkspaceDir,
+      agentWorkspaceDir,
+      params.config?.agents?.defaults?.skipBootstrap,
+    );
+    if (cfg.workspaceAccess !== "rw") {
+      try {
+        await syncSkillsToWorkspace({
+          sourceWorkspaceDir: agentWorkspaceDir,
+          targetWorkspaceDir: sandboxWorkspaceDir,
+          config: params.config,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : JSON.stringify(error);
+        defaultRuntime.error?.(`Sandbox skill sync failed: ${message}`);
+      }
+    }
+  } else {
+    await fs.mkdir(workspaceDir, { recursive: true });
+  }
+
+  return { agentWorkspaceDir, scopeKey, sandboxWorkspaceDir, workspaceDir };
+}
+
 export async function resolveSandboxContext(params: {
   config?: MoltbotConfig;
   sessionKey?: string;
@@ -45,35 +92,12 @@ export async function resolveSandboxContext(params: {
 
   await maybePruneSandboxes(cfg);
 
-  const agentWorkspaceDir = resolveUserPath(
-    params.workspaceDir?.trim() || DEFAULT_AGENT_WORKSPACE_DIR,
-  );
-  const workspaceRoot = resolveUserPath(cfg.workspaceRoot);
-  const scopeKey = resolveSandboxScopeKey(cfg.scope, rawSessionKey);
-  const sandboxWorkspaceDir =
-    cfg.scope === "shared" ? workspaceRoot : resolveSandboxWorkspaceDir(workspaceRoot, scopeKey);
-  const workspaceDir = cfg.workspaceAccess === "rw" ? agentWorkspaceDir : sandboxWorkspaceDir;
-  if (workspaceDir === sandboxWorkspaceDir) {
-    await ensureSandboxWorkspace(
-      sandboxWorkspaceDir,
-      agentWorkspaceDir,
-      params.config?.agents?.defaults?.skipBootstrap,
-    );
-    if (cfg.workspaceAccess !== "rw") {
-      try {
-        await syncSkillsToWorkspace({
-          sourceWorkspaceDir: agentWorkspaceDir,
-          targetWorkspaceDir: sandboxWorkspaceDir,
-          config: params.config,
-        });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : JSON.stringify(error);
-        defaultRuntime.error?.(`Sandbox skill sync failed: ${message}`);
-      }
-    }
-  } else {
-    await fs.mkdir(workspaceDir, { recursive: true });
-  }
+  const { agentWorkspaceDir, scopeKey, workspaceDir } = await ensureSandboxWorkspaceLayout({
+    cfg,
+    rawSessionKey,
+    config: params.config,
+    workspaceDir: params.workspaceDir,
+  });
 
   const containerName = await ensureSandboxContainer({
     sessionKey: rawSessionKey,
@@ -145,35 +169,12 @@ export async function ensureSandboxWorkspaceForSession(params: {
 
   const cfg = resolveSandboxConfigForAgent(params.config, runtime.agentId);
 
-  const agentWorkspaceDir = resolveUserPath(
-    params.workspaceDir?.trim() || DEFAULT_AGENT_WORKSPACE_DIR,
-  );
-  const workspaceRoot = resolveUserPath(cfg.workspaceRoot);
-  const scopeKey = resolveSandboxScopeKey(cfg.scope, rawSessionKey);
-  const sandboxWorkspaceDir =
-    cfg.scope === "shared" ? workspaceRoot : resolveSandboxWorkspaceDir(workspaceRoot, scopeKey);
-  const workspaceDir = cfg.workspaceAccess === "rw" ? agentWorkspaceDir : sandboxWorkspaceDir;
-  if (workspaceDir === sandboxWorkspaceDir) {
-    await ensureSandboxWorkspace(
-      sandboxWorkspaceDir,
-      agentWorkspaceDir,
-      params.config?.agents?.defaults?.skipBootstrap,
-    );
-    if (cfg.workspaceAccess !== "rw") {
-      try {
-        await syncSkillsToWorkspace({
-          sourceWorkspaceDir: agentWorkspaceDir,
-          targetWorkspaceDir: sandboxWorkspaceDir,
-          config: params.config,
-        });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : JSON.stringify(error);
-        defaultRuntime.error?.(`Sandbox skill sync failed: ${message}`);
-      }
-    }
-  } else {
-    await fs.mkdir(workspaceDir, { recursive: true });
-  }
+  const { workspaceDir } = await ensureSandboxWorkspaceLayout({
+    cfg,
+    rawSessionKey,
+    config: params.config,
+    workspaceDir: params.workspaceDir,
+  });
 
   return {
     workspaceDir,
