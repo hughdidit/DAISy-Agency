@@ -30,15 +30,36 @@ export type TranscriptWaiter = {
   timeout: NodeJS.Timeout;
 };
 
-export type CallManagerContext = {
+export type CallManagerRuntimeState = {
   activeCalls: Map<CallId, CallRecord>;
   providerCallIdMap: Map<string, CallId>;
   processedEventIds: Set<string>;
+<<<<<<< HEAD
+=======
+  /** Provider call IDs we already sent a reject hangup for; avoids duplicate hangup calls. */
+  rejectedProviderCallIds: Set<string>;
+};
+
+export type CallManagerRuntimeDeps = {
+>>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
   provider: VoiceCallProvider | null;
   config: VoiceCallConfig;
   storePath: string;
   webhookUrl: string | null;
+};
+
+export type CallManagerTransientState = {
   transcriptWaiters: Map<CallId, TranscriptWaiter>;
   maxDurationTimers: Map<CallId, NodeJS.Timeout>;
   logger: Logger;
 };
+
+export type CallManagerHooks = {
+  /** Optional runtime hook invoked after an event transitions a call into answered state. */
+  onCallAnswered?: (call: CallRecord) => void;
+};
+
+export type CallManagerContext = CallManagerRuntimeState &
+  CallManagerRuntimeDeps &
+  CallManagerTransientState &
+  CallManagerHooks;

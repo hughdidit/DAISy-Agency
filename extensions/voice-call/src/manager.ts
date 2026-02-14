@@ -1,8 +1,7 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
-import fsp from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { resolveUserPath } from "./utils.js";
 import type { CallMode, VoiceCallConfig } from "./config.js";
@@ -20,6 +19,23 @@ import {
   type TranscriptEntry,
 } from "./types.js";
 import { escapeXml, mapVoiceToPolly } from "./voice-mapping.js";
+=======
+import type { VoiceCallConfig } from "./config.js";
+import type { CallManagerContext } from "./manager/context.js";
+import type { VoiceCallProvider } from "./providers/base.js";
+import type { CallId, CallRecord, NormalizedEvent, OutboundCallOptions } from "./types.js";
+import { processEvent as processManagerEvent } from "./manager/events.js";
+import { getCallByProviderCallId as getCallByProviderCallIdFromMaps } from "./manager/lookup.js";
+import {
+  continueCall as continueCallWithContext,
+  endCall as endCallWithContext,
+  initiateCall as initiateCallWithContext,
+  speak as speakWithContext,
+  speakInitialMessage as speakInitialMessageWithContext,
+} from "./manager/outbound.js";
+import { getCallHistoryFromStore, loadActiveCallsFromStore } from "./manager/store.js";
+import { resolveUserPath } from "./utils.js";
+>>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
 
 <<<<<<< HEAD
 =======
@@ -43,11 +59,11 @@ function resolveDefaultStoreBase(config: VoiceCallConfig, storePath?: string): s
 
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
 /**
- * Manages voice calls: state machine, persistence, and provider coordination.
+ * Manages voice calls: state ownership and delegation to manager helper modules.
  */
 export class CallManager {
   private activeCalls = new Map<CallId, CallRecord>();
-  private providerCallIdMap = new Map<string, CallId>(); // providerCallId -> internal callId
+  private providerCallIdMap = new Map<string, CallId>();
   private processedEventIds = new Set<string>();
   private provider: VoiceCallProvider | null = null;
   private config: VoiceCallConfig;
@@ -61,13 +77,13 @@ export class CallManager {
       timeout: NodeJS.Timeout;
     }
   >();
-  /** Max duration timers to auto-hangup calls after configured timeout */
   private maxDurationTimers = new Map<CallId, NodeJS.Timeout>();
 
   private readonly logger: Logger;
 
   constructor(config: VoiceCallConfig, storePath?: string, logger?: Logger) {
     this.config = config;
+<<<<<<< HEAD
     this.logger = logger ?? defaultLogger;
     // Resolve store path with tilde expansion (like other config values)
     const rawPath =
@@ -75,6 +91,9 @@ export class CallManager {
       config.store ||
       path.join(os.homedir(), "clawd", "voice-calls");
     this.storePath = resolveUserPath(rawPath);
+=======
+    this.storePath = resolveDefaultStoreBase(config, storePath);
+>>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
   }
 
   /**
@@ -84,11 +103,13 @@ export class CallManager {
     this.provider = provider;
     this.webhookUrl = webhookUrl;
 
-    // Ensure store directory exists
     fs.mkdirSync(this.storePath, { recursive: true });
 
-    // Load any persisted active calls
-    this.loadActiveCalls();
+    const persisted = loadActiveCallsFromStore(this.storePath);
+    this.activeCalls = persisted.activeCalls;
+    this.providerCallIdMap = persisted.providerCallIdMap;
+    this.processedEventIds = persisted.processedEventIds;
+    this.rejectedProviderCallIds = persisted.rejectedProviderCallIds;
   }
 
   /**
@@ -100,15 +121,13 @@ export class CallManager {
 
   /**
    * Initiate an outbound call.
-   * @param to - The phone number to call
-   * @param sessionKey - Optional session key for context
-   * @param options - Optional call options (message, mode)
    */
   async initiateCall(
     to: string,
     sessionKey?: string,
     options?: OutboundCallOptions | string,
   ): Promise<{ callId: CallId; success: boolean; error?: string }> {
+<<<<<<< HEAD
     // Support legacy string argument for initialMessage
     const opts: OutboundCallOptions =
       typeof options === "string" ? { message: options } : (options ?? {});
@@ -208,57 +227,23 @@ export class CallManager {
         error: err instanceof Error ? err.message : String(err),
       };
     }
+=======
+    return initiateCallWithContext(this.getContext(), to, sessionKey, options);
+>>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
   }
 
   /**
    * Speak to user in an active call.
    */
   async speak(callId: CallId, text: string): Promise<{ success: boolean; error?: string }> {
-    const call = this.activeCalls.get(callId);
-    if (!call) {
-      return { success: false, error: "Call not found" };
-    }
-
-    if (!this.provider || !call.providerCallId) {
-      return { success: false, error: "Call not connected" };
-    }
-
-    if (TerminalStates.has(call.state)) {
-      return { success: false, error: "Call has ended" };
-    }
-
-    try {
-      // Update state
-      call.state = "speaking";
-      this.persistCallRecord(call);
-
-      // Add to transcript
-      this.addTranscriptEntry(call, "bot", text);
-
-      // Play TTS
-      const voice = this.provider?.name === "twilio" ? this.config.tts?.openai?.voice : undefined;
-      await this.provider.playTts({
-        callId,
-        providerCallId: call.providerCallId,
-        text,
-        voice,
-      });
-
-      return { success: true };
-    } catch (err) {
-      return {
-        success: false,
-        error: err instanceof Error ? err.message : String(err),
-      };
-    }
+    return speakWithContext(this.getContext(), callId, text);
   }
 
   /**
    * Speak the initial message for a call (called when media stream connects).
-   * This is used to auto-play the message passed to initiateCall.
-   * In notify mode, auto-hangup after the message is delivered.
    */
   async speakInitialMessage(providerCallId: string): Promise<void> {
+<<<<<<< HEAD
     const call = this.getCallByProviderCallId(providerCallId);
     if (!call) {
 <<<<<<< HEAD
@@ -415,6 +400,9 @@ export class CallManager {
 
       this.transcriptWaiters.set(callId, { resolve, reject, timeout });
     });
+=======
+    return speakInitialMessageWithContext(this.getContext(), providerCallId);
+>>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
   }
 
   /**
@@ -424,93 +412,17 @@ export class CallManager {
     callId: CallId,
     prompt: string,
   ): Promise<{ success: boolean; transcript?: string; error?: string }> {
-    const call = this.activeCalls.get(callId);
-    if (!call) {
-      return { success: false, error: "Call not found" };
-    }
-
-    if (!this.provider || !call.providerCallId) {
-      return { success: false, error: "Call not connected" };
-    }
-
-    if (TerminalStates.has(call.state)) {
-      return { success: false, error: "Call has ended" };
-    }
-
-    try {
-      await this.speak(callId, prompt);
-
-      call.state = "listening";
-      this.persistCallRecord(call);
-
-      await this.provider.startListening({
-        callId,
-        providerCallId: call.providerCallId,
-      });
-
-      const transcript = await this.waitForFinalTranscript(callId);
-
-      // Best-effort: stop listening after final transcript.
-      await this.provider.stopListening({
-        callId,
-        providerCallId: call.providerCallId,
-      });
-
-      return { success: true, transcript };
-    } catch (err) {
-      return {
-        success: false,
-        error: err instanceof Error ? err.message : String(err),
-      };
-    } finally {
-      this.clearTranscriptWaiter(callId);
-    }
+    return continueCallWithContext(this.getContext(), callId, prompt);
   }
 
   /**
    * End an active call.
    */
   async endCall(callId: CallId): Promise<{ success: boolean; error?: string }> {
-    const call = this.activeCalls.get(callId);
-    if (!call) {
-      return { success: false, error: "Call not found" };
-    }
-
-    if (!this.provider || !call.providerCallId) {
-      return { success: false, error: "Call not connected" };
-    }
-
-    if (TerminalStates.has(call.state)) {
-      return { success: true }; // Already ended
-    }
-
-    try {
-      await this.provider.hangupCall({
-        callId,
-        providerCallId: call.providerCallId,
-        reason: "hangup-bot",
-      });
-
-      call.state = "hangup-bot";
-      call.endedAt = Date.now();
-      call.endReason = "hangup-bot";
-      this.persistCallRecord(call);
-      this.clearMaxDurationTimer(callId);
-      this.rejectTranscriptWaiter(callId, "Call ended: hangup-bot");
-      this.activeCalls.delete(callId);
-      if (call.providerCallId) {
-        this.providerCallIdMap.delete(call.providerCallId);
-      }
-
-      return { success: true };
-    } catch (err) {
-      return {
-        success: false,
-        error: err instanceof Error ? err.message : String(err),
-      };
-    }
+    return endCallWithContext(this.getContext(), callId);
   }
 
+<<<<<<< HEAD
   /**
    * Check if an inbound call should be accepted based on policy.
    */
@@ -564,6 +476,22 @@ export class CallManager {
       processedEventIds: [],
       metadata: {
         initialMessage: this.config.inboundGreeting || "Hello! How can I help you today?",
+=======
+  private getContext(): CallManagerContext {
+    return {
+      activeCalls: this.activeCalls,
+      providerCallIdMap: this.providerCallIdMap,
+      processedEventIds: this.processedEventIds,
+      rejectedProviderCallIds: this.rejectedProviderCallIds,
+      provider: this.provider,
+      config: this.config,
+      storePath: this.storePath,
+      webhookUrl: this.webhookUrl,
+      transcriptWaiters: this.transcriptWaiters,
+      maxDurationTimers: this.maxDurationTimers,
+      onCallAnswered: (call) => {
+        this.maybeSpeakInitialMessageOnAnswered(call);
+>>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
       },
     };
 
@@ -754,20 +682,11 @@ export class CallManager {
    * Get an active call by provider call ID (e.g., Twilio CallSid).
    */
   getCallByProviderCallId(providerCallId: string): CallRecord | undefined {
-    // Fast path: use the providerCallIdMap for O(1) lookup
-    const callId = this.providerCallIdMap.get(providerCallId);
-    if (callId) {
-      return this.activeCalls.get(callId);
-    }
-
-    // Fallback: linear search for cases where map wasn't populated
-    // (e.g., providerCallId set directly on call record)
-    for (const call of this.activeCalls.values()) {
-      if (call.providerCallId === providerCallId) {
-        return call;
-      }
-    }
-    return undefined;
+    return getCallByProviderCallIdFromMaps({
+      activeCalls: this.activeCalls,
+      providerCallIdMap: this.providerCallIdMap,
+      providerCallId,
+    });
   }
 
   /**
@@ -781,6 +700,7 @@ export class CallManager {
    * Get call history (from persisted logs).
    */
   async getCallHistory(limit = 50): Promise<CallRecord[]> {
+<<<<<<< HEAD
     const logPath = path.join(this.storePath, "calls.jsonl");
 
     try {
@@ -931,5 +851,8 @@ export class CallManager {
   <Say voice="${voice}">${escapeXml(message)}</Say>
   <Hangup/>
 </Response>`;
+=======
+    return getCallHistoryFromStore(this.storePath, limit);
+>>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
   }
 }

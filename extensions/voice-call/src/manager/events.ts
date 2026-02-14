@@ -20,6 +20,7 @@ import {
 import { endCall } from "./outbound.js";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 function shouldAcceptInbound(config: CallManagerContext["config"], from: string | undefined, logger: Logger): boolean {
 =======
 function shouldAcceptInbound(
@@ -27,6 +28,23 @@ function shouldAcceptInbound(
   from: string | undefined,
 ): boolean {
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+=======
+type EventContext = Pick<
+  CallManagerContext,
+  | "activeCalls"
+  | "providerCallIdMap"
+  | "processedEventIds"
+  | "rejectedProviderCallIds"
+  | "provider"
+  | "config"
+  | "storePath"
+  | "transcriptWaiters"
+  | "maxDurationTimers"
+  | "onCallAnswered"
+>;
+
+function shouldAcceptInbound(config: EventContext["config"], from: string | undefined): boolean {
+>>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
   const { inboundPolicy: policy, allowFrom } = config;
 
   switch (policy) {
@@ -58,7 +76,7 @@ function shouldAcceptInbound(
 }
 
 function createInboundCall(params: {
-  ctx: CallManagerContext;
+  ctx: EventContext;
   providerCallId: string;
   from: string;
   to: string;
@@ -90,10 +108,14 @@ function createInboundCall(params: {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export async function processEvent(ctx: CallManagerContext, event: NormalizedEvent): Promise<void> {
   if (ctx.processedEventIds.has(event.id)) return;
 =======
 export function processEvent(ctx: CallManagerContext, event: NormalizedEvent): void {
+=======
+export function processEvent(ctx: EventContext, event: NormalizedEvent): void {
+>>>>>>> 89574f30c (refactor(voice-call): split manager into facade and context slices)
   if (ctx.processedEventIds.has(event.id)) {
     return;
   }

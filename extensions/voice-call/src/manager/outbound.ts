@@ -20,8 +20,39 @@ import {
   waitForFinalTranscript,
 } from "./timers.js";
 
+type InitiateContext = Pick<
+  CallManagerContext,
+  "activeCalls" | "providerCallIdMap" | "provider" | "config" | "storePath" | "webhookUrl"
+>;
+
+type SpeakContext = Pick<
+  CallManagerContext,
+  "activeCalls" | "providerCallIdMap" | "provider" | "config" | "storePath"
+>;
+
+type ConversationContext = Pick<
+  CallManagerContext,
+  | "activeCalls"
+  | "providerCallIdMap"
+  | "provider"
+  | "config"
+  | "storePath"
+  | "transcriptWaiters"
+  | "maxDurationTimers"
+>;
+
+type EndCallContext = Pick<
+  CallManagerContext,
+  | "activeCalls"
+  | "providerCallIdMap"
+  | "provider"
+  | "storePath"
+  | "transcriptWaiters"
+  | "maxDurationTimers"
+>;
+
 export async function initiateCall(
-  ctx: CallManagerContext,
+  ctx: InitiateContext,
   to: string,
   sessionKey?: string,
   options?: OutboundCallOptions | string,
@@ -114,7 +145,7 @@ export async function initiateCall(
 }
 
 export async function speak(
-  ctx: CallManagerContext,
+  ctx: SpeakContext,
   callId: CallId,
   text: string,
 ): Promise<{ success: boolean; error?: string }> {
@@ -150,7 +181,7 @@ export async function speak(
 }
 
 export async function speakInitialMessage(
-  ctx: CallManagerContext,
+  ctx: ConversationContext,
   providerCallId: string,
 ): Promise<void> {
   const call = getCallByProviderCallId({
@@ -198,7 +229,7 @@ export async function speakInitialMessage(
 }
 
 export async function continueCall(
-  ctx: CallManagerContext,
+  ctx: ConversationContext,
   callId: CallId,
   prompt: string,
 ): Promise<{ success: boolean; transcript?: string; error?: string }> {
@@ -235,7 +266,7 @@ export async function continueCall(
 }
 
 export async function endCall(
-  ctx: CallManagerContext,
+  ctx: EndCallContext,
   callId: CallId,
 ): Promise<{ success: boolean; error?: string }> {
   const call = ctx.activeCalls.get(callId);
