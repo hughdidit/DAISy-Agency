@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+<<<<<<< HEAD
 import { createEventHandlers } from "./tui-event-handlers.js";
 import type { AgentEvent, ChatEvent, TuiStateAccess } from "./tui-types.js";
 
@@ -10,6 +11,18 @@ type MockChatLog = {
   updateAssistant: ReturnType<typeof vi.fn>;
   finalizeAssistant: ReturnType<typeof vi.fn>;
 };
+=======
+type MockChatLog = Pick<
+  ChatLog,
+  | "startTool"
+  | "updateToolResult"
+  | "addSystem"
+  | "updateAssistant"
+  | "finalizeAssistant"
+  | "dropAssistant"
+>;
+type MockTui = Pick<TUI, "requestRender">;
+>>>>>>> 078642b30 (fix(discord): defer component interactions to prevent timeout (#16287))
 
 describe("tui-event-handlers: handleAgentEvent", () => {
   const makeState = (overrides?: Partial<TuiStateAccess>): TuiStateAccess => ({
@@ -42,6 +55,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       addSystem: vi.fn(),
       updateAssistant: vi.fn(),
       finalizeAssistant: vi.fn(),
+      dropAssistant: vi.fn(),
     };
     const tui = { requestRender: vi.fn() };
     const setActivityStatus = vi.fn();
@@ -225,4 +239,127 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     expect(setActivityStatus).not.toHaveBeenCalled();
     expect(tui.requestRender).not.toHaveBeenCalled();
   });
+<<<<<<< HEAD
+=======
+
+  it("suppresses tool events when verbose is off", () => {
+    const state = makeState({
+      activeChatRunId: "run-123",
+      sessionInfo: { verboseLevel: "off" },
+    });
+    const { chatLog, tui, setActivityStatus } = makeContext(state);
+    const { handleAgentEvent } = createEventHandlers({
+      chatLog,
+      tui,
+      state,
+      setActivityStatus,
+    });
+
+    handleAgentEvent({
+      runId: "run-123",
+      stream: "tool",
+      data: { phase: "start", toolCallId: "tc-off", name: "session_status" },
+    });
+
+    expect(chatLog.startTool).not.toHaveBeenCalled();
+    expect(tui.requestRender).not.toHaveBeenCalled();
+  });
+
+  it("omits tool output when verbose is on (non-full)", () => {
+    const state = makeState({
+      activeChatRunId: "run-123",
+      sessionInfo: { verboseLevel: "on" },
+    });
+    const { chatLog, tui, setActivityStatus } = makeContext(state);
+    const { handleAgentEvent } = createEventHandlers({
+      chatLog,
+      tui,
+      state,
+      setActivityStatus,
+    });
+
+    handleAgentEvent({
+      runId: "run-123",
+      stream: "tool",
+      data: {
+        phase: "update",
+        toolCallId: "tc-on",
+        name: "session_status",
+        partialResult: { content: [{ type: "text", text: "secret" }] },
+      },
+    });
+
+    handleAgentEvent({
+      runId: "run-123",
+      stream: "tool",
+      data: {
+        phase: "result",
+        toolCallId: "tc-on",
+        name: "session_status",
+        result: { content: [{ type: "text", text: "secret" }] },
+        isError: false,
+      },
+    });
+
+    expect(chatLog.updateToolResult).toHaveBeenCalledTimes(1);
+    expect(chatLog.updateToolResult).toHaveBeenCalledWith(
+      "tc-on",
+      { content: [] },
+      { isError: false },
+    );
+  });
+
+  it("refreshes history after a non-local chat final", () => {
+    const state = makeState({ activeChatRunId: null });
+    const { chatLog, tui, setActivityStatus, loadHistory, isLocalRunId, forgetLocalRunId } =
+      makeContext(state);
+    const { handleChatEvent } = createEventHandlers({
+      chatLog,
+      tui,
+      state,
+      setActivityStatus,
+      loadHistory,
+      isLocalRunId,
+      forgetLocalRunId,
+    });
+
+    handleChatEvent({
+      runId: "external-run",
+      sessionKey: state.currentSessionKey,
+      state: "final",
+      message: { content: [{ type: "text", text: "done" }] },
+    });
+
+    expect(loadHistory).toHaveBeenCalledTimes(1);
+  });
+
+  it("drops streaming assistant when chat final has no message", () => {
+    const state = makeState({ activeChatRunId: null });
+    const { chatLog, tui, setActivityStatus } = makeContext(state);
+    const { handleChatEvent } = createEventHandlers({
+      chatLog,
+      tui,
+      state,
+      setActivityStatus,
+    });
+
+    handleChatEvent({
+      runId: "run-silent",
+      sessionKey: state.currentSessionKey,
+      state: "delta",
+      message: { content: "hello" },
+    });
+    chatLog.dropAssistant.mockClear();
+    chatLog.finalizeAssistant.mockClear();
+
+    handleChatEvent({
+      runId: "run-silent",
+      sessionKey: state.currentSessionKey,
+      state: "final",
+    });
+
+    expect(chatLog.dropAssistant).toHaveBeenCalledWith("run-silent");
+    expect(chatLog.finalizeAssistant).not.toHaveBeenCalled();
+  });
+>>>>>>> 078642b30 (fix(discord): defer component interactions to prevent timeout (#16287))
 });
