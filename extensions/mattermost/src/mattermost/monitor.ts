@@ -23,8 +23,12 @@ import {
   resolveControlCommandGate,
   resolveChannelMediaMaxBytes,
   type HistoryEntry,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+>>>>>>> edbd86074 (refactor(mattermost): extract websocket monitor and reconnect policies)
 import { getMattermostRuntime } from "../runtime.js";
 import { resolveMattermostAccount } from "./accounts.js";
 import {
@@ -41,10 +45,18 @@ import {
 import {
   createDedupeCache,
   formatInboundFromLabel,
-  rawDataToString,
   resolveThreadSessionKeys,
 } from "./monitor-helpers.js";
 import { resolveOncharPrefixes, stripOncharPrefix } from "./monitor-onchar.js";
+<<<<<<< HEAD
+=======
+import {
+  createMattermostConnectOnce,
+  type MattermostEventPayload,
+  type MattermostWebSocketFactory,
+} from "./monitor-websocket.js";
+import { runWithReconnect } from "./reconnect.js";
+>>>>>>> edbd86074 (refactor(mattermost): extract websocket monitor and reconnect policies)
 import { sendMessageMattermost } from "./send.js";
 
 export type MonitorMattermostOpts = {
@@ -55,28 +67,11 @@ export type MonitorMattermostOpts = {
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
   statusSink?: (patch: Partial<ChannelAccountSnapshot>) => void;
+  webSocketFactory?: MattermostWebSocketFactory;
 };
 
 type FetchLike = typeof fetch;
 type MediaKind = "image" | "audio" | "video" | "document" | "unknown";
-
-type MattermostEventPayload = {
-  event?: string;
-  data?: {
-    post?: string;
-    channel_id?: string;
-    channel_name?: string;
-    channel_display_name?: string;
-    channel_type?: string;
-    sender_name?: string;
-    team_id?: string;
-  };
-  broadcast?: {
-    channel_id?: string;
-    team_id?: string;
-    user_id?: string;
-  };
-};
 
 const RECENT_MATTERMOST_MESSAGE_TTL_MS = 5 * 60_000;
 const RECENT_MATTERMOST_MESSAGE_MAX = 2000;
@@ -894,6 +889,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
 
   const wsUrl = buildMattermostWsUrl(baseUrl);
   let seq = 1;
+<<<<<<< HEAD
 
   const connectOnce = async (): Promise<void> => {
     const ws = new WebSocket(wsUrl);
@@ -981,4 +977,30 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
+=======
+  const connectOnce = createMattermostConnectOnce({
+    wsUrl,
+    botToken,
+    abortSignal: opts.abortSignal,
+    statusSink: opts.statusSink,
+    runtime,
+    webSocketFactory: opts.webSocketFactory,
+    nextSeq: () => seq++,
+    onPosted: async (post, payload) => {
+      await debouncer.enqueue({ post, payload });
+    },
+  });
+
+  await runWithReconnect(connectOnce, {
+    abortSignal: opts.abortSignal,
+    jitterRatio: 0.2,
+    onError: (err) => {
+      runtime.error?.(`mattermost connection failed: ${String(err)}`);
+      opts.statusSink?.({ lastError: String(err), connected: false });
+    },
+    onReconnect: (delayMs) => {
+      runtime.log?.(`mattermost reconnecting in ${Math.round(delayMs / 1000)}s`);
+    },
+  });
+>>>>>>> edbd86074 (refactor(mattermost): extract websocket monitor and reconnect policies)
 }
