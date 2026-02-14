@@ -2,8 +2,12 @@ import path from "node:path";
 
 import type { MoltbotConfig } from "../config/config.js";
 import { CONFIG_DIR } from "../utils.js";
+<<<<<<< HEAD
 import { hasBinary, isConfigPathTruthy, resolveConfigPath, resolveHookConfig } from "./config.js";
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
+=======
+import { hasBinary, isConfigPathTruthy, resolveHookConfig } from "./config.js";
+>>>>>>> ebc68861a (fix: remove unused imports)
 import { loadWorkspaceHookEntries } from "./workspace.js";
 
 export type HookStatusConfigCheck = {
