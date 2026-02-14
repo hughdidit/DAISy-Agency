@@ -23,7 +23,10 @@
     "@sinclair/typebox": "0.34.48",
     "zod": "^4.3.6"
   },
+<<<<<<< HEAD
 >>>>>>> dca8cf958 (chore(deps): update deps)
+=======
+>>>>>>> c76288bdf (fix(slack): download all files in multi-image messages (#15447))
   "devDependencies": {
     "openclaw": "workspace:*"
   },
