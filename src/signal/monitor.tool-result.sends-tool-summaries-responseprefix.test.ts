@@ -11,7 +11,6 @@ import { peekSystemEvents } from "../infra/system-events.js";
 >>>>>>> 20cefd78c (refactor(test): share signal tool result test setup)
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { normalizeE164 } from "../utils.js";
-import { monitorSignalProvider } from "./monitor.js";
 import {
   config,
   flush,
@@ -22,6 +21,7 @@ import {
 
 installSignalToolResultTestHooks();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 vi.mock("../config/config.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/config.js")>();
@@ -93,6 +93,11 @@ beforeEach(() => {
   resetSystemEventsForTest();
 });
 =======
+=======
+// Import after the harness registers `vi.mock(...)` for Signal internals.
+const { monitorSignalProvider } = await import("./monitor.js");
+
+>>>>>>> 43f75e53b (test: fix TS2742 in harness exports)
 const {
   replyMock,
   sendMock,

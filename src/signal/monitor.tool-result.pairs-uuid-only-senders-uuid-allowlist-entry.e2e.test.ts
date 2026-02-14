@@ -5,8 +5,11 @@ import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import { resetSystemEventsForTest } from "../infra/system-events.js";
 =======
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> 20cefd78c (refactor(test): share signal tool result test setup)
 import { monitorSignalProvider } from "./monitor.js";
+=======
+>>>>>>> 43f75e53b (test: fix TS2742 in harness exports)
 import {
   config,
   flush,
@@ -17,6 +20,7 @@ import {
 
 installSignalToolResultTestHooks();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 vi.mock("../config/config.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/config.js")>();
@@ -83,6 +87,11 @@ beforeEach(() => {
   resetSystemEventsForTest();
 });
 =======
+=======
+// Import after the harness registers `vi.mock(...)` for Signal internals.
+const { monitorSignalProvider } = await import("./monitor.js");
+
+>>>>>>> 43f75e53b (test: fix TS2742 in harness exports)
 const { replyMock, sendMock, streamMock, upsertPairingRequestMock } =
   getSignalToolResultTestMocks();
 >>>>>>> 20cefd78c (refactor(test): share signal tool result test setup)
