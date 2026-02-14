@@ -175,6 +175,47 @@ describe("web media loading", () => {
     fetchMock.mockRestore();
   });
 
+<<<<<<< HEAD
+=======
+  it("blocks private network URL fetches (SSRF guard)", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+
+    await expect(loadWebMedia("http://127.0.0.1:8080/internal-api", 1024 * 1024)).rejects.toThrow(
+      /blocked|private|internal/i,
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    fetchMock.mockRestore();
+  });
+
+  it("blocks cloud metadata hostnames (SSRF guard)", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+
+    await expect(
+      loadWebMedia("http://metadata.google.internal/computeMetadata/v1/", 1024 * 1024),
+    ).rejects.toThrow(/blocked|private|internal|metadata/i);
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    fetchMock.mockRestore();
+  });
+
+  it("respects maxBytes for raw URL fetches", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      body: true,
+      arrayBuffer: async () => Buffer.alloc(2048).buffer,
+      headers: { get: () => "image/png" },
+      status: 200,
+    } as Response);
+
+    await expect(loadWebMediaRaw("https://example.com/too-big.png", 1024)).rejects.toThrow(
+      /exceeds maxBytes 1024/i,
+    );
+
+    fetchMock.mockRestore();
+  });
+
+>>>>>>> 7cc6add9b (test(web): add SSRF guard cases)
   it("uses content-disposition filename when available", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
       ok: true,
