@@ -139,6 +139,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 4133f4bd3 (refactor(tui): clarify searchable select list width layout (#16378))
 =======
 - Memory/QMD: cap QMD command output buffering to prevent memory exhaustion from pathological `qmd` command output.
+- Memory/QMD: parse qmd scope keys once per request to avoid repeated parsing in scope checks.
 - Memory/QMD: query QMD index using exact docid matches before falling back to prefix lookup for better recall correctness and index efficiency.
 - Memory/QMD: make QMD result JSON parsing resilient to noisy command output by extracting the first JSON array from noisy `stdout`.
 - Memory/QMD: pass result limits to `search`/`vsearch` commands so QMD can cap results earlier.
