@@ -834,6 +834,7 @@ Requirements (Telegram Bot API 9.3+):
 
 Config:
 
+<<<<<<< HEAD
 - `channels.telegram.streamMode: "off" | "partial" | "block"` (default: `partial`)
   - `partial`: update the draft bubble with the latest streaming text.
   - `block`: update the draft bubble in larger blocks (chunked).
@@ -841,6 +842,27 @@ Config:
 - Optional (only for `streamMode: "block"`):
   - `channels.telegram.draftChunk: { minChars?, maxChars?, breakPreference? }`
     - defaults: `minChars: 200`, `maxChars: 800`, `breakPreference: "paragraph"` (clamped to `channels.telegram.textChunkLimit`).
+=======
+  <Accordion title="Ack reactions">
+    `ackReaction` sends an acknowledgement emoji while OpenClaw is processing an inbound message.
+
+    Resolution order:
+
+    - `channels.telegram.accounts.<accountId>.ackReaction`
+    - `channels.telegram.ackReaction`
+    - `messages.ackReaction`
+    - agent identity emoji fallback (`agents.list[].identity.emoji`, else "👀")
+
+    Notes:
+
+    - Telegram expects unicode emoji (for example "👀").
+    - Use `""` to disable the reaction for a channel or account.
+
+  </Accordion>
+
+  <Accordion title="Config writes from Telegram events and commands">
+    Channel config writes are enabled by default (`configWrites !== false`).
+>>>>>>> b6069fc68 (feat: support per-channel ackReaction config (#17092) (thanks @zerone0x))
 
 Note: draft streaming is separate from **block streaming** (channel messages).
 Block streaming is off by default and requires `channels.telegram.blockStreaming: true`
