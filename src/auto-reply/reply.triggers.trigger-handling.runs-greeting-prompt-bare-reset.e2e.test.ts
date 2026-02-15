@@ -4,6 +4,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import {
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
+  runGreetingPromptForBareNewOrReset,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
@@ -64,6 +65,7 @@ installTriggerHandlingE2eTestHooks();
 describe("trigger handling", () => {
   it("runs a greeting prompt for a bare /reset", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       getRunEmbeddedPiAgentMock().mockResolvedValue({
         payloads: [{ text: "hello" }],
         meta: {
@@ -102,6 +104,9 @@ describe("trigger handling", () => {
       expect(getRunEmbeddedPiAgentMock()).toHaveBeenCalledOnce();
       const prompt = getRunEmbeddedPiAgentMock().mock.calls[0]?.[0]?.prompt ?? "";
       expect(prompt).toContain("A new session was started via /new or /reset");
+=======
+      await runGreetingPromptForBareNewOrReset({ home, body: "/reset", getReplyFromConfig });
+>>>>>>> 516cbf436 (refactor(test): dedupe trigger greeting prompt cases)
     });
   });
   it("does not reset for unauthorized /reset", async () => {

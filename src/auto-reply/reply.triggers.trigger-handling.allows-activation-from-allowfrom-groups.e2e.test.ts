@@ -1,10 +1,10 @@
-import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
   makeCfg,
+  runGreetingPromptForBareNewOrReset,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
@@ -136,6 +136,7 @@ describe("trigger handling", () => {
   });
   it("runs a greeting prompt for a bare /new", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       getRunEmbeddedPiAgentMock().mockResolvedValue({
         payloads: [{ text: "hello" }],
         meta: {
@@ -174,6 +175,9 @@ describe("trigger handling", () => {
       expect(getRunEmbeddedPiAgentMock()).toHaveBeenCalledOnce();
       const prompt = getRunEmbeddedPiAgentMock().mock.calls[0]?.[0]?.prompt ?? "";
       expect(prompt).toContain("A new session was started via /new or /reset");
+=======
+      await runGreetingPromptForBareNewOrReset({ home, body: "/new", getReplyFromConfig });
+>>>>>>> 516cbf436 (refactor(test): dedupe trigger greeting prompt cases)
     });
   });
 });
