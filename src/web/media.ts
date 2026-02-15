@@ -37,6 +37,48 @@ type WebMediaOptions = {
 >>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
 };
 
+<<<<<<< HEAD
+=======
+export function getDefaultLocalRoots(): string[] {
+  return [
+    os.tmpdir(),
+    path.join(STATE_DIR, "media"),
+    path.join(STATE_DIR, "agents"),
+    path.join(STATE_DIR, "workspace"),
+    path.join(STATE_DIR, "sandboxes"),
+  ];
+}
+
+async function assertLocalMediaAllowed(
+  mediaPath: string,
+  localRoots: string[] | "any" | undefined,
+): Promise<void> {
+  if (localRoots === "any") {
+    return;
+  }
+  const roots = localRoots ?? getDefaultLocalRoots();
+  // Resolve symlinks so a symlink under /tmp pointing to /etc/passwd is caught.
+  let resolved: string;
+  try {
+    resolved = await fs.realpath(mediaPath);
+  } catch {
+    resolved = path.resolve(mediaPath);
+  }
+  for (const root of roots) {
+    let resolvedRoot: string;
+    try {
+      resolvedRoot = await fs.realpath(root);
+    } catch {
+      resolvedRoot = path.resolve(root);
+    }
+    if (resolved === resolvedRoot || resolved.startsWith(resolvedRoot + path.sep)) {
+      return;
+    }
+  }
+  throw new Error(`Local media path is not under an allowed directory: ${mediaPath}`);
+}
+
+>>>>>>> 9f368ac9e (fix: media allowlist finalize (#16697) (thanks @tyler6204))
 const HEIC_MIME_RE = /^image\/hei[cf]$/i;
 const HEIC_EXT_RE = /\.(heic|heif)$/i;
 const MB = 1024 * 1024;
