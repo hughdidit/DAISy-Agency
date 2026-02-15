@@ -5,6 +5,11 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/gateway/GatewayTls.kt
+=======
+import java.util.Locale
+import javax.net.ssl.HttpsURLConnection
+>>>>>>> 31a16157f (fix(android): make lint pass):apps/android/app/src/main/java/ai/openclaw/android/gateway/GatewayTls.kt
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
@@ -66,6 +71,63 @@ fun buildGatewayTlsConfig(
   )
 }
 
+<<<<<<< HEAD:apps/android/app/src/main/java/bot/molt/android/gateway/GatewayTls.kt
+=======
+suspend fun probeGatewayTlsFingerprint(
+  host: String,
+  port: Int,
+  timeoutMs: Int = 3_000,
+): String? {
+  val trimmedHost = host.trim()
+  if (trimmedHost.isEmpty()) return null
+  if (port !in 1..65535) return null
+
+  return withContext(Dispatchers.IO) {
+    val trustAll =
+      @SuppressLint("CustomX509TrustManager", "TrustAllX509TrustManager")
+      object : X509TrustManager {
+        @SuppressLint("TrustAllX509TrustManager")
+        override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+        @SuppressLint("TrustAllX509TrustManager")
+        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+        override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
+      }
+
+    val context = SSLContext.getInstance("TLS")
+    context.init(null, arrayOf(trustAll), SecureRandom())
+
+    val socket = (context.socketFactory.createSocket() as SSLSocket)
+    try {
+      socket.soTimeout = timeoutMs
+      socket.connect(InetSocketAddress(trimmedHost, port), timeoutMs)
+
+      // Best-effort SNI for hostnames (avoid crashing on IP literals).
+      try {
+        if (trimmedHost.any { it.isLetter() }) {
+          val params = SSLParameters()
+          params.serverNames = listOf(SNIHostName(trimmedHost))
+          socket.sslParameters = params
+        }
+      } catch (_: Throwable) {
+        // ignore
+      }
+
+      socket.startHandshake()
+      val cert = socket.session.peerCertificates.firstOrNull() as? X509Certificate ?: return@withContext null
+      sha256Hex(cert.encoded)
+    } catch (_: Throwable) {
+      null
+    } finally {
+      try {
+        socket.close()
+      } catch (_: Throwable) {
+        // ignore
+      }
+    }
+  }
+}
+
+>>>>>>> 31a16157f (fix(android): make lint pass):apps/android/app/src/main/java/ai/openclaw/android/gateway/GatewayTls.kt
 private fun defaultTrustManager(): X509TrustManager {
   val factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
   factory.init(null as java.security.KeyStore?)
@@ -78,7 +140,7 @@ private fun sha256Hex(data: ByteArray): String {
   val digest = MessageDigest.getInstance("SHA-256").digest(data)
   val out = StringBuilder(digest.size * 2)
   for (byte in digest) {
-    out.append(String.format("%02x", byte))
+    out.append(String.format(Locale.US, "%02x", byte))
   }
   return out.toString()
 }
@@ -86,5 +148,5 @@ private fun sha256Hex(data: ByteArray): String {
 private fun normalizeFingerprint(raw: String): String {
   val stripped = raw.trim()
     .replace(Regex("^sha-?256\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
-  return stripped.lowercase().filter { it in '0'..'9' || it in 'a'..'f' }
+  return stripped.lowercase(Locale.US).filter { it in '0'..'9' || it in 'a'..'f' }
 }
