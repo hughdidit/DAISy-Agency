@@ -1,10 +1,12 @@
-import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import { promisify } from "node:util";
 <<<<<<< HEAD
 import { colorize, isRich, theme } from "../terminal/theme.js";
 =======
+=======
+>>>>>>> f33031bc9 (refactor: dedupe daemon exec wrappers)
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import {
@@ -13,7 +15,11 @@ import {
   resolveGatewaySystemdServiceName,
 } from "./constants.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import { execFileUtf8 } from "./exec-file.js";
+>>>>>>> f33031bc9 (refactor: dedupe daemon exec wrappers)
 import { formatLine, toPosixPath } from "./output.js";
 import { resolveHomeDir } from "./paths.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
@@ -30,8 +36,6 @@ import {
   parseSystemdEnvAssignment,
   parseSystemdExecStart,
 } from "./systemd-unit.js";
-
-const execFileAsync = promisify(execFile);
 
 function resolveSystemdUnitPathForName(
   env: Record<string, string | undefined>,
@@ -151,29 +155,7 @@ export function parseSystemdShow(output: string): SystemdServiceInfo {
 async function execSystemctl(
   args: string[],
 ): Promise<{ stdout: string; stderr: string; code: number }> {
-  try {
-    const { stdout, stderr } = await execFileAsync("systemctl", args, {
-      encoding: "utf8",
-    });
-    return {
-      stdout: String(stdout ?? ""),
-      stderr: String(stderr ?? ""),
-      code: 0,
-    };
-  } catch (error) {
-    const e = error as {
-      stdout?: unknown;
-      stderr?: unknown;
-      code?: unknown;
-      message?: unknown;
-    };
-    return {
-      stdout: typeof e.stdout === "string" ? e.stdout : "",
-      stderr:
-        typeof e.stderr === "string" ? e.stderr : typeof e.message === "string" ? e.message : "",
-      code: typeof e.code === "number" ? e.code : 1,
-    };
-  }
+  return await execFileUtf8("systemctl", args);
 }
 
 export async function isSystemdUserServiceAvailable(): Promise<boolean> {
