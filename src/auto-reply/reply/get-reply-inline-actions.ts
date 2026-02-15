@@ -5,6 +5,18 @@ import type { SessionEntry } from "../../config/sessions.js";
 import type { MsgContext, TemplateContext } from "../templating.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
+<<<<<<< HEAD
+=======
+import type { InlineDirectives } from "./directive-handling.js";
+import type { createModelSelectionState } from "./model-selection.js";
+import type { TypingController } from "./typing.js";
+import { createOpenClawTools } from "../../agents/openclaw-tools.js";
+import { getChannelDock } from "../../channels/dock.js";
+import { logVerbose } from "../../globals.js";
+import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
+import { listChatCommands } from "../commands-registry.js";
+import { listSkillCommandsForWorkspace, resolveSkillCommandInvocation } from "../skill-commands.js";
+>>>>>>> 8fdde0429 (perf(auto-reply): avoid skill scans for inline directives)
 import { getAbortMemory } from "./abort.js";
 import { buildStatusReply, handleCommands } from "./commands.js";
 import type { InlineDirectives } from "./directive-handling.js";
@@ -16,6 +28,45 @@ import { listSkillCommandsForWorkspace, resolveSkillCommandInvocation } from "..
 import { logVerbose } from "../../globals.js";
 import { createMoltbotTools } from "../../agents/moltbot-tools.js";
 import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
+
+const builtinSlashCommands = (() => {
+  const reserved = new Set<string>();
+  for (const command of listChatCommands()) {
+    if (command.nativeName) {
+      reserved.add(command.nativeName.toLowerCase());
+    }
+    for (const alias of command.textAliases) {
+      const trimmed = alias.trim();
+      if (!trimmed.startsWith("/")) {
+        continue;
+      }
+      reserved.add(trimmed.slice(1).toLowerCase());
+    }
+  }
+  for (const name of [
+    "think",
+    "verbose",
+    "reasoning",
+    "elevated",
+    "exec",
+    "model",
+    "status",
+    "queue",
+  ]) {
+    reserved.add(name);
+  }
+  return reserved;
+})();
+
+function resolveSlashCommandName(commandBodyNormalized: string): string | null {
+  const trimmed = commandBodyNormalized.trim();
+  if (!trimmed.startsWith("/")) {
+    return null;
+  }
+  const match = trimmed.match(/^\/([^\s:]+)(?::|\s|$)/);
+  const name = match?.[1]?.trim().toLowerCase() ?? "";
+  return name ? name : null;
+}
 
 export type InlineActionResult =
   | { kind: "reply"; reply: ReplyPayload | ReplyPayload[] | undefined }
@@ -135,7 +186,12 @@ export async function handleInlineActions(params: {
   let directives = initialDirectives;
   let cleanedBody = initialCleanedBody;
 
-  const shouldLoadSkillCommands = command.commandBodyNormalized.startsWith("/");
+  const slashCommandName = resolveSlashCommandName(command.commandBodyNormalized);
+  const shouldLoadSkillCommands =
+    allowTextCommands &&
+    slashCommandName !== null &&
+    // `/skill …` needs the full skill command list.
+    (slashCommandName === "skill" || !builtinSlashCommands.has(slashCommandName));
   const skillCommands =
     shouldLoadSkillCommands && params.skillCommands
       ? params.skillCommands
