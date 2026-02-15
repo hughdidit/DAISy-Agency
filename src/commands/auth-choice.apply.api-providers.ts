@@ -145,6 +145,35 @@ export async function applyAuthChoiceApiProviders(
     }
   }
 
+  async function ensureMoonshotApiKeyCredential(promptMessage: string): Promise<void> {
+    let hasCredential = false;
+
+    if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "moonshot") {
+      await setMoonshotApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      hasCredential = true;
+    }
+
+    const envKey = resolveEnvApiKey("moonshot");
+    if (envKey) {
+      const useExisting = await params.prompter.confirm({
+        message: `Use existing MOONSHOT_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
+        initialValue: true,
+      });
+      if (useExisting) {
+        await setMoonshotApiKey(envKey.apiKey, params.agentDir);
+        hasCredential = true;
+      }
+    }
+
+    if (!hasCredential) {
+      const key = await params.prompter.text({
+        message: promptMessage,
+        validate: validateApiKeyInput,
+      });
+      await setMoonshotApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
+    }
+  }
+
   if (authChoice === "openrouter-api-key") {
 <<<<<<< HEAD
     const store = ensureAuthProfileStore(params.agentDir, {
@@ -442,6 +471,7 @@ export async function applyAuthChoiceApiProviders(
   }
 
   if (authChoice === "moonshot-api-key") {
+<<<<<<< HEAD
     let hasCredential = false;
 
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "moonshot") {
@@ -467,6 +497,9 @@ export async function applyAuthChoiceApiProviders(
       });
       await setMoonshotApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
     }
+=======
+    await ensureMoonshotApiKeyCredential("Enter Moonshot API key");
+>>>>>>> adee04824 (refactor(commands): dedupe moonshot api key prompt)
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "moonshot:default",
       provider: "moonshot",
@@ -489,6 +522,7 @@ export async function applyAuthChoiceApiProviders(
   }
 
   if (authChoice === "moonshot-api-key-cn") {
+<<<<<<< HEAD
     let hasCredential = false;
 
     if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "moonshot") {
@@ -514,6 +548,9 @@ export async function applyAuthChoiceApiProviders(
       });
       await setMoonshotApiKey(normalizeApiKeyInput(String(key)), params.agentDir);
     }
+=======
+    await ensureMoonshotApiKeyCredential("Enter Moonshot API key (.cn)");
+>>>>>>> adee04824 (refactor(commands): dedupe moonshot api key prompt)
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "moonshot:default",
       provider: "moonshot",
