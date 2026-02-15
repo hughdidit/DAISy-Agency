@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
 =======
 import {
+  buildOauthProviderAuthResult,
   emptyPluginConfigSchema,
   isWSL2Sync,
   type OpenClawPluginApi,
@@ -400,37 +401,19 @@ const antigravityPlugin = {
                 progress: spin,
               });
 
-              const profileId = `google-antigravity:${result.email ?? "default"}`;
-              return {
-                profiles: [
-                  {
-                    profileId,
-                    credential: {
-                      type: "oauth",
-                      provider: "google-antigravity",
-                      access: result.access,
-                      refresh: result.refresh,
-                      expires: result.expires,
-                      email: result.email,
-                      projectId: result.projectId,
-                    },
-                  },
-                ],
-                configPatch: {
-                  agents: {
-                    defaults: {
-                      models: {
-                        [DEFAULT_MODEL]: {},
-                      },
-                    },
-                  },
-                },
+              return buildOauthProviderAuthResult({
+                providerId: "google-antigravity",
                 defaultModel: DEFAULT_MODEL,
+                access: result.access,
+                refresh: result.refresh,
+                expires: result.expires,
+                email: result.email,
+                credentialExtra: { projectId: result.projectId },
                 notes: [
                   "Antigravity uses Google Cloud project quotas.",
                   "Enable Gemini for Google Cloud on your project if requests fail.",
                 ],
-              };
+              });
             } catch (err) {
               spin.stop("Antigravity OAuth failed");
               throw err;
