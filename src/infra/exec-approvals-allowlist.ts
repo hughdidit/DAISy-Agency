@@ -216,6 +216,14 @@ export function evaluateShellAllowlist(params: {
   autoAllowSkills?: boolean;
   platform?: string | null;
 }): ExecAllowlistAnalysis {
+  const analysisFailure = (): ExecAllowlistAnalysis => ({
+    analysisOk: false,
+    allowlistSatisfied: false,
+    allowlistMatches: [],
+    segments: [],
+    segmentSatisfiedBy: [],
+  });
+
   const chainParts = isWindowsPlatform(params.platform) ? null : splitCommandChain(params.command);
   if (!chainParts) {
     const analysis = analyzeShellCommand({
@@ -225,12 +233,16 @@ export function evaluateShellAllowlist(params: {
       platform: params.platform,
     });
     if (!analysis.ok) {
+<<<<<<< HEAD
       return {
         analysisOk: false,
         allowlistSatisfied: false,
         allowlistMatches: [],
         segments: [],
       };
+=======
+      return analysisFailure();
+>>>>>>> e7f65b4aa (refactor(infra): dedupe exec allowlist analysis failure)
     }
     const evaluation = evaluateExecAllowlist({
       analysis,
@@ -259,12 +271,16 @@ export function evaluateShellAllowlist(params: {
       platform: params.platform,
     });
     if (!analysis.ok) {
+<<<<<<< HEAD
       return {
         analysisOk: false,
         allowlistSatisfied: false,
         allowlistMatches: [],
         segments: [],
       };
+=======
+      return analysisFailure();
+>>>>>>> e7f65b4aa (refactor(infra): dedupe exec allowlist analysis failure)
     }
 
     segments.push(...analysis.segments);
