@@ -159,7 +159,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> c1feda14f (docs(changelog): reorder 2026.2.14 notes)
 - Cron: prevent `cron list`/`cron status` from silently skipping past-due recurring jobs by using maintenance recompute semantics. (#16156) Thanks @zerone0x.
 - Cron: repair missing/corrupt `nextRunAtMs` for the updated job without globally recomputing unrelated due jobs during `cron update`. (#15750)
+<<<<<<< HEAD
 >>>>>>> 2fa78c17d (Changelog: credit cron delivery fix)
+=======
+- Cron: skip missed-job replay on startup for jobs interrupted mid-run (stale `runningAtMs` markers), preventing restart loops for self-restarting jobs such as update tasks. (#16694) Thanks @sbmilburn.
+>>>>>>> 70cf0e4d4 (chore (changelog): note cron interrupted-start replay fix)
 - Discord: prefer gateway guild id when logging inbound messages so cached-miss guilds do not appear as `guild=dm`. Thanks @thewilloftheshadow.
 <<<<<<< HEAD
 <<<<<<< HEAD
