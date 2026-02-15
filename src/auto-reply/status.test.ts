@@ -345,12 +345,50 @@ describe("buildStatusMessage", () => {
     expect(text).not.toContain("💵 Cost:");
   });
 
+  function writeTranscriptUsageLog(params: {
+    dir: string;
+    agentId: string;
+    sessionId: string;
+    usage: {
+      input: number;
+      output: number;
+      cacheRead: number;
+      cacheWrite: number;
+      totalTokens: number;
+    };
+  }) {
+    const logPath = path.join(
+      params.dir,
+      ".openclaw",
+      "agents",
+      params.agentId,
+      "sessions",
+      `${params.sessionId}.jsonl`,
+    );
+    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    fs.writeFileSync(
+      logPath,
+      [
+        JSON.stringify({
+          type: "message",
+          message: {
+            role: "assistant",
+            model: "claude-opus-4-5",
+            usage: params.usage,
+          },
+        }),
+      ].join("\n"),
+      "utf-8",
+    );
+  }
+
   it("prefers cached prompt tokens from the session log", async () => {
     await withTempHome(
       async (dir) => {
         const sessionId = "sess-1";
-        const logPath = path.join(
+        writeTranscriptUsageLog({
           dir,
+<<<<<<< HEAD
           ".clawdbot",
           "agents",
           "main",
@@ -379,6 +417,18 @@ describe("buildStatusMessage", () => {
           ].join("\n"),
           "utf-8",
         );
+=======
+          agentId: "main",
+          sessionId,
+          usage: {
+            input: 1,
+            output: 2,
+            cacheRead: 1000,
+            cacheWrite: 0,
+            totalTokens: 1003,
+          },
+        });
+>>>>>>> 7ea14a1c8 (refactor(test): share status transcript log writer)
 
         const text = buildStatusMessage({
           agent: {
@@ -408,36 +458,18 @@ describe("buildStatusMessage", () => {
     await withTempHome(
       async (dir) => {
         const sessionId = "sess-worker1";
-        const logPath = path.join(
+        writeTranscriptUsageLog({
           dir,
-          ".openclaw",
-          "agents",
-          "worker1",
-          "sessions",
-          `${sessionId}.jsonl`,
-        );
-        fs.mkdirSync(path.dirname(logPath), { recursive: true });
-
-        fs.writeFileSync(
-          logPath,
-          [
-            JSON.stringify({
-              type: "message",
-              message: {
-                role: "assistant",
-                model: "claude-opus-4-5",
-                usage: {
-                  input: 1,
-                  output: 2,
-                  cacheRead: 1000,
-                  cacheWrite: 0,
-                  totalTokens: 1003,
-                },
-              },
-            }),
-          ].join("\n"),
-          "utf-8",
-        );
+          agentId: "worker1",
+          sessionId,
+          usage: {
+            input: 1,
+            output: 2,
+            cacheRead: 1000,
+            cacheWrite: 0,
+            totalTokens: 1003,
+          },
+        });
 
         const text = buildStatusMessage({
           agent: {
@@ -469,36 +501,18 @@ describe("buildStatusMessage", () => {
     await withTempHome(
       async (dir) => {
         const sessionId = "sess-worker2";
-        const logPath = path.join(
+        writeTranscriptUsageLog({
           dir,
-          ".openclaw",
-          "agents",
-          "worker2",
-          "sessions",
-          `${sessionId}.jsonl`,
-        );
-        fs.mkdirSync(path.dirname(logPath), { recursive: true });
-
-        fs.writeFileSync(
-          logPath,
-          [
-            JSON.stringify({
-              type: "message",
-              message: {
-                role: "assistant",
-                model: "claude-opus-4-5",
-                usage: {
-                  input: 2,
-                  output: 3,
-                  cacheRead: 1200,
-                  cacheWrite: 0,
-                  totalTokens: 1205,
-                },
-              },
-            }),
-          ].join("\n"),
-          "utf-8",
-        );
+          agentId: "worker2",
+          sessionId,
+          usage: {
+            input: 2,
+            output: 3,
+            cacheRead: 1200,
+            cacheWrite: 0,
+            totalTokens: 1205,
+          },
+        });
 
         const text = buildStatusMessage({
           agent: {
