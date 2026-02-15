@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { randomUUID } from "node:crypto";
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
+import type { ResolvedGatewayAuth } from "./auth.js";
 import { createDefaultDeps } from "../cli/deps.js";
 import { agentCommand } from "../commands/agent.js";
 import { emitAgentEvent, onAgentEvent } from "../infra/agent-events.js";
@@ -9,16 +10,15 @@ import {
   buildAgentMessageFromConversationEntries,
   type ConversationEntry,
 } from "./agent-prompt.js";
-import { authorizeGatewayConnect, type ResolvedGatewayAuth } from "./auth.js";
+import { authorizeGatewayBearerRequestOrReply } from "./http-auth-helpers.js";
 import {
   readJsonBodyOrError,
-  sendGatewayAuthFailure,
   sendJson,
   sendMethodNotAllowed,
   setSseHeaders,
   writeDone,
 } from "./http-common.js";
-import { getBearerToken, resolveAgentIdForRequest, resolveSessionKey } from "./http-utils.js";
+import { resolveAgentIdForRequest, resolveSessionKey } from "./http-utils.js";
 
 type OpenAiHttpOptions = {
   auth: ResolvedGatewayAuth;
@@ -160,16 +160,14 @@ export async function handleOpenAiHttpRequest(
     return true;
   }
 
-  const token = getBearerToken(req);
-  const authResult = await authorizeGatewayConnect({
-    auth: opts.auth,
-    connectAuth: { token, password: token },
+  const authorized = await authorizeGatewayBearerRequestOrReply({
     req,
+    res,
+    auth: opts.auth,
     trustedProxies: opts.trustedProxies,
     rateLimiter: opts.rateLimiter,
   });
-  if (!authResult.ok) {
-    sendGatewayAuthFailure(res, authResult);
+  if (!authorized) {
     return true;
   }
 
