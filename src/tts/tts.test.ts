@@ -4,6 +4,7 @@ import { completeSimple } from "@mariozechner/pi-ai";
 
 import { getApiKeyForModel } from "../agents/model-auth.js";
 import { resolveModel } from "../agents/pi-embedded-runner/model.js";
+import { withEnv } from "../test-utils/env.js";
 import * as tts from "./tts.js";
 
 vi.mock("@mariozechner/pi-ai", () => ({
@@ -367,38 +368,6 @@ describe("tts", () => {
     const baseCfg = {
       agents: { defaults: { model: { primary: "openai/gpt-4o-mini" } } },
       messages: { tts: {} },
-    };
-
-    const restoreEnv = (snapshot: Record<string, string | undefined>) => {
-      const keys = ["OPENAI_API_KEY", "ELEVENLABS_API_KEY", "XI_API_KEY"] as const;
-      for (const key of keys) {
-        const value = snapshot[key];
-        if (value === undefined) {
-          delete process.env[key];
-        } else {
-          process.env[key] = value;
-        }
-      }
-    };
-
-    const withEnv = (env: Record<string, string | undefined>, run: () => void) => {
-      const snapshot = {
-        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-        ELEVENLABS_API_KEY: process.env.ELEVENLABS_API_KEY,
-        XI_API_KEY: process.env.XI_API_KEY,
-      };
-      try {
-        for (const [key, value] of Object.entries(env)) {
-          if (value === undefined) {
-            delete process.env[key];
-          } else {
-            process.env[key] = value;
-          }
-        }
-        run();
-      } finally {
-        restoreEnv(snapshot);
-      }
     };
 
     it("prefers OpenAI when no provider is configured and API key exists", () => {

@@ -1,30 +1,10 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
+=======
+import { withEnv } from "../../test-utils/env.js";
+>>>>>>> 65ea200c3 (refactor(test): share env var helpers)
 import { __testing } from "./web-search.js";
-
-function withEnv<T>(env: Record<string, string | undefined>, fn: () => T): T {
-  const prev: Record<string, string | undefined> = {};
-  for (const [key, value] of Object.entries(env)) {
-    prev[key] = process.env[key];
-    if (value === undefined) {
-      // Make tests hermetic even on machines with real keys set.
-      delete process.env[key];
-    } else {
-      process.env[key] = value;
-    }
-  }
-  try {
-    return fn();
-  } finally {
-    for (const [key, value] of Object.entries(prev)) {
-      if (value === undefined) {
-        delete process.env[key];
-      } else {
-        process.env[key] = value;
-      }
-    }
-  }
-}
 
 const {
   inferPerplexityBaseUrlFromApiKey,
