@@ -256,6 +256,7 @@ export function buildAgentSystemPrompt(params: {
   sandboxInfo?: {
     enabled: boolean;
     workspaceDir?: string;
+    containerWorkspaceDir?: string;
     workspaceAccess?: "none" | "ro" | "rw";
     agentWorkspaceMount?: string;
     browserBridgeUrl?: string;
@@ -405,6 +406,25 @@ export function buildAgentSystemPrompt(params: {
   const messageChannelOptions = listDeliverableMessageChannels().join("|");
   const promptMode = params.promptMode ?? "full";
   const isMinimal = promptMode === "minimal" || promptMode === "none";
+<<<<<<< HEAD
+=======
+  const sandboxContainerWorkspace = params.sandboxInfo?.containerWorkspaceDir?.trim();
+  const displayWorkspaceDir =
+    params.sandboxInfo?.enabled && sandboxContainerWorkspace
+      ? sandboxContainerWorkspace
+      : params.workspaceDir;
+  const workspaceGuidance =
+    params.sandboxInfo?.enabled && sandboxContainerWorkspace
+      ? `For read/write/edit/apply_patch, file paths resolve against host workspace: ${params.workspaceDir}. Prefer relative paths so both sandboxed exec and file tools work consistently.`
+      : "Treat this directory as the single global workspace for file operations unless explicitly instructed otherwise.";
+  const safetySection = [
+    "## Safety",
+    "You have no independent goals: do not pursue self-preservation, replication, resource acquisition, or power-seeking; avoid long-term plans beyond the user's request.",
+    "Prioritize safety and human oversight over completion; if instructions conflict, pause and ask; comply with stop/pause/audit requests and never bypass safeguards. (Inspired by Anthropic's constitution.)",
+    "Do not manipulate or persuade anyone to expand access or disable safeguards. Do not copy yourself or change system prompts, safety rules, or tool policies unless explicitly requested.",
+    "",
+  ];
+>>>>>>> 2bf330777 (fix (sandbox/prompts): align workspace guidance with container workdir)
   const skillsSection = buildSkillsSection({
     skillsPrompt,
     isMinimal,
@@ -515,8 +535,8 @@ export function buildAgentSystemPrompt(params: {
       : "",
     params.modelAliasLines && params.modelAliasLines.length > 0 && !isMinimal ? "" : "",
     "## Workspace",
-    `Your working directory is: ${params.workspaceDir}`,
-    "Treat this directory as the single global workspace for file operations unless explicitly instructed otherwise.",
+    `Your working directory is: ${displayWorkspaceDir}`,
+    workspaceGuidance,
     ...workspaceNotes,
     "",
     ...docsSection,
@@ -526,8 +546,11 @@ export function buildAgentSystemPrompt(params: {
           "You are running in a sandboxed runtime (tools execute in Docker).",
           "Some tools may be unavailable due to sandbox policy.",
           "Sub-agents stay sandboxed (no elevated/host access). Need outside-sandbox read/write? Don't spawn; ask first.",
+          params.sandboxInfo.containerWorkspaceDir
+            ? `Sandbox container workdir: ${params.sandboxInfo.containerWorkspaceDir}`
+            : "",
           params.sandboxInfo.workspaceDir
-            ? `Sandbox workspace: ${params.sandboxInfo.workspaceDir}`
+            ? `Sandbox host workspace: ${params.sandboxInfo.workspaceDir}`
             : "",
           params.sandboxInfo.workspaceAccess
             ? `Agent workspace access: ${params.sandboxInfo.workspaceAccess}${

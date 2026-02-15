@@ -146,7 +146,12 @@ describe("buildEmbeddedSandboxInfo", () => {
 
     expect(buildEmbeddedSandboxInfo(sandbox)).toEqual({
       enabled: true,
+<<<<<<< HEAD
       workspaceDir: "/tmp/moltbot-sandbox",
+=======
+      workspaceDir: "/tmp/openclaw-sandbox",
+      containerWorkspaceDir: "/workspace",
+>>>>>>> 2bf330777 (fix (sandbox/prompts): align workspace guidance with container workdir)
       workspaceAccess: "none",
       agentWorkspaceMount: undefined,
       browserBridgeUrl: "http://localhost:9222",
@@ -190,7 +195,12 @@ describe("buildEmbeddedSandboxInfo", () => {
       }),
     ).toEqual({
       enabled: true,
+<<<<<<< HEAD
       workspaceDir: "/tmp/moltbot-sandbox",
+=======
+      workspaceDir: "/tmp/openclaw-sandbox",
+      containerWorkspaceDir: "/workspace",
+>>>>>>> 2bf330777 (fix (sandbox/prompts): align workspace guidance with container workdir)
       workspaceAccess: "none",
       agentWorkspaceMount: undefined,
       hostBrowserAllowed: false,
