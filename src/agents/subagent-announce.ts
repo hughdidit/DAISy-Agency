@@ -1,8 +1,11 @@
+<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 import path from "node:path";
 
 =======
+=======
+>>>>>>> ade11ec89 (fix(announce): use deterministic idempotency keys to prevent duplicate subagent announces (#17150))
 import { resolveQueueSettings } from "../auto-reply/reply/queue.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import { loadConfig } from "../config/config.js";
@@ -30,7 +33,20 @@ import {
   mergeDeliveryContext,
   normalizeDeliveryContext,
 } from "../utils/delivery-context.js";
+<<<<<<< HEAD
 import { isEmbeddedPiRunActive, queueEmbeddedPiMessage } from "./pi-embedded.js";
+=======
+import {
+  buildAnnounceIdFromChildRun,
+  buildAnnounceIdempotencyKey,
+  resolveQueueAnnounceId,
+} from "./announce-idempotency.js";
+import {
+  isEmbeddedPiRunActive,
+  queueEmbeddedPiMessage,
+  waitForEmbeddedPiRunEnd,
+} from "./pi-embedded.js";
+>>>>>>> ade11ec89 (fix(announce): use deterministic idempotency keys to prevent duplicate subagent announces (#17150))
 import { type AnnounceQueueItem, enqueueAnnounce } from "./subagent-announce-queue.js";
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
 import { readLatestAssistantReply } from "./tools/agent-step.js";
@@ -120,6 +136,15 @@ async function sendAnnounce(item: AnnounceQueueItem) {
   const origin = item.origin;
   const threadId =
     origin?.threadId != null && origin.threadId !== "" ? String(origin.threadId) : undefined;
+  // Share one announce identity across direct and queued delivery paths so
+  // gateway dedupe suppresses true retries without collapsing distinct events.
+  const idempotencyKey = buildAnnounceIdempotencyKey(
+    resolveQueueAnnounceId({
+      announceId: item.announceId,
+      sessionKey: item.sessionKey,
+      enqueuedAt: item.enqueuedAt,
+    }),
+  );
   await callGateway({
     method: "agent",
     params: {
@@ -130,7 +155,7 @@ async function sendAnnounce(item: AnnounceQueueItem) {
       to: requesterIsSubagent ? undefined : origin?.to,
       threadId: requesterIsSubagent ? undefined : threadId,
       deliver: !requesterIsSubagent,
-      idempotencyKey: crypto.randomUUID(),
+      idempotencyKey,
     },
     timeoutMs: 15_000,
   });
@@ -170,6 +195,7 @@ function loadRequesterSessionEntry(requesterSessionKey: string) {
 
 async function maybeQueueSubagentAnnounce(params: {
   requesterSessionKey: string;
+  announceId?: string;
   triggerMessage: string;
   summaryLine?: string;
   requesterOrigin?: DeliveryContext;
@@ -206,6 +232,7 @@ async function maybeQueueSubagentAnnounce(params: {
     enqueueAnnounce({
       key: canonicalKey,
       item: {
+        announceId: params.announceId,
         prompt: params.triggerMessage,
         summaryLine: params.summaryLine,
         enqueuedAt: Date.now(),
@@ -608,8 +635,13 @@ export async function runSubagentAnnounceFlow(params: {
       replyInstruction,
     ].join("\n");
 
+    const announceId = buildAnnounceIdFromChildRun({
+      childSessionKey: params.childSessionKey,
+      childRunId: params.childRunId,
+    });
     const queued = await maybeQueueSubagentAnnounce({
       requesterSessionKey: targetRequesterSessionKey,
+      announceId,
       triggerMessage,
       summaryLine: taskLabel,
       requesterOrigin: targetRequesterOrigin,
@@ -630,6 +662,10 @@ export async function runSubagentAnnounceFlow(params: {
       const { entry } = loadRequesterSessionEntry(targetRequesterSessionKey);
       directOrigin = deliveryContextFromSession(entry);
     }
+    // Use a deterministic idempotency key so the gateway dedup cache
+    // catches duplicates if this announce is also queued by the gateway-
+    // level message queue while the main session is busy (#17122).
+    const directIdempotencyKey = buildAnnounceIdempotencyKey(announceId);
     await callGateway({
       method: "agent",
       params: {
@@ -643,7 +679,7 @@ export async function runSubagentAnnounceFlow(params: {
           !requesterIsSubagent && directOrigin?.threadId != null && directOrigin.threadId !== ""
             ? String(directOrigin.threadId)
             : undefined,
-        idempotencyKey: crypto.randomUUID(),
+        idempotencyKey: directIdempotencyKey,
       },
       expectFinal: true,
       timeoutMs: 15_000,
