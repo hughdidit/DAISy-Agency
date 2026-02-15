@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveFinalAssistantText } from "./tui.js";
 =======
+=======
+import { getSlashCommands, parseCommand } from "./commands.js";
+>>>>>>> c82dc02b4 (perf(test): fold tui command parsing into tui suite)
 import { resolveFinalAssistantText, resolveTuiSessionKey } from "./tui.js";
 >>>>>>> 56b38d2fb (TUI: honor explicit session key in global scope)
 
@@ -18,6 +22,25 @@ describe("resolveFinalAssistantText", () => {
         streamedText: "partial",
       }),
     ).toBe("All done");
+  });
+});
+
+describe("tui slash commands", () => {
+  it("treats /elev as an alias for /elevated", () => {
+    expect(parseCommand("/elev on")).toEqual({ name: "elevated", args: "on" });
+  });
+
+  it("normalizes alias case", () => {
+    expect(parseCommand("/ELEV off")).toEqual({
+      name: "elevated",
+      args: "off",
+    });
+  });
+
+  it("includes gateway text commands", () => {
+    const commands = getSlashCommands({});
+    expect(commands.some((command) => command.name === "context")).toBe(true);
+    expect(commands.some((command) => command.name === "commands")).toBe(true);
   });
 });
 
