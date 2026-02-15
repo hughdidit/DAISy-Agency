@@ -60,3 +60,81 @@ describe("resolveExtraParams", () => {
     expect(result).toBeUndefined();
   });
 });
+<<<<<<< HEAD
+=======
+
+describe("applyExtraParamsToAgent", () => {
+  it("adds OpenRouter attribution headers to stream options", () => {
+    const calls: Array<SimpleStreamOptions | undefined> = [];
+    const baseStreamFn: StreamFn = (_model, _context, options) => {
+      calls.push(options);
+      return new AssistantMessageEventStream();
+    };
+    const agent = { streamFn: baseStreamFn };
+
+    applyExtraParamsToAgent(agent, undefined, "openrouter", "openrouter/auto");
+
+    const model = {
+      api: "openai-completions",
+      provider: "openrouter",
+      id: "openrouter/auto",
+    } as Model<"openai-completions">;
+    const context: Context = { messages: [] };
+
+    void agent.streamFn?.(model, context, { headers: { "X-Custom": "1" } });
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.headers).toEqual({
+      "HTTP-Referer": "https://openclaw.ai",
+      "X-Title": "OpenClaw",
+      "X-Custom": "1",
+    });
+  });
+
+  it("forces store=true for direct OpenAI Responses payloads", () => {
+    const payload = { store: false };
+    const baseStreamFn: StreamFn = (_model, _context, options) => {
+      options?.onPayload?.(payload);
+      return new AssistantMessageEventStream();
+    };
+    const agent = { streamFn: baseStreamFn };
+
+    applyExtraParamsToAgent(agent, undefined, "openai", "gpt-5");
+
+    const model = {
+      api: "openai-responses",
+      provider: "openai",
+      id: "gpt-5",
+      baseUrl: "https://api.openai.com/v1",
+    } as Model<"openai-responses">;
+    const context: Context = { messages: [] };
+
+    void agent.streamFn?.(model, context, {});
+
+    expect(payload.store).toBe(true);
+  });
+
+  it("does not force store for OpenAI Responses routed through non-OpenAI base URLs", () => {
+    const payload = { store: false };
+    const baseStreamFn: StreamFn = (_model, _context, options) => {
+      options?.onPayload?.(payload);
+      return new AssistantMessageEventStream();
+    };
+    const agent = { streamFn: baseStreamFn };
+
+    applyExtraParamsToAgent(agent, undefined, "openai", "gpt-5");
+
+    const model = {
+      api: "openai-responses",
+      provider: "openai",
+      id: "gpt-5",
+      baseUrl: "https://proxy.example.com/v1",
+    } as Model<"openai-responses">;
+    const context: Context = { messages: [] };
+
+    void agent.streamFn?.(model, context, {});
+
+    expect(payload.store).toBe(false);
+  });
+});
+>>>>>>> 909b5411b (fix (agents): force store=true for direct openai responses)
