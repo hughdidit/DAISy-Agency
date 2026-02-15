@@ -13,6 +13,7 @@ import type { PluginRegistry } from "../plugins/registry.js";
 import { getActivePluginRegistry, setActivePluginRegistry } from "../plugins/runtime.js";
 import { createOutboundTestPlugin } from "../test-utils/channel-plugins.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
+import { createRegistry } from "./server.e2e-registry-helpers.js";
 import {
   connectOk,
   getFreePort,
@@ -66,19 +67,6 @@ const whatsappPlugin = createOutboundTestPlugin({
   id: "whatsapp",
   outbound: whatsappOutbound,
   label: "WhatsApp",
-});
-
-const createRegistry = (channels: PluginRegistry["channels"]): PluginRegistry => ({
-  plugins: [],
-  tools: [],
-  channels,
-  providers: [],
-  gatewayHandlers: {},
-  httpHandlers: [],
-  httpRoutes: [],
-  cliRegistrars: [],
-  services: [],
-  diagnostics: [],
 });
 
 const whatsappRegistry = createRegistry([

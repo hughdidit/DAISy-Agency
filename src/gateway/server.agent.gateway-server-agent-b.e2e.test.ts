@@ -19,7 +19,11 @@ import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 =======
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { setRegistry } from "./server.agent.gateway-server-agent.mocks.js";
+<<<<<<< HEAD
 >>>>>>> e0d7f97c5 (refactor(test): share gateway server plugin mocks)
+=======
+import { createRegistry } from "./server.e2e-registry-helpers.js";
+>>>>>>> c3812a1ff (refactor(test): share gateway e2e registry helper)
 import {
   agentCommand,
   connectOk,
@@ -50,22 +54,6 @@ beforeAll(async () => {
 afterAll(async () => {
   ws.close();
   await server.close();
-});
-
-const _BASE_IMAGE_PNG =
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X3mIAAAAASUVORK5CYII=";
-
-const createRegistry = (channels: PluginRegistry["channels"]): PluginRegistry => ({
-  plugins: [],
-  tools: [],
-  channels,
-  providers: [],
-  gatewayHandlers: {},
-  httpHandlers: [],
-  httpRoutes: [],
-  cliRegistrars: [],
-  services: [],
-  diagnostics: [],
 });
 
 const createMSTeamsPlugin = (params?: { aliases?: string[] }): ChannelPlugin => ({
