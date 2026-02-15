@@ -1,16 +1,21 @@
 import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
+import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
 import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
 import { CONFIG_DIR } from "../utils.js";
 import { hasBinary, isConfigPathTruthy, resolveConfigPath, resolveHookConfig } from "./config.js";
 import { loadWorkspaceHookEntries } from "./workspace.js";
 
+<<<<<<< HEAD
 export type HookStatusConfigCheck = {
   path: string;
   value: unknown;
   satisfied: boolean;
 };
+=======
+export type HookStatusConfigCheck = RequirementConfigCheck;
+>>>>>>> 6f2f88d3a (refactor(status): reuse Requirements types)
 
 export type HookInstallOption = {
   id: string;
@@ -35,20 +40,8 @@ export type HookStatusEntry = {
   disabled: boolean;
   eligible: boolean;
   managedByPlugin: boolean;
-  requirements: {
-    bins: string[];
-    anyBins: string[];
-    env: string[];
-    config: string[];
-    os: string[];
-  };
-  missing: {
-    bins: string[];
-    anyBins: string[];
-    env: string[];
-    config: string[];
-    os: string[];
-  };
+  requirements: Requirements;
+  missing: Requirements;
   configChecks: HookStatusConfigCheck[];
   install: HookInstallOption[];
 };
