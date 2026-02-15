@@ -88,7 +88,31 @@ export function resolveModelTarget(params: { raw: string; cfg: MoltbotConfig }):
   return resolved.ref;
 }
 
+<<<<<<< HEAD
 export function buildAllowlistSet(cfg: MoltbotConfig): Set<string> {
+=======
+export function resolveModelKeysFromEntries(params: {
+  cfg: OpenClawConfig;
+  entries: readonly unknown[];
+}): string[] {
+  const aliasIndex = buildModelAliasIndex({
+    cfg: params.cfg,
+    defaultProvider: DEFAULT_PROVIDER,
+  });
+  return params.entries
+    .map((entry) =>
+      resolveModelRefFromString({
+        raw: String(entry ?? ""),
+        defaultProvider: DEFAULT_PROVIDER,
+        aliasIndex,
+      }),
+    )
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+    .map((entry) => modelKey(entry.ref.provider, entry.ref.model));
+}
+
+export function buildAllowlistSet(cfg: OpenClawConfig): Set<string> {
+>>>>>>> d4c7b0505 (refactor(models): dedupe fallback key parsing)
   const allowed = new Set<string>();
   const models = cfg.agents?.defaults?.models ?? {};
   for (const raw of Object.keys(models)) {
