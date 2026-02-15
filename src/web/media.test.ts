@@ -15,7 +15,12 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest
 import * as ssrf from "../infra/net/ssrf.js";
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 import { optimizeImageToPng } from "../media/image-ops.js";
+<<<<<<< HEAD
 import { loadWebMedia, optimizeImageToJpeg } from "./media.js";
+=======
+import { captureEnv } from "../test-utils/env.js";
+import { loadWebMedia, loadWebMediaRaw, optimizeImageToJpeg } from "./media.js";
+>>>>>>> f0e373b82 (refactor(test): simplify state dir env restore)
 
 let fixtureRoot = "";
 let fixtureFileCount = 0;
@@ -29,7 +34,7 @@ let alphaPngFile = "";
 let fallbackPngBuffer: Buffer;
 let fallbackPngFile = "";
 let fallbackPngCap = 0;
-let previousStateDir: string | undefined;
+let stateDirSnapshot: ReturnType<typeof captureEnv>;
 
 async function writeTempFile(buffer: Buffer, ext: string): Promise<string> {
 <<<<<<< HEAD
@@ -130,7 +135,7 @@ describe("web media loading", () => {
   beforeAll(() => {
     // Ensure state dir is stable and not influenced by other tests that stub OPENCLAW_STATE_DIR.
     // Also keep it outside os.tmpdir() so tmpdir localRoots doesn't accidentally make all state readable.
-    previousStateDir = process.env.OPENCLAW_STATE_DIR;
+    stateDirSnapshot = captureEnv(["OPENCLAW_STATE_DIR"]);
     process.env.OPENCLAW_STATE_DIR = path.join(
       path.parse(os.tmpdir()).root,
       "var",
@@ -140,11 +145,7 @@ describe("web media loading", () => {
   });
 
   afterAll(() => {
-    if (previousStateDir === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
-    } else {
-      process.env.OPENCLAW_STATE_DIR = previousStateDir;
-    }
+    stateDirSnapshot.restore();
   });
 
   beforeAll(() => {
