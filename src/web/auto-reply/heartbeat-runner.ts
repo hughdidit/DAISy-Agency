@@ -61,6 +61,28 @@ export async function runWebHeartbeatOnce(opts: {
   const visibility = resolveHeartbeatVisibility({ cfg, channel: "whatsapp" });
   const heartbeatOkText = HEARTBEAT_TOKEN;
 
+  const maybeSendHeartbeatOk = async (): Promise<boolean> => {
+    if (!visibility.showOk) {
+      return false;
+    }
+    if (dryRun) {
+      whatsappHeartbeatLog.info(`[dry-run] heartbeat ok -> ${to}`);
+      return false;
+    }
+    const sendResult = await sender(to, heartbeatOkText, { verbose });
+    heartbeatLogger.info(
+      {
+        to,
+        messageId: sendResult.messageId,
+        chars: heartbeatOkText.length,
+        reason: "heartbeat-ok",
+      },
+      "heartbeat ok sent",
+    );
+    whatsappHeartbeatLog.info(`heartbeat ok sent to ${to} (id ${sendResult.messageId})`);
+    return true;
+  };
+
   const sessionCfg = cfg.session;
   const sessionScope = sessionCfg?.scope ?? "per-sender";
   const mainKey = normalizeMainKey(sessionCfg?.mainKey);
@@ -174,25 +196,7 @@ export async function runWebHeartbeatOnce(opts: {
         },
         "heartbeat skipped",
       );
-      let okSent = false;
-      if (visibility.showOk) {
-        if (dryRun) {
-          whatsappHeartbeatLog.info(`[dry-run] heartbeat ok -> ${to}`);
-        } else {
-          const sendResult = await sender(to, heartbeatOkText, { verbose });
-          okSent = true;
-          heartbeatLogger.info(
-            {
-              to,
-              messageId: sendResult.messageId,
-              chars: heartbeatOkText.length,
-              reason: "heartbeat-ok",
-            },
-            "heartbeat ok sent",
-          );
-          whatsappHeartbeatLog.info(`heartbeat ok sent to ${to} (id ${sendResult.messageId})`);
-        }
-      }
+      const okSent = await maybeSendHeartbeatOk();
       emitHeartbeatEvent({
         status: "ok-empty",
         to,
@@ -234,25 +238,7 @@ export async function runWebHeartbeatOnce(opts: {
         { to, reason: "heartbeat-token", rawLength: replyPayload.text?.length },
         "heartbeat skipped",
       );
-      let okSent = false;
-      if (visibility.showOk) {
-        if (dryRun) {
-          whatsappHeartbeatLog.info(`[dry-run] heartbeat ok -> ${to}`);
-        } else {
-          const sendResult = await sender(to, heartbeatOkText, { verbose });
-          okSent = true;
-          heartbeatLogger.info(
-            {
-              to,
-              messageId: sendResult.messageId,
-              chars: heartbeatOkText.length,
-              reason: "heartbeat-ok",
-            },
-            "heartbeat ok sent",
-          );
-          whatsappHeartbeatLog.info(`heartbeat ok sent to ${to} (id ${sendResult.messageId})`);
-        }
-      }
+      const okSent = await maybeSendHeartbeatOk();
       emitHeartbeatEvent({
         status: "ok-token",
         to,
