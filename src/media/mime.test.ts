@@ -1,9 +1,13 @@
 import JSZip from "jszip";
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { detectMime, extensionForMime, imageMimeFromFormat } from "./mime.js";
 =======
+=======
+import { mediaKindFromMime } from "./constants.js";
+>>>>>>> 3fd40fc5a (perf(test): fold media constants assertions into mime suite)
 import {
   detectMime,
   extensionForMime,
@@ -135,4 +139,19 @@ describe("normalizeMimeType", () => {
     expect(normalizeMimeType(undefined)).toBeUndefined();
   });
 });
+<<<<<<< HEAD
 >>>>>>> 6ebf503fa (refactor(media): centralize voice compatibility policy)
+=======
+
+describe("mediaKindFromMime", () => {
+  it("classifies text mimes as document", () => {
+    expect(mediaKindFromMime("text/plain")).toBe("document");
+    expect(mediaKindFromMime("text/csv")).toBe("document");
+    expect(mediaKindFromMime("text/html; charset=utf-8")).toBe("document");
+  });
+
+  it("keeps unknown mimes as unknown", () => {
+    expect(mediaKindFromMime("model/gltf+json")).toBe("unknown");
+  });
+});
+>>>>>>> 3fd40fc5a (perf(test): fold media constants assertions into mime suite)
