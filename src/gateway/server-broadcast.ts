@@ -15,6 +15,29 @@ const EVENT_SCOPE_GUARDS: Record<string, string[]> = {
   "node.pair.resolved": [PAIRING_SCOPE],
 };
 
+export type GatewayBroadcastStateVersion = {
+  presence?: number;
+  health?: number;
+};
+
+export type GatewayBroadcastOpts = {
+  dropIfSlow?: boolean;
+  stateVersion?: GatewayBroadcastStateVersion;
+};
+
+export type GatewayBroadcastFn = (
+  event: string,
+  payload: unknown,
+  opts?: GatewayBroadcastOpts,
+) => void;
+
+export type GatewayBroadcastToConnIdsFn = (
+  event: string,
+  payload: unknown,
+  connIds: ReadonlySet<string>,
+  opts?: GatewayBroadcastOpts,
+) => void;
+
 function hasEventScope(client: GatewayWsClient, event: string): boolean {
   const required = EVENT_SCOPE_GUARDS[event];
   if (!required) {
@@ -36,10 +59,15 @@ export function createGatewayBroadcaster(params: { clients: Set<GatewayWsClient>
   const broadcast = (
     event: string,
     payload: unknown,
+<<<<<<< HEAD
     opts?: {
       dropIfSlow?: boolean;
       stateVersion?: { presence?: number; health?: number };
     },
+=======
+    opts?: GatewayBroadcastOpts,
+    targetConnIds?: ReadonlySet<string>,
+>>>>>>> c1cc28a4e (refactor(gateway): share broadcast function types)
   ) => {
 <<<<<<< HEAD
     const eventSeq = ++seq;
@@ -108,5 +136,20 @@ export function createGatewayBroadcaster(params: { clients: Set<GatewayWsClient>
       }
     }
   };
+<<<<<<< HEAD
   return { broadcast };
+=======
+
+  const broadcast: GatewayBroadcastFn = (event, payload, opts) =>
+    broadcastInternal(event, payload, opts);
+
+  const broadcastToConnIds: GatewayBroadcastToConnIdsFn = (event, payload, connIds, opts) => {
+    if (connIds.size === 0) {
+      return;
+    }
+    broadcastInternal(event, payload, opts, connIds);
+  };
+
+  return { broadcast, broadcastToConnIds };
+>>>>>>> c1cc28a4e (refactor(gateway): share broadcast function types)
 }

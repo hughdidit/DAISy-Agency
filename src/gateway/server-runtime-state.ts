@@ -10,6 +10,27 @@ import type { ResolvedGatewayAuth } from "./auth.js";
 import type { ChatAbortControllerEntry } from "./chat-abort.js";
 import type { ControlUiRootState } from "./control-ui.js";
 import type { HooksConfigResolved } from "./hooks.js";
+<<<<<<< HEAD
+=======
+import type { DedupeEntry } from "./server-shared.js";
+import type { GatewayTlsRuntime } from "./server/tls.js";
+import type { GatewayWsClient } from "./server/ws-types.js";
+import { CANVAS_HOST_PATH } from "../canvas-host/a2ui.js";
+import { type CanvasHostHandler, createCanvasHostHandler } from "../canvas-host/server.js";
+import { resolveGatewayListenHosts } from "./net.js";
+import {
+  createGatewayBroadcaster,
+  type GatewayBroadcastFn,
+  type GatewayBroadcastToConnIdsFn,
+} from "./server-broadcast.js";
+import {
+  type ChatRunEntry,
+  createChatRunState,
+  createToolEventRecipientRegistry,
+} from "./server-chat.js";
+import { MAX_PAYLOAD_BYTES } from "./server-constants.js";
+import { attachGatewayUpgradeHandler, createGatewayHttpServer } from "./server-http.js";
+>>>>>>> c1cc28a4e (refactor(gateway): share broadcast function types)
 import { createGatewayHooksRequestHandler } from "./server/hooks.js";
 import { listenGatewayHttpServer } from "./server/http-listen.js";
 import { resolveGatewayListenHosts } from "./net.js";
@@ -54,6 +75,7 @@ export async function createGatewayRuntimeState(params: {
   httpBindHosts: string[];
   wss: WebSocketServer;
   clients: Set<GatewayWsClient>;
+<<<<<<< HEAD
   broadcast: (
     event: string,
     payload: unknown,
@@ -62,6 +84,10 @@ export async function createGatewayRuntimeState(params: {
       stateVersion?: { presence?: number; health?: number };
     },
   ) => void;
+=======
+  broadcast: GatewayBroadcastFn;
+  broadcastToConnIds: GatewayBroadcastToConnIdsFn;
+>>>>>>> c1cc28a4e (refactor(gateway): share broadcast function types)
   agentRunSeq: Map<string, number>;
   dedupe: Map<string, DedupeEntry>;
   chatRunState: ReturnType<typeof createChatRunState>;
