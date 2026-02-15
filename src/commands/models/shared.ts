@@ -156,7 +156,26 @@ export function resolveKnownAgentId(params: {
   return agentId;
 }
 
+<<<<<<< HEAD
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+=======
+export type PrimaryFallbackConfig = { primary?: string; fallbacks?: string[] };
+
+export function mergePrimaryFallbackConfig(
+  existing: PrimaryFallbackConfig | undefined,
+  patch: { primary?: string; fallbacks?: string[] },
+): PrimaryFallbackConfig {
+  const next: PrimaryFallbackConfig = { ...existing };
+  if (patch.primary !== undefined) {
+    next.primary = patch.primary;
+  }
+  if (patch.fallbacks !== undefined) {
+    next.fallbacks = patch.fallbacks;
+  }
+  return next;
+}
+
+>>>>>>> cbf6ee3a6 (refactor(models): share primary/fallback merge)
 export { modelKey };
 export { DEFAULT_MODEL, DEFAULT_PROVIDER };
 
