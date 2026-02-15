@@ -15,8 +15,12 @@ import { type Message, ReactionTypeEmoji } from "@grammyjs/types";
 import type { ApiClientOptions } from "grammy";
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
+<<<<<<< HEAD
 import { type Message, type UserFromGetMe, ReactionTypeEmoji } from "@grammyjs/types";
 >>>>>>> 96abc1c86 (Telegram: remove @ts-nocheck from bot.ts, fix duplicate error handler, harden sticker caching (#9077))
+=======
+import { type Message, type UserFromGetMe } from "@grammyjs/types";
+>>>>>>> cd4f7524e (feat(telegram): receive and surface user message reactions (#10075))
 import { Bot, webhookCallback } from "grammy";
 import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -49,7 +53,6 @@ import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 import { danger, logVerbose, shouldLogVerbose } from "../globals.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { formatUncaughtError } from "../infra/errors.js";
-import { enqueueSystemEvent } from "../infra/system-events.js";
 import { getChildLogger } from "../logging.js";
 <<<<<<< HEAD
 import { withTelegramApiErrorLogging } from "./api-logging.js";
@@ -68,7 +71,6 @@ import {
 import type { TelegramContext, TelegramMessage } from "./bot/types.js";
 =======
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveTelegramAccount } from "./accounts.js";
 >>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
 import { registerTelegramHandlers } from "./bot-handlers.js";
@@ -84,13 +86,11 @@ import {
 =======
 import {
   buildTelegramGroupPeerId,
-  buildTelegramParentPeer,
   resolveTelegramForumThreadId,
   resolveTelegramStreamMode,
 } from "./bot/helpers.js";
 >>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
 import { resolveTelegramFetch } from "./fetch.js";
-import { wasSentByBot } from "./sent-message-cache.js";
 
 export type TelegramBotOptions = {
   token: string;
@@ -429,98 +429,6 @@ export function createTelegramBot(opts: TelegramBotOptions) {
     resolveTelegramGroupConfig,
     shouldSkipUpdate,
     opts,
-  });
-
-  // Handle emoji reactions to messages
-  bot.on("message_reaction", async (ctx) => {
-    try {
-      const reaction = ctx.messageReaction;
-      if (!reaction) {
-        return;
-      }
-      if (shouldSkipUpdate(ctx)) {
-        return;
-      }
-
-      const chatId = reaction.chat.id;
-      const messageId = reaction.message_id;
-      const user = reaction.user;
-
-      // Resolve reaction notification mode (default: "own")
-      const reactionMode = telegramCfg.reactionNotifications ?? "own";
-      if (reactionMode === "off") {
-        return;
-      }
-      if (user?.is_bot) {
-        return;
-      }
-      if (reactionMode === "own" && !wasSentByBot(chatId, messageId)) {
-        return;
-      }
-
-      // Detect added reactions
-      const oldEmojis = new Set(
-        reaction.old_reaction
-          .filter((r): r is ReactionTypeEmoji => r.type === "emoji")
-          .map((r) => r.emoji),
-      );
-      const addedReactions = reaction.new_reaction
-        .filter((r): r is ReactionTypeEmoji => r.type === "emoji")
-        .filter((r) => !oldEmojis.has(r.emoji));
-
-      if (addedReactions.length === 0) {
-        return;
-      }
-
-      // Build sender label
-      const senderName = user
-        ? [user.first_name, user.last_name].filter(Boolean).join(" ").trim() || user.username
-        : undefined;
-      const senderUsername = user?.username ? `@${user.username}` : undefined;
-      let senderLabel = senderName;
-      if (senderName && senderUsername) {
-        senderLabel = `${senderName} (${senderUsername})`;
-      } else if (!senderName && senderUsername) {
-        senderLabel = senderUsername;
-      }
-      if (!senderLabel && user?.id) {
-        senderLabel = `id:${user.id}`;
-      }
-      senderLabel = senderLabel || "unknown";
-
-      // Reactions target a specific message_id; the Telegram Bot API does not include
-      // message_thread_id on MessageReactionUpdated, so we route to the chat-level
-      // session (forum topic routing is not available for reactions).
-      const isGroup = reaction.chat.type === "group" || reaction.chat.type === "supergroup";
-      const isForum = reaction.chat.is_forum === true;
-      const resolvedThreadId = isForum
-        ? resolveTelegramForumThreadId({ isForum, messageThreadId: undefined })
-        : undefined;
-      const peerId = isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : String(chatId);
-      const parentPeer = buildTelegramParentPeer({ isGroup, resolvedThreadId, chatId });
-      // Fresh config for bindings lookup; other routing inputs are payload-derived.
-      const route = resolveAgentRoute({
-        cfg: loadConfig(),
-        channel: "telegram",
-        accountId: account.accountId,
-        peer: { kind: isGroup ? "group" : "direct", id: peerId },
-        parentPeer,
-      });
-      const sessionKey = route.sessionKey;
-
-      // Enqueue system event for each added reaction
-      for (const r of addedReactions) {
-        const emoji = r.emoji;
-        const text = `Telegram reaction added: ${emoji} by ${senderLabel} on msg ${messageId}`;
-        enqueueSystemEvent(text, {
-          sessionKey: sessionKey,
-          contextKey: `telegram:reaction:add:${chatId}:${messageId}:${user?.id ?? "anon"}:${emoji}`,
-        });
-        logVerbose(`telegram: reaction event enqueued: ${text}`);
-      }
-    } catch (err) {
-      runtime.error?.(danger(`telegram reaction handler failed: ${String(err)}`));
-    }
   });
 
   registerTelegramHandlers({
