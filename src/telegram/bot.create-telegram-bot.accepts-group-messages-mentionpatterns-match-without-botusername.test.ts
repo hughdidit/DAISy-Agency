@@ -148,6 +148,31 @@ const loadConfig = getLoadConfigMock();
 
 const ORIGINAL_TZ = process.env.TZ;
 describe("createTelegramBot", () => {
+  function resetHarnessSpies() {
+    onSpy.mockReset();
+    replySpy.mockReset();
+    sendMessageSpy.mockReset();
+    setMessageReactionSpy.mockReset();
+    setMyCommandsSpy.mockReset();
+  }
+
+  function getMessageHandler() {
+    createTelegramBot({ token: "tok" });
+    return getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
+  }
+
+  async function dispatchMessage(params: {
+    message: Record<string, unknown>;
+    me?: Record<string, unknown>;
+  }) {
+    const handler = getMessageHandler();
+    await handler({
+      message: params.message,
+      me: params.me ?? { username: "openclaw_bot" },
+      getFile: async () => ({ download: async () => new Uint8Array() }),
+    });
+  }
+
   beforeEach(() => {
     process.env.TZ = "UTC";
   });
@@ -158,8 +183,7 @@ describe("createTelegramBot", () => {
   // groupPolicy tests
 
   it("accepts group messages when mentionPatterns match (without @botUsername)", async () => {
-    onSpy.mockReset();
-    replySpy.mockReset();
+    resetHarnessSpies();
 
     loadConfig.mockReturnValue({
       agents: {
@@ -177,10 +201,7 @@ describe("createTelegramBot", () => {
       },
     });
 
-    createTelegramBot({ token: "tok" });
-    const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
-
-    await handler({
+    await dispatchMessage({
       message: {
         chat: { id: 7, type: "group", title: "Test Group" },
         text: "bert: introduce yourself",
@@ -188,8 +209,11 @@ describe("createTelegramBot", () => {
         message_id: 1,
         from: { id: 9, first_name: "Ada" },
       },
+<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
+=======
+>>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(replySpy).toHaveBeenCalledTimes(1);
@@ -205,8 +229,7 @@ describe("createTelegramBot", () => {
   });
 
   it("accepts group messages when mentionPatterns match even if another user is mentioned", async () => {
-    onSpy.mockReset();
-    replySpy.mockReset();
+    resetHarnessSpies();
 
     loadConfig.mockReturnValue({
       agents: {
@@ -224,10 +247,7 @@ describe("createTelegramBot", () => {
       },
     });
 
-    createTelegramBot({ token: "tok" });
-    const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
-
-    await handler({
+    await dispatchMessage({
       message: {
         chat: { id: 7, type: "group", title: "Test Group" },
         text: "bert: hello @alice",
@@ -236,8 +256,11 @@ describe("createTelegramBot", () => {
         message_id: 3,
         from: { id: 9, first_name: "Ada" },
       },
+<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
+=======
+>>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(replySpy).toHaveBeenCalledTimes(1);
@@ -245,8 +268,7 @@ describe("createTelegramBot", () => {
   });
 
   it("keeps group envelope headers stable (sender identity is separate)", async () => {
-    onSpy.mockReset();
-    replySpy.mockReset();
+    resetHarnessSpies();
 
     loadConfig.mockReturnValue({
       agents: {
@@ -262,10 +284,7 @@ describe("createTelegramBot", () => {
       },
     });
 
-    createTelegramBot({ token: "tok" });
-    const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
-
-    await handler({
+    await dispatchMessage({
       message: {
         chat: { id: 42, type: "group", title: "Ops" },
         text: "hello",
@@ -278,8 +297,11 @@ describe("createTelegramBot", () => {
           username: "ada",
         },
       },
+<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
+=======
+>>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(replySpy).toHaveBeenCalledTimes(1);
@@ -294,9 +316,7 @@ describe("createTelegramBot", () => {
     );
   });
   it("reacts to mention-gated group messages when ackReaction is enabled", async () => {
-    onSpy.mockReset();
-    setMessageReactionSpy.mockReset();
-    replySpy.mockReset();
+    resetHarnessSpies();
 
     loadConfig.mockReturnValue({
       messages: {
@@ -312,10 +332,7 @@ describe("createTelegramBot", () => {
       },
     });
 
-    createTelegramBot({ token: "tok" });
-    const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
-
-    await handler({
+    await dispatchMessage({
       message: {
         chat: { id: 7, type: "group", title: "Test Group" },
         text: "bert hello",
@@ -323,13 +340,17 @@ describe("createTelegramBot", () => {
         message_id: 123,
         from: { id: 9, first_name: "Ada" },
       },
+<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
+=======
+>>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(setMessageReactionSpy).toHaveBeenCalledWith(7, 123, [{ type: "emoji", emoji: "👀" }]);
   });
   it("clears native commands when disabled", () => {
+    resetHarnessSpies();
     loadConfig.mockReturnValue({
       commands: { native: false },
     });
@@ -339,8 +360,7 @@ describe("createTelegramBot", () => {
     expect(setMyCommandsSpy).toHaveBeenCalledWith([]);
   });
   it("skips group messages when requireMention is enabled and no mention matches", async () => {
-    onSpy.mockReset();
-    replySpy.mockReset();
+    resetHarnessSpies();
 
     loadConfig.mockReturnValue({
       messages: { groupChat: { mentionPatterns: ["\\bbert\\b"] } },
@@ -352,10 +372,7 @@ describe("createTelegramBot", () => {
       },
     });
 
-    createTelegramBot({ token: "tok" });
-    const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
-
-    await handler({
+    await dispatchMessage({
       message: {
         chat: { id: 7, type: "group", title: "Test Group" },
         text: "hello everyone",
@@ -363,15 +380,17 @@ describe("createTelegramBot", () => {
         message_id: 2,
         from: { id: 9, first_name: "Ada" },
       },
+<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
+=======
+>>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(replySpy).not.toHaveBeenCalled();
   });
   it("allows group messages when requireMention is enabled but mentions cannot be detected", async () => {
-    onSpy.mockReset();
-    replySpy.mockReset();
+    resetHarnessSpies();
 
     loadConfig.mockReturnValue({
       messages: { groupChat: { mentionPatterns: [] } },
@@ -383,10 +402,7 @@ describe("createTelegramBot", () => {
       },
     });
 
-    createTelegramBot({ token: "tok" });
-    const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
-
-    await handler({
+    await dispatchMessage({
       message: {
         chat: { id: 7, type: "group", title: "Test Group" },
         text: "hello everyone",
@@ -395,7 +411,6 @@ describe("createTelegramBot", () => {
         from: { id: 9, first_name: "Ada" },
       },
       me: {},
-      getFile: async () => ({ download: async () => new Uint8Array() }),
     });
 
     expect(replySpy).toHaveBeenCalledTimes(1);
@@ -403,14 +418,9 @@ describe("createTelegramBot", () => {
     expect(payload.WasMentioned).toBe(false);
   });
   it("includes reply-to context when a Telegram reply is received", async () => {
-    onSpy.mockReset();
-    sendMessageSpy.mockReset();
-    replySpy.mockReset();
+    resetHarnessSpies();
 
-    createTelegramBot({ token: "tok" });
-    const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;
-
-    await handler({
+    await dispatchMessage({
       message: {
         chat: { id: 7, type: "private" },
         text: "Sure, see below",
@@ -421,8 +431,11 @@ describe("createTelegramBot", () => {
           from: { first_name: "Ada" },
         },
       },
+<<<<<<< HEAD
       me: { username: "moltbot_bot" },
       getFile: async () => ({ download: async () => new Uint8Array() }),
+=======
+>>>>>>> 75f3b5069 (refactor(test): dedupe telegram bot mention scaffolding)
     });
 
     expect(replySpy).toHaveBeenCalledTimes(1);
