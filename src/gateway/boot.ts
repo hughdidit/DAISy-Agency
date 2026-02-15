@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -12,8 +13,19 @@ import { type RuntimeEnv, defaultRuntime } from "../runtime.js";
 
 =======
 import { resolveAgentIdFromSessionKey } from "../config/sessions/main-session.js";
+=======
+import type { CliDeps } from "../cli/deps.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { SessionEntry } from "../config/sessions/types.js";
+import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
+import { agentCommand } from "../commands/agent.js";
+import {
+  resolveAgentIdFromSessionKey,
+  resolveMainSessionKey,
+} from "../config/sessions/main-session.js";
+>>>>>>> b562aa662 (fix(gateway): keep boot sessions ephemeral without remapping main)
 import { resolveStorePath } from "../config/sessions/paths.js";
-import { loadSessionStore } from "../config/sessions/store.js";
+import { loadSessionStore, updateSessionStore } from "../config/sessions/store.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { type RuntimeEnv, defaultRuntime } from "../runtime.js";
 
@@ -24,38 +36,13 @@ function generateBootSessionId(): string {
   return `boot-${ts}-${suffix}`;
 }
 
-/**
- * Resolve the session ID for the boot message.
- * If there's an existing session mapped to the main session key, reuse it to avoid orphaning.
- * Otherwise, generate a new ephemeral boot session ID.
- */
-function resolveBootSessionId(cfg: OpenClawConfig): string {
-  const sessionKey = resolveMainSessionKey(cfg);
-  const agentId = resolveAgentIdFromSessionKey(sessionKey);
-  const storePath = resolveStorePath(cfg.session?.store, { agentId });
-
-  try {
-    const sessionStore = loadSessionStore(storePath);
-    const existingEntry = sessionStore[sessionKey];
-
-    if (existingEntry?.sessionId) {
-      log.info("reusing existing session for boot message", {
-        sessionKey,
-        sessionId: existingEntry.sessionId,
-      });
-      return existingEntry.sessionId;
-    }
-  } catch (err) {
-    // If we can't load the session store (e.g., first boot), fall through to generate new ID
-    log.debug("could not load session store for boot; generating new session ID", {
-      error: String(err),
-    });
-  }
-
-  const newSessionId = generateBootSessionId();
-  log.info("generating new boot session", { sessionKey, sessionId: newSessionId });
-  return newSessionId;
-}
+type SessionMappingSnapshot = {
+  storePath: string;
+  sessionKey: string;
+  canRestore: boolean;
+  hadEntry: boolean;
+  entry?: SessionEntry;
+};
 
 >>>>>>> fe73878df (fix(gateway): preserve session mapping across gateway restarts)
 const log = createSubsystemLogger("gateway/boot");
@@ -100,6 +87,68 @@ async function loadBootFile(
   }
 }
 
+function snapshotMainSessionMapping(params: {
+  cfg: OpenClawConfig;
+  sessionKey: string;
+}): SessionMappingSnapshot {
+  const agentId = resolveAgentIdFromSessionKey(params.sessionKey);
+  const storePath = resolveStorePath(params.cfg.session?.store, { agentId });
+  try {
+    const store = loadSessionStore(storePath, { skipCache: true });
+    const entry = store[params.sessionKey];
+    if (!entry) {
+      return {
+        storePath,
+        sessionKey: params.sessionKey,
+        canRestore: true,
+        hadEntry: false,
+      };
+    }
+    return {
+      storePath,
+      sessionKey: params.sessionKey,
+      canRestore: true,
+      hadEntry: true,
+      entry: structuredClone(entry),
+    };
+  } catch (err) {
+    log.debug("boot: could not snapshot main session mapping", {
+      sessionKey: params.sessionKey,
+      error: String(err),
+    });
+    return {
+      storePath,
+      sessionKey: params.sessionKey,
+      canRestore: false,
+      hadEntry: false,
+    };
+  }
+}
+
+async function restoreMainSessionMapping(
+  snapshot: SessionMappingSnapshot,
+): Promise<string | undefined> {
+  if (!snapshot.canRestore) {
+    return undefined;
+  }
+  try {
+    await updateSessionStore(
+      snapshot.storePath,
+      (store) => {
+        if (snapshot.hadEntry && snapshot.entry) {
+          store[snapshot.sessionKey] = snapshot.entry;
+          return;
+        }
+        delete store[snapshot.sessionKey];
+      },
+      { activeSessionKey: snapshot.sessionKey },
+    );
+    return undefined;
+  } catch (err) {
+    return err instanceof Error ? err.message : String(err);
+  }
+}
+
 export async function runBootOnce(params: {
   cfg: MoltbotConfig;
   deps: CliDeps;
@@ -126,10 +175,19 @@ export async function runBootOnce(params: {
   const sessionKey = resolveMainSessionKey(params.cfg);
   const message = buildBootPrompt(result.content ?? "");
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   const sessionId = resolveBootSessionId(params.cfg);
 >>>>>>> fe73878df (fix(gateway): preserve session mapping across gateway restarts)
+=======
+  const sessionId = generateBootSessionId();
+  const mappingSnapshot = snapshotMainSessionMapping({
+    cfg: params.cfg,
+    sessionKey,
+  });
+>>>>>>> b562aa662 (fix(gateway): keep boot sessions ephemeral without remapping main)
 
+  let agentFailure: string | undefined;
   try {
     await agentCommand(
       {
@@ -140,10 +198,22 @@ export async function runBootOnce(params: {
       bootRuntime,
       params.deps,
     );
-    return { status: "ran" };
   } catch (err) {
-    const messageText = err instanceof Error ? err.message : String(err);
-    log.error(`boot: agent run failed: ${messageText}`);
-    return { status: "failed", reason: messageText };
+    agentFailure = err instanceof Error ? err.message : String(err);
+    log.error(`boot: agent run failed: ${agentFailure}`);
   }
+
+  const mappingRestoreFailure = await restoreMainSessionMapping(mappingSnapshot);
+  if (mappingRestoreFailure) {
+    log.error(`boot: failed to restore main session mapping: ${mappingRestoreFailure}`);
+  }
+
+  if (!agentFailure && !mappingRestoreFailure) {
+    return { status: "ran" };
+  }
+  const reasonParts = [
+    agentFailure ? `agent run failed: ${agentFailure}` : undefined,
+    mappingRestoreFailure ? `mapping restore failed: ${mappingRestoreFailure}` : undefined,
+  ].filter((part): part is string => Boolean(part));
+  return { status: "failed", reason: reasonParts.join("; ") };
 }
