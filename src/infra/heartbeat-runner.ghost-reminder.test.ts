@@ -31,7 +31,66 @@ afterEach(() => {
 });
 
 describe("Ghost reminder bug (issue #13317)", () => {
+<<<<<<< HEAD
   it("should NOT trigger CRON_EVENT_PROMPT when only HEARTBEAT_OK is in system events", async () => {
+=======
+  const createConfig = async (
+    tmpDir: string,
+  ): Promise<{ cfg: OpenClawConfig; sessionKey: string }> => {
+    const storePath = path.join(tmpDir, "sessions.json");
+    const cfg: OpenClawConfig = {
+      agents: {
+        defaults: {
+          workspace: tmpDir,
+          heartbeat: {
+            every: "5m",
+            target: "telegram",
+          },
+        },
+      },
+      channels: { telegram: { allowFrom: ["*"] } },
+      session: { store: storePath },
+    };
+    const sessionKey = resolveMainSessionKey(cfg);
+
+    await fs.writeFile(
+      storePath,
+      JSON.stringify(
+        {
+          [sessionKey]: {
+            sessionId: "sid",
+            updatedAt: Date.now(),
+            lastChannel: "telegram",
+            lastProvider: "telegram",
+            lastTo: "155462274",
+          },
+        },
+        null,
+        2,
+      ),
+    );
+
+    return { cfg, sessionKey };
+  };
+
+  const expectCronEventPrompt = (
+    getReplySpy: { mock: { calls: unknown[][] } },
+    reminderText: string,
+  ) => {
+    expect(getReplySpy).toHaveBeenCalledTimes(1);
+    const calledCtx = (getReplySpy.mock.calls[0]?.[0] ?? null) as {
+      Provider?: string;
+      Body?: string;
+    } | null;
+    expect(calledCtx?.Provider).toBe("cron-event");
+    expect(calledCtx?.Body).toContain("scheduled reminder has been triggered");
+    expect(calledCtx?.Body).toContain(reminderText);
+    expect(calledCtx?.Body).not.toContain("HEARTBEAT_OK");
+    expect(calledCtx?.Body).not.toContain("heartbeat poll");
+  };
+
+  it("does not use CRON_EVENT_PROMPT when only a HEARTBEAT_OK event is present", async () => {
+>>>>>>> 2b143de55 (refactor(test): dedupe ghost reminder assertions)
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ghost-"));
     const storePath = path.join(tmpDir, "sessions.json");
     
@@ -131,6 +190,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
       
       const sessionKey = resolveMainSessionKey(cfg);
 
+<<<<<<< HEAD
       await fs.writeFile(
         storePath,
         JSON.stringify(
@@ -147,6 +207,15 @@ describe("Ghost reminder bug (issue #13317)", () => {
           2,
         ),
       );
+=======
+      expect(result.status).toBe("ran");
+      expectCronEventPrompt(getReplySpy, "Reminder: Check Base Scout results");
+      expect(sendTelegram).toHaveBeenCalled();
+    } finally {
+      await fs.rm(tmpDir, { recursive: true, force: true });
+    }
+  });
+>>>>>>> 2b143de55 (refactor(test): dedupe ghost reminder assertions)
 
       // Simulate real cron message (not HEARTBEAT_OK)
       enqueueSystemEvent("Reminder: Check Base Scout results", { sessionKey });
@@ -165,6 +234,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
         },
       });
 
+<<<<<<< HEAD
       // Check that heartbeat ran
       expect(result.status).toBeDefined();
       
@@ -178,6 +248,11 @@ describe("Ghost reminder bug (issue #13317)", () => {
         expect(message).toContain("scheduled reminder has been triggered");
       }
       
+=======
+      expect(result.status).toBe("ran");
+      expectCronEventPrompt(getReplySpy, "Reminder: Check Base Scout results");
+      expect(sendTelegram).toHaveBeenCalled();
+>>>>>>> 2b143de55 (refactor(test): dedupe ghost reminder assertions)
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
