@@ -374,11 +374,20 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
+<<<<<<< HEAD
     const merged = applyMergePatch(snapshot.config, parsedRes.parsed);
     let restoredMerge: unknown;
     try {
       restoredMerge = restoreRedactedValues(merged, snapshot.config);
     } catch (err) {
+=======
+    const merged = applyMergePatch(snapshot.config, parsedRes.parsed, {
+      mergeObjectArraysById: true,
+    });
+    const schemaPatch = loadSchemaWithPlugins();
+    const restoredMerge = restoreRedactedValues(merged, snapshot.config, schemaPatch.uiHints);
+    if (!restoredMerge.ok) {
+>>>>>>> 8ec0ef586 (fix (gateway/config): merge config.patch object arrays by id)
       respond(
         false,
         undefined,
