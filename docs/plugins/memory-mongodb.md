@@ -100,6 +100,18 @@ In your collection, go to **Search Indexes** → **Create Search Index** → **J
         "path": "vector",
         "numDimensions": 1536,
         "similarity": "cosine"
+      },
+      {
+        "type": "filter",
+        "path": "category"
+      },
+      {
+        "type": "filter",
+        "path": "importance"
+      },
+      {
+        "type": "filter",
+        "path": "createdAt"
       }
     ]
   }
