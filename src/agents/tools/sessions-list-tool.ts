@@ -3,7 +3,7 @@ import path from "node:path";
 import type { AnyAgentTool } from "./common.js";
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
-import { isSubagentSessionKey, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 import { jsonResult, readStringArrayParam } from "./common.js";
 import {
   createAgentToAgentPolicy,
@@ -11,7 +11,7 @@ import {
   deriveChannel,
   resolveDisplaySessionKey,
   resolveInternalSessionKey,
-  resolveMainSessionAlias,
+  resolveSandboxedSessionToolContext,
   type SessionListRow,
   stripToolMessages,
 } from "./sessions-helpers.js";
@@ -22,10 +22,6 @@ const SessionsListToolSchema = Type.Object({
   activeMinutes: Type.Optional(Type.Number({ minimum: 1 })),
   messageLimit: Type.Optional(Type.Number({ minimum: 0 })),
 });
-
-function resolveSandboxSessionToolsVisibility(cfg: ReturnType<typeof loadConfig>) {
-  return cfg.agents?.defaults?.sandbox?.sessionToolsVisibility ?? "spawned";
-}
 
 export function createSessionsListTool(opts?: {
   agentSessionKey?: string;
@@ -39,21 +35,12 @@ export function createSessionsListTool(opts?: {
     execute: async (_toolCallId, args) => {
       const params = args as Record<string, unknown>;
       const cfg = loadConfig();
-      const { mainKey, alias } = resolveMainSessionAlias(cfg);
-      const visibility = resolveSandboxSessionToolsVisibility(cfg);
-      const requesterInternalKey =
-        typeof opts?.agentSessionKey === "string" && opts.agentSessionKey.trim()
-          ? resolveInternalSessionKey({
-              key: opts.agentSessionKey,
-              alias,
-              mainKey,
-            })
-          : undefined;
-      const restrictToSpawned =
-        opts?.sandboxed === true &&
-        visibility === "spawned" &&
-        requesterInternalKey &&
-        !isSubagentSessionKey(requesterInternalKey);
+      const { mainKey, alias, requesterInternalKey, restrictToSpawned } =
+        resolveSandboxedSessionToolContext({
+          cfg,
+          agentSessionKey: opts?.agentSessionKey,
+          sandboxed: opts?.sandboxed,
+        });
 
       const kindsRaw = readStringArrayParam(params, "kinds")?.map((value) =>
         value.trim().toLowerCase(),
