@@ -19,6 +19,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <string>2026.2.6</string>
 =======
     <string>2026.2.10</string>
@@ -32,8 +33,11 @@
 =======
     <string>2026.2.14</string>
 >>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
+=======
+    <string>2026.2.15</string>
+>>>>>>> 379b44558 (chore: bump version to 2026.2.15)
     <key>CFBundleVersion</key>
-    <string>202602140</string>
+    <string>202602150</string>
     <key>CFBundleIconFile</key>
     <string>OpenClaw</string>
     <key>CFBundleURLTypes</key>

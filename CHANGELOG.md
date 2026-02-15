@@ -5,12 +5,22 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.2.6-4
 =======
 =======
 ## 2026.2.13 (Unreleased)
 =======
 ## Unreleased
+=======
+## 2026.2.15 (Unreleased)
+
+### Changes
+
+### Fixes
+
+## 2026.2.14
+>>>>>>> 379b44558 (chore: bump version to 2026.2.15)
 
 <<<<<<< HEAD
 =======
