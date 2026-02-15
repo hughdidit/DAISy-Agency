@@ -150,6 +150,7 @@ export function applySettingsFromUrl(host: SettingsHost) {
   }
 
   if (passwordRaw != null) {
+<<<<<<< HEAD
     const password = passwordRaw.trim();
     if (password) {
 <<<<<<< HEAD
@@ -158,6 +159,9 @@ export function applySettingsFromUrl(host: SettingsHost) {
       (host as { password: string }).password = password;
 >>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
     }
+=======
+    // Never hydrate password from URL params; strip only.
+>>>>>>> a32403180 (fix(ui): do not hydrate password from URL)
     params.delete("password");
     hashParams.delete("password");
     shouldCleanUrl = true;
