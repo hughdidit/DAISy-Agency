@@ -6,6 +6,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.2.10
 =======
 ## 2026.2.13 (Unreleased)
@@ -15,6 +16,9 @@ Docs: https://docs.openclaw.ai
 =======
 ## 2026.2.14 (Unreleased)
 >>>>>>> 90117a384 (docs: consolidate 2026.2.14 changelog)
+=======
+## 2026.2.14
+>>>>>>> 58548c729 (docs(changelog): mark 2026.2.14 released)
 
 <<<<<<< HEAD
 =======
