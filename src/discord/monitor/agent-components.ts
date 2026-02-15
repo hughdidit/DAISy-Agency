@@ -49,6 +49,44 @@ type DiscordChannelContext = {
   parentSlug: string;
 };
 
+function resolveAgentComponentRoute(params: {
+  ctx: AgentComponentContext;
+  rawGuildId: string | undefined;
+  memberRoleIds: string[];
+  isDirectMessage: boolean;
+  userId: string;
+  channelId: string;
+  parentId: string | undefined;
+}) {
+  return resolveAgentRoute({
+    cfg: params.ctx.cfg,
+    channel: "discord",
+    accountId: params.ctx.accountId,
+    guildId: params.rawGuildId,
+    memberRoleIds: params.memberRoleIds,
+    peer: {
+      kind: params.isDirectMessage ? "direct" : "channel",
+      id: params.isDirectMessage ? params.userId : params.channelId,
+    },
+    parentPeer: params.parentId ? { kind: "channel", id: params.parentId } : undefined,
+  });
+}
+
+async function ackComponentInteraction(params: {
+  interaction: AgentComponentInteraction;
+  replyOpts: { ephemeral?: boolean };
+  label: string;
+}) {
+  try {
+    await params.interaction.reply({
+      content: "✓",
+      ...params.replyOpts,
+    });
+  } catch (err) {
+    logError(`${params.label}: failed to acknowledge interaction: ${String(err)}`);
+  }
+}
+
 function resolveDiscordChannelContext(
   interaction: AgentComponentInteraction,
 ): DiscordChannelContext {
@@ -608,6 +646,7 @@ export class AgentComponentButton extends Button {
     }
     const { parentId } = allowed;
 
+<<<<<<< HEAD
     // Resolve route with full context (guildId, proper peer kind, parentPeer)
     const route = resolveAgentRoute({
       cfg: this.ctx.cfg,
@@ -619,6 +658,16 @@ export class AgentComponentButton extends Button {
         id: isDirectMessage ? userId : channelId,
       },
       parentPeer: parentId ? { kind: "channel", id: parentId } : undefined,
+=======
+    const route = resolveAgentComponentRoute({
+      ctx: this.ctx,
+      rawGuildId,
+      memberRoleIds,
+      isDirectMessage,
+      userId,
+      channelId,
+      parentId,
+>>>>>>> 63ab5bfdd (refactor(discord): share component route + ack)
     });
 
     const eventText = `[Discord component: ${componentId} clicked by ${username} (${userId})]`;
@@ -630,15 +679,7 @@ export class AgentComponentButton extends Button {
       contextKey: `discord:agent-button:${channelId}:${componentId}:${userId}`,
     });
 
-    // Acknowledge the interaction
-    try {
-      await interaction.reply({
-        content: "✓",
-        ...replyOpts,
-      });
-    } catch (err) {
-      logError(`agent button: failed to acknowledge interaction: ${String(err)}`);
-    }
+    await ackComponentInteraction({ interaction, replyOpts, label: "agent button" });
   }
 }
 
@@ -833,6 +874,7 @@ export class AgentSelectMenu extends StringSelectMenu {
     const values = interaction.values ?? [];
     const valuesText = values.length > 0 ? ` (selected: ${values.join(", ")})` : "";
 
+<<<<<<< HEAD
     // Resolve route with full context (guildId, proper peer kind, parentPeer)
     const route = resolveAgentRoute({
       cfg: this.ctx.cfg,
@@ -844,6 +886,16 @@ export class AgentSelectMenu extends StringSelectMenu {
         id: isDirectMessage ? userId : channelId,
       },
       parentPeer: parentId ? { kind: "channel", id: parentId } : undefined,
+=======
+    const route = resolveAgentComponentRoute({
+      ctx: this.ctx,
+      rawGuildId,
+      memberRoleIds,
+      isDirectMessage,
+      userId,
+      channelId,
+      parentId,
+>>>>>>> 63ab5bfdd (refactor(discord): share component route + ack)
     });
 
     const eventText = `[Discord select menu: ${componentId} interacted by ${username} (${userId})${valuesText}]`;
@@ -855,15 +907,7 @@ export class AgentSelectMenu extends StringSelectMenu {
       contextKey: `discord:agent-select:${channelId}:${componentId}:${userId}`,
     });
 
-    // Acknowledge the interaction
-    try {
-      await interaction.reply({
-        content: "✓",
-        ...replyOpts,
-      });
-    } catch (err) {
-      logError(`agent select: failed to acknowledge interaction: ${String(err)}`);
-    }
+    await ackComponentInteraction({ interaction, replyOpts, label: "agent select" });
   }
 }
 
