@@ -52,6 +52,31 @@ function suppressAnnounceForSteerRestart(entry?: SubagentRunRecord) {
   return entry?.suppressAnnounceReason === "steer-restart";
 }
 
+function startSubagentAnnounceCleanupFlow(runId: string, entry: SubagentRunRecord): boolean {
+  if (!beginSubagentCleanup(runId)) {
+    return false;
+  }
+  const requesterOrigin = normalizeDeliveryContext(entry.requesterOrigin);
+  void runSubagentAnnounceFlow({
+    childSessionKey: entry.childSessionKey,
+    childRunId: entry.runId,
+    requesterSessionKey: entry.requesterSessionKey,
+    requesterOrigin,
+    requesterDisplayKey: entry.requesterDisplayKey,
+    task: entry.task,
+    timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
+    cleanup: entry.cleanup,
+    waitForCompletion: false,
+    startedAt: entry.startedAt,
+    endedAt: entry.endedAt,
+    label: entry.label,
+    outcome: entry.outcome,
+  }).then((didAnnounce) => {
+    finalizeSubagentCleanup(runId, entry.cleanup, didAnnounce);
+  });
+  return true;
+}
+
 function resumeSubagentRun(runId: string) {
   if (!runId || resumedRuns.has(runId)) {
     return;
@@ -69,6 +94,7 @@ function resumeSubagentRun(runId: string) {
       resumedRuns.add(runId);
       return;
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -103,6 +129,11 @@ function resumeSubagentRun(runId: string) {
 >>>>>>> 2f4b91d73 (refactor(agents): dedupe subagent announce cleanup)
 =======
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
+=======
+    if (!startSubagentAnnounceCleanupFlow(runId, entry)) {
+      return;
+    }
+>>>>>>> 26bf041ad (refactor(agents): dedupe subagent announce flow)
     resumedRuns.add(runId);
     return;
   }
@@ -250,6 +281,7 @@ function ensureListener() {
       return;
     }
 
+<<<<<<< HEAD
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
     if (!beginSubagentCleanup(evt.runId)) {
       return;
@@ -282,6 +314,11 @@ function ensureListener() {
 >>>>>>> 2f4b91d73 (refactor(agents): dedupe subagent announce cleanup)
 =======
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
+=======
+    if (!startSubagentAnnounceCleanupFlow(evt.runId, entry)) {
+      return;
+    }
+>>>>>>> 26bf041ad (refactor(agents): dedupe subagent announce flow)
   });
 }
 
@@ -535,6 +572,7 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
     if (suppressAnnounceForSteerRestart(entry)) {
       return;
     }
+<<<<<<< HEAD
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
     if (!beginSubagentCleanup(runId)) {
       return;
@@ -567,6 +605,11 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
 >>>>>>> 2f4b91d73 (refactor(agents): dedupe subagent announce cleanup)
 =======
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
+=======
+    if (!startSubagentAnnounceCleanupFlow(runId, entry)) {
+      return;
+    }
+>>>>>>> 26bf041ad (refactor(agents): dedupe subagent announce flow)
   } catch {
     // ignore
   }
