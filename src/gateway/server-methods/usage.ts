@@ -17,7 +17,7 @@ import type {
   SessionModelUsage,
   SessionToolUsage,
 } from "../../infra/session-cost-usage.js";
-import type { GatewayRequestHandlers } from "./types.js";
+import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 import { loadConfig } from "../../config/config.js";
 import {
   resolveSessionFilePath,
@@ -61,6 +61,40 @@ type CostUsageCacheEntry = {
 };
 
 const costUsageCache = new Map<string, CostUsageCacheEntry>();
+
+function resolveSessionUsageFileOrRespond(
+  key: string,
+  respond: RespondFn,
+): {
+  config: ReturnType<typeof loadConfig>;
+  entry: SessionEntry | undefined;
+  agentId: string | undefined;
+  sessionId: string;
+  sessionFile: string;
+} | null {
+  const config = loadConfig();
+  const { entry, storePath } = loadSessionEntry(key);
+
+  // For discovered sessions (not in store), try using key as sessionId directly
+  const parsed = parseAgentSessionKey(key);
+  const agentId = parsed?.agentId;
+  const rawSessionId = parsed?.rest ?? key;
+  const sessionId = entry?.sessionId ?? rawSessionId;
+  let sessionFile: string;
+  try {
+    const pathOpts = resolveSessionFilePathOptions({ storePath, agentId });
+    sessionFile = resolveSessionFilePath(sessionId, entry, pathOpts);
+  } catch {
+    respond(
+      false,
+      undefined,
+      errorShape(ErrorCodes.INVALID_REQUEST, `Invalid session key: ${key}`),
+    );
+    return null;
+  }
+
+  return { config, entry, agentId, sessionId, sessionFile };
+}
 
 /**
  * Parse a date string (YYYY-MM-DD) to start of day timestamp in UTC.
@@ -769,6 +803,7 @@ export const usageHandlers: GatewayRequestHandlers = {
       return;
     }
 
+<<<<<<< HEAD
     const config = loadConfig();
     const { entry } = loadSessionEntry(key);
 
@@ -794,6 +829,13 @@ export const usageHandlers: GatewayRequestHandlers = {
       return;
     }
 >>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
+=======
+    const resolved = resolveSessionUsageFileOrRespond(key, respond);
+    if (!resolved) {
+      return;
+    }
+    const { config, entry, agentId, sessionId, sessionFile } = resolved;
+>>>>>>> 2c5e24cbb (refactor(gateway): dedupe session usage file resolution)
 
     const timeseries = await loadSessionUsageTimeSeries({
       sessionId,
@@ -826,6 +868,7 @@ export const usageHandlers: GatewayRequestHandlers = {
         ? Math.min(params.limit, 1000)
         : 200;
 
+<<<<<<< HEAD
     const config = loadConfig();
     const { entry } = loadSessionEntry(key);
 
@@ -851,6 +894,13 @@ export const usageHandlers: GatewayRequestHandlers = {
       return;
     }
 >>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
+=======
+    const resolved = resolveSessionUsageFileOrRespond(key, respond);
+    if (!resolved) {
+      return;
+    }
+    const { config, entry, agentId, sessionId, sessionFile } = resolved;
+>>>>>>> 2c5e24cbb (refactor(gateway): dedupe session usage file resolution)
 
     const { loadSessionLogs } = await import("../../infra/session-cost-usage.js");
     const logs = await loadSessionLogs({
