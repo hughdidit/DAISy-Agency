@@ -190,6 +190,62 @@ const WARNING_SUPPRESSION_FLAGS = [
   "--disable-warning=MaxListenersExceededWarning",
 ];
 
+<<<<<<< HEAD
+=======
+const DEFAULT_CI_MAX_OLD_SPACE_SIZE_MB = 4096;
+const maxOldSpaceSizeMb = (() => {
+  // CI can hit Node heap limits (especially on large suites). Allow override, default to 4GB.
+  const raw = process.env.OPENCLAW_TEST_MAX_OLD_SPACE_SIZE_MB ?? "";
+  const parsed = Number.parseInt(raw, 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+  if (isCI && !isWindows) {
+    return DEFAULT_CI_MAX_OLD_SPACE_SIZE_MB;
+  }
+  return null;
+})();
+
+function resolveReportDir() {
+  const raw = process.env.OPENCLAW_VITEST_REPORT_DIR?.trim();
+  if (!raw) {
+    return null;
+  }
+  try {
+    fs.mkdirSync(raw, { recursive: true });
+  } catch {
+    return null;
+  }
+  return raw;
+}
+
+function buildReporterArgs(entry, extraArgs) {
+  const reportDir = resolveReportDir();
+  if (!reportDir) {
+    return [];
+  }
+
+  // Vitest supports both `--shard 1/2` and `--shard=1/2`. We use it in the
+  // split-arg form, so we need to read the next arg to avoid overwriting reports.
+  const shardIndex = extraArgs.findIndex((arg) => arg === "--shard");
+  const inlineShardArg = extraArgs.find(
+    (arg) => typeof arg === "string" && arg.startsWith("--shard="),
+  );
+  const shardValue =
+    shardIndex >= 0 && typeof extraArgs[shardIndex + 1] === "string"
+      ? extraArgs[shardIndex + 1]
+      : typeof inlineShardArg === "string"
+        ? inlineShardArg.slice("--shard=".length)
+        : "";
+  const shardSuffix = shardValue
+    ? `-shard${String(shardValue).replaceAll("/", "of").replaceAll(" ", "")}`
+    : "";
+
+  const outputFile = path.join(reportDir, `vitest-${entry.name}${shardSuffix}.json`);
+  return ["--reporter=default", "--reporter=json", "--outputFile", outputFile];
+}
+
+>>>>>>> 3faf5ada2 (ci(test): raise node heap for CI vitest)
 const runOnce = (entry, extraArgs = []) =>
   new Promise((resolve) => {
     const maxWorkers = maxWorkersForRun(entry.name);
@@ -215,17 +271,27 @@ const runOnce = (entry, extraArgs = []) =>
       nodeOptions,
     );
 <<<<<<< HEAD
+<<<<<<< HEAD
     const child = spawn(pnpm, args, {
       stdio: "inherit",
       env: { ...process.env, VITEST_GROUP: entry.name, NODE_OPTIONS: nextNodeOptions },
       shell: process.platform === "win32",
     });
 =======
+=======
+    const heapFlag =
+      maxOldSpaceSizeMb && !nextNodeOptions.includes("--max-old-space-size=")
+        ? `--max-old-space-size=${maxOldSpaceSizeMb}`
+        : null;
+    const resolvedNodeOptions = heapFlag
+      ? `${nextNodeOptions} ${heapFlag}`.trim()
+      : nextNodeOptions;
+>>>>>>> 3faf5ada2 (ci(test): raise node heap for CI vitest)
     let child;
     try {
       child = spawn(pnpm, args, {
         stdio: "inherit",
-        env: { ...process.env, VITEST_GROUP: entry.name, NODE_OPTIONS: nextNodeOptions },
+        env: { ...process.env, VITEST_GROUP: entry.name, NODE_OPTIONS: resolvedNodeOptions },
         shell: isWindows,
       });
     } catch (err) {
