@@ -42,20 +42,21 @@ import { buildInboundMetaSystemPrompt, buildInboundUserContextPrefix } from "./i
 import { resolveQueueSettings } from "./queue.js";
 >>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
 import { routeReply } from "./route-reply.js";
+<<<<<<< HEAD
 import type { buildCommandContext } from "./commands.js";
 import type { InlineDirectives } from "./directive-handling.js";
 import { buildGroupIntro } from "./groups.js";
 import type { createModelSelectionState } from "./model-selection.js";
 import { resolveQueueSettings } from "./queue.js";
+=======
+import { BARE_SESSION_RESET_PROMPT } from "./session-reset-prompt.js";
+>>>>>>> 616658d4b (fix (gateway/agent): route bare /new and /reset through sessions.reset)
 import { ensureSkillSnapshot, prependSystemEvents } from "./session-updates.js";
 import type { TypingController } from "./typing.js";
 import { resolveTypingMode } from "./typing-mode.js";
 
 type AgentDefaults = NonNullable<MoltbotConfig["agents"]>["defaults"];
 type ExecOverrides = Pick<ExecToolDefaults, "host" | "security" | "ask" | "node">;
-
-const BARE_SESSION_RESET_PROMPT =
-  "A new session was started via /new or /reset. Greet the user in your configured persona, if one is provided. Be yourself - use your defined voice, mannerisms, and mood. Keep it to 1-3 sentences and ask what they want to do. If the runtime model differs from default_model in the system prompt, mention the default model. Do not mention internal steps, files, tools, or reasoning.";
 
 type RunPreparedReplyParams = {
   ctx: MsgContext;
