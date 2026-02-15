@@ -1,5 +1,12 @@
 import fs from "node:fs/promises";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
+<<<<<<< HEAD
+=======
+import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
+import type { RunEmbeddedPiAgentParams } from "./run/params.js";
+import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
+import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+>>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
 import { enqueueCommandInLane } from "../../process/command-queue.js";
 import { resolveUserPath } from "../../utils.js";
 import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js";
@@ -189,12 +196,48 @@ export async function runEmbeddedPiAgent(
       const resolvedWorkspace = resolveUserPath(params.workspaceDir);
       const prevCwd = process.cwd();
 
+<<<<<<< HEAD
       const provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
       const modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
       const agentDir = params.agentDir ?? resolveMoltbotAgentDir();
+=======
+      let provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
+      let modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
+      const agentDir = params.agentDir ?? resolveOpenClawAgentDir();
+>>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
       const fallbackConfigured =
         (params.config?.agents?.defaults?.model?.fallbacks?.length ?? 0) > 0;
       await ensureMoltbotModelsJson(params.config, agentDir);
+
+      // Run before_agent_start hooks early so plugins can override the model
+      // before it gets resolved. The hook result is passed downstream to
+      // attempt.ts to avoid double-firing.
+      let earlyHookResult: PluginHookBeforeAgentStartResult | undefined;
+      const hookRunner = getGlobalHookRunner();
+      if (hookRunner?.hasHooks("before_agent_start")) {
+        try {
+          earlyHookResult = await hookRunner.runBeforeAgentStart(
+            { prompt: params.prompt },
+            {
+              agentId: params.agentId,
+              sessionKey: params.sessionKey,
+              sessionId: params.sessionId,
+              workspaceDir: params.workspaceDir,
+              messageProvider: params.messageProvider ?? undefined,
+            },
+          );
+          if (earlyHookResult?.providerOverride) {
+            provider = earlyHookResult.providerOverride;
+            log.info(`[hooks] provider overridden to ${provider}`);
+          }
+          if (earlyHookResult?.modelOverride) {
+            modelId = earlyHookResult.modelOverride;
+            log.info(`[hooks] model overridden to ${modelId}`);
+          }
+        } catch (hookErr) {
+          log.warn(`before_agent_start hook (early) failed: ${String(hookErr)}`);
+        }
+      }
 
       const { model, error, authStorage, modelRegistry } = resolveModel(
         provider,
@@ -471,6 +514,7 @@ export async function runEmbeddedPiAgent(
             streamParams: params.streamParams,
             ownerNumbers: params.ownerNumbers,
             enforceFinalTag: params.enforceFinalTag,
+            earlyHookResult,
           });
 
 <<<<<<< HEAD

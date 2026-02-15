@@ -55,6 +55,7 @@ export type EmbeddedRunAttemptParams = {
 import type { Api, AssistantMessage, Model } from "@mariozechner/pi-ai";
 import type { ThinkLevel } from "../../../auto-reply/thinking.js";
 import type { SessionSystemPromptReport } from "../../../config/sessions/types.js";
+import type { PluginHookBeforeAgentStartResult } from "../../../plugins/types.js";
 import type { MessagingToolSend } from "../../pi-embedded-messaging.js";
 import type { AuthStorage, ModelRegistry } from "../../pi-model-discovery.js";
 import type { NormalizedUsage } from "../../usage.js";
@@ -73,6 +74,7 @@ export type EmbeddedRunAttemptParams = EmbeddedRunAttemptBase & {
   authStorage: AuthStorage;
   modelRegistry: ModelRegistry;
   thinkLevel: ThinkLevel;
+<<<<<<< HEAD
 <<<<<<< HEAD
   verboseLevel?: VerboseLevel;
   reasoningLevel?: ReasoningLevel;
@@ -110,6 +112,10 @@ export type EmbeddedRunAttemptParams = EmbeddedRunAttemptBase & {
   enforceFinalTag?: boolean;
 =======
 >>>>>>> 0dbe087ef (refactor(pi-embedded-runner): dedupe attempt params)
+=======
+  /** Pre-computed hook result from run.ts to avoid double-firing before_agent_start. */
+  earlyHookResult?: PluginHookBeforeAgentStartResult;
+>>>>>>> b90eb5152 (feat(plugins): add modelOverride/providerOverride to before_agent_start hook)
 };
 
 export type EmbeddedRunAttemptResult = {
