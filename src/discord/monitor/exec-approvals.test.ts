@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 import type { ButtonInteraction, ComponentData } from "@buape/carbon";
 import { Routes } from "discord-api-types/v10";
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 9203a2fdb (Discord: CV2! (#16364))
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
@@ -15,8 +17,12 @@ import {
 } from "./exec-approvals.js";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 const STORE_PATH = "/tmp/openclaw-exec-approvals-test.json";
+=======
+const STORE_PATH = path.join(os.tmpdir(), "openclaw-exec-approvals-test.json");
+>>>>>>> be9b5cefb (fix(ci): stabilize state-dir dependent tests)
 
 const writeStore = (store: Record<string, unknown>) => {
   fs.writeFileSync(STORE_PATH, `${JSON.stringify(store, null, 2)}\n`, "utf8");
