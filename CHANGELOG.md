@@ -169,7 +169,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 2fa78c17d (Changelog: credit cron delivery fix)
 =======
 - Cron: skip missed-job replay on startup for jobs interrupted mid-run (stale `runningAtMs` markers), preventing restart loops for self-restarting jobs such as update tasks. (#16694) Thanks @sbmilburn.
+<<<<<<< HEAD
 >>>>>>> 70cf0e4d4 (chore (changelog): note cron interrupted-start replay fix)
+=======
+- Heartbeat/Cron: treat cron-tagged queued system events as cron reminders even on interval wakes, so isolated cron announce summaries no longer run under the default heartbeat prompt. (#14947) Thanks @archedark-ada and @vignesh07.
+>>>>>>> cb54a532f (chore (changelog): document cron heartbeat prompt hardening)
 - Discord: prefer gateway guild id when logging inbound messages so cached-miss guilds do not appear as `guild=dm`. Thanks @thewilloftheshadow.
 <<<<<<< HEAD
 <<<<<<< HEAD
