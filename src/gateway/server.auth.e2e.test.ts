@@ -13,6 +13,7 @@ import {
   startServerWithClient,
   testTailscaleWhois,
   testState,
+  withGatewayServer,
 } from "./test-helpers.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 
@@ -591,6 +592,7 @@ describe("gateway server auth/connect", () => {
       },
       // oxlint-disable-next-line typescript/no-explicit-any
     } as any);
+<<<<<<< HEAD
     const prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
     process.env.CLAWDBOT_GATEWAY_TOKEN = "secret";
     const port = await getFreePort();
@@ -649,12 +651,75 @@ describe("gateway server auth/connect", () => {
       delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
       process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
+=======
+    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+    process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
+    try {
+      await withGatewayServer(async ({ port }) => {
+        const ws = new WebSocket(`ws://127.0.0.1:${port}`, {
+          headers: {
+            origin: "https://localhost",
+            "x-forwarded-for": "203.0.113.10",
+          },
+        });
+        const challengePromise = onceMessage<{ payload?: unknown }>(
+          ws,
+          (o) => o.type === "event" && o.event === "connect.challenge",
+        );
+        await new Promise<void>((resolve) => ws.once("open", resolve));
+        const challenge = await challengePromise;
+        const nonce = (challenge.payload as { nonce?: unknown } | undefined)?.nonce;
+        expect(typeof nonce).toBe("string");
+        const { loadOrCreateDeviceIdentity, publicKeyRawBase64UrlFromPem, signDevicePayload } =
+          await import("../infra/device-identity.js");
+        const identity = loadOrCreateDeviceIdentity();
+        const scopes = ["operator.admin", "operator.approvals", "operator.pairing"];
+        const signedAtMs = Date.now();
+        const payload = buildDeviceAuthPayload({
+          deviceId: identity.deviceId,
+          clientId: GATEWAY_CLIENT_NAMES.CONTROL_UI,
+          clientMode: GATEWAY_CLIENT_MODES.WEBCHAT,
+          role: "operator",
+          scopes,
+          signedAtMs,
+          token: "secret",
+          nonce: String(nonce),
+        });
+        const device = {
+          id: identity.deviceId,
+          publicKey: publicKeyRawBase64UrlFromPem(identity.publicKeyPem),
+          signature: signDevicePayload(identity.privateKeyPem, payload),
+          signedAt: signedAtMs,
+          nonce: String(nonce),
+        };
+        const res = await connectReq(ws, {
+          token: "secret",
+          scopes,
+          device,
+          client: {
+            id: GATEWAY_CLIENT_NAMES.CONTROL_UI,
+            version: "1.0.0",
+            platform: "web",
+            mode: GATEWAY_CLIENT_MODES.WEBCHAT,
+          },
+        });
+        expect(res.ok).toBe(true);
+        ws.close();
+      });
+    } finally {
+      if (prevToken === undefined) {
+        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      } else {
+        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+      }
+>>>>>>> 8ba16a894 (refactor(test): reuse withGatewayServer in auth/http suites)
     }
   });
 
   test("allows control ui with stale device identity when device auth is disabled", async () => {
     testState.gatewayControlUi = { dangerouslyDisableDeviceAuth: true };
     testState.gatewayAuth = { mode: "token", token: "secret" };
+<<<<<<< HEAD
     const prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
     process.env.CLAWDBOT_GATEWAY_TOKEN = "secret";
     const port = await getFreePort();
@@ -697,6 +762,52 @@ describe("gateway server auth/connect", () => {
       delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
       process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
+=======
+    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+    process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
+    try {
+      await withGatewayServer(async ({ port }) => {
+        const ws = await openWs(port, { origin: originForPort(port) });
+        const { loadOrCreateDeviceIdentity, publicKeyRawBase64UrlFromPem, signDevicePayload } =
+          await import("../infra/device-identity.js");
+        const identity = loadOrCreateDeviceIdentity();
+        const signedAtMs = Date.now() - 60 * 60 * 1000;
+        const payload = buildDeviceAuthPayload({
+          deviceId: identity.deviceId,
+          clientId: GATEWAY_CLIENT_NAMES.CONTROL_UI,
+          clientMode: GATEWAY_CLIENT_MODES.WEBCHAT,
+          role: "operator",
+          scopes: [],
+          signedAtMs,
+          token: "secret",
+        });
+        const device = {
+          id: identity.deviceId,
+          publicKey: publicKeyRawBase64UrlFromPem(identity.publicKeyPem),
+          signature: signDevicePayload(identity.privateKeyPem, payload),
+          signedAt: signedAtMs,
+        };
+        const res = await connectReq(ws, {
+          token: "secret",
+          device,
+          client: {
+            id: GATEWAY_CLIENT_NAMES.CONTROL_UI,
+            version: "1.0.0",
+            platform: "web",
+            mode: GATEWAY_CLIENT_MODES.WEBCHAT,
+          },
+        });
+        expect(res.ok).toBe(true);
+        expect((res.payload as { auth?: unknown } | undefined)?.auth).toBeUndefined();
+        ws.close();
+      });
+    } finally {
+      if (prevToken === undefined) {
+        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      } else {
+        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+      }
+>>>>>>> 8ba16a894 (refactor(test): reuse withGatewayServer in auth/http suites)
     }
   });
 
