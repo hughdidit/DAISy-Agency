@@ -26,6 +26,36 @@ ${body ?? `# ${name}\n`}
   );
 }
 
+async function setupWorkspaceWithProsePlugin() {
+  const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-"));
+  const managedDir = path.join(workspaceDir, ".managed");
+  const bundledDir = path.join(workspaceDir, ".bundled");
+  const pluginRoot = path.join(workspaceDir, ".openclaw", "extensions", "open-prose");
+
+  await fs.mkdir(path.join(pluginRoot, "skills", "prose"), { recursive: true });
+  await fs.writeFile(
+    path.join(pluginRoot, "openclaw.plugin.json"),
+    JSON.stringify(
+      {
+        id: "open-prose",
+        skills: ["./skills"],
+        configSchema: { type: "object", additionalProperties: false, properties: {} },
+      },
+      null,
+      2,
+    ),
+    "utf-8",
+  );
+  await fs.writeFile(path.join(pluginRoot, "index.ts"), "export {};\n", "utf-8");
+  await fs.writeFile(
+    path.join(pluginRoot, "skills", "prose", "SKILL.md"),
+    `---\nname: prose\ndescription: test\n---\n`,
+    "utf-8",
+  );
+
+  return { workspaceDir, managedDir, bundledDir };
+}
+
 describe("loadWorkspaceSkillEntries", () => {
   it("handles an empty managed skills dir without throwing", async () => {
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
@@ -41,6 +71,7 @@ describe("loadWorkspaceSkillEntries", () => {
   });
 
   it("includes plugin-shipped skills when the plugin is enabled", async () => {
+<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
     const managedDir = path.join(workspaceDir, ".managed");
     const bundledDir = path.join(workspaceDir, ".bundled");
@@ -66,6 +97,9 @@ describe("loadWorkspaceSkillEntries", () => {
       `---\nname: prose\ndescription: test\n---\n`,
       "utf-8",
     );
+=======
+    const { workspaceDir, managedDir, bundledDir } = await setupWorkspaceWithProsePlugin();
+>>>>>>> 20abab7c4 (refactor(test): dedupe loadWorkspaceSkillEntries plugin setup)
 
     const entries = loadWorkspaceSkillEntries(workspaceDir, {
       config: {
@@ -81,6 +115,7 @@ describe("loadWorkspaceSkillEntries", () => {
   });
 
   it("excludes plugin-shipped skills when the plugin is not allowed", async () => {
+<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
     const managedDir = path.join(workspaceDir, ".managed");
     const bundledDir = path.join(workspaceDir, ".bundled");
@@ -106,6 +141,9 @@ describe("loadWorkspaceSkillEntries", () => {
       `---\nname: prose\ndescription: test\n---\n`,
       "utf-8",
     );
+=======
+    const { workspaceDir, managedDir, bundledDir } = await setupWorkspaceWithProsePlugin();
+>>>>>>> 20abab7c4 (refactor(test): dedupe loadWorkspaceSkillEntries plugin setup)
 
     const entries = loadWorkspaceSkillEntries(workspaceDir, {
       config: {
