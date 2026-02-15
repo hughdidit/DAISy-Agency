@@ -6,7 +6,18 @@ import { resolveMentionGatingWithBypass } from "clawdbot/plugin-sdk";
 
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import { createReplyPrefixOptions, resolveMentionGatingWithBypass } from "openclaw/plugin-sdk";
+=======
+import {
+  createReplyPrefixOptions,
+  normalizeWebhookPath,
+  readJsonBodyWithLimit,
+  resolveWebhookPath,
+  requestBodyErrorToText,
+  resolveMentionGatingWithBypass,
+} from "openclaw/plugin-sdk";
+>>>>>>> 00e63da33 (refactor(webhooks): reuse plugin-sdk webhook path helpers)
 import type {
   GoogleChatAnnotation,
   GoogleChatAttachment,
@@ -71,6 +82,7 @@ function logVerbose(core: GoogleChatCoreRuntime, runtime: GoogleChatRuntimeEnv, 
   }
 }
 
+<<<<<<< HEAD
 function normalizeWebhookPath(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) {
@@ -137,6 +149,31 @@ async function readJsonBody(req: IncomingMessage, maxBytes: number) {
       doResolve({ ok: false, error: err instanceof Error ? err.message : String(err) });
     });
   });
+=======
+const warnedDeprecatedUsersEmailAllowFrom = new Set<string>();
+function warnDeprecatedUsersEmailEntries(
+  core: GoogleChatCoreRuntime,
+  runtime: GoogleChatRuntimeEnv,
+  entries: string[],
+) {
+  const deprecated = entries.map((v) => String(v).trim()).filter((v) => /^users\/.+@.+/i.test(v));
+  if (deprecated.length === 0) {
+    return;
+  }
+  const key = deprecated
+    .map((v) => v.toLowerCase())
+    .sort()
+    .join(",");
+  if (warnedDeprecatedUsersEmailAllowFrom.has(key)) {
+    return;
+  }
+  warnedDeprecatedUsersEmailAllowFrom.add(key);
+  logVerbose(
+    core,
+    runtime,
+    `Deprecated allowFrom entry detected: "users/<email>" is no longer treated as an email allowlist. Use raw email (alice@example.com) or immutable user id (users/<id>). entries=${deprecated.join(", ")}`,
+  );
+>>>>>>> 00e63da33 (refactor(webhooks): reuse plugin-sdk webhook path helpers)
 }
 
 export function registerGoogleChatWebhookTarget(target: WebhookTarget): () => void {
@@ -937,7 +974,11 @@ async function uploadAttachmentForReply(params: {
 
 export function monitorGoogleChatProvider(options: GoogleChatMonitorOptions): () => void {
   const core = getGoogleChatRuntime();
-  const webhookPath = resolveWebhookPath(options.webhookPath, options.webhookUrl);
+  const webhookPath = resolveWebhookPath({
+    webhookPath: options.webhookPath,
+    webhookUrl: options.webhookUrl,
+    defaultPath: "/googlechat",
+  });
   if (!webhookPath) {
     options.runtime.error?.(`[${options.account.accountId}] invalid webhook path`);
     return () => {};
@@ -972,8 +1013,11 @@ export function resolveGoogleChatWebhookPath(params: {
   account: ResolvedGoogleChatAccount;
 }): string {
   return (
-    resolveWebhookPath(params.account.config.webhookPath, params.account.config.webhookUrl) ??
-    "/googlechat"
+    resolveWebhookPath({
+      webhookPath: params.account.config.webhookPath,
+      webhookUrl: params.account.config.webhookUrl,
+      defaultPath: "/googlechat",
+    }) ?? "/googlechat"
   );
 }
 
