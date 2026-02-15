@@ -13,10 +13,10 @@
 import type { RequestClient } from "@buape/carbon";
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import type { RetryRunner } from "../infra/retry-policy.js";
+import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -90,8 +90,13 @@ export async function generateWaveform(filePath: string): Promise<string> {
  * Generate waveform by extracting raw PCM data and sampling amplitudes
  */
 async function generateWaveformFromPcm(filePath: string): Promise<string> {
+<<<<<<< HEAD
   const tempDir = os.tmpdir();
   const tempPcm = path.join(tempDir, `waveform-${Date.now()}.raw`);
+=======
+  const tempDir = resolvePreferredOpenClawTmpDir();
+  const tempPcm = path.join(tempDir, `waveform-${crypto.randomUUID()}.raw`);
+>>>>>>> 725741486 (fix(discord): harden voice message media loading)
 
   try {
     // Convert to raw 16-bit signed PCM, mono, 8kHz
@@ -165,6 +170,14 @@ function generatePlaceholderWaveform(): string {
  * Returns path to the OGG file (may be same as input if already OGG/Opus)
  */
 export async function ensureOggOpus(filePath: string): Promise<{ path: string; cleanup: boolean }> {
+  const trimmed = filePath.trim();
+  // Defense-in-depth: callers should never hand ffmpeg/ffprobe a URL/protocol path.
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) {
+    throw new Error(
+      `Voice message conversion requires a local file path; received a URL/protocol source: ${trimmed}`,
+    );
+  }
+
   const ext = path.extname(filePath).toLowerCase();
 
   // Check if already OGG
@@ -191,8 +204,13 @@ export async function ensureOggOpus(filePath: string): Promise<{ path: string; c
   }
 
   // Convert to OGG/Opus
+<<<<<<< HEAD
   const tempDir = os.tmpdir();
   const outputPath = path.join(tempDir, `voice-${Date.now()}.ogg`);
+=======
+  const tempDir = resolvePreferredOpenClawTmpDir();
+  const outputPath = path.join(tempDir, `voice-${crypto.randomUUID()}.ogg`);
+>>>>>>> 725741486 (fix(discord): harden voice message media loading)
 
   await execFileAsync("ffmpeg", [
     "-y",
