@@ -384,6 +384,43 @@ export async function startGatewayServer(port: number, opts?: GatewayServerOptio
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 }
 
+async function startGatewayServerWithRetries(params: {
+  port: number;
+  opts?: GatewayServerOptions;
+}): Promise<{ port: number; server: Awaited<ReturnType<typeof startGatewayServer>> }> {
+  let port = params.port;
+  for (let attempt = 0; attempt < 10; attempt++) {
+    try {
+      return {
+        port,
+        server: await startGatewayServer(port, params.opts),
+      };
+    } catch (err) {
+      const code = (err as { cause?: { code?: string } }).cause?.code;
+      if (code !== "EADDRINUSE") {
+        throw err;
+      }
+      port = await getFreePort();
+    }
+  }
+  throw new Error("failed to start gateway server after retries");
+}
+
+export async function withGatewayServer<T>(
+  fn: (ctx: { port: number; server: Awaited<ReturnType<typeof startGatewayServer>> }) => Promise<T>,
+  opts?: { port?: number; serverOptions?: GatewayServerOptions },
+): Promise<T> {
+  const started = await startGatewayServerWithRetries({
+    port: opts?.port ?? (await getFreePort()),
+    opts: opts?.serverOptions,
+  });
+  try {
+    return await fn({ port: started.port, server: started.server });
+  } finally {
+    await started.server.close();
+  }
+}
+
 export async function startServerWithClient(
   token?: string,
   opts?: GatewayServerOptions & { wsHeaders?: Record<string, string> },
@@ -405,22 +442,9 @@ export async function startServerWithClient(
     process.env.CLAWDBOT_GATEWAY_TOKEN = fallbackToken;
   }
 
-  let server: Awaited<ReturnType<typeof startGatewayServer>> | null = null;
-  for (let attempt = 0; attempt < 10; attempt++) {
-    try {
-      server = await startGatewayServer(port, gatewayOpts);
-      break;
-    } catch (err) {
-      const code = (err as { cause?: { code?: string } }).cause?.code;
-      if (code !== "EADDRINUSE") {
-        throw err;
-      }
-      port = await getFreePort();
-    }
-  }
-  if (!server) {
-    throw new Error("failed to start gateway server after retries");
-  }
+  const started = await startGatewayServerWithRetries({ port, opts: gatewayOpts });
+  port = started.port;
+  const server = started.server;
 
 <<<<<<< HEAD
   const ws = new WebSocket(`ws://127.0.0.1:${port}`);
