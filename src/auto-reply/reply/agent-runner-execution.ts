@@ -125,6 +125,10 @@ export async function runAgentTurnWithFallback(params: {
           return { skip: true };
         }
         if (!text) {
+          // Allow media-only payloads (e.g. tool result screenshots) through.
+          if ((payload.mediaUrls?.length ?? 0) > 0) {
+            return { text: undefined, skip: false };
+          }
           return { skip: true };
         }
         const sanitized = sanitizeUserFacingText(text);
