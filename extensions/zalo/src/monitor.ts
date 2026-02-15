@@ -1,6 +1,16 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { OpenClawConfig, MarkdownTableMode } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
+=======
+import {
+  createReplyPrefixOptions,
+  normalizeWebhookPath,
+  readJsonBodyWithLimit,
+  resolveWebhookPath,
+  requestBodyErrorToText,
+} from "openclaw/plugin-sdk";
+>>>>>>> 00e63da33 (refactor(webhooks): reuse plugin-sdk webhook path helpers)
 import type { ResolvedZaloAccount } from "./accounts.js";
 import {
   ZaloApiError,
@@ -106,34 +116,6 @@ type WebhookTarget = {
 };
 
 const webhookTargets = new Map<string, WebhookTarget[]>();
-
-function normalizeWebhookPath(raw: string): string {
-  const trimmed = raw.trim();
-  if (!trimmed) {
-    return "/";
-  }
-  const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-  if (withSlash.length > 1 && withSlash.endsWith("/")) {
-    return withSlash.slice(0, -1);
-  }
-  return withSlash;
-}
-
-function resolveWebhookPath(webhookPath?: string, webhookUrl?: string): string | null {
-  const trimmedPath = webhookPath?.trim();
-  if (trimmedPath) {
-    return normalizeWebhookPath(trimmedPath);
-  }
-  if (webhookUrl?.trim()) {
-    try {
-      const parsed = new URL(webhookUrl);
-      return normalizeWebhookPath(parsed.pathname || "/");
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
 
 export function registerZaloWebhookTarget(target: WebhookTarget): () => void {
   const key = normalizeWebhookPath(target.path);
@@ -712,7 +694,7 @@ export async function monitorZaloProvider(options: ZaloMonitorOptions): Promise<
       throw new Error("Zalo webhook secret must be 8-256 characters");
     }
 
-    const path = resolveWebhookPath(webhookPath, webhookUrl);
+    const path = resolveWebhookPath({ webhookPath, webhookUrl, defaultPath: null });
     if (!path) {
       throw new Error("Zalo webhookPath could not be derived");
     }
