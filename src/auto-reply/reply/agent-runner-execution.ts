@@ -122,9 +122,25 @@ export async function runAgentTurnWithFallback(params: {
         if (isSilentReplyText(text, SILENT_REPLY_TOKEN)) {
           return { skip: true };
         }
+<<<<<<< HEAD
         if (!text) return { skip: true };
         const sanitized = sanitizeUserFacingText(text);
         if (!sanitized.trim()) return { skip: true };
+=======
+        if (!text) {
+          // Allow media-only payloads (e.g. tool result screenshots) through.
+          if ((payload.mediaUrls?.length ?? 0) > 0) {
+            return { text: undefined, skip: false };
+          }
+          return { skip: true };
+        }
+        const sanitized = sanitizeUserFacingText(text, {
+          errorContext: Boolean(payload.isError),
+        });
+        if (!sanitized.trim()) {
+          return { skip: true };
+        }
+>>>>>>> 68c78c4b4 (fix: deliver tool result media when verbose is off (#16679))
         return { text: sanitized, skip: false };
       };
       const handlePartialForTyping = async (payload: ReplyPayload): Promise<string | undefined> => {
