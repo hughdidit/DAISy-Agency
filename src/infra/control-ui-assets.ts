@@ -107,9 +107,27 @@ export function resolveControlUiDistIndexPath(
   // Walk up from entrypoint looking for package with dist/control-ui/
   let dir = path.dirname(normalized);
   for (let i = 0; i < 8; i++) {
+<<<<<<< HEAD
     const candidate = path.join(dir, "dist", "control-ui", "index.html");
     if (fs.existsSync(path.join(dir, "package.json")) && fs.existsSync(candidate)) {
       return candidate;
+=======
+    const pkgJsonPath = path.join(dir, "package.json");
+    const indexPath = path.join(dir, "dist", "control-ui", "index.html");
+    if (fs.existsSync(pkgJsonPath)) {
+      try {
+        const raw = fs.readFileSync(pkgJsonPath, "utf-8");
+        const parsed = JSON.parse(raw) as { name?: unknown };
+        if (parsed.name === "openclaw") {
+          return fs.existsSync(indexPath) ? indexPath : null;
+        }
+        // Stop at the first package boundary to avoid resolving through unrelated ancestors.
+        return null;
+      } catch {
+        // Invalid package.json at package boundary; abort fallback resolution.
+        return null;
+      }
+>>>>>>> 7c822d039 (feat(plugins): expose llm input/output hook payloads (openclaw#16724) thanks @SecondThread)
     }
     const parent = path.dirname(dir);
     if (parent === dir) break;
