@@ -12,7 +12,11 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 >>>>>>> a7142c621 (perf(test): cache hook installer fixtures)
 =======
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> fa472623f (perf(test): use prebuilt hook install fixtures)
+=======
+import { isAddressInUseError } from "./gmail-watcher.js";
+>>>>>>> 5e3b211d9 (perf(test): fold gmail watcher assertions into hooks install suite)
 
 const fixtureRoot = path.join(os.tmpdir(), `openclaw-hook-install-${randomUUID()}`);
 let tempDirIndex = 0;
@@ -381,4 +385,17 @@ describe("installHooksFromNpmSpec", () => {
     expect(result.error).toContain("unsupported npm spec");
   });
 });
+<<<<<<< HEAD
 >>>>>>> a7142c621 (perf(test): cache hook installer fixtures)
+=======
+
+describe("gmail watcher", () => {
+  it("detects address already in use errors", () => {
+    expect(isAddressInUseError("listen tcp 127.0.0.1:8788: bind: address already in use")).toBe(
+      true,
+    );
+    expect(isAddressInUseError("EADDRINUSE: address already in use")).toBe(true);
+    expect(isAddressInUseError("some other error")).toBe(false);
+  });
+});
+>>>>>>> 5e3b211d9 (perf(test): fold gmail watcher assertions into hooks install suite)
