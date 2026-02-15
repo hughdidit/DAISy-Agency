@@ -4,7 +4,11 @@ import path from "node:path";
 
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { afterEach, describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
+=======
+import { captureEnv } from "../test-utils/env.js";
+>>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
 import {
   applyAuthProfileConfig,
   applyLitellmProviderConfig,
@@ -47,9 +51,18 @@ const requireAgentDir = () => {
 };
 
 describe("writeOAuthCredentials", () => {
+<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
+=======
+  const envSnapshot = captureEnv([
+    "OPENCLAW_STATE_DIR",
+    "OPENCLAW_AGENT_DIR",
+    "PI_CODING_AGENT_DIR",
+    "OPENCLAW_OAUTH_DIR",
+  ]);
+>>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
   let tempStateDir: string | null = null;
 
   afterEach(async () => {
@@ -57,6 +70,7 @@ describe("writeOAuthCredentials", () => {
       await fs.rm(tempStateDir, { recursive: true, force: true });
       tempStateDir = null;
     }
+<<<<<<< HEAD
     if (previousStateDir === undefined) {
       delete process.env.CLAWDBOT_STATE_DIR;
     } else {
@@ -73,6 +87,9 @@ describe("writeOAuthCredentials", () => {
       process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
     }
     delete process.env.CLAWDBOT_OAUTH_DIR;
+=======
+    envSnapshot.restore();
+>>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
   });
 
   it("writes auth-profiles.json under CLAWDBOT_AGENT_DIR when set", async () => {
@@ -107,9 +124,17 @@ describe("writeOAuthCredentials", () => {
 });
 
 describe("setMinimaxApiKey", () => {
+<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
+=======
+  const envSnapshot = captureEnv([
+    "OPENCLAW_STATE_DIR",
+    "OPENCLAW_AGENT_DIR",
+    "PI_CODING_AGENT_DIR",
+  ]);
+>>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
   let tempStateDir: string | null = null;
 
   afterEach(async () => {
@@ -117,6 +142,7 @@ describe("setMinimaxApiKey", () => {
       await fs.rm(tempStateDir, { recursive: true, force: true });
       tempStateDir = null;
     }
+<<<<<<< HEAD
     if (previousStateDir === undefined) {
       delete process.env.CLAWDBOT_STATE_DIR;
     } else {
@@ -132,6 +158,9 @@ describe("setMinimaxApiKey", () => {
     } else {
       process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
     }
+=======
+    envSnapshot.restore();
+>>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
   });
 
   it("writes to CLAWDBOT_AGENT_DIR when set", async () => {
