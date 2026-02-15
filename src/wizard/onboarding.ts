@@ -13,6 +13,7 @@ import {
 import { promptAuthChoiceGrouped } from "../commands/auth-choice-prompt.js";
 import { applyPrimaryModel, promptDefaultModel } from "../commands/model-picker.js";
 import { setupChannels } from "../commands/onboard-channels.js";
+import { applyOnboardingLocalWorkspaceConfig } from "../commands/onboard-config.js";
 import { promptCustomApiConfig } from "../commands/onboard-custom.js";
 import {
   applyWizardMetadata,
@@ -358,6 +359,7 @@ export async function runOnboardingWizard(
 
   const workspaceDir = resolveUserPath(workspaceInput.trim() || DEFAULT_WORKSPACE);
 
+<<<<<<< HEAD
   let nextConfig: MoltbotConfig = {
     ...baseConfig,
     agents: {
@@ -372,6 +374,9 @@ export async function runOnboardingWizard(
       mode: "local",
     },
   };
+=======
+  let nextConfig: OpenClawConfig = applyOnboardingLocalWorkspaceConfig(baseConfig, workspaceDir);
+>>>>>>> af34c8faf (refactor(onboard): share local workspace+gateway config)
 
   const authStore = ensureAuthProfileStore(undefined, {
     allowKeychainPrompt: false,

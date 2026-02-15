@@ -5,6 +5,7 @@ import type { RuntimeEnv } from "../../runtime.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME } from "../daemon-runtime.js";
 import { healthCommand } from "../health.js";
+import { applyOnboardingLocalWorkspaceConfig } from "../onboard-config.js";
 import {
   applyWizardMetadata,
   DEFAULT_WORKSPACE,
@@ -35,6 +36,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
     defaultWorkspaceDir: DEFAULT_WORKSPACE,
   });
 
+<<<<<<< HEAD
   let nextConfig: MoltbotConfig = {
     ...baseConfig,
     agents: {
@@ -49,6 +51,9 @@ export async function runNonInteractiveOnboardingLocal(params: {
       mode: "local",
     },
   };
+=======
+  let nextConfig: OpenClawConfig = applyOnboardingLocalWorkspaceConfig(baseConfig, workspaceDir);
+>>>>>>> af34c8faf (refactor(onboard): share local workspace+gateway config)
 
   const authChoice = opts.authChoice ?? "skip";
   const nextConfigAfterAuth = await applyNonInteractiveAuthChoice({
