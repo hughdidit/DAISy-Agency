@@ -47,24 +47,94 @@ export function resolveSandboxPath(params: { filePath: string; cwd: string; root
   return { resolved, relative };
 }
 
-export async function assertSandboxPath(params: { filePath: string; cwd: string; root: string }) {
+export async function assertSandboxPath(params: {
+  filePath: string;
+  cwd: string;
+  root: string;
+  allowFinalSymlink?: boolean;
+}) {
   const resolved = resolveSandboxPath(params);
+<<<<<<< HEAD
   await assertNoSymlink(resolved.relative, path.resolve(params.root));
   return resolved;
 }
 
 async function assertNoSymlink(relative: string, root: string) {
+=======
+  await assertNoSymlinkEscape(resolved.relative, path.resolve(params.root), {
+    allowFinalSymlink: params.allowFinalSymlink,
+  });
+  return resolved;
+}
+
+export function assertMediaNotDataUrl(media: string): void {
+  const raw = media.trim();
+  if (DATA_URL_RE.test(raw)) {
+    throw new Error("data: URLs are not supported for media. Use buffer instead.");
+  }
+}
+
+export async function resolveSandboxedMediaSource(params: {
+  media: string;
+  sandboxRoot: string;
+}): Promise<string> {
+  const raw = params.media.trim();
+  if (!raw) {
+    return raw;
+  }
+  if (HTTP_URL_RE.test(raw)) {
+    return raw;
+  }
+  let candidate = raw;
+  if (/^file:\/\//i.test(candidate)) {
+    try {
+      candidate = fileURLToPath(candidate);
+    } catch {
+      throw new Error(`Invalid file:// URL for sandboxed media: ${raw}`);
+    }
+  }
+  const resolved = await assertSandboxPath({
+    filePath: candidate,
+    cwd: params.sandboxRoot,
+    root: params.sandboxRoot,
+  });
+  return resolved.resolved;
+}
+
+async function assertNoSymlinkEscape(
+  relative: string,
+  root: string,
+  options?: { allowFinalSymlink?: boolean },
+) {
+>>>>>>> 914b9d1e7 (fix(agents): block workspaceOnly apply_patch delete symlink escape)
   if (!relative) {
     return;
   }
   const parts = relative.split(path.sep).filter(Boolean);
   let current = root;
-  for (const part of parts) {
+  for (let idx = 0; idx < parts.length; idx += 1) {
+    const part = parts[idx];
+    const isLast = idx === parts.length - 1;
     current = path.join(current, part);
     try {
       const stat = await fs.lstat(current);
       if (stat.isSymbolicLink()) {
+<<<<<<< HEAD
         throw new Error(`Symlink not allowed in sandbox path: ${current}`);
+=======
+        // Unlinking a symlink itself is safe even if it points outside the root. What we
+        // must prevent is traversing through a symlink to reach targets outside root.
+        if (options?.allowFinalSymlink && isLast) {
+          return;
+        }
+        const target = await tryRealpath(current);
+        if (!isPathInside(rootReal, target)) {
+          throw new Error(
+            `Symlink escapes sandbox root (${shortPath(rootReal)}): ${shortPath(current)}`,
+          );
+        }
+        current = target;
+>>>>>>> 914b9d1e7 (fix(agents): block workspaceOnly apply_patch delete symlink escape)
       }
     } catch (err) {
       const anyErr = err as { code?: string };
