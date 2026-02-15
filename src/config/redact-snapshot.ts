@@ -307,8 +307,12 @@ export function redactConfigSnapshot(
   const redactedRaw = snapshot.raw ? redactRawText(snapshot.raw, snapshot.config, uiHints) : null;
   const redactedParsed = snapshot.parsed ? redactObject(snapshot.parsed, uiHints) : snapshot.parsed;
   // Also redact the resolved config (contains values after ${ENV} substitution)
+<<<<<<< HEAD
   const redactedResolved = redactConfigObject(snapshot.resolved);
 >>>>>>> 96318641d (fix: Finish credential redaction that was merged unfinished (#13073))
+=======
+  const redactedResolved = redactConfigObject(snapshot.resolved, uiHints);
+>>>>>>> 191194236 (fix: make sensitive field whitelist case-insensitive (#16148))
 
   return {
     ...snapshot,
