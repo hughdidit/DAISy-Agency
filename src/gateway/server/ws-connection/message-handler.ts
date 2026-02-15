@@ -43,6 +43,7 @@ import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
 import { loadConfig } from "../../../config/config.js";
 import { buildDeviceAuthPayload } from "../../device-auth.js";
 import { isLoopbackAddress, isTrustedProxyAddress, resolveGatewayClientIp } from "../../net.js";
+import { resolveHostName } from "../../net.js";
 import { resolveNodeCommandAllowlist } from "../../node-command-policy.js";
 import {
   type ConnectParams,
@@ -70,6 +71,7 @@ import {
   refreshGatewayHealthSnapshot,
 } from "../health-state.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayWsClient } from "../ws-types.js";
 =======
 import {
@@ -78,6 +80,9 @@ import {
   type AuthProvidedKind,
 } from "./auth-messages.js";
 >>>>>>> a79c2de95 (refactor(gateway): extract ws auth message helpers)
+=======
+import { formatGatewayAuthFailureMessage, type AuthProvidedKind } from "./auth-messages.js";
+>>>>>>> 1843bcf1d (refactor(gateway): share host header parsing)
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
