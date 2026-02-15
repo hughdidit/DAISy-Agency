@@ -16,6 +16,11 @@ import {
 =======
 =======
 import { installPackageDir } from "../infra/install-package-dir.js";
+import {
+  resolveSafeInstallDir,
+  safeDirName,
+  unscopedPackageName,
+} from "../infra/install-safe-path.js";
 import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
 >>>>>>> 4caeb203a (refactor(install): share package dir install)
 import { runCommandWithTimeout } from "../process/exec.js";
@@ -48,6 +53,7 @@ export type InstallPluginResult =
   | { ok: false; error: string };
 
 const defaultLogger: PluginInstallLogger = {};
+<<<<<<< HEAD
 
 function unscopedPackageName(name: string): string {
   const trimmed = name.trim();
@@ -65,6 +71,8 @@ function safeDirName(input: string): string {
   return trimmed.replaceAll("/", "__");
 }
 
+=======
+>>>>>>> e93764350 (refactor(install): share safe install path helpers)
 function safeFileName(input: string): string {
   return safeDirName(input);
 }
@@ -85,7 +93,23 @@ export function resolvePluginInstallDir(pluginId: string, extensionsDir?: string
   const extensionsBase = extensionsDir
     ? resolveUserPath(extensionsDir)
     : path.join(CONFIG_DIR, "extensions");
+<<<<<<< HEAD
   return path.join(extensionsBase, safeDirName(pluginId));
+=======
+  const pluginIdError = validatePluginId(pluginId);
+  if (pluginIdError) {
+    throw new Error(pluginIdError);
+  }
+  const targetDirResult = resolveSafeInstallDir({
+    baseDir: extensionsBase,
+    id: pluginId,
+    invalidNameMessage: "invalid plugin name: path traversal detected",
+  });
+  if (!targetDirResult.ok) {
+    throw new Error(targetDirResult.error);
+  }
+  return targetDirResult.path;
+>>>>>>> e93764350 (refactor(install): share safe install path helpers)
 }
 
 async function installPluginFromPackageDir(params: {
@@ -178,7 +202,19 @@ async function installPluginFromPackageDir(params: {
     : path.join(CONFIG_DIR, "extensions");
   await fs.mkdir(extensionsDir, { recursive: true });
 
+<<<<<<< HEAD
   const targetDir = path.join(extensionsDir, safeDirName(pluginId));
+=======
+  const targetDirResult = resolveSafeInstallDir({
+    baseDir: extensionsDir,
+    id: pluginId,
+    invalidNameMessage: "invalid plugin name: path traversal detected",
+  });
+  if (!targetDirResult.ok) {
+    return { ok: false, error: targetDirResult.error };
+  }
+  const targetDir = targetDirResult.path;
+>>>>>>> e93764350 (refactor(install): share safe install path helpers)
 
   if (mode === "install" && (await fileExists(targetDir))) {
     return {

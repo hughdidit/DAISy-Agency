@@ -15,6 +15,7 @@ import {
 <<<<<<< HEAD
 =======
 import { installPackageDir } from "../infra/install-package-dir.js";
+import { resolveSafeInstallDir, unscopedPackageName } from "../infra/install-safe-path.js";
 import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
@@ -46,6 +47,7 @@ export type InstallHooksResult =
 
 const defaultLogger: HookInstallLogger = {};
 
+<<<<<<< HEAD
 function unscopedPackageName(name: string): string {
   const trimmed = name.trim();
   if (!trimmed) {
@@ -60,15 +62,48 @@ function safeDirName(input: string): string {
     return trimmed;
   }
   return trimmed.replaceAll("/", "__");
+=======
+function validateHookId(hookId: string): string | null {
+  if (!hookId) {
+    return "invalid hook name: missing";
+  }
+  if (hookId === "." || hookId === "..") {
+    return "invalid hook name: reserved path segment";
+  }
+  if (hookId.includes("/") || hookId.includes("\\")) {
+    return "invalid hook name: path separators not allowed";
+  }
+  return null;
+>>>>>>> e93764350 (refactor(install): share safe install path helpers)
 }
 
 export function resolveHookInstallDir(hookId: string, hooksDir?: string): string {
   const hooksBase = hooksDir ? resolveUserPath(hooksDir) : path.join(CONFIG_DIR, "hooks");
+<<<<<<< HEAD
   return path.join(hooksBase, safeDirName(hookId));
 }
 
 async function ensureMoltbotHooks(manifest: HookPackageManifest) {
   const hooks = manifest.moltbot?.hooks ?? manifest[LEGACY_MANIFEST_KEY]?.hooks;
+=======
+  const hookIdError = validateHookId(hookId);
+  if (hookIdError) {
+    throw new Error(hookIdError);
+  }
+  const targetDirResult = resolveSafeInstallDir({
+    baseDir: hooksBase,
+    id: hookId,
+    invalidNameMessage: "invalid hook name: path traversal detected",
+  });
+  if (!targetDirResult.ok) {
+    throw new Error(targetDirResult.error);
+  }
+  return targetDirResult.path;
+}
+
+async function ensureOpenClawHooks(manifest: HookPackageManifest) {
+  const hooks = manifest[MANIFEST_KEY]?.hooks;
+>>>>>>> e93764350 (refactor(install): share safe install path helpers)
   if (!Array.isArray(hooks)) {
     throw new Error("package.json missing moltbot.hooks");
   }
@@ -152,7 +187,19 @@ async function installHookPackageFromDir(params: {
     : path.join(CONFIG_DIR, "hooks");
   await fs.mkdir(hooksDir, { recursive: true });
 
+<<<<<<< HEAD
   const targetDir = resolveHookInstallDir(hookPackId, hooksDir);
+=======
+  const targetDirResult = resolveSafeInstallDir({
+    baseDir: hooksDir,
+    id: hookPackId,
+    invalidNameMessage: "invalid hook name: path traversal detected",
+  });
+  if (!targetDirResult.ok) {
+    return { ok: false, error: targetDirResult.error };
+  }
+  const targetDir = targetDirResult.path;
+>>>>>>> e93764350 (refactor(install): share safe install path helpers)
   if (mode === "install" && (await fileExists(targetDir))) {
     return { ok: false, error: `hook pack already exists: ${targetDir} (delete it first)` };
   }
@@ -227,7 +274,19 @@ async function installHookFromDir(params: {
     : path.join(CONFIG_DIR, "hooks");
   await fs.mkdir(hooksDir, { recursive: true });
 
+<<<<<<< HEAD
   const targetDir = resolveHookInstallDir(hookName, hooksDir);
+=======
+  const targetDirResult = resolveSafeInstallDir({
+    baseDir: hooksDir,
+    id: hookName,
+    invalidNameMessage: "invalid hook name: path traversal detected",
+  });
+  if (!targetDirResult.ok) {
+    return { ok: false, error: targetDirResult.error };
+  }
+  const targetDir = targetDirResult.path;
+>>>>>>> e93764350 (refactor(install): share safe install path helpers)
   if (mode === "install" && (await fileExists(targetDir))) {
     return { ok: false, error: `hook already exists: ${targetDir} (delete it first)` };
   }
