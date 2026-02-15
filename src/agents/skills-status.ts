@@ -6,6 +6,7 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   buildConfigChecks,
   resolveMissingAnyBins,
@@ -18,6 +19,9 @@ import {
 import { evaluateRequirements } from "../shared/requirements.js";
 >>>>>>> 4f61a3f52 (refactor(shared): centralize requirements evaluation)
 =======
+=======
+import { resolveEmojiAndHomepage } from "../shared/entry-metadata.js";
+>>>>>>> b838429e2 (refactor(status): share emoji/homepage resolver)
 import { evaluateRequirementsFromMetadata } from "../shared/requirements.js";
 >>>>>>> 270779b2c (refactor(shared): derive requirements from metadata)
 import { CONFIG_DIR } from "../utils.js";
@@ -197,13 +201,10 @@ function buildSkillStatus(
   const allowBundled = resolveBundledAllowlist(config);
   const blockedByAllowlist = !isBundledSkillAllowed(entry, allowBundled);
   const always = entry.metadata?.always === true;
-  const emoji = entry.metadata?.emoji ?? entry.frontmatter.emoji;
-  const homepageRaw =
-    entry.metadata?.homepage ??
-    entry.frontmatter.homepage ??
-    entry.frontmatter.website ??
-    entry.frontmatter.url;
-  const homepage = homepageRaw?.trim() ? homepageRaw.trim() : undefined;
+  const { emoji, homepage } = resolveEmojiAndHomepage({
+    metadata: entry.metadata,
+    frontmatter: entry.frontmatter,
+  });
   const bundled =
     bundledNames && bundledNames.size > 0
       ? bundledNames.has(entry.skill.name)

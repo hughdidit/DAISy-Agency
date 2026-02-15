@@ -7,6 +7,7 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   buildConfigChecks,
   resolveMissingAnyBins,
@@ -19,6 +20,9 @@ import {
 import { evaluateRequirements } from "../shared/requirements.js";
 >>>>>>> 4f61a3f52 (refactor(shared): centralize requirements evaluation)
 =======
+=======
+import { resolveEmojiAndHomepage } from "../shared/entry-metadata.js";
+>>>>>>> b838429e2 (refactor(status): share emoji/homepage resolver)
 import { evaluateRequirementsFromMetadata } from "../shared/requirements.js";
 >>>>>>> 270779b2c (refactor(shared): derive requirements from metadata)
 import { CONFIG_DIR } from "../utils.js";
@@ -121,13 +125,10 @@ function buildHookStatus(
   const managedByPlugin = entry.hook.source === "moltbot-plugin";
   const disabled = managedByPlugin ? false : hookConfig?.enabled === false;
   const always = entry.metadata?.always === true;
-  const emoji = entry.metadata?.emoji ?? entry.frontmatter.emoji;
-  const homepageRaw =
-    entry.metadata?.homepage ??
-    entry.frontmatter.homepage ??
-    entry.frontmatter.website ??
-    entry.frontmatter.url;
-  const homepage = homepageRaw?.trim() ? homepageRaw.trim() : undefined;
+  const { emoji, homepage } = resolveEmojiAndHomepage({
+    metadata: entry.metadata,
+    frontmatter: entry.frontmatter,
+  });
   const events = entry.metadata?.events ?? [];
 
   const {
