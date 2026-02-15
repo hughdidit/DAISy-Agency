@@ -18,9 +18,13 @@ import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { applyVerboseOverride } from "../../sessions/level-overrides.js";
 import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
 import { resolveProfileOverride } from "./directive-handling.auth.js";
+<<<<<<< HEAD
 import type { InlineDirectives } from "./directive-handling.parse.js";
 import { formatElevatedEvent, formatReasoningEvent } from "./directive-handling.shared.js";
 import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
+=======
+import { enqueueModeSwitchEvents } from "./directive-handling.shared.js";
+>>>>>>> ca4c2b33d (refactor(auto-reply): share mode-switch events)
 
 export async function persistInlineDirectives(params: {
   directives: InlineDirectives;
@@ -203,20 +207,13 @@ export async function persistInlineDirectives(params: {
           store[sessionKey] = sessionEntry;
         });
       }
-      if (elevatedChanged) {
-        const nextElevated = (sessionEntry.elevatedLevel ?? "off") as ElevatedLevel;
-        enqueueSystemEvent(formatElevatedEvent(nextElevated), {
-          sessionKey,
-          contextKey: "mode:elevated",
-        });
-      }
-      if (reasoningChanged) {
-        const nextReasoning = (sessionEntry.reasoningLevel ?? "off") as ReasoningLevel;
-        enqueueSystemEvent(formatReasoningEvent(nextReasoning), {
-          sessionKey,
-          contextKey: "mode:reasoning",
-        });
-      }
+      enqueueModeSwitchEvents({
+        enqueueSystemEvent,
+        sessionEntry,
+        sessionKey,
+        elevatedChanged,
+        reasoningChanged,
+      });
     }
   }
 

@@ -29,10 +29,9 @@ import type { InlineDirectives } from "./directive-handling.parse.js";
 import { maybeHandleQueueDirective } from "./directive-handling.queue-validation.js";
 import {
   formatDirectiveAck,
-  formatElevatedEvent,
   formatElevatedRuntimeHint,
   formatElevatedUnavailableText,
-  formatReasoningEvent,
+  enqueueModeSwitchEvents,
   withOptions,
 } from "./directive-handling.shared.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
@@ -408,20 +407,13 @@ export async function handleDirectiveOnly(
       });
     }
   }
-  if (elevatedChanged) {
-    const nextElevated = (sessionEntry.elevatedLevel ?? "off") as ElevatedLevel;
-    enqueueSystemEvent(formatElevatedEvent(nextElevated), {
-      sessionKey,
-      contextKey: "mode:elevated",
-    });
-  }
-  if (reasoningChanged) {
-    const nextReasoning = (sessionEntry.reasoningLevel ?? "off") as ReasoningLevel;
-    enqueueSystemEvent(formatReasoningEvent(nextReasoning), {
-      sessionKey,
-      contextKey: "mode:reasoning",
-    });
-  }
+  enqueueModeSwitchEvents({
+    enqueueSystemEvent,
+    sessionEntry,
+    sessionKey,
+    elevatedChanged,
+    reasoningChanged,
+  });
 
   const parts: string[] = [];
   if (directives.hasThinkDirective && directives.thinkLevel) {
