@@ -237,7 +237,18 @@ export async function loadImageFromRef(
     }
 
     // loadWebMedia handles local file paths (including file:// URLs)
+<<<<<<< HEAD
     const media = await loadWebMedia(targetPath, options?.maxBytes);
+=======
+    const media = options?.sandbox
+      ? await loadWebMedia(targetPath, {
+          maxBytes: options.maxBytes,
+          localRoots: "any",
+          readFile: (filePath) =>
+            options.sandbox!.bridge.readFile({ filePath, cwd: options.sandbox!.root }),
+        })
+      : await loadWebMedia(targetPath, options?.maxBytes);
+>>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
 
     if (media.kind !== "image") {
       log.debug(`Native image: not an image file: ${targetPath} (got ${media.kind})`);

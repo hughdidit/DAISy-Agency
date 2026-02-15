@@ -38,7 +38,8 @@ type WebMediaOptions = {
 >>>>>>> 4baa43384 (fix(media): guard local media reads + accept all path types in MEDIA directive)
 };
 
-function getDefaultLocalRoots(): string[] {
+<<<<<<< HEAD
+export function getDefaultLocalRoots(): string[] {
   return [
     os.tmpdir(),
     path.join(STATE_DIR, "media"),

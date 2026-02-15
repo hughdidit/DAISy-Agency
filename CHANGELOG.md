@@ -61,6 +61,7 @@ Docs: https://docs.openclaw.ai
 =======
 - Media: accept `MEDIA:`-prefixed paths (lenient whitespace) when loading outbound media to prevent `ENOENT` for tool-returned local media paths. (#13107) Thanks @mcaxtr.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 07850e8a9 (fix(media): strip MEDIA: prefix in loadWebMediaInternal (#13107))
 - Security/Node Host: enforce `system.run` rawCommand/argv consistency to prevent allowlist/approval bypass. Thanks @christos-eth.
 - Security/Gateway: block `system.execApprovals.*` via `node.invoke` (use `exec.approvals.node.*` instead). Thanks @christos-eth.
@@ -81,6 +82,9 @@ Docs: https://docs.openclaw.ai
 >>>>>>> cb3290fca (fix(node-host): enforce system.run rawCommand/argv consistency)
 =======
 =======
+=======
+- Agents/Image tool: allow workspace-local image paths by including the active workspace directory in local media allowlists, and trust sandbox-validated paths in image loaders to prevent false "not under an allowed directory" rejections. (#15541)
+>>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
 - Cron/Slack: preserve agent identity (name and icon) when cron jobs deliver outbound messages. (#16242) Thanks @robbyczgw-cla.
 - Cron: prevent `cron list`/`cron status` from silently skipping past-due recurring jobs by using maintenance recompute semantics. (#16156) Thanks @zerone0x.
 - Cron: repair missing/corrupt `nextRunAtMs` for the updated job without globally recomputing unrelated due jobs during `cron update`. (#15750)

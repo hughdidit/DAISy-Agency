@@ -18,7 +18,7 @@ import { Type } from "@sinclair/typebox";
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveUserPath } from "../../utils.js";
-import { loadWebMedia } from "../../web/media.js";
+import { getDefaultLocalRoots, loadWebMedia } from "../../web/media.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "../auth-profiles.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../defaults.js";
 import { minimaxUnderstandImage } from "../minimax-vlm.js";
@@ -314,7 +314,12 @@ async function runImagePrompt(params: {
 export function createImageTool(options?: {
   config?: MoltbotConfig;
   agentDir?: string;
+<<<<<<< HEAD
   sandboxRoot?: string;
+=======
+  workspaceDir?: string;
+  sandbox?: ImageSandboxConfig;
+>>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
   /** If true, the model has native vision capability and images in the prompt are auto-injected */
   modelHasVision?: boolean;
 }): AnyAgentTool | null {
@@ -339,6 +344,19 @@ export function createImageTool(options?: {
   const description = options?.modelHasVision
     ? "Analyze an image with a vision model. Only use this tool when the image was NOT already provided in the user's message. Images mentioned in the prompt are automatically visible to you."
     : "Analyze an image with the configured image model (agents.defaults.imageModel). Provide a prompt and image path or URL.";
+
+  const localRoots = (() => {
+    const roots = getDefaultLocalRoots();
+    const workspaceDir = options?.workspaceDir?.trim();
+    if (!workspaceDir) {
+      return roots;
+    }
+    const normalized = workspaceDir.startsWith("~") ? resolveUserPath(workspaceDir) : workspaceDir;
+    if (!roots.includes(normalized)) {
+      roots.push(normalized);
+    }
+    return roots;
+  })();
 
   return {
     label: "Image",
@@ -424,7 +442,21 @@ export function createImageTool(options?: {
 
       const media = isDataUrl
         ? decodeDataUrl(resolvedImage)
+<<<<<<< HEAD
         : await loadWebMedia(resolvedPath ?? resolvedImage, maxBytes);
+=======
+        : sandboxConfig
+          ? await loadWebMedia(resolvedPath ?? resolvedImage, {
+              maxBytes,
+              localRoots: "any",
+              readFile: (filePath) =>
+                sandboxConfig.bridge.readFile({ filePath, cwd: sandboxConfig.root }),
+            })
+          : await loadWebMedia(resolvedPath ?? resolvedImage, {
+              maxBytes,
+              localRoots,
+            });
+>>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
       if (media.kind !== "image") {
         throw new Error(`Unsupported media type: ${media.kind}`);
       }
