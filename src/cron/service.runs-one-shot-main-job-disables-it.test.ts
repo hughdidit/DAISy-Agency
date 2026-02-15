@@ -112,6 +112,34 @@ function createCronEventHarness() {
 >>>>>>> 97cde1481 (perf(test): stop polling cron job list)
 
 describe("CronService", () => {
+  async function loadLegacyJobFromStore(rawJob: Record<string, unknown>) {
+    const store = await makeStorePath();
+    const enqueueSystemEvent = vi.fn();
+    const requestHeartbeatNow = vi.fn();
+
+    await fs.mkdir(path.dirname(store.storePath), { recursive: true });
+    await fs.writeFile(
+      store.storePath,
+      JSON.stringify({ version: 1, jobs: [rawJob] }, null, 2),
+      "utf-8",
+    );
+
+    const cron = new CronService({
+      storePath: store.storePath,
+      cronEnabled: true,
+      log: noopLogger,
+      enqueueSystemEvent,
+      requestHeartbeatNow,
+      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
+    });
+
+    await cron.start();
+    const jobs = await cron.list({ includeDisabled: true });
+    const job = jobs.find((j) => j.id === rawJob.id);
+
+    return { cron, store, enqueueSystemEvent, requestHeartbeatNow, job };
+  }
+
   it("runs a one-shot main job and disables it after success when requested", async () => {
     const store = await makeStorePath();
     const enqueueSystemEvent = vi.fn();
@@ -473,10 +501,6 @@ describe("CronService", () => {
 
 >>>>>>> 97cde1481 (perf(test): stop polling cron job list)
   it("migrates legacy payload.provider to payload.channel on load", async () => {
-    const store = await makeStorePath();
-    const enqueueSystemEvent = vi.fn();
-    const requestHeartbeatNow = vi.fn();
-
     const rawJob = {
       id: "legacy-1",
       name: "legacy",
@@ -496,25 +520,7 @@ describe("CronService", () => {
       state: {},
     };
 
-    await fs.mkdir(path.dirname(store.storePath), { recursive: true });
-    await fs.writeFile(
-      store.storePath,
-      JSON.stringify({ version: 1, jobs: [rawJob] }, null, 2),
-      "utf-8",
-    );
-
-    const cron = new CronService({
-      storePath: store.storePath,
-      cronEnabled: true,
-      log: noopLogger,
-      enqueueSystemEvent,
-      requestHeartbeatNow,
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
-    });
-
-    await cron.start();
-    const jobs = await cron.list({ includeDisabled: true });
-    const job = jobs.find((j) => j.id === rawJob.id);
+    const { cron, store, job } = await loadLegacyJobFromStore(rawJob);
     // Legacy delivery fields are migrated to the top-level delivery object
     const delivery = job?.delivery as unknown as Record<string, unknown>;
     expect(delivery?.channel).toBe("telegram");
@@ -527,10 +533,6 @@ describe("CronService", () => {
   });
 
   it("canonicalizes payload.channel casing on load", async () => {
-    const store = await makeStorePath();
-    const enqueueSystemEvent = vi.fn();
-    const requestHeartbeatNow = vi.fn();
-
     const rawJob = {
       id: "legacy-2",
       name: "legacy",
@@ -550,25 +552,7 @@ describe("CronService", () => {
       state: {},
     };
 
-    await fs.mkdir(path.dirname(store.storePath), { recursive: true });
-    await fs.writeFile(
-      store.storePath,
-      JSON.stringify({ version: 1, jobs: [rawJob] }, null, 2),
-      "utf-8",
-    );
-
-    const cron = new CronService({
-      storePath: store.storePath,
-      cronEnabled: true,
-      log: noopLogger,
-      enqueueSystemEvent,
-      requestHeartbeatNow,
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
-    });
-
-    await cron.start();
-    const jobs = await cron.list({ includeDisabled: true });
-    const job = jobs.find((j) => j.id === rawJob.id);
+    const { cron, store, job } = await loadLegacyJobFromStore(rawJob);
     // Legacy delivery fields are migrated to the top-level delivery object
     const delivery = job?.delivery as unknown as Record<string, unknown>;
     expect(delivery?.channel).toBe("telegram");
