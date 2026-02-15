@@ -6,6 +6,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
+<<<<<<< HEAD
+=======
+import type { AuthChoice } from "./onboard-types.js";
+import { captureEnv } from "../test-utils/env.js";
+>>>>>>> 07dea4c6c (refactor(test): dedupe auth choice env cleanup)
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
 <<<<<<< HEAD
 import type { AuthChoice } from "./onboard-types.js";
@@ -44,6 +49,7 @@ const requireAgentDir = () => {
 };
 
 describe("applyAuthChoice", () => {
+<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
@@ -55,6 +61,22 @@ describe("applyAuthChoice", () => {
   const previousCloudflareGatewayKey = process.env.CLOUDFLARE_AI_GATEWAY_API_KEY;
   const previousSshTty = process.env.SSH_TTY;
   const previousChutesClientId = process.env.CHUTES_CLIENT_ID;
+=======
+  const envSnapshot = captureEnv([
+    "OPENCLAW_STATE_DIR",
+    "OPENCLAW_AGENT_DIR",
+    "PI_CODING_AGENT_DIR",
+    "ANTHROPIC_API_KEY",
+    "OPENROUTER_API_KEY",
+    "HF_TOKEN",
+    "HUGGINGFACE_HUB_TOKEN",
+    "LITELLM_API_KEY",
+    "AI_GATEWAY_API_KEY",
+    "CLOUDFLARE_AI_GATEWAY_API_KEY",
+    "SSH_TTY",
+    "CHUTES_CLIENT_ID",
+  ]);
+>>>>>>> 07dea4c6c (refactor(test): dedupe auth choice env cleanup)
   let tempStateDir: string | null = null;
 
   afterEach(async () => {
@@ -66,6 +88,7 @@ describe("applyAuthChoice", () => {
       await fs.rm(tempStateDir, { recursive: true, force: true });
       tempStateDir = null;
     }
+<<<<<<< HEAD
     if (previousStateDir === undefined) {
       delete process.env.CLAWDBOT_STATE_DIR;
     } else {
@@ -121,6 +144,9 @@ describe("applyAuthChoice", () => {
     } else {
       process.env.CHUTES_CLIENT_ID = previousChutesClientId;
     }
+=======
+    envSnapshot.restore();
+>>>>>>> 07dea4c6c (refactor(test): dedupe auth choice env cleanup)
   });
 
   it("does not throw when openai-codex oauth fails", async () => {
