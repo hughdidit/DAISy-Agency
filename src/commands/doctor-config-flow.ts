@@ -1,8 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import type { ZodIssue } from "zod";
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { DoctorOptions } from "./doctor-prompter.js";
+import {
+  isNumericTelegramUserId,
+  normalizeTelegramAllowFromEntry,
+} from "../channels/telegram/allow-from.js";
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> 7773c5410 (refactor(telegram): share allowFrom normalization)
 import {
   MoltbotSchema,
   CONFIG_PATH,
@@ -156,6 +166,7 @@ function noteOpencodeProviderOverrides(cfg: MoltbotConfig) {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 function hasExplicitConfigPath(env: NodeJS.ProcessEnv): boolean {
   return Boolean(env.MOLTBOT_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim());
 }
@@ -173,6 +184,8 @@ function isNumericTelegramUserId(raw: string): boolean {
   return /^\d+$/.test(raw);
 }
 
+=======
+>>>>>>> 7773c5410 (refactor(telegram): share allowFrom normalization)
 type TelegramAllowFromUsernameHit = { path: string; entry: string };
 
 function scanTelegramAllowFromUsernameEntries(cfg: OpenClawConfig): TelegramAllowFromUsernameHit[] {
