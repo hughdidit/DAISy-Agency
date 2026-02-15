@@ -85,7 +85,7 @@ describe("loadOpenClawPlugins", () => {
       id: "bundled",
       body: `export default { id: "bundled", register() {} };`,
       dir: bundledDir,
-      filename: "bundled.ts",
+      filename: "bundled.js",
     });
     process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = bundledDir;
 
@@ -140,9 +140,9 @@ describe("loadOpenClawPlugins", () => {
       outbound: { deliveryMode: "direct" }
     }
   });
-} };`,
+	} };`,
       dir: bundledDir,
-      filename: "telegram.ts",
+      filename: "telegram.js",
     });
     process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = bundledDir;
 
@@ -169,7 +169,7 @@ describe("loadOpenClawPlugins", () => {
       id: "memory-core",
       body: `export default { id: "memory-core", kind: "memory", register() {} };`,
       dir: bundledDir,
-      filename: "memory-core.ts",
+      filename: "memory-core.js",
     });
     process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = bundledDir;
 
@@ -199,7 +199,11 @@ describe("loadOpenClawPlugins", () => {
         name: "@moltbot/memory-core",
         version: "1.2.3",
         description: "Memory plugin package",
+<<<<<<< HEAD
         moltbot: { extensions: ["./index.ts"] },
+=======
+        openclaw: { extensions: ["./index.js"] },
+>>>>>>> c25026f2b (perf(plugins): lazy-create jiti loader)
       }),
       "utf-8",
     );
@@ -207,7 +211,7 @@ describe("loadOpenClawPlugins", () => {
       id: "memory-core",
       body: `export default { id: "memory-core", kind: "memory", name: "Memory (Core)", register() {} };`,
       dir: pluginDir,
-      filename: "index.ts",
+      filename: "index.js",
     });
 
     process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = bundledDir;

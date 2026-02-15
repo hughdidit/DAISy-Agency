@@ -233,6 +233,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
   });
   pushDiagnostics(registry.diagnostics, manifestRegistry.diagnostics);
 
+<<<<<<< HEAD
   const pluginSdkAlias = resolvePluginSdkAlias();
   const pluginSdkAccountIdAlias = resolvePluginSdkAccountIdAlias();
   const jiti = createJiti(import.meta.url, {
@@ -254,6 +255,32 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
         }
       : {}),
   });
+=======
+  // Lazy: avoid creating the Jiti loader when all plugins are disabled (common in unit tests).
+  let jitiLoader: ReturnType<typeof createJiti> | null = null;
+  const getJiti = () => {
+    if (jitiLoader) {
+      return jitiLoader;
+    }
+    const pluginSdkAlias = resolvePluginSdkAlias();
+    const pluginSdkAccountIdAlias = resolvePluginSdkAccountIdAlias();
+    jitiLoader = createJiti(import.meta.url, {
+      interopDefault: true,
+      extensions: [".ts", ".tsx", ".mts", ".cts", ".mtsx", ".ctsx", ".js", ".mjs", ".cjs", ".json"],
+      ...(pluginSdkAlias || pluginSdkAccountIdAlias
+        ? {
+            alias: {
+              ...(pluginSdkAlias ? { "openclaw/plugin-sdk": pluginSdkAlias } : {}),
+              ...(pluginSdkAccountIdAlias
+                ? { "openclaw/plugin-sdk/account-id": pluginSdkAccountIdAlias }
+                : {}),
+            },
+          }
+        : {}),
+    });
+    return jitiLoader;
+  };
+>>>>>>> c25026f2b (perf(plugins): lazy-create jiti loader)
 
   const manifestByRoot = new Map(
     manifestRegistry.plugins.map((record) => [record.rootDir, record]),
@@ -330,7 +357,11 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
 
     let mod: MoltbotPluginModule | null = null;
     try {
+<<<<<<< HEAD
       mod = jiti(candidate.source) as MoltbotPluginModule;
+=======
+      mod = getJiti()(candidate.source) as OpenClawPluginModule;
+>>>>>>> c25026f2b (perf(plugins): lazy-create jiti loader)
     } catch (err) {
       logger.error(`[plugins] ${record.id} failed to load from ${record.source}: ${String(err)}`);
       record.status = "error";
