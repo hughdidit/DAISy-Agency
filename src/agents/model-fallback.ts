@@ -61,6 +61,7 @@ function shouldRethrowAbort(err: unknown): boolean {
   return isFallbackAbortError(err) && !isTimeoutError(err);
 }
 
+<<<<<<< HEAD
 function buildAllowedModelKeys(
   cfg: MoltbotConfig | undefined,
   defaultProvider: string,
@@ -93,6 +94,12 @@ function resolveImageFallbackCandidates(params: {
     defaultProvider: params.defaultProvider,
   });
   const allowlist = buildAllowedModelKeys(params.cfg, params.defaultProvider);
+=======
+function createModelCandidateCollector(allowlist: Set<string> | null | undefined): {
+  candidates: ModelCandidate[];
+  addCandidate: (candidate: ModelCandidate, enforceAllowlist: boolean) => void;
+} {
+>>>>>>> ed03b834d (refactor(agents): dedupe model fallback candidate logic)
   const seen = new Set<string>();
   const candidates: ModelCandidate[] = [];
 
@@ -110,6 +117,39 @@ function resolveImageFallbackCandidates(params: {
     seen.add(key);
     candidates.push(candidate);
   };
+
+  return { candidates, addCandidate };
+}
+
+type ModelFallbackErrorHandler = (attempt: {
+  provider: string;
+  model: string;
+  error: unknown;
+  attempt: number;
+  total: number;
+}) => void | Promise<void>;
+
+type ModelFallbackRunResult<T> = {
+  result: T;
+  provider: string;
+  model: string;
+  attempts: FallbackAttempt[];
+};
+
+function resolveImageFallbackCandidates(params: {
+  cfg: OpenClawConfig | undefined;
+  defaultProvider: string;
+  modelOverride?: string;
+}): ModelCandidate[] {
+  const aliasIndex = buildModelAliasIndex({
+    cfg: params.cfg ?? {},
+    defaultProvider: params.defaultProvider,
+  });
+  const allowlist = buildConfiguredAllowlistKeys({
+    cfg: params.cfg,
+    defaultProvider: params.defaultProvider,
+  });
+  const { candidates, addCandidate } = createModelCandidateCollector(allowlist);
 
   const addRaw = (raw: string, enforceAllowlist: boolean) => {
     const resolved = resolveModelRefFromString({
@@ -177,6 +217,7 @@ function resolveFallbackCandidates(params: {
     cfg: params.cfg ?? {},
     defaultProvider,
   });
+<<<<<<< HEAD
   const allowlist = buildAllowedModelKeys(params.cfg, defaultProvider);
   const seen = new Set<string>();
   const candidates: ModelCandidate[] = [];
@@ -195,6 +236,13 @@ function resolveFallbackCandidates(params: {
     seen.add(key);
     candidates.push(candidate);
   };
+=======
+  const allowlist = buildConfiguredAllowlistKeys({
+    cfg: params.cfg,
+    defaultProvider,
+  });
+  const { candidates, addCandidate } = createModelCandidateCollector(allowlist);
+>>>>>>> ed03b834d (refactor(agents): dedupe model fallback candidate logic)
 
   addCandidate(normalizedPrimary, false);
 
@@ -239,19 +287,8 @@ export async function runWithModelFallback<T>(params: {
   /** Optional explicit fallbacks list; when provided (even empty), replaces agents.defaults.model.fallbacks. */
   fallbacksOverride?: string[];
   run: (provider: string, model: string) => Promise<T>;
-  onError?: (attempt: {
-    provider: string;
-    model: string;
-    error: unknown;
-    attempt: number;
-    total: number;
-  }) => void | Promise<void>;
-}): Promise<{
-  result: T;
-  provider: string;
-  model: string;
-  attempts: FallbackAttempt[];
-}> {
+  onError?: ModelFallbackErrorHandler;
+}): Promise<ModelFallbackRunResult<T>> {
   const candidates = resolveFallbackCandidates({
     cfg: params.cfg,
     provider: params.provider,
@@ -357,19 +394,8 @@ export async function runWithImageModelFallback<T>(params: {
   cfg: MoltbotConfig | undefined;
   modelOverride?: string;
   run: (provider: string, model: string) => Promise<T>;
-  onError?: (attempt: {
-    provider: string;
-    model: string;
-    error: unknown;
-    attempt: number;
-    total: number;
-  }) => void | Promise<void>;
-}): Promise<{
-  result: T;
-  provider: string;
-  model: string;
-  attempts: FallbackAttempt[];
-}> {
+  onError?: ModelFallbackErrorHandler;
+}): Promise<ModelFallbackRunResult<T>> {
   const candidates = resolveImageFallbackCandidates({
     cfg: params.cfg,
     defaultProvider: DEFAULT_PROVIDER,
