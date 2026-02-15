@@ -288,6 +288,11 @@ async function withSessionStoreLock<T>(
   fn: () => Promise<T>,
   opts: SessionStoreLockOptions = {},
 ): Promise<T> {
+  if (!storePath || typeof storePath !== "string") {
+    throw new Error(
+      `withSessionStoreLock: storePath must be a non-empty string, got ${JSON.stringify(storePath)}`,
+    );
+  }
   const timeoutMs = opts.timeoutMs ?? 10_000;
   const pollIntervalMs = opts.pollIntervalMs ?? 25;
   const staleMs = opts.staleMs ?? 30_000;
