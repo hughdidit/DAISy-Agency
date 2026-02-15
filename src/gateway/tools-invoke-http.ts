@@ -28,8 +28,16 @@ import {
   applyToolPolicyPipeline,
   buildDefaultToolPolicyPipelineSteps,
 } from "../agents/tool-policy-pipeline.js";
+<<<<<<< HEAD
 >>>>>>> 268c14f02 (refactor(tools): centralize default policy steps)
 import { collectExplicitAllowlist, resolveToolProfilePolicy } from "../agents/tool-policy.js";
+=======
+import {
+  collectExplicitAllowlist,
+  mergeAlsoAllowPolicy,
+  resolveToolProfilePolicy,
+} from "../agents/tool-policy.js";
+>>>>>>> 9143f33a8 (refactor(tools): dedupe alsoAllow merge)
 import { ToolInputError } from "../agents/tools/common.js";
 >>>>>>> f97ad8f28 (refactor(tools): share tool policy pipeline)
 import { loadConfig } from "../config/config.js";
@@ -211,15 +219,8 @@ export async function handleToolsInvokeHttpRequest(
   const profilePolicy = resolveToolProfilePolicy(profile);
   const providerProfilePolicy = resolveToolProfilePolicy(providerProfile);
 
-  const mergeAlsoAllow = (policy: typeof profilePolicy, alsoAllow?: string[]) => {
-    if (!policy?.allow || !Array.isArray(alsoAllow) || alsoAllow.length === 0) {
-      return policy;
-    }
-    return { ...policy, allow: Array.from(new Set([...policy.allow, ...alsoAllow])) };
-  };
-
-  const profilePolicyWithAlsoAllow = mergeAlsoAllow(profilePolicy, profileAlsoAllow);
-  const providerProfilePolicyWithAlsoAllow = mergeAlsoAllow(
+  const profilePolicyWithAlsoAllow = mergeAlsoAllowPolicy(profilePolicy, profileAlsoAllow);
+  const providerProfilePolicyWithAlsoAllow = mergeAlsoAllowPolicy(
     providerProfilePolicy,
     providerProfileAlsoAllow,
   );
