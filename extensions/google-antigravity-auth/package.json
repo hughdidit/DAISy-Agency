@@ -6,6 +6,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
@@ -23,6 +24,9 @@
 =======
   "version": "2026.2.12",
 >>>>>>> 7695b4842 (chore: bump version to 2026.2.12)
+=======
+  "version": "2026.2.14",
+>>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
   "private": true,
 >>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
   "description": "OpenClaw Google Antigravity OAuth provider plugin",

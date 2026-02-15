@@ -1,10 +1,14 @@
 {
   "name": "@openclaw/irc",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.9",
 =======
   "version": "2026.2.12",
 >>>>>>> 7695b4842 (chore: bump version to 2026.2.12)
+=======
+  "version": "2026.2.14",
+>>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
   "description": "OpenClaw IRC channel plugin",
   "type": "module",
   "devDependencies": {
