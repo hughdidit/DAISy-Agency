@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createMoltbotTools } from "../agents/moltbot-tools.js";
 import { resolveSessionTranscriptPath } from "../config/sessions.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
+import { captureEnv } from "../test-utils/env.js";
 import {
   agentCommand,
   getFreePort,
@@ -15,12 +16,20 @@ installGatewayTestHooks({ scope: "suite" });
 
 let server: Awaited<ReturnType<typeof startGatewayServer>>;
 let gatewayPort: number;
+<<<<<<< HEAD
 let prevGatewayPort: string | undefined;
 let prevGatewayToken: string | undefined;
 
 beforeAll(async () => {
   prevGatewayPort = process.env.CLAWDBOT_GATEWAY_PORT;
   prevGatewayToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
+=======
+const gatewayToken = "test-token";
+let envSnapshot: ReturnType<typeof captureEnv>;
+
+beforeAll(async () => {
+  envSnapshot = captureEnv(["OPENCLAW_GATEWAY_PORT", "OPENCLAW_GATEWAY_TOKEN"]);
+>>>>>>> 31980bcaf (refactor(test): dedupe gateway env restores)
   gatewayPort = await getFreePort();
   process.env.CLAWDBOT_GATEWAY_PORT = String(gatewayPort);
   process.env.CLAWDBOT_GATEWAY_TOKEN = "test-token";
@@ -29,6 +38,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await server.close();
+<<<<<<< HEAD
   if (prevGatewayPort === undefined) {
     delete process.env.CLAWDBOT_GATEWAY_PORT;
   } else {
@@ -39,6 +49,9 @@ afterAll(async () => {
   } else {
     process.env.CLAWDBOT_GATEWAY_TOKEN = prevGatewayToken;
   }
+=======
+  envSnapshot.restore();
+>>>>>>> 31980bcaf (refactor(test): dedupe gateway env restores)
 });
 
 describe("sessions_send gateway loopback", () => {

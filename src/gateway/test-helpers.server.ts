@@ -17,6 +17,7 @@ import { drainSystemEvents, peekSystemEvents } from "../infra/system-events.js";
 import { rawDataToString } from "../infra/ws.js";
 import { resetLogger, setLoggerOverride } from "../logging.js";
 import { DEFAULT_AGENT_ID, toAgentStoreSessionKey } from "../routing/session-key.js";
+import { captureEnv } from "../test-utils/env.js";
 import { getDeterministicFreePortBlock } from "../test-utils/ports.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 
@@ -427,7 +428,12 @@ export async function startServerWithClient(
 ) {
   const { wsHeaders, ...gatewayOpts } = opts ?? {};
   let port = await getFreePort();
+<<<<<<< HEAD
   const prev = process.env.CLAWDBOT_GATEWAY_TOKEN;
+=======
+  const envSnapshot = captureEnv(["OPENCLAW_GATEWAY_TOKEN"]);
+  const prev = process.env.OPENCLAW_GATEWAY_TOKEN;
+>>>>>>> 31980bcaf (refactor(test): dedupe gateway env restores)
   if (typeof token === "string") {
     testState.gatewayAuth = { mode: "token", token };
   }
@@ -478,8 +484,12 @@ export async function startServerWithClient(
     ws.once("error", onError);
     ws.once("close", onClose);
   });
+<<<<<<< HEAD
 >>>>>>> cfd112952 (fix(gateway): default-deny missing connect scopes)
   return { server, ws, port, prevToken: prev };
+=======
+  return { server, ws, port, prevToken: prev, envSnapshot };
+>>>>>>> 31980bcaf (refactor(test): dedupe gateway env restores)
 }
 
 type ConnectResponse = {
