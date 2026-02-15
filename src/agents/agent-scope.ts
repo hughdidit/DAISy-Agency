@@ -168,7 +168,27 @@ export function resolveAgentModelFallbacksOverride(
   return Array.isArray(raw.fallbacks) ? raw.fallbacks : undefined;
 }
 
+<<<<<<< HEAD
 export function resolveAgentWorkspaceDir(cfg: MoltbotConfig, agentId: string) {
+=======
+export function resolveEffectiveModelFallbacks(params: {
+  cfg: OpenClawConfig;
+  agentId: string;
+  hasSessionModelOverride: boolean;
+}): string[] | undefined {
+  const agentFallbacksOverride = resolveAgentModelFallbacksOverride(params.cfg, params.agentId);
+  if (!params.hasSessionModelOverride) {
+    return agentFallbacksOverride;
+  }
+  const defaultFallbacks =
+    typeof params.cfg.agents?.defaults?.model === "object"
+      ? (params.cfg.agents.defaults.model.fallbacks ?? [])
+      : [];
+  return agentFallbacksOverride ?? defaultFallbacks;
+}
+
+export function resolveAgentWorkspaceDir(cfg: OpenClawConfig, agentId: string) {
+>>>>>>> 2da512e24 (refactor(agent): centralize fallback run helpers)
   const id = normalizeAgentId(agentId);
   const configured = resolveAgentConfig(cfg, id)?.workspace?.trim();
   if (configured) {
