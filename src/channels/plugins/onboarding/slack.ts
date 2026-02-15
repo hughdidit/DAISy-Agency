@@ -131,12 +131,34 @@ async function noteSlackTokenHelp(prompter: WizardPrompter, botName: string): Pr
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 function setSlackGroupPolicy(
   cfg: MoltbotConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
 ): MoltbotConfig {
 =======
+=======
+async function promptSlackTokens(prompter: WizardPrompter): Promise<{
+  botToken: string;
+  appToken: string;
+}> {
+  const botToken = String(
+    await prompter.text({
+      message: "Enter Slack bot token (xoxb-...)",
+      validate: (value) => (value?.trim() ? undefined : "Required"),
+    }),
+  ).trim();
+  const appToken = String(
+    await prompter.text({
+      message: "Enter Slack app token (xapp-...)",
+      validate: (value) => (value?.trim() ? undefined : "Required"),
+    }),
+  ).trim();
+  return { botToken, appToken };
+}
+
+>>>>>>> c1bf99406 (refactor(slack): dedupe onboarding token prompts)
 function patchSlackConfigForAccount(
   cfg: OpenClawConfig,
   accountId: string,
@@ -384,18 +406,7 @@ export const slackOnboardingAdapter: ChannelOnboardingAdapter = {
           },
         };
       } else {
-        botToken = String(
-          await prompter.text({
-            message: "Enter Slack bot token (xoxb-...)",
-            validate: (value) => (value?.trim() ? undefined : "Required"),
-          }),
-        ).trim();
-        appToken = String(
-          await prompter.text({
-            message: "Enter Slack app token (xapp-...)",
-            validate: (value) => (value?.trim() ? undefined : "Required"),
-          }),
-        ).trim();
+        ({ botToken, appToken } = await promptSlackTokens(prompter));
       }
     } else if (hasConfigTokens) {
       const keep = await prompter.confirm({
@@ -403,32 +414,10 @@ export const slackOnboardingAdapter: ChannelOnboardingAdapter = {
         initialValue: true,
       });
       if (!keep) {
-        botToken = String(
-          await prompter.text({
-            message: "Enter Slack bot token (xoxb-...)",
-            validate: (value) => (value?.trim() ? undefined : "Required"),
-          }),
-        ).trim();
-        appToken = String(
-          await prompter.text({
-            message: "Enter Slack app token (xapp-...)",
-            validate: (value) => (value?.trim() ? undefined : "Required"),
-          }),
-        ).trim();
+        ({ botToken, appToken } = await promptSlackTokens(prompter));
       }
     } else {
-      botToken = String(
-        await prompter.text({
-          message: "Enter Slack bot token (xoxb-...)",
-          validate: (value) => (value?.trim() ? undefined : "Required"),
-        }),
-      ).trim();
-      appToken = String(
-        await prompter.text({
-          message: "Enter Slack app token (xapp-...)",
-          validate: (value) => (value?.trim() ? undefined : "Required"),
-        }),
-      ).trim();
+      ({ botToken, appToken } = await promptSlackTokens(prompter));
     }
 
     if (botToken && appToken) {
