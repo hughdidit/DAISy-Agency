@@ -12,6 +12,7 @@ import type {
   RuntimeEnv,
 } from "clawdbot/plugin-sdk";
 import {
+  buildAgentMediaPayload,
   createReplyPrefixOptions,
   createTypingCallbacks,
   logInboundDrop,
@@ -191,27 +192,6 @@ function buildMattermostAttachmentPlaceholder(mediaList: MattermostMediaInfo[]):
   const suffix = mediaList.length === 1 ? label : `${label}s`;
   const tag = allImages ? "<media:image>" : "<media:document>";
   return `${tag} (${mediaList.length} ${suffix})`;
-}
-
-function buildMattermostMediaPayload(mediaList: MattermostMediaInfo[]): {
-  MediaPath?: string;
-  MediaType?: string;
-  MediaUrl?: string;
-  MediaPaths?: string[];
-  MediaUrls?: string[];
-  MediaTypes?: string[];
-} {
-  const first = mediaList[0];
-  const mediaPaths = mediaList.map((media) => media.path);
-  const mediaTypes = mediaList.map((media) => media.contentType).filter(Boolean) as string[];
-  return {
-    MediaPath: first?.path,
-    MediaType: first?.contentType,
-    MediaUrl: first?.path,
-    MediaPaths: mediaPaths.length > 0 ? mediaPaths : undefined,
-    MediaUrls: mediaPaths.length > 0 ? mediaPaths : undefined,
-    MediaTypes: mediaTypes.length > 0 ? mediaTypes : undefined,
-  };
 }
 
 function buildMattermostWsUrl(baseUrl: string): string {
@@ -664,7 +644,7 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     }
 
     const to = kind === "direct" ? `user:${senderId}` : `channel:${channelId}`;
-    const mediaPayload = buildMattermostMediaPayload(mediaList);
+    const mediaPayload = buildAgentMediaPayload(mediaList);
     const inboundHistory =
       historyKey && historyLimit > 0
         ? (channelHistories.get(historyKey) ?? []).map((entry) => ({
