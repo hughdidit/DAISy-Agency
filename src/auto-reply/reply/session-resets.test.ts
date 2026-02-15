@@ -11,8 +11,12 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
 import { buildModelAliasIndex } from "../../agents/model-selection.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
+=======
+import { saveSessionStore } from "../../config/sessions.js";
+>>>>>>> 9c3bc4939 (perf(test): avoid dynamic imports in session reset suites)
 import { formatZonedTimestamp } from "../../infra/format-time/format-datetime.ts";
 >>>>>>> 417509c53 (test: stabilize local-timestamp assertion in session resets)
 import { enqueueSystemEvent, resetSystemEventsForTest } from "../../infra/system-events.js";
@@ -42,7 +46,7 @@ afterAll(async () => {
 
 async function createStorePath(prefix: string): Promise<string> {
   const root = path.join(suiteRoot, `${prefix}${++suiteCase}`);
-  await fs.mkdir(root, { recursive: true });
+  await fs.mkdir(root);
   return path.join(root, "sessions.json");
 }
 
@@ -52,7 +56,6 @@ describe("initSessionState reset triggers in WhatsApp groups", () => {
     sessionKey: string;
     sessionId: string;
   }): Promise<void> {
-    const { saveSessionStore } = await import("../../config/sessions.js");
     await saveSessionStore(params.storePath, {
       [params.sessionKey]: {
         sessionId: params.sessionId,
