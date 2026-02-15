@@ -205,6 +205,40 @@ async function ensureGuildComponentMemberAllowed(params: {
   return false;
 }
 
+async function ensureAgentComponentInteractionAllowed(params: {
+  ctx: AgentComponentContext;
+  interaction: AgentComponentInteraction;
+  channelId: string;
+  rawGuildId: string | undefined;
+  memberRoleIds: string[];
+  user: DiscordUser;
+  replyOpts: { ephemeral?: boolean };
+  componentLabel: string;
+  unauthorizedReply: string;
+}): Promise<{ parentId: string | undefined } | null> {
+  const guildInfo = resolveDiscordGuildEntry({
+    guild: params.interaction.guild ?? undefined,
+    guildEntries: params.ctx.guildEntries,
+  });
+  const channelCtx = resolveDiscordChannelContext(params.interaction);
+  const memberAllowed = await ensureGuildComponentMemberAllowed({
+    interaction: params.interaction,
+    guildInfo,
+    channelId: params.channelId,
+    rawGuildId: params.rawGuildId,
+    channelCtx,
+    memberRoleIds: params.memberRoleIds,
+    user: params.user,
+    replyOpts: params.replyOpts,
+    componentLabel: params.componentLabel,
+    unauthorizedReply: params.unauthorizedReply,
+  });
+  if (!memberAllowed) {
+    return null;
+  }
+  return { parentId: channelCtx.parentId };
+}
+
 export type AgentComponentContext = {
   cfg: OpenClawConfig;
   accountId: string;
@@ -459,6 +493,7 @@ export class AgentComponentButton extends Button {
     } = interactionCtx;
 >>>>>>> 2bd672f3a (refactor(discord): dedupe component context + reaction timing)
 
+<<<<<<< HEAD
     // P2 FIX: Check user allowlist before processing component interaction
     // This prevents unauthorized users from injecting system events
     const guildInfo = resolveDiscordGuildEntry({
@@ -552,21 +587,26 @@ export class AgentComponentButton extends Button {
     const channelCtx = resolveDiscordChannelContext(interaction);
     const { parentId } = channelCtx;
     const memberAllowed = await ensureGuildComponentMemberAllowed({
+=======
+    // Check user allowlist before processing component interaction
+    // This prevents unauthorized users from injecting system events.
+    const allowed = await ensureAgentComponentInteractionAllowed({
+      ctx: this.ctx,
+>>>>>>> ac3db098a (refactor(discord): share component allowlist check)
       interaction,
-      guildInfo,
       channelId,
       rawGuildId,
-      channelCtx,
       memberRoleIds,
       user,
       replyOpts,
       componentLabel: "button",
       unauthorizedReply: "You are not authorized to use this button.",
     });
-    if (!memberAllowed) {
+    if (!allowed) {
       return;
 >>>>>>> cd747dc58 (refactor(discord): share component allowlist checks)
     }
+    const { parentId } = allowed;
 
     // Resolve route with full context (guildId, proper peer kind, parentPeer)
     const route = resolveAgentRoute({
@@ -679,6 +719,7 @@ export class AgentSelectMenu extends StringSelectMenu {
     } = interactionCtx;
 >>>>>>> 2bd672f3a (refactor(discord): dedupe component context + reaction timing)
 
+<<<<<<< HEAD
     // Check user allowlist before processing component interaction
     const guildInfo = resolveDiscordGuildEntry({
       guild: interaction.guild ?? undefined,
@@ -768,21 +809,25 @@ export class AgentSelectMenu extends StringSelectMenu {
     const channelCtx = resolveDiscordChannelContext(interaction);
     const { parentId } = channelCtx;
     const memberAllowed = await ensureGuildComponentMemberAllowed({
+=======
+    // Check user allowlist before processing component interaction.
+    const allowed = await ensureAgentComponentInteractionAllowed({
+      ctx: this.ctx,
+>>>>>>> ac3db098a (refactor(discord): share component allowlist check)
       interaction,
-      guildInfo,
       channelId,
       rawGuildId,
-      channelCtx,
       memberRoleIds,
       user,
       replyOpts,
       componentLabel: "select",
       unauthorizedReply: "You are not authorized to use this select menu.",
     });
-    if (!memberAllowed) {
+    if (!allowed) {
       return;
 >>>>>>> cd747dc58 (refactor(discord): share component allowlist checks)
     }
+    const { parentId } = allowed;
 
     // Extract selected values
     const values = interaction.values ?? [];
