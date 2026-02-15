@@ -2,12 +2,16 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+=======
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
 import { saveSessionStore } from "../../config/sessions.js";
@@ -28,7 +32,7 @@ afterAll(async () => {
 
 async function makeCaseDir(prefix: string): Promise<string> {
   const dir = path.join(suiteRoot, `${prefix}${++suiteCase}`);
-  await fs.mkdir(dir, { recursive: true });
+  await fs.mkdir(dir);
   return dir;
 }
 
@@ -40,7 +44,7 @@ describe("initSessionState thread forking", () => {
     const root = await makeCaseDir("openclaw-thread-session-");
 >>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
     const sessionsDir = path.join(root, "sessions");
-    await fs.mkdir(sessionsDir, { recursive: true });
+    await fs.mkdir(sessionsDir);
 
     const parentSessionId = "parent-session";
     const parentSessionFile = path.join(sessionsDir, "parent.jsonl");
@@ -289,9 +293,17 @@ describe("initSessionState RawBody", () => {
 });
 
 describe("initSessionState reset policy", () => {
-  it("defaults to daily reset at 4am local time", async () => {
+  beforeEach(() => {
     vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("defaults to daily reset at 4am local time", async () => {
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
+<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-daily-"));
@@ -301,31 +313,43 @@ describe("initSessionState reset policy", () => {
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s1";
       const existingSessionId = "daily-session-id";
+=======
+    const root = await makeCaseDir("openclaw-reset-daily-");
+    const storePath = path.join(root, "sessions.json");
+    const sessionKey = "agent:main:whatsapp:dm:s1";
+    const existingSessionId = "daily-session-id";
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      await saveSessionStore(storePath, {
-        [sessionKey]: {
-          sessionId: existingSessionId,
-          updatedAt: new Date(2026, 0, 18, 3, 0, 0).getTime(),
-        },
-      });
+    await saveSessionStore(storePath, {
+      [sessionKey]: {
+        sessionId: existingSessionId,
+        updatedAt: new Date(2026, 0, 18, 3, 0, 0).getTime(),
+      },
+    });
 
+<<<<<<< HEAD
       const cfg = { session: { store: storePath } } as MoltbotConfig;
       const result = await initSessionState({
         ctx: { Body: "hello", SessionKey: sessionKey },
         cfg,
         commandAuthorized: true,
       });
+=======
+    const cfg = { session: { store: storePath } } as OpenClawConfig;
+    const result = await initSessionState({
+      ctx: { Body: "hello", SessionKey: sessionKey },
+      cfg,
+      commandAuthorized: true,
+    });
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      expect(result.isNewSession).toBe(true);
-      expect(result.sessionId).not.toBe(existingSessionId);
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(result.isNewSession).toBe(true);
+    expect(result.sessionId).not.toBe(existingSessionId);
   });
 
   it("treats sessions as stale before the daily reset when updated before yesterday's boundary", async () => {
-    vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 18, 3, 0, 0));
+<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-daily-edge-"));
@@ -335,31 +359,43 @@ describe("initSessionState reset policy", () => {
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s-edge";
       const existingSessionId = "daily-edge-session";
+=======
+    const root = await makeCaseDir("openclaw-reset-daily-edge-");
+    const storePath = path.join(root, "sessions.json");
+    const sessionKey = "agent:main:whatsapp:dm:s-edge";
+    const existingSessionId = "daily-edge-session";
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      await saveSessionStore(storePath, {
-        [sessionKey]: {
-          sessionId: existingSessionId,
-          updatedAt: new Date(2026, 0, 17, 3, 30, 0).getTime(),
-        },
-      });
+    await saveSessionStore(storePath, {
+      [sessionKey]: {
+        sessionId: existingSessionId,
+        updatedAt: new Date(2026, 0, 17, 3, 30, 0).getTime(),
+      },
+    });
 
+<<<<<<< HEAD
       const cfg = { session: { store: storePath } } as MoltbotConfig;
       const result = await initSessionState({
         ctx: { Body: "hello", SessionKey: sessionKey },
         cfg,
         commandAuthorized: true,
       });
+=======
+    const cfg = { session: { store: storePath } } as OpenClawConfig;
+    const result = await initSessionState({
+      ctx: { Body: "hello", SessionKey: sessionKey },
+      cfg,
+      commandAuthorized: true,
+    });
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      expect(result.isNewSession).toBe(true);
-      expect(result.sessionId).not.toBe(existingSessionId);
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(result.isNewSession).toBe(true);
+    expect(result.sessionId).not.toBe(existingSessionId);
   });
 
   it("expires sessions when idle timeout wins over daily reset", async () => {
-    vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 18, 5, 30, 0));
+<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-idle-"));
@@ -369,14 +405,21 @@ describe("initSessionState reset policy", () => {
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s2";
       const existingSessionId = "idle-session-id";
+=======
+    const root = await makeCaseDir("openclaw-reset-idle-");
+    const storePath = path.join(root, "sessions.json");
+    const sessionKey = "agent:main:whatsapp:dm:s2";
+    const existingSessionId = "idle-session-id";
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      await saveSessionStore(storePath, {
-        [sessionKey]: {
-          sessionId: existingSessionId,
-          updatedAt: new Date(2026, 0, 18, 4, 45, 0).getTime(),
-        },
-      });
+    await saveSessionStore(storePath, {
+      [sessionKey]: {
+        sessionId: existingSessionId,
+        updatedAt: new Date(2026, 0, 18, 4, 45, 0).getTime(),
+      },
+    });
 
+<<<<<<< HEAD
       const cfg = {
         session: {
           store: storePath,
@@ -388,17 +431,27 @@ describe("initSessionState reset policy", () => {
         cfg,
         commandAuthorized: true,
       });
+=======
+    const cfg = {
+      session: {
+        store: storePath,
+        reset: { mode: "daily", atHour: 4, idleMinutes: 30 },
+      },
+    } as OpenClawConfig;
+    const result = await initSessionState({
+      ctx: { Body: "hello", SessionKey: sessionKey },
+      cfg,
+      commandAuthorized: true,
+    });
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      expect(result.isNewSession).toBe(true);
-      expect(result.sessionId).not.toBe(existingSessionId);
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(result.isNewSession).toBe(true);
+    expect(result.sessionId).not.toBe(existingSessionId);
   });
 
   it("uses per-type overrides for thread sessions", async () => {
-    vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
+<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-thread-"));
@@ -408,14 +461,21 @@ describe("initSessionState reset policy", () => {
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:slack:channel:c1:thread:123";
       const existingSessionId = "thread-session-id";
+=======
+    const root = await makeCaseDir("openclaw-reset-thread-");
+    const storePath = path.join(root, "sessions.json");
+    const sessionKey = "agent:main:slack:channel:c1:thread:123";
+    const existingSessionId = "thread-session-id";
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      await saveSessionStore(storePath, {
-        [sessionKey]: {
-          sessionId: existingSessionId,
-          updatedAt: new Date(2026, 0, 18, 3, 0, 0).getTime(),
-        },
-      });
+    await saveSessionStore(storePath, {
+      [sessionKey]: {
+        sessionId: existingSessionId,
+        updatedAt: new Date(2026, 0, 18, 3, 0, 0).getTime(),
+      },
+    });
 
+<<<<<<< HEAD
       const cfg = {
         session: {
           store: storePath,
@@ -428,17 +488,28 @@ describe("initSessionState reset policy", () => {
         cfg,
         commandAuthorized: true,
       });
+=======
+    const cfg = {
+      session: {
+        store: storePath,
+        reset: { mode: "daily", atHour: 4 },
+        resetByType: { thread: { mode: "idle", idleMinutes: 180 } },
+      },
+    } as OpenClawConfig;
+    const result = await initSessionState({
+      ctx: { Body: "reply", SessionKey: sessionKey, ThreadLabel: "Slack thread" },
+      cfg,
+      commandAuthorized: true,
+    });
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      expect(result.isNewSession).toBe(false);
-      expect(result.sessionId).toBe(existingSessionId);
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(result.isNewSession).toBe(false);
+    expect(result.sessionId).toBe(existingSessionId);
   });
 
   it("detects thread sessions without thread key suffix", async () => {
-    vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
+<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-thread-nosuffix-"));
@@ -448,14 +519,21 @@ describe("initSessionState reset policy", () => {
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:discord:channel:c1";
       const existingSessionId = "thread-nosuffix";
+=======
+    const root = await makeCaseDir("openclaw-reset-thread-nosuffix-");
+    const storePath = path.join(root, "sessions.json");
+    const sessionKey = "agent:main:discord:channel:c1";
+    const existingSessionId = "thread-nosuffix";
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      await saveSessionStore(storePath, {
-        [sessionKey]: {
-          sessionId: existingSessionId,
-          updatedAt: new Date(2026, 0, 18, 3, 0, 0).getTime(),
-        },
-      });
+    await saveSessionStore(storePath, {
+      [sessionKey]: {
+        sessionId: existingSessionId,
+        updatedAt: new Date(2026, 0, 18, 3, 0, 0).getTime(),
+      },
+    });
 
+<<<<<<< HEAD
       const cfg = {
         session: {
           store: storePath,
@@ -467,17 +545,27 @@ describe("initSessionState reset policy", () => {
         cfg,
         commandAuthorized: true,
       });
+=======
+    const cfg = {
+      session: {
+        store: storePath,
+        resetByType: { thread: { mode: "idle", idleMinutes: 180 } },
+      },
+    } as OpenClawConfig;
+    const result = await initSessionState({
+      ctx: { Body: "reply", SessionKey: sessionKey, ThreadLabel: "Discord thread" },
+      cfg,
+      commandAuthorized: true,
+    });
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      expect(result.isNewSession).toBe(false);
-      expect(result.sessionId).toBe(existingSessionId);
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(result.isNewSession).toBe(false);
+    expect(result.sessionId).toBe(existingSessionId);
   });
 
   it("defaults to daily resets when only resetByType is configured", async () => {
-    vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
+<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-type-default-"));
@@ -487,14 +575,21 @@ describe("initSessionState reset policy", () => {
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s4";
       const existingSessionId = "type-default-session";
+=======
+    const root = await makeCaseDir("openclaw-reset-type-default-");
+    const storePath = path.join(root, "sessions.json");
+    const sessionKey = "agent:main:whatsapp:dm:s4";
+    const existingSessionId = "type-default-session";
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      await saveSessionStore(storePath, {
-        [sessionKey]: {
-          sessionId: existingSessionId,
-          updatedAt: new Date(2026, 0, 18, 3, 0, 0).getTime(),
-        },
-      });
+    await saveSessionStore(storePath, {
+      [sessionKey]: {
+        sessionId: existingSessionId,
+        updatedAt: new Date(2026, 0, 18, 3, 0, 0).getTime(),
+      },
+    });
 
+<<<<<<< HEAD
       const cfg = {
         session: {
           store: storePath,
@@ -506,17 +601,27 @@ describe("initSessionState reset policy", () => {
         cfg,
         commandAuthorized: true,
       });
+=======
+    const cfg = {
+      session: {
+        store: storePath,
+        resetByType: { thread: { mode: "idle", idleMinutes: 60 } },
+      },
+    } as OpenClawConfig;
+    const result = await initSessionState({
+      ctx: { Body: "hello", SessionKey: sessionKey },
+      cfg,
+      commandAuthorized: true,
+    });
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      expect(result.isNewSession).toBe(true);
-      expect(result.sessionId).not.toBe(existingSessionId);
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(result.isNewSession).toBe(true);
+    expect(result.sessionId).not.toBe(existingSessionId);
   });
 
   it("keeps legacy idleMinutes behavior without reset config", async () => {
-    vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
+<<<<<<< HEAD
     try {
 <<<<<<< HEAD
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-reset-legacy-"));
@@ -526,14 +631,21 @@ describe("initSessionState reset policy", () => {
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s3";
       const existingSessionId = "legacy-session-id";
+=======
+    const root = await makeCaseDir("openclaw-reset-legacy-");
+    const storePath = path.join(root, "sessions.json");
+    const sessionKey = "agent:main:whatsapp:dm:s3";
+    const existingSessionId = "legacy-session-id";
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      await saveSessionStore(storePath, {
-        [sessionKey]: {
-          sessionId: existingSessionId,
-          updatedAt: new Date(2026, 0, 18, 3, 30, 0).getTime(),
-        },
-      });
+    await saveSessionStore(storePath, {
+      [sessionKey]: {
+        sessionId: existingSessionId,
+        updatedAt: new Date(2026, 0, 18, 3, 30, 0).getTime(),
+      },
+    });
 
+<<<<<<< HEAD
       const cfg = {
         session: {
           store: storePath,
@@ -545,12 +657,22 @@ describe("initSessionState reset policy", () => {
         cfg,
         commandAuthorized: true,
       });
+=======
+    const cfg = {
+      session: {
+        store: storePath,
+        idleMinutes: 240,
+      },
+    } as OpenClawConfig;
+    const result = await initSessionState({
+      ctx: { Body: "hello", SessionKey: sessionKey },
+      cfg,
+      commandAuthorized: true,
+    });
+>>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 
-      expect(result.isNewSession).toBe(false);
-      expect(result.sessionId).toBe(existingSessionId);
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(result.isNewSession).toBe(false);
+    expect(result.sessionId).toBe(existingSessionId);
   });
 });
 
