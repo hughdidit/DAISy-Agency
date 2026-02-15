@@ -88,6 +88,7 @@ targets:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         CFBundleShortVersionString: "2026.2.1"
         CFBundleVersion: "20260201"
 =======
@@ -115,6 +116,10 @@ targets:
         CFBundleShortVersionString: "2026.2.14"
         CFBundleVersion: "20260214"
 >>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
+=======
+        CFBundleShortVersionString: "2026.2.15"
+        CFBundleVersion: "20260215"
+>>>>>>> 379b44558 (chore: bump version to 2026.2.15)
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -169,6 +174,7 @@ targets:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         CFBundleShortVersionString: "2026.2.1"
         CFBundleVersion: "20260201"
 =======
@@ -196,3 +202,7 @@ targets:
         CFBundleShortVersionString: "2026.2.14"
         CFBundleVersion: "20260214"
 >>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
+=======
+        CFBundleShortVersionString: "2026.2.15"
+        CFBundleVersion: "20260215"
+>>>>>>> 379b44558 (chore: bump version to 2026.2.15)

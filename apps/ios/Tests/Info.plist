@@ -16,6 +16,7 @@
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 <<<<<<< HEAD
+<<<<<<< HEAD
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
 <<<<<<< HEAD
@@ -43,3 +44,12 @@
 	</dict>
 >>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
 </plist>
+=======
+			<string>BNDL</string>
+			<key>CFBundleShortVersionString</key>
+			<string>2026.2.15</string>
+			<key>CFBundleVersion</key>
+			<string>20260215</string>
+		</dict>
+	</plist>
+>>>>>>> 379b44558 (chore: bump version to 2026.2.15)
