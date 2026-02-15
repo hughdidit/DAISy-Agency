@@ -362,6 +362,11 @@ describe("exec approvals allowlist evaluation", () => {
       safeBins: normalizeSafeBins(["jq"]),
       cwd: "/tmp",
     });
+    // Safe bins are disabled on Windows (PowerShell parsing/expansion differences).
+    if (process.platform === "win32") {
+      expect(result.allowlistSatisfied).toBe(false);
+      return;
+    }
     expect(result.allowlistSatisfied).toBe(true);
     expect(result.allowlistMatches).toEqual([]);
   });
@@ -554,6 +559,11 @@ describe("exec approvals node host allowlist check", () => {
       safeBins: normalizeSafeBins(["jq"]),
       cwd: "/tmp",
     });
+    // Safe bins are disabled on Windows (PowerShell parsing/expansion differences).
+    if (process.platform === "win32") {
+      expect(safe).toBe(false);
+      return;
+    }
     expect(safe).toBe(true);
   });
 });
