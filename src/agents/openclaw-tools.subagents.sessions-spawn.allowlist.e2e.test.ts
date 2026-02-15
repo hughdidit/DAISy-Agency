@@ -28,8 +28,8 @@ import "./test-helpers/fast-core-tools.js";
 import { createMoltbotTools } from "./moltbot-tools.js";
 =======
 import { beforeEach, describe, expect, it } from "vitest";
-import { createOpenClawTools } from "./openclaw-tools.js";
 import "./test-helpers/fast-core-tools.js";
+import { createOpenClawTools } from "./openclaw-tools.js";
 import {
   callGatewayMock,
   resetConfigOverride,
@@ -54,6 +54,7 @@ import {
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 const callGatewayMock = getCallGatewayMock();
+const setConfigOverride = setSessionsSpawnConfigOverride;
 
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-allows-cross-agent-spawning-configured.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
