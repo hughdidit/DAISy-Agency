@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { normalizeCronJobCreate } from "./normalize.js";
+=======
+import { normalizeCronJobCreate, normalizeCronJobPatch } from "./normalize.js";
+>>>>>>> 89dccc79a (cron: infer payload kind for model-only update patches (openclaw#15664) thanks @rodrigouroz)
 
 describe("normalizeCronJobCreate", () => {
   it("maps legacy payload.provider to payload.channel and strips provider", () => {
@@ -234,5 +238,33 @@ describe("normalizeCronJobCreate", () => {
     const delivery = normalized.delivery as Record<string, unknown>;
     expect(delivery.mode).toBe("announce");
     expect((normalized as { isolation?: unknown }).isolation).toBeUndefined();
+  });
+});
+
+describe("normalizeCronJobPatch", () => {
+  it("infers agentTurn kind for model-only payload patches", () => {
+    const normalized = normalizeCronJobPatch({
+      payload: {
+        model: "anthropic/claude-sonnet-4-5",
+      },
+    }) as unknown as Record<string, unknown>;
+
+    const payload = normalized.payload as Record<string, unknown>;
+    expect(payload.kind).toBe("agentTurn");
+    expect(payload.model).toBe("anthropic/claude-sonnet-4-5");
+  });
+
+  it("does not infer agentTurn kind for delivery-only legacy hints", () => {
+    const normalized = normalizeCronJobPatch({
+      payload: {
+        channel: "telegram",
+        to: "+15550001111",
+      },
+    }) as unknown as Record<string, unknown>;
+
+    const payload = normalized.payload as Record<string, unknown>;
+    expect(payload.kind).toBeUndefined();
+    expect(payload.channel).toBe("telegram");
+    expect(payload.to).toBe("+15550001111");
   });
 });

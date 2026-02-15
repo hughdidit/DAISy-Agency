@@ -181,6 +181,57 @@ describe("gateway server cron", () => {
       expect(merged?.delivery?.channel).toBe("telegram");
       expect(merged?.delivery?.to).toBe("19098680");
 
+<<<<<<< HEAD
+=======
+      const modelOnlyPatchRes = await rpcReq(ws, "cron.update", {
+        id: mergeJobId,
+        patch: {
+          payload: {
+            model: "anthropic/claude-sonnet-4-5",
+          },
+        },
+      });
+      expect(modelOnlyPatchRes.ok).toBe(true);
+      const modelOnlyPatched = modelOnlyPatchRes.payload as
+        | {
+            payload?: {
+              kind?: unknown;
+              message?: unknown;
+              model?: unknown;
+            };
+          }
+        | undefined;
+      expect(modelOnlyPatched?.payload?.kind).toBe("agentTurn");
+      expect(modelOnlyPatched?.payload?.message).toBe("hello");
+      expect(modelOnlyPatched?.payload?.model).toBe("anthropic/claude-sonnet-4-5");
+
+      const legacyDeliveryPatchRes = await rpcReq(ws, "cron.update", {
+        id: mergeJobId,
+        patch: {
+          payload: {
+            kind: "agentTurn",
+            deliver: true,
+            channel: "signal",
+            to: "+15550001111",
+            bestEffortDeliver: true,
+          },
+        },
+      });
+      expect(legacyDeliveryPatchRes.ok).toBe(true);
+      const legacyDeliveryPatched = legacyDeliveryPatchRes.payload as
+        | {
+            payload?: { kind?: unknown; message?: unknown };
+            delivery?: { mode?: unknown; channel?: unknown; to?: unknown; bestEffort?: unknown };
+          }
+        | undefined;
+      expect(legacyDeliveryPatched?.payload?.kind).toBe("agentTurn");
+      expect(legacyDeliveryPatched?.payload?.message).toBe("hello");
+      expect(legacyDeliveryPatched?.delivery?.mode).toBe("announce");
+      expect(legacyDeliveryPatched?.delivery?.channel).toBe("signal");
+      expect(legacyDeliveryPatched?.delivery?.to).toBe("+15550001111");
+      expect(legacyDeliveryPatched?.delivery?.bestEffort).toBe(true);
+
+>>>>>>> 89dccc79a (cron: infer payload kind for model-only update patches (openclaw#15664) thanks @rodrigouroz)
       const rejectRes = await rpcReq(ws, "cron.add", {
         name: "patch reject",
         enabled: true,

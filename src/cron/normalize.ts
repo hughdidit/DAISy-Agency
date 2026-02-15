@@ -59,6 +59,83 @@ function coercePayload(payload: UnknownRecord) {
   const next: UnknownRecord = { ...payload };
   // Back-compat: older configs used `provider` for delivery channel.
   migrateLegacyCronPayload(next);
+<<<<<<< HEAD
+=======
+  const kindRaw = typeof next.kind === "string" ? next.kind.trim().toLowerCase() : "";
+  if (kindRaw === "agentturn") {
+    next.kind = "agentTurn";
+  } else if (kindRaw === "systemevent") {
+    next.kind = "systemEvent";
+  } else if (kindRaw) {
+    next.kind = kindRaw;
+  }
+  if (!next.kind) {
+    const hasMessage = typeof next.message === "string" && next.message.trim().length > 0;
+    const hasText = typeof next.text === "string" && next.text.trim().length > 0;
+    const hasAgentTurnHint =
+      typeof next.model === "string" ||
+      typeof next.thinking === "string" ||
+      typeof next.timeoutSeconds === "number" ||
+      typeof next.allowUnsafeExternalContent === "boolean";
+    if (hasMessage) {
+      next.kind = "agentTurn";
+    } else if (hasText) {
+      next.kind = "systemEvent";
+    } else if (hasAgentTurnHint) {
+      // Accept partial agentTurn payload patches that only tweak agent-turn-only fields.
+      next.kind = "agentTurn";
+    }
+  }
+  if (typeof next.message === "string") {
+    const trimmed = next.message.trim();
+    if (trimmed) {
+      next.message = trimmed;
+    }
+  }
+  if (typeof next.text === "string") {
+    const trimmed = next.text.trim();
+    if (trimmed) {
+      next.text = trimmed;
+    }
+  }
+  if ("model" in next) {
+    if (typeof next.model === "string") {
+      const trimmed = next.model.trim();
+      if (trimmed) {
+        next.model = trimmed;
+      } else {
+        delete next.model;
+      }
+    } else {
+      delete next.model;
+    }
+  }
+  if ("thinking" in next) {
+    if (typeof next.thinking === "string") {
+      const trimmed = next.thinking.trim();
+      if (trimmed) {
+        next.thinking = trimmed;
+      } else {
+        delete next.thinking;
+      }
+    } else {
+      delete next.thinking;
+    }
+  }
+  if ("timeoutSeconds" in next) {
+    if (typeof next.timeoutSeconds === "number" && Number.isFinite(next.timeoutSeconds)) {
+      next.timeoutSeconds = Math.max(1, Math.floor(next.timeoutSeconds));
+    } else {
+      delete next.timeoutSeconds;
+    }
+  }
+  if (
+    "allowUnsafeExternalContent" in next &&
+    typeof next.allowUnsafeExternalContent !== "boolean"
+  ) {
+    delete next.allowUnsafeExternalContent;
+  }
+>>>>>>> 89dccc79a (cron: infer payload kind for model-only update patches (openclaw#15664) thanks @rodrigouroz)
   return next;
 }
 
