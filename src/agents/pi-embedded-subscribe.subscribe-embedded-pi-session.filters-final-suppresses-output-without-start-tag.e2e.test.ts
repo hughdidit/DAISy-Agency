@@ -1,34 +1,28 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi } from "vitest";
+import {
+  createStubSessionHarness,
+  extractAgentEventPayloads,
+} from "./pi-embedded-subscribe.e2e-harness.js";
 import { subscribeEmbeddedPiSession } from "./pi-embedded-subscribe.js";
-
-type StubSession = {
-  subscribe: (fn: (evt: unknown) => void) => () => void;
-};
 
 describe("subscribeEmbeddedPiSession", () => {
   it("filters to <final> and suppresses output without a start tag", () => {
-    let handler: ((evt: unknown) => void) | undefined;
-    const session: StubSession = {
-      subscribe: (fn) => {
-        handler = fn;
-        return () => {};
-      },
-    };
+    const { session, emit } = createStubSessionHarness();
 
     const onPartialReply = vi.fn();
     const onAgentEvent = vi.fn();
 
     subscribeEmbeddedPiSession({
-      session: session as unknown as Parameters<typeof subscribeEmbeddedPiSession>[0]["session"],
+      session,
       runId: "run",
       enforceFinalTag: true,
       onPartialReply,
       onAgentEvent,
     });
 
-    handler?.({ type: "message_start", message: { role: "assistant" } });
-    handler?.({
+    emit({ type: "message_start", message: { role: "assistant" } });
+    emit({
       type: "message_update",
       message: { role: "assistant" },
       assistantMessageEvent: {
@@ -43,8 +37,8 @@ describe("subscribeEmbeddedPiSession", () => {
 
     onPartialReply.mockReset();
 
-    handler?.({ type: "message_start", message: { role: "assistant" } });
-    handler?.({
+    emit({ type: "message_start", message: { role: "assistant" } });
+    emit({
       type: "message_update",
       message: { role: "assistant" },
       assistantMessageEvent: {
@@ -55,6 +49,34 @@ describe("subscribeEmbeddedPiSession", () => {
 
     expect(onPartialReply).not.toHaveBeenCalled();
   });
+<<<<<<< HEAD
+=======
+  it("emits agent events on message_end even without <final> tags", () => {
+    const { session, emit } = createStubSessionHarness();
+
+    const onAgentEvent = vi.fn();
+
+    subscribeEmbeddedPiSession({
+      session,
+      runId: "run",
+      enforceFinalTag: true,
+      onAgentEvent,
+    });
+
+    const assistantMessage = {
+      role: "assistant",
+      content: [{ type: "text", text: "Hello world" }],
+    } as AssistantMessage;
+
+    emit({ type: "message_start", message: assistantMessage });
+    emit({ type: "message_end", message: assistantMessage });
+
+    const payloads = extractAgentEventPayloads(onAgentEvent.mock.calls);
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]?.text).toBe("Hello world");
+    expect(payloads[0]?.delta).toBe("Hello world");
+  });
+>>>>>>> e58884925 (refactor(test): reuse pi embedded subscribe session harness)
   it("does not require <final> when enforcement is off", () => {
     let handler: ((evt: unknown) => void) | undefined;
     const session: StubSession = {

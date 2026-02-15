@@ -1,5 +1,9 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi } from "vitest";
+import {
+  createStubSessionHarness,
+  extractAgentEventPayloads,
+} from "./pi-embedded-subscribe.e2e-harness.js";
 import { subscribeEmbeddedPiSession } from "./pi-embedded-subscribe.js";
 
 type StubSession = {
@@ -185,6 +189,66 @@ describe("subscribeEmbeddedPiSession", () => {
     expect(payloads[1]?.delta).toBe(" world");
   });
 
+<<<<<<< HEAD
+=======
+  it("emits agent events on message_end for non-streaming assistant text", () => {
+    const { session, emit } = createStubSessionHarness();
+
+    const onAgentEvent = vi.fn();
+
+    subscribeEmbeddedPiSession({
+      session,
+      runId: "run",
+      onAgentEvent,
+    });
+
+    const assistantMessage = {
+      role: "assistant",
+      content: [{ type: "text", text: "Hello world" }],
+    } as AssistantMessage;
+
+    emit({ type: "message_start", message: assistantMessage });
+    emit({ type: "message_end", message: assistantMessage });
+
+    const payloads = extractAgentEventPayloads(onAgentEvent.mock.calls);
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]?.text).toBe("Hello world");
+    expect(payloads[0]?.delta).toBe("Hello world");
+  });
+
+  it("does not emit duplicate agent events when message_end repeats", () => {
+    let handler: ((evt: unknown) => void) | undefined;
+    const session: StubSession = {
+      subscribe: (fn) => {
+        handler = fn;
+        return () => {};
+      },
+    };
+
+    const onAgentEvent = vi.fn();
+
+    subscribeEmbeddedPiSession({
+      session: session as unknown as Parameters<typeof subscribeEmbeddedPiSession>[0]["session"],
+      runId: "run",
+      onAgentEvent,
+    });
+
+    const assistantMessage = {
+      role: "assistant",
+      content: [{ type: "text", text: "Hello world" }],
+    } as AssistantMessage;
+
+    handler?.({ type: "message_start", message: assistantMessage });
+    handler?.({ type: "message_end", message: assistantMessage });
+    handler?.({ type: "message_end", message: assistantMessage });
+
+    const payloads = onAgentEvent.mock.calls
+      .map((call) => call[0]?.data as Record<string, unknown> | undefined)
+      .filter((value): value is Record<string, unknown> => Boolean(value));
+    expect(payloads).toHaveLength(1);
+  });
+
+>>>>>>> e58884925 (refactor(test): reuse pi embedded subscribe session harness)
   it("skips agent events when cleaned text rewinds mid-stream", () => {
     let handler: ((evt: unknown) => void) | undefined;
     const session: StubSession = {
