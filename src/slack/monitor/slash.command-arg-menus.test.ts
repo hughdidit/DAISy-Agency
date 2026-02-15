@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 =======
 import { describe, expect, it, vi } from "vitest";
@@ -9,43 +10,20 @@ import { describe, expect, it, vi } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 723e314e2 (fix(ci): avoid vitest TDZ in shared mocks)
 import { registerSlackMonitorSlashCommands } from "./slash.js";
+=======
+import { getSlackSlashMocks, resetSlackSlashMocks } from "./slash.test-harness.js";
+>>>>>>> 30eacd36a (refactor(test): dedupe slack slash mocks)
 
-const dispatchMock = vi.fn();
-const readAllowFromStoreMock = vi.fn();
-const upsertPairingRequestMock = vi.fn();
-const resolveAgentRouteMock = vi.fn();
-
-vi.mock("../../auto-reply/reply/provider-dispatcher.js", () => ({
-  dispatchReplyWithDispatcher: (...args: unknown[]) => dispatchMock(...args),
-}));
-
-vi.mock("../../pairing/pairing-store.js", () => ({
-  readChannelAllowFromStore: (...args: unknown[]) => readAllowFromStoreMock(...args),
-  upsertChannelPairingRequest: (...args: unknown[]) => upsertPairingRequestMock(...args),
-}));
-
-vi.mock("../../routing/resolve-route.js", () => ({
-  resolveAgentRoute: (...args: unknown[]) => resolveAgentRouteMock(...args),
-}));
-
-vi.mock("../../agents/identity.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../agents/identity.js")>();
-  return {
-    ...actual,
-    resolveEffectiveMessagesConfig: () => ({ responsePrefix: "" }),
-  };
-});
+const { dispatchMock } = getSlackSlashMocks();
 
 beforeEach(() => {
-  dispatchMock.mockReset().mockResolvedValue({ counts: { final: 1, tool: 0, block: 0 } });
-  readAllowFromStoreMock.mockReset().mockResolvedValue([]);
-  upsertPairingRequestMock.mockReset().mockResolvedValue({ code: "PAIRCODE", created: true });
-  resolveAgentRouteMock.mockReset().mockReturnValue({
-    agentId: "main",
-    sessionKey: "session:1",
-    accountId: "acct",
-  });
+  resetSlackSlashMocks();
 });
+
+async function registerCommands(ctx: unknown, account: unknown) {
+  const { registerSlackMonitorSlashCommands } = await import("./slash.js");
+  registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+}
 
 function encodeValue(parts: { command: string; arg: string; value: string; userId: string }) {
   return [
@@ -103,7 +81,7 @@ function createHarness() {
 describe("Slack native command argument menus", () => {
   it("shows a button menu when required args are omitted", async () => {
     const { commands, ctx, account } = createHarness();
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
     const handler = commands.get("/usage");
     if (!handler) {
@@ -134,7 +112,7 @@ describe("Slack native command argument menus", () => {
 
   it("dispatches the command when a menu button is clicked", async () => {
     const { actions, ctx, account } = createHarness();
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
 <<<<<<< HEAD
     const handler = actions.get("moltbot_cmdarg");
@@ -167,7 +145,7 @@ describe("Slack native command argument menus", () => {
 
   it("rejects menu clicks from other users", async () => {
     const { actions, ctx, account } = createHarness();
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
 <<<<<<< HEAD
     const handler = actions.get("moltbot_cmdarg");
@@ -202,7 +180,7 @@ describe("Slack native command argument menus", () => {
 
   it("falls back to postEphemeral with token when respond is unavailable", async () => {
     const { actions, postEphemeral, ctx, account } = createHarness();
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
 <<<<<<< HEAD
     const handler = actions.get("moltbot_cmdarg");
@@ -231,7 +209,7 @@ describe("Slack native command argument menus", () => {
 
   it("treats malformed percent-encoding as an invalid button (no throw)", async () => {
     const { actions, postEphemeral, ctx, account } = createHarness();
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
 <<<<<<< HEAD
     const handler = actions.get("moltbot_cmdarg");

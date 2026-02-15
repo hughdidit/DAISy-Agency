@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 =======
 import { describe, expect, it, vi } from "vitest";
@@ -9,43 +10,20 @@ import { describe, expect, it, vi } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 723e314e2 (fix(ci): avoid vitest TDZ in shared mocks)
 import { registerSlackMonitorSlashCommands } from "./slash.js";
+=======
+import { getSlackSlashMocks, resetSlackSlashMocks } from "./slash.test-harness.js";
+>>>>>>> 30eacd36a (refactor(test): dedupe slack slash mocks)
 
-const dispatchMock = vi.fn();
-const readAllowFromStoreMock = vi.fn();
-const upsertPairingRequestMock = vi.fn();
-const resolveAgentRouteMock = vi.fn();
-
-vi.mock("../../auto-reply/reply/provider-dispatcher.js", () => ({
-  dispatchReplyWithDispatcher: (...args: unknown[]) => dispatchMock(...args),
-}));
-
-vi.mock("../../pairing/pairing-store.js", () => ({
-  readChannelAllowFromStore: (...args: unknown[]) => readAllowFromStoreMock(...args),
-  upsertChannelPairingRequest: (...args: unknown[]) => upsertPairingRequestMock(...args),
-}));
-
-vi.mock("../../routing/resolve-route.js", () => ({
-  resolveAgentRoute: (...args: unknown[]) => resolveAgentRouteMock(...args),
-}));
-
-vi.mock("../../agents/identity.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../agents/identity.js")>();
-  return {
-    ...actual,
-    resolveEffectiveMessagesConfig: () => ({ responsePrefix: "" }),
-  };
-});
+const { dispatchMock } = getSlackSlashMocks();
 
 beforeEach(() => {
-  dispatchMock.mockReset().mockResolvedValue({ counts: { final: 1, tool: 0, block: 0 } });
-  readAllowFromStoreMock.mockReset().mockResolvedValue([]);
-  upsertPairingRequestMock.mockReset().mockResolvedValue({ code: "PAIRCODE", created: true });
-  resolveAgentRouteMock.mockReset().mockReturnValue({
-    agentId: "main",
-    sessionKey: "session:1",
-    accountId: "acct",
-  });
+  resetSlackSlashMocks();
 });
+
+async function registerCommands(ctx: unknown, account: unknown) {
+  const { registerSlackMonitorSlashCommands } = await import("./slash.js");
+  registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+}
 
 function createHarness(overrides?: {
   groupPolicy?: "open" | "allowlist";
@@ -140,7 +118,7 @@ describe("slack slash commands channel policy", () => {
       channelId: "C_UNLISTED",
       channelName: "unlisted",
     });
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
     const { respond } = await runSlashHandler({
       commands,
@@ -163,7 +141,7 @@ describe("slack slash commands channel policy", () => {
       channelId: "C_DENIED",
       channelName: "denied",
     });
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
     const { respond } = await runSlashHandler({
       commands,
@@ -187,7 +165,7 @@ describe("slack slash commands channel policy", () => {
       channelId: "C_UNLISTED",
       channelName: "unlisted",
     });
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
     const { respond } = await runSlashHandler({
       commands,
@@ -213,7 +191,7 @@ describe("slack slash commands access groups", () => {
       channelName: "unknown",
       resolveChannelName: async () => ({}),
     });
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
     const { respond } = await runSlashHandler({
       commands,
@@ -237,7 +215,7 @@ describe("slack slash commands access groups", () => {
       channelName: "notdirectmessage",
       resolveChannelName: async () => ({}),
     });
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
     const { respond } = await runSlashHandler({
       commands,
@@ -264,7 +242,7 @@ describe("slack slash commands access groups", () => {
       channelName: "directmessage",
       resolveChannelName: async () => ({ name: "directmessage", type: "im" }),
     });
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
     await runSlashHandler({
       commands,
@@ -290,7 +268,7 @@ describe("slack slash commands access groups", () => {
       channelName: "private",
       resolveChannelName: async () => ({}),
     });
-    registerSlackMonitorSlashCommands({ ctx: ctx as never, account: account as never });
+    await registerCommands(ctx, account);
 
     const { respond } = await runSlashHandler({
       commands,
