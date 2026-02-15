@@ -551,6 +551,7 @@ export function isTtsProviderConfigured(config: ResolvedTtsConfig, provider: Tts
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 function isValidVoiceId(voiceId: string): boolean {
   return /^[a-zA-Z0-9]{10,40}$/.test(voiceId);
 }
@@ -1202,6 +1203,16 @@ async function edgeTTS(params: {
 
 =======
 >>>>>>> 3f5e72835 (refactor(tts): extract directives and provider core)
+=======
+function formatTtsProviderError(provider: TtsProvider, err: unknown): string {
+  const error = err instanceof Error ? err : new Error(String(err));
+  if (error.name === "AbortError") {
+    return `${provider}: request timed out`;
+  }
+  return `${provider}: ${error.message}`;
+}
+
+>>>>>>> 80e5aebf6 (refactor(tts): dedupe provider error formatting)
 export async function textToSpeech(params: {
   text: string;
   cfg: MoltbotConfig;
@@ -1358,12 +1369,7 @@ export async function textToSpeech(params: {
         voiceCompatible: output.voiceCompatible,
       };
     } catch (err) {
-      const error = err as Error;
-      if (error.name === "AbortError") {
-        lastError = `${provider}: request timed out`;
-      } else {
-        lastError = `${provider}: ${error.message}`;
-      }
+      lastError = formatTtsProviderError(provider, err);
     }
   }
 
@@ -1452,12 +1458,7 @@ export async function textToSpeechTelephony(params: {
         sampleRate: output.sampleRate,
       };
     } catch (err) {
-      const error = err as Error;
-      if (error.name === "AbortError") {
-        lastError = `${provider}: request timed out`;
-      } else {
-        lastError = `${provider}: ${error.message}`;
-      }
+      lastError = formatTtsProviderError(provider, err);
     }
   }
 
