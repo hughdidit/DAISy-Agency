@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { retryAsync } from "../infra/retry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -5,6 +6,10 @@ import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
 import { hashText } from "./internal.js";
 =======
 =======
+=======
+import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
+import { postJsonWithRetry } from "./batch-http.js";
+>>>>>>> ebb54d71e (refactor(memory): share batch create retry)
 import { applyEmbeddingBatchOutputLine } from "./batch-output.js";
 >>>>>>> 7bd073340 (refactor(memory): share batch output parsing)
 import { hashText, runWithConcurrency } from "./internal.js";
@@ -103,6 +108,7 @@ async function submitOpenAiBatch(params: {
     throw new Error("openai batch file upload failed: missing file id");
   }
 
+<<<<<<< HEAD
   const batchRes = await retryAsync(
     async () => {
       const res = await fetch(`${baseUrl}/batches`, {
@@ -136,10 +142,22 @@ async function submitOpenAiBatch(params: {
       shouldRetry: (err) => {
         const status = (err as { status?: number }).status;
         return status === 429 || (typeof status === "number" && status >= 500);
+=======
+  return await postJsonWithRetry<OpenAiBatchStatus>({
+    url: `${baseUrl}/batches`,
+    headers: getOpenAiHeaders(params.openAi, { json: true }),
+    body: {
+      input_file_id: filePayload.id,
+      endpoint: OPENAI_BATCH_ENDPOINT,
+      completion_window: OPENAI_BATCH_COMPLETION_WINDOW,
+      metadata: {
+        source: "openclaw-memory",
+        agent: params.agentId,
+>>>>>>> ebb54d71e (refactor(memory): share batch create retry)
       },
     },
-  );
-  return (await batchRes.json()) as OpenAiBatchStatus;
+    errorPrefix: "openai batch create failed",
+  });
 }
 
 async function fetchOpenAiBatchStatus(params: {
