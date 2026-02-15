@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import type { GatewayRequestHandlers, RespondFn } from "./types.js";
+>>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import {
   CONFIG_PATH,
@@ -87,7 +92,69 @@ function requireConfigBaseHash(
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+function parseRawConfigOrRespond(
+  params: unknown,
+  requestName: string,
+  respond: RespondFn,
+): string | null {
+  const rawValue = (params as { raw?: unknown }).raw;
+  if (typeof rawValue !== "string") {
+    respond(
+      false,
+      undefined,
+      errorShape(
+        ErrorCodes.INVALID_REQUEST,
+        `invalid ${requestName} params: raw (string) required`,
+      ),
+    );
+    return null;
+  }
+  return rawValue;
+}
+
+function parseValidateConfigFromRawOrRespond(
+  params: unknown,
+  requestName: string,
+  snapshot: Awaited<ReturnType<typeof readConfigFileSnapshot>>,
+  respond: RespondFn,
+): { config: OpenClawConfig; schema: ConfigSchemaResponse } | null {
+  const rawValue = parseRawConfigOrRespond(params, requestName, respond);
+  if (!rawValue) {
+    return null;
+  }
+  const parsedRes = parseConfigJson5(rawValue);
+  if (!parsedRes.ok) {
+    respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, parsedRes.error));
+    return null;
+  }
+  const schema = loadSchemaWithPlugins();
+  const restored = restoreRedactedValues(parsedRes.parsed, snapshot.config, schema.uiHints);
+  if (!restored.ok) {
+    respond(
+      false,
+      undefined,
+      errorShape(ErrorCodes.INVALID_REQUEST, restored.humanReadableMessage ?? "invalid config"),
+    );
+    return null;
+  }
+  const validated = validateConfigObjectWithPlugins(restored.result);
+  if (!validated.ok) {
+    respond(
+      false,
+      undefined,
+      errorShape(ErrorCodes.INVALID_REQUEST, "invalid config", {
+        details: { issues: validated.issues },
+      }),
+    );
+    return null;
+  }
+  return { config: validated.config, schema };
+}
+
+>>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
 function resolveConfigRestartRequest(params: unknown): {
   sessionKey: string | undefined;
   note: string | undefined;
@@ -266,15 +333,11 @@ export const configHandlers: GatewayRequestHandlers = {
     if (!requireConfigBaseHash(params, snapshot, respond)) {
       return;
     }
-    const rawValue = (params as { raw?: unknown }).raw;
-    if (typeof rawValue !== "string") {
-      respond(
-        false,
-        undefined,
-        errorShape(ErrorCodes.INVALID_REQUEST, "invalid config.set params: raw (string) required"),
-      );
+    const parsed = parseValidateConfigFromRawOrRespond(params, "config.set", snapshot, respond);
+    if (!parsed) {
       return;
     }
+<<<<<<< HEAD
     const parsedRes = parseConfigJson5(rawValue);
     if (!parsedRes.ok) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, parsedRes.error));
@@ -292,12 +355,19 @@ export const configHandlers: GatewayRequestHandlers = {
       return;
     }
     await writeConfigFile(validated.config);
+=======
+    await writeConfigFile(parsed.config, writeOptions);
+>>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
     respond(
       true,
       {
         ok: true,
         path: CONFIG_PATH,
+<<<<<<< HEAD
         config: validated.config,
+=======
+        config: redactConfigObject(parsed.config, parsed.schema.uiHints),
+>>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
       },
       undefined,
     );
@@ -473,18 +543,11 @@ export const configHandlers: GatewayRequestHandlers = {
     if (!requireConfigBaseHash(params, snapshot, respond)) {
       return;
     }
-    const rawValue = (params as { raw?: unknown }).raw;
-    if (typeof rawValue !== "string") {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          "invalid config.apply params: raw (string) required",
-        ),
-      );
+    const parsed = parseValidateConfigFromRawOrRespond(params, "config.apply", snapshot, respond);
+    if (!parsed) {
       return;
     }
+<<<<<<< HEAD
     const parsedRes = parseConfigJson5(rawValue);
     if (!parsedRes.ok) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, parsedRes.error));
@@ -502,6 +565,9 @@ export const configHandlers: GatewayRequestHandlers = {
       return;
     }
     await writeConfigFile(validated.config);
+=======
+    await writeConfigFile(parsed.config, writeOptions);
+>>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
 
 <<<<<<< HEAD
     const sessionKey =
@@ -557,7 +623,11 @@ export const configHandlers: GatewayRequestHandlers = {
       {
         ok: true,
         path: CONFIG_PATH,
+<<<<<<< HEAD
         config: validated.config,
+=======
+        config: redactConfigObject(parsed.config, parsed.schema.uiHints),
+>>>>>>> c46f395bb (refactor(gateway): dedupe config raw validation)
         restart,
         sentinel: {
           path: sentinelPath,
