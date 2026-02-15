@@ -1,7 +1,6 @@
 import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
-import { resolveEmojiAndHomepage } from "../shared/entry-metadata.js";
-import { evaluateRequirementsFromMetadataWithRemote } from "../shared/requirements.js";
+import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
 import { CONFIG_DIR } from "../utils.js";
 import {
   hasBinary,
@@ -179,15 +178,12 @@ function buildSkillStatus(
   const allowBundled = resolveBundledAllowlist(config);
   const blockedByAllowlist = !isBundledSkillAllowed(entry, allowBundled);
   const always = entry.metadata?.always === true;
-  const { emoji, homepage } = resolveEmojiAndHomepage({
-    metadata: entry.metadata,
-    frontmatter: entry.frontmatter,
-  });
   const bundled =
     bundledNames && bundledNames.size > 0
       ? bundledNames.has(entry.skill.name)
       : entry.skill.source === "openclaw-bundled";
 
+<<<<<<< HEAD
   const {
     required,
     missing,
@@ -208,6 +204,24 @@ function buildSkillStatus(
     resolveConfigValue: (pathStr) => resolveConfigPath(config, pathStr),
     isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
   });
+=======
+  const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
+    evaluateEntryMetadataRequirements({
+      always,
+      metadata: entry.metadata,
+      frontmatter: entry.frontmatter,
+      hasLocalBin: hasBinary,
+      localPlatform: process.platform,
+      remote: eligibility?.remote,
+      isEnvSatisfied: (envName) =>
+        Boolean(
+          process.env[envName] ||
+          skillConfig?.env?.[envName] ||
+          (skillConfig?.apiKey && entry.metadata?.primaryEnv === envName),
+        ),
+      isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
+    });
+>>>>>>> 137079fc2 (refactor(shared): share entry requirements evaluation)
   const eligible = !disabled && !blockedByAllowlist && requirementsSatisfied;
 
   return {
