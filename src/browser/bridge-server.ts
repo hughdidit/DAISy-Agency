@@ -12,8 +12,11 @@ import { safeEqualSecret } from "../security/secret-equal.js";
 =======
 import { isLoopbackHost } from "../gateway/net.js";
 import { deleteBridgeAuthForPort, setBridgeAuthForPort } from "./bridge-auth-registry.js";
+<<<<<<< HEAD
 import { isAuthorizedBrowserRequest } from "./http-auth.js";
 >>>>>>> af50b914a (refactor(browser): centralize http auth)
+=======
+>>>>>>> 28014de97 (refactor(browser): share common server middleware)
 import { registerBrowserRoutes } from "./routes/index.js";
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 import {
@@ -21,6 +24,10 @@ import {
   createBrowserRouteContext,
   type ProfileContext,
 } from "./server-context.js";
+import {
+  installBrowserAuthMiddleware,
+  installBrowserCommonMiddleware,
+} from "./server-middleware.js";
 
 export type BrowserBridge = {
   server: Server;
@@ -41,6 +48,7 @@ export async function startBrowserBridgeServer(params: {
   const port = params.port ?? 0;
 
   const app = express();
+<<<<<<< HEAD
   app.use(express.json({ limit: "1mb" }));
 
   const authToken = params.authToken?.trim() || undefined;
@@ -53,6 +61,16 @@ export async function startBrowserBridgeServer(params: {
       res.status(401).send("Unauthorized");
     });
   }
+=======
+  installBrowserCommonMiddleware(app);
+
+  const authToken = params.authToken?.trim() || undefined;
+  const authPassword = params.authPassword?.trim() || undefined;
+  if (!authToken && !authPassword) {
+    throw new Error("bridge server requires auth (authToken/authPassword missing)");
+  }
+  installBrowserAuthMiddleware(app, { token: authToken, password: authPassword });
+>>>>>>> 28014de97 (refactor(browser): share common server middleware)
 
   const state: BrowserServerState = {
     server: null as unknown as Server,
