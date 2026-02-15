@@ -1,8 +1,4 @@
 import type { Command } from "commander";
-import { formatDocsLink } from "../../terminal/links.js";
-import { theme } from "../../terminal/theme.js";
-<<<<<<< HEAD
-import { createDefaultDeps } from "../deps.js";
 import {
   runDaemonInstall,
   runDaemonRestart,
@@ -11,24 +7,11 @@ import {
   runDaemonStop,
   runDaemonUninstall,
 } from "./runners.js";
-=======
-import { addGatewayServiceCommands } from "./register-service-commands.js";
->>>>>>> 7a63b046d (refactor(cli): share gateway service subcommands)
 
-export function registerDaemonCli(program: Command) {
-  const daemon = program
-    .command("daemon")
-    .description("Manage the Gateway service (launchd/systemd/schtasks)")
-    .addHelpText(
-      "after",
-      () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.molt.bot/cli/gateway")}\n`,
-    );
-
-<<<<<<< HEAD
-  daemon
+export function addGatewayServiceCommands(parent: Command, opts?: { statusDescription?: string }) {
+  parent
     .command("status")
-    .description("Show service install status + probe the Gateway")
+    .description(opts?.statusDescription ?? "Show gateway service status + probe the Gateway")
     .option("--url <url>", "Gateway WebSocket URL (defaults to config/remote/local)")
     .option("--token <token>", "Gateway token (if required)")
     .option("--password <password>", "Gateway password (password auth)")
@@ -36,16 +19,16 @@ export function registerDaemonCli(program: Command) {
     .option("--no-probe", "Skip RPC probe")
     .option("--deep", "Scan system-level services", false)
     .option("--json", "Output JSON", false)
-    .action(async (opts) => {
+    .action(async (cmdOpts) => {
       await runDaemonStatus({
-        rpc: opts,
-        probe: Boolean(opts.probe),
-        deep: Boolean(opts.deep),
-        json: Boolean(opts.json),
+        rpc: cmdOpts,
+        probe: Boolean(cmdOpts.probe),
+        deep: Boolean(cmdOpts.deep),
+        json: Boolean(cmdOpts.json),
       });
     });
 
-  daemon
+  parent
     .command("install")
     .description("Install the Gateway service (launchd/systemd/schtasks)")
     .option("--port <port>", "Gateway port")
@@ -53,47 +36,39 @@ export function registerDaemonCli(program: Command) {
     .option("--token <token>", "Gateway token (token auth)")
     .option("--force", "Reinstall/overwrite if already installed", false)
     .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonInstall(opts);
+    .action(async (cmdOpts) => {
+      await runDaemonInstall(cmdOpts);
     });
 
-  daemon
+  parent
     .command("uninstall")
     .description("Uninstall the Gateway service (launchd/systemd/schtasks)")
     .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonUninstall(opts);
+    .action(async (cmdOpts) => {
+      await runDaemonUninstall(cmdOpts);
     });
 
-  daemon
+  parent
     .command("start")
     .description("Start the Gateway service (launchd/systemd/schtasks)")
     .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonStart(opts);
+    .action(async (cmdOpts) => {
+      await runDaemonStart(cmdOpts);
     });
 
-  daemon
+  parent
     .command("stop")
     .description("Stop the Gateway service (launchd/systemd/schtasks)")
     .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonStop(opts);
+    .action(async (cmdOpts) => {
+      await runDaemonStop(cmdOpts);
     });
 
-  daemon
+  parent
     .command("restart")
     .description("Restart the Gateway service (launchd/systemd/schtasks)")
     .option("--json", "Output JSON", false)
-    .action(async (opts) => {
-      await runDaemonRestart(opts);
+    .action(async (cmdOpts) => {
+      await runDaemonRestart(cmdOpts);
     });
-
-  // Build default deps (parity with other commands).
-  void createDefaultDeps();
-=======
-  addGatewayServiceCommands(daemon, {
-    statusDescription: "Show service install status + probe the Gateway",
-  });
->>>>>>> 7a63b046d (refactor(cli): share gateway service subcommands)
 }
