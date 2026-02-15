@@ -1,6 +1,10 @@
 import CoreLocation
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/NodeMode/MacNodeLocationService.swift
 import MoltbotKit
+=======
+import OpenClawKit
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/NodeMode/MacNodeLocationService.swift
 
 @MainActor
 final class MacNodeLocationService: NSObject, CLLocationManagerDelegate {

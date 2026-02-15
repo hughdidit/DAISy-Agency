@@ -1,10 +1,55 @@
 import AppKit
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/DeepLinks.swift
 import MoltbotKit
 import OSLog
 import Security
 
 private let deepLinkLogger = Logger(subsystem: "bot.molt", category: "DeepLink")
+=======
+import OpenClawKit
+import OSLog
+import Security
+
+private let deepLinkLogger = Logger(subsystem: "ai.openclaw", category: "DeepLink")
+
+enum DeepLinkAgentPolicy {
+    static let maxMessageChars = 20000
+    static let maxUnkeyedConfirmChars = 240
+
+    enum ValidationError: Error, Equatable, LocalizedError {
+        case messageTooLongForConfirmation(max: Int, actual: Int)
+
+        var errorDescription: String? {
+            switch self {
+            case let .messageTooLongForConfirmation(max, actual):
+                "Message is too long to confirm safely (\(actual) chars; max \(max) without key)."
+            }
+        }
+    }
+
+    static func validateMessageForHandle(message: String, allowUnattended: Bool) -> Result<Void, ValidationError> {
+        if !allowUnattended, message.count > self.maxUnkeyedConfirmChars {
+            return .failure(.messageTooLongForConfirmation(max: self.maxUnkeyedConfirmChars, actual: message.count))
+        }
+        return .success(())
+    }
+
+    static func effectiveDelivery(
+        link: AgentDeepLink,
+        allowUnattended: Bool) -> (deliver: Bool, to: String?, channel: GatewayAgentChannel)
+    {
+        if !allowUnattended {
+            // Without the unattended key, ignore delivery/routing knobs to reduce exfiltration risk.
+            return (deliver: false, to: nil, channel: .last)
+        }
+        let channel = GatewayAgentChannel(raw: link.channel)
+        let deliver = channel.shouldDeliver(link.deliver)
+        let to = link.to?.trimmingCharacters(in: .whitespacesAndNewlines).nonEmpty
+        return (deliver: deliver, to: to, channel: channel)
+    }
+}
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/DeepLinks.swift
 
 @MainActor
 final class DeepLinkHandler {

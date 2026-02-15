@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/ClawdbotConfigFile.swift
 import MoltbotProtocol
+=======
+import OpenClawProtocol
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/OpenClawConfigFile.swift
 
 <<<<<<< HEAD:apps/macos/Sources/Moltbot/ClawdbotConfigFile.swift
 enum MoltbotConfigFile {

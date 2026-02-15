@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/ShellExecutor.swift
 import MoltbotIPC
+=======
+import OpenClawIPC
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/ShellExecutor.swift
 
 enum ShellExecutor {
     struct ShellResult {

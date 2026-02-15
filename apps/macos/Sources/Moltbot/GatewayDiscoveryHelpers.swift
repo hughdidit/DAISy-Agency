@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/GatewayDiscoveryHelpers.swift
 import MoltbotDiscovery
+=======
+import OpenClawDiscovery
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/GatewayDiscoveryHelpers.swift
 
 enum GatewayDiscoveryHelpers {
     static func sshTarget(for gateway: GatewayDiscoveryModel.DiscoveredGateway) -> String? {

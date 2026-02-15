@@ -1,7 +1,12 @@
 import AppKit
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/OnboardingView+Actions.swift
 import MoltbotDiscovery
 import MoltbotIPC
+=======
+import OpenClawDiscovery
+import OpenClawIPC
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/OnboardingView+Actions.swift
 import SwiftUI
 
 extension OnboardingView {

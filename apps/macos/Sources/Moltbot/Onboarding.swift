@@ -1,9 +1,16 @@
 import AppKit
 import Combine
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/Onboarding.swift
 import MoltbotChatUI
 import MoltbotDiscovery
 import MoltbotIPC
 import Observation
+=======
+import Observation
+import OpenClawChatUI
+import OpenClawDiscovery
+import OpenClawIPC
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/Onboarding.swift
 import SwiftUI
 
 enum UIStrings {

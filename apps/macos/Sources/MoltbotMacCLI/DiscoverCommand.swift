@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/MoltbotMacCLI/DiscoverCommand.swift
 import MoltbotDiscovery
+=======
+import OpenClawDiscovery
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClawMacCLI/DiscoverCommand.swift
 
 struct DiscoveryOptions {
     var timeoutMs: Int = 2000

@@ -1,8 +1,14 @@
 import AppKit
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/WebChatSwiftUI.swift
 import MoltbotChatUI
 import MoltbotKit
 import MoltbotProtocol
+=======
+import OpenClawChatUI
+import OpenClawKit
+import OpenClawProtocol
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/WebChatSwiftUI.swift
 import OSLog
 import QuartzCore
 import SwiftUI

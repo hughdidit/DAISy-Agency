@@ -1,7 +1,13 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/GatewayConnection.swift
 import MoltbotChatUI
 import MoltbotKit
 import MoltbotProtocol
+=======
+import OpenClawChatUI
+import OpenClawKit
+import OpenClawProtocol
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/GatewayConnection.swift
 import OSLog
 
 private let gatewayConnectionLogger = Logger(subsystem: "bot.molt", category: "gateway.connection")

@@ -6,6 +6,7 @@ import CoreLocation
 import Foundation
 import MoltbotIPC
 import Observation
+import OpenClawIPC
 import Speech
 import UserNotifications
 

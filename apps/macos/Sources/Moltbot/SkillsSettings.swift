@@ -1,5 +1,9 @@
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/SkillsSettings.swift
 import MoltbotProtocol
+=======
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/SkillsSettings.swift
 import Observation
+import OpenClawProtocol
 import SwiftUI
 
 struct SkillsSettings: View {

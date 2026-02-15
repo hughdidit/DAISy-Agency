@@ -2,7 +2,11 @@ import AppKit
 import CryptoKit
 import Darwin
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
 import MoltbotKit
+=======
+import OpenClawKit
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
 import OSLog
 
 struct ExecApprovalPromptRequest: Codable, Sendable {

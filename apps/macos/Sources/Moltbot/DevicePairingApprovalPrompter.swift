@@ -3,6 +3,8 @@ import Foundation
 import MoltbotKit
 import MoltbotProtocol
 import Observation
+import OpenClawKit
+import OpenClawProtocol
 import OSLog
 
 @MainActor

@@ -6,7 +6,11 @@ enum ModelCatalogLoader {
         self.resolveDefaultPath()
     }
 
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/ModelCatalogLoader.swift
     private static let logger = Logger(subsystem: "bot.molt", category: "models")
+=======
+    private static let logger = Logger(subsystem: "ai.openclaw", category: "models")
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/ModelCatalogLoader.swift
     private nonisolated static let appSupportDir: URL = {
         let base = FileManager().urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         return base.appendingPathComponent("Moltbot", isDirectory: true)

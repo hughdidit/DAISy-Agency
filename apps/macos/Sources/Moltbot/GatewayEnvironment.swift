@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/GatewayEnvironment.swift
 import MoltbotIPC
+=======
+import OpenClawIPC
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/GatewayEnvironment.swift
 import OSLog
 
 /// Lightweight SemVer helper (major.minor.patch only) for gateway compatibility checks.

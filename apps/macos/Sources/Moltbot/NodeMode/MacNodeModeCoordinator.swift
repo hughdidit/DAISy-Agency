@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/NodeMode/MacNodeModeCoordinator.swift
 import MoltbotKit
+=======
+import OpenClawKit
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/NodeMode/MacNodeModeCoordinator.swift
 import OSLog
 
 @MainActor

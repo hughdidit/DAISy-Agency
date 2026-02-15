@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/MoltbotDiscovery/WideAreaGatewayDiscovery.swift
 import MoltbotKit
+=======
+import OpenClawKit
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClawDiscovery/WideAreaGatewayDiscovery.swift
 
 struct WideAreaGatewayBeacon: Sendable, Equatable {
     var instanceName: String

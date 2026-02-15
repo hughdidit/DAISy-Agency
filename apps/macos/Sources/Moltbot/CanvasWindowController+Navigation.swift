@@ -17,8 +17,15 @@ extension CanvasWindowController {
         let scheme = url.scheme?.lowercased()
 
         // Deep links: allow local Canvas content to invoke the agent without bouncing through NSWorkspace.
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/CanvasWindowController+Navigation.swift
         if scheme == "moltbot" {
             if self.webView.url?.scheme == CanvasScheme.scheme {
+=======
+        if scheme == "openclaw" {
+            if let currentScheme = self.webView.url?.scheme,
+               CanvasScheme.allSchemes.contains(currentScheme)
+            {
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/CanvasWindowController+Navigation.swift
                 Task { await DeepLinkHandler.shared.handle(url: url) }
             } else {
                 canvasWindowLogger

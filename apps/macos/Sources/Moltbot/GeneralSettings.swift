@@ -1,8 +1,15 @@
 import AppKit
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/GeneralSettings.swift
 import MoltbotDiscovery
 import MoltbotIPC
 import MoltbotKit
 import Observation
+=======
+import Observation
+import OpenClawDiscovery
+import OpenClawIPC
+import OpenClawKit
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/GeneralSettings.swift
 import SwiftUI
 
 struct GeneralSettings: View {

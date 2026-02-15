@@ -108,7 +108,14 @@ struct AboutSettings: View {
     }
 
     private var buildTimestamp: String? {
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/AboutSettings.swift
         guard let raw = Bundle.main.object(forInfoDictionaryKey: "MoltbotBuildTimestamp") as? String
+=======
+        guard
+            let raw =
+            (Bundle.main.object(forInfoDictionaryKey: "OpenClawBuildTimestamp") as? String) ??
+            (Bundle.main.object(forInfoDictionaryKey: "OpenClawBuildTimestamp") as? String)
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/AboutSettings.swift
         else { return nil }
         let parser = ISO8601DateFormatter()
         parser.formatOptions = [.withInternetDateTime]

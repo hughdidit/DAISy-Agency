@@ -1,6 +1,11 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/MoltbotMacCLI/ConnectCommand.swift
 import MoltbotKit
 import MoltbotProtocol
+=======
+import OpenClawKit
+import OpenClawProtocol
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClawMacCLI/ConnectCommand.swift
 #if canImport(Darwin)
 import Darwin
 #endif

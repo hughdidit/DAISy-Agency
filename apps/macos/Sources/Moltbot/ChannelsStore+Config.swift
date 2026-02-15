@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/ChannelsStore+Config.swift
 import MoltbotProtocol
+=======
+import OpenClawProtocol
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/ChannelsStore+Config.swift
 
 extension ChannelsStore {
     func loadConfigSchema() async {

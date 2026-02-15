@@ -233,9 +233,14 @@ enum MoltbotOAuthStore {
             let expanded = NSString(string: override).expandingTildeInPath
             return URL(fileURLWithPath: expanded, isDirectory: true)
         }
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/AnthropicOAuth.swift
 
         return FileManager().homeDirectoryForCurrentUser
             .appendingPathComponent(".clawdbot", isDirectory: true)
+=======
+        let home = FileManager().homeDirectoryForCurrentUser
+        return home.appendingPathComponent(".openclaw", isDirectory: true)
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/AnthropicOAuth.swift
             .appendingPathComponent("credentials", isDirectory: true)
     }
 

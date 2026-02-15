@@ -1,5 +1,9 @@
 import Foundation
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/OnboardingView+Monitoring.swift
 import MoltbotIPC
+=======
+import OpenClawIPC
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/OnboardingView+Monitoring.swift
 
 extension OnboardingView {
     @MainActor

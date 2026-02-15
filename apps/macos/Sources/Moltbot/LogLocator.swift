@@ -5,8 +5,12 @@ enum LogLocator {
         if let override = ProcessInfo.processInfo.environment["CLAWDBOT_LOG_DIR"], !override.isEmpty {
             return URL(fileURLWithPath: override)
         }
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/LogLocator.swift
 
         return URL(fileURLWithPath: "/tmp/moltbot")
+=======
+        return URL(fileURLWithPath: "/tmp/openclaw")
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect):apps/macos/Sources/OpenClaw/LogLocator.swift
     }
 
     private static var stdoutLog: URL {
