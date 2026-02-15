@@ -32,8 +32,11 @@ describe("moltbot-tools: subagents", () => {
 =======
 import "./test-helpers/fast-core-tools.js";
 import { sleep } from "../utils.js";
+<<<<<<< HEAD
 import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> 6b4590be0 (fix(agents): stabilize sessions_spawn e2e suite)
+=======
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
 import {
   getCallGatewayMock,
   resetSessionsSpawnConfigOverride,
@@ -51,11 +54,27 @@ vi.mock("./pi-embedded.js", () => ({
 const callGatewayMock = getCallGatewayMock();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
 >>>>>>> e720e022e (test: stabilize sessions_spawn e2e mocks)
 =======
 =======
+=======
+type CreateOpenClawTools = (typeof import("./openclaw-tools.js"))["createOpenClawTools"];
+type CreateOpenClawToolsOpts = Parameters<CreateOpenClawTools>[0];
+
+async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
+  // Dynamic import: ensure harness mocks are installed before tool modules load.
+  const { createOpenClawTools } = await import("./openclaw-tools.js");
+  const tool = createOpenClawTools(opts).find((candidate) => candidate.name === "sessions_spawn");
+  if (!tool) {
+    throw new Error("missing sessions_spawn tool");
+  }
+  return tool;
+}
+
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
 type GatewayRequest = { method?: string; params?: unknown };
 type AgentWaitCall = { runId?: string; timeoutMs?: number };
 
@@ -185,13 +204,14 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       },
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({
+=======
+    const tool = await getSessionsSpawnTool({
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "main",
       agentChannel: "whatsapp",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call2", {
       task: "do thing",
@@ -276,13 +296,14 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       },
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({
+=======
+    const tool = await getSessionsSpawnTool({
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call1", {
       task: "do thing",
@@ -381,13 +402,10 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       agentWaitResult: { status: "ok", startedAt: 3000, endedAt: 4000 },
     });
 
-    const tool = createOpenClawTools({
+    const tool = await getSessionsSpawnTool({
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call1b", {
       task: "do thing",
@@ -471,13 +489,10 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       return {};
     });
 
-    const tool = createOpenClawTools({
+    const tool = await getSessionsSpawnTool({
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call-timeout", {
       task: "do thing",
@@ -541,14 +556,15 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       return {};
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({
+=======
+    const tool = await getSessionsSpawnTool({
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "main",
       agentChannel: "whatsapp",
       agentAccountId: "kev",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call-announce-account", {
       task: "do thing",

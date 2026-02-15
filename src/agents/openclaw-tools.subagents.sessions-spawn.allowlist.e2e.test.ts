@@ -29,7 +29,6 @@ import { createMoltbotTools } from "./moltbot-tools.js";
 =======
 import { beforeEach, describe, expect, it } from "vitest";
 import "./test-helpers/fast-core-tools.js";
-import { createOpenClawTools } from "./openclaw-tools.js";
 import {
   callGatewayMock,
   resetConfigOverride,
@@ -55,10 +54,26 @@ import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 const callGatewayMock = getCallGatewayMock();
 
+<<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-allows-cross-agent-spawning-configured.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
 >>>>>>> e720e022e (test: stabilize sessions_spawn e2e mocks)
 =======
+=======
+type CreateOpenClawTools = (typeof import("./openclaw-tools.js"))["createOpenClawTools"];
+type CreateOpenClawToolsOpts = Parameters<CreateOpenClawTools>[0];
+
+async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
+  // Dynamic import: ensure harness mocks are installed before tool modules load.
+  const { createOpenClawTools } = await import("./openclaw-tools.js");
+  const tool = createOpenClawTools(opts).find((candidate) => candidate.name === "sessions_spawn");
+  if (!tool) {
+    throw new Error("missing sessions_spawn tool");
+  }
+  return tool;
+}
+
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
 describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.allowlist.e2e.test.ts
   beforeEach(() => {
@@ -69,13 +84,10 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
 
-    const tool = createOpenClawTools({
+    const tool = await getSessionsSpawnTool({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call6", {
       task: "do thing",
@@ -107,13 +119,10 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
       },
     });
 
-    const tool = createOpenClawTools({
+    const tool = await getSessionsSpawnTool({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call9", {
       task: "do thing",
@@ -159,13 +168,14 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
       return {};
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({
+=======
+    const tool = await getSessionsSpawnTool({
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "main",
       agentChannel: "whatsapp",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call7", {
       task: "do thing",
@@ -213,13 +223,14 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
       return {};
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({
+=======
+    const tool = await getSessionsSpawnTool({
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "main",
       agentChannel: "whatsapp",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call8", {
       task: "do thing",
@@ -267,13 +278,10 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
       return {};
     });
 
-    const tool = createOpenClawTools({
+    const tool = await getSessionsSpawnTool({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call10", {
       task: "do thing",

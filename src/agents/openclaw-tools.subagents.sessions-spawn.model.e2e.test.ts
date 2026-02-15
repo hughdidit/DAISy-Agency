@@ -46,7 +46,6 @@ import { beforeEach, describe, expect, it } from "vitest";
 >>>>>>> dd11a6bcd (refactor(test): share sessions_spawn e2e harness)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import "./test-helpers/fast-core-tools.js";
-import { createOpenClawTools } from "./openclaw-tools.js";
 import {
   getCallGatewayMock,
   resetSessionsSpawnConfigOverride,
@@ -56,10 +55,26 @@ import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 const callGatewayMock = getCallGatewayMock();
 
+<<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-applies-model-child-session.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
 >>>>>>> e720e022e (test: stabilize sessions_spawn e2e mocks)
 =======
+=======
+type CreateOpenClawTools = (typeof import("./openclaw-tools.js"))["createOpenClawTools"];
+type CreateOpenClawToolsOpts = Parameters<CreateOpenClawTools>[0];
+
+async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
+  // Dynamic import: ensure harness mocks are installed before tool modules load.
+  const { createOpenClawTools } = await import("./openclaw-tools.js");
+  const tool = createOpenClawTools(opts).find((candidate) => candidate.name === "sessions_spawn");
+  if (!tool) {
+    throw new Error("missing sessions_spawn tool");
+  }
+  return tool;
+}
+
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
 describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.model.e2e.test.ts
   beforeEach(() => {
@@ -96,13 +111,14 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({
+=======
+    const tool = await getSessionsSpawnTool({
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call3", {
       task: "do thing",
@@ -143,13 +159,14 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({
+=======
+    const tool = await getSessionsSpawnTool({
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call-thinking", {
       task: "do thing",
@@ -176,13 +193,14 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({
+=======
+    const tool = await getSessionsSpawnTool({
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "discord:group:req",
       agentChannel: "discord",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call-thinking-invalid", {
       task: "do thing",
@@ -216,13 +234,14 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({
+=======
+    const tool = await getSessionsSpawnTool({
+>>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
       agentSessionKey: "agent:main:main",
       agentChannel: "discord",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call-default-model", {
       task: "do thing",
@@ -257,13 +276,10 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
-    const tool = createOpenClawTools({
+    const tool = await getSessionsSpawnTool({
       agentSessionKey: "agent:main:main",
       agentChannel: "discord",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call-runtime-default-model", {
       task: "do thing",
@@ -305,13 +321,10 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
-    const tool = createOpenClawTools({
+    const tool = await getSessionsSpawnTool({
       agentSessionKey: "agent:research:main",
       agentChannel: "discord",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call-agent-model", {
       task: "do thing",
@@ -363,13 +376,10 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
-    const tool = createOpenClawTools({
+    const tool = await getSessionsSpawnTool({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call4", {
       task: "do thing",
@@ -401,13 +411,10 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       return {};
     });
 
-    const tool = createOpenClawTools({
+    const tool = await getSessionsSpawnTool({
       agentSessionKey: "main",
       agentChannel: "whatsapp",
-    }).find((candidate) => candidate.name === "sessions_spawn");
-    if (!tool) {
-      throw new Error("missing sessions_spawn tool");
-    }
+    });
 
     const result = await tool.execute("call5", {
       task: "do thing",
