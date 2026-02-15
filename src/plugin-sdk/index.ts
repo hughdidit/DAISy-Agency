@@ -87,7 +87,13 @@ export type { MoltbotConfig } from "../config/config.js";
 export type { OpenClawConfig } from "../config/config.js";
 /** @deprecated Use OpenClawConfig instead */
 export type { OpenClawConfig as ClawdbotConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
+=======
+
+export type { FileLockHandle, FileLockOptions } from "./file-lock.js";
+export { acquireFileLock, withFileLock } from "./file-lock.js";
+>>>>>>> 52bfe5060 (refactor: share file lock via plugin-sdk)
 export type { ChannelDock } from "../channels/dock.js";
 export { getChatChannelMeta } from "../channels/registry.js";
 export type {
