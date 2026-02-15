@@ -28,6 +28,8 @@ export type OutboundSendContext = {
   cfg: MoltbotConfig;
   channel: ChannelId;
   params: Record<string, unknown>;
+  /** Active agent id for per-agent outbound media root scoping. */
+  agentId?: string;
   accountId?: string | null;
   gateway?: OutboundGatewayContext;
   toolContext?: ChannelThreadingToolContext;
@@ -96,6 +98,7 @@ export async function executeSendAction(params: {
     cfg: params.ctx.cfg,
     to: params.to,
     content: params.message,
+    agentId: params.ctx.agentId,
     mediaUrl: params.mediaUrl || undefined,
     mediaUrls: params.mediaUrls,
     channel: params.ctx.channel || undefined,

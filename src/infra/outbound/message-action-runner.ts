@@ -851,6 +851,7 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
       cfg,
       channel,
       params,
+      agentId,
       accountId: accountId ?? undefined,
       gateway,
       toolContext: input.toolContext,
