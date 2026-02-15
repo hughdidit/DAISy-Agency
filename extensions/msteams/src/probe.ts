@@ -1,11 +1,13 @@
+<<<<<<< HEAD
 import type { MSTeamsConfig } from "clawdbot/plugin-sdk";
+=======
+import type { BaseProbeResult, MSTeamsConfig } from "openclaw/plugin-sdk";
+>>>>>>> c6b3736fe (fix: dedupe probe/token base types (#16986) (thanks @iyoda))
 import { formatUnknownError } from "./errors.js";
 import { loadMSTeamsSdkWithAuth } from "./sdk.js";
 import { resolveMSTeamsCredentials } from "./token.js";
 
-export type ProbeMSTeamsResult = {
-  ok: boolean;
-  error?: string;
+export type ProbeMSTeamsResult = BaseProbeResult<string> & {
   appId?: string;
   graph?: {
     ok: boolean;

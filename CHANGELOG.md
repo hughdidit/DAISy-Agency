@@ -26,6 +26,7 @@ Docs: https://docs.openclaw.ai
 =======
 ### Changes
 
+<<<<<<< HEAD
 - Sandbox: add `sandbox.browser.binds` to configure browser-container bind mounts separately from exec containers. (#16230) Thanks @seheepeak.
 - Discord: add debug logging for message routing decisions to improve `--debug` tracing. (#16202) Thanks @jayleekr.
 <<<<<<< HEAD
@@ -33,6 +34,12 @@ Docs: https://docs.openclaw.ai
 - Discord: allow exec approval prompts to target channels or both DM+channel via `channels.discord.execApprovals.target`. (#16051) Thanks @leonnardo.
 - Telegram: add poll sending via `openclaw message poll` (duration seconds, silent delivery, anonymity controls). (#16209) Thanks @robbyczgw-cla.
 >>>>>>> 5ba72bd9b (fix: add discord exec approval channel targeting (#16051) (thanks @leonnardo))
+=======
+- Subagents: nested sub-agents (sub-sub-agents) with configurable depth. Set `agents.defaults.subagents.maxSpawnDepth: 2` to allow sub-agents to spawn their own children. Includes `maxChildrenPerAgent` limit (default 5), depth-aware tool policy, and proper announce chain routing. (#14447) Thanks @tyler6204.
+- Discord: components v2 UI + embeds passthrough + exec approval UX refinements (CV2 containers, button layout, Discord-forwarding skip). Thanks @thewilloftheshadow.
+- Slack/Discord/Telegram: add per-channel ack reaction overrides (account/channel-level) to support platform-specific emoji formats. (#17092) Thanks @zerone0x.
+- Channels: deduplicate probe/token resolution base types across core + extensions while preserving per-channel error typing. (#16986) Thanks @iyoda and @thewilloftheshadow.
+>>>>>>> c6b3736fe (fix: dedupe probe/token base types (#16986) (thanks @iyoda))
 
 >>>>>>> c16bc7127 (fix: add discord routing debug logging (#16202) (thanks @jayleekr))
 ### Fixes

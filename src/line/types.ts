@@ -7,6 +7,7 @@ import type {
   StickerMessage,
   LocationMessage,
 } from "@line/bot-sdk";
+import type { BaseProbeResult } from "../channels/plugins/types.js";
 
 export type LineTokenSource = "config" | "env" | "file" | "none";
 
@@ -82,16 +83,14 @@ export interface LineSendResult {
   chatId: string;
 }
 
-export interface LineProbeResult {
-  ok: boolean;
+export type LineProbeResult = BaseProbeResult<string> & {
   bot?: {
     displayName?: string;
     userId?: string;
     basicId?: string;
     pictureUrl?: string;
   };
-  error?: string;
-}
+};
 
 export type LineFlexMessagePayload = {
   altText: string;

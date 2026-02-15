@@ -1,8 +1,12 @@
 import fs from "node:fs";
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
+=======
+import type { BaseTokenResolution } from "../channels/plugins/types.js";
+>>>>>>> c6b3736fe (fix: dedupe probe/token base types (#16986) (thanks @iyoda))
 import type { OpenClawConfig } from "../config/config.js";
 import type { TelegramAccountConfig } from "../config/types.telegram.js";
 >>>>>>> e849df64d (fix: normalize telegram account token lookup (#5055) (thanks @jasonsschin))
@@ -10,8 +14,7 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.j
 
 export type TelegramTokenSource = "env" | "tokenFile" | "config" | "none";
 
-export type TelegramTokenResolution = {
-  token: string;
+export type TelegramTokenResolution = BaseTokenResolution & {
   source: TelegramTokenSource;
 };
 

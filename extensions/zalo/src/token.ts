@@ -1,11 +1,14 @@
 import { readFileSync } from "node:fs";
+<<<<<<< HEAD
 
 import { DEFAULT_ACCOUNT_ID } from "clawdbot/plugin-sdk";
 
+=======
+import { type BaseTokenResolution, DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk";
+>>>>>>> c6b3736fe (fix: dedupe probe/token base types (#16986) (thanks @iyoda))
 import type { ZaloConfig } from "./types.js";
 
-export type ZaloTokenResolution = {
-  token: string;
+export type ZaloTokenResolution = BaseTokenResolution & {
   source: "env" | "config" | "configFile" | "none";
 };
 

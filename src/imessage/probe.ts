@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import type { BaseProbeResult } from "../channels/plugins/types.js";
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> c6b3736fe (fix: dedupe probe/token base types (#16986) (thanks @iyoda))
 import { detectBinary } from "../commands/onboard-helpers.js";
 import { loadConfig } from "../config/config.js";
 import { runCommandWithTimeout } from "../process/exec.js";
@@ -10,10 +15,14 @@ import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "./constants.js";
 // Re-export for backwards compatibility
 export { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "./constants.js";
 
+<<<<<<< HEAD
 >>>>>>> f633a8cb2 (fix: address review comments)
 export type IMessageProbe = {
   ok: boolean;
   error?: string | null;
+=======
+export type IMessageProbe = BaseProbeResult & {
+>>>>>>> c6b3736fe (fix: dedupe probe/token base types (#16986) (thanks @iyoda))
   fatal?: boolean;
 };
 

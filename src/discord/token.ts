@@ -1,10 +1,14 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { BaseTokenResolution } from "../channels/plugins/types.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> c6b3736fe (fix: dedupe probe/token base types (#16986) (thanks @iyoda))
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 
 export type DiscordTokenSource = "env" | "config" | "none";
 
-export type DiscordTokenResolution = {
-  token: string;
+export type DiscordTokenResolution = BaseTokenResolution & {
   source: DiscordTokenSource;
 };
 
