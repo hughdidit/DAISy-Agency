@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { captureEnv } from "../test-utils/env.js";
 import {
   type AuthProfileStore,
   ensureAuthProfileStore,
@@ -11,10 +12,14 @@ import {
 import { CHUTES_TOKEN_ENDPOINT, type ChutesStoredOAuth } from "./chutes-oauth.js";
 
 describe("auth-profiles (chutes)", () => {
+<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
   const previousChutesClientId = process.env.CHUTES_CLIENT_ID;
+=======
+  let envSnapshot: ReturnType<typeof captureEnv> | undefined;
+>>>>>>> f809ff5e5 (refactor(test): reuse env snapshot helper)
   let tempDir: string | null = null;
 
   afterEach(async () => {
@@ -23,6 +28,7 @@ describe("auth-profiles (chutes)", () => {
       await fs.rm(tempDir, { recursive: true, force: true });
       tempDir = null;
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
     if (previousStateDir === undefined) delete process.env.CLAWDBOT_STATE_DIR;
     else process.env.CLAWDBOT_STATE_DIR = previousStateDir;
@@ -61,6 +67,23 @@ describe("auth-profiles (chutes)", () => {
     process.env.CLAWDBOT_STATE_DIR = tempDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempDir, "agents", "main", "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+=======
+    envSnapshot?.restore();
+    envSnapshot = undefined;
+  });
+
+  it("refreshes expired Chutes OAuth credentials", async () => {
+    envSnapshot = captureEnv([
+      "OPENCLAW_STATE_DIR",
+      "OPENCLAW_AGENT_DIR",
+      "PI_CODING_AGENT_DIR",
+      "CHUTES_CLIENT_ID",
+    ]);
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-chutes-"));
+    process.env.OPENCLAW_STATE_DIR = tempDir;
+    process.env.OPENCLAW_AGENT_DIR = path.join(tempDir, "agents", "main", "agent");
+    process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
+>>>>>>> f809ff5e5 (refactor(test): reuse env snapshot helper)
 
     const authProfilePath = path.join(tempDir, "agents", "main", "agent", "auth-profiles.json");
     await fs.mkdir(path.dirname(authProfilePath), { recursive: true });

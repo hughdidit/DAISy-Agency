@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { captureEnv } from "../test-utils/env.js";
 import {
   initSubagentRegistry,
   registerSubagentRun,
@@ -30,7 +31,11 @@ vi.mock("./subagent-announce.js", () => ({
 }));
 
 describe("subagent registry persistence", () => {
+<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
+=======
+  const envSnapshot = captureEnv(["OPENCLAW_STATE_DIR"]);
+>>>>>>> f809ff5e5 (refactor(test): reuse env snapshot helper)
   let tempStateDir: string | null = null;
 
   afterEach(async () => {
@@ -40,11 +45,15 @@ describe("subagent registry persistence", () => {
       await fs.rm(tempStateDir, { recursive: true, force: true });
       tempStateDir = null;
     }
+<<<<<<< HEAD
     if (previousStateDir === undefined) {
       delete process.env.CLAWDBOT_STATE_DIR;
     } else {
       process.env.CLAWDBOT_STATE_DIR = previousStateDir;
     }
+=======
+    envSnapshot.restore();
+>>>>>>> f809ff5e5 (refactor(test): reuse env snapshot helper)
   });
 
   it("persists runs to disk and resumes after restart", async () => {
