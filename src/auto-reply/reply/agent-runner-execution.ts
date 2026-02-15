@@ -404,7 +404,7 @@ export async function runAgentTurnWithFallback(params: {
 
                   const blockPayload: ReplyPayload = params.applyReplyToMode({
                     ...taggedPayload,
-                    text: cleaned,
+                    text: cleaned?.trimStart(),
                     audioAsVoice: Boolean(parsed.audioAsVoice || payload.audioAsVoice),
                     replyToId: taggedPayload.replyToId ?? parsed.replyToId,
                     replyToTag: taggedPayload.replyToTag || parsed.replyToTag,
