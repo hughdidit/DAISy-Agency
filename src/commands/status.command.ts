@@ -10,11 +10,20 @@ import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import { info } from "../globals.js";
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 import { formatUsageReportLines, loadProviderUsageSummary } from "../infra/provider-usage.js";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import { runSecurityAudit } from "../security/audit.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
 import { formatCliCommand } from "../cli/command-format.js";
+=======
+import {
+  formatUpdateChannelLabel,
+  normalizeUpdateChannel,
+  resolveEffectiveUpdateChannel,
+} from "../infra/update-channels.js";
+import { formatGitInstallLabel } from "../infra/update-check.js";
+>>>>>>> 887ca6086 (refactor(status): share git install label formatting)
 import {
   resolveMemoryCacheSummary,
   resolveMemoryFtsState,
@@ -362,21 +371,7 @@ export async function statusCommand(
     gitTag: update.git?.tag ?? null,
     gitBranch: update.git?.branch ?? null,
   });
-  const gitLabel =
-    update.installKind === "git"
-      ? (() => {
-          const shortSha = update.git?.sha ? update.git.sha.slice(0, 8) : null;
-          const branch =
-            update.git?.branch && update.git.branch !== "HEAD" ? update.git.branch : null;
-          const tag = update.git?.tag ?? null;
-          const parts = [
-            branch ?? (tag ? "detached" : "git"),
-            tag ? `tag ${tag}` : null,
-            shortSha ? `@ ${shortSha}` : null,
-          ].filter(Boolean);
-          return parts.join(" · ");
-        })()
-      : null;
+  const gitLabel = formatGitInstallLabel(update);
 
   const overviewRows = [
     { Item: "Dashboard", Value: dashboard },

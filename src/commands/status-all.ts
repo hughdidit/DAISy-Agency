@@ -21,7 +21,15 @@ import {
   normalizeUpdateChannel,
   resolveEffectiveUpdateChannel,
 } from "../infra/update-channels.js";
+<<<<<<< HEAD
 import { getRemoteSkillEligibility } from "../infra/skills-remote.js";
+=======
+import {
+  checkUpdateStatus,
+  compareSemverStrings,
+  formatGitInstallLabel,
+} from "../infra/update-check.js";
+>>>>>>> 887ca6086 (refactor(status): share git install label formatting)
 import { runExec } from "../process/exec.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { VERSION } from "../version.js";
@@ -104,21 +112,7 @@ export async function statusAllCommand(
       gitTag: update.git?.tag ?? null,
       gitBranch: update.git?.branch ?? null,
     });
-    const gitLabel =
-      update.installKind === "git"
-        ? (() => {
-            const shortSha = update.git?.sha ? update.git.sha.slice(0, 8) : null;
-            const branch =
-              update.git?.branch && update.git.branch !== "HEAD" ? update.git.branch : null;
-            const tag = update.git?.tag ?? null;
-            const parts = [
-              branch ?? (tag ? "detached" : "git"),
-              tag ? `tag ${tag}` : null,
-              shortSha ? `@ ${shortSha}` : null,
-            ].filter(Boolean);
-            return parts.join(" · ");
-          })()
-        : null;
+    const gitLabel = formatGitInstallLabel(update);
     progress.tick();
 
     progress.setLabel("Probing gateway…");
