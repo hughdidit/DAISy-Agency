@@ -5,6 +5,7 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { ModelRow } from "./list.types.js";
+<<<<<<< HEAD
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import { ensureAuthProfileStore } from "../../agents/auth-profiles.js";
 import { resolveForwardCompatModel } from "../../agents/model-forward-compat.js";
@@ -12,6 +13,10 @@ import { parseModelRef } from "../../agents/model-selection.js";
 import { resolveModel } from "../../agents/pi-embedded-runner/model.js";
 import { loadConfig } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
+=======
+import { resolveForwardCompatModel } from "../../agents/model-forward-compat.js";
+import { parseModelRef } from "../../agents/model-selection.js";
+>>>>>>> 38f430e13 (perf(models): lazy-load heavy deps in models list)
 import { resolveConfiguredEntries } from "./list.configured.js";
 import { formatErrorWithStack } from "./list.errors.js";
 import { loadModelRegistry, toModelRow } from "./list.registry.js";
@@ -34,6 +39,8 @@ export async function modelsListCommand(
   runtime: RuntimeEnv,
 ) {
   ensureFlagCompatibility(opts);
+  const { loadConfig } = await import("../../config/config.js");
+  const { ensureAuthProfileStore } = await import("../../agents/auth-profiles.js");
   const cfg = loadConfig();
   const authStore = ensureAuthProfileStore();
   const providerFilter = (() => {
@@ -121,6 +128,7 @@ export async function modelsListCommand(
         }
       }
       if (!model) {
+        const { resolveModel } = await import("../../agents/pi-embedded-runner/model.js");
         model = resolveModel(entry.ref.provider, entry.ref.model, undefined, cfg).model;
       }
       if (opts.local && model && !isLocalBaseUrl(model.baseUrl)) {
