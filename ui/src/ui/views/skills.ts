@@ -8,6 +8,7 @@ import type { SkillMessageMap } from "../controllers/skills";
 import type { SkillMessageMap } from "../controllers/skills.ts";
 import type { SkillStatusEntry, SkillStatusReport } from "../types.ts";
 import { clampText } from "../format.ts";
+<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
 type SkillGroup = {
@@ -48,6 +49,9 @@ function groupSkills(skills: SkillStatusEntry[]): SkillGroup[] {
   }
   return ordered;
 }
+=======
+import { groupSkills } from "./skills-grouping.ts";
+>>>>>>> fef86e475 (refactor: dedupe shared helpers across ui/gateway/extensions)
 
 export type SkillsProps = {
   loading: boolean;
