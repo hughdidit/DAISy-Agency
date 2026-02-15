@@ -12,6 +12,32 @@ import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { setupChannels } from "./onboard-channels.js";
 
+const noopAsync = async () => {};
+
+function createRuntime(): RuntimeEnv {
+  return {
+    log: vi.fn(),
+    error: vi.fn(),
+    exit: vi.fn((code: number) => {
+      throw new Error(`exit:${code}`);
+    }),
+  };
+}
+
+function createPrompter(overrides: Partial<WizardPrompter>): WizardPrompter {
+  return {
+    intro: vi.fn(noopAsync),
+    outro: vi.fn(noopAsync),
+    note: vi.fn(noopAsync),
+    select: vi.fn(async () => "__done__" as never),
+    multiselect: vi.fn(async () => []),
+    text: vi.fn(async () => "") as unknown as WizardPrompter["text"],
+    confirm: vi.fn(async () => false),
+    progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+    ...overrides,
+  };
+}
+
 vi.mock("node:fs/promises", () => ({
   default: {
     access: vi.fn(async () => {
@@ -56,24 +82,13 @@ describe("setupChannels", () => {
       throw new Error(`unexpected text prompt: ${message}`);
     });
 
-    const prompter: WizardPrompter = {
-      intro: vi.fn(async () => {}),
-      outro: vi.fn(async () => {}),
-      note: vi.fn(async () => {}),
+    const prompter = createPrompter({
       select,
       multiselect,
       text: text as unknown as WizardPrompter["text"],
-      confirm: vi.fn(async () => false),
-      progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
-    };
+    });
 
-    const runtime: RuntimeEnv = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: vi.fn((code: number) => {
-        throw new Error(`exit:${code}`);
-      }),
-    };
+    const runtime = createRuntime();
 
     await setupChannels({} as OpenClawConfig, runtime, prompter, {
       skipConfirm: true,
@@ -87,6 +102,41 @@ describe("setupChannels", () => {
     expect(multiselect).not.toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
+=======
+  it("shows explicit dmScope config command in channel primer", async () => {
+    const note = vi.fn(async () => {});
+    const select = vi.fn(async () => "__done__");
+    const multiselect = vi.fn(async () => {
+      throw new Error("unexpected multiselect");
+    });
+    const text = vi.fn(async ({ message }: { message: string }) => {
+      throw new Error(`unexpected text prompt: ${message}`);
+    });
+
+    const prompter = createPrompter({
+      note,
+      select,
+      multiselect,
+      text: text as unknown as WizardPrompter["text"],
+    });
+
+    const runtime = createRuntime();
+
+    await setupChannels({} as OpenClawConfig, runtime, prompter, {
+      skipConfirm: true,
+    });
+
+    const sawPrimer = note.mock.calls.some(
+      ([message, title]) =>
+        title === "How channels work" &&
+        String(message).includes('config set session.dmScope "per-channel-peer"'),
+    );
+    expect(sawPrimer).toBe(true);
+    expect(multiselect).not.toHaveBeenCalled();
+  });
+
+>>>>>>> 8e7b7a2b2 (refactor(test): dedupe commands e2e wizard setup)
   it("prompts for configured channel action and skips configuration when told to skip", async () => {
     const select = vi.fn(async ({ message }: { message: string }) => {
       if (message === "Select channel (QuickStart)") {
@@ -104,24 +154,13 @@ describe("setupChannels", () => {
       throw new Error(`unexpected text prompt: ${message}`);
     });
 
-    const prompter: WizardPrompter = {
-      intro: vi.fn(async () => {}),
-      outro: vi.fn(async () => {}),
-      note: vi.fn(async () => {}),
+    const prompter = createPrompter({
       select,
       multiselect,
       text: text as unknown as WizardPrompter["text"],
-      confirm: vi.fn(async () => false),
-      progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
-    };
+    });
 
-    const runtime: RuntimeEnv = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: vi.fn((code: number) => {
-        throw new Error(`exit:${code}`);
-      }),
-    };
+    const runtime = createRuntime();
 
     await setupChannels(
       {
@@ -167,24 +206,13 @@ describe("setupChannels", () => {
     const multiselect = vi.fn(async () => {
       throw new Error("unexpected multiselect");
     });
-    const prompter: WizardPrompter = {
-      intro: vi.fn(async () => {}),
-      outro: vi.fn(async () => {}),
-      note: vi.fn(async () => {}),
+    const prompter = createPrompter({
       select,
       multiselect,
-      text: vi.fn(async () => ""),
-      confirm: vi.fn(async () => false),
-      progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
-    };
+      text: vi.fn(async () => "") as unknown as WizardPrompter["text"],
+    });
 
-    const runtime: RuntimeEnv = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: vi.fn((code: number) => {
-        throw new Error(`exit:${code}`);
-      }),
-    };
+    const runtime = createRuntime();
 
     await setupChannels(
       {
