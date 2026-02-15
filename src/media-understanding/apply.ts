@@ -214,6 +214,40 @@ function resolveTextMimeFromName(name?: string): string | undefined {
   return TEXT_EXT_MIME.get(ext);
 }
 
+<<<<<<< HEAD
+=======
+function isBinaryMediaMime(mime?: string): boolean {
+  if (!mime) {
+    return false;
+  }
+  if (mime.startsWith("image/") || mime.startsWith("audio/") || mime.startsWith("video/")) {
+    return true;
+  }
+  if (mime === "application/octet-stream") {
+    return true;
+  }
+  if (
+    mime === "application/zip" ||
+    mime === "application/x-zip-compressed" ||
+    mime === "application/gzip" ||
+    mime === "application/x-gzip" ||
+    mime === "application/x-rar-compressed" ||
+    mime === "application/x-7z-compressed"
+  ) {
+    return true;
+  }
+  if (mime.startsWith("application/vnd.")) {
+    // Keep vendor +json/+xml payloads eligible for text extraction while
+    // treating the common binary vendor family (Office, archives, etc.) as binary.
+    if (mime.endsWith("+json") || mime.endsWith("+xml")) {
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
+
+>>>>>>> 86a156db2 (fix (media-understanding): treat binary application mimes as non-text)
 async function extractFileBlocks(params: {
   attachments: ReturnType<typeof normalizeMediaAttachments>;
   cache: ReturnType<typeof createMediaAttachmentCache>;
