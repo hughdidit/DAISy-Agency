@@ -12,7 +12,7 @@ import { resolveGatewayService } from "../daemon/service.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { stylePromptHint, stylePromptMessage, stylePromptTitle } from "../terminal/prompt-style.js";
 import { resolveHomeDir } from "../utils.js";
-import { collectWorkspaceDirs, isPathWithin, removePath } from "./cleanup-utils.js";
+import { buildCleanupPlan, removePath } from "./cleanup-utils.js";
 
 type UninstallScope = "service" | "state" | "workspace" | "app";
 
@@ -167,9 +167,12 @@ export async function uninstallCommand(runtime: RuntimeEnv, opts: UninstallOptio
   const stateDir = resolveStateDir();
   const configPath = resolveConfigPath();
   const oauthDir = resolveOAuthDir();
-  const configInsideState = isPathWithin(configPath, stateDir);
-  const oauthInsideState = isPathWithin(oauthDir, stateDir);
-  const workspaceDirs = collectWorkspaceDirs(cfg);
+  const { configInsideState, oauthInsideState, workspaceDirs } = buildCleanupPlan({
+    cfg,
+    stateDir,
+    configPath,
+    oauthDir,
+  });
 
   if (scopes.has("service")) {
     if (dryRun) {
