@@ -6,10 +6,14 @@ import { promisify } from "node:util";
 =======
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 2004ce919 (refactor(daemon): share schtasks exec helper)
 import { colorize, isRich, theme } from "../terminal/theme.js";
 =======
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
+=======
+import { splitArgsPreservingQuotes } from "./arg-split.js";
+>>>>>>> 108ea4336 (refactor(daemon): share quoted arg splitter)
 import { formatGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
 import { formatLine } from "./output.js";
 import { resolveGatewayStateDir } from "./paths.js";
@@ -75,36 +79,9 @@ function resolveTaskUser(env: Record<string, string | undefined>): string | null
 }
 
 function parseCommandLine(value: string): string[] {
-  const args: string[] = [];
-  let current = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < value.length; i++) {
-    const char = value[i];
-    // `buildTaskScript` only escapes quotes (`\"`).
-    // Keep all other backslashes literal so drive and UNC paths are preserved.
-    if (char === "\\" && i + 1 < value.length && value[i + 1] === '"') {
-      current += value[i + 1];
-      i++;
-      continue;
-    }
-    if (char === '"') {
-      inQuotes = !inQuotes;
-      continue;
-    }
-    if (!inQuotes && /\s/.test(char)) {
-      if (current) {
-        args.push(current);
-        current = "";
-      }
-      continue;
-    }
-    current += char;
-  }
-  if (current) {
-    args.push(current);
-  }
-  return args;
+  // `buildTaskScript` only escapes quotes (`\"`).
+  // Keep all other backslashes literal so drive and UNC paths are preserved.
+  return splitArgsPreservingQuotes(value, { escapeMode: "backslash-quote-only" });
 }
 
 export async function readScheduledTaskCommand(env: Record<string, string | undefined>): Promise<{
