@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
-import fsPromises from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import JSZip from "jszip";
 import * as tar from "tar";
 <<<<<<< HEAD
@@ -10,17 +10,21 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 =======
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> a7142c621 (perf(test): cache hook installer fixtures)
+=======
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> fa472623f (perf(test): use prebuilt hook install fixtures)
 
 const fixtureRoot = path.join(os.tmpdir(), `openclaw-hook-install-${randomUUID()}`);
 let tempDirIndex = 0;
 
-let zipHooksBuffer: Buffer;
-let zipTraversalBuffer: Buffer;
-let tarHooksBuffer: Buffer;
-let tarTraversalBuffer: Buffer;
-let tarEvilIdBuffer: Buffer;
-let tarReservedIdBuffer: Buffer;
-let npmPackHooksBuffer: Buffer;
+const fixturesDir = path.resolve(process.cwd(), "test", "fixtures", "hooks-install");
+const zipHooksBuffer = fs.readFileSync(path.join(fixturesDir, "zip-hooks.zip"));
+const zipTraversalBuffer = fs.readFileSync(path.join(fixturesDir, "zip-traversal.zip"));
+const tarHooksBuffer = fs.readFileSync(path.join(fixturesDir, "tar-hooks.tar"));
+const tarTraversalBuffer = fs.readFileSync(path.join(fixturesDir, "tar-traversal.tar"));
+const tarEvilIdBuffer = fs.readFileSync(path.join(fixturesDir, "tar-evil-id.tar"));
+const tarReservedIdBuffer = fs.readFileSync(path.join(fixturesDir, "tar-reserved-id.tar"));
+const npmPackHooksBuffer = fs.readFileSync(path.join(fixturesDir, "npm-pack-hooks.tgz"));
 
 vi.mock("../process/exec.js", () => ({
   runCommandWithTimeout: vi.fn(),
@@ -28,8 +32,12 @@ vi.mock("../process/exec.js", () => ({
 
 function makeTempDir() {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const dir = path.join(os.tmpdir(), `moltbot-hook-install-${randomUUID()}`);
 =======
+=======
+  fs.mkdirSync(fixtureRoot, { recursive: true });
+>>>>>>> fa472623f (perf(test): use prebuilt hook install fixtures)
   const dir = path.join(fixtureRoot, `case-${tempDirIndex++}`);
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
   fs.mkdirSync(dir, { recursive: true });
@@ -38,139 +46,6 @@ function makeTempDir() {
 
 const { runCommandWithTimeout } = await import("../process/exec.js");
 const { installHooksFromArchive, installHooksFromPath } = await import("./install.js");
-
-beforeAll(async () => {
-  fs.mkdirSync(fixtureRoot, { recursive: true });
-
-  const zipHooks = new JSZip();
-  zipHooks.file(
-    "package/package.json",
-    JSON.stringify({
-      name: "@openclaw/zip-hooks",
-      version: "0.0.1",
-      openclaw: { hooks: ["./hooks/zip-hook"] },
-    }),
-  );
-  zipHooks.file(
-    "package/hooks/zip-hook/HOOK.md",
-    [
-      "---",
-      "name: zip-hook",
-      "description: Zip hook",
-      'metadata: {"openclaw":{"events":["command:new"]}}',
-      "---",
-      "",
-      "# Zip Hook",
-    ].join("\n"),
-  );
-  zipHooks.file("package/hooks/zip-hook/handler.ts", "export default async () => {};\n");
-  zipHooksBuffer = await zipHooks.generateAsync({ type: "nodebuffer" });
-
-  const zipTraversal = new JSZip();
-  zipTraversal.file("../pwned.txt", "nope\n");
-  zipTraversalBuffer = await zipTraversal.generateAsync({ type: "nodebuffer" });
-
-  const makeTarWithPackage = async (params: {
-    packageName: string;
-    hookName: string;
-  }): Promise<Buffer> => {
-    const workDir = makeTempDir();
-    const archivePath = path.join(workDir, "hooks.tar");
-    const pkgDir = path.join(workDir, "package");
-    fs.mkdirSync(path.join(pkgDir, "hooks", params.hookName), { recursive: true });
-    fs.writeFileSync(
-      path.join(pkgDir, "package.json"),
-      JSON.stringify({
-        name: params.packageName,
-        version: "0.0.1",
-        openclaw: { hooks: [`./hooks/${params.hookName}`] },
-      }),
-      "utf-8",
-    );
-    fs.writeFileSync(
-      path.join(pkgDir, "hooks", params.hookName, "HOOK.md"),
-      [
-        "---",
-        `name: ${params.hookName}`,
-        `description: ${params.hookName}`,
-        'metadata: {"openclaw":{"events":["command:new"]}}',
-        "---",
-        "",
-        "# Hook",
-      ].join("\n"),
-      "utf-8",
-    );
-    fs.writeFileSync(
-      path.join(pkgDir, "hooks", params.hookName, "handler.ts"),
-      "export default async () => {};\n",
-      "utf-8",
-    );
-    await tar.c({ cwd: workDir, file: archivePath }, ["package"]);
-    return await fsPromises.readFile(archivePath);
-  };
-
-  tarHooksBuffer = await makeTarWithPackage({
-    packageName: "@openclaw/tar-hooks",
-    hookName: "tar-hook",
-  });
-  tarEvilIdBuffer = await makeTarWithPackage({ packageName: "@evil/..", hookName: "evil-hook" });
-  tarReservedIdBuffer = await makeTarWithPackage({
-    packageName: "@evil/.",
-    hookName: "reserved-hook",
-  });
-
-  const makeTraversalTar = async (): Promise<Buffer> => {
-    const workDir = makeTempDir();
-    const insideDir = path.join(workDir, "inside");
-    fs.mkdirSync(insideDir, { recursive: true });
-    fs.writeFileSync(path.join(workDir, "outside.txt"), "nope\n", "utf-8");
-    const archivePath = path.join(workDir, "traversal.tar");
-    await tar.c({ cwd: insideDir, file: archivePath }, ["../outside.txt"]);
-    return await fsPromises.readFile(archivePath);
-  };
-
-  tarTraversalBuffer = await makeTraversalTar();
-
-  const makeNpmPackTgz = async (): Promise<Buffer> => {
-    const workDir = makeTempDir();
-    const packedName = "test-hooks-0.0.1.tgz";
-    const pkgDir = path.join(workDir, "package");
-    fs.mkdirSync(path.join(pkgDir, "hooks", "one-hook"), { recursive: true });
-    fs.writeFileSync(
-      path.join(pkgDir, "package.json"),
-      JSON.stringify({
-        name: "@openclaw/test-hooks",
-        version: "0.0.1",
-        openclaw: { hooks: ["./hooks/one-hook"] },
-      }),
-      "utf-8",
-    );
-    fs.writeFileSync(
-      path.join(pkgDir, "hooks", "one-hook", "HOOK.md"),
-      [
-        "---",
-        "name: one-hook",
-        "description: One hook",
-        'metadata: {"openclaw":{"events":["command:new"]}}',
-        "---",
-        "",
-        "# One Hook",
-      ].join("\n"),
-      "utf-8",
-    );
-    fs.writeFileSync(
-      path.join(pkgDir, "hooks", "one-hook", "handler.ts"),
-      "export default async () => {};\n",
-      "utf-8",
-    );
-
-    const packTmpDir = makeTempDir();
-    const archivePath = await packToArchive({ pkgDir, outDir: packTmpDir, outName: packedName });
-    return await fsPromises.readFile(archivePath);
-  };
-
-  npmPackHooksBuffer = await makeNpmPackTgz();
-});
 
 afterAll(() => {
   try {
