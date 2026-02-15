@@ -169,25 +169,7 @@ export function applyZaiConfig(
   const modelId = params?.modelId?.trim() || ZAI_DEFAULT_MODEL_ID;
   const modelRef = modelId === ZAI_DEFAULT_MODEL_ID ? ZAI_DEFAULT_MODEL_REF : `zai/${modelId}`;
   const next = applyZaiProviderConfig(cfg, params);
-
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: modelRef,
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, modelRef);
 }
 
 export function applyOpenrouterProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
@@ -355,24 +337,7 @@ export function applyCloudflareAiGatewayConfig(
 export function applyOpenrouterConfig(cfg: OpenClawConfig): OpenClawConfig {
 >>>>>>> 5b0851ebd (feat: add cloudflare ai gateway provider)
   const next = applyOpenrouterProviderConfig(cfg);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: OPENROUTER_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, OPENROUTER_DEFAULT_MODEL_REF);
 }
 
 <<<<<<< HEAD
@@ -567,24 +532,7 @@ export function applyKimiCodeProviderConfig(cfg: OpenClawConfig): OpenClawConfig
 
 export function applyKimiCodeConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applyKimiCodeProviderConfig(cfg);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: KIMI_CODING_MODEL_REF,
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, KIMI_CODING_MODEL_REF);
 }
 
 export function applySyntheticProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
@@ -623,24 +571,7 @@ export function applySyntheticProviderConfig(cfg: MoltbotConfig): MoltbotConfig 
 
 export function applySyntheticConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applySyntheticProviderConfig(cfg);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: SYNTHETIC_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, SYNTHETIC_DEFAULT_MODEL_REF);
 }
 
 export function applyXiaomiProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
@@ -663,24 +594,7 @@ export function applyXiaomiProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
 
 export function applyXiaomiConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applyXiaomiProviderConfig(cfg);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: XIAOMI_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, XIAOMI_DEFAULT_MODEL_REF);
 }
 
 /**
@@ -710,24 +624,7 @@ export function applyVeniceProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
  */
 export function applyVeniceConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applyVeniceProviderConfig(cfg);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: VENICE_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, VENICE_DEFAULT_MODEL_REF);
 }
 
 /**
@@ -757,24 +654,7 @@ export function applyTogetherProviderConfig(cfg: OpenClawConfig): OpenClawConfig
  */
 export function applyTogetherConfig(cfg: OpenClawConfig): OpenClawConfig {
   const next = applyTogetherProviderConfig(cfg);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: TOGETHER_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, TOGETHER_DEFAULT_MODEL_REF);
 }
 
 /**
@@ -802,24 +682,7 @@ export function applyHuggingfaceProviderConfig(cfg: OpenClawConfig): OpenClawCon
  */
 export function applyHuggingfaceConfig(cfg: OpenClawConfig): OpenClawConfig {
   const next = applyHuggingfaceProviderConfig(cfg);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: HUGGINGFACE_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, HUGGINGFACE_DEFAULT_MODEL_REF);
 }
 
 export function applyXaiProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
@@ -843,24 +706,7 @@ export function applyXaiProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
 
 export function applyXaiConfig(cfg: OpenClawConfig): OpenClawConfig {
   const next = applyXaiProviderConfig(cfg);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: XAI_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, XAI_DEFAULT_MODEL_REF);
 }
 
 export function applyAuthProfileConfig(
@@ -945,22 +791,5 @@ export function applyQianfanProviderConfig(cfg: OpenClawConfig): OpenClawConfig 
 
 export function applyQianfanConfig(cfg: OpenClawConfig): OpenClawConfig {
   const next = applyQianfanProviderConfig(cfg);
-  const existingModel = next.agents?.defaults?.model;
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(existingModel && "fallbacks" in (existingModel as Record<string, unknown>)
-            ? {
-                fallbacks: (existingModel as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: QIANFAN_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, QIANFAN_DEFAULT_MODEL_REF);
 }
