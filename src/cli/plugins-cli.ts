@@ -106,6 +106,29 @@ function applySlotSelectionForPlugin(
   return { config: result.config, warnings: result.warnings };
 }
 
+function createPluginInstallLogger(): { info: (msg: string) => void; warn: (msg: string) => void } {
+  return {
+    info: (msg) => defaultRuntime.log(msg),
+    warn: (msg) => defaultRuntime.log(theme.warn(msg)),
+  };
+}
+
+function enablePluginInConfig(config: OpenClawConfig, pluginId: string): OpenClawConfig {
+  return {
+    ...config,
+    plugins: {
+      ...config.plugins,
+      entries: {
+        ...config.plugins?.entries,
+        [pluginId]: {
+          ...(config.plugins?.entries?.[pluginId] as object | undefined),
+          enabled: true,
+        },
+      },
+    },
+  };
+}
+
 function logSlotWarnings(warnings: string[]) {
   if (warnings.length === 0) {
     return;
@@ -504,6 +527,7 @@ export function registerPluginsCli(program: Command) {
             process.exit(1);
           }
 
+<<<<<<< HEAD
           let next: MoltbotConfig = {
             ...cfg,
             plugins: {
@@ -517,10 +541,21 @@ export function registerPluginsCli(program: Command) {
                 [probe.pluginId]: {
                   ...(cfg.plugins?.entries?.[probe.pluginId] as object | undefined),
                   enabled: true,
+=======
+          let next: OpenClawConfig = enablePluginInConfig(
+            {
+              ...cfg,
+              plugins: {
+                ...cfg.plugins,
+                load: {
+                  ...cfg.plugins?.load,
+                  paths: merged,
+>>>>>>> 29bec2bfe (refactor(cli): dedupe plugin install config wiring)
                 },
               },
             },
-          };
+            probe.pluginId,
+          );
           next = recordPluginInstall(next, {
             pluginId: probe.pluginId,
             source: "path",
@@ -539,16 +574,14 @@ export function registerPluginsCli(program: Command) {
 
         const result = await installPluginFromPath({
           path: resolved,
-          logger: {
-            info: (msg) => defaultRuntime.log(msg),
-            warn: (msg) => defaultRuntime.log(theme.warn(msg)),
-          },
+          logger: createPluginInstallLogger(),
         });
         if (!result.ok) {
           defaultRuntime.error(result.error);
           process.exit(1);
         }
 
+<<<<<<< HEAD
         let next: MoltbotConfig = {
           ...cfg,
           plugins: {
@@ -562,6 +595,9 @@ export function registerPluginsCli(program: Command) {
             },
           },
         };
+=======
+        let next = enablePluginInConfig(cfg, result.pluginId);
+>>>>>>> 29bec2bfe (refactor(cli): dedupe plugin install config wiring)
         const source: "archive" | "path" = resolveArchiveKind(resolved) ? "archive" : "path";
         next = recordPluginInstall(next, {
           pluginId: result.pluginId,
@@ -603,16 +639,14 @@ export function registerPluginsCli(program: Command) {
 
       const result = await installPluginFromNpmSpec({
         spec: raw,
-        logger: {
-          info: (msg) => defaultRuntime.log(msg),
-          warn: (msg) => defaultRuntime.log(theme.warn(msg)),
-        },
+        logger: createPluginInstallLogger(),
       });
       if (!result.ok) {
         defaultRuntime.error(result.error);
         process.exit(1);
       }
 
+<<<<<<< HEAD
       let next: MoltbotConfig = {
         ...cfg,
         plugins: {
@@ -626,6 +660,9 @@ export function registerPluginsCli(program: Command) {
           },
         },
       };
+=======
+      let next = enablePluginInConfig(cfg, result.pluginId);
+>>>>>>> 29bec2bfe (refactor(cli): dedupe plugin install config wiring)
       next = recordPluginInstall(next, {
         pluginId: result.pluginId,
         source: "npm",
