@@ -2,7 +2,11 @@ import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
 
 import { detectMime } from "../media/mime.js";
+<<<<<<< HEAD
 import type { AnyAgentTool } from "./pi-tools.types.js";
+=======
+import { sniffMimeFromBase64 } from "../media/sniff-mime-from-base64.js";
+>>>>>>> cb29346a1 (refactor(media): share base64 mime sniff helper)
 import { assertSandboxPath } from "./sandbox-paths.js";
 import { sanitizeToolResultImages } from "./tool-images.js";
 
@@ -11,26 +15,6 @@ import { sanitizeToolResultImages } from "./tool-images.js";
 type ToolContentBlock = AgentToolResult<unknown>["content"][number];
 type ImageContentBlock = Extract<ToolContentBlock, { type: "image" }>;
 type TextContentBlock = Extract<ToolContentBlock, { type: "text" }>;
-
-async function sniffMimeFromBase64(base64: string): Promise<string | undefined> {
-  const trimmed = base64.trim();
-  if (!trimmed) {
-    return undefined;
-  }
-
-  const take = Math.min(256, trimmed.length);
-  const sliceLen = take - (take % 4);
-  if (sliceLen < 8) {
-    return undefined;
-  }
-
-  try {
-    const head = Buffer.from(trimmed.slice(0, sliceLen), "base64");
-    return await detectMime({ buffer: head });
-  } catch {
-    return undefined;
-  }
-}
 
 function rewriteReadImageHeader(text: string, mimeType: string): string {
   // pi-coding-agent uses: "Read image file [image/png]"
