@@ -85,9 +85,13 @@ import {
 import { executePollAction, executeSendAction } from "./outbound-send-service.js";
 import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js";
 import { resolveChannelTarget, type ResolvedMessagingTarget } from "./target-resolver.js";
+<<<<<<< HEAD
 import { loadWebMedia } from "../../web/media.js";
 import { extensionForMime } from "../../media/mime.js";
 import { parseSlackTarget } from "../../slack/targets.js";
+=======
+import { extractToolPayload } from "./tool-payload.js";
+>>>>>>> 6ec1f10df (refactor(outbound): share tool payload extraction)
 
 export type MessageActionRunnerGateway = {
   url?: string;
@@ -192,30 +196,6 @@ export function getToolResult(
   result: MessageActionRunResult,
 ): AgentToolResult<unknown> | undefined {
   return "toolResult" in result ? result.toolResult : undefined;
-}
-
-function extractToolPayload(result: AgentToolResult<unknown>): unknown {
-  if (result.details !== undefined) {
-    return result.details;
-  }
-  const textBlock = Array.isArray(result.content)
-    ? result.content.find(
-        (block) =>
-          block &&
-          typeof block === "object" &&
-          (block as { type?: unknown }).type === "text" &&
-          typeof (block as { text?: unknown }).text === "string",
-      )
-    : undefined;
-  const text = (textBlock as { text?: string } | undefined)?.text;
-  if (text) {
-    try {
-      return JSON.parse(text);
-    } catch {
-      return text;
-    }
-  }
-  return result.content ?? result;
 }
 
 function applyCrossContextMessageDecoration({
