@@ -1,8 +1,14 @@
 import { describe, it } from "vitest";
+<<<<<<< HEAD:test/inbound-contract.providers.test.ts
 
 import type { MsgContext } from "../src/auto-reply/templating.js";
 import { finalizeInboundContext } from "../src/auto-reply/reply/inbound-context.js";
 import { expectInboundContextContract } from "./helpers/inbound-contract.js";
+=======
+import type { MsgContext } from "../templating.js";
+import { expectInboundContextContract } from "../../../test/helpers/inbound-contract.js";
+import { finalizeInboundContext } from "./inbound-context.js";
+>>>>>>> 052d988ad (test(auto-reply): move inbound provider contract test into unit suite):src/auto-reply/reply/inbound-context.providers-contract.test.ts
 
 describe("inbound context contract (providers + extensions)", () => {
   const cases: Array<{ name: string; ctx: MsgContext }> = [
