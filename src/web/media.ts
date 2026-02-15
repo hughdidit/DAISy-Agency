@@ -2,7 +2,12 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 
+=======
+import type { SsrFPolicy } from "../infra/net/ssrf.js";
+import { STATE_DIR } from "../config/paths.js";
+>>>>>>> 6863b9dbe (Media: include state workspace/sandbox in local path allowlist)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { type MediaKind, maxBytesForKind, mediaKindFromMime } from "../media/constants.js";
 import { resolveUserPath } from "../utils.js";
@@ -34,11 +39,12 @@ type WebMediaOptions = {
 };
 
 function getDefaultLocalRoots(): string[] {
-  const home = os.homedir();
   return [
     os.tmpdir(),
-    path.join(home, ".openclaw", "media"),
-    path.join(home, ".openclaw", "agents"),
+    path.join(STATE_DIR, "media"),
+    path.join(STATE_DIR, "agents"),
+    path.join(STATE_DIR, "workspace"),
+    path.join(STATE_DIR, "sandboxes"),
   ];
 }
 
