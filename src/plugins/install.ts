@@ -18,7 +18,12 @@ import {
 import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
 >>>>>>> 6f7d31c42 (fix(security): harden plugin/hook npm installs)
 import { runCommandWithTimeout } from "../process/exec.js";
+<<<<<<< HEAD
 import { scanDirectoryWithSummary } from "../security/skill-scanner.js";
+=======
+import { extensionUsesSkippedScannerPath, isPathInside } from "../security/scan-paths.js";
+import * as skillScanner from "../security/skill-scanner.js";
+>>>>>>> b37346103 (refactor(security): share scan path helpers)
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 >>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
 
@@ -77,6 +82,7 @@ function validatePluginId(pluginId: string): string | null {
   return null;
 }
 
+<<<<<<< HEAD
 function isPathInside(basePath: string, candidatePath: string): boolean {
   const base = path.resolve(basePath);
   const candidate = path.resolve(candidatePath);
@@ -94,6 +100,8 @@ function extensionUsesSkippedScannerPath(entry: string): boolean {
 }
 
 >>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
+=======
+>>>>>>> b37346103 (refactor(security): share scan path helpers)
 async function ensureOpenClawExtensions(manifest: PackageManifest) {
   const extensions = manifest[MANIFEST_KEY]?.extensions;
   if (!Array.isArray(extensions)) {
