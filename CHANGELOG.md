@@ -63,7 +63,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 89dccc79a (cron: infer payload kind for model-only update patches (openclaw#15664) thanks @rodrigouroz)
 =======
 - Subagents: use child-run-based deterministic announce idempotency keys across direct and queued delivery paths (with legacy queued-item fallback) to prevent duplicate announce retries without collapsing distinct same-millisecond announces. (#17150) Thanks @widingmarcus-cyber.
+<<<<<<< HEAD
 >>>>>>> ade11ec89 (fix(announce): use deterministic idempotency keys to prevent duplicate subagent announces (#17150))
+=======
+- Discord: ensure role allowlist matching uses raw role IDs for message routing authorization. Thanks @xinhuagu.
+>>>>>>> c68263418 (fix(discord): role-based allowlist never matches (Carbon Role objects stringify to mentions) (#16369))
 
 ## 2026.2.14
 

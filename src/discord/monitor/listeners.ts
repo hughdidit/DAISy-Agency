@@ -269,6 +269,12 @@ async function handleDiscordReactionEvent(params: {
     const authorLabel = message?.author ? formatDiscordUserTag(message.author) : undefined;
     const baseText = `Discord reaction ${action}: ${emojiLabel} by ${actorLabel} on ${guildSlug} ${channelLabel} msg ${data.message_id}`;
     const text = authorLabel ? `${baseText} from ${authorLabel}` : baseText;
+<<<<<<< HEAD
+=======
+    const memberRoleIds = Array.isArray(data.rawMember?.roles)
+      ? data.rawMember.roles.map((roleId: string) => String(roleId))
+      : [];
+>>>>>>> c68263418 (fix(discord): role-based allowlist never matches (Carbon Role objects stringify to mentions) (#16369))
     const route = resolveAgentRoute({
       cfg: params.cfg,
       channel: "discord",

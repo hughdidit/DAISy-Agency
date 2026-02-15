@@ -232,7 +232,13 @@ export async function preflightDiscordMessage(
   }
 
   // Fresh config for bindings lookup; other routing inputs are payload-derived.
+<<<<<<< HEAD
   const memberRoleIds = params.data.member?.roles?.map((r: { id: string }) => r.id) ?? [];
+=======
+  const memberRoleIds = Array.isArray(params.data.rawMember?.roles)
+    ? params.data.rawMember.roles.map((roleId: string) => String(roleId))
+    : [];
+>>>>>>> c68263418 (fix(discord): role-based allowlist never matches (Carbon Role objects stringify to mentions) (#16369))
   const route = resolveAgentRoute({
     cfg: loadConfig(),
     channel: "discord",
