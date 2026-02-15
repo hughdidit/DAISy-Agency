@@ -192,13 +192,16 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       blockStreamingCoalesceDefaults: { minChars: 1500, idleMs: 1000 },
     },
     elevated: {
-      allowFromFallback: ({ cfg }) => cfg.channels?.discord?.dm?.allowFrom,
+      allowFromFallback: ({ cfg }) =>
+        cfg.channels?.discord?.allowFrom ?? cfg.channels?.discord?.dm?.allowFrom,
     },
     config: {
-      resolveAllowFrom: ({ cfg, accountId }) =>
-        (resolveDiscordAccount({ cfg, accountId }).config.dm?.allowFrom ?? []).map((entry) =>
+      resolveAllowFrom: ({ cfg, accountId }) => {
+        const account = resolveDiscordAccount({ cfg, accountId });
+        return (account.config.allowFrom ?? account.config.dm?.allowFrom ?? []).map((entry) =>
           String(entry),
-        ),
+        );
+      },
       formatAllowFrom: ({ allowFrom }) => formatLower(allowFrom),
     },
     groups: {
@@ -289,8 +292,12 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       blockStreamingCoalesceDefaults: { minChars: 1500, idleMs: 1000 },
     },
     config: {
-      resolveAllowFrom: ({ cfg, accountId }) =>
-        (resolveSlackAccount({ cfg, accountId }).dm?.allowFrom ?? []).map((entry) => String(entry)),
+      resolveAllowFrom: ({ cfg, accountId }) => {
+        const account = resolveSlackAccount({ cfg, accountId });
+        return (account.config.allowFrom ?? account.dm?.allowFrom ?? []).map((entry) =>
+          String(entry),
+        );
+      },
       formatAllowFrom: ({ allowFrom }) => formatLower(allowFrom),
     },
     groups: {
