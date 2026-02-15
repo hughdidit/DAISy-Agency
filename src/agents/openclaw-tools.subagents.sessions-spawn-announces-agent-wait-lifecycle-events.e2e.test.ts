@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 
@@ -32,9 +33,12 @@ import { createMoltbotTools } from "./moltbot-tools.js";
 =======
 import { beforeEach, describe, expect, it } from "vitest";
 >>>>>>> 5f4dda6c7 (fix(test): remove unused vitest imports)
+=======
+import { beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> e720e022e (test: stabilize sessions_spawn e2e mocks)
 import { sleep } from "../utils.js";
-import "./test-helpers/fast-core-tools.js";
 import { createOpenClawTools } from "./openclaw-tools.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:):src/agents/openclaw-tools.subagents.sessions-spawn-announces-agent-wait-lifecycle-events.test.ts
 =======
@@ -46,6 +50,59 @@ import {
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 describe("moltbot-tools: subagents", () => {
+=======
+import "./test-helpers/fast-core-tools.js";
+import { resetSubagentRegistryForTests } from "./subagent-registry.js";
+
+type SessionsSpawnTestConfig = ReturnType<(typeof import("../config/config.js"))["loadConfig"]>;
+
+const hoisted = vi.hoisted(() => {
+  const callGatewayMock = vi.fn();
+  const defaultConfigOverride = {
+    session: {
+      mainKey: "main",
+      scope: "per-sender",
+    },
+  } as SessionsSpawnTestConfig;
+  const state = { configOverride: defaultConfigOverride };
+  return { callGatewayMock, defaultConfigOverride, state };
+});
+
+const callGatewayMock = hoisted.callGatewayMock;
+
+function resetConfigOverride() {
+  hoisted.state.configOverride = hoisted.defaultConfigOverride;
+}
+
+vi.mock("../gateway/call.js", () => ({
+  callGateway: (opts: unknown) => hoisted.callGatewayMock(opts),
+}));
+// Some tools import callGateway via "../../gateway/call.js" (from nested folders). Mock that too.
+vi.mock("../../gateway/call.js", () => ({
+  callGateway: (opts: unknown) => hoisted.callGatewayMock(opts),
+}));
+
+vi.mock("../config/config.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../config/config.js")>();
+  return {
+    ...actual,
+    loadConfig: () => hoisted.state.configOverride,
+    resolveGatewayPort: () => 18789,
+  };
+});
+
+// Same module, different specifier (used by tools under src/agents/tools/*).
+vi.mock("../../config/config.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../config/config.js")>();
+  return {
+    ...actual,
+    loadConfig: () => hoisted.state.configOverride,
+    resolveGatewayPort: () => 18789,
+  };
+});
+
+describe("openclaw-tools: subagents", () => {
+>>>>>>> e720e022e (test: stabilize sessions_spawn e2e mocks)
   beforeEach(() => {
     resetConfigOverride();
   });
