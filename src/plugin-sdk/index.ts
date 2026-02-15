@@ -93,7 +93,19 @@ export type { OpenClawConfig as ClawdbotConfig } from "../config/config.js";
 
 export type { FileLockHandle, FileLockOptions } from "./file-lock.js";
 export { acquireFileLock, withFileLock } from "./file-lock.js";
+<<<<<<< HEAD
 >>>>>>> 52bfe5060 (refactor: share file lock via plugin-sdk)
+=======
+export { normalizeWebhookPath, resolveWebhookPath } from "./webhook-path.js";
+export type { AgentMediaPayload } from "./agent-media-payload.js";
+export { buildAgentMediaPayload } from "./agent-media-payload.js";
+export {
+  buildBaseChannelStatusSummary,
+  collectStatusIssuesFromLastError,
+  createDefaultChannelRuntimeState,
+} from "./status-helpers.js";
+export { buildOauthProviderAuthResult } from "./provider-auth-result.js";
+>>>>>>> 80eb91d9e (refactor(plugin-sdk): add shared helper utilities)
 export type { ChannelDock } from "../channels/dock.js";
 export { getChatChannelMeta } from "../channels/registry.js";
 export type {
