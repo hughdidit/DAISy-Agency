@@ -8,6 +8,7 @@ import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   buildConfigChecks,
   resolveMissingAnyBins,
@@ -29,6 +30,9 @@ import { evaluateRequirementsFromMetadata } from "../shared/requirements.js";
 =======
 import { evaluateRequirementsFromMetadataWithRemote } from "../shared/requirements.js";
 >>>>>>> 34b6c743f (refactor(shared): share requirements eval for remote context)
+=======
+import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
+>>>>>>> 137079fc2 (refactor(shared): share entry requirements evaluation)
 import { CONFIG_DIR } from "../utils.js";
 import { hasBinary, isConfigPathTruthy, resolveConfigPath, resolveHookConfig } from "./config.js";
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
@@ -129,12 +133,9 @@ function buildHookStatus(
   const managedByPlugin = entry.hook.source === "moltbot-plugin";
   const disabled = managedByPlugin ? false : hookConfig?.enabled === false;
   const always = entry.metadata?.always === true;
-  const { emoji, homepage } = resolveEmojiAndHomepage({
-    metadata: entry.metadata,
-    frontmatter: entry.frontmatter,
-  });
   const events = entry.metadata?.events ?? [];
 
+<<<<<<< HEAD
   const {
     required,
     missing,
@@ -150,6 +151,19 @@ function buildHookStatus(
     resolveConfigValue: (pathStr) => resolveConfigPath(config, pathStr),
     isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
   });
+=======
+  const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
+    evaluateEntryMetadataRequirements({
+      always,
+      metadata: entry.metadata,
+      frontmatter: entry.frontmatter,
+      hasLocalBin: hasBinary,
+      localPlatform: process.platform,
+      remote: eligibility?.remote,
+      isEnvSatisfied: (envName) => Boolean(process.env[envName] || hookConfig?.env?.[envName]),
+      isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
+    });
+>>>>>>> 137079fc2 (refactor(shared): share entry requirements evaluation)
 
   const eligible = !disabled && requirementsSatisfied;
 
