@@ -246,6 +246,47 @@ export const ElevatedAllowFromSchema = z
   .record(z.string(), z.array(z.union([z.string(), z.number()])))
   .optional();
 
+const ToolExecApplyPatchSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    workspaceOnly: z.boolean().optional(),
+    allowModels: z.array(z.string()).optional(),
+  })
+  .strict()
+  .optional();
+
+const ToolExecBaseShape = {
+  host: z.enum(["sandbox", "gateway", "node"]).optional(),
+  security: z.enum(["deny", "allowlist", "full"]).optional(),
+  ask: z.enum(["off", "on-miss", "always"]).optional(),
+  node: z.string().optional(),
+  pathPrepend: z.array(z.string()).optional(),
+  safeBins: z.array(z.string()).optional(),
+  backgroundMs: z.number().int().positive().optional(),
+  timeoutSec: z.number().int().positive().optional(),
+  cleanupMs: z.number().int().positive().optional(),
+  notifyOnExit: z.boolean().optional(),
+  notifyOnExitEmptySuccess: z.boolean().optional(),
+  applyPatch: ToolExecApplyPatchSchema,
+} as const;
+
+const AgentToolExecSchema = z
+  .object({
+    ...ToolExecBaseShape,
+    approvalRunningNoticeMs: z.number().int().nonnegative().optional(),
+  })
+  .strict()
+  .optional();
+
+const ToolExecSchema = z.object(ToolExecBaseShape).strict().optional();
+
+const ToolFsSchema = z
+  .object({
+    workspaceOnly: z.boolean().optional(),
+  })
+  .strict()
+  .optional();
+
 export const AgentSandboxSchema = z
   .object({
     mode: z.union([z.literal("off"), z.literal("non-main"), z.literal("all")]).optional(),
@@ -275,6 +316,7 @@ export const AgentToolsSchema = z
       })
       .strict()
       .optional(),
+<<<<<<< HEAD
     exec: z
       .object({
         host: z.enum(["sandbox", "gateway", "node"]).optional(),
@@ -299,6 +341,10 @@ export const AgentToolsSchema = z
       })
       .strict()
       .optional(),
+=======
+    exec: AgentToolExecSchema,
+    fs: ToolFsSchema,
+>>>>>>> cc2a63cd2 (refactor(config): dedupe exec/fs zod schemas)
     sandbox: z
       .object({
         tools: ToolPolicySchema,
@@ -528,6 +574,7 @@ export const ToolsSchema = z
       })
       .strict()
       .optional(),
+<<<<<<< HEAD
     exec: z
       .object({
         host: z.enum(["sandbox", "gateway", "node"]).optional(),
@@ -551,6 +598,10 @@ export const ToolsSchema = z
       })
       .strict()
       .optional(),
+=======
+    exec: ToolExecSchema,
+    fs: ToolFsSchema,
+>>>>>>> cc2a63cd2 (refactor(config): dedupe exec/fs zod schemas)
     subagents: z
       .object({
         tools: ToolPolicySchema,
