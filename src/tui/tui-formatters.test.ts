@@ -107,3 +107,24 @@ describe("isCommandMessage", () => {
     expect(isCommandMessage({})).toBe(false);
   });
 });
+<<<<<<< HEAD
+=======
+
+describe("sanitizeRenderableText", () => {
+  it("breaks very long unbroken tokens to avoid overflow", () => {
+    const input = "a".repeat(140);
+    const sanitized = sanitizeRenderableText(input);
+    const longestSegment = Math.max(...sanitized.split(/\s+/).map((segment) => segment.length));
+
+    expect(longestSegment).toBeLessThanOrEqual(32);
+  });
+
+  it("breaks moderately long unbroken tokens to protect narrow terminals", () => {
+    const input = "b".repeat(90);
+    const sanitized = sanitizeRenderableText(input);
+    const longestSegment = Math.max(...sanitized.split(/\s+/).map((segment) => segment.length));
+
+    expect(longestSegment).toBeLessThanOrEqual(32);
+  });
+});
+>>>>>>> 7572070f4 (chore (tui): add sanitizer regressions for narrow width safety)
