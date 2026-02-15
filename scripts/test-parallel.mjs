@@ -65,7 +65,6 @@ const runOnce = (entry, extraArgs = []) =>
     const child = spawn(pnpm, args, {
       stdio: "inherit",
       env: { ...process.env, VITEST_GROUP: entry.name, NODE_OPTIONS: nextNodeOptions },
-      shell: process.platform === "win32",
     });
     children.add(child);
     child.on("exit", (code, signal) => {
@@ -110,7 +109,6 @@ if (passthroughArgs.length > 0) {
     const child = spawn(pnpm, args, {
       stdio: "inherit",
       env: { ...process.env, NODE_OPTIONS: nextNodeOptions },
-      shell: process.platform === "win32",
     });
     children.add(child);
     child.on("exit", (exitCode, signal) => {
