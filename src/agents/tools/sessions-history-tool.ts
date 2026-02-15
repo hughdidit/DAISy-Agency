@@ -3,19 +3,22 @@ import { Type } from "@sinclair/typebox";
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 import { capArrayByJsonBytes } from "../../gateway/session-utils.fs.js";
+<<<<<<< HEAD
 import { isSubagentSessionKey, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 <<<<<<< HEAD
 import type { AnyAgentTool } from "./common.js";
 =======
+=======
+import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+>>>>>>> 8a4f9f168 (refactor(agents): share sandboxed session tool context)
 import { truncateUtf16Safe } from "../../utils.js";
 >>>>>>> bccdc95a9 (Cap sessions_history payloads to prevent context overflow (#10000))
 import { jsonResult, readStringParam } from "./common.js";
 import {
   createAgentToAgentPolicy,
   resolveSessionReference,
-  resolveMainSessionAlias,
-  resolveInternalSessionKey,
   SessionListRow,
+  resolveSandboxedSessionToolContext,
   stripToolMessages,
 } from "./sessions-helpers.js";
 
@@ -27,6 +30,8 @@ const SessionsHistoryToolSchema = Type.Object({
 
 const SESSIONS_HISTORY_MAX_BYTES = 80 * 1024;
 const SESSIONS_HISTORY_TEXT_MAX_CHARS = 4000;
+
+// sandbox policy handling is shared with sessions-list-tool via sessions-helpers.ts
 
 function truncateHistoryText(text: string): { text: string; truncated: boolean } {
   if (text.length <= SESSIONS_HISTORY_TEXT_MAX_CHARS) {
@@ -150,10 +155,6 @@ function enforceSessionsHistoryHardCap(params: {
   return { items: placeholder, bytes: jsonUtf8Bytes(placeholder), hardCapped: true };
 }
 
-function resolveSandboxSessionToolsVisibility(cfg: ReturnType<typeof loadConfig>) {
-  return cfg.agents?.defaults?.sandbox?.sessionToolsVisibility ?? "spawned";
-}
-
 async function isSpawnedSessionAllowed(params: {
   requesterSessionKey: string;
   targetSessionKey: string;
@@ -190,21 +191,12 @@ export function createSessionsHistoryTool(opts?: {
         required: true,
       });
       const cfg = loadConfig();
-      const { mainKey, alias } = resolveMainSessionAlias(cfg);
-      const visibility = resolveSandboxSessionToolsVisibility(cfg);
-      const requesterInternalKey =
-        typeof opts?.agentSessionKey === "string" && opts.agentSessionKey.trim()
-          ? resolveInternalSessionKey({
-              key: opts.agentSessionKey,
-              alias,
-              mainKey,
-            })
-          : undefined;
-      const restrictToSpawned =
-        opts?.sandboxed === true &&
-        visibility === "spawned" &&
-        !!requesterInternalKey &&
-        !isSubagentSessionKey(requesterInternalKey);
+      const { mainKey, alias, requesterInternalKey, restrictToSpawned } =
+        resolveSandboxedSessionToolContext({
+          cfg,
+          agentSessionKey: opts?.agentSessionKey,
+          sandboxed: opts?.sandboxed,
+        });
       const resolvedSession = await resolveSessionReference({
         sessionKey: sessionKeyParam,
         alias,
@@ -219,7 +211,7 @@ export function createSessionsHistoryTool(opts?: {
       const resolvedKey = resolvedSession.key;
       const displayKey = resolvedSession.displayKey;
       const resolvedViaSessionId = resolvedSession.resolvedViaSessionId;
-      if (restrictToSpawned && !resolvedViaSessionId) {
+      if (restrictToSpawned && requesterInternalKey && !resolvedViaSessionId) {
         const ok = await isSpawnedSessionAllowed({
           requesterSessionKey: requesterInternalKey,
           targetSessionKey: resolvedKey,
