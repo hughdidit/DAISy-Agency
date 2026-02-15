@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelDirectoryEntry } from "clawdbot/plugin-sdk";
 
 =======
@@ -95,6 +96,21 @@ async function listChannelsForTeam(token: string, teamId: string): Promise<Graph
   const res = await fetchGraphJson<GraphResponse<GraphChannel>>({ token, path });
   return res.value ?? [];
 }
+=======
+import type { ChannelDirectoryEntry } from "openclaw/plugin-sdk";
+import {
+  escapeOData,
+  fetchGraphJson,
+  type GraphChannel,
+  type GraphGroup,
+  type GraphResponse,
+  type GraphUser,
+  listChannelsForTeam,
+  listTeamsByName,
+  normalizeQuery,
+  resolveGraphToken,
+} from "./graph.js";
+>>>>>>> c872a4314 (refactor(msteams): share Graph helpers)
 
 export async function listMSTeamsDirectoryPeersLive(params: {
   cfg: unknown;
