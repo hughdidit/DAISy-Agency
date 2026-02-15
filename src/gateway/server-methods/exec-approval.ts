@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 import { sanitizeBinaryOutput } from "../../agents/shell-utils.js";
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
+=======
+>>>>>>> ea0ef1870 (refactor: centralize exec approval timeout)
 import type { ExecApprovalForwarder } from "../../infra/exec-approval-forwarder.js";
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
+import {
+  DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
+  type ExecApprovalDecision,
+} from "../../infra/exec-approvals.js";
 import {
   ErrorCodes,
   errorShape,
@@ -42,7 +49,13 @@ export function createExecApprovalHandlers(
         sessionKey?: string;
         timeoutMs?: number;
       };
+<<<<<<< HEAD
       const timeoutMs = typeof p.timeoutMs === "number" ? p.timeoutMs : 120_000;
+=======
+      const twoPhase = p.twoPhase === true;
+      const timeoutMs =
+        typeof p.timeoutMs === "number" ? p.timeoutMs : DEFAULT_EXEC_APPROVAL_TIMEOUT_MS;
+>>>>>>> ea0ef1870 (refactor: centralize exec approval timeout)
       const explicitId = typeof p.id === "string" && p.id.trim().length > 0 ? p.id.trim() : null;
       if (explicitId && manager.getSnapshot(explicitId)) {
         respond(
