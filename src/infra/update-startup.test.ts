@@ -56,7 +56,7 @@ describe("update-startup", () => {
     process.env.CLAWDBOT_STATE_DIR = tempDir;
 =======
     tempDir = path.join(suiteRoot, `case-${++suiteCase}`);
-    await fs.mkdir(tempDir, { recursive: true });
+    await fs.mkdir(tempDir);
     hadStateDir = Object.prototype.hasOwnProperty.call(process.env, "OPENCLAW_STATE_DIR");
     prevStateDir = process.env.OPENCLAW_STATE_DIR;
     process.env.OPENCLAW_STATE_DIR = tempDir;
@@ -101,7 +101,6 @@ describe("update-startup", () => {
     } else {
       delete process.env.VITEST;
     }
-    await fs.rm(tempDir, { recursive: true, force: true });
   });
 
 <<<<<<< HEAD
