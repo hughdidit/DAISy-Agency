@@ -355,9 +355,30 @@ export const configHandlers: GatewayRequestHandlers = {
       );
       return;
     }
+<<<<<<< HEAD
     const merged = applyMergePatch(snapshot.config, parsedRes.parsed);
     const migrated = applyLegacyMigrations(merged);
     const resolved = migrated.next ?? merged;
+=======
+    const merged = applyMergePatch(snapshot.config, parsedRes.parsed, {
+      mergeObjectArraysById: true,
+    });
+    const schemaPatch = loadSchemaWithPlugins();
+    const restoredMerge = restoreRedactedValues(merged, snapshot.config, schemaPatch.uiHints);
+    if (!restoredMerge.ok) {
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.INVALID_REQUEST,
+          restoredMerge.humanReadableMessage ?? "invalid config",
+        ),
+      );
+      return;
+    }
+    const migrated = applyLegacyMigrations(restoredMerge.result);
+    const resolved = migrated.next ?? restoredMerge.result;
+>>>>>>> 8ec0ef586 (fix (gateway/config): merge config.patch object arrays by id)
     const validated = validateConfigObjectWithPlugins(resolved);
     if (!validated.ok) {
       respond(
