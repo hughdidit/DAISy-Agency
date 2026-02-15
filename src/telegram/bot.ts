@@ -20,8 +20,11 @@ import { type Message, type UserFromGetMe, ReactionTypeEmoji } from "@grammyjs/t
 import { Bot, webhookCallback } from "grammy";
 import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
+<<<<<<< HEAD
 import type { TelegramContext } from "./bot/types.js";
 >>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
+=======
+>>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { isControlCommandMessage } from "../auto-reply/command-detection.js";
 import { resolveTextChunkLimit } from "../auto-reply/chunk.js";
@@ -43,6 +46,7 @@ import { createSubsystemLogger } from "../logging/subsystem.js";
 import { formatUncaughtError } from "../infra/errors.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { getChildLogger } from "../logging.js";
+<<<<<<< HEAD
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 <<<<<<< HEAD
@@ -57,6 +61,11 @@ import {
   resolveTelegramStreamMode,
 } from "./bot/helpers.js";
 import type { TelegramContext, TelegramMessage } from "./bot/types.js";
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { resolveAgentRoute } from "../routing/resolve-route.js";
+import { resolveTelegramAccount } from "./accounts.js";
+>>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
 import { registerTelegramHandlers } from "./bot-handlers.js";
 import { createTelegramMessageProcessor } from "./bot-message.js";
 import { registerTelegramNativeCommands } from "./bot-native-commands.js";
@@ -299,6 +308,7 @@ export function createTelegramBot(opts: TelegramBotOptions) {
   const ackReactionScope = cfg.messages?.ackReactionScope ?? "group-mentions";
   const mediaMaxBytes = (opts.mediaMaxMb ?? telegramCfg.mediaMaxMb ?? 5) * 1024 * 1024;
   const logger = getChildLogger({ module: "telegram-auto-reply" });
+<<<<<<< HEAD
   let botHasTopicsEnabled: boolean | undefined;
   const resolveBotTopicsEnabled = async (ctx?: TelegramContext) => {
     if (typeof ctx?.me?.has_topics_enabled === "boolean") {
@@ -321,6 +331,9 @@ export function createTelegramBot(opts: TelegramBotOptions) {
     }
     return botHasTopicsEnabled;
   };
+=======
+  const streamMode = resolveTelegramStreamMode(telegramCfg);
+>>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
   const resolveGroupPolicy = (chatId: string | number) =>
     resolveChannelGroupPolicy({
       cfg,
@@ -394,7 +407,6 @@ export function createTelegramBot(opts: TelegramBotOptions) {
     streamMode,
     textLimit,
     opts,
-    resolveBotTopicsEnabled,
   });
 
   registerTelegramNativeCommands({
