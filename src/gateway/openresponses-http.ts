@@ -72,6 +72,7 @@ import {
 <<<<<<< HEAD
 =======
 import { defaultRuntime } from "../runtime.js";
+import { resolveAssistantStreamDeltaText } from "./agent-event-assistant-text.js";
 import {
   buildAgentMessageFromConversationEntries,
   type ConversationEntry,
@@ -730,9 +731,7 @@ export async function handleOpenResponsesHttpRequest(
     }
 
     if (evt.stream === "assistant") {
-      const delta = evt.data?.delta;
-      const text = evt.data?.text;
-      const content = typeof delta === "string" ? delta : typeof text === "string" ? text : "";
+      const content = resolveAssistantStreamDeltaText(evt);
       if (!content) {
         return;
       }
