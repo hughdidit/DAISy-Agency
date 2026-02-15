@@ -62,7 +62,15 @@ export function createOpenClawTools(options?: {
     ? createImageTool({
         config: options?.config,
         agentDir: options.agentDir,
+<<<<<<< HEAD
         sandboxRoot: options?.sandboxRoot,
+=======
+        workspaceDir: options?.workspaceDir,
+        sandbox:
+          options?.sandboxRoot && options?.sandboxFsBridge
+            ? { root: options.sandboxRoot, bridge: options.sandboxFsBridge }
+            : undefined,
+>>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
         modelHasVision: options?.modelHasVision,
       })
     : null;

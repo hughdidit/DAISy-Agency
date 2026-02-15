@@ -31,7 +31,8 @@ type WebMediaOptions = {
   localRoots?: string[] | "any";
 };
 
-function getDefaultLocalRoots(): string[] {
+<<<<<<< HEAD
+export function getDefaultLocalRoots(): string[] {
   return [
     os.tmpdir(),
     path.join(STATE_DIR, "media"),
