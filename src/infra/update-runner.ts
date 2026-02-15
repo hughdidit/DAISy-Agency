@@ -11,7 +11,11 @@ import {
   resolveControlUiDistIndexHealth,
   resolveControlUiDistIndexPathForRoot,
 } from "./control-ui-assets.js";
+<<<<<<< HEAD
 >>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
+=======
+import { detectPackageManager as detectPackageManagerImpl } from "./detect-package-manager.js";
+>>>>>>> ffa27ddcb (refactor(update): dedupe package manager detection)
 import { trimLogTail } from "./restart-sentinel.js";
 import {
   channelToNpmTag,
@@ -267,28 +271,7 @@ async function findPackageRoot(candidates: string[]) {
 }
 
 async function detectPackageManager(root: string) {
-  try {
-    const raw = await fs.readFile(path.join(root, "package.json"), "utf-8");
-    const parsed = JSON.parse(raw) as { packageManager?: string };
-    const pm = parsed?.packageManager?.split("@")[0]?.trim();
-    if (pm === "pnpm" || pm === "bun" || pm === "npm") {
-      return pm;
-    }
-  } catch {
-    // ignore
-  }
-
-  const files = await fs.readdir(root).catch((): string[] => []);
-  if (files.includes("pnpm-lock.yaml")) {
-    return "pnpm";
-  }
-  if (files.includes("bun.lockb")) {
-    return "bun";
-  }
-  if (files.includes("package-lock.json")) {
-    return "npm";
-  }
-  return "npm";
+  return (await detectPackageManagerImpl(root)) ?? "npm";
 }
 
 type RunStepOptions = {
