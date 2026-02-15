@@ -403,13 +403,58 @@ export const buildTelegramMessageContext = async ({
   }
 
   let bodyText = rawBody;
+<<<<<<< HEAD
   if (!bodyText && allMedia.length > 0) {
     bodyText = `<media:image>${allMedia.length > 1 ? ` (${allMedia.length} images)` : ""}`;
   }
+=======
+  const hasAudio = allMedia.some((media) => media.contentType?.startsWith("audio/"));
+
+  // Preflight audio transcription for mention detection in groups
+  // This allows voice notes to be checked for mentions before being dropped
+  let preflightTranscript: string | undefined;
+  const needsPreflightTranscription =
+    isGroup && requireMention && hasAudio && !hasUserText && mentionRegexes.length > 0;
+
+  if (needsPreflightTranscription) {
+    try {
+      const { transcribeFirstAudio } = await import("../media-understanding/audio-preflight.js");
+      // Build a minimal context for transcription
+      const tempCtx: MsgContext = {
+        MediaPaths: allMedia.length > 0 ? allMedia.map((m) => m.path) : undefined,
+        MediaTypes:
+          allMedia.length > 0
+            ? (allMedia.map((m) => m.contentType).filter(Boolean) as string[])
+            : undefined,
+      };
+      preflightTranscript = await transcribeFirstAudio({
+        ctx: tempCtx,
+        cfg,
+        agentDir: undefined,
+      });
+    } catch (err) {
+      logVerbose(`telegram: audio preflight transcription failed: ${String(err)}`);
+    }
+  }
+
+  // Build bodyText - if there's audio with transcript, use transcript; otherwise use placeholder
+  if (!bodyText && allMedia.length > 0) {
+    if (hasAudio) {
+      bodyText = preflightTranscript || "<media:audio>";
+    } else {
+      bodyText = `<media:image>${allMedia.length > 1 ? ` (${allMedia.length} images)` : ""}`;
+    }
+  }
+
+>>>>>>> b65b3c6ff (fix(telegram): include voice transcript in body text instead of raw audio (#16789))
   const hasAnyMention = (msg.entities ?? msg.caption_entities ?? []).some(
     (ent) => ent.type === "mention",
   );
   const explicitlyMentioned = botUsername ? hasBotMention(msg, botUsername) : false;
+<<<<<<< HEAD
+=======
+
+>>>>>>> b65b3c6ff (fix(telegram): include voice transcript in body text instead of raw audio (#16789))
   const computedWasMentioned = matchesMentionWithExplicit({
     text: msg.text ?? msg.caption ?? "",
     mentionRegexes,
