@@ -6,7 +6,6 @@ import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveBrowserConfig, resolveProfile } from "./config.js";
 import { ensureBrowserControlAuth, resolveBrowserControlAuth } from "./control-auth.js";
 import { ensureChromeExtensionRelayServer } from "./extension-relay.js";
-import { isAuthorizedBrowserRequest } from "./http-auth.js";
 import { isPwAiLoaded } from "./pw-ai-state.js";
 import { registerBrowserRoutes } from "./routes/index.js";
 import {
@@ -14,6 +13,10 @@ import {
   createBrowserRouteContext,
   listKnownProfileNames,
 } from "./server-context.js";
+import {
+  installBrowserAuthMiddleware,
+  installBrowserCommonMiddleware,
+} from "./server-middleware.js";
 
 let state: BrowserServerState | null = null;
 const log = createSubsystemLogger("browser");
@@ -42,6 +45,7 @@ export async function startBrowserControlServerFromConfig(): Promise<BrowserServ
   }
 
   const app = express();
+<<<<<<< HEAD
   app.use(express.json({ limit: "1mb" }));
 
   if (browserAuth.token || browserAuth.password) {
@@ -52,6 +56,10 @@ export async function startBrowserControlServerFromConfig(): Promise<BrowserServ
       res.status(401).send("Unauthorized");
     });
   }
+=======
+  installBrowserCommonMiddleware(app);
+  installBrowserAuthMiddleware(app, browserAuth);
+>>>>>>> 28014de97 (refactor(browser): share common server middleware)
 
   const ctx = createBrowserRouteContext({
     getState: () => state,
