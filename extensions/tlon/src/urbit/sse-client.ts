@@ -1,7 +1,11 @@
 import { Readable } from "node:stream";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { ensureUrbitChannelOpen } from "./channel-ops.js";
+=======
+import { ensureUrbitChannelOpen, pokeUrbitChannel, scryUrbitPath } from "./channel-ops.js";
+>>>>>>> de103773c (refactor(tlon): share urbit poke/scry ops)
 import { getUrbitContext, normalizeUrbitCookie } from "./context.js";
 import { urbitFetch } from "./fetch.js";
 >>>>>>> d0f64c955 (refactor(tlon): centralize Urbit request helpers)
@@ -309,6 +313,7 @@ export class UrbitSSEClient {
   }
 
   async poke(params: { app: string; mark: string; json: unknown }) {
+<<<<<<< HEAD
     const pokeId = Date.now();
     const pokeData = {
       id: pokeId,
@@ -352,6 +357,33 @@ export class UrbitSSEClient {
     }
 
     return await response.json();
+=======
+    return await pokeUrbitChannel(
+      {
+        baseUrl: this.url,
+        cookie: this.cookie,
+        ship: this.ship,
+        channelId: this.channelId,
+        ssrfPolicy: this.ssrfPolicy,
+        lookupFn: this.lookupFn,
+        fetchImpl: this.fetchImpl,
+      },
+      { ...params, auditContext: "tlon-urbit-poke" },
+    );
+  }
+
+  async scry(path: string) {
+    return await scryUrbitPath(
+      {
+        baseUrl: this.url,
+        cookie: this.cookie,
+        ssrfPolicy: this.ssrfPolicy,
+        lookupFn: this.lookupFn,
+        fetchImpl: this.fetchImpl,
+      },
+      { path, auditContext: "tlon-urbit-scry" },
+    );
+>>>>>>> de103773c (refactor(tlon): share urbit poke/scry ops)
   }
 
   async attemptReconnect() {
