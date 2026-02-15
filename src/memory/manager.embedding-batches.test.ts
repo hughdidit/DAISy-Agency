@@ -11,35 +11,14 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 >>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
 =======
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> 9860d6fcc (perf(test): reuse managers in embedding batches suite)
+=======
+import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
+>>>>>>> a7b655519 (refactor(test): share memory embedding mocks)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 
-const embedBatch = vi.fn(async (texts: string[]) => texts.map(() => [0, 1, 0]));
-const embedQuery = vi.fn(async () => [0, 1, 0]);
-
-// Unit tests: avoid importing the real chokidar implementation (native fsevents, etc.).
-vi.mock("chokidar", () => ({
-  default: {
-    watch: () => ({ on: () => {}, close: async () => {} }),
-  },
-  watch: () => ({ on: () => {}, close: async () => {} }),
-}));
-
-vi.mock("./sqlite-vec.js", () => ({
-  loadSqliteVecExtension: async () => ({ ok: false, error: "sqlite-vec disabled in tests" }),
-}));
-
-vi.mock("./embeddings.js", () => ({
-  createEmbeddingProvider: async () => ({
-    requestedProvider: "openai",
-    provider: {
-      id: "mock",
-      model: "mock-embed",
-      embedQuery,
-      embedBatch,
-    },
-  }),
-}));
+const embedBatch = getEmbedBatchMock();
 
 describe("memory embedding batches", () => {
   let fixtureRoot: string;
@@ -160,10 +139,7 @@ describe("memory embedding batches", () => {
   });
 
   beforeEach(async () => {
-    embedBatch.mockClear();
-    embedQuery.mockClear();
-    embedBatch.mockImplementation(async (texts: string[]) => texts.map(() => [0, 1, 0]));
-    embedQuery.mockImplementation(async () => [0, 1, 0]);
+    resetEmbeddingMocks();
 
     await fs.rm(memoryDir, { recursive: true, force: true });
     await fs.mkdir(memoryDir, { recursive: true });
