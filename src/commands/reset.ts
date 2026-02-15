@@ -1,4 +1,5 @@
 import { cancel, confirm, isCancel, select } from "@clack/prompts";
+<<<<<<< HEAD
 
 import {
   isNixMode,
@@ -7,9 +8,15 @@ import {
   resolveOAuthDir,
   resolveStateDir,
 } from "../config/config.js";
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import { isNixMode } from "../config/config.js";
+>>>>>>> 813b96a80 (refactor(commands): share cleanup plan resolver)
 import { resolveGatewayService } from "../daemon/service.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { stylePromptHint, stylePromptMessage, stylePromptTitle } from "../terminal/prompt-style.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 import {
@@ -21,6 +28,10 @@ import {
 =======
 import { buildCleanupPlan, listAgentSessionDirs, removePath } from "./cleanup-utils.js";
 >>>>>>> 3ce0e80f5 (refactor(commands): dedupe cleanup path resolution)
+=======
+import { resolveCleanupPlanFromDisk } from "./cleanup-plan.js";
+import { listAgentSessionDirs, removePath } from "./cleanup-utils.js";
+>>>>>>> 813b96a80 (refactor(commands): share cleanup plan resolver)
 
 export type ResetScope = "config" | "config+creds+sessions" | "full";
 
@@ -124,16 +135,8 @@ export async function resetCommand(runtime: RuntimeEnv, opts: ResetOptions) {
   }
 
   const dryRun = Boolean(opts.dryRun);
-  const cfg = loadConfig();
-  const stateDir = resolveStateDir();
-  const configPath = resolveConfigPath();
-  const oauthDir = resolveOAuthDir();
-  const { configInsideState, oauthInsideState, workspaceDirs } = buildCleanupPlan({
-    cfg,
-    stateDir,
-    configPath,
-    oauthDir,
-  });
+  const { stateDir, configPath, oauthDir, configInsideState, oauthInsideState, workspaceDirs } =
+    resolveCleanupPlanFromDisk();
 
   if (scope !== "config") {
     if (dryRun) {
