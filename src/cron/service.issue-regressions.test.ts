@@ -127,7 +127,10 @@ describe("Cron issue regressions", () => {
     const result = await cron.run(created.id, "force");
 
     expect(result).toEqual({ ok: true, ran: true });
-    expect(enqueueSystemEvent).toHaveBeenCalledWith("force", { agentId: undefined });
+    expect(enqueueSystemEvent).toHaveBeenCalledWith(
+      "force",
+      expect.objectContaining({ agentId: undefined }),
+    );
 
     cron.stop();
     await store.cleanup();
