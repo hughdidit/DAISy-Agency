@@ -24,7 +24,19 @@ export type CronServiceDeps = {
   log: Logger;
   storePath: string;
   cronEnabled: boolean;
+<<<<<<< HEAD
   enqueueSystemEvent: (text: string, opts?: { agentId?: string }) => void;
+=======
+  /** CronConfig for session retention settings. */
+  cronConfig?: CronConfig;
+  /** Default agent id for jobs without an agent id. */
+  defaultAgentId?: string;
+  /** Resolve session store path for a given agent id. */
+  resolveSessionStorePath?: (agentId?: string) => string;
+  /** Path to the session store (sessions.json) for reaper use. */
+  sessionStorePath?: string;
+  enqueueSystemEvent: (text: string, opts?: { agentId?: string; contextKey?: string }) => void;
+>>>>>>> 4c4d2558e (fix (heartbeat/cron): preserve cron prompts for tagged interval events)
   requestHeartbeatNow: (opts?: { reason?: string }) => void;
   runHeartbeatOnce?: (opts?: { reason?: string; agentId?: string }) => Promise<HeartbeatRunResult>;
   /**
