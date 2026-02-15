@@ -8,7 +8,9 @@ import type {
   ChannelAgentPromptAdapter,
   ChannelMentionAdapter,
   ChannelPlugin,
+  ChannelThreadingContext,
   ChannelThreadingAdapter,
+  ChannelThreadingToolContext,
 } from "./plugins/types.js";
 import { resolveDiscordAccount } from "../discord/accounts.js";
 import { resolveIMessageAccount } from "../imessage/accounts.js";
@@ -76,6 +78,23 @@ const formatLower = (allowFrom: Array<string | number>) =>
     .filter(Boolean)
     .map((entry) => entry.toLowerCase());
 
+<<<<<<< HEAD
+=======
+function buildDirectOrGroupThreadToolContext(params: {
+  context: ChannelThreadingContext;
+  hasRepliedRef: ChannelThreadingToolContext["hasRepliedRef"];
+}): ChannelThreadingToolContext {
+  const isDirect = params.context.ChatType?.toLowerCase() === "direct";
+  const channelId =
+    (isDirect ? (params.context.From ?? params.context.To) : params.context.To)?.trim() ||
+    undefined;
+  return {
+    currentChannelId: channelId,
+    currentThreadTs: params.context.ReplyToId,
+    hasRepliedRef: params.hasRepliedRef,
+  };
+}
+>>>>>>> d9c891eb9 (refactor(channels): share threading tool context)
 // Channel docks: lightweight channel metadata/behavior for shared code paths.
 //
 // Rules:
@@ -334,16 +353,8 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
           .filter(Boolean),
     },
     threading: {
-      buildToolContext: ({ context, hasRepliedRef }) => {
-        const isDirect = context.ChatType?.toLowerCase() === "direct";
-        const channelId =
-          (isDirect ? (context.From ?? context.To) : context.To)?.trim() || undefined;
-        return {
-          currentChannelId: channelId,
-          currentThreadTs: context.ReplyToId,
-          hasRepliedRef,
-        };
-      },
+      buildToolContext: ({ context, hasRepliedRef }) =>
+        buildDirectOrGroupThreadToolContext({ context, hasRepliedRef }),
     },
   },
   imessage: {
@@ -367,16 +378,8 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       resolveToolPolicy: resolveIMessageGroupToolPolicy,
     },
     threading: {
-      buildToolContext: ({ context, hasRepliedRef }) => {
-        const isDirect = context.ChatType?.toLowerCase() === "direct";
-        const channelId =
-          (isDirect ? (context.From ?? context.To) : context.To)?.trim() || undefined;
-        return {
-          currentChannelId: channelId,
-          currentThreadTs: context.ReplyToId,
-          hasRepliedRef,
-        };
-      },
+      buildToolContext: ({ context, hasRepliedRef }) =>
+        buildDirectOrGroupThreadToolContext({ context, hasRepliedRef }),
     },
   },
 };
