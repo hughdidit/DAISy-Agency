@@ -14,6 +14,7 @@ import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
 =======
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
 import { escapeRegExp, isRecord } from "../../utils.js";
+import { buildModelAliasLines } from "../model-alias-lines.js";
 import { resolveDefaultModelForAgent } from "../model-selection.js";
 import { detectRuntimeShell } from "../shell-utils.js";
 >>>>>>> f0722498a (Agents: include runtime shell (#1835))
@@ -181,6 +182,7 @@ export type CliOutput = {
   usage?: CliUsage;
 };
 
+<<<<<<< HEAD
 function buildModelAliasLines(cfg?: MoltbotConfig) {
   const models = cfg?.agents?.defaults?.models ?? {};
   const entries: Array<{ alias: string; model: string }> = [];
@@ -200,6 +202,8 @@ function buildModelAliasLines(cfg?: MoltbotConfig) {
     .map((entry) => `- ${entry.alias}: ${entry.model}`);
 }
 
+=======
+>>>>>>> cb2f978ed (refactor(agents): share model alias line builder)
 export function buildSystemPrompt(params: {
   workspaceDir: string;
   config?: MoltbotConfig;

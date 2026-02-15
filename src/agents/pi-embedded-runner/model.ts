@@ -5,6 +5,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 import type { ModelDefinitionConfig } from "../../config/types.js";
 import { resolveMoltbotAgentDir } from "../agent-paths.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../defaults.js";
+import { buildModelAliasLines } from "../model-alias-lines.js";
 import { normalizeModelCompat } from "../model-compat.js";
 import { resolveForwardCompatModel } from "../model-forward-compat.js";
 import { normalizeProviderId } from "../model-selection.js";
@@ -15,6 +16,8 @@ type InlineProviderConfig = {
   api?: ModelDefinitionConfig["api"];
   models?: ModelDefinitionConfig[];
 };
+
+export { buildModelAliasLines };
 
 export function buildInlineProviderModels(
   providers: Record<string, InlineProviderConfig>,
@@ -33,6 +36,7 @@ export function buildInlineProviderModels(
   });
 }
 
+<<<<<<< HEAD
 export function buildModelAliasLines(cfg?: MoltbotConfig) {
   const models = cfg?.agents?.defaults?.models ?? {};
   const entries: Array<{ alias: string; model: string }> = [];
@@ -52,6 +56,8 @@ export function buildModelAliasLines(cfg?: MoltbotConfig) {
     .map((entry) => `- ${entry.alias}: ${entry.model}`);
 }
 
+=======
+>>>>>>> cb2f978ed (refactor(agents): share model alias line builder)
 export function resolveModel(
   provider: string,
   modelId: string,
