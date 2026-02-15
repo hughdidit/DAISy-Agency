@@ -1,34 +1,39 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getDiagnosticSessionStateCountForTest,
-  logSessionStateChange,
-  resetDiagnosticStateForTest,
-} from "./diagnostic.js";
+  getDiagnosticSessionState,
+  resetDiagnosticSessionStateForTest,
+} from "./diagnostic-session-state.js";
 
 describe("diagnostic session state pruning", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    resetDiagnosticStateForTest();
+    resetDiagnosticSessionStateForTest();
   });
 
   afterEach(() => {
-    resetDiagnosticStateForTest();
+    resetDiagnosticSessionStateForTest();
     vi.useRealTimers();
   });
 
   it("evicts stale idle session states", () => {
-    logSessionStateChange({ sessionId: "stale-1", state: "idle" });
+    getDiagnosticSessionState({ sessionId: "stale-1" });
     expect(getDiagnosticSessionStateCountForTest()).toBe(1);
 
     vi.advanceTimersByTime(31 * 60 * 1000);
-    logSessionStateChange({ sessionId: "fresh-1", state: "idle" });
+    getDiagnosticSessionState({ sessionId: "fresh-1" });
 
     expect(getDiagnosticSessionStateCountForTest()).toBe(1);
   });
 
   it("caps tracked session states to a bounded max", () => {
+<<<<<<< HEAD
     for (let i = 0; i < 2105; i += 1) {
       logSessionStateChange({ sessionId: `session-${i}`, state: "idle" });
+=======
+    for (let i = 0; i < 2001; i += 1) {
+      getDiagnosticSessionState({ sessionId: `session-${i}` });
+>>>>>>> 0dec23450 (perf(logging): split diagnostic session state module)
     }
 
     expect(getDiagnosticSessionStateCountForTest()).toBe(2000);
