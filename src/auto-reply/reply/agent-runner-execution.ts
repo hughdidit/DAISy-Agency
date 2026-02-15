@@ -33,11 +33,16 @@ import type { VerboseLevel } from "../thinking.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { buildThreadingToolContext, resolveEnforceFinalTag } from "./agent-runner-utils.js";
+<<<<<<< HEAD
 import { createBlockReplyPayloadKey, type BlockReplyPipeline } from "./block-reply-pipeline.js";
 import type { FollowupRun } from "./queue.js";
 import { parseReplyDirectives } from "./reply-directives.js";
 import { applyReplyTagsToPayload, isRenderablePayload } from "./reply-payloads.js";
 import type { TypingSignaler } from "./typing-mode.js";
+=======
+import { type BlockReplyPipeline } from "./block-reply-pipeline.js";
+import { createBlockReplyDeliveryHandler } from "./reply-delivery.js";
+>>>>>>> eefb2f8fb (refactor(reply): extract block delivery normalization)
 
 export type AgentRunLoopResult =
   | {
@@ -360,6 +365,7 @@ export async function runAgentTurnWithFallback(params: {
             // even when regular block streaming is disabled. The handler sends directly
             // via opts.onBlockReply when the pipeline isn't available.
             onBlockReply: params.opts?.onBlockReply
+<<<<<<< HEAD
               ? async (payload) => {
                   const { text, skip } = normalizeStreamingText(payload);
                   const hasPayloadMedia = (payload.mediaUrls?.length ?? 0) > 0;
@@ -429,6 +435,19 @@ export async function runAgentTurnWithFallback(params: {
                   }
                   // When streaming is disabled entirely, blocks are accumulated in final text instead.
                 }
+=======
+              ? createBlockReplyDeliveryHandler({
+                  onBlockReply: params.opts.onBlockReply,
+                  currentMessageId:
+                    params.sessionCtx.MessageSidFull ?? params.sessionCtx.MessageSid,
+                  normalizeStreamingText,
+                  applyReplyToMode: params.applyReplyToMode,
+                  typingSignals: params.typingSignals,
+                  blockStreamingEnabled: params.blockStreamingEnabled,
+                  blockReplyPipeline,
+                  directlySentBlockKeys,
+                })
+>>>>>>> eefb2f8fb (refactor(reply): extract block delivery normalization)
               : undefined,
             onBlockReplyFlush:
               params.blockStreamingEnabled && blockReplyPipeline
