@@ -20,13 +20,56 @@ import {
 import type { ToolResultFormat } from "../../pi-embedded-subscribe.js";
 
 type ToolMetaEntry = { toolName: string; meta?: string };
+type LastToolError = {
+  toolName: string;
+  meta?: string;
+  error?: string;
+  mutatingAction?: boolean;
+  actionFingerprint?: string;
+};
+
+const RECOVERABLE_TOOL_ERROR_KEYWORDS = [
+  "required",
+  "missing",
+  "invalid",
+  "must be",
+  "must have",
+  "needs",
+  "requires",
+] as const;
+
+function isRecoverableToolError(error: string | undefined): boolean {
+  const errorLower = (error ?? "").toLowerCase();
+  return RECOVERABLE_TOOL_ERROR_KEYWORDS.some((keyword) => errorLower.includes(keyword));
+}
+
+function shouldShowToolErrorWarning(params: {
+  lastToolError: LastToolError;
+  hasUserFacingReply: boolean;
+  suppressToolErrors: boolean;
+}): boolean {
+  const isMutatingToolError =
+    params.lastToolError.mutatingAction ?? isLikelyMutatingToolName(params.lastToolError.toolName);
+  if (isMutatingToolError) {
+    return true;
+  }
+  if (params.suppressToolErrors) {
+    return false;
+  }
+  return !params.hasUserFacingReply && !isRecoverableToolError(params.lastToolError.error);
+}
 
 export function buildEmbeddedRunPayloads(params: {
   assistantTexts: string[];
   toolMetas: ToolMetaEntry[];
   lastAssistant: AssistantMessage | undefined;
+<<<<<<< HEAD
   lastToolError?: { toolName: string; meta?: string; error?: string };
   config?: MoltbotConfig;
+=======
+  lastToolError?: LastToolError;
+  config?: OpenClawConfig;
+>>>>>>> d08ff2c2c (refactor(agents): extract tool-error warning helpers)
   sessionKey: string;
   provider?: string;
   verboseLevel?: VerboseLevel;
@@ -212,6 +255,7 @@ export function buildEmbeddedRunPayloads(params: {
     const lastAssistantWasToolUse = params.lastAssistant?.stopReason === "toolUse";
     const hasUserFacingReply =
       replyItems.length > 0 && !lastAssistantHasToolCalls && !lastAssistantWasToolUse;
+<<<<<<< HEAD
     // Check if this is a recoverable/internal tool error that shouldn't be shown to users
     // when there's already a user-facing reply (the model should have retried).
     const errorLower = (params.lastToolError.error ?? "").toLowerCase();
@@ -232,6 +276,13 @@ export function buildEmbeddedRunPayloads(params: {
       isMutatingToolError ||
       (!hasUserFacingReply && !isRecoverableError && !params.config?.messages?.suppressToolErrors);
 >>>>>>> 2c8b92105 (feat: add messages.suppressToolErrors config option (#16620))
+=======
+    const shouldShowToolError = shouldShowToolErrorWarning({
+      lastToolError: params.lastToolError,
+      hasUserFacingReply,
+      suppressToolErrors: Boolean(params.config?.messages?.suppressToolErrors),
+    });
+>>>>>>> d08ff2c2c (refactor(agents): extract tool-error warning helpers)
 
     // Show tool errors only when:
     // 1. There's no user-facing reply AND the error is not recoverable
