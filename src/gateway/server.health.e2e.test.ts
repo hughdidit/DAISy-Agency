@@ -1,16 +1,9 @@
 import { randomUUID } from "node:crypto";
-import os from "node:os";
-import path from "node:path";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { WebSocket } from "ws";
 import { emitAgentEvent } from "../infra/agent-events.js";
-import {
-  loadOrCreateDeviceIdentity,
-  publicKeyRawBase64UrlFromPem,
-  signDevicePayload,
-} from "../infra/device-identity.js";
 import { emitHeartbeatEvent } from "../infra/heartbeat-events.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
+<<<<<<< HEAD
 import {
   connectOk,
   getFreePort,
@@ -20,14 +13,17 @@ import {
   startServerWithClient,
 } from "./test-helpers.js";
 import { buildDeviceAuthPayload } from "./device-auth.js";
+=======
+import { startGatewayServerHarness, type GatewayServerHarness } from "./server.e2e-ws-harness.js";
+import { installGatewayTestHooks, onceMessage } from "./test-helpers.js";
+>>>>>>> d491c789a (refactor(test): share gateway ws e2e harness)
 
 installGatewayTestHooks({ scope: "suite" });
 
-let server: Awaited<ReturnType<typeof startGatewayServer>>;
-let port = 0;
-let previousToken: string | undefined;
+let harness: GatewayServerHarness;
 
 beforeAll(async () => {
+<<<<<<< HEAD
   previousToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
   delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   port = await getFreePort();
@@ -46,18 +42,18 @@ afterAll(async () => {
     process.env.OPENCLAW_GATEWAY_TOKEN = previousToken;
   }
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+=======
+  harness = await startGatewayServerHarness();
 });
 
-const openClient = async (opts?: Parameters<typeof connectOk>[1]) => {
-  const ws = new WebSocket(`ws://127.0.0.1:${port}`);
-  await new Promise<void>((resolve) => ws.once("open", resolve));
-  await connectOk(ws, opts);
-  return ws;
-};
+afterAll(async () => {
+  await harness.close();
+>>>>>>> d491c789a (refactor(test): share gateway ws e2e harness)
+});
 
 describe("gateway server health/presence", () => {
   test("connect + health + presence + status succeed", { timeout: 60_000 }, async () => {
-    const ws = await openClient();
+    const { ws } = await harness.openClient();
 
     const healthP = onceMessage(ws, (o) => o.type === "res" && o.id === "health1");
     const statusP = onceMessage(ws, (o) => o.type === "res" && o.id === "status1");
@@ -106,7 +102,7 @@ describe("gateway server health/presence", () => {
       payload?: unknown;
     };
 
-    const ws = await openClient();
+    const { ws } = await harness.openClient();
 
     const waitHeartbeat = onceMessage<EventFrame>(
       ws,
@@ -149,7 +145,7 @@ describe("gateway server health/presence", () => {
   });
 
   test("presence events carry seq + stateVersion", { timeout: 8000 }, async () => {
-    const ws = await openClient();
+    const { ws } = await harness.openClient();
 
     const presenceEventP = onceMessage(ws, (o) => o.type === "event" && o.event === "presence");
     ws.send(
@@ -170,7 +166,7 @@ describe("gateway server health/presence", () => {
   });
 
   test("agent events stream with seq", { timeout: 8000 }, async () => {
-    const ws = await openClient();
+    const { ws } = await harness.openClient();
 
     const runId = randomUUID();
     const evtPromise = onceMessage(
@@ -191,21 +187,24 @@ describe("gateway server health/presence", () => {
   });
 
   test("shutdown event is broadcast on close", { timeout: 8000 }, async () => {
-    const { server, ws } = await startServerWithClient();
-    await connectOk(ws);
-
+    const localHarness = await startGatewayServerHarness();
+    const { ws } = await localHarness.openClient();
     const shutdownP = onceMessage(ws, (o) => o.type === "event" && o.event === "shutdown", 5000);
-    await server.close();
+    await localHarness.close();
     const evt = await shutdownP;
     expect(evt.payload?.reason).toBeDefined();
   });
 
   test("presence broadcast reaches multiple clients", { timeout: 8000 }, async () => {
-    const clients = await Promise.all([openClient(), openClient(), openClient()]);
-    const waits = clients.map((c) =>
-      onceMessage(c, (o) => o.type === "event" && o.event === "presence"),
+    const clients = await Promise.all([
+      harness.openClient(),
+      harness.openClient(),
+      harness.openClient(),
+    ]);
+    const waits = clients.map(({ ws }) =>
+      onceMessage(ws, (o) => o.type === "event" && o.event === "presence"),
     );
-    clients[0].send(
+    clients[0].ws.send(
       JSON.stringify({
         type: "req",
         id: "broadcast",
@@ -218,31 +217,23 @@ describe("gateway server health/presence", () => {
       expect(evt.payload?.presence?.length).toBeGreaterThan(0);
       expect(typeof evt.seq).toBe("number");
     }
-    for (const c of clients) {
-      c.close();
+    for (const { ws } of clients) {
+      ws.close();
     }
   });
 
   test("presence includes client fingerprint", async () => {
+<<<<<<< HEAD
     const identityPath = path.join(os.tmpdir(), `moltbot-device-${randomUUID()}.json`);
     const identity = loadOrCreateDeviceIdentity(identityPath);
     const token = process.env.OPENCLAW_GATEWAY_TOKEN?.trim() || undefined;
+=======
+>>>>>>> d491c789a (refactor(test): share gateway ws e2e harness)
     const role = "operator";
     const scopes: string[] = ["operator.admin"];
-    const signedAtMs = Date.now();
-    const payload = buildDeviceAuthPayload({
-      deviceId: identity.deviceId,
-      clientId: GATEWAY_CLIENT_NAMES.FINGERPRINT,
-      clientMode: GATEWAY_CLIENT_MODES.UI,
+    const { ws } = await harness.openClient({
       role,
       scopes,
-      signedAtMs,
-      token: token ?? null,
-    });
-    const ws = await openClient({
-      role,
-      scopes,
-      token,
       client: {
         id: GATEWAY_CLIENT_NAMES.FINGERPRINT,
         version: "9.9.9",
@@ -251,12 +242,6 @@ describe("gateway server health/presence", () => {
         modelIdentifier: "iPad16,6",
         mode: GATEWAY_CLIENT_MODES.UI,
         instanceId: "abc",
-      },
-      device: {
-        id: identity.deviceId,
-        publicKey: publicKeyRawBase64UrlFromPem(identity.publicKeyPem),
-        signature: signDevicePayload(identity.privateKeyPem, payload),
-        signedAt: signedAtMs,
       },
     });
 
@@ -291,7 +276,7 @@ describe("gateway server health/presence", () => {
 
   test("cli connections are not tracked as instances", async () => {
     const cliId = `cli-${randomUUID()}`;
-    const ws = await openClient({
+    const { ws } = await harness.openClient({
       client: {
         id: GATEWAY_CLIENT_NAMES.CLI,
         version: "dev",

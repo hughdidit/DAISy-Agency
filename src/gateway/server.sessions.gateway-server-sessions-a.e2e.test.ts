@@ -2,15 +2,18 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
+<<<<<<< HEAD
 import { WebSocket } from "ws";
+=======
+import { DEFAULT_PROVIDER } from "../agents/defaults.js";
+import { startGatewayServerHarness, type GatewayServerHarness } from "./server.e2e-ws-harness.js";
+>>>>>>> d491c789a (refactor(test): share gateway ws e2e harness)
 import {
   connectOk,
   embeddedRunMock,
-  getFreePort,
   installGatewayTestHooks,
   piSdkMock,
   rpcReq,
-  startGatewayServer,
   testState,
   writeSessionStore,
 } from "./test-helpers.js";
@@ -57,11 +60,10 @@ vi.mock("../hooks/internal-hooks.js", async () => {
 
 installGatewayTestHooks({ scope: "suite" });
 
-let server: Awaited<ReturnType<typeof startGatewayServer>>;
-let port = 0;
-let previousToken: string | undefined;
+let harness: GatewayServerHarness;
 
 beforeAll(async () => {
+<<<<<<< HEAD
   previousToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
   delete process.env.CLAWDBOT_GATEWAY_TOKEN;
   port = await getFreePort();
@@ -80,14 +82,16 @@ afterAll(async () => {
     process.env.OPENCLAW_GATEWAY_TOKEN = previousToken;
   }
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+=======
+  harness = await startGatewayServerHarness();
 });
 
-const openClient = async (opts?: Parameters<typeof connectOk>[1]) => {
-  const ws = new WebSocket(`ws://127.0.0.1:${port}`);
-  await new Promise<void>((resolve) => ws.once("open", resolve));
-  const hello = await connectOk(ws, opts);
-  return { ws, hello };
-};
+afterAll(async () => {
+  await harness.close();
+>>>>>>> d491c789a (refactor(test): share gateway ws e2e harness)
+});
+
+const openClient = async (opts?: Parameters<typeof connectOk>[1]) => await harness.openClient(opts);
 
 describe("gateway server sessions", () => {
   beforeEach(() => {
@@ -148,7 +152,7 @@ describe("gateway server sessions", () => {
     });
 
     const { ws, hello } = await openClient();
-    expect((hello as unknown as { features?: { methods?: string[] } }).features?.methods).toEqual(
+    expect((hello as { features?: { methods?: string[] } }).features?.methods).toEqual(
       expect.arrayContaining([
         "sessions.list",
         "sessions.preview",
