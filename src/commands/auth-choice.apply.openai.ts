@@ -43,6 +43,37 @@ export async function applyAuthChoiceOpenAI(
   }
 
   if (authChoice === "openai-api-key") {
+<<<<<<< HEAD
+=======
+    let nextConfig = params.config;
+    let agentModelOverride: string | undefined;
+    const noteAgentModel = async (model: string) => {
+      if (!params.agentId) {
+        return;
+      }
+      await params.prompter.note(
+        `Default model set to ${model} for agent "${params.agentId}".`,
+        "Model configured",
+      );
+    };
+
+    const applyOpenAiDefaultModelChoice = async (): Promise<ApplyAuthChoiceResult> => {
+      const applied = await applyDefaultModelChoice({
+        config: nextConfig,
+        setDefaultModel: params.setDefaultModel,
+        defaultModel: OPENAI_DEFAULT_MODEL,
+        applyDefaultConfig: applyOpenAIConfig,
+        applyProviderConfig: applyOpenAIProviderConfig,
+        noteDefault: OPENAI_DEFAULT_MODEL,
+        noteAgentModel,
+        prompter: params.prompter,
+      });
+      nextConfig = applied.config;
+      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+      return { config: nextConfig, agentModelOverride };
+    };
+
+>>>>>>> aa2d74a84 (refactor(commands): dedupe OpenAI default model apply)
     const envKey = resolveEnvApiKey("openai");
     if (envKey) {
       const useExisting = await params.prompter.confirm({
@@ -61,7 +92,11 @@ export async function applyAuthChoiceOpenAI(
           `Copied OPENAI_API_KEY to ${result.path} for launchd compatibility.`,
           "OpenAI API key",
         );
+<<<<<<< HEAD
         return { config: params.config };
+=======
+        return await applyOpenAiDefaultModelChoice();
+>>>>>>> aa2d74a84 (refactor(commands): dedupe OpenAI default model apply)
       }
     }
 
@@ -85,7 +120,11 @@ export async function applyAuthChoiceOpenAI(
       `Saved OPENAI_API_KEY to ${result.path} for launchd compatibility.`,
       "OpenAI API key",
     );
+<<<<<<< HEAD
     return { config: params.config };
+=======
+    return await applyOpenAiDefaultModelChoice();
+>>>>>>> aa2d74a84 (refactor(commands): dedupe OpenAI default model apply)
   }
 
   if (params.authChoice === "openai-codex") {
