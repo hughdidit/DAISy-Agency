@@ -57,8 +57,12 @@ import {
   collectExplicitAllowlist,
   resolveToolProfilePolicy,
 } from "./tool-policy.js";
+<<<<<<< HEAD
 import { getPluginToolMeta } from "../plugins/tools.js";
 import { logWarn } from "../logger.js";
+=======
+import { resolveWorkspaceRoot } from "./workspace-dir.js";
+>>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
 
 function isOpenAIProvider(provider?: string) {
   const normalized = provider?.trim().toLowerCase();
@@ -267,8 +271,17 @@ export function createMoltbotCodingTools(options?: {
   const execConfig = resolveExecConfig(options?.config);
   const sandboxRoot = sandbox?.workspaceDir;
   const allowWorkspaceWrites = sandbox?.workspaceAccess !== "ro";
+<<<<<<< HEAD
   const workspaceRoot = options?.workspaceDir ?? process.cwd();
   const applyPatchConfig = options?.config?.tools?.exec?.applyPatch;
+=======
+  const workspaceRoot = resolveWorkspaceRoot(options?.workspaceDir);
+  const workspaceOnly = fsConfig.workspaceOnly === true;
+  const applyPatchConfig = execConfig.applyPatch;
+  // Secure by default: apply_patch is workspace-contained unless explicitly disabled.
+  // (tools.fs.workspaceOnly is a separate umbrella flag for read/write/edit/apply_patch.)
+  const applyPatchWorkspaceOnly = workspaceOnly || applyPatchConfig?.workspaceOnly !== false;
+>>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
   const applyPatchEnabled =
     !!applyPatchConfig?.enabled &&
     isOpenAIProvider(options?.modelProvider) &&

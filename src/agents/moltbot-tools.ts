@@ -17,7 +17,11 @@ import { createSessionsListTool } from "./tools/sessions-list-tool.js";
 import { createSessionsSendTool } from "./tools/sessions-send-tool.js";
 import { createSessionsSpawnTool } from "./tools/sessions-spawn-tool.js";
 import { createWebFetchTool, createWebSearchTool } from "./tools/web-tools.js";
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
 import { createTtsTool } from "./tools/tts-tool.js";
+=======
+import { resolveWorkspaceRoot } from "./workspace-dir.js";
+>>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739)):src/agents/openclaw-tools.ts
 
 export function createMoltbotTools(options?: {
   sandboxBrowserBridgeUrl?: string;
@@ -58,7 +62,7 @@ export function createMoltbotTools(options?: {
   /** If true, omit the message tool from the tool list. */
   disableMessageTool?: boolean;
 }): AnyAgentTool[] {
-  const workspaceDir = options?.workspaceDir?.trim() || process.cwd();
+  const workspaceDir = resolveWorkspaceRoot(options?.workspaceDir);
   const imageTool = options?.agentDir?.trim()
     ? createImageTool({
         config: options?.config,

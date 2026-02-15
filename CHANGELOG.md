@@ -88,7 +88,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> edb06170f (fix(image): allow workspace and sandbox media paths (#15541))
 =======
 - Agents/Image tool: propagate the effective workspace root into tool wiring so workspace-local image paths are accepted by default when running without an explicit `workspaceDir`. (#16722)
+<<<<<<< HEAD
 >>>>>>> b79e7fdb7 (fix(image): propagate workspace root for image allowlist (#16722))
+=======
+- Media/Security: harden local media allowlist bypasses by requiring an explicit `readFile` override when callers mark paths as validated, and reject filesystem-root `localRoots` entries. (#16739)
+>>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
 - Cron/Slack: preserve agent identity (name and icon) when cron jobs deliver outbound messages. (#16242) Thanks @robbyczgw-cla.
 - Cron: prevent `cron list`/`cron status` from silently skipping past-due recurring jobs by using maintenance recompute semantics. (#16156) Thanks @zerone0x.
 - Cron: repair missing/corrupt `nextRunAtMs` for the updated job without globally recomputing unrelated due jobs during `cron update`. (#15750)
