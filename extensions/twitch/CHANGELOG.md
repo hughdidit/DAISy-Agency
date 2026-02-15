@@ -1,5 +1,20 @@
 # Changelog
 
+<<<<<<< HEAD
+=======
+## 2026.2.14
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+## 2026.2.13
+
+### Changes
+
+- Version alignment with core OpenClaw release numbers.
+
+>>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
 ## 2026.2.6-3
 
 ### Changes

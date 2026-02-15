@@ -23,6 +23,7 @@ android {
     targetSdk = 36
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     versionCode = 202602030
 <<<<<<< HEAD
     versionName = "2026.2.6"
@@ -37,6 +38,14 @@ android {
     versionCode = 202602130
     versionName = "2026.2.13"
 >>>>>>> 63bb1e02b (chore(release): bump version to 2026.2.13)
+=======
+    versionCode = 202602140
+    versionName = "2026.2.14"
+    ndk {
+      // Support all major ABIs — native libs are tiny (~47 KB per ABI)
+      abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+    }
+>>>>>>> 1ff15e60d (chore(release): bump versions to 2026.2.14)
   }
 
   buildTypes {
