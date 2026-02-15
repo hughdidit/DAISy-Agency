@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { captureEnv } from "../test-utils/env.js";
 
 const loadConfig = vi.fn();
 const resolveGatewayPort = vi.fn();
@@ -305,7 +306,10 @@ describe("callGateway error details", () => {
 <<<<<<< HEAD
 =======
 describe("callGateway url override auth requirements", () => {
+  let envSnapshot: ReturnType<typeof captureEnv>;
+
   beforeEach(() => {
+    envSnapshot = captureEnv(["OPENCLAW_GATEWAY_TOKEN", "OPENCLAW_GATEWAY_PASSWORD"]);
     loadConfig.mockReset();
     resolveGatewayPort.mockReset();
     pickPrimaryTailnetIPv4.mockReset();
@@ -319,8 +323,7 @@ describe("callGateway url override auth requirements", () => {
   });
 
   afterEach(() => {
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
-    delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+    envSnapshot.restore();
   });
 
   it("throws when url override is set without explicit credentials", async () => {
@@ -341,9 +344,14 @@ describe("callGateway url override auth requirements", () => {
 
 >>>>>>> b8c8130ef (fix(gateway): use LAN IP for WebSocket/probe URLs when bind=lan (#11448))
 describe("callGateway password resolution", () => {
+<<<<<<< HEAD
   const originalEnvPassword = process.env.CLAWDBOT_GATEWAY_PASSWORD;
+=======
+  let envSnapshot: ReturnType<typeof captureEnv>;
+>>>>>>> a68ed3f64 (refactor(test): reuse env snapshots in gateway call tests)
 
   beforeEach(() => {
+    envSnapshot = captureEnv(["OPENCLAW_GATEWAY_PASSWORD"]);
     loadConfig.mockReset();
     resolveGatewayPort.mockReset();
     pickPrimaryTailnetIPv4.mockReset();
@@ -358,11 +366,15 @@ describe("callGateway password resolution", () => {
   });
 
   afterEach(() => {
+<<<<<<< HEAD
     if (originalEnvPassword == null) {
       delete process.env.CLAWDBOT_GATEWAY_PASSWORD;
     } else {
       process.env.CLAWDBOT_GATEWAY_PASSWORD = originalEnvPassword;
     }
+=======
+    envSnapshot.restore();
+>>>>>>> a68ed3f64 (refactor(test): reuse env snapshots in gateway call tests)
   });
 
   it("uses local config password when env is unset", async () => {
@@ -425,9 +437,14 @@ describe("callGateway password resolution", () => {
 });
 
 describe("callGateway token resolution", () => {
+<<<<<<< HEAD
   const originalEnvToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
+=======
+  let envSnapshot: ReturnType<typeof captureEnv>;
+>>>>>>> a68ed3f64 (refactor(test): reuse env snapshots in gateway call tests)
 
   beforeEach(() => {
+    envSnapshot = captureEnv(["OPENCLAW_GATEWAY_TOKEN"]);
     loadConfig.mockReset();
     resolveGatewayPort.mockReset();
     pickPrimaryTailnetIPv4.mockReset();
@@ -442,11 +459,15 @@ describe("callGateway token resolution", () => {
   });
 
   afterEach(() => {
+<<<<<<< HEAD
     if (originalEnvToken == null) {
       delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
       process.env.CLAWDBOT_GATEWAY_TOKEN = originalEnvToken;
     }
+=======
+    envSnapshot.restore();
+>>>>>>> a68ed3f64 (refactor(test): reuse env snapshots in gateway call tests)
   });
 
   it("uses remote token when remote mode uses url override", async () => {
