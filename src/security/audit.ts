@@ -16,6 +16,7 @@ import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
+import { resolveGatewayProbeAuth } from "../gateway/probe-auth.js";
 import { probeGateway } from "../gateway/probe.js";
 import {
   collectAttackSurfaceSummaryFindings,
@@ -982,6 +983,7 @@ async function maybeProbeGateway(params: {
     typeof params.cfg.gateway?.remote?.url === "string" ? params.cfg.gateway.remote.url.trim() : "";
   const remoteUrlMissing = isRemoteMode && !remoteUrlRaw;
 
+<<<<<<< HEAD
   const resolveAuth = (mode: "local" | "remote") => {
     const authToken = params.cfg.gateway?.auth?.token;
     const authPassword = params.cfg.gateway?.auth?.password;
@@ -1006,6 +1008,12 @@ async function maybeProbeGateway(params: {
   };
 
   const auth = !isRemoteMode || remoteUrlMissing ? resolveAuth("local") : resolveAuth("remote");
+=======
+  const auth =
+    !isRemoteMode || remoteUrlMissing
+      ? resolveGatewayProbeAuth({ cfg: params.cfg, mode: "local" })
+      : resolveGatewayProbeAuth({ cfg: params.cfg, mode: "remote" });
+>>>>>>> 6c7a7d910 (refactor(gateway): dedupe probe auth resolution)
   const res = await params.probe({ url, auth, timeoutMs: params.timeoutMs }).catch((err) => ({
     ok: false,
     url,

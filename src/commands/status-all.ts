@@ -8,6 +8,7 @@ import { resolveGatewayService } from "../daemon/service.js";
 import { resolveNodeService } from "../daemon/node-service.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import { normalizeControlUiBasePath } from "../gateway/control-ui-shared.js";
+import { resolveGatewayProbeAuth } from "../gateway/probe-auth.js";
 import { probeGateway } from "../gateway/probe.js";
 import { collectChannelStatusIssues } from "../infra/channels-status-issues.js";
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
@@ -123,6 +124,7 @@ export async function statusAllCommand(
     const remoteUrlMissing = isRemoteMode && !remoteUrlRaw;
     const gatewayMode = isRemoteMode ? "remote" : "local";
 
+<<<<<<< HEAD
     const resolveProbeAuth = (mode: "local" | "remote") => {
       const authToken = cfg.gateway?.auth?.token;
       const authPassword = cfg.gateway?.auth?.password;
@@ -148,6 +150,10 @@ export async function statusAllCommand(
 
     const localFallbackAuth = resolveProbeAuth("local");
     const remoteAuth = resolveProbeAuth("remote");
+=======
+    const localFallbackAuth = resolveGatewayProbeAuth({ cfg, mode: "local" });
+    const remoteAuth = resolveGatewayProbeAuth({ cfg, mode: "remote" });
+>>>>>>> 6c7a7d910 (refactor(gateway): dedupe probe auth resolution)
     const probeAuth = isRemoteMode && !remoteUrlMissing ? remoteAuth : localFallbackAuth;
 
     const gatewayProbe = await probeGateway({
