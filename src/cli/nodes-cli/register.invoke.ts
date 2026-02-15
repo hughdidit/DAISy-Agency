@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 import path from "node:path";
 import type { Command } from "commander";
+=======
+import type { Command } from "commander";
+import type { NodesRpcOpts } from "./types.js";
+import { resolveAgentConfig, resolveDefaultAgentId } from "../../agents/agent-scope.js";
+import { loadConfig } from "../../config/config.js";
+>>>>>>> f1a76e1a3 (refactor: dedupe PATH prepend helpers)
 import { randomIdempotencyKey } from "../../gateway/call.js";
 import { defaultRuntime } from "../../runtime.js";
 import { parseEnvPairs, parseTimeoutMs } from "../nodes-run.js";
@@ -19,6 +26,15 @@ import {
   resolveExecApprovalsFromFile,
 } from "../../infra/exec-approvals.js";
 import { buildNodeShellCommand } from "../../infra/node-shell.js";
+<<<<<<< HEAD
+=======
+import { applyPathPrepend } from "../../infra/path-prepend.js";
+import { defaultRuntime } from "../../runtime.js";
+import { parseEnvPairs, parseTimeoutMs } from "../nodes-run.js";
+import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
+import { parseNodeList } from "./format.js";
+import { callGatewayCli, nodesCallOpts, resolveNodeId, unauthorizedHintForMessage } from "./rpc.js";
+>>>>>>> f1a76e1a3 (refactor: dedupe PATH prepend helpers)
 
 type NodesRunOpts = NodesRpcOpts & {
   node?: string;
@@ -56,43 +72,6 @@ function normalizeExecAsk(value?: string | null): ExecAsk | null {
     return normalized as ExecAsk;
   }
   return null;
-}
-
-function mergePathPrepend(existing: string | undefined, prepend: string[]) {
-  if (prepend.length === 0) {
-    return existing;
-  }
-  const partsExisting = (existing ?? "")
-    .split(path.delimiter)
-    .map((part) => part.trim())
-    .filter(Boolean);
-  const merged: string[] = [];
-  const seen = new Set<string>();
-  for (const part of [...prepend, ...partsExisting]) {
-    if (seen.has(part)) {
-      continue;
-    }
-    seen.add(part);
-    merged.push(part);
-  }
-  return merged.join(path.delimiter);
-}
-
-function applyPathPrepend(
-  env: Record<string, string>,
-  prepend: string[] | undefined,
-  options?: { requireExisting?: boolean },
-) {
-  if (!Array.isArray(prepend) || prepend.length === 0) {
-    return;
-  }
-  if (options?.requireExisting && !env.PATH) {
-    return;
-  }
-  const merged = mergePathPrepend(env.PATH, prepend);
-  if (merged) {
-    env.PATH = merged;
-  }
 }
 
 function resolveExecDefaults(
