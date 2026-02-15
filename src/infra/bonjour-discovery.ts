@@ -1,5 +1,10 @@
 import { runCommandWithTimeout } from "../process/exec.js";
+<<<<<<< HEAD
 import { WIDE_AREA_DISCOVERY_DOMAIN } from "./widearea-dns.js";
+=======
+import { isTailnetIPv4 } from "./tailnet.js";
+import { resolveWideAreaDiscoveryDomain } from "./widearea-dns.js";
+>>>>>>> 012b674f3 (refactor(infra): share isTailnetIPv4 helper)
 
 export type GatewayBonjourBeacon = {
   instanceName: string;
@@ -68,20 +73,6 @@ function decodeDnsSdEscapes(value: string): string {
   }
   flush();
   return Buffer.from(bytes).toString("utf8");
-}
-
-function isTailnetIPv4(address: string): boolean {
-  const parts = address.split(".");
-  if (parts.length !== 4) {
-    return false;
-  }
-  const octets = parts.map((p) => Number.parseInt(p, 10));
-  if (octets.some((n) => !Number.isFinite(n) || n < 0 || n > 255)) {
-    return false;
-  }
-  // Tailscale IPv4 range: 100.64.0.0/10
-  const [a, b] = octets;
-  return a === 100 && b >= 64 && b <= 127;
 }
 
 function parseDigShortLines(stdout: string): string[] {
