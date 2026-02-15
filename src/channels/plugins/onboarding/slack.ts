@@ -130,11 +130,19 @@ async function noteSlackTokenHelp(prompter: WizardPrompter, botName: string): Pr
   );
 }
 
+<<<<<<< HEAD
 function setSlackGroupPolicy(
   cfg: MoltbotConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
 ): MoltbotConfig {
+=======
+function patchSlackConfigForAccount(
+  cfg: OpenClawConfig,
+  accountId: string,
+  patch: Record<string, unknown>,
+): OpenClawConfig {
+>>>>>>> 2944c7d6a (refactor(slack): dedupe onboarding config patching)
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -143,7 +151,7 @@ function setSlackGroupPolicy(
         slack: {
           ...cfg.channels?.slack,
           enabled: true,
-          groupPolicy,
+          ...patch,
         },
       },
     };
@@ -160,12 +168,20 @@ function setSlackGroupPolicy(
           [accountId]: {
             ...cfg.channels?.slack?.accounts?.[accountId],
             enabled: cfg.channels?.slack?.accounts?.[accountId]?.enabled ?? true,
-            groupPolicy,
+            ...patch,
           },
         },
       },
     },
   };
+}
+
+function setSlackGroupPolicy(
+  cfg: OpenClawConfig,
+  accountId: string,
+  groupPolicy: "open" | "allowlist" | "disabled",
+): OpenClawConfig {
+  return patchSlackConfigForAccount(cfg, accountId, { groupPolicy });
 }
 
 function setSlackChannelAllowlist(
@@ -174,37 +190,7 @@ function setSlackChannelAllowlist(
   channelKeys: string[],
 ): MoltbotConfig {
   const channels = Object.fromEntries(channelKeys.map((key) => [key, { allow: true }]));
-  if (accountId === DEFAULT_ACCOUNT_ID) {
-    return {
-      ...cfg,
-      channels: {
-        ...cfg.channels,
-        slack: {
-          ...cfg.channels?.slack,
-          enabled: true,
-          channels,
-        },
-      },
-    };
-  }
-  return {
-    ...cfg,
-    channels: {
-      ...cfg.channels,
-      slack: {
-        ...cfg.channels?.slack,
-        enabled: true,
-        accounts: {
-          ...cfg.channels?.slack?.accounts,
-          [accountId]: {
-            ...cfg.channels?.slack?.accounts?.[accountId],
-            enabled: cfg.channels?.slack?.accounts?.[accountId]?.enabled ?? true,
-            channels,
-          },
-        },
-      },
-    },
-  };
+  return patchSlackConfigForAccount(cfg, accountId, { channels });
 }
 
 function setSlackAllowFrom(cfg: MoltbotConfig, allowFrom: string[]): MoltbotConfig {
