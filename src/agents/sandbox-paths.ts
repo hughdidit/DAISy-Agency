@@ -50,9 +50,20 @@ export function resolveSandboxPath(params: { filePath: string; cwd: string; root
   return { resolved, relative };
 }
 
-export async function assertSandboxPath(params: { filePath: string; cwd: string; root: string }) {
+export async function assertSandboxPath(params: {
+  filePath: string;
+  cwd: string;
+  root: string;
+  allowFinalSymlink?: boolean;
+}) {
   const resolved = resolveSandboxPath(params);
+<<<<<<< HEAD
   await assertNoSymlink(resolved.relative, path.resolve(params.root));
+=======
+  await assertNoSymlinkEscape(resolved.relative, path.resolve(params.root), {
+    allowFinalSymlink: params.allowFinalSymlink,
+  });
+>>>>>>> 914b9d1e7 (fix(agents): block workspaceOnly apply_patch delete symlink escape)
   return resolved;
 }
 
@@ -90,18 +101,43 @@ export async function resolveSandboxedMediaSource(params: {
   return resolved.resolved;
 }
 
+<<<<<<< HEAD
 async function assertNoSymlink(relative: string, root: string) {
+=======
+async function assertNoSymlinkEscape(
+  relative: string,
+  root: string,
+  options?: { allowFinalSymlink?: boolean },
+) {
+>>>>>>> 914b9d1e7 (fix(agents): block workspaceOnly apply_patch delete symlink escape)
   if (!relative) {
     return;
   }
   const parts = relative.split(path.sep).filter(Boolean);
   let current = root;
-  for (const part of parts) {
+  for (let idx = 0; idx < parts.length; idx += 1) {
+    const part = parts[idx];
+    const isLast = idx === parts.length - 1;
     current = path.join(current, part);
     try {
       const stat = await fs.lstat(current);
       if (stat.isSymbolicLink()) {
+<<<<<<< HEAD
         throw new Error(`Symlink not allowed in sandbox path: ${current}`);
+=======
+        // Unlinking a symlink itself is safe even if it points outside the root. What we
+        // must prevent is traversing through a symlink to reach targets outside root.
+        if (options?.allowFinalSymlink && isLast) {
+          return;
+        }
+        const target = await tryRealpath(current);
+        if (!isPathInside(rootReal, target)) {
+          throw new Error(
+            `Symlink escapes sandbox root (${shortPath(rootReal)}): ${shortPath(current)}`,
+          );
+        }
+        current = target;
+>>>>>>> 914b9d1e7 (fix(agents): block workspaceOnly apply_patch delete symlink escape)
       }
     } catch (err) {
       const anyErr = err as { code?: string };

@@ -151,8 +151,13 @@ export async function applyPatch(
     }
 
     if (hunk.kind === "delete") {
+<<<<<<< HEAD
       const target = await resolvePatchPath(hunk.path, options);
       await fs.rm(target.resolved);
+=======
+      const target = await resolvePatchPath(hunk.path, options, "unlink");
+      await fileOps.remove(target.resolved);
+>>>>>>> 914b9d1e7 (fix(agents): block workspaceOnly apply_patch delete symlink escape)
       recordSummary(summary, seen, "deleted", target.display);
       continue;
     }
@@ -220,6 +225,7 @@ async function ensureDir(filePath: string) {
 async function resolvePatchPath(
   filePath: string,
   options: ApplyPatchOptions,
+  purpose: "readWrite" | "unlink" = "readWrite",
 ): Promise<{ resolved: string; display: string }> {
   if (options.sandboxRoot) {
     const resolved = await assertSandboxPath({
@@ -233,7 +239,21 @@ async function resolvePatchPath(
     };
   }
 
+<<<<<<< HEAD
   const resolved = resolvePathFromCwd(filePath, options.cwd);
+=======
+  const workspaceOnly = options.workspaceOnly !== false;
+  const resolved = workspaceOnly
+    ? (
+        await assertSandboxPath({
+          filePath,
+          cwd: options.cwd,
+          root: options.cwd,
+          allowFinalSymlink: purpose === "unlink",
+        })
+      ).resolved
+    : resolvePathFromCwd(filePath, options.cwd);
+>>>>>>> 914b9d1e7 (fix(agents): block workspaceOnly apply_patch delete symlink escape)
   return {
     resolved,
     display: toDisplayPath(resolved, options.cwd),
