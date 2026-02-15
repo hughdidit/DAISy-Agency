@@ -2,8 +2,12 @@ import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
+<<<<<<< HEAD
 
 import { colorize, isRich, theme } from "../terminal/theme.js";
+=======
+import type { GatewayServiceRuntime } from "./service-runtime.js";
+>>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import {
   formatGatewayServiceDescription,
   GATEWAY_LAUNCH_AGENT_LABEL,
@@ -14,17 +18,16 @@ import {
   buildLaunchAgentPlist as buildLaunchAgentPlistImpl,
   readLaunchAgentProgramArgumentsFromFile,
 } from "./launchd-plist.js";
+<<<<<<< HEAD
+=======
+import { formatLine, toPosixPath } from "./output.js";
+import { resolveGatewayStateDir, resolveHomeDir } from "./paths.js";
+>>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import { parseKeyValueOutput } from "./runtime-parse.js";
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 import { resolveGatewayStateDir, resolveHomeDir } from "./paths.js";
 
 const execFileAsync = promisify(execFile);
-const toPosixPath = (value: string) => value.replace(/\\/g, "/");
-
-const formatLine = (label: string, value: string) => {
-  const rich = isRich();
-  return `${colorize(rich, theme.muted, `${label}:`)} ${colorize(rich, theme.command, value)}`;
-};
 
 function resolveLaunchAgentLabel(args?: { env?: Record<string, string | undefined> }): string {
 <<<<<<< HEAD

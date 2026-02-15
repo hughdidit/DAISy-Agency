@@ -5,9 +5,13 @@ import { promisify } from "node:util";
 
 =======
 import type { GatewayServiceRuntime } from "./service-runtime.js";
+<<<<<<< HEAD
 >>>>>>> 2004ce919 (refactor(daemon): share schtasks exec helper)
 import { colorize, isRich, theme } from "../terminal/theme.js";
+=======
+>>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import { formatGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
+import { formatLine } from "./output.js";
 import { resolveGatewayStateDir } from "./paths.js";
 import { parseKeyValueOutput } from "./runtime-parse.js";
 <<<<<<< HEAD
@@ -17,11 +21,6 @@ const execFileAsync = promisify(execFile);
 =======
 import { execSchtasks } from "./schtasks-exec.js";
 >>>>>>> 2004ce919 (refactor(daemon): share schtasks exec helper)
-
-const formatLine = (label: string, value: string) => {
-  const rich = isRich();
-  return `${colorize(rich, theme.muted, `${label}:`)} ${colorize(rich, theme.command, value)}`;
-};
 
 function resolveTaskName(env: Record<string, string | undefined>): string {
 <<<<<<< HEAD

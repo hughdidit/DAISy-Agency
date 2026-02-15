@@ -2,12 +2,21 @@ import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
+<<<<<<< HEAD
 import { colorize, isRich, theme } from "../terminal/theme.js";
+=======
+import type { GatewayServiceRuntime } from "./service-runtime.js";
+>>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import {
   formatGatewayServiceDescription,
   LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES,
   resolveGatewaySystemdServiceName,
 } from "./constants.js";
+<<<<<<< HEAD
+=======
+import { formatLine, toPosixPath } from "./output.js";
+import { resolveHomeDir } from "./paths.js";
+>>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import { parseKeyValueOutput } from "./runtime-parse.js";
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 import { resolveHomeDir } from "./paths.js";
@@ -23,12 +32,6 @@ import {
 } from "./systemd-unit.js";
 
 const execFileAsync = promisify(execFile);
-const toPosixPath = (value: string) => value.replace(/\\/g, "/");
-
-const formatLine = (label: string, value: string) => {
-  const rich = isRich();
-  return `${colorize(rich, theme.muted, `${label}:`)} ${colorize(rich, theme.command, value)}`;
-};
 
 function resolveSystemdUnitPathForName(
   env: Record<string, string | undefined>,
