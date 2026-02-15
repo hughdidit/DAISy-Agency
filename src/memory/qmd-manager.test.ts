@@ -285,6 +285,202 @@ describe("QmdMemoryManager", () => {
     await manager.close();
   });
 
+<<<<<<< HEAD
+=======
+  it("rebuilds managed collections once when qmd update fails with null-byte ENOTDIR", async () => {
+    cfg = {
+      ...cfg,
+      memory: {
+        backend: "qmd",
+        qmd: {
+          includeDefaultMemory: true,
+          update: { interval: "0s", debounceMs: 0, onBoot: false },
+          paths: [],
+        },
+      },
+    } as OpenClawConfig;
+
+    let updateCalls = 0;
+    spawnMock.mockImplementation((_cmd: string, args: string[]) => {
+      if (args[0] === "update") {
+        updateCalls += 1;
+        const child = createMockChild({ autoClose: false });
+        if (updateCalls === 1) {
+          emitAndClose(
+            child,
+            "stderr",
+            "ENOTDIR: not a directory, open '/tmp/workspace/MEMORY.md^@'",
+            1,
+          );
+          return child;
+        }
+        queueMicrotask(() => {
+          child.closeWith(0);
+        });
+        return child;
+      }
+      return createMockChild();
+    });
+
+    const { manager } = await createManager({ mode: "status" });
+    await expect(manager.sync({ reason: "manual" })).resolves.toBeUndefined();
+
+    const removeCalls = spawnMock.mock.calls
+      .map((call) => call[1] as string[])
+      .filter((args) => args[0] === "collection" && args[1] === "remove")
+      .map((args) => args[2]);
+    const addCalls = spawnMock.mock.calls
+      .map((call) => call[1] as string[])
+      .filter((args) => args[0] === "collection" && args[1] === "add")
+      .map((args) => args[args.indexOf("--name") + 1]);
+
+    expect(updateCalls).toBe(2);
+    expect(removeCalls).toEqual(["memory-root", "memory-alt", "memory-dir"]);
+    expect(addCalls).toEqual(["memory-root", "memory-alt", "memory-dir"]);
+    expect(logWarnMock).toHaveBeenCalledWith(
+      expect.stringContaining("suspected null-byte collection metadata"),
+    );
+
+    await manager.close();
+  });
+
+  it("does not rebuild collections for generic qmd update failures", async () => {
+    cfg = {
+      ...cfg,
+      memory: {
+        backend: "qmd",
+        qmd: {
+          includeDefaultMemory: true,
+          update: { interval: "0s", debounceMs: 0, onBoot: false },
+          paths: [],
+        },
+      },
+    } as OpenClawConfig;
+
+    spawnMock.mockImplementation((_cmd: string, args: string[]) => {
+      if (args[0] === "update") {
+        const child = createMockChild({ autoClose: false });
+        emitAndClose(
+          child,
+          "stderr",
+          "ENOTDIR: not a directory, open '/tmp/workspace/MEMORY.md'",
+          1,
+        );
+        return child;
+      }
+      return createMockChild();
+    });
+
+    const { manager } = await createManager({ mode: "status" });
+    await expect(manager.sync({ reason: "manual" })).rejects.toThrow(
+      "ENOTDIR: not a directory, open '/tmp/workspace/MEMORY.md'",
+    );
+
+    const removeCalls = spawnMock.mock.calls
+      .map((call) => call[1] as string[])
+      .filter((args) => args[0] === "collection" && args[1] === "remove");
+    expect(removeCalls).toHaveLength(0);
+
+    await manager.close();
+  });
+
+  it("uses configured qmd search mode command", async () => {
+    cfg = {
+      ...cfg,
+      memory: {
+        backend: "qmd",
+        qmd: {
+          includeDefaultMemory: false,
+          searchMode: "search",
+          update: { interval: "0s", debounceMs: 60_000, onBoot: false },
+          paths: [{ path: workspaceDir, pattern: "**/*.md", name: "workspace" }],
+        },
+      },
+    } as OpenClawConfig;
+    spawnMock.mockImplementation((_cmd: string, args: string[]) => {
+      if (args[0] === "search") {
+        const child = createMockChild({ autoClose: false });
+        emitAndClose(child, "stdout", "[]");
+        return child;
+      }
+      return createMockChild();
+    });
+
+    const { manager, resolved } = await createManager();
+    const maxResults = resolved.qmd?.limits.maxResults;
+    if (!maxResults) {
+      throw new Error("qmd maxResults missing");
+    }
+
+    await expect(
+      manager.search("test", { sessionKey: "agent:main:slack:dm:u123" }),
+    ).resolves.toEqual([]);
+
+    const searchCall = spawnMock.mock.calls.find((call) => call[1]?.[0] === "search");
+    expect(searchCall?.[1]).toEqual([
+      "search",
+      "test",
+      "--json",
+      "-n",
+      String(resolved.qmd?.limits.maxResults),
+      "-c",
+      "workspace",
+    ]);
+    expect(spawnMock.mock.calls.some((call) => call[1]?.[0] === "query")).toBe(false);
+    expect(maxResults).toBeGreaterThan(0);
+    await manager.close();
+  });
+
+  it("retries search with qmd query when configured mode rejects flags", async () => {
+    cfg = {
+      ...cfg,
+      memory: {
+        backend: "qmd",
+        qmd: {
+          includeDefaultMemory: false,
+          searchMode: "search",
+          update: { interval: "0s", debounceMs: 60_000, onBoot: false },
+          paths: [{ path: workspaceDir, pattern: "**/*.md", name: "workspace" }],
+        },
+      },
+    } as OpenClawConfig;
+    spawnMock.mockImplementation((_cmd: string, args: string[]) => {
+      if (args[0] === "search") {
+        const child = createMockChild({ autoClose: false });
+        emitAndClose(child, "stderr", "unknown flag: --json", 2);
+        return child;
+      }
+      if (args[0] === "query") {
+        const child = createMockChild({ autoClose: false });
+        emitAndClose(child, "stdout", "[]");
+        return child;
+      }
+      return createMockChild();
+    });
+
+    const { manager, resolved } = await createManager();
+    const maxResults = resolved.qmd?.limits.maxResults;
+    if (!maxResults) {
+      throw new Error("qmd maxResults missing");
+    }
+
+    await expect(
+      manager.search("test", { sessionKey: "agent:main:slack:dm:u123" }),
+    ).resolves.toEqual([]);
+
+    const searchAndQueryCalls = spawnMock.mock.calls
+      .map((call) => call[1])
+      .filter(
+        (args): args is string[] => Array.isArray(args) && ["search", "query"].includes(args[0]),
+      );
+    expect(searchAndQueryCalls).toEqual([
+      ["search", "test", "--json", "-n", String(maxResults), "-c", "workspace"],
+      ["query", "test", "--json", "-n", String(maxResults), "-c", "workspace"],
+    ]);
+    await manager.close();
+  });
+
+>>>>>>> df820f031 (Memory/QMD: add null-byte collection repair regressions)
   it("queues a forced sync behind an in-flight update", async () => {
     cfg = {
       ...cfg,
