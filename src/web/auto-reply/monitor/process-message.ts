@@ -23,7 +23,11 @@ import {
 } from "../../../config/sessions.js";
 import { resolveMarkdownTableMode } from "../../../config/markdown-tables.js";
 import { logVerbose, shouldLogVerbose } from "../../../globals.js";
+<<<<<<< HEAD
 import type { getChildLogger } from "../../../logging.js";
+=======
+import { getAgentScopedMediaLocalRoots } from "../../../media/local-roots.js";
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { readChannelAllowFromStore } from "../../../pairing/pairing-store.js";
 import type { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { jidToE164, normalizeE164 } from "../../../utils.js";
@@ -235,6 +239,7 @@ export async function processMessage(params: {
     channel: "whatsapp",
     accountId: params.route.accountId,
   });
+  const mediaLocalRoots = getAgentScopedMediaLocalRoots(params.cfg, params.route.agentId);
   let didLogHeartbeatStrip = false;
   let didSendReply = false;
   const commandAuthorized = shouldComputeCommandAuthorized(params.msg.body, params.cfg)
@@ -337,6 +342,7 @@ export async function processMessage(params: {
         await deliverWebReply({
           replyResult: payload,
           msg: params.msg,
+          mediaLocalRoots,
           maxMediaBytes: params.maxMediaBytes,
           textLimit,
           chunkMode,

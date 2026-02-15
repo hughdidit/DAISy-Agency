@@ -330,12 +330,14 @@ async function sendDiscordMedia(
   channelId: string,
   text: string,
   mediaUrl: string,
+  mediaLocalRoots: readonly string[] | undefined,
   replyTo: string | undefined,
   request: DiscordRequest,
   maxLinesPerMessage?: number,
   embeds?: unknown[],
   chunkMode?: ChunkMode,
 ) {
+<<<<<<< HEAD
   const media = await loadWebMedia(mediaUrl);
   const chunks = text
     ? chunkDiscordTextWithMode(text, {
@@ -345,6 +347,10 @@ async function sendDiscordMedia(
       })
     : [];
   if (!chunks.length && text) chunks.push(text);
+=======
+  const media = await loadWebMedia(mediaUrl, { localRoots: mediaLocalRoots });
+  const chunks = text ? buildDiscordTextChunks(text, { maxLinesPerMessage, chunkMode }) : [];
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
   const caption = chunks[0] ?? "";
   const messageReference = replyTo ? { message_id: replyTo, fail_if_not_exists: false } : undefined;
   const res = (await request(

@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import type { CliDeps } from "../cli/deps.js";
+import { resolveSessionAgentId } from "../agents/agent-scope.js";
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { resolveAnnounceTargetFromKey } from "../agents/tools/sessions-send-helpers.js";
 import { normalizeChannelId } from "../channels/plugins/index.js";
 <<<<<<< HEAD
@@ -94,6 +99,7 @@ export async function scheduleRestartSentinelWake(_params: { deps: CliDeps }) {
       accountId: origin?.accountId,
       threadId,
       payloads: [{ text: message }],
+      agentId: resolveSessionAgentId({ sessionKey, config: cfg }),
       bestEffort: true,
     });
   } catch (err) {

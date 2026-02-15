@@ -624,6 +624,7 @@ export async function runCronIsolatedAgentTurn(params: {
     if (deliveryPayloadHasStructuredContent || identity || hasExplicitDeliveryTarget) {
 >>>>>>> a73ccf2b5 (fix: deliver cron output to explicit targets (#16360) (thanks @rubyrunsstuff))
       try {
+<<<<<<< HEAD
         const deliveryResults = await deliverOutboundPayloads({
           cfg: cfgWithAgentDefaults,
           channel: resolvedDelivery.channel,
@@ -635,6 +636,29 @@ export async function runCronIsolatedAgentTurn(params: {
           deps: createOutboundSendDeps(params.deps),
         });
         delivered = deliveryResults.length > 0;
+=======
+        const payloadsForDelivery =
+          deliveryPayloadHasStructuredContent && deliveryPayloads.length > 0
+            ? deliveryPayloads
+            : synthesizedText
+              ? [{ text: synthesizedText }]
+              : [];
+        if (payloadsForDelivery.length > 0) {
+          const deliveryResults = await deliverOutboundPayloads({
+            cfg: cfgWithAgentDefaults,
+            channel: resolvedDelivery.channel,
+            to: resolvedDelivery.to,
+            accountId: resolvedDelivery.accountId,
+            threadId: resolvedDelivery.threadId,
+            payloads: payloadsForDelivery,
+            agentId,
+            identity,
+            bestEffort: deliveryBestEffort,
+            deps: createOutboundSendDeps(params.deps),
+          });
+          delivered = deliveryResults.length > 0;
+        }
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
       } catch (err) {
         if (!deliveryBestEffort) {
           return withRunSession({ status: "error", summary, outputText, error: String(err) });

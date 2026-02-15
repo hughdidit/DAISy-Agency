@@ -56,15 +56,30 @@ export type RouteReplyResult = {
  */
 export async function routeReply(params: RouteReplyParams): Promise<RouteReplyResult> {
   const { payload, channel, to, accountId, threadId, cfg, abortSignal } = params;
+<<<<<<< HEAD
+=======
+  const normalizedChannel = normalizeMessageChannel(channel);
+  const resolvedAgentId = params.sessionKey
+    ? resolveSessionAgentId({
+        sessionKey: params.sessionKey,
+        config: cfg,
+      })
+    : undefined;
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 
   // Debug: `pnpm test src/auto-reply/reply/route-reply.test.ts`
   const responsePrefix = params.sessionKey
     ? resolveEffectiveMessagesConfig(
         cfg,
+<<<<<<< HEAD
         resolveSessionAgentId({
           sessionKey: params.sessionKey,
           config: cfg,
         }),
+=======
+        resolvedAgentId ?? resolveSessionAgentId({ config: cfg }),
+        { channel: normalizedChannel, accountId },
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
       ).responsePrefix
     : cfg.messages?.responsePrefix === "auto"
       ? undefined
@@ -119,12 +134,13 @@ export async function routeReply(params: RouteReplyParams): Promise<RouteReplyRe
       payloads: [normalized],
       replyToId: resolvedReplyToId ?? null,
       threadId: resolvedThreadId,
+      agentId: resolvedAgentId,
       abortSignal,
       mirror:
         params.mirror !== false && params.sessionKey
           ? {
               sessionKey: params.sessionKey,
-              agentId: resolveSessionAgentId({ sessionKey: params.sessionKey, config: cfg }),
+              agentId: resolvedAgentId,
               text,
               mediaUrls,
             }

@@ -30,9 +30,15 @@ import type {
   NativeCommandSpec,
 } from "../../auto-reply/commands-registry.js";
 import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
+<<<<<<< HEAD
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { MoltbotConfig, loadConfig } from "../../config/config.js";
+=======
+import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
+import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
+import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
   readChannelAllowFromStore,
@@ -786,6 +792,17 @@ async function dispatchDiscordCommandInteraction(params: {
     CommandSource: "native" as const,
   });
 
+<<<<<<< HEAD
+=======
+  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+    cfg,
+    agentId: route.agentId,
+    channel: "discord",
+    accountId: route.accountId,
+  });
+  const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, route.agentId);
+
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
   let didReply = false;
   await dispatchReplyWithDispatcher({
     ctx: ctxPayload,
@@ -798,6 +815,7 @@ async function dispatchDiscordCommandInteraction(params: {
           await deliverDiscordInteractionReply({
             interaction,
             payload,
+            mediaLocalRoots,
             textLimit: resolveTextChunkLimit(cfg, "discord", accountId, {
               fallbackLimit: 2000,
             }),
@@ -831,6 +849,7 @@ async function dispatchDiscordCommandInteraction(params: {
 async function deliverDiscordInteractionReply(params: {
   interaction: CommandInteraction | ButtonInteraction;
   payload: ReplyPayload;
+  mediaLocalRoots?: readonly string[];
   textLimit: number;
   maxLinesPerMessage?: number;
   preferFollowUp: boolean;
@@ -869,7 +888,9 @@ async function deliverDiscordInteractionReply(params: {
   if (mediaList.length > 0) {
     const media = await Promise.all(
       mediaList.map(async (url) => {
-        const loaded = await loadWebMedia(url);
+        const loaded = await loadWebMedia(url, {
+          localRoots: params.mediaLocalRoots,
+        });
         return {
           name: loaded.fileName ?? "upload",
           data: loaded.buffer,

@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 
 =======
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
+<<<<<<< HEAD
 >>>>>>> 81c68f582 (fix: guard remote media fetches with SSRF checks)
+=======
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { type MediaKind, maxBytesForKind, mediaKindFromMime } from "../media/constants.js";
 import { resolveUserPath } from "../utils.js";
@@ -16,6 +19,7 @@ import {
   optimizeImageToPng,
   resizeToJpeg,
 } from "../media/image-ops.js";
+import { getDefaultMediaLocalRoots } from "../media/local-roots.js";
 import { detectMime, extensionForMime } from "../media/mime.js";
 
 export type WebMediaResult = {
@@ -38,6 +42,7 @@ type WebMediaOptions = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 export function getDefaultLocalRoots(): string[] {
   return [
@@ -47,6 +52,10 @@ export function getDefaultLocalRoots(): string[] {
     path.join(STATE_DIR, "workspace"),
     path.join(STATE_DIR, "sandboxes"),
   ];
+=======
+export function getDefaultLocalRoots(): readonly string[] {
+  return getDefaultMediaLocalRoots();
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 }
 
 async function assertLocalMediaAllowed(

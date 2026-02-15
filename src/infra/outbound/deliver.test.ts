@@ -1,9 +1,15 @@
+import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { signalOutbound } from "../../channels/plugins/outbound/signal.js";
 import { telegramOutbound } from "../../channels/plugins/outbound/telegram.js";
 import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
+<<<<<<< HEAD
+=======
+import { STATE_DIR } from "../../config/paths.js";
+import { setActivePluginRegistry } from "../../plugins/runtime.js";
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { markdownToSignalTextChunks } from "../../signal/format.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import {
@@ -117,6 +123,31 @@ describe("deliverOutboundPayloads", () => {
       "123",
       "hi",
       expect.objectContaining({ accountId: "default", verbose: false, textMode: "html" }),
+    );
+  });
+
+  it("scopes media local roots to the active agent workspace when agentId is provided", async () => {
+    const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
+    const cfg: OpenClawConfig = {
+      channels: { telegram: { botToken: "tok-1", textChunkLimit: 2 } },
+    };
+
+    await deliverOutboundPayloads({
+      cfg,
+      channel: "telegram",
+      to: "123",
+      agentId: "work",
+      payloads: [{ text: "hi", mediaUrl: "file:///tmp/f.png" }],
+      deps: { sendTelegram },
+    });
+
+    expect(sendTelegram).toHaveBeenCalledWith(
+      "123",
+      "hi",
+      expect.objectContaining({
+        mediaUrl: "file:///tmp/f.png",
+        mediaLocalRoots: expect.arrayContaining([path.join(STATE_DIR, "workspace-work")]),
+      }),
     );
   });
 

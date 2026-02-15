@@ -12,6 +12,7 @@ export type SignalSendOpts = {
   account?: string;
   accountId?: string;
   mediaUrl?: string;
+  mediaLocalRoots?: readonly string[];
   maxBytes?: number;
   timeoutMs?: number;
   textMode?: "markdown" | "plain";
@@ -151,7 +152,13 @@ export async function sendMessageSignal(
 
   let attachments: string[] | undefined;
   if (opts.mediaUrl?.trim()) {
+<<<<<<< HEAD
     const resolved = await resolveAttachment(opts.mediaUrl.trim(), maxBytes);
+=======
+    const resolved = await resolveOutboundAttachmentFromUrl(opts.mediaUrl.trim(), maxBytes, {
+      localRoots: opts.mediaLocalRoots,
+    });
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
     attachments = [resolved.path];
     const kind = mediaKindFromMime(resolved.contentType ?? undefined);
     if (!message && kind) {

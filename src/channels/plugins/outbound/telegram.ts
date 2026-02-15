@@ -37,7 +37,16 @@ export const telegramOutbound: ChannelOutboundAdapter = {
     });
     return { channel: "telegram", ...result };
   },
-  sendMedia: async ({ to, text, mediaUrl, accountId, deps, replyToId, threadId }) => {
+  sendMedia: async ({
+    to,
+    text,
+    mediaUrl,
+    mediaLocalRoots,
+    accountId,
+    deps,
+    replyToId,
+    threadId,
+  }) => {
     const send = deps?.sendTelegram ?? sendMessageTelegram;
     const replyToMessageId = parseReplyToMessageId(replyToId);
     const messageThreadId = parseThreadId(threadId);
@@ -48,10 +57,11 @@ export const telegramOutbound: ChannelOutboundAdapter = {
       messageThreadId,
       replyToMessageId,
       accountId: accountId ?? undefined,
+      mediaLocalRoots,
     });
     return { channel: "telegram", ...result };
   },
-  sendPayload: async ({ to, payload, accountId, deps, replyToId, threadId }) => {
+  sendPayload: async ({ to, payload, mediaLocalRoots, accountId, deps, replyToId, threadId }) => {
     const send = deps?.sendTelegram ?? sendMessageTelegram;
     const replyToMessageId = parseReplyToMessageId(replyToId);
     const messageThreadId = parseThreadId(threadId);
@@ -73,6 +83,7 @@ export const telegramOutbound: ChannelOutboundAdapter = {
       replyToMessageId,
       quoteText,
       accountId: accountId ?? undefined,
+      mediaLocalRoots,
     };
 
     if (mediaUrls.length === 0) {

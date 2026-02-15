@@ -16,6 +16,7 @@ import { resolveTelegramCustomCommands } from "../config/telegram-custom-command
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import { danger, logVerbose } from "../globals.js";
+<<<<<<< HEAD
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import {
@@ -25,6 +26,11 @@ import {
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../channels/command-gating.js";
+=======
+import { getChildLogger } from "../logging.js";
+import { getAgentScopedMediaLocalRoots } from "../media/local-roots.js";
+import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import {
   executePluginCommand,
   getPluginCommandSpecs,
@@ -476,6 +482,7 @@ export const registerTelegramNativeCommands = ({
               id: isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : String(chatId),
             },
           });
+          const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, route.agentId);
           const baseSessionKey = route.sessionKey;
           // DMs: use raw messageThreadId for thread sessions (not resolvedThreadId which is for forums)
           const dmThreadId = threadSpec.scope === "dm" ? threadSpec.id : undefined;
@@ -558,6 +565,7 @@ export const registerTelegramNativeCommands = ({
                   token: opts.token,
                   runtime,
                   bot,
+                  mediaLocalRoots,
                   replyToMode,
                   textLimit,
                   thread: threadSpec,
@@ -588,6 +596,7 @@ export const registerTelegramNativeCommands = ({
               token: opts.token,
               runtime,
               bot,
+              mediaLocalRoots,
               replyToMode,
               textLimit,
               thread: threadSpec,
@@ -635,14 +644,37 @@ export const registerTelegramNativeCommands = ({
           if (!auth) {
             return;
           }
+<<<<<<< HEAD
           const { senderId, commandAuthorized, isGroup, isForum } = auth;
 >>>>>>> 19b8416a8 (fix: unify telegram thread handling)
+=======
+          const { senderId, commandAuthorized, isGroup, isForum, resolvedThreadId } = auth;
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
           const messageThreadId = (msg as { message_thread_id?: number }).message_thread_id;
           const threadSpec = resolveTelegramThreadSpec({
             isGroup,
             isForum,
             messageThreadId,
           });
+<<<<<<< HEAD
+=======
+          const parentPeer = buildTelegramParentPeer({ isGroup, resolvedThreadId, chatId });
+          const route = resolveAgentRoute({
+            cfg,
+            channel: "telegram",
+            accountId,
+            peer: {
+              kind: isGroup ? "group" : "direct",
+              id: isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : String(chatId),
+            },
+            parentPeer,
+          });
+          const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, route.agentId);
+          const from = isGroup
+            ? buildTelegramGroupFrom(chatId, threadSpec.id)
+            : `telegram:${chatId}`;
+          const to = `telegram:${chatId}`;
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 
           const result = await executePluginCommand({
             command: match.command,
@@ -656,9 +688,9 @@ export const registerTelegramNativeCommands = ({
           const tableMode = resolveMarkdownTableMode({
             cfg,
             channel: "telegram",
-            accountId,
+            accountId: route.accountId,
           });
-          const chunkMode = resolveChunkMode(cfg, "telegram", accountId);
+          const chunkMode = resolveChunkMode(cfg, "telegram", route.accountId);
 
           await deliverReplies({
             replies: [result],
@@ -666,6 +698,7 @@ export const registerTelegramNativeCommands = ({
             token: opts.token,
             runtime,
             bot,
+            mediaLocalRoots,
             replyToMode,
             textLimit,
             thread: threadSpec,

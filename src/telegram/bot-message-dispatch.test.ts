@@ -1,4 +1,10 @@
+<<<<<<< HEAD
+=======
+import type { Bot } from "grammy";
+import path from "node:path";
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { STATE_DIR } from "../config/paths.js";
 
 const createTelegramDraftStream = vi.hoisted(() => vi.fn());
 const dispatchReplyWithBufferedBlockDispatcher = vi.hoisted(() => vi.fn());
@@ -84,6 +90,29 @@ describe("dispatchTelegramMessage draft streaming", () => {
       opts: {},
       resolveBotTopicsEnabled,
     });
+<<<<<<< HEAD
+=======
+  }
+
+  it("streams drafts in private threads and forwards thread id", async () => {
+    const draftStream = createDraftStream();
+    createTelegramDraftStream.mockReturnValue(draftStream);
+    dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
+      async ({ dispatcherOptions, replyOptions }) => {
+        await replyOptions?.onPartialReply?.({ text: "Hello" });
+        await dispatcherOptions.deliver({ text: "Hello" }, { kind: "final" });
+        return { queuedFinal: true };
+      },
+    );
+    deliverReplies.mockResolvedValue({ delivered: true });
+
+    const context = createContext({
+      route: {
+        agentId: "work",
+      } as unknown as TelegramMessageContext["route"],
+    });
+    await dispatchWithContext({ context });
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 
     expect(resolveBotTopicsEnabled).toHaveBeenCalledWith(context.primaryCtx);
     expect(createTelegramDraftStream).toHaveBeenCalledWith(
@@ -96,6 +125,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     expect(deliverReplies).toHaveBeenCalledWith(
       expect.objectContaining({
         thread: { id: 777, scope: "dm" },
+        mediaLocalRoots: expect.arrayContaining([path.join(STATE_DIR, "workspace-work")]),
       }),
     );
   });

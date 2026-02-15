@@ -172,7 +172,14 @@ export const sendHandlers: GatewayRequestHandlers = {
           channel: outboundChannel,
           to: resolved.to,
           accountId,
+<<<<<<< HEAD
           payloads: [{ text: message, mediaUrl: request.mediaUrl, mediaUrls }],
+=======
+          payloads: [{ text: message, mediaUrl, mediaUrls }],
+          agentId: providedSessionKey
+            ? resolveSessionAgentId({ sessionKey: providedSessionKey, config: cfg })
+            : derivedAgentId,
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
           gifPlayback: request.gifPlayback,
           deps: outboundDeps,
           mirror: providedSessionKey
