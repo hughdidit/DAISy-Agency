@@ -3,7 +3,11 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { ModelProviderConfig } from "../config/types.models.js";
+<<<<<<< HEAD
 >>>>>>> 1ba266a8e (refactor: split minimax-cn provider)
+=======
+import { applyOnboardAuthAgentModelsAndProviders } from "./onboard-auth.config-shared.js";
+>>>>>>> ab6f080d8 (refactor(commands): share provider config merge wrapper)
 import {
   buildMinimaxApiModelDefinition,
   buildMinimaxModelDefinition,
@@ -48,20 +52,7 @@ export function applyMinimaxProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
     };
   }
 
-  return {
-    ...cfg,
-    agents: {
-      ...cfg.agents,
-      defaults: {
-        ...cfg.agents?.defaults,
-        models,
-      },
-    },
-    models: {
-      mode: cfg.models?.mode ?? "merge",
-      providers,
-    },
-  };
+  return applyOnboardAuthAgentModelsAndProviders(cfg, { agentModels: models, providers });
 }
 
 export function applyMinimaxHostedProviderConfig(
@@ -93,20 +84,7 @@ export function applyMinimaxHostedProviderConfig(
     models: mergedModels.length > 0 ? mergedModels : [hostedModel],
   };
 
-  return {
-    ...cfg,
-    agents: {
-      ...cfg.agents,
-      defaults: {
-        ...cfg.agents?.defaults,
-        models,
-      },
-    },
-    models: {
-      mode: cfg.models?.mode ?? "merge",
-      providers,
-    },
-  };
+  return applyOnboardAuthAgentModelsAndProviders(cfg, { agentModels: models, providers });
 }
 
 export function applyMinimaxConfig(cfg: MoltbotConfig): MoltbotConfig {
