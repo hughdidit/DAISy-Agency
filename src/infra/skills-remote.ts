@@ -1,7 +1,16 @@
 import type { SkillEligibilityContext, SkillEntry } from "../agents/skills.js";
+<<<<<<< HEAD
 import { loadWorkspaceSkillEntries } from "../agents/skills.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { NodeRegistry } from "../gateway/node-registry.js";
+import { loadWorkspaceSkillEntries } from "../agents/skills.js";
+import { bumpSkillsSnapshotVersion } from "../agents/skills/refresh.js";
+import { listAgentWorkspaceDirs } from "../agents/workspace-dirs.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+>>>>>>> 42b0d6f43 (refactor(agents): share workspace dir enumeration)
 import { listNodePairing, updatePairedNodeMetadata } from "./node-pairing.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { bumpSkillsSnapshotVersion } from "../agents/skills/refresh.js";
@@ -175,6 +184,7 @@ export function removeRemoteNodeInfo(nodeId: string) {
   remoteNodes.delete(nodeId);
 }
 
+<<<<<<< HEAD
 function listWorkspaceDirs(cfg: OpenClawConfig): string[] {
 >>>>>>> dabfcbe94 (Skills: clean up remote node cache on disconnect)
   const dirs = new Set<string>();
@@ -190,6 +200,8 @@ function listWorkspaceDirs(cfg: OpenClawConfig): string[] {
   return [...dirs];
 }
 
+=======
+>>>>>>> 42b0d6f43 (refactor(agents): share workspace dir enumeration)
 function collectRequiredBins(entries: SkillEntry[], targetPlatform: string): string[] {
   const bins = new Set<string>();
   for (const entry of entries) {
@@ -276,7 +288,7 @@ export async function refreshRemoteNodeBins(params: {
     return;
   }
 
-  const workspaceDirs = listWorkspaceDirs(params.cfg);
+  const workspaceDirs = listAgentWorkspaceDirs(params.cfg);
   const requiredBins = new Set<string>();
   for (const workspaceDir of workspaceDirs) {
     const entries = loadWorkspaceSkillEntries(workspaceDir, { config: params.cfg });

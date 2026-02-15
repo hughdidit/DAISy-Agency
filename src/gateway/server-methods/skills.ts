@@ -12,7 +12,11 @@ import {
 import { installSkill } from "../../agents/skills-install.js";
 import { buildWorkspaceSkillStatus } from "../../agents/skills-status.js";
 import { loadWorkspaceSkillEntries, type SkillEntry } from "../../agents/skills.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import { listAgentWorkspaceDirs } from "../../agents/workspace-dirs.js";
+>>>>>>> 42b0d6f43 (refactor(agents): share workspace dir enumeration)
 import { loadConfig, writeConfigFile } from "../../config/config.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
@@ -28,6 +32,7 @@ import {
 } from "../protocol/index.js";
 import type { GatewayRequestHandlers } from "./types.js";
 
+<<<<<<< HEAD
 function listWorkspaceDirs(cfg: MoltbotConfig): string[] {
   const dirs = new Set<string>();
   const list = cfg.agents?.list;
@@ -42,6 +47,8 @@ function listWorkspaceDirs(cfg: MoltbotConfig): string[] {
   return [...dirs];
 }
 
+=======
+>>>>>>> 42b0d6f43 (refactor(agents): share workspace dir enumeration)
 function collectSkillBins(entries: SkillEntry[]): string[] {
   const bins = new Set<string>();
   for (const entry of entries) {
@@ -120,7 +127,7 @@ export const skillsHandlers: GatewayRequestHandlers = {
       return;
     }
     const cfg = loadConfig();
-    const workspaceDirs = listWorkspaceDirs(cfg);
+    const workspaceDirs = listAgentWorkspaceDirs(cfg);
     const bins = new Set<string>();
     for (const workspaceDir of workspaceDirs) {
       const entries = loadWorkspaceSkillEntries(workspaceDir, { config: cfg });
