@@ -57,7 +57,6 @@ const runOnce = (entry, extraArgs = []) =>
     const child = spawn(pnpm, args, {
       stdio: "inherit",
       env: { ...process.env, VITEST_GROUP: entry.name, NODE_OPTIONS: nextNodeOptions },
-      shell: process.platform === "win32",
     });
     children.add(child);
     child.on("exit", (code, signal) => {
@@ -85,6 +84,41 @@ const shutdown = (signal) => {
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 
+<<<<<<< HEAD
+=======
+if (passthroughArgs.length > 0) {
+  const maxWorkers = maxWorkersForRun("unit");
+  const args = maxWorkers
+    ? [
+        "vitest",
+        "run",
+        "--maxWorkers",
+        String(maxWorkers),
+        ...silentArgs,
+        ...windowsCiArgs,
+        ...passthroughArgs,
+      ]
+    : ["vitest", "run", ...silentArgs, ...windowsCiArgs, ...passthroughArgs];
+  const nodeOptions = process.env.NODE_OPTIONS ?? "";
+  const nextNodeOptions = WARNING_SUPPRESSION_FLAGS.reduce(
+    (acc, flag) => (acc.includes(flag) ? acc : `${acc} ${flag}`.trim()),
+    nodeOptions,
+  );
+  const code = await new Promise((resolve) => {
+    const child = spawn(pnpm, args, {
+      stdio: "inherit",
+      env: { ...process.env, NODE_OPTIONS: nextNodeOptions },
+    });
+    children.add(child);
+    child.on("exit", (exitCode, signal) => {
+      children.delete(child);
+      resolve(exitCode ?? (signal ? 1 : 0));
+    });
+  });
+  process.exit(Number(code) || 0);
+}
+
+>>>>>>> a7eb0dd9a (fix(security): harden Windows child process spawning)
 const parallelCodes = await Promise.all(parallelRuns.map(run));
 const failedParallel = parallelCodes.find((code) => code !== 0);
 if (failedParallel !== undefined) {
