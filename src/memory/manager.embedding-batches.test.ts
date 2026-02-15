@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -17,10 +17,36 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
 >>>>>>> a7b655519 (refactor(test): share memory embedding mocks)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
+=======
+import { describe, expect, it, vi } from "vitest";
+import { installEmbeddingManagerFixture } from "./embedding-manager.test-harness.js";
+>>>>>>> 71c1d09f2 (refactor(test): share memory embedding fixture)
 
-const embedBatch = getEmbedBatchMock();
+const fx = installEmbeddingManagerFixture({
+  fixturePrefix: "openclaw-mem-",
+  largeTokens: 1250,
+  smallTokens: 200,
+  createCfg: ({ workspaceDir, indexPath, tokens }) => ({
+    agents: {
+      defaults: {
+        workspace: workspaceDir,
+        memorySearch: {
+          provider: "openai",
+          model: "mock-embed",
+          store: { path: indexPath, vector: { enabled: false } },
+          chunking: { tokens, overlap: 0 },
+          sync: { watch: false, onSessionStart: false, onSearch: false },
+          query: { minScore: 0, hybrid: { enabled: false } },
+        },
+      },
+      list: [{ id: "main", default: true }],
+    },
+  }),
+});
+const { embedBatch } = fx;
 
 describe("memory embedding batches", () => {
+<<<<<<< HEAD
   let fixtureRoot: string;
   let workspaceDir: string;
   let memoryDir: string;
@@ -145,16 +171,16 @@ describe("memory embedding batches", () => {
     await fs.mkdir(memoryDir, { recursive: true });
   });
 
+=======
+>>>>>>> 71c1d09f2 (refactor(test): share memory embedding fixture)
   it("splits large files across multiple embedding batches", async () => {
+    const memoryDir = fx.getMemoryDir();
+    const managerLarge = fx.getManagerLarge();
     // Keep this small but above the embedding batch byte threshold (8k) so we
     // exercise multi-batch behavior without generating lots of chunks/DB rows.
     const line = "a".repeat(4200);
     const content = [line, line].join("\n");
     await fs.writeFile(path.join(memoryDir, "2026-01-03.md"), content);
-    resetManagerForTest(managerLarge);
-    if (!managerLarge) {
-      throw new Error("manager missing");
-    }
     const updates: Array<{ completed: number; total: number; label?: string }> = [];
     await managerLarge.sync({
       progress: (update) => {
@@ -174,19 +200,19 @@ describe("memory embedding batches", () => {
   });
 
   it("keeps small files in a single embedding batch", async () => {
+    const memoryDir = fx.getMemoryDir();
+    const managerSmall = fx.getManagerSmall();
     const line = "b".repeat(120);
     const content = Array.from({ length: 4 }, () => line).join("\n");
     await fs.writeFile(path.join(memoryDir, "2026-01-04.md"), content);
-    resetManagerForTest(managerSmall);
-    if (!managerSmall) {
-      throw new Error("manager missing");
-    }
     await managerSmall.sync({ reason: "test" });
 
     expect(embedBatch.mock.calls.length).toBe(1);
   });
 
   it("retries embeddings on transient rate limit and 5xx errors", async () => {
+    const memoryDir = fx.getMemoryDir();
+    const managerSmall = fx.getManagerSmall();
     const line = "d".repeat(120);
     const content = Array.from({ length: 4 }, () => line).join("\n");
     await fs.writeFile(path.join(memoryDir, "2026-01-06.md"), content);
@@ -217,10 +243,6 @@ describe("memory embedding batches", () => {
       }
       return realSetTimeout(handler, delay, ...args);
     }) as typeof setTimeout);
-    resetManagerForTest(managerSmall);
-    if (!managerSmall) {
-      throw new Error("manager missing");
-    }
     try {
       await managerSmall.sync({ reason: "test" });
     } finally {
@@ -231,11 +253,9 @@ describe("memory embedding batches", () => {
   }, 10000);
 
   it("skips empty chunks so embeddings input stays valid", async () => {
+    const memoryDir = fx.getMemoryDir();
+    const managerSmall = fx.getManagerSmall();
     await fs.writeFile(path.join(memoryDir, "2026-01-07.md"), "\n\n\n");
-    resetManagerForTest(managerSmall);
-    if (!managerSmall) {
-      throw new Error("manager missing");
-    }
     await managerSmall.sync({ reason: "test" });
 
     const inputs = embedBatch.mock.calls.flatMap((call) => call[0] ?? []);
