@@ -58,14 +58,19 @@ export function createMoltbotTools(options?: {
   /** If true, omit the message tool from the tool list. */
   disableMessageTool?: boolean;
 }): AnyAgentTool[] {
+  const workspaceDir = options?.workspaceDir?.trim() || process.cwd();
   const imageTool = options?.agentDir?.trim()
     ? createImageTool({
         config: options?.config,
         agentDir: options.agentDir,
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
         sandboxRoot: options?.sandboxRoot,
 =======
         workspaceDir: options?.workspaceDir,
+=======
+        workspaceDir,
+>>>>>>> b79e7fdb7 (fix(image): propagate workspace root for image allowlist (#16722)):src/agents/openclaw-tools.ts
         sandbox:
           options?.sandboxRoot && options?.sandboxFsBridge
             ? { root: options.sandboxRoot, bridge: options.sandboxFsBridge }
@@ -172,7 +177,7 @@ export function createMoltbotTools(options?: {
   const pluginTools = resolvePluginTools({
     context: {
       config: options?.config,
-      workspaceDir: options?.workspaceDir,
+      workspaceDir,
       agentDir: options?.agentDir,
       agentId: resolveSessionAgentId({
         sessionKey: options?.agentSessionKey,

@@ -317,7 +317,7 @@ export function createMoltbotCodingTools(options?: {
     pathPrepend: options?.exec?.pathPrepend ?? execConfig.pathPrepend,
     safeBins: options?.exec?.safeBins ?? execConfig.safeBins,
     agentId,
-    cwd: options?.workspaceDir,
+    cwd: workspaceRoot,
     allowBackground,
     scopeKey,
     sessionKey: options?.sessionKey,
@@ -374,7 +374,12 @@ export function createMoltbotCodingTools(options?: {
       agentGroupSpace: options?.groupSpace ?? null,
       agentDir: options?.agentDir,
       sandboxRoot,
+<<<<<<< HEAD
       workspaceDir: options?.workspaceDir,
+=======
+      sandboxFsBridge,
+      workspaceDir: workspaceRoot,
+>>>>>>> b79e7fdb7 (fix(image): propagate workspace root for image allowlist (#16722))
       sandboxed: !!sandbox,
       config: options?.config,
       pluginToolAllowlist: collectExplicitAllowlist([
