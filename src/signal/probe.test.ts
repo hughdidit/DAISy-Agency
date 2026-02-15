@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
+=======
+import { classifySignalCliLogLine } from "./daemon.js";
+>>>>>>> a508c3473 (perf(test): fold signal daemon log parsing into probe suite)
 import { probeSignal } from "./probe.js";
 
 const signalCheckMock = vi.fn();
@@ -42,5 +46,28 @@ describe("probeSignal", () => {
     expect(res.ok).toBe(false);
     expect(res.status).toBe(503);
     expect(res.version).toBe(null);
+  });
+});
+
+describe("classifySignalCliLogLine", () => {
+  it("treats INFO/DEBUG as log (even if emitted on stderr)", () => {
+    expect(classifySignalCliLogLine("INFO  DaemonCommand - Started")).toBe("log");
+    expect(classifySignalCliLogLine("DEBUG Something")).toBe("log");
+  });
+
+  it("treats WARN/ERROR as error", () => {
+    expect(classifySignalCliLogLine("WARN  Something")).toBe("error");
+    expect(classifySignalCliLogLine("WARNING Something")).toBe("error");
+    expect(classifySignalCliLogLine("ERROR Something")).toBe("error");
+  });
+
+  it("treats failures without explicit severity as error", () => {
+    expect(classifySignalCliLogLine("Failed to initialize HTTP Server - oops")).toBe("error");
+    expect(classifySignalCliLogLine('Exception in thread "main"')).toBe("error");
+  });
+
+  it("returns null for empty lines", () => {
+    expect(classifySignalCliLogLine("")).toBe(null);
+    expect(classifySignalCliLogLine("   ")).toBe(null);
   });
 });
