@@ -252,7 +252,11 @@ export function wrapToolParamNormalization(
   };
 }
 
+<<<<<<< HEAD
 function wrapSandboxPathGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
+=======
+export function wrapToolWorkspaceRootGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
+>>>>>>> 726ff36fd (Sandbox: honor bind mounts in file tools)
   return {
     ...tool,
     execute: async (toolCallId, args, signal, onUpdate) => {
@@ -269,6 +273,7 @@ function wrapSandboxPathGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
   };
 }
 
+<<<<<<< HEAD
 export function createSandboxedReadTool(root: string) {
   const base = createReadTool(root) as unknown as AnyAgentTool;
   return wrapSandboxPathGuard(createMoltbotReadTool(base), root);
@@ -282,6 +287,32 @@ export function createSandboxedWriteTool(root: string) {
 export function createSandboxedEditTool(root: string) {
   const base = createEditTool(root) as unknown as AnyAgentTool;
   return wrapSandboxPathGuard(wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit), root);
+=======
+type SandboxToolParams = {
+  root: string;
+  bridge: SandboxFsBridge;
+};
+
+export function createSandboxedReadTool(params: SandboxToolParams) {
+  const base = createReadTool(params.root, {
+    operations: createSandboxReadOperations(params),
+  }) as unknown as AnyAgentTool;
+  return createOpenClawReadTool(base);
+}
+
+export function createSandboxedWriteTool(params: SandboxToolParams) {
+  const base = createWriteTool(params.root, {
+    operations: createSandboxWriteOperations(params),
+  }) as unknown as AnyAgentTool;
+  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.write);
+}
+
+export function createSandboxedEditTool(params: SandboxToolParams) {
+  const base = createEditTool(params.root, {
+    operations: createSandboxEditOperations(params),
+  }) as unknown as AnyAgentTool;
+  return wrapToolParamNormalization(base, CLAUDE_PARAM_GROUPS.edit);
+>>>>>>> 726ff36fd (Sandbox: honor bind mounts in file tools)
 }
 
 export function createMoltbotReadTool(base: AnyAgentTool): AnyAgentTool {
