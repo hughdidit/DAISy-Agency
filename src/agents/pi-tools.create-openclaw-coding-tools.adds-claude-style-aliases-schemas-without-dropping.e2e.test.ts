@@ -11,7 +11,56 @@ import { createBrowserTool } from "./tools/browser-tool.js";
 
 const defaultTools = createMoltbotCodingTools();
 
+<<<<<<< HEAD
 describe("createMoltbotCodingTools", () => {
+=======
+function findUnionKeywordOffenders(
+  tools: Array<{ name: string; parameters: unknown }>,
+  opts?: { onlyNames?: Set<string> },
+) {
+  const offenders: Array<{
+    name: string;
+    keyword: string;
+    path: string;
+  }> = [];
+  const keywords = new Set(["anyOf", "oneOf", "allOf"]);
+
+  const walk = (value: unknown, path: string, name: string): void => {
+    if (!value) {
+      return;
+    }
+    if (Array.isArray(value)) {
+      for (const [index, entry] of value.entries()) {
+        walk(entry, `${path}[${index}]`, name);
+      }
+      return;
+    }
+    if (typeof value !== "object") {
+      return;
+    }
+
+    const record = value as Record<string, unknown>;
+    for (const [key, entry] of Object.entries(record)) {
+      const nextPath = path ? `${path}.${key}` : key;
+      if (keywords.has(key)) {
+        offenders.push({ name, keyword: key, path: nextPath });
+      }
+      walk(entry, nextPath, name);
+    }
+  };
+
+  for (const tool of tools) {
+    if (opts?.onlyNames && !opts.onlyNames.has(tool.name)) {
+      continue;
+    }
+    walk(tool.parameters, "", tool.name);
+  }
+
+  return offenders;
+}
+
+describe("createOpenClawCodingTools", () => {
+>>>>>>> 772c03d41 (refactor(test): dedupe pi-tools schema union checks)
   describe("Claude/Gemini alias support", () => {
     it("adds Claude-style aliases to schemas without dropping metadata", () => {
       const base: AgentTool = {
@@ -212,42 +261,7 @@ describe("createMoltbotCodingTools", () => {
     expect(count?.oneOf).toBeDefined();
   });
   it("avoids anyOf/oneOf/allOf in tool schemas", () => {
-    const offenders: Array<{
-      name: string;
-      keyword: string;
-      path: string;
-    }> = [];
-    const keywords = new Set(["anyOf", "oneOf", "allOf"]);
-
-    const walk = (value: unknown, path: string, name: string): void => {
-      if (!value) {
-        return;
-      }
-      if (Array.isArray(value)) {
-        for (const [index, entry] of value.entries()) {
-          walk(entry, `${path}[${index}]`, name);
-        }
-        return;
-      }
-      if (typeof value !== "object") {
-        return;
-      }
-
-      const record = value as Record<string, unknown>;
-      for (const [key, entry] of Object.entries(record)) {
-        const nextPath = path ? `${path}.${key}` : key;
-        if (keywords.has(key)) {
-          offenders.push({ name, keyword: key, path: nextPath });
-        }
-        walk(entry, nextPath, name);
-      }
-    };
-
-    for (const tool of defaultTools) {
-      walk(tool.parameters, "", tool.name);
-    }
-
-    expect(offenders).toEqual([]);
+    expect(findUnionKeywordOffenders(defaultTools)).toEqual([]);
   });
   it("keeps raw core tool schemas union-free", () => {
     const tools = createMoltbotTools();
@@ -266,44 +280,7 @@ describe("createMoltbotCodingTools", () => {
       "session_status",
       "image",
     ]);
-    const offenders: Array<{
-      name: string;
-      keyword: string;
-      path: string;
-    }> = [];
-    const keywords = new Set(["anyOf", "oneOf", "allOf"]);
-
-    const walk = (value: unknown, path: string, name: string): void => {
-      if (!value) {
-        return;
-      }
-      if (Array.isArray(value)) {
-        for (const [index, entry] of value.entries()) {
-          walk(entry, `${path}[${index}]`, name);
-        }
-        return;
-      }
-      if (typeof value !== "object") {
-        return;
-      }
-      const record = value as Record<string, unknown>;
-      for (const [key, entry] of Object.entries(record)) {
-        const nextPath = path ? `${path}.${key}` : key;
-        if (keywords.has(key)) {
-          offenders.push({ name, keyword: key, path: nextPath });
-        }
-        walk(entry, nextPath, name);
-      }
-    };
-
-    for (const tool of tools) {
-      if (!coreTools.has(tool.name)) {
-        continue;
-      }
-      walk(tool.parameters, "", tool.name);
-    }
-
-    expect(offenders).toEqual([]);
+    expect(findUnionKeywordOffenders(tools, { onlyNames: coreTools })).toEqual([]);
   });
   it("does not expose provider-specific message tools", () => {
     const tools = createMoltbotCodingTools({ messageProvider: "discord" });
