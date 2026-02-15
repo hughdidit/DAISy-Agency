@@ -16,6 +16,11 @@ import { createSessionsHistoryTool } from "./tools/sessions-history-tool.js";
 import { createSessionsListTool } from "./tools/sessions-list-tool.js";
 import { createSessionsSendTool } from "./tools/sessions-send-tool.js";
 import { createSessionsSpawnTool } from "./tools/sessions-spawn-tool.js";
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
+=======
+import { createSubagentsTool } from "./tools/subagents-tool.js";
+import { createTtsTool } from "./tools/tts-tool.js";
+>>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447)):src/agents/openclaw-tools.ts
 import { createWebFetchTool, createWebSearchTool } from "./tools/web-tools.js";
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
 import { createTtsTool } from "./tools/tts-tool.js";
@@ -168,6 +173,9 @@ export function createMoltbotTools(options?: {
       agentGroupSpace: options?.agentGroupSpace,
       sandboxed: options?.sandboxed,
       requesterAgentIdOverride: options?.requesterAgentIdOverride,
+    }),
+    createSubagentsTool({
+      agentSessionKey: options?.agentSessionKey,
     }),
     createSessionStatusTool({
       agentSessionKey: options?.agentSessionKey,

@@ -23,7 +23,7 @@ import { getMachineDisplayName } from "../../infra/machine-name.js";
 =======
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import { type enqueueCommand, enqueueCommandInLane } from "../../process/command-queue.js";
-import { isSubagentSessionKey } from "../../routing/session-key.js";
+import { isCronSessionKey, isSubagentSessionKey } from "../../routing/session-key.js";
 import { resolveSignalReactionLevel } from "../../signal/reaction-level.js";
 >>>>>>> ab71fdf82 (Plugin API: compaction/reset hooks, bootstrap file globs, memory plugin status (#13287))
 import { resolveTelegramInlineButtonsScope } from "../../telegram/inline-buttons.js";
@@ -480,8 +480,16 @@ export async function compactEmbeddedPiSessionDirect(
       config: params.config,
     });
     const isDefaultAgent = sessionAgentId === defaultAgentId;
+<<<<<<< HEAD
     const promptMode = isSubagentSessionKey(params.sessionKey) ? "minimal" : "full";
     const docsPath = await resolveMoltbotDocsPath({
+=======
+    const promptMode =
+      isSubagentSessionKey(params.sessionKey) || isCronSessionKey(params.sessionKey)
+        ? "minimal"
+        : "full";
+    const docsPath = await resolveOpenClawDocsPath({
+>>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
       workspaceDir: effectiveWorkspace,
       argv1: process.argv[1],
       cwd: process.cwd(),

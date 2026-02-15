@@ -40,8 +40,9 @@ import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 describe("moltbot-tools: subagents", () => {
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createOpenClawTools } from "./openclaw-tools.js";
+import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import "./test-helpers/fast-core-tools.js";
+import { createOpenClawTools } from "./openclaw-tools.js";
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 type SessionsSpawnTestConfig = ReturnType<(typeof import("../config/config.js"))["loadConfig"]>;
@@ -159,7 +160,9 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
     expect(patchIndex).toBeGreaterThan(-1);
     expect(agentIndex).toBeGreaterThan(-1);
     expect(patchIndex).toBeLessThan(agentIndex);
-    const patchCall = calls[patchIndex];
+    const patchCall = calls.find(
+      (call) => call.method === "sessions.patch" && (call.params as { model?: string })?.model,
+    );
     expect(patchCall?.params).toMatchObject({
       key: expect.stringContaining("subagent:"),
       model: "claude-haiku-4-5",
@@ -269,9 +272,52 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       modelApplied: true,
     });
 
-    const patchCall = calls.find((call) => call.method === "sessions.patch");
+    const patchCall = calls.find(
+      (call) => call.method === "sessions.patch" && (call.params as { model?: string })?.model,
+    );
     expect(patchCall?.params).toMatchObject({
       model: "minimax/MiniMax-M2.1",
+    });
+  });
+
+  it("sessions_spawn falls back to runtime default model when no model config is set", async () => {
+    resetSubagentRegistryForTests();
+    callGatewayMock.mockReset();
+    const calls: Array<{ method?: string; params?: unknown }> = [];
+
+    callGatewayMock.mockImplementation(async (opts: unknown) => {
+      const request = opts as { method?: string; params?: unknown };
+      calls.push(request);
+      if (request.method === "sessions.patch") {
+        return { ok: true };
+      }
+      if (request.method === "agent") {
+        return { runId: "run-runtime-default-model", status: "accepted" };
+      }
+      return {};
+    });
+
+    const tool = createOpenClawTools({
+      agentSessionKey: "agent:main:main",
+      agentChannel: "discord",
+    }).find((candidate) => candidate.name === "sessions_spawn");
+    if (!tool) {
+      throw new Error("missing sessions_spawn tool");
+    }
+
+    const result = await tool.execute("call-runtime-default-model", {
+      task: "do thing",
+    });
+    expect(result.details).toMatchObject({
+      status: "accepted",
+      modelApplied: true,
+    });
+
+    const patchCall = calls.find(
+      (call) => call.method === "sessions.patch" && (call.params as { model?: string })?.model,
+    );
+    expect(patchCall?.params).toMatchObject({
+      model: `${DEFAULT_PROVIDER}/${DEFAULT_MODEL}`,
     });
   });
 

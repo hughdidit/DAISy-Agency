@@ -12,6 +12,30 @@ import {
 } from "@mariozechner/pi-coding-agent";
 
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
+<<<<<<< HEAD
+=======
+import { resolveChannelCapabilities } from "../../../config/channel-capabilities.js";
+import { getMachineDisplayName } from "../../../infra/machine-name.js";
+import { MAX_IMAGE_BYTES } from "../../../media/constants.js";
+import { getGlobalHookRunner } from "../../../plugins/hook-runner-global.js";
+import {
+  isCronSessionKey,
+  isSubagentSessionKey,
+  normalizeAgentId,
+} from "../../../routing/session-key.js";
+import { resolveSignalReactionLevel } from "../../../signal/reaction-level.js";
+import { resolveTelegramInlineButtonsScope } from "../../../telegram/inline-buttons.js";
+import { resolveTelegramReactionLevel } from "../../../telegram/reaction-level.js";
+import { buildTtsSystemPromptHint } from "../../../tts/tts.js";
+import { resolveUserPath } from "../../../utils.js";
+import { normalizeMessageChannel } from "../../../utils/message-channel.js";
+import { isReasoningTagProvider } from "../../../utils/provider-utils.js";
+import { resolveOpenClawAgentDir } from "../../agent-paths.js";
+import { resolveSessionAgentIds } from "../../agent-scope.js";
+import { createAnthropicPayloadLogger } from "../../anthropic-payload-log.js";
+import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../../bootstrap-files.js";
+import { createCacheTrace } from "../../cache-trace.js";
+>>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import {
   listChannelSupportedActions,
   resolveChannelMessageToolHints,
@@ -435,8 +459,16 @@ export async function runEmbeddedAttempt(
       },
     });
     const isDefaultAgent = sessionAgentId === defaultAgentId;
+<<<<<<< HEAD
     const promptMode = isSubagentSessionKey(params.sessionKey) ? "minimal" : "full";
     const docsPath = await resolveMoltbotDocsPath({
+=======
+    const promptMode =
+      isSubagentSessionKey(params.sessionKey) || isCronSessionKey(params.sessionKey)
+        ? "minimal"
+        : "full";
+    const docsPath = await resolveOpenClawDocsPath({
+>>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
       workspaceDir: effectiveWorkspace,
       argv1: process.argv[1],
       cwd: process.cwd(),

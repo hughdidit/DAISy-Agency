@@ -277,5 +277,16 @@ describe("subagent registry persistence", () => {
     };
     expect(afterSecond.runs?.["run-4"]).toBeUndefined();
   });
+<<<<<<< HEAD
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
+=======
+
+  it("uses isolated temp state when OPENCLAW_STATE_DIR is unset in tests", async () => {
+    delete process.env.OPENCLAW_STATE_DIR;
+    vi.resetModules();
+    const { resolveSubagentRegistryPath } = await import("./subagent-registry.store.js");
+    const registryPath = resolveSubagentRegistryPath();
+    expect(registryPath).toContain(path.join(os.tmpdir(), "openclaw-test-state"));
+  });
+>>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 });

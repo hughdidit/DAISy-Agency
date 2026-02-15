@@ -16,6 +16,12 @@ export const DEFAULT_TOOL_ALLOW = [
   "read",
   "sessions_list",
   "sessions_history",
+<<<<<<< HEAD
+=======
+  "sessions_send",
+  "sessions_spawn",
+  "subagents",
+>>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
   "session_status",
 ] as const;
 

@@ -11,7 +11,6 @@ describe("tool display details", () => {
           task: "double-message-bug-gpt",
           label: 0,
           runTimeoutSeconds: 0,
-          timeoutSeconds: 0,
         },
       }),
     );
