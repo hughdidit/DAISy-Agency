@@ -263,6 +263,7 @@ export async function compactEmbeddedPiSessionDirect(
 
   const provider = (params.provider ?? DEFAULT_PROVIDER).trim() || DEFAULT_PROVIDER;
   const modelId = (params.model ?? DEFAULT_MODEL).trim() || DEFAULT_MODEL;
+<<<<<<< HEAD
   const agentDir = params.agentDir ?? resolveMoltbotAgentDir();
   await ensureMoltbotModelsJson(params.config, agentDir);
   const { model, error, authStorage, modelRegistry } = resolveModel(
@@ -273,6 +274,9 @@ export async function compactEmbeddedPiSessionDirect(
   );
   if (!model) {
     const reason = error ?? `Unknown model: ${provider}/${modelId}`;
+=======
+  const fail = (reason: string): EmbeddedPiCompactResult => {
+>>>>>>> 824901083 (refactor(pi): dedupe compaction failure)
     log.warn(
       `[compaction-diag] end runId=${runId} sessionKey=${params.sessionKey ?? params.sessionId} ` +
         `diagId=${diagId} trigger=${trigger} provider=${provider}/${modelId} ` +
@@ -284,6 +288,18 @@ export async function compactEmbeddedPiSessionDirect(
       compacted: false,
       reason,
     };
+  };
+  const agentDir = params.agentDir ?? resolveOpenClawAgentDir();
+  await ensureOpenClawModelsJson(params.config, agentDir);
+  const { model, error, authStorage, modelRegistry } = resolveModel(
+    provider,
+    modelId,
+    agentDir,
+    params.config,
+  );
+  if (!model) {
+    const reason = error ?? `Unknown model: ${provider}/${modelId}`;
+    return fail(reason);
   }
   try {
     const apiKeyInfo = await getApiKeyForModel({
@@ -310,17 +326,7 @@ export async function compactEmbeddedPiSessionDirect(
     }
   } catch (err) {
     const reason = describeUnknownError(err);
-    log.warn(
-      `[compaction-diag] end runId=${runId} sessionKey=${params.sessionKey ?? params.sessionId} ` +
-        `diagId=${diagId} trigger=${trigger} provider=${provider}/${modelId} ` +
-        `attempt=${attempt} maxAttempts=${maxAttempts} outcome=failed reason=${classifyCompactionReason(reason)} ` +
-        `durationMs=${Date.now() - startedAt}`,
-    );
-    return {
-      ok: false,
-      compacted: false,
-      reason,
-    };
+    return fail(reason);
   }
 
   await fs.mkdir(resolvedWorkspace, { recursive: true });
@@ -748,17 +754,7 @@ export async function compactEmbeddedPiSessionDirect(
     }
   } catch (err) {
     const reason = describeUnknownError(err);
-    log.warn(
-      `[compaction-diag] end runId=${runId} sessionKey=${params.sessionKey ?? params.sessionId} ` +
-        `diagId=${diagId} trigger=${trigger} provider=${provider}/${modelId} ` +
-        `attempt=${attempt} maxAttempts=${maxAttempts} outcome=failed reason=${classifyCompactionReason(reason)} ` +
-        `durationMs=${Date.now() - startedAt}`,
-    );
-    return {
-      ok: false,
-      compacted: false,
-      reason,
-    };
+    return fail(reason);
   } finally {
     restoreSkillEnv?.();
     process.chdir(prevCwd);
