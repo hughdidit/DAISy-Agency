@@ -278,6 +278,12 @@ function resolveDiscordChannelEntryMatch(
   });
 }
 
+function hasConfiguredDiscordChannels(
+  channels: DiscordGuildEntryResolved["channels"] | undefined,
+): channels is NonNullable<DiscordGuildEntryResolved["channels"]> {
+  return Boolean(channels && Object.keys(channels).length > 0);
+}
+
 function resolveDiscordChannelConfigEntry(
   entry: DiscordChannelEntry,
 ): DiscordChannelConfigResolved {
@@ -302,7 +308,7 @@ export function resolveDiscordChannelConfig(params: {
 }): DiscordChannelConfigResolved | null {
   const { guildInfo, channelId, channelName, channelSlug } = params;
   const channels = guildInfo?.channels;
-  if (!channels) {
+  if (!hasConfiguredDiscordChannels(channels)) {
     return null;
   }
   const match = resolveDiscordChannelEntryMatch(channels, {
@@ -335,7 +341,7 @@ export function resolveDiscordChannelConfigWithFallback(params: {
     scope,
   } = params;
   const channels = guildInfo?.channels;
-  if (!channels) {
+  if (!hasConfiguredDiscordChannels(channels)) {
     return null;
   }
   const resolvedParentSlug = parentSlug ?? (parentName ? normalizeDiscordSlug(parentName) : "");
