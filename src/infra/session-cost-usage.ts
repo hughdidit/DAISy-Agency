@@ -218,6 +218,31 @@ const applyCostTotal = (totals: CostUsageTotals, costTotal: number | undefined) 
   totals.totalCost += costTotal;
 };
 
+async function* readJsonlRecords(filePath: string): AsyncGenerator<Record<string, unknown>> {
+  const fileStream = fs.createReadStream(filePath, { encoding: "utf-8" });
+  const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
+  try {
+    for await (const line of rl) {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        continue;
+      }
+      try {
+        const parsed = JSON.parse(trimmed) as unknown;
+        if (!parsed || typeof parsed !== "object") {
+          continue;
+        }
+        yield parsed as Record<string, unknown>;
+      } catch {
+        // Ignore malformed lines
+      }
+    }
+  } finally {
+    rl.close();
+    fileStream.destroy();
+  }
+}
+
 async function scanTranscriptFile(params: {
   filePath: string;
 <<<<<<< HEAD
@@ -228,34 +253,22 @@ async function scanTranscriptFile(params: {
   onEntry: (entry: ParsedTranscriptEntry) => void;
 >>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 }): Promise<void> {
-  const fileStream = fs.createReadStream(params.filePath, { encoding: "utf-8" });
-  const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
-
-  for await (const line of rl) {
-    const trimmed = line.trim();
-    if (!trimmed) {
+  for await (const parsed of readJsonlRecords(params.filePath)) {
+    const entry = parseTranscriptEntry(parsed);
+    if (!entry) {
       continue;
     }
-    try {
-      const parsed = JSON.parse(trimmed) as Record<string, unknown>;
-      const entry = parseTranscriptEntry(parsed);
-      if (!entry) {
-        continue;
-      }
 
-      if (entry.usage && entry.costTotal === undefined) {
-        const cost = resolveModelCostConfig({
-          provider: entry.provider,
-          model: entry.model,
-          config: params.config,
-        });
-        entry.costTotal = estimateUsageCost({ usage: entry.usage, cost });
-      }
-
-      params.onEntry(entry);
-    } catch {
-      // Ignore malformed lines
+    if (entry.usage && entry.costTotal === undefined) {
+      const cost = resolveModelCostConfig({
+        provider: entry.provider,
+        model: entry.model,
+        config: params.config,
+      });
+      entry.costTotal = estimateUsageCost({ usage: entry.usage, cost });
     }
+
+    params.onEntry(entry);
   }
 }
 
@@ -416,16 +429,8 @@ export async function discoverAllSessions(params?: {
     // Try to read first user message for label extraction
     let firstUserMessage: string | undefined;
     try {
-      const fileStream = fs.createReadStream(filePath, { encoding: "utf-8" });
-      const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
-
-      for await (const line of rl) {
-        const trimmed = line.trim();
-        if (!trimmed) {
-          continue;
-        }
+      for await (const parsed of readJsonlRecords(filePath)) {
         try {
-          const parsed = JSON.parse(trimmed) as Record<string, unknown>;
           const message = parsed.message as Record<string, unknown> | undefined;
           if (message?.role === "user") {
             const content = message.content;
@@ -452,8 +457,6 @@ export async function discoverAllSessions(params?: {
           // Skip malformed lines
         }
       }
-      rl.close();
-      fileStream.destroy();
     } catch {
       // Ignore read errors
     }
@@ -836,16 +839,8 @@ export async function loadSessionLogs(params: {
   const logs: SessionLogEntry[] = [];
   const limit = params.limit ?? 50;
 
-  const fileStream = fs.createReadStream(sessionFile, { encoding: "utf-8" });
-  const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
-
-  for await (const line of rl) {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      continue;
-    }
+  for await (const parsed of readJsonlRecords(sessionFile)) {
     try {
-      const parsed = JSON.parse(trimmed) as Record<string, unknown>;
       const message = parsed.message as Record<string, unknown> | undefined;
       if (!message) {
         continue;
