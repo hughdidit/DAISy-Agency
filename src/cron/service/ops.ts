@@ -20,7 +20,24 @@ export async function start(state: CronServiceState) {
       state.deps.log.info({ enabled: false }, "cron: disabled");
       return;
     }
+<<<<<<< HEAD
     await ensureLoaded(state);
+=======
+    await ensureLoaded(state, { skipRecompute: true });
+    const jobs = state.store?.jobs ?? [];
+    const startupInterruptedJobIds = new Set<string>();
+    for (const job of jobs) {
+      if (typeof job.state.runningAtMs === "number") {
+        state.deps.log.warn(
+          { jobId: job.id, runningAtMs: job.state.runningAtMs },
+          "cron: clearing stale running marker on startup",
+        );
+        job.state.runningAtMs = undefined;
+        startupInterruptedJobIds.add(job.id);
+      }
+    }
+    await runMissedJobs(state, { skipJobIds: startupInterruptedJobIds });
+>>>>>>> 7b89e68d1 (fix (cron): skip startup replay for interrupted running jobs)
     recomputeNextRuns(state);
     await persist(state);
     armTimer(state);
