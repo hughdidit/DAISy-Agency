@@ -4,7 +4,7 @@ import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
 import { applyUpdateHunk } from "./apply-patch-update.js";
-import { assertSandboxPath, resolveSandboxPath } from "./sandbox-paths.js";
+import { assertSandboxPath } from "./sandbox-paths.js";
 
 const BEGIN_PATCH_MARKER = "*** Begin Patch";
 const END_PATCH_MARKER = "*** End Patch";
@@ -64,7 +64,7 @@ type ApplyPatchOptions = {
   sandboxRoot?: string;
 =======
   sandbox?: SandboxApplyPatchConfig;
-  /** When true, restrict patch paths to the workspace root (cwd). Default: false. */
+  /** Restrict patch paths to the workspace root (cwd). Default: true. Set false to opt out. */
   workspaceOnly?: boolean;
 >>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
   signal?: AbortSignal;
@@ -88,8 +88,12 @@ export function createApplyPatchTool(
 ): AgentTool<typeof applyPatchSchema, ApplyPatchToolDetails> {
   const cwd = options.cwd ?? process.cwd();
   const sandbox = options.sandbox;
+<<<<<<< HEAD
   const workspaceOnly = options.workspaceOnly === true;
 >>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
+=======
+  const workspaceOnly = options.workspaceOnly !== false;
+>>>>>>> 4a44da7d9 (fix(security): default apply_patch workspace containment)
 
   return {
     name: "apply_patch",
@@ -165,10 +169,14 @@ export async function applyPatch(
 
     if (hunk.kind === "delete") {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const target = await resolvePatchPath(hunk.path, options);
       await fs.rm(target.resolved);
 =======
       const target = await resolvePatchPath(hunk.path, options, "unlink");
+=======
+      const target = await resolvePatchPath(hunk.path, options);
+>>>>>>> 4a44da7d9 (fix(security): default apply_patch workspace containment)
       await fileOps.remove(target.resolved);
 >>>>>>> 5e7c3250c (fix(security): add optional workspace-only path guards for fs tools)
       recordSummary(summary, seen, "deleted", target.display);
@@ -228,7 +236,6 @@ async function ensureDir(filePath: string) {
 async function resolvePatchPath(
   filePath: string,
   options: ApplyPatchOptions,
-  purpose: "readWrite" | "unlink" = "readWrite",
 ): Promise<{ resolved: string; display: string }> {
   if (options.sandboxRoot) {
     const resolved = await assertSandboxPath({
@@ -242,16 +249,15 @@ async function resolvePatchPath(
     };
   }
 
-  const resolved = options.workspaceOnly
-    ? purpose === "unlink"
-      ? resolveSandboxPath({ filePath, cwd: options.cwd, root: options.cwd }).resolved
-      : (
-          await assertSandboxPath({
-            filePath,
-            cwd: options.cwd,
-            root: options.cwd,
-          })
-        ).resolved
+  const workspaceOnly = options.workspaceOnly !== false;
+  const resolved = workspaceOnly
+    ? (
+        await assertSandboxPath({
+          filePath,
+          cwd: options.cwd,
+          root: options.cwd,
+        })
+      ).resolved
     : resolvePathFromCwd(filePath, options.cwd);
   return {
     resolved,
