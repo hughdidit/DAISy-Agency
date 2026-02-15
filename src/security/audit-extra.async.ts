@@ -31,7 +31,12 @@ import {
   inspectPathPermissions,
   safeStat,
 } from "./audit-fs.js";
+<<<<<<< HEAD
 import { scanDirectoryWithSummary, type SkillScanFinding } from "./skill-scanner.js";
+=======
+import { extensionUsesSkippedScannerPath, isPathInside } from "./scan-paths.js";
+import * as skillScanner from "./skill-scanner.js";
+>>>>>>> b37346103 (refactor(security): share scan path helpers)
 
 export type SecurityAuditFinding = {
   checkId: string;
@@ -62,6 +67,7 @@ function expandTilde(p: string, env: NodeJS.ProcessEnv): string | null {
   return null;
 }
 
+<<<<<<< HEAD
 function resolveIncludePath(baseConfigPath: string, includePath: string): string {
   return path.normalize(
     path.isAbsolute(includePath)
@@ -160,6 +166,8 @@ function extensionUsesSkippedScannerPath(entry: string): boolean {
   );
 }
 
+=======
+>>>>>>> b37346103 (refactor(security): share scan path helpers)
 async function readPluginManifestExtensions(pluginPath: string): Promise<string[]> {
   const manifestPath = path.join(pluginPath, "package.json");
   const raw = await fs.readFile(manifestPath, "utf-8").catch(() => "");
