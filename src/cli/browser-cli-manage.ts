@@ -13,6 +13,45 @@ import { shortenHomePath } from "../utils.js";
 import { callBrowserRequest, type BrowserParentOpts } from "./browser-cli-shared.js";
 import { runCommandWithRuntime } from "./cli-utils.js";
 
+async function fetchBrowserStatus(
+  parent: BrowserParentOpts,
+  profile?: string,
+): Promise<BrowserStatus> {
+  return await callBrowserRequest<BrowserStatus>(
+    parent,
+    {
+      method: "GET",
+      path: "/",
+      query: profile ? { profile } : undefined,
+    },
+    {
+      timeoutMs: 1500,
+    },
+  );
+}
+
+async function runBrowserToggle(
+  parent: BrowserParentOpts,
+  params: { profile?: string; path: string },
+) {
+  await callBrowserRequest(
+    parent,
+    {
+      method: "POST",
+      path: params.path,
+      query: params.profile ? { profile: params.profile } : undefined,
+    },
+    { timeoutMs: 15000 },
+  );
+  const status = await fetchBrowserStatus(parent, params.profile);
+  if (parent?.json) {
+    defaultRuntime.log(JSON.stringify(status, null, 2));
+    return;
+  }
+  const name = status.profile ?? "openclaw";
+  defaultRuntime.log(info(`🦞 browser [${name}] running: ${status.running}`));
+}
+
 function runBrowserCommand(action: () => Promise<void>) {
   return runCommandWithRuntime(defaultRuntime, action, (err) => {
     defaultRuntime.error(danger(String(err)));
@@ -30,17 +69,7 @@ export function registerBrowserManageCommands(
     .action(async (_opts, cmd) => {
       const parent = parentOpts(cmd);
       await runBrowserCommand(async () => {
-        const status = await callBrowserRequest<BrowserStatus>(
-          parent,
-          {
-            method: "GET",
-            path: "/",
-            query: parent?.browserProfile ? { profile: parent.browserProfile } : undefined,
-          },
-          {
-            timeoutMs: 1500,
-          },
-        );
+        const status = await fetchBrowserStatus(parent, parent?.browserProfile);
         if (parent?.json) {
           defaultRuntime.log(JSON.stringify(status, null, 2));
           return;
@@ -71,6 +100,7 @@ export function registerBrowserManageCommands(
       const parent = parentOpts(cmd);
       const profile = parent?.browserProfile;
       await runBrowserCommand(async () => {
+<<<<<<< HEAD
         await callBrowserRequest(
           parent,
           {
@@ -95,6 +125,9 @@ export function registerBrowserManageCommands(
         }
         const name = status.profile ?? "daisy";
         defaultRuntime.log(info(`🦞 browser [${name}] running: ${status.running}`));
+=======
+        await runBrowserToggle(parent, { profile, path: "/start" });
+>>>>>>> 84ffb0588 (refactor(cli): dedupe browser start/stop)
       });
     });
 
@@ -105,6 +138,7 @@ export function registerBrowserManageCommands(
       const parent = parentOpts(cmd);
       const profile = parent?.browserProfile;
       await runBrowserCommand(async () => {
+<<<<<<< HEAD
         await callBrowserRequest(
           parent,
           {
@@ -129,6 +163,9 @@ export function registerBrowserManageCommands(
         }
         const name = status.profile ?? "daisy";
         defaultRuntime.log(info(`🦞 browser [${name}] running: ${status.running}`));
+=======
+        await runBrowserToggle(parent, { profile, path: "/stop" });
+>>>>>>> 84ffb0588 (refactor(cli): dedupe browser start/stop)
       });
     });
 
