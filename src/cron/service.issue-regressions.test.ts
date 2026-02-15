@@ -25,9 +25,6 @@ async function makeStorePath() {
   const storePath = path.join(dir, "jobs.json");
   return {
     storePath,
-    cleanup: async () => {
-      await fs.rm(dir, { recursive: true, force: true });
-    },
   };
 }
 
@@ -160,7 +157,6 @@ describe("Cron issue regressions", () => {
     expect(typeof status.nextWakeAtMs).toBe("number");
 
     cron.stop();
-    await store.cleanup();
   });
 
   it("persists allowUnsafeExternalContent on agentTurn payload patches", async () => {
@@ -186,14 +182,65 @@ describe("Cron issue regressions", () => {
       payload: { kind: "agentTurn", allowUnsafeExternalContent: true },
     });
 
+<<<<<<< HEAD
     expect(updated.payload.kind).toBe("agentTurn");
     if (updated.payload.kind === "agentTurn") {
       expect(updated.payload.allowUnsafeExternalContent).toBe(true);
       expect(updated.payload.message).toBe("hi");
     }
+=======
+    expect(updated.payload.kind).toBe("systemEvent");
+    expect(typeof updated.state.nextRunAtMs).toBe("number");
+    expect(updated.state.nextRunAtMs).toBe(created.state.nextRunAtMs);
 
     cron.stop();
-    await store.cleanup();
+  });
+
+  it("does not advance unrelated due jobs when updating another job", async () => {
+    const store = await makeStorePath();
+    const now = Date.parse("2026-02-06T10:05:00.000Z");
+    vi.setSystemTime(now);
+    const cron = new CronService({
+      cronEnabled: false,
+      storePath: store.storePath,
+      log: noopLogger,
+      enqueueSystemEvent: vi.fn(),
+      requestHeartbeatNow: vi.fn(),
+      runIsolatedAgentJob: vi.fn().mockResolvedValue({ status: "ok", summary: "ok" }),
+    });
+    await cron.start();
+
+    const dueJob = await cron.add({
+      name: "due-preserved",
+      schedule: { kind: "every", everyMs: 60_000, anchorMs: now },
+      sessionTarget: "main",
+      payload: { kind: "systemEvent", text: "due-preserved" },
+    });
+    const otherJob = await cron.add({
+      name: "other-job",
+      schedule: { kind: "cron", expr: "0 * * * *", tz: "UTC" },
+      sessionTarget: "main",
+      payload: { kind: "systemEvent", text: "other" },
+    });
+
+    const originalDueNextRunAtMs = dueJob.state.nextRunAtMs;
+    expect(typeof originalDueNextRunAtMs).toBe("number");
+
+    // Make dueJob past-due without running timer callbacks.
+    vi.setSystemTime(now + 5 * 60_000);
+
+    await cron.update(otherJob.id, {
+      payload: { kind: "systemEvent", text: "other-updated" },
+    });
+
+    const storeData = JSON.parse(await fs.readFile(store.storePath, "utf8")) as {
+      jobs: Array<{ id: string; state?: { nextRunAtMs?: number } }>;
+    };
+    const persistedDueJob = storeData.jobs.find((job) => job.id === dueJob.id);
+    expect(persistedDueJob?.state?.nextRunAtMs).toBe(originalDueNextRunAtMs);
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
+
+    cron.stop();
   });
 
   it("treats persisted jobs with missing enabled as enabled during update()", async () => {
@@ -329,7 +376,6 @@ describe("Cron issue regressions", () => {
 
     cron.stop();
     timeoutSpy.mockRestore();
-    await store.cleanup();
   });
 
   it("re-arms timer without hot-looping when a run is already in progress", async () => {
@@ -363,7 +409,6 @@ describe("Cron issue regressions", () => {
       .filter((d): d is number => typeof d === "number");
     expect(delays).toContain(60_000);
     timeoutSpy.mockRestore();
-    await store.cleanup();
   });
 
   it("skips forced manual runs while a timer-triggered run is in progress", async () => {
@@ -430,7 +475,6 @@ describe("Cron issue regressions", () => {
     await cron.list({ includeDisabled: true });
 
     cron.stop();
-    await store.cleanup();
   });
 
   it("#13845: one-shot job with lastStatus=skipped does not re-fire on restart", async () => {
@@ -462,6 +506,7 @@ describe("Cron issue regressions", () => {
       "utf-8",
     );
 
+<<<<<<< HEAD
     const enqueueSystemEvent = vi.fn();
     const cron = new CronService({
       cronEnabled: true,
@@ -524,6 +569,12 @@ describe("Cron issue regressions", () => {
 
     cron.stop();
     await store.cleanup();
+=======
+      await cron.start();
+      expect(enqueueSystemEvent).not.toHaveBeenCalled();
+      cron.stop();
+    }
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
   });
 
   it("records per-job start time and duration for batched due jobs", async () => {
@@ -569,7 +620,5 @@ describe("Cron issue regressions", () => {
     expect(secondDone?.state.lastRunAtMs).toBe(dueAt + 50);
     expect(secondDone?.state.lastDurationMs).toBe(20);
     expect(startedAtEvents).toEqual([dueAt, dueAt + 50]);
-
-    await store.cleanup();
   });
 });
