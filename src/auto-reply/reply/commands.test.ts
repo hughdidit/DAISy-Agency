@@ -18,14 +18,14 @@ import * as internalHooks from "../../hooks/internal-hooks.js";
 import { clearPluginCommands, registerPluginCommand } from "../../plugins/commands.js";
 import type { MsgContext } from "../templating.js";
 import { resetBashChatCommandForTests } from "./bash-command.js";
-import { parseInlineDirectives } from "./directive-handling.js";
+import { buildCommandTestParams } from "./commands.test-harness.js";
 
 const callGatewayMock = vi.fn();
 vi.mock("../../gateway/call.js", () => ({
   callGateway: (opts: unknown) => callGatewayMock(opts),
 }));
 
-import { buildCommandContext, handleCommands } from "./commands.js";
+import { handleCommands } from "./commands.js";
 
 // Avoid expensive workspace scans during /context tests.
 vi.mock("./commands-context-report.js", () => ({
@@ -52,6 +52,7 @@ afterAll(async () => {
   await fs.rm(testWorkspaceDir, { recursive: true, force: true });
 });
 
+<<<<<<< HEAD
 function buildParams(commandBody: string, cfg: MoltbotConfig, ctxOverrides?: Partial<MsgContext>) {
   const ctx = {
     Body: commandBody,
@@ -88,6 +89,10 @@ function buildParams(commandBody: string, cfg: MoltbotConfig, ctxOverrides?: Par
     contextTokens: 0,
     isGroup: false,
   };
+=======
+function buildParams(commandBody: string, cfg: OpenClawConfig, ctxOverrides?: Partial<MsgContext>) {
+  return buildCommandTestParams(commandBody, cfg, ctxOverrides, { workspaceDir: testWorkspaceDir });
+>>>>>>> 8b2a5672b (refactor(test): reuse command test harness)
 }
 
 describe("handleCommands gating", () => {
