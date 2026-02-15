@@ -33,18 +33,46 @@ vi.mock("../gateway/call.js", () => {
   };
 });
 
+type GatewayCall = { method: string; params?: Record<string, unknown> };
+
+async function getGatewayCalls(): Promise<GatewayCall[]> {
+  const { callGateway } = await import("../gateway/call.js");
+  return (callGateway as unknown as ReturnType<typeof vi.fn>).mock.calls.map(
+    (call) => call[0] as GatewayCall,
+  );
+}
+
+function findLastCall(calls: GatewayCall[], predicate: (call: GatewayCall) => boolean) {
+  for (let i = calls.length - 1; i >= 0; i -= 1) {
+    const call = calls[i];
+    if (call && predicate(call)) {
+      return call;
+    }
+  }
+  return undefined;
+}
+
 describe("sessions_spawn thinking defaults", () => {
   it("applies agents.defaults.subagents.thinking when thinking is omitted", async () => {
     const tool = createSessionsSpawnTool({ agentSessionKey: "agent:test:main" });
     const result = await tool.execute("call-1", { task: "hello" });
     expect(result.details).toMatchObject({ status: "accepted" });
 
+<<<<<<< HEAD
     const { callGateway } = await import("../gateway/call.js");
     const calls = (callGateway as unknown as ReturnType<typeof vi.fn>).mock.calls;
 
     const agentCall = calls
       .map((call) => call[0] as { method: string; params?: Record<string, unknown> })
       .findLast((call) => call.method === "agent");
+=======
+    const calls = await getGatewayCalls();
+    const agentCall = findLastCall(calls, (call) => call.method === "agent");
+    const thinkingPatch = findLastCall(
+      calls,
+      (call) => call.method === "sessions.patch" && call.params?.thinkingLevel !== undefined,
+    );
+>>>>>>> a1ff0e476 (refactor(test): dedupe sessions_spawn thinking assertions)
 
     expect(agentCall?.params?.thinking).toBe("high");
   });
@@ -54,12 +82,21 @@ describe("sessions_spawn thinking defaults", () => {
     const result = await tool.execute("call-2", { task: "hello", thinking: "low" });
     expect(result.details).toMatchObject({ status: "accepted" });
 
+<<<<<<< HEAD
     const { callGateway } = await import("../gateway/call.js");
     const calls = (callGateway as unknown as ReturnType<typeof vi.fn>).mock.calls;
 
     const agentCall = calls
       .map((call) => call[0] as { method: string; params?: Record<string, unknown> })
       .findLast((call) => call.method === "agent");
+=======
+    const calls = await getGatewayCalls();
+    const agentCall = findLastCall(calls, (call) => call.method === "agent");
+    const thinkingPatch = findLastCall(
+      calls,
+      (call) => call.method === "sessions.patch" && call.params?.thinkingLevel !== undefined,
+    );
+>>>>>>> a1ff0e476 (refactor(test): dedupe sessions_spawn thinking assertions)
 
     expect(agentCall?.params?.thinking).toBe("low");
   });
