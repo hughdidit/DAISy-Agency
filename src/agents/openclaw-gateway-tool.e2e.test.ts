@@ -2,7 +2,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
+=======
+import { captureEnv } from "../test-utils/env.js";
+>>>>>>> 94e84e6f7 (refactor(test): clean up gateway tool env restore)
 import "./test-helpers/fast-core-tools.js";
 import { createMoltbotTools } from "./moltbot-tools.js";
 
@@ -19,11 +23,18 @@ describe("gateway tool", () => {
   it("schedules SIGUSR1 restart", async () => {
     vi.useFakeTimers();
     const kill = vi.spyOn(process, "kill").mockImplementation(() => true);
+<<<<<<< HEAD
     const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
     const previousProfile = process.env.CLAWDBOT_PROFILE;
     const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-test-"));
     process.env.CLAWDBOT_STATE_DIR = stateDir;
     process.env.CLAWDBOT_PROFILE = "isolated";
+=======
+    const envSnapshot = captureEnv(["OPENCLAW_STATE_DIR", "OPENCLAW_PROFILE"]);
+    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
+    process.env.OPENCLAW_STATE_DIR = stateDir;
+    process.env.OPENCLAW_PROFILE = "isolated";
+>>>>>>> 94e84e6f7 (refactor(test): clean up gateway tool env restore)
 
     try {
       const tool = createMoltbotTools({
@@ -61,6 +72,7 @@ describe("gateway tool", () => {
     } finally {
       kill.mockRestore();
       vi.useRealTimers();
+<<<<<<< HEAD
       if (previousStateDir === undefined) {
         delete process.env.CLAWDBOT_STATE_DIR;
       } else {
@@ -71,6 +83,10 @@ describe("gateway tool", () => {
       } else {
         process.env.CLAWDBOT_PROFILE = previousProfile;
       }
+=======
+      envSnapshot.restore();
+      await fs.rm(stateDir, { recursive: true, force: true });
+>>>>>>> 94e84e6f7 (refactor(test): clean up gateway tool env restore)
     }
   });
 
