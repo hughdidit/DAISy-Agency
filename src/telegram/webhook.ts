@@ -15,7 +15,14 @@ import {
 } from "../logging/diagnostic.js";
 import { resolveTelegramAllowedUpdates } from "./allowed-updates.js";
 import { createTelegramBot } from "./bot.js";
+<<<<<<< HEAD
 import { withTelegramApiErrorLogging } from "./api-logging.js";
+=======
+
+const TELEGRAM_WEBHOOK_MAX_BODY_BYTES = 1024 * 1024;
+const TELEGRAM_WEBHOOK_BODY_TIMEOUT_MS = 30_000;
+const TELEGRAM_WEBHOOK_CALLBACK_TIMEOUT_MS = 10_000;
+>>>>>>> f032ade9c (fix (telegram): return webhook timeout responses to prevent retry storms)
 
 export async function startTelegramWebhook(opts: {
   token: string;
@@ -45,7 +52,13 @@ export async function startTelegramWebhook(opts: {
     accountId: opts.accountId,
   });
   const handler = webhookCallback(bot, "http", {
+<<<<<<< HEAD
     secretToken: opts.secret,
+=======
+    secretToken: secret,
+    onTimeout: "return",
+    timeoutMilliseconds: TELEGRAM_WEBHOOK_CALLBACK_TIMEOUT_MS,
+>>>>>>> f032ade9c (fix (telegram): return webhook timeout responses to prevent retry storms)
   });
 
   if (diagnosticsEnabled) {
