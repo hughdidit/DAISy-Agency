@@ -10,6 +10,7 @@ import { getFlagValue, getPositiveIntFlagValue, getVerboseFlag, hasFlag } from "
 =======
 import type { ProgramContext } from "./context.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 2f49d8858 (perf(cli): slim route-first bootstrap with lazy route handlers)
 import { registerBrowserCli } from "../browser-cli.js";
 import { registerConfigCli } from "../config-cli.js";
@@ -25,6 +26,10 @@ import { registerStatusHealthSessionsCommands } from "./register.status-health-s
 import { buildParseArgv, getPrimaryCommand, hasHelpOrVersion } from "../argv.js";
 import { resolveActionArgs } from "./helpers.js";
 >>>>>>> c90b3e4d5 (perf(cli): speed up startup)
+=======
+import { getPrimaryCommand, hasHelpOrVersion } from "../argv.js";
+import { reparseProgramFromActionArgs } from "./action-reparse.js";
+>>>>>>> 384a886b7 (refactor(cli): share commander reparse helper)
 import { registerSubCliCommands } from "./register.subclis.js";
 import type { ProgramContext } from "./context.js";
 
@@ -181,19 +186,7 @@ function registerLazyCoreCommand(
       }
     }
     await entry.register({ program, ctx, argv: process.argv });
-    const actionCommand = actionArgs.at(-1) as Command | undefined;
-    const root = actionCommand?.parent ?? program;
-    const rawArgs = (root as Command & { rawArgs?: string[] }).rawArgs;
-    const actionArgsList = resolveActionArgs(actionCommand);
-    const fallbackArgv = actionCommand?.name()
-      ? [actionCommand.name(), ...actionArgsList]
-      : actionArgsList;
-    const parseArgv = buildParseArgv({
-      programName: program.name(),
-      rawArgs,
-      fallbackArgv,
-    });
-    await program.parseAsync(parseArgv);
+    await reparseProgramFromActionArgs(program, actionArgs);
   });
 }
 
