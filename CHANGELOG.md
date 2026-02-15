@@ -20,6 +20,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.31
 =======
 =======
@@ -34,6 +35,16 @@ Docs: https://docs.openclaw.ai
 ## 2026.2.14 (Unreleased)
 >>>>>>> 90117a384 (docs: consolidate 2026.2.14 changelog)
 =======
+=======
+## 2026.2.15 (Unreleased)
+
+### Changes
+
+### Fixes
+
+- TUI: make searchable-select filtering and highlight rendering ANSI-aware so queries ignore hidden escape codes and no longer corrupt ANSI styling sequences during match highlighting. (#4519) Thanks @bee4come.
+
+>>>>>>> 6d66fefbb (chore (changelog): document TUI ANSI-safe searchable-select fix)
 ## 2026.2.14
 >>>>>>> 58548c729 (docs(changelog): mark 2026.2.14 released)
 
