@@ -21,6 +21,10 @@ import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
 } from "../../infra/outbound/agent-delivery.js";
+<<<<<<< HEAD
+=======
+import { classifySessionKeyShape, normalizeAgentId } from "../../routing/session-key.js";
+>>>>>>> df95ddc77 (Fix/agent session key normalization (openclaw#15707) thanks @rodrigouroz)
 import { defaultRuntime } from "../../runtime.js";
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
 import { normalizeSessionDeliveryFields } from "../../utils/delivery-context.js";
@@ -281,6 +285,20 @@ export const agentHandlers: GatewayRequestHandlers = {
       typeof request.sessionKey === "string" && request.sessionKey.trim()
         ? request.sessionKey.trim()
         : undefined;
+    if (
+      requestedSessionKeyRaw &&
+      classifySessionKeyShape(requestedSessionKeyRaw) === "malformed_agent"
+    ) {
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.INVALID_REQUEST,
+          `invalid agent params: malformed session key "${requestedSessionKeyRaw}"`,
+        ),
+      );
+      return;
+    }
     let requestedSessionKey =
       requestedSessionKeyRaw ??
       resolveExplicitAgentSessionKey({
@@ -611,6 +629,17 @@ export const agentHandlers: GatewayRequestHandlers = {
     const sessionKeyRaw = typeof p.sessionKey === "string" ? p.sessionKey.trim() : "";
     let agentId = agentIdRaw ? normalizeAgentId(agentIdRaw) : undefined;
     if (sessionKeyRaw) {
+      if (classifySessionKeyShape(sessionKeyRaw) === "malformed_agent") {
+        respond(
+          false,
+          undefined,
+          errorShape(
+            ErrorCodes.INVALID_REQUEST,
+            `invalid agent.identity.get params: malformed session key "${sessionKeyRaw}"`,
+          ),
+        );
+        return;
+      }
       const resolved = resolveAgentIdFromSessionKey(sessionKeyRaw);
       if (agentId && resolved !== agentId) {
         respond(
