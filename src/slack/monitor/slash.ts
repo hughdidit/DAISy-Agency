@@ -33,12 +33,15 @@ import {
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
+<<<<<<< HEAD
 import { resolveConversationLabel } from "../../channels/conversation-label.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 
 import type { ResolvedSlackAccount } from "../accounts.js";
 
+=======
+>>>>>>> da2fde7b6 (refactor(slack): share room context hints)
 import {
   normalizeAllowList,
   normalizeAllowListLower,
@@ -54,6 +57,7 @@ import { normalizeSlackChannelType } from "./context.js";
 >>>>>>> fff59da96 (fix(slack): fail closed on slash command channel type lookup)
 import { isSlackChannelAllowedByPolicy } from "./policy.js";
 import { deliverSlackSlashReplies } from "./replies.js";
+import { resolveSlackRoomContextHints } from "./room-context.js";
 
 type SlackBlock = { type: string; [key: string]: unknown };
 
@@ -403,6 +407,7 @@ export function registerSlackMonitorSlashCommands(params: {
         },
       });
 
+<<<<<<< HEAD
       const channelDescription = [channelInfo?.topic, channelInfo?.purpose]
         .map((entry) => entry?.trim())
         .filter((entry): entry is string => Boolean(entry))
@@ -414,6 +419,13 @@ export function registerSlackMonitorSlashCommands(params: {
       ].filter((entry): entry is string => Boolean(entry));
       const groupSystemPrompt =
         systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
+=======
+      const { untrustedChannelMetadata, groupSystemPrompt } = resolveSlackRoomContextHints({
+        isRoomish,
+        channelInfo,
+        channelConfig,
+      });
+>>>>>>> da2fde7b6 (refactor(slack): share room context hints)
 
       const ctxPayload = finalizeInboundContext({
         Body: prompt,

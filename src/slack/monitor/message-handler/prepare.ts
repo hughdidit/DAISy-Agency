@@ -21,6 +21,7 @@ import { buildPairingReply } from "../../../pairing/pairing-messages.js";
 import { upsertChannelPairingRequest } from "../../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
+<<<<<<< HEAD
 import {
   shouldAckReaction as shouldAckReactionGate,
   type AckReactionScope,
@@ -34,6 +35,8 @@ import { recordInboundSession } from "../../../channels/session.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../../../config/sessions.js";
 
 import type { ResolvedSlackAccount } from "../../accounts.js";
+=======
+>>>>>>> da2fde7b6 (refactor(slack): share room context hints)
 import { reactSlackMessage } from "../../actions.js";
 import { sendMessageSlack } from "../../send.js";
 import type { SlackMessageEvent } from "../../types.js";
@@ -49,6 +52,7 @@ import {
   resolveSlackThreadHistory,
   resolveSlackThreadStarter,
 } from "../media.js";
+import { resolveSlackRoomContextHints } from "../room-context.js";
 
 import type { PreparedSlackMessage } from "./types.js";
 
@@ -452,6 +456,7 @@ export async function prepareSlackMessage(params: {
 
   const slackTo = isDirectMessage ? `user:${message.user}` : `channel:${message.channel}`;
 
+<<<<<<< HEAD
   const channelDescription = [channelInfo?.topic, channelInfo?.purpose]
     .map((entry) => entry?.trim())
     .filter((entry): entry is string => Boolean(entry))
@@ -463,6 +468,13 @@ export async function prepareSlackMessage(params: {
   ].filter((entry): entry is string => Boolean(entry));
   const groupSystemPrompt =
     systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
+=======
+  const { untrustedChannelMetadata, groupSystemPrompt } = resolveSlackRoomContextHints({
+    isRoomish,
+    channelInfo,
+    channelConfig,
+  });
+>>>>>>> da2fde7b6 (refactor(slack): share room context hints)
 
   let threadStarterBody: string | undefined;
   let threadHistoryBody: string | undefined;
