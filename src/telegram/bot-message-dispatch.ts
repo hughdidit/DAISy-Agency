@@ -21,6 +21,7 @@ import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
 import { createTypingCallbacks } from "../channels/typing.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 import { danger, logVerbose } from "../globals.js";
+import { getAgentScopedMediaLocalRoots } from "../media/local-roots.js";
 import { deliverReplies } from "./bot/delivery.js";
 import { resolveTelegramDraftStreamingChunking } from "./draft-chunking.js";
 import { createTelegramDraftStream } from "./draft-stream.js";
@@ -112,6 +113,7 @@ export const dispatchTelegramMessage = async ({
       ? resolveTelegramDraftStreamingChunking(cfg, route.accountId)
       : undefined;
   const draftChunker = draftChunking ? new EmbeddedBlockChunker(draftChunking) : undefined;
+  const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, route.agentId);
   let lastPartialText = "";
   let draftText = "";
   const updateDraftFromPartial = (text?: string) => {
@@ -251,6 +253,7 @@ export const dispatchTelegramMessage = async ({
     skippedNonSilent: 0,
   };
 
+<<<<<<< HEAD
   const { queuedFinal } = await dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg,
@@ -296,6 +299,72 @@ export const dispatchTelegramMessage = async ({
             channel: "telegram",
             target: String(chatId),
             error: err,
+=======
+  let queuedFinal = false;
+  try {
+    ({ queuedFinal } = await dispatchReplyWithBufferedBlockDispatcher({
+      ctx: ctxPayload,
+      cfg,
+      dispatcherOptions: {
+        ...prefixOptions,
+        deliver: async (payload, info) => {
+          if (info.kind === "final") {
+            await flushDraft();
+            const hasMedia = Boolean(payload.mediaUrl) || (payload.mediaUrls?.length ?? 0) > 0;
+            const previewMessageId = draftStream?.messageId();
+            const previewButtons = (
+              payload.channelData?.telegram as
+                | { buttons?: Array<Array<{ text: string; callback_data: string }>> }
+                | undefined
+            )?.buttons;
+            let draftStoppedForPreviewEdit = false;
+            if (!hasMedia && payload.text && typeof previewMessageId === "number") {
+              const canFinalizeViaPreviewEdit = payload.text.length <= draftMaxChars;
+              if (canFinalizeViaPreviewEdit) {
+                draftStream?.stop();
+                draftStoppedForPreviewEdit = true;
+                try {
+                  await editMessageTelegram(chatId, previewMessageId, payload.text, {
+                    api: bot.api,
+                    cfg,
+                    accountId: route.accountId,
+                    linkPreview: telegramCfg.linkPreview,
+                    buttons: previewButtons,
+                  });
+                  finalizedViaPreviewMessage = true;
+                  deliveryState.delivered = true;
+                  return;
+                } catch (err) {
+                  logVerbose(
+                    `telegram: preview final edit failed; falling back to standard send (${String(err)})`,
+                  );
+                }
+              } else {
+                logVerbose(
+                  `telegram: preview final too long for edit (${payload.text.length} > ${draftMaxChars}); falling back to standard send`,
+                );
+              }
+            }
+            if (!draftStoppedForPreviewEdit) {
+              draftStream?.stop();
+            }
+          }
+          const result = await deliverReplies({
+            replies: [payload],
+            chatId: String(chatId),
+            token: opts.token,
+            runtime,
+            bot,
+            mediaLocalRoots,
+            replyToMode,
+            textLimit,
+            thread: threadSpec,
+            tableMode,
+            chunkMode,
+            onVoiceRecording: sendRecordVoice,
+            linkPreview: telegramCfg.linkPreview,
+            replyQuoteText,
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
           });
         },
       }).onReplyStart,
@@ -316,6 +385,7 @@ export const dispatchTelegramMessage = async ({
       token: opts.token,
       runtime,
       bot,
+      mediaLocalRoots,
       replyToMode,
       textLimit,
       thread: threadSpec,

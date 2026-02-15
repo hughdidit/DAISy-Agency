@@ -21,6 +21,11 @@ import {
   appendAssistantMessageToSessionTranscript,
   resolveMirroredTranscriptText,
 } from "../../config/sessions.js";
+<<<<<<< HEAD
+=======
+import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
+import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
 import { sendMessageSignal } from "../../signal/send.js";
 <<<<<<< HEAD
@@ -95,6 +100,11 @@ async function createChannelHandler(params: {
   threadId?: string | number | null;
   deps?: OutboundSendDeps;
   gifPlayback?: boolean;
+<<<<<<< HEAD
+=======
+  silent?: boolean;
+  mediaLocalRoots?: readonly string[];
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 }): Promise<ChannelHandler> {
   const outbound = await loadChannelOutboundAdapter(params.channel);
   if (!outbound?.sendText || !outbound?.sendMedia) {
@@ -110,6 +120,11 @@ async function createChannelHandler(params: {
     threadId: params.threadId,
     deps: params.deps,
     gifPlayback: params.gifPlayback,
+<<<<<<< HEAD
+=======
+    silent: params.silent,
+    mediaLocalRoots: params.mediaLocalRoots,
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
   });
   if (!handler) {
     throw new Error(`Outbound not configured for channel: ${params.channel}`);
@@ -127,6 +142,11 @@ function createPluginHandler(params: {
   threadId?: string | number | null;
   deps?: OutboundSendDeps;
   gifPlayback?: boolean;
+<<<<<<< HEAD
+=======
+  silent?: boolean;
+  mediaLocalRoots?: readonly string[];
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 }): ChannelHandler | null {
   const outbound = params.outbound;
   if (!outbound?.sendText || !outbound?.sendMedia) {
@@ -152,6 +172,11 @@ function createPluginHandler(params: {
             threadId: params.threadId,
             gifPlayback: params.gifPlayback,
             deps: params.deps,
+<<<<<<< HEAD
+=======
+            silent: params.silent,
+            mediaLocalRoots: params.mediaLocalRoots,
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
             payload,
           })
       : undefined,
@@ -165,6 +190,11 @@ function createPluginHandler(params: {
         threadId: params.threadId,
         gifPlayback: params.gifPlayback,
         deps: params.deps,
+<<<<<<< HEAD
+=======
+        silent: params.silent,
+        mediaLocalRoots: params.mediaLocalRoots,
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
       }),
     sendMedia: async (caption, mediaUrl) =>
       sendMedia({
@@ -177,6 +207,11 @@ function createPluginHandler(params: {
         threadId: params.threadId,
         gifPlayback: params.gifPlayback,
         deps: params.deps,
+<<<<<<< HEAD
+=======
+        silent: params.silent,
+        mediaLocalRoots: params.mediaLocalRoots,
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
       }),
   };
 }
@@ -197,6 +232,8 @@ export async function deliverOutboundPayloads(params: {
   bestEffort?: boolean;
   onError?: (err: unknown, payload: NormalizedOutboundPayload) => void;
   onPayload?: (payload: NormalizedOutboundPayload) => void;
+  /** Active agent id for media local-root scoping. */
+  agentId?: string;
   mirror?: {
     sessionKey: string;
     agentId?: string;
@@ -295,6 +332,10 @@ async function deliverOutboundPayloadsCore(params: {
   const deps = params.deps;
   const abortSignal = params.abortSignal;
   const sendSignal = params.deps?.sendSignal ?? sendMessageSignal;
+  const mediaLocalRoots = getAgentScopedMediaLocalRoots(
+    cfg,
+    params.agentId ?? params.mirror?.agentId,
+  );
   const results: OutboundDeliveryResult[] = [];
   const handler = await createChannelHandler({
     cfg,
@@ -305,6 +346,11 @@ async function deliverOutboundPayloadsCore(params: {
     replyToId: params.replyToId,
     threadId: params.threadId,
     gifPlayback: params.gifPlayback,
+<<<<<<< HEAD
+=======
+    silent: params.silent,
+    mediaLocalRoots,
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
   });
   const textLimit = handler.chunker
     ? resolveTextChunkLimit(cfg, channel, accountId, {
@@ -407,6 +453,7 @@ async function deliverOutboundPayloadsCore(params: {
         accountId: accountId ?? undefined,
         textMode: "plain",
         textStyles: formatted.styles,
+        mediaLocalRoots,
       })),
     };
   };

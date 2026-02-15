@@ -24,6 +24,7 @@ type DiscordSendOpts = {
   token?: string;
   accountId?: string;
   mediaUrl?: string;
+  mediaLocalRoots?: readonly string[];
   verbose?: boolean;
   rest?: RequestClient;
   replyTo?: string;
@@ -51,6 +52,120 @@ export async function sendMessageDiscord(
   const { token, rest, request } = createDiscordClient(opts, cfg);
   const recipient = await parseAndResolveRecipient(to, opts.accountId);
   const { channelId } = await resolveChannelId(rest, recipient, request);
+<<<<<<< HEAD
+=======
+
+  // Forum/Media channels reject POST /messages; auto-create a thread post instead.
+  let channelType: number | undefined;
+  try {
+    const channel = (await rest.get(Routes.channel(channelId))) as APIChannel | undefined;
+    channelType = channel?.type;
+  } catch {
+    // If we can't fetch the channel, fall through to the normal send path.
+  }
+
+  if (isForumLikeType(channelType)) {
+    const threadName = deriveForumThreadName(textWithTables);
+    const chunks = buildDiscordTextChunks(textWithTables, {
+      maxLinesPerMessage: accountInfo.config.maxLinesPerMessage,
+      chunkMode,
+    });
+    const starterContent = chunks[0]?.trim() ? chunks[0] : threadName;
+    const starterEmbeds = opts.embeds?.length ? opts.embeds : undefined;
+    let threadRes: { id: string; message?: { id: string; channel_id: string } };
+    try {
+      threadRes = (await request(
+        () =>
+          rest.post(Routes.threads(channelId), {
+            body: {
+              name: threadName,
+              message: {
+                content: starterContent,
+                ...(starterEmbeds ? { embeds: starterEmbeds } : {}),
+              },
+            },
+          }) as Promise<{ id: string; message?: { id: string; channel_id: string } }>,
+        "forum-thread",
+      )) as { id: string; message?: { id: string; channel_id: string } };
+    } catch (err) {
+      throw await buildDiscordSendError(err, {
+        channelId,
+        rest,
+        token,
+        hasMedia: Boolean(opts.mediaUrl),
+      });
+    }
+
+    const threadId = threadRes.id;
+    const messageId = threadRes.message?.id ?? threadId;
+    const resultChannelId = threadRes.message?.channel_id ?? threadId;
+    const remainingChunks = chunks.slice(1);
+
+    try {
+      if (opts.mediaUrl) {
+        const [mediaCaption, ...afterMediaChunks] = remainingChunks;
+        await sendDiscordMedia(
+          rest,
+          threadId,
+          mediaCaption ?? "",
+          opts.mediaUrl,
+          opts.mediaLocalRoots,
+          undefined,
+          request,
+          accountInfo.config.maxLinesPerMessage,
+          undefined,
+          chunkMode,
+          opts.silent,
+        );
+        for (const chunk of afterMediaChunks) {
+          await sendDiscordText(
+            rest,
+            threadId,
+            chunk,
+            undefined,
+            request,
+            accountInfo.config.maxLinesPerMessage,
+            undefined,
+            chunkMode,
+            opts.silent,
+          );
+        }
+      } else {
+        for (const chunk of remainingChunks) {
+          await sendDiscordText(
+            rest,
+            threadId,
+            chunk,
+            undefined,
+            request,
+            accountInfo.config.maxLinesPerMessage,
+            undefined,
+            chunkMode,
+            opts.silent,
+          );
+        }
+      }
+    } catch (err) {
+      throw await buildDiscordSendError(err, {
+        channelId: threadId,
+        rest,
+        token,
+        hasMedia: Boolean(opts.mediaUrl),
+      });
+    }
+
+    recordChannelActivity({
+      channel: "discord",
+      accountId: accountInfo.accountId,
+      direction: "outbound",
+    });
+    return {
+      messageId: messageId ? String(messageId) : "unknown",
+      channelId: String(resultChannelId ?? channelId),
+    };
+  }
+
+>>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
   let result: { id: string; channel_id: string } | { id: string | null; channel_id: string };
   try {
     if (opts.mediaUrl) {
@@ -59,6 +174,7 @@ export async function sendMessageDiscord(
         channelId,
         textWithTables,
         opts.mediaUrl,
+        opts.mediaLocalRoots,
         opts.replyTo,
         request,
         accountInfo.config.maxLinesPerMessage,
