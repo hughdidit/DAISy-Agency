@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { transcribeDeepgramAudio } from "./audio.js";
 
@@ -11,6 +12,12 @@ const resolveRequestUrl = (input: RequestInfo | URL) => {
   }
   return input.url;
 };
+=======
+import { installPinnedHostnameTestHooks, resolveRequestUrl } from "../audio.test-helpers.js";
+import { transcribeDeepgramAudio } from "./audio.js";
+
+installPinnedHostnameTestHooks();
+>>>>>>> 893d2fb86 (refactor(test): share audio provider ssrf hooks)
 
 describe("transcribeDeepgramAudio", () => {
   it("respects lowercase authorization header overrides", async () => {
