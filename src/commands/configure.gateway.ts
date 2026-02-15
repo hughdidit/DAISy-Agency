@@ -1,5 +1,10 @@
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveGatewayPort } from "../config/config.js";
+import {
+  TAILSCALE_DOCS_LINES,
+  TAILSCALE_EXPOSURE_OPTIONS,
+  TAILSCALE_MISSING_BIN_NOTE_LINES,
+} from "../gateway/gateway-config-prompts.shared.js";
 import { findTailscaleBinary } from "../infra/tailscale.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
@@ -107,19 +112,7 @@ export async function promptGatewayConfig(
   let tailscaleMode = guardCancel(
     await select({
       message: "Tailscale exposure",
-      options: [
-        { value: "off", label: "Off", hint: "No Tailscale exposure" },
-        {
-          value: "serve",
-          label: "Serve",
-          hint: "Private HTTPS for your tailnet (devices on Tailscale)",
-        },
-        {
-          value: "funnel",
-          label: "Funnel",
-          hint: "Public HTTPS via Tailscale Funnel (internet)",
-        },
-      ],
+      options: [...TAILSCALE_EXPOSURE_OPTIONS],
     }),
     runtime,
   );
@@ -128,25 +121,20 @@ export async function promptGatewayConfig(
   if (tailscaleMode !== "off") {
     const tailscaleBin = await findTailscaleBinary();
     if (!tailscaleBin) {
-      note(
-        [
-          "Tailscale binary not found in PATH or /Applications.",
-          "Ensure Tailscale is installed from:",
-          "  https://tailscale.com/download/mac",
-          "",
-          "You can continue setup, but serve/funnel will fail at runtime.",
-        ].join("\n"),
-        "Tailscale Warning",
-      );
+      note(TAILSCALE_MISSING_BIN_NOTE_LINES.join("\n"), "Tailscale Warning");
     }
   }
 
   let tailscaleResetOnExit = false;
   if (tailscaleMode !== "off") {
+<<<<<<< HEAD
     note(
       ["Docs:", "https://docs.molt.bot/gateway/tailscale", "https://docs.molt.bot/web"].join("\n"),
       "Tailscale",
     );
+=======
+    note(TAILSCALE_DOCS_LINES.join("\n"), "Tailscale");
+>>>>>>> 01ca3da8e (refactor(gateway): share tailscale prompt constants)
     tailscaleResetOnExit = Boolean(
       guardCancel(
         await confirm({
