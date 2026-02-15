@@ -377,6 +377,223 @@ struct SettingsTab: View {
         await self.gatewayController.connect(gateway)
     }
 
+<<<<<<< HEAD
+=======
+    private func connectLastKnown() async {
+        self.connectingGatewayID = "last-known"
+        defer { self.connectingGatewayID = nil }
+        await self.gatewayController.connectLastKnown()
+    }
+
+    private func gatewayDebugText() -> String {
+        var lines: [String] = [
+            "gateway: \(self.appModel.gatewayStatusText)",
+            "discovery: \(self.gatewayController.discoveryStatusText)",
+        ]
+        lines.append("server: \(self.appModel.gatewayServerName ?? "—")")
+        lines.append("address: \(self.appModel.gatewayRemoteAddress ?? "—")")
+        if let last = self.gatewayController.discoveryDebugLog.last?.message {
+            lines.append("discovery log: \(last)")
+        }
+        return lines.joined(separator: "\n")
+    }
+
+    @ViewBuilder
+    private func lastKnownButtonLabel(host: String, port: Int) -> some View {
+        if self.connectingGatewayID == "last-known" {
+            HStack(spacing: 8) {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                Text("Connecting…")
+            }
+            .frame(maxWidth: .infinity)
+        } else {
+            HStack(spacing: 8) {
+                Image(systemName: "bolt.horizontal.circle.fill")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Connect last known")
+                    Text("\(host):\(port)")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    private var manualPortBinding: Binding<String> {
+        Binding(
+            get: { self.manualGatewayPortText },
+            set: { newValue in
+                let filtered = newValue.filter(\.isNumber)
+                if self.manualGatewayPortText != filtered {
+                    self.manualGatewayPortText = filtered
+                }
+                if filtered.isEmpty {
+                    if self.manualGatewayPort != 0 {
+                        self.manualGatewayPort = 0
+                    }
+                } else if let port = Int(filtered), self.manualGatewayPort != port {
+                    self.manualGatewayPort = port
+                }
+            })
+    }
+
+    private var manualPortIsValid: Bool {
+        if self.manualGatewayPortText.isEmpty { return true }
+        return self.manualGatewayPort >= 1 && self.manualGatewayPort <= 65535
+    }
+
+    private func syncManualPortText() {
+        if self.manualGatewayPort > 0 {
+            let next = String(self.manualGatewayPort)
+            if self.manualGatewayPortText != next {
+                self.manualGatewayPortText = next
+            }
+        } else if !self.manualGatewayPortText.isEmpty {
+            self.manualGatewayPortText = ""
+        }
+    }
+
+    private func applySetupCodeAndConnect() async {
+        self.setupStatusText = nil
+        guard self.applySetupCode() else { return }
+        let host = self.manualGatewayHost.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedPort = self.resolvedManualPort(host: host)
+        let hasToken = !self.gatewayToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasPassword = !self.gatewayPassword.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        GatewayDiagnostics.log(
+            "setup code applied host=\(host) port=\(resolvedPort ?? -1) tls=\(self.manualGatewayTLS) token=\(hasToken) password=\(hasPassword)")
+        guard let port = resolvedPort else {
+            self.setupStatusText = "Failed: invalid port"
+            return
+        }
+        let ok = await self.preflightGateway(host: host, port: port, useTLS: self.manualGatewayTLS)
+        guard ok else { return }
+        self.setupStatusText = "Setup code applied. Connecting…"
+        await self.connectManual()
+    }
+
+    @discardableResult
+    private func applySetupCode() -> Bool {
+        let raw = self.setupCode.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !raw.isEmpty else {
+            self.setupStatusText = "Paste a setup code to continue."
+            return false
+        }
+
+        guard let payload = GatewaySetupCode.decode(raw: raw) else {
+            self.setupStatusText = "Setup code not recognized."
+            return false
+        }
+
+        if let urlString = payload.url, let url = URL(string: urlString) {
+            self.applySetupURL(url)
+        } else if let host = payload.host, !host.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            self.manualGatewayHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let port = payload.port {
+                self.manualGatewayPort = port
+                self.manualGatewayPortText = String(port)
+            } else {
+                self.manualGatewayPort = 0
+                self.manualGatewayPortText = ""
+            }
+            if let tls = payload.tls {
+                self.manualGatewayTLS = tls
+            }
+        } else if let url = URL(string: raw), url.scheme != nil {
+            self.applySetupURL(url)
+        } else {
+            self.setupStatusText = "Setup code missing URL or host."
+            return false
+        }
+
+        let trimmedInstanceId = self.instanceId.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let token = payload.token, !token.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let trimmedToken = token.trimmingCharacters(in: .whitespacesAndNewlines)
+            self.gatewayToken = trimmedToken
+            if !trimmedInstanceId.isEmpty {
+                GatewaySettingsStore.saveGatewayToken(trimmedToken, instanceId: trimmedInstanceId)
+            }
+        }
+        if let password = payload.password, !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let trimmedPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
+            self.gatewayPassword = trimmedPassword
+            if !trimmedInstanceId.isEmpty {
+                GatewaySettingsStore.saveGatewayPassword(trimmedPassword, instanceId: trimmedInstanceId)
+            }
+        }
+
+        return true
+    }
+
+    private func applySetupURL(_ url: URL) {
+        guard let host = url.host, !host.isEmpty else { return }
+        self.manualGatewayHost = host
+        if let port = url.port {
+            self.manualGatewayPort = port
+            self.manualGatewayPortText = String(port)
+        } else {
+            self.manualGatewayPort = 0
+            self.manualGatewayPortText = ""
+        }
+        let scheme = (url.scheme ?? "").lowercased()
+        if scheme == "wss" || scheme == "https" {
+            self.manualGatewayTLS = true
+        } else if scheme == "ws" || scheme == "http" {
+            self.manualGatewayTLS = false
+        }
+    }
+
+    private func resolvedManualPort(host: String) -> Int? {
+        if self.manualGatewayPort > 0 {
+            return self.manualGatewayPort <= 65535 ? self.manualGatewayPort : nil
+        }
+        let trimmed = host.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if self.manualGatewayTLS && trimmed.lowercased().hasSuffix(".ts.net") {
+            return 443
+        }
+        return 18789
+    }
+
+    private func preflightGateway(host: String, port: Int, useTLS: Bool) async -> Bool {
+        let trimmed = host.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return false }
+
+        if Self.isTailnetHostOrIP(trimmed) && !Self.hasTailnetIPv4() {
+            let msg = "Tailscale is off on this iPhone. Turn it on, then try again."
+            self.setupStatusText = msg
+            GatewayDiagnostics.log("preflight fail: tailnet missing host=\(trimmed)")
+            self.gatewayLogger.warning("\(msg, privacy: .public)")
+            return false
+        }
+
+        self.setupStatusText = "Checking gateway reachability…"
+        let ok = await Self.probeTCP(host: trimmed, port: port, timeoutSeconds: 3)
+        if !ok {
+            let msg = "Can't reach gateway at \(trimmed):\(port). Check Tailscale or LAN."
+            self.setupStatusText = msg
+            GatewayDiagnostics.log("preflight fail: unreachable host=\(trimmed) port=\(port)")
+            self.gatewayLogger.warning("\(msg, privacy: .public)")
+            return false
+        }
+        GatewayDiagnostics.log("preflight ok host=\(trimmed) port=\(port) tls=\(useTLS)")
+        return true
+    }
+
+    private static func probeTCP(host: String, port: Int, timeoutSeconds: Double) async -> Bool {
+        await TCPProbe.probe(
+            host: host,
+            port: port,
+            timeoutSeconds: timeoutSeconds,
+            queueLabel: "gateway.preflight")
+    }
+
+    // (GatewaySetupCode) decode raw setup codes.
+
+>>>>>>> 778959b3d (refactor(ios): dedupe gateway helpers)
     private func connectManual() async {
         let host = self.manualGatewayHost.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !host.isEmpty else {

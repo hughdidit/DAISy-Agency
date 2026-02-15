@@ -200,6 +200,7 @@ private struct CanvasContent: View {
     }
 
     private var statusActivity: StatusPill.Activity? {
+<<<<<<< HEAD
         // Status pill owns transient activity state so it doesn't overlap the connection indicator.
         if self.appModel.isBackgrounded {
             return StatusPill.Activity(
@@ -254,6 +255,13 @@ private struct CanvasContent: View {
         }
 
         return nil
+=======
+        StatusActivityBuilder.build(
+            appModel: self.appModel,
+            voiceWakeEnabled: self.voiceWakeEnabled,
+            cameraHUDText: self.cameraHUDText,
+            cameraHUDKind: self.cameraHUDKind)
+>>>>>>> 778959b3d (refactor(ios): dedupe gateway helpers)
     }
 }
 
