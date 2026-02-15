@@ -1,20 +1,60 @@
 import AppKit
-import OpenClawKit
 import Foundation
+import OpenClawKit
 import OSLog
 import Security
 
 private let deepLinkLogger = Logger(subsystem: "ai.openclaw", category: "DeepLink")
 
+<<<<<<< HEAD
+=======
+enum DeepLinkAgentPolicy {
+    static let maxMessageChars = 20000
+    static let maxUnkeyedConfirmChars = 240
+
+    enum ValidationError: Error, Equatable, LocalizedError {
+        case messageTooLongForConfirmation(max: Int, actual: Int)
+
+        var errorDescription: String? {
+            switch self {
+            case let .messageTooLongForConfirmation(max, actual):
+                "Message is too long to confirm safely (\(actual) chars; max \(max) without key)."
+            }
+        }
+    }
+
+    static func validateMessageForHandle(message: String, allowUnattended: Bool) -> Result<Void, ValidationError> {
+        if !allowUnattended, message.count > self.maxUnkeyedConfirmChars {
+            return .failure(.messageTooLongForConfirmation(max: self.maxUnkeyedConfirmChars, actual: message.count))
+        }
+        return .success(())
+    }
+
+    static func effectiveDelivery(
+        link: AgentDeepLink,
+        allowUnattended: Bool) -> (deliver: Bool, to: String?, channel: GatewayAgentChannel)
+    {
+        if !allowUnattended {
+            // Without the unattended key, ignore delivery/routing knobs to reduce exfiltration risk.
+            return (deliver: false, to: nil, channel: .last)
+        }
+        let channel = GatewayAgentChannel(raw: link.channel)
+        let deliver = channel.shouldDeliver(link.deliver)
+        let to = link.to?.trimmingCharacters(in: .whitespacesAndNewlines).nonEmpty
+        return (deliver: deliver, to: to, channel: channel)
+    }
+}
+
+>>>>>>> 8725c2b19 (style(swift): run swiftformat + swiftlint autocorrect)
 @MainActor
 final class DeepLinkHandler {
     static let shared = DeepLinkHandler()
 
     private var lastPromptAt: Date = .distantPast
 
-    // Ephemeral, in-memory key used for unattended deep links originating from the in-app Canvas.
-    // This avoids blocking Canvas init on UserDefaults and doesn't weaken the external deep-link prompt:
-    // outside callers can't know this randomly generated key.
+    /// Ephemeral, in-memory key used for unattended deep links originating from the in-app Canvas.
+    /// This avoids blocking Canvas init on UserDefaults and doesn't weaken the external deep-link prompt:
+    /// outside callers can't know this randomly generated key.
     private nonisolated static let canvasUnattendedKey: String = DeepLinkHandler.generateRandomKey()
 
     func handle(url: URL) async {
