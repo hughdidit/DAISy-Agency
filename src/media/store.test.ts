@@ -6,10 +6,12 @@ import sharp from "sharp";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { isPathWithinBase } from "../../test/helpers/paths.js";
+import { captureEnv } from "../test-utils/env.js";
 
 describe("media store", () => {
   let store: typeof import("./store.js");
   let home = "";
+<<<<<<< HEAD
   const envSnapshot: Record<string, string | undefined> = {};
 
   const snapshotEnv = () => {
@@ -31,6 +33,19 @@ describe("media store", () => {
   beforeAll(async () => {
     snapshotEnv();
     home = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-test-home-"));
+=======
+  let envSnapshot: ReturnType<typeof captureEnv>;
+
+  beforeAll(async () => {
+    envSnapshot = captureEnv([
+      "HOME",
+      "USERPROFILE",
+      "HOMEDRIVE",
+      "HOMEPATH",
+      "OPENCLAW_STATE_DIR",
+    ]);
+    home = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-home-"));
+>>>>>>> 70f86e326 (refactor(test): reuse shared env snapshots)
     process.env.HOME = home;
     process.env.USERPROFILE = home;
     process.env.CLAWDBOT_STATE_DIR = path.join(home, ".clawdbot");
@@ -46,7 +61,7 @@ describe("media store", () => {
   });
 
   afterAll(async () => {
-    restoreEnv();
+    envSnapshot.restore();
     try {
       await fs.rm(home, { recursive: true, force: true });
     } catch {
