@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 =======
@@ -35,6 +36,12 @@ afterEach(() => {
   localStorage.clear();
   document.body.innerHTML = "";
 });
+=======
+import { describe, expect, it } from "vitest";
+import { mountApp, registerAppMountHooks } from "./test-helpers/app-mount.ts";
+
+registerAppMountHooks();
+>>>>>>> c623c51cf (refactor(ui): share app mount hooks)
 
 describe("chat markdown rendering", () => {
   it("renders markdown inside tool output sidebar", async () => {
