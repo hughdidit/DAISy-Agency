@@ -1,9 +1,13 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
+=======
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import { fixSecurityFootguns } from "./fix.js";
 
 const isWindows = process.platform === "win32";
@@ -17,10 +21,33 @@ const expectPerms = (actual: number, expected: number) => {
 };
 
 describe("security fix", () => {
+  let fixtureRoot = "";
+  let fixtureCount = 0;
+
+  const createStateDir = async (prefix: string) => {
+    const dir = path.join(fixtureRoot, `${prefix}-${fixtureCount++}`);
+    await fs.mkdir(dir, { recursive: true });
+    return dir;
+  };
+
+  beforeAll(async () => {
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-security-fix-suite-"));
+  });
+
+  afterAll(async () => {
+    if (fixtureRoot) {
+      await fs.rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
   it("tightens groupPolicy + filesystem perms", async () => {
+<<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-security-fix-"));
     const stateDir = path.join(tmp, "state");
     await fs.mkdir(stateDir, { recursive: true });
+=======
+    const stateDir = await createStateDir("tightens");
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     await fs.chmod(stateDir, 0o755);
 
     const configPath = path.join(stateDir, "moltbot.json");
@@ -54,11 +81,16 @@ describe("security fix", () => {
 
     const env = {
       ...process.env,
+<<<<<<< HEAD
       CLAWDBOT_STATE_DIR: stateDir,
       CLAWDBOT_CONFIG_PATH: "",
+=======
+      OPENCLAW_STATE_DIR: stateDir,
+      OPENCLAW_CONFIG_PATH: configPath,
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     };
 
-    const res = await fixSecurityFootguns({ env });
+    const res = await fixSecurityFootguns({ env, stateDir, configPath });
     expect(res.ok).toBe(true);
     expect(res.configWritten).toBe(true);
     expect(res.changes).toEqual(
@@ -90,9 +122,13 @@ describe("security fix", () => {
   });
 
   it("applies allowlist per-account and seeds WhatsApp groupAllowFrom from store", async () => {
+<<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-security-fix-"));
     const stateDir = path.join(tmp, "state");
     await fs.mkdir(stateDir, { recursive: true });
+=======
+    const stateDir = await createStateDir("per-account");
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 
     const configPath = path.join(stateDir, "moltbot.json");
     await fs.writeFile(
@@ -123,11 +159,16 @@ describe("security fix", () => {
 
     const env = {
       ...process.env,
+<<<<<<< HEAD
       CLAWDBOT_STATE_DIR: stateDir,
       CLAWDBOT_CONFIG_PATH: "",
+=======
+      OPENCLAW_STATE_DIR: stateDir,
+      OPENCLAW_CONFIG_PATH: configPath,
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     };
 
-    const res = await fixSecurityFootguns({ env });
+    const res = await fixSecurityFootguns({ env, stateDir, configPath });
     expect(res.ok).toBe(true);
 
     const parsed = JSON.parse(await fs.readFile(configPath, "utf-8")) as Record<string, unknown>;
@@ -140,9 +181,13 @@ describe("security fix", () => {
   });
 
   it("does not seed WhatsApp groupAllowFrom if allowFrom is set", async () => {
+<<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-security-fix-"));
     const stateDir = path.join(tmp, "state");
     await fs.mkdir(stateDir, { recursive: true });
+=======
+    const stateDir = await createStateDir("no-seed");
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 
     const configPath = path.join(stateDir, "moltbot.json");
     await fs.writeFile(
@@ -169,11 +214,16 @@ describe("security fix", () => {
 
     const env = {
       ...process.env,
+<<<<<<< HEAD
       CLAWDBOT_STATE_DIR: stateDir,
       CLAWDBOT_CONFIG_PATH: "",
+=======
+      OPENCLAW_STATE_DIR: stateDir,
+      OPENCLAW_CONFIG_PATH: configPath,
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     };
 
-    const res = await fixSecurityFootguns({ env });
+    const res = await fixSecurityFootguns({ env, stateDir, configPath });
     expect(res.ok).toBe(true);
 
     const parsed = JSON.parse(await fs.readFile(configPath, "utf-8")) as Record<string, unknown>;
@@ -183,9 +233,13 @@ describe("security fix", () => {
   });
 
   it("returns ok=false for invalid config but still tightens perms", async () => {
+<<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-security-fix-"));
     const stateDir = path.join(tmp, "state");
     await fs.mkdir(stateDir, { recursive: true });
+=======
+    const stateDir = await createStateDir("invalid-config");
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     await fs.chmod(stateDir, 0o755);
 
     const configPath = path.join(stateDir, "moltbot.json");
@@ -194,11 +248,16 @@ describe("security fix", () => {
 
     const env = {
       ...process.env,
+<<<<<<< HEAD
       CLAWDBOT_STATE_DIR: stateDir,
       CLAWDBOT_CONFIG_PATH: "",
+=======
+      OPENCLAW_STATE_DIR: stateDir,
+      OPENCLAW_CONFIG_PATH: configPath,
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     };
 
-    const res = await fixSecurityFootguns({ env });
+    const res = await fixSecurityFootguns({ env, stateDir, configPath });
     expect(res.ok).toBe(false);
 
     const stateMode = (await fs.stat(stateDir)).mode & 0o777;
@@ -209,9 +268,13 @@ describe("security fix", () => {
   });
 
   it("tightens perms for credentials + agent auth/sessions + include files", async () => {
+<<<<<<< HEAD
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-security-fix-"));
     const stateDir = path.join(tmp, "state");
     await fs.mkdir(stateDir, { recursive: true });
+=======
+    const stateDir = await createStateDir("includes");
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 
     const includesDir = path.join(stateDir, "includes");
     await fs.mkdir(includesDir, { recursive: true });
@@ -251,11 +314,16 @@ describe("security fix", () => {
 
     const env = {
       ...process.env,
+<<<<<<< HEAD
       CLAWDBOT_STATE_DIR: stateDir,
       CLAWDBOT_CONFIG_PATH: "",
+=======
+      OPENCLAW_STATE_DIR: stateDir,
+      OPENCLAW_CONFIG_PATH: configPath,
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     };
 
-    const res = await fixSecurityFootguns({ env });
+    const res = await fixSecurityFootguns({ env, stateDir, configPath });
     expect(res.ok).toBe(true);
 
     expectPerms((await fs.stat(credsDir)).mode & 0o777, 0o700);

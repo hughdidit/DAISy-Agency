@@ -1,17 +1,31 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import * as replyModule from "../auto-reply/reply.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
+import * as replyModule from "../auto-reply/reply.js";
+import { whatsappOutbound } from "../channels/plugins/outbound/whatsapp.js";
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import {
   resolveAgentIdFromSessionKey,
   resolveAgentMainSessionKey,
   resolveMainSessionKey,
   resolveStorePath,
 } from "../config/sessions.js";
+<<<<<<< HEAD
 import { buildAgentPeerSessionKey } from "../routing/session-key.js";
+=======
+import { getActivePluginRegistry, setActivePluginRegistry } from "../plugins/runtime.js";
+import { buildAgentPeerSessionKey } from "../routing/session-key.js";
+import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import {
   isHeartbeatEnabledForAgent,
   resolveHeartbeatIntervalMs,
@@ -37,16 +51,90 @@ import {
 // Avoid pulling optional runtime deps during isolated runs.
 vi.mock("jiti", () => ({ createJiti: () => () => ({}) }));
 
+let previousRegistry: ReturnType<typeof getActivePluginRegistry> | null = null;
+let testRegistry: ReturnType<typeof getActivePluginRegistry> | null = null;
+
+let fixtureRoot = "";
+let fixtureCount = 0;
+
+const createCaseDir = async (prefix: string) => {
+  const dir = path.join(fixtureRoot, `${prefix}-${fixtureCount++}`);
+  await fs.mkdir(dir, { recursive: true });
+  return dir;
+};
+
+beforeAll(async () => {
+  previousRegistry = getActivePluginRegistry();
+
+  const whatsappPlugin = createOutboundTestPlugin({ id: "whatsapp", outbound: whatsappOutbound });
+  whatsappPlugin.config = {
+    ...whatsappPlugin.config,
+    resolveAllowFrom: ({ cfg }) =>
+      cfg.channels?.whatsapp?.allowFrom?.map((entry) => String(entry)) ?? [],
+  };
+
+  const telegramPlugin = createOutboundTestPlugin({
+    id: "telegram",
+    outbound: {
+      deliveryMode: "direct",
+      sendText: async ({ to, text, deps, accountId }) => {
+        if (!deps?.sendTelegram) {
+          throw new Error("sendTelegram missing");
+        }
+        const res = await deps.sendTelegram(to, text, {
+          verbose: false,
+          accountId: accountId ?? undefined,
+        });
+        return { channel: "telegram", messageId: res.messageId, chatId: res.chatId };
+      },
+      sendMedia: async ({ to, text, mediaUrl, deps, accountId }) => {
+        if (!deps?.sendTelegram) {
+          throw new Error("sendTelegram missing");
+        }
+        const res = await deps.sendTelegram(to, text, {
+          verbose: false,
+          accountId: accountId ?? undefined,
+          mediaUrl,
+        });
+        return { channel: "telegram", messageId: res.messageId, chatId: res.chatId };
+      },
+    },
+  });
+  telegramPlugin.config = {
+    ...telegramPlugin.config,
+    listAccountIds: (cfg) => Object.keys(cfg.channels?.telegram?.accounts ?? {}),
+    resolveAllowFrom: ({ cfg, accountId }) => {
+      const channel = cfg.channels?.telegram;
+      const normalized = accountId?.trim();
+      if (normalized && channel?.accounts?.[normalized]?.allowFrom) {
+        return channel.accounts[normalized].allowFrom?.map((entry) => String(entry)) ?? [];
+      }
+      return channel?.allowFrom?.map((entry) => String(entry)) ?? [];
+    },
+  };
+
+  testRegistry = createTestRegistry([
+    { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
+    { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
+  ]);
+  setActivePluginRegistry(testRegistry);
+
+  fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-heartbeat-suite-"));
+});
+
 beforeEach(() => {
-  const runtime = createPluginRuntime();
-  setTelegramRuntime(runtime);
-  setWhatsAppRuntime(runtime);
-  setActivePluginRegistry(
-    createTestRegistry([
-      { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
-      { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
-    ]),
-  );
+  if (testRegistry) {
+    setActivePluginRegistry(testRegistry);
+  }
+});
+
+afterAll(async () => {
+  if (fixtureRoot) {
+    await fs.rm(fixtureRoot, { recursive: true, force: true });
+  }
+  if (previousRegistry) {
+    setActivePluginRegistry(previousRegistry);
+  }
 });
 
 describe("resolveHeartbeatIntervalMs", () => {
@@ -406,7 +494,11 @@ describe("runHeartbeatOnce", () => {
   });
 
   it("uses the last non-empty payload for delivery", async () => {
+<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+=======
+    const tmpDir = await createCaseDir("hb-last-payload");
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -424,18 +516,14 @@ describe("runHeartbeatOnce", () => {
 
       await fs.writeFile(
         storePath,
-        JSON.stringify(
-          {
-            [sessionKey]: {
-              sessionId: "sid",
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastTo: "+1555",
-            },
+        JSON.stringify({
+          [sessionKey]: {
+            sessionId: "sid",
+            updatedAt: Date.now(),
+            lastChannel: "whatsapp",
+            lastTo: "+1555",
           },
-          null,
-          2,
-        ),
+        }),
       );
 
       replySpy.mockResolvedValue([{ text: "Let me check..." }, { text: "Final alert" }]);
@@ -459,12 +547,15 @@ describe("runHeartbeatOnce", () => {
       expect(sendWhatsApp).toHaveBeenCalledWith("+1555", "Final alert", expect.any(Object));
     } finally {
       replySpy.mockRestore();
-      await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
 
   it("uses per-agent heartbeat overrides and session keys", async () => {
+<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+=======
+    const tmpDir = await createCaseDir("hb-agent-overrides");
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -488,18 +579,14 @@ describe("runHeartbeatOnce", () => {
 
       await fs.writeFile(
         storePath,
-        JSON.stringify(
-          {
-            [sessionKey]: {
-              sessionId: "sid",
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastTo: "+1555",
-            },
+        JSON.stringify({
+          [sessionKey]: {
+            sessionId: "sid",
+            updatedAt: Date.now(),
+            lastChannel: "whatsapp",
+            lastTo: "+1555",
           },
-          null,
-          2,
-        ),
+        }),
       );
       replySpy.mockResolvedValue([{ text: "Final alert" }]);
       const sendWhatsApp = vi.fn().mockResolvedValue({
@@ -529,12 +616,11 @@ describe("runHeartbeatOnce", () => {
       );
     } finally {
       replySpy.mockRestore();
-      await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
 
   it("reuses non-default agent sessionFile from templated stores", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
+    const tmpDir = await createCaseDir("hb-templated-store");
     const storeTemplate = path.join(tmpDir, "agents", "{agentId}", "sessions", "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     const agentId = "ops";
@@ -607,12 +693,15 @@ describe("runHeartbeatOnce", () => {
       );
     } finally {
       replySpy.mockRestore();
-      await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
 
   it("runs heartbeats in the explicit session key when configured", async () => {
+<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+=======
+    const tmpDir = await createCaseDir("hb-explicit-session");
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -644,24 +733,20 @@ describe("runHeartbeatOnce", () => {
 
       await fs.writeFile(
         storePath,
-        JSON.stringify(
-          {
-            [mainSessionKey]: {
-              sessionId: "sid-main",
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastTo: "+1555",
-            },
-            [groupSessionKey]: {
-              sessionId: "sid-group",
-              updatedAt: Date.now() + 10_000,
-              lastChannel: "whatsapp",
-              lastTo: groupId,
-            },
+        JSON.stringify({
+          [mainSessionKey]: {
+            sessionId: "sid-main",
+            updatedAt: Date.now(),
+            lastChannel: "whatsapp",
+            lastTo: "+1555",
           },
-          null,
-          2,
-        ),
+          [groupSessionKey]: {
+            sessionId: "sid-group",
+            updatedAt: Date.now() + 10_000,
+            lastChannel: "whatsapp",
+            lastTo: groupId,
+          },
+        }),
       );
 
       replySpy.mockResolvedValue([{ text: "Group alert" }]);
@@ -690,12 +775,15 @@ describe("runHeartbeatOnce", () => {
       );
     } finally {
       replySpy.mockRestore();
-      await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
 
   it("suppresses duplicate heartbeat payloads within 24h", async () => {
+<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+=======
+    const tmpDir = await createCaseDir("hb-dup-suppress");
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -713,20 +801,16 @@ describe("runHeartbeatOnce", () => {
 
       await fs.writeFile(
         storePath,
-        JSON.stringify(
-          {
-            [sessionKey]: {
-              sessionId: "sid",
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastTo: "+1555",
-              lastHeartbeatText: "Final alert",
-              lastHeartbeatSentAt: 0,
-            },
+        JSON.stringify({
+          [sessionKey]: {
+            sessionId: "sid",
+            updatedAt: Date.now(),
+            lastChannel: "whatsapp",
+            lastTo: "+1555",
+            lastHeartbeatText: "Final alert",
+            lastHeartbeatSentAt: 0,
           },
-          null,
-          2,
-        ),
+        }),
       );
 
       replySpy.mockResolvedValue([{ text: "Final alert" }]);
@@ -746,12 +830,15 @@ describe("runHeartbeatOnce", () => {
       expect(sendWhatsApp).toHaveBeenCalledTimes(0);
     } finally {
       replySpy.mockRestore();
-      await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
 
   it("can include reasoning payloads when enabled", async () => {
+<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+=======
+    const tmpDir = await createCaseDir("hb-reasoning");
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -773,19 +860,15 @@ describe("runHeartbeatOnce", () => {
 
       await fs.writeFile(
         storePath,
-        JSON.stringify(
-          {
-            [sessionKey]: {
-              sessionId: "sid",
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastProvider: "whatsapp",
-              lastTo: "+1555",
-            },
+        JSON.stringify({
+          [sessionKey]: {
+            sessionId: "sid",
+            updatedAt: Date.now(),
+            lastChannel: "whatsapp",
+            lastProvider: "whatsapp",
+            lastTo: "+1555",
           },
-          null,
-          2,
-        ),
+        }),
       );
 
       replySpy.mockResolvedValue([
@@ -818,12 +901,15 @@ describe("runHeartbeatOnce", () => {
       expect(sendWhatsApp).toHaveBeenNthCalledWith(2, "+1555", "Final alert", expect.any(Object));
     } finally {
       replySpy.mockRestore();
-      await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
 
   it("delivers reasoning even when the main heartbeat reply is HEARTBEAT_OK", async () => {
+<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
+=======
+    const tmpDir = await createCaseDir("hb-reasoning-heartbeat-ok");
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     const storePath = path.join(tmpDir, "sessions.json");
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
@@ -845,19 +931,15 @@ describe("runHeartbeatOnce", () => {
 
       await fs.writeFile(
         storePath,
-        JSON.stringify(
-          {
-            [sessionKey]: {
-              sessionId: "sid",
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastProvider: "whatsapp",
-              lastTo: "+1555",
-            },
+        JSON.stringify({
+          [sessionKey]: {
+            sessionId: "sid",
+            updatedAt: Date.now(),
+            lastChannel: "whatsapp",
+            lastProvider: "whatsapp",
+            lastTo: "+1555",
           },
-          null,
-          2,
-        ),
+        }),
       );
 
       replySpy.mockResolvedValue([
@@ -889,7 +971,6 @@ describe("runHeartbeatOnce", () => {
       );
     } finally {
       replySpy.mockRestore();
-      await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
 

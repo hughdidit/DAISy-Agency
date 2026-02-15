@@ -2,10 +2,14 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { loadInternalHooks } from "./loader.js";
 =======
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+=======
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 1c928e493 (fix(hooks): replace console logging with proper subsystem logging in loader (openclaw#11029) thanks @shadril238)
 import {
@@ -17,13 +21,23 @@ import {
 import type { MoltbotConfig } from "../config/config.js";
 
 describe("loader", () => {
+  let fixtureRoot = "";
+  let caseId = 0;
   let tmpDir: string;
   let originalBundledDir: string | undefined;
+
+  beforeAll(async () => {
+    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hooks-loader-"));
+  });
 
   beforeEach(async () => {
     clearInternalHooks();
     // Create a temp directory for test modules
+<<<<<<< HEAD
     tmpDir = path.join(os.tmpdir(), `moltbot-test-${Date.now()}`);
+=======
+    tmpDir = path.join(fixtureRoot, `case-${caseId++}`);
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     await fs.mkdir(tmpDir, { recursive: true });
 
     // Disable bundled hooks during tests by setting env var to non-existent directory
@@ -39,12 +53,13 @@ describe("loader", () => {
     } else {
       process.env.CLAWDBOT_BUNDLED_HOOKS_DIR = originalBundledDir;
     }
-    // Clean up temp directory
-    try {
-      await fs.rm(tmpDir, { recursive: true, force: true });
-    } catch {
-      // Ignore cleanup errors
+  });
+
+  afterAll(async () => {
+    if (!fixtureRoot) {
+      return;
     }
+    await fs.rm(fixtureRoot, { recursive: true, force: true });
   });
 
   describe("loadInternalHooks", () => {

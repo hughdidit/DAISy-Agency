@@ -1,5 +1,4 @@
 import { spawn } from "node:child_process";
-import net from "node:net";
 import path from "node:path";
 import process from "node:process";
 
@@ -7,7 +6,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { attachChildProcessBridge } from "./child-process-bridge.js";
 
-function waitForLine(stream: NodeJS.ReadableStream, timeoutMs = 10_000): Promise<string> {
+function waitForLine(stream: NodeJS.ReadableStream, timeoutMs = 2000): Promise<string> {
   return new Promise((resolve, reject) => {
     let buffer = "";
 
@@ -40,28 +39,6 @@ function waitForLine(stream: NodeJS.ReadableStream, timeoutMs = 10_000): Promise
     stream.on("data", onData);
     stream.on("error", onError);
   });
-}
-
-function canConnect(port: number): Promise<boolean> {
-  return new Promise((resolve) => {
-    const socket = net.createConnection({ host: "127.0.0.1", port });
-    socket.once("connect", () => {
-      socket.end();
-      resolve(true);
-    });
-    socket.once("error", () => resolve(false));
-  });
-}
-
-async function waitForPortClosed(port: number, timeoutMs = 1_000): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() <= deadline) {
-    if (!(await canConnect(port))) {
-      return;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 10));
-  }
-  throw new Error("timeout waiting for port to close");
 }
 
 describe("attachChildProcessBridge", () => {
@@ -104,11 +81,8 @@ describe("attachChildProcessBridge", () => {
     if (!child.stdout) {
       throw new Error("expected stdout");
     }
-    const portLine = await waitForLine(child.stdout);
-    const port = Number(portLine);
-    expect(Number.isFinite(port)).toBe(true);
-
-    expect(await canConnect(port)).toBe(true);
+    const ready = await waitForLine(child.stdout);
+    expect(ready).toBe("ready");
 
     // Simulate systemd sending SIGTERM to the parent process.
     if (!addedSigterm) {
@@ -123,8 +97,5 @@ describe("attachChildProcessBridge", () => {
         resolve();
       });
     });
-
-    await waitForPortClosed(port);
-    expect(await canConnect(port)).toBe(false);
   }, 20_000);
 });

@@ -1,6 +1,5 @@
-import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
@@ -46,25 +45,71 @@ describe("ensureMoltbotCliOnPath", () => {
 =======
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ensureOpenClawCliOnPath } from "./path-env.js";
+=======
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+const state = vi.hoisted(() => ({
+  dirs: new Set<string>(),
+  executables: new Set<string>(),
+}));
+
+const abs = (p: string) => path.resolve(p);
+const setDir = (p: string) => state.dirs.add(abs(p));
+const setExe = (p: string) => state.executables.add(abs(p));
+
+vi.mock("node:fs", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs")>();
+  const pathMod = await import("node:path");
+  const absInMock = (p: string) => pathMod.resolve(p);
+
+  const wrapped = {
+    ...actual,
+    constants: { ...actual.constants, X_OK: actual.constants.X_OK ?? 1 },
+    accessSync: (p: string, mode?: number) => {
+      // `mode` is ignored in tests; we only model "is executable" or "not".
+      if (!state.executables.has(absInMock(p))) {
+        throw new Error(`EACCES: permission denied, access '${p}' (mode=${mode ?? 0})`);
+      }
+    },
+    statSync: (p: string) => ({
+      // Avoid throws for non-existent paths; the code under test only cares about isDirectory().
+      isDirectory: () => state.dirs.has(absInMock(p)),
+    }),
+  };
+
+  return { ...wrapped, default: wrapped };
+});
+
+let ensureOpenClawCliOnPath: typeof import("./path-env.js").ensureOpenClawCliOnPath;
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 
 describe("ensureOpenClawCliOnPath", () => {
-  let fixtureRoot = "";
-  let fixtureCount = 0;
-
-  async function makeTmpDir(): Promise<string> {
-    const tmp = path.join(fixtureRoot, `case-${fixtureCount++}`);
-    await fs.mkdir(tmp);
-    return tmp;
-  }
+  const envKeys = [
+    "PATH",
+    "OPENCLAW_PATH_BOOTSTRAPPED",
+    "OPENCLAW_ALLOW_PROJECT_LOCAL_BIN",
+    "MISE_DATA_DIR",
+    "HOMEBREW_PREFIX",
+    "HOMEBREW_BREW_FILE",
+    "XDG_BIN_HOME",
+  ] as const;
+  let envSnapshot: Record<(typeof envKeys)[number], string | undefined>;
 
   beforeAll(async () => {
-    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-path-"));
+    ({ ensureOpenClawCliOnPath } = await import("./path-env.js"));
   });
 
-  afterAll(async () => {
-    await fs.rm(fixtureRoot, { recursive: true, force: true });
+  beforeEach(() => {
+    envSnapshot = Object.fromEntries(envKeys.map((k) => [k, process.env[k]])) as typeof envSnapshot;
+    state.dirs.clear();
+    state.executables.clear();
+
+    setDir("/usr/bin");
+    setDir("/bin");
+    vi.clearAllMocks();
   });
 
+<<<<<<< HEAD
   it("prepends the bundled app bin dir when a sibling openclaw exists", async () => {
     const tmp = await makeTmpDir();
     const appBinDir = path.join(tmp, "AppBin");
@@ -91,13 +136,43 @@ describe("ensureOpenClawCliOnPath", () => {
       process.env.PATH = originalPath;
       if (originalFlag === undefined) {
         delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+=======
+  afterEach(() => {
+    for (const k of envKeys) {
+      const value = envSnapshot[k];
+      if (value === undefined) {
+        delete process.env[k];
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
       } else {
-        process.env.OPENCLAW_PATH_BOOTSTRAPPED = originalFlag;
+        process.env[k] = value;
       }
     }
   });
 
+  it("prepends the bundled app bin dir when a sibling openclaw exists", () => {
+    const tmp = abs("/tmp/openclaw-path/case-bundled");
+    const appBinDir = path.join(tmp, "AppBin");
+    const cliPath = path.join(appBinDir, "openclaw");
+    setDir(tmp);
+    setDir(appBinDir);
+    setExe(cliPath);
+
+    process.env.PATH = "/usr/bin";
+    delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+
+    ensureOpenClawCliOnPath({
+      execPath: cliPath,
+      cwd: tmp,
+      homeDir: tmp,
+      platform: "darwin",
+    });
+
+    const updated = process.env.PATH ?? "";
+    expect(updated.split(path.delimiter)[0]).toBe(appBinDir);
+  });
+
   it("is idempotent", () => {
+<<<<<<< HEAD
     const originalPath = process.env.PATH;
     const originalFlag = process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
     process.env.PATH = "/bin";
@@ -201,40 +276,81 @@ describe("ensureOpenClawCliOnPath", () => {
       await fs.rm(tmp, { recursive: true, force: true });
 =======
     }
+=======
+    process.env.PATH = "/bin";
+    process.env.OPENCLAW_PATH_BOOTSTRAPPED = "1";
+    ensureOpenClawCliOnPath({
+      execPath: "/tmp/does-not-matter",
+      cwd: "/tmp",
+      homeDir: "/tmp",
+      platform: "darwin",
+    });
+    expect(process.env.PATH).toBe("/bin");
   });
 
-  it("only appends project-local node_modules/.bin when explicitly enabled", async () => {
-    const tmp = await makeTmpDir();
-    const originalPath = process.env.PATH;
-    const originalFlag = process.env.OPENCLAW_PATH_BOOTSTRAPPED;
-    try {
-      const appBinDir = path.join(tmp, "AppBin");
-      await fs.mkdir(appBinDir);
-      const appCli = path.join(appBinDir, "openclaw");
-      await fs.writeFile(appCli, "#!/bin/sh\necho ok\n", "utf-8");
-      await fs.chmod(appCli, 0o755);
+  it("prepends mise shims when available", () => {
+    const tmp = abs("/tmp/openclaw-path/case-mise");
+    const appBinDir = path.join(tmp, "AppBin");
+    const appCli = path.join(appBinDir, "openclaw");
+    setDir(tmp);
+    setDir(appBinDir);
+    setExe(appCli);
 
-      const localBinDir = path.join(tmp, "node_modules", ".bin");
-      await fs.mkdir(localBinDir, { recursive: true });
-      const localCli = path.join(localBinDir, "openclaw");
-      await fs.writeFile(localCli, "#!/bin/sh\necho ok\n", "utf-8");
-      await fs.chmod(localCli, 0o755);
+    const miseDataDir = path.join(tmp, "mise");
+    const shimsDir = path.join(miseDataDir, "shims");
+    setDir(miseDataDir);
+    setDir(shimsDir);
 
-      process.env.PATH = "/usr/bin";
-      delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+    process.env.MISE_DATA_DIR = miseDataDir;
+    process.env.PATH = "/usr/bin";
+    delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
 
-      ensureOpenClawCliOnPath({
-        execPath: appCli,
-        cwd: tmp,
-        homeDir: tmp,
-        platform: "darwin",
-      });
-      const withoutOptIn = (process.env.PATH ?? "").split(path.delimiter);
-      expect(withoutOptIn.includes(localBinDir)).toBe(false);
+    ensureOpenClawCliOnPath({
+      execPath: appCli,
+      cwd: tmp,
+      homeDir: tmp,
+      platform: "darwin",
+    });
 
-      process.env.PATH = "/usr/bin";
-      delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+    const updated = process.env.PATH ?? "";
+    const parts = updated.split(path.delimiter);
+    const appBinIndex = parts.indexOf(appBinDir);
+    const shimsIndex = parts.indexOf(shimsDir);
+    expect(appBinIndex).toBeGreaterThanOrEqual(0);
+    expect(shimsIndex).toBeGreaterThan(appBinIndex);
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
+  });
 
+  it("only appends project-local node_modules/.bin when explicitly enabled", () => {
+    const tmp = abs("/tmp/openclaw-path/case-project-local");
+    const appBinDir = path.join(tmp, "AppBin");
+    const appCli = path.join(appBinDir, "openclaw");
+    setDir(tmp);
+    setDir(appBinDir);
+    setExe(appCli);
+
+    const localBinDir = path.join(tmp, "node_modules", ".bin");
+    const localCli = path.join(localBinDir, "openclaw");
+    setDir(path.join(tmp, "node_modules"));
+    setDir(localBinDir);
+    setExe(localCli);
+
+    process.env.PATH = "/usr/bin";
+    delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+
+    ensureOpenClawCliOnPath({
+      execPath: appCli,
+      cwd: tmp,
+      homeDir: tmp,
+      platform: "darwin",
+    });
+    const withoutOptIn = (process.env.PATH ?? "").split(path.delimiter);
+    expect(withoutOptIn.includes(localBinDir)).toBe(false);
+
+    process.env.PATH = "/usr/bin";
+    delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+
+<<<<<<< HEAD
       ensureOpenClawCliOnPath({
         execPath: appCli,
         cwd: tmp,
@@ -276,12 +392,36 @@ describe("ensureOpenClawCliOnPath", () => {
     try {
       const execDir = path.join(tmp, "exec");
       await fs.mkdir(execDir);
+=======
+    ensureOpenClawCliOnPath({
+      execPath: appCli,
+      cwd: tmp,
+      homeDir: tmp,
+      platform: "darwin",
+      allowProjectLocalBin: true,
+    });
+    const withOptIn = (process.env.PATH ?? "").split(path.delimiter);
+    const usrBinIndex = withOptIn.indexOf("/usr/bin");
+    const localIndex = withOptIn.indexOf(localBinDir);
+    expect(usrBinIndex).toBeGreaterThanOrEqual(0);
+    expect(localIndex).toBeGreaterThan(usrBinIndex);
+  });
 
-      const linuxbrewBin = path.join(tmp, ".linuxbrew", "bin");
-      const linuxbrewSbin = path.join(tmp, ".linuxbrew", "sbin");
-      await fs.mkdir(linuxbrewBin, { recursive: true });
-      await fs.mkdir(linuxbrewSbin, { recursive: true });
+  it("prepends Linuxbrew dirs when present", () => {
+    const tmp = abs("/tmp/openclaw-path/case-linuxbrew");
+    const execDir = path.join(tmp, "exec");
+    setDir(tmp);
+    setDir(execDir);
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 
+    const linuxbrewDir = path.join(tmp, ".linuxbrew");
+    const linuxbrewBin = path.join(linuxbrewDir, "bin");
+    const linuxbrewSbin = path.join(linuxbrewDir, "sbin");
+    setDir(linuxbrewDir);
+    setDir(linuxbrewBin);
+    setDir(linuxbrewSbin);
+
+<<<<<<< HEAD
       process.env.PATH = "/usr/bin";
       delete process.env.CLAWDBOT_PATH_BOOTSTRAPPED;
       delete process.env.HOMEBREW_PREFIX;
@@ -337,5 +477,24 @@ describe("ensureOpenClawCliOnPath", () => {
 =======
 >>>>>>> 6bc5987d6 (perf(test): speed up path env suite)
     }
+=======
+    process.env.PATH = "/usr/bin";
+    delete process.env.OPENCLAW_PATH_BOOTSTRAPPED;
+    delete process.env.HOMEBREW_PREFIX;
+    delete process.env.HOMEBREW_BREW_FILE;
+    delete process.env.XDG_BIN_HOME;
+
+    ensureOpenClawCliOnPath({
+      execPath: path.join(execDir, "node"),
+      cwd: tmp,
+      homeDir: tmp,
+      platform: "linux",
+    });
+
+    const updated = process.env.PATH ?? "";
+    const parts = updated.split(path.delimiter);
+    expect(parts[0]).toBe(linuxbrewBin);
+    expect(parts[1]).toBe(linuxbrewSbin);
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
   });
 });

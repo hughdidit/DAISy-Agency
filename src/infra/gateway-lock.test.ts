@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -13,6 +14,9 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 =======
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 >>>>>>> 2ba918ac7 (perf(test): remove gateway lock sleep waits)
+=======
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import { resolveConfigPath, resolveGatewayLockDir, resolveStateDir } from "../config/paths.js";
 >>>>>>> dac8f5ba3 (perf(test): trim fixture and import overhead in hot suites)
 import { acquireGatewayLock, GatewayLockError } from "./gateway-lock.js";
@@ -83,6 +87,13 @@ describe("gateway lock", () => {
     fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gateway-lock-"));
   });
 
+  beforeEach(() => {
+    // Other suites occasionally leave global spies behind (Date.now, setTimeout, etc.).
+    // This test relies on fake timers advancing Date.now and setTimeout deterministically.
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
   afterAll(async () => {
     await fs.rm(fixtureRoot, { recursive: true, force: true });
   });
@@ -92,30 +103,45 @@ describe("gateway lock", () => {
   });
 
   it("blocks concurrent acquisition until release", async () => {
-    vi.useRealTimers();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-02-06T10:05:00.000Z"));
     const { env, cleanup } = await makeEnv();
     const lock = await acquireGatewayLock({
       env,
       allowInTests: true,
-      timeoutMs: 80,
-      pollIntervalMs: 5,
+      timeoutMs: 20,
+      pollIntervalMs: 1,
     });
     expect(lock).not.toBeNull();
 
+    let settled = false;
     const pending = acquireGatewayLock({
       env,
       allowInTests: true,
-      timeoutMs: 80,
-      pollIntervalMs: 5,
+      timeoutMs: 20,
+      pollIntervalMs: 1,
     });
+    void pending.then(
+      () => {
+        settled = true;
+      },
+      () => {
+        settled = true;
+      },
+    );
+    // Drive the retry loop without real sleeping.
+    for (let i = 0; i < 20 && !settled; i += 1) {
+      await vi.advanceTimersByTimeAsync(5);
+      await Promise.resolve();
+    }
     await expect(pending).rejects.toBeInstanceOf(GatewayLockError);
 
     await lock?.release();
     const lock2 = await acquireGatewayLock({
       env,
       allowInTests: true,
-      timeoutMs: 80,
-      pollIntervalMs: 5,
+      timeoutMs: 20,
+      pollIntervalMs: 1,
     });
     await lock2?.release();
     await cleanup();
@@ -123,6 +149,7 @@ describe("gateway lock", () => {
 
   it("treats recycled linux pid as stale when start time mismatches", async () => {
     vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-02-06T10:05:00.000Z"));
     const { env, cleanup } = await makeEnv();
     const { lockPath, configPath } = resolveLockPath(env);
     const payload = {
