@@ -223,6 +223,15 @@ export function buildEmbeddedRunPayloads(params: {
       errorLower.includes("must have") ||
       errorLower.includes("needs") ||
       errorLower.includes("requires");
+<<<<<<< HEAD
+=======
+    const isMutatingToolError =
+      params.lastToolError.mutatingAction ??
+      isLikelyMutatingToolName(params.lastToolError.toolName);
+    const shouldShowToolError =
+      isMutatingToolError ||
+      (!hasUserFacingReply && !isRecoverableError && !params.config?.messages?.suppressToolErrors);
+>>>>>>> 2c8b92105 (feat: add messages.suppressToolErrors config option (#16620))
 
     // Show tool errors only when:
     // 1. There's no user-facing reply AND the error is not recoverable

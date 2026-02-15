@@ -229,7 +229,96 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads[0]?.text).toContain("code 1");
   });
 
+<<<<<<< HEAD
   it("suppresses recoverable tool errors containing 'required'", () => {
+=======
+  it("suppresses recoverable tool errors containing 'required' for non-mutating tools", () => {
+    const payloads = buildEmbeddedRunPayloads({
+      assistantTexts: [],
+      toolMetas: [],
+      lastAssistant: undefined,
+      lastToolError: { toolName: "browser", error: "url required" },
+      sessionKey: "session:telegram",
+      inlineToolResultsAllowed: false,
+      verboseLevel: "off",
+      reasoningLevel: "off",
+      toolResultFormat: "plain",
+    });
+
+    // Recoverable errors should not be sent to the user
+    expect(payloads).toHaveLength(0);
+  });
+
+  it("suppresses recoverable tool errors containing 'missing' for non-mutating tools", () => {
+    const payloads = buildEmbeddedRunPayloads({
+      assistantTexts: [],
+      toolMetas: [],
+      lastAssistant: undefined,
+      lastToolError: { toolName: "browser", error: "url missing" },
+      sessionKey: "session:telegram",
+      inlineToolResultsAllowed: false,
+      verboseLevel: "off",
+      reasoningLevel: "off",
+      toolResultFormat: "plain",
+    });
+
+    expect(payloads).toHaveLength(0);
+  });
+
+  it("suppresses recoverable tool errors containing 'invalid' for non-mutating tools", () => {
+    const payloads = buildEmbeddedRunPayloads({
+      assistantTexts: [],
+      toolMetas: [],
+      lastAssistant: undefined,
+      lastToolError: { toolName: "browser", error: "invalid parameter: url" },
+      sessionKey: "session:telegram",
+      inlineToolResultsAllowed: false,
+      verboseLevel: "off",
+      reasoningLevel: "off",
+      toolResultFormat: "plain",
+    });
+
+    expect(payloads).toHaveLength(0);
+  });
+
+  it("suppresses non-mutating non-recoverable tool errors when messages.suppressToolErrors is enabled", () => {
+    const payloads = buildEmbeddedRunPayloads({
+      assistantTexts: [],
+      toolMetas: [],
+      lastAssistant: undefined,
+      lastToolError: { toolName: "browser", error: "connection timeout" },
+      config: { messages: { suppressToolErrors: true } },
+      sessionKey: "session:telegram",
+      inlineToolResultsAllowed: false,
+      verboseLevel: "off",
+      reasoningLevel: "off",
+      toolResultFormat: "plain",
+    });
+
+    expect(payloads).toHaveLength(0);
+  });
+
+  it("still shows mutating tool errors when messages.suppressToolErrors is enabled", () => {
+    const payloads = buildEmbeddedRunPayloads({
+      assistantTexts: [],
+      toolMetas: [],
+      lastAssistant: undefined,
+      lastToolError: { toolName: "write", error: "connection timeout" },
+      config: { messages: { suppressToolErrors: true } },
+      sessionKey: "session:telegram",
+      inlineToolResultsAllowed: false,
+      verboseLevel: "off",
+      reasoningLevel: "off",
+      toolResultFormat: "plain",
+    });
+
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]?.isError).toBe(true);
+    expect(payloads[0]?.text).toContain("connection timeout");
+  });
+
+  it("shows recoverable tool errors for mutating tools", () => {
+>>>>>>> 2c8b92105 (feat: add messages.suppressToolErrors config option (#16620))
     const payloads = buildEmbeddedRunPayloads({
       assistantTexts: [],
       toolMetas: [],
