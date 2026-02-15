@@ -436,6 +436,28 @@ export const buildTelegramMessageContext = async ({
     }
   }
 
+<<<<<<< HEAD
+=======
+  // Replace audio placeholder with transcript when preflight succeeds.
+  if (hasAudio && bodyText === "<media:audio>" && preflightTranscript) {
+    bodyText = preflightTranscript;
+  }
+
+  // Build bodyText fallback for messages that still have no text.
+  if (!bodyText && allMedia.length > 0) {
+    if (hasAudio) {
+      bodyText = preflightTranscript || "<media:audio>";
+    } else {
+      bodyText = `<media:image>${allMedia.length > 1 ? ` (${allMedia.length} images)` : ""}`;
+    }
+  }
+
+  const hasAnyMention = (msg.entities ?? msg.caption_entities ?? []).some(
+    (ent) => ent.type === "mention",
+  );
+  const explicitlyMentioned = botUsername ? hasBotMention(msg, botUsername) : false;
+
+>>>>>>> 2fc479b42 (fix: apply telegram voice transcript body substitution (#16789) (thanks @Limitless2023) (#16970))
   const computedWasMentioned = matchesMentionWithExplicit({
     text: msg.text ?? msg.caption ?? "",
     mentionRegexes,
