@@ -12,6 +12,7 @@ import { resolveStateDir } from "../config/paths.js";
 import { resolveArchiveKind } from "../infra/archive.js";
 import { installPluginFromNpmSpec, installPluginFromPath } from "../plugins/install.js";
 import { recordPluginInstall } from "../plugins/installs.js";
+import { clearPluginManifestRegistryCache } from "../plugins/manifest-registry.js";
 import { applyExclusiveSlotSelection } from "../plugins/slots.js";
 <<<<<<< HEAD
 import type { PluginRecord } from "../plugins/registry.js";
@@ -580,6 +581,9 @@ export function registerPluginsCli(program: Command) {
           defaultRuntime.error(result.error);
           process.exit(1);
         }
+        // Plugin CLI registrars may have warmed the manifest registry cache before install;
+        // force a rescan so config validation sees the freshly installed plugin.
+        clearPluginManifestRegistryCache();
 
 <<<<<<< HEAD
         let next: MoltbotConfig = {
@@ -645,6 +649,8 @@ export function registerPluginsCli(program: Command) {
         defaultRuntime.error(result.error);
         process.exit(1);
       }
+      // Ensure config validation sees newly installed plugin(s) even if the cache was warmed at startup.
+      clearPluginManifestRegistryCache();
 
 <<<<<<< HEAD
       let next: MoltbotConfig = {

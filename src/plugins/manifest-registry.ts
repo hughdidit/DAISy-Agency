@@ -65,6 +65,10 @@ const registryCache = new Map<string, { expiresAt: number; registry: PluginManif
 
 const DEFAULT_MANIFEST_CACHE_MS = 200;
 
+export function clearPluginManifestRegistryCache(): void {
+  registryCache.clear();
+}
+
 function resolveManifestCacheMs(env: NodeJS.ProcessEnv): number {
 <<<<<<< HEAD
   const raw = env.CLAWDBOT_PLUGIN_MANIFEST_CACHE_MS?.trim();
