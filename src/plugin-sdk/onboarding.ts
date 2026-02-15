@@ -1,18 +1,13 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-import type { MoltbotConfig, WizardPrompter } from "clawdbot/plugin-sdk";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
-=======
-import type { OpenClawConfig, WizardPrompter } from "openclaw/plugin-sdk";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
->>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
+import type { OpenClawConfig } from "../config/config.js";
+import type { WizardPrompter } from "../wizard/prompts.js";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 
-type PromptAccountIdParams = {
-  cfg: MoltbotConfig;
+export type PromptAccountIdParams = {
+  cfg: OpenClawConfig;
   prompter: WizardPrompter;
   label: string;
   currentId?: string;
-  listAccountIds: (cfg: MoltbotConfig) => string[];
+  listAccountIds: (cfg: OpenClawConfig) => string[];
   defaultAccountId: string;
 };
 
@@ -48,6 +43,3 @@ export async function promptAccountId(params: PromptAccountIdParams): Promise<st
   }
   return normalized;
 }
-=======
-export { promptAccountId } from "openclaw/plugin-sdk";
->>>>>>> 0d0ebd0e2 (refactor(onboarding): share promptAccountId helper)
