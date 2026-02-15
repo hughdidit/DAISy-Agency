@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { ExecAsk, ExecHost, ExecSecurity } from "../../infra/exec-approvals.js";
+import type { ReplyPayload } from "../types.js";
+import type { HandleDirectiveOnlyParams } from "./directive-handling.params.js";
+import type { ElevatedLevel, ReasoningLevel, ThinkLevel } from "./directives.js";
+>>>>>>> 48fd9d7dc (refactor(auto-reply): share directive handling params)
 import {
   resolveAgentConfig,
   resolveAgentDir,
@@ -58,6 +66,7 @@ function resolveExecDefaults(params: {
   };
 }
 
+<<<<<<< HEAD
 export async function handleDirectiveOnly(params: {
   cfg: MoltbotConfig;
   directives: InlineDirectives;
@@ -87,6 +96,11 @@ export async function handleDirectiveOnly(params: {
   currentElevatedLevel?: ElevatedLevel;
   surface?: string;
 }): Promise<ReplyPayload | undefined> {
+=======
+export async function handleDirectiveOnly(
+  params: HandleDirectiveOnlyParams,
+): Promise<ReplyPayload | undefined> {
+>>>>>>> 48fd9d7dc (refactor(auto-reply): share directive handling params)
   const {
     directives,
     sessionEntry,

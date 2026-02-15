@@ -1,13 +1,20 @@
+<<<<<<< HEAD
 import type { ModelAliasIndex } from "../../agents/model-selection.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import type { MsgContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
+=======
+import type { ReplyPayload } from "../types.js";
+import type { ApplyInlineDirectivesFastLaneParams } from "./directive-handling.params.js";
+import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
+>>>>>>> 48fd9d7dc (refactor(auto-reply): share directive handling params)
 import { handleDirectiveOnly } from "./directive-handling.impl.js";
 import type { InlineDirectives } from "./directive-handling.parse.js";
 import { isDirectiveOnly } from "./directive-handling.parse.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
 
+<<<<<<< HEAD
 export async function applyInlineDirectivesFastLane(params: {
   directives: InlineDirectives;
   commandAuthorized: boolean;
@@ -45,6 +52,11 @@ export async function applyInlineDirectivesFastLane(params: {
     resetModelOverride: boolean;
   };
 }): Promise<{ directiveAck?: ReplyPayload; provider: string; model: string }> {
+=======
+export async function applyInlineDirectivesFastLane(
+  params: ApplyInlineDirectivesFastLaneParams,
+): Promise<{ directiveAck?: ReplyPayload; provider: string; model: string }> {
+>>>>>>> 48fd9d7dc (refactor(auto-reply): share directive handling params)
   const {
     directives,
     commandAuthorized,
