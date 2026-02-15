@@ -54,7 +54,6 @@ import {
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 const callGatewayMock = getCallGatewayMock();
-const setConfigOverride = setSessionsSpawnConfigOverride;
 
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-allows-cross-agent-spawning-configured.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
