@@ -6,6 +6,7 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 import { describe, expect, it, vi } from "vitest";
 =======
 import { describe, expect, it } from "vitest";
+import { captureEnv } from "../test-utils/env.js";
 import { ensureAuthProfileStore } from "./auth-profiles.js";
 import { getApiKeyForModel, resolveApiKeyForProvider, resolveEnvApiKey } from "./model-auth.js";
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
@@ -19,10 +20,19 @@ const oauthFixture = {
 
 describe("getApiKeyForModel", () => {
   it("migrates legacy oauth.json into auth-profiles.json", async () => {
+<<<<<<< HEAD
     const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
     const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
     const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-oauth-"));
+=======
+    const envSnapshot = captureEnv([
+      "OPENCLAW_STATE_DIR",
+      "OPENCLAW_AGENT_DIR",
+      "PI_CODING_AGENT_DIR",
+    ]);
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-oauth-"));
+>>>>>>> e9c8540e2 (refactor(test): simplify model auth env restore)
 
     try {
       process.env.CLAWDBOT_STATE_DIR = tempDir;
@@ -77,6 +87,7 @@ describe("getApiKeyForModel", () => {
         },
       });
     } finally {
+<<<<<<< HEAD
       if (previousStateDir === undefined) {
         delete process.env.CLAWDBOT_STATE_DIR;
       } else {
@@ -92,16 +103,29 @@ describe("getApiKeyForModel", () => {
       } else {
         process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
       }
+=======
+      envSnapshot.restore();
+>>>>>>> e9c8540e2 (refactor(test): simplify model auth env restore)
       await fs.rm(tempDir, { recursive: true, force: true });
     }
   });
 
   it("suggests openai-codex when only Codex OAuth is configured", async () => {
+<<<<<<< HEAD
     const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
     const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
     const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
     const previousOpenAiKey = process.env.OPENAI_API_KEY;
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+=======
+    const envSnapshot = captureEnv([
+      "OPENAI_API_KEY",
+      "OPENCLAW_STATE_DIR",
+      "OPENCLAW_AGENT_DIR",
+      "PI_CODING_AGENT_DIR",
+    ]);
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+>>>>>>> e9c8540e2 (refactor(test): simplify model auth env restore)
 
     try {
       delete process.env.OPENAI_API_KEY;
@@ -141,6 +165,7 @@ describe("getApiKeyForModel", () => {
       }
       expect(String(error)).toContain("openai-codex/gpt-5.2");
     } finally {
+<<<<<<< HEAD
       if (previousOpenAiKey === undefined) {
         delete process.env.OPENAI_API_KEY;
       } else {
@@ -161,6 +186,9 @@ describe("getApiKeyForModel", () => {
       } else {
         process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
       }
+=======
+      envSnapshot.restore();
+>>>>>>> e9c8540e2 (refactor(test): simplify model auth env restore)
       await fs.rm(tempDir, { recursive: true, force: true });
     }
   });
