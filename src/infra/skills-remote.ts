@@ -168,7 +168,15 @@ export function recordRemoteNodeBins(nodeId: string, bins: string[]) {
   upsertNode({ nodeId, bins });
 }
 
+<<<<<<< HEAD
 function listWorkspaceDirs(cfg: MoltbotConfig): string[] {
+=======
+export function removeRemoteNodeInfo(nodeId: string) {
+  remoteNodes.delete(nodeId);
+}
+
+function listWorkspaceDirs(cfg: OpenClawConfig): string[] {
+>>>>>>> dabfcbe94 (Skills: clean up remote node cache on disconnect)
   const dirs = new Set<string>();
   const list = cfg.agents?.list;
   if (Array.isArray(list)) {

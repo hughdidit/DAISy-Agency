@@ -10,6 +10,7 @@ import type { GatewayRequestContext, GatewayRequestHandlers } from "../server-me
 import type { GatewayWsClient } from "./ws-types.js";
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import { resolveCanvasHostUrl } from "../../infra/canvas-host-url.js";
+import { removeRemoteNodeInfo } from "../../infra/skills-remote.js";
 import { listSystemPresence, upsertPresence } from "../../infra/system-presence.js";
 <<<<<<< HEAD
 import type { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -256,6 +257,7 @@ export function attachGatewayWsConnectionHandler(params: {
         const context = buildRequestContext();
         const nodeId = context.nodeRegistry.unregister(connId);
         if (nodeId) {
+          removeRemoteNodeInfo(nodeId);
           context.nodeUnsubscribeAll(nodeId);
         }
       }
