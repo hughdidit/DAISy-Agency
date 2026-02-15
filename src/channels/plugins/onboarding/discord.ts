@@ -61,11 +61,19 @@ async function noteDiscordTokenHelp(prompter: WizardPrompter): Promise<void> {
   );
 }
 
+<<<<<<< HEAD
 function setDiscordGroupPolicy(
   cfg: MoltbotConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
 ): MoltbotConfig {
+=======
+function patchDiscordConfigForAccount(
+  cfg: OpenClawConfig,
+  accountId: string,
+  patch: Record<string, unknown>,
+): OpenClawConfig {
+>>>>>>> 360b73bbb (refactor(discord): dedupe onboarding config patching)
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -74,7 +82,7 @@ function setDiscordGroupPolicy(
         discord: {
           ...cfg.channels?.discord,
           enabled: true,
-          groupPolicy,
+          ...patch,
         },
       },
     };
@@ -91,12 +99,20 @@ function setDiscordGroupPolicy(
           [accountId]: {
             ...cfg.channels?.discord?.accounts?.[accountId],
             enabled: cfg.channels?.discord?.accounts?.[accountId]?.enabled ?? true,
-            groupPolicy,
+            ...patch,
           },
         },
       },
     },
   };
+}
+
+function setDiscordGroupPolicy(
+  cfg: OpenClawConfig,
+  accountId: string,
+  groupPolicy: "open" | "allowlist" | "disabled",
+): OpenClawConfig {
+  return patchDiscordConfigForAccount(cfg, accountId, { groupPolicy });
 }
 
 function setDiscordGuildChannelAllowlist(
@@ -123,37 +139,7 @@ function setDiscordGuildChannelAllowlist(
       guilds[guildKey] = existing;
     }
   }
-  if (accountId === DEFAULT_ACCOUNT_ID) {
-    return {
-      ...cfg,
-      channels: {
-        ...cfg.channels,
-        discord: {
-          ...cfg.channels?.discord,
-          enabled: true,
-          guilds,
-        },
-      },
-    };
-  }
-  return {
-    ...cfg,
-    channels: {
-      ...cfg.channels,
-      discord: {
-        ...cfg.channels?.discord,
-        enabled: true,
-        accounts: {
-          ...cfg.channels?.discord?.accounts,
-          [accountId]: {
-            ...cfg.channels?.discord?.accounts?.[accountId],
-            enabled: cfg.channels?.discord?.accounts?.[accountId]?.enabled ?? true,
-            guilds,
-          },
-        },
-      },
-    },
-  };
+  return patchDiscordConfigForAccount(cfg, accountId, { guilds });
 }
 
 function setDiscordAllowFrom(cfg: MoltbotConfig, allowFrom: string[]): MoltbotConfig {
