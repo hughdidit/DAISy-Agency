@@ -67,6 +67,7 @@ vi.mock("../../utils.js", () => ({
 }));
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 vi.mock("../../utils/message-channel.js", () => ({
   isMarkdownCapableMessageChannel: vi.fn(() => true),
 }));
@@ -137,6 +138,8 @@ vi.mock("./utils.js", () => ({
 
 =======
 >>>>>>> b744ba341 (refactor(test): share overflow compaction mocks)
+=======
+>>>>>>> 5fb4032fb (refactor(test): share overflow compaction mocks)
 vi.mock("../pi-embedded-helpers.js", async () => {
   return {
     isCompactionFailureError: (msg?: string) => {
