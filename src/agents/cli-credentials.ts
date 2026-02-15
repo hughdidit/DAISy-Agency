@@ -203,6 +203,13 @@ function readCodexKeychainCredentials(options?: {
 
 function readQwenCliCredentials(options?: { homeDir?: string }): QwenCliCredential | null {
   const credPath = resolveQwenCliCredentialsPath(options?.homeDir);
+  return readPortalCliOauthCredentials(credPath, "qwen-portal");
+}
+
+function readPortalCliOauthCredentials<TProvider extends string>(
+  credPath: string,
+  provider: TProvider,
+): { type: "oauth"; provider: TProvider; access: string; refresh: string; expires: number } | null {
   const raw = loadJsonFile(credPath);
   if (!raw || typeof raw !== "object") {
     return null;
@@ -224,13 +231,21 @@ function readQwenCliCredentials(options?: { homeDir?: string }): QwenCliCredenti
 
   return {
     type: "oauth",
-    provider: "qwen-portal",
+    provider,
     access: accessToken,
     refresh: refreshToken,
     expires: expiresAt,
   };
 }
 
+<<<<<<< HEAD
+=======
+function readMiniMaxCliCredentials(options?: { homeDir?: string }): MiniMaxCliCredential | null {
+  const credPath = resolveMiniMaxCliCredentialsPath(options?.homeDir);
+  return readPortalCliOauthCredentials(credPath, "minimax-portal");
+}
+
+>>>>>>> ef1f98ed6 (refactor(agents): dedupe portal CLI credential parsing)
 function readClaudeCliKeychainCredentials(
   execSyncImpl: ExecSyncFn = execSync,
 ): ClaudeCliCredential | null {
