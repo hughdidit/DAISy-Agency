@@ -86,6 +86,112 @@ function requireConfigBaseHash(
   return true;
 }
 
+<<<<<<< HEAD
+=======
+function resolveConfigRestartRequest(params: unknown): {
+  sessionKey: string | undefined;
+  note: string | undefined;
+  restartDelayMs: number | undefined;
+  deliveryContext: ReturnType<typeof extractDeliveryInfo>["deliveryContext"];
+  threadId: ReturnType<typeof extractDeliveryInfo>["threadId"];
+} {
+  const sessionKey =
+    typeof (params as { sessionKey?: unknown }).sessionKey === "string"
+      ? (params as { sessionKey?: string }).sessionKey?.trim() || undefined
+      : undefined;
+  const note =
+    typeof (params as { note?: unknown }).note === "string"
+      ? (params as { note?: string }).note?.trim() || undefined
+      : undefined;
+  const restartDelayMsRaw = (params as { restartDelayMs?: unknown }).restartDelayMs;
+  const restartDelayMs =
+    typeof restartDelayMsRaw === "number" && Number.isFinite(restartDelayMsRaw)
+      ? Math.max(0, Math.floor(restartDelayMsRaw))
+      : undefined;
+
+  // Extract deliveryContext + threadId for routing after restart
+  // Supports both :thread: (most channels) and :topic: (Telegram)
+  const { deliveryContext, threadId } = extractDeliveryInfo(sessionKey);
+
+  return {
+    sessionKey,
+    note,
+    restartDelayMs,
+    deliveryContext,
+    threadId,
+  };
+}
+
+function buildConfigRestartSentinelPayload(params: {
+  kind: RestartSentinelPayload["kind"];
+  mode: string;
+  sessionKey: string | undefined;
+  deliveryContext: ReturnType<typeof extractDeliveryInfo>["deliveryContext"];
+  threadId: ReturnType<typeof extractDeliveryInfo>["threadId"];
+  note: string | undefined;
+}): RestartSentinelPayload {
+  return {
+    kind: params.kind,
+    status: "ok",
+    ts: Date.now(),
+    sessionKey: params.sessionKey,
+    deliveryContext: params.deliveryContext,
+    threadId: params.threadId,
+    message: params.note ?? null,
+    doctorHint: formatDoctorNonInteractiveHint(),
+    stats: {
+      mode: params.mode,
+      root: CONFIG_PATH,
+    },
+  };
+}
+
+async function tryWriteRestartSentinelPayload(
+  payload: RestartSentinelPayload,
+): Promise<string | null> {
+  try {
+    return await writeRestartSentinel(payload);
+  } catch {
+    return null;
+  }
+}
+
+function loadSchemaWithPlugins(): ConfigSchemaResponse {
+  const cfg = loadConfig();
+  const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
+  const pluginRegistry = loadOpenClawPlugins({
+    config: cfg,
+    cache: true,
+    workspaceDir,
+    logger: {
+      info: () => {},
+      warn: () => {},
+      error: () => {},
+      debug: () => {},
+    },
+  });
+  // Note: We can't easily cache this, as there are no callback that can invalidate
+  // our cache. However, both loadConfig() and loadOpenClawPlugins() already cache
+  // their results, and buildConfigSchema() is just a cheap transformation.
+  return buildConfigSchema({
+    plugins: pluginRegistry.plugins.map((plugin) => ({
+      id: plugin.id,
+      name: plugin.name,
+      description: plugin.description,
+      configUiHints: plugin.configUiHints,
+      configSchema: plugin.configJsonSchema,
+    })),
+    channels: listChannelPlugins().map((entry) => ({
+      id: entry.id,
+      label: entry.meta.label,
+      description: entry.meta.blurb,
+      configSchema: entry.configSchema?.schema,
+      configUiHints: entry.configSchema?.uiHints,
+    })),
+  });
+}
+
+>>>>>>> 410422999 (refactor(gateway): share config restart sentinel builder)
 export const configHandlers: GatewayRequestHandlers = {
   "config.get": async ({ params, respond }) => {
     if (!validateConfigGetParams(params)) {
@@ -265,6 +371,7 @@ export const configHandlers: GatewayRequestHandlers = {
     }
     await writeConfigFile(validated.config);
 
+<<<<<<< HEAD
     const sessionKey =
       typeof (params as { sessionKey?: unknown }).sessionKey === "string"
         ? (params as { sessionKey?: string }).sessionKey?.trim() || undefined
@@ -297,6 +404,19 @@ export const configHandlers: GatewayRequestHandlers = {
     } catch {
       sentinelPath = null;
     }
+=======
+    const { sessionKey, note, restartDelayMs, deliveryContext, threadId } =
+      resolveConfigRestartRequest(params);
+    const payload = buildConfigRestartSentinelPayload({
+      kind: "config-patch",
+      mode: "config.patch",
+      sessionKey,
+      deliveryContext,
+      threadId,
+      note,
+    });
+    const sentinelPath = await tryWriteRestartSentinelPayload(payload);
+>>>>>>> 410422999 (refactor(gateway): share config restart sentinel builder)
     const restart = scheduleGatewaySigusr1Restart({
       delayMs: restartDelayMs,
       reason: "config.patch",
@@ -362,6 +482,7 @@ export const configHandlers: GatewayRequestHandlers = {
     }
     await writeConfigFile(validated.config);
 
+<<<<<<< HEAD
     const sessionKey =
       typeof (params as { sessionKey?: unknown }).sessionKey === "string"
         ? (params as { sessionKey?: string }).sessionKey?.trim() || undefined
@@ -377,10 +498,15 @@ export const configHandlers: GatewayRequestHandlers = {
         : undefined;
 
     const payload: RestartSentinelPayload = {
+=======
+    const { sessionKey, note, restartDelayMs, deliveryContext, threadId } =
+      resolveConfigRestartRequest(params);
+    const payload = buildConfigRestartSentinelPayload({
+>>>>>>> 410422999 (refactor(gateway): share config restart sentinel builder)
       kind: "config-apply",
-      status: "ok",
-      ts: Date.now(),
+      mode: "config.apply",
       sessionKey,
+<<<<<<< HEAD
       message: note ?? null,
       doctorHint: formatDoctorNonInteractiveHint(),
       stats: {
@@ -394,6 +520,13 @@ export const configHandlers: GatewayRequestHandlers = {
     } catch {
       sentinelPath = null;
     }
+=======
+      deliveryContext,
+      threadId,
+      note,
+    });
+    const sentinelPath = await tryWriteRestartSentinelPayload(payload);
+>>>>>>> 410422999 (refactor(gateway): share config restart sentinel builder)
     const restart = scheduleGatewaySigusr1Restart({
       delayMs: restartDelayMs,
       reason: "config.apply",
