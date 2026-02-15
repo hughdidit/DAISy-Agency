@@ -45,6 +45,31 @@ function persistSubagentRuns() {
 
 const resumedRuns = new Set<string>();
 
+function startSubagentAnnounceCleanupFlow(runId: string, entry: SubagentRunRecord): boolean {
+  if (!beginSubagentCleanup(runId)) {
+    return false;
+  }
+  const requesterOrigin = normalizeDeliveryContext(entry.requesterOrigin);
+  void runSubagentAnnounceFlow({
+    childSessionKey: entry.childSessionKey,
+    childRunId: entry.runId,
+    requesterSessionKey: entry.requesterSessionKey,
+    requesterOrigin,
+    requesterDisplayKey: entry.requesterDisplayKey,
+    task: entry.task,
+    timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
+    cleanup: entry.cleanup,
+    waitForCompletion: false,
+    startedAt: entry.startedAt,
+    endedAt: entry.endedAt,
+    label: entry.label,
+    outcome: entry.outcome,
+  }).then((didAnnounce) => {
+    finalizeSubagentCleanup(runId, entry.cleanup, didAnnounce);
+  });
+  return true;
+}
+
 function resumeSubagentRun(runId: string) {
   if (!runId || resumedRuns.has(runId)) {
     return;
@@ -58,9 +83,10 @@ function resumeSubagentRun(runId: string) {
   }
 
   if (typeof entry.endedAt === "number" && entry.endedAt > 0) {
-    if (!beginSubagentCleanup(runId)) {
+    if (!startSubagentAnnounceCleanupFlow(runId, entry)) {
       return;
     }
+<<<<<<< HEAD
     const requesterOrigin = normalizeDeliveryContext(entry.requesterOrigin);
     void runSubagentAnnounceFlow({
       childSessionKey: entry.childSessionKey,
@@ -79,6 +105,8 @@ function resumeSubagentRun(runId: string) {
     }).then((didAnnounce) => {
       finalizeSubagentCleanup(runId, entry.cleanup, didAnnounce);
     });
+=======
+>>>>>>> 2f4b91d73 (refactor(agents): dedupe subagent announce cleanup)
     resumedRuns.add(runId);
     return;
   }
@@ -219,6 +247,7 @@ function ensureListener() {
     }
     persistSubagentRuns();
 
+<<<<<<< HEAD
     if (!beginSubagentCleanup(evt.runId)) {
       return;
     }
@@ -240,6 +269,9 @@ function ensureListener() {
     }).then((didAnnounce) => {
       finalizeSubagentCleanup(evt.runId, entry.cleanup, didAnnounce);
     });
+=======
+    void startSubagentAnnounceCleanupFlow(evt.runId, entry);
+>>>>>>> 2f4b91d73 (refactor(agents): dedupe subagent announce cleanup)
   });
 }
 
@@ -362,6 +394,7 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
     if (mutated) {
       persistSubagentRuns();
     }
+<<<<<<< HEAD
     if (!beginSubagentCleanup(runId)) {
       return;
     }
@@ -383,6 +416,9 @@ async function waitForSubagentCompletion(runId: string, waitTimeoutMs: number) {
     }).then((didAnnounce) => {
       finalizeSubagentCleanup(runId, entry.cleanup, didAnnounce);
     });
+=======
+    void startSubagentAnnounceCleanupFlow(runId, entry);
+>>>>>>> 2f4b91d73 (refactor(agents): dedupe subagent announce cleanup)
   } catch {
     // ignore
   }
