@@ -202,10 +202,16 @@ function createPluginHandler(params: {
   };
 }
 
+<<<<<<< HEAD
 export async function deliverOutboundPayloads(params: {
 <<<<<<< HEAD
   cfg: MoltbotConfig;
 =======
+=======
+const isAbortError = (err: unknown): boolean => err instanceof Error && err.name === "AbortError";
+
+type DeliverOutboundPayloadsCoreParams = {
+>>>>>>> 21df9ebd9 (refactor(outbound): share deliver payload params)
   cfg: OpenClawConfig;
   channel: Exclude<OutboundChannel, "none">;
   to: string;
@@ -227,9 +233,16 @@ export async function deliverOutboundPayloads(params: {
     mediaUrls?: string[];
   };
   silent?: boolean;
+};
+
+type DeliverOutboundPayloadsParams = DeliverOutboundPayloadsCoreParams & {
   /** @internal Skip write-ahead queue (used by crash-recovery to avoid re-enqueueing). */
   skipQueue?: boolean;
-}): Promise<OutboundDeliveryResult[]> {
+};
+
+export async function deliverOutboundPayloads(
+  params: DeliverOutboundPayloadsParams,
+): Promise<OutboundDeliveryResult[]> {
   const { channel, to, payloads } = params;
 
   // Write-ahead delivery queue: persist before sending, remove after success.
@@ -288,6 +301,7 @@ export async function deliverOutboundPayloads(params: {
 }
 
 /** Core delivery logic (extracted for queue wrapper). */
+<<<<<<< HEAD
 async function deliverOutboundPayloadsCore(params: {
   cfg: OpenClawConfig;
 >>>>>>> 09e1cbc35 (fix(cron): pass agent identity through delivery path (#16218) (#16242))
@@ -312,6 +326,11 @@ async function deliverOutboundPayloadsCore(params: {
   };
   silent?: boolean;
 }): Promise<OutboundDeliveryResult[]> {
+=======
+async function deliverOutboundPayloadsCore(
+  params: DeliverOutboundPayloadsCoreParams,
+): Promise<OutboundDeliveryResult[]> {
+>>>>>>> 21df9ebd9 (refactor(outbound): share deliver payload params)
   const { cfg, channel, to, payloads } = params;
   const accountId = params.accountId;
   const deps = params.deps;
