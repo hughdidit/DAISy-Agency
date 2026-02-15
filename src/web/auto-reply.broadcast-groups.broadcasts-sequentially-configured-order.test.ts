@@ -19,11 +19,13 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import { describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 01ec81dae (refactor(test): migrate web auto-reply tests to harness)
 import { monitorWebChannel } from "./auto-reply.js";
+=======
+import { monitorWebChannelWithCapture } from "./auto-reply.broadcast-groups.test-harness.js";
+>>>>>>> fe2721574 (refactor(test): share web broadcast-groups harness)
 import {
-  createWebInboundDeliverySpies,
-  createWebListenerFactoryCapture,
   installWebAutoReplyTestHomeHooks,
   installWebAutoReplyUnitTestHooks,
   resetLoadConfigMock,
@@ -132,16 +134,10 @@ describe("broadcast groups", () => {
       return { text: "ok" };
     });
 
-    const spies = createWebInboundDeliverySpies();
-
-    const { listenerFactory, getOnMessage } = createWebListenerFactoryCapture();
-
-    await monitorWebChannel(false, listenerFactory, false, resolver);
-    const onMessage = getOnMessage();
-    expect(onMessage).toBeDefined();
+    const { spies, onMessage } = await monitorWebChannelWithCapture(resolver);
 
     await sendWebDirectInboundMessage({
-      onMessage: onMessage!,
+      onMessage,
       spies,
       id: "m1",
       from: "+1000",
@@ -167,17 +163,12 @@ describe("broadcast groups", () => {
       },
     } satisfies MoltbotConfig);
 
-    const spies = createWebInboundDeliverySpies();
     const resolver = vi.fn().mockResolvedValue({ text: "ok" });
 
-    const { listenerFactory, getOnMessage } = createWebListenerFactoryCapture();
-
-    await monitorWebChannel(false, listenerFactory, false, resolver);
-    const onMessage = getOnMessage();
-    expect(onMessage).toBeDefined();
+    const { spies, onMessage } = await monitorWebChannelWithCapture(resolver);
 
     await sendWebGroupInboundMessage({
-      onMessage: onMessage!,
+      onMessage,
       spies,
       body: "hello group",
       id: "g1",
@@ -189,7 +180,7 @@ describe("broadcast groups", () => {
     expect(resolver).not.toHaveBeenCalled();
 
     await sendWebGroupInboundMessage({
-      onMessage: onMessage!,
+      onMessage,
       spies,
       body: "@bot ping",
       id: "g2",
@@ -219,7 +210,7 @@ describe("broadcast groups", () => {
     }
 
     await sendWebGroupInboundMessage({
-      onMessage: onMessage!,
+      onMessage,
       spies,
       body: "@bot ping 2",
       id: "g3",
@@ -272,20 +263,9 @@ describe("broadcast groups", () => {
       return { text: "ok" };
     });
 
-    let capturedOnMessage:
-      | ((msg: import("./inbound.js").WebInboundMessage) => Promise<void>)
-      | undefined;
-    const listenerFactory = async (opts: {
-      onMessage: (msg: import("./inbound.js").WebInboundMessage) => Promise<void>;
-    }) => {
-      capturedOnMessage = opts.onMessage;
-      return { close: vi.fn() };
-    };
+    const { onMessage: capturedOnMessage } = await monitorWebChannelWithCapture(resolver);
 
-    await monitorWebChannel(false, listenerFactory, false, resolver);
-    expect(capturedOnMessage).toBeDefined();
-
-    await capturedOnMessage?.({
+    await capturedOnMessage({
       id: "m1",
       from: "+1000",
       conversationId: "+1000",

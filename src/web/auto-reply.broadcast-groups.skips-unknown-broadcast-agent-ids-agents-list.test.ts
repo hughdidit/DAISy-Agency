@@ -19,11 +19,13 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import { describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 01ec81dae (refactor(test): migrate web auto-reply tests to harness)
 import { monitorWebChannel } from "./auto-reply.js";
+=======
+import { monitorWebChannelWithCapture } from "./auto-reply.broadcast-groups.test-harness.js";
+>>>>>>> fe2721574 (refactor(test): share web broadcast-groups harness)
 import {
-  createWebInboundDeliverySpies,
-  createWebListenerFactoryCapture,
   installWebAutoReplyTestHomeHooks,
   installWebAutoReplyUnitTestHooks,
   resetLoadConfigMock,
@@ -130,15 +132,10 @@ describe("broadcast groups", () => {
       return { text: "ok" };
     });
 
-    const spies = createWebInboundDeliverySpies();
-    const { listenerFactory, getOnMessage } = createWebListenerFactoryCapture();
-
-    await monitorWebChannel(false, listenerFactory, false, resolver);
-    const onMessage = getOnMessage();
-    expect(onMessage).toBeDefined();
+    const { spies, onMessage } = await monitorWebChannelWithCapture(resolver);
 
     await sendWebDirectInboundMessage({
-      onMessage: onMessage!,
+      onMessage,
       spies,
       id: "m1",
       from: "+1000",
