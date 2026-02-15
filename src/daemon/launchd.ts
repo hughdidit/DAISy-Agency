@@ -115,10 +115,17 @@ async function execLaunchctl(
   args: string[],
 ): Promise<{ stdout: string; stderr: string; code: number }> {
   try {
+<<<<<<< HEAD
     const { stdout, stderr } = await execFileAsync("launchctl", args, {
       encoding: "utf8",
       shell: process.platform === "win32",
     });
+=======
+    const isWindows = process.platform === "win32";
+    const file = isWindows ? (process.env.ComSpec ?? "cmd.exe") : "launchctl";
+    const fileArgs = isWindows ? ["/d", "/s", "/c", "launchctl", ...args] : args;
+    const { stdout, stderr } = await execFileAsync(file, fileArgs, { encoding: "utf8" });
+>>>>>>> a47b08d55 (fix(ci): make Windows unit tests deterministic)
     return {
       stdout: String(stdout ?? ""),
       stderr: String(stderr ?? ""),
