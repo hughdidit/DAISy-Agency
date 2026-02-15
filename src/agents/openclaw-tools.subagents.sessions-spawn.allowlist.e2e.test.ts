@@ -129,7 +129,7 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
   it("sessions_spawn allows cross-agent spawning when configured", async () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
-    setConfigOverride({
+    setSessionsSpawnConfigOverride({
       session: {
         mainKey: "main",
         scope: "per-sender",
@@ -183,7 +183,7 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
   it("sessions_spawn allows any agent when allowlist is *", async () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
-    setConfigOverride({
+    setSessionsSpawnConfigOverride({
       session: {
         mainKey: "main",
         scope: "per-sender",
@@ -237,7 +237,7 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
   it("sessions_spawn normalizes allowlisted agent ids", async () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
-    setConfigOverride({
+    setSessionsSpawnConfigOverride({
       session: {
         mainKey: "main",
         scope: "per-sender",
