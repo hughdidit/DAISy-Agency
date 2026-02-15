@@ -8,6 +8,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   buildConfigChecks,
   resolveMissingAnyBins,
@@ -30,6 +31,9 @@ import { evaluateRequirementsFromMetadata } from "../shared/requirements.js";
 import { evaluateRequirementsFromMetadataWithRemote } from "../shared/requirements.js";
 >>>>>>> 34b6c743f (refactor(shared): share requirements eval for remote context)
 =======
+=======
+import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
+>>>>>>> 6f2f88d3a (refactor(status): reuse Requirements types)
 import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
 >>>>>>> 137079fc2 (refactor(shared): share entry requirements evaluation)
 import { CONFIG_DIR } from "../utils.js";
@@ -49,11 +53,15 @@ import {
 } from "./skills.js";
 import { resolveBundledSkillsContext } from "./skills/bundled-context.js";
 
+<<<<<<< HEAD
 export type SkillStatusConfigCheck = {
   path: string;
   value: unknown;
   satisfied: boolean;
 };
+=======
+export type SkillStatusConfigCheck = RequirementConfigCheck;
+>>>>>>> 6f2f88d3a (refactor(status): reuse Requirements types)
 
 export type SkillInstallOption = {
   id: string;
@@ -77,20 +85,8 @@ export type SkillStatusEntry = {
   disabled: boolean;
   blockedByAllowlist: boolean;
   eligible: boolean;
-  requirements: {
-    bins: string[];
-    anyBins: string[];
-    env: string[];
-    config: string[];
-    os: string[];
-  };
-  missing: {
-    bins: string[];
-    anyBins: string[];
-    env: string[];
-    config: string[];
-    os: string[];
-  };
+  requirements: Requirements;
+  missing: Requirements;
   configChecks: SkillStatusConfigCheck[];
   install: SkillInstallOption[];
 };
