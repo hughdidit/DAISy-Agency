@@ -13,6 +13,7 @@ import { extractBlueBubblesMessageId, resolveBlueBubblesSendTarget } from "./sen
 >>>>>>> 811e0c579 (refactor(bluebubbles): share send helpers)
 import { resolveChatGuidForTarget } from "./send.js";
 import {
+  blueBubblesFetchWithTimeout,
   buildBlueBubblesApiUrl,
   type BlueBubblesAttachment,
   type BlueBubblesSendTarget,
