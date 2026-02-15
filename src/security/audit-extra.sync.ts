@@ -16,6 +16,11 @@ import { resolveBrowserConfig } from "../browser/config.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { resolveNodeCommandAllowlist } from "../gateway/node-command-policy.js";
+<<<<<<< HEAD
+=======
+import { inferParamBFromIdOrName } from "../shared/model-param-b.js";
+import { pickSandboxToolPolicy } from "./audit-tool-policy.js";
+>>>>>>> d7079b557 (refactor(security): share sandbox tool policy picker)
 
 export type SecurityAuditFinding = {
   checkId: string;
@@ -177,36 +182,6 @@ function extractAgentIdFromSource(source: string): string | null {
   return match?.[1] ?? null;
 }
 
-function unionAllow(base?: string[], extra?: string[]): string[] | undefined {
-  if (!Array.isArray(extra) || extra.length === 0) {
-    return base;
-  }
-  if (!Array.isArray(base) || base.length === 0) {
-    return Array.from(new Set(["*", ...extra]));
-  }
-  return Array.from(new Set([...base, ...extra]));
-}
-
-function pickToolPolicy(config?: {
-  allow?: string[];
-  alsoAllow?: string[];
-  deny?: string[];
-}): SandboxToolPolicy | null {
-  if (!config) {
-    return null;
-  }
-  const allow = Array.isArray(config.allow)
-    ? unionAllow(config.allow, config.alsoAllow)
-    : Array.isArray(config.alsoAllow) && config.alsoAllow.length > 0
-      ? unionAllow(undefined, config.alsoAllow)
-      : undefined;
-  const deny = Array.isArray(config.deny) ? config.deny : undefined;
-  if (!allow && !deny) {
-    return null;
-  }
-  return { allow, deny };
-}
-
 function hasConfiguredDockerConfig(
   docker: Record<string, unknown> | undefined | null,
 ): docker is Record<string, unknown> {
@@ -275,12 +250,12 @@ function resolveToolPolicies(params: {
     policies.push(profilePolicy);
   }
 
-  const globalPolicy = pickToolPolicy(params.cfg.tools ?? undefined);
+  const globalPolicy = pickSandboxToolPolicy(params.cfg.tools ?? undefined);
   if (globalPolicy) {
     policies.push(globalPolicy);
   }
 
-  const agentPolicy = pickToolPolicy(params.agentTools);
+  const agentPolicy = pickSandboxToolPolicy(params.agentTools);
   if (agentPolicy) {
     policies.push(agentPolicy);
   }
