@@ -6,7 +6,6 @@ import type {
   JoinEvent,
   LeaveEvent,
   PostbackEvent,
-  EventSource,
 } from "@line/bot-sdk";
 import type { MoltbotConfig } from "../config/config.js";
 import { danger, logVerbose } from "../globals.js";
