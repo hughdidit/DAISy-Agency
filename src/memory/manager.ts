@@ -211,6 +211,7 @@ export class MemoryIndexManager implements MemorySearchManager {
   static async get(params: {
     cfg: MoltbotConfig;
     agentId: string;
+    purpose?: "default" | "status";
   }): Promise<MemoryIndexManager | null> {
     const { cfg, agentId } = params;
     const settings = resolveMemorySearchConfig(cfg, agentId);
@@ -235,6 +236,7 @@ export class MemoryIndexManager implements MemorySearchManager {
       workspaceDir,
       settings,
       providerResult,
+      purpose: params.purpose,
     });
     INDEX_CACHE.set(key, manager);
     return manager;
@@ -247,6 +249,7 @@ export class MemoryIndexManager implements MemorySearchManager {
     workspaceDir: string;
     settings: ResolvedMemorySearchConfig;
     providerResult: EmbeddingProviderResult;
+    purpose?: "default" | "status";
   }) {
     this.cacheKey = params.cacheKey;
     this.cfg = params.cfg;
@@ -281,7 +284,8 @@ export class MemoryIndexManager implements MemorySearchManager {
     this.ensureWatcher();
     this.ensureSessionListener();
     this.ensureIntervalSync();
-    this.dirty = this.sources.has("memory");
+    const statusOnly = params.purpose === "status";
+    this.dirty = this.sources.has("memory") && (statusOnly ? !meta : true);
     this.batch = this.resolveBatchConfig();
   }
 
