@@ -33,8 +33,12 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 =======
 - Discord: add debug logging for message routing decisions to improve `--debug` tracing. (#16202) Thanks @jayleekr.
+<<<<<<< HEAD
 - Telegram: add poll sending via `openclaw message poll` (duration seconds, silent delivery, anonymity controls). (#16209) Thanks @robbyczgw-cla.
 >>>>>>> 8e5689a84 (feat(telegram): add sendPoll support (#16193) (#16209))
+=======
+- Agents: add optional `messages.suppressToolErrors` config to hide non-mutating tool-failure warnings from user-facing chat while still surfacing mutating failures. (#16620) Thanks @vai-oro.
+>>>>>>> 2c8b92105 (feat: add messages.suppressToolErrors config option (#16620))
 
 ### Fixes
 
