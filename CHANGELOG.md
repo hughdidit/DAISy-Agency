@@ -202,6 +202,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 3e6d1e9cf (docs: update changelog)
 
 ## 2026.2.14
@@ -225,6 +226,9 @@ Docs: https://docs.openclaw.ai
 =======
 >>>>>>> c1feda14f (docs(changelog): reorder 2026.2.14 notes)
 =======
+=======
+- Discord: ensure role allowlist matching uses raw role IDs for message routing authorization. Thanks @thewilloftheshadow.
+>>>>>>> 8678b10ae (Docs: add discord role allowlist changelog entry)
 - Discord: treat empty per-guild `channels: {}` config maps as no channel allowlist (not deny-all), so `groupPolicy: "open"` guilds without explicit channel entries continue to receive messages. (#16714) Thanks @xqliu.
 >>>>>>> c3e87da2d (chore (changelog): note discord empty channels allowlist fix)
 - Models/CLI: guard `models status` string trimming paths to prevent crashes from malformed non-string config values. (#16395) Thanks @BinHPdev.
