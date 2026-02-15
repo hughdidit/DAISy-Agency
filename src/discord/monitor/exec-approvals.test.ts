@@ -8,7 +8,11 @@ import os from "node:os";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
+<<<<<<< HEAD
 >>>>>>> 9203a2fdb (Discord: CV2! (#16364))
+=======
+import { clearSessionStoreCacheForTest } from "../../config/sessions.js";
+>>>>>>> 65f8b46c1 (fix(ci): stabilize media and session store tests)
 import {
   buildExecApprovalCustomId,
   parseExecApprovalData,
@@ -23,6 +27,8 @@ const STORE_PATH = path.join(os.tmpdir(), "openclaw-exec-approvals-test.json");
 
 const writeStore = (store: Record<string, unknown>) => {
   fs.writeFileSync(STORE_PATH, `${JSON.stringify(store, null, 2)}\n`, "utf8");
+  // CI runners can have coarse mtime resolution; avoid returning stale cached stores.
+  clearSessionStoreCacheForTest();
 };
 
 beforeEach(() => {
