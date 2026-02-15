@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const callGatewayMock = vi.fn();
@@ -40,60 +41,19 @@ import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 describe("moltbot-tools: subagents", () => {
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
+=======
+import { beforeEach, describe, expect, it } from "vitest";
+>>>>>>> dd11a6bcd (refactor(test): share sessions_spawn e2e harness)
 import { createOpenClawTools } from "./openclaw-tools.js";
 import "./test-helpers/fast-core-tools.js";
+import {
+  getCallGatewayMock,
+  resetSessionsSpawnConfigOverride,
+  setSessionsSpawnConfigOverride,
+} from "./openclaw-tools.subagents.sessions-spawn.test-harness.js";
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
-type SessionsSpawnTestConfig = ReturnType<(typeof import("../config/config.js"))["loadConfig"]>;
-
-const hoisted = vi.hoisted(() => {
-  const callGatewayMock = vi.fn();
-  const defaultConfigOverride = {
-    session: {
-      mainKey: "main",
-      scope: "per-sender",
-    },
-  } as SessionsSpawnTestConfig;
-  const state = { configOverride: defaultConfigOverride };
-  return { callGatewayMock, defaultConfigOverride, state };
-});
-
-const callGatewayMock = hoisted.callGatewayMock;
-
-function resetConfigOverride() {
-  hoisted.state.configOverride = hoisted.defaultConfigOverride;
-}
-
-function setConfigOverride(next: SessionsSpawnTestConfig) {
-  hoisted.state.configOverride = next;
-}
-
-vi.mock("../gateway/call.js", () => ({
-  callGateway: (opts: unknown) => hoisted.callGatewayMock(opts),
-}));
-// Some tools import callGateway via "../../gateway/call.js" (from nested folders). Mock that too.
-vi.mock("../../gateway/call.js", () => ({
-  callGateway: (opts: unknown) => hoisted.callGatewayMock(opts),
-}));
-
-vi.mock("../config/config.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../config/config.js")>();
-  return {
-    ...actual,
-    loadConfig: () => hoisted.state.configOverride,
-    resolveGatewayPort: () => 18789,
-  };
-});
-
-// Same module, different specifier (used by tools under src/agents/tools/*).
-vi.mock("../../config/config.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../config/config.js")>();
-  return {
-    ...actual,
-    loadConfig: () => hoisted.state.configOverride,
-    resolveGatewayPort: () => 18789,
-  };
-});
+const callGatewayMock = getCallGatewayMock();
 
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-allows-cross-agent-spawning-configured.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
@@ -102,7 +62,7 @@ describe("openclaw-tools: subagents", () => {
 describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.allowlist.e2e.test.ts
   beforeEach(() => {
-    resetConfigOverride();
+    resetSessionsSpawnConfigOverride();
   });
 
   it("sessions_spawn only allows same-agent by default", async () => {
@@ -130,7 +90,7 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
   it("sessions_spawn forbids cross-agent spawning when not allowed", async () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
-    setConfigOverride({
+    setSessionsSpawnConfigOverride({
       session: {
         mainKey: "main",
         scope: "per-sender",

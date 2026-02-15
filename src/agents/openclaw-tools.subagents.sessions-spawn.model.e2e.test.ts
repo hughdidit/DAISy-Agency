@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const callGatewayMock = vi.fn();
@@ -40,61 +41,20 @@ import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 describe("moltbot-tools: subagents", () => {
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
+=======
+import { beforeEach, describe, expect, it } from "vitest";
+>>>>>>> dd11a6bcd (refactor(test): share sessions_spawn e2e harness)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import "./test-helpers/fast-core-tools.js";
 import { createOpenClawTools } from "./openclaw-tools.js";
+import {
+  getCallGatewayMock,
+  resetSessionsSpawnConfigOverride,
+  setSessionsSpawnConfigOverride,
+} from "./openclaw-tools.subagents.sessions-spawn.test-harness.js";
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
-type SessionsSpawnTestConfig = ReturnType<(typeof import("../config/config.js"))["loadConfig"]>;
-
-const hoisted = vi.hoisted(() => {
-  const callGatewayMock = vi.fn();
-  const defaultConfigOverride = {
-    session: {
-      mainKey: "main",
-      scope: "per-sender",
-    },
-  } as SessionsSpawnTestConfig;
-  const state = { configOverride: defaultConfigOverride };
-  return { callGatewayMock, defaultConfigOverride, state };
-});
-
-const callGatewayMock = hoisted.callGatewayMock;
-
-function resetConfigOverride() {
-  hoisted.state.configOverride = hoisted.defaultConfigOverride;
-}
-
-function setConfigOverride(next: SessionsSpawnTestConfig) {
-  hoisted.state.configOverride = next;
-}
-
-vi.mock("../gateway/call.js", () => ({
-  callGateway: (opts: unknown) => hoisted.callGatewayMock(opts),
-}));
-// Some tools import callGateway via "../../gateway/call.js" (from nested folders). Mock that too.
-vi.mock("../../gateway/call.js", () => ({
-  callGateway: (opts: unknown) => hoisted.callGatewayMock(opts),
-}));
-
-vi.mock("../config/config.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../config/config.js")>();
-  return {
-    ...actual,
-    loadConfig: () => hoisted.state.configOverride,
-    resolveGatewayPort: () => 18789,
-  };
-});
-
-// Same module, different specifier (used by tools under src/agents/tools/*).
-vi.mock("../../config/config.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../config/config.js")>();
-  return {
-    ...actual,
-    loadConfig: () => hoisted.state.configOverride,
-    resolveGatewayPort: () => 18789,
-  };
-});
+const callGatewayMock = getCallGatewayMock();
 
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-applies-model-child-session.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
@@ -103,7 +63,7 @@ describe("openclaw-tools: subagents", () => {
 describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.model.e2e.test.ts
   beforeEach(() => {
-    resetConfigOverride();
+    resetSessionsSpawnConfigOverride();
   });
 
   it("sessions_spawn applies a model to the child session", async () => {
@@ -238,7 +198,7 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
   it("sessions_spawn applies default subagent model from defaults config", async () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
-    setConfigOverride({
+    setSessionsSpawnConfigOverride({
       session: { mainKey: "main", scope: "per-sender" },
       agents: { defaults: { subagents: { model: "minimax/MiniMax-M2.1" } } },
     });
@@ -324,7 +284,7 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
   it("sessions_spawn prefers per-agent subagent model over defaults", async () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
-    setConfigOverride({
+    setSessionsSpawnConfigOverride({
       session: { mainKey: "main", scope: "per-sender" },
       agents: {
         defaults: { subagents: { model: "minimax/MiniMax-M2.1" } },
