@@ -17,6 +17,7 @@ Use `discord` to manage messages, reactions, threads, polls, and moderation. You
 
 ## Inputs to collect
 
+<<<<<<< HEAD
 - For reactions: `channelId`, `messageId`, and an `emoji`.
 - For fetchMessage: `guildId`, `channelId`, `messageId`, or a `messageLink` like `https://discord.com/channels/<guildId>/<channelId>/<messageId>`.
 - For stickers/polls/sendMessage: a `to` target (`channel:<id>` or `user:<id>`). Optional `content` text.
@@ -24,6 +25,15 @@ Use `discord` to manage messages, reactions, threads, polls, and moderation. You
 - For media: `mediaUrl` with `file:///path` for local files or `https://...` for remote.
 - For emoji uploads: `guildId`, `name`, `mediaUrl`, optional `roleIds` (limit 256KB, PNG/JPG/GIF).
 - For sticker uploads: `guildId`, `name`, `description`, `tags`, `mediaUrl` (limit 512KB, PNG/APNG/Lottie JSON).
+=======
+## Guidelines
+
+- Avoid Markdown tables in outbound Discord messages.
+- Mention users as `<@USER_ID>`.
+- Prefer Discord components v2 (`components`) for rich UI; use legacy `embeds` only when you must.
+
+## Targets
+>>>>>>> 9203a2fdb (Discord: CV2! (#16364))
 
 Message context lines include `discord message id` and `channel` fields you can reuse directly.
 
@@ -32,7 +42,64 @@ Message context lines include `discord message id` and `channel` fields you can 
 
 ## Actions
 
+<<<<<<< HEAD
 ### React to a message
+=======
+```json
+{
+  "action": "send",
+  "channel": "discord",
+  "to": "channel:123",
+  "message": "hello",
+  "silent": true
+}
+```
+
+Send with media:
+
+```json
+{
+  "action": "send",
+  "channel": "discord",
+  "to": "channel:123",
+  "message": "see attachment",
+  "media": "file:///tmp/example.png"
+}
+```
+
+- Optional `silent: true` to suppress Discord notifications.
+
+Send with components v2 (recommended for rich UI):
+
+```json
+{
+  "action": "send",
+  "channel": "discord",
+  "to": "channel:123",
+  "message": "Status update",
+  "components": "[Carbon v2 components]"
+}
+```
+
+- `components` expects Carbon component instances (Container, TextDisplay, etc.) from JS/TS integrations.
+- Do not combine `components` with `embeds` (Discord rejects v2 + embeds).
+
+Legacy embeds (not recommended):
+
+```json
+{
+  "action": "send",
+  "channel": "discord",
+  "to": "channel:123",
+  "message": "Status update",
+  "embeds": [{ "title": "Legacy", "description": "Embeds are legacy." }]
+}
+```
+
+- `embeds` are ignored when components v2 are present.
+
+React:
+>>>>>>> 9203a2fdb (Discord: CV2! (#16364))
 
 ```json
 {
@@ -288,6 +355,7 @@ Use `discord.actions.*` to disable action groups:
 }
 ```
 
+<<<<<<< HEAD
 ### List available custom emojis
 
 ```json
@@ -581,3 +649,8 @@ CalVer uses date-based versions like...
 ```
 versioning options: semver (1.2.3), calver (2026.01.04), or yolo (`latest` forever). what fits your release cadence?
 ```
+=======
+- Short, conversational, low ceremony.
+- No markdown tables.
+- Mention users as `<@USER_ID>`.
+>>>>>>> 9203a2fdb (Discord: CV2! (#16364))

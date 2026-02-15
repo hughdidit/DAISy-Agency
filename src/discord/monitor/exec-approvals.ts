@@ -1,4 +1,14 @@
-import { Button, type ButtonInteraction, type ComponentData } from "@buape/carbon";
+import {
+  Button,
+  Row,
+  Separator,
+  TextDisplay,
+  serializePayload,
+  type ButtonInteraction,
+  type ComponentData,
+  type MessagePayloadObject,
+  type TopLevelComponents,
+} from "@buape/carbon";
 import { ButtonStyle, Routes } from "discord-api-types/v10";
 import type { MoltbotConfig } from "../../config/config.js";
 import { GatewayClient } from "../../gateway/client.js";
@@ -16,15 +26,27 @@ import type {
 } from "../../infra/exec-approvals.js";
 >>>>>>> e9de24215 (refactor(exec-approvals): share request event types)
 import type { RuntimeEnv } from "../../runtime.js";
+import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { buildGatewayConnectionDetails } from "../../gateway/call.js";
 import { GatewayClient } from "../../gateway/client.js";
 import { logDebug, logError } from "../../logger.js";
+<<<<<<< HEAD
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 >>>>>>> 8025e7c6c (fix(discord): respect gateway TLS config in exec approvals handler (#16216) (thanks @jasonftl))
 import { createDiscordClient } from "../send.shared.js";
 import { logDebug, logError } from "../../logger.js";
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
 import type { RuntimeEnv } from "../../runtime.js";
+=======
+import { normalizeAccountId, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+import {
+  GATEWAY_CLIENT_MODES,
+  GATEWAY_CLIENT_NAMES,
+  normalizeMessageChannel,
+} from "../../utils/message-channel.js";
+import { createDiscordClient, stripUndefinedFields } from "../send.shared.js";
+import { DiscordUiContainer } from "../ui.js";
+>>>>>>> 9203a2fdb (Discord: CV2! (#16364))
 
 const EXEC_APPROVAL_KEY = "execapproval";
 
@@ -80,105 +102,209 @@ export function parseExecApprovalData(
   };
 }
 
-function formatExecApprovalEmbed(request: ExecApprovalRequest) {
-  const commandText = request.request.command;
-  const commandPreview =
-    commandText.length > 1000 ? `${commandText.slice(0, 1000)}...` : commandText;
-  const expiresIn = Math.max(0, Math.round((request.expiresAtMs - Date.now()) / 1000));
+type ExecApprovalContainerParams = {
+  cfg: OpenClawConfig;
+  accountId: string;
+  title: string;
+  description?: string;
+  commandPreview: string;
+  metadataLines?: string[];
+  actionRow?: Row<Button>;
+  footer?: string;
+  accentColor?: string;
+};
 
-  const fields: Array<{ name: string; value: string; inline: boolean }> = [
-    {
-      name: "Command",
-      value: `\`\`\`\n${commandPreview}\n\`\`\``,
-      inline: false,
-    },
-  ];
-
-  if (request.request.cwd) {
-    fields.push({
-      name: "Working Directory",
-      value: request.request.cwd,
-      inline: true,
+class ExecApprovalContainer extends DiscordUiContainer {
+  constructor(params: ExecApprovalContainerParams) {
+    const components: Array<TextDisplay | Separator | Row<Button>> = [
+      new TextDisplay(`## ${params.title}`),
+    ];
+    if (params.description) {
+      components.push(new TextDisplay(params.description));
+    }
+    components.push(new Separator({ divider: true, spacing: "small" }));
+    components.push(new TextDisplay(`### Command\n\`\`\`\n${params.commandPreview}\n\`\`\``));
+    if (params.metadataLines?.length) {
+      components.push(new TextDisplay(params.metadataLines.join("\n")));
+    }
+    if (params.actionRow) {
+      components.push(params.actionRow);
+    }
+    if (params.footer) {
+      components.push(new Separator({ divider: false, spacing: "small" }));
+      components.push(new TextDisplay(`-# ${params.footer}`));
+    }
+    super({
+      cfg: params.cfg,
+      accountId: params.accountId,
+      components,
+      accentColor: params.accentColor,
     });
   }
-
-  if (request.request.host) {
-    fields.push({
-      name: "Host",
-      value: request.request.host,
-      inline: true,
-    });
-  }
-
-  if (request.request.agentId) {
-    fields.push({
-      name: "Agent",
-      value: request.request.agentId,
-      inline: true,
-    });
-  }
-
-  return {
-    title: "Exec Approval Required",
-    description: "A command needs your approval.",
-    color: 0xffa500, // Orange
-    fields,
-    footer: { text: `Expires in ${expiresIn}s | ID: ${request.id}` },
-    timestamp: new Date().toISOString(),
-  };
 }
 
-function formatResolvedEmbed(
-  request: ExecApprovalRequest,
-  decision: ExecApprovalDecision,
-  resolvedBy?: string | null,
-) {
-  const commandText = request.request.command;
+class ExecApprovalActionButton extends Button {
+  customId: string;
+  label: string;
+  style: ButtonStyle;
+
+  constructor(params: {
+    approvalId: string;
+    action: ExecApprovalDecision;
+    label: string;
+    style: ButtonStyle;
+  }) {
+    super();
+    this.customId = buildExecApprovalCustomId(params.approvalId, params.action);
+    this.label = params.label;
+    this.style = params.style;
+  }
+}
+
+class ExecApprovalActionRow extends Row<Button> {
+  constructor(approvalId: string) {
+    super([
+      new ExecApprovalActionButton({
+        approvalId,
+        action: "allow-once",
+        label: "Allow once",
+        style: ButtonStyle.Success,
+      }),
+      new ExecApprovalActionButton({
+        approvalId,
+        action: "allow-always",
+        label: "Always allow",
+        style: ButtonStyle.Primary,
+      }),
+      new ExecApprovalActionButton({
+        approvalId,
+        action: "deny",
+        label: "Deny",
+        style: ButtonStyle.Danger,
+      }),
+    ]);
+  }
+}
+
+function resolveExecApprovalAccountId(params: {
+  cfg: OpenClawConfig;
+  request: ExecApprovalRequest;
+}): string | null {
+  const sessionKey = params.request.request.sessionKey?.trim();
+  if (!sessionKey) {
+    return null;
+  }
+  try {
+    const agentId = resolveAgentIdFromSessionKey(sessionKey);
+    const storePath = resolveStorePath(params.cfg.session?.store, { agentId });
+    const store = loadSessionStore(storePath);
+    const entry = store[sessionKey];
+    const channel = normalizeMessageChannel(entry?.origin?.provider ?? entry?.lastChannel);
+    if (channel && channel !== "discord") {
+      return null;
+    }
+    const accountId = entry?.origin?.accountId ?? entry?.lastAccountId;
+    return accountId?.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+function buildExecApprovalMetadataLines(request: ExecApprovalRequest): string[] {
+  const lines: string[] = [];
+  if (request.request.cwd) {
+    lines.push(`- Working Directory: ${request.request.cwd}`);
+  }
+  if (request.request.host) {
+    lines.push(`- Host: ${request.request.host}`);
+  }
+  if (request.request.agentId) {
+    lines.push(`- Agent: ${request.request.agentId}`);
+  }
+  return lines;
+}
+
+function buildExecApprovalPayload(container: DiscordUiContainer): MessagePayloadObject {
+  const components: TopLevelComponents[] = [container];
+  return { components };
+}
+
+function createExecApprovalRequestContainer(params: {
+  request: ExecApprovalRequest;
+  cfg: OpenClawConfig;
+  accountId: string;
+  actionRow?: Row<Button>;
+}): ExecApprovalContainer {
+  const commandText = params.request.request.command;
+  const commandPreview =
+    commandText.length > 1000 ? `${commandText.slice(0, 1000)}...` : commandText;
+  const expiresAtSeconds = Math.max(0, Math.floor(params.request.expiresAtMs / 1000));
+
+  return new ExecApprovalContainer({
+    cfg: params.cfg,
+    accountId: params.accountId,
+    title: "Exec Approval Required",
+    description: "A command needs your approval.",
+    commandPreview,
+    metadataLines: buildExecApprovalMetadataLines(params.request),
+    actionRow: params.actionRow,
+    footer: `Expires <t:${expiresAtSeconds}:R> · ID: ${params.request.id}`,
+    accentColor: "#FFA500",
+  });
+}
+
+function createResolvedContainer(params: {
+  request: ExecApprovalRequest;
+  decision: ExecApprovalDecision;
+  resolvedBy?: string | null;
+  cfg: OpenClawConfig;
+  accountId: string;
+}): ExecApprovalContainer {
+  const commandText = params.request.request.command;
   const commandPreview = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
 
   const decisionLabel =
-    decision === "allow-once"
+    params.decision === "allow-once"
       ? "Allowed (once)"
-      : decision === "allow-always"
+      : params.decision === "allow-always"
         ? "Allowed (always)"
         : "Denied";
 
-  const color = decision === "deny" ? 0xed4245 : decision === "allow-always" ? 0x5865f2 : 0x57f287;
+  const accentColor =
+    params.decision === "deny"
+      ? "#ED4245"
+      : params.decision === "allow-always"
+        ? "#5865F2"
+        : "#57F287";
 
-  return {
+  return new ExecApprovalContainer({
+    cfg: params.cfg,
+    accountId: params.accountId,
     title: `Exec Approval: ${decisionLabel}`,
-    description: resolvedBy ? `Resolved by ${resolvedBy}` : "Resolved",
-    color,
-    fields: [
-      {
-        name: "Command",
-        value: `\`\`\`\n${commandPreview}\n\`\`\``,
-        inline: false,
-      },
-    ],
-    footer: { text: `ID: ${request.id}` },
-    timestamp: new Date().toISOString(),
-  };
+    description: params.resolvedBy ? `Resolved by ${params.resolvedBy}` : "Resolved",
+    commandPreview,
+    footer: `ID: ${params.request.id}`,
+    accentColor,
+  });
 }
 
-function formatExpiredEmbed(request: ExecApprovalRequest) {
-  const commandText = request.request.command;
+function createExpiredContainer(params: {
+  request: ExecApprovalRequest;
+  cfg: OpenClawConfig;
+  accountId: string;
+}): ExecApprovalContainer {
+  const commandText = params.request.request.command;
   const commandPreview = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
 
-  return {
+  return new ExecApprovalContainer({
+    cfg: params.cfg,
+    accountId: params.accountId,
     title: "Exec Approval: Expired",
     description: "This approval request has expired.",
-    color: 0x99aab5, // Gray
-    fields: [
-      {
-        name: "Command",
-        value: `\`\`\`\n${commandPreview}\n\`\`\``,
-        inline: false,
-      },
-    ],
-    footer: { text: `ID: ${request.id}` },
-    timestamp: new Date().toISOString(),
-  };
+    commandPreview,
+    footer: `ID: ${params.request.id}`,
+    accentColor: "#99AAB5",
+  });
 }
 
 export type DiscordExecApprovalHandlerOpts = {
@@ -209,6 +335,17 @@ export class DiscordExecApprovalHandler {
     }
     if (!config.approvers || config.approvers.length === 0) {
       return false;
+    }
+
+    const requestAccountId = resolveExecApprovalAccountId({
+      cfg: this.opts.cfg,
+      request,
+    });
+    if (requestAccountId) {
+      const handlerAccountId = normalizeAccountId(this.opts.accountId);
+      if (normalizeAccountId(requestAccountId) !== handlerAccountId) {
+        return false;
+      }
     }
 
     // Check agent filter
@@ -330,37 +467,19 @@ export class DiscordExecApprovalHandler {
       this.opts.cfg,
     );
 
-    const embed = formatExecApprovalEmbed(request);
-
-    // Build action rows with buttons
-    const components = [
-      {
-        type: 1, // ACTION_ROW
-        components: [
-          {
-            type: 2, // BUTTON
-            style: ButtonStyle.Success,
-            label: "Allow once",
-            custom_id: buildExecApprovalCustomId(request.id, "allow-once"),
-          },
-          {
-            type: 2, // BUTTON
-            style: ButtonStyle.Primary,
-            label: "Always allow",
-            custom_id: buildExecApprovalCustomId(request.id, "allow-always"),
-          },
-          {
-            type: 2, // BUTTON
-            style: ButtonStyle.Danger,
-            label: "Deny",
-            custom_id: buildExecApprovalCustomId(request.id, "deny"),
-          },
-        ],
-      },
-    ];
+    const actionRow = new ExecApprovalActionRow(request.id);
+    const container = createExecApprovalRequestContainer({
+      request,
+      cfg: this.opts.cfg,
+      accountId: this.opts.accountId,
+      actionRow,
+    });
+    const payload = buildExecApprovalPayload(container);
+    const body = stripUndefinedFields(serializePayload(payload));
 
     const approvers = this.opts.config.approvers ?? [];
 
+<<<<<<< HEAD
     for (const approver of approvers) {
       const userId = String(approver);
       try {
@@ -372,11 +491,26 @@ export class DiscordExecApprovalHandler {
             }) as Promise<{ id: string }>,
           "dm-channel",
         )) as { id: string };
+=======
+    // Send to originating channel if configured
+    if (sendToChannel) {
+      const channelId = extractDiscordChannelId(request.request.sessionKey);
+      if (channelId) {
+        try {
+          const message = (await discordRequest(
+            () =>
+              rest.post(Routes.channelMessages(channelId), {
+                body,
+              }) as Promise<{ id: string; channel_id: string }>,
+            "send-approval-channel",
+          )) as { id: string; channel_id: string };
+>>>>>>> 9203a2fdb (Discord: CV2! (#16364))
 
         if (!dmChannel?.id) {
           logError(`discord exec approvals: failed to create DM for user ${userId}`);
           continue;
         }
+<<<<<<< HEAD
 
         // Send message with embed and buttons
         const message = (await discordRequest(
@@ -393,6 +527,16 @@ export class DiscordExecApprovalHandler {
         if (!message?.id) {
           logError(`discord exec approvals: failed to send message to user ${userId}`);
           continue;
+=======
+      } else {
+        if (!sendToDm) {
+          logError(
+            `discord exec approvals: target is "channel" but could not extract channel id from session key "${request.request.sessionKey ?? "(none)"}" — falling back to DM delivery for approval ${request.id}`,
+          );
+          fallbackToDm = true;
+        } else {
+          logDebug("discord exec approvals: could not extract channel id from session key");
+>>>>>>> 9203a2fdb (Discord: CV2! (#16364))
         }
 
         // Set up timeout
@@ -407,9 +551,53 @@ export class DiscordExecApprovalHandler {
           timeoutId,
         });
 
+<<<<<<< HEAD
         logDebug(`discord exec approvals: sent approval ${request.id} to user ${userId}`);
       } catch (err) {
         logError(`discord exec approvals: failed to notify user ${userId}: ${String(err)}`);
+=======
+          if (!dmChannel?.id) {
+            logError(`discord exec approvals: failed to create DM for user ${userId}`);
+            continue;
+          }
+
+          // Send message with components v2 + buttons
+          const message = (await discordRequest(
+            () =>
+              rest.post(Routes.channelMessages(dmChannel.id), {
+                body,
+              }) as Promise<{ id: string; channel_id: string }>,
+            "send-approval",
+          )) as { id: string; channel_id: string };
+
+          if (!message?.id) {
+            logError(`discord exec approvals: failed to send message to user ${userId}`);
+            continue;
+          }
+
+          // Clear any existing pending DM entry to avoid timeout leaks
+          const existingDm = this.pending.get(`${request.id}:dm`);
+          if (existingDm) {
+            clearTimeout(existingDm.timeoutId);
+          }
+
+          // Set up timeout
+          const timeoutMs = Math.max(0, request.expiresAtMs - Date.now());
+          const timeoutId = setTimeout(() => {
+            void this.handleApprovalTimeout(request.id, "dm");
+          }, timeoutMs);
+
+          this.pending.set(`${request.id}:dm`, {
+            discordMessageId: message.id,
+            discordChannelId: dmChannel.id,
+            timeoutId,
+          });
+
+          logDebug(`discord exec approvals: sent approval ${request.id} to user ${userId}`);
+        } catch (err) {
+          logError(`discord exec approvals: failed to notify user ${userId}: ${String(err)}`);
+        }
+>>>>>>> 9203a2fdb (Discord: CV2! (#16364))
       }
     }
   }
@@ -432,11 +620,34 @@ export class DiscordExecApprovalHandler {
 
     logDebug(`discord exec approvals: resolved ${resolved.id} with ${resolved.decision}`);
 
+<<<<<<< HEAD
     await this.finalizeMessage(
       pending.discordChannelId,
       pending.discordMessageId,
       formatResolvedEmbed(request, resolved.decision, resolved.resolvedBy),
     );
+=======
+    const container = createResolvedContainer({
+      request,
+      decision: resolved.decision,
+      resolvedBy: resolved.resolvedBy,
+      cfg: this.opts.cfg,
+      accountId: this.opts.accountId,
+    });
+
+    for (const suffix of [":channel", ":dm", ""]) {
+      const key = `${resolved.id}${suffix}`;
+      const pending = this.pending.get(key);
+      if (!pending) {
+        continue;
+      }
+
+      clearTimeout(pending.timeoutId);
+      this.pending.delete(key);
+
+      await this.finalizeMessage(pending.discordChannelId, pending.discordMessageId, container);
+    }
+>>>>>>> 9203a2fdb (Discord: CV2! (#16364))
   }
 
   private async handleApprovalTimeout(approvalId: string): Promise<void> {
@@ -456,20 +667,21 @@ export class DiscordExecApprovalHandler {
 
     logDebug(`discord exec approvals: timeout for ${approvalId}`);
 
-    await this.finalizeMessage(
-      pending.discordChannelId,
-      pending.discordMessageId,
-      formatExpiredEmbed(request),
-    );
+    const container = createExpiredContainer({
+      request,
+      cfg: this.opts.cfg,
+      accountId: this.opts.accountId,
+    });
+    await this.finalizeMessage(pending.discordChannelId, pending.discordMessageId, container);
   }
 
   private async finalizeMessage(
     channelId: string,
     messageId: string,
-    embed: ReturnType<typeof formatExpiredEmbed>,
+    container: DiscordUiContainer,
   ): Promise<void> {
     if (!this.opts.config.cleanupAfterResolve) {
-      await this.updateMessage(channelId, messageId, embed);
+      await this.updateMessage(channelId, messageId, container);
       return;
     }
 
@@ -485,28 +697,26 @@ export class DiscordExecApprovalHandler {
       );
     } catch (err) {
       logError(`discord exec approvals: failed to delete message: ${String(err)}`);
-      await this.updateMessage(channelId, messageId, embed);
+      await this.updateMessage(channelId, messageId, container);
     }
   }
 
   private async updateMessage(
     channelId: string,
     messageId: string,
-    embed: ReturnType<typeof formatExpiredEmbed>,
+    container: DiscordUiContainer,
   ): Promise<void> {
     try {
       const { rest, request: discordRequest } = createDiscordClient(
         { token: this.opts.token, accountId: this.opts.accountId },
         this.opts.cfg,
       );
+      const payload = buildExecApprovalPayload(container);
 
       await discordRequest(
         () =>
           rest.patch(Routes.channelMessage(channelId, messageId), {
-            body: {
-              embeds: [embed],
-              components: [], // Remove buttons
-            },
+            body: stripUndefinedFields(serializePayload(payload)),
           }),
         "update-approval",
       );
