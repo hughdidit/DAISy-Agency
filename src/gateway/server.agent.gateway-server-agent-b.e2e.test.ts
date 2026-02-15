@@ -5,8 +5,11 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi 
 import { WebSocket } from "ws";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { PluginRegistry } from "../plugins/registry.js";
+=======
+>>>>>>> 27deda222 (fix(test): drop unused gateway e2e PluginRegistry imports)
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { BARE_SESSION_RESET_PROMPT } from "../auto-reply/reply/session-reset-prompt.js";
 >>>>>>> c48b4471a (test (gateway/agent): cover bare reset command routing)
