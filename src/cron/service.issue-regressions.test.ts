@@ -218,7 +218,111 @@ describe("Cron issue regressions", () => {
     expect(persistedDueJob?.state?.nextRunAtMs).toBe(originalDueNextRunAtMs);
 
     cron.stop();
+<<<<<<< HEAD
     await store.cleanup();
+=======
+  });
+
+  it("treats persisted jobs with missing enabled as enabled during update()", async () => {
+    const store = await makeStorePath();
+    const now = Date.parse("2026-02-06T10:05:00.000Z");
+    await fs.writeFile(
+      store.storePath,
+      JSON.stringify(
+        {
+          version: 1,
+          jobs: [
+            {
+              id: "missing-enabled-update",
+              name: "legacy missing enabled",
+              createdAtMs: now - 60_000,
+              updatedAtMs: now - 60_000,
+              schedule: { kind: "cron", expr: "0 */2 * * *", tz: "UTC" },
+              sessionTarget: "main",
+              wakeMode: "next-heartbeat",
+              payload: { kind: "systemEvent", text: "legacy" },
+              state: {},
+            },
+          ],
+        },
+        null,
+        2,
+      ),
+      "utf-8",
+    );
+
+    const cron = new CronService({
+      cronEnabled: true,
+      storePath: store.storePath,
+      log: noopLogger,
+      enqueueSystemEvent: vi.fn(),
+      requestHeartbeatNow: vi.fn(),
+      runIsolatedAgentJob: vi.fn().mockResolvedValue({ status: "ok", summary: "ok" }),
+    });
+    await cron.start();
+
+    const listed = await cron.list();
+    expect(listed.some((job) => job.id === "missing-enabled-update")).toBe(true);
+
+    const updated = await cron.update("missing-enabled-update", {
+      schedule: { kind: "cron", expr: "0 */3 * * *", tz: "UTC" },
+    });
+
+    expect(updated.state.nextRunAtMs).toBeTypeOf("number");
+    expect(updated.state.nextRunAtMs).toBeGreaterThan(now);
+
+    cron.stop();
+  });
+
+  it("treats persisted due jobs with missing enabled as runnable", async () => {
+    const store = await makeStorePath();
+    const now = Date.parse("2026-02-06T10:05:00.000Z");
+    const dueAt = now - 30_000;
+    await fs.writeFile(
+      store.storePath,
+      JSON.stringify(
+        {
+          version: 1,
+          jobs: [
+            {
+              id: "missing-enabled-due",
+              name: "legacy due job",
+              createdAtMs: dueAt - 60_000,
+              updatedAtMs: dueAt,
+              schedule: { kind: "at", at: new Date(dueAt).toISOString() },
+              sessionTarget: "main",
+              wakeMode: "now",
+              payload: { kind: "systemEvent", text: "missing-enabled-due" },
+              state: { nextRunAtMs: dueAt },
+            },
+          ],
+        },
+        null,
+        2,
+      ),
+      "utf-8",
+    );
+
+    const enqueueSystemEvent = vi.fn();
+    const cron = new CronService({
+      cronEnabled: false,
+      storePath: store.storePath,
+      log: noopLogger,
+      enqueueSystemEvent,
+      requestHeartbeatNow: vi.fn(),
+      runIsolatedAgentJob: vi.fn().mockResolvedValue({ status: "ok", summary: "ok" }),
+    });
+    await cron.start();
+
+    const result = await cron.run("missing-enabled-due", "due");
+    expect(result).toEqual({ ok: true, ran: true });
+    expect(enqueueSystemEvent).toHaveBeenCalledWith(
+      "missing-enabled-due",
+      expect.objectContaining({ agentId: undefined }),
+    );
+
+    cron.stop();
+>>>>>>> 108f0ef8c (fix(test): remove stale cleanup calls in cron regressions)
   });
 
   it("caps timer delay to 60s for far-future schedules", async () => {
