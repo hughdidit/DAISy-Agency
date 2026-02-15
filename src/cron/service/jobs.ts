@@ -50,7 +50,7 @@ export function findJobOrThrow(state: CronServiceState, id: string) {
 }
 
 export function computeJobNextRunAtMs(job: CronJob, nowMs: number): number | undefined {
-  if (!job.enabled) {
+  if (job.enabled === false) {
     return undefined;
   }
   if (job.schedule.kind === "at") {
@@ -93,7 +93,7 @@ function normalizeJobTickState(params: { state: CronServiceState; job: CronJob; 
     changed = true;
   }
 
-  if (!job.enabled) {
+  if (job.enabled === false) {
     if (job.state.nextRunAtMs !== undefined) {
       job.state.nextRunAtMs = undefined;
       changed = true;
@@ -238,7 +238,9 @@ export function recomputeNextRunsForMaintenance(state: CronServiceState): boolea
 
 export function nextWakeAtMs(state: CronServiceState) {
   const jobs = state.store?.jobs ?? [];
-  const enabled = jobs.filter((j) => j.enabled && typeof j.state.nextRunAtMs === "number");
+  const enabled = jobs.filter(
+    (j) => j.enabled !== false && typeof j.state.nextRunAtMs === "number",
+  );
   if (enabled.length === 0) {
     return undefined;
   }
@@ -487,7 +489,11 @@ export function isJobDue(job: CronJob, nowMs: number, opts: { forced: boolean })
   if (opts.forced) {
     return true;
   }
-  return job.enabled && typeof job.state.nextRunAtMs === "number" && nowMs >= job.state.nextRunAtMs;
+  return (
+    job.enabled !== false &&
+    typeof job.state.nextRunAtMs === "number" &&
+    nowMs >= job.state.nextRunAtMs
+  );
 }
 
 export function resolveJobPayloadTextForMain(job: CronJob): string | undefined {
