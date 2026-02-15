@@ -230,7 +230,7 @@ struct SettingsTab: View {
                 }
             }
             .onAppear {
-                self.localIPAddress = Self.primaryIPv4Address()
+                self.localIPAddress = NetworkInterfaces.primaryIPv4Address()
                 self.lastLocationModeRaw = self.locationEnabledModeRaw
                 let trimmedInstanceId = self.instanceId.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !trimmedInstanceId.isEmpty {
@@ -398,6 +398,7 @@ struct SettingsTab: View {
             useTLS: self.manualGatewayTLS)
     }
 
+<<<<<<< HEAD
     private static func primaryIPv4Address() -> String? {
         var addrList: UnsafeMutablePointer<ifaddrs>?
         guard getifaddrs(&addrList) == 0, let first = addrList else { return nil }
@@ -405,12 +406,61 @@ struct SettingsTab: View {
 
         var fallback: String?
         var en0: String?
+=======
+    private var setupStatusLine: String? {
+        let trimmedSetup = self.setupStatusText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let gatewayStatus = self.appModel.gatewayStatusText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let friendly = self.friendlyGatewayMessage(from: gatewayStatus) { return friendly }
+        if let friendly = self.friendlyGatewayMessage(from: trimmedSetup) { return friendly }
+        if !trimmedSetup.isEmpty { return trimmedSetup }
+        if gatewayStatus.isEmpty || gatewayStatus == "Offline" { return nil }
+        return gatewayStatus
+    }
+
+    private var tailnetWarningText: String? {
+        let host = self.manualGatewayHost.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !host.isEmpty else { return nil }
+        guard Self.isTailnetHostOrIP(host) else { return nil }
+        guard !Self.hasTailnetIPv4() else { return nil }
+        return "This gateway is on your tailnet. Turn on Tailscale on this iPhone, then tap Connect."
+    }
+
+    private func friendlyGatewayMessage(from raw: String) -> String? {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        let lower = trimmed.lowercased()
+        if lower.contains("pairing required") {
+            return "Pairing required. Go back to Telegram and run /pair approve, then tap Connect again."
+        }
+        if lower.contains("device nonce required") || lower.contains("device nonce mismatch") {
+            return "Secure handshake failed. Make sure Tailscale is connected, then tap Connect again."
+        }
+        if lower.contains("device signature expired") || lower.contains("device signature invalid") {
+            return "Secure handshake failed. Check that your iPhone time is correct, then tap Connect again."
+        }
+        if lower.contains("connect timed out") || lower.contains("timed out") {
+            return "Connection timed out. Make sure Tailscale is connected, then try again."
+        }
+        if lower.contains("unauthorized role") {
+            return "Connected, but some controls are restricted for nodes. This is expected."
+        }
+        return nil
+    }
+
+    private static func hasTailnetIPv4() -> Bool {
+        var addrList: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&addrList) == 0, let first = addrList else { return false }
+        defer { freeifaddrs(addrList) }
+>>>>>>> 218189318 (refactor(swift): share primary IPv4 lookup)
 
         for ptr in sequence(first: first, next: { $0.pointee.ifa_next }) {
             let flags = Int32(ptr.pointee.ifa_flags)
             let isUp = (flags & IFF_UP) != 0
             let isLoopback = (flags & IFF_LOOPBACK) != 0
+<<<<<<< HEAD
             let name = String(cString: ptr.pointee.ifa_name)
+=======
+>>>>>>> 218189318 (refactor(swift): share primary IPv4 lookup)
             let family = ptr.pointee.ifa_addr.pointee.sa_family
             if !isUp || isLoopback || family != UInt8(AF_INET) { continue }
 
@@ -428,12 +478,38 @@ struct SettingsTab: View {
             let len = buffer.prefix { $0 != 0 }
             let bytes = len.map { UInt8(bitPattern: $0) }
             guard let ip = String(bytes: bytes, encoding: .utf8) else { continue }
+<<<<<<< HEAD
 
             if name == "en0" { en0 = ip; break }
             if fallback == nil { fallback = ip }
         }
 
         return en0 ?? fallback
+=======
+            if self.isTailnetIPv4(ip) { return true }
+        }
+
+        return false
+    }
+
+    private static func isTailnetHostOrIP(_ host: String) -> Bool {
+        let trimmed = host.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if trimmed.hasSuffix(".ts.net") || trimmed.hasSuffix(".ts.net.") {
+            return true
+        }
+        return self.isTailnetIPv4(trimmed)
+    }
+
+    private static func isTailnetIPv4(_ ip: String) -> Bool {
+        let parts = ip.split(separator: ".")
+        guard parts.count == 4 else { return false }
+        let octets = parts.compactMap { Int($0) }
+        guard octets.count == 4 else { return false }
+        let a = octets[0]
+        let b = octets[1]
+        guard (0...255).contains(a), (0...255).contains(b) else { return false }
+        return a == 100 && b >= 64 && b <= 127
+>>>>>>> 218189318 (refactor(swift): share primary IPv4 lookup)
     }
 
     private static func parseHostPort(from address: String) -> SettingsHostPort? {
