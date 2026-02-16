@@ -45,6 +45,7 @@ export type SlackChannelConfig = {
 };
 
 export type SlackReactionNotificationMode = "off" | "own" | "all" | "allowlist";
+export type SlackStreamMode = "replace" | "status_final" | "append";
 
 export type SlackActionConfig = {
   reactions?: boolean;
@@ -124,6 +125,7 @@ export type SlackAccountConfig = {
   blockStreaming?: boolean;
   /** Merge streamed block replies before sending. */
   blockStreamingCoalesce?: BlockStreamingCoalesceConfig;
+<<<<<<< HEAD
   /**
    * Enable Slack native text streaming (Agents & AI Apps).
    *
@@ -135,6 +137,10 @@ export type SlackAccountConfig = {
    * Falls back to normal delivery on error or when the message is not in a thread.
    */
   streaming?: boolean;
+=======
+  /** Slack stream preview mode (replace|status_final|append). Default: replace. */
+  streamMode?: SlackStreamMode;
+>>>>>>> 89ce1460e (feat(slack): add configurable stream modes)
   mediaMaxMb?: number;
   /** Reaction notification mode (off|own|all|allowlist). Default: own. */
   reactionNotifications?: SlackReactionNotificationMode;
