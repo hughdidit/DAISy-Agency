@@ -41,6 +41,7 @@ import {
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
 <<<<<<< HEAD
 import { resolveConversationLabel } from "../../channels/conversation-label.js";
@@ -53,6 +54,9 @@ import type { ResolvedSlackAccount } from "../accounts.js";
 >>>>>>> da2fde7b6 (refactor(slack): share room context hints)
 =======
 >>>>>>> a91553c7c (perf(slack): consolidate slash tests)
+=======
+import { chunkItems } from "../../utils/chunk-items.js";
+>>>>>>> 19f53543d (refactor(utils): share chunkItems helper)
 import {
   normalizeAllowList,
   normalizeAllowListLower,
@@ -81,17 +85,6 @@ async function getCommandsRegistry(): Promise<CommandsRegistry> {
     commandsRegistry = await import("../../auto-reply/commands-registry.js");
   }
   return commandsRegistry;
-}
-
-function chunkItems<T>(items: T[], size: number): T[][] {
-  if (size <= 0) {
-    return [items];
-  }
-  const rows: T[][] = [];
-  for (let i = 0; i < items.length; i += size) {
-    rows.push(items.slice(i, i + size));
-  }
-  return rows;
 }
 
 function encodeSlackCommandArgValue(parts: {
