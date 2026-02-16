@@ -5,6 +5,11 @@ import {
   buildCommandsMessagePaginated,
   buildHelpMessage,
 } from "../status.js";
+<<<<<<< HEAD
+=======
+import { buildContextReply } from "./commands-context-report.js";
+import { buildExportSessionReply } from "./commands-export-session.js";
+>>>>>>> add3afb74 (feat: add /export-session command)
 import { buildStatusReply } from "./commands-status.js";
 import { buildContextReply } from "./commands-context-report.js";
 import type { CommandHandler } from "./commands-types.js";
@@ -166,6 +171,28 @@ export const handleContextCommand: CommandHandler = async (params, allowTextComm
     return { shouldContinue: false };
   }
   return { shouldContinue: false, reply: await buildContextReply(params) };
+};
+
+export const handleExportSessionCommand: CommandHandler = async (params, allowTextCommands) => {
+  if (!allowTextCommands) {
+    return null;
+  }
+  const normalized = params.command.commandBodyNormalized;
+  if (
+    normalized !== "/export-session" &&
+    !normalized.startsWith("/export-session ") &&
+    normalized !== "/export" &&
+    !normalized.startsWith("/export ")
+  ) {
+    return null;
+  }
+  if (!params.command.isAuthorizedSender) {
+    logVerbose(
+      `Ignoring /export-session from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
+    );
+    return { shouldContinue: false };
+  }
+  return { shouldContinue: false, reply: await buildExportSessionReply(params) };
 };
 
 export const handleWhoamiCommand: CommandHandler = async (params, allowTextCommands) => {
