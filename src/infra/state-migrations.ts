@@ -20,7 +20,11 @@ import {
   DEFAULT_MAIN_KEY,
   normalizeAgentId,
 } from "../routing/session-key.js";
+<<<<<<< HEAD
 import { canonicalizeMainSessionAlias } from "../config/sessions/main-session.js";
+=======
+import { isWithinDir } from "./path-safety.js";
+>>>>>>> 2363e1b08 (fix(security): restrict skill download target paths)
 import {
   ensureDir,
   existsDir,
@@ -305,6 +309,66 @@ function isDirPath(filePath: string): boolean {
   }
 }
 
+<<<<<<< HEAD
+=======
+function isLegacyTreeSymlinkMirror(currentDir: string, realTargetDir: string): boolean {
+  let entries: fs.Dirent[];
+  try {
+    entries = fs.readdirSync(currentDir, { withFileTypes: true });
+  } catch {
+    return false;
+  }
+  if (entries.length === 0) {
+    return false;
+  }
+
+  for (const entry of entries) {
+    const entryPath = path.join(currentDir, entry.name);
+    let stat: fs.Stats;
+    try {
+      stat = fs.lstatSync(entryPath);
+    } catch {
+      return false;
+    }
+    if (stat.isSymbolicLink()) {
+      const resolvedTarget = resolveSymlinkTarget(entryPath);
+      if (!resolvedTarget) {
+        return false;
+      }
+      let resolvedRealTarget: string;
+      try {
+        resolvedRealTarget = fs.realpathSync(resolvedTarget);
+      } catch {
+        return false;
+      }
+      if (!isWithinDir(realTargetDir, resolvedRealTarget)) {
+        return false;
+      }
+      continue;
+    }
+    if (stat.isDirectory()) {
+      if (!isLegacyTreeSymlinkMirror(entryPath, realTargetDir)) {
+        return false;
+      }
+      continue;
+    }
+    return false;
+  }
+
+  return true;
+}
+
+function isLegacyDirSymlinkMirror(legacyDir: string, targetDir: string): boolean {
+  let realTargetDir: string;
+  try {
+    realTargetDir = fs.realpathSync(targetDir);
+  } catch {
+    return false;
+  }
+  return isLegacyTreeSymlinkMirror(legacyDir, realTargetDir);
+}
+
+>>>>>>> 2363e1b08 (fix(security): restrict skill download target paths)
 export async function autoMigrateLegacyStateDir(params: {
   env?: NodeJS.ProcessEnv;
   homedir?: () => string;

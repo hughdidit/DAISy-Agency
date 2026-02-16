@@ -1,15 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import { Readable } from "node:stream";
 import type { ReadableStream as NodeReadableStream } from "node:stream/web";
 import { pipeline } from "node:stream/promises";
 
+=======
+>>>>>>> 2363e1b08 (fix(security): restrict skill download target paths)
 import type { OpenClawConfig } from "../config/config.js";
-import { extractArchive as extractArchiveSafe } from "../infra/archive.js";
 import { resolveBrewExecutable } from "../infra/brew.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import { scanDirectoryWithSummary } from "../security/skill-scanner.js";
-import { CONFIG_DIR, ensureDir, resolveUserPath } from "../utils.js";
+import { resolveUserPath } from "../utils.js";
+import { installDownloadSpec } from "./skills-install-download.js";
 import {
   hasBinary,
   loadWorkspaceSkillEntries,
@@ -18,7 +21,6 @@ import {
   type SkillInstallSpec,
   type SkillsInstallPreferences,
 } from "./skills.js";
-import { resolveSkillKey } from "./skills/frontmatter.js";
 
 export type SkillInstallRequest = {
   workspaceDir: string;
@@ -36,10 +38,6 @@ export type SkillInstallResult = {
   code: number | null;
   warnings?: string[];
 };
-
-function isNodeReadableStream(value: unknown): value is NodeJS.ReadableStream {
-  return Boolean(value && typeof (value as NodeJS.ReadableStream).pipe === "function");
-}
 
 function summarizeInstallOutput(text: string): string | undefined {
   const raw = text.trim();
@@ -182,6 +180,7 @@ function buildInstallCommand(
   }
 }
 
+<<<<<<< HEAD
 function resolveDownloadTargetDir(entry: SkillEntry, spec: SkillInstallSpec): string {
   if (spec.targetDir?.trim()) return resolveUserPath(spec.targetDir);
   const key = resolveSkillKey(entry.skill, entry);
@@ -467,6 +466,8 @@ async function installDownloadSpec(params: {
   };
 }
 
+=======
+>>>>>>> 2363e1b08 (fix(security): restrict skill download target paths)
 async function resolveBrewBinDir(timeoutMs: number, brewExe?: string): Promise<string | undefined> {
   const exe = brewExe ?? (hasBinary("brew") ? "brew" : resolveBrewExecutable());
   if (!exe) return undefined;
