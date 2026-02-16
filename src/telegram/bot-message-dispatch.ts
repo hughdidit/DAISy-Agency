@@ -324,6 +324,25 @@ export const dispatchTelegramMessage = async ({
     skippedNonSilent: 0,
   };
   let finalizedViaPreviewMessage = false;
+  const clearGroupHistory = () => {
+    if (isGroup && historyKey) {
+      clearHistoryEntriesIfEnabled({ historyMap: groupHistories, historyKey, limit: historyLimit });
+    }
+  };
+  const deliveryBaseOptions = {
+    chatId: String(chatId),
+    token: opts.token,
+    runtime,
+    bot,
+    mediaLocalRoots,
+    replyToMode,
+    textLimit,
+    thread: threadSpec,
+    tableMode,
+    chunkMode,
+    linkPreview: telegramCfg.linkPreview,
+    replyQuoteText,
+  };
 
   let queuedFinal = false;
   try {
@@ -375,7 +394,9 @@ export const dispatchTelegramMessage = async ({
             }
           }
           const result = await deliverReplies({
+            ...deliveryBaseOptions,
             replies: [payload],
+<<<<<<< HEAD
             chatId: String(chatId),
             token: opts.token,
             runtime,
@@ -389,6 +410,9 @@ export const dispatchTelegramMessage = async ({
             linkPreview: telegramCfg.linkPreview,
             replyQuoteText,
 >>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
+=======
+            onVoiceRecording: sendRecordVoice,
+>>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
           });
           if (result.delivered) {
             deliveryState.delivered = true;
@@ -457,6 +481,7 @@ export const dispatchTelegramMessage = async ({
   if (!deliveryState.delivered && deliveryState.skippedNonSilent > 0) {
     const result = await deliverReplies({
       replies: [{ text: EMPTY_RESPONSE_FALLBACK }],
+<<<<<<< HEAD
       chatId: String(chatId),
       token: opts.token,
       runtime,
@@ -468,16 +493,23 @@ export const dispatchTelegramMessage = async ({
       chunkMode,
       linkPreview: telegramCfg.linkPreview,
       replyQuoteText,
+=======
+      ...deliveryBaseOptions,
+>>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
     });
     sentFallback = result.delivered;
   }
 
   const hasFinalResponse = queuedFinal || sentFallback;
   if (!hasFinalResponse) {
+<<<<<<< HEAD
 >>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
     if (isGroup && historyKey) {
       clearHistoryEntriesIfEnabled({ historyMap: groupHistories, historyKey, limit: historyLimit });
     }
+=======
+    clearGroupHistory();
+>>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
     return;
   }
   removeAckReactionAfterReply({
@@ -497,7 +529,5 @@ export const dispatchTelegramMessage = async ({
       });
     },
   });
-  if (isGroup && historyKey) {
-    clearHistoryEntriesIfEnabled({ historyMap: groupHistories, historyKey, limit: historyLimit });
-  }
+  clearGroupHistory();
 };

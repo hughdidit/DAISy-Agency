@@ -32,9 +32,18 @@ import {
 >>>>>>> 1055e71c4 (fix(telegram): auto-wrap .md file references in backticks to prevent URL previews (#8649))
 import { buildInlineKeyboard } from "../send.js";
 import { resolveTelegramVoiceSend } from "../voice.js";
+<<<<<<< HEAD
 import { buildTelegramThreadParams, resolveTelegramReplyId } from "./helpers.js";
 import type { StickerMetadata, TelegramContext } from "./types.js";
 import { cacheSticker, getCachedSticker } from "../sticker-cache.js";
+=======
+import {
+  buildTelegramThreadParams,
+  resolveTelegramMediaPlaceholder,
+  resolveTelegramReplyId,
+  type TelegramThreadSpec,
+} from "./helpers.js";
+>>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
 
 const PARSE_ERR_RE = /can't parse entities|parse entities|find end of the entity/i;
 const VOICE_FORBIDDEN_RE = /VOICE_MESSAGES_FORBIDDEN/;
@@ -434,16 +443,7 @@ export async function resolveMedia(
     throw new Error("fetch is not available; set channels.telegram.proxy in config");
   }
   const saved = await downloadAndSaveTelegramFile(file.file_path, fetchImpl);
-  let placeholder = "<media:document>";
-  if (msg.photo) {
-    placeholder = "<media:image>";
-  } else if (msg.video) {
-    placeholder = "<media:video>";
-  } else if (msg.video_note) {
-    placeholder = "<media:video>";
-  } else if (msg.audio || msg.voice) {
-    placeholder = "<media:audio>";
-  }
+  const placeholder = resolveTelegramMediaPlaceholder(msg) ?? "<media:document>";
   return { path: saved.path, contentType: saved.contentType, placeholder };
 }
 
