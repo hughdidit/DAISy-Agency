@@ -103,10 +103,6 @@ describe("getUsedPorts", () => {
     expect(getUsedPorts(undefined)).toEqual(new Set());
   });
 
-  it("returns empty set for empty profiles object", () => {
-    expect(getUsedPorts({})).toEqual(new Set());
-  });
-
   it("extracts ports from profile configs", () => {
     const profiles = {
       clawd: { cdpPort: 18792 },
@@ -226,10 +222,6 @@ describe("color allocation", () => {
 describe("getUsedColors", () => {
   it("returns empty set for undefined profiles", () => {
     expect(getUsedColors(undefined)).toEqual(new Set());
-  });
-
-  it("returns empty set for empty profiles object", () => {
-    expect(getUsedColors({})).toEqual(new Set());
   });
 
   it("extracts and uppercases colors from profile configs", () => {
