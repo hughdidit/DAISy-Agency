@@ -112,6 +112,15 @@ export function resolveTelegramThreadSpec(params: {
 
 /**
  * Build thread params for Telegram API calls (messages, media).
+<<<<<<< HEAD
+=======
+ *
+ * IMPORTANT: Thread IDs behave differently based on chat type:
+ * - DMs (private chats): Include message_thread_id when present (DM topics)
+ * - Forum topics: Skip thread_id=1 (General topic), include others
+ * - Regular groups: Thread IDs are ignored by Telegram
+ *
+>>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
  * General forum topic (id=1) must be treated like a regular supergroup send:
  * Telegram rejects sendMessage/sendMedia with message_thread_id=1 ("thread not found").
  */
@@ -120,8 +129,14 @@ export function buildTelegramThreadParams(thread?: TelegramThreadSpec | null) {
     return undefined;
   }
   const normalized = Math.trunc(thread.id);
+<<<<<<< HEAD
   if (normalized === TELEGRAM_GENERAL_TOPIC_ID && thread.scope === "forum") {
     return undefined;
+=======
+
+  if (thread.scope === "dm") {
+    return normalized > 0 ? { message_thread_id: normalized } : undefined;
+>>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
   }
   return { message_thread_id: normalized };
 }

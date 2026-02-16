@@ -171,10 +171,14 @@ describe("deliverReplies", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("keeps message_thread_id=1 when allowed", async () => {
     const runtime = { error: vi.fn(), log: vi.fn() };
 =======
   it("does not include message_thread_id for DMs (threads don't exist in private chats)", async () => {
+=======
+  it("includes message_thread_id for DM topics", async () => {
+>>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
     const runtime = createRuntime();
 >>>>>>> a177f7b9f (refactor(tests): dedupe slack telegram and web monitor setup)
     const sendMessage = vi.fn().mockResolvedValue({
@@ -187,14 +191,18 @@ describe("deliverReplies", () => {
       replies: [{ text: "Hello" }],
       runtime,
       bot,
-      thread: { id: 1, scope: "dm" },
+      thread: { id: 42, scope: "dm" },
     });
 
     expect(sendMessage).toHaveBeenCalledWith(
       "123",
       expect.any(String),
       expect.objectContaining({
+<<<<<<< HEAD
         message_thread_id: 1,
+=======
+        message_thread_id: 42,
+>>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
       }),
     );
   });
