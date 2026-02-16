@@ -5,9 +5,13 @@ import type { ReplyToMode } from "../../config/config.js";
 import { logVerbose } from "../../globals.js";
 import { buildAgentSessionKey } from "../../routing/resolve-route.js";
 import { truncateUtf16Safe } from "../../utils.js";
+<<<<<<< HEAD
 import type { DiscordChannelConfigResolved } from "./allow-list.js";
 import type { DiscordMessageEvent } from "./listeners.js";
 import { resolveDiscordChannelInfo } from "./message-utils.js";
+=======
+import { resolveDiscordChannelInfo, resolveDiscordMessageChannelId } from "./message-utils.js";
+>>>>>>> 09566b169 (fix(discord): preserve channel session keys via channel_id fallbacks (#17622))
 
 export type DiscordThreadChannel = {
   id: string;
@@ -89,6 +93,7 @@ export function resolveDiscordThreadChannel(params: {
   isGuildMessage: boolean;
   message: DiscordMessageEvent["message"];
   channelInfo: import("./message-utils.js").DiscordChannelInfo | null;
+  messageChannelId?: string;
 }): DiscordThreadChannel | null {
   if (!params.isGuildMessage) {
     return null;
@@ -107,8 +112,16 @@ export function resolveDiscordThreadChannel(params: {
   if (!isDiscordThreadType(channelInfo?.type)) {
     return null;
   }
+  const messageChannelId =
+    params.messageChannelId ||
+    resolveDiscordMessageChannelId({
+      message,
+    });
+  if (!messageChannelId) {
+    return null;
+  }
   return {
-    id: message.channelId,
+    id: messageChannelId,
     name: channelInfo?.name ?? undefined,
     parentId: channelInfo?.parentId ?? undefined,
     parent: undefined,
@@ -285,6 +298,7 @@ export type DiscordAutoThreadReplyPlan = DiscordReplyDeliveryPlan & {
 export async function resolveDiscordAutoThreadReplyPlan(params: {
   client: Client;
   message: DiscordMessageEvent["message"];
+  messageChannelId?: string;
   isGuildMessage: boolean;
   channelConfig?: DiscordChannelConfigResolved | null;
   threadChannel?: DiscordThreadChannel | null;
@@ -294,10 +308,23 @@ export async function resolveDiscordAutoThreadReplyPlan(params: {
   agentId: string;
   channel: string;
 }): Promise<DiscordAutoThreadReplyPlan> {
+<<<<<<< HEAD
   const originalReplyTarget = `channel:${params.message.channelId}`;
+=======
+  const messageChannelId = (
+    params.messageChannelId ||
+    resolveDiscordMessageChannelId({
+      message: params.message,
+    })
+  ).trim();
+  // Prefer the resolved thread channel ID when available so replies stay in-thread.
+  const targetChannelId = params.threadChannel?.id ?? (messageChannelId || "unknown");
+  const originalReplyTarget = `channel:${targetChannelId}`;
+>>>>>>> 09566b169 (fix(discord): preserve channel session keys via channel_id fallbacks (#17622))
   const createdThreadId = await maybeCreateDiscordAutoThread({
     client: params.client,
     message: params.message,
+    messageChannelId: messageChannelId || undefined,
     isGuildMessage: params.isGuildMessage,
     channelConfig: params.channelConfig,
     threadChannel: params.threadChannel,
@@ -315,7 +342,7 @@ export async function resolveDiscordAutoThreadReplyPlan(params: {
     ? resolveDiscordAutoThreadContext({
         agentId: params.agentId,
         channel: params.channel,
-        messageChannelId: params.message.channelId,
+        messageChannelId,
         createdThreadId,
       })
     : null;
@@ -325,6 +352,7 @@ export async function resolveDiscordAutoThreadReplyPlan(params: {
 export async function maybeCreateDiscordAutoThread(params: {
   client: Client;
   message: DiscordMessageEvent["message"];
+  messageChannelId?: string;
   isGuildMessage: boolean;
   channelConfig?: DiscordChannelConfigResolved | null;
   threadChannel?: DiscordThreadChannel | null;
@@ -340,13 +368,22 @@ export async function maybeCreateDiscordAutoThread(params: {
   if (params.threadChannel) {
     return undefined;
   }
+  const messageChannelId = (
+    params.messageChannelId ||
+    resolveDiscordMessageChannelId({
+      message: params.message,
+    })
+  ).trim();
+  if (!messageChannelId) {
+    return undefined;
+  }
   try {
     const threadName = sanitizeDiscordThreadName(
       params.baseText || params.combinedBody || "Thread",
       params.message.id,
     );
     const created = (await params.client.rest.post(
-      `${Routes.channelMessage(params.message.channelId, params.message.id)}/threads`,
+      `${Routes.channelMessage(messageChannelId, params.message.id)}/threads`,
       {
         body: {
           name: threadName,
@@ -358,18 +395,18 @@ export async function maybeCreateDiscordAutoThread(params: {
     return createdId || undefined;
   } catch (err) {
     logVerbose(
-      `discord: autoThread creation failed for ${params.message.channelId}/${params.message.id}: ${String(err)}`,
+      `discord: autoThread creation failed for ${messageChannelId}/${params.message.id}: ${String(err)}`,
     );
     // Race condition: another agent may have already created a thread on this
     // message. Re-fetch the message to check for an existing thread.
     try {
       const msg = (await params.client.rest.get(
-        Routes.channelMessage(params.message.channelId, params.message.id),
+        Routes.channelMessage(messageChannelId, params.message.id),
       )) as { thread?: { id?: string } };
       const existingThreadId = msg?.thread?.id ? String(msg.thread.id) : "";
       if (existingThreadId) {
         logVerbose(
-          `discord: autoThread reusing existing thread ${existingThreadId} on ${params.message.channelId}/${params.message.id}`,
+          `discord: autoThread reusing existing thread ${existingThreadId} on ${messageChannelId}/${params.message.id}`,
         );
         return existingThreadId;
       }
