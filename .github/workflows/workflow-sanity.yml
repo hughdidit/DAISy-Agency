@@ -22,8 +22,12 @@ permissions:
 
 concurrency:
   group: workflow-sanity-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+<<<<<<< HEAD
   cancel-in-progress: true
 >>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
+=======
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+>>>>>>> 1e4cf489e (fix(ci): keep main runs alive while coalescing newer pushes)
 
 jobs:
   no-tabs:

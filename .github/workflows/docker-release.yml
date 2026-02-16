@@ -43,7 +43,7 @@ concurrency:
 
 concurrency:
   group: docker-release-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
