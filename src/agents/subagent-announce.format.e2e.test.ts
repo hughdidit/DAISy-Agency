@@ -20,6 +20,17 @@ let configOverride: ReturnType<(typeof import("../config/config.js"))["loadConfi
   },
 };
 
+function loadSessionStoreFixture(): Record<string, Record<string, unknown>> {
+  return new Proxy(sessionStore, {
+    get(target, key: string | symbol) {
+      if (typeof key === "string" && !(key in target) && key.includes(":subagent:")) {
+        return { inputTokens: 1, outputTokens: 1, totalTokens: 2 };
+      }
+      return target[key as keyof typeof target];
+    },
+  });
+}
+
 vi.mock("../gateway/call.js", () => ({
   callGateway: vi.fn(async (req: unknown) => {
     const typed = req as { method?: string; params?: { message?: string; sessionKey?: string } };
@@ -44,7 +55,7 @@ vi.mock("./tools/agent-step.js", () => ({
 }));
 
 vi.mock("../config/sessions.js", () => ({
-  loadSessionStore: vi.fn(() => sessionStore),
+  loadSessionStore: vi.fn(() => loadSessionStoreFixture()),
   resolveAgentIdFromSessionKey: () => "main",
   resolveStorePath: () => "/tmp/sessions.json",
   resolveMainSessionKey: () => "agent:main:main",
@@ -92,6 +103,9 @@ describe("subagent announce formatting", () => {
     sessionStore = {
       "agent:main:subagent:test": {
         sessionId: "child-session-123",
+        inputTokens: 1,
+        outputTokens: 1,
+        totalTokens: 2,
       },
     };
     await runSubagentAnnounceFlow({
@@ -581,6 +595,9 @@ describe("subagent announce formatting", () => {
     sessionStore = {
       "agent:main:subagent:test": {
         sessionId: "child-session-1",
+        inputTokens: 1,
+        outputTokens: 1,
+        totalTokens: 2,
       },
     };
 
@@ -743,6 +760,7 @@ describe("subagent announce formatting", () => {
     expect(agentSpy).not.toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
   it("does not delete child session when announce is deferred for an active run", async () => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
@@ -772,6 +790,8 @@ describe("subagent announce formatting", () => {
   });
 
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
+=======
+>>>>>>> 15f8c5779 (test: speed up subagent announce e2e and drop duplicate defer case)
   it("normalizes requesterOrigin for direct announce delivery", async () => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(false);
