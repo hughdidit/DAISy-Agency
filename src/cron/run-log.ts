@@ -11,6 +11,17 @@ export type CronRunLogEntry = {
   runAtMs?: number;
   durationMs?: number;
   nextRunAtMs?: number;
+
+  // Telemetry (best-effort)
+  model?: string;
+  provider?: string;
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+    total_tokens?: number;
+    cache_read_tokens?: number;
+    cache_write_tokens?: number;
+  };
 };
 
 export function resolveCronRunLogPath(params: { storePath: string; jobId: string }) {
@@ -93,7 +104,49 @@ export async function readCronRunLogEntries(
       if (jobId && obj.jobId !== jobId) {
         continue;
       }
+<<<<<<< HEAD
       parsed.push(obj as CronRunLogEntry);
+=======
+      const entry: CronRunLogEntry = {
+        ts: obj.ts,
+        jobId: obj.jobId,
+        action: "finished",
+        status: obj.status,
+        error: obj.error,
+        summary: obj.summary,
+        runAtMs: obj.runAtMs,
+        durationMs: obj.durationMs,
+        nextRunAtMs: obj.nextRunAtMs,
+        model: typeof obj.model === "string" && obj.model.trim() ? obj.model : undefined,
+        provider: typeof obj.provider === "string" && obj.provider.trim() ? obj.provider : undefined,
+        usage:
+          obj.usage && typeof obj.usage === "object"
+            ? {
+                input_tokens:
+                  typeof (obj.usage as any).input_tokens === "number" ? (obj.usage as any).input_tokens : undefined,
+                output_tokens:
+                  typeof (obj.usage as any).output_tokens === "number" ? (obj.usage as any).output_tokens : undefined,
+                total_tokens:
+                  typeof (obj.usage as any).total_tokens === "number" ? (obj.usage as any).total_tokens : undefined,
+                cache_read_tokens:
+                  typeof (obj.usage as any).cache_read_tokens === "number"
+                    ? (obj.usage as any).cache_read_tokens
+                    : undefined,
+                cache_write_tokens:
+                  typeof (obj.usage as any).cache_write_tokens === "number"
+                    ? (obj.usage as any).cache_write_tokens
+                    : undefined,
+              }
+            : undefined,
+      };
+      if (typeof obj.sessionId === "string" && obj.sessionId.trim().length > 0) {
+        entry.sessionId = obj.sessionId;
+      }
+      if (typeof obj.sessionKey === "string" && obj.sessionKey.trim().length > 0) {
+        entry.sessionKey = obj.sessionKey;
+      }
+      parsed.push(entry);
+>>>>>>> dbe2ab6f6 (cron: keep usage telemetry in run log types + error paths)
     } catch {
       // ignore invalid lines
     }
