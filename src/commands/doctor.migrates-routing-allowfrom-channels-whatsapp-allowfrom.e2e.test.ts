@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -223,8 +224,14 @@ vi.mock("../infra/moltbot-root.js", () => ({
 vi.mock("../infra/update-runner.js", () => ({
 =======
 import { describe, expect, it, vi } from "vitest";
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
 import {
+  createDoctorRuntime,
   findLegacyGatewayServices,
+  migrateLegacyConfig,
+  mockDoctorConfigSnapshot,
   note,
   readConfigFileSnapshot,
   resolveOpenClawPackageRoot,
@@ -234,39 +241,27 @@ import {
   serviceInstall,
   serviceIsLoaded,
   uninstallLegacyGatewayServices,
-  migrateLegacyConfig,
   writeConfigFile,
 } from "./doctor.e2e-harness.js";
 
 describe("doctor command", () => {
   it("migrates routing.allowFrom to channels.whatsapp.allowFrom", { timeout: 60_000 }, async () => {
+<<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
       raw: "{}",
+=======
+    mockDoctorConfigSnapshot({
+>>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
       parsed: { routing: { allowFrom: ["+15555550123"] } },
       valid: false,
-      config: {},
-      issues: [
-        {
-          path: "routing.allowFrom",
-          message: "legacy",
-        },
-      ],
-      legacyIssues: [
-        {
-          path: "routing.allowFrom",
-          message: "legacy",
-        },
-      ],
+      issues: [{ path: "routing.allowFrom", message: "legacy" }],
+      legacyIssues: [{ path: "routing.allowFrom", message: "legacy" }],
     });
 
     const { doctorCommand } = await import("./doctor.js");
-    const runtime = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: vi.fn(),
-    };
+    const runtime = createDoctorRuntime();
 
     migrateLegacyConfig.mockReturnValue({
       config: { channels: { whatsapp: { allowFrom: ["+15555550123"] } } },
@@ -283,6 +278,7 @@ describe("doctor command", () => {
     expect(written.routing).toBeUndefined();
   });
 
+<<<<<<< HEAD
   it("migrates legacy gateway services", { timeout: 60_000 }, async () => {
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
@@ -294,6 +290,10 @@ describe("doctor command", () => {
       issues: [],
       legacyIssues: [],
     });
+=======
+  it("skips legacy gateway services migration", { timeout: 60_000 }, async () => {
+    mockDoctorConfigSnapshot();
+>>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
 
     findLegacyGatewayServices.mockResolvedValueOnce([
       {
@@ -306,13 +306,7 @@ describe("doctor command", () => {
     serviceInstall.mockClear();
 
     const { doctorCommand } = await import("./doctor.js");
-    const runtime = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: vi.fn(),
-    };
-
-    await doctorCommand(runtime);
+    await doctorCommand(createDoctorRuntime());
 
     expect(uninstallLegacyGatewayServices).toHaveBeenCalledTimes(1);
     expect(serviceInstall).toHaveBeenCalledTimes(1);
@@ -338,6 +332,7 @@ describe("doctor command", () => {
       durationMs: 1,
     });
 
+<<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
       path: "/tmp/moltbot.json",
       exists: true,
@@ -348,15 +343,12 @@ describe("doctor command", () => {
       issues: [],
       legacyIssues: [],
     });
+=======
+    mockDoctorConfigSnapshot();
+>>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
 
     const { doctorCommand } = await import("./doctor.js");
-    const runtime = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: vi.fn(),
-    };
-
-    await doctorCommand(runtime);
+    await doctorCommand(createDoctorRuntime());
 
     expect(runGatewayUpdate).toHaveBeenCalledWith(expect.objectContaining({ cwd: root }));
     expect(readConfigFileSnapshot).not.toHaveBeenCalled();
