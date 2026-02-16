@@ -7,10 +7,15 @@ import type { ReplyPayload } from "../types.js";
 =======
 import type { ReplyPayload } from "../types.js";
 import type { ApplyInlineDirectivesFastLaneParams } from "./directive-handling.params.js";
+<<<<<<< HEAD
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
 >>>>>>> 48fd9d7dc (refactor(auto-reply): share directive handling params)
 import { handleDirectiveOnly } from "./directive-handling.impl.js";
 import type { InlineDirectives } from "./directive-handling.parse.js";
+=======
+import { handleDirectiveOnly } from "./directive-handling.impl.js";
+import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
+>>>>>>> 22c1210a1 (refactor(auto-reply): share directive level resolution)
 import { isDirectiveOnly } from "./directive-handling.parse.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
 
@@ -98,19 +103,12 @@ export async function applyInlineDirectivesFastLane(
   }
 
   const agentCfg = params.agentCfg;
-  const resolvedDefaultThinkLevel =
-    (sessionEntry?.thinkingLevel as ThinkLevel | undefined) ??
-    (agentCfg?.thinkingDefault as ThinkLevel | undefined) ??
-    (await modelState.resolveDefaultThinkingLevel());
-  const currentThinkLevel = resolvedDefaultThinkLevel;
-  const currentVerboseLevel =
-    (sessionEntry?.verboseLevel as VerboseLevel | undefined) ??
-    (agentCfg?.verboseDefault as VerboseLevel | undefined);
-  const currentReasoningLevel =
-    (sessionEntry?.reasoningLevel as ReasoningLevel | undefined) ?? "off";
-  const currentElevatedLevel =
-    (sessionEntry?.elevatedLevel as ElevatedLevel | undefined) ??
-    (agentCfg?.elevatedDefault as ElevatedLevel | undefined);
+  const { currentThinkLevel, currentVerboseLevel, currentReasoningLevel, currentElevatedLevel } =
+    await resolveCurrentDirectiveLevels({
+      sessionEntry,
+      agentCfg,
+      resolveDefaultThinkingLevel: () => modelState.resolveDefaultThinkingLevel(),
+    });
 
   const directiveAck = await handleDirectiveOnly({
     cfg,
