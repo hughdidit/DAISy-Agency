@@ -419,8 +419,13 @@ export function buildAgentSystemPrompt(params: {
       ? sandboxContainerWorkspace
       : params.workspaceDir;
   const workspaceGuidance =
+<<<<<<< HEAD
     params.sandboxInfo?.enabled && sandboxContainerWorkspace
       ? `For read/write/edit/apply_patch, file paths resolve against host workspace: ${params.workspaceDir}. Prefer relative paths so both sandboxed exec and file tools work consistently.`
+=======
+    params.sandboxInfo?.enabled && sanitizedSandboxContainerWorkspace
+      ? `For read/write/edit/apply_patch, file paths resolve against host workspace: ${sanitizedWorkspaceDir}. For bash/exec commands, use sandbox container paths under ${sanitizedSandboxContainerWorkspace} (or relative paths from that workdir), not host paths. Prefer relative paths so both sandboxed exec and file tools work consistently.`
+>>>>>>> 799049f58 (fix (agents/sandbox): clarify container-vs-host workspace paths in prompt)
       : "Treat this directory as the single global workspace for file operations unless explicitly instructed otherwise.";
   const safetySection = [
     "## Safety",
@@ -565,7 +570,11 @@ export function buildAgentSystemPrompt(params: {
             ? `Sandbox container workdir: ${params.sandboxInfo.containerWorkspaceDir}`
             : "",
           params.sandboxInfo.workspaceDir
+<<<<<<< HEAD
             ? `Sandbox host workspace: ${params.sandboxInfo.workspaceDir}`
+=======
+            ? `Sandbox host mount source (file tools bridge only; not valid inside sandbox exec): ${sanitizeForPromptLiteral(params.sandboxInfo.workspaceDir)}`
+>>>>>>> 799049f58 (fix (agents/sandbox): clarify container-vs-host workspace paths in prompt)
             : "",
           params.sandboxInfo.workspaceAccess
             ? `Agent workspace access: ${params.sandboxInfo.workspaceAccess}${
