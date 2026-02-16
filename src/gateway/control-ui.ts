@@ -21,6 +21,7 @@ import { sendUnauthorized, setSecurityHeaders } from "./http-common.js";
 import { getBearerToken } from "./http-utils.js";
 
 const ROOT_PREFIX = "/";
+const CONTROL_UI_BOOTSTRAP_CONFIG_PATH = "/__openclaw/control-ui-config.json";
 
 export type ControlUiRequestOptions = {
   basePath?: string;
@@ -80,6 +81,31 @@ type ControlUiAvatarMeta = {
   avatarUrl: string | null;
 };
 
+<<<<<<< HEAD
+=======
+function applyControlUiSecurityHeaders(res: ServerResponse) {
+  res.setHeader("X-Frame-Options", "DENY");
+  // Control UI: block framing, block inline scripts, keep styles permissive
+  // (UI uses a lot of inline style attributes in templates).
+  res.setHeader(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      "base-uri 'none'",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "script-src 'self'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https:",
+      "font-src 'self'",
+      "connect-src 'self' ws: wss:",
+    ].join("; "),
+  );
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "no-referrer");
+}
+
+>>>>>>> adc818db4 (fix(gateway): serve Control UI bootstrap config and lock down CSP)
 function sendJson(res: ServerResponse, status: number, body: unknown) {
   setSecurityHeaders(res);
   res.statusCode = status;
@@ -188,6 +214,7 @@ function serveFile(res: ServerResponse, filePath: string) {
   res.end(fs.readFileSync(filePath));
 }
 
+<<<<<<< HEAD
 interface ControlUiInjectionOpts {
   basePath: string;
   assistantName?: string;
@@ -243,16 +270,12 @@ function serveIndexHtml(res: ServerResponse, indexPath: string, opts: ServeIndex
       agentId: resolvedAgentId,
       basePath,
     }) ?? identity.avatar;
+=======
+function serveIndexHtml(res: ServerResponse, indexPath: string) {
+>>>>>>> adc818db4 (fix(gateway): serve Control UI bootstrap config and lock down CSP)
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
-  const raw = fs.readFileSync(indexPath, "utf8");
-  res.end(
-    injectControlUiConfig(raw, {
-      basePath,
-      assistantName: identity.name,
-      assistantAvatar: avatarValue,
-    }),
-  );
+  res.end(fs.readFileSync(indexPath, "utf8"));
 }
 
 function isSafeRelativePath(relPath: string) {
@@ -323,8 +346,40 @@ export async function handleControlUiHttpRequest(
     }
   }
 
+<<<<<<< HEAD
   const root = resolveControlUiRoot();
 =======
+=======
+  const bootstrapConfigPath = basePath
+    ? `${basePath}${CONTROL_UI_BOOTSTRAP_CONFIG_PATH}`
+    : CONTROL_UI_BOOTSTRAP_CONFIG_PATH;
+  if (pathname === bootstrapConfigPath) {
+    const config = opts?.config;
+    const identity = config
+      ? resolveAssistantIdentity({ cfg: config, agentId: opts?.agentId })
+      : DEFAULT_ASSISTANT_IDENTITY;
+    const avatarValue = resolveAssistantAvatarUrl({
+      avatar: identity.avatar,
+      agentId: identity.agentId,
+      basePath,
+    });
+    if (req.method === "HEAD") {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.setHeader("Cache-Control", "no-cache");
+      res.end();
+      return true;
+    }
+    sendJson(res, 200, {
+      basePath,
+      assistantName: identity.name,
+      assistantAvatar: avatarValue ?? identity.avatar,
+      assistantAgentId: identity.agentId,
+    });
+    return true;
+  }
+
+>>>>>>> adc818db4 (fix(gateway): serve Control UI bootstrap config and lock down CSP)
   const rootState = opts?.root;
   if (rootState?.kind === "invalid") {
     res.statusCode = 503;
@@ -388,11 +443,7 @@ export async function handleControlUiHttpRequest(
 
   if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
     if (path.basename(filePath) === "index.html") {
-      serveIndexHtml(res, filePath, {
-        basePath,
-        config: opts?.config,
-        agentId: opts?.agentId,
-      });
+      serveIndexHtml(res, filePath);
       return true;
     }
     serveFile(res, filePath);
@@ -402,11 +453,7 @@ export async function handleControlUiHttpRequest(
   // SPA fallback (client-side router): serve index.html for unknown paths.
   const indexPath = path.join(root, "index.html");
   if (fs.existsSync(indexPath)) {
-    serveIndexHtml(res, indexPath, {
-      basePath,
-      config: opts?.config,
-      agentId: opts?.agentId,
-    });
+    serveIndexHtml(res, indexPath);
     return true;
   }
 
