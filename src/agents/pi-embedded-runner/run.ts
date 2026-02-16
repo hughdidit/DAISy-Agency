@@ -544,9 +544,13 @@ export async function runEmbeddedPiAgent(
           // reflects current context usage, not accumulated tool-loop usage.
           lastRunPromptUsage = lastAssistantUsage ?? attemptUsage;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
           autoCompactionCount += Math.max(0, attempt.compactionCount ?? 0);
 =======
+=======
+          const lastTurnTotal = lastAssistantUsage?.total ?? attemptUsage?.total;
+>>>>>>> a62ff19a6 (fix(agent): isolate last-turn total in token usage reporting (#17016))
           const attemptCompactionCount = Math.max(0, attempt.compactionCount ?? 0);
           autoCompactionCount += attemptCompactionCount;
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
@@ -1009,6 +1013,9 @@ export async function runEmbeddedPiAgent(
           const usage = normalizeUsage(lastAssistant?.usage as UsageLike);
 =======
           const usage = toNormalizedUsage(usageAccumulator);
+          if (usage && lastTurnTotal && lastTurnTotal > 0) {
+            usage.total = lastTurnTotal;
+          }
           // Extract the last individual API call's usage for context-window
           // utilization display. The accumulated `usage` sums input tokens
           // across all calls (tool-use loops, compaction retries), which
