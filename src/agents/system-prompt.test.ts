@@ -82,6 +82,32 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("Do not invent commands");
   });
 
+<<<<<<< HEAD:src/agents/system-prompt.test.ts
+=======
+  it("marks system message blocks as internal and not user-visible", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+    });
+
+    expect(prompt).toContain("`[System Message] ...` blocks are internal context");
+    expect(prompt).toContain("are not user-visible by default");
+    expect(prompt).toContain("reports completed cron/subagent work");
+    expect(prompt).toContain("rewrite it in your normal assistant voice");
+  });
+
+  it("guides subagent workflows to avoid polling loops", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+    });
+
+    expect(prompt).toContain(
+      "For long waits, avoid rapid poll loops: use exec with enough yieldMs or process(action=poll, timeout=<ms>).",
+    );
+    expect(prompt).toContain("Completion is push-based: it will auto-announce when done.");
+    expect(prompt).toContain("Do not poll `subagents list` / `sessions_list` in a loop");
+  });
+
+>>>>>>> 17a148c8a (fix: always include long-wait polling guidance in prompt):src/agents/system-prompt.e2e.test.ts
   it("lists available tools when provided", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/clawd",
