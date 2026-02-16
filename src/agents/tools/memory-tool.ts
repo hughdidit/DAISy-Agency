@@ -59,11 +59,26 @@ export function createMemorySearchTool(options: {
           sessionKey: options.agentSessionKey,
         });
         const status = manager.status();
+<<<<<<< HEAD
+=======
+        const decorated = decorateCitations(rawResults, includeCitations);
+        const resolved = resolveMemoryBackendConfig({ cfg, agentId });
+        const results =
+          status.backend === "qmd"
+            ? clampResultsByInjectedChars(decorated, resolved.qmd?.limits.maxInjectedChars)
+            : decorated;
+        const searchMode = (status.custom as { searchMode?: string } | undefined)?.searchMode;
+>>>>>>> 65aedac20 (fix: enable FTS fallback when no embedding provider available (#17725))
         return jsonResult({
           results,
           provider: status.provider,
           model: status.model,
           fallback: status.fallback,
+<<<<<<< HEAD
+=======
+          citations: citationsMode,
+          mode: searchMode,
+>>>>>>> 65aedac20 (fix: enable FTS fallback when no embedding provider available (#17725))
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
