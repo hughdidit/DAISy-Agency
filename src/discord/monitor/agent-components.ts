@@ -24,7 +24,11 @@ import {
   resolveDiscordAllowListMatch,
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
+<<<<<<< HEAD
   resolveDiscordUserAllowed,
+=======
+  resolveDiscordMemberAccessState,
+>>>>>>> 555eb3f62 (refactor(discord): share member access state)
 } from "./allow-list.js";
 import { formatDiscordUserTag } from "./format.js";
 
@@ -217,15 +221,15 @@ async function ensureGuildComponentMemberAllowed(params: {
     scope: channelCtx.isThread ? "thread" : "channel",
   });
 
-  const channelUsers = channelConfig?.users ?? guildInfo?.users;
-  const channelRoles = channelConfig?.roles ?? guildInfo?.roles;
-  const memberAllowed = resolveDiscordMemberAllowed({
-    userAllowList: channelUsers,
-    roleAllowList: channelRoles,
+  const { memberAllowed } = resolveDiscordMemberAccessState({
+    channelConfig,
+    guildInfo,
     memberRoleIds,
-    userId: user.id,
-    userName: user.username,
-    userTag: user.discriminator ? `${user.username}#${user.discriminator}` : undefined,
+    sender: {
+      id: user.id,
+      name: user.username,
+      tag: user.discriminator ? `${user.username}#${user.discriminator}` : undefined,
+    },
   });
   if (memberAllowed) {
     return true;

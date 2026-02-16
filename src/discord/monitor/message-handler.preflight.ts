@@ -45,6 +45,10 @@ import {
   resolveDiscordAllowListMatch,
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
+<<<<<<< HEAD
+=======
+  resolveDiscordMemberAccessState,
+>>>>>>> 555eb3f62 (refactor(discord): share member access state)
   resolveDiscordShouldRequireMention,
   resolveDiscordUserAllowed,
   resolveGroupDmAllow,
@@ -495,6 +499,15 @@ export async function preflightDiscordMessage(
     surface: "discord",
   });
   const hasControlCommandInMessage = hasControlCommand(baseText, params.cfg);
+<<<<<<< HEAD
+=======
+  const { hasAccessRestrictions, memberAllowed } = resolveDiscordMemberAccessState({
+    channelConfig,
+    guildInfo,
+    memberRoleIds,
+    sender,
+  });
+>>>>>>> 555eb3f62 (refactor(discord): share member access state)
 
   if (!isDirectMessage) {
     const ownerAllowList = normalizeDiscordAllowList(params.allowFrom, [
