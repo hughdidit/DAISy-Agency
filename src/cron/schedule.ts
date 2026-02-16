@@ -44,6 +44,7 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   const next = cron.nextRun(new Date(nowMs));
   return next ? next.getTime() : undefined;
 =======
@@ -83,10 +84,14 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
   const askFromNextSecondMs = Math.floor(nowMs / 1000) * 1000 + 1000;
   const next = cron.nextRun(new Date(askFromNextSecondMs));
 >>>>>>> de6cc05e7 (fix(cron): prevent spin loop when job completes within firing second (#17821))
+=======
+  const next = cron.nextRun(new Date(nowMs));
+>>>>>>> 12a947223 (fix(ci): restore main checks after bulk merges)
   if (!next) {
     return undefined;
   }
   const nextMs = next.getTime();
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -101,4 +106,23 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
 =======
   return Number.isFinite(nextMs) ? nextMs : undefined;
 >>>>>>> de6cc05e7 (fix(cron): prevent spin loop when job completes within firing second (#17821))
+=======
+  if (!Number.isFinite(nextMs)) {
+    return undefined;
+  }
+  if (nextMs > nowMs) {
+    return nextMs;
+  }
+
+  // Guard against same-second rescheduling loops: if croner returns
+  // "now" (or an earlier instant) when the job completed mid-second,
+  // retry from the next whole second.
+  const nextSecondMs = Math.floor(nowMs / 1000) * 1000 + 1000;
+  const retry = cron.nextRun(new Date(nextSecondMs));
+  if (!retry) {
+    return undefined;
+  }
+  const retryMs = retry.getTime();
+  return Number.isFinite(retryMs) ? retryMs : undefined;
+>>>>>>> 12a947223 (fix(ci): restore main checks after bulk merges)
 }

@@ -36,6 +36,8 @@ import { describe, expect, it, vi } from "vitest";
 import { setLoggerOverride } from "../logging.js";
 import { monitorWebInbox } from "./inbound.js";
 import {
+  DEFAULT_ACCOUNT_ID,
+  getAuthDir,
   getSock,
   installWebMonitorInboxUnitTestHooks,
   mockLoadConfig,
@@ -45,9 +47,18 @@ describe("web monitor inbox", () => {
   installWebMonitorInboxUnitTestHooks();
 >>>>>>> b8b7a6e0f (refactor(test): dedupe web monitor inbox test setup)
 
+  async function openMonitor(onMessage = vi.fn()) {
+    return await monitorWebInbox({
+      verbose: false,
+      accountId: DEFAULT_ACCOUNT_ID,
+      authDir: getAuthDir(),
+      onMessage,
+    });
+  }
+
   it("captures media path for image messages", async () => {
     const onMessage = vi.fn();
-    const listener = await monitorWebInbox({ verbose: false, onMessage });
+    const listener = await openMonitor(onMessage);
     const sock = getSock();
     const upsert = {
       type: "notify",
@@ -82,7 +93,7 @@ describe("web monitor inbox", () => {
 
   it("sets gifPlayback on outbound video payloads when requested", async () => {
     const onMessage = vi.fn();
-    const listener = await monitorWebInbox({ verbose: false, onMessage });
+    const listener = await openMonitor(onMessage);
     const sock = getSock();
     const buf = Buffer.from("gifvid");
 
@@ -101,10 +112,7 @@ describe("web monitor inbox", () => {
   });
 
   it("resolves onClose when the socket closes", async () => {
-    const listener = await monitorWebInbox({
-      verbose: false,
-      onMessage: vi.fn(),
-    });
+    const listener = await openMonitor(vi.fn());
     const sock = getSock();
     const reasonPromise = listener.onClose;
     sock.ev.emit("connection.update", {
@@ -122,7 +130,7 @@ describe("web monitor inbox", () => {
     setLoggerOverride({ level: "trace", file: logPath });
 
     const onMessage = vi.fn();
-    const listener = await monitorWebInbox({ verbose: false, onMessage });
+    const listener = await openMonitor(onMessage);
     const sock = getSock();
     const upsert = {
       type: "notify",
@@ -139,7 +147,16 @@ describe("web monitor inbox", () => {
     sock.ev.emit("messages.upsert", upsert);
     await new Promise((resolve) => setImmediate(resolve));
 
-    const content = fsSync.readFileSync(logPath, "utf-8");
+    const content = await (async () => {
+      const deadline = Date.now() + 2_000;
+      while (Date.now() < deadline) {
+        if (fsSync.existsSync(logPath)) {
+          return fsSync.readFileSync(logPath, "utf-8");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 25));
+      }
+      throw new Error(`expected log file to exist: ${logPath}`);
+    })();
     expect(content).toMatch(/web-inbound/);
     expect(content).toMatch(/ping/);
     await listener.close();
@@ -147,7 +164,7 @@ describe("web monitor inbox", () => {
 
   it("includes participant when marking group messages read", async () => {
     const onMessage = vi.fn();
-    const listener = await monitorWebInbox({ verbose: false, onMessage });
+    const listener = await openMonitor(onMessage);
     const sock = getSock();
     const upsert = {
       type: "notify",
@@ -180,7 +197,7 @@ describe("web monitor inbox", () => {
 
   it("passes through group messages with participant metadata", async () => {
     const onMessage = vi.fn();
-    const listener = await monitorWebInbox({ verbose: false, onMessage });
+    const listener = await openMonitor(onMessage);
     const sock = getSock();
     const upsert = {
       type: "notify",
@@ -220,7 +237,7 @@ describe("web monitor inbox", () => {
 
   it("unwraps ephemeral messages, preserves mentions, and still delivers group pings", async () => {
     const onMessage = vi.fn();
-    const listener = await monitorWebInbox({ verbose: false, onMessage });
+    const listener = await openMonitor(onMessage);
     const sock = getSock();
     const upsert = {
       type: "notify",
@@ -279,7 +296,7 @@ describe("web monitor inbox", () => {
     });
 
     const onMessage = vi.fn();
-    const listener = await monitorWebInbox({ verbose: false, onMessage });
+    const listener = await openMonitor(onMessage);
     const sock = getSock();
     const upsert = {
       type: "notify",
