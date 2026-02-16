@@ -79,6 +79,7 @@ const SLACK_COMMAND_ARG_ACTION_ID = "moltbot_cmdarg";
 const SLACK_COMMAND_ARG_VALUE_PREFIX = "cmdarg";
 const SLACK_COMMAND_ARG_BUTTON_ROW_SIZE = 5;
 const SLACK_COMMAND_ARG_SELECT_OPTIONS_MAX = 100;
+const SLACK_COMMAND_ARG_SELECT_OPTION_VALUE_MAX = 75;
 
 type CommandsRegistry = typeof import("../../auto-reply/commands-registry.js");
 let commandsRegistry: CommandsRegistry | undefined;
@@ -159,8 +160,11 @@ function buildSlackCommandArgMenuBlocks(params: {
       userId: params.userId,
     }),
   }));
+  const canUseStaticSelect = encodedChoices.every(
+    (choice) => choice.value.length <= SLACK_COMMAND_ARG_SELECT_OPTION_VALUE_MAX,
+  );
   const rows =
-    encodedChoices.length <= SLACK_COMMAND_ARG_BUTTON_ROW_SIZE
+    encodedChoices.length <= SLACK_COMMAND_ARG_BUTTON_ROW_SIZE || !canUseStaticSelect
       ? chunkItems(encodedChoices, SLACK_COMMAND_ARG_BUTTON_ROW_SIZE).map((choices) => ({
           type: "actions",
           elements: choices.map((choice) => ({
