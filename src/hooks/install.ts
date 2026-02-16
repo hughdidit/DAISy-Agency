@@ -114,6 +114,30 @@ async function ensureOpenClawHooks(manifest: HookPackageManifest) {
   return list;
 }
 
+function resolveHookInstallModeOptions(params: {
+  logger?: HookInstallLogger;
+  mode?: "install" | "update";
+  dryRun?: boolean;
+}): { logger: HookInstallLogger; mode: "install" | "update"; dryRun: boolean } {
+  return {
+    logger: params.logger ?? defaultLogger,
+    mode: params.mode ?? "install",
+    dryRun: params.dryRun ?? false,
+  };
+}
+
+function resolveTimedHookInstallModeOptions(params: {
+  logger?: HookInstallLogger;
+  timeoutMs?: number;
+  mode?: "install" | "update";
+  dryRun?: boolean;
+}): { logger: HookInstallLogger; timeoutMs: number; mode: "install" | "update"; dryRun: boolean } {
+  return {
+    ...resolveHookInstallModeOptions(params),
+    timeoutMs: params.timeoutMs ?? 120_000,
+  };
+}
+
 async function resolveHookNameFromDir(hookDir: string): Promise<string> {
   const hookMdPath = path.join(hookDir, "HOOK.md");
   if (!(await fileExists(hookMdPath))) {
@@ -149,10 +173,7 @@ async function installHookPackageFromDir(params: {
   dryRun?: boolean;
   expectedHookPackId?: string;
 }): Promise<InstallHooksResult> {
-  const logger = params.logger ?? defaultLogger;
-  const timeoutMs = params.timeoutMs ?? 120_000;
-  const mode = params.mode ?? "install";
-  const dryRun = params.dryRun ?? false;
+  const { logger, timeoutMs, mode, dryRun } = resolveTimedHookInstallModeOptions(params);
 
   const manifestPath = path.join(params.packageDir, "package.json");
   if (!(await fileExists(manifestPath))) {
@@ -255,9 +276,7 @@ async function installHookFromDir(params: {
   dryRun?: boolean;
   expectedHookPackId?: string;
 }): Promise<InstallHooksResult> {
-  const logger = params.logger ?? defaultLogger;
-  const mode = params.mode ?? "install";
-  const dryRun = params.dryRun ?? false;
+  const { logger, mode, dryRun } = resolveHookInstallModeOptions(params);
 
   await validateHookDir(params.hookDir);
   const hookName = await resolveHookNameFromDir(params.hookDir);
@@ -390,10 +409,7 @@ export async function installHooksFromNpmSpec(params: {
   dryRun?: boolean;
   expectedHookPackId?: string;
 }): Promise<InstallHooksResult> {
-  const logger = params.logger ?? defaultLogger;
-  const timeoutMs = params.timeoutMs ?? 120_000;
-  const mode = params.mode ?? "install";
-  const dryRun = params.dryRun ?? false;
+  const { logger, timeoutMs, mode, dryRun } = resolveTimedHookInstallModeOptions(params);
   const expectedHookPackId = params.expectedHookPackId;
   const spec = params.spec.trim();
   if (!spec) {

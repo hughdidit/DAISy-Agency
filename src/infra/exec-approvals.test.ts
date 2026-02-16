@@ -35,6 +35,26 @@ function makeTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-exec-approvals-"));
 }
 
+function createSafeBinJqCase(params: { command: string; seedFileName?: string }) {
+  const dir = makeTempDir();
+  const binDir = path.join(dir, "bin");
+  fs.mkdirSync(binDir, { recursive: true });
+  const exeName = process.platform === "win32" ? "jq.exe" : "jq";
+  const exe = path.join(binDir, exeName);
+  fs.writeFileSync(exe, "");
+  fs.chmodSync(exe, 0o755);
+  if (params.seedFileName) {
+    fs.writeFileSync(path.join(dir, params.seedFileName), "{}");
+  }
+  const res = analyzeShellCommand({
+    command: params.command,
+    cwd: dir,
+    env: makePathEnv(binDir),
+  });
+  expect(res.ok).toBe(true);
+  return { dir, segment: res.segments[0] };
+}
+
 describe("exec approvals allowlist matching", () => {
   it("ignores basename-only patterns", () => {
     const resolution = {
@@ -255,6 +275,7 @@ describe("exec approvals shell allowlist (chained commands)", () => {
 
 describe("exec approvals safe bins", () => {
   it("allows safe bins with non-path args", () => {
+<<<<<<< HEAD
     const dir = makeTempDir();
     const binDir = path.join(dir, "bin");
     fs.mkdirSync(binDir, { recursive: true });
@@ -269,6 +290,12 @@ describe("exec approvals safe bins", () => {
     });
     expect(res.ok).toBe(true);
     const segment = res.segments[0];
+=======
+    if (process.platform === "win32") {
+      return;
+    }
+    const { dir, segment } = createSafeBinJqCase({ command: "jq .foo" });
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     const ok = isSafeBinUsage({
       argv: segment.argv,
       resolution: segment.resolution,
@@ -279,6 +306,7 @@ describe("exec approvals safe bins", () => {
   });
 
   it("blocks safe bins with file args", () => {
+<<<<<<< HEAD
     const dir = makeTempDir();
     const binDir = path.join(dir, "bin");
     fs.mkdirSync(binDir, { recursive: true });
@@ -289,12 +317,15 @@ describe("exec approvals safe bins", () => {
     const file = path.join(dir, "secret.json");
     fs.writeFileSync(file, "{}");
     const res = analyzeShellCommand({
+=======
+    if (process.platform === "win32") {
+      return;
+    }
+    const { dir, segment } = createSafeBinJqCase({
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
       command: "jq .foo secret.json",
-      cwd: dir,
-      env: makePathEnv(binDir),
+      seedFileName: "secret.json",
     });
-    expect(res.ok).toBe(true);
-    const segment = res.segments[0];
     const ok = isSafeBinUsage({
       argv: segment.argv,
       resolution: segment.resolution,

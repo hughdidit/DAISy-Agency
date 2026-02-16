@@ -7,42 +7,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
+=======
+import type { MemoryIndexManager } from "./index.js";
+import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
+import { getRequiredMemoryIndexManager } from "./test-manager-helpers.js";
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 
 let shouldFail = false;
-
-vi.mock("chokidar", () => ({
-  default: {
-    watch: vi.fn(() => ({
-      on: vi.fn(),
-      close: vi.fn(async () => undefined),
-    })),
-  },
-}));
-
-vi.mock("./embeddings.js", () => {
-  return {
-    createEmbeddingProvider: async () => ({
-      requestedProvider: "openai",
-      provider: {
-        id: "mock",
-        model: "mock-embed",
-        embedQuery: async () => [1, 0, 0],
-        embedBatch: async (texts: string[]) => {
-          if (shouldFail) {
-            throw new Error("embedding failure");
-          }
-          return texts.map((_, index) => [index + 1, 0, 0]);
-        },
-      },
-    }),
-  };
-});
-
-vi.mock("./sqlite-vec.js", () => ({
-  loadSqliteVecExtension: async () => ({ ok: false, error: "sqlite-vec disabled in tests" }),
-}));
 
 describe("memory manager atomic reindex", () => {
   let fixtureRoot = "";
@@ -50,6 +24,7 @@ describe("memory manager atomic reindex", () => {
   let workspaceDir: string;
   let indexPath: string;
   let manager: MemoryIndexManager | null = null;
+  const embedBatch = getEmbedBatchMock();
 
   beforeAll(async () => {
     fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-atomic-"));
@@ -57,10 +32,20 @@ describe("memory manager atomic reindex", () => {
 
   beforeEach(async () => {
     vi.stubEnv("OPENCLAW_TEST_MEMORY_UNSAFE_REINDEX", "0");
+    resetEmbeddingMocks();
     shouldFail = false;
+<<<<<<< HEAD
 <<<<<<< HEAD
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
 =======
+=======
+    embedBatch.mockImplementation(async (texts: string[]) => {
+      if (shouldFail) {
+        throw new Error("embedding failure");
+      }
+      return texts.map((_, index) => [index + 1, 0, 0]);
+    });
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     workspaceDir = path.join(fixtureRoot, `case-${caseId++}`);
     await fs.mkdir(workspaceDir, { recursive: true });
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
@@ -102,12 +87,7 @@ describe("memory manager atomic reindex", () => {
       },
     };
 
-    const result = await getMemorySearchManager({ cfg, agentId: "main" });
-    expect(result.manager).not.toBeNull();
-    if (!result.manager) {
-      throw new Error("manager missing");
-    }
-    manager = result.manager;
+    manager = await getRequiredMemoryIndexManager({ cfg, agentId: "main" });
 
     await manager.sync({ force: true });
     const beforeStatus = manager.status();

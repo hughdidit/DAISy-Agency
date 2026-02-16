@@ -13,20 +13,9 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 110cc5d79 (perf(test): speed up memory index suite)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
+import "./test-runtime-mocks.js";
 
 let embedBatchCalls = 0;
-
-// Unit tests: avoid importing the real chokidar implementation (native fsevents, etc.).
-vi.mock("chokidar", () => ({
-  default: {
-    watch: () => ({ on: () => {}, close: async () => {} }),
-  },
-  watch: () => ({ on: () => {}, close: async () => {} }),
-}));
-
-vi.mock("./sqlite-vec.js", () => ({
-  loadSqliteVecExtension: async () => ({ ok: false, error: "sqlite-vec disabled in tests" }),
-}));
 
 vi.mock("./embeddings.js", () => {
   const embedText = (text: string) => {

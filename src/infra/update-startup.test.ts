@@ -131,7 +131,7 @@ describe("update-startup", () => {
     suiteCase = 0;
   });
 
-  it("logs update hint for npm installs when newer tag exists", async () => {
+  async function runUpdateCheckAndReadState(channel: "stable" | "beta") {
     vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue("/opt/openclaw");
 >>>>>>> 096a7a571 (perf(test): speed up update-startup and docker-setup suites)
     vi.mocked(checkUpdateStatus).mockResolvedValue({
@@ -146,23 +146,31 @@ describe("update-startup", () => {
 
     const log = { info: vi.fn() };
     await runGatewayUpdateCheck({
-      cfg: { update: { channel: "stable" } },
+      cfg: { update: { channel } },
       log,
       isNixMode: false,
       allowInTests: true,
     });
 
+    const statePath = path.join(tempDir, "update-check.json");
+    const parsed = JSON.parse(await fs.readFile(statePath, "utf-8")) as {
+      lastNotifiedVersion?: string;
+      lastNotifiedTag?: string;
+    };
+    return { log, parsed };
+  }
+
+  it("logs update hint for npm installs when newer tag exists", async () => {
+    const { log, parsed } = await runUpdateCheckAndReadState("stable");
+
     expect(log.info).toHaveBeenCalledWith(
       expect.stringContaining("update available (latest): v2.0.0"),
     );
-
-    const statePath = path.join(tempDir, "update-check.json");
-    const raw = await fs.readFile(statePath, "utf-8");
-    const parsed = JSON.parse(raw) as { lastNotifiedVersion?: string };
     expect(parsed.lastNotifiedVersion).toBe("2.0.0");
   });
 
   it("uses latest when beta tag is older than release", async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     const { resolveMoltbotPackageRoot } = await import("./moltbot-root.js");
     const { checkUpdateStatus, resolveNpmChannelTag } = await import("./update-check.js");
@@ -189,14 +197,13 @@ describe("update-startup", () => {
       isNixMode: false,
       allowInTests: true,
     });
+=======
+    const { log, parsed } = await runUpdateCheckAndReadState("beta");
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 
     expect(log.info).toHaveBeenCalledWith(
       expect.stringContaining("update available (latest): v2.0.0"),
     );
-
-    const statePath = path.join(tempDir, "update-check.json");
-    const raw = await fs.readFile(statePath, "utf-8");
-    const parsed = JSON.parse(raw) as { lastNotifiedTag?: string };
     expect(parsed.lastNotifiedTag).toBe("latest");
   });
 

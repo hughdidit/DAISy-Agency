@@ -8,6 +8,7 @@ import { hashText } from "./internal.js";
 =======
 =======
 import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
+import { extractBatchErrorMessage, formatUnavailableBatchError } from "./batch-error-utils.js";
 import { postJsonWithRetry } from "./batch-http.js";
 >>>>>>> ebb54d71e (refactor(memory): share batch create retry)
 import { applyEmbeddingBatchOutputLine } from "./batch-output.js";
@@ -184,16 +185,9 @@ async function readOpenAiBatchError(params: {
       fileId: params.errorFileId,
     });
     const lines = parseOpenAiBatchOutput(content);
-    const first = lines.find((line) => line.error?.message || line.response?.body?.error);
-    const message =
-      first?.error?.message ??
-      (typeof first?.response?.body?.error?.message === "string"
-        ? first?.response?.body?.error?.message
-        : undefined);
-    return message;
+    return extractBatchErrorMessage(lines);
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return message ? `error file unavailable: ${message}` : undefined;
+    return formatUnavailableBatchError(err);
   }
 }
 

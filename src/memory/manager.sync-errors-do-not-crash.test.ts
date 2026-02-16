@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 
@@ -30,15 +31,29 @@ vi.mock("./embeddings.js", () => {
     }),
   };
 });
+=======
+import type { MemoryIndexManager } from "./index.js";
+import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
+import { getRequiredMemoryIndexManager } from "./test-manager-helpers.js";
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 
 describe("memory manager sync failures", () => {
   let workspaceDir: string;
   let indexPath: string;
   let manager: MemoryIndexManager | null = null;
+  const embedBatch = getEmbedBatchMock();
 
   beforeEach(async () => {
     vi.useFakeTimers();
+<<<<<<< HEAD
     workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-mem-"));
+=======
+    resetEmbeddingMocks();
+    embedBatch.mockImplementation(async () => {
+      throw new Error("openai embeddings failed: 400 bad request");
+    });
+    workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-mem-"));
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     indexPath = path.join(workspaceDir, "index.sqlite");
     await fs.mkdir(path.join(workspaceDir, "memory"));
     await fs.writeFile(path.join(workspaceDir, "MEMORY.md"), "Hello");
@@ -75,12 +90,7 @@ describe("memory manager sync failures", () => {
       },
     };
 
-    const result = await getMemorySearchManager({ cfg, agentId: "main" });
-    expect(result.manager).not.toBeNull();
-    if (!result.manager) {
-      throw new Error("manager missing");
-    }
-    manager = result.manager;
+    manager = await getRequiredMemoryIndexManager({ cfg, agentId: "main" });
     const syncSpy = vi.spyOn(manager, "sync");
 
     // Call the internal scheduler directly; it uses fire-and-forget sync.

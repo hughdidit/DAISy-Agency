@@ -4,6 +4,16 @@ import { describe, expect, it } from "vitest";
 import { loadConfig } from "./config.js";
 import { withTempHome } from "./test-helpers.js";
 
+async function writeConfigForTest(home: string, config: unknown): Promise<void> {
+  const configDir = path.join(home, ".openclaw");
+  await fs.mkdir(configDir, { recursive: true });
+  await fs.writeFile(
+    path.join(configDir, "openclaw.json"),
+    JSON.stringify(config, null, 2),
+    "utf-8",
+  );
+}
+
 describe("config pruning defaults", () => {
   it("does not enable contextPruning by default", async () => {
     const prevApiKey = process.env.ANTHROPIC_API_KEY;
@@ -11,6 +21,7 @@ describe("config pruning defaults", () => {
     process.env.ANTHROPIC_API_KEY = "";
     process.env.ANTHROPIC_OAUTH_TOKEN = "";
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
       await fs.writeFile(
@@ -18,6 +29,9 @@ describe("config pruning defaults", () => {
         JSON.stringify({ agents: { defaults: {} } }, null, 2),
         "utf-8",
       );
+=======
+      await writeConfigForTest(home, { agents: { defaults: {} } });
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 
       const cfg = loadConfig();
 
@@ -37,6 +51,7 @@ describe("config pruning defaults", () => {
 
   it("enables cache-ttl pruning + 1h heartbeat for Anthropic OAuth", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
       await fs.writeFile(
@@ -49,12 +64,16 @@ describe("config pruning defaults", () => {
               },
             },
             agents: { defaults: {} },
+=======
+      await writeConfigForTest(home, {
+        auth: {
+          profiles: {
+            "anthropic:me": { provider: "anthropic", mode: "oauth", email: "me@example.com" },
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
           },
-          null,
-          2,
-        ),
-        "utf-8",
-      );
+        },
+        agents: { defaults: {} },
+      });
 
       const cfg = loadConfig();
 
@@ -66,6 +85,7 @@ describe("config pruning defaults", () => {
 
   it("enables cache-ttl pruning + 1h cache TTL for Anthropic API keys", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
       await fs.writeFile(
@@ -82,12 +102,20 @@ describe("config pruning defaults", () => {
                 model: { primary: "anthropic/claude-opus-4-5" },
               },
             },
+=======
+      await writeConfigForTest(home, {
+        auth: {
+          profiles: {
+            "anthropic:api": { provider: "anthropic", mode: "api_key" },
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
           },
-          null,
-          2,
-        ),
-        "utf-8",
-      );
+        },
+        agents: {
+          defaults: {
+            model: { primary: "anthropic/claude-opus-4-5" },
+          },
+        },
+      });
 
       const cfg = loadConfig();
 
@@ -102,6 +130,7 @@ describe("config pruning defaults", () => {
 
   it("does not override explicit contextPruning mode", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const configDir = path.join(home, ".clawdbot");
       await fs.mkdir(configDir, { recursive: true });
       await fs.writeFile(
@@ -109,6 +138,9 @@ describe("config pruning defaults", () => {
         JSON.stringify({ agents: { defaults: { contextPruning: { mode: "off" } } } }, null, 2),
         "utf-8",
       );
+=======
+      await writeConfigForTest(home, { agents: { defaults: { contextPruning: { mode: "off" } } } });
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 
       const cfg = loadConfig();
 

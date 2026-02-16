@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as replyModule from "../auto-reply/reply.js";
@@ -15,24 +16,19 @@ import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
+=======
+import { describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import * as replyModule from "../auto-reply/reply.js";
+import { resolveMainSessionKey } from "../config/sessions.js";
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 import { runHeartbeatOnce } from "./heartbeat-runner.js";
+import { installHeartbeatRunnerTestRuntime } from "./heartbeat-runner.test-harness.js";
 
 // Avoid pulling optional runtime deps during isolated runs.
 vi.mock("jiti", () => ({ createJiti: () => () => ({}) }));
 
-beforeEach(() => {
-  const runtime = createPluginRuntime();
-  setSlackRuntime(runtime);
-  setTelegramRuntime(runtime);
-  setWhatsAppRuntime(runtime);
-  setActivePluginRegistry(
-    createTestRegistry([
-      { pluginId: "slack", plugin: slackPlugin, source: "test" },
-      { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
-      { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
-    ]),
-  );
-});
+installHeartbeatRunnerTestRuntime({ includeSlack: true });
 
 describe("runHeartbeatOnce", () => {
   it("uses the delivery target as sender when lastTo differs", async () => {

@@ -30,6 +30,47 @@ describe("security fix", () => {
     return dir;
   };
 
+  const createFixEnv = (stateDir: string, configPath: string) => ({
+    ...process.env,
+    OPENCLAW_STATE_DIR: stateDir,
+    OPENCLAW_CONFIG_PATH: configPath,
+  });
+
+  const writeJsonConfig = async (configPath: string, config: Record<string, unknown>) => {
+    await fs.writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf-8");
+  };
+
+  const writeWhatsAppConfig = async (configPath: string, whatsapp: Record<string, unknown>) => {
+    await writeJsonConfig(configPath, {
+      channels: {
+        whatsapp,
+      },
+    });
+  };
+
+  const readParsedConfig = async (configPath: string) =>
+    JSON.parse(await fs.readFile(configPath, "utf-8")) as Record<string, unknown>;
+
+  const runFixAndReadChannels = async (stateDir: string, configPath: string) => {
+    const env = createFixEnv(stateDir, configPath);
+    const res = await fixSecurityFootguns({ env, stateDir, configPath });
+    const parsed = await readParsedConfig(configPath);
+    return {
+      res,
+      channels: parsed.channels as Record<string, Record<string, unknown>>,
+    };
+  };
+
+  const writeWhatsAppAllowFromStore = async (stateDir: string, allowFrom: string[]) => {
+    const credsDir = path.join(stateDir, "credentials");
+    await fs.mkdir(credsDir, { recursive: true });
+    await fs.writeFile(
+      path.join(credsDir, "whatsapp-allowFrom.json"),
+      `${JSON.stringify({ version: 1, allowFrom }, null, 2)}\n`,
+      "utf-8",
+    );
+  };
+
   beforeAll(async () => {
     fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-security-fix-suite-"));
   });
@@ -50,6 +91,7 @@ describe("security fix", () => {
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     await fs.chmod(stateDir, 0o755);
 
+<<<<<<< HEAD
     const configPath = path.join(stateDir, "moltbot.json");
     await fs.writeFile(
       configPath,
@@ -89,6 +131,23 @@ describe("security fix", () => {
       OPENCLAW_CONFIG_PATH: configPath,
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     };
+=======
+    const configPath = path.join(stateDir, "openclaw.json");
+    await writeJsonConfig(configPath, {
+      channels: {
+        telegram: { groupPolicy: "open" },
+        whatsapp: { groupPolicy: "open" },
+        discord: { groupPolicy: "open" },
+        signal: { groupPolicy: "open" },
+        imessage: { groupPolicy: "open" },
+      },
+      logging: { redactSensitive: "off" },
+    });
+    await fs.chmod(configPath, 0o644);
+
+    await writeWhatsAppAllowFromStore(stateDir, [" +15551234567 "]);
+    const env = createFixEnv(stateDir, configPath);
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 
     const res = await fixSecurityFootguns({ env, stateDir, configPath });
     expect(res.ok).toBe(true);
@@ -110,7 +169,7 @@ describe("security fix", () => {
     const configMode = (await fs.stat(configPath)).mode & 0o777;
     expectPerms(configMode, 0o600);
 
-    const parsed = JSON.parse(await fs.readFile(configPath, "utf-8")) as Record<string, unknown>;
+    const parsed = await readParsedConfig(configPath);
     const channels = parsed.channels as Record<string, Record<string, unknown>>;
     expect(channels.telegram.groupPolicy).toBe("allowlist");
     expect(channels.whatsapp.groupPolicy).toBe("allowlist");
@@ -130,6 +189,7 @@ describe("security fix", () => {
     const stateDir = await createStateDir("per-account");
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 
+<<<<<<< HEAD
     const configPath = path.join(stateDir, "moltbot.json");
     await fs.writeFile(
       configPath,
@@ -169,10 +229,19 @@ describe("security fix", () => {
     };
 
     const res = await fixSecurityFootguns({ env, stateDir, configPath });
+=======
+    const configPath = path.join(stateDir, "openclaw.json");
+    await writeWhatsAppConfig(configPath, {
+      accounts: {
+        a1: { groupPolicy: "open" },
+      },
+    });
+
+    await writeWhatsAppAllowFromStore(stateDir, ["+15550001111"]);
+    const { res, channels } = await runFixAndReadChannels(stateDir, configPath);
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     expect(res.ok).toBe(true);
 
-    const parsed = JSON.parse(await fs.readFile(configPath, "utf-8")) as Record<string, unknown>;
-    const channels = parsed.channels as Record<string, Record<string, unknown>>;
     const whatsapp = channels.whatsapp;
     const accounts = whatsapp.accounts as Record<string, Record<string, unknown>>;
 
@@ -189,6 +258,7 @@ describe("security fix", () => {
     const stateDir = await createStateDir("no-seed");
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 
+<<<<<<< HEAD
     const configPath = path.join(stateDir, "moltbot.json");
     await fs.writeFile(
       configPath,
@@ -224,10 +294,18 @@ describe("security fix", () => {
     };
 
     const res = await fixSecurityFootguns({ env, stateDir, configPath });
+=======
+    const configPath = path.join(stateDir, "openclaw.json");
+    await writeWhatsAppConfig(configPath, {
+      groupPolicy: "open",
+      allowFrom: ["+15552223333"],
+    });
+
+    await writeWhatsAppAllowFromStore(stateDir, ["+15550001111"]);
+    const { res, channels } = await runFixAndReadChannels(stateDir, configPath);
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     expect(res.ok).toBe(true);
 
-    const parsed = JSON.parse(await fs.readFile(configPath, "utf-8")) as Record<string, unknown>;
-    const channels = parsed.channels as Record<string, Record<string, unknown>>;
     expect(channels.whatsapp.groupPolicy).toBe("allowlist");
     expect(channels.whatsapp.groupAllowFrom).toBeUndefined();
   });
@@ -246,6 +324,7 @@ describe("security fix", () => {
     await fs.writeFile(configPath, "{ this is not json }\n", "utf-8");
     await fs.chmod(configPath, 0o644);
 
+<<<<<<< HEAD
     const env = {
       ...process.env,
 <<<<<<< HEAD
@@ -256,6 +335,9 @@ describe("security fix", () => {
       OPENCLAW_CONFIG_PATH: configPath,
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
     };
+=======
+    const env = createFixEnv(stateDir, configPath);
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 
     const res = await fixSecurityFootguns({ env, stateDir, configPath });
     expect(res.ok).toBe(false);
