@@ -60,7 +60,7 @@ describe("runCommandWithTimeout", () => {
       [process.execPath, "-e", "setTimeout(() => {}, 10_000)"],
       {
         timeoutMs: 5_000,
-        noOutputTimeoutMs: 70,
+        noOutputTimeoutMs: 60,
       },
     );
 
@@ -92,7 +92,7 @@ describe("runCommandWithTimeout", () => {
     const result = await runCommandWithTimeout(
       [process.execPath, "-e", "setTimeout(() => {}, 10_000)"],
       {
-        timeoutMs: 30,
+        timeoutMs: 20,
       },
     );
 
