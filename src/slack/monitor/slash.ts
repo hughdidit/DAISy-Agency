@@ -78,6 +78,8 @@ type SlackBlock = { type: string; [key: string]: unknown };
 const SLACK_COMMAND_ARG_ACTION_ID = "moltbot_cmdarg";
 const SLACK_COMMAND_ARG_VALUE_PREFIX = "cmdarg";
 const SLACK_COMMAND_ARG_BUTTON_ROW_SIZE = 5;
+const SLACK_COMMAND_ARG_OVERFLOW_MIN = 3;
+const SLACK_COMMAND_ARG_OVERFLOW_MAX = 5;
 const SLACK_COMMAND_ARG_SELECT_OPTIONS_MAX = 100;
 const SLACK_COMMAND_ARG_SELECT_OPTION_VALUE_MAX = 75;
 
@@ -163,8 +165,27 @@ function buildSlackCommandArgMenuBlocks(params: {
   const canUseStaticSelect = encodedChoices.every(
     (choice) => choice.value.length <= SLACK_COMMAND_ARG_SELECT_OPTION_VALUE_MAX,
   );
-  const rows =
-    encodedChoices.length <= SLACK_COMMAND_ARG_BUTTON_ROW_SIZE || !canUseStaticSelect
+  const canUseOverflow =
+    canUseStaticSelect &&
+    encodedChoices.length >= SLACK_COMMAND_ARG_OVERFLOW_MIN &&
+    encodedChoices.length <= SLACK_COMMAND_ARG_OVERFLOW_MAX;
+  const rows = canUseOverflow
+    ? [
+        {
+          type: "actions",
+          elements: [
+            {
+              type: "overflow",
+              action_id: SLACK_COMMAND_ARG_ACTION_ID,
+              options: encodedChoices.map((choice) => ({
+                text: { type: "plain_text", text: choice.label.slice(0, 75) },
+                value: choice.value,
+              })),
+            },
+          ],
+        },
+      ]
+    : encodedChoices.length <= SLACK_COMMAND_ARG_BUTTON_ROW_SIZE || !canUseStaticSelect
       ? chunkItems(encodedChoices, SLACK_COMMAND_ARG_BUTTON_ROW_SIZE).map((choices) => ({
           type: "actions",
           elements: choices.map((choice) => ({
