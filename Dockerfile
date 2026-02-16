@@ -11,7 +11,11 @@ WORKDIR /app
 ARG CLAWDBOT_DOCKER_APT_PACKAGES=""
 RUN if [ -n "$CLAWDBOT_DOCKER_APT_PACKAGES" ]; then \
       apt-get update && \
+<<<<<<< HEAD
       DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $CLAWDBOT_DOCKER_APT_PACKAGES && \
+=======
+      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $OPENCLAW_DOCKER_APT_PACKAGES && \
+>>>>>>> 27a4868c2 (fix: move Chromium install after pnpm install and use playwright-core/cli.js)
       apt-get clean && \
       rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
     fi
@@ -22,6 +26,19 @@ COPY patches ./patches
 COPY scripts ./scripts
 
 RUN pnpm install --frozen-lockfile
+
+# Optionally install Chromium and Xvfb for browser automation.
+# Build with: docker build --build-arg OPENCLAW_INSTALL_BROWSER=1 ...
+# Adds ~300MB but eliminates the 60-90s Playwright install on every container start.
+# Must run after pnpm install so playwright-core is available in node_modules.
+ARG OPENCLAW_INSTALL_BROWSER=""
+RUN if [ -n "$OPENCLAW_INSTALL_BROWSER" ]; then \
+      apt-get update && \
+      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends xvfb && \
+      node /app/node_modules/playwright-core/cli.js install --with-deps chromium && \
+      apt-get clean && \
+      rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
+    fi
 
 COPY . .
 <<<<<<< HEAD
