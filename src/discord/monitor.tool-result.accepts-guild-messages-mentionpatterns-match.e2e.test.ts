@@ -6,36 +6,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 =======
 import { createReplyDispatcherWithTyping } from "../auto-reply/reply/reply-dispatcher.js";
+<<<<<<< HEAD
 >>>>>>> 9131b22a2 (test: migrate suites to e2e coverage layout):src/discord/monitor.tool-result.accepts-guild-messages-mentionpatterns-match.e2e.test.ts
+=======
+import {
+  dispatchMock,
+  readAllowFromStoreMock,
+  sendMock,
+  updateLastRouteMock,
+  upsertPairingRequestMock,
+} from "./monitor.tool-result.test-harness.js";
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 import { __resetDiscordChannelInfoCacheForTest } from "./monitor/message-utils.js";
-
-const sendMock = vi.fn();
-const reactMock = vi.fn();
-const updateLastRouteMock = vi.fn();
-const dispatchMock = vi.fn();
-const readAllowFromStoreMock = vi.fn();
-const upsertPairingRequestMock = vi.fn();
 const loadConfigMock = vi.fn();
 
-vi.mock("./send.js", () => ({
-  sendMessageDiscord: (...args: unknown[]) => sendMock(...args),
-  reactMessageDiscord: async (...args: unknown[]) => {
-    reactMock(...args);
-  },
-}));
-vi.mock("../auto-reply/dispatch.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../auto-reply/dispatch.js")>();
-  return {
-    ...actual,
-    dispatchInboundMessage: (...args: unknown[]) => dispatchMock(...args),
-    dispatchInboundMessageWithDispatcher: (...args: unknown[]) => dispatchMock(...args),
-    dispatchInboundMessageWithBufferedDispatcher: (...args: unknown[]) => dispatchMock(...args),
-  };
-});
-vi.mock("../pairing/pairing-store.js", () => ({
-  readChannelAllowFromStore: (...args: unknown[]) => readAllowFromStoreMock(...args),
-  upsertChannelPairingRequest: (...args: unknown[]) => upsertPairingRequestMock(...args),
-}));
 vi.mock("../config/config.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/config.js")>();
   return {
@@ -43,6 +27,7 @@ vi.mock("../config/config.js", async (importOriginal) => {
     loadConfig: (...args: unknown[]) => loadConfigMock(...args),
   };
 });
+<<<<<<< HEAD
 vi.mock("../config/sessions.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/sessions.js")>();
   return {
@@ -52,6 +37,8 @@ vi.mock("../config/sessions.js", async (importOriginal) => {
     resolveSessionKey: vi.fn(),
   };
 });
+=======
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
 beforeEach(() => {
   vi.useRealTimers();
@@ -134,6 +121,110 @@ async function createHandler(cfg: LoadedConfig) {
     groupDmEnabled: false,
     guildEntries: cfg.channels.discord.guilds,
   });
+}
+
+function captureNextDispatchCtx<
+  T extends {
+    SessionKey?: string;
+    ParentSessionKey?: string;
+    ThreadStarterBody?: string;
+    ThreadLabel?: string;
+  },
+>(): () => T | undefined {
+  let capturedCtx: T | undefined;
+  dispatchMock.mockImplementationOnce(async ({ ctx, dispatcher }) => {
+    capturedCtx = ctx as T;
+    dispatcher.sendFinalReply({ text: "hi" });
+    return { queuedFinal: true, counts: { final: 1 } };
+  });
+  return () => capturedCtx;
+}
+
+function createDefaultThreadConfig(): LoadedConfig {
+  return {
+    agents: {
+      defaults: {
+        model: "anthropic/claude-opus-4-5",
+        workspace: "/tmp/openclaw",
+      },
+    },
+    session: { store: "/tmp/openclaw-sessions.json" },
+    messages: { responsePrefix: "PFX" },
+    channels: {
+      discord: {
+        dm: { enabled: true, policy: "open" },
+        groupPolicy: "open",
+        guilds: { "*": { requireMention: false } },
+      },
+    },
+  } as LoadedConfig;
+}
+
+function createThreadChannel(params: { includeStarter?: boolean } = {}) {
+  return {
+    type: ChannelType.GuildText,
+    name: "thread-name",
+    parentId: "p1",
+    parent: { id: "p1", name: "general" },
+    isThread: () => true,
+    ...(params.includeStarter
+      ? {
+          fetchStarterMessage: async () => ({
+            content: "starter message",
+            author: { tag: "Alice#1", username: "Alice" },
+            createdTimestamp: Date.now(),
+          }),
+        }
+      : {}),
+  };
+}
+
+function createThreadClient(
+  params: {
+    fetchChannel?: ReturnType<typeof vi.fn>;
+    restGet?: ReturnType<typeof vi.fn>;
+  } = {},
+) {
+  return {
+    fetchChannel:
+      params.fetchChannel ??
+      vi.fn().mockResolvedValue({
+        type: ChannelType.GuildText,
+        name: "thread-name",
+      }),
+    rest: {
+      get:
+        params.restGet ??
+        vi.fn().mockResolvedValue({
+          content: "starter message",
+          author: { id: "u1", username: "Alice", discriminator: "0001" },
+          timestamp: new Date().toISOString(),
+        }),
+    },
+  } as unknown as Client;
+}
+
+function createThreadEvent(messageId: string, channel?: unknown) {
+  return {
+    message: {
+      id: messageId,
+      content: "thread reply",
+      channelId: "t1",
+      channel,
+      timestamp: new Date().toISOString(),
+      type: MessageType.Default,
+      attachments: [],
+      embeds: [],
+      mentionedEveryone: false,
+      mentionedUsers: [],
+      mentionedRoles: [],
+      author: { id: "u2", bot: false, username: "Bob", tag: "Bob#2" },
+    },
+    author: { id: "u2", bot: false, username: "Bob", tag: "Bob#2" },
+    member: { displayName: "Bob" },
+    guild: { id: "g1", name: "Guild" },
+    guild_id: "g1",
+  };
 }
 
 describe("discord tool result dispatch", () => {
@@ -436,6 +527,7 @@ describe("discord tool result dispatch", () => {
   });
 
   it("forks thread sessions and injects starter context", async () => {
+<<<<<<< HEAD
     let capturedCtx:
       | {
           SessionKey?: string;
@@ -468,59 +560,21 @@ describe("discord tool result dispatch", () => {
       },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
 
+=======
+    const getCapturedCtx = captureNextDispatchCtx<{
+      SessionKey?: string;
+      ParentSessionKey?: string;
+      ThreadStarterBody?: string;
+      ThreadLabel?: string;
+    }>();
+    const cfg = createDefaultThreadConfig();
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const handler = await createHandler(cfg);
+    const threadChannel = createThreadChannel({ includeStarter: true });
+    const client = createThreadClient();
+    await handler(createThreadEvent("m4", threadChannel), client);
 
-    const threadChannel = {
-      type: ChannelType.GuildText,
-      name: "thread-name",
-      parentId: "p1",
-      parent: { id: "p1", name: "general" },
-      isThread: () => true,
-      fetchStarterMessage: async () => ({
-        content: "starter message",
-        author: { tag: "Alice#1", username: "Alice" },
-        createdTimestamp: Date.now(),
-      }),
-    };
-
-    const client = {
-      fetchChannel: vi.fn().mockResolvedValue({
-        type: ChannelType.GuildText,
-        name: "thread-name",
-      }),
-      rest: {
-        get: vi.fn().mockResolvedValue({
-          content: "starter message",
-          author: { id: "u1", username: "Alice", discriminator: "0001" },
-          timestamp: new Date().toISOString(),
-        }),
-      },
-    } as unknown as Client;
-
-    await handler(
-      {
-        message: {
-          id: "m4",
-          content: "thread reply",
-          channelId: "t1",
-          channel: threadChannel,
-          timestamp: new Date().toISOString(),
-          type: MessageType.Default,
-          attachments: [],
-          embeds: [],
-          mentionedEveryone: false,
-          mentionedUsers: [],
-          mentionedRoles: [],
-          author: { id: "u2", bot: false, username: "Bob", tag: "Bob#2" },
-        },
-        author: { id: "u2", bot: false, username: "Bob", tag: "Bob#2" },
-        member: { displayName: "Bob" },
-        guild: { id: "g1", name: "Guild" },
-        guild_id: "g1",
-      },
-      client,
-    );
-
+    const capturedCtx = getCapturedCtx();
     expect(capturedCtx?.SessionKey).toBe("agent:main:discord:channel:t1");
     expect(capturedCtx?.ParentSessionKey).toBe("agent:main:discord:channel:p1");
     expect(capturedCtx?.ThreadStarterBody).toContain("starter message");
@@ -528,25 +582,9 @@ describe("discord tool result dispatch", () => {
   });
 
   it("skips thread starter context when disabled", async () => {
-    let capturedCtx:
-      | {
-          ThreadStarterBody?: string;
-        }
-      | undefined;
-    dispatchMock.mockImplementationOnce(async ({ ctx, dispatcher }) => {
-      capturedCtx = ctx;
-      dispatcher.sendFinalReply({ text: "hi" });
-      return { queuedFinal: true, counts: { final: 1 } };
-    });
-
+    const getCapturedCtx = captureNextDispatchCtx<{ ThreadStarterBody?: string }>();
     const cfg = {
-      agents: {
-        defaults: {
-          model: "anthropic/claude-opus-4-5",
-          workspace: "/tmp/openclaw",
-        },
-      },
-      session: { store: "/tmp/openclaw-sessions.json" },
+      ...createDefaultThreadConfig(),
       channels: {
         discord: {
           dm: { enabled: true, policy: "open" },
@@ -561,73 +599,23 @@ describe("discord tool result dispatch", () => {
           },
         },
       },
-    } as ReturnType<typeof import("../config/config.js").loadConfig>;
-
+    } as LoadedConfig;
     const handler = await createHandler(cfg);
+    const threadChannel = createThreadChannel();
+    const client = createThreadClient();
+    await handler(createThreadEvent("m7", threadChannel), client);
 
-    const threadChannel = {
-      type: ChannelType.GuildText,
-      name: "thread-name",
-      parentId: "p1",
-      parent: { id: "p1", name: "general" },
-      isThread: () => true,
-    };
-
-    const client = {
-      fetchChannel: vi.fn().mockResolvedValue({
-        type: ChannelType.GuildText,
-        name: "thread-name",
-      }),
-      rest: {
-        get: vi.fn().mockResolvedValue({
-          content: "starter message",
-          author: { id: "u1", username: "Alice", discriminator: "0001" },
-          timestamp: new Date().toISOString(),
-        }),
-      },
-    } as unknown as Client;
-
-    await handler(
-      {
-        message: {
-          id: "m7",
-          content: "thread reply",
-          channelId: "t1",
-          channel: threadChannel,
-          timestamp: new Date().toISOString(),
-          type: MessageType.Default,
-          attachments: [],
-          embeds: [],
-          mentionedEveryone: false,
-          mentionedUsers: [],
-          mentionedRoles: [],
-          author: { id: "u2", bot: false, username: "Bob", tag: "Bob#2" },
-        },
-        author: { id: "u2", bot: false, username: "Bob", tag: "Bob#2" },
-        member: { displayName: "Bob" },
-        guild: { id: "g1", name: "Guild" },
-        guild_id: "g1",
-      },
-      client,
-    );
-
+    const capturedCtx = getCapturedCtx();
     expect(capturedCtx?.ThreadStarterBody).toBeUndefined();
   });
 
   it("treats forum threads as distinct sessions without channel payloads", async () => {
-    let capturedCtx:
-      | {
-          SessionKey?: string;
-          ParentSessionKey?: string;
-          ThreadStarterBody?: string;
-          ThreadLabel?: string;
-        }
-      | undefined;
-    dispatchMock.mockImplementationOnce(async ({ ctx, dispatcher }) => {
-      capturedCtx = ctx;
-      dispatcher.sendFinalReply({ text: "hi" });
-      return { queuedFinal: true, counts: { final: 1 } };
-    });
+    const getCapturedCtx = captureNextDispatchCtx<{
+      SessionKey?: string;
+      ParentSessionKey?: string;
+      ThreadStarterBody?: string;
+      ThreadLabel?: string;
+    }>();
 
     const cfg = {
       agent: { model: "anthropic/claude-opus-4-5", workspace: "/tmp/clawd" },
@@ -660,36 +648,10 @@ describe("discord tool result dispatch", () => {
       author: { id: "u1", username: "Alice", discriminator: "0001" },
       timestamp: new Date().toISOString(),
     });
-    const client = {
-      fetchChannel,
-      rest: {
-        get: restGet,
-      },
-    } as unknown as Client;
+    const client = createThreadClient({ fetchChannel, restGet });
+    await handler(createThreadEvent("m6"), client);
 
-    await handler(
-      {
-        message: {
-          id: "m6",
-          content: "thread reply",
-          channelId: "t1",
-          timestamp: new Date().toISOString(),
-          type: MessageType.Default,
-          attachments: [],
-          embeds: [],
-          mentionedEveryone: false,
-          mentionedUsers: [],
-          mentionedRoles: [],
-          author: { id: "u2", bot: false, username: "Bob", tag: "Bob#2" },
-        },
-        author: { id: "u2", bot: false, username: "Bob", tag: "Bob#2" },
-        member: { displayName: "Bob" },
-        guild: { id: "g1", name: "Guild" },
-        guild_id: "g1",
-      },
-      client,
-    );
-
+    const capturedCtx = getCapturedCtx();
     expect(capturedCtx?.SessionKey).toBe("agent:main:discord:channel:t1");
     expect(capturedCtx?.ParentSessionKey).toBe("agent:main:discord:channel:forum-1");
     expect(capturedCtx?.ThreadStarterBody).toContain("starter message");
@@ -698,19 +660,13 @@ describe("discord tool result dispatch", () => {
   });
 
   it("scopes thread sessions to the routed agent", async () => {
-    let capturedCtx:
-      | {
-          SessionKey?: string;
-          ParentSessionKey?: string;
-        }
-      | undefined;
-    dispatchMock.mockImplementationOnce(async ({ ctx, dispatcher }) => {
-      capturedCtx = ctx;
-      dispatcher.sendFinalReply({ text: "hi" });
-      return { queuedFinal: true, counts: { final: 1 } };
-    });
+    const getCapturedCtx = captureNextDispatchCtx<{
+      SessionKey?: string;
+      ParentSessionKey?: string;
+    }>();
 
     const cfg = {
+<<<<<<< HEAD
       agents: {
         defaults: {
           model: "anthropic/claude-opus-4-5",
@@ -726,58 +682,20 @@ describe("discord tool result dispatch", () => {
           guilds: { "*": { requireMention: false } },
         },
       },
+=======
+      ...createDefaultThreadConfig(),
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
       bindings: [{ agentId: "support", match: { channel: "discord", guildId: "g1" } }],
-    } as ReturnType<typeof import("../config/config.js").loadConfig>;
+    } as LoadedConfig;
     loadConfigMock.mockReturnValue(cfg);
 
     const handler = await createHandler(cfg);
 
-    const threadChannel = {
-      type: ChannelType.GuildText,
-      name: "thread-name",
-      parentId: "p1",
-      parent: { id: "p1", name: "general" },
-      isThread: () => true,
-    };
+    const threadChannel = createThreadChannel();
+    const client = createThreadClient();
+    await handler(createThreadEvent("m5", threadChannel), client);
 
-    const client = {
-      fetchChannel: vi.fn().mockResolvedValue({
-        type: ChannelType.GuildText,
-        name: "thread-name",
-      }),
-      rest: {
-        get: vi.fn().mockResolvedValue({
-          content: "starter message",
-          author: { id: "u1", username: "Alice", discriminator: "0001" },
-          timestamp: new Date().toISOString(),
-        }),
-      },
-    } as unknown as Client;
-
-    await handler(
-      {
-        message: {
-          id: "m5",
-          content: "thread reply",
-          channelId: "t1",
-          channel: threadChannel,
-          timestamp: new Date().toISOString(),
-          type: MessageType.Default,
-          attachments: [],
-          embeds: [],
-          mentionedEveryone: false,
-          mentionedUsers: [],
-          mentionedRoles: [],
-          author: { id: "u2", bot: false, username: "Bob", tag: "Bob#2" },
-        },
-        author: { id: "u2", bot: false, username: "Bob", tag: "Bob#2" },
-        member: { displayName: "Bob" },
-        guild: { id: "g1", name: "Guild" },
-        guild_id: "g1",
-      },
-      client,
-    );
-
+    const capturedCtx = getCapturedCtx();
     expect(capturedCtx?.SessionKey).toBe("agent:support:discord:channel:t1");
     expect(capturedCtx?.ParentSessionKey).toBe("agent:support:discord:channel:p1");
   });

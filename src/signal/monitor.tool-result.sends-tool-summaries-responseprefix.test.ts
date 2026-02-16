@@ -110,6 +110,40 @@ const {
 
 const SIGNAL_BASE_URL = "http://127.0.0.1:8080";
 
+function createMonitorRuntime() {
+  return {
+    log: vi.fn(),
+    error: vi.fn(),
+    exit: ((code: number): never => {
+      throw new Error(`exit ${code}`);
+    }) as (code: number) => never,
+  };
+}
+
+function setSignalAutoStartConfig(overrides: Record<string, unknown> = {}) {
+  setSignalToolResultTestConfig({
+    ...config,
+    channels: {
+      ...config.channels,
+      signal: {
+        autoStart: true,
+        dmPolicy: "open",
+        allowFrom: ["*"],
+        ...overrides,
+      },
+    },
+  });
+}
+
+function createAutoAbortController() {
+  const abortController = new AbortController();
+  streamMock.mockImplementation(async () => {
+    abortController.abort();
+    return;
+  });
+  return abortController;
+}
+
 async function runMonitorWithMocks(
   opts: Parameters<(typeof import("./monitor.js"))["monitorSignalProvider"]>[0],
 ) {
@@ -142,27 +176,21 @@ async function receiveSignalPayloads(params: {
   await flush();
 }
 
+function getDirectSignalEventsFor(sender: string) {
+  const route = resolveAgentRoute({
+    cfg: config as OpenClawConfig,
+    channel: "signal",
+    accountId: "default",
+    peer: { kind: "direct", id: normalizeE164(sender) },
+  });
+  return peekSystemEvents(route.sessionKey);
+}
+
 describe("monitorSignalProvider tool results", () => {
   it("uses bounded readiness checks when auto-starting the daemon", async () => {
-    const runtime = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: ((code: number): never => {
-        throw new Error(`exit ${code}`);
-      }) as (code: number) => never,
-    };
-    setSignalToolResultTestConfig({
-      ...config,
-      channels: {
-        ...config.channels,
-        signal: { autoStart: true, dmPolicy: "open", allowFrom: ["*"] },
-      },
-    });
-    const abortController = new AbortController();
-    streamMock.mockImplementation(async () => {
-      abortController.abort();
-      return;
-    });
+    const runtime = createMonitorRuntime();
+    setSignalAutoStartConfig();
+    const abortController = createAutoAbortController();
     await runMonitorWithMocks({
       autoStart: true,
       baseUrl: SIGNAL_BASE_URL,
@@ -185,30 +213,9 @@ describe("monitorSignalProvider tool results", () => {
   });
 
   it("uses startupTimeoutMs override when provided", async () => {
-    const runtime = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: ((code: number): never => {
-        throw new Error(`exit ${code}`);
-      }) as (code: number) => never,
-    };
-    setSignalToolResultTestConfig({
-      ...config,
-      channels: {
-        ...config.channels,
-        signal: {
-          autoStart: true,
-          dmPolicy: "open",
-          allowFrom: ["*"],
-          startupTimeoutMs: 60_000,
-        },
-      },
-    });
-    const abortController = new AbortController();
-    streamMock.mockImplementation(async () => {
-      abortController.abort();
-      return;
-    });
+    const runtime = createMonitorRuntime();
+    setSignalAutoStartConfig({ startupTimeoutMs: 60_000 });
+    const abortController = createAutoAbortController();
 
     await runMonitorWithMocks({
       autoStart: true,
@@ -227,30 +234,9 @@ describe("monitorSignalProvider tool results", () => {
   });
 
   it("caps startupTimeoutMs at 2 minutes", async () => {
-    const runtime = {
-      log: vi.fn(),
-      error: vi.fn(),
-      exit: ((code: number): never => {
-        throw new Error(`exit ${code}`);
-      }) as (code: number) => never,
-    };
-    setSignalToolResultTestConfig({
-      ...config,
-      channels: {
-        ...config.channels,
-        signal: {
-          autoStart: true,
-          dmPolicy: "open",
-          allowFrom: ["*"],
-          startupTimeoutMs: 180_000,
-        },
-      },
-    });
-    const abortController = new AbortController();
-    streamMock.mockImplementation(async () => {
-      abortController.abort();
-      return;
-    });
+    const runtime = createMonitorRuntime();
+    setSignalAutoStartConfig({ startupTimeoutMs: 180_000 });
+    const abortController = createAutoAbortController();
 
     await runMonitorWithMocks({
       autoStart: true,
@@ -404,6 +390,7 @@ describe("monitorSignalProvider tool results", () => {
       ],
     });
 
+<<<<<<< HEAD
     const route = resolveAgentRoute({
       cfg: config as MoltbotConfig,
       channel: "signal",
@@ -411,6 +398,9 @@ describe("monitorSignalProvider tool results", () => {
       peer: { kind: "direct", id: normalizeE164("+15550001111") },
     });
     const events = peekSystemEvents(route.sessionKey);
+=======
+    const events = getDirectSignalEventsFor("+15550001111");
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     expect(events.some((text) => text.includes("Signal reaction added"))).toBe(true);
   });
 
@@ -447,6 +437,7 @@ describe("monitorSignalProvider tool results", () => {
       ],
     });
 
+<<<<<<< HEAD
     const route = resolveAgentRoute({
       cfg: config as MoltbotConfig,
       channel: "signal",
@@ -454,6 +445,9 @@ describe("monitorSignalProvider tool results", () => {
       peer: { kind: "direct", id: normalizeE164("+15550001111") },
     });
     const events = peekSystemEvents(route.sessionKey);
+=======
+    const events = getDirectSignalEventsFor("+15550001111");
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     expect(events.some((text) => text.includes("Signal reaction added"))).toBe(true);
   });
 

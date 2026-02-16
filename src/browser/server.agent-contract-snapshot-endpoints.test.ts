@@ -11,12 +11,14 @@ import { describe, expect, it } from "vitest";
 >>>>>>> dee3abfcd (refactor(test): share browser control server harness)
 import { DEFAULT_AI_SNAPSHOT_MAX_CHARS } from "./constants.js";
 import {
-  getBrowserControlServerBaseUrl,
+  installAgentContractHooks,
+  postJson,
+  startServerAndBase,
+} from "./server.agent-contract.test-harness.js";
+import {
   getBrowserControlServerTestState,
   getCdpMocks,
   getPwMocks,
-  installBrowserControlServerHooks,
-  startBrowserControlServerFromConfig,
 } from "./server.control-server.test-harness.js";
 
 <<<<<<< HEAD
@@ -318,6 +320,7 @@ const cdpMocks = getCdpMocks();
 const pwMocks = getPwMocks();
 
 describe("browser control server", () => {
+<<<<<<< HEAD
   installBrowserControlServerHooks();
 >>>>>>> dee3abfcd (refactor(test): share browser control server harness)
 
@@ -336,6 +339,9 @@ describe("browser control server", () => {
     });
     return (await res.json()) as T;
   };
+=======
+  installAgentContractHooks();
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
   it("agent contract: snapshot endpoints", async () => {
     const base = await startServerAndBase();

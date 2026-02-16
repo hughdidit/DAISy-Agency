@@ -8,6 +8,39 @@ import { baileys, getLastSocket, resetBaileysMocks, resetLoadConfigMock } from "
 const { createWaSocket, formatError, logWebSelfId, waitForWaConnection } =
   await import("./session.js");
 
+function mockCredsJsonSpies(readContents: string) {
+  const credsSuffix = path.join(".openclaw", "credentials", "whatsapp", "default", "creds.json");
+  const copySpy = vi.spyOn(fsSync, "copyFileSync").mockImplementation(() => {});
+  const existsSpy = vi.spyOn(fsSync, "existsSync").mockImplementation((p) => {
+    if (typeof p !== "string") {
+      return false;
+    }
+    return p.endsWith(credsSuffix);
+  });
+  const statSpy = vi.spyOn(fsSync, "statSync").mockImplementation((p) => {
+    if (typeof p === "string" && p.endsWith(credsSuffix)) {
+      return { isFile: () => true, size: 12 } as never;
+    }
+    throw new Error(`unexpected statSync path: ${String(p)}`);
+  });
+  const readSpy = vi.spyOn(fsSync, "readFileSync").mockImplementation((p) => {
+    if (typeof p === "string" && p.endsWith(credsSuffix)) {
+      return readContents as never;
+    }
+    throw new Error(`unexpected readFileSync path: ${String(p)}`);
+  });
+  return {
+    copySpy,
+    credsSuffix,
+    restore: () => {
+      copySpy.mockRestore();
+      existsSpy.mockRestore();
+      statSpy.mockRestore();
+      readSpy.mockRestore();
+    },
+  };
+}
+
 describe("web session", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -108,6 +141,7 @@ describe("web session", () => {
   });
 
   it("does not clobber creds backup when creds.json is corrupted", async () => {
+<<<<<<< HEAD
     const credsSuffix = path.join(".clawdbot", "credentials", "whatsapp", "default", "creds.json");
 
     const copySpy = vi.spyOn(fsSync, "copyFileSync").mockImplementation(() => {});
@@ -129,6 +163,9 @@ describe("web session", () => {
       }
       throw new Error(`unexpected readFileSync path: ${String(p)}`);
     });
+=======
+    const creds = mockCredsJsonSpies("{");
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
     await createWaSocket(false, false);
     const sock = getLastSocket();
@@ -137,13 +174,10 @@ describe("web session", () => {
     sock.ev.emit("creds.update", {});
     await new Promise<void>((resolve) => setImmediate(resolve));
 
-    expect(copySpy).not.toHaveBeenCalled();
+    expect(creds.copySpy).not.toHaveBeenCalled();
     expect(saveCreds).toHaveBeenCalled();
 
-    copySpy.mockRestore();
-    existsSpy.mockRestore();
-    statSpy.mockRestore();
-    readSpy.mockRestore();
+    creds.restore();
   });
 
   it("serializes creds.update saves to avoid overlapping writes", async () => {
@@ -186,7 +220,11 @@ describe("web session", () => {
   });
 
   it("rotates creds backup when creds.json is valid JSON", async () => {
+<<<<<<< HEAD
     const credsSuffix = path.join(".clawdbot", "credentials", "whatsapp", "default", "creds.json");
+=======
+    const creds = mockCredsJsonSpies("{}");
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const backupSuffix = path.join(
       ".clawdbot",
       "credentials",
@@ -195,26 +233,6 @@ describe("web session", () => {
       "creds.json.bak",
     );
 
-    const copySpy = vi.spyOn(fsSync, "copyFileSync").mockImplementation(() => {});
-    const existsSpy = vi.spyOn(fsSync, "existsSync").mockImplementation((p) => {
-      if (typeof p !== "string") {
-        return false;
-      }
-      return p.endsWith(credsSuffix);
-    });
-    const statSpy = vi.spyOn(fsSync, "statSync").mockImplementation((p) => {
-      if (typeof p === "string" && p.endsWith(credsSuffix)) {
-        return { isFile: () => true, size: 12 } as never;
-      }
-      throw new Error(`unexpected statSync path: ${String(p)}`);
-    });
-    const readSpy = vi.spyOn(fsSync, "readFileSync").mockImplementation((p) => {
-      if (typeof p === "string" && p.endsWith(credsSuffix)) {
-        return "{}" as never;
-      }
-      throw new Error(`unexpected readFileSync path: ${String(p)}`);
-    });
-
     await createWaSocket(false, false);
     const sock = getLastSocket();
     const saveCreds = (await baileys.useMultiFileAuthState.mock.results[0].value).saveCreds;
@@ -222,15 +240,12 @@ describe("web session", () => {
     sock.ev.emit("creds.update", {});
     await new Promise<void>((resolve) => setImmediate(resolve));
 
-    expect(copySpy).toHaveBeenCalledTimes(1);
-    const args = copySpy.mock.calls[0] ?? [];
-    expect(String(args[0] ?? "")).toContain(credsSuffix);
+    expect(creds.copySpy).toHaveBeenCalledTimes(1);
+    const args = creds.copySpy.mock.calls[0] ?? [];
+    expect(String(args[0] ?? "")).toContain(creds.credsSuffix);
     expect(String(args[1] ?? "")).toContain(backupSuffix);
     expect(saveCreds).toHaveBeenCalled();
 
-    copySpy.mockRestore();
-    existsSpy.mockRestore();
-    statSpy.mockRestore();
-    readSpy.mockRestore();
+    creds.restore();
   });
 });

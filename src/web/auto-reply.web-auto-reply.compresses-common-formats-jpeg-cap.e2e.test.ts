@@ -119,6 +119,53 @@ describe("web auto-reply", () => {
   installWebAutoReplyUnitTestHooks({ pinDns: true });
 >>>>>>> 03ff4960b (refactor(test): share web auto-reply harness)
 
+  async function setupSingleInboundMessage(params: {
+    resolverValue: { text: string; mediaUrl: string };
+    sendMedia: ReturnType<typeof vi.fn>;
+    reply?: ReturnType<typeof vi.fn>;
+  }) {
+    const reply = params.reply ?? vi.fn().mockResolvedValue(undefined);
+    const sendComposing = vi.fn();
+    const resolver = vi.fn().mockResolvedValue(params.resolverValue);
+
+    let capturedOnMessage:
+      | ((msg: import("./inbound.js").WebInboundMessage) => Promise<void>)
+      | undefined;
+    const listenerFactory = async (opts: {
+      onMessage: (msg: import("./inbound.js").WebInboundMessage) => Promise<void>;
+    }) => {
+      capturedOnMessage = opts.onMessage;
+      return { close: vi.fn() };
+    };
+
+    await monitorWebChannel(false, listenerFactory, false, resolver);
+    expect(capturedOnMessage).toBeDefined();
+
+    return {
+      reply,
+      dispatch: async (id = "msg1") => {
+        await capturedOnMessage?.({
+          body: "hello",
+          from: "+1",
+          to: "+2",
+          id,
+          sendComposing,
+          reply,
+          sendMedia: params.sendMedia,
+        });
+      },
+    };
+  }
+
+  function getSingleImagePayload(sendMedia: ReturnType<typeof vi.fn>) {
+    expect(sendMedia).toHaveBeenCalledTimes(1);
+    return sendMedia.mock.calls[0][0] as {
+      image: Buffer;
+      caption?: string;
+      mimetype?: string;
+    };
+  }
+
   it("compresses common formats to jpeg under the cap", { timeout: 45_000 }, async () => {
     const formats = [
       {
@@ -284,22 +331,10 @@ describe("web auto-reply", () => {
   });
   it("falls back to text when media is unsupported", async () => {
     const sendMedia = vi.fn();
-    const reply = vi.fn().mockResolvedValue(undefined);
-    const sendComposing = vi.fn();
-    const resolver = vi.fn().mockResolvedValue({
-      text: "hi",
-      mediaUrl: "https://example.com/file.pdf",
+    const { reply, dispatch } = await setupSingleInboundMessage({
+      resolverValue: { text: "hi", mediaUrl: "https://example.com/file.pdf" },
+      sendMedia,
     });
-
-    let capturedOnMessage:
-      | ((msg: import("./inbound.js").WebInboundMessage) => Promise<void>)
-      | undefined;
-    const listenerFactory = async (opts: {
-      onMessage: (msg: import("./inbound.js").WebInboundMessage) => Promise<void>;
-    }) => {
-      capturedOnMessage = opts.onMessage;
-      return { close: vi.fn() };
-    };
 
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue({
       ok: true,
@@ -309,18 +344,7 @@ describe("web auto-reply", () => {
       status: 200,
     } as Response);
 
-    await monitorWebChannel(false, listenerFactory, false, resolver);
-    expect(capturedOnMessage).toBeDefined();
-
-    await capturedOnMessage?.({
-      body: "hello",
-      from: "+1",
-      to: "+2",
-      id: "msg-pdf",
-      sendComposing,
-      reply,
-      sendMedia,
-    });
+    await dispatch("msg-pdf");
 
     expect(sendMedia).toHaveBeenCalledTimes(1);
     const payload = sendMedia.mock.calls[0][0] as {
@@ -338,22 +362,13 @@ describe("web auto-reply", () => {
 
   it("falls back to text when media send fails", async () => {
     const sendMedia = vi.fn().mockRejectedValue(new Error("boom"));
-    const reply = vi.fn().mockResolvedValue(undefined);
-    const sendComposing = vi.fn();
-    const resolver = vi.fn().mockResolvedValue({
-      text: "hi",
-      mediaUrl: "https://example.com/img.png",
+    const { reply, dispatch } = await setupSingleInboundMessage({
+      resolverValue: {
+        text: "hi",
+        mediaUrl: "https://example.com/img.png",
+      },
+      sendMedia,
     });
-
-    let capturedOnMessage:
-      | ((msg: import("./inbound.js").WebInboundMessage) => Promise<void>)
-      | undefined;
-    const listenerFactory = async (opts: {
-      onMessage: (msg: import("./inbound.js").WebInboundMessage) => Promise<void>;
-    }) => {
-      capturedOnMessage = opts.onMessage;
-      return { close: vi.fn() };
-    };
 
     const smallPng = await sharp({
       create: {
@@ -374,18 +389,7 @@ describe("web auto-reply", () => {
       status: 200,
     } as Response);
 
-    await monitorWebChannel(false, listenerFactory, false, resolver);
-
-    expect(capturedOnMessage).toBeDefined();
-    await capturedOnMessage?.({
-      body: "hello",
-      from: "+1",
-      to: "+2",
-      id: "msg1",
-      sendComposing,
-      reply,
-      sendMedia,
-    });
+    await dispatch("msg1");
 
     expect(sendMedia).toHaveBeenCalledTimes(1);
     const fallback = reply.mock.calls[0]?.[0] as string;
@@ -395,22 +399,13 @@ describe("web auto-reply", () => {
   });
   it("returns a warning when remote media fetch 404s", async () => {
     const sendMedia = vi.fn();
-    const reply = vi.fn().mockResolvedValue(undefined);
-    const sendComposing = vi.fn();
-    const resolver = vi.fn().mockResolvedValue({
-      text: "caption",
-      mediaUrl: "https://example.com/missing.jpg",
+    const { reply, dispatch } = await setupSingleInboundMessage({
+      resolverValue: {
+        text: "caption",
+        mediaUrl: "https://example.com/missing.jpg",
+      },
+      sendMedia,
     });
-
-    let capturedOnMessage:
-      | ((msg: import("./inbound.js").WebInboundMessage) => Promise<void>)
-      | undefined;
-    const listenerFactory = async (opts: {
-      onMessage: (msg: import("./inbound.js").WebInboundMessage) => Promise<void>;
-    }) => {
-      capturedOnMessage = opts.onMessage;
-      return { close: vi.fn() };
-    };
 
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue({
       ok: false,
@@ -420,18 +415,7 @@ describe("web auto-reply", () => {
       headers: { get: () => "text/plain" },
     } as unknown as Response);
 
-    await monitorWebChannel(false, listenerFactory, false, resolver);
-    expect(capturedOnMessage).toBeDefined();
-
-    await capturedOnMessage?.({
-      body: "hello",
-      from: "+1",
-      to: "+2",
-      id: "msg1",
-      sendComposing,
-      reply,
-      sendMedia,
-    });
+    await dispatch("msg1");
 
     expect(sendMedia).not.toHaveBeenCalled();
     const fallback = reply.mock.calls[0]?.[0] as string;
@@ -443,22 +427,13 @@ describe("web auto-reply", () => {
   });
   it("sends media with a caption when delivery succeeds", async () => {
     const sendMedia = vi.fn().mockResolvedValue(undefined);
-    const reply = vi.fn().mockResolvedValue(undefined);
-    const sendComposing = vi.fn();
-    const resolver = vi.fn().mockResolvedValue({
-      text: "hi",
-      mediaUrl: "https://example.com/img.png",
+    const { reply, dispatch } = await setupSingleInboundMessage({
+      resolverValue: {
+        text: "hi",
+        mediaUrl: "https://example.com/img.png",
+      },
+      sendMedia,
     });
-
-    let capturedOnMessage:
-      | ((msg: import("./inbound.js").WebInboundMessage) => Promise<void>)
-      | undefined;
-    const listenerFactory = async (opts: {
-      onMessage: (msg: import("./inbound.js").WebInboundMessage) => Promise<void>;
-    }) => {
-      capturedOnMessage = opts.onMessage;
-      return { close: vi.fn() };
-    };
 
     const png = await sharp({
       create: {
@@ -479,25 +454,9 @@ describe("web auto-reply", () => {
       status: 200,
     } as Response);
 
-    await monitorWebChannel(false, listenerFactory, false, resolver);
-    expect(capturedOnMessage).toBeDefined();
+    await dispatch("msg1");
 
-    await capturedOnMessage?.({
-      body: "hello",
-      from: "+1",
-      to: "+2",
-      id: "msg1",
-      sendComposing,
-      reply,
-      sendMedia,
-    });
-
-    expect(sendMedia).toHaveBeenCalledTimes(1);
-    const payload = sendMedia.mock.calls[0][0] as {
-      image: Buffer;
-      caption?: string;
-      mimetype?: string;
-    };
+    const payload = getSingleImagePayload(sendMedia);
     expect(payload.caption).toBe("hi");
     expect(payload.image.length).toBeGreaterThan(0);
     // Should not fall back to separate text reply because caption is used.

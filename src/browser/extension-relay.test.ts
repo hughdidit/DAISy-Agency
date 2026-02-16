@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
+=======
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 import { afterEach, describe, expect, it } from "vitest";
 import WebSocket from "ws";
 
@@ -7,22 +10,7 @@ import {
   ensureChromeExtensionRelayServer,
   stopChromeExtensionRelayServer,
 } from "./extension-relay.js";
-
-async function getFreePort(): Promise<number> {
-  while (true) {
-    const port = await new Promise<number>((resolve, reject) => {
-      const s = createServer();
-      s.once("error", reject);
-      s.listen(0, "127.0.0.1", () => {
-        const assigned = (s.address() as AddressInfo).port;
-        s.close((err) => (err ? reject(err) : resolve(assigned)));
-      });
-    });
-    if (port < 65535) {
-      return port;
-    }
-  }
-}
+import { getFreePort } from "./test-port.js";
 
 function waitForOpen(ws: WebSocket) {
   return new Promise<void>((resolve, reject) => {

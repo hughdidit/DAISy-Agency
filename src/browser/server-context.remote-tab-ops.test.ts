@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 
 =======
@@ -11,11 +12,16 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 >>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
+=======
+import { afterEach, describe, expect, it, vi } from "vitest";
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 import type { BrowserServerState } from "./server-context.js";
 import * as cdpModule from "./cdp.js";
 import * as pwAiModule from "./pw-ai-module.js";
+import "./server-context.chrome-test-harness.js";
 import { createBrowserRouteContext } from "./server-context.js";
 
+<<<<<<< HEAD
 const chromeUserDataDir = vi.hoisted(() => ({ dir: "/tmp/openclaw" }));
 
 beforeAll(async () => {
@@ -41,6 +47,8 @@ vi.mock("./chrome.js", () => ({
 >>>>>>> ec399aadd (perf(test): parallelize unit-isolated)
 }));
 
+=======
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 const originalFetch = globalThis.fetch;
 
 afterEach(() => {

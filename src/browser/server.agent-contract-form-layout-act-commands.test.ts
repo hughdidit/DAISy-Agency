@@ -307,18 +307,21 @@ describe("browser control server", () => {
 import { describe, expect, it } from "vitest";
 import { DEFAULT_UPLOAD_DIR } from "./paths.js";
 import {
-  getBrowserControlServerBaseUrl,
+  installAgentContractHooks,
+  postJson,
+  startServerAndBase,
+} from "./server.agent-contract.test-harness.js";
+import {
   getBrowserControlServerTestState,
   getPwMocks,
-  installBrowserControlServerHooks,
   setBrowserControlServerEvaluateEnabled,
-  startBrowserControlServerFromConfig,
 } from "./server.control-server.test-harness.js";
 
 const state = getBrowserControlServerTestState();
 const pwMocks = getPwMocks();
 
 describe("browser control server", () => {
+<<<<<<< HEAD
   installBrowserControlServerHooks();
 >>>>>>> 186ecd216 (refactor(test): reuse browser control server harness)
 
@@ -337,6 +340,9 @@ describe("browser control server", () => {
     });
     return (await res.json()) as T;
   };
+=======
+  installAgentContractHooks();
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
   const slowTimeoutMs = process.platform === "win32" ? 40_000 : 20_000;
 

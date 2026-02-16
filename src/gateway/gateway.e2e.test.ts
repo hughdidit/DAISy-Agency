@@ -9,9 +9,14 @@ import {
   connectDeviceAuthReq,
   connectGatewayClient,
   getFreeGatewayPort,
+  startGatewayWithClient,
 } from "./test-helpers.e2e.js";
 import { installOpenAiResponsesMock } from "./test-helpers.openai-mock.js";
+<<<<<<< HEAD
 import { startGatewayServer } from "./server.js";
+=======
+import { buildOpenAiResponsesProviderConfig } from "./test-openai-responses-model.js";
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
 function extractPayloadText(result: unknown): string {
   const record = result as Record<string, unknown>;
@@ -68,28 +73,13 @@ describe("gateway e2e", () => {
         models: {
           mode: "replace",
           providers: {
-            openai: {
-              baseUrl: openaiBaseUrl,
-              apiKey: "test",
-              api: "openai-responses",
-              models: [
-                {
-                  id: "gpt-5.2",
-                  name: "gpt-5.2",
-                  api: "openai-responses",
-                  reasoning: false,
-                  input: ["text"],
-                  cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-                  contextWindow: 128_000,
-                  maxTokens: 4096,
-                },
-              ],
-            },
+            openai: buildOpenAiResponsesProviderConfig(openaiBaseUrl),
           },
         },
         gateway: { auth: { token } },
       };
 
+<<<<<<< HEAD
       await fs.writeFile(configPath, `${JSON.stringify(cfg, null, 2)}\n`);
       process.env.CLAWDBOT_CONFIG_PATH = configPath;
 
@@ -102,6 +92,11 @@ describe("gateway e2e", () => {
 
       const client = await connectGatewayClient({
         url: `ws://127.0.0.1:${port}`,
+=======
+      const { server, client } = await startGatewayWithClient({
+        cfg,
+        configPath,
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
         token,
         clientDisplayName: "vitest-mock-openai",
       });

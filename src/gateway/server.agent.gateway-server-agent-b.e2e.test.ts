@@ -89,6 +89,73 @@ function expectChannels(call: Record<string, unknown>, channel: string) {
   expect(call.messageChannel).toBe(channel);
 }
 
+function readAgentCommandCall(fromEnd = 1) {
+  return vi.mocked(agentCommand).mock.calls.at(-fromEnd)?.[0] as Record<string, unknown>;
+}
+
+function expectAgentRoutingCall(params: {
+  channel: string;
+  deliver: boolean;
+  to?: string;
+  fromEnd?: number;
+}) {
+  const call = readAgentCommandCall(params.fromEnd);
+  expectChannels(call, params.channel);
+  if ("to" in params) {
+    expect(call.to).toBe(params.to);
+  } else {
+    expect(call.to).toBeUndefined();
+  }
+  expect(call.deliver).toBe(params.deliver);
+  expect(call.bestEffortDeliver).toBe(true);
+  expect(typeof call.sessionId).toBe("string");
+}
+
+async function writeMainSessionEntry(params: {
+  sessionId: string;
+  lastChannel?: string;
+  lastTo?: string;
+}) {
+  await useTempSessionStorePath();
+  await writeSessionStore({
+    entries: {
+      main: {
+        sessionId: params.sessionId,
+        updatedAt: Date.now(),
+        lastChannel: params.lastChannel,
+        lastTo: params.lastTo,
+      },
+    },
+  });
+}
+
+function sendAgentWsRequest(
+  socket: WebSocket,
+  params: { reqId: string; message: string; idempotencyKey: string },
+) {
+  socket.send(
+    JSON.stringify({
+      type: "req",
+      id: params.reqId,
+      method: "agent",
+      params: { message: params.message, idempotencyKey: params.idempotencyKey },
+    }),
+  );
+}
+
+async function sendAgentWsRequestAndWaitFinal(
+  socket: WebSocket,
+  params: { reqId: string; message: string; idempotencyKey: string; timeoutMs?: number },
+) {
+  const finalP = onceMessage(
+    socket,
+    (o) => o.type === "res" && o.id === params.reqId && o.payload?.status !== "accepted",
+    params.timeoutMs,
+  );
+  sendAgentWsRequest(socket, params);
+  return await finalP;
+}
+
 async function useTempSessionStorePath() {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
   testState.sessionStorePath = path.join(dir, "sessions.json");
@@ -120,6 +187,7 @@ describe("gateway server agent", () => {
 =======
 =======
     setRegistry(registry);
+<<<<<<< HEAD
 >>>>>>> e0d7f97c5 (refactor(test): share gateway server plugin mocks)
     await useTempSessionStorePath();
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
@@ -132,6 +200,12 @@ describe("gateway server agent", () => {
           lastTo: "conversation:teams-123",
         },
       },
+=======
+    await writeMainSessionEntry({
+      sessionId: "sess-teams",
+      lastChannel: "msteams",
+      lastTo: "conversation:teams-123",
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     });
     const res = await rpcReq(ws, "agent", {
       message: "hi",
@@ -142,13 +216,7 @@ describe("gateway server agent", () => {
     });
     expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
-    expectChannels(call, "whatsapp");
-    expect(call.to).toBeUndefined();
-    expect(call.deliver).toBe(true);
-    expect(call.bestEffortDeliver).toBe(true);
-    expect(typeof call.sessionId).toBe("string");
+    expectAgentRoutingCall({ channel: "whatsapp", deliver: true });
   });
 
   test("agent accepts channel aliases (imsg/teams)", async () => {
@@ -168,6 +236,7 @@ describe("gateway server agent", () => {
 =======
 =======
     setRegistry(registry);
+<<<<<<< HEAD
 >>>>>>> e0d7f97c5 (refactor(test): share gateway server plugin mocks)
     await useTempSessionStorePath();
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
@@ -180,6 +249,12 @@ describe("gateway server agent", () => {
           lastTo: "chat_id:123",
         },
       },
+=======
+    await writeMainSessionEntry({
+      sessionId: "sess-alias",
+      lastChannel: "imessage",
+      lastTo: "chat_id:123",
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     });
     const resIMessage = await rpcReq(ws, "agent", {
       message: "hi",
@@ -200,14 +275,13 @@ describe("gateway server agent", () => {
     });
     expect(resTeams.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const lastIMessageCall = spy.mock.calls.at(-2)?.[0] as Record<string, unknown>;
-    expectChannels(lastIMessageCall, "imessage");
-    expect(lastIMessageCall.to).toBeUndefined();
-
-    const lastTeamsCall = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
-    expectChannels(lastTeamsCall, "msteams");
-    expect(lastTeamsCall.to).toBe("conversation:teams-abc");
+    expectAgentRoutingCall({ channel: "imessage", deliver: true, fromEnd: 2 });
+    expectAgentRoutingCall({
+      channel: "msteams",
+      deliver: false,
+      to: "conversation:teams-abc",
+      fromEnd: 1,
+    });
   });
 
   test("agent rejects unknown channel", async () => {
@@ -224,6 +298,7 @@ describe("gateway server agent", () => {
   test("agent ignores webchat last-channel for routing", async () => {
     testState.allowFrom = ["+1555"];
 <<<<<<< HEAD
+<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
 =======
@@ -238,6 +313,12 @@ describe("gateway server agent", () => {
           lastTo: "+1555",
         },
       },
+=======
+    await writeMainSessionEntry({
+      sessionId: "sess-main-webchat",
+      lastChannel: "webchat",
+      lastTo: "+1555",
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     });
     const res = await rpcReq(ws, "agent", {
       message: "hi",
@@ -248,16 +329,11 @@ describe("gateway server agent", () => {
     });
     expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
-    expectChannels(call, "whatsapp");
-    expect(call.to).toBeUndefined();
-    expect(call.deliver).toBe(true);
-    expect(call.bestEffortDeliver).toBe(true);
-    expect(typeof call.sessionId).toBe("string");
+    expectAgentRoutingCall({ channel: "whatsapp", deliver: true });
   });
 
   test("agent uses webchat for internal runs when last provider is webchat", async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
@@ -273,6 +349,12 @@ describe("gateway server agent", () => {
           lastTo: "+1555",
         },
       },
+=======
+    await writeMainSessionEntry({
+      sessionId: "sess-main-webchat-internal",
+      lastChannel: "webchat",
+      lastTo: "+1555",
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     });
     const res = await rpcReq(ws, "agent", {
       message: "hi",
@@ -283,25 +365,11 @@ describe("gateway server agent", () => {
     });
     expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
-    expectChannels(call, "webchat");
-    expect(call.to).toBeUndefined();
-    expect(call.deliver).toBe(false);
-    expect(call.bestEffortDeliver).toBe(true);
-    expect(typeof call.sessionId).toBe("string");
+    expectAgentRoutingCall({ channel: "webchat", deliver: false });
   });
 
   test("agent routes bare /new through session reset before running greeting prompt", async () => {
-    await useTempSessionStorePath();
-    await writeSessionStore({
-      entries: {
-        main: {
-          sessionId: "sess-main-before-reset",
-          updatedAt: Date.now(),
-        },
-      },
-    });
+    await writeMainSessionEntry({ sessionId: "sess-main-before-reset" });
     const spy = vi.mocked(agentCommand);
     const callsBefore = spy.mock.calls.length;
     const res = await rpcReq(ws, "agent", {
@@ -327,14 +395,11 @@ describe("gateway server agent", () => {
       ws,
       (o) => o.type === "res" && o.id === "ag1" && o.payload?.status !== "accepted",
     );
-    ws.send(
-      JSON.stringify({
-        type: "req",
-        id: "ag1",
-        method: "agent",
-        params: { message: "hi", idempotencyKey: "idem-ag" },
-      }),
-    );
+    sendAgentWsRequest(ws, {
+      reqId: "ag1",
+      message: "hi",
+      idempotencyKey: "idem-ag",
+    });
 
     const ack = await ackP;
     const final = await finalP;
@@ -344,29 +409,18 @@ describe("gateway server agent", () => {
   });
 
   test("agent dedupes by idempotencyKey after completion", async () => {
-    const firstFinalP = onceMessage(
-      ws,
-      (o) => o.type === "res" && o.id === "ag1" && o.payload?.status !== "accepted",
-    );
-    ws.send(
-      JSON.stringify({
-        type: "req",
-        id: "ag1",
-        method: "agent",
-        params: { message: "hi", idempotencyKey: "same-agent" },
-      }),
-    );
-    const firstFinal = await firstFinalP;
+    const firstFinal = await sendAgentWsRequestAndWaitFinal(ws, {
+      reqId: "ag1",
+      message: "hi",
+      idempotencyKey: "same-agent",
+    });
 
     const secondP = onceMessage(ws, (o) => o.type === "res" && o.id === "ag2");
-    ws.send(
-      JSON.stringify({
-        type: "req",
-        id: "ag2",
-        method: "agent",
-        params: { message: "hi again", idempotencyKey: "same-agent" },
-      }),
-    );
+    sendAgentWsRequest(ws, {
+      reqId: "ag2",
+      message: "hi again",
+      idempotencyKey: "same-agent",
+    });
     const second = await secondP;
     expect(second.payload).toEqual(firstFinal.payload);
   });
@@ -382,43 +436,28 @@ describe("gateway server agent", () => {
 
       const idem = "reconnect-agent";
       const ws1 = await dial();
-      const final1P = onceMessage(
-        ws1,
-        (o) => o.type === "res" && o.id === "ag1" && o.payload?.status !== "accepted",
-        6000,
-      );
-      ws1.send(
-        JSON.stringify({
-          type: "req",
-          id: "ag1",
-          method: "agent",
-          params: { message: "hi", idempotencyKey: idem },
-        }),
-      );
-      const final1 = await final1P;
+      const final1 = await sendAgentWsRequestAndWaitFinal(ws1, {
+        reqId: "ag1",
+        message: "hi",
+        idempotencyKey: idem,
+        timeoutMs: 6000,
+      });
       ws1.close();
 
       const ws2 = await dial();
-      const final2P = onceMessage(
-        ws2,
-        (o) => o.type === "res" && o.id === "ag2" && o.payload?.status !== "accepted",
-        6000,
-      );
-      ws2.send(
-        JSON.stringify({
-          type: "req",
-          id: "ag2",
-          method: "agent",
-          params: { message: "hi again", idempotencyKey: idem },
-        }),
-      );
-      const res = await final2P;
+      const res = await sendAgentWsRequestAndWaitFinal(ws2, {
+        reqId: "ag2",
+        message: "hi again",
+        idempotencyKey: idem,
+        timeoutMs: 6000,
+      });
       expect(res.payload).toEqual(final1.payload);
       ws2.close();
     });
   });
 
   test("agent events stream to webchat clients when run context is registered", async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
@@ -433,6 +472,9 @@ describe("gateway server agent", () => {
         },
       },
     });
+=======
+    await writeMainSessionEntry({ sessionId: "sess-main" });
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
     const webchatWs = new WebSocket(`ws://127.0.0.1:${port}`, {
       headers: { origin: `http://127.0.0.1:${port}` },

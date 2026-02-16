@@ -105,6 +105,21 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       agentCommand.mockReset();
       agentCommand.mockResolvedValueOnce({ payloads } as never);
     };
+    const expectAgentSessionKeyMatch = async (request: {
+      body: unknown;
+      headers?: Record<string, string>;
+      matcher: RegExp;
+    }) => {
+      mockAgentOnce([{ text: "hello" }]);
+      const res = await postChatCompletions(port, request.body, request.headers);
+      expect(res.status).toBe(200);
+      expect(agentCommand).toHaveBeenCalledTimes(1);
+      const [opts] = agentCommand.mock.calls[0] ?? [];
+      expect((opts as { sessionKey?: string } | undefined)?.sessionKey ?? "").toMatch(
+        request.matcher,
+      );
+      await res.text();
+    };
 
     try {
       {
@@ -127,6 +142,7 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
       }
 
       {
+<<<<<<< HEAD
         mockAgentOnce([{ text: "hello" }]);
         const res = await postChatCompletions(
           port,
@@ -148,18 +164,17 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
         const res = await postChatCompletions(port, {
           model: "moltbot:beta",
           messages: [{ role: "user", content: "hi" }],
+=======
+        await expectAgentSessionKeyMatch({
+          body: { model: "openclaw", messages: [{ role: "user", content: "hi" }] },
+          headers: { "x-openclaw-agent-id": "beta" },
+          matcher: /^agent:beta:/,
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
         });
-        expect(res.status).toBe(200);
-
-        expect(agentCommand).toHaveBeenCalledTimes(1);
-        const [opts] = agentCommand.mock.calls[0] ?? [];
-        expect((opts as { sessionKey?: string } | undefined)?.sessionKey ?? "").toMatch(
-          /^agent:beta:/,
-        );
-        await res.text();
       }
 
       {
+<<<<<<< HEAD
         mockAgentOnce([{ text: "hello" }]);
         const res = await postChatCompletions(
           port,
@@ -170,13 +185,26 @@ describe("OpenAI-compatible HTTP API (e2e)", () => {
           { "x-moltbot-agent-id": "alpha" },
         );
         expect(res.status).toBe(200);
+=======
+        await expectAgentSessionKeyMatch({
+          body: {
+            model: "openclaw:beta",
+            messages: [{ role: "user", content: "hi" }],
+          },
+          matcher: /^agent:beta:/,
+        });
+      }
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
-        expect(agentCommand).toHaveBeenCalledTimes(1);
-        const [opts] = agentCommand.mock.calls[0] ?? [];
-        expect((opts as { sessionKey?: string } | undefined)?.sessionKey ?? "").toMatch(
-          /^agent:alpha:/,
-        );
-        await res.text();
+      {
+        await expectAgentSessionKeyMatch({
+          body: {
+            model: "openclaw:beta",
+            messages: [{ role: "user", content: "hi" }],
+          },
+          headers: { "x-openclaw-agent-id": "alpha" },
+          matcher: /^agent:alpha:/,
+        });
       }
 
       {

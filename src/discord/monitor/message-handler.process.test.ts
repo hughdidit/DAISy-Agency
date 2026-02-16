@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
+=======
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createBaseDiscordMessageContext } from "./message-handler.test-harness.js";
 
 const reactMessageDiscord = vi.fn(async () => {});
 const removeReactionDiscord = vi.fn(async () => {});
@@ -36,6 +40,7 @@ vi.mock("../../auto-reply/reply/reply-dispatcher.js", () => ({
 
 import { processDiscordMessage } from "./message-handler.process.js";
 
+<<<<<<< HEAD
 async function createBaseContext(overrides: Record<string, unknown> = {}) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-discord-"));
   const storePath = path.join(dir, "sessions.json");
@@ -101,6 +106,8 @@ async function createBaseContext(overrides: Record<string, unknown> = {}) {
   };
 }
 
+=======
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 beforeEach(() => {
   reactMessageDiscord.mockClear();
   removeReactionDiscord.mockClear();
@@ -108,7 +115,7 @@ beforeEach(() => {
 
 describe("processDiscordMessage ack reactions", () => {
   it("skips ack reactions for group-mentions when mentions are not required", async () => {
-    const ctx = await createBaseContext({
+    const ctx = await createBaseDiscordMessageContext({
       shouldRequireMention: false,
       effectiveWasMentioned: false,
     });
@@ -120,7 +127,7 @@ describe("processDiscordMessage ack reactions", () => {
   });
 
   it("sends ack reactions for mention-gated guild messages when mentioned", async () => {
-    const ctx = await createBaseContext({
+    const ctx = await createBaseDiscordMessageContext({
       shouldRequireMention: true,
       effectiveWasMentioned: true,
     });
@@ -132,7 +139,7 @@ describe("processDiscordMessage ack reactions", () => {
   });
 
   it("uses preflight-resolved messageChannelId when message.channelId is missing", async () => {
-    const ctx = await createBaseContext({
+    const ctx = await createBaseDiscordMessageContext({
       message: {
         id: "m1",
         timestamp: new Date().toISOString(),

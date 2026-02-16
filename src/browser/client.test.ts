@@ -12,6 +12,25 @@ import {
 } from "./client-actions.js";
 
 describe("browser client", () => {
+  function stubSnapshotFetch(calls: string[]) {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        calls.push(url);
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            format: "ai",
+            targetId: "t1",
+            url: "https://x",
+            snapshot: "ok",
+          }),
+        } as unknown as Response;
+      }),
+    );
+  }
+
   afterEach(() => {
     vi.unstubAllGlobals();
   });
@@ -51,22 +70,7 @@ describe("browser client", () => {
 
   it("adds labels + efficient mode query params to snapshots", async () => {
     const calls: string[] = [];
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (url: string) => {
-        calls.push(url);
-        return {
-          ok: true,
-          json: async () => ({
-            ok: true,
-            format: "ai",
-            targetId: "t1",
-            url: "https://x",
-            snapshot: "ok",
-          }),
-        } as unknown as Response;
-      }),
-    );
+    stubSnapshotFetch(calls);
 
     await expect(
       browserSnapshot("http://127.0.0.1:18791", {
@@ -85,22 +89,7 @@ describe("browser client", () => {
 
   it("adds refs=aria to snapshots when requested", async () => {
     const calls: string[] = [];
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (url: string) => {
-        calls.push(url);
-        return {
-          ok: true,
-          json: async () => ({
-            ok: true,
-            format: "ai",
-            targetId: "t1",
-            url: "https://x",
-            snapshot: "ok",
-          }),
-        } as unknown as Response;
-      }),
-    );
+    stubSnapshotFetch(calls);
 
     await browserSnapshot("http://127.0.0.1:18791", {
       format: "ai",

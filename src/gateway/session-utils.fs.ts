@@ -234,33 +234,9 @@ export function readSessionTitleFieldsFromTranscript(
     // Head (first user message)
     let firstUserMessage: string | null = null;
     try {
-      const buf = Buffer.alloc(8192);
-      const bytesRead = fs.readSync(fd, buf, 0, buf.length, 0);
-      if (bytesRead > 0) {
-        const chunk = buf.toString("utf-8", 0, bytesRead);
-        const lines = chunk.split(/\r?\n/).slice(0, MAX_LINES_TO_SCAN);
-        for (const line of lines) {
-          if (!line.trim()) {
-            continue;
-          }
-          try {
-            const parsed = JSON.parse(line);
-            const msg = parsed?.message as TranscriptMessage | undefined;
-            if (msg?.role !== "user") {
-              continue;
-            }
-            if (opts?.includeInterSession !== true && hasInterSessionUserProvenance(msg)) {
-              continue;
-            }
-            const text = extractTextFromContent(msg.content);
-            if (text) {
-              firstUserMessage = text;
-              break;
-            }
-          } catch {
-            // skip malformed lines
-          }
-        }
+      const chunk = readTranscriptHeadChunk(fd);
+      if (chunk) {
+        firstUserMessage = extractFirstUserMessageFromTranscriptChunk(chunk, opts);
       }
     } catch {
       // ignore head read errors
@@ -311,6 +287,44 @@ function extractTextFromContent(content: TranscriptMessage["content"]): string |
   return null;
 }
 
+function readTranscriptHeadChunk(fd: number, maxBytes = 8192): string | null {
+  const buf = Buffer.alloc(maxBytes);
+  const bytesRead = fs.readSync(fd, buf, 0, buf.length, 0);
+  if (bytesRead <= 0) {
+    return null;
+  }
+  return buf.toString("utf-8", 0, bytesRead);
+}
+
+function extractFirstUserMessageFromTranscriptChunk(
+  chunk: string,
+  opts?: { includeInterSession?: boolean },
+): string | null {
+  const lines = chunk.split(/\r?\n/).slice(0, MAX_LINES_TO_SCAN);
+  for (const line of lines) {
+    if (!line.trim()) {
+      continue;
+    }
+    try {
+      const parsed = JSON.parse(line);
+      const msg = parsed?.message as TranscriptMessage | undefined;
+      if (msg?.role !== "user") {
+        continue;
+      }
+      if (opts?.includeInterSession !== true && hasInterSessionUserProvenance(msg)) {
+        continue;
+      }
+      const text = extractTextFromContent(msg.content);
+      if (text) {
+        return text;
+      }
+    } catch {
+      // skip malformed lines
+    }
+  }
+  return null;
+}
+
 export function readFirstUserMessageFromTranscript(
   sessionId: string,
   storePath: string | undefined,
@@ -326,11 +340,11 @@ export function readFirstUserMessageFromTranscript(
   let fd: number | null = null;
   try {
     fd = fs.openSync(filePath, "r");
-    const buf = Buffer.alloc(8192);
-    const bytesRead = fs.readSync(fd, buf, 0, buf.length, 0);
-    if (bytesRead === 0) {
+    const chunk = readTranscriptHeadChunk(fd);
+    if (!chunk) {
       return null;
     }
+<<<<<<< HEAD
     const chunk = buf.toString("utf-8", 0, bytesRead);
     const lines = chunk.split(/\r?\n/).slice(0, MAX_LINES_TO_SCAN);
 
@@ -351,6 +365,9 @@ export function readFirstUserMessageFromTranscript(
         // skip malformed lines
       }
     }
+=======
+    return extractFirstUserMessageFromTranscriptChunk(chunk, opts);
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
   } catch {
     // file read error
   } finally {

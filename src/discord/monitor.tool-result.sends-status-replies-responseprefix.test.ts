@@ -1,12 +1,17 @@
 import type { Client } from "@buape/carbon";
 import { ChannelType, MessageType } from "@buape/carbon";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createDiscordMessageHandler } from "./monitor.js";
-import { __resetDiscordChannelInfoCacheForTest } from "./monitor/message-utils.js";
-import { __resetDiscordThreadStarterCacheForTest } from "./monitor/threading.js";
+import {
+  dispatchMock,
+  readAllowFromStoreMock,
+  sendMock,
+  updateLastRouteMock,
+  upsertPairingRequestMock,
+} from "./monitor.tool-result.test-harness.js";
 
 type Config = ReturnType<typeof import("../config/config.js").loadConfig>;
 
+<<<<<<< HEAD
 const sendMock = vi.fn();
 const reactMock = vi.fn();
 const updateLastRouteMock = vi.fn();
@@ -43,7 +48,10 @@ vi.mock("../config/sessions.js", async (importOriginal) => {
   };
 });
 
+=======
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 beforeEach(() => {
+  vi.resetModules();
   sendMock.mockReset().mockResolvedValue(undefined);
   updateLastRouteMock.mockReset();
   dispatchMock.mockReset().mockImplementation(async ({ dispatcher }) => {
@@ -52,8 +60,6 @@ beforeEach(() => {
   });
   readAllowFromStoreMock.mockReset().mockResolvedValue([]);
   upsertPairingRequestMock.mockReset().mockResolvedValue({ code: "PAIRCODE", created: true });
-  __resetDiscordChannelInfoCacheForTest();
-  __resetDiscordThreadStarterCacheForTest();
 });
 
 const BASE_CFG = {
@@ -82,7 +88,8 @@ const CATEGORY_GUILD_CFG = {
   routing: { allowFrom: [] },
 } as Config;
 
-function createDmHandler(opts: { cfg: Config; runtimeError?: (err: unknown) => void }) {
+async function createDmHandler(opts: { cfg: Config; runtimeError?: (err: unknown) => void }) {
+  const { createDiscordMessageHandler } = await import("./monitor.js");
   return createDiscordMessageHandler({
     cfg: opts.cfg,
     discordConfig: opts.cfg.channels.discord,
@@ -117,7 +124,8 @@ function createDmClient(fetchChannel?: ReturnType<typeof vi.fn>) {
   return { fetchChannel: resolvedFetchChannel } as unknown as Client;
 }
 
-function createCategoryGuildHandler() {
+async function createCategoryGuildHandler() {
+  const { createDiscordMessageHandler } = await import("./monitor.js");
   return createDiscordMessageHandler({
     cfg: CATEGORY_GUILD_CFG,
     discordConfig: CATEGORY_GUILD_CFG.channels.discord,
@@ -174,7 +182,7 @@ describe("discord tool result dispatch", () => {
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
 
     const runtimeError = vi.fn();
-    const handler = createDmHandler({ cfg, runtimeError });
+    const handler = await createDmHandler({ cfg, runtimeError });
     const client = createDmClient();
 
     await handler(
@@ -219,7 +227,7 @@ describe("discord tool result dispatch", () => {
       channels: { discord: { dm: { enabled: true, policy: "open" } } },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
 
-    const handler = createDmHandler({ cfg });
+    const handler = await createDmHandler({ cfg });
     const fetchChannel = vi.fn().mockResolvedValue({
       type: ChannelType.DM,
       name: "dm",
@@ -281,7 +289,7 @@ describe("discord tool result dispatch", () => {
       channels: { discord: { dm: { enabled: true, policy: "open" } } },
     } as ReturnType<typeof import("../config/config.js").loadConfig>;
 
-    const handler = createDmHandler({ cfg });
+    const handler = await createDmHandler({ cfg });
     const client = createDmClient();
 
     await handler(
@@ -334,100 +342,6 @@ describe("discord tool result dispatch", () => {
     });
 
 <<<<<<< HEAD
-    const cfg = {
-      agents: {
-        defaults: {
-          model: "anthropic/claude-opus-4-5",
-          workspace: "/tmp/clawd",
-        },
-      },
-      session: { store: "/tmp/moltbot-sessions.json" },
-      channels: {
-        discord: {
-          dm: { enabled: true, policy: "open" },
-          guilds: {
-            "*": {
-              requireMention: false,
-              channels: { c1: { allow: true } },
-            },
-          },
-        },
-      },
-      routing: { allowFrom: [] },
-    } as ReturnType<typeof import("../config/config.js").loadConfig>;
-
-    const handler = createDiscordMessageHandler({
-      cfg,
-      discordConfig: cfg.channels.discord,
-      accountId: "default",
-      token: "token",
-      runtime: {
-        log: vi.fn(),
-        error: vi.fn(),
-        exit: (code: number): never => {
-          throw new Error(`exit ${code}`);
-        },
-      },
-      botUserId: "bot-id",
-      guildHistories: new Map(),
-      historyLimit: 0,
-      mediaMaxBytes: 10_000,
-      textLimit: 2000,
-      replyToMode: "off",
-      dmEnabled: true,
-      groupDmEnabled: false,
-      guildEntries: {
-        "*": { requireMention: false, channels: { c1: { allow: true } } },
-      },
-    });
-
-    const client = {
-      fetchChannel: vi.fn().mockResolvedValue({
-        type: ChannelType.GuildText,
-        name: "general",
-        parentId: "category-1",
-      }),
-      rest: { get: vi.fn() },
-    } as unknown as Client;
-=======
-    const handler = createCategoryGuildHandler();
-    const client = createCategoryGuildClient();
->>>>>>> fe5cc8f3b (refactor(test): dedupe discord category handler setup)
-
-    await handler(
-      {
-        message: {
-          id: "m-category",
-          content: "hello",
-          channelId: "c1",
-          timestamp: new Date().toISOString(),
-          type: MessageType.Default,
-          attachments: [],
-          embeds: [],
-          mentionedEveryone: false,
-          mentionedUsers: [],
-          mentionedRoles: [],
-          author: { id: "u1", bot: false, username: "Ada", tag: "Ada#1" },
-        },
-        author: { id: "u1", bot: false, username: "Ada", tag: "Ada#1" },
-        member: { displayName: "Ada" },
-        guild: { id: "g1", name: "Guild" },
-        guild_id: "g1",
-      },
-      client,
-    );
-
-    expect(capturedCtx?.SessionKey).toBe("agent:main:discord:channel:c1");
-  });
-
-  it("prefixes group bodies with sender label", async () => {
-    let capturedBody = "";
-    dispatchMock.mockImplementationOnce(async ({ ctx, dispatcher }) => {
-      capturedBody = ctx.Body ?? "";
-      dispatcher.sendFinalReply({ text: "ok" });
-      return { queuedFinal: true, counts: { final: 1 } };
-    });
-
 <<<<<<< HEAD
     const cfg = {
       agents: {
@@ -486,6 +400,108 @@ describe("discord tool result dispatch", () => {
     } as unknown as Client;
 =======
     const handler = createCategoryGuildHandler();
+=======
+    const handler = await createCategoryGuildHandler();
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
+    const client = createCategoryGuildClient();
+>>>>>>> fe5cc8f3b (refactor(test): dedupe discord category handler setup)
+
+    await handler(
+      {
+        message: {
+          id: "m-category",
+          content: "hello",
+          channelId: "c1",
+          timestamp: new Date().toISOString(),
+          type: MessageType.Default,
+          attachments: [],
+          embeds: [],
+          mentionedEveryone: false,
+          mentionedUsers: [],
+          mentionedRoles: [],
+          author: { id: "u1", bot: false, username: "Ada", tag: "Ada#1" },
+        },
+        author: { id: "u1", bot: false, username: "Ada", tag: "Ada#1" },
+        member: { displayName: "Ada" },
+        guild: { id: "g1", name: "Guild" },
+        guild_id: "g1",
+      },
+      client,
+    );
+
+    expect(capturedCtx?.SessionKey).toBe("agent:main:discord:channel:c1");
+  });
+
+  it("prefixes group bodies with sender label", async () => {
+    let capturedBody = "";
+    dispatchMock.mockImplementationOnce(async ({ ctx, dispatcher }) => {
+      capturedBody = ctx.Body ?? "";
+      dispatcher.sendFinalReply({ text: "ok" });
+      return { queuedFinal: true, counts: { final: 1 } };
+    });
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+    const cfg = {
+      agents: {
+        defaults: {
+          model: "anthropic/claude-opus-4-5",
+          workspace: "/tmp/clawd",
+        },
+      },
+      session: { store: "/tmp/moltbot-sessions.json" },
+      channels: {
+        discord: {
+          dm: { enabled: true, policy: "open" },
+          guilds: {
+            "*": {
+              requireMention: false,
+              channels: { c1: { allow: true } },
+            },
+          },
+        },
+      },
+      routing: { allowFrom: [] },
+    } as ReturnType<typeof import("../config/config.js").loadConfig>;
+
+    const handler = createDiscordMessageHandler({
+      cfg,
+      discordConfig: cfg.channels.discord,
+      accountId: "default",
+      token: "token",
+      runtime: {
+        log: vi.fn(),
+        error: vi.fn(),
+        exit: (code: number): never => {
+          throw new Error(`exit ${code}`);
+        },
+      },
+      botUserId: "bot-id",
+      guildHistories: new Map(),
+      historyLimit: 0,
+      mediaMaxBytes: 10_000,
+      textLimit: 2000,
+      replyToMode: "off",
+      dmEnabled: true,
+      groupDmEnabled: false,
+      guildEntries: {
+        "*": { requireMention: false, channels: { c1: { allow: true } } },
+      },
+    });
+
+    const client = {
+      fetchChannel: vi.fn().mockResolvedValue({
+        type: ChannelType.GuildText,
+        name: "general",
+        parentId: "category-1",
+      }),
+      rest: { get: vi.fn() },
+    } as unknown as Client;
+=======
+    const handler = createCategoryGuildHandler();
+=======
+    const handler = await createCategoryGuildHandler();
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
     const client = createCategoryGuildClient();
 >>>>>>> fe5cc8f3b (refactor(test): dedupe discord category handler setup)
 
@@ -533,7 +549,7 @@ describe("discord tool result dispatch", () => {
       },
     } as Config;
 
-    const handler = createDmHandler({ cfg });
+    const handler = await createDmHandler({ cfg });
     const client = createDmClient();
 
     await handler(

@@ -1,5 +1,6 @@
 import "./test-helpers.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -25,11 +26,15 @@ import { monitorWebChannel } from "./auto-reply.js";
 =======
 import { monitorWebChannelWithCapture } from "./auto-reply.broadcast-groups.test-harness.js";
 >>>>>>> fe2721574 (refactor(test): share web broadcast-groups harness)
+=======
+import { describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { sendWebDirectInboundAndCollectSessionKeys } from "./auto-reply.broadcast-groups.test-harness.js";
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 import {
   installWebAutoReplyTestHomeHooks,
   installWebAutoReplyUnitTestHooks,
   resetLoadConfigMock,
-  sendWebDirectInboundMessage,
   setLoadConfigMock,
 } from "./auto-reply.test-harness.js";
 
@@ -126,22 +131,7 @@ describe("broadcast groups", () => {
       },
     } satisfies MoltbotConfig);
 
-    const seen: string[] = [];
-    const resolver = vi.fn(async (ctx: { SessionKey?: unknown }) => {
-      seen.push(String(ctx.SessionKey));
-      return { text: "ok" };
-    });
-
-    const { spies, onMessage } = await monitorWebChannelWithCapture(resolver);
-
-    await sendWebDirectInboundMessage({
-      onMessage,
-      spies,
-      id: "m1",
-      from: "+1000",
-      to: "+2000",
-      body: "hello",
-    });
+    const { seen, resolver } = await sendWebDirectInboundAndCollectSessionKeys();
 
     expect(resolver).toHaveBeenCalledTimes(1);
     expect(seen[0]).toContain("agent:alfred:");
