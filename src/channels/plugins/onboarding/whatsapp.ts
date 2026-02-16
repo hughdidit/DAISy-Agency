@@ -17,9 +17,13 @@ import {
   resolveDefaultWhatsAppAccountId,
   resolveWhatsAppAuthDir,
 } from "../../../web/accounts.js";
+<<<<<<< HEAD
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter } from "../onboarding-types.js";
 import { promptAccountId } from "./helpers.js";
+=======
+import { mergeAllowFromEntries, promptAccountId } from "./helpers.js";
+>>>>>>> 64f5e4a42 (refactor(onboarding): reuse allowlist merge across channels)
 
 const channel = "whatsapp" as const;
 
@@ -89,10 +93,10 @@ async function promptWhatsAppOwnerAllowFrom(params: {
     ...existingAllowFrom
       .filter((item) => item !== "*")
       .map((item) => normalizeE164(item))
-      .filter(Boolean),
+      .filter((item): item is string => typeof item === "string" && item.trim().length > 0),
     normalized,
   ];
-  const allowFrom = [...new Set(merged.filter(Boolean))];
+  const allowFrom = mergeAllowFromEntries(undefined, merged);
   return { normalized, allowFrom };
 }
 
@@ -313,8 +317,10 @@ async function promptWhatsAppAllowFrom(
       .split(/[\n,;]+/g)
       .map((p) => p.trim())
       .filter(Boolean);
-    const normalized = parts.map((part) => (part === "*" ? "*" : normalizeE164(part)));
-    const unique = [...new Set(normalized.filter(Boolean))];
+    const normalized = parts
+      .map((part) => (part === "*" ? "*" : normalizeE164(part)))
+      .filter((part): part is string => typeof part === "string" && part.trim().length > 0);
+    const unique = mergeAllowFromEntries(undefined, normalized);
     next = setWhatsAppAllowFrom(next, unique);
   }
 

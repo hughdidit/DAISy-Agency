@@ -7,10 +7,14 @@ import {
   resolveTelegramAccount,
 } from "../../../telegram/accounts.js";
 import { formatDocsLink } from "../../../terminal/links.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../../../cli/command-format.js";
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 import { addWildcardAllowFrom, promptAccountId } from "./helpers.js";
+=======
+import { addWildcardAllowFrom, mergeAllowFromEntries, promptAccountId } from "./helpers.js";
+>>>>>>> 64f5e4a42 (refactor(onboarding): reuse allowlist merge across channels)
 
 const channel = "telegram" as const;
 
@@ -133,11 +137,7 @@ async function promptTelegramAllowFrom(params: {
     resolvedIds = results.filter(Boolean) as string[];
   }
 
-  const merged = [
-    ...existingAllowFrom.map((item) => String(item).trim()).filter(Boolean),
-    ...resolvedIds,
-  ];
-  const unique = [...new Set(merged)];
+  const unique = mergeAllowFromEntries(existingAllowFrom, resolvedIds);
 
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
