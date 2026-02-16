@@ -74,6 +74,7 @@ describe("resolveTaskScriptPath", () => {
     );
   });
 
+<<<<<<< HEAD
   it("handles case-insensitive 'DEFAULT' profile", () => {
     const env = { USERPROFILE: "C:\\Users\\test", CLAWDBOT_PROFILE: "DEFAULT" };
     expect(resolveTaskScriptPath(env)).toBe(
@@ -83,6 +84,10 @@ describe("resolveTaskScriptPath", () => {
 
   it("trims whitespace from CLAWDBOT_PROFILE", () => {
     const env = { USERPROFILE: "C:\\Users\\test", CLAWDBOT_PROFILE: "  myprofile  " };
+=======
+  it("trims whitespace from OPENCLAW_PROFILE", () => {
+    const env = { USERPROFILE: "C:\\Users\\test", OPENCLAW_PROFILE: "  myprofile  " };
+>>>>>>> 91e120870 (test: remove duplicate uppercase default profile daemon cases)
     expect(resolveTaskScriptPath(env)).toBe(
       path.join("C:\\Users\\test", ".clawdbot-myprofile", "gateway.cmd"),
     );

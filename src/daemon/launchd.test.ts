@@ -428,6 +428,7 @@ describe("resolveLaunchAgentPlistPath", () => {
     );
   });
 
+<<<<<<< HEAD
   it("handles case-insensitive 'DEFAULT' profile", () => {
     const env = { HOME: "/Users/test", CLAWDBOT_PROFILE: "DEFAULT" };
     expect(resolveLaunchAgentPlistPath(env)).toBe(
@@ -437,6 +438,10 @@ describe("resolveLaunchAgentPlistPath", () => {
 
   it("trims whitespace from CLAWDBOT_PROFILE", () => {
     const env = { HOME: "/Users/test", CLAWDBOT_PROFILE: "  myprofile  " };
+=======
+  it("trims whitespace from OPENCLAW_PROFILE", () => {
+    const env = { HOME: "/Users/test", OPENCLAW_PROFILE: "  myprofile  " };
+>>>>>>> 91e120870 (test: remove duplicate uppercase default profile daemon cases)
     expect(resolveLaunchAgentPlistPath(env)).toBe(
       "/Users/test/Library/LaunchAgents/bot.molt.myprofile.plist",
     );
