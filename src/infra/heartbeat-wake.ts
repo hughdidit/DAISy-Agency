@@ -22,7 +22,12 @@ type PendingWakeReason = {
 
 >>>>>>> f988abf20 (Cron: route reminders by session namespace)
 let handler: HeartbeatWakeHandler | null = null;
+<<<<<<< HEAD
 let pendingReason: string | null = null;
+=======
+let handlerGeneration = 0;
+const pendingWakes = new Map<string, PendingWakeReason>();
+>>>>>>> 064a3079c (Heartbeat: queue pending wakes per target)
 let scheduled = false;
 let running = false;
 let timer: NodeJS.Timeout | null = null;
@@ -63,6 +68,12 @@ function normalizeWakeTarget(value?: string): string | undefined {
   return trimmed || undefined;
 }
 
+function getWakeTargetKey(params: { agentId?: string; sessionKey?: string }) {
+  const agentId = normalizeWakeTarget(params.agentId);
+  const sessionKey = normalizeWakeTarget(params.sessionKey);
+  return `${agentId ?? ""}::${sessionKey ?? ""}`;
+}
+
 function queuePendingWakeReason(params?: {
   reason?: string;
   requestedAt?: number;
@@ -71,23 +82,30 @@ function queuePendingWakeReason(params?: {
 }) {
   const requestedAt = params?.requestedAt ?? Date.now();
   const normalizedReason = normalizeWakeReason(params?.reason);
+  const normalizedAgentId = normalizeWakeTarget(params?.agentId);
+  const normalizedSessionKey = normalizeWakeTarget(params?.sessionKey);
+  const wakeTargetKey = getWakeTargetKey({
+    agentId: normalizedAgentId,
+    sessionKey: normalizedSessionKey,
+  });
   const next: PendingWakeReason = {
     reason: normalizedReason,
     priority: resolveReasonPriority(normalizedReason),
     requestedAt,
-    agentId: normalizeWakeTarget(params?.agentId),
-    sessionKey: normalizeWakeTarget(params?.sessionKey),
+    agentId: normalizedAgentId,
+    sessionKey: normalizedSessionKey,
   };
-  if (!pendingWake) {
-    pendingWake = next;
+  const previous = pendingWakes.get(wakeTargetKey);
+  if (!previous) {
+    pendingWakes.set(wakeTargetKey, next);
     return;
   }
-  if (next.priority > pendingWake.priority) {
-    pendingWake = next;
+  if (next.priority > previous.priority) {
+    pendingWakes.set(wakeTargetKey, next);
     return;
   }
-  if (next.priority === pendingWake.priority && next.requestedAt >= pendingWake.requestedAt) {
-    pendingWake = next;
+  if (next.priority === previous.priority && next.requestedAt >= previous.requestedAt) {
+    pendingWakes.set(wakeTargetKey, next);
   }
 }
 
@@ -111,6 +129,7 @@ function schedule(coalesceMs: number, kind: WakeTimerKind = "normal") {
       return;
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     const reason = pendingReason;
     pendingReason = null;
@@ -145,20 +164,49 @@ function schedule(coalesceMs: number, kind: WakeTimerKind = "normal") {
           sessionKey,
         });
         schedule(DEFAULT_RETRY_MS, "retry");
+=======
+    const pendingBatch = Array.from(pendingWakes.values());
+    pendingWakes.clear();
+    running = true;
+    try {
+      for (const pendingWake of pendingBatch) {
+        const wakeOpts = {
+          reason: pendingWake.reason ?? undefined,
+          ...(pendingWake.agentId ? { agentId: pendingWake.agentId } : {}),
+          ...(pendingWake.sessionKey ? { sessionKey: pendingWake.sessionKey } : {}),
+        };
+        const res = await active(wakeOpts);
+        if (res.status === "skipped" && res.reason === "requests-in-flight") {
+          // The main lane is busy; retry this wake target soon.
+          queuePendingWakeReason({
+            reason: pendingWake.reason ?? "retry",
+            agentId: pendingWake.agentId,
+            sessionKey: pendingWake.sessionKey,
+          });
+          schedule(DEFAULT_RETRY_MS, "retry");
+        }
+>>>>>>> 064a3079c (Heartbeat: queue pending wakes per target)
       }
     } catch {
       // Error is already logged by the heartbeat runner; schedule a retry.
-      queuePendingWakeReason({
-        reason: reason ?? "retry",
-        agentId,
-        sessionKey,
-      });
+      for (const pendingWake of pendingBatch) {
+        queuePendingWakeReason({
+          reason: pendingWake.reason ?? "retry",
+          agentId: pendingWake.agentId,
+          sessionKey: pendingWake.sessionKey,
+        });
+      }
       schedule(DEFAULT_RETRY_MS, "retry");
 >>>>>>> f988abf20 (Cron: route reminders by session namespace)
     } finally {
       running = false;
+<<<<<<< HEAD
       if (pendingReason || scheduled) {
         schedule(coalesceMs);
+=======
+      if (pendingWakes.size > 0 || scheduled) {
+        schedule(delay, "normal");
+>>>>>>> 064a3079c (Heartbeat: queue pending wakes per target)
       }
     }
   }, coalesceMs);
@@ -170,6 +218,22 @@ export function setHeartbeatWakeHandler(next: HeartbeatWakeHandler | null) {
   if (handler && pendingReason) {
     schedule(DEFAULT_COALESCE_MS);
   }
+<<<<<<< HEAD
+=======
+  if (handler && pendingWakes.size > 0) {
+    schedule(DEFAULT_COALESCE_MS, "normal");
+  }
+  return () => {
+    if (handlerGeneration !== generation) {
+      return;
+    }
+    if (handler !== next) {
+      return;
+    }
+    handlerGeneration += 1;
+    handler = null;
+  };
+>>>>>>> 064a3079c (Heartbeat: queue pending wakes per target)
 }
 
 <<<<<<< HEAD
@@ -197,7 +261,11 @@ export function hasHeartbeatWakeHandler() {
 }
 
 export function hasPendingHeartbeatWake() {
+<<<<<<< HEAD
   return pendingReason !== null || Boolean(timer) || scheduled;
+=======
+  return pendingWakes.size > 0 || Boolean(timer) || scheduled;
+>>>>>>> 064a3079c (Heartbeat: queue pending wakes per target)
 }
 
 export function resetHeartbeatWakeStateForTests() {
@@ -207,7 +275,7 @@ export function resetHeartbeatWakeStateForTests() {
   timer = null;
   timerDueAt = null;
   timerKind = null;
-  pendingWake = null;
+  pendingWakes.clear();
   scheduled = false;
   running = false;
   handlerGeneration += 1;
