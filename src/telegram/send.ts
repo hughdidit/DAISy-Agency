@@ -26,6 +26,12 @@ import { normalizePollInput, type PollInput } from "../polls.js";
 import { loadWebMedia } from "../web/media.js";
 import { type ResolvedTelegramAccount, resolveTelegramAccount } from "./accounts.js";
 import { resolveTelegramFetch } from "./fetch.js";
+<<<<<<< HEAD
+=======
+import { renderTelegramHtmlText } from "./format.js";
+import { isRecoverableTelegramNetworkError } from "./network-errors.js";
+import { recordSentPoll } from "./poll-vote-cache.js";
+>>>>>>> 0a02b9163 (Handle Telegram poll vote updates for agent context)
 import { makeProxyFetch } from "./proxy.js";
 import { renderTelegramHtmlText } from "./format.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
@@ -1285,6 +1291,15 @@ export async function sendPollTelegram(
   const pollId = result?.poll?.id;
   if (result?.message_id) {
     recordSentMessage(chatId, result.message_id);
+  }
+  if (pollId) {
+    recordSentPoll({
+      pollId,
+      chatId: resolvedChatId,
+      question: normalizedPoll.question,
+      options: normalizedPoll.options,
+      accountId: account.accountId,
+    });
   }
 
   recordChannelActivity({
