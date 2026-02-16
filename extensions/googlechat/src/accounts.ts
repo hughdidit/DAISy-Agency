@@ -4,6 +4,7 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { createAccountListHelpers } from "openclaw/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { GoogleChatAccountConfig } from "./types.config.js";
@@ -23,6 +24,7 @@ export type ResolvedGoogleChatAccount = {
 const ENV_SERVICE_ACCOUNT = "GOOGLE_CHAT_SERVICE_ACCOUNT";
 const ENV_SERVICE_ACCOUNT_FILE = "GOOGLE_CHAT_SERVICE_ACCOUNT_FILE";
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   const accounts = (cfg.channels?.["googlechat"] as GoogleChatConfig | undefined)?.accounts;
@@ -44,6 +46,10 @@ export function listGoogleChatAccountIds(cfg: MoltbotConfig): string[] {
   }
   return ids.toSorted((a, b) => a.localeCompare(b));
 }
+=======
+const { listAccountIds } = createAccountListHelpers("googlechat");
+export const listGoogleChatAccountIds = listAccountIds;
+>>>>>>> d24340d75 (channels: migrate extension account listing to factory)
 
 <<<<<<< HEAD
 export function resolveDefaultGoogleChatAccountId(cfg: MoltbotConfig): string {

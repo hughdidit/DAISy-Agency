@@ -4,6 +4,7 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { createAccountListHelpers } from "openclaw/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { MattermostAccountConfig, MattermostChatMode } from "../types.js";
@@ -29,6 +30,7 @@ export type ResolvedMattermostAccount = {
   blockStreamingCoalesce?: MattermostAccountConfig["blockStreamingCoalesce"];
 };
 
+<<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   const accounts = cfg.channels?.mattermost?.accounts;
   if (!accounts || typeof accounts !== "object") {
@@ -52,6 +54,11 @@ export function resolveDefaultMattermostAccountId(cfg: MoltbotConfig): string {
   }
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
+=======
+const { listAccountIds, resolveDefaultAccountId } = createAccountListHelpers("mattermost");
+export const listMattermostAccountIds = listAccountIds;
+export const resolveDefaultMattermostAccountId = resolveDefaultAccountId;
+>>>>>>> d24340d75 (channels: migrate extension account listing to factory)
 
 function resolveAccountConfig(
   cfg: MoltbotConfig,

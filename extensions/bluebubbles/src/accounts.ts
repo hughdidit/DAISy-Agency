@@ -3,8 +3,13 @@ import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
+=======
+import { createAccountListHelpers } from "openclaw/plugin-sdk";
+import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
+>>>>>>> d24340d75 (channels: migrate extension account listing to factory)
 import { normalizeBlueBubblesServerUrl, type BlueBubblesAccountConfig } from "./types.js";
 
 export type ResolvedBlueBubblesAccount = {
@@ -16,6 +21,7 @@ export type ResolvedBlueBubblesAccount = {
   baseUrl?: string;
 };
 
+<<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   const accounts = cfg.channels?.bluebubbles?.accounts;
   if (!accounts || typeof accounts !== "object") {
@@ -39,6 +45,11 @@ export function resolveDefaultBlueBubblesAccountId(cfg: MoltbotConfig): string {
   }
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
+=======
+const { listAccountIds, resolveDefaultAccountId } = createAccountListHelpers("bluebubbles");
+export const listBlueBubblesAccountIds = listAccountIds;
+export const resolveDefaultBlueBubblesAccountId = resolveDefaultAccountId;
+>>>>>>> d24340d75 (channels: migrate extension account listing to factory)
 
 function resolveAccountConfig(
   cfg: MoltbotConfig,
