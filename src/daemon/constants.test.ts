@@ -33,11 +33,14 @@ describe("resolveGatewayLaunchAgentLabel", () => {
     expect(result).toBe("bot.molt.dev");
   });
 
+<<<<<<< HEAD
   it("returns profile-specific label for custom profile", () => {
     const result = resolveGatewayLaunchAgentLabel("work");
     expect(result).toBe("bot.molt.work");
   });
 
+=======
+>>>>>>> 6a9ead381 (test: remove duplicate profile-specific daemon constant cases)
   it("trims whitespace from profile", () => {
     const result = resolveGatewayLaunchAgentLabel("  staging  ");
     expect(result).toBe("bot.molt.staging");
@@ -71,11 +74,14 @@ describe("resolveGatewaySystemdServiceName", () => {
     expect(result).toBe("moltbot-gateway-dev");
   });
 
+<<<<<<< HEAD
   it("returns profile-specific service name for custom profile", () => {
     const result = resolveGatewaySystemdServiceName("production");
     expect(result).toBe("moltbot-gateway-production");
   });
 
+=======
+>>>>>>> 6a9ead381 (test: remove duplicate profile-specific daemon constant cases)
   it("trims whitespace from profile", () => {
     const result = resolveGatewaySystemdServiceName("  test  ");
     expect(result).toBe("moltbot-gateway-test");
@@ -109,11 +115,14 @@ describe("resolveGatewayWindowsTaskName", () => {
     expect(result).toBe("Moltbot Gateway (dev)");
   });
 
+<<<<<<< HEAD
   it("returns profile-specific task name for custom profile", () => {
     const result = resolveGatewayWindowsTaskName("work");
     expect(result).toBe("Moltbot Gateway (work)");
   });
 
+=======
+>>>>>>> 6a9ead381 (test: remove duplicate profile-specific daemon constant cases)
   it("trims whitespace from profile", () => {
     const result = resolveGatewayWindowsTaskName("  ci  ");
     expect(result).toBe("Moltbot Gateway (ci)");
