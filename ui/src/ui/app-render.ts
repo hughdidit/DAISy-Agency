@@ -87,6 +87,7 @@ import { ChatState, loadChatHistory } from "./controllers/chat";
 =======
 import type { AppViewState } from "./app-view-state.ts";
 import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
+import { t, i18n, type Locale } from "../i18n/index.ts";
 import { refreshChatAvatar } from "./app-chat.ts";
 import { renderUsageTab } from "./app-render-usage-tab.ts";
 import { renderChatControls, renderTab, renderThemeToggle } from "./app-render.helpers.ts";
@@ -213,6 +214,7 @@ import { renderSkills } from "./views/skills.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import { renderUsage } from "./views/usage.ts";
@@ -222,6 +224,8 @@ import { renderUsage } from "./views/usage.ts";
 =======
 import { t, i18n, type Locale } from "../i18n/index.ts";
 >>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
+=======
+>>>>>>> e0c45eab4 (style: apply oxfmt formatting)
 
 const AVATAR_DATA_RE = /^data:/i;
 const AVATAR_HTTP_RE = /^https?:\/\//i;

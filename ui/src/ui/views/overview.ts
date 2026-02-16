@@ -15,10 +15,14 @@ import { formatNextRun } from "../presenter.ts";
 =======
 import type { GatewayHelloOk } from "../gateway";
 import type { UiSettings } from "../storage";
+import { t, i18n, type Locale } from "../../i18n";
 import { formatAgo, formatDurationMs } from "../format";
 import { formatNextRun } from "../presenter";
+<<<<<<< HEAD
 import { t, i18n, type Locale } from "../../i18n";
 >>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
+=======
+>>>>>>> e0c45eab4 (style: apply oxfmt formatting)
 
 export type OverviewProps = {
   connected: boolean;
@@ -43,8 +47,10 @@ export function renderOverview(props: OverviewProps) {
     | { uptimeMs?: number; policy?: { tickIntervalMs?: number } }
     | undefined;
   const uptime = snapshot?.uptimeMs ? formatDurationMs(snapshot.uptimeMs) : t("common.na");
-  const tick = snapshot?.policy?.tickIntervalMs ? `${snapshot.policy.tickIntervalMs}ms` : t("common.na");
-  
+  const tick = snapshot?.policy?.tickIntervalMs
+    ? `${snapshot.policy.tickIntervalMs}ms`
+    : t("common.na");
+
   const authHint = (() => {
     if (props.connected || !props.lastError) return null;
     const lower = props.lastError.toLowerCase();
