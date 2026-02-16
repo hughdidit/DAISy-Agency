@@ -18,6 +18,7 @@ function shouldEmitRuntimeLog(env: NodeJS.ProcessEnv = process.env): boolean {
   return typeof maybeMockedLog.mock === "object";
 }
 
+<<<<<<< HEAD
 export const defaultRuntime: RuntimeEnv = {
   log: (...args: Parameters<typeof console.log>) => {
     if (!shouldEmitRuntimeLog()) {
@@ -42,6 +43,9 @@ export const defaultRuntime: RuntimeEnv = {
 };
 
 export function createNonExitingRuntime(): RuntimeEnv {
+=======
+function createRuntimeIo(): Pick<RuntimeEnv, "log" | "error"> {
+>>>>>>> 8df83d183 (refactor(core): extract shared runtime and wizard schemas)
   return {
     log: (...args: Parameters<typeof console.log>) => {
       if (!shouldEmitRuntimeLog()) {
@@ -54,6 +58,21 @@ export function createNonExitingRuntime(): RuntimeEnv {
       clearActiveProgressLine();
       console.error(...args);
     },
+  };
+}
+
+export const defaultRuntime: RuntimeEnv = {
+  ...createRuntimeIo(),
+  exit: (code) => {
+    restoreTerminalState("runtime exit", { resumeStdinIfPaused: false });
+    process.exit(code);
+    throw new Error("unreachable"); // satisfies tests when mocked
+  },
+};
+
+export function createNonExitingRuntime(): RuntimeEnv {
+  return {
+    ...createRuntimeIo(),
     exit: (code: number): never => {
       throw new Error(`exit ${code}`);
     },
