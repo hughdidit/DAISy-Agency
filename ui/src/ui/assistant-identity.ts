@@ -10,6 +10,7 @@ export type AssistantIdentity = {
   avatar: string | null;
 };
 
+<<<<<<< HEAD
 declare global {
   interface Window {
     __CLAWDBOT_ASSISTANT_NAME__?: string;
@@ -17,6 +18,8 @@ declare global {
   }
 }
 
+=======
+>>>>>>> 3b4096e02 (fix(ui): load Control UI bootstrap config via JSON endpoint)
 function coerceIdentityValue(value: string | undefined, maxLength: number): string | undefined {
   if (typeof value !== "string") {
     return undefined;
@@ -40,6 +43,7 @@ export function normalizeAssistantIdentity(
     typeof input?.agentId === "string" && input.agentId.trim() ? input.agentId.trim() : null;
   return { agentId, name, avatar };
 }
+<<<<<<< HEAD
 
 export function resolveInjectedAssistantIdentity(): AssistantIdentity {
   if (typeof window === "undefined") {
@@ -50,3 +54,5 @@ export function resolveInjectedAssistantIdentity(): AssistantIdentity {
     avatar: window.__CLAWDBOT_ASSISTANT_AVATAR__,
   });
 }
+=======
+>>>>>>> 3b4096e02 (fix(ui): load Control UI bootstrap config via JSON endpoint)

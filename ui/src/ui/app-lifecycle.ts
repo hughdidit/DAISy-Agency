@@ -32,11 +32,18 @@ import {
 } from "./app-polling";
 =======
 } from "./app-settings.ts";
+<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+=======
+import { loadControlUiBootstrapConfig } from "./controllers/control-ui-bootstrap.ts";
+>>>>>>> 3b4096e02 (fix(ui): load Control UI bootstrap config via JSON endpoint)
 
 type LifecycleHost = {
   basePath: string;
   tab: Tab;
+  assistantName: string;
+  assistantAvatar: string | null;
+  assistantAgentId: string | null;
   chatHasAutoScrolled: boolean;
   chatLoading: boolean;
   chatMessages: unknown[];
@@ -51,6 +58,7 @@ type LifecycleHost = {
 
 export function handleConnected(host: LifecycleHost) {
   host.basePath = inferBasePath();
+  void loadControlUiBootstrapConfig(host);
   applySettingsFromUrl(host as unknown as Parameters<typeof applySettingsFromUrl>[0]);
   syncTabWithLocation(host as unknown as Parameters<typeof syncTabWithLocation>[0], true);
   syncThemeWithSettings(host as unknown as Parameters<typeof syncThemeWithSettings>[0]);
