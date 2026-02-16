@@ -6,33 +6,48 @@ import {
   formatAuthChoiceChoicesForCli,
 } from "./auth-choice-options.js";
 
+const EMPTY_STORE: AuthProfileStore = { version: 1, profiles: {} };
+
+function getOptions(includeSkip = false) {
+  return buildAuthChoiceOptions({
+    store: EMPTY_STORE,
+    includeSkip,
+  });
+}
+
 describe("buildAuthChoiceOptions", () => {
   it("includes GitHub Copilot", () => {
-    const store: AuthProfileStore = { version: 1, profiles: {} };
-    const options = buildAuthChoiceOptions({
-      store,
-      includeSkip: false,
-    });
+    const options = getOptions();
 
     expect(options.find((opt) => opt.value === "github-copilot")).toBeDefined();
   });
+
   it("includes setup-token option for Anthropic", () => {
-    const store: AuthProfileStore = { version: 1, profiles: {} };
-    const options = buildAuthChoiceOptions({
-      store,
-      includeSkip: false,
-    });
+    const options = getOptions();
 
     expect(options.some((opt) => opt.value === "token")).toBe(true);
   });
 
-  it("includes Z.AI (GLM) auth choice", () => {
-    const store: AuthProfileStore = { version: 1, profiles: {} };
-    const options = buildAuthChoiceOptions({
-      store,
-      includeSkip: false,
-    });
+  it.each([
+    ["Z.AI (GLM) auth choice", ["zai-api-key"]],
+    ["Xiaomi auth choice", ["xiaomi-api-key"]],
+    ["MiniMax auth choice", ["minimax-api", "minimax-api-key-cn", "minimax-api-lightning"]],
+    [
+      "Moonshot auth choice",
+      ["moonshot-api-key", "moonshot-api-key-cn", "kimi-code-api-key", "together-api-key"],
+    ],
+    ["Vercel AI Gateway auth choice", ["ai-gateway-api-key"]],
+    ["Cloudflare AI Gateway auth choice", ["cloudflare-ai-gateway-api-key"]],
+    ["Together AI auth choice", ["together-api-key"]],
+    ["Synthetic auth choice", ["synthetic-api-key"]],
+    ["Chutes OAuth auth choice", ["chutes"]],
+    ["Qwen auth choice", ["qwen-portal"]],
+    ["xAI auth choice", ["xai-api-key"]],
+    ["vLLM auth choice", ["vllm"]],
+  ])("includes %s", (_label, expectedValues) => {
+    const options = getOptions();
 
+<<<<<<< HEAD
     expect(options.some((opt) => opt.value === "zai-api-key")).toBe(true);
   });
 
@@ -147,14 +162,15 @@ describe("buildAuthChoiceOptions", () => {
     });
 
     expect(options.some((opt) => opt.value === "vllm")).toBe(true);
+=======
+    for (const value of expectedValues) {
+      expect(options.some((opt) => opt.value === value)).toBe(true);
+    }
+>>>>>>> 9372df45f (refactor(test): table-drive auth choice option checks)
   });
 
   it("builds cli help choices from the same catalog", () => {
-    const store: AuthProfileStore = { version: 1, profiles: {} };
-    const options = buildAuthChoiceOptions({
-      store,
-      includeSkip: true,
-    });
+    const options = getOptions(true);
     const cliChoices = formatAuthChoiceChoicesForCli({
       includeLegacyAliases: false,
       includeSkip: true,
@@ -178,9 +194,8 @@ describe("buildAuthChoiceOptions", () => {
   });
 
   it("shows Chutes in grouped provider selection", () => {
-    const store: AuthProfileStore = { version: 1, profiles: {} };
     const { groups } = buildAuthChoiceGroups({
-      store,
+      store: EMPTY_STORE,
       includeSkip: false,
     });
     const chutesGroup = groups.find((group) => group.value === "chutes");
