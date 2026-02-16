@@ -305,6 +305,52 @@ const ToolFsSchema = z
   .strict()
   .optional();
 
+const ToolLoopDetectionDetectorSchema = z
+  .object({
+    genericRepeat: z.boolean().optional(),
+    knownPollNoProgress: z.boolean().optional(),
+    pingPong: z.boolean().optional(),
+  })
+  .strict()
+  .optional();
+
+const ToolLoopDetectionSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    historySize: z.number().int().positive().optional(),
+    warningThreshold: z.number().int().positive().optional(),
+    criticalThreshold: z.number().int().positive().optional(),
+    globalCircuitBreakerThreshold: z.number().int().positive().optional(),
+    detectors: ToolLoopDetectionDetectorSchema,
+  })
+  .strict()
+  .superRefine((value, ctx) => {
+    if (
+      value.warningThreshold !== undefined &&
+      value.criticalThreshold !== undefined &&
+      value.warningThreshold >= value.criticalThreshold
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["criticalThreshold"],
+        message: "tools.loopDetection.warningThreshold must be lower than criticalThreshold.",
+      });
+    }
+    if (
+      value.criticalThreshold !== undefined &&
+      value.globalCircuitBreakerThreshold !== undefined &&
+      value.criticalThreshold >= value.globalCircuitBreakerThreshold
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["globalCircuitBreakerThreshold"],
+        message:
+          "tools.loopDetection.criticalThreshold must be lower than globalCircuitBreakerThreshold.",
+      });
+    }
+  })
+  .optional();
+
 export const AgentSandboxSchema = z
   .object({
     mode: z.union([z.literal("off"), z.literal("non-main"), z.literal("all")]).optional(),
@@ -362,7 +408,11 @@ export const AgentToolsSchema = z
 =======
     exec: AgentToolExecSchema,
     fs: ToolFsSchema,
+<<<<<<< HEAD
 >>>>>>> cc2a63cd2 (refactor(config): dedupe exec/fs zod schemas)
+=======
+    loopDetection: ToolLoopDetectionSchema,
+>>>>>>> 076df941a (feat: add configurable tool loop detection)
     sandbox: z
       .object({
         tools: ToolPolicySchema,
@@ -555,6 +605,16 @@ export const ToolsSchema = z
     web: ToolsWebSchema,
     media: ToolsMediaSchema,
     links: ToolsLinksSchema,
+<<<<<<< HEAD
+=======
+    sessions: z
+      .object({
+        visibility: z.enum(["self", "tree", "agent", "all"]).optional(),
+      })
+      .strict()
+      .optional(),
+    loopDetection: ToolLoopDetectionSchema,
+>>>>>>> 076df941a (feat: add configurable tool loop detection)
     message: z
       .object({
         allowCrossContextSend: z.boolean().optional(),
