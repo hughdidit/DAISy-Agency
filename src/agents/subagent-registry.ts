@@ -29,6 +29,10 @@ export type SubagentRunRecord = {
   cleanupCompletedAt?: number;
   cleanupHandled?: boolean;
   suppressAnnounceReason?: "steer-restart" | "killed";
+  /** Number of times announce delivery has been attempted and returned false (deferred). */
+  announceRetryCount?: number;
+  /** Timestamp of the last announce retry attempt (for backoff). */
+  lastAnnounceRetryAt?: number;
 };
 
 const subagentRuns = new Map<string, SubagentRunRecord>();
@@ -37,6 +41,22 @@ let listenerStarted = false;
 let listenerStop: (() => void) | null = null;
 // Use var to avoid TDZ when init runs across circular imports during bootstrap.
 var restoreAttempted = false;
+<<<<<<< HEAD
+=======
+const SUBAGENT_ANNOUNCE_TIMEOUT_MS = 120_000;
+/**
+ * Maximum number of announce delivery attempts before giving up.
+ * Prevents infinite retry loops when `runSubagentAnnounceFlow` repeatedly
+ * returns `false` due to stale state or transient conditions (#18264).
+ */
+const MAX_ANNOUNCE_RETRY_COUNT = 3;
+/**
+ * Announce entries older than this are force-expired even if delivery never
+ * succeeded. Guards against stale registry entries surviving gateway restarts.
+ */
+const ANNOUNCE_EXPIRY_MS = 5 * 60_000; // 5 minutes
+// (Backoff constant removed — max-retry + expiry guards are sufficient.)
+>>>>>>> a6c741eb4 (fix(announce): break infinite retry loop with max attempts and expiry (#18264))
 
 function persistSubagentRuns() {
   try {
@@ -86,6 +106,17 @@ function resumeSubagentRun(runId: string) {
     return;
   }
   if (entry.cleanupCompletedAt) {
+    return;
+  }
+  // Skip entries that have exhausted their retry budget or expired (#18264).
+  if ((entry.announceRetryCount ?? 0) >= MAX_ANNOUNCE_RETRY_COUNT) {
+    entry.cleanupCompletedAt = Date.now();
+    persistSubagentRuns();
+    return;
+  }
+  if (typeof entry.endedAt === "number" && Date.now() - entry.endedAt > ANNOUNCE_EXPIRY_MS) {
+    entry.cleanupCompletedAt = Date.now();
+    persistSubagentRuns();
     return;
   }
 
@@ -332,6 +363,20 @@ function finalizeSubagentCleanup(runId: string, cleanup: "delete" | "keep", didA
     subagentRuns.delete(runId);
 =======
   if (!didAnnounce) {
+    const retryCount = (entry.announceRetryCount ?? 0) + 1;
+    entry.announceRetryCount = retryCount;
+    entry.lastAnnounceRetryAt = Date.now();
+
+    // Check if the announce has exceeded retry limits or expired (#18264).
+    const endedAgo = typeof entry.endedAt === "number" ? Date.now() - entry.endedAt : 0;
+    if (retryCount >= MAX_ANNOUNCE_RETRY_COUNT || endedAgo > ANNOUNCE_EXPIRY_MS) {
+      // Give up: mark as completed to break the infinite retry loop.
+      entry.cleanupCompletedAt = Date.now();
+      persistSubagentRuns();
+      retryDeferredCompletedAnnounces(runId);
+      return;
+    }
+
     // Allow retry on the next wake if announce was deferred or failed.
     entry.cleanupHandled = false;
     resumedRuns.delete(runId);
@@ -352,6 +397,7 @@ function finalizeSubagentCleanup(runId: string, cleanup: "delete" | "keep", didA
 }
 
 function retryDeferredCompletedAnnounces(excludeRunId?: string) {
+  const now = Date.now();
   for (const [runId, entry] of subagentRuns.entries()) {
     if (excludeRunId && runId === excludeRunId) {
       continue;
@@ -363,6 +409,13 @@ function retryDeferredCompletedAnnounces(excludeRunId?: string) {
       continue;
     }
     if (suppressAnnounceForSteerRestart(entry)) {
+      continue;
+    }
+    // Force-expire announces that have been pending too long (#18264).
+    const endedAgo = now - (entry.endedAt ?? now);
+    if (endedAgo > ANNOUNCE_EXPIRY_MS) {
+      entry.cleanupCompletedAt = now;
+      persistSubagentRuns();
       continue;
     }
     resumedRuns.delete(runId);
