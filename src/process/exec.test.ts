@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 import { runCommandWithTimeout } from "./exec.js";
+=======
+import { captureEnv } from "../test-utils/env.js";
+import { runCommandWithTimeout, shouldSpawnWithShell } from "./exec.js";
+>>>>>>> ee2fa5f41 (refactor(test): reuse env snapshots in unit suites)
 
 describe("runCommandWithTimeout", () => {
   it("passes env overrides to child", async () => {
@@ -16,7 +21,7 @@ describe("runCommandWithTimeout", () => {
   });
 
   it("merges custom env with process.env", async () => {
-    const previous = process.env.OPENCLAW_BASE_ENV;
+    const envSnapshot = captureEnv(["OPENCLAW_BASE_ENV"]);
     process.env.OPENCLAW_BASE_ENV = "base";
     try {
       const result = await runCommandWithTimeout(
@@ -34,11 +39,7 @@ describe("runCommandWithTimeout", () => {
       expect(result.code).toBe(0);
       expect(result.stdout).toBe("base|ok");
     } finally {
-      if (previous === undefined) {
-        delete process.env.OPENCLAW_BASE_ENV;
-      } else {
-        process.env.OPENCLAW_BASE_ENV = previous;
-      }
+      envSnapshot.restore();
     }
   });
 });
