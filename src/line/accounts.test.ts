@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   resolveLineAccount,
-  listLineAccountIds,
   resolveDefaultLineAccountId,
   normalizeAccountId,
   DEFAULT_ACCOUNT_ID,
@@ -100,6 +99,7 @@ describe("LINE accounts", () => {
     });
   });
 
+<<<<<<< HEAD
   describe("listLineAccountIds", () => {
     it("returns default account when configured at base level", () => {
       const cfg: MoltbotConfig = {
@@ -149,6 +149,8 @@ describe("LINE accounts", () => {
 >>>>>>> 850557721 (test: remove redundant line account-id env listing case)
   });
 
+=======
+>>>>>>> 242e8f5c4 (test: remove low-signal line account listing coverage)
   describe("resolveDefaultLineAccountId", () => {
 <<<<<<< HEAD
     it("returns default when configured", () => {
