@@ -184,6 +184,12 @@ function encodeValue(parts: { command: string; arg: string; value: string; userI
   ].join("|");
 }
 
+function findFirstActionsBlock(payload: { blocks?: Array<{ type: string }> }) {
+  return payload.blocks?.find((block) => block.type === "actions") as
+    | { type: string; elements?: Array<{ type?: string; action_id?: string }> }
+    | undefined;
+}
+
 function createArgMenusHarness() {
   const commands = new Map<string, (args: unknown) => Promise<void>>();
   const actions = new Map<string, (args: unknown) => Promise<void>>();
@@ -298,10 +304,11 @@ describe("Slack native command argument menus", () => {
 
     expect(respond).toHaveBeenCalledTimes(1);
     const payload = respond.mock.calls[0]?.[0] as { blocks?: Array<{ type: string }> };
-    expect(payload.blocks?.[0]?.type).toBe("section");
-    expect(payload.blocks?.[1]?.type).toBe("actions");
-    const elementType = (payload.blocks?.[1] as { elements?: Array<{ type?: string }> } | undefined)
-      ?.elements?.[0]?.type;
+    expect(payload.blocks?.[0]?.type).toBe("header");
+    expect(payload.blocks?.[1]?.type).toBe("section");
+    expect(payload.blocks?.[2]?.type).toBe("context");
+    const actions = findFirstActionsBlock(payload);
+    const elementType = actions?.elements?.[0]?.type;
     expect(elementType).toBe("button");
   });
 
@@ -324,11 +331,11 @@ describe("Slack native command argument menus", () => {
 
     expect(respond).toHaveBeenCalledTimes(1);
     const payload = respond.mock.calls[0]?.[0] as { blocks?: Array<{ type: string }> };
-    expect(payload.blocks?.[0]?.type).toBe("section");
-    expect(payload.blocks?.[1]?.type).toBe("actions");
-    const element = (
-      payload.blocks?.[1] as { elements?: Array<{ type?: string; action_id?: string }> } | undefined
-    )?.elements?.[0];
+    expect(payload.blocks?.[0]?.type).toBe("header");
+    expect(payload.blocks?.[1]?.type).toBe("section");
+    expect(payload.blocks?.[2]?.type).toBe("context");
+    const actions = findFirstActionsBlock(payload);
+    const element = actions?.elements?.[0];
     expect(element?.type).toBe("static_select");
     expect(element?.action_id).toBe("openclaw_cmdarg");
   });
@@ -352,10 +359,8 @@ describe("Slack native command argument menus", () => {
 
     expect(respond).toHaveBeenCalledTimes(1);
     const payload = respond.mock.calls[0]?.[0] as { blocks?: Array<{ type: string }> };
-    expect(payload.blocks?.[1]?.type).toBe("actions");
-    const firstElement = (
-      payload.blocks?.[1] as { elements?: Array<{ type?: string }> } | undefined
-    )?.elements?.[0];
+    const actions = findFirstActionsBlock(payload);
+    const firstElement = actions?.elements?.[0];
     expect(firstElement?.type).toBe("button");
   });
 
@@ -378,10 +383,8 @@ describe("Slack native command argument menus", () => {
 
     expect(respond).toHaveBeenCalledTimes(1);
     const payload = respond.mock.calls[0]?.[0] as { blocks?: Array<{ type: string }> };
-    expect(payload.blocks?.[1]?.type).toBe("actions");
-    const element = (
-      payload.blocks?.[1] as { elements?: Array<{ type?: string; action_id?: string }> } | undefined
-    )?.elements?.[0];
+    const actions = findFirstActionsBlock(payload);
+    const element = actions?.elements?.[0];
     expect(element?.type).toBe("overflow");
     expect(element?.action_id).toBe("openclaw_cmdarg");
   });
