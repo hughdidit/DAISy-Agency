@@ -11,7 +11,9 @@ import {
   createAgentToAgentPolicy,
   classifySessionKind,
   deriveChannel,
+  listSpawnedSessionKeys,
   resolveDisplaySessionKey,
+  resolveEffectiveSessionToolsVisibility,
   resolveInternalSessionKey,
   resolveMainSessionAlias,
   type SessionListRow,
@@ -41,6 +43,7 @@ export function createSessionsListTool(opts?: {
     execute: async (_toolCallId, args) => {
       const params = args as Record<string, unknown>;
       const cfg = loadConfig();
+<<<<<<< HEAD
       const { mainKey, alias } = resolveMainSessionAlias(cfg);
       const visibility = resolveSandboxSessionToolsVisibility(cfg);
       const requesterInternalKey =
@@ -56,6 +59,19 @@ export function createSessionsListTool(opts?: {
         visibility === "spawned" &&
         requesterInternalKey &&
         !isSubagentSessionKey(requesterInternalKey);
+=======
+      const { mainKey, alias, requesterInternalKey, restrictToSpawned } =
+        resolveSandboxedSessionToolContext({
+          cfg,
+          agentSessionKey: opts?.agentSessionKey,
+          sandboxed: opts?.sandboxed,
+        });
+      const effectiveRequesterKey = requesterInternalKey ?? alias;
+      const visibility = resolveEffectiveSessionToolsVisibility({
+        cfg,
+        sandboxed: opts?.sandboxed === true,
+      });
+>>>>>>> c6c53437f (fix(security): scope session tools and webhook secret fallback)
 
       const kindsRaw = readStringArrayParam(params, "kinds")?.map((value) =>
         value.trim().toLowerCase(),
@@ -86,7 +102,7 @@ export function createSessionsListTool(opts?: {
           activeMinutes,
           includeGlobal: !restrictToSpawned,
           includeUnknown: !restrictToSpawned,
-          spawnedBy: restrictToSpawned ? requesterInternalKey : undefined,
+          spawnedBy: restrictToSpawned ? effectiveRequesterKey : undefined,
         },
       })) as {
         path?: string;
@@ -96,8 +112,12 @@ export function createSessionsListTool(opts?: {
       const sessions = Array.isArray(list?.sessions) ? list.sessions : [];
       const storePath = typeof list?.path === "string" ? list.path : undefined;
       const a2aPolicy = createAgentToAgentPolicy(cfg);
-      const requesterAgentId = resolveAgentIdFromSessionKey(requesterInternalKey);
+      const requesterAgentId = resolveAgentIdFromSessionKey(effectiveRequesterKey);
       const rows: SessionListRow[] = [];
+      const spawnedKeys =
+        visibility === "tree"
+          ? await listSpawnedSessionKeys({ requesterSessionKey: effectiveRequesterKey })
+          : null;
 
       for (const entry of sessions) {
         if (!entry || typeof entry !== "object") continue;
@@ -106,7 +126,25 @@ export function createSessionsListTool(opts?: {
 
         const entryAgentId = resolveAgentIdFromSessionKey(key);
         const crossAgent = entryAgentId !== requesterAgentId;
+<<<<<<< HEAD
         if (crossAgent && !a2aPolicy.isAllowed(requesterAgentId, entryAgentId)) continue;
+=======
+        if (crossAgent) {
+          if (visibility !== "all") {
+            continue;
+          }
+          if (!a2aPolicy.isAllowed(requesterAgentId, entryAgentId)) {
+            continue;
+          }
+        } else {
+          if (visibility === "self" && key !== effectiveRequesterKey) {
+            continue;
+          }
+          if (visibility === "tree" && key !== effectiveRequesterKey && !spawnedKeys?.has(key)) {
+            continue;
+          }
+        }
+>>>>>>> c6c53437f (fix(security): scope session tools and webhook secret fallback)
 
         if (key === "unknown") continue;
         if (key === "global" && alias !== "global") continue;

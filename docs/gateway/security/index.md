@@ -675,13 +675,49 @@ Common use cases:
           scope: "agent",
           workspaceAccess: "none"
         },
+        // Session tools can reveal sensitive data from transcripts. By default OpenClaw limits these tools
+        // to the current session + spawned subagent sessions, but you can clamp further if needed.
+        // See `tools.sessions.visibility` in the configuration reference.
         tools: {
+<<<<<<< HEAD
           allow: ["sessions_list", "sessions_history", "sessions_send", "sessions_spawn", "session_status", "whatsapp", "telegram", "slack", "discord"],
           deny: ["read", "write", "edit", "apply_patch", "exec", "process", "browser", "canvas", "nodes", "cron", "gateway", "image"]
         }
       }
     ]
   }
+=======
+          sessions: { visibility: "tree" }, // self | tree | agent | all
+          allow: [
+            "sessions_list",
+            "sessions_history",
+            "sessions_send",
+            "sessions_spawn",
+            "session_status",
+            "whatsapp",
+            "telegram",
+            "slack",
+            "discord",
+          ],
+          deny: [
+            "read",
+            "write",
+            "edit",
+            "apply_patch",
+            "exec",
+            "process",
+            "browser",
+            "canvas",
+            "nodes",
+            "cron",
+            "gateway",
+            "image",
+          ],
+        },
+      },
+    ],
+  },
+>>>>>>> c6c53437f (fix(security): scope session tools and webhook secret fallback)
 }
 ```
 
