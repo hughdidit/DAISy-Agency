@@ -1,5 +1,4 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
@@ -35,6 +34,7 @@ import {
   ZAI_CODING_CN_BASE_URL,
   ZAI_GLOBAL_BASE_URL,
 } from "./onboard-auth.js";
+<<<<<<< HEAD
 
 const authProfilePathFor = (agentDir: string) => path.join(agentDir, "auth-profiles.json");
 const requireAgentDir = () => {
@@ -49,6 +49,9 @@ const requireAgentDir = () => {
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return agentDir;
 };
+=======
+import { readAuthProfilesForAgent, setupAuthTestEnv } from "./test-wizard-helpers.js";
+>>>>>>> 94f455c69 (refactor(test): share auth test env/profile helpers)
 
 function createLegacyProviderConfig(params: {
   providerId: string;
@@ -122,11 +125,17 @@ describe("writeOAuthCredentials", () => {
 >>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
   });
 
+<<<<<<< HEAD
   it("writes auth-profiles.json under CLAWDBOT_AGENT_DIR when set", async () => {
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-oauth-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+=======
+  it("writes auth-profiles.json under OPENCLAW_AGENT_DIR when set", async () => {
+    const env = await setupAuthTestEnv("openclaw-oauth-");
+    tempStateDir = env.stateDir;
+>>>>>>> 94f455c69 (refactor(test): share auth test env/profile helpers)
 
     const creds = {
       refresh: "refresh-token",
@@ -136,11 +145,9 @@ describe("writeOAuthCredentials", () => {
 
     await writeOAuthCredentials("openai-codex", creds);
 
-    const authProfilePath = authProfilePathFor(requireAgentDir());
-    const raw = await fs.readFile(authProfilePath, "utf8");
-    const parsed = JSON.parse(raw) as {
+    const parsed = await readAuthProfilesForAgent<{
       profiles?: Record<string, OAuthCredentials & { type?: string }>;
-    };
+    }>(env.agentDir);
     expect(parsed.profiles?.["openai-codex:default"]).toMatchObject({
       refresh: "refresh-token",
       access: "access-token",
@@ -193,19 +200,23 @@ describe("setMinimaxApiKey", () => {
 >>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
   });
 
+<<<<<<< HEAD
   it("writes to CLAWDBOT_AGENT_DIR when set", async () => {
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-minimax-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
     process.env.CLAWDBOT_AGENT_DIR = path.join(tempStateDir, "custom-agent");
     process.env.PI_CODING_AGENT_DIR = process.env.CLAWDBOT_AGENT_DIR;
+=======
+  it("writes to OPENCLAW_AGENT_DIR when set", async () => {
+    const env = await setupAuthTestEnv("openclaw-minimax-", { agentSubdir: "custom-agent" });
+    tempStateDir = env.stateDir;
+>>>>>>> 94f455c69 (refactor(test): share auth test env/profile helpers)
 
     await setMinimaxApiKey("sk-minimax-test");
 
-    const customAuthPath = authProfilePathFor(requireAgentDir());
-    const raw = await fs.readFile(customAuthPath, "utf8");
-    const parsed = JSON.parse(raw) as {
+    const parsed = await readAuthProfilesForAgent<{
       profiles?: Record<string, { type?: string; provider?: string; key?: string }>;
-    };
+    }>(env.agentDir);
     expect(parsed.profiles?.["minimax:default"]).toMatchObject({
       type: "api_key",
       provider: "minimax",
