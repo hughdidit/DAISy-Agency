@@ -424,6 +424,7 @@ describe("resolveLaunchAgentPlistPath", () => {
       "/Users/test/Library/LaunchAgents/bot.molt.myprofile.plist",
     );
   });
+<<<<<<< HEAD
 
   it("handles case-insensitive 'Default' profile", () => {
     const env = { HOME: "/Users/test", CLAWDBOT_PROFILE: "Default" };
@@ -450,4 +451,6 @@ describe("resolveLaunchAgentPlistPath", () => {
       "/Users/test/Library/LaunchAgents/bot.molt.myprofile.plist",
     );
   });
+=======
+>>>>>>> 1ec0f3b81 (test: drop redundant daemon profile normalization wrappers)
 });

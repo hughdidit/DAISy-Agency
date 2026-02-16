@@ -120,6 +120,7 @@ describe("resolveSystemdUserUnitPath", () => {
       "/home/test/.config/systemd/user/custom-unit.service",
     );
   });
+<<<<<<< HEAD
 
   it("handles case-insensitive 'Default' profile", () => {
     const env = { HOME: "/home/test", CLAWDBOT_PROFILE: "Default" };
@@ -146,6 +147,8 @@ describe("resolveSystemdUserUnitPath", () => {
       "/home/test/.config/systemd/user/moltbot-gateway-myprofile.service",
     );
   });
+=======
+>>>>>>> 1ec0f3b81 (test: drop redundant daemon profile normalization wrappers)
 });
 
 describe("splitArgsPreservingQuotes", () => {

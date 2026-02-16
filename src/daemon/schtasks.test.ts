@@ -71,6 +71,7 @@ describe("resolveTaskScriptPath", () => {
     expect(resolveTaskScriptPath(env)).toBe(path.join("C:\\State\\moltbot", "gateway.cmd"));
   });
 
+<<<<<<< HEAD
   it("handles case-insensitive 'Default' profile", () => {
     const env = { USERPROFILE: "C:\\Users\\test", CLAWDBOT_PROFILE: "Default" };
     expect(resolveTaskScriptPath(env)).toBe(
@@ -97,6 +98,8 @@ describe("resolveTaskScriptPath", () => {
     );
   });
 
+=======
+>>>>>>> 1ec0f3b81 (test: drop redundant daemon profile normalization wrappers)
   it("falls back to HOME when USERPROFILE is not set", () => {
     const env = { HOME: "/home/test", CLAWDBOT_PROFILE: "default" };
     expect(resolveTaskScriptPath(env)).toBe(path.join("/home/test", ".clawdbot", "gateway.cmd"));
