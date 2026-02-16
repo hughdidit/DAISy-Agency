@@ -3,20 +3,24 @@ import type { CoreConfig } from "./core-bridge.js";
 =======
 >>>>>>> dd319d05d (fix: apply oxfmt formatting)
 import type { VoiceCallConfig } from "./config.js";
-import { resolveVoiceCallConfig, validateProviderConfig } from "./config.js";
 import type { CoreConfig } from "./core-bridge.js";
+<<<<<<< HEAD
 import { CallManager } from "./manager.js";
 <<<<<<< HEAD
 import type { Logger } from "./manager/context.js";
 import { defaultLogger } from "./manager/context.js";
 =======
 >>>>>>> dd319d05d (fix: apply oxfmt formatting)
+=======
+>>>>>>> 0291ce30a (fix: apply oxfmt 0.32.0 formatting (match CI version))
 import type { VoiceCallProvider } from "./providers/base.js";
+import type { TelephonyTtsRuntime } from "./telephony-tts.js";
+import { resolveVoiceCallConfig, validateProviderConfig } from "./config.js";
+import { CallManager } from "./manager.js";
 import { MockProvider } from "./providers/mock.js";
 import { PlivoProvider } from "./providers/plivo.js";
 import { TelnyxProvider } from "./providers/telnyx.js";
 import { TwilioProvider } from "./providers/twilio.js";
-import type { TelephonyTtsRuntime } from "./telephony-tts.js";
 import { createTelephonyTtsProvider } from "./telephony-tts.js";
 import { startTunnel, type TunnelResult } from "./tunnel.js";
 import {
