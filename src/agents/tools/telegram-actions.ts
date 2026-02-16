@@ -4,6 +4,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { TelegramButtonStyle, TelegramInlineButtons } from "../../telegram/button-types.js";
+import { resolveTelegramAccount } from "../../telegram/accounts.js";
 import {
   resolveTelegramInlineButtonsScope,
   resolveTelegramTargetChatType,
