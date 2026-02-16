@@ -102,6 +102,7 @@ import {
   LogsTailResultSchema,
 } from "./logs-chat.js";
 import {
+  MeshPlanAutoParamsSchema,
   MeshPlanParamsSchema,
   MeshRetryParamsSchema,
   MeshRunParamsSchema,
@@ -258,6 +259,7 @@ export const ProtocolSchemas: Record<string, TSchema> = {
   ChatInjectParams: ChatInjectParamsSchema,
   ChatEvent: ChatEventSchema,
   MeshPlanParams: MeshPlanParamsSchema,
+  MeshPlanAutoParams: MeshPlanAutoParamsSchema,
   MeshWorkflowPlan: MeshWorkflowPlanSchema,
   MeshRunParams: MeshRunParamsSchema,
   MeshStatusParams: MeshStatusParamsSchema,
