@@ -437,10 +437,16 @@ export async function sanitizeSessionHistory(params: {
         modelId: params.modelId,
       })
     : false;
+<<<<<<< HEAD
   const sanitizedOpenAI =
     isOpenAIResponsesApi && modelChanged
       ? downgradeOpenAIReasoningBlocks(repairedTools)
       : repairedTools;
+=======
+  const sanitizedOpenAI = isOpenAIResponsesApi
+    ? downgradeOpenAIReasoningBlocks(sanitizedToolResults)
+    : sanitizedToolResults;
+>>>>>>> 46bf210e0 (fix: always drop orphaned OpenAI reasoning blocks in session history)
 
   if (hasSnapshot && (!priorSnapshot || modelChanged)) {
     appendModelSnapshot(params.sessionManager, {

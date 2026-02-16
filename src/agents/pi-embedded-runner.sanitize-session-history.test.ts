@@ -228,12 +228,36 @@ describe("sanitizeSessionHistory", () => {
       messages,
       modelApi: "openai-responses",
       provider: "openai",
+<<<<<<< HEAD
+=======
+      sessionManager: mockSessionManager,
+      sessionId: "test-session",
+    });
+
+    expect(result.map((msg) => msg.role)).toEqual(["user"]);
+  });
+
+  it("downgrades orphaned openai reasoning even when the model has not changed", async () => {
+    const sessionEntries = [
+      makeModelSnapshotEntry({
+        provider: "openai",
+        modelApi: "openai-responses",
+        modelId: "gpt-5.2-codex",
+      }),
+    ];
+    const sessionManager = makeInMemorySessionManager(sessionEntries);
+    const messages = makeReasoningAssistantMessages({ thinkingSignature: "json" });
+
+    const result = await sanitizeWithOpenAIResponses({
+      sanitizeSessionHistory,
+      messages,
+>>>>>>> 46bf210e0 (fix: always drop orphaned OpenAI reasoning blocks in session history)
       modelId: "gpt-5.2-codex",
       sessionManager,
       sessionId: "test-session",
     });
 
-    expect(result).toEqual(messages);
+    expect(result).toEqual([]);
   });
 
   it("downgrades openai reasoning only when the model changes", async () => {
