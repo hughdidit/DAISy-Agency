@@ -353,6 +353,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     });
   });
 
+<<<<<<< HEAD
   it("keeps explicit telegram targets", () => {
     const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } },
@@ -366,6 +367,8 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     });
   });
 
+=======
+>>>>>>> 7a6928712 (test: remove redundant explicit telegram heartbeat target case)
   it("uses explicit heartbeat accountId when provided", () => {
     const cfg: OpenClawConfig = {
       agents: {
