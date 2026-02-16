@@ -22,6 +22,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.31
 =======
 =======
@@ -39,6 +40,8 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 >>>>>>> 01b1e350b (docs: note Control UI XSS fix)
+=======
+>>>>>>> cbc3de6c9 (docs(changelog): fix conflict marker)
 ## 2026.2.15 (Unreleased)
 
 ### Changes
@@ -77,7 +80,11 @@ Docs: https://docs.openclaw.ai
 - Cron: infer `payload.kind="agentTurn"` for model-only `cron.update` payload patches, so partial agent-turn updates do not fail validation when `kind` is omitted. (#15664) Thanks @rodrigouroz.
 - Subagents: use child-run-based deterministic announce idempotency keys across direct and queued delivery paths (with legacy queued-item fallback) to prevent duplicate announce retries without collapsing distinct same-millisecond announces. (#17150) Thanks @widingmarcus-cyber.
 - Discord: ensure role allowlist matching uses raw role IDs for message routing authorization. Thanks @xinhuagu.
+<<<<<<< HEAD
 >>>>>>> 01b1e350b (docs: note Control UI XSS fix)
+=======
+
+>>>>>>> cbc3de6c9 (docs(changelog): fix conflict marker)
 ## 2026.2.14
 >>>>>>> 58548c729 (docs(changelog): mark 2026.2.14 released)
 
