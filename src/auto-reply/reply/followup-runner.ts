@@ -196,10 +196,16 @@ export function createFollowupRunner(params: {
       }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       const usage = runResult.meta.agentMeta?.usage;
       const promptTokens = runResult.meta.agentMeta?.promptTokens;
       const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
+=======
+      const usage = runResult.meta?.agentMeta?.usage;
+      const promptTokens = runResult.meta?.agentMeta?.promptTokens;
+      const modelUsed = runResult.meta?.agentMeta?.model ?? fallbackModel ?? defaultModel;
+>>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
       const contextTokensUsed =
         agentCfgContextTokens ??
         lookupContextTokens(modelUsed) ??
@@ -221,8 +227,12 @@ export function createFollowupRunner(params: {
           sessionKey,
           usage,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
           lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
+=======
+          lastCallUsage: runResult.meta?.agentMeta?.lastCallUsage,
+>>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
           promptTokens,
 >>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
           modelUsed,
@@ -290,6 +300,11 @@ export function createFollowupRunner(params: {
           sessionStore,
           sessionKey,
           storePath,
+<<<<<<< HEAD
+=======
+          lastCallUsage: runResult.meta?.agentMeta?.lastCallUsage,
+          contextTokensUsed,
+>>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
         });
         if (queued.run.verboseLevel && queued.run.verboseLevel !== "off") {
           const suffix = typeof count === "number" ? ` (count ${count})` : "";
