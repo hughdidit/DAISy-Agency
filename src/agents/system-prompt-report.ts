@@ -38,14 +38,13 @@ function parseSkillBlocks(skillsPrompt: string): Array<{ name: string; blockChar
 function buildInjectedWorkspaceFiles(params: {
   bootstrapFiles: WorkspaceBootstrapFile[];
   injectedFiles: EmbeddedContextFile[];
-  bootstrapMaxChars: number;
 }): SessionSystemPromptReport["injectedWorkspaceFiles"] {
   const injectedByName = new Map(params.injectedFiles.map((f) => [f.path, f.content]));
   return params.bootstrapFiles.map((file) => {
     const rawChars = file.missing ? 0 : (file.content ?? "").trimEnd().length;
     const injected = injectedByName.get(file.name);
     const injectedChars = injected ? injected.length : 0;
-    const truncated = !file.missing && rawChars > params.bootstrapMaxChars;
+    const truncated = !file.missing && injectedChars < rawChars;
     return {
       name: file.name,
       path: file.path,
@@ -107,6 +106,7 @@ export function buildSystemPromptReport(params: {
   model?: string;
   workspaceDir?: string;
   bootstrapMaxChars: number;
+  bootstrapTotalMaxChars?: number;
   sandbox?: SessionSystemPromptReport["sandbox"];
   systemPrompt: string;
   bootstrapFiles: WorkspaceBootstrapFile[];
@@ -136,6 +136,7 @@ export function buildSystemPromptReport(params: {
     model: params.model,
     workspaceDir: params.workspaceDir,
     bootstrapMaxChars: params.bootstrapMaxChars,
+    bootstrapTotalMaxChars: params.bootstrapTotalMaxChars,
     sandbox: params.sandbox,
     systemPrompt: {
       chars: systemPrompt.length,
@@ -145,7 +146,6 @@ export function buildSystemPromptReport(params: {
     injectedWorkspaceFiles: buildInjectedWorkspaceFiles({
       bootstrapFiles: params.bootstrapFiles,
       injectedFiles: params.injectedFiles,
-      bootstrapMaxChars: params.bootstrapMaxChars,
     }),
     skills: {
       promptChars: params.skillsPrompt.length,
