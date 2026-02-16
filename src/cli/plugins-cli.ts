@@ -142,7 +142,11 @@ function logSlotWarnings(warnings: string[]) {
 export function registerPluginsCli(program: Command) {
   const plugins = program
     .command("plugins")
+<<<<<<< HEAD
     .description("Manage Moltbot plugins/extensions")
+=======
+    .description("Manage OpenClaw plugins and extensions")
+>>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
     .addHelpText(
       "after",
       () =>

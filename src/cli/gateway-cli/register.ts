@@ -22,6 +22,7 @@ import {
 } from "../daemon-cli.js";
 =======
 import { addGatewayServiceCommands } from "../daemon-cli.js";
+import { formatHelpExamples } from "../help-format.js";
 import { withProgress } from "../progress.js";
 >>>>>>> 7a63b046d (refactor(cli): share gateway service subcommands)
 import { callGatewayCli, gatewayCallOpts } from "./call.js";
@@ -86,11 +87,20 @@ export function registerGatewayCli(program: Command) {
   const gateway = addGatewayRunCommand(
     program
       .command("gateway")
-      .description("Run the WebSocket Gateway")
+      .description("Run, inspect, and query the WebSocket Gateway")
       .addHelpText(
         "after",
         () =>
+<<<<<<< HEAD
           `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.molt.bot/cli/gateway")}\n`,
+=======
+          `\n${theme.heading("Examples:")}\n${formatHelpExamples([
+            ["openclaw gateway run", "Run the gateway in the foreground."],
+            ["openclaw gateway status", "Show service status and probe reachability."],
+            ["openclaw gateway discover", "Find local and wide-area gateway beacons."],
+            ["openclaw gateway call health", "Call a gateway RPC method directly."],
+          ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/gateway", "docs.openclaw.ai/cli/gateway")}\n`,
+>>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
       ),
   );
 

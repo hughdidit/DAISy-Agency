@@ -18,6 +18,12 @@ import { formatDocsLink } from "../terminal/links.js";
 import { colorize, isRich, theme } from "../terminal/theme.js";
 import { resolveStateDir } from "../config/paths.js";
 import { shortenHomeInString, shortenHomePath } from "../utils.js";
+<<<<<<< HEAD
+=======
+import { formatErrorMessage, withManager } from "./cli-utils.js";
+import { formatHelpExamples } from "./help-format.js";
+import { withProgress, withProgressTotals } from "./progress.js";
+>>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
 
 type MemoryCommandOptions = {
   agent?: string;
@@ -517,11 +523,20 @@ export async function runMemoryStatus(opts: MemoryCommandOptions) {
 export function registerMemoryCli(program: Command) {
   const memory = program
     .command("memory")
-    .description("Memory search tools")
+    .description("Search, inspect, and reindex memory files")
     .addHelpText(
       "after",
       () =>
+<<<<<<< HEAD
         `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/memory", "docs.molt.bot/cli/memory")}\n`,
+=======
+        `\n${theme.heading("Examples:")}\n${formatHelpExamples([
+          ["openclaw memory status", "Show index and provider status."],
+          ["openclaw memory index --force", "Force a full reindex."],
+          ['openclaw memory search --query "deployment notes"', "Search indexed memory entries."],
+          ["openclaw memory status --json", "Output machine-readable JSON."],
+        ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/memory", "docs.openclaw.ai/cli/memory")}\n`,
+>>>>>>> b25f334fa (CLI: improve command descriptions in help output (#18486))
     );
 
   memory

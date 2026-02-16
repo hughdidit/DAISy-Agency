@@ -24,7 +24,7 @@ import { registerMessageBroadcastCommand } from "./message/register.broadcast.js
 export function registerMessageCommands(program: Command, ctx: ProgramContext) {
   const message = program
     .command("message")
-    .description("Send messages and channel actions")
+    .description("Send, read, and manage messages and channel actions")
     .addHelpText(
       "after",
       () =>
