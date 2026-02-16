@@ -24,7 +24,11 @@ export class VoiceCallWebhookServer {
   private manager: CallManager;
   private provider: VoiceCallProvider;
   private coreConfig: CoreConfig | null;
+<<<<<<< HEAD
   private readonly logger: Logger;
+=======
+  private staleCallReaperInterval: ReturnType<typeof setInterval> | null = null;
+>>>>>>> 390c503b5 (feat(voice-call): add configurable stale call reaper)
 
   /** Media stream handler for bidirectional audio (when streaming enabled) */
   private mediaStreamHandler: MediaStreamHandler | null = null;
@@ -258,14 +262,49 @@ export class VoiceCallWebhookServer {
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
         }
         resolve(url);
+
+        // Start the stale call reaper if configured
+        this.startStaleCallReaper();
       });
     });
+  }
+
+  /**
+   * Start a periodic reaper that ends calls older than the configured threshold.
+   * Catches calls stuck in unexpected states (e.g., notify-mode calls that never
+   * receive a terminal webhook from the provider).
+   */
+  private startStaleCallReaper(): void {
+    const maxAgeSeconds = this.config.staleCallReaperSeconds;
+    if (!maxAgeSeconds || maxAgeSeconds <= 0) {
+      return;
+    }
+
+    const CHECK_INTERVAL_MS = 30_000; // Check every 30 seconds
+    const maxAgeMs = maxAgeSeconds * 1000;
+
+    this.staleCallReaperInterval = setInterval(() => {
+      const now = Date.now();
+      for (const call of this.manager.getActiveCalls()) {
+        const age = now - call.startedAt;
+        if (age > maxAgeMs) {
+          console.log(
+            `[voice-call] Reaping stale call ${call.callId} (age: ${Math.round(age / 1000)}s, state: ${call.state})`,
+          );
+          void this.manager.endCall(call.callId).catch(() => {});
+        }
+      }
+    }, CHECK_INTERVAL_MS);
   }
 
   /**
    * Stop the webhook server.
    */
   async stop(): Promise<void> {
+    if (this.staleCallReaperInterval) {
+      clearInterval(this.staleCallReaperInterval);
+      this.staleCallReaperInterval = null;
+    }
     return new Promise((resolve) => {
       if (this.server) {
         this.server.close(() => {
