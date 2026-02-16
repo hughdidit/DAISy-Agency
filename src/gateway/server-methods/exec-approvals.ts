@@ -16,6 +16,7 @@ import {
   validateExecApprovalsSetParams,
 } from "../protocol/index.js";
 import { resolveBaseHashParam } from "./base-hash.js";
+<<<<<<< HEAD
 import { respondUnavailableOnThrow, safeParseJson } from "./nodes.helpers.js";
 <<<<<<< HEAD
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
@@ -29,6 +30,13 @@ function resolveBaseHash(params: unknown): string | null {
   return trimmed ? trimmed : null;
 }
 =======
+=======
+import {
+  respondUnavailableOnNodeInvokeError,
+  respondUnavailableOnThrow,
+  safeParseJson,
+} from "./nodes.helpers.js";
+>>>>>>> 73a97ee25 (refactor(gateway): share node invoke error handling)
 import { assertValidParams } from "./validation.js";
 >>>>>>> b743e652c (refactor(gateway): reuse shared validators + baseHash)
 
@@ -159,14 +167,7 @@ export const execApprovalsHandlers: GatewayRequestHandlers = {
         command: "system.execApprovals.get",
         params: {},
       });
-      if (!res.ok) {
-        respond(
-          false,
-          undefined,
-          errorShape(ErrorCodes.UNAVAILABLE, res.error?.message ?? "node invoke failed", {
-            details: { nodeError: res.error ?? null },
-          }),
-        );
+      if (!respondUnavailableOnNodeInvokeError(respond, res)) {
         return;
       }
       const payload = res.payloadJSON ? safeParseJson(res.payloadJSON) : res.payload;
@@ -200,14 +201,7 @@ export const execApprovalsHandlers: GatewayRequestHandlers = {
         command: "system.execApprovals.set",
         params: { file, baseHash },
       });
-      if (!res.ok) {
-        respond(
-          false,
-          undefined,
-          errorShape(ErrorCodes.UNAVAILABLE, res.error?.message ?? "node invoke failed", {
-            details: { nodeError: res.error ?? null },
-          }),
-        );
+      if (!respondUnavailableOnNodeInvokeError(respond, res)) {
         return;
       }
       const payload = safeParseJson(res.payloadJSON ?? null);
