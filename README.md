@@ -342,8 +342,12 @@ Runbook: [iOS connect](https://docs.molt.bot/platforms/ios).
 - Runbook: [Android connect](https://docs.openclaw.ai/platforms/android).
 - Install: [OpenClaw for Android](https://github.com/irtiq7/OpenClaw-Android).
 
+<<<<<<< HEAD
 >>>>>>> 57aef596b (Revise Android installation link in README)
 
+=======
+## Agent workspace + skills
+>>>>>>> e759b4cd5 (Update README.md)
 ## Agent workspace + skills
 
 - Workspace root: `~/clawd` (configurable via `agents.defaults.workspace`).
