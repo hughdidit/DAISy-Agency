@@ -12,6 +12,7 @@ import {
   isSafeBinUsage,
   matchAllowlist,
   maxAsk,
+  mergeExecApprovalsSocketDefaults,
   minSecurity,
   normalizeExecApprovals,
   normalizeSafeBins,
@@ -80,6 +81,67 @@ describe("exec approvals allowlist matching", () => {
   });
 });
 
+<<<<<<< HEAD
+=======
+describe("mergeExecApprovalsSocketDefaults", () => {
+  it("prefers normalized socket, then current, then default path", () => {
+    const normalized = normalizeExecApprovals({
+      version: 1,
+      agents: {},
+      socket: { path: "/tmp/a.sock", token: "a" },
+    });
+    const current = normalizeExecApprovals({
+      version: 1,
+      agents: {},
+      socket: { path: "/tmp/b.sock", token: "b" },
+    });
+    const merged = mergeExecApprovalsSocketDefaults({ normalized, current });
+    expect(merged.socket?.path).toBe("/tmp/a.sock");
+    expect(merged.socket?.token).toBe("a");
+  });
+
+  it("falls back to current token when missing in normalized", () => {
+    const normalized = normalizeExecApprovals({ version: 1, agents: {} });
+    const current = normalizeExecApprovals({
+      version: 1,
+      agents: {},
+      socket: { path: "/tmp/b.sock", token: "b" },
+    });
+    const merged = mergeExecApprovalsSocketDefaults({ normalized, current });
+    expect(merged.socket?.path).toBeTruthy();
+    expect(merged.socket?.token).toBe("b");
+  });
+});
+
+describe("exec approvals safe shell command builder", () => {
+  it("quotes only safeBins segments (leaves other segments untouched)", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+
+    const analysis = analyzeShellCommand({
+      command: "rg foo src/*.ts | head -n 5 && echo ok",
+      cwd: "/tmp",
+      env: { PATH: "/usr/bin:/bin" },
+      platform: process.platform,
+    });
+    expect(analysis.ok).toBe(true);
+
+    const res = buildSafeBinsShellCommand({
+      command: "rg foo src/*.ts | head -n 5 && echo ok",
+      segments: analysis.segments,
+      segmentSatisfiedBy: [null, "safeBins", null],
+      platform: process.platform,
+    });
+    expect(res.ok).toBe(true);
+    // Preserve non-safeBins segment raw (glob stays unquoted)
+    expect(res.command).toContain("rg foo src/*.ts");
+    // SafeBins segment is fully quoted
+    expect(res.command).toContain("'head' '-n' '5'");
+  });
+});
+
+>>>>>>> fdd0e78d1 (perf(test): fold exec approvals socket defaults into main suite)
 describe("exec approvals command resolution", () => {
   it("resolves PATH executables", () => {
     const dir = makeTempDir();
