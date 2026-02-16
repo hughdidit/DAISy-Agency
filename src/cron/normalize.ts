@@ -148,7 +148,19 @@ function coerceDelivery(delivery: UnknownRecord) {
   const next: UnknownRecord = { ...delivery };
   if (typeof delivery.mode === "string") {
     const mode = delivery.mode.trim().toLowerCase();
+<<<<<<< HEAD
     next.mode = mode === "deliver" ? "announce" : mode;
+=======
+    if (mode === "deliver") {
+      next.mode = "announce";
+    } else if (mode === "announce" || mode === "none" || mode === "webhook") {
+      next.mode = mode;
+    } else {
+      delete next.mode;
+    }
+  } else if ("mode" in next) {
+    delete next.mode;
+>>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
   }
   if (typeof delivery.channel === "string") {
     const trimmed = delivery.channel.trim().toLowerCase();

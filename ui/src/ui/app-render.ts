@@ -122,6 +122,7 @@ import {
   removeCronJob,
   addCronJob,
 <<<<<<< HEAD
+<<<<<<< HEAD
 } from "./controllers/cron";
 import { loadDebug, callDebugMethod } from "./controllers/debug";
 <<<<<<< HEAD
@@ -129,6 +130,9 @@ import { loadLogs } from "./controllers/logs";
 =======
 =======
 =======
+=======
+  normalizeCronFormState,
+>>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
 } from "./controllers/cron.ts";
 import { loadDebug, callDebugMethod } from "./controllers/debug.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
@@ -474,7 +478,8 @@ export function renderApp(state: AppViewState) {
                 channelMeta: state.channelsSnapshot?.channelMeta ?? [],
                 runsJobId: state.cronRunsJobId,
                 runs: state.cronRuns,
-                onFormChange: (patch) => (state.cronForm = { ...state.cronForm, ...patch }),
+                onFormChange: (patch) =>
+                  (state.cronForm = normalizeCronFormState({ ...state.cronForm, ...patch })),
                 onRefresh: () => state.loadCron(),
                 onAdd: () => addCronJob(state),
                 onToggle: (job, enabled) => toggleCronJob(state, job, enabled),

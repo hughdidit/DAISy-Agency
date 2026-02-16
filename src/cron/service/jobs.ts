@@ -15,7 +15,11 @@ import type {
 import type { CronServiceState } from "./state.js";
 import { parseAbsoluteTimeMs } from "../parse.js";
 import { computeNextRunAtMs } from "../schedule.js";
+<<<<<<< HEAD
 >>>>>>> 3f82daefd (feat(cron): enhance delivery modes and job configuration)
+=======
+import { normalizeHttpWebhookUrl } from "../webhook-url.js";
+>>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
 import {
   normalizeOptionalAgentId,
   normalizeOptionalText,
@@ -36,8 +40,19 @@ export function assertSupportedJobSpec(job: Pick<CronJob, "sessionTarget" | "pay
 }
 
 function assertDeliverySupport(job: Pick<CronJob, "sessionTarget" | "delivery">) {
-  if (job.delivery && job.sessionTarget !== "isolated") {
-    throw new Error('cron delivery config is only supported for sessionTarget="isolated"');
+  if (!job.delivery) {
+    return;
+  }
+  if (job.delivery.mode === "webhook") {
+    const target = normalizeHttpWebhookUrl(job.delivery.to);
+    if (!target) {
+      throw new Error("cron webhook delivery requires delivery.to to be a valid http(s) URL");
+    }
+    job.delivery.to = target;
+    return;
+  }
+  if (job.sessionTarget !== "isolated") {
+    throw new Error('cron channel delivery config is only supported for sessionTarget="isolated"');
   }
 }
 
@@ -283,7 +298,6 @@ export function createJob(state: CronServiceState, input: CronJobCreate): CronJo
     name: normalizeRequiredName(input.name),
     description: normalizeOptionalText(input.description),
     enabled,
-    notify: typeof input.notify === "boolean" ? input.notify : undefined,
     deleteAfterRun,
     createdAtMs: now,
     updatedAtMs: now,
@@ -311,9 +325,6 @@ export function applyJobPatch(job: CronJob, patch: CronJobPatch) {
   }
   if (typeof patch.enabled === "boolean") {
     job.enabled = patch.enabled;
-  }
-  if (typeof patch.notify === "boolean") {
-    job.notify = patch.notify;
   }
   if (typeof patch.deleteAfterRun === "boolean") {
     job.deleteAfterRun = patch.deleteAfterRun;
@@ -344,7 +355,7 @@ export function applyJobPatch(job: CronJob, patch: CronJobPatch) {
   if (patch.delivery) {
     job.delivery = mergeCronDelivery(job.delivery, patch.delivery);
   }
-  if (job.sessionTarget === "main" && job.delivery) {
+  if (job.sessionTarget === "main" && job.delivery?.mode !== "webhook") {
     job.delivery = undefined;
   }
   if (patch.state) {
