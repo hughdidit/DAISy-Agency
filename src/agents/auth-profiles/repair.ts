@@ -1,10 +1,15 @@
 import type { MoltbotConfig } from "../../config/config.js";
 import type { AuthProfileConfig } from "../../config/types.js";
+<<<<<<< HEAD
 import { normalizeProviderId } from "../model-selection.js";
 <<<<<<< HEAD
 import { listProfilesForProvider } from "./profiles.js";
 import type { AuthProfileIdRepairResult, AuthProfileStore } from "./types.js";
 =======
+=======
+import type { AuthProfileIdRepairResult, AuthProfileStore } from "./types.js";
+import { findNormalizedProviderKey, normalizeProviderId } from "../model-selection.js";
+>>>>>>> 9f0fc74d1 (refactor(model): share normalized provider map lookups)
 import { dedupeProfileIds, listProfilesForProvider } from "./profiles.js";
 >>>>>>> 230e1d996 (refactor(auth): share profile id dedupe helper)
 
@@ -132,7 +137,7 @@ export function repairOAuthProfileIdMismatch(params: {
     if (!order) {
       return undefined;
     }
-    const resolvedKey = Object.keys(order).find((key) => normalizeProviderId(key) === providerKey);
+    const resolvedKey = findNormalizedProviderKey(order, providerKey);
     if (!resolvedKey) {
       return order;
     }

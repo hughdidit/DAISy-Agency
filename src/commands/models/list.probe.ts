@@ -8,6 +8,17 @@ import {
   resolveAuthProfileDisplayLabel,
   resolveAuthProfileOrder,
 } from "../../agents/auth-profiles.js";
+<<<<<<< HEAD
+=======
+import { describeFailoverError } from "../../agents/failover-error.js";
+import { getCustomProviderApiKey, resolveEnvApiKey } from "../../agents/model-auth.js";
+import { loadModelCatalog } from "../../agents/model-catalog.js";
+import {
+  findNormalizedProviderValue,
+  normalizeProviderId,
+  parseModelRef,
+} from "../../agents/model-selection.js";
+>>>>>>> 9f0fc74d1 (refactor(model): share normalized provider map lookups)
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 import { describeFailoverError } from "../../agents/failover-error.js";
 import { loadModelCatalog } from "../../agents/model-catalog.js";
@@ -165,23 +176,10 @@ function buildProbeTargets(params: {
 
       const profileIds = listProfilesForProvider(store, providerKey);
       const explicitOrder = (() => {
-        const order = store.order;
-        if (order) {
-          for (const [key, value] of Object.entries(order)) {
-            if (normalizeProviderId(key) === providerKey) {
-              return value;
-            }
-          }
-        }
-        const cfgOrder = cfg?.auth?.order;
-        if (cfgOrder) {
-          for (const [key, value] of Object.entries(cfgOrder)) {
-            if (normalizeProviderId(key) === providerKey) {
-              return value;
-            }
-          }
-        }
-        return undefined;
+        return (
+          findNormalizedProviderValue(store.order, providerKey) ??
+          findNormalizedProviderValue(cfg?.auth?.order, providerKey)
+        );
       })();
       const allowedProfiles =
         explicitOrder && explicitOrder.length > 0

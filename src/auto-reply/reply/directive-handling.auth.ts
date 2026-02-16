@@ -9,8 +9,12 @@ import {
   resolveAuthProfileOrder,
   resolveEnvApiKey,
 } from "../../agents/model-auth.js";
+<<<<<<< HEAD
 import { normalizeProviderId } from "../../agents/model-selection.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import { findNormalizedProviderValue, normalizeProviderId } from "../../agents/model-selection.js";
+>>>>>>> 9f0fc74d1 (refactor(model): share normalized provider map lookups)
 import { shortenHomePath } from "../../utils.js";
 
 export type ModelAuthDetailMode = "compact" | "verbose";
@@ -39,18 +43,7 @@ export const resolveAuthLabel = async (
   });
   const order = resolveAuthProfileOrder({ cfg, store, provider });
   const providerKey = normalizeProviderId(provider);
-  const lastGood = (() => {
-    const map = store.lastGood;
-    if (!map) {
-      return undefined;
-    }
-    for (const [key, value] of Object.entries(map)) {
-      if (normalizeProviderId(key) === providerKey) {
-        return value;
-      }
-    }
-    return undefined;
-  })();
+  const lastGood = findNormalizedProviderValue(store.lastGood, providerKey);
   const nextProfileId = order[0];
   const now = Date.now();
 

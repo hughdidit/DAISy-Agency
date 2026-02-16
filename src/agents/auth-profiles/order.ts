@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { normalizeProviderId } from "../model-selection.js";
 <<<<<<< HEAD
@@ -7,6 +8,11 @@ import type { AuthProfileStore } from "./types.js";
 import { isProfileInCooldown } from "./usage.js";
 =======
 =======
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AuthProfileStore } from "./types.js";
+import { findNormalizedProviderValue, normalizeProviderId } from "../model-selection.js";
+>>>>>>> 9f0fc74d1 (refactor(model): share normalized provider map lookups)
 import { dedupeProfileIds, listProfilesForProvider } from "./profiles.js";
 >>>>>>> 230e1d996 (refactor(auth): share profile id dedupe helper)
 import { clearExpiredCooldowns, isProfileInCooldown } from "./usage.js";
@@ -39,30 +45,8 @@ export function resolveAuthProfileOrder(params: {
   // get a fresh error count and are not immediately re-penalized on the
   // next transient failure. See #3604.
   clearExpiredCooldowns(store, now);
-  const storedOrder = (() => {
-    const order = store.order;
-    if (!order) {
-      return undefined;
-    }
-    for (const [key, value] of Object.entries(order)) {
-      if (normalizeProviderId(key) === providerKey) {
-        return value;
-      }
-    }
-    return undefined;
-  })();
-  const configuredOrder = (() => {
-    const order = cfg?.auth?.order;
-    if (!order) {
-      return undefined;
-    }
-    for (const [key, value] of Object.entries(order)) {
-      if (normalizeProviderId(key) === providerKey) {
-        return value;
-      }
-    }
-    return undefined;
-  })();
+  const storedOrder = findNormalizedProviderValue(store.order, providerKey);
+  const configuredOrder = findNormalizedProviderValue(cfg?.auth?.order, providerKey);
   const explicitOrder = storedOrder ?? configuredOrder;
   const explicitProfiles = cfg?.auth?.profiles
     ? Object.entries(cfg.auth.profiles)

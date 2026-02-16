@@ -51,7 +51,38 @@ export function normalizeProviderId(provider: string): string {
   return normalized;
 }
 
+<<<<<<< HEAD
 export function isCliProvider(provider: string, cfg?: MoltbotConfig): boolean {
+=======
+export function findNormalizedProviderValue<T>(
+  entries: Record<string, T> | undefined,
+  provider: string,
+): T | undefined {
+  if (!entries) {
+    return undefined;
+  }
+  const providerKey = normalizeProviderId(provider);
+  for (const [key, value] of Object.entries(entries)) {
+    if (normalizeProviderId(key) === providerKey) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+export function findNormalizedProviderKey(
+  entries: Record<string, unknown> | undefined,
+  provider: string,
+): string | undefined {
+  if (!entries) {
+    return undefined;
+  }
+  const providerKey = normalizeProviderId(provider);
+  return Object.keys(entries).find((key) => normalizeProviderId(key) === providerKey);
+}
+
+export function isCliProvider(provider: string, cfg?: OpenClawConfig): boolean {
+>>>>>>> 9f0fc74d1 (refactor(model): share normalized provider map lookups)
   const normalized = normalizeProviderId(provider);
   if (normalized === "claude-cli") {
     return true;
