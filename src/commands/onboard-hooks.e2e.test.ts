@@ -40,10 +40,50 @@ describe("onboard-hooks", () => {
     exit: vi.fn(),
   });
 
+  const createMockHook = (
+    params: {
+      name: string;
+      description: string;
+      filePath: string;
+      baseDir: string;
+      handlerPath: string;
+      hookKey: string;
+      emoji: string;
+      events: string[];
+    },
+    eligible: boolean,
+  ) => ({
+    ...params,
+    source: "openclaw-bundled" as const,
+    pluginId: undefined,
+    homepage: undefined,
+    always: false,
+    disabled: false,
+    eligible,
+    managedByPlugin: false,
+    requirements: {
+      bins: [],
+      anyBins: [],
+      env: [],
+      config: ["workspace.dir"],
+      os: [],
+    },
+    missing: {
+      bins: [],
+      anyBins: [],
+      env: [],
+      config: eligible ? [] : ["workspace.dir"],
+      os: [],
+    },
+    configChecks: [],
+    install: [],
+  });
+
   const createMockHookReport = (eligible = true): HookStatusReport => ({
     workspaceDir: "/mock/workspace",
     managedHooksDir: "/mock/.clawdbot/hooks",
     hooks: [
+<<<<<<< HEAD
       {
         name: "session-memory",
         description: "Save session context to memory when /new command is issued",
@@ -58,15 +98,33 @@ describe("onboard-hooks", () => {
         homepage: undefined,
         always: false,
         disabled: false,
-        eligible,
-        managedByPlugin: false,
-        requirements: {
-          bins: [],
-          anyBins: [],
-          env: [],
-          config: ["workspace.dir"],
-          os: [],
+=======
+      createMockHook(
+        {
+          name: "session-memory",
+          description: "Save session context to memory when /new command is issued",
+          filePath: "/mock/workspace/hooks/session-memory/HOOK.md",
+          baseDir: "/mock/workspace/hooks/session-memory",
+          handlerPath: "/mock/workspace/hooks/session-memory/handler.js",
+          hookKey: "session-memory",
+          emoji: "💾",
+          events: ["command:new"],
         },
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+        eligible,
+      ),
+      createMockHook(
+        {
+          name: "command-logger",
+          description: "Log all command events to a centralized audit file",
+          filePath: "/mock/workspace/hooks/command-logger/HOOK.md",
+          baseDir: "/mock/workspace/hooks/command-logger",
+          handlerPath: "/mock/workspace/hooks/command-logger/handler.js",
+          hookKey: "command-logger",
+          emoji: "📝",
+          events: ["command"],
+        },
+<<<<<<< HEAD
         missing: {
           bins: [],
           anyBins: [],
@@ -91,25 +149,10 @@ describe("onboard-hooks", () => {
         homepage: undefined,
         always: false,
         disabled: false,
+=======
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
         eligible,
-        managedByPlugin: false,
-        requirements: {
-          bins: [],
-          anyBins: [],
-          env: [],
-          config: ["workspace.dir"],
-          os: [],
-        },
-        missing: {
-          bins: [],
-          anyBins: [],
-          env: [],
-          config: eligible ? [] : ["workspace.dir"],
-          os: [],
-        },
-        configChecks: [],
-        install: [],
-      },
+      ),
     ],
   });
 

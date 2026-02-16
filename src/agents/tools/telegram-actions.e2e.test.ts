@@ -23,6 +23,29 @@ vi.mock("../../telegram/send.js", () => ({
 }));
 
 describe("handleTelegramAction", () => {
+  const defaultReactionAction = {
+    action: "react",
+    chatId: "123",
+    messageId: "456",
+    emoji: "✅",
+  } as const;
+
+  function reactionConfig(reactionLevel: "minimal" | "extensive" | "off" | "ack"): OpenClawConfig {
+    return {
+      channels: { telegram: { botToken: "tok", reactionLevel } },
+    } as OpenClawConfig;
+  }
+
+  async function expectReactionAdded(reactionLevel: "minimal" | "extensive") {
+    await handleTelegramAction(defaultReactionAction, reactionConfig(reactionLevel));
+    expect(reactMessageTelegram).toHaveBeenCalledWith(
+      "123",
+      456,
+      "✅",
+      expect.objectContaining({ token: "tok", remove: false }),
+    );
+  }
+
   beforeEach(() => {
     reactMessageTelegram.mockClear();
     sendMessageTelegram.mockClear();
@@ -40,6 +63,7 @@ describe("handleTelegramAction", () => {
   });
 
   it("adds reactions when reactionLevel is minimal", async () => {
+<<<<<<< HEAD
     const cfg = {
       channels: { telegram: { botToken: "tok", reactionLevel: "minimal" } },
     } as MoltbotConfig;
@@ -58,6 +82,9 @@ describe("handleTelegramAction", () => {
       "✅",
       expect.objectContaining({ token: "tok", remove: false }),
     );
+=======
+    await expectReactionAdded("minimal");
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 
   it("surfaces non-fatal reaction warnings", async () => {
@@ -65,18 +92,7 @@ describe("handleTelegramAction", () => {
       ok: false,
       warning: "Reaction unavailable: ✅",
     });
-    const cfg = {
-      channels: { telegram: { botToken: "tok", reactionLevel: "minimal" } },
-    } as OpenClawConfig;
-    const result = await handleTelegramAction(
-      {
-        action: "react",
-        chatId: "123",
-        messageId: "456",
-        emoji: "✅",
-      },
-      cfg,
-    );
+    const result = await handleTelegramAction(defaultReactionAction, reactionConfig("minimal"));
     const textPayload = result.content.find((item) => item.type === "text");
     expect(textPayload?.type).toBe("text");
     const parsed = JSON.parse((textPayload as { type: "text"; text: string }).text) as {
@@ -92,6 +108,7 @@ describe("handleTelegramAction", () => {
   });
 
   it("adds reactions when reactionLevel is extensive", async () => {
+<<<<<<< HEAD
     const cfg = {
       channels: { telegram: { botToken: "tok", reactionLevel: "extensive" } },
     } as MoltbotConfig;
@@ -110,6 +127,9 @@ describe("handleTelegramAction", () => {
       "✅",
       expect.objectContaining({ token: "tok", remove: false }),
     );
+=======
+    await expectReactionAdded("extensive");
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 
   it("removes reactions on empty emoji", async () => {
@@ -168,9 +188,13 @@ describe("handleTelegramAction", () => {
   });
 
   it("removes reactions when remove flag set", async () => {
+<<<<<<< HEAD
     const cfg = {
       channels: { telegram: { botToken: "tok", reactionLevel: "extensive" } },
     } as MoltbotConfig;
+=======
+    const cfg = reactionConfig("extensive");
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     await handleTelegramAction(
       {
         action: "react",
@@ -190,9 +214,13 @@ describe("handleTelegramAction", () => {
   });
 
   it("blocks reactions when reactionLevel is off", async () => {
+<<<<<<< HEAD
     const cfg = {
       channels: { telegram: { botToken: "tok", reactionLevel: "off" } },
     } as MoltbotConfig;
+=======
+    const cfg = reactionConfig("off");
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     await expect(
       handleTelegramAction(
         {
@@ -207,9 +235,13 @@ describe("handleTelegramAction", () => {
   });
 
   it("blocks reactions when reactionLevel is ack", async () => {
+<<<<<<< HEAD
     const cfg = {
       channels: { telegram: { botToken: "tok", reactionLevel: "ack" } },
     } as MoltbotConfig;
+=======
+    const cfg = reactionConfig("ack");
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     await expect(
       handleTelegramAction(
         {

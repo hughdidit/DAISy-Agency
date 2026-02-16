@@ -3,8 +3,12 @@ import os from "node:os";
 import path from "node:path";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import { baseConfigSnapshot, createTestRuntime } from "./test-runtime-config-helpers.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 const configMocks = vi.hoisted(() => ({
   readConfigFileSnapshot: vi.fn(),
@@ -22,6 +26,7 @@ vi.mock("../config/config.js", async (importOriginal) => {
 
 import { agentsSetIdentityCommand } from "./agents.js";
 
+<<<<<<< HEAD
 const runtime: RuntimeEnv = {
   log: vi.fn(),
   error: vi.fn(),
@@ -38,6 +43,9 @@ const baseSnapshot = {
   issues: [],
   legacyIssues: [],
 };
+=======
+const runtime = createTestRuntime();
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 describe("agents set-identity command", () => {
   beforeEach(() => {
@@ -65,7 +73,7 @@ describe("agents set-identity command", () => {
     );
 
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: {
         agents: {
           list: [
@@ -98,7 +106,7 @@ describe("agents set-identity command", () => {
     await fs.writeFile(path.join(workspace, "IDENTITY.md"), "- Name: Echo\n", "utf-8");
 
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: {
         agents: {
           list: [
@@ -133,7 +141,7 @@ describe("agents set-identity command", () => {
     );
 
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: { agents: { list: [{ id: "main", workspace }] } },
     });
 
@@ -178,7 +186,7 @@ describe("agents set-identity command", () => {
     );
 
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: { agents: { list: [{ id: "main" }] } },
     });
 
@@ -207,7 +215,7 @@ describe("agents set-identity command", () => {
     );
 
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: { agents: { list: [{ id: "main", workspace }] } },
     });
 
@@ -224,7 +232,7 @@ describe("agents set-identity command", () => {
 
   it("accepts avatar-only updates via flags", async () => {
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: { agents: { list: [{ id: "main" }] } },
     });
 
@@ -248,7 +256,7 @@ describe("agents set-identity command", () => {
     await fs.mkdir(workspace, { recursive: true });
 
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: { agents: { list: [{ id: "main", workspace }] } },
     });
 

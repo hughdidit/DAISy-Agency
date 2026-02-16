@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../config/config.js";
@@ -16,36 +17,23 @@ vi.mock("./models-config.js", () => ({
 vi.mock("./agent-paths.js", () => ({
   resolveMoltbotAgentDir: () => "/tmp/moltbot",
 }));
+=======
+import { describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { __setModelCatalogImportForTest, loadModelCatalog } from "./model-catalog.js";
+import {
+  installModelCatalogTestHooks,
+  mockCatalogImportFailThenRecover,
+  type PiSdkModule,
+} from "./model-catalog.test-harness.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 describe("loadModelCatalog", () => {
-  beforeEach(() => {
-    resetModelCatalogCacheForTest();
-  });
-
-  afterEach(() => {
-    __setModelCatalogImportForTest();
-    resetModelCatalogCacheForTest();
-    vi.restoreAllMocks();
-  });
+  installModelCatalogTestHooks();
 
   it("retries after import failure without poisoning the cache", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    let call = 0;
-
-    __setModelCatalogImportForTest(async () => {
-      call += 1;
-      if (call === 1) {
-        throw new Error("boom");
-      }
-      return {
-        AuthStorage: class {},
-        ModelRegistry: class {
-          getAll() {
-            return [{ id: "gpt-4.1", name: "GPT-4.1", provider: "openai" }];
-          }
-        },
-      } as unknown as PiSdkModule;
-    });
+    const getCallCount = mockCatalogImportFailThenRecover();
 
     const cfg = {} as MoltbotConfig;
     const first = await loadModelCatalog({ config: cfg });
@@ -53,7 +41,7 @@ describe("loadModelCatalog", () => {
 
     const second = await loadModelCatalog({ config: cfg });
     expect(second).toEqual([{ id: "gpt-4.1", name: "GPT-4.1", provider: "openai" }]);
-    expect(call).toBe(2);
+    expect(getCallCount()).toBe(2);
     expect(warnSpy).toHaveBeenCalledTimes(1);
   });
 

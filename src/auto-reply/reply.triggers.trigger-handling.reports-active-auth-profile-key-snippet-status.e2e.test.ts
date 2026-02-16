@@ -3,9 +3,11 @@ import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { resolveSessionKey } from "../config/sessions.js";
 import {
+  createBlockReplyCollector,
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
   makeCfg,
+  mockRunEmbeddedPiAgentOk,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
@@ -132,16 +134,8 @@ describe("trigger handling", () => {
 
   it("strips inline /status and still runs the agent", async () => {
     await withTempHome(async (home) => {
-      const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
-      runEmbeddedPiAgentMock.mockResolvedValue({
-        payloads: [{ text: "ok" }],
-        meta: {
-          durationMs: 1,
-          agentMeta: { sessionId: "s", provider: "p", model: "m" },
-        },
-      });
-
-      const blockReplies: Array<{ text?: string }> = [];
+      const runEmbeddedPiAgentMock = mockRunEmbeddedPiAgentOk();
+      const { blockReplies, handlers } = createBlockReplyCollector();
       await getReplyFromConfig(
         {
           Body: "please /status now",
@@ -152,11 +146,7 @@ describe("trigger handling", () => {
           SenderE164: "+1002",
           CommandAuthorized: true,
         },
-        {
-          onBlockReply: async (payload) => {
-            blockReplies.push(payload);
-          },
-        },
+        handlers,
         makeCfg(home),
       );
       expect(runEmbeddedPiAgentMock).toHaveBeenCalled();
@@ -171,15 +161,8 @@ describe("trigger handling", () => {
 
   it("handles inline /help and strips it before the agent", async () => {
     await withTempHome(async (home) => {
-      const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
-      runEmbeddedPiAgentMock.mockResolvedValue({
-        payloads: [{ text: "ok" }],
-        meta: {
-          durationMs: 1,
-          agentMeta: { sessionId: "s", provider: "p", model: "m" },
-        },
-      });
-      const blockReplies: Array<{ text?: string }> = [];
+      const runEmbeddedPiAgentMock = mockRunEmbeddedPiAgentOk();
+      const { blockReplies, handlers } = createBlockReplyCollector();
       const res = await getReplyFromConfig(
         {
           Body: "please /help now",
@@ -187,11 +170,7 @@ describe("trigger handling", () => {
           To: "+2000",
           CommandAuthorized: true,
         },
-        {
-          onBlockReply: async (payload) => {
-            blockReplies.push(payload);
-          },
-        },
+        handlers,
         makeCfg(home),
       );
       const text = Array.isArray(res) ? res[0]?.text : res?.text;

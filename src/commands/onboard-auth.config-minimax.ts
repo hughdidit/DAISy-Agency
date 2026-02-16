@@ -4,10 +4,17 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { ModelProviderConfig } from "../config/types.models.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 1ba266a8e (refactor: split minimax-cn provider)
 =======
 import { applyOnboardAuthAgentModelsAndProviders } from "./onboard-auth.config-shared.js";
 >>>>>>> ab6f080d8 (refactor(commands): share provider config merge wrapper)
+=======
+import {
+  applyAgentDefaultModelPrimary,
+  applyOnboardAuthAgentModelsAndProviders,
+} from "./onboard-auth.config-shared.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import {
   buildMinimaxApiModelDefinition,
   buildMinimaxModelDefinition,
@@ -89,24 +96,7 @@ export function applyMinimaxHostedProviderConfig(
 
 export function applyMinimaxConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applyMinimaxProviderConfig(cfg);
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(next.agents?.defaults?.model &&
-          "fallbacks" in (next.agents.defaults.model as Record<string, unknown>)
-            ? {
-                fallbacks: (next.agents.defaults.model as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: "lmstudio/minimax-m2.1-gs32",
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, "lmstudio/minimax-m2.1-gs32");
 }
 
 export function applyMinimaxHostedConfig(
@@ -255,6 +245,7 @@ function applyMinimaxApiConfigWithBaseUrl(
 >>>>>>> 9bb099736 (feat: add minimax-api-key-cn option for China API endpoint)
 =======
   const next = applyMinimaxApiProviderConfigWithBaseUrl(cfg, params);
+<<<<<<< HEAD
 >>>>>>> 1ba266a8e (refactor: split minimax-cn provider)
   return {
     ...next,
@@ -274,4 +265,7 @@ function applyMinimaxApiConfigWithBaseUrl(
       },
     },
   };
+=======
+  return applyAgentDefaultModelPrimary(next, `${params.providerId}/${params.modelId}`);
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 }

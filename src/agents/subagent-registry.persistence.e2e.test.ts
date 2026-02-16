@@ -38,6 +38,43 @@ describe("subagent registry persistence", () => {
 >>>>>>> f809ff5e5 (refactor(test): reuse env snapshot helper)
   let tempStateDir: string | null = null;
 
+  const writePersistedRegistry = async (persisted: Record<string, unknown>) => {
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-subagent-"));
+    process.env.OPENCLAW_STATE_DIR = tempStateDir;
+    const registryPath = path.join(tempStateDir, "subagents", "runs.json");
+    await fs.mkdir(path.dirname(registryPath), { recursive: true });
+    await fs.writeFile(registryPath, `${JSON.stringify(persisted)}\n`, "utf8");
+    return registryPath;
+  };
+
+  const createPersistedEndedRun = (params: {
+    runId: string;
+    childSessionKey: string;
+    task: string;
+    cleanup: "keep" | "delete";
+  }) => ({
+    version: 2,
+    runs: {
+      [params.runId]: {
+        runId: params.runId,
+        childSessionKey: params.childSessionKey,
+        requesterSessionKey: "agent:main:main",
+        requesterDisplayKey: "main",
+        task: params.task,
+        cleanup: params.cleanup,
+        createdAt: 1,
+        startedAt: 1,
+        endedAt: 2,
+      },
+    },
+  });
+
+  const restartRegistryAndFlush = async () => {
+    resetSubagentRegistryForTests({ persist: false });
+    initSubagentRegistry();
+    await new Promise((r) => setTimeout(r, 0));
+  };
+
   afterEach(async () => {
     announceSpy.mockClear();
     resetSubagentRegistryForTests({ persist: false });
@@ -152,10 +189,13 @@ describe("subagent registry persistence", () => {
   });
 
   it("maps legacy announce fields into cleanup state", async () => {
+<<<<<<< HEAD
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-subagent-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
 
     const registryPath = path.join(tempStateDir, "subagents", "runs.json");
+=======
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     const persisted = {
       version: 1,
       runs: {
@@ -176,8 +216,7 @@ describe("subagent registry persistence", () => {
         },
       },
     };
-    await fs.mkdir(path.dirname(registryPath), { recursive: true });
-    await fs.writeFile(registryPath, `${JSON.stringify(persisted)}\n`, "utf8");
+    const registryPath = await writePersistedRegistry(persisted);
 
     const runs = loadSubagentRegistryFromDisk();
     const entry = runs.get("run-legacy");
@@ -191,6 +230,7 @@ describe("subagent registry persistence", () => {
   });
 
   it("retries cleanup announce after a failed announce", async () => {
+<<<<<<< HEAD
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-subagent-"));
     process.env.CLAWDBOT_STATE_DIR = tempStateDir;
 
@@ -213,11 +253,18 @@ describe("subagent registry persistence", () => {
     };
     await fs.mkdir(path.dirname(registryPath), { recursive: true });
     await fs.writeFile(registryPath, `${JSON.stringify(persisted)}\n`, "utf8");
+=======
+    const persisted = createPersistedEndedRun({
+      runId: "run-3",
+      childSessionKey: "agent:main:subagent:three",
+      task: "retry announce",
+      cleanup: "keep",
+    });
+    const registryPath = await writePersistedRegistry(persisted);
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     announceSpy.mockResolvedValueOnce(false);
-    resetSubagentRegistryForTests({ persist: false });
-    initSubagentRegistry();
-    await new Promise((r) => setTimeout(r, 0));
+    await restartRegistryAndFlush();
 
     expect(announceSpy).toHaveBeenCalledTimes(1);
     const afterFirst = JSON.parse(await fs.readFile(registryPath, "utf8")) as {
@@ -227,9 +274,7 @@ describe("subagent registry persistence", () => {
     expect(afterFirst.runs["run-3"].cleanupCompletedAt).toBeUndefined();
 
     announceSpy.mockResolvedValueOnce(true);
-    resetSubagentRegistryForTests({ persist: false });
-    initSubagentRegistry();
-    await new Promise((r) => setTimeout(r, 0));
+    await restartRegistryAndFlush();
 
     expect(announceSpy).toHaveBeenCalledTimes(2);
     const afterSecond = JSON.parse(await fs.readFile(registryPath, "utf8")) as {
@@ -241,33 +286,16 @@ describe("subagent registry persistence", () => {
 =======
 
   it("keeps delete-mode runs retryable when announce is deferred", async () => {
-    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-subagent-"));
-    process.env.OPENCLAW_STATE_DIR = tempStateDir;
-
-    const registryPath = path.join(tempStateDir, "subagents", "runs.json");
-    const persisted = {
-      version: 2,
-      runs: {
-        "run-4": {
-          runId: "run-4",
-          childSessionKey: "agent:main:subagent:four",
-          requesterSessionKey: "agent:main:main",
-          requesterDisplayKey: "main",
-          task: "deferred announce",
-          cleanup: "delete",
-          createdAt: 1,
-          startedAt: 1,
-          endedAt: 2,
-        },
-      },
-    };
-    await fs.mkdir(path.dirname(registryPath), { recursive: true });
-    await fs.writeFile(registryPath, `${JSON.stringify(persisted)}\n`, "utf8");
+    const persisted = createPersistedEndedRun({
+      runId: "run-4",
+      childSessionKey: "agent:main:subagent:four",
+      task: "deferred announce",
+      cleanup: "delete",
+    });
+    const registryPath = await writePersistedRegistry(persisted);
 
     announceSpy.mockResolvedValueOnce(false);
-    resetSubagentRegistryForTests({ persist: false });
-    initSubagentRegistry();
-    await new Promise((r) => setTimeout(r, 0));
+    await restartRegistryAndFlush();
 
     expect(announceSpy).toHaveBeenCalledTimes(1);
     const afterFirst = JSON.parse(await fs.readFile(registryPath, "utf8")) as {
@@ -276,9 +304,7 @@ describe("subagent registry persistence", () => {
     expect(afterFirst.runs["run-4"]?.cleanupHandled).toBe(false);
 
     announceSpy.mockResolvedValueOnce(true);
-    resetSubagentRegistryForTests({ persist: false });
-    initSubagentRegistry();
-    await new Promise((r) => setTimeout(r, 0));
+    await restartRegistryAndFlush();
 
     expect(announceSpy).toHaveBeenCalledTimes(2);
     const afterSecond = JSON.parse(await fs.readFile(registryPath, "utf8")) as {

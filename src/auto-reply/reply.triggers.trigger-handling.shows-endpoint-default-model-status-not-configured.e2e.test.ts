@@ -61,24 +61,22 @@ beforeAll(async () => {
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
+const modelStatusCtx = {
+  Body: "/model status",
+  From: "telegram:111",
+  To: "telegram:111",
+  ChatType: "direct",
+  Provider: "telegram",
+  Surface: "telegram",
+  SessionKey: "telegram:slash:111",
+  CommandAuthorized: true,
+} as const;
+
 describe("trigger handling", () => {
   it("shows endpoint default in /model status when not configured", async () => {
     await withTempHome(async (home) => {
       const cfg = makeCfg(home);
-      const res = await getReplyFromConfig(
-        {
-          Body: "/model status",
-          From: "telegram:111",
-          To: "telegram:111",
-          ChatType: "direct",
-          Provider: "telegram",
-          Surface: "telegram",
-          SessionKey: "telegram:slash:111",
-          CommandAuthorized: true,
-        },
-        {},
-        cfg,
-      );
+      const res = await getReplyFromConfig(modelStatusCtx, {}, cfg);
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(normalizeTestText(text ?? "")).toContain("endpoint: default");
@@ -97,20 +95,7 @@ describe("trigger handling", () => {
           },
         },
       };
-      const res = await getReplyFromConfig(
-        {
-          Body: "/model status",
-          From: "telegram:111",
-          To: "telegram:111",
-          ChatType: "direct",
-          Provider: "telegram",
-          Surface: "telegram",
-          SessionKey: "telegram:slash:111",
-          CommandAuthorized: true,
-        },
-        {},
-        cfg,
-      );
+      const res = await getReplyFromConfig(modelStatusCtx, {}, cfg);
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       const normalized = normalizeTestText(text ?? "");

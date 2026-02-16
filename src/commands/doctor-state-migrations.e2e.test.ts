@@ -37,6 +37,39 @@ function writeJson5(filePath: string, value: unknown) {
   fs.writeFileSync(filePath, JSON.stringify(value, null, 2), "utf-8");
 }
 
+async function detectAndRunMigrations(params: {
+  root: string;
+  cfg: OpenClawConfig;
+  now?: () => number;
+}) {
+  const detected = await detectLegacyStateMigrations({
+    cfg: params.cfg,
+    env: { OPENCLAW_STATE_DIR: params.root } as NodeJS.ProcessEnv,
+  });
+  await runLegacyStateMigrations({ detected, now: params.now });
+}
+
+function readSessionsStore(targetDir: string) {
+  return JSON.parse(fs.readFileSync(path.join(targetDir, "sessions.json"), "utf-8")) as Record<
+    string,
+    { sessionId: string }
+  >;
+}
+
+async function runAndReadSessionsStore(params: {
+  root: string;
+  cfg: OpenClawConfig;
+  targetDir: string;
+  now?: () => number;
+}) {
+  await detectAndRunMigrations({
+    root: params.root,
+    cfg: params.cfg,
+    now: params.now,
+  });
+  return readSessionsStore(params.targetDir);
+}
+
 describe("doctor legacy state migrations", () => {
   it("migrates legacy sessions into agents/<id>/sessions", async () => {
     const root = await makeTempRoot();
@@ -238,16 +271,22 @@ describe("doctor legacy state migrations", () => {
       "+1555": { sessionId: "a", updatedAt: 10 },
     });
 
+<<<<<<< HEAD
     const detected = await detectLegacyStateMigrations({
       cfg,
       env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     await runLegacyStateMigrations({ detected, now: () => 123 });
 
+=======
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     const targetDir = path.join(root, "agents", "alpha", "sessions");
-    const store = JSON.parse(
-      fs.readFileSync(path.join(targetDir, "sessions.json"), "utf-8"),
-    ) as Record<string, { sessionId: string }>;
+    const store = await runAndReadSessionsStore({
+      root,
+      cfg,
+      targetDir,
+      now: () => 123,
+    });
     expect(store["agent:alpha:main"]?.sessionId).toBe("a");
   });
 
@@ -261,16 +300,22 @@ describe("doctor legacy state migrations", () => {
       "+1666": { sessionId: "b", updatedAt: 20 },
     });
 
+<<<<<<< HEAD
     const detected = await detectLegacyStateMigrations({
       cfg,
       env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
     });
     await runLegacyStateMigrations({ detected, now: () => 123 });
 
+=======
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     const targetDir = path.join(root, "agents", "main", "sessions");
-    const store = JSON.parse(
-      fs.readFileSync(path.join(targetDir, "sessions.json"), "utf-8"),
-    ) as Record<string, { sessionId: string }>;
+    const store = await runAndReadSessionsStore({
+      root,
+      cfg,
+      targetDir,
+      now: () => 123,
+    });
     expect(store["agent:main:work"]?.sessionId).toBe("b");
     expect(store["agent:main:main"]).toBeUndefined();
   });
@@ -284,15 +329,16 @@ describe("doctor legacy state migrations", () => {
       "agent:main:main": { sessionId: "fresh", updatedAt: 20 },
     });
 
-    const detected = await detectLegacyStateMigrations({
+    const store = await runAndReadSessionsStore({
+      root,
       cfg,
+<<<<<<< HEAD
       env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+=======
+      targetDir,
+      now: () => 123,
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     });
-    await runLegacyStateMigrations({ detected, now: () => 123 });
-
-    const store = JSON.parse(
-      fs.readFileSync(path.join(targetDir, "sessions.json"), "utf-8"),
-    ) as Record<string, { sessionId: string }>;
     expect(store["main"]).toBeUndefined();
     expect(store["agent:main:main"]?.sessionId).toBe("fresh");
   });
@@ -306,15 +352,16 @@ describe("doctor legacy state migrations", () => {
       "agent:main:work": { sessionId: "canonical", updatedAt: 10 },
     });
 
-    const detected = await detectLegacyStateMigrations({
+    const store = await runAndReadSessionsStore({
+      root,
       cfg,
+<<<<<<< HEAD
       env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+=======
+      targetDir,
+      now: () => 123,
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     });
-    await runLegacyStateMigrations({ detected, now: () => 123 });
-
-    const store = JSON.parse(
-      fs.readFileSync(path.join(targetDir, "sessions.json"), "utf-8"),
-    ) as Record<string, { sessionId: string }>;
     expect(store["agent:main:work"]?.sessionId).toBe("legacy");
     expect(store["agent:main:main"]).toBeUndefined();
   });
@@ -327,15 +374,16 @@ describe("doctor legacy state migrations", () => {
       "agent:main:slack:channel:C123": { sessionId: "legacy", updatedAt: 10 },
     });
 
-    const detected = await detectLegacyStateMigrations({
+    const store = await runAndReadSessionsStore({
+      root,
       cfg,
+<<<<<<< HEAD
       env: { CLAWDBOT_STATE_DIR: root } as NodeJS.ProcessEnv,
+=======
+      targetDir,
+      now: () => 123,
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     });
-    await runLegacyStateMigrations({ detected, now: () => 123 });
-
-    const store = JSON.parse(
-      fs.readFileSync(path.join(targetDir, "sessions.json"), "utf-8"),
-    ) as Record<string, { sessionId: string }>;
     expect(store["agent:main:slack:channel:c123"]?.sessionId).toBe("legacy");
     expect(store["agent:main:slack:channel:C123"]).toBeUndefined();
   });

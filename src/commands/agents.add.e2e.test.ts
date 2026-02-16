@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import { baseConfigSnapshot, createTestRuntime } from "./test-runtime-config-helpers.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 const configMocks = vi.hoisted(() => ({
   readConfigFileSnapshot: vi.fn(),
@@ -27,6 +31,7 @@ vi.mock("../wizard/clack-prompter.js", () => ({
 import { WizardCancelledError } from "../wizard/prompts.js";
 import { agentsAddCommand } from "./agents.js";
 
+<<<<<<< HEAD
 const runtime: RuntimeEnv = {
   log: vi.fn(),
   error: vi.fn(),
@@ -43,6 +48,9 @@ const baseSnapshot = {
   issues: [],
   legacyIssues: [],
 };
+=======
+const runtime = createTestRuntime();
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 describe("agents add command", () => {
   beforeEach(() => {
@@ -55,7 +63,7 @@ describe("agents add command", () => {
   });
 
   it("requires --workspace when flags are present", async () => {
-    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseSnapshot });
+    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseConfigSnapshot });
 
     await agentsAddCommand({ name: "Work" }, runtime, { hasFlags: true });
 
@@ -65,7 +73,7 @@ describe("agents add command", () => {
   });
 
   it("requires --workspace in non-interactive mode", async () => {
-    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseSnapshot });
+    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseConfigSnapshot });
 
     await agentsAddCommand({ name: "Work", nonInteractive: true }, runtime, {
       hasFlags: false,
@@ -77,7 +85,7 @@ describe("agents add command", () => {
   });
 
   it("exits with code 1 when the interactive wizard is cancelled", async () => {
-    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseSnapshot });
+    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseConfigSnapshot });
     wizardMocks.createClackPrompter.mockReturnValue({
       intro: vi.fn().mockRejectedValue(new WizardCancelledError()),
       text: vi.fn(),

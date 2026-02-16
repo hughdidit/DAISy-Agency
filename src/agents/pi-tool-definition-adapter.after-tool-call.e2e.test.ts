@@ -21,6 +21,36 @@ vi.mock("./pi-tools.before-tool-call.js", () => ({
   runBeforeToolCallHook: hookMocks.runBeforeToolCallHook,
 }));
 
+function createReadTool() {
+  return {
+    name: "read",
+    label: "Read",
+    description: "reads",
+    parameters: {},
+    execute: vi.fn(async () => ({ content: [], details: { ok: true } })),
+  } satisfies AgentTool<unknown, unknown>;
+}
+
+function enableAfterToolCallHook() {
+  hookMocks.runner.hasHooks.mockImplementation((name: string) => name === "after_tool_call");
+}
+
+async function executeReadTool(callId: string) {
+  const defs = toToolDefinitions([createReadTool()]);
+  return await defs[0].execute(callId, { path: "/tmp/file" }, undefined, undefined);
+}
+
+function expectReadAfterToolCallPayload(result: Awaited<ReturnType<typeof executeReadTool>>) {
+  expect(hookMocks.runner.runAfterToolCall).toHaveBeenCalledWith(
+    {
+      toolName: "read",
+      params: { mode: "safe" },
+      result,
+    },
+    { toolName: "read" },
+  );
+}
+
 describe("pi tool definition adapter after_tool_call", () => {
   beforeEach(() => {
     hookMocks.runner.hasHooks.mockReset();
@@ -34,6 +64,7 @@ describe("pi tool definition adapter after_tool_call", () => {
   });
 
   it("dispatches after_tool_call once on successful adapter execution", async () => {
+<<<<<<< HEAD
     hookMocks.runner.hasHooks.mockImplementation((name: string) => name === "after_tool_call");
     const tool = {
       name: "read",
@@ -59,10 +90,33 @@ describe("pi tool definition adapter after_tool_call", () => {
       },
       { toolName: "read" },
     );
+=======
+    enableAfterToolCallHook();
+    hookMocks.runBeforeToolCallHook.mockResolvedValue({
+      blocked: false,
+      params: { mode: "safe" },
+    });
+    const result = await executeReadTool("call-ok");
+
+    expect(result.details).toMatchObject({ ok: true });
+    expect(hookMocks.runner.runAfterToolCall).toHaveBeenCalledTimes(1);
+    expectReadAfterToolCallPayload(result);
+  });
+
+  it("uses wrapped-tool adjusted params for after_tool_call payload", async () => {
+    enableAfterToolCallHook();
+    hookMocks.isToolWrappedWithBeforeToolCallHook.mockReturnValue(true);
+    hookMocks.consumeAdjustedParamsForToolCall.mockReturnValue({ mode: "safe" });
+    const result = await executeReadTool("call-ok-wrapped");
+
+    expect(result.details).toMatchObject({ ok: true });
+    expect(hookMocks.runBeforeToolCallHook).not.toHaveBeenCalled();
+    expectReadAfterToolCallPayload(result);
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 
   it("dispatches after_tool_call once on adapter error with normalized tool name", async () => {
-    hookMocks.runner.hasHooks.mockImplementation((name: string) => name === "after_tool_call");
+    enableAfterToolCallHook();
     const tool = {
       name: "bash",
       label: "Bash",
@@ -93,18 +147,9 @@ describe("pi tool definition adapter after_tool_call", () => {
   });
 
   it("does not break execution when after_tool_call hook throws", async () => {
-    hookMocks.runner.hasHooks.mockImplementation((name: string) => name === "after_tool_call");
+    enableAfterToolCallHook();
     hookMocks.runner.runAfterToolCall.mockRejectedValue(new Error("hook failed"));
-    const tool = {
-      name: "read",
-      label: "Read",
-      description: "reads",
-      parameters: {},
-      execute: vi.fn(async () => ({ content: [], details: { ok: true } })),
-    } satisfies AgentTool<unknown, unknown>;
-
-    const defs = toToolDefinitions([tool]);
-    const result = await defs[0].execute("call-ok2", { path: "/tmp/file" }, undefined, undefined);
+    const result = await executeReadTool("call-ok2");
 
     expect(result.details).toMatchObject({ ok: true });
     expect(hookMocks.runner.runAfterToolCall).toHaveBeenCalledTimes(1);

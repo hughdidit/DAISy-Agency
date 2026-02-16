@@ -47,6 +47,7 @@ import { createOpenClawTools } from "./openclaw-tools.js";
 import "./test-helpers/fast-core-tools.js";
 import {
   getCallGatewayMock,
+  getSessionsSpawnTool,
   resetSessionsSpawnConfigOverride,
   setSessionsSpawnConfigOverride,
 } from "./openclaw-tools.subagents.sessions-spawn.test-harness.js";
@@ -54,6 +55,7 @@ import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 const callGatewayMock = getCallGatewayMock();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-allows-cross-agent-spawning-configured.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
@@ -76,6 +78,73 @@ async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
 >>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
 describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.allowlist.e2e.test.ts
+=======
+describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
+  function setAllowAgents(allowAgents: string[]) {
+    setSessionsSpawnConfigOverride({
+      session: {
+        mainKey: "main",
+        scope: "per-sender",
+      },
+      agents: {
+        list: [
+          {
+            id: "main",
+            subagents: {
+              allowAgents,
+            },
+          },
+        ],
+      },
+    });
+  }
+
+  function mockAcceptedSpawn(acceptedAt: number) {
+    let childSessionKey: string | undefined;
+    callGatewayMock.mockImplementation(async (opts: unknown) => {
+      const request = opts as { method?: string; params?: unknown };
+      if (request.method === "agent") {
+        const params = request.params as { sessionKey?: string } | undefined;
+        childSessionKey = params?.sessionKey;
+        return { runId: "run-1", status: "accepted", acceptedAt };
+      }
+      if (request.method === "agent.wait") {
+        return { status: "timeout" };
+      }
+      return {};
+    });
+    return () => childSessionKey;
+  }
+
+  async function executeSpawn(callId: string, agentId: string) {
+    const tool = await getSessionsSpawnTool({
+      agentSessionKey: "main",
+      agentChannel: "whatsapp",
+    });
+    return tool.execute(callId, { task: "do thing", agentId });
+  }
+
+  async function expectAllowedSpawn(params: {
+    allowAgents: string[];
+    agentId: string;
+    callId: string;
+    acceptedAt: number;
+  }) {
+    resetSubagentRegistryForTests();
+    callGatewayMock.mockReset();
+    setAllowAgents(params.allowAgents);
+    const getChildSessionKey = mockAcceptedSpawn(params.acceptedAt);
+
+    const result = await executeSpawn(params.callId, params.agentId);
+
+    expect(result.details).toMatchObject({
+      status: "accepted",
+      runId: "run-1",
+    });
+    expect(getChildSessionKey()?.startsWith(`agent:${params.agentId}:subagent:`)).toBe(true);
+  }
+
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   beforeEach(() => {
     resetSessionsSpawnConfigOverride();
   });
@@ -135,6 +204,7 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
   });
 
   it("sessions_spawn allows cross-agent spawning when configured", async () => {
+<<<<<<< HEAD
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
     setSessionsSpawnConfigOverride({
@@ -179,17 +249,18 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
 
     const result = await tool.execute("call7", {
       task: "do thing",
+=======
+    await expectAllowedSpawn({
+      allowAgents: ["beta"],
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       agentId: "beta",
+      callId: "call7",
+      acceptedAt: 5000,
     });
-
-    expect(result.details).toMatchObject({
-      status: "accepted",
-      runId: "run-1",
-    });
-    expect(childSessionKey?.startsWith("agent:beta:subagent:")).toBe(true);
   });
 
   it("sessions_spawn allows any agent when allowlist is *", async () => {
+<<<<<<< HEAD
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
     setSessionsSpawnConfigOverride({
@@ -234,64 +305,22 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
 
     const result = await tool.execute("call8", {
       task: "do thing",
+=======
+    await expectAllowedSpawn({
+      allowAgents: ["*"],
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       agentId: "beta",
+      callId: "call8",
+      acceptedAt: 5100,
     });
-
-    expect(result.details).toMatchObject({
-      status: "accepted",
-      runId: "run-1",
-    });
-    expect(childSessionKey?.startsWith("agent:beta:subagent:")).toBe(true);
   });
 
   it("sessions_spawn normalizes allowlisted agent ids", async () => {
-    resetSubagentRegistryForTests();
-    callGatewayMock.mockReset();
-    setSessionsSpawnConfigOverride({
-      session: {
-        mainKey: "main",
-        scope: "per-sender",
-      },
-      agents: {
-        list: [
-          {
-            id: "main",
-            subagents: {
-              allowAgents: ["Research"],
-            },
-          },
-        ],
-      },
-    });
-
-    let childSessionKey: string | undefined;
-    callGatewayMock.mockImplementation(async (opts: unknown) => {
-      const request = opts as { method?: string; params?: unknown };
-      if (request.method === "agent") {
-        const params = request.params as { sessionKey?: string } | undefined;
-        childSessionKey = params?.sessionKey;
-        return { runId: "run-1", status: "accepted", acceptedAt: 5200 };
-      }
-      if (request.method === "agent.wait") {
-        return { status: "timeout" };
-      }
-      return {};
-    });
-
-    const tool = await getSessionsSpawnTool({
-      agentSessionKey: "main",
-      agentChannel: "whatsapp",
-    });
-
-    const result = await tool.execute("call10", {
-      task: "do thing",
+    await expectAllowedSpawn({
+      allowAgents: ["Research"],
       agentId: "research",
+      callId: "call10",
+      acceptedAt: 5200,
     });
-
-    expect(result.details).toMatchObject({
-      status: "accepted",
-      runId: "run-1",
-    });
-    expect(childSessionKey?.startsWith("agent:research:subagent:")).toBe(true);
   });
 });

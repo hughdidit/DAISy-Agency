@@ -11,6 +11,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 >>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 import { normalizeTestText } from "../../test/helpers/normalize-text.js";
 import {
+  createBlockReplyCollector,
   getProviderUsageMocks,
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
@@ -75,6 +76,29 @@ function pickFirstStoreEntry<T>(store: Record<string, unknown>): T | undefined {
   return entries[0];
 }
 
+async function runCommandAndCollectReplies(params: {
+  home: string;
+  body: string;
+  from?: string;
+  senderE164?: string;
+}) {
+  const { blockReplies, handlers } = createBlockReplyCollector();
+  const res = await getReplyFromConfig(
+    {
+      Body: params.body,
+      From: params.from ?? "+1000",
+      To: "+2000",
+      Provider: "whatsapp",
+      SenderE164: params.senderE164 ?? params.from ?? "+1000",
+      CommandAuthorized: true,
+    },
+    handlers,
+    makeCfg(params.home),
+  );
+  const replies = res ? (Array.isArray(res) ? res : [res]) : [];
+  return { blockReplies, replies };
+}
+
 describe("trigger handling", () => {
   it("filters usage summary to the current model provider", async () => {
     await withTempHome(async (home) => {
@@ -117,24 +141,10 @@ describe("trigger handling", () => {
   });
   it("emits /status once (no duplicate inline + final)", async () => {
     await withTempHome(async (home) => {
-      const blockReplies: Array<{ text?: string }> = [];
-      const res = await getReplyFromConfig(
-        {
-          Body: "/status",
-          From: "+1000",
-          To: "+2000",
-          Provider: "whatsapp",
-          SenderE164: "+1000",
-          CommandAuthorized: true,
-        },
-        {
-          onBlockReply: async (payload) => {
-            blockReplies.push(payload);
-          },
-        },
-        makeCfg(home),
-      );
-      const replies = res ? (Array.isArray(res) ? res : [res]) : [];
+      const { blockReplies, replies } = await runCommandAndCollectReplies({
+        home,
+        body: "/status",
+      });
       expect(blockReplies.length).toBe(0);
       expect(replies.length).toBe(1);
       expect(String(replies[0]?.text ?? "")).toContain("Model:");
@@ -142,24 +152,10 @@ describe("trigger handling", () => {
   });
   it("sets per-response usage footer via /usage", async () => {
     await withTempHome(async (home) => {
-      const blockReplies: Array<{ text?: string }> = [];
-      const res = await getReplyFromConfig(
-        {
-          Body: "/usage tokens",
-          From: "+1000",
-          To: "+2000",
-          Provider: "whatsapp",
-          SenderE164: "+1000",
-          CommandAuthorized: true,
-        },
-        {
-          onBlockReply: async (payload) => {
-            blockReplies.push(payload);
-          },
-        },
-        makeCfg(home),
-      );
-      const replies = res ? (Array.isArray(res) ? res : [res]) : [];
+      const { blockReplies, replies } = await runCommandAndCollectReplies({
+        home,
+        body: "/usage tokens",
+      });
       expect(blockReplies.length).toBe(0);
       expect(replies.length).toBe(1);
       expect(String(replies[0]?.text ?? "")).toContain("Usage footer: tokens");
@@ -263,24 +259,11 @@ describe("trigger handling", () => {
           agentMeta: { sessionId: "s", provider: "p", model: "m" },
         },
       });
-      const blockReplies: Array<{ text?: string }> = [];
-      const res = await getReplyFromConfig(
-        {
-          Body: "here we go /status now",
-          From: "+1002",
-          To: "+2000",
-          Provider: "whatsapp",
-          SenderE164: "+1002",
-          CommandAuthorized: true,
-        },
-        {
-          onBlockReply: async (payload) => {
-            blockReplies.push(payload);
-          },
-        },
-        makeCfg(home),
-      );
-      const replies = res ? (Array.isArray(res) ? res : [res]) : [];
+      const { blockReplies, replies } = await runCommandAndCollectReplies({
+        home,
+        body: "here we go /status now",
+        from: "+1002",
+      });
       expect(blockReplies.length).toBe(1);
       expect(String(blockReplies[0]?.text ?? "")).toContain("Model:");
       expect(replies.length).toBe(1);

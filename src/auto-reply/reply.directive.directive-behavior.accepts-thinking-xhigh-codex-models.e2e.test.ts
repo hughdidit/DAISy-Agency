@@ -4,7 +4,11 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import {
   installDirectiveBehaviorE2EHooks,
+  makeWhatsAppDirectiveConfig,
+  replyText,
+  replyTexts,
   runEmbeddedPiAgent,
+  sessionStorePath,
   withTempHome,
 } from "./reply.directive.directive-behavior.e2e-harness.js";
 import { getReplyFromConfig } from "./reply.js";
@@ -20,6 +24,7 @@ async function writeSkill(params: { workspaceDir: string; name: string; descript
   );
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
@@ -61,11 +66,28 @@ function _assertModelSelection(
 
 =======
 >>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
+=======
+async function runThinkingDirective(home: string, model: string) {
+  const res = await getReplyFromConfig(
+    {
+      Body: "/thinking xhigh",
+      From: "+1004",
+      To: "+2000",
+      CommandAuthorized: true,
+    },
+    {},
+    makeWhatsAppDirectiveConfig(home, { model }, { session: { store: sessionStorePath(home) } }),
+  );
+  return replyTexts(res);
+}
+
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 describe("directive behavior", () => {
   installDirectiveBehaviorE2EHooks();
 
   it("accepts /thinking xhigh for codex models", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -89,11 +111,15 @@ describe("directive behavior", () => {
       );
 
       const texts = (Array.isArray(res) ? res : [res]).map((entry) => entry?.text).filter(Boolean);
+=======
+      const texts = await runThinkingDirective(home, "openai-codex/gpt-5.2-codex");
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(texts).toContain("Thinking level set to xhigh.");
     });
   });
   it("accepts /thinking xhigh for openai gpt-5.2", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -117,11 +143,15 @@ describe("directive behavior", () => {
       );
 
       const texts = (Array.isArray(res) ? res : [res]).map((entry) => entry?.text).filter(Boolean);
+=======
+      const texts = await runThinkingDirective(home, "openai/gpt-5.2");
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(texts).toContain("Thinking level set to xhigh.");
     });
   });
   it("rejects /thinking xhigh for non-codex models", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
 
       const res = await getReplyFromConfig(
@@ -145,6 +175,9 @@ describe("directive behavior", () => {
       );
 
       const texts = (Array.isArray(res) ? res : [res]).map((entry) => entry?.text).filter(Boolean);
+=======
+      const texts = await runThinkingDirective(home, "openai/gpt-4.1-mini");
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(texts).toContain(
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -168,6 +201,7 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -176,14 +210,21 @@ describe("directive behavior", () => {
               models: {
                 "anthropic/claude-opus-4-5": { alias: " help " },
               },
+=======
+        makeWhatsAppDirectiveConfig(
+          home,
+          {
+            model: "anthropic/claude-opus-4-5",
+            models: {
+              "anthropic/claude-opus-4-5": { alias: " help " },
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
             },
           },
-          channels: { whatsapp: { allowFrom: ["*"] } },
-          session: { store: path.join(home, "sessions.json") },
-        },
+          { session: { store: sessionStorePath(home) } },
+        ),
       );
 
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
+      const text = replyText(res);
       expect(text).toContain("Help");
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
@@ -210,19 +251,17 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
-        {
-          agents: {
-            defaults: {
-              model: "anthropic/claude-opus-4-5",
-              workspace,
-              models: {
-                "anthropic/claude-opus-4-5": { alias: "demo_skill" },
-              },
+        makeWhatsAppDirectiveConfig(
+          home,
+          {
+            model: "anthropic/claude-opus-4-5",
+            workspace,
+            models: {
+              "anthropic/claude-opus-4-5": { alias: "demo_skill" },
             },
           },
-          channels: { whatsapp: { allowFrom: ["*"] } },
-          session: { store: path.join(home, "sessions.json") },
-        },
+          { session: { store: sessionStorePath(home) } },
+        ),
       );
 
       expect(runEmbeddedPiAgent).toHaveBeenCalled();
@@ -240,19 +279,25 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
             },
+=======
+        makeWhatsAppDirectiveConfig(
+          home,
+          { model: "anthropic/claude-opus-4-5" },
+          {
+            session: { store: sessionStorePath(home) },
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
           },
-          channels: { whatsapp: { allowFrom: ["*"] } },
-          session: { store: path.join(home, "sessions.json") },
-        },
+        ),
       );
 
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
+      const text = replyText(res);
       expect(text).toContain("Invalid debounce");
       expect(text).toContain("Invalid cap");
       expect(text).toContain("Invalid drop policy");
@@ -270,27 +315,32 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
+=======
+        makeWhatsAppDirectiveConfig(
+          home,
+          { model: "anthropic/claude-opus-4-5" },
+          {
+            messages: {
+              queue: {
+                mode: "collect",
+                debounceMs: 1500,
+                cap: 9,
+                drop: "summarize",
+              },
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
             },
+            session: { store: sessionStorePath(home) },
           },
-          messages: {
-            queue: {
-              mode: "collect",
-              debounceMs: 1500,
-              cap: 9,
-              drop: "summarize",
-            },
-          },
-          channels: { whatsapp: { allowFrom: ["*"] } },
-          session: { store: path.join(home, "sessions.json") },
-        },
+        ),
       );
 
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
+      const text = replyText(res);
       expect(text).toContain(
         "Current queue settings: mode=collect, debounce=1500ms, cap=9, drop=summarize.",
       );
@@ -305,6 +355,7 @@ describe("directive behavior", () => {
       const res = await getReplyFromConfig(
         { Body: "/think", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -315,9 +366,16 @@ describe("directive behavior", () => {
           },
           session: { store: path.join(home, "sessions.json") },
         },
+=======
+        makeWhatsAppDirectiveConfig(
+          home,
+          { model: "anthropic/claude-opus-4-5", thinkingDefault: "high" },
+          { session: { store: sessionStorePath(home) } },
+        ),
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       );
 
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
+      const text = replyText(res);
       expect(text).toContain("Current thinking level: high");
       expect(text).toContain("Options: off, minimal, low, medium, high.");
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();

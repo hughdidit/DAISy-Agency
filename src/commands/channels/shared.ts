@@ -1,13 +1,19 @@
+import type { OpenClawConfig } from "../../config/config.js";
 import { type ChannelId, getChannelPlugin } from "../../channels/plugins/index.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 import { type MoltbotConfig, readConfigFileSnapshot } from "../../config/config.js";
+=======
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
 import { defaultRuntime, type RuntimeEnv } from "../../runtime.js";
+import { requireValidConfigSnapshot } from "../config-validation.js";
 
 export type ChatChannel = ChannelId;
 
 export async function requireValidConfig(
   runtime: RuntimeEnv = defaultRuntime,
+<<<<<<< HEAD
 ): Promise<MoltbotConfig | null> {
   const snapshot = await readConfigFileSnapshot();
   if (snapshot.exists && !snapshot.valid) {
@@ -21,6 +27,10 @@ export async function requireValidConfig(
     return null;
   }
   return snapshot.config;
+=======
+): Promise<OpenClawConfig | null> {
+  return await requireValidConfigSnapshot(runtime);
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 }
 
 export function formatAccountLabel(params: { accountId: string; name?: string }) {

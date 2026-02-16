@@ -39,13 +39,13 @@ vi.mock("../agents/subagent-announce.js", () => ({
 >>>>>>> 9b9dc65a2 (fix(test): remove unused cron imports)
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CliDeps } from "../cli/deps.js";
+<<<<<<< HEAD
 >>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
 import { loadModelCatalog } from "../agents/model-catalog.js";
+=======
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
-import { telegramOutbound } from "../channels/plugins/outbound/telegram.js";
-import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 <<<<<<< HEAD
 
@@ -124,6 +124,7 @@ import {
   withTempCronHome,
   writeSessionStore,
 } from "./isolated-agent.test-harness.js";
+<<<<<<< HEAD
 >>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
 
 describe("runCronIsolatedAgentTurn", () => {
@@ -144,6 +145,13 @@ describe("runCronIsolatedAgentTurn", () => {
       ]),
     );
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+=======
+import { setupIsolatedAgentTurnMocks } from "./isolated-agent.test-setup.js";
+
+describe("runCronIsolatedAgentTurn", () => {
+  beforeEach(() => {
+    setupIsolatedAgentTurnMocks({ fast: true });
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 
   it("handles media heartbeat delivery and announce cleanup modes", async () => {

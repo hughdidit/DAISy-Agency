@@ -1,14 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { RuntimeEnv } from "../runtime.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
+=======
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import { discordPlugin } from "../../extensions/discord/src/channel.js";
 import { imessagePlugin } from "../../extensions/imessage/src/channel.js";
 import { signalPlugin } from "../../extensions/signal/src/channel.js";
 import { slackPlugin } from "../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
+<<<<<<< HEAD
+=======
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import { baseConfigSnapshot, createTestRuntime } from "./test-runtime-config-helpers.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 const configMocks = vi.hoisted(() => ({
   readConfigFileSnapshot: vi.fn(),
@@ -43,6 +52,7 @@ import {
   formatGatewayChannelsStatusLines,
 } from "./channels.js";
 
+<<<<<<< HEAD
 const runtime: RuntimeEnv = {
   log: vi.fn(),
   error: vi.fn(),
@@ -59,6 +69,9 @@ const baseSnapshot = {
   issues: [],
   legacyIssues: [],
 };
+=======
+const runtime = createTestRuntime();
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 describe("channels command", () => {
   beforeEach(() => {
@@ -85,7 +98,7 @@ describe("channels command", () => {
   });
 
   it("adds a non-default telegram account", async () => {
-    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseSnapshot });
+    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseConfigSnapshot });
     await channelsAddCommand(
       { channel: "telegram", account: "alerts", token: "123:abc" },
       runtime,
@@ -106,7 +119,7 @@ describe("channels command", () => {
   });
 
   it("adds a default slack account with tokens", async () => {
-    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseSnapshot });
+    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseConfigSnapshot });
     await channelsAddCommand(
       {
         channel: "slack",
@@ -131,7 +144,7 @@ describe("channels command", () => {
 
   it("deletes a non-default discord account", async () => {
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: {
         channels: {
           discord: {
@@ -159,7 +172,7 @@ describe("channels command", () => {
   });
 
   it("adds a named WhatsApp account", async () => {
-    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseSnapshot });
+    configMocks.readConfigFileSnapshot.mockResolvedValue({ ...baseConfigSnapshot });
     await channelsAddCommand(
       { channel: "whatsapp", account: "family", name: "Family Phone" },
       runtime,
@@ -176,7 +189,7 @@ describe("channels command", () => {
 
   it("adds a second signal account with a distinct name", async () => {
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: {
         channels: {
           signal: {
@@ -213,7 +226,7 @@ describe("channels command", () => {
 
   it("disables a default provider account when remove has no delete flag", async () => {
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: {
         channels: { discord: { token: "d0", enabled: true } },
       },
@@ -238,7 +251,7 @@ describe("channels command", () => {
 
   it("includes external auth profiles in JSON output", async () => {
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: {},
     });
     authMocks.loadAuthProfileStore.mockReturnValue({
@@ -274,7 +287,7 @@ describe("channels command", () => {
 
   it("stores default account names in accounts when multiple accounts exist", async () => {
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: {
         channels: {
           telegram: {
@@ -312,7 +325,7 @@ describe("channels command", () => {
 
   it("migrates base names when adding non-default accounts", async () => {
     configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseSnapshot,
+      ...baseConfigSnapshot,
       config: {
         channels: {
           discord: {

@@ -11,6 +11,7 @@ import { buildEmbeddedSandboxInfo } from "./pi-embedded-runner.js";
 import type { SandboxContext } from "./sandbox.js";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 vi.mock("@mariozechner/pi-ai", async () => {
   const actual = await vi.importActual<typeof import("@mariozechner/pi-ai")>("@mariozechner/pi-ai");
   return {
@@ -107,12 +108,49 @@ const _readSessionMessages = async (sessionFile: string) => {
 
 =======
 >>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
+=======
+function createSandboxContext(overrides?: Partial<SandboxContext>): SandboxContext {
+  const base = {
+    enabled: true,
+    sessionKey: "session:test",
+    workspaceDir: "/tmp/openclaw-sandbox",
+    agentWorkspaceDir: "/tmp/openclaw-workspace",
+    workspaceAccess: "none",
+    containerName: "openclaw-sbx-test",
+    containerWorkdir: "/workspace",
+    docker: {
+      image: "openclaw-sandbox:bookworm-slim",
+      containerPrefix: "openclaw-sbx-",
+      workdir: "/workspace",
+      readOnlyRoot: true,
+      tmpfs: ["/tmp"],
+      network: "none",
+      user: "1000:1000",
+      capDrop: ["ALL"],
+      env: { LANG: "C.UTF-8" },
+    },
+    tools: {
+      allow: ["exec"],
+      deny: ["browser"],
+    },
+    browserAllowHostControl: true,
+    browser: {
+      bridgeUrl: "http://localhost:9222",
+      noVncUrl: "http://localhost:6080",
+      containerName: "openclaw-sbx-browser-test",
+    },
+  } satisfies SandboxContext;
+  return { ...base, ...overrides };
+}
+
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 describe("buildEmbeddedSandboxInfo", () => {
   it("returns undefined when sandbox is missing", () => {
     expect(buildEmbeddedSandboxInfo()).toBeUndefined();
   });
 
   it("maps sandbox context into prompt info", () => {
+<<<<<<< HEAD
     const sandbox = {
       enabled: true,
       sessionKey: "session:test",
@@ -143,6 +181,9 @@ describe("buildEmbeddedSandboxInfo", () => {
         containerName: "moltbot-sbx-browser-test",
       },
     } satisfies SandboxContext;
+=======
+    const sandbox = createSandboxContext();
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     expect(buildEmbeddedSandboxInfo(sandbox)).toEqual({
       enabled: true,
@@ -161,6 +202,7 @@ describe("buildEmbeddedSandboxInfo", () => {
   });
 
   it("includes elevated info when allowed", () => {
+<<<<<<< HEAD
     const sandbox = {
       enabled: true,
       sessionKey: "session:test",
@@ -184,8 +226,12 @@ describe("buildEmbeddedSandboxInfo", () => {
         allow: ["exec"],
         deny: ["browser"],
       },
+=======
+    const sandbox = createSandboxContext({
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       browserAllowHostControl: false,
-    } satisfies SandboxContext;
+      browser: undefined,
+    });
 
     expect(
       buildEmbeddedSandboxInfo(sandbox, {

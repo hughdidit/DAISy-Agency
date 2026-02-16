@@ -68,6 +68,22 @@ function createMinimaxImageConfig(): OpenClawConfig {
   };
 }
 
+async function expectImageToolExecOk(
+  tool: {
+    execute: (toolCallId: string, input: { prompt: string; image: string }) => Promise<unknown>;
+  },
+  image: string,
+) {
+  await expect(
+    tool.execute("t1", {
+      prompt: "Describe the image.",
+      image,
+    }),
+  ).resolves.toMatchObject({
+    content: [{ type: "text", text: "ok" }],
+  });
+}
+
 describe("image tool implicit imageModel config", () => {
   const priorFetch = global.fetch;
 
@@ -226,14 +242,7 @@ describe("image tool implicit imageModel config", () => {
           throw new Error("expected image tool");
         }
 
-        await expect(
-          withWorkspace.execute("t1", {
-            prompt: "Describe the image.",
-            image: imagePath,
-          }),
-        ).resolves.toMatchObject({
-          content: [{ type: "text", text: "ok" }],
-        });
+        await expectImageToolExecOk(withWorkspace, imagePath);
 
         expect(fetch).toHaveBeenCalledTimes(1);
       } finally {
@@ -256,14 +265,7 @@ describe("image tool implicit imageModel config", () => {
           throw new Error("expected image tool");
         }
 
-        await expect(
-          tool.execute("t1", {
-            prompt: "Describe the image.",
-            image: imagePath,
-          }),
-        ).resolves.toMatchObject({
-          content: [{ type: "text", text: "ok" }],
-        });
+        await expectImageToolExecOk(tool, imagePath);
 
         expect(fetch).toHaveBeenCalledTimes(1);
       } finally {
@@ -387,15 +389,15 @@ describe("image tool MiniMax VLM routing", () => {
     global.fetch = priorFetch;
   });
 
-  it("calls /v1/coding_plan/vlm for minimax image models", async () => {
+  async function createMinimaxVlmFixture(baseResp: { status_code: number; status_msg: string }) {
     const fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
       statusText: "OK",
       headers: new Headers(),
       json: async () => ({
-        content: "ok",
-        base_resp: { status_code: 0, status_msg: "" },
+        content: baseResp.status_code === 0 ? "ok" : "",
+        base_resp: baseResp,
       }),
     });
     // @ts-expect-error partial global
@@ -411,6 +413,11 @@ describe("image tool MiniMax VLM routing", () => {
     if (!tool) {
       throw new Error("expected image tool");
     }
+    return { fetch, tool };
+  }
+
+  it("calls /v1/coding_plan/vlm for minimax image models", async () => {
+    const { fetch, tool } = await createMinimaxVlmFixture({ status_code: 0, status_msg: "" });
 
     const res = await tool.execute("t1", {
       prompt: "Describe the image.",
@@ -432,6 +439,7 @@ describe("image tool MiniMax VLM routing", () => {
   });
 
   it("surfaces MiniMax API errors from /v1/coding_plan/vlm", async () => {
+<<<<<<< HEAD
     const fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -455,6 +463,9 @@ describe("image tool MiniMax VLM routing", () => {
     if (!tool) {
       throw new Error("expected image tool");
     }
+=======
+    const { tool } = await createMinimaxVlmFixture({ status_code: 1004, status_msg: "bad key" });
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     await expect(
       tool.execute("t1", {

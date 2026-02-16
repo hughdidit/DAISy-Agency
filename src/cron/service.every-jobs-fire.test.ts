@@ -10,6 +10,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 >>>>>>> badde6e29 (perf(test): speed up cron schedule suite)
 =======
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> a6cd7ef49 (refactor(test): share cron service fixtures)
 import type { CronEvent } from "./service.js";
 <<<<<<< HEAD
@@ -17,8 +18,11 @@ import type { CronJob } from "./types.js";
 >>>>>>> e6d5b5fb1 (perf(test): remove slow port inspection and reconnect sleeps)
 =======
 >>>>>>> 4335668d2 (chore(test): fix cron every-jobs-fire unused import)
+=======
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import { CronService } from "./service.js";
 import {
+  createStartedCronServiceWithFinishedBarrier,
   createCronStoreHarness,
   createNoopLogger,
   installCronTestHooks,
@@ -28,6 +32,7 @@ const noopLogger = createNoopLogger();
 const { makeStorePath } = createCronStoreHarness();
 installCronTestHooks({ logger: noopLogger });
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 function createFinishedBarrier() {
@@ -52,21 +57,14 @@ function createFinishedBarrier() {
 }
 
 >>>>>>> e6d5b5fb1 (perf(test): remove slow port inspection and reconnect sleeps)
+=======
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 describe("CronService interval/cron jobs fire on time", () => {
   it("fires an every-type main job when the timer fires a few ms late", async () => {
     const store = await makeStorePath();
-    const enqueueSystemEvent = vi.fn();
-    const requestHeartbeatNow = vi.fn();
-    const finished = createFinishedBarrier();
-
-    const cron = new CronService({
+    const { cron, enqueueSystemEvent, finished } = createStartedCronServiceWithFinishedBarrier({
       storePath: store.storePath,
-      cronEnabled: true,
-      log: noopLogger,
-      enqueueSystemEvent,
-      requestHeartbeatNow,
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
-      onEvent: finished.onEvent,
+      logger: noopLogger,
     });
 
     await cron.start();
@@ -110,22 +108,13 @@ describe("CronService interval/cron jobs fire on time", () => {
 
   it("fires a cron-expression job when the timer fires a few ms late", async () => {
     const store = await makeStorePath();
-    const enqueueSystemEvent = vi.fn();
-    const requestHeartbeatNow = vi.fn();
-    const finished = createFinishedBarrier();
+    const { cron, enqueueSystemEvent, finished } = createStartedCronServiceWithFinishedBarrier({
+      storePath: store.storePath,
+      logger: noopLogger,
+    });
 
     // Set time to just before a minute boundary.
     vi.setSystemTime(new Date("2025-12-13T00:00:59.000Z"));
-
-    const cron = new CronService({
-      storePath: store.storePath,
-      cronEnabled: true,
-      log: noopLogger,
-      enqueueSystemEvent,
-      requestHeartbeatNow,
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
-      onEvent: finished.onEvent,
-    });
 
     await cron.start();
     const job = await cron.add({

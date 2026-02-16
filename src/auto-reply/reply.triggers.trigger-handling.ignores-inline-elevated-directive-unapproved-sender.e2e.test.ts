@@ -6,6 +6,7 @@ import {
   installTriggerHandlingE2eTestHooks,
   MAIN_SESSION_KEY,
   makeCfg,
+  makeWhatsAppElevatedCfg,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
@@ -73,6 +74,7 @@ describe("trigger handling", () => {
           agentMeta: { sessionId: "s", provider: "p", model: "m" },
         },
       });
+<<<<<<< HEAD
       const cfg = {
         agents: {
           defaults: {
@@ -92,6 +94,9 @@ describe("trigger handling", () => {
         },
         session: { store: join(home, "sessions.json") },
       };
+=======
+      const cfg = makeWhatsAppElevatedCfg(home);
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
       const res = await getReplyFromConfig(
         {

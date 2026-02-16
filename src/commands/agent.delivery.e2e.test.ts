@@ -31,12 +31,52 @@ vi.mock("../infra/outbound/targets.js", async () => {
 });
 
 describe("deliverAgentCommandResult", () => {
+  function createRuntime(): RuntimeEnv {
+    return {
+      log: vi.fn(),
+      error: vi.fn(),
+    } as unknown as RuntimeEnv;
+  }
+
+  function createResult(text = "hi") {
+    return {
+      payloads: [{ text }],
+      meta: {},
+    };
+  }
+
+  async function runDelivery(params: {
+    opts: Record<string, unknown>;
+    sessionEntry?: SessionEntry;
+    runtime?: RuntimeEnv;
+    resultText?: string;
+  }) {
+    const cfg = {} as OpenClawConfig;
+    const deps = {} as CliDeps;
+    const runtime = params.runtime ?? createRuntime();
+    const result = createResult(params.resultText);
+    const { deliverAgentCommandResult } = await import("./agent/delivery.js");
+
+    await deliverAgentCommandResult({
+      cfg,
+      deps,
+      runtime,
+      opts: params.opts as never,
+      sessionEntry: params.sessionEntry,
+      result,
+      payloads: result.payloads,
+    });
+
+    return { runtime };
+  }
+
   beforeEach(() => {
     mocks.deliverOutboundPayloads.mockClear();
     mocks.resolveOutboundTarget.mockClear();
   });
 
   it("prefers explicit accountId for outbound delivery", async () => {
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -56,6 +96,9 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
+=======
+    await runDelivery({
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
@@ -63,9 +106,9 @@ describe("deliverAgentCommandResult", () => {
         accountId: "kev",
         to: "+15551234567",
       },
-      sessionEntry,
-      result,
-      payloads: result.payloads,
+      sessionEntry: {
+        lastAccountId: "default",
+      } as SessionEntry,
     });
 
     expect(mocks.deliverOutboundPayloads).toHaveBeenCalledWith(
@@ -74,6 +117,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("falls back to session accountId for implicit delivery", async () => {
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -94,14 +138,18 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
+=======
+    await runDelivery({
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
         channel: "whatsapp",
       },
-      sessionEntry,
-      result,
-      payloads: result.payloads,
+      sessionEntry: {
+        lastAccountId: "legacy",
+        lastChannel: "whatsapp",
+      } as SessionEntry,
     });
 
     expect(mocks.deliverOutboundPayloads).toHaveBeenCalledWith(
@@ -110,6 +158,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("does not infer accountId for explicit delivery targets", async () => {
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -129,6 +178,9 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
+=======
+    await runDelivery({
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
@@ -136,9 +188,9 @@ describe("deliverAgentCommandResult", () => {
         to: "+15551234567",
         deliveryTargetMode: "explicit",
       },
-      sessionEntry,
-      result,
-      payloads: result.payloads,
+      sessionEntry: {
+        lastAccountId: "legacy",
+      } as SessionEntry,
     });
 
     expect(mocks.resolveOutboundTarget).toHaveBeenCalledWith(
@@ -150,6 +202,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("skips session accountId when channel differs", async () => {
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -170,14 +223,18 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
+=======
+    await runDelivery({
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
         channel: "whatsapp",
       },
-      sessionEntry,
-      result,
-      payloads: result.payloads,
+      sessionEntry: {
+        lastAccountId: "legacy",
+        lastChannel: "telegram",
+      } as SessionEntry,
     });
 
     expect(mocks.resolveOutboundTarget).toHaveBeenCalledWith(
@@ -186,6 +243,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("uses session last channel when none is provided", async () => {
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -206,13 +264,17 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
+=======
+    await runDelivery({
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
       },
-      sessionEntry,
-      result,
-      payloads: result.payloads,
+      sessionEntry: {
+        lastChannel: "telegram",
+        lastTo: "123",
+      } as SessionEntry,
     });
 
     expect(mocks.resolveOutboundTarget).toHaveBeenCalledWith(
@@ -221,6 +283,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("uses reply overrides for delivery routing", async () => {
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -242,6 +305,9 @@ describe("deliverAgentCommandResult", () => {
       cfg,
       deps,
       runtime,
+=======
+    await runDelivery({
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       opts: {
         message: "hello",
         deliver: true,
@@ -250,9 +316,11 @@ describe("deliverAgentCommandResult", () => {
         replyChannel: "slack",
         replyAccountId: "ops",
       },
-      sessionEntry,
-      result,
-      payloads: result.payloads,
+      sessionEntry: {
+        lastChannel: "telegram",
+        lastTo: "123",
+        lastAccountId: "legacy",
+      } as SessionEntry,
     });
 
     expect(mocks.resolveOutboundTarget).toHaveBeenCalledWith(
@@ -261,6 +329,7 @@ describe("deliverAgentCommandResult", () => {
   });
 
   it("prefixes nested agent outputs with context", async () => {
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
     const deps = {} as CliDeps;
     const runtime = {
@@ -276,7 +345,12 @@ describe("deliverAgentCommandResult", () => {
     await deliverAgentCommandResult({
       cfg,
       deps,
+=======
+    const runtime = createRuntime();
+    await runDelivery({
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       runtime,
+      resultText: "ANNOUNCE_SKIP",
       opts: {
         message: "hello",
         deliver: false,
@@ -286,8 +360,6 @@ describe("deliverAgentCommandResult", () => {
         messageChannel: "webchat",
       },
       sessionEntry: undefined,
-      result,
-      payloads: result.payloads,
     });
 
     expect(runtime.log).toHaveBeenCalledTimes(1);

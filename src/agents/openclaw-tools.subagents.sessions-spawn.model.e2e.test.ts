@@ -48,13 +48,16 @@ import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import "./test-helpers/fast-core-tools.js";
 import {
   getCallGatewayMock,
+  getSessionsSpawnTool,
   resetSessionsSpawnConfigOverride,
   setSessionsSpawnConfigOverride,
 } from "./openclaw-tools.subagents.sessions-spawn.test-harness.js";
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 const callGatewayMock = getCallGatewayMock();
+type GatewayCall = { method?: string; params?: unknown };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-applies-model-child-session.e2e.test.ts
 describe("openclaw-tools: subagents", () => {
@@ -63,15 +66,53 @@ describe("openclaw-tools: subagents", () => {
 =======
 type CreateOpenClawTools = (typeof import("./openclaw-tools.js"))["createOpenClawTools"];
 type CreateOpenClawToolsOpts = Parameters<CreateOpenClawTools>[0];
+=======
+function mockLongRunningSpawnFlow(params: {
+  calls: GatewayCall[];
+  acceptedAtBase: number;
+  patch?: (request: GatewayCall) => Promise<unknown>;
+}) {
+  let agentCallCount = 0;
+  callGatewayMock.mockImplementation(async (opts: unknown) => {
+    const request = opts as GatewayCall;
+    params.calls.push(request);
+    if (request.method === "sessions.patch") {
+      if (params.patch) {
+        return await params.patch(request);
+      }
+      return { ok: true };
+    }
+    if (request.method === "agent") {
+      agentCallCount += 1;
+      return {
+        runId: `run-${agentCallCount}`,
+        status: "accepted",
+        acceptedAt: params.acceptedAtBase + agentCallCount,
+      };
+    }
+    if (request.method === "agent.wait") {
+      return { status: "timeout" };
+    }
+    if (request.method === "sessions.delete") {
+      return { ok: true };
+    }
+    return {};
+  });
+}
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
-async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
-  // Dynamic import: ensure harness mocks are installed before tool modules load.
-  const { createOpenClawTools } = await import("./openclaw-tools.js");
-  const tool = createOpenClawTools(opts).find((candidate) => candidate.name === "sessions_spawn");
-  if (!tool) {
-    throw new Error("missing sessions_spawn tool");
-  }
-  return tool;
+function mockPatchAndSingleAgentRun(params: { calls: GatewayCall[]; runId: string }) {
+  callGatewayMock.mockImplementation(async (opts: unknown) => {
+    const request = opts as GatewayCall;
+    params.calls.push(request);
+    if (request.method === "sessions.patch") {
+      return { ok: true };
+    }
+    if (request.method === "agent") {
+      return { runId: params.runId, status: "accepted" };
+    }
+    return {};
+  });
 }
 
 >>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
@@ -84,32 +125,8 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
   it("sessions_spawn applies a model to the child session", async () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
-    const calls: Array<{ method?: string; params?: unknown }> = [];
-    let agentCallCount = 0;
-
-    callGatewayMock.mockImplementation(async (opts: unknown) => {
-      const request = opts as { method?: string; params?: unknown };
-      calls.push(request);
-      if (request.method === "sessions.patch") {
-        return { ok: true };
-      }
-      if (request.method === "agent") {
-        agentCallCount += 1;
-        const runId = `run-${agentCallCount}`;
-        return {
-          runId,
-          status: "accepted",
-          acceptedAt: 3000 + agentCallCount,
-        };
-      }
-      if (request.method === "agent.wait") {
-        return { status: "timeout" };
-      }
-      if (request.method === "sessions.delete") {
-        return { ok: true };
-      }
-      return {};
-    });
+    const calls: GatewayCall[] = [];
+    mockLongRunningSpawnFlow({ calls, acceptedAtBase: 3000 });
 
 <<<<<<< HEAD
     const tool = createMoltbotTools({
@@ -220,19 +237,8 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
       session: { mainKey: "main", scope: "per-sender" },
       agents: { defaults: { subagents: { model: "minimax/MiniMax-M2.1" } } },
     });
-    const calls: Array<{ method?: string; params?: unknown }> = [];
-
-    callGatewayMock.mockImplementation(async (opts: unknown) => {
-      const request = opts as { method?: string; params?: unknown };
-      calls.push(request);
-      if (request.method === "sessions.patch") {
-        return { ok: true };
-      }
-      if (request.method === "agent") {
-        return { runId: "run-default-model", status: "accepted" };
-      }
-      return {};
-    });
+    const calls: GatewayCall[] = [];
+    mockPatchAndSingleAgentRun({ calls, runId: "run-default-model" });
 
 <<<<<<< HEAD
     const tool = createMoltbotTools({
@@ -262,19 +268,8 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
   it("sessions_spawn falls back to runtime default model when no model config is set", async () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
-    const calls: Array<{ method?: string; params?: unknown }> = [];
-
-    callGatewayMock.mockImplementation(async (opts: unknown) => {
-      const request = opts as { method?: string; params?: unknown };
-      calls.push(request);
-      if (request.method === "sessions.patch") {
-        return { ok: true };
-      }
-      if (request.method === "agent") {
-        return { runId: "run-runtime-default-model", status: "accepted" };
-      }
-      return {};
-    });
+    const calls: GatewayCall[] = [];
+    mockPatchAndSingleAgentRun({ calls, runId: "run-runtime-default-model" });
 
     const tool = await getSessionsSpawnTool({
       agentSessionKey: "agent:main:main",
@@ -307,19 +302,8 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
         list: [{ id: "research", subagents: { model: "opencode/claude" } }],
       },
     });
-    const calls: Array<{ method?: string; params?: unknown }> = [];
-
-    callGatewayMock.mockImplementation(async (opts: unknown) => {
-      const request = opts as { method?: string; params?: unknown };
-      calls.push(request);
-      if (request.method === "sessions.patch") {
-        return { ok: true };
-      }
-      if (request.method === "agent") {
-        return { runId: "run-agent-model", status: "accepted" };
-      }
-      return {};
-    });
+    const calls: GatewayCall[] = [];
+    mockPatchAndSingleAgentRun({ calls, runId: "run-agent-model" });
 
     const tool = await getSessionsSpawnTool({
       agentSessionKey: "agent:research:main",
@@ -345,35 +329,17 @@ describe("openclaw-tools: subagents (sessions_spawn model + thinking)", () => {
   it("sessions_spawn skips invalid model overrides and continues", async () => {
     resetSubagentRegistryForTests();
     callGatewayMock.mockReset();
-    const calls: Array<{ method?: string; params?: unknown }> = [];
-    let agentCallCount = 0;
-
-    callGatewayMock.mockImplementation(async (opts: unknown) => {
-      const request = opts as { method?: string; params?: unknown };
-      calls.push(request);
-      if (request.method === "sessions.patch") {
+    const calls: GatewayCall[] = [];
+    mockLongRunningSpawnFlow({
+      calls,
+      acceptedAtBase: 4000,
+      patch: async (request) => {
         const model = (request.params as { model?: unknown } | undefined)?.model;
         if (model === "bad-model") {
           throw new Error("invalid model: bad-model");
         }
         return { ok: true };
-      }
-      if (request.method === "agent") {
-        agentCallCount += 1;
-        const runId = `run-${agentCallCount}`;
-        return {
-          runId,
-          status: "accepted",
-          acceptedAt: 4000 + agentCallCount,
-        };
-      }
-      if (request.method === "agent.wait") {
-        return { status: "timeout" };
-      }
-      if (request.method === "sessions.delete") {
-        return { ok: true };
-      }
-      return {};
+      },
     });
 
     const tool = await getSessionsSpawnTool({

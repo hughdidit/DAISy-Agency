@@ -6,6 +6,24 @@ import { normalizeCronJobCreate } from "./normalize.js";
 import { normalizeCronJobCreate, normalizeCronJobPatch } from "./normalize.js";
 >>>>>>> 89dccc79a (cron: infer payload kind for model-only update patches (openclaw#15664) thanks @rodrigouroz)
 
+function expectNormalizedAtSchedule(scheduleInput: Record<string, unknown>) {
+  const normalized = normalizeCronJobCreate({
+    name: "iso schedule",
+    enabled: true,
+    schedule: scheduleInput,
+    sessionTarget: "main",
+    wakeMode: "next-heartbeat",
+    payload: {
+      kind: "systemEvent",
+      text: "hi",
+    },
+  }) as unknown as Record<string, unknown>;
+
+  const schedule = normalized.schedule as Record<string, unknown>;
+  expect(schedule.kind).toBe("at");
+  expect(schedule.at).toBe(new Date(Date.parse("2026-01-12T18:00:00Z")).toISOString());
+}
+
 describe("normalizeCronJobCreate", () => {
   it("maps legacy payload.provider to payload.channel and strips provider", () => {
     const normalized = normalizeCronJobCreate({
@@ -93,39 +111,11 @@ describe("normalizeCronJobCreate", () => {
   });
 
   it("coerces ISO schedule.at to normalized ISO (UTC)", () => {
-    const normalized = normalizeCronJobCreate({
-      name: "iso at",
-      enabled: true,
-      schedule: { at: "2026-01-12T18:00:00" },
-      sessionTarget: "main",
-      wakeMode: "next-heartbeat",
-      payload: {
-        kind: "systemEvent",
-        text: "hi",
-      },
-    }) as unknown as Record<string, unknown>;
-
-    const schedule = normalized.schedule as Record<string, unknown>;
-    expect(schedule.kind).toBe("at");
-    expect(schedule.at).toBe(new Date(Date.parse("2026-01-12T18:00:00Z")).toISOString());
+    expectNormalizedAtSchedule({ at: "2026-01-12T18:00:00" });
   });
 
   it("coerces schedule.atMs string to schedule.at (UTC)", () => {
-    const normalized = normalizeCronJobCreate({
-      name: "iso atMs",
-      enabled: true,
-      schedule: { kind: "at", atMs: "2026-01-12T18:00:00" },
-      sessionTarget: "main",
-      wakeMode: "next-heartbeat",
-      payload: {
-        kind: "systemEvent",
-        text: "hi",
-      },
-    }) as unknown as Record<string, unknown>;
-
-    const schedule = normalized.schedule as Record<string, unknown>;
-    expect(schedule.kind).toBe("at");
-    expect(schedule.at).toBe(new Date(Date.parse("2026-01-12T18:00:00Z")).toISOString());
+    expectNormalizedAtSchedule({ kind: "at", atMs: "2026-01-12T18:00:00" });
   });
 
   it("defaults deleteAfterRun for one-shot schedules", () => {

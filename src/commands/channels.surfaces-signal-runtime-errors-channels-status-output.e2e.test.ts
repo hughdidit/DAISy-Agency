@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { signalPlugin } from "../../extensions/signal/src/channel.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 <<<<<<< HEAD
 import { createIMessageTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
@@ -8,6 +13,7 @@ import { signalPlugin } from "../../extensions/signal/src/channel.js";
 =======
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { createIMessageTestPlugin } from "../test-utils/imessage-test-plugin.js";
+<<<<<<< HEAD
 >>>>>>> eb4215d57 (perf(test): speed up Vitest bootstrap)
 
 const configMocks = vi.hoisted(() => ({
@@ -54,19 +60,12 @@ const _baseSnapshot = {
   issues: [],
   legacyIssues: [],
 };
+=======
+import { formatGatewayChannelsStatusLines } from "./channels/status.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 describe("channels command", () => {
   beforeEach(() => {
-    configMocks.readConfigFileSnapshot.mockReset();
-    configMocks.writeConfigFile.mockClear();
-    authMocks.loadAuthProfileStore.mockReset();
-    runtime.log.mockClear();
-    runtime.error.mockClear();
-    runtime.exit.mockClear();
-    authMocks.loadAuthProfileStore.mockReturnValue({
-      version: 1,
-      profiles: {},
-    });
     setActivePluginRegistry(
       createTestRegistry([{ pluginId: "signal", source: "test", plugin: signalPlugin }]),
     );

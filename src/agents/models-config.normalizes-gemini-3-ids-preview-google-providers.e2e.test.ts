@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 =======
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -36,25 +37,26 @@ const _MODELS_CONFIG: MoltbotConfig = {
     },
   },
 };
+=======
+import { describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { installModelsConfigTestHooks, withModelsTempHome } from "./models-config.e2e-harness.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 describe("models-config", () => {
-  let previousHome: string | undefined;
-
-  beforeEach(() => {
-    previousHome = process.env.HOME;
-  });
-
-  afterEach(() => {
-    process.env.HOME = previousHome;
-  });
+  installModelsConfigTestHooks();
 
   it("normalizes gemini 3 ids to preview for google providers", async () => {
+<<<<<<< HEAD
     await withTempHome(async () => {
 <<<<<<< HEAD
       vi.resetModules();
       const { ensureMoltbotModelsJson } = await import("./models-config.js");
       const { resolveMoltbotAgentDir } = await import("./agent-paths.js");
 =======
+=======
+    await withModelsTempHome(async () => {
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       const { ensureOpenClawModelsJson } = await import("./models-config.js");
       const { resolveOpenClawAgentDir } = await import("./agent-paths.js");
 >>>>>>> b272158fe (perf(test): eliminate resetModules via injectable seams)

@@ -62,6 +62,41 @@ beforeAll(async () => {
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
+async function expectResetBlockedForNonOwner(params: {
+  home: string;
+  commandAuthorized: boolean;
+  getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
+}): Promise<void> {
+  const { home, commandAuthorized, getReplyFromConfig } = params;
+  const res = await getReplyFromConfig(
+    {
+      Body: "/reset",
+      From: "+1003",
+      To: "+2000",
+      CommandAuthorized: commandAuthorized,
+    },
+    {},
+    {
+      agents: {
+        defaults: {
+          model: "anthropic/claude-opus-4-5",
+          workspace: join(home, "openclaw"),
+        },
+      },
+      channels: {
+        whatsapp: {
+          allowFrom: ["+1999"],
+        },
+      },
+      session: {
+        store: join(tmpdir(), `openclaw-session-test-${Date.now()}.json`),
+      },
+    },
+  );
+  expect(res).toBeUndefined();
+  expect(getRunEmbeddedPiAgentMock()).not.toHaveBeenCalled();
+}
+
 describe("trigger handling", () => {
   it("runs a greeting prompt for a bare /reset", async () => {
     await withTempHome(async (home) => {
@@ -111,6 +146,7 @@ describe("trigger handling", () => {
   });
   it("does not reset for unauthorized /reset", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const res = await getReplyFromConfig(
         {
           Body: "/reset",
@@ -138,10 +174,18 @@ describe("trigger handling", () => {
       );
       expect(res).toBeUndefined();
       expect(getRunEmbeddedPiAgentMock()).not.toHaveBeenCalled();
+=======
+      await expectResetBlockedForNonOwner({
+        home,
+        commandAuthorized: false,
+        getReplyFromConfig,
+      });
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     });
   });
   it("blocks /reset for non-owner senders", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const res = await getReplyFromConfig(
         {
           Body: "/reset",
@@ -169,6 +213,13 @@ describe("trigger handling", () => {
       );
       expect(res).toBeUndefined();
       expect(getRunEmbeddedPiAgentMock()).not.toHaveBeenCalled();
+=======
+      await expectResetBlockedForNonOwner({
+        home,
+        commandAuthorized: true,
+        getReplyFromConfig,
+      });
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     });
   });
 });

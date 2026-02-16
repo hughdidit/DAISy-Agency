@@ -52,8 +52,29 @@ function findLastCall(calls: GatewayCall[], predicate: (call: GatewayCall) => bo
   return undefined;
 }
 
+async function expectThinkingPropagation(params: {
+  callId: string;
+  payload: Record<string, unknown>;
+  expectedThinking: string;
+}) {
+  const tool = createSessionsSpawnTool({ agentSessionKey: "agent:test:main" });
+  const result = await tool.execute(params.callId, params.payload);
+  expect(result.details).toMatchObject({ status: "accepted" });
+
+  const calls = await getGatewayCalls();
+  const agentCall = findLastCall(calls, (call) => call.method === "agent");
+  const thinkingPatch = findLastCall(
+    calls,
+    (call) => call.method === "sessions.patch" && call.params?.thinkingLevel !== undefined,
+  );
+
+  expect(agentCall?.params?.thinking).toBe(params.expectedThinking);
+  expect(thinkingPatch?.params?.thinkingLevel).toBe(params.expectedThinking);
+}
+
 describe("sessions_spawn thinking defaults", () => {
   it("applies agents.defaults.subagents.thinking when thinking is omitted", async () => {
+<<<<<<< HEAD
     const tool = createSessionsSpawnTool({ agentSessionKey: "agent:test:main" });
     const result = await tool.execute("call-1", { task: "hello" });
     expect(result.details).toMatchObject({ status: "accepted" });
@@ -99,5 +120,20 @@ describe("sessions_spawn thinking defaults", () => {
 >>>>>>> a1ff0e476 (refactor(test): dedupe sessions_spawn thinking assertions)
 
     expect(agentCall?.params?.thinking).toBe("low");
+=======
+    await expectThinkingPropagation({
+      callId: "call-1",
+      payload: { task: "hello" },
+      expectedThinking: "high",
+    });
+  });
+
+  it("prefers explicit sessions_spawn.thinking over config default", async () => {
+    await expectThinkingPropagation({
+      callId: "call-2",
+      payload: { task: "hello", thinking: "low" },
+      expectedThinking: "low",
+    });
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   });
 });

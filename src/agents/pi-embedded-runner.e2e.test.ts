@@ -147,6 +147,32 @@ const nextSessionFile = () => {
 const testSessionKey = "agent:test:embedded";
 const immediateEnqueue = async <T>(task: () => Promise<T>) => task();
 
+const runWithOrphanedSingleUserMessage = async (text: string) => {
+  const { SessionManager } = await import("@mariozechner/pi-coding-agent");
+  const sessionFile = nextSessionFile();
+  const sessionManager = SessionManager.open(sessionFile);
+  sessionManager.appendMessage({
+    role: "user",
+    content: [{ type: "text", text }],
+  });
+
+  const cfg = makeOpenAiConfig(["mock-1"]);
+  await ensureModels(cfg);
+  return await runEmbeddedPiAgent({
+    sessionId: "session:test",
+    sessionKey: testSessionKey,
+    sessionFile,
+    workspaceDir,
+    config: cfg,
+    prompt: "hello",
+    provider: "openai",
+    model: "mock-1",
+    timeoutMs: 5_000,
+    agentDir,
+    enqueue: immediateEnqueue,
+  });
+};
+
 const textFromContent = (content: unknown) => {
   if (typeof content === "string") {
     return content;
@@ -171,6 +197,24 @@ const readSessionMessages = async (sessionFile: string) => {
     )
     .filter((entry) => entry.type === "message")
     .map((entry) => entry.message as { role?: string; content?: unknown });
+};
+
+const runDefaultEmbeddedTurn = async (sessionFile: string, prompt: string) => {
+  const cfg = makeOpenAiConfig(["mock-1"]);
+  await ensureModels(cfg);
+  await runEmbeddedPiAgent({
+    sessionId: "session:test",
+    sessionKey: testSessionKey,
+    sessionFile,
+    workspaceDir,
+    config: cfg,
+    prompt,
+    provider: "openai",
+    model: "mock-1",
+    timeoutMs: 5_000,
+    agentDir,
+    enqueue: immediateEnqueue,
+  });
 };
 
 describe("runEmbeddedPiAgent", () => {
@@ -299,6 +343,7 @@ describe("runEmbeddedPiAgent", () => {
 
   it("persists the first user message before assistant output", { timeout: 120_000 }, async () => {
     const sessionFile = nextSessionFile();
+<<<<<<< HEAD
     const cfg = makeOpenAiConfig(["mock-1"]);
     await ensureModels(cfg);
 >>>>>>> 53a1ac36f (test: normalize paths in OPENCLAW_HOME tests for cross-platform support (#12212))
@@ -316,6 +361,9 @@ describe("runEmbeddedPiAgent", () => {
       agentDir,
       enqueue: immediateEnqueue,
     });
+=======
+    await runDefaultEmbeddedTurn(sessionFile, "hello");
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
     const messages = await readSessionMessages(sessionFile);
     const firstUserIndex = messages.findIndex(
@@ -391,22 +439,7 @@ describe("runEmbeddedPiAgent", () => {
         timestamp: Date.now(),
       });
 
-      const cfg = makeOpenAiConfig(["mock-1"]);
-      await ensureModels(cfg);
-
-      await runEmbeddedPiAgent({
-        sessionId: "session:test",
-        sessionKey: testSessionKey,
-        sessionFile,
-        workspaceDir,
-        config: cfg,
-        prompt: "hello",
-        provider: "openai",
-        model: "mock-1",
-        timeoutMs: 5_000,
-        agentDir,
-        enqueue: immediateEnqueue,
-      });
+      await runDefaultEmbeddedTurn(sessionFile, "hello");
 
       const messages = await readSessionMessages(sessionFile);
       const seedUserIndex = messages.findIndex(
@@ -486,62 +519,14 @@ describe("runEmbeddedPiAgent", () => {
   });
 
   it("repairs orphaned user messages and continues", async () => {
-    const { SessionManager } = await import("@mariozechner/pi-coding-agent");
-    const sessionFile = nextSessionFile();
-
-    const sessionManager = SessionManager.open(sessionFile);
-    sessionManager.appendMessage({
-      role: "user",
-      content: [{ type: "text", text: "orphaned user" }],
-    });
-
-    const cfg = makeOpenAiConfig(["mock-1"]);
-    await ensureModels(cfg);
-
-    const result = await runEmbeddedPiAgent({
-      sessionId: "session:test",
-      sessionKey: testSessionKey,
-      sessionFile,
-      workspaceDir,
-      config: cfg,
-      prompt: "hello",
-      provider: "openai",
-      model: "mock-1",
-      timeoutMs: 5_000,
-      agentDir,
-      enqueue: immediateEnqueue,
-    });
+    const result = await runWithOrphanedSingleUserMessage("orphaned user");
 
     expect(result.meta.error).toBeUndefined();
     expect(result.payloads?.length ?? 0).toBeGreaterThan(0);
   });
 
   it("repairs orphaned single-user sessions and continues", async () => {
-    const { SessionManager } = await import("@mariozechner/pi-coding-agent");
-    const sessionFile = nextSessionFile();
-
-    const sessionManager = SessionManager.open(sessionFile);
-    sessionManager.appendMessage({
-      role: "user",
-      content: [{ type: "text", text: "solo user" }],
-    });
-
-    const cfg = makeOpenAiConfig(["mock-1"]);
-    await ensureModels(cfg);
-
-    const result = await runEmbeddedPiAgent({
-      sessionId: "session:test",
-      sessionKey: testSessionKey,
-      sessionFile,
-      workspaceDir,
-      config: cfg,
-      prompt: "hello",
-      provider: "openai",
-      model: "mock-1",
-      timeoutMs: 5_000,
-      agentDir,
-      enqueue: immediateEnqueue,
-    });
+    const result = await runWithOrphanedSingleUserMessage("solo user");
 
     expect(result.meta.error).toBeUndefined();
     expect(result.payloads?.length ?? 0).toBeGreaterThan(0);

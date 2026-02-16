@@ -13,6 +13,38 @@ const toolCallMessage = asAppendMessage({
   content: [{ type: "toolCall", id: "call_1", name: "read", arguments: {} }],
 });
 
+function appendToolResultText(sm: SessionManager, text: string) {
+  sm.appendMessage(toolCallMessage);
+  sm.appendMessage(
+    asAppendMessage({
+      role: "toolResult",
+      toolCallId: "call_1",
+      toolName: "read",
+      content: [{ type: "text", text }],
+      isError: false,
+      timestamp: Date.now(),
+    }),
+  );
+}
+
+function getPersistedMessages(sm: SessionManager): AgentMessage[] {
+  return sm
+    .getEntries()
+    .filter((e) => e.type === "message")
+    .map((e) => (e as { message: AgentMessage }).message);
+}
+
+function getToolResultText(messages: AgentMessage[]): string {
+  const toolResult = messages.find((m) => m.role === "toolResult") as {
+    content: Array<{ type: string; text: string }>;
+  };
+  expect(toolResult).toBeDefined();
+  const textBlock = toolResult.content.find((b: { type: string }) => b.type === "text") as {
+    text: string;
+  };
+  return textBlock.text;
+}
+
 describe("installSessionToolResultGuard", () => {
   it("inserts synthetic toolResult before non-tool message when pending", () => {
     const sm = SessionManager.inMemory();
@@ -207,4 +239,59 @@ describe("installSessionToolResultGuard", () => {
 
     expect(messages.map((m) => m.role)).toEqual(["assistant", "toolResult"]);
   });
+<<<<<<< HEAD
+=======
+
+  it("caps oversized tool result text during persistence", () => {
+    const sm = SessionManager.inMemory();
+    installSessionToolResultGuard(sm);
+
+    appendToolResultText(sm, "x".repeat(500_000));
+
+    const text = getToolResultText(getPersistedMessages(sm));
+    expect(text.length).toBeLessThan(500_000);
+    expect(text).toContain("truncated");
+  });
+
+  it("does not truncate tool results under the limit", () => {
+    const sm = SessionManager.inMemory();
+    installSessionToolResultGuard(sm);
+
+    const originalText = "small tool result";
+    appendToolResultText(sm, originalText);
+
+    const text = getToolResultText(getPersistedMessages(sm));
+    expect(text).toBe(originalText);
+  });
+
+  it("applies message persistence transform to user messages", () => {
+    const sm = SessionManager.inMemory();
+    installSessionToolResultGuard(sm, {
+      transformMessageForPersistence: (message) =>
+        (message as { role?: string }).role === "user"
+          ? ({
+              ...(message as unknown as Record<string, unknown>),
+              provenance: { kind: "inter_session", sourceTool: "sessions_send" },
+            } as AgentMessage)
+          : message,
+    });
+
+    sm.appendMessage(
+      asAppendMessage({
+        role: "user",
+        content: "forwarded",
+        timestamp: Date.now(),
+      }),
+    );
+
+    const persisted = sm.getEntries().find((e) => e.type === "message") as
+      | { message?: Record<string, unknown> }
+      | undefined;
+    expect(persisted?.message?.role).toBe("user");
+    expect(persisted?.message?.provenance).toEqual({
+      kind: "inter_session",
+      sourceTool: "sessions_send",
+    });
+  });
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 });

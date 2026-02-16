@@ -4,7 +4,8 @@ import { loadSessionStore } from "../config/sessions.js";
 import {
   installTriggerHandlingE2eTestHooks,
   MAIN_SESSION_KEY,
-  makeCfg,
+  makeWhatsAppElevatedCfg,
+  runDirectElevatedToggleAndLoadStore,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
@@ -65,6 +66,7 @@ installTriggerHandlingE2eTestHooks();
 describe("trigger handling", () => {
   it("allows elevated off in groups without mention", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const baseCfg = makeCfg(home);
       const cfg = {
 <<<<<<< HEAD
@@ -90,6 +92,9 @@ describe("trigger handling", () => {
           },
         },
       };
+=======
+      const cfg = makeWhatsAppElevatedCfg(home, { requireMentionInGroups: false });
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
       const res = await getReplyFromConfig(
         {
@@ -115,6 +120,7 @@ describe("trigger handling", () => {
 
   it("allows elevated directive in groups when mentioned", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const baseCfg = makeCfg(home);
       const cfg = {
 <<<<<<< HEAD
@@ -140,6 +146,9 @@ describe("trigger handling", () => {
           },
         },
       };
+=======
+      const cfg = makeWhatsAppElevatedCfg(home, { requireMentionInGroups: true });
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
       const res = await getReplyFromConfig(
         {
@@ -166,6 +175,7 @@ describe("trigger handling", () => {
 
   it("allows elevated directive in direct chats without mentions", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const baseCfg = makeCfg(home);
       const cfg = {
 <<<<<<< HEAD
@@ -201,13 +211,14 @@ describe("trigger handling", () => {
           CommandAuthorized: true,
         },
         {},
+=======
+      const cfg = makeWhatsAppElevatedCfg(home);
+      const { text, store } = await runDirectElevatedToggleAndLoadStore({
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
         cfg,
-      );
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
+        getReplyFromConfig,
+      });
       expect(text).toContain("Elevated mode set to ask");
-
-      const storeRaw = await fs.readFile(cfg.session.store, "utf-8");
-      const store = JSON.parse(storeRaw) as Record<string, { elevatedLevel?: string }>;
       expect(store[MAIN_SESSION_KEY]?.elevatedLevel).toBe("on");
     });
   });

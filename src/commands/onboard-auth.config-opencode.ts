@@ -1,5 +1,9 @@
 import { OPENCODE_ZEN_DEFAULT_MODEL_REF } from "../agents/opencode-zen-models.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { applyAgentDefaultModelPrimary } from "./onboard-auth.config-shared.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 export function applyOpencodeZenProviderConfig(cfg: MoltbotConfig): MoltbotConfig {
   // Use the built-in opencode provider from pi-ai; only seed the allowlist alias.
@@ -23,22 +27,5 @@ export function applyOpencodeZenProviderConfig(cfg: MoltbotConfig): MoltbotConfi
 
 export function applyOpencodeZenConfig(cfg: MoltbotConfig): MoltbotConfig {
   const next = applyOpencodeZenProviderConfig(cfg);
-  return {
-    ...next,
-    agents: {
-      ...next.agents,
-      defaults: {
-        ...next.agents?.defaults,
-        model: {
-          ...(next.agents?.defaults?.model &&
-          "fallbacks" in (next.agents.defaults.model as Record<string, unknown>)
-            ? {
-                fallbacks: (next.agents.defaults.model as { fallbacks?: string[] }).fallbacks,
-              }
-            : undefined),
-          primary: OPENCODE_ZEN_DEFAULT_MODEL_REF,
-        },
-      },
-    },
-  };
+  return applyAgentDefaultModelPrimary(next, OPENCODE_ZEN_DEFAULT_MODEL_REF);
 }

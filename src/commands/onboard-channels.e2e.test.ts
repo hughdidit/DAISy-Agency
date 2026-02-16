@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import type { WizardPrompter } from "../wizard/prompts.js";
 import { setupChannels } from "./onboard-channels.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
@@ -12,6 +16,7 @@ import { signalPlugin } from "../../extensions/signal/src/channel.js";
 import { slackPlugin } from "../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
+<<<<<<< HEAD
 
 const noopAsync = async () => {};
 
@@ -24,19 +29,21 @@ function createRuntime(): RuntimeEnv {
     }),
   };
 }
+=======
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import { setupChannels } from "./onboard-channels.js";
+import { createExitThrowingRuntime, createWizardPrompter } from "./test-wizard-helpers.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 function createPrompter(overrides: Partial<WizardPrompter>): WizardPrompter {
-  return {
-    intro: vi.fn(noopAsync),
-    outro: vi.fn(noopAsync),
-    note: vi.fn(noopAsync),
-    select: vi.fn(async () => "__done__" as never),
-    multiselect: vi.fn(async () => []),
-    text: vi.fn(async () => "") as unknown as WizardPrompter["text"],
-    confirm: vi.fn(async () => false),
-    progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
-    ...overrides,
-  };
+  return createWizardPrompter(
+    {
+      progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+      ...overrides,
+    },
+    { defaultSelect: "__done__" },
+  );
 }
 
 vi.mock("node:fs/promises", () => ({
@@ -89,7 +96,7 @@ describe("setupChannels", () => {
       text: text as unknown as WizardPrompter["text"],
     });
 
-    const runtime = createRuntime();
+    const runtime = createExitThrowingRuntime();
 
     await setupChannels({} as MoltbotConfig, runtime, prompter, {
       skipConfirm: true,
@@ -122,7 +129,7 @@ describe("setupChannels", () => {
       text: text as unknown as WizardPrompter["text"],
     });
 
-    const runtime = createRuntime();
+    const runtime = createExitThrowingRuntime();
 
     await setupChannels({} as OpenClawConfig, runtime, prompter, {
       skipConfirm: true,
@@ -161,7 +168,7 @@ describe("setupChannels", () => {
       text: text as unknown as WizardPrompter["text"],
     });
 
-    const runtime = createRuntime();
+    const runtime = createExitThrowingRuntime();
 
     await setupChannels(
       {
@@ -213,7 +220,7 @@ describe("setupChannels", () => {
       text: vi.fn(async () => "") as unknown as WizardPrompter["text"],
     });
 
-    const runtime = createRuntime();
+    const runtime = createExitThrowingRuntime();
 
     await setupChannels(
       {
