@@ -247,7 +247,11 @@ export const registerTelegramHandlers = ({
         }
       }
 
-      const storeAllowFrom = await readChannelAllowFromStore("telegram").catch(() => []);
+      const storeAllowFrom = await readChannelAllowFromStore(
+        "telegram",
+        process.env,
+        accountId,
+      ).catch(() => []);
       await processMessage(primaryEntry.ctx, allMedia, storeAllowFrom);
     } catch (err) {
       runtime.error?.(danger(`media group handler failed: ${String(err)}`));
@@ -278,7 +282,11 @@ export const registerTelegramHandlers = ({
         date: last.msg.date ?? first.msg.date,
       };
 
-      const storeAllowFrom = await readChannelAllowFromStore("telegram").catch(() => []);
+      const storeAllowFrom = await readChannelAllowFromStore(
+        "telegram",
+        process.env,
+        accountId,
+      ).catch(() => []);
       const baseCtx = first.ctx;
       const getFile =
         typeof baseCtx.getFile === "function" ? baseCtx.getFile.bind(baseCtx) : async () => ({});
@@ -350,6 +358,7 @@ export const registerTelegramHandlers = ({
       const isForum = callbackMessage.chat.is_forum === true;
       const groupAllowContext = await resolveTelegramGroupAllowFromContext({
         chatId,
+        accountId,
         isForum,
         messageThreadId,
         groupAllowFrom,
@@ -714,6 +723,7 @@ export const registerTelegramHandlers = ({
       const isForum = msg.chat.is_forum === true;
       const groupAllowContext = await resolveTelegramGroupAllowFromContext({
         chatId,
+        accountId,
         isForum,
         messageThreadId,
         groupAllowFrom,

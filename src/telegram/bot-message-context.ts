@@ -264,7 +264,12 @@ export const buildTelegramMessageContext = async ({
             const telegramUserId = from?.id ? String(from.id) : candidate;
             const { code, created } = await upsertChannelPairingRequest({
               channel: "telegram",
+<<<<<<< HEAD
               id: String(candidate),
+=======
+              id: telegramUserId,
+              accountId: account.accountId,
+>>>>>>> 6957354d4 (fix (telegram/whatsapp): use account-scoped pairing allowlists)
               meta: {
                 username: from?.username,
                 firstName: from?.first_name,

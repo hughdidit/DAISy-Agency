@@ -182,7 +182,12 @@ type RegisterTelegramNativeCommandsParams = {
 async function resolveTelegramCommandAuth(params: {
   msg: NonNullable<TelegramNativeCommandContext["message"]>;
   bot: Bot;
+<<<<<<< HEAD
   cfg: MoltbotConfig;
+=======
+  cfg: OpenClawConfig;
+  accountId: string;
+>>>>>>> 6957354d4 (fix (telegram/whatsapp): use account-scoped pairing allowlists)
   telegramCfg: TelegramAccountConfig;
   allowFrom?: Array<string | number>;
   groupAllowFrom?: Array<string | number>;
@@ -198,6 +203,7 @@ async function resolveTelegramCommandAuth(params: {
     msg,
     bot,
     cfg,
+    accountId,
     telegramCfg,
     allowFrom,
     groupAllowFrom,
@@ -212,6 +218,7 @@ async function resolveTelegramCommandAuth(params: {
   const isForum = (msg.chat as { is_forum?: boolean }).is_forum === true;
   const groupAllowContext = await resolveTelegramGroupAllowFromContext({
     chatId,
+    accountId,
     isForum,
     messageThreadId,
     groupAllowFrom,
@@ -454,6 +461,7 @@ export const registerTelegramNativeCommands = ({
             msg,
             bot,
             cfg,
+            accountId,
             telegramCfg,
             allowFrom,
             groupAllowFrom,
@@ -696,6 +704,7 @@ export const registerTelegramNativeCommands = ({
             msg,
             bot,
             cfg,
+            accountId,
             telegramCfg,
             allowFrom,
             groupAllowFrom,
