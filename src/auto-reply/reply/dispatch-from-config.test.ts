@@ -59,6 +59,7 @@ const { resetInboundDedupe } = await import("./inbound-dedupe.js");
 
 const noAbortResult = { handled: false, aborted: false } as const;
 const emptyConfig = {} as OpenClawConfig;
+type DispatchReplyArgs = Parameters<typeof dispatchReplyFromConfig>[0];
 
 function createDispatcher(): ReplyDispatcher {
   return {
@@ -78,6 +79,17 @@ function firstToolResultPayload(dispatcher: ReplyDispatcher): ReplyPayload | und
   return (dispatcher.sendToolResult as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as
     | ReplyPayload
     | undefined;
+}
+
+async function dispatchTwiceWithFreshDispatchers(params: Omit<DispatchReplyArgs, "dispatcher">) {
+  await dispatchReplyFromConfig({
+    ...params,
+    dispatcher: createDispatcher(),
+  });
+  await dispatchReplyFromConfig({
+    ...params,
+    dispatcher: createDispatcher(),
+  });
 }
 
 describe("dispatchReplyFromConfig", () => {
@@ -351,16 +363,9 @@ describe("dispatchReplyFromConfig", () => {
     });
     const replyResolver = vi.fn(async () => ({ text: "hi" }) as ReplyPayload);
 
-    await dispatchReplyFromConfig({
+    await dispatchTwiceWithFreshDispatchers({
       ctx,
       cfg,
-      dispatcher: createDispatcher(),
-      replyResolver,
-    });
-    await dispatchReplyFromConfig({
-      ctx,
-      cfg,
-      dispatcher: createDispatcher(),
       replyResolver,
     });
 
@@ -456,16 +461,9 @@ describe("dispatchReplyFromConfig", () => {
     });
     const replyResolver = vi.fn(async () => ({ text: "hi" }) as ReplyPayload);
 
-    await dispatchReplyFromConfig({
+    await dispatchTwiceWithFreshDispatchers({
       ctx,
       cfg,
-      dispatcher: createDispatcher(),
-      replyResolver,
-    });
-    await dispatchReplyFromConfig({
-      ctx,
-      cfg,
-      dispatcher: createDispatcher(),
       replyResolver,
     });
 
