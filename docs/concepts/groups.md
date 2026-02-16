@@ -98,12 +98,21 @@ Want “groups can only see folder X” instead of “no host access”? Keep `w
         docker: {
           binds: [
             // hostPath:containerPath:mode
+<<<<<<< HEAD:docs/concepts/groups.md
             "~/FriendsShared:/data:ro"
           ]
         }
       }
     }
   }
+=======
+            "/home/user/FriendsShared:/data:ro",
+          ],
+        },
+      },
+    },
+  },
+>>>>>>> 1b6704ef5 (docs: update sandbox bind mount guidance):docs/channels/groups.md
 }
 ```
 
