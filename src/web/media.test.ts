@@ -168,45 +168,14 @@ describe("web media loading", () => {
 >>>>>>> 2c849ea4c (perf(test): reuse SSRF mock setup in web media tests)
 =======
   it("strips MEDIA: prefix before reading local file", async () => {
-    const buffer = await sharp({
-      create: { width: 2, height: 2, channels: 3, background: "#0000ff" },
-    })
-      .png()
-      .toBuffer();
-
-    const file = await writeTempFile(buffer, ".png");
-
-    const result = await loadWebMedia(`MEDIA:${file}`, 1024 * 1024);
-
-    expect(result.kind).toBe("image");
-    expect(result.buffer.length).toBeGreaterThan(0);
-  });
-
-  it("strips MEDIA: prefix with whitespace after colon", async () => {
-    const buffer = await sharp({
-      create: { width: 2, height: 2, channels: 3, background: "#0000ff" },
-    })
-      .png()
-      .toBuffer();
-
-    const file = await writeTempFile(buffer, ".png");
-
-    const result = await loadWebMedia(`MEDIA: ${file}`, 1024 * 1024);
+    const result = await loadWebMedia(`MEDIA:${tinyPngFile}`, 1024 * 1024);
 
     expect(result.kind).toBe("image");
     expect(result.buffer.length).toBeGreaterThan(0);
   });
 
   it("strips MEDIA: prefix with extra whitespace (LLM-friendly)", async () => {
-    const buffer = await sharp({
-      create: { width: 2, height: 2, channels: 3, background: "#0000ff" },
-    })
-      .png()
-      .toBuffer();
-
-    const file = await writeTempFile(buffer, ".png");
-
-    const result = await loadWebMedia(`  MEDIA :  ${file}`, 1024 * 1024);
+    const result = await loadWebMedia(`  MEDIA :  ${tinyPngFile}`, 1024 * 1024);
 
     expect(result.kind).toBe("image");
     expect(result.buffer.length).toBeGreaterThan(0);
