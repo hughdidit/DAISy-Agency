@@ -6,7 +6,7 @@ import type { MarkdownTableMode } from "../../config/types.base.js";
 import { convertMarkdownTables } from "../../markdown/tables.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { chunkDiscordTextWithMode } from "../chunk.js";
-import { sendMessageDiscord } from "../send.js";
+import { sendMessageDiscord, sendVoiceMessageDiscord } from "../send.js";
 
 export async function deliverDiscordReply(params: {
   replies: ReplyPayload[];
@@ -63,6 +63,35 @@ export async function deliverDiscordReply(params: {
     if (!firstMedia) {
       continue;
     }
+
+    // Voice message path: audioAsVoice flag routes through sendVoiceMessageDiscord
+    if (payload.audioAsVoice) {
+      await sendVoiceMessageDiscord(params.target, firstMedia, {
+        token: params.token,
+        rest: params.rest,
+        accountId: params.accountId,
+        replyTo,
+      });
+      // Voice messages cannot include text; send remaining text separately if present
+      if (text.trim()) {
+        await sendMessageDiscord(params.target, text, {
+          token: params.token,
+          rest: params.rest,
+          accountId: params.accountId,
+        });
+      }
+      // Additional media items are sent as regular attachments (voice is single-file only)
+      for (const extra of mediaList.slice(1)) {
+        await sendMessageDiscord(params.target, "", {
+          token: params.token,
+          rest: params.rest,
+          mediaUrl: extra,
+          accountId: params.accountId,
+        });
+      }
+      continue;
+    }
+
     await sendMessageDiscord(params.target, text, {
       token: params.token,
       rest: params.rest,
