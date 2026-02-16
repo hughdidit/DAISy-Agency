@@ -398,11 +398,12 @@ async function runIsolatedAnnounceJobAndWait(params: {
 
 async function addWakeModeNowMainSystemEventJob(
   cron: CronService,
-  options?: { name?: string; agentId?: string },
+  options?: { name?: string; agentId?: string; sessionKey?: string },
 ) {
   return cron.add({
     name: options?.name ?? "wakeMode now",
     ...(options?.agentId ? { agentId: options.agentId } : {}),
+    ...(options?.sessionKey ? { sessionKey: options.sessionKey } : {}),
     enabled: true,
     schedule: { kind: "at", at: new Date(1).toISOString() },
     sessionTarget: "main",
@@ -568,8 +569,12 @@ describe("CronService", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   it("passes agentId to runHeartbeatOnce for main-session wakeMode now jobs", async () => {
+=======
+  it("passes agentId + sessionKey to runHeartbeatOnce for main-session wakeMode now jobs", async () => {
+>>>>>>> f988abf20 (Cron: route reminders by session namespace)
     const runHeartbeatOnce = vi.fn(async () => ({ status: "ran" as const, durationMs: 1 }));
 
     const { store, cron, enqueueSystemEvent, requestHeartbeatNow } =
@@ -580,9 +585,11 @@ describe("CronService", () => {
         wakeNowHeartbeatBusyRetryDelayMs: 2,
       });
 
+    const sessionKey = "agent:ops:discord:channel:alerts";
     const job = await addWakeModeNowMainSystemEventJob(cron, {
       name: "wakeMode now with agent",
       agentId: "ops",
+      sessionKey,
     });
 
     await cron.run(job.id, "force");
@@ -592,12 +599,13 @@ describe("CronService", () => {
       expect.objectContaining({
         reason: `cron:${job.id}`,
         agentId: "ops",
+        sessionKey,
       }),
     );
     expect(requestHeartbeatNow).not.toHaveBeenCalled();
     expect(enqueueSystemEvent).toHaveBeenCalledWith(
       "hello",
-      expect.objectContaining({ agentId: "ops" }),
+      expect.objectContaining({ agentId: "ops", sessionKey }),
     );
 
     cron.stop();
@@ -623,12 +631,21 @@ describe("CronService", () => {
       wakeNowHeartbeatBusyRetryDelayMs: 2,
     });
 
-    const job = await addWakeModeNowMainSystemEventJob(cron, { name: "wakeMode now fallback" });
+    const sessionKey = "agent:main:discord:channel:ops";
+    const job = await addWakeModeNowMainSystemEventJob(cron, {
+      name: "wakeMode now fallback",
+      sessionKey,
+    });
 
     await cron.run(job.id, "force");
 
     expect(runHeartbeatOnce).toHaveBeenCalled();
-    expect(requestHeartbeatNow).toHaveBeenCalled();
+    expect(requestHeartbeatNow).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reason: `cron:${job.id}`,
+        sessionKey,
+      }),
+    );
     expect(job.state.lastStatus).toBe("ok");
     expect(job.state.lastError).toBeUndefined();
 

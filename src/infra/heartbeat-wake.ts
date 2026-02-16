@@ -3,8 +3,24 @@ export type HeartbeatRunResult =
   | { status: "skipped"; reason: string }
   | { status: "failed"; reason: string };
 
-export type HeartbeatWakeHandler = (opts: { reason?: string }) => Promise<HeartbeatRunResult>;
+export type HeartbeatWakeHandler = (opts: {
+  reason?: string;
+  agentId?: string;
+  sessionKey?: string;
+}) => Promise<HeartbeatRunResult>;
 
+<<<<<<< HEAD
+=======
+type WakeTimerKind = "normal" | "retry";
+type PendingWakeReason = {
+  reason: string;
+  priority: number;
+  requestedAt: number;
+  agentId?: string;
+  sessionKey?: string;
+};
+
+>>>>>>> f988abf20 (Cron: route reminders by session namespace)
 let handler: HeartbeatWakeHandler | null = null;
 let pendingReason: string | null = null;
 let scheduled = false;
@@ -14,7 +30,71 @@ let timer: NodeJS.Timeout | null = null;
 const DEFAULT_COALESCE_MS = 250;
 const DEFAULT_RETRY_MS = 1_000;
 
+<<<<<<< HEAD
 function schedule(coalesceMs: number) {
+=======
+function isActionWakeReason(reason: string): boolean {
+  return reason === "manual" || reason === "exec-event" || reason.startsWith(HOOK_REASON_PREFIX);
+}
+
+function resolveReasonPriority(reason: string): number {
+  if (reason === "retry") {
+    return REASON_PRIORITY.RETRY;
+  }
+  if (reason === "interval") {
+    return REASON_PRIORITY.INTERVAL;
+  }
+  if (isActionWakeReason(reason)) {
+    return REASON_PRIORITY.ACTION;
+  }
+  return REASON_PRIORITY.DEFAULT;
+}
+
+function normalizeWakeReason(reason?: string): string {
+  if (typeof reason !== "string") {
+    return "requested";
+  }
+  const trimmed = reason.trim();
+  return trimmed.length > 0 ? trimmed : "requested";
+}
+
+function normalizeWakeTarget(value?: string): string | undefined {
+  const trimmed = typeof value === "string" ? value.trim() : "";
+  return trimmed || undefined;
+}
+
+function queuePendingWakeReason(params?: {
+  reason?: string;
+  requestedAt?: number;
+  agentId?: string;
+  sessionKey?: string;
+}) {
+  const requestedAt = params?.requestedAt ?? Date.now();
+  const normalizedReason = normalizeWakeReason(params?.reason);
+  const next: PendingWakeReason = {
+    reason: normalizedReason,
+    priority: resolveReasonPriority(normalizedReason),
+    requestedAt,
+    agentId: normalizeWakeTarget(params?.agentId),
+    sessionKey: normalizeWakeTarget(params?.sessionKey),
+  };
+  if (!pendingWake) {
+    pendingWake = next;
+    return;
+  }
+  if (next.priority > pendingWake.priority) {
+    pendingWake = next;
+    return;
+  }
+  if (next.priority === pendingWake.priority && next.requestedAt >= pendingWake.requestedAt) {
+    pendingWake = next;
+  }
+}
+
+function schedule(coalesceMs: number, kind: WakeTimerKind = "normal") {
+  const delay = Number.isFinite(coalesceMs) ? Math.max(0, coalesceMs) : DEFAULT_COALESCE_MS;
+  const dueAt = Date.now() + delay;
+>>>>>>> f988abf20 (Cron: route reminders by session namespace)
   if (timer) {
     return;
   }
@@ -31,13 +111,26 @@ function schedule(coalesceMs: number) {
       return;
     }
 
+<<<<<<< HEAD
     const reason = pendingReason;
     pendingReason = null;
+=======
+    const reason = pendingWake?.reason;
+    const agentId = pendingWake?.agentId;
+    const sessionKey = pendingWake?.sessionKey;
+    pendingWake = null;
+>>>>>>> f988abf20 (Cron: route reminders by session namespace)
     running = true;
     try {
-      const res = await active({ reason: reason ?? undefined });
+      const wakeOpts = {
+        reason: reason ?? undefined,
+        ...(agentId ? { agentId } : {}),
+        ...(sessionKey ? { sessionKey } : {}),
+      };
+      const res = await active(wakeOpts);
       if (res.status === "skipped" && res.reason === "requests-in-flight") {
         // The main lane is busy; retry soon.
+<<<<<<< HEAD
         pendingReason = reason ?? "retry";
         schedule(DEFAULT_RETRY_MS);
       }
@@ -45,6 +138,23 @@ function schedule(coalesceMs: number) {
       // Error is already logged by the heartbeat runner; schedule a retry.
       pendingReason = reason ?? "retry";
       schedule(DEFAULT_RETRY_MS);
+=======
+        queuePendingWakeReason({
+          reason: reason ?? "retry",
+          agentId,
+          sessionKey,
+        });
+        schedule(DEFAULT_RETRY_MS, "retry");
+      }
+    } catch {
+      // Error is already logged by the heartbeat runner; schedule a retry.
+      queuePendingWakeReason({
+        reason: reason ?? "retry",
+        agentId,
+        sessionKey,
+      });
+      schedule(DEFAULT_RETRY_MS, "retry");
+>>>>>>> f988abf20 (Cron: route reminders by session namespace)
     } finally {
       running = false;
       if (pendingReason || scheduled) {
@@ -62,9 +172,24 @@ export function setHeartbeatWakeHandler(next: HeartbeatWakeHandler | null) {
   }
 }
 
+<<<<<<< HEAD
 export function requestHeartbeatNow(opts?: { reason?: string; coalesceMs?: number }) {
   pendingReason = opts?.reason ?? pendingReason ?? "requested";
   schedule(opts?.coalesceMs ?? DEFAULT_COALESCE_MS);
+=======
+export function requestHeartbeatNow(opts?: {
+  reason?: string;
+  coalesceMs?: number;
+  agentId?: string;
+  sessionKey?: string;
+}) {
+  queuePendingWakeReason({
+    reason: opts?.reason,
+    agentId: opts?.agentId,
+    sessionKey: opts?.sessionKey,
+  });
+  schedule(opts?.coalesceMs ?? DEFAULT_COALESCE_MS, "normal");
+>>>>>>> f988abf20 (Cron: route reminders by session namespace)
 }
 
 export function hasHeartbeatWakeHandler() {
