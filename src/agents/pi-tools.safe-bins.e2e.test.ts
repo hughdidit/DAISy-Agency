@@ -4,7 +4,33 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../config/config.js";
 import type { ExecApprovalsResolved } from "../infra/exec-approvals.js";
+<<<<<<< HEAD
 import { createMoltbotCodingTools } from "./pi-tools.js";
+=======
+import { captureEnv } from "../test-utils/env.js";
+
+const bundledPluginsDirSnapshot = captureEnv(["OPENCLAW_BUNDLED_PLUGINS_DIR"]);
+
+beforeAll(() => {
+  process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = path.join(
+    os.tmpdir(),
+    "openclaw-test-no-bundled-extensions",
+  );
+});
+
+afterAll(() => {
+  bundledPluginsDirSnapshot.restore();
+});
+
+vi.mock("../infra/shell-env.js", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("../infra/shell-env.js")>();
+  return {
+    ...mod,
+    getShellPathFromLoginShell: vi.fn(() => "/usr/bin:/bin"),
+    resolveShellEnvFallbackTimeoutMs: vi.fn(() => 500),
+  };
+});
+>>>>>>> cedd520f2 (refactor(test): simplify state dir env helpers)
 
 vi.mock("../plugins/tools.js", () => ({
   getPluginToolMeta: () => undefined,
@@ -83,20 +109,16 @@ describe("createMoltbotCodingTools safeBins", () => {
     expect(execTool).toBeDefined();
 
     const marker = `safe-bins-${Date.now()}`;
-    const prevShellEnvTimeoutMs = process.env.OPENCLAW_SHELL_ENV_TIMEOUT_MS;
-    process.env.OPENCLAW_SHELL_ENV_TIMEOUT_MS = "1000";
+    const envSnapshot = captureEnv(["OPENCLAW_SHELL_ENV_TIMEOUT_MS"]);
     const result = await (async () => {
       try {
+        process.env.OPENCLAW_SHELL_ENV_TIMEOUT_MS = "1000";
         return await execTool!.execute("call1", {
           command: `echo ${marker}`,
           workdir: tmpDir,
         });
       } finally {
-        if (prevShellEnvTimeoutMs === undefined) {
-          delete process.env.OPENCLAW_SHELL_ENV_TIMEOUT_MS;
-        } else {
-          process.env.OPENCLAW_SHELL_ENV_TIMEOUT_MS = prevShellEnvTimeoutMs;
-        }
+        envSnapshot.restore();
       }
     })();
     const text = result.content.find((content) => content.type === "text")?.text ?? "";

@@ -2,14 +2,27 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
+=======
+import type { AuthProfileStore } from "./types.js";
+import { captureEnv } from "../../test-utils/env.js";
+>>>>>>> cedd520f2 (refactor(test): simplify state dir env helpers)
 import { resolveApiKeyForProfile } from "./oauth.js";
 import { ensureAuthProfileStore } from "./store.js";
 import type { AuthProfileStore } from "./types.js";
 
 describe("resolveApiKeyForProfile fallback to main agent", () => {
+<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
+=======
+  const envSnapshot = captureEnv([
+    "OPENCLAW_STATE_DIR",
+    "OPENCLAW_AGENT_DIR",
+    "PI_CODING_AGENT_DIR",
+  ]);
+>>>>>>> cedd520f2 (refactor(test): simplify state dir env helpers)
   let tmpDir: string;
   let mainAgentDir: string;
   let secondaryAgentDir: string;
@@ -30,6 +43,7 @@ describe("resolveApiKeyForProfile fallback to main agent", () => {
   afterEach(async () => {
     vi.unstubAllGlobals();
 
+<<<<<<< HEAD
     // Restore original environment
 <<<<<<< HEAD
     if (previousStateDir === undefined) delete process.env.CLAWDBOT_STATE_DIR;
@@ -55,6 +69,9 @@ describe("resolveApiKeyForProfile fallback to main agent", () => {
       process.env.PI_CODING_AGENT_DIR = previousPiAgentDir;
     }
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
+=======
+    envSnapshot.restore();
+>>>>>>> cedd520f2 (refactor(test): simplify state dir env helpers)
 
     await fs.rm(tmpDir, { recursive: true, force: true });
   });
