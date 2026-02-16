@@ -2,11 +2,17 @@ import Foundation
 import os
 
 enum GatewaySettingsStore {
+<<<<<<< HEAD
     private static let gatewayService = "bot.molt.gateway"
     private static let legacyGatewayService = "com.clawdbot.gateway"
     private static let legacyBridgeService = "com.clawdbot.bridge"
     private static let nodeService = "bot.molt.node"
     private static let legacyNodeService = "com.clawdbot.node"
+=======
+    private static let gatewayService = "ai.openclaw.gateway"
+    private static let nodeService = "ai.openclaw.node"
+    private static let talkService = "ai.openclaw.talk"
+>>>>>>> 2e7fac223 (iOS: port talk redaction, accessibility, and ATS hardening (#18163))
 
     private static let instanceIdDefaultsKey = "node.instanceId"
     private static let preferredGatewayStableIDDefaultsKey = "gateway.preferredStableID"
@@ -33,6 +39,7 @@ enum GatewaySettingsStore {
     private static let instanceIdAccount = "instanceId"
     private static let preferredGatewayStableIDAccount = "preferredStableID"
     private static let lastDiscoveredGatewayStableIDAccount = "lastDiscoveredStableID"
+    private static let talkElevenLabsApiKeyAccount = "elevenlabs.apiKey"
 
     static func bootstrapPersistence() {
         self.ensureStableInstanceID()
@@ -167,7 +174,60 @@ enum GatewaySettingsStore {
             account: self.gatewayPasswordAccount(instanceId: instanceId))
     }
 
+<<<<<<< HEAD
     static func saveLastGatewayConnection(host: String, port: Int, useTLS: Bool, stableID: String) {
+=======
+    enum LastGatewayConnection: Equatable {
+        case manual(host: String, port: Int, useTLS: Bool, stableID: String)
+        case discovered(stableID: String, useTLS: Bool)
+
+        var stableID: String {
+            switch self {
+            case let .manual(_, _, _, stableID):
+                return stableID
+            case let .discovered(stableID, _):
+                return stableID
+            }
+        }
+
+        var useTLS: Bool {
+            switch self {
+            case let .manual(_, _, useTLS, _):
+                return useTLS
+            case let .discovered(_, useTLS):
+                return useTLS
+            }
+        }
+    }
+
+    private enum LastGatewayKind: String {
+        case manual
+        case discovered
+    }
+
+    static func loadTalkElevenLabsApiKey() -> String? {
+        let value = KeychainStore.loadString(
+            service: self.talkService,
+            account: self.talkElevenLabsApiKeyAccount)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if value?.isEmpty == false { return value }
+        return nil
+    }
+
+    static func saveTalkElevenLabsApiKey(_ apiKey: String?) {
+        let trimmed = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if trimmed.isEmpty {
+            _ = KeychainStore.delete(service: self.talkService, account: self.talkElevenLabsApiKeyAccount)
+            return
+        }
+        _ = KeychainStore.saveString(
+            trimmed,
+            service: self.talkService,
+            account: self.talkElevenLabsApiKeyAccount)
+    }
+
+    static func saveLastGatewayConnectionManual(host: String, port: Int, useTLS: Bool, stableID: String) {
+>>>>>>> 2e7fac223 (iOS: port talk redaction, accessibility, and ATS hardening (#18163))
         let defaults = UserDefaults.standard
         defaults.set(host, forKey: self.lastGatewayHostDefaultsKey)
         defaults.set(port, forKey: self.lastGatewayPortDefaultsKey)
