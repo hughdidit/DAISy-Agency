@@ -297,45 +297,74 @@ function createCronEventHarness() {
 }
 >>>>>>> 97cde1481 (perf(test): stop polling cron job list)
 
-async function createMainOneShotHarness() {
+type CronHarnessOptions = {
+  runIsolatedAgentJob?: ReturnType<typeof vi.fn>;
+  runHeartbeatOnce?: ReturnType<typeof vi.fn>;
+  nowMs?: () => number;
+  wakeNowHeartbeatBusyMaxWaitMs?: number;
+  wakeNowHeartbeatBusyRetryDelayMs?: number;
+  withEvents?: boolean;
+};
+
+async function createCronHarness(options: CronHarnessOptions = {}) {
   ensureDir(fixturesRoot);
   const store = await makeStorePath();
   const enqueueSystemEvent = vi.fn();
   const requestHeartbeatNow = vi.fn();
-  const events = createCronEventHarness();
+  const events = options.withEvents === false ? undefined : createCronEventHarness();
 
   const cron = new CronService({
     storePath: store.storePath,
     cronEnabled: true,
     log: noopLogger,
+    ...(options.nowMs ? { nowMs: options.nowMs } : {}),
+    ...(options.wakeNowHeartbeatBusyMaxWaitMs !== undefined
+      ? { wakeNowHeartbeatBusyMaxWaitMs: options.wakeNowHeartbeatBusyMaxWaitMs }
+      : {}),
+    ...(options.wakeNowHeartbeatBusyRetryDelayMs !== undefined
+      ? { wakeNowHeartbeatBusyRetryDelayMs: options.wakeNowHeartbeatBusyRetryDelayMs }
+      : {}),
     enqueueSystemEvent,
     requestHeartbeatNow,
-    runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
-    onEvent: events.onEvent,
+    ...(options.runHeartbeatOnce ? { runHeartbeatOnce: options.runHeartbeatOnce } : {}),
+    runIsolatedAgentJob: options.runIsolatedAgentJob ?? vi.fn(async () => ({ status: "ok" })),
+    ...(events ? { onEvent: events.onEvent } : {}),
   });
   await cron.start();
   return { store, cron, enqueueSystemEvent, requestHeartbeatNow, events };
 }
 
+async function createMainOneShotHarness() {
+  const harness = await createCronHarness();
+  if (!harness.events) {
+    throw new Error("missing event harness");
+  }
+  return { ...harness, events: harness.events };
+}
+
 async function createIsolatedAnnounceHarness(runIsolatedAgentJob: ReturnType<typeof vi.fn>) {
-  ensureDir(fixturesRoot);
-  const store = await makeStorePath();
-  const enqueueSystemEvent = vi.fn();
-  const requestHeartbeatNow = vi.fn();
-  const events = createCronEventHarness();
-
-  const cron = new CronService({
-    storePath: store.storePath,
-    cronEnabled: true,
-    log: noopLogger,
-    enqueueSystemEvent,
-    requestHeartbeatNow,
+  const harness = await createCronHarness({
     runIsolatedAgentJob,
-    onEvent: events.onEvent,
   });
+  if (!harness.events) {
+    throw new Error("missing event harness");
+  }
+  return { ...harness, events: harness.events };
+}
 
-  await cron.start();
-  return { store, cron, enqueueSystemEvent, requestHeartbeatNow, events };
+async function createWakeModeNowMainHarness(options: {
+  nowMs?: () => number;
+  runHeartbeatOnce: ReturnType<typeof vi.fn>;
+  wakeNowHeartbeatBusyMaxWaitMs?: number;
+  wakeNowHeartbeatBusyRetryDelayMs?: number;
+}) {
+  return createCronHarness({
+    runHeartbeatOnce: options.runHeartbeatOnce,
+    nowMs: options.nowMs,
+    wakeNowHeartbeatBusyMaxWaitMs: options.wakeNowHeartbeatBusyMaxWaitMs,
+    wakeNowHeartbeatBusyRetryDelayMs: options.wakeNowHeartbeatBusyRetryDelayMs,
+    withEvents: false,
+  });
 }
 
 async function addDefaultIsolatedAnnounceJob(cron: CronService, name: string) {
@@ -350,6 +379,60 @@ async function addDefaultIsolatedAnnounceJob(cron: CronService, name: string) {
     delivery: { mode: "announce" },
   });
   return { job, runAt };
+}
+
+async function runIsolatedAnnounceJobAndWait(params: {
+  cron: CronService;
+  events: ReturnType<typeof createCronEventHarness>;
+  name: string;
+  status: "ok" | "error";
+}) {
+  const { job, runAt } = await addDefaultIsolatedAnnounceJob(params.cron, params.name);
+  vi.setSystemTime(runAt);
+  await vi.runOnlyPendingTimersAsync();
+  await params.events.waitFor(
+    (evt) => evt.jobId === job.id && evt.action === "finished" && evt.status === params.status,
+  );
+  return job;
+}
+
+async function addWakeModeNowMainSystemEventJob(
+  cron: CronService,
+  options?: { name?: string; agentId?: string },
+) {
+  return cron.add({
+    name: options?.name ?? "wakeMode now",
+    ...(options?.agentId ? { agentId: options.agentId } : {}),
+    enabled: true,
+    schedule: { kind: "at", at: new Date(1).toISOString() },
+    sessionTarget: "main",
+    wakeMode: "now",
+    payload: { kind: "systemEvent", text: "hello" },
+  });
+}
+
+function createLegacyDeliveryMigrationJob(options: {
+  id: string;
+  payload: { provider?: string; channel?: string };
+}) {
+  return {
+    id: options.id,
+    name: "legacy",
+    enabled: true,
+    createdAtMs: Date.now(),
+    updatedAtMs: Date.now(),
+    schedule: { kind: "cron", expr: "* * * * *" },
+    sessionTarget: "isolated",
+    wakeMode: "now",
+    payload: {
+      kind: "agentTurn",
+      message: "hi",
+      deliver: true,
+      ...options.payload,
+      to: "7200373102",
+    },
+    state: {},
+  };
 }
 
 async function loadLegacyDeliveryMigration(rawJob: Record<string, unknown>) {
@@ -436,11 +519,6 @@ describe("CronService", () => {
   });
 
   it("wakeMode now waits for heartbeat completion when available", async () => {
-    ensureDir(fixturesRoot);
-    const store = await makeStorePath();
-    const enqueueSystemEvent = vi.fn();
-    const requestHeartbeatNow = vi.fn();
-
     let now = 0;
     const nowMs = () => {
       now += 10;
@@ -455,26 +533,12 @@ describe("CronService", () => {
         }),
     );
 
-    const cron = new CronService({
-      storePath: store.storePath,
-      cronEnabled: true,
-      log: noopLogger,
-      nowMs,
-      enqueueSystemEvent,
-      requestHeartbeatNow,
-      runHeartbeatOnce,
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
-    });
-
-    await cron.start();
-    const job = await cron.add({
-      name: "wakeMode now waits",
-      enabled: true,
-      schedule: { kind: "at", at: new Date(1).toISOString() },
-      sessionTarget: "main",
-      wakeMode: "now",
-      payload: { kind: "systemEvent", text: "hello" },
-    });
+    const { store, cron, enqueueSystemEvent, requestHeartbeatNow } =
+      await createWakeModeNowMainHarness({
+        runHeartbeatOnce,
+        nowMs,
+      });
+    const job = await addWakeModeNowMainSystemEventJob(cron, { name: "wakeMode now waits" });
 
     const runPromise = cron.run(job.id, "force");
     for (let i = 0; i < 10; i++) {
@@ -506,34 +570,19 @@ describe("CronService", () => {
 <<<<<<< HEAD
 =======
   it("passes agentId to runHeartbeatOnce for main-session wakeMode now jobs", async () => {
-    ensureDir(fixturesRoot);
-    const store = await makeStorePath();
-    const enqueueSystemEvent = vi.fn();
-    const requestHeartbeatNow = vi.fn();
     const runHeartbeatOnce = vi.fn(async () => ({ status: "ran" as const, durationMs: 1 }));
 
-    const cron = new CronService({
-      storePath: store.storePath,
-      cronEnabled: true,
-      log: noopLogger,
-      // Perf: avoid advancing fake timers by 2+ minutes for the busy-heartbeat fallback.
-      wakeNowHeartbeatBusyMaxWaitMs: 1,
-      wakeNowHeartbeatBusyRetryDelayMs: 2,
-      enqueueSystemEvent,
-      requestHeartbeatNow,
-      runHeartbeatOnce,
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
-    });
+    const { store, cron, enqueueSystemEvent, requestHeartbeatNow } =
+      await createWakeModeNowMainHarness({
+        runHeartbeatOnce,
+        // Perf: avoid advancing fake timers by 2+ minutes for the busy-heartbeat fallback.
+        wakeNowHeartbeatBusyMaxWaitMs: 1,
+        wakeNowHeartbeatBusyRetryDelayMs: 2,
+      });
 
-    await cron.start();
-    const job = await cron.add({
+    const job = await addWakeModeNowMainSystemEventJob(cron, {
       name: "wakeMode now with agent",
       agentId: "ops",
-      enabled: true,
-      schedule: { kind: "at", at: new Date(1).toISOString() },
-      sessionTarget: "main",
-      wakeMode: "now",
-      payload: { kind: "systemEvent", text: "hello" },
     });
 
     await cron.run(job.id, "force");
@@ -556,10 +605,6 @@ describe("CronService", () => {
   });
 
   it("wakeMode now falls back to queued heartbeat when main lane stays busy", async () => {
-    ensureDir(fixturesRoot);
-    const store = await makeStorePath();
-    const enqueueSystemEvent = vi.fn();
-    const requestHeartbeatNow = vi.fn();
     const runHeartbeatOnce = vi.fn(async () => ({
       status: "skipped" as const,
       reason: "requests-in-flight",
@@ -570,29 +615,15 @@ describe("CronService", () => {
       return now;
     };
 
-    const cron = new CronService({
-      storePath: store.storePath,
-      cronEnabled: true,
-      log: noopLogger,
+    const { store, cron, requestHeartbeatNow } = await createWakeModeNowMainHarness({
+      runHeartbeatOnce,
       nowMs,
       // Perf: avoid advancing fake timers by 2+ minutes for the busy-heartbeat fallback.
       wakeNowHeartbeatBusyMaxWaitMs: 1,
       wakeNowHeartbeatBusyRetryDelayMs: 2,
-      enqueueSystemEvent,
-      requestHeartbeatNow,
-      runHeartbeatOnce,
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
     });
 
-    await cron.start();
-    const job = await cron.add({
-      name: "wakeMode now fallback",
-      enabled: true,
-      schedule: { kind: "at", at: new Date(1).toISOString() },
-      sessionTarget: "main",
-      wakeMode: "now",
-      payload: { kind: "systemEvent", text: "hello" },
-    });
+    const job = await addWakeModeNowMainSystemEventJob(cron, { name: "wakeMode now fallback" });
 
     await cron.run(job.id, "force");
 
@@ -611,6 +642,7 @@ describe("CronService", () => {
     const runIsolatedAgentJob = vi.fn(async () => ({ status: "ok" as const, summary: "done" }));
     const { store, cron, enqueueSystemEvent, requestHeartbeatNow, events } =
       await createIsolatedAnnounceHarness(runIsolatedAgentJob);
+<<<<<<< HEAD
     const { job, runAt } = await addDefaultIsolatedAnnounceJob(cron, "weekly");
 
 <<<<<<< HEAD
@@ -648,6 +680,9 @@ describe("CronService", () => {
       (evt) => evt.jobId === job.id && evt.action === "finished" && evt.status === "ok",
     );
 >>>>>>> 97cde1481 (perf(test): stop polling cron job list)
+=======
+    await runIsolatedAnnounceJobAndWait({ cron, events, name: "weekly", status: "ok" });
+>>>>>>> 11f3da766 (refactor(test): dedupe cron service test harness setup)
     expect(runIsolatedAgentJob).toHaveBeenCalledTimes(1);
     expect(enqueueSystemEvent).toHaveBeenCalledWith(
       "Cron: done",
@@ -668,14 +703,12 @@ describe("CronService", () => {
     }));
     const { store, cron, enqueueSystemEvent, requestHeartbeatNow, events } =
       await createIsolatedAnnounceHarness(runIsolatedAgentJob);
-
-    const { job, runAt } = await addDefaultIsolatedAnnounceJob(cron, "weekly delivered");
-    vi.setSystemTime(runAt);
-    await vi.runOnlyPendingTimersAsync();
-
-    await events.waitFor(
-      (evt) => evt.jobId === job.id && evt.action === "finished" && evt.status === "ok",
-    );
+    await runIsolatedAnnounceJobAndWait({
+      cron,
+      events,
+      name: "weekly delivered",
+      status: "ok",
+    });
     expect(runIsolatedAgentJob).toHaveBeenCalledTimes(1);
     expect(enqueueSystemEvent).not.toHaveBeenCalled();
     expect(requestHeartbeatNow).not.toHaveBeenCalled();
@@ -685,24 +718,10 @@ describe("CronService", () => {
 
 >>>>>>> 97cde1481 (perf(test): stop polling cron job list)
   it("migrates legacy payload.provider to payload.channel on load", async () => {
-    const rawJob = {
+    const rawJob = createLegacyDeliveryMigrationJob({
       id: "legacy-1",
-      name: "legacy",
-      enabled: true,
-      createdAtMs: Date.now(),
-      updatedAtMs: Date.now(),
-      schedule: { kind: "cron", expr: "* * * * *" },
-      sessionTarget: "isolated",
-      wakeMode: "now",
-      payload: {
-        kind: "agentTurn",
-        message: "hi",
-        deliver: true,
-        provider: " TeLeGrAm ",
-        to: "7200373102",
-      },
-      state: {},
-    };
+      payload: { provider: " TeLeGrAm " },
+    });
     const { store, cron, job } = await loadLegacyDeliveryMigration(rawJob);
     // Legacy delivery fields are migrated to the top-level delivery object
     const delivery = job?.delivery as unknown as Record<string, unknown>;
@@ -716,24 +735,10 @@ describe("CronService", () => {
   });
 
   it("canonicalizes payload.channel casing on load", async () => {
-    const rawJob = {
+    const rawJob = createLegacyDeliveryMigrationJob({
       id: "legacy-2",
-      name: "legacy",
-      enabled: true,
-      createdAtMs: Date.now(),
-      updatedAtMs: Date.now(),
-      schedule: { kind: "cron", expr: "* * * * *" },
-      sessionTarget: "isolated",
-      wakeMode: "now",
-      payload: {
-        kind: "agentTurn",
-        message: "hi",
-        deliver: true,
-        channel: "Telegram",
-        to: "7200373102",
-      },
-      state: {},
-    };
+      payload: { channel: "Telegram" },
+    });
     const { store, cron, job } = await loadLegacyDeliveryMigration(rawJob);
     // Legacy delivery fields are migrated to the top-level delivery object
     const delivery = job?.delivery as unknown as Record<string, unknown>;
@@ -751,6 +756,7 @@ describe("CronService", () => {
     }));
     const { store, cron, enqueueSystemEvent, requestHeartbeatNow, events } =
       await createIsolatedAnnounceHarness(runIsolatedAgentJob);
+<<<<<<< HEAD
     const { job, runAt } = await addDefaultIsolatedAnnounceJob(cron, "isolated error test");
 
 <<<<<<< HEAD
@@ -787,6 +793,14 @@ describe("CronService", () => {
       (evt) => evt.jobId === job.id && evt.action === "finished" && evt.status === "error",
     );
 >>>>>>> 97cde1481 (perf(test): stop polling cron job list)
+=======
+    await runIsolatedAnnounceJobAndWait({
+      cron,
+      events,
+      name: "isolated error test",
+      status: "error",
+    });
+>>>>>>> 11f3da766 (refactor(test): dedupe cron service test harness setup)
 
     expect(enqueueSystemEvent).toHaveBeenCalledWith(
       "Cron (error): last output",
