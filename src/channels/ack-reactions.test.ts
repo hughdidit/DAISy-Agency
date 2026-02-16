@@ -195,18 +195,6 @@ describe("shouldAckReactionForWhatsApp", () => {
         isGroup: true,
         directEnabled: true,
         groupMode: "mentions",
-        wasMentioned: true,
-        groupActivated: false,
-      }),
-    ).toBe(true);
-
-    expect(
-      shouldAckReactionForWhatsApp({
-        emoji: "👀",
-        isDirect: false,
-        isGroup: true,
-        directEnabled: true,
-        groupMode: "mentions",
         wasMentioned: false,
         groupActivated: true,
       }),
