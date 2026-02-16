@@ -58,6 +58,24 @@ async function withTempStore(
   }
 }
 
+function mockGatewaySuccessReply(text = "hello") {
+  vi.mocked(callGateway).mockResolvedValue({
+    runId: "idem-1",
+    status: "ok",
+    result: {
+      payloads: [{ text }],
+      meta: { stub: true },
+    },
+  });
+}
+
+function mockLocalAgentReply(text = "local") {
+  vi.mocked(agentCommand).mockImplementationOnce(async (_opts, rt) => {
+    rt.log?.(text);
+    return { payloads: [{ text }], meta: { stub: true } };
+  });
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
@@ -65,14 +83,7 @@ beforeEach(() => {
 describe("agentCliCommand", () => {
   it("uses a timer-safe max gateway timeout when --timeout is 0", async () => {
     await withTempStore(async () => {
-      vi.mocked(callGateway).mockResolvedValue({
-        runId: "idem-1",
-        status: "ok",
-        result: {
-          payloads: [{ text: "hello" }],
-          meta: { stub: true },
-        },
-      });
+      mockGatewaySuccessReply();
 
       await agentCliCommand({ message: "hi", to: "+1555", timeout: "0" }, runtime);
 
@@ -89,6 +100,7 @@ describe("agentCliCommand", () => {
     mockConfig(store);
 =======
     await withTempStore(async () => {
+<<<<<<< HEAD
       vi.mocked(callGateway).mockResolvedValue({
         runId: "idem-1",
         status: "ok",
@@ -98,6 +110,9 @@ describe("agentCliCommand", () => {
         },
       });
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+      mockGatewaySuccessReply();
+>>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)
 
       await agentCliCommand({ message: "hi", to: "+1555" }, runtime);
 
@@ -115,11 +130,15 @@ describe("agentCliCommand", () => {
 =======
     await withTempStore(async () => {
       vi.mocked(callGateway).mockRejectedValue(new Error("gateway not connected"));
+<<<<<<< HEAD
       vi.mocked(agentCommand).mockImplementationOnce(async (_opts, rt) => {
         rt.log?.("local");
         return { payloads: [{ text: "local" }], meta: { stub: true } };
       });
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+      mockLocalAgentReply();
+>>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)
 
       await agentCliCommand({ message: "hi", to: "+1555" }, runtime);
 
@@ -136,11 +155,15 @@ describe("agentCliCommand", () => {
     mockConfig(store);
 =======
     await withTempStore(async () => {
+<<<<<<< HEAD
       vi.mocked(agentCommand).mockImplementationOnce(async (_opts, rt) => {
         rt.log?.("local");
         return { payloads: [{ text: "local" }], meta: { stub: true } };
       });
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+      mockLocalAgentReply();
+>>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)
 
       await agentCliCommand(
         {

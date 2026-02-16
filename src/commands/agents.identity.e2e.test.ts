@@ -74,6 +74,14 @@ function getWrittenMainIdentity() {
 }
 >>>>>>> 716872c17 (refactor(test): dedupe agents identity test setup)
 
+async function runIdentityCommandFromWorkspace(workspace: string, fromIdentity = true) {
+  configMocks.readConfigFileSnapshot.mockResolvedValue({
+    ...baseConfigSnapshot,
+    config: { agents: { list: [{ id: "main", workspace }] } },
+  });
+  await agentsSetIdentityCommand({ workspace, fromIdentity }, runtime);
+}
+
 describe("agents set-identity command", () => {
   beforeEach(() => {
     configMocks.readConfigFileSnapshot.mockReset();
@@ -281,12 +289,7 @@ describe("agents set-identity command", () => {
     await writeIdentityFile(workspace, ["- Avatar: avatars/only.png"]);
 >>>>>>> 716872c17 (refactor(test): dedupe agents identity test setup)
 
-    configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseConfigSnapshot,
-      config: { agents: { list: [{ id: "main", workspace }] } },
-    });
-
-    await agentsSetIdentityCommand({ workspace, fromIdentity: true }, runtime);
+    await runIdentityCommandFromWorkspace(workspace);
 
     expect(getWrittenMainIdentity()).toEqual({
       avatar: "avatars/only.png",
@@ -318,12 +321,7 @@ describe("agents set-identity command", () => {
     const { workspace } = await createIdentityWorkspace();
 >>>>>>> 716872c17 (refactor(test): dedupe agents identity test setup)
 
-    configMocks.readConfigFileSnapshot.mockResolvedValue({
-      ...baseConfigSnapshot,
-      config: { agents: { list: [{ id: "main", workspace }] } },
-    });
-
-    await agentsSetIdentityCommand({ workspace, fromIdentity: true }, runtime);
+    await runIdentityCommandFromWorkspace(workspace);
 
     expect(runtime.error).toHaveBeenCalledWith(expect.stringContaining("No identity data found"));
     expect(runtime.exit).toHaveBeenCalledWith(1);

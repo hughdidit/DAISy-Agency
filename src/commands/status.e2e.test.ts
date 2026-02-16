@@ -25,19 +25,79 @@ afterAll(() => {
 >>>>>>> e075a33ca (refactor(test): simplify oauth/profile env restore)
 });
 
-const mocks = vi.hoisted(() => ({
-  loadSessionStore: vi.fn().mockReturnValue({
+function createDefaultSessionStoreEntry() {
+  return {
+    updatedAt: Date.now() - 60_000,
+    verboseLevel: "on",
+    thinkingLevel: "low",
+    inputTokens: 2_000,
+    outputTokens: 3_000,
+    totalTokens: 5_000,
+    contextTokens: 10_000,
+    model: "pi:opus",
+    sessionId: "abc123",
+    systemSent: true,
+  };
+}
+
+function createUnknownUsageSessionStore() {
+  return {
     "+1000": {
       updatedAt: Date.now() - 60_000,
-      verboseLevel: "on",
-      thinkingLevel: "low",
       inputTokens: 2_000,
       outputTokens: 3_000,
       contextTokens: 10_000,
       model: "pi:opus",
-      sessionId: "abc123",
-      systemSent: true,
     },
+  };
+}
+
+function createChannelIssueCollector(channel: string) {
+  return (accounts: Array<Record<string, unknown>>) =>
+    accounts
+      .filter((account) => typeof account.lastError === "string" && account.lastError)
+      .map((account) => ({
+        channel,
+        accountId: typeof account.accountId === "string" ? account.accountId : "default",
+        message: `Channel error: ${String(account.lastError)}`,
+      }));
+}
+
+function createErrorChannelPlugin(params: { id: string; label: string; docsPath: string }) {
+  return {
+    id: params.id,
+    meta: {
+      id: params.id,
+      label: params.label,
+      selectionLabel: params.label,
+      docsPath: params.docsPath,
+      blurb: "mock",
+    },
+    config: {
+      listAccountIds: () => ["default"],
+      resolveAccount: () => ({}),
+    },
+    status: {
+      collectStatusIssues: createChannelIssueCollector(params.id),
+    },
+  };
+}
+
+async function withUnknownUsageStore(run: () => Promise<void>) {
+  const originalLoadSessionStore = mocks.loadSessionStore.getMockImplementation();
+  mocks.loadSessionStore.mockReturnValue(createUnknownUsageSessionStore());
+  try {
+    await run();
+  } finally {
+    if (originalLoadSessionStore) {
+      mocks.loadSessionStore.mockImplementation(originalLoadSessionStore);
+    }
+  }
+}
+
+const mocks = vi.hoisted(() => ({
+  loadSessionStore: vi.fn().mockReturnValue({
+    "+1000": createDefaultSessionStoreEntry(),
   }),
   resolveMainSessionKey: vi.fn().mockReturnValue("agent:main:main"),
   resolveStorePath: vi.fn().mockReturnValue("/tmp/sessions.json"),
@@ -149,52 +209,18 @@ vi.mock("../channels/plugins/index.js", () => ({
         },
       },
       {
-        id: "signal",
-        meta: {
+        ...createErrorChannelPlugin({
           id: "signal",
           label: "Signal",
-          selectionLabel: "Signal",
           docsPath: "/platforms/signal",
-          blurb: "mock",
-        },
-        config: {
-          listAccountIds: () => ["default"],
-          resolveAccount: () => ({}),
-        },
-        status: {
-          collectStatusIssues: (accounts: Array<Record<string, unknown>>) =>
-            accounts
-              .filter((account) => typeof account.lastError === "string" && account.lastError)
-              .map((account) => ({
-                channel: "signal",
-                accountId: typeof account.accountId === "string" ? account.accountId : "default",
-                message: `Channel error: ${String(account.lastError)}`,
-              })),
-        },
+        }),
       },
       {
-        id: "imessage",
-        meta: {
+        ...createErrorChannelPlugin({
           id: "imessage",
           label: "iMessage",
-          selectionLabel: "iMessage",
           docsPath: "/platforms/mac",
-          blurb: "mock",
-        },
-        config: {
-          listAccountIds: () => ["default"],
-          resolveAccount: () => ({}),
-        },
-        status: {
-          collectStatusIssues: (accounts: Array<Record<string, unknown>>) =>
-            accounts
-              .filter((account) => typeof account.lastError === "string" && account.lastError)
-              .map((account) => ({
-                channel: "imessage",
-                accountId: typeof account.accountId === "string" ? account.accountId : "default",
-                message: `Channel error: ${String(account.lastError)}`,
-              })),
-        },
+        }),
       },
     ] as unknown,
 }));
@@ -211,11 +237,23 @@ vi.mock("../gateway/call.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../gateway/call.js")>();
   return { ...actual, callGateway: mocks.callGateway };
 });
+<<<<<<< HEAD
 vi.mock("../gateway/session-utils.js", () => ({
   listAgentsForGateway: mocks.listAgentsForGateway,
 }));
 vi.mock("../infra/moltbot-root.js", () => ({
   resolveMoltbotPackageRoot: vi.fn().mockResolvedValue("/tmp/moltbot"),
+=======
+vi.mock("../gateway/session-utils.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../gateway/session-utils.js")>();
+  return {
+    ...actual,
+    listAgentsForGateway: mocks.listAgentsForGateway,
+  };
+});
+vi.mock("../infra/openclaw-root.js", () => ({
+  resolveOpenClawPackageRoot: vi.fn().mockResolvedValue("/tmp/openclaw"),
+>>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)
 }));
 vi.mock("../infra/os-summary.js", () => ({
   resolveOsSummary: () => ({
@@ -317,6 +355,30 @@ describe("statusCommand", () => {
     expect(payload.nodeService.label).toBe("LaunchAgent");
   });
 
+<<<<<<< HEAD
+=======
+  it("surfaces unknown usage when totalTokens is missing", async () => {
+    await withUnknownUsageStore(async () => {
+      (runtime.log as vi.Mock).mockClear();
+      await statusCommand({ json: true }, runtime as never);
+      const payload = JSON.parse((runtime.log as vi.Mock).mock.calls.at(-1)?.[0]);
+      expect(payload.sessions.recent[0].totalTokens).toBeNull();
+      expect(payload.sessions.recent[0].totalTokensFresh).toBe(false);
+      expect(payload.sessions.recent[0].percentUsed).toBeNull();
+      expect(payload.sessions.recent[0].remainingTokens).toBeNull();
+    });
+  });
+
+  it("prints unknown usage in formatted output when totalTokens is missing", async () => {
+    await withUnknownUsageStore(async () => {
+      (runtime.log as vi.Mock).mockClear();
+      await statusCommand({}, runtime as never);
+      const logs = (runtime.log as vi.Mock).mock.calls.map((c) => String(c[0]));
+      expect(logs.some((line) => line.includes("unknown/") && line.includes("(?%)"))).toBe(true);
+    });
+  });
+
+>>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)
   it("prints formatted lines otherwise", async () => {
     (runtime.log as vi.Mock).mockClear();
     await statusCommand({}, runtime as never);
@@ -456,6 +518,7 @@ describe("statusCommand", () => {
         };
       }
       return {
+<<<<<<< HEAD
         "+1000": {
           updatedAt: Date.now() - 60_000,
           verboseLevel: "on",
@@ -467,6 +530,9 @@ describe("statusCommand", () => {
           sessionId: "abc123",
           systemSent: true,
         },
+=======
+        "+1000": createDefaultSessionStoreEntry(),
+>>>>>>> ac5f6e7c9 (refactor(test): dedupe agent and status command fixtures)
       };
     });
 
