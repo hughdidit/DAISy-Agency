@@ -26,8 +26,13 @@ import type { TelegramContext } from "./bot/types.js";
 =======
 >>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+<<<<<<< HEAD
 import { isControlCommandMessage } from "../auto-reply/command-detection.js";
 import { resolveTextChunkLimit } from "../auto-reply/chunk.js";
+=======
+import { resolveTextChunkLimit } from "../auto-reply/chunk.js";
+import { isAbortRequestText } from "../auto-reply/reply/abort.js";
+>>>>>>> b2aa6e094 (fix(telegram): prevent non-abort slash commands from racing chat replies (#17899))
 import { DEFAULT_GROUP_HISTORY_LIMIT, type HistoryEntry } from "../auto-reply/reply/history.js";
 import {
   isNativeCommandsExplicitlyDisabled,
@@ -132,10 +137,7 @@ export function getTelegramSequentialKey(ctx: {
   const chatId = msg?.chat?.id ?? ctx.chat?.id;
   const rawText = msg?.text ?? msg?.caption;
   const botUsername = ctx.me?.username;
-  if (
-    rawText &&
-    isControlCommandMessage(rawText, undefined, botUsername ? { botUsername } : undefined)
-  ) {
+  if (isAbortRequestText(rawText, botUsername ? { botUsername } : undefined)) {
     if (typeof chatId === "number") {
       return `telegram:${chatId}:control`;
     }
