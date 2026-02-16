@@ -311,6 +311,7 @@ export async function runAgentTurnWithFallback(params: {
               }
               return isMarkdownCapableMessageChannel(channel) ? "markdown" : "plain";
             })(),
+            suppressToolErrorWarnings: params.opts?.suppressToolErrorWarnings,
             bashElevated: params.followupRun.run.bashElevated,
             timeoutMs: params.followupRun.run.timeoutMs,
             runId,

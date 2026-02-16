@@ -729,6 +729,7 @@ Periodic heartbeat runs.
         target: "last", // last | whatsapp | telegram | discord | ... | none
         prompt: "Read HEARTBEAT.md if it exists...",
         ackMaxChars: 300,
+        suppressToolErrorWarnings: false,
       },
     },
   },
@@ -736,6 +737,7 @@ Periodic heartbeat runs.
 ```
 
 - `every`: duration string (ms/s/m/h). Default: `30m`.
+- `suppressToolErrorWarnings`: when true, suppresses tool error warning payloads during heartbeat runs.
 - Per-agent: set `agents.list[].heartbeat`. When any agent defines `heartbeat`, **only those agents** run heartbeats.
 - Heartbeats run full agent turns — shorter intervals burn more tokens.
 
