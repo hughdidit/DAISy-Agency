@@ -10,6 +10,17 @@ export type CronEvent = {
   error?: string;
   summary?: string;
   nextRunAtMs?: number;
+
+  // Telemetry (best-effort)
+  model?: string;
+  provider?: string;
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+    total_tokens?: number;
+    cache_read_tokens?: number;
+    cache_write_tokens?: number;
+  };
 };
 
 export type Logger = {
@@ -62,7 +73,21 @@ export type CronServiceDeps = {
      * channel.  See: https://github.com/openclaw/openclaw/issues/15692
      */
     delivered?: boolean;
+<<<<<<< HEAD
 >>>>>>> ea95e88dd (fix(cron): prevent duplicate delivery for isolated jobs with announce mode)
+=======
+
+    // Telemetry (best-effort)
+    model?: string;
+    provider?: string;
+    usage?: {
+      input_tokens?: number;
+      output_tokens?: number;
+      total_tokens?: number;
+      cache_read_tokens?: number;
+      cache_write_tokens?: number;
+    };
+>>>>>>> ddea5458d (cron: log model+token usage per run + add usage report script)
   }>;
   onEvent?: (evt: CronEvent) => void;
 };
