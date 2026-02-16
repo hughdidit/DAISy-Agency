@@ -23,8 +23,12 @@ import type { AnyAgentTool } from "./common.js";
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 import { normalizeGroupActivation } from "../../auto-reply/group-activation.js";
 import { getFollowupQueueDepth, resolveQueueSettings } from "../../auto-reply/reply/queue.js";
+<<<<<<< HEAD
 import { buildStatusMessage } from "../../auto-reply/status.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import { buildStatusMessage, getTranscriptInfo } from "../../auto-reply/status.js";
+>>>>>>> 15dd2cda2 (feat: show transcript file size in session status)
 import { loadConfig } from "../../config/config.js";
 import {
   loadSessionStore,
@@ -482,6 +486,13 @@ export function createSessionStatusTool(opts?: {
           showDetails: queueOverrides,
         },
         includeTranscriptUsage: false,
+        transcriptInfo: getTranscriptInfo({
+          sessionId: resolved.entry?.sessionId,
+          sessionEntry: resolved.entry,
+          agentId,
+          sessionKey: resolved.key,
+          storePath,
+        }),
       });
 
       return {

@@ -24,10 +24,14 @@ import {
   resolveUsageProviderId,
 } from "../../infra/provider-usage.js";
 import { normalizeGroupActivation } from "../group-activation.js";
+<<<<<<< HEAD
 import { buildStatusMessage } from "../status.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
 import type { ReplyPayload } from "../types.js";
 import type { CommandContext } from "./commands-types.js";
+=======
+import { buildStatusMessage, getTranscriptInfo } from "../status.js";
+>>>>>>> 15dd2cda2 (feat: show transcript file size in session status)
 import { getFollowupQueueDepth, resolveQueueSettings } from "./queue.js";
 import type { MediaUnderstandingDecision } from "../../media-understanding/types.js";
 import { resolveSubagentLabel } from "./subagents-utils.js";
@@ -246,6 +250,13 @@ export async function buildStatusReply(params: {
     subagentsLine,
     mediaDecisions: params.mediaDecisions,
     includeTranscriptUsage: false,
+    transcriptInfo: getTranscriptInfo({
+      sessionId: sessionEntry?.sessionId,
+      sessionEntry,
+      agentId: statusAgentId,
+      sessionKey,
+      storePath,
+    }),
   });
 
   return { text: statusText };
