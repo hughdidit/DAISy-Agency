@@ -4,6 +4,7 @@ import {
   GATEWAY_LAUNCH_AGENT_LABEL,
   GATEWAY_SYSTEMD_SERVICE_NAME,
   GATEWAY_WINDOWS_TASK_NAME,
+  normalizeGatewayProfile,
   resolveGatewayLaunchAgentLabel,
   resolveGatewayProfileSuffix,
   resolveGatewayServiceDescription,
@@ -11,21 +12,26 @@ import {
   resolveGatewayWindowsTaskName,
 } from "./constants.js";
 
+describe("normalizeGatewayProfile", () => {
+  it("returns null for empty/default profiles", () => {
+    expect(normalizeGatewayProfile()).toBeNull();
+    expect(normalizeGatewayProfile("")).toBeNull();
+    expect(normalizeGatewayProfile("   ")).toBeNull();
+    expect(normalizeGatewayProfile("default")).toBeNull();
+    expect(normalizeGatewayProfile(" Default ")).toBeNull();
+  });
+
+  it("returns trimmed custom profiles", () => {
+    expect(normalizeGatewayProfile("dev")).toBe("dev");
+    expect(normalizeGatewayProfile("  staging  ")).toBe("staging");
+  });
+});
+
 describe("resolveGatewayLaunchAgentLabel", () => {
   it("returns default label when no profile is set", () => {
     const result = resolveGatewayLaunchAgentLabel();
     expect(result).toBe(GATEWAY_LAUNCH_AGENT_LABEL);
     expect(result).toBe("bot.molt.gateway");
-  });
-
-  it("returns default label when profile is 'default'", () => {
-    const result = resolveGatewayLaunchAgentLabel("default");
-    expect(result).toBe(GATEWAY_LAUNCH_AGENT_LABEL);
-  });
-
-  it("returns default label when profile is 'Default' (case-insensitive)", () => {
-    const result = resolveGatewayLaunchAgentLabel("Default");
-    expect(result).toBe(GATEWAY_LAUNCH_AGENT_LABEL);
   });
 
   it("returns profile-specific label when profile is set", () => {
@@ -45,16 +51,6 @@ describe("resolveGatewayLaunchAgentLabel", () => {
     const result = resolveGatewayLaunchAgentLabel("  staging  ");
     expect(result).toBe("bot.molt.staging");
   });
-
-  it("returns default label for empty string profile", () => {
-    const result = resolveGatewayLaunchAgentLabel("");
-    expect(result).toBe(GATEWAY_LAUNCH_AGENT_LABEL);
-  });
-
-  it("returns default label for whitespace-only profile", () => {
-    const result = resolveGatewayLaunchAgentLabel("   ");
-    expect(result).toBe(GATEWAY_LAUNCH_AGENT_LABEL);
-  });
 });
 
 describe("resolveGatewaySystemdServiceName", () => {
@@ -62,11 +58,6 @@ describe("resolveGatewaySystemdServiceName", () => {
     const result = resolveGatewaySystemdServiceName();
     expect(result).toBe(GATEWAY_SYSTEMD_SERVICE_NAME);
     expect(result).toBe("moltbot-gateway");
-  });
-
-  it("returns default service name when profile is 'default'", () => {
-    const result = resolveGatewaySystemdServiceName("default");
-    expect(result).toBe(GATEWAY_SYSTEMD_SERVICE_NAME);
   });
 
   it("returns profile-specific service name when profile is set", () => {
@@ -86,16 +77,6 @@ describe("resolveGatewaySystemdServiceName", () => {
     const result = resolveGatewaySystemdServiceName("  test  ");
     expect(result).toBe("moltbot-gateway-test");
   });
-
-  it("returns default service name for empty string profile", () => {
-    const result = resolveGatewaySystemdServiceName("");
-    expect(result).toBe(GATEWAY_SYSTEMD_SERVICE_NAME);
-  });
-
-  it("returns default service name for whitespace-only profile", () => {
-    const result = resolveGatewaySystemdServiceName("   ");
-    expect(result).toBe(GATEWAY_SYSTEMD_SERVICE_NAME);
-  });
 });
 
 describe("resolveGatewayWindowsTaskName", () => {
@@ -103,11 +84,6 @@ describe("resolveGatewayWindowsTaskName", () => {
     const result = resolveGatewayWindowsTaskName();
     expect(result).toBe(GATEWAY_WINDOWS_TASK_NAME);
     expect(result).toBe("Moltbot Gateway");
-  });
-
-  it("returns default task name when profile is 'default'", () => {
-    const result = resolveGatewayWindowsTaskName("default");
-    expect(result).toBe(GATEWAY_WINDOWS_TASK_NAME);
   });
 
   it("returns profile-specific task name when profile is set", () => {
@@ -126,16 +102,6 @@ describe("resolveGatewayWindowsTaskName", () => {
   it("trims whitespace from profile", () => {
     const result = resolveGatewayWindowsTaskName("  ci  ");
     expect(result).toBe("Moltbot Gateway (ci)");
-  });
-
-  it("returns default task name for empty string profile", () => {
-    const result = resolveGatewayWindowsTaskName("");
-    expect(result).toBe(GATEWAY_WINDOWS_TASK_NAME);
-  });
-
-  it("returns default task name for whitespace-only profile", () => {
-    const result = resolveGatewayWindowsTaskName("   ");
-    expect(result).toBe(GATEWAY_WINDOWS_TASK_NAME);
   });
 });
 
