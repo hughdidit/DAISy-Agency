@@ -198,8 +198,8 @@ function checkBotMentioned(event: FeishuMessageEvent, botOpenId?: string): boole
   }
   // Post (rich text) messages may have empty message.mentions when they contain docs/paste
   if (event.message.message_type === "post") {
-    const mentionedIds = getMentionedOpenIdsFromPost(event.message.content);
-    return mentionedIds.includes(botOpenId);
+    const { mentionedOpenIds } = parsePostContent(event.message.content);
+    return mentionedOpenIds.some((id) => id === botOpenId);
   }
   return false;
 >>>>>>> c31524697 (fix(feishu): fix mention detection for post messages with embedded docs)
@@ -252,39 +252,13 @@ function parseMediaKeys(
 }
 
 /**
- * Extract mentioned user open_ids from post (rich text) content.
- * Feishu may not populate message.mentions for post messages (e.g. when pasting docs);
- * the "at" elements in post body use user_id (open_id). Returns non-empty only for post content.
- */
-function getMentionedOpenIdsFromPost(content: string): string[] {
-  try {
-    const parsed = JSON.parse(content);
-    const contentBlocks =
-      parsed.content ??
-      parsed.zh_cn?.content ??
-      ([] as Array<Array<{ tag?: string; user_id?: string }>>);
-    const ids: string[] = [];
-    for (const paragraph of contentBlocks) {
-      if (!Array.isArray(paragraph)) continue;
-      for (const element of paragraph) {
-        if (element.tag === "at" && element.user_id && element.user_id !== "all") {
-          ids.push(element.user_id);
-        }
-      }
-    }
-    return ids;
-  } catch {
-    return [];
-  }
-}
-
-/**
  * Parse post (rich text) content and extract embedded image keys.
  * Post structure: { title?: string, content: [[{ tag, text?, image_key?, ... }]] }
  */
 function parsePostContent(content: string): {
   textContent: string;
   imageKeys: string[];
+  mentionedOpenIds: string[];
 } {
   try {
     const parsed = JSON.parse(content);
@@ -292,6 +266,7 @@ function parsePostContent(content: string): {
     const contentBlocks = parsed.content || [];
     let textContent = title ? `${title}\n\n` : "";
     const imageKeys: string[] = [];
+    const mentionedOpenIds: string[] = [];
 
     for (const paragraph of contentBlocks) {
       if (Array.isArray(paragraph)) {
@@ -304,6 +279,9 @@ function parsePostContent(content: string): {
           } else if (element.tag === "at") {
             // Mention: @username
             textContent += `@${element.user_name || element.user_id || ""}`;
+            if (element.user_id) {
+              mentionedOpenIds.push(element.user_id);
+            }
           } else if (element.tag === "img" && element.image_key) {
             // Embedded image
             imageKeys.push(element.image_key);
@@ -316,9 +294,10 @@ function parsePostContent(content: string): {
     return {
       textContent: textContent.trim() || "[Rich text message]",
       imageKeys,
+      mentionedOpenIds,
     };
   } catch {
-    return { textContent: "[Rich text message]", imageKeys: [] };
+    return { textContent: "[Rich text message]", imageKeys: [], mentionedOpenIds: [] };
   }
 }
 
