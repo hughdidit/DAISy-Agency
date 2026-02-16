@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import type { IconName } from "./icons.js";
 import { t } from "../i18n/index.js";
+=======
+import { t } from "../i18n/index.ts";
+import type { IconName } from "./icons.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export const TAB_GROUPS = [
   { label: "chat", tabs: ["chat"] },

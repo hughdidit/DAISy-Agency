@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import JSZip from "jszip";
+import * as tar from "tar";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { describe, expect, it } from "vitest";
 import type { ReleaseAsset } from "./signal-install.js";
 import { looksLikeArchive, pickAsset } from "./signal-install.js";

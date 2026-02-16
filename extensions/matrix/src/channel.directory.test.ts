@@ -1,8 +1,13 @@
 import type { PluginRuntime } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 import type { CoreConfig } from "./types.js";
+=======
+import { beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { matrixPlugin } from "./channel.js";
 import { setMatrixRuntime } from "./runtime.js";
+import type { CoreConfig } from "./types.js";
 
 describe("matrix directory", () => {
   beforeEach(() => {

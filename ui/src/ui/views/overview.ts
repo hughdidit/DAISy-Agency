@@ -1,9 +1,17 @@
 import { html } from "lit";
+<<<<<<< HEAD
 import type { GatewayHelloOk } from "../gateway";
 import type { UiSettings } from "../storage";
 import { t, i18n, type Locale } from "../../i18n";
 import { formatAgo, formatDurationMs } from "../format";
 import { formatNextRun } from "../presenter";
+=======
+import { t, i18n, type Locale } from "../../i18n/index.ts";
+import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
+import type { GatewayHelloOk } from "../gateway.ts";
+import { formatNextRun } from "../presenter.ts";
+import type { UiSettings } from "../storage.ts";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export type OverviewProps = {
   connected: boolean;

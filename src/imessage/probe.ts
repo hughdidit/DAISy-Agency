@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import type { BaseProbeResult } from "../channels/plugins/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { detectBinary } from "../commands/onboard-helpers.js";
 import { loadConfig } from "../config/config.js";
 import { runCommandWithTimeout } from "../process/exec.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { createIMessageRpcClient } from "./client.js";
 import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "./constants.js";
 

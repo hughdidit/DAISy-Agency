@@ -1,4 +1,41 @@
+<<<<<<< HEAD
 import type { ConfigFileSnapshot } from "./types.openclaw.js";
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { isSensitiveConfigPath, type ConfigUiHints } from "./schema.hints.js";
+import type { ConfigFileSnapshot } from "./types.openclaw.js";
+
+const log = createSubsystemLogger("config/redaction");
+const ENV_VAR_PLACEHOLDER_PATTERN = /^\$\{[^}]*\}$/;
+
+function isSensitivePath(path: string): boolean {
+  if (path.endsWith("[]")) {
+    return isSensitiveConfigPath(path.slice(0, -2));
+  } else {
+    return isSensitiveConfigPath(path);
+  }
+}
+
+function isEnvVarPlaceholder(value: string): boolean {
+  return ENV_VAR_PLACEHOLDER_PATTERN.test(value.trim());
+}
+
+function isExtensionPath(path: string): boolean {
+  return (
+    path === "plugins" ||
+    path.startsWith("plugins.") ||
+    path === "channels" ||
+    path.startsWith("channels.")
+  );
+}
+
+function isExplicitlyNonSensitivePath(hints: ConfigUiHints | undefined, paths: string[]): boolean {
+  if (!hints) {
+    return false;
+  }
+  return paths.some((path) => hints[path]?.sensitive === false);
+}
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 /**
  * Sentinel value used to replace sensitive config fields in gateway responses.

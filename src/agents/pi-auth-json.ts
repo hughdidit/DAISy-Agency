@@ -1,6 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import { ensureAuthProfileStore, listProfilesForProvider } from "./auth-profiles.js";
+=======
+import { ensureAuthProfileStore } from "./auth-profiles.js";
+import type { AuthProfileCredential } from "./auth-profiles/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 type AuthJsonCredential =
   | {

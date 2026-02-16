@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import { resolveAnnounceTargetFromKey } from "../agents/tools/sessions-send-helpers.js";
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { agentCommand } from "../commands/agent.js";
+=======
+import { resolveSessionAgentId } from "../agents/agent-scope.js";
+import { resolveAnnounceTargetFromKey } from "../agents/tools/sessions-send-helpers.js";
+import { normalizeChannelId } from "../channels/plugins/index.js";
+import type { CliDeps } from "../cli/deps.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveMainSessionKeyFromConfig } from "../config/sessions.js";
 import { resolveOutboundTarget } from "../infra/outbound/targets.js";
 import {

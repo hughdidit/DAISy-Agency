@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Client } from "@buape/carbon";
 =======
 import { Client, ReadyListener, type BaseMessageInteractiveComponent } from "@buape/carbon";
@@ -11,20 +12,25 @@ import type { GatewayPlugin } from "@buape/carbon/gateway";
 import { Client, ReadyListener, type BaseMessageInteractiveComponent } from "@buape/carbon";
 >>>>>>> 644251295 (perf: reduce hotspot test startup and timeout costs)
 =======
+=======
+import { inspect } from "node:util";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   Client,
   ReadyListener,
   type BaseMessageInteractiveComponent,
   type Modal,
 } from "@buape/carbon";
+<<<<<<< HEAD
 >>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
+=======
+import type { GatewayPlugin } from "@buape/carbon/gateway";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { Routes } from "discord-api-types/v10";
-import { inspect } from "node:util";
 import { ProxyAgent, fetch as undiciFetch } from "undici";
-import type { HistoryEntry } from "../../auto-reply/reply/history.js";
-import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { listNativeCommandSpecsForConfig } from "../../auto-reply/commands-registry.js";
+import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import { listSkillCommandsForAgents } from "../../auto-reply/skill-commands.js";
 import {
   addAllowlistUserEntriesFromConfigEntry,
@@ -39,6 +45,7 @@ import {
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
 } from "../../config/commands.js";
+import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";

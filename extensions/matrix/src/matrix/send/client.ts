@@ -2,6 +2,7 @@ import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
 <<<<<<< HEAD
 =======
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
+<<<<<<< HEAD
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 import { getMatrixRuntime } from "../../runtime.js";
@@ -14,6 +15,10 @@ import {
   resolveSharedMatrixClient,
 } from "../client.js";
 =======
+=======
+import { getMatrixRuntime } from "../../runtime.js";
+import type { CoreConfig } from "../../types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getActiveMatrixClient, getAnyActiveMatrixClient } from "../active-client.js";
 import { createPreparedMatrixClient } from "../client-bootstrap.js";
 import { isBunRuntime, resolveMatrixAuth, resolveSharedMatrixClient } from "../client.js";

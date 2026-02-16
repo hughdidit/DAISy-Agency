@@ -1,5 +1,4 @@
 import type { startGatewayServer } from "../../gateway/server.js";
-import type { defaultRuntime } from "../../runtime.js";
 import { acquireGatewayLock } from "../../infra/gateway-lock.js";
 import { restartGatewayProcessWithFreshPid } from "../../infra/process-respawn.js";
 import {
@@ -8,7 +7,17 @@ import {
   markGatewaySigusr1RestartHandled,
 } from "../../infra/restart.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
+<<<<<<< HEAD
 import { getActiveTaskCount, waitForActiveTasks } from "../../process/command-queue.js";
+=======
+import {
+  getActiveTaskCount,
+  resetAllLanes,
+  waitForActiveTasks,
+} from "../../process/command-queue.js";
+import { createRestartIterationHook } from "../../process/restart-recovery.js";
+import type { defaultRuntime } from "../../runtime.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const gatewayLog = createSubsystemLogger("gateway");
 

@@ -1,6 +1,7 @@
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import express from "express";
+<<<<<<< HEAD
 import type { ResolvedBrowserConfig } from "./config.js";
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 <<<<<<< HEAD
@@ -13,7 +14,13 @@ import { isAuthorizedBrowserRequest } from "./http-auth.js";
 >>>>>>> af50b914a (refactor(browser): centralize http auth)
 =======
 >>>>>>> 28014de97 (refactor(browser): share common server middleware)
+=======
+import { isLoopbackHost } from "../gateway/net.js";
+import { deleteBridgeAuthForPort, setBridgeAuthForPort } from "./bridge-auth-registry.js";
+import type { ResolvedBrowserConfig } from "./config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { registerBrowserRoutes } from "./routes/index.js";
+import type { BrowserRouteRegistrar } from "./routes/types.js";
 import {
   type BrowserServerState,
   createBrowserRouteContext,

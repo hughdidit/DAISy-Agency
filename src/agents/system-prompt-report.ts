@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import path from "node:path";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import type { SessionSystemPromptReport } from "../config/sessions/types.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";

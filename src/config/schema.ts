@@ -1,7 +1,11 @@
-import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
 import { CHANNEL_IDS } from "../channels/registry.js";
 import { VERSION } from "../version.js";
+<<<<<<< HEAD
 import { applySensitiveHints, buildBaseHints } from "./schema.hints.js";
+=======
+import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
+import { applySensitiveHints, buildBaseHints, mapSensitivePaths } from "./schema.hints.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { OpenClawSchema } from "./zod-schema.js";
 
 export type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";

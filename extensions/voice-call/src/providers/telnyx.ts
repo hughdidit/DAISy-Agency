@@ -13,6 +13,10 @@ import type {
   WebhookContext,
   WebhookVerificationResult,
 } from "../types.js";
+<<<<<<< HEAD
+=======
+import { verifyTelnyxWebhook } from "../webhook-security.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { VoiceCallProvider } from "./base.js";
 
 /**

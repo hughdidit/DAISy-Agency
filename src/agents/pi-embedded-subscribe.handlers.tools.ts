@@ -1,8 +1,20 @@
 import type { AgentEvent } from "@mariozechner/pi-agent-core";
+<<<<<<< HEAD
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
 import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
+=======
+import { emitAgentEvent } from "../infra/agent-events.js";
+import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
+import type { PluginHookAfterToolCallEvent } from "../plugins/types.js";
+import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
+import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
+import type {
+  EmbeddedPiSubscribeContext,
+  ToolCallSummary,
+} from "./pi-embedded-subscribe.handlers.types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   extractToolErrorMessage,
   extractToolResultText,
