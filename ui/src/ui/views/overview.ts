@@ -1,9 +1,17 @@
 import { html } from "lit";
+<<<<<<< HEAD
 
 import type { GatewayHelloOk } from "../gateway";
 import { formatAgo, formatDurationMs } from "../format";
 import { formatNextRun } from "../presenter";
 import type { UiSettings } from "../storage";
+=======
+import type { GatewayHelloOk } from "../gateway.ts";
+import type { UiSettings } from "../storage.ts";
+import { t, i18n, type Locale } from "../../i18n/index.ts";
+import { formatAgo, formatDurationMs } from "../format.ts";
+import { formatNextRun } from "../presenter.ts";
+>>>>>>> f20bef3d7 (fix: add .ts extensions to i18n imports for ESM compatibility)
 
 export type OverviewProps = {
   connected: boolean;

@@ -1,4 +1,8 @@
 import type { IconName } from "./icons.js";
+<<<<<<< HEAD
+=======
+import { t } from "../i18n/index.ts";
+>>>>>>> f20bef3d7 (fix: add .ts extensions to i18n imports for ESM compatibility)
 
 export const TAB_GROUPS = [
   { label: "Chat", tabs: ["chat"] },
