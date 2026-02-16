@@ -42,19 +42,37 @@ export function wrapFetchWithAbortSignal(fetchImpl: typeof fetch): typeof fetch 
       return fetchImpl(input, patchedInit);
     }
     const controller = new AbortController();
+<<<<<<< HEAD
     const onAbort = controller.abort.bind(controller);
+=======
+    const onAbort = bindAbortRelay(controller);
+    let listenerAttached = false;
+>>>>>>> e3e8046a9 (fix(infra): avoid detached finally unhandled rejection in fetch wrapper (#18014))
     if (signal.aborted) {
       controller.abort();
     } else {
       signal.addEventListener("abort", onAbort, { once: true });
+      listenerAttached = true;
     }
-    const response = fetchImpl(input, { ...patchedInit, signal: controller.signal });
-    if (typeof signal.removeEventListener === "function") {
-      void response.finally(() => {
+    const cleanup = () => {
+      if (!listenerAttached || typeof signal.removeEventListener !== "function") {
+        return;
+      }
+      listenerAttached = false;
+      try {
         signal.removeEventListener("abort", onAbort);
-      });
+      } catch {
+        // Foreign/custom AbortSignal implementations may throw here.
+        // Never let cleanup mask the original fetch result/error.
+      }
+    };
+    try {
+      const response = fetchImpl(input, { ...patchedInit, signal: controller.signal });
+      return response.finally(cleanup);
+    } catch (error) {
+      cleanup();
+      throw error;
     }
-    return response;
   }) as FetchWithPreconnect;
 
   const fetchWithPreconnect = fetchImpl as FetchWithPreconnect;
