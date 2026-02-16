@@ -86,6 +86,7 @@ export type EmbeddedRunAttemptResult = {
   lastToolError?: { toolName: string; meta?: string; error?: string };
   didSendViaMessagingTool: boolean;
   messagingToolSentTexts: string[];
+  messagingToolSentMediaUrls: string[];
   messagingToolSentTargets: MessagingToolSend[];
   successfulCronAdds?: number;
   cloudCodeAssistFormatError: boolean;

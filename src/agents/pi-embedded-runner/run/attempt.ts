@@ -753,6 +753,7 @@ export async function runEmbeddedAttempt(
         unsubscribe,
         waitForCompactionRetry,
         getMessagingToolSentTexts,
+        getMessagingToolSentMediaUrls,
         getMessagingToolSentTargets,
         getSuccessfulCronAdds,
         didSendViaMessagingTool,
@@ -1188,6 +1189,7 @@ export async function runEmbeddedAttempt(
         lastToolError: getLastToolError?.(),
         didSendViaMessagingTool: didSendViaMessagingTool(),
         messagingToolSentTexts: getMessagingToolSentTexts(),
+        messagingToolSentMediaUrls: getMessagingToolSentMediaUrls(),
         messagingToolSentTargets: getMessagingToolSentTargets(),
         successfulCronAdds: getSuccessfulCronAdds(),
         cloudCodeAssistFormatError: Boolean(
