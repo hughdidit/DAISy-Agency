@@ -1,8 +1,12 @@
 import type { MoltbotConfig } from "../../config/config.js";
 import { normalizeProviderId } from "../model-selection.js";
 import { listProfilesForProvider } from "./profiles.js";
+<<<<<<< HEAD
 import type { AuthProfileStore } from "./types.js";
 import { isProfileInCooldown } from "./usage.js";
+=======
+import { clearExpiredCooldowns, isProfileInCooldown } from "./usage.js";
+>>>>>>> 03cadc4b7 (fix(auth): auto-expire stale auth profile cooldowns and reset error count)
 
 function resolveProfileUnusableUntil(stats: {
   cooldownUntil?: number;
@@ -26,6 +30,11 @@ export function resolveAuthProfileOrder(params: {
   const { cfg, store, provider, preferredProfile } = params;
   const providerKey = normalizeProviderId(provider);
   const now = Date.now();
+
+  // Clear any cooldowns that have expired since the last check so profiles
+  // get a fresh error count and are not immediately re-penalized on the
+  // next transient failure. See #3604.
+  clearExpiredCooldowns(store, now);
   const storedOrder = (() => {
     const order = store.order;
     if (!order) {
