@@ -222,6 +222,7 @@ export function buildEmbeddedRunPayloads(params: {
         : []
   ).filter((text) => !shouldSuppressRawErrorText(text));
 
+  let hasUserFacingAssistantReply = false;
   for (const text of answerTexts) {
     const {
       text: cleanedText,
@@ -242,9 +243,11 @@ export function buildEmbeddedRunPayloads(params: {
       replyToTag,
       replyToCurrent,
     });
+    hasUserFacingAssistantReply = true;
   }
 
   if (params.lastToolError) {
+<<<<<<< HEAD
     const lastAssistantHasToolCalls =
       Array.isArray(params.lastAssistant?.content) &&
       params.lastAssistant?.content.some((block) =>
@@ -277,9 +280,11 @@ export function buildEmbeddedRunPayloads(params: {
       (!hasUserFacingReply && !isRecoverableError && !params.config?.messages?.suppressToolErrors);
 >>>>>>> 2c8b92105 (feat: add messages.suppressToolErrors config option (#16620))
 =======
+=======
+>>>>>>> dddb1bc94 (fix(telegram): fix streaming with extended thinking models overwriting previous messages/ also happens to Execution error (#17973))
     const shouldShowToolError = shouldShowToolErrorWarning({
       lastToolError: params.lastToolError,
-      hasUserFacingReply,
+      hasUserFacingReply: hasUserFacingAssistantReply,
       suppressToolErrors: Boolean(params.config?.messages?.suppressToolErrors),
     });
 >>>>>>> d08ff2c2c (refactor(agents): extract tool-error warning helpers)

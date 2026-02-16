@@ -128,6 +128,7 @@ export function handleMessageUpdate(
       inlineCode: createInlineCodeState(),
     })
     .trim();
+<<<<<<< HEAD
   if (next && next !== ctx.state.lastStreamedAssistant) {
     const previousText = ctx.state.lastStreamedAssistant ?? "";
     const { text: cleanedText, mediaUrls } = parseReplyDirectives(next);
@@ -135,6 +136,38 @@ export function handleMessageUpdate(
     if (cleanedText.startsWith(previousCleanedText)) {
       const deltaText = cleanedText.slice(previousCleanedText.length);
       ctx.state.lastStreamedAssistant = next;
+=======
+  if (next) {
+    const wasThinking = ctx.state.partialBlockState.thinking;
+    const visibleDelta = chunk ? ctx.stripBlockTags(chunk, ctx.state.partialBlockState) : "";
+    // Detect when thinking block ends (</think> tag processed)
+    if (wasThinking && !ctx.state.partialBlockState.thinking) {
+      void ctx.params.onReasoningEnd?.();
+    }
+    const parsedDelta = visibleDelta ? ctx.consumePartialReplyDirectives(visibleDelta) : null;
+    const parsedFull = parseReplyDirectives(stripTrailingDirective(next));
+    const cleanedText = parsedFull.text;
+    const mediaUrls = parsedDelta?.mediaUrls;
+    const hasMedia = Boolean(mediaUrls && mediaUrls.length > 0);
+    const hasAudio = Boolean(parsedDelta?.audioAsVoice);
+    const previousCleaned = ctx.state.lastStreamedAssistantCleaned ?? "";
+
+    let shouldEmit = false;
+    let deltaText = "";
+    if (!cleanedText && !hasMedia && !hasAudio) {
+      shouldEmit = false;
+    } else if (previousCleaned && !cleanedText.startsWith(previousCleaned)) {
+      shouldEmit = false;
+    } else {
+      deltaText = cleanedText.slice(previousCleaned.length);
+      shouldEmit = Boolean(deltaText || hasMedia || hasAudio);
+    }
+
+    ctx.state.lastStreamedAssistant = next;
+    ctx.state.lastStreamedAssistantCleaned = cleanedText;
+
+    if (shouldEmit) {
+>>>>>>> dddb1bc94 (fix(telegram): fix streaming with extended thinking models overwriting previous messages/ also happens to Execution error (#17973))
       emitAgentEvent({
         runId: ctx.params.runId,
         stream: "assistant",

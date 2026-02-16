@@ -9,6 +9,8 @@ export type TelegramDraftStream = {
   messageId: () => number | undefined;
   clear: () => Promise<void>;
   stop: () => void;
+  /** Reset internal state so the next update creates a new message instead of editing. */
+  forceNewMessage: () => void;
 };
 
 export function createTelegramDraftStream(params: {
@@ -204,6 +206,12 @@ export function createTelegramDraftStream(params: {
     }
   };
 
+  const forceNewMessage = () => {
+    streamMessageId = undefined;
+    lastSentText = "";
+    pendingText = "";
+  };
+
   params.log?.(`telegram stream preview ready (maxChars=${maxChars}, throttleMs=${throttleMs})`);
 
   return {
@@ -212,5 +220,6 @@ export function createTelegramDraftStream(params: {
     messageId: () => streamMessageId,
     clear,
     stop,
+    forceNewMessage,
   };
 }

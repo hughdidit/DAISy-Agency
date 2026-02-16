@@ -332,6 +332,7 @@ export async function runAgentTurnWithFallback(params: {
               : undefined,
             onAssistantMessageStart: async () => {
               await params.typingSignals.signalMessageStart();
+              await params.opts?.onAssistantMessageStart?.();
             },
             onReasoningStream:
               params.typingSignals.shouldStartOnReasoning || params.opts?.onReasoningStream
@@ -343,6 +344,7 @@ export async function runAgentTurnWithFallback(params: {
                     });
                   }
                 : undefined,
+            onReasoningEnd: params.opts?.onReasoningEnd,
             onAgentEvent: async (evt) => {
               // Trigger typing when tools start executing.
               // Must await to ensure typing indicator starts before tool summaries are emitted.
