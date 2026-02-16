@@ -222,23 +222,15 @@ async function resolveFullSystemPrompt(params: HandleCommandsParams): Promise<{
   return { systemPrompt, tools };
 }
 
-function parseExportArgs(commandBodyNormalized: string): { outputPath?: string; open?: boolean } {
+function parseExportArgs(commandBodyNormalized: string): { outputPath?: string } {
   const normalized = commandBodyNormalized.trim();
   if (normalized === "/export-session" || normalized === "/export") {
     return {};
   }
   const args = normalized.replace(/^\/(export-session|export)\s*/, "").trim();
-  const parts = args.split(/\s+/);
-  let outputPath: string | undefined;
-  let open = false;
-  for (const part of parts) {
-    if (part === "--open" || part === "-o") {
-      open = true;
-    } else if (!part.startsWith("-") && !outputPath) {
-      outputPath = part;
-    }
-  }
-  return { outputPath, open };
+  // First non-flag argument is the output path
+  const outputPath = args.split(/\s+/).find((part) => !part.startsWith("-"));
+  return { outputPath };
 }
 
 export async function buildExportSessionReply(params: HandleCommandsParams): Promise<ReplyPayload> {
@@ -314,13 +306,6 @@ export async function buildExportSessionReply(params: HandleCommandsParams): Pro
   // 7. Write file
   fs.writeFileSync(outputPath, html, "utf-8");
 
-  // 8. Optionally open in browser
-  if (args.open) {
-    const { exec } = await import("node:child_process");
-    const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
-    exec(`${cmd} "${outputPath}"`);
-  }
-
   const relativePath = path.relative(params.workspaceDir, outputPath);
   const displayPath = relativePath.startsWith("..") ? outputPath : relativePath;
 
@@ -332,8 +317,6 @@ export async function buildExportSessionReply(params: HandleCommandsParams): Pro
       `📊 Entries: ${entries.length}`,
       `🧠 System prompt: ${systemPrompt.length.toLocaleString()} chars`,
       `🔧 Tools: ${tools.length}`,
-      "",
-      args.open ? "🌐 Opening in browser..." : `Tip: /export-session --open to auto-open`,
     ].join("\n"),
   };
 }
