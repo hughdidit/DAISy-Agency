@@ -4,7 +4,14 @@ import { Type } from "@sinclair/typebox";
 
 =======
 import { formatDurationCompact } from "../infra/format-time/format-duration.ts";
+<<<<<<< HEAD
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
+=======
+import { getDiagnosticSessionState } from "../logging/diagnostic-session-state.js";
+import { killProcessTree } from "../process/kill-tree.js";
+import { getProcessSupervisor } from "../process/supervisor/index.js";
+import { recordCommandPoll, resetCommandPollCount } from "./command-poll-backoff.js";
+>>>>>>> 23f5cc80a (Agents: wire command poll backoff into process poll)
 import {
   deleteSession,
   drainSession,
@@ -101,6 +108,24 @@ function failText(text: string): AgentToolResult<unknown> {
     ],
     details: { status: "failed" },
   };
+}
+
+function recordPollRetrySuggestion(sessionId: string, hasNewOutput: boolean): number | undefined {
+  try {
+    const sessionState = getDiagnosticSessionState({ sessionId });
+    return recordCommandPoll(sessionState, sessionId, hasNewOutput);
+  } catch {
+    return undefined;
+  }
+}
+
+function resetPollRetrySuggestion(sessionId: string): void {
+  try {
+    const sessionState = getDiagnosticSessionState({ sessionId });
+    resetCommandPollCount(sessionState, sessionId);
+  } catch {
+    // Ignore diagnostics state failures for process tool behavior.
+  }
 }
 
 export function createProcessTool(
@@ -250,6 +275,7 @@ export function createProcessTool(
         case "poll": {
           if (!scopedSession) {
             if (scopedFinished) {
+              resetPollRetrySuggestion(params.sessionId);
               return {
                 content: [
                   {
@@ -275,6 +301,7 @@ export function createProcessTool(
                 },
               };
             }
+            resetPollRetrySuggestion(params.sessionId);
             return failText(`No session found for ${params.sessionId}`);
           }
           if (!scopedSession.backgrounded) {
@@ -308,6 +335,13 @@ export function createProcessTool(
               : "failed"
             : "running";
           const output = [stdout.trimEnd(), stderr.trimEnd()].filter(Boolean).join("\n").trim();
+          const hasNewOutput = output.length > 0;
+          const retryInMs = exited
+            ? undefined
+            : recordPollRetrySuggestion(params.sessionId, hasNewOutput);
+          if (exited) {
+            resetPollRetrySuggestion(params.sessionId);
+          }
           return {
             content: [
               {
@@ -327,6 +361,7 @@ export function createProcessTool(
               exitCode: exited ? exitCode : undefined,
               aggregated: scopedSession.aggregated,
               name: deriveSessionName(scopedSession.command),
+              ...(typeof retryInMs === "number" ? { retryInMs } : {}),
             },
           };
         }
@@ -527,8 +562,22 @@ export function createProcessTool(
           if (!scopedSession.backgrounded) {
             return failText(`Session ${params.sessionId} is not backgrounded.`);
           }
+<<<<<<< HEAD
           killSession(scopedSession);
           markExited(scopedSession, null, "SIGKILL", "failed");
+=======
+          const canceled = cancelManagedSession(scopedSession.id);
+          if (!canceled) {
+            const terminated = terminateSessionFallback(scopedSession);
+            if (!terminated) {
+              return failText(
+                `Unable to terminate session ${params.sessionId}: no active supervisor run or process id.`,
+              );
+            }
+            markExited(scopedSession, null, "SIGKILL", "failed");
+          }
+          resetPollRetrySuggestion(params.sessionId);
+>>>>>>> 23f5cc80a (Agents: wire command poll backoff into process poll)
           return {
             content: [{ type: "text", text: `Killed session ${params.sessionId}.` }],
             details: {
@@ -540,6 +589,7 @@ export function createProcessTool(
 
         case "clear": {
           if (scopedFinished) {
+            resetPollRetrySuggestion(params.sessionId);
             deleteSession(params.sessionId);
             return {
               content: [{ type: "text", text: `Cleared session ${params.sessionId}.` }],
@@ -559,8 +609,27 @@ export function createProcessTool(
 
         case "remove": {
           if (scopedSession) {
+<<<<<<< HEAD
             killSession(scopedSession);
             markExited(scopedSession, null, "SIGKILL", "failed");
+=======
+            const canceled = cancelManagedSession(scopedSession.id);
+            if (canceled) {
+              // Keep remove semantics deterministic: drop from process registry now.
+              scopedSession.backgrounded = false;
+              deleteSession(params.sessionId);
+            } else {
+              const terminated = terminateSessionFallback(scopedSession);
+              if (!terminated) {
+                return failText(
+                  `Unable to remove session ${params.sessionId}: no active supervisor run or process id.`,
+                );
+              }
+              markExited(scopedSession, null, "SIGKILL", "failed");
+              deleteSession(params.sessionId);
+            }
+            resetPollRetrySuggestion(params.sessionId);
+>>>>>>> 23f5cc80a (Agents: wire command poll backoff into process poll)
             return {
               content: [{ type: "text", text: `Removed session ${params.sessionId}.` }],
               details: {
@@ -570,6 +639,7 @@ export function createProcessTool(
             };
           }
           if (scopedFinished) {
+            resetPollRetrySuggestion(params.sessionId);
             deleteSession(params.sessionId);
             return {
               content: [{ type: "text", text: `Removed session ${params.sessionId}.` }],
