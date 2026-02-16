@@ -595,6 +595,19 @@ Max characters per workspace bootstrap file before truncation. Default: `20000`.
 }
 ```
 
+<<<<<<< HEAD
+=======
+### `agents.defaults.bootstrapTotalMaxChars`
+
+Max total characters injected across all workspace bootstrap files. Default: `150000`.
+
+```json5
+{
+  agents: { defaults: { bootstrapTotalMaxChars: 150000 } },
+}
+```
+
+>>>>>>> 8a6701664 (Agents: raise bootstrap total cap and warn on /context truncation (#18229))
 ### `agents.defaults.userTimezone`
 
 Timezone for system prompt context (not message timestamps). Falls back to host timezone.

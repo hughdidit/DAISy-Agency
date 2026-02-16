@@ -120,8 +120,14 @@ See [Memory](/concepts/memory) for the workflow and automatic memory flush.
 
 If any bootstrap file is missing, Moltbot injects a "missing file" marker into
 the session and continues. Large bootstrap files are truncated when injected;
+<<<<<<< HEAD
 adjust the limit with `agents.defaults.bootstrapMaxChars` (default: 20000).
 `moltbot setup` can recreate missing defaults without overwriting existing
+=======
+adjust limits with `agents.defaults.bootstrapMaxChars` (default: 20000) and
+`agents.defaults.bootstrapTotalMaxChars` (default: 150000).
+`openclaw setup` can recreate missing defaults without overwriting existing
+>>>>>>> 8a6701664 (Agents: raise bootstrap total cap and warn on /context truncation (#18229))
 files.
 
 ## What is NOT in the workspace
