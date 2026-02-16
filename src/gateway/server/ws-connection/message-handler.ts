@@ -383,9 +383,13 @@ export function attachGatewayWsMessageHandler(params: {
         const device = disableControlUiDeviceAuth ? null : deviceRaw;
         if (!device) {
 <<<<<<< HEAD
+<<<<<<< HEAD
           const canSkipDevice = allowControlUiBypass ? hasSharedAuth : hasTokenAuth;
 =======
           if (scopes.length > 0) {
+=======
+          if (scopes.length > 0 && !allowControlUiBypass) {
+>>>>>>> eed02a2b5 (fix (security/gateway): preserve control-ui scopes in bypass mode)
             scopes = [];
             connectParams.scopes = scopes;
           }
