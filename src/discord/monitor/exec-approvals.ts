@@ -729,6 +729,14 @@ export class DiscordExecApprovalHandler {
       return false;
     }
   }
+<<<<<<< HEAD
+=======
+
+  /** Return the list of configured approver IDs. */
+  getApprovers(): string[] {
+    return this.opts.config.approvers ?? [];
+  }
+>>>>>>> 1b7301051 (Config: require Discord ID strings (#18220))
 }
 
 export type ExecApprovalButtonContext = {

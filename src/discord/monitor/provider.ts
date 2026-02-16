@@ -96,6 +96,7 @@ export type MonitorDiscordOpts = {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 function createDiscordGatewayPlugin(params: {
   discordConfig: DiscordAccountConfig;
@@ -139,6 +140,9 @@ function createDiscordGatewayPlugin(params: {
 =======
 >>>>>>> 644251295 (perf: reduce hotspot test startup and timeout costs)
 function summarizeAllowList(list?: Array<string | number>) {
+=======
+function summarizeAllowList(list?: string[]) {
+>>>>>>> 1b7301051 (Config: require Discord ID strings (#18220))
   if (!list || list.length === 0) {
     return "any";
   }
@@ -413,7 +417,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
               continue;
             }
             const nextGuild = { ...guildConfig } as Record<string, unknown>;
-            const users = (guildConfig as { users?: Array<string | number> }).users;
+            const users = (guildConfig as { users?: string[] }).users;
             if (Array.isArray(users) && users.length > 0) {
               const additions = resolveAllowlistIdAdditions({ existing: users, resolvedMap });
               nextGuild.users = mergeAllowlist({ existing: users, additions });
