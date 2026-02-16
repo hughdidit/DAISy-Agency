@@ -10,6 +10,7 @@ struct RootCanvas: View {
     @AppStorage(VoiceWakePreferences.enabledKey) private var voiceWakeEnabled: Bool = false
     @AppStorage("screen.preventSleep") private var preventSleep: Bool = true
     @AppStorage("canvas.debugStatusEnabled") private var canvasDebugStatusEnabled: Bool = false
+    @AppStorage("onboarding.requestID") private var onboardingRequestID: Int = 0
     @AppStorage("gateway.onboardingComplete") private var onboardingComplete: Bool = false
     @AppStorage("gateway.hasConnectedOnce") private var hasConnectedOnce: Bool = false
     @AppStorage("gateway.preferredStableID") private var preferredGatewayStableID: String = ""
@@ -19,6 +20,9 @@ struct RootCanvas: View {
     @State private var presentedSheet: PresentedSheet?
     @State private var voiceWakeToastText: String?
     @State private var toastDismissTask: Task<Void, Never>?
+    @State private var showOnboarding: Bool = false
+    @State private var onboardingAllowSkip: Bool = true
+    @State private var didEvaluateOnboarding: Bool = false
     @State private var didAutoOpenSettings: Bool = false
 
     private enum PresentedSheet: Identifiable {
@@ -33,6 +37,33 @@ struct RootCanvas: View {
             case .quickSetup: 2
             }
         }
+    }
+
+    enum StartupPresentationRoute: Equatable {
+        case none
+        case onboarding
+        case settings
+    }
+
+    static func startupPresentationRoute(
+        gatewayConnected: Bool,
+        hasConnectedOnce: Bool,
+        onboardingComplete: Bool,
+        hasExistingGatewayConfig: Bool,
+        shouldPresentOnLaunch: Bool) -> StartupPresentationRoute
+    {
+        if gatewayConnected {
+            return .none
+        }
+        // On first run or explicit launch onboarding state, onboarding always wins.
+        if shouldPresentOnLaunch || !hasConnectedOnce || !onboardingComplete {
+            return .onboarding
+        }
+        // Settings auto-open is a recovery path for previously-connected installs only.
+        if !hasExistingGatewayConfig {
+            return .settings
+        }
+        return .none
     }
 
     var body: some View {
@@ -60,17 +91,35 @@ struct RootCanvas: View {
             switch sheet {
             case .settings:
                 SettingsTab()
+                    .environment(self.appModel)
+                    .environment(self.appModel.voiceWake)
+                    .environment(self.gatewayController)
             case .chat:
                 ChatSheet(
-                    gateway: self.appModel.operatorSession,
+                    // Mobile chat UI should use the node role RPC surface (chat.* / sessions.*)
+                    // to avoid requiring operator scopes like operator.read.
+                    gateway: self.appModel.gatewaySession,
                     sessionKey: self.appModel.mainSessionKey,
                     agentName: self.appModel.activeAgentName,
                     userAccent: self.appModel.seamColor)
             case .quickSetup:
                 GatewayQuickSetupSheet()
+                    .environment(self.appModel)
+                    .environment(self.gatewayController)
             }
         }
+        .fullScreenCover(isPresented: self.$showOnboarding) {
+            OnboardingWizardView(
+                allowSkip: self.onboardingAllowSkip,
+                onClose: {
+                    self.showOnboarding = false
+                })
+                .environment(self.appModel)
+                .environment(self.appModel.voiceWake)
+                .environment(self.gatewayController)
+        }
         .onAppear { self.updateIdleTimer() }
+        .onAppear { self.evaluateOnboardingPresentation(force: false) }
         .onAppear { self.maybeAutoOpenSettings() }
         .onChange(of: self.preventSleep) { _, _ in self.updateIdleTimer() }
         .onChange(of: self.scenePhase) { _, _ in self.updateIdleTimer() }
@@ -80,11 +129,20 @@ struct RootCanvas: View {
         .onChange(of: self.canvasDebugStatusEnabled) { _, _ in self.updateCanvasDebugStatus() }
         .onChange(of: self.appModel.gatewayStatusText) { _, _ in self.updateCanvasDebugStatus() }
         .onChange(of: self.appModel.gatewayServerName) { _, _ in self.updateCanvasDebugStatus() }
+        .onChange(of: self.appModel.gatewayServerName) { _, newValue in
+            if newValue != nil {
+                self.showOnboarding = false
+            }
+        }
+        .onChange(of: self.onboardingRequestID) { _, _ in
+            self.evaluateOnboardingPresentation(force: true)
+        }
         .onChange(of: self.appModel.gatewayRemoteAddress) { _, _ in self.updateCanvasDebugStatus() }
         .onChange(of: self.appModel.gatewayServerName) { _, newValue in
             if newValue != nil {
                 self.onboardingComplete = true
                 self.hasConnectedOnce = true
+                OnboardingStateStore.markCompleted(mode: nil)
             }
             self.maybeAutoOpenSettings()
         }
@@ -143,11 +201,31 @@ struct RootCanvas: View {
         self.appModel.screen.updateDebugStatus(title: title, subtitle: subtitle)
     }
 
-    private func shouldAutoOpenSettings() -> Bool {
-        if self.appModel.gatewayServerName != nil { return false }
-        if !self.hasConnectedOnce { return true }
-        if !self.onboardingComplete { return true }
-        return !self.hasExistingGatewayConfig()
+    private func evaluateOnboardingPresentation(force: Bool) {
+        if force {
+            self.onboardingAllowSkip = true
+            self.showOnboarding = true
+            return
+        }
+
+        guard !self.didEvaluateOnboarding else { return }
+        self.didEvaluateOnboarding = true
+        let route = Self.startupPresentationRoute(
+            gatewayConnected: self.appModel.gatewayServerName != nil,
+            hasConnectedOnce: self.hasConnectedOnce,
+            onboardingComplete: self.onboardingComplete,
+            hasExistingGatewayConfig: self.hasExistingGatewayConfig(),
+            shouldPresentOnLaunch: OnboardingStateStore.shouldPresentOnLaunch(appModel: self.appModel))
+        switch route {
+        case .none:
+            break
+        case .onboarding:
+            self.onboardingAllowSkip = true
+            self.showOnboarding = true
+        case .settings:
+            self.didAutoOpenSettings = true
+            self.presentedSheet = .settings
+        }
     }
 
     private func hasExistingGatewayConfig() -> Bool {
@@ -158,13 +236,21 @@ struct RootCanvas: View {
 
     private func maybeAutoOpenSettings() {
         guard !self.didAutoOpenSettings else { return }
-        guard self.shouldAutoOpenSettings() else { return }
+        guard !self.showOnboarding else { return }
+        let route = Self.startupPresentationRoute(
+            gatewayConnected: self.appModel.gatewayServerName != nil,
+            hasConnectedOnce: self.hasConnectedOnce,
+            onboardingComplete: self.onboardingComplete,
+            hasExistingGatewayConfig: self.hasExistingGatewayConfig(),
+            shouldPresentOnLaunch: false)
+        guard route == .settings else { return }
         self.didAutoOpenSettings = true
         self.presentedSheet = .settings
     }
 
     private func maybeShowQuickSetup() {
         guard !self.quickSetupDismissed else { return }
+        guard !self.showOnboarding else { return }
         guard self.presentedSheet == nil else { return }
         guard self.appModel.gatewayServerName == nil else { return }
         guard !self.gatewayController.gateways.isEmpty else { return }
