@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 <<<<<<< HEAD
@@ -8,6 +9,34 @@ import {
   normalizeMainKey,
 } from "../../routing/session-key.js";
 >>>>>>> 8a4f9f168 (refactor(agents): share sandboxed session tool context)
+=======
+export type {
+  AgentToAgentPolicy,
+  SessionAccessAction,
+  SessionAccessResult,
+  SessionToolsVisibility,
+} from "./sessions-access.js";
+export {
+  createAgentToAgentPolicy,
+  createSessionVisibilityGuard,
+  resolveEffectiveSessionToolsVisibility,
+  resolveSandboxSessionToolsVisibility,
+  resolveSandboxedSessionToolContext,
+  resolveSessionToolsVisibility,
+} from "./sessions-access.js";
+export type { SessionReferenceResolution } from "./sessions-resolution.js";
+export {
+  isRequesterSpawnedSessionVisible,
+  listSpawnedSessionKeys,
+  looksLikeSessionId,
+  looksLikeSessionKey,
+  resolveDisplaySessionKey,
+  resolveInternalSessionKey,
+  resolveMainSessionAlias,
+  resolveSessionReference,
+  shouldResolveSessionIdInput,
+} from "./sessions-resolution.js";
+>>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
 import { sanitizeUserFacingText } from "../pi-embedded-helpers.js";
 import {
   stripDowngradedToolCallText,
@@ -53,6 +82,7 @@ function normalizeKey(value?: string) {
   return trimmed ? trimmed : undefined;
 }
 
+<<<<<<< HEAD
 export function resolveMainSessionAlias(cfg: MoltbotConfig) {
   const mainKey = normalizeMainKey(cfg.session?.mainKey);
   const scope = cfg.session?.scope ?? "per-sender";
@@ -329,6 +359,8 @@ export async function resolveSessionReference(params: {
   return { ok: true, key: resolvedKey, displayKey, resolvedViaSessionId: false };
 }
 
+=======
+>>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
 export function classifySessionKind(params: {
   key: string;
   gatewayKind?: string | null;

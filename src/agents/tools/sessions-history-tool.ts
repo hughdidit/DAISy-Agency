@@ -4,6 +4,7 @@ import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 import { capArrayByJsonBytes } from "../../gateway/session-utils.fs.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { isSubagentSessionKey, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 <<<<<<< HEAD
 import type { AnyAgentTool } from "./common.js";
@@ -11,13 +12,20 @@ import type { AnyAgentTool } from "./common.js";
 =======
 import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 >>>>>>> 8a4f9f168 (refactor(agents): share sandboxed session tool context)
+=======
+>>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
 import { truncateUtf16Safe } from "../../utils.js";
 >>>>>>> bccdc95a9 (Cap sessions_history payloads to prevent context overflow (#10000))
 import { jsonResult, readStringParam } from "./common.js";
 import {
+  createSessionVisibilityGuard,
   createAgentToAgentPolicy,
+<<<<<<< HEAD
+=======
+  isRequesterSpawnedSessionVisible,
+  resolveEffectiveSessionToolsVisibility,
+>>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
   resolveSessionReference,
-  SessionListRow,
   resolveSandboxedSessionToolContext,
   stripToolMessages,
 } from "./sessions-helpers.js";
@@ -155,6 +163,7 @@ function enforceSessionsHistoryHardCap(params: {
   return { items: placeholder, bytes: jsonUtf8Bytes(placeholder), hardCapped: true };
 }
 
+<<<<<<< HEAD
 async function isSpawnedSessionAllowed(params: {
   requesterSessionKey: string;
   targetSessionKey: string;
@@ -176,6 +185,8 @@ async function isSpawnedSessionAllowed(params: {
   }
 }
 
+=======
+>>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
 export function createSessionsHistoryTool(opts?: {
   agentSessionKey?: string;
   sandboxed?: boolean;
@@ -191,7 +202,7 @@ export function createSessionsHistoryTool(opts?: {
         required: true,
       });
       const cfg = loadConfig();
-      const { mainKey, alias, requesterInternalKey, restrictToSpawned } =
+      const { mainKey, alias, effectiveRequesterKey, restrictToSpawned } =
         resolveSandboxedSessionToolContext({
           cfg,
           agentSessionKey: opts?.agentSessionKey,
@@ -211,9 +222,15 @@ export function createSessionsHistoryTool(opts?: {
       const resolvedKey = resolvedSession.key;
       const displayKey = resolvedSession.displayKey;
       const resolvedViaSessionId = resolvedSession.resolvedViaSessionId;
+<<<<<<< HEAD
       if (restrictToSpawned && requesterInternalKey && !resolvedViaSessionId) {
         const ok = await isSpawnedSessionAllowed({
           requesterSessionKey: requesterInternalKey,
+=======
+      if (restrictToSpawned && !resolvedViaSessionId && resolvedKey !== effectiveRequesterKey) {
+        const ok = await isRequesterSpawnedSessionVisible({
+          requesterSessionKey: effectiveRequesterKey,
+>>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
           targetSessionKey: resolvedKey,
         });
         if (!ok) {
@@ -225,6 +242,7 @@ export function createSessionsHistoryTool(opts?: {
       }
 
       const a2aPolicy = createAgentToAgentPolicy(cfg);
+<<<<<<< HEAD
       const requesterAgentId = resolveAgentIdFromSessionKey(requesterInternalKey);
       const targetAgentId = resolveAgentIdFromSessionKey(resolvedKey);
       const isCrossAgent = requesterAgentId !== targetAgentId;
@@ -242,6 +260,24 @@ export function createSessionsHistoryTool(opts?: {
             error: "Agent-to-agent history denied by tools.agentToAgent.allow.",
           });
         }
+=======
+      const visibility = resolveEffectiveSessionToolsVisibility({
+        cfg,
+        sandboxed: opts?.sandboxed === true,
+      });
+      const visibilityGuard = await createSessionVisibilityGuard({
+        action: "history",
+        requesterSessionKey: effectiveRequesterKey,
+        visibility,
+        a2aPolicy,
+      });
+      const access = visibilityGuard.check(resolvedKey);
+      if (!access.allowed) {
+        return jsonResult({
+          status: access.status,
+          error: access.error,
+        });
+>>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
       }
 
       const limit =

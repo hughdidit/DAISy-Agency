@@ -4,11 +4,7 @@ import { Type } from "@sinclair/typebox";
 
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
-import {
-  isSubagentSessionKey,
-  normalizeAgentId,
-  resolveAgentIdFromSessionKey,
-} from "../../routing/session-key.js";
+import { normalizeAgentId, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 import { SESSION_LABEL_MAX_LENGTH } from "../../sessions/session-label.js";
 import {
   type GatewayMessageChannel,
@@ -18,11 +14,18 @@ import { AGENT_LANE_NESTED } from "../lanes.js";
 import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readStringParam } from "./common.js";
 import {
+  createSessionVisibilityGuard,
   createAgentToAgentPolicy,
   extractAssistantText,
+<<<<<<< HEAD
   resolveInternalSessionKey,
   resolveMainSessionAlias,
+=======
+  isRequesterSpawnedSessionVisible,
+  resolveEffectiveSessionToolsVisibility,
+>>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
   resolveSessionReference,
+  resolveSandboxedSessionToolContext,
   stripToolMessages,
 } from "./sessions-helpers.js";
 import { buildAgentToAgentMessageContext, resolvePingPongTurns } from "./sessions-send-helpers.js";
@@ -51,6 +54,7 @@ export function createSessionsSendTool(opts?: {
       const params = args as Record<string, unknown>;
       const message = readStringParam(params, "message", { required: true });
       const cfg = loadConfig();
+<<<<<<< HEAD
       const { mainKey, alias } = resolveMainSessionAlias(cfg);
       const visibility = cfg.agents?.defaults?.sandbox?.sessionToolsVisibility ?? "spawned";
       const requesterInternalKey =
@@ -66,6 +70,14 @@ export function createSessionsSendTool(opts?: {
         visibility === "spawned" &&
         !!requesterInternalKey &&
         !isSubagentSessionKey(requesterInternalKey);
+=======
+      const { mainKey, alias, effectiveRequesterKey, restrictToSpawned } =
+        resolveSandboxedSessionToolContext({
+          cfg,
+          agentSessionKey: opts?.agentSessionKey,
+          sandboxed: opts?.sandboxed,
+        });
+>>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
 
       const a2aPolicy = createAgentToAgentPolicy(cfg);
 
@@ -80,30 +92,14 @@ export function createSessionsSendTool(opts?: {
         });
       }
 
-      const listSessions = async (listParams: Record<string, unknown>) => {
-        const result = await callGateway<{ sessions: Array<{ key: string }> }>({
-          method: "sessions.list",
-          params: listParams,
-          timeoutMs: 10_000,
-        });
-        return Array.isArray(result?.sessions) ? result.sessions : [];
-      };
-
       let sessionKey = sessionKeyParam;
       if (!sessionKey && labelParam) {
-        const requesterAgentId = requesterInternalKey
-          ? resolveAgentIdFromSessionKey(requesterInternalKey)
-          : undefined;
+        const requesterAgentId = resolveAgentIdFromSessionKey(effectiveRequesterKey);
         const requestedAgentId = labelAgentIdParam
           ? normalizeAgentId(labelAgentIdParam)
           : undefined;
 
-        if (
-          restrictToSpawned &&
-          requestedAgentId &&
-          requesterAgentId &&
-          requestedAgentId !== requesterAgentId
-        ) {
+        if (restrictToSpawned && requestedAgentId && requestedAgentId !== requesterAgentId) {
           return jsonResult({
             runId: crypto.randomUUID(),
             status: "forbidden",
@@ -132,7 +128,7 @@ export function createSessionsSendTool(opts?: {
         const resolveParams: Record<string, unknown> = {
           label: labelParam,
           ...(requestedAgentId ? { agentId: requestedAgentId } : {}),
-          ...(restrictToSpawned ? { spawnedBy: requesterInternalKey } : {}),
+          ...(restrictToSpawned ? { spawnedBy: effectiveRequesterKey } : {}),
         };
         let resolvedKey = "";
         try {
@@ -186,7 +182,7 @@ export function createSessionsSendTool(opts?: {
         sessionKey,
         alias,
         mainKey,
-        requesterInternalKey,
+        requesterInternalKey: effectiveRequesterKey,
         restrictToSpawned,
       });
       if (!resolvedSession.ok) {
@@ -201,14 +197,20 @@ export function createSessionsSendTool(opts?: {
       const displayKey = resolvedSession.displayKey;
       const resolvedViaSessionId = resolvedSession.resolvedViaSessionId;
 
+<<<<<<< HEAD
       if (restrictToSpawned && !resolvedViaSessionId) {
         const sessions = await listSessions({
           includeGlobal: false,
           includeUnknown: false,
           limit: 500,
           spawnedBy: requesterInternalKey,
+=======
+      if (restrictToSpawned && !resolvedViaSessionId && resolvedKey !== effectiveRequesterKey) {
+        const ok = await isRequesterSpawnedSessionVisible({
+          requesterSessionKey: effectiveRequesterKey,
+          targetSessionKey: resolvedKey,
+>>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
         });
-        const ok = sessions.some((entry) => entry?.key === resolvedKey);
         if (!ok) {
           return jsonResult({
             runId: crypto.randomUUID(),
@@ -226,6 +228,7 @@ export function createSessionsSendTool(opts?: {
       const announceTimeoutMs = timeoutSeconds === 0 ? 30_000 : timeoutMs;
       const idempotencyKey = crypto.randomUUID();
       let runId: string = idempotencyKey;
+<<<<<<< HEAD
       const requesterAgentId = resolveAgentIdFromSessionKey(requesterInternalKey);
       const targetAgentId = resolveAgentIdFromSessionKey(resolvedKey);
       const isCrossAgent = requesterAgentId !== targetAgentId;
@@ -247,6 +250,22 @@ export function createSessionsSendTool(opts?: {
             sessionKey: displayKey,
           });
         }
+=======
+      const visibilityGuard = await createSessionVisibilityGuard({
+        action: "send",
+        requesterSessionKey: effectiveRequesterKey,
+        visibility: sessionVisibility,
+        a2aPolicy,
+      });
+      const access = visibilityGuard.check(resolvedKey);
+      if (!access.allowed) {
+        return jsonResult({
+          runId: crypto.randomUUID(),
+          status: access.status,
+          error: access.error,
+          sessionKey: displayKey,
+        });
+>>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
       }
 
       const agentMessageContext = buildAgentToAgentMessageContext({
