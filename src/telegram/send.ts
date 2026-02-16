@@ -72,6 +72,12 @@ type TelegramReactionOpts = {
 };
 
 const PARSE_ERR_RE = /can't parse entities|parse entities|find end of the entity/i;
+<<<<<<< HEAD
+=======
+const THREAD_NOT_FOUND_RE = /400:\s*Bad Request:\s*message thread not found/i;
+const MESSAGE_NOT_MODIFIED_RE =
+  /400:\s*Bad Request:\s*message is not modified|MESSAGE_NOT_MODIFIED/i;
+>>>>>>> ac2ede5bb (fix(telegram): treat no-op editMessage as success)
 const diagLogger = createSubsystemLogger("telegram/diagnostic");
 
 function createTelegramHttpLogger(cfg: ReturnType<typeof loadConfig>) {
@@ -176,6 +182,42 @@ function normalizeMessageId(raw: string | number): number {
   throw new Error("Message id is required for Telegram actions");
 }
 
+<<<<<<< HEAD
+=======
+function isTelegramThreadNotFoundError(err: unknown): boolean {
+  return THREAD_NOT_FOUND_RE.test(formatErrorMessage(err));
+}
+
+function isTelegramMessageNotModifiedError(err: unknown): boolean {
+  return MESSAGE_NOT_MODIFIED_RE.test(formatErrorMessage(err));
+}
+
+function hasMessageThreadIdParam(params?: Record<string, unknown>): boolean {
+  if (!params) {
+    return false;
+  }
+  const value = params.message_thread_id;
+  if (typeof value === "number") {
+    return Number.isFinite(value);
+  }
+  if (typeof value === "string") {
+    return value.trim().length > 0;
+  }
+  return false;
+}
+
+function removeMessageThreadIdParam(
+  params?: Record<string, unknown>,
+): Record<string, unknown> | undefined {
+  if (!params || !hasMessageThreadIdParam(params)) {
+    return params;
+  }
+  const next = { ...params };
+  delete next.message_thread_id;
+  return Object.keys(next).length > 0 ? next : undefined;
+}
+
+>>>>>>> ac2ede5bb (fix(telegram): treat no-op editMessage as success)
 export function buildInlineKeyboard(
   buttons?: TelegramSendOpts["buttons"],
 ): InlineKeyboardMarkup | undefined {
@@ -638,10 +680,15 @@ export async function editMessageTelegram(
     verbose: opts.verbose,
   });
   const logHttpError = createTelegramHttpLogger(cfg);
-  const requestWithDiag = <T>(fn: () => Promise<T>, label?: string) =>
+  const requestWithDiag = <T>(
+    fn: () => Promise<T>,
+    label?: string,
+    shouldLog?: (err: unknown) => boolean,
+  ) =>
     withTelegramApiErrorLogging({
       operation: label ?? "request",
       fn: () => request(fn, label),
+      shouldLog,
     }).catch((err) => {
       logHttpError(label ?? "request", err);
       throw err;
@@ -676,7 +723,12 @@ export async function editMessageTelegram(
   await requestWithDiag(
     () => api.editMessageText(chatId, messageId, htmlText, editParams),
     "editMessage",
+    (err) => !isTelegramMessageNotModifiedError(err),
   ).catch(async (err) => {
+    if (isTelegramMessageNotModifiedError(err)) {
+      return;
+    }
+
     // Telegram rejects malformed HTML. Fall back to plain text.
     const errText = formatErrorMessage(err);
     if (PARSE_ERR_RE.test(errText)) {
@@ -696,7 +748,13 @@ export async function editMessageTelegram(
             ? api.editMessageText(chatId, messageId, text, plainParams)
             : api.editMessageText(chatId, messageId, text),
         "editMessage-plain",
-      );
+        (plainErr) => !isTelegramMessageNotModifiedError(plainErr),
+      ).catch((plainErr) => {
+        if (isTelegramMessageNotModifiedError(plainErr)) {
+          return;
+        }
+        throw plainErr;
+      });
     }
     throw err;
   });
