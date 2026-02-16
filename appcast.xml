@@ -19,11 +19,19 @@
             <enclosure url="https://github.com/moltbot/moltbot/releases/download/v2026.1.24-1/Moltbot-2026.1.24-1.zip" length="12396699" type="application/octet-stream" sparkle:edSignature="VaEdWIgEJBrZLIp2UmigoQ6vaq4P/jNFXpHYXvXHD5MsATS0CqBl6ugyyxRq+/GbpUqmdgdlht4dTUVbLRw6BA=="/>
         </item>
         <item>
+<<<<<<< HEAD
             <title>2026.1.24</title>
             <pubDate>Sun, 25 Jan 2026 13:31:05 +0000</pubDate>
             <link>https://raw.githubusercontent.com/moltbot/moltbot/main/appcast.xml</link>
             <sparkle:version>7944</sparkle:version>
             <sparkle:shortVersionString>2026.1.24</sparkle:shortVersionString>
+=======
+            <title>2026.2.15</title>
+            <pubDate>Mon, 16 Feb 2026 05:04:34 +0100</pubDate>
+            <link>https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml</link>
+            <sparkle:version>202602150</sparkle:version>
+            <sparkle:shortVersionString>2026.2.15</sparkle:shortVersionString>
+>>>>>>> 6e1edc7d6 (fix: correct Sparkle appcast version for 2026.2.15)
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
             <description><![CDATA[<h2>Moltbot 2026.1.24</h2>
 <h3>Highlights</h3>
