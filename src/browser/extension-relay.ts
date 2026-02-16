@@ -137,6 +137,41 @@ function rejectUpgrade(socket: Duplex, status: number, bodyText: string) {
 }
 
 const serversByPort = new Map<number, ChromeExtensionRelayServer>();
+<<<<<<< HEAD
+=======
+const relayAuthByPort = new Map<number, string>();
+// Track original requested port -> relay when fallback occurs (EADDRINUSE)
+const relayByOriginalPort = new Map<number, ChromeExtensionRelayServer>();
+
+function relayAuthTokenForUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    if (!isLoopbackHost(parsed.hostname)) {
+      return null;
+    }
+    const port =
+      parsed.port?.trim() !== ""
+        ? Number(parsed.port)
+        : parsed.protocol === "https:" || parsed.protocol === "wss:"
+          ? 443
+          : 80;
+    if (!Number.isFinite(port)) {
+      return null;
+    }
+    return relayAuthByPort.get(port) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export function getChromeExtensionRelayAuthHeaders(url: string): Record<string, string> {
+  const token = relayAuthTokenForUrl(url);
+  if (!token) {
+    return {};
+  }
+  return { [RELAY_AUTH_HEADER]: token };
+}
+>>>>>>> 8e55503d7 (fix(browser): track original port mapping for EADDRINUSE fallback)
 
 export async function ensureChromeExtensionRelayServer(opts: {
   cdpUrl: string;
@@ -146,7 +181,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
     throw new Error(`extension relay requires loopback cdpUrl host (got ${info.host})`);
   }
 
-  const existing = serversByPort.get(info.port);
+  const existing = serversByPort.get(info.port) ?? relayByOriginalPort.get(info.port);
   if (existing) {
     return existing;
   }
@@ -690,6 +725,12 @@ export async function ensureChromeExtensionRelayServer(opts: {
     extensionConnected: () => Boolean(extensionWs),
     stop: async () => {
       serversByPort.delete(port);
+<<<<<<< HEAD
+=======
+      relayAuthByPort.delete(port);
+      // Also clean up original port mapping if this was a fallback
+      relayByOriginalPort.delete(info.port);
+>>>>>>> 8e55503d7 (fix(browser): track original port mapping for EADDRINUSE fallback)
       try {
         extensionWs?.close(1001, "server stopping");
       } catch {
@@ -711,15 +752,24 @@ export async function ensureChromeExtensionRelayServer(opts: {
   };
 
   serversByPort.set(port, relay);
+  // If we fell back to a different port, also map the original requested port
+  if (port !== info.port) {
+    relayByOriginalPort.set(info.port, relay);
+  }
   return relay;
 }
 
 export async function stopChromeExtensionRelayServer(opts: { cdpUrl: string }): Promise<boolean> {
   const info = parseBaseUrl(opts.cdpUrl);
-  const existing = serversByPort.get(info.port);
+  const existing = serversByPort.get(info.port) ?? relayByOriginalPort.get(info.port);
   if (!existing) {
     return false;
   }
   await existing.stop();
+<<<<<<< HEAD
+=======
+  // Note: stop() cleans up both serversByPort and relayByOriginalPort
+  relayAuthByPort.delete(existing.port);
+>>>>>>> 8e55503d7 (fix(browser): track original port mapping for EADDRINUSE fallback)
   return true;
 }
