@@ -103,6 +103,13 @@ import {
   LogsTailResultSchema,
 } from "./logs-chat.js";
 import {
+  MeshPlanParamsSchema,
+  MeshRetryParamsSchema,
+  MeshRunParamsSchema,
+  MeshStatusParamsSchema,
+  MeshWorkflowPlanSchema,
+} from "./mesh.js";
+import {
   NodeDescribeParamsSchema,
   NodeEventParamsSchema,
   NodeInvokeParamsSchema,
@@ -251,6 +258,11 @@ export const ProtocolSchemas: Record<string, TSchema> = {
   ChatAbortParams: ChatAbortParamsSchema,
   ChatInjectParams: ChatInjectParamsSchema,
   ChatEvent: ChatEventSchema,
+  MeshPlanParams: MeshPlanParamsSchema,
+  MeshWorkflowPlan: MeshWorkflowPlanSchema,
+  MeshRunParams: MeshRunParamsSchema,
+  MeshStatusParams: MeshStatusParamsSchema,
+  MeshRetryParams: MeshRetryParamsSchema,
   UpdateRunParams: UpdateRunParamsSchema,
   TickEvent: TickEventSchema,
   ShutdownEvent: ShutdownEventSchema,
