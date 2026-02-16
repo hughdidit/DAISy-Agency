@@ -23,6 +23,9 @@ const dispatchInboundMessage = vi.fn(async () => ({
   queuedFinal: false,
   counts: { final: 0, tool: 0, block: 0 },
 }));
+const recordInboundSession = vi.fn(async () => {});
+const readSessionUpdatedAt = vi.fn(() => undefined);
+const resolveStorePath = vi.fn(() => "/tmp/openclaw-discord-process-test-sessions.json");
 
 vi.mock("../send.js", () => ({
   reactMessageDiscord: (...args: unknown[]) => reactMessageDiscord(...args),
@@ -48,7 +51,20 @@ vi.mock("../../auto-reply/reply/reply-dispatcher.js", () => ({
   })),
 }));
 
+<<<<<<< HEAD
 import { processDiscordMessage } from "./message-handler.process.js";
+=======
+vi.mock("../../channels/session.js", () => ({
+  recordInboundSession: (...args: unknown[]) => recordInboundSession(...args),
+}));
+
+vi.mock("../../config/sessions.js", () => ({
+  readSessionUpdatedAt: (...args: unknown[]) => readSessionUpdatedAt(...args),
+  resolveStorePath: (...args: unknown[]) => resolveStorePath(...args),
+}));
+
+const { processDiscordMessage } = await import("./message-handler.process.js");
+>>>>>>> 0a188ee49 (test(ci): stabilize update and discord process tests)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -139,10 +155,16 @@ beforeEach(() => {
   reactMessageDiscord.mockClear();
   removeReactionDiscord.mockClear();
   dispatchInboundMessage.mockReset();
+  recordInboundSession.mockReset();
+  readSessionUpdatedAt.mockReset();
+  resolveStorePath.mockReset();
   dispatchInboundMessage.mockResolvedValue({
     queuedFinal: false,
     counts: { final: 0, tool: 0, block: 0 },
   });
+  recordInboundSession.mockResolvedValue(undefined);
+  readSessionUpdatedAt.mockReturnValue(undefined);
+  resolveStorePath.mockReturnValue("/tmp/openclaw-discord-process-test-sessions.json");
 });
 
 describe("processDiscordMessage ack reactions", () => {
