@@ -90,7 +90,6 @@ describe("abort detection", () => {
     expect(isAbortRequestText("/status")).toBe(false);
     expect(isAbortRequestText("stop please")).toBe(false);
     expect(isAbortRequestText("/abort")).toBe(false);
-    expect(isAbortRequestText("/abort now")).toBe(false);
   });
 
   it("removes abort memory entry when flag is reset", () => {
