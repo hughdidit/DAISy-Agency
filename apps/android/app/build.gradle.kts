@@ -25,6 +25,7 @@ android {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     versionCode = 202602030
 <<<<<<< HEAD
     versionName = "2026.2.6"
@@ -46,6 +47,10 @@ android {
     versionCode = 202602150
     versionName = "2026.2.15"
 >>>>>>> 379b44558 (chore: bump version to 2026.2.15)
+=======
+    versionCode = 202602160
+    versionName = "2026.2.16"
+>>>>>>> 39fa81dc9 (chore: bump version to 2026.2.16)
     ndk {
       // Support all major ABIs — native libs are tiny (~47 KB per ABI)
       abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
