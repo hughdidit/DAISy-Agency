@@ -347,8 +347,11 @@ Runbook: [iOS connect](https://docs.molt.bot/platforms/ios).
 
 =======
 ## Agent workspace + skills
+<<<<<<< HEAD
 >>>>>>> e759b4cd5 (Update README.md)
 ## Agent workspace + skills
+=======
+>>>>>>> e33017982 (Update README.md)
 
 - Workspace root: `~/clawd` (configurable via `agents.defaults.workspace`).
 - Injected prompt files: `AGENTS.md`, `SOUL.md`, `TOOLS.md`.
