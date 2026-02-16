@@ -175,7 +175,41 @@ export function mergePrimaryFallbackConfig(
   return next;
 }
 
+<<<<<<< HEAD
 >>>>>>> cbf6ee3a6 (refactor(models): share primary/fallback merge)
+=======
+export function applyDefaultModelPrimaryUpdate(params: {
+  cfg: OpenClawConfig;
+  modelRaw: string;
+  field: "model" | "imageModel";
+}): OpenClawConfig {
+  const resolved = resolveModelTarget({ raw: params.modelRaw, cfg: params.cfg });
+  const key = `${resolved.provider}/${resolved.model}`;
+
+  const nextModels = { ...params.cfg.agents?.defaults?.models };
+  if (!nextModels[key]) {
+    nextModels[key] = {};
+  }
+
+  const defaults = params.cfg.agents?.defaults ?? {};
+  const existing = (defaults as Record<string, unknown>)[params.field] as
+    | PrimaryFallbackConfig
+    | undefined;
+
+  return {
+    ...params.cfg,
+    agents: {
+      ...params.cfg.agents,
+      defaults: {
+        ...defaults,
+        [params.field]: mergePrimaryFallbackConfig(existing, { primary: key }),
+        models: nextModels,
+      },
+    },
+  };
+}
+
+>>>>>>> cb46ea037 (refactor(models): dedupe set default model updates)
 export { modelKey };
 export { DEFAULT_MODEL, DEFAULT_PROVIDER };
 

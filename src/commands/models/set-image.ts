@@ -1,5 +1,6 @@
 import { logConfigUpdated } from "../../config/logging.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 import { resolveModelTarget, updateConfig } from "./shared.js";
 =======
@@ -10,29 +11,13 @@ import {
   updateConfig,
 } from "./shared.js";
 >>>>>>> cbf6ee3a6 (refactor(models): share primary/fallback merge)
+=======
+import { applyDefaultModelPrimaryUpdate, updateConfig } from "./shared.js";
+>>>>>>> cb46ea037 (refactor(models): dedupe set default model updates)
 
 export async function modelsSetImageCommand(modelRaw: string, runtime: RuntimeEnv) {
   const updated = await updateConfig((cfg) => {
-    const resolved = resolveModelTarget({ raw: modelRaw, cfg });
-    const key = `${resolved.provider}/${resolved.model}`;
-    const nextModels = { ...cfg.agents?.defaults?.models };
-    if (!nextModels[key]) {
-      nextModels[key] = {};
-    }
-    return {
-      ...cfg,
-      agents: {
-        ...cfg.agents,
-        defaults: {
-          ...cfg.agents?.defaults,
-          imageModel: mergePrimaryFallbackConfig(
-            cfg.agents?.defaults?.imageModel as unknown as PrimaryFallbackConfig | undefined,
-            { primary: key },
-          ),
-          models: nextModels,
-        },
-      },
-    };
+    return applyDefaultModelPrimaryUpdate({ cfg, modelRaw, field: "imageModel" });
   });
 
   logConfigUpdated(runtime);
