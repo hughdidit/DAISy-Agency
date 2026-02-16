@@ -33,7 +33,11 @@ export default defineConfig({
     unstubGlobals: true,
     pool: "forks",
     maxWorkers: isCI ? ciWorkers : localWorkers,
+<<<<<<< HEAD
     include: ["src/**/*.test.ts", "extensions/**/*.test.ts", "test/format-error.test.ts"],
+=======
+    include: ["src/**/*.test.ts", "extensions/**/*.test.ts", "test/**/*.test.ts"],
+>>>>>>> c1655982d (refactor: centralize pre-commit file filtering)
     setupFiles: ["test/setup.ts"],
     exclude: [
       "dist/**",
