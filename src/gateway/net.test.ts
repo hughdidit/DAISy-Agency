@@ -8,8 +8,21 @@ import {
   isTrustedProxyAddress,
   pickPrimaryLanIPv4,
   resolveGatewayListenHosts,
+  resolveHostName,
 } from "./net.js";
 >>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
+
+describe("resolveHostName", () => {
+  it("returns hostname without port for IPv4/hostnames", () => {
+    expect(resolveHostName("localhost:18789")).toBe("localhost");
+    expect(resolveHostName("127.0.0.1:18789")).toBe("127.0.0.1");
+  });
+
+  it("handles bracketed and unbracketed IPv6 loopback hosts", () => {
+    expect(resolveHostName("[::1]:18789")).toBe("::1");
+    expect(resolveHostName("::1")).toBe("::1");
+  });
+});
 
 describe("isTrustedProxyAddress", () => {
   describe("exact IP matching", () => {
