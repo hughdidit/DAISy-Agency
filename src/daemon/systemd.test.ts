@@ -65,6 +65,7 @@ describe("systemd runtime parsing", () => {
 });
 
 describe("resolveSystemdUserUnitPath", () => {
+<<<<<<< HEAD
   it("uses default service name when CLAWDBOT_PROFILE is default", () => {
     const env = { HOME: "/home/test", CLAWDBOT_PROFILE: "default" };
     expect(resolveSystemdUserUnitPath(env)).toBe(
@@ -73,6 +74,9 @@ describe("resolveSystemdUserUnitPath", () => {
   });
 
   it("uses default service name when CLAWDBOT_PROFILE is unset", () => {
+=======
+  it("uses default service name when OPENCLAW_PROFILE is unset", () => {
+>>>>>>> 6c3e7896c (test: remove duplicate lowercase default profile daemon path cases)
     const env = { HOME: "/home/test" };
     expect(resolveSystemdUserUnitPath(env)).toBe(
       "/home/test/.config/systemd/user/moltbot-gateway.service",

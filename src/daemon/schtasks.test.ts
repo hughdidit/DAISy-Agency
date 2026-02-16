@@ -37,6 +37,7 @@ describe("schtasks runtime parsing", () => {
 });
 
 describe("resolveTaskScriptPath", () => {
+<<<<<<< HEAD
   it("uses default path when CLAWDBOT_PROFILE is default", () => {
     const env = { USERPROFILE: "C:\\Users\\test", CLAWDBOT_PROFILE: "default" };
     expect(resolveTaskScriptPath(env)).toBe(
@@ -45,6 +46,9 @@ describe("resolveTaskScriptPath", () => {
   });
 
   it("uses default path when CLAWDBOT_PROFILE is unset", () => {
+=======
+  it("uses default path when OPENCLAW_PROFILE is unset", () => {
+>>>>>>> 6c3e7896c (test: remove duplicate lowercase default profile daemon path cases)
     const env = { USERPROFILE: "C:\\Users\\test" };
     expect(resolveTaskScriptPath(env)).toBe(
       path.join("C:\\Users\\test", ".clawdbot", "gateway.cmd"),

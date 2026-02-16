@@ -368,6 +368,7 @@ describe("launchd install", () => {
 });
 
 describe("resolveLaunchAgentPlistPath", () => {
+<<<<<<< HEAD
   it("uses default label when CLAWDBOT_PROFILE is default", () => {
     const env = { HOME: "/Users/test", CLAWDBOT_PROFILE: "default" };
     expect(resolveLaunchAgentPlistPath(env)).toBe(
@@ -376,6 +377,9 @@ describe("resolveLaunchAgentPlistPath", () => {
   });
 
   it("uses default label when CLAWDBOT_PROFILE is unset", () => {
+=======
+  it("uses default label when OPENCLAW_PROFILE is unset", () => {
+>>>>>>> 6c3e7896c (test: remove duplicate lowercase default profile daemon path cases)
     const env = { HOME: "/Users/test" };
     expect(resolveLaunchAgentPlistPath(env)).toBe(
       "/Users/test/Library/LaunchAgents/bot.molt.gateway.plist",
