@@ -942,7 +942,10 @@ async function handleDiscordComponentEvent(params: {
     return;
   }
 
-  const consumed = resolveDiscordComponentEntry({ id: parsed.componentId });
+  const consumed = resolveDiscordComponentEntry({
+    id: parsed.componentId,
+    consume: !entry.reusable,
+  });
   if (!consumed) {
     try {
       await params.interaction.reply({
@@ -1076,7 +1079,10 @@ async function handleDiscordModalTrigger(params: {
     return;
   }
 
-  const consumed = resolveDiscordComponentEntry({ id: parsed.componentId });
+  const consumed = resolveDiscordComponentEntry({
+    id: parsed.componentId,
+    consume: !entry.reusable,
+  });
   if (!consumed) {
     try {
       await params.interaction.reply({
@@ -1784,7 +1790,10 @@ class DiscordComponentModal extends Modal {
       return;
     }
 
-    const consumed = resolveDiscordModalEntry({ id: modalId });
+    const consumed = resolveDiscordModalEntry({
+      id: modalId,
+      consume: !modalEntry.reusable,
+    });
     if (!consumed) {
       try {
         await interaction.reply({

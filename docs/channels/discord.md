@@ -119,6 +119,8 @@ Supported blocks:
 - Action rows allow up to 5 buttons or a single select menu
 - Select types: `string`, `user`, `role`, `mentionable`, `channel`
 
+By default, components are single use. Set `components.reusable=true` to allow buttons, selects, and forms to be used multiple times until they expire.
+
 File attachments:
 
 - `file` blocks must point to an attachment reference (`attachment://<filename>`)
@@ -140,6 +142,7 @@ Example:
   to: "channel:123456789012345678",
   message: "Optional fallback text",
   components: {
+    reusable: true,
     text: "Choose a path",
     blocks: [
       {
