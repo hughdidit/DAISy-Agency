@@ -2,7 +2,6 @@ import fs from "node:fs/promises";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { WizardPrompter } from "../wizard/prompts.js";
 import type { AuthChoice } from "./onboard-types.js";
-import { captureEnv } from "../test-utils/env.js";
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
 <<<<<<< HEAD
 import { ZAI_CODING_CN_BASE_URL, ZAI_CODING_GLOBAL_BASE_URL } from "./onboard-auth.js";
@@ -14,6 +13,7 @@ import {
 } from "./onboard-auth.js";
 import {
   authProfilePathForAgent,
+  createAuthTestLifecycle,
   createExitThrowingRuntime,
   createWizardPrompter,
   readAuthProfilesForAgent,
@@ -48,6 +48,7 @@ type StoredAuthProfile = {
 
 describe("applyAuthChoice", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const previousStateDir = process.env.OPENCLAW_STATE_DIR;
   const previousAgentDir = process.env.OPENCLAW_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
@@ -61,6 +62,9 @@ describe("applyAuthChoice", () => {
   const previousChutesClientId = process.env.CHUTES_CLIENT_ID;
 =======
   const envSnapshot = captureEnv([
+=======
+  const lifecycle = createAuthTestLifecycle([
+>>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
     "OPENCLAW_STATE_DIR",
     "OPENCLAW_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
@@ -74,11 +78,14 @@ describe("applyAuthChoice", () => {
     "SSH_TTY",
     "CHUTES_CLIENT_ID",
   ]);
+<<<<<<< HEAD
 >>>>>>> 07dea4c6c (refactor(test): dedupe auth choice env cleanup)
   let tempStateDir: string | null = null;
+=======
+>>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
   async function setupTempState() {
     const env = await setupAuthTestEnv("openclaw-auth-");
-    tempStateDir = env.stateDir;
+    lifecycle.setStateDir(env.stateDir);
   }
   function createPrompter(overrides: Partial<WizardPrompter>): WizardPrompter {
     return createWizardPrompter(overrides, { defaultSelect: "" });
@@ -120,6 +127,7 @@ describe("applyAuthChoice", () => {
     resolvePluginProviders.mockReset();
     loginOpenAICodexOAuth.mockReset();
     loginOpenAICodexOAuth.mockResolvedValue(null);
+<<<<<<< HEAD
     if (tempStateDir) {
       await fs.rm(tempStateDir, { recursive: true, force: true });
       tempStateDir = null;
@@ -183,6 +191,9 @@ describe("applyAuthChoice", () => {
 =======
     envSnapshot.restore();
 >>>>>>> 07dea4c6c (refactor(test): dedupe auth choice env cleanup)
+=======
+    await lifecycle.cleanup();
+>>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
   });
 
   it("does not throw when openai-codex oauth fails", async () => {
