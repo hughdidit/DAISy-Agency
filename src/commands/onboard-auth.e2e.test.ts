@@ -4,10 +4,13 @@ import path from "node:path";
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { afterEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { captureEnv } from "../test-utils/env.js";
 >>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
+=======
+>>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
 import {
   applyAuthProfileConfig,
   applyLitellmProviderConfig,
@@ -35,6 +38,7 @@ import {
   ZAI_GLOBAL_BASE_URL,
 } from "./onboard-auth.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 const authProfilePathFor = (agentDir: string) => path.join(agentDir, "auth-profiles.json");
 const requireAgentDir = () => {
@@ -52,6 +56,13 @@ const requireAgentDir = () => {
 =======
 import { readAuthProfilesForAgent, setupAuthTestEnv } from "./test-wizard-helpers.js";
 >>>>>>> 94f455c69 (refactor(test): share auth test env/profile helpers)
+=======
+import {
+  createAuthTestLifecycle,
+  readAuthProfilesForAgent,
+  setupAuthTestEnv,
+} from "./test-wizard-helpers.js";
+>>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
 
 function createLegacyProviderConfig(params: {
   providerId: string;
@@ -85,16 +96,21 @@ function createLegacyProviderConfig(params: {
 
 describe("writeOAuthCredentials", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
 =======
   const envSnapshot = captureEnv([
+=======
+  const lifecycle = createAuthTestLifecycle([
+>>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
     "OPENCLAW_STATE_DIR",
     "OPENCLAW_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
     "OPENCLAW_OAUTH_DIR",
   ]);
+<<<<<<< HEAD
 >>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
   let tempStateDir: string | null = null;
 
@@ -123,6 +139,11 @@ describe("writeOAuthCredentials", () => {
 =======
     envSnapshot.restore();
 >>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
+=======
+
+  afterEach(async () => {
+    await lifecycle.cleanup();
+>>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
   });
 
 <<<<<<< HEAD
@@ -134,8 +155,12 @@ describe("writeOAuthCredentials", () => {
 =======
   it("writes auth-profiles.json under OPENCLAW_AGENT_DIR when set", async () => {
     const env = await setupAuthTestEnv("openclaw-oauth-");
+<<<<<<< HEAD
     tempStateDir = env.stateDir;
 >>>>>>> 94f455c69 (refactor(test): share auth test env/profile helpers)
+=======
+    lifecycle.setStateDir(env.stateDir);
+>>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
 
     const creds = {
       refresh: "refresh-token",
@@ -155,22 +180,27 @@ describe("writeOAuthCredentials", () => {
     });
 
     await expect(
-      fs.readFile(path.join(tempStateDir, "agents", "main", "agent", "auth-profiles.json"), "utf8"),
+      fs.readFile(path.join(env.stateDir, "agents", "main", "agent", "auth-profiles.json"), "utf8"),
     ).rejects.toThrow();
   });
 });
 
 describe("setMinimaxApiKey", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
   const previousAgentDir = process.env.CLAWDBOT_AGENT_DIR;
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
 =======
   const envSnapshot = captureEnv([
+=======
+  const lifecycle = createAuthTestLifecycle([
+>>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
     "OPENCLAW_STATE_DIR",
     "OPENCLAW_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
+<<<<<<< HEAD
 >>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
   let tempStateDir: string | null = null;
 
@@ -198,6 +228,11 @@ describe("setMinimaxApiKey", () => {
 =======
     envSnapshot.restore();
 >>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
+=======
+
+  afterEach(async () => {
+    await lifecycle.cleanup();
+>>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
   });
 
 <<<<<<< HEAD
@@ -209,8 +244,12 @@ describe("setMinimaxApiKey", () => {
 =======
   it("writes to OPENCLAW_AGENT_DIR when set", async () => {
     const env = await setupAuthTestEnv("openclaw-minimax-", { agentSubdir: "custom-agent" });
+<<<<<<< HEAD
     tempStateDir = env.stateDir;
 >>>>>>> 94f455c69 (refactor(test): share auth test env/profile helpers)
+=======
+    lifecycle.setStateDir(env.stateDir);
+>>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
 
     await setMinimaxApiKey("sk-minimax-test");
 
@@ -224,7 +263,7 @@ describe("setMinimaxApiKey", () => {
     });
 
     await expect(
-      fs.readFile(path.join(tempStateDir, "agents", "main", "agent", "auth-profiles.json"), "utf8"),
+      fs.readFile(path.join(env.stateDir, "agents", "main", "agent", "auth-profiles.json"), "utf8"),
     ).rejects.toThrow();
   });
 });
