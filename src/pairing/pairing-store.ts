@@ -342,7 +342,20 @@ export async function listChannelPairingRequests(
           requests: pruned,
         } satisfies PairingStore);
       }
+<<<<<<< HEAD
       return pruned
+=======
+      const normalizedAccountId = accountId?.trim().toLowerCase() || "";
+      const filtered = normalizedAccountId
+        ? pruned.filter(
+            (entry) =>
+              String(entry.meta?.accountId ?? "")
+                .trim()
+                .toLowerCase() === normalizedAccountId,
+          )
+        : pruned;
+      return filtered
+>>>>>>> d19b74692 (feat(skills): add cross-platform install fallback for non-brew environments (#17687))
         .filter(
           (r) =>
             r &&
@@ -385,6 +398,10 @@ export async function upsertChannelPairingRequest(params: {
                 .filter(([_, v]) => Boolean(v)),
             )
           : undefined;
+<<<<<<< HEAD
+=======
+      const meta = normalizedAccountId ? { ...baseMeta, accountId: normalizedAccountId } : baseMeta;
+>>>>>>> d19b74692 (feat(skills): add cross-platform install fallback for non-brew environments (#17687))
 
       let reqs = Array.isArray(value.requests) ? value.requests : [];
       const { requests: prunedExpired, removed: expiredRemoved } = pruneExpiredRequests(
@@ -476,7 +493,24 @@ export async function approveChannelPairingCode(params: {
       const reqs = Array.isArray(value.requests) ? value.requests : [];
       const nowMs = Date.now();
       const { requests: pruned, removed } = pruneExpiredRequests(reqs, nowMs);
+<<<<<<< HEAD
       const idx = pruned.findIndex((r) => String(r.code ?? "").toUpperCase() === code);
+=======
+      const normalizedAccountId = params.accountId?.trim().toLowerCase() || "";
+      const idx = pruned.findIndex((r) => {
+        if (String(r.code ?? "").toUpperCase() !== code) {
+          return false;
+        }
+        if (!normalizedAccountId) {
+          return true;
+        }
+        return (
+          String(r.meta?.accountId ?? "")
+            .trim()
+            .toLowerCase() === normalizedAccountId
+        );
+      });
+>>>>>>> d19b74692 (feat(skills): add cross-platform install fallback for non-brew environments (#17687))
       if (idx < 0) {
         if (removed) {
           await writeJsonFile(filePath, {
