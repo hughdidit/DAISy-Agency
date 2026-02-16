@@ -9,7 +9,7 @@ import type { UiSettings } from "../storage";
 import type { GatewayHelloOk } from "../gateway.ts";
 import type { UiSettings } from "../storage.ts";
 import { t, i18n, type Locale } from "../../i18n/index.ts";
-import { formatAgo, formatDurationMs } from "../format.ts";
+import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
 import { formatNextRun } from "../presenter.ts";
 >>>>>>> f20bef3d7 (fix: add .ts extensions to i18n imports for ESM compatibility)
 
@@ -35,7 +35,11 @@ export function renderOverview(props: OverviewProps) {
   const snapshot = props.hello?.snapshot as
     | { uptimeMs?: number; policy?: { tickIntervalMs?: number } }
     | undefined;
+<<<<<<< HEAD
   const uptime = snapshot?.uptimeMs ? formatDurationMs(snapshot.uptimeMs) : "n/a";
+=======
+  const uptime = snapshot?.uptimeMs ? formatDurationHuman(snapshot.uptimeMs) : t("common.na");
+>>>>>>> 075317ab1 (fix: correct function names in overview.ts and add type assertion in translate.ts)
   const tick = snapshot?.policy?.tickIntervalMs
     ? `${snapshot.policy.tickIntervalMs}ms`
     : "n/a";
@@ -215,9 +219,13 @@ export function renderOverview(props: OverviewProps) {
           <div class="stat">
             <div class="stat-label">Last Channels Refresh</div>
             <div class="stat-value">
+<<<<<<< HEAD
               ${props.lastChannelsRefresh
                 ? formatAgo(props.lastChannelsRefresh)
                 : "n/a"}
+=======
+              ${props.lastChannelsRefresh ? formatRelativeTimestamp(props.lastChannelsRefresh) : t("common.na")}
+>>>>>>> 075317ab1 (fix: correct function names in overview.ts and add type assertion in translate.ts)
             </div>
           </div>
         </div>
