@@ -115,14 +115,17 @@ export function computeNextRunAtMs(schedule: CronSchedule, nowMs: number): numbe
   }
 
   // Guard against same-second rescheduling loops: if croner returns
-  // "now" (or an earlier instant) when the job completed mid-second,
-  // retry from the next whole second.
+  // "now" (or an earlier instant), retry from the next whole second.
   const nextSecondMs = Math.floor(nowMs / 1000) * 1000 + 1000;
   const retry = cron.nextRun(new Date(nextSecondMs));
   if (!retry) {
     return undefined;
   }
   const retryMs = retry.getTime();
+<<<<<<< HEAD
   return Number.isFinite(retryMs) ? retryMs : undefined;
 >>>>>>> 12a947223 (fix(ci): restore main checks after bulk merges)
+=======
+  return Number.isFinite(retryMs) && retryMs > nowMs ? retryMs : undefined;
+>>>>>>> b3d0e0cb4 (fix(cron): preserve overrides and harden next-run calculation)
 }
