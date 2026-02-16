@@ -5,7 +5,11 @@ import { resolveCronDeliveryPlan } from "../delivery.js";
 import {
   computeJobNextRunAtMs,
   nextWakeAtMs,
+<<<<<<< HEAD
   recomputeNextRuns,
+=======
+  recomputeNextRunsForMaintenance,
+>>>>>>> fec4be8de (fix(cron): prevent daily jobs from skipping days (48h jump) #17852 (#17903))
   resolveJobPayloadTextForMain,
 } from "./jobs.js";
 import { locked } from "./locked.js";
@@ -281,7 +285,12 @@ export async function onTimer(state: CronServiceState) {
           }
         }
 
-        recomputeNextRuns(state);
+        // Use maintenance-only recompute to avoid advancing past-due
+        // nextRunAtMs values that became due between findDueJobs and this
+        // locked block.  The full recomputeNextRuns would silently skip
+        // those jobs (advancing nextRunAtMs without execution), causing
+        // daily cron schedules to jump 48 h instead of 24 h (#17852).
+        recomputeNextRunsForMaintenance(state);
         await persist(state);
       });
     }
