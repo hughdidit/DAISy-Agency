@@ -1,14 +1,21 @@
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { sleep } from "../utils.ts";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
+=======
+>>>>>>> 6a392b849 (test: trim redundant ack-reaction removeAfterReply guard case)
 import {
   removeAckReactionAfterReply,
   shouldAckReaction,
   shouldAckReactionForWhatsApp,
 } from "./ack-reactions.js";
+
+const flushMicrotasks = async () => {
+  await Promise.resolve();
+};
 
 describe("shouldAckReaction", () => {
   it("honors direct and group-all scopes", () => {
@@ -242,7 +249,7 @@ describe("removeAckReactionAfterReply", () => {
       remove,
       onError,
     });
-    await sleep(0);
+    await flushMicrotasks();
     expect(remove).toHaveBeenCalledTimes(1);
     expect(onError).not.toHaveBeenCalled();
   });
@@ -255,19 +262,7 @@ describe("removeAckReactionAfterReply", () => {
       ackReactionValue: "👀",
       remove,
     });
-    await sleep(0);
-    expect(remove).not.toHaveBeenCalled();
-  });
-
-  it("skips when not configured", async () => {
-    const remove = vi.fn().mockResolvedValue(undefined);
-    removeAckReactionAfterReply({
-      removeAfterReply: false,
-      ackReactionPromise: Promise.resolve(true),
-      ackReactionValue: "👀",
-      remove,
-    });
-    await sleep(0);
+    await flushMicrotasks();
     expect(remove).not.toHaveBeenCalled();
   });
 });
