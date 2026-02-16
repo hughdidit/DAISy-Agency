@@ -1,8 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { captureEnv } from "../test-utils/env.js";
 
-let previousProfile: string | undefined;
+let envSnapshot: ReturnType<typeof captureEnv>;
 
 beforeAll(() => {
+<<<<<<< HEAD
   previousProfile = process.env.CLAWDBOT_PROFILE;
   process.env.CLAWDBOT_PROFILE = "isolated";
 });
@@ -13,6 +15,14 @@ afterAll(() => {
   } else {
     process.env.CLAWDBOT_PROFILE = previousProfile;
   }
+=======
+  envSnapshot = captureEnv(["OPENCLAW_PROFILE"]);
+  process.env.OPENCLAW_PROFILE = "isolated";
+});
+
+afterAll(() => {
+  envSnapshot.restore();
+>>>>>>> e075a33ca (refactor(test): simplify oauth/profile env restore)
 });
 
 const mocks = vi.hoisted(() => ({
