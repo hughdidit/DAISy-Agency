@@ -3,6 +3,7 @@ import { resolvePluginTools } from "../plugins/tools.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveSessionAgentId } from "./agent-scope.js";
 import { createAgentsListTool } from "./tools/agents-list-tool.js";
+import { createArchitectPipelineTool } from "./tools/architect-pipeline-tool.js";
 import { createBrowserTool } from "./tools/browser-tool.js";
 import { createCanvasTool } from "./tools/canvas-tool.js";
 import type { AnyAgentTool } from "./tools/common.js";
@@ -20,7 +21,11 @@ import { createSessionsSpawnTool } from "./tools/sessions-spawn-tool.js";
 =======
 import { createSubagentsTool } from "./tools/subagents-tool.js";
 import { createTtsTool } from "./tools/tts-tool.js";
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447)):src/agents/openclaw-tools.ts
+=======
+import { createVentureStudioTool } from "./tools/venture-studio-tool.js";
+>>>>>>> b6d934c2c (Agents: improve Windows scaffold helpers for venture studio):src/agents/openclaw-tools.ts
 import { createWebFetchTool, createWebSearchTool } from "./tools/web-tools.js";
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
 import { createTtsTool } from "./tools/tts-tool.js";
@@ -124,6 +129,7 @@ export function createMoltbotTools(options?: {
       agentSessionKey: options?.agentSessionKey,
     }),
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
     createMessageTool({
       agentAccountId: options?.agentAccountId,
       agentSessionKey: options?.agentSessionKey,
@@ -135,6 +141,10 @@ export function createMoltbotTools(options?: {
       hasRepliedRef: options?.hasRepliedRef,
     }),
 =======
+=======
+    createArchitectPipelineTool({ workspaceDir }),
+    createVentureStudioTool({ workspaceDir }),
+>>>>>>> b6d934c2c (Agents: improve Windows scaffold helpers for venture studio):src/agents/openclaw-tools.ts
     ...(messageTool ? [messageTool] : []),
 >>>>>>> 3f82daefd (feat(cron): enhance delivery modes and job configuration):src/agents/openclaw-tools.ts
     createTtsTool({
