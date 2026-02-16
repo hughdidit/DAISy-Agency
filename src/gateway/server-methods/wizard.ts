@@ -1,8 +1,12 @@
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> a5cbd036d (refactor(gateway): dedupe wizard param validation)
+=======
+import type { GatewayRequestHandlers } from "./types.js";
+>>>>>>> 71cee673b (fix(gateway): satisfy server-method lint)
 import { defaultRuntime } from "../../runtime.js";
 import { WizardSession } from "../../wizard/session.js";
 import {
