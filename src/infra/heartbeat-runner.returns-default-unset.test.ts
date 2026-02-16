@@ -314,6 +314,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     });
   });
 
+<<<<<<< HEAD
   it("keeps WhatsApp group targets even with allowFrom set", () => {
     const cfg: MoltbotConfig = {
       channels: { whatsapp: { allowFrom: ["+1555"] } },
@@ -332,6 +333,8 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     });
   });
 
+=======
+>>>>>>> 9b351fcbd (test: remove duplicate whatsapp group heartbeat target case)
   it("normalizes prefixed WhatsApp group targets for heartbeat delivery", () => {
     const cfg: MoltbotConfig = {
       channels: { whatsapp: { allowFrom: ["+1555"] } },
