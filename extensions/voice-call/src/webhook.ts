@@ -260,6 +260,39 @@ export class VoiceCallWebhookServer {
   }
 
   /**
+<<<<<<< HEAD
+=======
+   * Start a periodic reaper that ends calls older than the configured threshold.
+   * Catches calls stuck in unexpected states (e.g., notify-mode calls that never
+   * receive a terminal webhook from the provider).
+   */
+  private startStaleCallReaper(): void {
+    const maxAgeSeconds = this.config.staleCallReaperSeconds;
+    if (!maxAgeSeconds || maxAgeSeconds <= 0) {
+      return;
+    }
+
+    const CHECK_INTERVAL_MS = 30_000; // Check every 30 seconds
+    const maxAgeMs = maxAgeSeconds * 1000;
+
+    this.staleCallReaperInterval = setInterval(() => {
+      const now = Date.now();
+      for (const call of this.manager.getActiveCalls()) {
+        const age = now - call.startedAt;
+        if (age > maxAgeMs) {
+          console.log(
+            `[voice-call] Reaping stale call ${call.callId} (age: ${Math.round(age / 1000)}s, state: ${call.state})`,
+          );
+          void this.manager.endCall(call.callId).catch((err) => {
+            console.warn(`[voice-call] Reaper failed to end call ${call.callId}:`, err);
+          });
+        }
+      }
+    }, CHECK_INTERVAL_MS);
+  }
+
+  /**
+>>>>>>> a5c94b8e7 (fix: log error on reaper endCall failure instead of swallowing)
    * Stop the webhook server.
    */
   async stop(): Promise<void> {
