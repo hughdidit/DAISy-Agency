@@ -35,11 +35,58 @@ afterAll(async () => {
 const BASE_IMAGE_PNG =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X3mIAAAAASUVORK5CYII=";
 
+type AgentCommandCall = Record<string, unknown>;
+
 function expectChannels(call: Record<string, unknown>, channel: string) {
   expect(call.channel).toBe(channel);
   expect(call.messageChannel).toBe(channel);
   const runContext = call.runContext as { messageChannel?: string } | undefined;
   expect(runContext?.messageChannel).toBe(channel);
+}
+
+async function setTestSessionStore(params: {
+  entries: Record<string, Record<string, unknown>>;
+  agentId?: string;
+}) {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gw-"));
+  testState.sessionStorePath = path.join(dir, "sessions.json");
+  await writeSessionStore({
+    entries: params.entries,
+    agentId: params.agentId,
+  });
+}
+
+function latestAgentCall(): AgentCommandCall {
+  return vi.mocked(agentCommand).mock.calls.at(-1)?.[0] as AgentCommandCall;
+}
+
+async function runMainAgentDeliveryWithSession(params: {
+  entry: Record<string, unknown>;
+  request: Record<string, unknown>;
+  allowFrom?: string[];
+}) {
+  setRegistry(defaultRegistry);
+  testState.allowFrom = params.allowFrom ?? ["+1555"];
+  try {
+    await setTestSessionStore({
+      entries: {
+        main: {
+          ...params.entry,
+          updatedAt: Date.now(),
+        },
+      },
+    });
+    const res = await rpcReq(ws, "agent", {
+      message: "hi",
+      sessionKey: "main",
+      deliver: true,
+      ...params.request,
+    });
+    expect(res.ok).toBe(true);
+    return latestAgentCall();
+  } finally {
+    testState.allowFrom = undefined;
+  }
 }
 
 const createStubChannelPlugin = (params: {
@@ -125,9 +172,13 @@ describe("gateway server agent", () => {
   test("agent marks implicit delivery when lastTo is stale", async () => {
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+436769770569"];
+<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
+=======
+    await setTestSessionStore({
+>>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       entries: {
         main: {
           sessionId: "sess-main-stale",
@@ -146,8 +197,7 @@ describe("gateway server agent", () => {
     });
     expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
+    const call = latestAgentCall();
     expectChannels(call, "whatsapp");
     expect(call.to).toBe("+1555");
     expect(call.deliveryTargetMode).toBe("implicit");
@@ -157,9 +207,13 @@ describe("gateway server agent", () => {
 
   test("agent forwards sessionKey to agentCommand", async () => {
     setRegistry(defaultRegistry);
+<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
+=======
+    await setTestSessionStore({
+>>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       entries: {
         "agent:main:subagent:abc": {
           sessionId: "sess-sub",
@@ -174,8 +228,7 @@ describe("gateway server agent", () => {
     });
     expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
+    const call = latestAgentCall();
     expect(call.sessionKey).toBe("agent:main:subagent:abc");
     expect(call.sessionId).toBe("sess-sub");
     expectChannels(call, "webchat");
@@ -217,10 +270,14 @@ describe("gateway server agent", () => {
 
   test("agent derives sessionKey from agentId", async () => {
     setRegistry(defaultRegistry);
+<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     testState.agentsConfig = { list: [{ id: "ops" }] };
     await writeSessionStore({
+=======
+    await setTestSessionStore({
+>>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       agentId: "ops",
       entries: {
         main: {
@@ -229,6 +286,7 @@ describe("gateway server agent", () => {
         },
       },
     });
+    testState.agentsConfig = { list: [{ id: "ops" }] };
     const res = await rpcReq(ws, "agent", {
       message: "hi",
       agentId: "ops",
@@ -236,8 +294,7 @@ describe("gateway server agent", () => {
     });
     expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
+    const call = latestAgentCall();
     expect(call.sessionKey).toBe("agent:ops:main");
     expect(call.sessionId).toBe("sess-ops");
   });
@@ -287,6 +344,7 @@ describe("gateway server agent", () => {
   });
 
   test("agent forwards accountId to agentCommand", async () => {
+<<<<<<< HEAD
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -300,28 +358,30 @@ describe("gateway server agent", () => {
           lastTo: "+1555",
           lastAccountId: "default",
         },
+=======
+    const call = await runMainAgentDeliveryWithSession({
+      entry: {
+        sessionId: "sess-main-account",
+        lastChannel: "whatsapp",
+        lastTo: "+1555",
+        lastAccountId: "default",
+      },
+      request: {
+        accountId: "kev",
+        idempotencyKey: "idem-agent-account",
+>>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       },
     });
-    const res = await rpcReq(ws, "agent", {
-      message: "hi",
-      sessionKey: "main",
-      deliver: true,
-      accountId: "kev",
-      idempotencyKey: "idem-agent-account",
-    });
-    expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
     expectChannels(call, "whatsapp");
     expect(call.to).toBe("+1555");
     expect(call.accountId).toBe("kev");
     const runContext = call.runContext as { accountId?: string } | undefined;
     expect(runContext?.accountId).toBe("kev");
-    testState.allowFrom = undefined;
   });
 
   test("agent avoids lastAccountId when explicit to is provided", async () => {
+<<<<<<< HEAD
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -335,26 +395,28 @@ describe("gateway server agent", () => {
           lastTo: "+1555",
           lastAccountId: "legacy",
         },
+=======
+    const call = await runMainAgentDeliveryWithSession({
+      entry: {
+        sessionId: "sess-main-explicit",
+        lastChannel: "whatsapp",
+        lastTo: "+1555",
+        lastAccountId: "legacy",
+      },
+      request: {
+        to: "+1666",
+        idempotencyKey: "idem-agent-explicit",
+>>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       },
     });
-    const res = await rpcReq(ws, "agent", {
-      message: "hi",
-      sessionKey: "main",
-      deliver: true,
-      to: "+1666",
-      idempotencyKey: "idem-agent-explicit",
-    });
-    expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
     expectChannels(call, "whatsapp");
     expect(call.to).toBe("+1666");
     expect(call.accountId).toBeUndefined();
-    testState.allowFrom = undefined;
   });
 
   test("agent keeps explicit accountId when explicit to is provided", async () => {
+<<<<<<< HEAD
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -368,27 +430,29 @@ describe("gateway server agent", () => {
           lastTo: "+1555",
           lastAccountId: "legacy",
         },
+=======
+    const call = await runMainAgentDeliveryWithSession({
+      entry: {
+        sessionId: "sess-main-explicit-account",
+        lastChannel: "whatsapp",
+        lastTo: "+1555",
+        lastAccountId: "legacy",
+      },
+      request: {
+        to: "+1666",
+        accountId: "primary",
+        idempotencyKey: "idem-agent-explicit-account",
+>>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       },
     });
-    const res = await rpcReq(ws, "agent", {
-      message: "hi",
-      sessionKey: "main",
-      deliver: true,
-      to: "+1666",
-      accountId: "primary",
-      idempotencyKey: "idem-agent-explicit-account",
-    });
-    expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
     expectChannels(call, "whatsapp");
     expect(call.to).toBe("+1666");
     expect(call.accountId).toBe("primary");
-    testState.allowFrom = undefined;
   });
 
   test("agent falls back to lastAccountId for implicit delivery", async () => {
+<<<<<<< HEAD
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -402,29 +466,34 @@ describe("gateway server agent", () => {
           lastTo: "+1555",
           lastAccountId: "kev",
         },
+=======
+    const call = await runMainAgentDeliveryWithSession({
+      entry: {
+        sessionId: "sess-main-implicit",
+        lastChannel: "whatsapp",
+        lastTo: "+1555",
+        lastAccountId: "kev",
+      },
+      request: {
+        idempotencyKey: "idem-agent-implicit-account",
+>>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       },
     });
-    const res = await rpcReq(ws, "agent", {
-      message: "hi",
-      sessionKey: "main",
-      deliver: true,
-      idempotencyKey: "idem-agent-implicit-account",
-    });
-    expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
     expectChannels(call, "whatsapp");
     expect(call.to).toBe("+1555");
     expect(call.accountId).toBe("kev");
-    testState.allowFrom = undefined;
   });
 
   test("agent forwards image attachments as images[]", async () => {
     setRegistry(defaultRegistry);
+<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
+=======
+    await setTestSessionStore({
+>>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       entries: {
         main: {
           sessionId: "sess-main-images",
@@ -446,8 +515,7 @@ describe("gateway server agent", () => {
     });
     expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
+    const call = latestAgentCall();
     expect(call.sessionKey).toBe("agent:main:main");
     expectChannels(call, "webchat");
     expect(typeof call.message).toBe("string");
@@ -462,6 +530,7 @@ describe("gateway server agent", () => {
   });
 
   test("agent falls back to whatsapp when delivery requested and no last channel exists", async () => {
+<<<<<<< HEAD
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -472,25 +541,23 @@ describe("gateway server agent", () => {
           sessionId: "sess-main-missing-provider",
           updatedAt: Date.now(),
         },
+=======
+    const call = await runMainAgentDeliveryWithSession({
+      entry: {
+        sessionId: "sess-main-missing-provider",
+      },
+      request: {
+        idempotencyKey: "idem-agent-missing-provider",
+>>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       },
     });
-    const res = await rpcReq(ws, "agent", {
-      message: "hi",
-      sessionKey: "main",
-      deliver: true,
-      idempotencyKey: "idem-agent-missing-provider",
-    });
-    expect(res.ok).toBe(true);
-
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
     expectChannels(call, "whatsapp");
     expect(call.to).toBe("+1555");
     expect(call.deliver).toBe(true);
     expect(call.sessionId).toBe("sess-main-missing-provider");
-    testState.allowFrom = undefined;
   });
 
+<<<<<<< HEAD
   test("agent routes main last-channel whatsapp", async () => {
     setRegistry(defaultRegistry);
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
@@ -607,30 +674,59 @@ describe("gateway server agent", () => {
       sessionKey: "main",
       channel: "last",
       deliver: true,
+=======
+  test.each([
+    {
+      name: "whatsapp",
+      sessionId: "sess-main-whatsapp",
+      lastChannel: "whatsapp",
+      lastTo: "+1555",
+      idempotencyKey: "idem-agent-last-whatsapp",
+    },
+    {
+      name: "telegram",
+      sessionId: "sess-main",
+      lastChannel: "telegram",
+      lastTo: "123",
+      idempotencyKey: "idem-agent-last",
+    },
+    {
+      name: "discord",
+      sessionId: "sess-discord",
+      lastChannel: "discord",
+      lastTo: "channel:discord-123",
+      idempotencyKey: "idem-agent-last-discord",
+    },
+    {
+      name: "slack",
+      sessionId: "sess-slack",
+      lastChannel: "slack",
+      lastTo: "channel:slack-123",
+>>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       idempotencyKey: "idem-agent-last-slack",
-    });
-    expect(res.ok).toBe(true);
-
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
-    expectChannels(call, "slack");
-    expect(call.to).toBe("channel:slack-123");
-    expect(call.deliver).toBe(true);
-    expect(call.bestEffortDeliver).toBe(true);
-    expect(call.sessionId).toBe("sess-slack");
-  });
-
-  test("agent routes main last-channel signal", async () => {
+    },
+    {
+      name: "signal",
+      sessionId: "sess-signal",
+      lastChannel: "signal",
+      lastTo: "+15551234567",
+      idempotencyKey: "idem-agent-last-signal",
+    },
+  ])("agent routes main last-channel $name", async (tc) => {
     setRegistry(defaultRegistry);
+<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
     await writeSessionStore({
+=======
+    await setTestSessionStore({
+>>>>>>> c7e386982 (refactor(test): dedupe agent and memory cli test setup)
       entries: {
         main: {
-          sessionId: "sess-signal",
+          sessionId: tc.sessionId,
           updatedAt: Date.now(),
-          lastChannel: "signal",
-          lastTo: "+15551234567",
+          lastChannel: tc.lastChannel,
+          lastTo: tc.lastTo,
         },
       },
     });
@@ -639,16 +735,15 @@ describe("gateway server agent", () => {
       sessionKey: "main",
       channel: "last",
       deliver: true,
-      idempotencyKey: "idem-agent-last-signal",
+      idempotencyKey: tc.idempotencyKey,
     });
     expect(res.ok).toBe(true);
 
-    const spy = vi.mocked(agentCommand);
-    const call = spy.mock.calls.at(-1)?.[0] as Record<string, unknown>;
-    expectChannels(call, "signal");
-    expect(call.to).toBe("+15551234567");
+    const call = latestAgentCall();
+    expectChannels(call, tc.lastChannel);
+    expect(call.to).toBe(tc.lastTo);
     expect(call.deliver).toBe(true);
     expect(call.bestEffortDeliver).toBe(true);
-    expect(call.sessionId).toBe("sess-signal");
+    expect(call.sessionId).toBe(tc.sessionId);
   });
 });
