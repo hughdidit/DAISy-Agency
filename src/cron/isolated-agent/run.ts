@@ -2,7 +2,6 @@ import {
   resolveAgentConfig,
   resolveAgentDir,
   resolveAgentModelFallbacksOverride,
-  resolveAgentSkillsFilter,
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
 } from "../../agents/agent-scope.js";
@@ -25,6 +24,7 @@ import {
   resolveThinkingDefault,
 } from "../../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
+<<<<<<< HEAD
 import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
 import { buildWorkspaceSkillSnapshot } from "../../agents/skills.js";
 import { getSkillsSnapshotVersion } from "../../agents/skills/refresh.js";
@@ -44,8 +44,11 @@ import {
   countActiveDescendantRuns,
   listDescendantRunsForRequester,
 } from "../../agents/subagent-registry.js";
+=======
+import { runSubagentAnnounceFlow } from "../../agents/subagent-announce.js";
+import { countActiveDescendantRuns } from "../../agents/subagent-registry.js";
+>>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
-import { readLatestAssistantReply } from "../../agents/tools/agent-step.js";
 import { deriveSessionTotalTokens, hasNonzeroUsage } from "../../agents/usage.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import { ensureAgentWorkspace } from "../../agents/workspace.js";
@@ -94,8 +97,12 @@ import { registerAgentRunContext } from "../../infra/agent-events.js";
 =======
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
 import { resolveAgentOutboundIdentity } from "../../infra/outbound/identity.js";
+<<<<<<< HEAD
 >>>>>>> 50645b905 (refactor(outbound): centralize outbound identity)
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
+=======
+import { logWarn } from "../../logger.js";
+>>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
 import { buildAgentMainSessionKey, normalizeAgentId } from "../../routing/session-key.js";
 import {
   buildSafeExternalPrompt,
@@ -118,6 +125,13 @@ import {
   resolveHeartbeatAckMaxChars,
 } from "./helpers.js";
 import { resolveCronSession } from "./session.js";
+import { resolveCronSkillsSnapshot } from "./skills-snapshot.js";
+import {
+  expectsSubagentFollowup,
+  isLikelyInterimCronMessage,
+  readDescendantSubagentFallbackReply,
+  waitForDescendantSubagentSummary,
+} from "./subagent-followup.js";
 
 function matchesMessagingToolDeliveryTarget(
   target: MessagingToolSend,
@@ -147,6 +161,7 @@ function resolveCronDeliveryBestEffort(job: CronJob): boolean {
   return false;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 function resolveCronDeliveryFailure(
   resolved: Awaited<ReturnType<typeof resolveDeliveryTarget>>,
@@ -304,6 +319,8 @@ async function waitForDescendantSubagentSummary(params: {
   return undefined;
 }
 
+=======
+>>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
 export type RunCronAgentTurnResult = {
   status: "ok" | "error" | "skipped";
   summary?: string;
@@ -580,6 +597,7 @@ export async function runCronIsolatedAgentTurn(params: {
       `${commandBody}\n\nReturn your summary as plain text; it will be delivered by the main agent. If the task explicitly calls for messaging a specific external recipient, note who/where it should go instead of sending it yourself.`.trim();
   }
 
+<<<<<<< HEAD
 let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
   if (isFastTestEnv) {
     // Fast unit-test mode: avoid scanning the workspace and writing session stores.
@@ -600,11 +618,23 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       })
     : cronSession.sessionEntry.skillsSnapshot;
   if (needsSkillsSnapshot && skillsSnapshot) {
+=======
+  const existingSkillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
+  const skillsSnapshot = resolveCronSkillsSnapshot({
+    workspaceDir,
+    config: cfgWithAgentDefaults,
+    agentId,
+    existingSnapshot: existingSkillsSnapshot,
+    isFastTestEnv,
+  });
+  if (!isFastTestEnv && skillsSnapshot !== existingSkillsSnapshot) {
+>>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
     cronSession.sessionEntry = {
       ...cronSession.sessionEntry,
       updatedAt: Date.now(),
       skillsSnapshot,
     };
+<<<<<<< HEAD
     cronSession.store[agentSessionKey] = cronSession.sessionEntry;
     await updateSessionStore(cronSession.storePath, (store) => {
       store[agentSessionKey] = cronSession.sessionEntry;
@@ -621,6 +651,9 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       }
     }
 >>>>>>> e1220c48f (perf(test): skip skills snapshot work in fast env)
+=======
+    await persistSessionEntry();
+>>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
   }
 
   // Persist systemSent before the run, mirroring the inbound auto-reply behavior.
