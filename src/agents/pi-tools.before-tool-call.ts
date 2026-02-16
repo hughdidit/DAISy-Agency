@@ -1,3 +1,4 @@
+import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
 import type { SessionState } from "../logging/diagnostic-session-state.js";
 import type { AnyAgentTool } from "./tools/common.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
@@ -5,9 +6,10 @@ import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { isPlainObject } from "../utils.js";
 import { normalizeToolName } from "./tool-policy.js";
 
-type HookContext = {
+export type HookContext = {
   agentId?: string;
   sessionKey?: string;
+  loopDetection?: ToolLoopDetectionConfig;
 };
 
 type HookOutcome = { blocked: true; reason: string } | { blocked: false; params: unknown };
@@ -64,6 +66,7 @@ async function recordLoopOutcome(args: {
       toolCallId: args.toolCallId,
       result: args.result,
       error: args.error,
+      config: args.ctx.loopDetection,
     });
   } catch (err) {
     log.warn(`tool loop outcome tracking failed: tool=${args.toolName} error=${String(err)}`);
@@ -92,7 +95,7 @@ export async function runBeforeToolCallHook(args: {
       sessionId: args.ctx?.agentId,
     });
 
-    const loopResult = detectToolCallLoop(sessionState, toolName, params);
+    const loopResult = detectToolCallLoop(sessionState, toolName, params, args.ctx.loopDetection);
 
     if (loopResult.stuck) {
       if (loopResult.level === "critical") {
@@ -131,7 +134,7 @@ export async function runBeforeToolCallHook(args: {
       }
     }
 
-    recordToolCall(sessionState, toolName, params, args.toolCallId);
+    recordToolCall(sessionState, toolName, params, args.toolCallId, args.ctx.loopDetection);
   }
 
 >>>>>>> e5eb5b3e4 (feat: add stuck loop detection and exponential backoff infrastructure for agent polling (#17118))

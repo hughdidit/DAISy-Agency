@@ -73,7 +73,12 @@ import {
   ensurePiCompactionReserveTokens,
   resolveCompactionReserveTokensFloor,
 } from "../../pi-settings.js";
+<<<<<<< HEAD
 import { createMoltbotCodingTools } from "../../pi-tools.js";
+=======
+import { toClientToolDefinitions } from "../../pi-tool-definition-adapter.js";
+import { createOpenClawCodingTools, resolveToolLoopDetectionConfig } from "../../pi-tools.js";
+>>>>>>> 076df941a (feat: add configurable tool loop detection)
 import { resolveSandboxContext } from "../../sandbox.js";
 <<<<<<< HEAD
 =======
@@ -588,10 +593,28 @@ export async function runEmbeddedAttempt(
 
       // Add client tools (OpenResponses hosted tools) to customTools
       let clientToolCallDetected: { name: string; params: Record<string, unknown> } | null = null;
+      const clientToolLoopDetection = resolveToolLoopDetectionConfig({
+        cfg: params.config,
+        agentId: sessionAgentId,
+      });
       const clientToolDefs = params.clientTools
+<<<<<<< HEAD
         ? toClientToolDefinitions(params.clientTools, (toolName, toolParams) => {
             clientToolCallDetected = { name: toolName, params: toolParams };
           })
+=======
+        ? toClientToolDefinitions(
+            params.clientTools,
+            (toolName, toolParams) => {
+              clientToolCallDetected = { name: toolName, params: toolParams };
+            },
+            {
+              agentId: sessionAgentId,
+              sessionKey: params.sessionKey,
+              loopDetection: clientToolLoopDetection,
+            },
+          )
+>>>>>>> 076df941a (feat: add configurable tool loop detection)
         : [];
 
       const allCustomTools = [...customTools, ...clientToolDefs];

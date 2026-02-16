@@ -5,7 +5,17 @@ import {
   createWriteTool,
   readTool,
 } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
+import type { ModelAuthMode } from "./model-auth.js";
+import type { AnyAgentTool } from "./pi-tools.types.js";
+import type { SandboxContext } from "./sandbox.js";
+import { logWarn } from "../logger.js";
+import { getPluginToolMeta } from "../plugins/tools.js";
+>>>>>>> 076df941a (feat: add configurable tool loop detection)
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { resolveGatewayMessageChannel } from "../utils/message-channel.js";
 import { createApplyPatchTool } from "./apply-patch.js";
@@ -145,6 +155,33 @@ function resolveFsConfig(params: { cfg?: OpenClawConfig; agentId?: string }) {
   return {
     workspaceOnly: agentFs?.workspaceOnly ?? globalFs?.workspaceOnly,
 >>>>>>> dec685970 (agents: reduce prompt token bloat from exec and context (#16539))
+  };
+}
+
+export function resolveToolLoopDetectionConfig(params: {
+  cfg?: OpenClawConfig;
+  agentId?: string;
+}): ToolLoopDetectionConfig | undefined {
+  const global = params.cfg?.tools?.loopDetection;
+  const agent =
+    params.agentId && params.cfg
+      ? resolveAgentConfig(params.cfg, params.agentId)?.tools?.loopDetection
+      : undefined;
+
+  if (!agent) {
+    return global;
+  }
+  if (!global) {
+    return agent;
+  }
+
+  return {
+    ...global,
+    ...agent,
+    detectors: {
+      ...global.detectors,
+      ...agent.detectors,
+    },
   };
 }
 
@@ -518,6 +555,16 @@ export function createMoltbotCodingTools(options?: {
   // Always normalize tool JSON Schemas before handing them to pi-agent/pi-ai.
   // Without this, some providers (notably OpenAI) will reject root-level union schemas.
   const normalized = subagentFiltered.map(normalizeToolParameters);
+<<<<<<< HEAD
+=======
+  const withHooks = normalized.map((tool) =>
+    wrapToolWithBeforeToolCallHook(tool, {
+      agentId,
+      sessionKey: options?.sessionKey,
+      loopDetection: resolveToolLoopDetectionConfig({ cfg: options?.config, agentId }),
+    }),
+  );
+>>>>>>> 076df941a (feat: add configurable tool loop detection)
   const withAbort = options?.abortSignal
     ? normalized.map((tool) => wrapToolWithAbortSignal(tool, options.abortSignal))
     : normalized;

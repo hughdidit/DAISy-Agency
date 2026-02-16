@@ -72,6 +72,19 @@ export const FIELD_LABELS: Record<string, string> = {
   "agents.list[].tools.byProvider": "Agent Tool Policy by Provider",
   "tools.exec.applyPatch.enabled": "Enable apply_patch",
   "tools.exec.applyPatch.allowModels": "apply_patch Model Allowlist",
+<<<<<<< HEAD
+=======
+  "tools.loopDetection.enabled": "Tool-loop Detection",
+  "tools.loopDetection.historySize": "Tool-loop History Size",
+  "tools.loopDetection.warningThreshold": "Tool-loop Warning Threshold",
+  "tools.loopDetection.criticalThreshold": "Tool-loop Critical Threshold",
+  "tools.loopDetection.globalCircuitBreakerThreshold": "Tool-loop Global Circuit Breaker Threshold",
+  "tools.loopDetection.detectors.genericRepeat": "Tool-loop Generic Repeat Detection",
+  "tools.loopDetection.detectors.knownPollNoProgress": "Tool-loop Poll No-Progress Detection",
+  "tools.loopDetection.detectors.pingPong": "Tool-loop Ping-Pong Detection",
+  "tools.fs.workspaceOnly": "Workspace-only FS tools",
+  "tools.sessions.visibility": "Session Tools Visibility",
+>>>>>>> 076df941a (feat: add configurable tool loop detection)
   "tools.exec.notifyOnExit": "Exec Notify On Exit",
   "tools.exec.notifyOnExitEmptySuccess": "Exec Notify On Empty Success",
   "tools.exec.approvalRunningNoticeMs": "Exec Approval Running Notice (ms)",
