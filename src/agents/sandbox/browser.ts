@@ -2,7 +2,11 @@
 import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
 =======
 import crypto from "node:crypto";
+<<<<<<< HEAD
 >>>>>>> 2977f7325 (fix: add extraArgs to sandbox browser config and apply oxfmt formatting)
+=======
+import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
+>>>>>>> cc3c25e41 (fix: apply oxfmt 0.32.0 formatting (match CI version))
 import { startBrowserBridgeServer, stopBrowserBridgeServer } from "../../browser/bridge-server.js";
 import { type ResolvedBrowserConfig, resolveProfile } from "../../browser/config.js";
 import {
@@ -21,7 +25,6 @@ import {
 import { updateBrowserRegistry } from "./registry.js";
 import { slugifySessionKey } from "./shared.js";
 import { isToolAllowed } from "./tool-policy.js";
-import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
 
 async function waitForSandboxCdp(params: { cdpPort: number; timeoutMs: number }): Promise<boolean> {
   const deadline = Date.now() + Math.max(0, params.timeoutMs);
