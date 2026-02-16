@@ -12,17 +12,33 @@ Welcome to the lobster tank! 🦞
 - **Peter Steinberger** - Benevolent Dictator
   - GitHub: [@steipete](https://github.com/steipete) · X: [@steipete](https://x.com/steipete)
 
-- **Shadow** - Discord + Slack subsystem
+- **Shadow** - Discord subsystem, Discord admin
   - GitHub: [@thewilloftheshadow](https://github.com/thewilloftheshadow) · X: [@4shad0wed](https://x.com/4shad0wed)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - **Vignesh** - Memory (QMD), formal modeling, TUI, and Lobster
+=======
+- **Vignesh** - Memory (QMD), formal modeling, TUI, IRC, and Lobster
+>>>>>>> 9b2e1769c (docs(contributing): update maintainers list (#17719))
   - GitHub: [@vignesh07](https://github.com/vignesh07) · X: [@\_vgnsh](https://x.com/_vgnsh)
 
 >>>>>>> 96c46ed61 (Docs: restore maintainers in contributing)
 - **Jos** - Telegram, API, Nix mode
   - GitHub: [@joshp123](https://github.com/joshp123) · X: [@jjpcodes](https://x.com/jjpcodes)
+
+- **Ayaan Zaidi** - Telegram subsystem, iOS app
+  - GitHub: [@obviyus](https://github.com/obviyus) · X: [@0bviyus](https://x.com/0bviyus)
+
+- **Tyler Yust** - Agents/subagents, cron, BlueBubbles, macOS app
+  - GitHub: [@tyler6204](https://github.com/tyler6204) · X: [@tyleryust](https://x.com/tyleryust)
+
+- **Mariano Belinky** - iOS app, Security
+  - GitHub: [@mbelinky](https://github.com/mbelinky) · X: [@belimad](https://x.com/belimad)
+
+- **Seb Slight** - Docs, Agent Reliability, Runtime Hardening
+  - GitHub: [@sebslight](https://github.com/sebslight) · X: [@sebslig](https://x.com/sebslig)
 
 - **Christoph Nakazawa** - JS Infra
   - GitHub: [@cpojer](https://github.com/cpojer) · X: [@cnakazawa](https://x.com/cnakazawa)
@@ -32,10 +48,13 @@ Welcome to the lobster tank! 🦞
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
 - **Maximilian Nussbaumer** - DevOps, CI, Code Sanity
   - GitHub: [@quotentiroler](https://github.com/quotentiroler) · X: [@quotentiroler](https://x.com/quotentiroler)
 >>>>>>> 96c46ed61 (Docs: restore maintainers in contributing)
 
+=======
+>>>>>>> 9b2e1769c (docs(contributing): update maintainers list (#17719))
 ## How to Contribute
 1. **Bugs & small fixes** → Open a PR!
 2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/moltbot/moltbot/discussions) or ask in Discord first
