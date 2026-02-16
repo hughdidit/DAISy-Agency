@@ -1,4 +1,40 @@
+<<<<<<< HEAD
 #!/bin/sh
 ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 [ -z "$ROOT" ] && exit 0
 node "$ROOT/scripts/format-staged.js"
+=======
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Security: avoid option-injection from malicious file names (e.g. "--force").
+# Robustness: NUL-delimited file list handles spaces/newlines safely.
+mapfile -d '' -t files < <(git diff --cached --name-only --diff-filter=ACMR -z)
+
+if [ "${#files[@]}" -eq 0 ]; then
+  exit 0
+fi
+
+lint_files=()
+format_files=()
+for file in "${files[@]}"; do
+  case "$file" in
+    *.ts | *.tsx | *.js | *.jsx | *.mjs | *.cjs) lint_files+=("$file") ;;
+  esac
+
+  case "$file" in
+    *.ts | *.tsx | *.js | *.jsx | *.mjs | *.cjs | *.json | *.md | *.mdx) format_files+=("$file") ;;
+  esac
+done
+
+if [ "${#lint_files[@]}" -gt 0 ]; then
+  pnpm lint --fix -- "${lint_files[@]}"
+fi
+
+if [ "${#format_files[@]}" -gt 0 ]; then
+  pnpm format -- "${format_files[@]}"
+fi
+
+git add -- "${files[@]}"
+>>>>>>> ba84b1253 (fix: harden pre-commit hook against option injection)

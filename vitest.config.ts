@@ -25,6 +25,10 @@ export default defineConfig({
       "src/**/*.test.ts",
       "extensions/**/*.test.ts",
       "test/format-error.test.ts",
+<<<<<<< HEAD
+=======
+      "test/git-hooks-pre-commit.test.ts",
+>>>>>>> ba84b1253 (fix: harden pre-commit hook against option injection)
     ],
     setupFiles: ["test/setup.ts"],
     exclude: [
