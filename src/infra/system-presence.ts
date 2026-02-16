@@ -59,7 +59,11 @@ function resolvePrimaryIPv4(): string | undefined {
 function initSelfPresence() {
   const host = os.hostname();
   const ip = resolvePrimaryIPv4() ?? undefined;
+<<<<<<< HEAD
   const version = process.env.CLAWDBOT_VERSION ?? process.env.npm_package_version ?? "unknown";
+=======
+  const version = process.env.OPENCLAW_VERSION ?? process.env.OPENCLAW_SERVICE_VERSION ?? process.env.npm_package_version ?? "unknown";
+>>>>>>> 91903bac1 (fix: include OPENCLAW_SERVICE_VERSION in system presence version detection)
   const modelIdentifier = (() => {
     const p = os.platform();
     if (p === "darwin") {
