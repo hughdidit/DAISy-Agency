@@ -2,8 +2,12 @@ import type { ChannelDock } from "../channels/dock.js";
 import { getChannelDock, listChannelDocks } from "../channels/dock.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import { normalizeAnyChannelId } from "../channels/registry.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "./templating.js";
+=======
+import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../utils/message-channel.js";
+>>>>>>> e95134ba3 (fix (commands): keep webchat auth on internal provider)
 
 export type CommandAuthorization = {
   providerId?: ChannelId;
@@ -14,8 +18,20 @@ export type CommandAuthorization = {
   to?: string;
 };
 
+<<<<<<< HEAD
 function resolveProviderFromContext(ctx: MsgContext, cfg: MoltbotConfig): ChannelId | undefined {
+=======
+function resolveProviderFromContext(ctx: MsgContext, cfg: OpenClawConfig): ChannelId | undefined {
+  const explicitMessageChannel =
+    normalizeMessageChannel(ctx.Provider) ??
+    normalizeMessageChannel(ctx.Surface) ??
+    normalizeMessageChannel(ctx.OriginatingChannel);
+  if (explicitMessageChannel === INTERNAL_MESSAGE_CHANNEL) {
+    return undefined;
+  }
+>>>>>>> e95134ba3 (fix (commands): keep webchat auth on internal provider)
   const direct =
+    normalizeAnyChannelId(explicitMessageChannel ?? undefined) ??
     normalizeAnyChannelId(ctx.Provider) ??
     normalizeAnyChannelId(ctx.Surface) ??
     normalizeAnyChannelId(ctx.OriginatingChannel);
@@ -26,7 +42,13 @@ function resolveProviderFromContext(ctx: MsgContext, cfg: MoltbotConfig): Channe
     .filter((value): value is string => Boolean(value?.trim()))
     .flatMap((value) => value.split(":").map((part) => part.trim()));
   for (const candidate of candidates) {
-    const normalized = normalizeAnyChannelId(candidate);
+    const normalizedCandidateChannel = normalizeMessageChannel(candidate);
+    if (normalizedCandidateChannel === INTERNAL_MESSAGE_CHANNEL) {
+      return undefined;
+    }
+    const normalized =
+      normalizeAnyChannelId(normalizedCandidateChannel ?? undefined) ??
+      normalizeAnyChannelId(candidate);
     if (normalized) {
       return normalized;
     }
