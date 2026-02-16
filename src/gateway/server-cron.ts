@@ -6,6 +6,7 @@ import { runCronIsolatedAgentTurn } from "../cron/isolated-agent.js";
 import { appendCronRunLog, resolveCronRunLogPath } from "../cron/run-log.js";
 import { CronService } from "../cron/service.js";
 import { resolveCronStorePath } from "../cron/store.js";
+import { normalizeHttpWebhookUrl } from "../cron/webhook-url.js";
 import { runHeartbeatOnce } from "../infra/heartbeat-runner.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
@@ -28,6 +29,32 @@ function redactWebhookUrl(url: string): string {
   } catch {
     return "<invalid-webhook-url>";
   }
+}
+
+type CronWebhookTarget = {
+  url: string;
+  source: "delivery" | "legacy";
+};
+
+function resolveCronWebhookTarget(params: {
+  delivery?: { mode?: string; to?: string };
+  legacyNotify?: boolean;
+  legacyWebhook?: string;
+}): CronWebhookTarget | null {
+  const mode = params.delivery?.mode?.trim().toLowerCase();
+  if (mode === "webhook") {
+    const url = normalizeHttpWebhookUrl(params.delivery?.to);
+    return url ? { url, source: "delivery" } : null;
+  }
+
+  if (params.legacyNotify) {
+    const legacyUrl = normalizeHttpWebhookUrl(params.legacyWebhook);
+    if (legacyUrl) {
+      return { url: legacyUrl, source: "legacy" };
+    }
+  }
+
+  return null;
 }
 
 export function buildGatewayCronService(params: {
@@ -54,6 +81,17 @@ export function buildGatewayCronService(params: {
     return { agentId, cfg: runtimeConfig };
   };
 
+<<<<<<< HEAD
+=======
+  const defaultAgentId = resolveDefaultAgentId(params.cfg);
+  const resolveSessionStorePath = (agentId?: string) =>
+    resolveStorePath(params.cfg.session?.store, {
+      agentId: agentId ?? defaultAgentId,
+    });
+  const sessionStorePath = resolveSessionStorePath(defaultAgentId);
+  const warnedLegacyWebhookJobs = new Set<string>();
+
+>>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
   const cron = new CronService({
     storePath,
     cronEnabled,
@@ -92,10 +130,41 @@ export function buildGatewayCronService(params: {
     onEvent: (evt) => {
       params.broadcast("cron", evt, { dropIfSlow: true });
       if (evt.action === "finished") {
-        const webhookUrl = params.cfg.cron?.webhook?.trim();
         const webhookToken = params.cfg.cron?.webhookToken?.trim();
+        const legacyWebhook = params.cfg.cron?.webhook?.trim();
         const job = cron.getJob(evt.jobId);
-        if (webhookUrl && evt.summary && job?.notify === true) {
+        const legacyNotify = (job as { notify?: unknown } | undefined)?.notify === true;
+        const webhookTarget = resolveCronWebhookTarget({
+          delivery:
+            job?.delivery && typeof job.delivery.mode === "string"
+              ? { mode: job.delivery.mode, to: job.delivery.to }
+              : undefined,
+          legacyNotify,
+          legacyWebhook,
+        });
+
+        if (!webhookTarget && job?.delivery?.mode === "webhook") {
+          cronLogger.warn(
+            {
+              jobId: evt.jobId,
+              deliveryTo: job.delivery.to,
+            },
+            "cron: skipped webhook delivery, delivery.to must be a valid http(s) URL",
+          );
+        }
+
+        if (webhookTarget?.source === "legacy" && !warnedLegacyWebhookJobs.has(evt.jobId)) {
+          warnedLegacyWebhookJobs.add(evt.jobId);
+          cronLogger.warn(
+            {
+              jobId: evt.jobId,
+              legacyWebhook: redactWebhookUrl(webhookTarget.url),
+            },
+            "cron: deprecated notify+cron.webhook fallback in use, migrate to delivery.mode=webhook with delivery.to",
+          );
+        }
+
+        if (webhookTarget && evt.summary) {
           const headers: Record<string, string> = {
             "Content-Type": "application/json",
           };
@@ -106,7 +175,7 @@ export function buildGatewayCronService(params: {
           const timeout = setTimeout(() => {
             abortController.abort();
           }, CRON_WEBHOOK_TIMEOUT_MS);
-          void fetch(webhookUrl, {
+          void fetch(webhookTarget.url, {
             method: "POST",
             headers,
             body: JSON.stringify(evt),
@@ -117,7 +186,7 @@ export function buildGatewayCronService(params: {
                 {
                   err: String(err),
                   jobId: evt.jobId,
-                  webhookUrl: redactWebhookUrl(webhookUrl),
+                  webhookUrl: redactWebhookUrl(webhookTarget.url),
                 },
                 "cron: webhook delivery failed",
               );
