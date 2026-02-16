@@ -205,6 +205,7 @@ describe("Slack native command argument menus", () => {
     });
   });
 });
+<<<<<<< HEAD
 
 function createPolicyHarness() {
   const commands = new Map<unknown, (args: unknown) => Promise<void>>();
@@ -332,3 +333,5 @@ describe("slack slash commands channel policy", () => {
     });
   });
 });
+=======
+>>>>>>> 93ad783c1 (test: remove redundant slash channel-policy integration case)
