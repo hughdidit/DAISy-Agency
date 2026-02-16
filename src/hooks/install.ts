@@ -138,6 +138,33 @@ function resolveTimedHookInstallModeOptions(params: {
   };
 }
 
+async function withTempDir<T>(prefix: string, fn: (tmpDir: string) => Promise<T>): Promise<T> {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
+  try {
+    return await fn(tmpDir);
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => undefined);
+  }
+}
+
+async function resolveInstallTargetDir(
+  id: string,
+  hooksDir?: string,
+): Promise<{ ok: true; targetDir: string } | { ok: false; error: string }> {
+  const baseHooksDir = hooksDir ? resolveUserPath(hooksDir) : path.join(CONFIG_DIR, "hooks");
+  await fs.mkdir(baseHooksDir, { recursive: true });
+
+  const targetDirResult = resolveSafeInstallDir({
+    baseDir: baseHooksDir,
+    id,
+    invalidNameMessage: "invalid hook name: path traversal detected",
+  });
+  if (!targetDirResult.ok) {
+    return { ok: false, error: targetDirResult.error };
+  }
+  return { ok: true, targetDir: targetDirResult.path };
+}
+
 async function resolveHookNameFromDir(hookDir: string): Promise<string> {
   const hookMdPath = path.join(hookDir, "HOOK.md");
   if (!(await fileExists(hookMdPath))) {
@@ -203,6 +230,7 @@ async function installHookPackageFromDir(params: {
     };
   }
 
+<<<<<<< HEAD
   const hooksDir = params.hooksDir
     ? resolveUserPath(params.hooksDir)
     : path.join(CONFIG_DIR, "hooks");
@@ -221,6 +249,13 @@ async function installHookPackageFromDir(params: {
   }
   const targetDir = targetDirResult.path;
 >>>>>>> e93764350 (refactor(install): share safe install path helpers)
+=======
+  const targetDirResult = await resolveInstallTargetDir(hookPackId, params.hooksDir);
+  if (!targetDirResult.ok) {
+    return { ok: false, error: targetDirResult.error };
+  }
+  const targetDir = targetDirResult.targetDir;
+>>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
   if (mode === "install" && (await fileExists(targetDir))) {
     return { ok: false, error: `hook pack already exists: ${targetDir} (delete it first)` };
   }
@@ -288,6 +323,7 @@ async function installHookFromDir(params: {
     };
   }
 
+<<<<<<< HEAD
   const hooksDir = params.hooksDir
     ? resolveUserPath(params.hooksDir)
     : path.join(CONFIG_DIR, "hooks");
@@ -306,6 +342,13 @@ async function installHookFromDir(params: {
   }
   const targetDir = targetDirResult.path;
 >>>>>>> e93764350 (refactor(install): share safe install path helpers)
+=======
+  const targetDirResult = await resolveInstallTargetDir(hookName, params.hooksDir);
+  if (!targetDirResult.ok) {
+    return { ok: false, error: targetDirResult.error };
+  }
+  const targetDir = targetDirResult.targetDir;
+>>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
   if (mode === "install" && (await fileExists(targetDir))) {
     return { ok: false, error: `hook already exists: ${targetDir} (delete it first)` };
   }
@@ -359,6 +402,7 @@ export async function installHooksFromArchive(params: {
     return { ok: false, error: `unsupported archive: ${archivePath}` };
   }
 
+<<<<<<< HEAD
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hook-"));
   const extractDir = path.join(tmpDir, "extract");
   await fs.mkdir(extractDir, { recursive: true });
@@ -369,6 +413,11 @@ export async function installHooksFromArchive(params: {
   } catch (err) {
     return { ok: false, error: `failed to extract archive: ${String(err)}` };
   }
+=======
+  return await withTempDir("openclaw-hook-", async (tmpDir) => {
+    const extractDir = path.join(tmpDir, "extract");
+    await fs.mkdir(extractDir, { recursive: true });
+>>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
 
   let rootDir = "";
   try {
@@ -388,6 +437,7 @@ export async function installHooksFromArchive(params: {
       dryRun: params.dryRun,
       expectedHookPackId: params.expectedHookPackId,
     });
+<<<<<<< HEAD
   }
 
   return await installHookFromDir({
@@ -397,6 +447,8 @@ export async function installHooksFromArchive(params: {
     mode: params.mode,
     dryRun: params.dryRun,
     expectedHookPackId: params.expectedHookPackId,
+=======
+>>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
   });
 }
 
@@ -416,6 +468,7 @@ export async function installHooksFromNpmSpec(params: {
     return { ok: false, error: "missing npm spec" };
   }
 
+<<<<<<< HEAD
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hook-pack-"));
   logger.info?.(`Downloading ${spec}…`);
   const res = await runCommandWithTimeout(["npm", "pack", spec], {
@@ -445,6 +498,41 @@ export async function installHooksFromNpmSpec(params: {
     mode,
     dryRun,
     expectedHookPackId,
+=======
+  return await withTempDir("openclaw-hook-pack-", async (tmpDir) => {
+    logger.info?.(`Downloading ${spec}…`);
+    const res = await runCommandWithTimeout(["npm", "pack", spec, "--ignore-scripts"], {
+      timeoutMs: Math.max(timeoutMs, 300_000),
+      cwd: tmpDir,
+      env: {
+        COREPACK_ENABLE_DOWNLOAD_PROMPT: "0",
+        NPM_CONFIG_IGNORE_SCRIPTS: "true",
+      },
+    });
+    if (res.code !== 0) {
+      return { ok: false, error: `npm pack failed: ${res.stderr.trim() || res.stdout.trim()}` };
+    }
+
+    const packed = (res.stdout || "")
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .pop();
+    if (!packed) {
+      return { ok: false, error: "npm pack produced no archive" };
+    }
+
+    const archivePath = path.join(tmpDir, packed);
+    return await installHooksFromArchive({
+      archivePath,
+      hooksDir: params.hooksDir,
+      timeoutMs,
+      logger,
+      mode,
+      dryRun,
+      expectedHookPackId,
+    });
+>>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
   });
 }
 
