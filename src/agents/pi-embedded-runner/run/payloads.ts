@@ -47,7 +47,11 @@ function shouldShowToolErrorWarning(params: {
   lastToolError: LastToolError;
   hasUserFacingReply: boolean;
   suppressToolErrors: boolean;
+  suppressToolErrorWarnings?: boolean;
 }): boolean {
+  if (params.suppressToolErrorWarnings) {
+    return false;
+  }
   const isMutatingToolError =
     params.lastToolError.mutatingAction ?? isLikelyMutatingToolName(params.lastToolError.toolName);
   if (isMutatingToolError) {
@@ -74,6 +78,7 @@ export function buildEmbeddedRunPayloads(params: {
   verboseLevel?: VerboseLevel;
   reasoningLevel?: ReasoningLevel;
   toolResultFormat?: ToolResultFormat;
+  suppressToolErrorWarnings?: boolean;
   inlineToolResultsAllowed: boolean;
 }): Array<{
   text?: string;
@@ -285,6 +290,7 @@ export function buildEmbeddedRunPayloads(params: {
       lastToolError: params.lastToolError,
       hasUserFacingReply: hasUserFacingAssistantReply,
       suppressToolErrors: Boolean(params.config?.messages?.suppressToolErrors),
+      suppressToolErrorWarnings: params.suppressToolErrorWarnings,
     });
 >>>>>>> d08ff2c2c (refactor(agents): extract tool-error warning helpers)
 
