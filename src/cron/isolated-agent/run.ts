@@ -490,9 +490,16 @@ export async function runCronIsolatedAgentTurn(params: {
 
   // Update token+model fields in the session store.
   {
+<<<<<<< HEAD
     const usage = runResult.meta.agentMeta?.usage;
     const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? model;
     const providerUsed = runResult.meta.agentMeta?.provider ?? fallbackProvider ?? provider;
+=======
+    const usage = runResult?.meta?.agentMeta?.usage;
+    const promptTokens = runResult?.meta?.agentMeta?.promptTokens;
+    const modelUsed = runResult?.meta?.agentMeta?.model ?? fallbackModel ?? model;
+    const providerUsed = runResult?.meta?.agentMeta?.provider ?? fallbackProvider ?? provider;
+>>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
     const contextTokens =
       agentCfg?.contextTokens ?? lookupContextTokens(modelUsed) ?? DEFAULT_CONTEXT_TOKENS;
 
@@ -500,7 +507,7 @@ export async function runCronIsolatedAgentTurn(params: {
     cronSession.sessionEntry.model = modelUsed;
     cronSession.sessionEntry.contextTokens = contextTokens;
     if (isCliProvider(providerUsed, cfgWithAgentDefaults)) {
-      const cliSessionId = runResult.meta.agentMeta?.sessionId?.trim();
+      const cliSessionId = runResult?.meta?.agentMeta?.sessionId?.trim();
       if (cliSessionId) {
         setCliSessionId(cronSession.sessionEntry, providerUsed, cliSessionId);
       }

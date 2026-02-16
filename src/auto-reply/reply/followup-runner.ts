@@ -196,8 +196,14 @@ export function createFollowupRunner(params: {
         return;
       }
 
+<<<<<<< HEAD
       const usage = runResult.meta.agentMeta?.usage;
       const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
+=======
+      const usage = runResult?.meta?.agentMeta?.usage;
+      const promptTokens = runResult?.meta?.agentMeta?.promptTokens;
+      const modelUsed = runResult?.meta?.agentMeta?.model ?? fallbackModel ?? defaultModel;
+>>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
       const contextTokensUsed =
         agentCfgContextTokens ??
         lookupContextTokens(modelUsed) ??
@@ -209,7 +215,12 @@ export function createFollowupRunner(params: {
           storePath,
           sessionKey,
           usage,
+<<<<<<< HEAD
           lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
+=======
+          lastCallUsage: runResult?.meta?.agentMeta?.lastCallUsage,
+          promptTokens,
+>>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
           modelUsed,
           providerUsed: fallbackProvider,
           contextTokensUsed,
@@ -263,7 +274,7 @@ export function createFollowupRunner(params: {
           sessionStore,
           sessionKey,
           storePath,
-          lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
+          lastCallUsage: runResult?.meta?.agentMeta?.lastCallUsage,
           contextTokensUsed,
         });
         if (queued.run.verboseLevel && queued.run.verboseLevel !== "off") {
