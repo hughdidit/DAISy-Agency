@@ -135,15 +135,23 @@ export async function doctorCommand(
     note(gatewayDetails.remoteFallbackNote, "Gateway");
   }
   if (resolveMode(cfg) === "local") {
+    const gatewayBind = cfg.gateway?.bind ?? "loopback";
+    const tailscaleMode = cfg.gateway?.tailscale?.mode ?? "off";
+    const requireGatewayAuth = gatewayBind !== "loopback" || tailscaleMode !== "off";
     const auth = resolveGatewayAuth({
       authConfig: cfg.gateway?.auth,
+<<<<<<< HEAD
       tailscaleMode: cfg.gateway?.tailscale?.mode ?? "off",
 >>>>>>> 78c34bcf3 (Add runtime quiting functionality to doctor.ts)
+=======
+      tailscaleMode,
+>>>>>>> 9aa8db5c8 (fix(doctor,configure): skip gateway auth for loopback-only setups)
     });
-    const needsToken = auth.mode !== "password" && (auth.mode !== "token" || !auth.token);
+    const needsToken =
+      requireGatewayAuth && auth.mode !== "password" && (auth.mode !== "token" || !auth.token);
     if (needsToken) {
       note(
-        "Gateway auth is off or missing a token. Token auth is now the recommended default (including loopback).",
+        "Gateway auth is off or missing a token. Token auth is recommended when the gateway is exposed beyond local loopback.",
         "Gateway auth",
       );
       const shouldSetToken =
