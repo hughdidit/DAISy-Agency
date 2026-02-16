@@ -94,9 +94,14 @@ type ChannelHandler = {
   sendMedia: (caption: string, mediaUrl: string) => Promise<OutboundDeliveryResult>;
 };
 
+<<<<<<< HEAD
 // Channel docking: outbound delivery delegates to plugin.outbound adapters.
 async function createChannelHandler(params: {
   cfg: MoltbotConfig;
+=======
+type ChannelHandlerParams = {
+  cfg: OpenClawConfig;
+>>>>>>> d5ee766af (refactor(outbound): dedupe channel handler params)
   channel: Exclude<OutboundChannel, "none">;
   to: string;
   accountId?: string;
@@ -106,6 +111,7 @@ async function createChannelHandler(params: {
   deps?: OutboundSendDeps;
   gifPlayback?: boolean;
   silent?: boolean;
+<<<<<<< HEAD
 }): Promise<ChannelHandler> {
   const outbound = await loadChannelOutboundAdapter(params.channel);
   if (!outbound?.sendText || !outbound?.sendMedia) {
@@ -124,12 +130,22 @@ async function createChannelHandler(params: {
     gifPlayback: params.gifPlayback,
     silent: params.silent,
   });
+=======
+  mediaLocalRoots?: readonly string[];
+};
+
+// Channel docking: outbound delivery delegates to plugin.outbound adapters.
+async function createChannelHandler(params: ChannelHandlerParams): Promise<ChannelHandler> {
+  const outbound = await loadChannelOutboundAdapter(params.channel);
+  const handler = createPluginHandler({ ...params, outbound });
+>>>>>>> d5ee766af (refactor(outbound): dedupe channel handler params)
   if (!handler) {
     throw new Error(`Outbound not configured for channel: ${params.channel}`);
   }
   return handler;
 }
 
+<<<<<<< HEAD
 function createPluginHandler(params: {
   outbound?: ChannelOutboundAdapter;
   cfg: MoltbotConfig;
@@ -143,6 +159,11 @@ function createPluginHandler(params: {
   gifPlayback?: boolean;
   silent?: boolean;
 }): ChannelHandler | null {
+=======
+function createPluginHandler(
+  params: ChannelHandlerParams & { outbound?: ChannelOutboundAdapter },
+): ChannelHandler | null {
+>>>>>>> d5ee766af (refactor(outbound): dedupe channel handler params)
   const outbound = params.outbound;
   if (!outbound?.sendText || !outbound?.sendMedia) {
     return null;
