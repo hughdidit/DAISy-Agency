@@ -2,6 +2,18 @@ import { describe, expect, it } from "vitest";
 
 import { buildGatewayAuthConfig } from "./configure.js";
 
+function expectGeneratedTokenFromInput(token: string | undefined, literalToAvoid = "undefined") {
+  const result = buildGatewayAuthConfig({
+    mode: "token",
+    token,
+  });
+  expect(result?.mode).toBe("token");
+  expect(result?.token).toBeDefined();
+  expect(result?.token).not.toBe(literalToAvoid);
+  expect(typeof result?.token).toBe("string");
+  expect(result?.token?.length).toBeGreaterThan(0);
+}
+
 describe("buildGatewayAuthConfig", () => {
   it("preserves allowTailscale when switching to token", () => {
     const result = buildGatewayAuthConfig({
@@ -57,68 +69,23 @@ describe("buildGatewayAuthConfig", () => {
   });
 
   it("generates random token when token param is undefined", () => {
-    const result = buildGatewayAuthConfig({
-      mode: "token",
-      token: undefined,
-    });
-
-    expect(result?.mode).toBe("token");
-    expect(result?.token).toBeDefined();
-    expect(result?.token).not.toBe("undefined");
-    expect(typeof result?.token).toBe("string");
-    expect(result?.token?.length).toBeGreaterThan(0);
+    expectGeneratedTokenFromInput(undefined);
   });
 
   it("generates random token when token param is empty string", () => {
-    const result = buildGatewayAuthConfig({
-      mode: "token",
-      token: "",
-    });
-
-    expect(result?.mode).toBe("token");
-    expect(result?.token).toBeDefined();
-    expect(result?.token).not.toBe("undefined");
-    expect(typeof result?.token).toBe("string");
-    expect(result?.token?.length).toBeGreaterThan(0);
+    expectGeneratedTokenFromInput("");
   });
 
   it("generates random token when token param is whitespace only", () => {
-    const result = buildGatewayAuthConfig({
-      mode: "token",
-      token: "   ",
-    });
-
-    expect(result?.mode).toBe("token");
-    expect(result?.token).toBeDefined();
-    expect(result?.token).not.toBe("undefined");
-    expect(typeof result?.token).toBe("string");
-    expect(result?.token?.length).toBeGreaterThan(0);
+    expectGeneratedTokenFromInput("   ");
   });
 
   it('generates random token when token param is the literal string "undefined"', () => {
-    const result = buildGatewayAuthConfig({
-      mode: "token",
-      token: "undefined",
-    });
-
-    expect(result?.mode).toBe("token");
-    expect(result?.token).toBeDefined();
-    expect(result?.token).not.toBe("undefined");
-    expect(typeof result?.token).toBe("string");
-    expect(result?.token?.length).toBeGreaterThan(0);
+    expectGeneratedTokenFromInput("undefined");
   });
 
   it('generates random token when token param is the literal string "null"', () => {
-    const result = buildGatewayAuthConfig({
-      mode: "token",
-      token: "null",
-    });
-
-    expect(result?.mode).toBe("token");
-    expect(result?.token).toBeDefined();
-    expect(result?.token).not.toBe("null");
-    expect(typeof result?.token).toBe("string");
-    expect(result?.token?.length).toBeGreaterThan(0);
+    expectGeneratedTokenFromInput("null", "null");
   });
 <<<<<<< HEAD
 >>>>>>> 59733a02c (fix(configure): reject literal "undefined" and "null" gateway auth tokens (#13767))
