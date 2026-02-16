@@ -596,6 +596,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
           error: resolvedDelivery.error.message,
           summary,
           outputText,
+          ...telemetry,
         });
       }
       logWarn(`[cron:${params.job.id}] ${resolvedDelivery.error.message}`);
@@ -609,6 +610,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
           error: message,
           summary,
           outputText,
+          ...telemetry,
         });
       }
       logWarn(`[cron:${params.job.id}] ${message}`);
@@ -656,7 +658,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
 >>>>>>> 09e1cbc35 (fix(cron): pass agent identity through delivery path (#16218) (#16242))
       } catch (err) {
         if (!deliveryBestEffort) {
-          return withRunSession({ status: "error", summary, outputText, error: String(err) });
+          return withRunSession({ status: "error", summary, outputText, error: String(err), ...telemetry });
         }
       }
     } else if (synthesizedText) {
@@ -747,13 +749,14 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
               summary,
               outputText,
               error: message,
+              ...telemetry,
             });
           }
           logWarn(`[cron:${params.job.id}] ${message}`);
         }
       } catch (err) {
         if (!deliveryBestEffort) {
-          return withRunSession({ status: "error", summary, outputText, error: String(err) });
+          return withRunSession({ status: "error", summary, outputText, error: String(err), ...telemetry });
         }
         logWarn(`[cron:${params.job.id}] ${String(err)}`);
       }
