@@ -11,6 +11,10 @@ import {
 } from "./store.js";
 import type { AuthProfileCredential, AuthProfileStore } from "./types.js";
 
+export function dedupeProfileIds(profileIds: string[]): string[] {
+  return [...new Set(profileIds)];
+}
+
 export async function setAuthProfileOrder(params: {
   agentDir?: string;
   provider: string;
@@ -21,13 +25,7 @@ export async function setAuthProfileOrder(params: {
     params.order && Array.isArray(params.order)
       ? params.order.map((entry) => String(entry).trim()).filter(Boolean)
       : [];
-
-  const deduped: string[] = [];
-  for (const entry of sanitized) {
-    if (!deduped.includes(entry)) {
-      deduped.push(entry);
-    }
-  }
+  const deduped = dedupeProfileIds(sanitized);
 
   return await updateAuthProfileStoreWithLock({
     agentDir: params.agentDir,

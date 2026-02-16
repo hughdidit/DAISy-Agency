@@ -1,8 +1,12 @@
 import type { MoltbotConfig } from "../../config/config.js";
 import type { AuthProfileConfig } from "../../config/types.js";
 import { normalizeProviderId } from "../model-selection.js";
+<<<<<<< HEAD
 import { listProfilesForProvider } from "./profiles.js";
 import type { AuthProfileIdRepairResult, AuthProfileStore } from "./types.js";
+=======
+import { dedupeProfileIds, listProfilesForProvider } from "./profiles.js";
+>>>>>>> 230e1d996 (refactor(auth): share profile id dedupe helper)
 
 function getProfileSuffix(profileId: string): string {
   const idx = profileId.indexOf(":");
@@ -139,12 +143,7 @@ export function repairOAuthProfileIdMismatch(params: {
     const replaced = existing
       .map((id) => (id === legacyProfileId ? toProfileId : id))
       .filter((id): id is string => typeof id === "string" && id.trim().length > 0);
-    const deduped: string[] = [];
-    for (const entry of replaced) {
-      if (!deduped.includes(entry)) {
-        deduped.push(entry);
-      }
-    }
+    const deduped = dedupeProfileIds(replaced);
     return { ...order, [resolvedKey]: deduped };
   })();
 

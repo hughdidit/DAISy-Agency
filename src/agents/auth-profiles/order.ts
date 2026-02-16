@@ -1,10 +1,14 @@
 import type { MoltbotConfig } from "../../config/config.js";
 import { normalizeProviderId } from "../model-selection.js";
+<<<<<<< HEAD
 import { listProfilesForProvider } from "./profiles.js";
 <<<<<<< HEAD
 import type { AuthProfileStore } from "./types.js";
 import { isProfileInCooldown } from "./usage.js";
 =======
+=======
+import { dedupeProfileIds, listProfilesForProvider } from "./profiles.js";
+>>>>>>> 230e1d996 (refactor(auth): share profile id dedupe helper)
 import { clearExpiredCooldowns, isProfileInCooldown } from "./usage.js";
 >>>>>>> 03cadc4b7 (fix(auth): auto-expire stale auth profile cooldowns and reset error count)
 
@@ -114,12 +118,7 @@ export function resolveAuthProfileOrder(params: {
     }
     return false;
   });
-  const deduped: string[] = [];
-  for (const entry of filtered) {
-    if (!deduped.includes(entry)) {
-      deduped.push(entry);
-    }
-  }
+  const deduped = dedupeProfileIds(filtered);
 
   // If user specified explicit order (store override or config), respect it
   // exactly, but still apply cooldown sorting to avoid repeatedly selecting
