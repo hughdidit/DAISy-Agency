@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { resolveSessionAgentIds } from "../../agents/agent-scope.js";
 <<<<<<< HEAD
 import { resolveBootstrapMaxChars } from "../../agents/pi-embedded-helpers.js";
@@ -5,10 +6,16 @@ import { createMoltbotCodingTools } from "../../agents/pi-tools.js";
 =======
 import { resolveBootstrapContextForRun } from "../../agents/bootstrap-files.js";
 import { resolveDefaultModelForAgent } from "../../agents/model-selection.js";
+=======
+import type { SessionSystemPromptReport } from "../../config/sessions/types.js";
+import type { ReplyPayload } from "../types.js";
+import type { HandleCommandsParams } from "./commands-types.js";
+>>>>>>> f6111622e (refactor(commands): share system prompt bundle for context and export)
 import {
   resolveBootstrapMaxChars,
   resolveBootstrapTotalMaxChars,
 } from "../../agents/pi-embedded-helpers.js";
+<<<<<<< HEAD
 import { createOpenClawCodingTools } from "../../agents/pi-tools.js";
 >>>>>>> 8a6701664 (Agents: raise bootstrap total cap and warn on /context truncation (#18229))
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
@@ -25,6 +32,10 @@ import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
 import type { ReplyPayload } from "../types.js";
 import type { HandleCommandsParams } from "./commands-types.js";
+=======
+import { buildSystemPromptReport } from "../../agents/system-prompt-report.js";
+import { resolveCommandsSystemPromptBundle } from "./commands-system-prompt.js";
+>>>>>>> f6111622e (refactor(commands): share system prompt bundle for context and export)
 
 function estimateTokensFromChars(chars: number): number {
   return Math.ceil(Math.max(0, chars) / 4);
@@ -67,9 +78,9 @@ async function resolveContextReport(
     return existing;
   }
 
-  const workspaceDir = params.workspaceDir;
   const bootstrapMaxChars = resolveBootstrapMaxChars(params.cfg);
   const bootstrapTotalMaxChars = resolveBootstrapTotalMaxChars(params.cfg);
+<<<<<<< HEAD
   const { bootstrapFiles, contextFiles: injectedFiles } = await resolveBootstrapContextForRun({
     workspaceDir,
     config: params.cfg,
@@ -169,6 +180,10 @@ async function resolveContextReport(
     sandboxInfo,
     memoryCitationsMode: params.cfg?.memory?.citations,
   });
+=======
+  const { systemPrompt, tools, skillsPrompt, bootstrapFiles, injectedFiles, sandboxRuntime } =
+    await resolveCommandsSystemPromptBundle(params);
+>>>>>>> f6111622e (refactor(commands): share system prompt bundle for context and export)
 
   return buildSystemPromptReport({
     source: "estimate",
@@ -177,7 +192,7 @@ async function resolveContextReport(
     sessionKey: params.sessionKey,
     provider: params.provider,
     model: params.model,
-    workspaceDir,
+    workspaceDir: params.workspaceDir,
     bootstrapMaxChars,
     bootstrapTotalMaxChars,
     sandbox: { mode: sandboxRuntime.mode, sandboxed: sandboxRuntime.sandboxed },
