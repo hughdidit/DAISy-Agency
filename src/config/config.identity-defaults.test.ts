@@ -390,6 +390,7 @@ describe("config identity defaults", () => {
       expect(cfg.messages?.responsePrefix).toBe("");
     });
   });
+<<<<<<< HEAD
 
 <<<<<<< HEAD
   it("does not synthesize agent list/session when absent", async () => {
@@ -463,4 +464,6 @@ describe("config identity defaults", () => {
       expect(cfg.messages?.responsePrefix).toBeUndefined();
     });
   });
+=======
+>>>>>>> ced5148af (test: remove redundant identity emoji response-prefix case)
 });
