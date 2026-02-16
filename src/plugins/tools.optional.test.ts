@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
@@ -9,13 +10,21 @@ import { afterEach, describe, expect, it } from "vitest";
 =======
 import { afterAll, describe, expect, it } from "vitest";
 >>>>>>> 2086cdfb9 (perf(test): reduce hot-suite import and setup overhead)
+=======
+import { beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> bfb5a4408 (test: speed up plugin optional tools suite)
 import { resolvePluginTools } from "./tools.js";
 
-type TempPlugin = { dir: string; file: string; id: string };
+type MockRegistryToolEntry = {
+  pluginId: string;
+  optional: boolean;
+  source: string;
+  factory: (ctx: unknown) => unknown;
+};
 
-const fixtureRoot = path.join(os.tmpdir(), `openclaw-plugin-tools-${randomUUID()}`);
-const EMPTY_PLUGIN_SCHEMA = { type: "object", additionalProperties: false, properties: {} };
+const loadOpenClawPluginsMock = vi.fn();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 function makeTempDir() {
   const dir = path.join(os.tmpdir(), `moltbot-plugin-tools-${randomUUID()}`);
@@ -79,116 +88,150 @@ export default { register(api) {
   api.registerTool({
     name: "other_tool",
     description: "ok",
+=======
+vi.mock("./loader.js", () => ({
+  loadOpenClawPlugins: (params: unknown) => loadOpenClawPluginsMock(params),
+}));
+
+function makeTool(name: string) {
+  return {
+    name,
+    description: `${name} tool`,
+>>>>>>> bfb5a4408 (test: speed up plugin optional tools suite)
     parameters: { type: "object", properties: {} },
     async execute() {
       return { content: [{ type: "text", text: "ok" }] };
     },
-  });
-} }
-`,
-});
+  };
+}
 
-afterAll(() => {
-  try {
-    fs.rmSync(fixtureRoot, { recursive: true, force: true });
-  } catch {
-    // ignore cleanup failures
-  }
-});
+function createContext() {
+  return {
+    config: {
+      plugins: {
+        enabled: true,
+        allow: ["optional-demo", "message", "multi"],
+        load: { paths: ["/tmp/plugin.js"] },
+      },
+    },
+    workspaceDir: "/tmp",
+  };
+}
+
+function setRegistry(entries: MockRegistryToolEntry[]) {
+  const registry = {
+    tools: entries,
+    diagnostics: [] as Array<{
+      level: string;
+      pluginId: string;
+      source: string;
+      message: string;
+    }>,
+  };
+  loadOpenClawPluginsMock.mockReturnValue(registry);
+  return registry;
+}
 
 describe("resolvePluginTools optional tools", () => {
+  beforeEach(() => {
+    loadOpenClawPluginsMock.mockReset();
+  });
+
   it("skips optional tools without explicit allowlist", () => {
-    const tools = resolvePluginTools({
-      context: {
-        config: {
-          plugins: {
-            load: { paths: [optionalDemoPlugin.file] },
-            allow: [optionalDemoPlugin.id],
-          },
-        },
-        workspaceDir: optionalDemoPlugin.dir,
+    setRegistry([
+      {
+        pluginId: "optional-demo",
+        optional: true,
+        source: "/tmp/optional-demo.js",
+        factory: () => makeTool("optional_tool"),
       },
+    ]);
+
+    const tools = resolvePluginTools({
+      context: createContext() as never,
     });
+
     expect(tools).toHaveLength(0);
   });
 
-  it("allows optional tools by name", () => {
-    const tools = resolvePluginTools({
-      context: {
-        config: {
-          plugins: {
-            load: { paths: [optionalDemoPlugin.file] },
-            allow: [optionalDemoPlugin.id],
-          },
-        },
-        workspaceDir: optionalDemoPlugin.dir,
+  it("allows optional tools by tool name", () => {
+    setRegistry([
+      {
+        pluginId: "optional-demo",
+        optional: true,
+        source: "/tmp/optional-demo.js",
+        factory: () => makeTool("optional_tool"),
       },
+    ]);
+
+    const tools = resolvePluginTools({
+      context: createContext() as never,
       toolAllowlist: ["optional_tool"],
     });
-    expect(tools.map((tool) => tool.name)).toContain("optional_tool");
+
+    expect(tools.map((tool) => tool.name)).toEqual(["optional_tool"]);
   });
 
-  it("allows optional tools via plugin groups", () => {
-    const toolsAll = resolvePluginTools({
-      context: {
-        config: {
-          plugins: {
-            load: { paths: [optionalDemoPlugin.file] },
-            allow: [optionalDemoPlugin.id],
-          },
-        },
-        workspaceDir: optionalDemoPlugin.dir,
+  it("allows optional tools via plugin-scoped allowlist entries", () => {
+    setRegistry([
+      {
+        pluginId: "optional-demo",
+        optional: true,
+        source: "/tmp/optional-demo.js",
+        factory: () => makeTool("optional_tool"),
       },
-      toolAllowlist: ["group:plugins"],
-    });
-    expect(toolsAll.map((tool) => tool.name)).toContain("optional_tool");
+    ]);
 
-    const toolsPlugin = resolvePluginTools({
-      context: {
-        config: {
-          plugins: {
-            load: { paths: [optionalDemoPlugin.file] },
-            allow: [optionalDemoPlugin.id],
-          },
-        },
-        workspaceDir: optionalDemoPlugin.dir,
-      },
+    const toolsByPlugin = resolvePluginTools({
+      context: createContext() as never,
       toolAllowlist: ["optional-demo"],
     });
-    expect(toolsPlugin.map((tool) => tool.name)).toContain("optional_tool");
+    const toolsByGroup = resolvePluginTools({
+      context: createContext() as never,
+      toolAllowlist: ["group:plugins"],
+    });
+
+    expect(toolsByPlugin.map((tool) => tool.name)).toEqual(["optional_tool"]);
+    expect(toolsByGroup.map((tool) => tool.name)).toEqual(["optional_tool"]);
   });
 
   it("rejects plugin id collisions with core tool names", () => {
-    const tools = resolvePluginTools({
-      context: {
-        config: {
-          plugins: {
-            load: { paths: [coreNameCollisionPlugin.file] },
-            allow: [coreNameCollisionPlugin.id],
-          },
-        },
-        workspaceDir: coreNameCollisionPlugin.dir,
+    const registry = setRegistry([
+      {
+        pluginId: "message",
+        optional: false,
+        source: "/tmp/message.js",
+        factory: () => makeTool("optional_tool"),
       },
+    ]);
+
+    const tools = resolvePluginTools({
+      context: createContext() as never,
       existingToolNames: new Set(["message"]),
-      toolAllowlist: ["message"],
     });
+
     expect(tools).toHaveLength(0);
+    expect(registry.diagnostics).toHaveLength(1);
+    expect(registry.diagnostics[0]?.message).toContain("plugin id conflicts with core tool name");
   });
 
   it("skips conflicting tool names but keeps other tools", () => {
-    const tools = resolvePluginTools({
-      context: {
-        config: {
-          plugins: {
-            load: { paths: [multiToolPlugin.file] },
-            allow: [multiToolPlugin.id],
-          },
-        },
-        workspaceDir: multiToolPlugin.dir,
+    const registry = setRegistry([
+      {
+        pluginId: "multi",
+        optional: false,
+        source: "/tmp/multi.js",
+        factory: () => [makeTool("message"), makeTool("other_tool")],
       },
+    ]);
+
+    const tools = resolvePluginTools({
+      context: createContext() as never,
       existingToolNames: new Set(["message"]),
     });
 
     expect(tools.map((tool) => tool.name)).toEqual(["other_tool"]);
+    expect(registry.diagnostics).toHaveLength(1);
+    expect(registry.diagnostics[0]?.message).toContain("plugin tool name conflict");
   });
 });
