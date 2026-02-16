@@ -116,6 +116,29 @@ describe("applyAuthChoice", () => {
   function createPrompter(overrides: Partial<WizardPrompter>): WizardPrompter {
     return createWizardPrompter(overrides, { defaultSelect: "" });
   }
+  function createSelectFirstOption(): WizardPrompter["select"] {
+    return vi.fn(async (params) => params.options[0]?.value as never);
+  }
+  function createNoopMultiselect(): WizardPrompter["multiselect"] {
+    return vi.fn(async () => []);
+  }
+  function createApiKeyPromptHarness(
+    overrides: Partial<Pick<WizardPrompter, "select" | "multiselect" | "text" | "confirm">> = {},
+  ): {
+    select: WizardPrompter["select"];
+    multiselect: WizardPrompter["multiselect"];
+    prompter: WizardPrompter;
+    runtime: ReturnType<typeof createExitThrowingRuntime>;
+  } {
+    const select = overrides.select ?? createSelectFirstOption();
+    const multiselect = overrides.multiselect ?? createNoopMultiselect();
+    return {
+      select,
+      multiselect,
+      prompter: createPrompter({ ...overrides, select, multiselect }),
+      runtime: createExitThrowingRuntime(),
+    };
+  }
   async function readAuthProfiles() {
     return await readAuthProfilesForAgent<{
       profiles?: Record<string, StoredAuthProfile>;
@@ -225,12 +248,7 @@ describe("applyAuthChoice", () => {
 >>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
 
     const text = vi.fn().mockResolvedValue("sk-minimax-test");
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
-    const prompter = createPrompter({ select, multiselect, text });
-    const runtime = createExitThrowingRuntime();
+    const { prompter, runtime } = createApiKeyPromptHarness({ text });
 
     const result = await applyAuthChoice({
       authChoice: "minimax-api",
@@ -257,12 +275,7 @@ describe("applyAuthChoice", () => {
     await setupTempState();
 
     const text = vi.fn().mockResolvedValue("sk-minimax-test");
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
-    const prompter = createPrompter({ select, multiselect, text });
-    const runtime = createExitThrowingRuntime();
+    const { prompter, runtime } = createApiKeyPromptHarness({ text });
 
     const result = await applyAuthChoice({
       authChoice: "minimax-api-key-cn",
@@ -296,12 +309,7 @@ describe("applyAuthChoice", () => {
 >>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
 
     const text = vi.fn().mockResolvedValue("sk-synthetic-test");
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
-    const prompter = createPrompter({ select, multiselect, text });
-    const runtime = createExitThrowingRuntime();
+    const { prompter, runtime } = createApiKeyPromptHarness({ text });
 
     const result = await applyAuthChoice({
       authChoice: "synthetic-api-key",
@@ -326,12 +334,7 @@ describe("applyAuthChoice", () => {
     await setupTempState();
 
     const text = vi.fn().mockResolvedValue("hf-test-token");
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
-    const prompter = createPrompter({ select, multiselect, text });
-    const runtime = createExitThrowingRuntime();
+    const { prompter, runtime } = createApiKeyPromptHarness({ text });
 
     const result = await applyAuthChoice({
       authChoice: "huggingface-api-key",
@@ -421,13 +424,8 @@ describe("applyAuthChoice", () => {
     delete process.env.HUGGINGFACE_HUB_TOKEN;
 
     const text = vi.fn().mockResolvedValue("should-not-be-used");
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
     const confirm = vi.fn(async () => false);
-    const prompter = createPrompter({ select, multiselect, text, confirm });
-    const runtime = createExitThrowingRuntime();
+    const { prompter, runtime } = createApiKeyPromptHarness({ text, confirm });
 
     const result = await applyAuthChoice({
       authChoice: "apiKey",
@@ -454,12 +452,7 @@ describe("applyAuthChoice", () => {
     await setupTempState();
 
     const text = vi.fn().mockResolvedValue("sk-xai-test");
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
-    const prompter = createPrompter({ select, multiselect, text });
-    const runtime = createExitThrowingRuntime();
+    const { prompter, runtime } = createApiKeyPromptHarness({ text });
 
     const result = await applyAuthChoice({
       authChoice: "xai-api-key",
@@ -533,12 +526,7 @@ describe("applyAuthChoice", () => {
 >>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
 
     const text = vi.fn().mockResolvedValue("sk-opencode-zen-test");
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
-    const prompter = createPrompter({ select, multiselect, text });
-    const runtime = createExitThrowingRuntime();
+    const { prompter, runtime } = createApiKeyPromptHarness({ text });
 
     const result = await applyAuthChoice({
       authChoice: "opencode-zen",
@@ -628,13 +616,8 @@ describe("applyAuthChoice", () => {
     process.env.OPENROUTER_API_KEY = "sk-openrouter-test";
 
     const text = vi.fn();
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
     const confirm = vi.fn(async () => true);
-    const prompter = createPrompter({ select, multiselect, text, confirm });
-    const runtime = createExitThrowingRuntime();
+    const { prompter, runtime } = createApiKeyPromptHarness({ text, confirm });
 
     const result = await applyAuthChoice({
       authChoice: "openrouter-api-key",
@@ -688,13 +671,8 @@ describe("applyAuthChoice", () => {
     );
 
     const text = vi.fn();
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
     const confirm = vi.fn(async () => true);
-    const prompter = createPrompter({ select, multiselect, text, confirm });
-    const runtime = createExitThrowingRuntime();
+    const { prompter, runtime } = createApiKeyPromptHarness({ text, confirm });
 
     const result = await applyAuthChoice({
       authChoice: "litellm-api-key",
@@ -740,13 +718,8 @@ describe("applyAuthChoice", () => {
     process.env.AI_GATEWAY_API_KEY = "gateway-test-key";
 
     const text = vi.fn();
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
     const confirm = vi.fn(async () => true);
-    const prompter = createPrompter({ select, multiselect, text, confirm });
-    const runtime = createExitThrowingRuntime();
+    const { prompter, runtime } = createApiKeyPromptHarness({ text, confirm });
 
     const result = await applyAuthChoice({
       authChoice: "ai-gateway-api-key",
@@ -783,13 +756,8 @@ describe("applyAuthChoice", () => {
       .fn()
       .mockResolvedValueOnce("cf-account-id")
       .mockResolvedValueOnce("cf-gateway-id");
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
     const confirm = vi.fn(async () => true);
-    const prompter = createPrompter({ select, multiselect, text, confirm });
-    const runtime = createExitThrowingRuntime();
+    const { prompter, runtime } = createApiKeyPromptHarness({ text, confirm });
 
     const result = await applyAuthChoice({
       authChoice: "cloudflare-ai-gateway-api-key",
@@ -872,11 +840,7 @@ describe("applyAuthChoice", () => {
       }
       return "code_manual";
     });
-    const select: WizardPrompter["select"] = vi.fn(
-      async (params) => params.options[0]?.value as never,
-    );
-    const multiselect: WizardPrompter["multiselect"] = vi.fn(async () => []);
-    const prompter = createPrompter({ select, multiselect, text });
+    const { prompter } = createApiKeyPromptHarness({ text });
 
     const result = await applyAuthChoice({
       authChoice: "chutes",

@@ -7,6 +7,7 @@ import type { RuntimeEnv } from "../runtime.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import type { WizardPrompter } from "../wizard/prompts.js";
+<<<<<<< HEAD
 import { setupChannels } from "./onboard-channels.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
@@ -32,6 +33,9 @@ function createRuntime(): RuntimeEnv {
 =======
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
+=======
+import { setDefaultChannelPluginRegistryForTests } from "./channel-test-helpers.js";
+>>>>>>> def3a3ced (refactor(test): reduce auth and channel setup duplication)
 import { setupChannels } from "./onboard-channels.js";
 import { createExitThrowingRuntime, createWizardPrompter } from "./test-wizard-helpers.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
@@ -64,16 +68,7 @@ vi.mock("./onboard-helpers.js", () => ({
 
 describe("setupChannels", () => {
   beforeEach(() => {
-    setActivePluginRegistry(
-      createTestRegistry([
-        { pluginId: "discord", plugin: discordPlugin, source: "test" },
-        { pluginId: "slack", plugin: slackPlugin, source: "test" },
-        { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
-        { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
-        { pluginId: "signal", plugin: signalPlugin, source: "test" },
-        { pluginId: "imessage", plugin: imessagePlugin, source: "test" },
-      ]),
-    );
+    setDefaultChannelPluginRegistryForTests();
   });
   it("QuickStart uses single-select (no multiselect) and doesn't prompt for Telegram token when WhatsApp is chosen", async () => {
     const select = vi.fn(async () => "whatsapp");

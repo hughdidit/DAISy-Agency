@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { RuntimeEnv } from "../runtime.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
@@ -16,6 +17,9 @@ import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 =======
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
+=======
+import { setDefaultChannelPluginRegistryForTests } from "./channel-test-helpers.js";
+>>>>>>> def3a3ced (refactor(test): reduce auth and channel setup duplication)
 import { baseConfigSnapshot, createTestRuntime } from "./test-runtime-config-helpers.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
@@ -85,16 +89,7 @@ describe("channels command", () => {
       version: 1,
       profiles: {},
     });
-    setActivePluginRegistry(
-      createTestRegistry([
-        { pluginId: "discord", plugin: discordPlugin, source: "test" },
-        { pluginId: "slack", plugin: slackPlugin, source: "test" },
-        { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
-        { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
-        { pluginId: "signal", plugin: signalPlugin, source: "test" },
-        { pluginId: "imessage", plugin: imessagePlugin, source: "test" },
-      ]),
-    );
+    setDefaultChannelPluginRegistryForTests();
   });
 
   it("adds a non-default telegram account", async () => {
