@@ -1,5 +1,15 @@
+<<<<<<< HEAD
 import { type FilesUploadV2Arguments, type WebClient } from "@slack/web-api";
 
+=======
+import {
+  type Block,
+  type FilesUploadV2Arguments,
+  type KnownBlock,
+  type WebClient,
+} from "@slack/web-api";
+import type { SlackTokenSource } from "./accounts.js";
+>>>>>>> c9684a267 (Slack: support Block Kit blocks in sendMessage actions)
 import {
   chunkMarkdownTextWithMode,
   resolveChunkMode,
@@ -41,6 +51,7 @@ type SlackSendOpts = {
   client?: WebClient;
   threadTs?: string;
   identity?: SlackSendIdentity;
+  blocks?: (Block | KnownBlock)[];
 };
 
 function hasCustomIdentity(identity?: SlackSendIdentity): boolean {
@@ -79,11 +90,13 @@ async function postSlackMessageBestEffort(params: {
   text: string;
   threadTs?: string;
   identity?: SlackSendIdentity;
+  blocks?: (Block | KnownBlock)[];
 }) {
   const basePayload = {
     channel: params.channelId,
     text: params.text,
     thread_ts: params.threadTs,
+    ...(params.blocks?.length ? { blocks: params.blocks } : {}),
   };
   try {
     // Slack Web API types model icon_url and icon_emoji as mutually exclusive.
@@ -210,8 +223,9 @@ export async function sendMessageSlack(
   opts: SlackSendOpts = {},
 ): Promise<SlackSendResult> {
   const trimmedMessage = message?.trim() ?? "";
-  if (!trimmedMessage && !opts.mediaUrl) {
-    throw new Error("Slack send requires text or media");
+  const blocks = opts.blocks?.length ? opts.blocks : undefined;
+  if (!trimmedMessage && !opts.mediaUrl && !blocks) {
+    throw new Error("Slack send requires text, blocks, or media");
   }
   const cfg = loadConfig();
   const account = resolveSlackAccount({
@@ -227,6 +241,23 @@ export async function sendMessageSlack(
   const client = opts.client ?? createSlackWebClient(token);
   const recipient = parseRecipient(to);
   const { channelId } = await resolveChannelId(client, recipient);
+  if (blocks) {
+    if (opts.mediaUrl) {
+      throw new Error("Slack send does not support blocks with mediaUrl");
+    }
+    const response = await postSlackMessageBestEffort({
+      client,
+      channelId,
+      text: trimmedMessage || " ",
+      threadTs: opts.threadTs,
+      identity: opts.identity,
+      blocks,
+    });
+    return {
+      messageId: response.ts ?? "unknown",
+      channelId,
+    };
+  }
   const textLimit = resolveTextChunkLimit(cfg, "slack", account.accountId);
   const chunkLimit = Math.min(textLimit, SLACK_TEXT_LIMIT);
   const tableMode = resolveMarkdownTableMode({
