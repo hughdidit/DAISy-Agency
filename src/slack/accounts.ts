@@ -1,6 +1,7 @@
 import type { MoltbotConfig } from "../config/config.js";
 import type { SlackAccountConfig } from "../config/types.js";
 import { normalizeChatType } from "../channels/chat-type.js";
+import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 import { resolveSlackAppToken, resolveSlackBotToken } from "./token.js";
 
@@ -28,6 +29,7 @@ export type ResolvedSlackAccount = {
   channels?: SlackAccountConfig["channels"];
 };
 
+<<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   const accounts = cfg.channels?.slack?.accounts;
   if (!accounts || typeof accounts !== "object") {
@@ -51,6 +53,11 @@ export function resolveDefaultSlackAccountId(cfg: MoltbotConfig): string {
   }
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
+=======
+const { listAccountIds, resolveDefaultAccountId } = createAccountListHelpers("slack");
+export const listSlackAccountIds = listAccountIds;
+export const resolveDefaultSlackAccountId = resolveDefaultAccountId;
+>>>>>>> 59384001a (channels: migrate core channel account listing to factory)
 
 function resolveAccountConfig(
   cfg: MoltbotConfig,
