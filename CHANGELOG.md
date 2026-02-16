@@ -147,6 +147,7 @@ Docs: https://docs.openclaw.ai
 - Agents/OpenAI: force `store=true` for direct OpenAI Responses/Codex runs to preserve multi-turn server-side conversation state, while leaving proxy/non-OpenAI endpoints unchanged. (#16803) Thanks @mark9232 and @vignesh07.
 - CLI/Build: make legacy daemon CLI compatibility shim generation tolerant of minimal tsdown daemon export sets, while preserving restart/register compatibility aliases and surfacing explicit errors for unavailable legacy daemon commands. Thanks @vignesh07.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - Telegram: replace inbound `<media:audio>` placeholder with successful preflight voice transcript in message body context, preventing placeholder-only prompt bodies for mention-gated voice messages. (#16789) Thanks @Limitless2023.
 - Telegram: retry inbound media `getFile` calls (3 attempts with backoff) and gracefully fall back to placeholder-only processing when retries fail, preventing dropped voice/media messages on transient Telegram network errors. (#16154) Thanks @yinghaosang.
@@ -164,6 +165,9 @@ Docs: https://docs.openclaw.ai
 =======
 - Discord: ensure role allowlist matching uses raw role IDs for message routing authorization. Thanks @xinhuagu.
 >>>>>>> c68263418 (fix(discord): role-based allowlist never matches (Carbon Role objects stringify to mentions) (#16369))
+=======
+- CLI/Pairing: make `openclaw qr --remote` prefer `gateway.remote.url` over tailscale/public URL resolution and register the `openclaw clawbot qr` legacy alias path. (#18091)
+>>>>>>> 599c89022 (CLI/Gateway: restore qr flow with --remote support (clean) (#18091))
 
 ## 2026.2.14
 
