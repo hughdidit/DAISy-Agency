@@ -5,8 +5,14 @@ import {
   normalizeAccountId,
   type ChannelOnboardingAdapter,
   type WizardPrompter,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+import type { TlonResolvedAccount } from "./types.js";
+import { buildTlonAccountFields } from "./account-fields.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { listTlonAccountIds, resolveTlonAccount } from "./types.js";
 import type { TlonResolvedAccount } from "./types.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
@@ -33,6 +39,11 @@ function applyAccountConfig(params: {
   const { cfg, accountId, input } = params;
   const useDefault = accountId === DEFAULT_ACCOUNT_ID;
   const base = cfg.channels?.tlon ?? {};
+  const nextValues = {
+    enabled: true,
+    ...(input.name ? { name: input.name } : {}),
+    ...buildTlonAccountFields(input),
+  };
 
   if (useDefault) {
     return {
@@ -41,6 +52,7 @@ function applyAccountConfig(params: {
         ...cfg.channels,
         tlon: {
           ...base,
+<<<<<<< HEAD
           enabled: true,
           ...(input.name ? { name: input.name } : {}),
           ...(input.ship ? { ship: input.ship } : {}),
@@ -51,6 +63,9 @@ function applyAccountConfig(params: {
           ...(typeof input.autoDiscoverChannels === "boolean"
             ? { autoDiscoverChannels: input.autoDiscoverChannels }
             : {}),
+=======
+          ...nextValues,
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
         },
       },
     };
@@ -69,6 +84,7 @@ function applyAccountConfig(params: {
             ...(base as { accounts?: Record<string, Record<string, unknown>> }).accounts?.[
               accountId
             ],
+<<<<<<< HEAD
             enabled: true,
             ...(input.name ? { name: input.name } : {}),
             ...(input.ship ? { ship: input.ship } : {}),
@@ -79,6 +95,9 @@ function applyAccountConfig(params: {
             ...(typeof input.autoDiscoverChannels === "boolean"
               ? { autoDiscoverChannels: input.autoDiscoverChannels }
               : {}),
+=======
+            ...nextValues,
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
           },
         },
       },

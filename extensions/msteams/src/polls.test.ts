@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
 import { buildMSTeamsPollCard, createMSTeamsPollStoreFs, extractMSTeamsPollVote } from "./polls.js";
 import { setMSTeamsRuntime } from "./runtime.js";
+<<<<<<< HEAD
 
 const runtimeStub = {
   state: {
@@ -28,10 +29,13 @@ const runtimeStub = {
     },
   },
 } as unknown as PluginRuntime;
+=======
+import { msteamsRuntimeStub } from "./test-runtime.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
 describe("msteams polls", () => {
   beforeEach(() => {
-    setMSTeamsRuntime(runtimeStub);
+    setMSTeamsRuntime(msteamsRuntimeStub);
   });
 
   it("builds poll cards with fallback text", () => {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import { markBlueBubblesChatRead, sendBlueBubblesTyping, setGroupIconBlueBubbles } from "./chat.js";
@@ -13,10 +14,23 @@ vi.mock("./accounts.js", () => ({
     };
   }),
 }));
+=======
+import { describe, expect, it, vi } from "vitest";
+import "./test-mocks.js";
+import { markBlueBubblesChatRead, sendBlueBubblesTyping, setGroupIconBlueBubbles } from "./chat.js";
+import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
+import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
 const mockFetch = vi.fn();
 
+installBlueBubblesFetchTestHooks({
+  mockFetch,
+  privateApiStatusMock: vi.mocked(getCachedBlueBubblesPrivateApiStatus),
+});
+
 describe("chat", () => {
+<<<<<<< HEAD
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
     mockFetch.mockReset();
@@ -26,6 +40,8 @@ describe("chat", () => {
     vi.unstubAllGlobals();
   });
 
+=======
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
   describe("markBlueBubblesChatRead", () => {
     it("does nothing when chatGuid is empty", async () => {
       await markBlueBubblesChatRead("", {

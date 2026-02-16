@@ -104,6 +104,23 @@ function createMockContext(overrides?: Partial<NostrProfileHttpContext>): NostrP
   };
 }
 
+function mockSuccessfulProfileImport() {
+  vi.mocked(importProfileFromRelays).mockResolvedValue({
+    ok: true,
+    profile: {
+      name: "imported",
+      displayName: "Imported User",
+    },
+    event: {
+      id: "evt123",
+      pubkey: "abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+      created_at: 1234567890,
+    },
+    relaysQueried: ["wss://relay.damus.io"],
+    sourceRelay: "wss://relay.damus.io",
+  });
+}
+
 // ============================================================================
 // Tests
 // ============================================================================
@@ -304,20 +321,7 @@ describe("nostr-profile-http", () => {
       const req = createMockRequest("POST", "/api/channels/nostr/default/profile/import", {});
       const res = createMockResponse();
 
-      vi.mocked(importProfileFromRelays).mockResolvedValue({
-        ok: true,
-        profile: {
-          name: "imported",
-          displayName: "Imported User",
-        },
-        event: {
-          id: "evt123",
-          pubkey: "abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
-          created_at: 1234567890,
-        },
-        relaysQueried: ["wss://relay.damus.io"],
-        sourceRelay: "wss://relay.damus.io",
-      });
+      mockSuccessfulProfileImport();
 
       await handler(req, res);
 
@@ -338,20 +342,7 @@ describe("nostr-profile-http", () => {
       });
       const res = createMockResponse();
 
-      vi.mocked(importProfileFromRelays).mockResolvedValue({
-        ok: true,
-        profile: {
-          name: "imported",
-          displayName: "Imported User",
-        },
-        event: {
-          id: "evt123",
-          pubkey: "abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
-          created_at: 1234567890,
-        },
-        relaysQueried: ["wss://relay.damus.io"],
-        sourceRelay: "wss://relay.damus.io",
-      });
+      mockSuccessfulProfileImport();
 
       await handler(req, res);
 

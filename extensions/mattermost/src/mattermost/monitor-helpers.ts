@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Buffer } from "node:buffer";
 
 <<<<<<< HEAD
@@ -7,6 +8,10 @@ import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 =======
 export { createDedupeCache } from "openclaw/plugin-sdk";
 >>>>>>> 451deb066 (refactor(plugin-sdk): reuse dedupe cache)
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+export { createDedupeCache, rawDataToString } from "openclaw/plugin-sdk";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
 export type ResponsePrefixContext = {
   model?: string;
@@ -42,25 +47,6 @@ export function formatInboundFromLabel(params: {
     return directLabel;
   }
   return `${directLabel} id:${directId}`;
-}
-
-export function rawDataToString(
-  data: WebSocket.RawData,
-  encoding: BufferEncoding = "utf8",
-): string {
-  if (typeof data === "string") {
-    return data;
-  }
-  if (Buffer.isBuffer(data)) {
-    return data.toString(encoding);
-  }
-  if (Array.isArray(data)) {
-    return Buffer.concat(data).toString(encoding);
-  }
-  if (data instanceof ArrayBuffer) {
-    return Buffer.from(data).toString(encoding);
-  }
-  return Buffer.from(String(data)).toString(encoding);
 }
 
 function normalizeAgentId(value: string | undefined | null): string {

@@ -8,6 +8,7 @@ import type { PluginRuntime } from "clawdbot/plugin-sdk";
 import type { StoredConversationReference } from "./conversation-store.js";
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import { setMSTeamsRuntime } from "./runtime.js";
+<<<<<<< HEAD
 
 const runtimeStub = {
   state: {
@@ -29,10 +30,13 @@ const runtimeStub = {
     },
   },
 } as unknown as PluginRuntime;
+=======
+import { msteamsRuntimeStub } from "./test-runtime.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
 describe("msteams conversation store (fs)", () => {
   beforeEach(() => {
-    setMSTeamsRuntime(runtimeStub);
+    setMSTeamsRuntime(msteamsRuntimeStub);
   });
 
   it("filters and prunes expired entries (but keeps legacy ones)", async () => {

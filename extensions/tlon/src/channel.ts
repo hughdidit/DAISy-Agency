@@ -9,8 +9,17 @@ import {
   applyAccountNameToChannelSection,
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+import { buildTlonAccountFields } from "./account-fields.js";
+import { tlonChannelConfigSchema } from "./config-schema.js";
+import { monitorTlonProvider } from "./monitor/index.js";
+import { tlonOnboardingAdapter } from "./onboarding.js";
+import { formatTargetHint, normalizeShip, parseTlonTarget } from "./targets.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { resolveTlonAccount, listTlonAccountIds } from "./types.js";
 <<<<<<< HEAD
 import { formatTargetHint, normalizeShip, parseTlonTarget } from "./targets.js";
@@ -51,6 +60,7 @@ function applyTlonSetupConfig(params: {
   });
   const base = namedConfig.channels?.tlon ?? {};
 
+<<<<<<< HEAD
   const payload = {
     ...(input.ship ? { ship: input.ship } : {}),
     ...(input.url ? { url: input.url } : {}),
@@ -61,6 +71,9 @@ function applyTlonSetupConfig(params: {
       ? { autoDiscoverChannels: input.autoDiscoverChannels }
       : {}),
   };
+=======
+  const payload = buildTlonAccountFields(input);
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
   if (useDefault) {
     return {

@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { resolveBlueBubblesServerAccount } from "./account-resolve.js";
+import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { blueBubblesFetchWithTimeout, buildBlueBubblesApiUrl } from "./types.js";
 
 export type BlueBubblesReactionOpts = {
@@ -111,6 +117,7 @@ const REACTION_EMOJIS = new Map<string, string>([
 ]);
 
 function resolveAccount(params: BlueBubblesReactionOpts) {
+<<<<<<< HEAD
   const account = resolveBlueBubblesAccount({
     cfg: params.cfg ?? {},
     accountId: params.accountId,
@@ -124,6 +131,9 @@ function resolveAccount(params: BlueBubblesReactionOpts) {
     throw new Error("BlueBubbles password is required");
   }
   return { baseUrl, password };
+=======
+  return resolveBlueBubblesServerAccount(params);
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 }
 
 export function normalizeBlueBubblesReactionInput(emoji: string, remove?: boolean): string {

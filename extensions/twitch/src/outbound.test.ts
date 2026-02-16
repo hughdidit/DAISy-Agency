@@ -9,9 +9,19 @@
  * - Abort signal handling
  */
 
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { twitchOutbound } from "./outbound.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
+=======
+import { describe, expect, it, vi } from "vitest";
+import { twitchOutbound } from "./outbound.js";
+import {
+  BASE_TWITCH_TEST_ACCOUNT,
+  installTwitchTestHooks,
+  makeTwitchTestConfig,
+} from "./test-fixtures.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
 // Mock dependencies
 vi.mock("./config.js", () => ({
@@ -35,6 +45,7 @@ vi.mock("./utils/twitch.js", () => ({
 
 describe("outbound", () => {
   const mockAccount = {
+<<<<<<< HEAD
     username: "testbot",
     token: "oauth:test123",
     clientId: "test-client-id",
@@ -58,6 +69,14 @@ describe("outbound", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
+=======
+    ...BASE_TWITCH_TEST_ACCOUNT,
+    accessToken: "oauth:test123",
+  };
+
+  const mockConfig = makeTwitchTestConfig(mockAccount);
+  installTwitchTestHooks();
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
   describe("metadata", () => {
     it("should have direct delivery mode", () => {

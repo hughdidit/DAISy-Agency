@@ -1,5 +1,5 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
+<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -9,6 +9,9 @@ import { safeParseJson } from "openclaw/plugin-sdk";
 >>>>>>> f0924d3c4 (refactor: consolidate PNG encoder and safeParseJson utilities (#12457))
 import lockfile from "proper-lockfile";
 =======
+=======
+import { readJsonFileWithFallback, writeJsonFileAtomically } from "openclaw/plugin-sdk";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { withFileLock as withPathLock } from "./file-lock.js";
 >>>>>>> 201ac2b72 (perf: replace proper-lockfile with lightweight file locks)
 
@@ -27,31 +30,11 @@ export async function readJsonFile<T>(
   filePath: string,
   fallback: T,
 ): Promise<{ value: T; exists: boolean }> {
-  try {
-    const raw = await fs.promises.readFile(filePath, "utf-8");
-    const parsed = safeParseJson<T>(raw);
-    if (parsed == null) {
-      return { value: fallback, exists: true };
-    }
-    return { value: parsed, exists: true };
-  } catch (err) {
-    const code = (err as { code?: string }).code;
-    if (code === "ENOENT") {
-      return { value: fallback, exists: false };
-    }
-    return { value: fallback, exists: false };
-  }
+  return await readJsonFileWithFallback(filePath, fallback);
 }
 
 export async function writeJsonFile(filePath: string, value: unknown): Promise<void> {
-  const dir = path.dirname(filePath);
-  await fs.promises.mkdir(dir, { recursive: true, mode: 0o700 });
-  const tmp = path.join(dir, `${path.basename(filePath)}.${crypto.randomUUID()}.tmp`);
-  await fs.promises.writeFile(tmp, `${JSON.stringify(value, null, 2)}\n`, {
-    encoding: "utf-8",
-  });
-  await fs.promises.chmod(tmp, 0o600);
-  await fs.promises.rename(tmp, filePath);
+  await writeJsonFileAtomically(filePath, value);
 }
 
 async function ensureJsonFile(filePath: string, fallback: unknown) {
