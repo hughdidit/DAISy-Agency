@@ -1,4 +1,15 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { FailoverReason } from "./pi-embedded-helpers.js";
+import {
+  ensureAuthProfileStore,
+  getSoonestCooldownExpiry,
+  isProfileInCooldown,
+  resolveAuthProfileOrder,
+} from "./auth-profiles.js";
+>>>>>>> 39bb1b332 (fix: auto-recover primary model after rate-limit cooldown expires (#17478) (#18045))
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import {
   coerceToFailoverError,
@@ -190,6 +201,15 @@ function resolveFallbackCandidates(params: {
   return candidates;
 }
 
+const lastProbeAttempt = new Map<string, number>();
+const MIN_PROBE_INTERVAL_MS = 30_000; // 30 seconds between probes per provider
+
+/** @internal – exposed for unit tests only */
+export const _probeThrottleInternals = {
+  lastProbeAttempt,
+  MIN_PROBE_INTERVAL_MS,
+} as const;
+
 export async function runWithModelFallback<T>(params: {
   cfg: MoltbotConfig | undefined;
   provider: string;
@@ -223,6 +243,8 @@ export async function runWithModelFallback<T>(params: {
   const attempts: FallbackAttempt[] = [];
   let lastError: unknown;
 
+  const hasFallbackCandidates = candidates.length > 1;
+
   for (let i = 0; i < candidates.length; i += 1) {
     const candidate = candidates[i] as ModelCandidate;
     if (authStore) {
@@ -234,14 +256,43 @@ export async function runWithModelFallback<T>(params: {
       const isAnyProfileAvailable = profileIds.some((id) => !isProfileInCooldown(authStore, id));
 
       if (profileIds.length > 0 && !isAnyProfileAvailable) {
-        // All profiles for this provider are in cooldown; skip without attempting
-        attempts.push({
-          provider: candidate.provider,
-          model: candidate.model,
-          error: `Provider ${candidate.provider} is in cooldown (all profiles unavailable)`,
-          reason: "rate_limit",
-        });
-        continue;
+        // All profiles for this provider are in cooldown.
+        // For the primary model (i === 0), probe it if the soonest cooldown
+        // expiry is close (within 2 minutes) or already past. This avoids
+        // staying on a fallback model long after the rate-limit window clears
+        // when exponential backoff cooldowns exceed the actual provider limit.
+        const isPrimary = i === 0;
+        const shouldProbe =
+          isPrimary &&
+          hasFallbackCandidates &&
+          (() => {
+            const lastProbe = lastProbeAttempt.get(candidate.provider) ?? 0;
+            if (Date.now() - lastProbe < MIN_PROBE_INTERVAL_MS) {
+              return false; // throttled
+            }
+            const soonest = getSoonestCooldownExpiry(authStore, profileIds);
+            if (soonest === null || !Number.isFinite(soonest)) {
+              return true;
+            }
+            const now = Date.now();
+            // Probe when cooldown already expired or within 2 min of expiry
+            const PROBE_MARGIN_MS = 2 * 60 * 1000;
+            return now >= soonest - PROBE_MARGIN_MS;
+          })();
+        if (!shouldProbe) {
+          // Skip without attempting
+          attempts.push({
+            provider: candidate.provider,
+            model: candidate.model,
+            error: `Provider ${candidate.provider} is in cooldown (all profiles unavailable)`,
+            reason: "rate_limit",
+          });
+          continue;
+        }
+        // Primary model probe: attempt it despite cooldown to detect recovery.
+        // If it fails, the error is caught below and we fall through to the
+        // next candidate as usual.
+        lastProbeAttempt.set(candidate.provider, Date.now());
       }
     }
     try {
