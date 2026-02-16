@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+import type { CliDeps } from "../cli/deps.js";
+import type { loadConfig } from "../config/config.js";
+import type { loadOpenClawPlugins } from "../plugins/loader.js";
+>>>>>>> 32e2c369d (refactor(agents): extract shared session dir resolver)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import {
@@ -5,9 +11,15 @@ import {
   resolveConfiguredModelRef,
   resolveHooksGmailModel,
 } from "../agents/model-selection.js";
+<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
 import { isTruthyEnvValue } from "../infra/env.js";
+=======
+import { resolveAgentSessionDirs } from "../agents/session-dirs.js";
+import { cleanStaleLockFiles } from "../agents/session-write-lock.js";
+import { resolveStateDir } from "../config/paths.js";
+>>>>>>> 32e2c369d (refactor(agents): extract shared session dir resolver)
 import { startGmailWatcher } from "../hooks/gmail-watcher.js";
 import {
   clearInternalHooks,
@@ -24,6 +36,11 @@ import {
 } from "./server-restart-sentinel.js";
 import { startGatewayMemoryBackend } from "./server-startup-memory.js";
 
+<<<<<<< HEAD
+=======
+const SESSION_LOCK_STALE_MS = 30 * 60 * 1000;
+
+>>>>>>> 32e2c369d (refactor(agents): extract shared session dir resolver)
 export async function startGatewaySidecars(params: {
   cfg: ReturnType<typeof loadConfig>;
   pluginRegistry: ReturnType<typeof loadMoltbotPlugins>;
