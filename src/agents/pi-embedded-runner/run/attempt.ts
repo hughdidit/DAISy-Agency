@@ -722,6 +722,7 @@ export async function runEmbeddedAttempt(
             }).sessionAgentId;
 
       let promptError: unknown = null;
+      let promptErrorSource: "prompt" | "compaction" | null = null;
       try {
         const promptStartedAt = Date.now();
 
@@ -819,6 +820,7 @@ export async function runEmbeddedAttempt(
           }
         } catch (err) {
           promptError = err;
+          promptErrorSource = "prompt";
         } finally {
           log.debug(
             `embedded run prompt end: runId=${params.runId} sessionId=${params.sessionId} durationMs=${Date.now() - promptStartedAt}`,
@@ -831,6 +833,7 @@ export async function runEmbeddedAttempt(
           if (isAbortError(err)) {
             if (!promptError) {
               promptError = err;
+              promptErrorSource = "compaction";
             }
           } else {
             throw err;
@@ -853,8 +856,46 @@ export async function runEmbeddedAttempt(
           });
         }
 
+<<<<<<< HEAD
         messagesSnapshot = activeSession.messages.slice();
         sessionIdUsed = activeSession.sessionId;
+=======
+        // If timeout occurred during compaction, use pre-compaction snapshot when available
+        // (compaction restructures messages but does not add user/assistant turns).
+        const snapshotSelection = selectCompactionTimeoutSnapshot({
+          timedOutDuringCompaction,
+          preCompactionSnapshot,
+          preCompactionSessionId,
+          currentSnapshot: activeSession.messages.slice(),
+          currentSessionId: activeSession.sessionId,
+        });
+        if (timedOutDuringCompaction) {
+          if (!isProbeSession) {
+            log.warn(
+              `using ${snapshotSelection.source} snapshot: timed out during compaction runId=${params.runId} sessionId=${params.sessionId}`,
+            );
+          }
+        }
+        messagesSnapshot = snapshotSelection.messagesSnapshot;
+        sessionIdUsed = snapshotSelection.sessionIdUsed;
+
+        if (promptError && promptErrorSource === "prompt") {
+          try {
+            sessionManager.appendCustomEntry("openclaw:prompt-error", {
+              timestamp: Date.now(),
+              runId: params.runId,
+              sessionId: params.sessionId,
+              provider: params.provider,
+              model: params.modelId,
+              api: params.model.api,
+              error: describeUnknownError(promptError),
+            });
+          } catch (entryErr) {
+            log.warn(`failed to persist prompt error entry: ${String(entryErr)}`);
+          }
+        }
+
+>>>>>>> e91a5b021 (fix: release stale session locks and add watchdog for hung API calls (#18060))
         cacheTrace?.recordStage("session:after", {
           messages: messagesSnapshot,
           note: promptError ? "prompt error" : undefined,
