@@ -1,5 +1,4 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { WizardPrompter } from "../wizard/prompts.js";
 import type { AuthChoice } from "./onboard-types.js";
@@ -14,9 +13,11 @@ import {
   ZAI_CODING_GLOBAL_BASE_URL,
 } from "./onboard-auth.js";
 import {
+  authProfilePathForAgent,
   createExitThrowingRuntime,
   createWizardPrompter,
   readAuthProfilesForAgent,
+  requireOpenClawAgentDir,
   setupAuthTestEnv,
 } from "./test-wizard-helpers.js";
 >>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
@@ -35,14 +36,6 @@ vi.mock("../plugins/providers.js", () => ({
   resolvePluginProviders,
 }));
 
-const authProfilePathFor = (agentDir: string) => path.join(agentDir, "auth-profiles.json");
-const requireAgentDir = () => {
-  const agentDir = process.env.OPENCLAW_AGENT_DIR;
-  if (!agentDir) {
-    throw new Error("OPENCLAW_AGENT_DIR not set");
-  }
-  return agentDir;
-};
 type StoredAuthProfile = {
   key?: string;
   access?: string;
@@ -93,7 +86,7 @@ describe("applyAuthChoice", () => {
   async function readAuthProfiles() {
     return await readAuthProfilesForAgent<{
       profiles?: Record<string, StoredAuthProfile>;
-    }>(requireAgentDir());
+    }>(requireOpenClawAgentDir());
   }
   async function readAuthProfile(profileId: string) {
     return (await readAuthProfiles()).profiles?.[profileId];
@@ -603,8 +596,7 @@ describe("applyAuthChoice", () => {
     await setupTempState();
     process.env.LITELLM_API_KEY = "sk-litellm-test";
 
-    const authProfilePath = authProfilePathFor(requireAgentDir());
-    await fs.mkdir(path.dirname(authProfilePath), { recursive: true });
+    const authProfilePath = authProfilePathForAgent(requireOpenClawAgentDir());
     await fs.writeFile(
       authProfilePath,
       JSON.stringify(
