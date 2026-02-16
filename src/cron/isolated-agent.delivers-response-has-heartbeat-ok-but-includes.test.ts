@@ -1,12 +1,8 @@
 import "./isolated-agent.mocks.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CliDeps } from "../cli/deps.js";
-import { loadModelCatalog } from "../agents/model-catalog.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
-import { telegramOutbound } from "../channels/plugins/outbound/telegram.js";
-import { setActivePluginRegistry } from "../plugins/runtime.js";
-import { createOutboundTestPlugin, createTestRegistry } from "../test-utils/channel-plugins.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 <<<<<<< HEAD
 
@@ -81,23 +77,15 @@ import {
   withTempCronHome,
   writeSessionStore,
 } from "./isolated-agent.test-harness.js";
+<<<<<<< HEAD
 >>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
+=======
+import { setupIsolatedAgentTurnMocks } from "./isolated-agent.test-setup.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 
 describe("runCronIsolatedAgentTurn", () => {
   beforeEach(() => {
-    vi.stubEnv("OPENCLAW_TEST_FAST", "1");
-    vi.mocked(runEmbeddedPiAgent).mockReset();
-    vi.mocked(loadModelCatalog).mockResolvedValue([]);
-    vi.mocked(runSubagentAnnounceFlow).mockReset().mockResolvedValue(true);
-    setActivePluginRegistry(
-      createTestRegistry([
-        {
-          pluginId: "telegram",
-          plugin: createOutboundTestPlugin({ id: "telegram", outbound: telegramOutbound }),
-          source: "test",
-        },
-      ]),
-    );
+    setupIsolatedAgentTurnMocks({ fast: true });
   });
 
   it("handles media heartbeat delivery and announce cleanup modes", async () => {

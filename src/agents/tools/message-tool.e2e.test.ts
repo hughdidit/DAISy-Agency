@@ -19,17 +19,22 @@ vi.mock("../../infra/outbound/message-action-runner.js", async () => {
   };
 });
 
+function mockSendResult(overrides: { channel?: string; to?: string } = {}) {
+  mocks.runMessageAction.mockClear();
+  mocks.runMessageAction.mockResolvedValue({
+    kind: "send",
+    action: "send",
+    channel: overrides.channel ?? "telegram",
+    ...(overrides.to ? { to: overrides.to } : {}),
+    handledBy: "plugin",
+    payload: {},
+    dryRun: true,
+  } satisfies MessageActionRunResult);
+}
+
 describe("message tool agent routing", () => {
   it("derives agentId from the session key", async () => {
-    mocks.runMessageAction.mockClear();
-    mocks.runMessageAction.mockResolvedValue({
-      kind: "send",
-      action: "send",
-      channel: "telegram",
-      handledBy: "plugin",
-      payload: {},
-      dryRun: true,
-    } satisfies MessageActionRunResult);
+    mockSendResult();
 
     const tool = createMessageTool({
       agentSessionKey: "agent:alpha:main",
@@ -50,16 +55,7 @@ describe("message tool agent routing", () => {
 
 describe("message tool path passthrough", () => {
   it("does not convert path to media for send", async () => {
-    mocks.runMessageAction.mockClear();
-    mocks.runMessageAction.mockResolvedValue({
-      kind: "send",
-      action: "send",
-      channel: "telegram",
-      to: "telegram:123",
-      handledBy: "plugin",
-      payload: {},
-      dryRun: true,
-    } satisfies MessageActionRunResult);
+    mockSendResult({ to: "telegram:123" });
 
     const tool = createMessageTool({
       config: {} as never,
@@ -78,16 +74,7 @@ describe("message tool path passthrough", () => {
   });
 
   it("does not convert filePath to media for send", async () => {
-    mocks.runMessageAction.mockClear();
-    mocks.runMessageAction.mockResolvedValue({
-      kind: "send",
-      action: "send",
-      channel: "telegram",
-      to: "telegram:123",
-      handledBy: "plugin",
-      payload: {},
-      dryRun: true,
-    } satisfies MessageActionRunResult);
+    mockSendResult({ to: "telegram:123" });
 
     const tool = createMessageTool({
       config: {} as never,
@@ -162,18 +149,59 @@ describe("message tool description", () => {
   });
 });
 
+<<<<<<< HEAD
+=======
+describe("message tool reasoning tag sanitization", () => {
+  it("strips <think> tags from text field before sending", async () => {
+    mockSendResult({ channel: "signal", to: "signal:+15551234567" });
+
+    const tool = createMessageTool({ config: {} as never });
+
+    await tool.execute("1", {
+      action: "send",
+      target: "signal:+15551234567",
+      text: "<think>internal reasoning</think>Hello!",
+    });
+
+    const call = mocks.runMessageAction.mock.calls[0]?.[0];
+    expect(call?.params?.text).toBe("Hello!");
+  });
+
+  it("strips <think> tags from content field before sending", async () => {
+    mockSendResult({ channel: "discord", to: "discord:123" });
+
+    const tool = createMessageTool({ config: {} as never });
+
+    await tool.execute("1", {
+      action: "send",
+      target: "discord:123",
+      content: "<think>reasoning here</think>Reply text",
+    });
+
+    const call = mocks.runMessageAction.mock.calls[0]?.[0];
+    expect(call?.params?.content).toBe("Reply text");
+  });
+
+  it("passes through text without reasoning tags unchanged", async () => {
+    mockSendResult({ channel: "signal", to: "signal:+15551234567" });
+
+    const tool = createMessageTool({ config: {} as never });
+
+    await tool.execute("1", {
+      action: "send",
+      target: "signal:+15551234567",
+      text: "Normal message without any tags",
+    });
+
+    const call = mocks.runMessageAction.mock.calls[0]?.[0];
+    expect(call?.params?.text).toBe("Normal message without any tags");
+  });
+});
+
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 describe("message tool sandbox passthrough", () => {
   it("forwards sandboxRoot to runMessageAction", async () => {
-    mocks.runMessageAction.mockClear();
-    mocks.runMessageAction.mockResolvedValue({
-      kind: "send",
-      action: "send",
-      channel: "telegram",
-      to: "telegram:123",
-      handledBy: "plugin",
-      payload: {},
-      dryRun: true,
-    } satisfies MessageActionRunResult);
+    mockSendResult({ to: "telegram:123" });
 
     const tool = createMessageTool({
       config: {} as never,
@@ -191,16 +219,7 @@ describe("message tool sandbox passthrough", () => {
   });
 
   it("omits sandboxRoot when not configured", async () => {
-    mocks.runMessageAction.mockClear();
-    mocks.runMessageAction.mockResolvedValue({
-      kind: "send",
-      action: "send",
-      channel: "telegram",
-      to: "telegram:123",
-      handledBy: "plugin",
-      payload: {},
-      dryRun: true,
-    } satisfies MessageActionRunResult);
+    mockSendResult({ to: "telegram:123" });
 
     const tool = createMessageTool({
       config: {} as never,

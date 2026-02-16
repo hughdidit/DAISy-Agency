@@ -2,8 +2,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { writeSkill } from "./skills.e2e-test-helpers.js";
 import { buildWorkspaceSkillsPrompt, syncSkillsToWorkspace } from "./skills.js";
 
+<<<<<<< HEAD
 async function writeSkill(params: {
   dir: string;
   name: string;
@@ -24,6 +26,15 @@ ${body ?? `# ${name}\n`}
 `,
     "utf-8",
   );
+=======
+async function pathExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 }
 
 describe("buildWorkspaceSkillsPrompt", () => {

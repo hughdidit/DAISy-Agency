@@ -12,7 +12,13 @@ import { runCommandWithTimeout } from "../process/exec.js";
 import { runCommandWithTimeout, type CommandOptions } from "../process/exec.js";
 >>>>>>> c8e110e2e (refactor(skills): extract installer strategy helpers)
 import { scanDirectoryWithSummary } from "../security/skill-scanner.js";
+<<<<<<< HEAD
 import { CONFIG_DIR, ensureDir, resolveUserPath } from "../utils.js";
+=======
+import { resolveUserPath } from "../utils.js";
+import { installDownloadSpec } from "./skills-install-download.js";
+import { formatInstallFailureMessage } from "./skills-install-output.js";
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import {
   hasBinary,
   loadWorkspaceSkillEntries,
@@ -40,6 +46,7 @@ export type SkillInstallResult = {
   warnings?: string[];
 };
 
+<<<<<<< HEAD
 function isNodeReadableStream(value: unknown): value is NodeJS.ReadableStream {
   return Boolean(value && typeof (value as NodeJS.ReadableStream).pipe === "function");
 }
@@ -83,6 +90,8 @@ function formatInstallFailureMessage(result: {
   return `Install failed (${code}): ${summary}`;
 }
 
+=======
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 function withWarnings(result: SkillInstallResult, warnings: string[]): SkillInstallResult {
   if (warnings.length === 0) {
     return result;
