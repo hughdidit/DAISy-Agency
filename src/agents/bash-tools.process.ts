@@ -6,8 +6,11 @@ import { formatDurationCompact } from "../infra/format-time/format-duration.ts";
 import { getDiagnosticSessionState } from "../logging/diagnostic-session-state.js";
 import { killProcessTree } from "../process/kill-tree.js";
 import { getProcessSupervisor } from "../process/supervisor/index.js";
+<<<<<<< HEAD
 import { recordCommandPoll, resetCommandPollCount } from "./command-poll-backoff.js";
 >>>>>>> 23f5cc80a (Agents: wire command poll backoff into process poll)
+=======
+>>>>>>> 8947d2dea (Agents: format process poll backoff files)
 import {
   deleteSession,
   drainSession,
@@ -18,6 +21,7 @@ import {
   markExited,
   setJobTtlMs,
 } from "./bash-process-registry.js";
+<<<<<<< HEAD
 import {
   deriveSessionName,
   killSession,
@@ -25,6 +29,10 @@ import {
   sliceLogLines,
   truncateMiddle,
 } from "./bash-tools.shared.js";
+=======
+import { deriveSessionName, pad, sliceLogLines, truncateMiddle } from "./bash-tools.shared.js";
+import { recordCommandPoll, resetCommandPollCount } from "./command-poll-backoff.js";
+>>>>>>> 8947d2dea (Agents: format process poll backoff files)
 import { encodeKeySequence, encodePaste } from "./pty-keys.js";
 
 export type ProcessToolDefaults = {
