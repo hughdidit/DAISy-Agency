@@ -45,8 +45,12 @@ import { getQueueSize } from "../process/command-queue.js";
 import { CommandLane } from "../process/lanes.js";
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeAgentId, toAgentStoreSessionKey } from "../routing/session-key.js";
 =======
+=======
+import { escapeRegExp } from "../utils.js";
+>>>>>>> f476c8b48 (Fix #12767: Heartbeat  strip responsePrefix before HEARTBEAT_OK suppression)
 import { formatErrorMessage } from "./errors.js";
 <<<<<<< HEAD
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
@@ -77,7 +81,7 @@ import {
 } from "./outbound/targets.js";
 import { peekSystemEventEntries } from "./system-events.js";
 
-type HeartbeatDeps = OutboundSendDeps &
+export type HeartbeatDeps = OutboundSendDeps &
   ChannelHeartbeatDeps & {
     runtime?: RuntimeEnv;
     getQueueSize?: (lane?: string) => number;
@@ -496,7 +500,13 @@ function normalizeHeartbeatReply(
   responsePrefix: string | undefined,
   ackMaxChars: number,
 ) {
-  const stripped = stripHeartbeatToken(payload.text, {
+  const rawText = typeof payload.text === "string" ? payload.text : "";
+  // Normalize away responsePrefix so a prefixed HEARTBEAT_OK still strips.
+  const prefixPattern = responsePrefix?.trim()
+    ? new RegExp(`^${escapeRegExp(responsePrefix.trim())}\\s*`, "i")
+    : null;
+  const textForStrip = prefixPattern ? rawText.replace(prefixPattern, "") : rawText;
+  const stripped = stripHeartbeatToken(textForStrip, {
     mode: "heartbeat",
     maxAckChars: ackMaxChars,
   });
