@@ -32,12 +32,15 @@ import { formatHealthCheckFailure } from "../commands/health-format.js";
 import { healthCommand } from "../commands/health.js";
 import { formatHealthCheckFailure } from "../commands/health-format.js";
 import {
+  buildWebchatUrl,
   detectBrowserOpenSupport,
   formatControlUiSshHint,
   openUrl,
   probeGatewayReachable,
+  resolveCanonicalMainSessionKey,
   waitForGatewayReachable,
   resolveControlUiLinks,
+  resolveLocalBrowserControlUiLinks,
 } from "../commands/onboard-helpers.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OnboardOptions } from "../commands/onboard-types.js";
@@ -281,6 +284,7 @@ export async function finalizeOnboardingWizard(
     basePath: controlUiBasePath,
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
   const tokenParam =
     settings.authMode === "token" && settings.gatewayToken
       ? `?token=${encodeURIComponent(settings.gatewayToken)}`
@@ -292,6 +296,24 @@ export async function finalizeOnboardingWizard(
       ? `${links.httpUrl}#token=${encodeURIComponent(settings.gatewayToken)}`
       : links.httpUrl;
 >>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
+=======
+  const localBrowserLinks = resolveLocalBrowserControlUiLinks({
+    bind: settings.bind,
+    port: settings.port,
+    customBindHost: settings.customBindHost,
+    basePath: controlUiBasePath,
+  });
+  const canonicalSessionKey = resolveCanonicalMainSessionKey(nextConfig);
+  const authedUrl =
+    settings.authMode === "token" && settings.gatewayToken
+      ? `${localBrowserLinks.httpUrl}#token=${encodeURIComponent(settings.gatewayToken)}`
+      : localBrowserLinks.httpUrl;
+  const webchatUrl = buildWebchatUrl({
+    httpUrl: localBrowserLinks.httpUrl,
+    sessionKey: canonicalSessionKey,
+    token: settings.authMode === "token" ? settings.gatewayToken : undefined,
+  });
+>>>>>>> 59e0e7e4f (Onboarding: fix webchat URL loopback and canonical session)
   const gatewayProbe = await probeGatewayReachable({
     url: links.wsUrl,
     token: settings.authMode === "token" ? settings.gatewayToken : undefined,
@@ -311,6 +333,7 @@ export async function finalizeOnboardingWizard(
 
   await prompter.note(
     [
+<<<<<<< HEAD
       `Web UI: ${links.httpUrl}`,
 <<<<<<< HEAD
       tokenParam ? `Web UI (with token): ${authedUrl}` : undefined,
@@ -319,6 +342,13 @@ export async function finalizeOnboardingWizard(
         ? `Web UI (with token): ${authedUrl}`
         : undefined,
 >>>>>>> c5194d814 (fix(dashboard): restore tokenized control ui links)
+=======
+      `Web UI: ${localBrowserLinks.httpUrl}`,
+      settings.authMode === "token" && settings.gatewayToken
+        ? `Web UI (with token): ${authedUrl}`
+        : undefined,
+      `WebChat: ${webchatUrl}`,
+>>>>>>> 59e0e7e4f (Onboarding: fix webchat URL loopback and canonical session)
       `Gateway WS: ${links.wsUrl}`,
       gatewayStatusLine,
       "Docs: https://docs.molt.bot/web/control-ui",
@@ -408,7 +438,7 @@ export async function finalizeOnboardingWizard(
     } else if (hatchChoice === "web") {
       const browserSupport = await detectBrowserOpenSupport();
       if (browserSupport.ok) {
-        controlUiOpened = await openUrl(authedUrl);
+        controlUiOpened = await openUrl(webchatUrl);
         if (!controlUiOpened) {
           controlUiOpenHint = formatControlUiSshHint({
             port: settings.port,
@@ -433,7 +463,7 @@ export async function finalizeOnboardingWizard(
       }
       await prompter.note(
         [
-          `Dashboard link (with token): ${authedUrl}`,
+          `WebChat link: ${webchatUrl}`,
           controlUiOpened
             ? "Opened in your browser. Keep that tab to control Moltbot."
             : "Copy/paste this URL in a browser on this machine to control Moltbot.",
@@ -475,7 +505,7 @@ export async function finalizeOnboardingWizard(
   if (shouldOpenControlUi) {
     const browserSupport = await detectBrowserOpenSupport();
     if (browserSupport.ok) {
-      controlUiOpened = await openUrl(authedUrl);
+      controlUiOpened = await openUrl(webchatUrl);
       if (!controlUiOpened) {
         controlUiOpenHint = formatControlUiSshHint({
           port: settings.port,
@@ -493,7 +523,7 @@ export async function finalizeOnboardingWizard(
 
     await prompter.note(
       [
-        `Dashboard link (with token): ${authedUrl}`,
+        `WebChat link: ${webchatUrl}`,
         controlUiOpened
           ? "Opened in your browser. Keep that tab to control Moltbot."
           : "Copy/paste this URL in a browser on this machine to control Moltbot.",
