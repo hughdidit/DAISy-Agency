@@ -38,7 +38,40 @@ describe("buildTelegramThreadParams", () => {
   });
 
   it("includes non-General topic thread ids", () => {
+<<<<<<< HEAD
     expect(buildTelegramThreadParams(99)).toEqual({ message_thread_id: 99 });
+=======
+    expect(buildTelegramThreadParams({ id: 99, scope: "forum" })).toEqual({
+      message_thread_id: 99,
+    });
+  });
+
+  it("includes thread id for dm topics", () => {
+    expect(buildTelegramThreadParams({ id: 1, scope: "dm" })).toEqual({
+      message_thread_id: 1,
+    });
+    expect(buildTelegramThreadParams({ id: 2, scope: "dm" })).toEqual({
+      message_thread_id: 2,
+    });
+  });
+
+  it("normalizes dm thread ids and skips non-positive values", () => {
+    expect(buildTelegramThreadParams({ id: 0, scope: "dm" })).toBeUndefined();
+    expect(buildTelegramThreadParams({ id: -1, scope: "dm" })).toBeUndefined();
+    expect(buildTelegramThreadParams({ id: 1.9, scope: "dm" })).toEqual({
+      message_thread_id: 1,
+    });
+  });
+
+  it("handles thread id 0 for non-dm scopes", () => {
+    // id=0 should be included for forum and none scopes (not falsy)
+    expect(buildTelegramThreadParams({ id: 0, scope: "forum" })).toEqual({
+      message_thread_id: 0,
+    });
+    expect(buildTelegramThreadParams({ id: 0, scope: "none" })).toEqual({
+      message_thread_id: 0,
+    });
+>>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
   });
 
   it("normalizes thread ids to integers", () => {

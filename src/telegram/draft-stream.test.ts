@@ -87,6 +87,7 @@ describe("createTelegramDraftStream", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("keeps message_thread_id for dm threads and clears preview on cleanup", async () => {
     const api = {
       sendMessage: vi.fn().mockResolvedValue({ message_id: 17 }),
@@ -108,6 +109,15 @@ describe("createTelegramDraftStream", () => {
     stream.update("Hello");
     await vi.waitFor(() =>
       expect(api.sendMessage).toHaveBeenCalledWith(123, "Hello", { message_thread_id: 1 }),
+=======
+  it("includes message_thread_id for dm threads and clears preview on cleanup", async () => {
+    const api = createMockDraftApi();
+    const stream = createThreadedDraftStream(api, { id: 42, scope: "dm" });
+
+    stream.update("Hello");
+    await vi.waitFor(() =>
+      expect(api.sendMessage).toHaveBeenCalledWith(123, "Hello", { message_thread_id: 42 }),
+>>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
     );
     await stream.clear();
 
