@@ -8,8 +8,25 @@ const { listSkillCommandsForAgents } = vi.hoisted(() => ({
   listSkillCommandsForAgents: vi.fn(() => []),
 }));
 
+<<<<<<< HEAD
 vi.mock("../auto-reply/skill-commands.js", () => ({
   listSkillCommandsForAgents,
+=======
+vi.mock("../auto-reply/skill-commands.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../auto-reply/skill-commands.js")>();
+  return {
+    ...actual,
+    listSkillCommandsForAgents,
+  };
+});
+vi.mock("../plugins/commands.js", () => ({
+  getPluginCommandSpecs: pluginCommandMocks.getPluginCommandSpecs,
+  matchPluginCommand: pluginCommandMocks.matchPluginCommand,
+  executePluginCommand: pluginCommandMocks.executePluginCommand,
+}));
+vi.mock("./bot/delivery.js", () => ({
+  deliverReplies: deliveryMocks.deliverReplies,
+>>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 }));
 
 describe("registerTelegramNativeCommands", () => {
