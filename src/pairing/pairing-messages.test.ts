@@ -1,11 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
+=======
+import { captureEnv } from "../test-utils/env.js";
+>>>>>>> ee2fa5f41 (refactor(test): reuse env snapshots in unit suites)
 import { buildPairingReply } from "./pairing-messages.js";
 
 describe("buildPairingReply", () => {
-  let previousProfile: string | undefined;
+  let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeEach(() => {
+<<<<<<< HEAD
     previousProfile = process.env.CLAWDBOT_PROFILE;
     process.env.CLAWDBOT_PROFILE = "isolated";
   });
@@ -16,6 +21,14 @@ describe("buildPairingReply", () => {
       return;
     }
     process.env.CLAWDBOT_PROFILE = previousProfile;
+=======
+    envSnapshot = captureEnv(["OPENCLAW_PROFILE"]);
+    process.env.OPENCLAW_PROFILE = "isolated";
+  });
+
+  afterEach(() => {
+    envSnapshot.restore();
+>>>>>>> ee2fa5f41 (refactor(test): reuse env snapshots in unit suites)
   });
 
   const cases = [

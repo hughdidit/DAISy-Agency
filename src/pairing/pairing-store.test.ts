@@ -10,6 +10,7 @@ import { describe, expect, it, vi } from "vitest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 >>>>>>> ced4ac490 (perf(test): speed up pairing-store suite)
 import { resolveOAuthDir } from "../config/paths.js";
+import { captureEnv } from "../test-utils/env.js";
 import { listChannelPairingRequests, upsertChannelPairingRequest } from "./pairing-store.js";
 
 let fixtureRoot = "";
@@ -27,11 +28,15 @@ afterAll(async () => {
 
 async function withTempStateDir<T>(fn: (stateDir: string) => Promise<T>) {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const previous = process.env.CLAWDBOT_STATE_DIR;
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-pairing-"));
   process.env.CLAWDBOT_STATE_DIR = dir;
 =======
   const previous = process.env.OPENCLAW_STATE_DIR;
+=======
+  const envSnapshot = captureEnv(["OPENCLAW_STATE_DIR"]);
+>>>>>>> ee2fa5f41 (refactor(test): reuse env snapshots in unit suites)
   const dir = path.join(fixtureRoot, `case-${caseId++}`);
   await fs.mkdir(dir, { recursive: true });
   process.env.OPENCLAW_STATE_DIR = dir;
@@ -39,6 +44,7 @@ async function withTempStateDir<T>(fn: (stateDir: string) => Promise<T>) {
   try {
     return await fn(dir);
   } finally {
+<<<<<<< HEAD
 <<<<<<< HEAD
     if (previous === undefined) delete process.env.CLAWDBOT_STATE_DIR;
     else process.env.CLAWDBOT_STATE_DIR = previous;
@@ -53,6 +59,9 @@ async function withTempStateDir<T>(fn: (stateDir: string) => Promise<T>) {
     await fs.rm(dir, { recursive: true, force: true });
 =======
 >>>>>>> ced4ac490 (perf(test): speed up pairing-store suite)
+=======
+    envSnapshot.restore();
+>>>>>>> ee2fa5f41 (refactor(test): reuse env snapshots in unit suites)
   }
 }
 
