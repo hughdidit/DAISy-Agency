@@ -100,6 +100,7 @@ describe("resolveTaskScriptPath", () => {
 });
 
 describe("readScheduledTaskCommand", () => {
+<<<<<<< HEAD
   it("parses basic command script", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-schtasks-test-"));
     try {
@@ -168,6 +169,8 @@ describe("readScheduledTaskCommand", () => {
     }
   });
 
+=======
+>>>>>>> 2a5fa426f (test: remove redundant schtasks command parsing cases)
   it("parses script with quoted arguments containing spaces", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-schtasks-test-"));
     try {
