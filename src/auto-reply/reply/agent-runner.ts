@@ -413,6 +413,7 @@ export async function runReplyAgent(params: {
       await Promise.allSettled(pendingToolTasks);
     }
 
+<<<<<<< HEAD
     const usage = runResult.meta.agentMeta?.usage;
     const promptTokens = runResult.meta.agentMeta?.promptTokens;
     const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
@@ -420,6 +421,15 @@ export async function runReplyAgent(params: {
       runResult.meta.agentMeta?.provider ?? fallbackProvider ?? followupRun.run.provider;
     const cliSessionId = isCliProvider(providerUsed, cfg)
       ? runResult.meta.agentMeta?.sessionId?.trim()
+=======
+    const usage = runResult.meta?.agentMeta?.usage;
+    const promptTokens = runResult.meta?.agentMeta?.promptTokens;
+    const modelUsed = runResult.meta?.agentMeta?.model ?? fallbackModel ?? defaultModel;
+    const providerUsed =
+      runResult.meta?.agentMeta?.provider ?? fallbackProvider ?? followupRun.run.provider;
+    const cliSessionId = isCliProvider(providerUsed, cfg)
+      ? runResult.meta?.agentMeta?.sessionId?.trim()
+>>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
       : undefined;
     const contextTokensUsed =
       agentCfgContextTokens ??
@@ -432,14 +442,22 @@ export async function runReplyAgent(params: {
       sessionKey,
       usage,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
+=======
+      lastCallUsage: runResult.meta?.agentMeta?.lastCallUsage,
+>>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
       promptTokens,
 >>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
       modelUsed,
       providerUsed,
       contextTokensUsed,
+<<<<<<< HEAD
       systemPromptReport: runResult.meta.systemPromptReport,
+=======
+      systemPromptReport: runResult.meta?.systemPromptReport,
+>>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
       cliSessionId,
     });
 
@@ -516,7 +534,11 @@ export async function runReplyAgent(params: {
           promptTokens,
           total: totalTokens,
         },
+<<<<<<< HEAD
         lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
+=======
+        lastCallUsage: runResult.meta?.agentMeta?.lastCallUsage,
+>>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
         context: {
           limit: contextTokensUsed,
           used: totalTokens,
@@ -562,6 +584,11 @@ export async function runReplyAgent(params: {
         sessionStore: activeSessionStore,
         sessionKey,
         storePath,
+<<<<<<< HEAD
+=======
+        lastCallUsage: runResult.meta?.agentMeta?.lastCallUsage,
+        contextTokensUsed,
+>>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
       });
 
       // Inject post-compaction workspace context for the next agent turn

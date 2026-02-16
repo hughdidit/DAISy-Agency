@@ -769,10 +769,17 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       }
     | undefined;
   {
+<<<<<<< HEAD
     const usage = runResult.meta.agentMeta?.usage;
     const promptTokens = runResult.meta.agentMeta?.promptTokens;
     const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? model;
     const providerUsed = runResult.meta.agentMeta?.provider ?? fallbackProvider ?? provider;
+=======
+    const usage = runResult.meta?.agentMeta?.usage;
+    const promptTokens = runResult.meta?.agentMeta?.promptTokens;
+    const modelUsed = runResult.meta?.agentMeta?.model ?? fallbackModel ?? model;
+    const providerUsed = runResult.meta?.agentMeta?.provider ?? fallbackProvider ?? provider;
+>>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
     const contextTokens =
       agentCfg?.contextTokens ?? lookupContextTokens(modelUsed) ?? DEFAULT_CONTEXT_TOKENS;
 
@@ -780,7 +787,11 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
     cronSession.sessionEntry.model = modelUsed;
     cronSession.sessionEntry.contextTokens = contextTokens;
     if (isCliProvider(providerUsed, cfgWithAgentDefaults)) {
+<<<<<<< HEAD
       const cliSessionId = runResult.meta.agentMeta?.sessionId?.trim();
+=======
+      const cliSessionId = runResult.meta?.agentMeta?.sessionId?.trim();
+>>>>>>> c25c276e0 (refactor: remove unnecessary optional chaining from agent meta usage in reply and cron modules)
       if (cliSessionId) {
         setCliSessionId(cronSession.sessionEntry, providerUsed, cliSessionId);
       }
