@@ -17,7 +17,6 @@ import UserNotifications
 private struct NotificationCallError: Error, Sendable {
     let message: String
 }
-
 // Ensures notification requests return promptly even if the system prompt blocks.
 private final class NotificationInvokeLatch<T: Sendable>: @unchecked Sendable {
     private let lock = NSLock()
@@ -44,8 +43,11 @@ private final class NotificationInvokeLatch<T: Sendable>: @unchecked Sendable {
         cont?.resume(returning: response)
     }
 }
+<<<<<<< HEAD
 >>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756))
 
+=======
+>>>>>>> 9a1e16868 (iOS: port gateway connect/discovery stability + onboarding reset (#18164))
 @MainActor
 @Observable
 final class NodeAppModel {
@@ -61,6 +63,8 @@ final class NodeAppModel {
     private let camera: any CameraServicing
     private let screenRecorder: any ScreenRecordingServicing
     var gatewayStatusText: String = "Offline"
+    var nodeStatusText: String = "Offline"
+    var operatorStatusText: String = "Offline"
     var gatewayServerName: String?
     var gatewayRemoteAddress: String?
     var connectedGatewayID: String?

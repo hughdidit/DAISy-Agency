@@ -88,7 +88,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 6effcdb55 (OpenClawKit: stabilize iOS ChatUI updates after gateway replies (#18165))
 =======
 - iOS/Talk: harden mobile talk config handling by ignoring redacted/env-placeholder API keys, support secure local keychain override, improve accessibility motion/contrast behavior in status UI, and tighten ATS to local-network allowance. (#18163) Thanks @mbelinky.
+<<<<<<< HEAD
 >>>>>>> 2e7fac223 (iOS: port talk redaction, accessibility, and ATS hardening (#18163))
+=======
+- iOS/Gateway: stabilize connect/discovery state handling, add onboarding reset recovery in Settings, and fix iOS gateway-controller coverage for command-surface and last-connection persistence behavior. (#18164) Thanks @mbelinky.
+>>>>>>> 9a1e16868 (iOS: port gateway connect/discovery stability + onboarding reset (#18164))
 
 ## 2026.2.15
 
