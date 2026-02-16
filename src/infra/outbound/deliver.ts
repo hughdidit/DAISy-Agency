@@ -1,5 +1,8 @@
 import type { ReplyPayload } from "../../auto-reply/types.js";
-import type { ChannelOutboundAdapter } from "../../channels/plugins/types.js";
+import type {
+  ChannelOutboundAdapter,
+  ChannelOutboundContext,
+} from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { sendMessageDiscord } from "../../discord/send.js";
 import type { sendMessageIMessage } from "../../imessage/send.js";
@@ -144,6 +147,7 @@ function createPluginHandler(
   if (!outbound?.sendText || !outbound?.sendMedia) {
     return null;
   }
+  const baseCtx = createChannelOutboundContextBase(params);
   const sendText = outbound.sendText;
   const sendMedia = outbound.sendMedia;
   const chunker = outbound.chunker ?? null;
@@ -155,10 +159,10 @@ function createPluginHandler(
     sendPayload: outbound.sendPayload
       ? async (payload) =>
           outbound.sendPayload!({
-            cfg: params.cfg,
-            to: params.to,
+            ...baseCtx,
             text: payload.text ?? "",
             mediaUrl: payload.mediaUrl,
+<<<<<<< HEAD
             accountId: params.accountId,
             replyToId: params.replyToId,
             threadId: params.threadId,
@@ -166,14 +170,16 @@ function createPluginHandler(
             gifPlayback: params.gifPlayback,
             deps: params.deps,
             silent: params.silent,
+=======
+>>>>>>> a881bd41e (refactor(outbound): dedupe plugin outbound context)
             payload,
           })
       : undefined,
     sendText: async (text) =>
       sendText({
-        cfg: params.cfg,
-        to: params.to,
+        ...baseCtx,
         text,
+<<<<<<< HEAD
         accountId: params.accountId,
         replyToId: params.replyToId,
         threadId: params.threadId,
@@ -181,13 +187,15 @@ function createPluginHandler(
         gifPlayback: params.gifPlayback,
         deps: params.deps,
         silent: params.silent,
+=======
+>>>>>>> a881bd41e (refactor(outbound): dedupe plugin outbound context)
       }),
     sendMedia: async (caption, mediaUrl) =>
       sendMedia({
-        cfg: params.cfg,
-        to: params.to,
+        ...baseCtx,
         text: caption,
         mediaUrl,
+<<<<<<< HEAD
         accountId: params.accountId,
         replyToId: params.replyToId,
         threadId: params.threadId,
@@ -195,13 +203,35 @@ function createPluginHandler(
         gifPlayback: params.gifPlayback,
         deps: params.deps,
         silent: params.silent,
+=======
+>>>>>>> a881bd41e (refactor(outbound): dedupe plugin outbound context)
       }),
   };
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export async function deliverOutboundPayloads(params: {
 =======
+=======
+function createChannelOutboundContextBase(
+  params: ChannelHandlerParams,
+): Omit<ChannelOutboundContext, "text" | "mediaUrl"> {
+  return {
+    cfg: params.cfg,
+    to: params.to,
+    accountId: params.accountId,
+    replyToId: params.replyToId,
+    threadId: params.threadId,
+    identity: params.identity,
+    gifPlayback: params.gifPlayback,
+    deps: params.deps,
+    silent: params.silent,
+    mediaLocalRoots: params.mediaLocalRoots,
+  };
+}
+
+>>>>>>> a881bd41e (refactor(outbound): dedupe plugin outbound context)
 const isAbortError = (err: unknown): boolean => err instanceof Error && err.name === "AbortError";
 
 type DeliverOutboundPayloadsCoreParams = {
