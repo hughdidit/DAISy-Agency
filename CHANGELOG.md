@@ -92,7 +92,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 2e7fac223 (iOS: port talk redaction, accessibility, and ATS hardening (#18163))
 =======
 - iOS/Gateway: stabilize connect/discovery state handling, add onboarding reset recovery in Settings, and fix iOS gateway-controller coverage for command-surface and last-connection persistence behavior. (#18164) Thanks @mbelinky.
+<<<<<<< HEAD
 >>>>>>> 9a1e16868 (iOS: port gateway connect/discovery stability + onboarding reset (#18164))
+=======
+- iOS/Onboarding: add QR-first onboarding wizard with setup-code deep link support, pairing/auth issue guidance, and device-pair QR generation improvements for Telegram/Web/TUI fallback flows. (#18162) Thanks @mbelinky.
+>>>>>>> 130e59a9c (iOS: port onboarding + QR pairing flow stability (#18162))
 
 ## 2026.2.15
 
