@@ -14,6 +14,19 @@ import type { CronServiceState } from "./state.js";
 import { ensureLoaded, persist, warnIfDisabled } from "./store.js";
 import { armTimer, emit, executeJob, stopTimer, wake } from "./timer.js";
 
+async function ensureLoadedForRead(state: CronServiceState) {
+  await ensureLoaded(state, { skipRecompute: true });
+  if (!state.store) {
+    return;
+  }
+  // Use the maintenance-only version so that read-only operations never
+  // advance a past-due nextRunAtMs without executing the job (#16156).
+  const changed = recomputeNextRunsForMaintenance(state);
+  if (changed) {
+    await persist(state);
+  }
+}
+
 export async function start(state: CronServiceState) {
   await locked(state, async () => {
     if (!state.deps.cronEnabled) {
@@ -59,29 +72,6 @@ export function stop(state: CronServiceState) {
 export async function status(state: CronServiceState) {
   return await locked(state, async () => {
 <<<<<<< HEAD
-    await ensureLoaded(state);
-=======
-    await ensureLoaded(state, { skipRecompute: true });
-    if (state.store) {
-      // Use the maintenance-only version so that read-only operations never
-      // advance a past-due nextRunAtMs without executing the job (#16156).
-      const changed = recomputeNextRunsForMaintenance(state);
-      if (changed) {
-        await persist(state);
-      }
-    }
->>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
-    return {
-      enabled: state.deps.cronEnabled,
-      storePath: state.deps.storePath,
-      jobs: state.store?.jobs.length ?? 0,
-      nextWakeAtMs: state.deps.cronEnabled ? (nextWakeAtMs(state) ?? null) : null,
-    };
-  });
-}
-
-export async function list(state: CronServiceState, opts?: { includeDisabled?: boolean }) {
-  return await locked(state, async () => {
 <<<<<<< HEAD
     await ensureLoaded(state);
 =======
@@ -95,6 +85,37 @@ export async function list(state: CronServiceState, opts?: { includeDisabled?: b
       }
     }
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+=======
+    await ensureLoadedForRead(state);
+>>>>>>> c95a61aa9 (refactor(cron): dedupe read-only load flow)
+    return {
+      enabled: state.deps.cronEnabled,
+      storePath: state.deps.storePath,
+      jobs: state.store?.jobs.length ?? 0,
+      nextWakeAtMs: state.deps.cronEnabled ? (nextWakeAtMs(state) ?? null) : null,
+    };
+  });
+}
+
+export async function list(state: CronServiceState, opts?: { includeDisabled?: boolean }) {
+  return await locked(state, async () => {
+<<<<<<< HEAD
+<<<<<<< HEAD
+    await ensureLoaded(state);
+=======
+    await ensureLoaded(state, { skipRecompute: true });
+    if (state.store) {
+      // Use the maintenance-only version so that read-only operations never
+      // advance a past-due nextRunAtMs without executing the job (#16156).
+      const changed = recomputeNextRunsForMaintenance(state);
+      if (changed) {
+        await persist(state);
+      }
+    }
+>>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+=======
+    await ensureLoadedForRead(state);
+>>>>>>> c95a61aa9 (refactor(cron): dedupe read-only load flow)
     const includeDisabled = opts?.includeDisabled === true;
     const jobs = (state.store?.jobs ?? []).filter((j) => includeDisabled || j.enabled);
     return jobs.toSorted((a, b) => (a.state.nextRunAtMs ?? 0) - (b.state.nextRunAtMs ?? 0));
