@@ -115,6 +115,7 @@ describe("LINE accounts", () => {
       expect(ids).toContain(DEFAULT_ACCOUNT_ID);
     });
 
+<<<<<<< HEAD
     it("returns named accounts", () => {
       const cfg: MoltbotConfig = {
         channels: {
@@ -133,6 +134,8 @@ describe("LINE accounts", () => {
       expect(ids).toContain("personal");
     });
 
+=======
+>>>>>>> 357b1e8fe (test: remove duplicate line account listing case)
     it("returns default from env", () => {
       process.env.LINE_CHANNEL_ACCESS_TOKEN = "env-token";
       const cfg: MoltbotConfig = {};
