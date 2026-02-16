@@ -5,6 +5,11 @@ import type {
   ReactionTypeEmoji,
 } from "@grammyjs/types";
 import { type ApiClientOptions, Bot, HttpError, InputFile } from "grammy";
+<<<<<<< HEAD
+=======
+import type { RetryConfig } from "../infra/retry.js";
+import type { TelegramInlineButtons } from "./button-types.js";
+>>>>>>> 16327f21d (feat(telegram): support inline button styles (#18241))
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
@@ -54,7 +59,7 @@ type TelegramSendOpts = {
   /** Forum topic thread ID (for forum supergroups) */
   messageThreadId?: number;
   /** Inline keyboard buttons (reply markup). */
-  buttons?: Array<Array<{ text: string; callback_data: string }>>;
+  buttons?: TelegramInlineButtons;
 };
 
 type TelegramSendResult = {
@@ -415,6 +420,7 @@ export function buildInlineKeyboard(
           (button): InlineKeyboardButton => ({
             text: button.text,
             callback_data: button.callback_data,
+            ...(button.style ? { style: button.style } : {}),
           }),
         ),
     )
@@ -964,7 +970,7 @@ type TelegramEditOpts = {
   /** Controls whether link previews are shown in the edited message. */
   linkPreview?: boolean;
   /** Inline keyboard buttons (reply markup). Pass empty array to remove buttons. */
-  buttons?: Array<Array<{ text: string; callback_data: string }>>;
+  buttons?: TelegramInlineButtons;
   /** Optional config injection to avoid global loadConfig() (improves testability). */
   cfg?: ReturnType<typeof loadConfig>;
 };

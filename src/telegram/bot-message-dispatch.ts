@@ -8,6 +8,7 @@ import type { RuntimeEnv } from "../runtime.js";
 import type { TelegramMessageContext } from "./bot-message-context.js";
 import type { TelegramBotOptions } from "./bot.js";
 import type { TelegramStreamMode } from "./bot/types.js";
+import type { TelegramInlineButtons } from "./button-types.js";
 import { resolveAgentDir } from "../agents/agent-scope.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import {
@@ -382,9 +383,7 @@ export const dispatchTelegramMessage = async ({
             const finalText = payload.text;
             const currentPreviewText = streamMode === "block" ? draftText : lastPartialText;
             const previewButtons = (
-              payload.channelData?.telegram as
-                | { buttons?: Array<Array<{ text: string; callback_data: string }>> }
-                | undefined
+              payload.channelData?.telegram as { buttons?: TelegramInlineButtons } | undefined
             )?.buttons;
             let draftStoppedForPreviewEdit = false;
             // Skip preview edit for error payloads to avoid overwriting previous content
