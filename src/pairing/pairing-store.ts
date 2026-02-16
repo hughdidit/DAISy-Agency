@@ -213,6 +213,31 @@ function normalizeAllowFromInput(channel: PairingChannel, entry: string | number
   return normalizeAllowEntry(channel, normalizeId(entry));
 }
 
+function dedupePreserveOrder(entries: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const entry of entries) {
+    const normalized = String(entry).trim();
+    if (!normalized || seen.has(normalized)) {
+      continue;
+    }
+    seen.add(normalized);
+    out.push(normalized);
+  }
+  return out;
+}
+
+async function readAllowFromStateForPath(
+  channel: PairingChannel,
+  filePath: string,
+): Promise<string[]> {
+  const { value } = await readJsonFile<AllowFromStore>(filePath, {
+    version: 1,
+    allowFrom: [],
+  });
+  return normalizeAllowFromList(channel, value);
+}
+
 async function readAllowFromState(params: {
   channel: PairingChannel;
   entry: string | number;
@@ -268,12 +293,28 @@ export async function readChannelAllowFromStore(
   channel: PairingChannel,
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<string[]> {
+<<<<<<< HEAD
   const filePath = resolveAllowFromPath(channel, env);
   const { value } = await readJsonFile<AllowFromStore>(filePath, {
     version: 1,
     allowFrom: [],
   });
   return normalizeAllowFromList(channel, value);
+=======
+  const normalizedAccountId = accountId?.trim().toLowerCase() ?? "";
+  if (!normalizedAccountId) {
+    const filePath = resolveAllowFromPath(channel, env);
+    return await readAllowFromStateForPath(channel, filePath);
+  }
+
+  const scopedPath = resolveAllowFromPath(channel, env, accountId);
+  const scopedEntries = await readAllowFromStateForPath(channel, scopedPath);
+  // Backward compatibility: legacy channel-level allowFrom store was unscoped.
+  // Keep honoring it alongside account-scoped files to prevent re-pair prompts after upgrades.
+  const legacyPath = resolveAllowFromPath(channel, env);
+  const legacyEntries = await readAllowFromStateForPath(channel, legacyPath);
+  return dedupePreserveOrder([...scopedEntries, ...legacyEntries]);
+>>>>>>> 6754a926e (fix(pairing): support legacy telegram allowFrom migration)
 }
 
 export async function addChannelAllowFromStoreEntry(params: {
