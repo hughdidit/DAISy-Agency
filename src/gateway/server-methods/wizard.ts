@@ -1,4 +1,3 @@
-import type { ErrorObject } from "ajv";
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 =======
@@ -9,13 +8,13 @@ import { WizardSession } from "../../wizard/session.js";
 import {
   ErrorCodes,
   errorShape,
-  formatValidationErrors,
   validateWizardCancelParams,
   validateWizardNextParams,
   validateWizardStartParams,
   validateWizardStatusParams,
 } from "../protocol/index.js";
 import { formatForLog } from "../ws-log.js";
+<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
 
 type Validator<T> = ((params: unknown) => params is T) & {
@@ -41,6 +40,9 @@ function assertValidParams<T>(
   );
   return false;
 }
+=======
+import { assertValidParams } from "./validation.js";
+>>>>>>> dc5d23484 (refactor(gateway): share server-method param validation)
 
 function readWizardStatus(session: WizardSession) {
   return {
