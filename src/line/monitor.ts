@@ -147,6 +147,15 @@ export async function monitorLineProvider(
     webhookPath,
   } = opts;
   const resolvedAccountId = accountId ?? "default";
+  const token = channelAccessToken.trim();
+  const secret = channelSecret.trim();
+
+  if (!token) {
+    throw new Error("LINE webhook mode requires a non-empty channel access token.");
+  }
+  if (!secret) {
+    throw new Error("LINE webhook mode requires a non-empty channel secret.");
+  }
 
   // Record starting state
   recordChannelRuntimeState({
@@ -160,8 +169,8 @@ export async function monitorLineProvider(
 
   // Create the bot
   const bot = createLineBot({
-    channelAccessToken,
-    channelSecret,
+    channelAccessToken: token,
+    channelSecret: secret,
     accountId,
     runtime,
     config,
@@ -289,6 +298,7 @@ export async function monitorLineProvider(
     pluginId: "line",
     accountId: resolvedAccountId,
     log: (msg) => logVerbose(msg),
+<<<<<<< HEAD
     handler: async (req: IncomingMessage, res: ServerResponse) => {
       // Handle GET requests for webhook verification
       if (req.method === "GET") {
@@ -364,6 +374,9 @@ export async function monitorLineProvider(
         }
       }
     },
+=======
+    handler: createLineNodeWebhookHandler({ channelSecret: secret, bot, runtime }),
+>>>>>>> beb77229c (fix (security/line): fail closed when webhook auth is missing)
   });
 
   logVerbose(`line: registered webhook handler at ${normalizedPath}`);
