@@ -29,22 +29,14 @@ import { loadOpenClawPlugins } from "../../plugins/loader.js";
 import {
   ErrorCodes,
   errorShape,
-  formatValidationErrors,
   validateConfigApplyParams,
   validateConfigGetParams,
   validateConfigPatchParams,
   validateConfigSchemaParams,
   validateConfigSetParams,
 } from "../protocol/index.js";
-
-function resolveBaseHash(params: unknown): string | null {
-  const raw = (params as { baseHash?: unknown })?.baseHash;
-  if (typeof raw !== "string") {
-    return null;
-  }
-  const trimmed = raw.trim();
-  return trimmed ? trimmed : null;
-}
+import { resolveBaseHashParam } from "./base-hash.js";
+import { assertValidParams } from "./validation.js";
 
 function requireConfigBaseHash(
   params: unknown,
@@ -66,7 +58,7 @@ function requireConfigBaseHash(
     );
     return false;
   }
-  const baseHash = resolveBaseHash(params);
+  const baseHash = resolveBaseHashParam(params);
   if (!baseHash) {
     respond(
       false,
@@ -262,30 +254,14 @@ function loadSchemaWithPlugins(): ConfigSchemaResponse {
 >>>>>>> 410422999 (refactor(gateway): share config restart sentinel builder)
 export const configHandlers: GatewayRequestHandlers = {
   "config.get": async ({ params, respond }) => {
-    if (!validateConfigGetParams(params)) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          `invalid config.get params: ${formatValidationErrors(validateConfigGetParams.errors)}`,
-        ),
-      );
+    if (!assertValidParams(params, validateConfigGetParams, "config.get", respond)) {
       return;
     }
     const snapshot = await readConfigFileSnapshot();
     respond(true, redactConfigSnapshot(snapshot), undefined);
   },
   "config.schema": ({ params, respond }) => {
-    if (!validateConfigSchemaParams(params)) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          `invalid config.schema params: ${formatValidationErrors(validateConfigSchemaParams.errors)}`,
-        ),
-      );
+    if (!assertValidParams(params, validateConfigSchemaParams, "config.schema", respond)) {
       return;
     }
     const cfg = loadConfig();
@@ -319,15 +295,7 @@ export const configHandlers: GatewayRequestHandlers = {
     respond(true, schema, undefined);
   },
   "config.set": async ({ params, respond }) => {
-    if (!validateConfigSetParams(params)) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          `invalid config.set params: ${formatValidationErrors(validateConfigSetParams.errors)}`,
-        ),
-      );
+    if (!assertValidParams(params, validateConfigSetParams, "config.set", respond)) {
       return;
     }
     const snapshot = await readConfigFileSnapshot();
@@ -388,15 +356,7 @@ export const configHandlers: GatewayRequestHandlers = {
     );
   },
   "config.patch": async ({ params, respond }) => {
-    if (!validateConfigPatchParams(params)) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          `invalid config.patch params: ${formatValidationErrors(validateConfigPatchParams.errors)}`,
-        ),
-      );
+    if (!assertValidParams(params, validateConfigPatchParams, "config.patch", respond)) {
       return;
     }
     const snapshot = await readConfigFileSnapshot();
@@ -542,15 +502,7 @@ export const configHandlers: GatewayRequestHandlers = {
     );
   },
   "config.apply": async ({ params, respond }) => {
-    if (!validateConfigApplyParams(params)) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          `invalid config.apply params: ${formatValidationErrors(validateConfigApplyParams.errors)}`,
-        ),
-      );
+    if (!assertValidParams(params, validateConfigApplyParams, "config.apply", respond)) {
       return;
     }
     const snapshot = await readConfigFileSnapshot();
