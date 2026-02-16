@@ -10,9 +10,22 @@ function isAbsoluteHttp(url: string): boolean {
 }
 
 function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number): Error {
+<<<<<<< HEAD
   const hint = isAbsoluteHttp(url)
     ? "If this is a sandboxed session, ensure the sandbox browser is running and try again."
     : `Start (or restart) the Moltbot gateway (Moltbot.app menubar, or \`${formatCliCommand("moltbot gateway")}\`) and try again.`;
+=======
+  const isLocal = !isAbsoluteHttp(url);
+  // Human-facing hint for logs/diagnostics.
+  const operatorHint = isLocal
+    ? `Restart the OpenClaw gateway (OpenClaw.app menubar, or \`${formatCliCommand("openclaw gateway")}\`).`
+    : "If this is a sandboxed session, ensure the sandbox browser is running.";
+  // Model-facing suffix: explicitly tell the LLM NOT to retry.
+  // Without this, models see "try again" and enter an infinite tool-call loop.
+  const modelHint =
+    "Do NOT retry the browser tool — it will keep failing. " +
+    "Use an alternative approach or inform the user that the browser is currently unavailable.";
+>>>>>>> 6802b155a (fix: stop LLM retry loop when browser control service is unavailable (#17673))
   const msg = String(err);
   const msgLower = msg.toLowerCase();
   const looksLikeTimeout =
@@ -23,10 +36,19 @@ function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number):
     msgLower.includes("aborterror");
   if (looksLikeTimeout) {
     return new Error(
+<<<<<<< HEAD
       `Can't reach the clawd browser control service (timed out after ${timeoutMs}ms). ${hint}`,
     );
   }
   return new Error(`Can't reach the clawd browser control service. ${hint} (${msg})`);
+=======
+      `Can't reach the OpenClaw browser control service (timed out after ${timeoutMs}ms). ${operatorHint} ${modelHint}`,
+    );
+  }
+  return new Error(
+    `Can't reach the OpenClaw browser control service. ${operatorHint} ${modelHint} (${msg})`,
+  );
+>>>>>>> 6802b155a (fix: stop LLM retry loop when browser control service is unavailable (#17673))
 }
 
 async function fetchHttpJson<T>(
