@@ -253,6 +253,104 @@ function beginSubagentCleanup(runId: string) {
   return true;
 }
 
+<<<<<<< HEAD
+=======
+export function markSubagentRunForSteerRestart(runId: string) {
+  const key = runId.trim();
+  if (!key) {
+    return false;
+  }
+  const entry = subagentRuns.get(key);
+  if (!entry) {
+    return false;
+  }
+  if (entry.suppressAnnounceReason === "steer-restart") {
+    return true;
+  }
+  entry.suppressAnnounceReason = "steer-restart";
+  persistSubagentRuns();
+  return true;
+}
+
+export function clearSubagentRunSteerRestart(runId: string) {
+  const key = runId.trim();
+  if (!key) {
+    return false;
+  }
+  const entry = subagentRuns.get(key);
+  if (!entry) {
+    return false;
+  }
+  if (entry.suppressAnnounceReason !== "steer-restart") {
+    return true;
+  }
+  entry.suppressAnnounceReason = undefined;
+  persistSubagentRuns();
+  // If the interrupted run already finished while suppression was active, retry
+  // cleanup now so completion output is not lost when restart dispatch fails.
+  resumedRuns.delete(key);
+  if (typeof entry.endedAt === "number" && !entry.cleanupCompletedAt) {
+    resumeSubagentRun(key);
+  }
+  return true;
+}
+
+export function replaceSubagentRunAfterSteer(params: {
+  previousRunId: string;
+  nextRunId: string;
+  fallback?: SubagentRunRecord;
+  runTimeoutSeconds?: number;
+}) {
+  const previousRunId = params.previousRunId.trim();
+  const nextRunId = params.nextRunId.trim();
+  if (!previousRunId || !nextRunId) {
+    return false;
+  }
+
+  const previous = subagentRuns.get(previousRunId);
+  const source = previous ?? params.fallback;
+  if (!source) {
+    return false;
+  }
+
+  if (previousRunId !== nextRunId) {
+    subagentRuns.delete(previousRunId);
+    resumedRuns.delete(previousRunId);
+  }
+
+  const now = Date.now();
+  const cfg = loadConfig();
+  const archiveAfterMs = resolveArchiveAfterMs(cfg);
+  const archiveAtMs = archiveAfterMs ? now + archiveAfterMs : undefined;
+  const runTimeoutSeconds = params.runTimeoutSeconds ?? source.runTimeoutSeconds ?? 0;
+  const waitTimeoutMs = resolveSubagentWaitTimeoutMs(cfg, runTimeoutSeconds);
+
+  const next: SubagentRunRecord = {
+    ...source,
+    runId: nextRunId,
+    startedAt: now,
+    endedAt: undefined,
+    outcome: undefined,
+    cleanupCompletedAt: undefined,
+    cleanupHandled: false,
+    suppressAnnounceReason: undefined,
+    announceRetryCount: undefined,
+    lastAnnounceRetryAt: undefined,
+    archiveAtMs,
+    runTimeoutSeconds,
+  };
+
+  subagentRuns.set(nextRunId, next);
+  ensureListener();
+  persistSubagentRuns();
+  if (archiveAtMs) {
+    startSweeper();
+  }
+  void waitForSubagentCompletion(nextRunId, waitTimeoutMs);
+  return true;
+}
+
+>>>>>>> de900bace (fix: reset announceRetryCount in replaceSubagentRunAfterSteer)
 export function registerSubagentRun(params: {
   runId: string;
   childSessionKey: string;
