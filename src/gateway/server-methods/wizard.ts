@@ -1,12 +1,16 @@
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> a5cbd036d (refactor(gateway): dedupe wizard param validation)
 =======
 import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> 71cee673b (fix(gateway): satisfy server-method lint)
+=======
+import type { GatewayRequestContext, GatewayRequestHandlers, RespondFn } from "./types.js";
+>>>>>>> 94a4dd018 (refactor(gateway): dedupe wizard and exec approval handler paths)
 import { defaultRuntime } from "../../runtime.js";
 import { WizardSession } from "../../wizard/session.js";
 import {
@@ -55,6 +59,19 @@ function readWizardStatus(session: WizardSession) {
   };
 }
 
+function findWizardSessionOrRespond(params: {
+  context: GatewayRequestContext;
+  respond: RespondFn;
+  sessionId: string;
+}): WizardSession | null {
+  const session = params.context.wizardSessions.get(params.sessionId);
+  if (!session) {
+    params.respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "wizard not found"));
+    return null;
+  }
+  return session;
+}
+
 export const wizardHandlers: GatewayRequestHandlers = {
   "wizard.start": async ({ params, respond, context }) => {
     if (!assertValidParams(params, validateWizardStartParams, "wizard.start", respond)) {
@@ -85,9 +102,8 @@ export const wizardHandlers: GatewayRequestHandlers = {
       return;
     }
     const sessionId = params.sessionId;
-    const session = context.wizardSessions.get(sessionId);
+    const session = findWizardSessionOrRespond({ context, respond, sessionId });
     if (!session) {
-      respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "wizard not found"));
       return;
     }
     const answer = params.answer as { stepId?: string; value?: unknown } | undefined;
@@ -114,9 +130,8 @@ export const wizardHandlers: GatewayRequestHandlers = {
       return;
     }
     const sessionId = params.sessionId;
-    const session = context.wizardSessions.get(sessionId);
+    const session = findWizardSessionOrRespond({ context, respond, sessionId });
     if (!session) {
-      respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "wizard not found"));
       return;
     }
     session.cancel();
@@ -129,9 +144,8 @@ export const wizardHandlers: GatewayRequestHandlers = {
       return;
     }
     const sessionId = params.sessionId;
-    const session = context.wizardSessions.get(sessionId);
+    const session = findWizardSessionOrRespond({ context, respond, sessionId });
     if (!session) {
-      respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "wizard not found"));
       return;
     }
     const status = readWizardStatus(session);

@@ -93,6 +93,15 @@ function redactExecApprovals(file: ExecApprovalsFile): ExecApprovalsFile {
   };
 }
 
+function toExecApprovalsPayload(snapshot: ExecApprovalsSnapshot) {
+  return {
+    path: snapshot.path,
+    exists: snapshot.exists,
+    hash: snapshot.hash,
+    file: redactExecApprovals(snapshot.file),
+  };
+}
+
 export const execApprovalsHandlers: GatewayRequestHandlers = {
   "exec.approvals.get": ({ params, respond }) => {
     if (!assertValidParams(params, validateExecApprovalsGetParams, "exec.approvals.get", respond)) {
@@ -100,16 +109,7 @@ export const execApprovalsHandlers: GatewayRequestHandlers = {
     }
     ensureExecApprovals();
     const snapshot = readExecApprovalsSnapshot();
-    respond(
-      true,
-      {
-        path: snapshot.path,
-        exists: snapshot.exists,
-        hash: snapshot.hash,
-        file: redactExecApprovals(snapshot.file),
-      },
-      undefined,
-    );
+    respond(true, toExecApprovalsPayload(snapshot), undefined);
   },
   "exec.approvals.set": ({ params, respond }) => {
     if (!assertValidParams(params, validateExecApprovalsSetParams, "exec.approvals.set", respond)) {
@@ -133,16 +133,7 @@ export const execApprovalsHandlers: GatewayRequestHandlers = {
     const next = mergeExecApprovalsSocketDefaults({ normalized, current: snapshot.file });
     saveExecApprovals(next);
     const nextSnapshot = readExecApprovalsSnapshot();
-    respond(
-      true,
-      {
-        path: nextSnapshot.path,
-        exists: nextSnapshot.exists,
-        hash: nextSnapshot.hash,
-        file: redactExecApprovals(nextSnapshot.file),
-      },
-      undefined,
-    );
+    respond(true, toExecApprovalsPayload(nextSnapshot), undefined);
   },
   "exec.approvals.node.get": async ({ params, respond, context }) => {
     if (
