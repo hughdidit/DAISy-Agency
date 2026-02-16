@@ -370,12 +370,18 @@ export async function runReplyAgent(params: {
       await Promise.allSettled(pendingToolTasks);
     }
 
+<<<<<<< HEAD
     const usage = runResult.meta.agentMeta?.usage;
     const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
+=======
+    const usage = runResult?.meta?.agentMeta?.usage;
+    const promptTokens = runResult?.meta?.agentMeta?.promptTokens;
+    const modelUsed = runResult?.meta?.agentMeta?.model ?? fallbackModel ?? defaultModel;
+>>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
     const providerUsed =
-      runResult.meta.agentMeta?.provider ?? fallbackProvider ?? followupRun.run.provider;
+      runResult?.meta?.agentMeta?.provider ?? fallbackProvider ?? followupRun.run.provider;
     const cliSessionId = isCliProvider(providerUsed, cfg)
-      ? runResult.meta.agentMeta?.sessionId?.trim()
+      ? runResult?.meta?.agentMeta?.sessionId?.trim()
       : undefined;
     const contextTokensUsed =
       agentCfgContextTokens ??
@@ -387,11 +393,16 @@ export async function runReplyAgent(params: {
       storePath,
       sessionKey,
       usage,
+<<<<<<< HEAD
       lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
+=======
+      lastCallUsage: runResult?.meta?.agentMeta?.lastCallUsage,
+      promptTokens,
+>>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
       modelUsed,
       providerUsed,
       contextTokensUsed,
-      systemPromptReport: runResult.meta.systemPromptReport,
+      systemPromptReport: runResult?.meta?.systemPromptReport,
       cliSessionId,
     });
 
@@ -455,6 +466,10 @@ export async function runReplyAgent(params: {
           promptTokens,
           total: totalTokens,
         },
+<<<<<<< HEAD
+=======
+        lastCallUsage: runResult?.meta?.agentMeta?.lastCallUsage,
+>>>>>>> d64906918 (fix: add optional chaining to runResult.meta accesses to prevent crashes on aborted runs)
         context: {
           limit: contextTokensUsed,
           used: totalTokens,
@@ -500,7 +515,7 @@ export async function runReplyAgent(params: {
         sessionStore: activeSessionStore,
         sessionKey,
         storePath,
-        lastCallUsage: runResult.meta.agentMeta?.lastCallUsage,
+        lastCallUsage: runResult?.meta?.agentMeta?.lastCallUsage,
         contextTokensUsed,
       });
       if (verboseEnabled) {
