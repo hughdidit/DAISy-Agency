@@ -892,6 +892,7 @@ describe("sendMessageTelegram", () => {
     });
   });
 
+<<<<<<< HEAD
   it("includes both thread and reply params for forum topic replies", async () => {
     const chatId = "-1001234567890";
     const sendMessage = vi.fn().mockResolvedValue({
@@ -914,6 +915,45 @@ describe("sendMessageTelegram", () => {
       message_thread_id: 271,
       reply_to_message_id: 500,
     });
+=======
+  it("retries media sends without message_thread_id when thread is missing", async () => {
+    const chatId = "123";
+    const threadErr = new Error("400: Bad Request: message thread not found");
+    const sendPhoto = vi
+      .fn()
+      .mockRejectedValueOnce(threadErr)
+      .mockResolvedValueOnce({
+        message_id: 59,
+        chat: { id: chatId },
+      });
+    const api = { sendPhoto } as unknown as {
+      sendPhoto: typeof sendPhoto;
+    };
+
+    loadWebMedia.mockResolvedValueOnce({
+      buffer: Buffer.from("fake-image"),
+      contentType: "image/jpeg",
+      fileName: "photo.jpg",
+    });
+
+    const res = await sendMessageTelegram(chatId, "photo", {
+      token: "tok",
+      api,
+      mediaUrl: "https://example.com/photo.jpg",
+      messageThreadId: 271,
+    });
+
+    expect(sendPhoto).toHaveBeenNthCalledWith(1, chatId, expect.anything(), {
+      caption: "photo",
+      parse_mode: "HTML",
+      message_thread_id: 271,
+    });
+    expect(sendPhoto).toHaveBeenNthCalledWith(2, chatId, expect.anything(), {
+      caption: "photo",
+      parse_mode: "HTML",
+    });
+    expect(res.messageId).toBe("59");
+>>>>>>> dcba3e569 (test: trim redundant telegram thread+reply combination checks)
   });
 });
 
@@ -1038,30 +1078,6 @@ describe("sendStickerTelegram", () => {
     });
 
     expect(sendSticker).toHaveBeenCalledWith(chatId, fileId, {
-      reply_to_message_id: 500,
-    });
-  });
-
-  it("includes both thread and reply params for forum topic replies", async () => {
-    const chatId = "-1001234567890";
-    const fileId = "CAACAgIAAxkBAAI...sticker_file_id";
-    const sendSticker = vi.fn().mockResolvedValue({
-      message_id: 103,
-      chat: { id: chatId },
-    });
-    const api = { sendSticker } as unknown as {
-      sendSticker: typeof sendSticker;
-    };
-
-    await sendStickerTelegram(chatId, fileId, {
-      token: "tok",
-      api,
-      messageThreadId: 271,
-      replyToMessageId: 500,
-    });
-
-    expect(sendSticker).toHaveBeenCalledWith(chatId, fileId, {
-      message_thread_id: 271,
       reply_to_message_id: 500,
     });
   });
