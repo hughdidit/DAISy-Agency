@@ -56,10 +56,14 @@ import { resolveCommandAuthorizedFromAuthorizers } from "../channels/command-gat
 import { danger, logVerbose } from "../globals.js";
 import { getChildLogger } from "../logging.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 147eba11f (chore: Manually fix TypeScript errors uncovered by sorting imports.)
 =======
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
 >>>>>>> 24fbafa9a (refactor: use shared pairing store for telegram)
+=======
+import { getAgentScopedMediaLocalRoots } from "../media/local-roots.js";
+>>>>>>> 35c5d2be5 (refactor(telegram): share group allowFrom resolution)
 import {
   executePluginCommand,
   getPluginCommandSpecs,
@@ -95,7 +99,12 @@ import {
   buildTelegramGroupFrom,
   buildTelegramGroupPeerId,
   buildTelegramParentPeer,
+<<<<<<< HEAD
   resolveTelegramForumThreadId,
+=======
+  resolveTelegramGroupAllowFromContext,
+  resolveTelegramThreadSpec,
+>>>>>>> 35c5d2be5 (refactor(telegram): share group allowFrom resolution)
 } from "./bot/helpers.js";
 <<<<<<< HEAD
 import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
@@ -201,18 +210,21 @@ async function resolveTelegramCommandAuth(params: {
   const isGroup = msg.chat.type === "group" || msg.chat.type === "supergroup";
   const messageThreadId = (msg as { message_thread_id?: number }).message_thread_id;
   const isForum = (msg.chat as { is_forum?: boolean }).is_forum === true;
-  const resolvedThreadId = resolveTelegramForumThreadId({
+  const groupAllowContext = await resolveTelegramGroupAllowFromContext({
+    chatId,
     isForum,
     messageThreadId,
+    groupAllowFrom,
+    resolveTelegramGroupConfig,
   });
-  const storeAllowFrom = await readChannelAllowFromStore("telegram").catch(() => []);
-  const { groupConfig, topicConfig } = resolveTelegramGroupConfig(chatId, resolvedThreadId);
-  const groupAllowOverride = firstDefined(topicConfig?.allowFrom, groupConfig?.allowFrom);
-  const effectiveGroupAllow = normalizeAllowFromWithStore({
-    allowFrom: groupAllowOverride ?? groupAllowFrom,
+  const {
+    resolvedThreadId,
     storeAllowFrom,
-  });
-  const hasGroupAllowOverride = typeof groupAllowOverride !== "undefined";
+    groupConfig,
+    topicConfig,
+    effectiveGroupAllow,
+    hasGroupAllowOverride,
+  } = groupAllowContext;
   const senderIdRaw = msg.from?.id;
   const senderId = senderIdRaw ? String(senderIdRaw) : "";
   const senderUsername = msg.from?.username ?? "";
