@@ -51,6 +51,10 @@ import {
   normalizeDiscordSlug,
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
+<<<<<<< HEAD
+=======
+  resolveDiscordMemberAccessState,
+>>>>>>> 555eb3f62 (refactor(discord): share member access state)
   resolveDiscordOwnerAllowFrom,
   resolveDiscordUserAllowed,
 } from "./allow-list.js";
@@ -664,6 +668,7 @@ async function dispatchDiscordCommandInteraction(params: {
     }
   }
   if (!isDirectMessage) {
+<<<<<<< HEAD
     const channelUsers = channelConfig?.users ?? guildInfo?.users;
     const hasUserAllowlist = Array.isArray(channelUsers) && channelUsers.length > 0;
     const userOk = hasUserAllowlist
@@ -674,6 +679,14 @@ async function dispatchDiscordCommandInteraction(params: {
           userTag: sender.tag,
         })
       : false;
+=======
+    const { hasAccessRestrictions, memberAllowed } = resolveDiscordMemberAccessState({
+      channelConfig,
+      guildInfo,
+      memberRoleIds,
+      sender,
+    });
+>>>>>>> 555eb3f62 (refactor(discord): share member access state)
     const authorizers = useAccessGroups
       ? [
           { configured: ownerAllowList != null, allowed: ownerOk },
