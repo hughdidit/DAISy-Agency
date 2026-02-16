@@ -298,6 +298,7 @@ export async function resolveDiscordAutoThreadReplyPlan(params: {
   isGuildMessage: boolean;
   channelConfig?: DiscordChannelConfigResolved | null;
   threadChannel?: DiscordThreadChannel | null;
+  channelType?: ChannelType;
   baseText: string;
   combinedBody: string;
   replyToMode: ReplyToMode;
@@ -324,6 +325,7 @@ export async function resolveDiscordAutoThreadReplyPlan(params: {
     isGuildMessage: params.isGuildMessage,
     channelConfig: params.channelConfig,
     threadChannel: params.threadChannel,
+    channelType: params.channelType,
     baseText: params.baseText,
     combinedBody: params.combinedBody,
   });
@@ -352,6 +354,7 @@ export async function maybeCreateDiscordAutoThread(params: {
   isGuildMessage: boolean;
   channelConfig?: DiscordChannelConfigResolved | null;
   threadChannel?: DiscordThreadChannel | null;
+  channelType?: ChannelType;
   baseText: string;
   combinedBody: string;
 }): Promise<string | undefined> {
@@ -364,6 +367,16 @@ export async function maybeCreateDiscordAutoThread(params: {
   if (params.threadChannel) {
     return undefined;
   }
+  // Avoid creating threads in channels that don't support it or are already forums
+  if (
+    params.channelType === ChannelType.GuildForum ||
+    params.channelType === ChannelType.GuildMedia ||
+    params.channelType === ChannelType.GuildVoice ||
+    params.channelType === ChannelType.GuildStageVoice
+  ) {
+    return undefined;
+  }
+
   const messageChannelId = (
     params.messageChannelId ||
     resolveDiscordMessageChannelId({
