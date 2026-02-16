@@ -82,6 +82,11 @@ export type { OpenClawConfig as ClawdbotConfig } from "../config/config.js";
 export type { FileLockHandle, FileLockOptions } from "./file-lock.js";
 export { acquireFileLock, withFileLock } from "./file-lock.js";
 export { normalizeWebhookPath, resolveWebhookPath } from "./webhook-path.js";
+export {
+  registerWebhookTarget,
+  rejectNonPostWebhookRequest,
+  resolveWebhookTargets,
+} from "./webhook-targets.js";
 export type { AgentMediaPayload } from "./agent-media-payload.js";
 export { buildAgentMediaPayload } from "./agent-media-payload.js";
 export {
@@ -139,9 +144,13 @@ export { ToolPolicySchema } from "../config/zod-schema.agent-runtime.js";
 export type { RuntimeEnv } from "../runtime.js";
 export type { WizardPrompter } from "../wizard/prompts.js";
 export { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
-export { formatAllowFromLowercase } from "./allow-from.js";
+export { formatAllowFromLowercase, isAllowedParsedChatSender } from "./allow-from.js";
+export { resolveSenderCommandAuthorization } from "./command-auth.js";
+export { handleSlackMessageAction } from "./slack-message-actions.js";
+export { extractToolSend } from "./tool-send.js";
 export { resolveChannelAccountConfigBasePath } from "./config-paths.js";
 export { chunkTextForOutbound } from "./text-chunking.js";
+export { readJsonFileWithFallback, writeJsonFileAtomically } from "./json-store.js";
 export type { ChatType } from "../channels/chat-type.js";
 /** @deprecated Use ChatType instead */
 export type { RoutePeerKind } from "../routing/resolve-route.js";
@@ -157,6 +166,24 @@ export {
 export { createDedupeCache } from "../infra/dedupe.js";
 export type { DedupeCache } from "../infra/dedupe.js";
 export { formatErrorMessage } from "../infra/errors.js";
+<<<<<<< HEAD
+=======
+export {
+  DEFAULT_WEBHOOK_BODY_TIMEOUT_MS,
+  DEFAULT_WEBHOOK_MAX_BODY_BYTES,
+  RequestBodyLimitError,
+  installRequestBodyLimitGuard,
+  isRequestBodyLimitError,
+  readJsonBodyWithLimit,
+  readRequestBodyWithLimit,
+  requestBodyErrorToText,
+} from "../infra/http-body.js";
+
+export { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
+export { SsrFBlockedError, isBlockedHostname, isPrivateIpAddress } from "../infra/net/ssrf.js";
+export type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
+export { rawDataToString } from "../infra/ws.js";
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 export { isWSLSync, isWSL2Sync, isWSLEnv } from "../infra/wsl.js";
 export { isTruthyEnvValue } from "../infra/env.js";
 export { resolveToolsBySender } from "../config/group-policy.js";

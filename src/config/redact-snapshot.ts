@@ -137,7 +137,80 @@ export function redactConfigSnapshot(snapshot: ConfigFileSnapshot): ConfigFileSn
  * This is called by config.set / config.apply / config.patch before writing,
  * so that credentials survive a Web UI round-trip unmodified.
  */
+<<<<<<< HEAD
 export function restoreRedactedValues(incoming: unknown, original: unknown): unknown {
+=======
+export function restoreRedactedValues(
+  incoming: unknown,
+  original: unknown,
+  hints?: ConfigUiHints,
+): RedactionResult {
+  if (incoming === null || incoming === undefined) {
+    return { ok: false, error: "no input" };
+  }
+  if (typeof incoming !== "object") {
+    return { ok: false, error: "input not an object" };
+  }
+  try {
+    if (hints) {
+      const lookup = buildRedactionLookup(hints);
+      if (lookup.has("")) {
+        return {
+          ok: true,
+          result: restoreRedactedValuesWithLookup(incoming, original, lookup, "", hints),
+        };
+      } else {
+        return { ok: true, result: restoreRedactedValuesGuessing(incoming, original, "", hints) };
+      }
+    } else {
+      return { ok: true, result: restoreRedactedValuesGuessing(incoming, original, "") };
+    }
+  } catch (err) {
+    if (err instanceof RedactionError) {
+      return {
+        ok: false,
+        humanReadableMessage: `Sentinel value "${REDACTED_SENTINEL}" in key ${err.key} is not valid as real data`,
+      };
+    }
+    throw err; // some coding error, pass through
+  }
+}
+
+class RedactionError extends Error {
+  public readonly key: string;
+
+  constructor(key: string) {
+    super("internal error class---should never escape");
+    this.key = key;
+    this.name = "RedactionError";
+    Object.setPrototypeOf(this, RedactionError.prototype);
+  }
+}
+
+function restoreOriginalValueOrThrow(params: {
+  key: string;
+  path: string;
+  original: Record<string, unknown>;
+}): unknown {
+  if (params.key in params.original) {
+    return params.original[params.key];
+  }
+  log.warn(`Cannot un-redact config key ${params.path} as it doesn't have any value`);
+  throw new RedactionError(params.path);
+}
+
+/**
+ * Worker for restoreRedactedValues().
+ * Used when there are ConfigUiHints available.
+ */
+function restoreRedactedValuesWithLookup(
+  incoming: unknown,
+  original: unknown,
+  lookup: Set<string>,
+  prefix: string,
+  hints: ConfigUiHints,
+): unknown {
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
   if (incoming === null || incoming === undefined) {
     return incoming;
   }
@@ -154,6 +227,7 @@ export function restoreRedactedValues(incoming: unknown, original: unknown): unk
       : {};
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(incoming as Record<string, unknown>)) {
+<<<<<<< HEAD
     if (isSensitiveKey(key) && value === REDACTED_SENTINEL) {
       if (!(key in orig)) {
         throw new Error(
@@ -161,6 +235,86 @@ export function restoreRedactedValues(incoming: unknown, original: unknown): unk
         );
       }
       result[key] = orig[key];
+=======
+    result[key] = value;
+    const path = prefix ? `${prefix}.${key}` : key;
+    const wildcardPath = prefix ? `${prefix}.*` : "*";
+    let matched = false;
+    for (const candidate of [path, wildcardPath]) {
+      if (lookup.has(candidate)) {
+        matched = true;
+        if (value === REDACTED_SENTINEL) {
+          result[key] = restoreOriginalValueOrThrow({ key, path: candidate, original: orig });
+        } else if (typeof value === "object" && value !== null) {
+          result[key] = restoreRedactedValuesWithLookup(value, orig[key], lookup, candidate, hints);
+        }
+        break;
+      }
+    }
+    if (!matched && isExtensionPath(path)) {
+      const markedNonSensitive = isExplicitlyNonSensitivePath(hints, [path, wildcardPath]);
+      if (!markedNonSensitive && isSensitivePath(path) && value === REDACTED_SENTINEL) {
+        result[key] = restoreOriginalValueOrThrow({ key, path, original: orig });
+      } else if (typeof value === "object" && value !== null) {
+        result[key] = restoreRedactedValuesGuessing(value, orig[key], path, hints);
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * Worker for restoreRedactedValues().
+ * Used when ConfigUiHints are NOT available.
+ */
+function restoreRedactedValuesGuessing(
+  incoming: unknown,
+  original: unknown,
+  prefix: string,
+  hints?: ConfigUiHints,
+): unknown {
+  if (incoming === null || incoming === undefined) {
+    return incoming;
+  }
+  if (typeof incoming !== "object") {
+    return incoming;
+  }
+  if (Array.isArray(incoming)) {
+    // Note: If the user removed an item in the middle of the array,
+    // we have no way of knowing which one. In this case, the last
+    // element(s) get(s) chopped off. Not good, so please don't put
+    // sensitive string array in the config...
+    const origArr = Array.isArray(original) ? original : [];
+    return incoming.map((item, i) => {
+      const path = `${prefix}[]`;
+      if (incoming.length < origArr.length) {
+        log.warn(`Redacted config array key ${path} has been truncated`);
+      }
+      if (
+        !isExplicitlyNonSensitivePath(hints, [path]) &&
+        isSensitivePath(path) &&
+        item === REDACTED_SENTINEL
+      ) {
+        return origArr[i];
+      }
+      return restoreRedactedValuesGuessing(item, origArr[i], path, hints);
+    });
+  }
+  const orig =
+    original && typeof original === "object" && !Array.isArray(original)
+      ? (original as Record<string, unknown>)
+      : {};
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(incoming as Record<string, unknown>)) {
+    const path = prefix ? `${prefix}.${key}` : key;
+    const wildcardPath = prefix ? `${prefix}.*` : "*";
+    if (
+      !isExplicitlyNonSensitivePath(hints, [path, wildcardPath]) &&
+      isSensitivePath(path) &&
+      value === REDACTED_SENTINEL
+    ) {
+      result[key] = restoreOriginalValueOrThrow({ key, path, original: orig });
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
     } else if (typeof value === "object" && value !== null) {
       result[key] = restoreRedactedValues(value, orig[key]);
     } else {

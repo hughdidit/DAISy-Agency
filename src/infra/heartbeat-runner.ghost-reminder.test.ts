@@ -89,6 +89,40 @@ describe("Ghost reminder bug (issue #13317)", () => {
     expect(calledCtx?.Body).not.toContain("heartbeat poll");
   };
 
+  const runCronReminderCase = async (
+    tmpPrefix: string,
+    enqueue: (sessionKey: string) => void,
+  ): Promise<{
+    result: Awaited<ReturnType<typeof runHeartbeatOnce>>;
+    sendTelegram: ReturnType<typeof vi.fn>;
+    getReplySpy: ReturnType<typeof vi.spyOn<typeof replyModule, "getReplyFromConfig">>;
+  }> => {
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), tmpPrefix));
+    const sendTelegram = vi.fn().mockResolvedValue({
+      messageId: "m1",
+      chatId: "155462274",
+    });
+    const getReplySpy = vi
+      .spyOn(replyModule, "getReplyFromConfig")
+      .mockResolvedValue({ text: "Relay this reminder now" });
+
+    try {
+      const { cfg, sessionKey } = await createConfig(tmpDir);
+      enqueue(sessionKey);
+      const result = await runHeartbeatOnce({
+        cfg,
+        agentId: "main",
+        reason: "cron:reminder-job",
+        deps: {
+          sendTelegram,
+        },
+      });
+      return { result, sendTelegram, getReplySpy };
+    } finally {
+      await fs.rm(tmpDir, { recursive: true, force: true });
+    }
+  };
+
   it("does not use CRON_EVENT_PROMPT when only a HEARTBEAT_OK event is present", async () => {
 >>>>>>> 2b143de55 (refactor(test): dedupe ghost reminder assertions)
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ghost-"));
@@ -169,6 +203,7 @@ describe("Ghost reminder bug (issue #13317)", () => {
     }
   });
 
+<<<<<<< HEAD
   it("should trigger CRON_EVENT_PROMPT when actual cron message exists", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-"));
     const storePath = path.join(tmpDir, "sessions.json");
@@ -214,9 +249,22 @@ describe("Ghost reminder bug (issue #13317)", () => {
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
+=======
+  it("uses CRON_EVENT_PROMPT when an actionable cron event exists", async () => {
+    const { result, sendTelegram, getReplySpy } = await runCronReminderCase(
+      "openclaw-cron-",
+      (sessionKey) => {
+        enqueueSystemEvent("Reminder: Check Base Scout results", { sessionKey });
+      },
+    );
+    expect(result.status).toBe("ran");
+    expectCronEventPrompt(getReplySpy, "Reminder: Check Base Scout results");
+    expect(sendTelegram).toHaveBeenCalled();
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
   });
 >>>>>>> 2b143de55 (refactor(test): dedupe ghost reminder assertions)
 
+<<<<<<< HEAD
       // Simulate real cron message (not HEARTBEAT_OK)
       enqueueSystemEvent("Reminder: Check Base Scout results", { sessionKey });
 
@@ -256,6 +304,19 @@ describe("Ghost reminder bug (issue #13317)", () => {
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
+=======
+  it("uses CRON_EVENT_PROMPT when cron events are mixed with heartbeat noise", async () => {
+    const { result, sendTelegram, getReplySpy } = await runCronReminderCase(
+      "openclaw-cron-mixed-",
+      (sessionKey) => {
+        enqueueSystemEvent("HEARTBEAT_OK", { sessionKey });
+        enqueueSystemEvent("Reminder: Check Base Scout results", { sessionKey });
+      },
+    );
+    expect(result.status).toBe("ran");
+    expectCronEventPrompt(getReplySpy, "Reminder: Check Base Scout results");
+    expect(sendTelegram).toHaveBeenCalled();
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
   });
 
   it("uses CRON_EVENT_PROMPT for tagged cron events on interval wake", async () => {

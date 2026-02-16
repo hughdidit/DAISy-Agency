@@ -12,8 +12,12 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 =======
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> fa472623f (perf(test): use prebuilt hook install fixtures)
 =======
+=======
+import { expectSingleNpmInstallIgnoreScriptsCall } from "../test-utils/exec-assertions.js";
+>>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 import { isAddressInUseError } from "./gmail-watcher.js";
 >>>>>>> 5e3b211d9 (perf(test): fold gmail watcher assertions into hooks install suite)
 
@@ -208,16 +212,10 @@ describe("installHooksFromPath", () => {
     if (!res.ok) {
       return;
     }
-
-    const calls = run.mock.calls.filter((c) => Array.isArray(c[0]) && c[0][0] === "npm");
-    expect(calls.length).toBe(1);
-    const first = calls[0];
-    if (!first) {
-      throw new Error("expected npm install call");
-    }
-    const [argv, opts] = first;
-    expect(argv).toEqual(["npm", "install", "--omit=dev", "--silent", "--ignore-scripts"]);
-    expect(opts?.cwd).toBe(res.targetDir);
+    expectSingleNpmInstallIgnoreScriptsCall({
+      calls: run.mock.calls as Array<[unknown, { cwd?: string } | undefined]>,
+      expectedCwd: res.targetDir,
+    });
   });
 });
 
