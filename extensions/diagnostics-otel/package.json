@@ -8,6 +8,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
@@ -32,6 +33,9 @@
 =======
   "version": "2026.2.15",
 >>>>>>> 379b44558 (chore: bump version to 2026.2.15)
+=======
+  "version": "2026.2.16",
+>>>>>>> 39fa81dc9 (chore: bump version to 2026.2.16)
   "description": "OpenClaw diagnostics OpenTelemetry exporter",
 >>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
   "type": "module",

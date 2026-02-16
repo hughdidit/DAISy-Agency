@@ -13,6 +13,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29-beta.1",
 =======
   "version": "2026.1.29-beta.3",
@@ -53,6 +54,9 @@
 =======
   "version": "2026.2.15",
 >>>>>>> 379b44558 (chore: bump version to 2026.2.15)
+=======
+  "version": "2026.2.16",
+>>>>>>> 39fa81dc9 (chore: bump version to 2026.2.16)
   "description": "Multi-channel AI gateway with extensible messaging integrations",
   "keywords": [],
   "license": "MIT",
