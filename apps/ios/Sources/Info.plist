@@ -42,8 +42,12 @@
 	<string>20260216</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
+<<<<<<< HEAD
 		<key>NSAllowsLocalNetworking</key>
 >>>>>>> 2e7fac223 (iOS: port talk redaction, accessibility, and ATS hardening (#18163))
+=======
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+>>>>>>> 5a39e13c9 (fix(ios): restore missing location monitor merge files (#18260))
 		<true/>
 	</dict>
 	<key>NSBonjourServices</key>

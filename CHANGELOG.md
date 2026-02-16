@@ -107,7 +107,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 130e59a9c (iOS: port onboarding + QR pairing flow stability (#18162))
 =======
 - iOS/Onboarding: add QR-first onboarding wizard with setup-code deep link support, pairing/auth issue guidance, and device-pair QR generation improvements for Telegram/Web/TUI fallback flows. (#18162) Thanks @mbelinky and @Marvae.
+<<<<<<< HEAD
 >>>>>>> f2e12646b (docs(changelog): credit @Marvae for iOS onboarding QR (#18325))
+=======
+- iOS/Location: restore the significant location monitor implementation (service hooks + protocol surface + ATS key alignment) after merge drift so iOS builds compile again. (#18260) Thanks @ngutman.
+>>>>>>> 5a39e13c9 (fix(ios): restore missing location monitor merge files (#18260))
 
 ## 2026.2.15
 
