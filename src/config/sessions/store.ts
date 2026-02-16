@@ -108,6 +108,28 @@ function normalizeSessionStore(store: Record<string, SessionEntry>): void {
 
 export function clearSessionStoreCacheForTest(): void {
   SESSION_STORE_CACHE.clear();
+<<<<<<< HEAD
+=======
+  for (const queue of LOCK_QUEUES.values()) {
+    for (const task of queue.pending) {
+      task.reject(new Error("session store queue cleared for test"));
+    }
+  }
+  LOCK_QUEUES.clear();
+}
+
+/** Expose lock queue size for tests. */
+export function getSessionStoreLockQueueSizeForTest(): number {
+  return LOCK_QUEUES.size;
+}
+
+export async function withSessionStoreLockForTest<T>(
+  storePath: string,
+  fn: () => Promise<T>,
+  opts: SessionStoreLockOptions = {},
+): Promise<T> {
+  return await withSessionStoreLock(storePath, fn, opts);
+>>>>>>> 12a947223 (fix(ci): restore main checks after bulk merges)
 }
 
 type LoadSessionStoreOptions = {
@@ -648,6 +670,92 @@ type SessionStoreLockOptions = {
   staleMs?: number;
 };
 
+<<<<<<< HEAD
+=======
+type SessionStoreLockTask = {
+  fn: () => Promise<unknown>;
+  resolve: (value: unknown) => void;
+  reject: (reason: unknown) => void;
+  timeoutMs?: number;
+  staleMs: number;
+};
+
+type SessionStoreLockQueue = {
+  running: boolean;
+  pending: SessionStoreLockTask[];
+};
+
+const LOCK_QUEUES = new Map<string, SessionStoreLockQueue>();
+
+function lockTimeoutError(storePath: string): Error {
+  return new Error(`timeout waiting for session store lock: ${storePath}`);
+}
+
+function getOrCreateLockQueue(storePath: string): SessionStoreLockQueue {
+  const existing = LOCK_QUEUES.get(storePath);
+  if (existing) {
+    return existing;
+  }
+  const created: SessionStoreLockQueue = { running: false, pending: [] };
+  LOCK_QUEUES.set(storePath, created);
+  return created;
+}
+
+async function drainSessionStoreLockQueue(storePath: string): Promise<void> {
+  const queue = LOCK_QUEUES.get(storePath);
+  if (!queue || queue.running) {
+    return;
+  }
+  queue.running = true;
+  try {
+    while (queue.pending.length > 0) {
+      const task = queue.pending.shift();
+      if (!task) {
+        continue;
+      }
+
+      const remainingTimeoutMs = task.timeoutMs ?? Number.POSITIVE_INFINITY;
+      if (task.timeoutMs != null && remainingTimeoutMs <= 0) {
+        task.reject(lockTimeoutError(storePath));
+        continue;
+      }
+
+      let lock: { release: () => Promise<void> } | undefined;
+      let result: unknown;
+      let failed: unknown;
+      let hasFailure = false;
+      try {
+        lock = await acquireSessionWriteLock({
+          sessionFile: storePath,
+          timeoutMs: remainingTimeoutMs,
+          staleMs: task.staleMs,
+        });
+        result = await task.fn();
+      } catch (err) {
+        hasFailure = true;
+        failed = err;
+      } finally {
+        await lock?.release().catch(() => undefined);
+      }
+      if (hasFailure) {
+        task.reject(failed);
+        continue;
+      }
+      task.resolve(result);
+    }
+  } finally {
+    queue.running = false;
+    if (queue.pending.length === 0) {
+      LOCK_QUEUES.delete(storePath);
+    } else {
+      queueMicrotask(() => {
+        void drainSessionStoreLockQueue(storePath);
+      });
+    }
+  }
+}
+
+>>>>>>> 12a947223 (fix(ci): restore main checks after bulk merges)
 async function withSessionStoreLock<T>(
   storePath: string,
   fn: () => Promise<T>,
@@ -664,6 +772,7 @@ async function withSessionStoreLock<T>(
   const lockPath = `${storePath}.lock`;
   const startedAt = Date.now();
 
+<<<<<<< HEAD
   await fs.promises.mkdir(path.dirname(storePath), { recursive: true });
 
   while (true) {
@@ -723,6 +832,25 @@ async function withSessionStoreLock<T>(
   } finally {
     await fs.promises.unlink(lockPath).catch(() => undefined);
   }
+=======
+  const hasTimeout = timeoutMs > 0 && Number.isFinite(timeoutMs);
+  const queue = getOrCreateLockQueue(storePath);
+
+  const promise = new Promise<T>((resolve, reject) => {
+    const task: SessionStoreLockTask = {
+      fn: async () => await fn(),
+      resolve: (value) => resolve(value as T),
+      reject,
+      timeoutMs: hasTimeout ? timeoutMs : undefined,
+      staleMs,
+    };
+
+    queue.pending.push(task);
+    void drainSessionStoreLockQueue(storePath);
+  });
+
+  return await promise;
+>>>>>>> 12a947223 (fix(ci): restore main checks after bulk merges)
 }
 
 export async function updateSessionStoreEntry(params: {
