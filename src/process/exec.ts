@@ -110,6 +110,13 @@ export async function runCommandWithTimeout(
     cwd,
     env: resolvedEnv,
     windowsVerbatimArguments,
+<<<<<<< HEAD
+=======
+    windowsHide: true,
+    ...(shouldSpawnWithShell({ resolvedCommand, platform: process.platform })
+      ? { shell: true }
+      : {}),
+>>>>>>> 32c66aff4 (fix: add windowsHide: true to spawn in runCommandWithTimeout)
   });
   // Spawn with inherited stdin (TTY) so tools like `pi` stay interactive when needed.
   return await new Promise((resolve, reject) => {
