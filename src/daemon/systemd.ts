@@ -10,7 +10,6 @@ import { colorize, isRich, theme } from "../terminal/theme.js";
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import {
-  formatGatewayServiceDescription,
   LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES,
   resolveGatewayServiceDescription,
   resolveGatewaySystemdServiceName,
