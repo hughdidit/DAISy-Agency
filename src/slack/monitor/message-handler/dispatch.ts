@@ -196,7 +196,8 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
           );
         }
       } else if (mediaCount > 0) {
-        draftStream?.stop();
+        await draftStream?.clear();
+        hasStreamedMessage = false;
       }
 
       const replyThreadTs = replyPlan.nextThreadTs();
@@ -375,6 +376,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
   const anyReplyDelivered = queuedFinal || (counts.block ?? 0) > 0 || (counts.final ?? 0) > 0;
 
   if (!anyReplyDelivered) {
+    await draftStream.clear();
     if (prepared.isRoomish) {
       clearHistoryEntriesIfEnabled({
         historyMap: ctx.channelHistories,
