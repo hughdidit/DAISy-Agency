@@ -23,6 +23,9 @@ import {
   normalizeStringList,
   parseFrontmatterBool,
   resolveOpenClawManifestBlock,
+  resolveOpenClawManifestInstall,
+  resolveOpenClawManifestOs,
+  resolveOpenClawManifestRequires,
 } from "../../shared/frontmatter.js";
 >>>>>>> ece55b468 (refactor(shared): dedupe frontmatter parsing)
 
@@ -172,15 +175,9 @@ export function resolveOpenClawMetadata(
 >>>>>>> ece55b468 (refactor(shared): dedupe frontmatter parsing)
     return undefined;
   }
-  const requiresRaw =
-    typeof metadataObj.requires === "object" && metadataObj.requires !== null
-      ? (metadataObj.requires as Record<string, unknown>)
-      : undefined;
-  const installRaw = Array.isArray(metadataObj.install) ? (metadataObj.install as unknown[]) : [];
-  const install = installRaw
-    .map((entry) => parseInstallSpec(entry))
-    .filter((entry): entry is SkillInstallSpec => Boolean(entry));
-  const osRaw = normalizeStringList(metadataObj.os);
+  const requires = resolveOpenClawManifestRequires(metadataObj);
+  const install = resolveOpenClawManifestInstall(metadataObj, parseInstallSpec);
+  const osRaw = resolveOpenClawManifestOs(metadataObj);
   return {
     always: typeof metadataObj.always === "boolean" ? metadataObj.always : undefined,
     emoji: typeof metadataObj.emoji === "string" ? metadataObj.emoji : undefined,
@@ -188,14 +185,7 @@ export function resolveOpenClawMetadata(
     skillKey: typeof metadataObj.skillKey === "string" ? metadataObj.skillKey : undefined,
     primaryEnv: typeof metadataObj.primaryEnv === "string" ? metadataObj.primaryEnv : undefined,
     os: osRaw.length > 0 ? osRaw : undefined,
-    requires: requiresRaw
-      ? {
-          bins: normalizeStringList(requiresRaw.bins),
-          anyBins: normalizeStringList(requiresRaw.anyBins),
-          env: normalizeStringList(requiresRaw.env),
-          config: normalizeStringList(requiresRaw.config),
-        }
-      : undefined,
+    requires: requires,
     install: install.length > 0 ? install : undefined,
   };
 }
