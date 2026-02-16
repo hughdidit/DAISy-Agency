@@ -20,6 +20,7 @@ import { logVerbose } from "../globals.js";
 import { loadWebMedia } from "../web/media.js";
 import type { SlackTokenSource } from "./accounts.js";
 import { resolveSlackAccount } from "./accounts.js";
+import { buildSlackBlocksFallbackText } from "./blocks-fallback.js";
 import { validateSlackBlocksArray } from "./blocks-input.js";
 import { createSlackWebClient } from "./client.js";
 import { markdownToSlackMrkdwnChunks } from "./format.js";
@@ -246,10 +247,11 @@ export async function sendMessageSlack(
     if (opts.mediaUrl) {
       throw new Error("Slack send does not support blocks with mediaUrl");
     }
+    const fallbackText = trimmedMessage || buildSlackBlocksFallbackText(blocks);
     const response = await postSlackMessageBestEffort({
       client,
       channelId,
-      text: trimmedMessage || " ",
+      text: fallbackText,
       threadTs: opts.threadTs,
       identity: opts.identity,
       blocks,
