@@ -66,10 +66,13 @@ export function resolveCronSession(params: {
 
   const sessionEntry: SessionEntry = {
     // Spread existing entry to preserve conversation context when reusing
+    // (the spread already copies all fields when !isNewSession, no need to re-assign)
     ...(isNewSession ? undefined : entry),
+    // Always update these core fields
     sessionId,
     updatedAt: params.nowMs,
     systemSent,
+<<<<<<< HEAD
     // Preserve user preferences from existing entry
     thinkingLevel: entry?.thinkingLevel,
     verboseLevel: entry?.verboseLevel,
@@ -80,6 +83,8 @@ export function resolveCronSession(params: {
     lastTo: entry?.lastTo,
     lastAccountId: entry?.lastAccountId,
     skillsSnapshot: entry?.skillsSnapshot,
+=======
+>>>>>>> 690ec492d (refactor: remove redundant field assignments in resolveCronSession)
   };
   return { storePath, store, sessionEntry, systemSent, isNewSession };
 }
