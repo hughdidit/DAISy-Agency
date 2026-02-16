@@ -5,11 +5,11 @@ import type { VoiceCallConfig } from "./config.js";
 import type { CoreConfig } from "./core-bridge.js";
 import type { CallManager } from "./manager.js";
 import type { MediaStreamConfig } from "./media-stream.js";
+import { MediaStreamHandler } from "./media-stream.js";
 import type { VoiceCallProvider } from "./providers/base.js";
+import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
 import type { TwilioProvider } from "./providers/twilio.js";
 import type { NormalizedEvent, WebhookContext } from "./types.js";
-import { MediaStreamHandler } from "./media-stream.js";
-import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
 
 const MAX_WEBHOOK_BODY_BYTES = 1024 * 1024;
 
@@ -136,6 +136,7 @@ export class VoiceCallWebhookServer {
           (this.provider as TwilioProvider).registerCallStream(callId, streamSid);
         }
 
+<<<<<<< HEAD
         // Speak initial message if one was provided when call was initiated
         // Use setTimeout to allow stream setup to complete
         setTimeout(() => {
@@ -143,6 +144,41 @@ export class VoiceCallWebhookServer {
             console.warn(`[voice-call] Failed to speak initial message:`, err);
           });
         }, 500);
+=======
+        // Try instant cached greeting for inbound calls (pre-generated at startup)
+        const cachedAudio =
+          this.provider.name === "twilio"
+            ? (this.provider as TwilioProvider).getCachedGreetingAudio()
+            : null;
+        const call = this.manager.getCallByProviderCallId(callId);
+        if (cachedAudio && call?.metadata?.initialMessage && call.direction === "inbound") {
+          console.log(`[voice-call] Playing cached greeting (${cachedAudio.length} bytes)`);
+          delete call.metadata.initialMessage; // prevent re-speaking via fallback
+          const handler = this.mediaStreamHandler!;
+          const CHUNK_SIZE = 160;
+          const CHUNK_DELAY_MS = 20;
+          void (async () => {
+            const { chunkAudio } = await import("./telephony-audio.js");
+            await handler.queueTts(streamSid, async (signal) => {
+              for (const chunk of chunkAudio(cachedAudio, CHUNK_SIZE)) {
+                if (signal.aborted) break;
+                handler.sendAudio(streamSid, chunk);
+                await new Promise((r) => setTimeout(r, CHUNK_DELAY_MS));
+              }
+              if (!signal.aborted) {
+                handler.sendMark(streamSid, `greeting-${Date.now()}`);
+              }
+            });
+          })().catch((err) => console.warn("[voice-call] Cached greeting playback failed:", err));
+        } else {
+          // Fallback: original path with reduced delay
+          setTimeout(() => {
+            this.manager.speakInitialMessage(callId).catch((err) => {
+              console.warn(`[voice-call] Failed to speak initial message:`, err);
+            });
+          }, 100);
+        }
+>>>>>>> dd319d05d (fix: apply oxfmt formatting)
       },
       onDisconnect: (callId) => {
         console.log(`[voice-call] Media stream disconnected: ${callId}`);
