@@ -1,7 +1,11 @@
 import path from "node:path";
 
 import type { AudioTranscriptionRequest, AudioTranscriptionResult } from "../../types.js";
+<<<<<<< HEAD
 import { fetchWithTimeout, normalizeBaseUrl, readErrorResponse } from "../shared.js";
+=======
+import { assertOkOrThrowHttpError, fetchWithTimeoutGuarded, normalizeBaseUrl } from "../shared.js";
+>>>>>>> 652318e56 (refactor(media): share http error handling)
 
 export const DEFAULT_OPENAI_AUDIO_BASE_URL = "https://api.openai.com/v1";
 const DEFAULT_OPENAI_AUDIO_MODEL = "gpt-4o-mini-transcribe";
@@ -50,10 +54,24 @@ export async function transcribeOpenAiCompatibleAudio(
     fetchFn,
   );
 
+<<<<<<< HEAD
   if (!res.ok) {
     const detail = await readErrorResponse(res);
     const suffix = detail ? `: ${detail}` : "";
     throw new Error(`Audio transcription failed (HTTP ${res.status})${suffix}`);
+=======
+  try {
+    await assertOkOrThrowHttpError(res, "Audio transcription failed");
+
+    const payload = (await res.json()) as { text?: string };
+    const text = payload.text?.trim();
+    if (!text) {
+      throw new Error("Audio transcription response missing text");
+    }
+    return { text, model };
+  } finally {
+    await release();
+>>>>>>> 652318e56 (refactor(media): share http error handling)
   }
 
   const payload = (await res.json()) as { text?: string };

@@ -1,5 +1,9 @@
 import type { AudioTranscriptionRequest, AudioTranscriptionResult } from "../../types.js";
+<<<<<<< HEAD
 import { fetchWithTimeout, normalizeBaseUrl, readErrorResponse } from "../shared.js";
+=======
+import { assertOkOrThrowHttpError, fetchWithTimeoutGuarded, normalizeBaseUrl } from "../shared.js";
+>>>>>>> 652318e56 (refactor(media): share http error handling)
 
 export const DEFAULT_DEEPGRAM_AUDIO_BASE_URL = "https://api.deepgram.com/v1";
 export const DEFAULT_DEEPGRAM_AUDIO_MODEL = "nova-3";
@@ -60,10 +64,24 @@ export async function transcribeDeepgramAudio(
     fetchFn,
   );
 
+<<<<<<< HEAD
   if (!res.ok) {
     const detail = await readErrorResponse(res);
     const suffix = detail ? `: ${detail}` : "";
     throw new Error(`Audio transcription failed (HTTP ${res.status})${suffix}`);
+=======
+  try {
+    await assertOkOrThrowHttpError(res, "Audio transcription failed");
+
+    const payload = (await res.json()) as DeepgramTranscriptResponse;
+    const transcript = payload.results?.channels?.[0]?.alternatives?.[0]?.transcript?.trim();
+    if (!transcript) {
+      throw new Error("Audio transcription response missing transcript");
+    }
+    return { text: transcript, model };
+  } finally {
+    await release();
+>>>>>>> 652318e56 (refactor(media): share http error handling)
   }
 
   const payload = (await res.json()) as DeepgramTranscriptResponse;
