@@ -603,7 +603,13 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
     probeAccount: async ({ account, timeoutMs }) =>
       getLineRuntime().channel.line.probeLineBot(account.channelAccessToken, timeoutMs),
     buildAccountSnapshot: ({ account, runtime, probe }) => {
+<<<<<<< HEAD
       const configured = Boolean(account.channelAccessToken?.trim());
+=======
+      const configured = Boolean(
+        account.channelAccessToken?.trim() && account.channelSecret?.trim(),
+      );
+>>>>>>> 702b94fe8 (style(line): format files to unblock ci check)
       return {
         accountId: account.accountId,
         name: account.name,
