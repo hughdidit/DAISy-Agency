@@ -58,6 +58,9 @@ vi.mock("../../plugins/hook-runner-global.js", () => ({
 const { dispatchReplyFromConfig } = await import("./dispatch-from-config.js");
 const { resetInboundDedupe } = await import("./inbound-dedupe.js");
 
+const noAbortResult = { handled: false, aborted: false } as const;
+const emptyConfig = {} as OpenClawConfig;
+
 function createDispatcher(): ReplyDispatcher {
   return {
     sendToolResult: vi.fn(() => true),
@@ -66,6 +69,16 @@ function createDispatcher(): ReplyDispatcher {
     waitForIdle: vi.fn(async () => {}),
     getQueuedCounts: vi.fn(() => ({ tool: 0, block: 0, final: 0 })),
   };
+}
+
+function setNoAbort() {
+  mocks.tryFastAbortFromMessage.mockResolvedValue(noAbortResult);
+}
+
+function firstToolResultPayload(dispatcher: ReplyDispatcher): ReplyPayload | undefined {
+  return (dispatcher.sendToolResult as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as
+    | ReplyPayload
+    | undefined;
 }
 
 describe("dispatchReplyFromConfig", () => {
@@ -79,12 +92,13 @@ describe("dispatchReplyFromConfig", () => {
     hookMocks.runner.runMessageReceived.mockReset();
   });
   it("does not route when Provider matches OriginatingChannel (even if Surface is missing)", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
+    setNoAbort();
     mocks.routeReply.mockClear();
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
+=======
+    const cfg = emptyConfig;
+>>>>>>> 5d40d4750 (refactor(test): reduce dispatch-from-config setup duplication)
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -105,12 +119,13 @@ describe("dispatchReplyFromConfig", () => {
   });
 
   it("routes when OriginatingChannel differs from Provider", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
+    setNoAbort();
     mocks.routeReply.mockClear();
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
+=======
+    const cfg = emptyConfig;
+>>>>>>> 5d40d4750 (refactor(test): reduce dispatch-from-config setup duplication)
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -139,12 +154,9 @@ describe("dispatchReplyFromConfig", () => {
   });
 
   it("routes media-only tool results when summaries are suppressed", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
+    setNoAbort();
     mocks.routeReply.mockClear();
-    const cfg = {} as OpenClawConfig;
+    const cfg = emptyConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -178,12 +190,13 @@ describe("dispatchReplyFromConfig", () => {
   });
 
   it("provides onToolResult in DM sessions", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
+    setNoAbort();
     mocks.routeReply.mockClear();
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
+=======
+    const cfg = emptyConfig;
+>>>>>>> 5d40d4750 (refactor(test): reduce dispatch-from-config setup duplication)
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -205,11 +218,16 @@ describe("dispatchReplyFromConfig", () => {
   });
 
   it("suppresses group tool summaries but still forwards tool media", async () => {
+<<<<<<< HEAD
     mocks.tryFastAbortFromMessage.mockResolvedValue({
       handled: false,
       aborted: false,
     });
     const cfg = {} as ClawdbotConfig;
+=======
+    setNoAbort();
+    const cfg = emptyConfig;
+>>>>>>> 5d40d4750 (refactor(test): reduce dispatch-from-config setup duplication)
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -233,20 +251,23 @@ describe("dispatchReplyFromConfig", () => {
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
 
     expect(dispatcher.sendToolResult).toHaveBeenCalledTimes(1);
-    const sent = (dispatcher.sendToolResult as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as
-      | ReplyPayload
-      | undefined;
+    const sent = firstToolResultPayload(dispatcher);
     expect(sent?.mediaUrls).toEqual(["https://example.com/tts-group.opus"]);
     expect(sent?.text).toBeUndefined();
     expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
   });
 
   it("sends tool results via dispatcher in DM sessions", async () => {
+<<<<<<< HEAD
     mocks.tryFastAbortFromMessage.mockResolvedValue({
       handled: false,
       aborted: false,
     });
     const cfg = {} as ClawdbotConfig;
+=======
+    setNoAbort();
+    const cfg = emptyConfig;
+>>>>>>> 5d40d4750 (refactor(test): reduce dispatch-from-config setup duplication)
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -273,11 +294,8 @@ describe("dispatchReplyFromConfig", () => {
 <<<<<<< HEAD
 =======
   it("suppresses native tool summaries but still forwards tool media", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
-    const cfg = {} as OpenClawConfig;
+    setNoAbort();
+    const cfg = emptyConfig;
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -301,9 +319,7 @@ describe("dispatchReplyFromConfig", () => {
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
 
     expect(dispatcher.sendToolResult).toHaveBeenCalledTimes(1);
-    const sent = (dispatcher.sendToolResult as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as
-      | ReplyPayload
-      | undefined;
+    const sent = firstToolResultPayload(dispatcher);
     expect(sent?.mediaUrl).toBe("https://example.com/tts-native.opus");
     expect(sent?.text).toBeUndefined();
     expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
@@ -315,7 +331,11 @@ describe("dispatchReplyFromConfig", () => {
       handled: true,
       aborted: true,
     });
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
+=======
+    const cfg = emptyConfig;
+>>>>>>> 5d40d4750 (refactor(test): reduce dispatch-from-config setup duplication)
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -337,7 +357,11 @@ describe("dispatchReplyFromConfig", () => {
       aborted: true,
       stoppedSubagents: 2,
     });
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
+=======
+    const cfg = emptyConfig;
+>>>>>>> 5d40d4750 (refactor(test): reduce dispatch-from-config setup duplication)
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "telegram",
@@ -357,11 +381,16 @@ describe("dispatchReplyFromConfig", () => {
   });
 
   it("deduplicates inbound messages by MessageSid and origin", async () => {
+<<<<<<< HEAD
     mocks.tryFastAbortFromMessage.mockResolvedValue({
       handled: false,
       aborted: false,
     });
     const cfg = {} as MoltbotConfig;
+=======
+    setNoAbort();
+    const cfg = emptyConfig;
+>>>>>>> 5d40d4750 (refactor(test): reduce dispatch-from-config setup duplication)
     const ctx = buildTestCtx({
       Provider: "whatsapp",
       OriginatingChannel: "whatsapp",
@@ -387,12 +416,13 @@ describe("dispatchReplyFromConfig", () => {
   });
 
   it("emits message_received hook with originating channel metadata", async () => {
-    mocks.tryFastAbortFromMessage.mockResolvedValue({
-      handled: false,
-      aborted: false,
-    });
+    setNoAbort();
     hookMocks.runner.hasHooks.mockReturnValue(true);
+<<<<<<< HEAD
     const cfg = {} as MoltbotConfig;
+=======
+    const cfg = emptyConfig;
+>>>>>>> 5d40d4750 (refactor(test): reduce dispatch-from-config setup duplication)
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -438,11 +468,16 @@ describe("dispatchReplyFromConfig", () => {
   });
 
   it("emits diagnostics when enabled", async () => {
+<<<<<<< HEAD
     mocks.tryFastAbortFromMessage.mockResolvedValue({
       handled: false,
       aborted: false,
     });
     const cfg = { diagnostics: { enabled: true } } as MoltbotConfig;
+=======
+    setNoAbort();
+    const cfg = { diagnostics: { enabled: true } } as OpenClawConfig;
+>>>>>>> 5d40d4750 (refactor(test): reduce dispatch-from-config setup duplication)
     const dispatcher = createDispatcher();
     const ctx = buildTestCtx({
       Provider: "slack",
@@ -471,11 +506,16 @@ describe("dispatchReplyFromConfig", () => {
   });
 
   it("marks diagnostics skipped for duplicate inbound messages", async () => {
+<<<<<<< HEAD
     mocks.tryFastAbortFromMessage.mockResolvedValue({
       handled: false,
       aborted: false,
     });
     const cfg = { diagnostics: { enabled: true } } as MoltbotConfig;
+=======
+    setNoAbort();
+    const cfg = { diagnostics: { enabled: true } } as OpenClawConfig;
+>>>>>>> 5d40d4750 (refactor(test): reduce dispatch-from-config setup duplication)
     const ctx = buildTestCtx({
       Provider: "whatsapp",
       OriginatingChannel: "whatsapp",
