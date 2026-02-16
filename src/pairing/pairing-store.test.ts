@@ -6,7 +6,18 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import { resolveOAuthDir } from "../config/paths.js";
+<<<<<<< HEAD
 import { listChannelPairingRequests, upsertChannelPairingRequest } from "./pairing-store.js";
+=======
+import { captureEnv } from "../test-utils/env.js";
+import {
+  addChannelAllowFromStoreEntry,
+  approveChannelPairingCode,
+  listChannelPairingRequests,
+  readChannelAllowFromStore,
+  upsertChannelPairingRequest,
+} from "./pairing-store.js";
+>>>>>>> ee10feb80 (fix (security/pairing): scope pairing stores by account)
 
 async function withTempStateDir<T>(fn: (stateDir: string) => Promise<T>) {
   const previous = process.env.OPENCLAW_STATE_DIR;
@@ -128,6 +139,43 @@ describe("pairing store", () => {
       expect(listIds).toContain("+15550000002");
       expect(listIds).toContain("+15550000003");
       expect(listIds).not.toContain("+15550000004");
+    });
+  });
+
+  it("stores allowFrom entries per account when accountId is provided", async () => {
+    await withTempStateDir(async () => {
+      await addChannelAllowFromStoreEntry({
+        channel: "telegram",
+        accountId: "yy",
+        entry: "12345",
+      });
+
+      const accountScoped = await readChannelAllowFromStore("telegram", process.env, "yy");
+      const channelScoped = await readChannelAllowFromStore("telegram");
+      expect(accountScoped).toContain("12345");
+      expect(channelScoped).not.toContain("12345");
+    });
+  });
+
+  it("approves pairing codes into account-scoped allowFrom via pairing metadata", async () => {
+    await withTempStateDir(async () => {
+      const created = await upsertChannelPairingRequest({
+        channel: "telegram",
+        accountId: "yy",
+        id: "12345",
+      });
+      expect(created.created).toBe(true);
+
+      const approved = await approveChannelPairingCode({
+        channel: "telegram",
+        code: created.code,
+      });
+      expect(approved?.id).toBe("12345");
+
+      const accountScoped = await readChannelAllowFromStore("telegram", process.env, "yy");
+      const channelScoped = await readChannelAllowFromStore("telegram");
+      expect(accountScoped).toContain("12345");
+      expect(channelScoped).not.toContain("12345");
     });
   });
 });
