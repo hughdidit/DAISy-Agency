@@ -616,10 +616,7 @@ function maybeRepairOpenPolicyAllowFrom(cfg: OpenClawConfig): {
   const next = structuredClone(cfg);
   const changes: string[] = [];
 
-  const ensureWildcard = (
-    account: Record<string, unknown>,
-    prefix: string,
-  ) => {
+  const ensureWildcard = (account: Record<string, unknown>, prefix: string) => {
     const dmPolicy =
       (account.dmPolicy as string | undefined) ??
       ((account.dm as Record<string, unknown> | undefined)?.policy as string | undefined);
@@ -667,10 +664,7 @@ function maybeRepairOpenPolicyAllowFrom(cfg: OpenClawConfig): {
     if (accounts && typeof accounts === "object") {
       for (const [accountName, accountConfig] of Object.entries(accounts)) {
         if (accountConfig && typeof accountConfig === "object") {
-          ensureWildcard(
-            accountConfig,
-            `channels.${channelName}.accounts.${accountName}`,
-          );
+          ensureWildcard(accountConfig, `channels.${channelName}.accounts.${accountName}`);
         }
       }
     }
