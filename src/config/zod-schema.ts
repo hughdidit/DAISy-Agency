@@ -94,8 +94,20 @@ const MemorySchema = z
   .strict()
   .optional();
 
+<<<<<<< HEAD
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 export const MoltbotSchema = z
+=======
+const HttpUrlSchema = z
+  .string()
+  .url()
+  .refine((value) => {
+    const protocol = new URL(value).protocol;
+    return protocol === "http:" || protocol === "https:";
+  }, "Expected http:// or https:// URL");
+
+export const OpenClawSchema = z
+>>>>>>> 115cfb443 (gateway: add cron finished-run webhook (#14535))
   .object({
     $schema: z.string().optional(),
     meta: z
@@ -297,6 +309,12 @@ export const MoltbotSchema = z
         enabled: z.boolean().optional(),
         store: z.string().optional(),
         maxConcurrentRuns: z.number().int().positive().optional(),
+<<<<<<< HEAD
+=======
+        webhook: HttpUrlSchema.optional(),
+        webhookToken: z.string().optional().register(sensitive),
+        sessionRetention: z.union([z.string(), z.literal(false)]).optional(),
+>>>>>>> 115cfb443 (gateway: add cron finished-run webhook (#14535))
       })
       .strict()
       .optional(),
