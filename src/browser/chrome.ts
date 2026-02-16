@@ -4,9 +4,13 @@ import os from "node:os";
 import path from "node:path";
 import WebSocket from "ws";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 2977f7325 (fix: add extraArgs to sandbox browser config and apply oxfmt formatting)
+=======
+import type { ResolvedBrowserConfig, ResolvedBrowserProfile } from "./config.js";
+>>>>>>> cc3c25e41 (fix: apply oxfmt 0.32.0 formatting (match CI version))
 import { ensurePortAvailable } from "../infra/ports.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { CONFIG_DIR } from "../utils.js";
@@ -21,10 +25,13 @@ import {
   ensureProfileCleanExit,
   isProfileDecorated,
 } from "./chrome.profile-decoration.js";
+<<<<<<< HEAD
 import type { ResolvedBrowserConfig, ResolvedBrowserProfile } from "./config.js";
 <<<<<<< HEAD
 import { DEFAULT_CLAWD_BROWSER_COLOR, DEFAULT_CLAWD_BROWSER_PROFILE_NAME } from "./constants.js";
 =======
+=======
+>>>>>>> cc3c25e41 (fix: apply oxfmt 0.32.0 formatting (match CI version))
 import {
   DEFAULT_OPENCLAW_BROWSER_COLOR,
   DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME,
