@@ -17,6 +17,7 @@ import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 import { normalizeUpdateChannel } from "../../infra/update-channels.js";
 >>>>>>> bbe9cb302 (fix(update): honor update.channel for update.run)
 import { runGatewayUpdate } from "../../infra/update-runner.js";
+<<<<<<< HEAD
 import {
   ErrorCodes,
   errorShape,
@@ -24,18 +25,14 @@ import {
   validateUpdateRunParams,
 } from "../protocol/index.js";
 import type { GatewayRequestHandlers } from "./types.js";
+=======
+import { validateUpdateRunParams } from "../protocol/index.js";
+import { assertValidParams } from "./validation.js";
+>>>>>>> b743e652c (refactor(gateway): reuse shared validators + baseHash)
 
 export const updateHandlers: GatewayRequestHandlers = {
   "update.run": async ({ params, respond }) => {
-    if (!validateUpdateRunParams(params)) {
-      respond(
-        false,
-        undefined,
-        errorShape(
-          ErrorCodes.INVALID_REQUEST,
-          `invalid update.run params: ${formatValidationErrors(validateUpdateRunParams.errors)}`,
-        ),
-      );
+    if (!assertValidParams(params, validateUpdateRunParams, "update.run", respond)) {
       return;
     }
     const sessionKey =
