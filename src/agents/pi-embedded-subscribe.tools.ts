@@ -118,6 +118,81 @@ export function extractToolResultText(result: unknown): string | undefined {
   return texts.join("\n");
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * Extract media file paths from a tool result.
+ *
+ * Strategy (first match wins):
+ * 1. Parse `MEDIA:` tokens from text content blocks (all OpenClaw tools).
+ * 2. Fall back to `details.path` when image content exists (OpenClaw imageResult).
+ *
+ * Returns an empty array when no media is found (e.g. Pi SDK `read` tool
+ * returns base64 image data but no file path; those need a different delivery
+ * path like saving to a temp file).
+ */
+export function extractToolResultMediaPaths(result: unknown): string[] {
+  if (!result || typeof result !== "object") {
+    return [];
+  }
+  const record = result as Record<string, unknown>;
+  const content = Array.isArray(record.content) ? record.content : null;
+  if (!content) {
+    return [];
+  }
+
+  // Extract MEDIA: paths from text content blocks.
+  const paths: string[] = [];
+  let hasImageContent = false;
+  for (const item of content) {
+    if (!item || typeof item !== "object") {
+      continue;
+    }
+    const entry = item as Record<string, unknown>;
+    if (entry.type === "image") {
+      hasImageContent = true;
+      continue;
+    }
+    if (entry.type === "text" && typeof entry.text === "string") {
+      // Only parse lines that start with MEDIA: (after trimming) to avoid
+      // false-matching placeholders like <media:audio> or mid-line mentions.
+      // Mirrors the line-start guard in splitMediaFromOutput (media/parse.ts).
+      for (const line of entry.text.split("\n")) {
+        if (!line.trimStart().startsWith("MEDIA:")) {
+          continue;
+        }
+        MEDIA_TOKEN_RE.lastIndex = 0;
+        let match: RegExpExecArray | null;
+        while ((match = MEDIA_TOKEN_RE.exec(line)) !== null) {
+          const p = match[1]
+            ?.replace(/^[`"'[{(]+/, "")
+            .replace(/[`"'\]})\\,]+$/, "")
+            .trim();
+          if (p && p.length <= 4096) {
+            paths.push(p);
+          }
+        }
+      }
+    }
+  }
+
+  if (paths.length > 0) {
+    return paths;
+  }
+
+  // Fall back to details.path when image content exists but no MEDIA: text.
+  if (hasImageContent) {
+    const details = record.details as Record<string, unknown> | undefined;
+    const p = typeof details?.path === "string" ? details.path.trim() : "";
+    if (p) {
+      return [p];
+    }
+  }
+
+  return [];
+}
+
+>>>>>>> 0587e4cc7 (fix(agents): restrict MEDIA: token parsing to line start in tool results (#18510))
 export function isToolResultError(result: unknown): boolean {
   if (!result || typeof result !== "object") {
     return false;
