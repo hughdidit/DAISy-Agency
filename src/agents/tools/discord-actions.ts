@@ -1,5 +1,10 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { resolveDiscordAccount } from "../../discord/accounts.js";
+>>>>>>> a03fec2a3 (fix: use per-account action config for Discord and Telegram gating)
 import { createActionGate, readStringParam } from "./common.js";
 import { handleDiscordGuildAction } from "./discord-actions-guild.js";
 import { handleDiscordMessagingAction } from "./discord-actions-messaging.js";
@@ -56,7 +61,9 @@ export async function handleDiscordAction(
   cfg: MoltbotConfig,
 ): Promise<AgentToolResult<unknown>> {
   const action = readStringParam(params, "action", { required: true });
-  const isActionEnabled = createActionGate(cfg.channels?.discord?.actions);
+  const accountId = readStringParam(params, "accountId");
+  const account = resolveDiscordAccount({ cfg, accountId });
+  const isActionEnabled = createActionGate(account.config.actions);
 
   if (messagingActions.has(action)) {
     return await handleDiscordMessagingAction(action, params, isActionEnabled);

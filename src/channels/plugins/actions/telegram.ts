@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import type { TelegramActionConfig } from "../../../config/types.telegram.js";
+import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
+>>>>>>> a03fec2a3 (fix: use per-account action config for Discord and Telegram gating)
 import {
   createActionGate,
   readNumberParam,
@@ -42,8 +47,18 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
     const accounts = listEnabledTelegramAccounts(cfg).filter(
       (account) => account.tokenSource !== "none",
     );
+<<<<<<< HEAD
     if (accounts.length === 0) return [];
     const gate = createActionGate(cfg.channels?.telegram?.actions);
+=======
+    if (accounts.length === 0) {
+      return [];
+    }
+    // Union of all accounts' action gates (any account enabling an action makes it available)
+    const gates = accounts.map((a) => createActionGate(a.config.actions));
+    const gate = (key: keyof TelegramActionConfig, defaultValue = true) =>
+      gates.some((g) => g(key, defaultValue));
+>>>>>>> a03fec2a3 (fix: use per-account action config for Discord and Telegram gating)
     const actions = new Set<ChannelMessageActionName>(["send"]);
     if (gate("reactions")) actions.add("react");
     if (gate("deleteMessage")) actions.add("delete");
