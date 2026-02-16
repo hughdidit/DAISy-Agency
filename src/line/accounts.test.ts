@@ -144,6 +144,7 @@ describe("LINE accounts", () => {
   });
 
   describe("resolveDefaultLineAccountId", () => {
+<<<<<<< HEAD
     it("returns default when configured", () => {
       const cfg: MoltbotConfig = {
         channels: {
@@ -158,6 +159,8 @@ describe("LINE accounts", () => {
       expect(id).toBe(DEFAULT_ACCOUNT_ID);
     });
 
+=======
+>>>>>>> 4c46c23ca (test: remove redundant default line account id case)
     it("returns first named account when default not configured", () => {
       const cfg: MoltbotConfig = {
         channels: {
