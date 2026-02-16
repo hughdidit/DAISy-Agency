@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import crypto from "node:crypto";
+>>>>>>> 2977f7325 (fix: add extraArgs to sandbox browser config and apply oxfmt formatting)
 import { startBrowserBridgeServer, stopBrowserBridgeServer } from "../../browser/bridge-server.js";
 import { type ResolvedBrowserConfig, resolveProfile } from "../../browser/config.js";
 import {
@@ -16,6 +20,11 @@ import { updateBrowserRegistry } from "./registry.js";
 import { slugifySessionKey } from "./shared.js";
 import { isToolAllowed } from "./tool-policy.js";
 import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
+<<<<<<< HEAD
+=======
+
+const HOT_BROWSER_WINDOW_MS = 5 * 60 * 1000;
+>>>>>>> 2977f7325 (fix: add extraArgs to sandbox browser config and apply oxfmt formatting)
 
 async function waitForSandboxCdp(params: { cdpPort: number; timeoutMs: number }): Promise<boolean> {
   const deadline = Date.now() + Math.max(0, params.timeoutMs);
@@ -59,7 +68,12 @@ function buildSandboxBrowserResolvedConfig(params: {
     headless: params.headless,
     noSandbox: false,
     attachOnly: true,
+<<<<<<< HEAD
     defaultProfile: "daisy",
+=======
+    defaultProfile: DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME,
+    extraArgs: [],
+>>>>>>> 2977f7325 (fix: add extraArgs to sandbox browser config and apply oxfmt formatting)
     profiles: {
       daisy: { cdpPort: params.cdpPort, color: DEFAULT_CLAWD_BROWSER_COLOR },
     },
