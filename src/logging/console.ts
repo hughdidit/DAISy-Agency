@@ -7,6 +7,7 @@ import { readLoggingConfig } from "./config.js";
 import { type LogLevel, normalizeLogLevel } from "./levels.js";
 import { getLogger, type LoggerSettings } from "./logger.js";
 import { loggingState } from "./state.js";
+import { formatLocalIsoWithOffset } from "./timestamps.js";
 
 export type ConsoleStyle = "pretty" | "compact" | "json";
 type ConsoleSettings = {
@@ -154,7 +155,11 @@ function formatConsoleTimestamp(style: ConsoleStyle): string {
   if (style === "pretty") {
     return now.slice(11, 19);
   }
+<<<<<<< HEAD
   return now;
+=======
+  return formatLocalIsoWithOffset(now);
+>>>>>>> d9d5b53b4 (refactor(logging): share local iso timestamp format)
 }
 
 function hasTimestampPrefix(value: string): boolean {
