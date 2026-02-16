@@ -744,3 +744,329 @@ describe("discord media payload", () => {
     expect(payload.MediaUrls).toEqual(["/tmp/a.png", "/tmp/b.png", "/tmp/c.png"]);
   });
 });
+<<<<<<< HEAD
+=======
+
+// --- DM reaction integration tests ---
+// These test that handleDiscordReactionEvent (via DiscordReactionListener)
+// properly handles DM reactions instead of silently dropping them.
+
+const { enqueueSystemEventSpy, resolveAgentRouteMock } = vi.hoisted(() => ({
+  enqueueSystemEventSpy: vi.fn(),
+  resolveAgentRouteMock: vi.fn(() => ({
+    agentId: "default",
+    channel: "discord",
+    accountId: "acc-1",
+    sessionKey: "discord:acc-1:dm:user-1",
+  })),
+}));
+
+vi.mock("../infra/system-events.js", () => ({
+  enqueueSystemEvent: enqueueSystemEventSpy,
+}));
+
+vi.mock("../routing/resolve-route.js", () => ({
+  resolveAgentRoute: resolveAgentRouteMock,
+}));
+
+function makeReactionEvent(overrides?: {
+  guildId?: string;
+  channelId?: string;
+  userId?: string;
+  messageId?: string;
+  emojiName?: string;
+  botAsAuthor?: boolean;
+  messageAuthorId?: string;
+  messageFetch?: ReturnType<typeof vi.fn>;
+  guild?: { name?: string; id?: string };
+}) {
+  const userId = overrides?.userId ?? "user-1";
+  const messageId = overrides?.messageId ?? "msg-1";
+  const channelId = overrides?.channelId ?? "channel-1";
+  const messageFetch =
+    overrides?.messageFetch ??
+    vi.fn(async () => ({
+      author: {
+        id: overrides?.messageAuthorId ?? (overrides?.botAsAuthor ? "bot-1" : "other-user"),
+        username: overrides?.botAsAuthor ? "bot" : "otheruser",
+        discriminator: "0",
+      },
+    }));
+  return {
+    guild_id: overrides?.guildId,
+    channel_id: channelId,
+    message_id: messageId,
+    emoji: { name: overrides?.emojiName ?? "👍", id: null },
+    guild: overrides?.guild,
+    user: {
+      id: userId,
+      bot: false,
+      username: "testuser",
+      discriminator: "0",
+    },
+    message: {
+      fetch: messageFetch,
+    },
+  } as unknown as Parameters<DiscordReactionListener["handle"]>[0];
+}
+
+function makeReactionClient(options?: {
+  channelType?: ChannelType;
+  channelName?: string;
+  parentId?: string;
+  parentName?: string;
+}) {
+  const channelType = options?.channelType ?? ChannelType.DM;
+  const channelName =
+    options?.channelName ?? (channelType === ChannelType.DM ? undefined : "test-channel");
+  const parentId = options?.parentId;
+  const parentName = options?.parentName ?? "parent-channel";
+
+  return {
+    fetchChannel: vi.fn(async (channelId: string) => {
+      if (parentId && channelId === parentId) {
+        return { type: ChannelType.GuildText, name: parentName, parentId: undefined };
+      }
+      return { type: channelType, name: channelName, parentId };
+    }),
+  } as unknown as Parameters<DiscordReactionListener["handle"]>[1];
+}
+
+function makeReactionListenerParams(overrides?: {
+  botUserId?: string;
+  guildEntries?: Record<string, DiscordGuildEntryResolved>;
+}) {
+  return {
+    cfg: {} as ReturnType<typeof import("../config/config.js").loadConfig>,
+    accountId: "acc-1",
+    runtime: {} as import("../runtime.js").RuntimeEnv,
+    botUserId: overrides?.botUserId ?? "bot-1",
+    guildEntries: overrides?.guildEntries,
+    logger: {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn(),
+    } as unknown as ReturnType<typeof import("../logging/subsystem.js").createSubsystemLogger>,
+  };
+}
+
+describe("discord DM reaction handling", () => {
+  it("processes DM reactions instead of dropping them", async () => {
+    enqueueSystemEventSpy.mockClear();
+    resolveAgentRouteMock.mockClear();
+
+    const data = makeReactionEvent({ botAsAuthor: true });
+    const client = makeReactionClient({ channelType: ChannelType.DM });
+    const listener = new DiscordReactionListener(makeReactionListenerParams());
+
+    await listener.handle(data, client);
+
+    expect(enqueueSystemEventSpy).toHaveBeenCalledOnce();
+    const [text, opts] = enqueueSystemEventSpy.mock.calls[0];
+    expect(text).toContain("Discord reaction added");
+    expect(text).toContain("👍");
+    expect(opts.sessionKey).toBe("discord:acc-1:dm:user-1");
+  });
+
+  it("does not drop DM reactions when guild allowlist is configured", async () => {
+    enqueueSystemEventSpy.mockClear();
+    resolveAgentRouteMock.mockClear();
+
+    const data = makeReactionEvent({ botAsAuthor: true });
+    const client = makeReactionClient({ channelType: ChannelType.DM });
+    const guildEntries = makeEntries({
+      "guild-123": { slug: "guild-123" },
+    });
+    const listener = new DiscordReactionListener(makeReactionListenerParams({ guildEntries }));
+
+    await listener.handle(data, client);
+
+    expect(enqueueSystemEventSpy).toHaveBeenCalledOnce();
+  });
+
+  it("still processes guild reactions (no regression)", async () => {
+    enqueueSystemEventSpy.mockClear();
+    resolveAgentRouteMock.mockClear();
+    resolveAgentRouteMock.mockReturnValueOnce({
+      agentId: "default",
+      channel: "discord",
+      accountId: "acc-1",
+      sessionKey: "discord:acc-1:guild-123:channel-1",
+    });
+
+    const data = makeReactionEvent({
+      guildId: "guild-123",
+      botAsAuthor: true,
+      guild: { name: "Test Guild" },
+    });
+    const client = makeReactionClient({ channelType: ChannelType.GuildText });
+    const listener = new DiscordReactionListener(makeReactionListenerParams());
+
+    await listener.handle(data, client);
+
+    expect(enqueueSystemEventSpy).toHaveBeenCalledOnce();
+    const [text] = enqueueSystemEventSpy.mock.calls[0];
+    expect(text).toContain("Discord reaction added");
+  });
+
+  it("uses 'dm' in log text for DM reactions, not 'undefined'", async () => {
+    enqueueSystemEventSpy.mockClear();
+    resolveAgentRouteMock.mockClear();
+
+    const data = makeReactionEvent({ botAsAuthor: true });
+    const client = makeReactionClient({ channelType: ChannelType.DM });
+    const listener = new DiscordReactionListener(makeReactionListenerParams());
+
+    await listener.handle(data, client);
+
+    expect(enqueueSystemEventSpy).toHaveBeenCalledOnce();
+    const [text] = enqueueSystemEventSpy.mock.calls[0];
+    expect(text).toContain("dm");
+    expect(text).not.toContain("undefined");
+  });
+
+  it("routes DM reactions with peer kind 'direct' and user id", async () => {
+    enqueueSystemEventSpy.mockClear();
+    resolveAgentRouteMock.mockClear();
+
+    const data = makeReactionEvent({ userId: "user-42", botAsAuthor: true });
+    const client = makeReactionClient({ channelType: ChannelType.DM });
+    const listener = new DiscordReactionListener(makeReactionListenerParams());
+
+    await listener.handle(data, client);
+
+    expect(resolveAgentRouteMock).toHaveBeenCalledOnce();
+    const routeArgs = resolveAgentRouteMock.mock.calls[0][0];
+    expect(routeArgs.peer).toEqual({ kind: "direct", id: "user-42" });
+  });
+
+  it("routes group DM reactions with peer kind 'group'", async () => {
+    enqueueSystemEventSpy.mockClear();
+    resolveAgentRouteMock.mockClear();
+
+    const data = makeReactionEvent({ botAsAuthor: true });
+    const client = makeReactionClient({ channelType: ChannelType.GroupDM });
+    const listener = new DiscordReactionListener(makeReactionListenerParams());
+
+    await listener.handle(data, client);
+
+    expect(resolveAgentRouteMock).toHaveBeenCalledOnce();
+    const routeArgs = resolveAgentRouteMock.mock.calls[0][0];
+    expect(routeArgs.peer).toEqual({ kind: "group", id: "channel-1" });
+  });
+});
+
+describe("discord reaction notification modes", () => {
+  const guildId = "guild-900";
+  const guild = fakeGuild(guildId, "Mode Guild");
+
+  it("skips message fetch when mode is off", async () => {
+    enqueueSystemEventSpy.mockClear();
+    resolveAgentRouteMock.mockClear();
+
+    const messageFetch = vi.fn(async () => ({
+      author: { id: "bot-1", username: "bot", discriminator: "0" },
+    }));
+    const data = makeReactionEvent({ guildId, guild, messageFetch });
+    const client = makeReactionClient({ channelType: ChannelType.GuildText });
+    const guildEntries = makeEntries({
+      [guildId]: { reactionNotifications: "off" },
+    });
+    const listener = new DiscordReactionListener(makeReactionListenerParams({ guildEntries }));
+
+    await listener.handle(data, client);
+
+    expect(messageFetch).not.toHaveBeenCalled();
+    expect(enqueueSystemEventSpy).not.toHaveBeenCalled();
+  });
+
+  it("skips message fetch when mode is all", async () => {
+    enqueueSystemEventSpy.mockClear();
+    resolveAgentRouteMock.mockClear();
+
+    const messageFetch = vi.fn(async () => ({
+      author: { id: "other-user", username: "other", discriminator: "0" },
+    }));
+    const data = makeReactionEvent({ guildId, guild, messageFetch });
+    const client = makeReactionClient({ channelType: ChannelType.GuildText });
+    const guildEntries = makeEntries({
+      [guildId]: { reactionNotifications: "all" },
+    });
+    const listener = new DiscordReactionListener(makeReactionListenerParams({ guildEntries }));
+
+    await listener.handle(data, client);
+
+    expect(messageFetch).not.toHaveBeenCalled();
+    expect(enqueueSystemEventSpy).toHaveBeenCalledOnce();
+  });
+
+  it("skips message fetch when mode is allowlist", async () => {
+    enqueueSystemEventSpy.mockClear();
+    resolveAgentRouteMock.mockClear();
+
+    const messageFetch = vi.fn(async () => ({
+      author: { id: "other-user", username: "other", discriminator: "0" },
+    }));
+    const data = makeReactionEvent({ guildId, guild, userId: "123", messageFetch });
+    const client = makeReactionClient({ channelType: ChannelType.GuildText });
+    const guildEntries = makeEntries({
+      [guildId]: { reactionNotifications: "allowlist", users: ["123"] },
+    });
+    const listener = new DiscordReactionListener(makeReactionListenerParams({ guildEntries }));
+
+    await listener.handle(data, client);
+
+    expect(messageFetch).not.toHaveBeenCalled();
+    expect(enqueueSystemEventSpy).toHaveBeenCalledOnce();
+  });
+
+  it("fetches message when mode is own", async () => {
+    enqueueSystemEventSpy.mockClear();
+    resolveAgentRouteMock.mockClear();
+
+    const messageFetch = vi.fn(async () => ({
+      author: { id: "bot-1", username: "bot", discriminator: "0" },
+    }));
+    const data = makeReactionEvent({ guildId, guild, messageFetch });
+    const client = makeReactionClient({ channelType: ChannelType.GuildText });
+    const guildEntries = makeEntries({
+      [guildId]: { reactionNotifications: "own" },
+    });
+    const listener = new DiscordReactionListener(makeReactionListenerParams({ guildEntries }));
+
+    await listener.handle(data, client);
+
+    expect(messageFetch).toHaveBeenCalledOnce();
+    expect(enqueueSystemEventSpy).toHaveBeenCalledOnce();
+  });
+
+  it("skips message fetch for thread channels in all mode", async () => {
+    enqueueSystemEventSpy.mockClear();
+    resolveAgentRouteMock.mockClear();
+
+    const messageFetch = vi.fn(async () => ({
+      author: { id: "other-user", username: "other", discriminator: "0" },
+    }));
+    const data = makeReactionEvent({
+      guildId,
+      guild,
+      channelId: "thread-1",
+      messageFetch,
+    });
+    const client = makeReactionClient({
+      channelType: ChannelType.PublicThread,
+      parentId: "parent-1",
+    });
+    const guildEntries = makeEntries({
+      [guildId]: { reactionNotifications: "all" },
+    });
+    const listener = new DiscordReactionListener(makeReactionListenerParams({ guildEntries }));
+
+    await listener.handle(data, client);
+
+    expect(messageFetch).not.toHaveBeenCalled();
+    expect(enqueueSystemEventSpy).toHaveBeenCalledOnce();
+  });
+});
+>>>>>>> 7c240a2b5 (feat(discord): faster reaction status state machine (watchdog + debounce) (#18248))
