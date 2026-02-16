@@ -11,8 +11,8 @@ import { colorize, isRich, theme } from "../terminal/theme.js";
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import {
-  formatGatewayServiceDescription,
   GATEWAY_LAUNCH_AGENT_LABEL,
+  resolveGatewayServiceDescription,
   resolveGatewayLaunchAgentLabel,
   resolveLegacyGatewayLaunchAgentLabels,
 } from "./constants.js";
@@ -438,12 +438,16 @@ export async function installLaunchAgent({
   const plistPath = resolveLaunchAgentPlistPathForLabel(env, label);
   await fs.mkdir(path.dirname(plistPath), { recursive: true });
 
+<<<<<<< HEAD
   const serviceDescription =
     description ??
     formatGatewayServiceDescription({
       profile: env.CLAWDBOT_PROFILE,
       version: environment?.CLAWDBOT_SERVICE_VERSION ?? env.CLAWDBOT_SERVICE_VERSION,
     });
+=======
+  const serviceDescription = resolveGatewayServiceDescription({ env, environment, description });
+>>>>>>> 0dbc51aa5 (refactor(daemon): share service description resolve)
   const plist = buildLaunchAgentPlist({
     label,
     comment: serviceDescription,

@@ -13,8 +13,12 @@ import { colorize, isRich, theme } from "../terminal/theme.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 =======
 import { splitArgsPreservingQuotes } from "./arg-split.js";
+<<<<<<< HEAD
 >>>>>>> 108ea4336 (refactor(daemon): share quoted arg splitter)
 import { formatGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
+=======
+import { resolveGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
+>>>>>>> 0dbc51aa5 (refactor(daemon): share service description resolve)
 import { formatLine } from "./output.js";
 import { resolveGatewayStateDir } from "./paths.js";
 import { parseKeyValueOutput } from "./runtime-parse.js";
@@ -220,12 +224,16 @@ export async function installScheduledTask({
   await assertSchtasksAvailable();
   const scriptPath = resolveTaskScriptPath(env);
   await fs.mkdir(path.dirname(scriptPath), { recursive: true });
+<<<<<<< HEAD
   const taskDescription =
     description ??
     formatGatewayServiceDescription({
       profile: env.CLAWDBOT_PROFILE,
       version: environment?.CLAWDBOT_SERVICE_VERSION ?? env.CLAWDBOT_SERVICE_VERSION,
     });
+=======
+  const taskDescription = resolveGatewayServiceDescription({ env, environment, description });
+>>>>>>> 0dbc51aa5 (refactor(daemon): share service description resolve)
   const script = buildTaskScript({
     description: taskDescription,
     programArguments,
