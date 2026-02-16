@@ -20,7 +20,7 @@ import { isWSL } from "../../infra/wsl.js";
 >>>>>>> 1b9c1c648 (refactor(daemon): share service lifecycle runner)
 import { loadNodeHostConfig } from "../../node-host/config.js";
 import { defaultRuntime } from "../../runtime.js";
-import { colorize, isRich, theme } from "../../terminal/theme.js";
+import { colorize, theme } from "../../terminal/theme.js";
 import { formatCliCommand } from "../command-format.js";
 import {
   runServiceRestart,
@@ -33,7 +33,7 @@ import {
   createDaemonActionContext,
   installDaemonServiceAndEmit,
 } from "../daemon-cli/response.js";
-import { formatRuntimeStatus, parsePort } from "../daemon-cli/shared.js";
+import { createCliStatusTextStyles, formatRuntimeStatus, parsePort } from "../daemon-cli/shared.js";
 
 type NodeDaemonInstallOptions = {
   host?: string;
@@ -249,13 +249,8 @@ export async function runNodeDaemonStatus(opts: NodeDaemonStatusOptions = {}) {
     return;
   }
 
-  const rich = isRich();
-  const label = (value: string) => colorize(rich, theme.muted, value);
-  const accent = (value: string) => colorize(rich, theme.accent, value);
-  const infoText = (value: string) => colorize(rich, theme.info, value);
-  const okText = (value: string) => colorize(rich, theme.success, value);
-  const warnText = (value: string) => colorize(rich, theme.warn, value);
-  const errorText = (value: string) => colorize(rich, theme.error, value);
+  const { rich, label, accent, infoText, okText, warnText, errorText } =
+    createCliStatusTextStyles();
 
   const serviceStatus = loaded ? okText(service.loadedText) : warnText(service.notLoadedText);
   defaultRuntime.log(`${label("Service:")} ${accent(service.label)} (${serviceStatus})`);
