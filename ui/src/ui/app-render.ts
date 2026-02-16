@@ -188,6 +188,7 @@ import { renderSkills } from "./views/skills";
 >>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
 } from "./controllers/skills.ts";
 import { icons } from "./icons.ts";
+<<<<<<< HEAD
 import {
   normalizeBasePath,
   TAB_GROUPS,
@@ -197,6 +198,9 @@ import {
   titleForTab,
   type Tab,
 } from "./navigation.ts";
+=======
+import { normalizeBasePath, TAB_GROUPS, subtitleForTab, titleForTab } from "./navigation.ts";
+>>>>>>> 66fc12a40 (style: apply oxfmt formatting to app-render.ts)
 import { renderAgents } from "./views/agents.ts";
 import { renderChannels } from "./views/channels.ts";
 import { renderChat } from "./views/chat.ts";
