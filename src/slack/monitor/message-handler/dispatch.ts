@@ -16,7 +16,15 @@ import { removeSlackReaction } from "../../actions.js";
 import { appendSlackStream, startSlackStream, stopSlackStream } from "../../streaming.js";
 =======
 import { createSlackDraftStream } from "../../draft-stream.js";
+<<<<<<< HEAD
 >>>>>>> bec974aba (feat(slack): stream partial replies via draft message updates)
+=======
+import {
+  applyAppendOnlyStreamUpdate,
+  buildStatusFinalPreviewText,
+  resolveSlackStreamMode,
+} from "../../stream-mode.js";
+>>>>>>> 89ce1460e (feat(slack): add configurable stream modes)
 import { resolveSlackThreadTargets } from "../../threading.js";
 import { createSlackReplyDeliveryPlan, deliverReplies } from "../replies.js";
 
@@ -173,6 +181,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
       const draftChannelId = draftStream?.channelId();
       const finalText = payload.text;
       const canFinalizeViaPreviewEdit =
+        streamMode !== "status_final" &&
         mediaCount === 0 &&
         !payload.isError &&
         typeof finalText === "string" &&
@@ -194,6 +203,21 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
           logVerbose(
             `slack: preview final edit failed; falling back to standard send (${String(err)})`,
           );
+        }
+      } else if (streamMode === "status_final" && hasStreamedMessage) {
+        try {
+          const statusChannelId = draftStream?.channelId();
+          const statusMessageId = draftStream?.messageId();
+          if (statusChannelId && statusMessageId) {
+            await ctx.app.client.chat.update({
+              token: ctx.botToken,
+              channel: statusChannelId,
+              ts: statusMessageId,
+              text: "Status: complete. Final answer posted below.",
+            });
+          }
+        } catch (err) {
+          logVerbose(`slack: status_final completion update failed (${String(err)})`);
         }
       } else if (mediaCount > 0) {
         await draftStream?.clear();
@@ -315,11 +339,42 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     warn: logVerbose,
   });
   let hasStreamedMessage = false;
+  const streamMode = resolveSlackStreamMode(account.config.streamMode);
+  let appendRenderedText = "";
+  let appendSourceText = "";
+  let statusUpdateCount = 0;
   const updateDraftFromPartial = (text?: string) => {
     const trimmed = text?.trimEnd();
     if (!trimmed) {
       return;
     }
+
+    if (streamMode === "append") {
+      const next = applyAppendOnlyStreamUpdate({
+        incoming: trimmed,
+        rendered: appendRenderedText,
+        source: appendSourceText,
+      });
+      appendRenderedText = next.rendered;
+      appendSourceText = next.source;
+      if (!next.changed) {
+        return;
+      }
+      draftStream.update(next.rendered);
+      hasStreamedMessage = true;
+      return;
+    }
+
+    if (streamMode === "status_final") {
+      statusUpdateCount += 1;
+      if (statusUpdateCount > 1 && statusUpdateCount % 4 !== 0) {
+        return;
+      }
+      draftStream.update(buildStatusFinalPreviewText(statusUpdateCount));
+      hasStreamedMessage = true;
+      return;
+    }
+
     draftStream.update(trimmed);
     hasStreamedMessage = true;
   };
@@ -348,12 +403,18 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
         if (hasStreamedMessage) {
           draftStream.forceNewMessage();
           hasStreamedMessage = false;
+          appendRenderedText = "";
+          appendSourceText = "";
+          statusUpdateCount = 0;
         }
       },
       onReasoningEnd: async () => {
         if (hasStreamedMessage) {
           draftStream.forceNewMessage();
           hasStreamedMessage = false;
+          appendRenderedText = "";
+          appendSourceText = "";
+          statusUpdateCount = 0;
         }
       },
     },
