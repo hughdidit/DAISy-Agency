@@ -131,6 +131,7 @@ async function resolveTelegramCommandAuth(params: {
   msg: NonNullable<TelegramNativeCommandContext["message"]>;
   bot: Bot;
   cfg: OpenClawConfig;
+  accountId: string;
   telegramCfg: TelegramAccountConfig;
   allowFrom?: Array<string | number>;
   groupAllowFrom?: Array<string | number>;
@@ -146,6 +147,7 @@ async function resolveTelegramCommandAuth(params: {
     msg,
     bot,
     cfg,
+    accountId,
     telegramCfg,
     allowFrom,
     groupAllowFrom,
@@ -160,6 +162,7 @@ async function resolveTelegramCommandAuth(params: {
   const isForum = (msg.chat as { is_forum?: boolean }).is_forum === true;
   const groupAllowContext = await resolveTelegramGroupAllowFromContext({
     chatId,
+    accountId,
     isForum,
     messageThreadId,
     groupAllowFrom,
@@ -416,6 +419,7 @@ export const registerTelegramNativeCommands = ({
             msg,
             bot,
             cfg,
+            accountId,
             telegramCfg,
             allowFrom,
             groupAllowFrom,
@@ -665,6 +669,7 @@ export const registerTelegramNativeCommands = ({
             msg,
             bot,
             cfg,
+            accountId,
             telegramCfg,
             allowFrom,
             groupAllowFrom,

@@ -257,6 +257,7 @@ export const buildTelegramMessageContext = async ({
             const { code, created } = await upsertChannelPairingRequest({
               channel: "telegram",
               id: telegramUserId,
+              accountId: account.accountId,
               meta: {
                 username: from?.username,
                 firstName: from?.first_name,
