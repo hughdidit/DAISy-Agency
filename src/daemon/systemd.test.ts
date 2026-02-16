@@ -124,6 +124,7 @@ describe("resolveSystemdUserUnitPath", () => {
     );
   });
 
+<<<<<<< HEAD
   it("handles case-insensitive 'DEFAULT' profile", () => {
     const env = { HOME: "/home/test", CLAWDBOT_PROFILE: "DEFAULT" };
     expect(resolveSystemdUserUnitPath(env)).toBe(
@@ -133,6 +134,10 @@ describe("resolveSystemdUserUnitPath", () => {
 
   it("trims whitespace from CLAWDBOT_PROFILE", () => {
     const env = { HOME: "/home/test", CLAWDBOT_PROFILE: "  myprofile  " };
+=======
+  it("trims whitespace from OPENCLAW_PROFILE", () => {
+    const env = { HOME: "/home/test", OPENCLAW_PROFILE: "  myprofile  " };
+>>>>>>> 84e0ee3c3 (test: remove duplicate uppercase default profile case)
     expect(resolveSystemdUserUnitPath(env)).toBe(
       "/home/test/.config/systemd/user/moltbot-gateway-myprofile.service",
     );
