@@ -74,7 +74,11 @@ import { isMemoryPath, normalizeExtraMemoryPaths } from "./internal.js";
 import { memoryManagerEmbeddingOps } from "./manager-embedding-ops.js";
 import { searchKeyword, searchVector } from "./manager-search.js";
 import { memoryManagerSyncOps } from "./manager-sync-ops.js";
+<<<<<<< HEAD
 >>>>>>> 4c401d336 (refactor(memory): extract manager sync and embedding ops)
+=======
+import { extractKeywords } from "./query-expansion.js";
+>>>>>>> bcab2469d (feat: LLM-based query expansion for FTS mode)
 const SNIPPET_MAX_CHARS = 700;
 const VECTOR_TABLE = "chunks_vec";
 const FTS_TABLE = "chunks_fts";
@@ -272,6 +276,45 @@ export class MemoryIndexManager implements MemorySearchManager {
       Math.max(1, Math.floor(maxResults * hybrid.candidateMultiplier)),
     );
 
+<<<<<<< HEAD
+=======
+    // FTS-only mode: no embedding provider available
+    if (!this.provider) {
+      if (!this.fts.enabled || !this.fts.available) {
+        log.warn("memory search: no provider and FTS unavailable");
+        return [];
+      }
+
+      // Extract keywords for better FTS matching on conversational queries
+      // e.g., "that thing we discussed about the API" → ["discussed", "API"]
+      const keywords = extractKeywords(cleaned);
+      const searchTerms = keywords.length > 0 ? keywords : [cleaned];
+
+      // Search with each keyword and merge results
+      const resultSets = await Promise.all(
+        searchTerms.map((term) => this.searchKeyword(term, candidates).catch(() => [])),
+      );
+
+      // Merge and deduplicate results, keeping highest score for each chunk
+      const seenIds = new Map<string, (typeof resultSets)[0][0]>();
+      for (const results of resultSets) {
+        for (const result of results) {
+          const existing = seenIds.get(result.id);
+          if (!existing || result.score > existing.score) {
+            seenIds.set(result.id, result);
+          }
+        }
+      }
+
+      const merged = [...seenIds.values()]
+        .toSorted((a, b) => b.score - a.score)
+        .filter((entry) => entry.score >= minScore)
+        .slice(0, maxResults);
+
+      return merged;
+    }
+
+>>>>>>> bcab2469d (feat: LLM-based query expansion for FTS mode)
     const keywordResults = hybrid.enabled
       ? await this.searchKeyword(cleaned, candidates).catch(() => [])
       : [];
