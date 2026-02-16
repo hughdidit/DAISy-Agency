@@ -123,7 +123,30 @@ export function buildGatewayCronService(params: {
     return canonical;
   };
 
+<<<<<<< HEAD
 >>>>>>> f988abf20 (Cron: route reminders by session namespace)
+=======
+  const resolveCronWakeTarget = (opts?: { agentId?: string; sessionKey?: string | null }) => {
+    const runtimeConfig = loadConfig();
+    const requestedAgentId = opts?.agentId ? resolveCronAgent(opts.agentId).agentId : undefined;
+    const derivedAgentId =
+      requestedAgentId ??
+      (opts?.sessionKey
+        ? normalizeAgentId(resolveAgentIdFromSessionKey(opts.sessionKey))
+        : undefined);
+    const agentId = derivedAgentId || undefined;
+    const sessionKey =
+      opts?.sessionKey && agentId
+        ? resolveCronSessionKey({
+            runtimeConfig,
+            agentId,
+            requestedSessionKey: opts.sessionKey,
+          })
+        : undefined;
+    return { runtimeConfig, agentId, sessionKey };
+  };
+
+>>>>>>> a25850359 (Cron: dedupe gateway wake target resolution)
   const defaultAgentId = resolveDefaultAgentId(params.cfg);
   const resolveSessionStorePath = (agentId?: string) =>
     resolveStorePath(params.cfg.session?.store, {
@@ -146,22 +169,7 @@ export function buildGatewayCronService(params: {
       enqueueSystemEvent(text, { sessionKey, contextKey: opts?.contextKey });
     },
     requestHeartbeatNow: (opts) => {
-      const runtimeConfig = loadConfig();
-      const requestedAgentId = opts?.agentId ? resolveCronAgent(opts.agentId).agentId : undefined;
-      const derivedAgentId =
-        requestedAgentId ??
-        (opts?.sessionKey
-          ? normalizeAgentId(resolveAgentIdFromSessionKey(opts.sessionKey))
-          : undefined);
-      const agentId = derivedAgentId || undefined;
-      const sessionKey =
-        opts?.sessionKey && agentId
-          ? resolveCronSessionKey({
-              runtimeConfig,
-              agentId,
-              requestedSessionKey: opts.sessionKey,
-            })
-          : undefined;
+      const { agentId, sessionKey } = resolveCronWakeTarget(opts);
       requestHeartbeatNow({
         reason: opts?.reason,
         agentId,
@@ -169,22 +177,7 @@ export function buildGatewayCronService(params: {
       });
     },
     runHeartbeatOnce: async (opts) => {
-      const runtimeConfig = loadConfig();
-      const requestedAgentId = opts?.agentId ? resolveCronAgent(opts.agentId).agentId : undefined;
-      const derivedAgentId =
-        requestedAgentId ??
-        (opts?.sessionKey
-          ? normalizeAgentId(resolveAgentIdFromSessionKey(opts.sessionKey))
-          : undefined);
-      const agentId = derivedAgentId || undefined;
-      const sessionKey =
-        opts?.sessionKey && agentId
-          ? resolveCronSessionKey({
-              runtimeConfig,
-              agentId,
-              requestedSessionKey: opts.sessionKey,
-            })
-          : undefined;
+      const { runtimeConfig, agentId, sessionKey } = resolveCronWakeTarget(opts);
       return await runHeartbeatOnce({
         cfg: runtimeConfig,
         reason: opts?.reason,
