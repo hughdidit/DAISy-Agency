@@ -5,8 +5,12 @@ import type { UiSettings } from "../storage.ts";
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
 =======
 import { t, i18n, type Locale } from "../../i18n/index.ts";
+<<<<<<< HEAD
 import { formatAgo, formatDurationMs } from "../format.ts";
 >>>>>>> f20bef3d7 (fix: add .ts extensions to i18n imports for ESM compatibility)
+=======
+import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
+>>>>>>> 075317ab1 (fix: correct function names in overview.ts and add type assertion in translate.ts)
 import { formatNextRun } from "../presenter.ts";
 
 export type OverviewProps = {
@@ -31,8 +35,16 @@ export function renderOverview(props: OverviewProps) {
   const snapshot = props.hello?.snapshot as
     | { uptimeMs?: number; policy?: { tickIntervalMs?: number } }
     | undefined;
+<<<<<<< HEAD
   const uptime = snapshot?.uptimeMs ? formatDurationHuman(snapshot.uptimeMs) : "n/a";
   const tick = snapshot?.policy?.tickIntervalMs ? `${snapshot.policy.tickIntervalMs}ms` : "n/a";
+=======
+  const uptime = snapshot?.uptimeMs ? formatDurationHuman(snapshot.uptimeMs) : t("common.na");
+  const tick = snapshot?.policy?.tickIntervalMs
+    ? `${snapshot.policy.tickIntervalMs}ms`
+    : t("common.na");
+
+>>>>>>> 075317ab1 (fix: correct function names in overview.ts and add type assertion in translate.ts)
   const authHint = (() => {
     if (props.connected || !props.lastError) {
       return null;
@@ -203,7 +215,11 @@ export function renderOverview(props: OverviewProps) {
           <div class="stat">
             <div class="stat-label">Last Channels Refresh</div>
             <div class="stat-value">
+<<<<<<< HEAD
               ${props.lastChannelsRefresh ? formatRelativeTimestamp(props.lastChannelsRefresh) : "n/a"}
+=======
+              ${props.lastChannelsRefresh ? formatRelativeTimestamp(props.lastChannelsRefresh) : t("common.na")}
+>>>>>>> 075317ab1 (fix: correct function names in overview.ts and add type assertion in translate.ts)
             </div>
           </div>
         </div>
