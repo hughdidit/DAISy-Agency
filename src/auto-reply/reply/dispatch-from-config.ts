@@ -291,10 +291,29 @@ export async function dispatchReplyFromConfig(params: {
     let accumulatedBlockText = "";
     let blockCount = 0;
 
+<<<<<<< HEAD
+=======
+    const shouldSendToolSummaries = ctx.ChatType !== "group" && ctx.CommandSource !== "native";
+
+    const resolveToolDeliveryPayload = (payload: ReplyPayload): ReplyPayload | null => {
+      if (shouldSendToolSummaries) {
+        return payload;
+      }
+      // Group/native flows intentionally suppress tool summary text, but media-only
+      // tool results (for example TTS audio) must still be delivered.
+      const hasMedia = Boolean(payload.mediaUrl) || (payload.mediaUrls?.length ?? 0) > 0;
+      if (!hasMedia) {
+        return null;
+      }
+      return { ...payload, text: undefined };
+    };
+
+>>>>>>> c2a0cf0c2 (fix(tts): update tool description to prevent duplicate audio delivery (#18046))
     const replyResult = await (params.replyResolver ?? getReplyFromConfig)(
       ctx,
       {
         ...params.replyOptions,
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
         onToolResult:
@@ -328,6 +347,30 @@ export async function dispatchReplyFromConfig(params: {
                 return run();
               },
 >>>>>>> ee1ec3fab (Add proper `onToolResult` fallback.)
+=======
+        onToolResult: (payload: ReplyPayload) => {
+          const run = async () => {
+            const ttsPayload = await maybeApplyTtsToPayload({
+              payload,
+              cfg,
+              channel: ttsChannel,
+              kind: "tool",
+              inboundAudio,
+              ttsAuto: sessionTtsAuto,
+            });
+            const deliveryPayload = resolveToolDeliveryPayload(ttsPayload);
+            if (!deliveryPayload) {
+              return;
+            }
+            if (shouldRouteToOriginating) {
+              await sendPayloadAsync(deliveryPayload, undefined, false);
+            } else {
+              dispatcher.sendToolResult(deliveryPayload);
+            }
+          };
+          return run();
+        },
+>>>>>>> c2a0cf0c2 (fix(tts): update tool description to prevent duplicate audio delivery (#18046))
         onBlockReply: (payload: ReplyPayload, context) => {
           const run = async () => {
             // Accumulate block text for TTS generation after streaming
