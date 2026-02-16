@@ -96,6 +96,27 @@ async function promptWhatsAppOwnerAllowFrom(params: {
   return { normalized, allowFrom };
 }
 
+async function applyWhatsAppOwnerAllowlist(params: {
+  cfg: OpenClawConfig;
+  prompter: WizardPrompter;
+  existingAllowFrom: string[];
+  title: string;
+  messageLines: string[];
+}): Promise<OpenClawConfig> {
+  const { normalized, allowFrom } = await promptWhatsAppOwnerAllowFrom({
+    prompter: params.prompter,
+    existingAllowFrom: params.existingAllowFrom,
+  });
+  let next = setWhatsAppSelfChatMode(params.cfg, true);
+  next = setWhatsAppDmPolicy(next, "allowlist");
+  next = setWhatsAppAllowFrom(next, allowFrom);
+  await params.prompter.note(
+    [...params.messageLines, `- allowFrom includes ${normalized}`].join("\n"),
+    params.title,
+  );
+  return next;
+}
+
 async function promptWhatsAppAllowFrom(
   cfg: MoltbotConfig,
   _runtime: RuntimeEnv,
@@ -107,6 +128,7 @@ async function promptWhatsAppAllowFrom(
   const existingLabel = existingAllowFrom.length > 0 ? existingAllowFrom.join(", ") : "unset";
 
   if (options?.forceAllowlist) {
+<<<<<<< HEAD
 <<<<<<< HEAD
     await prompter.note(
       "We need the sender/owner number so Moltbot can allowlist you.",
@@ -132,15 +154,15 @@ async function promptWhatsAppAllowFrom(
       prompter,
       existingAllowFrom,
 >>>>>>> 809f87c41 (refactor(onboarding): dedupe whatsapp allowlist prompt)
+=======
+    return await applyWhatsAppOwnerAllowlist({
+      cfg,
+      prompter,
+      existingAllowFrom,
+      title: "WhatsApp allowlist",
+      messageLines: ["Allowlist mode enabled."],
+>>>>>>> 067509fa4 (refactor(onboarding): dedupe WhatsApp owner allowlist)
     });
-    let next = setWhatsAppSelfChatMode(cfg, true);
-    next = setWhatsAppDmPolicy(next, "allowlist");
-    next = setWhatsAppAllowFrom(next, allowFrom);
-    await prompter.note(
-      ["Allowlist mode enabled.", `- allowFrom includes ${normalized}`].join("\n"),
-      "WhatsApp allowlist",
-    );
-    return next;
   }
 
   await prompter.note(
@@ -166,6 +188,7 @@ async function promptWhatsAppAllowFrom(
   });
 
   if (phoneMode === "personal") {
+<<<<<<< HEAD
 <<<<<<< HEAD
     await prompter.note(
       "We need the sender/owner number so Moltbot can allowlist you.",
@@ -197,13 +220,18 @@ async function promptWhatsAppAllowFrom(
     next = setWhatsAppAllowFrom(next, allowFrom);
     await prompter.note(
       [
+=======
+    return await applyWhatsAppOwnerAllowlist({
+      cfg,
+      prompter,
+      existingAllowFrom,
+      title: "WhatsApp personal phone",
+      messageLines: [
+>>>>>>> 067509fa4 (refactor(onboarding): dedupe WhatsApp owner allowlist)
         "Personal phone mode enabled.",
         "- dmPolicy set to allowlist (pairing skipped)",
-        `- allowFrom includes ${normalized}`,
-      ].join("\n"),
-      "WhatsApp personal phone",
-    );
-    return next;
+      ],
+    });
   }
 
   const policy = (await prompter.select({
