@@ -2,24 +2,49 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 import { resolveImplicitProviders, buildNvidiaProvider } from "./models-config.providers.js";
+=======
+import { captureEnv } from "../test-utils/env.js";
+import { resolveApiKeyForProvider } from "./model-auth.js";
+import { buildNvidiaProvider, resolveImplicitProviders } from "./models-config.providers.js";
+>>>>>>> 997b9ad23 (refactor(test): dedupe provider api key env restore)
 
 describe("NVIDIA provider", () => {
   it("should include nvidia when NVIDIA_API_KEY is configured", async () => {
     const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
-    const previous = process.env.NVIDIA_API_KEY;
+    const envSnapshot = captureEnv(["NVIDIA_API_KEY"]);
     process.env.NVIDIA_API_KEY = "test-key";
 
     try {
       const providers = await resolveImplicitProviders({ agentDir });
       expect(providers?.nvidia).toBeDefined();
+<<<<<<< HEAD
       expect(providers?.nvidia?.apiKey).toBe("NVIDIA_API_KEY");
+=======
+      expect(providers?.nvidia?.models?.length).toBeGreaterThan(0);
     } finally {
-      if (previous === undefined) {
-        delete process.env.NVIDIA_API_KEY;
-      } else {
-        process.env.NVIDIA_API_KEY = previous;
-      }
+      envSnapshot.restore();
+    }
+  });
+
+  it("resolves the nvidia api key value from env", async () => {
+    const agentDir = mkdtempSync(join(tmpdir(), "openclaw-test-"));
+    const envSnapshot = captureEnv(["NVIDIA_API_KEY"]);
+    process.env.NVIDIA_API_KEY = "nvidia-test-api-key";
+
+    try {
+      const auth = await resolveApiKeyForProvider({
+        provider: "nvidia",
+        agentDir,
+      });
+
+      expect(auth.apiKey).toBe("nvidia-test-api-key");
+      expect(auth.mode).toBe("api-key");
+      expect(auth.source).toContain("NVIDIA_API_KEY");
+>>>>>>> 997b9ad23 (refactor(test): dedupe provider api key env restore)
+    } finally {
+      envSnapshot.restore();
     }
   });
 
