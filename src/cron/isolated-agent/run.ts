@@ -115,6 +115,17 @@ export type RunCronAgentTurnResult = {
    * messages.  See: https://github.com/openclaw/openclaw/issues/15692
    */
   delivered?: boolean;
+
+  // Telemetry (best-effort)
+  model?: string;
+  provider?: string;
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+    total_tokens?: number;
+    cache_read_tokens?: number;
+    cache_write_tokens?: number;
+  };
 };
 
 export async function runCronIsolatedAgentTurn(params: {
@@ -478,6 +489,20 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
   const payloads = runResult.payloads ?? [];
 
   // Update token+model fields in the session store.
+  // Also collect best-effort telemetry for the cron run log.
+  let telemetry:
+    | {
+        model?: string;
+        provider?: string;
+        usage?: {
+          input_tokens?: number;
+          output_tokens?: number;
+          total_tokens?: number;
+          cache_read_tokens?: number;
+          cache_write_tokens?: number;
+        };
+      }
+    | undefined;
   {
     const usage = runResult.meta.agentMeta?.usage;
     const promptTokens = runResult.meta.agentMeta?.promptTokens;
@@ -506,6 +531,28 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
           contextTokens,
           promptTokens,
         }) ?? input;
+<<<<<<< HEAD
+=======
+      cronSession.sessionEntry.inputTokens = input;
+      cronSession.sessionEntry.outputTokens = output;
+      cronSession.sessionEntry.totalTokens = totalTokens;
+      cronSession.sessionEntry.totalTokensFresh = true;
+
+      telemetry = {
+        model: modelUsed,
+        provider: providerUsed,
+        usage: {
+          input_tokens: input,
+          output_tokens: output,
+          total_tokens: totalTokens,
+        },
+      };
+    } else {
+      telemetry = {
+        model: modelUsed,
+        provider: providerUsed,
+      };
+>>>>>>> ddea5458d (cron: log model+token usage per run + add usage report script)
     }
     await persistSessionEntry();
   }
@@ -552,7 +599,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
         });
       }
       logWarn(`[cron:${params.job.id}] ${resolvedDelivery.error.message}`);
-      return withRunSession({ status: "ok", summary, outputText });
+      return withRunSession({ status: "ok", summary, outputText, ...telemetry });
     }
     if (!resolvedDelivery.to) {
       const message = "cron delivery target is missing";
@@ -565,7 +612,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
         });
       }
       logWarn(`[cron:${params.job.id}] ${message}`);
-      return withRunSession({ status: "ok", summary, outputText });
+      return withRunSession({ status: "ok", summary, outputText, ...telemetry });
     }
     const identity = resolveAgentOutboundIdentity(cfgWithAgentDefaults, agentId);
 
@@ -653,7 +700,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       if (activeSubagentRuns > 0) {
         // Parent orchestration is still in progress; avoid announcing a partial
         // update to the main requester.
-        return withRunSession({ status: "ok", summary, outputText });
+        return withRunSession({ status: "ok", summary, outputText, ...telemetry });
       }
       if (
         (hadActiveDescendants || expectedSubagentFollowup) &&
@@ -663,10 +710,10 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
       ) {
         // Descendants existed but no post-orchestration synthesis arrived, so
         // suppress stale parent text like "on it, pulling everything together".
-        return withRunSession({ status: "ok", summary, outputText });
+        return withRunSession({ status: "ok", summary, outputText, ...telemetry });
       }
       if (synthesizedText.toUpperCase() === SILENT_REPLY_TOKEN.toUpperCase()) {
-        return withRunSession({ status: "ok", summary, outputText });
+        return withRunSession({ status: "ok", summary, outputText, ...telemetry });
       }
       try {
         const didAnnounce = await runSubagentAnnounceFlow({
@@ -713,5 +760,5 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
     }
   }
 
-  return withRunSession({ status: "ok", summary, outputText, delivered });
+  return withRunSession({ status: "ok", summary, outputText, delivered, ...telemetry });
 }

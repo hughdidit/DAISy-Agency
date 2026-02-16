@@ -12,6 +12,17 @@ export type CronEvent = {
   sessionId?: string;
   sessionKey?: string;
   nextRunAtMs?: number;
+
+  // Telemetry (best-effort)
+  model?: string;
+  provider?: string;
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+    total_tokens?: number;
+    cache_read_tokens?: number;
+    cache_write_tokens?: number;
+  };
 };
 
 export type Logger = {
@@ -62,6 +73,17 @@ export type CronServiceDeps = {
      * channel.  See: https://github.com/openclaw/openclaw/issues/15692
      */
     delivered?: boolean;
+
+    // Telemetry (best-effort)
+    model?: string;
+    provider?: string;
+    usage?: {
+      input_tokens?: number;
+      output_tokens?: number;
+      total_tokens?: number;
+      cache_read_tokens?: number;
+      cache_write_tokens?: number;
+    };
   }>;
   onEvent?: (evt: CronEvent) => void;
 };

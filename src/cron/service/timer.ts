@@ -219,6 +219,15 @@ export async function onTimer(state: CronServiceState) {
       summary?: string;
       sessionId?: string;
       sessionKey?: string;
+      model?: string;
+      provider?: string;
+      usage?: {
+        input_tokens?: number;
+        output_tokens?: number;
+        total_tokens?: number;
+        cache_read_tokens?: number;
+        cache_write_tokens?: number;
+      };
       startedAt: number;
       endedAt: number;
     }> = [];
@@ -397,6 +406,15 @@ async function executeJobCore(
   summary?: string;
   sessionId?: string;
   sessionKey?: string;
+  model?: string;
+  provider?: string;
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+    total_tokens?: number;
+    cache_read_tokens?: number;
+    cache_write_tokens?: number;
+  };
 }> {
   if (job.sessionTarget === "main") {
     const text = resolveJobPayloadTextForMain(job);
@@ -486,6 +504,9 @@ async function executeJobCore(
     summary: res.summary,
     sessionId: res.sessionId,
     sessionKey: res.sessionKey,
+    model: res.model,
+    provider: res.provider,
+    usage: res.usage,
   };
 }
 
@@ -513,6 +534,15 @@ export async function executeJob(
     summary?: string;
     sessionId?: string;
     sessionKey?: string;
+    model?: string;
+    provider?: string;
+    usage?: {
+      input_tokens?: number;
+      output_tokens?: number;
+      total_tokens?: number;
+      cache_read_tokens?: number;
+      cache_write_tokens?: number;
+    };
   };
   try {
     coreResult = await executeJobCore(state, job);
@@ -545,6 +575,15 @@ function emitJobFinished(
     summary?: string;
     sessionId?: string;
     sessionKey?: string;
+    model?: string;
+    provider?: string;
+    usage?: {
+      input_tokens?: number;
+      output_tokens?: number;
+      total_tokens?: number;
+      cache_read_tokens?: number;
+      cache_write_tokens?: number;
+    };
   },
   runAtMs: number,
 ) {
@@ -559,6 +598,9 @@ function emitJobFinished(
     runAtMs,
     durationMs: job.state.lastDurationMs,
     nextRunAtMs: job.state.nextRunAtMs,
+    model: result.model,
+    provider: result.provider,
+    usage: result.usage,
   });
 }
 
