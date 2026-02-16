@@ -41,6 +41,10 @@ concurrency:
       - "skills/**"
 >>>>>>> bf308cf6a (CI: expand Docker Release paths-ignore to skip on any markdown)
 
+concurrency:
+  group: docker-release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
