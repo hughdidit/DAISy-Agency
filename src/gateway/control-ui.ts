@@ -12,6 +12,11 @@ import { resolveControlUiRootSync } from "../infra/control-ui-assets.js";
 import { DEFAULT_ASSISTANT_IDENTITY, resolveAssistantIdentity } from "./assistant-identity.js";
 import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
 import {
+  CONTROL_UI_BOOTSTRAP_CONFIG_PATH,
+  type ControlUiBootstrapConfig,
+} from "./control-ui-contract.js";
+import { buildControlUiCspHeader } from "./control-ui-csp.js";
+import {
   buildControlUiAvatarUrl,
   CONTROL_UI_AVATAR_PREFIX,
   normalizeControlUiBasePath,
@@ -21,7 +26,6 @@ import { sendUnauthorized, setSecurityHeaders } from "./http-common.js";
 import { getBearerToken } from "./http-utils.js";
 
 const ROOT_PREFIX = "/";
-const CONTROL_UI_BOOTSTRAP_CONFIG_PATH = "/__openclaw/control-ui-config.json";
 
 export type ControlUiRequestOptions = {
   basePath?: string;
@@ -85,22 +89,7 @@ type ControlUiAvatarMeta = {
 =======
 function applyControlUiSecurityHeaders(res: ServerResponse) {
   res.setHeader("X-Frame-Options", "DENY");
-  // Control UI: block framing, block inline scripts, keep styles permissive
-  // (UI uses a lot of inline style attributes in templates).
-  res.setHeader(
-    "Content-Security-Policy",
-    [
-      "default-src 'self'",
-      "base-uri 'none'",
-      "object-src 'none'",
-      "frame-ancestors 'none'",
-      "script-src 'self'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https:",
-      "font-src 'self'",
-      "connect-src 'self' ws: wss:",
-    ].join("; "),
-  );
+  res.setHeader("Content-Security-Policy", buildControlUiCspHeader());
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Referrer-Policy", "no-referrer");
 }
@@ -375,7 +364,7 @@ export async function handleControlUiHttpRequest(
       assistantName: identity.name,
       assistantAvatar: avatarValue ?? identity.avatar,
       assistantAgentId: identity.agentId,
-    });
+    } satisfies ControlUiBootstrapConfig);
     return true;
   }
 
