@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
 import type { UpdateRunResult } from "../infra/update-runner.js";
+import { captureEnv } from "../test-utils/env.js";
 
 const confirm = vi.fn();
 const select = vi.fn();
@@ -848,8 +849,12 @@ describe("update-cli", () => {
     const previousGitDir = process.env.CLAWDBOT_GIT_DIR;
 =======
     const tempDir = await createCaseDir("openclaw-update-wizard");
+<<<<<<< HEAD
     const previousGitDir = process.env.OPENCLAW_GIT_DIR;
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
+=======
+    const envSnapshot = captureEnv(["OPENCLAW_GIT_DIR"]);
+>>>>>>> be4a490c2 (refactor(test): fix update-cli env restore)
     try {
       setTty(true);
       process.env.CLAWDBOT_GIT_DIR = tempDir;
@@ -880,11 +885,15 @@ describe("update-cli", () => {
       expect(call?.channel).toBe("dev");
     } finally {
 <<<<<<< HEAD
+<<<<<<< HEAD
       process.env.CLAWDBOT_GIT_DIR = previousGitDir;
       await fs.rm(tempDir, { recursive: true, force: true });
 =======
       process.env.OPENCLAW_GIT_DIR = previousGitDir;
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
+=======
+      envSnapshot.restore();
+>>>>>>> be4a490c2 (refactor(test): fix update-cli env restore)
     }
   });
 });
