@@ -6,8 +6,15 @@ import { pipeline } from "node:stream/promises";
 
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveBrewExecutable } from "../infra/brew.js";
+<<<<<<< HEAD
 import { runCommandWithTimeout } from "../process/exec.js";
 import { CONFIG_DIR, ensureDir, resolveUserPath } from "../utils.js";
+=======
+import { runCommandWithTimeout, type CommandOptions } from "../process/exec.js";
+import { scanDirectoryWithSummary } from "../security/skill-scanner.js";
+import { resolveUserPath } from "../utils.js";
+import { installDownloadSpec } from "./skills-install-download.js";
+>>>>>>> c8e110e2e (refactor(skills): extract installer strategy helpers)
 import {
   hasBinary,
   loadWorkspaceSkillEntries,
@@ -339,6 +346,209 @@ async function resolveBrewBinDir(timeoutMs: number, brewExe?: string): Promise<s
   return undefined;
 }
 
+type CommandResult = {
+  code: number | null;
+  stdout: string;
+  stderr: string;
+};
+
+function createInstallFailure(params: {
+  message: string;
+  stdout?: string;
+  stderr?: string;
+  code?: number | null;
+}): SkillInstallResult {
+  return {
+    ok: false,
+    message: params.message,
+    stdout: params.stdout?.trim() ?? "",
+    stderr: params.stderr?.trim() ?? "",
+    code: params.code ?? null,
+  };
+}
+
+function createInstallSuccess(result: CommandResult): SkillInstallResult {
+  return {
+    ok: true,
+    message: "Installed",
+    stdout: result.stdout.trim(),
+    stderr: result.stderr.trim(),
+    code: result.code,
+  };
+}
+
+async function runCommandSafely(
+  argv: string[],
+  optionsOrTimeout: number | CommandOptions,
+): Promise<CommandResult> {
+  try {
+    const result = await runCommandWithTimeout(argv, optionsOrTimeout);
+    return {
+      code: result.code,
+      stdout: result.stdout,
+      stderr: result.stderr,
+    };
+  } catch (err) {
+    return {
+      code: null,
+      stdout: "",
+      stderr: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+async function runBestEffortCommand(
+  argv: string[],
+  optionsOrTimeout: number | CommandOptions,
+): Promise<void> {
+  await runCommandSafely(argv, optionsOrTimeout);
+}
+
+function resolveBrewMissingFailure(spec: SkillInstallSpec): SkillInstallResult {
+  const formula = spec.formula ?? "this package";
+  const hint =
+    process.platform === "linux"
+      ? `Homebrew is not installed. Install it from https://brew.sh or install "${formula}" manually using your system package manager (e.g. apt, dnf, pacman).`
+      : "Homebrew is not installed. Install it from https://brew.sh";
+  return createInstallFailure({ message: `brew not installed — ${hint}` });
+}
+
+async function ensureUvInstalled(params: {
+  spec: SkillInstallSpec;
+  brewExe?: string;
+  timeoutMs: number;
+}): Promise<SkillInstallResult | undefined> {
+  if (params.spec.kind !== "uv" || hasBinary("uv")) {
+    return undefined;
+  }
+
+  if (!params.brewExe) {
+    return createInstallFailure({
+      message:
+        "uv not installed — install manually: https://docs.astral.sh/uv/getting-started/installation/",
+    });
+  }
+
+  const brewResult = await runCommandSafely([params.brewExe, "install", "uv"], {
+    timeoutMs: params.timeoutMs,
+  });
+  if (brewResult.code === 0) {
+    return undefined;
+  }
+
+  return createInstallFailure({
+    message: "Failed to install uv (brew)",
+    ...brewResult,
+  });
+}
+
+async function installGoViaApt(timeoutMs: number): Promise<SkillInstallResult | undefined> {
+  const aptInstallArgv = ["apt-get", "install", "-y", "golang-go"];
+  const aptUpdateArgv = ["apt-get", "update", "-qq"];
+  const aptFailureMessage =
+    "go not installed — automatic install via apt failed. Install manually: https://go.dev/doc/install";
+
+  const isRoot = typeof process.getuid === "function" && process.getuid() === 0;
+  if (isRoot) {
+    // Best effort: fresh containers often need package indexes populated.
+    await runBestEffortCommand(aptUpdateArgv, { timeoutMs });
+    const aptResult = await runCommandSafely(aptInstallArgv, { timeoutMs });
+    if (aptResult.code === 0) {
+      return undefined;
+    }
+    return createInstallFailure({
+      message: aptFailureMessage,
+      ...aptResult,
+    });
+  }
+
+  if (!hasBinary("sudo")) {
+    return createInstallFailure({
+      message:
+        "go not installed — apt-get is available but sudo is not installed. Install manually: https://go.dev/doc/install",
+    });
+  }
+
+  const sudoCheck = await runCommandSafely(["sudo", "-n", "true"], {
+    timeoutMs: 5_000,
+  });
+  if (sudoCheck.code !== 0) {
+    return createInstallFailure({
+      message:
+        "go not installed — apt-get is available but sudo is not usable (missing or requires a password). Install manually: https://go.dev/doc/install",
+      ...sudoCheck,
+    });
+  }
+
+  // Best effort: fresh containers often need package indexes populated.
+  await runBestEffortCommand(["sudo", ...aptUpdateArgv], { timeoutMs });
+  const aptResult = await runCommandSafely(["sudo", ...aptInstallArgv], {
+    timeoutMs,
+  });
+  if (aptResult.code === 0) {
+    return undefined;
+  }
+
+  return createInstallFailure({
+    message: aptFailureMessage,
+    ...aptResult,
+  });
+}
+
+async function ensureGoInstalled(params: {
+  spec: SkillInstallSpec;
+  brewExe?: string;
+  timeoutMs: number;
+}): Promise<SkillInstallResult | undefined> {
+  if (params.spec.kind !== "go" || hasBinary("go")) {
+    return undefined;
+  }
+
+  if (params.brewExe) {
+    const brewResult = await runCommandSafely([params.brewExe, "install", "go"], {
+      timeoutMs: params.timeoutMs,
+    });
+    if (brewResult.code === 0) {
+      return undefined;
+    }
+    return createInstallFailure({
+      message: "Failed to install go (brew)",
+      ...brewResult,
+    });
+  }
+
+  if (hasBinary("apt-get")) {
+    return installGoViaApt(params.timeoutMs);
+  }
+
+  return createInstallFailure({
+    message: "go not installed — install manually: https://go.dev/doc/install",
+  });
+}
+
+async function executeInstallCommand(params: {
+  argv: string[] | null;
+  timeoutMs: number;
+  env?: NodeJS.ProcessEnv;
+}): Promise<SkillInstallResult> {
+  if (!params.argv || params.argv.length === 0) {
+    return createInstallFailure({ message: "invalid install command" });
+  }
+
+  const result = await runCommandSafely(params.argv, {
+    timeoutMs: params.timeoutMs,
+    env: params.env,
+  });
+  if (result.code === 0) {
+    return createInstallSuccess(result);
+  }
+
+  return createInstallFailure({
+    message: formatInstallFailureMessage(result),
+    ...result,
+  });
+}
+
 export async function installSkill(params: SkillInstallRequest): Promise<SkillInstallResult> {
   const timeoutMs = Math.min(Math.max(params.timeoutMs ?? 300_000, 1_000), 900_000);
   const workspaceDir = resolveUserPath(params.workspaceDir);
@@ -382,6 +592,7 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
 
   const brewExe = hasBinary("brew") ? "brew" : resolveBrewExecutable();
   if (spec.kind === "brew" && !brewExe) {
+<<<<<<< HEAD
 <<<<<<< HEAD
     return {
       ok: false,
@@ -459,12 +670,17 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
       stderr: "",
       code: null,
     };
+=======
+    return withWarnings(resolveBrewMissingFailure(spec), warnings);
+>>>>>>> c8e110e2e (refactor(skills): extract installer strategy helpers)
   }
 
-  if (spec.kind === "brew" && brewExe && command.argv[0] === "brew") {
-    command.argv[0] = brewExe;
+  const uvInstallFailure = await ensureUvInstalled({ spec, brewExe, timeoutMs });
+  if (uvInstallFailure) {
+    return withWarnings(uvInstallFailure, warnings);
   }
 
+<<<<<<< HEAD
   if (spec.kind === "go" && !hasBinary("go")) {
     if (brewExe) {
       const brewResult = await runCommandWithTimeout([brewExe, "install", "go"], {
@@ -635,6 +851,16 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
       );
 >>>>>>> d19b74692 (feat(skills): add cross-platform install fallback for non-brew environments (#17687))
     }
+=======
+  const goInstallFailure = await ensureGoInstalled({ spec, brewExe, timeoutMs });
+  if (goInstallFailure) {
+    return withWarnings(goInstallFailure, warnings);
+  }
+
+  const argv = command.argv ? [...command.argv] : null;
+  if (spec.kind === "brew" && brewExe && argv?.[0] === "brew") {
+    argv[0] = brewExe;
+>>>>>>> c8e110e2e (refactor(skills): extract installer strategy helpers)
   }
 
   let env: NodeJS.ProcessEnv | undefined;
@@ -645,6 +871,7 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
     }
   }
 
+<<<<<<< HEAD
   const result = await (async () => {
     const argv = command.argv;
     if (!argv || argv.length === 0) {
@@ -669,4 +896,7 @@ export async function installSkill(params: SkillInstallRequest): Promise<SkillIn
     stderr: result.stderr.trim(),
     code: result.code,
   };
+=======
+  return withWarnings(await executeInstallCommand({ argv, timeoutMs, env }), warnings);
+>>>>>>> c8e110e2e (refactor(skills): extract installer strategy helpers)
 }
