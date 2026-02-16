@@ -21,7 +21,17 @@ type OnboardEnv = {
 type ProviderAuthConfigSnapshot = {
   auth?: { profiles?: Record<string, { provider?: string; mode?: string }> };
   agents?: { defaults?: { model?: { primary?: string } } };
-  models?: { providers?: Record<string, { baseUrl?: string }> };
+  models?: {
+    providers?: Record<
+      string,
+      {
+        baseUrl?: string;
+        api?: string;
+        apiKey?: string;
+        models?: Array<{ id?: string }>;
+      }
+    >;
+  };
 };
 
 async function removeDirWithRetry(dir: string): Promise<void> {
@@ -166,16 +176,7 @@ async function runCustomLocalNonInteractive(
 }
 
 async function readCustomLocalProviderApiKey(configPath: string): Promise<string | undefined> {
-  const cfg = await readJsonFile<{
-    models?: {
-      providers?: Record<
-        string,
-        {
-          apiKey?: string;
-        }
-      >;
-    };
-  }>(configPath);
+  const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
   return cfg.models?.providers?.[CUSTOM_LOCAL_PROVIDER_ID]?.apiKey;
 }
 
@@ -248,11 +249,7 @@ describe("onboard (non-interactive): provider auth", () => {
         skipSkills: true,
       });
 
-      const cfg = await readJsonFile<{
-        auth?: { profiles?: Record<string, { provider?: string; mode?: string }> };
-        agents?: { defaults?: { model?: { primary?: string } } };
-        models?: { providers?: Record<string, { baseUrl?: string }> };
-      }>(configPath);
+      const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
 
       expect(cfg.auth?.profiles?.["zai:default"]?.provider).toBe("zai");
       expect(cfg.auth?.profiles?.["zai:default"]?.mode).toBe("api_key");
@@ -270,9 +267,7 @@ describe("onboard (non-interactive): provider auth", () => {
         skipSkills: true,
       });
 
-      const cfg = await readJsonFile<{
-        models?: { providers?: Record<string, { baseUrl?: string }> };
-      }>(configPath);
+      const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
 
       expect(cfg.models?.providers?.zai?.baseUrl).toBe(
         "https://open.bigmodel.cn/api/coding/paas/v4",
@@ -289,10 +284,7 @@ describe("onboard (non-interactive): provider auth", () => {
         skipSkills: true,
       });
 
-      const cfg = await readJsonFile<{
-        auth?: { profiles?: Record<string, { provider?: string; mode?: string }> };
-        agents?: { defaults?: { model?: { primary?: string } } };
-      }>(configPath);
+      const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
 
       expect(cfg.auth?.profiles?.["xai:default"]?.provider).toBe("xai");
       expect(cfg.auth?.profiles?.["xai:default"]?.mode).toBe("api_key");
@@ -309,10 +301,7 @@ describe("onboard (non-interactive): provider auth", () => {
         skipSkills: true,
       });
 
-      const cfg = await readJsonFile<{
-        auth?: { profiles?: Record<string, { provider?: string; mode?: string }> };
-        agents?: { defaults?: { model?: { primary?: string } } };
-      }>(configPath);
+      const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
 
       expect(cfg.auth?.profiles?.["vercel-ai-gateway:default"]?.provider).toBe("vercel-ai-gateway");
       expect(cfg.auth?.profiles?.["vercel-ai-gateway:default"]?.mode).toBe("api_key");
@@ -339,9 +328,7 @@ describe("onboard (non-interactive): provider auth", () => {
         tokenProfileId: "anthropic:default",
       });
 
-      const cfg = await readJsonFile<{
-        auth?: { profiles?: Record<string, { provider?: string; mode?: string }> };
-      }>(configPath);
+      const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
 
       expect(cfg.auth?.profiles?.["anthropic:default"]?.provider).toBe("anthropic");
       expect(cfg.auth?.profiles?.["anthropic:default"]?.mode).toBe("token");
@@ -365,9 +352,7 @@ describe("onboard (non-interactive): provider auth", () => {
         skipSkills: true,
       });
 
-      const cfg = await readJsonFile<{
-        agents?: { defaults?: { model?: { primary?: string } } };
-      }>(configPath);
+      const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
 
       expect(cfg.agents?.defaults?.model?.primary).toBe(OPENAI_DEFAULT_MODEL);
     });
@@ -392,10 +377,7 @@ describe("onboard (non-interactive): provider auth", () => {
         skipSkills: true,
       });
 
-      const cfg = await readJsonFile<{
-        auth?: { profiles?: Record<string, { provider?: string; mode?: string }> };
-        agents?: { defaults?: { model?: { primary?: string } } };
-      }>(configPath);
+      const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
 
       expect(cfg.auth?.profiles?.["litellm:default"]?.provider).toBe("litellm");
       expect(cfg.auth?.profiles?.["litellm:default"]?.mode).toBe("api_key");
@@ -440,10 +422,7 @@ describe("onboard (non-interactive): provider auth", () => {
           runtime,
         );
 
-        const cfg = await readJsonFile<{
-          auth?: { profiles?: Record<string, { provider?: string; mode?: string }> };
-          agents?: { defaults?: { model?: { primary?: string } } };
-        }>(configPath);
+        const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
 
         expect(cfg.auth?.profiles?.["cloudflare-ai-gateway:default"]?.provider).toBe(
           "cloudflare-ai-gateway",
@@ -515,20 +494,7 @@ describe("onboard (non-interactive): provider auth", () => {
         runtime,
       );
 
-      const cfg = await readJsonFile<{
-        models?: {
-          providers?: Record<
-            string,
-            {
-              baseUrl?: string;
-              api?: string;
-              apiKey?: string;
-              models?: Array<{ id?: string }>;
-            }
-          >;
-        };
-        agents?: { defaults?: { model?: { primary?: string } } };
-      }>(configPath);
+      const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
 
       const provider = cfg.models?.providers?.["custom-llm-example-com"];
       expect(provider?.baseUrl).toBe("https://llm.example.com/v1");
@@ -557,18 +523,7 @@ describe("onboard (non-interactive): provider auth", () => {
           runtime,
         );
 
-        const cfg = await readJsonFile<{
-          models?: {
-            providers?: Record<
-              string,
-              {
-                baseUrl?: string;
-                api?: string;
-              }
-            >;
-          };
-          agents?: { defaults?: { model?: { primary?: string } } };
-        }>(configPath);
+        const cfg = await readJsonFile<ProviderAuthConfigSnapshot>(configPath);
 
         expect(cfg.models?.providers?.["custom-models-custom-local"]?.baseUrl).toBe(
           "https://models.custom.local/v1",
