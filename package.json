@@ -23,12 +23,27 @@
   "description": "Multi-channel AI gateway with extensible messaging integrations",
 >>>>>>> eb3e9c649 (chore: fix vitest standalone configs and update package description (#11865))
   "keywords": [],
+  "homepage": "https://github.com/openclaw/openclaw#readme",
+  "bugs": {
+    "url": "https://github.com/openclaw/openclaw/issues"
+  },
   "license": "MIT",
   "author": "",
+<<<<<<< HEAD
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
+=======
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openclaw/openclaw.git"
+  },
+>>>>>>> 4f5bc0a49 (chore(release): align 2026.2.15 metadata)
   "bin": {
     "moltbot": "./moltbot.mjs",
     "clawdbot": "./moltbot.mjs"
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "test"
   },
   "files": [
     "assets/",
