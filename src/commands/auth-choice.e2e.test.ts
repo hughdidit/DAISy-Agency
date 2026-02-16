@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
+<<<<<<< HEAD
 import path from "node:path";
 
+=======
+>>>>>>> f1351fc54 (refactor(test): centralize auth test agent-dir helpers)
 import { afterEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 
@@ -27,9 +30,11 @@ import {
   ZAI_CODING_GLOBAL_BASE_URL,
 } from "./onboard-auth.js";
 import {
+  authProfilePathForAgent,
   createExitThrowingRuntime,
   createWizardPrompter,
   readAuthProfilesForAgent,
+  requireOpenClawAgentDir,
   setupAuthTestEnv,
 } from "./test-wizard-helpers.js";
 >>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
@@ -48,6 +53,7 @@ vi.mock("../plugins/providers.js", () => ({
   resolvePluginProviders,
 }));
 
+<<<<<<< HEAD
 const authProfilePathFor = (agentDir: string) => path.join(agentDir, "auth-profiles.json");
 const requireAgentDir = () => {
 <<<<<<< HEAD
@@ -61,6 +67,8 @@ const requireAgentDir = () => {
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
   return agentDir;
 };
+=======
+>>>>>>> f1351fc54 (refactor(test): centralize auth test agent-dir helpers)
 type StoredAuthProfile = {
   key?: string;
   access?: string;
@@ -111,7 +119,7 @@ describe("applyAuthChoice", () => {
   async function readAuthProfiles() {
     return await readAuthProfilesForAgent<{
       profiles?: Record<string, StoredAuthProfile>;
-    }>(requireAgentDir());
+    }>(requireOpenClawAgentDir());
   }
   async function readAuthProfile(profileId: string) {
     return (await readAuthProfiles()).profiles?.[profileId];
@@ -657,8 +665,7 @@ describe("applyAuthChoice", () => {
     await setupTempState();
     process.env.LITELLM_API_KEY = "sk-litellm-test";
 
-    const authProfilePath = authProfilePathFor(requireAgentDir());
-    await fs.mkdir(path.dirname(authProfilePath), { recursive: true });
+    const authProfilePath = authProfilePathForAgent(requireOpenClawAgentDir());
     await fs.writeFile(
       authProfilePath,
       JSON.stringify(
