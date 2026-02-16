@@ -1038,6 +1038,7 @@ describe("sendStickerTelegram", () => {
     }
   });
 
+<<<<<<< HEAD
   it("includes message_thread_id for forum topic messages", async () => {
     const chatId = "-1001234567890";
     const fileId = "CAACAgIAAxkBAAI...sticker_file_id";
@@ -1045,19 +1046,43 @@ describe("sendStickerTelegram", () => {
       message_id: 101,
       chat: { id: chatId },
     });
+=======
+  it("retries sticker sends without message_thread_id when thread is missing", async () => {
+    const chatId = "123";
+    const threadErr = new Error("400: Bad Request: message thread not found");
+    const sendSticker = vi
+      .fn()
+      .mockRejectedValueOnce(threadErr)
+      .mockResolvedValueOnce({
+        message_id: 109,
+        chat: { id: chatId },
+      });
+>>>>>>> 67aa7eefe (test: remove redundant sticker thread id assertion)
     const api = { sendSticker } as unknown as {
       sendSticker: typeof sendSticker;
     };
 
+<<<<<<< HEAD
     await sendStickerTelegram(chatId, fileId, {
+=======
+    const res = await sendStickerTelegram(chatId, "fileId123", {
+>>>>>>> 67aa7eefe (test: remove redundant sticker thread id assertion)
       token: "tok",
       api,
       messageThreadId: 271,
     });
 
+<<<<<<< HEAD
     expect(sendSticker).toHaveBeenCalledWith(chatId, fileId, {
       message_thread_id: 271,
     });
+=======
+    expect(sendSticker).toHaveBeenNthCalledWith(1, chatId, "fileId123", {
+      message_thread_id: 271,
+    });
+    expect(sendSticker).toHaveBeenNthCalledWith(2, chatId, "fileId123", undefined);
+    expect(res.messageId).toBe("109");
+>>>>>>> 67aa7eefe (test: remove redundant sticker thread id assertion)
   });
 
   it("includes reply_to_message_id for threaded replies", async () => {
