@@ -33,6 +33,40 @@ function normalizeHostnameSet(values?: string[]): Set<string> {
   return new Set(values.map((value) => normalizeHostname(value)).filter(Boolean));
 }
 
+<<<<<<< HEAD
+=======
+export function normalizeHostnameAllowlist(values?: string[]): string[] {
+  if (!values || values.length === 0) {
+    return [];
+  }
+  return Array.from(
+    new Set(
+      values
+        .map((value) => normalizeHostname(value))
+        .filter((value) => value !== "*" && value !== "*." && value.length > 0),
+    ),
+  );
+}
+
+function isHostnameAllowedByPattern(hostname: string, pattern: string): boolean {
+  if (pattern.startsWith("*.")) {
+    const suffix = pattern.slice(2);
+    if (!suffix || hostname === suffix) {
+      return false;
+    }
+    return hostname.endsWith(`.${suffix}`);
+  }
+  return hostname === pattern;
+}
+
+export function matchesHostnameAllowlist(hostname: string, allowlist: string[]): boolean {
+  if (allowlist.length === 0) {
+    return true;
+  }
+  return allowlist.some((pattern) => isHostnameAllowedByPattern(hostname, pattern));
+}
+
+>>>>>>> 6d2e3685d (feat(tools): add URL allowlist for web_search and web_fetch)
 function parseIpv4(address: string): number[] | null {
   const parts = address.split(".");
   if (parts.length !== 4) {
