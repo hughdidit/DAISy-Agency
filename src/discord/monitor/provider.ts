@@ -50,6 +50,7 @@ import type { MoltbotConfig, ReplyToMode } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
+import { wrapFetchWithAbortSignal } from "../../infra/fetch.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 <<<<<<< HEAD
@@ -57,10 +58,13 @@ import type { RuntimeEnv } from "../../runtime.js";
 =======
 import { createNonExitingRuntime, type RuntimeEnv } from "../../runtime.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
 =======
 import { wrapFetchWithAbortSignal } from "../../infra/fetch.js";
 >>>>>>> e997545d4 (fix(discord): apply proxy to app-id and allowlist REST lookups)
+=======
+>>>>>>> 3f617e33b (style(discord): format provider after proxy fetch changes)
 import { resolveDiscordAccount } from "../accounts.js";
 import { attachDiscordGatewayLogging } from "../gateway-logging.js";
 import { getDiscordGatewayEmitter, waitForDiscordGatewayStop } from "../monitor.gateway.js";
