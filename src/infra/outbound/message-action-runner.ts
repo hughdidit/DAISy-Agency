@@ -395,9 +395,14 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
     readStringParam(params, "path", { trim: false }) ??
     readStringParam(params, "filePath", { trim: false });
   const hasCard = params.card != null && typeof params.card === "object";
+<<<<<<< HEAD
+=======
+  const hasComponents = params.components != null && typeof params.components === "object";
+  const caption = readStringParam(params, "caption", { allowEmpty: true }) ?? "";
+>>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
   let message =
     readStringParam(params, "message", {
-      required: !mediaHint && !hasCard,
+      required: !mediaHint && !hasCard && !hasComponents,
       allowEmpty: true,
     }) ?? "";
   if (message.includes("\\n")) {
@@ -454,6 +459,19 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
   });
 
   const mediaUrl = readStringParam(params, "media", { trim: false });
+<<<<<<< HEAD
+=======
+  if (channel === "whatsapp") {
+    message = message.replace(/^(?:[ \t]*\r?\n)+/, "");
+    if (!message.trim()) {
+      message = "";
+    }
+  }
+  if (!message.trim() && !mediaUrl && mergedMediaUrls.length === 0 && !hasCard && !hasComponents) {
+    throw new Error("send requires text or media");
+  }
+  params.message = message;
+>>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
   const gifPlayback = readBooleanParam(params, "gifPlayback") ?? false;
   const bestEffort = readBooleanParam(params, "bestEffort");
   const silent = readBooleanParam(params, "silent");
@@ -486,6 +504,12 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
       accountId,
       route: outboundRoute,
     });
+  }
+  if (outboundRoute && !dryRun) {
+    params.__sessionKey = outboundRoute.sessionKey;
+  }
+  if (agentId) {
+    params.__agentId = agentId;
   }
   const mirrorMediaUrls =
     mergedMediaUrls.length > 0 ? mergedMediaUrls : mediaUrl ? [mediaUrl] : undefined;

@@ -7,8 +7,17 @@ import { Client, ReadyListener, type BaseMessageInteractiveComponent } from "@bu
 import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway";
 =======
 import type { GatewayPlugin } from "@buape/carbon/gateway";
+<<<<<<< HEAD
 import { Client, ReadyListener, type BaseMessageInteractiveComponent } from "@buape/carbon";
 >>>>>>> 644251295 (perf: reduce hotspot test startup and timeout costs)
+=======
+import {
+  Client,
+  ReadyListener,
+  type BaseMessageInteractiveComponent,
+  type Modal,
+} from "@buape/carbon";
+>>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
 import { Routes } from "discord-api-types/v10";
 import { inspect } from "node:util";
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
@@ -42,6 +51,20 @@ import { fetchDiscordApplicationId } from "../probe.js";
 import { resolveDiscordChannelAllowlist } from "../resolve-channels.js";
 import { resolveDiscordUserAllowlist } from "../resolve-users.js";
 import { normalizeDiscordToken } from "../token.js";
+<<<<<<< HEAD
+=======
+import {
+  createAgentComponentButton,
+  createAgentSelectMenu,
+  createDiscordComponentButton,
+  createDiscordComponentChannelSelect,
+  createDiscordComponentMentionableSelect,
+  createDiscordComponentModal,
+  createDiscordComponentRoleSelect,
+  createDiscordComponentStringSelect,
+  createDiscordComponentUserSelect,
+} from "./agent-components.js";
+>>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
 import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
 import { createDiscordGatewayPlugin } from "./gateway-plugin.js";
 import { registerGateway, unregisterGateway } from "./gateway-registry.js";
@@ -482,6 +505,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       sessionPrefix,
     }),
   ];
+  const modals: Modal[] = [];
 
   if (execApprovalsHandler) {
     components.push(createExecApprovalButton({ handler: execApprovalsHandler }));
@@ -490,24 +514,25 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
 <<<<<<< HEAD
 =======
   if (agentComponentsEnabled) {
-    components.push(
-      createAgentComponentButton({
-        cfg,
-        accountId: account.accountId,
-        guildEntries,
-        allowFrom,
-        dmPolicy,
-      }),
-    );
-    components.push(
-      createAgentSelectMenu({
-        cfg,
-        accountId: account.accountId,
-        guildEntries,
-        allowFrom,
-        dmPolicy,
-      }),
-    );
+    const componentContext = {
+      cfg,
+      discordConfig: discordCfg,
+      accountId: account.accountId,
+      guildEntries,
+      allowFrom,
+      dmPolicy,
+      runtime,
+      token,
+    };
+    components.push(createAgentComponentButton(componentContext));
+    components.push(createAgentSelectMenu(componentContext));
+    components.push(createDiscordComponentButton(componentContext));
+    components.push(createDiscordComponentStringSelect(componentContext));
+    components.push(createDiscordComponentUserSelect(componentContext));
+    components.push(createDiscordComponentRoleSelect(componentContext));
+    components.push(createDiscordComponentMentionableSelect(componentContext));
+    components.push(createDiscordComponentChannelSelect(componentContext));
+    modals.push(createDiscordComponentModal(componentContext));
   }
 
   class DiscordStatusReadyListener extends ReadyListener {
@@ -540,6 +565,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       commands,
       listeners: [new DiscordStatusReadyListener()],
       components,
+      modals,
     },
     [
       new GatewayPlugin({
