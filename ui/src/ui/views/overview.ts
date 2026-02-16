@@ -98,7 +98,11 @@ export function renderOverview(props: OverviewProps) {
       return null;
     }
     const isSecureContext = typeof window !== "undefined" ? window.isSecureContext : true;
+<<<<<<< HEAD
     if (isSecureContext) {
+=======
+    if (isSecureContext !== false) {
+>>>>>>> d30f5a243 (fix: resolve linting issues (curly braces, unused imports, any types))
       return null;
     }
     const lower = props.lastError.toLowerCase();
