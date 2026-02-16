@@ -8,9 +8,12 @@ import type { CallManager } from "./manager.js";
 import type { Logger } from "./manager/context.js";
 import { defaultLogger } from "./manager/context.js";
 import type { MediaStreamConfig } from "./media-stream.js";
+import { MediaStreamHandler } from "./media-stream.js";
 import type { VoiceCallProvider } from "./providers/base.js";
+import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
 import type { TwilioProvider } from "./providers/twilio.js";
 import type { NormalizedEvent, WebhookContext } from "./types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -18,6 +21,8 @@ import type { NormalizedEvent, WebhookContext } from "./types.js";
 import { MediaStreamHandler } from "./media-stream.js";
 import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
 >>>>>>> 0291ce30a (fix: apply oxfmt 0.32.0 formatting (match CI version))
+=======
+>>>>>>> d56c04a3b (fix: apply oxfmt formatting)
 
 const MAX_WEBHOOK_BODY_BYTES = 1024 * 1024;
 >>>>>>> dd319d05d (fix: apply oxfmt formatting)
@@ -200,7 +205,20 @@ export class VoiceCallWebhookServer {
 >>>>>>> dd319d05d (fix: apply oxfmt formatting)
       },
       onDisconnect: (callId) => {
+<<<<<<< HEAD
         this.logger.info(`[voice-call] Media stream disconnected: ${callId}`);
+=======
+        console.log(`[voice-call] Media stream disconnected: ${callId}`);
+        // Auto-end call when media stream disconnects to prevent stuck calls.
+        // Without this, calls can remain active indefinitely after the stream closes.
+        const disconnectedCall = this.manager.getCallByProviderCallId(callId);
+        if (disconnectedCall) {
+          console.log(
+            `[voice-call] Auto-ending call ${disconnectedCall.callId} on stream disconnect`,
+          );
+          void this.manager.endCall(disconnectedCall.callId).catch(() => {});
+        }
+>>>>>>> d56c04a3b (fix: apply oxfmt formatting)
         if (this.provider.name === "twilio") {
           (this.provider as TwilioProvider).unregisterCallStream(callId);
         }
