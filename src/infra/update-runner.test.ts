@@ -33,6 +33,87 @@ describe("runGatewayUpdate", () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 
+<<<<<<< HEAD
+=======
+  function createStableTagRunner(params: {
+    stableTag: string;
+    uiIndexPath: string;
+    onDoctor?: () => Promise<void>;
+    onUiBuild?: (count: number) => Promise<void>;
+  }) {
+    const calls: string[] = [];
+    let uiBuildCount = 0;
+    const doctorKey = `${process.execPath} ${path.join(tempDir, "openclaw.mjs")} doctor --non-interactive --fix`;
+
+    const runCommand = async (argv: string[]) => {
+      const key = argv.join(" ");
+      calls.push(key);
+
+      if (key === `git -C ${tempDir} rev-parse --show-toplevel`) {
+        return { stdout: tempDir, stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} rev-parse HEAD`) {
+        return { stdout: "abc123", stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} status --porcelain -- :!dist/control-ui/`) {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} fetch --all --prune --tags`) {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} tag --list v* --sort=-v:refname`) {
+        return { stdout: `${params.stableTag}\n`, stderr: "", code: 0 };
+      }
+      if (key === `git -C ${tempDir} checkout --detach ${params.stableTag}`) {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === "pnpm install") {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === "pnpm build") {
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === "pnpm ui:build") {
+        uiBuildCount += 1;
+        await params.onUiBuild?.(uiBuildCount);
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      if (key === doctorKey) {
+        await params.onDoctor?.();
+        return { stdout: "", stderr: "", code: 0 };
+      }
+      return { stdout: "", stderr: "", code: 0 };
+    };
+
+    return {
+      runCommand,
+      calls,
+      doctorKey,
+      getUiBuildCount: () => uiBuildCount,
+    };
+  }
+
+  async function setupGitCheckout(options?: { packageManager?: string }) {
+    await fs.mkdir(path.join(tempDir, ".git"));
+    const pkg: Record<string, string> = { name: "openclaw", version: "1.0.0" };
+    if (options?.packageManager) {
+      pkg.packageManager = options.packageManager;
+    }
+    await fs.writeFile(path.join(tempDir, "package.json"), JSON.stringify(pkg), "utf-8");
+  }
+
+  async function setupUiIndex() {
+    const uiIndexPath = path.join(tempDir, "dist", "control-ui", "index.html");
+    await fs.mkdir(path.dirname(uiIndexPath), { recursive: true });
+    await fs.writeFile(uiIndexPath, "<html></html>", "utf-8");
+    return uiIndexPath;
+  }
+
+  async function removeControlUiAssets() {
+    await fs.rm(path.join(tempDir, "dist", "control-ui"), { recursive: true, force: true });
+  }
+
+>>>>>>> 0b8b95f2c (fix(update): prevent gateway crash loop after failed self-update)
   it("skips git update when worktree is dirty", async () => {
     await fs.mkdir(path.join(tempDir, ".git"));
     await fs.writeFile(
@@ -91,6 +172,69 @@ describe("runGatewayUpdate", () => {
     expect(calls.some((call) => call.includes("rebase --abort"))).toBe(true);
   });
 
+  it("returns error and stops early when deps install fails", async () => {
+    await fs.mkdir(path.join(tempDir, ".git"));
+    await fs.writeFile(
+      path.join(tempDir, "package.json"),
+      JSON.stringify({ name: "openclaw", version: "1.0.0", packageManager: "pnpm@8.0.0" }),
+      "utf-8",
+    );
+    const stableTag = "v1.0.1-1";
+    const { runner, calls } = createRunner({
+      [`git -C ${tempDir} rev-parse --show-toplevel`]: { stdout: tempDir },
+      [`git -C ${tempDir} rev-parse HEAD`]: { stdout: "abc123" },
+      [`git -C ${tempDir} status --porcelain -- :!dist/control-ui/`]: { stdout: "" },
+      [`git -C ${tempDir} fetch --all --prune --tags`]: { stdout: "" },
+      [`git -C ${tempDir} tag --list v* --sort=-v:refname`]: { stdout: `${stableTag}\n` },
+      [`git -C ${tempDir} checkout --detach ${stableTag}`]: { stdout: "" },
+      "pnpm install": { code: 1, stderr: "ERR_PNPM_NETWORK" },
+    });
+
+    const result = await runGatewayUpdate({
+      cwd: tempDir,
+      runCommand: async (argv, _options) => runner(argv),
+      timeoutMs: 5000,
+      channel: "stable",
+    });
+
+    expect(result.status).toBe("error");
+    expect(result.reason).toBe("deps-install-failed");
+    expect(calls.some((call) => call === "pnpm build")).toBe(false);
+    expect(calls.some((call) => call === "pnpm ui:build")).toBe(false);
+  });
+
+  it("returns error and stops early when build fails", async () => {
+    await fs.mkdir(path.join(tempDir, ".git"));
+    await fs.writeFile(
+      path.join(tempDir, "package.json"),
+      JSON.stringify({ name: "openclaw", version: "1.0.0", packageManager: "pnpm@8.0.0" }),
+      "utf-8",
+    );
+    const stableTag = "v1.0.1-1";
+    const { runner, calls } = createRunner({
+      [`git -C ${tempDir} rev-parse --show-toplevel`]: { stdout: tempDir },
+      [`git -C ${tempDir} rev-parse HEAD`]: { stdout: "abc123" },
+      [`git -C ${tempDir} status --porcelain -- :!dist/control-ui/`]: { stdout: "" },
+      [`git -C ${tempDir} fetch --all --prune --tags`]: { stdout: "" },
+      [`git -C ${tempDir} tag --list v* --sort=-v:refname`]: { stdout: `${stableTag}\n` },
+      [`git -C ${tempDir} checkout --detach ${stableTag}`]: { stdout: "" },
+      "pnpm install": { stdout: "" },
+      "pnpm build": { code: 1, stderr: "tsc: error TS2345" },
+    });
+
+    const result = await runGatewayUpdate({
+      cwd: tempDir,
+      runCommand: async (argv, _options) => runner(argv),
+      timeoutMs: 5000,
+      channel: "stable",
+    });
+
+    expect(result.status).toBe("error");
+    expect(result.reason).toBe("build-failed");
+    expect(calls.some((call) => call === "pnpm install")).toBe(true);
+    expect(calls.some((call) => call === "pnpm ui:build")).toBe(false);
+  });
+
   it("uses stable tag when beta tag is older than release", async () => {
     await fs.mkdir(path.join(tempDir, ".git"));
     await fs.writeFile(
@@ -112,8 +256,15 @@ describe("runGatewayUpdate", () => {
       "pnpm install": { stdout: "" },
       "pnpm build": { stdout: "" },
       "pnpm ui:build": { stdout: "" },
+<<<<<<< HEAD
       [`git -C ${tempDir} checkout -- dist/control-ui/`]: { stdout: "" },
       "pnpm moltbot doctor --non-interactive": { stdout: "" },
+=======
+      [`${process.execPath} ${path.join(tempDir, "openclaw.mjs")} doctor --non-interactive --fix`]:
+        {
+          stdout: "",
+        },
+>>>>>>> 0b8b95f2c (fix(update): prevent gateway crash loop after failed self-update)
     });
 
     const result = await runGatewayUpdate({

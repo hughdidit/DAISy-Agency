@@ -667,15 +667,79 @@ export async function runGatewayUpdate(opts: UpdateRunnerOptions = {}): Promise<
 
     const depsStep = await runStep(step("deps install", managerInstallArgs(manager), gitRoot));
     steps.push(depsStep);
+    if (depsStep.exitCode !== 0) {
+      return {
+        status: "error",
+        mode: "git",
+        root: gitRoot,
+        reason: "deps-install-failed",
+        before: { sha: beforeSha, version: beforeVersion },
+        steps,
+        durationMs: Date.now() - startedAt,
+      };
+    }
 
     const buildStep = await runStep(step("build", managerScriptArgs(manager, "build"), gitRoot));
     steps.push(buildStep);
+    if (buildStep.exitCode !== 0) {
+      return {
+        status: "error",
+        mode: "git",
+        root: gitRoot,
+        reason: "build-failed",
+        before: { sha: beforeSha, version: beforeVersion },
+        steps,
+        durationMs: Date.now() - startedAt,
+      };
+    }
 
     const uiBuildStep = await runStep(
       step("ui:build", managerScriptArgs(manager, "ui:build"), gitRoot),
     );
     steps.push(uiBuildStep);
+    if (uiBuildStep.exitCode !== 0) {
+      return {
+        status: "error",
+        mode: "git",
+        root: gitRoot,
+        reason: "ui-build-failed",
+        before: { sha: beforeSha, version: beforeVersion },
+        steps,
+        durationMs: Date.now() - startedAt,
+      };
+    }
 
+<<<<<<< HEAD
+=======
+    const doctorEntry = path.join(gitRoot, "openclaw.mjs");
+    const doctorEntryExists = await fs
+      .stat(doctorEntry)
+      .then(() => true)
+      .catch(() => false);
+    if (!doctorEntryExists) {
+      steps.push({
+        name: "openclaw doctor entry",
+        command: `verify ${doctorEntry}`,
+        cwd: gitRoot,
+        durationMs: 0,
+        exitCode: 1,
+        stderrTail: `missing ${doctorEntry}`,
+      });
+      return {
+        status: "error",
+        mode: "git",
+        root: gitRoot,
+        reason: "doctor-entry-missing",
+        before: { sha: beforeSha, version: beforeVersion },
+        steps,
+        durationMs: Date.now() - startedAt,
+      };
+    }
+
+    // Use --fix so that doctor auto-strips unknown config keys introduced by
+    // schema changes between versions, preventing a startup validation crash.
+    const doctorArgv = [process.execPath, doctorEntry, "doctor", "--non-interactive", "--fix"];
+>>>>>>> 0b8b95f2c (fix(update): prevent gateway crash loop after failed self-update)
     const doctorStep = await runStep(
       step(
         "moltbot doctor",
