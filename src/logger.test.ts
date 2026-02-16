@@ -4,8 +4,13 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { setVerbose } from "./globals.js";
+=======
+import type { RuntimeEnv } from "./runtime.js";
+import { isVerbose, isYes, logVerbose, setVerbose, setYes } from "./globals.js";
+>>>>>>> 2acc0b0f4 (perf(test): fold globals unit tests into logger suite)
 import { logDebug, logError, logInfo, logSuccess, logWarn } from "./logger.js";
 import { DEFAULT_LOG_DIR, resetLogger, setLoggerOverride } from "./logging.js";
 import type { RuntimeEnv } from "./runtime.js";
@@ -15,6 +20,7 @@ describe("logger helpers", () => {
     resetLogger();
     setLoggerOverride(null);
     setVerbose(false);
+    setYes(false);
   });
 
   it("formats messages through runtime log/error", () => {
@@ -87,6 +93,33 @@ describe("logger helpers", () => {
     expect(fs.existsSync(oldPath)).toBe(false);
 
     cleanup(todayPath);
+  });
+});
+
+describe("globals", () => {
+  afterEach(() => {
+    setVerbose(false);
+    setYes(false);
+    vi.restoreAllMocks();
+  });
+
+  it("toggles verbose flag and logs when enabled", () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    setVerbose(false);
+    logVerbose("hidden");
+    expect(logSpy).not.toHaveBeenCalled();
+
+    setVerbose(true);
+    logVerbose("shown");
+    expect(isVerbose()).toBe(true);
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("shown"));
+  });
+
+  it("stores yes flag", () => {
+    setYes(true);
+    expect(isYes()).toBe(true);
+    setYes(false);
+    expect(isYes()).toBe(false);
   });
 });
 
