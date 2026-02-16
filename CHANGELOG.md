@@ -55,8 +55,13 @@ Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
+=======
+- Security: replace deprecated SHA-1 sandbox configuration hashing with SHA-256 for deterministic sandbox cache identity and recreation checks. Thanks @kexinoh.
+- Sandbox: preserve array order in config hashing so order-sensitive Docker/browser settings trigger container recreation correctly. Thanks @kexinoh.
+>>>>>>> 41ded303b (fix(sandbox): preserve array order in config hashing)
 - Sandbox/Security: block dangerous sandbox Docker config (bind mounts, host networking, unconfined seccomp/apparmor) to prevent container escape via config injection. Thanks @aether-ai-agent.
 - Control UI: prevent stored XSS via assistant name/avatar by removing inline script injection, serving bootstrap config as JSON, and enforcing `script-src 'self'`. Thanks @Adam55A-code.
 <<<<<<< HEAD
