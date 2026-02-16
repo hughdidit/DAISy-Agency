@@ -1,9 +1,13 @@
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import crypto from "node:crypto";
 import path from "node:path";
+<<<<<<< HEAD
 import { resolveBlueBubblesAccount } from "./accounts.js";
 <<<<<<< HEAD
 =======
+=======
+import { resolveBlueBubblesServerAccount } from "./account-resolve.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { postMultipartFormData } from "./multipart.js";
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 >>>>>>> 719280d73 (refactor(bluebubbles): share multipart helpers)
@@ -18,6 +22,7 @@ export type BlueBubblesChatOpts = {
 };
 
 function resolveAccount(params: BlueBubblesChatOpts) {
+<<<<<<< HEAD
   const account = resolveBlueBubblesAccount({
     cfg: params.cfg ?? {},
     accountId: params.accountId,
@@ -31,6 +36,17 @@ function resolveAccount(params: BlueBubblesChatOpts) {
     throw new Error("BlueBubbles password is required");
   }
   return { baseUrl, password };
+=======
+  return resolveBlueBubblesServerAccount(params);
+}
+
+function assertPrivateApiEnabled(accountId: string, feature: string): void {
+  if (getCachedBlueBubblesPrivateApiStatus(accountId) === false) {
+    throw new Error(
+      `BlueBubbles ${feature} requires Private API, but it is disabled on the BlueBubbles server.`,
+    );
+  }
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 }
 
 export async function markBlueBubblesChatRead(

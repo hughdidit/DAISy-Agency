@@ -5,6 +5,7 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/acco
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 import { getMatrixRuntime } from "../../runtime.js";
+<<<<<<< HEAD
 import { getActiveMatrixClient } from "../active-client.js";
 import {
   createMatrixClient,
@@ -12,6 +13,11 @@ import {
   resolveMatrixAuth,
   resolveSharedMatrixClient,
 } from "../client.js";
+=======
+import { getActiveMatrixClient, getAnyActiveMatrixClient } from "../active-client.js";
+import { createPreparedMatrixClient } from "../client-bootstrap.js";
+import { isBunRuntime, resolveMatrixAuth, resolveSharedMatrixClient } from "../client.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
 const getCore = () => getMatrixRuntime();
 
@@ -48,6 +54,7 @@ export async function resolveMatrixClient(opts: {
     });
     return { client, stopOnDone: false };
   }
+<<<<<<< HEAD
   const auth = await resolveMatrixAuth();
   const client = await createMatrixClient({
     homeserver: auth.homeserver,
@@ -55,18 +62,13 @@ export async function resolveMatrixClient(opts: {
     accessToken: auth.accessToken,
     encryption: auth.encryption,
     localTimeoutMs: opts.timeoutMs,
+=======
+  const auth = await resolveMatrixAuth({ accountId });
+  const client = await createPreparedMatrixClient({
+    auth,
+    timeoutMs: opts.timeoutMs,
+    accountId,
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
   });
-  if (auth.encryption && client.crypto) {
-    try {
-      const joinedRooms = await client.getJoinedRooms();
-      await (client.crypto as { prepare: (rooms?: string[]) => Promise<void> }).prepare(
-        joinedRooms,
-      );
-    } catch {
-      // Ignore crypto prep failures for one-off sends; normal sync will retry.
-    }
-  }
-  // @vector-im/matrix-bot-sdk uses start() instead of startClient()
-  await client.start();
   return { client, stopOnDone: true };
 }

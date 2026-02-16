@@ -9,9 +9,13 @@
  * - Abort signal handling
  */
 
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { twitchOutbound } from "./outbound.js";
+import {
+  BASE_TWITCH_TEST_ACCOUNT,
+  installTwitchTestHooks,
+  makeTwitchTestConfig,
+} from "./test-fixtures.js";
 
 // Mock dependencies
 vi.mock("./config.js", () => ({
@@ -35,29 +39,19 @@ vi.mock("./utils/twitch.js", () => ({
 
 describe("outbound", () => {
   const mockAccount = {
+<<<<<<< HEAD
     username: "testbot",
     token: "oauth:test123",
     clientId: "test-client-id",
     channel: "#testchannel",
+=======
+    ...BASE_TWITCH_TEST_ACCOUNT,
+    accessToken: "oauth:test123",
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
   };
 
-  const mockConfig = {
-    channels: {
-      twitch: {
-        accounts: {
-          default: mockAccount,
-        },
-      },
-    },
-  } as unknown as OpenClawConfig;
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
+  const mockConfig = makeTwitchTestConfig(mockAccount);
+  installTwitchTestHooks();
 
   describe("metadata", () => {
     it("should have direct delivery mode", () => {

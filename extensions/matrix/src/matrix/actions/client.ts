@@ -6,12 +6,8 @@ import type { CoreConfig } from "../../types.js";
 import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
 import { getMatrixRuntime } from "../../runtime.js";
 import { getActiveMatrixClient } from "../active-client.js";
-import {
-  createMatrixClient,
-  isBunRuntime,
-  resolveMatrixAuth,
-  resolveSharedMatrixClient,
-} from "../client.js";
+import { createPreparedMatrixClient } from "../client-bootstrap.js";
+import { isBunRuntime, resolveMatrixAuth, resolveSharedMatrixClient } from "../client.js";
 
 export function ensureNodeRuntime() {
   if (isBunRuntime()) {
@@ -41,23 +37,19 @@ export async function resolveActionClient(
   const auth = await resolveMatrixAuth({
     cfg: getMatrixRuntime().config.loadConfig() as CoreConfig,
   });
+<<<<<<< HEAD
   const client = await createMatrixClient({
     homeserver: auth.homeserver,
     userId: auth.userId,
     accessToken: auth.accessToken,
     encryption: auth.encryption,
     localTimeoutMs: opts.timeoutMs,
+=======
+  const client = await createPreparedMatrixClient({
+    auth,
+    timeoutMs: opts.timeoutMs,
+    accountId,
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
   });
-  if (auth.encryption && client.crypto) {
-    try {
-      const joinedRooms = await client.getJoinedRooms();
-      await (client.crypto as { prepare: (rooms?: string[]) => Promise<void> }).prepare(
-        joinedRooms,
-      );
-    } catch {
-      // Ignore crypto prep failures for one-off actions.
-    }
-  }
-  await client.start();
   return { client, stopOnDone: true };
 }

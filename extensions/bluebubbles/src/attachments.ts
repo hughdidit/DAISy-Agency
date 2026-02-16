@@ -1,11 +1,15 @@
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import crypto from "node:crypto";
 import path from "node:path";
+<<<<<<< HEAD
 import { resolveBlueBubblesAccount } from "./accounts.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
 =======
+=======
+import { resolveBlueBubblesServerAccount } from "./account-resolve.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { postMultipartFormData } from "./multipart.js";
 >>>>>>> 719280d73 (refactor(bluebubbles): share multipart helpers)
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
@@ -60,6 +64,7 @@ function resolveVoiceInfo(filename: string, contentType?: string) {
 }
 
 function resolveAccount(params: BlueBubblesAttachmentOpts) {
+<<<<<<< HEAD
   const account = resolveBlueBubblesAccount({
     cfg: params.cfg ?? {},
     accountId: params.accountId,
@@ -73,6 +78,9 @@ function resolveAccount(params: BlueBubblesAttachmentOpts) {
     throw new Error("BlueBubbles password is required");
   }
   return { baseUrl, password };
+=======
+  return resolveBlueBubblesServerAccount(params);
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 }
 
 export async function downloadBlueBubblesAttachment(

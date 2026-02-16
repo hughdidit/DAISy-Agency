@@ -1,6 +1,8 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import "./test-mocks.js";
 import type { BlueBubblesSendTarget } from "./types.js";
 import { sendMessageBlueBubbles, resolveChatGuidForTarget } from "./send.js";
+<<<<<<< HEAD
 
 vi.mock("./accounts.js", () => ({
   resolveBlueBubblesAccount: vi.fn(({ cfg, accountId }) => {
@@ -13,10 +15,44 @@ vi.mock("./accounts.js", () => ({
     };
   }),
 }));
+=======
+import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
 const mockFetch = vi.fn();
 
+installBlueBubblesFetchTestHooks({
+  mockFetch,
+  privateApiStatusMock: vi.mocked(getCachedBlueBubblesPrivateApiStatus),
+});
+
+function mockResolvedHandleTarget(
+  guid: string = "iMessage;-;+15551234567",
+  address: string = "+15551234567",
+) {
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: () =>
+      Promise.resolve({
+        data: [
+          {
+            guid,
+            participants: [{ address }],
+          },
+        ],
+      }),
+  });
+}
+
+function mockSendResponse(body: unknown) {
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    text: () => Promise.resolve(JSON.stringify(body)),
+  });
+}
+
 describe("send", () => {
+<<<<<<< HEAD
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
     mockFetch.mockReset();
@@ -26,7 +62,27 @@ describe("send", () => {
     vi.unstubAllGlobals();
   });
 
+=======
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
   describe("resolveChatGuidForTarget", () => {
+    const resolveHandleTargetGuid = async (data: Array<Record<string, unknown>>) => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ data }),
+      });
+
+      const target: BlueBubblesSendTarget = {
+        kind: "handle",
+        address: "+15551234567",
+        service: "imessage",
+      };
+      return await resolveChatGuidForTarget({
+        baseUrl: "http://localhost:1234",
+        password: "test",
+        target,
+      });
+    };
+
     it("returns chatGuid directly for chat_guid target", async () => {
       const target: BlueBubblesSendTarget = {
         kind: "chat_guid",
@@ -123,65 +179,31 @@ describe("send", () => {
     });
 
     it("resolves handle target by matching participant", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [
-              {
-                guid: "iMessage;-;+15559999999",
-                participants: [{ address: "+15559999999" }],
-              },
-              {
-                guid: "iMessage;-;+15551234567",
-                participants: [{ address: "+15551234567" }],
-              },
-            ],
-          }),
-      });
-
-      const target: BlueBubblesSendTarget = {
-        kind: "handle",
-        address: "+15551234567",
-        service: "imessage",
-      };
-      const result = await resolveChatGuidForTarget({
-        baseUrl: "http://localhost:1234",
-        password: "test",
-        target,
-      });
+      const result = await resolveHandleTargetGuid([
+        {
+          guid: "iMessage;-;+15559999999",
+          participants: [{ address: "+15559999999" }],
+        },
+        {
+          guid: "iMessage;-;+15551234567",
+          participants: [{ address: "+15551234567" }],
+        },
+      ]);
 
       expect(result).toBe("iMessage;-;+15551234567");
     });
 
     it("prefers direct chat guid when handle also appears in a group chat", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [
-              {
-                guid: "iMessage;+;group-123",
-                participants: [{ address: "+15551234567" }, { address: "+15550001111" }],
-              },
-              {
-                guid: "iMessage;-;+15551234567",
-                participants: [{ address: "+15551234567" }],
-              },
-            ],
-          }),
-      });
-
-      const target: BlueBubblesSendTarget = {
-        kind: "handle",
-        address: "+15551234567",
-        service: "imessage",
-      };
-      const result = await resolveChatGuidForTarget({
-        baseUrl: "http://localhost:1234",
-        password: "test",
-        target,
-      });
+      const result = await resolveHandleTargetGuid([
+        {
+          guid: "iMessage;+;group-123",
+          participants: [{ address: "+15551234567" }, { address: "+15550001111" }],
+        },
+        {
+          guid: "iMessage;-;+15551234567",
+          participants: [{ address: "+15551234567" }],
+        },
+      ]);
 
       expect(result).toBe("iMessage;-;+15551234567");
     });
@@ -409,28 +431,8 @@ describe("send", () => {
     });
 
     it("sends message successfully", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () =>
-            Promise.resolve(
-              JSON.stringify({
-                data: { guid: "msg-uuid-123" },
-              }),
-            ),
-        });
+      mockResolvedHandleTarget();
+      mockSendResponse({ data: { guid: "msg-uuid-123" } });
 
       const result = await sendMessageBlueBubbles("+15551234567", "Hello world!", {
         serverUrl: "http://localhost:1234",
@@ -449,28 +451,8 @@ describe("send", () => {
     });
 
     it("strips markdown formatting from outbound messages", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () =>
-            Promise.resolve(
-              JSON.stringify({
-                data: { guid: "msg-uuid-stripped" },
-              }),
-            ),
-        });
+      mockResolvedHandleTarget();
+      mockSendResponse({ data: { guid: "msg-uuid-stripped" } });
 
       const result = await sendMessageBlueBubbles(
         "+15551234567",
@@ -571,28 +553,8 @@ describe("send", () => {
     });
 
     it("uses private-api when reply metadata is present", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () =>
-            Promise.resolve(
-              JSON.stringify({
-                data: { guid: "msg-uuid-124" },
-              }),
-            ),
-        });
+      mockResolvedHandleTarget();
+      mockSendResponse({ data: { guid: "msg-uuid-124" } });
 
       const result = await sendMessageBlueBubbles("+15551234567", "Replying", {
         serverUrl: "http://localhost:1234",
@@ -611,29 +573,32 @@ describe("send", () => {
       expect(body.partIndex).toBe(1);
     });
 
+<<<<<<< HEAD
+=======
+    it("downgrades threaded reply to plain send when private API is disabled", async () => {
+      vi.mocked(getCachedBlueBubblesPrivateApiStatus).mockReturnValueOnce(false);
+      mockResolvedHandleTarget();
+      mockSendResponse({ data: { guid: "msg-uuid-plain" } });
+
+      const result = await sendMessageBlueBubbles("+15551234567", "Reply fallback", {
+        serverUrl: "http://localhost:1234",
+        password: "test",
+        replyToMessageGuid: "reply-guid-123",
+        replyToPartIndex: 1,
+      });
+
+      expect(result.messageId).toBe("msg-uuid-plain");
+      const sendCall = mockFetch.mock.calls[1];
+      const body = JSON.parse(sendCall[1].body);
+      expect(body.method).toBeUndefined();
+      expect(body.selectedMessageGuid).toBeUndefined();
+      expect(body.partIndex).toBeUndefined();
+    });
+
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
     it("normalizes effect names and uses private-api for effects", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () =>
-            Promise.resolve(
-              JSON.stringify({
-                data: { guid: "msg-uuid-125" },
-              }),
-            ),
-        });
+      mockResolvedHandleTarget();
+      mockSendResponse({ data: { guid: "msg-uuid-125" } });
 
       const result = await sendMessageBlueBubbles("+15551234567", "Hello", {
         serverUrl: "http://localhost:1234",
@@ -675,24 +640,12 @@ describe("send", () => {
     });
 
     it("handles send failure", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: false,
-          status: 500,
-          text: () => Promise.resolve("Internal server error"),
-        });
+      mockResolvedHandleTarget();
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        text: () => Promise.resolve("Internal server error"),
+      });
 
       await expect(
         sendMessageBlueBubbles("+15551234567", "Hello", {
@@ -703,23 +656,11 @@ describe("send", () => {
     });
 
     it("handles empty response body", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () => Promise.resolve(""),
-        });
+      mockResolvedHandleTarget();
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        text: () => Promise.resolve(""),
+      });
 
       const result = await sendMessageBlueBubbles("+15551234567", "Hello", {
         serverUrl: "http://localhost:1234",
@@ -730,23 +671,11 @@ describe("send", () => {
     });
 
     it("handles invalid JSON response body", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () => Promise.resolve("not valid json"),
-        });
+      mockResolvedHandleTarget();
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        text: () => Promise.resolve("not valid json"),
+      });
 
       const result = await sendMessageBlueBubbles("+15551234567", "Hello", {
         serverUrl: "http://localhost:1234",
@@ -757,28 +686,8 @@ describe("send", () => {
     });
 
     it("extracts messageId from various response formats", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () =>
-            Promise.resolve(
-              JSON.stringify({
-                id: "numeric-id-456",
-              }),
-            ),
-        });
+      mockResolvedHandleTarget();
+      mockSendResponse({ id: "numeric-id-456" });
 
       const result = await sendMessageBlueBubbles("+15551234567", "Hello", {
         serverUrl: "http://localhost:1234",
@@ -789,28 +698,8 @@ describe("send", () => {
     });
 
     it("extracts messageGuid from response payload", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () =>
-            Promise.resolve(
-              JSON.stringify({
-                data: { messageGuid: "msg-guid-789" },
-              }),
-            ),
-        });
+      mockResolvedHandleTarget();
+      mockSendResponse({ data: { messageGuid: "msg-guid-789" } });
 
       const result = await sendMessageBlueBubbles("+15551234567", "Hello", {
         serverUrl: "http://localhost:1234",
@@ -821,23 +710,8 @@ describe("send", () => {
     });
 
     it("resolves credentials from config", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () => Promise.resolve(JSON.stringify({ data: { guid: "msg-123" } })),
-        });
+      mockResolvedHandleTarget();
+      mockSendResponse({ data: { guid: "msg-123" } });
 
       const result = await sendMessageBlueBubbles("+15551234567", "Hello", {
         cfg: {
@@ -856,23 +730,8 @@ describe("send", () => {
     });
 
     it("includes tempGuid in request payload", async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              data: [
-                {
-                  guid: "iMessage;-;+15551234567",
-                  participants: [{ address: "+15551234567" }],
-                },
-              ],
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          text: () => Promise.resolve(JSON.stringify({ data: { guid: "msg" } })),
-        });
+      mockResolvedHandleTarget();
+      mockSendResponse({ data: { guid: "msg" } });
 
       await sendMessageBlueBubbles("+15551234567", "Hello", {
         serverUrl: "http://localhost:1234",

@@ -1,6 +1,8 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import "./test-mocks.js";
 import type { BlueBubblesAttachment } from "./types.js";
 import { downloadBlueBubblesAttachment, sendBlueBubblesAttachment } from "./attachments.js";
+<<<<<<< HEAD
 
 vi.mock("./accounts.js", () => ({
   resolveBlueBubblesAccount: vi.fn(({ cfg, accountId }) => {
@@ -13,10 +15,20 @@ vi.mock("./accounts.js", () => ({
     };
   }),
 }));
+=======
+import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
+import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 
 const mockFetch = vi.fn();
 
+installBlueBubblesFetchTestHooks({
+  mockFetch,
+  privateApiStatusMock: vi.mocked(getCachedBlueBubblesPrivateApiStatus),
+});
+
 describe("downloadBlueBubblesAttachment", () => {
+<<<<<<< HEAD
   beforeEach(() => {
     vi.stubGlobal("fetch", mockFetch);
     mockFetch.mockReset();
@@ -26,6 +38,8 @@ describe("downloadBlueBubblesAttachment", () => {
     vi.unstubAllGlobals();
   });
 
+=======
+>>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
   it("throws when guid is missing", async () => {
     const attachment: BlueBubblesAttachment = {};
     await expect(
