@@ -185,6 +185,7 @@ function buildSendSchema(options: {
           Type.Object({
             text: Type.String(),
             callback_data: Type.String(),
+            style: Type.Optional(stringEnum(["danger", "success", "primary"])),
           }),
         ),
         {
