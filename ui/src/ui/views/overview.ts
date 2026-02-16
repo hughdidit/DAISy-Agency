@@ -1,7 +1,12 @@
 import { html } from "lit";
 import type { GatewayHelloOk } from "../gateway.ts";
 import type { UiSettings } from "../storage.ts";
+<<<<<<< HEAD
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
+=======
+import { t, i18n, type Locale } from "../../i18n/index.ts";
+import { formatAgo, formatDurationMs } from "../format.ts";
+>>>>>>> f20bef3d7 (fix: add .ts extensions to i18n imports for ESM compatibility)
 import { formatNextRun } from "../presenter.ts";
 
 export type OverviewProps = {
