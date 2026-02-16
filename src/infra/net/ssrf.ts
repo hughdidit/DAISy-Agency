@@ -1,6 +1,7 @@
 import { lookup as dnsLookup } from "node:dns/promises";
 import { lookup as dnsLookupCb, type LookupAddress } from "node:dns";
 import { Agent, type Dispatcher } from "undici";
+import { normalizeHostname } from "./hostname.js";
 
 type LookupCallback = (
   err: NodeJS.ErrnoException | null,
@@ -20,12 +21,51 @@ type LookupFn = typeof dnsLookup;
 const PRIVATE_IPV6_PREFIXES = ["fe80:", "fec0:", "fc", "fd"];
 const BLOCKED_HOSTNAMES = new Set(["localhost", "metadata.google.internal"]);
 
+<<<<<<< HEAD
 function normalizeHostname(hostname: string): string {
   const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
   if (normalized.startsWith("[") && normalized.endsWith("]")) {
     return normalized.slice(1, -1);
   }
   return normalized;
+=======
+function normalizeHostnameSet(values?: string[]): Set<string> {
+  if (!values || values.length === 0) {
+    return new Set<string>();
+  }
+  return new Set(values.map((value) => normalizeHostname(value)).filter(Boolean));
+}
+
+function normalizeHostnameAllowlist(values?: string[]): string[] {
+  if (!values || values.length === 0) {
+    return [];
+  }
+  return Array.from(
+    new Set(
+      values
+        .map((value) => normalizeHostname(value))
+        .filter((value) => value !== "*" && value !== "*." && value.length > 0),
+    ),
+  );
+}
+
+function isHostnameAllowedByPattern(hostname: string, pattern: string): boolean {
+  if (pattern.startsWith("*.")) {
+    const suffix = pattern.slice(2);
+    if (!suffix || hostname === suffix) {
+      return false;
+    }
+    return hostname.endsWith(`.${suffix}`);
+  }
+  return hostname === pattern;
+}
+
+function matchesHostnameAllowlist(hostname: string, allowlist: string[]): boolean {
+  if (allowlist.length === 0) {
+    return true;
+  }
+  return allowlist.some((pattern) => isHostnameAllowedByPattern(hostname, pattern));
+>>>>>>> 4aaafe532 (refactor(net): share hostname normalization)
 }
 
 function parseIpv4(address: string): number[] | null {
