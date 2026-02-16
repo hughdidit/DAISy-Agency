@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -11,7 +12,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 >>>>>>> 7c240a2b5 (feat(discord): faster reaction status state machine (watchdog + debounce) (#18248))
+=======
+>>>>>>> 05bfb7f9f (refactor(test): reuse discord message handler base context harness)
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createBaseDiscordMessageContext } from "./message-handler.test-harness.js";
 
 const reactMessageDiscord = vi.fn(async () => {});
 const removeReactionDiscord = vi.fn(async () => {});
@@ -46,6 +50,7 @@ vi.mock("../../auto-reply/reply/reply-dispatcher.js", () => ({
 
 import { processDiscordMessage } from "./message-handler.process.js";
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 async function createBaseContext(overrides: Record<string, unknown> = {}) {
@@ -120,6 +125,9 @@ async function createBaseContext(overrides: Record<string, unknown> = {}) {
     ...overrides,
   };
 }
+=======
+const createBaseContext = createBaseDiscordMessageContext;
+>>>>>>> 05bfb7f9f (refactor(test): reuse discord message handler base context harness)
 
 <<<<<<< HEAD
 =======
