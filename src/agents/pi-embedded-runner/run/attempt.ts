@@ -754,6 +754,7 @@ export async function runEmbeddedAttempt(
         waitForCompactionRetry,
         getMessagingToolSentTexts,
         getMessagingToolSentTargets,
+        getSuccessfulCronAdds,
         didSendViaMessagingTool,
         getLastToolError,
         getUsageTotals,
@@ -1182,6 +1183,7 @@ export async function runEmbeddedAttempt(
         didSendViaMessagingTool: didSendViaMessagingTool(),
         messagingToolSentTexts: getMessagingToolSentTexts(),
         messagingToolSentTargets: getMessagingToolSentTargets(),
+        successfulCronAdds: getSuccessfulCronAdds(),
         cloudCodeAssistFormatError: Boolean(
           lastAssistant?.errorMessage && isCloudCodeAssistFormatError(lastAssistant.errorMessage),
         ),
