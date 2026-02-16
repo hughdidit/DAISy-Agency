@@ -5,12 +5,14 @@ import { formatAge, parsePairingList } from "./format.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 =======
 import type { NodesRpcOpts } from "./types.js";
-import { formatTimeAgo } from "../../infra/format-time/format-relative.ts";
 import { defaultRuntime } from "../../runtime.js";
-import { renderTable } from "../../terminal/table.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 import { parsePairingList } from "./format.js";
+<<<<<<< HEAD
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
+=======
+import { renderPendingPairingRequestsTable } from "./pairing-render.js";
+>>>>>>> 966957fc6 (refactor(nodes-cli): share pending pairing table)
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 import type { NodesRpcOpts } from "./types.js";
 import { renderTable } from "../../terminal/table.js";
@@ -36,28 +38,14 @@ export function registerNodesPairingCommands(nodes: Command) {
           const { heading, warn, muted } = getNodesTheme();
           const tableWidth = Math.max(60, (process.stdout.columns ?? 120) - 1);
           const now = Date.now();
-          const rows = pending.map((r) => ({
-            Request: r.requestId,
-            Node: r.displayName?.trim() ? r.displayName.trim() : r.nodeId,
-            IP: r.remoteIp ?? "",
-            Requested:
-              typeof r.ts === "number" ? formatTimeAgo(Math.max(0, now - r.ts)) : muted("unknown"),
-            Repair: r.isRepair ? warn("yes") : "",
-          }));
-          defaultRuntime.log(heading("Pending"));
-          defaultRuntime.log(
-            renderTable({
-              width: tableWidth,
-              columns: [
-                { key: "Request", header: "Request", minWidth: 8 },
-                { key: "Node", header: "Node", minWidth: 14, flex: true },
-                { key: "IP", header: "IP", minWidth: 10 },
-                { key: "Requested", header: "Requested", minWidth: 12 },
-                { key: "Repair", header: "Repair", minWidth: 6 },
-              ],
-              rows,
-            }).trimEnd(),
-          );
+          const rendered = renderPendingPairingRequestsTable({
+            pending,
+            now,
+            tableWidth,
+            theme: { heading, warn, muted },
+          });
+          defaultRuntime.log(rendered.heading);
+          defaultRuntime.log(rendered.table);
         });
       }),
   );
