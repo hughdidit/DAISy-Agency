@@ -121,6 +121,8 @@ Supported blocks:
 
 By default, components are single use. Set `components.reusable=true` to allow buttons, selects, and forms to be used multiple times until they expire.
 
+To restrict who can click a button, set `allowedUsers` on that button (Discord user IDs, tags, or `*`). When configured, unmatched users receive an ephemeral denial.
+
 File attachments:
 
 - `file` blocks must point to an attachment reference (`attachment://<filename>`)
@@ -148,7 +150,11 @@ Example:
       {
         type: "actions",
         buttons: [
-          { label: "Approve", style: "success" },
+          {
+            label: "Approve",
+            style: "success",
+            allowedUsers: ["123456789012345678"],
+          },
           { label: "Decline", style: "danger" },
         ],
       },
