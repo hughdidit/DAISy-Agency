@@ -2,6 +2,7 @@ import JSZip from "jszip";
 import fs from "node:fs/promises";
 import path from "node:path";
 import * as tar from "tar";
+import { resolveSafeBaseDir } from "./path-safety.js";
 
 export type ArchiveKind = "tar" | "zip";
 
@@ -69,11 +70,15 @@ export async function withTimeout<T>(
   }
 }
 
+<<<<<<< HEAD
 function resolveSafeBaseDir(destDir: string): string {
   const resolved = path.resolve(destDir);
   return resolved.endsWith(path.sep) ? resolved : `${resolved}${path.sep}`;
 }
 
+=======
+// Path hygiene.
+>>>>>>> 2363e1b08 (fix(security): restrict skill download target paths)
 function normalizeArchivePath(raw: string): string {
   // Archives may contain Windows separators; treat them as separators.
   return raw.replaceAll("\\", "/");
