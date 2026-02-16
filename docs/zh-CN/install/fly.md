@@ -1,5 +1,5 @@
 ---
-description: Deploy OpenClaw on Fly.io
+description: Deploy OpenClaw on Fly.io.
 title: Fly.io
 x-i18n:
   generated_at: "2026-02-01T21:21:15Z"

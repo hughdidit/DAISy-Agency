@@ -1,6 +1,10 @@
 ---
 title: Fly.io
+<<<<<<< HEAD
 description: Deploy Moltbot on Fly.io
+=======
+description: Deploy OpenClaw on Fly.io.
+>>>>>>> 348ea6be9 (docs: fix missing period in fly.io frontmatter description)
 ---
 
 # Fly.io Deployment
