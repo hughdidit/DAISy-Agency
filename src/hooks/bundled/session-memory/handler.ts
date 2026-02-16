@@ -71,6 +71,46 @@ async function getRecentSessionContent(
 }
 
 /**
+ * Try the active transcript first; if /new already rotated it,
+ * fallback to the latest .jsonl.reset.* sibling.
+ */
+async function getRecentSessionContentWithResetFallback(
+  sessionFilePath: string,
+  messageCount: number = 15,
+): Promise<string | null> {
+  const primary = await getRecentSessionContent(sessionFilePath, messageCount);
+  if (primary) {
+    return primary;
+  }
+
+  try {
+    const dir = path.dirname(sessionFilePath);
+    const base = path.basename(sessionFilePath);
+    const resetPrefix = `${base}.reset.`;
+    const files = await fs.readdir(dir);
+    const resetCandidates = files.filter((name) => name.startsWith(resetPrefix)).toSorted();
+
+    if (resetCandidates.length === 0) {
+      return primary;
+    }
+
+    const latestResetPath = path.join(dir, resetCandidates[resetCandidates.length - 1]);
+    const fallback = await getRecentSessionContent(latestResetPath, messageCount);
+
+    if (fallback) {
+      log.debug("Loaded session content from reset fallback", {
+        sessionFilePath,
+        latestResetPath,
+      });
+    }
+
+    return fallback || primary;
+  } catch {
+    return primary;
+  }
+}
+
+/**
  * Save session context to memory when /new command is triggered
  */
 const saveSessionToMemory: HookHandler = async (event) => {
@@ -120,9 +160,18 @@ const saveSessionToMemory: HookHandler = async (event) => {
     let sessionContent: string | null = null;
 
     if (sessionFile) {
+<<<<<<< HEAD
       // Get recent conversation content
       sessionContent = await getRecentSessionContent(sessionFile, messageCount);
       console.log("[session-memory] sessionContent length:", sessionContent?.length || 0);
+=======
+      // Get recent conversation content, with fallback to rotated reset transcript.
+      sessionContent = await getRecentSessionContentWithResetFallback(sessionFile, messageCount);
+      log.debug("Session content loaded", {
+        length: sessionContent?.length ?? 0,
+        messageCount,
+      });
+>>>>>>> 19ae7a4e1 (fix(session-memory): fallback to rotated transcript after /new)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
