@@ -1,8 +1,11 @@
 <<<<<<< HEAD
 =======
 import type { OpenClawApp } from "./app.ts";
+<<<<<<< HEAD
 import type { NostrProfile } from "./types.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   loadChannels,
   logoutWhatsApp,
@@ -17,6 +20,7 @@ import { createNostrProfileFormState } from "./views/channels.nostr-profile-form
 =======
 } from "./controllers/channels.ts";
 import { loadConfig, saveConfig } from "./controllers/config.ts";
+import type { NostrProfile } from "./types.ts";
 import { createNostrProfileFormState } from "./views/channels.nostr-profile-form.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 

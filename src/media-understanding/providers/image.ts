@@ -1,7 +1,11 @@
 import type { Api, Context, Model } from "@mariozechner/pi-ai";
 import { complete } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
+=======
+import { minimaxUnderstandImage } from "../../agents/minimax-vlm.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getApiKeyForModel, requireApiKey } from "../../agents/model-auth.js";
 import { ensureMoltbotModelsJson } from "../../agents/models-config.js";
 import { minimaxUnderstandImage } from "../../agents/minimax-vlm.js";

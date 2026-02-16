@@ -1,6 +1,10 @@
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { normalizeAccountId } from "../routing/session-key.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "./config.js";
+=======
+import type { OpenClawConfig } from "./config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { TelegramCapabilitiesConfig } from "./types.telegram.js";
 
 type CapabilitiesConfig = TelegramCapabilitiesConfig;

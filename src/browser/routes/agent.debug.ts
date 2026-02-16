@@ -4,11 +4,17 @@ import path from "node:path";
 
 import type { BrowserRouteContext } from "../server-context.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { BrowserRouteRegistrar } from "./types.js";
 import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
 >>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 import { handleRouteError, readBody, requirePwAi, resolveProfileContext } from "./agent.shared.js";
+=======
+import { handleRouteError, readBody, requirePwAi, resolveProfileContext } from "./agent.shared.js";
+import { DEFAULT_TRACE_DIR, resolvePathWithinRoot } from "./path-output.js";
+import type { BrowserRouteRegistrar } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { toBoolean, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 

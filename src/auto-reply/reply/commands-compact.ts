@@ -5,11 +5,20 @@ import {
   waitForEmbeddedPiRunEnd,
 } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveSessionFilePath } from "../../config/sessions.js";
 =======
 import { resolveSessionFilePath, resolveSessionFilePathOptions } from "../../config/sessions.js";
 >>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import {
+  resolveFreshSessionTotalTokens,
+  resolveSessionFilePath,
+  resolveSessionFilePathOptions,
+} from "../../config/sessions.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { logVerbose } from "../../globals.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { formatContextUsageShort, formatTokenCount } from "../status.js";

@@ -6,7 +6,10 @@ import { isErrno } from "./errors.js";
 import { buildPortHints } from "./ports-format.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { resolveLsofCommand } from "./ports-lsof.js";
+<<<<<<< HEAD
 import { buildPortHints } from "./ports-format.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { PortListener, PortUsage, PortUsageStatus } from "./ports-types.js";
 
 type CommandResult = {

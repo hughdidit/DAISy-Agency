@@ -8,8 +8,13 @@ import {
   type ChannelOnboardingAdapter,
   type ChannelOnboardingDmPolicy,
   type WizardPrompter,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
+=======
+} from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_ACCOUNT_ID, getAccountConfig } from "./config.js";
+import type { TwitchAccountConfig, TwitchRole } from "./types.js";
 import { isAccountConfigured } from "./utils/twitch.js";
 import type { TwitchAccountConfig, TwitchRole } from "./types.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";

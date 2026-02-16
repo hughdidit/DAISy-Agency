@@ -1,5 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
+<<<<<<< HEAD
 import type { WebhookRequestBody } from "@line/bot-sdk";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { logVerbose, danger } from "../globals.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { validateLineSignature } from "./signature.js";

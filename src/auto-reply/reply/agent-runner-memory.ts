@@ -4,7 +4,11 @@ import { runWithModelFallback } from "../../agents/model-fallback.js";
 import { isCliProvider } from "../../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 import { resolveSandboxConfigForAgent, resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveAgentIdFromSessionKey,
   type SessionEntry,
@@ -13,18 +17,27 @@ import {
 import { logVerbose } from "../../globals.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { TemplateContext } from "../templating.js";
 import type { VerboseLevel } from "../thinking.js";
 import type { GetReplyOptions } from "../types.js";
 import { buildThreadingToolContext, resolveEnforceFinalTag } from "./agent-runner-utils.js";
 =======
+=======
+import type { TemplateContext } from "../templating.js";
+import type { VerboseLevel } from "../thinking.js";
+import type { GetReplyOptions } from "../types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   buildEmbeddedContextFromTemplate,
   buildTemplateSenderContext,
-  resolveEnforceFinalTag,
   resolveRunAuthProfile,
 } from "./agent-runner-utils.js";
+<<<<<<< HEAD
 >>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
+=======
+import { resolveEnforceFinalTag } from "./agent-runner-utils.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveMemoryFlushContextWindowTokens,
   resolveMemoryFlushPromptForRun,

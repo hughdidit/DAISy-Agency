@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
@@ -37,6 +38,9 @@ import type {
 import { formatCliCommand } from "../cli/command-format.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   GatewayAuthChoice,
   OnboardMode,
@@ -44,16 +48,20 @@ import type {
   ResetScope,
 } from "../commands/onboard-types.js";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.js";
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 5c5af2b14 (perf(wizard): lazy-load onboarding deps)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   DEFAULT_GATEWAY_PORT,
   readConfigFileSnapshot,
   resolveGatewayPort,
   writeConfigFile,
 } from "../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { logConfigUpdated } from "../config/logging.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -66,6 +74,12 @@ import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.j
 import { defaultRuntime } from "../runtime.js";
 import { resolveUserPath } from "../utils.js";
 >>>>>>> 5c5af2b14 (perf(wizard): lazy-load onboarding deps)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import { defaultRuntime } from "../runtime.js";
+import { resolveUserPath } from "../utils.js";
+import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { WizardCancelledError, type WizardPrompter } from "./prompts.js";
 import { installCompletion } from "../cli/completion-cli.js";
 

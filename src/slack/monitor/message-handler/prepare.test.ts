@@ -1,15 +1,25 @@
+<<<<<<< HEAD
 import type { App } from "@slack/bolt";
 <<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 
 import type { MoltbotConfig } from "../../../config/config.js";
 =======
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import type { App } from "@slack/bolt";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
 import type { OpenClawConfig } from "../../../config/config.js";
+<<<<<<< HEAD
 >>>>>>> b93ad2cd4 (fix(slack): populate thread session with existing thread history (#7610))
+=======
+import { resolveAgentRoute } from "../../../routing/resolve-route.js";
+import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../../../runtime.js";
 import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
 import type { ResolvedSlackAccount } from "../../accounts.js";
@@ -19,11 +29,14 @@ import type { SlackMessageEvent } from "../../types.js";
 =======
 =======
 import type { SlackMonitorContext } from "../context.js";
+<<<<<<< HEAD
 >>>>>>> a7f6c9567 (perf(test): consolidate slack monitor suites):src/slack/monitor/message-handler/prepare.test.ts
 import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
 import { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
 >>>>>>> b93ad2cd4 (fix(slack): populate thread session with existing thread history (#7610))
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createSlackMonitorContext } from "../context.js";
 import { prepareSlackMessage } from "./prepare.js";
 

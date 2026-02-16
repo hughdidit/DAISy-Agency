@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { resolveBlueBubblesAccount } from "./accounts.js";
 <<<<<<< HEAD
@@ -8,6 +9,9 @@ import { resolveBlueBubblesAccount } from "./accounts.js";
 =======
 =======
 =======
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveBlueBubblesServerAccount } from "./account-resolve.js";
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { postMultipartFormData } from "./multipart.js";

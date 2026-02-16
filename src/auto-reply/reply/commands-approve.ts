@@ -10,7 +10,11 @@ import {
   GATEWAY_CLIENT_NAMES,
   isInternalMessageChannel,
 } from "../../utils/message-channel.js";
+<<<<<<< HEAD
 >>>>>>> efe2a464a (fix(approvals): gate /approve by gateway scopes)
+=======
+import type { CommandHandler } from "./commands-types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const COMMAND = "/approve";
 

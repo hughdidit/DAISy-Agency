@@ -31,8 +31,12 @@ import {
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import { createReplyDispatcherWithTyping } from "../../auto-reply/reply/reply-dispatcher.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ReplyPayload } from "../../auto-reply/types.js";
 =======
+=======
+import type { ReplyPayload } from "../../auto-reply/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { shouldAckReaction as shouldAckReactionGate } from "../../channels/ack-reactions.js";
 import { logTypingFailure, logAckFailure } from "../../channels/logging.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
@@ -52,7 +56,11 @@ import { formatDiscordUserTag, resolveTimestampMs } from "./format.js";
 import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
 =======
 import { resolveTimestampMs } from "./format.js";
+<<<<<<< HEAD
 >>>>>>> abcca0f9b (Discord: fix PK sender identity context)
+=======
+import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   buildDiscordMediaPayload,
   resolveDiscordMessageText,

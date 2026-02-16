@@ -3,11 +3,14 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import lockfile from "proper-lockfile";
 =======
 import type { ChannelId, ChannelPairingAdapter } from "../channels/plugins/types.js";
 >>>>>>> 201ac2b72 (perf: replace proper-lockfile with lightweight file locks)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getPairingAdapter } from "../channels/plugins/pairing.js";
 import type { ChannelId, ChannelPairingAdapter } from "../channels/plugins/types.js";
 import { resolveOAuthDir, resolveStateDir } from "../config/paths.js";

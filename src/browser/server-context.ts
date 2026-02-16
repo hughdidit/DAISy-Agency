@@ -1,4 +1,5 @@
 import fs from "node:fs";
+<<<<<<< HEAD
 
 import { appendCdpPath, createTargetViaCdp, getHeadersWithAuth, normalizeCdpWsUrl } from "./cdp.js";
 import {
@@ -28,6 +29,8 @@ import { createConfigIO, loadConfig } from "../config/config.js";
 >>>>>>> 64aff2d0c (perf(browser): isolate profile hot-reload config refresh)
 import { appendCdpPath, createTargetViaCdp, getHeadersWithAuth, normalizeCdpWsUrl } from "./cdp.js";
 =======
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { fetchJson, fetchOk } from "./cdp.helpers.js";
 import { appendCdpPath, createTargetViaCdp, normalizeCdpWsUrl } from "./cdp.js";
 >>>>>>> a2c695126 (refactor(browser): reuse CDP fetch helpers)
@@ -39,9 +42,13 @@ import {
   stopOpenClawChrome,
 } from "./chrome.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveBrowserConfig, resolveProfile } from "./config.js";
 >>>>>>> 3bda3df72 (fix(browser): hot-reload profiles added after gateway start (#4841) (#8816))
 =======
+=======
+import type { ResolvedBrowserProfile } from "./config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveProfile } from "./config.js";
 >>>>>>> 64aff2d0c (perf(browser): isolate profile hot-reload config refresh)
 import {
@@ -54,6 +61,15 @@ import {
   refreshResolvedBrowserConfigFromDisk,
   resolveBrowserProfileWithHotReload,
 } from "./resolved-config-refresh.js";
+import type {
+  BrowserServerState,
+  BrowserRouteContext,
+  BrowserTab,
+  ContextOptions,
+  ProfileContext,
+  ProfileRuntimeState,
+  ProfileStatus,
+} from "./server-context.types.js";
 import { resolveTargetIdFromTabs } from "./target-id.js";
 import { movePathToTrash } from "./trash.js";
 

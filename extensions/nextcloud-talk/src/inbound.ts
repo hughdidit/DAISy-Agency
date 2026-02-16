@@ -8,9 +8,12 @@ import {
 
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { CoreConfig, GroupPolicy, NextcloudTalkInboundMessage } from "./types.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   normalizeNextcloudTalkAllowlist,
   resolveNextcloudTalkAllowlistMatch,
@@ -21,8 +24,12 @@ import {
 } from "./policy.js";
 import { resolveNextcloudTalkRoomKind } from "./room-info.js";
 import { sendMessageNextcloudTalk } from "./send.js";
+<<<<<<< HEAD
 import { getNextcloudTalkRuntime } from "./runtime.js";
 import type { CoreConfig, NextcloudTalkInboundMessage } from "./types.js";
+=======
+import type { CoreConfig, GroupPolicy, NextcloudTalkInboundMessage } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const CHANNEL_ID = "nextcloud-talk" as const;
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../config/config.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 import type {
@@ -6,12 +10,19 @@ import type {
   ExecApprovalForwardTarget,
 } from "../config/types.approvals.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { parseAgentSessionKey } from "../routing/session-key.js";
+import { isDeliverableMessageChannel, normalizeMessageChannel } from "../utils/message-channel.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   ExecApprovalDecision,
   ExecApprovalRequest,
   ExecApprovalResolved,
 } from "./exec-approvals.js";
+<<<<<<< HEAD
 import { loadConfig } from "../config/config.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 >>>>>>> e9de24215 (refactor(exec-approvals): share request event types)
@@ -19,6 +30,8 @@ import { createSubsystemLogger } from "../logging/subsystem.js";
 import { parseAgentSessionKey } from "../routing/session-key.js";
 import { isDeliverableMessageChannel, normalizeMessageChannel } from "../utils/message-channel.js";
 import type { ExecApprovalDecision } from "./exec-approvals.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { deliverOutboundPayloads } from "./outbound/deliver.js";
 import { resolveSessionDeliveryTarget } from "./outbound/targets.js";
 

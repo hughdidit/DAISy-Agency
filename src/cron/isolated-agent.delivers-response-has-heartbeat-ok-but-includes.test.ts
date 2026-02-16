@@ -38,14 +38,18 @@ vi.mock("../agents/subagent-announce.js", () => ({
 =======
 >>>>>>> 9b9dc65a2 (fix(test): remove unused cron imports)
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 <<<<<<< HEAD
 >>>>>>> 9a26a735e (refactor(test): share cron isolated agent fixtures)
 import { loadModelCatalog } from "../agents/model-catalog.js";
 =======
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
+import type { CliDeps } from "../cli/deps.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 <<<<<<< HEAD
 

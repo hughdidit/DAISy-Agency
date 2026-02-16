@@ -10,11 +10,14 @@ import { isProfileInCooldown } from "./usage.js";
 =======
 =======
 import type { OpenClawConfig } from "../../config/config.js";
-import type { AuthProfileStore } from "./types.js";
 import { findNormalizedProviderValue, normalizeProviderId } from "../model-selection.js";
 >>>>>>> 9f0fc74d1 (refactor(model): share normalized provider map lookups)
 import { dedupeProfileIds, listProfilesForProvider } from "./profiles.js";
+<<<<<<< HEAD
 >>>>>>> 230e1d996 (refactor(auth): share profile id dedupe helper)
+=======
+import type { AuthProfileStore } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { clearExpiredCooldowns, isProfileInCooldown } from "./usage.js";
 >>>>>>> 03cadc4b7 (fix(auth): auto-expire stale auth profile cooldowns and reset error count)
 

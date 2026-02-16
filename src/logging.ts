@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import type { ConsoleLoggerSettings, ConsoleStyle } from "./logging/console.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   enableConsoleCapture,
   getConsoleSettings,
@@ -8,9 +12,15 @@ import {
   setConsoleTimestampPrefix,
   shouldLogSubsystemToConsole,
 } from "./logging/console.js";
+<<<<<<< HEAD
 import type { ConsoleLoggerSettings, ConsoleStyle } from "./logging/console.js";
 import { ALLOWED_LOG_LEVELS, levelToMinLevel, normalizeLogLevel } from "./logging/levels.js";
 import type { LogLevel } from "./logging/levels.js";
+=======
+import type { LogLevel } from "./logging/levels.js";
+import { ALLOWED_LOG_LEVELS, levelToMinLevel, normalizeLogLevel } from "./logging/levels.js";
+import type { LoggerResolvedSettings, LoggerSettings, PinoLikeLogger } from "./logging/logger.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   DEFAULT_LOG_DIR,
   DEFAULT_LOG_FILE,
@@ -22,7 +32,11 @@ import {
   setLoggerOverride,
   toPinoLikeLogger,
 } from "./logging/logger.js";
+<<<<<<< HEAD
 import type { LoggerResolvedSettings, LoggerSettings, PinoLikeLogger } from "./logging/logger.js";
+=======
+import type { SubsystemLogger } from "./logging/subsystem.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   createSubsystemLogger,
   createSubsystemRuntime,

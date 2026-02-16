@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 import {
   readConfigFileSnapshot,
   validateConfigObjectWithPlugins,
   writeConfigFile,
 } from "../../config/config.js";
+=======
+import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes.js";
+import { normalizeChannelId } from "../../channels/registry.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   getConfigValueAtPath,
   parseConfigPath,

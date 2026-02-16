@@ -1,7 +1,12 @@
 import type { ImageContent } from "@mariozechner/pi-ai";
 import { resolveHeartbeatPrompt } from "../auto-reply/heartbeat.js";
 import type { ThinkLevel } from "../auto-reply/thinking.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { shouldLogVerbose } from "../globals.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { isTruthyEnvValue } from "../infra/env.js";
 import { shouldLogVerbose } from "../globals.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
@@ -29,6 +34,10 @@ import {
 import { FailoverError, resolveFailoverStatus } from "./failover-error.js";
 import { classifyFailoverReason, isFailoverErrorMessage } from "./pi-embedded-helpers.js";
 import type { EmbeddedPiRunResult } from "./pi-embedded-runner.js";
+<<<<<<< HEAD
+=======
+import { redactRunIdentifier, resolveRunWorkspaceDir } from "./workspace-run.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const log = createSubsystemLogger("agent/claude-cli");
 

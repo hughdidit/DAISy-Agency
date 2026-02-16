@@ -8,10 +8,20 @@ import {
 } from "../../infra/restart.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { defaultRuntime } from "../../runtime.js";
 =======
 import { getActiveTaskCount, waitForActiveTasks } from "../../process/command-queue.js";
 >>>>>>> acb9cbb89 (fix(gateway): drain active turns before restart to prevent message loss (#13931))
+=======
+import {
+  getActiveTaskCount,
+  resetAllLanes,
+  waitForActiveTasks,
+} from "../../process/command-queue.js";
+import { createRestartIterationHook } from "../../process/restart-recovery.js";
+import type { defaultRuntime } from "../../runtime.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const gatewayLog = createSubsystemLogger("gateway");
 

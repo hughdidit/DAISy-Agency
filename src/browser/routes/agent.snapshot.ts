@@ -1,5 +1,8 @@
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { ensureMediaDir, saveMediaBuffer } from "../../media/store.js";
 import { captureScreenshot, snapshotAria } from "../cdp.js";
 import {
@@ -20,6 +23,7 @@ import {
   requirePwAi,
   resolveProfileContext,
 } from "./agent.shared.js";
+import type { BrowserRouteRegistrar } from "./types.js";
 import { jsonError, toBoolean, toNumber, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 

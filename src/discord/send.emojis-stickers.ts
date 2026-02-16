@@ -1,5 +1,8 @@
 import { Routes } from "discord-api-types/v10";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadWebMediaRaw } from "../web/media.js";
 import { normalizeEmojiName, resolveDiscordRest } from "./send.shared.js";
 import type { DiscordEmojiUpload, DiscordReactOpts, DiscordStickerUpload } from "./send.types.js";

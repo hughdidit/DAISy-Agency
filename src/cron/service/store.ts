@@ -4,8 +4,6 @@ import { loadCronStore, saveCronStore } from "../store.js";
 import type { CronJob } from "../types.js";
 =======
 import fs from "node:fs";
-import type { CronJob } from "../types.js";
-import type { CronServiceState } from "./state.js";
 import {
   buildDeliveryFromLegacyPayload,
   hasLegacyDeliveryHints,
@@ -14,6 +12,7 @@ import {
 import { parseAbsoluteTimeMs } from "../parse.js";
 import { migrateLegacyCronPayload } from "../payload-migration.js";
 import { loadCronStore, saveCronStore } from "../store.js";
+import type { CronJob } from "../types.js";
 import { recomputeNextRuns } from "./jobs.js";
 >>>>>>> 3a03e3837 (fix(cron): fix timeout, add timestamp validation, enable file sync)
 import { inferLegacyName, normalizeOptionalText } from "./normalize.js";

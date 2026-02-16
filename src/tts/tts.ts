@@ -26,6 +26,7 @@ import type {
   TtsModelOverrideConfig,
 } from "../config/types.tts.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { logVerbose } from "../globals.js";
 import { isVoiceCompatibleAudio } from "../media/audio.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
@@ -42,6 +43,8 @@ import { resolveModel } from "../agents/pi-embedded-runner/model.js";
 =======
 >>>>>>> 3f5e72835 (refactor(tts): extract directives and provider core)
 import { normalizeChannelId } from "../channels/plugins/index.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { logVerbose } from "../globals.js";
 import { stripMarkdown } from "../line/markdown-to-line.js";
 import { isVoiceCompatibleAudio } from "../media/audio.js";

@@ -1,4 +1,5 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
@@ -10,6 +11,10 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { ModelRow } from "./list.types.js";
 import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
 >>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
+=======
+import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
+import type { AuthProfileStore } from "../../agents/auth-profiles.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { listProfilesForProvider } from "../../agents/auth-profiles.js";
 import {
   getCustomProviderApiKey,
@@ -33,18 +38,28 @@ import {
 } from "../../agents/model-forward-compat.js";
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
+import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
 import { discoverAuthStorage, discoverModels } from "../../agents/pi-model-discovery.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 07faab6ac (openai-codex: bridge OAuth profiles into pi auth.json for model discovery (#15184))
 =======
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   formatErrorWithStack,
   MODEL_AVAILABILITY_UNAVAILABLE_CODE,
   shouldFallbackToAuthHeuristics,
 } from "./list.errors.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
 import { modelKey } from "./shared.js";
+=======
+import type { ModelRow } from "./list.types.js";
+import { isLocalBaseUrl, modelKey } from "./shared.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const isLocalBaseUrl = (baseUrl: string) => {
   try {

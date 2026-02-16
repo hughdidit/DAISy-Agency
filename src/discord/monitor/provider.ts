@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { inspect } from "node:util";
 import { Client } from "@buape/carbon";
 =======
@@ -9,15 +10,19 @@ import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway";
 import { Routes } from "discord-api-types/v10";
 =======
 import type { GatewayPlugin } from "@buape/carbon/gateway";
+=======
+import { inspect } from "node:util";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   Client,
   ReadyListener,
   type BaseMessageInteractiveComponent,
   type Modal,
 } from "@buape/carbon";
+import type { GatewayPlugin } from "@buape/carbon/gateway";
 import { Routes } from "discord-api-types/v10";
-import { inspect } from "node:util";
 import { ProxyAgent, fetch as undiciFetch } from "undici";
+<<<<<<< HEAD
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 <<<<<<< HEAD
@@ -25,8 +30,11 @@ import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> 644251295 (perf: reduce hotspot test startup and timeout costs)
 =======
 >>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { listNativeCommandSpecsForConfig } from "../../auto-reply/commands-registry.js";
+import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import { listSkillCommandsForAgents } from "../../auto-reply/skill-commands.js";
 <<<<<<< HEAD
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
@@ -46,7 +54,11 @@ import {
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
 } from "../../config/commands.js";
+<<<<<<< HEAD
 import type { MoltbotConfig, ReplyToMode } from "../../config/config.js";
+=======
+import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../../config/config.js";
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";

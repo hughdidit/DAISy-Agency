@@ -18,7 +18,11 @@ import { info } from "../globals.js";
 import type { RuntimeEnv } from "../runtime.js";
 =======
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
+<<<<<<< HEAD
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { isRich, theme } from "../terminal/theme.js";
 
 type SessionRow = {

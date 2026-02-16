@@ -4,8 +4,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { normalizeTestText } from "../../test/helpers/normalize-text.js";
 import { withTempHome } from "../../test/helpers/temp-home.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createSuccessfulImageMediaDecision } from "./media-understanding.test-fixtures.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import {

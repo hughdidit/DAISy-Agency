@@ -19,6 +19,7 @@ import {
   requestBodyErrorToText,
   resolveMentionGatingWithBypass,
 } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> 00e63da33 (refactor(webhooks): reuse plugin-sdk webhook path helpers)
 import type {
   GoogleChatAnnotation,
@@ -29,6 +30,8 @@ import type {
   GoogleChatUser,
 } from "./types.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { type ResolvedGoogleChatAccount } from "./accounts.js";
 import {
   downloadGoogleChatMedia,

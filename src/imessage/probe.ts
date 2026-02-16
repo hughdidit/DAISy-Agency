@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import type { BaseProbeResult } from "../channels/plugins/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { detectBinary } from "../commands/onboard-helpers.js";
 import { loadConfig } from "../config/config.js";
 import { runCommandWithTimeout } from "../process/exec.js";

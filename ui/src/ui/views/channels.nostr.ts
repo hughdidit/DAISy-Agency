@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import type { ChannelAccountSnapshot, NostrStatus } from "../types";
@@ -8,7 +9,10 @@ import { renderChannelConfigSection } from "./channels.config";
 =======
 import type { ChannelAccountSnapshot, NostrStatus } from "../types.ts";
 import type { ChannelsProps } from "./channels.types.ts";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatRelativeTimestamp } from "../format.ts";
+import type { ChannelAccountSnapshot, NostrStatus } from "../types.ts";
 import { renderChannelConfigSection } from "./channels.config.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
@@ -16,6 +20,7 @@ import {
   type NostrProfileFormState,
   type NostrProfileFormCallbacks,
 } from "./channels.nostr-profile-form.ts";
+import type { ChannelsProps } from "./channels.types.ts";
 
 /**
  * Truncate a pubkey for display (shows first and last 8 chars)

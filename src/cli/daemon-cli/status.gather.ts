@@ -8,7 +8,12 @@ import type { GatewayBindMode, GatewayControlUiConfig } from "../../config/types
 import { readLastGatewayErrorLine } from "../../daemon/diagnostics.js";
 import type { FindExtraGatewayServicesOptions } from "../../daemon/inspect.js";
 import { findExtraGatewayServices } from "../../daemon/inspect.js";
+<<<<<<< HEAD
 import { findLegacyGatewayServices } from "../../daemon/legacy.js";
+=======
+import type { ServiceConfigAudit } from "../../daemon/service-audit.js";
+import { auditGatewayServiceConfig } from "../../daemon/service-audit.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveGatewayService } from "../../daemon/service.js";
 import type { ServiceConfigAudit } from "../../daemon/service-audit.js";
 import { auditGatewayServiceConfig } from "../../daemon/service-audit.js";

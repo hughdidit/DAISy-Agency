@@ -7,11 +7,15 @@
 <<<<<<< HEAD
 =======
 import type { ChannelStatusIssue } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import type { ChannelAccountSnapshot } from "./types.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getAccountConfig } from "./config.js";
 import type { ChannelAccountSnapshot, ChannelStatusIssue } from "./types.js";
 import { resolveTwitchToken } from "./token.js";
+import type { ChannelAccountSnapshot } from "./types.js";
 import { isAccountConfigured } from "./utils/twitch.js";
 
 /**

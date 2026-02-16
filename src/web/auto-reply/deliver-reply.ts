@@ -1,5 +1,11 @@
 import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chunk.js";
+<<<<<<< HEAD
 import type { MarkdownTableMode } from "../../config/types.base.js";
+=======
+import type { ReplyPayload } from "../../auto-reply/types.js";
+import type { MarkdownTableMode } from "../../config/types.base.js";
+import { logVerbose, shouldLogVerbose } from "../../globals.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { convertMarkdownTables } from "../../markdown/tables.js";
 <<<<<<< HEAD
 <<<<<<< HEAD

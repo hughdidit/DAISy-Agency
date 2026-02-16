@@ -1,5 +1,10 @@
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
+import type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { detectMime, extensionForMime } from "./mime.js";
 import { readResponseWithLimit } from "./read-response-with-limit.js";
 

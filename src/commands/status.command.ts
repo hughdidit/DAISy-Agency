@@ -1,7 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { HeartbeatEventPayload } from "../infra/heartbeat-events.js";
 import type { RuntimeEnv } from "../runtime.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> a42e3cb78 (feat(heartbeat): add accountId config option for multi-agent routing (#8702))
 import { withProgress } from "../cli/progress.js";
@@ -9,6 +12,7 @@ import { resolveGatewayPort } from "../config/config.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import { info } from "../globals.js";
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
+import type { HeartbeatEventPayload } from "../infra/heartbeat-events.js";
 import { formatUsageReportLines, loadProviderUsageSummary } from "../infra/provider-usage.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
@@ -30,6 +34,13 @@ import {
   resolveMemoryVectorState,
   type Tone,
 } from "../memory/status-format.js";
+<<<<<<< HEAD
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import { runSecurityAudit } from "../security/audit.js";
+import { renderTable } from "../terminal/table.js";
+import { theme } from "../terminal/theme.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatHealthChannelLines, type HealthSummary } from "./health.js";
 import { resolveControlUiLinks } from "./onboard-helpers.js";
 import { getDaemonStatusSummary, getNodeDaemonStatusSummary } from "./status.daemon.js";

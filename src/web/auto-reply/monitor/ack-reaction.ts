@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { shouldAckReactionForWhatsApp } from "../../../channels/ack-reactions.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { loadConfig } from "../../../config/config.js";
 import { logVerbose } from "../../../globals.js";
 import { shouldAckReactionForWhatsApp } from "../../../channels/ack-reactions.js";

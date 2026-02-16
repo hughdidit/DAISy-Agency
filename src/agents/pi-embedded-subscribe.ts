@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 =======
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
+<<<<<<< HEAD
 import type { InlineCodeState } from "../markdown/code-spans.js";
 import type {
   EmbeddedPiSubscribeContext,
@@ -8,6 +9,8 @@ import type {
 } from "./pi-embedded-subscribe.handlers.types.js";
 import type { SubscribeEmbeddedPiSessionParams } from "./pi-embedded-subscribe.types.js";
 >>>>>>> d714ac779 (refactor(agents): dedupe transient error copy (#16324))
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { parseReplyDirectives } from "../auto-reply/reply/reply-directives.js";
 import { createStreamingDirectiveAccumulator } from "../auto-reply/reply/streaming-directives.js";
 import { formatToolAggregate } from "../auto-reply/tool-meta.js";
@@ -22,13 +25,19 @@ import {
 } from "./pi-embedded-helpers.js";
 import { createEmbeddedPiSessionEventHandler } from "./pi-embedded-subscribe.handlers.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   EmbeddedPiSubscribeContext,
   EmbeddedPiSubscribeState,
 } from "./pi-embedded-subscribe.handlers.types.js";
 import type { SubscribeEmbeddedPiSessionParams } from "./pi-embedded-subscribe.types.js";
+<<<<<<< HEAD
 import { formatReasoningMessage } from "./pi-embedded-utils.js";
 =======
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatReasoningMessage, stripDowngradedToolCallText } from "./pi-embedded-utils.js";
 import { hasNonzeroUsage, normalizeUsage, type UsageLike } from "./usage.js";
 >>>>>>> 22458f57f (fix(agents): strip [Historical context: ...] and tool call text from streaming path (#13453))

@@ -20,7 +20,12 @@ import type { TypingController } from "./typing.js";
 import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
 >>>>>>> 22c1210a1 (refactor(auto-reply): share directive level resolution)
 import { clearInlineDirectives } from "./get-reply-directives-utils.js";
+<<<<<<< HEAD
 >>>>>>> 7b39aa344 (refactor(auto-reply): reuse inline directive clearer)
+=======
+import type { createModelSelectionState } from "./model-selection.js";
+import type { TypingController } from "./typing.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 type AgentDefaults = NonNullable<MoltbotConfig["agents"]>["defaults"];
 

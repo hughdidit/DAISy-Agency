@@ -15,8 +15,12 @@ import {
   updateSessionStoreEntry,
 } from "../../config/sessions.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { TypingMode } from "../../config/types.js";
 =======
+=======
+import type { TypingMode } from "../../config/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { emitDiagnosticEvent, isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 >>>>>>> 35a3e1b78 (feat: inject post-compaction workspace context as system event (#18023))
@@ -52,7 +56,11 @@ import { persistSessionUsageUpdate } from "./session-usage.js";
 import { incrementCompactionCount } from "./session-updates.js";
 import type { TypingController } from "./typing.js";
 import { createTypingSignaler } from "./typing-mode.js";
+<<<<<<< HEAD
 import { emitDiagnosticEvent, isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
+=======
+import type { TypingController } from "./typing.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const BLOCK_REPLY_SEND_TIMEOUT_MS = 15_000;
 const UNSCHEDULED_REMINDER_NOTE =

@@ -10,8 +10,12 @@ import JSON5 from "json5";
 =======
 =======
 import { isDeepStrictEqual } from "node:util";
+<<<<<<< HEAD
 >>>>>>> 7c25696ab (fix(config): enforce default-free persistence in write path)
 import type { OpenClawConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./types.js";
+=======
+import JSON5 from "json5";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadDotEnv } from "../infra/dotenv.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
 >>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
@@ -55,10 +59,14 @@ import { normalizeConfigPaths } from "./normalize-paths.js";
 import { resolveConfigPath, resolveDefaultConfigCandidates, resolveStateDir } from "./paths.js";
 import { applyConfigOverrides } from "./runtime-overrides.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./types.js";
 import { validateConfigObjectWithPlugins } from "./validation.js";
 import { compareMoltbotVersions } from "./version.js";
 =======
+=======
+import type { OpenClawConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   validateConfigObjectRawWithPlugins,
   validateConfigObjectWithPlugins,

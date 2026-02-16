@@ -6,6 +6,7 @@ import type { MsgContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
 =======
 import type { ReplyPayload } from "../types.js";
+<<<<<<< HEAD
 import type { ApplyInlineDirectivesFastLaneParams } from "./directive-handling.params.js";
 <<<<<<< HEAD
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
@@ -16,6 +17,11 @@ import type { InlineDirectives } from "./directive-handling.parse.js";
 import { handleDirectiveOnly } from "./directive-handling.impl.js";
 import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
 >>>>>>> 22c1210a1 (refactor(auto-reply): share directive level resolution)
+=======
+import { handleDirectiveOnly } from "./directive-handling.impl.js";
+import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
+import type { ApplyInlineDirectivesFastLaneParams } from "./directive-handling.params.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { isDirectiveOnly } from "./directive-handling.parse.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
 

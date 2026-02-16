@@ -5,9 +5,18 @@ import {
   DEFAULT_ACCOUNT_ID,
   formatPairingApproveHint,
   type ChannelPlugin,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
 import { NostrConfigSchema } from "./config-schema.js";
+=======
+} from "openclaw/plugin-sdk";
+import type { NostrProfile } from "./config-schema.js";
+import { NostrConfigSchema } from "./config-schema.js";
+import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
+import { normalizePubkey, startNostrBus, type NostrBusHandle } from "./nostr-bus.js";
+import type { ProfilePublishResult } from "./nostr-profile.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getNostrRuntime } from "./runtime.js";
 import {
   listNostrAccountIds,

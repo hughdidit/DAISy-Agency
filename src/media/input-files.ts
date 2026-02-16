@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
+import type { SsrFPolicy } from "../infra/net/ssrf.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { logWarn } from "../logger.js";
 <<<<<<< HEAD
 import {

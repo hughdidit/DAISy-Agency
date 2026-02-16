@@ -1,5 +1,6 @@
 import type { WebhookRequestBody } from "@line/bot-sdk";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
@@ -13,6 +14,12 @@ import { chunkMarkdownText } from "../auto-reply/chunk.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
 import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
+=======
+import { chunkMarkdownText } from "../auto-reply/chunk.js";
+import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
+import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { danger, logVerbose } from "../globals.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
@@ -22,6 +29,14 @@ import { validateLineSignature } from "./signature.js";
 >>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
 import { normalizePluginHttpPath } from "../plugins/http-path.js";
 import { registerPluginHttpRoute } from "../plugins/http-registry.js";
+<<<<<<< HEAD
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import { deliverLineAutoReply } from "./auto-reply-delivery.js";
+import { createLineBot } from "./bot.js";
+import { processLineMessage } from "./markdown-to-line.js";
+import { sendLineReplyChunks } from "./reply-chunks.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   replyMessageLine,
   showLoadingAnimation,
@@ -37,6 +52,7 @@ import {
 } from "./send.js";
 import { buildTemplateMessageFromPayload } from "./template-messages.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { LineChannelData, ResolvedLineAccount } from "./types.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
 import { resolveEffectiveMessagesConfig } from "../agents/identity.js";
@@ -45,6 +61,9 @@ import { processLineMessage } from "./markdown-to-line.js";
 import { sendLineReplyChunks } from "./reply-chunks.js";
 import { deliverLineAutoReply } from "./auto-reply-delivery.js";
 =======
+=======
+import type { LineChannelData, ResolvedLineAccount } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createLineNodeWebhookHandler } from "./webhook-node.js";
 >>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
 

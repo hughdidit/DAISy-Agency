@@ -16,9 +16,15 @@ import {
   resolveSenderCommandAuthorization,
   summarizeMapping,
 } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import type { ResolvedZalouserAccount, ZcaFriend, ZcaGroup, ZcaMessage } from "./types.js";
 import { getZalouserRuntime } from "./runtime.js";
+=======
+import { getZalouserRuntime } from "./runtime.js";
+import { sendMessageZalouser } from "./send.js";
+import type { ResolvedZalouserAccount, ZcaFriend, ZcaGroup, ZcaMessage } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { parseJsonOutput, runZca, runZcaStreaming } from "./zca.js";
 
 export type ZalouserMonitorOptions = {

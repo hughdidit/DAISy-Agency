@@ -7,7 +7,11 @@ import type { PluginLogger } from "../plugins/types.js";
 =======
 import { loadOpenClawPlugins } from "../plugins/loader.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
+<<<<<<< HEAD
 >>>>>>> 9f507112b (perf(test): speed up vitest by skipping plugins + LLM slug)
+=======
+import type { PluginLogger } from "../plugins/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const log = createSubsystemLogger("plugins");
 let pluginRegistryLoaded = false;

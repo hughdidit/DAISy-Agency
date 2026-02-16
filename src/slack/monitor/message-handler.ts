@@ -4,12 +4,19 @@ import {
   resolveInboundDebounceMs,
 } from "../../auto-reply/inbound-debounce.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ResolvedSlackAccount } from "../accounts.js";
 import type { SlackMessageEvent } from "../types.js";
 import type { SlackMonitorContext } from "./context.js";
 =======
 import { stripSlackMentionsForCommandDetection } from "./commands.js";
 >>>>>>> 2aa957046 (fix(slack): detect control commands when message starts with @mention (#14142))
+=======
+import type { ResolvedSlackAccount } from "../accounts.js";
+import type { SlackMessageEvent } from "../types.js";
+import { stripSlackMentionsForCommandDetection } from "./commands.js";
+import type { SlackMonitorContext } from "./context.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { dispatchPreparedSlackMessage } from "./message-handler/dispatch.js";
 import { prepareSlackMessage } from "./message-handler/prepare.js";
 import { createSlackThreadTsResolver } from "./thread-resolution.js";

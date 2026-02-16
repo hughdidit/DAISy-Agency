@@ -1,8 +1,11 @@
 <<<<<<< HEAD
 =======
 import type { TelegramInlineButtons } from "../../../telegram/button-types.js";
+<<<<<<< HEAD
 import type { ChannelOutboundAdapter } from "../types.js";
 >>>>>>> 16327f21d (feat(telegram): support inline button styles (#18241))
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { markdownToTelegramHtmlChunks } from "../../../telegram/format.js";
 import {
   parseTelegramReplyToMessageId,

@@ -1,10 +1,13 @@
-import type { OpenClawConfig } from "../../config/config.js";
 import { type ChannelId, getChannelPlugin } from "../../channels/plugins/index.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 import { type MoltbotConfig, readConfigFileSnapshot } from "../../config/config.js";
 =======
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
 import { defaultRuntime, type RuntimeEnv } from "../../runtime.js";
 import { requireValidConfigSnapshot } from "../config-validation.js";

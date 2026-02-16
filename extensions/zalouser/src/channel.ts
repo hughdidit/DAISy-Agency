@@ -19,7 +19,11 @@ import {
   normalizeAccountId,
   resolveChannelAccountConfigBasePath,
   setAccountEnabledInConfigSection,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
+=======
+} from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,
@@ -30,6 +34,11 @@ import {
 } from "./accounts.js";
 import { zalouserOnboardingAdapter } from "./onboarding.js";
 import { sendMessageZalouser } from "./send.js";
+<<<<<<< HEAD
+=======
+import { collectZalouserStatusIssues } from "./status-issues.js";
+import type { ZcaFriend, ZcaGroup, ZcaUserInfo } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { checkZcaInstalled, parseJsonOutput, runZca, runZcaInteractive } from "./zca.js";
 import type { ZcaFriend, ZcaGroup, ZcaUserInfo } from "./types.js";
 import { ZalouserConfigSchema } from "./config-schema.js";

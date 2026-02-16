@@ -6,6 +6,7 @@
  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { PluginRegistry } from "./registry.js";
 import type { PluginHookGatewayContext, PluginHookGatewayStopEvent } from "./types.js";
@@ -13,6 +14,12 @@ import type { PluginHookGatewayContext, PluginHookGatewayStopEvent } from "./typ
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { createHookRunner, type HookRunner } from "./hooks.js";
 import type { PluginRegistry } from "./registry.js";
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { createHookRunner, type HookRunner } from "./hooks.js";
+import type { PluginRegistry } from "./registry.js";
+import type { PluginHookGatewayContext, PluginHookGatewayStopEvent } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const log = createSubsystemLogger("plugins");
 

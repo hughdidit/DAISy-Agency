@@ -20,8 +20,12 @@ import {
   sendMSTeamsMessages,
 } from "./messenger.js";
 import type { MSTeamsMonitorLogger } from "./monitor-types.js";
+<<<<<<< HEAD
 import type { MSTeamsTurnContext } from "./sdk-types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getMSTeamsRuntime } from "./runtime.js";
+import type { MSTeamsTurnContext } from "./sdk-types.js";
 
 export function createMSTeamsReplyDispatcher(params: {
   cfg: MoltbotConfig;

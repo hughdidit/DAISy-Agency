@@ -1,8 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { GatewayRequestContext } from "./types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { BARE_SESSION_RESET_PROMPT } from "../../auto-reply/reply/session-reset-prompt.js";
 import { agentHandlers } from "./agent.js";
+import type { GatewayRequestContext } from "./types.js";
 
 const mocks = vi.hoisted(() => ({
   loadSessionEntry: vi.fn(),

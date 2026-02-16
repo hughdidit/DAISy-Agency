@@ -6,7 +6,15 @@ import type {
   GatewayRequestHandlers,
 } from "../gateway/server-methods/types.js";
 import { registerInternalHook } from "../hooks/internal-hooks.js";
+<<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
+=======
+import type { HookEntry } from "../hooks/types.js";
+import { resolveUserPath } from "../utils.js";
+import { registerPluginCommand } from "./commands.js";
+import { normalizePluginHttpPath } from "./http-path.js";
+import type { PluginRuntime } from "./runtime/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   MoltbotPluginApi,
   MoltbotPluginChannelRegistration,
@@ -28,11 +36,14 @@ import type {
   PluginHookHandlerMap,
   PluginHookRegistration as TypedPluginHookRegistration,
 } from "./types.js";
+<<<<<<< HEAD
 import { registerPluginCommand } from "./commands.js";
 import type { PluginRuntime } from "./runtime/types.js";
 import type { HookEntry } from "../hooks/types.js";
 import path from "node:path";
 import { normalizePluginHttpPath } from "./http-path.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export type PluginToolRegistration = {
   pluginId: string;

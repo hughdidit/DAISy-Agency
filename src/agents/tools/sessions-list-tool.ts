@@ -1,7 +1,11 @@
 import path from "node:path";
+<<<<<<< HEAD
 
 import { Type } from "@sinclair/typebox";
 
+=======
+import { Type } from "@sinclair/typebox";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 <<<<<<< HEAD
@@ -9,7 +13,11 @@ import { isSubagentSessionKey, resolveAgentIdFromSessionKey } from "../../routin
 import type { AnyAgentTool } from "./common.js";
 =======
 import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+<<<<<<< HEAD
 >>>>>>> 8a4f9f168 (refactor(agents): share sandboxed session tool context)
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { jsonResult, readStringArrayParam } from "./common.js";
 import {
   createSessionVisibilityGuard,

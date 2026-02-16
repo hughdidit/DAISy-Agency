@@ -4,13 +4,20 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { Request, Response, NextFunction } from "express";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 59cfff02f (chore: Emit TypeScript declaration files so that we can type-check the extensions folder soon.)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { resolveLineAccount } from "./accounts.js";
 import { handleLineWebhookEvents } from "./bot-handlers.js";
 import type { LineInboundContext } from "./bot-message-context.js";
+<<<<<<< HEAD
+=======
+import type { ResolvedLineAccount } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { startLineWebhook } from "./webhook.js";
 import type { ResolvedLineAccount } from "./types.js";
 

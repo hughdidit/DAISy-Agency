@@ -15,12 +15,28 @@ import {
   buildMentionRegexes,
   matchesMentionWithExplicit,
 } from "../../../auto-reply/reply/mentions.js";
+<<<<<<< HEAD
+=======
+import type { FinalizedMsgContext } from "../../../auto-reply/templating.js";
+import {
+  shouldAckReaction as shouldAckReactionGate,
+  type AckReactionScope,
+} from "../../../channels/ack-reactions.js";
+import { formatAllowlistMatchMeta } from "../../../channels/allowlist-match.js";
+import { resolveControlCommandGate } from "../../../channels/command-gating.js";
+import { resolveConversationLabel } from "../../../channels/conversation-label.js";
+import { logInboundDrop } from "../../../channels/logging.js";
+import { resolveMentionGatingWithBypass } from "../../../channels/mention-gating.js";
+import { recordInboundSession } from "../../../channels/session.js";
+import { readSessionUpdatedAt, resolveStorePath } from "../../../config/sessions.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { logVerbose, shouldLogVerbose } from "../../../globals.js";
 import { enqueueSystemEvent } from "../../../infra/system-events.js";
 import { buildPairingReply } from "../../../pairing/pairing-messages.js";
 import { upsertChannelPairingRequest } from "../../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import {
   shouldAckReaction as shouldAckReactionGate,
@@ -37,11 +53,18 @@ import { readSessionUpdatedAt, resolveStorePath } from "../../../config/sessions
 import type { ResolvedSlackAccount } from "../../accounts.js";
 =======
 >>>>>>> da2fde7b6 (refactor(slack): share room context hints)
+=======
+import type { ResolvedSlackAccount } from "../../accounts.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { reactSlackMessage } from "../../actions.js";
 import { sendMessageSlack } from "../../send.js";
 import type { SlackMessageEvent } from "../../types.js";
 import { resolveSlackThreadContext } from "../../threading.js";
+<<<<<<< HEAD
 
+=======
+import type { SlackMessageEvent } from "../../types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveSlackAllowListMatch, resolveSlackUserAllowed } from "../allow-list.js";
 import { resolveSlackEffectiveAllowFrom } from "../auth.js";
 import { resolveSlackChannelConfig } from "../channel-config.js";
@@ -54,6 +77,7 @@ import {
   resolveSlackThreadStarter,
 } from "../media.js";
 import { resolveSlackRoomContextHints } from "../room-context.js";
+import type { PreparedSlackMessage } from "./types.js";
 
 import type { PreparedSlackMessage } from "./types.js";
 

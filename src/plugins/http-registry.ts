@@ -1,5 +1,9 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
 
+=======
+import { normalizePluginHttpPath } from "./http-path.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { PluginHttpRouteRegistration, PluginRegistry } from "./registry.js";
 import { requireActivePluginRegistry } from "./runtime.js";
 import { normalizePluginHttpPath } from "./http-path.js";

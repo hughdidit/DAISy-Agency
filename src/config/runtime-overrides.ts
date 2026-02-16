@@ -1,10 +1,17 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { OpenClawConfig } from "./types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { isPlainObject } from "../utils.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { parseConfigPath, setConfigValueAtPath, unsetConfigValueAtPath } from "./config-paths.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
+=======
+import type { OpenClawConfig } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 type OverrideTree = Record<string, unknown>;
 

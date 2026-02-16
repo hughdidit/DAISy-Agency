@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveAgentDir,
   resolveAgentWorkspaceDir,

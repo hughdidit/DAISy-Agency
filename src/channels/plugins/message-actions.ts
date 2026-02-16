@@ -1,4 +1,10 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+<<<<<<< HEAD
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { getChannelPlugin, listChannelPlugins } from "./index.js";
+import type { ChannelMessageActionContext, ChannelMessageActionName } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { getChannelPlugin, listChannelPlugins } from "./index.js";

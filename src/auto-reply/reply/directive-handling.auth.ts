@@ -14,7 +14,11 @@ import { normalizeProviderId } from "../../agents/model-selection.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import { findNormalizedProviderValue, normalizeProviderId } from "../../agents/model-selection.js";
+<<<<<<< HEAD
 >>>>>>> 9f0fc74d1 (refactor(model): share normalized provider map lookups)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { shortenHomePath } from "../../utils.js";
 
 export type ModelAuthDetailMode = "compact" | "verbose";

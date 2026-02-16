@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 import type { CoreConfig } from "./core-bridge.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { VoiceCallConfig } from "./config.js";
 import { resolveVoiceCallConfig, validateProviderConfig } from "./config.js";
+import type { CoreConfig } from "./core-bridge.js";
 import { CallManager } from "./manager.js";
+<<<<<<< HEAD
 import type { Logger } from "./manager/context.js";
 import { defaultLogger } from "./manager/context.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { VoiceCallProvider } from "./providers/base.js";
 import { MockProvider } from "./providers/mock.js";
 import { PlivoProvider } from "./providers/plivo.js";

@@ -7,8 +7,11 @@ import { fileURLToPath } from "node:url";
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { MediaUnderstandingAttachmentsConfig } from "../config/types.tools.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { isAbortError } from "../infra/unhandled-rejections.js";
 >>>>>>> 53910f364 (Deduplicate more)
@@ -17,7 +20,10 @@ import { detectMime, getFileExtension, isAudioFileName, kindFromMime } from "../
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { fetchWithTimeout } from "./providers/shared.js";
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
+<<<<<<< HEAD
 import { MediaUnderstandingSkipError } from "./errors.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 type MediaBufferResult = {
   buffer: Buffer;

@@ -16,10 +16,13 @@ import type { CoreConfig, ReplyToMode } from "../../types.js";
   type RuntimeLogger,
 } from "openclaw/plugin-sdk";
 import type { CoreConfig, MatrixRoomConfig, ReplyToMode } from "../../types.js";
+<<<<<<< HEAD
 import type { MatrixRawEvent, RoomMessageEventContent } from "./types.js";
 <<<<<<< HEAD
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 =======
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { fetchEventSummary } from "../actions/summary.js";
 >>>>>>> 49c60e906 (feat(matrix): add thread session isolation (#8241))
 import {
@@ -44,7 +47,10 @@ import { resolveMentions } from "./mentions.js";
 import { deliverMatrixReplies } from "./replies.js";
 import { resolveMatrixRoomConfig } from "./rooms.js";
 import { resolveMatrixThreadRootId, resolveMatrixThreadTarget } from "./threads.js";
+<<<<<<< HEAD
 import { resolveMatrixLocation, type MatrixLocationPayload } from "./location.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { MatrixRawEvent, RoomMessageEventContent } from "./types.js";
 import { EventType, RelationType } from "./types.js";
 

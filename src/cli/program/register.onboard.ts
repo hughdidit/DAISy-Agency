@@ -1,6 +1,11 @@
 import type { Command } from "commander";
+import { formatAuthChoiceChoicesForCli } from "../../commands/auth-choice-options.js";
 import type { GatewayDaemonRuntime } from "../../commands/daemon-runtime.js";
+<<<<<<< HEAD
 import { onboardCommand } from "../../commands/onboard.js";
+=======
+import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-auth-flags.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   AuthChoice,
   GatewayAuthChoice,
@@ -9,9 +14,12 @@ import type {
   TailscaleMode,
 } from "../../commands/onboard-types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { formatAuthChoiceChoicesForCli } from "../../commands/auth-choice-options.js";
 import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-auth-flags.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { onboardCommand } from "../../commands/onboard.js";
 >>>>>>> eab9dc538 (refactor(onboard): unify auth-choice catalog for CLI help)
 import { defaultRuntime } from "../../runtime.js";

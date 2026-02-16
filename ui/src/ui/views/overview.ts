@@ -1,6 +1,7 @@
 import { html } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { GatewayHelloOk } from "../gateway";
 import { formatAgo, formatDurationMs } from "../format";
@@ -9,8 +10,13 @@ import type { UiSettings } from "../storage";
 =======
 import type { GatewayHelloOk } from "../gateway.ts";
 import type { UiSettings } from "../storage.ts";
+=======
+import { t, i18n, type Locale } from "../../i18n/index.ts";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
+import type { GatewayHelloOk } from "../gateway.ts";
 import { formatNextRun } from "../presenter.ts";
+<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import type { GatewayHelloOk } from "../gateway";
@@ -23,6 +29,9 @@ import { t, i18n, type Locale } from "../../i18n";
 >>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
 =======
 >>>>>>> e0c45eab4 (style: apply oxfmt formatting)
+=======
+import type { UiSettings } from "../storage.ts";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export type OverviewProps = {
   connected: boolean;

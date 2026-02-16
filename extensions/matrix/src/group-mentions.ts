@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import type { ChannelGroupContext, GroupToolPolicyConfig } from "clawdbot/plugin-sdk";
 
+=======
+import type { ChannelGroupContext, GroupToolPolicyConfig } from "openclaw/plugin-sdk";
+import { resolveMatrixAccountConfig } from "./matrix/accounts.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveMatrixRoomConfig } from "./matrix/monitor/rooms.js";
 import type { CoreConfig } from "./types.js";
 

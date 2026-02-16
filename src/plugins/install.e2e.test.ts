@@ -1,18 +1,25 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { spawnSync } from "node:child_process";
 =======
 import JSZip from "jszip";
 >>>>>>> 93dc3bb79 (perf(test): avoid npm pack in plugin install e2e fixtures)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import JSZip from "jszip";
 import { afterEach, describe, expect, it } from "vitest";
 =======
 =======
+=======
+import JSZip from "jszip";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import * as tar from "tar";
 >>>>>>> 93dc3bb79 (perf(test): avoid npm pack in plugin install e2e fixtures)
 import { afterEach, describe, expect, it, vi } from "vitest";

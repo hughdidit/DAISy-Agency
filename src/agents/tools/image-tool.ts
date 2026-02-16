@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -17,6 +18,12 @@ import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
 import { Type } from "@sinclair/typebox";
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import path from "node:path";
+import { type Api, type Context, complete, type Model } from "@mariozechner/pi-ai";
+import { Type } from "@sinclair/typebox";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveUserPath } from "../../utils.js";
 import { getDefaultLocalRoots, loadWebMedia } from "../../web/media.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "../auth-profiles.js";
@@ -32,8 +39,13 @@ import type { AnyAgentTool } from "./common.js";
 =======
 import { ensureOpenClawModelsJson } from "../models-config.js";
 import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
+import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
 import { normalizeWorkspaceDir } from "../workspace-dir.js";
+<<<<<<< HEAD
 >>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   coerceImageAssistantText,
   coerceImageModelConfig,

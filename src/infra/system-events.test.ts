@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { prependSystemEvents } from "../auto-reply/reply/session-updates.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { prependSystemEvents } from "../auto-reply/reply/session-updates.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveMainSessionKey } from "../config/sessions.js";
 import { isCronSystemEvent } from "./heartbeat-runner.js";
 import { enqueueSystemEvent, peekSystemEvents, resetSystemEventsForTest } from "./system-events.js";

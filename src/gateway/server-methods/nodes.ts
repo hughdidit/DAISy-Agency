@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import { loadConfig } from "../../config/config.js";
+import { listDevicePairing } from "../../infra/device-pairing.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   approveNodePairing,
   listNodePairing,
@@ -38,8 +43,11 @@ import {
   safeParseJson,
   uniqueSortedStrings,
 } from "./nodes.helpers.js";
+<<<<<<< HEAD
 import { loadConfig } from "../../config/config.js";
 import { isNodeCommandAllowed, resolveNodeCommandAllowlist } from "../node-command-policy.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayRequestHandlers } from "./types.js";
 
 function isNodeEntry(entry: { role?: string; roles?: string[] }) {

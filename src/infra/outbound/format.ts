@@ -1,6 +1,10 @@
 import { getChannelPlugin } from "../../channels/plugins/index.js";
-import { getChatChannelMeta, normalizeChatChannelId } from "../../channels/registry.js";
 import type { ChannelId } from "../../channels/plugins/types.js";
+import { getChatChannelMeta, normalizeChatChannelId } from "../../channels/registry.js";
+<<<<<<< HEAD
+import type { ChannelId } from "../../channels/plugins/types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { OutboundDeliveryResult } from "./deliver.js";
 
 export type OutboundDeliveryJson = {

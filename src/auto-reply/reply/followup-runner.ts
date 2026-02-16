@@ -13,11 +13,17 @@ import { stripHeartbeatToken } from "../heartbeat.js";
 import type { OriginatingChannelType } from "../templating.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { FollowupRun } from "./queue.js";
 =======
 import { resolveRunAuthProfile } from "./agent-runner-utils.js";
 >>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
+=======
+import type { GetReplyOptions, ReplyPayload } from "../types.js";
+import { resolveRunAuthProfile } from "./agent-runner-utils.js";
+import type { FollowupRun } from "./queue.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   applyReplyThreading,
   filterMessagingToolDuplicates,
@@ -30,6 +36,7 @@ import { persistSessionUsageUpdate } from "./session-usage.js";
 import { incrementCompactionCount } from "./session-updates.js";
 import type { TypingController } from "./typing.js";
 import { createTypingSignaler } from "./typing-mode.js";
+import type { TypingController } from "./typing.js";
 
 export function createFollowupRunner(params: {
   opts?: GetReplyOptions;

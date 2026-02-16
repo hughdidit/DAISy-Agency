@@ -1,10 +1,16 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
 import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
 import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
 =======
+=======
+import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
+import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
+import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   clearSubagentRunSteerRestart,
   listSubagentRunsForRequester,
@@ -59,6 +65,7 @@ import type { CommandHandler } from "./commands-types.js";
 import { clearSessionQueues } from "./queue.js";
 =======
 import { stopSubagentsForRequester } from "./abort.js";
+import type { CommandHandler } from "./commands-types.js";
 import { clearSessionQueues } from "./queue.js";
 import { formatRunLabel, formatRunStatus, sortSubagentRuns } from "./subagents-utils.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))

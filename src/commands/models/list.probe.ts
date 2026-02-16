@@ -1,7 +1,12 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
+<<<<<<< HEAD
 
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
+=======
+import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   ensureAuthProfileStore,
   listProfilesForProvider,
@@ -26,7 +31,11 @@ import { getCustomProviderApiKey, resolveEnvApiKey } from "../../agents/model-au
 import { normalizeProviderId, parseModelRef } from "../../agents/model-selection.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveSessionTranscriptPath,
   resolveSessionTranscriptsDirForAgent,

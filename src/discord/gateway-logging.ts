@@ -1,5 +1,8 @@
 import type { EventEmitter } from "node:events";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { logVerbose } from "../globals.js";
 import type { RuntimeEnv } from "../runtime.js";
 

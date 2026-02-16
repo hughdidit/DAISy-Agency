@@ -1,5 +1,8 @@
 import { Routes } from "discord-api-types/v10";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../config/config.js";
 import {
   buildReactionIdentifier,

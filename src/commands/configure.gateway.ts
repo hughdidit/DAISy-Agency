@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveGatewayPort } from "../config/config.js";
 import {
   TAILSCALE_DOCS_LINES,
@@ -7,8 +11,12 @@ import {
 } from "../gateway/gateway-config-prompts.shared.js";
 import { findTailscaleBinary } from "../infra/tailscale.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 =======
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { validateIPv4AddressInput } from "../shared/net/ipv4.js";
 >>>>>>> 4950fcfb3 (refactor(gateway): share IPv4 input validator)
 import { note } from "../terminal/note.js";

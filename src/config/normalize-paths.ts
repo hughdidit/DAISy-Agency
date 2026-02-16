@@ -1,10 +1,15 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
 import type { MoltbotConfig } from "./types.js";
 =======
 import type { OpenClawConfig } from "./types.js";
 import { isPlainObject, resolveUserPath } from "../utils.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
+=======
+import { isPlainObject, resolveUserPath } from "../utils.js";
+import type { OpenClawConfig } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const PATH_VALUE_RE = /^~(?=$|[\\/])/;
 

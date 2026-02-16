@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import path from "node:path";
@@ -12,6 +13,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
 >>>>>>> b47fa9e71 (refactor(exec): extract bash tool runtime internals)
+=======
+import crypto from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   type ExecAsk,
   type ExecHost,
@@ -74,7 +81,11 @@ import {
   type ExecProcessHandle,
   validateHostEnv,
 } from "./bash-tools.exec-runtime.js";
+<<<<<<< HEAD
 >>>>>>> b47fa9e71 (refactor(exec): extract bash tool runtime internals)
+=======
+import type { BashSandboxConfig } from "./bash-tools.shared.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   buildSandboxEnv,
   clampWithDefault,

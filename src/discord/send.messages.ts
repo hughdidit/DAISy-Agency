@@ -5,7 +5,11 @@ import { resolveDiscordRest } from "./send.shared.js";
 =======
 import type { APIChannel, APIMessage } from "discord-api-types/v10";
 import { ChannelType, Routes } from "discord-api-types/v10";
+<<<<<<< HEAD
 >>>>>>> 9949f8259 (fix(discord): support forum channel thread-create (#10062))
+=======
+import { resolveDiscordRest } from "./send.shared.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   DiscordMessageEdit,
   DiscordMessageQuery,

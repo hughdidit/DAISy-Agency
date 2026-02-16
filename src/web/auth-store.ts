@@ -1,13 +1,20 @@
 import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveOAuthDir } from "../config/paths.js";
 import { info, success } from "../globals.js";
 import { getChildLogger } from "../logging.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { WebChannel } from "../utils.js";
 import { jidToE164, resolveUserPath } from "../utils.js";
 

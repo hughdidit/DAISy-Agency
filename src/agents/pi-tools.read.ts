@@ -1,13 +1,21 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { detectMime } from "../media/mime.js";
 <<<<<<< HEAD
 import type { AnyAgentTool } from "./pi-tools.types.js";
 =======
 import { sniffMimeFromBase64 } from "../media/sniff-mime-from-base64.js";
+<<<<<<< HEAD
 >>>>>>> cb29346a1 (refactor(media): share base64 mime sniff helper)
+=======
+import type { AnyAgentTool } from "./pi-tools.types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { assertSandboxPath } from "./sandbox-paths.js";
+import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import { sanitizeToolResultImages } from "./tool-images.js";
 
 // NOTE(steipete): Upstream read now does file-magic MIME detection; we keep the wrapper

@@ -8,8 +8,11 @@ import {
   type KnownBlock,
   type WebClient,
 } from "@slack/web-api";
+<<<<<<< HEAD
 import type { SlackTokenSource } from "./accounts.js";
 >>>>>>> c9684a267 (Slack: support Block Kit blocks in sendMessage actions)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   chunkMarkdownTextWithMode,
   resolveChunkMode,

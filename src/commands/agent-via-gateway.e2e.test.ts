@@ -12,10 +12,18 @@ vi.mock("./agent.js", () => ({
   agentCommand: vi.fn(),
 }));
 
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import * as configModule from "../config/config.js";
 import { callGateway } from "../gateway/call.js";
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import * as configModule from "../config/config.js";
+import { callGateway } from "../gateway/call.js";
+import type { RuntimeEnv } from "../runtime.js";
+import { agentCliCommand } from "./agent-via-gateway.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { agentCommand } from "./agent.js";
 import { agentCliCommand } from "./agent-via-gateway.js";
 

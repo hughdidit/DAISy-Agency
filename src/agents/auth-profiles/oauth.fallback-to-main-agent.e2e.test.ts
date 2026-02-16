@@ -3,8 +3,11 @@ import path from "node:path";
 import os from "node:os";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { AuthProfileStore } from "./types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { captureEnv } from "../../test-utils/env.js";
 >>>>>>> cedd520f2 (refactor(test): simplify state dir env helpers)
 import { resolveApiKeyForProfile } from "./oauth.js";

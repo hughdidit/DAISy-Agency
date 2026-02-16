@@ -4,7 +4,11 @@ import fs from "node:fs";
 import type { Command } from "commander";
 =======
 import path from "node:path";
+<<<<<<< HEAD
 >>>>>>> 748d6821d (fix(config): add forensic config write audit and watch attribution)
+=======
+import type { Command } from "commander";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayAuthMode } from "../../config/config.js";
 import {
   CONFIG_PATH,

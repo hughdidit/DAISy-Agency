@@ -5,6 +5,10 @@ import {
   validateApiKeyInput,
 } from "./auth-choice.api-key.js";
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
+<<<<<<< HEAD
+=======
+import { applyAuthChoicePluginProvider } from "./auth-choice.apply.plugin-provider.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyDefaultModelChoice } from "./auth-choice.default-model.js";
 import {
   applyAuthProfileConfig,

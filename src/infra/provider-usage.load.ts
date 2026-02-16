@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { resolveFetch } from "./fetch.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { type ProviderAuth, resolveProviderAuths } from "./provider-usage.auth.js";
 import {
   fetchAntigravityUsage,
@@ -20,7 +24,10 @@ import type {
   UsageProviderId,
   UsageSummary,
 } from "./provider-usage.types.js";
+<<<<<<< HEAD
 import { resolveFetch } from "./fetch.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 type UsageSummaryOptions = {
   now?: number;

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 =======
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
@@ -7,6 +8,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { CURRENT_SESSION_VERSION } from "@mariozechner/pi-coding-agent";
+=======
+import fs from "node:fs";
+import path from "node:path";
+import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 <<<<<<< HEAD
 import { resolveEffectiveMessagesConfig, resolveIdentityName } from "../../agents/identity.js";
@@ -18,12 +24,16 @@ import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   extractShortModelName,
   type ResponsePrefixContext,
 } from "../../auto-reply/reply/response-prefix-template.js";
 import type { MsgContext } from "../../auto-reply/templating.js";
 =======
+=======
+import type { MsgContext } from "../../auto-reply/templating.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
@@ -60,7 +70,11 @@ import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
 =======
 import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 import { normalizeRpcAttachmentsToChatAttachments } from "./attachment-normalize.js";
+<<<<<<< HEAD
 >>>>>>> 9f9978635 (refactor(gateway): share rpc attachment normalization)
+=======
+import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 type TranscriptAppendResult = {
   ok: boolean;

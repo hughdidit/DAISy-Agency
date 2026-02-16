@@ -1,7 +1,11 @@
 import { readFileSync } from "node:fs";
+<<<<<<< HEAD
 
 import type { RuntimeEnv } from "clawdbot/plugin-sdk";
 
+=======
+import type { RuntimeEnv } from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
 
 const ROOM_CACHE_TTL_MS = 5 * 60 * 1000;

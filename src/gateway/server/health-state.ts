@@ -8,7 +8,11 @@ import { listSystemPresence } from "../../infra/system-presence.js";
 import type { Snapshot } from "../protocol/index.js";
 =======
 import { resolveGatewayAuth } from "../auth.js";
+<<<<<<< HEAD
 >>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
+=======
+import type { Snapshot } from "../protocol/index.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 let presenceVersion = 1;
 let healthVersion = 1;

@@ -1,6 +1,9 @@
 import type { MoltbotConfig } from "../../../config/config.js";
 import type { DmPolicy } from "../../../config/types.js";
+<<<<<<< HEAD
 import type { DiscordGuildEntry } from "../../../config/types.discord.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   listDiscordAccountIds,
   resolveDefaultDiscordAccountId,

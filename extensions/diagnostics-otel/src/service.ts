@@ -9,6 +9,11 @@ import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { ParentBasedSampler, TraceIdRatioBasedSampler } from "@opentelemetry/sdk-trace-base";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+<<<<<<< HEAD
+=======
+import type { DiagnosticEventPayload, OpenClawPluginService } from "openclaw/plugin-sdk";
+import { onDiagnosticEvent, registerLogTransport } from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 import type { MoltbotPluginService, DiagnosticEventPayload } from "clawdbot/plugin-sdk";
 import { onDiagnosticEvent, registerLogTransport } from "clawdbot/plugin-sdk";

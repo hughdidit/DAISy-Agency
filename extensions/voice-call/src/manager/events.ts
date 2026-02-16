@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 import type { CallId, CallRecord, CallState, NormalizedEvent } from "../types.js";
@@ -8,6 +9,11 @@ import type { CallManagerContext, Logger } from "./context.js";
 import type { CallRecord, CallState, NormalizedEvent } from "../types.js";
 import type { CallManagerContext } from "./context.js";
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
+=======
+import { isAllowlistedCaller, normalizePhoneNumber } from "../allowlist.js";
+import type { CallRecord, CallState, NormalizedEvent } from "../types.js";
+import type { CallManagerContext } from "./context.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { findCall } from "./lookup.js";
 import { addTranscriptEntry, transitionState } from "./state.js";
 import { persistCallRecord } from "./store.js";

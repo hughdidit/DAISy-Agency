@@ -1,6 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { loadConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
 import { resolveMoltbotPackageRoot } from "./moltbot-root.js";

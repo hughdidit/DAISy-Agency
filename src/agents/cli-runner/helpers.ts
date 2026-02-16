@@ -2,20 +2,27 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { CliBackendConfig } from "../../config/types.js";
+<<<<<<< HEAD
 import { runExec } from "../../process/exec.js";
 <<<<<<< HEAD
 import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
 =======
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
 import { escapeRegExp, isRecord } from "../../utils.js";
 import { buildModelAliasLines } from "../model-alias-lines.js";
 import { resolveDefaultModelForAgent } from "../model-selection.js";
+import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
 import { detectRuntimeShell } from "../shell-utils.js";
 >>>>>>> f0722498a (Agents: include runtime shell (#1835))
 import { buildSystemPromptParams } from "../system-prompt-params.js";

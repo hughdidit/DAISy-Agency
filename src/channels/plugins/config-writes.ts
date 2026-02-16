@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { ChannelId } from "./types.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeAccountId } from "../../routing/session-key.js";
+import type { ChannelId } from "./types.js";
 
 type ChannelConfigWithAccounts = {
   configWrites?: boolean;

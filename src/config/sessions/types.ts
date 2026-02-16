@@ -1,9 +1,13 @@
 import crypto from "node:crypto";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { Skill } from "@mariozechner/pi-coding-agent";
 import type { NormalizedChatType } from "../../channels/chat-type.js";
 =======
+=======
+import type { Skill } from "@mariozechner/pi-coding-agent";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ChatType } from "../../channels/chat-type.js";
 >>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
 import type { ChannelId } from "../../channels/plugins/types.js";

@@ -4,21 +4,27 @@ import {
   formatInboundEnvelope,
   resolveEnvelopeFormatOptions,
 } from "../../../auto-reply/envelope.js";
+import type { getReplyFromConfig } from "../../../auto-reply/reply.js";
 import {
   buildHistoryContextFromEntries,
   type HistoryEntry,
 } from "../../../auto-reply/reply/history.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../../../auto-reply/reply/provider-dispatcher.js";
+<<<<<<< HEAD
 import type { getReplyFromConfig } from "../../../auto-reply/reply.js";
 import type { ReplyPayload } from "../../../auto-reply/types.js";
 import { shouldComputeCommandAuthorized } from "../../../auto-reply/command-detection.js";
 import { finalizeInboundContext } from "../../../auto-reply/reply/inbound-context.js";
+=======
+import type { ReplyPayload } from "../../../auto-reply/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { toLocationContext } from "../../../channels/location.js";
 <<<<<<< HEAD
 import { createReplyPrefixContext } from "../../../channels/reply-prefix.js";
 import type { loadConfig } from "../../../config/config.js";
 =======
 import { createReplyPrefixOptions } from "../../../channels/reply-prefix.js";
+import type { loadConfig } from "../../../config/config.js";
 import { resolveMarkdownTableMode } from "../../../config/markdown-tables.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import {
@@ -29,6 +35,10 @@ import {
 import { resolveMarkdownTableMode } from "../../../config/markdown-tables.js";
 import { logVerbose, shouldLogVerbose } from "../../../globals.js";
 import type { getChildLogger } from "../../../logging.js";
+<<<<<<< HEAD
+=======
+import { getAgentScopedMediaLocalRoots } from "../../../media/local-roots.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { readChannelAllowFromStore } from "../../../pairing/pairing-store.js";
 import type { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { jidToE164, normalizeE164 } from "../../../utils.js";

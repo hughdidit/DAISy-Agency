@@ -1,9 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { ReplyPayload } from "../../../auto-reply/types.js";
 import type { SlackStreamSession } from "../../streaming.js";
 import type { PreparedSlackMessage } from "./types.js";
 >>>>>>> 6945fbf10 (feat(slack): add native text streaming support)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveHumanDelayConfig } from "../../../agents/identity.js";
 import { dispatchInboundMessage } from "../../../auto-reply/dispatch.js";
 import { clearHistoryEntriesIfEnabled } from "../../../auto-reply/reply/history.js";
@@ -31,6 +34,7 @@ import {
 import { resolveSlackThreadTargets } from "../../threading.js";
 
 import { createSlackReplyDeliveryPlan, deliverReplies } from "../replies.js";
+import type { PreparedSlackMessage } from "./types.js";
 
 <<<<<<< HEAD
 import type { PreparedSlackMessage } from "./types.js";

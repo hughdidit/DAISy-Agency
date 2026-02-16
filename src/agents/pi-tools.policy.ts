@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getChannelDock } from "../channels/dock.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveChannelGroupToolsPolicy } from "../config/group-policy.js";
 import { resolveAgentConfig, resolveAgentIdFromSessionKey } from "./agent-scope.js";
 <<<<<<< HEAD
@@ -8,10 +12,16 @@ import type { SandboxToolPolicy } from "./sandbox.js";
 =======
 import { compileGlobPatterns, matchesAnyGlobPattern } from "./glob-pattern.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 60a7625f2 (refactor(agents): share glob matcher)
 =======
 import { pickSandboxToolPolicy } from "./sandbox-tool-policy.js";
 >>>>>>> df6d0ee92 (refactor(core): dedupe tool policy and IPv4 matcher logic)
+=======
+import type { AnyAgentTool } from "./pi-tools.types.js";
+import { pickSandboxToolPolicy } from "./sandbox-tool-policy.js";
+import type { SandboxToolPolicy } from "./sandbox.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { expandToolGroups, normalizeToolName } from "./tool-policy.js";
 import { normalizeMessageChannel } from "../utils/message-channel.js";
 import { resolveThreadParentSessionKey } from "../sessions/session-key-utils.js";

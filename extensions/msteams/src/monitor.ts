@@ -4,14 +4,23 @@ import {
   summarizeMapping,
   type MoltbotConfig,
   type RuntimeEnv,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
+=======
+} from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
+import type { MSTeamsConversationStore } from "./conversation-store.js";
 import { formatUnknownError } from "./errors.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type { MSTeamsAdapter } from "./messenger.js";
 import { registerMSTeamsHandlers } from "./monitor-handler.js";
 =======
+=======
+import type { MSTeamsAdapter } from "./messenger.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { registerMSTeamsHandlers, type MSTeamsActivityHandler } from "./monitor-handler.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { createMSTeamsPollStoreFs, type MSTeamsPollStore } from "./polls.js";

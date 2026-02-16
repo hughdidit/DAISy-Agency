@@ -1,6 +1,10 @@
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import { buildChannelAccountSnapshot } from "../../channels/plugins/status.js";
 import type { ChannelAccountSnapshot } from "../../channels/plugins/types.js";
+<<<<<<< HEAD
+=======
+import { formatCliCommand } from "../../cli/command-format.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { withProgress } from "../../cli/progress.js";
 import { type MoltbotConfig, readConfigFileSnapshot } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";

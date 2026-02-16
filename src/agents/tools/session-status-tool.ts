@@ -1,5 +1,6 @@
 import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentDir } from "../../agents/agent-scope.js";
 import {
   ensureAuthProfileStore,
@@ -21,6 +22,8 @@ import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../d
 import type { OpenClawConfig } from "../../config/config.js";
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeGroupActivation } from "../../auto-reply/group-activation.js";
 import { getFollowupQueueDepth, resolveQueueSettings } from "../../auto-reply/reply/queue.js";
 <<<<<<< HEAD
@@ -28,7 +31,11 @@ import { buildStatusMessage } from "../../auto-reply/status.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import { buildStatusMessage, getTranscriptInfo } from "../../auto-reply/status.js";
+<<<<<<< HEAD
 >>>>>>> 15dd2cda2 (feat: show transcript file size in session status)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../../config/config.js";
 import {
   loadSessionStore,
@@ -61,7 +68,11 @@ import {
   resolveDefaultModelForAgent,
   resolveModelRefFromString,
 } from "../model-selection.js";
+<<<<<<< HEAD
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { readStringParam } from "./common.js";
 import {
   shouldResolveSessionIdInput,

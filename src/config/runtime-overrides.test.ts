@@ -6,7 +6,11 @@ import {
   setConfigOverride,
   unsetConfigOverride,
 } from "./runtime-overrides.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
+=======
+import type { OpenClawConfig } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 describe("runtime overrides", () => {
   beforeEach(() => {

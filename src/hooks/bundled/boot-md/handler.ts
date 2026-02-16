@@ -1,6 +1,10 @@
 import type { CliDeps } from "../../../cli/deps.js";
 import { createDefaultDeps } from "../../../cli/deps.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { runBootOnce } from "../../../gateway/boot.js";
 import type { HookHandler } from "../../hooks.js";
 

@@ -14,8 +14,11 @@ import {
 } from "clawdbot/plugin-sdk";
 =======
 } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import { resolveBlueBubblesMessageId } from "./monitor.js";
 import { isMacOS26OrHigher } from "./probe.js";

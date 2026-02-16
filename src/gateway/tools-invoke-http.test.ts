@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -21,7 +22,10 @@ import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { CONFIG_PATH } from "../config/config.js";
 =======
 import type { AddressInfo } from "node:net";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import type { AddressInfo } from "node:net";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 4d4296cae (perf(test): speed up gateway tools invoke HTTP tests)
 

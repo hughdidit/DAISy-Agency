@@ -1,9 +1,12 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveDefaultAgentId } from "../../agents/agent-scope.js";
 >>>>>>> dc5d23484 (refactor(gateway): share server-method param validation)
 import { abortEmbeddedPiRun, waitForEmbeddedPiRunEnd } from "../../agents/pi-embedded.js";
@@ -49,8 +52,12 @@ import {
 import { applySessionsPatchToStore } from "../sessions-patch.js";
 import { resolveSessionKeyFromResolveParams } from "../sessions-resolve.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
 =======
+=======
+import type { GatewayRequestHandlers, RespondFn } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { assertValidParams } from "./validation.js";
 
 function requireSessionKey(key: unknown, respond: RespondFn): string | null {

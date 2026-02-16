@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { resolveNodeService } from "../daemon/node-service.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayService } from "../daemon/service.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { resolveNodeService } from "../daemon/node-service.js";

@@ -1,11 +1,17 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
+<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
 import type { MoltbotConfig, PluginRuntime } from "clawdbot/plugin-sdk";
 import type { ResolvedZaloAccount } from "./types.js";
+=======
+import type { OpenClawConfig, PluginRuntime } from "openclaw/plugin-sdk";
+import { describe, expect, it, vi } from "vitest";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { handleZaloWebhookRequest, registerZaloWebhookTarget } from "./monitor.js";
+import type { ResolvedZaloAccount } from "./types.js";
 
 async function withServer(
   handler: Parameters<typeof createServer>[0],

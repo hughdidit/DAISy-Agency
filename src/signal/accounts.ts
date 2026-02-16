@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
-import type { SignalAccountConfig } from "../config/types.js";
+=======
 import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
+import type { SignalAccountConfig } from "../config/types.js";
 import { normalizeAccountId } from "../routing/session-key.js";
 
 export type ResolvedSignalAccount = {

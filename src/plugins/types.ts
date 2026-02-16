@@ -1,8 +1,13 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
 import type { Command } from "commander";
 
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 
+=======
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import type { Command } from "commander";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AuthProfileCredential, OAuthCredential } from "../agents/auth-profiles/types.js";
 import type { AnyAgentTool } from "../agents/tools/common.js";
 import type { ChannelDock } from "../channels/dock.js";

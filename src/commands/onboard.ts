@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { readConfigFileSnapshot } from "../config/config.js";
 import { assertSupportedRuntime } from "../infra/runtime-guard.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -7,7 +11,10 @@ import { isDeprecatedAuthChoice, normalizeLegacyOnboardAuthChoice } from "./auth
 import { DEFAULT_WORKSPACE, handleReset } from "./onboard-helpers.js";
 import { runInteractiveOnboarding } from "./onboard-interactive.js";
 import { runNonInteractiveOnboarding } from "./onboard-non-interactive.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { OnboardOptions } from "./onboard-types.js";
 
 export async function onboardCommand(opts: OnboardOptions, runtime: RuntimeEnv = defaultRuntime) {

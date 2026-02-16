@@ -1,5 +1,6 @@
 import type { MsgContext } from "../../../auto-reply/templating.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { getReplyFromConfig } from "../../../auto-reply/reply.js";
 import type { loadConfig } from "../../../config/config.js";
 =======
@@ -7,6 +8,8 @@ import type { MentionConfig } from "../mentions.js";
 import type { WebInboundMsg } from "../types.js";
 import type { EchoTracker } from "./echo.js";
 import type { GroupHistoryEntry } from "./group-gating.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../../../config/config.js";
 >>>>>>> 8d96955e1 (fix(routing): make bindings dynamic by calling loadConfig() per-message (#11372))
 import { logVerbose } from "../../../globals.js";

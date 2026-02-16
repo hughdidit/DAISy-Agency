@@ -1,8 +1,12 @@
 import { chunkTextWithMode, resolveChunkMode } from "../../auto-reply/chunk.js";
+import type { ReplyPayload } from "../../auto-reply/types.js";
 import { loadConfig } from "../../config/config.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import { convertMarkdownTables } from "../../markdown/tables.js";
+<<<<<<< HEAD
 import type { ReplyPayload } from "../../auto-reply/types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../../runtime.js";
 import type { createIMessageRpcClient } from "../client.js";
 import { sendMessageIMessage } from "../send.js";

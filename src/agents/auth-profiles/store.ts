@@ -1,10 +1,14 @@
 import fs from "node:fs";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import lockfile from "proper-lockfile";
 =======
 import type { AuthProfileCredential, AuthProfileStore, ProfileUsageStats } from "./types.js";
 >>>>>>> 201ac2b72 (perf: replace proper-lockfile with lightweight file locks)
+=======
+import type { OAuthCredentials } from "@mariozechner/pi-ai";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveOAuthPath } from "../../config/paths.js";
 import { withFileLock } from "../../infra/file-lock.js";
 import { loadJsonFile, saveJsonFile } from "../../infra/json-file.js";

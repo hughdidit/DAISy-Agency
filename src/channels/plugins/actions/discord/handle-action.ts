@@ -5,6 +5,10 @@ import {
   readStringParam,
 } from "../../../../agents/tools/common.js";
 import { handleDiscordAction } from "../../../../agents/tools/discord-actions.js";
+<<<<<<< HEAD
+=======
+import { resolveDiscordChannelId } from "../../../../discord/targets.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ChannelMessageActionContext } from "../../types.js";
 import { tryHandleDiscordMessageActionGuildAdmin } from "./handle-action.guild-admin.js";
 import { resolveDiscordChannelId } from "../../../../discord/targets.js";

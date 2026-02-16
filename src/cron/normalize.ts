@@ -7,6 +7,10 @@ import {
 } from "./legacy-delivery.js";
 import { parseAbsoluteTimeMs } from "./parse.js";
 import { migrateLegacyCronPayload } from "./payload-migration.js";
+<<<<<<< HEAD
+=======
+import { inferLegacyName } from "./service/normalize.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { CronJobCreate, CronJobPatch } from "./types.js";
 
 type UnknownRecord = Record<string, unknown>;

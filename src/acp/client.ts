@@ -1,7 +1,15 @@
 import { spawn, type ChildProcess } from "node:child_process";
+<<<<<<< HEAD
 import * as readline from "node:readline";
 import { Readable, Writable } from "node:stream";
 
+=======
+import fs from "node:fs";
+import path from "node:path";
+import * as readline from "node:readline";
+import { Readable, Writable } from "node:stream";
+import { fileURLToPath } from "node:url";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   ClientSideConnection,
   PROTOCOL_VERSION,
@@ -9,6 +17,7 @@ import {
   type RequestPermissionRequest,
   type SessionNotification,
 } from "@agentclientprotocol/sdk";
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 import { ensureMoltbotCliOnPath } from "../infra/path-env.js";
@@ -30,6 +39,10 @@ const DANGEROUS_ACP_TOOLS = new Set([
   "fs_move",
   "apply_patch",
 ]);
+=======
+import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
+import { DANGEROUS_ACP_TOOLS } from "../security/dangerous-tools.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const SAFE_AUTO_APPROVE_KINDS = new Set(["read", "search"]);
 

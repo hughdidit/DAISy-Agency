@@ -2,13 +2,17 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import JSON5 from "json5";
 import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
 =======
 import type { MsgContext } from "../../auto-reply/templating.js";
 import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.base.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { acquireSessionWriteLock } from "../../agents/session-write-lock.js";
+import type { MsgContext } from "../../auto-reply/templating.js";
 import { parseByteSize } from "../../cli/parse-bytes.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
 import { archiveSessionTranscripts } from "../../gateway/session-utils.fs.js";
@@ -21,7 +25,13 @@ import {
   normalizeSessionDeliveryFields,
   type DeliveryContext,
 } from "../../utils/delivery-context.js";
+<<<<<<< HEAD
 import type { MsgContext } from "../../auto-reply/templating.js";
+=======
+import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
+import { loadConfig } from "../config.js";
+import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.base.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { deriveSessionMetaPatch } from "./metadata.js";
 import { mergeSessionEntry, type SessionEntry } from "./types.js";
 

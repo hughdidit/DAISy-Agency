@@ -1,5 +1,8 @@
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { CHANNEL_IDS, normalizeChatChannelId } from "../channels/registry.js";
 import {
@@ -13,8 +16,13 @@ import { isRecord } from "../utils.js";
 import { findDuplicateAgentDirs, formatDuplicateAgentDirError } from "./agent-dirs.js";
 import { applyAgentDefaults, applyModelDefaults, applySessionDefaults } from "./defaults.js";
 import { findLegacyConfigIssues } from "./legacy.js";
+<<<<<<< HEAD
 import type { MoltbotConfig, ConfigValidationIssue } from "./types.js";
 import { MoltbotSchema } from "./zod-schema.js";
+=======
+import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
+import { OpenClawSchema } from "./zod-schema.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const AVATAR_SCHEME_RE = /^[a-z][a-z0-9+.-]*:/i;
 const AVATAR_DATA_RE = /^data:/i;

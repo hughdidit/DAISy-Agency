@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveIsNixMode } from "../../config/paths.js";
 import { resolveGatewayService } from "../../daemon/service.js";
 import { isSystemdUserServiceAvailable } from "../../daemon/systemd.js";
@@ -8,6 +9,8 @@ import { defaultRuntime } from "../../runtime.js";
 import { buildDaemonServiceSnapshot, createNullWriter, emitDaemonActionJson } from "./response.js";
 =======
 import type { DaemonLifecycleOptions } from "./types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveGatewayService } from "../../daemon/service.js";
 import {
   runServiceRestart,

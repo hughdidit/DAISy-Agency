@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveAgentConfig,
   resolveAgentWorkspaceDir,
@@ -18,12 +21,19 @@ import {
   stripHeartbeatToken,
 } from "../auto-reply/heartbeat.js";
 import { HEARTBEAT_TOKEN } from "../auto-reply/tokens.js";
+<<<<<<< HEAD
 import { getReplyFromConfig } from "../auto-reply/reply.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ReplyPayload } from "../auto-reply/types.js";
 import { getChannelPlugin } from "../channels/plugins/index.js";
 import type { ChannelHeartbeatDeps } from "../channels/plugins/types.js";
 import { parseDurationMs } from "../cli/parse-duration.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../config/config.js";
 import {
   canonicalizeMainSessionAlias,
@@ -36,11 +46,15 @@ import {
   updateSessionStore,
 } from "../config/sessions.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { AgentDefaultsConfig } from "../config/types.agent-defaults.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { peekSystemEvents } from "../infra/system-events.js";
 =======
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
+=======
+import type { AgentDefaultsConfig } from "../config/types.agent-defaults.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { getQueueSize } from "../process/command-queue.js";
 import { CommandLane } from "../process/lanes.js";

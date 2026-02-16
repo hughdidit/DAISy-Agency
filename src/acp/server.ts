@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 
 import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 
+=======
+import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../config/config.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";

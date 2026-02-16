@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { AgentBootstrapHookContext } from "../hooks/internal-hooks.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createInternalHookEvent, triggerInternalHook } from "../hooks/internal-hooks.js";
 import type { AgentBootstrapHookContext } from "../hooks/internal-hooks.js";
 import { resolveAgentIdFromSessionKey } from "../routing/session-key.js";

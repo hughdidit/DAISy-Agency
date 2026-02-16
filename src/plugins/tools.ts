@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import type { AnyAgentTool } from "../agents/tools/common.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeToolName } from "../agents/tool-policy.js";
+import type { AnyAgentTool } from "../agents/tools/common.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 <<<<<<< HEAD
 import { loadMoltbotPlugins } from "./loader.js";
@@ -7,7 +11,11 @@ import type { MoltbotPluginToolContext } from "./types.js";
 =======
 import { applyTestPluginDefaults, normalizePluginsConfig } from "./config-state.js";
 import { loadOpenClawPlugins } from "./loader.js";
+<<<<<<< HEAD
 >>>>>>> 9f507112b (perf(test): speed up vitest by skipping plugins + LLM slug)
+=======
+import type { OpenClawPluginToolContext } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const log = createSubsystemLogger("plugins");
 

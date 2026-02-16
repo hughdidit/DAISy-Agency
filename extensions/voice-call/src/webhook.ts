@@ -13,6 +13,11 @@ import type { VoiceCallProvider } from "./providers/base.js";
 import { OpenAIRealtimeSTTProvider } from "./providers/stt-openai-realtime.js";
 import type { TwilioProvider } from "./providers/twilio.js";
 import type { NormalizedEvent, WebhookContext } from "./types.js";
+<<<<<<< HEAD
+=======
+
+const MAX_WEBHOOK_BODY_BYTES = 1024 * 1024;
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 /**
  * HTTP server for receiving voice call webhooks from providers.

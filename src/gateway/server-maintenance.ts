@@ -1,6 +1,9 @@
 import type { HealthSummary } from "../commands/health.js";
 import { abortChatRunById, type ChatAbortControllerEntry } from "./chat-abort.js";
+<<<<<<< HEAD
 import { setBroadcastHealthUpdate } from "./server/health-state.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ChatRunEntry } from "./server-chat.js";
 import {
   DEDUPE_MAX,

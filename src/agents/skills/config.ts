@@ -4,7 +4,6 @@ import path from "node:path";
 import type { MoltbotConfig, SkillConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig, SkillConfig } from "../../config/config.js";
-import type { SkillEligibilityContext, SkillEntry } from "./types.js";
 import {
   hasBinary,
   isConfigPathTruthyWithDefaults,

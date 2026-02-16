@@ -1,8 +1,13 @@
 import type { SlackEventMiddlewareArgs } from "@slack/bolt";
+<<<<<<< HEAD
 
 import { danger } from "../../../globals.js";
 import { enqueueSystemEvent } from "../../../infra/system-events.js";
 
+=======
+import { danger } from "../../../globals.js";
+import { enqueueSystemEvent } from "../../../infra/system-events.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { SlackAppMentionEvent, SlackMessageEvent } from "../../types.js";
 import { resolveSlackChannelLabel } from "../channel-config.js";
 import type { SlackMonitorContext } from "../context.js";

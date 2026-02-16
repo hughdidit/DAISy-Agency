@@ -6,10 +6,15 @@ import { logVerbose } from "../../globals.js";
 import { buildAgentSessionKey } from "../../routing/resolve-route.js";
 import { truncateUtf16Safe } from "../../utils.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { DiscordChannelConfigResolved } from "./allow-list.js";
 import type { DiscordMessageEvent } from "./listeners.js";
 import { resolveDiscordChannelInfo } from "./message-utils.js";
 =======
+=======
+import type { DiscordChannelConfigResolved } from "./allow-list.js";
+import type { DiscordMessageEvent } from "./listeners.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveDiscordChannelInfo, resolveDiscordMessageChannelId } from "./message-utils.js";
 >>>>>>> 09566b169 (fix(discord): preserve channel session keys via channel_id fallbacks (#17622))
 

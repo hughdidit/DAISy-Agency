@@ -3,7 +3,6 @@ import path from "node:path";
 import type { Command } from "commander";
 =======
 import type { Command } from "commander";
-import type { NodesRpcOpts } from "./types.js";
 import { resolveAgentConfig, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { loadConfig } from "../../config/config.js";
 >>>>>>> f1a76e1a3 (refactor: dedupe PATH prepend helpers)
@@ -34,7 +33,11 @@ import { parseEnvPairs, parseTimeoutMs } from "../nodes-run.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 import { parseNodeList } from "./format.js";
 import { callGatewayCli, nodesCallOpts, resolveNodeId, unauthorizedHintForMessage } from "./rpc.js";
+<<<<<<< HEAD
 >>>>>>> f1a76e1a3 (refactor: dedupe PATH prepend helpers)
+=======
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 type NodesRunOpts = NodesRpcOpts & {
   node?: string;

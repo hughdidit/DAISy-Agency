@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 =======
@@ -13,6 +14,9 @@ import { buildHistoryContextFromEntries, type HistoryEntry } from "../auto-reply
 =======
 import type { ResolvedGatewayAuth } from "./auth.js";
 >>>>>>> b5c81f732 (refactor(gateway): share bearer auth helper)
+=======
+import type { IncomingMessage, ServerResponse } from "node:http";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createDefaultDeps } from "../cli/deps.js";
 import { agentCommand } from "../commands/agent.js";
 import { emitAgentEvent, onAgentEvent } from "../infra/agent-events.js";
@@ -22,6 +26,8 @@ import {
   buildAgentMessageFromConversationEntries,
   type ConversationEntry,
 } from "./agent-prompt.js";
+import type { AuthRateLimiter } from "./auth-rate-limit.js";
+import type { ResolvedGatewayAuth } from "./auth.js";
 import { sendJson, setSseHeaders, writeDone } from "./http-common.js";
 import { handleGatewayPostJsonEndpoint } from "./http-endpoint-helpers.js";
 import { resolveAgentIdForRequest, resolveSessionKey } from "./http-utils.js";

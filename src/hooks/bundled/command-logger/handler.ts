@@ -25,7 +25,11 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import os from "node:os";
+=======
+import { resolveStateDir } from "../../../config/paths.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { HookHandler } from "../../hooks.js";
 
 /**

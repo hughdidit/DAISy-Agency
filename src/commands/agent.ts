@@ -59,9 +59,13 @@ import { resolveMessageChannel } from "../utils/message-channel.js";
 import { deliverAgentCommandResult } from "./agent/delivery.js";
 import { resolveAgentRunContext } from "./agent/run-context.js";
 import { resolveSession } from "./agent/session.js";
+<<<<<<< HEAD
 import { updateSessionStoreAfterAgentRun } from "./agent/session-store.js";
 import type { AgentCommandOpts } from "./agent/types.js";
 import { normalizeAgentId } from "../routing/session-key.js";
+=======
+import type { AgentCommandOpts } from "./agent/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 type PersistSessionEntryParams = {
   sessionStore: Record<string, SessionEntry>;

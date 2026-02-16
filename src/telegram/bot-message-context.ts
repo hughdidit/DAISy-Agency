@@ -1,11 +1,14 @@
 import type { Bot } from "grammy";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 import type { StickerMetadata, TelegramContext } from "./bot/types.js";
 >>>>>>> 21f8c3db1 (Telegram: remove last @ts-nocheck from bot-handlers.ts (#9206))
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveAckReaction } from "../agents/identity.js";
 import {
   findModelInCatalog,
@@ -23,11 +26,21 @@ import {
 } from "../auto-reply/reply/history.js";
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import { buildMentionRegexes, matchesMentionWithExplicit } from "../auto-reply/reply/mentions.js";
+<<<<<<< HEAD
+=======
+import type { MsgContext } from "../auto-reply/templating.js";
+import { shouldAckReaction as shouldAckReactionGate } from "../channels/ack-reactions.js";
+import { resolveControlCommandGate } from "../channels/command-gating.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatLocationText, toLocationContext } from "../channels/location.js";
 import { recordInboundSession } from "../channels/session.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { loadConfig } from "../config/config.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../config/sessions.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
@@ -58,6 +71,7 @@ import {
 } from "./bot/helpers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   firstDefined,
   isSenderAllowed,
@@ -69,6 +83,9 @@ import type { TelegramContext } from "./bot/types.js";
 =======
 >>>>>>> 24fbafa9a (refactor: use shared pairing store for telegram)
 =======
+=======
+import type { StickerMetadata, TelegramContext } from "./bot/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { evaluateTelegramGroupBaseAccess } from "./group-access.js";
 >>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
 

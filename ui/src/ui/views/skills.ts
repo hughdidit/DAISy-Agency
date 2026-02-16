@@ -6,8 +6,8 @@ import type { SkillStatusEntry, SkillStatusReport } from "../types";
 import type { SkillMessageMap } from "../controllers/skills";
 =======
 import type { SkillMessageMap } from "../controllers/skills.ts";
-import type { SkillStatusEntry, SkillStatusReport } from "../types.ts";
 import { clampText } from "../format.ts";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 
@@ -50,6 +50,9 @@ function groupSkills(skills: SkillStatusEntry[]): SkillGroup[] {
   return ordered;
 }
 =======
+=======
+import type { SkillStatusEntry, SkillStatusReport } from "../types.ts";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { groupSkills } from "./skills-grouping.ts";
 <<<<<<< HEAD
 >>>>>>> fef86e475 (refactor: dedupe shared helpers across ui/gateway/extensions)

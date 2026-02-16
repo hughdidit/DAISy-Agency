@@ -2,11 +2,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { Command } from "commander";
 
 import { STATE_DIR } from "../config/paths.js";
 =======
+=======
+import type { Command } from "commander";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { movePathToTrash } from "../browser/trash.js";
 import { resolveStateDir } from "../config/paths.js";
 >>>>>>> e665d7791 (perf(test): remove extra module resets in cli and message suites)

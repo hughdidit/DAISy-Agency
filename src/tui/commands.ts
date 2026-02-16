@@ -1,7 +1,11 @@
 import type { SlashCommand } from "@mariozechner/pi-tui";
 import { listChatCommands, listChatCommandsForConfig } from "../auto-reply/commands-registry.js";
 import { formatThinkingLevels, listThinkingLevelLabels } from "../auto-reply/thinking.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/types.js";
+=======
+import type { OpenClawConfig } from "../config/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const VERBOSE_LEVELS = ["on", "off"];
 const REASONING_LEVELS = ["on", "off"];

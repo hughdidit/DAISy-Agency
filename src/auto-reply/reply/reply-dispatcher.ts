@@ -1,4 +1,5 @@
 import type { HumanDelayConfig } from "../../config/types.js";
+<<<<<<< HEAD
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { normalizeReplyPayload } from "./normalize-reply.js";
 import type { ResponsePrefixContext } from "./response-prefix-template.js";
@@ -8,6 +9,14 @@ import type { TypingController } from "./typing.js";
 import { sleep } from "../../utils.js";
 import { normalizeReplyPayload, type NormalizeReplySkipReason } from "./normalize-reply.js";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
+=======
+import { sleep } from "../../utils.js";
+import type { GetReplyOptions, ReplyPayload } from "../types.js";
+import { registerDispatcher } from "./dispatcher-registry.js";
+import { normalizeReplyPayload, type NormalizeReplySkipReason } from "./normalize-reply.js";
+import type { ResponsePrefixContext } from "./response-prefix-template.js";
+import type { TypingController } from "./typing.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export type ReplyDispatchKind = "tool" | "block" | "final";
 

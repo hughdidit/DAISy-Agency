@@ -4,6 +4,7 @@ import path from "node:path";
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
 <<<<<<< HEAD
@@ -36,6 +37,12 @@ import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
 >>>>>>> 137079fc2 (refactor(shared): share entry requirements evaluation)
 import { CONFIG_DIR } from "../utils.js";
 import { hasBinary, isConfigPathTruthy, resolveConfigPath, resolveHookConfig } from "./config.js";
+=======
+import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
+import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
+import { CONFIG_DIR } from "../utils.js";
+import { hasBinary, isConfigPathTruthy, resolveHookConfig } from "./config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
 import { loadWorkspaceHookEntries } from "./workspace.js";
 

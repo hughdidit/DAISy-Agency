@@ -1,14 +1,23 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { MANIFEST_KEY } from "../compat/legacy-names.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 import { resolveBundledHooksDir } from "./bundled-dir.js";
 import { shouldIncludeHook } from "./config.js";
 import {
   parseFrontmatter,
+<<<<<<< HEAD
   resolveMoltbotMetadata,
+=======
+  resolveOpenClawMetadata,
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
   resolveHookInvocationPolicy,
 } from "./frontmatter.js";
 import type {

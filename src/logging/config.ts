@@ -1,4 +1,10 @@
 import fs from "node:fs";
+<<<<<<< HEAD
+=======
+import json5 from "json5";
+import { resolveConfigPath } from "../config/paths.js";
+import type { OpenClawConfig } from "../config/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 import json5 from "json5";
 

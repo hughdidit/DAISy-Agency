@@ -2,11 +2,14 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 
 import SlackBolt from "@slack/bolt";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { SessionScope } from "../../config/sessions.js";
 import type { MonitorSlackOpts } from "./types.js";
 >>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { DEFAULT_GROUP_HISTORY_LIMIT } from "../../auto-reply/reply/history.js";
 import {
@@ -37,8 +40,11 @@ import { createSlackMonitorContext } from "./context.js";
 import { registerSlackMonitorEvents } from "./events.js";
 import { createSlackMessageHandler } from "./message-handler.js";
 import { registerSlackMonitorSlashCommands } from "./slash.js";
+<<<<<<< HEAD
 import { normalizeAllowList } from "./allow-list.js";
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { MonitorSlackOpts } from "./types.js";
 
 const slackBoltModule = SlackBolt as typeof import("@slack/bolt") & {

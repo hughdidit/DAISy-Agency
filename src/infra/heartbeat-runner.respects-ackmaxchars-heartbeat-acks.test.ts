@@ -5,10 +5,15 @@ import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 =======
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 import * as replyModule from "../auto-reply/reply.js";
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import * as replyModule from "../auto-reply/reply.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveMainSessionKey } from "../config/sessions.js";
 <<<<<<< HEAD
 import { runHeartbeatOnce } from "./heartbeat-runner.js";

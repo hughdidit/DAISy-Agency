@@ -35,14 +35,22 @@ export function execDocker(args: string[], opts?: { allowFailure?: boolean }) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatCliCommand } from "../../cli/command-format.js";
 import { defaultRuntime } from "../../runtime.js";
 import { computeSandboxConfigHash } from "./config-hash.js";
 import { DEFAULT_SANDBOX_IMAGE, SANDBOX_AGENT_WORKSPACE_MOUNT } from "./constants.js";
 import { readRegistry, updateRegistry } from "./registry.js";
 import { resolveSandboxAgentId, resolveSandboxScopeKey, slugifySessionKey } from "./shared.js";
+<<<<<<< HEAD
+=======
+import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
+import { validateSandboxSecurity } from "./validate-sandbox-security.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const HOT_CONTAINER_WINDOW_MS = 5 * 60 * 1000;
 

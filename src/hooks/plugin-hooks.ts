@@ -1,9 +1,14 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+<<<<<<< HEAD
 
 import type { MoltbotPluginApi } from "../plugins/types.js";
-import type { HookEntry } from "./types.js";
+=======
+import type { OpenClawPluginApi } from "../plugins/types.js";
 import { shouldIncludeHook } from "./config.js";
+import type { InternalHookHandler } from "./internal-hooks.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
+import type { HookEntry } from "./types.js";
 import { loadHookEntriesFromDir } from "./workspace.js";
 import type { InternalHookHandler } from "./internal-hooks.js";
 

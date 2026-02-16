@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
+<<<<<<< HEAD
 import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import type {
@@ -12,12 +13,20 @@ import type { MoltbotConfig } from "../../config/config.js";
 import { formatAge } from "./format.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   buildChannelAccountSnapshot,
   formatChannelAllowFrom,
 } from "../../channels/account-summary.js";
 import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
 import { listChannelPlugins } from "../../channels/plugins/index.js";
+import type {
+  ChannelAccountSnapshot,
+  ChannelId,
+  ChannelPlugin,
+} from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { sha256HexPrefix } from "../../logging/redact-identifier.js";
 import { formatTimeAgo } from "./format.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))

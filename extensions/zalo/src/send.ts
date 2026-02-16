@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { resolveZaloAccount } from "./accounts.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ZaloFetch } from "./api.js";
 import { sendMessage, sendPhoto } from "./api.js";
 import { resolveZaloAccount } from "./accounts.js";

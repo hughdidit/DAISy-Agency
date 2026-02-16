@@ -23,6 +23,7 @@ import {
   resolveHooksGmailModel,
   resolveThinkingDefault,
 } from "../../agents/model-selection.js";
+import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
 import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
@@ -74,6 +75,7 @@ import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.js";
@@ -83,15 +85,22 @@ import { type CliDeps } from "../../cli/outbound-send-deps.js";
 >>>>>>> 3f82daefd (feat(cron): enhance delivery modes and job configuration)
 =======
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveAgentMainSessionKey,
   resolveSessionTranscriptPath,
   updateSessionStore,
 } from "../../config/sessions.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 =======
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+=======
+import type { AgentDefaultsConfig } from "../../config/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 <<<<<<< HEAD
 =======
@@ -115,7 +124,11 @@ import { logWarn } from "../../logger.js";
 import type { CronJob } from "../types.js";
 =======
 import { resolveCronDeliveryPlan } from "../delivery.js";
+<<<<<<< HEAD
 >>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
+=======
+import type { CronJob } from "../types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveDeliveryTarget } from "./delivery-target.js";
 import {
   isHeartbeatOnlyResponse,

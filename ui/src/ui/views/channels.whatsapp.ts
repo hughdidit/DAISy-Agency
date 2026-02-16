@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import type { WhatsAppStatus } from "../types";
@@ -9,13 +10,20 @@ import { formatDuration } from "./channels.shared";
 =======
 import type { WhatsAppStatus } from "../types.ts";
 import type { ChannelsProps } from "./channels.types.ts";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
+import type { WhatsAppStatus } from "../types.ts";
 import { renderChannelConfigSection } from "./channels.config.ts";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { formatDuration } from "./channels.shared.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
+=======
+import type { ChannelsProps } from "./channels.types.ts";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export function renderWhatsAppCard(params: {
   props: ChannelsProps;

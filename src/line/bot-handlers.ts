@@ -7,7 +7,11 @@ import type {
   LeaveEvent,
   PostbackEvent,
 } from "@line/bot-sdk";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { danger, logVerbose } from "../globals.js";
 import { resolvePairingIdLabel } from "../pairing/pairing-labels.js";
 import { buildPairingReply } from "../pairing/pairing-messages.js";
@@ -16,6 +20,10 @@ import {
   upsertChannelPairingRequest,
 } from "../pairing/pairing-store.js";
 import type { RuntimeEnv } from "../runtime.js";
+<<<<<<< HEAD
+=======
+import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   getLineSourceInfo,
   buildLineMessageContext,

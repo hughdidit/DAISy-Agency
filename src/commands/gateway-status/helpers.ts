@@ -1,5 +1,9 @@
 import { resolveGatewayPort } from "../../config/config.js";
+<<<<<<< HEAD
 import type { MoltbotConfig, ConfigFileSnapshot } from "../../config/types.js";
+=======
+import type { OpenClawConfig, ConfigFileSnapshot } from "../../config/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayProbeResult } from "../../gateway/probe.js";
 import { pickPrimaryTailnetIPv4 } from "../../infra/tailnet.js";
 import { colorize, theme } from "../../terminal/theme.js";

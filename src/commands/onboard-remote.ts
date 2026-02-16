@@ -1,6 +1,10 @@
 import type { MoltbotConfig } from "../config/config.js";
 import type { GatewayBonjourBeacon } from "../infra/bonjour-discovery.js";
 import { discoverGatewayBeacons } from "../infra/bonjour-discovery.js";
+<<<<<<< HEAD
+=======
+import { resolveWideAreaDiscoveryDomain } from "../infra/widearea-dns.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { WizardPrompter } from "../wizard/prompts.js";
 import { detectBinary } from "./onboard-helpers.js";
 

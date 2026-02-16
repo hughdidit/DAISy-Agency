@@ -1,5 +1,6 @@
 import { cancel, confirm, isCancel, select } from "@clack/prompts";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import {
   isNixMode,
@@ -10,6 +11,8 @@ import {
 } from "../config/config.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatCliCommand } from "../cli/command-format.js";
 import { isNixMode } from "../config/config.js";
 >>>>>>> 813b96a80 (refactor(commands): share cleanup plan resolver)

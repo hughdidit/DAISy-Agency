@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
 <<<<<<< HEAD
 =======
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
+import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   buildBootstrapContextFiles,
   resolveBootstrapMaxChars,

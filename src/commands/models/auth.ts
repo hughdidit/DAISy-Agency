@@ -1,5 +1,6 @@
 import { confirm as clackConfirm, select as clackSelect, text as clackText } from "@clack/prompts";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { upsertAuthProfile } from "../../agents/auth-profiles.js";
 import { normalizeProviderId } from "../../agents/model-selection.js";
@@ -8,11 +9,19 @@ import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js"
 import type { ProviderAuthResult, ProviderPlugin } from "../../plugins/types.js";
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveAgentDir,
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
 } from "../../agents/agent-scope.js";
+<<<<<<< HEAD
+=======
+import { upsertAuthProfile } from "../../agents/auth-profiles.js";
+import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js";
+import { normalizeProviderId } from "../../agents/model-selection.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
 <<<<<<< HEAD
@@ -22,6 +31,11 @@ import { readConfigFileSnapshot, type MoltbotConfig } from "../../config/config.
 import { readConfigFileSnapshot } from "../../config/config.js";
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import { logConfigUpdated } from "../../config/logging.js";
+<<<<<<< HEAD
+=======
+import { resolvePluginProviders } from "../../plugins/providers.js";
+import type { ProviderAuthResult, ProviderPlugin } from "../../plugins/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../../runtime.js";
 import { stylePromptHint, stylePromptMessage } from "../../terminal/prompt-style.js";
 import { applyAuthProfileConfig } from "../onboard-auth.js";

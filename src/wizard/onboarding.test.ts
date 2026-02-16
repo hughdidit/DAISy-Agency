@@ -6,9 +6,12 @@ import { describe, expect, it, vi } from "vitest";
 
 =======
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "./prompts.js";
 >>>>>>> 5c5af2b14 (perf(wizard): lazy-load onboarding deps)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { runOnboardingWizard } from "./onboarding.js";

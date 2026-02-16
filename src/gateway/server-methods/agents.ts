@@ -2,7 +2,6 @@
 =======
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 import {
   listAgentIds,
   resolveAgentDir,
@@ -51,7 +50,11 @@ import {
   validateAgentsUpdateParams,
 } from "../protocol/index.js";
 import { listAgentsForGateway } from "../session-utils.js";
+<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
+=======
+import type { GatewayRequestHandlers, RespondFn } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const BOOTSTRAP_FILE_NAMES = [
   DEFAULT_AGENTS_FILENAME,

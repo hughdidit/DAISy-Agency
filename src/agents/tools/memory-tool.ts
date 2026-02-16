@@ -9,22 +9,30 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { MemoryCitationsMode } from "../../config/types.memory.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 =======
 =======
 import type { MemorySearchResult } from "../../memory/types.js";
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 9bef52594 (chore: apply formatter)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveMemoryBackendConfig } from "../../memory/backend-config.js";
 >>>>>>> 1861e7636 (Memory: clamp QMD citations to injected budget)
 import { getMemorySearchManager } from "../../memory/index.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MemorySearchResult } from "../../memory/types.js";
 =======
+=======
+import type { MemorySearchResult } from "../../memory/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { parseAgentSessionKey } from "../../routing/session-key.js";
 >>>>>>> 9bef52594 (chore: apply formatter)
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveMemorySearchConfig } from "../memory-search.js";
+import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 
 const MemorySearchSchema = Type.Object({

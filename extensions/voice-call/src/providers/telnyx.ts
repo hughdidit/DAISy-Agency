@@ -14,8 +14,12 @@ import type {
   WebhookContext,
   WebhookVerificationResult,
 } from "../types.js";
+<<<<<<< HEAD
 import type { Logger } from "../manager/context.js";
 import { defaultLogger, sanitizeLogValue } from "../manager/context.js";
+=======
+import { verifyTelnyxWebhook } from "../webhook-security.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { VoiceCallProvider } from "./base.js";
 
 /**

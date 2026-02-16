@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveSessionAgentIds } from "../../agents/agent-scope.js";
 <<<<<<< HEAD
 import { resolveBootstrapMaxChars } from "../../agents/pi-embedded-helpers.js";
@@ -11,6 +12,8 @@ import type { SessionSystemPromptReport } from "../../config/sessions/types.js";
 import type { ReplyPayload } from "../types.js";
 import type { HandleCommandsParams } from "./commands-types.js";
 >>>>>>> f6111622e (refactor(commands): share system prompt bundle for context and export)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveBootstrapMaxChars,
   resolveBootstrapTotalMaxChars,
@@ -34,8 +37,14 @@ import type { ReplyPayload } from "../types.js";
 import type { HandleCommandsParams } from "./commands-types.js";
 =======
 import { buildSystemPromptReport } from "../../agents/system-prompt-report.js";
+import type { SessionSystemPromptReport } from "../../config/sessions/types.js";
+import type { ReplyPayload } from "../types.js";
 import { resolveCommandsSystemPromptBundle } from "./commands-system-prompt.js";
+<<<<<<< HEAD
 >>>>>>> f6111622e (refactor(commands): share system prompt bundle for context and export)
+=======
+import type { HandleCommandsParams } from "./commands-types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 function estimateTokensFromChars(chars: number): number {
   return Math.ceil(Math.max(0, chars) / 4);

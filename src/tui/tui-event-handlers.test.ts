@@ -1,4 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
+=======
+import type { ChatLog } from "./components/chat-log.js";
+import { createEventHandlers } from "./tui-event-handlers.js";
+import type { AgentEvent, ChatEvent, TuiStateAccess } from "./tui-types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 <<<<<<< HEAD
 import { createEventHandlers } from "./tui-event-handlers.js";

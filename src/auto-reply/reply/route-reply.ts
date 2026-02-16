@@ -11,6 +11,7 @@ import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { resolveEffectiveMessagesConfig } from "../../agents/identity.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
 import type { OriginatingChannelType } from "../templating.js";
@@ -18,6 +19,12 @@ import type { ReplyPayload } from "../types.js";
 =======
 import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../../utils/message-channel.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../../utils/message-channel.js";
+import type { OriginatingChannelType } from "../templating.js";
+import type { ReplyPayload } from "../types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeReplyPayload } from "./normalize-reply.js";
 
 export type RouteReplyParams = {

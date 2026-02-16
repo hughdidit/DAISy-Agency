@@ -7,8 +7,16 @@ vi.mock("../infra/heartbeat-wake.js", () => ({
   requestHeartbeatNow: vi.fn(),
 }));
 
+<<<<<<< HEAD
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
+=======
+import type { CliDeps } from "../cli/deps.js";
+import type { HealthSummary } from "../commands/health.js";
+import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
+import { enqueueSystemEvent } from "../infra/system-events.js";
+import type { NodeEventContext } from "./server-node-events-types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { handleNodeEvent } from "./server-node-events.js";
 import type { NodeEventContext } from "./server-node-events-types.js";
 import type { HealthSummary } from "../commands/health.js";

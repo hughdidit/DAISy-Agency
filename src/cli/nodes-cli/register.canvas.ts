@@ -1,10 +1,14 @@
 import fs from "node:fs/promises";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { Command } from "commander";
 import { randomIdempotencyKey } from "../../gateway/call.js";
 =======
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> d4bdcda32 (refactor(nodes-cli): share node.invoke param builder)
+=======
+import type { Command } from "commander";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { defaultRuntime } from "../../runtime.js";
 import { writeBase64ToFile } from "../nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../nodes-canvas.js";
@@ -17,7 +21,11 @@ import type { NodesRpcOpts } from "./types.js";
 import { shortenHomePath } from "../../utils.js";
 =======
 import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
+<<<<<<< HEAD
 >>>>>>> d4bdcda32 (refactor(nodes-cli): share node.invoke param builder)
+=======
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 async function invokeCanvas(opts: NodesRpcOpts, command: string, params?: Record<string, unknown>) {
   const nodeId = await resolveNodeId(opts, String(opts.node ?? ""));

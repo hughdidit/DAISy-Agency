@@ -2,8 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createJiti } from "jiti";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveUserPath } from "../utils.js";
@@ -23,8 +27,13 @@ import { createPluginRuntime } from "./runtime/index.js";
 import { setActivePluginRegistry } from "./runtime.js";
 import { validateJsonSchemaValue } from "./schema-validator.js";
 import type {
+<<<<<<< HEAD
   MoltbotPluginDefinition,
   MoltbotPluginModule,
+=======
+  OpenClawPluginDefinition,
+  OpenClawPluginModule,
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
   PluginDiagnostic,
   PluginLogger,
 } from "./types.js";

@@ -1,5 +1,8 @@
 import { Type } from "@sinclair/typebox";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 import { capArrayByJsonBytes } from "../../gateway/session-utils.fs.js";
@@ -15,7 +18,11 @@ import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 =======
 >>>>>>> 1a03aad24 (refactor(sessions): split access and resolution helpers)
 import { truncateUtf16Safe } from "../../utils.js";
+<<<<<<< HEAD
 >>>>>>> bccdc95a9 (Cap sessions_history payloads to prevent context overflow (#10000))
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { jsonResult, readStringParam } from "./common.js";
 import {
   createSessionVisibilityGuard,

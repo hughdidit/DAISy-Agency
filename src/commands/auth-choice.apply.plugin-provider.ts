@@ -1,7 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../agents/agent-paths.js";
 =======
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import {
@@ -14,8 +17,14 @@ import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { enablePluginInConfig } from "../plugins/enable.js";
 import { resolvePluginProviders } from "../plugins/providers.js";
+<<<<<<< HEAD
 import type { ProviderAuthMethod, ProviderPlugin } from "../plugins/types.js";
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
+=======
+import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
+import { isRemoteEnvironment } from "./oauth-env.js";
+import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyAuthProfileConfig } from "./onboard-auth.js";
 import { openUrl } from "./onboard-helpers.js";
 <<<<<<< HEAD

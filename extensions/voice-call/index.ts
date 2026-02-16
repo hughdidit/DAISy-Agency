@@ -1,13 +1,21 @@
-import type { GatewayRequestHandlerOptions, OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { Type } from "@sinclair/typebox";
+<<<<<<< HEAD
 import type { CoreConfig } from "./src/core-bridge.js";
+=======
+import type { GatewayRequestHandlerOptions, OpenClawPluginApi } from "openclaw/plugin-sdk";
+import { registerVoiceCallCli } from "./src/cli.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   VoiceCallConfigSchema,
   resolveVoiceCallConfig,
   validateProviderConfig,
   type VoiceCallConfig,
 } from "./src/config.js";
+<<<<<<< HEAD
 import { registerVoiceCallCli } from "./src/cli.js";
+=======
+import type { CoreConfig } from "./src/core-bridge.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createVoiceCallRuntime, type VoiceCallRuntime } from "./src/runtime.js";
 
 const voiceCallConfigSchema = {

@@ -8,8 +8,15 @@ import {
 } from "clawdbot/plugin-sdk";
 =======
 import { mergeAllowlist, summarizeMapping, type RuntimeEnv } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 import type { CoreConfig, ReplyToMode } from "../../types.js";
+=======
+import { resolveMatrixTargets } from "../../resolve-targets.js";
+import { getMatrixRuntime } from "../../runtime.js";
+import type { CoreConfig, ReplyToMode } from "../../types.js";
+import { resolveMatrixAccount } from "../accounts.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { setActiveMatrixClient } from "../active-client.js";
 import {
   isBunRuntime,

@@ -1,5 +1,9 @@
 import { formatCliCommand } from "../cli/command-format.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { readConfigFileSnapshot, resolveGatewayPort, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
@@ -12,7 +16,10 @@ import { WizardCancelledError } from "../wizard/prompts.js";
 import { removeChannelConfigWizard } from "./configure.channels.js";
 import { maybeInstallDaemon } from "./configure.daemon.js";
 import { promptGatewayConfig } from "./configure.gateway.js";
+<<<<<<< HEAD
 import { promptAuthConfig } from "./configure.gateway-auth.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   ChannelsWizardMode,
   ConfigureWizardParams,

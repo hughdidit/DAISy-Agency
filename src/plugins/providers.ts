@@ -1,5 +1,9 @@
 import { createSubsystemLogger } from "../logging/subsystem.js";
+<<<<<<< HEAD
 import { loadMoltbotPlugins, type PluginLoadOptions } from "./loader.js";
+=======
+import { loadOpenClawPlugins, type PluginLoadOptions } from "./loader.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ProviderPlugin } from "./types.js";
 
 const log = createSubsystemLogger("plugins");

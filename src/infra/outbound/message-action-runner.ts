@@ -5,14 +5,6 @@ import { fileURLToPath } from "node:url";
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 =======
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import type {
-  ChannelId,
-  ChannelMessageActionName,
-  ChannelThreadingToolContext,
-} from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { OutboundSendDeps } from "./deliver.js";
-import type { MessagePollResult, MessageSendResult } from "./message.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 import {
@@ -25,11 +17,15 @@ import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   ChannelId,
   ChannelMessageActionName,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import { extensionForMime } from "../../media/mime.js";
@@ -38,6 +34,9 @@ import { parseSlackTarget } from "../../slack/targets.js";
 >>>>>>> 6ac5dd2c0 (test: cover telegram topic threadId auto-injection and subagent origin threading)
 =======
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -58,10 +57,14 @@ import {
 } from "./channel-selection.js";
 import { applyTargetToParams } from "./channel-target.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureOutboundSessionEntry, resolveOutboundSessionRoute } from "./outbound-session.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
 =======
+=======
+import type { OutboundSendDeps } from "./deliver.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   hydrateSendAttachmentParams,
   hydrateSetGroupIconParams,
@@ -75,7 +78,11 @@ import {
   resolveTelegramAutoThreadId,
 } from "./message-action-params.js";
 import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js";
+<<<<<<< HEAD
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
+=======
+import type { MessagePollResult, MessageSendResult } from "./message.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   applyCrossContextDecoration,
   buildCrossContextDecoration,

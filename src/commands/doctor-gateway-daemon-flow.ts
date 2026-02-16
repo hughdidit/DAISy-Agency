@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveGatewayPort } from "../config/config.js";
 import {
   resolveGatewayLaunchAgentLabel,
@@ -17,7 +22,10 @@ import { renderSystemdUnavailableHints } from "../daemon/systemd-hints.js";
 import { formatPortDiagnostics, inspectPortUsage } from "../infra/ports.js";
 import { isWSL } from "../infra/wsl.js";
 import type { RuntimeEnv } from "../runtime.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { note } from "../terminal/note.js";
 import { sleep } from "../utils.js";
 import {
@@ -28,6 +36,10 @@ import {
 import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
 import { buildGatewayRuntimeHints, formatGatewayRuntimeSummary } from "./doctor-format.js";
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
+<<<<<<< HEAD
+=======
+import { formatHealthCheckFailure } from "./health-format.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { healthCommand } from "./health.js";
 import { formatHealthCheckFailure } from "./health-format.js";
 

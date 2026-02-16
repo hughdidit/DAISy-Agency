@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
 import type { MsgContext } from "../../auto-reply/templating.js";
 <<<<<<< HEAD
@@ -6,13 +7,21 @@ import type { MsgContext } from "../../auto-reply/templating.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { listAgentIds } from "../../agents/agent-scope.js";
 >>>>>>> eed8cd383 (fix(agent): search all agent stores when resolving --session-id (#13579))
+=======
+import { listAgentIds } from "../../agents/agent-scope.js";
+import type { MsgContext } from "../../auto-reply/templating.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   normalizeThinkLevel,
   normalizeVerboseLevel,
   type ThinkLevel,
   type VerboseLevel,
 } from "../../auto-reply/thinking.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   evaluateSessionFreshness,
   loadSessionStore,

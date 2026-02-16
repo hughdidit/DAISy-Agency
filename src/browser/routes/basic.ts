@@ -1,6 +1,10 @@
 import { resolveBrowserExecutableForPlatform } from "../chrome.executables.js";
 import { createBrowserProfilesService } from "../profiles-service.js";
 import type { BrowserRouteContext } from "../server-context.js";
+<<<<<<< HEAD
+=======
+import type { BrowserRouteRegistrar } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getProfileContext, jsonError, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 

@@ -1,11 +1,20 @@
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import type { MessageEvent, PostbackEvent } from "@line/bot-sdk";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { ResolvedLineAccount } from "./types.js";
+=======
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildLineMessageContext, buildLinePostbackContext } from "./bot-message-context.js";
+import type { ResolvedLineAccount } from "./types.js";
 
 describe("buildLineMessageContext", () => {
   let tmpDir: string;

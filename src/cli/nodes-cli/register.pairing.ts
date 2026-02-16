@@ -1,10 +1,13 @@
 import type { Command } from "commander";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { defaultRuntime } from "../../runtime.js";
 import { formatAge, parsePairingList } from "./format.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 =======
 import type { NodesRpcOpts } from "./types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { defaultRuntime } from "../../runtime.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 import { parsePairingList } from "./format.js";
@@ -15,7 +18,10 @@ import { renderPendingPairingRequestsTable } from "./pairing-render.js";
 >>>>>>> 966957fc6 (refactor(nodes-cli): share pending pairing table)
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 import type { NodesRpcOpts } from "./types.js";
+<<<<<<< HEAD
 import { renderTable } from "../../terminal/table.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export function registerNodesPairingCommands(nodes: Command) {
   nodesCallOpts(

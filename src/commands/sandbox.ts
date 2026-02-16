@@ -1,5 +1,8 @@
 import { confirm as clackConfirm } from "@clack/prompts";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   listSandboxBrowsers,
   listSandboxContainers,

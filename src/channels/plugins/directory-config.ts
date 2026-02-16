@@ -1,11 +1,20 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/types.js";
 import type { ChannelDirectoryEntry } from "./types.js";
+=======
+import type { OpenClawConfig } from "../../config/types.js";
+import { resolveDiscordAccount } from "../../discord/accounts.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveSlackAccount } from "../../slack/accounts.js";
 import { resolveDiscordAccount } from "../../discord/accounts.js";
 import { resolveTelegramAccount } from "../../telegram/accounts.js";
 import { resolveWhatsAppAccount } from "../../web/accounts.js";
 import { normalizeSlackMessagingTarget } from "./normalize/slack.js";
+<<<<<<< HEAD
 import { isWhatsAppGroupJid, normalizeWhatsAppTarget } from "../../whatsapp/normalize.js";
+=======
+import type { ChannelDirectoryEntry } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export type DirectoryConfigParams = {
   cfg: MoltbotConfig;

@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 import { resolveGatewayService } from "./service.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   NODE_SERVICE_KIND,
   NODE_SERVICE_MARKER,
@@ -8,6 +11,11 @@ import {
   resolveNodeSystemdServiceName,
   resolveNodeWindowsTaskName,
 } from "./constants.js";
+<<<<<<< HEAD
+=======
+import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
+import { resolveGatewayService } from "./service.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 function withNodeServiceEnv(
   env: Record<string, string | undefined>,

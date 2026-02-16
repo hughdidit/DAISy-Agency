@@ -4,11 +4,15 @@ import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
 =======
 >>>>>>> ea0ef1870 (refactor: centralize exec approval timeout)
 import type { ExecApprovalForwarder } from "../../infra/exec-approval-forwarder.js";
+<<<<<<< HEAD
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
   type ExecApprovalDecision,
 } from "../../infra/exec-approvals.js";
+import type { ExecApprovalManager } from "../exec-approval-manager.js";
 import {
   ErrorCodes,
   errorShape,

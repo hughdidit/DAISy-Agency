@@ -1,9 +1,17 @@
+<<<<<<< HEAD
+=======
+import { randomUUID } from "node:crypto";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { Component, TUI } from "@mariozechner/pi-tui";
 import {
   formatThinkingLevels,
   normalizeUsageDisplay,
   resolveResponseUsageMode,
 } from "../auto-reply/thinking.js";
+<<<<<<< HEAD
+=======
+import type { SessionsPatchResult } from "../gateway/protocol/index.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatRelativeTimestamp } from "../infra/format-time/format-relative.ts";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { helpText, parseCommand } from "./commands.js";

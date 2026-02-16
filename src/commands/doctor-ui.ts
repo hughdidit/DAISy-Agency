@@ -1,10 +1,13 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveControlUiDistIndexHealth,
   resolveControlUiDistIndexPathForRoot,

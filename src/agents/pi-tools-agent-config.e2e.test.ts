@@ -1,13 +1,25 @@
 import { describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { createMoltbotCodingTools } from "./pi-tools.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { createOpenClawCodingTools } from "./pi-tools.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { SandboxDockerConfig } from "./sandbox.js";
 <<<<<<< HEAD
 =======
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+<<<<<<< HEAD
 import { createOpenClawCodingTools } from "./pi-tools.js";
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
+=======
+
+type ToolWithExecute = {
+  execute: (toolCallId: string, args: unknown, signal?: AbortSignal) => Promise<unknown>;
+};
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 describe("Agent-specific tool filtering", () => {
   const sandboxFsBridgeStub: SandboxFsBridge = {

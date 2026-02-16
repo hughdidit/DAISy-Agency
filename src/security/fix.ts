@@ -1,9 +1,14 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
 import JSON5 from "json5";
 
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createConfigIO } from "../config/config.js";
 <<<<<<< HEAD
 =======

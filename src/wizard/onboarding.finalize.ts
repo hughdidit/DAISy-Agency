@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -42,6 +45,7 @@ import {
   resolveControlUiLinks,
   resolveLocalBrowserControlUiLinks,
 } from "../commands/onboard-helpers.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OnboardOptions } from "../commands/onboard-types.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -51,6 +55,14 @@ import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 =======
+=======
+import type { OnboardOptions } from "../commands/onboard-types.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveGatewayService } from "../daemon/service.js";
+import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
+import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { restoreTerminalState } from "../terminal/restore.js";
 >>>>>>> 58d5b39c9 (Onboarding: keep TUI flow exclusive)
 import { runTui } from "../tui/tui.js";
@@ -64,7 +76,12 @@ import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
 import type { WizardPrompter } from "./prompts.js";
 =======
 import { setupOnboardingShellCompletion } from "./onboarding.completion.js";
+<<<<<<< HEAD
 >>>>>>> 394d60c1f (fix(onboarding): auto-install shell completion in QuickStart)
+=======
+import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
+import type { WizardPrompter } from "./prompts.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 type FinalizeOnboardingOptions = {
   flow: WizardFlow;

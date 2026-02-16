@@ -1,11 +1,17 @@
 import fs from "node:fs";
+<<<<<<< HEAD
 import path from "node:path";
 
+=======
+import os from "node:os";
+import path from "node:path";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   formatSkillsForPrompt,
   loadSkillsFromDir,
   type Skill,
 } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
@@ -35,6 +41,9 @@ import type {
 } from "./types.js";
 <<<<<<< HEAD
 =======
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
 import { resolveSandboxPath } from "../sandbox-paths.js";
@@ -48,7 +57,17 @@ import {
 } from "./frontmatter.js";
 import { resolvePluginSkillDirs } from "./plugin-skills.js";
 import { serializeByKey } from "./serialize.js";
+<<<<<<< HEAD
 >>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
+=======
+import type {
+  ParsedSkillFrontmatter,
+  SkillEligibilityContext,
+  SkillCommandSpec,
+  SkillEntry,
+  SkillSnapshot,
+} from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const fsp = fs.promises;
 const skillsLogger = createSubsystemLogger("skills");

@@ -1,4 +1,5 @@
 import { Type } from "@sinclair/typebox";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { formatCliCommand } from "../../cli/command-format.js";
@@ -7,11 +8,19 @@ import { formatCliCommand } from "../../cli/command-format.js";
 import type { AnyAgentTool } from "./common.js";
 =======
 =======
+=======
+import { formatCliCommand } from "../../cli/command-format.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { matchesHostnameAllowlist, normalizeHostnameAllowlist } from "../../infra/net/ssrf.js";
 >>>>>>> 6d2e3685d (feat(tools): add URL allowlist for web_search and web_fetch)
 import { wrapWebContent } from "../../security/external-content.js";
 import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
+<<<<<<< HEAD
 >>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 import {
   CacheEntry,

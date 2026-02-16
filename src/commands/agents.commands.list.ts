@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AgentBinding } from "../config/types.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";

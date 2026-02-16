@@ -1,5 +1,6 @@
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { cancel, confirm, isCancel, multiselect } from "@clack/prompts";
 
 import {
@@ -11,6 +12,9 @@ import {
 } from "../config/config.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import { cancel, confirm, isCancel, multiselect } from "@clack/prompts";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { isNixMode } from "../config/config.js";
 >>>>>>> 813b96a80 (refactor(commands): share cleanup plan resolver)
 import { resolveGatewayService } from "../daemon/service.js";

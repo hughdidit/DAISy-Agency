@@ -12,9 +12,12 @@ import { normalizeDiscordToken } from "./token.js";
 import type { RequestClient } from "@buape/carbon";
 import type { APIChannel, APIGuild, APIGuildMember, APIRole } from "discord-api-types/v10";
 import { ChannelType, PermissionFlagsBits, Routes } from "discord-api-types/v10";
-import type { DiscordPermissionsSummary, DiscordReactOpts } from "./send.types.js";
 import { resolveDiscordRest } from "./client.js";
+<<<<<<< HEAD
 >>>>>>> 4734c985c (refactor(discord): share client rest helpers)
+=======
+import type { DiscordPermissionsSummary, DiscordReactOpts } from "./send.types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const PERMISSION_ENTRIES = Object.entries(PermissionFlagsBits).filter(
   ([, value]) => typeof value === "bigint",

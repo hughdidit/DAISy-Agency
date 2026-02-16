@@ -1,6 +1,7 @@
 import type { IncomingMessage } from "node:http";
 import os from "node:os";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { WebSocket } from "ws";
 =======
@@ -8,6 +9,9 @@ import type { createSubsystemLogger } from "../../../logging/subsystem.js";
 import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
 import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
 import type { GatewayWsClient } from "../ws-types.js";
+=======
+import type { WebSocket } from "ws";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../../../config/config.js";
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import {
@@ -38,7 +42,11 @@ import {
   AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET,
   type AuthRateLimiter,
 } from "../../auth-rate-limit.js";
+<<<<<<< HEAD
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
+=======
+import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
 import { loadConfig } from "../../../config/config.js";
 import { buildDeviceAuthPayload } from "../../device-auth.js";
@@ -59,6 +67,7 @@ import { GATEWAY_CLIENT_IDS } from "../../protocol/client-info.js";
 import { MAX_BUFFERED_BYTES, MAX_PAYLOAD_BYTES, TICK_INTERVAL_MS } from "../../server-constants.js";
 import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
 import { handleGatewayRequest } from "../../server-methods.js";
+import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
 import { formatError } from "../../server-utils.js";
 import { formatForLog, logWs } from "../../ws-log.js";
 
@@ -72,6 +81,7 @@ import {
 } from "../health-state.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayWsClient } from "../ws-types.js";
 =======
 import {
@@ -81,6 +91,9 @@ import {
 } from "./auth-messages.js";
 >>>>>>> a79c2de95 (refactor(gateway): extract ws auth message helpers)
 =======
+=======
+import type { GatewayWsClient } from "../ws-types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatGatewayAuthFailureMessage, type AuthProvidedKind } from "./auth-messages.js";
 >>>>>>> 1843bcf1d (refactor(gateway): share host header parsing)
 

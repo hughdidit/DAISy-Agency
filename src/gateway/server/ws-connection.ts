@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { WebSocket, WebSocketServer } from "ws";
 =======
@@ -15,10 +16,21 @@ import { listSystemPresence, upsertPresence } from "../../infra/system-presence.
 <<<<<<< HEAD
 import type { createSubsystemLogger } from "../../logging/subsystem.js";
 =======
+=======
+import type { WebSocket, WebSocketServer } from "ws";
+import { resolveCanvasHostUrl } from "../../infra/canvas-host-url.js";
+import { removeRemoteNodeInfo } from "../../infra/skills-remote.js";
+import { listSystemPresence, upsertPresence } from "../../infra/system-presence.js";
+import type { createSubsystemLogger } from "../../logging/subsystem.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { truncateUtf16Safe } from "../../utils.js";
 >>>>>>> d637a2635 (Gateway: sanitize WebSocket log headers (#15592))
 import { isWebchatClient } from "../../utils/message-channel.js";
+<<<<<<< HEAD
 
+=======
+import type { AuthRateLimiter } from "../auth-rate-limit.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ResolvedGatewayAuth } from "../auth.js";
 import { isLoopbackAddress } from "../net.js";
 import { getHandshakeTimeoutMs } from "../server-constants.js";

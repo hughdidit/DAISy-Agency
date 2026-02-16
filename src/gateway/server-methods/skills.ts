@@ -1,8 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { GatewayRequestHandlers } from "./types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   listAgentIds,
   resolveAgentWorkspaceDir,
@@ -16,7 +19,11 @@ import { loadWorkspaceSkillEntries, type SkillEntry } from "../../agents/skills.
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import { listAgentWorkspaceDirs } from "../../agents/workspace-dirs.js";
+<<<<<<< HEAD
 >>>>>>> 42b0d6f43 (refactor(agents): share workspace dir enumeration)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig, writeConfigFile } from "../../config/config.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { normalizeAgentId } from "../../routing/session-key.js";

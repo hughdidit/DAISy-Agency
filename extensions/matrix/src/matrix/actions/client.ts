@@ -3,12 +3,17 @@
 =======
 =======
 import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
+<<<<<<< HEAD
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { getMatrixRuntime } from "../../runtime.js";
 import type { CoreConfig } from "../types.js";
+=======
+import { getMatrixRuntime } from "../../runtime.js";
+import type { CoreConfig } from "../../types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getActiveMatrixClient } from "../active-client.js";
 <<<<<<< HEAD
 import {
@@ -21,7 +26,11 @@ import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
 =======
 import { createPreparedMatrixClient } from "../client-bootstrap.js";
 import { isBunRuntime, resolveMatrixAuth, resolveSharedMatrixClient } from "../client.js";
+<<<<<<< HEAD
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
+=======
+import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export function ensureNodeRuntime() {
   if (isBunRuntime()) {

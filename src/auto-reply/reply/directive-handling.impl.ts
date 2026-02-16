@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { ExecAsk, ExecHost, ExecSecurity } from "../../infra/exec-approvals.js";
@@ -6,6 +7,8 @@ import type { ReplyPayload } from "../types.js";
 import type { HandleDirectiveOnlyParams } from "./directive-handling.params.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel } from "./directives.js";
 >>>>>>> 48fd9d7dc (refactor(auto-reply): share directive handling params)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveAgentConfig,
   resolveAgentDir,
@@ -13,7 +16,11 @@ import {
 } from "../../agents/agent-scope.js";
 import type { ModelAliasIndex } from "../../agents/model-selection.js";
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { type SessionEntry, updateSessionStore } from "../../config/sessions.js";
 import type { ExecAsk, ExecHost, ExecSecurity } from "../../infra/exec-approvals.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
@@ -25,7 +32,11 @@ import {
   maybeHandleModelDirectiveInfo,
   resolveModelSelectionFromDirective,
 } from "./directive-handling.model.js";
+<<<<<<< HEAD
 import type { InlineDirectives } from "./directive-handling.parse.js";
+=======
+import type { HandleDirectiveOnlyParams } from "./directive-handling.params.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { maybeHandleQueueDirective } from "./directive-handling.queue-validation.js";
 import {
   formatDirectiveAck,
@@ -34,7 +45,11 @@ import {
   enqueueModeSwitchEvents,
   withOptions,
 } from "./directive-handling.shared.js";
+<<<<<<< HEAD
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
+=======
+import type { ElevatedLevel, ReasoningLevel, ThinkLevel } from "./directives.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 function resolveExecDefaults(params: {
   cfg: MoltbotConfig;

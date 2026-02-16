@@ -1,4 +1,5 @@
 import { createActionGate } from "../../../agents/tools/common.js";
+import type { DiscordActionConfig } from "../../../config/types.discord.js";
 import { listEnabledDiscordAccounts } from "../../../discord/accounts.js";
 import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
 import { handleDiscordMessageAction } from "./discord/handle-action.js";

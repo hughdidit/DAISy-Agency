@@ -9,8 +9,12 @@ import {
   type ChannelPlugin,
   type MoltbotConfig,
   type ChannelSetupInput,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   listNextcloudTalkAccountIds,
   resolveDefaultNextcloudTalkAccountId,
@@ -27,7 +31,10 @@ import { nextcloudTalkOnboardingAdapter } from "./onboarding.js";
 import { getNextcloudTalkRuntime } from "./runtime.js";
 import { sendMessageNextcloudTalk } from "./send.js";
 import type { CoreConfig } from "./types.js";
+<<<<<<< HEAD
 import { resolveNextcloudTalkGroupToolPolicy } from "./policy.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const meta = {
   id: "nextcloud-talk",

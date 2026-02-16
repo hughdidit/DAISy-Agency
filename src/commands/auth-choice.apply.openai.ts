@@ -1,8 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { loginOpenAICodex } from "@mariozechner/pi-ai";
 =======
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 >>>>>>> 86e4fe0a7 (Auth: land codex oauth onboarding flow (#15406))
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveEnvApiKey } from "../agents/model-auth.js";
 import { upsertSharedEnvVar } from "../infra/env-file.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
@@ -12,9 +15,13 @@ import {
   validateApiKeyInput,
 } from "./auth-choice.api-key.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
 =======
+=======
+import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyDefaultModelChoice } from "./auth-choice.default-model.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
 >>>>>>> 86e4fe0a7 (Auth: land codex oauth onboarding flow (#15406))

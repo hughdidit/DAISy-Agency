@@ -1,8 +1,17 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/types.js";
 import type { SkillCommandSpec } from "../agents/skills.js";
 import { getChatCommands, getNativeCommandSurfaces } from "./commands-registry.data.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
+=======
+import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
+import { resolveConfiguredModelRef } from "../agents/model-selection.js";
+import type { SkillCommandSpec } from "../agents/skills.js";
+import type { OpenClawConfig } from "../config/types.js";
+import { escapeRegExp } from "../utils.js";
+import { getChatCommands, getNativeCommandSurfaces } from "./commands-registry.data.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   ChatCommandDefinition,
   CommandArgChoiceContext,
@@ -16,12 +25,15 @@ import type {
   ShouldHandleTextCommandsParams,
 } from "./commands-registry.types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { escapeRegExp } from "../utils.js";
 import { getChatCommands, getNativeCommandSurfaces } from "./commands-registry.data.js";
 >>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export type {
   ChatCommandDefinition,

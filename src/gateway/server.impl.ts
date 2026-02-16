@@ -1,15 +1,22 @@
 <<<<<<< HEAD
 =======
 import path from "node:path";
+<<<<<<< HEAD
 import type { CanvasHostServer } from "../canvas-host/server.js";
 import type { PluginServicesHandle } from "../plugins/services.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { ControlUiRootState } from "./control-ui.js";
 import type { startBrowserControlServerIfEnabled } from "./server-browser.js";
 >>>>>>> 5935c4d23 (fix(ui): fix web UI after tsdown migration and typing changes)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { initSubagentRegistry } from "../agents/subagent-registry.js";
+<<<<<<< HEAD
 import { registerSkillsChangeListener } from "../agents/skills/refresh.js";
+=======
+import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { CanvasHostServer } from "../canvas-host/server.js";
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
 import { createDefaultDeps } from "../cli/deps.js";
@@ -55,12 +62,48 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 import { getGlobalHookRunner, runGlobalGatewayStopSafely } from "../plugins/hook-runner-global.js";
 import { createEmptyPluginRegistry } from "../plugins/registry.js";
+import type { PluginServicesHandle } from "../plugins/services.js";
 import { getTotalQueueSize } from "../process/command-queue.js";
+<<<<<<< HEAD
 >>>>>>> 8217d77ec (fix(cli): run plugin gateway_stop hooks before message exit (#16580))
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { runOnboardingWizard } from "../wizard/onboarding.js";
 import { createAuthRateLimiter, type AuthRateLimiter } from "./auth-rate-limit.js";
 import { startChannelHealthMonitor } from "./channel-health-monitor.js";
 import { startGatewayConfigReloader } from "./config-reload.js";
+<<<<<<< HEAD
+=======
+import type { ControlUiRootState } from "./control-ui.js";
+import { ExecApprovalManager } from "./exec-approval-manager.js";
+import { NodeRegistry } from "./node-registry.js";
+import type { startBrowserControlServerIfEnabled } from "./server-browser.js";
+import { createChannelManager } from "./server-channels.js";
+import { createAgentEventHandler } from "./server-chat.js";
+import { createGatewayCloseHandler } from "./server-close.js";
+import { buildGatewayCronService } from "./server-cron.js";
+import { startGatewayDiscovery } from "./server-discovery-runtime.js";
+import { applyGatewayLaneConcurrency } from "./server-lanes.js";
+import { startGatewayMaintenanceTimers } from "./server-maintenance.js";
+import { GATEWAY_EVENTS, listGatewayMethods } from "./server-methods-list.js";
+import { coreGatewayHandlers } from "./server-methods.js";
+import { createExecApprovalHandlers } from "./server-methods/exec-approval.js";
+import { safeParseJson } from "./server-methods/nodes.helpers.js";
+import { hasConnectedMobileNode } from "./server-mobile-nodes.js";
+import { loadGatewayModelCatalog } from "./server-model-catalog.js";
+import { createNodeSubscriptionManager } from "./server-node-subscriptions.js";
+import { loadGatewayPlugins } from "./server-plugins.js";
+import { createGatewayReloadHandlers } from "./server-reload-handlers.js";
+import { resolveGatewayRuntimeConfig } from "./server-runtime-config.js";
+import { createGatewayRuntimeState } from "./server-runtime-state.js";
+import { resolveSessionKeyForRun } from "./server-session-key.js";
+import { logGatewayStartup } from "./server-startup-log.js";
+import { startGatewaySidecars } from "./server-startup.js";
+import { startGatewayTailscaleExposure } from "./server-tailscale.js";
+import { createWizardSessionTracker } from "./server-wizard-sessions.js";
+import { attachGatewayWsHandlers } from "./server-ws-runtime.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   getHealthCache,
   getHealthVersion,

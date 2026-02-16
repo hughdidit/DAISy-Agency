@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 import { readQwenCliCredentialsCached } from "../cli-credentials.js";
+=======
+import {
+  readQwenCliCredentialsCached,
+  readMiniMaxCliCredentialsCached,
+} from "../cli-credentials.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   EXTERNAL_CLI_NEAR_EXPIRY_MS,
   EXTERNAL_CLI_SYNC_TTL_MS,

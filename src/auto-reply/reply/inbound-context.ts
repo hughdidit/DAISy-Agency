@@ -1,10 +1,14 @@
 import { normalizeChatType } from "../../channels/chat-type.js";
 import { resolveConversationLabel } from "../../channels/conversation-label.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 import { formatInboundBodyWithSenderMeta } from "./inbound-sender-meta.js";
 =======
 >>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
+=======
+import type { FinalizedMsgContext, MsgContext } from "../templating.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeInboundTextNewlines } from "./inbound-text.js";
 
 export type FinalizeInboundContextOptions = {

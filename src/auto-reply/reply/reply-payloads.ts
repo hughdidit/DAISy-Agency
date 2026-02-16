@@ -1,7 +1,11 @@
 import { isMessagingToolDuplicate } from "../../agents/pi-embedded-helpers.js";
+<<<<<<< HEAD
 import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { MessagingToolSend } from "../../agents/pi-embedded-runner.js";
 import type { ReplyToMode } from "../../config/types.js";
+import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
 import type { OriginatingChannelType } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
 import { extractReplyToTag } from "./reply-tags.js";

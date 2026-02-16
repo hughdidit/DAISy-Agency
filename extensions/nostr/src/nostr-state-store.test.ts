@@ -1,7 +1,11 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+import type { PluginRuntime } from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { describe, expect, it } from "vitest";
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
 

@@ -1,4 +1,8 @@
 import type { TUI } from "@mariozechner/pi-tui";
+<<<<<<< HEAD
+=======
+import type { SessionsPatchResult } from "../gateway/protocol/index.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   normalizeAgentId,
   normalizeMainKey,

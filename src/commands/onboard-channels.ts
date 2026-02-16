@@ -7,6 +7,7 @@ import {
   formatChannelSelectionLine,
   listChatChannels,
 } from "../channels/registry.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { isChannelConfigured } from "../config/plugin-auto-enable.js";
 import type { DmPolicy } from "../config/types.js";
@@ -18,14 +19,33 @@ import { formatCliCommand } from "../cli/command-format.js";
 import { enablePluginInConfig } from "../plugins/enable.js";
 import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
 import type { ChannelChoice } from "./onboard-types.js";
-import {
-  getChannelOnboardingAdapter,
-  listChannelOnboardingAdapters,
-} from "./onboarding/registry.js";
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { isChannelConfigured } from "../config/plugin-auto-enable.js";
+import type { DmPolicy } from "../config/types.js";
+import { enablePluginInConfig } from "../plugins/enable.js";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
+import type { RuntimeEnv } from "../runtime.js";
+import { formatDocsLink } from "../terminal/links.js";
+import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
+import type { ChannelChoice } from "./onboard-types.js";
 import {
   ensureOnboardingPluginInstalled,
   reloadOnboardingPluginRegistry,
 } from "./onboarding/plugin-install.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
+import {
+  getChannelOnboardingAdapter,
+  listChannelOnboardingAdapters,
+} from "./onboarding/registry.js";
+<<<<<<< HEAD
+import {
+  ensureOnboardingPluginInstalled,
+  reloadOnboardingPluginRegistry,
+} from "./onboarding/plugin-install.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   ChannelOnboardingDmPolicy,
   ChannelOnboardingStatus,

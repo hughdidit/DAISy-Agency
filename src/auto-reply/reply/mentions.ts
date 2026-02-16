@@ -2,6 +2,7 @@ import { resolveAgentConfig } from "../../agents/agent-scope.js";
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import type { MsgContext } from "../templating.js";
 
@@ -11,6 +12,11 @@ function escapeRegExp(text: string): string {
 =======
 import { escapeRegExp } from "../../utils.js";
 >>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { escapeRegExp } from "../../utils.js";
+import type { MsgContext } from "../templating.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 function deriveMentionPatterns(identity?: { name?: string; emoji?: string }) {
   const patterns: string[] = [];

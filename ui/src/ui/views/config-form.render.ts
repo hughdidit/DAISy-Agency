@@ -1,12 +1,16 @@
 import { html, nothing } from "lit";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ConfigUiHints } from "../types";
 import { icons } from "../icons";
 import { hintForPath, humanize, schemaType, type JsonSchema } from "./config-form.shared";
 import { renderNode } from "./config-form.node";
 =======
 import type { ConfigUiHints } from "../types.ts";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { icons } from "../icons.ts";
+import type { ConfigUiHints } from "../types.ts";
 import { renderNode } from "./config-form.node.ts";
 import { hintForPath, humanize, schemaType, type JsonSchema } from "./config-form.shared.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)

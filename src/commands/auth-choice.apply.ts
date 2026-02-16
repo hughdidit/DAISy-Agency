@@ -19,7 +19,11 @@ import type { AuthChoice } from "./onboard-types.js";
 import { applyAuthChoiceVllm } from "./auth-choice.apply.vllm.js";
 >>>>>>> e73d881c5 (Onboarding: add vLLM provider support)
 import { applyAuthChoiceXAI } from "./auth-choice.apply.xai.js";
+<<<<<<< HEAD
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
+=======
+import type { AuthChoice } from "./onboard-types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export type ApplyAuthChoiceParams = {
   authChoice: AuthChoice;

@@ -11,6 +11,7 @@ import {
 import { resolveGatewayLogPaths } from "../../daemon/launchd.js";
 import { resolveNodeService } from "../../daemon/node-service.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayServiceRuntime } from "../../daemon/service-runtime.js";
 import { isSystemdUserServiceAvailable } from "../../daemon/systemd.js";
 import { renderSystemdUnavailableHints } from "../../daemon/systemd-hints.js";
@@ -18,6 +19,9 @@ import { resolveIsNixMode } from "../../config/paths.js";
 import { isWSL } from "../../infra/wsl.js";
 =======
 >>>>>>> 1b9c1c648 (refactor(daemon): share service lifecycle runner)
+=======
+import type { GatewayServiceRuntime } from "../../daemon/service-runtime.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadNodeHostConfig } from "../../node-host/config.js";
 import { defaultRuntime } from "../../runtime.js";
 import { colorize, theme } from "../../terminal/theme.js";

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,6 +12,14 @@ import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 import { resolveUserPath } from "../../../utils.js";
 import { loadWebMedia } from "../../../web/media.js";
 >>>>>>> 31c6a12cf (fix(agents): restore missing runtime helpers and sandbox types)
+=======
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import type { ImageContent } from "@mariozechner/pi-ai";
+import { resolveUserPath } from "../../../utils.js";
+import { loadWebMedia } from "../../../web/media.js";
+import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { sanitizeImageBlocks } from "../../tool-images.js";
 import { extractTextFromMessage } from "../../../tui/tui-formatters.js";
 import { loadWebMedia } from "../../../web/media.js";

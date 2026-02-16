@@ -1,8 +1,11 @@
 import { createRequire } from "node:module";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { PluginRuntime } from "./types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
 import { createMemoryGetTool, createMemorySearchTool } from "../../agents/tools/memory-tool.js";
 import { handleSlackAction } from "../../agents/tools/slack-actions.js";
@@ -141,6 +144,7 @@ import { registerMemoryCli } from "../../cli/memory-cli.js";
 import { loadWebMedia } from "../../web/media.js";
 >>>>>>> 39e6e4cd2 (perf: reduce test/runtime overhead in plugin runtime and e2e harness)
 import { formatNativeDependencyHint } from "./native-deps.js";
+<<<<<<< HEAD
 import { textToSpeechTelephony } from "../../tts/tts.js";
 import {
   listLineAccountIds,
@@ -162,6 +166,8 @@ import {
 import { monitorLineProvider } from "../../line/monitor.js";
 import { buildTemplateMessageFromPayload } from "../../line/template-messages.js";
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { PluginRuntime } from "./types.js";
 
 let cachedVersion: string | null = null;

@@ -13,21 +13,24 @@ import type {
 } from "./types.js";
 =======
 import type { Chat, Message, MessageOrigin, User } from "@grammyjs/types";
-import type { TelegramGroupConfig, TelegramTopicConfig } from "../../config/types.js";
-import type { TelegramStreamMode } from "./types.js";
 import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> da6de4981 (Telegram: use Grammy types directly, add typed Probe/Audit to plugin interface (#8403))
 
 const TELEGRAM_GENERAL_TOPIC_ID = 1;
 
 =======
+=======
+import type { TelegramGroupConfig, TelegramTopicConfig } from "../../config/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { readChannelAllowFromStore } from "../../pairing/pairing-store.js";
 import {
   firstDefined,
   normalizeAllowFromWithStore,
   type NormalizedAllowFrom,
 } from "../bot-access.js";
+import type { TelegramStreamMode } from "./types.js";
 
 const TELEGRAM_GENERAL_TOPIC_ID = 1;
 

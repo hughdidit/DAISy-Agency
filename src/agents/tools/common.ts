@@ -1,7 +1,11 @@
 import fs from "node:fs/promises";
+<<<<<<< HEAD
 
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 
+=======
+import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { detectMime } from "../../media/mime.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
 

@@ -1,9 +1,14 @@
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { type ChannelId, getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
+=======
+import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { type BackoffPolicy, computeBackoff, sleepWithAbort } from "../infra/backoff.js";
 >>>>>>> 68489a213 (gateway: expose isManuallyStopped and resetRestartAttempts on ChannelManager)
 import { formatErrorMessage } from "../infra/errors.js";

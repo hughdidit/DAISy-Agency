@@ -1,6 +1,6 @@
-import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
 import { CHANNEL_IDS } from "../channels/registry.js";
 import { VERSION } from "../version.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { MoltbotSchema } from "./zod-schema.js";
@@ -8,6 +8,10 @@ import { MoltbotSchema } from "./zod-schema.js";
 =======
 import { applySensitiveHints, buildBaseHints } from "./schema.hints.js";
 >>>>>>> fa427f63b (refactor(config): restore schema.ts to use schema.hints)
+=======
+import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
+import { applySensitiveHints, buildBaseHints, mapSensitivePaths } from "./schema.hints.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { OpenClawSchema } from "./zod-schema.js";
 >>>>>>> 6d9d4d04e (Memory/QMD: add configurable search mode)
 

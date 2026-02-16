@@ -1,9 +1,13 @@
 import { format } from "node:util";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { RuntimeEnv, ReplyPayload, MoltbotConfig } from "clawdbot/plugin-sdk";
 
 =======
+=======
+import type { RuntimeEnv, ReplyPayload, OpenClawConfig } from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { getTlonRuntime } from "../runtime.js";

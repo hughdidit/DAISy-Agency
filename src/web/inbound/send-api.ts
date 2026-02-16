@@ -9,9 +9,12 @@ import type {
   MiscMessageGenerationOptions,
   WAPresence,
 } from "@whiskeysockets/baileys";
+<<<<<<< HEAD
 >>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
 import type { ActiveWebSendOptions } from "../active-listener.js";
 >>>>>>> 1bef2fc68 (fix(whatsapp): allow per-message link preview override\n\nWhatsApp messages default to enabling link previews for URLs. This adds\nsupport for overriding this behavior per-message via the \nparameter (e.g. from  tool options), consistent with Telegram.\n\nFix: Updated internal WhatsApp Web API layers to pass  option\ndown to Baileys .)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { recordChannelActivity } from "../../infra/channel-activity.js";
 import { toWhatsappJid } from "../../utils.js";
 import type { ActiveWebSendOptions } from "../active-listener.js";

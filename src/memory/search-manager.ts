@@ -9,6 +9,7 @@ import { createSubsystemLogger } from "../logging/subsystem.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> f72214725 (chore: restore OpenClaw branding)
 import type { ResolvedQmdConfig } from "./backend-config.js";
 <<<<<<< HEAD
@@ -16,13 +17,16 @@ import type { ResolvedQmdConfig } from "./backend-config.js";
 import type { MemoryIndexManager } from "./manager.js";
 =======
 >>>>>>> dd8373a42 (fix(memory-qmd): write XDG index.yml + legacy compat)
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import type { ResolvedQmdConfig } from "./backend-config.js";
+import { resolveMemoryBackendConfig } from "./backend-config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   MemoryEmbeddingProbeResult,
   MemorySearchManager,
   MemorySyncProgressUpdate,
 } from "./types.js";
-import { createSubsystemLogger } from "../logging/subsystem.js";
-import { resolveMemoryBackendConfig } from "./backend-config.js";
 
 const log = createSubsystemLogger("memory");
 const QMD_MANAGER_CACHE = new Map<string, MemorySearchManager>();

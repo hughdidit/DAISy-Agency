@@ -6,6 +6,7 @@
  * Provides seamless auto-recall and auto-capture via lifecycle hooks.
  */
 
+<<<<<<< HEAD
 import { Type } from "@sinclair/typebox";
 import * as lancedb from "@lancedb/lancedb";
 import OpenAI from "openai";
@@ -16,6 +17,13 @@ import { stringEnum } from "clawdbot/plugin-sdk";
 
 =======
 >>>>>>> aade13397 (🤖 memory-lancedb: avoid plugin-sdk enum helper in local TypeBox schema (#13897))
+=======
+import { randomUUID } from "node:crypto";
+import type * as LanceDB from "@lancedb/lancedb";
+import { Type } from "@sinclair/typebox";
+import OpenAI from "openai";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   DEFAULT_CAPTURE_MAX_CHARS,
   MEMORY_CATEGORIES,

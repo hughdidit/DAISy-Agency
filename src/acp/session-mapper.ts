@@ -1,7 +1,11 @@
 import type { GatewayClient } from "../gateway/client.js";
+<<<<<<< HEAD
 
 import type { AcpServerOptions } from "./types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { readBool, readString } from "./meta.js";
+import type { AcpServerOptions } from "./types.js";
 
 export type AcpSessionMeta = {
   sessionKey?: string;

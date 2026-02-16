@@ -1,19 +1,28 @@
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 <<<<<<< HEAD
 import type { ChannelId, ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 9c4cbaab7 (chore: Enable eslint/no-unused-vars.)
 import type { SessionEntry } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.agent-defaults.js";
+<<<<<<< HEAD
+=======
+import { normalizeAccountId } from "../../routing/session-key.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 import type {
   DeliverableMessageChannel,
   GatewayMessageChannel,
 } from "../../utils/message-channel.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
@@ -21,6 +30,8 @@ import { formatCliCommand } from "../../cli/command-format.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 >>>>>>> a42e3cb78 (feat(heartbeat): add accountId config option for multi-agent routing (#8702))
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   INTERNAL_MESSAGE_CHANNEL,
   isDeliverableMessageChannel,

@@ -8,8 +8,12 @@ import {
   PAIRING_APPROVED_MESSAGE,
   setAccountEnabledInConfigSection,
   type ChannelPlugin,
+<<<<<<< HEAD
 } from "clawdbot/plugin-sdk";
 
+=======
+} from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { matrixMessageActions } from "./actions.js";
 import { MatrixConfigSchema } from "./config-schema.js";
 import {
@@ -30,7 +34,14 @@ import { sendMessageMatrix } from "./matrix/send.js";
 import { matrixOnboardingAdapter } from "./onboarding.js";
 import { matrixOutbound } from "./outbound.js";
 import { resolveMatrixTargets } from "./resolve-targets.js";
+<<<<<<< HEAD
 import { listMatrixDirectoryGroupsLive, listMatrixDirectoryPeersLive } from "./directory-live.js";
+=======
+import type { CoreConfig } from "./types.js";
+
+// Mutex for serializing account startup (workaround for concurrent dynamic import race condition)
+let matrixStartupLock: Promise<void> = Promise.resolve();
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 const meta = {
   id: "matrix",

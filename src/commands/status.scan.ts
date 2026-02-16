@@ -1,5 +1,3 @@
-import type { MemoryProviderStatus } from "../memory/types.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { withProgress } from "../cli/progress.js";
 import { loadConfig } from "../config/config.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
@@ -13,11 +11,16 @@ import type { MemoryIndexManager } from "../memory/manager.js";
 =======
 import { getMemorySearchManager } from "../memory/index.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MemoryProviderStatus } from "../memory/types.js";
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 =======
 >>>>>>> 9bef52594 (chore: apply formatter)
+=======
+import type { MemoryProviderStatus } from "../memory/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { runExec } from "../process/exec.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { buildChannelsTable } from "./status-all/channels.js";
 import { getAgentLocalStatuses } from "./status.agent-local.js";
 import { pickGatewaySelfPresence, resolveGatewayProbeAuth } from "./status.gateway-probe.js";

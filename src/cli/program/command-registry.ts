@@ -1,5 +1,6 @@
 import type { Command } from "commander";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { agentsListCommand } from "../../commands/agents.js";
 import { healthCommand } from "../../commands/health.js";
@@ -30,6 +31,11 @@ import { resolveActionArgs } from "./helpers.js";
 import { getPrimaryCommand, hasHelpOrVersion } from "../argv.js";
 import { reparseProgramFromActionArgs } from "./action-reparse.js";
 >>>>>>> 384a886b7 (refactor(cli): share commander reparse helper)
+=======
+import { getPrimaryCommand, hasHelpOrVersion } from "../argv.js";
+import { reparseProgramFromActionArgs } from "./action-reparse.js";
+import type { ProgramContext } from "./context.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { registerSubCliCommands } from "./register.subclis.js";
 import type { ProgramContext } from "./context.js";
 

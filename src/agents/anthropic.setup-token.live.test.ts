@@ -2,9 +2,13 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
+=======
+import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { describe, expect, it } from "vitest";
 import { isTruthyEnvValue } from "../infra/env.js";
 import {

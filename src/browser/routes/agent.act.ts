@@ -13,6 +13,16 @@ import {
   resolveProfileContext,
   SELECTOR_UNSUPPORTED_MESSAGE,
 } from "./agent.shared.js";
+<<<<<<< HEAD
+=======
+import {
+  DEFAULT_DOWNLOAD_DIR,
+  DEFAULT_UPLOAD_DIR,
+  resolvePathWithinRoot,
+  resolvePathsWithinRoot,
+} from "./path-output.js";
+import type { BrowserRouteRegistrar } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { jsonError, toBoolean, toNumber, toStringArray, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 

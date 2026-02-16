@@ -4,6 +4,7 @@ import { createExecTool } from "../../agents/bash-tools.js";
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
 import { killProcessTree } from "../../agents/shell-utils.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import { logVerbose } from "../../globals.js";
@@ -11,8 +12,13 @@ import { clampInt } from "../../utils.js";
 import type { MsgContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
 =======
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { logVerbose } from "../../globals.js";
 import { clampInt } from "../../utils.js";
+import type { MsgContext } from "../templating.js";
+import type { ReplyPayload } from "../types.js";
 import { formatElevatedUnavailableMessage } from "./elevated-unavailable.js";
 >>>>>>> e401e2584 (refactor(auto-reply): share elevated unavailable message)
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";

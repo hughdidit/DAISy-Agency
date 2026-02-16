@@ -1,6 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import os from "node:os";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { messagingApi } from "@line/bot-sdk";
 import { logVerbose } from "../globals.js";
 

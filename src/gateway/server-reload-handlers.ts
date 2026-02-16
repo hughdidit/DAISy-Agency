@@ -1,6 +1,16 @@
+<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
 import { startGmailWatcher, stopGmailWatcher } from "../hooks/gmail-watcher.js";
+=======
+import { getActiveEmbeddedRunCount } from "../agents/pi-embedded-runner/runs.js";
+import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
+import type { CliDeps } from "../cli/deps.js";
+import { resolveAgentMaxConcurrent, resolveSubagentMaxConcurrent } from "../config/agent-limits.js";
+import type { loadConfig } from "../config/config.js";
+import { startGmailWatcher, stopGmailWatcher } from "../hooks/gmail-watcher.js";
+import { isTruthyEnvValue } from "../infra/env.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import { resetDirectoryCache } from "../infra/outbound/target-resolver.js";
 import {
@@ -18,7 +28,10 @@ import { resolveAgentMaxConcurrent, resolveSubagentMaxConcurrent } from "../conf
 import { setCommandLaneConcurrency, getTotalQueueSize } from "../process/command-queue.js";
 >>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
 import { CommandLane } from "../process/lanes.js";
+<<<<<<< HEAD
 import { isTruthyEnvValue } from "../infra/env.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
 import { resolveHooksConfig } from "./hooks.js";
 import { startBrowserControlServerIfEnabled } from "./server-browser.js";

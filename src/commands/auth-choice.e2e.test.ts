@@ -12,6 +12,7 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 1633c6fe9 (refactor(test): dedupe auth-choice e2e setup plumbing)
 import type { WizardPrompter } from "../wizard/prompts.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { AuthChoice } from "./onboard-types.js";
 <<<<<<< HEAD
@@ -19,6 +20,8 @@ import { captureEnv } from "../test-utils/env.js";
 >>>>>>> 07dea4c6c (refactor(test): dedupe auth choice env cleanup)
 =======
 >>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -32,6 +35,7 @@ import {
   ZAI_CODING_CN_BASE_URL,
   ZAI_CODING_GLOBAL_BASE_URL,
 } from "./onboard-auth.js";
+import type { AuthChoice } from "./onboard-types.js";
 import {
   authProfilePathForAgent,
   createAuthTestLifecycle,

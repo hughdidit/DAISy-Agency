@@ -1,5 +1,9 @@
 import { constants as fsConstants } from "node:fs";
 import type { Stats } from "node:fs";
+<<<<<<< HEAD
+=======
+import { constants as fsConstants } from "node:fs";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { FileHandle } from "node:fs/promises";
 import fs from "node:fs/promises";
 import path from "node:path";

@@ -1,10 +1,18 @@
 import type { Command } from "commander";
+<<<<<<< HEAD
 
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { loadConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { loadMoltbotPlugins } from "./loader.js";
+=======
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { loadConfig } from "../config/config.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { loadOpenClawPlugins } from "./loader.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { PluginLogger } from "./types.js";
 
 const log = createSubsystemLogger("plugins");

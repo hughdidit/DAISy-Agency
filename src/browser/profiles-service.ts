@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 
 import type { BrowserProfileConfig, MoltbotConfig } from "../config/config.js";
+=======
+import type { BrowserProfileConfig, OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig, writeConfigFile } from "../config/config.js";
 import { deriveDefaultBrowserCdpPortRange } from "../config/port-defaults.js";
 import { DEFAULT_BROWSER_DEFAULT_PROFILE_NAME } from "./constants.js";

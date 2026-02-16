@@ -1,7 +1,11 @@
 import { OPENCODE_ZEN_DEFAULT_MODEL_REF } from "../agents/opencode-zen-models.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyAgentDefaultModelPrimary } from "./onboard-auth.config-shared.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 

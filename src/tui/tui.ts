@@ -33,6 +33,10 @@ import type {
   TuiOptions,
   TuiStateAccess,
 } from "./tui-types.js";
+<<<<<<< HEAD
+=======
+import { buildWaitingStatusMessage, defaultWaitingPhrases } from "./tui-waiting.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export { resolveFinalAssistantText } from "./tui-formatters.js";
 export type { TuiOptions } from "./tui-types.js";

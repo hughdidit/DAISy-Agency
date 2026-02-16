@@ -32,6 +32,7 @@ import type { TemplateContext } from "../templating.js";
 import type { VerboseLevel } from "../thinking.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import { buildThreadingToolContext, resolveEnforceFinalTag } from "./agent-runner-utils.js";
 <<<<<<< HEAD
@@ -42,16 +43,27 @@ import { applyReplyTagsToPayload, isRenderablePayload } from "./reply-payloads.j
 import type { TypingSignaler } from "./typing-mode.js";
 =======
 =======
+=======
+import type { GetReplyOptions, ReplyPayload } from "../types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   buildEmbeddedContextFromTemplate,
   buildTemplateSenderContext,
-  resolveEnforceFinalTag,
   resolveRunAuthProfile,
 } from "./agent-runner-utils.js";
+<<<<<<< HEAD
 >>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
+=======
+import { resolveEnforceFinalTag } from "./agent-runner-utils.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { type BlockReplyPipeline } from "./block-reply-pipeline.js";
+import type { FollowupRun } from "./queue.js";
 import { createBlockReplyDeliveryHandler } from "./reply-delivery.js";
+<<<<<<< HEAD
 >>>>>>> eefb2f8fb (refactor(reply): extract block delivery normalization)
+=======
+import type { TypingSignaler } from "./typing-mode.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export type AgentRunLoopResult =
   | {

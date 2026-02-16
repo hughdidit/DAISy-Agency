@@ -7,7 +7,11 @@ import { resolveLineAccount } from "./accounts.js";
 import type { LineSendResult } from "./types.js";
 =======
 import { resolveLineChannelAccessToken } from "./channel-access-token.js";
+<<<<<<< HEAD
 >>>>>>> eb79785b3 (refactor(line): share channel access token resolver)
+=======
+import type { LineSendResult } from "./types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 // Use the messaging API types directly
 type Message = messagingApi.Message;

@@ -1,12 +1,19 @@
 import { listChannelDocks } from "../channels/dock.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
+<<<<<<< HEAD
 import { listThinkingLevels } from "./thinking.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { COMMAND_ARG_FORMATTERS } from "./commands-args.js";
 import type {
   ChatCommandDefinition,
   CommandCategory,
   CommandScope,
 } from "./commands-registry.types.js";
+<<<<<<< HEAD
+=======
+import { listThinkingLevels } from "./thinking.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 type DefineChatCommandInput = {
   key: string;

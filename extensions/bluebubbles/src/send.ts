@@ -1,5 +1,10 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import { stripMarkdown } from "openclaw/plugin-sdk";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveBlueBubblesAccount } from "./accounts.js";
 <<<<<<< HEAD
 import {

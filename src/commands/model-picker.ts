@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureAuthProfileStore, listProfilesForProvider } from "../agents/auth-profiles.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
@@ -11,6 +12,8 @@ import {
 } from "../agents/auth-profiles.js";
 >>>>>>> e73d881c5 (Onboarding: add vLLM provider support)
 =======
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { ensureAuthProfileStore, listProfilesForProvider } from "../agents/auth-profiles.js";
 >>>>>>> 8d1a1d9e8 (refactor(commands): share vllm setup)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
@@ -23,7 +26,11 @@ import {
   normalizeProviderId,
   resolveConfiguredModelRef,
 } from "../agents/model-selection.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
 import { formatTokenK } from "./models/shared.js";
 <<<<<<< HEAD

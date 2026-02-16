@@ -3,8 +3,13 @@ import fsp from "node:fs/promises";
 import path from "node:path";
 import type { Command } from "commander";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveArchiveKind } from "../infra/archive.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { loadConfig, writeConfigFile } from "../config/io.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   buildWorkspaceHookStatus,
   type HookStatusEntry,
@@ -19,6 +24,12 @@ import {
   resolveHookInstallDir,
 } from "../hooks/install.js";
 import { recordHookInstall } from "../hooks/installs.js";
+<<<<<<< HEAD
+=======
+import type { HookEntry } from "../hooks/types.js";
+import { loadWorkspaceHookEntries } from "../hooks/workspace.js";
+import { resolveArchiveKind } from "../infra/archive.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildPluginStatusReport } from "../plugins/status.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";

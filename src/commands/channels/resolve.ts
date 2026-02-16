@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import { getChannelPlugin } from "../../channels/plugins/index.js";
+import type { ChannelResolveKind, ChannelResolveResult } from "../../channels/plugins/types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../../config/config.js";
 import { danger } from "../../globals.js";
 import { getChannelPlugin } from "../../channels/plugins/index.js";

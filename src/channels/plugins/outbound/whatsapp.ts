@@ -7,7 +7,11 @@ import type { ChannelOutboundAdapter } from "../types.js";
 import { missingTargetError } from "../../../infra/outbound/target-errors.js";
 =======
 import { resolveWhatsAppOutboundTarget } from "../../../whatsapp/resolve-outbound-target.js";
+<<<<<<< HEAD
 >>>>>>> eccd4d8c3 (refactor(whatsapp): share target resolver)
+=======
+import type { ChannelOutboundAdapter } from "../types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export const whatsappOutbound: ChannelOutboundAdapter = {
   deliveryMode: "gateway",

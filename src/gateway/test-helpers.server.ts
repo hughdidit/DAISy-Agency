@@ -5,7 +5,10 @@ import path from "node:path";
 
 import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from "vitest";
 import { WebSocket } from "ws";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveMainSessionKeyFromConfig, type SessionEntry } from "../config/sessions.js";
 import { resetAgentRunContextForTest } from "../infra/agent-events.js";
 import {
@@ -22,7 +25,10 @@ import { getDeterministicFreePortBlock } from "../test-utils/ports.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 
 import { PROTOCOL_VERSION } from "./protocol/index.js";
+<<<<<<< HEAD
 import { buildDeviceAuthPayload } from "./device-auth.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayServerOptions } from "./server.js";
 import {
   agentCommand,

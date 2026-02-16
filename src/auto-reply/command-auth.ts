@@ -3,11 +3,17 @@ import { getChannelDock, listChannelDocks } from "../channels/dock.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import { normalizeAnyChannelId } from "../channels/registry.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "./templating.js";
 =======
 import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../utils/message-channel.js";
 >>>>>>> e95134ba3 (fix (commands): keep webchat auth on internal provider)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../utils/message-channel.js";
+import type { MsgContext } from "./templating.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export type CommandAuthorization = {
   providerId?: ChannelId;

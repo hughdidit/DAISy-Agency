@@ -14,6 +14,7 @@ import {
 } from "./sandbox-formatters.js";
 =======
 import { formatDurationCompact } from "../infra/format-time/format-duration.ts";
+import type { RuntimeEnv } from "../runtime.js";
 import { formatImageMatch, formatSimpleStatus, formatStatus } from "./sandbox-formatters.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 

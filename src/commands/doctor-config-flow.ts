@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
@@ -7,12 +8,21 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { DoctorOptions } from "./doctor-prompter.js";
+=======
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { ZodIssue } from "zod";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   isNumericTelegramUserId,
   normalizeTelegramAllowFromEntry,
 } from "../channels/telegram/allow-from.js";
 import { formatCliCommand } from "../cli/command-format.js";
+<<<<<<< HEAD
 >>>>>>> 7773c5410 (refactor(telegram): share allowFrom normalization)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   MoltbotSchema,
   CONFIG_PATH,

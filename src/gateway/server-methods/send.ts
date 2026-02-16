@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { resolveSessionAgentId } from "../../agents/agent-scope.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import { loadConfig } from "../../config/config.js";

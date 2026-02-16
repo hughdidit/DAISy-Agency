@@ -1,6 +1,7 @@
 import { html } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { AppViewState } from "./app-view-state";
 <<<<<<< HEAD
@@ -28,13 +29,17 @@ import type { AppViewState } from "./app-view-state.ts";
 import type { ThemeTransitionContext } from "./theme-transition.ts";
 import type { ThemeMode } from "./theme.ts";
 import type { SessionsListResult } from "./types.ts";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { t } from "../i18n/index.ts";
 import { refreshChat } from "./app-chat.ts";
 import { syncUrlWithSessionKey } from "./app-settings.ts";
+import type { AppViewState } from "./app-view-state.ts";
 import { OpenClawApp } from "./app.ts";
 import { ChatState, loadChatHistory } from "./controllers/chat.ts";
 import { icons } from "./icons.ts";
 import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation.ts";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
@@ -43,6 +48,11 @@ import { t } from "../i18n/index.ts";
 >>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
 =======
 >>>>>>> e0c45eab4 (style: apply oxfmt formatting)
+=======
+import type { ThemeTransitionContext } from "./theme-transition.ts";
+import type { ThemeMode } from "./theme.ts";
+import type { SessionsListResult } from "./types.ts";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 type SessionDefaultsSnapshot = {
   mainSessionKey?: string;

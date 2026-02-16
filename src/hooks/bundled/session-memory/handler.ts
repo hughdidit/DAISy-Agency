@@ -8,6 +8,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import os from "node:os";
 import { fileURLToPath } from "node:url";
 import type { MoltbotConfig } from "../../../config/config.js";
@@ -16,11 +17,21 @@ import type { OpenClawConfig } from "../../../config/config.js";
 import type { HookHandler } from "../../hooks.js";
 >>>>>>> 4ba9809f1 (test(hooks): stabilize session-memory hook tests)
 import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
+=======
+import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
+import type { OpenClawConfig } from "../../../config/config.js";
+import { resolveStateDir } from "../../../config/paths.js";
+import { createSubsystemLogger } from "../../../logging/subsystem.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveAgentIdFromSessionKey } from "../../../routing/session-key.js";
 import { resolveHookConfig } from "../../config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { HookHandler } from "../../hooks.js";
 =======
+=======
+import type { HookHandler } from "../../hooks.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { generateSlugViaLLM } from "../../llm-slug-generator.js";
 
 const log = createSubsystemLogger("hooks/session-memory");

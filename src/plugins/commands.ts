@@ -5,13 +5,17 @@
  * These commands are processed before built-in commands and before agent invocation.
  */
 
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { logVerbose } from "../globals.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   MoltbotPluginCommandDefinition,
   PluginCommandContext,
   PluginCommandResult,
 } from "./types.js";
-import { logVerbose } from "../globals.js";
 
 type RegisteredPluginCommand = MoltbotPluginCommandDefinition & {
   pluginId: string;

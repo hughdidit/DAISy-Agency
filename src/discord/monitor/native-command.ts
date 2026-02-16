@@ -11,9 +11,14 @@ import {
 } from "@buape/carbon";
 import { ApplicationCommandOptionType, ButtonStyle } from "discord-api-types/v10";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
 =======
+=======
+import { resolveHumanDelayConfig } from "../../agents/identity.js";
+import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
   ChatCommandDefinition,
   CommandArgDefinition,
@@ -21,11 +26,14 @@ import type {
   CommandArgs,
   NativeCommandSpec,
 } from "../../auto-reply/commands-registry.js";
+<<<<<<< HEAD
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   buildCommandTextFromArgs,
   findCommandByNativeName,
@@ -44,6 +52,7 @@ import type {
 } from "../../auto-reply/commands-registry.js";
 import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { MoltbotConfig, loadConfig } from "../../config/config.js";
@@ -51,6 +60,13 @@ import type { MoltbotConfig, loadConfig } from "../../config/config.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
+=======
+import type { ReplyPayload } from "../../auto-reply/types.js";
+import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
+import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
+import type { OpenClawConfig, loadConfig } from "../../config/config.js";
+import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
   readChannelAllowFromStore,

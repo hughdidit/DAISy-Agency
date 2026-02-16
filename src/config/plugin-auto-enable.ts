@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "./config.js";
+=======
+import { normalizeProviderId } from "../agents/model-selection.js";
+import {
+  getChannelPluginCatalogEntry,
+  listChannelPluginCatalogEntries,
+} from "../channels/plugins/catalog.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   getChatChannelMeta,
   listChatChannels,
@@ -14,6 +22,7 @@ import { normalizeProviderId } from "../agents/model-selection.js";
 import { isRecord } from "../utils.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { hasAnyWhatsAppAuth } from "../web/accounts.js";
+import type { OpenClawConfig } from "./config.js";
 
 type PluginEnableChange = {
   pluginId: string;

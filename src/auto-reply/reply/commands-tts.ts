@@ -1,6 +1,9 @@
 import { logVerbose } from "../../globals.js";
+<<<<<<< HEAD
 import type { ReplyPayload } from "../types.js";
 import type { CommandHandler } from "./commands-types.js";
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   getLastTtsAttempt,
   getTtsMaxLength,
@@ -18,6 +21,8 @@ import {
   setTtsProvider,
   textToSpeech,
 } from "../../tts/tts.js";
+import type { ReplyPayload } from "../types.js";
+import type { CommandHandler } from "./commands-types.js";
 
 type ParsedTtsCommand = {
   action: string;

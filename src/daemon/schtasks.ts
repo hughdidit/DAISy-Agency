@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { promisify } from "node:util";
 
 =======
@@ -12,6 +13,8 @@ import { colorize, isRich, theme } from "../terminal/theme.js";
 =======
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 =======
+=======
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { splitArgsPreservingQuotes } from "./arg-split.js";
 <<<<<<< HEAD
 >>>>>>> 108ea4336 (refactor(daemon): share quoted arg splitter)
@@ -28,7 +31,11 @@ import type { GatewayServiceRuntime } from "./service-runtime.js";
 const execFileAsync = promisify(execFile);
 =======
 import { execSchtasks } from "./schtasks-exec.js";
+<<<<<<< HEAD
 >>>>>>> 2004ce919 (refactor(daemon): share schtasks exec helper)
+=======
+import type { GatewayServiceRuntime } from "./service-runtime.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 function resolveTaskName(env: Record<string, string | undefined>): string {
 <<<<<<< HEAD

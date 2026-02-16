@@ -47,10 +47,14 @@ import {
 } from "../identity.js";
 import { sendMessageSignal, sendReadReceiptSignal, sendTypingSignal } from "../send.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { SignalEventHandlerDeps, SignalReceivePayload } from "./event-handler.types.js";
 
 =======
+=======
+import type { SignalEventHandlerDeps, SignalReceivePayload } from "./event-handler.types.js";
+>>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { renderSignalMentions } from "./mentions.js";
 >>>>>>> cfec19df5 (Signal: normalize mention placeholders)
 export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
