@@ -57,6 +57,10 @@ function expectRouterModelFiltering(options: Array<{ value: string }>) {
   );
 }
 
+function createSelectAllMultiselect() {
+  return vi.fn(async (params) => params.options.map((option: { value: string }) => option.value));
+}
+
 describe("promptDefaultModel", () => {
   it("filters internal router models from the selection list", async () => {
     loadModelCatalog.mockResolvedValue(OPENROUTER_CATALOG);
@@ -133,9 +137,7 @@ describe("promptModelAllowlist", () => {
   it("filters internal router models from the selection list", async () => {
     loadModelCatalog.mockResolvedValue(OPENROUTER_CATALOG);
 
-    const multiselect = vi.fn(async (params) =>
-      params.options.map((option: { value: string }) => option.value),
-    );
+    const multiselect = createSelectAllMultiselect();
     const prompter = makePrompter({ multiselect });
     const config = { agents: { defaults: {} } } as MoltbotConfig;
 
@@ -164,9 +166,7 @@ describe("promptModelAllowlist", () => {
       },
     ]);
 
-    const multiselect = vi.fn(async (params) =>
-      params.options.map((option: { value: string }) => option.value),
-    );
+    const multiselect = createSelectAllMultiselect();
     const prompter = makePrompter({ multiselect });
     const config = { agents: { defaults: {} } } as MoltbotConfig;
 
