@@ -84,6 +84,7 @@ const BASE_METHODS = [
   "agent.identity.get",
   "agent.wait",
   "mesh.plan",
+  "mesh.plan.auto",
   "mesh.run",
   "mesh.status",
   "mesh.retry",
