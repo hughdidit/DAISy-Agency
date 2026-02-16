@@ -24,7 +24,15 @@ COPY scripts ./scripts
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+<<<<<<< HEAD
 RUN CLAWDBOT_A2UI_SKIP_MISSING=1 pnpm build
+=======
+RUN pnpm build
+
+# Ensure memory-lancedb extension dependencies are installed.
+# LanceDB has native bindings that may not be hoisted by pnpm in all configurations.
+RUN pnpm install --filter @openclaw/memory-lancedb --prod --no-frozen-lockfile || true
+>>>>>>> 717caa97f (fix: remove stderr suppression so install failures are visible in build logs)
 # Force pnpm for UI build (Bun may fail on ARM/Synology architectures)
 ENV CLAWDBOT_PREFER_PNPM=1
 RUN pnpm ui:install
