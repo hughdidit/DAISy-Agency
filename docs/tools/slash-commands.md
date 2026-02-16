@@ -66,6 +66,10 @@ Text + native (when enabled):
 - `/allowlist` (list/add/remove allowlist entries)
 - `/approve <id> allow-once|allow-always|deny` (resolve exec approval prompts)
 - `/context [list|detail|json]` (explain “context”; `detail` shows per-file + per-tool + per-skill + system prompt size)
+<<<<<<< HEAD
+=======
+- `/export-session [path]` (alias: `/export`) (export current session to HTML with full system prompt)
+>>>>>>> 170e6f33b (docs(commands): add export-session aliases to slash command list)
 - `/whoami` (show your sender id; alias: `/id`)
 - `/subagents list|stop|log|info|send` (inspect, stop, log, or message sub-agent runs for the current session)
 - `/config show|get|set|unset` (persist config to disk, owner-only; requires `commands.config: true`)
