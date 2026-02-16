@@ -2067,6 +2067,7 @@ public struct SkillsUpdateParams: Codable, Sendable {
 public struct CronJob: Codable, Sendable {
     public let id: String
     public let agentid: String?
+    public let sessionkey: String?
     public let name: String
     public let description: String?
     public let enabled: Bool
@@ -2083,6 +2084,7 @@ public struct CronJob: Codable, Sendable {
     public init(
         id: String,
         agentid: String?,
+        sessionkey: String?,
         name: String,
         description: String?,
         enabled: Bool,
@@ -2098,6 +2100,7 @@ public struct CronJob: Codable, Sendable {
     ) {
         self.id = id
         self.agentid = agentid
+        self.sessionkey = sessionkey
         self.name = name
         self.description = description
         self.enabled = enabled
@@ -2114,6 +2117,7 @@ public struct CronJob: Codable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case id
         case agentid = "agentId"
+        case sessionkey = "sessionKey"
         case name
         case description
         case enabled
@@ -2148,6 +2152,7 @@ public struct CronStatusParams: Codable, Sendable {
 public struct CronAddParams: Codable, Sendable {
     public let name: String
     public let agentid: AnyCodable?
+    public let sessionkey: AnyCodable?
     public let description: String?
     public let enabled: Bool?
     public let deleteafterrun: Bool?
@@ -2160,6 +2165,7 @@ public struct CronAddParams: Codable, Sendable {
     public init(
         name: String,
         agentid: AnyCodable?,
+        sessionkey: AnyCodable?,
         description: String?,
         enabled: Bool?,
         deleteafterrun: Bool?,
@@ -2171,6 +2177,7 @@ public struct CronAddParams: Codable, Sendable {
     ) {
         self.name = name
         self.agentid = agentid
+        self.sessionkey = sessionkey
         self.description = description
         self.enabled = enabled
         self.deleteafterrun = deleteafterrun
@@ -2183,6 +2190,7 @@ public struct CronAddParams: Codable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case name
         case agentid = "agentId"
+        case sessionkey = "sessionKey"
         case description
         case enabled
         case deleteafterrun = "deleteAfterRun"
