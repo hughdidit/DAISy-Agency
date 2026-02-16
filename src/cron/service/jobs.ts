@@ -118,8 +118,15 @@ function normalizeJobTickState(params: { state: CronServiceState; job: CronJob; 
   return { changed, skip: false };
 }
 
+<<<<<<< HEAD
 export function recomputeNextRuns(state: CronServiceState): boolean {
 >>>>>>> 04f695e56 (fix(cron): isolate schedule errors to prevent one bad job from breaking all jobs (#14385))
+=======
+function walkSchedulableJobs(
+  state: CronServiceState,
+  fn: (params: { job: CronJob; nowMs: number }) => boolean,
+): boolean {
+>>>>>>> 2679089e9 (refactor(cron): dedupe next-run recompute loop)
   if (!state.store) {
     return;
   }
@@ -153,7 +160,20 @@ export function recomputeNextRuns(state: CronServiceState): boolean {
     if (tick.skip) {
       continue;
     }
+<<<<<<< HEAD
 >>>>>>> 6b400eca5 (refactor(cron): share job tick state normalization)
+=======
+    if (fn({ job, nowMs: now })) {
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+export function recomputeNextRuns(state: CronServiceState): boolean {
+  return walkSchedulableJobs(state, ({ job, nowMs: now }) => {
+    let changed = false;
+>>>>>>> 2679089e9 (refactor(cron): dedupe next-run recompute loop)
     // Only recompute if nextRunAtMs is missing or already past-due.
     // Preserving a still-future nextRunAtMs avoids accidentally advancing
     // a job that hasn't fired yet (e.g. during restart recovery).
@@ -193,11 +213,16 @@ export function recomputeNextRuns(state: CronServiceState): boolean {
       }
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
     }
+<<<<<<< HEAD
     job.state.nextRunAtMs = computeJobNextRunAtMs(job, now);
   }
 <<<<<<< HEAD
 =======
   return changed;
+=======
+    return changed;
+  });
+>>>>>>> 2679089e9 (refactor(cron): dedupe next-run recompute loop)
 }
 
 /**
@@ -208,19 +233,8 @@ export function recomputeNextRuns(state: CronServiceState): boolean {
  * (see #13992).
  */
 export function recomputeNextRunsForMaintenance(state: CronServiceState): boolean {
-  if (!state.store) {
-    return false;
-  }
-  let changed = false;
-  const now = state.deps.nowMs();
-  for (const job of state.store.jobs) {
-    const tick = normalizeJobTickState({ state, job, nowMs: now });
-    if (tick.changed) {
-      changed = true;
-    }
-    if (tick.skip) {
-      continue;
-    }
+  return walkSchedulableJobs(state, ({ job, nowMs: now }) => {
+    let changed = false;
     // Only compute missing nextRunAtMs, do NOT recompute existing ones.
     // If a job was past-due but not found by findDueJobs, recomputing would
     // cause it to be silently skipped.
@@ -231,9 +245,14 @@ export function recomputeNextRunsForMaintenance(state: CronServiceState): boolea
         changed = true;
       }
     }
+<<<<<<< HEAD
   }
   return changed;
 >>>>>>> 6b400eca5 (refactor(cron): share job tick state normalization)
+=======
+    return changed;
+  });
+>>>>>>> 2679089e9 (refactor(cron): dedupe next-run recompute loop)
 }
 
 export function nextWakeAtMs(state: CronServiceState) {
