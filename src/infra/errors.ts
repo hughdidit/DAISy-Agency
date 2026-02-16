@@ -1,3 +1,5 @@
+import { redactSensitiveText } from "../logging/redact.js";
+
 export function extractErrorCode(err: unknown): string | undefined {
   if (!err || typeof err !== "object") return undefined;
   const code = (err as { code?: unknown }).code;
@@ -7,7 +9,9 @@ export function extractErrorCode(err: unknown): string | undefined {
 }
 
 export function formatErrorMessage(err: unknown): string {
+  let formatted: string;
   if (err instanceof Error) {
+<<<<<<< HEAD
     return err.message || err.name || "Error";
   }
   if (typeof err === "string") return err;
@@ -18,7 +22,22 @@ export function formatErrorMessage(err: unknown): string {
     return JSON.stringify(err);
   } catch {
     return Object.prototype.toString.call(err);
+=======
+    formatted = err.message || err.name || "Error";
+  } else if (typeof err === "string") {
+    formatted = err;
+  } else if (typeof err === "number" || typeof err === "boolean" || typeof err === "bigint") {
+    formatted = String(err);
+  } else {
+    try {
+      formatted = JSON.stringify(err);
+    } catch {
+      formatted = Object.prototype.toString.call(err);
+    }
+>>>>>>> cf6990701 (fix(security): redact Telegram bot tokens in errors)
   }
+  // Security: best-effort token redaction before returning/logging.
+  return redactSensitiveText(formatted);
 }
 
 export function formatUncaughtError(err: unknown): string {
@@ -26,7 +45,8 @@ export function formatUncaughtError(err: unknown): string {
     return formatErrorMessage(err);
   }
   if (err instanceof Error) {
-    return err.stack ?? err.message ?? err.name;
+    const stack = err.stack ?? err.message ?? err.name;
+    return redactSensitiveText(stack);
   }
   return formatErrorMessage(err);
 }
