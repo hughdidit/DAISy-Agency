@@ -1,7 +1,15 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { AnyMessageContent, WAPresence } from "@whiskeysockets/baileys";
 =======
 import type { AnyMessageContent, MiscMessageGenerationOptions, WAPresence } from "@whiskeysockets/baileys";
+=======
+import type {
+  AnyMessageContent,
+  MiscMessageGenerationOptions,
+  WAPresence,
+} from "@whiskeysockets/baileys";
+>>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
 import type { ActiveWebSendOptions } from "../active-listener.js";
 >>>>>>> 1bef2fc68 (fix(whatsapp): allow per-message link preview override\n\nWhatsApp messages default to enabling link previews for URLs. This adds\nsupport for overriding this behavior per-message via the \nparameter (e.g. from  tool options), consistent with Telegram.\n\nFix: Updated internal WhatsApp Web API layers to pass  option\ndown to Baileys .)
 import { recordChannelActivity } from "../../infra/channel-activity.js";
@@ -72,9 +80,11 @@ export function createWebSendApi(params: {
       } else {
         payload = { text };
       }
-      const miscOptions: MiscMessageGenerationOptions = {
-        linkPreview: sendOptions?.linkPreview === false ? null : undefined,
-      };
+      const miscOptions: MiscMessageGenerationOptions | undefined =
+        sendOptions?.linkPreview === false
+          ? // Baileys typing removed linkPreview from public options, but runtime still accepts it.
+            ({ linkPreview: null } as unknown as MiscMessageGenerationOptions)
+          : undefined;
       const result = await params.sock.sendMessage(jid, payload, miscOptions);
       const accountId = sendOptions?.accountId ?? params.defaultAccountId;
       recordWhatsAppOutbound(accountId);

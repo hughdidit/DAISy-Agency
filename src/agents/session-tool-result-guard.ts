@@ -1,10 +1,16 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import type { TextContent } from "@mariozechner/pi-ai";
+import type { SessionManager } from "@mariozechner/pi-coding-agent";
+>>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
 import type {
   PluginHookBeforeMessageWriteEvent,
   PluginHookBeforeMessageWriteResult,
 } from "../plugins/types.js";
+<<<<<<< HEAD
 import type { TextContent } from "@mariozechner/pi-ai";
 >>>>>>> 15fe87e6b (feat: add before_message_write plugin hook)
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
@@ -13,6 +19,8 @@ import type { SessionManager } from "@mariozechner/pi-coding-agent";
 import { makeMissingToolResult } from "./session-transcript-repair.js";
 import { emitSessionTranscriptUpdate } from "../sessions/transcript-events.js";
 =======
+=======
+>>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
 import { emitSessionTranscriptUpdate } from "../sessions/transcript-events.js";
 import { makeMissingToolResult, sanitizeToolCallInputs } from "./session-transcript-repair.js";
 <<<<<<< HEAD
@@ -135,10 +143,16 @@ export function installSessionToolResultGuard(
    * or null if the message should be blocked.
    */
   const applyBeforeWriteHook = (msg: AgentMessage): AgentMessage | null => {
-    if (!beforeWrite) return msg;
+    if (!beforeWrite) {
+      return msg;
+    }
     const result = beforeWrite({ message: msg });
-    if (result?.block) return null;
-    if (result?.message) return result.message;
+    if (result?.block) {
+      return null;
+    }
+    if (result?.message) {
+      return result.message;
+    }
     return msg;
   };
 
@@ -205,7 +219,9 @@ export function installSessionToolResultGuard(
           isSynthetic: false,
         }),
       );
-      if (!persisted) return undefined;
+      if (!persisted) {
+        return undefined;
+      }
       return originalAppend(persisted as never);
     }
 
@@ -229,7 +245,9 @@ export function installSessionToolResultGuard(
     const result = originalAppend(nextMessage as never);
 =======
     const finalMessage = applyBeforeWriteHook(persistMessage(nextMessage));
-    if (!finalMessage) return undefined;
+    if (!finalMessage) {
+      return undefined;
+    }
     const result = originalAppend(finalMessage as never);
 >>>>>>> 15fe87e6b (feat: add before_message_write plugin hook)
 

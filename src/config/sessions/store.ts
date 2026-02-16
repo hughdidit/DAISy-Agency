@@ -137,11 +137,37 @@ export function loadSessionStore(
   // Cache miss or disabled - load from disk
   let store: Record<string, SessionEntry> = {};
   let mtimeMs = getFileMtimeMs(storePath);
+<<<<<<< HEAD
   try {
     const raw = fs.readFileSync(storePath, "utf-8");
     const parsed = JSON.parse(raw);
     if (isSessionStoreRecord(parsed)) {
       store = parsed;
+=======
+  const maxReadAttempts = process.platform === "win32" ? 3 : 1;
+  const retryBuf = maxReadAttempts > 1 ? new Int32Array(new SharedArrayBuffer(4)) : undefined;
+  for (let attempt = 0; attempt < maxReadAttempts; attempt++) {
+    try {
+      const raw = fs.readFileSync(storePath, "utf-8");
+      if (raw.length === 0 && attempt < maxReadAttempts - 1) {
+        // File is empty — likely caught mid-write; retry after a brief pause.
+        Atomics.wait(retryBuf!, 0, 0, 50);
+        continue;
+      }
+      const parsed = JSON.parse(raw);
+      if (isSessionStoreRecord(parsed)) {
+        store = parsed;
+      }
+      mtimeMs = getFileMtimeMs(storePath) ?? mtimeMs;
+      break;
+    } catch {
+      // File missing, locked, or transiently corrupt — retry on Windows.
+      if (attempt < maxReadAttempts - 1) {
+        Atomics.wait(retryBuf!, 0, 0, 50);
+        continue;
+      }
+      // Final attempt failed; proceed with an empty store.
+>>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
     }
     mtimeMs = getFileMtimeMs(storePath) ?? mtimeMs;
   } catch {
@@ -519,7 +545,33 @@ async function saveSessionStoreUnlocked(
   // We serialize writers via the session-store lock instead.
   if (process.platform === "win32") {
     try {
+<<<<<<< HEAD
       await fs.promises.writeFile(storePath, json, "utf-8");
+=======
+      await fs.promises.writeFile(tmp, json, "utf-8");
+      // Retry rename up to 5 times with increasing backoff — rename can fail
+      // on Windows when the target is locked by a concurrent reader.  We do
+      // NOT fall back to writeFile or copyFile because both use CREATE_ALWAYS
+      // on Windows, which truncates the target to 0 bytes before writing —
+      // reintroducing the exact race this fix addresses.  If all attempts
+      // fail, the temp file is cleaned up and the next save cycle (which is
+      // serialized by the write lock) will succeed.
+      for (let i = 0; i < 5; i++) {
+        try {
+          await fs.promises.rename(tmp, storePath);
+          break;
+        } catch {
+          if (i < 4) {
+            await new Promise((r) => setTimeout(r, 50 * (i + 1)));
+          }
+          // Final attempt failed — skip this save.  The write lock ensures
+          // the next save will retry with fresh data.  Log for diagnostics.
+          if (i === 4) {
+            console.warn(`[session-store] rename failed after 5 attempts: ${storePath}`);
+          }
+        }
+      }
+>>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
     } catch (err) {
       const code =
         err && typeof err === "object" && "code" in err
