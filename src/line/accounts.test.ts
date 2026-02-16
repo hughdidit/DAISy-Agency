@@ -114,6 +114,7 @@ describe("LINE accounts", () => {
 
       expect(ids).toContain(DEFAULT_ACCOUNT_ID);
     });
+<<<<<<< HEAD
 
 <<<<<<< HEAD
     it("returns named accounts", () => {
@@ -144,6 +145,8 @@ describe("LINE accounts", () => {
 
       expect(ids).toContain(DEFAULT_ACCOUNT_ID);
     });
+=======
+>>>>>>> 850557721 (test: remove redundant line account-id env listing case)
   });
 
   describe("resolveDefaultLineAccountId", () => {
