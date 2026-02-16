@@ -164,7 +164,7 @@ describe("dispatchReplyFromConfig", () => {
     expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
   });
 
-  it("does not provide onToolResult in group sessions", async () => {
+  it("suppresses group tool summaries but still forwards tool media", async () => {
     mocks.tryFastAbortFromMessage.mockResolvedValue({
       handled: false,
       aborted: false,
@@ -181,11 +181,23 @@ describe("dispatchReplyFromConfig", () => {
       opts: GetReplyOptions | undefined,
       _cfg: OpenClawConfig,
     ) => {
-      expect(opts?.onToolResult).toBeUndefined();
+      expect(opts?.onToolResult).toBeDefined();
+      await opts?.onToolResult?.({ text: "🔧 exec: ls" });
+      await opts?.onToolResult?.({
+        text: "NO_REPLY",
+        mediaUrls: ["https://example.com/tts-group.opus"],
+      });
       return { text: "hi" } satisfies ReplyPayload;
     };
 
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
+
+    expect(dispatcher.sendToolResult).toHaveBeenCalledTimes(1);
+    const sent = (dispatcher.sendToolResult as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as
+      | ReplyPayload
+      | undefined;
+    expect(sent?.mediaUrls).toEqual(["https://example.com/tts-group.opus"]);
+    expect(sent?.text).toBeUndefined();
     expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
   });
 
@@ -218,7 +230,7 @@ describe("dispatchReplyFromConfig", () => {
     expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
   });
 
-  it("does not provide onToolResult for native slash commands", async () => {
+  it("suppresses native tool summaries but still forwards tool media", async () => {
     mocks.tryFastAbortFromMessage.mockResolvedValue({
       handled: false,
       aborted: false,
@@ -236,11 +248,22 @@ describe("dispatchReplyFromConfig", () => {
       opts: GetReplyOptions | undefined,
       _cfg: OpenClawConfig,
     ) => {
-      expect(opts?.onToolResult).toBeUndefined();
+      expect(opts?.onToolResult).toBeDefined();
+      await opts?.onToolResult?.({ text: "🔧 tools/sessions_send" });
+      await opts?.onToolResult?.({
+        mediaUrl: "https://example.com/tts-native.opus",
+      });
       return { text: "hi" } satisfies ReplyPayload;
     };
 
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
+
+    expect(dispatcher.sendToolResult).toHaveBeenCalledTimes(1);
+    const sent = (dispatcher.sendToolResult as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as
+      | ReplyPayload
+      | undefined;
+    expect(sent?.mediaUrl).toBe("https://example.com/tts-native.opus");
+    expect(sent?.text).toBeUndefined();
     expect(dispatcher.sendFinalReply).toHaveBeenCalledTimes(1);
   });
 
