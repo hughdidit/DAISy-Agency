@@ -2,6 +2,7 @@ import type { Bot } from "grammy";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { OpenClawConfig } from "../config/config.js";
@@ -16,6 +17,8 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 import type { StickerMetadata, TelegramContext } from "./bot/types.js";
 >>>>>>> 966e5560f (revert(telegram): undo accidental merge of PR #18564)
+=======
+>>>>>>> 9c5f08244 (chore: Format files.)
 import { resolveAckReaction } from "../agents/identity.js";
 import {
   findModelInCatalog,
@@ -35,17 +38,23 @@ import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import { buildMentionRegexes, matchesMentionWithExplicit } from "../auto-reply/reply/mentions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { MsgContext } from "../auto-reply/templating.js";
 =======
 >>>>>>> 966e5560f (revert(telegram): undo accidental merge of PR #18564)
+=======
+import type { MsgContext } from "../auto-reply/templating.js";
+>>>>>>> 9c5f08244 (chore: Format files.)
 import { shouldAckReaction as shouldAckReactionGate } from "../channels/ack-reactions.js";
 import { resolveControlCommandGate } from "../channels/command-gating.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatLocationText, toLocationContext } from "../channels/location.js";
 import { recordInboundSession } from "../channels/session.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { loadConfig } from "../config/config.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../config/sessions.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
@@ -54,6 +63,9 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 =======
 >>>>>>> 966e5560f (revert(telegram): undo accidental merge of PR #18564)
+=======
+import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
+>>>>>>> 9c5f08244 (chore: Format files.)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
 import { buildPairingReply } from "../pairing/pairing-messages.js";
@@ -85,6 +97,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   firstDefined,
   isSenderAllowed,
@@ -101,6 +114,9 @@ import type { StickerMetadata, TelegramContext } from "./bot/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 966e5560f (revert(telegram): undo accidental merge of PR #18564)
+=======
+import type { StickerMetadata, TelegramContext } from "./bot/types.js";
+>>>>>>> 9c5f08244 (chore: Format files.)
 import { evaluateTelegramGroupBaseAccess } from "./group-access.js";
 >>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
 

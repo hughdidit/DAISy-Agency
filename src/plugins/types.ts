@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 import type { Command } from "commander";
@@ -14,6 +15,11 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { Command } from "commander";
 import type { IncomingMessage, ServerResponse } from "node:http";
 >>>>>>> 0c1c34c95 (refactor(plugins): split before-agent hooks by model and prompt phases)
+=======
+import type { IncomingMessage, ServerResponse } from "node:http";
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import type { Command } from "commander";
+>>>>>>> 9c5f08244 (chore: Format files.)
 import type { AuthProfileCredential, OAuthCredential } from "../agents/auth-profiles/types.js";
 import type { AnyAgentTool } from "../agents/tools/common.js";
 import type { ChannelDock } from "../channels/dock.js";

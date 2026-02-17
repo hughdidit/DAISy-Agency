@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -23,16 +24,21 @@ import type { MoltbotConfig } from "../../config/config.js";
 import path from "node:path";
 =======
 >>>>>>> 391796a3f (fix(agents): restore multi-image image tool schema contract)
+=======
+import path from "node:path";
+>>>>>>> 9c5f08244 (chore: Format files.)
 import { type Api, type Context, complete, type Model } from "@mariozechner/pi-ai";
 import { Type } from "@sinclair/typebox";
-import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 391796a3f (fix(agents): restore multi-image image tool schema contract)
+=======
+>>>>>>> 9c5f08244 (chore: Format files.)
 import { resolveUserPath } from "../../utils.js";
 import { getDefaultLocalRoots, loadWebMedia } from "../../web/media.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "../auth-profiles.js";
@@ -48,7 +54,9 @@ import type { AnyAgentTool } from "./common.js";
 =======
 import { ensureOpenClawModelsJson } from "../models-config.js";
 import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
+import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
 import { normalizeWorkspaceDir } from "../workspace-dir.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
@@ -57,6 +65,9 @@ import type { AnyAgentTool } from "./common.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 391796a3f (fix(agents): restore multi-image image tool schema contract)
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 9c5f08244 (chore: Format files.)
 import {
   coerceImageAssistantText,
   coerceImageModelConfig,
