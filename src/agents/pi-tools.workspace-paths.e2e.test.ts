@@ -174,8 +174,13 @@ describe.sequential("sandboxed workspace paths", () => {
           sessionKey: "sandbox:test",
           workspaceDir: sandboxDir,
           agentWorkspaceDir: workspaceDir,
+<<<<<<< HEAD
           workspaceAccess: "rw",
           containerName: "moltbot-sbx-test",
+=======
+          workspaceAccess: "rw" as const,
+          containerName: "openclaw-sbx-test",
+>>>>>>> 688f86bf2 (chore: Fix types in tests 43/N.)
           containerWorkdir: "/workspace",
           docker: {
             image: "moltbot-sandbox:bookworm-slim",

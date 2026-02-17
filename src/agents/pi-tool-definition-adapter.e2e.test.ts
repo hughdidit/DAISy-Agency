@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { toToolDefinitions } from "./pi-tool-definition-adapter.js";
 
 type ToolExecute = ReturnType<typeof toToolDefinitions>[number]["execute"];
-const extensionContext = {} as Parameters<ToolExecute>[3];
+const extensionContext = {} as Parameters<ToolExecute>[4];
 
 describe("pi tool definition adapter", () => {
   it("wraps tool errors into a tool result", async () => {
@@ -20,14 +20,12 @@ describe("pi tool definition adapter", () => {
     } satisfies AgentTool;
 
     const defs = toToolDefinitions([tool]);
-    const args: Parameters<(typeof defs)[number]["execute"]> = [
-      "call1",
-      {},
-      undefined,
-      extensionContext,
-      undefined,
-    ];
-    const result = await defs[0].execute(...args);
+    const def = defs[0];
+    if (!def) {
+      throw new Error("missing tool definition");
+    }
+    const execute = (...args: Parameters<(typeof defs)[0]["execute"]>) => def.execute(...args);
+    const result = await execute("call1", {}, undefined, undefined, extensionContext);
 
     expect(result.details).toMatchObject({
       status: "error",
@@ -49,14 +47,12 @@ describe("pi tool definition adapter", () => {
     } satisfies AgentTool;
 
     const defs = toToolDefinitions([tool]);
-    const args: Parameters<(typeof defs)[number]["execute"]> = [
-      "call2",
-      {},
-      undefined,
-      extensionContext,
-      undefined,
-    ];
-    const result = await defs[0].execute(...args);
+    const def = defs[0];
+    if (!def) {
+      throw new Error("missing tool definition");
+    }
+    const execute = (...args: Parameters<(typeof defs)[0]["execute"]>) => def.execute(...args);
+    const result = await execute("call2", {}, undefined, undefined, extensionContext);
 
     expect(result.details).toMatchObject({
       status: "error",

@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
+import { Type } from "@sinclair/typebox";
 import { describe, expect, it, vi } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
 import { createMoltbotTools } from "./moltbot-tools.js";
@@ -65,15 +66,12 @@ describe("createOpenClawCodingTools", () => {
     it("adds Claude-style aliases to schemas without dropping metadata", () => {
       const base: AgentTool = {
         name: "write",
+        label: "write",
         description: "test",
-        parameters: {
-          type: "object",
-          required: ["path", "content"],
-          properties: {
-            path: { type: "string", description: "Path" },
-            content: { type: "string", description: "Body" },
-          },
-        },
+        parameters: Type.Object({
+          path: Type.String({ description: "Path" }),
+          content: Type.String({ description: "Body" }),
+        }),
         execute: vi.fn(),
       };
 
@@ -93,15 +91,12 @@ describe("createOpenClawCodingTools", () => {
       const execute = vi.fn(async (_id, args) => args);
       const tool: AgentTool = {
         name: "write",
+        label: "write",
         description: "test",
-        parameters: {
-          type: "object",
-          required: ["path", "content"],
-          properties: {
-            path: { type: "string" },
-            content: { type: "string" },
-          },
-        },
+        parameters: Type.Object({
+          path: Type.String(),
+          content: Type.String(),
+        }),
         execute,
       };
 

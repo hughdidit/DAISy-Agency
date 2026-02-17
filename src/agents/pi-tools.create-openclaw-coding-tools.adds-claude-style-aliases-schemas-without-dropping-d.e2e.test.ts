@@ -82,8 +82,13 @@ describe("createMoltbotCodingTools", () => {
       sessionKey: "sandbox:test",
       workspaceDir: path.join(os.tmpdir(), "moltbot-sandbox"),
       agentWorkspaceDir: path.join(os.tmpdir(), "moltbot-workspace"),
+<<<<<<< HEAD
       workspaceAccess: "none",
       containerName: "moltbot-sbx-test",
+=======
+      workspaceAccess: "none" as const,
+      containerName: "openclaw-sbx-test",
+>>>>>>> 688f86bf2 (chore: Fix types in tests 43/N.)
       containerWorkdir: "/workspace",
       docker: {
         image: "moltbot-sandbox:bookworm-slim",
@@ -113,8 +118,13 @@ describe("createMoltbotCodingTools", () => {
       sessionKey: "sandbox:test",
       workspaceDir: path.join(os.tmpdir(), "moltbot-sandbox"),
       agentWorkspaceDir: path.join(os.tmpdir(), "moltbot-workspace"),
+<<<<<<< HEAD
       workspaceAccess: "ro",
       containerName: "moltbot-sbx-test",
+=======
+      workspaceAccess: "ro" as const,
+      containerName: "openclaw-sbx-test",
+>>>>>>> 688f86bf2 (chore: Fix types in tests 43/N.)
       containerWorkdir: "/workspace",
       docker: {
         image: "moltbot-sandbox:bookworm-slim",
