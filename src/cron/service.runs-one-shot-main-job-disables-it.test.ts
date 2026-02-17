@@ -20,9 +20,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import type { HeartbeatRunResult } from "../infra/heartbeat-wake.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { CronEvent } from "./service.js";
 >>>>>>> 97cde1481 (perf(test): stop polling cron job list)
+=======
+import type { CronEvent, CronServiceDeps } from "./service.js";
+>>>>>>> 058eb8576 (chore: Fix types in tests 10/N.)
 import { CronService } from "./service.js";
 import { createNoopLogger, installCronTestHooks } from "./service.test-harness.js";
 
@@ -219,7 +223,7 @@ vi.mock("node:fs", async (importOriginal) => {
       }
       fsState.entries.delete(absInMock(p));
     },
-  } satisfies typeof actual.promises;
+  } as unknown as typeof actual.promises;
 
   const wrapped = { ...actual, promises };
   return { ...wrapped, default: wrapped };
@@ -298,8 +302,8 @@ function createCronEventHarness() {
 >>>>>>> 97cde1481 (perf(test): stop polling cron job list)
 
 type CronHarnessOptions = {
-  runIsolatedAgentJob?: ReturnType<typeof vi.fn>;
-  runHeartbeatOnce?: ReturnType<typeof vi.fn>;
+  runIsolatedAgentJob?: CronServiceDeps["runIsolatedAgentJob"];
+  runHeartbeatOnce?: NonNullable<CronServiceDeps["runHeartbeatOnce"]>;
   nowMs?: () => number;
   wakeNowHeartbeatBusyMaxWaitMs?: number;
   wakeNowHeartbeatBusyRetryDelayMs?: number;
@@ -327,7 +331,11 @@ async function createCronHarness(options: CronHarnessOptions = {}) {
     enqueueSystemEvent,
     requestHeartbeatNow,
     ...(options.runHeartbeatOnce ? { runHeartbeatOnce: options.runHeartbeatOnce } : {}),
-    runIsolatedAgentJob: options.runIsolatedAgentJob ?? vi.fn(async () => ({ status: "ok" })),
+    runIsolatedAgentJob:
+      options.runIsolatedAgentJob ??
+      (vi.fn(async (_params: { job: unknown; message: string }) => ({
+        status: "ok",
+      })) as unknown as CronServiceDeps["runIsolatedAgentJob"]),
     ...(events ? { onEvent: events.onEvent } : {}),
   });
   await cron.start();
@@ -342,7 +350,9 @@ async function createMainOneShotHarness() {
   return { ...harness, events: harness.events };
 }
 
-async function createIsolatedAnnounceHarness(runIsolatedAgentJob: ReturnType<typeof vi.fn>) {
+async function createIsolatedAnnounceHarness(
+  runIsolatedAgentJob: CronServiceDeps["runIsolatedAgentJob"],
+) {
   const harness = await createCronHarness({
     runIsolatedAgentJob,
   });
@@ -354,7 +364,7 @@ async function createIsolatedAnnounceHarness(runIsolatedAgentJob: ReturnType<typ
 
 async function createWakeModeNowMainHarness(options: {
   nowMs?: () => number;
-  runHeartbeatOnce: ReturnType<typeof vi.fn>;
+  runHeartbeatOnce: NonNullable<CronServiceDeps["runHeartbeatOnce"]>;
   wakeNowHeartbeatBusyMaxWaitMs?: number;
   wakeNowHeartbeatBusyRetryDelayMs?: number;
 }) {
@@ -558,7 +568,9 @@ describe("CronService", () => {
     );
     expect(job.state.runningAtMs).toBeTypeOf("number");
 
-    resolveHeartbeat?.({ status: "ran", durationMs: 123 });
+    if (typeof resolveHeartbeat === "function") {
+      resolveHeartbeat({ status: "ran", durationMs: 123 });
+    }
     await runPromise;
 
     expect(job.state.lastStatus).toBe("ok");
@@ -838,7 +850,9 @@ describe("CronService", () => {
       log: noopLogger,
       enqueueSystemEvent: vi.fn(),
       requestHeartbeatNow: vi.fn(),
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
+      runIsolatedAgentJob: vi.fn(async (_params: { job: unknown; message: string }) => ({
+        status: "ok",
+      })) as unknown as CronServiceDeps["runIsolatedAgentJob"],
     });
 
     await cron.start();
@@ -900,7 +914,9 @@ describe("CronService", () => {
       log: noopLogger,
       enqueueSystemEvent,
       requestHeartbeatNow,
-      runIsolatedAgentJob: vi.fn(async () => ({ status: "ok" })),
+      runIsolatedAgentJob: vi.fn(async (_params: { job: unknown; message: string }) => ({
+        status: "ok",
+      })) as unknown as CronServiceDeps["runIsolatedAgentJob"],
       onEvent: events.onEvent,
     });
 

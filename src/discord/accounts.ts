@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
@@ -11,6 +12,11 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { DiscordAccountConfig, DiscordActionConfig } from "../config/types.js";
 import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
 >>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
+=======
+import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { DiscordAccountConfig, DiscordActionConfig } from "../config/types.js";
+>>>>>>> 058eb8576 (chore: Fix types in tests 10/N.)
 import { normalizeAccountId } from "../routing/session-key.js";
 import { resolveDiscordToken } from "./token.js";
 
