@@ -210,7 +210,13 @@ export function buildSandboxCreateArgs(params: {
     args.push("--user", params.cfg.user);
   }
   for (const [key, value] of Object.entries(params.cfg.env ?? {})) {
+<<<<<<< HEAD
     if (!key.trim()) continue;
+=======
+    if (!key.trim()) {
+      continue;
+    }
+>>>>>>> 901d4cb31 (revert: accidental merge of OC-09 sandbox env sanitization change)
     args.push("--env", key + "=" + value);
   }
   for (const cap of params.cfg.capDrop) {
