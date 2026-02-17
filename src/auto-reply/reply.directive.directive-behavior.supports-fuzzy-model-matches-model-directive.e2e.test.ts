@@ -1,6 +1,7 @@
 import "./reply.directive.directive-behavior.e2e-mocks.js";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   assertModelSelection,
   installDirectiveBehaviorE2EHooks,
@@ -9,6 +10,7 @@ import {
 } from "./reply.directive.directive-behavior.e2e-harness.js";
 import { getReplyFromConfig } from "./reply.js";
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 const MAIN_SESSION_KEY = "agent:main:main";
@@ -54,6 +56,20 @@ function assertModelSelection(
 =======
 >>>>>>> 2b9a501b7 (refactor(test): dedupe directive behavior e2e setup)
 =======
+=======
+function makeModelDefinition(id: string, name: string) {
+  return {
+    id,
+    name,
+    reasoning: false,
+    input: ["text"],
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: 200_000,
+    maxTokens: 8192,
+  };
+}
+
+>>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
 function makeMoonshotConfig(home: string, storePath: string) {
   return {
     agents: {
@@ -73,12 +89,12 @@ function makeMoonshotConfig(home: string, storePath: string) {
           baseUrl: "https://api.moonshot.ai/v1",
           apiKey: "sk-test",
           api: "openai-completions",
-          models: [{ id: "kimi-k2-0905-preview", name: "Kimi K2" }],
+          models: [makeModelDefinition("kimi-k2-0905-preview", "Kimi K2")],
         },
       },
     },
     session: { store: storePath },
-  };
+  } as unknown as OpenClawConfig;
 }
 
 >>>>>>> a54707b86 (refactor(test): dedupe fuzzy model directive config)
@@ -303,18 +319,18 @@ describe("directive behavior", () => {
                 baseUrl: "https://api.minimax.io/anthropic",
                 apiKey: "sk-test",
                 api: "anthropic-messages",
-                models: [{ id: "MiniMax-M2.1", name: "MiniMax M2.1" }],
+                models: [makeModelDefinition("MiniMax-M2.1", "MiniMax M2.1")],
               },
               lmstudio: {
                 baseUrl: "http://127.0.0.1:1234/v1",
                 apiKey: "lmstudio",
                 api: "openai-responses",
-                models: [{ id: "minimax-m2.1-gs32", name: "MiniMax M2.1 GS32" }],
+                models: [makeModelDefinition("minimax-m2.1-gs32", "MiniMax M2.1 GS32")],
               },
             },
           },
           session: { store: storePath },
-        },
+        } as unknown as OpenClawConfig,
       );
 
       assertModelSelection(storePath);
@@ -347,17 +363,14 @@ describe("directive behavior", () => {
                 apiKey: "sk-test",
                 api: "anthropic-messages",
                 models: [
-                  { id: "MiniMax-M2.1", name: "MiniMax M2.1" },
-                  {
-                    id: "MiniMax-M2.1-lightning",
-                    name: "MiniMax M2.1 Lightning",
-                  },
+                  makeModelDefinition("MiniMax-M2.1", "MiniMax M2.1"),
+                  makeModelDefinition("MiniMax-M2.1-lightning", "MiniMax M2.1 Lightning"),
                 ],
               },
             },
           },
           session: { store: storePath },
-        },
+        } as unknown as OpenClawConfig,
       );
 
       assertModelSelection(storePath);

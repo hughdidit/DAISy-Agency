@@ -62,7 +62,11 @@ describe("buildStatusMessage", () => {
             },
           },
         },
+<<<<<<< HEAD
       } as MoltbotConfig,
+=======
+      } as unknown as OpenClawConfig,
+>>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       agent: {
         model: "anthropic/pi:opus",
         contextTokens: 32_000,
@@ -113,7 +117,11 @@ describe("buildStatusMessage", () => {
             { id: "discord", sandbox: { mode: "all" } },
           ],
         },
+<<<<<<< HEAD
       } as MoltbotConfig,
+=======
+      } as unknown as OpenClawConfig,
+>>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       agent: {},
       sessionKey: "agent:discord:discord:channel:1456350065223270435",
       sessionScope: "per-sender",
@@ -328,7 +336,11 @@ describe("buildStatusMessage", () => {
             },
           },
         },
+<<<<<<< HEAD
       } as MoltbotConfig,
+=======
+      } as unknown as OpenClawConfig,
+>>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       agent: { model: "anthropic/claude-opus-4-5" },
       sessionEntry: { sessionId: "c1", updatedAt: 0, inputTokens: 10 },
       sessionKey: "agent:main:main",
@@ -539,7 +551,11 @@ describe("buildCommandsMessage", () => {
   it("lists commands with aliases and hints", () => {
     const text = buildCommandsMessage({
       commands: { config: false, debug: false },
+<<<<<<< HEAD
     } as MoltbotConfig);
+=======
+    } as unknown as OpenClawConfig);
+>>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
     expect(text).toContain("ℹ️ Slash commands");
     expect(text).toContain("Status");
     expect(text).toContain("/commands - List all slash commands.");
@@ -554,7 +570,11 @@ describe("buildCommandsMessage", () => {
     const text = buildCommandsMessage(
       {
         commands: { config: false, debug: false },
+<<<<<<< HEAD
       } as MoltbotConfig,
+=======
+      } as unknown as OpenClawConfig,
+>>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       [
         {
           name: "demo_skill",
@@ -571,7 +591,11 @@ describe("buildHelpMessage", () => {
   it("hides config/debug when disabled", () => {
     const text = buildHelpMessage({
       commands: { config: false, debug: false },
+<<<<<<< HEAD
     } as MoltbotConfig);
+=======
+    } as unknown as OpenClawConfig);
+>>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
     expect(text).toContain("Skills");
     expect(text).toContain("/skill <name> [input]");
     expect(text).not.toContain("/config");
@@ -584,7 +608,11 @@ describe("buildCommandsMessagePaginated", () => {
     const result = buildCommandsMessagePaginated(
       {
         commands: { config: false, debug: false },
+<<<<<<< HEAD
       } as MoltbotConfig,
+=======
+      } as unknown as OpenClawConfig,
+>>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       undefined,
       { surface: "telegram", page: 1 },
     );
@@ -600,7 +628,11 @@ describe("buildCommandsMessagePaginated", () => {
     const result = buildCommandsMessagePaginated(
       {
         commands: { config: false, debug: false },
+<<<<<<< HEAD
       } as MoltbotConfig,
+=======
+      } as unknown as OpenClawConfig,
+>>>>>>> 03e6acd05 (chore: Fix types in tests 28/N.)
       undefined,
       { surface: "telegram", page: 99 },
     );

@@ -1,6 +1,7 @@
 import "./reply.directive.directive-behavior.e2e-mocks.js";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   installDirectiveBehaviorE2EHooks,
   loadModelCatalog,
@@ -63,7 +64,7 @@ function makeThinkConfig(home: string) {
       },
     },
     session: { store: path.join(home, "sessions.json") },
-  } as const;
+  } as unknown as OpenClawConfig;
 }
 
 function makeWhatsAppConfig(home: string) {
@@ -76,7 +77,7 @@ function makeWhatsAppConfig(home: string) {
     },
     channels: { whatsapp: { allowFrom: ["*"] } },
     session: { store: path.join(home, "sessions.json") },
-  } as const;
+  } as unknown as OpenClawConfig;
 }
 
 async function runReplyToCurrentCase(home: string, text: string) {
