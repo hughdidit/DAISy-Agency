@@ -5,7 +5,12 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import { promisify } from "node:util";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
+>>>>>>> 52b624cca (fix(doctor): audit env-only gateway tokens)
 import { resolveGatewayPort, resolveIsNixMode } from "../config/paths.js";
 import { findExtraGatewayServices, renderGatewayServiceCleanupHints } from "../daemon/inspect.js";
 import { findLegacyGatewayServices, uninstallLegacyGatewayServices } from "../daemon/legacy.js";
@@ -28,11 +33,9 @@ import {
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 =======
 import { resolveGatewayService } from "../daemon/service.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { buildGatewayInstallPlan } from "./daemon-install-helpers.js";
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME, type GatewayDaemonRuntime } from "./daemon-runtime.js";
-import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 
 const execFileAsync = promisify(execFile);
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -67,6 +70,7 @@ function normalizeExecutablePath(value: string): string {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export async function maybeMigrateLegacyGatewayService(
   cfg: MoltbotConfig,
   mode: "local" | "remote",
@@ -76,6 +80,18 @@ export async function maybeMigrateLegacyGatewayService(
   const legacyServices = await findLegacyGatewayServices(process.env);
   if (legacyServices.length === 0) return;
 =======
+=======
+function resolveGatewayAuthToken(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): string | undefined {
+  const configToken = cfg.gateway?.auth?.token?.trim();
+  if (configToken) {
+    return configToken;
+  }
+  const envToken = env.OPENCLAW_GATEWAY_TOKEN ?? env.CLAWDBOT_GATEWAY_TOKEN;
+  const trimmedEnvToken = envToken?.trim();
+  return trimmedEnvToken || undefined;
+}
+
+>>>>>>> 52b624cca (fix(doctor): audit env-only gateway tokens)
 function extractDetailPath(detail: string, prefix: string): string | null {
   if (!detail.startsWith(prefix)) {
     return null;
@@ -187,10 +203,11 @@ export async function maybeRepairGatewayServiceConfig(
     return;
   }
 
+  const expectedGatewayToken = resolveGatewayAuthToken(cfg, process.env);
   const audit = await auditGatewayServiceConfig({
     env: process.env,
     command,
-    expectedGatewayToken: cfg.gateway?.auth?.token,
+    expectedGatewayToken,
   });
   const needsNodeRuntime = needsNodeRuntimeMigration(audit.issues);
   const systemNodeInfo = needsNodeRuntime
@@ -213,7 +230,11 @@ export async function maybeRepairGatewayServiceConfig(
   const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
     env: process.env,
     port,
+<<<<<<< HEAD
     token: cfg.gateway?.auth?.token ?? process.env.CLAWDBOT_GATEWAY_TOKEN,
+=======
+    token: expectedGatewayToken,
+>>>>>>> 52b624cca (fix(doctor): audit env-only gateway tokens)
     runtime: needsNodeRuntime && systemNodePath ? "node" : runtimeChoice,
     nodePath: systemNodePath ?? undefined,
     warn: (message, title) => note(message, title),
