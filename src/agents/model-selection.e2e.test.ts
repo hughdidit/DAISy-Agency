@@ -145,7 +145,7 @@ describe("model-selection", () => {
       const cfg: Partial<MoltbotConfig> = {
         agents: {
           defaults: {
-            model: "claude-3-5-sonnet",
+            model: { primary: "claude-3-5-sonnet" },
           },
         },
       };

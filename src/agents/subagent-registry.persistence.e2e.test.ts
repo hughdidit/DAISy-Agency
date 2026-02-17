@@ -27,7 +27,7 @@ vi.mock("../infra/agent-events.js", () => ({
 
 const announceSpy = vi.fn(async () => true);
 vi.mock("./subagent-announce.js", () => ({
-  runSubagentAnnounceFlow: (...args: unknown[]) => announceSpy(...args),
+  runSubagentAnnounceFlow: announceSpy,
 }));
 
 describe("subagent registry persistence", () => {
