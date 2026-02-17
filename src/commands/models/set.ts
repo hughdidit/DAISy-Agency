@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 import { logConfigUpdated } from "../../config/logging.js";
 import { applyDefaultModelPrimaryUpdate, updateConfig } from "./shared.js";
@@ -17,6 +18,11 @@ import { logConfigUpdated } from "../../config/logging.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { applyDefaultModelPrimaryUpdate, resolveModelTarget, updateConfig } from "./shared.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { logConfigUpdated } from "../../config/logging.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import { applyDefaultModelPrimaryUpdate, updateConfig } from "./shared.js";
+>>>>>>> f44e3b2a3 (revert: fix models set catalog validation (#19194))
 
 export async function modelsSetCommand(modelRaw: string, runtime: RuntimeEnv) {
   const updated = await updateConfig((cfg) => {
