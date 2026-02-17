@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
@@ -11,6 +12,12 @@ import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
+import type { CommandHandler } from "./commands-types.js";
+import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
+import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
+>>>>>>> f24224683 (fix(subagents): pass group context in /subagents spawn)
 import {
   clearSubagentRunSteerRestart,
   listSubagentRunsForRequester,
@@ -65,7 +72,6 @@ import type { CommandHandler } from "./commands-types.js";
 import { clearSessionQueues } from "./queue.js";
 =======
 import { stopSubagentsForRequester } from "./abort.js";
-import type { CommandHandler } from "./commands-types.js";
 import { clearSessionQueues } from "./queue.js";
 import { formatRunLabel, formatRunStatus, sortSubagentRuns } from "./subagents-utils.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
@@ -710,6 +716,9 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
         agentAccountId: params.ctx.AccountId,
         agentTo: params.command.to,
         agentThreadId: params.ctx.MessageThreadId,
+        agentGroupId: params.sessionEntry?.groupId ?? null,
+        agentGroupChannel: params.sessionEntry?.groupChannel ?? null,
+        agentGroupSpace: params.sessionEntry?.space ?? null,
       },
     );
     if (result.status === "accepted") {
