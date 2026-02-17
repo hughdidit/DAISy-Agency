@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.9",
 =======
   "version": "2026.2.12",
@@ -17,6 +18,9 @@
 =======
   "version": "2026.2.16",
 >>>>>>> 39fa81dc9 (chore: bump version to 2026.2.16)
+=======
+  "version": "2026.2.17",
+>>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
   "description": "OpenClaw IRC channel plugin",
   "type": "module",
   "devDependencies": {
