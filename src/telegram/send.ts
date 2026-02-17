@@ -161,6 +161,13 @@ function isTelegramThreadNotFoundError(err: unknown): boolean {
   return THREAD_NOT_FOUND_RE.test(formatErrorMessage(err));
 }
 
+<<<<<<< HEAD
+=======
+function isTelegramMessageNotModifiedError(err: unknown): boolean {
+  return MESSAGE_NOT_MODIFIED_RE.test(formatErrorMessage(err));
+}
+
+>>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids)
 function hasMessageThreadIdParam(params?: Record<string, unknown>): boolean {
   if (!params) {
     return false;
@@ -186,6 +193,187 @@ function removeMessageThreadIdParam(
   return Object.keys(next).length > 0 ? next : undefined;
 }
 
+<<<<<<< HEAD
+=======
+function isTelegramHtmlParseError(err: unknown): boolean {
+  return PARSE_ERR_RE.test(formatErrorMessage(err));
+}
+
+function buildTelegramThreadReplyParams(params: {
+  targetMessageThreadId?: number;
+  messageThreadId?: number;
+  chatType?: "direct" | "group" | "unknown";
+  replyToMessageId?: number;
+  quoteText?: string;
+}): Record<string, unknown> {
+  const messageThreadId =
+    params.messageThreadId != null ? params.messageThreadId : params.targetMessageThreadId;
+  const threadScope = params.chatType === "direct" ? ("dm" as const) : ("forum" as const);
+  // Never blanket-strip DM message_thread_id by chat-id sign.
+  // Telegram supports DM topics; stripping silently misroutes topic replies.
+  // Keep thread id and rely on thread-not-found retry fallback for plain DMs.
+  const threadSpec =
+    messageThreadId != null ? { id: messageThreadId, scope: threadScope } : undefined;
+  const threadIdParams = buildTelegramThreadParams(threadSpec);
+  const threadParams: Record<string, unknown> = threadIdParams ? { ...threadIdParams } : {};
+
+  if (params.replyToMessageId != null) {
+    const replyToMessageId = Math.trunc(params.replyToMessageId);
+    if (params.quoteText?.trim()) {
+      threadParams.reply_parameters = {
+        message_id: replyToMessageId,
+        quote: params.quoteText.trim(),
+      };
+    } else {
+      threadParams.reply_to_message_id = replyToMessageId;
+    }
+  }
+  return threadParams;
+}
+
+async function withTelegramHtmlParseFallback<T>(params: {
+  label: string;
+  verbose?: boolean;
+  requestHtml: (label: string) => Promise<T>;
+  requestPlain: (label: string) => Promise<T>;
+}): Promise<T> {
+  try {
+    return await params.requestHtml(params.label);
+  } catch (err) {
+    if (!isTelegramHtmlParseError(err)) {
+      throw err;
+    }
+    if (params.verbose) {
+      console.warn(
+        `telegram ${params.label} failed with HTML parse error, retrying as plain text: ${formatErrorMessage(
+          err,
+        )}`,
+      );
+    }
+    return await params.requestPlain(`${params.label}-plain`);
+  }
+}
+
+type TelegramApiContext = {
+  cfg: ReturnType<typeof loadConfig>;
+  account: ResolvedTelegramAccount;
+  api: TelegramApi;
+};
+
+function resolveTelegramApiContext(opts: {
+  token?: string;
+  accountId?: string;
+  api?: TelegramApiOverride;
+  cfg?: ReturnType<typeof loadConfig>;
+}): TelegramApiContext {
+  const cfg = opts.cfg ?? loadConfig();
+  const account = resolveTelegramAccount({
+    cfg,
+    accountId: opts.accountId,
+  });
+  const token = resolveToken(opts.token, account);
+  const client = resolveTelegramClientOptions(account);
+  const api = (opts.api ?? new Bot(token, client ? { client } : undefined).api) as TelegramApi;
+  return { cfg, account, api };
+}
+
+type TelegramRequestWithDiag = <T>(
+  fn: () => Promise<T>,
+  label?: string,
+  options?: { shouldLog?: (err: unknown) => boolean },
+) => Promise<T>;
+
+function createTelegramRequestWithDiag(params: {
+  cfg: ReturnType<typeof loadConfig>;
+  account: ResolvedTelegramAccount;
+  retry?: RetryConfig;
+  verbose?: boolean;
+  shouldRetry?: (err: unknown) => boolean;
+  useApiErrorLogging?: boolean;
+}): TelegramRequestWithDiag {
+  const request = createTelegramRetryRunner({
+    retry: params.retry,
+    configRetry: params.account.config.retry,
+    verbose: params.verbose,
+    ...(params.shouldRetry ? { shouldRetry: params.shouldRetry } : {}),
+  });
+  const logHttpError = createTelegramHttpLogger(params.cfg);
+  return <T>(
+    fn: () => Promise<T>,
+    label?: string,
+    options?: { shouldLog?: (err: unknown) => boolean },
+  ) => {
+    const runRequest = () => request(fn, label);
+    const call =
+      params.useApiErrorLogging === false
+        ? runRequest()
+        : withTelegramApiErrorLogging({
+            operation: label ?? "request",
+            fn: runRequest,
+            ...(options?.shouldLog ? { shouldLog: options.shouldLog } : {}),
+          });
+    return call.catch((err) => {
+      logHttpError(label ?? "request", err);
+      throw err;
+    });
+  };
+}
+
+function wrapTelegramChatNotFoundError(err: unknown, params: { chatId: string; input: string }) {
+  if (!CHAT_NOT_FOUND_RE.test(formatErrorMessage(err))) {
+    return err;
+  }
+  return new Error(
+    [
+      `Telegram send failed: chat not found (chat_id=${params.chatId}).`,
+      "Likely: bot not started in DM, bot removed from group/channel, group migrated (new -100… id), or wrong bot token.",
+      `Input was: ${JSON.stringify(params.input)}.`,
+    ].join(" "),
+  );
+}
+
+async function withTelegramThreadFallback<T>(
+  params: Record<string, unknown> | undefined,
+  label: string,
+  verbose: boolean | undefined,
+  attempt: (
+    effectiveParams: Record<string, unknown> | undefined,
+    effectiveLabel: string,
+  ) => Promise<T>,
+): Promise<T> {
+  try {
+    return await attempt(params, label);
+  } catch (err) {
+    // AIDEV-NOTE: Do not widen this fallback to cover "chat not found".
+    // chat-not-found is routing/auth/membership/token; stripping thread IDs hides root cause.
+    if (!hasMessageThreadIdParam(params) || !isTelegramThreadNotFoundError(err)) {
+      throw err;
+    }
+    if (verbose) {
+      console.warn(
+        `telegram ${label} failed with message_thread_id, retrying without thread: ${formatErrorMessage(err)}`,
+      );
+    }
+    const retriedParams = removeMessageThreadIdParam(params);
+    return await attempt(retriedParams, `${label}-threadless`);
+  }
+}
+
+function createRequestWithChatNotFound(params: {
+  requestWithDiag: TelegramRequestWithDiag;
+  chatId: string;
+  input: string;
+}) {
+  return async <T>(fn: () => Promise<T>, label: string) =>
+    params.requestWithDiag(fn, label).catch((err) => {
+      throw wrapTelegramChatNotFoundError(err, {
+        chatId: params.chatId,
+        input: params.input,
+      });
+    });
+}
+
+>>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids)
 export function buildInlineKeyboard(
   buttons?: TelegramSendOpts["buttons"],
 ): InlineKeyboardMarkup | undefined {
@@ -226,6 +414,7 @@ export async function sendMessageTelegram(
   const mediaUrl = opts.mediaUrl?.trim();
   const replyMarkup = buildInlineKeyboard(opts.buttons);
 
+<<<<<<< HEAD
   // Build optional params for forum topics and reply threading.
   // Only include these if actually provided to keep API calls clean.
   const messageThreadId =
@@ -245,6 +434,15 @@ export async function sendMessageTelegram(
       threadParams.reply_to_message_id = Math.trunc(opts.replyToMessageId);
     }
   }
+=======
+  const threadParams = buildTelegramThreadReplyParams({
+    targetMessageThreadId: target.messageThreadId,
+    messageThreadId: opts.messageThreadId,
+    chatType: target.chatType,
+    replyToMessageId: opts.replyToMessageId,
+    quoteText: opts.quoteText,
+  });
+>>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids)
   const hasThreadParams = Object.keys(threadParams).length > 0;
   const request = createTelegramRetryRunner({
     retry: opts.retry,
@@ -771,6 +969,7 @@ export async function sendStickerTelegram(
   const client = resolveTelegramClientOptions(account);
   const api = opts.api ?? new Bot(token, client ? { client } : undefined).api;
 
+<<<<<<< HEAD
   const messageThreadId =
     opts.messageThreadId != null ? opts.messageThreadId : target.messageThreadId;
   const threadSpec =
@@ -780,6 +979,14 @@ export async function sendStickerTelegram(
   if (opts.replyToMessageId != null) {
     threadParams.reply_to_message_id = Math.trunc(opts.replyToMessageId);
   }
+=======
+  const threadParams = buildTelegramThreadReplyParams({
+    targetMessageThreadId: target.messageThreadId,
+    messageThreadId: opts.messageThreadId,
+    chatType: target.chatType,
+    replyToMessageId: opts.replyToMessageId,
+  });
+>>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids)
   const hasThreadParams = Object.keys(threadParams).length > 0;
 
   const request = createTelegramRetryRunner({
@@ -857,3 +1064,110 @@ export async function sendStickerTelegram(
 
   return { messageId, chatId: resolvedChatId };
 }
+<<<<<<< HEAD
+=======
+
+type TelegramPollOpts = {
+  token?: string;
+  accountId?: string;
+  verbose?: boolean;
+  api?: TelegramApiOverride;
+  retry?: RetryConfig;
+  /** Message ID to reply to (for threading) */
+  replyToMessageId?: number;
+  /** Forum topic thread ID (for forum supergroups) */
+  messageThreadId?: number;
+  /** Send message silently (no notification). Defaults to false. */
+  silent?: boolean;
+  /** Whether votes are anonymous. Defaults to true (Telegram default). */
+  isAnonymous?: boolean;
+};
+
+/**
+ * Send a poll to a Telegram chat.
+ * @param to - Chat ID or username (e.g., "123456789" or "@username")
+ * @param poll - Poll input with question, options, maxSelections, and optional durationHours
+ * @param opts - Optional configuration
+ */
+export async function sendPollTelegram(
+  to: string,
+  poll: PollInput,
+  opts: TelegramPollOpts = {},
+): Promise<{ messageId: string; chatId: string; pollId?: string }> {
+  const { cfg, account, api } = resolveTelegramApiContext(opts);
+  const target = parseTelegramTarget(to);
+  const chatId = normalizeChatId(target.chatId);
+
+  // Normalize the poll input (validates question, options, maxSelections)
+  const normalizedPoll = normalizePollInput(poll, { maxOptions: 10 });
+
+  const threadParams = buildTelegramThreadReplyParams({
+    targetMessageThreadId: target.messageThreadId,
+    messageThreadId: opts.messageThreadId,
+    chatType: target.chatType,
+    replyToMessageId: opts.replyToMessageId,
+  });
+
+  // Build poll options as simple strings (Grammy accepts string[] or InputPollOption[])
+  const pollOptions = normalizedPoll.options;
+
+  const requestWithDiag = createTelegramRequestWithDiag({
+    cfg,
+    account,
+    retry: opts.retry,
+    verbose: opts.verbose,
+    shouldRetry: (err) => isRecoverableTelegramNetworkError(err, { context: "send" }),
+  });
+  const requestWithChatNotFound = createRequestWithChatNotFound({
+    requestWithDiag,
+    chatId,
+    input: to,
+  });
+
+  const durationSeconds = normalizedPoll.durationSeconds;
+  if (durationSeconds === undefined && normalizedPoll.durationHours !== undefined) {
+    throw new Error(
+      "Telegram poll durationHours is not supported. Use durationSeconds (5-600) instead.",
+    );
+  }
+  if (durationSeconds !== undefined && (durationSeconds < 5 || durationSeconds > 600)) {
+    throw new Error("Telegram poll durationSeconds must be between 5 and 600");
+  }
+
+  // Build poll parameters following Grammy's api.sendPoll signature
+  // sendPoll(chat_id, question, options, other?, signal?)
+  const pollParams = {
+    allows_multiple_answers: normalizedPoll.maxSelections > 1,
+    is_anonymous: opts.isAnonymous ?? true,
+    ...(durationSeconds !== undefined ? { open_period: durationSeconds } : {}),
+    ...(Object.keys(threadParams).length > 0 ? threadParams : {}),
+    ...(opts.silent === true ? { disable_notification: true } : {}),
+  };
+
+  const result = await withTelegramThreadFallback(
+    pollParams,
+    "poll",
+    opts.verbose,
+    async (effectiveParams, label) =>
+      requestWithChatNotFound(
+        () => api.sendPoll(chatId, normalizedPoll.question, pollOptions, effectiveParams),
+        label,
+      ),
+  );
+
+  const messageId = String(result?.message_id ?? "unknown");
+  const resolvedChatId = String(result?.chat?.id ?? chatId);
+  const pollId = result?.poll?.id;
+  if (result?.message_id) {
+    recordSentMessage(chatId, result.message_id);
+  }
+
+  recordChannelActivity({
+    channel: "telegram",
+    accountId: account.accountId,
+    direction: "outbound",
+  });
+
+  return { messageId, chatId: resolvedChatId, pollId };
+}
+>>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids)
