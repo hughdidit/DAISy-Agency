@@ -3,6 +3,12 @@
 import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 =======
 import type { Bot } from "grammy";
+import type { OpenClawConfig, ReplyToMode, TelegramAccountConfig } from "../config/types.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { TelegramMessageContext } from "./bot-message-context.js";
+import type { TelegramBotOptions } from "./bot.js";
+import type { TelegramStreamMode } from "./bot/types.js";
+import type { TelegramInlineButtons } from "./button-types.js";
 import { resolveAgentDir } from "../agents/agent-scope.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import {
@@ -28,6 +34,7 @@ import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 147eba11f (chore: Manually fix TypeScript errors uncovered by sorting imports.)
 import { danger, logVerbose } from "../globals.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
@@ -48,14 +55,19 @@ import { getAgentScopedMediaLocalRoots } from "../media/local-roots.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { danger, logVerbose } from "../globals.js";
+import { getAgentScopedMediaLocalRoots } from "../media/local-roots.js";
+>>>>>>> 7ffc8f9f7 (fix(telegram): add initial message debounce for better push notifications (#18147))
 import { deliverReplies } from "./bot/delivery.js";
-import type { TelegramStreamMode } from "./bot/types.js";
-import type { TelegramInlineButtons } from "./button-types.js";
 import { resolveTelegramDraftStreamingChunking } from "./draft-chunking.js";
 import { createTelegramDraftStream } from "./draft-stream.js";
 import { editMessageTelegram } from "./send.js";
 import { cacheSticker, describeStickerImage } from "./sticker-cache.js";
 import { resolveAgentDir } from "../agents/agent-scope.js";
+
+/** Minimum chars before sending first streaming message (improves push notification UX) */
+const DRAFT_MIN_INITIAL_CHARS = 30;
 
 async function resolveStickerVisionSupport(cfg: OpenClawConfig, agentId: string) {
   try {
@@ -143,7 +155,11 @@ export const dispatchTelegramMessage = async ({
 =======
         thread: threadSpec,
         replyToMessageId: draftReplyToMessageId,
+<<<<<<< HEAD
 >>>>>>> 244ed9db3 (fix(telegram): draft stream preview not threaded when replyToMode is on (#17880) (#17928))
+=======
+        minInitialChars: DRAFT_MIN_INITIAL_CHARS,
+>>>>>>> 7ffc8f9f7 (fix(telegram): add initial message debounce for better push notifications (#18147))
         log: logVerbose,
         warn: logVerbose,
       })
@@ -412,7 +428,7 @@ export const dispatchTelegramMessage = async ({
               finalText.length <= draftMaxChars &&
               !payload.isError;
             if (canFinalizeViaPreviewEdit) {
-              draftStream?.stop();
+              await draftStream?.stop();
               draftStoppedForPreviewEdit = true;
               if (
                 currentPreviewText &&
@@ -451,7 +467,36 @@ export const dispatchTelegramMessage = async ({
               );
             }
             if (!draftStoppedForPreviewEdit) {
-              draftStream?.stop();
+              await draftStream?.stop();
+            }
+            // Check if stop() sent a message (debounce released on isFinal)
+            // If so, edit that message instead of sending a new one
+            const messageIdAfterStop = draftStream?.messageId();
+            if (
+              !finalizedViaPreviewMessage &&
+              typeof messageIdAfterStop === "number" &&
+              typeof finalText === "string" &&
+              finalText.length > 0 &&
+              finalText.length <= draftMaxChars &&
+              !hasMedia &&
+              !payload.isError
+            ) {
+              try {
+                await editMessageTelegram(chatId, messageIdAfterStop, finalText, {
+                  api: bot.api,
+                  cfg,
+                  accountId: route.accountId,
+                  linkPreview: telegramCfg.linkPreview,
+                  buttons: previewButtons,
+                });
+                finalizedViaPreviewMessage = true;
+                deliveryState.delivered = true;
+                return;
+              } catch (err) {
+                logVerbose(
+                  `telegram: post-stop preview edit failed; falling back to standard send (${String(err)})`,
+                );
+              }
             }
           }
           const result = await deliverReplies({
@@ -561,10 +606,11 @@ export const dispatchTelegramMessage = async ({
       },
     }));
   } finally {
+    // Must stop() first to flush debounced content before clear() wipes state
+    await draftStream?.stop();
     if (!finalizedViaPreviewMessage) {
       await draftStream?.clear();
     }
-    draftStream?.stop();
   }
   let sentFallback = false;
   if (!deliveryState.delivered && deliveryState.skippedNonSilent > 0) {
