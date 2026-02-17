@@ -3,6 +3,7 @@ import {
   resolveDefaultAgentId,
   resolveSessionAgentId,
 } from "../../agents/agent-scope.js";
+<<<<<<< HEAD
 import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
 import {
   ensureAuthProfileStore,
@@ -10,6 +11,10 @@ import {
   resolveAuthProfileOrder,
 } from "../../agents/auth-profiles.js";
 import { getCustomProviderApiKey, resolveEnvApiKey } from "../../agents/model-auth.js";
+=======
+import { resolveModelAuthLabel } from "../../agents/model-auth-label.js";
+import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
+>>>>>>> 246bb7f30 (refactor(agents): share model auth label resolution)
 import {
   resolveInternalSessionKey,
   resolveMainSessionAlias,
@@ -36,6 +41,7 @@ import { getFollowupQueueDepth, resolveQueueSettings } from "./queue.js";
 import type { MediaUnderstandingDecision } from "../../media-understanding/types.js";
 import { resolveSubagentLabel } from "./subagents-utils.js";
 
+<<<<<<< HEAD
 function formatApiKeySnippet(apiKey: string): string {
   const compact = apiKey.replace(/\s+/g, "");
   if (!compact) {
@@ -104,6 +110,8 @@ function resolveModelAuthLabel(
   return "unknown";
 }
 
+=======
+>>>>>>> 246bb7f30 (refactor(agents): share model auth label resolution)
 export async function buildStatusReply(params: {
   cfg: MoltbotConfig;
   command: CommandContext;
@@ -237,7 +245,12 @@ export async function buildStatusReply(params: {
     resolvedVerbose: resolvedVerboseLevel,
     resolvedReasoning: resolvedReasoningLevel,
     resolvedElevated: resolvedElevatedLevel,
-    modelAuth: resolveModelAuthLabel(provider, cfg, sessionEntry, statusAgentDir),
+    modelAuth: resolveModelAuthLabel({
+      provider,
+      cfg,
+      sessionEntry,
+      agentDir: statusAgentDir,
+    }),
     usageLine: usageLine ?? undefined,
     queue: {
       mode: queueSettings.mode,

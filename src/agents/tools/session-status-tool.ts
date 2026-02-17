@@ -51,19 +51,13 @@ import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides
 import type { AnyAgentTool } from "./common.js";
 =======
 import { resolveAgentDir } from "../agent-scope.js";
-import {
-  ensureAuthProfileStore,
-  resolveAuthProfileDisplayLabel,
-  resolveAuthProfileOrder,
-} from "../auth-profiles.js";
 import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
-import { getCustomProviderApiKey, resolveEnvApiKey } from "../model-auth.js";
+import { resolveModelAuthLabel } from "../model-auth-label.js";
 import { loadModelCatalog } from "../model-catalog.js";
 import {
   buildAllowedModelSet,
   buildModelAliasIndex,
   modelKey,
-  normalizeProviderId,
   resolveDefaultModelForAgent,
   resolveModelRefFromString,
 } from "../model-selection.js";
@@ -82,6 +76,7 @@ const SessionStatusToolSchema = Type.Object({
   model: Type.Optional(Type.String()),
 });
 
+<<<<<<< HEAD
 function formatApiKeySnippet(apiKey: string): string {
   const compact = apiKey.replace(/\s+/g, "");
   if (!compact) {
@@ -152,6 +147,8 @@ function resolveModelAuthLabel(params: {
   return "unknown";
 }
 
+=======
+>>>>>>> 246bb7f30 (refactor(agents): share model auth label resolution)
 function resolveSessionEntry(params: {
   store: Record<string, SessionEntry>;
   keyRaw: string;
