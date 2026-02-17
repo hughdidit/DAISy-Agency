@@ -1,11 +1,19 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import type { DatabaseSync } from "node:sqlite";
 import { type FSWatcher } from "chokidar";
-import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
+import fs from "node:fs/promises";
+import path from "node:path";
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
-import { resolveMemorySearchConfig } from "../agents/memory-search.js";
 import type { OpenClawConfig } from "../config/config.js";
+import type {
+  MemoryEmbeddingProbeResult,
+  MemoryProviderStatus,
+  MemorySearchManager,
+  MemorySearchResult,
+  MemorySource,
+  MemorySyncProgressUpdate,
+} from "./types.js";
+import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
+import { resolveMemorySearchConfig } from "../agents/memory-search.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   createEmbeddingProvider,
@@ -63,8 +71,9 @@ type MemorySyncProgressState = {
 const META_KEY = "memory_index_meta_v1";
 =======
 import { isMemoryPath, normalizeExtraMemoryPaths } from "./internal.js";
-import { memoryManagerEmbeddingOps } from "./manager-embedding-ops.js";
+import { MemoryManagerEmbeddingOps } from "./manager-embedding-ops.js";
 import { searchKeyword, searchVector } from "./manager-search.js";
+<<<<<<< HEAD
 import { memoryManagerSyncOps } from "./manager-sync-ops.js";
 <<<<<<< HEAD
 >>>>>>> 4c401d336 (refactor(memory): extract manager sync and embedding ops)
@@ -82,6 +91,9 @@ import type {
   MemorySyncProgressUpdate,
 } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { extractKeywords } from "./query-expansion.js";
+>>>>>>> ddef3cadb (refactor: replace memory manager prototype mixing)
 const SNIPPET_MAX_CHARS = 700;
 const VECTOR_TABLE = "chunks_vec";
 const FTS_TABLE = "chunks_fts";
@@ -92,12 +104,11 @@ const log = createSubsystemLogger("memory");
 
 const INDEX_CACHE = new Map<string, MemoryIndexManager>();
 
-export class MemoryIndexManager implements MemorySearchManager {
-  // oxlint-disable-next-line typescript/no-explicit-any
-  [key: string]: any;
+export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements MemorySearchManager {
   private readonly cacheKey: string;
   protected readonly cfg: OpenClawConfig;
   protected readonly agentId: string;
+<<<<<<< HEAD
   private readonly workspaceDir: string;
   private readonly settings: ResolvedMemorySearchConfig;
   private provider: EmbeddingProvider;
@@ -109,12 +120,24 @@ export class MemoryIndexManager implements MemorySearchManager {
   private gemini?: GeminiEmbeddingClient;
   private voyage?: VoyageEmbeddingClient;
 =======
+=======
+  protected readonly workspaceDir: string;
+  protected readonly settings: ResolvedMemorySearchConfig;
+  protected provider: EmbeddingProvider | null;
+  private readonly requestedProvider: "openai" | "local" | "gemini" | "voyage" | "auto";
+  protected fallbackFrom?: "openai" | "local" | "gemini" | "voyage";
+  protected fallbackReason?: string;
+>>>>>>> ddef3cadb (refactor: replace memory manager prototype mixing)
   private readonly providerUnavailableReason?: string;
   protected openAi?: OpenAiEmbeddingClient;
   protected gemini?: GeminiEmbeddingClient;
   protected voyage?: VoyageEmbeddingClient;
+<<<<<<< HEAD
 >>>>>>> 1dc9bb8d6 (chore: Fix more type issues.)
   private batch: {
+=======
+  protected batch: {
+>>>>>>> ddef3cadb (refactor: replace memory manager prototype mixing)
     enabled: boolean;
     wait: boolean;
     concurrency: number;
@@ -124,31 +147,32 @@ export class MemoryIndexManager implements MemorySearchManager {
   protected batchFailureCount = 0;
   protected batchFailureLastError?: string;
   protected batchFailureLastProvider?: string;
-  private db: DatabaseSync;
-  private readonly sources: Set<MemorySource>;
+  protected batchFailureLock: Promise<void> = Promise.resolve();
+  protected db: DatabaseSync;
+  protected readonly sources: Set<MemorySource>;
   protected providerKey: string;
-  private readonly cache: { enabled: boolean; maxEntries?: number };
-  private readonly vector: {
+  protected readonly cache: { enabled: boolean; maxEntries?: number };
+  protected readonly vector: {
     enabled: boolean;
     available: boolean | null;
     extensionPath?: string;
     loadError?: string;
     dims?: number;
   };
-  private readonly fts: {
+  protected readonly fts: {
     enabled: boolean;
     available: boolean;
     loadError?: string;
   };
   protected vectorReady: Promise<boolean> | null = null;
-  private watcher: FSWatcher | null = null;
-  private watchTimer: NodeJS.Timeout | null = null;
-  private sessionWatchTimer: NodeJS.Timeout | null = null;
-  private sessionUnsubscribe: (() => void) | null = null;
-  private intervalTimer: NodeJS.Timeout | null = null;
-  private closed = false;
-  private dirty = false;
-  private sessionsDirty = false;
+  protected watcher: FSWatcher | null = null;
+  protected watchTimer: NodeJS.Timeout | null = null;
+  protected sessionWatchTimer: NodeJS.Timeout | null = null;
+  protected sessionUnsubscribe: (() => void) | null = null;
+  protected intervalTimer: NodeJS.Timeout | null = null;
+  protected closed = false;
+  protected dirty = false;
+  protected sessionsDirty = false;
   protected sessionsDirtyFiles = new Set<string>();
   protected sessionPendingFiles = new Set<string>();
   protected sessionDeltas = new Map<
@@ -205,6 +229,7 @@ export class MemoryIndexManager implements MemorySearchManager {
     providerResult: EmbeddingProviderResult;
     purpose?: "default" | "status";
   }) {
+    super();
     this.cacheKey = params.cacheKey;
     this.cfg = params.cfg;
     this.agentId = params.agentId;
@@ -328,7 +353,7 @@ export class MemoryIndexManager implements MemorySearchManager {
       ? await this.searchKeyword(cleaned, candidates).catch(() => [])
       : [];
 
-    const queryVec = (await this.embedQueryWithTimeout(cleaned)) as number[];
+    const queryVec = await this.embedQueryWithTimeout(cleaned);
     const hasVector = queryVec.some((v) => v !== 0);
     const vectorResults = hasVector
       ? await this.searchVector(queryVec, candidates).catch(() => [])
@@ -651,6 +676,7 @@ export class MemoryIndexManager implements MemorySearchManager {
     INDEX_CACHE.delete(this.cacheKey);
   }
 }
+<<<<<<< HEAD
 
 function applyPrototypeMixins(target: object, ...sources: object[]): void {
   for (const source of sources) {
@@ -2178,3 +2204,5 @@ function applyPrototypeMixins(target: object, ...sources: object[]): void {
 }
 
 applyPrototypeMixins(MemoryIndexManager.prototype, memoryManagerSyncOps, memoryManagerEmbeddingOps);
+=======
+>>>>>>> ddef3cadb (refactor: replace memory manager prototype mixing)
