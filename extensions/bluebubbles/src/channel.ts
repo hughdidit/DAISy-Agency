@@ -300,7 +300,11 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount> = {
         ? resolveBlueBubblesMessageId(rawReplyToId, { requireKnownShortId: true })
         : "";
       const result = await sendMessageBlueBubbles(to, text, {
+<<<<<<< HEAD
         cfg: cfg as MoltbotConfig,
+=======
+        cfg: cfg,
+>>>>>>> 0158e4129 (Revert "fix: resolve #12770 - update Antigravity default model and trim leading whitespace in BlueBubbles replies")
         accountId: accountId ?? undefined,
         replyToMessageGuid: replyToMessageGuid || undefined,
       });
