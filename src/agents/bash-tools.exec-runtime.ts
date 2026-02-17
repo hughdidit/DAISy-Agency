@@ -1,8 +1,9 @@
+import path from "node:path";
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { Type } from "@sinclair/typebox";
-import path from "node:path";
 import type { ExecAsk, ExecHost, ExecSecurity } from "../infra/exec-approvals.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ProcessSession, SessionStdin } from "./bash-process-registry.js";
@@ -18,10 +19,16 @@ import { enqueueSystemEvent } from "../infra/system-events.js";
 import type { ProcessSession } from "./bash-process-registry.js";
 import type { ExecToolDetails } from "./bash-tools.exec.js";
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
+=======
+>>>>>>> 6b8c0bc69 (chore: Format files.)
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { mergePathPrepend } from "../infra/path-prepend.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
+import type { ProcessSession } from "./bash-process-registry.js";
+import type { ExecToolDetails } from "./bash-tools.exec.js";
+import type { BashSandboxConfig } from "./bash-tools.shared.js";
 export { applyPathPrepend, normalizePathPrepend } from "../infra/path-prepend.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { logWarn } from "../logger.js";
 <<<<<<< HEAD
@@ -30,7 +37,10 @@ import { formatSpawnError, spawnWithFallback } from "../process/spawn-utils.js";
 =======
 >>>>>>> 607011638 (revert(exec): undo accidental merge of PR #18521)
 import type { ManagedRun } from "../process/supervisor/index.js";
+=======
+>>>>>>> 6b8c0bc69 (chore: Format files.)
 import { logWarn } from "../logger.js";
+import type { ManagedRun } from "../process/supervisor/index.js";
 import { getProcessSupervisor } from "../process/supervisor/index.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {

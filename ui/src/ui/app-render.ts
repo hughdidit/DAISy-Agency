@@ -2,9 +2,12 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import type { AppViewState } from "./app-view-state";
+=======
+>>>>>>> 6b8c0bc69 (chore: Format files.)
 import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
 <<<<<<< HEAD
 import {
