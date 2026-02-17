@@ -60,9 +60,6 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
       gates.some((g) => g(key, defaultValue));
 >>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
     const actions = new Set<ChannelMessageActionName>(["send"]);
-    if (gate("poll")) {
-      actions.add("poll");
-    }
     if (gate("reactions")) {
       actions.add("react");
     }
