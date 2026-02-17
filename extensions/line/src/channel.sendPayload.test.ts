@@ -120,8 +120,9 @@ describe("linePlugin outbound.sendPayload", () => {
       },
     };
 
-    await linePlugin.outbound.sendPayload({
+    await linePlugin.outbound!.sendPayload!({
       to: "line:group:1",
+      text: payload.text,
       payload,
       accountId: "default",
       cfg,
@@ -155,8 +156,9 @@ describe("linePlugin outbound.sendPayload", () => {
       },
     };
 
-    await linePlugin.outbound.sendPayload({
+    await linePlugin.outbound!.sendPayload!({
       to: "line:user:1",
+      text: payload.text,
       payload,
       accountId: "default",
       cfg,
@@ -187,8 +189,9 @@ describe("linePlugin outbound.sendPayload", () => {
       },
     };
 
-    await linePlugin.outbound.sendPayload({
+    await linePlugin.outbound!.sendPayload!({
       to: "line:user:2",
+      text: "",
       payload,
       accountId: "default",
       cfg,
@@ -225,8 +228,9 @@ describe("linePlugin outbound.sendPayload", () => {
       },
     };
 
-    await linePlugin.outbound.sendPayload({
+    await linePlugin.outbound!.sendPayload!({
       to: "line:user:3",
+      text: payload.text,
       payload,
       accountId: "default",
       cfg,
@@ -265,8 +269,9 @@ describe("linePlugin outbound.sendPayload", () => {
       },
     };
 
-    await linePlugin.outbound.sendPayload({
+    await linePlugin.outbound!.sendPayload!({
       to: "line:user:3",
+      text: payload.text,
       payload,
       accountId: "primary",
       cfg,
@@ -281,7 +286,8 @@ describe("linePlugin outbound.sendPayload", () => {
 
 describe("linePlugin config.formatAllowFrom", () => {
   it("strips line:user: prefixes without lowercasing", () => {
-    const formatted = linePlugin.config.formatAllowFrom({
+    const formatted = linePlugin.config.formatAllowFrom!({
+      cfg: {} as OpenClawConfig,
       allowFrom: ["line:user:UABC", "line:UDEF"],
     });
     expect(formatted).toEqual(["UABC", "UDEF"]);
@@ -310,7 +316,7 @@ describe("linePlugin groups.resolveRequireMention", () => {
       },
     } as MoltbotConfig;
 
-    const requireMention = linePlugin.groups.resolveRequireMention({
+    const requireMention = linePlugin.groups!.resolveRequireMention!({
       cfg,
       accountId: "primary",
       groupId: "group-1",

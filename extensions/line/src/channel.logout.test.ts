@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+import type {
+  OpenClawConfig,
+  PluginRuntime,
+  ResolvedLineAccount,
+  RuntimeEnv,
+} from "openclaw/plugin-sdk";
+>>>>>>> d3a36cc3b (chore: Fix remaining extension test types, enable type checking for extension tests.)
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig, PluginRuntime } from "clawdbot/plugin-sdk";
 import { linePlugin } from "./channel.js";
@@ -80,10 +89,27 @@ describe("linePlugin gateway.logoutAccount", () => {
         },
       },
     };
+    const runtimeEnv: RuntimeEnv = {
+      log: vi.fn(),
+      error: vi.fn(),
+      exit: vi.fn((code: number): never => {
+        throw new Error(`exit ${code}`);
+      }),
+    };
+    const resolveAccount = mocks.resolveLineAccount as unknown as (params: {
+      cfg: OpenClawConfig;
+      accountId?: string;
+    }) => ResolvedLineAccount;
+    const account = resolveAccount({
+      cfg,
+      accountId: DEFAULT_ACCOUNT_ID,
+    });
 
-    const result = await linePlugin.gateway.logoutAccount({
+    const result = await linePlugin.gateway!.logoutAccount!({
       accountId: DEFAULT_ACCOUNT_ID,
       cfg,
+      account,
+      runtime: runtimeEnv,
     });
 
     expect(result.cleared).toBe(true);
@@ -107,10 +133,27 @@ describe("linePlugin gateway.logoutAccount", () => {
         },
       },
     };
+    const runtimeEnv: RuntimeEnv = {
+      log: vi.fn(),
+      error: vi.fn(),
+      exit: vi.fn((code: number): never => {
+        throw new Error(`exit ${code}`);
+      }),
+    };
+    const resolveAccount = mocks.resolveLineAccount as unknown as (params: {
+      cfg: OpenClawConfig;
+      accountId?: string;
+    }) => ResolvedLineAccount;
+    const account = resolveAccount({
+      cfg,
+      accountId: "primary",
+    });
 
-    const result = await linePlugin.gateway.logoutAccount({
+    const result = await linePlugin.gateway!.logoutAccount!({
       accountId: "primary",
       cfg,
+      account,
+      runtime: runtimeEnv,
     });
 
     expect(result.cleared).toBe(true);

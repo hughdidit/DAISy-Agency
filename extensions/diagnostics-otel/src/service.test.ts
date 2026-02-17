@@ -103,6 +103,11 @@ vi.mock("clawdbot/plugin-sdk", async () => {
   };
 });
 
+<<<<<<< HEAD
+=======
+import { emitDiagnosticEvent } from "openclaw/plugin-sdk";
+import type { OpenClawPluginServiceContext } from "openclaw/plugin-sdk";
+>>>>>>> d3a36cc3b (chore: Fix remaining extension test types, enable type checking for extension tests.)
 import { createDiagnosticsOtelService } from "./service.js";
 import { emitDiagnosticEvent } from "clawdbot/plugin-sdk";
 
@@ -129,7 +134,7 @@ describe("diagnostics-otel service", () => {
     });
 
     const service = createDiagnosticsOtelService();
-    await service.start({
+    const ctx: OpenClawPluginServiceContext = {
       config: {
         diagnostics: {
           enabled: true,
@@ -149,7 +154,9 @@ describe("diagnostics-otel service", () => {
         error: vi.fn(),
         debug: vi.fn(),
       },
-    });
+      stateDir: "/tmp/openclaw-diagnostics-otel-test",
+    };
+    await service.start(ctx);
 
     emitDiagnosticEvent({
       type: "webhook.received",
@@ -233,6 +240,6 @@ describe("diagnostics-otel service", () => {
     });
     expect(logEmit).toHaveBeenCalled();
 
-    await service.stop?.();
+    await service.stop?.(ctx);
   });
 });
