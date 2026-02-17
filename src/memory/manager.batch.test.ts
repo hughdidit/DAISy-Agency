@@ -7,12 +7,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 7b31e8fc5 (chore: Fix types in tests 36/N.)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 import { createOpenAIEmbeddingProviderMock } from "./test-embeddings-mock.js";
 import "./test-runtime-mocks.js";
 
-const embedBatch = vi.fn(async () => []);
+const embedBatch = vi.fn(async (_texts: string[]) => [] as number[][]);
 const embedQuery = vi.fn(async () => [0.5, 0.5, 0.5]);
 
 vi.mock("./embeddings.js", () => ({
@@ -116,7 +120,7 @@ describe("memory indexing with OpenAI batches", () => {
     return { fetchMock, state };
   }
 
-  function createBatchCfg() {
+  function createBatchCfg(): OpenClawConfig {
     return {
       agents: {
         defaults: {
@@ -132,7 +136,7 @@ describe("memory indexing with OpenAI batches", () => {
         },
         list: [{ id: "main", default: true }],
       },
-    };
+    } as OpenClawConfig;
   }
 
   beforeAll(async () => {
@@ -147,7 +151,7 @@ describe("memory indexing with OpenAI batches", () => {
     if (!result.manager) {
       throw new Error("manager missing");
     }
-    manager = result.manager;
+    manager = result.manager as unknown as MemoryIndexManager;
   });
 
   afterAll(async () => {

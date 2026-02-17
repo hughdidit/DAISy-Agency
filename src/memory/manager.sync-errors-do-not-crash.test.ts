@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 
@@ -44,6 +45,9 @@ import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.j
 import type { MemoryIndexManager } from "./index.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 7b31e8fc5 (chore: Fix types in tests 36/N.)
 import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
 import type { MemoryIndexManager } from "./index.js";
 import { getRequiredMemoryIndexManager } from "./test-manager-helpers.js";
@@ -100,7 +104,7 @@ describe("memory manager sync failures", () => {
         },
         list: [{ id: "main", default: true }],
       },
-    };
+    } as OpenClawConfig;
 
     manager = await getRequiredMemoryIndexManager({ cfg, agentId: "main" });
     const syncSpy = vi.spyOn(manager, "sync");
