@@ -3,8 +3,13 @@
 在你的项目中导入：
 
 ```javascript
+<<<<<<< HEAD
 const translations = require('./translations/zh-CN.json');
 console.log(translations['Save']); // 输出：保存
+=======
+const translations = require("./translations/zh-CN.json");
+console.log(transl["Save"]); // 输出：保存
+>>>>>>> bc4038149 (Revert: undo #17974 README change)
 ```
 
 ## 继续翻译工作
