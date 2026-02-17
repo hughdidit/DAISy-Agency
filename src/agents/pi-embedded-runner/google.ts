@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { EventEmitter } from "node:events";
 <<<<<<< HEAD
 
@@ -18,6 +19,12 @@ import type { TSchema } from "@sinclair/typebox";
 import { EventEmitter } from "node:events";
 import type { TranscriptPolicy } from "../transcript-policy.js";
 >>>>>>> a1538ea63 (Revert "fix: flatten remaining anyOf/oneOf in Gemini schema cleaning")
+=======
+import { EventEmitter } from "node:events";
+import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
+import type { SessionManager } from "@mariozechner/pi-coding-agent";
+import type { TSchema } from "@sinclair/typebox";
+>>>>>>> 01ea80887 (chore: Format files.)
 import { registerUnhandledRejectionHandler } from "../../infra/unhandled-rejections.js";
 import {
   downgradeOpenAIReasoningBlocks,
@@ -35,6 +42,7 @@ import {
   stripToolResultDetails,
   sanitizeToolUseResultPairing,
 } from "../session-transcript-repair.js";
+import type { TranscriptPolicy } from "../transcript-policy.js";
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
 >>>>>>> 0da6de662 (Agent: repair malformed tool calls and session files)
 import { log } from "./logger.js";

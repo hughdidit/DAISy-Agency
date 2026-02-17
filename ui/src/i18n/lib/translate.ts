@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { Locale, TranslationMap } from "./types";
 import { en } from "../locales/en";
 =======
@@ -10,6 +11,10 @@ import type { Locale, TranslationMap } from "./types.ts";
 import type { Locale, TranslationMap } from "./types.ts";
 import { en } from "../locales/en.ts";
 >>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
+=======
+import { en } from "../locales/en.ts";
+import type { Locale, TranslationMap } from "./types.ts";
+>>>>>>> 01ea80887 (chore: Format files.)
 
 type Subscriber = (locale: Locale) => void;
 

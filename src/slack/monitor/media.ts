@@ -1,6 +1,7 @@
 import type { WebClient as SlackWebClient } from "@slack/web-api";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { FetchLike } from "../../media/fetch.js";
 <<<<<<< HEAD
@@ -23,14 +24,21 @@ import { normalizeHostname } from "../../infra/net/hostname.js";
 >>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
 import type { FetchLike } from "../../media/fetch.js";
 import type { SlackAttachment, SlackFile } from "../types.js";
+=======
+>>>>>>> 01ea80887 (chore: Format files.)
 import { normalizeHostname } from "../../infra/net/hostname.js";
+import type { FetchLike } from "../../media/fetch.js";
 import { fetchRemoteMedia } from "../../media/fetch.js";
 import { saveMediaBuffer } from "../../media/store.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type { SlackAttachment, SlackFile } from "../types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
+=======
+import type { SlackAttachment, SlackFile } from "../types.js";
+>>>>>>> 01ea80887 (chore: Format files.)
 
 function isSlackHostname(hostname: string): boolean {
   const normalized = normalizeHostname(hostname);

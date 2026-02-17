@@ -46,12 +46,18 @@ import type {
   ChannelMentionAdapter,
   ChannelPlugin,
 <<<<<<< HEAD
+<<<<<<< HEAD
   ChannelThreadingAdapter,
 =======
   ChannelThreadingContext,
   ChannelThreadingAdapter,
   ChannelThreadingToolContext,
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+  ChannelThreadingContext,
+  ChannelThreadingAdapter,
+  ChannelThreadingToolContext,
+>>>>>>> 01ea80887 (chore: Format files.)
 } from "./plugins/types.js";
 import { CHAT_CHANNEL_ORDER, type ChatChannelId, getChatChannelMeta } from "./registry.js";
 

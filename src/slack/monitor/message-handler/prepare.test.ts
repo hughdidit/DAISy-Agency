@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { App } from "@slack/bolt";
 <<<<<<< HEAD
 import { describe, expect, it } from "vitest";
@@ -11,11 +12,16 @@ import type { MoltbotConfig } from "../../../config/config.js";
 =======
 import type { App } from "@slack/bolt";
 >>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
+=======
+>>>>>>> 01ea80887 (chore: Format files.)
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import type { App } from "@slack/bolt";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
 import type { OpenClawConfig } from "../../../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> b93ad2cd4 (fix(slack): populate thread session with existing thread history (#7610))
@@ -25,6 +31,10 @@ import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
+=======
+import { resolveAgentRoute } from "../../../routing/resolve-route.js";
+import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
+>>>>>>> 01ea80887 (chore: Format files.)
 import type { RuntimeEnv } from "../../../runtime.js";
 import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
 import type { ResolvedSlackAccount } from "../../accounts.js";
@@ -34,6 +44,7 @@ import type { SlackMessageEvent } from "../../types.js";
 =======
 =======
 import type { SlackMonitorContext } from "../context.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> a7f6c9567 (perf(test): consolidate slack monitor suites):src/slack/monitor/message-handler/prepare.test.ts
@@ -48,6 +59,8 @@ import { expectInboundContextContract } from "../../../../test/helpers/inbound-c
 import { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
 >>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
+=======
+>>>>>>> 01ea80887 (chore: Format files.)
 import { createSlackMonitorContext } from "../context.js";
 import { prepareSlackMessage } from "./prepare.js";
 

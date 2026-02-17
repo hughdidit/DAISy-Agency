@@ -4,6 +4,7 @@ import { customElement, state } from "lit/decorators.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { EventLogEntry } from "./app-events";
@@ -108,6 +109,8 @@ import { i18n, I18nController, type Locale } from "../i18n/index.ts";
 =======
 } from "./types.ts";
 import type { NostrProfileFormState } from "./views/channels.nostr-profile-form.ts";
+=======
+>>>>>>> 01ea80887 (chore: Format files.)
 import { i18n, I18nController, isSupportedLocale } from "../i18n/index.ts";
 >>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
 import {
@@ -136,6 +139,7 @@ import {
   removeQueuedMessage as removeQueuedMessageInternal,
 } from "./app-chat.ts";
 import { DEFAULT_CRON_FORM, DEFAULT_LOG_LEVEL_FILTERS } from "./app-defaults.ts";
+import type { EventLogEntry } from "./app-events.ts";
 import { connectGateway as connectGatewayInternal } from "./app-gateway.ts";
 import {
   handleConnected,
@@ -173,10 +177,38 @@ import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./contro
   type CompactionStatus,
 >>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 } from "./app-tool-stream.ts";
+import type { AppViewState } from "./app-view-state.ts";
 import { normalizeAssistantIdentity } from "./assistant-identity.ts";
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity.ts";
+import type { DevicePairingList } from "./controllers/devices.ts";
+import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
+import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals.ts";
+import type { SkillMessage } from "./controllers/skills.ts";
+import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway.ts";
+import type { Tab } from "./navigation.ts";
 import { loadSettings, type UiSettings } from "./storage.ts";
+import type { ResolvedTheme, ThemeMode } from "./theme.ts";
+import type {
+  AgentsListResult,
+  AgentsFilesListResult,
+  AgentIdentityResult,
+  ConfigSnapshot,
+  ConfigUiHints,
+  CronJob,
+  CronRunLogEntry,
+  CronStatus,
+  HealthSnapshot,
+  LogEntry,
+  LogLevel,
+  PresenceEntry,
+  ChannelsStatusSnapshot,
+  SessionsListResult,
+  SkillStatusReport,
+  StatusSummary,
+  NostrProfile,
+} from "./types.ts";
 import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types.ts";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -192,6 +224,9 @@ import type { NostrProfileFormState } from "./views/channels.nostr-profile-form.
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
+=======
+import type { NostrProfileFormState } from "./views/channels.nostr-profile-form.ts";
+>>>>>>> 01ea80887 (chore: Format files.)
 
 declare global {
   interface Window {
