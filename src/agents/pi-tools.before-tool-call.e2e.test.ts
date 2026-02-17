@@ -162,6 +162,34 @@ describe("before_tool_call hook deduplication (#15502)", () => {
 
     expect(hookRunner.runBeforeToolCall).toHaveBeenCalledTimes(1);
   });
+<<<<<<< HEAD
+=======
+
+  it("fires hook exactly once when tool goes through wrap + abort + toToolDefinitions", async () => {
+    const execute = vi.fn().mockResolvedValue({ content: [], details: { ok: true } });
+    // oxlint-disable-next-line typescript/no-explicit-any
+    const baseTool = { name: "Bash", execute, description: "bash", parameters: {} } as any;
+
+    const abortController = new AbortController();
+    const wrapped = wrapToolWithBeforeToolCallHook(baseTool, {
+      agentId: "main",
+      sessionKey: "main",
+    });
+    const withAbort = wrapToolWithAbortSignal(wrapped, abortController.signal);
+    const [def] = toToolDefinitions([withAbort]);
+    const extensionContext = {} as Parameters<typeof def.execute>[4];
+
+    await def.execute(
+      "call-abort-dedup",
+      { command: "ls" },
+      undefined,
+      undefined,
+      extensionContext,
+    );
+
+    expect(hookRunner.runBeforeToolCall).toHaveBeenCalledTimes(1);
+  });
+>>>>>>> f8b9e26c4 (test: pass extensionContext in abort dedupe e2e)
 });
 
 describe("before_tool_call hook integration for client tools", () => {
