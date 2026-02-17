@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 0aa28c71c (fix(doctor): move forced exit to top-level command)
 import { intro as clackIntro, outro as clackOutro } from "@clack/prompts";
+import fs from "node:fs";
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
@@ -14,10 +20,13 @@ import {
 } from "../agents/model-selection.js";
 import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 0aa28c71c (fix(doctor): move forced exit to top-level command)
 import { CONFIG_PATH, readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { resolveGatewayService } from "../daemon/service.js";
@@ -27,8 +36,11 @@ import { buildGatewayConnectionDetails } from "../gateway/call.js";
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 =======
 import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../runtime.js";
+=======
+>>>>>>> 0aa28c71c (fix(doctor): move forced exit to top-level command)
 import { defaultRuntime } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { stylePromptTitle } from "../terminal/prompt-style.js";
@@ -559,5 +571,4 @@ export async function doctorCommand(
   }
 
   outro("Doctor complete.");
-  runtime.exit(0);
 }
