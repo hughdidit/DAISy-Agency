@@ -111,16 +111,17 @@ jobs:
 
       - name: Validate required config
         env:
-          # Variables (non-sensitive GCP config)
-          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
-          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-          GCP_ZONE: ${{ vars.GCP_ZONE }}
-          GCE_INSTANCE_NAME: ${{ vars.GCE_INSTANCE_NAME }}
+          # Secrets (infrastructure — hidden from public repo)
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE }}
+          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME }}
+          CLAWDBOT_GATEWAY_PORT: ${{ secrets.CLAWDBOT_GATEWAY_PORT }}
+          CLAWDBOT_BRIDGE_PORT: ${{ secrets.CLAWDBOT_BRIDGE_PORT }}
+          # Variables (non-sensitive config)
           CLAWDBOT_GATEWAY_BIND: ${{ vars.CLAWDBOT_GATEWAY_BIND || 'loopback' }}
-          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
-          CLAWDBOT_BRIDGE_PORT: ${{ vars.CLAWDBOT_BRIDGE_PORT }}
-          # Secrets (sensitive credentials)
+          # Secrets (credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           CLAWDBOT_GATEWAY_TOKEN: ${{ secrets.CLAWDBOT_GATEWAY_TOKEN }}
@@ -148,8 +149,8 @@ jobs:
       - name: Authenticate to Google Cloud (WIF)
         uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f  # v2.1.7
         with:
-          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
       - name: Install Google Cloud SDK
         uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a  # v2.1.2
@@ -175,15 +176,16 @@ jobs:
           DEPLOY_ENV: ${{ inputs.environment }}
           DRY_RUN: ${{ inputs.dry_run }}
           IMAGE_REF_OVERRIDE: ${{ inputs.image_ref }}
-          # Variables (non-sensitive GCP config)
-          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-          GCP_ZONE: ${{ vars.GCP_ZONE }}
-          GCE_INSTANCE_NAME: ${{ vars.GCE_INSTANCE_NAME }}
-          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+          # Secrets (infrastructure)
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE }}
+          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME }}
+          DEPLOY_DIR: ${{ secrets.DEPLOY_DIR }}
+          CLAWDBOT_GATEWAY_PORT: ${{ secrets.CLAWDBOT_GATEWAY_PORT }}
+          CLAWDBOT_BRIDGE_PORT: ${{ secrets.CLAWDBOT_BRIDGE_PORT }}
+          # Variables (non-sensitive config)
           CLAWDBOT_GATEWAY_BIND: ${{ vars.CLAWDBOT_GATEWAY_BIND || 'loopback' }}
-          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
-          CLAWDBOT_BRIDGE_PORT: ${{ vars.CLAWDBOT_BRIDGE_PORT }}
-          # Secrets (sensitive credentials)
+          # Secrets (credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           CLAWDBOT_GATEWAY_TOKEN: ${{ secrets.CLAWDBOT_GATEWAY_TOKEN }}
@@ -202,10 +204,10 @@ jobs:
       - name: Deploy summary
         if: ${{ inputs.dry_run != true }}
         env:
-          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-          GCP_ZONE: ${{ vars.GCP_ZONE }}
-          GCE_INSTANCE_NAME: ${{ vars.GCE_INSTANCE_NAME }}
-          CLAWDBOT_GATEWAY_PORT: ${{ vars.CLAWDBOT_GATEWAY_PORT }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE }}
+          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME }}
+          CLAWDBOT_GATEWAY_PORT: ${{ secrets.CLAWDBOT_GATEWAY_PORT }}
         run: |
           : "${CLAWDBOT_GATEWAY_PORT:?CLAWDBOT_GATEWAY_PORT is required}"
           PORT="${CLAWDBOT_GATEWAY_PORT}"
