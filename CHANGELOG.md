@@ -122,7 +122,11 @@ Docs: https://docs.openclaw.ai
 - CLI/Status: fix `openclaw status --all` token summaries for bot-token-only channels so Mattermost/Zalo no longer show a bot+app warning. (#18527) Thanks @echo931.
 >>>>>>> def025416 (test(session): cover stale threadId fallback)
 - Auto-reply/Subagents: propagate group context (`groupId`, `groupChannel`, `space`) when spawning via `/subagents spawn`, matching tool-triggered subagent spawn behavior.
+<<<<<<< HEAD
 >>>>>>> f24224683 (fix(subagents): pass group context in /subagents spawn)
+=======
+- Subagents: cap announce retry loops with max attempts and expiry to prevent infinite retry spam after deferred announces. (#18444)
+>>>>>>> 67014228c (fix(subagents): harden announce retry guards)
 - Agents/Tools/exec: add a preflight guard that detects likely shell env var injection (e.g. `$DM_JSON`, `$TMPDIR`) in Python/Node scripts before execution, preventing recurring cron failures and wasted tokens when models emit mixed shell+language source. (#12836)
 <<<<<<< HEAD
 =======
