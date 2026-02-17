@@ -78,7 +78,7 @@ function errorHtmlResponse(
     text: async () => html,
   };
 }
-function requestUrl(input: RequestInfo): string {
+function requestUrl(input: RequestInfo | URL): string {
   if (typeof input === "string") {
     return input;
   }
@@ -91,9 +91,9 @@ function requestUrl(input: RequestInfo): string {
   return "";
 }
 
-function installMockFetch(impl: (input: RequestInfo) => Promise<Response>) {
-  const mockFetch = vi.fn(impl);
-  global.fetch = mockFetch;
+function installMockFetch(impl: (input: RequestInfo | URL) => Promise<Response>) {
+  const mockFetch = vi.fn(async (input: RequestInfo | URL) => await impl(input));
+  global.fetch = mockFetch as typeof global.fetch;
   return mockFetch;
 }
 
@@ -148,7 +148,7 @@ describe("web_fetch extraction fallbacks", () => {
 <<<<<<< HEAD
 =======
   it("wraps fetched text with external content markers", async () => {
-    installMockFetch((input: RequestInfo) =>
+    installMockFetch((input: RequestInfo | URL) =>
       Promise.resolve({
         ok: true,
         status: 200,
@@ -186,7 +186,7 @@ describe("web_fetch extraction fallbacks", () => {
 
   it("enforces maxChars after wrapping", async () => {
     const longText = "x".repeat(5_000);
-    installMockFetch((input: RequestInfo) =>
+    installMockFetch((input: RequestInfo | URL) =>
       Promise.resolve({
         ok: true,
         status: 200,
@@ -209,7 +209,7 @@ describe("web_fetch extraction fallbacks", () => {
   });
 
   it("honors maxChars even when wrapper overhead exceeds limit", async () => {
-    installMockFetch((input: RequestInfo) =>
+    installMockFetch((input: RequestInfo | URL) =>
       Promise.resolve({
         ok: true,
         status: 200,
@@ -236,7 +236,7 @@ describe("web_fetch extraction fallbacks", () => {
 
 >>>>>>> 74c49c943 (refactor(test): share web fetch e2e setup helpers)
   it("falls back to firecrawl when readability returns no content", async () => {
-    installMockFetch((input: RequestInfo) => {
+    installMockFetch((input: RequestInfo | URL) => {
       const url = requestUrl(input);
       if (url.includes("api.firecrawl.dev")) {
         return Promise.resolve(firecrawlResponse("firecrawl content")) as Promise<Response>;
@@ -257,8 +257,11 @@ describe("web_fetch extraction fallbacks", () => {
   });
 
   it("throws when readability is disabled and firecrawl is unavailable", async () => {
-    installMockFetch((input: RequestInfo) =>
-      Promise.resolve(htmlResponse("<html><body>hi</body></html>", requestUrl(input))),
+    installMockFetch(
+      (input: RequestInfo | URL) =>
+        Promise.resolve(
+          htmlResponse("<html><body>hi</body></html>", requestUrl(input)),
+        ) as Promise<Response>,
     );
 
     const tool = createFetchTool({
@@ -272,7 +275,7 @@ describe("web_fetch extraction fallbacks", () => {
   });
 
   it("throws when readability is empty and firecrawl fails", async () => {
-    installMockFetch((input: RequestInfo) => {
+    installMockFetch((input: RequestInfo | URL) => {
       const url = requestUrl(input);
       if (url.includes("api.firecrawl.dev")) {
         return Promise.resolve(firecrawlError()) as Promise<Response>;
@@ -292,7 +295,7 @@ describe("web_fetch extraction fallbacks", () => {
   });
 
   it("uses firecrawl when direct fetch fails", async () => {
-    installMockFetch((input: RequestInfo) => {
+    installMockFetch((input: RequestInfo | URL) => {
       const url = requestUrl(input);
       if (url.includes("api.firecrawl.dev")) {
         return Promise.resolve(firecrawlResponse("firecrawl fallback", url)) as Promise<Response>;
@@ -318,7 +321,7 @@ describe("web_fetch extraction fallbacks", () => {
   it("wraps external content and clamps oversized maxChars", async () => {
     const large = "a".repeat(80_000);
     installMockFetch(
-      (input: RequestInfo) =>
+      (input: RequestInfo | URL) =>
         Promise.resolve(textResponse(large, requestUrl(input))) as Promise<Response>,
     );
 
@@ -344,8 +347,11 @@ describe("web_fetch extraction fallbacks", () => {
       "<!doctype html><html><head><title>Not Found</title></head><body><h1>Not Found</h1><p>" +
       long +
       "</p></body></html>";
-    installMockFetch((input: RequestInfo) =>
-      Promise.resolve(errorHtmlResponse(html, 404, requestUrl(input), "Text/HTML; charset=utf-8")),
+    installMockFetch(
+      (input: RequestInfo | URL) =>
+        Promise.resolve(
+          errorHtmlResponse(html, 404, requestUrl(input), "Text/HTML; charset=utf-8"),
+        ) as Promise<Response>,
     );
 
     const tool = createFetchTool({ firecrawl: { enabled: false } });
@@ -363,8 +369,9 @@ describe("web_fetch extraction fallbacks", () => {
   it("strips HTML errors when content-type is missing", async () => {
     const html =
       "<!DOCTYPE HTML><html><head><title>Oops</title></head><body><h1>Oops</h1></body></html>";
-    installMockFetch((input: RequestInfo) =>
-      Promise.resolve(errorHtmlResponse(html, 500, requestUrl(input), null)),
+    installMockFetch(
+      (input: RequestInfo | URL) =>
+        Promise.resolve(errorHtmlResponse(html, 500, requestUrl(input), null)) as Promise<Response>,
     );
 
     const tool = createFetchTool({ firecrawl: { enabled: false } });
@@ -384,7 +391,7 @@ describe("web_fetch extraction fallbacks", () => {
   });
 
   it("wraps firecrawl error details", async () => {
-    installMockFetch((input: RequestInfo) => {
+    installMockFetch((input: RequestInfo | URL) => {
       const url = requestUrl(input);
       if (url.includes("api.firecrawl.dev")) {
         return Promise.resolve({
