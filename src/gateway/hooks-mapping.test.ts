@@ -93,7 +93,7 @@ describe("hooks mapping", () => {
       ],
     });
     expect(result?.ok).toBe(true);
-    if (result?.ok) {
+    if (result?.ok && result.action?.kind === "agent") {
       expect(result.action.kind).toBe("agent");
       expect(result.action.message).toBe("Subject: Hello");
     }
@@ -143,11 +143,9 @@ describe("hooks mapping", () => {
     });
 
     expect(result?.ok).toBe(true);
-    if (result?.ok) {
+    if (result?.ok && result.action?.kind === "wake") {
       expect(result.action.kind).toBe("wake");
-      if (result.action.kind === "wake") {
-        expect(result.action.text).toBe("Ping Ada");
-      }
+      expect(result.action.text).toBe("Ping Ada");
     }
   });
 
@@ -287,7 +285,7 @@ describe("hooks mapping", () => {
       ],
     });
     expect(result?.ok).toBe(true);
-    if (result?.ok) {
+    if (result?.ok && result.action?.kind === "agent") {
       expect(result.action.kind).toBe("agent");
       expect(result.action.message).toBe("Override subject: Hello");
     }
