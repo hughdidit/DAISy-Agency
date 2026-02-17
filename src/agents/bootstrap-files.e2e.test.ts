@@ -9,6 +9,12 @@ import {
   registerInternalHook,
   type AgentBootstrapHookContext,
 } from "../hooks/internal-hooks.js";
+<<<<<<< HEAD
+=======
+import { makeTempWorkspace } from "../test-helpers/workspace.js";
+import { resolveBootstrapContextForRun, resolveBootstrapFilesForRun } from "./bootstrap-files.js";
+import type { WorkspaceBootstrapFile } from "./workspace.js";
+>>>>>>> 18cc48dfd (chore: Fix types in tests 20/N.)
 
 describe("resolveBootstrapFilesForRun", () => {
   beforeEach(() => clearInternalHooks());
@@ -24,14 +30,14 @@ describe("resolveBootstrapFilesForRun", () => {
           path: path.join(context.workspaceDir, "EXTRA.md"),
           content: "extra",
           missing: false,
-        },
+        } as unknown as WorkspaceBootstrapFile,
       ];
     });
 
     const workspaceDir = await makeTempWorkspace("moltbot-bootstrap-");
     const files = await resolveBootstrapFilesForRun({ workspaceDir });
 
-    expect(files.some((file) => file.name === "EXTRA.md")).toBe(true);
+    expect(files.some((file) => file.path === path.join(workspaceDir, "EXTRA.md"))).toBe(true);
   });
 });
 
@@ -49,7 +55,7 @@ describe("resolveBootstrapContextForRun", () => {
           path: path.join(context.workspaceDir, "EXTRA.md"),
           content: "extra",
           missing: false,
-        },
+        } as unknown as WorkspaceBootstrapFile,
       ];
     });
 

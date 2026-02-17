@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 18cc48dfd (chore: Fix types in tests 20/N.)
 import { resolveMemorySearchConfig } from "./memory-search.js";
+
+const asConfig = (cfg: OpenClawConfig): OpenClawConfig => cfg;
 
 describe("memory search config", () => {
   it("returns null when disabled", () => {
-    const cfg = {
+    const cfg = asConfig({
       agents: {
         defaults: {
           memorySearch: { enabled: true },
@@ -17,13 +23,13 @@ describe("memory search config", () => {
           },
         ],
       },
-    };
+    });
     const resolved = resolveMemorySearchConfig(cfg, "main");
     expect(resolved).toBeNull();
   });
 
   it("defaults provider to auto when unspecified", () => {
-    const cfg = {
+    const cfg = asConfig({
       agents: {
         defaults: {
           memorySearch: {
@@ -31,14 +37,14 @@ describe("memory search config", () => {
           },
         },
       },
-    };
+    });
     const resolved = resolveMemorySearchConfig(cfg, "main");
     expect(resolved?.provider).toBe("auto");
     expect(resolved?.fallback).toBe("none");
   });
 
   it("merges defaults and overrides", () => {
-    const cfg = {
+    const cfg = asConfig({
       agents: {
         defaults: {
           memorySearch: {
@@ -70,7 +76,7 @@ describe("memory search config", () => {
           },
         ],
       },
-    };
+    });
     const resolved = resolveMemorySearchConfig(cfg, "main");
     expect(resolved?.provider).toBe("openai");
     expect(resolved?.model).toBe("text-embedding-3-small");
@@ -83,7 +89,7 @@ describe("memory search config", () => {
   });
 
   it("merges extra memory paths from defaults and overrides", () => {
-    const cfg = {
+    const cfg = asConfig({
       agents: {
         defaults: {
           memorySearch: {
@@ -100,13 +106,13 @@ describe("memory search config", () => {
           },
         ],
       },
-    };
+    });
     const resolved = resolveMemorySearchConfig(cfg, "main");
     expect(resolved?.extraPaths).toEqual(["/shared/notes", "docs", "../team-notes"]);
   });
 
   it("includes batch defaults for openai without remote overrides", () => {
-    const cfg = {
+    const cfg = asConfig({
       agents: {
         defaults: {
           memorySearch: {
@@ -114,7 +120,7 @@ describe("memory search config", () => {
           },
         },
       },
-    };
+    });
     const resolved = resolveMemorySearchConfig(cfg, "main");
     expect(resolved?.remote?.batch).toEqual({
       enabled: false,
@@ -126,7 +132,7 @@ describe("memory search config", () => {
   });
 
   it("keeps remote unset for local provider without overrides", () => {
-    const cfg = {
+    const cfg = asConfig({
       agents: {
         defaults: {
           memorySearch: {
@@ -134,13 +140,13 @@ describe("memory search config", () => {
           },
         },
       },
-    };
+    });
     const resolved = resolveMemorySearchConfig(cfg, "main");
     expect(resolved?.remote).toBeUndefined();
   });
 
   it("includes remote defaults for gemini without overrides", () => {
-    const cfg = {
+    const cfg = asConfig({
       agents: {
         defaults: {
           memorySearch: {
@@ -148,7 +154,7 @@ describe("memory search config", () => {
           },
         },
       },
-    };
+    });
     const resolved = resolveMemorySearchConfig(cfg, "main");
     expect(resolved?.remote?.batch).toEqual({
       enabled: false,
@@ -160,7 +166,7 @@ describe("memory search config", () => {
   });
 
   it("defaults session delta thresholds", () => {
-    const cfg = {
+    const cfg = asConfig({
       agents: {
         defaults: {
           memorySearch: {
@@ -168,7 +174,7 @@ describe("memory search config", () => {
           },
         },
       },
-    };
+    });
     const resolved = resolveMemorySearchConfig(cfg, "main");
     expect(resolved?.sync.sessions).toEqual({
       deltaBytes: 100000,
@@ -177,7 +183,7 @@ describe("memory search config", () => {
   });
 
   it("merges remote defaults with agent overrides", () => {
-    const cfg = {
+    const cfg = asConfig({
       agents: {
         defaults: {
           memorySearch: {
@@ -201,7 +207,7 @@ describe("memory search config", () => {
           },
         ],
       },
-    };
+    });
     const resolved = resolveMemorySearchConfig(cfg, "main");
     expect(resolved?.remote).toEqual({
       baseUrl: "https://agent.example/v1",
@@ -218,7 +224,7 @@ describe("memory search config", () => {
   });
 
   it("gates session sources behind experimental flag", () => {
-    const cfg = {
+    const cfg = asConfig({
       agents: {
         defaults: {
           memorySearch: {
@@ -236,13 +242,13 @@ describe("memory search config", () => {
           },
         ],
       },
-    };
+    });
     const resolved = resolveMemorySearchConfig(cfg, "main");
     expect(resolved?.sources).toEqual(["memory"]);
   });
 
   it("allows session sources when experimental flag is enabled", () => {
-    const cfg = {
+    const cfg = asConfig({
       agents: {
         defaults: {
           memorySearch: {
@@ -252,7 +258,7 @@ describe("memory search config", () => {
           },
         },
       },
-    };
+    });
     const resolved = resolveMemorySearchConfig(cfg, "main");
     expect(resolved?.sources).toContain("sessions");
   });
