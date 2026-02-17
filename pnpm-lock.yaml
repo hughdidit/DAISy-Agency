@@ -507,12 +507,6 @@ importers:
         specifier: workspace:*
         version: link:../..
 
-  extensions/openai-codex-auth:
-    devDependencies:
-      openclaw:
-        specifier: workspace:*
-        version: link:../..
-
   extensions/signal:
     devDependencies:
       openclaw:
