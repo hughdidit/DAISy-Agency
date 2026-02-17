@@ -778,5 +778,6 @@ High-signal WhatsApp fields:
 
 - [Pairing](/channels/pairing)
 - [Channel routing](/channels/channel-routing)
+- [Multi-agent routing](/concepts/multi-agent)
 - [Troubleshooting](/channels/troubleshooting)
 >>>>>>> 8c963dc5a (docs(channels): modernize whatsapp docs page (#14202))
