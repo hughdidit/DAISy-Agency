@@ -84,6 +84,13 @@ vi.mock("../infra/backoff.js", () => ({
   sleepWithAbort,
 }));
 
+<<<<<<< HEAD
+=======
+vi.mock("./webhook.js", () => ({
+  startTelegramWebhook: startTelegramWebhookSpy,
+}));
+
+>>>>>>> 43c97d18a (chore: Fix types in tests 17/N.)
 vi.mock("../auto-reply/reply.js", () => ({
   getReplyFromConfig: async (ctx: { Body?: string }) => ({
     text: `echo:${ctx.Body}`,

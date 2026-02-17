@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
 
 const mockPrimary = {
   search: vi.fn(async () => []),
@@ -103,15 +104,16 @@ vi.mock("./manager.js", () => ({
 
 import { QmdMemoryManager } from "./qmd-manager.js";
 import { getMemorySearchManager } from "./search-manager.js";
+const createQmdManagerMock = vi.mocked(QmdMemoryManager.create.bind(QmdMemoryManager));
 
 type SearchManagerResult = Awaited<ReturnType<typeof getMemorySearchManager>>;
 type SearchManager = NonNullable<SearchManagerResult["manager"]>;
 
-function createQmdCfg(agentId: string) {
+function createQmdCfg(agentId: string): OpenClawConfig {
   return {
     memory: { backend: "qmd", qmd: {} },
     agents: { list: [{ id: agentId, default: true, workspace: "/tmp/workspace" }] },
-  } as const;
+  };
 }
 
 function requireManager(result: SearchManagerResult): SearchManager {
@@ -148,8 +150,12 @@ beforeEach(() => {
   fallbackManager.close.mockClear();
   mockMemoryIndexGet.mockReset();
   mockMemoryIndexGet.mockResolvedValue(fallbackManager);
+<<<<<<< HEAD
 >>>>>>> c4dbcc344 (Memory/QMD: make status checks side-effect free)
   QmdMemoryManager.create.mockClear();
+=======
+  createQmdManagerMock.mockClear();
+>>>>>>> 43c97d18a (chore: Fix types in tests 17/N.)
 });
 
 describe("getMemorySearchManager caching", () => {
@@ -161,7 +167,7 @@ describe("getMemorySearchManager caching", () => {
 
     expect(first.manager).toBe(second.manager);
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(QmdMemoryManager.create).toHaveBeenCalledTimes(1);
+    expect(createQmdManagerMock).toHaveBeenCalledTimes(1);
   });
 
   it("evicts failed qmd wrapper so next call retries qmd", async () => {
@@ -183,7 +189,7 @@ describe("getMemorySearchManager caching", () => {
     requireManager(second);
     expect(second.manager).not.toBe(first.manager);
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(QmdMemoryManager.create).toHaveBeenCalledTimes(2);
+    expect(createQmdManagerMock).toHaveBeenCalledTimes(2);
   });
 
   it("does not cache status-only qmd managers", async () => {
@@ -196,14 +202,14 @@ describe("getMemorySearchManager caching", () => {
     requireManager(first);
     requireManager(second);
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(QmdMemoryManager.create).toHaveBeenCalledTimes(2);
+    expect(createQmdManagerMock).toHaveBeenCalledTimes(2);
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(QmdMemoryManager.create).toHaveBeenNthCalledWith(
+    expect(createQmdManagerMock).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({ agentId, mode: "status" }),
     );
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(QmdMemoryManager.create).toHaveBeenNthCalledWith(
+    expect(createQmdManagerMock).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({ agentId, mode: "status" }),
     );
@@ -230,7 +236,7 @@ describe("getMemorySearchManager caching", () => {
     const third = await getMemorySearchManager({ cfg, agentId: retryAgentId });
     expect(third.manager).toBe(secondManager);
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(QmdMemoryManager.create).toHaveBeenCalledTimes(2);
+    expect(createQmdManagerMock).toHaveBeenCalledTimes(2);
   });
 <<<<<<< HEAD
 =======
