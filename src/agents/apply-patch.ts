@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -23,9 +24,15 @@ import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
 >>>>>>> 5115f6fdf (style: normalize imports for oxfmt 0.33)
+=======
+import type { AgentTool } from "@mariozechner/pi-agent-core";
+import { Type } from "@sinclair/typebox";
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+>>>>>>> ed11e93cf (chore(format))
 import { applyUpdateHunk } from "./apply-patch-update.js";
 import { assertSandboxPath, resolveSandboxInputPath } from "./sandbox-paths.js";
-import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 
 const BEGIN_PATCH_MARKER = "*** Begin Patch";
 const END_PATCH_MARKER = "*** End Patch";

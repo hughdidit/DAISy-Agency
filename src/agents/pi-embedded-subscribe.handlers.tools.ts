@@ -2,6 +2,7 @@ import type { AgentEvent } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
@@ -15,24 +16,30 @@ import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 >>>>>>> 9c5f08244 (chore: Format files.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { PluginHookAfterToolCallEvent } from "../plugins/types.js";
-import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
-import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
 import type {
   ToolCallSummary,
   ToolHandlerContext,
 } from "./pi-embedded-subscribe.handlers.types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
 import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
+<<<<<<< HEAD
 >>>>>>> a75e95be0 (fix(reply): track messaging media aliases for dedupe)
 =======
 >>>>>>> 9c5f08244 (chore: Format files.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   extractToolErrorMessage,
   extractToolResultText,

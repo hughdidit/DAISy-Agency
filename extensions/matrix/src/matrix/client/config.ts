@@ -3,15 +3,19 @@ import { MatrixClient } from "@vector-im/matrix-bot-sdk";
 =======
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 import type { MatrixAuth, MatrixResolvedConfig } from "./types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getMatrixRuntime } from "../../runtime.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { CoreConfig } from "../../types.js";
-import { ensureMatrixSdkLoggingConfigured } from "./logging.js";
 import type { MatrixAuth, MatrixResolvedConfig } from "./types.js";
+import { getMatrixRuntime } from "../../runtime.js";
+import { ensureMatrixSdkLoggingConfigured } from "./logging.js";
 
 function clean(value?: string): string {
   return value?.trim() ?? "";

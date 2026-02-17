@@ -1,11 +1,16 @@
-import { randomUUID } from "node:crypto";
 import type { IncomingMessage } from "node:http";
+<<<<<<< HEAD
 import { listAgentIds, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
 =======
+=======
+import { randomUUID } from "node:crypto";
+>>>>>>> ed11e93cf (chore(format))
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
+import { listAgentIds, resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { listChannelPlugins } from "../channels/plugins/index.js";
 import { readJsonBodyWithLimit, requestBodyErrorToText } from "../infra/http-body.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeAgentId } from "../routing/session-key.js";

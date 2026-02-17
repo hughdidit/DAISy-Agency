@@ -1,3 +1,5 @@
+import type { TlsOptions } from "node:tls";
+import type { WebSocketServer } from "ws";
 import {
   createServer as createHttpServer,
   type Server as HttpServer,
@@ -5,8 +7,10 @@ import {
   type ServerResponse,
 } from "node:http";
 import { createServer as createHttpsServer } from "node:https";
-import type { TlsOptions } from "node:tls";
-import type { WebSocketServer } from "ws";
+import type { CanvasHostHandler } from "../canvas-host/server.js";
+import type { createSubsystemLogger } from "../logging/subsystem.js";
+import type { AuthRateLimiter } from "./auth-rate-limit.js";
+import type { GatewayWsClient } from "./server/ws-types.js";
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import {
   A2UI_PATH,
@@ -14,15 +18,16 @@ import {
   CANVAS_WS_PATH,
   handleA2uiHttpRequest,
 } from "../canvas-host/a2ui.js";
-import type { CanvasHostHandler } from "../canvas-host/server.js";
 import { loadConfig } from "../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 import type { createSubsystemLogger } from "../logging/subsystem.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { safeEqualSecret } from "../security/secret-equal.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { handleSlackHttpRequest } from "../slack/http/index.js";
-import type { AuthRateLimiter } from "./auth-rate-limit.js";
 import {
   authorizeGatewayConnect,
   isLocalDirectRequest,
@@ -55,7 +60,6 @@ import { getBearerToken, getHeader } from "./http-utils.js";
 import { resolveGatewayClientIp } from "./net.js";
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
-import type { GatewayWsClient } from "./server/ws-types.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;

@@ -1,6 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
 =======
+=======
+import type { GatewayRequestHandlers } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { readConfigFileSnapshot } from "../../config/config.js";
 import { redactConfigObject } from "../../config/redact-snapshot.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -10,7 +14,6 @@ import {
   formatValidationErrors,
   validateTalkModeParams,
 } from "../protocol/index.js";
-import type { GatewayRequestHandlers } from "./types.js";
 
 export const talkHandlers: GatewayRequestHandlers = {
   "talk.mode": ({ params, respond, context, client, isWebchatConnect }) => {

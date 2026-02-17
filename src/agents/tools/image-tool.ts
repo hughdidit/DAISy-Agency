@@ -1,6 +1,6 @@
-import path from "node:path";
 import { type Api, type Context, complete, type Model } from "@mariozechner/pi-ai";
 import { Type } from "@sinclair/typebox";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -20,6 +20,12 @@ import type { AnyAgentTool } from "./common.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 9c5f08244 (chore: Format files.)
+=======
+import path from "node:path";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveUserPath } from "../../utils.js";
 import { getDefaultLocalRoots, loadWebMedia } from "../../web/media.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "../auth-profiles.js";
@@ -30,6 +36,7 @@ import { runWithImageModelFallback } from "../model-fallback.js";
 import { resolveConfiguredModelRef } from "../model-selection.js";
 import { ensureOpenClawModelsJson } from "../models-config.js";
 import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -51,6 +58,9 @@ import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
 import { normalizeWorkspaceDir } from "../workspace-dir.js";
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 9c5f08244 (chore: Format files.)
+=======
+import { normalizeWorkspaceDir } from "../workspace-dir.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   coerceImageAssistantText,
   coerceImageModelConfig,

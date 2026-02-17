@@ -1,12 +1,16 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { AssistantIdentity } from "../assistant-identity.ts";
+import type { MessageGroup } from "../types/chat-types.ts";
 import { toSanitizedMarkdownHtml } from "../markdown.ts";
 <<<<<<< HEAD
 =======
 import { detectTextDirection } from "../text-direction.ts";
+<<<<<<< HEAD
 import type { MessageGroup } from "../types/chat-types.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
 import {
   extractTextCached,

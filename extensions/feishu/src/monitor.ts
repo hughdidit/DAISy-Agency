@@ -1,23 +1,30 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ClawdbotConfig, RuntimeEnv, HistoryEntry } from "openclaw/plugin-sdk";
 import * as Lark from "@larksuiteoapi/node-sdk";
 import * as http from "http";
 import type { ResolvedFeishuAccount } from "./types.js";
 =======
 import * as http from "http";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import * as Lark from "@larksuiteoapi/node-sdk";
+import * as http from "http";
 import {
   type ClawdbotConfig,
   type RuntimeEnv,
   type HistoryEntry,
   installRequestBodyLimitGuard,
 } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { ResolvedFeishuAccount } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveFeishuAccount, listEnabledFeishuAccounts } from "./accounts.js";
 import { handleFeishuMessage, type FeishuMessageEvent, type FeishuBotAddedEvent } from "./bot.js";
 import { createFeishuWSClient, createEventDispatcher } from "./client.js";
 import { probeFeishu } from "./probe.js";
-import type { ResolvedFeishuAccount } from "./types.js";
 
 export type MonitorFeishuOpts = {
   config?: ClawdbotConfig;

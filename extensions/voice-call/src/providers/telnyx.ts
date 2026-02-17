@@ -14,10 +14,14 @@ import type {
   WebhookVerificationResult,
 } from "../types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { verifyTelnyxWebhook } from "../webhook-security.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { VoiceCallProvider } from "./base.js";
+import { verifyTelnyxWebhook } from "../webhook-security.js";
 
 /**
  * Telnyx Voice API provider implementation.

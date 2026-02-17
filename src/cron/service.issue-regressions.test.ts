@@ -7,14 +7,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 912693036 (test(cron): remove flaky real-timer polling)
 import type { CronJob } from "./types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { CronJob, CronJobState } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { CronService } from "./service.js";
 import { createCronServiceState, type CronEvent } from "./service/state.js";
 import { onTimer } from "./service/timer.js";
-import type { CronJob, CronJobState } from "./types.js";
 
 const noopLogger = {
   info: vi.fn(),

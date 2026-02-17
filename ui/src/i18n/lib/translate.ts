@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { Locale, TranslationMap } from "./types";
 import { en } from "../locales/en";
 =======
@@ -15,6 +16,10 @@ import { en } from "../locales/en.ts";
 import { en } from "../locales/en.ts";
 import type { Locale, TranslationMap } from "./types.ts";
 >>>>>>> 01ea80887 (chore: Format files.)
+=======
+import type { Locale, TranslationMap } from "./types.ts";
+import { en } from "../locales/en.ts";
+>>>>>>> ed11e93cf (chore(format))
 
 type Subscriber = (locale: Locale) => void;
 

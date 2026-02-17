@@ -7,8 +7,8 @@ import { createActionGate } from "../../../agents/tools/common.js";
 =======
 >>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
 import type { DiscordActionConfig } from "../../../config/types.discord.js";
-import { createDiscordActionGate, listEnabledDiscordAccounts } from "../../../discord/accounts.js";
 import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
+import { createDiscordActionGate, listEnabledDiscordAccounts } from "../../../discord/accounts.js";
 import { handleDiscordMessageAction } from "./discord/handle-action.js";
 
 export const discordMessageActions: ChannelMessageActionAdapter = {

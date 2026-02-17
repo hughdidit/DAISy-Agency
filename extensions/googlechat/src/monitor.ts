@@ -14,7 +14,10 @@ import {
   resolveMentionGatingWithBypass,
 } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 00e63da33 (refactor(webhooks): reuse plugin-sdk webhook path helpers)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type {
   GoogleChatAnnotation,
   GoogleChatAttachment,
@@ -23,8 +26,11 @@ import type {
   GoogleChatMessage,
   GoogleChatUser,
 } from "./types.js";
+<<<<<<< HEAD
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { type ResolvedGoogleChatAccount } from "./accounts.js";
 import {
   downloadGoogleChatMedia,
@@ -34,14 +40,6 @@ import {
 } from "./api.js";
 import { verifyGoogleChatRequest, type GoogleChatAudienceType } from "./auth.js";
 import { getGoogleChatRuntime } from "./runtime.js";
-import type {
-  GoogleChatAnnotation,
-  GoogleChatAttachment,
-  GoogleChatEvent,
-  GoogleChatSpace,
-  GoogleChatMessage,
-  GoogleChatUser,
-} from "./types.js";
 
 export type GoogleChatRuntimeEnv = {
   log?: (message: string) => void;

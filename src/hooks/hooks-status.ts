@@ -1,14 +1,18 @@
 import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
-import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
+import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
+import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
 import { CONFIG_DIR } from "../utils.js";
 <<<<<<< HEAD
 import { hasBinary, isConfigPathTruthy, resolveConfigPath, resolveHookConfig } from "./config.js";
 =======
 import { hasBinary, isConfigPathTruthy, resolveHookConfig } from "./config.js";
+<<<<<<< HEAD
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { loadWorkspaceHookEntries } from "./workspace.js";
 
 <<<<<<< HEAD
