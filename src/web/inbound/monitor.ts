@@ -1,7 +1,11 @@
 import type { AnyMessageContent, proto, WAMessage } from "@whiskeysockets/baileys";
 import { DisconnectReason, isJidGroup } from "@whiskeysockets/baileys";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import type { WebInboundMessage, WebListenerCloseReason } from "./types.js";
+>>>>>>> 65fa529e0 (Revert "fix(whatsapp): allow per-message link preview override\n\nWhatsApp messages default to enabling link previews for URLs. This adds\nsupport for overriding this behavior per-message via the \nparameter (e.g. from  tool options), consistent with Telegram.\n\nFix: Updated internal WhatsApp Web API layers to pass  option\ndown to Baileys .")
 import { createInboundDebouncer } from "../../auto-reply/inbound-debounce.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatLocationText } from "../../channels/location.js";
@@ -24,7 +28,6 @@ import {
 } from "./extract.js";
 import { downloadInboundMedia } from "./media.js";
 import { createWebSendApi } from "./send-api.js";
-import type { WebInboundMessage, WebListenerCloseReason } from "./types.js";
 
 export async function monitorWebInbox(options: {
   verbose: boolean;
@@ -366,10 +369,7 @@ export async function monitorWebInbox(options: {
 
   const sendApi = createWebSendApi({
     sock: {
-      sendMessage: (jid, content, options) =>
-        options === undefined
-          ? sock.sendMessage(jid, content)
-          : sock.sendMessage(jid, content, options),
+      sendMessage: (jid: string, content: AnyMessageContent) => sock.sendMessage(jid, content),
       sendPresenceUpdate: (presence, jid?: string) => sock.sendPresenceUpdate(presence, jid),
     },
     defaultAccountId: options.accountId,

@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { AnyMessageContent, WAPresence } from "@whiskeysockets/baileys";
 =======
 import type { AnyMessageContent, MiscMessageGenerationOptions, WAPresence } from "@whiskeysockets/baileys";
@@ -15,9 +16,12 @@ import type { ActiveWebSendOptions } from "../active-listener.js";
 >>>>>>> 1bef2fc68 (fix(whatsapp): allow per-message link preview override\n\nWhatsApp messages default to enabling link previews for URLs. This adds\nsupport for overriding this behavior per-message via the \nparameter (e.g. from  tool options), consistent with Telegram.\n\nFix: Updated internal WhatsApp Web API layers to pass  option\ndown to Baileys .)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { AnyMessageContent, WAPresence } from "@whiskeysockets/baileys";
+import type { ActiveWebSendOptions } from "../active-listener.js";
+>>>>>>> 65fa529e0 (Revert "fix(whatsapp): allow per-message link preview override\n\nWhatsApp messages default to enabling link previews for URLs. This adds\nsupport for overriding this behavior per-message via the \nparameter (e.g. from  tool options), consistent with Telegram.\n\nFix: Updated internal WhatsApp Web API layers to pass  option\ndown to Baileys .")
 import { recordChannelActivity } from "../../infra/channel-activity.js";
 import { toWhatsappJid } from "../../utils.js";
-import type { ActiveWebSendOptions } from "../active-listener.js";
 
 function recordWhatsAppOutbound(accountId: string) {
   recordChannelActivity({
@@ -35,11 +39,7 @@ function resolveOutboundMessageId(result: unknown): string {
 
 export function createWebSendApi(params: {
   sock: {
-    sendMessage: (
-      jid: string,
-      content: AnyMessageContent,
-      options?: MiscMessageGenerationOptions,
-    ) => Promise<unknown>;
+    sendMessage: (jid: string, content: AnyMessageContent) => Promise<unknown>;
     sendPresenceUpdate: (presence: WAPresence, jid?: string) => Promise<unknown>;
   };
   defaultAccountId: string;
@@ -83,14 +83,7 @@ export function createWebSendApi(params: {
       } else {
         payload = { text };
       }
-      let result;
-      if (sendOptions?.linkPreview === false) {
-        // Baileys types have changed across releases; keep backward-compatible runtime behavior.
-        const miscOptions = { linkPreview: null } as unknown as MiscMessageGenerationOptions;
-        result = await params.sock.sendMessage(jid, payload, miscOptions);
-      } else {
-        result = await params.sock.sendMessage(jid, payload);
-      }
+      const result = await params.sock.sendMessage(jid, payload);
       const accountId = sendOptions?.accountId ?? params.defaultAccountId;
       recordWhatsAppOutbound(accountId);
       const messageId = resolveOutboundMessageId(result);
