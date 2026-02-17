@@ -236,6 +236,7 @@ export async function runServiceRestart(params: {
   service: GatewayService;
   renderStartHints: () => string[];
   opts?: DaemonLifecycleOptions;
+  checkTokenDrift?: boolean;
 }): Promise<boolean> {
   const json = Boolean(params.opts?.json);
   const { stdout, emit, fail } = createActionIO({ action: "restart", json });
@@ -259,6 +260,7 @@ export async function runServiceRestart(params: {
     return false;
   }
 
+<<<<<<< HEAD
   // Check for token drift before restart (service token vs config token)
   try {
     const command = await params.service.readCommand(process.env);
@@ -273,10 +275,35 @@ export async function runServiceRestart(params: {
       defaultRuntime.log(`\n⚠️  ${driftIssue.message}`);
       if (driftIssue.detail) {
         defaultRuntime.log(`   ${driftIssue.detail}\n`);
+=======
+  const warnings: string[] = [];
+  if (params.checkTokenDrift) {
+    // Check for token drift before restart (service token vs config token)
+    try {
+      const command = await params.service.readCommand(process.env);
+      const serviceToken = command?.environment?.OPENCLAW_GATEWAY_TOKEN;
+      const cfg = loadConfig();
+      const configToken =
+        cfg.gateway?.auth?.token ||
+        process.env.OPENCLAW_GATEWAY_TOKEN ||
+        process.env.CLAWDBOT_GATEWAY_TOKEN;
+      const driftIssue = checkTokenDrift({ serviceToken, configToken });
+      if (driftIssue) {
+        const warning = driftIssue.detail
+          ? `${driftIssue.message} ${driftIssue.detail}`
+          : driftIssue.message;
+        warnings.push(warning);
+        if (!json) {
+          defaultRuntime.log(`\n⚠️  ${driftIssue.message}`);
+          if (driftIssue.detail) {
+            defaultRuntime.log(`   ${driftIssue.detail}\n`);
+          }
+        }
+>>>>>>> 111a24d55 (fix(daemon): scope token drift warnings)
       }
+    } catch {
+      // Non-fatal: token drift check is best-effort
     }
-  } catch {
-    // Non-fatal: token drift check is best-effort
   }
 
   try {

@@ -114,6 +114,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> f7e75d2c5 (fix(doctor): repair googlechat open dm wildcard auto-fix)
 =======
 - CLI/Doctor: detect gateway service token drift when the gateway token is only provided via environment variables, keeping service repairs aligned after token rotation.
+- CLI/Daemon: warn when a gateway restart sees a stale service token so users can reinstall with `openclaw gateway install --force`, and skip drift warnings for non-gateway service restarts. (#18018)
 - CLI/Status: fix `openclaw status --all` token summaries for bot-token-only channels so Mattermost/Zalo no longer show a bot+app warning. (#18527) Thanks @echo931.
 >>>>>>> def025416 (test(session): cover stale threadId fallback)
 - Auto-reply/Subagents: propagate group context (`groupId`, `groupChannel`, `space`) when spawning via `/subagents spawn`, matching tool-triggered subagent spawn behavior.
