@@ -33,13 +33,16 @@ import { recordSentMessage } from "./sent-message-cache.js";
 import { parseTelegramTarget, stripTelegramInternalPrefixes } from "./targets.js";
 import { resolveTelegramVoiceSend } from "./voice.js";
 
+type TelegramApi = Bot["api"];
+type TelegramApiOverride = Partial<TelegramApi>;
+
 type TelegramSendOpts = {
   token?: string;
   accountId?: string;
   verbose?: boolean;
   mediaUrl?: string;
   maxBytes?: number;
-  api?: Bot["api"];
+  api?: TelegramApiOverride;
   retry?: RetryConfig;
   textMode?: "markdown" | "html";
   plainText?: string;
@@ -72,7 +75,7 @@ type TelegramMessageLike = {
 type TelegramReactionOpts = {
   token?: string;
   accountId?: string;
-  api?: Bot["api"];
+  api?: TelegramApiOverride;
   remove?: boolean;
   verbose?: boolean;
   retry?: RetryConfig;
@@ -299,13 +302,13 @@ async function withTelegramHtmlParseFallback<T>(params: {
 type TelegramApiContext = {
   cfg: ReturnType<typeof loadConfig>;
   account: ResolvedTelegramAccount;
-  api: Bot["api"];
+  api: TelegramApi;
 };
 
 function resolveTelegramApiContext(opts: {
   token?: string;
   accountId?: string;
-  api?: Bot["api"];
+  api?: TelegramApiOverride;
   cfg?: ReturnType<typeof loadConfig>;
 }): TelegramApiContext {
   const cfg = opts.cfg ?? loadConfig();
@@ -315,7 +318,7 @@ function resolveTelegramApiContext(opts: {
   });
   const token = resolveToken(opts.token, account);
   const client = resolveTelegramClientOptions(account);
-  const api = opts.api ?? new Bot(token, client ? { client } : undefined).api;
+  const api = (opts.api ?? new Bot(token, client ? { client } : undefined).api) as TelegramApi;
   return { cfg, account, api };
 }
 
@@ -925,7 +928,7 @@ type TelegramDeleteOpts = {
   token?: string;
   accountId?: string;
   verbose?: boolean;
-  api?: Bot["api"];
+  api?: TelegramApiOverride;
   retry?: RetryConfig;
 };
 
@@ -953,7 +956,7 @@ type TelegramEditOpts = {
   token?: string;
   accountId?: string;
   verbose?: boolean;
-  api?: Bot["api"];
+  api?: TelegramApiOverride;
   retry?: RetryConfig;
   textMode?: "markdown" | "html";
   /** Controls whether link previews are shown in the edited message. */
@@ -1070,7 +1073,7 @@ type TelegramStickerOpts = {
   token?: string;
   accountId?: string;
   verbose?: boolean;
-  api?: Bot["api"];
+  api?: TelegramApiOverride;
   retry?: RetryConfig;
   /** Message ID to reply to (for threading) */
   replyToMessageId?: number;
@@ -1177,7 +1180,7 @@ type TelegramPollOpts = {
   token?: string;
   accountId?: string;
   verbose?: boolean;
-  api?: Bot["api"];
+  api?: TelegramApiOverride;
   retry?: RetryConfig;
   /** Message ID to reply to (for threading) */
   replyToMessageId?: number;
