@@ -1,5 +1,8 @@
+import type { CronJob, CronSchedule } from "../../cron/types.js";
+import type { GatewayRpcOpts } from "../gateway-rpc.js";
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import { parseAbsoluteTimeMs } from "../../cron/parse.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14,11 +17,13 @@ import type { CronJob, CronSchedule } from "../../cron/types.js";
 =======
 import type { CronJob, CronSchedule } from "../../cron/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { resolveCronStaggerMs } from "../../cron/stagger.js";
+>>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 import { formatDurationHuman } from "../../infra/format-time/format-duration.ts";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { defaultRuntime } from "../../runtime.js";
 import { colorize, isRich, theme } from "../../terminal/theme.js";
-import type { GatewayRpcOpts } from "../gateway-rpc.js";
 import { callGatewayFromCli } from "../gateway-rpc.js";
 
 export const getCronChannelOptions = () =>
@@ -151,7 +156,12 @@ const formatSchedule = (schedule: CronSchedule) => {
   if (schedule.kind === "every") {
     return `every ${formatDurationHuman(schedule.everyMs)}`;
   }
-  return schedule.tz ? `cron ${schedule.expr} @ ${schedule.tz}` : `cron ${schedule.expr}`;
+  const base = schedule.tz ? `cron ${schedule.expr} @ ${schedule.tz}` : `cron ${schedule.expr}`;
+  const staggerMs = resolveCronStaggerMs(schedule);
+  if (staggerMs <= 0) {
+    return `${base} (exact)`;
+  }
+  return `${base} (stagger ${formatDurationHuman(staggerMs)})`;
 };
 
 const formatStatus = (job: CronJob) => {

@@ -1,3 +1,4 @@
+import type { CronJobCreate, CronJobPatch } from "./types.js";
 import { sanitizeAgentId } from "../routing/session-key.js";
 import { isRecord } from "../utils.js";
 import {
@@ -12,6 +13,7 @@ import { migrateLegacyCronPayload } from "./payload-migration.js";
 import { inferLegacyName } from "./service/normalize.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { CronJobCreate, CronJobPatch } from "./types.js";
 =======
@@ -19,6 +21,9 @@ import type { CronJobCreate, CronJobPatch } from "./types.js";
 =======
 import type { CronJobCreate, CronJobPatch } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { normalizeCronStaggerMs, resolveDefaultCronStaggerMs } from "./stagger.js";
+>>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -66,6 +71,13 @@ function coerceSchedule(schedule: UnknownRecord) {
   }
   if ("atMs" in next) {
     delete next.atMs;
+  }
+
+  const staggerMs = normalizeCronStaggerMs(schedule.staggerMs);
+  if (staggerMs !== undefined) {
+    next.staggerMs = staggerMs;
+  } else if ("staggerMs" in next) {
+    delete next.staggerMs;
   }
 
   return next;
@@ -294,6 +306,19 @@ export function normalizeCronJobInput(
       !("deleteAfterRun" in next)
     ) {
       next.deleteAfterRun = true;
+    }
+    if ("schedule" in next && isRecord(next.schedule) && next.schedule.kind === "cron") {
+      const schedule = next.schedule as UnknownRecord;
+      const explicit = normalizeCronStaggerMs(schedule.staggerMs);
+      if (explicit !== undefined) {
+        schedule.staggerMs = explicit;
+      } else {
+        const expr = typeof schedule.expr === "string" ? schedule.expr : "";
+        const defaultStaggerMs = resolveDefaultCronStaggerMs(expr);
+        if (defaultStaggerMs !== undefined) {
+          schedule.staggerMs = defaultStaggerMs;
+        }
+      }
     }
     const payload = isRecord(next.payload) ? next.payload : null;
     const payloadKind = payload && typeof payload.kind === "string" ? payload.kind : "";

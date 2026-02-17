@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { parseAbsoluteTimeMs } from "../parse.js";
@@ -13,6 +14,8 @@ import { computeNextRunAtMs } from "../schedule.js";
 import { parseAbsoluteTimeMs } from "../parse.js";
 import { computeNextRunAtMs } from "../schedule.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 import type {
   CronDelivery,
   CronDeliveryPatch,
@@ -22,6 +25,7 @@ import type {
   CronPayload,
   CronPayloadPatch,
 } from "../types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -42,6 +46,16 @@ import { computeNextRunAtMs } from "../schedule.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { CronServiceState } from "./state.js";
+import { parseAbsoluteTimeMs } from "../parse.js";
+import { computeNextRunAtMs } from "../schedule.js";
+import {
+  normalizeCronStaggerMs,
+  resolveCronStaggerMs,
+  resolveDefaultCronStaggerMs,
+} from "../stagger.js";
+>>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 import { normalizeHttpWebhookUrl } from "../webhook-url.js";
 >>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
 import {
@@ -51,10 +65,59 @@ import {
   normalizePayloadToSystemText,
   normalizeRequiredName,
 } from "./normalize.js";
-import type { CronServiceState } from "./state.js";
 
 const STUCK_RUN_MS = 2 * 60 * 60 * 1000;
 
+<<<<<<< HEAD
+=======
+function resolveStableCronOffsetMs(jobId: string, staggerMs: number) {
+  if (staggerMs <= 1) {
+    return 0;
+  }
+  const digest = crypto.createHash("sha256").update(jobId).digest();
+  return digest.readUInt32BE(0) % staggerMs;
+}
+
+function computeStaggeredCronNextRunAtMs(job: CronJob, nowMs: number) {
+  if (job.schedule.kind !== "cron") {
+    return computeNextRunAtMs(job.schedule, nowMs);
+  }
+
+  const staggerMs = resolveCronStaggerMs(job.schedule);
+  const offsetMs = resolveStableCronOffsetMs(job.id, staggerMs);
+  if (offsetMs <= 0) {
+    return computeNextRunAtMs(job.schedule, nowMs);
+  }
+
+  // Shift the schedule cursor backwards by the per-job offset so we can still
+  // target the current schedule window if its staggered slot has not passed yet.
+  let cursorMs = Math.max(0, nowMs - offsetMs);
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const baseNext = computeNextRunAtMs(job.schedule, cursorMs);
+    if (baseNext === undefined) {
+      return undefined;
+    }
+    const shifted = baseNext + offsetMs;
+    if (shifted > nowMs) {
+      return shifted;
+    }
+    cursorMs = Math.max(cursorMs + 1, baseNext + 1_000);
+  }
+  return undefined;
+}
+
+function resolveEveryAnchorMs(params: {
+  schedule: { everyMs: number; anchorMs?: number };
+  fallbackAnchorMs: number;
+}) {
+  const raw = params.schedule.anchorMs;
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    return Math.max(0, Math.floor(raw));
+  }
+  return Math.max(0, Math.floor(params.fallbackAnchorMs));
+}
+
+>>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 export function assertSupportedJobSpec(job: Pick<CronJob, "sessionTarget" | "payload">) {
   if (job.sessionTarget === "main" && job.payload.kind !== "systemEvent") {
     throw new Error('main cron jobs require payload.kind="systemEvent"');
@@ -112,18 +175,7 @@ export function computeJobNextRunAtMs(job: CronJob, nowMs: number): number | und
             : null;
     return atMs !== null ? atMs : undefined;
   }
-  const next = computeNextRunAtMs(job.schedule, nowMs);
-  // Guard against the scheduler returning a time within the same second as
-  // nowMs.  When a cron job completes within the same wall-clock second it
-  // was scheduled for, some croner versions/timezone combinations may return
-  // the current second (or computeNextRunAtMs may return undefined, which
-  // triggers recomputation).  Advancing to the next second and retrying
-  // ensures we always land on the *next* occurrence.  (See #17821)
-  if (next === undefined && job.schedule.kind === "cron") {
-    const nextSecondMs = (Math.floor(nowMs / 1000) + 1) * 1000;
-    return computeNextRunAtMs(job.schedule, nextSecondMs);
-  }
-  return next;
+  return computeStaggeredCronNextRunAtMs(job, nowMs);
 }
 
 <<<<<<< HEAD
@@ -341,6 +393,30 @@ export function nextWakeAtMs(state: CronServiceState) {
 export function createJob(state: CronServiceState, input: CronJobCreate): CronJob {
   const now = state.deps.nowMs();
   const id = crypto.randomUUID();
+<<<<<<< HEAD
+=======
+  const schedule =
+    input.schedule.kind === "every"
+      ? {
+          ...input.schedule,
+          anchorMs: resolveEveryAnchorMs({
+            schedule: input.schedule,
+            fallbackAnchorMs: now,
+          }),
+        }
+      : input.schedule.kind === "cron"
+        ? (() => {
+            const explicitStaggerMs = normalizeCronStaggerMs(input.schedule.staggerMs);
+            if (explicitStaggerMs !== undefined) {
+              return { ...input.schedule, staggerMs: explicitStaggerMs };
+            }
+            const defaultStaggerMs = resolveDefaultCronStaggerMs(input.schedule.expr);
+            return defaultStaggerMs !== undefined
+              ? { ...input.schedule, staggerMs: defaultStaggerMs }
+              : input.schedule;
+          })()
+        : input.schedule;
+>>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
   const deleteAfterRun =
     typeof input.deleteAfterRun === "boolean"
       ? input.deleteAfterRun
@@ -387,7 +463,22 @@ export function applyJobPatch(job: CronJob, patch: CronJobPatch) {
     job.deleteAfterRun = patch.deleteAfterRun;
   }
   if (patch.schedule) {
-    job.schedule = patch.schedule;
+    if (patch.schedule.kind === "cron") {
+      const explicitStaggerMs = normalizeCronStaggerMs(patch.schedule.staggerMs);
+      if (explicitStaggerMs !== undefined) {
+        job.schedule = { ...patch.schedule, staggerMs: explicitStaggerMs };
+      } else if (job.schedule.kind === "cron") {
+        job.schedule = { ...patch.schedule, staggerMs: job.schedule.staggerMs };
+      } else {
+        const defaultStaggerMs = resolveDefaultCronStaggerMs(patch.schedule.expr);
+        job.schedule =
+          defaultStaggerMs !== undefined
+            ? { ...patch.schedule, staggerMs: defaultStaggerMs }
+            : patch.schedule;
+      }
+    } else {
+      job.schedule = patch.schedule;
+    }
   }
   if (patch.sessionTarget) {
     job.sessionTarget = patch.sessionTarget;

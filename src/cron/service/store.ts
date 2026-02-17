@@ -4,6 +4,8 @@ import { loadCronStore, saveCronStore } from "../store.js";
 import type { CronJob } from "../types.js";
 =======
 import fs from "node:fs";
+import type { CronJob } from "../types.js";
+import type { CronServiceState } from "./state.js";
 import {
   buildDeliveryFromLegacyPayload,
   hasLegacyDeliveryHints,
@@ -11,12 +13,11 @@ import {
 } from "../legacy-delivery.js";
 import { parseAbsoluteTimeMs } from "../parse.js";
 import { migrateLegacyCronPayload } from "../payload-migration.js";
+import { normalizeCronStaggerMs, resolveDefaultCronStaggerMs } from "../stagger.js";
 import { loadCronStore, saveCronStore } from "../store.js";
-import type { CronJob } from "../types.js";
 import { recomputeNextRuns } from "./jobs.js";
 >>>>>>> 3a03e3837 (fix(cron): fix timeout, add timestamp validation, enable file sync)
 import { inferLegacyName, normalizeOptionalText } from "./normalize.js";
-import type { CronServiceState } from "./state.js";
 
 function buildDeliveryPatchFromLegacyPayload(payload: Record<string, unknown>) {
   const deliver = payload.deliver;
@@ -339,6 +340,50 @@ export async function ensureLoaded(
         }
         mutated = true;
       }
+<<<<<<< HEAD
+=======
+
+      const everyMsRaw = sched.everyMs;
+      const everyMs =
+        typeof everyMsRaw === "number" && Number.isFinite(everyMsRaw)
+          ? Math.floor(everyMsRaw)
+          : null;
+      if ((kind === "every" || sched.kind === "every") && everyMs !== null) {
+        const anchorRaw = sched.anchorMs;
+        const normalizedAnchor =
+          typeof anchorRaw === "number" && Number.isFinite(anchorRaw)
+            ? Math.max(0, Math.floor(anchorRaw))
+            : typeof raw.createdAtMs === "number" && Number.isFinite(raw.createdAtMs)
+              ? Math.max(0, Math.floor(raw.createdAtMs))
+              : typeof raw.updatedAtMs === "number" && Number.isFinite(raw.updatedAtMs)
+                ? Math.max(0, Math.floor(raw.updatedAtMs))
+                : null;
+        if (normalizedAnchor !== null && anchorRaw !== normalizedAnchor) {
+          sched.anchorMs = normalizedAnchor;
+          mutated = true;
+        }
+      }
+
+      const exprRaw = typeof sched.expr === "string" ? sched.expr.trim() : "";
+      if (typeof sched.expr === "string" && sched.expr !== exprRaw) {
+        sched.expr = exprRaw;
+        mutated = true;
+      }
+      if ((kind === "cron" || sched.kind === "cron") && exprRaw) {
+        const explicitStaggerMs = normalizeCronStaggerMs(sched.staggerMs);
+        const defaultStaggerMs = resolveDefaultCronStaggerMs(exprRaw);
+        const targetStaggerMs = explicitStaggerMs ?? defaultStaggerMs;
+        if (targetStaggerMs === undefined) {
+          if ("staggerMs" in sched) {
+            delete sched.staggerMs;
+            mutated = true;
+          }
+        } else if (sched.staggerMs !== targetStaggerMs) {
+          sched.staggerMs = targetStaggerMs;
+          mutated = true;
+        }
+      }
+>>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
     }
 
     const delivery = raw.delivery;
