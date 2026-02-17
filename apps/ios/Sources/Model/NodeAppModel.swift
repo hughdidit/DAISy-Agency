@@ -2,6 +2,7 @@ import OpenClawChatUI
 import OpenClawKit
 import OpenClawProtocol
 import Observation
+import os
 import SwiftUI
 import UIKit
 import UserNotifications
@@ -41,6 +42,7 @@ private final class NotificationInvokeLatch<T: Sendable>: @unchecked Sendable {
 @MainActor
 @Observable
 final class NodeAppModel {
+    private let deepLinkLogger = Logger(subsystem: "ai.openclaw.ios", category: "DeepLink")
     enum CameraHUDKind {
         case photo
         case recording
@@ -62,6 +64,8 @@ final class NodeAppModel {
     var selectedAgentId: String?
     var gatewayDefaultAgentId: String?
     var gatewayAgents: [AgentSummary] = []
+    var lastShareEventText: String = "No share events yet."
+    var openChatRequestID: Int = 0
 
     var mainSessionKey: String {
         let base = SessionKey.normalizeMainKey(self.mainSessionBaseKey)
@@ -114,6 +118,8 @@ final class NodeAppModel {
 
     private var gatewayConnected = false
     private var operatorConnected = false
+    private var shareDeliveryChannel: String?
+    private var shareDeliveryTo: String?
     var gatewaySession: GatewayNodeSession { self.nodeGateway }
     var operatorSession: GatewayNodeSession { self.operatorGateway }
     private(set) var activeGatewayConnectConfig: GatewayConnectConfig?
@@ -164,6 +170,7 @@ final class NodeAppModel {
         let enabled = UserDefaults.standard.bool(forKey: "voiceWake.enabled")
         self.voiceWake.setEnabled(enabled)
         self.talkMode.attachGateway(self.operatorGateway)
+        self.refreshLastShareEventFromRelay()
         let talkEnabled = UserDefaults.standard.bool(forKey: "talk.enabled")
         // Route through the coordinator so VoiceWake and Talk don't fight over the microphone.
         self.setTalkEnabled(talkEnabled)
@@ -447,6 +454,16 @@ final class NodeAppModel {
             GatewaySettingsStore.saveGatewaySelectedAgentId(stableID: stableID, agentId: self.selectedAgentId)
         }
         self.talkMode.updateMainSessionKey(self.mainSessionKey)
+        if let relay = ShareGatewayRelaySettings.loadConfig() {
+            ShareGatewayRelaySettings.saveConfig(
+                ShareGatewayRelayConfig(
+                    gatewayURLString: relay.gatewayURLString,
+                    token: relay.token,
+                    password: relay.password,
+                    sessionKey: self.mainSessionKey,
+                    deliveryChannel: relay.deliveryChannel ?? self.shareDeliveryChannel,
+                    deliveryTo: relay.deliveryTo ?? self.shareDeliveryTo))
+        }
     }
 
     func setGlobalWakeWords(_ words: [String]) async {
@@ -583,22 +600,33 @@ final class NodeAppModel {
     private func handleAgentDeepLink(_ link: AgentDeepLink, originalURL: URL) async {
         let message = link.message.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !message.isEmpty else { return }
+        self.deepLinkLogger.info(
+            "agent deep link received messageChars=\(message.count) url=\(originalURL.absoluteString, privacy: .public)"
+        )
 
         if message.count > 20000 {
             self.screen.errorText = "Deep link too large (message exceeds 20,000 characters)."
+            self.recordShareEvent("Rejected: message too large (\(message.count) chars).")
             return
         }
 
         guard await self.isGatewayConnected() else {
             self.screen.errorText = "Gateway not connected (cannot forward deep link)."
+            self.recordShareEvent("Failed: gateway not connected.")
+            self.deepLinkLogger.error("agent deep link rejected: gateway not connected")
             return
         }
 
         do {
             try await self.sendAgentRequest(link: link)
             self.screen.errorText = nil
+            self.recordShareEvent("Sent to gateway (\(message.count) chars).")
+            self.deepLinkLogger.info("agent deep link forwarded to gateway")
+            self.openChatRequestID &+= 1
         } catch {
             self.screen.errorText = "Agent request failed: \(error.localizedDescription)"
+            self.recordShareEvent("Failed: \(error.localizedDescription)")
+            self.deepLinkLogger.error("agent deep link send failed: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -1401,8 +1429,9 @@ private extension NodeAppModel {
     }
 
     func isLocationPreciseEnabled() -> Bool {
-        if UserDefaults.standard.object(forKey: "location.preciseEnabled") == nil { return true }
-        return UserDefaults.standard.bool(forKey: "location.preciseEnabled")
+        // iOS settings now expose a single location mode control.
+        // Default location tool precision stays high unless a command explicitly requests balanced.
+        true
     }
 
     static func decodeParams<T: Decodable>(_ type: T.Type, from json: String?) throws -> T {
@@ -1528,6 +1557,7 @@ extension NodeAppModel {
         self.seamColorHex = nil
         self.mainSessionBaseKey = "main"
         self.talkMode.updateMainSessionKey(self.mainSessionKey)
+        ShareGatewayRelaySettings.clearConfig()
         self.showLocalCanvasOnDisconnect()
     }
 }
@@ -1592,6 +1622,7 @@ private extension NodeAppModel {
                                 "operator gateway connected host=\(url.host ?? "?") scheme=\(url.scheme ?? "?")")
                             await self.refreshBrandingFromGateway()
                             await self.refreshAgentsFromGateway()
+                            await self.refreshShareRouteFromGateway()
                             await self.startVoiceWakeSync()
                             await MainActor.run { self.startGatewayHealthMonitor() }
                         },
@@ -1669,8 +1700,27 @@ private extension NodeAppModel {
                                 self.screen.errorText = nil
                                 UserDefaults.standard.set(true, forKey: "gateway.autoconnect")
                             }
+<<<<<<< HEAD
                             GatewayDiagnostics.log(
                                 "gateway connected host=\(url.host ?? "?") scheme=\(url.scheme ?? "?")")
+=======
+                            let relayData = await MainActor.run {
+                                (
+                                    sessionKey: self.mainSessionKey,
+                                    deliveryChannel: self.shareDeliveryChannel,
+                                    deliveryTo: self.shareDeliveryTo
+                                )
+                            }
+                            ShareGatewayRelaySettings.saveConfig(
+                                ShareGatewayRelayConfig(
+                                    gatewayURLString: url.absoluteString,
+                                    token: token,
+                                    password: password,
+                                    sessionKey: relayData.sessionKey,
+                                    deliveryChannel: relayData.deliveryChannel,
+                                    deliveryTo: relayData.deliveryTo))
+                            GatewayDiagnostics.log("gateway connected host=\(url.host ?? "?") scheme=\(url.scheme ?? "?")")
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
                             if let addr = await self.nodeGateway.currentRemoteAddress() {
                                 await MainActor.run { self.gatewayRemoteAddress = addr }
                             }
@@ -1726,6 +1776,53 @@ private extension NodeAppModel {
                         self.showLocalCanvasOnDisconnect()
                     }
                     GatewayDiagnostics.log("gateway connect error: \(error.localizedDescription)")
+<<<<<<< HEAD
+=======
+
+                    // If auth is missing/rejected, pause reconnect churn until the user intervenes.
+                    // Reconnect loops only spam the same failing handshake and make onboarding noisy.
+                    let lower = error.localizedDescription.lowercased()
+                    if lower.contains("unauthorized") || lower.contains("gateway token missing") {
+                        await MainActor.run {
+                            self.gatewayAutoReconnectEnabled = false
+                        }
+                    }
+
+                    // If pairing is required, stop reconnect churn. The user must approve the request
+                    // on the gateway before another connect attempt will succeed, and retry loops can
+                    // generate multiple pending requests.
+                    if lower.contains("not_paired") || lower.contains("pairing required") {
+                        let requestId: String? = {
+                            // GatewayResponseError for connect decorates the message with `(requestId: ...)`.
+                            // Keep this resilient since other layers may wrap the text.
+                            let text = error.localizedDescription
+                            guard let start = text.range(of: "(requestId: ")?.upperBound else { return nil }
+                            guard let end = text[start...].firstIndex(of: ")") else { return nil }
+                            let raw = String(text[start..<end]).trimmingCharacters(in: .whitespacesAndNewlines)
+                            return raw.isEmpty ? nil : raw
+                        }()
+                        await MainActor.run {
+                            self.gatewayAutoReconnectEnabled = false
+                            self.gatewayPairingPaused = true
+                            self.gatewayPairingRequestId = requestId
+                            if let requestId, !requestId.isEmpty {
+                                self.gatewayStatusText =
+                                    "Pairing required (requestId: \(requestId)). Approve on gateway and return to OpenClaw."
+                            } else {
+                                self.gatewayStatusText = "Pairing required. Approve on gateway and return to OpenClaw."
+                            }
+                        }
+                        // Hard stop the underlying WebSocket watchdog reconnects so the UI stays stable and
+                        // we don't generate multiple pending requests while waiting for approval.
+                        pausedForPairingApproval = true
+                        self.operatorGatewayTask?.cancel()
+                        self.operatorGatewayTask = nil
+                        await self.operatorGateway.disconnect()
+                        await self.nodeGateway.disconnect()
+                        break
+                    }
+
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
                     let sleepSeconds = min(8.0, 0.5 * pow(1.7, Double(attempt)))
                     try? await Task.sleep(nanoseconds: UInt64(sleepSeconds * 1_000_000_000))
                 }
@@ -1775,6 +1872,110 @@ private extension NodeAppModel {
     }
 }
 
+<<<<<<< HEAD
+=======
+extension NodeAppModel {
+    private func refreshShareRouteFromGateway() async {
+        struct Params: Codable {
+            var includeGlobal: Bool
+            var includeUnknown: Bool
+            var limit: Int
+        }
+        struct SessionRow: Decodable {
+            var key: String
+            var updatedAt: Double?
+            var lastChannel: String?
+            var lastTo: String?
+        }
+        struct SessionsListResult: Decodable {
+            var sessions: [SessionRow]
+        }
+
+        let normalize: (String?) -> String? = { raw in
+            let value = (raw ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            return value.isEmpty ? nil : value
+        }
+
+        do {
+            let data = try JSONEncoder().encode(
+                Params(includeGlobal: true, includeUnknown: false, limit: 80))
+            guard let json = String(data: data, encoding: .utf8) else { return }
+            let response = try await self.operatorGateway.request(
+                method: "sessions.list",
+                paramsJSON: json,
+                timeoutSeconds: 10)
+            let decoded = try JSONDecoder().decode(SessionsListResult.self, from: response)
+            let currentKey = self.mainSessionKey
+            let sorted = decoded.sessions.sorted { ($0.updatedAt ?? 0) > ($1.updatedAt ?? 0) }
+            let exactMatch = sorted.first { row in
+                row.key == currentKey && normalize(row.lastChannel) != nil && normalize(row.lastTo) != nil
+            }
+            let fallback = sorted.first { row in
+                normalize(row.lastChannel) != nil && normalize(row.lastTo) != nil
+            }
+            let selected = exactMatch ?? fallback
+            let channel = normalize(selected?.lastChannel)
+            let to = normalize(selected?.lastTo)
+
+            await MainActor.run {
+                self.shareDeliveryChannel = channel
+                self.shareDeliveryTo = to
+                if let relay = ShareGatewayRelaySettings.loadConfig() {
+                    ShareGatewayRelaySettings.saveConfig(
+                        ShareGatewayRelayConfig(
+                            gatewayURLString: relay.gatewayURLString,
+                            token: relay.token,
+                            password: relay.password,
+                            sessionKey: self.mainSessionKey,
+                            deliveryChannel: channel,
+                            deliveryTo: to))
+                }
+            }
+        } catch {
+            // Best-effort only.
+        }
+    }
+
+    func runSharePipelineSelfTest() async {
+        self.recordShareEvent("Share self-test running…")
+
+        let payload = SharedContentPayload(
+            title: "OpenClaw Share Self-Test",
+            url: URL(string: "https://openclaw.ai/share-self-test"),
+            text: "Validate iOS share->deep-link->gateway forwarding.")
+        guard let deepLink = ShareToAgentDeepLink.buildURL(
+            from: payload,
+            instruction: "Reply with: SHARE SELF-TEST OK")
+        else {
+            self.recordShareEvent("Self-test failed: could not build deep link.")
+            return
+        }
+
+        await self.handleDeepLink(url: deepLink)
+    }
+
+    func refreshLastShareEventFromRelay() {
+        if let event = ShareGatewayRelaySettings.loadLastEvent() {
+            self.lastShareEventText = event
+        }
+    }
+
+    func recordShareEvent(_ text: String) {
+        ShareGatewayRelaySettings.saveLastEvent(text)
+        self.refreshLastShareEventFromRelay()
+    }
+
+    func reloadTalkConfig() {
+        Task { [weak self] in
+            await self?.talkMode.reloadConfig()
+        }
+    }
+
+    /// Back-compat hook retained for older gateway-connect flows.
+    func onNodeGatewayConnected() async {}
+}
+
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
 #if DEBUG
 extension NodeAppModel {
     func _test_handleInvoke(_ req: BridgeInvokeRequest) async -> BridgeInvokeResponse {
