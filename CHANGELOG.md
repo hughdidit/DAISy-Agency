@@ -96,12 +96,16 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - Agents/Process: keep staged process-tree termination safe by skipping delayed Windows force-kill when the PID is already gone, and align PTY force-kill wait behavior with actual exit timing to avoid premature "killed" state reporting during grace periods. (#18626)
 - Slack: limit forwarded-attachment extraction to explicit shared-message attachments and skip non-Slack forwarded image URLs, preventing non-forward unfurls from polluting inbound agent context. Also adds regression tests for forwarded vs non-forward attachment handling.
 =======
 =======
 =======
+=======
+- Fix types in all tests. Typecheck the whole repository.
+>>>>>>> bcf862f69 (chore: Typecheck tests.)
 - Voice-call: auto-end calls when media streams disconnect to prevent stuck active calls. (#18435) Thanks @JayMishra-source.
 >>>>>>> bfaa03981 (test(voice-call): cover stream disconnect auto-end)
 - Gateway/Channels: wire `gateway.channelHealthCheckMinutes` into strict config validation, treat implicit account status as managed for health checks, and harden channel auto-restart flow (preserve restart-attempt caps across crash loops, propagate enabled/configured runtime flags, and stop pending restart backoff after manual stop). Thanks @steipete.
