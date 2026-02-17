@@ -25,11 +25,25 @@ import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../channels/command-gating.js";
 import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
+<<<<<<< HEAD
 import { resolveTelegramCustomCommands } from "../config/telegram-custom-commands.js";
 import {
   normalizeTelegramCommandName,
   TELEGRAM_COMMAND_NAME_PATTERN,
 } from "../config/telegram-custom-commands.js";
+=======
+import {
+  normalizeTelegramCommandName,
+  resolveTelegramCustomCommands,
+  TELEGRAM_COMMAND_NAME_PATTERN,
+} from "../config/telegram-custom-commands.js";
+import type {
+  ReplyToMode,
+  TelegramAccountConfig,
+  TelegramGroupConfig,
+  TelegramTopicConfig,
+} from "../config/types.js";
+>>>>>>> c4e9bb3b9 (fix: sanitize native command names for Telegram API (#19257))
 import { danger, logVerbose } from "../globals.js";
 import { getChildLogger } from "../logging.js";
 import { getAgentScopedMediaLocalRoots } from "../media/local-roots.js";
@@ -308,7 +322,7 @@ export const registerTelegramNativeCommands = ({
       })
     : [];
   const reservedCommands = new Set(
-    listNativeCommandSpecs().map((command) => command.name.toLowerCase()),
+    listNativeCommandSpecs().map((command) => normalizeTelegramCommandName(command.name)),
   );
   for (const command of skillCommands) {
     reservedCommands.add(command.name.toLowerCase());
@@ -325,7 +339,7 @@ export const registerTelegramNativeCommands = ({
   const pluginCommands: Array<{ command: string; description: string }> = [];
   const existingCommands = new Set(
     [
-      ...nativeCommands.map((command) => command.name),
+      ...nativeCommands.map((command) => normalizeTelegramCommandName(command.name)),
       ...customCommands.map((command) => command.command),
     ].map((command) => command.toLowerCase()),
   );
@@ -359,12 +373,34 @@ export const registerTelegramNativeCommands = ({
     existingCommands.add(normalized);
     pluginCommands.push({ command: normalized, description });
   }
+<<<<<<< HEAD
   const allCommands: Array<{ command: string; description: string }> = [
     ...nativeCommands.map((command) => ({
       command: command.name,
       description: command.description,
     })),
     ...pluginCommands,
+=======
+  const allCommandsFull: Array<{ command: string; description: string }> = [
+    ...nativeCommands
+      .map((command) => {
+        const normalized = normalizeTelegramCommandName(command.name);
+        if (!TELEGRAM_COMMAND_NAME_PATTERN.test(normalized)) {
+          runtime.error?.(
+            danger(
+              `Native command "${command.name}" is invalid for Telegram (resolved to "${normalized}"). Skipping.`,
+            ),
+          );
+          return null;
+        }
+        return {
+          command: normalized,
+          description: command.description,
+        };
+      })
+      .filter((cmd): cmd is { command: string; description: string } => cmd !== null),
+    ...(nativeEnabled ? pluginCatalog.commands : []),
+>>>>>>> c4e9bb3b9 (fix: sanitize native command names for Telegram API (#19257))
     ...customCommands,
   ];
 <<<<<<< HEAD
@@ -411,7 +447,8 @@ export const registerTelegramNativeCommands = ({
       logVerbose("telegram: bot.command unavailable; skipping native handlers");
     } else {
       for (const command of nativeCommands) {
-        bot.command(command.name, async (ctx: TelegramNativeCommandContext) => {
+        const normalizedCommandName = normalizeTelegramCommandName(command.name);
+        bot.command(normalizedCommandName, async (ctx: TelegramNativeCommandContext) => {
           const msg = ctx.message;
           if (!msg) {
             return;

@@ -8,9 +8,29 @@ import {
   listNativeCommandSpecs,
   listNativeCommandSpecsForConfig,
 } from "../auto-reply/commands-registry.js";
+<<<<<<< HEAD
 import { resetInboundDedupe } from "../auto-reply/reply/inbound-dedupe.js";
 import { createTelegramBot, getTelegramSequentialKey } from "./bot.js";
 import { resolveTelegramFetch } from "./fetch.js";
+=======
+import { normalizeTelegramCommandName } from "../config/telegram-custom-commands.js";
+import {
+  answerCallbackQuerySpy,
+  commandSpy,
+  editMessageTextSpy,
+  enqueueSystemEventSpy,
+  getLoadConfigMock,
+  getReadChannelAllowFromStoreMock,
+  getOnHandler,
+  listSkillCommandsForAgents,
+  onSpy,
+  replySpy,
+  sendMessageSpy,
+  setMyCommandsSpy,
+  wasSentByBot,
+} from "./bot.create-telegram-bot.test-harness.js";
+import { createTelegramBot } from "./bot.js";
+>>>>>>> c4e9bb3b9 (fix: sanitize native command names for Telegram API (#19257))
 
 let replyModule: typeof import("../auto-reply/reply.js");
 const { listSkillCommandsForAgents } = vi.hoisted(() => ({
@@ -235,7 +255,7 @@ describe("createTelegramBot", () => {
     }>;
     const skillCommands = resolveSkillCommands(config);
     const native = listNativeCommandSpecsForConfig(config, { skillCommands }).map((command) => ({
-      command: command.name,
+      command: normalizeTelegramCommandName(command.name),
       description: command.description,
     }));
     expect(registered.slice(0, native.length)).toEqual(native);
@@ -276,7 +296,7 @@ describe("createTelegramBot", () => {
     }>;
     const skillCommands = resolveSkillCommands(config);
     const native = listNativeCommandSpecsForConfig(config, { skillCommands }).map((command) => ({
-      command: command.name,
+      command: normalizeTelegramCommandName(command.name),
       description: command.description,
     }));
     const nativeStatus = native.find((command) => command.command === "status");
