@@ -1,5 +1,6 @@
-import fs from "node:fs/promises";
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+import fs from "node:fs/promises";
+import type { ImageSanitizationLimits } from "../image-sanitization.js";
 import { detectMime } from "../../media/mime.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
 
@@ -205,6 +206,7 @@ export async function imageResult(params: {
   mimeType: string;
   extraText?: string;
   details?: Record<string, unknown>;
+  imageSanitization?: ImageSanitizationLimits;
 }): Promise<AgentToolResult<unknown>> {
   const content: AgentToolResult<unknown>["content"] = [
     {
@@ -221,7 +223,7 @@ export async function imageResult(params: {
     content,
     details: { path: params.path, ...params.details },
   };
-  return await sanitizeToolResultImages(result, params.label);
+  return await sanitizeToolResultImages(result, params.label, params.imageSanitization);
 }
 
 export async function imageResultFromFile(params: {
@@ -229,6 +231,7 @@ export async function imageResultFromFile(params: {
   path: string;
   extraText?: string;
   details?: Record<string, unknown>;
+  imageSanitization?: ImageSanitizationLimits;
 }): Promise<AgentToolResult<unknown>> {
   const buf = await fs.readFile(params.path);
   const mimeType = (await detectMime({ buffer: buf.slice(0, 256) })) ?? "image/png";
@@ -239,5 +242,6 @@ export async function imageResultFromFile(params: {
     mimeType,
     extraText: params.extraText,
     details: params.details,
+    imageSanitization: params.imageSanitization,
   });
 }
