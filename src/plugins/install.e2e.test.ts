@@ -419,7 +419,14 @@ describe("installPluginFromDir", () => {
 
     const { runCommandWithTimeout } = await import("../process/exec.js");
     const run = vi.mocked(runCommandWithTimeout);
-    run.mockResolvedValue({ code: 0, stdout: "", stderr: "" });
+    run.mockResolvedValue({
+      code: 0,
+      stdout: "",
+      stderr: "",
+      signal: null,
+      killed: false,
+      termination: "exit",
+    });
 
     const { installPluginFromDir } = await import("./install.js");
     const res = await installPluginFromDir({
@@ -436,3 +443,83 @@ describe("installPluginFromDir", () => {
     });
   });
 });
+<<<<<<< HEAD
+=======
+
+describe("installPluginFromNpmSpec", () => {
+  it("uses --ignore-scripts for npm pack and cleans up temp dir", async () => {
+    const workDir = makeTempDir();
+    const stateDir = makeTempDir();
+    const pkgDir = path.join(workDir, "package");
+    fs.mkdirSync(path.join(pkgDir, "dist"), { recursive: true });
+    fs.writeFileSync(
+      path.join(pkgDir, "package.json"),
+      JSON.stringify({
+        name: "@openclaw/voice-call",
+        version: "0.0.1",
+        openclaw: { extensions: ["./dist/index.js"] },
+      }),
+      "utf-8",
+    );
+    fs.writeFileSync(path.join(pkgDir, "dist", "index.js"), "export {};", "utf-8");
+
+    const extensionsDir = path.join(stateDir, "extensions");
+    fs.mkdirSync(extensionsDir, { recursive: true });
+
+    const { runCommandWithTimeout } = await import("../process/exec.js");
+    const run = vi.mocked(runCommandWithTimeout);
+
+    let packTmpDir = "";
+    const packedName = "voice-call-0.0.1.tgz";
+    run.mockImplementation(async (argv, opts) => {
+      if (argv[0] === "npm" && argv[1] === "pack") {
+        packTmpDir = String(typeof opts === "number" ? "" : (opts.cwd ?? ""));
+        await packToArchive({ pkgDir, outDir: packTmpDir, outName: packedName });
+        return {
+          code: 0,
+          stdout: `${packedName}\n`,
+          stderr: "",
+          signal: null,
+          killed: false,
+          termination: "exit",
+        };
+      }
+      throw new Error(`unexpected command: ${argv.join(" ")}`);
+    });
+
+    const { installPluginFromNpmSpec } = await import("./install.js");
+    const result = await installPluginFromNpmSpec({
+      spec: "@openclaw/voice-call@0.0.1",
+      extensionsDir,
+      logger: { info: () => {}, warn: () => {} },
+    });
+    expect(result.ok).toBe(true);
+
+    const packCalls = run.mock.calls.filter(
+      (c) => Array.isArray(c[0]) && c[0][0] === "npm" && c[0][1] === "pack",
+    );
+    expect(packCalls.length).toBe(1);
+    const packCall = packCalls[0];
+    if (!packCall) {
+      throw new Error("expected npm pack call");
+    }
+    const [argv, options] = packCall;
+    expect(argv).toEqual(["npm", "pack", "@openclaw/voice-call@0.0.1", "--ignore-scripts"]);
+    const commandOptions = typeof options === "number" ? undefined : options;
+    expect(commandOptions?.env).toMatchObject({ NPM_CONFIG_IGNORE_SCRIPTS: "true" });
+
+    expect(packTmpDir).not.toBe("");
+    expect(fs.existsSync(packTmpDir)).toBe(false);
+  });
+
+  it("rejects non-registry npm specs", async () => {
+    const { installPluginFromNpmSpec } = await import("./install.js");
+    const result = await installPluginFromNpmSpec({ spec: "github:evil/evil" });
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+    expect(result.error).toContain("unsupported npm spec");
+  });
+});
+>>>>>>> 7b31e8fc5 (chore: Fix types in tests 36/N.)
