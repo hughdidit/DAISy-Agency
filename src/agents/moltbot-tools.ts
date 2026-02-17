@@ -2,16 +2,19 @@
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
 >>>>>>> 90ef2d6bd (chore: Update formatting.):src/agents/openclaw-tools.ts
 import { resolvePluginTools } from "../plugins/tools.js";
+=======
+>>>>>>> 25126d75c (Revert "Agents: improve Windows scaffold helpers for venture studio"):src/agents/openclaw-tools.ts
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
-import { resolveSessionAgentId } from "./agent-scope.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+import type { AnyAgentTool } from "./tools/common.js";
+import { resolvePluginTools } from "../plugins/tools.js";
+import { resolveSessionAgentId } from "./agent-scope.js";
 import { createAgentsListTool } from "./tools/agents-list-tool.js";
-import { createArchitectPipelineTool } from "./tools/architect-pipeline-tool.js";
 import { createBrowserTool } from "./tools/browser-tool.js";
 import { createCanvasTool } from "./tools/canvas-tool.js";
-import type { AnyAgentTool } from "./tools/common.js";
 import { createCronTool } from "./tools/cron-tool.js";
 import { createGatewayTool } from "./tools/gateway-tool.js";
 import { createImageTool } from "./tools/image-tool.js";
@@ -27,10 +30,13 @@ import { createSessionsSpawnTool } from "./tools/sessions-spawn-tool.js";
 import { createSubagentsTool } from "./tools/subagents-tool.js";
 import { createTtsTool } from "./tools/tts-tool.js";
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447)):src/agents/openclaw-tools.ts
 =======
 import { createVentureStudioTool } from "./tools/venture-studio-tool.js";
 >>>>>>> b6d934c2c (Agents: improve Windows scaffold helpers for venture studio):src/agents/openclaw-tools.ts
+=======
+>>>>>>> 25126d75c (Revert "Agents: improve Windows scaffold helpers for venture studio"):src/agents/openclaw-tools.ts
 import { createWebFetchTool, createWebSearchTool } from "./tools/web-tools.js";
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
 import { createTtsTool } from "./tools/tts-tool.js";
@@ -135,6 +141,7 @@ export function createMoltbotTools(options?: {
     }),
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
     createMessageTool({
       agentAccountId: options?.agentAccountId,
       agentSessionKey: options?.agentSessionKey,
@@ -150,6 +157,8 @@ export function createMoltbotTools(options?: {
     createArchitectPipelineTool({ workspaceDir }),
     createVentureStudioTool({ workspaceDir }),
 >>>>>>> b6d934c2c (Agents: improve Windows scaffold helpers for venture studio):src/agents/openclaw-tools.ts
+=======
+>>>>>>> 25126d75c (Revert "Agents: improve Windows scaffold helpers for venture studio"):src/agents/openclaw-tools.ts
     ...(messageTool ? [messageTool] : []),
 >>>>>>> 3f82daefd (feat(cron): enhance delivery modes and job configuration):src/agents/openclaw-tools.ts
     createTtsTool({
