@@ -31,6 +31,7 @@ const compilerArgs = ["exec", compiler, "--no-clean"];
 >>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const distRoot = path.join(cwd, "dist");
 const distEntry = path.join(distRoot, "/entry.js");
 >>>>>>> 76b5208b1 (chore: Also format `scripts` and `skills`.)
@@ -40,6 +41,9 @@ const configFiles = [path.join(cwd, "tsconfig.json"), path.join(cwd, "package.js
 =======
 >>>>>>> 9fb48f4df (refactor(scripts): make run-node main testable)
 const gitWatchedPaths = ["src", "tsconfig.json", "package.json"];
+=======
+export const runNodeWatchedPaths = ["src", "tsconfig.json", "package.json"];
+>>>>>>> 81741c37f (fix(gateway): remove watch-mode build/start race (#18782))
 
 const statMtime = (filePath, fsImpl = fs) => {
   try {
@@ -122,7 +126,7 @@ const resolveGitHead = (deps) => {
 
 const hasDirtySourceTree = (deps) => {
   const output = runGit(
-    ["status", "--porcelain", "--untracked-files=normal", "--", ...gitWatchedPaths],
+    ["status", "--porcelain", "--untracked-files=normal", "--", ...runNodeWatchedPaths],
     deps,
   );
   if (output === null) {
