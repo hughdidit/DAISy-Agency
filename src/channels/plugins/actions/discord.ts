@@ -1,11 +1,14 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createActionGate } from "../../../agents/tools/common.js";
+=======
+>>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
 import type { DiscordActionConfig } from "../../../config/types.discord.js";
-import { listEnabledDiscordAccounts } from "../../../discord/accounts.js";
 import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
+import { createDiscordActionGate, listEnabledDiscordAccounts } from "../../../discord/accounts.js";
 import { handleDiscordMessageAction } from "./discord/handle-action.js";
 
 export const discordMessageActions: ChannelMessageActionAdapter = {
@@ -16,7 +19,16 @@ export const discordMessageActions: ChannelMessageActionAdapter = {
     if (accounts.length === 0) {
       return [];
     }
+<<<<<<< HEAD
     const gate = createActionGate(cfg.channels?.discord?.actions);
+=======
+    // Union of all accounts' action gates (any account enabling an action makes it available)
+    const gates = accounts.map((account) =>
+      createDiscordActionGate({ cfg, accountId: account.accountId }),
+    );
+    const gate = (key: keyof DiscordActionConfig, defaultValue = true) =>
+      gates.some((g) => g(key, defaultValue));
+>>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
     const actions = new Set<ChannelMessageActionName>(["send"]);
     if (gate("polls")) {
       actions.add("poll");
