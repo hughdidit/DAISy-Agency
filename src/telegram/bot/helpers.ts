@@ -121,6 +121,33 @@ export function resolveTelegramForumThreadId(params: {
   return params.messageThreadId;
 }
 
+<<<<<<< HEAD
+=======
+export function resolveTelegramThreadSpec(params: {
+  isGroup: boolean;
+  isForum?: boolean;
+  messageThreadId?: number | null;
+}): TelegramThreadSpec {
+  if (params.isGroup) {
+    const id = resolveTelegramForumThreadId({
+      isForum: params.isForum,
+      messageThreadId: params.messageThreadId,
+    });
+    return {
+      id,
+      scope: params.isForum ? "forum" : "none",
+    };
+  }
+  if (params.messageThreadId == null) {
+    return { scope: "dm" };
+  }
+  return {
+    id: params.messageThreadId,
+    scope: "dm",
+  };
+}
+
+>>>>>>> 9f907320c (Revert "fix: handle forum/topics in Telegram DM thread routing (#17980)")
 /**
  * Build thread params for Telegram API calls (messages, media).
 <<<<<<< HEAD
