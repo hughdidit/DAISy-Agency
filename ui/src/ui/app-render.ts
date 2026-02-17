@@ -1,4 +1,5 @@
 import { html, nothing } from "lit";
+<<<<<<< HEAD
 
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
 import type { AppViewState } from "./app-view-state";
@@ -65,6 +66,20 @@ import {
 } from "./controllers/skills";
 import { loadNodes } from "./controllers/nodes";
 import { loadChatHistory } from "./controllers/chat";
+=======
+import type { AppViewState } from "./app-view-state.ts";
+import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
+import { t } from "../i18n/index.ts";
+import { refreshChatAvatar } from "./app-chat.ts";
+import { renderUsageTab } from "./app-render-usage-tab.ts";
+import { renderChatControls, renderTab, renderThemeToggle } from "./app-render.helpers.ts";
+import { loadAgentFileContent, loadAgentFiles, saveAgentFile } from "./controllers/agent-files.ts";
+import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
+import { loadAgentSkills } from "./controllers/agent-skills.ts";
+import { loadAgents } from "./controllers/agents.ts";
+import { loadChannels } from "./controllers/channels.ts";
+import { loadChatHistory } from "./controllers/chat.ts";
+>>>>>>> 3df8305cb (fix(ui): gate sessions refresh on successful delete)
 import {
   applyConfig,
   loadConfig,
@@ -78,10 +93,41 @@ import {
   removeExecApprovalsFormValue,
   saveExecApprovals,
   updateExecApprovalsFormValue,
+<<<<<<< HEAD
 } from "./controllers/exec-approvals";
 import { loadCronRuns, toggleCronJob, runCronJob, removeCronJob, addCronJob } from "./controllers/cron";
 import { loadDebug, callDebugMethod } from "./controllers/debug";
 import { loadLogs } from "./controllers/logs";
+=======
+} from "./controllers/exec-approvals.ts";
+import { loadLogs } from "./controllers/logs.ts";
+import { loadNodes } from "./controllers/nodes.ts";
+import { loadPresence } from "./controllers/presence.ts";
+import { deleteSessionAndRefresh, loadSessions, patchSession } from "./controllers/sessions.ts";
+import {
+  installSkill,
+  loadSkills,
+  saveSkillApiKey,
+  updateSkillEdit,
+  updateSkillEnabled,
+} from "./controllers/skills.ts";
+import { icons } from "./icons.ts";
+import { normalizeBasePath, TAB_GROUPS, subtitleForTab, titleForTab } from "./navigation.ts";
+import { renderAgents } from "./views/agents.ts";
+import { renderChannels } from "./views/channels.ts";
+import { renderChat } from "./views/chat.ts";
+import { renderConfig } from "./views/config.ts";
+import { renderCron } from "./views/cron.ts";
+import { renderDebug } from "./views/debug.ts";
+import { renderExecApprovalPrompt } from "./views/exec-approval.ts";
+import { renderGatewayUrlConfirmation } from "./views/gateway-url-confirmation.ts";
+import { renderInstances } from "./views/instances.ts";
+import { renderLogs } from "./views/logs.ts";
+import { renderNodes } from "./views/nodes.ts";
+import { renderOverview } from "./views/overview.ts";
+import { renderSessions } from "./views/sessions.ts";
+import { renderSkills } from "./views/skills.ts";
+>>>>>>> 3df8305cb (fix(ui): gate sessions refresh on successful delete)
 
 const AVATAR_DATA_RE = /^data:/i;
 const AVATAR_HTTP_RE = /^https?:\/\//i;
@@ -316,6 +362,7 @@ export function renderApp(state: AppViewState) {
             })
           : nothing}
 
+<<<<<<< HEAD
         ${state.tab === "sessions"
           ? renderSessions({
               loading: state.sessionsLoading,
@@ -337,6 +384,31 @@ export function renderApp(state: AppViewState) {
 	              onDelete: (key) => deleteSession(state, key),
 	            })
 	          : nothing}
+=======
+        ${
+          state.tab === "sessions"
+            ? renderSessions({
+                loading: state.sessionsLoading,
+                result: state.sessionsResult,
+                error: state.sessionsError,
+                activeMinutes: state.sessionsFilterActive,
+                limit: state.sessionsFilterLimit,
+                includeGlobal: state.sessionsIncludeGlobal,
+                includeUnknown: state.sessionsIncludeUnknown,
+                basePath: state.basePath,
+                onFiltersChange: (next) => {
+                  state.sessionsFilterActive = next.activeMinutes;
+                  state.sessionsFilterLimit = next.limit;
+                  state.sessionsIncludeGlobal = next.includeGlobal;
+                  state.sessionsIncludeUnknown = next.includeUnknown;
+                },
+                onRefresh: () => loadSessions(state),
+                onPatch: (key, patch) => patchSession(state, key, patch),
+                onDelete: (key) => deleteSessionAndRefresh(state, key),
+              })
+            : nothing
+        }
+>>>>>>> 3df8305cb (fix(ui): gate sessions refresh on successful delete)
 
         ${state.tab === "cron"
           ? renderCron({
