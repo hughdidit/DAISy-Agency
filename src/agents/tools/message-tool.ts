@@ -2,6 +2,7 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -9,6 +10,10 @@ import type { AnyAgentTool } from "./common.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 33b59441d (Revert "Fix Telegram poll action wiring")
 import { BLUEBUBBLES_GROUP_ACTIONS } from "../../channels/plugins/bluebubbles-actions.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
@@ -25,6 +30,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { BLUEBUBBLES_GROUP_ACTIONS } from "../../channels/plugins/bluebubbles-actions.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
@@ -35,6 +41,8 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 33b59441d (Revert "Fix Telegram poll action wiring")
 import { loadConfig } from "../../config/config.js";
 import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "../../gateway/protocol/client-info.js";
 import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
@@ -42,6 +50,7 @@ import { getToolResult, runMessageAction } from "../../infra/outbound/message-ac
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 import { channelTargetSchema, channelTargetsSchema, stringEnum } from "../schema/typebox.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -55,6 +64,8 @@ import type { AnyAgentTool } from "./common.js";
 =======
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 33b59441d (Revert "Fix Telegram poll action wiring")
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 
 const AllMessageActions = CHANNEL_MESSAGE_ACTION_NAMES;
@@ -293,11 +304,8 @@ function buildPollSchema() {
   return {
     pollQuestion: Type.Optional(Type.String()),
     pollOption: Type.Optional(Type.Array(Type.String())),
-    pollDurationSeconds: Type.Optional(Type.Number()),
     pollDurationHours: Type.Optional(Type.Number()),
     pollMulti: Type.Optional(Type.Boolean()),
-    pollAnonymous: Type.Optional(Type.Boolean()),
-    pollPublic: Type.Optional(Type.Boolean()),
   };
 }
 
