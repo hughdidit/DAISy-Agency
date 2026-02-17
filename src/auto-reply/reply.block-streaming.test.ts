@@ -18,6 +18,7 @@ import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.j
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 38098442c (perf(test): reduce setup churn in block streaming and docker tests)
 import { loadModelCatalog } from "../agents/model-catalog.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { getReplyFromConfig } from "./reply.js";
 
 type RunEmbeddedPiAgent = typeof import("../agents/pi-embedded.js").runEmbeddedPiAgent;
@@ -26,7 +27,7 @@ type RunEmbeddedPiAgentReply = Awaited<ReturnType<RunEmbeddedPiAgent>>;
 
 const piEmbeddedMock = vi.hoisted(() => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
-  runEmbeddedPiAgent: vi.fn<ReturnType<RunEmbeddedPiAgent>, Parameters<RunEmbeddedPiAgent>>(),
+  runEmbeddedPiAgent: vi.fn<RunEmbeddedPiAgent>(),
   queueEmbeddedPiMessage: vi.fn().mockReturnValue(false),
   resolveEmbeddedSessionLane: (key: string) => `session:${key.trim() || "main"}`,
   isEmbeddedPiRunActive: vi.fn().mockReturnValue(false),
@@ -70,6 +71,8 @@ function restoreHomeEnv(snapshot: HomeEnvSnapshot) {
 let fixtureRoot = "";
 let caseId = 0;
 
+type GetReplyOptions = NonNullable<Parameters<typeof getReplyFromConfig>[1]>;
+
 function createEmbeddedReply(text: string): RunEmbeddedPiAgentReply {
   return {
     payloads: [{ text }],
@@ -90,11 +93,11 @@ function createTelegramMessage(messageSid: string) {
   } as const;
 }
 
-function createReplyConfig(home: string, streamMode?: "block") {
+function createReplyConfig(home: string, streamMode?: "block"): OpenClawConfig {
   return {
     agents: {
       defaults: {
-        model: "anthropic/claude-opus-4-5",
+        model: { primary: "anthropic/claude-opus-4-5" },
         workspace: path.join(home, "openclaw"),
       },
     },
@@ -106,8 +109,8 @@ function createReplyConfig(home: string, streamMode?: "block") {
 async function runTelegramReply(params: {
   home: string;
   messageSid: string;
-  onBlockReply?: Parameters<typeof getReplyFromConfig>[1]["onBlockReply"];
-  onReplyStart?: Parameters<typeof getReplyFromConfig>[1]["onReplyStart"];
+  onBlockReply?: GetReplyOptions["onBlockReply"];
+  onReplyStart?: GetReplyOptions["onReplyStart"];
   disableBlockStreaming?: boolean;
   streamMode?: "block";
 }) {
@@ -483,7 +486,8 @@ describe("block streaming", () => {
         streamMode: "block",
       });
 
-      expect(resStreamMode?.text).toBe("final");
+      const streamPayload = Array.isArray(resStreamMode) ? resStreamMode[0] : resStreamMode;
+      expect(streamPayload?.text).toBe("final");
       expect(onBlockReplyStreamMode).not.toHaveBeenCalled();
     });
   });
