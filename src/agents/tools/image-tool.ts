@@ -1,6 +1,6 @@
-import path from "node:path";
 import { type Api, type Context, complete, type Model } from "@mariozechner/pi-ai";
 import { Type } from "@sinclair/typebox";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -9,6 +9,12 @@ import type { AnyAgentTool } from "./common.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import path from "node:path";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 391796a3f (fix(agents): restore multi-image image tool schema contract)
 import { resolveUserPath } from "../../utils.js";
 import { getDefaultLocalRoots, loadWebMedia } from "../../web/media.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "../auth-profiles.js";
@@ -21,6 +27,7 @@ import { ensureOpenClawModelsJson } from "../models-config.js";
 import { discoverAuthStorage, discoverModels } from "../pi-model-discovery.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { assertSandboxPath } from "../sandbox-paths.js";
 =======
 import { normalizeWorkspaceDir } from "../workspace-dir.js";
@@ -30,6 +37,9 @@ import type { SandboxFsBridge } from "../sandbox/fs-bridge.js";
 import { normalizeWorkspaceDir } from "../workspace-dir.js";
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { normalizeWorkspaceDir } from "../workspace-dir.js";
+>>>>>>> 391796a3f (fix(agents): restore multi-image image tool schema contract)
 import {
   coerceImageAssistantText,
   coerceImageModelConfig,
@@ -357,8 +367,8 @@ export function createImageTool(options?: {
   // If model has native vision, images in the prompt are auto-injected
   // so this tool is only needed when image wasn't provided in the prompt
   const description = options?.modelHasVision
-    ? "Analyze one or more images with a vision model. Pass a single image path/URL or an array of up to 20. Only use this tool when images were NOT already provided in the user's message. Images mentioned in the prompt are automatically visible to you."
-    : "Analyze one or more images with the configured image model (agents.defaults.imageModel). Pass a single image path/URL or an array of up to 20. Provide a prompt describing what to analyze.";
+    ? "Analyze one or more images with a vision model. Use image for a single path/URL, or images for multiple (up to 20). Only use this tool when images were NOT already provided in the user's message. Images mentioned in the prompt are automatically visible to you."
+    : "Analyze one or more images with the configured image model (agents.defaults.imageModel). Use image for a single path/URL, or images for multiple (up to 20). Provide a prompt describing what to analyze.";
 
   const localRoots = (() => {
     const roots = getDefaultLocalRoots();
@@ -375,7 +385,12 @@ export function createImageTool(options?: {
     description,
     parameters: Type.Object({
       prompt: Type.Optional(Type.String()),
-      image: Type.String({ description: "Image path or URL (pass multiple as comma-separated)" }),
+      image: Type.Optional(Type.String({ description: "Single image path or URL." })),
+      images: Type.Optional(
+        Type.Array(Type.String(), {
+          description: "Multiple image paths or URLs (up to maxImages, default 20).",
+        }),
+      ),
       model: Type.Optional(Type.String()),
       maxBytesMb: Type.Optional(Type.Number()),
       maxImages: Type.Optional(Type.Number()),
@@ -383,17 +398,28 @@ export function createImageTool(options?: {
     execute: async (_toolCallId, args) => {
       const record = args && typeof args === "object" ? (args as Record<string, unknown>) : {};
 
-      // MARK: - Normalize image input (string | string[])
-      const rawImageInput = record.image;
-      const imageInputs: string[] = (() => {
-        if (typeof rawImageInput === "string") {
-          return [rawImageInput];
+      // MARK: - Normalize image + images input and dedupe while preserving order
+      const imageCandidates: string[] = [];
+      if (typeof record.image === "string") {
+        imageCandidates.push(record.image);
+      }
+      if (Array.isArray(record.images)) {
+        imageCandidates.push(...record.images.filter((v): v is string => typeof v === "string"));
+      }
+
+      const seenImages = new Set<string>();
+      const imageInputs: string[] = [];
+      for (const candidate of imageCandidates) {
+        const trimmedCandidate = candidate.trim();
+        const normalizedForDedupe = trimmedCandidate.startsWith("@")
+          ? trimmedCandidate.slice(1).trim()
+          : trimmedCandidate;
+        if (!normalizedForDedupe || seenImages.has(normalizedForDedupe)) {
+          continue;
         }
-        if (Array.isArray(rawImageInput)) {
-          return rawImageInput.filter((v): v is string => typeof v === "string");
-        }
-        return [];
-      })();
+        seenImages.add(normalizedForDedupe);
+        imageInputs.push(trimmedCandidate);
+      }
       if (imageInputs.length === 0) {
         throw new Error("image required");
       }
