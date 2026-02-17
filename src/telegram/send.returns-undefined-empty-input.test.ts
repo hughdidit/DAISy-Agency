@@ -478,6 +478,54 @@ describe("sendMessageTelegram", () => {
     });
   });
 
+<<<<<<< HEAD:src/telegram/send.returns-undefined-empty-input.test.ts
+=======
+  it("keeps message_thread_id for private chat topic sends (#18974)", async () => {
+    const chatId = "123456789";
+    const sendMessage = vi.fn().mockResolvedValue({
+      message_id: 56,
+      chat: { id: chatId },
+    });
+    const api = { sendMessage } as unknown as {
+      sendMessage: typeof sendMessage;
+    };
+
+    await sendMessageTelegram(chatId, "hello private", {
+      token: "tok",
+      api,
+      messageThreadId: 271,
+    });
+
+    expect(sendMessage).toHaveBeenCalledWith(chatId, "hello private", {
+      parse_mode: "HTML",
+      message_thread_id: 271,
+    });
+  });
+
+  it("keeps message_thread_id for group chat sends (#17242)", async () => {
+    // Group/supergroup chats have negative IDs.
+    const chatId = "-1001234567890";
+    const sendMessage = vi.fn().mockResolvedValue({
+      message_id: 57,
+      chat: { id: chatId },
+    });
+    const api = { sendMessage } as unknown as {
+      sendMessage: typeof sendMessage;
+    };
+
+    await sendMessageTelegram(chatId, "hello group", {
+      token: "tok",
+      api,
+      messageThreadId: 271,
+    });
+
+    expect(sendMessage).toHaveBeenCalledWith(chatId, "hello group", {
+      parse_mode: "HTML",
+      message_thread_id: 271,
+    });
+  });
+
+>>>>>>> 9d9630c83 (fix: preserve telegram dm topic thread ids):src/telegram/send.test.ts
   it("retries without message_thread_id when Telegram reports missing thread", async () => {
     const chatId = "123";
     const threadErr = new Error("400: Bad Request: message thread not found");
@@ -508,6 +556,36 @@ describe("sendMessageTelegram", () => {
     expect(res.messageId).toBe("58");
   });
 
+  it("retries private chat sends without message_thread_id on thread-not-found", async () => {
+    const chatId = "123456789";
+    const threadErr = new Error("400: Bad Request: message thread not found");
+    const sendMessage = vi
+      .fn()
+      .mockRejectedValueOnce(threadErr)
+      .mockResolvedValueOnce({
+        message_id: 59,
+        chat: { id: chatId },
+      });
+    const api = { sendMessage } as unknown as {
+      sendMessage: typeof sendMessage;
+    };
+
+    const res = await sendMessageTelegram(chatId, "hello private", {
+      token: "tok",
+      api,
+      messageThreadId: 271,
+    });
+
+    expect(sendMessage).toHaveBeenNthCalledWith(1, chatId, "hello private", {
+      parse_mode: "HTML",
+      message_thread_id: 271,
+    });
+    expect(sendMessage).toHaveBeenNthCalledWith(2, chatId, "hello private", {
+      parse_mode: "HTML",
+    });
+    expect(res.messageId).toBe("59");
+  });
+
   it("does not retry thread-not-found when no message_thread_id was provided", async () => {
     const chatId = "123";
     const threadErr = new Error("400: Bad Request: message thread not found");
@@ -523,6 +601,29 @@ describe("sendMessageTelegram", () => {
       }),
     ).rejects.toThrow("message thread not found");
     expect(sendMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not retry without message_thread_id on chat-not-found", async () => {
+    const chatId = "123456789";
+    const chatErr = new Error("400: Bad Request: chat not found");
+    const sendMessage = vi.fn().mockRejectedValueOnce(chatErr);
+    const api = { sendMessage } as unknown as {
+      sendMessage: typeof sendMessage;
+    };
+
+    await expect(
+      sendMessageTelegram(chatId, "hello private", {
+        token: "tok",
+        api,
+        messageThreadId: 271,
+      }),
+    ).rejects.toThrow(/chat not found/i);
+
+    expect(sendMessage).toHaveBeenCalledTimes(1);
+    expect(sendMessage).toHaveBeenCalledWith(chatId, "hello private", {
+      parse_mode: "HTML",
+      message_thread_id: 271,
+    });
   });
 
   it("sets disable_notification when silent is true", async () => {
