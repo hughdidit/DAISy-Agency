@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
@@ -10,11 +11,16 @@ import type { MoltbotConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 9c4cbaab7 (chore: Enable eslint/no-unused-vars.)
 import type { SessionEntry } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.agent-defaults.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -23,10 +29,15 @@ import { normalizeAccountId } from "../../routing/session-key.js";
 import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { normalizeAccountId } from "../../routing/session-key.js";
+import { deliveryContextFromSession } from "../../utils/delivery-context.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   DeliverableMessageChannel,
   GatewayMessageChannel,
 } from "../../utils/message-channel.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -43,6 +54,8 @@ import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   INTERNAL_MESSAGE_CHANNEL,
   isDeliverableMessageChannel,

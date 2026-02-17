@@ -1,9 +1,7 @@
-import type { OpenClawConfig } from "../../../config/config.js";
-import type { RuntimeEnv } from "../../../runtime.js";
-import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
 import { upsertAuthProfile } from "../../../agents/auth-profiles.js";
 import { normalizeProviderId } from "../../../agents/model-selection.js";
 import { parseDurationMs } from "../../../cli/parse-duration.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
@@ -19,6 +17,11 @@ import type { RuntimeEnv } from "../../../runtime.js";
 =======
 import { upsertSharedEnvVar } from "../../../infra/env-file.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawConfig } from "../../../config/config.js";
+import { upsertSharedEnvVar } from "../../../infra/env-file.js";
+import type { RuntimeEnv } from "../../../runtime.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { shortenHomePath } from "../../../utils.js";
 import { normalizeSecretInput } from "../../../utils/normalize-secret-input.js";
 >>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
@@ -78,6 +81,7 @@ import {
   parseNonInteractiveCustomApiFlags,
   resolveCustomProviderId,
 } from "../../onboard-custom.js";
+import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
 import { applyOpenAIConfig } from "../../openai-model-default.js";
 <<<<<<< HEAD
 >>>>>>> 029b77c85 (onboard: support custom provider in non-interactive flow (#14223))

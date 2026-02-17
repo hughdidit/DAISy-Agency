@@ -1,4 +1,3 @@
-import type { Snapshot } from "../protocol/index.js";
 import { resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { getHealthSnapshot, type HealthSummary } from "../../commands/health.js";
 import { CONFIG_PATH, STATE_DIR, loadConfig } from "../../config/config.js";
@@ -11,6 +10,7 @@ import type { Snapshot } from "../protocol/index.js";
 =======
 import { resolveGatewayAuth } from "../auth.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
 =======
 import type { Snapshot } from "../protocol/index.js";
@@ -18,6 +18,9 @@ import type { Snapshot } from "../protocol/index.js";
 =======
 import { resolveGatewayAuth } from "../auth.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { Snapshot } from "../protocol/index.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 let presenceVersion = 1;
 let healthVersion = 1;

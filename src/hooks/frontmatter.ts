@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import JSON5 from "json5";
 
 import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
@@ -26,6 +27,8 @@ import type {
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { parseFrontmatterBlock } from "../markdown/frontmatter.js";
 import {
   getFrontmatterString,
@@ -39,8 +42,11 @@ import {
 } from "../shared/frontmatter.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ece55b468 (refactor(shared): dedupe frontmatter parsing)
 =======
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   OpenClawHookMetadata,
   HookEntry,
@@ -48,9 +54,12 @@ import type {
   HookInvocationPolicy,
   ParsedHookFrontmatter,
 } from "./types.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export function parseFrontmatter(content: string): ParsedHookFrontmatter {
   return parseFrontmatterBlock(content);

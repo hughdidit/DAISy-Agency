@@ -1,7 +1,7 @@
-import type { Api, Model } from "@mariozechner/pi-ai";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -13,6 +13,9 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { Api, Model } from "@mariozechner/pi-ai";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { describe, expect, it } from "vitest";
 import { captureEnv } from "../test-utils/env.js";
 import { ensureAuthProfileStore } from "./auth-profiles.js";

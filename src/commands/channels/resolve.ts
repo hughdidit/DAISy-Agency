@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { getChannelPlugin } from "../../channels/plugins/index.js";
 import type { ChannelResolveKind, ChannelResolveResult } from "../../channels/plugins/types.js";
@@ -9,11 +10,16 @@ import type { ChannelResolveKind, ChannelResolveResult } from "../../channels/pl
 import type { RuntimeEnv } from "../../runtime.js";
 import { getChannelPlugin } from "../../channels/plugins/index.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { getChannelPlugin } from "../../channels/plugins/index.js";
+import type { ChannelResolveKind, ChannelResolveResult } from "../../channels/plugins/types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { loadConfig } from "../../config/config.js";
 import { danger } from "../../globals.js";
 import { getChannelPlugin } from "../../channels/plugins/index.js";
 import type { ChannelResolveKind, ChannelResolveResult } from "../../channels/plugins/types.js";
 import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
+import type { RuntimeEnv } from "../../runtime.js";
 
 export type ChannelsResolveOptions = {
   channel?: string;

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { type ModelRef, normalizeProviderId } from "../../agents/model-selection.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
@@ -9,6 +10,10 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { type ModelRef, normalizeProviderId } from "../../agents/model-selection.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { type ModelRef, normalizeProviderId } from "../../agents/model-selection.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export type ModelPickerCatalogEntry = {
   provider: string;

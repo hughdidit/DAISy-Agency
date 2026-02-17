@@ -1,4 +1,3 @@
-import type { Tab } from "./navigation.ts";
 import { connectGateway } from "./app-gateway.ts";
 import {
 <<<<<<< HEAD
@@ -38,12 +37,16 @@ import {
 import { loadControlUiBootstrapConfig } from "./controllers/control-ui-bootstrap.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 3b4096e02 (fix(ui): load Control UI bootstrap config via JSON endpoint)
 =======
 import type { Tab } from "./navigation.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { Tab } from "./navigation.ts";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 type LifecycleHost = {
   basePath: string;

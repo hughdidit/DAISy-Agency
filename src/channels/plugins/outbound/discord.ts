@@ -1,10 +1,10 @@
-import type { ChannelOutboundAdapter } from "../types.js";
 import { sendMessageDiscord, sendPollDiscord } from "../../../discord/send.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ChannelOutboundAdapter } from "../types.js";
 =======
 import { normalizeDiscordOutboundTarget } from "../normalize/discord.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 3238bd78d (fix(discord): normalize bare numeric IDs in outbound target resolution)
 =======
@@ -13,6 +13,9 @@ import type { ChannelOutboundAdapter } from "../types.js";
 =======
 import { normalizeDiscordOutboundTarget } from "../normalize/discord.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { ChannelOutboundAdapter } from "../types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export const discordOutbound: ChannelOutboundAdapter = {
   deliveryMode: "direct",

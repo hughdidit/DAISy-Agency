@@ -1,7 +1,7 @@
-import type { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -15,6 +15,9 @@ import type { Command } from "commander";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { Command } from "commander";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { movePathToTrash } from "../browser/trash.js";
 import { resolveStateDir } from "../config/paths.js";
 >>>>>>> e665d7791 (perf(test): remove extra module resets in cli and message suites)

@@ -5,6 +5,7 @@ import path from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
 import type { StoredConversationReference } from "./conversation-store.js";
@@ -14,7 +15,10 @@ import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { StoredConversationReference } from "./conversation-store.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
+import type { StoredConversationReference } from "./conversation-store.js";
 import { setMSTeamsRuntime } from "./runtime.js";
 <<<<<<< HEAD
 

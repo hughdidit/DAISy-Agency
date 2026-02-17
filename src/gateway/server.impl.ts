@@ -3,6 +3,7 @@
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { CanvasHostServer } from "../canvas-host/server.js";
@@ -16,6 +17,8 @@ import type { startBrowserControlServerIfEnabled } from "./server-browser.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { initSubagentRegistry } from "../agents/subagent-registry.js";
 <<<<<<< HEAD
@@ -23,10 +26,14 @@ import { registerSkillsChangeListener } from "../agents/skills/refresh.js";
 =======
 import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { CanvasHostServer } from "../canvas-host/server.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { CanvasHostServer } from "../canvas-host/server.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
 import { createDefaultDeps } from "../cli/deps.js";
 import { formatCliCommand } from "../cli/command-format.js";
@@ -71,7 +78,9 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 import { getGlobalHookRunner, runGlobalGatewayStopSafely } from "../plugins/hook-runner-global.js";
 import { createEmptyPluginRegistry } from "../plugins/registry.js";
+import type { PluginServicesHandle } from "../plugins/services.js";
 import { getTotalQueueSize } from "../process/command-queue.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 8217d77ec (fix(cli): run plugin gateway_stop hooks before message exit (#16580))
@@ -80,18 +89,26 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { runOnboardingWizard } from "../wizard/onboarding.js";
 import { createAuthRateLimiter, type AuthRateLimiter } from "./auth-rate-limit.js";
 import { startChannelHealthMonitor } from "./channel-health-monitor.js";
 import { startGatewayConfigReloader } from "./config-reload.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { ControlUiRootState } from "./control-ui.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { ControlUiRootState } from "./control-ui.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { ExecApprovalManager } from "./exec-approval-manager.js";
 import { NodeRegistry } from "./node-registry.js";
+import type { startBrowserControlServerIfEnabled } from "./server-browser.js";
 import { createChannelManager } from "./server-channels.js";
 import { createAgentEventHandler } from "./server-chat.js";
 import { createGatewayCloseHandler } from "./server-close.js";

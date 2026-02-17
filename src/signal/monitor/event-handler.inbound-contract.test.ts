@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MsgContext } from "../../auto-reply/templating.js";
 =======
@@ -8,8 +9,11 @@ import type { MsgContext } from "../../auto-reply/templating.js";
 =======
 import type { MsgContext } from "../../auto-reply/templating.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { buildDispatchInboundCaptureMock } from "../../../test/helpers/dispatch-inbound-capture.js";
 import { expectInboundContextContract } from "../../../test/helpers/inbound-contract.js";
+import type { MsgContext } from "../../auto-reply/templating.js";
 
 let capturedCtx: MsgContext | undefined;
 

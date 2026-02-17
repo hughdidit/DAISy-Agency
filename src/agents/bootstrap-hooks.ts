@@ -4,13 +4,17 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { AgentBootstrapHookContext } from "../hooks/internal-hooks.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { WorkspaceBootstrapFile } from "./workspace.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { createInternalHookEvent, triggerInternalHook } from "../hooks/internal-hooks.js";
 import type { AgentBootstrapHookContext } from "../hooks/internal-hooks.js";
 import { resolveAgentIdFromSessionKey } from "../routing/session-key.js";
+import type { WorkspaceBootstrapFile } from "./workspace.js";
 
 export async function applyBootstrapHookOverrides(params: {
   files: WorkspaceBootstrapFile[];

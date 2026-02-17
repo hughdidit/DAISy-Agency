@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> 600260ebf (refactor(gateway): dedupe web login provider checks)
@@ -9,6 +10,8 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import {
   ErrorCodes,
@@ -20,12 +23,16 @@ import {
 import { formatForLog } from "../ws-log.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { GatewayRequestHandlers, RespondFn } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 const WEB_LOGIN_METHODS = new Set(["web.login.start", "web.login.wait"]);
 

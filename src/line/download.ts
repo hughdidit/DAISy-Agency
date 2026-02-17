@@ -1,6 +1,6 @@
-import { messagingApi } from "@line/bot-sdk";
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import os from "node:os";
@@ -9,6 +9,9 @@ import os from "node:os";
 import { messagingApi } from "@line/bot-sdk";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { messagingApi } from "@line/bot-sdk";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { logVerbose } from "../globals.js";
 
 interface DownloadResult {

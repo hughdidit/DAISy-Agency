@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
@@ -15,9 +16,14 @@ import type {
 } from "./configure.shared.js";
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { readConfigFileSnapshot, resolveGatewayPort, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { resolveUserPath } from "../utils.js";
@@ -28,16 +34,22 @@ import { maybeInstallDaemon } from "./configure.daemon.js";
 import { promptGatewayConfig } from "./configure.gateway.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { promptAuthConfig } from "./configure.gateway-auth.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   ChannelsWizardMode,
   ConfigureWizardParams,
   WizardSection,
 } from "./configure.shared.js";
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   CONFIGURE_SECTION_OPTIONS,
   confirm,

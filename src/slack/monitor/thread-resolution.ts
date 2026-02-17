@@ -1,6 +1,7 @@
 import type { WebClient as SlackWebClient } from "@slack/web-api";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -19,6 +20,11 @@ import type { SlackMessageEvent } from "../types.js";
 import { logVerbose, shouldLogVerbose } from "../../globals.js";
 import { pruneMapToMaxSize } from "../../infra/map-size.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { logVerbose, shouldLogVerbose } from "../../globals.js";
+import { pruneMapToMaxSize } from "../../infra/map-size.js";
+import type { SlackMessageEvent } from "../types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 type ThreadTsCacheEntry = {
   threadTs: string | null;

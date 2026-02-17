@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 import type { Command } from "commander";
@@ -26,6 +27,11 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { Command } from "commander";
 import type { IncomingMessage, ServerResponse } from "node:http";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { IncomingMessage, ServerResponse } from "node:http";
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import type { Command } from "commander";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { AuthProfileCredential, OAuthCredential } from "../agents/auth-profiles/types.js";
 import type { AnyAgentTool } from "../agents/tools/common.js";
 import type { ChannelDock } from "../channels/dock.js";

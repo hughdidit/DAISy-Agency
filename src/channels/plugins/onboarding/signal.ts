@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { detectBinary } from "../../../commands/onboard-helpers.js";
 import { installSignalCli } from "../../../commands/signal-install.js";
 import type { MoltbotConfig } from "../../../config/config.js";
@@ -19,6 +20,13 @@ import { formatCliCommand } from "../../../cli/command-format.js";
 import { detectBinary } from "../../../commands/onboard-helpers.js";
 import { installSignalCli } from "../../../commands/signal-install.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { formatCliCommand } from "../../../cli/command-format.js";
+import { detectBinary } from "../../../commands/onboard-helpers.js";
+import { installSignalCli } from "../../../commands/signal-install.js";
+import type { OpenClawConfig } from "../../../config/config.js";
+import type { DmPolicy } from "../../../config/types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import {
   listSignalAccountIds,
@@ -28,6 +36,7 @@ import {
 import { formatDocsLink } from "../../../terminal/links.js";
 import { formatCliCommand } from "../../../cli/command-format.js";
 import { normalizeE164 } from "../../../utils.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -41,6 +50,10 @@ import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onb
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { WizardPrompter } from "../../../wizard/prompts.js";
+import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { addWildcardAllowFrom, mergeAllowFromEntries, promptAccountId } from "./helpers.js";
 >>>>>>> 64f5e4a42 (refactor(onboarding): reuse allowlist merge across channels)
 

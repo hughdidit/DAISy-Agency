@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { IncomingMessage } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7,6 +8,10 @@ import type { IncomingMessage } from "node:http";
 =======
 import { randomUUID } from "node:crypto";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { randomUUID } from "node:crypto";
+import type { IncomingMessage } from "node:http";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { buildAgentMainSessionKey, normalizeAgentId } from "../routing/session-key.js";
 
 export function getHeader(req: IncomingMessage, name: string): string | undefined {

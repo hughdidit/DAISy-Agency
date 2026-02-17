@@ -1,6 +1,7 @@
 import type { EventEmitter } from "node:events";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -8,7 +9,10 @@ import { logVerbose } from "../globals.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { RuntimeEnv } from "../runtime.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { logVerbose } from "../globals.js";
+import type { RuntimeEnv } from "../runtime.js";
 
 type GatewayEmitter = Pick<EventEmitter, "on" | "removeListener">;
 

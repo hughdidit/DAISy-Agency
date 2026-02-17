@@ -1,5 +1,3 @@
-import type { GatewayService } from "../daemon/service.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 import { withProgress } from "../cli/progress.js";
 import { formatCliCommand } from "../cli/command-format.js";
@@ -8,6 +6,7 @@ import { readLastGatewayErrorLine } from "../daemon/diagnostics.js";
 <<<<<<< HEAD
 =======
 import { resolveNodeService } from "../daemon/node-service.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -20,6 +19,9 @@ import type { GatewayService } from "../daemon/service.js";
 >>>>>>> c70597dae (chore: Fix formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { GatewayService } from "../daemon/service.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveGatewayService } from "../daemon/service.js";
 import { resolveNodeService } from "../daemon/node-service.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
@@ -53,6 +55,7 @@ import { normalizeUpdateChannel, resolveUpdateChannelDisplay } from "../infra/up
 import { checkUpdateStatus, formatGitInstallLabel } from "../infra/update-check.js";
 >>>>>>> ed74f48bd (refactor(status): share update channel display + one-liner)
 import { runExec } from "../process/exec.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { VERSION } from "../version.js";
 import { resolveControlUiLinks } from "./onboard-helpers.js";
 import { getAgentLocalStatuses } from "./status-all/agents.js";

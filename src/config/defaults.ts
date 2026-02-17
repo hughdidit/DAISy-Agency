@@ -1,8 +1,7 @@
-import type { OpenClawConfig } from "./types.js";
-import type { ModelDefinitionConfig } from "./types.models.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
 import { parseModelRef } from "../agents/model-selection.js";
 import { resolveTalkApiKey } from "./talk.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
@@ -13,6 +12,10 @@ import type { OpenClawConfig } from "./types.js";
 import type { ModelDefinitionConfig } from "./types.models.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawConfig } from "./types.js";
+import type { ModelDefinitionConfig } from "./types.models.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 type WarnState = { warned: boolean };
 

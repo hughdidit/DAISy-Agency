@@ -1,6 +1,6 @@
-import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { randomBytes } from "node:crypto";
 import { createServer } from "node:http";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -11,6 +11,9 @@ import type { OAuthCredentials } from "@mariozechner/pi-ai";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OAuthCredentials } from "@mariozechner/pi-ai";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { ChutesOAuthAppConfig } from "../agents/chutes-oauth.js";
 import {
   CHUTES_AUTHORIZE_ENDPOINT,

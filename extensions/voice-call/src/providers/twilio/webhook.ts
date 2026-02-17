@@ -1,6 +1,7 @@
 import type { WebhookContext, WebhookVerificationResult } from "../../types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { Logger } from "../../manager/context.js";
 import { defaultLogger, sanitizeLogValue } from "../../manager/context.js";
 =======
@@ -9,7 +10,10 @@ import { verifyTwilioWebhook } from "../../webhook-security.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { TwilioProviderOptions } from "../twilio.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { verifyTwilioWebhook } from "../../webhook-security.js";
+import type { TwilioProviderOptions } from "../twilio.js";
 
 import type { TwilioProviderOptions } from "../twilio.js";
 

@@ -1,18 +1,25 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { spawn, type ChildProcess } from "node:child_process";
 <<<<<<< HEAD
 import * as readline from "node:readline";
 import { Readable, Writable } from "node:stream";
 
 =======
+=======
+import { spawn, type ChildProcess } from "node:child_process";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import fs from "node:fs";
 import path from "node:path";
 import * as readline from "node:readline";
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   ClientSideConnection,
   PROTOCOL_VERSION,
@@ -20,6 +27,7 @@ import {
   type RequestPermissionRequest,
   type SessionNotification,
 } from "@agentclientprotocol/sdk";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -52,6 +60,8 @@ import * as readline from "node:readline";
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
 import { DANGEROUS_ACP_TOOLS } from "../security/dangerous-tools.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

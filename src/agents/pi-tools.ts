@@ -10,9 +10,6 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
-import type { ModelAuthMode } from "./model-auth.js";
-import type { AnyAgentTool } from "./pi-tools.types.js";
-import type { SandboxContext } from "./sandbox.js";
 import { logWarn } from "../logger.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 >>>>>>> 076df941a (feat: add configurable tool loop detection)
@@ -30,6 +27,7 @@ import { listChannelAgentTools } from "./channel-tools.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createMoltbotTools } from "./moltbot-tools.js";
 import type { ModelAuthMode } from "./model-auth.js";
 =======
@@ -41,6 +39,9 @@ import type { ModelAuthMode } from "./model-auth.js";
 >>>>>>> 01ea80887 (chore: Format files.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { ModelAuthMode } from "./model-auth.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
@@ -69,6 +70,7 @@ import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.sc
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
 import {
@@ -89,6 +91,10 @@ import type { SandboxContext } from "./sandbox.js";
 >>>>>>> 01ea80887 (chore: Format files.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { AnyAgentTool } from "./pi-tools.types.js";
+import type { SandboxContext } from "./sandbox.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import {

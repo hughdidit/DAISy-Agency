@@ -1,4 +1,3 @@
-import type { CommandHandler } from "./commands-types.js";
 import { callGateway } from "../../gateway/call.js";
 <<<<<<< HEAD
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
@@ -13,12 +12,16 @@ import {
 } from "../../utils/message-channel.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> efe2a464a (fix(approvals): gate /approve by gateway scopes)
 =======
 import type { CommandHandler } from "./commands-types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { CommandHandler } from "./commands-types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 const COMMAND = "/approve";
 

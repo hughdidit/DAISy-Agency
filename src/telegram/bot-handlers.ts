@@ -1,7 +1,4 @@
 import type { Message, ReactionTypeEmoji } from "@grammyjs/types";
-import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
-import type { TelegramMediaRef } from "./bot-message-context.js";
-import type { TelegramContext } from "./bot/types.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { hasControlCommand } from "../auto-reply/command-detection.js";
 import {
@@ -23,10 +20,14 @@ import { writeConfigFile } from "../config/io.js";
 =======
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { danger, logVerbose, warn } from "../globals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -50,12 +51,16 @@ import {
 } from "./bot-access.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
 =======
 import type { TelegramMediaRef } from "./bot-message-context.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { TelegramMediaRef } from "./bot-message-context.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { RegisterTelegramHandlerParams } from "./bot-native-commands.js";
 import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
 <<<<<<< HEAD
@@ -70,6 +75,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
 =======
 =======
@@ -77,6 +83,9 @@ import type { TelegramContext } from "./bot/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { TelegramContext } from "./bot/types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   evaluateTelegramGroupBaseAccess,
   evaluateTelegramGroupPolicyAccess,

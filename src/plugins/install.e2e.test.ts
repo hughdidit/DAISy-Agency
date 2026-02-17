@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { spawnSync } from "node:child_process";
 =======
 import JSZip from "jszip";
@@ -10,10 +11,13 @@ import JSZip from "jszip";
 =======
 import JSZip from "jszip";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -27,6 +31,9 @@ import JSZip from "jszip";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import JSZip from "jszip";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import * as tar from "tar";
 >>>>>>> 93dc3bb79 (perf(test): avoid npm pack in plugin install e2e fixtures)
 import { afterEach, describe, expect, it, vi } from "vitest";

@@ -2,12 +2,15 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
 =======
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -37,12 +40,16 @@ import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/ag
 import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   resolveSessionTranscriptPath,
   resolveSessionTranscriptsDirForAgent,

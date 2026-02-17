@@ -2,6 +2,7 @@ import type { Command } from "commander";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { agentsListCommand } from "../../commands/agents.js";
 import { healthCommand } from "../../commands/health.js";
@@ -42,6 +43,11 @@ import type { ProgramContext } from "./context.js";
 import { getPrimaryCommand, hasHelpOrVersion } from "../argv.js";
 import { reparseProgramFromActionArgs } from "./action-reparse.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { getPrimaryCommand, hasHelpOrVersion } from "../argv.js";
+import { reparseProgramFromActionArgs } from "./action-reparse.js";
+import type { ProgramContext } from "./context.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { registerSubCliCommands } from "./register.subclis.js";
 import type { ProgramContext } from "./context.js";
 

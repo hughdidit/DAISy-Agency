@@ -3,8 +3,8 @@ import type { ChannelId, ChannelPlugin } from "./types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { PluginRegistry } from "../../plugins/registry.js";
-import type { ChannelId, ChannelPlugin } from "./types.js";
 import { getActivePluginRegistry } from "../../plugins/runtime.js";
+import type { ChannelId, ChannelPlugin } from "./types.js";
 
 const cache = new Map<ChannelId, ChannelPlugin>();
 let lastRegistry: PluginRegistry | null = null;

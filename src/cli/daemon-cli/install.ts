@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import type { DaemonInstallOptions } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { buildGatewayInstallPlan } from "../../commands/daemon-install-helpers.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
@@ -33,6 +36,7 @@ import {
   installDaemonServiceAndEmit,
 } from "./response.js";
 import { parsePort } from "./shared.js";
+import type { DaemonInstallOptions } from "./types.js";
 
 export async function runDaemonInstall(opts: DaemonInstallOptions) {
   const json = Boolean(opts.json);

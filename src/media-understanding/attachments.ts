@@ -9,6 +9,7 @@ import type { MediaUnderstandingAttachmentsConfig } from "../config/types.tools.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 =======
@@ -16,6 +17,8 @@ import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 =======
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { isAbortError } from "../infra/unhandled-rejections.js";
 >>>>>>> 53910f364 (Deduplicate more)
@@ -24,6 +27,7 @@ import { detectMime, getFileExtension, isAudioFileName, kindFromMime } from "../
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { fetchWithTimeout } from "./providers/shared.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 <<<<<<< HEAD
 import { MediaUnderstandingSkipError } from "./errors.js";
@@ -31,6 +35,9 @@ import { MediaUnderstandingSkipError } from "./errors.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 type MediaBufferResult = {
   buffer: Buffer;

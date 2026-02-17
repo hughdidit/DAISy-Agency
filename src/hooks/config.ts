@@ -4,7 +4,6 @@ import path from "node:path";
 import type { MoltbotConfig, HookConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig, HookConfig } from "../config/config.js";
-import type { HookEligibilityContext, HookEntry } from "./types.js";
 import {
   evaluateRuntimeRequires,
   hasBinary,
@@ -14,6 +13,7 @@ import {
 } from "../shared/config-eval.js";
 >>>>>>> 25ecd4216 (refactor(shared): dedupe config path eval)
 import { resolveHookKey } from "./frontmatter.js";
+import type { HookEligibilityContext, HookEntry } from "./types.js";
 
 const DEFAULT_CONFIG_VALUES: Record<string, boolean> = {
   "browser.enabled": true,

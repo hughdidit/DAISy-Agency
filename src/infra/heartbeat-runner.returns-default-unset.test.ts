@@ -8,10 +8,10 @@ import * as replyModule from "../auto-reply/reply.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import * as replyModule from "../auto-reply/reply.js";
 import { whatsappOutbound } from "../channels/plugins/outbound/whatsapp.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
@@ -20,6 +20,9 @@ import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   resolveAgentIdFromSessionKey,
   resolveAgentMainSessionKey,

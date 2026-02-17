@@ -7,12 +7,15 @@ import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from "vitest";
 import { WebSocket } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { GatewayServerOptions } from "./server.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveMainSessionKeyFromConfig, type SessionEntry } from "../config/sessions.js";
 import { resetAgentRunContextForTest } from "../infra/agent-events.js";
 import {
@@ -31,12 +34,16 @@ import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-cha
 import { PROTOCOL_VERSION } from "./protocol/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { buildDeviceAuthPayload } from "./device-auth.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayServerOptions } from "./server.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { GatewayServerOptions } from "./server.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   agentCommand,
   cronIsolatedRun,

@@ -3,6 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { promisify } from "node:util";
 
 =======
@@ -19,6 +20,8 @@ import { colorize, isRich, theme } from "../terminal/theme.js";
 =======
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { splitArgsPreservingQuotes } from "./arg-split.js";
 <<<<<<< HEAD
 >>>>>>> 108ea4336 (refactor(daemon): share quoted arg splitter)
@@ -34,6 +37,7 @@ import { parseKeyValueOutput } from "./runtime-parse.js";
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 =======
 import { execSchtasks } from "./schtasks-exec.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 
 const execFileAsync = promisify(execFile);
@@ -44,6 +48,9 @@ import { execSchtasks } from "./schtasks-exec.js";
 =======
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { GatewayServiceRuntime } from "./service-runtime.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 function resolveTaskName(env: Record<string, string | undefined>): string {
 <<<<<<< HEAD

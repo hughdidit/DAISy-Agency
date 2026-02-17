@@ -5,9 +5,13 @@ import type { MoltbotConfig } from "../config/config.js";
 import { resolveEntriesWithActiveFallback, resolveModelEntries } from "./resolve.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 import type { MediaUnderstandingCapability } from "./types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveEntriesWithActiveFallback, resolveModelEntries } from "./resolve.js";
+import type { MediaUnderstandingCapability } from "./types.js";
 
 const providerRegistry = new Map<string, { capabilities: MediaUnderstandingCapability[] }>([
   ["openai", { capabilities: ["image"] }],

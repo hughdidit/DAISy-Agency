@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -15,6 +16,10 @@ import type { Command } from "commander";
 import fs from "node:fs/promises";
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import fs from "node:fs/promises";
+import type { Command } from "commander";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { defaultRuntime } from "../../runtime.js";
 import { writeBase64ToFile } from "../nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../nodes-canvas.js";
@@ -29,6 +34,7 @@ import { shortenHomePath } from "../../utils.js";
 =======
 import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> d4bdcda32 (refactor(nodes-cli): share node.invoke param builder)
 =======
 import type { NodesRpcOpts } from "./types.js";
@@ -36,6 +42,9 @@ import type { NodesRpcOpts } from "./types.js";
 =======
 import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 async function invokeCanvas(opts: NodesRpcOpts, command: string, params?: Record<string, unknown>) {
   const nodeId = await resolveNodeId(opts, String(opts.node ?? ""));

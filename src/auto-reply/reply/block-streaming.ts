@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
@@ -9,8 +10,12 @@ import type { MoltbotConfig } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { BlockStreamingCoalesceConfig } from "../../config/types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { BlockStreamingCoalesceConfig } from "../../config/types.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 import {
   INTERNAL_MESSAGE_CHANNEL,

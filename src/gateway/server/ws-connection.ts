@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -21,23 +22,26 @@ import type { createSubsystemLogger } from "../../logging/subsystem.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { WebSocket, WebSocketServer } from "ws";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { randomUUID } from "node:crypto";
-import type { createSubsystemLogger } from "../../logging/subsystem.js";
-import type { AuthRateLimiter } from "../auth-rate-limit.js";
-import type { ResolvedGatewayAuth } from "../auth.js";
-import type { GatewayRequestContext, GatewayRequestHandlers } from "../server-methods/types.js";
-import type { GatewayWsClient } from "./ws-types.js";
+import type { WebSocket, WebSocketServer } from "ws";
 import { resolveCanvasHostUrl } from "../../infra/canvas-host-url.js";
 import { removeRemoteNodeInfo } from "../../infra/skills-remote.js";
 import { listSystemPresence, upsertPresence } from "../../infra/system-presence.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type { createSubsystemLogger } from "../../logging/subsystem.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { createSubsystemLogger } from "../../logging/subsystem.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { truncateUtf16Safe } from "../../utils.js";
 >>>>>>> d637a2635 (Gateway: sanitize WebSocket log headers (#15592))
 import { isWebchatClient } from "../../utils/message-channel.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -47,12 +51,18 @@ import type { AuthRateLimiter } from "../auth-rate-limit.js";
 import type { ResolvedGatewayAuth } from "../auth.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { AuthRateLimiter } from "../auth-rate-limit.js";
+import type { ResolvedGatewayAuth } from "../auth.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { isLoopbackAddress } from "../net.js";
 import { getHandshakeTimeoutMs } from "../server-constants.js";
+import type { GatewayRequestContext, GatewayRequestHandlers } from "../server-methods/types.js";
 import { formatError } from "../server-utils.js";
 import { logWs } from "../ws-log.js";
 import { getHealthVersion, getPresenceVersion, incrementPresenceVersion } from "./health-state.js";
 import { attachGatewayWsMessageHandler } from "./ws-connection/message-handler.js";
+import type { GatewayWsClient } from "./ws-types.js";
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 

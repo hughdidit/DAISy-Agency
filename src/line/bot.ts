@@ -6,6 +6,7 @@ import type { Request, Response, NextFunction } from "express";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 59cfff02f (chore: Emit TypeScript declaration files so that we can type-check the extensions folder soon.)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -21,11 +22,19 @@ import type { ResolvedLineAccount } from "./types.js";
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { resolveLineAccount } from "./accounts.js";
 import { handleLineWebhookEvents } from "./bot-handlers.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { LineInboundContext } from "./bot-message-context.js";
+import type { ResolvedLineAccount } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { startLineWebhook } from "./webhook.js";
 import type { ResolvedLineAccount } from "./types.js";
 

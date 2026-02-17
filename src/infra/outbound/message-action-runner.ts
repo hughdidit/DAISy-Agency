@@ -5,14 +5,6 @@ import { fileURLToPath } from "node:url";
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 =======
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-import type {
-  ChannelId,
-  ChannelMessageActionName,
-  ChannelThreadingToolContext,
-} from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { OutboundSendDeps } from "./deliver.js";
-import type { MessagePollResult, MessageSendResult } from "./message.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 import {
@@ -27,13 +19,17 @@ import { dispatchChannelMessageAction } from "../../channels/plugins/message-act
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   ChannelId,
   ChannelMessageActionName,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
@@ -48,6 +44,9 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -70,6 +69,7 @@ import { applyTargetToParams } from "./channel-target.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureOutboundSessionEntry, resolveOutboundSessionRoute } from "./outbound-session.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
@@ -79,6 +79,9 @@ import type { OutboundSendDeps } from "./deliver.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OutboundSendDeps } from "./deliver.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   hydrateSendAttachmentParams,
   hydrateSetGroupIconParams,
@@ -94,12 +97,16 @@ import {
 import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 =======
 import type { MessagePollResult, MessageSendResult } from "./message.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { MessagePollResult, MessageSendResult } from "./message.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   applyCrossContextDecoration,
   buildCrossContextDecoration,

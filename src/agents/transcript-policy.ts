@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { isAntigravityClaude, isGoogleModelApi } from "./pi-embedded-helpers/google.js";
 import { normalizeProviderId } from "./model-selection.js";
 =======
@@ -12,6 +13,11 @@ import type { ToolCallIdMode } from "./tool-call-id.js";
 import { normalizeProviderId } from "./model-selection.js";
 import { isAntigravityClaude, isGoogleModelApi } from "./pi-embedded-helpers/google.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { normalizeProviderId } from "./model-selection.js";
+import { isAntigravityClaude, isGoogleModelApi } from "./pi-embedded-helpers/google.js";
+import type { ToolCallIdMode } from "./tool-call-id.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export type TranscriptSanitizeMode = "full" | "images-only";
 

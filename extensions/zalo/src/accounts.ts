@@ -7,6 +7,7 @@ import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { ResolvedZaloAccount, ZaloAccountConfig, ZaloConfig } from "./types.js";
 =======
@@ -15,7 +16,10 @@ import { resolveZaloToken } from "./token.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { ResolvedZaloAccount, ZaloAccountConfig, ZaloConfig } from "./types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveZaloToken } from "./token.js";
+import type { ResolvedZaloAccount, ZaloAccountConfig, ZaloConfig } from "./types.js";
 
 <<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {

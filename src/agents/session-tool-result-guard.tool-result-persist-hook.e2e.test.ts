@@ -1,8 +1,7 @@
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
-import { SessionManager } from "@mariozechner/pi-coding-agent";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -12,6 +11,10 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { SessionManager } from "@mariozechner/pi-coding-agent";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import { SessionManager } from "@mariozechner/pi-coding-agent";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { describe, expect, it, afterEach } from "vitest";
 <<<<<<< HEAD
 

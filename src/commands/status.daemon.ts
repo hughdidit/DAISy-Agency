@@ -1,12 +1,16 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { resolveNodeService } from "../daemon/node-service.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { GatewayService } from "../daemon/service.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveNodeService } from "../daemon/node-service.js";
+import type { GatewayService } from "../daemon/service.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { resolveNodeService } from "../daemon/node-service.js";
 import { formatDaemonRuntimeShort } from "./status.format.js";

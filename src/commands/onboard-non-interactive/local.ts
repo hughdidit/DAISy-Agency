@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveGatewayPort, writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
@@ -12,14 +13,21 @@ import { formatCliCommand } from "../../cli/command-format.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { OnboardOptions } from "../onboard-types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { formatCliCommand } from "../../cli/command-format.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { resolveGatewayPort, writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { RuntimeEnv } from "../../runtime.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME } from "../daemon-runtime.js";
 import { healthCommand } from "../health.js";
 import { applyOnboardingLocalWorkspaceConfig } from "../onboard-config.js";
@@ -31,12 +39,16 @@ import {
   waitForGatewayReachable,
 } from "../onboard-helpers.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { OnboardOptions } from "../onboard-types.js";
 <<<<<<< HEAD
 
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OnboardOptions } from "../onboard-types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { inferAuthChoiceFromFlags } from "./local/auth-choice-inference.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyNonInteractiveAuthChoice } from "./local/auth-choice.js";

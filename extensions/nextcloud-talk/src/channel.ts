@@ -15,10 +15,13 @@ import {
 =======
 } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CoreConfig } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   listNextcloudTalkAccountIds,
   resolveDefaultNextcloudTalkAccountId,
@@ -35,6 +38,7 @@ import { nextcloudTalkOnboardingAdapter } from "./onboarding.js";
 import { getNextcloudTalkRuntime } from "./runtime.js";
 import { sendMessageNextcloudTalk } from "./send.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { CoreConfig } from "./types.js";
 <<<<<<< HEAD
 import { resolveNextcloudTalkGroupToolPolicy } from "./policy.js";
@@ -42,6 +46,9 @@ import { resolveNextcloudTalkGroupToolPolicy } from "./policy.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { CoreConfig } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 const meta = {
   id: "nextcloud-talk",

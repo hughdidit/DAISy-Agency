@@ -1,17 +1,7 @@
-import type { ChannelMeta } from "../channels/plugins/types.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { DmPolicy } from "../config/types.js";
-import type { RuntimeEnv } from "../runtime.js";
-import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
-import type { ChannelChoice } from "./onboard-types.js";
-import type {
-  ChannelOnboardingDmPolicy,
-  ChannelOnboardingStatus,
-  SetupChannelsOptions,
-} from "./onboarding/types.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { listChannelPluginCatalogEntries } from "../channels/plugins/catalog.js";
 import { listChannelPlugins, getChannelPlugin } from "../channels/plugins/index.js";
+import type { ChannelMeta } from "../channels/plugins/types.js";
 import {
   formatChannelPrimerLine,
   formatChannelSelectionLine,
@@ -31,10 +21,15 @@ import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
 import type { ChannelChoice } from "./onboard-types.js";
 =======
 import { formatCliCommand } from "../cli/command-format.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { isChannelConfigured } from "../config/plugin-auto-enable.js";
+import type { DmPolicy } from "../config/types.js";
 import { enablePluginInConfig } from "../plugins/enable.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
+import type { WizardPrompter, WizardSelectOption } from "../wizard/prompts.js";
+import type { ChannelChoice } from "./onboard-types.js";
 import {
   ensureOnboardingPluginInstalled,
   reloadOnboardingPluginRegistry,
@@ -46,19 +41,25 @@ import {
 } from "./onboarding/registry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   ensureOnboardingPluginInstalled,
   reloadOnboardingPluginRegistry,
 } from "./onboarding/plugin-install.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   ChannelOnboardingDmPolicy,
   ChannelOnboardingStatus,
   SetupChannelsOptions,
 } from "./onboarding/types.js";
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 type ConfiguredChannelAction = "update" | "disable" | "delete" | "skip";
 

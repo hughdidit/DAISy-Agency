@@ -1,4 +1,3 @@
-import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
 <<<<<<< HEAD
 import { isTruthyEnvValue } from "../infra/env.js";
@@ -9,12 +8,16 @@ import { parseGeminiAuth } from "../infra/gemini-auth.js";
 import { debugEmbeddingsLog } from "./embeddings-debug.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
 =======
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export type GeminiEmbeddingClient = {
   baseUrl: string;

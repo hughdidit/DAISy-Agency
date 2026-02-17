@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 
 =======
@@ -7,7 +8,10 @@ import path from "node:path";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { AgentTool } from "@mariozechner/pi-agent-core";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import path from "node:path";
+import type { AgentTool } from "@mariozechner/pi-agent-core";
 import type { SessionSystemPromptReport } from "../config/sessions/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";

@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -11,7 +12,10 @@ import { getMatrixRuntime } from "../../runtime.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { MatrixStoragePaths } from "./types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { getMatrixRuntime } from "../../runtime.js";
+import type { MatrixStoragePaths } from "./types.js";
 
 export const DEFAULT_ACCOUNT_KEY = "default";
 const STORAGE_META_FILENAME = "storage-meta.json";

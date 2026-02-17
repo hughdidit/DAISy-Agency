@@ -5,6 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import lockfile from "proper-lockfile";
 =======
@@ -16,7 +17,10 @@ import { getPairingAdapter } from "../channels/plugins/pairing.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { ChannelId, ChannelPairingAdapter } from "../channels/plugins/types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { getPairingAdapter } from "../channels/plugins/pairing.js";
+import type { ChannelId, ChannelPairingAdapter } from "../channels/plugins/types.js";
 import { resolveOAuthDir, resolveStateDir } from "../config/paths.js";
 import { withFileLock as withPathLock } from "../infra/file-lock.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";

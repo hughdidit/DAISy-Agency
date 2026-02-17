@@ -16,6 +16,7 @@ import {
 } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
 
 =======
@@ -23,6 +24,8 @@ import {
 =======
 import type { BlueBubblesSendTarget } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import { resolveBlueBubblesMessageId } from "./monitor.js";
 import { isMacOS26OrHigher } from "./probe.js";
@@ -39,6 +42,7 @@ import {
 } from "./chat.js";
 import { sendBlueBubblesAttachment } from "./attachments.js";
 import { normalizeBlueBubblesHandle, parseBlueBubblesTarget } from "./targets.js";
+import type { BlueBubblesSendTarget } from "./types.js";
 
 const providerId = "bluebubbles";
 

@@ -3,6 +3,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveCommandAuthorization } from "../command-auth.js";
 import { normalizeCommandBody } from "../commands-registry.js";
@@ -10,8 +11,12 @@ import { normalizeCommandBody } from "../commands-registry.js";
 >>>>>>> ed11e93cf (chore(format))
 import type { MsgContext } from "../templating.js";
 import type { CommandContext } from "./commands-types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveCommandAuthorization } from "../command-auth.js";
 import { normalizeCommandBody } from "../commands-registry.js";
+import type { MsgContext } from "../templating.js";
+import type { CommandContext } from "./commands-types.js";
 import { stripMentions } from "./mentions.js";
 
 export function buildCommandContext(params: {

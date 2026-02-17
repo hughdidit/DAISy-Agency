@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { formatCliCommand } from "../cli/command-format.js";
@@ -11,6 +12,10 @@ import type { RuntimeEnv } from "../runtime.js";
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveGatewayPort } from "../config/config.js";
 import {
   resolveGatewayLaunchAgentLabel,
@@ -29,6 +34,7 @@ import { renderSystemdUnavailableHints } from "../daemon/systemd-hints.js";
 import { formatPortDiagnostics, inspectPortUsage } from "../infra/ports.js";
 import { isWSL } from "../infra/wsl.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
@@ -36,6 +42,9 @@ import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { note } from "../terminal/note.js";
 import { sleep } from "../utils.js";
 import {
@@ -46,11 +55,15 @@ import {
 import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
 import { buildGatewayRuntimeHints, formatGatewayRuntimeSummary } from "./doctor-format.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 <<<<<<< HEAD
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { formatHealthCheckFailure } from "./health-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { healthCommand } from "./health.js";

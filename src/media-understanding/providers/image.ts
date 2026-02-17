@@ -2,18 +2,22 @@ import type { Api, Context, Model } from "@mariozechner/pi-ai";
 import { complete } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
 =======
 =======
 import type { ImageDescriptionRequest, ImageDescriptionResult } from "../types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { minimaxUnderstandImage } from "../../agents/minimax-vlm.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getApiKeyForModel, requireApiKey } from "../../agents/model-auth.js";
 import { ensureMoltbotModelsJson } from "../../agents/models-config.js";
 import { minimaxUnderstandImage } from "../../agents/minimax-vlm.js";
 import { coerceImageAssistantText } from "../../agents/tools/image-tool.helpers.js";
+import type { ImageDescriptionRequest, ImageDescriptionResult } from "../types.js";
 
 export async function describeImageWithModel(
   params: ImageDescriptionRequest,

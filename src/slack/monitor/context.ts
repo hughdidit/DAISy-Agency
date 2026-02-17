@@ -3,6 +3,7 @@ import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig, SlackReactionNotificationMode } from "../../config/config.js";
 =======
 import type { OpenClawConfig, SlackReactionNotificationMode } from "../../config/config.js";
@@ -25,10 +26,16 @@ import type { RuntimeEnv } from "../../runtime.js";
 import type { SlackMessageEvent } from "../types.js";
 import type { SlackChannelConfigEntries } from "./channel-config.js";
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
+=======
+import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
+import type { OpenClawConfig, SlackReactionNotificationMode } from "../../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveSessionKey, type SessionScope } from "../../config/sessions.js";
+import type { DmPolicy, GroupPolicy } from "../../config/types.js";
 import { logVerbose } from "../../globals.js";
 import { createDedupeCache } from "../../infra/dedupe.js";
 import { getChildLogger } from "../../logging.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 import type { SlackMessageEvent } from "../types.js";
@@ -39,7 +46,12 @@ import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { RuntimeEnv } from "../../runtime.js";
+import type { SlackMessageEvent } from "../types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { normalizeAllowList, normalizeAllowListLower, normalizeSlackSlug } from "./allow-list.js";
+import type { SlackChannelConfigEntries } from "./channel-config.js";
 import { resolveSlackChannelConfig } from "./channel-config.js";
 import { isSlackChannelAllowedByPolicy } from "./policy.js";
 

@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { RequestClient } from "@buape/carbon";
 import { PollLayoutType } from "discord-api-types/payloads/v10";
 import type { RESTAPIPoll } from "discord-api-types/rest/v10";
@@ -18,6 +19,8 @@ import type { RESTAPIPoll } from "discord-api-types/rest/v10";
 =======
 import type { RESTAPIPoll } from "discord-api-types/rest/v10";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   Embed,
   RequestClient,
@@ -27,9 +30,11 @@ import {
   type TopLevelComponents,
 } from "@buape/carbon";
 import { PollLayoutType } from "discord-api-types/payloads/v10";
+import type { RESTAPIPoll } from "discord-api-types/rest/v10";
 import { Routes, type APIEmbed } from "discord-api-types/v10";
 >>>>>>> 9203a2fdb (Discord: CV2! (#16364))
 import type { ChunkMode } from "../auto-reply/chunk.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { loadConfig } from "../config/config.js";
 <<<<<<< HEAD
@@ -41,6 +46,10 @@ import type { RetryRunner } from "../infra/retry-policy.js";
 import type { RetryRunner } from "../infra/retry-policy.js";
 import { loadConfig } from "../config/config.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { loadConfig } from "../config/config.js";
+import type { RetryRunner } from "../infra/retry-policy.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { normalizePollDurationHours, normalizePollInput, type PollInput } from "../polls.js";
 import { loadWebMedia } from "../web/media.js";
 import { resolveDiscordAccount } from "./accounts.js";

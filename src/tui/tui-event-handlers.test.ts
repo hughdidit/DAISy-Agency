@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { ChatLog } from "./components/chat-log.js";
 =======
@@ -16,7 +17,10 @@ import { createEventHandlers } from "./tui-event-handlers.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { AgentEvent, ChatEvent, TuiStateAccess } from "./tui-types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { createEventHandlers } from "./tui-event-handlers.js";
+import type { AgentEvent, ChatEvent, TuiStateAccess } from "./tui-types.js";
 
 type MockChatLog = {
   startTool: ReturnType<typeof vi.fn>;

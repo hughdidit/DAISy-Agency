@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -13,6 +14,8 @@ import type {
   SessionsListResult,
 } from "./session-utils.types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { lookupContextTokens } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
@@ -54,18 +57,24 @@ import type {
 =======
 import { readSessionTitleFieldsFromTranscript } from "./session-utils.fs.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 586176730 (perf(gateway): optimize sessions/ws/routing)
 =======
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   GatewayAgentRow,
   GatewaySessionRow,
   GatewaySessionsDefaults,
   SessionsListResult,
 } from "./session-utils.types.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { readSessionTitleFieldsFromTranscript } from "./session-utils.fs.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export {
   archiveFileOnDisk,

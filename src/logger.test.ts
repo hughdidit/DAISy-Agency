@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { setVerbose } from "./globals.js";
 =======
@@ -16,6 +17,8 @@ import type { RuntimeEnv } from "./runtime.js";
 =======
 import type { RuntimeEnv } from "./runtime.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { isVerbose, isYes, logVerbose, setVerbose, setYes } from "./globals.js";
 >>>>>>> 2acc0b0f4 (perf(test): fold globals unit tests into logger suite)
 import { logDebug, logError, logInfo, logSuccess, logWarn } from "./logger.js";
@@ -31,12 +34,16 @@ import {
 } from "./logging.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 37f030a67 (perf(test): fold console prefix tests into logger suite)
 =======
 import type { RuntimeEnv } from "./runtime.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { RuntimeEnv } from "./runtime.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 describe("logger helpers", () => {
   afterEach(() => {

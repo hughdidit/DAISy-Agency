@@ -1,5 +1,6 @@
 import type { RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { defaultRuntime } from "../runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -12,6 +13,10 @@ import type { WizardSection } from "./configure.shared.js";
 import type { WizardSection } from "./configure.shared.js";
 import { defaultRuntime } from "../runtime.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { defaultRuntime } from "../runtime.js";
+import type { WizardSection } from "./configure.shared.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { CONFIGURE_WIZARD_SECTIONS, parseConfigureWizardSections } from "./configure.shared.js";
 >>>>>>> 1a758135d (refactor(cli): share configure section runner)
 import { runConfigureWizard } from "./configure.wizard.js";

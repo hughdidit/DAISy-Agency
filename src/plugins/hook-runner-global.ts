@@ -8,6 +8,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { PluginRegistry } from "./registry.js";
 import type { PluginHookGatewayContext, PluginHookGatewayStopEvent } from "./types.js";
@@ -27,6 +28,12 @@ import type { PluginHookGatewayContext, PluginHookGatewayStopEvent } from "./typ
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { createHookRunner, type HookRunner } from "./hooks.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { createHookRunner, type HookRunner } from "./hooks.js";
+import type { PluginRegistry } from "./registry.js";
+import type { PluginHookGatewayContext, PluginHookGatewayStopEvent } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 const log = createSubsystemLogger("plugins");
 

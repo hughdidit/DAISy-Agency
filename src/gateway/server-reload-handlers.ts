@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
 import { startGmailWatcher, stopGmailWatcher } from "../hooks/gmail-watcher.js";
@@ -10,16 +11,24 @@ import type { loadConfig } from "../config/config.js";
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { getActiveEmbeddedRunCount } from "../agents/pi-embedded-runner/runs.js";
 import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
+import type { CliDeps } from "../cli/deps.js";
 import { resolveAgentMaxConcurrent, resolveSubagentMaxConcurrent } from "../config/agent-limits.js";
+import type { loadConfig } from "../config/config.js";
 import { startGmailWatcher, stopGmailWatcher } from "../hooks/gmail-watcher.js";
 import { isTruthyEnvValue } from "../infra/env.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resetDirectoryCache } from "../infra/outbound/target-resolver.js";
 import {
 <<<<<<< HEAD
@@ -38,12 +47,16 @@ import { setCommandLaneConcurrency, getTotalQueueSize } from "../process/command
 import { CommandLane } from "../process/lanes.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { isTruthyEnvValue } from "../infra/env.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveHooksConfig } from "./hooks.js";
 import { startBrowserControlServerIfEnabled } from "./server-browser.js";
 import { buildGatewayCronService, type GatewayCronState } from "./server-cron.js";

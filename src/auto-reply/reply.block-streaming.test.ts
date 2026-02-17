@@ -11,6 +11,7 @@ import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.j
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
 =======
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
@@ -22,7 +23,10 @@ import { loadModelCatalog } from "../agents/model-catalog.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { loadModelCatalog } from "../agents/model-catalog.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { getReplyFromConfig } from "./reply.js";
 
 type RunEmbeddedPiAgent = typeof import("../agents/pi-embedded.js").runEmbeddedPiAgent;

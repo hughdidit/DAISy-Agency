@@ -1,21 +1,22 @@
 import path from "node:path";
-import type { OpenClawConfig } from "../../../config/config.js";
-import type { DmPolicy } from "../../../config/types.js";
-import type { RuntimeEnv } from "../../../runtime.js";
-import type { WizardPrompter } from "../../../wizard/prompts.js";
-import type { ChannelOnboardingAdapter } from "../onboarding-types.js";
 import { loginWeb } from "../../../channel-web.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
 =======
 import { formatCliCommand } from "../../../cli/command-format.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { OpenClawConfig } from "../../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawConfig } from "../../../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { mergeWhatsAppConfig } from "../../../config/merge-config.js";
+import type { DmPolicy } from "../../../config/types.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
+import type { RuntimeEnv } from "../../../runtime.js";
 import { formatDocsLink } from "../../../terminal/links.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../../../cli/command-format.js";
@@ -31,6 +32,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter } from "../onboarding-types.js";
 import { promptAccountId } from "./helpers.js";
@@ -41,6 +43,10 @@ import type { ChannelOnboardingAdapter } from "../onboarding-types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { WizardPrompter } from "../../../wizard/prompts.js";
+import type { ChannelOnboardingAdapter } from "../onboarding-types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { mergeAllowFromEntries, promptAccountId } from "./helpers.js";
 >>>>>>> 64f5e4a42 (refactor(onboarding): reuse allowlist merge across channels)
 

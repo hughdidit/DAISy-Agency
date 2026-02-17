@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { shouldAckReactionForWhatsApp } from "../../../channels/ack-reactions.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -7,11 +8,15 @@ import { shouldAckReactionForWhatsApp } from "../../../channels/ack-reactions.js
 >>>>>>> ed11e93cf (chore(format))
 import type { loadConfig } from "../../../config/config.js";
 import type { WebInboundMsg } from "../types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { shouldAckReactionForWhatsApp } from "../../../channels/ack-reactions.js";
+import type { loadConfig } from "../../../config/config.js";
 import { logVerbose } from "../../../globals.js";
 import { shouldAckReactionForWhatsApp } from "../../../channels/ack-reactions.js";
 import { sendReactionWhatsApp } from "../../outbound.js";
 import { formatError } from "../../session.js";
+import type { WebInboundMsg } from "../types.js";
 import { resolveGroupActivationFor } from "./group-activation.js";
 
 export function maybeSendAckReaction(params: {

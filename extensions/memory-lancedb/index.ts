@@ -8,6 +8,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Type } from "@sinclair/typebox";
 import * as lancedb from "@lancedb/lancedb";
 import OpenAI from "openai";
@@ -28,9 +29,17 @@ import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { Type } from "@sinclair/typebox";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { randomUUID } from "node:crypto";
+import type * as LanceDB from "@lancedb/lancedb";
+import { Type } from "@sinclair/typebox";
 import OpenAI from "openai";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   DEFAULT_CAPTURE_MAX_CHARS,
   MEMORY_CATEGORIES,

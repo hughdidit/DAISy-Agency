@@ -8,6 +8,7 @@ import type { CoreConfig } from "../types.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 import type { MatrixAuth, MatrixResolvedConfig } from "./types.js";
@@ -19,8 +20,12 @@ import { getMatrixRuntime } from "../../runtime.js";
 >>>>>>> ed11e93cf (chore(format))
 import type { CoreConfig } from "../../types.js";
 import type { MatrixAuth, MatrixResolvedConfig } from "./types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { getMatrixRuntime } from "../../runtime.js";
+import type { CoreConfig } from "../../types.js";
 import { ensureMatrixSdkLoggingConfigured } from "./logging.js";
+import type { MatrixAuth, MatrixResolvedConfig } from "./types.js";
 
 function clean(value?: string): string {
   return value?.trim() ?? "";

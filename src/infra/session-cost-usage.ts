@@ -8,6 +8,7 @@ import type { NormalizedUsage, UsageLike } from "../agents/usage.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import { normalizeUsage } from "../agents/usage.js";
@@ -19,8 +20,17 @@ import { normalizeUsage } from "../agents/usage.js";
 >>>>>>> 262b7a157 (chore: chore: Fix types in tests 12/N.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { normalizeUsage } from "../agents/usage.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { OpenClawConfig } from "../config/config.js";
+import {
+  resolveSessionFilePath,
+  resolveSessionTranscriptsDirForAgent,
+} from "../config/sessions/paths.js";
 import type { SessionEntry } from "../config/sessions/types.js";
+import { countToolResults, extractToolCallNames } from "../utils/transcript-tools.js";
+import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
 import type {
   CostBreakdown,
   CostUsageTotals,
@@ -41,6 +51,7 @@ import type {
   SessionUsageTimePoint,
   SessionUsageTimeSeries,
 } from "./session-cost-usage.types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -71,6 +82,8 @@ import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format
 >>>>>>> 262b7a157 (chore: chore: Fix types in tests 12/N.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export type {
   CostUsageDailyEntry,

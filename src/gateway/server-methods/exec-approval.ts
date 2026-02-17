@@ -6,6 +6,7 @@ import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
 import type { ExecApprovalForwarder } from "../../infra/exec-approval-forwarder.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -13,10 +14,13 @@ import type { ExecApprovalManager } from "../exec-approval-manager.js";
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
 import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
   type ExecApprovalDecision,
 } from "../../infra/exec-approvals.js";
+import type { ExecApprovalManager } from "../exec-approval-manager.js";
 import {
   ErrorCodes,
   errorShape,
@@ -24,6 +28,7 @@ import {
   validateExecApprovalRequestParams,
   validateExecApprovalResolveParams,
 } from "../protocol/index.js";
+import type { GatewayRequestHandlers } from "./types.js";
 
 export function createExecApprovalHandlers(
   manager: ExecApprovalManager,

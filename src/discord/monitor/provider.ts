@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { inspect } from "node:util";
 import { Client } from "@buape/carbon";
 =======
@@ -17,15 +18,19 @@ import { inspect } from "node:util";
 =======
 import type { GatewayPlugin } from "@buape/carbon/gateway";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { inspect } from "node:util";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   Client,
   ReadyListener,
   type BaseMessageInteractiveComponent,
   type Modal,
 } from "@buape/carbon";
+import type { GatewayPlugin } from "@buape/carbon/gateway";
 import { Routes } from "discord-api-types/v10";
-import { inspect } from "node:util";
 import { ProxyAgent, fetch as undiciFetch } from "undici";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
@@ -41,8 +46,11 @@ import type { RuntimeEnv } from "../../runtime.js";
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { listNativeCommandSpecsForConfig } from "../../auto-reply/commands-registry.js";
+import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import { listSkillCommandsForAgents } from "../../auto-reply/skill-commands.js";
 <<<<<<< HEAD
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
@@ -64,12 +72,16 @@ import {
 } from "../../config/commands.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig, ReplyToMode } from "../../config/config.js";
 =======
 import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { loadConfig } from "../../config/config.js";
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";

@@ -4,6 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -21,6 +22,8 @@ import type { WizardPrompter } from "./prompts.js";
 >>>>>>> 01ea80887 (chore: Format files.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -63,6 +66,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OnboardOptions } from "../commands/onboard-types.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -98,6 +102,14 @@ import { resolveGatewayService } from "../daemon/service.js";
 import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OnboardOptions } from "../commands/onboard-types.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveGatewayService } from "../daemon/service.js";
+import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
+import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { restoreTerminalState } from "../terminal/restore.js";
 >>>>>>> 58d5b39c9 (Onboarding: keep TUI flow exclusive)
 import { runTui } from "../tui/tui.js";
@@ -115,6 +127,7 @@ import type { WizardPrompter } from "./prompts.js";
 import { setupOnboardingShellCompletion } from "./onboarding.completion.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 394d60c1f (fix(onboarding): auto-install shell completion in QuickStart)
 =======
 import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
@@ -130,6 +143,10 @@ import type { WizardPrompter } from "./prompts.js";
 =======
 import { setupOnboardingShellCompletion } from "./onboarding.completion.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
+import type { WizardPrompter } from "./prompts.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 type FinalizeOnboardingOptions = {
   flow: WizardFlow;

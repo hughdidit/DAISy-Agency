@@ -7,6 +7,7 @@ import type { SkillMessageMap } from "../controllers/skills";
 =======
 import type { SkillMessageMap } from "../controllers/skills.ts";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { clampText } from "../format.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -58,6 +59,10 @@ import type { SkillStatusEntry, SkillStatusReport } from "../types.ts";
 import type { SkillStatusEntry, SkillStatusReport } from "../types.ts";
 import { clampText } from "../format.ts";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { clampText } from "../format.ts";
+import type { SkillStatusEntry, SkillStatusReport } from "../types.ts";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { groupSkills } from "./skills-grouping.ts";
 <<<<<<< HEAD
 >>>>>>> fef86e475 (refactor: dedupe shared helpers across ui/gateway/extensions)

@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import type { WhatsAppStatus } from "../types";
@@ -28,9 +29,16 @@ import type { ChannelsProps } from "./channels.types.ts";
 =======
 import type { WhatsAppStatus } from "../types.ts";
 import type { ChannelsProps } from "./channels.types.ts";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
+import type { WhatsAppStatus } from "../types.ts";
 import { renderChannelConfigSection } from "./channels.config.ts";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { ChannelsProps } from "./channels.types.ts";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export function renderWhatsAppCard(params: {
   props: ChannelsProps;

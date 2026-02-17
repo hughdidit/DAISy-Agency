@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { CliDeps } from "../cli/deps.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { CronJob } from "./types.js";
 =======
@@ -21,6 +22,10 @@ import type { CronJob } from "./types.js";
 import type { CronJob } from "./types.js";
 import { makeCfg, makeJob, withTempCronHome } from "./isolated-agent.test-harness.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { makeCfg, makeJob, withTempCronHome } from "./isolated-agent.test-harness.js";
+import type { CronJob } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),

@@ -6,10 +6,10 @@ import { describe, expect, it } from "vitest";
 =======
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "./types.js";
 import { rotateConfigBackups } from "./backup-rotation.js";
 >>>>>>> 57f40a5da (perf(test): speed up config tests)
 import { withTempHome } from "./test-helpers.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
@@ -18,6 +18,9 @@ import type { OpenClawConfig } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawConfig } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 describe("config backup rotation", () => {
   it("keeps a 5-deep backup ring for config writes", async () => {

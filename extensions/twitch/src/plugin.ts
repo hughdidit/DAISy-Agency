@@ -13,6 +13,7 @@ import { twitchMessageActions } from "./actions.js";
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { buildChannelConfigSchema } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { twitchMessageActions } from "./actions.js";
 import { removeClientManager } from "./client-manager-registry.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -46,6 +47,8 @@ import type {
 <<<<<<< HEAD
 =======
 =======
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { twitchMessageActions } from "./actions.js";
 import { removeClientManager } from "./client-manager-registry.js";
 import { TwitchConfigSchema } from "./config-schema.js";
@@ -56,7 +59,20 @@ import { probeTwitch } from "./probe.js";
 import { resolveTwitchTargets } from "./resolver.js";
 import { collectTwitchStatusIssues } from "./status.js";
 import { resolveTwitchToken } from "./token.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type {
+  ChannelAccountSnapshot,
+  ChannelCapabilities,
+  ChannelLogSink,
+  ChannelMeta,
+  ChannelPlugin,
+  ChannelResolveKind,
+  ChannelResolveResult,
+  TwitchAccountConfig,
+} from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { isAccountConfigured } from "./utils/twitch.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

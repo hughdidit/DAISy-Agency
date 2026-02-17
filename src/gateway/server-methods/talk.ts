@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { readConfigFileSnapshot } from "../../config/config.js";
 import { redactConfigObject } from "../../config/redact-snapshot.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -14,11 +17,15 @@ import {
   validateTalkModeParams,
 } from "../protocol/index.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
 <<<<<<< HEAD
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { GatewayRequestHandlers } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 const ADMIN_SCOPE = "operator.admin";
 const TALK_SECRETS_SCOPE = "operator.talk.secrets";

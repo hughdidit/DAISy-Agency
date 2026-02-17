@@ -2,19 +2,6 @@
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
-import type {
-  ChannelCapabilities,
-  ChannelCommandAdapter,
-  ChannelElevatedAdapter,
-  ChannelGroupAdapter,
-  ChannelId,
-  ChannelAgentPromptAdapter,
-  ChannelMentionAdapter,
-  ChannelPlugin,
-  ChannelThreadingContext,
-  ChannelThreadingAdapter,
-  ChannelThreadingToolContext,
-} from "./plugins/types.js";
 import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
@@ -50,6 +37,9 @@ import {
   resolveWhatsAppGroupToolPolicy,
 } from "./plugins/group-mentions.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   ChannelCapabilities,
   ChannelCommandAdapter,
@@ -59,6 +49,7 @@ import type {
   ChannelAgentPromptAdapter,
   ChannelMentionAdapter,
   ChannelPlugin,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   ChannelThreadingAdapter,
@@ -75,6 +66,12 @@ import type {
 } from "./plugins/types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+  ChannelThreadingContext,
+  ChannelThreadingAdapter,
+  ChannelThreadingToolContext,
+} from "./plugins/types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { CHAT_CHANNEL_ORDER, type ChatChannelId, getChatChannelMeta } from "./registry.js";
 
 export type ChannelDock = {

@@ -1,6 +1,6 @@
-import { Type } from "@sinclair/typebox";
 import { spawn } from "node:child_process";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -9,6 +9,9 @@ import type { MoltbotPluginApi } from "../../../src/plugins/types.js";
 import { Type } from "@sinclair/typebox";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { Type } from "@sinclair/typebox";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { OpenClawPluginApi } from "../../../src/plugins/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 
@@ -41,7 +42,10 @@ import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.j
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { MemoryIndexManager } from "./index.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
+import type { MemoryIndexManager } from "./index.js";
 import { getRequiredMemoryIndexManager } from "./test-manager-helpers.js";
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 

@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { formatCliCommand } from "../cli/command-format.js";
 import { collectConfigEnvVars } from "../config/env-vars.js";
@@ -11,6 +12,11 @@ import type { GatewayDaemonRuntime } from "./daemon-runtime.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { collectConfigEnvVars } from "../config/env-vars.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+import { collectConfigEnvVars } from "../config/env-vars.js";
+import type { OpenClawConfig } from "../config/types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveGatewayLaunchAgentLabel } from "../daemon/constants.js";
 import { resolveGatewayProgramArguments } from "../daemon/program-args.js";
 import {
@@ -21,6 +27,7 @@ import {
 import { buildServiceEnvironment } from "../daemon/service-env.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 import { collectConfigEnvVars } from "../config/env-vars.js";
 import type { MoltbotConfig } from "../config/types.js";
@@ -29,6 +36,9 @@ import type { MoltbotConfig } from "../config/types.js";
 import type { GatewayDaemonRuntime } from "./daemon-runtime.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { GatewayDaemonRuntime } from "./daemon-runtime.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 type WarnFn = (message: string, title?: string) => void;
 

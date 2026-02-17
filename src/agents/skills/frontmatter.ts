@@ -3,6 +3,7 @@ import JSON5 from "json5";
 import type { Skill } from "@mariozechner/pi-coding-agent";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY } from "../../compat/legacy-names.js";
 import { parseFrontmatterBlock } from "../../markdown/frontmatter.js";
@@ -28,6 +29,8 @@ import type {
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { parseFrontmatterBlock } from "../../markdown/frontmatter.js";
 import {
   getFrontmatterString,
@@ -41,8 +44,11 @@ import {
 } from "../../shared/frontmatter.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ece55b468 (refactor(shared): dedupe frontmatter parsing)
 =======
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   OpenClawSkillMetadata,
   ParsedSkillFrontmatter,
@@ -50,9 +56,12 @@ import type {
   SkillInstallSpec,
   SkillInvocationPolicy,
 } from "./types.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export function parseFrontmatter(content: string): ParsedSkillFrontmatter {
   return parseFrontmatterBlock(content);

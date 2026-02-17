@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { setActivePluginRegistry } from "../plugins/runtime.js";
@@ -14,6 +15,12 @@ import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { stripAnsi } from "../terminal/ansi.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { stripAnsi } from "../terminal/ansi.js";
+import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import type { HealthSummary } from "./health.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { healthCommand } from "./health.js";
 import { stripAnsi } from "../terminal/ansi.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";

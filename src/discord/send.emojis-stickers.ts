@@ -1,14 +1,18 @@
 import { Routes } from "discord-api-types/v10";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { DiscordEmojiUpload, DiscordReactOpts, DiscordStickerUpload } from "./send.types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { loadWebMediaRaw } from "../web/media.js";
 import { normalizeEmojiName, resolveDiscordRest } from "./send.shared.js";
+import type { DiscordEmojiUpload, DiscordReactOpts, DiscordStickerUpload } from "./send.types.js";
 import { DISCORD_MAX_EMOJI_BYTES, DISCORD_MAX_STICKER_BYTES } from "./send.types.js";
 
 export async function listGuildEmojisDiscord(guildId: string, opts: DiscordReactOpts = {}) {

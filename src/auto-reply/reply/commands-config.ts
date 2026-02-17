@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   readConfigFileSnapshot,
   validateConfigObjectWithPlugins,
@@ -9,6 +10,8 @@ import {
 =======
 import type { CommandHandler } from "./commands-types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes.js";
 import { normalizeChannelId } from "../../channels/registry.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -27,6 +30,7 @@ import {
 import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes.js";
 import { normalizeChannelId } from "../../channels/registry.js";
 import { logVerbose } from "../../globals.js";
+import type { CommandHandler } from "./commands-types.js";
 import { parseConfigCommand } from "./config-commands.js";
 import { parseDebugCommand } from "./debug-commands.js";
 

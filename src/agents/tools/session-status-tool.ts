@@ -4,6 +4,7 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentDir } from "../../agents/agent-scope.js";
 import {
   ensureAuthProfileStore,
@@ -59,6 +60,12 @@ import { normalizeGroupActivation } from "../../auto-reply/group-activation.js";
 import { getFollowupQueueDepth, resolveQueueSettings } from "../../auto-reply/reply/queue.js";
 import { buildStatusMessage } from "../../auto-reply/status.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { normalizeGroupActivation } from "../../auto-reply/group-activation.js";
+import { getFollowupQueueDepth, resolveQueueSettings } from "../../auto-reply/reply/queue.js";
+import { buildStatusMessage } from "../../auto-reply/status.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { loadConfig } from "../../config/config.js";
 import {
   loadSessionStore,
@@ -95,6 +102,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 =======
 import type { AnyAgentTool } from "./common.js";
@@ -106,6 +114,9 @@ import type { AnyAgentTool } from "./common.js";
 >>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { readStringParam } from "./common.js";
 import {
   shouldResolveSessionIdInput,

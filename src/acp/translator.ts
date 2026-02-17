@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 
@@ -6,6 +7,9 @@ import { randomUUID } from "node:crypto";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { randomUUID } from "node:crypto";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   Agent,
   AgentSideConnection,
@@ -29,12 +33,15 @@ import type {
 import { PROTOCOL_VERSION } from "@agentclientprotocol/sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { randomUUID } from "node:crypto";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { GatewayClient } from "../gateway/client.js";
 import type { EventFrame } from "../gateway/protocol/index.js";
 import type { SessionsListResult } from "../gateway/session-utils.js";

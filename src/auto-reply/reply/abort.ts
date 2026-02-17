@@ -1,5 +1,3 @@
-import type { OpenClawConfig } from "../../config/config.js";
-import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
@@ -16,12 +14,16 @@ import {
 } from "../../agents/tools/sessions-helpers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   loadSessionStore,
   resolveStorePath,
@@ -38,6 +40,7 @@ import { logVerbose } from "../../globals.js";
 =======
 import { normalizeCommandBody, type CommandNormalizeOptions } from "../commands-registry.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b2aa6e094 (fix(telegram): prevent non-abort slash commands from racing chat replies (#17899))
 =======
 import type { FinalizedMsgContext, MsgContext } from "../templating.js";
@@ -45,6 +48,9 @@ import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 =======
 import { normalizeCommandBody, type CommandNormalizeOptions } from "../commands-registry.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { FinalizedMsgContext, MsgContext } from "../templating.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
 import { clearSessionQueues } from "./queue.js";
 import {

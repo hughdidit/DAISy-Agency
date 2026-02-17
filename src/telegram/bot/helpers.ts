@@ -14,6 +14,7 @@ import type {
 =======
 import type { Chat, Message, MessageOrigin, User } from "@grammyjs/types";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -30,12 +31,17 @@ import type { TelegramGroupConfig, TelegramTopicConfig } from "../../config/type
 import type { TelegramStreamMode } from "./types.js";
 import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
+import type { TelegramGroupConfig, TelegramTopicConfig } from "../../config/types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { readChannelAllowFromStore } from "../../pairing/pairing-store.js";
 import {
   firstDefined,
   normalizeAllowFromWithStore,
   type NormalizedAllowFrom,
 } from "../bot-access.js";
+import type { TelegramStreamMode } from "./types.js";
 
 const TELEGRAM_GENERAL_TOPIC_ID = 1;
 

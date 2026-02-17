@@ -1,6 +1,6 @@
-import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -9,6 +9,9 @@ import path from "node:path";
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OAuthCredentials } from "@mariozechner/pi-ai";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { afterEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD

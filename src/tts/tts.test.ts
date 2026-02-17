@@ -4,14 +4,18 @@ import { completeSimple, type AssistantMessage } from "@mariozechner/pi-ai";
 >>>>>>> cf6cdc74d (chore: Fix types in tests 23/N.)
 import { describe, expect, it, vi, beforeEach } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { completeSimple } from "@mariozechner/pi-ai";
 
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { getApiKeyForModel } from "../agents/model-auth.js";
 import { resolveModel } from "../agents/pi-embedded-runner/model.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { withEnv } from "../test-utils/env.js";
 import * as tts from "./tts.js";
 

@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ConfigUiHints } from "../types";
 import { icons } from "../icons";
 import { hintForPath, humanize, schemaType, type JsonSchema } from "./config-form.shared";
@@ -14,7 +15,10 @@ import { icons } from "../icons.ts";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { ConfigUiHints } from "../types.ts";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { icons } from "../icons.ts";
+import type { ConfigUiHints } from "../types.ts";
 import { renderNode } from "./config-form.node.ts";
 import { hintForPath, humanize, schemaType, type JsonSchema } from "./config-form.shared.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)

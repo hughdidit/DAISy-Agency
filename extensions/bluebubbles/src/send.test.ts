@@ -18,10 +18,10 @@ vi.mock("./accounts.js", () => ({
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import "./test-mocks.js";
-import type { BlueBubblesSendTarget } from "./types.js";
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 import { sendMessageBlueBubbles, resolveChatGuidForTarget } from "./send.js";
 import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
@@ -30,6 +30,9 @@ import type { BlueBubblesSendTarget } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { BlueBubblesSendTarget } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 const mockFetch = vi.fn();
 

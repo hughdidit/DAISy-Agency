@@ -9,12 +9,12 @@ import type { CoreConfig } from "../types.js";
 import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
-import type { MatrixAuth } from "./types.js";
 import { resolveMatrixAuth } from "./config.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { createMatrixClient } from "./create-client.js";
 import { resolveMatrixAuth } from "./config.js";
 import { DEFAULT_ACCOUNT_KEY } from "./storage.js";
+import type { MatrixAuth } from "./types.js";
 
 type SharedMatrixClientState = {
   client: MatrixClient;

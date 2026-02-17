@@ -2,6 +2,7 @@ import type { WebhookRequestBody } from "@line/bot-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
@@ -29,6 +30,12 @@ import { chunkMarkdownText } from "../auto-reply/chunk.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
 import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { chunkMarkdownText } from "../auto-reply/chunk.js";
+import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
+import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { danger, logVerbose } from "../globals.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
@@ -40,10 +47,14 @@ import { normalizePluginHttpPath } from "../plugins/http-path.js";
 import { registerPluginHttpRoute } from "../plugins/http-registry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { RuntimeEnv } from "../runtime.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { deliverLineAutoReply } from "./auto-reply-delivery.js";
 import { createLineBot } from "./bot.js";
 import { processLineMessage } from "./markdown-to-line.js";
@@ -66,6 +77,7 @@ import { buildTemplateMessageFromPayload } from "./template-messages.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { LineChannelData, ResolvedLineAccount } from "./types.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
 import { resolveEffectiveMessagesConfig } from "../agents/identity.js";
@@ -79,6 +91,9 @@ import type { LineChannelData, ResolvedLineAccount } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { LineChannelData, ResolvedLineAccount } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { createLineNodeWebhookHandler } from "./webhook-node.js";
 >>>>>>> 2493455f0 (refactor(line): extract node webhook handler + shared verification)
 

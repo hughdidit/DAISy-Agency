@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY } from "../../compat/legacy-names.js";
 import { discoverMoltbotPlugins } from "../../plugins/discovery.js";
@@ -28,10 +29,18 @@ import type { ChannelMeta } from "./types.js";
 import type { OpenClawPackageManifest } from "../../plugins/manifest.js";
 import type { PluginOrigin } from "../../plugins/types.js";
 import type { ChannelMeta } from "./types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { MANIFEST_KEY } from "../../compat/legacy-names.js";
 import { discoverOpenClawPlugins } from "../../plugins/discovery.js";
+import type { OpenClawPackageManifest } from "../../plugins/manifest.js";
+import type { PluginOrigin } from "../../plugins/types.js";
 import { CONFIG_DIR, isRecord, resolveUserPath } from "../../utils.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { ChannelMeta } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export type ChannelUiMetaEntry = {
   id: string;

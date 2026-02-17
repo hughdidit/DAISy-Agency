@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5d8eef8b3 (perf(test): remove module reloads in browser and embedding suites)
 =======
 import fs from "node:fs/promises";
@@ -23,8 +24,11 @@ import type { BrowserServerState } from "./server-context.js";
 =======
 import type { BrowserServerState } from "./server-context.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import * as cdpModule from "./cdp.js";
 import * as pwAiModule from "./pw-ai-module.js";
+import type { BrowserServerState } from "./server-context.js";
 import "./server-context.chrome-test-harness.js";
 import { createBrowserRouteContext } from "./server-context.js";
 

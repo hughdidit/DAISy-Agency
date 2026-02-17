@@ -1,4 +1,3 @@
-import type { ChannelOutboundAdapter } from "../types.js";
 import { chunkText } from "../../../auto-reply/chunk.js";
 import { shouldLogVerbose } from "../../../globals.js";
 import { sendPollWhatsApp } from "../../../web/outbound.js";
@@ -10,6 +9,7 @@ import { missingTargetError } from "../../../infra/outbound/target-errors.js";
 =======
 import { resolveWhatsAppOutboundTarget } from "../../../whatsapp/resolve-outbound-target.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> eccd4d8c3 (refactor(whatsapp): share target resolver)
 =======
 import type { ChannelOutboundAdapter } from "../types.js";
@@ -17,6 +17,9 @@ import type { ChannelOutboundAdapter } from "../types.js";
 =======
 import { resolveWhatsAppOutboundTarget } from "../../../whatsapp/resolve-outbound-target.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { ChannelOutboundAdapter } from "../types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export const whatsappOutbound: ChannelOutboundAdapter = {
   deliveryMode: "gateway",

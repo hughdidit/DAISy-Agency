@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ExtensionAPI, FileOperations } from "@mariozechner/pi-coding-agent";
 <<<<<<< HEAD
@@ -7,6 +8,12 @@ import type { ExtensionAPI, FileOperations } from "@mariozechner/pi-coding-agent
 import fs from "node:fs";
 import path from "node:path";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import fs from "node:fs";
+import path from "node:path";
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import type { ExtensionAPI, FileOperations } from "@mariozechner/pi-coding-agent";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { extractSections } from "../../auto-reply/reply/post-compaction-context.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {

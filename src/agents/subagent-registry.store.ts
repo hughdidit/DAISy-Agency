@@ -3,6 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { STATE_DIR } from "../config/paths.js";
 =======
@@ -12,10 +13,13 @@ import type { SubagentRunRecord } from "./subagent-registry.js";
 =======
 import type { SubagentRunRecord } from "./subagent-registry.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveStateDir } from "../config/paths.js";
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 import { loadJsonFile, saveJsonFile } from "../infra/json-file.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
+import type { SubagentRunRecord } from "./subagent-registry.js";
 
 export type PersistedSubagentRegistryVersion = 1 | 2;
 

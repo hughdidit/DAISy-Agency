@@ -1,6 +1,6 @@
-import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 import { normalizeChatType } from "../../channels/chat-type.js";
 import { resolveConversationLabel } from "../../channels/conversation-label.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -13,6 +13,9 @@ import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { FinalizedMsgContext, MsgContext } from "../templating.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { normalizeInboundTextNewlines } from "./inbound-text.js";
 
 export type FinalizeInboundContextOptions = {

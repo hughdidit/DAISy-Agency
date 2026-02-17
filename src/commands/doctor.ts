@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 
@@ -15,9 +16,10 @@ import fs from "node:fs";
 =======
 >>>>>>> 1486eb66f (revert(gateway): restore loopback auth setup)
 import { intro as clackIntro, outro as clackOutro } from "@clack/prompts";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import fs from "node:fs";
-import type { OpenClawConfig } from "../config/config.js";
-import type { RuntimeEnv } from "../runtime.js";
+import { intro as clackIntro, outro as clackOutro } from "@clack/prompts";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
@@ -27,6 +29,7 @@ import {
   resolveHooksGmailModel,
 } from "../agents/model-selection.js";
 import { formatCliCommand } from "../cli/command-format.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -42,6 +45,9 @@ import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 9c5f08244 (chore: Format files.)
 =======
 >>>>>>> 1486eb66f (revert(gateway): restore loopback auth setup)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { CONFIG_PATH, readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { resolveGatewayService } from "../daemon/service.js";
@@ -54,6 +60,7 @@ import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../runtime.js";
 =======
@@ -63,6 +70,9 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 9c5f08244 (chore: Format files.)
 =======
 >>>>>>> 1486eb66f (revert(gateway): restore loopback auth setup)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { defaultRuntime } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { stylePromptTitle } from "../terminal/prompt-style.js";

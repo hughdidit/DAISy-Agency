@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { getChannelDock } from "../../channels/dock.js";
 import type { SkillCommandSpec } from "../../agents/skills.js";
 import type { MoltbotConfig } from "../../config/config.js";
@@ -18,9 +19,14 @@ import { getChannelDock } from "../../channels/dock.js";
 import { createOpenClawTools } from "../../agents/openclaw-tools.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { createOpenClawTools } from "../../agents/openclaw-tools.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { SkillCommandSpec } from "../../agents/skills.js";
+import { getChannelDock } from "../../channels/dock.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -33,6 +39,8 @@ import type { TypingController } from "./typing.js";
 import { createOpenClawTools } from "../../agents/openclaw-tools.js";
 import { getChannelDock } from "../../channels/dock.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { logVerbose } from "../../globals.js";
 import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
 <<<<<<< HEAD
@@ -47,6 +55,7 @@ import {
 } from "../skill-commands.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 import type { MsgContext, TemplateContext } from "../templating.js";
@@ -55,10 +64,18 @@ import type { GetReplyOptions, ReplyPayload } from "../types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { MsgContext, TemplateContext } from "../templating.js";
+import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
+import type { GetReplyOptions, ReplyPayload } from "../types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { getAbortMemory } from "./abort.js";
 import { buildStatusReply, handleCommands } from "./commands.js";
+import type { InlineDirectives } from "./directive-handling.js";
 import { isDirectiveOnly } from "./directive-handling.js";
+import type { createModelSelectionState } from "./model-selection.js";
 import { extractInlineSimpleCommand } from "./reply-inline.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type { TypingController } from "./typing.js";
 <<<<<<< HEAD
@@ -70,6 +87,9 @@ import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { TypingController } from "./typing.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 const builtinSlashCommands = (() => {
   return listReservedChatSlashCommandNames([

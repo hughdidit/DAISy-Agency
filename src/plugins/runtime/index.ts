@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { PluginRuntime } from "./types.js";
@@ -13,6 +14,8 @@ import type { PluginRuntime } from "./types.js";
 =======
 import type { PluginRuntime } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
 import { createMemoryGetTool, createMemorySearchTool } from "../../agents/tools/memory-tool.js";
 import { handleSlackAction } from "../../agents/tools/slack-actions.js";
@@ -154,6 +157,7 @@ import { formatNativeDependencyHint } from "./native-deps.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { textToSpeechTelephony } from "../../tts/tts.js";
 import {
   listLineAccountIds,
@@ -182,6 +186,9 @@ import { buildTemplateMessageFromPayload } from "../../line/template-messages.js
 import type { PluginRuntime } from "./types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { PluginRuntime } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 let cachedVersion: string | null = null;
 

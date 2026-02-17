@@ -3,6 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
@@ -13,6 +14,8 @@ import type { DoctorPrompter } from "./doctor-prompter.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   resolveControlUiDistIndexHealth,
   resolveControlUiDistIndexPathForRoot,
@@ -20,7 +23,9 @@ import {
 import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
 >>>>>>> c75275f10 (Update: harden control UI asset handling in update flow (#10146))
 import { runCommandWithTimeout } from "../process/exec.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
+import type { DoctorPrompter } from "./doctor-prompter.js";
 
 export async function maybeRepairUiProtocolFreshness(
   _runtime: RuntimeEnv,

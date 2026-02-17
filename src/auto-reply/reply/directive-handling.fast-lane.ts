@@ -5,6 +5,7 @@ import type { SessionEntry } from "../../config/sessions.js";
 import type { MsgContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { ReplyPayload } from "../types.js";
 <<<<<<< HEAD
@@ -28,6 +29,11 @@ import type { ApplyInlineDirectivesFastLaneParams } from "./directive-handling.p
 import { handleDirectiveOnly } from "./directive-handling.impl.js";
 import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { handleDirectiveOnly } from "./directive-handling.impl.js";
+import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
+import type { ApplyInlineDirectivesFastLaneParams } from "./directive-handling.params.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { isDirectiveOnly } from "./directive-handling.parse.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
 

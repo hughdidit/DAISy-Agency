@@ -2,6 +2,7 @@ import type { Command } from "commander";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { defaultRuntime } from "../../runtime.js";
 import { formatAge, formatPermissions, parseNodeList, parsePairingList } from "./format.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
@@ -12,6 +13,8 @@ import type { NodesRpcOpts } from "./types.js";
 =======
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { formatTimeAgo } from "../../infra/format-time/format-relative.ts";
 import { defaultRuntime } from "../../runtime.js";
 import { renderTable } from "../../terminal/table.js";
@@ -26,6 +29,7 @@ import { renderPendingPairingRequestsTable } from "./pairing-render.js";
 >>>>>>> 966957fc6 (refactor(nodes-cli): share pending pairing table)
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { NodesRpcOpts } from "./types.js";
 <<<<<<< HEAD
 import { renderTable } from "../../terminal/table.js";
@@ -35,6 +39,9 @@ import { shortenHomeInString } from "../../utils.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 function formatVersionLabel(raw: string) {
   const trimmed = raw.trim();

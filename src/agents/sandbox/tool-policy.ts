@@ -4,6 +4,7 @@ import { resolveAgentConfig } from "../agent-scope.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentConfig } from "../agent-scope.js";
 import { compileGlobPatterns, matchesAnyGlobPattern } from "../glob-pattern.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -11,11 +12,18 @@ import { expandToolGroups } from "../tool-policy.js";
 import { DEFAULT_TOOL_ALLOW, DEFAULT_TOOL_DENY } from "./constants.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { resolveAgentConfig } from "../agent-scope.js";
+import { compileGlobPatterns, matchesAnyGlobPattern } from "../glob-pattern.js";
+import { expandToolGroups } from "../tool-policy.js";
+import { DEFAULT_TOOL_ALLOW, DEFAULT_TOOL_DENY } from "./constants.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   SandboxToolPolicy,
   SandboxToolPolicyResolved,
   SandboxToolPolicySource,
 } from "./types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -32,6 +40,8 @@ import { DEFAULT_TOOL_ALLOW, DEFAULT_TOOL_DENY } from "./constants.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 function normalizeGlob(value: string) {
   return value.trim().toLowerCase();

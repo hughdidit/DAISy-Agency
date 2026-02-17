@@ -1,4 +1,3 @@
-import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { resolveEnvApiKey } from "../agents/model-auth.js";
 import {
   formatApiKeyPreview,
@@ -6,11 +5,15 @@ import {
   validateApiKeyInput,
 } from "./auth-choice.api-key.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 <<<<<<< HEAD
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { applyAuthChoicePluginProvider } from "./auth-choice.apply.plugin-provider.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyDefaultModelChoice } from "./auth-choice.default-model.js";

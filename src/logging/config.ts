@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 =======
@@ -12,6 +13,12 @@ import type { OpenClawConfig } from "../config/types.js";
 =======
 import { resolveConfigPath } from "../config/paths.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import fs from "node:fs";
+import json5 from "json5";
+import { resolveConfigPath } from "../config/paths.js";
+import type { OpenClawConfig } from "../config/types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 import json5 from "json5";
 

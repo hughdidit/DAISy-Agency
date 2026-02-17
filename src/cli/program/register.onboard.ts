@@ -1,5 +1,7 @@
 import type { Command } from "commander";
+import { formatAuthChoiceChoicesForCli } from "../../commands/auth-choice-options.js";
 import type { GatewayDaemonRuntime } from "../../commands/daemon-runtime.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { onboardCommand } from "../../commands/onboard.js";
@@ -8,6 +10,9 @@ import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-aut
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-auth-flags.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   AuthChoice,
   GatewayAuthChoice,
@@ -18,6 +23,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { formatAuthChoiceChoicesForCli } from "../../commands/auth-choice-options.js";
 import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-auth-flags.js";
@@ -27,6 +33,8 @@ import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-aut
 import { formatAuthChoiceChoicesForCli } from "../../commands/auth-choice-options.js";
 import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-auth-flags.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { onboardCommand } from "../../commands/onboard.js";
 >>>>>>> eab9dc538 (refactor(onboard): unify auth-choice catalog for CLI help)
 import { defaultRuntime } from "../../runtime.js";

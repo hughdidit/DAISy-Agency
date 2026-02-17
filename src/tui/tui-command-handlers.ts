@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { randomUUID } from "node:crypto";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -18,31 +19,37 @@ import { normalizeAgentId } from "../routing/session-key.js";
 import { helpText, parseCommand } from "./commands.js";
 =======
 import type { Component, TUI } from "@mariozechner/pi-tui";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { randomUUID } from "node:crypto";
+import type { Component, TUI } from "@mariozechner/pi-tui";
+import {
+  formatThinkingLevels,
+  normalizeUsageDisplay,
+  resolveResponseUsageMode,
+} from "../auto-reply/thinking.js";
 import type { SessionsPatchResult } from "../gateway/protocol/index.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { formatRelativeTimestamp } from "../infra/format-time/format-relative.ts";
+import { normalizeAgentId } from "../routing/session-key.js";
+import { helpText, parseCommand } from "./commands.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { ChatLog } from "./components/chat-log.js";
+import {
+  createFilterableSelectList,
+  createSearchableSelectList,
+  createSettingsList,
+} from "./components/selectors.js";
 import type { GatewayChatClient } from "./gateway-chat.js";
+import { formatStatusSummary } from "./tui-status-summary.js";
 import type {
   AgentSummary,
   GatewayStatusSummary,
   TuiOptions,
   TuiStateAccess,
 } from "./tui-types.js";
-import {
-  formatThinkingLevels,
-  normalizeUsageDisplay,
-  resolveResponseUsageMode,
-} from "../auto-reply/thinking.js";
-import { formatRelativeTimestamp } from "../infra/format-time/format-relative.ts";
-import { normalizeAgentId } from "../routing/session-key.js";
-import { helpText, parseCommand } from "./commands.js";
-import {
-  createFilterableSelectList,
-  createSearchableSelectList,
-  createSettingsList,
-} from "./components/selectors.js";
-import { formatStatusSummary } from "./tui-status-summary.js";
 
 type CommandHandlerContext = {
   client: GatewayChatClient;

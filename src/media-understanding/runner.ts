@@ -5,6 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 =======
@@ -27,6 +28,8 @@ import type {
 <<<<<<< HEAD
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 >>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 =======
@@ -40,21 +43,27 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MsgContext } from "../auto-reply/templating.js";
 import { applyTemplate } from "../auto-reply/templating.js";
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
 =======
 >>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 =======
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type {
   MediaUnderstandingConfig,
   MediaUnderstandingModelConfig,
 } from "../config/types.tools.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { runExec } from "../process/exec.js";
 import type {
@@ -111,8 +120,11 @@ import {
 } from "./runner.entries.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 =======
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   MediaAttachment,
   MediaUnderstandingCapability,
@@ -121,9 +133,12 @@ import type {
   MediaUnderstandingOutput,
   MediaUnderstandingProvider,
 } from "./types.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 <<<<<<< HEAD
 const AUTO_AUDIO_KEY_PROVIDERS = ["openai", "groq", "deepgram", "google"] as const;

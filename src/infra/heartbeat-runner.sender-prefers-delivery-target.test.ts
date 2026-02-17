@@ -18,8 +18,8 @@ import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
 =======
 import { describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
 import * as replyModule from "../auto-reply/reply.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveMainSessionKey } from "../config/sessions.js";
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 import { runHeartbeatOnce } from "./heartbeat-runner.js";

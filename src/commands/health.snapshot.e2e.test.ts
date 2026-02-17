@@ -5,6 +5,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { HealthSummary } from "./health.js";
 import { getHealthSnapshot } from "./health.js";
@@ -15,9 +16,12 @@ import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 =======
 import type { HealthSummary } from "./health.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import type { HealthSummary } from "./health.js";
 import { getHealthSnapshot } from "./health.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

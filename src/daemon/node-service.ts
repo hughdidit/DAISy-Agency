@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 import { resolveGatewayService } from "./service.js";
 =======
@@ -7,6 +8,8 @@ import { resolveGatewayService } from "./service.js";
 =======
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   NODE_SERVICE_KIND,
   NODE_SERVICE_MARKER,
@@ -17,10 +20,14 @@ import {
 } from "./constants.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveGatewayService } from "./service.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

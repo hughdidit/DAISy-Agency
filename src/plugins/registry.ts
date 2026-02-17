@@ -6,13 +6,20 @@ import type {
   GatewayRequestHandlers,
 } from "../gateway/server-methods/types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { registerInternalHook } from "../hooks/internal-hooks.js";
 <<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { registerInternalHook } from "../hooks/internal-hooks.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { HookEntry } from "../hooks/types.js";
+import { resolveUserPath } from "../utils.js";
+import { registerPluginCommand } from "./commands.js";
+import { normalizePluginHttpPath } from "./http-path.js";
 import type { PluginRuntime } from "./runtime/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
@@ -38,6 +45,7 @@ import type {
 } from "./types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { registerPluginCommand } from "./commands.js";
 import type { PluginRuntime } from "./runtime/types.js";
 import type { HookEntry } from "../hooks/types.js";
@@ -51,6 +59,8 @@ import { resolveUserPath } from "../utils.js";
 import { registerPluginCommand } from "./commands.js";
 import { normalizePluginHttpPath } from "./http-path.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export type PluginToolRegistration = {
   pluginId: string;

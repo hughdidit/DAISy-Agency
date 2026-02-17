@@ -3,6 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { PluginConfigUiHint, PluginKind } from "./types.js";
 import { MANIFEST_KEY } from "../compat/legacy-names.js";
@@ -18,6 +19,11 @@ import type { PluginConfigUiHint, PluginKind } from "./types.js";
 import { MANIFEST_KEY } from "../compat/legacy-names.js";
 import { isRecord } from "../utils.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { MANIFEST_KEY } from "../compat/legacy-names.js";
+import { isRecord } from "../utils.js";
+import type { PluginConfigUiHint, PluginKind } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 import { LEGACY_MANIFEST_KEY, LEGACY_PLUGIN_MANIFEST_FILENAME } from "../compat/legacy-names.js";
 import type { PluginConfigUiHint, PluginKind } from "./types.js";

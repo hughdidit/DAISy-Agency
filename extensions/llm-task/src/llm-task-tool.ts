@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import os from "node:os";
 import path from "node:path";
 import fs from "node:fs/promises";
@@ -14,9 +15,13 @@ import { Type } from "@sinclair/typebox";
 import { Type } from "@sinclair/typebox";
 import Ajv from "ajv";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { Type } from "@sinclair/typebox";
+import Ajv from "ajv";
 // NOTE: This extension is intended to be bundled with OpenClaw.
 // When running from source (tests/dev), OpenClaw internals live under src/.
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

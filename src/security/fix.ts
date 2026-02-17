@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import JSON5 from "json5";
 
@@ -14,6 +15,10 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { createConfigIO } from "../config/config.js";
 <<<<<<< HEAD
 =======

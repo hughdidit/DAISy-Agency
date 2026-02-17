@@ -5,6 +5,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -12,7 +13,10 @@ import { maybeRemoveDeprecatedCliAuthProfiles } from "./doctor-auth.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { DoctorPrompter } from "./doctor-prompter.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { maybeRemoveDeprecatedCliAuthProfiles } from "./doctor-auth.js";
+import type { DoctorPrompter } from "./doctor-prompter.js";
 
 let originalAgentDir: string | undefined;
 let originalPiAgentDir: string | undefined;

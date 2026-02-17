@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 
@@ -7,7 +8,10 @@ import { randomUUID } from "node:crypto";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import { DisconnectReason } from "@whiskeysockets/baileys";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { randomUUID } from "node:crypto";
+import { DisconnectReason } from "@whiskeysockets/baileys";
 import { loadConfig } from "../config/config.js";
 import { danger, info, success } from "../globals.js";
 import { logInfo } from "../logger.js";

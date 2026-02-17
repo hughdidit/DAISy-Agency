@@ -2,6 +2,7 @@ import type { Command } from "commander";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomIdempotencyKey } from "../../gateway/call.js";
 =======
 import type { NodesRpcOpts } from "./types.js";
@@ -11,6 +12,8 @@ import type { NodesRpcOpts } from "./types.js";
 =======
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { defaultRuntime } from "../../runtime.js";
 import {
   parseScreenRecordPayload,
@@ -27,6 +30,7 @@ import { shortenHomePath } from "../../utils.js";
 =======
 import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> d4bdcda32 (refactor(nodes-cli): share node.invoke param builder)
 =======
 import type { NodesRpcOpts } from "./types.js";
@@ -34,6 +38,9 @@ import type { NodesRpcOpts } from "./types.js";
 =======
 import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export function registerNodesScreenCommands(nodes: Command) {
   const screen = nodes

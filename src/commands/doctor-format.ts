@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import type { GatewayServiceRuntime } from "../daemon/service-runtime.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
@@ -13,6 +16,7 @@ import {
 } from "../daemon/constants.js";
 import { resolveGatewayLogPaths } from "../daemon/launchd.js";
 import { formatRuntimeStatus } from "../daemon/runtime-format.js";
+import type { GatewayServiceRuntime } from "../daemon/service-runtime.js";
 import {
   isSystemdUnavailableDetail,
   renderSystemdUnavailableHints,

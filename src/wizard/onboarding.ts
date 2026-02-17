@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
@@ -44,6 +45,9 @@ import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   GatewayAuthChoice,
   OnboardMode,
@@ -51,6 +55,7 @@ import type {
   ResetScope,
 } from "../commands/onboard-types.js";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
@@ -64,12 +69,15 @@ import type { RuntimeEnv } from "../runtime.js";
 import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.js";
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   DEFAULT_GATEWAY_PORT,
   readConfigFileSnapshot,
   resolveGatewayPort,
   writeConfigFile,
 } from "../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -94,6 +102,12 @@ import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.j
 import { defaultRuntime } from "../runtime.js";
 import { resolveUserPath } from "../utils.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import { defaultRuntime } from "../runtime.js";
+import { resolveUserPath } from "../utils.js";
+import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { WizardCancelledError, type WizardPrompter } from "./prompts.js";
 import { installCompletion } from "../cli/completion-cli.js";
 

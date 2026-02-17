@@ -4,6 +4,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { VoiceCallConfigSchema } from "./config.js";
 import { CallManager } from "./manager.js";
@@ -12,6 +13,10 @@ import { VoiceCallConfigSchema } from "./config.js";
 import { CallManager } from "./manager.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { VoiceCallConfigSchema } from "./config.js";
+import { CallManager } from "./manager.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { VoiceCallProvider } from "./providers/base.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
@@ -27,6 +32,7 @@ import type {
 } from "./types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { VoiceCallProvider } from "./providers/base.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -34,6 +40,8 @@ import type { VoiceCallProvider } from "./providers/base.js";
 import { VoiceCallConfigSchema } from "./config.js";
 import { CallManager } from "./manager.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 class FakeProvider implements VoiceCallProvider {
   readonly name = "plivo" as const;

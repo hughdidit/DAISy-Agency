@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import chokidar, { type FSWatcher } from "chokidar";
 =======
@@ -8,9 +9,12 @@ import chokidar, { type FSWatcher } from "chokidar";
 =======
 import chokidar, { type FSWatcher } from "chokidar";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import os from "node:os";
 >>>>>>> eed611335 (refactor(skills): stabilize watcher targets and include agents skills)
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -21,6 +25,9 @@ import type { MoltbotConfig } from "../../config/config.js";
 import chokidar, { type FSWatcher } from "chokidar";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import chokidar, { type FSWatcher } from "chokidar";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createSubsystemLogger } from "../../logging/subsystem.js";

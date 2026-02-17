@@ -8,6 +8,7 @@ import { describe, expect, it, vi } from "vitest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "./prompts.js";
 >>>>>>> 5c5af2b14 (perf(wizard): lazy-load onboarding deps)
@@ -18,8 +19,12 @@ import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
 >>>>>>> ed11e93cf (chore(format))
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter, WizardSelectParams } from "./prompts.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { runOnboardingWizard } from "./onboarding.js";
+import type { WizardPrompter, WizardSelectParams } from "./prompts.js";
 
 const ensureAuthProfileStore = vi.hoisted(() => vi.fn(() => ({ profiles: {} })));
 const promptAuthChoiceGrouped = vi.hoisted(() => vi.fn(async () => "skip"));

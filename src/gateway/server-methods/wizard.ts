@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> a5cbd036d (refactor(gateway): dedupe wizard param validation)
@@ -18,6 +19,8 @@ import type { GatewayRequestContext, GatewayRequestHandlers, RespondFn } from ".
 =======
 import type { GatewayRequestContext, GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { defaultRuntime } from "../../runtime.js";
 import { WizardSession } from "../../wizard/session.js";
 import {
@@ -29,6 +32,7 @@ import {
   validateWizardStatusParams,
 } from "../protocol/index.js";
 import { formatForLog } from "../ws-log.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -63,6 +67,9 @@ import type { GatewayRequestContext, GatewayRequestHandlers, RespondFn } from ".
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { GatewayRequestContext, GatewayRequestHandlers, RespondFn } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { assertValidParams } from "./validation.js";
 >>>>>>> dc5d23484 (refactor(gateway): share server-method param validation)
 

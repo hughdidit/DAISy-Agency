@@ -1,4 +1,3 @@
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 import {
   ensureExecApprovals,
   mergeExecApprovalsSocketDefaults,
@@ -39,12 +38,16 @@ import {
 } from "./nodes.helpers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 73a97ee25 (refactor(gateway): share node invoke error handling)
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { GatewayRequestHandlers, RespondFn } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { assertValidParams } from "./validation.js";
 >>>>>>> b743e652c (refactor(gateway): reuse shared validators + baseHash)
 

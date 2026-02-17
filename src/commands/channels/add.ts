@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { ChannelId, ChannelSetupInput } from "../../channels/plugins/types.js";
 import type { ChannelChoice } from "../onboard-types.js";
@@ -15,9 +16,12 @@ import { writeConfigFile, type MoltbotConfig } from "../../config/config.js";
 import type { ChannelId, ChannelSetupInput } from "../../channels/plugins/types.js";
 import type { ChannelChoice } from "../onboard-types.js";
 >>>>>>> 4b40bdb98 (fix(telegram): clear offsets on token change)
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { listChannelPluginCatalogEntries } from "../../channels/plugins/catalog.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+import type { ChannelId, ChannelSetupInput } from "../../channels/plugins/types.js";
 import { writeConfigFile, type OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../routing/session-key.js";
@@ -26,6 +30,7 @@ import { resolveTelegramAccount } from "../../telegram/accounts.js";
 import { deleteTelegramUpdateOffset } from "../../telegram/update-offset-store.js";
 import { createClackPrompter } from "../../wizard/clack-prompter.js";
 import { setupChannels } from "../onboard-channels.js";
+import type { ChannelChoice } from "../onboard-types.js";
 import {
   ensureOnboardingPluginInstalled,
   reloadOnboardingPluginRegistry,

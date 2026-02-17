@@ -2,6 +2,7 @@ import type { Client } from "@buape/carbon";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js";
@@ -13,6 +14,8 @@ import type { DiscordMessagePreflightParams } from "./message-handler.preflight.
 import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js";
 import type { DiscordMessagePreflightParams } from "./message-handler.preflight.types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
 import {
   createInboundDebouncer,
@@ -23,6 +26,7 @@ import type { ReplyToMode } from "../../config/config.js";
 import { danger } from "../../globals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
 import type { DiscordGuildEntryResolved } from "./allow-list.js";
 =======
@@ -30,7 +34,11 @@ import type { DiscordGuildEntryResolved } from "./allow-list.js";
 import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { preflightDiscordMessage } from "./message-handler.preflight.js";
+import type { DiscordMessagePreflightParams } from "./message-handler.preflight.types.js";
 import { processDiscordMessage } from "./message-handler.process.js";
 import { resolveDiscordMessageChannelId, resolveDiscordMessageText } from "./message-utils.js";
 

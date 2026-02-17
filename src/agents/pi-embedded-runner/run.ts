@@ -5,6 +5,7 @@ import type { ThinkLevel } from "../../auto-reply/thinking.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
 import type { RunEmbeddedPiAgentParams } from "./run/params.js";
@@ -24,6 +25,8 @@ import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
 =======
 import type { RunEmbeddedPiAgentParams } from "./run/params.js";
 import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 >>>>>>> 0c1c34c95 (refactor(plugins): split before-agent hooks by model and prompt phases)
 import { enqueueCommandInLane } from "../../process/command-queue.js";
@@ -81,6 +84,7 @@ import { resolveGlobalLane, resolveSessionLane } from "./lanes.js";
 import { log } from "./logger.js";
 import { resolveModel } from "./model.js";
 import { runEmbeddedAttempt } from "./run/attempt.js";
+import type { RunEmbeddedPiAgentParams } from "./run/params.js";
 import { buildEmbeddedRunPayloads } from "./run/payloads.js";
 <<<<<<< HEAD
 =======
@@ -88,6 +92,7 @@ import {
   truncateOversizedToolResultsInSession,
   sessionLikelyHasOversizedToolResults,
 } from "./tool-result-truncation.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -100,6 +105,9 @@ import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
 >>>>>>> 9c5f08244 (chore: Format files.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { describeUnknownError } from "./utils.js";
 
 type ApiKeyInfo = ResolvedProviderAuth;

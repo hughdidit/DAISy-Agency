@@ -1,9 +1,8 @@
-import type { AgentTool } from "@mariozechner/pi-agent-core";
-import type { ImageContent } from "@mariozechner/pi-ai";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -13,9 +12,14 @@ import type { AgentTool } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { AgentTool } from "@mariozechner/pi-agent-core";
+import type { ImageContent } from "@mariozechner/pi-ai";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
 import type { MoltbotConfig } from "../../config/config.js";
 import type { CliBackendConfig } from "../../config/types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { runExec } from "../../process/exec.js";
@@ -27,10 +31,13 @@ import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
 =======
 import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
 import { escapeRegExp, isRecord } from "../../utils.js";
 import { buildModelAliasLines } from "../model-alias-lines.js";
 import { resolveDefaultModelForAgent } from "../model-selection.js";
+import type { EmbeddedContextFile } from "../pi-embedded-helpers.js";
 import { detectRuntimeShell } from "../shell-utils.js";
 >>>>>>> f0722498a (Agents: include runtime shell (#1835))
 import { buildSystemPromptParams } from "../system-prompt-params.js";

@@ -1,14 +1,17 @@
-import type { ProviderPlugin } from "./types.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 <<<<<<< HEAD
 import { loadMoltbotPlugins, type PluginLoadOptions } from "./loader.js";
 =======
 import { loadOpenClawPlugins, type PluginLoadOptions } from "./loader.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ProviderPlugin } from "./types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { ProviderPlugin } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 const log = createSubsystemLogger("plugins");
 

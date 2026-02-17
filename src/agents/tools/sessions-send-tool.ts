@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 
@@ -12,6 +13,10 @@ import { Type } from "@sinclair/typebox";
 import crypto from "node:crypto";
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import crypto from "node:crypto";
+import { Type } from "@sinclair/typebox";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 import { normalizeAgentId, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
@@ -21,6 +26,7 @@ import {
   INTERNAL_MESSAGE_CHANNEL,
 } from "../../utils/message-channel.js";
 import { AGENT_LANE_NESTED } from "../lanes.js";
+import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readStringParam } from "./common.js";
 import {
   createSessionVisibilityGuard,

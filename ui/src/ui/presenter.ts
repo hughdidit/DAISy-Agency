@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatAgo, formatDurationMs, formatMs } from "./format";
 import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types";
 =======
@@ -19,6 +20,10 @@ import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types.ts";
 import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types.ts";
 import { formatRelativeTimestamp, formatDurationHuman, formatMs } from "./format.ts";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { formatRelativeTimestamp, formatDurationHuman, formatMs } from "./format.ts";
+import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types.ts";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export function formatPresenceSummary(entry: PresenceEntry): string {
   const host = entry.host ?? "unknown";

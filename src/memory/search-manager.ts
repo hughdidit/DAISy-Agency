@@ -11,6 +11,7 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> f72214725 (chore: restore OpenClaw branding)
 import type { ResolvedQmdConfig } from "./backend-config.js";
 <<<<<<< HEAD
@@ -26,13 +27,16 @@ import { resolveMemoryBackendConfig } from "./backend-config.js";
 =======
 import type { ResolvedQmdConfig } from "./backend-config.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import type { ResolvedQmdConfig } from "./backend-config.js";
+import { resolveMemoryBackendConfig } from "./backend-config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type {
   MemoryEmbeddingProbeResult,
   MemorySearchManager,
   MemorySyncProgressUpdate,
 } from "./types.js";
-import { createSubsystemLogger } from "../logging/subsystem.js";
-import { resolveMemoryBackendConfig } from "./backend-config.js";
 
 const log = createSubsystemLogger("memory");
 const QMD_MANAGER_CACHE = new Map<string, MemorySearchManager>();

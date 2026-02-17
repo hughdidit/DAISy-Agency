@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { STATE_DIR } from "../config/paths.js";
 import { loadJsonFile, saveJsonFile } from "../infra/json-file.js";
@@ -13,7 +14,10 @@ import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 >>>>>>> ed11e93cf (chore(format))
 import type { ModelCatalogEntry } from "../agents/model-catalog.js";
 import type { OpenClawConfig } from "../config/config.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
+import type { ModelCatalogEntry } from "../agents/model-catalog.js";
 import {
   findModelInCatalog,
   loadModelCatalog,
@@ -23,10 +27,14 @@ import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 import { resolveDefaultModelForAgent } from "../agents/model-selection.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { STATE_DIR } from "../config/paths.js";
 import { logVerbose } from "../globals.js";
 import { loadJsonFile, saveJsonFile } from "../infra/json-file.js";

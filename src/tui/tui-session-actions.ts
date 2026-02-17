@@ -3,18 +3,24 @@ import type { TUI } from "@mariozechner/pi-tui";
 =======
 import type { SessionsPatchResult } from "../gateway/protocol/index.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ChatLog } from "./components/chat-log.js";
 import type { GatewayAgentsList, GatewayChatClient } from "./gateway-chat.js";
 import type { TuiOptions, TuiStateAccess } from "./tui-types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   normalizeAgentId,
   normalizeMainKey,
   parseAgentSessionKey,
 } from "../routing/session-key.js";
+import type { ChatLog } from "./components/chat-log.js";
+import type { GatewayAgentsList, GatewayChatClient } from "./gateway-chat.js";
 import { asString, extractTextFromMessage, isCommandMessage } from "./tui-formatters.js";
+import type { TuiOptions, TuiStateAccess } from "./tui-types.js";
 
 type SessionActionContext = {
   client: GatewayChatClient;

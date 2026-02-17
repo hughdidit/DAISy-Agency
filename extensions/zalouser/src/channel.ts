@@ -24,10 +24,13 @@ import {
 =======
 } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ZcaFriend, ZcaGroup, ZcaUserInfo } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,
@@ -42,10 +45,14 @@ import { sendMessageZalouser } from "./send.js";
 =======
 import { collectZalouserStatusIssues } from "./status-issues.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ZcaFriend, ZcaGroup, ZcaUserInfo } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { ZcaFriend, ZcaGroup, ZcaUserInfo } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { checkZcaInstalled, parseJsonOutput, runZca, runZcaInteractive } from "./zca.js";
 import type { ZcaFriend, ZcaGroup, ZcaUserInfo } from "./types.js";
 import { ZalouserConfigSchema } from "./config-schema.js";

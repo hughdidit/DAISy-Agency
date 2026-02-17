@@ -1,9 +1,7 @@
-import type { OpenClawConfig } from "../config/config.js";
-import type { RuntimeEnv } from "../runtime.js";
-import type { WizardPrompter } from "../wizard/prompts.js";
 import { installSkill } from "../agents/skills-install.js";
 import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 import { formatCliCommand } from "../cli/command-format.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -22,6 +20,12 @@ import type { WizardPrompter } from "../wizard/prompts.js";
 =======
 import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
+import type { WizardPrompter } from "../wizard/prompts.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { detectBinary, resolveNodeManagerOptions } from "./onboard-helpers.js";
 
 function summarizeInstallFailure(message: string): string | undefined {

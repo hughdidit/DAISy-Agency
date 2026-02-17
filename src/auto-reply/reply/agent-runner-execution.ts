@@ -1,10 +1,5 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
-import type { TemplateContext } from "../templating.js";
-import type { VerboseLevel } from "../thinking.js";
-import type { GetReplyOptions, ReplyPayload } from "../types.js";
-import type { FollowupRun } from "./queue.js";
-import type { TypingSignaler } from "./typing-mode.js";
 import { resolveAgentModelFallbacksOverride } from "../../agents/agent-scope.js";
 import { runCliAgent } from "../../agents/cli-runner.js";
 import { getCliSessionId } from "../../agents/cli-session.js";
@@ -33,7 +28,10 @@ import {
   resolveMessageChannel,
 } from "../../utils/message-channel.js";
 import { stripHeartbeatToken } from "../heartbeat.js";
+import type { TemplateContext } from "../templating.js";
+import type { VerboseLevel } from "../thinking.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -52,6 +50,9 @@ import type { GetReplyOptions, ReplyPayload } from "../types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { GetReplyOptions, ReplyPayload } from "../types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   buildEmbeddedContextFromTemplate,
   buildTemplateSenderContext,
@@ -63,7 +64,9 @@ import {
 import { resolveEnforceFinalTag } from "./agent-runner-utils.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { type BlockReplyPipeline } from "./block-reply-pipeline.js";
+import type { FollowupRun } from "./queue.js";
 import { createBlockReplyDeliveryHandler } from "./reply-delivery.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> eefb2f8fb (refactor(reply): extract block delivery normalization)
@@ -72,6 +75,9 @@ import type { TypingSignaler } from "./typing-mode.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { TypingSignaler } from "./typing-mode.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export type AgentRunLoopResult =
   | {

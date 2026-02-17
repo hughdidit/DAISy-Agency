@@ -1,6 +1,6 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { RefreshingAuthProvider, StaticAuthProvider } from "@twurple/auth";
 import { ChatClient, LogLevel } from "@twurple/chat";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
@@ -12,7 +12,11 @@ import { resolveTwitchToken } from "./token.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { ChannelLogSink, TwitchAccountConfig, TwitchChatMessage } from "./types.js";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveTwitchToken } from "./token.js";
+import type { ChannelLogSink, TwitchAccountConfig, TwitchChatMessage } from "./types.js";
 import { normalizeToken } from "./utils/twitch.js";
 
 /**

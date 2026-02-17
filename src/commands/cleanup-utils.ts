@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -9,10 +10,12 @@ import type { MoltbotConfig } from "../config/config.js";
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../runtime.js";
-import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import { resolveHomeDir, resolveUserPath, shortenHomeInString } from "../utils.js";
 
 export type RemovalResult = {

@@ -3,12 +3,15 @@ import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { UsageProviderId } from "./provider-usage.types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   dedupeProfileIds,
   ensureAuthProfileStore,
@@ -25,6 +28,7 @@ import type { UsageProviderId } from "./provider-usage.types.js";
 =======
 import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
 =======
 import type { UsageProviderId } from "./provider-usage.types.js";
@@ -32,6 +36,9 @@ import type { UsageProviderId } from "./provider-usage.types.js";
 =======
 import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { UsageProviderId } from "./provider-usage.types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export type ProviderAuth = {
   provider: UsageProviderId;

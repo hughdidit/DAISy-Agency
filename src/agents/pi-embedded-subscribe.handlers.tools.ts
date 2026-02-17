@@ -3,6 +3,7 @@ import type { AgentEvent } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
@@ -28,11 +29,18 @@ import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 >>>>>>> 9c5f08244 (chore: Format files.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { emitAgentEvent } from "../infra/agent-events.js";
+import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { PluginHookAfterToolCallEvent } from "../plugins/types.js";
+import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
+import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
 import type {
   ToolCallSummary,
   ToolHandlerContext,
 } from "./pi-embedded-subscribe.handlers.types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -50,6 +58,8 @@ import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messag
 >>>>>>> 9c5f08244 (chore: Format files.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   extractToolErrorMessage,
   extractToolResultText,

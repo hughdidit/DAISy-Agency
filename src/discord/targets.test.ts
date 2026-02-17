@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { ClawdbotConfig } from "../config/config.js";
 =======
@@ -9,7 +10,10 @@ import { normalizeDiscordMessagingTarget } from "../channels/plugins/normalize/d
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { normalizeDiscordMessagingTarget } from "../channels/plugins/normalize/discord.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { listDiscordDirectoryPeersLive } from "./directory-live.js";
 import { parseDiscordTarget, resolveDiscordChannelId, resolveDiscordTarget } from "./targets.js";
 

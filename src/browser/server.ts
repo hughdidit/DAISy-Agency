@@ -2,12 +2,15 @@ import type { Server } from "node:http";
 import express from "express";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { loadConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveBrowserConfig, resolveProfile } from "./config.js";
@@ -15,6 +18,7 @@ import { ensureBrowserControlAuth, resolveBrowserControlAuth } from "./control-a
 import { ensureChromeExtensionRelayServer } from "./extension-relay.js";
 import { isPwAiLoaded } from "./pw-ai-state.js";
 import { registerBrowserRoutes } from "./routes/index.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -26,6 +30,9 @@ import type { BrowserRouteRegistrar } from "./routes/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { BrowserRouteRegistrar } from "./routes/types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   type BrowserServerState,
   createBrowserRouteContext,

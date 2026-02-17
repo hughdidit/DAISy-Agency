@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 import path from "node:path";
 <<<<<<< HEAD
@@ -30,6 +31,12 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 import crypto from "node:crypto";
 import path from "node:path";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import crypto from "node:crypto";
+import path from "node:path";
+import type { AgentMessage, StreamFn } from "@mariozechner/pi-agent-core";
+import type { Api, Model } from "@mariozechner/pi-ai";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveStateDir } from "../config/paths.js";
 import { parseBooleanValue } from "../utils/boolean.js";
 <<<<<<< HEAD

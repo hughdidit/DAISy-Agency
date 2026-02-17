@@ -3,11 +3,14 @@ import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 =======
 import type { WebChannel } from "../utils.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveOAuthDir } from "../config/paths.js";
@@ -17,12 +20,16 @@ import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { WebChannel } from "../utils.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { WebChannel } from "../utils.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { jidToE164, resolveUserPath } from "../utils.js";
 
 export function resolveDefaultWebAuthDir(): string {

@@ -5,6 +5,7 @@
 import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
@@ -20,6 +21,10 @@ import type { CoreConfig } from "../../types.js";
 import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
 import { getMatrixRuntime } from "../../runtime.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { getMatrixRuntime } from "../../runtime.js";
+import type { CoreConfig } from "../../types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { getActiveMatrixClient } from "../active-client.js";
 <<<<<<< HEAD
 import {
@@ -34,12 +39,16 @@ import { createPreparedMatrixClient } from "../client-bootstrap.js";
 import { isBunRuntime, resolveMatrixAuth, resolveSharedMatrixClient } from "../client.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 =======
 import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export function ensureNodeRuntime() {
   if (isBunRuntime()) {

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fsSync from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -13,6 +14,10 @@ import type { Llama, LlamaEmbeddingContext, LlamaModel } from "node-llama-cpp";
 import type { Llama, LlamaEmbeddingContext, LlamaModel } from "node-llama-cpp";
 import fsSync from "node:fs";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import fsSync from "node:fs";
+import type { Llama, LlamaEmbeddingContext, LlamaModel } from "node-llama-cpp";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { OpenClawConfig } from "../config/config.js";
 import { formatErrorMessage } from "../infra/errors.js";
 >>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))

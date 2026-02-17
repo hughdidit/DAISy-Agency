@@ -1,17 +1,24 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
 import type { ChannelId, ChannelThreadingToolContext } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import type { GatewayClientMode, GatewayClientName } from "../../utils/message-channel.js";
+import { throwIfAborted } from "./abort.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -27,6 +34,8 @@ import { dispatchChannelMessageAction } from "../../channels/plugins/message-act
 import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
 import { throwIfAborted } from "./abort.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { sendMessage, sendPoll } from "./message.js";
 import { extractToolPayload } from "./tool-payload.js";
 
