@@ -1,16 +1,18 @@
+import type { TelegramActionConfig } from "../../../config/types.telegram.js";
+import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
 import {
-  createActionGate,
   readNumberParam,
   readStringArrayParam,
   readStringOrNumberParam,
   readStringParam,
 } from "../../../agents/tools/common.js";
 import { handleTelegramAction } from "../../../agents/tools/telegram-actions.js";
-import type { TelegramActionConfig } from "../../../config/types.telegram.js";
 import { extractToolSend } from "../../../plugin-sdk/tool-send.js";
-import { listEnabledTelegramAccounts } from "../../../telegram/accounts.js";
+import {
+  createTelegramActionGate,
+  listEnabledTelegramAccounts,
+} from "../../../telegram/accounts.js";
 import { isTelegramInlineButtonsEnabled } from "../../../telegram/inline-buttons.js";
-import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
 
 const providerId = "telegram";
 
@@ -47,7 +49,16 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
     if (accounts.length === 0) {
       return [];
     }
+<<<<<<< HEAD
     const gate = createActionGate(cfg.channels?.telegram?.actions);
+=======
+    // Union of all accounts' action gates (any account enabling an action makes it available)
+    const gates = accounts.map((account) =>
+      createTelegramActionGate({ cfg, accountId: account.accountId }),
+    );
+    const gate = (key: keyof TelegramActionConfig, defaultValue = true) =>
+      gates.some((g) => g(key, defaultValue));
+>>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
     const actions = new Set<ChannelMessageActionName>(["send"]);
     if (gate("poll")) {
       actions.add("poll");

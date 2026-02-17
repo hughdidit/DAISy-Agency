@@ -3,8 +3,8 @@ import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
-import { resolveTelegramAccount } from "../../telegram/accounts.js";
 import type { TelegramButtonStyle, TelegramInlineButtons } from "../../telegram/button-types.js";
+import { createTelegramActionGate } from "../../telegram/accounts.js";
 import {
   resolveTelegramInlineButtonsScope,
   resolveTelegramTargetChatType,
@@ -22,11 +22,14 @@ import {
 import { getCacheStats, searchStickers } from "../../telegram/sticker-cache.js";
 import { resolveTelegramToken } from "../../telegram/token.js";
 import {
+<<<<<<< HEAD
   resolveTelegramInlineButtonsScope,
   resolveTelegramTargetChatType,
 } from "../../telegram/inline-buttons.js";
 import {
   createActionGate,
+=======
+>>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
   jsonResult,
   readNumberParam,
   readReactionParams,
@@ -97,7 +100,11 @@ export async function handleTelegramAction(
 ): Promise<AgentToolResult<unknown>> {
   const action = readStringParam(params, "action", { required: true });
   const accountId = readStringParam(params, "accountId");
+<<<<<<< HEAD
   const isActionEnabled = createActionGate(cfg.channels?.telegram?.actions);
+=======
+  const isActionEnabled = createTelegramActionGate({ cfg, accountId });
+>>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
 
   if (action === "react") {
     // Check reaction level first
