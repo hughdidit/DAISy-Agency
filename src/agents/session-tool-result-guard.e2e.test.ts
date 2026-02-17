@@ -260,4 +260,37 @@ describe("installSessionToolResultGuard", () => {
     const text = getToolResultText(getPersistedMessages(sm));
     expect(text).toBe(originalText);
   });
+<<<<<<< HEAD
+=======
+
+  it("applies message persistence transform to user messages", () => {
+    const sm = SessionManager.inMemory();
+    installSessionToolResultGuard(sm, {
+      transformMessageForPersistence: (message) =>
+        (message as { role?: string }).role === "user"
+          ? ({
+              ...(message as unknown as Record<string, unknown>),
+              provenance: { kind: "inter_session", sourceTool: "sessions_send" },
+            } as unknown as AgentMessage)
+          : message,
+    });
+
+    sm.appendMessage(
+      asAppendMessage({
+        role: "user",
+        content: "forwarded",
+        timestamp: Date.now(),
+      }),
+    );
+
+    const persisted = sm.getEntries().find((e) => e.type === "message") as
+      | { message?: Record<string, unknown> }
+      | undefined;
+    expect(persisted?.message?.role).toBe("user");
+    expect(persisted?.message?.provenance).toEqual({
+      kind: "inter_session",
+      sourceTool: "sessions_send",
+    });
+  });
+>>>>>>> 2e375a549 (chore: Fix types in tests 32/N.)
 });
