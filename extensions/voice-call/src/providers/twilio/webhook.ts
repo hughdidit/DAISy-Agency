@@ -1,6 +1,6 @@
 import type { WebhookContext, WebhookVerificationResult } from "../../types.js";
 import type { Logger } from "../../manager/context.js";
-import { defaultLogger } from "../../manager/context.js";
+import { defaultLogger, sanitizeLogValue } from "../../manager/context.js";
 import { verifyTwilioWebhook } from "../../webhook-security.js";
 
 import type { TwilioProviderOptions } from "../twilio.js";
@@ -21,9 +21,9 @@ export function verifyTwilioProviderWebhook(params: {
   });
 
   if (!result.ok) {
-    logger.warn(`[twilio] Webhook verification failed: ${result.reason}`);
+    logger.warn(`[twilio] Webhook verification failed: ${sanitizeLogValue(result.reason ?? "unknown")}`);
     if (result.verificationUrl) {
-      logger.warn(`[twilio] Verification URL: ${result.verificationUrl}`);
+      logger.warn(`[twilio] Verification URL: ${sanitizeLogValue(result.verificationUrl)}`);
     }
   }
 

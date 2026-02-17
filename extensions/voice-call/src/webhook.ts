@@ -282,7 +282,7 @@ export class VoiceCallWebhookServer {
     // Process each event
     for (const event of result.events) {
       try {
-        this.manager.processEvent(event);
+        await this.manager.processEvent(event);
       } catch (err) {
         this.logger.error(
           `[voice-call] Error processing event ${event.type}: ${err}`,

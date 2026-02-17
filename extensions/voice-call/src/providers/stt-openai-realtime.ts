@@ -10,7 +10,7 @@
 
 import WebSocket from "ws";
 import type { Logger } from "../manager/context.js";
-import { defaultLogger } from "../manager/context.js";
+import { defaultLogger, sanitizeLogValue } from "../manager/context.js";
 
 /**
  * Configuration for OpenAI Realtime STT.
@@ -235,7 +235,7 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
       case "transcription_session.updated":
       case "input_audio_buffer.speech_stopped":
       case "input_audio_buffer.committed":
-        this.logger.debug(`[RealtimeSTT] ${event.type}`);
+        this.logger.debug(`[RealtimeSTT] ${sanitizeLogValue(event.type)}`);
         break;
 
       case "conversation.item.input_audio_transcription.delta":
@@ -247,7 +247,7 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
 
       case "conversation.item.input_audio_transcription.completed":
         if (event.transcript) {
-          this.logger.info(`[RealtimeSTT] Transcript: ${event.transcript}`);
+          this.logger.info(`[RealtimeSTT] Transcript: ${sanitizeLogValue(event.transcript)}`);
           this.onTranscriptCallback?.(event.transcript);
         }
         this.pendingTranscript = "";
@@ -260,7 +260,7 @@ class OpenAIRealtimeSTTSession implements RealtimeSTTSession {
         break;
 
       case "error":
-        this.logger.error(`[RealtimeSTT] Error: ${event.error}`);
+        this.logger.error(`[RealtimeSTT] Error: ${sanitizeLogValue(String(event.error))}`);
         break;
     }
   }

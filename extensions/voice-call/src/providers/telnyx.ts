@@ -15,7 +15,7 @@ import type {
   WebhookVerificationResult,
 } from "../types.js";
 import type { Logger } from "../manager/context.js";
-import { defaultLogger } from "../manager/context.js";
+import { defaultLogger, sanitizeLogValue } from "../manager/context.js";
 import type { VoiceCallProvider } from "./base.js";
 
 /**
@@ -264,7 +264,7 @@ export class TelnyxProvider implements VoiceCallProvider {
       default:
         // Unknown cause - log it for debugging and return completed
         if (cause) {
-          this.logger.warn(`[telnyx] Unknown hangup cause: ${cause}`);
+          this.logger.warn(`[telnyx] Unknown hangup cause: ${sanitizeLogValue(cause)}`);
         }
         return "completed";
     }

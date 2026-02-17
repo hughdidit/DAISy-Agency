@@ -16,6 +16,14 @@ export const defaultLogger: Logger = {
   debug: console.debug,
 };
 
+/**
+ * Strip control characters from untrusted values before logging
+ * to prevent log injection (forged log entries via newlines/tabs).
+ */
+export function sanitizeLogValue(value: string): string {
+  return value.replace(/[\r\n\t]/g, " ");
+}
+
 export type TranscriptWaiter = {
   resolve: (text: string) => void;
   reject: (err: Error) => void;
