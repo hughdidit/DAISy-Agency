@@ -168,10 +168,14 @@ export class VoiceCallWebhookServer {
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 759c7fc18 (revert(voice-call): remove cached inbound greeting)
         // Speak initial message if one was provided when call was initiated
         // Use setTimeout to allow stream setup to complete
         setTimeout(() => {
           this.manager.speakInitialMessage(callId).catch((err) => {
+<<<<<<< HEAD
             this.logger.warn(`[voice-call] Failed to speak initial message: ${err}`);
           });
         }, 500);
@@ -212,6 +216,11 @@ export class VoiceCallWebhookServer {
           }, 100);
         }
 >>>>>>> 2c6db5755 (feat(voice-call): pre-cache inbound greeting for instant playback)
+=======
+            console.warn(`[voice-call] Failed to speak initial message:`, err);
+          });
+        }, 500);
+>>>>>>> 759c7fc18 (revert(voice-call): remove cached inbound greeting)
       },
       onDisconnect: (callId) => {
 <<<<<<< HEAD

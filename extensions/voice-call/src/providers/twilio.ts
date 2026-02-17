@@ -80,6 +80,7 @@ export class TwilioProvider implements VoiceCallProvider {
   /** Map of call SID to stream SID for media streams */
   private callStreamMap = new Map<string, string>();
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /** Pre-generated greeting audio for instant inbound playback */
   private cachedGreetingAudio: Buffer | null = null;
@@ -92,6 +93,8 @@ export class TwilioProvider implements VoiceCallProvider {
   getCachedGreetingAudio(): Buffer | null {
     return this.cachedGreetingAudio;
   }
+=======
+>>>>>>> 759c7fc18 (revert(voice-call): remove cached inbound greeting)
   /** Per-call tokens for media stream authentication */
   private streamAuthTokens = new Map<string, string>();
 >>>>>>> 2c6db5755 (feat(voice-call): pre-cache inbound greeting for instant playback)
