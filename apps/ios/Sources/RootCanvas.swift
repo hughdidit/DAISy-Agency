@@ -65,6 +65,20 @@ struct RootCanvas: View {
         .onChange(of: self.appModel.gatewayStatusText) { _, _ in self.updateCanvasDebugStatus() }
         .onChange(of: self.appModel.gatewayServerName) { _, _ in self.updateCanvasDebugStatus() }
         .onChange(of: self.appModel.gatewayRemoteAddress) { _, _ in self.updateCanvasDebugStatus() }
+<<<<<<< HEAD
+=======
+        .onChange(of: self.appModel.gatewayServerName) { _, newValue in
+            if newValue != nil {
+                self.onboardingComplete = true
+                self.hasConnectedOnce = true
+                OnboardingStateStore.markCompleted(mode: nil)
+            }
+            self.maybeAutoOpenSettings()
+        }
+        .onChange(of: self.appModel.openChatRequestID) { _, _ in
+            self.presentedSheet = .chat
+        }
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
         .onChange(of: self.voiceWake.lastTriggeredCommand) { _, newValue in
             guard let newValue else { return }
             let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)

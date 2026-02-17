@@ -18,8 +18,11 @@
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+<<<<<<< HEAD
 	<key>CFBundleShortVersionString</key>
 	<string>2026.1.27-beta.1</string>
+=======
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
 	<key>CFBundleVersion</key>
 	<string>20260126</string>
 	<key>NSAppTransportSecurity</key>

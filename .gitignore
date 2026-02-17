@@ -116,4 +116,10 @@ local/
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 =======
 package-lock.json
+<<<<<<< HEAD
 >>>>>>> 89fa93ed7 (feat: support freshness parameter for Perplexity web_search provider (#15343))
+=======
+
+# Local iOS signing overrides
+apps/ios/LocalSigning.xcconfig
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))

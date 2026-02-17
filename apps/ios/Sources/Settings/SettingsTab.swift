@@ -13,6 +13,12 @@ private final class ConnectStatusStore {
 extension ConnectStatusStore: @unchecked Sendable {}
 
 struct SettingsTab: View {
+    private struct FeatureHelp: Identifiable {
+        let id = UUID()
+        let title: String
+        let message: String
+    }
+
     @Environment(NodeAppModel.self) private var appModel: NodeAppModel
     @Environment(VoiceWakeManager.self) private var voiceWake: VoiceWakeManager
     @Environment(GatewayConnectionController.self) private var gatewayController: GatewayConnectionController
@@ -23,8 +29,12 @@ struct SettingsTab: View {
     @AppStorage("talk.enabled") private var talkEnabled: Bool = false
     @AppStorage("talk.button.enabled") private var talkButtonEnabled: Bool = true
     @AppStorage("camera.enabled") private var cameraEnabled: Bool = true
+<<<<<<< HEAD
     @AppStorage("location.enabledMode") private var locationEnabledModeRaw: String = MoltbotLocationMode.off.rawValue
     @AppStorage("location.preciseEnabled") private var locationPreciseEnabled: Bool = true
+=======
+    @AppStorage("location.enabledMode") private var locationEnabledModeRaw: String = OpenClawLocationMode.off.rawValue
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
     @AppStorage("screen.preventSleep") private var preventSleep: Bool = true
     @AppStorage("gateway.preferredStableID") private var preferredGatewayStableID: String = ""
     @AppStorage("gateway.lastDiscoveredStableID") private var lastDiscoveredGatewayStableID: String = ""
@@ -36,10 +46,28 @@ struct SettingsTab: View {
     @AppStorage("canvas.debugStatusEnabled") private var canvasDebugStatusEnabled: Bool = false
     @State private var connectStatus = ConnectStatusStore()
     @State private var connectingGatewayID: String?
+<<<<<<< HEAD
     @State private var localIPAddress: String?
     @State private var lastLocationModeRaw: String = MoltbotLocationMode.off.rawValue
     @State private var gatewayToken: String = ""
     @State private var gatewayPassword: String = ""
+=======
+    @State private var lastLocationModeRaw: String = OpenClawLocationMode.off.rawValue
+    @State private var gatewayToken: String = ""
+    @State private var gatewayPassword: String = ""
+    @State private var defaultShareInstruction: String = ""
+    @AppStorage("gateway.setupCode") private var setupCode: String = ""
+    @State private var setupStatusText: String?
+    @State private var manualGatewayPortText: String = ""
+    @State private var gatewayExpanded: Bool = true
+    @State private var selectedAgentPickerId: String = ""
+
+    @State private var showResetOnboardingAlert: Bool = false
+    @State private var activeFeatureHelp: FeatureHelp?
+    @State private var suppressCredentialPersist: Bool = false
+
+    private let gatewayLogger = Logger(subsystem: "ai.openclaw.ios", category: "GatewaySettings")
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
 
     var body: some View {
         NavigationStack {
@@ -167,6 +195,7 @@ struct SettingsTab: View {
                     }
                 }
 
+<<<<<<< HEAD
                 Section("Voice") {
                     Toggle("Voice Wake", isOn: self.$voiceWakeEnabled)
                         .onChange(of: self.voiceWakeEnabled) { _, newValue in
@@ -185,9 +214,111 @@ struct SettingsTab: View {
                         LabeledContent(
                             "Wake Words",
                             value: VoiceWakePreferences.displayString(for: self.voiceWake.triggerWords))
+=======
+                Section("Device") {
+                    DisclosureGroup("Features") {
+                        self.featureToggle(
+                            "Voice Wake",
+                            isOn: self.$voiceWakeEnabled,
+                            help: "Enables wake-word activation to start a hands-free session.") { newValue in
+                                self.appModel.setVoiceWakeEnabled(newValue)
+                            }
+                        self.featureToggle(
+                            "Talk Mode",
+                            isOn: self.$talkEnabled,
+                            help: "Enables voice conversation mode with your connected OpenClaw agent.") { newValue in
+                                self.appModel.setTalkEnabled(newValue)
+                            }
+                        self.featureToggle(
+                            "Background Listening",
+                            isOn: self.$talkBackgroundEnabled,
+                            help: "Keeps listening while the app is backgrounded. Uses more battery.")
+
+                        NavigationLink {
+                            VoiceWakeWordsSettingsView()
+                        } label: {
+                            LabeledContent(
+                                "Wake Words",
+                                value: VoiceWakePreferences.displayString(for: self.voiceWake.triggerWords))
+                        }
+
+                        self.featureToggle(
+                            "Allow Camera",
+                            isOn: self.$cameraEnabled,
+                            help: "Allows the gateway to request photos or short video clips while OpenClaw is foregrounded.")
+
+                        HStack(spacing: 8) {
+                            Text("Location Access")
+                            Spacer()
+                            Button {
+                                self.activeFeatureHelp = FeatureHelp(
+                                    title: "Location Access",
+                                    message: "Controls location permissions for OpenClaw. Off disables location tools, While Using enables foreground location, and Always enables background location.")
+                            } label: {
+                                Image(systemName: "info.circle")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Location Access info")
+                        }
+                        Picker("Location Access", selection: self.$locationEnabledModeRaw) {
+                            Text("Off").tag(OpenClawLocationMode.off.rawValue)
+                            Text("While Using").tag(OpenClawLocationMode.whileUsing.rawValue)
+                            Text("Always").tag(OpenClawLocationMode.always.rawValue)
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.segmented)
+
+                        self.featureToggle(
+                            "Prevent Sleep",
+                            isOn: self.$preventSleep,
+                            help: "Keeps the screen awake while OpenClaw is open.")
+
+                        DisclosureGroup("Advanced") {
+                            self.featureToggle(
+                                "Voice Directive Hint",
+                                isOn: self.$talkVoiceDirectiveHintEnabled,
+                                help: "Adds voice-switching instructions to Talk prompts. Disable to reduce prompt size.")
+                            self.featureToggle(
+                                "Show Talk Button",
+                                isOn: self.$talkButtonEnabled,
+                                help: "Shows the floating Talk button in the main interface.")
+                            TextField("Default Share Instruction", text: self.$defaultShareInstruction, axis: .vertical)
+                                .lineLimit(2 ... 6)
+                                .textInputAutocapitalization(.sentences)
+                            HStack(spacing: 8) {
+                                Text("Default Share Instruction")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                                Button {
+                                    self.activeFeatureHelp = FeatureHelp(
+                                        title: "Default Share Instruction",
+                                        message: "Appends this instruction when sharing content into OpenClaw from iOS.")
+                                } label: {
+                                    Image(systemName: "info.circle")
+                                        .foregroundStyle(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Default Share Instruction info")
+                            }
+
+                            VStack(alignment: .leading, spacing: 8) {
+                                Button {
+                                    Task { await self.appModel.runSharePipelineSelfTest() }
+                                } label: {
+                                    Label("Run Share Self-Test", systemImage: "checkmark.seal")
+                                }
+                                Text(self.appModel.lastShareEventText)
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
                     }
                 }
 
+<<<<<<< HEAD
                 Section("Camera") {
                     Toggle("Allow Camera", isOn: self.$cameraEnabled)
                     Text("Allows the gateway to request photos or short video clips (foreground only).")
@@ -200,6 +331,18 @@ struct SettingsTab: View {
                         Text("Off").tag(MoltbotLocationMode.off.rawValue)
                         Text("While Using").tag(MoltbotLocationMode.whileUsing.rawValue)
                         Text("Always").tag(MoltbotLocationMode.always.rawValue)
+=======
+                    DisclosureGroup("Device Info") {
+                        TextField("Name", text: self.$displayName)
+                        Text(self.instanceId)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        LabeledContent("Device", value: self.deviceFamily())
+                        LabeledContent("Platform", value: self.platformString())
+                        LabeledContent("OpenClaw", value: self.openClawVersionString())
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
                     }
                     .pickerStyle(.segmented)
 
@@ -229,14 +372,48 @@ struct SettingsTab: View {
                     .accessibilityLabel("Close")
                 }
             }
+<<<<<<< HEAD
+=======
+            .alert("Reset Onboarding?", isPresented: self.$showResetOnboardingAlert) {
+                Button("Reset", role: .destructive) {
+                    self.resetOnboarding()
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text(
+                    "This will disconnect, clear saved gateway connection + credentials, and reopen the onboarding wizard.")
+            }
+            .alert(item: self.$activeFeatureHelp) { help in
+                Alert(
+                    title: Text(help.title),
+                    message: Text(help.message),
+                    dismissButton: .default(Text("OK")))
+            }
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
             .onAppear {
-                self.localIPAddress = NetworkInterfaces.primaryIPv4Address()
                 self.lastLocationModeRaw = self.locationEnabledModeRaw
                 let trimmedInstanceId = self.instanceId.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !trimmedInstanceId.isEmpty {
                     self.gatewayToken = GatewaySettingsStore.loadGatewayToken(instanceId: trimmedInstanceId) ?? ""
                     self.gatewayPassword = GatewaySettingsStore.loadGatewayPassword(instanceId: trimmedInstanceId) ?? ""
                 }
+<<<<<<< HEAD
+=======
+                self.defaultShareInstruction = ShareToAgentSettings.loadDefaultInstruction()
+                self.appModel.refreshLastShareEventFromRelay()
+                // Keep setup front-and-center when disconnected; keep things compact once connected.
+                self.gatewayExpanded = !self.isGatewayConnected
+                self.selectedAgentPickerId = self.appModel.selectedAgentId ?? ""
+            }
+            .onChange(of: self.selectedAgentPickerId) { _, newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                self.appModel.setSelectedAgentId(trimmed.isEmpty ? nil : trimmed)
+            }
+            .onChange(of: self.appModel.selectedAgentId ?? "") { _, newValue in
+                if newValue != self.selectedAgentPickerId {
+                    self.selectedAgentPickerId = newValue
+                }
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
             }
             .onChange(of: self.preferredGatewayStableID) { _, newValue in
                 let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -255,8 +432,32 @@ struct SettingsTab: View {
                 guard !instanceId.isEmpty else { return }
                 GatewaySettingsStore.saveGatewayPassword(trimmed, instanceId: instanceId)
             }
+<<<<<<< HEAD
             .onChange(of: self.appModel.gatewayServerName) { _, _ in
                 self.connectStatus.text = nil
+=======
+            .onChange(of: self.defaultShareInstruction) { _, newValue in
+                ShareToAgentSettings.saveDefaultInstruction(newValue)
+            }
+            .onChange(of: self.manualGatewayPort) { _, _ in
+                self.syncManualPortText()
+            }
+            .onChange(of: self.appModel.gatewayServerName) { _, newValue in
+                if newValue != nil {
+                    self.setupCode = ""
+                    self.setupStatusText = nil
+                    return
+                }
+                if self.manualGatewayEnabled {
+                    self.setupStatusText = self.appModel.gatewayStatusText
+                }
+            }
+            .onChange(of: self.appModel.gatewayStatusText) { _, newValue in
+                guard self.manualGatewayEnabled || self.connectingGatewayID == "manual" else { return }
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { return }
+                self.setupStatusText = trimmed
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
             }
             .onChange(of: self.locationEnabledModeRaw) { _, newValue in
                 let previous = self.lastLocationModeRaw
@@ -336,6 +537,7 @@ struct SettingsTab: View {
         return "iOS \(v.majorVersion).\(v.minorVersion).\(v.patchVersion)"
     }
 
+<<<<<<< HEAD
     private var locationMode: MoltbotLocationMode {
         MoltbotLocationMode(rawValue: self.locationEnabledModeRaw) ?? .off
     }
@@ -344,6 +546,8 @@ struct SettingsTab: View {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
     }
 
+=======
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
     private func deviceFamily() -> String {
         switch UIDevice.current.userInterfaceIdiom {
         case .pad:
@@ -355,14 +559,36 @@ struct SettingsTab: View {
         }
     }
 
-    private func modelIdentifier() -> String {
-        var systemInfo = utsname()
-        uname(&systemInfo)
-        let machine = withUnsafeBytes(of: &systemInfo.machine) { ptr in
-            String(bytes: ptr.prefix { $0 != 0 }, encoding: .utf8)
+    private func openClawVersionString() -> String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        let trimmedBuild = build.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedBuild.isEmpty || trimmedBuild == version {
+            return version
         }
-        let trimmed = machine?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return trimmed.isEmpty ? "unknown" : trimmed
+        return "\(version) (\(trimmedBuild))"
+    }
+
+    private func featureToggle(
+        _ title: String,
+        isOn: Binding<Bool>,
+        help: String,
+        onChange: ((Bool) -> Void)? = nil
+    ) -> some View {
+        HStack(spacing: 8) {
+            Toggle(title, isOn: isOn)
+            Button {
+                self.activeFeatureHelp = FeatureHelp(title: title, message: help)
+            } label: {
+                Image(systemName: "info.circle")
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("\(title) info")
+        }
+        .onChange(of: isOn.wrappedValue) { _, newValue in
+            onChange?(newValue)
+        }
     }
 
     private func connect(_ gateway: GatewayDiscoveryModel.DiscoveredGateway) async {

@@ -29,14 +29,27 @@ targets:
   Moltbot:
     type: application
     platform: iOS
+    configFiles:
+      Debug: Signing.xcconfig
+      Release: Signing.xcconfig
     sources:
       - path: Sources
     dependencies:
+<<<<<<< HEAD
       - package: MoltbotKit
       - package: MoltbotKit
         product: MoltbotChatUI
       - package: MoltbotKit
         product: MoltbotProtocol
+=======
+      - target: OpenClawShareExtension
+        embed: true
+      - package: OpenClawKit
+      - package: OpenClawKit
+        product: OpenClawChatUI
+      - package: OpenClawKit
+        product: OpenClawProtocol
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
       - package: Swabble
         product: SwabbleKit
       - sdk: AppIntents.framework
@@ -66,11 +79,9 @@ targets:
             exit 1
           fi
           swiftlint lint --config "$SRCROOT/.swiftlint.yml" --use-script-input-file-lists
-    configFiles:
-      Debug: Config/Signing.xcconfig
-      Release: Config/Signing.xcconfig
     settings:
       base:
+<<<<<<< HEAD
 <<<<<<< HEAD
         CODE_SIGN_IDENTITY: "Apple Development"
         CODE_SIGN_STYLE: Manual
@@ -80,6 +91,13 @@ targets:
 =======
         PRODUCT_BUNDLE_IDENTIFIER: ai.openclaw.ios
 >>>>>>> 98962ed81 (feat(ios): auto-select local signing team (#18421))
+=======
+        CODE_SIGN_IDENTITY: "Apple Development"
+        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
+        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_APP_BUNDLE_ID)"
+        PROVISIONING_PROFILE_SPECIFIER: "$(OPENCLAW_APP_PROFILE)"
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
         ENABLE_APPINTENTS_METADATA: NO
@@ -88,8 +106,17 @@ targets:
       properties:
         CFBundleDisplayName: Moltbot
         CFBundleIconName: AppIcon
+<<<<<<< HEAD
         CFBundleShortVersionString: "2026.1.27-beta.1"
         CFBundleVersion: "20260126"
+=======
+        CFBundleURLTypes:
+          - CFBundleURLName: ai.openclaw.ios
+            CFBundleURLSchemes:
+              - openclaw
+        CFBundleShortVersionString: "2026.2.16"
+        CFBundleVersion: "20260216"
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -116,7 +143,33 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
 
+<<<<<<< HEAD
   MoltbotTests:
+=======
+  OpenClawShareExtension:
+    type: app-extension
+    platform: iOS
+    configFiles:
+      Debug: Signing.xcconfig
+      Release: Signing.xcconfig
+    sources:
+      - path: ShareExtension
+    dependencies:
+      - package: OpenClawKit
+    settings:
+      base:
+        CODE_SIGN_IDENTITY: "Apple Development"
+        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
+        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_SHARE_BUNDLE_ID)"
+        PROVISIONING_PROFILE_SPECIFIER: "$(OPENCLAW_SHARE_PROFILE)"
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+    info:
+      path: ShareExtension/Info.plist
+
+  OpenClawTests:
+>>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
     type: bundle.unit-test
     platform: iOS
     sources:
