@@ -6,9 +6,17 @@ function jsonResponse(body: unknown) {
   return new Response(JSON.stringify(body), { status: 200 });
 }
 
+const urlToString = (url: Request | URL | string): string => {
+  if (typeof url === "string") {
+    return url;
+  }
+  return "url" in url ? url.url : String(url);
+};
+
 describe("resolveDiscordChannelAllowlist", () => {
   it("resolves guild/channel by name", async () => {
-    const fetcher = async (url: string) => {
+    const fetcher = async (input: RequestInfo | URL) => {
+      const url = urlToString(input);
       if (url.endsWith("/users/@me/guilds")) {
         return jsonResponse([{ id: "g1", name: "My Guild" }]);
       }
@@ -33,7 +41,8 @@ describe("resolveDiscordChannelAllowlist", () => {
   });
 
   it("resolves channel id to guild", async () => {
-    const fetcher = async (url: string) => {
+    const fetcher = async (input: RequestInfo | URL) => {
+      const url = urlToString(input);
       if (url.endsWith("/users/@me/guilds")) {
         return jsonResponse([{ id: "g1", name: "Guild One" }]);
       }
@@ -55,7 +64,8 @@ describe("resolveDiscordChannelAllowlist", () => {
   });
 
   it("resolves guild: prefixed id as guild (not channel)", async () => {
-    const fetcher = async (url: string) => {
+    const fetcher = async (input: RequestInfo | URL) => {
+      const url = urlToString(input);
       if (url.endsWith("/users/@me/guilds")) {
         return jsonResponse([{ id: "111222333444555666", name: "Guild One" }]);
       }
@@ -81,7 +91,8 @@ describe("resolveDiscordChannelAllowlist", () => {
     // Demonstrates why provider.ts must prefix guild-only entries with "guild:"
     // In reality, Discord returns 404 when a guild ID is sent to /channels/<guildId>,
     // which causes fetchDiscord to throw and the entire resolver to crash.
-    const fetcher = async (url: string) => {
+    const fetcher = async (input: RequestInfo | URL) => {
+      const url = urlToString(input);
       if (url.endsWith("/users/@me/guilds")) {
         return jsonResponse([{ id: "999", name: "My Server" }]);
       }

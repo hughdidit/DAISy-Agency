@@ -234,7 +234,9 @@ describe("processDiscordMessage ack reactions", () => {
     // oxlint-disable-next-line typescript/no-explicit-any
     await processDiscordMessage(ctx as any);
 
-    const emojis = reactMessageDiscord.mock.calls.map((call) => call[2]);
+    const emojis = (
+      reactMessageDiscord.mock.calls as unknown as Array<[unknown, unknown, string]>
+    ).map((call) => call[2]);
     expect(emojis).toContain("👀");
     expect(emojis).toContain("✅");
     expect(emojis).not.toContain("🧠");
@@ -263,7 +265,9 @@ describe("processDiscordMessage ack reactions", () => {
     }
 
     await runPromise;
-    const emojis = reactMessageDiscord.mock.calls.map((call) => call[2]);
+    const emojis = (
+      reactMessageDiscord.mock.calls as unknown as Array<[unknown, unknown, string]>
+    ).map((call) => call[2]);
     expect(emojis).toContain("⏳");
     expect(emojis).toContain("⚠️");
     expect(emojis).toContain("✅");
