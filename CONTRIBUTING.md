@@ -5,6 +5,7 @@ Welcome to the lobster tank! 🦞
 ## Quick Links
 
 - **GitHub:** https://github.com/openclaw/openclaw
+- **Vision:** [`VISION.md`](VISION.md)
 - **Discord:** https://discord.gg/qkhbAGHRBT
 - **X/Twitter:** [@steipete](https://x.com/steipete) / [@openclaw](https://x.com/openclaw)
 
@@ -66,7 +67,12 @@ Welcome to the lobster tank! 🦞
 
 - Test locally with your OpenClaw instance
 - Run tests: `pnpm build && pnpm check && pnpm test`
+<<<<<<< HEAD
 - Keep PRs focused (one thing per PR)
+=======
+- Ensure CI checks pass
+- Keep PRs focused (one thing per PR; do not mix unrelated concerns)
+>>>>>>> 3aa33f29e (docs: tighten contribution guidance and vision links)
 - Describe what & why
 
 ## Control UI Decorators
