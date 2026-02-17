@@ -97,6 +97,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - Agents/Process: keep staged process-tree termination safe by skipping delayed Windows force-kill when the PID is already gone, and align PTY force-kill wait behavior with actual exit timing to avoid premature "killed" state reporting during grace periods. (#18626)
 - Slack: limit forwarded-attachment extraction to explicit shared-message attachments and skip non-Slack forwarded image URLs, preventing non-forward unfurls from polluting inbound agent context. Also adds regression tests for forwarded vs non-forward attachment handling.
@@ -104,6 +105,10 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Voice call/Gateway: prevent overlapping closed-loop turn races with per-call turn locking, route transcript dedupe via source-aware fingerprints with strict cache eviction bounds, and harden `voicecall latency` stats for large logs without spread-operator stack overflow. (#19140) Thanks @mbelinky.
+- iOS/Onboarding: stop auth Step 3 retry-loop churn by pausing reconnect attempts on unauthorized/missing-token gateway errors and keeping auth/pairing issue state sticky during manual retry. (#19153) Thanks @mbelinky.
+>>>>>>> 836e77449 (iOS onboarding: stop auth step-3 retry loop churn (#19153))
 - Fix types in all tests. Typecheck the whole repository.
 >>>>>>> bcf862f69 (chore: Typecheck tests.)
 - Voice-call: auto-end calls when media streams disconnect to prevent stuck active calls. (#18435) Thanks @JayMishra-source.
