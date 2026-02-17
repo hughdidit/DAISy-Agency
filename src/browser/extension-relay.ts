@@ -163,8 +163,6 @@ const serversByPort = new Map<number, ChromeExtensionRelayServer>();
 <<<<<<< HEAD
 =======
 const relayAuthByPort = new Map<number, string>();
-// Track original requested port -> relay when fallback occurs (EADDRINUSE)
-const relayByOriginalPort = new Map<number, ChromeExtensionRelayServer>();
 
 function relayAuthTokenForUrl(url: string): string | null {
   try {
@@ -204,7 +202,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
     throw new Error(`extension relay requires loopback cdpUrl host (got ${info.host})`);
   }
 
-  const existing = serversByPort.get(info.port) ?? relayByOriginalPort.get(info.port);
+  const existing = serversByPort.get(info.port);
   if (existing) {
     return existing;
   }
@@ -751,9 +749,12 @@ export async function ensureChromeExtensionRelayServer(opts: {
 <<<<<<< HEAD
 =======
       relayAuthByPort.delete(port);
+<<<<<<< HEAD
       // Also clean up original port mapping if this was a fallback
       relayByOriginalPort.delete(info.port);
 >>>>>>> 8e55503d7 (fix(browser): track original port mapping for EADDRINUSE fallback)
+=======
+>>>>>>> 66f5a4c69 (Revert "fix(browser): track original port mapping for EADDRINUSE fallback")
       try {
         extensionWs?.close(1001, "server stopping");
       } catch {
@@ -775,24 +776,24 @@ export async function ensureChromeExtensionRelayServer(opts: {
   };
 
   serversByPort.set(port, relay);
-  // If we fell back to a different port, also map the original requested port
-  if (port !== info.port) {
-    relayByOriginalPort.set(info.port, relay);
-  }
   return relay;
 }
 
 export async function stopChromeExtensionRelayServer(opts: { cdpUrl: string }): Promise<boolean> {
   const info = parseBaseUrl(opts.cdpUrl);
-  const existing = serversByPort.get(info.port) ?? relayByOriginalPort.get(info.port);
+  const existing = serversByPort.get(info.port);
   if (!existing) {
     return false;
   }
   await existing.stop();
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   // Note: stop() cleans up both serversByPort and relayByOriginalPort
   relayAuthByPort.delete(existing.port);
 >>>>>>> 8e55503d7 (fix(browser): track original port mapping for EADDRINUSE fallback)
+=======
+  relayAuthByPort.delete(info.port);
+>>>>>>> 66f5a4c69 (Revert "fix(browser): track original port mapping for EADDRINUSE fallback")
   return true;
 }
