@@ -399,6 +399,10 @@ else
       --tunnel-through-iap
     log "OK: staging-scrub.sh copied to /tmp/staging-scrub.sh"
   else
+    if [[ "$AUTO_SCRUB" == "true" ]]; then
+      log "ERROR: staging-scrub.sh not found at $SCRIPT_DIR (required by --auto-scrub)"
+      exit 1
+    fi
     log "WARN: staging-scrub.sh not found at $SCRIPT_DIR"
   fi
 

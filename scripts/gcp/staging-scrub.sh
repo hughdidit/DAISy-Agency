@@ -40,6 +40,11 @@ for arg in "$@"; do
       echo "  --help              Show this help message"
       exit 0
       ;;
+    *)
+      echo "ERROR: Unknown option: $arg"
+      echo "Usage: sudo bash $0 [--force]"
+      exit 1
+      ;;
   esac
 done
 

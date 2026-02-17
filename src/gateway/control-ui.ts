@@ -126,7 +126,7 @@ export async function handleControlUiAvatarRequest(
   if (!pathname.startsWith(pathWithBase)) return false;
 
   if (opts.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
-    const token = getBearerToken(req);
+    const token = getBearerToken(req) ?? url.searchParams.get("token") ?? undefined;
     const authResult = await authorizeGatewayConnect({
       auth: opts.auth,
       connectAuth: token ? { token, password: token } : null,
@@ -298,7 +298,7 @@ export async function handleControlUiHttpRequest(
   }
 
   if (opts?.auth && !isLocalDirectRequest(req, opts.trustedProxies)) {
-    const token = getBearerToken(req);
+    const token = getBearerToken(req) ?? url.searchParams.get("token") ?? undefined;
     const authResult = await authorizeGatewayConnect({
       auth: opts.auth,
       connectAuth: token ? { token, password: token } : null,
