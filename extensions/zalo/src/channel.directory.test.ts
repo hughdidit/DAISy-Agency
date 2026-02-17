@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import type { OpenClawConfig, RuntimeEnv } from "openclaw/plugin-sdk";
+>>>>>>> 72f00df95 (chore: Fix more extension test type 1/N.)
 import { describe, expect, it } from "vitest";
 
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";
@@ -5,6 +9,14 @@ import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import { zaloPlugin } from "./channel.js";
 
 describe("zalo directory", () => {
+  const runtimeEnv: RuntimeEnv = {
+    log: () => {},
+    error: () => {},
+    exit: (code: number): never => {
+      throw new Error(`exit ${code}`);
+    },
+  };
+
   it("lists peers from allowFrom", async () => {
     const cfg = {
       channels: {
@@ -19,11 +31,12 @@ describe("zalo directory", () => {
     expect(zaloPlugin.directory?.listGroups).toBeTruthy();
 
     await expect(
-      zaloPlugin.directory!.listPeers({
+      zaloPlugin.directory!.listPeers!({
         cfg,
         accountId: undefined,
         query: undefined,
         limit: undefined,
+        runtime: runtimeEnv,
       }),
     ).resolves.toEqual(
       expect.arrayContaining([
@@ -34,11 +47,12 @@ describe("zalo directory", () => {
     );
 
     await expect(
-      zaloPlugin.directory!.listGroups({
+      zaloPlugin.directory!.listGroups!({
         cfg,
         accountId: undefined,
         query: undefined,
         limit: undefined,
+        runtime: runtimeEnv,
       }),
     ).resolves.toEqual([]);
   });
