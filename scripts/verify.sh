@@ -58,7 +58,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
       --command "sudo docker exec \$(sudo docker ps -qf 'name=${container}' | head -1) node dist/index.js health --json --timeout ${health_timeout}000 2>/dev/null"
   )" || fail "moltbot health check failed on ${GCE_INSTANCE_NAME}"
 
-  health_ok="$(echo "${health_output}" | python3 -c 'import json,sys; d=json.load(sys.stdin); print("true" if d.get("ok") else "false")' 2>/dev/null || echo "false")"
+  health_ok="$(echo "${health_output}" | jq -r 'if .ok then "true" else "false" end' 2>/dev/null || echo "false")"
   if [[ "${health_ok}" != "true" ]]; then
     log "Health output: ${health_output}"
     fail "moltbot health returned ok=false on ${GCE_INSTANCE_NAME}"
