@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { MsgContext } from "../auto-reply/templating.js";
 >>>>>>> b97c5d615 (perf(test): fold sender identity checks into channel config suite)
 import {
+  type ChannelMatchSource,
   buildChannelKeyCandidates,
   normalizeChannelSlug,
   resolveChannelEntryMatch,
@@ -99,10 +100,8 @@ describe("resolveChannelEntryMatchWithFallback", () => {
 
 describe("applyChannelMatchMeta", () => {
   it("copies match metadata onto resolved configs", () => {
-    const resolved = applyChannelMatchMeta(
-      { allowed: true },
-      { matchKey: "general", matchSource: "direct" },
-    );
+    const base: { matchKey?: string; matchSource?: ChannelMatchSource } = {};
+    const resolved = applyChannelMatchMeta(base, { matchKey: "general", matchSource: "direct" });
     expect(resolved.matchKey).toBe("general");
     expect(resolved.matchSource).toBe("direct");
   });
@@ -110,14 +109,20 @@ describe("applyChannelMatchMeta", () => {
 
 describe("resolveChannelMatchConfig", () => {
   it("returns null when no entry is matched", () => {
-    const resolved = resolveChannelMatchConfig({ matchKey: "x" }, () => ({ allowed: true }));
+    const resolved = resolveChannelMatchConfig({ matchKey: "x" }, () => {
+      const out: { matchKey?: string; matchSource?: ChannelMatchSource } = {};
+      return out;
+    });
     expect(resolved).toBeNull();
   });
 
   it("resolves entry and applies match metadata", () => {
     const resolved = resolveChannelMatchConfig(
       { entry: { allow: true }, matchKey: "*", matchSource: "wildcard" },
-      () => ({ allowed: true }),
+      () => {
+        const out: { matchKey?: string; matchSource?: ChannelMatchSource } = {};
+        return out;
+      },
     );
     expect(resolved?.matchKey).toBe("*");
     expect(resolved?.matchSource).toBe("wildcard");

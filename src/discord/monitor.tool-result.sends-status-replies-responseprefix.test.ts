@@ -85,7 +85,6 @@ const CATEGORY_GUILD_CFG = {
       },
     },
   },
-  routing: { allowFrom: [] },
 } satisfies Config;
 
 async function createDmHandler(opts: { cfg: Config; runtimeError?: (err: unknown) => void }) {

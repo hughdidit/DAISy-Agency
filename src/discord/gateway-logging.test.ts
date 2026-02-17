@@ -11,6 +11,8 @@ import { attachDiscordGatewayLogging } from "./gateway-logging.js";
 
 const makeRuntime = () => ({
   log: vi.fn(),
+  error: vi.fn(),
+  exit: vi.fn(),
 });
 
 describe("attachDiscordGatewayLogging", () => {
