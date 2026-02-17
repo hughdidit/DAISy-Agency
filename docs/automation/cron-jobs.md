@@ -142,6 +142,10 @@ Key behaviors:
 - Default behavior: if `delivery` is omitted, isolated jobs announce a summary (`delivery.mode = "announce"`).
 - `delivery.mode` (isolated-only) chooses what happens:
   - `announce`: deliver a summary to the target channel and post a brief summary to the main session.
+<<<<<<< HEAD
+=======
+  - `webhook`: POST the finished event payload to `delivery.to` when the finished event includes a summary.
+>>>>>>> f6e68b917 (docs(cron): clarify webhook posting summary condition)
   - `none`: internal only (no delivery, no main-session summary).
 - `wakeMode` controls when the main-session summary posts:
   - `now`: immediate heartbeat.
@@ -192,6 +196,21 @@ Behavior details:
 - The main-session summary respects `wakeMode`: `now` triggers an immediate heartbeat and
   `next-heartbeat` waits for the next scheduled heartbeat.
 
+<<<<<<< HEAD
+=======
+#### Webhook delivery flow
+
+When `delivery.mode = "webhook"`, cron posts the finished event payload to `delivery.to` when the finished event includes a summary.
+
+Behavior details:
+
+- The endpoint must be a valid HTTP(S) URL.
+- No channel delivery is attempted in webhook mode.
+- No main-session summary is posted in webhook mode.
+- If `cron.webhookToken` is set, auth header is `Authorization: Bearer <cron.webhookToken>`.
+- Deprecated fallback: stored legacy jobs with `notify: true` still post to `cron.webhook` (if configured), with a warning so you can migrate to `delivery.mode = "webhook"`.
+
+>>>>>>> f6e68b917 (docs(cron): clarify webhook posting summary condition)
 ### Model and thinking overrides
 
 Isolated jobs (`agentTurn`) can override the model and thinking level:
@@ -337,6 +356,18 @@ Notes:
 }
 ```
 
+<<<<<<< HEAD
+=======
+Webhook behavior:
+
+- Preferred: set `delivery.mode: "webhook"` with `delivery.to: "https://..."` per job.
+- Webhook URLs must be valid `http://` or `https://` URLs.
+- When posted, payload is the cron finished event JSON.
+- If `cron.webhookToken` is set, auth header is `Authorization: Bearer <cron.webhookToken>`.
+- If `cron.webhookToken` is not set, no `Authorization` header is sent.
+- Deprecated fallback: stored legacy jobs with `notify: true` still use `cron.webhook` when present.
+
+>>>>>>> f6e68b917 (docs(cron): clarify webhook posting summary condition)
 Disable cron entirely:
 
 - `cron.enabled: false` (config)
