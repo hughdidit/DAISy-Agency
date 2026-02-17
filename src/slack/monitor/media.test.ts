@@ -21,10 +21,14 @@ import * as ssrf from "../../infra/net/ssrf.js";
 import type { SavedMedia } from "../../media/store.js";
 import * as mediaStore from "../../media/store.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
 >>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
+=======
+import { type FetchMock, withFetchPreconnect } from "../../test-utils/fetch-mock.js";
+>>>>>>> f44e3b2a3 (revert: fix models set catalog validation (#19194))
 import {
   fetchWithSlackAuth,
   resolveSlackAttachmentContent,
@@ -35,7 +39,7 @@ import {
 
 // Store original fetch
 const originalFetch = globalThis.fetch;
-let mockFetch: ReturnType<typeof vi.fn>;
+let mockFetch: ReturnType<typeof vi.fn<FetchMock>>;
 const createSavedMedia = (filePath: string, contentType: string): SavedMedia => ({
   id: "saved-media-id",
   path: filePath,
@@ -46,7 +50,9 @@ const createSavedMedia = (filePath: string, contentType: string): SavedMedia => 
 describe("fetchWithSlackAuth", () => {
   beforeEach(() => {
     // Create a new mock for each test
-    mockFetch = vi.fn();
+    mockFetch = vi.fn<FetchMock>(
+      async (_input: RequestInfo | URL, _init?: RequestInit) => new Response(),
+    );
     globalThis.fetch = withFetchPreconnect(mockFetch);
   });
 
@@ -398,8 +404,9 @@ describe("resolveSlackMedia", () => {
       return createSavedMedia("/tmp/unknown", "application/octet-stream");
     });
 
-    mockFetch.mockImplementation(async (input) => {
-      const url = String(input);
+    mockFetch.mockImplementation(async (input: RequestInfo | URL) => {
+      const url =
+        typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
       if (url.includes("/a.jpg")) {
         return new Response(Buffer.from("image a"), {
           status: 200,

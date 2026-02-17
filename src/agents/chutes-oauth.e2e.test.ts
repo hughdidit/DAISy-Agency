@@ -20,7 +20,7 @@ const urlToString = (url: Request | URL | string): string => {
 
 describe("chutes-oauth", () => {
   it("exchanges code for tokens and stores username as email", async () => {
-    const fetchFn = withFetchPreconnect(async (input, init) => {
+    const fetchFn = withFetchPreconnect(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = urlToString(input);
       if (url === CHUTES_TOKEN_ENDPOINT) {
         expect(init?.method).toBe("POST");
@@ -70,7 +70,7 @@ describe("chutes-oauth", () => {
   });
 
   it("refreshes tokens using stored client id and falls back to old refresh token", async () => {
-    const fetchFn = withFetchPreconnect(async (input, init) => {
+    const fetchFn = withFetchPreconnect(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = urlToString(input);
       if (url !== CHUTES_TOKEN_ENDPOINT) {
         return new Response("not found", { status: 404 });
