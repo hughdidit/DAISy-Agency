@@ -137,6 +137,7 @@ export class VoiceCallWebhookServer {
           (this.provider as TwilioProvider).registerCallStream(callId, streamSid);
         }
 
+<<<<<<< HEAD
         // Try instant cached greeting for inbound calls (pre-generated at startup)
         const cachedAudio =
           this.provider.name === "twilio"
@@ -172,6 +173,15 @@ export class VoiceCallWebhookServer {
             });
           }, 100);
         }
+=======
+        // Speak initial message if one was provided when call was initiated
+        // Use setTimeout to allow stream setup to complete
+        setTimeout(() => {
+          this.manager.speakInitialMessage(callId).catch((err) => {
+            console.warn(`[voice-call] Failed to speak initial message:`, err);
+          });
+        }, 500);
+>>>>>>> 759c7fc18 (revert(voice-call): remove cached inbound greeting)
       },
       onDisconnect: (callId) => {
         console.log(`[voice-call] Media stream disconnected: ${callId}`);
