@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { ChannelId, ChannelSetupInput } from "../../channels/plugins/types.js";
 import type { ChannelChoice } from "../onboard-types.js";
@@ -10,17 +11,21 @@ import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/ind
 import type { ChannelId } from "../../channels/plugins/types.js";
 import { writeConfigFile, type MoltbotConfig } from "../../config/config.js";
 =======
+=======
+import type { ChannelId, ChannelSetupInput } from "../../channels/plugins/types.js";
+import type { ChannelChoice } from "../onboard-types.js";
+>>>>>>> 4b40bdb98 (fix(telegram): clear offsets on token change)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { listChannelPluginCatalogEntries } from "../../channels/plugins/catalog.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
-import type { ChannelId, ChannelSetupInput } from "../../channels/plugins/types.js";
 import { writeConfigFile, type OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../routing/session-key.js";
 import { defaultRuntime, type RuntimeEnv } from "../../runtime.js";
+import { resolveTelegramAccount } from "../../telegram/accounts.js";
+import { deleteTelegramUpdateOffset } from "../../telegram/update-offset-store.js";
 import { createClackPrompter } from "../../wizard/clack-prompter.js";
 import { setupChannels } from "../onboard-channels.js";
-import type { ChannelChoice } from "../onboard-types.js";
 import {
   ensureOnboardingPluginInstalled,
   reloadOnboardingPluginRegistry,
@@ -222,12 +227,25 @@ export async function channelsAddCommand(
     return;
   }
 
+  const previousTelegramToken =
+    channel === "telegram"
+      ? resolveTelegramAccount({ cfg: nextConfig, accountId }).token.trim()
+      : "";
+
   nextConfig = applyChannelAccountConfig({
     cfg: nextConfig,
     channel,
     accountId,
     input,
   });
+
+  if (channel === "telegram") {
+    const nextTelegramToken = resolveTelegramAccount({ cfg: nextConfig, accountId }).token.trim();
+    if (previousTelegramToken !== nextTelegramToken) {
+      // Clear stale polling offsets after Telegram token rotation.
+      await deleteTelegramUpdateOffset({ accountId });
+    }
+  }
 
   await writeConfigFile(nextConfig);
   runtime.log(`Added ${channelLabel(channel)} account "${accountId}".`);
