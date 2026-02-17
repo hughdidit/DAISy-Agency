@@ -449,6 +449,17 @@ describe("runWithModelFallback", () => {
     expect(run.mock.calls[1]?.[1]).toBe("claude-haiku-3-5");
   });
 
+  it("falls back on abort errors with reason: abort", async () => {
+    await expectFallsBackToHaiku({
+      provider: "openai",
+      model: "gpt-4.1-mini",
+      firstError: Object.assign(new Error("aborted"), {
+        name: "AbortError",
+        reason: "reason: abort",
+      }),
+    });
+  });
+
   it("falls back when message says aborted but error is a timeout", async () => {
     const cfg = makeCfg();
     const run = vi
