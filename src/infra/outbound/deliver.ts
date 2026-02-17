@@ -99,9 +99,28 @@ type ChannelHandler = {
   chunker: Chunker | null;
   chunkerMode?: "text" | "markdown";
   textChunkLimit?: number;
-  sendPayload?: (payload: ReplyPayload) => Promise<OutboundDeliveryResult>;
-  sendText: (text: string) => Promise<OutboundDeliveryResult>;
-  sendMedia: (caption: string, mediaUrl: string) => Promise<OutboundDeliveryResult>;
+  sendPayload?: (
+    payload: ReplyPayload,
+    overrides?: {
+      replyToId?: string | null;
+      threadId?: string | number | null;
+    },
+  ) => Promise<OutboundDeliveryResult>;
+  sendText: (
+    text: string,
+    overrides?: {
+      replyToId?: string | null;
+      threadId?: string | number | null;
+    },
+  ) => Promise<OutboundDeliveryResult>;
+  sendMedia: (
+    caption: string,
+    mediaUrl: string,
+    overrides?: {
+      replyToId?: string | null;
+      threadId?: string | number | null;
+    },
+  ) => Promise<OutboundDeliveryResult>;
 };
 
 type ChannelHandlerParams = {
@@ -177,14 +196,22 @@ function createPluginHandler(
   const sendMedia = outbound.sendMedia;
   const chunker = outbound.chunker ?? null;
   const chunkerMode = outbound.chunkerMode;
+  const resolveCtx = (overrides?: {
+    replyToId?: string | null;
+    threadId?: string | number | null;
+  }): Omit<ChannelOutboundContext, "text" | "mediaUrl"> => ({
+    ...baseCtx,
+    replyToId: overrides?.replyToId ?? baseCtx.replyToId,
+    threadId: overrides?.threadId ?? baseCtx.threadId,
+  });
   return {
     chunker,
     chunkerMode,
     textChunkLimit: outbound.textChunkLimit,
     sendPayload: outbound.sendPayload
-      ? async (payload) =>
+      ? async (payload, overrides) =>
           outbound.sendPayload!({
-            ...baseCtx,
+            ...resolveCtx(overrides),
             text: payload.text ?? "",
             mediaUrl: payload.mediaUrl,
 <<<<<<< HEAD
@@ -200,9 +227,9 @@ function createPluginHandler(
             payload,
           })
       : undefined,
-    sendText: async (text) =>
+    sendText: async (text, overrides) =>
       sendText({
-        ...baseCtx,
+        ...resolveCtx(overrides),
         text,
 <<<<<<< HEAD
         accountId: params.accountId,
@@ -215,9 +242,9 @@ function createPluginHandler(
 =======
 >>>>>>> a881bd41e (refactor(outbound): dedupe plugin outbound context)
       }),
-    sendMedia: async (caption, mediaUrl) =>
+    sendMedia: async (caption, mediaUrl, overrides) =>
       sendMedia({
-        ...baseCtx,
+        ...resolveCtx(overrides),
         text: caption,
         mediaUrl,
 <<<<<<< HEAD
@@ -423,10 +450,13 @@ async function deliverOutboundPayloadsCore(
       })
     : undefined;
 
-  const sendTextChunks = async (text: string) => {
+  const sendTextChunks = async (
+    text: string,
+    overrides?: { replyToId?: string | null; threadId?: string | number | null },
+  ) => {
     throwIfAborted(abortSignal);
     if (!handler.chunker || textLimit === undefined) {
-      results.push(await handler.sendText(text));
+      results.push(await handler.sendText(text, overrides));
       return;
     }
     if (chunkMode === "newline") {
@@ -446,7 +476,7 @@ async function deliverOutboundPayloadsCore(
         }
         for (const chunk of chunks) {
           throwIfAborted(abortSignal);
-          results.push(await handler.sendText(chunk));
+          results.push(await handler.sendText(chunk, overrides));
         }
       }
       return;
@@ -454,7 +484,7 @@ async function deliverOutboundPayloadsCore(
     const chunks = handler.chunker(text, textLimit);
     for (const chunk of chunks) {
       throwIfAborted(abortSignal);
-      results.push(await handler.sendText(chunk));
+      results.push(await handler.sendText(chunk, overrides));
     }
   };
 
@@ -517,15 +547,25 @@ async function deliverOutboundPayloadsCore(
     try {
       throwIfAborted(abortSignal);
       params.onPayload?.(payloadSummary);
+<<<<<<< HEAD
       if (handler.sendPayload && payload.channelData) {
         results.push(await handler.sendPayload(payload));
+=======
+      const sendOverrides = {
+        replyToId: effectivePayload.replyToId ?? params.replyToId ?? undefined,
+        threadId: params.threadId ?? undefined,
+      };
+      if (handler.sendPayload && effectivePayload.channelData) {
+        results.push(await handler.sendPayload(effectivePayload, sendOverrides));
+        emitMessageSent(true);
+>>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
         continue;
       }
       if (payloadSummary.mediaUrls.length === 0) {
         if (isSignalChannel) {
           await sendSignalTextChunks(payloadSummary.text);
         } else {
-          await sendTextChunks(payloadSummary.text);
+          await sendTextChunks(payloadSummary.text, sendOverrides);
         }
         continue;
       }
@@ -538,7 +578,7 @@ async function deliverOutboundPayloadsCore(
         if (isSignalChannel) {
           results.push(await sendSignalMedia(caption, url));
         } else {
-          results.push(await handler.sendMedia(caption, url));
+          results.push(await handler.sendMedia(caption, url, sendOverrides));
         }
       }
     } catch (err) {
