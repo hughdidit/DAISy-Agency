@@ -1,8 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { SsrFPolicy } from "../infra/net/ssrf.js";
+import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
+>>>>>>> dee013426 (style: reformat dedupe-touched files)
 import { logWarn } from "../logger.js";
 <<<<<<< HEAD
 import {
