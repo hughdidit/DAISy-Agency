@@ -8,10 +8,17 @@ vi.mock("../infra/heartbeat-wake.js", () => ({
 }));
 
 import type { CliDeps } from "../cli/deps.js";
+<<<<<<< HEAD
 import type { HealthSummary } from "../commands/health.js";
 import type { NodeEventContext } from "./server-node-events-types.js";
+=======
+import { agentCommand } from "../commands/agent.js";
+import type { HealthSummary } from "../commands/health.js";
+import { updateSessionStore } from "../config/sessions.js";
+>>>>>>> 210bc3797 (chore(subagents): add regression coverage and changelog)
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
+import type { NodeEventContext } from "./server-node-events-types.js";
 import { handleNodeEvent } from "./server-node-events.js";
 
 const enqueueSystemEventMock = vi.mocked(enqueueSystemEvent);
