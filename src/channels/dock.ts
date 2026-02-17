@@ -1,5 +1,6 @@
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type {
   ChannelCapabilities,
   ChannelCommandAdapter,
@@ -14,6 +15,8 @@ import type {
   ChannelThreadingToolContext,
 } from "./plugins/types.js";
 =======
+=======
+>>>>>>> 01ea80887 (chore: Format files.)
 import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
