@@ -4,7 +4,6 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import { createAccountListHelpers } from "openclaw/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { MattermostAccountConfig, MattermostChatMode } from "../types.js";
@@ -31,7 +30,11 @@ export type ResolvedMattermostAccount = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
+=======
+function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
+>>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
   const accounts = cfg.channels?.mattermost?.accounts;
   if (!accounts || typeof accounts !== "object") {
     return [];
@@ -39,7 +42,11 @@ function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   return Object.keys(accounts).filter(Boolean);
 }
 
+<<<<<<< HEAD
 export function listMattermostAccountIds(cfg: MoltbotConfig): string[] {
+=======
+export function listMattermostAccountIds(cfg: OpenClawConfig): string[] {
+>>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
   const ids = listConfiguredAccountIds(cfg);
   if (ids.length === 0) {
     return [DEFAULT_ACCOUNT_ID];
@@ -47,18 +54,25 @@ export function listMattermostAccountIds(cfg: MoltbotConfig): string[] {
   return ids.toSorted((a, b) => a.localeCompare(b));
 }
 
+<<<<<<< HEAD
 export function resolveDefaultMattermostAccountId(cfg: MoltbotConfig): string {
+=======
+export function resolveDefaultMattermostAccountId(cfg: OpenClawConfig): string {
+>>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
   const ids = listMattermostAccountIds(cfg);
   if (ids.includes(DEFAULT_ACCOUNT_ID)) {
     return DEFAULT_ACCOUNT_ID;
   }
   return ids[0] ?? DEFAULT_ACCOUNT_ID;
 }
+<<<<<<< HEAD
 =======
 const { listAccountIds, resolveDefaultAccountId } = createAccountListHelpers("mattermost");
 export const listMattermostAccountIds = listAccountIds;
 export const resolveDefaultMattermostAccountId = resolveDefaultAccountId;
 >>>>>>> d24340d75 (channels: migrate extension account listing to factory)
+=======
+>>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
 
 function resolveAccountConfig(
   cfg: MoltbotConfig,

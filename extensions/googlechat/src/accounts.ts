@@ -4,7 +4,6 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
 
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import { createAccountListHelpers } from "openclaw/plugin-sdk";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { GoogleChatAccountConfig } from "./types.config.js";
@@ -26,30 +25,43 @@ const ENV_SERVICE_ACCOUNT_FILE = "GOOGLE_CHAT_SERVICE_ACCOUNT_FILE";
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 function listConfiguredAccountIds(cfg: MoltbotConfig): string[] {
   const accounts = (cfg.channels?.["googlechat"] as GoogleChatConfig | undefined)?.accounts;
   if (!accounts || typeof accounts !== "object") return [];
 =======
+=======
+>>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
 function listConfiguredAccountIds(cfg: OpenClawConfig): string[] {
   const accounts = cfg.channels?.["googlechat"]?.accounts;
   if (!accounts || typeof accounts !== "object") {
     return [];
   }
+<<<<<<< HEAD
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
   return Object.keys(accounts).filter(Boolean);
 }
 
 export function listGoogleChatAccountIds(cfg: MoltbotConfig): string[] {
+=======
+  return Object.keys(accounts).filter(Boolean);
+}
+
+export function listGoogleChatAccountIds(cfg: OpenClawConfig): string[] {
+>>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
   const ids = listConfiguredAccountIds(cfg);
   if (ids.length === 0) {
     return [DEFAULT_ACCOUNT_ID];
   }
   return ids.toSorted((a, b) => a.localeCompare(b));
 }
+<<<<<<< HEAD
 =======
 const { listAccountIds } = createAccountListHelpers("googlechat");
 export const listGoogleChatAccountIds = listAccountIds;
 >>>>>>> d24340d75 (channels: migrate extension account listing to factory)
+=======
+>>>>>>> ca19745fa (Revert "channels: migrate extension account listing to factory")
 
 <<<<<<< HEAD
 export function resolveDefaultGoogleChatAccountId(cfg: MoltbotConfig): string {
