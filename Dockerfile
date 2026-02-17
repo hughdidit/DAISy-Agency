@@ -41,6 +41,7 @@ RUN CLAWDBOT_A2UI_SKIP_MISSING=1 pnpm build
 =======
 RUN pnpm build
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 72f89b1f5 (Docker: include A2UI sources for bundle (#13114))
 =======
 
@@ -51,6 +52,8 @@ RUN pnpm install --filter @openclaw/memory-lancedb --prod --no-frozen-lockfile 2
 >>>>>>> 2ab6313d9 (fix(docker): ensure memory-lancedb deps installed in Docker image)
 =======
 >>>>>>> 63aa5c5a4 (Revert "fix: remove stderr suppression so install failures are visible in build logs")
+=======
+>>>>>>> 22b2a77b3 (Revert "fix(docker): ensure memory-lancedb deps installed in Docker image")
 # Force pnpm for UI build (Bun may fail on ARM/Synology architectures)
 <<<<<<< HEAD
 ENV CLAWDBOT_PREFER_PNPM=1
