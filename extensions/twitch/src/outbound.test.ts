@@ -40,8 +40,17 @@ vi.mock("./utils/markdown.js", () => ({
 vi.mock("./utils/twitch.js", () => ({
   normalizeTwitchChannel: (channel: string) => channel.toLowerCase().replace(/^#/, ""),
   missingTargetError: (channel: string, hint: string) =>
-    `Missing target for ${channel}. Provide ${hint}`,
+    new Error(`Missing target for ${channel}. Provide ${hint}`),
 }));
+
+function assertResolvedTarget(
+  result: ReturnType<NonNullable<typeof twitchOutbound.resolveTarget>>,
+): string {
+  if (!result.ok) {
+    throw result.error;
+  }
+  return result.to;
+}
 
 describe("outbound", () => {
   const mockAccount = {
@@ -73,6 +82,7 @@ describe("outbound", () => {
     ...BASE_TWITCH_TEST_ACCOUNT,
     accessToken: "oauth:test123",
   };
+  const resolveTarget = twitchOutbound.resolveTarget!;
 
   const mockConfig = makeTwitchTestConfig(mockAccount);
   installTwitchTestHooks();
@@ -95,106 +105,121 @@ describe("outbound", () => {
 
   describe("resolveTarget", () => {
     it("should normalize and return target in explicit mode", () => {
-      const result = twitchOutbound.resolveTarget({
+      const result = resolveTarget({
         to: "#MyChannel",
         mode: "explicit",
         allowFrom: [],
       });
 
       expect(result.ok).toBe(true);
-      expect(result.to).toBe("mychannel");
+      expect(assertResolvedTarget(result)).toBe("mychannel");
     });
 
     it("should return target in implicit mode with wildcard allowlist", () => {
-      const result = twitchOutbound.resolveTarget({
+      const result = resolveTarget({
         to: "#AnyChannel",
         mode: "implicit",
         allowFrom: ["*"],
       });
 
       expect(result.ok).toBe(true);
-      expect(result.to).toBe("anychannel");
+      expect(assertResolvedTarget(result)).toBe("anychannel");
     });
 
     it("should return target in implicit mode when in allowlist", () => {
-      const result = twitchOutbound.resolveTarget({
+      const result = resolveTarget({
         to: "#allowed",
         mode: "implicit",
         allowFrom: ["#allowed", "#other"],
       });
 
       expect(result.ok).toBe(true);
-      expect(result.to).toBe("allowed");
+      expect(assertResolvedTarget(result)).toBe("allowed");
     });
 
     it("should error when target not in allowlist (implicit mode)", () => {
-      const result = twitchOutbound.resolveTarget({
+      const result = resolveTarget({
         to: "#notallowed",
         mode: "implicit",
         allowFrom: ["#primary", "#secondary"],
       });
 
       expect(result.ok).toBe(false);
-      expect(result.error).toContain("Twitch");
+      if (result.ok) {
+        throw new Error("expected resolveTarget to fail");
+      }
+      expect(result.error.message).toContain("Twitch");
     });
 
     it("should accept any target when allowlist is empty", () => {
-      const result = twitchOutbound.resolveTarget({
+      const result = resolveTarget({
         to: "#anychannel",
         mode: "heartbeat",
         allowFrom: [],
       });
 
       expect(result.ok).toBe(true);
-      expect(result.to).toBe("anychannel");
+      expect(assertResolvedTarget(result)).toBe("anychannel");
     });
 
     it("should error when no target provided with allowlist", () => {
-      const result = twitchOutbound.resolveTarget({
+      const result = resolveTarget({
         to: undefined,
         mode: "implicit",
         allowFrom: ["#fallback", "#other"],
       });
 
       expect(result.ok).toBe(false);
-      expect(result.error).toContain("Twitch");
+      if (result.ok) {
+        throw new Error("expected resolveTarget to fail");
+      }
+      expect(result.error.message).toContain("Twitch");
     });
 
     it("should return error when no target and no allowlist", () => {
-      const result = twitchOutbound.resolveTarget({
+      const result = resolveTarget({
         to: undefined,
         mode: "explicit",
         allowFrom: [],
       });
 
       expect(result.ok).toBe(false);
-      expect(result.error).toContain("Missing target");
+      if (result.ok) {
+        throw new Error("expected resolveTarget to fail");
+      }
+      expect(result.error.message).toContain("Missing target");
     });
 
     it("should handle whitespace-only target", () => {
-      const result = twitchOutbound.resolveTarget({
+      const result = resolveTarget({
         to: "   ",
         mode: "explicit",
         allowFrom: [],
       });
 
       expect(result.ok).toBe(false);
-      expect(result.error).toContain("Missing target");
+      if (result.ok) {
+        throw new Error("expected resolveTarget to fail");
+      }
+      expect(result.error.message).toContain("Missing target");
     });
 
     it("should error when target normalizes to empty string", () => {
-      const result = twitchOutbound.resolveTarget({
+      const result = resolveTarget({
         to: "#",
         mode: "explicit",
         allowFrom: [],
       });
 
       expect(result.ok).toBe(false);
-      expect(result.error).toContain("Twitch");
+      if (result.ok) {
+        throw new Error("expected resolveTarget to fail");
+      }
+      expect(result.error.message).toContain("Twitch");
     });
 
     it("should filter wildcard from allowlist when checking membership", () => {
-      const result = twitchOutbound.resolveTarget({
+      const result = resolveTarget({
         to: "#mychannel",
         mode: "implicit",
         allowFrom: ["*", "#specific"],
@@ -202,7 +227,7 @@ describe("outbound", () => {
 
       // With wildcard, any target is accepted
       expect(result.ok).toBe(true);
-      expect(result.to).toBe("mychannel");
+      expect(assertResolvedTarget(result)).toBe("mychannel");
     });
   });
 
@@ -217,7 +242,7 @@ describe("outbound", () => {
         messageId: "twitch-msg-123",
       });
 
-      const result = await twitchOutbound.sendText({
+      const result = await twitchOutbound.sendText!({
         cfg: mockConfig,
         to: "#testchannel",
         text: "Hello Twitch!",
@@ -236,7 +261,7 @@ describe("outbound", () => {
       vi.mocked(getAccountConfig).mockReturnValue(null);
 
       await expect(
-        twitchOutbound.sendText({
+        twitchOutbound.sendText!({
           cfg: mockConfig,
           to: "#testchannel",
           text: "Hello!",
@@ -252,9 +277,9 @@ describe("outbound", () => {
       vi.mocked(getAccountConfig).mockReturnValue(accountWithoutChannel);
 
       await expect(
-        twitchOutbound.sendText({
+        twitchOutbound.sendText!({
           cfg: mockConfig,
-          to: undefined,
+          to: "",
           text: "Hello!",
           accountId: "default",
         }),
@@ -271,9 +296,9 @@ describe("outbound", () => {
         messageId: "msg-456",
       });
 
-      await twitchOutbound.sendText({
+      await twitchOutbound.sendText!({
         cfg: mockConfig,
-        to: undefined,
+        to: "",
         text: "Hello!",
         accountId: "default",
       });
@@ -293,13 +318,13 @@ describe("outbound", () => {
       abortController.abort();
 
       await expect(
-        twitchOutbound.sendText({
+        twitchOutbound.sendText!({
           cfg: mockConfig,
           to: "#testchannel",
           text: "Hello!",
           accountId: "default",
           signal: abortController.signal,
-        }),
+        } as Parameters<NonNullable<typeof twitchOutbound.sendText>>[0]),
       ).rejects.toThrow("Outbound delivery aborted");
     });
 
@@ -315,7 +340,7 @@ describe("outbound", () => {
       });
 
       await expect(
-        twitchOutbound.sendText({
+        twitchOutbound.sendText!({
           cfg: mockConfig,
           to: "#testchannel",
           text: "Hello!",
@@ -336,7 +361,7 @@ describe("outbound", () => {
         messageId: "media-msg-123",
       });
 
-      const result = await twitchOutbound.sendMedia({
+      const result = await twitchOutbound.sendMedia!({
         cfg: mockConfig,
         to: "#testchannel",
         text: "Check this:",
@@ -366,10 +391,10 @@ describe("outbound", () => {
         messageId: "media-only-msg",
       });
 
-      await twitchOutbound.sendMedia({
+      await twitchOutbound.sendMedia!({
         cfg: mockConfig,
         to: "#testchannel",
-        text: undefined,
+        text: "",
         mediaUrl: "https://example.com/image.png",
         accountId: "default",
       });
@@ -389,14 +414,14 @@ describe("outbound", () => {
       abortController.abort();
 
       await expect(
-        twitchOutbound.sendMedia({
+        twitchOutbound.sendMedia!({
           cfg: mockConfig,
           to: "#testchannel",
           text: "Check this:",
           mediaUrl: "https://example.com/image.png",
           accountId: "default",
           signal: abortController.signal,
-        }),
+        } as Parameters<NonNullable<typeof twitchOutbound.sendMedia>>[0]),
       ).rejects.toThrow("Outbound delivery aborted");
     });
   });

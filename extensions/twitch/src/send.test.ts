@@ -54,7 +54,7 @@ describe("send", () => {
 
   const mockAccount = {
     ...BASE_TWITCH_TEST_ACCOUNT,
-    token: "oauth:test123",
+    accessToken: "test123",
   };
 
 <<<<<<< HEAD
@@ -92,7 +92,7 @@ describe("send", () => {
           ok: true,
           messageId: "twitch-msg-123",
         }),
-      } as ReturnType<typeof getClientManager>);
+      } as unknown as ReturnType<typeof getClientManager>);
       vi.mocked(stripMarkdownForTwitch).mockImplementation((text) => text);
 
       const result = await sendMessageTwitchInternal(
@@ -119,7 +119,7 @@ describe("send", () => {
           ok: true,
           messageId: "twitch-msg-456",
         }),
-      } as ReturnType<typeof getClientManager>);
+      } as unknown as ReturnType<typeof getClientManager>);
       vi.mocked(stripMarkdownForTwitch).mockImplementation((text) => text.replace(/\*\*/g, ""));
 
       await sendMessageTwitchInternal(
@@ -250,7 +250,7 @@ describe("send", () => {
       vi.mocked(isAccountConfigured).mockReturnValue(true);
       vi.mocked(getClientManager).mockReturnValue({
         sendMessage: vi.fn().mockRejectedValue(new Error("Connection lost")),
-      } as ReturnType<typeof getClientManager>);
+      } as unknown as ReturnType<typeof getClientManager>);
 
       const result = await sendMessageTwitchInternal(
         "#testchannel",
@@ -279,7 +279,7 @@ describe("send", () => {
       });
       vi.mocked(getClientManager).mockReturnValue({
         sendMessage: mockSend,
-      } as ReturnType<typeof getClientManager>);
+      } as unknown as ReturnType<typeof getClientManager>);
 
       await sendMessageTwitchInternal(
         "",
