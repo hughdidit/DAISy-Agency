@@ -4,7 +4,11 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import type { ModelDefinitionConfig } from "../../config/types.models.js";
+>>>>>>> 116f5afea (chore: Fix types in tests 31/N.)
 import { createOpenClawCodingTools } from "../pi-tools.js";
 import { createHostSandboxFsBridge } from "../test-helpers/host-sandbox-fs-bridge.js";
 >>>>>>> b79e7fdb7 (fix(image): propagate workspace root for image allowlist (#16722))
@@ -62,6 +66,18 @@ function createMinimaxImageConfig(): OpenClawConfig {
         imageModel: { primary: "minimax/MiniMax-VL-01" },
       },
     },
+  };
+}
+
+function makeModelDefinition(id: string, input: Array<"text" | "image">): ModelDefinitionConfig {
+  return {
+    id,
+    name: id,
+    reasoning: false,
+    input,
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: 128_000,
+    maxTokens: 8_192,
   };
 }
 
@@ -174,8 +190,8 @@ describe("image tool implicit imageModel config", () => {
         providers: {
           acme: {
             models: [
-              { id: "text-1", input: ["text"] },
-              { id: "vision-1", input: ["text", "image"] },
+              makeModelDefinition("text-1", ["text"]),
+              makeModelDefinition("vision-1", ["text", "image"]),
             ],
           },
         },
@@ -218,7 +234,7 @@ describe("image tool implicit imageModel config", () => {
       models: {
         providers: {
           acme: {
-            models: [{ id: "vision-1", input: ["text", "image"] }],
+            models: [makeModelDefinition("vision-1", ["text", "image"])],
           },
         },
       },
