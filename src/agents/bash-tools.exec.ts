@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import path from "node:path";
@@ -19,6 +20,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+import crypto from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { BashSandboxConfig } from "./bash-tools.shared.js";
+>>>>>>> 607011638 (revert(exec): undo accidental merge of PR #18521)
 import {
   type ExecAsk,
   type ExecHost,
@@ -82,10 +90,13 @@ import {
   validateHostEnv,
 } from "./bash-tools.exec-runtime.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b47fa9e71 (refactor(exec): extract bash tool runtime internals)
 =======
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 607011638 (revert(exec): undo accidental merge of PR #18521)
 import {
   buildSandboxEnv,
   clampWithDefault,
@@ -412,7 +423,7 @@ export function createExecTool(
     name: "exec",
     label: "exec",
     description:
-      "Execute shell commands with background continuation. Use yieldMs/background to continue later via process tool. Use pty=true for TTY-required commands (e.g. gog, terminal UIs, coding agents).",
+      "Execute shell commands with background continuation. Use yieldMs/background to continue later via process tool. Use pty=true for TTY-required commands (terminal UIs, coding agents).",
     parameters: execSchema,
     execute: async (_toolCallId, args, signal, onUpdate) => {
       const params = args as {
