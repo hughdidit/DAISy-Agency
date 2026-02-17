@@ -2,9 +2,9 @@ import { clearActiveProgressLine } from "./terminal/progress-line.js";
 import { restoreTerminalState } from "./terminal/restore.js";
 
 export type RuntimeEnv = {
-  log: typeof console.log;
-  error: typeof console.error;
-  exit: (code: number) => never;
+  log: (...args: unknown[]) => void;
+  error: (...args: unknown[]) => void;
+  exit: (code: number) => void;
 };
 
 function shouldEmitRuntimeLog(env: NodeJS.ProcessEnv = process.env): boolean {
@@ -73,7 +73,7 @@ export const defaultRuntime: RuntimeEnv = {
 export function createNonExitingRuntime(): RuntimeEnv {
   return {
     ...createRuntimeIo(),
-    exit: (code: number): never => {
+    exit: (code: number) => {
       throw new Error(`exit ${code}`);
     },
   };
