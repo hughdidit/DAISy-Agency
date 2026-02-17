@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as ssrf from "../../infra/net/ssrf.js";
+import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
 
 const lookupMock = vi.fn();
 const resolvePinnedHostname = ssrf.resolvePinnedHostname;
@@ -31,7 +32,7 @@ function textResponse(body: string): Response {
 
 function setMockFetch(impl?: (...args: unknown[]) => unknown) {
   const fetchSpy = vi.fn(impl);
-  global.fetch = fetchSpy as typeof fetch;
+  global.fetch = withFetchPreconnect(fetchSpy);
   return fetchSpy;
 }
 

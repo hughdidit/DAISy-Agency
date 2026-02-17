@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5d8eef8b3 (perf(test): remove module reloads in browser and embedding suites)
 =======
 import fs from "node:fs/promises";
@@ -26,6 +27,9 @@ import type { BrowserServerState } from "./server-context.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
+>>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import * as cdpModule from "./cdp.js";
 import * as pwAiModule from "./pw-ai-module.js";
 import type { BrowserServerState } from "./server-context.js";
@@ -125,7 +129,7 @@ describe("browser server-context remote profile tab operations", () => {
       throw new Error("unexpected fetch");
     });
 
-    global.fetch = fetchMock;
+    global.fetch = withFetchPreconnect(fetchMock);
 
     const state = makeState("remote");
     const ctx = createBrowserRouteContext({ getState: () => state });
@@ -190,7 +194,7 @@ describe("browser server-context remote profile tab operations", () => {
       throw new Error("unexpected fetch");
     });
 
-    global.fetch = fetchMock;
+    global.fetch = withFetchPreconnect(fetchMock);
 
     const state = makeState("remote");
     const ctx = createBrowserRouteContext({ getState: () => state });
@@ -217,7 +221,7 @@ describe("browser server-context remote profile tab operations", () => {
       throw new Error("unexpected fetch");
     });
 
-    global.fetch = fetchMock;
+    global.fetch = withFetchPreconnect(fetchMock);
 
     const state = makeState("remote");
     const ctx = createBrowserRouteContext({ getState: () => state });
@@ -243,7 +247,7 @@ describe("browser server-context remote profile tab operations", () => {
       throw new Error("unexpected fetch");
     });
 
-    global.fetch = fetchMock;
+    global.fetch = withFetchPreconnect(fetchMock);
 
     const state = makeState("remote");
     const ctx = createBrowserRouteContext({ getState: () => state });
@@ -275,7 +279,7 @@ describe("browser server-context remote profile tab operations", () => {
       } as unknown as Response;
     });
 
-    global.fetch = fetchMock;
+    global.fetch = withFetchPreconnect(fetchMock);
 
     const state = makeState("remote");
     const ctx = createBrowserRouteContext({ getState: () => state });
@@ -310,7 +314,7 @@ describe("browser server-context tab selection state", () => {
       } as unknown as Response;
     });
 
-    global.fetch = fetchMock;
+    global.fetch = withFetchPreconnect(fetchMock);
 
 <<<<<<< HEAD
     const { createBrowserRouteContext } = await import("./server-context.js");

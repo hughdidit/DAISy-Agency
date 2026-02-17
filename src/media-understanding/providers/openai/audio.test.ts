@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { transcribeOpenAiCompatibleAudio } from "./audio.js";
 
@@ -13,6 +14,9 @@ const resolveRequestUrl = (input: RequestInfo | URL) => {
   return input.url;
 };
 =======
+=======
+import { withFetchPreconnect } from "../../../test-utils/fetch-mock.js";
+>>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import { installPinnedHostnameTestHooks, resolveRequestUrl } from "../audio.test-helpers.js";
 import { transcribeOpenAiCompatibleAudio } from "./audio.js";
 
@@ -22,14 +26,14 @@ installPinnedHostnameTestHooks();
 describe("transcribeOpenAiCompatibleAudio", () => {
   it("respects lowercase authorization header overrides", async () => {
     let seenAuth: string | null = null;
-    const fetchFn = async (_input: RequestInfo | URL, init?: RequestInit) => {
+    const fetchFn = withFetchPreconnect(async (_input: RequestInfo | URL, init?: RequestInit) => {
       const headers = new Headers(init?.headers);
       seenAuth = headers.get("authorization");
       return new Response(JSON.stringify({ text: "ok" }), {
         status: 200,
         headers: { "content-type": "application/json" },
       });
-    };
+    });
 
     const result = await transcribeOpenAiCompatibleAudio({
       buffer: Buffer.from("audio"),
@@ -47,14 +51,14 @@ describe("transcribeOpenAiCompatibleAudio", () => {
   it("builds the expected request payload", async () => {
     let seenUrl: string | null = null;
     let seenInit: RequestInit | undefined;
-    const fetchFn = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const fetchFn = withFetchPreconnect(async (input: RequestInfo | URL, init?: RequestInit) => {
       seenUrl = resolveRequestUrl(input);
       seenInit = init;
       return new Response(JSON.stringify({ text: "hello" }), {
         status: 200,
         headers: { "content-type": "application/json" },
       });
-    };
+    });
 
     const result = await transcribeOpenAiCompatibleAudio({
       buffer: Buffer.from("audio-bytes"),

@@ -20,7 +20,11 @@ import type { SavedMedia } from "../../media/store.js";
 import * as ssrf from "../../infra/net/ssrf.js";
 import type { SavedMedia } from "../../media/store.js";
 import * as mediaStore from "../../media/store.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { withFetchPreconnect } from "../../test-utils/fetch-mock.js";
+>>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import {
   fetchWithSlackAuth,
   resolveSlackAttachmentContent,
@@ -43,7 +47,7 @@ describe("fetchWithSlackAuth", () => {
   beforeEach(() => {
     // Create a new mock for each test
     mockFetch = vi.fn();
-    globalThis.fetch = mockFetch as typeof fetch;
+    globalThis.fetch = withFetchPreconnect(mockFetch);
   });
 
   afterEach(() => {
@@ -192,7 +196,20 @@ describe("fetchWithSlackAuth", () => {
 describe("resolveSlackMedia", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
+<<<<<<< HEAD
     globalThis.fetch = mockFetch as typeof fetch;
+=======
+    globalThis.fetch = withFetchPreconnect(mockFetch);
+    vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
+      const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
+      const addresses = ["93.184.216.34"];
+      return {
+        hostname: normalized,
+        addresses,
+        lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
+      };
+    });
+>>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
   });
 
   afterEach(() => {
@@ -449,7 +466,7 @@ describe("resolveSlackMedia", () => {
 describe("resolveSlackAttachmentContent", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
-    globalThis.fetch = mockFetch as typeof fetch;
+    globalThis.fetch = withFetchPreconnect(mockFetch);
     vi.spyOn(ssrf, "resolvePinnedHostnameWithPolicy").mockImplementation(async (hostname) => {
       const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
       const addresses = ["93.184.216.34"];

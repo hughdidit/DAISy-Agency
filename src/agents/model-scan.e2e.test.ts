@@ -3,15 +3,21 @@ import { describe, expect, it } from "vitest";
 
 =======
 import { captureEnv } from "../test-utils/env.js";
+<<<<<<< HEAD
 >>>>>>> 7857096d2 (refactor(test): reuse env snapshot in model scan)
+=======
+import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
+>>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import { scanOpenRouterModels } from "./model-scan.js";
 
 function createFetchFixture(payload: unknown): typeof fetch {
-  return async () =>
-    new Response(JSON.stringify(payload), {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    });
+  return withFetchPreconnect(
+    async () =>
+      new Response(JSON.stringify(payload), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+  );
 }
 
 describe("scanOpenRouterModels", () => {

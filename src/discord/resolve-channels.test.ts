@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
+=======
+import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
+>>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import { resolveDiscordChannelAllowlist } from "./resolve-channels.js";
 
 function jsonResponse(body: unknown) {
@@ -15,7 +19,7 @@ const urlToString = (url: Request | URL | string): string => {
 
 describe("resolveDiscordChannelAllowlist", () => {
   it("resolves guild/channel by name", async () => {
-    const fetcher = async (input: RequestInfo | URL) => {
+    const fetcher = withFetchPreconnect(async (input: RequestInfo | URL) => {
       const url = urlToString(input);
       if (url.endsWith("/users/@me/guilds")) {
         return jsonResponse([{ id: "g1", name: "My Guild" }]);
@@ -27,7 +31,7 @@ describe("resolveDiscordChannelAllowlist", () => {
         ]);
       }
       return new Response("not found", { status: 404 });
-    };
+    });
 
     const res = await resolveDiscordChannelAllowlist({
       token: "test",
@@ -41,7 +45,7 @@ describe("resolveDiscordChannelAllowlist", () => {
   });
 
   it("resolves channel id to guild", async () => {
-    const fetcher = async (input: RequestInfo | URL) => {
+    const fetcher = withFetchPreconnect(async (input: RequestInfo | URL) => {
       const url = urlToString(input);
       if (url.endsWith("/users/@me/guilds")) {
         return jsonResponse([{ id: "g1", name: "Guild One" }]);
@@ -50,7 +54,7 @@ describe("resolveDiscordChannelAllowlist", () => {
         return jsonResponse({ id: "123", name: "general", guild_id: "g1", type: 0 });
       }
       return new Response("not found", { status: 404 });
-    };
+    });
 
     const res = await resolveDiscordChannelAllowlist({
       token: "test",
@@ -64,7 +68,7 @@ describe("resolveDiscordChannelAllowlist", () => {
   });
 
   it("resolves guild: prefixed id as guild (not channel)", async () => {
-    const fetcher = async (input: RequestInfo | URL) => {
+    const fetcher = withFetchPreconnect(async (input: RequestInfo | URL) => {
       const url = urlToString(input);
       if (url.endsWith("/users/@me/guilds")) {
         return jsonResponse([{ id: "111222333444555666", name: "Guild One" }]);
@@ -74,7 +78,7 @@ describe("resolveDiscordChannelAllowlist", () => {
         throw new Error("guild id was incorrectly routed to /channels/");
       }
       return new Response("not found", { status: 404 });
-    };
+    });
 
     const res = await resolveDiscordChannelAllowlist({
       token: "test",
@@ -91,7 +95,7 @@ describe("resolveDiscordChannelAllowlist", () => {
     // Demonstrates why provider.ts must prefix guild-only entries with "guild:"
     // In reality, Discord returns 404 when a guild ID is sent to /channels/<guildId>,
     // which causes fetchDiscord to throw and the entire resolver to crash.
-    const fetcher = async (input: RequestInfo | URL) => {
+    const fetcher = withFetchPreconnect(async (input: RequestInfo | URL) => {
       const url = urlToString(input);
       if (url.endsWith("/users/@me/guilds")) {
         return jsonResponse([{ id: "999", name: "My Server" }]);
@@ -101,7 +105,7 @@ describe("resolveDiscordChannelAllowlist", () => {
         return new Response(JSON.stringify({ message: "Unknown Channel" }), { status: 404 });
       }
       return new Response("not found", { status: 404 });
-    };
+    });
 
     // Without the guild: prefix, a bare numeric string hits /channels/999 → 404 → throws
     await expect(

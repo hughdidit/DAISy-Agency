@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 =======
 import fs from "node:fs/promises";
@@ -11,6 +12,9 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 =======
 import { describe, expect, it, vi } from "vitest";
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
+=======
+import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
+>>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import type { BrowserServerState } from "./server-context.js";
 import "./server-context.chrome-test-harness.js";
 import { createBrowserRouteContext } from "./server-context.js";
@@ -96,7 +100,7 @@ function stubChromeJsonList(responses: unknown[]) {
     } as unknown as Response;
   });
 
-  global.fetch = fetchMock;
+  global.fetch = withFetchPreconnect(fetchMock);
   return fetchMock;
 }
 
