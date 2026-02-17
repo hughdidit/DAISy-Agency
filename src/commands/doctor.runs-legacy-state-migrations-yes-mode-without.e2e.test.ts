@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -331,6 +332,9 @@ import { describe, expect, it, vi } from "vitest";
 =======
 import { describe, expect, it } from "vitest";
 >>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
+=======
+import { describe, expect, it, vi } from "vitest";
+>>>>>>> 6264c5e84 (chore: Fix types in tests 41/N.)
 import {
   arrangeLegacyStateMigrationTest,
   confirm,
@@ -402,7 +406,10 @@ describe("doctor command", () => {
       await arrangeLegacyStateMigrationTest();
 >>>>>>> 5f55a53f0 (refactor(test): share doctor legacy migration setup)
 
-    await doctorCommand(runtime, { yes: true });
+    await (doctorCommand as (runtime: unknown, opts: Record<string, unknown>) => Promise<void>)(
+      runtime,
+      { yes: true },
+    );
 
     expect(runLegacyStateMigrations).toHaveBeenCalledTimes(1);
     expect(confirm).not.toHaveBeenCalled();
@@ -412,7 +419,10 @@ describe("doctor command", () => {
     const { doctorCommand, runtime, runLegacyStateMigrations } =
       await arrangeLegacyStateMigrationTest();
 
-    await doctorCommand(runtime, { nonInteractive: true });
+    await (doctorCommand as (runtime: unknown, opts: Record<string, unknown>) => Promise<void>)(
+      runtime,
+      { nonInteractive: true },
+    );
 
     expect(runLegacyStateMigrations).toHaveBeenCalledTimes(1);
     expect(confirm).not.toHaveBeenCalled();
@@ -435,7 +445,7 @@ describe("doctor command", () => {
 >>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
 
     const { healthCommand } = await import("./health.js");
-    healthCommand.mockRejectedValueOnce(new Error("gateway closed"));
+    vi.mocked(healthCommand).mockRejectedValueOnce(new Error("gateway closed"));
 
     serviceIsLoaded.mockResolvedValueOnce(true);
     serviceRestart.mockClear();

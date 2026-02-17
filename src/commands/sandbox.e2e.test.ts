@@ -206,7 +206,7 @@ describe("sandboxRecreateCommand", () => {
       mocks.listSandboxContainers.mockResolvedValue([match, noMatch]);
 
       await sandboxRecreateCommand(
-        { session: "target-session", browser: false, force: true },
+        { session: "target-session", all: false, browser: false, force: true },
         runtime as never,
       );
 
@@ -221,7 +221,7 @@ describe("sandboxRecreateCommand", () => {
       mocks.listSandboxContainers.mockResolvedValue([agent, agentSub, other]);
 
       await sandboxRecreateCommand(
-        { agent: "work", browser: false, force: true },
+        { agent: "work", all: false, browser: false, force: true },
         runtime as never,
       );
 

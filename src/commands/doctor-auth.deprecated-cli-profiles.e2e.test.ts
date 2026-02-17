@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -15,6 +16,9 @@ import { maybeRemoveDeprecatedCliAuthProfiles } from "./doctor-auth.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 6264c5e84 (chore: Fix types in tests 41/N.)
 import { maybeRemoveDeprecatedCliAuthProfiles } from "./doctor-auth.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";
 
@@ -106,7 +110,10 @@ describe("maybeRemoveDeprecatedCliAuthProfiles", () => {
       },
     } as const;
 
-    const next = await maybeRemoveDeprecatedCliAuthProfiles(cfg, makePrompter(true));
+    const next = await maybeRemoveDeprecatedCliAuthProfiles(
+      cfg as unknown as OpenClawConfig,
+      makePrompter(true),
+    );
 
     const raw = JSON.parse(fs.readFileSync(authPath, "utf8")) as {
       profiles?: Record<string, unknown>;

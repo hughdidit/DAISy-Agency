@@ -4,12 +4,16 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { getDeterministicFreePortBlock } from "../test-utils/ports.js";
 =======
 import { getFreePortBlockWithPermissionFallback } from "../test-utils/ports.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
+=======
+import type { GatewayAuthConfig } from "../config/config.js";
+>>>>>>> 6264c5e84 (chore: Fix types in tests 41/N.)
 import { makeTempWorkspace } from "../test-helpers/workspace.js";
 import { getFreePortBlockWithPermissionFallback } from "../test-utils/ports.js";
 import {
@@ -97,7 +101,7 @@ async function getFreeGatewayPort(): Promise<number> {
 const runtime = createThrowingRuntime();
 
 async function expectGatewayTokenAuth(params: {
-  authConfig: unknown;
+  authConfig: GatewayAuthConfig | null | undefined;
   token: string;
   env: NodeJS.ProcessEnv;
 }) {
@@ -207,7 +211,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
       const { resolveConfigPath } = await import("../config/paths.js");
       const configPath = resolveConfigPath(process.env, stateDir);
       const cfg = await readJsonFile<{
-        gateway?: { auth?: { mode?: string; token?: string } };
+        gateway?: { auth?: GatewayAuthConfig };
         agents?: { defaults?: { workspace?: string } };
       }>(configPath);
 
@@ -300,7 +304,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
         gateway?: {
           bind?: string;
           port?: number;
-          auth?: { mode?: string; token?: string };
+          auth?: GatewayAuthConfig;
         };
       }>(configPath);
 
