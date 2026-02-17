@@ -207,36 +207,6 @@ function simplifyUnionVariants(params: { obj: Record<string, unknown>; variants:
   return { variants: stripped ? nonNullVariants : variants };
 }
 
-function flattenUnionFallback(
-  obj: Record<string, unknown>,
-  value: unknown,
-): Record<string, unknown> | undefined {
-  if (!Array.isArray(value)) {
-    return undefined;
-  }
-  const variants = (value as Record<string, unknown>[]).filter((v) => v && typeof v === "object");
-  const types = new Set(variants.map((v) => v.type).filter(Boolean));
-  if (variants.length === 1) {
-    const merged: Record<string, unknown> = { ...variants[0] };
-    copySchemaMeta(obj, merged);
-    return merged;
-  }
-  if (types.size === 1) {
-    const merged: Record<string, unknown> = { type: Array.from(types)[0] };
-    copySchemaMeta(obj, merged);
-    return merged;
-  }
-  const first = variants[0];
-  if (first?.type) {
-    const merged: Record<string, unknown> = { type: first.type };
-    copySchemaMeta(obj, merged);
-    return merged;
-  }
-  const merged: Record<string, unknown> = {};
-  copySchemaMeta(obj, merged);
-  return merged;
-}
-
 function cleanSchemaForGeminiWithDefs(
   schema: unknown,
   defs: SchemaDefs | undefined,
@@ -370,6 +340,7 @@ function cleanSchemaForGeminiWithDefs(
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   // Cloud Code Assist API also rejects anyOf/oneOf in nested schemas.
   // If simplifyUnionVariants couldn't reduce the union above, flatten it
@@ -386,6 +357,8 @@ function cleanSchemaForGeminiWithDefs(
   }
 
 >>>>>>> 4088c0b89 (refactor(core): dedupe schema and command parsing helpers)
+=======
+>>>>>>> a1538ea63 (Revert "fix: flatten remaining anyOf/oneOf in Gemini schema cleaning")
   return cleaned;
 }
 
