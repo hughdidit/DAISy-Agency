@@ -1,6 +1,9 @@
+import type { OpenClawConfig } from "./types.js";
+import type { ModelDefinitionConfig } from "./types.models.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
 import { parseModelRef } from "../agents/model-selection.js";
 import { resolveTalkApiKey } from "./talk.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16,6 +19,8 @@ import type { ModelDefinitionConfig } from "./types.models.js";
 import type { OpenClawConfig } from "./types.js";
 import type { ModelDefinitionConfig } from "./types.models.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
 
 type WarnState = { warned: boolean };
 
@@ -25,8 +30,13 @@ type AnthropicAuthDefaultsMode = "api_key" | "oauth";
 
 const DEFAULT_MODEL_ALIASES: Readonly<Record<string, string>> = {
   // Anthropic (pi-ai catalog uses "latest" ids without date suffix)
+<<<<<<< HEAD
   opus: "anthropic/claude-opus-4-5",
   sonnet: "anthropic/claude-sonnet-4-5",
+=======
+  opus: "anthropic/claude-opus-4-6",
+  sonnet: "anthropic/claude-sonnet-4-6",
+>>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
 
   // OpenAI
   gpt: "openai/gpt-5.2",

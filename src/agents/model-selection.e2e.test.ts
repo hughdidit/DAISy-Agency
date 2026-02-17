@@ -47,6 +47,14 @@ describe("model-selection", () => {
         provider: "anthropic",
         model: "claude-opus-4-6",
       });
+      expect(parseModelRef("anthropic/sonnet-4.6", "openai")).toEqual({
+        provider: "anthropic",
+        model: "claude-sonnet-4-6",
+      });
+      expect(parseModelRef("sonnet-4.6", "anthropic")).toEqual({
+        provider: "anthropic",
+        model: "claude-sonnet-4-6",
+      });
     });
 
 >>>>>>> 482055832 (test (agents): cover nested provider-prefixed model ids)

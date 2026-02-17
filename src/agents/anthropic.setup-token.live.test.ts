@@ -1,7 +1,9 @@
+import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16,6 +18,8 @@ import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 =======
 import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
 import { describe, expect, it } from "vitest";
 import { isTruthyEnvValue } from "../infra/env.js";
 import {
@@ -154,6 +158,7 @@ function pickModel(models: Array<Model<Api>>, raw?: string): Model<Api> | null {
 
   const preferred = [
     "claude-opus-4-5",
+    "claude-sonnet-4-6",
     "claude-sonnet-4-5",
     "claude-sonnet-4-0",
     "claude-haiku-3-5",
