@@ -3,34 +3,34 @@ import { describe, expect, it, vi } from "vitest";
 import type { MoltbotConfig } from "../../config/config.js";
 import { handleSlackAction } from "./slack-actions.js";
 
-const deleteSlackMessage = vi.fn(async () => ({}));
-const editSlackMessage = vi.fn(async () => ({}));
-const getSlackMemberInfo = vi.fn(async () => ({}));
-const listSlackEmojis = vi.fn(async () => ({}));
-const listSlackPins = vi.fn(async () => ({}));
-const listSlackReactions = vi.fn(async () => ({}));
-const pinSlackMessage = vi.fn(async () => ({}));
-const reactSlackMessage = vi.fn(async () => ({}));
-const readSlackMessages = vi.fn(async () => ({}));
-const removeOwnSlackReactions = vi.fn(async () => ["thumbsup"]);
-const removeSlackReaction = vi.fn(async () => ({}));
-const sendSlackMessage = vi.fn(async () => ({}));
-const unpinSlackMessage = vi.fn(async () => ({}));
+const deleteSlackMessage = vi.fn(async (..._args: unknown[]) => ({}));
+const editSlackMessage = vi.fn(async (..._args: unknown[]) => ({}));
+const getSlackMemberInfo = vi.fn(async (..._args: unknown[]) => ({}));
+const listSlackEmojis = vi.fn(async (..._args: unknown[]) => ({}));
+const listSlackPins = vi.fn(async (..._args: unknown[]) => ({}));
+const listSlackReactions = vi.fn(async (..._args: unknown[]) => ({}));
+const pinSlackMessage = vi.fn(async (..._args: unknown[]) => ({}));
+const reactSlackMessage = vi.fn(async (..._args: unknown[]) => ({}));
+const readSlackMessages = vi.fn(async (..._args: unknown[]) => ({}));
+const removeOwnSlackReactions = vi.fn(async (..._args: unknown[]) => ["thumbsup"]);
+const removeSlackReaction = vi.fn(async (..._args: unknown[]) => ({}));
+const sendSlackMessage = vi.fn(async (..._args: unknown[]) => ({}));
+const unpinSlackMessage = vi.fn(async (..._args: unknown[]) => ({}));
 
 vi.mock("../../slack/actions.js", () => ({
-  deleteSlackMessage: (...args: unknown[]) => deleteSlackMessage(...args),
-  editSlackMessage: (...args: unknown[]) => editSlackMessage(...args),
-  getSlackMemberInfo: (...args: unknown[]) => getSlackMemberInfo(...args),
-  listSlackEmojis: (...args: unknown[]) => listSlackEmojis(...args),
-  listSlackPins: (...args: unknown[]) => listSlackPins(...args),
-  listSlackReactions: (...args: unknown[]) => listSlackReactions(...args),
-  pinSlackMessage: (...args: unknown[]) => pinSlackMessage(...args),
-  reactSlackMessage: (...args: unknown[]) => reactSlackMessage(...args),
-  readSlackMessages: (...args: unknown[]) => readSlackMessages(...args),
-  removeOwnSlackReactions: (...args: unknown[]) => removeOwnSlackReactions(...args),
-  removeSlackReaction: (...args: unknown[]) => removeSlackReaction(...args),
-  sendSlackMessage: (...args: unknown[]) => sendSlackMessage(...args),
-  unpinSlackMessage: (...args: unknown[]) => unpinSlackMessage(...args),
+  deleteSlackMessage,
+  editSlackMessage,
+  getSlackMemberInfo,
+  listSlackEmojis,
+  listSlackPins,
+  listSlackReactions,
+  pinSlackMessage,
+  reactSlackMessage,
+  readSlackMessages,
+  removeOwnSlackReactions,
+  removeSlackReaction,
+  sendSlackMessage,
+  unpinSlackMessage,
 }));
 
 describe("handleSlackAction", () => {
@@ -522,7 +522,7 @@ describe("handleSlackAction", () => {
       cfg,
     );
 
-    const [, opts] = readSlackMessages.mock.calls[0] ?? [];
+    const opts = readSlackMessages.mock.calls[0]?.[1] as { threadId?: string } | undefined;
     expect(opts?.threadId).toBe("12345.6789");
   });
 
@@ -552,7 +552,7 @@ describe("handleSlackAction", () => {
     readSlackMessages.mockClear();
     readSlackMessages.mockResolvedValueOnce({ messages: [], hasMore: false });
     await handleSlackAction({ action: "readMessages", channelId: "C1" }, cfg);
-    const [, opts] = readSlackMessages.mock.calls[0] ?? [];
+    const opts = readSlackMessages.mock.calls[0]?.[1] as { token?: string } | undefined;
     expect(opts?.token).toBe("xoxp-1");
   });
 
@@ -563,7 +563,7 @@ describe("handleSlackAction", () => {
     readSlackMessages.mockClear();
     readSlackMessages.mockResolvedValueOnce({ messages: [], hasMore: false });
     await handleSlackAction({ action: "readMessages", channelId: "C1" }, cfg);
-    const [, opts] = readSlackMessages.mock.calls[0] ?? [];
+    const opts = readSlackMessages.mock.calls[0]?.[1] as { token?: string } | undefined;
     expect(opts?.token).toBeUndefined();
   });
 
@@ -573,7 +573,7 @@ describe("handleSlackAction", () => {
     } as MoltbotConfig;
     sendSlackMessage.mockClear();
     await handleSlackAction({ action: "sendMessage", to: "channel:C1", content: "Hello" }, cfg);
-    const [, , opts] = sendSlackMessage.mock.calls[0] ?? [];
+    const opts = sendSlackMessage.mock.calls[0]?.[2] as { token?: string } | undefined;
     expect(opts?.token).toBeUndefined();
   });
 
@@ -585,7 +585,7 @@ describe("handleSlackAction", () => {
     } as MoltbotConfig;
     sendSlackMessage.mockClear();
     await handleSlackAction({ action: "sendMessage", to: "channel:C1", content: "Hello" }, cfg);
-    const [, , opts] = sendSlackMessage.mock.calls[0] ?? [];
+    const opts = sendSlackMessage.mock.calls[0]?.[2] as { token?: string } | undefined;
     expect(opts?.token).toBe("xoxp-1");
   });
 

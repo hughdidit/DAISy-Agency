@@ -27,7 +27,7 @@ const buildDuplicateIdCollisionInput = () =>
       toolName: "read",
       content: [{ type: "text", text: "two" }],
     },
-  ] satisfies AgentMessage[];
+  ] as unknown as AgentMessage[];
 
 function expectCollisionIdsRemainDistinct(
   out: AgentMessage[],
@@ -63,7 +63,7 @@ describe("sanitizeToolCallIdsForCloudCodeAssist", () => {
           toolName: "read",
           content: [{ type: "text", text: "ok" }],
         },
-      ] satisfies AgentMessage[];
+      ] as unknown as AgentMessage[];
 
       const out = sanitizeToolCallIdsForCloudCodeAssist(input);
       expect(out).toBe(input);
@@ -81,7 +81,7 @@ describe("sanitizeToolCallIdsForCloudCodeAssist", () => {
           toolName: "read",
           content: [{ type: "text", text: "ok" }],
         },
-      ] satisfies AgentMessage[];
+      ] as unknown as AgentMessage[];
 
       const out = sanitizeToolCallIdsForCloudCodeAssist(input);
       expect(out).not.toBe(input);
@@ -127,7 +127,7 @@ describe("sanitizeToolCallIdsForCloudCodeAssist", () => {
           toolName: "read",
           content: [{ type: "text", text: "two" }],
         },
-      ] satisfies AgentMessage[];
+      ] as unknown as AgentMessage[];
 
       const out = sanitizeToolCallIdsForCloudCodeAssist(input);
       const assistant = out[0] as Extract<AgentMessage, { role: "assistant" }>;
@@ -169,7 +169,7 @@ describe("sanitizeToolCallIdsForCloudCodeAssist", () => {
           toolName: "login",
           content: [{ type: "text", text: "ok" }],
         },
-      ] satisfies AgentMessage[];
+      ] as unknown as AgentMessage[];
 
       const out = sanitizeToolCallIdsForCloudCodeAssist(input, "strict");
       expect(out).not.toBe(input);
@@ -218,7 +218,7 @@ describe("sanitizeToolCallIdsForCloudCodeAssist", () => {
           toolName: "read",
           content: [{ type: "text", text: "two" }],
         },
-      ] satisfies AgentMessage[];
+      ] as unknown as AgentMessage[];
 
       const out = sanitizeToolCallIdsForCloudCodeAssist(input, "strict9");
       expect(out).not.toBe(input);
