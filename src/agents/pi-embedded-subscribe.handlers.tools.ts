@@ -11,8 +11,8 @@ import type { PluginHookAfterToolCallEvent } from "../plugins/types.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
 import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
 import type {
-  EmbeddedPiSubscribeContext,
   ToolCallSummary,
+  ToolHandlerContext,
 } from "./pi-embedded-subscribe.handlers.types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
@@ -72,7 +72,7 @@ function extendExecMeta(toolName: string, args: unknown, meta?: string): string 
 }
 
 export async function handleToolExecutionStart(
-  ctx: EmbeddedPiSubscribeContext,
+  ctx: ToolHandlerContext,
   evt: AgentEvent & { toolName: string; toolCallId: string; args: unknown },
 ) {
   // Flush pending block replies to preserve message boundaries before tool execution.
@@ -160,7 +160,7 @@ export async function handleToolExecutionStart(
 }
 
 export function handleToolExecutionUpdate(
-  ctx: EmbeddedPiSubscribeContext,
+  ctx: ToolHandlerContext,
   evt: AgentEvent & {
     toolName: string;
     toolCallId: string;
@@ -191,8 +191,13 @@ export function handleToolExecutionUpdate(
   });
 }
 
+<<<<<<< HEAD
 export function handleToolExecutionEnd(
   ctx: EmbeddedPiSubscribeContext,
+=======
+export async function handleToolExecutionEnd(
+  ctx: ToolHandlerContext,
+>>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
   evt: AgentEvent & {
     toolName: string;
     toolCallId: string;
