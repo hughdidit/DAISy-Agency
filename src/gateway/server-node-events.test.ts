@@ -43,6 +43,7 @@ import { enqueueSystemEvent } from "../infra/system-events.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { NodeEventContext } from "./server-node-events-types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -56,11 +57,16 @@ import { handleNodeEvent } from "./server-node-events.js";
 import type { NodeEventContext } from "./server-node-events-types.js";
 import type { HealthSummary } from "../commands/health.js";
 import type { CliDeps } from "../cli/deps.js";
+=======
+import { handleNodeEvent } from "./server-node-events.js";
+import { loadSessionEntry } from "./session-utils.js";
+>>>>>>> 96f7d35dd (fix(gateway): block cross-session fallback in node event delivery)
 
 const enqueueSystemEventMock = vi.mocked(enqueueSystemEvent);
 const requestHeartbeatNowMock = vi.mocked(requestHeartbeatNow);
 const agentCommandMock = vi.mocked(agentCommand);
 const updateSessionStoreMock = vi.mocked(updateSessionStore);
+const loadSessionEntryMock = vi.mocked(loadSessionEntry);
 
 function buildCtx(): NodeEventContext {
   return {
@@ -284,5 +290,82 @@ describe("voice transcript events", () => {
 
     expect(agentCommandMock).toHaveBeenCalledTimes(1);
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("voice session-store update failed"));
+  });
+});
+
+describe("agent request events", () => {
+  beforeEach(() => {
+    agentCommandMock.mockReset();
+    updateSessionStoreMock.mockReset();
+    loadSessionEntryMock.mockReset();
+    agentCommandMock.mockResolvedValue({ status: "ok" } as never);
+    updateSessionStoreMock.mockImplementation(async (_storePath, update) => {
+      update({});
+    });
+    loadSessionEntryMock.mockImplementation((sessionKey: string) => ({
+      storePath: "/tmp/sessions.json",
+      entry: { sessionId: `sid-${sessionKey}` },
+      canonicalKey: sessionKey,
+    }));
+  });
+
+  it("disables delivery when route is unresolved instead of falling back globally", async () => {
+    const warn = vi.fn();
+    const ctx = buildCtx();
+    ctx.logGateway = { warn };
+
+    await handleNodeEvent(ctx, "node-route-miss", {
+      event: "agent.request",
+      payloadJSON: JSON.stringify({
+        message: "summarize this",
+        sessionKey: "agent:main:main",
+        deliver: true,
+      }),
+    });
+
+    expect(agentCommandMock).toHaveBeenCalledTimes(1);
+    const [opts] = agentCommandMock.mock.calls[0] ?? [];
+    expect(opts).toMatchObject({
+      message: "summarize this",
+      sessionKey: "agent:main:main",
+      deliver: false,
+      channel: undefined,
+      to: undefined,
+    });
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("agent delivery disabled node=node-route-miss"),
+    );
+  });
+
+  it("reuses the current session route when delivery target is omitted", async () => {
+    const ctx = buildCtx();
+    loadSessionEntryMock.mockReturnValueOnce({
+      storePath: "/tmp/sessions.json",
+      entry: {
+        sessionId: "sid-current",
+        lastChannel: "telegram",
+        lastTo: "123",
+      },
+      canonicalKey: "agent:main:main",
+    });
+
+    await handleNodeEvent(ctx, "node-route-hit", {
+      event: "agent.request",
+      payloadJSON: JSON.stringify({
+        message: "route on session",
+        sessionKey: "agent:main:main",
+        deliver: true,
+      }),
+    });
+
+    expect(agentCommandMock).toHaveBeenCalledTimes(1);
+    const [opts] = agentCommandMock.mock.calls[0] ?? [];
+    expect(opts).toMatchObject({
+      message: "route on session",
+      sessionKey: "agent:main:main",
+      deliver: true,
+      channel: "telegram",
+      to: "123",
+    });
   });
 });
