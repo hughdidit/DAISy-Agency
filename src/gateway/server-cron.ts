@@ -11,7 +11,7 @@ import { runHeartbeatOnce } from "../infra/heartbeat-runner.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { getChildLogger } from "../logging.js";
-import { normalizeAgentId } from "../routing/session-key.js";
+import { normalizeAgentId, toAgentStoreSessionKey } from "../routing/session-key.js";
 import { defaultRuntime } from "../runtime.js";
 
 export type GatewayCronState = {
@@ -44,6 +44,63 @@ export function buildGatewayCronService(params: {
     return { agentId, cfg: runtimeConfig };
   };
 
+<<<<<<< HEAD
+=======
+  const resolveCronSessionKey = (params: {
+    runtimeConfig: ReturnType<typeof loadConfig>;
+    agentId: string;
+    requestedSessionKey?: string | null;
+  }) => {
+    const requested = params.requestedSessionKey?.trim();
+    if (!requested) {
+      return resolveAgentMainSessionKey({
+        cfg: params.runtimeConfig,
+        agentId: params.agentId,
+      });
+    }
+    const candidate = toAgentStoreSessionKey({
+      agentId: params.agentId,
+      requestKey: requested,
+      mainKey: params.runtimeConfig.session?.mainKey,
+    });
+    const canonical = canonicalizeMainSessionAlias({
+      cfg: params.runtimeConfig,
+      agentId: params.agentId,
+      sessionKey: candidate,
+    });
+    if (canonical !== "global") {
+      const sessionAgentId = resolveAgentIdFromSessionKey(canonical);
+      if (normalizeAgentId(sessionAgentId) !== normalizeAgentId(params.agentId)) {
+        return resolveAgentMainSessionKey({
+          cfg: params.runtimeConfig,
+          agentId: params.agentId,
+        });
+      }
+    }
+    return canonical;
+  };
+
+  const resolveCronWakeTarget = (opts?: { agentId?: string; sessionKey?: string | null }) => {
+    const runtimeConfig = loadConfig();
+    const requestedAgentId = opts?.agentId ? resolveCronAgent(opts.agentId).agentId : undefined;
+    const derivedAgentId =
+      requestedAgentId ??
+      (opts?.sessionKey
+        ? normalizeAgentId(resolveAgentIdFromSessionKey(opts.sessionKey))
+        : undefined);
+    const agentId = derivedAgentId || undefined;
+    const sessionKey =
+      opts?.sessionKey && agentId
+        ? resolveCronSessionKey({
+            runtimeConfig,
+            agentId,
+            requestedSessionKey: opts.sessionKey,
+          })
+        : undefined;
+    return { runtimeConfig, agentId, sessionKey };
+  };
+
+>>>>>>> c20ef582c (fix: align cron session key routing (#18637) (thanks @vignesh07))
   const defaultAgentId = resolveDefaultAgentId(params.cfg);
   const resolveSessionStorePath = (agentId?: string) =>
     resolveStorePath(params.cfg.session?.store, {
