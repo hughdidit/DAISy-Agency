@@ -62,7 +62,7 @@ describe("setupChannels", () => {
     });
 
     const prompter = createPrompter({
-      select,
+      select: select as unknown as WizardPrompter["select"],
       multiselect,
       text: text as unknown as WizardPrompter["text"],
     });
@@ -84,13 +84,13 @@ describe("setupChannels", () => {
 <<<<<<< HEAD
 =======
   it("shows explicit dmScope config command in channel primer", async () => {
-    const note = vi.fn(async () => {});
+    const note = vi.fn(async (_message?: string, _title?: string) => {});
     const select = vi.fn(async () => "__done__");
     const { multiselect, text } = createUnexpectedPromptGuards();
 
     const prompter = createPrompter({
       note,
-      select,
+      select: select as unknown as WizardPrompter["select"],
       multiselect,
       text,
     });
@@ -124,7 +124,7 @@ describe("setupChannels", () => {
     const { multiselect, text } = createUnexpectedPromptGuards();
 
     const prompter = createPrompter({
-      select,
+      select: select as unknown as WizardPrompter["select"],
       multiselect,
       text,
     });
@@ -176,7 +176,7 @@ describe("setupChannels", () => {
       throw new Error("unexpected multiselect");
     });
     const prompter = createPrompter({
-      select,
+      select: select as unknown as WizardPrompter["select"],
       multiselect,
       text: vi.fn(async () => "") as unknown as WizardPrompter["text"],
     });
