@@ -83,7 +83,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Agents: revert accidental per-model thinkingDefault override merge. (#19195) Thanks @sebslight.
+<<<<<<< HEAD
 >>>>>>> 3211280be (revert: per-model thinkingDefault override (#19195))
+=======
+- Sessions: revert accidental session transcript permission hardening from PR #18288. (#19224) Thanks @sebslight.
+>>>>>>> 9f261f592 (revert: PR 18288 accidental merge (#19224))
 - Voice call/Gateway: prevent overlapping closed-loop turn races with per-call turn locking, route transcript dedupe via source-aware fingerprints with strict cache eviction bounds, and harden `voicecall latency` stats for large logs without spread-operator stack overflow. (#19140) Thanks @mbelinky.
 - Fix types in all tests. Typecheck the whole repository.
 - Voice-call: auto-end calls when media streams disconnect to prevent stuck active calls. (#18435) Thanks @JayMishra-source.
