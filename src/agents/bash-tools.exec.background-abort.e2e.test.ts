@@ -9,8 +9,14 @@ import {
   getFinishedSession,
   getSession,
   resetProcessRegistryForTests,
+<<<<<<< HEAD
 } from "./bash-process-registry";
 import { killProcessTree } from "./shell-utils";
+=======
+} from "./bash-process-registry.js";
+import { createExecTool } from "./bash-tools.exec.js";
+import { killProcessTree } from "./shell-utils.js";
+>>>>>>> 2e375a549 (chore: Fix types in tests 32/N.)
 
 afterEach(() => {
   resetProcessRegistryForTests();

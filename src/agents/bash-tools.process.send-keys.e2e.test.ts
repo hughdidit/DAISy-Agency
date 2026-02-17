@@ -1,5 +1,6 @@
 import { afterEach, expect, test } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { sleep } from "../utils";
@@ -7,6 +8,12 @@ import { sleep } from "../utils";
 import { resetProcessRegistryForTests } from "./bash-process-registry";
 import { createExecTool } from "./bash-tools.exec";
 import { createProcessTool } from "./bash-tools.process";
+=======
+import { sleep } from "../utils.js";
+import { resetProcessRegistryForTests } from "./bash-process-registry.js";
+import { createExecTool } from "./bash-tools.exec.js";
+import { createProcessTool } from "./bash-tools.process.js";
+>>>>>>> 2e375a549 (chore: Fix types in tests 32/N.)
 
 afterEach(() => {
   resetProcessRegistryForTests();
