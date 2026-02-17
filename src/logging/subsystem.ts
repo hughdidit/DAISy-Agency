@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import { Chalk } from "chalk";
 import type { Logger as TsLogger } from "tslog";
 <<<<<<< HEAD
@@ -324,9 +325,14 @@ export function runtimeForLogger(
   logger: SubsystemLogger,
   exit: RuntimeEnv["exit"] = defaultRuntime.exit,
 ): RuntimeEnv {
+  const formatArgs = (...args: unknown[]) =>
+    args
+      .map((arg) => (typeof arg === "string" ? arg : inspect(arg)))
+      .join(" ")
+      .trim();
   return {
-    log: (message: string) => logger.info(message),
-    error: (message: string) => logger.error(message),
+    log: (...args: unknown[]) => logger.info(formatArgs(...args)),
+    error: (...args: unknown[]) => logger.error(formatArgs(...args)),
     exit,
   };
 }
