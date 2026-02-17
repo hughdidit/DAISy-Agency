@@ -5,18 +5,15 @@ import readline from "node:readline";
 import type { NormalizedUsage, UsageLike } from "../agents/usage.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import { normalizeUsage } from "../agents/usage.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 9789dfd95 (fix(ui): correct usage range totals and muted styles)
 import type { OpenClawConfig } from "../config/config.js";
-import {
-  resolveSessionFilePath,
-  resolveSessionTranscriptsDirForAgent,
-} from "../config/sessions/paths.js";
 import type { SessionEntry } from "../config/sessions/types.js";
-import { countToolResults, extractToolCallNames } from "../utils/transcript-tools.js";
-import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
 import type {
   CostBreakdown,
   CostUsageTotals,
@@ -38,18 +35,25 @@ import type {
   SessionUsageTimeSeries,
 } from "./session-cost-usage.types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> c256503ea (refactor(infra): extract session cost usage types)
 import { normalizeUsage } from "../agents/usage.js";
 import type { MoltbotConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions/types.js";
+=======
+import { normalizeUsage } from "../agents/usage.js";
+>>>>>>> 9789dfd95 (fix(ui): correct usage range totals and muted styles)
 import {
   resolveSessionFilePath,
   resolveSessionTranscriptsDirForAgent,
 } from "../config/sessions/paths.js";
 import { countToolResults, extractToolCallNames } from "../utils/transcript-tools.js";
 import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
+<<<<<<< HEAD
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 9789dfd95 (fix(ui): correct usage range totals and muted styles)
 
 export type {
   CostUsageDailyEntry,
@@ -822,12 +826,44 @@ export async function loadSessionUsageTimeSeries(params: {
   if (sortedPoints.length > maxPoints) {
     const step = Math.ceil(sortedPoints.length / maxPoints);
     const downsampled: SessionUsageTimePoint[] = [];
+    let downsampledCumulativeTokens = 0;
+    let downsampledCumulativeCost = 0;
     for (let i = 0; i < sortedPoints.length; i += step) {
-      downsampled.push(sortedPoints[i]);
-    }
-    // Always include the last point
-    if (downsampled[downsampled.length - 1] !== sortedPoints[sortedPoints.length - 1]) {
-      downsampled.push(sortedPoints[sortedPoints.length - 1]);
+      const bucket = sortedPoints.slice(i, i + step);
+      const bucketLast = bucket[bucket.length - 1];
+      if (!bucketLast) {
+        continue;
+      }
+
+      let bucketInput = 0;
+      let bucketOutput = 0;
+      let bucketCacheRead = 0;
+      let bucketCacheWrite = 0;
+      let bucketTotalTokens = 0;
+      let bucketCost = 0;
+      for (const point of bucket) {
+        bucketInput += point.input;
+        bucketOutput += point.output;
+        bucketCacheRead += point.cacheRead;
+        bucketCacheWrite += point.cacheWrite;
+        bucketTotalTokens += point.totalTokens;
+        bucketCost += point.cost;
+      }
+
+      downsampledCumulativeTokens += bucketTotalTokens;
+      downsampledCumulativeCost += bucketCost;
+
+      downsampled.push({
+        timestamp: bucketLast.timestamp,
+        input: bucketInput,
+        output: bucketOutput,
+        cacheRead: bucketCacheRead,
+        cacheWrite: bucketCacheWrite,
+        totalTokens: bucketTotalTokens,
+        cost: bucketCost,
+        cumulativeTokens: downsampledCumulativeTokens,
+        cumulativeCost: downsampledCumulativeCost,
+      });
     }
     return { sessionId: params.sessionId, points: downsampled };
   }
