@@ -1,8 +1,15 @@
 import { html, nothing } from "lit";
 import type { AppViewState } from "./app-view-state.ts";
+<<<<<<< HEAD
 import type { UsageState } from "./controllers/usage.ts";
 import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
 import { refreshChatAvatar } from "./app-chat.ts";
+=======
+import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
+import { t } from "../i18n/index.ts";
+import { refreshChatAvatar } from "./app-chat.ts";
+import { renderUsageTab } from "./app-render-usage-tab.ts";
+>>>>>>> 3df8305cb (fix(ui): gate sessions refresh on successful delete)
 import { renderChatControls, renderTab, renderThemeToggle } from "./app-render.helpers.ts";
 import { loadAgentFileContent, loadAgentFiles, saveAgentFile } from "./controllers/agent-files.ts";
 import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
@@ -42,7 +49,7 @@ import {
 import { loadLogs } from "./controllers/logs.ts";
 import { loadNodes } from "./controllers/nodes.ts";
 import { loadPresence } from "./controllers/presence.ts";
-import { deleteSession, loadSessions, patchSession } from "./controllers/sessions.ts";
+import { deleteSessionAndRefresh, loadSessions, patchSession } from "./controllers/sessions.ts";
 import {
   installSkill,
   loadSkills,
@@ -310,7 +317,11 @@ export function renderApp(state: AppViewState) {
                 },
                 onRefresh: () => loadSessions(state),
                 onPatch: (key, patch) => patchSession(state, key, patch),
+<<<<<<< HEAD
                 onDelete: (key) => deleteSession(state, key),
+=======
+                onDelete: (key) => deleteSessionAndRefresh(state, key),
+>>>>>>> 3df8305cb (fix(ui): gate sessions refresh on successful delete)
               })
             : nothing
         }
