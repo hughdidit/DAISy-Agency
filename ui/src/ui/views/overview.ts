@@ -2,6 +2,7 @@ import { html } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { GatewayHelloOk } from "../gateway";
 import { formatAgo, formatDurationMs } from "../format";
@@ -11,11 +12,15 @@ import type { UiSettings } from "../storage";
 import type { GatewayHelloOk } from "../gateway.ts";
 import type { UiSettings } from "../storage.ts";
 =======
+=======
+import type { GatewayHelloOk } from "../gateway.ts";
+import type { UiSettings } from "../storage.ts";
+>>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
 import { t, i18n, type Locale } from "../../i18n/index.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
-import type { GatewayHelloOk } from "../gateway.ts";
 import { formatNextRun } from "../presenter.ts";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
@@ -32,6 +37,8 @@ import { t, i18n, type Locale } from "../../i18n";
 =======
 import type { UiSettings } from "../storage.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
 
 export type OverviewProps = {
   connected: boolean;
@@ -53,12 +60,18 @@ export type OverviewProps = {
 
 export function renderOverview(props: OverviewProps) {
   const snapshot = props.hello?.snapshot as
-    | { uptimeMs?: number; policy?: { tickIntervalMs?: number } }
+    | {
+        uptimeMs?: number;
+        policy?: { tickIntervalMs?: number };
+        authMode?: "none" | "token" | "password" | "trusted-proxy";
+      }
     | undefined;
   const uptime = snapshot?.uptimeMs ? formatDurationMs(snapshot.uptimeMs) : t("common.na");
   const tick = snapshot?.policy?.tickIntervalMs
     ? `${snapshot.policy.tickIntervalMs}ms`
     : t("common.na");
+  const authMode = snapshot?.authMode;
+  const isTrustedProxy = authMode === "trusted-proxy";
 
   const authHint = (() => {
     if (props.connected || !props.lastError) return null;
@@ -184,6 +197,7 @@ export function renderOverview(props: OverviewProps) {
           </label>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           <label class="field">
             <span>Gateway Token</span>
             <input
@@ -208,12 +222,18 @@ export function renderOverview(props: OverviewProps) {
             />
           </label>
 =======
+=======
+>>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
           ${
             isTrustedProxy
               ? ""
               : html`
                 <label class="field">
+<<<<<<< HEAD
                   <span>Gateway Token</span>
+=======
+                  <span>${t("overview.access.token")}</span>
+>>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
                   <input
                     .value=${props.settings.token}
                     @input=${(e: Event) => {
@@ -224,7 +244,11 @@ export function renderOverview(props: OverviewProps) {
                   />
                 </label>
                 <label class="field">
+<<<<<<< HEAD
                   <span>Password (not stored)</span>
+=======
+                  <span>${t("overview.access.password")}</span>
+>>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
                   <input
                     type="password"
                     .value=${props.password}
@@ -237,6 +261,7 @@ export function renderOverview(props: OverviewProps) {
                 </label>
               `
           }
+<<<<<<< HEAD
 >>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
 =======
 >>>>>>> 4b17ce7f4 (feat(ui): add i18n support with English, Chinese, and Portuguese)
@@ -263,6 +288,8 @@ export function renderOverview(props: OverviewProps) {
               placeholder="system or shared password"
             />
           </label>
+=======
+>>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
           <label class="field">
             <span>${t("overview.access.sessionKey")}</span>
             <input
@@ -293,7 +320,9 @@ export function renderOverview(props: OverviewProps) {
         <div class="row" style="margin-top: 14px;">
           <button class="btn" @click=${() => props.onConnect()}>${t("common.connect")}</button>
           <button class="btn" @click=${() => props.onRefresh()}>${t("common.refresh")}</button>
-          <span class="muted">${t("overview.access.connectHint")}</span>
+          <span class="muted">${
+            isTrustedProxy ? t("overview.access.trustedProxy") : t("overview.access.connectHint")
+          }</span>
         </div>
       </div>
 

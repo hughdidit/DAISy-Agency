@@ -1,12 +1,23 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { Locale, TranslationMap } from "./types";
 import { en } from "../locales/en";
 =======
 import { en } from "../locales/en.ts";
 import type { Locale, TranslationMap } from "./types.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { Locale, TranslationMap } from "./types.ts";
+import { en } from "../locales/en.ts";
+>>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
 
 type Subscriber = (locale: Locale) => void;
+
+export const SUPPORTED_LOCALES: ReadonlyArray<Locale> = ["en", "zh-CN", "zh-TW", "pt-BR"];
+
+export function isSupportedLocale(value: string | null | undefined): value is Locale {
+  return value !== null && value !== undefined && SUPPORTED_LOCALES.includes(value as Locale);
+}
 
 class I18nManager {
   private locale: Locale = "en";
@@ -18,8 +29,8 @@ class I18nManager {
   }
 
   private loadLocale() {
-    const saved = localStorage.getItem("openclaw.i18n.locale") as Locale;
-    if (saved && ["en", "zh-CN", "zh-TW", "pt-BR"].includes(saved)) {
+    const saved = localStorage.getItem("openclaw.i18n.locale");
+    if (isSupportedLocale(saved)) {
       this.locale = saved;
     } else {
       const navLang = navigator.language;
