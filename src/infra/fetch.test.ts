@@ -22,7 +22,7 @@ function createForeignSignalHarness() {
       }
     },
     removeEventListener,
-  } as AbortSignal;
+  } as unknown as AbortSignal;
 
   return {
     fakeSignal,
@@ -43,7 +43,7 @@ describe("wrapFetchWithAbortSignal", () => {
 
     await wrapped("https://example.com", { method: "POST", body: "hi" });
 
-    expect(seenInit?.duplex).toBe("half");
+    expect((seenInit as (RequestInit & { duplex?: string }) | undefined)?.duplex).toBe("half");
   });
 
   it("converts foreign abort signals to native controllers", async () => {
@@ -124,7 +124,7 @@ describe("wrapFetchWithAbortSignal", () => {
       aborted: false,
       addEventListener: (_event: string, _handler: () => void) => {},
       removeEventListener,
-    } as AbortSignal;
+    } as unknown as AbortSignal;
 
     await expect(wrapped("https://example.com", { signal: fakeSignal })).rejects.toBe(fetchError);
     expect(removeEventListener).toHaveBeenCalledOnce();
@@ -146,7 +146,7 @@ describe("wrapFetchWithAbortSignal", () => {
       aborted: false,
       addEventListener: (_event: string, _handler: () => void) => {},
       removeEventListener,
-    } as AbortSignal;
+    } as unknown as AbortSignal;
 
     expect(() => wrapped("https://example.com", { signal: fakeSignal })).toThrow(syncError);
     expect(removeEventListener).toHaveBeenCalledOnce();
@@ -162,7 +162,7 @@ describe("wrapFetchWithAbortSignal", () => {
       aborted: true,
       addEventListener,
       removeEventListener,
-    } as AbortSignal;
+    } as unknown as AbortSignal;
 
     await wrapped("https://example.com", { signal: fakeSignal });
 
@@ -182,7 +182,7 @@ describe("wrapFetchWithAbortSignal", () => {
     const preconnectSpy = vi.fn(function (this: unknown) {
       return this;
     });
-    const fetchImpl = vi.fn(async () => ({ ok: true }) as Response) as typeof fetch & {
+    const fetchImpl = vi.fn(async () => ({ ok: true }) as Response) as unknown as typeof fetch & {
       preconnect: (url: string, init?: { credentials?: RequestCredentials }) => unknown;
     };
     fetchImpl.preconnect = preconnectSpy;

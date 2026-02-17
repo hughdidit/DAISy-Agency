@@ -101,7 +101,11 @@ describe("session cost usage", () => {
           },
         },
       },
+<<<<<<< HEAD
     } as MoltbotConfig;
+=======
+    } as unknown as OpenClawConfig;
+>>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
 
     const originalState = process.env.CLAWDBOT_STATE_DIR;
     process.env.CLAWDBOT_STATE_DIR = root;
@@ -287,7 +291,11 @@ describe("session cost usage", () => {
     try {
       const summary = await loadSessionCostSummary({
         sessionId: "sess-worker-1",
-        sessionEntry: { sessionFile: workerSessionFile } as { sessionFile: string },
+        sessionEntry: {
+          sessionId: "sess-worker-1",
+          updatedAt: Date.now(),
+          sessionFile: workerSessionFile,
+        },
         agentId: "worker1",
       });
       expect(summary?.totalTokens).toBe(18);
@@ -329,7 +337,11 @@ describe("session cost usage", () => {
     try {
       const timeseries = await loadSessionUsageTimeSeries({
         sessionId: "sess-worker-2",
-        sessionEntry: { sessionFile: workerSessionFile } as { sessionFile: string },
+        sessionEntry: {
+          sessionId: "sess-worker-2",
+          updatedAt: Date.now(),
+          sessionFile: workerSessionFile,
+        },
         agentId: "worker2",
       });
       expect(timeseries?.points.length).toBe(1);
@@ -369,7 +381,11 @@ describe("session cost usage", () => {
     try {
       const logs = await loadSessionLogs({
         sessionId: "sess-worker-3",
-        sessionEntry: { sessionFile: workerSessionFile } as { sessionFile: string },
+        sessionEntry: {
+          sessionId: "sess-worker-3",
+          updatedAt: Date.now(),
+          sessionFile: workerSessionFile,
+        },
         agentId: "worker3",
       });
       expect(logs).toHaveLength(1);
