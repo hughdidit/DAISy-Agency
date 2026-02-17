@@ -1,5 +1,12 @@
 import { createRequire } from "node:module";
+<<<<<<< HEAD
 
+=======
+import type { PluginRuntime } from "./types.js";
+import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
+import { createMemoryGetTool, createMemorySearchTool } from "../../agents/tools/memory-tool.js";
+import { handleSlackAction } from "../../agents/tools/slack-actions.js";
+>>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 import {
   chunkByNewline,
   chunkMarkdownText,
@@ -98,6 +105,7 @@ import {
   sendMessageLine,
 } from "../../line/send.js";
 import { buildTemplateMessageFromPayload } from "../../line/template-messages.js";
+<<<<<<< HEAD
 import {
   listLinqAccountIds,
   resolveDefaultLinqAccountId,
@@ -107,6 +115,8 @@ import { monitorLinqProvider } from "../../linq/monitor.js";
 import { probeLinq } from "../../linq/probe.js";
 import { sendMessageLinq } from "../../linq/send.js";
 >>>>>>> d4a142fd8 (feat: add Linq channel — real iMessage via API, no Mac required)
+=======
+>>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 import { getChildLogger } from "../../logging.js";
 import { normalizeLogLevel } from "../../logging/levels.js";
 import { isVoiceCompatibleAudio } from "../../media/audio.js";
@@ -156,6 +166,7 @@ import { startWebLoginWithQr, waitForWebLogin } from "../../web/login-qr.js";
 import { sendMessageWhatsApp, sendPollWhatsApp } from "../../web/outbound.js";
 import { registerMemoryCli } from "../../cli/memory-cli.js";
 import { formatNativeDependencyHint } from "./native-deps.js";
+<<<<<<< HEAD
 import { textToSpeechTelephony } from "../../tts/tts.js";
 import {
   listLineAccountIds,
@@ -178,6 +189,8 @@ import { monitorLineProvider } from "../../line/monitor.js";
 import { buildTemplateMessageFromPayload } from "../../line/template-messages.js";
 
 import type { PluginRuntime } from "./types.js";
+=======
+>>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 
 let cachedVersion: string | null = null;
 
@@ -333,14 +346,6 @@ export function createPluginRuntime(): PluginRuntime {
         monitorIMessageProvider,
         probeIMessage,
         sendMessageIMessage,
-      },
-      linq: {
-        sendMessageLinq,
-        probeLinq,
-        monitorLinqProvider,
-        listLinqAccountIds,
-        resolveDefaultLinqAccountId,
-        resolveLinqAccount,
       },
       whatsapp: {
         getActiveWebListener,

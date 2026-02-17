@@ -1,6 +1,9 @@
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 import type {
   ChannelCapabilities,
   ChannelCommandAdapter,
@@ -10,7 +13,13 @@ import type {
   ChannelAgentPromptAdapter,
   ChannelMentionAdapter,
   ChannelPlugin,
+<<<<<<< HEAD
   ChannelThreadingAdapter,
+=======
+  ChannelThreadingContext,
+  ChannelThreadingAdapter,
+  ChannelThreadingToolContext,
+>>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 } from "./plugins/types.js";
 import {
   resolveChannelGroupRequireMention,
@@ -20,8 +29,11 @@ import {
 import { resolveDiscordAccount } from "../discord/accounts.js";
 import { resolveIMessageAccount } from "../imessage/accounts.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { resolveLinqAccount } from "../linq/accounts.js";
+=======
+>>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 import { requireActivePluginRegistry } from "../plugins/runtime.js";
 import { normalizeAccountId } from "../routing/session-key.js";
 >>>>>>> d4a142fd8 (feat: add Linq channel — real iMessage via API, no Mac required)
@@ -48,6 +60,7 @@ import {
   resolveWhatsAppGroupRequireMention,
   resolveWhatsAppGroupToolPolicy,
 } from "./plugins/group-mentions.js";
+<<<<<<< HEAD
 import type {
   ChannelCapabilities,
   ChannelCommandAdapter,
@@ -59,6 +72,8 @@ import type {
   ChannelPlugin,
   ChannelThreadingAdapter,
 } from "./plugins/types.js";
+=======
+>>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
 import { CHAT_CHANNEL_ORDER, type ChatChannelId, getChatChannelMeta } from "./registry.js";
 
 export type ChannelDock = {
@@ -461,23 +476,6 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
           hasRepliedRef,
         };
       },
-    },
-  },
-  linq: {
-    id: "linq",
-    capabilities: {
-      chatTypes: ["direct", "group"],
-      reactions: true,
-      media: true,
-    },
-    outbound: { textChunkLimit: 4000 },
-    config: {
-      resolveAllowFrom: ({ cfg, accountId }) =>
-        (resolveLinqAccount({ cfg, accountId }).config.allowFrom ?? []).map((entry) =>
-          String(entry),
-        ),
-      formatAllowFrom: ({ allowFrom }) =>
-        allowFrom.map((entry) => String(entry).trim()).filter(Boolean),
     },
   },
 };
