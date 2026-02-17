@@ -1,6 +1,7 @@
 import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { formatCliCommand } from "../../cli/command-format.js";
@@ -18,10 +19,15 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { AnyAgentTool } from "./common.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 >>>>>>> dee013426 (style: reformat dedupe-touched files)
+=======
+import { formatCliCommand } from "../../cli/command-format.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> c70597dae (chore: Fix formatting.)
 import { matchesHostnameAllowlist, normalizeHostnameAllowlist } from "../../infra/net/ssrf.js";
 >>>>>>> 6d2e3685d (feat(tools): add URL allowlist for web_search and web_fetch)
 import { wrapWebContent } from "../../security/external-content.js";
 import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
@@ -30,6 +36,9 @@ import type { AnyAgentTool } from "./common.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> dee013426 (style: reformat dedupe-touched files)
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> c70597dae (chore: Fix formatting.)
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 import {
   CacheEntry,

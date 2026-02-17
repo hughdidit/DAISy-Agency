@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 
@@ -15,6 +16,11 @@ import { Type } from "@sinclair/typebox";
 import crypto from "node:crypto";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> dee013426 (style: reformat dedupe-touched files)
+=======
+import crypto from "node:crypto";
+import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import { Type } from "@sinclair/typebox";
+>>>>>>> c70597dae (chore: Fix formatting.)
 import {
   type CameraFacing,
   cameraTempPath,
@@ -32,12 +38,16 @@ import {
 import { parseDurationMs } from "../../cli/parse-duration.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> dee013426 (style: reformat dedupe-touched files)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> c70597dae (chore: Fix formatting.)
 import { imageMimeFromFormat } from "../../media/mime.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
