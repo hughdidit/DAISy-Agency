@@ -241,8 +241,13 @@ export function resolveConfigPath(
 export const CONFIG_PATH = resolveConfigPathCandidate();
 
 /**
+<<<<<<< HEAD
  * Resolve default config path candidates across new + legacy locations.
  * Order: explicit config path → state-dir-derived paths → new default → legacy default.
+=======
+ * Resolve default config path candidates across default locations.
+ * Order: explicit config path → state-dir-derived paths → new default.
+>>>>>>> 7b172d61c (Revert "fix: respect OPENCLAW_HOME for isolated gateway instances")
  */
 export function resolveDefaultConfigCandidates(
   env: NodeJS.ProcessEnv = process.env,
@@ -346,7 +351,11 @@ export function resolveGatewayPort(
   cfg?: MoltbotConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): number {
+<<<<<<< HEAD
   const envRaw = env.CLAWDBOT_GATEWAY_PORT?.trim();
+=======
+  const envRaw = env.OPENCLAW_GATEWAY_PORT?.trim() || env.CLAWDBOT_GATEWAY_PORT?.trim();
+>>>>>>> 7b172d61c (Revert "fix: respect OPENCLAW_HOME for isolated gateway instances")
   if (envRaw) {
     const parsed = Number.parseInt(envRaw, 10);
     if (Number.isFinite(parsed) && parsed > 0) {
