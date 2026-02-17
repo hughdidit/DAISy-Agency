@@ -1,10 +1,4 @@
 import type { Bot } from "grammy";
-import type { OpenClawConfig, ReplyToMode, TelegramAccountConfig } from "../config/types.js";
-import type { RuntimeEnv } from "../runtime.js";
-import type { TelegramMessageContext } from "./bot-message-context.js";
-import type { TelegramBotOptions } from "./bot.js";
-import type { TelegramStreamMode } from "./bot/types.js";
-import type { TelegramInlineButtons } from "./button-types.js";
 import { resolveAgentDir } from "../agents/agent-scope.js";
 import {
   findModelInCatalog,
@@ -21,10 +15,12 @@ import { logAckFailure, logTypingFailure } from "../channels/logging.js";
 import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
 import { createTypingCallbacks } from "../channels/typing.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
+import type { OpenClawConfig, ReplyToMode, TelegramAccountConfig } from "../config/types.js";
 import { danger, logVerbose } from "../globals.js";
 <<<<<<< HEAD
 =======
 import { getAgentScopedMediaLocalRoots } from "../media/local-roots.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -41,7 +37,14 @@ import type { TelegramBotOptions } from "./bot.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 7ffc8f9f7 (fix(telegram): add initial message debounce for better push notifications (#18147))
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import type { TelegramMessageContext } from "./bot-message-context.js";
+import type { TelegramBotOptions } from "./bot.js";
+>>>>>>> f44b58fd5 (style(telegram): format dispatch files)
 import { deliverReplies } from "./bot/delivery.js";
+import type { TelegramStreamMode } from "./bot/types.js";
+import type { TelegramInlineButtons } from "./button-types.js";
 import { resolveTelegramDraftStreamingChunking } from "./draft-chunking.js";
 import { createTelegramDraftStream } from "./draft-stream.js";
 import { editMessageTelegram } from "./send.js";
