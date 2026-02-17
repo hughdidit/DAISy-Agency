@@ -1,27 +1,24 @@
 import type { HeartbeatRunResult } from "../../infra/heartbeat-wake.js";
-import type { CronJob, CronJobCreate, CronJobPatch, CronStoreFile } from "../types.js";
+import type {
+  CronJob,
+  CronJobCreate,
+  CronJobPatch,
+  CronRunOutcome,
+  CronRunStatus,
+  CronRunTelemetry,
+  CronStoreFile,
+} from "../types.js";
 
 export type CronEvent = {
   jobId: string;
   action: "added" | "updated" | "removed" | "started" | "finished";
   runAtMs?: number;
   durationMs?: number;
-  status?: "ok" | "error" | "skipped";
+  status?: CronRunStatus;
   error?: string;
   summary?: string;
   nextRunAtMs?: number;
-
-  // Telemetry (best-effort)
-  model?: string;
-  provider?: string;
-  usage?: {
-    input_tokens?: number;
-    output_tokens?: number;
-    total_tokens?: number;
-    cache_read_tokens?: number;
-    cache_write_tokens?: number;
-  };
-};
+} & CronRunTelemetry;
 
 export type Logger = {
   debug: (obj: unknown, msg?: string) => void;
@@ -58,6 +55,7 @@ export type CronServiceDeps = {
   wakeNowHeartbeatBusyMaxWaitMs?: number;
   /** WakeMode=now: delay between runHeartbeatOnce retries while busy. */
   wakeNowHeartbeatBusyRetryDelayMs?: number;
+<<<<<<< HEAD
   runIsolatedAgentJob: (params: { job: CronJob; message: string }) => Promise<{
     status: "ok" | "error" | "skipped";
     summary?: string;
@@ -89,6 +87,22 @@ export type CronServiceDeps = {
     };
 >>>>>>> ddea5458d (cron: log model+token usage per run + add usage report script)
   }>;
+=======
+  runIsolatedAgentJob: (params: { job: CronJob; message: string }) => Promise<
+    {
+      summary?: string;
+      /** Last non-empty agent text output (not truncated). */
+      outputText?: string;
+      /**
+       * `true` when the isolated run already delivered its output to the target
+       * channel (including matching messaging-tool sends). See:
+       * https://github.com/openclaw/openclaw/issues/15692
+       */
+      delivered?: boolean;
+    } & CronRunOutcome &
+      CronRunTelemetry
+  >;
+>>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
   onEvent?: (evt: CronEvent) => void;
 };
 

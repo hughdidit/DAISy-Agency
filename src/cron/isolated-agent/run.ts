@@ -1,3 +1,7 @@
+import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AgentDefaultsConfig } from "../../config/types.js";
+import type { CronJob, CronRunOutcome, CronRunTelemetry } from "../types.js";
 import {
   resolveAgentConfig,
   resolveAgentDir,
@@ -23,7 +27,6 @@ import {
   resolveHooksGmailModel,
   resolveThinkingDefault,
 } from "../../agents/model-selection.js";
-import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
 import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
@@ -76,6 +79,7 @@ import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-de
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.js";
@@ -88,11 +92,14 @@ import { type CliDeps } from "../../cli/outbound-send-deps.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
 import {
   resolveAgentMainSessionKey,
   resolveSessionTranscriptPath,
   updateSessionStore,
 } from "../../config/sessions.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
@@ -101,6 +108,8 @@ import {
 =======
 import type { AgentDefaultsConfig } from "../../config/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 <<<<<<< HEAD
 =======
@@ -120,6 +129,7 @@ import {
   isExternalHookSession,
 } from "../../security/external-content.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { logWarn } from "../../logger.js";
 import type { CronJob } from "../types.js";
 =======
@@ -129,6 +139,9 @@ import { resolveCronDeliveryPlan } from "../delivery.js";
 =======
 import type { CronJob } from "../types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { resolveCronDeliveryPlan } from "../delivery.js";
+>>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
 import { resolveDeliveryTarget } from "./delivery-target.js";
 import {
   isHeartbeatOnlyResponse,
@@ -335,15 +348,16 @@ async function waitForDescendantSubagentSummary(params: {
 =======
 >>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
 export type RunCronAgentTurnResult = {
-  status: "ok" | "error" | "skipped";
-  summary?: string;
   /** Last non-empty agent text output (not truncated). */
   outputText?: string;
+<<<<<<< HEAD
   error?: string;
 <<<<<<< HEAD
 =======
   sessionId?: string;
   sessionKey?: string;
+=======
+>>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
   /**
    * `true` when the isolated run already delivered its output to the target
    * channel (via outbound payloads or the subagent announce flow).  Callers
@@ -351,6 +365,7 @@ export type RunCronAgentTurnResult = {
    * messages.  See: https://github.com/openclaw/openclaw/issues/15692
    */
   delivered?: boolean;
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> ea95e88dd (fix(cron): prevent duplicate delivery for isolated jobs with announce mode)
 =======
@@ -367,6 +382,10 @@ export type RunCronAgentTurnResult = {
   };
 >>>>>>> ddea5458d (cron: log model+token usage per run + add usage report script)
 };
+=======
+} & CronRunOutcome &
+  CronRunTelemetry;
+>>>>>>> 80c7d04ad (refactor(cron): reuse shared run outcome telemetry types)
 
 export async function runCronIsolatedAgentTurn(params: {
   cfg: MoltbotConfig;
@@ -768,19 +787,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
 
   // Update token+model fields in the session store.
   // Also collect best-effort telemetry for the cron run log.
-  let telemetry:
-    | {
-        model?: string;
-        provider?: string;
-        usage?: {
-          input_tokens?: number;
-          output_tokens?: number;
-          total_tokens?: number;
-          cache_read_tokens?: number;
-          cache_write_tokens?: number;
-        };
-      }
-    | undefined;
+  let telemetry: CronRunTelemetry | undefined;
   {
 <<<<<<< HEAD
     const usage = runResult.meta.agentMeta?.usage;
