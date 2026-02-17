@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { EventEmitter } from "node:events";
 <<<<<<< HEAD
 
@@ -10,6 +11,13 @@ import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 import type { TSchema } from "@sinclair/typebox";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
+import type { SessionManager } from "@mariozechner/pi-coding-agent";
+import type { TSchema } from "@sinclair/typebox";
+import { EventEmitter } from "node:events";
+import type { TranscriptPolicy } from "../transcript-policy.js";
+>>>>>>> a1538ea63 (Revert "fix: flatten remaining anyOf/oneOf in Gemini schema cleaning")
 import { registerUnhandledRejectionHandler } from "../../infra/unhandled-rejections.js";
 import {
   downgradeOpenAIReasoningBlocks,
@@ -27,7 +35,6 @@ import {
   stripToolResultDetails,
   sanitizeToolUseResultPairing,
 } from "../session-transcript-repair.js";
-import type { TranscriptPolicy } from "../transcript-policy.js";
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
 >>>>>>> 0da6de662 (Agent: repair malformed tool calls and session files)
 import { log } from "./logger.js";
@@ -176,7 +183,11 @@ export function sanitizeToolsForGoogle<
   tools: AgentTool<TSchemaType, TResult>[];
   provider: string;
 }): AgentTool<TSchemaType, TResult>[] {
-  if (params.provider !== "google-antigravity" && params.provider !== "google-gemini-cli") {
+  // google-antigravity serves Anthropic models (e.g. claude-opus-4-6-thinking),
+  // NOT Gemini. Applying Gemini schema cleaning strips JSON Schema keywords
+  // (minimum, maximum, format, etc.) that Anthropic's API requires for
+  // draft 2020-12 compliance. Only clean for actual Gemini providers.
+  if (params.provider !== "google-gemini-cli") {
     return params.tools;
   }
   return params.tools.map((tool) => {
