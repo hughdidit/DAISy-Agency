@@ -189,6 +189,7 @@ describe("image tool implicit imageModel config", () => {
       models: {
         providers: {
           acme: {
+            baseUrl: "https://example.com",
             models: [
               makeModelDefinition("text-1", ["text"]),
               makeModelDefinition("vision-1", ["text", "image"]),
@@ -234,6 +235,7 @@ describe("image tool implicit imageModel config", () => {
       models: {
         providers: {
           acme: {
+            baseUrl: "https://example.com",
             models: [makeModelDefinition("vision-1", ["text", "image"])],
           },
         },
