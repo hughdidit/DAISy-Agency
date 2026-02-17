@@ -24,6 +24,7 @@ async function withTempStateDir<T>(fn: (dir: string) => Promise<T>) {
     state: {
       resolveStateDir: (env, homedir) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
         const override = env.CLAWDBOT_STATE_DIR?.trim();
 =======
         const override = env.OPENCLAW_STATE_DIR?.trim() || env.OPENCLAW_STATE_DIR?.trim();
@@ -37,6 +38,15 @@ async function withTempStateDir<T>(fn: (dir: string) => Promise<T>) {
         }
         return path.join(homedir(), ".openclaw");
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
+=======
+        const stateEnv = env ?? process.env;
+        const override = stateEnv.OPENCLAW_STATE_DIR?.trim() || stateEnv.CLAWDBOT_STATE_DIR?.trim();
+        if (override) {
+          return override;
+        }
+        const resolveHome = homedir ?? os.homedir;
+        return path.join(resolveHome(), ".openclaw");
+>>>>>>> a74198557 (chore: Fix more extension test types, 2/N.)
       },
     },
   } as PluginRuntime);
@@ -110,7 +120,7 @@ describe("computeSinceTimestamp", () => {
   });
 
   it("uses lastProcessedAt when available", () => {
-    const state = {
+    const state: Parameters<typeof computeSinceTimestamp>[0] = {
       version: 2,
       lastProcessedAt: 1699999000,
       gatewayStartedAt: null,
@@ -120,7 +130,7 @@ describe("computeSinceTimestamp", () => {
   });
 
   it("uses gatewayStartedAt when lastProcessedAt is null", () => {
-    const state = {
+    const state: Parameters<typeof computeSinceTimestamp>[0] = {
       version: 2,
       lastProcessedAt: null,
       gatewayStartedAt: 1699998000,
@@ -130,7 +140,7 @@ describe("computeSinceTimestamp", () => {
   });
 
   it("uses the max of both timestamps", () => {
-    const state = {
+    const state: Parameters<typeof computeSinceTimestamp>[0] = {
       version: 2,
       lastProcessedAt: 1699999000,
       gatewayStartedAt: 1699998000,
@@ -140,7 +150,7 @@ describe("computeSinceTimestamp", () => {
   });
 
   it("falls back to now if both are null", () => {
-    const state = {
+    const state: Parameters<typeof computeSinceTimestamp>[0] = {
       version: 2,
       lastProcessedAt: null,
       gatewayStartedAt: null,

@@ -104,6 +104,7 @@ describe("msteams messenger", () => {
 
       const adapter: MSTeamsAdapter = {
         continueConversation: async () => {},
+        process: async () => {},
       };
 
       const ids = await sendMSTeamsMessages({
@@ -133,6 +134,7 @@ describe("msteams messenger", () => {
             },
           });
         },
+        process: async () => {},
       };
 
       const ids = await sendMSTeamsMessages({
@@ -154,6 +156,68 @@ describe("msteams messenger", () => {
       expect(ref.conversation?.id).toBe("19:abc@thread.tacv2");
     });
 
+<<<<<<< HEAD
+=======
+    it("preserves parsed mentions when appending OneDrive fallback file links", async () => {
+      const tmpDir = await mkdtemp(path.join(os.tmpdir(), "msteams-mention-"));
+      const localFile = path.join(tmpDir, "note.txt");
+      await writeFile(localFile, "hello");
+
+      try {
+        const sent: Array<{ text?: string; entities?: unknown[] }> = [];
+        const ctx = {
+          sendActivity: async (activity: unknown) => {
+            sent.push(activity as { text?: string; entities?: unknown[] });
+            return { id: "id:one" };
+          },
+        };
+
+        const adapter: MSTeamsAdapter = {
+          continueConversation: async () => {},
+          process: async () => {},
+        };
+
+        const ids = await sendMSTeamsMessages({
+          replyStyle: "thread",
+          adapter,
+          appId: "app123",
+          conversationRef: {
+            ...baseRef,
+            conversation: {
+              ...baseRef.conversation,
+              conversationType: "channel",
+            },
+          },
+          context: ctx,
+          messages: [{ text: "Hello @[John](29:08q2j2o3jc09au90eucae)", mediaUrl: localFile }],
+          tokenProvider: {
+            getAccessToken: async () => "token",
+          },
+        });
+
+        expect(ids).toEqual(["id:one"]);
+        expect(graphUploadMockState.uploadAndShareOneDrive).toHaveBeenCalledOnce();
+        expect(sent).toHaveLength(1);
+        expect(sent[0]?.text).toContain("Hello <at>John</at>");
+        expect(sent[0]?.text).toContain(
+          "📎 [upload.txt](https://onedrive.example.com/share/item123)",
+        );
+        expect(sent[0]?.entities).toEqual([
+          {
+            type: "mention",
+            text: "<at>John</at>",
+            mentioned: {
+              id: "29:08q2j2o3jc09au90eucae",
+              name: "John",
+            },
+          },
+        ]);
+      } finally {
+        await rm(tmpDir, { recursive: true, force: true });
+      }
+    });
+
+>>>>>>> a74198557 (chore: Fix more extension test types, 2/N.)
     it("retries thread sends on throttling (429)", async () => {
       const attempts: string[] = [];
       const retryEvents: Array<{ nextAttempt: number; delayMs: number }> = [];
@@ -171,6 +235,7 @@ describe("msteams messenger", () => {
 
       const adapter: MSTeamsAdapter = {
         continueConversation: async () => {},
+        process: async () => {},
       };
 
       const ids = await sendMSTeamsMessages({
@@ -198,6 +263,7 @@ describe("msteams messenger", () => {
 
       const adapter: MSTeamsAdapter = {
         continueConversation: async () => {},
+        process: async () => {},
       };
 
       await expect(
@@ -231,6 +297,7 @@ describe("msteams messenger", () => {
             },
           });
         },
+        process: async () => {},
       };
 
       const ids = await sendMSTeamsMessages({

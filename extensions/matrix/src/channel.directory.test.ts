@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
@@ -6,6 +7,9 @@ import type { CoreConfig } from "./types.js";
 
 =======
 import type { PluginRuntime } from "openclaw/plugin-sdk";
+=======
+import type { PluginRuntime, RuntimeEnv } from "openclaw/plugin-sdk";
+>>>>>>> a74198557 (chore: Fix more extension test types, 2/N.)
 import { beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { matrixPlugin } from "./channel.js";
@@ -13,10 +17,18 @@ import { setMatrixRuntime } from "./runtime.js";
 import type { CoreConfig } from "./types.js";
 
 describe("matrix directory", () => {
+  const runtimeEnv: RuntimeEnv = {
+    log: vi.fn(),
+    error: vi.fn(),
+    exit: vi.fn((code: number): never => {
+      throw new Error(`exit ${code}`);
+    }),
+  };
+
   beforeEach(() => {
     setMatrixRuntime({
       state: {
-        resolveStateDir: (_env, homeDir) => homeDir(),
+        resolveStateDir: (_env, homeDir) => (homeDir ?? (() => "/tmp"))(),
       },
     } as PluginRuntime);
   });
@@ -40,11 +52,12 @@ describe("matrix directory", () => {
     expect(matrixPlugin.directory?.listGroups).toBeTruthy();
 
     await expect(
-      matrixPlugin.directory!.listPeers({
+      matrixPlugin.directory!.listPeers!({
         cfg,
         accountId: undefined,
         query: undefined,
         limit: undefined,
+        runtime: runtimeEnv,
       }),
     ).resolves.toEqual(
       expect.arrayContaining([
@@ -56,11 +69,12 @@ describe("matrix directory", () => {
     );
 
     await expect(
-      matrixPlugin.directory!.listGroups({
+      matrixPlugin.directory!.listGroups!({
         cfg,
         accountId: undefined,
         query: undefined,
         limit: undefined,
+        runtime: runtimeEnv,
       }),
     ).resolves.toEqual(
       expect.arrayContaining([
@@ -69,4 +83,68 @@ describe("matrix directory", () => {
       ]),
     );
   });
+<<<<<<< HEAD
+=======
+
+  it("resolves replyToMode from account config", () => {
+    const cfg = {
+      channels: {
+        matrix: {
+          replyToMode: "off",
+          accounts: {
+            Assistant: {
+              replyToMode: "all",
+            },
+          },
+        },
+      },
+    } as unknown as CoreConfig;
+
+    expect(matrixPlugin.threading?.resolveReplyToMode).toBeTruthy();
+    expect(
+      matrixPlugin.threading?.resolveReplyToMode?.({
+        cfg,
+        accountId: "assistant",
+        chatType: "direct",
+      }),
+    ).toBe("all");
+    expect(
+      matrixPlugin.threading?.resolveReplyToMode?.({
+        cfg,
+        accountId: "default",
+        chatType: "direct",
+      }),
+    ).toBe("off");
+  });
+
+  it("resolves group mention policy from account config", () => {
+    const cfg = {
+      channels: {
+        matrix: {
+          groups: {
+            "!room:example.org": { requireMention: true },
+          },
+          accounts: {
+            Assistant: {
+              groups: {
+                "!room:example.org": { requireMention: false },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as CoreConfig;
+
+    expect(matrixPlugin.groups!.resolveRequireMention!({ cfg, groupId: "!room:example.org" })).toBe(
+      true,
+    );
+    expect(
+      matrixPlugin.groups!.resolveRequireMention!({
+        cfg,
+        accountId: "assistant",
+        groupId: "!room:example.org",
+      }),
+    ).toBe(false);
+  });
+>>>>>>> a74198557 (chore: Fix more extension test types, 2/N.)
 });
