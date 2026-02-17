@@ -440,6 +440,17 @@ export const OpenClawSchema = z
           .strict()
           .optional(),
         trustedProxies: z.array(z.string()).optional(),
+<<<<<<< HEAD
+=======
+        tools: z
+          .object({
+            deny: z.array(z.string()).optional(),
+            allow: z.array(z.string()).optional(),
+          })
+          .strict()
+          .optional(),
+        channelHealthCheckMinutes: z.number().int().min(0).optional(),
+>>>>>>> 1f850374f (fix(gateway): harden channel health monitor recovery)
         tailscale: z
           .object({
             mode: z.union([z.literal("off"), z.literal("serve"), z.literal("funnel")]).optional(),
