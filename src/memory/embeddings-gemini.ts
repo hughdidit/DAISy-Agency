@@ -1,7 +1,12 @@
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
+<<<<<<< HEAD
 import { isTruthyEnvValue } from "../infra/env.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
+=======
+import { parseGeminiAuth } from "../infra/gemini-auth.js";
+import { debugEmbeddingsLog } from "./embeddings-debug.js";
+>>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
 
 export type GeminiEmbeddingClient = {
   baseUrl: string;
@@ -18,6 +23,7 @@ const debugEmbeddings = isTruthyEnvValue(process.env.CLAWDBOT_DEBUG_MEMORY_EMBED
 const GEMINI_MAX_INPUT_TOKENS: Record<string, number> = {
   "text-embedding-004": 2048,
 };
+<<<<<<< HEAD
 const debugEmbeddings = isTruthyEnvValue(process.env.OPENCLAW_DEBUG_MEMORY_EMBEDDINGS);
 >>>>>>> 7f1712c1b ((fix): enforce embedding model token limit to prevent overflow (#13455))
 const log = createSubsystemLogger("memory/embeddings");
@@ -30,6 +36,8 @@ const debugLog = (message: string, meta?: Record<string, unknown>) => {
   log.raw(`${message}${suffix}`);
 };
 
+=======
+>>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
 function resolveRemoteApiKey(remoteApiKey?: string): string | undefined {
   const trimmed = remoteApiKey?.trim();
   if (!trimmed) {
@@ -161,7 +169,7 @@ export async function resolveGeminiEmbeddingClient(
   };
   const model = normalizeGeminiModel(options.model);
   const modelPath = buildGeminiModelPath(model);
-  debugLog("memory embeddings: gemini client", {
+  debugEmbeddingsLog("memory embeddings: gemini client", {
     rawBaseUrl,
     baseUrl,
     model,
