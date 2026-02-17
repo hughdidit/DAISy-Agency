@@ -1,11 +1,10 @@
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
 import type { AgentTool } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
-import { applyUpdateHunk } from "./apply-patch-update.js";
-import { assertSandboxPath } from "./sandbox-paths.js";
+import fs from "node:fs/promises";
+import path from "node:path";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+import { applyUpdateHunk } from "./apply-patch-update.js";
+import { assertSandboxPath, resolveSandboxInputPath } from "./sandbox-paths.js";
 
 const BEGIN_PATCH_MARKER = "*** Begin Patch";
 const END_PATCH_MARKER = "*** End Patch";
@@ -261,6 +260,7 @@ async function resolvePatchPath(
   };
 }
 
+<<<<<<< HEAD
 function normalizeUnicodeSpaces(value: string): string {
   return value.replace(UNICODE_SPACES, " ");
 }
@@ -276,12 +276,10 @@ function expandPath(filePath: string): string {
   return normalized;
 }
 
+=======
+>>>>>>> 9032a5098 (refactor: reuse sandbox path expansion in apply-patch)
 function resolvePathFromCwd(filePath: string, cwd: string): string {
-  const expanded = expandPath(filePath);
-  if (path.isAbsolute(expanded)) {
-    return path.normalize(expanded);
-  }
-  return path.resolve(cwd, expanded);
+  return path.normalize(resolveSandboxInputPath(filePath, cwd));
 }
 
 function toDisplayPath(resolved: string, cwd: string): string {
