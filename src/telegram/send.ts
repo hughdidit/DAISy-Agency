@@ -388,6 +388,11 @@ async function withTelegramThreadFallback<T>(
   try {
     return await attempt(params, label);
   } catch (err) {
+<<<<<<< HEAD
+=======
+    // Do not widen this fallback to cover "chat not found".
+    // chat-not-found is routing/auth/membership/token; stripping thread IDs hides root cause.
+>>>>>>> 1903c685c (style: drop aidev-note prefix in telegram comments)
     if (!hasMessageThreadIdParam(params) || !isTelegramThreadNotFoundError(err)) {
       throw err;
     }
