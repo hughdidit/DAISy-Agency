@@ -49,7 +49,6 @@ function stubMinimaxOkFetch() {
       base_resp: { status_code: 0, status_msg: "" },
     }),
   });
-  // @ts-expect-error partial global
   global.fetch = fetch;
   vi.stubEnv("MINIMAX_API_KEY", "minimax-test");
   return fetch;
@@ -119,7 +118,6 @@ describe("image tool implicit imageModel config", () => {
 
   afterEach(() => {
     vi.unstubAllEnvs();
-    // @ts-expect-error global fetch cleanup
     global.fetch = priorFetch;
   });
 
@@ -403,7 +401,6 @@ describe("image tool implicit imageModel config", () => {
         base_resp: { status_code: 0, status_msg: "" },
       }),
     });
-    // @ts-expect-error partial global
     global.fetch = fetch;
     vi.stubEnv("MINIMAX_API_KEY", "minimax-test");
 
@@ -462,7 +459,6 @@ describe("image tool MiniMax VLM routing", () => {
 
   afterEach(() => {
     vi.unstubAllEnvs();
-    // @ts-expect-error global fetch cleanup
     global.fetch = priorFetch;
   });
 
@@ -477,7 +473,6 @@ describe("image tool MiniMax VLM routing", () => {
         base_resp: baseResp,
       }),
     });
-    // @ts-expect-error partial global
     global.fetch = fetch;
 
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-minimax-vlm-"));
