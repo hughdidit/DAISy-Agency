@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+<<<<<<< HEAD
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
@@ -12,6 +13,9 @@ import * as replyModule from "../auto-reply/reply.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import * as replyModule from "../auto-reply/reply.js";
+=======
+import { describe, expect, it, vi } from "vitest";
+>>>>>>> 7649f9cba (refactor(test): share heartbeat sandbox fixtures)
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveMainSessionKey } from "../config/sessions.js";
@@ -30,7 +34,11 @@ import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
 import { runHeartbeatOnce, type HeartbeatDeps } from "./heartbeat-runner.js";
 >>>>>>> f476c8b48 (Fix #12767: Heartbeat  strip responsePrefix before HEARTBEAT_OK suppression)
 import { installHeartbeatRunnerTestRuntime } from "./heartbeat-runner.test-harness.js";
+<<<<<<< HEAD
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
+=======
+import { seedSessionStore, withTempHeartbeatSandbox } from "./heartbeat-runner.test-utils.js";
+>>>>>>> 7649f9cba (refactor(test): share heartbeat sandbox fixtures)
 
 // Avoid pulling optional runtime deps during isolated runs.
 vi.mock("jiti", () => ({ createJiti: () => () => ({}) }));
@@ -110,51 +118,6 @@ describe("resolveHeartbeatIntervalMs", () => {
     } satisfies HeartbeatDeps;
   }
 
-  async function seedSessionStore(
-    storePath: string,
-    sessionKey: string,
-    session: {
-      sessionId?: string;
-      updatedAt?: number;
-      lastChannel: string;
-      lastProvider: string;
-      lastTo: string;
-    },
-  ) {
-    await fs.writeFile(
-      storePath,
-      JSON.stringify(
-        {
-          [sessionKey]: {
-            sessionId: session.sessionId ?? "sid",
-            updatedAt: session.updatedAt ?? Date.now(),
-            ...session,
-          },
-        },
-        null,
-        2,
-      ),
-    );
-  }
-
-  async function withTempHeartbeatSandbox<T>(
-    fn: (ctx: {
-      tmpDir: string;
-      storePath: string;
-      replySpy: ReturnType<typeof vi.spyOn>;
-    }) => Promise<T>,
-  ) {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hb-"));
-    const storePath = path.join(tmpDir, "sessions.json");
-    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
-    try {
-      return await fn({ tmpDir, storePath, replySpy });
-    } finally {
-      replySpy.mockRestore();
-      await fs.rm(tmpDir, { recursive: true, force: true });
-    }
-  }
-
   async function withTempTelegramHeartbeatSandbox<T>(
     fn: (ctx: {
       tmpDir: string;
@@ -162,17 +125,7 @@ describe("resolveHeartbeatIntervalMs", () => {
       replySpy: ReturnType<typeof vi.spyOn>;
     }) => Promise<T>,
   ) {
-    const prevTelegramToken = process.env.TELEGRAM_BOT_TOKEN;
-    process.env.TELEGRAM_BOT_TOKEN = "";
-    try {
-      return await withTempHeartbeatSandbox(fn);
-    } finally {
-      if (prevTelegramToken === undefined) {
-        delete process.env.TELEGRAM_BOT_TOKEN;
-      } else {
-        process.env.TELEGRAM_BOT_TOKEN = prevTelegramToken;
-      }
-    }
+    return withTempHeartbeatSandbox(fn, { unsetEnvVars: ["TELEGRAM_BOT_TOKEN"] });
   }
 
   it("respects ackMaxChars for heartbeat acks", async () => {
