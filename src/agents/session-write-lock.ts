@@ -2,6 +2,7 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isPidAlive } from "../shared/pid-alive.js";
+import { resolveProcessScopedMap } from "../shared/process-scoped-map.js";
 
 type LockFilePayload = {
   pid: number;
@@ -24,6 +25,7 @@ type CleanupState = {
   cleanupHandlers: Map<CleanupSignal, () => void>;
 };
 
+<<<<<<< HEAD
 function resolveHeldLocks(): Map<string, HeldLock> {
   const proc = process as NodeJS.Process & {
     [HELD_LOCKS_KEY]?: Map<string, HeldLock>;
@@ -35,6 +37,15 @@ function resolveHeldLocks(): Map<string, HeldLock> {
 }
 
 const HELD_LOCKS = resolveHeldLocks();
+=======
+type WatchdogState = {
+  started: boolean;
+  intervalMs: number;
+  timer?: NodeJS.Timeout;
+};
+
+const HELD_LOCKS = resolveProcessScopedMap<HeldLock>(HELD_LOCKS_KEY);
+>>>>>>> 7147cd9cc (refactor: dedupe process-scoped lock maps)
 
 function resolveCleanupState(): CleanupState {
   const proc = process as NodeJS.Process & {
