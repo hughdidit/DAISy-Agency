@@ -303,6 +303,7 @@ See [Slash commands](/tools/slash-commands) for command catalog and behavior.
   </Accordion>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 - `dm.enabled`: set `false` to ignore all DMs (default `true`).
 - `dm.policy`: DM access control (`pairing` recommended). `"open"` requires `dm.allowFrom=["*"]`.
 - `dm.allowFrom`: DM allowlist (user ids or names). Used by `dm.policy="allowlist"` and for `dm.policy="open"` validation. The wizard accepts usernames and resolves them to ids when the bot can search members.
@@ -343,6 +344,10 @@ See [Slash commands](/tools/slash-commands) for command catalog and behavior.
   - `moderation` (timeout/kick/ban, default `false`)
   - `presence` (bot status/activity, default `false`)
 - `execApprovals`: Discord-only exec approval DMs (button UI). Supports `enabled`, `approvers`, `agentFilter`, `sessionFilter`.
+=======
+  <Accordion title="Gateway proxy">
+    Route Discord gateway WebSocket traffic and startup REST lookups (application ID + allowlist resolution) through an HTTP(S) proxy with `channels.discord.proxy`.
+>>>>>>> c0c367fde (docs: clarify discord proxy scope for startup REST calls)
 
 Reaction notifications use `guilds.<id>.reactionNotifications`:
 
