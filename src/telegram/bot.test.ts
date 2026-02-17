@@ -73,13 +73,10 @@ const readChannelAllowFromStore = getReadChannelAllowFromStoreMock();
 >>>>>>> 8515ae6ee (perf: consolidate telegram bot test harness)
 
 function resolveSkillCommands(config: Parameters<typeof listNativeCommandSpecsForConfig>[0]) {
-  return (
-    listSkillCommandsForAgents as unknown as (params: {
-      cfg: typeof config;
-    }) => Parameters<typeof listNativeCommandSpecsForConfig>[1]["skillCommands"]
-  )({
-    cfg: config,
-  });
+  void config;
+  return listSkillCommandsForAgents() as NonNullable<
+    Parameters<typeof listNativeCommandSpecsForConfig>[1]
+  >["skillCommands"];
 }
 
 const ORIGINAL_TZ = process.env.TZ;

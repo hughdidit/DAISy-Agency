@@ -43,7 +43,9 @@ describe("google-shared convertTools", () => {
     ] as unknown as Tool[];
 
     const converted = convertTools(tools);
-    const params = getFirstToolParameters(converted);
+    const params = getFirstToolParameters(
+      converted as Parameters<typeof getFirstToolParameters>[0],
+    );
 
     expect(params.type).toBeUndefined();
     expect(params.properties).toBeDefined();
@@ -83,7 +85,9 @@ describe("google-shared convertTools", () => {
     ] as unknown as Tool[];
 
     const converted = convertTools(tools);
-    const params = getFirstToolParameters(converted);
+    const params = getFirstToolParameters(
+      converted as Parameters<typeof getFirstToolParameters>[0],
+    );
     const properties = asRecord(params.properties);
     const mode = asRecord(properties.mode);
     const options = asRecord(properties.options);
@@ -124,7 +128,9 @@ describe("google-shared convertTools", () => {
     ] as unknown as Tool[];
 
     const converted = convertTools(tools);
-    const params = getFirstToolParameters(converted);
+    const params = getFirstToolParameters(
+      converted as Parameters<typeof getFirstToolParameters>[0],
+    );
     const config = asRecord(asRecord(params.properties).config);
     const configProps = asRecord(config.properties);
     const retries = asRecord(configProps.retries);
