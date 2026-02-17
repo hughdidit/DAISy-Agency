@@ -190,8 +190,12 @@ Docs: https://docs.openclaw.ai
 - Discord: unlock rich interactive agent prompts with Components v2 (buttons, selects, modals, and attachment-backed file blocks) so for native interaction through Discord. Thanks @thewilloftheshadow.
 - Plugins: expose `llm_input` and `llm_output` hook payloads so extensions can observe prompt/input context and model output usage details. (#16724) Thanks @SecondThread.
 - Slack/Discord/Telegram: add per-channel ack reaction overrides (account/channel-level) to support platform-specific emoji formats. (#17092) Thanks @zerone0x.
+<<<<<<< HEAD
 - Discord: components v2 UI + embeds passthrough + exec approval UX refinements (CV2 containers, button layout, Discord-forwarding skip). Thanks @thewilloftheshadow.
 >>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
+=======
+- Telegram: add `channel_post` inbound support for channel-based bot-to-bot wake/trigger flows, with channel allowlist gating and message/media batching parity.
+>>>>>>> 32d12fcae (feat(telegram): add channel_post support for bot-to-bot communication (#17857))
 - Cron/Gateway: add finished-run webhook delivery toggle (`notify`) and dedicated webhook auth token support (`cron.webhookToken`) for outbound cron webhook posts. (#14535) Thanks @advaitpaliwal.
 <<<<<<< HEAD
 >>>>>>> 115cfb443 (gateway: add cron finished-run webhook (#14535))
