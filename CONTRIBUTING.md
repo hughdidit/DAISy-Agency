@@ -12,7 +12,7 @@ Welcome to the lobster tank! 🦞
 - **Peter Steinberger** - Benevolent Dictator
   - GitHub: [@steipete](https://github.com/steipete) · X: [@steipete](https://x.com/steipete)
 
-- **Shadow** - Discord subsystem, Discord admin
+- **Shadow** - Discord subsystem, Discord admin, Clawhub, all community moderation
   - GitHub: [@thewilloftheshadow](https://github.com/thewilloftheshadow) · X: [@4shad0wed](https://x.com/4shad0wed)
 
 <<<<<<< HEAD
