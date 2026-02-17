@@ -3,6 +3,7 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -14,6 +15,8 @@ import type { AnyAgentTool } from "./common.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 33b59441d (Revert "Fix Telegram poll action wiring")
+=======
+>>>>>>> 900b97e3c (test: type telegram action mock passthrough args)
 import { BLUEBUBBLES_GROUP_ACTIONS } from "../../channels/plugins/bluebubbles-actions.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
@@ -31,6 +34,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { BLUEBUBBLES_GROUP_ACTIONS } from "../../channels/plugins/bluebubbles-actions.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
@@ -43,6 +47,9 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 33b59441d (Revert "Fix Telegram poll action wiring")
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 900b97e3c (test: type telegram action mock passthrough args)
 import { loadConfig } from "../../config/config.js";
 import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "../../gateway/protocol/client-info.js";
 import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
@@ -50,6 +57,7 @@ import { getToolResult, runMessageAction } from "../../infra/outbound/message-ac
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 import { channelTargetSchema, channelTargetsSchema, stringEnum } from "../schema/typebox.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -66,6 +74,9 @@ import type { AnyAgentTool } from "./common.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 33b59441d (Revert "Fix Telegram poll action wiring")
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 900b97e3c (test: type telegram action mock passthrough args)
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 
 const AllMessageActions = CHANNEL_MESSAGE_ACTION_NAMES;
