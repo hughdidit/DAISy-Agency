@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import type { StreamFn } from "@mariozechner/pi-agent-core";
+import type { Context, Model, SimpleStreamOptions } from "@mariozechner/pi-ai";
+>>>>>>> 423543530 (chore: Fix types in tests 26/N.)
 import { describe, expect, it } from "vitest";
 import { resolveExtraParams } from "./pi-embedded-runner.js";
 
@@ -76,7 +81,7 @@ describe("applyExtraParamsToAgent", () => {
     const payload = { store: false };
     const baseStreamFn: StreamFn = (_model, _context, options) => {
       options?.onPayload?.(payload);
-      return new AssistantMessageEventStream();
+      return {} as ReturnType<StreamFn>;
     };
     const agent = { streamFn: baseStreamFn };
     applyExtraParamsToAgent(agent, undefined, params.applyProvider, params.applyModelId);
@@ -89,7 +94,7 @@ describe("applyExtraParamsToAgent", () => {
     const calls: Array<SimpleStreamOptions | undefined> = [];
     const baseStreamFn: StreamFn = (_model, _context, options) => {
       calls.push(options);
-      return new AssistantMessageEventStream();
+      return {} as ReturnType<StreamFn>;
     };
     const agent = { streamFn: baseStreamFn };
 
@@ -158,7 +163,7 @@ describe("applyExtraParamsToAgent", () => {
     const payload = { store: false };
     const baseStreamFn: StreamFn = (_model, _context, options) => {
       options?.onPayload?.(payload);
-      return new AssistantMessageEventStream();
+      return {} as ReturnType<StreamFn>;
     };
     const agent = { streamFn: baseStreamFn };
 

@@ -106,13 +106,12 @@ import { applyGoogleTurnOrderingFix } from "./pi-embedded-runner.js";
 
 >>>>>>> 222b2d7c3 (refactor(test): trim pi-embedded-runner e2e scaffolding)
 describe("applyGoogleTurnOrderingFix", () => {
-  const makeAssistantFirst = () =>
-    [
-      {
-        role: "assistant",
-        content: [{ type: "toolCall", id: "call_1", name: "exec", arguments: {} }],
-      },
-    ] satisfies AgentMessage[];
+  const makeAssistantFirst = (): AgentMessage[] => [
+    {
+      role: "assistant",
+      content: [{ type: "toolCall", id: "call_1", name: "exec", arguments: {} }],
+    } as unknown as AgentMessage,
+  ];
 
   it("prepends a bootstrap once and records a marker for Google models", () => {
     const sessionManager = SessionManager.inMemory();

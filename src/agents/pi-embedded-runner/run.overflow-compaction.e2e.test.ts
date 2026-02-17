@@ -188,10 +188,18 @@ import { log } from "./logger.js";
 import { runEmbeddedPiAgent } from "./run.js";
 import { makeAttemptResult } from "./run.overflow-compaction.fixture.js";
 import { runEmbeddedAttempt } from "./run/attempt.js";
+<<<<<<< HEAD
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { log } from "./logger.js";
 
 import type { EmbeddedRunAttemptResult } from "./run/types.js";
+=======
+import type { EmbeddedRunAttemptResult } from "./run/types.js";
+import {
+  sessionLikelyHasOversizedToolResults,
+  truncateOversizedToolResultsInSession,
+} from "./tool-result-truncation.js";
+>>>>>>> 423543530 (chore: Fix types in tests 26/N.)
 
 const mockedRunEmbeddedAttempt = vi.mocked(runEmbeddedAttempt);
 const mockedCompactDirect = vi.mocked(compactEmbeddedPiSessionDirect);
@@ -292,6 +300,54 @@ describe("overflow compaction in run loop", () => {
     const overflowError = new Error("request_too_large: Request size exceeds model context window");
 
     mockedRunEmbeddedAttempt
+<<<<<<< HEAD
+=======
+      .mockResolvedValueOnce(
+        makeAttemptResult({
+          promptError: overflowError,
+          messagesSnapshot: [
+            {
+              role: "assistant",
+              content: "big tool output",
+            } as unknown as EmbeddedRunAttemptResult["messagesSnapshot"][number],
+          ],
+        }),
+      )
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
+
+    mockedCompactDirect.mockResolvedValueOnce({
+      ok: false,
+      compacted: false,
+      reason: "nothing to compact",
+    });
+    mockedSessionLikelyHasOversizedToolResults.mockReturnValue(true);
+    mockedTruncateOversizedToolResultsInSession.mockResolvedValueOnce({
+      truncated: true,
+      truncatedCount: 1,
+    });
+
+    const result = await runEmbeddedPiAgent(baseParams);
+
+    expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
+    expect(mockedSessionLikelyHasOversizedToolResults).toHaveBeenCalledWith(
+      expect.objectContaining({ contextWindowTokens: 200000 }),
+    );
+    expect(mockedTruncateOversizedToolResultsInSession).toHaveBeenCalledWith(
+      expect.objectContaining({ sessionFile: "/tmp/session.json" }),
+    );
+    expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(2);
+    expect(log.info).toHaveBeenCalledWith(expect.stringContaining("Truncated 1 tool result(s)"));
+    expect(result.meta.error).toBeUndefined();
+  });
+
+  it("retries compaction up to 3 times before giving up", async () => {
+    const overflowError = new Error("request_too_large: Request size exceeds model context window");
+
+    // 4 overflow errors: 3 compaction retries + final failure
+    mockedRunEmbeddedAttempt
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
+>>>>>>> 423543530 (chore: Fix types in tests 26/N.)
       .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
       .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }));
 
@@ -414,7 +470,7 @@ describe("overflow compaction in run loop", () => {
             cacheWrite: 0,
             total: 2_000,
           },
-        } as EmbeddedRunAttemptResult["lastAssistant"],
+        } as unknown as EmbeddedRunAttemptResult["lastAssistant"],
       }),
     );
 
