@@ -96,7 +96,7 @@ function createHandler(config: DiscordExecApprovalConfig, accountId = "default")
   });
 }
 
-type ExecApprovalHandlerInternals = DiscordExecApprovalHandler & {
+type ExecApprovalHandlerInternals = {
   pending: Map<
     string,
     { discordMessageId: string; discordChannelId: string; timeoutId: NodeJS.Timeout }
