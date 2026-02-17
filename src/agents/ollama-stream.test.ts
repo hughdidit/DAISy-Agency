@@ -248,7 +248,7 @@ describe("createOllamaStreamFn", () => {
     try {
       const streamFn = createOllamaStreamFn("http://ollama-host:11434/v1/");
       const signal = new AbortController().signal;
-      const stream = streamFn(
+      const stream = await streamFn(
         {
           id: "qwen3:32b",
           api: "ollama",
@@ -287,4 +287,53 @@ describe("createOllamaStreamFn", () => {
       globalThis.fetch = originalFetch;
     }
   });
+<<<<<<< HEAD
+=======
+
+  it("accumulates reasoning chunks when content is empty", async () => {
+    const originalFetch = globalThis.fetch;
+    const fetchMock = vi.fn(async () => {
+      const payload = [
+        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","reasoning":"reasoned"},"done":false}',
+        '{"model":"m","created_at":"t","message":{"role":"assistant","content":"","reasoning":" output"},"done":false}',
+        '{"model":"m","created_at":"t","message":{"role":"assistant","content":""},"done":true,"prompt_eval_count":1,"eval_count":2}',
+      ].join("\n");
+      return new Response(`${payload}\n`, {
+        status: 200,
+        headers: { "Content-Type": "application/x-ndjson" },
+      });
+    });
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    try {
+      const streamFn = createOllamaStreamFn("http://ollama-host:11434");
+      const stream = await streamFn(
+        {
+          id: "qwen3:32b",
+          api: "ollama",
+          provider: "custom-ollama",
+          contextWindow: 131072,
+        } as unknown as Parameters<typeof streamFn>[0],
+        {
+          messages: [{ role: "user", content: "hello" }],
+        } as unknown as Parameters<typeof streamFn>[1],
+        {} as unknown as Parameters<typeof streamFn>[2],
+      );
+
+      const events = [];
+      for await (const event of stream) {
+        events.push(event);
+      }
+
+      const doneEvent = events.at(-1);
+      if (!doneEvent || doneEvent.type !== "done") {
+        throw new Error("Expected done event");
+      }
+
+      expect(doneEvent.message.content).toEqual([{ type: "text", text: "reasoned output" }]);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+>>>>>>> 52ad28e09 (chore: Fix types in tests 44/N.)
 });

@@ -31,7 +31,7 @@ function mockSendResult(overrides: { channel?: string; to?: string } = {}) {
     kind: "send",
     action: "send",
     channel: overrides.channel ?? "telegram",
-    ...(overrides.to ? { to: overrides.to } : {}),
+    to: overrides.to ?? "telegram:123",
     handledBy: "plugin",
     payload: {},
     dryRun: true,
