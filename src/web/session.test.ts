@@ -196,7 +196,7 @@ describe("web session", () => {
       inFlight -= 1;
     });
     useMultiFileAuthStateMock.mockResolvedValueOnce({
-      state: { creds: {}, keys: {} },
+      state: { creds: {} as never, keys: {} as never },
       saveCreds,
     });
 
@@ -209,7 +209,7 @@ describe("web session", () => {
     await new Promise<void>((resolve) => setImmediate(resolve));
     expect(inFlight).toBe(1);
 
-    if (release) {
+    if (typeof release === "function") {
       release();
     }
 
