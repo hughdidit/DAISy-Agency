@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
 import type { RunEmbeddedPiAgentParams } from "./run/params.js";
@@ -12,6 +13,11 @@ import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { RunEmbeddedPiAgentParams } from "./run/params.js";
+import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
+import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+>>>>>>> 0c1c34c95 (refactor(plugins): split before-agent hooks by model and prompt phases)
 import { enqueueCommandInLane } from "../../process/command-queue.js";
 import { resolveUserPath } from "../../utils.js";
 import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js";
@@ -67,7 +73,6 @@ import { resolveGlobalLane, resolveSessionLane } from "./lanes.js";
 import { log } from "./logger.js";
 import { resolveModel } from "./model.js";
 import { runEmbeddedAttempt } from "./run/attempt.js";
-import type { RunEmbeddedPiAgentParams } from "./run/params.js";
 import { buildEmbeddedRunPayloads } from "./run/payloads.js";
 <<<<<<< HEAD
 =======
@@ -75,8 +80,11 @@ import {
   truncateOversizedToolResultsInSession,
   sessionLikelyHasOversizedToolResults,
 } from "./tool-result-truncation.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
+=======
+>>>>>>> 0c1c34c95 (refactor(plugins): split before-agent hooks by model and prompt phases)
 import { describeUnknownError } from "./utils.js";
 
 type ApiKeyInfo = ResolvedProviderAuth;
@@ -221,34 +229,54 @@ export async function runEmbeddedPiAgent(
         (params.config?.agents?.defaults?.model?.fallbacks?.length ?? 0) > 0;
       await ensureMoltbotModelsJson(params.config, agentDir);
 
-      // Run before_agent_start hooks early so plugins can override the model
-      // before it gets resolved. The hook result is passed downstream to
-      // attempt.ts to avoid double-firing.
-      let earlyHookResult: PluginHookBeforeAgentStartResult | undefined;
+      // Run before_model_resolve hooks early so plugins can override the
+      // provider/model before resolveModel().
+      //
+      // Legacy compatibility: before_agent_start is also checked for override
+      // fields if present. New hook takes precedence when both are set.
+      let modelResolveOverride: { providerOverride?: string; modelOverride?: string } | undefined;
       const hookRunner = getGlobalHookRunner();
+      const hookCtx = {
+        agentId: workspaceResolution.agentId,
+        sessionKey: params.sessionKey,
+        sessionId: params.sessionId,
+        workspaceDir: resolvedWorkspace,
+        messageProvider: params.messageProvider ?? undefined,
+      };
+      if (hookRunner?.hasHooks("before_model_resolve")) {
+        try {
+          modelResolveOverride = await hookRunner.runBeforeModelResolve(
+            { prompt: params.prompt },
+            hookCtx,
+          );
+        } catch (hookErr) {
+          log.warn(`before_model_resolve hook failed: ${String(hookErr)}`);
+        }
+      }
       if (hookRunner?.hasHooks("before_agent_start")) {
         try {
-          earlyHookResult = await hookRunner.runBeforeAgentStart(
+          const legacyResult = await hookRunner.runBeforeAgentStart(
             { prompt: params.prompt },
-            {
-              agentId: params.agentId,
-              sessionKey: params.sessionKey,
-              sessionId: params.sessionId,
-              workspaceDir: params.workspaceDir,
-              messageProvider: params.messageProvider ?? undefined,
-            },
+            hookCtx,
           );
-          if (earlyHookResult?.providerOverride) {
-            provider = earlyHookResult.providerOverride;
-            log.info(`[hooks] provider overridden to ${provider}`);
-          }
-          if (earlyHookResult?.modelOverride) {
-            modelId = earlyHookResult.modelOverride;
-            log.info(`[hooks] model overridden to ${modelId}`);
-          }
+          modelResolveOverride = {
+            providerOverride:
+              modelResolveOverride?.providerOverride ?? legacyResult?.providerOverride,
+            modelOverride: modelResolveOverride?.modelOverride ?? legacyResult?.modelOverride,
+          };
         } catch (hookErr) {
-          log.warn(`before_agent_start hook (early) failed: ${String(hookErr)}`);
+          log.warn(
+            `before_agent_start hook (legacy model resolve path) failed: ${String(hookErr)}`,
+          );
         }
+      }
+      if (modelResolveOverride?.providerOverride) {
+        provider = modelResolveOverride.providerOverride;
+        log.info(`[hooks] provider overridden to ${provider}`);
+      }
+      if (modelResolveOverride?.modelOverride) {
+        modelId = modelResolveOverride.modelOverride;
+        log.info(`[hooks] model overridden to ${modelId}`);
       }
 
       const { model, error, authStorage, modelRegistry } = resolveModel(
@@ -526,7 +554,6 @@ export async function runEmbeddedPiAgent(
             streamParams: params.streamParams,
             ownerNumbers: params.ownerNumbers,
             enforceFinalTag: params.enforceFinalTag,
-            earlyHookResult,
           });
 
 <<<<<<< HEAD
