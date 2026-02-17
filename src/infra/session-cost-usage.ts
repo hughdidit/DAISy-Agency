@@ -6,14 +6,24 @@ import type { NormalizedUsage, UsageLike } from "../agents/usage.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import { normalizeUsage } from "../agents/usage.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 9789dfd95 (fix(ui): correct usage range totals and muted styles)
+=======
+import { normalizeUsage } from "../agents/usage.js";
+>>>>>>> 262b7a157 (chore: chore: Fix types in tests 12/N.)
 import type { OpenClawConfig } from "../config/config.js";
+import {
+  resolveSessionFilePath,
+  resolveSessionTranscriptsDirForAgent,
+} from "../config/sessions/paths.js";
 import type { SessionEntry } from "../config/sessions/types.js";
+import { countToolResults, extractToolCallNames } from "../utils/transcript-tools.js";
+import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
 import type {
   CostBreakdown,
   CostUsageTotals,
@@ -36,6 +46,7 @@ import type {
 } from "./session-cost-usage.types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> c256503ea (refactor(infra): extract session cost usage types)
 import { normalizeUsage } from "../agents/usage.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -54,6 +65,8 @@ import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 9789dfd95 (fix(ui): correct usage range totals and muted styles)
+=======
+>>>>>>> 262b7a157 (chore: chore: Fix types in tests 12/N.)
 
 export type {
   CostUsageDailyEntry,
