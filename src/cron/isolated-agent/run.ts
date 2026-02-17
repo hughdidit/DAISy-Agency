@@ -44,6 +44,7 @@ import type { AgentDefaultsConfig } from "../../config/types.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
 import { resolveAgentOutboundIdentity } from "../../infra/outbound/identity.js";
+import { resolveOutboundSessionRoute } from "../../infra/outbound/outbound-session.js";
 import { logWarn } from "../../logger.js";
 import { buildAgentMainSessionKey, normalizeAgentId } from "../../routing/session-key.js";
 import {
@@ -98,6 +99,40 @@ function resolveCronDeliveryBestEffort(job: CronJob): boolean {
     return job.payload.bestEffortDeliver;
   }
   return false;
+}
+
+async function resolveCronAnnounceSessionKey(params: {
+  cfg: OpenClawConfig;
+  agentId: string;
+  fallbackSessionKey: string;
+  delivery: {
+    channel: Parameters<typeof resolveOutboundSessionRoute>[0]["channel"];
+    to?: string;
+    accountId?: string;
+    threadId?: string | number;
+  };
+}): Promise<string> {
+  const to = params.delivery.to?.trim();
+  if (!to) {
+    return params.fallbackSessionKey;
+  }
+  try {
+    const route = await resolveOutboundSessionRoute({
+      cfg: params.cfg,
+      channel: params.delivery.channel,
+      agentId: params.agentId,
+      accountId: params.delivery.accountId,
+      target: to,
+      threadId: params.delivery.threadId,
+    });
+    const resolved = route?.sessionKey?.trim();
+    if (resolved) {
+      return resolved;
+    }
+  } catch {
+    // Fall back to main session routing if announce session resolution fails.
+  }
+  return params.fallbackSessionKey;
 }
 
 export type RunCronAgentTurnResult = {
@@ -602,9 +637,17 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
     }
     const identity = resolveAgentOutboundIdentity(cfgWithAgentDefaults, agentId);
 
+<<<<<<< HEAD
     // Shared subagent announce flow is text-based. When we have an explicit sender
     // identity to preserve, prefer direct outbound delivery even for plain-text payloads.
     if (deliveryPayloadHasStructuredContent || identity) {
+=======
+    // Route text-only cron announce output back through the main session so it
+    // follows the same system-message injection path as subagent completions.
+    // Keep direct outbound delivery only for structured payloads (media/channel
+    // data), which cannot be represented by the shared announce flow.
+    if (deliveryPayloadHasStructuredContent) {
+>>>>>>> 75001a049 (fix cron announce routing and timeout handling)
       try {
 <<<<<<< HEAD
         await deliverOutboundPayloads({
@@ -620,7 +663,7 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
         delivered = true;
 =======
         const payloadsForDelivery =
-          deliveryPayloadHasStructuredContent && deliveryPayloads.length > 0
+          deliveryPayloads.length > 0
             ? deliveryPayloads
             : synthesizedText
               ? [{ text: synthesizedText }]
@@ -652,9 +695,20 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
         }
       }
     } else if (synthesizedText) {
-      const announceSessionKey = resolveAgentMainSessionKey({
+      const announceMainSessionKey = resolveAgentMainSessionKey({
         cfg: params.cfg,
         agentId,
+      });
+      const announceSessionKey = await resolveCronAnnounceSessionKey({
+        cfg: cfgWithAgentDefaults,
+        agentId,
+        fallbackSessionKey: announceMainSessionKey,
+        delivery: {
+          channel: resolvedDelivery.channel,
+          to: resolvedDelivery.to,
+          accountId: resolvedDelivery.accountId,
+          threadId: resolvedDelivery.threadId,
+        },
       });
       const taskLabel =
         typeof params.job.name === "string" && params.job.name.trim()
