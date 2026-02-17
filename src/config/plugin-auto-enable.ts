@@ -1,10 +1,13 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "./config.js";
 =======
 =======
 import type { OpenClawConfig } from "./config.js";
 >>>>>>> 519517915 (refactor: centralize plugin allowlist mutation)
+=======
+>>>>>>> 5115f6fdf (style: normalize imports for oxfmt 0.33)
 import { normalizeProviderId } from "../agents/model-selection.js";
 import {
   getChannelPluginCatalogEntry,
@@ -26,6 +29,7 @@ import { normalizeProviderId } from "../agents/model-selection.js";
 import { isRecord } from "../utils.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { hasAnyWhatsAppAuth } from "../web/accounts.js";
+import type { OpenClawConfig } from "./config.js";
 import { ensurePluginAllowlisted } from "./plugins-allowlist.js";
 
 type PluginEnableChange = {
