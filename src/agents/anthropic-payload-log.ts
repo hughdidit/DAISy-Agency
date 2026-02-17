@@ -1,5 +1,4 @@
 import crypto from "node:crypto";
-import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -17,7 +16,11 @@ import { resolveUserPath } from "../utils.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 =======
 import { safeJsonStringify } from "../utils/safe-json.js";
+<<<<<<< HEAD
 >>>>>>> d82c5ea9d (refactor(utils): share safe json stringify)
+=======
+import { getQueuedFileWriter, type QueuedFileWriter } from "./queued-file-writer.js";
+>>>>>>> 817b5812e (refactor(agents): share queued JSONL file writer)
 
 type PayloadLogStage = "request" | "usage";
 
@@ -42,10 +45,7 @@ type PayloadLogConfig = {
   filePath: string;
 };
 
-type PayloadLogWriter = {
-  filePath: string;
-  write: (line: string) => void;
-};
+type PayloadLogWriter = QueuedFileWriter;
 
 const writers = new Map<string, PayloadLogWriter>();
 const log = createSubsystemLogger("agent/anthropic-payload");
@@ -60,27 +60,7 @@ function resolvePayloadLogConfig(env: NodeJS.ProcessEnv): PayloadLogConfig {
 }
 
 function getWriter(filePath: string): PayloadLogWriter {
-  const existing = writers.get(filePath);
-  if (existing) {
-    return existing;
-  }
-
-  const dir = path.dirname(filePath);
-  const ready = fs.mkdir(dir, { recursive: true }).catch(() => undefined);
-  let queue = Promise.resolve();
-
-  const writer: PayloadLogWriter = {
-    filePath,
-    write: (line: string) => {
-      queue = queue
-        .then(() => ready)
-        .then(() => fs.appendFile(filePath, line, "utf8"))
-        .catch(() => undefined);
-    },
-  };
-
-  writers.set(filePath, writer);
-  return writer;
+  return getQueuedFileWriter(writers, filePath);
 }
 
 function formatError(error: unknown): string | undefined {

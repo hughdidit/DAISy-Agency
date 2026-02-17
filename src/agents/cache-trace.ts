@@ -1,5 +1,4 @@
 import crypto from "node:crypto";
-import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -16,7 +15,11 @@ import { parseBooleanValue } from "../utils/boolean.js";
 import { resolveUserPath } from "../utils.js";
 =======
 import { safeJsonStringify } from "../utils/safe-json.js";
+<<<<<<< HEAD
 >>>>>>> d82c5ea9d (refactor(utils): share safe json stringify)
+=======
+import { getQueuedFileWriter, type QueuedFileWriter } from "./queued-file-writer.js";
+>>>>>>> 817b5812e (refactor(agents): share queued JSONL file writer)
 
 export type CacheTraceStage =
   | "session:loaded"
@@ -80,10 +83,7 @@ type CacheTraceConfig = {
   includeSystem: boolean;
 };
 
-type CacheTraceWriter = {
-  filePath: string;
-  write: (line: string) => void;
-};
+type CacheTraceWriter = QueuedFileWriter;
 
 const writers = new Map<string, CacheTraceWriter>();
 
@@ -112,27 +112,7 @@ function resolveCacheTraceConfig(params: CacheTraceInit): CacheTraceConfig {
 }
 
 function getWriter(filePath: string): CacheTraceWriter {
-  const existing = writers.get(filePath);
-  if (existing) {
-    return existing;
-  }
-
-  const dir = path.dirname(filePath);
-  const ready = fs.mkdir(dir, { recursive: true }).catch(() => undefined);
-  let queue = Promise.resolve();
-
-  const writer: CacheTraceWriter = {
-    filePath,
-    write: (line: string) => {
-      queue = queue
-        .then(() => ready)
-        .then(() => fs.appendFile(filePath, line, "utf8"))
-        .catch(() => undefined);
-    },
-  };
-
-  writers.set(filePath, writer);
-  return writer;
+  return getQueuedFileWriter(writers, filePath);
 }
 
 function stableStringify(value: unknown): string {
