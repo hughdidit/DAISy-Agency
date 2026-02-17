@@ -2,9 +2,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type {
   ChannelOutboundAdapter,
@@ -20,6 +23,7 @@ import type { OutboundIdentity } from "./identity.js";
 import type { NormalizedOutboundPayload } from "./payloads.js";
 import type { OutboundChannel } from "./targets.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 50645b905 (refactor(outbound): centralize outbound identity)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -27,15 +31,17 @@ import type { OutboundChannel } from "./targets.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
 import {
   chunkByParagraph,
   chunkMarkdownTextWithMode,
   resolveChunkMode,
   resolveTextChunkLimit,
 } from "../../auto-reply/chunk.js";
-import type { ReplyPayload } from "../../auto-reply/types.js";
 import { resolveChannelMediaMaxBytes } from "../../channels/plugins/media-limits.js";
 import { loadChannelOutboundAdapter } from "../../channels/plugins/outbound/load.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -55,6 +61,8 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import type { sendMessageDiscord } from "../../discord/send.js";
 import type { sendMessageIMessage } from "../../imessage/send.js";
@@ -71,6 +79,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { NormalizedOutboundPayload } from "./payloads.js";
 =======
 =======
@@ -82,14 +91,14 @@ import type { sendMessageIMessage } from "../../imessage/send.js";
 import type { sendMessageDiscord } from "../../discord/send.js";
 import type { sendMessageIMessage } from "../../imessage/send.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
+>>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
 import { sendMessageSignal } from "../../signal/send.js";
-import type { sendMessageSlack } from "../../slack/send.js";
-import type { sendMessageTelegram } from "../../telegram/send.js";
-import type { sendMessageWhatsApp } from "../../web/outbound.js";
 import { throwIfAborted } from "./abort.js";
 <<<<<<< HEAD
 >>>>>>> 79c246666 (refactor: consolidate throwIfAborted + fix isCompactionFailureError (#12463))
@@ -97,6 +106,7 @@ import { throwIfAborted } from "./abort.js";
 import { ackDelivery, enqueueDelivery, failDelivery } from "./delivery-queue.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { OutboundIdentity } from "./identity.js";
 import type { NormalizedOutboundPayload } from "./payloads.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -106,8 +116,9 @@ import type { NormalizedOutboundPayload } from "./payloads.js";
 import type { OutboundIdentity } from "./identity.js";
 import type { NormalizedOutboundPayload } from "./payloads.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
-import type { OutboundChannel } from "./targets.js";
 
 export type { NormalizedOutboundPayload } from "./payloads.js";
 export { normalizeOutboundPayloads } from "./payloads.js";
@@ -595,13 +606,85 @@ async function deliverOutboundPayloadsCore(
       })),
     };
   };
+<<<<<<< HEAD
   const normalizedPayloads = normalizeReplyPayloadsForDelivery(payloads);
+=======
+  const normalizeWhatsAppPayload = (payload: ReplyPayload): ReplyPayload | null => {
+    const hasMedia = Boolean(payload.mediaUrl) || (payload.mediaUrls?.length ?? 0) > 0;
+    const rawText = typeof payload.text === "string" ? payload.text : "";
+    const normalizedText = rawText.replace(/^(?:[ \t]*\r?\n)+/, "");
+    if (!normalizedText.trim()) {
+      if (!hasMedia) {
+        return null;
+      }
+      return {
+        ...payload,
+        text: "",
+      };
+    }
+    return {
+      ...payload,
+      text: normalizedText,
+    };
+  };
+  const normalizedPayloads = normalizeReplyPayloadsForDelivery(payloads).flatMap((payload) => {
+    if (channel !== "whatsapp") {
+      return [payload];
+    }
+    const normalized = normalizeWhatsAppPayload(payload);
+    return normalized ? [normalized] : [];
+  });
+  const hookRunner = getGlobalHookRunner();
+  const sessionKeyForInternalHooks = params.mirror?.sessionKey;
+>>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
   for (const payload of normalizedPayloads) {
     const payloadSummary: NormalizedOutboundPayload = {
       text: payload.text ?? "",
       mediaUrls: payload.mediaUrls ?? (payload.mediaUrl ? [payload.mediaUrl] : []),
       channelData: payload.channelData,
     };
+<<<<<<< HEAD
+=======
+    const emitMessageSent = (params: {
+      success: boolean;
+      content: string;
+      error?: string;
+      messageId?: string;
+    }) => {
+      if (hookRunner?.hasHooks("message_sent")) {
+        void hookRunner
+          .runMessageSent(
+            {
+              to,
+              content: params.content,
+              success: params.success,
+              ...(params.error ? { error: params.error } : {}),
+            },
+            {
+              channelId: channel,
+              accountId: accountId ?? undefined,
+              conversationId: to,
+            },
+          )
+          .catch(() => {});
+      }
+      if (!sessionKeyForInternalHooks) {
+        return;
+      }
+      void triggerInternalHook(
+        createInternalHookEvent("message", "sent", sessionKeyForInternalHooks, {
+          to,
+          content: params.content,
+          success: params.success,
+          ...(params.error ? { error: params.error } : {}),
+          channelId: channel,
+          accountId: accountId ?? undefined,
+          conversationId: to,
+          messageId: params.messageId,
+        }),
+      ).catch(() => {});
+    };
+>>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
     try {
       throwIfAborted(abortSignal);
       params.onPayload?.(payloadSummary);
@@ -614,32 +697,71 @@ async function deliverOutboundPayloadsCore(
         threadId: params.threadId ?? undefined,
       };
       if (handler.sendPayload && effectivePayload.channelData) {
+<<<<<<< HEAD
         results.push(await handler.sendPayload(effectivePayload, sendOverrides));
         emitMessageSent(true);
 >>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
+=======
+        const delivery = await handler.sendPayload(effectivePayload, sendOverrides);
+        results.push(delivery);
+        emitMessageSent({
+          success: true,
+          content: payloadSummary.text,
+          messageId: delivery.messageId,
+        });
+>>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
         continue;
       }
       if (payloadSummary.mediaUrls.length === 0) {
+        const beforeCount = results.length;
         if (isSignalChannel) {
           await sendSignalTextChunks(payloadSummary.text);
         } else {
           await sendTextChunks(payloadSummary.text, sendOverrides);
         }
+<<<<<<< HEAD
+=======
+        const messageId = results.at(-1)?.messageId;
+        emitMessageSent({
+          success: results.length > beforeCount,
+          content: payloadSummary.text,
+          messageId,
+        });
+>>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
         continue;
       }
 
       let first = true;
+      let lastMessageId: string | undefined;
       for (const url of payloadSummary.mediaUrls) {
         throwIfAborted(abortSignal);
         const caption = first ? payloadSummary.text : "";
         first = false;
         if (isSignalChannel) {
-          results.push(await sendSignalMedia(caption, url));
+          const delivery = await sendSignalMedia(caption, url);
+          results.push(delivery);
+          lastMessageId = delivery.messageId;
         } else {
-          results.push(await handler.sendMedia(caption, url, sendOverrides));
+          const delivery = await handler.sendMedia(caption, url, sendOverrides);
+          results.push(delivery);
+          lastMessageId = delivery.messageId;
         }
       }
+<<<<<<< HEAD
     } catch (err) {
+=======
+      emitMessageSent({
+        success: true,
+        content: payloadSummary.text,
+        messageId: lastMessageId,
+      });
+    } catch (err) {
+      emitMessageSent({
+        success: false,
+        content: payloadSummary.text,
+        error: err instanceof Error ? err.message : String(err),
+      });
+>>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
       if (!params.bestEffort) {
         throw err;
       }
@@ -659,5 +781,6 @@ async function deliverOutboundPayloadsCore(
       });
     }
   }
+
   return results;
 }
