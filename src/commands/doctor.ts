@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 
@@ -11,7 +12,12 @@ import { intro as clackIntro, outro as clackOutro } from "@clack/prompts";
 =======
 >>>>>>> 9c5f08244 (chore: Format files.)
 import fs from "node:fs";
+=======
+>>>>>>> 1486eb66f (revert(gateway): restore loopback auth setup)
 import { intro as clackIntro, outro as clackOutro } from "@clack/prompts";
+import fs from "node:fs";
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
@@ -24,6 +30,7 @@ import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
@@ -33,6 +40,8 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 9c5f08244 (chore: Format files.)
+=======
+>>>>>>> 1486eb66f (revert(gateway): restore loopback auth setup)
 import { CONFIG_PATH, readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { resolveGatewayService } from "../daemon/service.js";
@@ -44,6 +53,7 @@ import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../runtime.js";
 =======
@@ -51,6 +61,8 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 9c5f08244 (chore: Format files.)
+=======
+>>>>>>> 1486eb66f (revert(gateway): restore loopback auth setup)
 import { defaultRuntime } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { stylePromptTitle } from "../terminal/prompt-style.js";
@@ -374,23 +386,23 @@ export async function doctorCommand(
     note(gatewayDetails.remoteFallbackNote, "Gateway");
   }
   if (resolveMode(cfg) === "local") {
-    const gatewayBind = cfg.gateway?.bind ?? "loopback";
-    const tailscaleMode = cfg.gateway?.tailscale?.mode ?? "off";
-    const requireGatewayAuth = gatewayBind !== "loopback" || tailscaleMode !== "off";
     const auth = resolveGatewayAuth({
       authConfig: cfg.gateway?.auth,
+<<<<<<< HEAD
 <<<<<<< HEAD
       tailscaleMode: cfg.gateway?.tailscale?.mode ?? "off",
 >>>>>>> 78c34bcf3 (Add runtime quiting functionality to doctor.ts)
 =======
       tailscaleMode,
 >>>>>>> 9aa8db5c8 (fix(doctor,configure): skip gateway auth for loopback-only setups)
+=======
+      tailscaleMode: cfg.gateway?.tailscale?.mode ?? "off",
+>>>>>>> 1486eb66f (revert(gateway): restore loopback auth setup)
     });
-    const needsToken =
-      requireGatewayAuth && auth.mode !== "password" && (auth.mode !== "token" || !auth.token);
+    const needsToken = auth.mode !== "password" && (auth.mode !== "token" || !auth.token);
     if (needsToken) {
       note(
-        "Gateway auth is off or missing a token. Token auth is recommended when the gateway is exposed beyond local loopback.",
+        "Gateway auth is off or missing a token. Token auth is now the recommended default (including loopback).",
         "Gateway auth",
       );
       const shouldSetToken =
