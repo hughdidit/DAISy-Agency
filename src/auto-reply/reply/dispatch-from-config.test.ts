@@ -6,9 +6,11 @@ import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { ReplyDispatcher } from "./reply-dispatcher.js";
 import { buildTestCtx } from "./test-ctx.js";
 
+type AbortResult = { handled: boolean; aborted: boolean; stoppedSubagents?: number };
+
 const mocks = vi.hoisted(() => ({
-  routeReply: vi.fn(async () => ({ ok: true, messageId: "mock" })),
-  tryFastAbortFromMessage: vi.fn(async () => ({
+  routeReply: vi.fn(async (_params: unknown) => ({ ok: true, messageId: "mock" })),
+  tryFastAbortFromMessage: vi.fn<() => Promise<AbortResult>>(async () => ({
     handled: false,
     aborted: false,
   })),
@@ -121,8 +123,13 @@ describe("dispatchReplyFromConfig", () => {
 
     const replyResolver = async (
       _ctx: MsgContext,
+<<<<<<< HEAD
       _opts: GetReplyOptions | undefined,
       _cfg: MoltbotConfig,
+=======
+      _opts?: GetReplyOptions,
+      _cfg?: OpenClawConfig,
+>>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
     ) => ({ text: "hi" }) satisfies ReplyPayload;
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
 
@@ -149,8 +156,13 @@ describe("dispatchReplyFromConfig", () => {
 
     const replyResolver = async (
       _ctx: MsgContext,
+<<<<<<< HEAD
       _opts: GetReplyOptions | undefined,
       _cfg: MoltbotConfig,
+=======
+      _opts?: GetReplyOptions,
+      _cfg?: OpenClawConfig,
+>>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
     ) => ({ text: "hi" }) satisfies ReplyPayload;
     await dispatchReplyFromConfig({ ctx, cfg, dispatcher, replyResolver });
 
@@ -180,8 +192,8 @@ describe("dispatchReplyFromConfig", () => {
 
     const replyResolver = async (
       _ctx: MsgContext,
-      opts: GetReplyOptions | undefined,
-      _cfg: OpenClawConfig,
+      opts?: GetReplyOptions,
+      _cfg?: OpenClawConfig,
     ) => {
       expect(opts?.onToolResult).toBeDefined();
       await opts?.onToolResult?.({
@@ -217,8 +229,13 @@ describe("dispatchReplyFromConfig", () => {
 
     const replyResolver = async (
       _ctx: MsgContext,
+<<<<<<< HEAD
       opts: GetReplyOptions | undefined,
       _cfg: ClawdbotConfig,
+=======
+      opts?: GetReplyOptions,
+      _cfg?: OpenClawConfig,
+>>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
     ) => {
       expect(opts?.onToolResult).toBeDefined();
       expect(typeof opts?.onToolResult).toBe("function");
@@ -248,8 +265,13 @@ describe("dispatchReplyFromConfig", () => {
 
     const replyResolver = async (
       _ctx: MsgContext,
+<<<<<<< HEAD
       opts: GetReplyOptions | undefined,
       _cfg: MoltbotConfig,
+=======
+      opts?: GetReplyOptions,
+      _cfg?: OpenClawConfig,
+>>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
     ) => {
       expect(opts?.onToolResult).toBeDefined();
       await opts?.onToolResult?.({ text: "🔧 exec: ls" });
@@ -288,8 +310,13 @@ describe("dispatchReplyFromConfig", () => {
 
     const replyResolver = async (
       _ctx: MsgContext,
+<<<<<<< HEAD
       opts: GetReplyOptions | undefined,
       _cfg: ClawdbotConfig,
+=======
+      opts?: GetReplyOptions,
+      _cfg?: OpenClawConfig,
+>>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
     ) => {
       // Simulate tool result emission
       await opts?.onToolResult?.({ text: "🔧 exec: ls" });
@@ -317,8 +344,8 @@ describe("dispatchReplyFromConfig", () => {
 
     const replyResolver = async (
       _ctx: MsgContext,
-      opts: GetReplyOptions | undefined,
-      _cfg: OpenClawConfig,
+      opts?: GetReplyOptions,
+      _cfg?: OpenClawConfig,
     ) => {
       expect(opts?.onToolResult).toBeDefined();
       await opts?.onToolResult?.({ text: "🔧 tools/sessions_send" });

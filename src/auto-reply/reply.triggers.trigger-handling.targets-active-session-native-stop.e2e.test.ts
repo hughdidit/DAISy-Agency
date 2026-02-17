@@ -81,7 +81,7 @@ describe("trigger handling", () => {
       const targetSessionKey = "agent:main:telegram:group:123";
       const targetSessionId = "session-target";
       await fs.writeFile(
-        cfg.session.store,
+        cfg.session!.store,
         JSON.stringify(
           {
             [targetSessionKey]: {
@@ -140,7 +140,7 @@ describe("trigger handling", () => {
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(text).toBe("⚙️ Agent was aborted.");
       expect(getAbortEmbeddedPiRunMock()).toHaveBeenCalledWith(targetSessionId);
-      const store = loadSessionStore(cfg.session.store);
+      const store = loadSessionStore(cfg.session!.store);
       expect(store[targetSessionKey]?.abortedLastRun).toBe(true);
       expect(getFollowupQueueDepth(targetSessionKey)).toBe(0);
     });
@@ -153,7 +153,7 @@ describe("trigger handling", () => {
 
       // Seed the target session to ensure the native command mutates it.
       await fs.writeFile(
-        cfg.session.store,
+        cfg.session!.store,
         JSON.stringify(
           {
             [targetSessionKey]: {
@@ -186,7 +186,7 @@ describe("trigger handling", () => {
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(text).toContain("Model set to openai/gpt-4.1-mini");
 
-      const store = loadSessionStore(cfg.session.store);
+      const store = loadSessionStore(cfg.session!.store);
       expect(store[targetSessionKey]?.providerOverride).toBe("openai");
       expect(store[targetSessionKey]?.modelOverride).toBe("gpt-4.1-mini");
       expect(store[slashSessionKey]).toBeUndefined();

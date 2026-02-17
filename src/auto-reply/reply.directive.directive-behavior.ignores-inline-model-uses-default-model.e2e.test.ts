@@ -126,8 +126,13 @@ describe("directive behavior", () => {
         {
           agents: {
             defaults: {
+<<<<<<< HEAD
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
+=======
+              model: { primary: "anthropic/claude-opus-4-5" },
+              workspace: path.join(home, "openclaw"),
+>>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
             },
           },
           channels: { whatsapp: { allowFrom: ["*"] } },
@@ -163,8 +168,13 @@ describe("directive behavior", () => {
         {
           agents: {
             defaults: {
+<<<<<<< HEAD
               model: "anthropic/claude-opus-4-5",
               workspace: path.join(home, "clawd"),
+=======
+              model: { primary: "anthropic/claude-opus-4-5" },
+              workspace: path.join(home, "openclaw"),
+>>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
             },
           },
           tools: {

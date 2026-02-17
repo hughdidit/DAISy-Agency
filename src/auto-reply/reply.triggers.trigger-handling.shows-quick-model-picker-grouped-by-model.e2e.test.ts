@@ -125,7 +125,7 @@ describe("trigger handling", () => {
 
       expect(normalized).toContain("Model set to openrouter/anthropic/claude-opus-4-5");
 
-      const store = loadSessionStore(cfg.session.store);
+      const store = loadSessionStore(cfg.session!.store);
       expect(store[sessionKey]?.providerOverride).toBe("openrouter");
       expect(store[sessionKey]?.modelOverride).toBe("anthropic/claude-opus-4-5");
     });
@@ -139,7 +139,7 @@ describe("trigger handling", () => {
       expect(normalized).toContain("Browse: /models or /models <provider>");
       expect(normalized).toContain("Switch: /model <provider/model>");
 
-      const store = loadSessionStore(cfg.session.store);
+      const store = loadSessionStore(cfg.session!.store);
       expect(store[sessionKey]?.providerOverride).toBeUndefined();
       expect(store[sessionKey]?.modelOverride).toBeUndefined();
     });
@@ -154,7 +154,7 @@ describe("trigger handling", () => {
 
       expect(normalized).toContain("Model reset to default (anthropic/claude-opus-4-5)");
 
-      const store = loadSessionStore(cfg.session.store);
+      const store = loadSessionStore(cfg.session!.store);
       expect(store[sessionKey]?.providerOverride).toBeUndefined();
       expect(store[sessionKey]?.modelOverride).toBeUndefined();
     });
@@ -166,7 +166,7 @@ describe("trigger handling", () => {
 
       expect(normalized).toContain("Model set to openai/gpt-5.2");
 
-      const store = loadSessionStore(cfg.session.store);
+      const store = loadSessionStore(cfg.session!.store);
       expect(store[sessionKey]?.providerOverride).toBe("openai");
       expect(store[sessionKey]?.modelOverride).toBe("gpt-5.2");
     });

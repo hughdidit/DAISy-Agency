@@ -97,7 +97,7 @@ describe("trigger handling", () => {
         Provider: "whatsapp",
       } as Parameters<typeof resolveSessionKey>[1]);
       await fs.writeFile(
-        cfg.session.store,
+        cfg.session!.store,
         JSON.stringify(
           {
             [sessionKey]: {

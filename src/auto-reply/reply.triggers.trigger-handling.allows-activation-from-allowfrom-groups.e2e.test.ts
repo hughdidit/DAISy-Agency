@@ -109,8 +109,13 @@ describe("trigger handling", () => {
         {
           agents: {
             defaults: {
+<<<<<<< HEAD
               model: "anthropic/claude-opus-4-5",
               workspace: join(home, "clawd"),
+=======
+              model: { primary: "anthropic/claude-opus-4-5" },
+              workspace: join(home, "openclaw"),
+>>>>>>> 50fd2a99b (chore: Fix types in tests 13/N.)
             },
           },
           channels: {
