@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 <<<<<<< HEAD
@@ -37,10 +38,13 @@ import os from "node:os";
 import fs from "node:fs/promises";
 import os from "node:os";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -69,6 +73,11 @@ import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import fs from "node:fs/promises";
+import os from "node:os";
+import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types.js";
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
 <<<<<<< HEAD
 =======
@@ -118,7 +127,11 @@ import { resolveMoltbotDocsPath } from "../../docs-path.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../../defaults.js";
 import { resolveOpenClawDocsPath } from "../../docs-path.js";
 import { isTimeoutError } from "../../failover-error.js";
+<<<<<<< HEAD
 >>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
+=======
+import { resolveImageSanitizationLimits } from "../../image-sanitization.js";
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 import { resolveModelAuthMode } from "../../model-auth.js";
 <<<<<<< HEAD
 =======
@@ -232,7 +245,6 @@ import {
 } from "./compaction-timeout.js";
 >>>>>>> e6f67d5f3 (fix(agent): prevent session lock deadlock on timeout during compaction (#9855))
 import { detectAndLoadPromptImages } from "./images.js";
-import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types.js";
 
 export function injectHistoryImagesIntoMessages(
   messages: AgentMessage[],
@@ -815,6 +827,7 @@ export async function runEmbeddedAttempt(
           modelApi: params.model.api,
           modelId: params.modelId,
           provider: params.provider,
+          config: params.config,
           sessionManager,
           sessionId: params.sessionId,
           policy: transcriptPolicy,
@@ -1149,6 +1162,7 @@ export async function runEmbeddedAttempt(
             existingImages: params.images,
             historyMessages: activeSession.messages,
             maxBytes: MAX_IMAGE_BYTES,
+            maxDimensionPx: resolveImageSanitizationLimits(params.config).maxDimensionPx,
             // Enforce sandbox path restrictions when sandbox is enabled
             sandboxRoot: sandbox?.enabled ? sandbox.workspaceDir : undefined,
           });

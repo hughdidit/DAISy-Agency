@@ -10,6 +10,9 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
+import type { ModelAuthMode } from "./model-auth.js";
+import type { AnyAgentTool } from "./pi-tools.types.js";
+import type { SandboxContext } from "./sandbox.js";
 import { logWarn } from "../logger.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 >>>>>>> 076df941a (feat: add configurable tool loop detection)
@@ -23,6 +26,7 @@ import {
   type ProcessToolDefaults,
 } from "./bash-tools.js";
 import { listChannelAgentTools } from "./channel-tools.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -42,6 +46,9 @@ import type { ModelAuthMode } from "./model-auth.js";
 =======
 import type { ModelAuthMode } from "./model-auth.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { resolveImageSanitizationLimits } from "./image-sanitization.js";
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
@@ -63,6 +70,7 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -95,6 +103,8 @@ import type { SandboxContext } from "./sandbox.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import {
@@ -368,6 +378,14 @@ export function createMoltbotCodingTools(options?: {
       allowModels: applyPatchConfig?.allowModels,
     });
 
+<<<<<<< HEAD
+=======
+  if (sandboxRoot && !sandboxFsBridge) {
+    throw new Error("Sandbox filesystem bridge is unavailable.");
+  }
+  const imageSanitization = resolveImageSanitizationLimits(options?.config);
+
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
   const base = (codingTools as unknown as AnyAgentTool[]).flatMap((tool) => {
     if (tool.name === readTool.name) {
       if (sandboxRoot) {
@@ -381,12 +399,14 @@ export function createMoltbotCodingTools(options?: {
           root: sandboxRoot,
           bridge: sandboxFsBridge!,
           modelContextWindowTokens: options?.modelContextWindowTokens,
+          imageSanitization,
         });
         return [workspaceOnly ? wrapToolWorkspaceRootGuard(sandboxed, sandboxRoot) : sandboxed];
       }
       const freshReadTool = createReadTool(workspaceRoot);
       const wrapped = createOpenClawReadTool(freshReadTool, {
         modelContextWindowTokens: options?.modelContextWindowTokens,
+        imageSanitization,
       });
       return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
 >>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))

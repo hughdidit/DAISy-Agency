@@ -99,7 +99,15 @@ It writes a restart sentinel and pings the last active session after the Gateway
 Warning: `config.apply` replaces the **entire config**. If you want to change only a few keys,
 use `config.patch` or `moltbot config set`. Keep a backup of `~/.clawdbot/moltbot.json`.
 
+<<<<<<< HEAD
 Params:
+=======
+    - `agents.defaults.models` defines the model catalog and acts as the allowlist for `/model`.
+    - Model refs use `provider/model` format (e.g. `anthropic/claude-opus-4-6`).
+    - `agents.defaults.imageMaxDimensionPx` controls transcript/tool image downscaling (default `1200`).
+    - See [Models CLI](/concepts/models) for switching models in chat and [Model Failover](/concepts/model-failover) for auth rotation and fallback behavior.
+    - For custom/self-hosted providers, see [Custom providers](/gateway/configuration-reference#custom-providers-and-base-urls) in the reference.
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 
 - `raw` (string) — JSON5 payload for the entire config
 - `baseHash` (optional) — config hash from `config.get` (required when a config already exists)

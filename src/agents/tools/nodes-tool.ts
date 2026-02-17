@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 
@@ -34,6 +35,12 @@ import crypto from "node:crypto";
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import { Type } from "@sinclair/typebox";
+import crypto from "node:crypto";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 import {
   type CameraFacing,
   cameraTempPath,
@@ -54,6 +61,7 @@ import { parseDurationMs } from "../../cli/parse-duration.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -68,8 +76,11 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 import { imageMimeFromFormat } from "../../media/mime.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
+import { resolveImageSanitizationLimits } from "../image-sanitization.js";
 import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
 import { type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
@@ -151,6 +162,7 @@ export function createNodesTool(options?: {
     sessionKey: options?.agentSessionKey,
     config: options?.config,
   });
+  const imageSanitization = resolveImageSanitizationLimits(options?.config);
   return {
     label: "Nodes",
     name: "nodes",
@@ -301,7 +313,7 @@ export function createNodesTool(options?: {
             }
 
             const result: AgentToolResult<unknown> = { content, details };
-            return await sanitizeToolResultImages(result, "nodes:camera_snap");
+            return await sanitizeToolResultImages(result, "nodes:camera_snap", imageSanitization);
           }
           case "camera_list": {
             const node = readStringParam(params, "node", { required: true });

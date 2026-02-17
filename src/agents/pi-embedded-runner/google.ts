@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { EventEmitter } from "node:events";
 <<<<<<< HEAD
 
@@ -42,6 +43,21 @@ import type { TSchema } from "@sinclair/typebox";
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { registerUnhandledRejectionHandler } from "../../infra/unhandled-rejections.js";
 import {
+=======
+import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
+import type { SessionManager } from "@mariozechner/pi-coding-agent";
+import type { TSchema } from "@sinclair/typebox";
+import { EventEmitter } from "node:events";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { TranscriptPolicy } from "../transcript-policy.js";
+import { registerUnhandledRejectionHandler } from "../../infra/unhandled-rejections.js";
+import {
+  hasInterSessionUserProvenance,
+  normalizeInputProvenance,
+} from "../../sessions/input-provenance.js";
+import { resolveImageSanitizationLimits } from "../image-sanitization.js";
+import {
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
   downgradeOpenAIReasoningBlocks,
   isCompactionFailureError,
   isGoogleModelApi,
@@ -57,7 +73,6 @@ import {
   stripToolResultDetails,
   sanitizeToolUseResultPairing,
 } from "../session-transcript-repair.js";
-import type { TranscriptPolicy } from "../transcript-policy.js";
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
 >>>>>>> 0da6de662 (Agent: repair malformed tool calls and session files)
 import { log } from "./logger.js";
@@ -377,6 +392,7 @@ export async function sanitizeSessionHistory(params: {
   modelApi?: string | null;
   modelId?: string;
   provider?: string;
+  config?: OpenClawConfig;
   sessionManager: SessionManager;
   sessionId: string;
   policy?: TranscriptPolicy;
@@ -389,6 +405,7 @@ export async function sanitizeSessionHistory(params: {
       provider: params.provider,
       modelId: params.modelId,
     });
+<<<<<<< HEAD
   const sanitizedImages = await sanitizeSessionMessagesImages(params.messages, "session:history", {
     sanitizeMode: policy.sanitizeMode,
     sanitizeToolCallIds: policy.sanitizeToolCallIds,
@@ -396,6 +413,21 @@ export async function sanitizeSessionHistory(params: {
     preserveSignatures: policy.preserveSignatures,
     sanitizeThoughtSignatures: policy.sanitizeThoughtSignatures,
   });
+=======
+  const withInterSessionMarkers = annotateInterSessionUserMessages(params.messages);
+  const sanitizedImages = await sanitizeSessionMessagesImages(
+    withInterSessionMarkers,
+    "session:history",
+    {
+      sanitizeMode: policy.sanitizeMode,
+      sanitizeToolCallIds: policy.sanitizeToolCallIds,
+      toolCallIdMode: policy.toolCallIdMode,
+      preserveSignatures: policy.preserveSignatures,
+      sanitizeThoughtSignatures: policy.sanitizeThoughtSignatures,
+      ...resolveImageSanitizationLimits(params.config),
+    },
+  );
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
   const sanitizedThinking = policy.normalizeAntigravityThinkingBlocks
     ? sanitizeAntigravityThinkingBlocks(sanitizedImages)
     : sanitizedImages;

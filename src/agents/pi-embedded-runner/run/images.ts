@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,11 +21,16 @@ import type { ImageContent } from "@mariozechner/pi-ai";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ImageContent } from "@mariozechner/pi-ai";
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { ImageContent } from "@mariozechner/pi-ai";
+import type { ImageSanitizationLimits } from "../../image-sanitization.js";
+import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 import { resolveUserPath } from "../../../utils.js";
 import { loadWebMedia } from "../../../web/media.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
@@ -34,6 +40,8 @@ import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 =======
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 import { sanitizeImageBlocks } from "../../tool-images.js";
 import { extractTextFromMessage } from "../../../tui/tui-formatters.js";
 import { loadWebMedia } from "../../../web/media.js";
@@ -81,8 +89,13 @@ function isImageExtension(filePath: string): boolean {
 async function sanitizeImagesWithLog(
   images: ImageContent[],
   label: string,
+  imageSanitization?: ImageSanitizationLimits,
 ): Promise<ImageContent[]> {
-  const { images: sanitized, dropped } = await sanitizeImageBlocks(images, label);
+  const { images: sanitized, dropped } = await sanitizeImageBlocks(
+    images,
+    label,
+    imageSanitization,
+  );
   if (dropped > 0) {
     log.warn(`Native image: dropped ${dropped} image(s) after sanitization (${label}).`);
   }
@@ -410,8 +423,13 @@ export async function detectAndLoadPromptImages(params: {
   existingImages?: ImageContent[];
   historyMessages?: unknown[];
   maxBytes?: number;
+<<<<<<< HEAD
   /** If set, enforce that file paths are within this sandbox root */
   sandboxRoot?: string;
+=======
+  maxDimensionPx?: number;
+  sandbox?: { root: string; bridge: SandboxFsBridge };
+>>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 }): Promise<{
   /** Images for the current prompt (existingImages + detected in current prompt) */
   images: ImageContent[];
@@ -494,10 +512,21 @@ export async function detectAndLoadPromptImages(params: {
     }
   }
 
-  const sanitizedPromptImages = await sanitizeImagesWithLog(promptImages, "prompt:images");
+  const imageSanitization: ImageSanitizationLimits = {
+    maxDimensionPx: params.maxDimensionPx,
+  };
+  const sanitizedPromptImages = await sanitizeImagesWithLog(
+    promptImages,
+    "prompt:images",
+    imageSanitization,
+  );
   const sanitizedHistoryImagesByIndex = new Map<number, ImageContent[]>();
   for (const [index, images] of historyImagesByIndex) {
-    const sanitized = await sanitizeImagesWithLog(images, `history:images:${index}`);
+    const sanitized = await sanitizeImagesWithLog(
+      images,
+      `history:images:${index}`,
+      imageSanitization,
+    );
     if (sanitized.length > 0) {
       sanitizedHistoryImagesByIndex.set(index, sanitized);
     }
