@@ -52,8 +52,13 @@ function mockCameraGateway(
 ) {
 =======
 function mockNodeGateway(command?: string, payload?: Record<string, unknown>) {
+<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
   callGateway.mockImplementation(async (opts: { method?: string }) => {
+=======
+  callGateway.mockImplementation(async (...args: unknown[]) => {
+    const opts = (args[0] ?? {}) as { method?: string };
+>>>>>>> 048e29ea3 (chore: Fix types in tests 45/N.)
     if (opts.method === "node.list") {
       return {
         ts: Date.now(),
@@ -92,7 +97,7 @@ describe("cli program (nodes media)", () => {
       .filter((call) => call.method === "node.invoke");
     const facings = invokeCalls
       .map((call) => (call.params?.params as { facing?: string } | undefined)?.facing)
-      .filter(Boolean)
+      .filter((facing): facing is string => Boolean(facing))
       .toSorted((a, b) => a.localeCompare(b));
     expect(facings).toEqual(["back", "front"]);
 

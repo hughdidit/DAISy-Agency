@@ -34,6 +34,9 @@ describe("cdp", () => {
 
   it("creates a target via the browser websocket", async () => {
     const wsPort = await startWsServer();
+    if (!wsServer) {
+      throw new Error("ws server not initialized");
+    }
 
     wsServer.on("connection", (socket) => {
       socket.on("message", (data) => {
@@ -81,6 +84,9 @@ describe("cdp", () => {
 
   it("evaluates javascript via CDP", async () => {
     const wsPort = await startWsServer();
+    if (!wsServer) {
+      throw new Error("ws server not initialized");
+    }
 
     wsServer.on("connection", (socket) => {
       socket.on("message", (data) => {
@@ -116,6 +122,9 @@ describe("cdp", () => {
 
   it("captures an aria snapshot via CDP", async () => {
     const wsPort = await startWsServer();
+    if (!wsServer) {
+      throw new Error("ws server not initialized");
+    }
 
     wsServer.on("connection", (socket) => {
       socket.on("message", (data) => {
