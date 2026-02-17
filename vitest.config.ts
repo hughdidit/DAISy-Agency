@@ -34,10 +34,19 @@ export default defineConfig({
     pool: "forks",
     maxWorkers: isCI ? ciWorkers : localWorkers,
 <<<<<<< HEAD
+<<<<<<< HEAD
     include: ["src/**/*.test.ts", "extensions/**/*.test.ts", "test/format-error.test.ts"],
 =======
     include: ["src/**/*.test.ts", "extensions/**/*.test.ts", "test/**/*.test.ts"],
 >>>>>>> c1655982d (refactor: centralize pre-commit file filtering)
+=======
+    include: [
+      "src/**/*.test.ts",
+      "extensions/**/*.test.ts",
+      "test/**/*.test.ts",
+      "ui/src/ui/views/usage-render-details.test.ts",
+    ],
+>>>>>>> 9789dfd95 (fix(ui): correct usage range totals and muted styles)
     setupFiles: ["test/setup.ts"],
     exclude: [
       "dist/**",
