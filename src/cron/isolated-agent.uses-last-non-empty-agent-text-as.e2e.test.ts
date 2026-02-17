@@ -24,6 +24,7 @@ async function writeSessionStore(home: string) {
 =======
 function makeDeps(): CliDeps {
   return {
+    sendMessageSlack: vi.fn(),
     sendMessageWhatsApp: vi.fn(),
     sendMessageTelegram: vi.fn(),
     sendMessageDiscord: vi.fn(),
