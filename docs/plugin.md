@@ -49,6 +49,7 @@ moltbot plugins install @moltbot/voice-call
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
 See [Voice Call](/plugins/voice-call) for a concrete example plugin.
+Looking for third-party listings? See [Community plugins](/plugins/community).
 
 ## Available plugins (official)
 
