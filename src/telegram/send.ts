@@ -9,6 +9,7 @@ import { type ApiClientOptions, Bot, HttpError, InputFile } from "grammy";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { RetryConfig } from "../infra/retry.js";
 import type { TelegramInlineButtons } from "./button-types.js";
@@ -21,6 +22,10 @@ import type { TelegramInlineButtons } from "./button-types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { RetryConfig } from "../infra/retry.js";
+import type { TelegramInlineButtons } from "./button-types.js";
+>>>>>>> b2fef5ebc (Revert "Default Telegram polls to public")
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
@@ -29,7 +34,6 @@ import { formatErrorMessage, formatUncaughtError } from "../infra/errors.js";
 import { isDiagnosticFlagEnabled } from "../infra/diagnostic-flags.js";
 import type { RetryConfig } from "../infra/retry.js";
 import { createTelegramRetryRunner } from "../infra/retry-policy.js";
-import type { RetryConfig } from "../infra/retry.js";
 import { redactSensitiveText } from "../logging/redact.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { mediaKindFromMime } from "../media/constants.js";
@@ -41,7 +45,6 @@ import { type ResolvedTelegramAccount, resolveTelegramAccount } from "./accounts
 =======
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { buildTelegramThreadParams } from "./bot/helpers.js";
-import type { TelegramInlineButtons } from "./button-types.js";
 import { splitTelegramCaption } from "./caption.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveTelegramFetch } from "./fetch.js";
@@ -49,8 +52,11 @@ import { resolveTelegramFetch } from "./fetch.js";
 =======
 import { renderTelegramHtmlText } from "./format.js";
 import { isRecoverableTelegramNetworkError } from "./network-errors.js";
+<<<<<<< HEAD
 import { recordSentPoll } from "./poll-vote-cache.js";
 >>>>>>> 0a02b9163 (Handle Telegram poll vote updates for agent context)
+=======
+>>>>>>> b2fef5ebc (Revert "Default Telegram polls to public")
 import { makeProxyFetch } from "./proxy.js";
 import { renderTelegramHtmlText } from "./format.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
@@ -1252,7 +1258,7 @@ type TelegramPollOpts = {
   messageThreadId?: number;
   /** Send message silently (no notification). Defaults to false. */
   silent?: boolean;
-  /** Whether votes are anonymous. Defaults to false (public poll). */
+  /** Whether votes are anonymous. Defaults to true (Telegram default). */
   isAnonymous?: boolean;
 };
 
@@ -1311,7 +1317,7 @@ export async function sendPollTelegram(
   // sendPoll(chat_id, question, options, other?, signal?)
   const pollParams = {
     allows_multiple_answers: normalizedPoll.maxSelections > 1,
-    is_anonymous: opts.isAnonymous ?? false,
+    is_anonymous: opts.isAnonymous ?? true,
     ...(durationSeconds !== undefined ? { open_period: durationSeconds } : {}),
     ...(Object.keys(threadParams).length > 0 ? threadParams : {}),
     ...(opts.silent === true ? { disable_notification: true } : {}),
@@ -1333,15 +1339,6 @@ export async function sendPollTelegram(
   const pollId = result?.poll?.id;
   if (result?.message_id) {
     recordSentMessage(chatId, result.message_id);
-  }
-  if (pollId) {
-    recordSentPoll({
-      pollId,
-      chatId: resolvedChatId,
-      question: normalizedPoll.question,
-      options: normalizedPoll.options,
-      accountId: account.accountId,
-    });
   }
 
   recordChannelActivity({

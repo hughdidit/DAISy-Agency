@@ -1,4 +1,7 @@
 import type { Message, ReactionTypeEmoji } from "@grammyjs/types";
+import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
+import type { TelegramMediaRef } from "./bot-message-context.js";
+import type { TelegramContext } from "./bot/types.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { hasControlCommand } from "../auto-reply/command-detection.js";
 import {
@@ -21,6 +24,7 @@ import { writeConfigFile } from "../config/io.js";
 import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -28,6 +32,8 @@ import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.j
 =======
 import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b2fef5ebc (Revert "Default Telegram polls to public")
 import { danger, logVerbose, warn } from "../globals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -52,6 +58,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
 =======
 import type { TelegramMediaRef } from "./bot-message-context.js";
@@ -61,6 +68,8 @@ import type { TelegramMediaRef } from "./bot-message-context.js";
 =======
 import type { TelegramMediaRef } from "./bot-message-context.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b2fef5ebc (Revert "Default Telegram polls to public")
 import { RegisterTelegramHandlerParams } from "./bot-native-commands.js";
 import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
 <<<<<<< HEAD
@@ -76,6 +85,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
 =======
 =======
@@ -86,6 +96,8 @@ import type { TelegramContext } from "./bot/types.js";
 =======
 import type { TelegramContext } from "./bot/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b2fef5ebc (Revert "Default Telegram polls to public")
 import {
   evaluateTelegramGroupBaseAccess,
   evaluateTelegramGroupPolicyAccess,
@@ -109,10 +121,13 @@ import {
   type ProviderInfo,
 } from "./model-buttons.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
 =======
 import { getSentPoll } from "./poll-vote-cache.js";
 >>>>>>> 0a02b9163 (Handle Telegram poll vote updates for agent context)
+=======
+>>>>>>> b2fef5ebc (Revert "Default Telegram polls to public")
 import { buildInlineKeyboard } from "./send.js";
 import { wasSentByBot } from "./sent-message-cache.js";
 
@@ -900,65 +915,6 @@ export const registerTelegramHandlers = ({
       });
     } catch (err) {
       runtime.error?.(danger(`callback handler failed: ${String(err)}`));
-    }
-  });
-
-  bot.on("poll_answer", async (ctx) => {
-    try {
-      if (shouldSkipUpdate(ctx)) {
-        return;
-      }
-      const pollAnswer = (ctx.update as { poll_answer?: unknown })?.poll_answer as
-        | {
-            poll_id?: string;
-            user?: { id?: number; username?: string; first_name?: string };
-            option_ids?: number[];
-          }
-        | undefined;
-      if (!pollAnswer) {
-        return;
-      }
-      const pollId = pollAnswer?.poll_id?.trim();
-      if (!pollId) {
-        return;
-      }
-      const pollMeta = getSentPoll(pollId);
-      if (!pollMeta) {
-        return;
-      }
-      if (pollMeta.accountId && pollMeta.accountId !== accountId) {
-        return;
-      }
-      const userId = pollAnswer.user?.id;
-      if (typeof userId !== "number") {
-        return;
-      }
-      const optionIds = Array.isArray(pollAnswer.option_ids) ? pollAnswer.option_ids : [];
-      const selected = optionIds.map((id) => pollMeta.options[id] ?? `option#${id + 1}`);
-      const selectedText = selected.length > 0 ? selected.join(", ") : "(cleared vote)";
-      const syntheticText = `Poll vote update: "${pollMeta.question}" -> ${selectedText}`;
-      const syntheticMessage = {
-        message_id: Date.now(),
-        date: Math.floor(Date.now() / 1000),
-        chat: {
-          id: Number(pollMeta.chatId),
-          type: String(pollMeta.chatId).startsWith("-") ? "supergroup" : "private",
-        },
-        from: {
-          id: userId,
-          is_bot: false,
-          first_name: pollAnswer.user?.first_name ?? "User",
-          username: pollAnswer.user?.username,
-        },
-        text: syntheticText,
-      } as unknown as Message;
-      const storeAllowFrom = await loadStoreAllowFrom();
-      await processMessage(buildSyntheticContext(ctx, syntheticMessage), [], storeAllowFrom, {
-        forceWasMentioned: true,
-        messageIdOverride: `poll:${pollId}:${userId}:${Date.now()}`,
-      });
-    } catch (err) {
-      runtime.error?.(danger(`poll_answer handler failed: ${String(err)}`));
     }
   });
 
