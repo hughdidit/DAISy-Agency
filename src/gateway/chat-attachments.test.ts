@@ -54,6 +54,12 @@ describe("buildMessageWithAttachments", () => {
     expect(() => buildMessageWithAttachments("x", [att], { maxBytes: 5_000_000 })).toThrow(
       /exceeds size limit/i,
     );
+<<<<<<< HEAD
+=======
+    const base64Calls = fromSpy.mock.calls.filter((args) => (args as unknown[])[1] === "base64");
+    expect(base64Calls).toHaveLength(0);
+    fromSpy.mockRestore();
+>>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
   });
 });
 
@@ -109,6 +115,12 @@ describe("parseMessageWithAttachments", () => {
         { maxBytes: 5_000_000, log: { warn: () => {} } },
       ),
     ).rejects.toThrow(/exceeds size limit/i);
+<<<<<<< HEAD
+=======
+    const base64Calls = fromSpy.mock.calls.filter((args) => (args as unknown[])[1] === "base64");
+    expect(base64Calls).toHaveLength(0);
+    fromSpy.mockRestore();
+>>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
   });
 
   it("sniffs mime when missing", async () => {
