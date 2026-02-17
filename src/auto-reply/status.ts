@@ -1,20 +1,30 @@
 import fs from "node:fs";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { SkillCommandSpec } from "../agents/skills.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { MediaUnderstandingDecision } from "../media-understanding/types.js";
+import type { CommandCategory } from "./commands-registry.types.js";
+import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./thinking.js";
+>>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
 import { lookupContextTokens } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveModelAuthMode } from "../agents/model-auth.js";
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { resolveSandboxRuntimeStatus } from "../agents/sandbox.js";
-import type { SkillCommandSpec } from "../agents/skills.js";
 import { derivePromptTokens, normalizeUsage, type UsageLike } from "../agents/usage.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
 import {
   resolveMainSessionKey,
   resolveSessionFilePath,
@@ -26,7 +36,6 @@ import {
 =======
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 import { resolveCommitHash } from "../infra/git-commit.js";
-import type { MediaUnderstandingDecision } from "../media-understanding/types.js";
 import { listPluginCommands } from "../plugins/commands.js";
 <<<<<<< HEAD
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
@@ -55,6 +64,7 @@ import {
   type ChatCommandDefinition,
 } from "./commands-registry.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { listPluginCommands } from "../plugins/commands.js";
 import type { SkillCommandSpec } from "../agents/skills.js";
 import type { CommandCategory } from "./commands-registry.types.js";
@@ -64,6 +74,8 @@ import type { MediaUnderstandingDecision } from "../media-understanding/types.js
 import type { CommandCategory } from "./commands-registry.types.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./thinking.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
 
 type AgentConfig = Partial<NonNullable<NonNullable<MoltbotConfig["agents"]>["defaults"]>>;
 
@@ -76,15 +88,6 @@ type QueueStatus = {
   cap?: number;
   dropPolicy?: string;
   showDetails?: boolean;
-};
-
-export type TranscriptInfo = {
-  /** File size in bytes. */
-  sizeBytes: number;
-  /** Number of non-empty lines (messages) in the transcript. */
-  messageCount: number;
-  /** Absolute path to the transcript file. */
-  filePath: string;
 };
 
 type StatusArgs = {
@@ -106,7 +109,6 @@ type StatusArgs = {
   mediaDecisions?: MediaUnderstandingDecision[];
   subagentsLine?: string;
   includeTranscriptUsage?: boolean;
-  transcriptInfo?: TranscriptInfo;
   now?: number;
 };
 
@@ -363,74 +365,6 @@ const formatVoiceModeLine = (
   return `🔊 Voice: ${autoMode} · provider=${provider} · limit=${maxLength} · summary=${summarize}`;
 };
 
-/**
- * Read transcript file metadata (size + line count) for a session.
- * Returns `undefined` when the file does not exist or cannot be read.
- */
-export function getTranscriptInfo(params: {
-  sessionId?: string;
-  sessionEntry?: SessionEntry;
-  agentId?: string;
-  sessionKey?: string;
-  storePath?: string;
-}): TranscriptInfo | undefined {
-  if (!params.sessionId) {
-    return undefined;
-  }
-  let logPath: string;
-  try {
-    const resolvedAgentId =
-      params.agentId ??
-      (params.sessionKey ? resolveAgentIdFromSessionKey(params.sessionKey) : undefined);
-    logPath = resolveSessionFilePath(
-      params.sessionId,
-      params.sessionEntry,
-      resolveSessionFilePathOptions({ agentId: resolvedAgentId, storePath: params.storePath }),
-    );
-  } catch {
-    return undefined;
-  }
-  try {
-    const stat = fs.statSync(logPath);
-    if (!stat.isFile()) {
-      return undefined;
-    }
-    // Count non-empty lines for message count.
-    const content = fs.readFileSync(logPath, "utf-8");
-    let messageCount = 0;
-    for (const line of content.split("\n")) {
-      if (line.trim()) {
-        messageCount += 1;
-      }
-    }
-    return { sizeBytes: stat.size, messageCount, filePath: logPath };
-  } catch {
-    return undefined;
-  }
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-/** Size threshold (bytes) above which a warning emoji is shown. Default: 1 MB. */
-const TRANSCRIPT_SIZE_WARNING_BYTES = 1024 * 1024;
-
-function formatTranscriptLine(info: TranscriptInfo | undefined): string | null {
-  if (!info) {
-    return null;
-  }
-  const sizeLabel = formatFileSize(info.sizeBytes);
-  const warning = info.sizeBytes >= TRANSCRIPT_SIZE_WARNING_BYTES ? " ⚠️" : "";
-  return `📄 Transcript: ${sizeLabel}, ${info.messageCount} message${info.messageCount === 1 ? "" : "s"}${warning}`;
-}
-
 export function buildStatusMessage(args: StatusArgs): string {
   const now = args.now ?? Date.now();
   const entry = args.sessionEntry;
@@ -578,7 +512,6 @@ export function buildStatusMessage(args: StatusArgs): string {
     usagePair && costLine ? `${usagePair} · ${costLine}` : (usagePair ?? costLine);
   const mediaLine = formatMediaUnderstandingLine(args.mediaDecisions);
   const voiceLine = formatVoiceModeLine(args.config, args.sessionEntry);
-  const transcriptLine = formatTranscriptLine(args.transcriptInfo);
 
   return [
     versionLine,
@@ -586,7 +519,6 @@ export function buildStatusMessage(args: StatusArgs): string {
     modelLine,
     usageCostLine,
     `📚 ${contextLine}`,
-    transcriptLine,
     mediaLine,
     args.usageLine,
     `🧵 ${sessionLine}`,

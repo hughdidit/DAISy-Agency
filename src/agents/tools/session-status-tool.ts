@@ -1,6 +1,7 @@
 import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentDir } from "../../agents/agent-scope.js";
 import {
   ensureAuthProfileStore,
@@ -36,6 +37,13 @@ import { buildStatusMessage, getTranscriptInfo } from "../../auto-reply/status.j
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AnyAgentTool } from "./common.js";
+import { normalizeGroupActivation } from "../../auto-reply/group-activation.js";
+import { getFollowupQueueDepth, resolveQueueSettings } from "../../auto-reply/reply/queue.js";
+import { buildStatusMessage } from "../../auto-reply/status.js";
+>>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
 import { loadConfig } from "../../config/config.js";
 import {
   loadSessionStore,
@@ -69,10 +77,13 @@ import {
   resolveModelRefFromString,
 } from "../model-selection.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 =======
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
 import { readStringParam } from "./common.js";
 import {
   shouldResolveSessionIdInput,
@@ -494,13 +505,6 @@ export function createSessionStatusTool(opts?: {
           showDetails: queueOverrides,
         },
         includeTranscriptUsage: false,
-        transcriptInfo: getTranscriptInfo({
-          sessionId: resolved.entry?.sessionId,
-          sessionEntry: resolved.entry,
-          agentId,
-          sessionKey: resolved.key,
-          storePath,
-        }),
       });
 
       return {
