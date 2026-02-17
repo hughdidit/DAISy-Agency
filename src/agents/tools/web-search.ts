@@ -1,10 +1,9 @@
 import { Type } from "@sinclair/typebox";
-import { formatCliCommand } from "../../cli/command-format.js";
 import type { OpenClawConfig } from "../../config/config.js";
-import { matchesHostnameAllowlist, normalizeHostnameAllowlist } from "../../infra/net/ssrf.js";
+import type { AnyAgentTool } from "./common.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 import { wrapWebContent } from "../../security/external-content.js";
 import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
-import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 import {
   CacheEntry,
@@ -13,7 +12,6 @@ import {
   normalizeCacheKey,
   readCache,
   readResponseText,
-  resolveWebUrlAllowlist,
   resolveCacheTtlMs,
   resolveTimeoutSeconds,
   withTimeout,
@@ -76,33 +74,6 @@ type WebSearchConfig = NonNullable<OpenClawConfig["tools"]>["web"] extends infer
     ? Search
     : undefined
   : undefined;
-
-type WebConfig = NonNullable<OpenClawConfig["tools"]>["web"];
-
-export function resolveUrlAllowlist(web?: WebConfig): string[] | undefined {
-  return resolveWebUrlAllowlist(web);
-}
-
-export function filterResultsByAllowlist(
-  results: Array<{ url?: string; siteName?: string }>,
-  allowlist: string[],
-): Array<{ url?: string; siteName?: string }> {
-  if (allowlist.length === 0) {
-    return results;
-  }
-  const normalizedAllowlist = normalizeHostnameAllowlist(allowlist);
-  return results.filter((result) => {
-    if (!result.url) {
-      return true; // Keep entries without URL
-    }
-    try {
-      const hostname = new URL(result.url).hostname;
-      return matchesHostnameAllowlist(hostname, normalizedAllowlist);
-    } catch {
-      return true; // Keep entries with invalid URLs (let them pass through)
-    }
-  });
-}
 
 type BraveSearchResult = {
   title?: string;
@@ -589,7 +560,6 @@ async function runWebSearch(params: {
   perplexityModel?: string;
   grokModel?: string;
   grokInlineCitations?: boolean;
-  urlAllowlist?: string[];
 }): Promise<Record<string, unknown>> {
   const cacheKey = normalizeCacheKey(
     params.provider === "brave"
@@ -707,15 +677,10 @@ async function runWebSearch(params: {
     };
   });
 
-  // Filter results by urlAllowlist if configured
-  const filteredResults = params.urlAllowlist
-    ? filterResultsByAllowlist(mapped, params.urlAllowlist)
-    : mapped;
-
   const payload = {
     query: params.query,
     provider: params.provider,
-    count: filteredResults.length,
+    count: mapped.length,
     tookMs: Date.now() - start,
 <<<<<<< HEAD
     results: mapped,
@@ -726,8 +691,12 @@ async function runWebSearch(params: {
       provider: params.provider,
       wrapped: true,
     },
+<<<<<<< HEAD
     results: filteredResults,
 >>>>>>> 6d2e3685d (feat(tools): add URL allowlist for web_search and web_fetch)
+=======
+    results: mapped,
+>>>>>>> f924ab40d (revert(tools): undo accidental merge of PR #18584)
   };
   writeCache(SEARCH_CACHE, cacheKey, payload, params.cacheTtlMs);
   return payload;
@@ -745,7 +714,6 @@ export function createWebSearchTool(options?: {
   const provider = resolveSearchProvider(search);
   const perplexityConfig = resolvePerplexityConfig(search);
   const grokConfig = resolveGrokConfig(search);
-  const urlAllowlist = resolveUrlAllowlist(options?.config?.tools?.web);
 
   const description =
     provider === "perplexity"
@@ -815,7 +783,6 @@ export function createWebSearchTool(options?: {
         perplexityModel: resolvePerplexityModel(perplexityConfig),
         grokModel: resolveGrokModel(grokConfig),
         grokInlineCitations: resolveGrokInlineCitations(grokConfig),
-        urlAllowlist,
       });
       return jsonResult(result);
     },
@@ -833,6 +800,4 @@ export const __testing = {
   resolveGrokModel,
   resolveGrokInlineCitations,
   extractGrokContent,
-  resolveUrlAllowlist,
-  filterResultsByAllowlist,
 } as const;

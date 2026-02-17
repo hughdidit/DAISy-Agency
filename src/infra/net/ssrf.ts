@@ -34,8 +34,12 @@ function normalizeHostnameSet(values?: string[]): Set<string> {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 export function normalizeHostnameAllowlist(values?: string[]): string[] {
+=======
+function normalizeHostnameAllowlist(values?: string[]): string[] {
+>>>>>>> f924ab40d (revert(tools): undo accidental merge of PR #18584)
   if (!values || values.length === 0) {
     return [];
   }
@@ -59,7 +63,7 @@ function isHostnameAllowedByPattern(hostname: string, pattern: string): boolean 
   return hostname === pattern;
 }
 
-export function matchesHostnameAllowlist(hostname: string, allowlist: string[]): boolean {
+function matchesHostnameAllowlist(hostname: string, allowlist: string[]): boolean {
   if (allowlist.length === 0) {
     return true;
   }
