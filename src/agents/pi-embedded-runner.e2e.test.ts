@@ -73,7 +73,14 @@ vi.mock("@mariozechner/pi-ai", async () => {
       return buildAssistantMessage(model);
     },
     streamSimple: (model: { api: string; provider: string; id: string }) => {
+<<<<<<< HEAD
       const stream = new actual.AssistantMessageEventStream();
+=======
+      if (model.id === "mock-throw") {
+        throw new Error("transport failed");
+      }
+      const stream = actual.createAssistantMessageEventStream();
+>>>>>>> db3529e92 (chore: Fix types in tests 14/N.)
       queueMicrotask(() => {
         stream.push({
           type: "done",
@@ -95,6 +102,7 @@ let tempRoot: string | undefined;
 let agentDir: string;
 let workspaceDir: string;
 let sessionCounter = 0;
+let runCounter = 0;
 
 beforeAll(async () => {
   vi.useRealTimers();
@@ -142,6 +150,7 @@ const nextSessionFile = () => {
   sessionCounter += 1;
   return path.join(workspaceDir, `session-${sessionCounter}.jsonl`);
 };
+const nextRunId = (prefix = "run-embedded-test") => `${prefix}-${++runCounter}`;
 
 const testSessionKey = "agent:test:embedded";
 const immediateEnqueue = async <T>(task: () => Promise<T>) => task();
@@ -153,6 +162,7 @@ const runWithOrphanedSingleUserMessage = async (text: string) => {
   sessionManager.appendMessage({
     role: "user",
     content: [{ type: "text", text }],
+    timestamp: Date.now(),
   });
 
   const cfg = makeOpenAiConfig(["mock-1"]);
@@ -168,6 +178,7 @@ const runWithOrphanedSingleUserMessage = async (text: string) => {
     model: "mock-1",
     timeoutMs: 5_000,
     agentDir,
+    runId: nextRunId("orphaned-user"),
     enqueue: immediateEnqueue,
   });
 };
@@ -212,6 +223,7 @@ const runDefaultEmbeddedTurn = async (sessionFile: string, prompt: string) => {
     model: "mock-1",
     timeoutMs: 5_000,
     agentDir,
+    runId: nextRunId("default-turn"),
     enqueue: immediateEnqueue,
   });
 };
@@ -255,6 +267,7 @@ describe("runEmbeddedPiAgent", () => {
         model: "definitely-not-a-model",
         timeoutMs: 1,
         agentDir,
+        runId: nextRunId("unknown-model"),
         enqueue: immediateEnqueue,
       }),
     ).rejects.toThrow(/Unknown model:/);
@@ -362,9 +375,10 @@ describe("runEmbeddedPiAgent", () => {
       model: "mock-error",
       timeoutMs: 5_000,
       agentDir,
+      runId: nextRunId("prompt-error"),
       enqueue: immediateEnqueue,
     });
-    expect(result.payloads[0]?.isError).toBe(true);
+    expect(result.payloads?.[0]?.isError).toBe(true);
 
     const messages = await readSessionMessages(sessionFile);
     const userIndex = messages.findIndex(
@@ -373,6 +387,39 @@ describe("runEmbeddedPiAgent", () => {
     expect(userIndex).toBeGreaterThanOrEqual(0);
   });
 
+<<<<<<< HEAD
+=======
+  it("persists prompt transport errors as transcript entries", async () => {
+    const sessionFile = nextSessionFile();
+    const cfg = makeOpenAiConfig(["mock-throw"]);
+    await ensureModels(cfg);
+
+    const result = await runEmbeddedPiAgent({
+      sessionId: "session:test",
+      sessionKey: testSessionKey,
+      sessionFile,
+      workspaceDir,
+      config: cfg,
+      prompt: "transport error",
+      provider: "openai",
+      model: "mock-throw",
+      timeoutMs: 5_000,
+      agentDir,
+      runId: nextRunId("transport-error"),
+      enqueue: immediateEnqueue,
+    });
+    expect(result.payloads?.[0]?.isError).toBe(true);
+
+    const entries = await readSessionEntries(sessionFile);
+    const promptErrorEntry = entries.find(
+      (entry) => entry.type === "custom" && entry.customType === "openclaw:prompt-error",
+    ) as { data?: { error?: string } } | undefined;
+
+    expect(promptErrorEntry).toBeTruthy();
+    expect(promptErrorEntry?.data?.error).toContain("transport failed");
+  });
+
+>>>>>>> db3529e92 (chore: Fix types in tests 14/N.)
   it(
     "appends new user + assistant after existing transcript entries",
     { timeout: 90_000 },
@@ -384,6 +431,7 @@ describe("runEmbeddedPiAgent", () => {
       sessionManager.appendMessage({
         role: "user",
         content: [{ type: "text", text: "seed user" }],
+        timestamp: Date.now(),
       });
       sessionManager.appendMessage({
         role: "assistant",
@@ -448,6 +496,7 @@ describe("runEmbeddedPiAgent", () => {
       model: "mock-1",
       timeoutMs: 5_000,
       agentDir,
+      runId: nextRunId("turn-first"),
       enqueue: immediateEnqueue,
     });
 
@@ -462,6 +511,7 @@ describe("runEmbeddedPiAgent", () => {
       model: "mock-1",
       timeoutMs: 5_000,
       agentDir,
+      runId: nextRunId("turn-second"),
       enqueue: immediateEnqueue,
     });
 
