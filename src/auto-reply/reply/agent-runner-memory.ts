@@ -12,10 +12,19 @@ import {
 } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
+<<<<<<< HEAD
 import type { TemplateContext } from "../templating.js";
 import type { VerboseLevel } from "../thinking.js";
 import type { GetReplyOptions } from "../types.js";
 import { buildThreadingToolContext, resolveEnforceFinalTag } from "./agent-runner-utils.js";
+=======
+import {
+  buildEmbeddedContextFromTemplate,
+  buildTemplateSenderContext,
+  resolveEnforceFinalTag,
+  resolveRunAuthProfile,
+} from "./agent-runner-utils.js";
+>>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
 import {
   resolveMemoryFlushContextWindowTokens,
   resolveMemoryFlushPromptForRun,
@@ -107,11 +116,15 @@ export async function runMemoryFlushIfNeeded(params: {
         resolveAgentIdFromSessionKey(params.followupRun.run.sessionKey),
       ),
       run: (provider, model) => {
-        const authProfileId =
-          provider === params.followupRun.run.provider
-            ? params.followupRun.run.authProfileId
-            : undefined;
+        const authProfile = resolveRunAuthProfile(params.followupRun.run, provider);
+        const embeddedContext = buildEmbeddedContextFromTemplate({
+          run: params.followupRun.run,
+          sessionCtx: params.sessionCtx,
+          hasRepliedRef: params.opts?.hasRepliedRef,
+        });
+        const senderContext = buildTemplateSenderContext(params.sessionCtx);
         return runEmbeddedPiAgent({
+<<<<<<< HEAD
           sessionId: params.followupRun.run.sessionId,
           sessionKey: params.sessionKey,
           messageProvider: params.sessionCtx.Provider?.trim().toLowerCase() || undefined,
@@ -128,6 +141,10 @@ export async function runMemoryFlushIfNeeded(params: {
           senderName: params.sessionCtx.SenderName?.trim() || undefined,
           senderUsername: params.sessionCtx.SenderUsername?.trim() || undefined,
           senderE164: params.sessionCtx.SenderE164?.trim() || undefined,
+=======
+          ...embeddedContext,
+          ...senderContext,
+>>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
           sessionFile: params.followupRun.run.sessionFile,
           workspaceDir: params.followupRun.run.workspaceDir,
           agentDir: params.followupRun.run.agentDir,
@@ -142,10 +159,7 @@ export async function runMemoryFlushIfNeeded(params: {
           enforceFinalTag: resolveEnforceFinalTag(params.followupRun.run, provider),
           provider,
           model,
-          authProfileId,
-          authProfileIdSource: authProfileId
-            ? params.followupRun.run.authProfileIdSource
-            : undefined,
+          ...authProfile,
           thinkLevel: params.followupRun.run.thinkLevel,
           verboseLevel: params.followupRun.run.verboseLevel,
           reasoningLevel: params.followupRun.run.reasoningLevel,
