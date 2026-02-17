@@ -38,9 +38,14 @@ Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 - Slack: limit forwarded-attachment extraction to explicit shared-message attachments and skip non-Slack forwarded image URLs, preventing non-forward unfurls from polluting inbound agent context. Also adds regression tests for forwarded vs non-forward attachment handling.
+=======
+- Hooks/Session-memory: recover `/new` conversation summaries when session pointers are reset-path or missing `sessionFile`, and consistently prefer the newest `.jsonl.reset.*` transcript candidate for fallback extraction. (#18088)
+- Slack: restrict forwarded-attachment ingestion to explicit shared-message attachments and skip non-Slack forwarded `image_url` fetches, preventing non-forward attachment unfurls from polluting inbound agent context while preserving forwarded message handling.
+>>>>>>> 3fff266d5 (fix(session-memory): harden reset transcript recovery)
 - Cron/Heartbeat: canonicalize session-scoped reminder `sessionKey` routing and preserve explicit flat `sessionKey` cron tool inputs, preventing enqueue/wake namespace drift for session-targeted reminders. (#18637) Thanks @vignesh07.
 >>>>>>> 67250f059 (fix(slack): scope attachment extraction to forwarded shares)
 - OpenClawKit/iOS ChatUI: accept canonical session-key completion events for local pending runs and preserve message IDs across history refreshes, preventing stuck "thinking" state and message flicker after gateway replies. (#18165) Thanks @mbelinky.
