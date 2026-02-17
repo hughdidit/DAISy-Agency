@@ -1,7 +1,7 @@
 const KEY = "moltbot.control.settings.v1";
 
-import { isSupportedLocale } from "../i18n/index.ts";
 import type { ThemeMode } from "./theme.ts";
+import { isSupportedLocale } from "../i18n/index.ts";
 
 export type UiSettings = {
   gatewayUrl: string;

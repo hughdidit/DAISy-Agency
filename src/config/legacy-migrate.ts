@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 import { applyLegacyMigrations } from "./legacy.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
 =======
 import type { OpenClawConfig } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "./types.js";
+import { applyLegacyMigrations } from "./legacy.js";
+>>>>>>> ed11e93cf (chore(format))
 import { validateConfigObjectWithPlugins } from "./validation.js";
 
 export function migrateLegacyConfig(raw: unknown): {

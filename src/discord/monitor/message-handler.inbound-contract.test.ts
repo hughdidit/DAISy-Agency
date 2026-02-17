@@ -7,13 +7,16 @@ import path from "node:path";
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MsgContext } from "../../auto-reply/templating.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { MsgContext } from "../../auto-reply/templating.js";
+>>>>>>> ed11e93cf (chore(format))
 import { buildDispatchInboundCaptureMock } from "../../../test/helpers/dispatch-inbound-capture.js";
 import { expectInboundContextContract } from "../../../test/helpers/inbound-contract.js";
-import type { MsgContext } from "../../auto-reply/templating.js";
 
 let capturedCtx: MsgContext | undefined;
 

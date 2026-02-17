@@ -8,10 +8,14 @@ import type { MsgContext } from "../auto-reply/templating.js";
 import type { MediaUnderstandingAttachmentsConfig } from "../config/types.tools.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { isAbortError } from "../infra/unhandled-rejections.js";
 >>>>>>> 53910f364 (Deduplicate more)
@@ -19,11 +23,14 @@ import { fetchRemoteMedia, MediaFetchError } from "../media/fetch.js";
 import { detectMime, getFileExtension, isAudioFileName, kindFromMime } from "../media/mime.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { fetchWithTimeout } from "./providers/shared.js";
+<<<<<<< HEAD
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 <<<<<<< HEAD
 import { MediaUnderstandingSkipError } from "./errors.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 type MediaBufferResult = {
   buffer: Buffer;

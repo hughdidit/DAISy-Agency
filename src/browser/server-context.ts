@@ -1,5 +1,6 @@
 import fs from "node:fs";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { appendCdpPath, createTargetViaCdp, getHeadersWithAuth, normalizeCdpWsUrl } from "./cdp.js";
 import {
@@ -55,12 +56,10 @@ import {
   ensureChromeExtensionRelayServer,
   stopChromeExtensionRelayServer,
 } from "./extension-relay.js";
+=======
+import type { ResolvedBrowserProfile } from "./config.js";
+>>>>>>> ed11e93cf (chore(format))
 import type { PwAiModule } from "./pw-ai-module.js";
-import { getPwAiModule } from "./pw-ai-module.js";
-import {
-  refreshResolvedBrowserConfigFromDisk,
-  resolveBrowserProfileWithHotReload,
-} from "./resolved-config-refresh.js";
 import type {
   BrowserServerState,
   BrowserRouteContext,
@@ -70,6 +69,25 @@ import type {
   ProfileRuntimeState,
   ProfileStatus,
 } from "./server-context.types.js";
+import { fetchJson, fetchOk } from "./cdp.helpers.js";
+import { appendCdpPath, createTargetViaCdp, normalizeCdpWsUrl } from "./cdp.js";
+import {
+  isChromeCdpReady,
+  isChromeReachable,
+  launchOpenClawChrome,
+  resolveOpenClawUserDataDir,
+  stopOpenClawChrome,
+} from "./chrome.js";
+import { resolveProfile } from "./config.js";
+import {
+  ensureChromeExtensionRelayServer,
+  stopChromeExtensionRelayServer,
+} from "./extension-relay.js";
+import { getPwAiModule } from "./pw-ai-module.js";
+import {
+  refreshResolvedBrowserConfigFromDisk,
+  resolveBrowserProfileWithHotReload,
+} from "./resolved-config-refresh.js";
 import { resolveTargetIdFromTabs } from "./target-id.js";
 import { movePathToTrash } from "./trash.js";
 

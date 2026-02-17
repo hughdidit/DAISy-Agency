@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../channels/registry.js";
 =======
 import { listAgentIds } from "../agents/agent-scope.js";
@@ -6,17 +7,27 @@ import { DEFAULT_CHAT_CHANNEL } from "../channels/registry.js";
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { CliDeps } from "../cli/deps.js";
+=======
+import type { CliDeps } from "../cli/deps.js";
+import type { RuntimeEnv } from "../runtime.js";
+import { listAgentIds } from "../agents/agent-scope.js";
+import { DEFAULT_CHAT_CHANNEL } from "../channels/registry.js";
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> ed11e93cf (chore(format))
 import { withProgress } from "../cli/progress.js";
 import { loadConfig } from "../config/config.js";
 import { resolveSessionKeyForRequest } from "./agent/session.js";
 import { callGateway, randomIdempotencyKey } from "../gateway/call.js";
 import { listAgentIds } from "../agents/agent-scope.js";
 import { normalizeAgentId } from "../routing/session-key.js";
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,

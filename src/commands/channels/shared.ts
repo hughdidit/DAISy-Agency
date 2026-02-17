@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { type ChannelId, getChannelPlugin } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8,6 +9,10 @@ import { type MoltbotConfig, readConfigFileSnapshot } from "../../config/config.
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { type ChannelId, getChannelPlugin } from "../../channels/plugins/index.js";
+>>>>>>> ed11e93cf (chore(format))
 import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
 import { defaultRuntime, type RuntimeEnv } from "../../runtime.js";
 import { requireValidConfigSnapshot } from "../config-validation.js";

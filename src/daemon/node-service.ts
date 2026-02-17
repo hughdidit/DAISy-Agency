@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 import { resolveGatewayService } from "./service.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   NODE_SERVICE_KIND,
   NODE_SERVICE_MARKER,
@@ -12,8 +16,11 @@ import {
   resolveNodeWindowsTaskName,
 } from "./constants.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { resolveGatewayService } from "./service.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

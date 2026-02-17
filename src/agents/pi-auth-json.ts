@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureAuthProfileStore, listProfilesForProvider } from "./auth-profiles.js";
 =======
 import { ensureAuthProfileStore } from "./auth-profiles.js";
@@ -8,6 +9,10 @@ import type { AuthProfileCredential } from "./auth-profiles/types.js";
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
+=======
+import type { AuthProfileCredential } from "./auth-profiles/types.js";
+import { ensureAuthProfileStore } from "./auth-profiles.js";
+>>>>>>> ed11e93cf (chore(format))
 import { normalizeProviderId } from "./model-selection.js";
 >>>>>>> 4ca75bed5 (fix(models): sync auth-profiles before availability checks)
 

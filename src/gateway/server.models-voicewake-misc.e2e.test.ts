@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { WebSocket } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { ChannelOutboundAdapter } from "../channels/plugins/types.js";
@@ -13,7 +14,10 @@ import type { ChannelOutboundAdapter } from "../channels/plugins/types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getChannelPlugin } from "../channels/plugins/index.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { ChannelOutboundAdapter } from "../channels/plugins/types.js";
+import { getChannelPlugin } from "../channels/plugins/index.js";
 import { resolveCanvasHostUrl } from "../infra/canvas-host-url.js";
 import { GatewayLockError } from "../infra/gateway-lock.js";
 import type { PluginRegistry } from "../plugins/registry.js";

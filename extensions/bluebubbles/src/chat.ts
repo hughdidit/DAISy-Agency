@@ -1,3 +1,4 @@
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import crypto from "node:crypto";
 <<<<<<< HEAD
 import { resolveBlueBubblesAccount } from "./accounts.js";
@@ -6,7 +7,6 @@ import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 =======
 =======
 import path from "node:path";
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { resolveBlueBubblesServerAccount } from "./account-resolve.js";
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import { postMultipartFormData } from "./multipart.js";

@@ -10,12 +10,17 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { CronJob } from "./types.js";
 =======
 import type { CliDeps } from "../cli/deps.js";
+<<<<<<< HEAD
 import { makeCfg, makeJob, withTempCronHome } from "./isolated-agent.test-harness.js";
 <<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 import type { CronJob } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { CronJob } from "./types.js";
+import { makeCfg, makeJob, withTempCronHome } from "./isolated-agent.test-harness.js";
+>>>>>>> ed11e93cf (chore(format))
 
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),

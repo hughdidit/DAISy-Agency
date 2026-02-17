@@ -1,6 +1,8 @@
 #!/usr/bin/env node
+import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
@@ -8,6 +10,9 @@ import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 =======
 import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { AcpServerOptions } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { loadConfig } from "../config/config.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
@@ -15,7 +20,6 @@ import { GatewayClient } from "../gateway/client.js";
 import { isMainModule } from "../infra/is-main.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { AcpGatewayAgent } from "./translator.js";
-import type { AcpServerOptions } from "./types.js";
 
 export function serveAcpGateway(opts: AcpServerOptions = {}): void {
   const cfg = loadConfig();

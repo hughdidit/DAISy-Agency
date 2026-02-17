@@ -1,3 +1,7 @@
+import type { FinalizedMsgContext } from "../../../auto-reply/templating.js";
+import type { ResolvedSlackAccount } from "../../accounts.js";
+import type { SlackMessageEvent } from "../../types.js";
+import type { PreparedSlackMessage } from "./types.js";
 import { resolveAckReaction } from "../../../agents/identity.js";
 import { hasControlCommand } from "../../../auto-reply/command-detection.js";
 import { shouldHandleTextCommands } from "../../../auto-reply/commands-registry.js";
@@ -16,8 +20,11 @@ import {
   matchesMentionWithExplicit,
 } from "../../../auto-reply/reply/mentions.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { FinalizedMsgContext } from "../../../auto-reply/templating.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   shouldAckReaction as shouldAckReactionGate,
   type AckReactionScope,
@@ -36,6 +43,7 @@ import { buildPairingReply } from "../../../pairing/pairing-messages.js";
 import { upsertChannelPairingRequest } from "../../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import {
@@ -65,6 +73,11 @@ import { resolveSlackThreadContext } from "../../threading.js";
 =======
 import type { SlackMessageEvent } from "../../types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { reactSlackMessage } from "../../actions.js";
+import { sendMessageSlack } from "../../send.js";
+import { resolveSlackThreadContext } from "../../threading.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveSlackAllowListMatch, resolveSlackUserAllowed } from "../allow-list.js";
 import { resolveSlackEffectiveAllowFrom } from "../auth.js";
 import { resolveSlackChannelConfig } from "../channel-config.js";
@@ -77,7 +90,6 @@ import {
   resolveSlackThreadStarter,
 } from "../media.js";
 import { resolveSlackRoomContextHints } from "../room-context.js";
-import type { PreparedSlackMessage } from "./types.js";
 
 import type { PreparedSlackMessage } from "./types.js";
 

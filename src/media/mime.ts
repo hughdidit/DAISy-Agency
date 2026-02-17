@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { fileTypeFromBuffer } from "file-type";
+import path from "node:path";
 import { type MediaKind, mediaKindFromMime } from "./constants.js";
 
 // Map common mimes to preferred file extensions.

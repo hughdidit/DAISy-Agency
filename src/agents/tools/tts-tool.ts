@@ -1,6 +1,7 @@
 import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -14,6 +15,9 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { loadConfig } from "../../config/config.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> ed11e93cf (chore(format))
 import type { GatewayMessageChannel } from "../../utils/message-channel.js";
 import { textToSpeech } from "../../tts/tts.js";
 <<<<<<< HEAD
@@ -21,6 +25,9 @@ import { textToSpeech } from "../../tts/tts.js";
 import type { GatewayMessageChannel } from "../../utils/message-channel.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AnyAgentTool } from "./common.js";
+import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
+import { loadConfig } from "../../config/config.js";
+import { textToSpeech } from "../../tts/tts.js";
 import { readStringParam } from "./common.js";
 
 const TtsToolSchema = Type.Object({

@@ -3,8 +3,8 @@ import type { ChannelId, ChannelOutboundAdapter } from "../types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { PluginRegistry } from "../../../plugins/registry.js";
-import { getActivePluginRegistry } from "../../../plugins/runtime.js";
 import type { ChannelId, ChannelOutboundAdapter } from "../types.js";
+import { getActivePluginRegistry } from "../../../plugins/runtime.js";
 
 // Channel docking: outbound sends should stay cheap to import.
 //

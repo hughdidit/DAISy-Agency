@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9,9 +10,13 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { PollInput } from "../../polls.js";
+import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+>>>>>>> ed11e93cf (chore(format))
 import { loadConfig } from "../../config/config.js";
 import { callGateway, randomIdempotencyKey } from "../../gateway/call.js";
-import type { PollInput } from "../../polls.js";
 import { normalizePollInput } from "../../polls.js";
 import {
   GATEWAY_CLIENT_MODES,

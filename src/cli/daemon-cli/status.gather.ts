@@ -1,17 +1,22 @@
+import type { GatewayBindMode, GatewayControlUiConfig } from "../../config/types.js";
+import type { FindExtraGatewayServicesOptions } from "../../daemon/inspect.js";
+import type { ServiceConfigAudit } from "../../daemon/service-audit.js";
+import type { GatewayRpcOpts } from "./types.js";
 import {
   createConfigIO,
   resolveConfigPath,
   resolveGatewayPort,
   resolveStateDir,
 } from "../../config/config.js";
-import type { GatewayBindMode, GatewayControlUiConfig } from "../../config/types.js";
 import { readLastGatewayErrorLine } from "../../daemon/diagnostics.js";
-import type { FindExtraGatewayServicesOptions } from "../../daemon/inspect.js";
 import { findExtraGatewayServices } from "../../daemon/inspect.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { findLegacyGatewayServices } from "../../daemon/legacy.js";
 =======
 import type { ServiceConfigAudit } from "../../daemon/service-audit.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { auditGatewayServiceConfig } from "../../daemon/service-audit.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveGatewayService } from "../../daemon/service.js";
@@ -27,7 +32,6 @@ import {
 import { pickPrimaryTailnetIPv4 } from "../../infra/tailnet.js";
 import { probeGatewayStatus } from "./probe.js";
 import { normalizeListenerAddress, parsePortFromArgs, pickProbeHostForBind } from "./shared.js";
-import type { GatewayRpcOpts } from "./types.js";
 
 type ConfigSummary = {
   path: string;

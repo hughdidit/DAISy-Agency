@@ -1,6 +1,7 @@
 import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { formatToolDetail, resolveToolDisplay } from "../tool-display";
 import { icons } from "../icons";
@@ -13,9 +14,11 @@ import { extractTextCached } from "./message-extract";
 import type { ToolCard } from "../types/chat-types.ts";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { ToolCard } from "../types/chat-types.ts";
+>>>>>>> ed11e93cf (chore(format))
 import { icons } from "../icons.ts";
 import { formatToolDetail, resolveToolDisplay } from "../tool-display.ts";
-import type { ToolCard } from "../types/chat-types.ts";
 import { TOOL_INLINE_THRESHOLD } from "./constants.ts";
 import { extractTextCached } from "./message-extract.ts";
 import { isToolResultMessage } from "./message-normalizer.ts";

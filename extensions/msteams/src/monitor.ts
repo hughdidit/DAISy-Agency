@@ -9,6 +9,7 @@ import {
 import type { MSTeamsConversationStore } from "./conversation-store.js";
 =======
 } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
@@ -21,6 +22,12 @@ import { registerMSTeamsHandlers } from "./monitor-handler.js";
 =======
 import type { MSTeamsAdapter } from "./messenger.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { MSTeamsConversationStore } from "./conversation-store.js";
+import type { MSTeamsAdapter } from "./messenger.js";
+import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
+import { formatUnknownError } from "./errors.js";
+>>>>>>> ed11e93cf (chore(format))
 import { registerMSTeamsHandlers, type MSTeamsActivityHandler } from "./monitor-handler.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { createMSTeamsPollStoreFs, type MSTeamsPollStore } from "./polls.js";

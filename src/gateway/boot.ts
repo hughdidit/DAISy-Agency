@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -21,9 +22,13 @@ import type { SessionEntry } from "../config/sessions/types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { CliDeps } from "../cli/deps.js";
-import { agentCommand } from "../commands/agent.js";
 import type { OpenClawConfig } from "../config/config.js";
+import type { SessionEntry } from "../config/sessions/types.js";
+import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
+import { agentCommand } from "../commands/agent.js";
 import {
   resolveAgentIdFromSessionKey,
   resolveMainSessionKey,
@@ -31,7 +36,6 @@ import {
 >>>>>>> b562aa662 (fix(gateway): keep boot sessions ephemeral without remapping main)
 import { resolveStorePath } from "../config/sessions/paths.js";
 import { loadSessionStore, updateSessionStore } from "../config/sessions/store.js";
-import type { SessionEntry } from "../config/sessions/types.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { type RuntimeEnv, defaultRuntime } from "../runtime.js";
 

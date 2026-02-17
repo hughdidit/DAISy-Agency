@@ -12,6 +12,7 @@ import {
 import { ApplicationCommandOptionType, ButtonStyle } from "discord-api-types/v10";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
 =======
@@ -19,6 +20,8 @@ import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../a
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type {
   ChatCommandDefinition,
   CommandArgDefinition,
@@ -27,6 +30,7 @@ import type {
   NativeCommandSpec,
 } from "../../auto-reply/commands-registry.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
@@ -34,6 +38,12 @@ import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { ReplyPayload } from "../../auto-reply/types.js";
+import type { OpenClawConfig, loadConfig } from "../../config/config.js";
+import { resolveHumanDelayConfig } from "../../agents/identity.js";
+import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   buildCommandTextFromArgs,
   findCommandByNativeName,
@@ -53,6 +63,7 @@ import type {
 import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { MoltbotConfig, loadConfig } from "../../config/config.js";
@@ -62,9 +73,10 @@ import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 =======
 import type { ReplyPayload } from "../../auto-reply/types.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
-import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";

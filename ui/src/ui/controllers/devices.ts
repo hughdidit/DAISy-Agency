@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayBrowserClient } from "../gateway";
 import { loadOrCreateDeviceIdentity } from "../device-identity";
 import { clearDeviceAuthToken, storeDeviceAuthToken } from "../device-auth";
@@ -13,6 +14,11 @@ import { clearDeviceAuthToken, storeDeviceAuthToken } from "../device-auth.ts";
 import { loadOrCreateDeviceIdentity } from "../device-identity.ts";
 import type { GatewayBrowserClient } from "../gateway.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { GatewayBrowserClient } from "../gateway.ts";
+import { clearDeviceAuthToken, storeDeviceAuthToken } from "../device-auth.ts";
+import { loadOrCreateDeviceIdentity } from "../device-identity.ts";
+>>>>>>> ed11e93cf (chore(format))
 
 export type DeviceTokenSummary = {
   role: string;

@@ -11,6 +11,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import os from "node:os";
 import { fileURLToPath } from "node:url";
 import type { MoltbotConfig } from "../../../config/config.js";
@@ -28,12 +29,17 @@ import type { HookHandler } from "../../hooks.js";
 =======
 >>>>>>> 01ea80887 (chore: Format files.)
 import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../../../config/config.js";
+import type { HookHandler } from "../../hooks.js";
+import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
 import { resolveStateDir } from "../../../config/paths.js";
 import { createSubsystemLogger } from "../../../logging/subsystem.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveAgentIdFromSessionKey } from "../../../routing/session-key.js";
 import { resolveHookConfig } from "../../config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -48,6 +54,8 @@ import type { HookHandler } from "../../hooks.js";
 =======
 import type { HookHandler } from "../../hooks.js";
 >>>>>>> 01ea80887 (chore: Format files.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { generateSlugViaLLM } from "../../llm-slug-generator.js";
 
 const log = createSubsystemLogger("hooks/session-memory");

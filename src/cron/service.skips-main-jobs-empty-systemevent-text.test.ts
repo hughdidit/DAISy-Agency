@@ -7,12 +7,15 @@ import path from "node:path";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { CronJob } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { CronService } from "./service.js";
 import { createCronStoreHarness, createNoopLogger } from "./service.test-harness.js";
-import type { CronJob } from "./types.js";
 
 <<<<<<< HEAD
 const noopLogger = {

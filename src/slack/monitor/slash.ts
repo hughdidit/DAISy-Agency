@@ -6,6 +6,7 @@ import type { ChatCommandDefinition, CommandArgs } from "../../auto-reply/comman
 =======
 import type { ReplyPayload } from "../../auto-reply/types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 1d7b2bc9c (refactor(slack): dedupe slash reply delivery)
 import type { ResolvedSlackAccount } from "../accounts.js";
 import type { SlackMonitorContext } from "./context.js";
@@ -27,6 +28,10 @@ import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.j
 =======
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { ResolvedSlackAccount } from "../accounts.js";
+import type { SlackMonitorContext } from "./context.js";
+>>>>>>> ed11e93cf (chore(format))
 import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { resolveConversationLabel } from "../../channels/conversation-label.js";
@@ -43,6 +48,7 @@ import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
@@ -64,6 +70,9 @@ import { chunkItems } from "../../utils/chunk-items.js";
 =======
 import type { ResolvedSlackAccount } from "../accounts.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { chunkItems } from "../../utils/chunk-items.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   normalizeAllowList,
   normalizeAllowListLower,
@@ -74,11 +83,14 @@ import { resolveSlackChannelConfig, type SlackChannelConfigResolved } from "./ch
 import { buildSlackSlashCommandMatcher, resolveSlackSlashCommandConfig } from "./commands.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { SlackMonitorContext } from "./context.js";
 =======
 =======
 import type { SlackMonitorContext } from "./context.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { normalizeSlackChannelType } from "./context.js";
 >>>>>>> fff59da96 (fix(slack): fail closed on slash command channel type lookup)
 import { isSlackChannelAllowedByPolicy } from "./policy.js";

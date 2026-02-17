@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { promisify } from "node:util";
 <<<<<<< HEAD
 
@@ -13,6 +14,9 @@ import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { GatewayServiceRuntime } from "./service-runtime.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   GATEWAY_LAUNCH_AGENT_LABEL,
   resolveGatewayServiceDescription,
@@ -30,11 +34,14 @@ import { formatLine, toPosixPath } from "./output.js";
 import { resolveGatewayStateDir, resolveHomeDir } from "./paths.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import { parseKeyValueOutput } from "./runtime-parse.js";
+<<<<<<< HEAD
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 <<<<<<< HEAD
 import { resolveGatewayStateDir, resolveHomeDir } from "./paths.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 function resolveLaunchAgentLabel(args?: { env?: Record<string, string | undefined> }): string {
 <<<<<<< HEAD

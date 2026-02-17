@@ -1,9 +1,13 @@
 import type { Server } from "node:http";
 import express from "express";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { BrowserRouteRegistrar } from "./routes/types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { loadConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveBrowserConfig, resolveProfile } from "./config.js";
@@ -13,12 +17,15 @@ import { isPwAiLoaded } from "./pw-ai-state.js";
 import { registerBrowserRoutes } from "./routes/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 import { type BrowserServerState, createBrowserRouteContext } from "./server-context.js";
 =======
 =======
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   type BrowserServerState,
   createBrowserRouteContext,

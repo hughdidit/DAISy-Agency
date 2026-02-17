@@ -23,7 +23,11 @@ import {
 } from "clawdbot/plugin-sdk";
 =======
 } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { ZcaFriend, ZcaGroup, ZcaUserInfo } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,
@@ -37,8 +41,11 @@ import { sendMessageZalouser } from "./send.js";
 <<<<<<< HEAD
 =======
 import { collectZalouserStatusIssues } from "./status-issues.js";
+<<<<<<< HEAD
 import type { ZcaFriend, ZcaGroup, ZcaUserInfo } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { checkZcaInstalled, parseJsonOutput, runZca, runZcaInteractive } from "./zca.js";
 import type { ZcaFriend, ZcaGroup, ZcaUserInfo } from "./types.js";
 import { ZalouserConfigSchema } from "./config-schema.js";

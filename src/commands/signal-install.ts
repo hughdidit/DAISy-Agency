@@ -5,13 +5,16 @@ import os from "node:os";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> ed11e93cf (chore(format))
 import { extractArchive } from "../infra/archive.js";
 import { resolveBrewExecutable } from "../infra/brew.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { runCommandWithTimeout } from "../process/exec.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { CONFIG_DIR } from "../utils.js";
 
 export type ReleaseAsset = {

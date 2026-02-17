@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { normalizeMessageChannel } from "../../utils/message-channel.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { SessionConfig, SessionResetConfig } from "../types.base.js";
+import { normalizeMessageChannel } from "../../utils/message-channel.js";
 import { DEFAULT_IDLE_MINUTES } from "./types.js";
 import { normalizeMessageChannel } from "../../utils/message-channel.js";
 

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { logConfigUpdated } from "../../config/logging.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16,11 +17,13 @@ import {
 import { applyDefaultModelPrimaryUpdate, updateConfig } from "./shared.js";
 >>>>>>> cb46ea037 (refactor(models): dedupe set default model updates)
 =======
+=======
+import type { RuntimeEnv } from "../../runtime.js";
+>>>>>>> ed11e93cf (chore(format))
 import { loadModelCatalog } from "../../agents/model-catalog.js";
 import { modelKey } from "../../agents/model-selection.js";
 import { readConfigFileSnapshot } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
-import type { RuntimeEnv } from "../../runtime.js";
 import { applyDefaultModelPrimaryUpdate, resolveModelTarget, updateConfig } from "./shared.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

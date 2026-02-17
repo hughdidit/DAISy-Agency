@@ -1,16 +1,20 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { AgentBinding } from "../config/types.js";
-import { normalizeAgentId } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";
+import type { AgentSummary } from "./agents.config.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import { normalizeAgentId } from "../routing/session-key.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { shortenHomePath } from "../utils.js";
 import { describeBinding } from "./agents.bindings.js";
 import { requireValidConfig } from "./agents.command-shared.js";
-import type { AgentSummary } from "./agents.config.js";
 import { buildAgentSummaries } from "./agents.config.js";
 import {
   buildProviderStatusIndex,

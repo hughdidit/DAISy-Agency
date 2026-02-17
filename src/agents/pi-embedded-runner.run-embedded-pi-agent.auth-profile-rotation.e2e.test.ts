@@ -1,11 +1,15 @@
+import type { AssistantMessage } from "@mariozechner/pi-ai";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AssistantMessage } from "@mariozechner/pi-ai";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../config/config.js";

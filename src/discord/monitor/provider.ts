@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { inspect } from "node:util";
 import { Client } from "@buape/carbon";
 =======
@@ -13,15 +14,19 @@ import type { GatewayPlugin } from "@buape/carbon/gateway";
 =======
 import { inspect } from "node:util";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { GatewayPlugin } from "@buape/carbon/gateway";
+>>>>>>> ed11e93cf (chore(format))
 import {
   Client,
   ReadyListener,
   type BaseMessageInteractiveComponent,
   type Modal,
 } from "@buape/carbon";
-import type { GatewayPlugin } from "@buape/carbon/gateway";
 import { Routes } from "discord-api-types/v10";
+import { inspect } from "node:util";
 import { ProxyAgent, fetch as undiciFetch } from "undici";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
@@ -32,9 +37,12 @@ import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { HistoryEntry } from "../../auto-reply/reply/history.js";
+import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { listNativeCommandSpecsForConfig } from "../../auto-reply/commands-registry.js";
-import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import { listSkillCommandsForAgents } from "../../auto-reply/skill-commands.js";
 <<<<<<< HEAD
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
@@ -55,10 +63,13 @@ import {
   resolveNativeSkillsEnabled,
 } from "../../config/commands.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig, ReplyToMode } from "../../config/config.js";
 =======
 import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { loadConfig } from "../../config/config.js";
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";

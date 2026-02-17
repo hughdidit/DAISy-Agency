@@ -2,6 +2,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
@@ -14,6 +15,10 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
+=======
+import type { MsgContext } from "../auto-reply/templating.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> ed11e93cf (chore(format))
 import type {
   MediaUnderstandingCapability,
   MediaUnderstandingDecision,
@@ -21,12 +26,15 @@ import type {
   MediaUnderstandingProvider,
 } from "./types.js";
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
+<<<<<<< HEAD
 >>>>>>> dee013426 (style: reformat dedupe-touched files)
 =======
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> c70597dae (chore: Fix formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import {
   extractFileContentFromSource,
@@ -54,12 +62,6 @@ import {
   normalizeMediaAttachments,
   runCapability,
 } from "./runner.js";
-import type {
-  MediaUnderstandingCapability,
-  MediaUnderstandingDecision,
-  MediaUnderstandingOutput,
-  MediaUnderstandingProvider,
-} from "./types.js";
 
 export type ApplyMediaUnderstandingResult = {
   outputs: MediaUnderstandingOutput[];

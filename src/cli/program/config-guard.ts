@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { readConfigFileSnapshot } from "../../config/config.js";
 import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-flow.js";
 =======
@@ -6,6 +7,11 @@ import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-fl
 import { readConfigFileSnapshot } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { RuntimeEnv } from "../../runtime.js";
+import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-flow.js";
+import { readConfigFileSnapshot } from "../../config/config.js";
+>>>>>>> ed11e93cf (chore(format))
 import { colorize, isRich, theme } from "../../terminal/theme.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";

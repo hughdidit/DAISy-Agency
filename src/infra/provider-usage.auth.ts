@@ -2,9 +2,13 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { UsageProviderId } from "./provider-usage.types.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   dedupeProfileIds,
   ensureAuthProfileStore,
@@ -16,6 +20,7 @@ import { getCustomProviderApiKey, resolveEnvApiKey } from "../agents/model-auth.
 import { normalizeProviderId } from "../agents/model-selection.js";
 import { loadConfig } from "../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { UsageProviderId } from "./provider-usage.types.js";
 =======
 import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
@@ -24,6 +29,9 @@ import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
 =======
 import type { UsageProviderId } from "./provider-usage.types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
+>>>>>>> ed11e93cf (chore(format))
 
 export type ProviderAuth = {
   provider: UsageProviderId;

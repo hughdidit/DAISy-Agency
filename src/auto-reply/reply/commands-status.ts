@@ -1,3 +1,9 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { SessionEntry, SessionScope } from "../../config/sessions.js";
+import type { MediaUnderstandingDecision } from "../../media-understanding/types.js";
+import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
+import type { ReplyPayload } from "../types.js";
+import type { CommandContext } from "./commands-types.js";
 import {
   resolveAgentDir,
   resolveDefaultAgentId,
@@ -22,6 +28,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeProviderId } from "../../agents/model-selection.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
@@ -34,17 +41,19 @@ import type { SessionEntry, SessionScope } from "../../config/sessions.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry, SessionScope } from "../../config/sessions.js";
 >>>>>>> 5dc898395 (chore: Fix types in tests 8/N.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { logVerbose } from "../../globals.js";
 import {
   formatUsageWindowSummary,
   loadProviderUsageSummary,
   resolveUsageProviderId,
 } from "../../infra/provider-usage.js";
-import type { MediaUnderstandingDecision } from "../../media-understanding/types.js";
 import { normalizeGroupActivation } from "../group-activation.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { buildStatusMessage } from "../status.js";
+<<<<<<< HEAD
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
 import type { ReplyPayload } from "../types.js";
 import type { CommandContext } from "./commands-types.js";
@@ -63,6 +72,8 @@ import { buildStatusMessage } from "../status.js";
 >>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
 =======
 >>>>>>> 5dc898395 (chore: Fix types in tests 8/N.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { getFollowupQueueDepth, resolveQueueSettings } from "./queue.js";
 import type { MediaUnderstandingDecision } from "../../media-understanding/types.js";
 import { resolveSubagentLabel } from "./subagents-utils.js";

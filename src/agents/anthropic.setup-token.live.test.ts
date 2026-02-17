@@ -1,7 +1,9 @@
+import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
@@ -9,6 +11,8 @@ import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-age
 =======
 import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { describe, expect, it } from "vitest";
 import { isTruthyEnvValue } from "../infra/env.js";
 import {

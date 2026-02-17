@@ -1,4 +1,6 @@
 import crypto from "node:crypto";
+import type { NodeSession } from "../node-registry.js";
+import type { GatewayRequestHandlers } from "./types.js";
 import {
   createBrowserControlContext,
   startBrowserControlServiceFromConfig,
@@ -7,8 +9,8 @@ import { applyBrowserProxyPaths, persistBrowserProxyFiles } from "../../browser/
 import { createBrowserRouteDispatcher } from "../../browser/routes/dispatcher.js";
 import { loadConfig } from "../../config/config.js";
 import { isNodeCommandAllowed, resolveNodeCommandAllowlist } from "../node-command-policy.js";
-import type { NodeSession } from "../node-registry.js";
 import { ErrorCodes, errorShape } from "../protocol/index.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { safeParseJson } from "./nodes.helpers.js";
 import type { GatewayRequestHandlers } from "./types.js";
@@ -19,6 +21,9 @@ import { respondUnavailableOnNodeInvokeError, safeParseJson } from "./nodes.help
 =======
 import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { respondUnavailableOnNodeInvokeError, safeParseJson } from "./nodes.helpers.js";
+>>>>>>> ed11e93cf (chore(format))
 
 type BrowserRequestParams = {
   method?: string;

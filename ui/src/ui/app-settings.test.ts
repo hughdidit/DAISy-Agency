@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { Tab } from "./navigation";
 import { setTabFromRoute } from "./app-settings";
@@ -12,6 +13,10 @@ import { setTabFromRoute } from "./app-settings.ts";
 import { setTabFromRoute } from "./app-settings.ts";
 import type { Tab } from "./navigation.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { Tab } from "./navigation.ts";
+import { setTabFromRoute } from "./app-settings.ts";
+>>>>>>> ed11e93cf (chore(format))
 
 type SettingsHost = Parameters<typeof setTabFromRoute>[0] & {
   logsPollInterval: number | null;

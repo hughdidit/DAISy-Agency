@@ -1,9 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { DoctorPrompter } from "./doctor-prompter.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   DEFAULT_SANDBOX_BROWSER_IMAGE,
   DEFAULT_SANDBOX_COMMON_IMAGE,
@@ -11,14 +17,15 @@ import {
   resolveSandboxScope,
 } from "../agents/sandbox.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { runCommandWithTimeout, runExec } from "../process/exec.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
-import type { DoctorPrompter } from "./doctor-prompter.js";
 
 type SandboxScriptInfo = {
   scriptPath: string;

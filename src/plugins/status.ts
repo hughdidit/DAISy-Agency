@@ -1,3 +1,4 @@
+import type { PluginRegistry } from "./registry.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import { loadConfig } from "../config/config.js";
@@ -6,8 +7,11 @@ import { createSubsystemLogger } from "../logging/subsystem.js";
 import { loadMoltbotPlugins } from "./loader.js";
 =======
 import { loadOpenClawPlugins } from "./loader.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { PluginRegistry } from "./registry.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 export type PluginStatusReport = PluginRegistry & {
   workspaceDir?: string;

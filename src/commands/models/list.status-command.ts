@@ -1,11 +1,15 @@
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
 =======
 import { resolveAgentDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 >>>>>>> dd4715a2c (CLI: add --agent flag to models status)
 =======
+=======
+import type { RuntimeEnv } from "../../runtime.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
 import {
   resolveAgentDir,
@@ -43,7 +47,6 @@ import {
 import type { RuntimeEnv } from "../../runtime.js";
 =======
 import { getShellEnvAppliedKeys, shouldEnableShellEnvFallback } from "../../infra/shell-env.js";
-import type { RuntimeEnv } from "../../runtime.js";
 import { renderTable } from "../../terminal/table.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { colorize, theme } from "../../terminal/theme.js";

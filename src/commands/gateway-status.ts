@@ -1,3 +1,4 @@
+import type { RuntimeEnv } from "../runtime.js";
 import { withProgress } from "../cli/progress.js";
 import { loadConfig, resolveGatewayPort } from "../config/config.js";
 import { probeGateway } from "../gateway/probe.js";
@@ -7,8 +8,11 @@ import { parseSshTarget, startSshPortForward } from "../infra/ssh-tunnel.js";
 <<<<<<< HEAD
 =======
 import { resolveWideAreaDiscoveryDomain } from "../infra/widearea-dns.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../runtime.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { colorize, isRich, theme } from "../terminal/theme.js";
 
 import {

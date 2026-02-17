@@ -1,6 +1,7 @@
 import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { formatPresenceAge, formatPresenceSummary } from "../presenter";
 import type { PresenceEntry } from "../types";
@@ -12,6 +13,10 @@ import { formatPresenceAge, formatPresenceSummary } from "../presenter.ts";
 import { formatPresenceAge, formatPresenceSummary } from "../presenter.ts";
 import type { PresenceEntry } from "../types.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { PresenceEntry } from "../types.ts";
+import { formatPresenceAge, formatPresenceSummary } from "../presenter.ts";
+>>>>>>> ed11e93cf (chore(format))
 
 export type InstancesProps = {
   loading: boolean;

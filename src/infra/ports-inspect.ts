@@ -1,4 +1,5 @@
 import net from "node:net";
+import type { PortListener, PortUsage, PortUsageStatus } from "./ports-types.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 <<<<<<< HEAD
 =======
@@ -7,10 +8,13 @@ import { buildPortHints } from "./ports-format.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { resolveLsofCommand } from "./ports-lsof.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { buildPortHints } from "./ports-format.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { PortListener, PortUsage, PortUsageStatus } from "./ports-types.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 type CommandResult = {
   stdout: string;

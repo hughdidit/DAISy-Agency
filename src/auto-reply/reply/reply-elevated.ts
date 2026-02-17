@@ -1,7 +1,10 @@
+import type { AgentElevatedAllowFromConfig, OpenClawConfig } from "../../config/config.js";
+import type { MsgContext } from "../templating.js";
 import { resolveAgentConfig } from "../../agents/agent-scope.js";
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 import { CHAT_CHANNEL_ORDER } from "../../channels/registry.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { AgentElevatedAllowFromConfig, MoltbotConfig } from "../../config/config.js";
@@ -12,8 +15,9 @@ import type { MsgContext } from "../templating.js";
 =======
 import type { AgentElevatedAllowFromConfig, OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
-import type { MsgContext } from "../templating.js";
 export { formatElevatedUnavailableMessage } from "./elevated-unavailable.js";
 >>>>>>> e401e2584 (refactor(auto-reply): share elevated unavailable message)
 

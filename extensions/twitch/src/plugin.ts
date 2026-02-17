@@ -12,6 +12,7 @@ import { twitchMessageActions } from "./actions.js";
 =======
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { buildChannelConfigSchema } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 import { twitchMessageActions } from "./actions.js";
 import { removeClientManager } from "./client-manager-registry.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -29,6 +30,8 @@ import { isAccountConfigured } from "./utils/twitch.js";
 =======
 import { resolveTwitchToken } from "./token.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type {
   ChannelAccountSnapshot,
   ChannelCapabilities,
@@ -40,7 +43,20 @@ import type {
   TwitchAccountConfig,
 } from "./types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import { twitchMessageActions } from "./actions.js";
+import { removeClientManager } from "./client-manager-registry.js";
+import { TwitchConfigSchema } from "./config-schema.js";
+import { DEFAULT_ACCOUNT_ID, getAccountConfig, listAccountIds } from "./config.js";
+import { twitchOnboardingAdapter } from "./onboarding.js";
+import { twitchOutbound } from "./outbound.js";
+import { probeTwitch } from "./probe.js";
+import { resolveTwitchTargets } from "./resolver.js";
+import { collectTwitchStatusIssues } from "./status.js";
+import { resolveTwitchToken } from "./token.js";
+>>>>>>> ed11e93cf (chore(format))
 import { isAccountConfigured } from "./utils/twitch.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

@@ -1,11 +1,16 @@
+<<<<<<< HEAD
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { normalizeAccountId } from "../routing/session-key.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "./config.js";
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "./config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { MarkdownTableMode } from "./types.base.js";
+import { normalizeChannelId } from "../channels/plugins/index.js";
+import { normalizeAccountId } from "../routing/session-key.js";
 
 type MarkdownConfigEntry = {
   markdown?: {

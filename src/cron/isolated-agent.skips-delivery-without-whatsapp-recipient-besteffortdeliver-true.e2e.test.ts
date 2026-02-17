@@ -8,6 +8,7 @@ import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -44,9 +45,11 @@ import { loadModelCatalog } from "../agents/model-catalog.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { CliDeps } from "../cli/deps.js";
+>>>>>>> ed11e93cf (chore(format))
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
-import type { CliDeps } from "../cli/deps.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 import {
   makeCfg,

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -14,7 +15,16 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildLineMessageContext, buildLinePostbackContext } from "./bot-message-context.js";
+=======
+import type { MessageEvent, PostbackEvent } from "@line/bot-sdk";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> ed11e93cf (chore(format))
 import type { ResolvedLineAccount } from "./types.js";
+import { buildLineMessageContext, buildLinePostbackContext } from "./bot-message-context.js";
 
 describe("buildLineMessageContext", () => {
   let tmpDir: string;

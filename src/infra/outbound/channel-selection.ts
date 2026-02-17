@@ -1,10 +1,13 @@
-import { listChannelPlugins } from "../../channels/plugins/index.js";
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { listChannelPlugins } from "../../channels/plugins/index.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   listDeliverableMessageChannels,
   type DeliverableMessageChannel,

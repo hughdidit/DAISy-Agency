@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 =======
 import type { DatabaseSync } from "node:sqlite";
@@ -107,9 +108,24 @@ import type { DatabaseSync } from "node:sqlite";
 import { type FSWatcher } from "chokidar";
 >>>>>>> 5115f6fdf (style: normalize imports for oxfmt 0.33)
 import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
+=======
+import type { DatabaseSync } from "node:sqlite";
+import { type FSWatcher } from "chokidar";
+import fs from "node:fs/promises";
+import path from "node:path";
+>>>>>>> ed11e93cf (chore(format))
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
-import { resolveMemorySearchConfig } from "../agents/memory-search.js";
 import type { OpenClawConfig } from "../config/config.js";
+import type {
+  MemoryEmbeddingProbeResult,
+  MemoryProviderStatus,
+  MemorySearchManager,
+  MemorySearchResult,
+  MemorySource,
+  MemorySyncProgressUpdate,
+} from "./types.js";
+import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
+import { resolveMemorySearchConfig } from "../agents/memory-search.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   createEmbeddingProvider,
@@ -178,6 +194,7 @@ import { memoryManagerSyncOps } from "./manager-sync-ops.js";
 import { extractKeywords } from "./query-expansion.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> bcab2469d (feat: LLM-based query expansion for FTS mode)
 =======
 =======
@@ -197,6 +214,8 @@ import { extractKeywords } from "./query-expansion.js";
 >>>>>>> ddef3cadb (refactor: replace memory manager prototype mixing)
 =======
 >>>>>>> 5115f6fdf (style: normalize imports for oxfmt 0.33)
+=======
+>>>>>>> ed11e93cf (chore(format))
 const SNIPPET_MAX_CHARS = 700;
 const VECTOR_TABLE = "chunks_vec";
 const FTS_TABLE = "chunks_fts";

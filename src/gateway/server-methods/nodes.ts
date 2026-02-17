@@ -1,5 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import type { GatewayRequestHandlers } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { loadConfig } from "../../config/config.js";
 import { listDevicePairing } from "../../infra/device-pairing.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -44,11 +48,14 @@ import {
   uniqueSortedStrings,
 } from "./nodes.helpers.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { loadConfig } from "../../config/config.js";
 import { isNodeCommandAllowed, resolveNodeCommandAllowlist } from "../node-command-policy.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayRequestHandlers } from "./types.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 function isNodeEntry(entry: { role?: string; roles?: string[] }) {
   if (entry.role === "node") {

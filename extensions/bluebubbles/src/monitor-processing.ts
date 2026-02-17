@@ -7,6 +7,11 @@ import {
   resolveAckReaction,
   resolveControlCommandGate,
 } from "openclaw/plugin-sdk";
+import type {
+  BlueBubblesCoreRuntime,
+  BlueBubblesRuntimeEnv,
+  WebhookTarget,
+} from "./monitor-shared.js";
 import { downloadBlueBubblesAttachment } from "./attachments.js";
 import { markBlueBubblesChatRead, sendBlueBubblesTyping } from "./chat.js";
 import { sendBlueBubblesMedia } from "./media-send.js";
@@ -28,12 +33,15 @@ import {
   resolveReplyContextFromCache,
 } from "./monitor-reply-cache.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type {
   BlueBubblesCoreRuntime,
   BlueBubblesRuntimeEnv,
   WebhookTarget,
 } from "./monitor-shared.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeBlueBubblesReactionInput, sendBlueBubblesReaction } from "./reactions.js";

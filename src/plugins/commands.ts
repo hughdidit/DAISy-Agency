@@ -9,13 +9,17 @@
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 import { logVerbose } from "../globals.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type {
   MoltbotPluginCommandDefinition,
   PluginCommandContext,
   PluginCommandResult,
 } from "./types.js";
+import { logVerbose } from "../globals.js";
 
 type RegisteredPluginCommand = MoltbotPluginCommandDefinition & {
   pluginId: string;

@@ -4,16 +4,21 @@ import type {
   AgentToolUpdateCallback,
 } from "@mariozechner/pi-agent-core";
 import type { ToolDefinition } from "@mariozechner/pi-coding-agent";
+import type { ClientToolDefinition } from "./pi-embedded-runner/run/params.js";
+import type { HookContext } from "./pi-tools.before-tool-call.js";
 import { logDebug, logError } from "../logger.js";
 <<<<<<< HEAD
 =======
 import { isPlainObject } from "../utils.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { runBeforeToolCallHook } from "./pi-tools.before-tool-call.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 =======
 import type { ClientToolDefinition } from "./pi-embedded-runner/run/params.js";
 import type { HookContext } from "./pi-tools.before-tool-call.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   consumeAdjustedParamsForToolCall,
   isToolWrappedWithBeforeToolCallHook,

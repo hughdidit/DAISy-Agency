@@ -1,3 +1,5 @@
+import type { ReplyPayload } from "../types.js";
+import type { CommandHandler } from "./commands-types.js";
 import { logVerbose } from "../../globals.js";
 <<<<<<< HEAD
 import type { ReplyPayload } from "../types.js";
@@ -21,8 +23,6 @@ import {
   setTtsProvider,
   textToSpeech,
 } from "../../tts/tts.js";
-import type { ReplyPayload } from "../types.js";
-import type { CommandHandler } from "./commands-types.js";
 
 type ParsedTtsCommand = {
   action: string;

@@ -1,8 +1,12 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { MsgContext } from "../templating.js";
+import type { ReplyPayload } from "../types.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { getFinishedSession, getSession, markExited } from "../../agents/bash-process-registry.js";
 import { createExecTool } from "../../agents/bash-tools.js";
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
 import { killProcessTree } from "../../agents/shell-utils.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
@@ -15,10 +19,10 @@ import type { ReplyPayload } from "../types.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { logVerbose } from "../../globals.js";
 import { clampInt } from "../../utils.js";
-import type { MsgContext } from "../templating.js";
-import type { ReplyPayload } from "../types.js";
 import { formatElevatedUnavailableMessage } from "./elevated-unavailable.js";
 >>>>>>> e401e2584 (refactor(auto-reply): share elevated unavailable message)
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";

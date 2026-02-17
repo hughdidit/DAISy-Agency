@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { OpenClawApp } from "./app";
 import { refreshChat } from "./app-chat";
@@ -9,6 +10,10 @@ import type { OpenClawApp } from "./app.ts";
 import type { AgentsListResult } from "./types.ts";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawApp } from "./app.ts";
+import type { AgentsListResult } from "./types.ts";
+>>>>>>> ed11e93cf (chore(format))
 import { refreshChat } from "./app-chat.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
@@ -38,7 +43,6 @@ import { loadSkills } from "./controllers/skills";
 =======
 } from "./app-polling.ts";
 import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll.ts";
-import type { OpenClawApp } from "./app.ts";
 import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
 import { loadAgentSkills } from "./controllers/agent-skills.ts";
 import { loadAgents } from "./controllers/agents.ts";
@@ -81,10 +85,13 @@ import { saveSettings, type UiSettings } from "./storage.ts";
 import { startThemeTransition, type ThemeTransitionContext } from "./theme-transition.ts";
 import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme.ts";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import type { AgentsListResult } from "./types.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 type SettingsHost = {
   settings: UiSettings;

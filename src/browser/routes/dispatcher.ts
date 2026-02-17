@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { BrowserRouteContext } from "../server-context.js";
 <<<<<<< HEAD
 =======
@@ -10,7 +11,12 @@ import { escapeRegExp } from "../../utils.js";
 import type { BrowserRouteContext } from "../server-context.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { registerBrowserRoutes } from "./index.js";
+=======
+import type { BrowserRouteContext } from "../server-context.js";
+>>>>>>> ed11e93cf (chore(format))
 import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./types.js";
+import { escapeRegExp } from "../../utils.js";
+import { registerBrowserRoutes } from "./index.js";
 
 type BrowserDispatchRequest = {
   method: "GET" | "POST" | "DELETE";

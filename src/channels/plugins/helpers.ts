@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
@@ -5,7 +6,12 @@ import type { MoltbotConfig } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> ed11e93cf (chore(format))
 import type { ChannelPlugin } from "./types.js";
+import { formatCliCommand } from "../../cli/command-format.js";
+import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
 
 // Channel docking helper: use this when selecting the default account for a plugin.
 export function resolveChannelDefaultAccountId<ResolvedAccount>(params: {

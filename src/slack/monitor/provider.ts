@@ -3,6 +3,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import SlackBolt from "@slack/bolt";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { SessionScope } from "../../config/sessions.js";
@@ -10,6 +11,10 @@ import type { MonitorSlackOpts } from "./types.js";
 >>>>>>> 54a242eaa (perf(test): gate monitor runtime logs during vitest)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { SessionScope } from "../../config/sessions.js";
+import type { MonitorSlackOpts } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { DEFAULT_GROUP_HISTORY_LIMIT } from "../../auto-reply/reply/history.js";
 import {
@@ -20,7 +25,6 @@ import {
   summarizeMapping,
 } from "../../channels/allowlists/resolve-utils.js";
 import { loadConfig } from "../../config/config.js";
-import type { SessionScope } from "../../config/sessions.js";
 import { warn } from "../../globals.js";
 import { normalizeMainKey } from "../../routing/session-key.js";
 <<<<<<< HEAD
@@ -41,11 +45,14 @@ import { registerSlackMonitorEvents } from "./events.js";
 import { createSlackMessageHandler } from "./message-handler.js";
 import { registerSlackMonitorSlashCommands } from "./slash.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeAllowList } from "./allow-list.js";
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { MonitorSlackOpts } from "./types.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 const slackBoltModule = SlackBolt as typeof import("@slack/bolt") & {
   default?: typeof import("@slack/bolt");

@@ -4,6 +4,7 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
 >>>>>>> 90ef2d6bd (chore: Update formatting.):src/agents/openclaw-tools.ts
 import { resolvePluginTools } from "../plugins/tools.js";
 =======
@@ -14,13 +15,16 @@ import type { AnyAgentTool } from "./tools/common.js";
 =======
 >>>>>>> b6d4f7c00 (chore: Fix types in tests 5/N.):src/agents/openclaw-tools.ts
 import { resolvePluginTools } from "../plugins/tools.js";
+=======
+>>>>>>> ed11e93cf (chore(format)):src/agents/openclaw-tools.ts
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
-import { resolveSessionAgentId } from "./agent-scope.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+import type { AnyAgentTool } from "./tools/common.js";
+import { resolvePluginTools } from "../plugins/tools.js";
+import { resolveSessionAgentId } from "./agent-scope.js";
 import { createAgentsListTool } from "./tools/agents-list-tool.js";
 import { createBrowserTool } from "./tools/browser-tool.js";
 import { createCanvasTool } from "./tools/canvas-tool.js";
-import type { AnyAgentTool } from "./tools/common.js";
 import { createCronTool } from "./tools/cron-tool.js";
 import { createGatewayTool } from "./tools/gateway-tool.js";
 import { createImageTool } from "./tools/image-tool.js";

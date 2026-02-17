@@ -1,13 +1,19 @@
+import type { Command } from "commander";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import type { Command } from "commander";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveArchiveKind } from "../infra/archive.js";
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
+import type { HookEntry } from "../hooks/types.js";
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { loadConfig, writeConfigFile } from "../config/io.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
@@ -25,8 +31,11 @@ import {
 } from "../hooks/install.js";
 import { recordHookInstall } from "../hooks/installs.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { HookEntry } from "../hooks/types.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { loadWorkspaceHookEntries } from "../hooks/workspace.js";
 import { resolveArchiveKind } from "../infra/archive.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

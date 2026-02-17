@@ -1,5 +1,7 @@
+import { Type } from "@sinclair/typebox";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -12,6 +14,8 @@ import { Type } from "@sinclair/typebox";
 =======
 import { Type } from "@sinclair/typebox";
 >>>>>>> c70597dae (chore: Fix formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { writeBase64ToFile } from "../../cli/nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../../cli/nodes-canvas.js";
 import { imageMimeFromFormat } from "../../media/mime.js";

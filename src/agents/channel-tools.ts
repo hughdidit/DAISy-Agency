@@ -1,20 +1,30 @@
+<<<<<<< HEAD
 import { getChannelDock } from "../channels/dock.js";
 import { getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
 import { normalizeAnyChannelId } from "../channels/registry.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type {
   ChannelAgentTool,
   ChannelMessageActionName,
   ChannelPlugin,
 } from "../channels/plugins/types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { normalizeAnyChannelId } from "../channels/registry.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { getChannelDock } from "../channels/dock.js";
+import { getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
+import { normalizeAnyChannelId } from "../channels/registry.js";
+>>>>>>> ed11e93cf (chore(format))
 import { defaultRuntime } from "../runtime.js";
 
 /**

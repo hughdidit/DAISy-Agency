@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createSubsystemLogger } from "../logging/subsystem.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16,10 +17,12 @@ import { hashText, runWithConcurrency } from "./internal.js";
 import type { GeminiEmbeddingClient } from "./embeddings-gemini.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { GeminiEmbeddingClient } from "./embeddings-gemini.js";
+>>>>>>> ed11e93cf (chore(format))
 import { runEmbeddingBatchGroups } from "./batch-runner.js";
 import { buildBatchHeaders, normalizeBatchBaseUrl } from "./batch-utils.js";
 import { debugEmbeddingsLog } from "./embeddings-debug.js";
-import type { GeminiEmbeddingClient } from "./embeddings-gemini.js";
 import { hashText } from "./internal.js";
 >>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
 

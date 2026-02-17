@@ -1,18 +1,25 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import type { DoctorOptions } from "./doctor-prompter.js";
+>>>>>>> ed11e93cf (chore(format))
 import { formatCliCommand } from "../cli/command-format.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { runGatewayUpdate } from "../infra/update-runner.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { DoctorOptions } from "./doctor-prompter.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 async function detectMoltbotGitCheckout(root: string): Promise<"git" | "not-git" | "unknown"> {
   const res = await runCommandWithTimeout(["git", "-C", root, "rev-parse", "--show-toplevel"], {

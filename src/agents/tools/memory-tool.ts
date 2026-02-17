@@ -10,6 +10,7 @@ import type { MemoryCitationsMode } from "../../config/types.memory.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 =======
 =======
@@ -28,11 +29,16 @@ import type { MemorySearchResult } from "../../memory/types.js";
 =======
 import type { MemorySearchResult } from "../../memory/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { MemorySearchResult } from "../../memory/types.js";
+import type { AnyAgentTool } from "./common.js";
+import { resolveMemoryBackendConfig } from "../../memory/backend-config.js";
+import { getMemorySearchManager } from "../../memory/index.js";
+>>>>>>> ed11e93cf (chore(format))
 import { parseAgentSessionKey } from "../../routing/session-key.js";
 >>>>>>> 9bef52594 (chore: apply formatter)
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveMemorySearchConfig } from "../memory-search.js";
-import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 
 const MemorySearchSchema = Type.Object({

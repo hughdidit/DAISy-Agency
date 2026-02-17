@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { promisify } from "node:util";
 
 =======
@@ -15,6 +16,9 @@ import { colorize, isRich, theme } from "../terminal/theme.js";
 =======
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { GatewayServiceRuntime } from "./service-runtime.js";
+>>>>>>> ed11e93cf (chore(format))
 import { splitArgsPreservingQuotes } from "./arg-split.js";
 <<<<<<< HEAD
 >>>>>>> 108ea4336 (refactor(daemon): share quoted arg splitter)
@@ -26,7 +30,11 @@ import { formatLine } from "./output.js";
 import { resolveGatewayStateDir } from "./paths.js";
 import { parseKeyValueOutput } from "./runtime-parse.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayServiceRuntime } from "./service-runtime.js";
+=======
+import { execSchtasks } from "./schtasks-exec.js";
+>>>>>>> ed11e93cf (chore(format))
 
 const execFileAsync = promisify(execFile);
 =======

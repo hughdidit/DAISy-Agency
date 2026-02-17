@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "./types.js";
 import {
   applyConfigOverrides,
   getConfigOverrides,
@@ -7,10 +8,13 @@ import {
   unsetConfigOverride,
 } from "./runtime-overrides.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
 =======
 import type { OpenClawConfig } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 describe("runtime overrides", () => {
   beforeEach(() => {

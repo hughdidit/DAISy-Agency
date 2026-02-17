@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import * as ssrf from "../../infra/net/ssrf.js";
 import * as mediaStore from "../../media/store.js";
@@ -11,6 +12,11 @@ import { fetchWithSlackAuth, resolveSlackMedia, resolveSlackThreadHistory } from
 =======
 import type { SavedMedia } from "../../media/store.js";
 >>>>>>> a76a9c375 (chore: Fix types in tests 15/N.)
+=======
+import type { SavedMedia } from "../../media/store.js";
+import * as ssrf from "../../infra/net/ssrf.js";
+import * as mediaStore from "../../media/store.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   fetchWithSlackAuth,
   resolveSlackAttachmentContent,

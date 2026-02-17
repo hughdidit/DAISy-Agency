@@ -36,10 +36,14 @@ export function execDocker(args: string[], opts?: { allowFailure?: boolean }) {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { formatCliCommand } from "../../cli/command-format.js";
 import { defaultRuntime } from "../../runtime.js";
 import { computeSandboxConfigHash } from "./config-hash.js";
@@ -47,8 +51,11 @@ import { DEFAULT_SANDBOX_IMAGE, SANDBOX_AGENT_WORKSPACE_MOUNT } from "./constant
 import { readRegistry, updateRegistry } from "./registry.js";
 import { resolveSandboxAgentId, resolveSandboxScopeKey, slugifySessionKey } from "./shared.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { validateSandboxSecurity } from "./validate-sandbox-security.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

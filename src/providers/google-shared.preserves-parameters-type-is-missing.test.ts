@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { Context, Tool } from "@mariozechner/pi-ai/dist/types.js";
 >>>>>>> d3d82a1c1 (refactor(test): share google-shared test helpers)
@@ -9,6 +10,10 @@ import type { Context, Model, Tool } from "@mariozechner/pi-ai/dist/types.js";
 import { convertMessages, convertTools } from "@mariozechner/pi-ai/dist/providers/google-shared.js";
 import type { Context, Tool } from "@mariozechner/pi-ai/dist/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { Context, Tool } from "@mariozechner/pi-ai/dist/types.js";
+import { convertMessages, convertTools } from "@mariozechner/pi-ai/dist/providers/google-shared.js";
+>>>>>>> ed11e93cf (chore(format))
 import { describe, expect, it } from "vitest";
 import {
   asRecord,

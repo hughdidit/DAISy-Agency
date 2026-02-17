@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -15,10 +16,14 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 import { cancel, confirm, isCancel, multiselect } from "@clack/prompts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { cancel, confirm, isCancel, multiselect } from "@clack/prompts";
+import path from "node:path";
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> ed11e93cf (chore(format))
 import { isNixMode } from "../config/config.js";
 >>>>>>> 813b96a80 (refactor(commands): share cleanup plan resolver)
 import { resolveGatewayService } from "../daemon/service.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { stylePromptHint, stylePromptMessage, stylePromptTitle } from "../terminal/prompt-style.js";
 import { resolveHomeDir } from "../utils.js";
 import { resolveCleanupPlanFromDisk } from "./cleanup-plan.js";

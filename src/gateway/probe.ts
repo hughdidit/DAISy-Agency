@@ -1,11 +1,15 @@
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { SystemPresence } from "../infra/system-presence.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatErrorMessage } from "../infra/errors.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { SystemPresence } from "../infra/system-presence.js";
+import { formatErrorMessage } from "../infra/errors.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { GatewayClient } from "./client.js";
 

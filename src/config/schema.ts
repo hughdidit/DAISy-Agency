@@ -1,5 +1,7 @@
+import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
 import { CHANNEL_IDS } from "../channels/registry.js";
 import { VERSION } from "../version.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -10,6 +12,8 @@ import { applySensitiveHints, buildBaseHints } from "./schema.hints.js";
 >>>>>>> fa427f63b (refactor(config): restore schema.ts to use schema.hints)
 =======
 import type { ConfigUiHint, ConfigUiHints } from "./schema.hints.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { applySensitiveHints, buildBaseHints, mapSensitivePaths } from "./schema.hints.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { OpenClawSchema } from "./zod-schema.js";

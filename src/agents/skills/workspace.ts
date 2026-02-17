@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 import path from "node:path";
@@ -6,11 +7,14 @@ import path from "node:path";
 import os from "node:os";
 import path from "node:path";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   formatSkillsForPrompt,
   loadSkillsFromDir,
   type Skill,
 } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -27,11 +31,16 @@ import {
 import { resolvePluginSkillDirs } from "./plugin-skills.js";
 import { serializeByKey } from "./serialize.js";
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 >>>>>>> d85150357 (feat: support .agents/skills/ directory for cross-agent skill discovery (#9966))
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type {
   ParsedSkillFrontmatter,
   SkillEligibilityContext,
@@ -40,10 +49,13 @@ import type {
   SkillSnapshot,
 } from "./types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
 import { resolveSandboxPath } from "../sandbox-paths.js";
@@ -58,6 +70,7 @@ import {
 import { resolvePluginSkillDirs } from "./plugin-skills.js";
 import { serializeByKey } from "./serialize.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> aef1d5530 (fix(cron): normalize skill-filter snapshots and split isolated run helpers)
 =======
 import type {
@@ -68,6 +81,8 @@ import type {
   SkillSnapshot,
 } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 const fsp = fs.promises;
 const skillsLogger = createSubsystemLogger("skills");

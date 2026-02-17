@@ -10,7 +10,11 @@ import {
   readReactionParams,
   readStringParam,
 } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { CoreConfig } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   deleteMatrixMessage,
   editMatrixMessage,
@@ -26,6 +30,7 @@ import {
 } from "./matrix/actions.js";
 import { reactMatrixMessage } from "./matrix/send.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   createActionGate,
   jsonResult,
@@ -36,6 +41,8 @@ import {
 =======
 import type { CoreConfig } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 const messageActions = new Set(["sendMessage", "editMessage", "deleteMessage", "readMessages"]);
 const reactionActions = new Set(["react", "reactions"]);

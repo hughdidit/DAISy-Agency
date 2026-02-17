@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
@@ -7,6 +8,11 @@ import type { loadOpenClawPlugins } from "../plugins/loader.js";
 >>>>>>> 32e2c369d (refactor(agents): extract shared session dir resolver)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { CliDeps } from "../cli/deps.js";
+import type { loadConfig } from "../config/config.js";
+import type { loadOpenClawPlugins } from "../plugins/loader.js";
+>>>>>>> ed11e93cf (chore(format))
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import {
@@ -21,8 +27,6 @@ import { isTruthyEnvValue } from "../infra/env.js";
 =======
 import { resolveAgentSessionDirs } from "../agents/session-dirs.js";
 import { cleanStaleLockFiles } from "../agents/session-write-lock.js";
-import type { CliDeps } from "../cli/deps.js";
-import type { loadConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
 >>>>>>> 32e2c369d (refactor(agents): extract shared session dir resolver)
 import { startGmailWatcher } from "../hooks/gmail-watcher.js";
@@ -36,8 +40,11 @@ import { loadInternalHooks } from "../hooks/loader.js";
 import type { loadMoltbotPlugins } from "../plugins/loader.js";
 =======
 import { isTruthyEnvValue } from "../infra/env.js";
+<<<<<<< HEAD
 import type { loadOpenClawPlugins } from "../plugins/loader.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { type PluginServicesHandle, startPluginServices } from "../plugins/services.js";
 import { startBrowserControlServerIfEnabled } from "./server-browser.js";
 import {

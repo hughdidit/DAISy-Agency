@@ -1,7 +1,10 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { IStorageProvider, ICryptoStorageProvider } from "@vector-im/matrix-bot-sdk";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
@@ -11,10 +14,14 @@ import {
   RustSdkCryptoStorageProvider,
 } from "@vector-im/matrix-bot-sdk";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IStorageProvider, ICryptoStorageProvider } from "@vector-im/matrix-bot-sdk";
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import fs from "node:fs";
+>>>>>>> ed11e93cf (chore(format))
 import { ensureMatrixSdkLoggingConfigured } from "./logging.js";
 import {
   maybeMigrateLegacyStorage,

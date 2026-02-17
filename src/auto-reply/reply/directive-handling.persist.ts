@@ -1,3 +1,6 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { InlineDirectives } from "./directive-handling.parse.js";
+import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
 import {
   resolveAgentDir,
   resolveDefaultAgentId,
@@ -13,15 +16,19 @@ import {
   resolveModelRefFromString,
 } from "../../agents/model-selection.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { type SessionEntry, updateSessionStore } from "../../config/sessions.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { applyVerboseOverride } from "../../sessions/level-overrides.js";
 import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
 import { resolveProfileOverride } from "./directive-handling.auth.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { InlineDirectives } from "./directive-handling.parse.js";
@@ -35,6 +42,9 @@ import type { InlineDirectives } from "./directive-handling.parse.js";
 import { enqueueModeSwitchEvents } from "./directive-handling.shared.js";
 import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { enqueueModeSwitchEvents } from "./directive-handling.shared.js";
+>>>>>>> ed11e93cf (chore(format))
 
 export async function persistInlineDirectives(params: {
   directives: InlineDirectives;

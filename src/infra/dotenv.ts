@@ -1,5 +1,7 @@
+import dotenv from "dotenv";
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 import dotenv from "dotenv";
@@ -7,6 +9,8 @@ import dotenv from "dotenv";
 =======
 import dotenv from "dotenv";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { resolveConfigDir } from "../utils.js";
 
 export function loadDotEnv(opts?: { quiet?: boolean }) {

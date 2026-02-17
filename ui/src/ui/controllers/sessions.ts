@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayBrowserClient } from "../gateway";
 import { toNumber } from "../format";
 import type { SessionsListResult } from "../types";
@@ -19,6 +20,11 @@ import { toNumber } from "../format.ts";
 import type { GatewayBrowserClient } from "../gateway.ts";
 import type { SessionsListResult } from "../types.ts";
 >>>>>>> 6b8c0bc69 (chore: Format files.)
+=======
+import type { GatewayBrowserClient } from "../gateway.ts";
+import type { SessionsListResult } from "../types.ts";
+import { toNumber } from "../format.ts";
+>>>>>>> ed11e93cf (chore(format))
 
 export type SessionsState = {
   client: GatewayBrowserClient | null;

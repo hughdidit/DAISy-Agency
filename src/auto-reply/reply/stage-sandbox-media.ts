@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureSandboxWorkspaceForSession } from "../../agents/sandbox.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
@@ -10,9 +11,14 @@ import { assertSandboxPath } from "../../agents/sandbox-paths.js";
 import { ensureSandboxWorkspaceForSession } from "../../agents/sandbox.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { MsgContext, TemplateContext } from "../templating.js";
+import { assertSandboxPath } from "../../agents/sandbox-paths.js";
+import { ensureSandboxWorkspaceForSession } from "../../agents/sandbox.js";
+>>>>>>> ed11e93cf (chore(format))
 import { logVerbose } from "../../globals.js";
 import { CONFIG_DIR } from "../../utils.js";
-import type { MsgContext, TemplateContext } from "../templating.js";
 
 export async function stageSandboxMedia(params: {
   ctx: MsgContext;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { listChannelDocks } from "../channels/dock.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
 <<<<<<< HEAD
@@ -5,13 +6,21 @@ import { listThinkingLevels } from "./thinking.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { COMMAND_ARG_FORMATTERS } from "./commands-args.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type {
   ChatCommandDefinition,
   CommandCategory,
   CommandScope,
 } from "./commands-registry.types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import { listChannelDocks } from "../channels/dock.js";
+import { getActivePluginRegistry } from "../plugins/runtime.js";
+import { COMMAND_ARG_FORMATTERS } from "./commands-args.js";
+>>>>>>> ed11e93cf (chore(format))
 import { listThinkingLevels } from "./thinking.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

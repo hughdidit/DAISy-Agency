@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -19,6 +20,11 @@ import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { BARE_SESSION_RESET_PROMPT } from "../auto-reply/reply/session-reset-prompt.js";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { ChannelPlugin } from "../channels/plugins/types.js";
+import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
+import { BARE_SESSION_RESET_PROMPT } from "../auto-reply/reply/session-reset-prompt.js";
+>>>>>>> ed11e93cf (chore(format))
 import { emitAgentEvent, registerAgentRunContext } from "../infra/agent-events.js";
 <<<<<<< HEAD
 import type { PluginRegistry } from "../plugins/registry.js";

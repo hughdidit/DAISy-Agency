@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { withProgress } from "../cli/progress.js";
@@ -8,6 +9,12 @@ import { loadConfig } from "../config/config.js";
 import { resolveGatewayService } from "../daemon/service.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../runtime.js";
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import { withProgress } from "../cli/progress.js";
+import { loadConfig } from "../config/config.js";
+import { resolveGatewayService } from "../daemon/service.js";
+>>>>>>> ed11e93cf (chore(format))
 import { note } from "../terminal/note.js";
 import { confirm, select } from "./configure.shared.js";
 import {

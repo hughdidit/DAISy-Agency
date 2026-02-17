@@ -3,7 +3,11 @@ import crypto from "node:crypto";
 
 =======
 import type { CallMode } from "../config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { CallManagerContext } from "./context.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   TerminalStates,
   type CallId,
@@ -12,7 +16,6 @@ import {
 } from "../types.js";
 import type { CallMode } from "../config.js";
 import { mapVoiceToPolly } from "../voice-mapping.js";
-import type { CallManagerContext } from "./context.js";
 import { getCallByProviderCallId } from "./lookup.js";
 import { generateNotifyTwiml } from "./twiml.js";
 import { addTranscriptEntry, transitionState } from "./state.js";

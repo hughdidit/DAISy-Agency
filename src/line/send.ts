@@ -1,8 +1,10 @@
 import { messagingApi } from "@line/bot-sdk";
+import type { LineSendResult } from "./types.js";
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
 import { resolveLineAccount } from "./accounts.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import type { LineSendResult } from "./types.js";
 =======
@@ -12,6 +14,9 @@ import { resolveLineChannelAccessToken } from "./channel-access-token.js";
 =======
 import type { LineSendResult } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { resolveLineChannelAccessToken } from "./channel-access-token.js";
+>>>>>>> ed11e93cf (chore(format))
 
 // Use the messaging API types directly
 type Message = messagingApi.Message;

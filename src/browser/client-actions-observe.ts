@@ -1,14 +1,18 @@
 import type { BrowserActionPathResult, BrowserActionTargetOk } from "./client-actions-types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { buildProfileQuery, withBaseUrl } from "./client-actions-url.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { fetchBrowserJson } from "./client-fetch.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type {
   BrowserConsoleMessage,
   BrowserNetworkRequest,
   BrowserPageError,
 } from "./pw-session.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -17,6 +21,10 @@ import { fetchBrowserJson } from "./client-fetch.js";
 >>>>>>> 7ef956d22 (refactor(browser): share client-actions url helpers)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { buildProfileQuery, withBaseUrl } from "./client-actions-url.js";
+import { fetchBrowserJson } from "./client-fetch.js";
+>>>>>>> ed11e93cf (chore(format))
 
 function buildQuerySuffix(params: Array<[string, string | boolean | undefined]>): string {
   const query = new URLSearchParams();

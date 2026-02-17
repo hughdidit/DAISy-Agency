@@ -104,10 +104,15 @@ vi.mock("clawdbot/plugin-sdk", async () => {
 });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { emitDiagnosticEvent } from "openclaw/plugin-sdk";
 import type { OpenClawPluginServiceContext } from "openclaw/plugin-sdk";
 >>>>>>> d3a36cc3b (chore: Fix remaining extension test types, enable type checking for extension tests.)
+=======
+import type { OpenClawPluginServiceContext } from "openclaw/plugin-sdk";
+import { emitDiagnosticEvent } from "openclaw/plugin-sdk";
+>>>>>>> ed11e93cf (chore(format))
 import { createDiagnosticsOtelService } from "./service.js";
 import { emitDiagnosticEvent } from "clawdbot/plugin-sdk";
 

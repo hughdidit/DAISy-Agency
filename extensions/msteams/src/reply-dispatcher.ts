@@ -9,6 +9,8 @@ import {
 } from "clawdbot/plugin-sdk";
 import type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
 import type { StoredConversationReference } from "./conversation-store.js";
+import type { MSTeamsMonitorLogger } from "./monitor-types.js";
+import type { MSTeamsTurnContext } from "./sdk-types.js";
 import {
   classifyMSTeamsSendError,
   formatMSTeamsSendErrorHint,
@@ -19,13 +21,15 @@ import {
   renderReplyPayloadsToMessages,
   sendMSTeamsMessages,
 } from "./messenger.js";
+<<<<<<< HEAD
 import type { MSTeamsMonitorLogger } from "./monitor-types.js";
 <<<<<<< HEAD
 import type { MSTeamsTurnContext } from "./sdk-types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { getMSTeamsRuntime } from "./runtime.js";
-import type { MSTeamsTurnContext } from "./sdk-types.js";
 
 export function createMSTeamsReplyDispatcher(params: {
   cfg: MoltbotConfig;

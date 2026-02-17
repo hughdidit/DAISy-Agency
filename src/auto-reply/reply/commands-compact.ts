@@ -1,9 +1,12 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { CommandHandler } from "./commands-types.js";
 import {
   abortEmbeddedPiRun,
   compactEmbeddedPiSession,
   isEmbeddedPiRunActive,
   waitForEmbeddedPiRunEnd,
 } from "../../agents/pi-embedded.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
@@ -13,6 +16,8 @@ import { resolveSessionFilePath, resolveSessionFilePathOptions } from "../../con
 >>>>>>> ac4117653 (Auto-reply: fix non-default agent session transcript path resolution (#15154))
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   resolveFreshSessionTotalTokens,
   resolveSessionFilePath,
@@ -22,7 +27,6 @@ import {
 import { logVerbose } from "../../globals.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { formatContextUsageShort, formatTokenCount } from "../status.js";
-import type { CommandHandler } from "./commands-types.js";
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
 import { incrementCompactionCount } from "./session-updates.js";
 

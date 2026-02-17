@@ -4,9 +4,13 @@ import { describe, expect, it, vi } from "vitest";
 import type { GatewayRequestContext } from "./types.js";
 =======
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { sendHandlers } from "./send.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { GatewayRequestContext } from "./types.js";
+import { sendHandlers } from "./send.js";
 
 const mocks = vi.hoisted(() => ({
   deliverOutboundPayloads: vi.fn(),

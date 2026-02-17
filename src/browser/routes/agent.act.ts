@@ -1,5 +1,6 @@
 import type { BrowserFormField } from "../client-actions-core.js";
 import type { BrowserRouteContext } from "../server-context.js";
+import type { BrowserRouteRegistrar } from "./types.js";
 import {
   type ActKind,
   isActKind,
@@ -21,8 +22,11 @@ import {
   resolvePathWithinRoot,
   resolvePathsWithinRoot,
 } from "./path-output.js";
+<<<<<<< HEAD
 import type { BrowserRouteRegistrar } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { jsonError, toBoolean, toNumber, toStringArray, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 

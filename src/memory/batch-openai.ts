@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { retryAsync } from "../infra/retry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -11,6 +12,9 @@ import { hashText } from "./internal.js";
 import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
+>>>>>>> ed11e93cf (chore(format))
 import { extractBatchErrorMessage, formatUnavailableBatchError } from "./batch-error-utils.js";
 import { postJsonWithRetry } from "./batch-http.js";
 >>>>>>> ebb54d71e (refactor(memory): share batch create retry)
@@ -28,10 +32,13 @@ import { runEmbeddingBatchGroups } from "./batch-runner.js";
 import { uploadBatchJsonlFile } from "./batch-upload.js";
 import { buildBatchHeaders, normalizeBatchBaseUrl } from "./batch-utils.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
 =======
 import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 export type OpenAiBatchRequest = {
   custom_id: string;

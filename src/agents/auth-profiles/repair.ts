@@ -2,6 +2,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 import type { AuthProfileConfig } from "../../config/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeProviderId } from "../model-selection.js";
 <<<<<<< HEAD
 import { listProfilesForProvider } from "./profiles.js";
@@ -19,6 +20,11 @@ import { dedupeProfileIds, listProfilesForProvider } from "./profiles.js";
 =======
 import type { AuthProfileIdRepairResult, AuthProfileStore } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { AuthProfileIdRepairResult, AuthProfileStore } from "./types.js";
+import { findNormalizedProviderKey, normalizeProviderId } from "../model-selection.js";
+import { dedupeProfileIds, listProfilesForProvider } from "./profiles.js";
+>>>>>>> ed11e93cf (chore(format))
 
 function getProfileSuffix(profileId: string): string {
   const idx = profileId.indexOf(":");

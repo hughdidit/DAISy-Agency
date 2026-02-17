@@ -1,16 +1,19 @@
 import type { DatabaseSync } from "node:sqlite";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { SyncProgressState } from "./sync-progress.js";
 >>>>>>> d8691ff4e (refactor(memory): share sync progress helpers)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { SyncProgressState } from "./sync-progress.js";
+>>>>>>> ed11e93cf (chore(format))
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { buildFileEntry, listMemoryFiles, type MemoryFileEntry } from "./internal.js";
 import { indexFileEntryIfChanged } from "./sync-index.js";
-import type { SyncProgressState } from "./sync-progress.js";
 import { bumpSyncProgressTotal } from "./sync-progress.js";
 import { deleteStaleIndexedPaths } from "./sync-stale.js";
 

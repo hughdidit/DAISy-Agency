@@ -14,6 +14,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
@@ -33,6 +34,10 @@ import { buildModelAliasIndex } from "../../agents/model-selection.js";
 import { buildModelAliasIndex } from "../../agents/model-selection.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 68634468f (chore(format): fix test import order)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { buildModelAliasIndex } from "../../agents/model-selection.js";
+>>>>>>> ed11e93cf (chore(format))
 import { saveSessionStore } from "../../config/sessions.js";
 import { formatZonedTimestamp } from "../../infra/format-time/format-datetime.ts";
 import { enqueueSystemEvent, resetSystemEventsForTest } from "../../infra/system-events.js";

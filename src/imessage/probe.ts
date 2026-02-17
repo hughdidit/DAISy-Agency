@@ -1,11 +1,14 @@
 <<<<<<< HEAD
 =======
 import type { BaseProbeResult } from "../channels/plugins/types.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> ed11e93cf (chore(format))
 import { detectBinary } from "../commands/onboard-helpers.js";
 import { loadConfig } from "../config/config.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { createIMessageRpcClient } from "./client.js";
 
 /** Default timeout for iMessage probe operations (10 seconds). */

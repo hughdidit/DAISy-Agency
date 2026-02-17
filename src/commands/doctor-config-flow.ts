@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
@@ -27,11 +28,19 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { ZodIssue } from "zod";
 >>>>>>> 9c5f08244 (chore: Format files.)
+=======
+import type { ZodIssue } from "zod";
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { OpenClawConfig } from "../config/config.js";
+import type { DoctorOptions } from "./doctor-prompter.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   isNumericTelegramUserId,
   normalizeTelegramAllowFromEntry,
 } from "../channels/telegram/allow-from.js";
 import { formatCliCommand } from "../cli/command-format.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -44,6 +53,8 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 9c5f08244 (chore: Format files.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   MoltbotSchema,
   CONFIG_PATH,
@@ -62,7 +73,6 @@ import { note } from "../terminal/note.js";
 import { isRecord, resolveHomeDir } from "../utils.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
-import type { DoctorOptions } from "./doctor-prompter.js";
 import { autoMigrateLegacyStateDir } from "./doctor-state-migrations.js";
 
 type UnrecognizedKeysIssue = ZodIssue & {

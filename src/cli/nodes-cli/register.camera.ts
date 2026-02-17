@@ -1,12 +1,16 @@
 import type { Command } from "commander";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomIdempotencyKey } from "../../gateway/call.js";
 =======
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> d4bdcda32 (refactor(nodes-cli): share node.invoke param builder)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { defaultRuntime } from "../../runtime.js";
 import {
   type CameraFacing,
@@ -19,6 +23,7 @@ import {
 import { parseDurationMs } from "../parse-duration.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 import type { NodesRpcOpts } from "./types.js";
 import { renderTable } from "../../terminal/table.js";
@@ -30,6 +35,9 @@ import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } f
 =======
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
+>>>>>>> ed11e93cf (chore(format))
 
 const parseFacing = (value: string): CameraFacing => {
   const v = String(value ?? "")

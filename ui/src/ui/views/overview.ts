@@ -4,6 +4,7 @@ import { html } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { GatewayHelloOk } from "../gateway";
 import { formatAgo, formatDurationMs } from "../format";
@@ -19,11 +20,15 @@ import type { UiSettings } from "../storage.ts";
 >>>>>>> 742e6543c (fix(ui): preserve locale bootstrap and trusted-proxy overview behavior)
 =======
 >>>>>>> 01ea80887 (chore: Format files.)
+=======
+import type { GatewayHelloOk } from "../gateway.ts";
+import type { UiSettings } from "../storage.ts";
+>>>>>>> ed11e93cf (chore(format))
 import { t, i18n, type Locale } from "../../i18n/index.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
-import type { GatewayHelloOk } from "../gateway.ts";
 import { formatNextRun } from "../presenter.ts";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -47,6 +52,8 @@ import type { UiSettings } from "../storage.ts";
 =======
 import type { UiSettings } from "../storage.ts";
 >>>>>>> 01ea80887 (chore: Format files.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 export type OverviewProps = {
   connected: boolean;

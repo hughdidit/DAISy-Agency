@@ -11,10 +11,13 @@ import type { PluginRuntime } from "openclaw/plugin-sdk";
 import type { PluginRuntime, RuntimeEnv } from "openclaw/plugin-sdk";
 >>>>>>> a74198557 (chore: Fix more extension test types, 2/N.)
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { CoreConfig } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { matrixPlugin } from "./channel.js";
 import { setMatrixRuntime } from "./runtime.js";
-import type { CoreConfig } from "./types.js";
 
 describe("matrix directory", () => {
   const runtimeEnv: RuntimeEnv = {

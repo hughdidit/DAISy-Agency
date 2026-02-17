@@ -3,11 +3,14 @@ import type { MoltbotConfig } from "../../config/config.js";
 import { resolveAgentConfig } from "../agent-scope.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 import { resolveAgentConfig } from "../agent-scope.js";
 import { compileGlobPatterns, matchesAnyGlobPattern } from "../glob-pattern.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { expandToolGroups } from "../tool-policy.js";
 import { DEFAULT_TOOL_ALLOW, DEFAULT_TOOL_DENY } from "./constants.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type {
   SandboxToolPolicy,
   SandboxToolPolicyResolved,
@@ -15,14 +18,20 @@ import type {
 } from "./types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { resolveAgentConfig } from "../agent-scope.js";
 import { compileGlobPatterns, matchesAnyGlobPattern } from "../glob-pattern.js";
 import { expandToolGroups } from "../tool-policy.js";
 import { DEFAULT_TOOL_ALLOW, DEFAULT_TOOL_DENY } from "./constants.js";
+<<<<<<< HEAD
 >>>>>>> 60a7625f2 (refactor(agents): share glob matcher)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 function normalizeGlob(value: string) {
   return value.trim().toLowerCase();

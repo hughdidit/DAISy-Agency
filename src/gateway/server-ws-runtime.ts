@@ -8,9 +8,12 @@ import type { GatewayWsClient } from "./server/ws-types.js";
 import type { GatewayRequestContext, GatewayRequestHandlers } from "./server-methods/types.js";
 =======
 import type { GatewayRequestContext, GatewayRequestHandlers } from "./server-methods/types.js";
-import { attachGatewayWsConnectionHandler } from "./server/ws-connection.js";
 import type { GatewayWsClient } from "./server/ws-types.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { attachGatewayWsConnectionHandler } from "./server/ws-connection.js";
+>>>>>>> ed11e93cf (chore(format))
 
 export function attachGatewayWsHandlers(params: {
   wss: WebSocketServer;

@@ -1,6 +1,6 @@
 import type { NormalizedUsage } from "../../agents/usage.js";
-import { getChannelDock } from "../../channels/dock.js";
 import type { ChannelId, ChannelThreadingToolContext } from "../../channels/plugins/types.js";
+<<<<<<< HEAD
 import { normalizeAnyChannelId, normalizeChannelId } from "../../channels/registry.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
@@ -9,9 +9,16 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { isReasoningTagProvider } from "../../utils/provider-utils.js";
 import { estimateUsageCost, formatTokenCount, formatUsd } from "../../utils/usage-format.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> ed11e93cf (chore(format))
 import type { TemplateContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
 import type { FollowupRun } from "./queue.js";
+import { getChannelDock } from "../../channels/dock.js";
+import { normalizeAnyChannelId, normalizeChannelId } from "../../channels/registry.js";
+import { isReasoningTagProvider } from "../../utils/provider-utils.js";
+import { estimateUsageCost, formatTokenCount, formatUsd } from "../../utils/usage-format.js";
 
 const BUN_FETCH_SOCKET_ERROR_RE = /socket connection was closed unexpectedly/i;
 

@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 =======
@@ -16,7 +17,10 @@ import type { MemoryIndexManager } from "./index.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { MemoryIndexManager } from "./index.js";
+import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
 import { getRequiredMemoryIndexManager } from "./test-manager-helpers.js";
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 

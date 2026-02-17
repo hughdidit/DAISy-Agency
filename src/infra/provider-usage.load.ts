@@ -1,5 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import type {
+  ProviderUsageSnapshot,
+  UsageProviderId,
+  UsageSummary,
+} from "./provider-usage.types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveFetch } from "./fetch.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { type ProviderAuth, resolveProviderAuths } from "./provider-usage.auth.js";
@@ -19,6 +27,7 @@ import {
   usageProviders,
   withTimeout,
 } from "./provider-usage.shared.js";
+<<<<<<< HEAD
 import type {
   ProviderUsageSnapshot,
   UsageProviderId,
@@ -28,6 +37,8 @@ import type {
 import { resolveFetch } from "./fetch.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 type UsageSummaryOptions = {
   now?: number;

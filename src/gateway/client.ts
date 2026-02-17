@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { WebSocket, type ClientOptions, type CertMeta } from "ws";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeFingerprint } from "../infra/tls/fingerprint.js";
 import { rawDataToString } from "../infra/ws.js";
 import { logDebug, logError } from "../logger.js";
@@ -10,13 +11,19 @@ import type { DeviceIdentity } from "../infra/device-identity.js";
 import { loadDeviceAuthToken, storeDeviceAuthToken } from "../infra/device-auth-store.js";
 >>>>>>> 00b7ab7db (fix(gateway): remove unused device auth import)
 =======
+=======
+import type { DeviceIdentity } from "../infra/device-identity.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   clearDeviceAuthToken,
   loadDeviceAuthToken,
   storeDeviceAuthToken,
 } from "../infra/device-auth-store.js";
+<<<<<<< HEAD
 import type { DeviceIdentity } from "../infra/device-identity.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   loadOrCreateDeviceIdentity,
   publicKeyRawBase64UrlFromPem,

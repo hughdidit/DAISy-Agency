@@ -1,8 +1,13 @@
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ConfigFileSnapshot } from "./types.openclaw.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { ConfigUiHints } from "./schema.js";
+import type { ConfigFileSnapshot } from "./types.openclaw.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   REDACTED_SENTINEL,
   redactConfigSnapshot,
@@ -11,8 +16,6 @@ import {
 <<<<<<< HEAD
 =======
 import { __test__ } from "./schema.hints.js";
-import type { ConfigUiHints } from "./schema.js";
-import type { ConfigFileSnapshot } from "./types.openclaw.js";
 import { OpenClawSchema } from "./zod-schema.js";
 
 const { mapSensitivePaths } = __test__;

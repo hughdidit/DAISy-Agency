@@ -1,5 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
@@ -23,7 +27,6 @@ import {
   validateSendParams,
 } from "../protocol/index.js";
 import { formatForLog } from "../ws-log.js";
-import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
 
 type InflightResult = {
   ok: boolean;

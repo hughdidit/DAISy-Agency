@@ -1,3 +1,5 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { ConfiguredEntry } from "./list.types.js";
 import {
   buildModelAliasIndex,
   parseModelRef,
@@ -5,11 +7,14 @@ import {
   resolveModelRefFromString,
 } from "../../agents/model-selection.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ConfiguredEntry } from "./list.types.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, modelKey } from "./shared.js";
 
 export function resolveConfiguredEntries(cfg: MoltbotConfig) {

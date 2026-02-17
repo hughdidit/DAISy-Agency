@@ -1,9 +1,16 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { formatCliCommand } from "../cli/command-format.js";
 import { collectConfigEnvVars } from "../config/env-vars.js";
 import type { OpenClawConfig } from "../config/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "../config/types.js";
+import type { GatewayDaemonRuntime } from "./daemon-runtime.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import { collectConfigEnvVars } from "../config/env-vars.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveGatewayLaunchAgentLabel } from "../daemon/constants.js";
 import { resolveGatewayProgramArguments } from "../daemon/program-args.js";
 import {
@@ -13,12 +20,15 @@ import {
 } from "../daemon/runtime-paths.js";
 import { buildServiceEnvironment } from "../daemon/service-env.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 import { collectConfigEnvVars } from "../config/env-vars.js";
 import type { MoltbotConfig } from "../config/types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayDaemonRuntime } from "./daemon-runtime.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 type WarnFn = (message: string, title?: string) => void;
 

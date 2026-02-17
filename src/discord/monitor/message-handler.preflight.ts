@@ -1,8 +1,15 @@
 import { ChannelType, MessageType, type User } from "@buape/carbon";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type {
+  DiscordMessagePreflightContext,
+  DiscordMessagePreflightParams,
+} from "./message-handler.preflight.types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
 import { shouldHandleTextCommands } from "../../auto-reply/commands-registry.js";
 import {
@@ -63,6 +70,7 @@ import {
 } from "./format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
@@ -74,6 +82,8 @@ import { resolveDiscordChannelInfo, resolveDiscordMessageText } from "./message-
 =======
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   resolveDiscordChannelInfo,
   resolveDiscordMessageChannelId,

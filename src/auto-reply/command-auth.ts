@@ -1,6 +1,6 @@
 import type { ChannelDock } from "../channels/dock.js";
-import { getChannelDock, listChannelDocks } from "../channels/dock.js";
 import type { ChannelId } from "../channels/plugins/types.js";
+<<<<<<< HEAD
 import { normalizeAnyChannelId } from "../channels/registry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -10,10 +10,17 @@ import type { MsgContext } from "./templating.js";
 import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../utils/message-channel.js";
 >>>>>>> e95134ba3 (fix (commands): keep webchat auth on internal provider)
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
-import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../utils/message-channel.js";
 import type { MsgContext } from "./templating.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { getChannelDock, listChannelDocks } from "../channels/dock.js";
+import { normalizeAnyChannelId } from "../channels/registry.js";
+import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../utils/message-channel.js";
+>>>>>>> ed11e93cf (chore(format))
 
 export type CommandAuthorization = {
   providerId?: ChannelId;

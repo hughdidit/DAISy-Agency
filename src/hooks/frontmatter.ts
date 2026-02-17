@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import JSON5 from "json5";
 
 import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
@@ -9,15 +10,22 @@ import { parseBooleanValue } from "../utils/boolean.js";
 >>>>>>> ece55b468 (refactor(shared): dedupe frontmatter parsing)
 import type {
   MoltbotHookMetadata,
+=======
+import type {
+  OpenClawHookMetadata,
+>>>>>>> ed11e93cf (chore(format))
   HookEntry,
   HookInstallSpec,
   HookInvocationPolicy,
   ParsedHookFrontmatter,
 } from "./types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { parseFrontmatterBlock } from "../markdown/frontmatter.js";
 import {
   getFrontmatterString,
@@ -30,6 +38,7 @@ import {
   resolveOpenClawManifestRequires,
 } from "../shared/frontmatter.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ece55b468 (refactor(shared): dedupe frontmatter parsing)
 =======
 import type {
@@ -40,6 +49,8 @@ import type {
   ParsedHookFrontmatter,
 } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 export function parseFrontmatter(content: string): ParsedHookFrontmatter {
   return parseFrontmatterBlock(content);

@@ -1,12 +1,16 @@
+<<<<<<< HEAD
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 <<<<<<< HEAD
 import type { MoltbotConfig, GatewayAuthConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig, GatewayAuthConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
+import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import { promptAuthChoiceGrouped } from "./auth-choice-prompt.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";

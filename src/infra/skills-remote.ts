@@ -1,6 +1,7 @@
 import type { SkillEligibilityContext, SkillEntry } from "../agents/skills.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { loadWorkspaceSkillEntries } from "../agents/skills.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -9,11 +10,13 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { NodeRegistry } from "../gateway/node-registry.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { NodeRegistry } from "../gateway/node-registry.js";
+>>>>>>> ed11e93cf (chore(format))
 import { loadWorkspaceSkillEntries } from "../agents/skills.js";
 import { bumpSkillsSnapshotVersion } from "../agents/skills/refresh.js";
 import { listAgentWorkspaceDirs } from "../agents/workspace-dirs.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { NodeRegistry } from "../gateway/node-registry.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 >>>>>>> 42b0d6f43 (refactor(agents): share workspace dir enumeration)
 import { listNodePairing, updatePairedNodeMetadata } from "./node-pairing.js";

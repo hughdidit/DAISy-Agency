@@ -2,10 +2,13 @@
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { PluginRegistry } from "./registry.js";
+>>>>>>> ed11e93cf (chore(format))
 import { STATE_DIR } from "../config/paths.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import type { PluginRegistry } from "./registry.js";
 
 const log = createSubsystemLogger("plugins");
 

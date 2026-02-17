@@ -5,9 +5,12 @@ import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
 =======
 =======
 import type { OpenClawConfig } from "../config/config.js";
-import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   buildBootstrapContextFiles,
   resolveBootstrapMaxChars,

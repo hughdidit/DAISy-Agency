@@ -1,3 +1,4 @@
+import type { SignalEventHandlerDeps, SignalReceivePayload } from "./event-handler.types.js";
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
 import {
@@ -48,6 +49,7 @@ import {
 import { sendMessageSignal, sendReadReceiptSignal, sendTypingSignal } from "../send.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { SignalEventHandlerDeps, SignalReceivePayload } from "./event-handler.types.js";
 
@@ -55,6 +57,8 @@ import type { SignalEventHandlerDeps, SignalReceivePayload } from "./event-handl
 =======
 import type { SignalEventHandlerDeps, SignalReceivePayload } from "./event-handler.types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { renderSignalMentions } from "./mentions.js";
 >>>>>>> cfec19df5 (Signal: normalize mention placeholders)
 export function createSignalEventHandler(deps: SignalEventHandlerDeps) {

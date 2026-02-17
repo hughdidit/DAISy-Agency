@@ -13,14 +13,19 @@ import {
 
 =======
 } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { StoredConversationReference } from "../conversation-store.js";
+import type { MSTeamsMessageHandlerDeps } from "../monitor-handler.js";
+import type { MSTeamsTurnContext } from "../sdk-types.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   buildMSTeamsAttachmentPlaceholder,
   buildMSTeamsMediaPayload,
   type MSTeamsAttachmentLike,
   summarizeMSTeamsHtmlAttachments,
 } from "../attachments.js";
-import type { StoredConversationReference } from "../conversation-store.js";
 import { formatUnknownError } from "../errors.js";
 import {
   extractMSTeamsConversationMessageId,
@@ -29,7 +34,6 @@ import {
   stripMSTeamsMentionTags,
   wasMSTeamsBotMentioned,
 } from "../inbound.js";
-import type { MSTeamsMessageHandlerDeps } from "../monitor-handler.js";
 import {
   isMSTeamsGroupAllowed,
   resolveMSTeamsAllowlistMatch,
@@ -41,8 +45,11 @@ import { createMSTeamsReplyDispatcher } from "../reply-dispatcher.js";
 <<<<<<< HEAD
 =======
 import { getMSTeamsRuntime } from "../runtime.js";
+<<<<<<< HEAD
 import type { MSTeamsTurnContext } from "../sdk-types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { recordMSTeamsSentMessage, wasMSTeamsMessageSent } from "../sent-message-cache.js";
 import type { MSTeamsTurnContext } from "../sdk-types.js";
 import { resolveMSTeamsInboundMedia } from "./inbound-media.js";

@@ -16,14 +16,21 @@ import { loadWorkspaceHookEntries } from "./workspace.js";
 =======
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { InternalHookHandler } from "./internal-hooks.js";
+>>>>>>> ed11e93cf (chore(format))
 import { createSubsystemLogger } from "../logging/subsystem.js";
 >>>>>>> 1c928e493 (fix(hooks): replace console logging with proper subsystem logging in loader (openclaw#11029) thanks @shadril238)
 import { resolveHookConfig } from "./config.js";
 import { shouldIncludeHook } from "./config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { InternalHookHandler } from "./internal-hooks.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { registerInternalHook } from "./internal-hooks.js";
 import { loadWorkspaceHookEntries } from "./workspace.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

@@ -1,4 +1,6 @@
+import type { Command } from "commander";
 import fs from "node:fs";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 import type { Command } from "commander";
@@ -9,7 +11,11 @@ import path from "node:path";
 =======
 import type { Command } from "commander";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import path from "node:path";
+>>>>>>> ed11e93cf (chore(format))
 import type { GatewayAuthMode } from "../../config/config.js";
+import type { GatewayWsLogStyle } from "../../gateway/ws-logging.js";
 import {
   CONFIG_PATH,
   loadConfig,
@@ -19,7 +25,6 @@ import {
 } from "../../config/config.js";
 import { resolveGatewayAuth } from "../../gateway/auth.js";
 import { startGatewayServer } from "../../gateway/server.js";
-import type { GatewayWsLogStyle } from "../../gateway/ws-logging.js";
 import { setGatewayWsLogStyle } from "../../gateway/ws-logging.js";
 import { setVerbose } from "../../globals.js";
 import { GatewayLockError } from "../../infra/gateway-lock.js";

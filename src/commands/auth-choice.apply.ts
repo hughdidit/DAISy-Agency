@@ -1,6 +1,7 @@
 import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
+import type { AuthChoice } from "./onboard-types.js";
 import { applyAuthChoiceAnthropic } from "./auth-choice.apply.anthropic.js";
 import { applyAuthChoiceApiProviders } from "./auth-choice.apply.api-providers.js";
 import { applyAuthChoiceCopilotProxy } from "./auth-choice.apply.copilot-proxy.js";
@@ -11,6 +12,7 @@ import { applyAuthChoiceMiniMax } from "./auth-choice.apply.minimax.js";
 import { applyAuthChoiceOAuth } from "./auth-choice.apply.oauth.js";
 import { applyAuthChoiceOpenAI } from "./auth-choice.apply.openai.js";
 import { applyAuthChoiceQwenPortal } from "./auth-choice.apply.qwen-portal.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { AuthChoice } from "./onboard-types.js";
@@ -24,6 +26,10 @@ import { applyAuthChoiceXAI } from "./auth-choice.apply.xai.js";
 =======
 import type { AuthChoice } from "./onboard-types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { applyAuthChoiceVllm } from "./auth-choice.apply.vllm.js";
+import { applyAuthChoiceXAI } from "./auth-choice.apply.xai.js";
+>>>>>>> ed11e93cf (chore(format))
 
 export type ApplyAuthChoiceParams = {
   authChoice: AuthChoice;

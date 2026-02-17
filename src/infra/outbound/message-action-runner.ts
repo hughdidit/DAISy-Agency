@@ -5,6 +5,14 @@ import { fileURLToPath } from "node:url";
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 =======
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import type {
+  ChannelId,
+  ChannelMessageActionName,
+  ChannelThreadingToolContext,
+} from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { OutboundSendDeps } from "./deliver.js";
+import type { MessagePollResult, MessageSendResult } from "./message.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 import {
@@ -15,6 +23,7 @@ import {
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -37,6 +46,8 @@ import { parseSlackTarget } from "../../slack/targets.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -58,6 +69,7 @@ import {
 import { applyTargetToParams } from "./channel-target.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureOutboundSessionEntry, resolveOutboundSessionRoute } from "./outbound-session.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
@@ -65,6 +77,8 @@ import type { MessagePollResult, MessageSendResult } from "./message.js";
 =======
 import type { OutboundSendDeps } from "./deliver.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   hydrateSendAttachmentParams,
   hydrateSetGroupIconParams,
@@ -79,10 +93,13 @@ import {
 } from "./message-action-params.js";
 import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 =======
 import type { MessagePollResult, MessageSendResult } from "./message.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   applyCrossContextDecoration,
   buildCrossContextDecoration,

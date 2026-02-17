@@ -9,10 +9,14 @@ import {
   type WebClient,
 } from "@slack/web-api";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { SlackTokenSource } from "./accounts.js";
 >>>>>>> c9684a267 (Slack: support Block Kit blocks in sendMessage actions)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { SlackTokenSource } from "./accounts.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   chunkMarkdownTextWithMode,
   resolveChunkMode,
@@ -21,7 +25,6 @@ import {
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
 import { loadWebMedia } from "../web/media.js";
-import type { SlackTokenSource } from "./accounts.js";
 import { resolveSlackAccount } from "./accounts.js";
 import { buildSlackBlocksFallbackText } from "./blocks-fallback.js";
 import { validateSlackBlocksArray } from "./blocks-input.js";

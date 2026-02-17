@@ -1,10 +1,13 @@
-import { inspect } from "node:util";
-import { Chalk } from "chalk";
 import type { Logger as TsLogger } from "tslog";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { Chalk } from "chalk";
+import { inspect } from "node:util";
+>>>>>>> ed11e93cf (chore(format))
 import { CHAT_CHANNEL_ORDER } from "../channels/registry.js";
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 import { getConsoleSettings, shouldLogSubsystemToConsole } from "./console.js";

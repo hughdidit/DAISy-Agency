@@ -26,11 +26,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import os from "node:os";
 =======
 import { resolveStateDir } from "../../../config/paths.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { HookHandler } from "../../hooks.js";
+import { resolveStateDir } from "../../../config/paths.js";
 
 /**
  * Log all command events to a file

@@ -12,9 +12,13 @@ import {
 } from "clawdbot/plugin-sdk";
 =======
 } from "openclaw/plugin-sdk";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_ACCOUNT_ID, getAccountConfig } from "./config.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { TwitchAccountConfig, TwitchRole } from "./types.js";
+import { DEFAULT_ACCOUNT_ID, getAccountConfig } from "./config.js";
 import { isAccountConfigured } from "./utils/twitch.js";
 import type { TwitchAccountConfig, TwitchRole } from "./types.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";

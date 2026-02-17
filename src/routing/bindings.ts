@@ -1,11 +1,16 @@
+<<<<<<< HEAD
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { normalizeChatChannelId } from "../channels/registry.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { AgentBinding } from "../config/types.agents.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { normalizeChatChannelId } from "../channels/registry.js";
 import { normalizeAccountId, normalizeAgentId } from "./session-key.js";
 
 function normalizeBindingChannelId(raw?: string | null): string | null {

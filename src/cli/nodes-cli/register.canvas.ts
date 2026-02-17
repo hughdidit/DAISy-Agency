@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9,12 +10,18 @@ import type { NodesRpcOpts } from "./types.js";
 =======
 import type { Command } from "commander";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { Command } from "commander";
+import fs from "node:fs/promises";
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { defaultRuntime } from "../../runtime.js";
 import { writeBase64ToFile } from "../nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../nodes-canvas.js";
 import { parseTimeoutMs } from "../nodes-run.js";
 import { buildA2UITextJsonl, validateA2UIJsonl } from "./a2ui-jsonl.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 import type { NodesRpcOpts } from "./types.js";
@@ -26,6 +33,9 @@ import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } f
 =======
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
+>>>>>>> ed11e93cf (chore(format))
 
 async function invokeCanvas(opts: NodesRpcOpts, command: string, params?: Record<string, unknown>) {
   const nodeId = await resolveNodeId(opts, String(opts.node ?? ""));

@@ -1,9 +1,12 @@
-import fs from "node:fs/promises";
 import type { Server } from "node:http";
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import fs from "node:fs/promises";
+>>>>>>> ed11e93cf (chore(format))
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({

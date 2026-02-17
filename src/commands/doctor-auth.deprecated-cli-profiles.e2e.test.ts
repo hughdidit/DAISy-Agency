@@ -4,11 +4,15 @@ import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { maybeRemoveDeprecatedCliAuthProfiles } from "./doctor-auth.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { DoctorPrompter } from "./doctor-prompter.js";
+import { maybeRemoveDeprecatedCliAuthProfiles } from "./doctor-auth.js";
 
 let originalAgentDir: string | undefined;
 let originalPiAgentDir: string | undefined;

@@ -1,6 +1,7 @@
 import JSON5 from "json5";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { Command } from "commander";
 
 =======
@@ -8,9 +9,11 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 4d1461011 (perf(cli): speed up help/config paths and route config get/unset)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> ed11e93cf (chore(format))
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { danger, info } from "../globals.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { formatCliCommand } from "./command-format.js";

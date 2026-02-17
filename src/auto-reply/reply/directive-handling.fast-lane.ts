@@ -4,6 +4,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import type { MsgContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
+<<<<<<< HEAD
 =======
 import type { ReplyPayload } from "../types.js";
 <<<<<<< HEAD
@@ -22,6 +23,11 @@ import { handleDirectiveOnly } from "./directive-handling.impl.js";
 import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
 import type { ApplyInlineDirectivesFastLaneParams } from "./directive-handling.params.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { ApplyInlineDirectivesFastLaneParams } from "./directive-handling.params.js";
+import { handleDirectiveOnly } from "./directive-handling.impl.js";
+import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
+>>>>>>> ed11e93cf (chore(format))
 import { isDirectiveOnly } from "./directive-handling.parse.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
 

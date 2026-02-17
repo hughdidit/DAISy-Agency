@@ -1,9 +1,13 @@
 import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
 import { resolveBootstrapContextForRun, resolveBootstrapFilesForRun } from "./bootstrap-files.js";
 import { makeTempWorkspace } from "../test-helpers/workspace.js";
+=======
+import type { WorkspaceBootstrapFile } from "./workspace.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   clearInternalHooks,
   registerInternalHook,
@@ -13,8 +17,11 @@ import {
 =======
 import { makeTempWorkspace } from "../test-helpers/workspace.js";
 import { resolveBootstrapContextForRun, resolveBootstrapFilesForRun } from "./bootstrap-files.js";
+<<<<<<< HEAD
 import type { WorkspaceBootstrapFile } from "./workspace.js";
 >>>>>>> 18cc48dfd (chore: Fix types in tests 20/N.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 describe("resolveBootstrapFilesForRun", () => {
   beforeEach(() => clearInternalHooks());

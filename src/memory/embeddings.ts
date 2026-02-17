@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fsSync from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8,6 +9,10 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { Llama, LlamaEmbeddingContext, LlamaModel } from "node-llama-cpp";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { Llama, LlamaEmbeddingContext, LlamaModel } from "node-llama-cpp";
+import fsSync from "node:fs";
+>>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
 import { formatErrorMessage } from "../infra/errors.js";
 >>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))

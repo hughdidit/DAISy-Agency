@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
 import type { MoltbotConfig } from "./types.js";
 =======
@@ -10,6 +11,10 @@ import { isPlainObject, resolveUserPath } from "../utils.js";
 import { isPlainObject, resolveUserPath } from "../utils.js";
 import type { OpenClawConfig } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "./types.js";
+import { isPlainObject, resolveUserPath } from "../utils.js";
+>>>>>>> ed11e93cf (chore(format))
 
 const PATH_VALUE_RE = /^~(?=$|[\\/])/;
 

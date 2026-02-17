@@ -1,5 +1,7 @@
+import type { AgentMessage, StreamFn } from "@mariozechner/pi-agent-core";
 import crypto from "node:crypto";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14,6 +16,8 @@ import type { AgentMessage, StreamFn } from "@mariozechner/pi-agent-core";
 =======
 import type { AgentMessage, StreamFn } from "@mariozechner/pi-agent-core";
 >>>>>>> c70597dae (chore: Fix formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveStateDir } from "../config/paths.js";

@@ -4,15 +4,18 @@ import os from "node:os";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { AuthProfileStore } from "./types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { AuthProfileStore } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { captureEnv } from "../../test-utils/env.js";
 >>>>>>> cedd520f2 (refactor(test): simplify state dir env helpers)
 import { resolveApiKeyForProfile } from "./oauth.js";
 import { ensureAuthProfileStore } from "./store.js";
-import type { AuthProfileStore } from "./types.js";
 
 describe("resolveApiKeyForProfile fallback to main agent", () => {
 <<<<<<< HEAD

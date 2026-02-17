@@ -6,10 +6,14 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   resolveDefaultAgentId,
   resolveAgentWorkspaceDir,
@@ -18,8 +22,11 @@ import {
 <<<<<<< HEAD
 =======
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
+<<<<<<< HEAD
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 /**
  * Generate a short 1-2 word filename slug from session content using LLM

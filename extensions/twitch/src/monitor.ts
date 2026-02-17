@@ -11,6 +11,7 @@ import type { ReplyPayload, MoltbotConfig } from "clawdbot/plugin-sdk";
 import type { ReplyPayload, OpenClawConfig } from "openclaw/plugin-sdk";
 import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import type { TwitchAccountConfig, TwitchChatMessage } from "./types.js";
 =======
@@ -22,6 +23,12 @@ import { getOrCreateClientManager } from "./client-manager-registry.js";
 =======
 import type { TwitchAccountConfig, TwitchChatMessage } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { TwitchAccountConfig, TwitchChatMessage } from "./types.js";
+import { checkTwitchAccessControl } from "./access-control.js";
+import { getOrCreateClientManager } from "./client-manager-registry.js";
+import { getTwitchRuntime } from "./runtime.js";
+>>>>>>> ed11e93cf (chore(format))
 import { stripMarkdownForTwitch } from "./utils/markdown.js";
 
 export type TwitchRuntimeEnv = {

@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
@@ -13,7 +14,12 @@ import { normalizeChatType } from "../channels/chat-type.js";
 <<<<<<< HEAD
 >>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
 =======
+=======
+import type { ChatType } from "../channels/chat-type.js";
+>>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { normalizeChatType } from "../channels/chat-type.js";
 import { shouldLogVerbose } from "../globals.js";
 import { logDebug } from "../logger.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

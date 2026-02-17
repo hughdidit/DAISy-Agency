@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RequestClient } from "@buape/carbon";
 <<<<<<< HEAD
 import { Routes } from "discord-api-types/v10";
@@ -24,11 +25,21 @@ import { serializePayload, type MessagePayloadObject, type RequestClient } from 
 import type { APIChannel } from "discord-api-types/v10";
 import { ChannelType, Routes } from "discord-api-types/v10";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { APIChannel } from "discord-api-types/v10";
+import { serializePayload, type MessagePayloadObject, type RequestClient } from "@buape/carbon";
+import { ChannelType, Routes } from "discord-api-types/v10";
+import crypto from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { RetryConfig } from "../infra/retry.js";
+import type { PollInput } from "../polls.js";
+import type { DiscordSendResult } from "./send.types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveChunkMode } from "../auto-reply/chunk.js";
 import { loadConfig } from "../config/config.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
-import type { RetryConfig } from "../infra/retry.js";
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 import { convertMarkdownTables } from "../markdown/tables.js";
 <<<<<<< HEAD
@@ -37,7 +48,6 @@ import type { PollInput } from "../polls.js";
 =======
 import { maxBytesForKind } from "../media/constants.js";
 import { extensionForMime } from "../media/mime.js";
-import type { PollInput } from "../polls.js";
 import { loadWebMediaRaw } from "../web/media.js";
 >>>>>>> 725741486 (fix(discord): harden voice message media loading)
 import { resolveDiscordAccount } from "./accounts.js";
@@ -61,11 +71,14 @@ import {
 } from "./send.shared.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { DiscordSendResult } from "./send.types.js";
 =======
 =======
 import type { DiscordSendResult } from "./send.types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   ensureOggOpus,
   getVoiceMessageMetadata,

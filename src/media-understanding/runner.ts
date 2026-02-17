@@ -4,9 +4,12 @@ import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type {
@@ -21,15 +24,20 @@ import type {
   MediaUnderstandingOutput,
   MediaUnderstandingProvider,
 } from "./types.js";
+<<<<<<< HEAD
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 >>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
+=======
+import { resolveApiKeyForProvider } from "../agents/model-auth.js";
+>>>>>>> ed11e93cf (chore(format))
 import {
   findModelInCatalog,
   loadModelCatalog,
   modelSupportsVision,
 } from "../agents/model-catalog.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MsgContext } from "../auto-reply/templating.js";
@@ -45,6 +53,8 @@ import type {
   MediaUnderstandingModelConfig,
 } from "../config/types.tools.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { runExec } from "../process/exec.js";
 import type {
@@ -100,6 +110,7 @@ import {
   runProviderEntry,
 } from "./runner.entries.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 =======
 import type {
@@ -111,6 +122,8 @@ import type {
   MediaUnderstandingProvider,
 } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 <<<<<<< HEAD
 const AUTO_AUDIO_KEY_PROVIDERS = ["openai", "groq", "deepgram", "google"] as const;

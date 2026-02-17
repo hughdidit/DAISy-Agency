@@ -6,13 +6,7 @@ import { loadProviderUsageSummary } from "../../infra/provider-usage.js";
 import type { GatewayRequestHandlers } from "./types.js";
 =======
 import fs from "node:fs";
-import { loadConfig } from "../../config/config.js";
-import {
-  resolveSessionFilePath,
-  resolveSessionFilePathOptions,
-} from "../../config/sessions/paths.js";
 import type { SessionEntry, SessionSystemPromptReport } from "../../config/sessions/types.js";
-import { loadProviderUsageSummary } from "../../infra/provider-usage.js";
 import type {
   CostUsageSummary,
   SessionCostSummary,
@@ -23,6 +17,13 @@ import type {
   SessionModelUsage,
   SessionToolUsage,
 } from "../../infra/session-cost-usage.js";
+import type { GatewayRequestHandlers, RespondFn } from "./types.js";
+import { loadConfig } from "../../config/config.js";
+import {
+  resolveSessionFilePath,
+  resolveSessionFilePathOptions,
+} from "../../config/sessions/paths.js";
+import { loadProviderUsageSummary } from "../../infra/provider-usage.js";
 import {
   loadCostUsageSummary,
   loadSessionCostSummary,
@@ -48,10 +49,13 @@ import {
   loadSessionEntry,
 } from "../session-utils.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9271fcb3d (Gateway: fix multi-agent sessions.usage discovery (#11523))
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 const COST_USAGE_CACHE_TTL_MS = 30_000;
 

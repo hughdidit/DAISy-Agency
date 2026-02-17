@@ -6,12 +6,17 @@
  */
 
 import { type ChildProcess, spawn } from "node:child_process";
+<<<<<<< HEAD
 import { hasBinary } from "../agents/skills.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { hasBinary } from "../agents/skills.js";
+>>>>>>> ed11e93cf (chore(format))
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import {

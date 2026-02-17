@@ -1,15 +1,18 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatAge } from "../infra/channel-summary.js";
 =======
 import type { GatewayStatusSummary } from "./tui-types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { GatewayStatusSummary } from "./tui-types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { formatTokenCount } from "../utils/usage-format.js";
 import { formatContextUsageLine } from "./tui-formatters.js";
-import type { GatewayStatusSummary } from "./tui-types.js";
 
 export function formatStatusSummary(summary: GatewayStatusSummary) {
   const lines: string[] = [];

@@ -1,6 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // @ts-nocheck
+=======
+import type { ApiClientOptions } from "grammy";
+>>>>>>> ed11e93cf (chore(format))
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
 <<<<<<< HEAD
@@ -24,6 +28,7 @@ import { type Message, type UserFromGetMe, ReactionTypeEmoji } from "@grammyjs/t
 =======
 import { type Message, type UserFromGetMe } from "@grammyjs/types";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> cd4f7524e (feat(telegram): receive and surface user message reactions (#10075))
 import { Bot, webhookCallback } from "grammy";
 import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
@@ -37,6 +42,11 @@ import type { TelegramContext } from "./bot/types.js";
 import type { ApiClientOptions } from "grammy";
 import { Bot, webhookCallback } from "grammy";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { Bot, webhookCallback } from "grammy";
+import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 <<<<<<< HEAD
 import { isControlCommandMessage } from "../auto-reply/command-detection.js";
@@ -52,10 +62,13 @@ import {
   resolveNativeSkillsEnabled,
 } from "../config/commands.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig, ReplyToMode } from "../config/config.js";
 =======
 import type { OpenClawConfig, ReplyToMode } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { loadConfig } from "../config/config.js";
 import {
   resolveChannelGroupPolicy,
@@ -83,7 +96,6 @@ import {
 import type { TelegramContext, TelegramMessage } from "./bot/types.js";
 =======
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { resolveTelegramAccount } from "./accounts.js";
 >>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
 import { registerTelegramHandlers } from "./bot-handlers.js";

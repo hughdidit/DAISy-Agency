@@ -2,6 +2,7 @@ import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import express from "express";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { ResolvedBrowserConfig } from "./config.js";
 <<<<<<< HEAD
@@ -23,8 +24,13 @@ import { isLoopbackHost } from "../gateway/net.js";
 import { deleteBridgeAuthForPort, setBridgeAuthForPort } from "./bridge-auth-registry.js";
 import type { ResolvedBrowserConfig } from "./config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
-import { registerBrowserRoutes } from "./routes/index.js";
+=======
+import type { ResolvedBrowserConfig } from "./config.js";
 import type { BrowserRouteRegistrar } from "./routes/types.js";
+import { isLoopbackHost } from "../gateway/net.js";
+import { deleteBridgeAuthForPort, setBridgeAuthForPort } from "./bridge-auth-registry.js";
+>>>>>>> ed11e93cf (chore(format))
+import { registerBrowserRoutes } from "./routes/index.js";
 import {
   type BrowserServerState,
   createBrowserRouteContext,

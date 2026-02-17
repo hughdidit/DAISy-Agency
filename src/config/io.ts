@@ -1,7 +1,9 @@
+import JSON5 from "json5";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -16,6 +18,10 @@ import type { OpenClawConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./ty
 =======
 import JSON5 from "json5";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { isDeepStrictEqual } from "node:util";
+import type { OpenClawConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./types.js";
+>>>>>>> ed11e93cf (chore(format))
 import { loadDotEnv } from "../infra/dotenv.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
 >>>>>>> db137dd65 (fix(paths): respect OPENCLAW_HOME for all internal path resolution (#12091))
@@ -60,6 +66,7 @@ import { resolveConfigPath, resolveDefaultConfigCandidates, resolveStateDir } fr
 import { applyConfigOverrides } from "./runtime-overrides.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./types.js";
 import { validateConfigObjectWithPlugins } from "./validation.js";
 import { compareMoltbotVersions } from "./version.js";
@@ -67,6 +74,8 @@ import { compareMoltbotVersions } from "./version.js";
 =======
 import type { OpenClawConfig, ConfigFileSnapshot, LegacyConfigIssue } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import {
   validateConfigObjectRawWithPlugins,
   validateConfigObjectWithPlugins,

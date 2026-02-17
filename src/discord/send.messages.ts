@@ -6,10 +6,13 @@ import { resolveDiscordRest } from "./send.shared.js";
 import type { APIChannel, APIMessage } from "discord-api-types/v10";
 import { ChannelType, Routes } from "discord-api-types/v10";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9949f8259 (fix(discord): support forum channel thread-create (#10062))
 =======
 import { resolveDiscordRest } from "./send.shared.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type {
   DiscordMessageEdit,
   DiscordMessageQuery,
@@ -18,6 +21,7 @@ import type {
   DiscordThreadCreate,
   DiscordThreadList,
 } from "./send.types.js";
+import { resolveDiscordRest } from "./send.shared.js";
 
 export async function readMessagesDiscord(
   channelId: string,

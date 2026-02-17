@@ -5,12 +5,16 @@ import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { emptyPluginConfigSchema } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
 
 import { nostrPlugin } from "./src/channel.js";
 =======
 import { nostrPlugin } from "./src/channel.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { NostrProfile } from "./src/config-schema.js";
+import { nostrPlugin } from "./src/channel.js";
 import { createNostrProfileHttpHandler } from "./src/nostr-profile-http.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { setNostrRuntime, getNostrRuntime } from "./src/runtime.js";

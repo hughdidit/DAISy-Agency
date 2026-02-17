@@ -17,10 +17,14 @@ import { readLoggingConfig } from "./config.js";
 >>>>>>> b02c88d3e (Browser/Logging: share default openclaw tmp dir resolver)
 =======
 import type { OpenClawConfig } from "../config/types.js";
+import type { ConsoleStyle } from "./console.js";
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 import { readLoggingConfig } from "./config.js";
+<<<<<<< HEAD
 import type { ConsoleStyle } from "./console.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
 import { readLoggingConfig } from "./config.js";
 import { loggingState } from "./state.js";

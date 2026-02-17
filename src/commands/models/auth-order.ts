@@ -1,3 +1,4 @@
+import type { RuntimeEnv } from "../../runtime.js";
 import { resolveAgentDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import {
   type AuthProfileStore,
@@ -7,10 +8,13 @@ import {
 import { normalizeProviderId } from "../../agents/model-selection.js";
 import { loadConfig } from "../../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeAgentId } from "../../routing/session-key.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../../runtime.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { shortenHomePath } from "../../utils.js";
 
 function resolveTargetAgent(

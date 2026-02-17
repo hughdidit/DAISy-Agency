@@ -1,3 +1,6 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { ReplyPayload } from "../types.js";
+import type { InlineDirectives } from "./directive-handling.parse.js";
 import { resolveAuthStorePathForDisplay } from "../../agents/auth-profiles.js";
 import {
   type ModelAliasIndex,
@@ -8,17 +11,23 @@ import {
 } from "../../agents/model-selection.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { buildBrowseProvidersButton } from "../../telegram/model-buttons.js";
 >>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
 import { shortenHomePath } from "../../utils.js";
+<<<<<<< HEAD
 import type { ReplyPayload } from "../types.js";
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { resolveModelsCommandReply } from "./commands-models.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
@@ -31,11 +40,14 @@ import {
   type ModelPickerCatalogEntry,
   resolveProviderEndpointLabel,
 } from "./directive-handling.model-picker.js";
+<<<<<<< HEAD
 import type { InlineDirectives } from "./directive-handling.parse.js";
 <<<<<<< HEAD
 import { resolveModelsCommandReply } from "./commands-models.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { type ModelDirectiveSelection, resolveModelDirectiveSelection } from "./model-selection.js";
 
 function buildModelPickerCatalog(params: {

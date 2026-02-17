@@ -1,14 +1,24 @@
+import { createJiti } from "jiti";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 import { createJiti } from "jiti";
 <<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 =======
+=======
+>>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
+import type {
+  OpenClawPluginDefinition,
+  OpenClawPluginModule,
+  PluginDiagnostic,
+  PluginLogger,
+} from "./types.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveUserPath } from "../utils.js";
 import { discoverMoltbotPlugins } from "./discovery.js";
@@ -26,6 +36,7 @@ import { createPluginRegistry, type PluginRecord, type PluginRegistry } from "./
 import { createPluginRuntime } from "./runtime/index.js";
 import { setActivePluginRegistry } from "./runtime.js";
 import { validateJsonSchemaValue } from "./schema-validator.js";
+<<<<<<< HEAD
 import type {
 <<<<<<< HEAD
   MoltbotPluginDefinition,
@@ -37,6 +48,8 @@ import type {
   PluginDiagnostic,
   PluginLogger,
 } from "./types.js";
+=======
+>>>>>>> ed11e93cf (chore(format))
 
 export type PluginLoadResult = PluginRegistry;
 

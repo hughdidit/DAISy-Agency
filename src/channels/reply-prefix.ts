@@ -1,3 +1,5 @@
+import type { GetReplyOptions } from "../auto-reply/types.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveEffectiveMessagesConfig, resolveIdentityName } from "../agents/identity.js";
 import type { MoltbotConfig } from "../config/config.js";
 import type { GetReplyOptions } from "../auto-reply/types.js";
@@ -5,8 +7,6 @@ import {
   extractShortModelName,
   type ResponsePrefixContext,
 } from "../auto-reply/reply/response-prefix-template.js";
-import type { GetReplyOptions } from "../auto-reply/types.js";
-import type { OpenClawConfig } from "../config/config.js";
 
 type ModelSelectionContext = Parameters<NonNullable<GetReplyOptions["onModelSelected"]>>[0];
 

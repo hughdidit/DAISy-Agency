@@ -1,6 +1,7 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
@@ -24,10 +25,18 @@ import { parseModelRef } from "../../agents/model-selection.js";
 import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import type { ModelRow } from "./list.types.js";
+import { resolveForwardCompatModel } from "../../agents/model-forward-compat.js";
+import { parseModelRef } from "../../agents/model-selection.js";
+>>>>>>> ed11e93cf (chore(format))
 import { resolveConfiguredEntries } from "./list.configured.js";
 import { formatErrorWithStack } from "./list.errors.js";
 import { loadModelRegistry, toModelRow } from "./list.registry.js";
 import { printModelTable } from "./list.table.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ModelRow } from "./list.types.js";
@@ -36,6 +45,8 @@ import { DEFAULT_PROVIDER, ensureFlagCompatibility, modelKey } from "./shared.js
 =======
 import type { ModelRow } from "./list.types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> ed11e93cf (chore(format))
 import { DEFAULT_PROVIDER, ensureFlagCompatibility, isLocalBaseUrl, modelKey } from "./shared.js";
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 
