@@ -40,7 +40,7 @@ async function createBotHandlerWithOptions(options: {
 }> {
   const { createTelegramBot } = await import("./bot.js");
   const replyModule = await import("../auto-reply/reply.js");
-  const replySpy = (replyModule as { __replySpy: ReturnType<typeof vi.fn> }).__replySpy;
+  const replySpy = (replyModule as unknown as { __replySpy: ReturnType<typeof vi.fn> }).__replySpy;
 
   onSpy.mockReset();
   replySpy.mockReset();
@@ -537,7 +537,8 @@ describe("telegram text fragments", () => {
     async () => {
       const { createTelegramBot } = await import("./bot.js");
       const replyModule = await import("../auto-reply/reply.js");
-      const replySpy = (replyModule as { __replySpy: ReturnType<typeof vi.fn> }).__replySpy;
+      const replySpy = (replyModule as unknown as { __replySpy: ReturnType<typeof vi.fn> })
+        .__replySpy;
 
       onSpy.mockReset();
       replySpy.mockReset();
