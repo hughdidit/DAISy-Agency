@@ -2,13 +2,15 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { POSIX_OPENCLAW_TMP_DIR, resolvePreferredOpenClawTmpDir } from "./tmp-openclaw-dir.js";
 
+type TmpDirOptions = NonNullable<Parameters<typeof resolvePreferredOpenClawTmpDir>[0]>;
+
 function fallbackTmp(uid = 501) {
   return path.join("/var/fallback", `openclaw-${uid}`);
 }
 
 function resolveWithMocks(params: {
-  lstatSync: ReturnType<typeof vi.fn>;
-  accessSync?: ReturnType<typeof vi.fn>;
+  lstatSync: NonNullable<TmpDirOptions["lstatSync"]>;
+  accessSync?: NonNullable<TmpDirOptions["accessSync"]>;
   uid?: number;
   tmpdirPath?: string;
 }) {
@@ -29,6 +31,7 @@ function resolveWithMocks(params: {
 describe("resolvePreferredOpenClawTmpDir", () => {
   it("prefers /tmp/openclaw when it already exists and is writable", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const accessSync = vi.fn();
     const statSync = vi.fn(() => ({ isDirectory: () => true }));
     const tmpdir = vi.fn(() => "/var/fallback");
@@ -36,6 +39,9 @@ describe("resolvePreferredOpenClawTmpDir", () => {
     const resolved = resolvePreferredOpenClawTmpDir({ accessSync, statSync, tmpdir });
 =======
     const lstatSync = vi.fn(() => ({
+=======
+    const lstatSync: NonNullable<TmpDirOptions["lstatSync"]> = vi.fn(() => ({
+>>>>>>> 49bd9f75f (chore: Fix types in tests 33/N.)
       isDirectory: () => true,
       isSymbolicLink: () => false,
       uid: 501,
@@ -52,11 +58,15 @@ describe("resolvePreferredOpenClawTmpDir", () => {
 
   it("prefers /tmp/openclaw when it does not exist but /tmp is writable", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const accessSync = vi.fn();
     const statSync = vi.fn(() => {
 =======
     const lstatSync = vi.fn(() => {
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
+=======
+    const lstatSyncMock = vi.fn<NonNullable<TmpDirOptions["lstatSync"]>>(() => {
+>>>>>>> 49bd9f75f (chore: Fix types in tests 33/N.)
       const err = new Error("missing") as Error & { code?: string };
       err.code = "ENOENT";
       throw err;
@@ -68,20 +78,26 @@ describe("resolvePreferredOpenClawTmpDir", () => {
 =======
 
     // second lstat call (after mkdir) should succeed
-    lstatSync.mockImplementationOnce(() => {
+    lstatSyncMock.mockImplementationOnce(() => {
       const err = new Error("missing") as Error & { code?: string };
       err.code = "ENOENT";
       throw err;
     });
-    lstatSync.mockImplementationOnce(() => ({
+    lstatSyncMock.mockImplementationOnce(() => ({
       isDirectory: () => true,
       isSymbolicLink: () => false,
       uid: 501,
       mode: 0o40700,
     }));
 
+<<<<<<< HEAD
     const { resolved, accessSync, mkdirSync, tmpdir } = resolveWithMocks({ lstatSync });
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
+=======
+    const { resolved, accessSync, mkdirSync, tmpdir } = resolveWithMocks({
+      lstatSync: lstatSyncMock,
+    });
+>>>>>>> 49bd9f75f (chore: Fix types in tests 33/N.)
 
     expect(resolved).toBe(POSIX_OPENCLAW_TMP_DIR);
     expect(accessSync).toHaveBeenCalledWith("/tmp", expect.any(Number));
@@ -103,7 +119,7 @@ describe("resolvePreferredOpenClawTmpDir", () => {
       isSymbolicLink: () => false,
       uid: 501,
       mode: 0o100644,
-    }));
+    })) as unknown as ReturnType<typeof vi.fn> & NonNullable<TmpDirOptions["lstatSync"]>;
     const { resolved, tmpdir } = resolveWithMocks({ lstatSync });
 
     expect(resolved).toBe(fallbackTmp());

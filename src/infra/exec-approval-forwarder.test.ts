@@ -43,7 +43,9 @@ function createForwarder(params: {
   const deliver = params.deliver ?? vi.fn().mockResolvedValue([]);
   const forwarder = createExecApprovalForwarder({
     getConfig: () => params.cfg,
-    deliver,
+    deliver: deliver as unknown as NonNullable<
+      NonNullable<Parameters<typeof createExecApprovalForwarder>[0]>["deliver"]
+    >,
     nowMs: () => 1000,
     resolveSessionTarget: params.resolveSessionTarget ?? (() => null),
   });

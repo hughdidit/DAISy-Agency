@@ -830,7 +830,7 @@ describe("runHeartbeatOnce", () => {
       const forcedSessionKey = buildAgentPeerSessionKey({
         agentId,
         channel: "whatsapp",
-        peerKind: "dm",
+        peerKind: "direct",
         peerId: "+15559990000",
       });
 
