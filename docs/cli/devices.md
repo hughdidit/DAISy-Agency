@@ -20,12 +20,23 @@ moltbot devices list
 moltbot devices list --json
 ```
 
+<<<<<<< HEAD
 ### `moltbot devices approve <requestId>`
+=======
+### `openclaw devices approve [requestId] [--latest]`
+>>>>>>> b114c8270 (CLI: approve latest pending device request)
 
-Approve a pending device pairing request.
+Approve a pending device pairing request. If `requestId` is omitted, OpenClaw
+automatically approves the most recent pending request.
 
 ```
+<<<<<<< HEAD
 moltbot devices approve <requestId>
+=======
+openclaw devices approve
+openclaw devices approve <requestId>
+openclaw devices approve --latest
+>>>>>>> b114c8270 (CLI: approve latest pending device request)
 ```
 
 ### `moltbot devices reject <requestId>`
