@@ -1,5 +1,3 @@
-import fs from "node:fs/promises";
-import os from "node:os";
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import {
   createAgentSession,
@@ -7,10 +5,14 @@ import {
   SessionManager,
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
-import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
+import fs from "node:fs/promises";
+import os from "node:os";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
-import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
 import type { OpenClawConfig } from "../../config/config.js";
+import type { ExecElevatedDefaults } from "../bash-tools.js";
+import type { EmbeddedPiCompactResult } from "./types.js";
+import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
+import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
 import { getMachineDisplayName } from "../../infra/machine-name.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import { type enqueueCommand, enqueueCommandInLane } from "../../process/command-queue.js";
@@ -24,7 +26,6 @@ import { normalizeMessageChannel } from "../../utils/message-channel.js";
 import { isReasoningTagProvider } from "../../utils/provider-utils.js";
 import { resolveOpenClawAgentDir } from "../agent-paths.js";
 import { resolveSessionAgentIds } from "../agent-scope.js";
-import type { ExecElevatedDefaults } from "../bash-tools.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../bootstrap-files.js";
 import { listChannelSupportedActions, resolveChannelMessageToolHints } from "../channel-tools.js";
 import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
@@ -46,7 +47,10 @@ import { resolveSandboxContext } from "../sandbox.js";
 import { repairSessionFileIfNeeded } from "../session-file-repair.js";
 import { guardSessionManager } from "../session-tool-result-guard-wrapper.js";
 import { sanitizeToolUseResultPairing } from "../session-transcript-repair.js";
-import { acquireSessionWriteLock } from "../session-write-lock.js";
+import {
+  acquireSessionWriteLock,
+  resolveSessionLockMaxHoldFromTimeout,
+} from "../session-write-lock.js";
 import { detectRuntimeShell } from "../shell-utils.js";
 import {
   applySkillEnvOverrides,
@@ -56,6 +60,13 @@ import {
   type SkillSnapshot,
 } from "../skills.js";
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
+<<<<<<< HEAD
+=======
+import {
+  compactWithSafetyTimeout,
+  EMBEDDED_COMPACTION_TIMEOUT_MS,
+} from "./compaction-safety-timeout.js";
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import { buildEmbeddedExtensionPaths } from "./extensions.js";
 import {
   logToolSchemasForGoogle,
@@ -75,9 +86,12 @@ import {
 } from "./system-prompt.js";
 import { splitSdkTools } from "./tool-split.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { describeUnknownError, mapThinkingLevel, resolveExecToolDefaults } from "./utils.js";
 =======
 import type { EmbeddedPiCompactResult } from "./types.js";
+=======
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import { describeUnknownError, mapThinkingLevel } from "./utils.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { flushPendingToolResultsAfterIdle } from "./wait-for-idle-before-flush.js";
@@ -507,6 +521,9 @@ export async function compactEmbeddedPiSessionDirect(
 
     const sessionLock = await acquireSessionWriteLock({
       sessionFile: params.sessionFile,
+      maxHoldMs: resolveSessionLockMaxHoldFromTimeout({
+        timeoutMs: EMBEDDED_COMPACTION_TIMEOUT_MS,
+      }),
     });
     try {
       await repairSessionFileIfNeeded({
