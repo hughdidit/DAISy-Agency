@@ -59,19 +59,14 @@ import type { GatewayHttpResponsesConfig } from "../config/types.gateway.js";
 import type { ClientToolDefinition } from "../agents/pi-embedded-runner/run/params.js";
 import type { ImageContent } from "../commands/agent/types.js";
 import {
-  DEFAULT_INPUT_FILE_MAX_BYTES,
-  DEFAULT_INPUT_FILE_MAX_CHARS,
-  DEFAULT_INPUT_FILE_MIMES,
   DEFAULT_INPUT_IMAGE_MAX_BYTES,
   DEFAULT_INPUT_IMAGE_MIMES,
   DEFAULT_INPUT_MAX_REDIRECTS,
-  DEFAULT_INPUT_PDF_MAX_PAGES,
-  DEFAULT_INPUT_PDF_MAX_PIXELS,
-  DEFAULT_INPUT_PDF_MIN_TEXT_CHARS,
   DEFAULT_INPUT_TIMEOUT_MS,
   extractFileContentFromSource,
   extractImageContentFromSource,
   normalizeMimeList,
+  resolveInputFileLimits,
   type InputFileLimits,
   type InputImageLimits,
   type InputImageSource,
@@ -145,9 +140,11 @@ function resolveResponsesLimits(
 ): ResolvedResponsesLimits {
   const files = config?.files;
   const images = config?.images;
+  const fileLimits = resolveInputFileLimits(files);
   return {
     maxBodyBytes: config?.maxBodyBytes ?? DEFAULT_BODY_BYTES,
     files: {
+<<<<<<< HEAD
       allowUrl: files?.allowUrl ?? true,
       allowedMimes: normalizeMimeList(files?.allowedMimes, DEFAULT_INPUT_FILE_MIMES),
       maxBytes: files?.maxBytes ?? DEFAULT_INPUT_FILE_MAX_BYTES,
@@ -159,6 +156,10 @@ function resolveResponsesLimits(
         maxPixels: files?.pdf?.maxPixels ?? DEFAULT_INPUT_PDF_MAX_PIXELS,
         minTextChars: files?.pdf?.minTextChars ?? DEFAULT_INPUT_PDF_MIN_TEXT_CHARS,
       },
+=======
+      ...fileLimits,
+      urlAllowlist: normalizeHostnameAllowlist(files?.urlAllowlist),
+>>>>>>> 37c97964a (refactor(media): centralize input file limit resolution)
     },
     images: {
       allowUrl: images?.allowUrl ?? true,

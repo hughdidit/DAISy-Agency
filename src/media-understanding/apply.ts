@@ -11,17 +11,9 @@ import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import {
-  DEFAULT_INPUT_FILE_MAX_BYTES,
-  DEFAULT_INPUT_FILE_MAX_CHARS,
-  DEFAULT_INPUT_FILE_MIMES,
-  DEFAULT_INPUT_MAX_REDIRECTS,
-  DEFAULT_INPUT_PDF_MAX_PAGES,
-  DEFAULT_INPUT_PDF_MAX_PIXELS,
-  DEFAULT_INPUT_PDF_MIN_TEXT_CHARS,
-  DEFAULT_INPUT_TIMEOUT_MS,
   extractFileContentFromSource,
-  normalizeMimeList,
   normalizeMimeType,
+  resolveInputFileLimits,
 } from "../media/input-files.js";
 import {
   extractMediaUserText,
@@ -104,6 +96,7 @@ function xmlEscapeAttr(value: string): string {
 
 function resolveFileLimits(cfg: MoltbotConfig) {
   const files = cfg.gateway?.http?.endpoints?.responses?.files;
+<<<<<<< HEAD
   return {
     allowUrl: files?.allowUrl ?? true,
     allowedMimes: normalizeMimeList(files?.allowedMimes, DEFAULT_INPUT_FILE_MIMES),
@@ -116,6 +109,12 @@ function resolveFileLimits(cfg: MoltbotConfig) {
       maxPixels: files?.pdf?.maxPixels ?? DEFAULT_INPUT_PDF_MAX_PIXELS,
       minTextChars: files?.pdf?.minTextChars ?? DEFAULT_INPUT_PDF_MIN_TEXT_CHARS,
     },
+=======
+  const allowedMimesConfigured = Boolean(files?.allowedMimes?.length);
+  return {
+    ...resolveInputFileLimits(files),
+    allowedMimesConfigured,
+>>>>>>> 37c97964a (refactor(media): centralize input file limit resolution)
   };
 }
 
