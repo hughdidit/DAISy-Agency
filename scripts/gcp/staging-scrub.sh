@@ -14,12 +14,39 @@
 #
 # Usage (on the staging VM):
 #   sudo bash staging-scrub.sh
+#   sudo bash staging-scrub.sh --force   # non-interactive (auto-accepts all prompts)
 #
 # Prerequisites:
 #   - Run as root (sudo)
 #   - State disk attached as second disk (typically /dev/sdb)
 #
 set -euo pipefail
+
+# =============================================================================
+# Parse arguments
+# =============================================================================
+
+FORCE=false
+for arg in "$@"; do
+  case $arg in
+    --force|--yes|-y)
+      FORCE=true
+      ;;
+    --help|-h)
+      echo "Usage: sudo bash $0 [--force]"
+      echo ""
+      echo "Options:"
+      echo "  --force, --yes, -y  Auto-accept all prompts (non-interactive)"
+      echo "  --help              Show this help message"
+      exit 0
+      ;;
+    *)
+      echo "ERROR: Unknown option: $arg"
+      echo "Usage: sudo bash $0 [--force]"
+      exit 1
+      ;;
+  esac
+done
 
 # =============================================================================
 # Configuration (override via environment variables)
@@ -64,6 +91,10 @@ log() {
 
 confirm() {
   local prompt="$1"
+  if [[ "$FORCE" == "true" ]]; then
+    log "  (auto-accepted: --force) $prompt"
+    return 0
+  fi
   read -r -p "$prompt [y/N] " response
   case "$response" in
     [yY][eE][sS]|[yY]) return 0 ;;
@@ -161,10 +192,14 @@ if [[ -n "${EXISTING_FS_INFO:-}" ]]; then
   log "WARNING: $STATE_DISK appears to contain an existing filesystem or data:"
   log "  $EXISTING_FS_INFO"
   log "Formatting will ERASE ALL DATA on $STATE_DISK."
-  read -rp "Type 'FORMAT' to continue formatting $STATE_DISK, or anything else to abort: " CONFIRM_FORMAT_STATE_DISK
-  if [[ "$CONFIRM_FORMAT_STATE_DISK" != "FORMAT" ]]; then
-    log "Aborting at user request; state disk was not formatted."
-    exit 1
+  if [[ "$FORCE" == "true" ]]; then
+    log "  (auto-accepted: --force) Proceeding with FORMAT."
+  else
+    read -rp "Type 'FORMAT' to continue formatting $STATE_DISK, or anything else to abort: " CONFIRM_FORMAT_STATE_DISK
+    if [[ "$CONFIRM_FORMAT_STATE_DISK" != "FORMAT" ]]; then
+      log "Aborting at user request; state disk was not formatted."
+      exit 1
+    fi
   fi
 fi
 # Format the state disk with label (this is a NEW, empty disk)

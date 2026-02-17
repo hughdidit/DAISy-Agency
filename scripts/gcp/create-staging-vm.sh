@@ -68,6 +68,7 @@ SNAPSHOT_NAME="${SNAPSHOT_NAME:-${STAGING_INSTANCE}-snapshot-$(date +%Y%m%d-%H%M
 
 DRY_RUN=false
 SHOW_DEFAULTS=false
+AUTO_SCRUB=false
 
 for arg in "$@"; do
   case $arg in
@@ -77,12 +78,16 @@ for arg in "$@"; do
     --show-defaults)
       SHOW_DEFAULTS=true
       ;;
+    --auto-scrub)
+      AUTO_SCRUB=true
+      ;;
     --help|-h)
-      echo "Usage: $0 [--dry-run] [--show-defaults]"
+      echo "Usage: $0 [--dry-run] [--show-defaults] [--auto-scrub]"
       echo ""
       echo "Options:"
       echo "  --dry-run       Show what would be done without making changes"
       echo "  --show-defaults Show current configuration and exit"
+      echo "  --auto-scrub    Run staging-scrub.sh --force on VM after creation"
       echo "  --help          Show this help message"
       echo ""
       echo "Configure via environment variables:"
@@ -394,6 +399,10 @@ else
       --tunnel-through-iap
     log "OK: staging-scrub.sh copied to /tmp/staging-scrub.sh"
   else
+    if [[ "$AUTO_SCRUB" == "true" ]]; then
+      log "ERROR: staging-scrub.sh not found at $SCRIPT_DIR (required by --auto-scrub)"
+      exit 1
+    fi
     log "WARN: staging-scrub.sh not found at $SCRIPT_DIR"
   fi
 
@@ -408,6 +417,27 @@ else
     log "OK: staging-verify.sh copied to /tmp/staging-verify.sh"
   else
     log "WARN: staging-verify.sh not found at $SCRIPT_DIR"
+  fi
+fi
+
+# =============================================================================
+# Phase 7: Auto-Scrub (optional)
+# =============================================================================
+
+if [[ "$AUTO_SCRUB" == "true" ]]; then
+  log ""
+  log "=== Phase 7: Auto-Scrub ==="
+
+  if [[ "$DRY_RUN" == "true" ]]; then
+    log "[DRY-RUN] Would run: sudo bash /tmp/staging-scrub.sh --force"
+  else
+    log "Running staging-scrub.sh --force on $STAGING_INSTANCE..."
+    gcloud compute ssh "$STAGING_INSTANCE" \
+      --project="$PROJECT_ID" \
+      --zone="$STAGING_ZONE" \
+      --tunnel-through-iap \
+      --command="sudo bash /tmp/staging-scrub.sh --force"
+    log "OK: Staging scrub completed"
   fi
 fi
 
@@ -441,13 +471,22 @@ else
   log "  - VM Instance: $STAGING_INSTANCE"
   log ""
   log "Next steps:"
-  log "  1. SSH into the VM:"
-  log "     gcloud compute ssh $STAGING_INSTANCE --project=$PROJECT_ID --zone=$STAGING_ZONE --tunnel-through-iap"
-  log "  2. Run the scrub script (already copied to VM):"
-  log "     sudo bash /tmp/staging-scrub.sh"
-  log "  3. Complete manual secret configuration (see docs/deployments/staging-setup.md)"
-  log "  4. Run verification (already copied to VM):"
-  log "     bash /tmp/staging-verify.sh"
+  if [[ "$AUTO_SCRUB" == "true" ]]; then
+    log "  1. SSH into the VM:"
+    log "     gcloud compute ssh $STAGING_INSTANCE --project=$PROJECT_ID --zone=$STAGING_ZONE --tunnel-through-iap"
+    log "  2. Complete manual secret configuration (see docs/deployments/staging-setup.md)"
+    log "  3. Run verification (already copied to VM):"
+    log "     bash /tmp/staging-verify.sh"
+  else
+    log "  1. SSH into the VM:"
+    log "     gcloud compute ssh $STAGING_INSTANCE --project=$PROJECT_ID --zone=$STAGING_ZONE --tunnel-through-iap"
+    log "  2. Run the scrub script (already copied to VM):"
+    log "     sudo bash /tmp/staging-scrub.sh"
+    log "     (or re-run with --auto-scrub to automate this step)"
+    log "  3. Complete manual secret configuration (see docs/deployments/staging-setup.md)"
+    log "  4. Run verification (already copied to VM):"
+    log "     bash /tmp/staging-verify.sh"
+  fi
   log ""
   log "To delete staging resources (rollback):"
   log "  gcloud compute instances delete $STAGING_INSTANCE --project=$PROJECT_ID --zone=$STAGING_ZONE --quiet"

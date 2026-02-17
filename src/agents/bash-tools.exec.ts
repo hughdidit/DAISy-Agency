@@ -848,6 +848,9 @@ export function createExecTool(
       const bypassApprovals = elevatedRequested && elevatedMode === "full";
       if (bypassApprovals) {
         ask = "off";
+        warnings.push(
+          "elevated mode is 'full': command will execute with unrestricted security and no approval prompt",
+        );
       }
 
       const sandbox = host === "sandbox" ? defaults?.sandbox : undefined;
