@@ -116,7 +116,7 @@ jobs:
       - name: Detect secrets
         run: |
           if ! detect-secrets scan --baseline .secrets.baseline; then
-            echo "::error::Secret scanning failed. See docs/gateway/security.md#secret-scanning-detect-secrets"
+            echo "::error::Secret scanning failed. See docs/gateway/security/index.md#secret-scanning-detect-secrets"
             exit 1
           fi
 

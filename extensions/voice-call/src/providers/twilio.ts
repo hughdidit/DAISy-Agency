@@ -17,6 +17,8 @@ import type {
 import { escapeXml, mapVoiceToPolly } from "../voice-mapping.js";
 import { chunkAudio } from "../telephony-audio.js";
 import type { TelephonyTtsProvider } from "../telephony-tts.js";
+import type { Logger } from "../manager/context.js";
+import { defaultLogger } from "../manager/context.js";
 import type { VoiceCallProvider } from "./base.js";
 import { twilioApiRequest } from "./twilio/api.js";
 import { verifyTwilioProviderWebhook } from "./twilio/webhook.js";
@@ -93,7 +95,9 @@ export class TwilioProvider implements VoiceCallProvider {
     this.deleteStoredTwiml(callIdMatch[1]);
   }
 
-  constructor(config: TwilioConfig, options: TwilioProviderOptions = {}) {
+  private readonly logger: Logger;
+
+  constructor(config: TwilioConfig, options: TwilioProviderOptions = {}, logger?: Logger) {
     if (!config.accountSid) {
       throw new Error("Twilio Account SID is required");
     }
@@ -105,6 +109,7 @@ export class TwilioProvider implements VoiceCallProvider {
     this.authToken = config.authToken;
     this.baseUrl = `https://api.twilio.com/2010-04-01/Accounts/${this.accountSid}`;
     this.options = options;
+    this.logger = logger ?? defaultLogger;
 
     if (options.publicUrl) {
       this.currentPublicUrl = options.publicUrl;
@@ -178,6 +183,7 @@ export class TwilioProvider implements VoiceCallProvider {
       authToken: this.authToken,
       currentPublicUrl: this.currentPublicUrl,
       options: this.options,
+      logger: this.logger,
     });
   }
 
@@ -478,9 +484,8 @@ export class TwilioProvider implements VoiceCallProvider {
         await this.playTtsViaStream(input.text, streamSid);
         return;
       } catch (err) {
-        console.warn(
-          `[voice-call] Telephony TTS failed, falling back to Twilio <Say>:`,
-          err instanceof Error ? err.message : err,
+        this.logger.warn(
+          `[voice-call] Telephony TTS failed, falling back to Twilio <Say>: ${err instanceof Error ? err.message : err}`,
         );
         // Fall through to TwiML <Say> fallback
       }
@@ -494,7 +499,7 @@ export class TwilioProvider implements VoiceCallProvider {
       );
     }
 
-    console.warn(
+    this.logger.warn(
       "[voice-call] Using TwiML <Say> fallback - telephony TTS not configured or media stream not active",
     );
 

@@ -2,6 +2,20 @@ import type { CallId, CallRecord } from "../types.js";
 import type { VoiceCallConfig } from "../config.js";
 import type { VoiceCallProvider } from "../providers/base.js";
 
+export type Logger = {
+  info: (message: string) => void;
+  warn: (message: string) => void;
+  error: (message: string) => void;
+  debug: (message: string) => void;
+};
+
+export const defaultLogger: Logger = {
+  info: console.log,
+  warn: console.warn,
+  error: console.error,
+  debug: console.debug,
+};
+
 export type TranscriptWaiter = {
   resolve: (text: string) => void;
   reject: (err: Error) => void;
@@ -18,4 +32,5 @@ export type CallManagerContext = {
   webhookUrl: string | null;
   transcriptWaiters: Map<CallId, TranscriptWaiter>;
   maxDurationTimers: Map<CallId, NodeJS.Timeout>;
+  logger: Logger;
 };

@@ -21,6 +21,12 @@ services:
       - "${CLAWDBOT_BRIDGE_PORT}:${CLAWDBOT_BRIDGE_PORT}"
     init: true
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "dist/index.js", "health", "--json", "--timeout", "10000"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
     command:
       [
         "node",

@@ -14,6 +14,8 @@ import type {
   WebhookContext,
   WebhookVerificationResult,
 } from "../types.js";
+import type { Logger } from "../manager/context.js";
+import { defaultLogger } from "../manager/context.js";
 import type { VoiceCallProvider } from "./base.js";
 
 /**
@@ -30,7 +32,9 @@ export class TelnyxProvider implements VoiceCallProvider {
   private readonly publicKey: string | undefined;
   private readonly baseUrl = "https://api.telnyx.com/v2";
 
-  constructor(config: TelnyxConfig) {
+  private readonly logger: Logger;
+
+  constructor(config: TelnyxConfig, logger?: Logger) {
     if (!config.apiKey) {
       throw new Error("Telnyx API key is required");
     }
@@ -41,6 +45,7 @@ export class TelnyxProvider implements VoiceCallProvider {
     this.apiKey = config.apiKey;
     this.connectionId = config.connectionId;
     this.publicKey = config.publicKey;
+    this.logger = logger ?? defaultLogger;
   }
 
   /**
@@ -259,7 +264,7 @@ export class TelnyxProvider implements VoiceCallProvider {
       default:
         // Unknown cause - log it for debugging and return completed
         if (cause) {
-          console.warn(`[telnyx] Unknown hangup cause: ${cause}`);
+          this.logger.warn(`[telnyx] Unknown hangup cause: ${cause}`);
         }
         return "completed";
     }
