@@ -130,6 +130,7 @@ export type ToolHandlerState = Pick<
   | "messagingToolSentTextsNormalized"
   | "messagingToolSentMediaUrls"
   | "messagingToolSentTargets"
+  | "successfulCronAdds"
 >;
 
 export type ToolHandlerContext = {

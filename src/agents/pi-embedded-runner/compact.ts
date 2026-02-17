@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 
@@ -11,6 +12,10 @@ import os from "node:os";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
+=======
+import fs from "node:fs/promises";
+import os from "node:os";
+>>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 >>>>>>> 9bd2ccb01 (feat: add pre-prompt context size diagnostic logging (openclaw#8930) thanks @Glucksberg)
 import {
@@ -20,6 +25,7 @@ import {
   SessionManager,
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -41,9 +47,16 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { ExecElevatedDefaults } from "../bash-tools.js";
 import type { EmbeddedPiCompactResult } from "./types.js";
+=======
+>>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
+import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
 import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
+<<<<<<< HEAD
 >>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 import { getMachineDisplayName } from "../../infra/machine-name.js";
 <<<<<<< HEAD
 =======
@@ -62,6 +75,7 @@ import { isReasoningTagProvider } from "../../utils/provider-utils.js";
 import { resolveUserPath } from "../../utils.js";
 import { resolveMoltbotAgentDir } from "../agent-paths.js";
 import { resolveSessionAgentIds } from "../agent-scope.js";
+import type { ExecElevatedDefaults } from "../bash-tools.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../bootstrap-files.js";
 import { resolveMoltbotDocsPath } from "../docs-path.js";
 import type { ExecElevatedDefaults } from "../bash-tools.js";
@@ -125,6 +139,7 @@ import { prewarmSessionFile, trackSessionManagerAccess } from "./session-manager
 import { buildEmbeddedSystemPrompt, createSystemPromptOverride } from "./system-prompt.js";
 import { splitSdkTools } from "./tool-split.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { EmbeddedPiCompactResult } from "./types.js";
 <<<<<<< HEAD
 import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
@@ -135,6 +150,9 @@ import { buildTtsSystemPromptHint } from "../../tts/tts.js";
 =======
 =======
 >>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
+=======
+import type { EmbeddedPiCompactResult } from "./types.js";
+>>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 import { describeUnknownError, mapThinkingLevel } from "./utils.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { flushPendingToolResultsAfterIdle } from "./wait-for-idle-before-flush.js";

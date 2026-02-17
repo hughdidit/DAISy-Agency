@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 <<<<<<< HEAD
@@ -16,10 +17,15 @@ import {
 =======
 =======
 >>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
+=======
+import fs from "node:fs/promises";
+import os from "node:os";
+>>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -27,6 +33,8 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types.js";
 >>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
+=======
+>>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
 <<<<<<< HEAD
 =======
@@ -175,6 +183,7 @@ import {
 } from "./compaction-timeout.js";
 >>>>>>> e6f67d5f3 (fix(agent): prevent session lock deadlock on timeout during compaction (#9855))
 import { detectAndLoadPromptImages } from "./images.js";
+import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types.js";
 
 export function injectHistoryImagesIntoMessages(
   messages: AgentMessage[],

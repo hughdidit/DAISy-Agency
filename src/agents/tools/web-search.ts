@@ -3,6 +3,7 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { formatCliCommand } from "../../cli/command-format.js";
@@ -43,10 +44,17 @@ import type { AnyAgentTool } from "./common.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { AnyAgentTool } from "./common.js";
+=======
+>>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 import { formatCliCommand } from "../../cli/command-format.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { wrapWebContent } from "../../security/external-content.js";
 import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
+<<<<<<< HEAD
 >>>>>>> f924ab40d (revert(tools): undo accidental merge of PR #18584)
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 import {
   CacheEntry,

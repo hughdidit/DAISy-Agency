@@ -2,6 +2,7 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentDir } from "../../agents/agent-scope.js";
 import {
   ensureAuthProfileStore,
@@ -44,6 +45,12 @@ import { normalizeGroupActivation } from "../../auto-reply/group-activation.js";
 import { getFollowupQueueDepth, resolveQueueSettings } from "../../auto-reply/reply/queue.js";
 import { buildStatusMessage } from "../../auto-reply/status.js";
 >>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
+=======
+import { normalizeGroupActivation } from "../../auto-reply/group-activation.js";
+import { getFollowupQueueDepth, resolveQueueSettings } from "../../auto-reply/reply/queue.js";
+import { buildStatusMessage } from "../../auto-reply/status.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 import { loadConfig } from "../../config/config.js";
 import {
   loadSessionStore,
@@ -78,12 +85,16 @@ import {
 } from "../model-selection.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9c4eab69c (iMessage: promote BlueBubbles and refresh docs/skills (#8415))
 =======
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 414754546 (Revert "feat: show transcript file size in session status")
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> ac38d5129 (chore: Fix types in tests 7/N.)
 import { readStringParam } from "./common.js";
 import {
   shouldResolveSessionIdInput,
