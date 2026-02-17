@@ -22,6 +22,16 @@ installGatewayTestHooks({ scope: "suite" });
 
 let harness: GatewayServerHarness;
 
+type GatewayFrame = {
+  type?: string;
+  id?: string;
+  ok?: boolean;
+  event?: string;
+  payload?: Record<string, unknown> | null;
+  seq?: number;
+  stateVersion?: { presence?: number; [key: string]: unknown };
+};
+
 beforeAll(async () => {
 <<<<<<< HEAD
   previousToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
@@ -55,10 +65,16 @@ describe("gateway server health/presence", () => {
   test("connect + health + presence + status succeed", { timeout: 60_000 }, async () => {
     const { ws } = await harness.openClient();
 
-    const healthP = onceMessage(ws, (o) => o.type === "res" && o.id === "health1");
-    const statusP = onceMessage(ws, (o) => o.type === "res" && o.id === "status1");
-    const presenceP = onceMessage(ws, (o) => o.type === "res" && o.id === "presence1");
-    const channelsP = onceMessage(ws, (o) => o.type === "res" && o.id === "channels1");
+    const healthP = onceMessage<GatewayFrame>(ws, (o) => o.type === "res" && o.id === "health1");
+    const statusP = onceMessage<GatewayFrame>(ws, (o) => o.type === "res" && o.id === "status1");
+    const presenceP = onceMessage<GatewayFrame>(
+      ws,
+      (o) => o.type === "res" && o.id === "presence1",
+    );
+    const channelsP = onceMessage<GatewayFrame>(
+      ws,
+      (o) => o.type === "res" && o.id === "channels1",
+    );
 
     const sendReq = (id: string, method: string) =>
       ws.send(JSON.stringify({ type: "req", id, method }));
@@ -95,12 +111,6 @@ describe("gateway server health/presence", () => {
       event: string;
       payload?: HeartbeatPayload | null;
     };
-    type ResFrame = {
-      type: "res";
-      id: string;
-      ok: boolean;
-      payload?: unknown;
-    };
 
     const { ws } = await harness.openClient();
 
@@ -120,7 +130,7 @@ describe("gateway server health/presence", () => {
         method: "last-heartbeat",
       }),
     );
-    const last = await onceMessage<ResFrame>(ws, (o) => o.type === "res" && o.id === "hb-last");
+    const last = await onceMessage<GatewayFrame>(ws, (o) => o.type === "res" && o.id === "hb-last");
     expect(last.ok).toBe(true);
     const lastPayload = last.payload as HeartbeatPayload | null | undefined;
     expect(lastPayload?.status).toBe("sent");
@@ -134,7 +144,7 @@ describe("gateway server health/presence", () => {
         params: { enabled: false },
       }),
     );
-    const toggle = await onceMessage<ResFrame>(
+    const toggle = await onceMessage<GatewayFrame>(
       ws,
       (o) => o.type === "res" && o.id === "hb-toggle-off",
     );
@@ -147,7 +157,10 @@ describe("gateway server health/presence", () => {
   test("presence events carry seq + stateVersion", { timeout: 8000 }, async () => {
     const { ws } = await harness.openClient();
 
-    const presenceEventP = onceMessage(ws, (o) => o.type === "event" && o.event === "presence");
+    const presenceEventP = onceMessage<GatewayFrame>(
+      ws,
+      (o) => o.type === "event" && o.event === "presence",
+    );
     ws.send(
       JSON.stringify({
         type: "req",
@@ -160,7 +173,8 @@ describe("gateway server health/presence", () => {
     const evt = await presenceEventP;
     expect(typeof evt.seq).toBe("number");
     expect(evt.stateVersion?.presence).toBeGreaterThan(0);
-    expect(Array.isArray(evt.payload?.presence)).toBe(true);
+    const evtPayload = evt.payload as { presence?: unknown } | undefined;
+    expect(Array.isArray(evtPayload?.presence)).toBe(true);
 
     ws.close();
   });
@@ -169,7 +183,7 @@ describe("gateway server health/presence", () => {
     const { ws } = await harness.openClient();
 
     const runId = randomUUID();
-    const evtPromise = onceMessage(
+    const evtPromise = onceMessage<GatewayFrame>(
       ws,
       (o) =>
         o.type === "event" &&
@@ -179,9 +193,11 @@ describe("gateway server health/presence", () => {
     );
     emitAgentEvent({ runId, stream: "lifecycle", data: { msg: "hi" } });
     const evt = await evtPromise;
-    expect(evt.payload.runId).toBe(runId);
+    const payload = evt.payload as Record<string, unknown> | undefined;
+    expect(payload?.runId).toBe(runId);
     expect(typeof evt.seq).toBe("number");
-    expect(evt.payload.data.msg).toBe("hi");
+    const data = payload?.data as Record<string, unknown> | undefined;
+    expect(data?.msg).toBe("hi");
 
     ws.close();
   });
@@ -189,10 +205,15 @@ describe("gateway server health/presence", () => {
   test("shutdown event is broadcast on close", { timeout: 8000 }, async () => {
     const localHarness = await startGatewayServerHarness();
     const { ws } = await localHarness.openClient();
-    const shutdownP = onceMessage(ws, (o) => o.type === "event" && o.event === "shutdown", 5000);
+    const shutdownP = onceMessage<GatewayFrame>(
+      ws,
+      (o) => o.type === "event" && o.event === "shutdown",
+      5000,
+    );
     await localHarness.close();
     const evt = await shutdownP;
-    expect(evt.payload?.reason).toBeDefined();
+    const evtPayload = evt.payload as { reason?: unknown } | undefined;
+    expect(evtPayload?.reason).toBeDefined();
   });
 
   test("presence broadcast reaches multiple clients", { timeout: 8000 }, async () => {
@@ -202,7 +223,7 @@ describe("gateway server health/presence", () => {
       harness.openClient(),
     ]);
     const waits = clients.map(({ ws }) =>
-      onceMessage(ws, (o) => o.type === "event" && o.event === "presence"),
+      onceMessage<GatewayFrame>(ws, (o) => o.type === "event" && o.event === "presence"),
     );
     clients[0].ws.send(
       JSON.stringify({
@@ -214,7 +235,8 @@ describe("gateway server health/presence", () => {
     );
     const events = await Promise.all(waits);
     for (const evt of events) {
-      expect(evt.payload?.presence?.length).toBeGreaterThan(0);
+      const evtPayload = evt.payload as { presence?: unknown[] } | undefined;
+      expect(evtPayload?.presence?.length).toBeGreaterThan(0);
       expect(typeof evt.seq).toBe("number");
     }
     for (const { ws } of clients) {
@@ -245,7 +267,11 @@ describe("gateway server health/presence", () => {
       },
     });
 
-    const presenceP = onceMessage(ws, (o) => o.type === "res" && o.id === "fingerprint", 4000);
+    const presenceP = onceMessage<GatewayFrame>(
+      ws,
+      (o) => o.type === "res" && o.id === "fingerprint",
+      4000,
+    );
     ws.send(
       JSON.stringify({
         type: "req",
@@ -286,7 +312,11 @@ describe("gateway server health/presence", () => {
       },
     });
 
-    const presenceP = onceMessage(ws, (o) => o.type === "res" && o.id === "cli-presence", 4000);
+    const presenceP = onceMessage<GatewayFrame>(
+      ws,
+      (o) => o.type === "res" && o.id === "cli-presence",
+      4000,
+    );
     ws.send(
       JSON.stringify({
         type: "req",
@@ -296,7 +326,7 @@ describe("gateway server health/presence", () => {
     );
 
     const presenceRes = await presenceP;
-    const entries = presenceRes.payload as Array<Record<string, unknown>>;
+    const entries = (presenceRes.payload ?? []) as Array<Record<string, unknown>>;
     expect(entries.some((e) => e.instanceId === cliId)).toBe(false);
 
     ws.close();
