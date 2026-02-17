@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, type Mock, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
+  type MockAuthProfile = { provider: string; [key: string]: unknown };
   const store = {
     version: 1,
     profiles: {
@@ -24,7 +25,7 @@ const mocks = vi.hoisted(() => {
         refresh: "oai-refresh-1234567890",
         expires: Date.now() + 60_000,
       },
-    },
+    } as Record<string, MockAuthProfile>,
   };
 
   return {
@@ -160,16 +161,28 @@ async function withAgentScopeOverrides<T>(
   try {
     return await run();
   } finally {
-    mocks.resolveAgentModelPrimary.mockImplementation(originalPrimary);
-    mocks.resolveAgentModelFallbacksOverride.mockImplementation(originalFallbacks);
-    mocks.resolveAgentDir.mockImplementation(originalAgentDir);
+    if (originalPrimary) {
+      mocks.resolveAgentModelPrimary.mockImplementation(originalPrimary);
+    } else {
+      mocks.resolveAgentModelPrimary.mockReset();
+    }
+    if (originalFallbacks) {
+      mocks.resolveAgentModelFallbacksOverride.mockImplementation(originalFallbacks);
+    } else {
+      mocks.resolveAgentModelFallbacksOverride.mockReset();
+    }
+    if (originalAgentDir) {
+      mocks.resolveAgentDir.mockImplementation(originalAgentDir);
+    } else {
+      mocks.resolveAgentDir.mockReturnValue("/tmp/openclaw-agent");
+    }
   }
 }
 
 describe("modelsStatusCommand auth overview", () => {
   it("includes masked auth sources in JSON output", async () => {
     await modelsStatusCommand({ json: true }, runtime as never);
-    const payload = JSON.parse(String((runtime.log as vi.Mock).mock.calls[0][0]));
+    const payload = JSON.parse(String((runtime.log as Mock).mock.calls[0]?.[0]));
 
     expect(payload.defaultModel).toBe("anthropic/claude-opus-4-5");
     expect(payload.auth.storePath).toBe("/tmp/moltbot-agent/auth-profiles.json");
@@ -231,7 +244,7 @@ describe("modelsStatusCommand auth overview", () => {
       async () => {
         await modelsStatusCommand({ json: true, agent: "Jeremiah" }, localRuntime as never);
         expect(mocks.resolveAgentDir).toHaveBeenCalledWith(expect.anything(), "jeremiah");
-        const payload = JSON.parse(String((localRuntime.log as vi.Mock).mock.calls[0][0]));
+        const payload = JSON.parse(String((localRuntime.log as Mock).mock.calls[0]?.[0]));
         expect(payload.agentId).toBe("jeremiah");
         expect(payload.agentDir).toBe("/tmp/openclaw-agent-custom");
         expect(payload.defaultModel).toBe("openai/gpt-4");
@@ -253,8 +266,8 @@ describe("modelsStatusCommand auth overview", () => {
       },
       async () => {
         await modelsStatusCommand({ agent: "main" }, localRuntime as never);
-        const output = (localRuntime.log as vi.Mock).mock.calls
-          .map((call) => String(call[0]))
+        const output = (localRuntime.log as Mock).mock.calls
+          .map((call: unknown[]) => String(call[0]))
           .join("\n");
         expect(output).toContain("Default (defaults)");
         expect(output).toContain("Fallbacks (0) (defaults)");
@@ -281,7 +294,11 @@ describe("modelsStatusCommand auth overview", () => {
       expect(localRuntime.exit).toHaveBeenCalledWith(1);
     } finally {
       mocks.store.profiles = originalProfiles;
-      mocks.resolveEnvApiKey.mockImplementation(originalEnvImpl);
+      if (originalEnvImpl) {
+        mocks.resolveEnvApiKey.mockImplementation(originalEnvImpl);
+      } else {
+        mocks.resolveEnvApiKey.mockReset();
+      }
     }
   });
 });
