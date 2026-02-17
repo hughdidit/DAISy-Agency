@@ -19,6 +19,16 @@ const CLEANUP_SIGNALS = ["SIGINT", "SIGTERM", "SIGQUIT", "SIGABRT"] as const;
 type CleanupSignal = (typeof CLEANUP_SIGNALS)[number];
 const CLEANUP_STATE_KEY = Symbol.for("openclaw.sessionWriteLockCleanupState");
 const HELD_LOCKS_KEY = Symbol.for("openclaw.sessionWriteLockHeldLocks");
+<<<<<<< HEAD
+=======
+const WATCHDOG_STATE_KEY = Symbol.for("openclaw.sessionWriteLockWatchdogState");
+
+const DEFAULT_STALE_MS = 30 * 60 * 1000;
+const DEFAULT_MAX_HOLD_MS = 5 * 60 * 1000;
+const DEFAULT_WATCHDOG_INTERVAL_MS = 60_000;
+const DEFAULT_TIMEOUT_GRACE_MS = 2 * 60 * 1000;
+const MAX_LOCK_HOLD_MS = 2_147_000_000;
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 
 type CleanupState = {
   registered: boolean;
@@ -60,6 +70,99 @@ function resolveCleanupState(): CleanupState {
   return proc[CLEANUP_STATE_KEY];
 }
 
+<<<<<<< HEAD
+=======
+function resolveWatchdogState(): WatchdogState {
+  const proc = process as NodeJS.Process & {
+    [WATCHDOG_STATE_KEY]?: WatchdogState;
+  };
+  if (!proc[WATCHDOG_STATE_KEY]) {
+    proc[WATCHDOG_STATE_KEY] = {
+      started: false,
+      intervalMs: DEFAULT_WATCHDOG_INTERVAL_MS,
+    };
+  }
+  return proc[WATCHDOG_STATE_KEY];
+}
+
+function resolvePositiveMs(
+  value: number | undefined,
+  fallback: number,
+  opts: { allowInfinity?: boolean } = {},
+): number {
+  if (typeof value !== "number" || Number.isNaN(value) || value <= 0) {
+    return fallback;
+  }
+  if (value === Number.POSITIVE_INFINITY) {
+    return opts.allowInfinity ? value : fallback;
+  }
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+  return value;
+}
+
+export function resolveSessionLockMaxHoldFromTimeout(params: {
+  timeoutMs: number;
+  graceMs?: number;
+  minMs?: number;
+}): number {
+  const minMs = resolvePositiveMs(params.minMs, DEFAULT_MAX_HOLD_MS);
+  const timeoutMs = resolvePositiveMs(params.timeoutMs, minMs, { allowInfinity: true });
+  if (timeoutMs === Number.POSITIVE_INFINITY) {
+    return MAX_LOCK_HOLD_MS;
+  }
+  const graceMs = resolvePositiveMs(params.graceMs, DEFAULT_TIMEOUT_GRACE_MS);
+  return Math.min(MAX_LOCK_HOLD_MS, Math.max(minMs, timeoutMs + graceMs));
+}
+
+async function releaseHeldLock(
+  normalizedSessionFile: string,
+  held: HeldLock,
+  opts: { force?: boolean } = {},
+): Promise<boolean> {
+  const current = HELD_LOCKS.get(normalizedSessionFile);
+  if (current !== held) {
+    return false;
+  }
+
+  if (opts.force) {
+    held.count = 0;
+  } else {
+    held.count -= 1;
+    if (held.count > 0) {
+      return false;
+    }
+  }
+
+  if (held.releasePromise) {
+    await held.releasePromise.catch(() => undefined);
+    return true;
+  }
+
+  HELD_LOCKS.delete(normalizedSessionFile);
+  held.releasePromise = (async () => {
+    try {
+      await held.handle.close();
+    } catch {
+      // Ignore errors during cleanup - best effort.
+    }
+    try {
+      await fs.rm(held.lockPath, { force: true });
+    } catch {
+      // Ignore errors during cleanup - best effort.
+    }
+  })();
+
+  try {
+    await held.releasePromise;
+    return true;
+  } finally {
+    held.releasePromise = undefined;
+  }
+}
+
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 /**
  * Synchronously release all held locks.
  * Used during process exit when async operations aren't reliable.

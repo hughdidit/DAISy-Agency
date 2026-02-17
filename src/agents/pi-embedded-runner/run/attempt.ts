@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 <<<<<<< HEAD
@@ -13,11 +14,19 @@ import {
 } from "@mariozechner/pi-coding-agent";
 
 =======
+=======
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import fs from "node:fs/promises";
+import os from "node:os";
+import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types.js";
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
 <<<<<<< HEAD
 =======
@@ -97,8 +106,15 @@ import { guardSessionManager } from "../../session-tool-result-guard-wrapper.js"
 import { resolveTranscriptPolicy } from "../../transcript-policy.js";
 =======
 import { sanitizeToolUseResultPairing } from "../../session-transcript-repair.js";
+<<<<<<< HEAD
 >>>>>>> 43818e158 (fix(agents): re-run tool_use pairing repair after history truncation (#13926))
 import { acquireSessionWriteLock } from "../../session-write-lock.js";
+=======
+import {
+  acquireSessionWriteLock,
+  resolveSessionLockMaxHoldFromTimeout,
+} from "../../session-write-lock.js";
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import { detectRuntimeShell } from "../../shell-utils.js";
 import {
   applySkillEnvOverrides,
@@ -159,7 +175,6 @@ import {
 } from "./compaction-timeout.js";
 >>>>>>> e6f67d5f3 (fix(agent): prevent session lock deadlock on timeout during compaction (#9855))
 import { detectAndLoadPromptImages } from "./images.js";
-import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types.js";
 
 export function injectHistoryImagesIntoMessages(
   messages: AgentMessage[],
@@ -544,6 +559,9 @@ export async function runEmbeddedAttempt(
 
     const sessionLock = await acquireSessionWriteLock({
       sessionFile: params.sessionFile,
+      maxHoldMs: resolveSessionLockMaxHoldFromTimeout({
+        timeoutMs: params.timeoutMs,
+      }),
     });
 
     let sessionManager: ReturnType<typeof guardSessionManager> | undefined;

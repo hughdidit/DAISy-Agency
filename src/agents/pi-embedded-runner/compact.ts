@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 
@@ -8,6 +9,8 @@ import os from "node:os";
 import fs from "node:fs/promises";
 import os from "node:os";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 >>>>>>> 9bd2ccb01 (feat: add pre-prompt context size diagnostic logging (openclaw#8930) thanks @Glucksberg)
 import {
@@ -18,6 +21,7 @@ import {
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
@@ -26,10 +30,20 @@ import { resolveChannelCapabilities } from "../../config/channel-capabilities.js
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
+=======
+import fs from "node:fs/promises";
+import os from "node:os";
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
-import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import type { ExecElevatedDefaults } from "../bash-tools.js";
+import type { EmbeddedPiCompactResult } from "./types.js";
+import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
+import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import { getMachineDisplayName } from "../../infra/machine-name.js";
 <<<<<<< HEAD
 =======
@@ -48,7 +62,6 @@ import { isReasoningTagProvider } from "../../utils/provider-utils.js";
 import { resolveUserPath } from "../../utils.js";
 import { resolveMoltbotAgentDir } from "../agent-paths.js";
 import { resolveSessionAgentIds } from "../agent-scope.js";
-import type { ExecElevatedDefaults } from "../bash-tools.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../bootstrap-files.js";
 import { resolveMoltbotDocsPath } from "../docs-path.js";
 import type { ExecElevatedDefaults } from "../bash-tools.js";
@@ -72,8 +85,15 @@ import { guardSessionManager } from "../session-tool-result-guard-wrapper.js";
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
 =======
 import { sanitizeToolUseResultPairing } from "../session-transcript-repair.js";
+<<<<<<< HEAD
 >>>>>>> 43818e158 (fix(agents): re-run tool_use pairing repair after history truncation (#13926))
 import { acquireSessionWriteLock } from "../session-write-lock.js";
+=======
+import {
+  acquireSessionWriteLock,
+  resolveSessionLockMaxHoldFromTimeout,
+} from "../session-write-lock.js";
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import { detectRuntimeShell } from "../shell-utils.js";
 import {
   applySkillEnvOverrides,
@@ -82,6 +102,14 @@ import {
   resolveSkillsPromptForRun,
   type SkillSnapshot,
 } from "../skills.js";
+<<<<<<< HEAD
+=======
+import { resolveTranscriptPolicy } from "../transcript-policy.js";
+import {
+  compactWithSafetyTimeout,
+  EMBEDDED_COMPACTION_TIMEOUT_MS,
+} from "./compaction-safety-timeout.js";
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import { buildEmbeddedExtensionPaths } from "./extensions.js";
 import {
   logToolSchemasForGoogle,
@@ -96,6 +124,7 @@ import { buildEmbeddedSandboxInfo } from "./sandbox-info.js";
 import { prewarmSessionFile, trackSessionManagerAccess } from "./session-manager-cache.js";
 import { buildEmbeddedSystemPrompt, createSystemPromptOverride } from "./system-prompt.js";
 import { splitSdkTools } from "./tool-split.js";
+<<<<<<< HEAD
 import type { EmbeddedPiCompactResult } from "./types.js";
 <<<<<<< HEAD
 import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
@@ -104,6 +133,8 @@ import { describeUnknownError, mapThinkingLevel, resolveExecToolDefaults } from 
 import { buildTtsSystemPromptHint } from "../../tts/tts.js";
 =======
 =======
+=======
+>>>>>>> fb6e415d0 (fix(agents): align session lock hold budget with run timeouts)
 import { describeUnknownError, mapThinkingLevel } from "./utils.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { flushPendingToolResultsAfterIdle } from "./wait-for-idle-before-flush.js";
@@ -549,6 +580,9 @@ export async function compactEmbeddedPiSessionDirect(
 
     const sessionLock = await acquireSessionWriteLock({
       sessionFile: params.sessionFile,
+      maxHoldMs: resolveSessionLockMaxHoldFromTimeout({
+        timeoutMs: EMBEDDED_COMPACTION_TIMEOUT_MS,
+      }),
     });
     try {
       await repairSessionFileIfNeeded({
