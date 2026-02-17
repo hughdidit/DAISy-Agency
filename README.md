@@ -327,7 +327,6 @@ Runbook: [iOS connect](https://docs.molt.bot/platforms/ios).
 - Runbook: [Android connect](https://docs.molt.bot/platforms/android).
 =======
 - Runbook: [Android connect](https://docs.openclaw.ai/platforms/android).
-- Install: [OpenClaw for Android](https://github.com/irtiq7/OpenClaw-Android).
 
 <<<<<<< HEAD
 >>>>>>> 57aef596b (Revise Android installation link in README)
