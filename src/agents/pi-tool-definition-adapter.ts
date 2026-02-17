@@ -23,22 +23,26 @@ import {
 import { normalizeToolName } from "./tool-policy.js";
 import { jsonResult } from "./tools/common.js";
 
+<<<<<<< HEAD
 // biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.
 type AnyAgentTool = AgentTool<any, unknown>;
+=======
+type AnyAgentTool = AgentTool;
+>>>>>>> 7be63ec74 (fix: align tool execute arg parsing for hooks)
 
 type ToolExecuteArgsCurrent = [
   string,
   unknown,
+  AbortSignal | undefined,
   AgentToolUpdateCallback<unknown> | undefined,
   unknown,
-  AbortSignal | undefined,
 ];
 type ToolExecuteArgsLegacy = [
   string,
   unknown,
-  AbortSignal | undefined,
   AgentToolUpdateCallback<unknown> | undefined,
   unknown,
+  AbortSignal | undefined,
 ];
 type ToolExecuteArgs = ToolDefinition["execute"] extends (...args: infer P) => unknown
   ? P
@@ -55,8 +59,11 @@ function isAbortSignal(value: unknown): value is AbortSignal {
 
 function isLegacyToolExecuteArgs(args: ToolExecuteArgsAny): args is ToolExecuteArgsLegacy {
   const third = args[2];
-  const fourth = args[3];
-  return isAbortSignal(third) || typeof fourth === "function";
+  const fifth = args[4];
+  if (typeof third === "function") {
+    return true;
+  }
+  return isAbortSignal(fifth);
 }
 
 function describeToolExecutionError(err: unknown): {
@@ -77,7 +84,7 @@ function splitToolExecuteArgs(args: ToolExecuteArgsAny): {
   signal: AbortSignal | undefined;
 } {
   if (isLegacyToolExecuteArgs(args)) {
-    const [toolCallId, params, signal, onUpdate] = args;
+    const [toolCallId, params, onUpdate, _ctx, signal] = args;
     return {
       toolCallId,
       params,
@@ -85,7 +92,7 @@ function splitToolExecuteArgs(args: ToolExecuteArgsAny): {
       signal,
     };
   }
-  const [toolCallId, params, onUpdate, _ctx, signal] = args;
+  const [toolCallId, params, signal, onUpdate] = args;
   return {
     toolCallId,
     params,
@@ -255,6 +262,7 @@ export function toClientToolDefinitions(
       name: func.name,
       label: func.name,
       description: func.description ?? "",
+<<<<<<< HEAD
       parameters: func.parameters as any,
 <<<<<<< HEAD
       execute: async (
@@ -276,6 +284,9 @@ export function toClientToolDefinitions(
 >>>>>>> 9ae1b732e (fix: align tool definition adapter)
       ): Promise<AgentToolResult<unknown>> => {
 =======
+=======
+      parameters: func.parameters as ToolDefinition["parameters"],
+>>>>>>> 7be63ec74 (fix: align tool execute arg parsing for hooks)
       execute: async (...args: ToolExecuteArgs): Promise<AgentToolResult<unknown>> => {
         const { toolCallId, params } = splitToolExecuteArgs(args);
 >>>>>>> bcb0ed086 (fix: normalize tool execute args)
