@@ -79,9 +79,15 @@ describe("createOpenClawCodingTools", () => {
     const sandbox = {
       enabled: true,
       sessionKey: "sandbox:test",
+<<<<<<< HEAD
       workspaceDir: path.join(os.tmpdir(), "openclaw-sandbox"),
       agentWorkspaceDir: path.join(os.tmpdir(), "openclaw-workspace"),
       workspaceAccess: "none",
+=======
+      workspaceDir: sandboxDir,
+      agentWorkspaceDir: path.join(os.tmpdir(), "moltbot-workspace"),
+      workspaceAccess: "none" as const,
+>>>>>>> 688f86bf2 (chore: Fix types in tests 43/N.)
       containerName: "openclaw-sbx-test",
       containerWorkdir: "/workspace",
       docker: {
@@ -110,9 +116,15 @@ describe("createOpenClawCodingTools", () => {
     const sandbox = {
       enabled: true,
       sessionKey: "sandbox:test",
+<<<<<<< HEAD
       workspaceDir: path.join(os.tmpdir(), "openclaw-sandbox"),
       agentWorkspaceDir: path.join(os.tmpdir(), "openclaw-workspace"),
       workspaceAccess: "ro",
+=======
+      workspaceDir: sandboxDir,
+      agentWorkspaceDir: path.join(os.tmpdir(), "moltbot-workspace"),
+      workspaceAccess: "ro" as const,
+>>>>>>> 688f86bf2 (chore: Fix types in tests 43/N.)
       containerName: "openclaw-sbx-test",
       containerWorkdir: "/workspace",
       docker: {

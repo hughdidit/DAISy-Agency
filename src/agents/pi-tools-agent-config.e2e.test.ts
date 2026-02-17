@@ -614,7 +614,8 @@ describe("Agent-specific tool filtering", () => {
       yieldMs: 10,
     });
 
-    expect(result?.details.status).toBe("completed");
+    const resultDetails = result?.details as { status?: string } | undefined;
+    expect(resultDetails?.status).toBe("completed");
   });
 <<<<<<< HEAD
 =======
@@ -671,7 +672,8 @@ describe("Agent-specific tool filtering", () => {
       host: "sandbox",
       yieldMs: 1000,
     });
-    expect(helperResult?.details.status).toBe("completed");
+    const helperDetails = helperResult?.details as { status?: string } | undefined;
+    expect(helperDetails?.status).toBe("completed");
   });
 >>>>>>> c06a962bb (test(e2e): stabilize suite)
 });

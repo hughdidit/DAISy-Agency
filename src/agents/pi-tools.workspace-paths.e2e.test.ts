@@ -160,7 +160,7 @@ describe("sandboxed workspace paths", () => {
           sessionKey: "sandbox:test",
           workspaceDir: sandboxDir,
           agentWorkspaceDir: workspaceDir,
-          workspaceAccess: "rw",
+          workspaceAccess: "rw" as const,
           containerName: "openclaw-sbx-test",
           containerWorkdir: "/workspace",
           docker: {
