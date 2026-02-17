@@ -80,8 +80,12 @@ Docs: https://docs.openclaw.ai
 - CLI/Pairing: make `openclaw qr --remote` prefer `gateway.remote.url` over tailscale/public URL resolution and register the `openclaw clawbot qr` legacy alias path. (#18091)
 - CLI/QR: restore fail-fast validation for `openclaw qr --remote` when neither `gateway.remote.url` nor tailscale `serve`/`funnel` is configured, preventing unusable remote pairing QR flows. (#18166) Thanks @mbelinky.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> c7681c3cf (test(media-dedup): add missing coverage for Discord media dedup wiring)
 =======
+=======
+- CLI/Doctor: ensure `openclaw doctor --fix --non-interactive --yes` exits promptly after completion so one-shot automation no longer hangs. (#18502)
+>>>>>>> 0aa28c71c (fix(doctor): move forced exit to top-level command)
 - Auto-reply/Subagents: propagate group context (`groupId`, `groupChannel`, `space`) when spawning via `/subagents spawn`, matching tool-triggered subagent spawn behavior.
 >>>>>>> f24224683 (fix(subagents): pass group context in /subagents spawn)
 - Agents/Tools/exec: add a preflight guard that detects likely shell env var injection (e.g. `$DM_JSON`, `$TMPDIR`) in Python/Node scripts before execution, preventing recurring cron failures and wasted tokens when models emit mixed shell+language source. (#12836)
