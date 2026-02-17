@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MsgContext } from "../../auto-reply/templating.js";
 <<<<<<< HEAD
 =======
@@ -14,7 +15,10 @@ import { acquireSessionWriteLock } from "../../agents/session-write-lock.js";
 >>>>>>> 826e62a3b (fix(sessions): purge deleted transcript archives)
 import type { MsgContext } from "../../auto-reply/templating.js";
 import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.base.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { acquireSessionWriteLock } from "../../agents/session-write-lock.js";
+import type { MsgContext } from "../../auto-reply/templating.js";
 import { parseByteSize } from "../../cli/parse-bytes.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
 import {
@@ -35,10 +39,14 @@ import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-util
 =======
 import { loadConfig } from "../config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.base.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> 826e62a3b (fix(sessions): purge deleted transcript archives)
+=======
+import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.base.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { deriveSessionMetaPatch } from "./metadata.js";
 import { mergeSessionEntry, type SessionEntry } from "./types.js";
 

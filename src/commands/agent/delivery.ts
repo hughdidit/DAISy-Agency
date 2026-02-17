@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { OpenClawConfig } from "../../config/config.js";
@@ -10,11 +11,15 @@ import type { AgentCommandOpts } from "./types.js";
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { AGENT_LANE_NESTED } from "../../agents/lanes.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { SessionEntry } from "../../config/sessions.js";
 import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
@@ -27,7 +32,9 @@ import {
   normalizeOutboundPayloads,
   normalizeOutboundPayloadsForJson,
 } from "../../infra/outbound/payloads.js";
+import type { RuntimeEnv } from "../../runtime.js";
 import { isInternalMessageChannel } from "../../utils/message-channel.js";
+import type { AgentCommandOpts } from "./types.js";
 
 type RunResult = Awaited<
   ReturnType<(typeof import("../../agents/pi-embedded.js"))["runEmbeddedPiAgent"]>

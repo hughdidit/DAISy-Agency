@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IconName } from "./icons.js";
 import { t } from "../i18n/index.js";
 =======
@@ -10,6 +11,10 @@ import type { IconName } from "./icons.js";
 import type { IconName } from "./icons.js";
 import { t } from "../i18n/index.ts";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { t } from "../i18n/index.ts";
+import type { IconName } from "./icons.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 export const TAB_GROUPS = [
   { label: "chat", tabs: ["chat"] },

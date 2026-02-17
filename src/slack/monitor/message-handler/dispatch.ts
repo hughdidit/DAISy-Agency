@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ReplyPayload } from "../../../auto-reply/types.js";
 import type { SlackStreamSession } from "../../streaming.js";
 import type { PreparedSlackMessage } from "./types.js";
@@ -8,6 +9,8 @@ import type { PreparedSlackMessage } from "./types.js";
 =======
 import type { PreparedSlackMessage } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveHumanDelayConfig } from "../../../agents/identity.js";
 import { dispatchInboundMessage } from "../../../auto-reply/dispatch.js";
 import { clearHistoryEntriesIfEnabled } from "../../../auto-reply/reply/history.js";
@@ -34,6 +37,7 @@ import {
 >>>>>>> 89ce1460e (feat(slack): add configurable stream modes)
 import { resolveSlackThreadTargets } from "../../threading.js";
 import { createSlackReplyDeliveryPlan, deliverReplies } from "../replies.js";
+import type { PreparedSlackMessage } from "./types.js";
 
 /**
  * Check whether a reply payload contains media (images, files, etc.)

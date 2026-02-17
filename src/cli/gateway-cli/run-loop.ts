@@ -1,5 +1,4 @@
 import type { startGatewayServer } from "../../gateway/server.js";
-import type { defaultRuntime } from "../../runtime.js";
 import { acquireGatewayLock } from "../../infra/gateway-lock.js";
 import { restartGatewayProcessWithFreshPid } from "../../infra/process-respawn.js";
 import {
@@ -18,10 +17,14 @@ import {
 } from "../../process/command-queue.js";
 import { createRestartIterationHook } from "../../process/restart-recovery.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { defaultRuntime } from "../../runtime.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { defaultRuntime } from "../../runtime.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 const gatewayLog = createSubsystemLogger("gateway");
 

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import "./test-mocks.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { BlueBubblesSendTarget } from "./types.js";
 =======
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
@@ -33,6 +34,12 @@ import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 import { sendMessageBlueBubbles, resolveChatGuidForTarget } from "./send.js";
 import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
+import { sendMessageBlueBubbles, resolveChatGuidForTarget } from "./send.js";
+import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
+import type { BlueBubblesSendTarget } from "./types.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 
 const mockFetch = vi.fn();
 

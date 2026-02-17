@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
 import type { OpenClawConfig } from "../config/config.js";
+import { createOpenClawCodingTools } from "./pi-tools.js";
 import type { SandboxDockerConfig } from "./sandbox.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
-import { createOpenClawCodingTools } from "./pi-tools.js";
 
 describe("Agent-specific tool filtering", () => {
   const sandboxFsBridgeStub: SandboxFsBridge = {

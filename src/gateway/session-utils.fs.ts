@@ -3,12 +3,15 @@ import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { SessionPreviewItem } from "./session-utils.types.js";
 import { resolveSessionTranscriptPath } from "../config/sessions.js";
 =======
 =======
 import type { SessionPreviewItem } from "./session-utils.types.js";
 >>>>>>> 826e62a3b (fix(sessions): purge deleted transcript archives)
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   resolveSessionFilePath,
   resolveSessionTranscriptPath,
@@ -18,6 +21,7 @@ import {
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
 import { extractToolCallNames, hasToolCall } from "../utils/transcript-tools.js";
 import { stripEnvelope } from "./chat-sanitize.js";
+import type { SessionPreviewItem } from "./session-utils.types.js";
 
 type SessionTitleFields = {
   firstUserMessage: string | null;

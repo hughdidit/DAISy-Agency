@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
 import { STATE_DIR } from "../config/paths.js";
 =======
@@ -12,7 +13,10 @@ import { logVerbose, shouldLogVerbose } from "../globals.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
+import type { SsrFPolicy } from "../infra/net/ssrf.js";
 import { type MediaKind, maxBytesForKind, mediaKindFromMime } from "../media/constants.js";
 import { fetchRemoteMedia } from "../media/fetch.js";
 import {

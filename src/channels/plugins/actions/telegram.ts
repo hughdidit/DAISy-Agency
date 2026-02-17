@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -15,6 +16,8 @@ import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../t
 import type { TelegramActionConfig } from "../../../config/types.telegram.js";
 import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   readNumberParam,
   readStringArrayParam,
@@ -22,12 +25,14 @@ import {
   readStringParam,
 } from "../../../agents/tools/common.js";
 import { handleTelegramAction } from "../../../agents/tools/telegram-actions.js";
+import type { TelegramActionConfig } from "../../../config/types.telegram.js";
 import { extractToolSend } from "../../../plugin-sdk/tool-send.js";
 import {
   createTelegramActionGate,
   listEnabledTelegramAccounts,
 } from "../../../telegram/accounts.js";
 import { isTelegramInlineButtonsEnabled } from "../../../telegram/inline-buttons.js";
+import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
 
 const providerId = "telegram";
 

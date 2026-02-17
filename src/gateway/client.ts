@@ -2,22 +2,29 @@ import { randomUUID } from "node:crypto";
 import { WebSocket, type ClientOptions, type CertMeta } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { DeviceIdentity } from "../infra/device-identity.js";
 import { loadDeviceAuthToken, storeDeviceAuthToken } from "../infra/device-auth-store.js";
 =======
 =======
 import type { DeviceIdentity } from "../infra/device-identity.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   clearDeviceAuthToken,
   loadDeviceAuthToken,
   storeDeviceAuthToken,
 } from "../infra/device-auth-store.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { DeviceIdentity } from "../infra/device-identity.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { DeviceIdentity } from "../infra/device-identity.js";
+>>>>>>> d0cb8c19b (chore: wtf.)
 import {
   loadOrCreateDeviceIdentity,
   publicKeyRawBase64UrlFromPem,

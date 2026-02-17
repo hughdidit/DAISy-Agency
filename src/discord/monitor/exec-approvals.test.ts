@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 =======
 import type { ButtonInteraction, ComponentData } from "@buape/carbon";
@@ -11,10 +12,15 @@ import { Routes } from "discord-api-types/v10";
 import type { ButtonInteraction, ComponentData } from "@buape/carbon";
 import { Routes } from "discord-api-types/v10";
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import type { ButtonInteraction, ComponentData } from "@buape/carbon";
+import { Routes } from "discord-api-types/v10";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 9203a2fdb (Discord: CV2! (#16364))
@@ -25,7 +31,10 @@ import { clearSessionStoreCacheForTest } from "../../config/sessions.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
+=======
+>>>>>>> d0cb8c19b (chore: wtf.)
 import { clearSessionStoreCacheForTest } from "../../config/sessions.js";
+import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
 import {
   buildExecApprovalCustomId,
   parseExecApprovalData,
