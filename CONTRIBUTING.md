@@ -3,7 +3,13 @@
 Welcome to the lobster tank! 🦞
 
 ## Quick Links
+<<<<<<< HEAD
 - **GitHub:** https://github.com/moltbot/moltbot
+=======
+
+- **GitHub:** https://github.com/openclaw/openclaw
+- **Vision:** [`VISION.md`](VISION.md)
+>>>>>>> 3aa33f29e (docs: tighten contribution guidance and vision links)
 - **Discord:** https://discord.gg/qkhbAGHRBT
 - **X/Twitter:** [@steipete](https://x.com/steipete) / [@moltbot](https://x.com/moltbot)
 
@@ -68,8 +74,13 @@ Welcome to the lobster tank! 🦞
 
 - Test locally with your OpenClaw instance
 - Run tests: `pnpm build && pnpm check && pnpm test`
+<<<<<<< HEAD
 >>>>>>> 902f96805 (chore: Add `pnpm check` for fast repo checks.)
 - Keep PRs focused (one thing per PR)
+=======
+- Ensure CI checks pass
+- Keep PRs focused (one thing per PR; do not mix unrelated concerns)
+>>>>>>> 3aa33f29e (docs: tighten contribution guidance and vision links)
 - Describe what & why
 
 ## AI/Vibe-Coded PRs Welcome! 🤖
