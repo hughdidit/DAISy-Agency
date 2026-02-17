@@ -14,7 +14,7 @@ import type { CronJob } from "./types.js";
 import { CronService } from "./service.js";
 import { createCronServiceState, type CronEvent } from "./service/state.js";
 import { onTimer } from "./service/timer.js";
-import type { CronJob } from "./types.js";
+import type { CronJob, CronJobState } from "./types.js";
 
 const noopLogger = {
   info: vi.fn(),
@@ -89,8 +89,10 @@ describe("Cron issue regressions", () => {
 
     const created = await cron.add({
       name: "hourly",
+      enabled: true,
       schedule: { kind: "cron", expr: "0 * * * *", tz: "UTC" },
       sessionTarget: "main",
+      wakeMode: "next-heartbeat",
       payload: { kind: "systemEvent", text: "tick" },
     });
     expect(created.state.nextRunAtMs).toBe(Date.parse("2026-02-06T11:00:00.000Z"));
@@ -120,8 +122,10 @@ describe("Cron issue regressions", () => {
 
     const created = await cron.add({
       name: "force-now",
+      enabled: true,
       schedule: { kind: "every", everyMs: 60_000, anchorMs: Date.now() },
       sessionTarget: "main",
+      wakeMode: "next-heartbeat",
       payload: { kind: "systemEvent", text: "force" },
     });
 
@@ -151,8 +155,10 @@ describe("Cron issue regressions", () => {
 
     const job = await cron.add({
       name: "isolated",
+      enabled: true,
       schedule: { kind: "every", everyMs: 60_000, anchorMs: Date.now() },
       sessionTarget: "isolated",
+      wakeMode: "next-heartbeat",
       payload: { kind: "agentTurn", message: "hi" },
     });
     const status = await cron.status();
@@ -160,6 +166,28 @@ describe("Cron issue regressions", () => {
     expect(typeof job.state.nextRunAtMs).toBe("number");
     expect(typeof status.nextWakeAtMs).toBe("number");
 
+<<<<<<< HEAD
+=======
+    const unsafeToggle = await cron.add({
+      name: "unsafe toggle",
+      enabled: true,
+      schedule: { kind: "every", everyMs: 60_000, anchorMs: Date.now() },
+      sessionTarget: "isolated",
+      wakeMode: "next-heartbeat",
+      payload: { kind: "agentTurn", message: "hi" },
+    });
+
+    const patched = await cron.update(unsafeToggle.id, {
+      payload: { kind: "agentTurn", allowUnsafeExternalContent: true },
+    });
+
+    expect(patched.payload.kind).toBe("agentTurn");
+    if (patched.payload.kind === "agentTurn") {
+      expect(patched.payload.allowUnsafeExternalContent).toBe(true);
+      expect(patched.payload.message).toBe("hi");
+    }
+
+>>>>>>> a76a9c375 (chore: Fix types in tests 15/N.)
     cron.stop();
   });
 
@@ -176,10 +204,23 @@ describe("Cron issue regressions", () => {
     await cron.start();
 
     const created = await cron.add({
+<<<<<<< HEAD
       name: "unsafe toggle",
       schedule: { kind: "every", everyMs: 60_000, anchorMs: Date.now() },
       sessionTarget: "isolated",
       payload: { kind: "agentTurn", message: "hi" },
+=======
+      name: "repair-target",
+      enabled: true,
+      schedule: { kind: "cron", expr: "0 * * * *", tz: "UTC" },
+      sessionTarget: "main",
+      wakeMode: "next-heartbeat",
+      payload: { kind: "systemEvent", text: "tick" },
+    });
+    const updated = await cron.update(created.id, {
+      payload: { kind: "systemEvent", text: "tick-2" },
+      state: { nextRunAtMs: undefined },
+>>>>>>> a76a9c375 (chore: Fix types in tests 15/N.)
     });
 
     const updated = await cron.update(created.id, {
@@ -216,14 +257,18 @@ describe("Cron issue regressions", () => {
 
     const dueJob = await cron.add({
       name: "due-preserved",
+      enabled: true,
       schedule: { kind: "every", everyMs: 60_000, anchorMs: now },
       sessionTarget: "main",
+      wakeMode: "next-heartbeat",
       payload: { kind: "systemEvent", text: "due-preserved" },
     });
     const otherJob = await cron.add({
       name: "other-job",
+      enabled: true,
       schedule: { kind: "cron", expr: "0 * * * *", tz: "UTC" },
       sessionTarget: "main",
+      wakeMode: "next-heartbeat",
       payload: { kind: "systemEvent", text: "other" },
     });
 
@@ -366,6 +411,7 @@ describe("Cron issue regressions", () => {
     const callsBeforeAdd = timeoutSpy.mock.calls.length;
     await cron.add({
       name: "far-future",
+      enabled: true,
       schedule: { kind: "at", at: "2035-01-01T00:00:00.000Z" },
       sessionTarget: "main",
       wakeMode: "next-heartbeat",
@@ -498,6 +544,7 @@ describe("Cron issue regressions", () => {
       sessionTarget: "main",
       wakeMode: "now",
       payload: { kind: "systemEvent", text: "⏰ Reminder" },
+<<<<<<< HEAD
       state: {
         nextRunAtMs: pastAt,
         lastStatus: "skipped",
@@ -509,6 +556,44 @@ describe("Cron issue regressions", () => {
       JSON.stringify({ version: 1, jobs: [skippedJob] }, null, 2),
       "utf-8",
     );
+=======
+    } as const;
+    const terminalStates: Array<{ id: string; state: CronJobState }> = [
+      {
+        id: "oneshot-skipped",
+        state: {
+          nextRunAtMs: pastAt,
+          lastStatus: "skipped",
+          lastRunAtMs: pastAt,
+        },
+      },
+      {
+        id: "oneshot-errored",
+        state: {
+          nextRunAtMs: pastAt,
+          lastStatus: "error",
+          lastRunAtMs: pastAt,
+          lastError: "heartbeat failed",
+        },
+      },
+    ];
+    for (const { id, state } of terminalStates) {
+      const job: CronJob = { id, ...baseJob, state };
+      await fs.writeFile(
+        store.storePath,
+        JSON.stringify({ version: 1, jobs: [job] }, null, 2),
+        "utf-8",
+      );
+      const enqueueSystemEvent = vi.fn();
+      const cron = new CronService({
+        cronEnabled: true,
+        storePath: store.storePath,
+        log: noopLogger,
+        enqueueSystemEvent,
+        requestHeartbeatNow: vi.fn(),
+        runIsolatedAgentJob: vi.fn().mockResolvedValue({ status: "ok" }),
+      });
+>>>>>>> a76a9c375 (chore: Fix types in tests 15/N.)
 
 <<<<<<< HEAD
     const enqueueSystemEvent = vi.fn();
