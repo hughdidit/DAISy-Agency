@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+>>>>>>> 210bc3797 (chore(subagents): add regression coverage and changelog)
 import { Command } from "commander";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 

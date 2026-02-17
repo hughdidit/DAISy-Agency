@@ -31,8 +31,49 @@ function resolveDefaultStorePath(config: VoiceCallConfig): string {
   return path.join(resolveUserPath(base), "calls.jsonl");
 }
 
+<<<<<<< HEAD
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+=======
+function percentile(values: number[], p: number): number {
+  if (values.length === 0) {
+    return 0;
+  }
+  const sorted = [...values].sort((a, b) => a - b);
+  const idx = Math.min(sorted.length - 1, Math.max(0, Math.ceil((p / 100) * sorted.length) - 1));
+  return sorted[idx] ?? 0;
+}
+
+function summarizeSeries(values: number[]): {
+  count: number;
+  minMs: number;
+  maxMs: number;
+  avgMs: number;
+  p50Ms: number;
+  p95Ms: number;
+} {
+  if (values.length === 0) {
+    return { count: 0, minMs: 0, maxMs: 0, avgMs: 0, p50Ms: 0, p95Ms: 0 };
+  }
+
+  const minMs = values.reduce(
+    (min, value) => (value < min ? value : min),
+    Number.POSITIVE_INFINITY,
+  );
+  const maxMs = values.reduce(
+    (max, value) => (value > max ? value : max),
+    Number.NEGATIVE_INFINITY,
+  );
+  const avgMs = values.reduce((sum, value) => sum + value, 0) / values.length;
+  return {
+    count: values.length,
+    minMs,
+    maxMs,
+    avgMs,
+    p50Ms: percentile(values, 50),
+    p95Ms: percentile(values, 95),
+  };
+>>>>>>> 210bc3797 (chore(subagents): add regression coverage and changelog)
 }
 
 export function registerVoiceCallCli(params: {
