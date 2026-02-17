@@ -20,6 +20,7 @@ import { buildMentionRegexes, matchesMentionPatterns } from "../../auto-reply/re
 import { createReplyDispatcherWithTyping } from "../../auto-reply/reply/reply-dispatcher.js";
 import { logInboundDrop, logTypingFailure } from "../../channels/logging.js";
 import { resolveMentionGatingWithBypass } from "../../channels/mention-gating.js";
+import { normalizeSignalMessagingTarget } from "../../channels/plugins/normalize/signal.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 import { recordInboundSession } from "../../channels/session.js";
 import { createTypingCallbacks } from "../../channels/typing.js";
@@ -142,7 +143,10 @@ export function createSignalEventHandler(deps: SignalEventHandlerDeps) {
           }),
       });
     }
-    const signalTo = entry.isGroup ? `group:${entry.groupId}` : `signal:${entry.senderRecipient}`;
+    const signalToRaw = entry.isGroup
+      ? `group:${entry.groupId}`
+      : `signal:${entry.senderRecipient}`;
+    const signalTo = normalizeSignalMessagingTarget(signalToRaw) ?? signalToRaw;
     const inboundHistory =
       entry.isGroup && historyKey && deps.historyLimit > 0
         ? (deps.groupHistories.get(historyKey) ?? []).map((historyEntry) => ({
