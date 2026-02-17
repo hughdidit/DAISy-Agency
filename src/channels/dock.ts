@@ -114,7 +114,25 @@ const formatLower = (allowFrom: Array<string | number>) =>
     .map((entry) => entry.toLowerCase());
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+const formatDiscordAllowFrom = (allowFrom: Array<string | number>) =>
+  allowFrom
+    .map((entry) =>
+      String(entry)
+        .trim()
+        .replace(/^<@!?/, "")
+        .replace(/>$/, "")
+        .replace(/^discord:/i, "")
+        .replace(/^user:/i, "")
+        .replace(/^pk:/i, "")
+        .trim()
+        .toLowerCase(),
+    )
+    .filter(Boolean);
+
+>>>>>>> dff869261 (fix(discord): normalize command allowFrom prefixes)
 function buildDirectOrGroupThreadToolContext(params: {
   context: ChannelThreadingContext;
   hasRepliedRef: ChannelThreadingToolContext["hasRepliedRef"];
@@ -252,17 +270,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
           String(entry),
         );
       },
-      formatAllowFrom: ({ allowFrom }) =>
-        allowFrom
-          .map((entry) => String(entry).trim())
-          .filter(Boolean)
-          .map((entry) =>
-            entry
-              .replace(/^discord:/i, "")
-              .replace(/^user:/i, "")
-              .replace(/^pk:/i, "")
-              .toLowerCase(),
-          ),
+      formatAllowFrom: ({ allowFrom }) => formatDiscordAllowFrom(allowFrom),
     },
     groups: {
       resolveRequireMention: resolveDiscordGroupRequireMention,
