@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MsgContext } from "../../auto-reply/templating.js";
 <<<<<<< HEAD
 =======
@@ -9,10 +10,17 @@ import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { acquireSessionWriteLock } from "../../agents/session-write-lock.js";
+=======
+>>>>>>> 826e62a3b (fix(sessions): purge deleted transcript archives)
 import type { MsgContext } from "../../auto-reply/templating.js";
+import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.base.js";
+import { acquireSessionWriteLock } from "../../agents/session-write-lock.js";
 import { parseByteSize } from "../../cli/parse-bytes.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
-import { archiveSessionTranscripts } from "../../gateway/session-utils.fs.js";
+import {
+  archiveSessionTranscripts,
+  cleanupArchivedSessionTranscripts,
+} from "../../gateway/session-utils.fs.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 >>>>>>> 93fbe6482 (fix(sessions): archive transcript files when pruning stale entries)
 import {
@@ -26,8 +34,11 @@ import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-util
 <<<<<<< HEAD
 =======
 import { loadConfig } from "../config.js";
+<<<<<<< HEAD
 import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.base.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 826e62a3b (fix(sessions): purge deleted transcript archives)
 import { deriveSessionMetaPatch } from "./metadata.js";
 import { mergeSessionEntry, type SessionEntry } from "./types.js";
 
@@ -551,11 +562,22 @@ async function saveSessionStoreUnlocked(
         },
       });
       capEntryCount(store, maintenance.maxEntries);
+      const archivedDirs = new Set<string>();
       for (const [sessionId, sessionFile] of prunedSessionFiles) {
-        archiveSessionTranscripts({
+        const archived = archiveSessionTranscripts({
           sessionId,
           storePath,
           sessionFile,
+          reason: "deleted",
+        });
+        for (const archivedPath of archived) {
+          archivedDirs.add(path.dirname(archivedPath));
+        }
+      }
+      if (archivedDirs.size > 0) {
+        await cleanupArchivedSessionTranscripts({
+          directories: [...archivedDirs],
+          olderThanMs: maintenance.pruneAfterMs,
           reason: "deleted",
         });
       }
