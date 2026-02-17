@@ -85,7 +85,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - CLI/Doctor: ensure `openclaw doctor --fix --non-interactive --yes` exits promptly after completion so one-shot automation no longer hangs. (#18502)
+<<<<<<< HEAD
 >>>>>>> 0aa28c71c (fix(doctor): move forced exit to top-level command)
+=======
+- CLI/Doctor: auto-repair `dmPolicy="open"` configs missing wildcard allowlists and write channel-correct repair paths (including `channels.googlechat.dm.allowFrom`) so `openclaw doctor --fix` no longer leaves Google Chat configs invalid after attempted repair. (#18544)
+>>>>>>> f7e75d2c5 (fix(doctor): repair googlechat open dm wildcard auto-fix)
 - Auto-reply/Subagents: propagate group context (`groupId`, `groupChannel`, `space`) when spawning via `/subagents spawn`, matching tool-triggered subagent spawn behavior.
 >>>>>>> f24224683 (fix(subagents): pass group context in /subagents spawn)
 - Agents/Tools/exec: add a preflight guard that detects likely shell env var injection (e.g. `$DM_JSON`, `$TMPDIR`) in Python/Node scripts before execution, preventing recurring cron failures and wasted tokens when models emit mixed shell+language source. (#12836)
