@@ -43,6 +43,9 @@ The policy uses `provider`, `modelApi`, and `modelId` to decide what to apply.
 Image payloads are always sanitized to prevent provider-side rejection due to size
 limits (downscale/recompress oversized base64 images).
 
+This also helps control image-driven token pressure for vision-capable models.
+Lower max dimensions generally reduce token usage; higher dimensions preserve detail.
+
 Implementation:
 - `sanitizeSessionMessagesImages` in `src/agents/pi-embedded-helpers/images.ts`
 - `sanitizeContentBlocksImages` in `src/agents/tool-images.ts`
