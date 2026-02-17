@@ -118,7 +118,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 2caf7e761 (docs(changelog): remove revert entries)
 - Voice call/Gateway: prevent overlapping closed-loop turn races with per-call turn locking, route transcript dedupe via source-aware fingerprints with strict cache eviction bounds, and harden `voicecall latency` stats for large logs without spread-operator stack overflow. (#19140) Thanks @mbelinky.
 - iOS/Onboarding: stop auth Step 3 retry-loop churn by pausing reconnect attempts on unauthorized/missing-token gateway errors and keeping auth/pairing issue state sticky during manual retry. (#19153) Thanks @mbelinky.
+<<<<<<< HEAD
 >>>>>>> 836e77449 (iOS onboarding: stop auth step-3 retry loop churn (#19153))
+=======
+- iOS/Chat: route ChatSheet RPCs through the operator session instead of the node session to avoid node-role authorization failures for `chat.history`, `chat.send`, and `sessions.list`. (#19320) Thanks @mbelinky.
+>>>>>>> 20a561224 (iOS: use operator session for ChatSheet RPCs (#19320))
 - Fix types in all tests. Typecheck the whole repository.
 >>>>>>> bcf862f69 (chore: Typecheck tests.)
 - Voice-call: auto-end calls when media streams disconnect to prevent stuck active calls. (#18435) Thanks @JayMishra-source.
