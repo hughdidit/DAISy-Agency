@@ -47,7 +47,10 @@ RUN pnpm build
 # Ensure memory-lancedb extension dependencies are installed.
 # LanceDB has native bindings that may not be hoisted by pnpm in all configurations.
 RUN pnpm install --filter @openclaw/memory-lancedb --prod --no-frozen-lockfile 2>/dev/null || true
+<<<<<<< HEAD
 >>>>>>> 2ab6313d9 (fix(docker): ensure memory-lancedb deps installed in Docker image)
+=======
+>>>>>>> 63aa5c5a4 (Revert "fix: remove stderr suppression so install failures are visible in build logs")
 # Force pnpm for UI build (Bun may fail on ARM/Synology architectures)
 <<<<<<< HEAD
 ENV CLAWDBOT_PREFER_PNPM=1
