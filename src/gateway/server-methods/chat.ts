@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 =======
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
@@ -13,6 +14,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
+import fs from "node:fs";
+import path from "node:path";
+import type { MsgContext } from "../../auto-reply/templating.js";
+import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
+>>>>>>> 81fd771cb (fix(gateway): preserve chat.history context under hard caps)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 <<<<<<< HEAD
 import { resolveEffectiveMessagesConfig, resolveIdentityName } from "../../agents/identity.js";
@@ -25,6 +33,7 @@ import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   extractShortModelName,
   type ResponsePrefixContext,
@@ -34,6 +43,8 @@ import type { MsgContext } from "../../auto-reply/templating.js";
 =======
 import type { MsgContext } from "../../auto-reply/templating.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 81fd771cb (fix(gateway): preserve chat.history context under hard caps)
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
@@ -71,10 +82,13 @@ import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
 import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 import { normalizeRpcAttachmentsToChatAttachments } from "./attachment-normalize.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9f9978635 (refactor(gateway): share rpc attachment normalization)
 =======
 import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 81fd771cb (fix(gateway): preserve chat.history context under hard caps)
 
 type TranscriptAppendResult = {
   ok: boolean;
@@ -96,6 +110,7 @@ type AbortedPartialSnapshot = {
 const CHAT_HISTORY_TEXT_MAX_CHARS = 12_000;
 const CHAT_HISTORY_MAX_SINGLE_MESSAGE_BYTES = 128 * 1024;
 const CHAT_HISTORY_OVERSIZED_PLACEHOLDER = "[chat.history omitted: message too large]";
+let chatHistoryPlaceholderEmitCount = 0;
 
 function stripDisallowedChatControlChars(message: string): string {
   let output = "";
@@ -252,29 +267,45 @@ function buildOversizedHistoryPlaceholder(message?: unknown): Record<string, unk
   };
 }
 
-function enforceChatHistoryHardCap(messages: unknown[], maxBytes: number): unknown[] {
+function replaceOversizedChatHistoryMessages(params: {
+  messages: unknown[];
+  maxSingleMessageBytes: number;
+}): { messages: unknown[]; replacedCount: number } {
+  const { messages, maxSingleMessageBytes } = params;
   if (messages.length === 0) {
-    return messages;
+    return { messages, replacedCount: 0 };
   }
-  const normalized = messages.map((message) => {
-    if (jsonUtf8Bytes(message) <= CHAT_HISTORY_MAX_SINGLE_MESSAGE_BYTES) {
+  let replacedCount = 0;
+  const next = messages.map((message) => {
+    if (jsonUtf8Bytes(message) <= maxSingleMessageBytes) {
       return message;
     }
+    replacedCount += 1;
     return buildOversizedHistoryPlaceholder(message);
   });
-  const softCapped = capArrayByJsonBytes(normalized, maxBytes).items;
-  if (jsonUtf8Bytes(softCapped) <= maxBytes) {
-    return softCapped;
+  return { messages: replacedCount > 0 ? next : messages, replacedCount };
+}
+
+function enforceChatHistoryFinalBudget(params: { messages: unknown[]; maxBytes: number }): {
+  messages: unknown[];
+  placeholderCount: number;
+} {
+  const { messages, maxBytes } = params;
+  if (messages.length === 0) {
+    return { messages, placeholderCount: 0 };
   }
-  const last = softCapped.at(-1);
+  if (jsonUtf8Bytes(messages) <= maxBytes) {
+    return { messages, placeholderCount: 0 };
+  }
+  const last = messages.at(-1);
   if (last && jsonUtf8Bytes([last]) <= maxBytes) {
-    return [last];
+    return { messages: [last], placeholderCount: 0 };
   }
-  const placeholder = buildOversizedHistoryPlaceholder();
+  const placeholder = buildOversizedHistoryPlaceholder(last);
   if (jsonUtf8Bytes([placeholder]) <= maxBytes) {
-    return [placeholder];
+    return { messages: [placeholder], placeholderCount: 1 };
   }
-  return [];
+  return { messages: [], placeholderCount: 0 };
 }
 
 function resolveTranscriptPath(params: {
@@ -611,8 +642,21 @@ export const chatHandlers: GatewayRequestHandlers = {
     const sliced = rawMessages.length > max ? rawMessages.slice(-max) : rawMessages;
     const sanitized = stripEnvelopeFromMessages(sliced);
     const normalized = sanitizeChatHistoryMessages(sanitized);
-    const capped = capArrayByJsonBytes(normalized, getMaxChatHistoryMessagesBytes()).items;
-    const bounded = enforceChatHistoryHardCap(capped, getMaxChatHistoryMessagesBytes());
+    const maxHistoryBytes = getMaxChatHistoryMessagesBytes();
+    const perMessageHardCap = Math.min(CHAT_HISTORY_MAX_SINGLE_MESSAGE_BYTES, maxHistoryBytes);
+    const replaced = replaceOversizedChatHistoryMessages({
+      messages: normalized,
+      maxSingleMessageBytes: perMessageHardCap,
+    });
+    const capped = capArrayByJsonBytes(replaced.messages, maxHistoryBytes).items;
+    const bounded = enforceChatHistoryFinalBudget({ messages: capped, maxBytes: maxHistoryBytes });
+    const placeholderCount = replaced.replacedCount + bounded.placeholderCount;
+    if (placeholderCount > 0) {
+      chatHistoryPlaceholderEmitCount += placeholderCount;
+      context.logGateway.debug(
+        `chat.history omitted oversized payloads placeholders=${placeholderCount} total=${chatHistoryPlaceholderEmitCount}`,
+      );
+    }
     let thinkingLevel = entry?.thinkingLevel;
     if (!thinkingLevel) {
       const configured = cfg.agents?.defaults?.thinkingDefault;
@@ -632,7 +676,7 @@ export const chatHandlers: GatewayRequestHandlers = {
     respond(true, {
       sessionKey,
       sessionId,
-      messages: bounded,
+      messages: bounded.messages,
       thinkingLevel,
     });
   },
