@@ -16,6 +16,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 >>>>>>> cfc2604d3 (perf(test): speed up heartbeat typing suite)
 =======
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
 import { createTempHomeHarness, makeReplyConfig } from "./reply.test-harness.js";
 >>>>>>> cf26c409c (refactor(test): share auto-reply temp home harness)
 
@@ -144,7 +145,7 @@ describe("getReplyFromConfig typing (heartbeat)", () => {
       await getReplyFromConfig(
         { Body: "hi", From: "+1000", To: "+2000", Provider: "whatsapp" },
         { onReplyStart, isHeartbeat: false },
-        makeReplyConfig(home),
+        makeReplyConfig(home) as unknown as OpenClawConfig,
       );
 
       expect(onReplyStart).toHaveBeenCalled();
@@ -162,7 +163,7 @@ describe("getReplyFromConfig typing (heartbeat)", () => {
       await getReplyFromConfig(
         { Body: "hi", From: "+1000", To: "+2000", Provider: "whatsapp" },
         { onReplyStart, isHeartbeat: true },
-        makeReplyConfig(home),
+        makeReplyConfig(home) as unknown as OpenClawConfig,
       );
 
       expect(onReplyStart).not.toHaveBeenCalled();

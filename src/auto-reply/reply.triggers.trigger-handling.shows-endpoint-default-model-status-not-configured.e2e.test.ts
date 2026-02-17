@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { normalizeTestText } from "../../test/helpers/normalize-text.js";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
@@ -94,7 +95,7 @@ describe("trigger handling", () => {
             },
           },
         },
-      };
+      } as unknown as OpenClawConfig;
       const res = await getReplyFromConfig(modelStatusCtx, {}, cfg);
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
@@ -125,7 +126,7 @@ describe("trigger handling", () => {
   it("restarts when enabled", async () => {
     await withTempHome(async (home) => {
       const runEmbeddedPiAgentMock = getRunEmbeddedPiAgentMock();
-      const cfg = { ...makeCfg(home), commands: { restart: true } };
+      const cfg = { ...makeCfg(home), commands: { restart: true } } as OpenClawConfig;
       const res = await getReplyFromConfig(
         {
           Body: "/restart",

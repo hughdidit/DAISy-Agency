@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import {
   DEFAULT_MEMORY_FLUSH_SOFT_TOKENS,
@@ -121,6 +122,9 @@ describe("resolveMemoryFlushContextWindowTokens", () => {
   it("falls back to agent config or default tokens", () => {
     expect(resolveMemoryFlushContextWindowTokens({ agentCfgContextTokens: 42_000 })).toBe(42_000);
 =======
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 7d2ef131c (chore: Fix types in tests 42/N.)
 import { resolveMemoryFlushPromptForRun } from "./memory-flush.js";
 
 describe("resolveMemoryFlushPromptForRun", () => {
@@ -131,7 +135,7 @@ describe("resolveMemoryFlushPromptForRun", () => {
         timeFormat: "12",
       },
     },
-  };
+  } as OpenClawConfig;
 
   it("replaces YYYY-MM-DD using user timezone and appends current time", () => {
     const prompt = resolveMemoryFlushPromptForRun({

@@ -383,6 +383,7 @@ describe("resolveGroupRequireMention", () => {
       GroupSpace: "145",
     };
     const groupResolution: GroupKeyResolution = {
+      key: "discord:group:123",
       channel: "discord",
       id: "123",
       chatType: "group",
@@ -407,6 +408,7 @@ describe("resolveGroupRequireMention", () => {
       GroupSubject: "#general",
     };
     const groupResolution: GroupKeyResolution = {
+      key: "slack:group:C123",
       channel: "slack",
       id: "C123",
       chatType: "group",

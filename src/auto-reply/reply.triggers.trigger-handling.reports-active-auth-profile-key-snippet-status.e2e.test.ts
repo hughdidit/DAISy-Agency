@@ -65,6 +65,14 @@ beforeAll(async () => {
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
+function requireSessionStorePath(cfg: { session?: { store?: string } }): string {
+  const storePath = cfg.session?.store;
+  if (!storePath) {
+    throw new Error("expected session store path");
+  }
+  return storePath;
+}
+
 describe("trigger handling", () => {
   it("reports active auth profile and key snippet in status", async () => {
     await withTempHome(async (home) => {
@@ -97,7 +105,7 @@ describe("trigger handling", () => {
         Provider: "whatsapp",
       } as Parameters<typeof resolveSessionKey>[1]);
       await fs.writeFile(
-        cfg.session!.store,
+        requireSessionStorePath(cfg),
         JSON.stringify(
           {
             [sessionKey]: {

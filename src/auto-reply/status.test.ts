@@ -154,7 +154,9 @@ describe("buildStatusMessage", () => {
       sessionKey: "agent:main:main",
       queue: { mode: "none" },
       mediaDecisions: [
-        createSuccessfulImageMediaDecision(),
+        createSuccessfulImageMediaDecision() as unknown as NonNullable<
+          Parameters<typeof buildStatusMessage>[0]["mediaDecisions"]
+        >[number],
         {
           capability: "audio",
           outcome: "skipped",

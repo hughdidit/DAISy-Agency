@@ -1,5 +1,6 @@
 import "./reply.directive.directive-behavior.e2e-mocks.js";
 import { describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
 import { loadSessionStore } from "../config/sessions.js";
 import {
   AUTHORIZED_WHATSAPP_COMMAND,
@@ -235,6 +236,7 @@ describe("directive behavior", () => {
         },
         {},
 <<<<<<< HEAD
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -261,6 +263,9 @@ describe("directive behavior", () => {
 =======
         makeRestrictedElevatedDisabledConfig(home),
 >>>>>>> 165dbc232 (refactor(test): share directive elevated config)
+=======
+        makeRestrictedElevatedDisabledConfig(home) as unknown as OpenClawConfig,
+>>>>>>> 7d2ef131c (chore: Fix types in tests 42/N.)
       );
 
       const text = replyText(res);
