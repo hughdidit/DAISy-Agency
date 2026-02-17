@@ -78,6 +78,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 - Slack: limit forwarded-attachment extraction to explicit shared-message attachments and skip non-Slack forwarded image URLs, preventing non-forward unfurls from polluting inbound agent context. Also adds regression tests for forwarded vs non-forward attachment handling.
@@ -93,6 +94,13 @@ Docs: https://docs.openclaw.ai
 =======
 - Sessions: revert accidental session transcript permission hardening from PR #18288. (#19224) Thanks @sebslight.
 >>>>>>> 9f261f592 (revert: PR 18288 accidental merge (#19224))
+=======
+- BlueBubbles: add fallback path to recover outbound `message_id` from `fromMe` webhooks when platform message IDs are missing.
+- BlueBubbles: match outbound message-id fallback recovery by chat identifier as well as account context.
+- BlueBubbles: include sender identifier in untrusted conversation metadata for conversation info payloads.
+- macOS/Update: correct the Sparkle appcast version for 2026.2.15 so updates are offered again. (#18201)
+- Gateway/Auth: clear stale device-auth tokens after device token mismatch errors so re-paired clients can re-auth. (#18201)
+>>>>>>> e1015a519 (fix(bluebubbles): recover outbound message IDs and include sender metadata)
 - Voice call/Gateway: prevent overlapping closed-loop turn races with per-call turn locking, route transcript dedupe via source-aware fingerprints with strict cache eviction bounds, and harden `voicecall latency` stats for large logs without spread-operator stack overflow. (#19140) Thanks @mbelinky.
 - Fix types in all tests. Typecheck the whole repository.
 - Voice-call: auto-end calls when media streams disconnect to prevent stuck active calls. (#18435) Thanks @JayMishra-source.
