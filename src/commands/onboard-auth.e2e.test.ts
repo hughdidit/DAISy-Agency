@@ -15,12 +15,16 @@ import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { afterEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { captureEnv } from "../test-utils/env.js";
 >>>>>>> 961ca61b0 (refactor(test): dedupe onboard auth env cleanup)
 =======
 >>>>>>> 110b1cf46 (refactor(test): centralize auth test env lifecycle cleanup)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> ecf1c955a (chore: Fix types in tests 29/N.)
 import {
   applyAuthProfileConfig,
   applyLitellmProviderConfig,
@@ -76,12 +80,12 @@ import {
 
 function createLegacyProviderConfig(params: {
   providerId: string;
-  api: string;
+  api: "anthropic-messages" | "openai-completions" | "openai-responses";
   modelId?: string;
   modelName?: string;
   baseUrl?: string;
   apiKey?: string;
-}) {
+}): OpenClawConfig {
   return {
     models: {
       providers: {
@@ -103,7 +107,7 @@ function createLegacyProviderConfig(params: {
         },
       },
     },
-  };
+  } as OpenClawConfig;
 }
 
 const EXPECTED_FALLBACKS = ["anthropic/claude-opus-4-5"] as const;

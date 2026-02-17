@@ -126,7 +126,7 @@ describe("resolveChannelCapabilities", () => {
           capabilities: { inlineButtons: "dm" },
         },
       },
-    };
+    } as unknown as Partial<OpenClawConfig>;
 
     // Should return undefined (not crash), allowing channel-specific handlers to process it.
     expect(

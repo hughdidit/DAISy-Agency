@@ -68,8 +68,13 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 function mockConfig(
   home: string,
   storePath: string,
+<<<<<<< HEAD
   agentOverrides?: Partial<NonNullable<NonNullable<MoltbotConfig["agents"]>["defaults"]>>,
   telegramOverrides?: Partial<NonNullable<MoltbotConfig["telegram"]>>,
+=======
+  agentOverrides?: Partial<NonNullable<NonNullable<OpenClawConfig["agents"]>["defaults"]>>,
+  telegramOverrides?: Partial<NonNullable<NonNullable<OpenClawConfig["channels"]>["telegram"]>>,
+>>>>>>> ecf1c955a (chore: Fix types in tests 29/N.)
   agentsList?: Array<{ id: string; default?: boolean }>,
 ) {
   configSpy.mockReturnValue({
@@ -83,7 +88,9 @@ function mockConfig(
       list: agentsList,
     },
     session: { store: storePath, mainKey: "main" },
-    telegram: telegramOverrides ? { ...telegramOverrides } : undefined,
+    channels: {
+      telegram: telegramOverrides ? { ...telegramOverrides } : undefined,
+    },
   });
 }
 
@@ -368,7 +375,7 @@ describe("agentCommand", () => {
 
       await agentCommand({ message: "hi", to: "+1999", json: true }, runtime);
 
-      const logged = (runtime.log as MockInstance).mock.calls.at(-1)?.[0] as string;
+      const logged = (runtime.log as unknown as MockInstance).mock.calls.at(-1)?.[0] as string;
       const parsed = JSON.parse(logged) as {
         payloads: Array<{ text: string; mediaUrl?: string | null }>;
         meta: { durationMs: number };
@@ -402,6 +409,7 @@ describe("agentCommand", () => {
       const deps = {
         sendMessageWhatsApp: vi.fn(),
         sendMessageTelegram: vi.fn().mockResolvedValue({ messageId: "t1", chatId: "123" }),
+        sendMessageSlack: vi.fn(),
         sendMessageDiscord: vi.fn(),
         sendMessageSignal: vi.fn(),
         sendMessageIMessage: vi.fn(),

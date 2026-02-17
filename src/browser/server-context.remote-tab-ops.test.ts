@@ -82,6 +82,8 @@ function makeState(
       cdpIsLoopback: profile !== "remote",
       remoteCdpTimeoutMs: 1500,
       remoteCdpHandshakeTimeoutMs: 3000,
+      evaluateEnabled: false,
+      extraArgs: [],
       color: "#FF4500",
       headless: true,
       noSandbox: false,
@@ -117,7 +119,7 @@ describe("browser server-context remote profile tab operations", () => {
       listPagesViaPlaywright,
       createPageViaPlaywright,
       closePageByTargetIdViaPlaywright,
-    } as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
+    } as unknown as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
 
     const fetchMock = vi.fn(async () => {
       throw new Error("unexpected fetch");
@@ -182,7 +184,7 @@ describe("browser server-context remote profile tab operations", () => {
       closePageByTargetIdViaPlaywright: vi.fn(async () => {
         throw new Error("unexpected close");
       }),
-    } as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
+    } as unknown as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
 
     const fetchMock = vi.fn(async () => {
       throw new Error("unexpected fetch");
@@ -209,7 +211,7 @@ describe("browser server-context remote profile tab operations", () => {
     vi.spyOn(pwAiModule, "getPwAiModule").mockResolvedValue({
       listPagesViaPlaywright,
       focusPageByTargetIdViaPlaywright,
-    } as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
+    } as unknown as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
 
     const fetchMock = vi.fn(async () => {
       throw new Error("unexpected fetch");
@@ -235,7 +237,7 @@ describe("browser server-context remote profile tab operations", () => {
       listPagesViaPlaywright: vi.fn(async () => {
         throw new Error("boom");
       }),
-    } as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
+    } as unknown as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
 
     const fetchMock = vi.fn(async () => {
       throw new Error("unexpected fetch");
