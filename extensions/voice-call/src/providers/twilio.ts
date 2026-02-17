@@ -3,8 +3,11 @@ import crypto from "node:crypto";
 import type { TwilioConfig } from "../config.js";
 import type { MediaStreamHandler } from "../media-stream.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { chunkAudio } from "../telephony-audio.js";
+=======
+>>>>>>> 950f36fef (revert(voice-call): undo oxfmt formatting pass)
 import type { TelephonyTtsProvider } from "../telephony-tts.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
@@ -19,6 +22,7 @@ import type {
   WebhookContext,
   WebhookVerificationResult,
 } from "../types.js";
+<<<<<<< HEAD
 import { escapeXml, mapVoiceToPolly } from "../voice-mapping.js";
 <<<<<<< HEAD
 import { chunkAudio } from "../telephony-audio.js";
@@ -27,7 +31,11 @@ import type { Logger } from "../manager/context.js";
 import { defaultLogger } from "../manager/context.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> 950f36fef (revert(voice-call): undo oxfmt formatting pass)
 import type { VoiceCallProvider } from "./base.js";
+import { chunkAudio } from "../telephony-audio.js";
+import { escapeXml, mapVoiceToPolly } from "../voice-mapping.js";
 import { twilioApiRequest } from "./twilio/api.js";
 import { verifyTwilioProviderWebhook } from "./twilio/webhook.js";
 
