@@ -19,6 +19,11 @@
     "target": "es2023",
     "useDefineForClassFields": false
   },
+<<<<<<< HEAD
   "include": ["src/**/*", "ui/**/*"],
   "exclude": ["node_modules", "dist", "src/**/*.test.ts"]
+=======
+  "include": ["src/**/*", "ui/**/*", "extensions/**/*"],
+  "exclude": ["node_modules", "dist"]
+>>>>>>> bcf862f69 (chore: Typecheck tests.)
 }
