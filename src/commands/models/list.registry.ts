@@ -38,6 +38,7 @@ import {
 } from "../../agents/model-forward-compat.js";
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
+import { ensurePiAuthJsonFromAuthProfiles } from "../../agents/pi-auth-json.js";
 import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
 import { discoverAuthStorage, discoverModels } from "../../agents/pi-model-discovery.js";
 <<<<<<< HEAD
@@ -182,7 +183,11 @@ function loadAvailableModels(registry: ModelRegistry): Model<Api>[] {
 export async function loadModelRegistry(cfg: OpenClawConfig) {
   await ensureOpenClawModelsJson(cfg);
   const agentDir = resolveOpenClawAgentDir();
+<<<<<<< HEAD
 >>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
+=======
+  await ensurePiAuthJsonFromAuthProfiles(agentDir);
+>>>>>>> 4ca75bed5 (fix(models): sync auth-profiles before availability checks)
   const authStorage = discoverAuthStorage(agentDir);
   const registry = discoverModels(authStorage, agentDir);
   const appended = appendAntigravityForwardCompatModels(registry.getAll(), registry);
