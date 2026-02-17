@@ -1,7 +1,10 @@
 import type { ReasoningLevel, ThinkLevel } from "../auto-reply/thinking.js";
+import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import type { MemoryCitationsMode } from "../config/types.memory.js";
+import { listDeliverableMessageChannels } from "../utils/message-channel.js";
 import type { ResolvedTimeFormat } from "./date-time.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
@@ -11,6 +14,8 @@ import { listDeliverableMessageChannels } from "../utils/message-channel.js";
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import { listDeliverableMessageChannels } from "../utils/message-channel.js";
 >>>>>>> 25126d75c (Revert "Agents: improve Windows scaffold helpers for venture studio")
+=======
+>>>>>>> c49234cbf (chore: chore: Fix types in tests 4/N.)
 import { sanitizeForPromptLiteral } from "./sanitize-for-prompt.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 
