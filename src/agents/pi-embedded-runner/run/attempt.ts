@@ -98,6 +98,7 @@ import {
   listChannelSupportedActions,
   resolveChannelMessageToolHints,
 } from "../../channel-tools.js";
+<<<<<<< HEAD
 import { resolveChannelCapabilities } from "../../../config/channel-capabilities.js";
 import { getMachineDisplayName } from "../../../infra/machine-name.js";
 import { resolveTelegramInlineButtonsScope } from "../../../telegram/inline-buttons.js";
@@ -113,6 +114,11 @@ import { resolveMoltbotAgentDir } from "../../agent-paths.js";
 import { resolveSessionAgentIds } from "../../agent-scope.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../../bootstrap-files.js";
 import { resolveMoltbotDocsPath } from "../../docs-path.js";
+=======
+import { DEFAULT_CONTEXT_TOKENS } from "../../defaults.js";
+import { resolveOpenClawDocsPath } from "../../docs-path.js";
+import { isTimeoutError } from "../../failover-error.js";
+>>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
 import { resolveModelAuthMode } from "../../model-auth.js";
 <<<<<<< HEAD
 =======
@@ -194,7 +200,16 @@ import {
 import { buildEmbeddedSandboxInfo } from "../sandbox-info.js";
 import { prewarmSessionFile, trackSessionManagerAccess } from "../session-manager-cache.js";
 import { prepareSessionManagerForRun } from "../session-manager-init.js";
+<<<<<<< HEAD
 import { buildEmbeddedSystemPrompt, createSystemPromptOverride } from "../system-prompt.js";
+=======
+import {
+  applySystemPromptOverrideToSession,
+  buildEmbeddedSystemPrompt,
+  createSystemPromptOverride,
+} from "../system-prompt.js";
+import { installToolResultContextGuard } from "../tool-result-context-guard.js";
+>>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
 import { splitSdkTools } from "../tool-split.js";
 import { toClientToolDefinitions } from "../../pi-tool-definition-adapter.js";
 import { buildSystemPromptParams } from "../../system-prompt-params.js";
@@ -426,6 +441,7 @@ export async function runEmbeddedAttempt(
           abortSignal: runAbortController.signal,
           modelProvider: params.model.provider,
           modelId: params.modelId,
+          modelContextWindowTokens: params.model.contextWindow,
           modelAuthMode: resolveModelAuthMode(params.model.provider, params.config),
           currentChannelId: params.currentChannelId,
           currentThreadTs: params.currentThreadTs,
@@ -609,6 +625,7 @@ export async function runEmbeddedAttempt(
 
     let sessionManager: ReturnType<typeof guardSessionManager> | undefined;
     let session: Awaited<ReturnType<typeof createAgentSession>>["session"] | undefined;
+    let removeToolResultContextGuard: (() => void) | undefined;
     try {
       await repairSessionFileIfNeeded({
         sessionFile: params.sessionFile,
@@ -723,6 +740,15 @@ export async function runEmbeddedAttempt(
         throw new Error("Embedded agent session missing");
       }
       const activeSession = session;
+      removeToolResultContextGuard = installToolResultContextGuard({
+        agent: activeSession.agent,
+        contextWindowTokens: Math.max(
+          1,
+          Math.floor(
+            params.model.contextWindow ?? params.model.maxTokens ?? DEFAULT_CONTEXT_TOKENS,
+          ),
+        ),
+      });
       const cacheTrace = createCacheTrace({
         cfg: params.config,
         env: process.env,
@@ -1412,6 +1438,7 @@ export async function runEmbeddedAttempt(
       // flushPendingToolResults() fires while tools are still executing, inserting
       // synthetic "missing tool result" errors and causing silent agent failures.
       // See: https://github.com/openclaw/openclaw/issues/8643
+      removeToolResultContextGuard?.();
       await flushPendingToolResultsAfterIdle({
         agent: session?.agent,
         sessionManager,

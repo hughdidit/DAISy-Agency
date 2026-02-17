@@ -392,15 +392,23 @@ export function resolveSessionDisplayName(
   const displayName = row?.displayName?.trim() || "";
   const { prefix, fallbackName } = parseSessionKey(key);
 
+  const applyTypedPrefix = (name: string): string => {
+    if (!prefix) {
+      return name;
+    }
+    const prefixPattern = new RegExp(`^${prefix.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")}\\s*`, "i");
+    return prefixPattern.test(name) ? name : `${prefix} ${name}`;
+  };
+
   if (label && label !== key) {
-    return prefix ? `${prefix} ${label}` : label;
+    return applyTypedPrefix(label);
   }
 <<<<<<< HEAD
 >>>>>>> 137b7d9aa (fix(ui): prioritize displayName over label in webchat session picker (#13108))
   return key;
 =======
   if (displayName && displayName !== key) {
-    return prefix ? `${prefix} ${displayName}` : displayName;
+    return applyTypedPrefix(displayName);
   }
   return fallbackName;
 >>>>>>> a948212ca (fix(ui): show session labels in selector and standardize session key prefixes)

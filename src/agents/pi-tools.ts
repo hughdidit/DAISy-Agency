@@ -249,6 +249,8 @@ export function createMoltbotCodingTools(options?: {
   modelProvider?: string;
   /** Model id for the current provider (used for model-specific tool gating). */
   modelId?: string;
+  /** Model context window in tokens (used to scale read-tool output budget). */
+  modelContextWindowTokens?: number;
   /**
    * Auth mode for the current provider. We only need this for Anthropic OAuth
    * tool-name blocking quirks.
@@ -369,10 +371,25 @@ export function createMoltbotCodingTools(options?: {
   const base = (codingTools as unknown as AnyAgentTool[]).flatMap((tool) => {
     if (tool.name === readTool.name) {
       if (sandboxRoot) {
+<<<<<<< HEAD
         return [createSandboxedReadTool(sandboxRoot)];
       }
       const freshReadTool = createReadTool(workspaceRoot);
       return [createMoltbotReadTool(freshReadTool)];
+=======
+        const sandboxed = createSandboxedReadTool({
+          root: sandboxRoot,
+          bridge: sandboxFsBridge!,
+          modelContextWindowTokens: options?.modelContextWindowTokens,
+        });
+        return [workspaceOnly ? wrapToolWorkspaceRootGuard(sandboxed, sandboxRoot) : sandboxed];
+      }
+      const freshReadTool = createReadTool(workspaceRoot);
+      const wrapped = createOpenClawReadTool(freshReadTool, {
+        modelContextWindowTokens: options?.modelContextWindowTokens,
+      });
+      return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
+>>>>>>> 087dca8fa (fix(subagent): harden read-tool overflow guards and sticky reply threading (#19508))
     }
     if (tool.name === "bash" || tool.name === execToolName) {
       return [];

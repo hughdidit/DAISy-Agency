@@ -401,7 +401,7 @@ async function sendDiscordText(
     });
     const body = stripUndefinedFields({
       ...serializePayload(payload),
-      ...(isFirst && messageReference ? { message_reference: messageReference } : {}),
+      ...(messageReference ? { message_reference: messageReference } : {}),
     });
     return (await request(
       () =>
@@ -415,10 +415,8 @@ async function sendDiscordText(
     return await sendChunk(chunks[0], true);
   }
   let last: { id: string; channel_id: string } | null = null;
-  let isFirst = true;
-  for (const chunk of chunks) {
-    last = await sendChunk(chunk, isFirst);
-    isFirst = false;
+  for (const [index, chunk] of chunks.entries()) {
+    last = await sendChunk(chunk, index === 0);
   }
   if (!last) {
     throw new Error("Discord send failed (empty chunk result)");
@@ -488,7 +486,7 @@ async function sendDiscordMedia(
       rest,
       channelId,
       chunk,
-      undefined,
+      replyTo,
       request,
       maxLinesPerMessage,
       undefined,

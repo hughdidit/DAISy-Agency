@@ -54,8 +54,10 @@ export async function deliverMatrixReplies(params: {
 
     const shouldIncludeReply = (id?: string) =>
       Boolean(id) && (params.replyToMode === "all" || !hasReplied);
+    const replyToIdForReply = shouldIncludeReply(replyToId) ? replyToId : undefined;
 
     if (mediaList.length === 0) {
+      let sentTextChunk = false;
       for (const chunk of core.channel.text.chunkMarkdownTextWithMode(
         text,
         chunkLimit,
@@ -67,13 +69,14 @@ export async function deliverMatrixReplies(params: {
         }
         await sendMessageMatrix(params.roomId, trimmed, {
           client: params.client,
-          replyToId: shouldIncludeReply(replyToId) ? replyToId : undefined,
+          replyToId: replyToIdForReply,
           threadId: params.threadId,
           accountId: params.accountId,
         });
-        if (shouldIncludeReply(replyToId)) {
-          hasReplied = true;
-        }
+        sentTextChunk = true;
+      }
+      if (replyToIdForReply && !hasReplied && sentTextChunk) {
+        hasReplied = true;
       }
       continue;
     }
@@ -84,15 +87,15 @@ export async function deliverMatrixReplies(params: {
       await sendMessageMatrix(params.roomId, caption, {
         client: params.client,
         mediaUrl,
-        replyToId: shouldIncludeReply(replyToId) ? replyToId : undefined,
+        replyToId: replyToIdForReply,
         threadId: params.threadId,
         audioAsVoice: reply.audioAsVoice,
         accountId: params.accountId,
       });
-      if (shouldIncludeReply(replyToId)) {
-        hasReplied = true;
-      }
       first = false;
+    }
+    if (replyToIdForReply && !hasReplied) {
+      hasReplied = true;
     }
   }
 }
