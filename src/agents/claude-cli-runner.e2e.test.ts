@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { sleep } from "../utils.js";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
+=======
+>>>>>>> c68d1073b (perf(test): replace claude runner call polling loop)
 import { runClaudeCliAgent } from "./claude-cli-runner.js";
 
 const mocks = vi.hoisted(() => ({
@@ -69,13 +72,12 @@ function successExit(payload: { message: string; session_id: string }) {
 }
 
 async function waitForCalls(mockFn: { mock: { calls: unknown[][] } }, count: number) {
-  for (let i = 0; i < 50; i += 1) {
-    if (mockFn.mock.calls.length >= count) {
-      return;
-    }
-    await sleep(0);
-  }
-  throw new Error(`Expected ${count} calls, got ${mockFn.mock.calls.length}`);
+  await vi.waitFor(
+    () => {
+      expect(mockFn.mock.calls.length).toBeGreaterThanOrEqual(count);
+    },
+    { timeout: 2_000, interval: 5 },
+  );
 }
 
 describe("runClaudeCliAgent", () => {
