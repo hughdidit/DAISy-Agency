@@ -3,9 +3,16 @@ import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { vi } from "vitest";
 
+=======
+import { Mock, vi } from "vitest";
+import type { MsgContext } from "../auto-reply/templating.js";
+import type { GetReplyOptions, ReplyPayload } from "../auto-reply/types.js";
+>>>>>>> b62bd290c (fix: remove hardcoded disableBlockStreaming to honor agent config for TUI (#19693))
 import type { ChannelPlugin, ChannelOutboundAdapter } from "../channels/plugins/types.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
 import type { AgentBinding } from "../config/types.agents.js";
 import type { HooksConfig } from "../config/types.hooks.js";
@@ -18,6 +25,12 @@ type StubChannelOptions = {
   label: string;
   summary?: Record<string, unknown>;
 };
+
+type GetReplyFromConfigFn = (
+  ctx: MsgContext,
+  opts?: GetReplyOptions,
+  configOverride?: OpenClawConfig,
+) => Promise<ReplyPayload | ReplyPayload[] | undefined>;
 
 const createStubOutboundAdapter = (channelId: ChannelPlugin["id"]): ChannelOutboundAdapter => ({
   deliveryMode: "direct",
@@ -168,7 +181,12 @@ const hoisted = vi.hoisted(() => ({
     waitCalls: [] as string[],
     waitResults: new Map<string, boolean>(),
   },
+<<<<<<< HEAD
   getReplyFromConfig: vi.fn().mockResolvedValue(undefined),
+=======
+  testTailscaleWhois: { value: null as TailscaleWhoisIdentity | null },
+  getReplyFromConfig: vi.fn<GetReplyFromConfigFn>().mockResolvedValue(undefined),
+>>>>>>> b62bd290c (fix: remove hardcoded disableBlockStreaming to honor agent config for TUI (#19693))
   sendWhatsAppMock: vi.fn().mockResolvedValue({ messageId: "msg-1", toJid: "jid-1" }),
 }));
 
@@ -199,8 +217,13 @@ export const setTestConfigRoot = (root: string) => {
 export const testTailnetIPv4 = hoisted.testTailnetIPv4;
 export const piSdkMock = hoisted.piSdkMock;
 export const cronIsolatedRun = hoisted.cronIsolatedRun;
+<<<<<<< HEAD
 export const agentCommand = hoisted.agentCommand;
 export const getReplyFromConfig = hoisted.getReplyFromConfig;
+=======
+export const agentCommand: Mock<() => void> = hoisted.agentCommand;
+export const getReplyFromConfig: Mock<GetReplyFromConfigFn> = hoisted.getReplyFromConfig;
+>>>>>>> b62bd290c (fix: remove hardcoded disableBlockStreaming to honor agent config for TUI (#19693))
 
 export const testState = {
   agentConfig: undefined as Record<string, unknown> | undefined,

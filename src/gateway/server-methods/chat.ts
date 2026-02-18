@@ -513,8 +513,12 @@ export const chatHandlers: GatewayRequestHandlers = {
           runId: clientRunId,
           abortSignal: abortController.signal,
           images: parsedImages.length > 0 ? parsedImages : undefined,
+<<<<<<< HEAD
           disableBlockStreaming: true,
           onAgentRunStart: () => {
+=======
+          onAgentRunStart: (runId) => {
+>>>>>>> b62bd290c (fix: remove hardcoded disableBlockStreaming to honor agent config for TUI (#19693))
             agentRunStarted = true;
           },
           onModelSelected: (ctx) => {
