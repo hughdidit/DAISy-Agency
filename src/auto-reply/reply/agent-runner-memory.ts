@@ -1,5 +1,4 @@
 import crypto from "node:crypto";
-import { resolveAgentModelFallbacksOverride } from "../../agents/agent-scope.js";
 import { runWithModelFallback } from "../../agents/model-fallback.js";
 import { isCliProvider } from "../../agents/model-selection.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
@@ -12,6 +11,7 @@ import { resolveSandboxConfigForAgent, resolveSandboxRuntimeStatus } from "../..
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -28,6 +28,9 @@ import {
   type SessionEntry,
   updateSessionStoreEntry,
 } from "../../config/sessions.js";
+=======
+import { type SessionEntry, updateSessionStoreEntry } from "../../config/sessions.js";
+>>>>>>> d7a6a0a0b (refactor(reply): share embedded run fallback/context builders)
 import { logVerbose } from "../../globals.js";
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 <<<<<<< HEAD
@@ -61,15 +64,18 @@ import type { VerboseLevel } from "../thinking.js";
 import type { GetReplyOptions } from "../types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
-  buildEmbeddedContextFromTemplate,
-  buildTemplateSenderContext,
-  resolveRunAuthProfile,
+  buildEmbeddedRunBaseParams,
+  buildEmbeddedRunContexts,
+  resolveModelFallbackOptions,
 } from "./agent-runner-utils.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
 =======
 import { resolveEnforceFinalTag } from "./agent-runner-utils.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> d7a6a0a0b (refactor(reply): share embedded run fallback/context builders)
 import {
   resolveMemoryFlushContextWindowTokens,
   resolveMemoryFlushPromptForRun,
@@ -152,22 +158,21 @@ export async function runMemoryFlushIfNeeded(params: {
     .join("\n\n");
   try {
     await runWithModelFallback({
-      cfg: params.followupRun.run.config,
-      provider: params.followupRun.run.provider,
-      model: params.followupRun.run.model,
-      agentDir: params.followupRun.run.agentDir,
-      fallbacksOverride: resolveAgentModelFallbacksOverride(
-        params.followupRun.run.config,
-        resolveAgentIdFromSessionKey(params.followupRun.run.sessionKey),
-      ),
+      ...resolveModelFallbackOptions(params.followupRun.run),
       run: (provider, model) => {
-        const authProfile = resolveRunAuthProfile(params.followupRun.run, provider);
-        const embeddedContext = buildEmbeddedContextFromTemplate({
+        const { authProfile, embeddedContext, senderContext } = buildEmbeddedRunContexts({
           run: params.followupRun.run,
           sessionCtx: params.sessionCtx,
           hasRepliedRef: params.opts?.hasRepliedRef,
+          provider,
         });
-        const senderContext = buildTemplateSenderContext(params.sessionCtx);
+        const runBaseParams = buildEmbeddedRunBaseParams({
+          run: params.followupRun.run,
+          provider,
+          model,
+          runId: flushRunId,
+          authProfile,
+        });
         return runEmbeddedPiAgent({
 <<<<<<< HEAD
           sessionId: params.followupRun.run.sessionId,
@@ -189,29 +194,21 @@ export async function runMemoryFlushIfNeeded(params: {
 =======
           ...embeddedContext,
           ...senderContext,
+<<<<<<< HEAD
 >>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
           sessionFile: params.followupRun.run.sessionFile,
           workspaceDir: params.followupRun.run.workspaceDir,
           agentDir: params.followupRun.run.agentDir,
           config: params.followupRun.run.config,
           skillsSnapshot: params.followupRun.run.skillsSnapshot,
+=======
+          ...runBaseParams,
+>>>>>>> d7a6a0a0b (refactor(reply): share embedded run fallback/context builders)
           prompt: resolveMemoryFlushPromptForRun({
             prompt: memoryFlushSettings.prompt,
             cfg: params.cfg,
           }),
           extraSystemPrompt: flushSystemPrompt,
-          ownerNumbers: params.followupRun.run.ownerNumbers,
-          enforceFinalTag: resolveEnforceFinalTag(params.followupRun.run, provider),
-          provider,
-          model,
-          ...authProfile,
-          thinkLevel: params.followupRun.run.thinkLevel,
-          verboseLevel: params.followupRun.run.verboseLevel,
-          reasoningLevel: params.followupRun.run.reasoningLevel,
-          execOverrides: params.followupRun.run.execOverrides,
-          bashElevated: params.followupRun.run.bashElevated,
-          timeoutMs: params.followupRun.run.timeoutMs,
-          runId: flushRunId,
           onAgentEvent: (evt) => {
             if (evt.stream === "compaction") {
               const phase = typeof evt.data.phase === "string" ? evt.data.phase : "";

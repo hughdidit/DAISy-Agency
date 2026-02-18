@@ -1,6 +1,5 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
-import { resolveAgentModelFallbacksOverride } from "../../agents/agent-scope.js";
 import { runCliAgent } from "../../agents/cli-runner.js";
 import { getCliSessionId } from "../../agents/cli-session.js";
 import { runWithModelFallback } from "../../agents/model-fallback.js";
@@ -14,7 +13,6 @@ import {
   sanitizeUserFacingText,
 } from "../../agents/pi-embedded-helpers.js";
 import {
-  resolveAgentIdFromSessionKey,
   resolveGroupSessionKey,
   resolveSessionTranscriptPath,
   type SessionEntry,
@@ -61,15 +59,18 @@ import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
-  buildEmbeddedContextFromTemplate,
-  buildTemplateSenderContext,
-  resolveRunAuthProfile,
+  buildEmbeddedRunBaseParams,
+  buildEmbeddedRunContexts,
+  resolveModelFallbackOptions,
 } from "./agent-runner-utils.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 423b7a0f2 (refactor(auto-reply): reuse embedded run context helpers)
 =======
 import { resolveEnforceFinalTag } from "./agent-runner-utils.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+>>>>>>> d7a6a0a0b (refactor(reply): share embedded run fallback/context builders)
 import { type BlockReplyPipeline } from "./block-reply-pipeline.js";
 import type { FollowupRun } from "./queue.js";
 import { createBlockReplyDeliveryHandler } from "./reply-delivery.js";
@@ -202,14 +203,7 @@ export async function runAgentTurnWithFallback(params: {
       const blockReplyPipeline = params.blockReplyPipeline;
       const onToolResult = params.opts?.onToolResult;
       const fallbackResult = await runWithModelFallback({
-        cfg: params.followupRun.run.config,
-        provider: params.followupRun.run.provider,
-        model: params.followupRun.run.model,
-        agentDir: params.followupRun.run.agentDir,
-        fallbacksOverride: resolveAgentModelFallbacksOverride(
-          params.followupRun.run.config,
-          resolveAgentIdFromSessionKey(params.followupRun.run.sessionKey),
-        ),
+        ...resolveModelFallbackOptions(params.followupRun.run),
         run: (provider, model) => {
           // Notify that model selection is complete (including after fallback).
           // This allows responsePrefix template interpolation with the actual model.
@@ -306,13 +300,19 @@ export async function runAgentTurnWithFallback(params: {
               }
             })();
           }
-          const authProfile = resolveRunAuthProfile(params.followupRun.run, provider);
-          const embeddedContext = buildEmbeddedContextFromTemplate({
+          const { authProfile, embeddedContext, senderContext } = buildEmbeddedRunContexts({
             run: params.followupRun.run,
             sessionCtx: params.sessionCtx,
             hasRepliedRef: params.opts?.hasRepliedRef,
+            provider,
           });
-          const senderContext = buildTemplateSenderContext(params.sessionCtx);
+          const runBaseParams = buildEmbeddedRunBaseParams({
+            run: params.followupRun.run,
+            provider,
+            model,
+            runId,
+            authProfile,
+          });
           return runEmbeddedPiAgent({
 <<<<<<< HEAD
             sessionId: params.followupRun.run.sessionId,
@@ -329,22 +329,9 @@ export async function runAgentTurnWithFallback(params: {
               params.sessionCtx.GroupChannel?.trim() ?? params.sessionCtx.GroupSubject?.trim(),
             groupSpace: params.sessionCtx.GroupSpace?.trim() ?? undefined,
             ...senderContext,
-            sessionFile: params.followupRun.run.sessionFile,
-            workspaceDir: params.followupRun.run.workspaceDir,
-            agentDir: params.followupRun.run.agentDir,
-            config: params.followupRun.run.config,
-            skillsSnapshot: params.followupRun.run.skillsSnapshot,
+            ...runBaseParams,
             prompt: params.commandBody,
             extraSystemPrompt: params.followupRun.run.extraSystemPrompt,
-            ownerNumbers: params.followupRun.run.ownerNumbers,
-            enforceFinalTag: resolveEnforceFinalTag(params.followupRun.run, provider),
-            provider,
-            model,
-            ...authProfile,
-            thinkLevel: params.followupRun.run.thinkLevel,
-            verboseLevel: params.followupRun.run.verboseLevel,
-            reasoningLevel: params.followupRun.run.reasoningLevel,
-            execOverrides: params.followupRun.run.execOverrides,
             toolResultFormat: (() => {
               const channel = resolveMessageChannel(
                 params.sessionCtx.Surface,
@@ -356,9 +343,6 @@ export async function runAgentTurnWithFallback(params: {
               return isMarkdownCapableMessageChannel(channel) ? "markdown" : "plain";
             })(),
             suppressToolErrorWarnings: params.opts?.suppressToolErrorWarnings,
-            bashElevated: params.followupRun.run.bashElevated,
-            timeoutMs: params.followupRun.run.timeoutMs,
-            runId,
             images: params.opts?.images,
             abortSignal: params.opts?.abortSignal,
             blockReplyBreak: params.resolvedBlockStreamingBreak,
