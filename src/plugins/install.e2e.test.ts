@@ -136,6 +136,27 @@ async function createVoiceCallArchive(params: {
   return { pkgDir, archivePath };
 }
 
+async function setupVoiceCallArchiveInstall(params: { outName: string; version: string }) {
+  const stateDir = makeTempDir();
+  const workDir = makeTempDir();
+  const { archivePath } = await createVoiceCallArchive({
+    workDir,
+    outName: params.outName,
+    version: params.version,
+  });
+  return {
+    stateDir,
+    archivePath,
+    extensionsDir: path.join(stateDir, "extensions"),
+  };
+}
+
+function expectPluginFiles(result: { targetDir: string }, stateDir: string, pluginId: string) {
+  expect(result.targetDir).toBe(path.join(stateDir, "extensions", pluginId));
+  expect(fs.existsSync(path.join(result.targetDir, "package.json"))).toBe(true);
+  expect(fs.existsSync(path.join(result.targetDir, "dist", "index.js"))).toBe(true);
+}
+
 function setupPluginInstallDirs() {
   const tmpDir = makeTempDir();
   const pluginDir = path.join(tmpDir, "plugin-src");
@@ -209,6 +230,7 @@ afterEach(() => {
 });
 
 describe("installPluginFromArchive", () => {
+<<<<<<< HEAD
   it("installs into ~/.clawdbot/extensions and uses unscoped id", async () => {
     const stateDir = makeTempDir();
     const workDir = makeTempDir();
@@ -233,11 +255,14 @@ describe("installPluginFromArchive", () => {
     const { archivePath } = await createVoiceCallArchive({
       workDir,
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+  it("installs into ~/.openclaw/extensions and uses unscoped id", async () => {
+    const { stateDir, archivePath, extensionsDir } = await setupVoiceCallArchiveInstall({
+>>>>>>> 31f83c86b (refactor(test): dedupe agent harnesses and routing fixtures)
       outName: "plugin.tgz",
       version: "0.0.1",
     });
 
-    const extensionsDir = path.join(stateDir, "extensions");
     const { installPluginFromArchive } = await import("./install.js");
     const result = await installPluginFromArchive({ archivePath, extensionsDir });
     expect(result.ok).toBe(true);
@@ -245,12 +270,11 @@ describe("installPluginFromArchive", () => {
       return;
     }
     expect(result.pluginId).toBe("voice-call");
-    expect(result.targetDir).toBe(path.join(stateDir, "extensions", "voice-call"));
-    expect(fs.existsSync(path.join(result.targetDir, "package.json"))).toBe(true);
-    expect(fs.existsSync(path.join(result.targetDir, "dist", "index.js"))).toBe(true);
+    expectPluginFiles(result, stateDir, "voice-call");
   });
 
   it("rejects installing when plugin already exists", async () => {
+<<<<<<< HEAD
     const stateDir = makeTempDir();
     const workDir = makeTempDir();
 <<<<<<< HEAD
@@ -274,11 +298,13 @@ describe("installPluginFromArchive", () => {
     const { archivePath } = await createVoiceCallArchive({
       workDir,
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+    const { archivePath, extensionsDir } = await setupVoiceCallArchiveInstall({
+>>>>>>> 31f83c86b (refactor(test): dedupe agent harnesses and routing fixtures)
       outName: "plugin.tgz",
       version: "0.0.1",
     });
 
-    const extensionsDir = path.join(stateDir, "extensions");
     const { installPluginFromArchive } = await import("./install.js");
     const first = await installPluginFromArchive({ archivePath, extensionsDir });
     const second = await installPluginFromArchive({ archivePath, extensionsDir });
@@ -318,9 +344,7 @@ describe("installPluginFromArchive", () => {
       return;
     }
     expect(result.pluginId).toBe("zipper");
-    expect(result.targetDir).toBe(path.join(stateDir, "extensions", "zipper"));
-    expect(fs.existsSync(path.join(result.targetDir, "package.json"))).toBe(true);
-    expect(fs.existsSync(path.join(result.targetDir, "dist", "index.js"))).toBe(true);
+    expectPluginFiles(result, stateDir, "zipper");
   });
 
   it("allows updates when mode is update", async () => {

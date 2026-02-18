@@ -64,6 +64,22 @@ beforeAll(async () => {
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
 
+function mockSuccessfulCompaction() {
+  getCompactEmbeddedPiSessionMock().mockResolvedValue({
+    ok: true,
+    compacted: true,
+    result: {
+      summary: "summary",
+      firstKeptEntryId: "x",
+      tokensBefore: 12000,
+    },
+  });
+}
+
+function replyText(res: Awaited<ReturnType<typeof getReplyFromConfig>>) {
+  return Array.isArray(res) ? res[0]?.text : res?.text;
+}
+
 describe("trigger handling", () => {
   it("runs /compact as a gated command", async () => {
     await withTempHome(async (home) => {
@@ -72,6 +88,7 @@ describe("trigger handling", () => {
       vi.mocked(compactEmbeddedPiSession).mockResolvedValue({
 =======
       const storePath = join(tmpdir(), `openclaw-session-test-${Date.now()}.json`);
+<<<<<<< HEAD
       getCompactEmbeddedPiSessionMock().mockResolvedValue({
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         ok: true,
@@ -82,6 +99,9 @@ describe("trigger handling", () => {
           tokensBefore: 12000,
         },
       });
+=======
+      mockSuccessfulCompaction();
+>>>>>>> 31f83c86b (refactor(test): dedupe agent harnesses and routing fixtures)
 
       const res = await getReplyFromConfig(
         {
@@ -113,7 +133,7 @@ describe("trigger handling", () => {
           },
         },
       );
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
+      const text = replyText(res);
       expect(text?.startsWith("⚙️ Compacted")).toBe(true);
       expect(getCompactEmbeddedPiSessionMock()).toHaveBeenCalledOnce();
       expect(getRunEmbeddedPiAgentMock()).not.toHaveBeenCalled();
@@ -129,15 +149,7 @@ describe("trigger handling", () => {
   it("runs /compact for non-default agents without transcript path validation failures", async () => {
     await withTempHome(async (home) => {
       getCompactEmbeddedPiSessionMock().mockClear();
-      getCompactEmbeddedPiSessionMock().mockResolvedValue({
-        ok: true,
-        compacted: true,
-        result: {
-          summary: "summary",
-          firstKeptEntryId: "x",
-          tokensBefore: 12000,
-        },
-      });
+      mockSuccessfulCompaction();
 
       const res = await getReplyFromConfig(
         {
@@ -151,7 +163,7 @@ describe("trigger handling", () => {
         makeCfg(home),
       );
 
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
+      const text = replyText(res);
       expect(text?.startsWith("⚙️ Compacted")).toBe(true);
       expect(getCompactEmbeddedPiSessionMock()).toHaveBeenCalledOnce();
       expect(getCompactEmbeddedPiSessionMock().mock.calls[0]?.[0]?.sessionFile).toContain(
@@ -186,7 +198,7 @@ describe("trigger handling", () => {
         makeCfg(home),
       );
 
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
+      const text = replyText(res);
       expect(text).toBe("ok");
       expect(getRunEmbeddedPiAgentMock()).toHaveBeenCalledOnce();
       const prompt = getRunEmbeddedPiAgentMock().mock.calls[0]?.[0]?.prompt ?? "";
@@ -215,7 +227,7 @@ describe("trigger handling", () => {
         makeCfg(home),
       );
 
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
+      const text = replyText(res);
       expect(text).toBe("ok");
       expect(text).not.toMatch(/Thinking level set/i);
       expect(getRunEmbeddedPiAgentMock()).toHaveBeenCalledOnce();

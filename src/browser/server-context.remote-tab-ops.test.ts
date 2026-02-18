@@ -113,6 +113,20 @@ function makeState(
   };
 }
 
+function makeUnexpectedFetchMock() {
+  return vi.fn(async () => {
+    throw new Error("unexpected fetch");
+  });
+}
+
+function createRemoteRouteHarness(fetchMock?: ReturnType<typeof vi.fn>) {
+  const activeFetchMock = fetchMock ?? makeUnexpectedFetchMock();
+  global.fetch = withFetchPreconnect(activeFetchMock);
+  const state = makeState("remote");
+  const ctx = createBrowserRouteContext({ getState: () => state });
+  return { state, remote: ctx.forProfile("remote"), fetchMock: activeFetchMock };
+}
+
 describe("browser server-context remote profile tab operations", () => {
   it("uses Playwright tab operations when available", async () => {
     const listPagesViaPlaywright = vi.fn(async () => [
@@ -132,15 +146,7 @@ describe("browser server-context remote profile tab operations", () => {
       closePageByTargetIdViaPlaywright,
     } as unknown as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
 
-    const fetchMock = vi.fn(async () => {
-      throw new Error("unexpected fetch");
-    });
-
-    global.fetch = withFetchPreconnect(fetchMock);
-
-    const state = makeState("remote");
-    const ctx = createBrowserRouteContext({ getState: () => state });
-    const remote = ctx.forProfile("remote");
+    const { state, remote, fetchMock } = createRemoteRouteHarness();
 
     const tabs = await remote.listTabs();
     expect(tabs.map((t) => t.targetId)).toEqual(["T1"]);
@@ -197,15 +203,7 @@ describe("browser server-context remote profile tab operations", () => {
       }),
     } as unknown as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
 
-    const fetchMock = vi.fn(async () => {
-      throw new Error("unexpected fetch");
-    });
-
-    global.fetch = withFetchPreconnect(fetchMock);
-
-    const state = makeState("remote");
-    const ctx = createBrowserRouteContext({ getState: () => state });
-    const remote = ctx.forProfile("remote");
+    const { remote } = createRemoteRouteHarness();
 
     const first = await remote.ensureTabAvailable();
     expect(first.targetId).toBe("A");
@@ -224,15 +222,7 @@ describe("browser server-context remote profile tab operations", () => {
       focusPageByTargetIdViaPlaywright,
     } as unknown as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
 
-    const fetchMock = vi.fn(async () => {
-      throw new Error("unexpected fetch");
-    });
-
-    global.fetch = withFetchPreconnect(fetchMock);
-
-    const state = makeState("remote");
-    const ctx = createBrowserRouteContext({ getState: () => state });
-    const remote = ctx.forProfile("remote");
+    const { state, remote, fetchMock } = createRemoteRouteHarness();
 
     await remote.focusTab("T1");
     expect(focusPageByTargetIdViaPlaywright).toHaveBeenCalledWith({
@@ -250,15 +240,7 @@ describe("browser server-context remote profile tab operations", () => {
       }),
     } as unknown as Awaited<ReturnType<typeof pwAiModule.getPwAiModule>>);
 
-    const fetchMock = vi.fn(async () => {
-      throw new Error("unexpected fetch");
-    });
-
-    global.fetch = withFetchPreconnect(fetchMock);
-
-    const state = makeState("remote");
-    const ctx = createBrowserRouteContext({ getState: () => state });
-    const remote = ctx.forProfile("remote");
+    const { remote, fetchMock } = createRemoteRouteHarness();
 
     await expect(remote.listTabs()).rejects.toThrow(/boom/);
     expect(fetchMock).not.toHaveBeenCalled();
@@ -286,11 +268,7 @@ describe("browser server-context remote profile tab operations", () => {
       } as unknown as Response;
     });
 
-    global.fetch = withFetchPreconnect(fetchMock);
-
-    const state = makeState("remote");
-    const ctx = createBrowserRouteContext({ getState: () => state });
-    const remote = ctx.forProfile("remote");
+    const { remote } = createRemoteRouteHarness(fetchMock);
 
     const tabs = await remote.listTabs();
     expect(tabs.map((t) => t.targetId)).toEqual(["T1"]);
