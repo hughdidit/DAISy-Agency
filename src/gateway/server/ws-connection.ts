@@ -36,11 +36,15 @@ import { randomUUID } from "node:crypto";
 import type { WebSocket, WebSocketServer } from "ws";
 import { resolveCanvasHostUrl } from "../../infra/canvas-host-url.js";
 import { removeRemoteNodeInfo } from "../../infra/skills-remote.js";
+<<<<<<< HEAD
 import { listSystemPresence, upsertPresence } from "../../infra/system-presence.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+import { upsertPresence } from "../../infra/system-presence.js";
+>>>>>>> 07fdceb5f (refactor: centralize presence routing and version precedence coverage (#19609))
 import type { createSubsystemLogger } from "../../logging/subsystem.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -83,7 +87,8 @@ import { getHandshakeTimeoutMs } from "../server-constants.js";
 import type { GatewayRequestContext, GatewayRequestHandlers } from "../server-methods/types.js";
 import { formatError } from "../server-utils.js";
 import { logWs } from "../ws-log.js";
-import { getHealthVersion, getPresenceVersion, incrementPresenceVersion } from "./health-state.js";
+import { getHealthVersion, incrementPresenceVersion } from "./health-state.js";
+import { broadcastPresenceSnapshot } from "./presence-events.js";
 import { attachGatewayWsMessageHandler } from "./ws-connection/message-handler.js";
 import type { GatewayWsClient } from "./ws-types.js";
 
@@ -298,18 +303,7 @@ export function attachGatewayWsConnectionHandler(params: {
       }
       if (client?.presenceKey) {
         upsertPresence(client.presenceKey, { reason: "disconnect" });
-        incrementPresenceVersion();
-        broadcast(
-          "presence",
-          { presence: listSystemPresence() },
-          {
-            dropIfSlow: true,
-            stateVersion: {
-              presence: getPresenceVersion(),
-              health: getHealthVersion(),
-            },
-          },
-        );
+        broadcastPresenceSnapshot({ broadcast, incrementPresenceVersion, getHealthVersion });
       }
       if (client?.connect?.role === "node") {
         const context = buildRequestContext();

@@ -62,8 +62,12 @@ import { rawDataToString } from "../../../infra/ws.js";
 import type { createSubsystemLogger } from "../../../logging/subsystem.js";
 import { isGatewayCliClient, isWebchatClient } from "../../../utils/message-channel.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ResolvedGatewayAuth } from "../../auth.js";
 =======
+=======
+import { resolveRuntimeServiceVersion } from "../../../version.js";
+>>>>>>> 07fdceb5f (refactor: centralize presence routing and version precedence coverage (#19609))
 import {
   AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN,
   AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET,
@@ -969,7 +973,11 @@ export function attachGatewayWsMessageHandler(params: {
           type: "hello-ok",
           protocol: PROTOCOL_VERSION,
           server: {
+<<<<<<< HEAD
             version: process.env.CLAWDBOT_VERSION ?? process.env.npm_package_version ?? "dev",
+=======
+            version: resolveRuntimeServiceVersion(process.env, "dev"),
+>>>>>>> 07fdceb5f (refactor: centralize presence routing and version precedence coverage (#19609))
             commit: process.env.GIT_COMMIT,
             host: os.hostname(),
             connId,

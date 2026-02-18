@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import os from "node:os";
 import { pickPrimaryLanIPv4 } from "../gateway/net.js";
+import { resolveRuntimeServiceVersion } from "../version.js";
 
 export type SystemPresence = {
   host?: string;
@@ -51,6 +52,7 @@ function initSelfPresence() {
   const host = os.hostname();
   const ip = resolvePrimaryIPv4() ?? undefined;
 <<<<<<< HEAD
+<<<<<<< HEAD
   const version = process.env.CLAWDBOT_VERSION ?? process.env.npm_package_version ?? "unknown";
 =======
   const version =
@@ -59,6 +61,9 @@ function initSelfPresence() {
     process.env.npm_package_version ??
     "unknown";
 >>>>>>> eaa2f7a7b (fix(ci): restore main lint/typecheck after direct merges)
+=======
+  const version = resolveRuntimeServiceVersion(process.env, "unknown");
+>>>>>>> 07fdceb5f (refactor: centralize presence routing and version precedence coverage (#19609))
   const modelIdentifier = (() => {
     const p = os.platform();
     if (p === "darwin") {
