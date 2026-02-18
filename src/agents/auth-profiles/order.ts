@@ -21,6 +21,7 @@ import { dedupeProfileIds, listProfilesForProvider } from "./profiles.js";
 >>>>>>> 230e1d996 (refactor(auth): share profile id dedupe helper)
 =======
 import type { AuthProfileStore } from "./types.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -47,6 +48,13 @@ function resolveProfileUnusableUntil(stats: {
   }
   return Math.max(...values);
 }
+=======
+import {
+  clearExpiredCooldowns,
+  isProfileInCooldown,
+  resolveProfileUnusableUntil,
+} from "./usage.js";
+>>>>>>> 28d49b8d4 (refactor(auth-profiles): reuse cooldown timestamp resolver)
 
 export function resolveAuthProfileOrder(params: {
   cfg?: MoltbotConfig;
