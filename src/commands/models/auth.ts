@@ -43,11 +43,14 @@ import { normalizeProviderId } from "../../agents/model-selection.js";
 import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 import { readConfigFileSnapshot, type MoltbotConfig } from "../../config/config.js";
 =======
 import { readConfigFileSnapshot } from "../../config/config.js";
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
+=======
+>>>>>>> 8369913c7 (refactor(models): reuse validated config snapshot loader)
 import { logConfigUpdated } from "../../config/logging.js";
 <<<<<<< HEAD
 =======
@@ -92,6 +95,7 @@ import {
   pickAuthMethod,
   resolveProviderMatch,
 } from "../provider-auth-helpers.js";
+<<<<<<< HEAD
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import { updateConfig } from "./shared.js";
 import { resolvePluginProviders } from "../../plugins/providers.js";
@@ -103,6 +107,9 @@ import type {
 } from "../../plugins/types.js";
 import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js";
 import { validateAnthropicSetupToken } from "../auth-token.js";
+=======
+import { loadValidConfigOrThrow, updateConfig } from "./shared.js";
+>>>>>>> 8369913c7 (refactor(models): reuse validated config snapshot loader)
 
 const confirm = (params: Parameters<typeof clackConfirm>[0]) =>
   clackConfirm({
@@ -412,13 +419,7 @@ export async function modelsAuthLoginCommand(opts: LoginOptions, runtime: Runtim
     throw new Error("models auth login requires an interactive TTY.");
   }
 
-  const snapshot = await readConfigFileSnapshot();
-  if (!snapshot.valid) {
-    const issues = snapshot.issues.map((issue) => `- ${issue.path}: ${issue.message}`).join("\n");
-    throw new Error(`Invalid config at ${snapshot.path}\n${issues}`);
-  }
-
-  const config = snapshot.config;
+  const config = await loadValidConfigOrThrow();
   const defaultAgentId = resolveDefaultAgentId(config);
   const agentDir = resolveAgentDir(config, defaultAgentId);
   const workspaceDir =

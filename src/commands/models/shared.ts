@@ -56,15 +56,26 @@ export const isLocalBaseUrl = (baseUrl: string) => {
   }
 };
 
+<<<<<<< HEAD
 export async function updateConfig(
   mutator: (cfg: MoltbotConfig) => MoltbotConfig,
 ): Promise<MoltbotConfig> {
+=======
+export async function loadValidConfigOrThrow(): Promise<OpenClawConfig> {
+>>>>>>> 8369913c7 (refactor(models): reuse validated config snapshot loader)
   const snapshot = await readConfigFileSnapshot();
   if (!snapshot.valid) {
     const issues = snapshot.issues.map((issue) => `- ${issue.path}: ${issue.message}`).join("\n");
     throw new Error(`Invalid config at ${snapshot.path}\n${issues}`);
   }
-  const next = mutator(snapshot.config);
+  return snapshot.config;
+}
+
+export async function updateConfig(
+  mutator: (cfg: OpenClawConfig) => OpenClawConfig,
+): Promise<OpenClawConfig> {
+  const config = await loadValidConfigOrThrow();
+  const next = mutator(config);
   await writeConfigFile(next);
   return next;
 }
