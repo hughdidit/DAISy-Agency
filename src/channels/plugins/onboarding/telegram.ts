@@ -25,7 +25,6 @@ import {
   resolveDefaultTelegramAccountId,
   resolveTelegramAccount,
 } from "../../../telegram/accounts.js";
-import { fetchTelegramChatId } from "../../../telegram/api.js";
 import { formatDocsLink } from "../../../terminal/links.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -35,6 +34,7 @@ import { formatDocsLink } from "../../../terminal/links.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../../../cli/command-format.js";
 import type { WizardPrompter } from "../../../wizard/prompts.js";
+import { fetchTelegramChatId } from "../../telegram/api.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 import { addWildcardAllowFrom, promptAccountId } from "./helpers.js";
 =======
