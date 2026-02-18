@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
+=======
+import { describe, expect, it, vi } from "vitest";
+import { bindAbortRelay } from "../utils/fetch-timeout.js";
+>>>>>>> 7648f6bb0 (perf(test): fake abort timer and dedupe slack thread cases)
 
 /**
  * Regression test for #7174: Memory leak from closure-wrapped controller.abort().
@@ -23,12 +28,17 @@ describe("abort pattern: .bind() vs arrow closure (#7174)", () => {
   });
 
   it("bound abort works with setTimeout", async () => {
-    const controller = new AbortController();
-    const timer = setTimeout(controller.abort.bind(controller), 10);
-    expect(controller.signal.aborted).toBe(false);
-    await new Promise((r) => setTimeout(r, 50));
-    expect(controller.signal.aborted).toBe(true);
-    clearTimeout(timer);
+    vi.useFakeTimers();
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(controller.abort.bind(controller), 10);
+      expect(controller.signal.aborted).toBe(false);
+      await vi.advanceTimersByTimeAsync(10);
+      expect(controller.signal.aborted).toBe(true);
+      clearTimeout(timer);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("bound abort works as addEventListener callback and can be removed", () => {
