@@ -13,11 +13,18 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> fa472623f (perf(test): use prebuilt hook install fixtures)
 =======
 =======
 import { expectSingleNpmInstallIgnoreScriptsCall } from "../test-utils/exec-assertions.js";
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
+=======
+import {
+  expectSingleNpmInstallIgnoreScriptsCall,
+  expectSingleNpmPackIgnoreScriptsCall,
+} from "../test-utils/exec-assertions.js";
+>>>>>>> f05395ae0 (refactor(test): share internal hook and npm pack assertions)
 import { isAddressInUseError } from "./gmail-watcher.js";
 >>>>>>> 5e3b211d9 (perf(test): fold gmail watcher assertions into hooks install suite)
 
@@ -371,18 +378,10 @@ describe("installHooksFromNpmSpec", () => {
     expect(result.hookPackId).toBe("test-hooks");
     expect(fs.existsSync(path.join(result.targetDir, "hooks", "one-hook", "HOOK.md"))).toBe(true);
 
-    const packCalls = run.mock.calls.filter(
-      (c) => Array.isArray(c[0]) && c[0][0] === "npm" && c[0][1] === "pack",
-    );
-    expect(packCalls.length).toBe(1);
-    const packCall = packCalls[0];
-    if (!packCall) {
-      throw new Error("expected npm pack call");
-    }
-    const [argv, options] = packCall;
-    expect(argv).toEqual(["npm", "pack", "@openclaw/test-hooks@0.0.1", "--ignore-scripts"]);
-    const commandOptions = typeof options === "number" ? undefined : options;
-    expect(commandOptions?.env).toMatchObject({ NPM_CONFIG_IGNORE_SCRIPTS: "true" });
+    expectSingleNpmPackIgnoreScriptsCall({
+      calls: run.mock.calls,
+      expectedSpec: "@openclaw/test-hooks@0.0.1",
+    });
 
     expect(packTmpDir).not.toBe("");
     expect(fs.existsSync(packTmpDir)).toBe(false);
