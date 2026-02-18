@@ -5,6 +5,14 @@ import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import JSZip from "jszip";
 import * as tar from "tar";
+<<<<<<< HEAD
+=======
+import {
+  resolveArchiveOutputPath,
+  stripArchivePath,
+  validateArchiveEntryPath,
+} from "./archive-path.js";
+>>>>>>> 2b8f1bade (refactor(archive): share archive path safety helpers)
 
 export type ArchiveKind = "tar" | "zip";
 
@@ -102,6 +110,7 @@ export async function withTimeout<T>(
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 async function extractZip(params: { archivePath: string; destDir: string }): Promise<void> {
 =======
 function resolveSafeBaseDir(destDir: string): string {
@@ -162,6 +171,8 @@ function resolveCheckedOutPath(destDir: string, relPath: string, original: strin
   return outPath;
 }
 
+=======
+>>>>>>> 2b8f1bade (refactor(archive): share archive path safety helpers)
 type ResolvedArchiveExtractLimits = Required<ArchiveExtractLimits>;
 
 function clampLimit(value: number | undefined): number | undefined {
@@ -290,6 +301,7 @@ async function extractZip(params: {
   const budget = createByteBudgetTracker(limits);
 
   for (const entry of entries) {
+<<<<<<< HEAD
     const entryPath = entry.name.replaceAll("\\", "/");
     if (!entryPath || entryPath.endsWith("/")) {
       const dirPath = path.resolve(params.destDir, entryPath);
@@ -297,6 +309,23 @@ async function extractZip(params: {
         throw new Error(`zip entry escapes destination: ${entry.name}`);
       }
       await fs.mkdir(dirPath, { recursive: true });
+=======
+    validateArchiveEntryPath(entry.name);
+
+    const relPath = stripArchivePath(entry.name, strip);
+    if (!relPath) {
+      continue;
+    }
+    validateArchiveEntryPath(relPath);
+
+    const outPath = resolveArchiveOutputPath({
+      rootDir: params.destDir,
+      relPath,
+      originalPath: entry.name,
+    });
+    if (entry.dir) {
+      await fs.mkdir(outPath, { recursive: true });
+>>>>>>> 2b8f1bade (refactor(archive): share archive path safety helpers)
       continue;
     }
 
@@ -422,7 +451,11 @@ export async function extractArchive(params: {
               return;
             }
             validateArchiveEntryPath(relPath);
-            resolveCheckedOutPath(params.destDir, relPath, info.path);
+            resolveArchiveOutputPath({
+              rootDir: params.destDir,
+              relPath,
+              originalPath: info.path,
+            });
 
             if (
               info.type === "SymbolicLink" ||
