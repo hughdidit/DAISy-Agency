@@ -112,6 +112,7 @@ final class NodeAppModel {
     private let calendarService: any CalendarServicing
     private let remindersService: any RemindersServicing
     private let motionService: any MotionServicing
+<<<<<<< HEAD
 >>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
 =======
     let voiceWake = VoiceWakeManager()
@@ -119,6 +120,17 @@ final class NodeAppModel {
     private let locationService = LocationService()
 >>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
     private var lastAutoA2uiURL: String?
+=======
+    private let watchMessagingService: any WatchMessagingServicing
+    var lastAutoA2uiURL: String?
+    private var pttVoiceWakeSuspended = false
+    private var talkVoiceWakeSuspended = false
+    private var backgroundVoiceWakeSuspended = false
+    private var backgroundTalkSuspended = false
+    private var backgroundTalkKeptActive = false
+    private var backgroundedAt: Date?
+    private var reconnectAfterBackgroundArmed = false
+>>>>>>> 57083e422 (iOS: add Apple Watch companion message MVP (#20054))
 
     private var gatewayConnected = false
 <<<<<<< HEAD
@@ -153,6 +165,7 @@ final class NodeAppModel {
         calendarService: any CalendarServicing = CalendarService(),
         remindersService: any RemindersServicing = RemindersService(),
         motionService: any MotionServicing = MotionService(),
+        watchMessagingService: any WatchMessagingServicing = WatchMessagingService(),
         talkMode: TalkModeManager = TalkModeManager())
     {
         self.screen = screen
@@ -166,6 +179,7 @@ final class NodeAppModel {
         self.calendarService = calendarService
         self.remindersService = remindersService
         self.motionService = motionService
+        self.watchMessagingService = watchMessagingService
         self.talkMode = talkMode
 
 >>>>>>> 9f101d3a9 (iOS: add push-to-talk node commands)
@@ -1530,6 +1544,14 @@ private extension NodeAppModel {
             return try await self.handleDeviceInvoke(req)
         }
 
+        register([
+            OpenClawWatchCommand.status.rawValue,
+            OpenClawWatchCommand.notify.rawValue,
+        ]) { [weak self] req in
+            guard let self else { throw NodeCapabilityRouter.RouterError.handlerUnavailable }
+            return try await self.handleWatchInvoke(req)
+        }
+
         register([OpenClawPhotosCommand.latest.rawValue]) { [weak self] req in
             guard let self else { throw NodeCapabilityRouter.RouterError.handlerUnavailable }
             return try await self.handlePhotosInvoke(req)
@@ -1580,11 +1602,66 @@ private extension NodeAppModel {
         return NodeCapabilityRouter(handlers: handlers)
     }
 
+<<<<<<< HEAD
 =======
 }
 
 private extension NodeAppModel {
 >>>>>>> 4ab814fd5 (Revert "iOS: wire node services and tests")
+=======
+    func handleWatchInvoke(_ req: BridgeInvokeRequest) async throws -> BridgeInvokeResponse {
+        switch req.command {
+        case OpenClawWatchCommand.status.rawValue:
+            let status = await self.watchMessagingService.status()
+            let payload = OpenClawWatchStatusPayload(
+                supported: status.supported,
+                paired: status.paired,
+                appInstalled: status.appInstalled,
+                reachable: status.reachable,
+                activationState: status.activationState)
+            let json = try Self.encodePayload(payload)
+            return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+        case OpenClawWatchCommand.notify.rawValue:
+            let params = try Self.decodeParams(OpenClawWatchNotifyParams.self, from: req.paramsJSON)
+            let title = params.title.trimmingCharacters(in: .whitespacesAndNewlines)
+            let body = params.body.trimmingCharacters(in: .whitespacesAndNewlines)
+            if title.isEmpty && body.isEmpty {
+                return BridgeInvokeResponse(
+                    id: req.id,
+                    ok: false,
+                    error: OpenClawNodeError(
+                        code: .invalidRequest,
+                        message: "INVALID_REQUEST: empty watch notification"))
+            }
+            do {
+                let result = try await self.watchMessagingService.sendNotification(
+                    id: req.id,
+                    title: title,
+                    body: body,
+                    priority: params.priority)
+                let payload = OpenClawWatchNotifyPayload(
+                    deliveredImmediately: result.deliveredImmediately,
+                    queuedForDelivery: result.queuedForDelivery,
+                    transport: result.transport)
+                let json = try Self.encodePayload(payload)
+                return BridgeInvokeResponse(id: req.id, ok: true, payloadJSON: json)
+            } catch {
+                return BridgeInvokeResponse(
+                    id: req.id,
+                    ok: false,
+                    error: OpenClawNodeError(
+                        code: .unavailable,
+                        message: error.localizedDescription))
+            }
+        default:
+            return BridgeInvokeResponse(
+                id: req.id,
+                ok: false,
+                error: OpenClawNodeError(code: .invalidRequest, message: "INVALID_REQUEST: unknown command"))
+        }
+    }
+
+>>>>>>> 57083e422 (iOS: add Apple Watch companion message MVP (#20054))
     func locationMode() -> OpenClawLocationMode {
 >>>>>>> 532b9653b (iOS: wire node commands and incremental TTS)
         let raw = UserDefaults.standard.string(forKey: "location.enabledMode") ?? "off"
