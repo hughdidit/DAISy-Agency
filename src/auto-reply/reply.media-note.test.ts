@@ -1,5 +1,9 @@
 import path from "node:path";
+<<<<<<< HEAD
 
+=======
+import "./reply.directive.directive-behavior.e2e-mocks.js";
+>>>>>>> c0a6ff08a (test(auto-reply): reuse shared directive and home test harnesses)
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -13,15 +17,6 @@ import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.j
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { getReplyFromConfig } from "./reply.js";
-
-vi.mock("../agents/pi-embedded.js", () => ({
-  abortEmbeddedPiRun: vi.fn().mockReturnValue(false),
-  runEmbeddedPiAgent: vi.fn(),
-  queueEmbeddedPiMessage: vi.fn().mockReturnValue(false),
-  resolveEmbeddedSessionLane: (key: string) => `session:${key.trim() || "main"}`,
-  isEmbeddedPiRunActive: vi.fn().mockReturnValue(false),
-  isEmbeddedPiRunStreaming: vi.fn().mockReturnValue(false),
-}));
 
 function makeResult(text: string) {
   return {

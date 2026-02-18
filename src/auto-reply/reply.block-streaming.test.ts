@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -33,8 +33,12 @@ import { loadModelCatalog } from "../agents/model-catalog.js";
 import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> c0a6ff08a (test(auto-reply): reuse shared directive and home test harnesses)
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import type { OpenClawConfig } from "../config/config.js";
+import { withTempHome as withTempHomeHarness } from "../config/home-env.test-harness.js";
 import { getReplyFromConfig } from "./reply.js";
 
 type RunEmbeddedPiAgent = typeof import("../agents/pi-embedded.js").runEmbeddedPiAgent;
@@ -55,37 +59,6 @@ vi.mock("../agents/pi-embedded.js", () => piEmbeddedMock);
 vi.mock("../agents/model-catalog.js", () => ({
   loadModelCatalog: vi.fn(),
 }));
-
-type HomeEnvSnapshot = {
-  HOME: string | undefined;
-  USERPROFILE: string | undefined;
-  HOMEDRIVE: string | undefined;
-  HOMEPATH: string | undefined;
-  OPENCLAW_STATE_DIR: string | undefined;
-};
-
-function snapshotHomeEnv(): HomeEnvSnapshot {
-  return {
-    HOME: process.env.HOME,
-    USERPROFILE: process.env.USERPROFILE,
-    HOMEDRIVE: process.env.HOMEDRIVE,
-    HOMEPATH: process.env.HOMEPATH,
-    OPENCLAW_STATE_DIR: process.env.OPENCLAW_STATE_DIR,
-  };
-}
-
-function restoreHomeEnv(snapshot: HomeEnvSnapshot) {
-  for (const [key, value] of Object.entries(snapshot)) {
-    if (value === undefined) {
-      delete process.env[key];
-    } else {
-      process.env[key] = value;
-    }
-  }
-}
-
-let fixtureRoot = "";
-let caseId = 0;
 
 type GetReplyOptions = NonNullable<Parameters<typeof getReplyFromConfig>[1]>;
 
@@ -143,6 +116,7 @@ async function runTelegramReply(params: {
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 <<<<<<< HEAD
+<<<<<<< HEAD
   return withTempHomeBase(fn, { prefix: "moltbot-stream-" });
 =======
   const home = path.join(fixtureRoot, `case-${++caseId}`);
@@ -166,29 +140,15 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
     restoreHomeEnv(envSnapshot);
   }
 >>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
+=======
+  return withTempHomeHarness("openclaw-stream-", async (home) => {
+    await fs.mkdir(path.join(home, ".openclaw", "agents", "main", "sessions"), { recursive: true });
+    return fn(home);
+  });
+>>>>>>> c0a6ff08a (test(auto-reply): reuse shared directive and home test harnesses)
 }
 
 describe("block streaming", () => {
-  beforeAll(async () => {
-    fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-stream-"));
-  });
-
-  afterAll(async () => {
-    if (process.platform === "win32") {
-      await fs.rm(fixtureRoot, {
-        recursive: true,
-        force: true,
-        maxRetries: 10,
-        retryDelay: 50,
-      });
-    } else {
-      await fs.rm(fixtureRoot, {
-        recursive: true,
-        force: true,
-      });
-    }
-  });
-
   beforeEach(() => {
     vi.stubEnv("OPENCLAW_TEST_FAST", "1");
     piEmbeddedMock.abortEmbeddedPiRun.mockReset().mockReturnValue(false);
