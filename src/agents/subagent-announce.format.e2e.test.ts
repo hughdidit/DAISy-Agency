@@ -816,16 +816,31 @@ describe("subagent announce formatting", () => {
     expect(accountIds).toEqual(expect.arrayContaining(["acct-a", "acct-b"]));
   });
 
-  it("uses requester origin for direct announce when not queued", async () => {
+  it.each([
+    {
+      testName: "uses requester origin for direct announce when not queued",
+      childRunId: "run-direct",
+      requesterOrigin: { channel: "whatsapp", accountId: "acct-123" },
+      expectedChannel: "whatsapp",
+      expectedAccountId: "acct-123",
+    },
+    {
+      testName: "normalizes requesterOrigin for direct announce delivery",
+      childRunId: "run-direct-origin",
+      requesterOrigin: { channel: " whatsapp ", accountId: " acct-987 " },
+      expectedChannel: "whatsapp",
+      expectedAccountId: "acct-987",
+    },
+  ] as const)("$testName", async (testCase) => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(false);
     embeddedRunMock.isEmbeddedPiRunStreaming.mockReturnValue(false);
 
     const didAnnounce = await runSubagentAnnounceFlow({
       childSessionKey: "agent:main:subagent:test",
-      childRunId: "run-direct",
+      childRunId: testCase.childRunId,
       requesterSessionKey: "agent:main:main",
-      requesterOrigin: { channel: "whatsapp", accountId: "acct-123" },
+      requesterOrigin: testCase.requesterOrigin,
       requesterDisplayKey: "main",
       ...defaultOutcomeAnnounce,
     });
@@ -835,8 +850,8 @@ describe("subagent announce formatting", () => {
       params?: Record<string, unknown>;
       expectFinal?: boolean;
     };
-    expect(call?.params?.channel).toBe("whatsapp");
-    expect(call?.params?.accountId).toBe("acct-123");
+    expect(call?.params?.channel).toBe(testCase.expectedChannel);
+    expect(call?.params?.accountId).toBe(testCase.expectedAccountId);
     expect(call?.expectFinal).toBe(true);
   });
 
@@ -1022,6 +1037,7 @@ describe("subagent announce formatting", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("does not delete child session when announce is deferred for an active run", async () => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
@@ -1084,6 +1100,8 @@ describe("subagent announce formatting", () => {
         lastChannel: "whatsapp",
         lastTo: "+1555",
 =======
+=======
+>>>>>>> c25a18493 (test: merge direct announce origin variants)
   it("prefers requesterOrigin channel over stale session lastChannel in queued announce", async () => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
