@@ -7,6 +7,22 @@ import type {
 
 import { listMatrixDirectoryGroupsLive, listMatrixDirectoryPeersLive } from "./directory-live.js";
 
+function findExactDirectoryMatches(
+  matches: ChannelDirectoryEntry[],
+  query: string,
+): ChannelDirectoryEntry[] {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) {
+    return [];
+  }
+  return matches.filter((match) => {
+    const id = match.id.trim().toLowerCase();
+    const name = match.name?.trim().toLowerCase();
+    const handle = match.handle?.trim().toLowerCase();
+    return normalized === id || normalized === name || normalized === handle;
+  });
+}
+
 function pickBestGroupMatch(
   matches: ChannelDirectoryEntry[],
   query: string,
@@ -14,21 +30,45 @@ function pickBestGroupMatch(
   if (matches.length === 0) {
     return undefined;
   }
-  const normalized = query.trim().toLowerCase();
-  if (normalized) {
-    const exact = matches.find((match) => {
-      const name = match.name?.trim().toLowerCase();
-      const handle = match.handle?.trim().toLowerCase();
-      const id = match.id.trim().toLowerCase();
-      return name === normalized || handle === normalized || id === normalized;
-    });
-    if (exact) {
-      return exact;
-    }
-  }
-  return matches[0];
+  const [exact] = findExactDirectoryMatches(matches, query);
+  return exact ?? matches[0];
 }
 
+<<<<<<< HEAD
+=======
+function pickBestUserMatch(
+  matches: ChannelDirectoryEntry[],
+  query: string,
+): ChannelDirectoryEntry | undefined {
+  if (matches.length === 0) {
+    return undefined;
+  }
+  const exact = findExactDirectoryMatches(matches, query);
+  if (exact.length === 1) {
+    return exact[0];
+  }
+  return undefined;
+}
+
+function describeUserMatchFailure(matches: ChannelDirectoryEntry[], query: string): string {
+  if (matches.length === 0) {
+    return "no matches";
+  }
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) {
+    return "empty input";
+  }
+  const exact = findExactDirectoryMatches(matches, normalized);
+  if (exact.length === 0) {
+    return "no exact match; use full Matrix ID";
+  }
+  if (exact.length > 1) {
+    return "multiple exact matches; use full Matrix ID";
+  }
+  return "no exact match; use full Matrix ID";
+}
+
+>>>>>>> eb4f1e765 (refactor(matrix): dedupe directory/target match helpers)
 export async function resolveMatrixTargets(params: {
   cfg: unknown;
   inputs: string[];
