@@ -1,5 +1,14 @@
 import type { BrowserRouteContext } from "../server-context.js";
+<<<<<<< HEAD
 import { handleRouteError, readBody, requirePwAi, resolveProfileContext } from "./agent.shared.js";
+=======
+import {
+  readBody,
+  resolveTargetIdFromBody,
+  resolveTargetIdFromQuery,
+  withPlaywrightRouteContext,
+} from "./agent.shared.js";
+>>>>>>> ac4ae9ed6 (refactor(browser): dedupe storage and download route parsing)
 import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./types.js";
 import { jsonError, toBoolean, toNumber, toStringOrEmpty } from "./utils.js";
 
@@ -56,6 +65,42 @@ function resolveStorageMutationContext(params: {
     kind: parsed.kind,
     targetId: parsed.targetId,
   };
+}
+
+export function parseRequiredStorageMutationRequest(
+  kindParam: unknown,
+  body: Record<string, unknown>,
+): { kind: StorageKind; targetId: string | undefined } | null {
+  const parsed = parseStorageMutationRequest(kindParam, body);
+  if (!parsed.kind) {
+    return null;
+  }
+  return {
+    kind: parsed.kind,
+    targetId: parsed.targetId,
+  };
+}
+
+function parseStorageMutationOrRespond(
+  res: BrowserResponse,
+  kindParam: unknown,
+  body: Record<string, unknown>,
+) {
+  const parsed = parseRequiredStorageMutationRequest(kindParam, body);
+  if (!parsed) {
+    jsonError(res, 400, "kind must be local|session");
+    return null;
+  }
+  return parsed;
+}
+
+function parseStorageMutationFromRequest(req: BrowserRequest, res: BrowserResponse) {
+  const body = readBody(req);
+  const parsed = parseStorageMutationOrRespond(res, req.params.kind, body);
+  if (!parsed) {
+    return null;
+  }
+  return { body, parsed };
 }
 
 export function registerBrowserAgentStorageRoutes(
@@ -181,6 +226,7 @@ export function registerBrowserAgentStorageRoutes(
   });
 
   app.post("/storage/:kind/set", async (req, res) => {
+<<<<<<< HEAD
     const mutation = resolveStorageMutationContext({ req, res, ctx });
     if (!mutation) {
       return;
@@ -231,6 +277,58 @@ export function registerBrowserAgentStorageRoutes(
     } catch (err) {
       handleRouteError(ctx, res, err);
     }
+=======
+    const mutation = parseStorageMutationFromRequest(req, res);
+    if (!mutation) {
+      return;
+    }
+    const key = toStringOrEmpty(mutation.body.key);
+    if (!key) {
+      return jsonError(res, 400, "key is required");
+    }
+    const value = typeof mutation.body.value === "string" ? mutation.body.value : "";
+
+    await withPlaywrightRouteContext({
+      req,
+      res,
+      ctx,
+      targetId: mutation.parsed.targetId,
+      feature: "storage set",
+      run: async ({ cdpUrl, tab, pw }) => {
+        await pw.storageSetViaPlaywright({
+          cdpUrl,
+          targetId: tab.targetId,
+          kind: mutation.parsed.kind,
+          key,
+          value,
+        });
+        res.json({ ok: true, targetId: tab.targetId });
+      },
+    });
+  });
+
+  app.post("/storage/:kind/clear", async (req, res) => {
+    const mutation = parseStorageMutationFromRequest(req, res);
+    if (!mutation) {
+      return;
+    }
+
+    await withPlaywrightRouteContext({
+      req,
+      res,
+      ctx,
+      targetId: mutation.parsed.targetId,
+      feature: "storage clear",
+      run: async ({ cdpUrl, tab, pw }) => {
+        await pw.storageClearViaPlaywright({
+          cdpUrl,
+          targetId: tab.targetId,
+          kind: mutation.parsed.kind,
+        });
+        res.json({ ok: true, targetId: tab.targetId });
+      },
+    });
+>>>>>>> ac4ae9ed6 (refactor(browser): dedupe storage and download route parsing)
   });
 
   app.post("/set/offline", async (req, res) => {
