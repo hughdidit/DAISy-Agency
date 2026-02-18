@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   analyzeArgvCommand,
   analyzeShellCommand,
@@ -18,6 +18,8 @@ import {
   resolveCommandResolution,
   resolveExecApprovals,
   resolveExecApprovalsFromFile,
+  resolveExecApprovalsPath,
+  resolveExecApprovalsSocketPath,
   type ExecAllowlistEntry,
   type ExecApprovalsFile,
 } from "./exec-approvals.js";
@@ -128,6 +130,28 @@ describe("mergeExecApprovalsSocketDefaults", () => {
     const merged = mergeExecApprovalsSocketDefaults({ normalized, current });
     expect(merged.socket?.path).toBeTruthy();
     expect(merged.socket?.token).toBe("b");
+  });
+});
+
+describe("resolve exec approvals defaults", () => {
+  it("expands home-prefixed default file and socket paths", () => {
+    const dir = makeTempDir();
+    const prevOpenClawHome = process.env.OPENCLAW_HOME;
+    try {
+      process.env.OPENCLAW_HOME = dir;
+      expect(path.normalize(resolveExecApprovalsPath())).toBe(
+        path.normalize(path.join(dir, ".openclaw", "exec-approvals.json")),
+      );
+      expect(path.normalize(resolveExecApprovalsSocketPath())).toBe(
+        path.normalize(path.join(dir, ".openclaw", "exec-approvals.sock")),
+      );
+    } finally {
+      if (prevOpenClawHome === undefined) {
+        delete process.env.OPENCLAW_HOME;
+      } else {
+        process.env.OPENCLAW_HOME = prevOpenClawHome;
+      }
+    }
   });
 });
 
@@ -549,9 +573,10 @@ describe("exec approvals policy helpers", () => {
 describe("exec approvals wildcard agent", () => {
   it("merges wildcard allowlist entries with agent entries", () => {
     const dir = makeTempDir();
-    const homedirSpy = vi.spyOn(os, "homedir").mockReturnValue(dir);
+    const prevOpenClawHome = process.env.OPENCLAW_HOME;
 
     try {
+      process.env.OPENCLAW_HOME = dir;
       const approvalsPath = path.join(dir, ".openclaw", "exec-approvals.json");
       fs.mkdirSync(path.dirname(approvalsPath), { recursive: true });
       fs.writeFileSync(
@@ -575,7 +600,11 @@ describe("exec approvals wildcard agent", () => {
         "/usr/bin/uname",
       ]);
     } finally {
-      homedirSpy.mockRestore();
+      if (prevOpenClawHome === undefined) {
+        delete process.env.OPENCLAW_HOME;
+      } else {
+        process.env.OPENCLAW_HOME = prevOpenClawHome;
+      }
     }
   });
 });
