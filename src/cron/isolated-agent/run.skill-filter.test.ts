@@ -346,4 +346,48 @@ describe("runCronIsolatedAgentTurn — skill filter", () => {
     expect(result.status).toBe("ok");
     expect(buildWorkspaceSkillSnapshotMock).not.toHaveBeenCalled();
   });
+<<<<<<< HEAD
+=======
+
+  describe("model fallbacks", () => {
+    const defaultFallbacks = [
+      "anthropic/claude-opus-4-6",
+      "google-gemini-cli/gemini-3-pro-preview",
+      "nvidia/deepseek-ai/deepseek-v3.2",
+    ];
+
+    async function expectPrimaryOverridePreservesDefaults(modelOverride: unknown) {
+      resolveAgentConfigMock.mockReturnValue({ model: modelOverride });
+      const result = await runCronIsolatedAgentTurn(
+        makeParams({
+          cfg: {
+            agents: {
+              defaults: {
+                model: { primary: "openai-codex/gpt-5.3-codex", fallbacks: defaultFallbacks },
+              },
+            },
+          },
+          agentId: "scout",
+        }),
+      );
+
+      expect(result.status).toBe("ok");
+      expect(runWithModelFallbackMock).toHaveBeenCalledOnce();
+      const callCfg = runWithModelFallbackMock.mock.calls[0][0].cfg;
+      const model = callCfg?.agents?.defaults?.model as
+        | { primary?: string; fallbacks?: string[] }
+        | undefined;
+      expect(model?.primary).toBe("anthropic/claude-sonnet-4-5");
+      expect(model?.fallbacks).toEqual(defaultFallbacks);
+    }
+
+    it("preserves defaults when agent overrides primary as string", async () => {
+      await expectPrimaryOverridePreservesDefaults("anthropic/claude-sonnet-4-5");
+    });
+
+    it("preserves defaults when agent overrides primary in object form", async () => {
+      await expectPrimaryOverridePreservesDefaults({ primary: "anthropic/claude-sonnet-4-5" });
+    });
+  });
+>>>>>>> 262472ba2 (test: remove duplicated scenario scaffolding across runtime tests)
 });
