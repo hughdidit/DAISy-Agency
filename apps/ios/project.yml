@@ -118,9 +118,14 @@ targets:
           - CFBundleURLName: ai.openclaw.ios
             CFBundleURLSchemes:
               - openclaw
+<<<<<<< HEAD
         CFBundleShortVersionString: "2026.2.17"
         CFBundleVersion: "20260217"
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
+=======
+        CFBundleShortVersionString: "2026.2.18"
+        CFBundleVersion: "20260218"
+>>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -175,6 +180,7 @@ targets:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         CFBundleShortVersionString: "2026.2.6"
 =======
         CFBundleShortVersionString: "2026.2.10"
@@ -204,3 +210,7 @@ targets:
         CFBundleShortVersionString: "2026.2.17"
         CFBundleVersion: "20260217"
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
+=======
+        CFBundleShortVersionString: "2026.2.18"
+        CFBundleVersion: "20260218"
+>>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)

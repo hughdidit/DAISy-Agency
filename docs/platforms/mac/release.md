@@ -41,6 +41,7 @@ BUNDLE_ID=bot.molt.mac \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 APP_VERSION=2026.2.6 \
 =======
 APP_VERSION=2026.2.10 \
@@ -63,12 +64,16 @@ APP_VERSION=2026.2.16 \
 =======
 APP_VERSION=2026.2.17 \
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
+=======
+APP_VERSION=2026.2.18 \
+>>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
 APP_BUILD="$(git rev-list --count HEAD)" \
 BUILD_CONFIG=release \
 SIGN_IDENTITY="Developer ID Application: <Developer Name> (<TEAMID>)" \
 scripts/package-mac-app.sh
 
 # Zip for distribution (includes resource forks for Sparkle delta support)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -122,6 +127,12 @@ ditto -c -k --sequesterRsrc --keepParent dist/OpenClaw.app dist/OpenClaw-2026.2.
 # Optional: also build a styled DMG for humans (drag to /Applications)
 scripts/create-dmg.sh dist/OpenClaw.app dist/OpenClaw-2026.2.17.dmg
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
+=======
+ditto -c -k --sequesterRsrc --keepParent dist/OpenClaw.app dist/OpenClaw-2026.2.18.zip
+
+# Optional: also build a styled DMG for humans (drag to /Applications)
+scripts/create-dmg.sh dist/OpenClaw.app dist/OpenClaw-2026.2.18.dmg
+>>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
 
 # Recommended: build + notarize/staple zip + DMG
 # First, create a keychain profile once:
@@ -129,6 +140,7 @@ scripts/create-dmg.sh dist/OpenClaw.app dist/OpenClaw-2026.2.17.dmg
 #     --apple-id "<apple-id>" --team-id "<team-id>" --password "<app-specific-password>"
 NOTARIZE=1 NOTARYTOOL_PROFILE=openclaw-notary \
 BUNDLE_ID=bot.molt.mac \
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -158,12 +170,16 @@ APP_VERSION=2026.2.16 \
 =======
 APP_VERSION=2026.2.17 \
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
+=======
+APP_VERSION=2026.2.18 \
+>>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
 APP_BUILD="$(git rev-list --count HEAD)" \
 BUILD_CONFIG=release \
 SIGN_IDENTITY="Developer ID Application: <Developer Name> (<TEAMID>)" \
 scripts/package-mac-dist.sh
 
 # Optional: ship dSYM alongside the release
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -193,6 +209,9 @@ ditto -c -k --keepParent apps/macos/.build/release/OpenClaw.app.dSYM dist/OpenCl
 =======
 ditto -c -k --keepParent apps/macos/.build/release/OpenClaw.app.dSYM dist/OpenClaw-2026.2.17.dSYM.zip
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
+=======
+ditto -c -k --keepParent apps/macos/.build/release/OpenClaw.app.dSYM dist/OpenClaw-2026.2.18.dSYM.zip
+>>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
 ```
 
 ## Appcast entry
@@ -200,6 +219,7 @@ ditto -c -k --keepParent apps/macos/.build/release/OpenClaw.app.dSYM dist/OpenCl
 Use the release note generator so Sparkle renders formatted HTML notes:
 
 ```bash
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -229,6 +249,9 @@ SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh di
 =======
 SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh dist/OpenClaw-2026.2.17.zip https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
+=======
+SPARKLE_PRIVATE_KEY_FILE=/path/to/ed25519-private-key scripts/make_appcast.sh dist/OpenClaw-2026.2.18.zip https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml
+>>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
 ```
 
 Generates HTML release notes from `CHANGELOG.md` (via [`scripts/changelog-to-html.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/changelog-to-html.sh)) and embeds them in the appcast entry.
@@ -236,6 +259,7 @@ Commit the updated `appcast.xml` alongside the release assets (zip + dSYM) when 
 
 ## Publish & verify
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -265,6 +289,9 @@ Commit the updated `appcast.xml` alongside the release assets (zip + dSYM) when 
 =======
 - Upload `OpenClaw-2026.2.17.zip` (and `OpenClaw-2026.2.17.dSYM.zip`) to the GitHub release for tag `v2026.2.17`.
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
+=======
+- Upload `OpenClaw-2026.2.18.zip` (and `OpenClaw-2026.2.18.dSYM.zip`) to the GitHub release for tag `v2026.2.18`.
+>>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
 - Ensure the raw appcast URL matches the baked feed: `https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml`.
 - Sanity checks:
   - `curl -I https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml` returns 200.
