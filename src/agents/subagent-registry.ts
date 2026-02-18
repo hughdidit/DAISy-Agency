@@ -57,9 +57,21 @@ const MAX_ANNOUNCE_RETRY_COUNT = 3;
  */
 const ANNOUNCE_EXPIRY_MS = 5 * 60_000; // 5 minutes
 <<<<<<< HEAD
+<<<<<<< HEAD
 // (Backoff constant removed — max-retry + expiry guards are sufficient.)
 >>>>>>> a6c741eb4 (fix(announce): break infinite retry loop with max attempts and expiry (#18264))
 =======
+=======
+
+function resolveAnnounceRetryDelayMs(retryCount: number) {
+  const boundedRetryCount = Math.max(0, Math.min(retryCount, 10));
+  // retryCount tracks completed failed attempts. The next retry delay should
+  // start at 1s for retry #1, then 2s, 4s, ...
+  const exponent = Math.max(0, boundedRetryCount - 1);
+  const baseDelay = MIN_ANNOUNCE_RETRY_DELAY_MS * 2 ** exponent;
+  return Math.min(baseDelay, MAX_ANNOUNCE_RETRY_DELAY_MS);
+}
+>>>>>>> 8984f3187 (fix(agents): correct completion announce retry backoff schedule)
 
 function logAnnounceGiveUp(entry: SubagentRunRecord, reason: "retry-limit" | "expiry") {
   const retryCount = entry.announceRetryCount ?? 0;
