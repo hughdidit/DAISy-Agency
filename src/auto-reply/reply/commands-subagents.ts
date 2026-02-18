@@ -3,7 +3,18 @@ import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
 import type { CommandHandler } from "./commands-types.js";
 import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
+<<<<<<< HEAD
 import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
+=======
+import {
+  clearSubagentRunSteerRestart,
+  listSubagentRunsForRequester,
+  markSubagentRunTerminated,
+  markSubagentRunForSteerRestart,
+  replaceSubagentRunAfterSteer,
+} from "../../agents/subagent-registry.js";
+import { spawnSubagentDirect } from "../../agents/subagent-spawn.js";
+>>>>>>> e2dd827ca (fix: guarantee manual subagent spawn sends completion message)
 import {
   extractAssistantText,
   resolveInternalSessionKey,
@@ -426,5 +437,62 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
     };
   }
 
+<<<<<<< HEAD
+=======
+  if (action === "spawn") {
+    const agentId = restTokens[0];
+    // Parse remaining tokens: task text with optional --model and --thinking flags.
+    const taskParts: string[] = [];
+    let model: string | undefined;
+    let thinking: string | undefined;
+    for (let i = 1; i < restTokens.length; i++) {
+      if (restTokens[i] === "--model" && i + 1 < restTokens.length) {
+        i += 1;
+        model = restTokens[i];
+      } else if (restTokens[i] === "--thinking" && i + 1 < restTokens.length) {
+        i += 1;
+        thinking = restTokens[i];
+      } else {
+        taskParts.push(restTokens[i]);
+      }
+    }
+    const task = taskParts.join(" ").trim();
+    if (!agentId || !task) {
+      return {
+        shouldContinue: false,
+        reply: {
+          text: "Usage: /subagents spawn <agentId> <task> [--model <model>] [--thinking <level>]",
+        },
+      };
+    }
+
+    const result = await spawnSubagentDirect(
+      { task, agentId, model, thinking, cleanup: "keep", expectsCompletionMessage: true },
+      {
+        agentSessionKey: requesterKey,
+        agentChannel: params.command.channel,
+        agentAccountId: params.ctx.AccountId,
+        agentTo: params.command.to,
+        agentThreadId: params.ctx.MessageThreadId,
+        agentGroupId: params.sessionEntry?.groupId ?? null,
+        agentGroupChannel: params.sessionEntry?.groupChannel ?? null,
+        agentGroupSpace: params.sessionEntry?.space ?? null,
+      },
+    );
+    if (result.status === "accepted") {
+      return {
+        shouldContinue: false,
+        reply: {
+          text: `Spawned subagent ${agentId} (session ${result.childSessionKey}, run ${result.runId?.slice(0, 8)}).${result.warning ? ` Warning: ${result.warning}` : ""}`,
+        },
+      };
+    }
+    return {
+      shouldContinue: false,
+      reply: { text: `Spawn failed: ${result.error ?? result.status}` },
+    };
+  }
+
+>>>>>>> e2dd827ca (fix: guarantee manual subagent spawn sends completion message)
   return { shouldContinue: false, reply: { text: buildSubagentsHelp() } };
 };

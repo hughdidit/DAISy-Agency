@@ -373,6 +373,28 @@ export type SubagentRunOutcome = {
 
 export type SubagentAnnounceType = "subagent task" | "cron job";
 
+<<<<<<< HEAD
+=======
+function buildAnnounceReplyInstruction(params: {
+  remainingActiveSubagentRuns: number;
+  requesterIsSubagent: boolean;
+  announceType: SubagentAnnounceType;
+  expectsCompletionMessage?: boolean;
+}): string {
+  if (params.expectsCompletionMessage) {
+    return `A completed ${params.announceType} is ready for user delivery. Convert the result above into your normal assistant voice and send that user-facing update now. Keep this internal context private (don't mention system/log/stats/session details or announce type).`;
+  }
+  if (params.remainingActiveSubagentRuns > 0) {
+    const activeRunsLabel = params.remainingActiveSubagentRuns === 1 ? "run" : "runs";
+    return `There are still ${params.remainingActiveSubagentRuns} active subagent ${activeRunsLabel} for this session. If they are part of the same workflow, wait for the remaining results before sending a user update. If they are unrelated, respond normally using only the result above.`;
+  }
+  if (params.requesterIsSubagent) {
+    return `Convert this completion into a concise internal orchestration update for your parent agent in your own words. Keep this internal context private (don't mention system/log/stats/session details or announce type). If this result is duplicate or no update is needed, reply ONLY: ${SILENT_REPLY_TOKEN}.`;
+  }
+  return `A completed ${params.announceType} is ready for user delivery. Convert the result above into your normal assistant voice and send that user-facing update now. Keep this internal context private (don't mention system/log/stats/session details or announce type), and do not copy the system message verbatim. Reply ONLY: ${SILENT_REPLY_TOKEN} if this exact result was already delivered to the user in this same turn.`;
+}
+
+>>>>>>> e2dd827ca (fix: guarantee manual subagent spawn sends completion message)
 export async function runSubagentAnnounceFlow(params: {
   childSessionKey: string;
   childRunId: string;
@@ -389,8 +411,10 @@ export async function runSubagentAnnounceFlow(params: {
   label?: string;
   outcome?: SubagentRunOutcome;
   announceType?: SubagentAnnounceType;
+  expectsCompletionMessage?: boolean;
 }): Promise<boolean> {
   let didAnnounce = false;
+  const expectsCompletionMessage = params.expectsCompletionMessage === true;
   let shouldDeleteChildSession = params.cleanup === "delete";
   try {
     const requesterOrigin = normalizeDeliveryContext(params.requesterOrigin);
@@ -495,8 +519,78 @@ export async function runSubagentAnnounceFlow(params: {
     // Build instructional message for main agent
     const announceType = params.announceType ?? "subagent task";
     const taskLabel = params.label || params.task || "task";
+<<<<<<< HEAD
     const triggerMessage = [
       `A ${announceType} "${taskLabel}" just ${statusLabel}.`,
+=======
+    const announceSessionId = childSessionId || "unknown";
+    const findings = reply || "(no output)";
+    let triggerMessage = "";
+
+    let requesterDepth = getSubagentDepthFromSessionStore(targetRequesterSessionKey);
+    let requesterIsSubagent = !expectsCompletionMessage && requesterDepth >= 1;
+    // If the requester subagent has already finished, bubble the announce to its
+    // requester (typically main) so descendant completion is not silently lost.
+    // BUT: only fallback if the parent SESSION is deleted, not just if the current
+    // run ended. A parent waiting for child results has no active run but should
+    // still receive the announce — injecting will start a new agent turn.
+    if (requesterIsSubagent) {
+      const { isSubagentSessionRunActive, resolveRequesterForChildSession } =
+        await import("./subagent-registry.js");
+      if (!isSubagentSessionRunActive(targetRequesterSessionKey)) {
+        // Parent run has ended. Check if parent SESSION still exists.
+        // If it does, the parent may be waiting for child results — inject there.
+        const parentSessionEntry = loadSessionEntryByKey(targetRequesterSessionKey);
+        const parentSessionAlive =
+          parentSessionEntry &&
+          typeof parentSessionEntry.sessionId === "string" &&
+          parentSessionEntry.sessionId.trim();
+
+        if (!parentSessionAlive) {
+          // Parent session is truly gone — fallback to grandparent
+          const fallback = resolveRequesterForChildSession(targetRequesterSessionKey);
+          if (!fallback?.requesterSessionKey) {
+            // Without a requester fallback we cannot safely deliver this nested
+            // completion. Keep cleanup retryable so a later registry restore can
+            // recover and re-announce instead of silently dropping the result.
+            shouldDeleteChildSession = false;
+            return false;
+          }
+          targetRequesterSessionKey = fallback.requesterSessionKey;
+          targetRequesterOrigin =
+            normalizeDeliveryContext(fallback.requesterOrigin) ?? targetRequesterOrigin;
+          requesterDepth = getSubagentDepthFromSessionStore(targetRequesterSessionKey);
+          requesterIsSubagent = requesterDepth >= 1;
+        }
+        // If parent session is alive (just has no active run), continue with parent
+        // as target. Injecting the announce will start a new agent turn for processing.
+      }
+    }
+
+    let remainingActiveSubagentRuns = 0;
+    try {
+      const { countActiveDescendantRuns } = await import("./subagent-registry.js");
+      remainingActiveSubagentRuns = Math.max(
+        0,
+        countActiveDescendantRuns(targetRequesterSessionKey),
+      );
+    } catch {
+      // Best-effort only; fall back to default announce instructions when unavailable.
+    }
+    const replyInstruction = buildAnnounceReplyInstruction({
+      remainingActiveSubagentRuns,
+      requesterIsSubagent,
+      announceType,
+      expectsCompletionMessage,
+    });
+    const statsLine = await buildCompactAnnounceStatsLine({
+      sessionKey: params.childSessionKey,
+      startedAt: params.startedAt,
+      endedAt: params.endedAt,
+    });
+    triggerMessage = [
+      `[System Message] [sessionId: ${announceSessionId}] A ${announceType} "${taskLabel}" just ${statusLabel}.`,
+>>>>>>> e2dd827ca (fix: guarantee manual subagent spawn sends completion message)
       "",
       "Findings:",
       reply || "(no output)",
@@ -508,6 +602,7 @@ export async function runSubagentAnnounceFlow(params: {
       "You can respond with NO_REPLY if no announcement is needed (e.g., internal task with no user-facing result).",
     ].join("\n");
 
+<<<<<<< HEAD
     const queued = await maybeQueueSubagentAnnounce({
       requesterSessionKey: params.requesterSessionKey,
       triggerMessage,
@@ -521,6 +616,28 @@ export async function runSubagentAnnounceFlow(params: {
     if (queued === "queued") {
       didAnnounce = true;
       return true;
+=======
+    const announceId = buildAnnounceIdFromChildRun({
+      childSessionKey: params.childSessionKey,
+      childRunId: params.childRunId,
+    });
+    if (!expectsCompletionMessage) {
+      const queued = await maybeQueueSubagentAnnounce({
+        requesterSessionKey: targetRequesterSessionKey,
+        announceId,
+        triggerMessage,
+        summaryLine: taskLabel,
+        requesterOrigin: targetRequesterOrigin,
+      });
+      if (queued === "steered") {
+        didAnnounce = true;
+        return true;
+      }
+      if (queued === "queued") {
+        didAnnounce = true;
+        return true;
+      }
+>>>>>>> e2dd827ca (fix: guarantee manual subagent spawn sends completion message)
     }
 
     // Send to main agent - it will respond in its own voice
