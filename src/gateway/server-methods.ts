@@ -96,7 +96,6 @@ const WRITE_METHODS = new Set([
   "chat.send",
   "chat.abort",
   "browser.request",
-  "mesh.plan.auto",
   "mesh.run",
   "mesh.retry",
 ]);
