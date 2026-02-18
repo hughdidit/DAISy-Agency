@@ -7,6 +7,7 @@ import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
@@ -56,6 +57,11 @@ import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
 >>>>>>> f6f5cda6c (style: format subagent command files)
+=======
+import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
+import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
+import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
+>>>>>>> d30492823 (chore(auto-reply): format subagent command files)
 import {
   clearSubagentRunSteerRestart,
   listSubagentRunsForRequester,
@@ -108,12 +114,15 @@ import {
 import { stopSubagentsForRequester } from "./abort.js";
 import type { CommandHandler } from "./commands-types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { clearSessionQueues } from "./queue.js";
 =======
 import { stopSubagentsForRequester } from "./abort.js";
 import type { CommandHandler } from "./commands-types.js";
 =======
 >>>>>>> f6f5cda6c (style: format subagent command files)
+=======
+>>>>>>> d30492823 (chore(auto-reply): format subagent command files)
 import { clearSessionQueues } from "./queue.js";
 import { formatRunLabel, formatRunStatus, sortSubagentRuns } from "./subagents-utils.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
