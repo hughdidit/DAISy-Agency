@@ -94,6 +94,23 @@ async function runNewWithPreviousSession(params: {
   return { tempDir, files, memoryContent };
 }
 
+function makeSessionMemoryConfig(tempDir: string, messages?: number): OpenClawConfig {
+  return {
+    agents: { defaults: { workspace: tempDir } },
+    ...(typeof messages === "number"
+      ? {
+          hooks: {
+            internal: {
+              entries: {
+                "session-memory": { enabled: true, messages },
+              },
+            },
+          },
+        }
+      : {}),
+  } satisfies OpenClawConfig;
+}
+
 describe("session-memory hook", () => {
   it("skips non-command events", async () => {
     const tempDir = await makeTempWorkspace("openclaw-session-memory-");
@@ -217,16 +234,7 @@ describe("session-memory hook", () => {
     const sessionContent = createMockSessionContent(entries);
     const { memoryContent } = await runNewWithPreviousSession({
       sessionContent,
-      cfg: (tempDir) => ({
-        agents: { defaults: { workspace: tempDir } },
-        hooks: {
-          internal: {
-            entries: {
-              "session-memory": { enabled: true, messages: 3 },
-            },
-          },
-        },
-      }),
+      cfg: (tempDir) => makeSessionMemoryConfig(tempDir, 3),
     });
 
     // Only last 3 messages should be present
@@ -255,16 +263,7 @@ describe("session-memory hook", () => {
     const sessionContent = createMockSessionContent(entries);
     const { memoryContent } = await runNewWithPreviousSession({
       sessionContent,
-      cfg: (tempDir) => ({
-        agents: { defaults: { workspace: tempDir } },
-        hooks: {
-          internal: {
-            entries: {
-              "session-memory": { enabled: true, messages: 3 },
-            },
-          },
-        },
-      }),
+      cfg: (tempDir) => makeSessionMemoryConfig(tempDir, 3),
     });
 
     // Should have exactly 3 user/assistant messages (the last 3)
@@ -323,24 +322,15 @@ describe("session-memory hook", () => {
       ]),
     });
 
-    const cfg = {
-      agents: { defaults: { workspace: tempDir } },
-    } satisfies OpenClawConfig;
-
-    const event = createHookEvent("command", "new", "agent:main:main", {
-      cfg,
+    const { files, memoryContent } = await runNewWithPreviousSessionEntry({
+      tempDir,
+      cfg: makeSessionMemoryConfig(tempDir),
       previousSessionEntry: {
         sessionId,
         sessionFile: resetSessionFile,
       },
     });
-
-    await handler(event);
-
-    const memoryDir = path.join(tempDir, "memory");
-    const files = await fs.readdir(memoryDir);
     expect(files.length).toBe(1);
-    const memoryContent = await fs.readFile(path.join(memoryDir, files[0]), "utf-8");
 
     expect(memoryContent).toContain("user: Message from reset pointer");
     expect(memoryContent).toContain("assistant: Recovered directly from reset file");
@@ -366,23 +356,14 @@ describe("session-memory hook", () => {
       ]),
     });
 
-    const cfg = {
-      agents: { defaults: { workspace: tempDir } },
-    } satisfies OpenClawConfig;
-
-    const event = createHookEvent("command", "new", "agent:main:main", {
-      cfg,
+    const { files, memoryContent } = await runNewWithPreviousSessionEntry({
+      tempDir,
+      cfg: makeSessionMemoryConfig(tempDir),
       previousSessionEntry: {
         sessionId,
       },
     });
-
-    await handler(event);
-
-    const memoryDir = path.join(tempDir, "memory");
-    const files = await fs.readdir(memoryDir);
     expect(files.length).toBe(1);
-    const memoryContent = await fs.readFile(path.join(memoryDir, files[0]), "utf-8");
 
     expect(memoryContent).toContain("user: Recovered with missing sessionFile pointer");
     expect(memoryContent).toContain("assistant: Recovered by sessionId fallback");
