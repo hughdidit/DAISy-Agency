@@ -24,6 +24,61 @@ function makeCfg(overrides: Partial<MoltbotConfig> = {}): MoltbotConfig {
   } as MoltbotConfig;
 }
 
+function makeFallbacksOnlyCfg(): OpenClawConfig {
+  return {
+    agents: {
+      defaults: {
+        model: {
+          fallbacks: ["openai/gpt-5.2"],
+        },
+      },
+    },
+  } as OpenClawConfig;
+}
+
+function makeProviderFallbackCfg(provider: string): OpenClawConfig {
+  return makeCfg({
+    agents: {
+      defaults: {
+        model: {
+          primary: `${provider}/m1`,
+          fallbacks: ["fallback/ok-model"],
+        },
+      },
+    },
+  });
+}
+
+async function withTempAuthStore<T>(
+  store: AuthProfileStore,
+  run: (tempDir: string) => Promise<T>,
+): Promise<T> {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+  saveAuthProfileStore(store, tempDir);
+  try {
+    return await run(tempDir);
+  } finally {
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
+}
+
+async function runWithStoredAuth(params: {
+  cfg: OpenClawConfig;
+  store: AuthProfileStore;
+  provider: string;
+  run: (provider: string, model: string) => Promise<string>;
+}) {
+  return withTempAuthStore(params.store, async (tempDir) =>
+    runWithModelFallback({
+      cfg: params.cfg,
+      provider: params.provider,
+      model: "m1",
+      agentDir: tempDir,
+      run: params.run,
+    }),
+  );
+}
+
 async function expectFallsBackToHaiku(params: {
   provider: string;
   model: string;
@@ -122,7 +177,10 @@ describe("runWithModelFallback", () => {
   });
 
   it("skips providers when all profiles are in cooldown", async () => {
+<<<<<<< HEAD
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+=======
+>>>>>>> 23f215019 (test: dedupe auth fallback tests and add auth util unit coverage)
     const provider = `cooldown-test-${crypto.randomUUID()}`;
     const profileId = `${provider}:default`;
 
@@ -137,23 +195,12 @@ describe("runWithModelFallback", () => {
       },
       usageStats: {
         [profileId]: {
-          cooldownUntil: Date.now() + 60_000,
+          cooldownUntil: Date.now() + 5 * 60_000,
         },
       },
     };
 
-    saveAuthProfileStore(store, tempDir);
-
-    const cfg = makeCfg({
-      agents: {
-        defaults: {
-          model: {
-            primary: `${provider}/m1`,
-            fallbacks: ["fallback/ok-model"],
-          },
-        },
-      },
-    });
+    const cfg = makeProviderFallbackCfg(provider);
     const run = vi.fn().mockImplementation(async (providerId, modelId) => {
       if (providerId === "fallback") {
         return "ok";
@@ -161,25 +208,23 @@ describe("runWithModelFallback", () => {
       throw new Error(`unexpected provider: ${providerId}/${modelId}`);
     });
 
-    try {
-      const result = await runWithModelFallback({
-        cfg,
-        provider,
-        model: "m1",
-        agentDir: tempDir,
-        run,
-      });
+    const result = await runWithStoredAuth({
+      cfg,
+      store,
+      provider,
+      run,
+    });
 
-      expect(result.result).toBe("ok");
-      expect(run.mock.calls).toEqual([["fallback", "ok-model"]]);
-      expect(result.attempts[0]?.reason).toBe("rate_limit");
-    } finally {
-      await fs.rm(tempDir, { recursive: true, force: true });
-    }
+    expect(result.result).toBe("ok");
+    expect(run.mock.calls).toEqual([["fallback", "ok-model"]]);
+    expect(result.attempts[0]?.reason).toBe("rate_limit");
   });
 
   it("does not skip when any profile is available", async () => {
+<<<<<<< HEAD
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
+=======
+>>>>>>> 23f215019 (test: dedupe auth fallback tests and add auth util unit coverage)
     const provider = `cooldown-mixed-${crypto.randomUUID()}`;
     const profileA = `${provider}:a`;
     const profileB = `${provider}:b`;
@@ -205,18 +250,7 @@ describe("runWithModelFallback", () => {
       },
     };
 
-    saveAuthProfileStore(store, tempDir);
-
-    const cfg = makeCfg({
-      agents: {
-        defaults: {
-          model: {
-            primary: `${provider}/m1`,
-            fallbacks: ["fallback/ok-model"],
-          },
-        },
-      },
-    });
+    const cfg = makeProviderFallbackCfg(provider);
     const run = vi.fn().mockImplementation(async (providerId) => {
       if (providerId === provider) {
         return "ok";
@@ -224,21 +258,16 @@ describe("runWithModelFallback", () => {
       return "unexpected";
     });
 
-    try {
-      const result = await runWithModelFallback({
-        cfg,
-        provider,
-        model: "m1",
-        agentDir: tempDir,
-        run,
-      });
+    const result = await runWithStoredAuth({
+      cfg,
+      store,
+      provider,
+      run,
+    });
 
-      expect(result.result).toBe("ok");
-      expect(run.mock.calls).toEqual([[provider, "m1"]]);
-      expect(result.attempts).toEqual([]);
-    } finally {
-      await fs.rm(tempDir, { recursive: true, force: true });
-    }
+    expect(result.result).toBe("ok");
+    expect(run.mock.calls).toEqual([[provider, "m1"]]);
+    expect(result.attempts).toEqual([]);
   });
 
   it("does not append configured primary when fallbacksOverride is set", async () => {
@@ -272,6 +301,7 @@ describe("runWithModelFallback", () => {
   });
 
   it("uses fallbacksOverride instead of agents.defaults.model.fallbacks", async () => {
+<<<<<<< HEAD
     const cfg = {
       agents: {
         defaults: {
@@ -281,6 +311,9 @@ describe("runWithModelFallback", () => {
         },
       },
     } as MoltbotConfig;
+=======
+    const cfg = makeFallbacksOnlyCfg();
+>>>>>>> 23f215019 (test: dedupe auth fallback tests and add auth util unit coverage)
 
     const calls: Array<{ provider: string; model: string }> = [];
 
@@ -309,6 +342,7 @@ describe("runWithModelFallback", () => {
   });
 
   it("treats an empty fallbacksOverride as disabling global fallbacks", async () => {
+<<<<<<< HEAD
     const cfg = {
       agents: {
         defaults: {
@@ -318,6 +352,9 @@ describe("runWithModelFallback", () => {
         },
       },
     } as MoltbotConfig;
+=======
+    const cfg = makeFallbacksOnlyCfg();
+>>>>>>> 23f215019 (test: dedupe auth fallback tests and add auth util unit coverage)
 
     const calls: Array<{ provider: string; model: string }> = [];
 
