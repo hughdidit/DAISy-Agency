@@ -181,6 +181,18 @@ function coerceRequest(val: unknown): OpenAiChatCompletionRequest {
   return val as OpenAiChatCompletionRequest;
 }
 
+function resolveAgentResponseText(result: unknown): string {
+  const payloads = (result as { payloads?: Array<{ text?: string }> } | null)?.payloads;
+  if (!Array.isArray(payloads) || payloads.length === 0) {
+    return "No response from OpenClaw.";
+  }
+  const content = payloads
+    .map((p) => (typeof p.text === "string" ? p.text : ""))
+    .filter(Boolean)
+    .join("\n\n");
+  return content || "No response from OpenClaw.";
+}
+
 export async function handleOpenAiHttpRequest(
   req: IncomingMessage,
   res: ServerResponse,
@@ -237,6 +249,7 @@ export async function handleOpenAiHttpRequest(
         deps,
       );
 
+<<<<<<< HEAD
       const payloads = (result as { payloads?: Array<{ text?: string }> } | null)?.payloads;
       const content =
         Array.isArray(payloads) && payloads.length > 0
@@ -245,6 +258,9 @@ export async function handleOpenAiHttpRequest(
               .filter(Boolean)
               .join("\n\n")
           : "No response from Moltbot.";
+=======
+      const content = resolveAgentResponseText(result);
+>>>>>>> 2863661bc (refactor(gateway): share openai response text extraction)
 
       sendJson(res, 200, {
         id: runId,
@@ -364,6 +380,7 @@ export async function handleOpenAiHttpRequest(
           });
         }
 
+<<<<<<< HEAD
         const payloads = (result as { payloads?: Array<{ text?: string }> } | null)?.payloads;
         const content =
           Array.isArray(payloads) && payloads.length > 0
@@ -372,6 +389,9 @@ export async function handleOpenAiHttpRequest(
                 .filter(Boolean)
                 .join("\n\n")
             : "No response from Moltbot.";
+=======
+        const content = resolveAgentResponseText(result);
+>>>>>>> 2863661bc (refactor(gateway): share openai response text extraction)
 
         sawAssistantDelta = true;
         writeSse(res, {
