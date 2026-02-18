@@ -54,25 +54,32 @@ import {
 >>>>>>> ade11ec89 (fix(announce): use deterministic idempotency keys to prevent duplicate subagent announces (#17150))
 import { type AnnounceQueueItem, enqueueAnnounce } from "./subagent-announce-queue.js";
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
-import { readLatestAssistantReply } from "./tools/agent-step.js";
-import { sanitizeTextContent } from "./tools/sessions-helpers.js";
+import { sanitizeTextContent, extractAssistantText } from "./tools/sessions-helpers.js";
 
 type ToolResultMessage = {
   role?: unknown;
   content?: unknown;
 };
 
-function isToolResultMessage(msg: unknown): boolean {
-  if (!msg || typeof msg !== "object") {
-    return false;
-  }
-  const role = (msg as { role?: unknown }).role;
-  return role === "toolResult" || role === "tool";
-}
-
 function extractToolResultText(content: unknown): string {
   if (typeof content === "string") {
     return sanitizeTextContent(content);
+  }
+  if (content && typeof content === "object" && !Array.isArray(content)) {
+    const obj = content as {
+      text?: unknown;
+      output?: unknown;
+      content?: unknown;
+    };
+    if (typeof obj.text === "string") {
+      return sanitizeTextContent(obj.text);
+    }
+    if (typeof obj.output === "string") {
+      return sanitizeTextContent(obj.output);
+    }
+    if (typeof obj.content === "string") {
+      return sanitizeTextContent(obj.content);
+    }
   }
   if (!Array.isArray(content)) {
     return "";
@@ -85,7 +92,21 @@ function extractToolResultText(content: unknown): string {
   return joined?.trim() ?? "";
 }
 
-async function readLatestToolResult(sessionKey: string): Promise<string | undefined> {
+function extractSubagentOutputText(message: unknown): string {
+  if (!message || typeof message !== "object") {
+    return "";
+  }
+  const role = (message as { role?: unknown }).role;
+  if (role === "assistant") {
+    return extractAssistantText(message) ?? "";
+  }
+  if (role === "toolResult" || role === "tool") {
+    return extractToolResultText((message as ToolResultMessage).content);
+  }
+  return "";
+}
+
+async function readLatestSubagentOutput(sessionKey: string): Promise<string | undefined> {
   const history = await callGateway<{ messages?: Array<unknown> }>({
     method: "chat.history",
     params: { sessionKey, limit: 50 },
@@ -93,11 +114,7 @@ async function readLatestToolResult(sessionKey: string): Promise<string | undefi
   const messages = Array.isArray(history?.messages) ? history.messages : [];
   for (let i = messages.length - 1; i >= 0; i -= 1) {
     const msg = messages[i];
-    if (!isToolResultMessage(msg)) {
-      continue;
-    }
-    const candidate = msg as ToolResultMessage;
-    const text = extractToolResultText(candidate.content);
+    const text = extractSubagentOutputText(msg);
     if (text) {
       return text;
     }
@@ -105,7 +122,7 @@ async function readLatestToolResult(sessionKey: string): Promise<string | undefi
   return undefined;
 }
 
-async function readLatestToolResultWithRetry(params: {
+async function readLatestSubagentOutputWithRetry(params: {
   sessionKey: string;
   maxWaitMs: number;
 }): Promise<string | undefined> {
@@ -113,7 +130,7 @@ async function readLatestToolResultWithRetry(params: {
   const deadline = Date.now() + Math.max(0, Math.min(params.maxWaitMs, 15_000));
   let result: string | undefined;
   while (Date.now() < deadline) {
-    result = await readLatestToolResult(params.sessionKey);
+    result = await readLatestSubagentOutput(params.sessionKey);
     if (result?.trim()) {
       return result;
     }
@@ -405,6 +422,7 @@ function loadSessionEntryByKey(sessionKey: string) {
   return store[sessionKey];
 }
 
+<<<<<<< HEAD
 async function readLatestAssistantReplyWithRetry(params: {
   sessionKey: string;
   initialReply?: string;
@@ -428,6 +446,8 @@ async function readLatestAssistantReplyWithRetry(params: {
 }
 
 >>>>>>> 6daa4911e (perf(subagents): speed announce retry polling and trim duplicate e2e coverage)
+=======
+>>>>>>> 81db05962 (fix(subagents): always read latest assistant/tool output on subagent completion)
 export function buildSubagentSystemPrompt(params: {
   requesterSessionKey?: string;
   requesterOrigin?: DeliveryContext;
@@ -606,6 +626,7 @@ export async function runSubagentAnnounceFlow(params: {
           outcome = { status: "timeout" };
         }
       }
+<<<<<<< HEAD
       reply = await readLatestAssistantReply({
         sessionKey: params.childSessionKey,
       });
@@ -619,6 +640,17 @@ export async function runSubagentAnnounceFlow(params: {
 =======
     if (!reply?.trim()) {
       reply = await readLatestToolResultWithRetry({
+=======
+      reply = await readLatestSubagentOutput(params.childSessionKey);
+    }
+
+    if (!reply) {
+      reply = await readLatestSubagentOutput(params.childSessionKey);
+    }
+
+    if (!reply?.trim()) {
+      reply = await readLatestSubagentOutputWithRetry({
+>>>>>>> 81db05962 (fix(subagents): always read latest assistant/tool output on subagent completion)
         sessionKey: params.childSessionKey,
         maxWaitMs: params.timeoutMs,
       });
