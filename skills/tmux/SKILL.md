@@ -4,13 +4,47 @@ description: Remote-control tmux sessions for interactive CLIs by sending keystr
 metadata: {"moltbot":{"emoji":"🧵","os":["darwin","linux"],"requires":{"bins":["tmux"]}}}
 ---
 
+<<<<<<< HEAD
 # tmux Skill (Moltbot)
+=======
+# tmux Session Control
+>>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 
-Use tmux only when you need an interactive TTY. Prefer exec background mode for long-running, non-interactive tasks.
+Control tmux sessions by sending keystrokes and reading output. Essential for managing Claude Code sessions.
 
-## Quickstart (isolated socket, exec tool)
+## When to Use
+
+✅ **USE this skill when:**
+
+- Monitoring Claude/Codex sessions in tmux
+- Sending input to interactive terminal applications
+- Scraping output from long-running processes in tmux
+- Navigating tmux panes/windows programmatically
+- Checking on background work in existing sessions
+
+## When NOT to Use
+
+❌ **DON'T use this skill when:**
+
+- Running one-off shell commands → use `exec` tool directly
+- Starting new background processes → use `exec` with `background:true`
+- Non-interactive scripts → use `exec` tool
+- The process isn't in tmux
+- You need to create a new tmux session → use `exec` with `tmux new-session`
+
+## Example Sessions
+
+| Session                 | Purpose                     |
+| ----------------------- | --------------------------- |
+| `shared`                | Primary interactive session |
+| `worker-2` - `worker-8` | Parallel worker sessions    |
+
+## Common Commands
+
+### List Sessions
 
 ```bash
+<<<<<<< HEAD
 SOCKET_DIR="${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/moltbot-tmux-sockets}"
 mkdir -p "$SOCKET_DIR"
 SOCKET="$SOCKET_DIR/moltbot.sock"
@@ -54,58 +88,107 @@ To monitor:
   sequence as paste/multi-line input and not submit; this is timing-dependent. Send text and
   `Enter` as separate commands with a small delay (tune per environment; increase if needed,
   or use `sleep 1` if sub-second sleeps aren't supported):
-
-```bash
-tmux -S "$SOCKET" send-keys -t target -l -- "$cmd" && sleep 0.1 && tmux -S "$SOCKET" send-keys -t target Enter
+=======
+tmux list-sessions
+tmux ls
 ```
 
-## Watching output
-
-- Capture recent history: `tmux -S "$SOCKET" capture-pane -p -J -t target -S -200`.
-- Wait for prompts: `{baseDir}/scripts/wait-for-text.sh -t session:0.0 -p 'pattern'`.
-- Attaching is OK; detach with `Ctrl+b d`.
-
-## Spawning processes
-
-- For python REPLs, set `PYTHON_BASIC_REPL=1` (non-basic REPL breaks send-keys flows).
-
-## Windows / WSL
-
-- tmux is supported on macOS/Linux. On Windows, use WSL and install tmux inside WSL.
-- This skill is gated to `darwin`/`linux` and requires `tmux` on PATH.
-
-## Orchestrating Coding Agents (Codex, Claude Code)
-
-tmux excels at running multiple coding agents in parallel:
+### Capture Output
+>>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 
 ```bash
-SOCKET="${TMPDIR:-/tmp}/codex-army.sock"
+# Last 20 lines of pane
+tmux capture-pane -t shared -p | tail -20
 
-# Create multiple sessions
-for i in 1 2 3 4 5; do
-  tmux -S "$SOCKET" new-session -d -s "agent-$i"
-done
+# Entire scrollback
+tmux capture-pane -t shared -p -S -
 
-# Launch agents in different workdirs
-tmux -S "$SOCKET" send-keys -t agent-1 "cd /tmp/project1 && codex --yolo 'Fix bug X'" Enter
-tmux -S "$SOCKET" send-keys -t agent-2 "cd /tmp/project2 && codex --yolo 'Fix bug Y'" Enter
-
-# When sending prompts to Claude Code/Codex TUI, split text + Enter with a delay
-tmux -S "$SOCKET" send-keys -t agent-1 -l -- "Please make a small edit to README.md." && sleep 0.1 && tmux -S "$SOCKET" send-keys -t agent-1 Enter
-
-# Poll for completion (check if prompt returned)
-for sess in agent-1 agent-2; do
-  if tmux -S "$SOCKET" capture-pane -p -t "$sess" -S -3 | grep -q "❯"; then
-    echo "$sess: DONE"
-  else
-    echo "$sess: Running..."
-  fi
-done
-
-# Get full output from completed session
-tmux -S "$SOCKET" capture-pane -p -t agent-1 -S -500
+# Specific pane in window
+tmux capture-pane -t shared:0.0 -p
 ```
 
+### Send Keys
+
+```bash
+# Send text (doesn't press Enter)
+tmux send-keys -t shared "hello"
+
+# Send text + Enter
+tmux send-keys -t shared "y" Enter
+
+# Send special keys
+tmux send-keys -t shared Enter
+tmux send-keys -t shared Escape
+tmux send-keys -t shared C-c          # Ctrl+C
+tmux send-keys -t shared C-d          # Ctrl+D (EOF)
+tmux send-keys -t shared C-z          # Ctrl+Z (suspend)
+```
+
+### Window/Pane Navigation
+
+```bash
+# Select window
+tmux select-window -t shared:0
+
+# Select pane
+tmux select-pane -t shared:0.1
+
+# List windows
+tmux list-windows -t shared
+```
+
+### Session Management
+
+```bash
+# Create new session
+tmux new-session -d -s newsession
+
+# Kill session
+tmux kill-session -t sessionname
+
+# Rename session
+tmux rename-session -t old new
+```
+
+## Sending Input Safely
+
+For interactive TUIs (Claude Code, Codex, etc.), split text and Enter into separate sends to avoid paste/multiline edge cases:
+
+```bash
+tmux send-keys -t shared -l -- "Please apply the patch in src/foo.ts"
+sleep 0.1
+tmux send-keys -t shared Enter
+```
+
+## Claude Code Session Patterns
+
+### Check if Session Needs Input
+
+```bash
+# Look for prompts
+tmux capture-pane -t worker-3 -p | tail -10 | grep -E "❯|Yes.*No|proceed|permission"
+```
+
+### Approve Claude Code Prompt
+
+```bash
+# Send 'y' and Enter
+tmux send-keys -t worker-3 'y' Enter
+
+# Or select numbered option
+tmux send-keys -t worker-3 '2' Enter
+```
+
+### Check All Sessions Status
+
+```bash
+for s in shared worker-2 worker-3 worker-4 worker-5 worker-6 worker-7 worker-8; do
+  echo "=== $s ==="
+  tmux capture-pane -t $s -p 2>/dev/null | tail -5
+done
+```
+
+<<<<<<< HEAD
 **Tips:**
 - Use separate git worktrees for parallel fixes (no branch conflicts)
 - `pnpm install` first before running codex in fresh clones
@@ -121,13 +204,17 @@ tmux -S "$SOCKET" capture-pane -p -t agent-1 -S -500
 ## Helper: wait-for-text.sh
 
 `{baseDir}/scripts/wait-for-text.sh` polls a pane for a regex (or fixed string) with a timeout.
+=======
+### Send Task to Session
+>>>>>>> 9cce40d12 (feat(skills): Add 'Use when / Don't use when' routing blocks (#14521))
 
 ```bash
-{baseDir}/scripts/wait-for-text.sh -t session:0.0 -p 'pattern' [-F] [-T 20] [-i 0.5] [-l 2000]
+tmux send-keys -t worker-4 "Fix the bug in auth.js" Enter
 ```
 
-- `-t`/`--target` pane target (required)
-- `-p`/`--pattern` regex to match (required); add `-F` for fixed string
-- `-T` timeout seconds (integer, default 15)
-- `-i` poll interval seconds (default 0.5)
-- `-l` history lines to search (integer, default 1000)
+## Notes
+
+- Use `capture-pane -p` to print to stdout (essential for scripting)
+- `-S -` captures entire scrollback history
+- Target format: `session:window.pane` (e.g., `shared:0.0`)
+- Sessions persist across SSH disconnects
