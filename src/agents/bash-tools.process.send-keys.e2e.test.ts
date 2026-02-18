@@ -1,6 +1,7 @@
 import { afterEach, expect, test } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { sleep } from "../utils";
@@ -10,6 +11,8 @@ import { createExecTool } from "./bash-tools.exec";
 import { createProcessTool } from "./bash-tools.process";
 =======
 import { sleep } from "../utils.js";
+=======
+>>>>>>> 6f273d5e2 (perf(test): replace send-keys session polling loop)
 import { resetProcessRegistryForTests } from "./bash-process-registry.js";
 import { createExecTool } from "./bash-tools.exec.js";
 import { createProcessTool } from "./bash-tools.process.js";
@@ -39,22 +42,27 @@ async function waitForSessionCompletion(params: {
   sessionId: string;
   expectedText: string;
 }) {
-  const deadline = Date.now() + (process.platform === "win32" ? 4000 : 2000);
-  while (Date.now() < deadline) {
-    await sleep(50);
-    const poll = await params.processTool.execute("toolcall", {
-      action: "poll",
-      sessionId: params.sessionId,
-    });
-    const details = poll.details as { status?: string; aggregated?: string };
-    if (details.status !== "running") {
-      expect(details.status).toBe("completed");
-      expect(details.aggregated ?? "").toContain(params.expectedText);
-      return;
-    }
-  }
-
-  throw new Error(`PTY session did not exit after ${params.expectedText}`);
+  await expect
+    .poll(
+      async () => {
+        const poll = await params.processTool.execute("toolcall", {
+          action: "poll",
+          sessionId: params.sessionId,
+        });
+        const details = poll.details as { status?: string; aggregated?: string };
+        if (details.status === "running") {
+          return false;
+        }
+        expect(details.status).toBe("completed");
+        expect(details.aggregated ?? "").toContain(params.expectedText);
+        return true;
+      },
+      {
+        timeout: process.platform === "win32" ? 4000 : 2000,
+        interval: 50,
+      },
+    )
+    .toBe(true);
 }
 
 test("process send-keys encodes Enter for pty sessions", async () => {
