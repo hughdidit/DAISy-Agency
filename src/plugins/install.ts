@@ -1,5 +1,4 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { MANIFEST_KEY } from "../compat/legacy-names.js";
 import {
@@ -17,9 +16,18 @@ import {
   safeDirName,
   unscopedPackageName,
 } from "../infra/install-safe-path.js";
+import {
+  packNpmSpecToArchive,
+  resolveArchiveSourcePath,
+  withTempDir,
+} from "../infra/install-source-utils.js";
 import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
+<<<<<<< HEAD
 >>>>>>> 4caeb203a (refactor(install): share package dir install)
 import { runCommandWithTimeout } from "../process/exec.js";
+=======
+import { extensionUsesSkippedScannerPath, isPathInside } from "../security/scan-paths.js";
+>>>>>>> 8a9fddedc (refactor: extract shared install and embedding utilities)
 import * as skillScanner from "../security/skill-scanner.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 
@@ -316,12 +324,13 @@ export async function installPluginFromArchive(params: {
   const logger = params.logger ?? defaultLogger;
   const timeoutMs = params.timeoutMs ?? 120_000;
   const mode = params.mode ?? "install";
-
-  const archivePath = resolveUserPath(params.archivePath);
-  if (!(await fileExists(archivePath))) {
-    return { ok: false, error: `archive not found: ${archivePath}` };
+  const archivePathResult = await resolveArchiveSourcePath(params.archivePath);
+  if (!archivePathResult.ok) {
+    return archivePathResult;
   }
+  const archivePath = archivePathResult.path;
 
+<<<<<<< HEAD
   if (!resolveArchiveKind(archivePath)) {
     return { ok: false, error: `unsupported archive: ${archivePath}` };
   }
@@ -335,9 +344,38 @@ export async function installPluginFromArchive(params: {
     await extractArchive({
       archivePath,
       destDir: extractDir,
+=======
+  return await withTempDir("openclaw-plugin-", async (tmpDir) => {
+    const extractDir = path.join(tmpDir, "extract");
+    await fs.mkdir(extractDir, { recursive: true });
+
+    logger.info?.(`Extracting ${archivePath}…`);
+    try {
+      await extractArchive({
+        archivePath,
+        destDir: extractDir,
+        timeoutMs,
+        logger,
+      });
+    } catch (err) {
+      return { ok: false, error: `failed to extract archive: ${String(err)}` };
+    }
+
+    let packageDir = "";
+    try {
+      packageDir = await resolvePackedRootDir(extractDir);
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+
+    return await installPluginFromPackageDir({
+      packageDir,
+      extensionsDir: params.extensionsDir,
+>>>>>>> 8a9fddedc (refactor: extract shared install and embedding utilities)
       timeoutMs,
       logger,
     });
+<<<<<<< HEAD
   } catch (err) {
     return { ok: false, error: `failed to extract archive: ${String(err)}` };
   }
@@ -357,6 +395,8 @@ export async function installPluginFromArchive(params: {
     mode,
     dryRun: params.dryRun,
     expectedPluginId: params.expectedPluginId,
+=======
+>>>>>>> 8a9fddedc (refactor: extract shared install and embedding utilities)
   });
 }
 
@@ -446,6 +486,7 @@ export async function installPluginFromNpmSpec(params: {
     return { ok: false, error: "missing npm spec" };
   }
 
+<<<<<<< HEAD
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-npm-pack-"));
   logger.info?.(`Downloading ${spec}…`);
   const res = await runCommandWithTimeout(["npm", "pack", spec], {
@@ -478,6 +519,28 @@ export async function installPluginFromNpmSpec(params: {
     mode,
     dryRun,
     expectedPluginId,
+=======
+  return await withTempDir("openclaw-npm-pack-", async (tmpDir) => {
+    logger.info?.(`Downloading ${spec}…`);
+    const packedResult = await packNpmSpecToArchive({
+      spec,
+      timeoutMs,
+      cwd: tmpDir,
+    });
+    if (!packedResult.ok) {
+      return packedResult;
+    }
+
+    return await installPluginFromArchive({
+      archivePath: packedResult.archivePath,
+      extensionsDir: params.extensionsDir,
+      timeoutMs,
+      logger,
+      mode,
+      dryRun,
+      expectedPluginId,
+    });
+>>>>>>> 8a9fddedc (refactor: extract shared install and embedding utilities)
   });
 }
 
