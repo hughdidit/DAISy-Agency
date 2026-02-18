@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { createInternalHookEventPayload } from "../../test-utils/internal-hook-event-payload.js";
+>>>>>>> f05395ae0 (refactor(test): share internal hook and npm pack assertions)
 import type { MsgContext } from "../templating.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { ReplyDispatcher } from "./reply-dispatcher.js";
@@ -27,16 +32,7 @@ const hookMocks = vi.hoisted(() => ({
   },
 }));
 const internalHookMocks = vi.hoisted(() => ({
-  createInternalHookEvent: vi.fn(
-    (type: string, action: string, sessionKey: string, context: Record<string, unknown>) => ({
-      type,
-      action,
-      sessionKey,
-      context,
-      timestamp: new Date(),
-      messages: [],
-    }),
-  ),
+  createInternalHookEvent: vi.fn(),
   triggerInternalHook: vi.fn(async () => {}),
 }));
 
@@ -121,7 +117,8 @@ describe("dispatchReplyFromConfig", () => {
     hookMocks.runner.hasHooks.mockReset();
     hookMocks.runner.hasHooks.mockReturnValue(false);
     hookMocks.runner.runMessageReceived.mockReset();
-    internalHookMocks.createInternalHookEvent.mockClear();
+    internalHookMocks.createInternalHookEvent.mockReset();
+    internalHookMocks.createInternalHookEvent.mockImplementation(createInternalHookEventPayload);
     internalHookMocks.triggerInternalHook.mockClear();
   });
   it("does not route when Provider matches OriginatingChannel (even if Surface is missing)", async () => {

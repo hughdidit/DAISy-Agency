@@ -53,10 +53,17 @@ import * as tar from "tar";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as skillScanner from "../security/skill-scanner.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
 =======
 import { expectSingleNpmInstallIgnoreScriptsCall } from "../test-utils/exec-assertions.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+import {
+  expectSingleNpmInstallIgnoreScriptsCall,
+  expectSingleNpmPackIgnoreScriptsCall,
+} from "../test-utils/exec-assertions.js";
+>>>>>>> f05395ae0 (refactor(test): share internal hook and npm pack assertions)
 
 vi.mock("../process/exec.js", () => ({
   runCommandWithTimeout: vi.fn(),
@@ -643,18 +650,10 @@ describe("installPluginFromNpmSpec", () => {
     });
     expect(result.ok).toBe(true);
 
-    const packCalls = run.mock.calls.filter(
-      (c) => Array.isArray(c[0]) && c[0][0] === "npm" && c[0][1] === "pack",
-    );
-    expect(packCalls.length).toBe(1);
-    const packCall = packCalls[0];
-    if (!packCall) {
-      throw new Error("expected npm pack call");
-    }
-    const [argv, options] = packCall;
-    expect(argv).toEqual(["npm", "pack", "@openclaw/voice-call@0.0.1", "--ignore-scripts"]);
-    const commandOptions = typeof options === "number" ? undefined : options;
-    expect(commandOptions?.env).toMatchObject({ NPM_CONFIG_IGNORE_SCRIPTS: "true" });
+    expectSingleNpmPackIgnoreScriptsCall({
+      calls: run.mock.calls,
+      expectedSpec: "@openclaw/voice-call@0.0.1",
+    });
 
     expect(packTmpDir).not.toBe("");
     expect(fs.existsSync(packTmpDir)).toBe(false);
