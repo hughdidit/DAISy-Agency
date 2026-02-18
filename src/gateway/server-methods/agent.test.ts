@@ -157,7 +157,7 @@ async function invokeAgent(
   const respond = options?.respond ?? vi.fn();
   await agentHandlers.agent({
     params,
-    respond,
+    respond: respond as never,
     context: options?.context ?? makeContext(),
     req: { type: "req", id: options?.reqId ?? "agent-test-req", method: "agent" },
     client: null,
@@ -177,7 +177,7 @@ async function invokeAgentIdentityGet(
   const respond = options?.respond ?? vi.fn();
   await agentHandlers["agent.identity.get"]({
     params,
-    respond,
+    respond: respond as never,
     context: options?.context ?? makeContext(),
     req: {
       type: "req",
