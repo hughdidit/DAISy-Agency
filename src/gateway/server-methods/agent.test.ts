@@ -103,6 +103,12 @@ const makeContext = (): GatewayRequestContext =>
     logGateway: { info: vi.fn(), error: vi.fn() },
   }) as unknown as GatewayRequestContext;
 
+type AgentHandlerArgs = Parameters<typeof agentHandlers.agent>[0];
+type AgentParams = AgentHandlerArgs["params"];
+
+type AgentIdentityGetHandlerArgs = Parameters<(typeof agentHandlers)["agent.identity.get"]>[0];
+type AgentIdentityGetParams = AgentIdentityGetHandlerArgs["params"];
+
 function mockMainSessionEntry(entry: Record<string, unknown>, cfg: Record<string, unknown> = {}) {
   mocks.loadSessionEntry.mockReturnValue({
     cfg,
@@ -128,16 +134,56 @@ function captureUpdatedMainEntry() {
 
 async function runMainAgent(message: string, idempotencyKey: string) {
   const respond = vi.fn();
-  await agentHandlers.agent({
-    params: {
+  await invokeAgent(
+    {
       message,
       agentId: "main",
       sessionKey: "agent:main:main",
       idempotencyKey,
     },
+    { respond, reqId: idempotencyKey },
+  );
+  return respond;
+}
+
+async function invokeAgent(
+  params: AgentParams,
+  options?: {
+    respond?: ReturnType<typeof vi.fn>;
+    reqId?: string;
+    context?: GatewayRequestContext;
+  },
+) {
+  const respond = options?.respond ?? vi.fn();
+  await agentHandlers.agent({
+    params,
     respond,
-    context: makeContext(),
-    req: { type: "req", id: idempotencyKey, method: "agent" },
+    context: options?.context ?? makeContext(),
+    req: { type: "req", id: options?.reqId ?? "agent-test-req", method: "agent" },
+    client: null,
+    isWebchatConnect: () => false,
+  });
+  return respond;
+}
+
+async function invokeAgentIdentityGet(
+  params: AgentIdentityGetParams,
+  options?: {
+    respond?: ReturnType<typeof vi.fn>;
+    reqId?: string;
+    context?: GatewayRequestContext;
+  },
+) {
+  const respond = options?.respond ?? vi.fn();
+  await agentHandlers["agent.identity.get"]({
+    params,
+    respond,
+    context: options?.context ?? makeContext(),
+    req: {
+      type: "req",
+      id: options?.reqId ?? "agent-identity-test-req",
+      method: "agent.identity.get",
+    },
     client: null,
     isWebchatConnect: () => false,
   });
@@ -205,20 +251,15 @@ describe("gateway agent handler", () => {
       meta: { durationMs: 100 },
     });
 
-    const respond = vi.fn();
-    await agentHandlers.agent({
-      params: {
+    await invokeAgent(
+      {
         message: "Is it the weekend?",
         agentId: "main",
         sessionKey: "agent:main:main",
         idempotencyKey: "test-timestamp-inject",
       },
-      respond,
-      context: makeContext(),
-      req: { type: "req", id: "ts-1", method: "agent" },
-      client: null,
-      isWebchatConnect: () => false,
-    });
+      { reqId: "ts-1" },
+    );
 
     // Wait for the async agentCommand call
     await vi.waitFor(() => expect(mocks.agentCommand).toHaveBeenCalled());
@@ -301,20 +342,15 @@ describe("gateway agent handler", () => {
       meta: { durationMs: 100 },
     });
 
-    const respond = vi.fn();
-    await agentHandlers.agent({
-      params: {
+    await invokeAgent(
+      {
         message: "test",
         agentId: "main",
         sessionKey: "main",
         idempotencyKey: "test-idem-alias-prune",
       },
-      respond,
-      context: makeContext(),
-      req: { type: "req", id: "3", method: "agent" },
-      client: null,
-      isWebchatConnect: () => false,
-    });
+      { reqId: "3" },
+    );
 
     expect(mocks.updateSessionStore).toHaveBeenCalled();
     expect(capturedStore).toBeDefined();
@@ -353,19 +389,14 @@ describe("gateway agent handler", () => {
       meta: { durationMs: 100 },
     });
 
-    const respond = vi.fn();
-    await agentHandlers.agent({
-      params: {
+    await invokeAgent(
+      {
         message: "/new",
         sessionKey: "agent:main:main",
         idempotencyKey: "test-idem-new",
       },
-      respond,
-      context: makeContext(),
-      req: { type: "req", id: "4", method: "agent" },
-      client: null,
-      isWebchatConnect: () => false,
-    });
+      { reqId: "4" },
+    );
 
     await vi.waitFor(() => expect(mocks.agentCommand).toHaveBeenCalled());
     expect(mocks.sessionsResetHandler).toHaveBeenCalledTimes(1);
@@ -378,20 +409,14 @@ describe("gateway agent handler", () => {
 
   it("rejects malformed agent session keys early in agent handler", async () => {
     mocks.agentCommand.mockClear();
-    const respond = vi.fn();
-
-    await agentHandlers.agent({
-      params: {
+    const respond = await invokeAgent(
+      {
         message: "test",
         sessionKey: "agent:main",
         idempotencyKey: "test-malformed-session-key",
       },
-      respond,
-      context: makeContext(),
-      req: { type: "req", id: "4", method: "agent" },
-      client: null,
-      isWebchatConnect: () => false,
-    });
+      { reqId: "4" },
+    );
 
     expect(mocks.agentCommand).not.toHaveBeenCalled();
     expect(respond).toHaveBeenCalledWith(
@@ -404,18 +429,12 @@ describe("gateway agent handler", () => {
   });
 
   it("rejects malformed session keys in agent.identity.get", async () => {
-    const respond = vi.fn();
-
-    await agentHandlers["agent.identity.get"]({
-      params: {
+    const respond = await invokeAgentIdentityGet(
+      {
         sessionKey: "agent:main",
       },
-      respond,
-      context: makeContext(),
-      req: { type: "req", id: "5", method: "agent.identity.get" },
-      client: null,
-      isWebchatConnect: () => false,
-    });
+      { reqId: "5" },
+    );
 
     expect(respond).toHaveBeenCalledWith(
       false,
