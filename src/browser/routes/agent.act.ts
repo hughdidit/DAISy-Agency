@@ -24,6 +24,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { BrowserRouteRegistrar } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -36,8 +37,36 @@ import type { BrowserRouteRegistrar } from "./types.js";
 =======
 import type { BrowserRouteRegistrar } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { BrowserResponse, BrowserRouteRegistrar } from "./types.js";
+>>>>>>> ac4ae9ed6 (refactor(browser): dedupe storage and download route parsing)
 import { jsonError, toBoolean, toNumber, toStringArray, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
+
+function resolveDownloadPathOrRespond(res: BrowserResponse, requestedPath: string): string | null {
+  const downloadPathResult = resolvePathWithinRoot({
+    rootDir: DEFAULT_DOWNLOAD_DIR,
+    requestedPath,
+    scopeLabel: "downloads directory",
+  });
+  if (!downloadPathResult.ok) {
+    res.status(400).json({ error: downloadPathResult.error });
+    return null;
+  }
+  return downloadPathResult.path;
+}
+
+function buildDownloadRequestBase(cdpUrl: string, targetId: string, timeoutMs: number | undefined) {
+  return {
+    cdpUrl,
+    targetId,
+    timeoutMs: timeoutMs ?? undefined,
+  };
+}
+
+function respondWithDownloadResult(res: BrowserResponse, targetId: string, result: unknown) {
+  res.json({ ok: true, targetId, download: result });
+}
 
 export function registerBrowserAgentActRoutes(
   app: BrowserRouteRegistrar,
@@ -762,24 +791,18 @@ export function registerBrowserAgentActRoutes(
       run: async ({ cdpUrl, tab, pw }) => {
         let downloadPath: string | undefined;
         if (out.trim()) {
-          const downloadPathResult = resolvePathWithinRoot({
-            rootDir: DEFAULT_DOWNLOAD_DIR,
-            requestedPath: out,
-            scopeLabel: "downloads directory",
-          });
-          if (!downloadPathResult.ok) {
-            res.status(400).json({ error: downloadPathResult.error });
+          const resolvedDownloadPath = resolveDownloadPathOrRespond(res, out);
+          if (!resolvedDownloadPath) {
             return;
           }
-          downloadPath = downloadPathResult.path;
+          downloadPath = resolvedDownloadPath;
         }
+        const requestBase = buildDownloadRequestBase(cdpUrl, tab.targetId, timeoutMs);
         const result = await pw.waitForDownloadViaPlaywright({
-          cdpUrl,
-          targetId: tab.targetId,
+          ...requestBase,
           path: downloadPath,
-          timeoutMs: timeoutMs ?? undefined,
         });
-        res.json({ ok: true, targetId: tab.targetId, download: result });
+        respondWithDownloadResult(res, tab.targetId, result);
       },
     });
 >>>>>>> b30e3467e (refactor(browser): reuse shared route context in agent act routes)
@@ -824,23 +847,17 @@ export function registerBrowserAgentActRoutes(
       targetId,
       feature: "download",
       run: async ({ cdpUrl, tab, pw }) => {
-        const downloadPathResult = resolvePathWithinRoot({
-          rootDir: DEFAULT_DOWNLOAD_DIR,
-          requestedPath: out,
-          scopeLabel: "downloads directory",
-        });
-        if (!downloadPathResult.ok) {
-          res.status(400).json({ error: downloadPathResult.error });
+        const downloadPath = resolveDownloadPathOrRespond(res, out);
+        if (!downloadPath) {
           return;
         }
+        const requestBase = buildDownloadRequestBase(cdpUrl, tab.targetId, timeoutMs);
         const result = await pw.downloadViaPlaywright({
-          cdpUrl,
-          targetId: tab.targetId,
+          ...requestBase,
           ref,
-          path: downloadPathResult.path,
-          timeoutMs: timeoutMs ?? undefined,
+          path: downloadPath,
         });
-        res.json({ ok: true, targetId: tab.targetId, download: result });
+        respondWithDownloadResult(res, tab.targetId, result);
       },
     });
 >>>>>>> b30e3467e (refactor(browser): reuse shared route context in agent act routes)
