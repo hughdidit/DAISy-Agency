@@ -24,9 +24,9 @@ import { countActiveRunsForSession, registerSubagentRun } from "../subagent-regi
 =======
 import { Type } from "@sinclair/typebox";
 import type { GatewayMessageChannel } from "../../utils/message-channel.js";
-import type { AnyAgentTool } from "./common.js";
 import { optionalStringEnum } from "../schema/typebox.js";
 import { spawnSubagentDirect } from "../subagent-spawn.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -49,6 +49,9 @@ import type { AnyAgentTool } from "./common.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 =======
 >>>>>>> fa4f66255 (fix(subagents): return completion message for manual session spawns)
+=======
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 5a31da8ee (chore: format imports in gateway and session tools)
 import { jsonResult, readStringParam } from "./common.js";
 
 const SessionsSpawnToolSchema = Type.Object({
