@@ -31,12 +31,15 @@ describe("moltbot-tools: subagents", () => {
 =======
 =======
 import "./test-helpers/fast-core-tools.js";
+<<<<<<< HEAD
 import { sleep } from "../utils.js";
 <<<<<<< HEAD
 import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> 6b4590be0 (fix(agents): stabilize sessions_spawn e2e suite)
 =======
 >>>>>>> eef13235a (fix(test): make sessions_spawn e2e harness ordering stable)
+=======
+>>>>>>> cd8eb079e (perf(test): replace subagent lifecycle polling helper)
 import {
   getCallGatewayMock,
   resetSessionsSpawnConfigOverride,
@@ -174,13 +177,12 @@ function setupSessionsSpawnGatewayMock(opts: {
 >>>>>>> 6b4590be0 (fix(agents): stabilize sessions_spawn e2e suite)
 =======
 const waitFor = async (predicate: () => boolean, timeoutMs = 2000) => {
-  const start = Date.now();
-  while (!predicate()) {
-    if (Date.now() - start > timeoutMs) {
-      throw new Error(`timed out waiting for condition (timeoutMs=${timeoutMs})`);
-    }
-    await sleep(10);
-  }
+  await vi.waitFor(
+    () => {
+      expect(predicate()).toBe(true);
+    },
+    { timeout: timeoutMs, interval: 10 },
+  );
 };
 
 <<<<<<< HEAD
