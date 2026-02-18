@@ -8,6 +8,10 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+import { createAuthChoiceAgentModelNoter } from "./auth-choice.apply-helpers.js";
+>>>>>>> 0048af4e2 (refactor(commands): dedupe auth-choice model notes)
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 <<<<<<< HEAD
 =======
@@ -64,6 +68,7 @@ export async function applyAuthChoiceMiniMax(
       await setMinimaxApiKey(normalizeApiKeyInput(String(key)), params.agentDir, opts.profileId);
     }
   };
+<<<<<<< HEAD
   const noteAgentModel = async (model: string) => {
     if (!params.agentId) {
       return;
@@ -73,6 +78,27 @@ export async function applyAuthChoiceMiniMax(
       "Model configured",
     );
   };
+=======
+  const noteAgentModel = createAuthChoiceAgentModelNoter(params);
+  if (params.authChoice === "minimax-portal") {
+    // Let user choose between Global/CN endpoints
+    const endpoint = await params.prompter.select({
+      message: "Select MiniMax endpoint",
+      options: [
+        { value: "oauth", label: "Global", hint: "OAuth for international users" },
+        { value: "oauth-cn", label: "CN", hint: "OAuth for users in China" },
+      ],
+    });
+
+    return await applyAuthChoicePluginProvider(params, {
+      authChoice: "minimax-portal",
+      pluginId: "minimax-portal-auth",
+      providerId: "minimax-portal",
+      methodId: endpoint,
+      label: "MiniMax",
+    });
+  }
+>>>>>>> 0048af4e2 (refactor(commands): dedupe auth-choice model notes)
 
   if (
     params.authChoice === "minimax-cloud" ||

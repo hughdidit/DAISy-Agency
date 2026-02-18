@@ -34,6 +34,10 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+import { createAuthChoiceAgentModelNoter } from "./auth-choice.apply-helpers.js";
+>>>>>>> 0048af4e2 (refactor(commands): dedupe auth-choice model notes)
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
 =======
@@ -72,6 +76,7 @@ import {
 export async function applyAuthChoiceOpenAI(
   params: ApplyAuthChoiceParams,
 ): Promise<ApplyAuthChoiceResult | null> {
+  const noteAgentModel = createAuthChoiceAgentModelNoter(params);
   let authChoice = params.authChoice;
   if (authChoice === "apiKey" && params.opts?.tokenProvider === "openai") {
     authChoice = "openai-api-key";
@@ -82,15 +87,6 @@ export async function applyAuthChoiceOpenAI(
 =======
     let nextConfig = params.config;
     let agentModelOverride: string | undefined;
-    const noteAgentModel = async (model: string) => {
-      if (!params.agentId) {
-        return;
-      }
-      await params.prompter.note(
-        `Default model set to ${model} for agent "${params.agentId}".`,
-        "Model configured",
-      );
-    };
 
     const applyOpenAiDefaultModelChoice = async (): Promise<ApplyAuthChoiceResult> => {
       const applied = await applyDefaultModelChoice({
@@ -165,15 +161,6 @@ export async function applyAuthChoiceOpenAI(
   if (params.authChoice === "openai-codex") {
     let nextConfig = params.config;
     let agentModelOverride: string | undefined;
-    const noteAgentModel = async (model: string) => {
-      if (!params.agentId) {
-        return;
-      }
-      await params.prompter.note(
-        `Default model set to ${model} for agent "${params.agentId}".`,
-        "Model configured",
-      );
-    };
 
     let creds;
     try {
