@@ -252,6 +252,16 @@ export const HumanDelaySchema = z
   })
   .strict();
 
+const CliBackendWatchdogModeSchema = z
+  .object({
+    noOutputTimeoutMs: z.number().int().min(1000).optional(),
+    noOutputTimeoutRatio: z.number().min(0.05).max(0.95).optional(),
+    minMs: z.number().int().min(1000).optional(),
+    maxMs: z.number().int().min(1000).optional(),
+  })
+  .strict()
+  .optional();
+
 export const CliBackendSchema = z
   .object({
     command: z.string(),
@@ -279,6 +289,21 @@ export const CliBackendSchema = z
     imageArg: z.string().optional(),
     imageMode: z.union([z.literal("repeat"), z.literal("list")]).optional(),
     serialize: z.boolean().optional(),
+<<<<<<< HEAD
+=======
+    reliability: z
+      .object({
+        watchdog: z
+          .object({
+            fresh: CliBackendWatchdogModeSchema,
+            resume: CliBackendWatchdogModeSchema,
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
+      .optional(),
+>>>>>>> 6a19654c4 (refactor(core): dedupe browser route signatures and cli watchdog schema)
   })
   .strict();
 
