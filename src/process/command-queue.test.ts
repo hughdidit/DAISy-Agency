@@ -77,9 +77,12 @@ describe("command queue", () => {
 
     vi.useFakeTimers();
     try {
-      // First task holds the queue long enough to trigger wait notice.
+      let releaseFirst!: () => void;
+      const blocker = new Promise<void>((resolve) => {
+        releaseFirst = resolve;
+      });
       const first = enqueueCommand(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 8));
+        await blocker;
       });
 
       const second = enqueueCommand(async () => {}, {
@@ -90,7 +93,8 @@ describe("command queue", () => {
         },
       });
 
-      await vi.advanceTimersByTimeAsync(30);
+      await vi.advanceTimersByTimeAsync(6);
+      releaseFirst();
       await Promise.all([first, second]);
 
       expect(waited).not.toBeNull();
@@ -137,9 +141,9 @@ describe("command queue", () => {
     try {
       const drainPromise = waitForActiveTasks(5000);
 
-      // Resolve the blocker after a short delay.
-      setTimeout(() => resolve1(), 10);
-      await vi.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(50);
+      resolve1();
+      await vi.advanceTimersByTimeAsync(50);
 
       const { drained } = await drainPromise;
       expect(drained).toBe(true);
