@@ -10,6 +10,10 @@ import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
 import { resolveFetch, wrapFetchWithAbortSignal } from "./fetch.js";
 >>>>>>> b4fa10ae6 (refactor(infra): make fetch wrapping idempotent)
 
+async function waitForMicrotaskTurn(): Promise<void> {
+  await new Promise<void>((resolve) => queueMicrotask(resolve));
+}
+
 function createForeignSignalHarness() {
   let abortHandler: (() => void) | null = null;
   const removeEventListener = vi.fn((event: string, handler: () => void) => {
@@ -94,7 +98,7 @@ describe("wrapFetchWithAbortSignal", () => {
     try {
       await expect(wrapped("https://example.com", { signal: fakeSignal })).rejects.toBe(fetchError);
       await Promise.resolve();
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await waitForMicrotaskTurn();
 
       expect(unhandled).toEqual([]);
       expect(removeEventListener).toHaveBeenCalledOnce();
