@@ -20,9 +20,8 @@ import type { BrowserRouteRegistrar } from "./routes/types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { resolveBrowserConfig, resolveProfile } from "./config.js";
+import { resolveBrowserConfig } from "./config.js";
 import { ensureBrowserControlAuth, resolveBrowserControlAuth } from "./control-auth.js";
-import { ensureChromeExtensionRelayServer } from "./extension-relay.js";
 import { isPwAiLoaded } from "./pw-ai-state.js";
 import { registerBrowserRoutes } from "./routes/index.js";
 <<<<<<< HEAD
@@ -33,6 +32,7 @@ import { registerBrowserRoutes } from "./routes/index.js";
 <<<<<<< HEAD
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 import { type BrowserServerState, createBrowserRouteContext } from "./server-context.js";
+<<<<<<< HEAD
 =======
 =======
 import type { BrowserRouteRegistrar } from "./routes/types.js";
@@ -55,6 +55,9 @@ import {
 <<<<<<< HEAD
 >>>>>>> 3bda3df72 (fix(browser): hot-reload profiles added after gateway start (#4841) (#8816))
 =======
+=======
+import { ensureExtensionRelayForProfiles, stopKnownBrowserProfiles } from "./server-lifecycle.js";
+>>>>>>> b51166e87 (refactor(browser): share control lifecycle helpers)
 import {
   installBrowserAuthMiddleware,
   installBrowserCommonMiddleware,
@@ -130,17 +133,10 @@ export async function startBrowserControlServerFromConfig(): Promise<BrowserServ
     profiles: new Map(),
   };
 
-  // If any profile uses the Chrome extension relay, start the local relay server eagerly
-  // so the extension can connect before the first browser action.
-  for (const name of Object.keys(resolved.profiles)) {
-    const profile = resolveProfile(resolved, name);
-    if (!profile || profile.driver !== "extension") {
-      continue;
-    }
-    await ensureChromeExtensionRelayServer({ cdpUrl: profile.cdpUrl }).catch((err) => {
-      logServer.warn(`Chrome extension relay init failed for profile "${name}": ${String(err)}`);
-    });
-  }
+  await ensureExtensionRelayForProfiles({
+    resolved,
+    onWarn: (message) => logServer.warn(message),
+  });
 
   const authMode = browserAuth.token ? "token" : browserAuth.password ? "password" : "off";
   logServer.info(`Browser control listening on http://127.0.0.1:${port}/ (auth=${authMode})`);
@@ -153,11 +149,12 @@ export async function stopBrowserControlServer(): Promise<void> {
     return;
   }
 
-  const ctx = createBrowserRouteContext({
+  await stopKnownBrowserProfiles({
     getState: () => state,
-    refreshConfigFromDisk: true,
+    onWarn: (message) => logServer.warn(message),
   });
 
+<<<<<<< HEAD
   try {
     const current = state;
     if (current) {
@@ -173,6 +170,8 @@ export async function stopBrowserControlServer(): Promise<void> {
     logServer.warn(`clawd browser stop failed: ${String(err)}`);
   }
 
+=======
+>>>>>>> b51166e87 (refactor(browser): share control lifecycle helpers)
   if (current.server) {
     await new Promise<void>((resolve) => {
       current.server?.close(() => resolve());
