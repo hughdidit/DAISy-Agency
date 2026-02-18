@@ -1,4 +1,37 @@
 import { z } from "zod";
+<<<<<<< HEAD
+=======
+import { InstallRecordShape } from "./zod-schema.installs.js";
+import { sensitive } from "./zod-schema.sensitive.js";
+
+function isSafeRelativeModulePath(raw: string): boolean {
+  const value = raw.trim();
+  if (!value) {
+    return false;
+  }
+  // Hook modules are loaded via file-path resolution + dynamic import().
+  // Keep this strictly relative to a configured base dir to avoid path traversal and surprises.
+  if (path.isAbsolute(value)) {
+    return false;
+  }
+  if (value.startsWith("~")) {
+    return false;
+  }
+  // Disallow URL-ish and drive-relative forms (e.g. "file:...", "C:foo").
+  if (value.includes(":")) {
+    return false;
+  }
+  const parts = value.split(/[\\/]+/g);
+  if (parts.some((part) => part === "..")) {
+    return false;
+  }
+  return true;
+}
+
+const SafeRelativeModulePathSchema = z
+  .string()
+  .refine(isSafeRelativeModulePath, "module must be a safe relative path (no absolute paths)");
+>>>>>>> 2d55cc446 (refactor(config): share install record schema shape)
 
 export const HookMappingSchema = z
   .object({
@@ -65,12 +98,7 @@ const HookConfigSchema = z
 
 const HookInstallRecordSchema = z
   .object({
-    source: z.union([z.literal("npm"), z.literal("archive"), z.literal("path")]),
-    spec: z.string().optional(),
-    sourcePath: z.string().optional(),
-    installPath: z.string().optional(),
-    version: z.string().optional(),
-    installedAt: z.string().optional(),
+    ...InstallRecordShape,
     hooks: z.array(z.string()).optional(),
   })
   .strict();
