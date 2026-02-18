@@ -415,30 +415,42 @@ export function attachGatewayWsMessageHandler(params: {
         const frame = parsed;
         const connectParams = frame.params as ConnectParams;
         const clientLabel = connectParams.client.displayName ?? connectParams.client.id;
-
-        // protocol negotiation
-        const { minProtocol, maxProtocol } = connectParams;
-        if (maxProtocol < PROTOCOL_VERSION || minProtocol > PROTOCOL_VERSION) {
+        const clientMeta = {
+          client: connectParams.client.id,
+          clientDisplayName: connectParams.client.displayName,
+          mode: connectParams.client.mode,
+          version: connectParams.client.version,
+        };
+        const markHandshakeFailure = (cause: string, meta?: Record<string, unknown>) => {
           setHandshakeState("failed");
-          logWsControl.warn(
-            `protocol mismatch conn=${connId} remote=${remoteAddr ?? "?"} client=${clientLabel} ${connectParams.client.mode} v${connectParams.client.version}`,
-          );
-          setCloseCause("protocol-mismatch", {
-            minProtocol,
-            maxProtocol,
-            expectedProtocol: PROTOCOL_VERSION,
-            client: connectParams.client.id,
-            clientDisplayName: connectParams.client.displayName,
-            mode: connectParams.client.mode,
-            version: connectParams.client.version,
-          });
+          setCloseCause(cause, { ...meta, ...clientMeta });
+        };
+        const sendHandshakeErrorResponse = (
+          code: Parameters<typeof errorShape>[0],
+          message: string,
+          options?: Parameters<typeof errorShape>[2],
+        ) => {
           send({
             type: "res",
             id: frame.id,
             ok: false,
-            error: errorShape(ErrorCodes.INVALID_REQUEST, "protocol mismatch", {
-              details: { expectedProtocol: PROTOCOL_VERSION },
-            }),
+            error: errorShape(code, message, options),
+          });
+        };
+
+        // protocol negotiation
+        const { minProtocol, maxProtocol } = connectParams;
+        if (maxProtocol < PROTOCOL_VERSION || minProtocol > PROTOCOL_VERSION) {
+          markHandshakeFailure("protocol-mismatch", {
+            minProtocol,
+            maxProtocol,
+            expectedProtocol: PROTOCOL_VERSION,
+          });
+          logWsControl.warn(
+            `protocol mismatch conn=${connId} remote=${remoteAddr ?? "?"} client=${clientLabel} ${connectParams.client.mode} v${connectParams.client.version}`,
+          );
+          sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, "protocol mismatch", {
+            details: { expectedProtocol: PROTOCOL_VERSION },
           });
           close(1002, "protocol mismatch");
           return;
@@ -447,20 +459,10 @@ export function attachGatewayWsMessageHandler(params: {
         const roleRaw = connectParams.role ?? "operator";
         const role = roleRaw === "operator" || roleRaw === "node" ? roleRaw : null;
         if (!role) {
-          setHandshakeState("failed");
-          setCloseCause("invalid-role", {
+          markHandshakeFailure("invalid-role", {
             role: roleRaw,
-            client: connectParams.client.id,
-            clientDisplayName: connectParams.client.displayName,
-            mode: connectParams.client.mode,
-            version: connectParams.client.version,
           });
-          send({
-            type: "res",
-            id: frame.id,
-            ok: false,
-            error: errorShape(ErrorCodes.INVALID_REQUEST, "invalid role"),
-          });
+          sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, "invalid role");
           close(1008, "invalid role");
           return;
         }
@@ -479,6 +481,31 @@ export function attachGatewayWsMessageHandler(params: {
         connectParams.role = role;
         connectParams.scopes = scopes;
 
+<<<<<<< HEAD
+=======
+        const isControlUi = connectParams.client.id === GATEWAY_CLIENT_IDS.CONTROL_UI;
+        const isWebchat = isWebchatConnect(connectParams);
+        if (isControlUi || isWebchat) {
+          const originCheck = checkBrowserOrigin({
+            requestHost,
+            origin: requestOrigin,
+            allowedOrigins: configSnapshot.gateway?.controlUi?.allowedOrigins,
+          });
+          if (!originCheck.ok) {
+            const errorMessage =
+              "origin not allowed (open the Control UI from the gateway host or allow it in gateway.controlUi.allowedOrigins)";
+            markHandshakeFailure("origin-mismatch", {
+              origin: requestOrigin ?? "n/a",
+              host: requestHost ?? "n/a",
+              reason: originCheck.reason,
+            });
+            sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, errorMessage);
+            close(1008, truncateCloseReason(errorMessage));
+            return;
+          }
+        }
+
+>>>>>>> adac9cb67 (refactor: dedupe gateway and scheduler test scaffolding)
         const deviceRaw = connectParams.device;
         let devicePublicKey: string | null = null;
         const hasTokenAuth = Boolean(connectParams.auth?.token);
@@ -540,7 +567,16 @@ export function attachGatewayWsMessageHandler(params: {
           sharedAuthResult?.ok === true &&
           (sharedAuthResult.method === "token" || sharedAuthResult.method === "password");
         const rejectUnauthorized = (failedAuth: GatewayAuthResult) => {
-          setHandshakeState("failed");
+          markHandshakeFailure("unauthorized", {
+            authMode: resolvedAuth.mode,
+            authProvided: connectParams.auth?.token
+              ? "token"
+              : connectParams.auth?.password
+                ? "password"
+                : "none",
+            authReason: failedAuth.reason,
+            allowTailscale: resolvedAuth.allowTailscale,
+          });
           logWsControl.warn(
             `unauthorized conn=${connId} remote=${remoteAddr ?? "?"} client=${clientLabel} ${connectParams.client.mode} v${connectParams.client.version} reason=${failedAuth.reason ?? "unknown"}`,
           );
@@ -555,22 +591,7 @@ export function attachGatewayWsMessageHandler(params: {
             reason: failedAuth.reason,
             client: connectParams.client,
           });
-          setCloseCause("unauthorized", {
-            authMode: resolvedAuth.mode,
-            authProvided,
-            authReason: failedAuth.reason,
-            allowTailscale: resolvedAuth.allowTailscale,
-            client: connectParams.client.id,
-            clientDisplayName: connectParams.client.displayName,
-            mode: connectParams.client.mode,
-            version: connectParams.client.version,
-          });
-          send({
-            type: "res",
-            id: frame.id,
-            ok: false,
-            error: errorShape(ErrorCodes.INVALID_REQUEST, authMessage),
-          });
+          sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, authMessage);
           close(1008, truncateCloseReason(authMessage));
         };
         if (!device) {
@@ -578,19 +599,8 @@ export function attachGatewayWsMessageHandler(params: {
 
           if (isControlUi && !allowControlUiBypass) {
             const errorMessage = "control ui requires HTTPS or localhost (secure context)";
-            setHandshakeState("failed");
-            setCloseCause("control-ui-insecure-auth", {
-              client: connectParams.client.id,
-              clientDisplayName: connectParams.client.displayName,
-              mode: connectParams.client.mode,
-              version: connectParams.client.version,
-            });
-            send({
-              type: "res",
-              id: frame.id,
-              ok: false,
-              error: errorShape(ErrorCodes.INVALID_REQUEST, errorMessage),
-            });
+            markHandshakeFailure("control-ui-insecure-auth");
+            sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, errorMessage);
             close(1008, errorMessage);
             return;
           }
@@ -601,19 +611,8 @@ export function attachGatewayWsMessageHandler(params: {
               rejectUnauthorized(authResult);
               return;
             }
-            setHandshakeState("failed");
-            setCloseCause("device-required", {
-              client: connectParams.client.id,
-              clientDisplayName: connectParams.client.displayName,
-              mode: connectParams.client.mode,
-              version: connectParams.client.version,
-            });
-            send({
-              type: "res",
-              id: frame.id,
-              ok: false,
-              error: errorShape(ErrorCodes.NOT_PAIRED, "device identity required"),
-            });
+            markHandshakeFailure("device-required");
+            sendHandshakeErrorResponse(ErrorCodes.NOT_PAIRED, "device identity required");
             close(1008, "device identity required");
             return;
           }
