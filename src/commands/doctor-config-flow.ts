@@ -3,6 +3,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
 import type { DoctorOptions } from "./doctor-prompter.js";
+<<<<<<< HEAD
+=======
+import {
+  isNumericTelegramUserId,
+  normalizeTelegramAllowFromEntry,
+} from "../channels/telegram/allow-from.js";
+>>>>>>> 516046dba (fix: avoid doctor token regeneration on invalid repairs)
 import { formatCliCommand } from "../cli/command-format.js";
 import {
   OpenClawSchema,
@@ -891,5 +898,10 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
 
   noteOpencodeProviderOverrides(cfg);
 
-  return { cfg, path: snapshot.path ?? CONFIG_PATH, shouldWriteConfig };
+  return {
+    cfg,
+    path: snapshot.path ?? CONFIG_PATH,
+    shouldWriteConfig,
+    sourceConfigValid: snapshot.valid,
+  };
 }
