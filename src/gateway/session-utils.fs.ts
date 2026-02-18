@@ -5,6 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { SessionPreviewItem } from "./session-utils.types.js";
 import { resolveSessionTranscriptPath } from "../config/sessions.js";
 =======
@@ -16,6 +17,8 @@ import type { SessionPreviewItem } from "./session-utils.types.js";
 =======
 import type { SessionPreviewItem } from "./session-utils.types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   resolveSessionFilePath,
   resolveSessionTranscriptPath,
@@ -25,6 +28,7 @@ import {
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
 import { extractToolCallNames, hasToolCall } from "../utils/transcript-tools.js";
 import { stripEnvelope } from "./chat-sanitize.js";
+import type { SessionPreviewItem } from "./session-utils.types.js";
 
 type SessionTitleFields = {
   firstUserMessage: string | null;

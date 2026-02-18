@@ -1,4 +1,3 @@
-import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
 import {
   collectProviderApiKeysForExecution,
   executeWithApiKeyRotation,
@@ -10,6 +9,7 @@ import { createSubsystemLogger } from "../logging/subsystem.js";
 =======
 import { parseGeminiAuth } from "../infra/gemini-auth.js";
 import { debugEmbeddingsLog } from "./embeddings-debug.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -28,6 +28,9 @@ import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.j
 >>>>>>> 2e91552f0 (feat(agents): add generic provider api key rotation (#19587))
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export type GeminiEmbeddingClient = {
   baseUrl: string;

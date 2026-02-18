@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChatType } from "../channels/chat-type.js";
 <<<<<<< HEAD
 import { normalizeChatType } from "../channels/chat-type.js";
@@ -15,8 +16,12 @@ import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ChatType } from "../channels/chat-type.js";
 import type { OpenClawConfig } from "../config/config.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import type { ChatType } from "../channels/chat-type.js";
 import { normalizeChatType } from "../channels/chat-type.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { shouldLogVerbose } from "../globals.js";
 import { logDebug } from "../logger.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

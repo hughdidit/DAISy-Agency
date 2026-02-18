@@ -17,6 +17,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { verifyTelnyxWebhook } from "../webhook-security.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -29,7 +30,10 @@ import { verifyTelnyxWebhook } from "../webhook-security.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { VoiceCallProvider } from "./base.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { verifyTelnyxWebhook } from "../webhook-security.js";
+import type { VoiceCallProvider } from "./base.js";
 
 /**
  * Telnyx Voice API provider implementation.

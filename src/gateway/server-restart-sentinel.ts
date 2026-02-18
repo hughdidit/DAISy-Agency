@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import { resolveAnnounceTargetFromKey } from "../agents/tools/sessions-send-helpers.js";
 import { normalizeChannelId } from "../channels/plugins/index.js";
@@ -30,6 +31,12 @@ import { resolveSessionAgentId } from "../agents/agent-scope.js";
 import { resolveAnnounceTargetFromKey } from "../agents/tools/sessions-send-helpers.js";
 import { normalizeChannelId } from "../channels/plugins/index.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { resolveSessionAgentId } from "../agents/agent-scope.js";
+import { resolveAnnounceTargetFromKey } from "../agents/tools/sessions-send-helpers.js";
+import { normalizeChannelId } from "../channels/plugins/index.js";
+import type { CliDeps } from "../cli/deps.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveMainSessionKeyFromConfig } from "../config/sessions.js";
 import { resolveOutboundTarget } from "../infra/outbound/targets.js";
 import {

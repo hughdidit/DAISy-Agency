@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
 import { signalOutbound } from "../../channels/plugins/outbound/signal.js";
 import { telegramOutbound } from "../../channels/plugins/outbound/telegram.js";
 import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -19,6 +19,9 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { STATE_DIR } from "../../config/paths.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { setActivePluginRegistry } from "../../plugins/runtime.js";

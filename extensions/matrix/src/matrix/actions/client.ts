@@ -5,6 +5,7 @@ import { normalizeAccountId } from "openclaw/plugin-sdk/account-id";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
@@ -22,10 +23,14 @@ import { getMatrixRuntime } from "../../runtime.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { CoreConfig } from "../../types.js";
 import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getMatrixRuntime } from "../../runtime.js";
+import type { CoreConfig } from "../../types.js";
 import { getActiveMatrixClient } from "../active-client.js";
 import { createPreparedMatrixClient } from "../client-bootstrap.js";
 import { isBunRuntime, resolveMatrixAuth, resolveSharedMatrixClient } from "../client.js";
+import type { MatrixActionClient, MatrixActionClientOpts } from "./types.js";
 
 export function ensureNodeRuntime() {
   if (isBunRuntime()) {

@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { sendHandlers } from "./send.js";
 =======
@@ -17,7 +18,10 @@ import { sendHandlers } from "./send.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { GatewayRequestContext } from "./types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { sendHandlers } from "./send.js";
+import type { GatewayRequestContext } from "./types.js";
 
 const mocks = vi.hoisted(() => ({
   deliverOutboundPayloads: vi.fn(),

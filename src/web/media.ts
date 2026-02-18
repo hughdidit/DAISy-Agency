@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
 import { STATE_DIR } from "../config/paths.js";
 =======
@@ -20,7 +21,10 @@ import { logVerbose, shouldLogVerbose } from "../globals.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
+import type { SsrFPolicy } from "../infra/net/ssrf.js";
 import { type MediaKind, maxBytesForKind, mediaKindFromMime } from "../media/constants.js";
 import { fetchRemoteMedia } from "../media/fetch.js";
 import {

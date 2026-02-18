@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 =======
 import type { ButtonInteraction, ComponentData } from "@buape/carbon";
@@ -19,10 +20,15 @@ import { Routes } from "discord-api-types/v10";
 import type { ButtonInteraction, ComponentData } from "@buape/carbon";
 import { Routes } from "discord-api-types/v10";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import type { ButtonInteraction, ComponentData } from "@buape/carbon";
+import { Routes } from "discord-api-types/v10";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -41,7 +47,10 @@ import { clearSessionStoreCacheForTest } from "../../config/sessions.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { clearSessionStoreCacheForTest } from "../../config/sessions.js";
+import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
 import {
   buildExecApprovalCustomId,
   parseExecApprovalData,

@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ImageContent } from "@mariozechner/pi-ai";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -52,6 +53,15 @@ import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import type { ImageContent } from "@mariozechner/pi-ai";
+import { resolveUserPath } from "../../../utils.js";
+import { loadWebMedia } from "../../../web/media.js";
+import type { ImageSanitizationLimits } from "../../image-sanitization.js";
+import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { sanitizeImageBlocks } from "../../tool-images.js";
 import { log } from "../logger.js";
 

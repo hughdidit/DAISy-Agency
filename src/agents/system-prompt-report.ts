@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import path from "node:path";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -14,7 +15,10 @@ import path from "node:path";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { AgentTool } from "@mariozechner/pi-agent-core";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import path from "node:path";
+import type { AgentTool } from "@mariozechner/pi-agent-core";
 import type { SessionSystemPromptReport } from "../config/sessions/types.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 import type { WorkspaceBootstrapFile } from "./workspace.js";

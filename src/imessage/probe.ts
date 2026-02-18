@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 =======
 import type { BaseProbeResult } from "../channels/plugins/types.js";
@@ -15,9 +16,13 @@ import type { BaseProbeResult } from "../channels/plugins/types.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { BaseProbeResult } from "../channels/plugins/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { detectBinary } from "../commands/onboard-helpers.js";
 import { loadConfig } from "../config/config.js";
 import { runCommandWithTimeout } from "../process/exec.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { createIMessageRpcClient } from "./client.js";
 import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "./constants.js";
 

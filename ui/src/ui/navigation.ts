@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IconName } from "./icons.js";
 import { t } from "../i18n/index.js";
 =======
@@ -20,6 +21,10 @@ import type { IconName } from "./icons.js";
 import type { IconName } from "./icons.js";
 import { t } from "../i18n/index.ts";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { t } from "../i18n/index.ts";
+import type { IconName } from "./icons.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export const TAB_GROUPS = [
   { label: "chat", tabs: ["chat"] },
