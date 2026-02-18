@@ -38,7 +38,7 @@ import type { GatewayServiceRuntime } from "../../daemon/service-runtime.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadNodeHostConfig } from "../../node-host/config.js";
 import { defaultRuntime } from "../../runtime.js";
-import { colorize, theme } from "../../terminal/theme.js";
+import { colorize } from "../../terminal/theme.js";
 import { formatCliCommand } from "../command-format.js";
 import {
   runServiceRestart,
@@ -51,7 +51,12 @@ import {
   createDaemonActionContext,
   installDaemonServiceAndEmit,
 } from "../daemon-cli/response.js";
-import { createCliStatusTextStyles, formatRuntimeStatus, parsePort } from "../daemon-cli/shared.js";
+import {
+  createCliStatusTextStyles,
+  formatRuntimeStatus,
+  parsePort,
+  resolveRuntimeStatusColor,
+} from "../daemon-cli/shared.js";
 
 type NodeDaemonInstallOptions = {
   host?: string;
@@ -285,15 +290,7 @@ export async function runNodeDaemonStatus(opts: NodeDaemonStatusOptions = {}) {
 
   const runtimeLine = formatRuntimeStatus(runtime);
   if (runtimeLine) {
-    const runtimeStatus = runtime?.status ?? "unknown";
-    const runtimeColor =
-      runtimeStatus === "running"
-        ? theme.success
-        : runtimeStatus === "stopped"
-          ? theme.error
-          : runtimeStatus === "unknown"
-            ? theme.muted
-            : theme.warn;
+    const runtimeColor = resolveRuntimeStatusColor(runtime?.status);
     defaultRuntime.log(`${label("Runtime:")} ${colorize(rich, runtimeColor, runtimeLine)}`);
   }
 
