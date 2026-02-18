@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { transcribeDeepgramAudio } from "./audio.js";
 
@@ -18,6 +19,13 @@ const resolveRequestUrl = (input: RequestInfo | URL) => {
 import { withFetchPreconnect } from "../../../test-utils/fetch-mock.js";
 >>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import { installPinnedHostnameTestHooks, resolveRequestUrl } from "../audio.test-helpers.js";
+=======
+import {
+  createAuthCaptureJsonFetch,
+  createRequestCaptureJsonFetch,
+  installPinnedHostnameTestHooks,
+} from "../audio.test-helpers.js";
+>>>>>>> eb775ff24 (test(media): dedupe audio provider request assertions)
 import { transcribeDeepgramAudio } from "./audio.js";
 
 installPinnedHostnameTestHooks();
@@ -25,19 +33,8 @@ installPinnedHostnameTestHooks();
 
 describe("transcribeDeepgramAudio", () => {
   it("respects lowercase authorization header overrides", async () => {
-    let seenAuth: string | null = null;
-    const fetchFn = withFetchPreconnect(async (_input: RequestInfo | URL, init?: RequestInit) => {
-      const headers = new Headers(init?.headers);
-      seenAuth = headers.get("authorization");
-      return new Response(
-        JSON.stringify({
-          results: { channels: [{ alternatives: [{ transcript: "ok" }] }] },
-        }),
-        {
-          status: 200,
-          headers: { "content-type": "application/json" },
-        },
-      );
+    const { fetchFn, getAuthHeader } = createAuthCaptureJsonFetch({
+      results: { channels: [{ alternatives: [{ transcript: "ok" }] }] },
     });
 
     const result = await transcribeDeepgramAudio({
@@ -49,25 +46,13 @@ describe("transcribeDeepgramAudio", () => {
       fetchFn,
     });
 
-    expect(seenAuth).toBe("Token override");
+    expect(getAuthHeader()).toBe("Token override");
     expect(result.text).toBe("ok");
   });
 
   it("builds the expected request payload", async () => {
-    let seenUrl: string | null = null;
-    let seenInit: RequestInit | undefined;
-    const fetchFn = withFetchPreconnect(async (input: RequestInfo | URL, init?: RequestInit) => {
-      seenUrl = resolveRequestUrl(input);
-      seenInit = init;
-      return new Response(
-        JSON.stringify({
-          results: { channels: [{ alternatives: [{ transcript: "hello" }] }] },
-        }),
-        {
-          status: 200,
-          headers: { "content-type": "application/json" },
-        },
-      );
+    const { fetchFn, getRequest } = createRequestCaptureJsonFetch({
+      results: { channels: [{ alternatives: [{ transcript: "hello" }] }] },
     });
 
     const result = await transcribeDeepgramAudio({
@@ -86,6 +71,7 @@ describe("transcribeDeepgramAudio", () => {
       },
       fetchFn,
     });
+    const { url: seenUrl, init: seenInit } = getRequest();
 
     expect(result.model).toBe("nova-3");
     expect(result.text).toBe("hello");
@@ -100,5 +86,21 @@ describe("transcribeDeepgramAudio", () => {
     expect(headers.get("x-custom")).toBe("1");
     expect(headers.get("content-type")).toBe("audio/wav");
     expect(seenInit?.body).toBeInstanceOf(Uint8Array);
+  });
+
+  it("throws when the provider response omits transcript", async () => {
+    const { fetchFn } = createRequestCaptureJsonFetch({
+      results: { channels: [{ alternatives: [{}] }] },
+    });
+
+    await expect(
+      transcribeDeepgramAudio({
+        buffer: Buffer.from("audio-bytes"),
+        fileName: "voice.wav",
+        apiKey: "test-key",
+        timeoutMs: 1234,
+        fetchFn,
+      }),
+    ).rejects.toThrow("Audio transcription response missing transcript");
   });
 });
