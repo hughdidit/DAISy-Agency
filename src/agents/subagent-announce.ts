@@ -109,17 +109,53 @@ function extractToolResultText(content: unknown): string {
   return joined?.trim() ?? "";
 }
 
+function extractInlineTextContent(content: unknown): string {
+  if (!Array.isArray(content)) {
+    return "";
+  }
+  return (
+    extractTextFromChatContent(content, {
+      sanitizeText: sanitizeTextContent,
+      normalizeText: (text) => text.trim(),
+      joinWith: "",
+    }) ?? ""
+  );
+}
+
 function extractSubagentOutputText(message: unknown): string {
   if (!message || typeof message !== "object") {
     return "";
   }
   const role = (message as { role?: unknown }).role;
   if (role === "assistant") {
+<<<<<<< HEAD
     return extractAssistantText(message) ?? "";
+=======
+    const assistantText = extractAssistantText(message);
+    if (assistantText) {
+      return assistantText;
+    }
+    if (typeof content === "string") {
+      return sanitizeTextContent(content);
+    }
+    if (Array.isArray(content)) {
+      return extractInlineTextContent(content);
+    }
+    return "";
+>>>>>>> 54e9924fc (refactor(agents): dedupe subagent inline text extraction)
   }
   if (role === "toolResult" || role === "tool") {
     return extractToolResultText((message as ToolResultMessage).content);
   }
+<<<<<<< HEAD
+=======
+  if (typeof content === "string") {
+    return sanitizeTextContent(content);
+  }
+  if (Array.isArray(content)) {
+    return extractInlineTextContent(content);
+  }
+>>>>>>> 54e9924fc (refactor(agents): dedupe subagent inline text extraction)
   return "";
 }
 
