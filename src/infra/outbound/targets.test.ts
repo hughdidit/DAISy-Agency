@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 import type { MoltbotConfig } from "../../config/config.js";
 
@@ -114,6 +115,10 @@ describe("resolveOutboundTarget", () => {
     }
   });
 });
+=======
+import { describe, expect, it } from "vitest";
+import { resolveSessionDeliveryTarget } from "./targets.js";
+>>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
 
 describe("resolveSessionDeliveryTarget", () => {
   it("derives implicit delivery from the last route", () => {
@@ -133,6 +138,10 @@ describe("resolveSessionDeliveryTarget", () => {
       to: "+1555",
       accountId: "acct-1",
       threadId: undefined,
+<<<<<<< HEAD
+=======
+      threadIdExplicit: false,
+>>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       mode: "implicit",
       lastChannel: "whatsapp",
       lastTo: "+1555",
@@ -157,6 +166,10 @@ describe("resolveSessionDeliveryTarget", () => {
       to: undefined,
       accountId: undefined,
       threadId: undefined,
+<<<<<<< HEAD
+=======
+      threadIdExplicit: false,
+>>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       mode: "implicit",
       lastChannel: "whatsapp",
       lastTo: "+1555",
@@ -182,6 +195,10 @@ describe("resolveSessionDeliveryTarget", () => {
       to: "+1555",
       accountId: undefined,
       threadId: undefined,
+<<<<<<< HEAD
+=======
+      threadIdExplicit: false,
+>>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       mode: "implicit",
       lastChannel: "whatsapp",
       lastTo: "+1555",
@@ -190,6 +207,42 @@ describe("resolveSessionDeliveryTarget", () => {
     });
   });
 
+<<<<<<< HEAD
+=======
+  it("passes through explicitThreadId when provided", () => {
+    const resolved = resolveSessionDeliveryTarget({
+      entry: {
+        sessionId: "sess-thread",
+        updatedAt: 1,
+        lastChannel: "telegram",
+        lastTo: "-100123",
+        lastThreadId: 999,
+      },
+      requestedChannel: "last",
+      explicitThreadId: 42,
+    });
+
+    expect(resolved.threadId).toBe(42);
+    expect(resolved.channel).toBe("telegram");
+    expect(resolved.to).toBe("-100123");
+  });
+
+  it("uses session lastThreadId when no explicitThreadId", () => {
+    const resolved = resolveSessionDeliveryTarget({
+      entry: {
+        sessionId: "sess-thread-2",
+        updatedAt: 1,
+        lastChannel: "telegram",
+        lastTo: "-100123",
+        lastThreadId: 999,
+      },
+      requestedChannel: "last",
+    });
+
+    expect(resolved.threadId).toBe(999);
+  });
+
+>>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
   it("falls back to a provided channel when requested is unsupported", () => {
     const resolved = resolveSessionDeliveryTarget({
       entry: {
@@ -207,6 +260,10 @@ describe("resolveSessionDeliveryTarget", () => {
       to: undefined,
       accountId: undefined,
       threadId: undefined,
+<<<<<<< HEAD
+=======
+      threadIdExplicit: false,
+>>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       mode: "implicit",
       lastChannel: "whatsapp",
       lastTo: "+1555",
@@ -214,4 +271,87 @@ describe("resolveSessionDeliveryTarget", () => {
       lastThreadId: undefined,
     });
   });
+<<<<<<< HEAD
+=======
+
+  it("parses :topic:NNN from explicitTo into threadId", () => {
+    const resolved = resolveSessionDeliveryTarget({
+      entry: {
+        sessionId: "sess-topic",
+        updatedAt: 1,
+        lastChannel: "telegram",
+        lastTo: "63448508",
+      },
+      requestedChannel: "last",
+      explicitTo: "63448508:topic:1008013",
+    });
+
+    expect(resolved.to).toBe("63448508");
+    expect(resolved.threadId).toBe(1008013);
+  });
+
+  it("parses :topic:NNN even when lastTo is absent", () => {
+    const resolved = resolveSessionDeliveryTarget({
+      entry: {
+        sessionId: "sess-no-last",
+        updatedAt: 1,
+        lastChannel: "telegram",
+      },
+      requestedChannel: "last",
+      explicitTo: "63448508:topic:1008013",
+    });
+
+    expect(resolved.to).toBe("63448508");
+    expect(resolved.threadId).toBe(1008013);
+  });
+
+  it("skips :topic: parsing for non-telegram channels", () => {
+    const resolved = resolveSessionDeliveryTarget({
+      entry: {
+        sessionId: "sess-slack",
+        updatedAt: 1,
+        lastChannel: "slack",
+        lastTo: "C12345",
+      },
+      requestedChannel: "last",
+      explicitTo: "C12345:topic:999",
+    });
+
+    expect(resolved.to).toBe("C12345:topic:999");
+    expect(resolved.threadId).toBeUndefined();
+  });
+
+  it("skips :topic: parsing when channel is explicitly non-telegram even if lastChannel was telegram", () => {
+    const resolved = resolveSessionDeliveryTarget({
+      entry: {
+        sessionId: "sess-cross",
+        updatedAt: 1,
+        lastChannel: "telegram",
+        lastTo: "63448508",
+      },
+      requestedChannel: "slack",
+      explicitTo: "C12345:topic:999",
+    });
+
+    expect(resolved.to).toBe("C12345:topic:999");
+    expect(resolved.threadId).toBeUndefined();
+  });
+
+  it("explicitThreadId takes priority over :topic: parsed value", () => {
+    const resolved = resolveSessionDeliveryTarget({
+      entry: {
+        sessionId: "sess-priority",
+        updatedAt: 1,
+        lastChannel: "telegram",
+        lastTo: "63448508",
+      },
+      requestedChannel: "last",
+      explicitTo: "63448508:topic:1008013",
+      explicitThreadId: 42,
+    });
+
+    expect(resolved.threadId).toBe(42);
+    expect(resolved.to).toBe("63448508");
+  });
+>>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
 });

@@ -864,6 +864,7 @@ export async function runHeartbeatOnce(opts: {
       channel: delivery.channel,
       to: delivery.to,
       accountId: delivery.accountId,
+      threadId: delivery.threadId,
       payloads: [{ text: heartbeatOkText }],
       deps: opts.deps,
     });
@@ -1057,6 +1058,11 @@ export async function runHeartbeatOnce(opts: {
       channel: delivery.channel,
       to: delivery.to,
       accountId: deliveryAccountId,
+<<<<<<< HEAD
+=======
+      agentId,
+      threadId: delivery.threadId,
+>>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       payloads: [
         ...reasoningPayloads,
         ...(shouldSkipMain

@@ -371,8 +371,13 @@ describe("resolveHeartbeatDeliveryTarget", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("keeps explicit telegram targets", () => {
     const cfg: MoltbotConfig = {
+=======
+  it("keeps explicit telegram targets", () => {
+    const cfg: OpenClawConfig = {
+>>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
       agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } },
     };
     expect(resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry })).toEqual({
@@ -384,8 +389,38 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     });
   });
 
+<<<<<<< HEAD
 =======
 >>>>>>> 7a6928712 (test: remove redundant explicit telegram heartbeat target case)
+=======
+  it("parses threadId from :topic: suffix in heartbeat to", () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        defaults: {
+          heartbeat: { target: "telegram", to: "-100111:topic:42" },
+        },
+      },
+    };
+    const result = resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry });
+    expect(result.channel).toBe("telegram");
+    expect(result.to).toBe("-100111");
+    expect(result.threadId).toBe(42);
+  });
+
+  it("heartbeat to without :topic: has no threadId", () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        defaults: {
+          heartbeat: { target: "telegram", to: "-100111" },
+        },
+      },
+    };
+    const result = resolveHeartbeatDeliveryTarget({ cfg, entry: baseEntry });
+    expect(result.to).toBe("-100111");
+    expect(result.threadId).toBeUndefined();
+  });
+
+>>>>>>> d833dcd73 (fix(telegram): cron and heartbeat messages land in wrong chat instead of target topic (#19367))
   it("uses explicit heartbeat accountId when provided", () => {
     const cfg: OpenClawConfig = {
       agents: {
