@@ -5,6 +5,7 @@ import { describe, expect, test } from "vitest";
 import {
   approveDevicePairing,
   getPairedDevice,
+  removePairedDevice,
   requestDevicePairing,
   rotateDeviceToken,
 } from "./device-pairing.js";
@@ -41,4 +42,63 @@ describe("device pairing tokens", () => {
     paired = await getPairedDevice("device-1", baseDir);
     expect(paired?.tokens?.operator?.scopes).toEqual(["operator.read"]);
   });
+<<<<<<< HEAD
+=======
+
+  test("verifies token and rejects mismatches", async () => {
+    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    await setupPairedOperatorDevice(baseDir, ["operator.read"]);
+    const paired = await getPairedDevice("device-1", baseDir);
+    const token = requireToken(paired?.tokens?.operator?.token);
+
+    const ok = await verifyDeviceToken({
+      deviceId: "device-1",
+      token,
+      role: "operator",
+      scopes: ["operator.read"],
+      baseDir,
+    });
+    expect(ok.ok).toBe(true);
+
+    const mismatch = await verifyDeviceToken({
+      deviceId: "device-1",
+      token: "x".repeat(token.length),
+      role: "operator",
+      scopes: ["operator.read"],
+      baseDir,
+    });
+    expect(mismatch.ok).toBe(false);
+    expect(mismatch.reason).toBe("token-mismatch");
+  });
+
+  test("treats multibyte same-length token input as mismatch without throwing", async () => {
+    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    await setupPairedOperatorDevice(baseDir, ["operator.read"]);
+    const paired = await getPairedDevice("device-1", baseDir);
+    const token = requireToken(paired?.tokens?.operator?.token);
+    const multibyteToken = "é".repeat(token.length);
+    expect(Buffer.from(multibyteToken).length).not.toBe(Buffer.from(token).length);
+
+    await expect(
+      verifyDeviceToken({
+        deviceId: "device-1",
+        token: multibyteToken,
+        role: "operator",
+        scopes: ["operator.read"],
+        baseDir,
+      }),
+    ).resolves.toEqual({ ok: false, reason: "token-mismatch" });
+  });
+
+  test("removes paired devices by device id", async () => {
+    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    await setupPairedOperatorDevice(baseDir, ["operator.read"]);
+
+    const removed = await removePairedDevice("device-1", baseDir);
+    expect(removed).toEqual({ deviceId: "device-1" });
+    await expect(getPairedDevice("device-1", baseDir)).resolves.toBeNull();
+
+    await expect(removePairedDevice("device-1", baseDir)).resolves.toBeNull();
+  });
+>>>>>>> 1437ed76a (Gateway/CLI: add paired-device remove and clear flows (#20057))
 });

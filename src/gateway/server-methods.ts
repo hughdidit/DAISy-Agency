@@ -43,6 +43,7 @@ const PAIRING_METHODS = new Set([
   "device.pair.list",
   "device.pair.approve",
   "device.pair.reject",
+  "device.pair.remove",
   "device.token.rotate",
   "device.token.revoke",
   "node.rename",
