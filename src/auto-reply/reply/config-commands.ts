@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { parseConfigValue } from "./config-value.js";
 =======
 import { parseSetUnsetCommandAction } from "./commands-setunset.js";
 import { parseSlashCommandOrNull } from "./commands-slash-parse.js";
 >>>>>>> 818419b4c (refactor(auto-reply): share set/unset command action parsing)
+=======
+import { parseSlashCommandWithSetUnset } from "./commands-setunset.js";
+>>>>>>> f46bcbe16 (refactor(auto-reply): share slash set/unset command parsing)
 
 export type ConfigCommand =
   | { action: "show"; path?: string }
@@ -12,6 +16,7 @@ export type ConfigCommand =
   | { action: "error"; message: string };
 
 export function parseConfigCommand(raw: string): ConfigCommand | null {
+<<<<<<< HEAD
   const trimmed = raw.trim();
   if (!trimmed.toLowerCase().startsWith("/config")) {
     return null;
@@ -31,13 +36,24 @@ export function parseConfigCommand(raw: string): ConfigCommand | null {
 =======
   const { action, args } = parsed;
   const setUnset = parseSetUnsetCommandAction<ConfigCommand>({
+=======
+  return parseSlashCommandWithSetUnset<ConfigCommand>({
+    raw,
+>>>>>>> f46bcbe16 (refactor(auto-reply): share slash set/unset command parsing)
     slash: "/config",
-    action,
-    args,
+    invalidMessage: "Invalid /config syntax.",
+    usageMessage: "Usage: /config show|set|unset",
+    onKnownAction: (action, args) => {
+      if (action === "show" || action === "get") {
+        return { action: "show", path: args || undefined };
+      }
+      return undefined;
+    },
     onSet: (path, value) => ({ action: "set", path, value }),
     onUnset: (path) => ({ action: "unset", path }),
     onError: (message) => ({ action: "error", message }),
   });
+<<<<<<< HEAD
   if (setUnset) {
     return setUnset;
   }
@@ -91,4 +107,6 @@ export function parseConfigCommand(raw: string): ConfigCommand | null {
         message: "Usage: /config show|set|unset",
       };
   }
+=======
+>>>>>>> f46bcbe16 (refactor(auto-reply): share slash set/unset command parsing)
 }
