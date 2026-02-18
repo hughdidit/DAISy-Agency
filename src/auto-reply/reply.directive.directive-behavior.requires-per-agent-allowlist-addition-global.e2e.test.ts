@@ -87,6 +87,29 @@ function makeWorkElevatedAllowlistConfig(home: string) {
   };
 }
 
+function makeElevatedDirectiveConfig(
+  home: string,
+  defaults: Record<string, unknown> = {},
+  extra: Record<string, unknown> = {},
+) {
+  return makeWhatsAppDirectiveConfig(
+    home,
+    {
+      model: "anthropic/claude-opus-4-5",
+      ...defaults,
+    },
+    {
+      tools: {
+        elevated: {
+          allowFrom: { whatsapp: ["+1222"] },
+        },
+      },
+      channels: { whatsapp: { allowFrom: ["+1222"] } },
+      ...extra,
+    },
+  );
+}
+
 function makeCommandMessage(body: string, from = "+1222") {
   return {
     Body: body,
@@ -201,6 +224,7 @@ describe("directive behavior", () => {
         makeCommandMessage("/elevated off"),
         {},
 <<<<<<< HEAD
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -225,6 +249,9 @@ describe("directive behavior", () => {
             channels: { whatsapp: { allowFrom: ["+1222"] } },
           },
         ),
+=======
+        makeElevatedDirectiveConfig(home, { sandbox: { mode: "off" } }),
+>>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
 
       const text = replyText(res);
@@ -239,37 +266,6 @@ describe("directive behavior", () => {
         makeCommandMessage("/elevated maybe"),
         {},
 <<<<<<< HEAD
-        {
-          agents: {
-            defaults: {
-              model: "anthropic/claude-opus-4-5",
-              workspace: path.join(home, "clawd"),
-=======
-        makeWhatsAppDirectiveConfig(
-          home,
-          { model: "anthropic/claude-opus-4-5" },
-          {
-            tools: {
-              elevated: {
-                allowFrom: { whatsapp: ["+1222"] },
-              },
->>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-            },
-            channels: { whatsapp: { allowFrom: ["+1222"] } },
-          },
-        ),
-      );
-
-      const text = replyText(res);
-      expect(text).toContain("Unrecognized elevated level");
-      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
-    });
-  });
-  it("handles multiple directives in a single message", async () => {
-    await withTempHome(async (home) => {
-      const res = await getReplyFromConfig(
-        makeCommandMessage("/elevated off\n/verbose on"),
-        {},
 <<<<<<< HEAD
         {
           agents: {
@@ -290,6 +286,45 @@ describe("directive behavior", () => {
             channels: { whatsapp: { allowFrom: ["+1222"] } },
           },
         ),
+=======
+        makeElevatedDirectiveConfig(home),
+>>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
+      );
+
+      const text = replyText(res);
+      expect(text).toContain("Unrecognized elevated level");
+      expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
+    });
+  });
+  it("handles multiple directives in a single message", async () => {
+    await withTempHome(async (home) => {
+      const res = await getReplyFromConfig(
+        makeCommandMessage("/elevated off\n/verbose on"),
+        {},
+<<<<<<< HEAD
+<<<<<<< HEAD
+        {
+          agents: {
+            defaults: {
+              model: "anthropic/claude-opus-4-5",
+              workspace: path.join(home, "clawd"),
+=======
+        makeWhatsAppDirectiveConfig(
+          home,
+          { model: "anthropic/claude-opus-4-5" },
+          {
+            tools: {
+              elevated: {
+                allowFrom: { whatsapp: ["+1222"] },
+              },
+>>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+            },
+            channels: { whatsapp: { allowFrom: ["+1222"] } },
+          },
+        ),
+=======
+        makeElevatedDirectiveConfig(home),
+>>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
 
       const text = replyText(res);

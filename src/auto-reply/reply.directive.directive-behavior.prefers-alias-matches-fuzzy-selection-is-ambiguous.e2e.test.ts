@@ -9,7 +9,10 @@ import {
   assertModelSelection,
   installDirectiveBehaviorE2EHooks,
   MAIN_SESSION_KEY,
+  makeWhatsAppDirectiveConfig,
+  replyText,
   runEmbeddedPiAgent,
+  sessionStorePath,
   withTempHome,
 } from "./reply.directive.directive-behavior.e2e-harness.js";
 import { getReplyFromConfig } from "./reply.js";
@@ -71,13 +74,26 @@ function makeModelDefinition(id: string, name: string): ModelDefinitionConfig {
   };
 }
 
+<<<<<<< HEAD
 >>>>>>> 7d2ef131c (chore: Fix types in tests 42/N.)
+=======
+function makeModelSwitchConfig(home: string) {
+  return makeWhatsAppDirectiveConfig(home, {
+    model: { primary: "openai/gpt-4.1-mini" },
+    models: {
+      "openai/gpt-4.1-mini": {},
+      "anthropic/claude-opus-4-5": { alias: "Opus" },
+    },
+  });
+}
+
+>>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
 describe("directive behavior", () => {
   installDirectiveBehaviorE2EHooks();
 
   it("prefers alias matches when fuzzy selection is ambiguous", async () => {
     await withTempHome(async (home) => {
-      const storePath = path.join(home, "sessions.json");
+      const storePath = sessionStorePath(home);
 
       const res = await getReplyFromConfig(
         { Body: "/model ki", From: "+1222", To: "+1222", CommandAuthorized: true },
@@ -115,7 +131,7 @@ describe("directive behavior", () => {
         },
       );
 
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
+      const text = replyText(res);
       expect(text).toContain("Model set to Kimi (moonshot/kimi-k2-0905-preview).");
       assertModelSelection(storePath, {
         provider: "moonshot",
@@ -126,8 +142,13 @@ describe("directive behavior", () => {
   });
   it("stores auth profile overrides on /model directive", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const storePath = path.join(home, "sessions.json");
       const authDir = path.join(home, ".clawdbot", "agents", "main", "agent");
+=======
+      const storePath = sessionStorePath(home);
+      const authDir = path.join(home, ".openclaw", "agents", "main", "agent");
+>>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       await fs.mkdir(authDir, { recursive: true, mode: 0o700 });
       await fs.writeFile(
         path.join(authDir, "auth-profiles.json"),
@@ -150,6 +171,7 @@ describe("directive behavior", () => {
       const res = await getReplyFromConfig(
         { Body: "/model Opus@anthropic:work", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -163,9 +185,12 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
+=======
+        makeModelSwitchConfig(home),
+>>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
 
-      const text = Array.isArray(res) ? res[0]?.text : res?.text;
+      const text = replyText(res);
       expect(text).toContain("Auth profile set to anthropic:work");
       const store = loadSessionStore(storePath);
       const entry = store["agent:main:main"];
@@ -176,11 +201,10 @@ describe("directive behavior", () => {
   it("queues a system event when switching models", async () => {
     await withTempHome(async (home) => {
       drainSystemEvents(MAIN_SESSION_KEY);
-      const storePath = path.join(home, "sessions.json");
-
       await getReplyFromConfig(
         { Body: "/model Opus", From: "+1222", To: "+1222", CommandAuthorized: true },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -194,6 +218,9 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
+=======
+        makeModelSwitchConfig(home),
+>>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
 
       const events = drainSystemEvents(MAIN_SESSION_KEY);
@@ -204,7 +231,6 @@ describe("directive behavior", () => {
   it("queues a system event when toggling elevated", async () => {
     await withTempHome(async (home) => {
       drainSystemEvents(MAIN_SESSION_KEY);
-      const storePath = path.join(home, "sessions.json");
 
       await getReplyFromConfig(
         {
@@ -215,6 +241,7 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -226,6 +253,13 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["*"] } },
           session: { store: storePath },
         },
+=======
+        makeWhatsAppDirectiveConfig(
+          home,
+          { model: { primary: "openai/gpt-4.1-mini" } },
+          { tools: { elevated: { allowFrom: { whatsapp: ["*"] } } } },
+        ),
+>>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
 
       const events = drainSystemEvents(MAIN_SESSION_KEY);
@@ -235,7 +269,6 @@ describe("directive behavior", () => {
   it("queues a system event when toggling reasoning", async () => {
     await withTempHome(async (home) => {
       drainSystemEvents(MAIN_SESSION_KEY);
-      const storePath = path.join(home, "sessions.json");
 
       await getReplyFromConfig(
         {
@@ -246,6 +279,7 @@ describe("directive behavior", () => {
           CommandAuthorized: true,
         },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -256,6 +290,9 @@ describe("directive behavior", () => {
           channels: { whatsapp: { allowFrom: ["*"] } },
           session: { store: storePath },
         },
+=======
+        makeWhatsAppDirectiveConfig(home, { model: { primary: "openai/gpt-4.1-mini" } }),
+>>>>>>> 2fd211b70 (test(auto-reply): dedupe directive behavior e2e fixtures)
       );
 
       const events = drainSystemEvents(MAIN_SESSION_KEY);
