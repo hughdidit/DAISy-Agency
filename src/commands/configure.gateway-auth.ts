@@ -53,10 +53,15 @@ function sanitizeTokenValue(value: string | undefined): string | undefined {
 
 const ANTHROPIC_OAUTH_MODEL_KEYS = [
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   "anthropic/claude-opus-4-6",
   "anthropic/claude-sonnet-4-6",
 >>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
+=======
+  "anthropic/claude-sonnet-4-6",
+  "anthropic/claude-opus-4-6",
+>>>>>>> f25bbbc37 (feat: switch anthropic onboarding defaults to sonnet)
   "anthropic/claude-opus-4-5",
   "anthropic/claude-sonnet-4-5",
   "anthropic/claude-haiku-4-5",
@@ -163,7 +168,7 @@ export async function promptAuthConfig(
       config: next,
       prompter,
       allowedKeys: anthropicOAuth ? ANTHROPIC_OAUTH_MODEL_KEYS : undefined,
-      initialSelections: anthropicOAuth ? ["anthropic/claude-opus-4-6"] : undefined,
+      initialSelections: anthropicOAuth ? ["anthropic/claude-sonnet-4-6"] : undefined,
       message: anthropicOAuth ? "Anthropic OAuth models" : undefined,
     });
     if (allowlistSelection.models) {
