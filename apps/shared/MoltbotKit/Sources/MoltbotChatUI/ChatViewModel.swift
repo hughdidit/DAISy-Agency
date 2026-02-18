@@ -452,8 +452,15 @@ public final class MoltbotChatViewModel {
         // even when this view currently uses an alias key (for example "main").
         // Never drop events for our own pending run on key mismatch, or the UI can stay
         // stuck at "thinking" until the user reopens and forces a history reload.
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatViewModel.swift
         if let sessionKey = chat.sessionKey, sessionKey != self.sessionKey, !isOurRun {
 >>>>>>> 6effcdb55 (OpenClawKit: stabilize iOS ChatUI updates after gateway replies (#18165)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatViewModel.swift
+=======
+        if let sessionKey = chat.sessionKey,
+           !Self.matchesCurrentSessionKey(incoming: sessionKey, current: self.sessionKey),
+           !isOurRun
+        {
+>>>>>>> fe3f0759b (Chat UI: accept canonical main session key alias (#20311)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatViewModel.swift
             return
         }
         if !isOurRun {
@@ -487,7 +494,26 @@ public final class MoltbotChatViewModel {
         }
     }
 
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatViewModel.swift
     private func handleAgentEvent(_ evt: MoltbotAgentEventPayload) {
+=======
+    private static func matchesCurrentSessionKey(incoming: String, current: String) -> Bool {
+        let incomingNormalized = incoming.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let currentNormalized = current.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if incomingNormalized == currentNormalized {
+            return true
+        }
+        // Common alias pair in operator clients: UI uses "main" while gateway emits canonical.
+        if (incomingNormalized == "agent:main:main" && currentNormalized == "main") ||
+            (incomingNormalized == "main" && currentNormalized == "agent:main:main")
+        {
+            return true
+        }
+        return false
+    }
+
+    private func handleAgentEvent(_ evt: OpenClawAgentEventPayload) {
+>>>>>>> fe3f0759b (Chat UI: accept canonical main session key alias (#20311)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatViewModel.swift
         if let sessionId, evt.runId != sessionId {
             return
         }
