@@ -1,7 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { TelegramAccountConfig } from "../config/types.js";
 =======
+=======
+import { createAccountActionGate } from "../channels/plugins/account-action-gate.js";
+>>>>>>> e702a9eb5 (refactor(channels): share account action gate resolution)
 import type { OpenClawConfig } from "../config/config.js";
 import type { TelegramAccountConfig, TelegramActionConfig } from "../config/types.js";
 >>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
@@ -92,19 +96,10 @@ export function createTelegramActionGate(params: {
   accountId?: string | null;
 }): (key: keyof TelegramActionConfig, defaultValue?: boolean) => boolean {
   const accountId = normalizeAccountId(params.accountId);
-  const baseActions = params.cfg.channels?.telegram?.actions;
-  const accountActions = resolveAccountConfig(params.cfg, accountId)?.actions;
-  return (key, defaultValue = true) => {
-    const accountValue = accountActions?.[key];
-    if (accountValue !== undefined) {
-      return accountValue;
-    }
-    const baseValue = baseActions?.[key];
-    if (baseValue !== undefined) {
-      return baseValue;
-    }
-    return defaultValue;
-  };
+  return createAccountActionGate({
+    baseActions: params.cfg.channels?.telegram?.actions,
+    accountActions: resolveAccountConfig(params.cfg, accountId)?.actions,
+  });
 }
 
 export function resolveTelegramAccount(params: {
