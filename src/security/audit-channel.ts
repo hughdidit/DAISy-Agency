@@ -6,12 +6,14 @@ import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { resolveNativeCommandsEnabled, resolveNativeSkillsEnabled } from "../config/commands.js";
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
+<<<<<<< HEAD
+=======
+import { normalizeStringEntries } from "../shared/string-normalization.js";
+import type { SecurityAuditFinding, SecurityAuditSeverity } from "./audit.js";
+>>>>>>> 89a0b95af (refactor(security): reuse shared allowlist normalization)
 
 function normalizeAllowFromList(list: Array<string | number> | undefined | null): string[] {
-  if (!Array.isArray(list)) {
-    return [];
-  }
-  return list.map((v) => String(v).trim()).filter(Boolean);
+  return normalizeStringEntries(Array.isArray(list) ? list : undefined);
 }
 
 function classifyChannelWarningSeverity(message: string): SecurityAuditSeverity {
