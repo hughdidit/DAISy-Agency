@@ -15,6 +15,7 @@ import type { MsgContext } from "../templating.js";
 =======
 =======
 import type { AgentElevatedAllowFromConfig, OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -26,6 +27,9 @@ import type { AgentElevatedAllowFromConfig, OpenClawConfig } from "../../config/
 =======
 import type { AgentElevatedAllowFromConfig, OpenClawConfig } from "../../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { normalizeAtHashSlug } from "../../shared/string-normalization.js";
+>>>>>>> 136bd59ba (refactor(shared): centralize @/# slug normalization)
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
 import type { MsgContext } from "../templating.js";
 export { formatElevatedUnavailableMessage } from "./elevated-unavailable.js";
@@ -39,17 +43,7 @@ function normalizeAllowToken(value?: string) {
 }
 
 function slugAllowToken(value?: string) {
-  if (!value) {
-    return "";
-  }
-  let text = value.trim().toLowerCase();
-  if (!text) {
-    return "";
-  }
-  text = text.replace(/^[@#]+/, "");
-  text = text.replace(/[\s_]+/g, "-");
-  text = text.replace(/[^a-z0-9-]+/g, "-");
-  return text.replace(/-{2,}/g, "-").replace(/^-+|-+$/g, "");
+  return normalizeAtHashSlug(value);
 }
 
 const SENDER_PREFIXES = [
