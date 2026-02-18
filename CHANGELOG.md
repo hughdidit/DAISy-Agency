@@ -214,9 +214,13 @@ Docs: https://docs.openclaw.ai
 - CLI/QR: restore fail-fast validation for `openclaw qr --remote` when neither `gateway.remote.url` nor tailscale `serve`/`funnel` is configured, preventing unusable remote pairing QR flows. (#18166) Thanks @mbelinky.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> c7681c3cf (test(media-dedup): add missing coverage for Discord media dedup wiring)
 =======
 =======
+=======
+- CLI: fix parent/subcommand option collisions across gateway, daemon, update, ACP, and browser command flows, while preserving legacy `browser set headers --json <payload>` compatibility.
+>>>>>>> 985ec71c5 (CLI: resolve parent/subcommand option collisions (#18725))
 - CLI/Doctor: ensure `openclaw doctor --fix --non-interactive --yes` exits promptly after completion so one-shot automation no longer hangs. (#18502)
 <<<<<<< HEAD
 >>>>>>> 0aa28c71c (fix(doctor): move forced exit to top-level command)
