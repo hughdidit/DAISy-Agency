@@ -25,6 +25,15 @@ export type SubagentRunRecord = {
   archiveAtMs?: number;
   cleanupCompletedAt?: number;
   cleanupHandled?: boolean;
+<<<<<<< HEAD
+=======
+  suppressAnnounceReason?: "steer-restart" | "killed";
+  expectsCompletionMessage?: boolean;
+  /** Number of times announce delivery has been attempted and returned false (deferred). */
+  announceRetryCount?: number;
+  /** Timestamp of the last announce retry attempt (for backoff). */
+  lastAnnounceRetryAt?: number;
+>>>>>>> e2dd827ca (fix: guarantee manual subagent spawn sends completion message)
 };
 
 const subagentRuns = new Map<string, SubagentRunRecord>();
@@ -45,6 +54,39 @@ function persistSubagentRuns() {
 
 const resumedRuns = new Set<string>();
 
+<<<<<<< HEAD
+=======
+function suppressAnnounceForSteerRestart(entry?: SubagentRunRecord) {
+  return entry?.suppressAnnounceReason === "steer-restart";
+}
+
+function startSubagentAnnounceCleanupFlow(runId: string, entry: SubagentRunRecord): boolean {
+  if (!beginSubagentCleanup(runId)) {
+    return false;
+  }
+  const requesterOrigin = normalizeDeliveryContext(entry.requesterOrigin);
+  void runSubagentAnnounceFlow({
+    childSessionKey: entry.childSessionKey,
+    childRunId: entry.runId,
+    requesterSessionKey: entry.requesterSessionKey,
+    requesterOrigin,
+    requesterDisplayKey: entry.requesterDisplayKey,
+    task: entry.task,
+    expectsCompletionMessage: entry.expectsCompletionMessage,
+    timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
+    cleanup: entry.cleanup,
+    waitForCompletion: false,
+    startedAt: entry.startedAt,
+    endedAt: entry.endedAt,
+    label: entry.label,
+    outcome: entry.outcome,
+  }).then((didAnnounce) => {
+    finalizeSubagentCleanup(runId, entry.cleanup, didAnnounce);
+  });
+  return true;
+}
+
+>>>>>>> e2dd827ca (fix: guarantee manual subagent spawn sends completion message)
 function resumeSubagentRun(runId: string) {
   if (!runId || resumedRuns.has(runId)) return;
   const entry = subagentRuns.get(runId);
@@ -361,6 +403,7 @@ export function registerSubagentRun(params: {
   cleanup: "delete" | "keep";
   label?: string;
   runTimeoutSeconds?: number;
+  expectsCompletionMessage?: boolean;
 }) {
   const now = Date.now();
   const cfg = loadConfig();
@@ -376,6 +419,7 @@ export function registerSubagentRun(params: {
     requesterDisplayKey: params.requesterDisplayKey,
     task: params.task,
     cleanup: params.cleanup,
+    expectsCompletionMessage: params.expectsCompletionMessage,
     label: params.label,
     createdAt: now,
     startedAt: now,
