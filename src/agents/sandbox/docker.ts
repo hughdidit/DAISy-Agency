@@ -36,7 +36,10 @@ export function execDocker(args: string[], opts?: { allowFailure?: boolean }) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 638853c6d (fix(security): sanitize sandbox env vars before docker launch)
 import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import { defaultRuntime } from "../../runtime.js";
@@ -183,6 +186,7 @@ export function buildSandboxCreateArgs(params: {
   if (params.cfg.user) {
     args.push("--user", params.cfg.user);
   }
+<<<<<<< HEAD
   // Sanitize environment variables to prevent credential leakage (OC-09 fix)
   const envSanitization = sanitizeEnvVars(params.cfg.env ?? {}, {
     strictMode: false, // Allow all non-blocked variables by default
@@ -204,6 +208,20 @@ export function buildSandboxCreateArgs(params: {
   // Only pass sanitized (allowed) environment variables to Docker
   for (const [key, value] of Object.entries(envSanitization.allowed)) {
     args.push("--env", key + "=" + value);
+=======
+  const envSanitization = sanitizeEnvVars(params.cfg.env ?? {});
+  if (envSanitization.blocked.length > 0) {
+    console.warn(
+      "[Security] Blocked sensitive environment variables:",
+      envSanitization.blocked.join(", "),
+    );
+  }
+  if (envSanitization.warnings.length > 0) {
+    console.warn("[Security] Suspicious environment variables:", envSanitization.warnings);
+  }
+  for (const [key, value] of Object.entries(envSanitization.allowed)) {
+    args.push("--env", `${key}=${value}`);
+>>>>>>> 638853c6d (fix(security): sanitize sandbox env vars before docker launch)
   }
 >>>>>>> 235794d9f (fix(security): OC-09 credential theft via environment variable injection)
   for (const cap of params.cfg.capDrop) {
