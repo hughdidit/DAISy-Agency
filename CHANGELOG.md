@@ -51,6 +51,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ### Fixes
 
 <<<<<<< HEAD
@@ -73,6 +74,9 @@ Docs: https://docs.openclaw.ai
 =======
 >>>>>>> 21e5c0ce5 (chore: reorder latest changelog bullets by user impact)
 =======
+=======
+- Skills: refine skill-description routing boundaries with explicit "Use when"/"NOT for" guidance for coding-agent/github/weather, and clarify PTY/browser fallback wording. (#14577) Thanks @DylanWoodAkers.
+>>>>>>> cfd384ead (feat(skills): improve descriptions with routing logic (#14577))
 - Agents/Subagents: add an accepted response note for `sessions_spawn` explaining polling subagents are disabled for one-off calls. Thanks @tyler6204.
 - Agents/Subagents: prefix spawned subagent task messages with context to preserve source information in downstream handling. Thanks @tyler6204.
 >>>>>>> 81c5c02e5 (changelog: add @tyler6204 credit for today's entries)
