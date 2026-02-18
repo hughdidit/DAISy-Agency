@@ -16,6 +16,20 @@ For model selection rules, see [/concepts/models](/concepts/models).
 - If you set `agents.defaults.models`, it becomes the allowlist.
 - CLI helpers: `moltbot onboard`, `moltbot models list`, `moltbot models set <provider/model>`.
 
+## API key rotation
+
+- Supports generic provider rotation for selected providers.
+- Configure multiple keys via:
+  - `OPENCLAW_LIVE_<PROVIDER>_KEY` (single live override, highest priority)
+  - `<PROVIDER>_API_KEYS` (comma or semicolon list)
+  - `<PROVIDER>_API_KEY` (primary key)
+  - `<PROVIDER>_API_KEY_*` (numbered list, e.g. `<PROVIDER>_API_KEY_1`)
+- For Google providers, `GOOGLE_API_KEY` is also included as fallback.
+- Key selection order preserves priority and deduplicates values.
+- Requests are retried with the next key only on rate-limit responses (for example `429`, `rate_limit`, `quota`, `resource exhausted`).
+- Non-rate-limit failures fail immediately; no key rotation is attempted.
+- When all candidate keys fail, the final error is returned from the last attempt.
+
 ## Built-in providers (pi-ai catalog)
 
 Moltbot ships with the pi‑ai catalog. These providers require **no**
@@ -25,8 +39,14 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 
 - Provider: `openai`
 - Auth: `OPENAI_API_KEY`
+<<<<<<< HEAD
 - Example model: `openai/gpt-5.2`
 - CLI: `moltbot onboard --auth-choice openai-api-key`
+=======
+- Optional rotation: `OPENAI_API_KEYS`, `OPENAI_API_KEY_1`, `OPENAI_API_KEY_2`, plus `OPENCLAW_LIVE_OPENAI_KEY` (single override)
+- Example model: `openai/gpt-5.1-codex`
+- CLI: `openclaw onboard --auth-choice openai-api-key`
+>>>>>>> 2e91552f0 (feat(agents): add generic provider api key rotation (#19587))
 
 ```json5
 {
@@ -38,8 +58,14 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 
 - Provider: `anthropic`
 - Auth: `ANTHROPIC_API_KEY` or `claude setup-token`
+<<<<<<< HEAD
 - Example model: `anthropic/claude-opus-4-5`
 - CLI: `moltbot onboard --auth-choice token` (paste setup-token) or `moltbot models auth paste-token --provider anthropic`
+=======
+- Optional rotation: `ANTHROPIC_API_KEYS`, `ANTHROPIC_API_KEY_1`, `ANTHROPIC_API_KEY_2`, plus `OPENCLAW_LIVE_ANTHROPIC_KEY` (single override)
+- Example model: `anthropic/claude-opus-4-6`
+- CLI: `openclaw onboard --auth-choice token` (paste setup-token) or `openclaw models auth paste-token --provider anthropic`
+>>>>>>> 2e91552f0 (feat(agents): add generic provider api key rotation (#19587))
 
 ```json5
 {
@@ -77,6 +103,7 @@ Moltbot ships with the pi‑ai catalog. These providers require **no**
 
 - Provider: `google`
 - Auth: `GEMINI_API_KEY`
+- Optional rotation: `GEMINI_API_KEYS`, `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, `GOOGLE_API_KEY` fallback, and `OPENCLAW_LIVE_GEMINI_KEY` (single override)
 - Example model: `google/gemini-3-pro-preview`
 - CLI: `moltbot onboard --auth-choice gemini-api-key`
 
