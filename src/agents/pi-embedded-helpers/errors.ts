@@ -22,6 +22,7 @@ import type { FailoverReason } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
+import { stableStringify } from "../stable-stringify.js";
 import type { FailoverReason } from "./types.js";
 
 export function formatBillingErrorMessage(provider?: string): string {
@@ -335,19 +336,6 @@ function parseApiErrorPayload(raw: string): ErrorPayload | null {
     }
   }
   return null;
-}
-
-function stableStringify(value: unknown): string {
-  if (!value || typeof value !== "object") {
-    return JSON.stringify(value) ?? "null";
-  }
-  if (Array.isArray(value)) {
-    return `[${value.map((entry) => stableStringify(entry)).join(",")}]`;
-  }
-  const record = value as Record<string, unknown>;
-  const keys = Object.keys(record).toSorted();
-  const entries = keys.map((key) => `${JSON.stringify(key)}:${stableStringify(record[key])}`);
-  return `{${entries.join(",")}}`;
 }
 
 export function getApiErrorPayloadFingerprint(raw?: string): string | null {
