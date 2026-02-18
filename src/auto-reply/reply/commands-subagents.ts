@@ -4,8 +4,11 @@ import type { CommandHandler } from "./commands-types.js";
 import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
 =======
+=======
+>>>>>>> 34851a78b (fix: route manual subagent spawn replies via OriginatingTo fallback)
 import {
   clearSubagentRunSteerRestart,
   listSubagentRunsForRequester,
@@ -475,13 +478,19 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
       };
     }
 
+    const commandTo = typeof params.command.to === "string" ? params.command.to.trim() : "";
+    const originatingTo =
+      typeof params.ctx.OriginatingTo === "string" ? params.ctx.OriginatingTo.trim() : "";
+    const fallbackTo = typeof params.ctx.To === "string" ? params.ctx.To.trim() : "";
+    const normalizedTo = commandTo || originatingTo || fallbackTo || undefined;
+
     const result = await spawnSubagentDirect(
       { task, agentId, model, thinking, cleanup: "keep", expectsCompletionMessage: true },
       {
         agentSessionKey: requesterKey,
         agentChannel: params.ctx.OriginatingChannel ?? params.command.channel,
         agentAccountId: params.ctx.AccountId,
-        agentTo: params.ctx.OriginatingTo ?? params.command.to,
+        agentTo: normalizedTo,
         agentThreadId: params.ctx.MessageThreadId,
         agentGroupId: params.sessionEntry?.groupId ?? null,
         agentGroupChannel: params.sessionEntry?.groupChannel ?? null,
