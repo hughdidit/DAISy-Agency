@@ -1,14 +1,12 @@
 import MoltbotKit
 import Observation
-import SwiftUI
+import UIKit
 import WebKit
 
 @MainActor
 @Observable
 final class ScreenController {
-    let webView: WKWebView
-    private let navigationDelegate: ScreenNavigationDelegate
-    private let a2uiActionHandler: CanvasA2UIActionMessageHandler
+    private weak var activeWebView: WKWebView?
 
     var urlString: String = ""
     var errorText: String?
@@ -24,29 +22,6 @@ final class ScreenController {
     private var debugStatusSubtitle: String?
 
     init() {
-        let config = WKWebViewConfiguration()
-        config.websiteDataStore = .nonPersistent()
-        let a2uiActionHandler = CanvasA2UIActionMessageHandler()
-        let userContentController = WKUserContentController()
-        for name in CanvasA2UIActionMessageHandler.handlerNames {
-            userContentController.add(a2uiActionHandler, name: name)
-        }
-        config.userContentController = userContentController
-        self.navigationDelegate = ScreenNavigationDelegate()
-        self.a2uiActionHandler = a2uiActionHandler
-        self.webView = WKWebView(frame: .zero, configuration: config)
-        // Canvas scaffold is a fully self-contained HTML page; avoid relying on transparency underlays.
-        self.webView.isOpaque = true
-        self.webView.backgroundColor = .black
-        self.webView.scrollView.backgroundColor = .black
-        self.webView.scrollView.contentInsetAdjustmentBehavior = .never
-        self.webView.scrollView.contentInset = .zero
-        self.webView.scrollView.scrollIndicatorInsets = .zero
-        self.webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = false
-        self.applyScrollBehavior()
-        self.webView.navigationDelegate = self.navigationDelegate
-        self.navigationDelegate.controller = self
-        a2uiActionHandler.controller = self
         self.reload()
     }
 
@@ -71,24 +46,26 @@ final class ScreenController {
     }
 
     func reload() {
-        let trimmed = self.urlString.trimmingCharacters(in: .whitespacesAndNewlines)
         self.applyScrollBehavior()
+        guard let webView = self.activeWebView else { return }
+
+        let trimmed = self.urlString.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {
             guard let url = Self.canvasScaffoldURL else { return }
             self.errorText = nil
-            self.webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
             return
+        }
+
+        guard let url = URL(string: trimmed) else {
+            self.errorText = "Invalid URL: \(trimmed)"
+            return
+        }
+        self.errorText = nil
+        if url.isFileURL {
+            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
         } else {
-            guard let url = URL(string: trimmed) else {
-                self.errorText = "Invalid URL: \(trimmed)"
-                return
-            }
-            self.errorText = nil
-            if url.isFileURL {
-                self.webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
-            } else {
-                self.webView.load(URLRequest(url: url))
-            }
+            webView.load(URLRequest(url: url))
         }
     }
 
@@ -108,7 +85,8 @@ final class ScreenController {
         self.applyDebugStatusIfNeeded()
     }
 
-    fileprivate func applyDebugStatusIfNeeded() {
+    func applyDebugStatusIfNeeded() {
+        guard let webView = self.activeWebView else { return }
         let enabled = self.debugStatusEnabled
         let title = self.debugStatusTitle
         let subtitle = self.debugStatusSubtitle
@@ -127,7 +105,7 @@ final class ScreenController {
           } catch (_) {}
         })()
         """
-        self.webView.evaluateJavaScript(js) { _, _ in }
+        webView.evaluateJavaScript(js) { _, _ in }
     }
 
     func waitForA2UIReady(timeoutMs: Int) async -> Bool {
@@ -153,8 +131,13 @@ final class ScreenController {
     }
 
     func eval(javaScript: String) async throws -> String {
-        try await withCheckedThrowingContinuation { cont in
-            self.webView.evaluateJavaScript(javaScript) { result, error in
+        guard let webView = self.activeWebView else {
+            throw NSError(domain: "Screen", code: 3, userInfo: [
+                NSLocalizedDescriptionKey: "web view unavailable",
+            ])
+        }
+        return try await withCheckedThrowingContinuation { cont in
+            webView.evaluateJavaScript(javaScript) { result, error in
                 if let error {
                     cont.resume(throwing: error)
                     return
@@ -173,8 +156,13 @@ final class ScreenController {
         if let maxWidth {
             config.snapshotWidth = NSNumber(value: Double(maxWidth))
         }
+        guard let webView = self.activeWebView else {
+            throw NSError(domain: "Screen", code: 3, userInfo: [
+                NSLocalizedDescriptionKey: "web view unavailable",
+            ])
+        }
         let image: UIImage = try await withCheckedThrowingContinuation { cont in
-            self.webView.takeSnapshot(with: config) { image, error in
+            webView.takeSnapshot(with: config) { image, error in
                 if let error {
                     cont.resume(throwing: error)
                     return
@@ -205,8 +193,13 @@ final class ScreenController {
         if let maxWidth {
             config.snapshotWidth = NSNumber(value: Double(maxWidth))
         }
+        guard let webView = self.activeWebView else {
+            throw NSError(domain: "Screen", code: 3, userInfo: [
+                NSLocalizedDescriptionKey: "web view unavailable",
+            ])
+        }
         let image: UIImage = try await withCheckedThrowingContinuation { cont in
-            self.webView.takeSnapshot(with: config) { image, error in
+            webView.takeSnapshot(with: config) { image, error in
                 if let error {
                     cont.resume(throwing: error)
                     return
@@ -235,6 +228,17 @@ final class ScreenController {
             ])
         }
         return data.base64EncodedString()
+    }
+
+    func attachWebView(_ webView: WKWebView) {
+        self.activeWebView = webView
+        self.reload()
+        self.applyDebugStatusIfNeeded()
+    }
+
+    func detachWebView(_ webView: WKWebView) {
+        guard self.activeWebView === webView else { return }
+        self.activeWebView = nil
     }
 
     private static func bundledResourceURL(
@@ -276,9 +280,10 @@ final class ScreenController {
     }
 
     private func applyScrollBehavior() {
+        guard let webView = self.activeWebView else { return }
         let trimmed = self.urlString.trimmingCharacters(in: .whitespacesAndNewlines)
         let allowScroll = !trimmed.isEmpty
-        let scrollView = self.webView.scrollView
+        let scrollView = webView.scrollView
         // Default canvas needs raw touch events; external pages should scroll.
         scrollView.isScrollEnabled = allowScroll
         scrollView.bounces = allowScroll
@@ -365,6 +370,7 @@ extension Double {
         return self
     }
 }
+<<<<<<< HEAD
 
 // MARK: - Navigation Delegate
 
@@ -435,3 +441,5 @@ private final class CanvasA2UIActionMessageHandler: NSObject, WKScriptMessageHan
         controller.onA2UIAction?(body)
     }
 }
+=======
+>>>>>>> dd28a77df (fix(ios): refactor screen webview lifecycle handling (#20366))
