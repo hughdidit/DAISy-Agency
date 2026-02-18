@@ -7,7 +7,11 @@ import { WebSocket } from "ws";
 =======
 import { DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { startGatewayServerHarness, type GatewayServerHarness } from "./server.e2e-ws-harness.js";
+<<<<<<< HEAD
 >>>>>>> d491c789a (refactor(test): share gateway ws e2e harness)
+=======
+import { createToolSummaryPreviewTranscriptLines } from "./session-preview.test-helpers.js";
+>>>>>>> c7831fdf1 (refactor(gateway-test): share preview transcript fixture)
 import {
   connectOk,
   embeddedRunMock,
@@ -464,15 +468,7 @@ describe("gateway server sessions", () => {
     testState.sessionStorePath = storePath;
     const sessionId = "sess-preview";
     const transcriptPath = path.join(dir, `${sessionId}.jsonl`);
-    const lines = [
-      JSON.stringify({ type: "session", version: 1, id: sessionId }),
-      JSON.stringify({ message: { role: "user", content: "Hello" } }),
-      JSON.stringify({ message: { role: "assistant", content: "Hi" } }),
-      JSON.stringify({
-        message: { role: "assistant", content: [{ type: "toolcall", name: "weather" }] },
-      }),
-      JSON.stringify({ message: { role: "assistant", content: "Forecast ready" } }),
-    ];
+    const lines = createToolSummaryPreviewTranscriptLines(sessionId);
     await fs.writeFile(transcriptPath, lines.join("\n"), "utf-8");
 
     await writeSessionStore({
