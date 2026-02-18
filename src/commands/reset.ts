@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { cancel, confirm, isCancel, select } from "@clack/prompts";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -27,11 +28,15 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { cancel, confirm, isCancel } from "@clack/prompts";
+>>>>>>> 005e1d5fd (refactor(cli): share styled select prompt helper)
 import { formatCliCommand } from "../cli/command-format.js";
 import { isNixMode } from "../config/config.js";
 >>>>>>> 813b96a80 (refactor(commands): share cleanup plan resolver)
 import { resolveGatewayService } from "../daemon/service.js";
 import type { RuntimeEnv } from "../runtime.js";
+<<<<<<< HEAD
 import { stylePromptHint, stylePromptMessage, stylePromptTitle } from "../terminal/prompt-style.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -46,6 +51,10 @@ import {
 import { buildCleanupPlan, listAgentSessionDirs, removePath } from "./cleanup-utils.js";
 >>>>>>> 3ce0e80f5 (refactor(commands): dedupe cleanup path resolution)
 =======
+=======
+import { selectStyled } from "../terminal/prompt-select-styled.js";
+import { stylePromptMessage, stylePromptTitle } from "../terminal/prompt-style.js";
+>>>>>>> 005e1d5fd (refactor(cli): share styled select prompt helper)
 import { resolveCleanupPlanFromDisk } from "./cleanup-plan.js";
 import { listAgentSessionDirs, removePath } from "./cleanup-utils.js";
 >>>>>>> 813b96a80 (refactor(commands): share cleanup plan resolver)
@@ -58,15 +67,6 @@ export type ResetOptions = {
   nonInteractive?: boolean;
   dryRun?: boolean;
 };
-
-const selectStyled = <T>(params: Parameters<typeof select<T>>[0]) =>
-  select({
-    ...params,
-    message: stylePromptMessage(params.message),
-    options: params.options.map((opt) =>
-      opt.hint === undefined ? opt : { ...opt, hint: stylePromptHint(opt.hint) },
-    ),
-  });
 
 async function stopGatewayIfRunning(runtime: RuntimeEnv) {
   if (isNixMode) {
