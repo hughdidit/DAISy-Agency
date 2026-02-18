@@ -39,8 +39,12 @@ import {
   normalizeDeliveryContext,
 } from "../utils/delivery-context.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { isEmbeddedPiRunActive, queueEmbeddedPiMessage } from "./pi-embedded.js";
 =======
+=======
+import { isDeliverableMessageChannel } from "../utils/message-channel.js";
+>>>>>>> e8816c554 (Agents: fix subagent completion delivery to origin channel)
 import {
   buildAnnounceIdFromChildRun,
   buildAnnounceIdempotencyKey,
@@ -61,6 +65,47 @@ type ToolResultMessage = {
   content?: unknown;
 };
 
+<<<<<<< HEAD
+=======
+type SubagentDeliveryPath = "queued" | "steered" | "direct" | "none";
+
+type SubagentAnnounceDeliveryResult = {
+  delivered: boolean;
+  path: SubagentDeliveryPath;
+  error?: string;
+};
+
+function buildCompletionDeliveryMessage(params: {
+  findings: string;
+  subagentName: string;
+}): string {
+  const findingsText = params.findings.trim();
+  const hasFindings = findingsText.length > 0 && findingsText !== "(no output)";
+  const header = `✅ Subagent ${params.subagentName} finished`;
+  if (!hasFindings) {
+    return header;
+  }
+  return `${header}\n\n${findingsText}`;
+}
+
+function summarizeDeliveryError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message || "error";
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  if (error === undefined || error === null) {
+    return "unknown error";
+  }
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return "error";
+  }
+}
+
+>>>>>>> e8816c554 (Agents: fix subagent completion delivery to origin channel)
 function extractToolResultText(content: unknown): string {
   if (typeof content === "string") {
     return sanitizeTextContent(content);
@@ -215,7 +260,27 @@ function resolveAnnounceOrigin(
   entry?: DeliveryContextSource,
   requesterOrigin?: DeliveryContext,
 ): DeliveryContext | undefined {
+<<<<<<< HEAD
   return mergeDeliveryContext(deliveryContextFromSession(entry), requesterOrigin);
+=======
+  const normalizedRequester = normalizeDeliveryContext(requesterOrigin);
+  const normalizedEntry = deliveryContextFromSession(entry);
+  if (normalizedRequester?.channel && !isDeliverableMessageChannel(normalizedRequester.channel)) {
+    // Ignore internal/non-deliverable channel hints (for example webchat)
+    // so a valid persisted route can still be used for outbound delivery.
+    return mergeDeliveryContext(
+      {
+        accountId: normalizedRequester.accountId,
+        threadId: normalizedRequester.threadId,
+      },
+      normalizedEntry,
+    );
+  }
+  // requesterOrigin (captured at spawn time) reflects the channel the user is
+  // actually on and must take priority over the session entry, which may carry
+  // stale lastChannel / lastTo values from a previous channel interaction.
+  return mergeDeliveryContext(normalizedRequester, normalizedEntry);
+>>>>>>> e8816c554 (Agents: fix subagent completion delivery to origin channel)
 }
 
 async function sendAnnounce(item: AnnounceQueueItem) {
@@ -374,24 +439,29 @@ async function sendSubagentAnnounceDirectly(params: {
   directOrigin?: DeliveryContext;
   requesterIsSubagent: boolean;
 }): Promise<SubagentAnnounceDeliveryResult> {
+  const cfg = loadConfig();
+  const canonicalRequesterSessionKey = resolveRequesterStoreKey(
+    cfg,
+    params.targetRequesterSessionKey,
+  );
   try {
     const completionDirectOrigin = normalizeDeliveryContext(params.completionDirectOrigin);
-    const completionChannel =
+    const completionChannelRaw =
       typeof completionDirectOrigin?.channel === "string"
         ? completionDirectOrigin.channel.trim()
         : "";
+    const completionChannel =
+      completionChannelRaw && isDeliverableMessageChannel(completionChannelRaw)
+        ? completionChannelRaw
+        : "";
     const completionTo =
       typeof completionDirectOrigin?.to === "string" ? completionDirectOrigin.to.trim() : "";
-    const completionHasThreadHint =
-      completionDirectOrigin?.threadId != null &&
-      String(completionDirectOrigin.threadId).trim() !== "";
     const hasCompletionDirectTarget =
       !params.requesterIsSubagent && Boolean(completionChannel) && Boolean(completionTo);
 
     if (
       params.expectsCompletionMessage &&
       hasCompletionDirectTarget &&
-      !completionHasThreadHint &&
       params.completionMessage?.trim()
     ) {
       await callGateway({
@@ -400,7 +470,7 @@ async function sendSubagentAnnounceDirectly(params: {
           channel: completionChannel,
           to: completionTo,
           accountId: completionDirectOrigin?.accountId,
-          sessionKey: params.targetRequesterSessionKey,
+          sessionKey: canonicalRequesterSessionKey,
           message: params.completionMessage,
           idempotencyKey: params.directIdempotencyKey,
         },
@@ -418,11 +488,10 @@ async function sendSubagentAnnounceDirectly(params: {
       directOrigin?.threadId != null && directOrigin.threadId !== ""
         ? String(directOrigin.threadId)
         : undefined;
-
     await callGateway({
       method: "agent",
       params: {
-        sessionKey: params.targetRequesterSessionKey,
+        sessionKey: canonicalRequesterSessionKey,
         message: params.triggerMessage,
         deliver: !params.requesterIsSubagent,
         channel: params.requesterIsSubagent ? undefined : directOrigin?.channel,
@@ -527,11 +596,11 @@ async function deliverSubagentAnnouncement(params: {
     targetRequesterSessionKey: params.targetRequesterSessionKey,
     triggerMessage: params.triggerMessage,
     completionMessage: params.completionMessage,
-    expectsCompletionMessage: params.expectsCompletionMessage,
     directIdempotencyKey: params.directIdempotencyKey,
     completionDirectOrigin: params.completionDirectOrigin,
     directOrigin: params.directOrigin,
     requesterIsSubagent: params.requesterIsSubagent,
+    expectsCompletionMessage: params.expectsCompletionMessage,
   });
   if (direct.delivered || !params.expectsCompletionMessage) {
     return direct;
@@ -825,6 +894,7 @@ export async function runSubagentAnnounceFlow(params: {
     // Build instructional message for main agent
     const announceType = params.announceType ?? "subagent task";
     const taskLabel = params.label || params.task || "task";
+    const subagentName = resolveAgentIdFromSessionKey(params.childSessionKey);
     const announceSessionId = childSessionId || "unknown";
     const findings = reply || "(no output)";
     let completionMessage = "";
@@ -890,7 +960,11 @@ export async function runSubagentAnnounceFlow(params: {
       startedAt: params.startedAt,
       endedAt: params.endedAt,
     });
-    completionMessage = [
+    completionMessage = buildCompletionDeliveryMessage({
+      findings,
+      subagentName,
+    });
+    const internalSummaryMessage = [
       `[System Message] [sessionId: ${announceSessionId}] A ${announceType} "${taskLabel}" just ${statusLabel}.`,
       "",
       "Result:",
@@ -898,7 +972,7 @@ export async function runSubagentAnnounceFlow(params: {
       "",
       statsLine,
     ].join("\n");
-    triggerMessage = [completionMessage, "", replyInstruction].join("\n");
+    triggerMessage = [internalSummaryMessage, "", replyInstruction].join("\n");
 
     const announceId = buildAnnounceIdFromChildRun({
       childSessionKey: params.childSessionKey,
