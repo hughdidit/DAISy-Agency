@@ -82,6 +82,7 @@ export const sendHandlers: GatewayRequestHandlers = {
       gifPlayback?: boolean;
       channel?: string;
       accountId?: string;
+      threadId?: string;
       sessionKey?: string;
       idempotencyKey: string;
     };
@@ -131,6 +132,10 @@ export const sendHandlers: GatewayRequestHandlers = {
     const accountId =
       typeof request.accountId === "string" && request.accountId.trim().length
         ? request.accountId.trim()
+        : undefined;
+    const threadId =
+      typeof request.threadId === "string" && request.threadId.trim().length
+        ? request.threadId.trim()
         : undefined;
     const outboundChannel = channel;
     const plugin = getChannelPlugin(channel);
@@ -184,6 +189,7 @@ export const sendHandlers: GatewayRequestHandlers = {
               agentId: derivedAgentId,
               accountId,
               target: resolved.to,
+              threadId,
             })
           : null;
         if (derivedRoute) {
@@ -202,6 +208,7 @@ export const sendHandlers: GatewayRequestHandlers = {
           accountId,
           payloads: [{ text: message, mediaUrl: request.mediaUrl, mediaUrls }],
           gifPlayback: request.gifPlayback,
+          threadId: threadId ?? null,
           deps: outboundDeps,
           mirror: providedSessionKey
             ? {
