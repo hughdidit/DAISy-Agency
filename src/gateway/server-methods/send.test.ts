@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { sendHandlers } from "./send.js";
 =======
@@ -21,6 +22,9 @@ import { sendHandlers } from "./send.js";
 import type { GatewayRequestContext } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { resolveOutboundTarget } from "../../infra/outbound/targets.js";
+>>>>>>> fc2958832 (test(gateway): dedupe send delivery fixtures)
 import { sendHandlers } from "./send.js";
 import type { GatewayRequestContext } from "./types.js";
 
@@ -28,6 +32,7 @@ const mocks = vi.hoisted(() => ({
   deliverOutboundPayloads: vi.fn(),
   appendAssistantMessageToSessionTranscript: vi.fn(async () => ({ ok: true, sessionFile: "x" })),
   recordSessionMetaFromInbound: vi.fn(async () => ({ ok: true })),
+  resolveOutboundTarget: vi.fn(() => ({ ok: true, to: "resolved" })),
 }));
 
 vi.mock("../../config/config.js", async () => {
@@ -45,7 +50,7 @@ vi.mock("../../channels/plugins/index.js", () => ({
 }));
 
 vi.mock("../../infra/outbound/targets.js", () => ({
-  resolveOutboundTarget: () => ({ ok: true, to: "resolved" }),
+  resolveOutboundTarget: mocks.resolveOutboundTarget,
 }));
 
 vi.mock("../../infra/outbound/deliver.js", () => ({
@@ -81,15 +86,20 @@ async function runSend(params: Record<string, unknown>) {
   return { respond };
 }
 
+function mockDeliverySuccess(messageId: string) {
+  mocks.deliverOutboundPayloads.mockResolvedValue([{ messageId, channel: "slack" }]);
+}
+
 describe("gateway send mirroring", () => {
 <<<<<<< HEAD
 =======
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.resolveOutboundTarget.mockReturnValue({ ok: true, to: "resolved" });
   });
 
   it("accepts media-only sends without message", async () => {
-    mocks.deliverOutboundPayloads.mockResolvedValue([{ messageId: "m-media", channel: "slack" }]);
+    mockDeliverySuccess("m-media");
 
     const { respond } = await runSend({
       to: "channel:C1",
@@ -176,7 +186,7 @@ describe("gateway send mirroring", () => {
   });
 
   it("mirrors media filenames when delivery succeeds", async () => {
-    mocks.deliverOutboundPayloads.mockResolvedValue([{ messageId: "m1", channel: "slack" }]);
+    mockDeliverySuccess("m1");
 
     await runSend({
       to: "channel:C1",
@@ -199,7 +209,7 @@ describe("gateway send mirroring", () => {
   });
 
   it("mirrors MEDIA tags as attachments", async () => {
-    mocks.deliverOutboundPayloads.mockResolvedValue([{ messageId: "m2", channel: "slack" }]);
+    mockDeliverySuccess("m2");
 
     await runSend({
       to: "channel:C1",
@@ -221,7 +231,7 @@ describe("gateway send mirroring", () => {
   });
 
   it("lowercases provided session keys for mirroring", async () => {
-    mocks.deliverOutboundPayloads.mockResolvedValue([{ messageId: "m-lower", channel: "slack" }]);
+    mockDeliverySuccess("m-lower");
 
     await runSend({
       to: "channel:C1",
@@ -241,7 +251,7 @@ describe("gateway send mirroring", () => {
   });
 
   it("derives a target session key when none is provided", async () => {
-    mocks.deliverOutboundPayloads.mockResolvedValue([{ messageId: "m3", channel: "slack" }]);
+    mockDeliverySuccess("m3");
 
     await runSend({
       to: "channel:C1",
@@ -262,7 +272,7 @@ describe("gateway send mirroring", () => {
   });
 
   it("forwards threadId to outbound delivery when provided", async () => {
-    mocks.deliverOutboundPayloads.mockResolvedValue([{ messageId: "m-thread", channel: "slack" }]);
+    mockDeliverySuccess("m-thread");
 
     await runSend({
       to: "channel:C1",
@@ -275,6 +285,29 @@ describe("gateway send mirroring", () => {
     expect(mocks.deliverOutboundPayloads).toHaveBeenCalledWith(
       expect.objectContaining({
         threadId: "1710000000.9999",
+      }),
+    );
+  });
+
+  it("returns invalid request when outbound target resolution fails", async () => {
+    vi.mocked(resolveOutboundTarget).mockReturnValue({ ok: false, error: "target not found" });
+
+    const { respond } = await runSend({
+      to: "channel:C1",
+      message: "hi",
+      channel: "slack",
+      idempotencyKey: "idem-target-fail",
+    });
+
+    expect(mocks.deliverOutboundPayloads).not.toHaveBeenCalled();
+    expect(respond).toHaveBeenCalledWith(
+      false,
+      undefined,
+      expect.objectContaining({
+        message: expect.stringContaining("target not found"),
+      }),
+      expect.objectContaining({
+        channel: "slack",
       }),
     );
   });
