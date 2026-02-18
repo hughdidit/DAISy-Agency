@@ -13,6 +13,7 @@ import {
   type ExecCommandSegment,
 } from "./exec-approvals-analysis.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 const DEFAULT_SAFE_BIN_TRUSTED_DIRS = [
@@ -57,6 +58,9 @@ function isTrustedSafeBinPath(resolvedPath: string): boolean {
   return TRUSTED_SAFE_BIN_DIRS.has(path.dirname(path.resolve(resolvedPath)));
 }
 >>>>>>> 28bac46c9 (fix(security): harden safeBins path trust)
+=======
+import { isTrustedSafeBinPath } from "./exec-safe-bin-trust.js";
+>>>>>>> ac0db6823 (refactor(security): extract safeBins trust resolver)
 
 function isPathLikeToken(value: string): boolean {
   const trimmed = value.trim();
@@ -112,6 +116,7 @@ export function isSafeBinUsage(params: {
   safeBins: Set<string>;
   cwd?: string;
   fileExists?: (filePath: string) => boolean;
+  trustedSafeBinDirs?: ReadonlySet<string>;
 }): boolean {
   // Windows host exec uses PowerShell, which has different parsing/expansion rules.
   // Keep safeBins conservative there (require explicit allowlist entries).
@@ -135,7 +140,12 @@ export function isSafeBinUsage(params: {
   if (!resolution?.resolvedPath) {
     return false;
   }
-  if (!isTrustedSafeBinPath(resolution.resolvedPath)) {
+  if (
+    !isTrustedSafeBinPath({
+      resolvedPath: resolution.resolvedPath,
+      trustedDirs: params.trustedSafeBinDirs,
+    })
+  ) {
     return false;
   }
   const cwd = params.cwd ?? process.cwd();

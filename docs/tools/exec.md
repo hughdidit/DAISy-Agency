@@ -51,8 +51,12 @@ Notes:
 - `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries.
 =======
 - `tools.exec.pathPrepend`: list of directories to prepend to `PATH` for exec runs (gateway + sandbox only).
+<<<<<<< HEAD
 - `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries (resolved path must come from trusted binary directories).
 >>>>>>> 28bac46c9 (fix(security): harden safeBins path trust)
+=======
+- `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries. For behavior details, see [Safe bins](/tools/exec-approvals#safe-bins-stdin-only).
+>>>>>>> ac0db6823 (refactor(security): extract safeBins trust resolver)
 
 Example:
 ```json5
