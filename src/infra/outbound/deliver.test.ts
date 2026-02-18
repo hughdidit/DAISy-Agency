@@ -1,5 +1,6 @@
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { signalOutbound } from "../../channels/plugins/outbound/signal.js";
@@ -7,6 +8,12 @@ import { telegramOutbound } from "../../channels/plugins/outbound/telegram.js";
 import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
 <<<<<<< HEAD
 =======
+=======
+import { signalOutbound } from "../../channels/plugins/outbound/signal.js";
+import { telegramOutbound } from "../../channels/plugins/outbound/telegram.js";
+import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { STATE_DIR } from "../../config/paths.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 >>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))

@@ -2,13 +2,17 @@
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import type { AnyAgentTool } from "./tools/common.js";
 >>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026)):src/agents/openclaw-tools.ts
+=======
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility):src/agents/openclaw-tools.ts
 import { resolvePluginTools } from "../plugins/tools.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveSessionAgentId } from "./agent-scope.js";
+import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import { createAgentsListTool } from "./tools/agents-list-tool.js";
 import { createBrowserTool } from "./tools/browser-tool.js";
 import { createCanvasTool } from "./tools/canvas-tool.js";

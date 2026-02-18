@@ -2,7 +2,10 @@ import type { Command } from "commander";
 import type { CronJob } from "../../cron/types.js";
 import { danger } from "../../globals.js";
 import { defaultRuntime } from "../../runtime.js";
+<<<<<<< HEAD
 import { sanitizeAgentId } from "../../routing/session-key.js";
+=======
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import type { GatewayRpcOpts } from "../gateway-rpc.js";
 import { addGatewayClientOptions, callGatewayFromCli } from "../gateway-rpc.js";
 import { parsePositiveIntOrUndefined } from "../program/helpers.js";

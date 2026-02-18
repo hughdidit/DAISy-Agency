@@ -1,6 +1,17 @@
+<<<<<<< HEAD
+=======
+import fs from "node:fs";
+import {
+  buildDeliveryFromLegacyPayload,
+  hasLegacyDeliveryHints,
+  stripLegacyDeliveryFields,
+} from "../legacy-delivery.js";
+import { parseAbsoluteTimeMs } from "../parse.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { migrateLegacyCronPayload } from "../payload-migration.js";
 import { loadCronStore, saveCronStore } from "../store.js";
 import type { CronJob } from "../types.js";
+<<<<<<< HEAD
 import { inferLegacyName, normalizeOptionalText } from "./normalize.js";
 import type { CronServiceState } from "./state.js";
 
@@ -33,6 +44,11 @@ function buildDeliveryFromLegacyPayload(payload: Record<string, unknown>) {
   }
   return next;
 }
+=======
+import { recomputeNextRuns } from "./jobs.js";
+import { inferLegacyName, normalizeOptionalText } from "./normalize.js";
+import type { CronServiceState } from "./state.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 
 function buildDeliveryPatchFromLegacyPayload(payload: Record<string, unknown>) {
   const deliver = payload.deliver;

@@ -1,8 +1,13 @@
 import fs from "node:fs/promises";
+<<<<<<< HEAD
 
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 
+=======
+import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { detectMime } from "../../media/mime.js";
+import type { ImageSanitizationLimits } from "../image-sanitization.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
 
 // biome-ignore lint/suspicious/noExplicitAny: TypeBox schema type from pi-agent-core uses a different module instance.

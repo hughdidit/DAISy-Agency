@@ -1,7 +1,14 @@
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
+<<<<<<< HEAD
 import type { MoltbotConfig, GatewayAuthConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
+=======
+import type { OpenClawConfig, GatewayAuthConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { WizardPrompter } from "../wizard/prompts.js";
+import { promptAuthChoiceGrouped } from "./auth-choice-prompt.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
 import { promptAuthChoiceGrouped } from "./auth-choice-prompt.js";
 import {

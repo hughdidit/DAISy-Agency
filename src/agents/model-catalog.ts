@@ -38,6 +38,14 @@ export function __setModelCatalogImportForTest(loader?: () => Promise<PiSdkModul
   importPiSdk = loader ?? defaultImportPiSdk;
 }
 
+function createAuthStorage(AuthStorageLike: unknown, path: string) {
+  const withFactory = AuthStorageLike as { create?: (path: string) => unknown };
+  if (typeof withFactory.create === "function") {
+    return withFactory.create(path);
+  }
+  return new (AuthStorageLike as { new (path: string): unknown })(path);
+}
+
 export async function loadModelCatalog(params?: {
   config?: MoltbotConfig;
   useCache?: boolean;
@@ -63,6 +71,7 @@ export async function loadModelCatalog(params?: {
       // we must not poison the cache with a rejected promise (otherwise all channel handlers
       // will keep failing until restart).
       const piSdk = await importPiSdk();
+<<<<<<< HEAD
       const agentDir = resolveMoltbotAgentDir();
       const authStorage = piSdk.discoverAuthStorage(agentDir);
       const registry = piSdk.discoverModels(authStorage, agentDir) as
@@ -70,6 +79,21 @@ export async function loadModelCatalog(params?: {
             getAll: () => Array<DiscoveredModel>;
           }
         | Array<DiscoveredModel>;
+=======
+      const agentDir = resolveOpenClawAgentDir();
+      const { join } = await import("node:path");
+      const authStorage = createAuthStorage(piSdk.AuthStorage, join(agentDir, "auth.json"));
+      const registry = new (piSdk.ModelRegistry as unknown as {
+        new (
+          authStorage: unknown,
+          modelsFile: string,
+        ):
+          | Array<DiscoveredModel>
+          | {
+              getAll: () => Array<DiscoveredModel>;
+            };
+      })(authStorage, join(agentDir, "models.json"));
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
       const entries = Array.isArray(registry) ? registry : registry.getAll();
       for (const entry of entries) {
         const id = String(entry?.id ?? "").trim();

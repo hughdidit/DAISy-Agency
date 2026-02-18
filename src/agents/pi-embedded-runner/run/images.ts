@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,6 +13,15 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 >>>>>>> 29d783958 (fix: execute sandboxed file ops inside containers (#4026))
+=======
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import type { ImageContent } from "@mariozechner/pi-ai";
+import { resolveUserPath } from "../../../utils.js";
+import { loadWebMedia } from "../../../web/media.js";
+import type { ImageSanitizationLimits } from "../../image-sanitization.js";
+import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { sanitizeImageBlocks } from "../../tool-images.js";
 import { extractTextFromMessage } from "../../../tui/tui-formatters.js";
 import { loadWebMedia } from "../../../web/media.js";

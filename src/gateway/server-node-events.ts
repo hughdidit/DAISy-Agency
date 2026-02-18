@@ -1,4 +1,8 @@
 import { randomUUID } from "node:crypto";
+<<<<<<< HEAD
+=======
+import { resolveSessionAgentId } from "../agents/agent-scope.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { agentCommand } from "../commands/agent.js";
 import { loadConfig } from "../config/config.js";
@@ -7,8 +11,19 @@ import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { normalizeMainKey } from "../routing/session-key.js";
 import { defaultRuntime } from "../runtime.js";
+<<<<<<< HEAD
 import type { NodeEvent, NodeEventContext } from "./server-node-events-types.js";
 import { loadSessionEntry } from "./session-utils.js";
+=======
+import { parseMessageWithAttachments } from "./chat-attachments.js";
+import { normalizeRpcAttachmentsToChatAttachments } from "./server-methods/attachment-normalize.js";
+import type { NodeEvent, NodeEventContext } from "./server-node-events-types.js";
+import {
+  loadSessionEntry,
+  pruneLegacyStoreKeys,
+  resolveGatewaySessionStoreTarget,
+} from "./session-utils.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { formatForLog } from "./ws-log.js";
 
 <<<<<<< HEAD

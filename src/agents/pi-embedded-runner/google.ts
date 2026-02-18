@@ -1,9 +1,16 @@
 import { EventEmitter } from "node:events";
+<<<<<<< HEAD
 
 import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
 import type { TSchema } from "@sinclair/typebox";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 
+=======
+import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
+import type { SessionManager } from "@mariozechner/pi-coding-agent";
+import type { TSchema } from "@sinclair/typebox";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { registerUnhandledRejectionHandler } from "../../infra/unhandled-rejections.js";
 import {
   hasInterSessionUserProvenance,
@@ -16,7 +23,18 @@ import {
   sanitizeGoogleTurnOrdering,
   sanitizeSessionMessagesImages,
 } from "../pi-embedded-helpers.js";
+<<<<<<< HEAD
 import { sanitizeToolUseResultPairing } from "../session-transcript-repair.js";
+=======
+import { cleanToolSchemaForGemini } from "../pi-tools.schema.js";
+import {
+  sanitizeToolCallInputs,
+  stripToolResultDetails,
+  sanitizeToolUseResultPairing,
+} from "../session-transcript-repair.js";
+import type { TranscriptPolicy } from "../transcript-policy.js";
+import { resolveTranscriptPolicy } from "../transcript-policy.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { log } from "./logger.js";
 import { describeUnknownError } from "./utils.js";
 import { cleanToolSchemaForGemini } from "../pi-tools.schema.js";

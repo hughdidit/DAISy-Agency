@@ -214,7 +214,27 @@ export function buildWorkspaceSkillSnapshot(
   );
   const resolvedSkills = promptEntries.map((entry) => entry.skill);
   const remoteNote = opts?.eligibility?.remote?.note?.trim();
+<<<<<<< HEAD
   const prompt = [remoteNote, formatSkillsForPrompt(resolvedSkills)].filter(Boolean).join("\n");
+=======
+  const { skillsForPrompt, truncated } = applySkillsPromptLimits({
+    skills: resolvedSkills,
+    config: opts?.config,
+  });
+
+  const truncationNote = truncated
+    ? `⚠️ Skills truncated: included ${skillsForPrompt.length} of ${resolvedSkills.length}. Run \`openclaw skills check\` to audit.`
+    : "";
+
+  const prompt = [
+    remoteNote,
+    truncationNote,
+    formatSkillsForPrompt(compactSkillPaths(skillsForPrompt)),
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const skillFilter = normalizeSkillFilter(opts?.skillFilter);
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
   return {
     prompt,
     skills: eligible.map((entry) => ({

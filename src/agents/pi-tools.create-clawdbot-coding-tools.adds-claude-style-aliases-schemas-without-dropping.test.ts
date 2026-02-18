@@ -1,7 +1,12 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD:src/agents/pi-tools.create-clawdbot-coding-tools.adds-claude-style-aliases-schemas-without-dropping.test.ts
 import type { AgentTool } from "@mariozechner/pi-agent-core";
+=======
+import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+import { Type } from "@sinclair/typebox";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility):src/agents/pi-tools.create-openclaw-coding-tools.adds-claude-style-aliases-schemas-without-dropping.e2e.test.ts
 import { describe, expect, it, vi } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
 import { createMoltbotTools } from "./moltbot-tools.js";
@@ -466,4 +471,93 @@ describe("createMoltbotCodingTools", () => {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
+<<<<<<< HEAD:src/agents/pi-tools.create-clawdbot-coding-tools.adds-claude-style-aliases-schemas-without-dropping.test.ts
+=======
+
+  it("auto-pages read output across chunks when context window budget allows", async () => {
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-read-autopage-"));
+    const filePath = path.join(tmpDir, "big.txt");
+    const lines = Array.from(
+      { length: 5000 },
+      (_unused, i) => `line-${String(i + 1).padStart(4, "0")}`,
+    );
+    await fs.writeFile(filePath, lines.join("\n"), "utf8");
+    try {
+      const readTool = createSandboxedReadTool({
+        root: tmpDir,
+        bridge: createHostSandboxFsBridge(tmpDir),
+        modelContextWindowTokens: 200_000,
+      });
+      const result = await readTool.execute("read-autopage-1", { path: "big.txt" });
+      const text = extractToolText(result);
+      expect(text).toContain("line-0001");
+      expect(text).toContain("line-5000");
+      expect(text).not.toContain("Read output capped at");
+      expect(text).not.toMatch(/Use offset=\d+ to continue\.\]$/);
+    } finally {
+      await fs.rm(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it("adds capped continuation guidance when aggregated read output reaches budget", async () => {
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-read-cap-"));
+    const filePath = path.join(tmpDir, "huge.txt");
+    const lines = Array.from(
+      { length: 8000 },
+      (_unused, i) => `line-${String(i + 1).padStart(4, "0")}-abcdefghijklmnopqrstuvwxyz`,
+    );
+    await fs.writeFile(filePath, lines.join("\n"), "utf8");
+    try {
+      const readTool = createSandboxedReadTool({
+        root: tmpDir,
+        bridge: createHostSandboxFsBridge(tmpDir),
+      });
+      const result = await readTool.execute("read-cap-1", { path: "huge.txt" });
+      const text = extractToolText(result);
+      expect(text).toContain("line-0001");
+      expect(text).toContain("[Read output capped at 50KB for this call. Use offset=");
+      expect(text).not.toContain("line-8000");
+    } finally {
+      await fs.rm(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it("strips truncation.content details from read results while preserving other fields", async () => {
+    const readResult: AgentToolResult<unknown> = {
+      content: [{ type: "text" as const, text: "line-0001" }],
+      details: {
+        truncation: {
+          truncated: true,
+          outputLines: 1,
+          firstLineExceedsLimit: false,
+          content: "hidden duplicate payload",
+        },
+      },
+    };
+    const baseRead: AgentTool = {
+      name: "read",
+      label: "read",
+      description: "test read",
+      parameters: Type.Object({
+        path: Type.String(),
+        offset: Type.Optional(Type.Number()),
+        limit: Type.Optional(Type.Number()),
+      }),
+      execute: vi.fn(async () => readResult),
+    };
+
+    const wrapped = createOpenClawReadTool(
+      baseRead as unknown as Parameters<typeof createOpenClawReadTool>[0],
+    );
+    const result = await wrapped.execute("read-strip-1", { path: "demo.txt", limit: 1 });
+
+    const details = (result as { details?: { truncation?: Record<string, unknown> } }).details;
+    expect(details?.truncation).toMatchObject({
+      truncated: true,
+      outputLines: 1,
+      firstLineExceedsLimit: false,
+    });
+    expect(details?.truncation).not.toHaveProperty("content");
+  });
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility):src/agents/pi-tools.create-openclaw-coding-tools.adds-claude-style-aliases-schemas-without-dropping.e2e.test.ts
 });

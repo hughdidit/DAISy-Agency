@@ -1,6 +1,16 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
 import { computeNextRunAtMs } from "../schedule.js";
+=======
+import { parseAbsoluteTimeMs } from "../parse.js";
+import { computeNextRunAtMs } from "../schedule.js";
+import {
+  normalizeCronStaggerMs,
+  resolveCronStaggerMs,
+  resolveDefaultCronStaggerMs,
+} from "../stagger.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import type {
   CronJob,
   CronJobCreate,
@@ -8,6 +18,10 @@ import type {
   CronPayload,
   CronPayloadPatch,
 } from "../types.js";
+<<<<<<< HEAD
+=======
+import { normalizeHttpWebhookUrl } from "../webhook-url.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import {
   normalizeOptionalAgentId,
   normalizeOptionalText,

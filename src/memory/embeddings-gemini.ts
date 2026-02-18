@@ -1,7 +1,18 @@
+<<<<<<< HEAD
+=======
+import {
+  collectProviderApiKeysForExecution,
+  executeWithApiKeyRotation,
+} from "../agents/api-key-rotation.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { parseGeminiAuth } from "../infra/gemini-auth.js";
+<<<<<<< HEAD
 import { createSubsystemLogger } from "../logging/subsystem.js";
+=======
+import { debugEmbeddingsLog } from "./embeddings-debug.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
 
 export type GeminiEmbeddingClient = {

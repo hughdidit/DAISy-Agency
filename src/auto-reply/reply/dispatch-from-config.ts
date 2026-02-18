@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
 import { isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";

@@ -1,11 +1,17 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+import fs from "node:fs/promises";
+import os from "node:os";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 >>>>>>> bcde2fca5 (fix: align embedded agent session setup)
 =======
 import {
@@ -26,6 +32,8 @@ import type { AssistantMessage, ImageContent } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
 
+=======
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
 <<<<<<< HEAD
 =======
@@ -129,6 +137,7 @@ import { getGlobalHookRunner } from "../../../plugins/hook-runner-global.js";
 import { MAX_IMAGE_BYTES } from "../../../media/constants.js";
 import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types.js";
 import { detectAndLoadPromptImages } from "./images.js";
+import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types.js";
 
 export function injectHistoryImagesIntoMessages(
   messages: AgentMessage[],

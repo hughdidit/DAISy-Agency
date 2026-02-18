@@ -5,7 +5,12 @@ import { migrateLegacyCronPayload } from "./payload-migration.js";
 import type { CronJobCreate, CronJobPatch } from "./types.js";
 =======
 import { inferLegacyName } from "./service/normalize.js";
+<<<<<<< HEAD
 >>>>>>> d90cac990 (fix: cron scheduler reliability, store hardening, and UX improvements (#10776))
+=======
+import { normalizeCronStaggerMs, resolveDefaultCronStaggerMs } from "./stagger.js";
+import type { CronJobCreate, CronJobPatch } from "./types.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 
 type UnknownRecord = Record<string, unknown>;
 

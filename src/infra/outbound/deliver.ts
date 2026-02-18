@@ -7,8 +7,16 @@ import {
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import { resolveChannelMediaMaxBytes } from "../../channels/plugins/media-limits.js";
 import { loadChannelOutboundAdapter } from "../../channels/plugins/outbound/load.js";
+<<<<<<< HEAD
 import type { ChannelOutboundAdapter } from "../../channels/plugins/types.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type {
+  ChannelOutboundAdapter,
+  ChannelOutboundContext,
+} from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import type { sendMessageDiscord } from "../../discord/send.js";
 import type { sendMessageIMessage } from "../../imessage/send.js";
@@ -23,17 +31,31 @@ import {
 } from "../../config/sessions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { NormalizedOutboundPayload } from "./payloads.js";
 =======
 =======
+=======
+import type { sendMessageDiscord } from "../../discord/send.js";
+import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
+import type { sendMessageIMessage } from "../../imessage/send.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 >>>>>>> e927fd1e3 (fix: allow agent workspace directories in media local roots (#17136))
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
 import { sendMessageSignal } from "../../signal/send.js";
+import type { sendMessageSlack } from "../../slack/send.js";
+import type { sendMessageTelegram } from "../../telegram/send.js";
+import type { sendMessageWhatsApp } from "../../web/outbound.js";
 import { throwIfAborted } from "./abort.js";
 import { ackDelivery, enqueueDelivery, failDelivery } from "./delivery-queue.js";
+<<<<<<< HEAD
 >>>>>>> 207e2c5af (fix: add outbound delivery crash recovery (#15636) (thanks @nabbilkhan) (#15636))
+=======
+import type { OutboundIdentity } from "./identity.js";
+import type { NormalizedOutboundPayload } from "./payloads.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
 import type { OutboundChannel } from "./targets.js";
 

@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { ModelCatalogEntry } from "./model-catalog.js";
 import { normalizeGoogleModelId } from "./models-config.providers.js";
 import { resolveAgentModelPrimary } from "./agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveAgentModelPrimary } from "./agent-scope.js";
+import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
+import type { ModelCatalogEntry } from "./model-catalog.js";
+import { normalizeGoogleModelId } from "./models-config.providers.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 
 export type ModelRef = {
   provider: string;

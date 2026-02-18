@@ -1,6 +1,11 @@
 import { resolveHumanDelayConfig } from "../../../agents/identity.js";
 import { dispatchInboundMessage } from "../../../auto-reply/dispatch.js";
 import { clearHistoryEntriesIfEnabled } from "../../../auto-reply/reply/history.js";
+<<<<<<< HEAD
+=======
+import { createReplyDispatcherWithTyping } from "../../../auto-reply/reply/reply-dispatcher.js";
+import type { ReplyPayload } from "../../../auto-reply/types.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { removeAckReactionAfterReply } from "../../../channels/ack-reactions.js";
 import { logAckFailure, logTypingFailure } from "../../../channels/logging.js";
 import { createReplyPrefixContext } from "../../../channels/reply-prefix.js";
@@ -9,7 +14,21 @@ import { createReplyDispatcherWithTyping } from "../../../auto-reply/reply/reply
 import { resolveStorePath, updateLastRoute } from "../../../config/sessions.js";
 import { danger, logVerbose, shouldLogVerbose } from "../../../globals.js";
 import { removeSlackReaction } from "../../actions.js";
+<<<<<<< HEAD
 import { resolveSlackThreadTargets } from "../../threading.js";
+=======
+import { createSlackDraftStream } from "../../draft-stream.js";
+import {
+  applyAppendOnlyStreamUpdate,
+  buildStatusFinalPreviewText,
+  resolveSlackStreamMode,
+} from "../../stream-mode.js";
+import type { SlackStreamSession } from "../../streaming.js";
+import { appendSlackStream, startSlackStream, stopSlackStream } from "../../streaming.js";
+import { resolveSlackThreadTargets } from "../../threading.js";
+import { createSlackReplyDeliveryPlan, deliverReplies, resolveSlackThreadTs } from "../replies.js";
+import type { PreparedSlackMessage } from "./types.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 
 import { createSlackReplyDeliveryPlan, deliverReplies } from "../replies.js";
 
@@ -145,12 +164,20 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     }
 
     const text = payload.text.trim();
+<<<<<<< HEAD
 
     try {
       if (!streamSession) {
         // Determine the thread_ts for the stream (required by Slack API)
         const streamThreadTs = effectiveThreadTs ?? incomingThreadTs ?? statusThreadTs;
 
+=======
+    let plannedThreadTs: string | undefined;
+    try {
+      if (!streamSession) {
+        const streamThreadTs = replyPlan.nextThreadTs();
+        plannedThreadTs = streamThreadTs;
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
         if (!streamThreadTs) {
           // No thread context — can't stream, fall back
           logVerbose(
@@ -190,6 +217,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
         danger(`slack-stream: streaming API call failed: ${String(err)}, falling back`),
       );
       streamFailed = true;
+<<<<<<< HEAD
 
       // Fall back to normal delivery for this payload
       await deliverReplies({
@@ -202,6 +230,9 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
         replyThreadTs: effectiveThreadTs,
       });
       replyPlan.markSent();
+=======
+      await deliverNormally(payload, streamSession?.threadTs ?? plannedThreadTs);
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
     }
   };
 >>>>>>> 878a13d21 (fix: don't consume replyPlan reference eagerly for streaming check)
