@@ -27,7 +27,8 @@ import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.
 import type { CliDeps } from "../cli/deps.js";
 import { resolveAgentMaxConcurrent, resolveSubagentMaxConcurrent } from "../config/agent-limits.js";
 import type { loadConfig } from "../config/config.js";
-import { startGmailWatcher, stopGmailWatcher } from "../hooks/gmail-watcher.js";
+import { startGmailWatcherWithLogs } from "../hooks/gmail-watcher-lifecycle.js";
+import { stopGmailWatcher } from "../hooks/gmail-watcher.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -155,6 +156,7 @@ export function createGatewayReloadHandlers(params: {
 
     if (plan.restartGmailWatcher) {
       await stopGmailWatcher().catch(() => {});
+<<<<<<< HEAD
       if (!isTruthyEnvValue(process.env.CLAWDBOT_SKIP_GMAIL_WATCHER)) {
         try {
           const gmailResult = await startGmailWatcher(nextConfig);
@@ -173,6 +175,14 @@ export function createGatewayReloadHandlers(params: {
       } else {
         params.logHooks.info("skipping gmail watcher restart (CLAWDBOT_SKIP_GMAIL_WATCHER=1)");
       }
+=======
+      await startGmailWatcherWithLogs({
+        cfg: nextConfig,
+        log: params.logHooks,
+        onSkipped: () =>
+          params.logHooks.info("skipping gmail watcher restart (OPENCLAW_SKIP_GMAIL_WATCHER=1)"),
+      });
+>>>>>>> 6187e2afb (refactor(gateway): share gmail watcher startup flow)
     }
 
     if (plan.restartChannels.size > 0) {
