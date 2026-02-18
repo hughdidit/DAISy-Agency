@@ -59,9 +59,24 @@ function formatTimestampWithAge(valueMs?: number) {
   return `${formatTimestamp(valueMs)} (${formatAgeShort(Date.now() - valueMs)})`;
 }
 
+<<<<<<< HEAD
 function resolveRequesterSessionKey(params: Parameters<CommandHandler>[0]): string | undefined {
   const raw = params.sessionKey?.trim() || params.ctx.CommandTargetSessionKey?.trim();
   if (!raw) return undefined;
+=======
+function resolveRequesterSessionKey(
+  params: Parameters<CommandHandler>[0],
+  opts?: { preferCommandTarget?: boolean },
+): string | undefined {
+  const commandTarget = params.ctx.CommandTargetSessionKey?.trim();
+  const commandSession = params.sessionKey?.trim();
+  const raw = opts?.preferCommandTarget
+    ? commandTarget || commandSession
+    : commandSession || commandTarget;
+  if (!raw) {
+    return undefined;
+  }
+>>>>>>> c1928845a (fix: route native subagent spawns to target session)
   const { mainKey, alias } = resolveMainSessionAlias(params.cfg);
   return resolveInternalSessionKey({ key: raw, alias, mainKey });
 }
@@ -184,7 +199,9 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
     return { shouldContinue: false, reply: { text: buildSubagentsHelp() } };
   }
 
-  const requesterKey = resolveRequesterSessionKey(params);
+  const requesterKey = resolveRequesterSessionKey(params, {
+    preferCommandTarget: action === "spawn",
+  });
   if (!requesterKey) {
     return { shouldContinue: false, reply: { text: "⚠️ Missing session key." } };
   }
