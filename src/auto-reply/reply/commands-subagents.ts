@@ -673,6 +673,17 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
       };
     }
 
+<<<<<<< HEAD
+=======
+    const commandTo = typeof params.command.to === "string" ? params.command.to.trim() : "";
+    const originatingTo =
+      typeof params.ctx.OriginatingTo === "string" ? params.ctx.OriginatingTo.trim() : "";
+    const fallbackTo = typeof params.ctx.To === "string" ? params.ctx.To.trim() : "";
+    // OriginatingTo reflects the active conversation target and is safer than
+    // command.to for cross-surface command dispatch.
+    const normalizedTo = originatingTo || commandTo || fallbackTo || undefined;
+
+>>>>>>> e8816c554 (Agents: fix subagent completion delivery to origin channel)
     const result = await spawnSubagentDirect(
       { task, agentId, model, thinking, cleanup: "keep" },
       {
