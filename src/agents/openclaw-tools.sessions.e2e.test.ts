@@ -26,21 +26,23 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 import "./test-helpers/fast-core-tools.js";
+<<<<<<< HEAD
 <<<<<<< HEAD:src/agents/clawdbot-tools.sessions.test.ts
 import { createMoltbotTools } from "./moltbot-tools.js";
 =======
 import { sleep } from "../utils.js";
+=======
+>>>>>>> a82ceb81d (perf(test): replace sessions e2e yield loops with waitFor)
 import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:):src/agents/openclaw-tools.sessions.test.ts
 
 const waitForCalls = async (getCount: () => number, count: number, timeoutMs = 2000) => {
-  const start = Date.now();
-  while (getCount() < count) {
-    if (Date.now() - start > timeoutMs) {
-      throw new Error(`timed out waiting for ${count} calls`);
-    }
-    await sleep(0);
-  }
+  await vi.waitFor(
+    () => {
+      expect(getCount()).toBeGreaterThanOrEqual(count);
+    },
+    { timeout: timeoutMs, interval: 5 },
+  );
 };
 
 describe("sessions tools", () => {
@@ -656,8 +658,12 @@ describe("sessions tools", () => {
       status: "ok",
       reply: "initial",
     });
-    await sleep(0);
-    await sleep(0);
+    await vi.waitFor(
+      () => {
+        expect(calls.filter((call) => call.method === "agent")).toHaveLength(4);
+      },
+      { timeout: 2_000, interval: 5 },
+    );
 
     const agentCalls = calls.filter((call) => call.method === "agent");
     expect(agentCalls).toHaveLength(4);
