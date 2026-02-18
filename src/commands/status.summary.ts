@@ -8,7 +8,11 @@ import {
   resolveStorePath,
   type SessionEntry,
 } from "../config/sessions.js";
-import { classifySessionKey, listAgentsForGateway } from "../gateway/session-utils.js";
+import {
+  classifySessionKey,
+  listAgentsForGateway,
+  resolveSessionModelRef,
+} from "../gateway/session-utils.js";
 import { buildChannelSummary } from "../infra/channel-summary.js";
 import { resolveHeartbeatSummaryForAgent } from "../infra/heartbeat-runner.js";
 import { peekSystemEvents } from "../infra/system-events.js";
@@ -124,7 +128,8 @@ export async function getStatusSummary(
       .map(([key, entry]) => {
         const updatedAt = entry?.updatedAt ?? null;
         const age = updatedAt ? now - updatedAt : null;
-        const model = entry?.model ?? configModel ?? null;
+        const resolvedModel = resolveSessionModelRef(cfg, entry, opts.agentIdOverride);
+        const model = resolvedModel.model ?? configModel ?? null;
         const contextTokens =
           entry?.contextTokens ?? lookupContextTokens(model) ?? configContextTokens ?? null;
         const input = entry?.inputTokens ?? 0;

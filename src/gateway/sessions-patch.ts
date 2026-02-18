@@ -27,8 +27,16 @@ import type { SessionEntry } from "../config/sessions.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { ModelCatalogEntry } from "../agents/model-catalog.js";
+<<<<<<< HEAD
 import { resolveAllowedModelRef, resolveDefaultModelForAgent } from "../agents/model-selection.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import {
+  resolveAllowedModelRef,
+  resolveDefaultModelForAgent,
+  resolveSubagentConfiguredModelSelection,
+} from "../agents/model-selection.js";
+>>>>>>> 5c69e625f (fix(cli): display correct model for sub-agents in sessions list (#18660))
 import { normalizeGroupActivation } from "../auto-reply/group-activation.js";
 import {
   formatThinkingLevels,
@@ -116,6 +124,15 @@ export async function applySessionsPatchToStore(params: {
 }): Promise<{ ok: true; entry: SessionEntry } | { ok: false; error: ErrorShape }> {
   const { cfg, store, storeKey, patch } = params;
   const now = Date.now();
+<<<<<<< HEAD
+=======
+  const parsedAgent = parseAgentSessionKey(storeKey);
+  const sessionAgentId = normalizeAgentId(parsedAgent?.agentId ?? resolveDefaultAgentId(cfg));
+  const resolvedDefault = resolveDefaultModelForAgent({ cfg, agentId: sessionAgentId });
+  const subagentModelHint = isSubagentSessionKey(storeKey)
+    ? resolveSubagentConfiguredModelSelection({ cfg, agentId: sessionAgentId })
+    : undefined;
+>>>>>>> 5c69e625f (fix(cli): display correct model for sub-agents in sessions list (#18660))
 
   const existing = store[storeKey];
   const next: SessionEntry = existing
@@ -357,7 +374,7 @@ export async function applySessionsPatchToStore(params: {
         catalog,
         raw: trimmed,
         defaultProvider: resolvedDefault.provider,
-        defaultModel: resolvedDefault.model,
+        defaultModel: subagentModelHint ?? resolvedDefault.model,
       });
       if ("error" in resolved) {
         return invalid(resolved.error);

@@ -28,8 +28,17 @@ import type {
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { lookupContextTokens } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
+<<<<<<< HEAD
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { type MoltbotConfig, loadConfig } from "../config/config.js";
+=======
+import {
+  parseModelRef,
+  resolveConfiguredModelRef,
+  resolveDefaultModelForAgent,
+} from "../agents/model-selection.js";
+import { type OpenClawConfig, loadConfig } from "../config/config.js";
+>>>>>>> 5c69e625f (fix(cli): display correct model for sub-agents in sessions list (#18660))
 import { resolveStateDir } from "../config/paths.js";
 import {
   buildGroupDisplayName,
@@ -702,6 +711,7 @@ export function getSessionDefaults(cfg: MoltbotConfig): GatewaySessionsDefaults 
 }
 
 export function resolveSessionModelRef(
+<<<<<<< HEAD
   cfg: MoltbotConfig,
   entry?: SessionEntry,
 ): { provider: string; model: string } {
@@ -710,12 +720,56 @@ export function resolveSessionModelRef(
     defaultProvider: DEFAULT_PROVIDER,
     defaultModel: DEFAULT_MODEL,
   });
+=======
+  cfg: OpenClawConfig,
+  entry?:
+    | SessionEntry
+    | Pick<SessionEntry, "model" | "modelProvider" | "modelOverride" | "providerOverride">,
+  agentId?: string,
+): { provider: string; model: string } {
+  const resolved = agentId
+    ? resolveDefaultModelForAgent({ cfg, agentId })
+    : resolveConfiguredModelRef({
+        cfg,
+        defaultProvider: DEFAULT_PROVIDER,
+        defaultModel: DEFAULT_MODEL,
+      });
+
+  // Prefer the last runtime model recorded on the session entry.
+  // This is the actual model used by the latest run and must win over defaults.
+>>>>>>> 5c69e625f (fix(cli): display correct model for sub-agents in sessions list (#18660))
   let provider = resolved.provider;
   let model = resolved.model;
+  const runtimeModel = entry?.model?.trim();
+  const runtimeProvider = entry?.modelProvider?.trim();
+  if (runtimeModel) {
+    const parsedRuntime = parseModelRef(
+      runtimeModel,
+      runtimeProvider || provider || DEFAULT_PROVIDER,
+    );
+    if (parsedRuntime) {
+      provider = parsedRuntime.provider;
+      model = parsedRuntime.model;
+    } else {
+      provider = runtimeProvider || provider;
+      model = runtimeModel;
+    }
+    return { provider, model };
+  }
+
+  // Fall back to explicit per-session override (set at spawn/model-patch time),
+  // then finally to configured defaults.
   const storedModelOverride = entry?.modelOverride?.trim();
   if (storedModelOverride) {
-    provider = entry?.providerOverride?.trim() || provider;
-    model = storedModelOverride;
+    const overrideProvider = entry?.providerOverride?.trim() || provider || DEFAULT_PROVIDER;
+    const parsedOverride = parseModelRef(storedModelOverride, overrideProvider);
+    if (parsedOverride) {
+      provider = parsedOverride.provider;
+      model = parsedOverride.model;
+    } else {
+      provider = overrideProvider;
+      model = storedModelOverride;
+    }
   }
   return { provider, model };
 }

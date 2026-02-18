@@ -11,12 +11,19 @@ import {
   resolveStorePath,
   type SessionEntry,
 } from "../config/sessions.js";
+<<<<<<< HEAD
 import { classifySessionKey } from "../gateway/session-utils.js";
 >>>>>>> 94eb50658 (refactor(sessions): reuse session key classifier)
 import { info } from "../globals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+import { classifySessionKey, resolveSessionModelRef } from "../gateway/session-utils.js";
+import { info } from "../globals.js";
+import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
+import { parseAgentSessionKey } from "../routing/session-key.js";
+>>>>>>> 5c69e625f (fix(cli): display correct model for sub-agents in sessions list (#18660))
 import type { RuntimeEnv } from "../runtime.js";
 =======
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
@@ -59,6 +66,9 @@ type SessionRow = {
   outputTokens?: number;
   totalTokens?: number;
   model?: string;
+  modelProvider?: string;
+  providerOverride?: string;
+  modelOverride?: string;
   contextTokens?: number;
 };
 
@@ -172,6 +182,9 @@ function toRows(store: Record<string, SessionEntry>): SessionRow[] {
         outputTokens: entry?.outputTokens,
         totalTokens: entry?.totalTokens,
         model: entry?.model,
+        modelProvider: entry?.modelProvider,
+        providerOverride: entry?.providerOverride,
+        modelOverride: entry?.modelOverride,
         contextTokens: entry?.contextTokens,
       } satisfies SessionRow;
     })
@@ -224,12 +237,32 @@ export async function sessionsCommand(
           path: storePath,
           count: rows.length,
           activeMinutes: activeMinutes ?? null,
+<<<<<<< HEAD
           sessions: rows.map((r) => ({
             ...r,
             contextTokens:
               r.contextTokens ?? lookupContextTokens(r.model) ?? configContextTokens ?? null,
             model: r.model ?? configModel ?? null,
           })),
+=======
+          sessions: rows.map((r) => {
+            const resolvedModel = resolveSessionModelRef(
+              cfg,
+              r,
+              parseAgentSessionKey(r.key)?.agentId,
+            );
+            const model = resolvedModel.model ?? configModel;
+            return {
+              ...r,
+              totalTokens: resolveFreshSessionTotalTokens(r) ?? null,
+              totalTokensFresh:
+                typeof r.totalTokens === "number" ? r.totalTokensFresh !== false : false,
+              contextTokens:
+                r.contextTokens ?? lookupContextTokens(model) ?? configContextTokens ?? null,
+              model,
+            };
+          }),
+>>>>>>> 5c69e625f (fix(cli): display correct model for sub-agents in sessions list (#18660))
         },
         null,
         2,
@@ -261,7 +294,8 @@ export async function sessionsCommand(
   runtime.log(rich ? theme.heading(header) : header);
 
   for (const row of rows) {
-    const model = row.model ?? configModel;
+    const resolvedModel = resolveSessionModelRef(cfg, row, parseAgentSessionKey(row.key)?.agentId);
+    const model = resolvedModel.model ?? configModel;
     const contextTokens = row.contextTokens ?? lookupContextTokens(model) ?? configContextTokens;
     const input = row.inputTokens ?? 0;
     const output = row.outputTokens ?? 0;
