@@ -1,10 +1,13 @@
 import { afterEach, expect, test } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { createExecTool } from "./bash-tools.exec";
 =======
 import { sleep } from "../utils.ts";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
+=======
+>>>>>>> e47df9ed7 (perf(test): tighten background-abort e2e wait)
 import {
   getFinishedSession,
   getSession,
@@ -62,7 +65,17 @@ async function expectBackgroundSessionSurvivesAbort(params: {
   const sessionId = (result.details as { sessionId: string }).sessionId;
 
   abortController.abort();
-  await sleep(150);
+  const startedAt = Date.now();
+  await expect
+    .poll(
+      () => {
+        const running = getSession(sessionId);
+        const finished = getFinishedSession(sessionId);
+        return Date.now() - startedAt >= 100 && !finished && running?.exited === false;
+      },
+      { timeout: process.platform === "win32" ? 1_500 : 800, interval: 20 },
+    )
+    .toBe(true);
 
   const running = getSession(sessionId);
   const finished = getFinishedSession(sessionId);
