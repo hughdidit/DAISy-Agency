@@ -43,6 +43,7 @@ private final class NotificationInvokeLatch<T: Sendable>: @unchecked Sendable {
 @Observable
 final class NodeAppModel {
     private let deepLinkLogger = Logger(subsystem: "ai.openclaw.ios", category: "DeepLink")
+    private let pushWakeLogger = Logger(subsystem: "ai.openclaw.ios", category: "PushWake")
     enum CameraHUDKind {
         case photo
         case recording
@@ -2032,7 +2033,113 @@ extension NodeAppModel {
     }
 
     /// Back-compat hook retained for older gateway-connect flows.
+<<<<<<< HEAD
     func onNodeGatewayConnected() async {}
+=======
+    func onNodeGatewayConnected() async {
+        await self.registerAPNsTokenIfNeeded()
+    }
+
+    func handleSilentPushWake(_ userInfo: [AnyHashable: Any]) async -> Bool {
+        guard Self.isSilentPushPayload(userInfo) else {
+            self.pushWakeLogger.info("Ignored APNs payload: not silent push")
+            return false
+        }
+        self.pushWakeLogger.info("Silent push received; attempting reconnect if needed")
+        return await self.reconnectGatewaySessionsForSilentPushIfNeeded()
+    }
+
+    func updateAPNsDeviceToken(_ tokenData: Data) {
+        let tokenHex = tokenData.map { String(format: "%02x", $0) }.joined()
+        let trimmed = tokenHex.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        self.apnsDeviceTokenHex = trimmed
+        UserDefaults.standard.set(trimmed, forKey: Self.apnsDeviceTokenUserDefaultsKey)
+        Task { [weak self] in
+            await self?.registerAPNsTokenIfNeeded()
+        }
+    }
+
+    private func registerAPNsTokenIfNeeded() async {
+        guard self.gatewayConnected else { return }
+        guard let token = self.apnsDeviceTokenHex?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !token.isEmpty
+        else {
+            return
+        }
+        if token == self.apnsLastRegisteredTokenHex {
+            return
+        }
+        guard let topic = Bundle.main.bundleIdentifier?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !topic.isEmpty
+        else {
+            return
+        }
+
+        struct PushRegistrationPayload: Codable {
+            var token: String
+            var topic: String
+            var environment: String
+        }
+
+        let payload = PushRegistrationPayload(
+            token: token,
+            topic: topic,
+            environment: Self.apnsEnvironment)
+        do {
+            let json = try Self.encodePayload(payload)
+            await self.nodeGateway.sendEvent(event: "push.apns.register", payloadJSON: json)
+            self.apnsLastRegisteredTokenHex = token
+        } catch {
+            // Best-effort only.
+        }
+    }
+
+    private static func isSilentPushPayload(_ userInfo: [AnyHashable: Any]) -> Bool {
+        guard let apsAny = userInfo["aps"] else { return false }
+        if let aps = apsAny as? [AnyHashable: Any] {
+            return Self.hasContentAvailable(aps["content-available"])
+        }
+        if let aps = apsAny as? [String: Any] {
+            return Self.hasContentAvailable(aps["content-available"])
+        }
+        return false
+    }
+
+    private static func hasContentAvailable(_ value: Any?) -> Bool {
+        if let number = value as? NSNumber {
+            return number.intValue == 1
+        }
+        if let text = value as? String {
+            return text.trimmingCharacters(in: .whitespacesAndNewlines) == "1"
+        }
+        return false
+    }
+
+    private func reconnectGatewaySessionsForSilentPushIfNeeded() async -> Bool {
+        guard self.isBackgrounded else {
+            self.pushWakeLogger.info("Wake no-op: app not backgrounded")
+            return false
+        }
+        guard self.gatewayAutoReconnectEnabled else {
+            self.pushWakeLogger.info("Wake no-op: auto reconnect disabled")
+            return false
+        }
+        guard self.activeGatewayConnectConfig != nil else {
+            self.pushWakeLogger.info("Wake no-op: no active gateway config")
+            return false
+        }
+
+        await self.operatorGateway.disconnect()
+        await self.nodeGateway.disconnect()
+        self.operatorConnected = false
+        self.gatewayConnected = false
+        self.gatewayStatusText = "Reconnecting…"
+        self.talkMode.updateGatewayConnected(false)
+        self.pushWakeLogger.info("Wake reconnect trigger applied")
+        return true
+    }
+>>>>>>> e67da1538 (iOS/Gateway: wake disconnected iOS nodes via APNs before invoke (#20332))
 }
 
 >>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
