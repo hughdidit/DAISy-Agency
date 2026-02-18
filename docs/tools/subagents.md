@@ -20,6 +20,26 @@ Use `/subagents` to inspect or control sub-agent runs for the **current session*
 
 `/subagents info` shows run metadata (status, timestamps, session id, transcript path, cleanup).
 
+<<<<<<< HEAD
+=======
+### Spawn behavior
+
+`/subagents spawn` starts a background sub-agent as a user command, not an internal relay, and it sends one final completion update back to the requester chat when the run finishes.
+
+- The spawn command is non-blocking; it returns a run id immediately.
+- On completion, the sub-agent announces a summary/result message back to the requester chat channel.
+- For manual spawns, delivery is resilient:
+  - OpenClaw tries direct `agent` delivery first with a stable idempotency key.
+  - If direct delivery fails, it falls back to queue routing.
+  - If queue routing is still not available, the announce is retried with a short exponential backoff before final give-up.
+- The completion message is a system message and includes:
+  - `Result` (`assistant` reply text, or latest `toolResult` if the assistant reply is empty)
+  - `Status` (`completed successfully` / `failed` / `timed out`)
+  - compact runtime/token stats
+- `--model` and `--thinking` override defaults for that specific run.
+- Use `info`/`log` to inspect details and output after completion.
+
+>>>>>>> edf7d6af6 (fix: harden subagent completion announce retries)
 Primary goals:
 - Parallelize “research / long task / slow tool” work without blocking the main run.
 - Keep sub-agents isolated by default (session separation + optional sandboxing).
