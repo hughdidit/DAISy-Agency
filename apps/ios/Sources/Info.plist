@@ -19,10 +19,26 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 <<<<<<< HEAD
+<<<<<<< HEAD
 	<key>CFBundleShortVersionString</key>
 	<string>2026.1.27-beta.1</string>
 =======
 >>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
+=======
+	<key>CFBundleShortVersionString</key>
+	<string>2026.2.18</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>ai.openclaw.ios</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>openclaw</string>
+			</array>
+		</dict>
+	</array>
+>>>>>>> cb34e80f9 (fix(ios): restore auto-selected team for local signing (#19993))
 	<key>CFBundleVersion</key>
 	<string>20260126</string>
 	<key>NSAppTransportSecurity</key>
