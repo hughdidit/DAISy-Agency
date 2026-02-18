@@ -10,7 +10,11 @@ import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
 =======
 import { normalizeStringEntries } from "../shared/string-normalization.js";
 import type { SecurityAuditFinding, SecurityAuditSeverity } from "./audit.js";
+<<<<<<< HEAD
 >>>>>>> 89a0b95af (refactor(security): reuse shared allowlist normalization)
+=======
+import { resolveDmAllowState } from "./dm-policy-shared.js";
+>>>>>>> 5c5c032f4 (refactor(security): share DM allowlist state resolver)
 
 function normalizeAllowFromList(list: Array<string | number> | undefined | null): string[] {
   return normalizeStringEntries(Array.isArray(list) ? list : undefined);
@@ -63,22 +67,12 @@ export async function collectChannelSecurityFindings(params: {
     normalizeEntry?: (raw: string) => string;
   }) => {
     const policyPath = input.policyPath ?? `${input.allowFromPath}policy`;
-    const configAllowFrom = normalizeAllowFromList(input.allowFrom);
-    const hasWildcard = configAllowFrom.includes("*");
+    const { hasWildcard, isMultiUserDm } = await resolveDmAllowState({
+      provider: input.provider,
+      allowFrom: input.allowFrom,
+      normalizeEntry: input.normalizeEntry,
+    });
     const dmScope = params.cfg.session?.dmScope ?? "main";
-    const storeAllowFrom = await readChannelAllowFromStore(input.provider).catch(() => []);
-    const normalizeEntry = input.normalizeEntry ?? ((value: string) => value);
-    const normalizedCfg = configAllowFrom
-      .filter((value) => value !== "*")
-      .map((value) => normalizeEntry(value))
-      .map((value) => value.trim())
-      .filter(Boolean);
-    const normalizedStore = storeAllowFrom
-      .map((value) => normalizeEntry(value))
-      .map((value) => value.trim())
-      .filter(Boolean);
-    const allowCount = Array.from(new Set([...normalizedCfg, ...normalizedStore])).length;
-    const isMultiUserDm = hasWildcard || allowCount > 1;
 
     if (input.dmPolicy === "open") {
       const allowFromKey = `${input.allowFromPath}allowFrom`;
