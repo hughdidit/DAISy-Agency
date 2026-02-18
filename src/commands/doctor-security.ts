@@ -3,6 +3,7 @@ import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { OpenClawConfig, GatewayBindMode } from "../config/config.js";
 import { readChannelAllowFromStore } from "../pairing/pairing-store.js";
+import { normalizeStringEntries } from "../shared/string-normalization.js";
 import { note } from "../terminal/note.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
@@ -84,7 +85,9 @@ export async function noteSecurityWarnings(cfg: OpenClawConfig) {
   }) => {
     const dmPolicy = params.dmPolicy;
     const policyPath = params.policyPath ?? `${params.allowFromPath}policy`;
-    const configAllowFrom = (params.allowFrom ?? []).map((v) => String(v).trim());
+    const configAllowFrom = normalizeStringEntries(
+      Array.isArray(params.allowFrom) ? params.allowFrom : undefined,
+    );
     const hasWildcard = configAllowFrom.includes("*");
     const storeAllowFrom = await readChannelAllowFromStore(params.provider).catch(() => []);
     const normalizedCfg = configAllowFrom
