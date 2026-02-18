@@ -166,7 +166,12 @@ Behavior:
 - Sub-agents default to the full tool set **minus session tools** (configurable via `tools.subagents.tools`).
 - Sub-agents are not allowed to call `sessions_spawn` (no sub-agent → sub-agent spawning).
 - Always non-blocking: returns `{ status: "accepted", runId, childSessionKey }` immediately.
+<<<<<<< HEAD
 - After completion, Moltbot runs a sub-agent **announce step** and posts the result to the requester chat channel.
+=======
+- After completion, OpenClaw runs a sub-agent **announce step** and posts the result to the requester chat channel.
+  - If the assistant final reply is empty, the latest `toolResult` from sub-agent history is included as `Result`.
+>>>>>>> fa4f66255 (fix(subagents): return completion message for manual session spawns)
 - Reply exactly `ANNOUNCE_SKIP` during the announce step to stay silent.
 - Announce replies are normalized to `Status`/`Result`/`Notes`; `Status` comes from runtime outcome (not model text).
 - Sub-agent sessions are auto-archived after `agents.defaults.subagents.archiveAfterMinutes` (default: 60).

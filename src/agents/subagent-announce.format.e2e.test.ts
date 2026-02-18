@@ -27,6 +27,7 @@ const subagentRegistryMock = {
   countActiveDescendantRuns: vi.fn((_sessionKey: string) => 0),
   resolveRequesterForChildSession: vi.fn((_sessionKey: string): RequesterResolution => null),
 };
+const chatHistoryMock = vi.fn(async (_sessionKey: string) => ({ messages: [] as Array<unknown> }));
 let sessionStore: Record<string, Record<string, unknown>> = {};
 let configOverride: ReturnType<(typeof import("../config/config.js"))["loadConfig"]> = {
   session: {
@@ -69,6 +70,9 @@ vi.mock("../gateway/call.js", () => ({
     }
     if (typed.method === "agent.wait") {
       return { status: "error", startedAt: 10, endedAt: 20, error: "boom" };
+    }
+    if (typed.method === "chat.history") {
+      return await chatHistoryMock(typed.params?.sessionKey);
     }
     if (typed.method === "sessions.patch") {
       return {};
@@ -118,7 +122,11 @@ describe("subagent announce formatting", () => {
     subagentRegistryMock.countActiveDescendantRuns.mockReset().mockReturnValue(0);
     subagentRegistryMock.resolveRequesterForChildSession.mockReset().mockReturnValue(null);
     readLatestAssistantReplyMock.mockReset().mockResolvedValue("raw subagent reply");
+<<<<<<< HEAD
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
+=======
+    chatHistoryMock.mockReset().mockResolvedValue({ messages: [] });
+>>>>>>> fa4f66255 (fix(subagents): return completion message for manual session spawns)
     sessionStore = {};
     configOverride = {
       session: {
@@ -200,6 +208,36 @@ describe("subagent announce formatting", () => {
     expect(call?.params?.idempotencyKey).toBe(
       "announce:v1:agent:main:subagent:worker:run-direct-idem",
     );
+  });
+
+  it("falls back to latest toolResult output when assistant reply is empty", async () => {
+    const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
+    chatHistoryMock.mockResolvedValueOnce({
+      messages: [
+        {
+          role: "assistant",
+          content: [{ type: "text", text: "" }],
+        },
+        {
+          role: "toolResult",
+          content: [{ type: "text", text: "tool output line 1" }],
+        },
+      ],
+    });
+    readLatestAssistantReplyMock.mockResolvedValue("");
+
+    await runSubagentAnnounceFlow({
+      childSessionKey: "agent:main:subagent:worker",
+      childRunId: "run-tool-fallback",
+      requesterSessionKey: "agent:main:main",
+      requesterDisplayKey: "main",
+      ...defaultOutcomeAnnounce,
+      waitForCompletion: false,
+    });
+
+    const call = agentSpy.mock.calls[0]?.[0] as { params?: { message?: string } };
+    const msg = call?.params?.message as string;
+    expect(msg).toContain("tool output line 1");
   });
 
   it("keeps full findings and includes compact stats", async () => {
