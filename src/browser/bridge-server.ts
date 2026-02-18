@@ -4,6 +4,7 @@ import express from "express";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { ResolvedBrowserConfig } from "./config.js";
 <<<<<<< HEAD
@@ -36,8 +37,13 @@ import { isLoopbackHost } from "../gateway/net.js";
 import { deleteBridgeAuthForPort, setBridgeAuthForPort } from "./bridge-auth-registry.js";
 import type { ResolvedBrowserConfig } from "./config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
-import { registerBrowserRoutes } from "./routes/index.js";
+=======
+import type { ResolvedBrowserConfig } from "./config.js";
 import type { BrowserRouteRegistrar } from "./routes/types.js";
+import { isLoopbackHost } from "../gateway/net.js";
+import { deleteBridgeAuthForPort, setBridgeAuthForPort } from "./bridge-auth-registry.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+import { registerBrowserRoutes } from "./routes/index.js";
 import {
   type BrowserServerState,
   createBrowserRouteContext,

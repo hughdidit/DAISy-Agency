@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { AGENT_LANE_NESTED } from "../../agents/lanes.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
@@ -8,19 +9,22 @@ import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 =======
 =======
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { AgentCommandOpts } from "./types.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { AGENT_LANE_NESTED } from "../../agents/lanes.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-deps.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { SessionEntry } from "../../config/sessions.js";
 import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
@@ -37,6 +41,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   resolveAgentDeliveryPlan,
   resolveAgentOutboundTarget,
@@ -49,8 +54,9 @@ import type { RuntimeEnv } from "../../runtime.js";
 =======
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { isInternalMessageChannel } from "../../utils/message-channel.js";
-import type { AgentCommandOpts } from "./types.js";
 
 type RunResult = Awaited<
   ReturnType<(typeof import("../../agents/pi-embedded.js"))["runEmbeddedPiAgent"]>

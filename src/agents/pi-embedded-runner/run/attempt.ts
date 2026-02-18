@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 <<<<<<< HEAD
@@ -40,10 +41,13 @@ import os from "node:os";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -78,6 +82,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types.js";
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
+=======
+import fs from "node:fs/promises";
+import os from "node:os";
+import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
 <<<<<<< HEAD
 =======

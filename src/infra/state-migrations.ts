@@ -4,6 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -21,12 +22,19 @@ import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { SessionEntry } from "../config/sessions.js";
+import type { SessionScope } from "../config/sessions/types.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   resolveLegacyStateDir,
   resolveNewStateDir,
   resolveOAuthDir,
   resolveStateDir,
 } from "../config/paths.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { SessionEntry } from "../config/sessions.js";
@@ -48,6 +56,10 @@ import { saveSessionStore } from "../config/sessions.js";
 import { canonicalizeMainSessionAlias } from "../config/sessions/main-session.js";
 import type { SessionScope } from "../config/sessions/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { saveSessionStore } from "../config/sessions.js";
+import { canonicalizeMainSessionAlias } from "../config/sessions/main-session.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   buildAgentMainSessionKey,

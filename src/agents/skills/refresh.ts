@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import chokidar, { type FSWatcher } from "chokidar";
 =======
@@ -28,6 +29,11 @@ import chokidar, { type FSWatcher } from "chokidar";
 =======
 import chokidar, { type FSWatcher } from "chokidar";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import chokidar, { type FSWatcher } from "chokidar";
+import os from "node:os";
+import path from "node:path";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createSubsystemLogger } from "../../logging/subsystem.js";

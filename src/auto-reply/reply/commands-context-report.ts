@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveSessionAgentIds } from "../../agents/agent-scope.js";
 <<<<<<< HEAD
 import { resolveBootstrapMaxChars } from "../../agents/pi-embedded-helpers.js";
@@ -23,6 +24,11 @@ import type { HandleCommandsParams } from "./commands-types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { SessionSystemPromptReport } from "../../config/sessions/types.js";
+import type { ReplyPayload } from "../types.js";
+import type { HandleCommandsParams } from "./commands-types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   resolveBootstrapMaxChars,
   resolveBootstrapTotalMaxChars,
@@ -46,9 +52,8 @@ import type { ReplyPayload } from "../types.js";
 import type { HandleCommandsParams } from "./commands-types.js";
 =======
 import { buildSystemPromptReport } from "../../agents/system-prompt-report.js";
-import type { SessionSystemPromptReport } from "../../config/sessions/types.js";
-import type { ReplyPayload } from "../types.js";
 import { resolveCommandsSystemPromptBundle } from "./commands-system-prompt.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -61,6 +66,8 @@ import type { HandleCommandsParams } from "./commands-types.js";
 =======
 import type { HandleCommandsParams } from "./commands-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 function estimateTokensFromChars(chars: number): number {
   return Math.ceil(Math.max(0, chars) / 4);

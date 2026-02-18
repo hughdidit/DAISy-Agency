@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 
@@ -27,6 +28,8 @@ import os from "node:os";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 >>>>>>> 9bd2ccb01 (feat: add pre-prompt context size diagnostic logging (openclaw#8930) thanks @Glucksberg)
 import {
@@ -36,6 +39,7 @@ import {
   SessionManager,
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -93,11 +97,20 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
 import type { OpenClawConfig } from "../../config/config.js";
+=======
+import fs from "node:fs/promises";
+import os from "node:os";
+import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ExecElevatedDefaults } from "../bash-tools.js";
 import type { EmbeddedPiCompactResult } from "./types.js";
 import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
 import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
+<<<<<<< HEAD
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getMachineDisplayName } from "../../infra/machine-name.js";
 <<<<<<< HEAD
 =======
@@ -183,6 +196,7 @@ import { splitSdkTools } from "./tool-split.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { EmbeddedPiCompactResult } from "./types.js";
 <<<<<<< HEAD
 import { formatUserTime, resolveUserTimeFormat, resolveUserTimezone } from "../date-time.js";
@@ -203,6 +217,8 @@ import type { EmbeddedPiCompactResult } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { describeUnknownError, mapThinkingLevel } from "./utils.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { flushPendingToolResultsAfterIdle } from "./wait-for-idle-before-flush.js";

@@ -5,17 +5,21 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OnboardOptions } from "../commands/onboard-types.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
 import type { WizardPrompter } from "./prompts.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 0d1eceb9c (Revert "Onboarding: fix webchat URL loopback and canonical session")
 =======
@@ -24,6 +28,8 @@ import type { WizardPrompter } from "./prompts.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../agents/workspace.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -62,6 +68,7 @@ import {
   waitForGatewayReachable,
   resolveControlUiLinks,
 } from "../commands/onboard-helpers.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -110,10 +117,16 @@ import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { resolveGatewayService } from "../daemon/service.js";
+import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
+import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { restoreTerminalState } from "../terminal/restore.js";
 >>>>>>> 58d5b39c9 (Onboarding: keep TUI flow exclusive)
 import { runTui } from "../tui/tui.js";
 import { resolveUserPath } from "../utils.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -147,6 +160,9 @@ import { setupOnboardingShellCompletion } from "./onboarding.completion.js";
 import type { GatewayWizardSettings, WizardFlow } from "./onboarding.types.js";
 import type { WizardPrompter } from "./prompts.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { setupOnboardingShellCompletion } from "./onboarding.completion.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type FinalizeOnboardingOptions = {
   flow: WizardFlow;

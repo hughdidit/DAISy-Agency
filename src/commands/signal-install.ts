@@ -7,6 +7,7 @@ import { pipeline } from "node:stream/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 =======
@@ -14,11 +15,13 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { extractArchive } from "../infra/archive.js";
 import { resolveBrewExecutable } from "../infra/brew.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { runCommandWithTimeout } from "../process/exec.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { CONFIG_DIR } from "../utils.js";
 
 export type ReleaseAsset = {

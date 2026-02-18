@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 import { resolveGatewayService } from "./service.js";
 =======
@@ -10,6 +11,9 @@ import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   NODE_SERVICE_KIND,
   NODE_SERVICE_MARKER,
@@ -21,6 +25,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 =======
@@ -28,6 +33,8 @@ import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 =======
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveGatewayService } from "./service.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

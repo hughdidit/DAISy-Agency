@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { stripHeartbeatToken } from "../heartbeat.js";
 import { HEARTBEAT_TOKEN, isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
 import type { ReplyPayload } from "../types.js";
@@ -11,10 +12,12 @@ import { sanitizeUserFacingText } from "../../agents/pi-embedded-helpers.js";
 =======
 import type { ReplyPayload } from "../types.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import type { ReplyPayload } from "../types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { sanitizeUserFacingText } from "../../agents/pi-embedded-helpers.js";
 import { stripHeartbeatToken } from "../heartbeat.js";
 import { HEARTBEAT_TOKEN, isSilentReplyText, SILENT_REPLY_TOKEN } from "../tokens.js";
-import type { ReplyPayload } from "../types.js";
 import { hasLineDirectives, parseLineDirectives } from "./line-directives.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {

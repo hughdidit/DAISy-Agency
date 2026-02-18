@@ -1,6 +1,9 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { MsgContext } from "../templating.js";
 import { resolveAgentConfig } from "../../agents/agent-scope.js";
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -27,6 +30,9 @@ import type { OpenClawConfig } from "../../config/config.js";
 import { escapeRegExp } from "../../utils.js";
 import type { MsgContext } from "../templating.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { escapeRegExp } from "../../utils.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 function deriveMentionPatterns(identity?: { name?: string; emoji?: string }) {
   const patterns: string[] = [];

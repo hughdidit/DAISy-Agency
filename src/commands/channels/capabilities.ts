@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
 import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
 import type { ChannelCapabilities, ChannelPlugin } from "../../channels/plugins/types.js";
@@ -22,6 +23,12 @@ import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/ind
 import type { ChannelCapabilities, ChannelPlugin } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ChannelCapabilities, ChannelPlugin } from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import { resolveChannelDefaultAccountId } from "../../channels/plugins/helpers.js";
+import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { fetchChannelPermissionsDiscord } from "../../discord/send.js";
 import { parseDiscordTarget } from "../../discord/targets.js";
 import { danger } from "../../globals.js";

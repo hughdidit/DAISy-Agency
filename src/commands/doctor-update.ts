@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import type { RuntimeEnv } from "../runtime.js";
@@ -8,14 +9,18 @@ import type { DoctorOptions } from "./doctor-prompter.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import type { DoctorOptions } from "./doctor-prompter.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { formatCliCommand } from "../cli/command-format.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { runGatewayUpdate } from "../infra/update-runner.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -28,6 +33,8 @@ import type { DoctorOptions } from "./doctor-prompter.js";
 =======
 import type { DoctorOptions } from "./doctor-prompter.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 async function detectMoltbotGitCheckout(root: string): Promise<"git" | "not-git" | "unknown"> {
   const res = await runCommandWithTimeout(["git", "-C", root, "rev-parse", "--show-toplevel"], {

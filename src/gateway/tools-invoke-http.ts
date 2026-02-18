@@ -3,6 +3,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { createMoltbotTools } from "../agents/moltbot-tools.js";
 =======
@@ -14,6 +15,9 @@ import type { AuthRateLimiter } from "./auth-rate-limit.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { AuthRateLimiter } from "./auth-rate-limit.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { createOpenClawTools } from "../agents/openclaw-tools.js";
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import {
@@ -60,6 +64,7 @@ import { normalizeMessageChannel } from "../utils/message-channel.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
@@ -69,6 +74,8 @@ import type { AuthRateLimiter } from "./auth-rate-limit.js";
 =======
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { authorizeGatewayConnect, type ResolvedGatewayAuth } from "./auth.js";
 import { getBearerToken, getHeader } from "./http-utils.js";
 import {

@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -14,6 +15,10 @@ import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { GatewayRequestHandlers } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   listAgentIds,
   resolveAgentWorkspaceDir,
@@ -30,6 +35,7 @@ import { listAgentWorkspaceDirs } from "../../agents/workspace-dirs.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 42b0d6f43 (refactor(agents): share workspace dir enumeration)
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -39,6 +45,8 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadConfig, writeConfigFile } from "../../config/config.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
@@ -52,7 +60,6 @@ import {
   validateSkillsStatusParams,
   validateSkillsUpdateParams,
 } from "../protocol/index.js";
-import type { GatewayRequestHandlers } from "./types.js";
 
 <<<<<<< HEAD
 function listWorkspaceDirs(cfg: MoltbotConfig): string[] {

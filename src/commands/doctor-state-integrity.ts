@@ -4,6 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -19,6 +20,10 @@ import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveOAuthDir, resolveStateDir } from "../config/paths.js";
 import {
   loadSessionStore,

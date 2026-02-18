@@ -18,9 +18,11 @@ vi.mock("./accounts.js", () => ({
 =======
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./test-mocks.js";
+import type { BlueBubblesAttachment } from "./types.js";
 import { downloadBlueBubblesAttachment, sendBlueBubblesAttachment } from "./attachments.js";
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -33,6 +35,8 @@ import type { BlueBubblesAttachment } from "./types.js";
 =======
 import type { BlueBubblesAttachment } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 const mockFetch = vi.fn();
 

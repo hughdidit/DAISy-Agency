@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { CliDeps } from "../cli/deps.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { CronJob } from "./types.js";
 =======
@@ -26,6 +27,10 @@ import { makeCfg, makeJob, withTempCronHome } from "./isolated-agent.test-harnes
 import { makeCfg, makeJob, withTempCronHome } from "./isolated-agent.test-harness.js";
 import type { CronJob } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { CronJob } from "./types.js";
+import { makeCfg, makeJob, withTempCronHome } from "./isolated-agent.test-harness.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 vi.mock("../agents/pi-embedded.js", () => ({
   abortEmbeddedPiRun: vi.fn().mockReturnValue(false),

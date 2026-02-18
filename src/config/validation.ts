@@ -2,6 +2,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -10,6 +11,9 @@ import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { CHANNEL_IDS, normalizeChatChannelId } from "../channels/registry.js";
 import {
@@ -26,6 +30,7 @@ import { findLegacyConfigIssues } from "./legacy.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig, ConfigValidationIssue } from "./types.js";
 import { MoltbotSchema } from "./zod-schema.js";
 =======
@@ -35,6 +40,8 @@ import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
 =======
 import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { OpenClawSchema } from "./zod-schema.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

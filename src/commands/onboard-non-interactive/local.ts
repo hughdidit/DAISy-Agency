@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveGatewayPort, writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
@@ -16,9 +17,15 @@ import type { OnboardOptions } from "../onboard-types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { formatCliCommand } from "../../cli/command-format.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../config/config.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import type { OnboardOptions } from "../onboard-types.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 import { resolveGatewayPort, writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
@@ -28,6 +35,8 @@ import type { RuntimeEnv } from "../../runtime.js";
 =======
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME } from "../daemon-runtime.js";
 import { healthCommand } from "../health.js";
 import { applyOnboardingLocalWorkspaceConfig } from "../onboard-config.js";
@@ -40,6 +49,7 @@ import {
 } from "../onboard-helpers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { OnboardOptions } from "../onboard-types.js";
 <<<<<<< HEAD
 
@@ -49,6 +59,8 @@ import type { OnboardOptions } from "../onboard-types.js";
 =======
 import type { OnboardOptions } from "../onboard-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { inferAuthChoiceFromFlags } from "./local/auth-choice-inference.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyNonInteractiveAuthChoice } from "./local/auth-choice.js";

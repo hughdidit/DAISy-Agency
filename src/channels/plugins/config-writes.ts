@@ -5,6 +5,7 @@ import type { ChannelId } from "./types.js";
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeAccountId } from "../../routing/session-key.js";
 =======
@@ -13,7 +14,10 @@ import type { ChannelId } from "./types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { normalizeAccountId } from "../../routing/session-key.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ChannelId } from "./types.js";
+import { normalizeAccountId } from "../../routing/session-key.js";
 
 type ChannelConfigWithAccounts = {
   configWrites?: boolean;

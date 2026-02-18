@@ -17,6 +17,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { Logger } from "../manager/context.js";
 import { defaultLogger, sanitizeLogValue } from "../manager/context.js";
 =======
@@ -28,7 +29,10 @@ import type { VoiceCallProvider } from "./base.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { verifyTelnyxWebhook } from "../webhook-security.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { VoiceCallProvider } from "./base.js";
+import { verifyTelnyxWebhook } from "../webhook-security.js";
 
 /**
  * Telnyx Voice API provider implementation.

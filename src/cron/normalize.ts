@@ -14,6 +14,7 @@ import { inferLegacyName } from "./service/normalize.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { CronJobCreate, CronJobPatch } from "./types.js";
 =======
@@ -24,6 +25,9 @@ import type { CronJobCreate, CronJobPatch } from "./types.js";
 =======
 import { normalizeCronStaggerMs, resolveDefaultCronStaggerMs } from "./stagger.js";
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
+=======
+import { normalizeCronStaggerMs, resolveDefaultCronStaggerMs } from "./stagger.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type UnknownRecord = Record<string, unknown>;
 

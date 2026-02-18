@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { normalizeAccountId } from "../routing/session-key.js";
 <<<<<<< HEAD
@@ -14,8 +15,12 @@ import type { MarkdownTableMode } from "./types.base.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { normalizeAccountId } from "../routing/session-key.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "./config.js";
 import type { MarkdownTableMode } from "./types.base.js";
+import { normalizeChannelId } from "../channels/plugins/index.js";
+import { normalizeAccountId } from "../routing/session-key.js";
 
 type MarkdownConfigEntry = {
   markdown?: {

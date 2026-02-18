@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { OpenClawConfig } from "./types.js";
 =======
@@ -24,6 +25,11 @@ import { isPlainObject } from "../utils.js";
 import { parseConfigPath, setConfigValueAtPath, unsetConfigValueAtPath } from "./config-paths.js";
 import type { OpenClawConfig } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "./types.js";
+import { isPlainObject } from "../utils.js";
+import { parseConfigPath, setConfigValueAtPath, unsetConfigValueAtPath } from "./config-paths.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type OverrideTree = Record<string, unknown>;
 

@@ -7,12 +7,16 @@ import type { BrowserProfileConfig, MoltbotConfig } from "../config/config.js";
 import type { BrowserProfileConfig, OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { BrowserRouteContext, ProfileStatus } from "./server-context.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { BrowserRouteContext, ProfileStatus } from "./server-context.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadConfig, writeConfigFile } from "../config/config.js";
 import { deriveDefaultBrowserCdpPortRange } from "../config/port-defaults.js";
 import { DEFAULT_BROWSER_DEFAULT_PROFILE_NAME } from "./constants.js";
@@ -25,7 +29,6 @@ import {
   getUsedPorts,
   isValidProfileName,
 } from "./profiles.js";
-import type { BrowserRouteContext, ProfileStatus } from "./server-context.js";
 import { movePathToTrash } from "./trash.js";
 
 export type CreateProfileParams = {

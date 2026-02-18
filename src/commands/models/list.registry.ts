@@ -2,6 +2,7 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
 
 import { resolveMoltbotAgentDir } from "../../agents/agent-paths.js";
@@ -19,15 +20,21 @@ import type { AuthProfileStore } from "../../agents/auth-profiles.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { AuthProfileStore } from "../../agents/auth-profiles.js";
+=======
+import type { AuthProfileStore } from "../../agents/auth-profiles.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { ModelRow } from "./list.types.js";
 import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
 import type { AuthProfileStore } from "../../agents/auth-profiles.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { listProfilesForProvider } from "../../agents/auth-profiles.js";
 import {
   getCustomProviderApiKey,
@@ -52,8 +59,8 @@ import {
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
 import { ensurePiAuthJsonFromAuthProfiles } from "../../agents/pi-auth-json.js";
-import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
 import { discoverAuthStorage, discoverModels } from "../../agents/pi-model-discovery.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -68,11 +75,14 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   formatErrorWithStack,
   MODEL_AVAILABILITY_UNAVAILABLE_CODE,
   shouldFallbackToAuthHeuristics,
 } from "./list.errors.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -86,6 +96,8 @@ import type { ModelRow } from "./list.types.js";
 =======
 import type { ModelRow } from "./list.types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { isLocalBaseUrl, modelKey } from "./shared.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

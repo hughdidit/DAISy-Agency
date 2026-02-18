@@ -1,6 +1,7 @@
 import type { ChannelId } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeAccountId } from "../routing/session-key.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "./config.js";
@@ -10,9 +11,12 @@ import type { MoltbotConfig } from "./config.js";
 =======
 import { normalizeAccountId } from "../routing/session-key.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "./config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { GroupToolPolicyBySenderConfig, GroupToolPolicyConfig } from "./types.tools.js";
+import { normalizeAccountId } from "../routing/session-key.js";
 
 export type GroupPolicyChannel = ChannelId;
 

@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -17,8 +18,14 @@ import type { AnyAgentTool } from "./common.js";
 import path from "node:path";
 import { Type } from "@sinclair/typebox";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { Type } from "@sinclair/typebox";
+import path from "node:path";
+import type { AnyAgentTool } from "./common.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { isSubagentSessionKey, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
@@ -37,6 +44,9 @@ import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 =======
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { jsonResult, readStringArrayParam } from "./common.js";
 import {
   createSessionVisibilityGuard,

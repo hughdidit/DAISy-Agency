@@ -7,6 +7,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 import { discoverAuthStorage, discoverModels } from "@mariozechner/pi-coding-agent";
@@ -20,6 +21,8 @@ import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { describe, expect, it } from "vitest";
 import { isTruthyEnvValue } from "../infra/env.js";
 import {

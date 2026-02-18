@@ -1,4 +1,5 @@
 import net from "node:net";
+import type { PortListener, PortUsage, PortUsageStatus } from "./ports-types.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 <<<<<<< HEAD
 =======
@@ -6,6 +7,7 @@ import { isErrno } from "./errors.js";
 import { buildPortHints } from "./ports-format.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { resolveLsofCommand } from "./ports-lsof.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -18,6 +20,8 @@ import type { PortListener, PortUsage, PortUsageStatus } from "./ports-types.js"
 =======
 import type { PortListener, PortUsage, PortUsageStatus } from "./ports-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type CommandResult = {
   stdout: string;

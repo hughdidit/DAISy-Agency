@@ -2,6 +2,7 @@ import type { SlackEventMiddlewareArgs } from "@slack/bolt";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -11,12 +12,14 @@ import type { SlackReactionEvent } from "../types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { SlackMonitorContext } from "../context.js";
+import type { SlackReactionEvent } from "../types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { danger } from "../../../globals.js";
 import { enqueueSystemEvent } from "../../../infra/system-events.js";
 
 import { resolveSlackChannelLabel } from "../channel-config.js";
-import type { SlackMonitorContext } from "../context.js";
-import type { SlackReactionEvent } from "../types.js";
 
 export function registerSlackReactionEvents(params: { ctx: SlackMonitorContext }) {
   const { ctx } = params;

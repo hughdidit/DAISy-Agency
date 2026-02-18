@@ -1,4 +1,6 @@
+import type { ChannelOutboundAdapter } from "../types.js";
 import { sendMessageDiscord, sendPollDiscord } from "../../../discord/send.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { ChannelOutboundAdapter } from "../types.js";
@@ -16,6 +18,9 @@ import { normalizeDiscordOutboundTarget } from "../normalize/discord.js";
 =======
 import type { ChannelOutboundAdapter } from "../types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { normalizeDiscordOutboundTarget } from "../normalize/discord.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export const discordOutbound: ChannelOutboundAdapter = {
   deliveryMode: "direct",

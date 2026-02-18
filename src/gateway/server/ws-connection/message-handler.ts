@@ -1,6 +1,7 @@
 import type { IncomingMessage } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import os from "node:os";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -25,6 +26,14 @@ import type { WebSocket } from "ws";
 import os from "node:os";
 import type { WebSocket } from "ws";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { WebSocket } from "ws";
+import os from "node:os";
+import type { createSubsystemLogger } from "../../../logging/subsystem.js";
+import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
+import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
+import type { GatewayWsClient } from "../ws-types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadConfig } from "../../../config/config.js";
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import {
@@ -45,7 +54,6 @@ import { recordRemoteNodeInfo, refreshRemoteNodeBins } from "../../../infra/skil
 import { loadVoiceWakeConfig } from "../../../infra/voicewake.js";
 import { upsertPresence } from "../../../infra/system-presence.js";
 import { rawDataToString } from "../../../infra/ws.js";
-import type { createSubsystemLogger } from "../../../logging/subsystem.js";
 import { isGatewayCliClient, isWebchatClient } from "../../../utils/message-channel.js";
 <<<<<<< HEAD
 import type { ResolvedGatewayAuth } from "../../auth.js";
@@ -58,6 +66,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 =======
 import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
@@ -67,6 +76,8 @@ import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
 =======
 import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
 import { loadConfig } from "../../../config/config.js";
 import { buildDeviceAuthPayload } from "../../device-auth.js";
@@ -87,7 +98,6 @@ import { GATEWAY_CLIENT_IDS } from "../../protocol/client-info.js";
 import { MAX_BUFFERED_BYTES, MAX_PAYLOAD_BYTES, TICK_INTERVAL_MS } from "../../server-constants.js";
 import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
 import { handleGatewayRequest } from "../../server-methods.js";
-import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
 import { formatError } from "../../server-utils.js";
 import { formatForLog, logWs } from "../../ws-log.js";
 
@@ -99,6 +109,7 @@ import {
   incrementPresenceVersion,
   refreshGatewayHealthSnapshot,
 } from "../health-state.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -121,6 +132,8 @@ import type { GatewayWsClient } from "../ws-types.js";
 =======
 import type { GatewayWsClient } from "../ws-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { formatGatewayAuthFailureMessage, type AuthProvidedKind } from "./auth-messages.js";
 >>>>>>> 1843bcf1d (refactor(gateway): share host header parsing)
 

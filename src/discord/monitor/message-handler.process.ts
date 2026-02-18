@@ -1,4 +1,6 @@
 import { ChannelType } from "@buape/carbon";
+import type { ReplyPayload } from "../../auto-reply/types.js";
+import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
 import { resolveAckReaction, resolveHumanDelayConfig } from "../../agents/identity.js";
 <<<<<<< HEAD
 import {
@@ -34,6 +36,7 @@ import { createReplyDispatcherWithTyping } from "../../auto-reply/reply/reply-di
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ReplyPayload } from "../../auto-reply/types.js";
 =======
 =======
@@ -44,6 +47,8 @@ import type { ReplyPayload } from "../../auto-reply/types.js";
 =======
 import type { ReplyPayload } from "../../auto-reply/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { shouldAckReaction as shouldAckReactionGate } from "../../channels/ack-reactions.js";
 import { logTypingFailure, logAckFailure } from "../../channels/logging.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
@@ -73,10 +78,13 @@ import type { DiscordMessagePreflightContext } from "./message-handler.preflight
 import { normalizeDiscordSlug, resolveDiscordOwnerAllowFrom } from "./allow-list.js";
 import { resolveTimestampMs } from "./format.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   buildDiscordMediaPayload,
   resolveDiscordMessageText,

@@ -2,6 +2,7 @@ import fs from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import { listAgentIds, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
@@ -20,6 +21,11 @@ import { listAgentIds, resolveAgentWorkspaceDir } from "../agents/agent-scope.js
 import { buildWorkspaceSkillCommandSpecs, type SkillCommandSpec } from "../agents/skills.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { listAgentIds, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
+import { buildWorkspaceSkillCommandSpecs, type SkillCommandSpec } from "../agents/skills.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getRemoteSkillEligibility } from "../infra/skills-remote.js";
 import { buildWorkspaceSkillCommandSpecs, type SkillCommandSpec } from "../agents/skills.js";
 import { listChatCommands } from "./commands-registry.js";

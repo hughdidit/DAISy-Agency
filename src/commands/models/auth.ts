@@ -3,6 +3,7 @@ import { confirm as clackConfirm, select as clackSelect, text as clackText } fro
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { upsertAuthProfile } from "../../agents/auth-profiles.js";
 import { normalizeProviderId } from "../../agents/model-selection.js";
@@ -20,6 +21,11 @@ import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js";
+import type { ProviderAuthResult, ProviderPlugin } from "../../plugins/types.js";
+import type { RuntimeEnv } from "../../runtime.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   resolveAgentDir,
   resolveAgentWorkspaceDir,
@@ -28,7 +34,6 @@ import {
 <<<<<<< HEAD
 =======
 import { upsertAuthProfile } from "../../agents/auth-profiles.js";
-import type { AuthProfileCredential } from "../../agents/auth-profiles/types.js";
 import { normalizeProviderId } from "../../agents/model-selection.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
@@ -45,6 +50,7 @@ import { logConfigUpdated } from "../../config/logging.js";
 import { resolvePluginProviders } from "../../plugins/providers.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ProviderAuthResult, ProviderPlugin } from "../../plugins/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../../runtime.js";
@@ -54,6 +60,8 @@ import type { RuntimeEnv } from "../../runtime.js";
 import type { ProviderAuthResult, ProviderPlugin } from "../../plugins/types.js";
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { stylePromptHint, stylePromptMessage } from "../../terminal/prompt-style.js";
 import { applyAuthProfileConfig } from "../onboard-auth.js";
 import { isRemoteEnvironment } from "../oauth-env.js";

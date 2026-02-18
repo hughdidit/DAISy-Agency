@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { SystemPresence } from "../infra/system-presence.js";
 =======
@@ -13,7 +14,10 @@ import type { SystemPresence } from "../infra/system-presence.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { formatErrorMessage } from "../infra/errors.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { SystemPresence } from "../infra/system-presence.js";
+import { formatErrorMessage } from "../infra/errors.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { GatewayClient } from "./client.js";
 

@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { withProgress } from "../cli/progress.js";
@@ -22,6 +23,12 @@ import { loadConfig } from "../config/config.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import { withProgress } from "../cli/progress.js";
+import { loadConfig } from "../config/config.js";
+import { resolveGatewayService } from "../daemon/service.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { note } from "../terminal/note.js";
 import { confirm, select } from "./configure.shared.js";
 import {

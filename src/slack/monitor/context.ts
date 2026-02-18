@@ -4,6 +4,7 @@ import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig, SlackReactionNotificationMode } from "../../config/config.js";
 =======
 import type { OpenClawConfig, SlackReactionNotificationMode } from "../../config/config.js";
@@ -31,10 +32,19 @@ import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 import type { OpenClawConfig, SlackReactionNotificationMode } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveSessionKey, type SessionScope } from "../../config/sessions.js";
+=======
+import type { OpenClawConfig, SlackReactionNotificationMode } from "../../config/config.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { DmPolicy, GroupPolicy } from "../../config/types.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import type { SlackMessageEvent } from "../types.js";
+import type { SlackChannelConfigEntries } from "./channel-config.js";
+import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
+import { resolveSessionKey, type SessionScope } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
 import { createDedupeCache } from "../../infra/dedupe.js";
 import { getChildLogger } from "../../logging.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
@@ -50,8 +60,9 @@ import { formatAllowlistMatchMeta } from "../../channels/allowlist-match.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { SlackMessageEvent } from "../types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { normalizeAllowList, normalizeAllowListLower, normalizeSlackSlug } from "./allow-list.js";
-import type { SlackChannelConfigEntries } from "./channel-config.js";
 import { resolveSlackChannelConfig } from "./channel-config.js";
 import { isSlackChannelAllowedByPolicy } from "./policy.js";
 

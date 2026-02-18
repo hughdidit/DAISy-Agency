@@ -1,8 +1,3 @@
-import { isToolAllowedByPolicies } from "../agents/pi-tools.policy.js";
-import {
-  resolveSandboxConfigForAgent,
-  resolveSandboxToolPolicyForAgent,
-} from "../agents/sandbox.js";
 /**
  * Synchronous security audit collector functions.
  *
@@ -12,8 +7,11 @@ import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../config/config.js";
 import type { AgentToolsConfig } from "../config/types.tools.js";
 import { isToolAllowedByPolicies } from "../agents/pi-tools.policy.js";
@@ -22,18 +20,19 @@ import {
   resolveSandboxToolPolicyForAgent,
 } from "../agents/sandbox.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getBlockedBindReason } from "../agents/sandbox/validate-sandbox-security.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import { resolveBrowserConfig } from "../browser/config.js";
 import { formatCliCommand } from "../cli/command-format.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { AgentToolsConfig } from "../config/types.tools.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { resolveNodeCommandAllowlist } from "../gateway/node-command-policy.js";
 import { inferParamBFromIdOrName } from "../shared/model-param-b.js";

@@ -6,6 +6,7 @@ import type { GatewayRequestContext } from "./types.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { sendHandlers } from "./send.js";
 =======
@@ -14,7 +15,10 @@ import type { GatewayRequestContext } from "./types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { sendHandlers } from "./send.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { GatewayRequestContext } from "./types.js";
+import { sendHandlers } from "./send.js";
 
 const mocks = vi.hoisted(() => ({
   deliverOutboundPayloads: vi.fn(),

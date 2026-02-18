@@ -1,14 +1,16 @@
+import type { AgentIdentityFile } from "../agents/identity-file.js";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   resolveAgentDir,
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
 } from "../agents/agent-scope.js";
-import type { AgentIdentityFile } from "../agents/identity-file.js";
 import {
   identityHasValues,
   loadAgentIdentityFromWorkspace,
   parseIdentityMarkdown as parseIdentityMarkdownFile,
 } from "../agents/identity-file.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -21,6 +23,8 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { normalizeAgentId } from "../routing/session-key.js";
 
 export type AgentSummary = {

@@ -3,6 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY } from "../compat/legacy-names.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -36,15 +37,9 @@ import type {
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { MANIFEST_KEY } from "../compat/legacy-names.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../config/config.js";
-import { CONFIG_DIR, resolveUserPath } from "../utils.js";
-import { resolveBundledHooksDir } from "./bundled-dir.js";
-import { shouldIncludeHook } from "./config.js";
-import {
-  parseFrontmatter,
-  resolveOpenClawMetadata,
-  resolveHookInvocationPolicy,
-} from "./frontmatter.js";
 import type {
   Hook,
   HookEligibilityContext,
@@ -53,6 +48,15 @@ import type {
   HookSource,
   ParsedHookFrontmatter,
 } from "./types.js";
+import { MANIFEST_KEY } from "../compat/legacy-names.js";
+import { CONFIG_DIR, resolveUserPath } from "../utils.js";
+import { resolveBundledHooksDir } from "./bundled-dir.js";
+import { shouldIncludeHook } from "./config.js";
+import {
+  parseFrontmatter,
+  resolveOpenClawMetadata,
+  resolveHookInvocationPolicy,
+} from "./frontmatter.js";
 
 type HookPackageManifest = {
   name?: string;

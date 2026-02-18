@@ -1,7 +1,10 @@
+import type { AgentElevatedAllowFromConfig, OpenClawConfig } from "../../config/config.js";
+import type { MsgContext } from "../templating.js";
 import { resolveAgentConfig } from "../../agents/agent-scope.js";
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
 import { CHAT_CHANNEL_ORDER } from "../../channels/registry.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -19,8 +22,9 @@ import type { AgentElevatedAllowFromConfig, OpenClawConfig } from "../../config/
 =======
 import type { AgentElevatedAllowFromConfig, OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
-import type { MsgContext } from "../templating.js";
 export { formatElevatedUnavailableMessage } from "./elevated-unavailable.js";
 >>>>>>> e401e2584 (refactor(auto-reply): share elevated unavailable message)
 

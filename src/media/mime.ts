@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -11,7 +12,10 @@ import { fileTypeFromBuffer } from "file-type";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import path from "node:path";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { fileTypeFromBuffer } from "file-type";
+import path from "node:path";
 import { type MediaKind, mediaKindFromMime } from "./constants.js";
 
 // Map common mimes to preferred file extensions.

@@ -6,11 +6,14 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type {
@@ -26,6 +29,7 @@ import type {
   MediaUnderstandingProvider,
 } from "./types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -35,11 +39,15 @@ import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 =======
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { resolveApiKeyForProvider } from "../agents/model-auth.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   findModelInCatalog,
   loadModelCatalog,
   modelSupportsVision,
 } from "../agents/model-catalog.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -64,6 +72,8 @@ import type {
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { runExec } from "../process/exec.js";
 import type {
@@ -121,6 +131,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 =======
 =======
@@ -139,6 +150,8 @@ import type {
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 <<<<<<< HEAD
 const AUTO_AUDIO_KEY_PROVIDERS = ["openai", "groq", "deepgram", "google"] as const;

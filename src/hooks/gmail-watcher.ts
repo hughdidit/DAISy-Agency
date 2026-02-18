@@ -8,6 +8,7 @@
 import { type ChildProcess, spawn } from "node:child_process";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { hasBinary } from "../agents/skills.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
@@ -22,6 +23,10 @@ import { hasBinary } from "../agents/skills.js";
 import { hasBinary } from "../agents/skills.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { hasBinary } from "../agents/skills.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import {

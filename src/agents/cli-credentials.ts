@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { execSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -14,10 +15,14 @@ import type { OAuthCredentials, OAuthProvider } from "@mariozechner/pi-ai";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OAuthCredentials, OAuthProvider } from "@mariozechner/pi-ai";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { execFileSync, execSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { OAuthCredentials, OAuthProvider } from "@mariozechner/pi-ai";
@@ -27,6 +32,8 @@ import type { OAuthCredentials, OAuthProvider } from "@mariozechner/pi-ai";
 =======
 import type { OAuthCredentials, OAuthProvider } from "@mariozechner/pi-ai";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadJsonFile, saveJsonFile } from "../infra/json-file.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveUserPath } from "../utils.js";

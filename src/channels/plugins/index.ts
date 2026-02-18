@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { CHAT_CHANNEL_ORDER, type ChatChannelId, normalizeAnyChannelId } from "../registry.js";
 import type { ChannelId, ChannelPlugin } from "./types.js";
 import { requireActivePluginRegistry } from "../../plugins/runtime.js";
@@ -19,6 +20,11 @@ import { requireActivePluginRegistry } from "../../plugins/runtime.js";
 import { CHAT_CHANNEL_ORDER, type ChatChannelId, normalizeAnyChannelId } from "../registry.js";
 import type { ChannelId, ChannelPlugin } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ChannelId, ChannelPlugin } from "./types.js";
+import { requireActivePluginRegistry } from "../../plugins/runtime.js";
+import { CHAT_CHANNEL_ORDER, type ChatChannelId, normalizeAnyChannelId } from "../registry.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 // Channel plugins registry (runtime).
 //

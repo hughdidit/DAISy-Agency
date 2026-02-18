@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { DEFAULT_CRON_FORM } from "../app-defaults";
 import type { CronJob } from "../types";
@@ -19,7 +20,10 @@ import type { CronJob } from "../types.ts";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { DEFAULT_CRON_FORM } from "../app-defaults.ts";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { CronJob } from "../types.ts";
+import { DEFAULT_CRON_FORM } from "../app-defaults.ts";
 import { renderCron, type CronProps } from "./cron.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 

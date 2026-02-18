@@ -12,6 +12,7 @@ import {
 } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { buildTlonAccountFields } from "./account-fields.js";
 <<<<<<< HEAD
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
@@ -26,6 +27,10 @@ import { buildTlonAccountFields } from "./account-fields.js";
 import { buildTlonAccountFields } from "./account-fields.js";
 import type { TlonResolvedAccount } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { TlonResolvedAccount } from "./types.js";
+import { buildTlonAccountFields } from "./account-fields.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { listTlonAccountIds, resolveTlonAccount } from "./types.js";
 import type { TlonResolvedAccount } from "./types.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";

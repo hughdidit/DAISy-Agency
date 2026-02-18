@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -26,10 +27,14 @@ import type { RuntimeEnv } from "../runtime.js";
 import path from "node:path";
 import { cancel, confirm, isCancel, multiselect } from "@clack/prompts";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { cancel, confirm, isCancel, multiselect } from "@clack/prompts";
+import path from "node:path";
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { isNixMode } from "../config/config.js";
 >>>>>>> 813b96a80 (refactor(commands): share cleanup plan resolver)
 import { resolveGatewayService } from "../daemon/service.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { stylePromptHint, stylePromptMessage, stylePromptTitle } from "../terminal/prompt-style.js";
 import { resolveHomeDir } from "../utils.js";
 import { resolveCleanupPlanFromDisk } from "./cleanup-plan.js";

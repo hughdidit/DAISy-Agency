@@ -1,3 +1,5 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
@@ -15,6 +17,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -24,6 +27,8 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   loadSessionStore,
   resolveStorePath,
@@ -32,6 +37,7 @@ import {
 } from "../../config/sessions.js";
 import { parseAgentSessionKey } from "../../routing/session-key.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { normalizeCommandBody } from "../commands-registry.js";
@@ -51,6 +57,9 @@ import { normalizeCommandBody, type CommandNormalizeOptions } from "../commands-
 =======
 import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { normalizeCommandBody, type CommandNormalizeOptions } from "../commands-registry.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
 import { clearSessionQueues } from "./queue.js";
 import {

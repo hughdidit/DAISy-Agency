@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
 import type { MoltbotConfig } from "./types.js";
 =======
@@ -20,6 +21,10 @@ import { isPlainObject, resolveUserPath } from "../utils.js";
 import { isPlainObject, resolveUserPath } from "../utils.js";
 import type { OpenClawConfig } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "./types.js";
+import { isPlainObject, resolveUserPath } from "../utils.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 const PATH_VALUE_RE = /^~(?=$|[\\/])/;
 

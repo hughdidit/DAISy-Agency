@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { AuthProfileCredential, AuthProfileStore } from "./types.js";
 =======
@@ -11,6 +12,9 @@ import type { AuthProfileCredential, AuthProfileStore } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { AuthProfileCredential, AuthProfileStore } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
 >>>>>>> 42a07791c (fix(auth): strip line breaks from pasted keys)
 import { normalizeProviderId } from "../model-selection.js";
@@ -19,7 +23,6 @@ import {
   saveAuthProfileStore,
   updateAuthProfileStoreWithLock,
 } from "./store.js";
-import type { AuthProfileCredential, AuthProfileStore } from "./types.js";
 
 export function dedupeProfileIds(profileIds: string[]): string[] {
   return [...new Set(profileIds)];

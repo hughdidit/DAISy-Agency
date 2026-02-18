@@ -4,6 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { promisify } from "node:util";
 
 =======
@@ -22,6 +23,9 @@ import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { GatewayServiceRuntime } from "./service-runtime.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { splitArgsPreservingQuotes } from "./arg-split.js";
 <<<<<<< HEAD
 >>>>>>> 108ea4336 (refactor(daemon): share quoted arg splitter)
@@ -32,6 +36,7 @@ import { resolveGatewayServiceDescription, resolveGatewayWindowsTaskName } from 
 import { formatLine } from "./output.js";
 import { resolveGatewayStateDir } from "./paths.js";
 import { parseKeyValueOutput } from "./runtime-parse.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { GatewayServiceRuntime } from "./service-runtime.js";
@@ -51,6 +56,9 @@ import type { GatewayServiceRuntime } from "./service-runtime.js";
 =======
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { execSchtasks } from "./schtasks-exec.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 function resolveTaskName(env: Record<string, string | undefined>): string {
 <<<<<<< HEAD

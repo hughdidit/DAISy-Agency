@@ -1,5 +1,6 @@
 import type { ChannelDock } from "../channels/dock.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelId } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 import { normalizeAnyChannelId } from "../channels/registry.js";
@@ -21,15 +22,23 @@ import type { MsgContext } from "./templating.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { getChannelDock, listChannelDocks } from "../channels/dock.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ChannelId } from "../channels/plugins/types.js";
-import { normalizeAnyChannelId } from "../channels/registry.js";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../utils/message-channel.js";
 <<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 import type { MsgContext } from "./templating.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { MsgContext } from "./templating.js";
+import { getChannelDock, listChannelDocks } from "../channels/dock.js";
+import { normalizeAnyChannelId } from "../channels/registry.js";
+import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../utils/message-channel.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export type CommandAuthorization = {
   providerId?: ChannelId;

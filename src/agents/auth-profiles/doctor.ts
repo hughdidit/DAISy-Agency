@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
@@ -15,10 +16,14 @@ import { formatCliCommand } from "../../cli/command-format.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { AuthProfileStore } from "./types.js";
+import { formatCliCommand } from "../../cli/command-format.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { normalizeProviderId } from "../model-selection.js";
 import { listProfilesForProvider } from "./profiles.js";
 import { suggestOAuthProfileIdForLegacyDefault } from "./repair.js";
-import type { AuthProfileStore } from "./types.js";
 
 export function formatAuthDoctorHint(params: {
   cfg?: MoltbotConfig;

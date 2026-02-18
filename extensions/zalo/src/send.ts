@@ -5,6 +5,7 @@ import type { MoltbotConfig } from "clawdbot/plugin-sdk";
 import type { OpenClawConfig } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveZaloAccount } from "./accounts.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -13,7 +14,10 @@ import type { ZaloFetch } from "./api.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveZaloAccount } from "./accounts.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ZaloFetch } from "./api.js";
+import { resolveZaloAccount } from "./accounts.js";
 import { sendMessage, sendPhoto } from "./api.js";
 import { resolveZaloAccount } from "./accounts.js";
 import { resolveZaloProxyFetch } from "./proxy.js";

@@ -1,8 +1,11 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
-import { parseReplyDirectives } from "../../../auto-reply/reply/reply-directives.js";
 import type { ReasoningLevel, VerboseLevel } from "../../../auto-reply/thinking.js";
+import type { OpenClawConfig } from "../../../config/config.js";
+import type { ToolResultFormat } from "../../pi-embedded-subscribe.js";
+import { parseReplyDirectives } from "../../../auto-reply/reply/reply-directives.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../../../auto-reply/tokens.js";
 import { formatToolAggregate } from "../../../auto-reply/tool-meta.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -15,6 +18,8 @@ import type { OpenClawConfig } from "../../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   BILLING_ERROR_USER_MESSAGE,
   formatAssistantErrorText,
@@ -23,7 +28,6 @@ import {
   isRawApiErrorPayload,
   normalizeTextForComparison,
 } from "../../pi-embedded-helpers.js";
-import type { ToolResultFormat } from "../../pi-embedded-subscribe.js";
 import {
   extractAssistantText,
   extractAssistantThinking,

@@ -3,6 +3,7 @@ import { createReplyReferencePlanner } from "../../auto-reply/reply/reply-refere
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
 import type { ChunkMode } from "../../auto-reply/chunk.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { chunkMarkdownTextWithMode } from "../../auto-reply/chunk.js";
 <<<<<<< HEAD
 =======
@@ -20,9 +21,14 @@ import type { RuntimeEnv } from "../../runtime.js";
 import { chunkMarkdownTextWithMode } from "../../auto-reply/chunk.js";
 import { createReplyReferencePlanner } from "../../auto-reply/reply/reply-reference.js";
 import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { MarkdownTableMode } from "../../config/types.base.js";
 import type { RuntimeEnv } from "../../runtime.js";
+import { chunkMarkdownTextWithMode } from "../../auto-reply/chunk.js";
+import { createReplyReferencePlanner } from "../../auto-reply/reply/reply-reference.js";
+import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
 import { markdownToSlackMrkdwnChunks } from "../format.js";
 import { sendMessageSlack } from "../send.js";
 

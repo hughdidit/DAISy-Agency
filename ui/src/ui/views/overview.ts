@@ -6,6 +6,7 @@ import { html } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { GatewayHelloOk } from "../gateway";
 import { formatAgo, formatDurationMs } from "../format";
@@ -27,11 +28,15 @@ import type { UiSettings } from "../storage.ts";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { GatewayHelloOk } from "../gateway.ts";
+import type { UiSettings } from "../storage.ts";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { t, i18n, type Locale } from "../../i18n/index.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatRelativeTimestamp, formatDurationHuman } from "../format.ts";
-import type { GatewayHelloOk } from "../gateway.ts";
 import { formatNextRun } from "../presenter.ts";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -62,6 +67,8 @@ import type { UiSettings } from "../storage.ts";
 =======
 import type { UiSettings } from "../storage.ts";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export type OverviewProps = {
   connected: boolean;

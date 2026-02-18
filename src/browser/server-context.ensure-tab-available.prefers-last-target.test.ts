@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import fs from "node:fs/promises";
@@ -15,7 +16,10 @@ import { describe, expect, it, vi } from "vitest";
 =======
 import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
 >>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { BrowserServerState } from "./server-context.js";
+import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
 import "./server-context.chrome-test-harness.js";
 import { createBrowserRouteContext } from "./server-context.js";
 

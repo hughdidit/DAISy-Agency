@@ -3,6 +3,7 @@
  */
 
 import type { SandboxBrowserInfo, SandboxContainerInfo } from "../agents/sandbox.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
@@ -14,7 +15,6 @@ import {
 } from "./sandbox-formatters.js";
 =======
 import { formatDurationCompact } from "../infra/format-time/format-duration.ts";
-import type { RuntimeEnv } from "../runtime.js";
 import { formatImageMatch, formatSimpleStatus, formatStatus } from "./sandbox-formatters.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 

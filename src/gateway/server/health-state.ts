@@ -1,8 +1,10 @@
+import type { Snapshot } from "../protocol/index.js";
 import { resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { getHealthSnapshot, type HealthSummary } from "../../commands/health.js";
 import { CONFIG_PATH, STATE_DIR, loadConfig } from "../../config/config.js";
 import { resolveMainSessionKey } from "../../config/sessions.js";
 import { normalizeMainKey } from "../../routing/session-key.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { listSystemPresence } from "../../infra/system-presence.js";
@@ -21,6 +23,9 @@ import { resolveGatewayAuth } from "../auth.js";
 =======
 import type { Snapshot } from "../protocol/index.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { resolveGatewayAuth } from "../auth.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 let presenceVersion = 1;
 let healthVersion = 1;

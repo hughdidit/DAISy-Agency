@@ -3,8 +3,8 @@ import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
-import { createTelegramActionGate } from "../../telegram/accounts.js";
 import type { TelegramButtonStyle, TelegramInlineButtons } from "../../telegram/button-types.js";
+import { createTelegramActionGate } from "../../telegram/accounts.js";
 import {
   resolveTelegramInlineButtonsScope,
   resolveTelegramTargetChatType,

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { BrowserRouteContext } from "../server-context.js";
 <<<<<<< HEAD
 =======
@@ -15,6 +16,12 @@ import { createBrowserProfilesService } from "../profiles-service.js";
 import type { BrowserRouteContext } from "../server-context.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { BrowserRouteContext } from "../server-context.js";
+import type { BrowserRouteRegistrar } from "./types.js";
+import { resolveBrowserExecutableForPlatform } from "../chrome.executables.js";
+import { createBrowserProfilesService } from "../profiles-service.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getProfileContext, jsonError, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 

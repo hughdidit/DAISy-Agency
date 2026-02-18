@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { VoiceCallConfigSchema } from "./config.js";
 import { CallManager } from "./manager.js";
@@ -17,6 +18,8 @@ import { CallManager } from "./manager.js";
 import { VoiceCallConfigSchema } from "./config.js";
 import { CallManager } from "./manager.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { VoiceCallProvider } from "./providers/base.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
@@ -33,6 +36,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { VoiceCallProvider } from "./providers/base.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -42,6 +46,10 @@ import { CallManager } from "./manager.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { VoiceCallConfigSchema } from "./config.js";
+import { CallManager } from "./manager.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 class FakeProvider implements VoiceCallProvider {
   readonly name = "plivo" as const;

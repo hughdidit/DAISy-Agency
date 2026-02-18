@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/types.js";
 import type { SkillCommandSpec } from "../agents/skills.js";
 import { getChatCommands, getNativeCommandSurfaces } from "./commands-registry.data.js";
@@ -23,6 +24,10 @@ import type { OpenClawConfig } from "../config/types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { SkillCommandSpec } from "../agents/skills.js";
+import type { OpenClawConfig } from "../config/types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   ChatCommandDefinition,
   CommandArgChoiceContext,
@@ -39,13 +44,17 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { escapeRegExp } from "../utils.js";
 import { getChatCommands, getNativeCommandSurfaces } from "./commands-registry.data.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> ec910a235 (refactor: consolidate duplicate utility functions (#12439))
 =======
@@ -54,6 +63,8 @@ import { getChatCommands, getNativeCommandSurfaces } from "./commands-registry.d
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export type {
   ChatCommandDefinition,

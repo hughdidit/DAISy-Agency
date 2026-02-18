@@ -3,6 +3,7 @@ import type { Client } from "@buape/carbon";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js";
@@ -16,6 +17,10 @@ import type { DiscordMessagePreflightParams } from "./message-handler.preflight.
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js";
+import type { DiscordMessagePreflightParams } from "./message-handler.preflight.types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
 import {
   createInboundDebouncer,
@@ -24,6 +29,7 @@ import {
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import type { ReplyToMode } from "../../config/config.js";
 import { danger } from "../../globals.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -37,8 +43,9 @@ import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js"
 =======
 import type { DiscordMessageEvent, DiscordMessageHandler } from "./listeners.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { preflightDiscordMessage } from "./message-handler.preflight.js";
-import type { DiscordMessagePreflightParams } from "./message-handler.preflight.types.js";
 import { processDiscordMessage } from "./message-handler.process.js";
 import { resolveDiscordMessageChannelId, resolveDiscordMessageText } from "./message-utils.js";
 

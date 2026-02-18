@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -14,6 +15,10 @@ import type { ExecFn } from "./windows-acl.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { ExecFn } from "./windows-acl.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
 import { resolveBrowserControlAuth } from "../browser/control-auth.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
@@ -28,6 +33,7 @@ import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
 import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -35,6 +41,8 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { formatCliCommand } from "../cli/command-format.js";
@@ -67,6 +75,7 @@ import {
 import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ExecFn } from "./windows-acl.js";
 =======
@@ -74,6 +83,8 @@ import type { ExecFn } from "./windows-acl.js";
 =======
 import type { ExecFn } from "./windows-acl.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export type SecurityAuditSeverity = "info" | "warn" | "critical";
 

@@ -1,4 +1,3 @@
-import { createServer, type RequestListener } from "node:http";
 import type { AddressInfo } from "node:net";
 <<<<<<< HEAD
 
@@ -8,7 +7,9 @@ import type { MoltbotConfig, PluginRuntime } from "clawdbot/plugin-sdk";
 import type { ResolvedZaloAccount } from "./types.js";
 =======
 import type { OpenClawConfig, PluginRuntime } from "openclaw/plugin-sdk";
+import { createServer, type RequestListener } from "node:http";
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -19,7 +20,10 @@ import type { ResolvedZaloAccount } from "./types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { handleZaloWebhookRequest, registerZaloWebhookTarget } from "./monitor.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ResolvedZaloAccount } from "./types.js";
+import { handleZaloWebhookRequest, registerZaloWebhookTarget } from "./monitor.js";
 
 async function withServer(handler: RequestListener, fn: (baseUrl: string) => Promise<void>) {
   const server = createServer(handler);

@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { BrowserRouteContext } from "../server-context.js";
 <<<<<<< HEAD
 =======
@@ -19,9 +20,12 @@ import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./t
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { escapeRegExp } from "../../utils.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { BrowserRouteContext } from "../server-context.js";
-import { registerBrowserRoutes } from "./index.js";
 import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./types.js";
+import { escapeRegExp } from "../../utils.js";
+import { registerBrowserRoutes } from "./index.js";
 
 type BrowserDispatchRequest = {
   method: "GET" | "POST" | "DELETE";

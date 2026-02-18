@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "./types.js";
 import {
   applyConfigOverrides,
   getConfigOverrides,
@@ -6,6 +7,7 @@ import {
   setConfigOverride,
   unsetConfigOverride,
 } from "./runtime-overrides.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -18,6 +20,8 @@ import type { OpenClawConfig } from "./types.js";
 =======
 import type { OpenClawConfig } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 describe("runtime overrides", () => {
   beforeEach(() => {

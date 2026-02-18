@@ -14,6 +14,7 @@ import { ApplicationCommandOptionType, ButtonStyle } from "discord-api-types/v10
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
 =======
@@ -27,6 +28,8 @@ import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   ChatCommandDefinition,
   CommandArgDefinition,
@@ -34,6 +37,7 @@ import type {
   CommandArgs,
   NativeCommandSpec,
 } from "../../auto-reply/commands-registry.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -45,13 +49,18 @@ import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   buildCommandTextFromArgs,
   findCommandByNativeName,
@@ -73,6 +82,7 @@ import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dis
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { MoltbotConfig, loadConfig } from "../../config/config.js";
@@ -87,9 +97,10 @@ import type { ReplyPayload } from "../../auto-reply/types.js";
 =======
 import type { ReplyPayload } from "../../auto-reply/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
-import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";

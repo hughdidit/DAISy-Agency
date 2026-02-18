@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { Context } from "@mariozechner/pi-ai/dist/types.js";
 >>>>>>> d3d82a1c1 (refactor(test): share google-shared test helpers)
@@ -19,6 +20,10 @@ import { convertMessages } from "@mariozechner/pi-ai/dist/providers/google-share
 import { convertMessages } from "@mariozechner/pi-ai/dist/providers/google-shared.js";
 import type { Context } from "@mariozechner/pi-ai/dist/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { Context } from "@mariozechner/pi-ai/dist/types.js";
+import { convertMessages } from "@mariozechner/pi-ai/dist/providers/google-shared.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { describe, expect, it } from "vitest";
 import {
   asRecord,

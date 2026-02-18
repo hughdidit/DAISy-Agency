@@ -1,5 +1,7 @@
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -20,8 +22,12 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { OpenClawConfig } from "../../config/config.js";
 import { truncateUtf16Safe } from "../../utils.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { WorkspaceBootstrapFile } from "../workspace.js";
 import type { EmbeddedContextFile } from "./types.js";
+import { truncateUtf16Safe } from "../../utils.js";
 
 type ContentBlockWithSignature = {
   thought_signature?: unknown;

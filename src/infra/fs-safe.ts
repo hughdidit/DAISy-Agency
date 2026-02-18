@@ -3,6 +3,7 @@ import { constants as fsConstants } from "node:fs";
 import type { Stats } from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { constants as fsConstants } from "node:fs";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -13,7 +14,10 @@ import type { FileHandle } from "node:fs/promises";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { constants as fsConstants } from "node:fs";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { FileHandle } from "node:fs/promises";
+import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 

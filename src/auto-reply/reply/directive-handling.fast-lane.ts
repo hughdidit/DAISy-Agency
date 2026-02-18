@@ -6,6 +6,7 @@ import type { MsgContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { ReplyPayload } from "../types.js";
 <<<<<<< HEAD
@@ -34,6 +35,11 @@ import { handleDirectiveOnly } from "./directive-handling.impl.js";
 import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
 import type { ApplyInlineDirectivesFastLaneParams } from "./directive-handling.params.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ApplyInlineDirectivesFastLaneParams } from "./directive-handling.params.js";
+import { handleDirectiveOnly } from "./directive-handling.impl.js";
+import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { isDirectiveOnly } from "./directive-handling.parse.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./directives.js";
 

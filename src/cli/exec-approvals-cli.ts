@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 <<<<<<< HEAD
 import JSON5 from "json5";
@@ -20,6 +21,12 @@ import fs from "node:fs/promises";
 import type { Command } from "commander";
 import JSON5 from "json5";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { Command } from "commander";
+import JSON5 from "json5";
+import fs from "node:fs/promises";
+import type { NodesRpcOpts } from "./nodes-cli/types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   readExecApprovalsSnapshot,
   saveExecApprovals,
@@ -34,7 +41,6 @@ import { renderTable } from "../terminal/table.js";
 import { callGatewayFromCli } from "./gateway-rpc.js";
 import { describeUnknownError } from "./gateway-cli/shared.js";
 import { nodesCallOpts, resolveNodeId } from "./nodes-cli/rpc.js";
-import type { NodesRpcOpts } from "./nodes-cli/types.js";
 
 type ExecApprovalsSnapshot = {
   path: string;

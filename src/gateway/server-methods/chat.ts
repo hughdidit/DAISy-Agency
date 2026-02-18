@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 =======
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
@@ -41,6 +42,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
+import fs from "node:fs";
+import path from "node:path";
+import type { MsgContext } from "../../auto-reply/templating.js";
+import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 <<<<<<< HEAD
 import { resolveEffectiveMessagesConfig, resolveIdentityName } from "../../agents/identity.js";
@@ -51,6 +59,7 @@ import { resolveThinkingDefault } from "../../agents/model-selection.js";
 import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -76,6 +85,8 @@ import type { MsgContext } from "../../auto-reply/templating.js";
 =======
 import type { MsgContext } from "../../auto-reply/templating.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
@@ -117,6 +128,7 @@ import { normalizeRpcAttachmentsToChatAttachments } from "./attachment-normalize
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9f9978635 (refactor(gateway): share rpc attachment normalization)
 =======
 import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
@@ -131,6 +143,8 @@ import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
 =======
 import type { GatewayRequestContext, GatewayRequestHandlers } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type TranscriptAppendResult = {
   ok: boolean;

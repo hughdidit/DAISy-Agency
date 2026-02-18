@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { logConfigUpdated } from "../../config/logging.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -33,7 +34,10 @@ import { applyDefaultModelPrimaryUpdate, resolveModelTarget, updateConfig } from
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import { logConfigUpdated } from "../../config/logging.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { RuntimeEnv } from "../../runtime.js";
+import { logConfigUpdated } from "../../config/logging.js";
 import { applyDefaultModelPrimaryUpdate, updateConfig } from "./shared.js";
 >>>>>>> f44e3b2a3 (revert: fix models set catalog validation (#19194))
 

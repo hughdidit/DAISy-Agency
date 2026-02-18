@@ -9,6 +9,7 @@ import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -54,9 +55,11 @@ import type { CliDeps } from "../cli/deps.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { CliDeps } from "../cli/deps.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import { runSubagentAnnounceFlow } from "../agents/subagent-announce.js";
-import type { CliDeps } from "../cli/deps.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 <<<<<<< HEAD
 

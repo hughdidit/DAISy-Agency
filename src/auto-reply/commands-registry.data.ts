@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { listChannelDocks } from "../channels/dock.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
 <<<<<<< HEAD
@@ -14,11 +15,14 @@ import { listChannelDocks } from "../channels/dock.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
 import { COMMAND_ARG_FORMATTERS } from "./commands-args.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   ChatCommandDefinition,
   CommandCategory,
   CommandScope,
 } from "./commands-registry.types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -30,6 +34,11 @@ import { COMMAND_ARG_FORMATTERS } from "./commands-args.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { listChannelDocks } from "../channels/dock.js";
+import { getActivePluginRegistry } from "../plugins/runtime.js";
+import { COMMAND_ARG_FORMATTERS } from "./commands-args.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { listThinkingLevels } from "./thinking.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

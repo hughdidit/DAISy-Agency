@@ -1,3 +1,4 @@
+import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { ensureAuthProfileStore, resolveAuthProfileOrder } from "../agents/auth-profiles.js";
 import { resolveEnvApiKey } from "../agents/model-auth.js";
 import {
@@ -9,7 +10,6 @@ import {
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 =======
 import { applyAuthChoiceHuggingface } from "./auth-choice.apply.huggingface.js";
-import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { applyAuthChoiceOpenRouter } from "./auth-choice.apply.openrouter.js";
 >>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 import { applyDefaultModelChoice } from "./auth-choice.default-model.js";

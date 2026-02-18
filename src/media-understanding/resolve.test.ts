@@ -6,12 +6,16 @@ import { resolveEntriesWithActiveFallback, resolveModelEntries } from "./resolve
 =======
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 import type { MediaUnderstandingCapability } from "./types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveEntriesWithActiveFallback, resolveModelEntries } from "./resolve.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { MediaUnderstandingCapability } from "./types.js";
+import { resolveEntriesWithActiveFallback, resolveModelEntries } from "./resolve.js";
 
 const providerRegistry = new Map<string, { capabilities: MediaUnderstandingCapability[] }>([
   ["openai", { capabilities: ["image"] }],

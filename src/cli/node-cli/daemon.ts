@@ -1,3 +1,4 @@
+import type { GatewayServiceRuntime } from "../../daemon/service-runtime.js";
 import { buildNodeInstallPlan } from "../../commands/node-daemon-install-helpers.js";
 import {
   DEFAULT_NODE_DAEMON_RUNTIME,
@@ -10,6 +11,7 @@ import {
 } from "../../daemon/constants.js";
 import { resolveGatewayLogPaths } from "../../daemon/launchd.js";
 import { resolveNodeService } from "../../daemon/node-service.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -29,6 +31,8 @@ import type { GatewayServiceRuntime } from "../../daemon/service-runtime.js";
 =======
 import type { GatewayServiceRuntime } from "../../daemon/service-runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadNodeHostConfig } from "../../node-host/config.js";
 import { defaultRuntime } from "../../runtime.js";
 import { colorize, theme } from "../../terminal/theme.js";

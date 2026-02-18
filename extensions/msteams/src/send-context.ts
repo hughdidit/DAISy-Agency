@@ -8,7 +8,6 @@ import {
 } from "openclaw/plugin-sdk";
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 import type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
-import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import type {
   MSTeamsConversationStore,
   StoredConversationReference,
@@ -18,6 +17,7 @@ import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { MSTeamsAdapter } from "./messenger.js";
+import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import { getMSTeamsRuntime } from "./runtime.js";
 import { createMSTeamsAdapter, loadMSTeamsSdkWithAuth } from "./sdk.js";
 import { resolveMSTeamsCredentials } from "./token.js";

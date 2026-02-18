@@ -2,6 +2,7 @@ import type { loadConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { loadMoltbotPlugins } from "../plugins/loader.js";
 =======
 import { loadOpenClawPlugins } from "../plugins/loader.js";
@@ -12,7 +13,10 @@ import type { GatewayRequestHandler } from "./server-methods/types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { loadOpenClawPlugins } from "../plugins/loader.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { GatewayRequestHandler } from "./server-methods/types.js";
+import { loadOpenClawPlugins } from "../plugins/loader.js";
 
 export function loadGatewayPlugins(params: {
   cfg: ReturnType<typeof loadConfig>;

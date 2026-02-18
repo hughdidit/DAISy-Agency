@@ -7,9 +7,13 @@
  * across multiple providers.
  */
 
+import type { OpenClawConfig } from "../../config/config.js";
+import type { OriginatingChannelType } from "../templating.js";
+import type { ReplyPayload } from "../types.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { resolveEffectiveMessagesConfig } from "../../agents/identity.js";
 import { normalizeChannelId } from "../../channels/plugins/index.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -36,6 +40,9 @@ import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../../utils/m
 import type { OriginatingChannelType } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { INTERNAL_MESSAGE_CHANNEL, normalizeMessageChannel } from "../../utils/message-channel.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { normalizeReplyPayload } from "./normalize-reply.js";
 
 export type RouteReplyParams = {

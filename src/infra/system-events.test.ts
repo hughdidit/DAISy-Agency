@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { prependSystemEvents } from "../auto-reply/reply/session-updates.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -17,6 +18,10 @@ import { prependSystemEvents } from "../auto-reply/reply/session-updates.js";
 import { prependSystemEvents } from "../auto-reply/reply/session-updates.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { prependSystemEvents } from "../auto-reply/reply/session-updates.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveMainSessionKey } from "../config/sessions.js";
 import { isCronSystemEvent } from "./heartbeat-runner.js";
 import { enqueueSystemEvent, peekSystemEvents, resetSystemEventsForTest } from "./system-events.js";

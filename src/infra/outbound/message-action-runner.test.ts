@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
@@ -14,14 +15,16 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ChannelPlugin } from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { slackPlugin } from "../../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
 <<<<<<< HEAD
 =======
 import { jsonResult } from "../../agents/tools/common.js";
-import type { ChannelPlugin } from "../../channels/plugins/types.js";
-import type { OpenClawConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createOutboundTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
 import { createIMessageTestPlugin } from "../../test-utils/imessage-test-plugin.js";

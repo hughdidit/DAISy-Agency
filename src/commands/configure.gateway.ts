@@ -4,12 +4,16 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 1486eb66f (revert(gateway): restore loopback auth setup)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveGatewayPort } from "../config/config.js";
 import {
   TAILSCALE_DOCS_LINES,
@@ -21,6 +25,7 @@ import { findTailscaleBinary } from "../infra/tailscale.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 =======
 =======
@@ -31,6 +36,8 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { validateIPv4AddressInput } from "../shared/net/ipv4.js";
 >>>>>>> 4950fcfb3 (refactor(gateway): share IPv4 input validator)
 import { note } from "../terminal/note.js";

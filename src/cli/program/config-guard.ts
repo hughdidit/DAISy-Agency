@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { readConfigFileSnapshot } from "../../config/config.js";
 import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-flow.js";
 =======
@@ -18,6 +19,11 @@ import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-fl
 import { readConfigFileSnapshot } from "../../config/config.js";
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { RuntimeEnv } from "../../runtime.js";
+import { loadAndMaybeMigrateDoctorConfig } from "../../commands/doctor-config-flow.js";
+import { readConfigFileSnapshot } from "../../config/config.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { colorize, isRich, theme } from "../../terminal/theme.js";
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";

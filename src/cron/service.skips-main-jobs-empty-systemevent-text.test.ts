@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -17,9 +18,11 @@ import type { CronJob } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { CronJob } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { CronService } from "./service.js";
 import { createCronStoreHarness, createNoopLogger } from "./service.test-harness.js";
-import type { CronJob } from "./types.js";
 
 <<<<<<< HEAD
 const noopLogger = {

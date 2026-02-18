@@ -11,6 +11,7 @@ import { type ApiClientOptions, Bot, HttpError, InputFile } from "grammy";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { RetryConfig } from "../infra/retry.js";
 import type { TelegramInlineButtons } from "./button-types.js";
@@ -29,6 +30,10 @@ import type { TelegramInlineButtons } from "./button-types.js";
 >>>>>>> b2fef5ebc (Revert "Default Telegram polls to public")
 =======
 >>>>>>> 900b97e3c (test: type telegram action mock passthrough args)
+=======
+import type { RetryConfig } from "../infra/retry.js";
+import type { TelegramInlineButtons } from "./button-types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
@@ -37,7 +42,6 @@ import { formatErrorMessage, formatUncaughtError } from "../infra/errors.js";
 import { isDiagnosticFlagEnabled } from "../infra/diagnostic-flags.js";
 import type { RetryConfig } from "../infra/retry.js";
 import { createTelegramRetryRunner } from "../infra/retry-policy.js";
-import type { RetryConfig } from "../infra/retry.js";
 import { redactSensitiveText } from "../logging/redact.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { mediaKindFromMime } from "../media/constants.js";
@@ -49,7 +53,6 @@ import { type ResolvedTelegramAccount, resolveTelegramAccount } from "./accounts
 =======
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { buildTelegramThreadParams } from "./bot/helpers.js";
-import type { TelegramInlineButtons } from "./button-types.js";
 import { splitTelegramCaption } from "./caption.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveTelegramFetch } from "./fetch.js";

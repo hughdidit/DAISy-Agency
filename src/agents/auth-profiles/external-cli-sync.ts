@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { readQwenCliCredentialsCached } from "../cli-credentials.js";
 =======
 =======
@@ -8,6 +9,9 @@ import type { AuthProfileCredential, AuthProfileStore, OAuthCredential } from ".
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { AuthProfileCredential, AuthProfileStore, OAuthCredential } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   readQwenCliCredentialsCached,
   readMiniMaxCliCredentialsCached,
@@ -19,7 +23,6 @@ import {
   QWEN_CLI_PROFILE_ID,
   log,
 } from "./constants.js";
-import type { AuthProfileCredential, AuthProfileStore, OAuthCredential } from "./types.js";
 
 function shallowEqualOAuthCredentials(a: OAuthCredential | undefined, b: OAuthCredential): boolean {
   if (!a) {

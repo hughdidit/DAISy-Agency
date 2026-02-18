@@ -32,6 +32,7 @@ import { listChannelAgentTools } from "./channel-tools.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createMoltbotTools } from "./moltbot-tools.js";
 import type { ModelAuthMode } from "./model-auth.js";
 =======
@@ -49,6 +50,9 @@ import type { ModelAuthMode } from "./model-auth.js";
 =======
 import { resolveImageSanitizationLimits } from "./image-sanitization.js";
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
+=======
+import { resolveImageSanitizationLimits } from "./image-sanitization.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
@@ -70,6 +74,7 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -105,6 +110,8 @@ import type { SandboxContext } from "./sandbox.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import {

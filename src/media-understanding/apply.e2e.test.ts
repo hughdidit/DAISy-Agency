@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
@@ -25,6 +26,11 @@ import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { MsgContext } from "../auto-reply/templating.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveApiKeyForProvider } from "../agents/model-auth.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { fetchRemoteMedia } from "../media/fetch.js";
 
 vi.mock("../agents/model-auth.js", () => ({

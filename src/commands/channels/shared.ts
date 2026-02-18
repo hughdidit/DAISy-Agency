@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { type ChannelId, getChannelPlugin } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -18,6 +19,10 @@ import { type ChannelId, getChannelPlugin } from "../../channels/plugins/index.j
 import { type ChannelId, getChannelPlugin } from "../../channels/plugins/index.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { type ChannelId, getChannelPlugin } from "../../channels/plugins/index.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { DEFAULT_ACCOUNT_ID } from "../../routing/session-key.js";
 import { defaultRuntime, type RuntimeEnv } from "../../runtime.js";
 import { requireValidConfigSnapshot } from "../config-validation.js";

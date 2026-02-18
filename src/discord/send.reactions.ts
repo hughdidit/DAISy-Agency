@@ -2,6 +2,7 @@ import { Routes } from "discord-api-types/v10";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -10,6 +11,9 @@ import type { DiscordReactionSummary, DiscordReactOpts } from "./send.types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { DiscordReactionSummary, DiscordReactOpts } from "./send.types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadConfig } from "../config/config.js";
 import {
   buildReactionIdentifier,
@@ -18,7 +22,6 @@ import {
   normalizeReactionEmoji,
   resolveDiscordRest,
 } from "./send.shared.js";
-import type { DiscordReactionSummary, DiscordReactOpts } from "./send.types.js";
 
 export async function reactMessageDiscord(
   channelId: string,

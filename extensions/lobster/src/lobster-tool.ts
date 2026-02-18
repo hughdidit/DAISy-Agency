@@ -1,5 +1,7 @@
+import { Type } from "@sinclair/typebox";
 import { spawn } from "node:child_process";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -12,6 +14,8 @@ import { Type } from "@sinclair/typebox";
 =======
 import { Type } from "@sinclair/typebox";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawPluginApi } from "../../../src/plugins/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

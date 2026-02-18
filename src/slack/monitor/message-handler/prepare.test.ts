@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { App } from "@slack/bolt";
 <<<<<<< HEAD
 import { describe, expect, it } from "vitest";
@@ -21,13 +22,15 @@ import type { App } from "@slack/bolt";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { App } from "@slack/bolt";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { App } from "@slack/bolt";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
 import type { OpenClawConfig } from "../../../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -50,6 +53,8 @@ import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
 import { resolveAgentRoute } from "../../../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { RuntimeEnv } from "../../../runtime.js";
 import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
 import type { ResolvedSlackAccount } from "../../accounts.js";
@@ -59,6 +64,7 @@ import type { SlackMessageEvent } from "../../types.js";
 =======
 =======
 import type { SlackMonitorContext } from "../context.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -85,6 +91,11 @@ import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { expectInboundContextContract } from "../../../../test/helpers/inbound-contract.js";
+import { resolveAgentRoute } from "../../../routing/resolve-route.js";
+import { resolveThreadSessionKeys } from "../../../routing/session-key.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { createSlackMonitorContext } from "../context.js";
 import { prepareSlackMessage } from "./prepare.js";
 

@@ -11,6 +11,7 @@ import {
   type OAuthProvider,
 } from "@mariozechner/pi-ai";
 import type { OpenClawConfig } from "../../config/config.js";
+import type { AuthProfileStore } from "./types.js";
 import { withFileLock } from "../../infra/file-lock.js";
 import { refreshQwenPortalCredentials } from "../../providers/qwen-portal-oauth.js";
 >>>>>>> 201ac2b72 (perf: replace proper-lockfile with lightweight file locks)
@@ -25,6 +26,7 @@ import { ensureAuthProfileStore, saveAuthProfileStore } from "./store.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { AuthProfileStore } from "./types.js";
 =======
 =======
@@ -35,6 +37,8 @@ import type { AuthProfileStore } from "./types.js";
 =======
 import type { AuthProfileStore } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 const OAUTH_PROVIDER_IDS = new Set<string>(getOAuthProviders().map((provider) => provider.id));
 

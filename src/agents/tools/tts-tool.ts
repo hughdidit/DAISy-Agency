@@ -3,6 +3,7 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -33,8 +34,14 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { loadConfig } from "../../config/config.js";
 import { textToSpeech } from "../../tts/tts.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { GatewayMessageChannel } from "../../utils/message-channel.js";
 import type { AnyAgentTool } from "./common.js";
+import { SILENT_REPLY_TOKEN } from "../../auto-reply/tokens.js";
+import { loadConfig } from "../../config/config.js";
+import { textToSpeech } from "../../tts/tts.js";
 import { readStringParam } from "./common.js";
 
 const TtsToolSchema = Type.Object({

@@ -1,5 +1,3 @@
-import { randomUUID } from "node:crypto";
-import fsSync from "node:fs";
 import {
   DisconnectReason,
   fetchLatestBaileysVersion,
@@ -7,6 +5,8 @@ import {
   makeWASocket,
   useMultiFileAuthState,
 } from "@whiskeysockets/baileys";
+import { randomUUID } from "node:crypto";
+import fsSync from "node:fs";
 import qrcode from "qrcode-terminal";
 import { danger, success } from "../globals.js";
 import { getChildLogger, toPinoLikeLogger } from "../logging.js";

@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
 =======
@@ -24,6 +25,11 @@ import { resolveRemoteEmbeddingBearerClient } from "./embeddings-remote-client.j
 import { fetchRemoteEmbeddingVectors } from "./embeddings-remote-fetch.js";
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
+import { resolveRemoteEmbeddingBearerClient } from "./embeddings-remote-client.js";
+import { fetchRemoteEmbeddingVectors } from "./embeddings-remote-fetch.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export type OpenAiEmbeddingClient = {
   baseUrl: string;

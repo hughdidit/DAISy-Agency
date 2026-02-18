@@ -1,7 +1,9 @@
+import JSZip from "jszip";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { PassThrough } from "node:stream";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14,6 +16,8 @@ import JSZip from "jszip";
 =======
 import JSZip from "jszip";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { createPinnedLookup } from "../infra/net/ssrf.js";
 import { captureEnv } from "../test-utils/env.js";

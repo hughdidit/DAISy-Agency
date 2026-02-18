@@ -10,6 +10,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { OpenClawConfig } from "../../config/config.js";
 import type { MsgContext } from "../templating.js";
 >>>>>>> f8925b758 (perf(test): consolidate reply commands suites)
@@ -21,11 +22,16 @@ import type { MsgContext } from "../templating.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { MsgContext } from "../templating.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   addSubagentRunForTests,
   listSubagentRunsForRequester,
   resetSubagentRegistryForTests,
 } from "../../agents/subagent-registry.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -40,11 +46,12 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { updateSessionStore } from "../../config/sessions.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import * as internalHooks from "../../hooks/internal-hooks.js";
 import { clearPluginCommands, registerPluginCommand } from "../../plugins/commands.js";
-import type { MsgContext } from "../templating.js";
 import { resetBashChatCommandForTests } from "./bash-command.js";
 import { handleCompactCommand } from "./commands-compact.js";
 import { buildCommandsPaginationKeyboard } from "./commands-info.js";

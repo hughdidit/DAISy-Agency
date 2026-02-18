@@ -2,6 +2,7 @@ import MarkdownIt from "markdown-it";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -12,7 +13,10 @@ import type { MarkdownTableMode } from "../config/types.base.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { chunkText } from "../auto-reply/chunk.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { MarkdownTableMode } from "../config/types.base.js";
+import { chunkText } from "../auto-reply/chunk.js";
 
 type ListState = {
   type: "bullet" | "ordered";

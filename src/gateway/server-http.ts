@@ -1,3 +1,5 @@
+import type { TlsOptions } from "node:tls";
+import type { WebSocketServer } from "ws";
 import {
   createServer as createHttpServer,
   type Server as HttpServer,
@@ -6,6 +8,7 @@ import {
 } from "node:http";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createServer as createHttpsServer } from "node:https";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { TlsOptions } from "node:tls";
@@ -21,15 +24,20 @@ import type { GatewayWsClient } from "./server/ws-types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { CanvasHostHandler } from "../canvas-host/server.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 import type { GatewayWsClient } from "./server/ws-types.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 import type { TlsOptions } from "node:tls";
 import type { WebSocketServer } from "ws";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import {
   A2UI_PATH,
@@ -37,6 +45,7 @@ import {
   CANVAS_WS_PATH,
   handleA2uiHttpRequest,
 } from "../canvas-host/a2ui.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -62,10 +71,12 @@ import type { CanvasHostHandler } from "../canvas-host/server.js";
 =======
 import type { CanvasHostHandler } from "../canvas-host/server.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadConfig } from "../config/config.js";
-import type { createSubsystemLogger } from "../logging/subsystem.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
@@ -75,6 +86,8 @@ import type { AuthRateLimiter } from "./auth-rate-limit.js";
 =======
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   authorizeGatewayConnect,
   isLocalDirectRequest,
@@ -117,7 +130,6 @@ import { resolveGatewayClientIp } from "./net.js";
 >>>>>>> a459e237e (fix(gateway): require auth for canvas host and a2ui assets (#9518) (thanks @coygeek))
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
-import type { GatewayWsClient } from "./server/ws-types.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;

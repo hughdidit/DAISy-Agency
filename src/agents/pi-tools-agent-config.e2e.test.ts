@@ -7,6 +7,7 @@ import { createMoltbotCodingTools } from "./pi-tools.js";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createOpenClawCodingTools } from "./pi-tools.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -28,6 +29,11 @@ import { createOpenClawCodingTools } from "./pi-tools.js";
 import type { SandboxDockerConfig } from "./sandbox.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { SandboxDockerConfig } from "./sandbox.js";
+import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+import { createOpenClawCodingTools } from "./pi-tools.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type ToolWithExecute = {
   execute: (toolCallId: string, args: unknown, signal?: AbortSignal) => Promise<unknown>;

@@ -1,6 +1,8 @@
+import type { ChannelOutboundAdapter } from "../types.js";
 import { chunkText } from "../../../auto-reply/chunk.js";
 import { shouldLogVerbose } from "../../../globals.js";
 import { sendPollWhatsApp } from "../../../web/outbound.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { isWhatsAppGroupJid, normalizeWhatsAppTarget } from "../../../whatsapp/normalize.js";
@@ -20,6 +22,9 @@ import { resolveWhatsAppOutboundTarget } from "../../../whatsapp/resolve-outboun
 =======
 import type { ChannelOutboundAdapter } from "../types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { resolveWhatsAppOutboundTarget } from "../../../whatsapp/resolve-outbound-target.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export const whatsappOutbound: ChannelOutboundAdapter = {
   deliveryMode: "gateway",

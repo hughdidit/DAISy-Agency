@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 =======
@@ -25,6 +26,11 @@ import { slackPlugin } from "../../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { slackPlugin } from "../../../extensions/slack/src/channel.js";
+import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
 import { slackPlugin } from "../../../extensions/slack/src/channel.js";

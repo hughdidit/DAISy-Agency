@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
@@ -16,6 +17,12 @@ import { listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
+import type { OpenClawConfig } from "../config/config.js";
+import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
+import { listChannelPlugins } from "../channels/plugins/index.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export type LinkChannelContext = {
   linked: boolean;

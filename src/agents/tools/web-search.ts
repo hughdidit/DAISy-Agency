@@ -6,6 +6,7 @@ import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { formatCliCommand } from "../../cli/command-format.js";
@@ -56,9 +57,14 @@ import type { AnyAgentTool } from "./common.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { formatCliCommand } from "../../cli/command-format.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../config/config.js";
+import type { AnyAgentTool } from "./common.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 import { wrapWebContent } from "../../security/external-content.js";
 import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -71,6 +77,8 @@ import type { AnyAgentTool } from "./common.js";
 =======
 import type { AnyAgentTool } from "./common.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 import {
   CacheEntry,

@@ -3,6 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -13,9 +14,12 @@ import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 =======
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { RuntimeEnv } from "../runtime.js";
+import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import { resolveHomeDir, resolveUserPath, shortenHomeInString } from "../utils.js";
 
 export type RemovalResult = {

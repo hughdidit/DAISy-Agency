@@ -3,6 +3,7 @@ import type { Command } from "commander";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { defaultRuntime } from "../../runtime.js";
 import { formatAge, formatPermissions, parseNodeList, parsePairingList } from "./format.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
@@ -15,6 +16,9 @@ import type { NodesRpcOpts } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { formatTimeAgo } from "../../infra/format-time/format-relative.ts";
 import { defaultRuntime } from "../../runtime.js";
 import { renderTable } from "../../terminal/table.js";
@@ -30,6 +34,7 @@ import { renderPendingPairingRequestsTable } from "./pairing-render.js";
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { NodesRpcOpts } from "./types.js";
 <<<<<<< HEAD
 import { renderTable } from "../../terminal/table.js";
@@ -42,6 +47,8 @@ import { shortenHomeInString } from "../../utils.js";
 =======
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 function formatVersionLabel(raw: string) {
   const trimmed = raw.trim();

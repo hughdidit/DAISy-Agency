@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
@@ -20,10 +21,19 @@ import { formatCliCommand } from "../cli/command-format.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type {
+  ChannelsWizardMode,
+  ConfigureWizardParams,
+  WizardSection,
+} from "./configure.shared.js";
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { readConfigFileSnapshot, resolveGatewayPort, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { resolveUserPath } from "../utils.js";
@@ -32,6 +42,7 @@ import { WizardCancelledError } from "../wizard/prompts.js";
 import { removeChannelConfigWizard } from "./configure.channels.js";
 import { maybeInstallDaemon } from "./configure.daemon.js";
 import { promptGatewayConfig } from "./configure.gateway.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -50,6 +61,8 @@ import type {
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   CONFIGURE_SECTION_OPTIONS,
   confirm,

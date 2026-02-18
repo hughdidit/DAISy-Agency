@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { formatCliCommand } from "../cli/command-format.js";
 import { collectConfigEnvVars } from "../config/env-vars.js";
@@ -17,6 +18,12 @@ import { formatCliCommand } from "../cli/command-format.js";
 import { collectConfigEnvVars } from "../config/env-vars.js";
 import type { OpenClawConfig } from "../config/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/types.js";
+import type { GatewayDaemonRuntime } from "./daemon-runtime.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import { collectConfigEnvVars } from "../config/env-vars.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveGatewayLaunchAgentLabel } from "../daemon/constants.js";
 import { resolveGatewayProgramArguments } from "../daemon/program-args.js";
 import {
@@ -25,6 +32,7 @@ import {
   resolveSystemNodeInfo,
 } from "../daemon/runtime-paths.js";
 import { buildServiceEnvironment } from "../daemon/service-env.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -39,6 +47,8 @@ import type { GatewayDaemonRuntime } from "./daemon-runtime.js";
 =======
 import type { GatewayDaemonRuntime } from "./daemon-runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type WarnFn = (message: string, title?: string) => void;
 

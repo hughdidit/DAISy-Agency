@@ -11,6 +11,7 @@ import type { MSTeamsConversationStore } from "./conversation-store.js";
 } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
@@ -36,6 +37,12 @@ import { formatUnknownError } from "./errors.js";
 =======
 import type { MSTeamsAdapter } from "./messenger.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { MSTeamsConversationStore } from "./conversation-store.js";
+import type { MSTeamsAdapter } from "./messenger.js";
+import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
+import { formatUnknownError } from "./errors.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { registerMSTeamsHandlers, type MSTeamsActivityHandler } from "./monitor-handler.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { createMSTeamsPollStoreFs, type MSTeamsPollStore } from "./polls.js";

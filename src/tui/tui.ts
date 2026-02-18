@@ -6,6 +6,13 @@ import {
   Text,
   TUI,
 } from "@mariozechner/pi-tui";
+import type {
+  AgentSummary,
+  SessionInfo,
+  SessionScope,
+  TuiOptions,
+  TuiStateAccess,
+} from "./tui-types.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { loadConfig } from "../config/config.js";
 import {
@@ -28,6 +35,7 @@ import { createOverlayHandlers } from "./tui-overlays.js";
 import { createSessionActions } from "./tui-session-actions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import type {
@@ -44,6 +52,8 @@ import type {
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { buildWaitingStatusMessage, defaultWaitingPhrases } from "./tui-waiting.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

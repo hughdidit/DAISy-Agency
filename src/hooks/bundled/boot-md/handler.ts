@@ -1,6 +1,7 @@
 import type { CliDeps } from "../../../cli/deps.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createDefaultDeps } from "../../../cli/deps.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
@@ -15,9 +16,12 @@ import type { HookHandler } from "../../hooks.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { createDefaultDeps } from "../../../cli/deps.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../../config/config.js";
-import { runBootOnce } from "../../../gateway/boot.js";
 import type { HookHandler } from "../../hooks.js";
+import { createDefaultDeps } from "../../../cli/deps.js";
+import { runBootOnce } from "../../../gateway/boot.js";
 
 type BootHookContext = {
   cfg?: MoltbotConfig;

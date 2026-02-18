@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -10,6 +11,9 @@ import type { IMessagePayload, MonitorIMessageOpts } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { IMessagePayload, MonitorIMessageOpts } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
@@ -65,7 +69,6 @@ import {
 } from "./inbound-processing.js";
 import { parseIMessageNotification } from "./parse-notification.js";
 import { normalizeAllowList, resolveRuntime } from "./runtime.js";
-import type { IMessagePayload, MonitorIMessageOpts } from "./types.js";
 
 /**
  * Try to detect remote host from an SSH wrapper script like:

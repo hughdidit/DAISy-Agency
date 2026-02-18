@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -33,7 +34,10 @@ import type { AddressInfo } from "node:net";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { AddressInfo } from "node:net";
+import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> 4d4296cae (perf(test): speed up gateway tools invoke HTTP tests)
 

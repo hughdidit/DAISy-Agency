@@ -2,6 +2,7 @@ import type { WebhookContext, WebhookVerificationResult } from "../../types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { Logger } from "../../manager/context.js";
 import { defaultLogger, sanitizeLogValue } from "../../manager/context.js";
 =======
@@ -15,7 +16,10 @@ import type { TwilioProviderOptions } from "../twilio.js";
 import { verifyTwilioWebhook } from "../../webhook-security.js";
 import type { TwilioProviderOptions } from "../twilio.js";
 
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { TwilioProviderOptions } from "../twilio.js";
+import { verifyTwilioWebhook } from "../../webhook-security.js";
 
 export function verifyTwilioProviderWebhook(params: {
   ctx: WebhookContext;

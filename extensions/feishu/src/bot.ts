@@ -7,6 +7,8 @@ import {
   DEFAULT_GROUP_HISTORY_LIMIT,
   type HistoryEntry,
 } from "openclaw/plugin-sdk";
+import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
+import type { DynamicAgentCreationConfig } from "./types.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { tryRecordMessage } from "./dedup.js";
@@ -27,6 +29,7 @@ import { getMessageFeishu } from "./send.js";
 import { getMessageFeishu, sendMessageFeishu } from "./send.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
 import type { DynamicAgentCreationConfig } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -36,6 +39,8 @@ import type { DynamicAgentCreationConfig } from "./types.js";
 import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
 import type { DynamicAgentCreationConfig } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 // --- Permission error extraction ---
 // Extract permission grant URL from Feishu API error response.

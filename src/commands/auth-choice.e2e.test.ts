@@ -15,6 +15,7 @@ import type { WizardPrompter } from "../wizard/prompts.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { AuthChoice } from "./onboard-types.js";
 <<<<<<< HEAD
@@ -29,6 +30,9 @@ import type { AuthChoice } from "./onboard-types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { AuthChoice } from "./onboard-types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -42,7 +46,6 @@ import {
   ZAI_CODING_CN_BASE_URL,
   ZAI_CODING_GLOBAL_BASE_URL,
 } from "./onboard-auth.js";
-import type { AuthChoice } from "./onboard-types.js";
 import {
   authProfilePathForAgent,
   createAuthTestLifecycle,

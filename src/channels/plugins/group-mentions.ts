@@ -4,6 +4,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
   resolveChannelGroupRequireMention,
@@ -24,11 +25,18 @@ import {
   resolveChannelGroupToolsPolicy,
   resolveToolsBySender,
 } from "../../config/group-policy.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { DiscordConfig } from "../../config/types.js";
 import type {
   GroupToolPolicyBySenderConfig,
   GroupToolPolicyConfig,
 } from "../../config/types.tools.js";
+import {
+  resolveChannelGroupRequireMention,
+  resolveChannelGroupToolsPolicy,
+  resolveToolsBySender,
+} from "../../config/group-policy.js";
 import { resolveSlackAccount } from "../../slack/accounts.js";
 
 type GroupMentionParams = {

@@ -3,11 +3,14 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type {
   ChannelOutboundAdapter,
@@ -24,6 +27,7 @@ import type { NormalizedOutboundPayload } from "./payloads.js";
 import type { OutboundChannel } from "./targets.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 50645b905 (refactor(outbound): centralize outbound identity)
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -33,6 +37,8 @@ import type { OutboundChannel } from "./targets.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   chunkByParagraph,
   chunkMarkdownTextWithMode,
@@ -41,6 +47,7 @@ import {
 } from "../../auto-reply/chunk.js";
 import { resolveChannelMediaMaxBytes } from "../../channels/plugins/media-limits.js";
 import { loadChannelOutboundAdapter } from "../../channels/plugins/outbound/load.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -99,11 +106,24 @@ import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
 import { sendMessageSignal } from "../../signal/send.js";
+=======
+import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
+import {
+  appendAssistantMessageToSessionTranscript,
+  resolveMirroredTranscriptText,
+} from "../../config/sessions.js";
+import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
+import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
+import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
+import { sendMessageSignal } from "../../signal/send.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { throwIfAborted } from "./abort.js";
 <<<<<<< HEAD
 >>>>>>> 79c246666 (refactor: consolidate throwIfAborted + fix isCompactionFailureError (#12463))
 =======
 import { ackDelivery, enqueueDelivery, failDelivery } from "./delivery-queue.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -118,6 +138,8 @@ import type { NormalizedOutboundPayload } from "./payloads.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
 
 export type { NormalizedOutboundPayload } from "./payloads.js";

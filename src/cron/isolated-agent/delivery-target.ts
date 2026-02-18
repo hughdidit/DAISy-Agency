@@ -1,6 +1,7 @@
 import type { ChannelId } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
@@ -16,13 +17,17 @@ import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { OutboundChannel } from "../../infra/outbound/targets.js";
+import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   loadSessionStore,
   resolveAgentMainSessionKey,
   resolveStorePath,
 } from "../../config/sessions.js";
 import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
-import type { OutboundChannel } from "../../infra/outbound/targets.js";
 import {
   resolveOutboundTarget,
   resolveSessionDeliveryTarget,

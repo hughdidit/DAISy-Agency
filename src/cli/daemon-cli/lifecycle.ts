@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveIsNixMode } from "../../config/paths.js";
 import { resolveGatewayService } from "../../daemon/service.js";
 import { isSystemdUserServiceAvailable } from "../../daemon/systemd.js";
@@ -18,6 +19,9 @@ import type { DaemonLifecycleOptions } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { DaemonLifecycleOptions } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveGatewayService } from "../../daemon/service.js";
 import {
   runServiceRestart,
@@ -27,7 +31,6 @@ import {
 } from "./lifecycle-core.js";
 >>>>>>> 1b9c1c648 (refactor(daemon): share service lifecycle runner)
 import { renderGatewayServiceStartHints } from "./shared.js";
-import type { DaemonLifecycleOptions } from "./types.js";
 
 export async function runDaemonUninstall(opts: DaemonLifecycleOptions = {}) {
   return await runServiceUninstall({

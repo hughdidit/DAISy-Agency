@@ -1,8 +1,9 @@
-import path from "node:path";
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { Type } from "@sinclair/typebox";
+import path from "node:path";
 import type { ExecAsk, ExecHost, ExecSecurity } from "../infra/exec-approvals.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -36,10 +37,16 @@ import type { BashSandboxConfig } from "./bash-tools.shared.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { mergePathPrepend } from "../infra/path-prepend.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ProcessSession } from "./bash-process-registry.js";
 import type { ExecToolDetails } from "./bash-tools.exec.js";
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
+import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
+import { mergePathPrepend } from "../infra/path-prepend.js";
+import { enqueueSystemEvent } from "../infra/system-events.js";
 export { applyPathPrepend, normalizePathPrepend } from "../infra/path-prepend.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -60,7 +67,10 @@ import type { ManagedRun } from "../process/supervisor/index.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { logWarn } from "../logger.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ManagedRun } from "../process/supervisor/index.js";
+import { logWarn } from "../logger.js";
 import { getProcessSupervisor } from "../process/supervisor/index.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {

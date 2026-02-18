@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentWorkspaceDir } from "../../agents/agent-scope.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
@@ -16,6 +17,10 @@ import { resolveAgentWorkspaceDir } from "../../agents/agent-scope.js";
 import { resolveAgentWorkspaceDir } from "../../agents/agent-scope.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { resolveAgentWorkspaceDir } from "../../agents/agent-scope.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { listAgentsForGateway } from "../../gateway/session-utils.js";
 

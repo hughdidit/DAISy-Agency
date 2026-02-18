@@ -19,6 +19,7 @@ import type { CoreConfig, MatrixRoomConfig, ReplyToMode } from "../../types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MatrixRawEvent, RoomMessageEventContent } from "./types.js";
 <<<<<<< HEAD
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
@@ -30,6 +31,9 @@ import type { MatrixRawEvent, RoomMessageEventContent } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { MatrixRawEvent, RoomMessageEventContent } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { fetchEventSummary } from "../actions/summary.js";
 >>>>>>> 49c60e906 (feat(matrix): add thread session isolation (#8241))
 import {
@@ -57,6 +61,7 @@ import { resolveMatrixThreadRootId, resolveMatrixThreadTarget } from "./threads.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveMatrixLocation, type MatrixLocationPayload } from "./location.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -66,6 +71,8 @@ import type { MatrixRawEvent, RoomMessageEventContent } from "./types.js";
 =======
 import type { MatrixRawEvent, RoomMessageEventContent } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { EventType, RelationType } from "./types.js";
 
 export type MatrixMonitorHandlerParams = {

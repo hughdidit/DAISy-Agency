@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 import type { CallId, CallRecord, CallState, NormalizedEvent } from "../types.js";
@@ -26,6 +27,11 @@ import { isAllowlistedCaller, normalizePhoneNumber } from "../allowlist.js";
 import type { CallRecord, CallState, NormalizedEvent } from "../types.js";
 import type { CallManagerContext } from "./context.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { CallRecord, CallState, NormalizedEvent } from "../types.js";
+import type { CallManagerContext } from "./context.js";
+import { isAllowlistedCaller, normalizePhoneNumber } from "../allowlist.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { findCall } from "./lookup.js";
 import { addTranscriptEntry, transitionState } from "./state.js";
 import { persistCallRecord } from "./store.js";

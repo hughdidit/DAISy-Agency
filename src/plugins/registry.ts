@@ -7,6 +7,7 @@ import type {
 } from "../gateway/server-methods/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { registerInternalHook } from "../hooks/internal-hooks.js";
 <<<<<<< HEAD
 import { resolveUserPath } from "../utils.js";
@@ -16,10 +17,9 @@ import { resolveUserPath } from "../utils.js";
 =======
 import { registerInternalHook } from "../hooks/internal-hooks.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { HookEntry } from "../hooks/types.js";
-import { resolveUserPath } from "../utils.js";
-import { registerPluginCommand } from "./commands.js";
-import { normalizePluginHttpPath } from "./http-path.js";
 import type { PluginRuntime } from "./runtime/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type {
@@ -46,6 +46,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { registerPluginCommand } from "./commands.js";
 import type { PluginRuntime } from "./runtime/types.js";
 import type { HookEntry } from "../hooks/types.js";
@@ -54,13 +55,18 @@ import { normalizePluginHttpPath } from "./http-path.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { registerInternalHook } from "../hooks/internal-hooks.js";
 import { resolveUserPath } from "../utils.js";
 import { registerPluginCommand } from "./commands.js";
 import { normalizePluginHttpPath } from "./http-path.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export type PluginToolRegistration = {
   pluginId: string;

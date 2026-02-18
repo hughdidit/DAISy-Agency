@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import type { ChannelPluginCatalogEntry } from "../../channels/plugins/catalog.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
@@ -11,11 +10,15 @@ import { loadMoltbotPlugins } from "../../plugins/loader.js";
 import { installPluginFromNpmSpec } from "../../plugins/install.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import type { WizardPrompter } from "../../wizard/prompts.js";
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { enablePluginInConfig } from "../../plugins/enable.js";
 import { installPluginFromNpmSpec } from "../../plugins/install.js";
 import { recordPluginInstall } from "../../plugins/installs.js";
 import { loadOpenClawPlugins } from "../../plugins/loader.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -27,6 +30,8 @@ import type { WizardPrompter } from "../../wizard/prompts.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { WizardPrompter } from "../../wizard/prompts.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type InstallChoice = "npm" | "local" | "skip";
 

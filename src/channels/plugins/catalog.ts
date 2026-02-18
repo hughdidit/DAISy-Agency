@@ -3,6 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { LEGACY_MANIFEST_KEY } from "../../compat/legacy-names.js";
 import { discoverMoltbotPlugins } from "../../plugins/discovery.js";
@@ -41,6 +42,14 @@ import { CONFIG_DIR, isRecord, resolveUserPath } from "../../utils.js";
 =======
 import type { ChannelMeta } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawPackageManifest } from "../../plugins/manifest.js";
+import type { PluginOrigin } from "../../plugins/types.js";
+import type { ChannelMeta } from "./types.js";
+import { MANIFEST_KEY } from "../../compat/legacy-names.js";
+import { discoverOpenClawPlugins } from "../../plugins/discovery.js";
+import { CONFIG_DIR, isRecord, resolveUserPath } from "../../utils.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export type ChannelUiMetaEntry = {
   id: string;

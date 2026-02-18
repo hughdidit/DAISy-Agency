@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 =======
@@ -16,9 +17,12 @@ import type { SandboxContext, SandboxWorkspaceInfo } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { SandboxContext, SandboxWorkspaceInfo } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { DEFAULT_BROWSER_EVALUATE_ENABLED } from "../../browser/constants.js";
 import { ensureBrowserControlAuth, resolveBrowserControlAuth } from "../../browser/control-auth.js";
-import type { OpenClawConfig } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
 >>>>>>> 4711a943e (fix(browser): authenticate sandbox browser bridge server)
 import { defaultRuntime } from "../../runtime.js";
@@ -32,7 +36,6 @@ import { ensureSandboxContainer } from "./docker.js";
 import { maybePruneSandboxes } from "./prune.js";
 import { resolveSandboxRuntimeStatus } from "./runtime-status.js";
 import { resolveSandboxScopeKey, resolveSandboxWorkspaceDir } from "./shared.js";
-import type { SandboxContext, SandboxWorkspaceInfo } from "./types.js";
 import { ensureSandboxWorkspace } from "./workspace.js";
 
 async function ensureSandboxWorkspaceLayout(params: {

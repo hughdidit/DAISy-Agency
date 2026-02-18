@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
@@ -29,6 +30,11 @@ import { createAccountListHelpers } from "../channels/plugins/account-helpers.js
 import type { OpenClawConfig } from "../config/config.js";
 import type { DiscordAccountConfig, DiscordActionConfig } from "../config/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { DiscordAccountConfig, DiscordActionConfig } from "../config/types.js";
+import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { normalizeAccountId } from "../routing/session-key.js";
 import { resolveDiscordToken } from "./token.js";
 

@@ -47,9 +47,13 @@ import type { MemoryIndexManager } from "./index.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 7b31e8fc5 (chore: Fix types in tests 36/N.)
 import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { MemoryIndexManager } from "./index.js";
+import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.js";
 import { getRequiredMemoryIndexManager } from "./test-manager-helpers.js";
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
 

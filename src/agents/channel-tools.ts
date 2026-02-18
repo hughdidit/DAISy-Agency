@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { getChannelDock } from "../channels/dock.js";
 import { getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
@@ -12,11 +13,14 @@ import { normalizeAnyChannelId } from "../channels/registry.js";
 import { getChannelDock } from "../channels/dock.js";
 import { getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   ChannelAgentTool,
   ChannelMessageActionName,
   ChannelPlugin,
 } from "../channels/plugins/types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -35,6 +39,12 @@ import { normalizeAnyChannelId } from "../channels/registry.js";
 import { normalizeAnyChannelId } from "../channels/registry.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { getChannelDock } from "../channels/dock.js";
+import { getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
+import { normalizeAnyChannelId } from "../channels/registry.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { defaultRuntime } from "../runtime.js";
 
 /**

@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { loadChatHistory } from "./controllers/chat";
 import { loadDevices } from "./controllers/devices";
 import { loadNodes } from "./controllers/nodes";
@@ -39,7 +40,16 @@ import type { AgentsListResult, PresenceEntry, HealthSnapshot, StatusSummary } f
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { CHAT_SESSIONS_ACTIVE_MINUTES, flushChatQueueForEvent } from "./app-chat.ts";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { EventLogEntry } from "./app-events.ts";
+import type { OpenClawApp } from "./app.ts";
+import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
+import type { GatewayEventFrame, GatewayHelloOk } from "./gateway.ts";
+import type { Tab } from "./navigation.ts";
+import type { UiSettings } from "./storage.ts";
+import type { AgentsListResult, PresenceEntry, HealthSnapshot, StatusSummary } from "./types.ts";
+import { CHAT_SESSIONS_ACTIVE_MINUTES, flushChatQueueForEvent } from "./app-chat.ts";
 import {
   applySettings,
   loadCron,
@@ -47,12 +57,12 @@ import {
   setLastActiveSessionKey,
 } from "./app-settings.ts";
 import { handleAgentEvent, resetToolStream, type AgentEventPayload } from "./app-tool-stream.ts";
-import type { OpenClawApp } from "./app.ts";
 import { loadAgents } from "./controllers/agents.ts";
 import { loadAssistantIdentity } from "./controllers/assistant-identity.ts";
 import { loadChatHistory } from "./controllers/chat.ts";
 import { handleChatEvent, type ChatEventPayload } from "./controllers/chat.ts";
 import { loadDevices } from "./controllers/devices.ts";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -65,6 +75,8 @@ import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
 =======
 import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   addExecApproval,
   parseExecApprovalRequested,
@@ -80,8 +92,8 @@ import { loadSessions } from "./controllers/sessions";
 } from "./controllers/exec-approval.ts";
 import { loadNodes } from "./controllers/nodes.ts";
 import { loadSessions } from "./controllers/sessions.ts";
-import type { GatewayEventFrame, GatewayHelloOk } from "./gateway.ts";
 import { GatewayBrowserClient } from "./gateway.ts";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -98,6 +110,8 @@ import type { Tab } from "./navigation.ts";
 import type { UiSettings } from "./storage.ts";
 import type { AgentsListResult, PresenceEntry, HealthSnapshot, StatusSummary } from "./types.ts";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type GatewayHost = {
   settings: UiSettings;

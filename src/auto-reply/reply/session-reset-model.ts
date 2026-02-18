@@ -1,3 +1,6 @@
+import type { OpenClawConfig } from "../../config/config.js";
+import type { SessionEntry } from "../../config/sessions.js";
+import type { MsgContext, TemplateContext } from "../templating.js";
 import { loadModelCatalog } from "../../agents/model-catalog.js";
 import {
   buildAllowedModelSet,
@@ -6,6 +9,7 @@ import {
   resolveModelRefFromString,
   type ModelAliasIndex,
 } from "../../agents/model-selection.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -36,6 +40,10 @@ import { updateSessionStore } from "../../config/sessions.js";
 import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
 import type { MsgContext, TemplateContext } from "../templating.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { updateSessionStore } from "../../config/sessions.js";
+import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveModelDirectiveSelection, type ModelDirectiveSelection } from "./model-selection.js";
 import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
 

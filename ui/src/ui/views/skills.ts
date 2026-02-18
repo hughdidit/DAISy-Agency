@@ -8,6 +8,7 @@ import type { SkillMessageMap } from "../controllers/skills";
 import type { SkillMessageMap } from "../controllers/skills.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { clampText } from "../format.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -63,6 +64,10 @@ import { clampText } from "../format.ts";
 import { clampText } from "../format.ts";
 import type { SkillStatusEntry, SkillStatusReport } from "../types.ts";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { SkillStatusEntry, SkillStatusReport } from "../types.ts";
+import { clampText } from "../format.ts";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { groupSkills } from "./skills-grouping.ts";
 <<<<<<< HEAD
 >>>>>>> fef86e475 (refactor: dedupe shared helpers across ui/gateway/extensions)

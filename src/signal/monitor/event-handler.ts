@@ -1,3 +1,4 @@
+import type { SignalEventHandlerDeps, SignalReceivePayload } from "./event-handler.types.js";
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
 import {
@@ -51,6 +52,7 @@ import { sendMessageSignal, sendReadReceiptSignal, sendTypingSignal } from "../s
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { SignalEventHandlerDeps, SignalReceivePayload } from "./event-handler.types.js";
 
@@ -63,6 +65,8 @@ import type { SignalEventHandlerDeps, SignalReceivePayload } from "./event-handl
 =======
 import type { SignalEventHandlerDeps, SignalReceivePayload } from "./event-handler.types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { renderSignalMentions } from "./mentions.js";
 >>>>>>> cfec19df5 (Signal: normalize mention placeholders)
 export function createSignalEventHandler(deps: SignalEventHandlerDeps) {

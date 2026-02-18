@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import path from "node:path";
@@ -49,6 +50,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+import crypto from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { BashSandboxConfig } from "./bash-tools.shared.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   type ExecAsk,
   type ExecHost,
@@ -116,6 +124,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b47fa9e71 (refactor(exec): extract bash tool runtime internals)
 =======
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
@@ -130,6 +139,8 @@ import type { BashSandboxConfig } from "./bash-tools.shared.js";
 =======
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   buildSandboxEnv,
   clampWithDefault,

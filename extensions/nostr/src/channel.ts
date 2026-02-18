@@ -13,6 +13,7 @@ import { NostrConfigSchema } from "./config-schema.js";
 } from "openclaw/plugin-sdk";
 import type { NostrProfile } from "./config-schema.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
 import type { ProfilePublishResult } from "./nostr-profile.js";
 <<<<<<< HEAD
@@ -28,6 +29,12 @@ import { normalizePubkey, startNostrBus, type NostrBusHandle } from "./nostr-bus
 =======
 import type { ProfilePublishResult } from "./nostr-profile.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
+import type { ProfilePublishResult } from "./nostr-profile.js";
+import { NostrConfigSchema } from "./config-schema.js";
+import { normalizePubkey, startNostrBus, type NostrBusHandle } from "./nostr-bus.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getNostrRuntime } from "./runtime.js";
 import {
   listNostrAccountIds,

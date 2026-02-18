@@ -14,6 +14,7 @@ import {
 } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_ACCOUNT_ID, getAccountConfig } from "./config.js";
 =======
@@ -22,7 +23,10 @@ import type { TwitchAccountConfig, TwitchRole } from "./types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { DEFAULT_ACCOUNT_ID, getAccountConfig } from "./config.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { TwitchAccountConfig, TwitchRole } from "./types.js";
+import { DEFAULT_ACCOUNT_ID, getAccountConfig } from "./config.js";
 import { isAccountConfigured } from "./utils/twitch.js";
 import type { TwitchAccountConfig, TwitchRole } from "./types.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";

@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 <<<<<<< HEAD
 import type { MoltbotConfig, GatewayAuthConfig } from "../config/config.js";
@@ -14,6 +15,8 @@ import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig, GatewayAuthConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";

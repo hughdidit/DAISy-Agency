@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { getChannelDock } from "../../channels/dock.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
@@ -15,11 +16,15 @@ import type { TemplateContext } from "../templating.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { getChannelDock } from "../../channels/dock.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../config/config.js";
 import type { GroupKeyResolution, SessionEntry } from "../../config/sessions.js";
+import type { TemplateContext } from "../templating.js";
+import { getChannelDock } from "../../channels/dock.js";
+import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { isInternalMessageChannel } from "../../utils/message-channel.js";
 import { normalizeGroupActivation } from "../group-activation.js";
-import type { TemplateContext } from "../templating.js";
 
 function extractGroupId(raw: string | undefined | null): string | undefined {
   const trimmed = (raw ?? "").trim();

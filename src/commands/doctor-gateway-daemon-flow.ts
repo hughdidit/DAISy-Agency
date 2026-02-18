@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { formatCliCommand } from "../cli/command-format.js";
@@ -16,6 +17,12 @@ import { formatCliCommand } from "../cli/command-format.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveGatewayPort } from "../config/config.js";
 import {
   resolveGatewayLaunchAgentLabel,
@@ -35,6 +42,7 @@ import { formatPortDiagnostics, inspectPortUsage } from "../infra/ports.js";
 import { isWSL } from "../infra/wsl.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
@@ -45,6 +53,8 @@ import { formatCliCommand } from "../cli/command-format.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { note } from "../terminal/note.js";
 import { sleep } from "../utils.js";
 import {
@@ -56,6 +66,7 @@ import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-insta
 import { buildGatewayRuntimeHints, formatGatewayRuntimeSummary } from "./doctor-format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 <<<<<<< HEAD
 =======
@@ -64,6 +75,8 @@ import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 =======
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { formatHealthCheckFailure } from "./health-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { healthCommand } from "./health.js";

@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { bindAbortRelay } from "../utils/fetch-timeout.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -10,7 +11,10 @@ import type { AnyAgentTool } from "./pi-tools.types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { bindAbortRelay } from "../utils/fetch-timeout.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { AnyAgentTool } from "./pi-tools.types.js";
+import { bindAbortRelay } from "../utils/fetch-timeout.js";
 
 function throwAbortError(): never {
   const err = new Error("Aborted");

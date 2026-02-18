@@ -6,6 +6,7 @@ import WebSocket from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -14,6 +15,9 @@ import type { ResolvedBrowserConfig, ResolvedBrowserProfile } from "./config.js"
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ResolvedBrowserConfig, ResolvedBrowserProfile } from "./config.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { ensurePortAvailable } from "../infra/ports.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { CONFIG_DIR } from "../utils.js";
@@ -30,6 +34,7 @@ import {
 } from "./chrome.profile-decoration.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ResolvedBrowserConfig, ResolvedBrowserProfile } from "./config.js";
 <<<<<<< HEAD
 import { DEFAULT_CLAWD_BROWSER_COLOR, DEFAULT_CLAWD_BROWSER_PROFILE_NAME } from "./constants.js";
@@ -39,6 +44,8 @@ import { DEFAULT_CLAWD_BROWSER_COLOR, DEFAULT_CLAWD_BROWSER_PROFILE_NAME } from 
 =======
 import type { ResolvedBrowserConfig, ResolvedBrowserProfile } from "./config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   DEFAULT_OPENCLAW_BROWSER_COLOR,
   DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME,

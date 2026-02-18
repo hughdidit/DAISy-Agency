@@ -44,6 +44,7 @@ import { enqueueSystemEvent } from "../infra/system-events.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { NodeEventContext } from "./server-node-events-types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -58,6 +59,8 @@ import type { NodeEventContext } from "./server-node-events-types.js";
 import type { HealthSummary } from "../commands/health.js";
 import type { CliDeps } from "../cli/deps.js";
 =======
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { handleNodeEvent } from "./server-node-events.js";
 import { loadSessionEntry } from "./session-utils.js";
 >>>>>>> 96f7d35dd (fix(gateway): block cross-session fallback in node event delivery)

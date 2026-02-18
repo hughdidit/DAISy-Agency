@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { OpenClawConfig } from "../config/config.js";
 =======
@@ -11,6 +12,10 @@ import type { ModelApi } from "../config/types.models.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { ModelApi } from "../config/types.models.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
 <<<<<<< HEAD
   buildCloudflareAiGatewayModelDefinition,
@@ -68,6 +73,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
@@ -79,6 +85,8 @@ import type { ModelApi } from "../config/types.models.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { ModelApi } from "../config/types.models.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   HUGGINGFACE_DEFAULT_MODEL_REF,
   OPENROUTER_DEFAULT_MODEL_REF,

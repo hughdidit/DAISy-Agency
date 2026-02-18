@@ -3,6 +3,7 @@ import type { Command } from "commander";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { agentsListCommand } from "../../commands/agents.js";
 import { healthCommand } from "../../commands/health.js";
@@ -48,6 +49,11 @@ import { getPrimaryCommand, hasHelpOrVersion } from "../argv.js";
 import { reparseProgramFromActionArgs } from "./action-reparse.js";
 import type { ProgramContext } from "./context.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ProgramContext } from "./context.js";
+import { getPrimaryCommand, hasHelpOrVersion } from "../argv.js";
+import { reparseProgramFromActionArgs } from "./action-reparse.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { registerSubCliCommands } from "./register.subclis.js";
 import type { ProgramContext } from "./context.js";
 

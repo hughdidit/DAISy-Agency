@@ -3,12 +3,16 @@ import { DisconnectReason, isJidGroup } from "@whiskeysockets/baileys";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import type { WebInboundMessage, WebListenerCloseReason } from "./types.js";
 >>>>>>> 65fa529e0 (Revert "fix(whatsapp): allow per-message link preview override\n\nWhatsApp messages default to enabling link previews for URLs. This adds\nsupport for overriding this behavior per-message via the \nparameter (e.g. from  tool options), consistent with Telegram.\n\nFix: Updated internal WhatsApp Web API layers to pass  option\ndown to Baileys .")
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { WebInboundMessage, WebListenerCloseReason } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { createInboundDebouncer } from "../../auto-reply/inbound-debounce.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatLocationText } from "../../channels/location.js";
@@ -31,7 +35,6 @@ import {
 } from "./extract.js";
 import { downloadInboundMedia } from "./media.js";
 import { createWebSendApi } from "./send-api.js";
-import type { WebInboundMessage, WebListenerCloseReason } from "./types.js";
 
 export async function monitorWebInbox(options: {
   verbose: boolean;

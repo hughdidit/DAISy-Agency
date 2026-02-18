@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 import path from "node:path";
@@ -15,11 +16,14 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   formatSkillsForPrompt,
   loadSkillsFromDir,
   type Skill,
 } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -40,14 +44,19 @@ import { serializeByKey } from "./serialize.js";
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> d85150357 (feat: support .agents/skills/ directory for cross-agent skill discovery (#9966))
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   ParsedSkillFrontmatter,
   SkillEligibilityContext,
@@ -55,6 +64,7 @@ import type {
   SkillEntry,
   SkillSnapshot,
 } from "./types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -66,6 +76,8 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { CONFIG_DIR, resolveUserPath } from "../../utils.js";
 import { resolveSandboxPath } from "../sandbox-paths.js";
@@ -79,6 +91,7 @@ import {
 } from "./frontmatter.js";
 import { resolvePluginSkillDirs } from "./plugin-skills.js";
 import { serializeByKey } from "./serialize.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -99,6 +112,8 @@ import type {
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 const fsp = fs.promises;
 const skillsLogger = createSubsystemLogger("skills");

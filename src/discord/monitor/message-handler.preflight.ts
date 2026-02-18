@@ -2,17 +2,23 @@ import { ChannelType, MessageType, type User } from "@buape/carbon";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   DiscordMessagePreflightContext,
   DiscordMessagePreflightParams,
 } from "./message-handler.preflight.types.js";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
 import { shouldHandleTextCommands } from "../../auto-reply/commands-registry.js";
 import {
@@ -75,6 +81,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -93,6 +100,8 @@ import { resolveDiscordChannelInfo, resolveDiscordMessageText } from "./message-
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   resolveDiscordChannelInfo,
   resolveDiscordMessageChannelId,

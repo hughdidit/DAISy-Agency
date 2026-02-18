@@ -4,6 +4,7 @@ import type { WebClient as SlackWebClient } from "@slack/web-api";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { FetchLike } from "../../media/fetch.js";
 <<<<<<< HEAD
@@ -36,9 +37,14 @@ import type { SlackAttachment, SlackFile } from "../types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { normalizeHostname } from "../../infra/net/hostname.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { FetchLike } from "../../media/fetch.js";
+import type { SlackAttachment, SlackFile } from "../types.js";
+import { normalizeHostname } from "../../infra/net/hostname.js";
 import { fetchRemoteMedia } from "../../media/fetch.js";
 import { saveMediaBuffer } from "../../media/store.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -55,6 +61,8 @@ import type { SlackAttachment, SlackFile } from "../types.js";
 =======
 import type { SlackAttachment, SlackFile } from "../types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 function isSlackHostname(hostname: string): boolean {
   const normalized = normalizeHostname(hostname);

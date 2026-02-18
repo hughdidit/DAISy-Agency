@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
@@ -16,9 +17,15 @@ import type { OnboardOptions } from "../onboard-types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { formatCliCommand } from "../../cli/command-format.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../config/config.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import type { OnboardOptions } from "../onboard-types.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 import { writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { RuntimeEnv } from "../../runtime.js";
@@ -28,8 +35,9 @@ import type { RuntimeEnv } from "../../runtime.js";
 =======
 import type { RuntimeEnv } from "../../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { applyWizardMetadata } from "../onboard-helpers.js";
-import type { OnboardOptions } from "../onboard-types.js";
 
 export async function runNonInteractiveOnboardingRemote(params: {
   opts: OnboardOptions;

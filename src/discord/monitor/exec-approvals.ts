@@ -16,8 +16,8 @@ import { GatewayClient } from "../../gateway/client.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
-import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { buildGatewayConnectionDetails } from "../../gateway/call.js";
@@ -29,6 +29,8 @@ import { GatewayClient } from "../../gateway/client.js";
 import { buildGatewayConnectionDetails } from "../../gateway/call.js";
 import { GatewayClient } from "../../gateway/client.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { EventFrame } from "../../gateway/protocol/index.js";
 <<<<<<< HEAD
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
@@ -43,13 +45,17 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> e9de24215 (refactor(exec-approvals): share request event types)
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { RuntimeEnv } from "../../runtime.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { buildGatewayConnectionDetails } from "../../gateway/call.js";
 import { GatewayClient } from "../../gateway/client.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -57,6 +63,8 @@ import { GatewayClient } from "../../gateway/client.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { logDebug, logError } from "../../logger.js";
 <<<<<<< HEAD
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
@@ -67,7 +75,6 @@ import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
 import type { RuntimeEnv } from "../../runtime.js";
 =======
 import { normalizeAccountId, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
-import type { RuntimeEnv } from "../../runtime.js";
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,

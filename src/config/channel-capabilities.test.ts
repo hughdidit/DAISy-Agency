@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 import type { PluginRegistry } from "../plugins/registry.js";
+import type { OpenClawConfig } from "./config.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { resolveChannelCapabilities } from "./channel-capabilities.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -15,6 +17,8 @@ import type { OpenClawConfig } from "./config.js";
 =======
 import type { OpenClawConfig } from "./config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 describe("resolveChannelCapabilities", () => {
   beforeEach(() => {

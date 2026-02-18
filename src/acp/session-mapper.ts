@@ -2,6 +2,7 @@ import type { GatewayClient } from "../gateway/client.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { AcpServerOptions } from "./types.js";
 =======
@@ -13,7 +14,10 @@ import type { AcpServerOptions } from "./types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { readBool, readString } from "./meta.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { AcpServerOptions } from "./types.js";
+import { readBool, readString } from "./meta.js";
 
 export type AcpSessionMeta = {
   sessionKey?: string;

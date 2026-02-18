@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { HealthSummary } from "./health.js";
 =======
@@ -11,9 +12,11 @@ import type { HealthSummary } from "./health.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { HealthSummary } from "./health.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { stripAnsi } from "../terminal/ansi.js";
 import { formatHealthCheckFailure } from "./health-format.js";
-import type { HealthSummary } from "./health.js";
 import { formatHealthChannelLines, healthCommand } from "./health.js";
 
 const runtime = {

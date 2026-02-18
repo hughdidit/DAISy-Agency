@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { loginOpenAICodex } from "@mariozechner/pi-ai";
 =======
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
@@ -13,6 +14,9 @@ import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveEnvApiKey } from "../agents/model-auth.js";
 import { upsertSharedEnvVar } from "../infra/env-file.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
@@ -21,6 +25,7 @@ import {
   normalizeApiKeyInput,
   validateApiKeyInput,
 } from "./auth-choice.api-key.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -36,6 +41,8 @@ import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice
 =======
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { applyDefaultModelChoice } from "./auth-choice.default-model.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
 >>>>>>> 86e4fe0a7 (Auth: land codex oauth onboarding flow (#15406))

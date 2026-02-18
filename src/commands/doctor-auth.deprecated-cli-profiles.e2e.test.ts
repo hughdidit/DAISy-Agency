@@ -18,9 +18,13 @@ import type { DoctorPrompter } from "./doctor-prompter.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 6264c5e84 (chore: Fix types in tests 41/N.)
 import { maybeRemoveDeprecatedCliAuthProfiles } from "./doctor-auth.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { DoctorPrompter } from "./doctor-prompter.js";
+import { maybeRemoveDeprecatedCliAuthProfiles } from "./doctor-auth.js";
 
 let originalAgentDir: string | undefined;
 let originalPiAgentDir: string | undefined;

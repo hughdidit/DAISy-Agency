@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
@@ -22,9 +23,12 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ChatType } from "../channels/chat-type.js";
-import { normalizeChatType } from "../channels/chat-type.js";
 import type { OpenClawConfig } from "../config/config.js";
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { normalizeChatType } from "../channels/chat-type.js";
 import { shouldLogVerbose } from "../globals.js";
 import { logDebug } from "../logger.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

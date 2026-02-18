@@ -2,16 +2,20 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../config/config.js";
 import type { FinalizedMsgContext } from "../templating.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { ReplyDispatcher, ReplyDispatchKind } from "./reply-dispatcher.js";
+<<<<<<< HEAD
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
@@ -21,6 +25,8 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { FinalizedMsgContext } from "../templating.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import type { ReplyDispatcher, ReplyDispatchKind } from "./reply-dispatcher.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";

@@ -10,6 +10,7 @@ import type { MediaUnderstandingAttachmentsConfig } from "../config/types.tools.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 =======
@@ -19,6 +20,9 @@ import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { isAbortError } from "../infra/unhandled-rejections.js";
 >>>>>>> 53910f364 (Deduplicate more)
@@ -26,6 +30,7 @@ import { fetchRemoteMedia, MediaFetchError } from "../media/fetch.js";
 import { detectMime, getFileExtension, isAudioFileName, kindFromMime } from "../media/mime.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { fetchWithTimeout } from "./providers/shared.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
@@ -38,6 +43,8 @@ import { MediaUnderstandingSkipError } from "./errors.js";
 =======
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type MediaBufferResult = {
   buffer: Buffer;

@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { OpenClawApp } from "./app";
 import { refreshChat } from "./app-chat";
@@ -17,6 +18,10 @@ import type { AgentsListResult } from "./types.ts";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawApp } from "./app.ts";
+import type { AgentsListResult } from "./types.ts";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { refreshChat } from "./app-chat.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {
@@ -46,7 +51,6 @@ import { loadSkills } from "./controllers/skills";
 =======
 } from "./app-polling.ts";
 import { scheduleChatScroll, scheduleLogsScroll } from "./app-scroll.ts";
-import type { OpenClawApp } from "./app.ts";
 import { loadAgentIdentities, loadAgentIdentity } from "./controllers/agent-identity.ts";
 import { loadAgentSkills } from "./controllers/agent-skills.ts";
 import { loadAgents } from "./controllers/agents.ts";
@@ -91,6 +95,7 @@ import { resolveTheme, type ResolvedTheme, type ThemeMode } from "./theme.ts";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import type { AgentsListResult } from "./types.ts";
@@ -100,6 +105,8 @@ import type { AgentsListResult } from "./types.ts";
 =======
 import type { AgentsListResult } from "./types.ts";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type SettingsHost = {
   settings: UiSettings;

@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -12,11 +13,14 @@ import { type Api, getEnvApiKey, type Model } from "@mariozechner/pi-ai";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import path from "node:path";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { type Api, getEnvApiKey, type Model } from "@mariozechner/pi-ai";
-import { formatCliCommand } from "../cli/command-format.js";
+import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ModelProviderAuthMode, ModelProviderConfig } from "../config/types.js";
+import { formatCliCommand } from "../cli/command-format.js";
 import { getShellEnvAppliedKeys } from "../infra/shell-env.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import {

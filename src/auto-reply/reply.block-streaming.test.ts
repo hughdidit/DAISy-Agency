@@ -12,6 +12,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> e324cb5b9 (perf(test): reduce fixture churn in hot suites)
 =======
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
@@ -26,7 +27,10 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { loadModelCatalog } from "../agents/model-catalog.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../config/config.js";
+import { loadModelCatalog } from "../agents/model-catalog.js";
 import { getReplyFromConfig } from "./reply.js";
 
 type RunEmbeddedPiAgent = typeof import("../agents/pi-embedded.js").runEmbeddedPiAgent;

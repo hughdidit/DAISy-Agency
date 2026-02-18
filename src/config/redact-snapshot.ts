@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ConfigFileSnapshot } from "./types.openclaw.js";
 =======
 =======
@@ -15,9 +16,11 @@ import type { ConfigFileSnapshot } from "./types.openclaw.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ConfigFileSnapshot } from "./types.openclaw.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { isSensitiveConfigPath, type ConfigUiHints } from "./schema.hints.js";
-import type { ConfigFileSnapshot } from "./types.openclaw.js";
 
 const log = createSubsystemLogger("config/redaction");
 const ENV_VAR_PLACEHOLDER_PATTERN = /^\$\{[^}]*\}$/;

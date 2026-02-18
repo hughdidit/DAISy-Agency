@@ -9,6 +9,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Type } from "@sinclair/typebox";
 import * as lancedb from "@lancedb/lancedb";
 import OpenAI from "openai";
@@ -40,6 +41,13 @@ import OpenAI from "openai";
 =======
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type * as LanceDB from "@lancedb/lancedb";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
+import { Type } from "@sinclair/typebox";
+import { randomUUID } from "node:crypto";
+import OpenAI from "openai";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   DEFAULT_CAPTURE_MAX_CHARS,
   MEMORY_CATEGORIES,

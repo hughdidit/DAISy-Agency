@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 <<<<<<< HEAD
@@ -48,6 +49,8 @@ import { formatCliCommand } from "../cli/command-format.js";
 =======
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   GatewayAuthChoice,
   OnboardMode,
@@ -55,6 +58,7 @@ import type {
   ResetScope,
 } from "../commands/onboard-types.js";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -71,12 +75,18 @@ import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.js";
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   DEFAULT_GATEWAY_PORT,
   readConfigFileSnapshot,
   resolveGatewayPort,
   writeConfigFile,
 } from "../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -108,6 +118,10 @@ import { defaultRuntime } from "../runtime.js";
 import { resolveUserPath } from "../utils.js";
 import type { QuickstartGatewayDefaults, WizardFlow } from "./onboarding.types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { defaultRuntime } from "../runtime.js";
+import { resolveUserPath } from "../utils.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { WizardCancelledError, type WizardPrompter } from "./prompts.js";
 import { installCompletion } from "../cli/completion-cli.js";
 

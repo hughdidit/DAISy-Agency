@@ -8,6 +8,7 @@ import { WebSocket } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 =======
@@ -20,10 +21,12 @@ import type { GatewayClient } from "./client.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { GatewayClient } from "./client.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { CONFIG_PATH } from "../config/config.js";
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
-import type { GatewayClient } from "./client.js";
 
 vi.mock("../infra/update-runner.js", () => ({
   runGatewayUpdate: vi.fn(async () => ({

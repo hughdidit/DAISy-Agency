@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { AuthProfileStore } from "./types.js";
 =======
@@ -15,11 +16,13 @@ import type { AuthProfileStore } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { AuthProfileStore } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { captureEnv } from "../../test-utils/env.js";
 >>>>>>> cedd520f2 (refactor(test): simplify state dir env helpers)
 import { resolveApiKeyForProfile } from "./oauth.js";
 import { ensureAuthProfileStore } from "./store.js";
-import type { AuthProfileStore } from "./types.js";
 
 describe("resolveApiKeyForProfile fallback to main agent", () => {
 <<<<<<< HEAD

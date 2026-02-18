@@ -7,6 +7,7 @@ import { promisify } from "node:util";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv } from "../runtime.js";
@@ -14,6 +15,10 @@ import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 >>>>>>> 52b624cca (fix(doctor): audit env-only gateway tokens)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveGatewayPort, resolveIsNixMode } from "../config/paths.js";
 import { findExtraGatewayServices, renderGatewayServiceCleanupHints } from "../daemon/inspect.js";
 import { findLegacyGatewayServices, uninstallLegacyGatewayServices } from "../daemon/legacy.js";
@@ -36,11 +41,9 @@ import {
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 =======
 import { resolveGatewayService } from "../daemon/service.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { buildGatewayInstallPlan } from "./daemon-install-helpers.js";
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME, type GatewayDaemonRuntime } from "./daemon-runtime.js";
-import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 
 const execFileAsync = promisify(execFile);
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

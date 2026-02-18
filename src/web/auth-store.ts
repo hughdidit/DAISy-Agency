@@ -4,6 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 =======
@@ -11,6 +12,9 @@ import type { WebChannel } from "../utils.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { WebChannel } from "../utils.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveOAuthDir } from "../config/paths.js";
@@ -21,6 +25,7 @@ import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -30,6 +35,8 @@ import type { WebChannel } from "../utils.js";
 =======
 import type { WebChannel } from "../utils.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { jidToE164, resolveUserPath } from "../utils.js";
 
 export function resolveDefaultWebAuthDir(): string {

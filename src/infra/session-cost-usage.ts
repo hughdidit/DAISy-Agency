@@ -9,6 +9,7 @@ import type { NormalizedUsage, UsageLike } from "../agents/usage.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import { normalizeUsage } from "../agents/usage.js";
@@ -23,14 +24,10 @@ import { normalizeUsage } from "../agents/usage.js";
 =======
 import { normalizeUsage } from "../agents/usage.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../config/config.js";
-import {
-  resolveSessionFilePath,
-  resolveSessionTranscriptsDirForAgent,
-} from "../config/sessions/paths.js";
 import type { SessionEntry } from "../config/sessions/types.js";
-import { countToolResults, extractToolCallNames } from "../utils/transcript-tools.js";
-import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
 import type {
   CostBreakdown,
   CostUsageTotals,
@@ -56,6 +53,7 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> c256503ea (refactor(infra): extract session cost usage types)
 import { normalizeUsage } from "../agents/usage.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -66,12 +64,16 @@ import { normalizeUsage } from "../agents/usage.js";
 =======
 import { normalizeUsage } from "../agents/usage.js";
 >>>>>>> ed11e93cf (chore(format))
+=======
+import { normalizeUsage } from "../agents/usage.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   resolveSessionFilePath,
   resolveSessionTranscriptsDirForAgent,
 } from "../config/sessions/paths.js";
 import { countToolResults, extractToolCallNames } from "../utils/transcript-tools.js";
 import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -84,6 +86,8 @@ import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export type {
   CostUsageDailyEntry,

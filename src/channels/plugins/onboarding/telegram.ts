@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../../config/config.js";
 =======
 import { formatCliCommand } from "../../../cli/command-format.js";
@@ -9,9 +10,14 @@ import { formatCliCommand } from "../../../cli/command-format.js";
 =======
 import { formatCliCommand } from "../../../cli/command-format.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { DmPolicy } from "../../../config/types.js";
+import type { WizardPrompter } from "../../../wizard/prompts.js";
+import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
+import { formatCliCommand } from "../../../cli/command-format.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import {
   listTelegramAccountIds,
@@ -19,6 +25,7 @@ import {
   resolveTelegramAccount,
 } from "../../../telegram/accounts.js";
 import { formatDocsLink } from "../../../terminal/links.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -38,6 +45,8 @@ import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onb
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { addWildcardAllowFrom, mergeAllowFromEntries, promptAccountId } from "./helpers.js";
 >>>>>>> 64f5e4a42 (refactor(onboarding): reuse allowlist merge across channels)
 

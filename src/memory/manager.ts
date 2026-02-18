@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 =======
 import type { DatabaseSync } from "node:sqlite";
@@ -132,9 +133,24 @@ import type { DatabaseSync } from "node:sqlite";
 import { type FSWatcher } from "chokidar";
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
+=======
+import type { DatabaseSync } from "node:sqlite";
+import { type FSWatcher } from "chokidar";
+import fs from "node:fs/promises";
+import path from "node:path";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
-import { resolveMemorySearchConfig } from "../agents/memory-search.js";
 import type { OpenClawConfig } from "../config/config.js";
+import type {
+  MemoryEmbeddingProbeResult,
+  MemoryProviderStatus,
+  MemorySearchManager,
+  MemorySearchResult,
+  MemorySource,
+  MemorySyncProgressUpdate,
+} from "./types.js";
+import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
+import { resolveMemorySearchConfig } from "../agents/memory-search.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   createEmbeddingProvider,
@@ -205,6 +221,7 @@ import { extractKeywords } from "./query-expansion.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> bcab2469d (feat: LLM-based query expansion for FTS mode)
 =======
 =======
@@ -231,6 +248,8 @@ import { extractKeywords } from "./query-expansion.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 const SNIPPET_MAX_CHARS = 700;
 const VECTOR_TABLE = "chunks_vec";
 const FTS_TABLE = "chunks_fts";

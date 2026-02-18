@@ -2,6 +2,7 @@ import type { OpenClawConfig } from "./types.js";
 import type { ModelDefinitionConfig } from "./types.models.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
 import { parseModelRef } from "../agents/model-selection.js";
+<<<<<<< HEAD
 import { resolveTalkApiKey } from "./talk.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -21,6 +22,10 @@ import type { ModelDefinitionConfig } from "./types.models.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
+=======
+import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from "./agent-limits.js";
+import { resolveTalkApiKey } from "./talk.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 type WarnState = { warned: boolean };
 

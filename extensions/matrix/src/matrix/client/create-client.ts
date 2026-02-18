@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 
@@ -9,6 +10,8 @@ import fs from "node:fs";
 =======
 import fs from "node:fs";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { IStorageProvider, ICryptoStorageProvider } from "@vector-im/matrix-bot-sdk";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
@@ -20,6 +23,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IStorageProvider, ICryptoStorageProvider } from "@vector-im/matrix-bot-sdk";
 
 =======
@@ -29,6 +33,9 @@ import fs from "node:fs";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import fs from "node:fs";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { ensureMatrixSdkLoggingConfigured } from "./logging.js";
 import {
   maybeMigrateLegacyStorage,

@@ -1,4 +1,6 @@
+import type { Command } from "commander";
 import fs from "node:fs";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -17,7 +19,11 @@ import path from "node:path";
 =======
 import type { Command } from "commander";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import path from "node:path";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { GatewayAuthMode } from "../../config/config.js";
+import type { GatewayWsLogStyle } from "../../gateway/ws-logging.js";
 import {
   CONFIG_PATH,
   loadConfig,
@@ -27,7 +33,6 @@ import {
 } from "../../config/config.js";
 import { resolveGatewayAuth } from "../../gateway/auth.js";
 import { startGatewayServer } from "../../gateway/server.js";
-import type { GatewayWsLogStyle } from "../../gateway/ws-logging.js";
 import { setGatewayWsLogStyle } from "../../gateway/ws-logging.js";
 import { setVerbose } from "../../globals.js";
 import { GatewayLockError } from "../../infra/gateway-lock.js";

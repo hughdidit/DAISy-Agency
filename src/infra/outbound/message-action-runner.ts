@@ -5,6 +5,14 @@ import { fileURLToPath } from "node:url";
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 =======
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import type {
+  ChannelId,
+  ChannelMessageActionName,
+  ChannelThreadingToolContext,
+} from "../../channels/plugins/types.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { OutboundSendDeps } from "./deliver.js";
+import type { MessagePollResult, MessageSendResult } from "./message.js";
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 import {
@@ -15,6 +23,7 @@ import {
 import { resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -47,6 +56,8 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -70,6 +81,7 @@ import { applyTargetToParams } from "./channel-target.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureOutboundSessionEntry, resolveOutboundSessionRoute } from "./outbound-session.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
@@ -82,6 +94,8 @@ import type { OutboundSendDeps } from "./deliver.js";
 =======
 import type { OutboundSendDeps } from "./deliver.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   hydrateSendAttachmentParams,
   hydrateSetGroupIconParams,
@@ -98,6 +112,7 @@ import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 39af215c3 (refactor(outbound): extract message action param helpers)
 =======
 import type { MessagePollResult, MessageSendResult } from "./message.js";
@@ -107,6 +122,8 @@ import type { MessagePollResult, MessageSendResult } from "./message.js";
 =======
 import type { MessagePollResult, MessageSendResult } from "./message.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   applyCrossContextDecoration,
   buildCrossContextDecoration,

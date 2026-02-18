@@ -4,15 +4,18 @@ import type { MoltbotConfig } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SkillEntry, SkillSnapshot } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { SkillEntry, SkillSnapshot } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveSkillConfig } from "./config.js";
 import { resolveSkillKey } from "./frontmatter.js";
-import type { SkillEntry, SkillSnapshot } from "./types.js";
 
 <<<<<<< HEAD
 export function applySkillEnvOverrides(params: { skills: SkillEntry[]; config?: MoltbotConfig }) {

@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 
@@ -10,6 +11,8 @@ import { randomUUID } from "node:crypto";
 =======
 import { randomUUID } from "node:crypto";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   Agent,
   AgentSideConnection,
@@ -34,6 +37,7 @@ import { PROTOCOL_VERSION } from "@agentclientprotocol/sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -42,6 +46,9 @@ import { randomUUID } from "node:crypto";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { randomUUID } from "node:crypto";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { GatewayClient } from "../gateway/client.js";
 import type { EventFrame } from "../gateway/protocol/index.js";
 import type { SessionsListResult } from "../gateway/session-utils.js";

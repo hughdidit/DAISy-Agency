@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> 600260ebf (refactor(gateway): dedupe web login provider checks)
@@ -12,6 +13,9 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { GatewayRequestHandlers, RespondFn } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import {
   ErrorCodes,
@@ -24,6 +28,7 @@ import { formatForLog } from "../ws-log.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
@@ -33,6 +38,8 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 const WEB_LOGIN_METHODS = new Set(["web.login.start", "web.login.wait"]);
 

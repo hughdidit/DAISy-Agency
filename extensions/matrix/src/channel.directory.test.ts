@@ -20,10 +20,13 @@ import type { CoreConfig } from "./types.js";
 =======
 import type { PluginRuntime, RuntimeEnv } from "openclaw/plugin-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { CoreConfig } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { matrixPlugin } from "./channel.js";
 import { setMatrixRuntime } from "./runtime.js";
-import type { CoreConfig } from "./types.js";
 
 describe("matrix directory", () => {
   const runtimeEnv: RuntimeEnv = {

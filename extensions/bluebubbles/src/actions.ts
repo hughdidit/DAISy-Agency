@@ -17,6 +17,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
 
 =======
@@ -26,6 +27,9 @@ import type { BlueBubblesSendTarget } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { BlueBubblesSendTarget } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import { resolveBlueBubblesMessageId } from "./monitor.js";
 import { isMacOS26OrHigher } from "./probe.js";
@@ -42,7 +46,6 @@ import {
 } from "./chat.js";
 import { sendBlueBubblesAttachment } from "./attachments.js";
 import { normalizeBlueBubblesHandle, parseBlueBubblesTarget } from "./targets.js";
-import type { BlueBubblesSendTarget } from "./types.js";
 
 const providerId = "bluebubbles";
 

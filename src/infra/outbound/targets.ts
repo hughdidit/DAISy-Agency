@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
@@ -14,12 +15,14 @@ import type { MoltbotConfig } from "../../config/config.js";
 =======
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
-import { formatCliCommand } from "../../cli/command-format.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 9c4cbaab7 (chore: Enable eslint/no-unused-vars.)
 import type { SessionEntry } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.agent-defaults.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -33,6 +36,8 @@ import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   DeliverableMessageChannel,
   GatewayMessageChannel,
@@ -41,13 +46,17 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import { normalizeAccountId } from "../../routing/session-key.js";
 import { deliveryContextFromSession } from "../../utils/delivery-context.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> a42e3cb78 (feat(heartbeat): add accountId config option for multi-agent routing (#8702))
 =======
@@ -56,6 +65,8 @@ import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   INTERNAL_MESSAGE_CHANNEL,
   isDeliverableMessageChannel,

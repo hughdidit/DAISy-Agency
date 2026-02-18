@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { Logger as TsLogger } from "tslog";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14,6 +15,11 @@ import { inspect } from "node:util";
 import { Chalk } from "chalk";
 import type { Logger as TsLogger } from "tslog";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { Logger as TsLogger } from "tslog";
+import { Chalk } from "chalk";
+import { inspect } from "node:util";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { CHAT_CHANNEL_ORDER } from "../channels/registry.js";
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 import { getConsoleSettings, shouldLogSubsystemToConsole } from "./console.js";

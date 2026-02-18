@@ -1,6 +1,6 @@
 import type { Command } from "commander";
-import { formatAuthChoiceChoicesForCli } from "../../commands/auth-choice-options.js";
 import type { GatewayDaemonRuntime } from "../../commands/daemon-runtime.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -13,6 +13,8 @@ import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-aut
 =======
 import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-auth-flags.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   AuthChoice,
   GatewayAuthChoice,
@@ -20,6 +22,7 @@ import type {
   NodeManagerChoice,
   TailscaleMode,
 } from "../../commands/onboard-types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -35,6 +38,10 @@ import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-aut
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { formatAuthChoiceChoicesForCli } from "../../commands/auth-choice-options.js";
+import { ONBOARD_PROVIDER_AUTH_FLAGS } from "../../commands/onboard-provider-auth-flags.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { onboardCommand } from "../../commands/onboard.js";
 >>>>>>> eab9dc538 (refactor(onboard): unify auth-choice catalog for CLI help)
 import { defaultRuntime } from "../../runtime.js";

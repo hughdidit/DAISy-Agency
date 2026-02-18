@@ -1,6 +1,9 @@
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import { SessionManager } from "@mariozechner/pi-coding-agent";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -15,6 +18,8 @@ import { SessionManager } from "@mariozechner/pi-coding-agent";
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { SessionManager } from "@mariozechner/pi-coding-agent";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { describe, expect, it, afterEach } from "vitest";
 <<<<<<< HEAD
 

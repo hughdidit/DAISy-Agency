@@ -1,3 +1,4 @@
+import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 import {
   ensureExecApprovals,
   mergeExecApprovalsSocketDefaults,
@@ -39,6 +40,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 73a97ee25 (refactor(gateway): share node invoke error handling)
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
@@ -48,6 +50,8 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { assertValidParams } from "./validation.js";
 >>>>>>> b743e652c (refactor(gateway): reuse shared validators + baseHash)
 

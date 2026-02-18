@@ -3,6 +3,7 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import type { ChannelAccountSnapshot, TelegramStatus } from "../types";
@@ -34,6 +35,12 @@ import { renderChannelConfigSection } from "./channels.config.ts";
 =======
 import type { ChannelsProps } from "./channels.types.ts";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ChannelAccountSnapshot, TelegramStatus } from "../types.ts";
+import type { ChannelsProps } from "./channels.types.ts";
+import { formatRelativeTimestamp } from "../format.ts";
+import { renderChannelConfigSection } from "./channels.config.ts";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export function renderTelegramCard(params: {
   props: ChannelsProps;

@@ -12,6 +12,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   buildConfigChecks,
   resolveMissingAnyBins,
@@ -51,6 +52,10 @@ import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
 import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
+import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { CONFIG_DIR } from "../utils.js";
 import {
   hasBinary,

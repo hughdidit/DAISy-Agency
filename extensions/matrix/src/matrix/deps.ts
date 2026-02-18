@@ -1,7 +1,9 @@
+import type { RuntimeEnv } from "openclaw/plugin-sdk";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -15,6 +17,8 @@ import type { RuntimeEnv } from "openclaw/plugin-sdk";
 =======
 import type { RuntimeEnv } from "openclaw/plugin-sdk";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getMatrixRuntime } from "../runtime.js";
 
 const MATRIX_SDK_PACKAGE = "@vector-im/matrix-bot-sdk";

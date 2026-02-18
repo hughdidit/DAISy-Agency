@@ -8,6 +8,7 @@ import { ChannelType, Routes } from "discord-api-types/v10";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9949f8259 (fix(discord): support forum channel thread-create (#10062))
 =======
 import { resolveDiscordRest } from "./send.shared.js";
@@ -17,6 +18,8 @@ import { resolveDiscordRest } from "./send.shared.js";
 =======
 import { resolveDiscordRest } from "./send.shared.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   DiscordMessageEdit,
   DiscordMessageQuery,
@@ -25,6 +28,7 @@ import type {
   DiscordThreadCreate,
   DiscordThreadList,
 } from "./send.types.js";
+import { resolveDiscordRest } from "./send.shared.js";
 
 export async function readMessagesDiscord(
   channelId: string,

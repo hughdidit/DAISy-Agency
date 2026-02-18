@@ -3,6 +3,7 @@ import express from "express";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -11,6 +12,9 @@ import type { BrowserRouteRegistrar } from "./routes/types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { BrowserRouteRegistrar } from "./routes/types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveBrowserConfig, resolveProfile } from "./config.js";
@@ -18,6 +22,7 @@ import { ensureBrowserControlAuth, resolveBrowserControlAuth } from "./control-a
 import { ensureChromeExtensionRelayServer } from "./extension-relay.js";
 import { isPwAiLoaded } from "./pw-ai-state.js";
 import { registerBrowserRoutes } from "./routes/index.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -33,6 +38,8 @@ import type { BrowserRouteRegistrar } from "./routes/types.js";
 =======
 import type { BrowserRouteRegistrar } from "./routes/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   type BrowserServerState,
   createBrowserRouteContext,

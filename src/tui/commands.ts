@@ -1,6 +1,8 @@
 import type { SlashCommand } from "@mariozechner/pi-tui";
+import type { OpenClawConfig } from "../config/types.js";
 import { listChatCommands, listChatCommandsForConfig } from "../auto-reply/commands-registry.js";
 import { formatThinkingLevels, listThinkingLevelLabels } from "../auto-reply/thinking.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -13,6 +15,8 @@ import type { OpenClawConfig } from "../config/types.js";
 =======
 import type { OpenClawConfig } from "../config/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 const VERBOSE_LEVELS = ["on", "off"];
 const REASONING_LEVELS = ["on", "off"];

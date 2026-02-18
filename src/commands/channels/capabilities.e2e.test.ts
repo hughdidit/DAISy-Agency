@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
 =======
@@ -14,7 +15,10 @@ import type { ChannelPlugin } from "../../channels/plugins/types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ChannelPlugin } from "../../channels/plugins/types.js";
+import { getChannelPlugin, listChannelPlugins } from "../../channels/plugins/index.js";
 import { fetchSlackScopes } from "../../slack/scopes.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { channelsCapabilitiesCommand } from "./capabilities.js";

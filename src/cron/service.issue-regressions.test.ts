@@ -11,6 +11,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 912693036 (test(cron): remove flaky real-timer polling)
 import type { CronJob } from "./types.js";
 =======
@@ -21,6 +22,8 @@ import type { CronJob, CronJobState } from "./types.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { CronJob, CronJobState } from "./types.js";
 import * as schedule from "./schedule.js";
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)

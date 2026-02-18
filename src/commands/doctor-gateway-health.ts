@@ -4,15 +4,18 @@ import type { MoltbotConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import { collectChannelStatusIssues } from "../infra/channels-status-issues.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { healthCommand } from "./health.js";
 import { formatHealthCheckFailure } from "./health-format.js";

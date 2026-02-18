@@ -8,9 +8,11 @@ import * as replyModule from "../auto-reply/reply.js";
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import * as replyModule from "../auto-reply/reply.js";
 import { whatsappOutbound } from "../channels/plugins/outbound/whatsapp.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -23,6 +25,8 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   resolveAgentIdFromSessionKey,
   resolveAgentMainSessionKey,

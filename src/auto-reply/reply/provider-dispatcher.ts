@@ -10,10 +10,6 @@ import {
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 import type { DispatchInboundResult } from "../dispatch.js";
-import {
-  dispatchInboundMessageWithBufferedDispatcher,
-  dispatchInboundMessageWithDispatcher,
-} from "../dispatch.js";
 import type { FinalizedMsgContext, MsgContext } from "../templating.js";
 import type { GetReplyOptions } from "../types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -21,6 +17,10 @@ import type {
   ReplyDispatcherOptions,
   ReplyDispatcherWithTypingOptions,
 } from "./reply-dispatcher.js";
+import {
+  dispatchInboundMessageWithBufferedDispatcher,
+  dispatchInboundMessageWithDispatcher,
+} from "../dispatch.js";
 
 export async function dispatchReplyWithBufferedBlockDispatcher(params: {
   ctx: MsgContext | FinalizedMsgContext;

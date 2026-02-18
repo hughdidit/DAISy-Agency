@@ -1,6 +1,8 @@
+import type { Command } from "commander";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { Command } from "commander";
@@ -17,6 +19,10 @@ import type { PluginRecord } from "../plugins/registry.js";
 import type { Command } from "commander";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { PluginRecord } from "../plugins/registry.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadConfig, writeConfigFile } from "../config/config.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
@@ -27,7 +33,6 @@ import { resolveArchiveKind } from "../infra/archive.js";
 import { installPluginFromNpmSpec, installPluginFromPath } from "../plugins/install.js";
 import { recordPluginInstall } from "../plugins/installs.js";
 import { clearPluginManifestRegistryCache } from "../plugins/manifest-registry.js";
-import type { PluginRecord } from "../plugins/registry.js";
 import { applyExclusiveSlotSelection } from "../plugins/slots.js";
 <<<<<<< HEAD
 import type { PluginRecord } from "../plugins/registry.js";

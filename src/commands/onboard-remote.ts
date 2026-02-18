@@ -1,9 +1,11 @@
 import type { MoltbotConfig } from "../config/config.js";
 import type { GatewayBonjourBeacon } from "../infra/bonjour-discovery.js";
+import type { WizardPrompter } from "../wizard/prompts.js";
 import { discoverGatewayBeacons } from "../infra/bonjour-discovery.js";
 <<<<<<< HEAD
 =======
 import { resolveWideAreaDiscoveryDomain } from "../infra/widearea-dns.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -13,6 +15,8 @@ import type { WizardPrompter } from "../wizard/prompts.js";
 =======
 import type { WizardPrompter } from "../wizard/prompts.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { detectBinary } from "./onboard-helpers.js";
 
 const DEFAULT_GATEWAY_URL = "ws://127.0.0.1:18789";

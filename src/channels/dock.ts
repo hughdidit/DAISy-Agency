@@ -2,6 +2,19 @@
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+import type {
+  ChannelCapabilities,
+  ChannelCommandAdapter,
+  ChannelElevatedAdapter,
+  ChannelGroupAdapter,
+  ChannelId,
+  ChannelAgentPromptAdapter,
+  ChannelMentionAdapter,
+  ChannelPlugin,
+  ChannelThreadingContext,
+  ChannelThreadingAdapter,
+  ChannelThreadingToolContext,
+} from "./plugins/types.js";
 import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
@@ -43,6 +56,7 @@ import {
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import { normalizeSignalMessagingTarget } from "./plugins/normalize/signal.js";
+<<<<<<< HEAD
 >>>>>>> b20339a23 (fix(signal): canonicalize message targets in tool and inbound flows)
 import type {
   ChannelCapabilities,
@@ -76,6 +90,8 @@ import type {
   ChannelThreadingToolContext,
 } from "./plugins/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { CHAT_CHANNEL_ORDER, type ChatChannelId, getChatChannelMeta } from "./registry.js";
 
 export type ChannelDock = {

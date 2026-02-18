@@ -3,6 +3,7 @@ import type { Command } from "commander";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomIdempotencyKey } from "../../gateway/call.js";
 =======
 import type { NodesRpcOpts } from "./types.js";
@@ -14,6 +15,9 @@ import type { NodesRpcOpts } from "./types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { defaultRuntime } from "../../runtime.js";
 import {
   parseScreenRecordPayload,
@@ -22,6 +26,7 @@ import {
 } from "../nodes-screen.js";
 import { parseDurationMs } from "../parse-duration.js";
 import { runNodesCommand } from "./cli-utils.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
@@ -41,6 +46,9 @@ import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } f
 =======
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export function registerNodesScreenCommands(nodes: Command) {
   const screen = nodes

@@ -1,6 +1,8 @@
+import type { OpenClawConfig } from "../config/config.js";
 import { resolveUserTimezone } from "../agents/date-time.js";
 import { normalizeChatType } from "../channels/chat-type.js";
 import { resolveSenderLabel, type SenderLabelParams } from "../channels/sender-label.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -15,6 +17,8 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   resolveTimezone,
   formatUtcTimestamp,

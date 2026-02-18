@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { extractText } from "../chat/message-extract";
 import type { GatewayBrowserClient } from "../gateway";
 import { generateUUID } from "../uuid";
@@ -15,8 +16,11 @@ import { extractText } from "../chat/message-extract.ts";
 =======
 import { extractText } from "../chat/message-extract.ts";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { GatewayBrowserClient } from "../gateway.ts";
 import type { ChatAttachment } from "../ui-types.ts";
+import { extractText } from "../chat/message-extract.ts";
 import { generateUUID } from "../uuid.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 

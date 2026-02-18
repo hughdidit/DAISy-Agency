@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 =======
@@ -9,6 +10,9 @@ import type { ChatCommandDefinition } from "./commands-registry.types.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { ChatCommandDefinition } from "./commands-registry.types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -29,6 +33,7 @@ import {
 } from "./commands-registry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChatCommandDefinition } from "./commands-registry.types.js";
 <<<<<<< HEAD
 import { setActivePluginRegistry } from "../plugins/runtime.js";
@@ -40,6 +45,8 @@ import { createTestRegistry } from "../test-utils/channel-plugins.js";
 =======
 import type { ChatCommandDefinition } from "./commands-registry.types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 beforeEach(() => {
   setActivePluginRegistry(createTestRegistry([]));

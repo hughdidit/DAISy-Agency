@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -20,9 +21,13 @@ import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/ind
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { PollInput } from "../../polls.js";
+import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { loadConfig } from "../../config/config.js";
 import { callGateway, randomIdempotencyKey } from "../../gateway/call.js";
-import type { PollInput } from "../../polls.js";
 import { normalizePollInput } from "../../polls.js";
 import {
   GATEWAY_CLIENT_MODES,

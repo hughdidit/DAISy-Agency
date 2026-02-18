@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
@@ -30,6 +31,14 @@ import { buildWorkspaceHookStatus } from "../hooks/hooks-status.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { RuntimeEnv } from "../runtime.js";
+import type { WizardPrompter } from "../wizard/prompts.js";
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import { buildWorkspaceHookStatus } from "../hooks/hooks-status.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export async function setupInternalHooks(
   cfg: MoltbotConfig,

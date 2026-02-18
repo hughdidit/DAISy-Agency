@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -13,7 +14,10 @@ import type { HookMessageChannel } from "./hooks.js";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { CONFIG_PATH, type HookMappingConfig, type HooksConfig } from "../config/config.js";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { HookMessageChannel } from "./hooks.js";
+import { CONFIG_PATH, type HookMappingConfig, type HooksConfig } from "../config/config.js";
 
 export type HookMappingResolved = {
   id: string;

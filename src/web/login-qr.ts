@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 
@@ -11,7 +12,10 @@ import { DisconnectReason } from "@whiskeysockets/baileys";
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { randomUUID } from "node:crypto";
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { DisconnectReason } from "@whiskeysockets/baileys";
+import { randomUUID } from "node:crypto";
 import { loadConfig } from "../config/config.js";
 import { danger, info, success } from "../globals.js";
 import { logInfo } from "../logger.js";

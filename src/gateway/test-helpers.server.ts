@@ -8,6 +8,7 @@ import { WebSocket } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -16,6 +17,9 @@ import type { GatewayServerOptions } from "./server.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { GatewayServerOptions } from "./server.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveMainSessionKeyFromConfig, type SessionEntry } from "../config/sessions.js";
 import { resetAgentRunContextForTest } from "../infra/agent-events.js";
 import {
@@ -35,6 +39,7 @@ import { PROTOCOL_VERSION } from "./protocol/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { buildDeviceAuthPayload } from "./device-auth.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -44,6 +49,8 @@ import type { GatewayServerOptions } from "./server.js";
 =======
 import type { GatewayServerOptions } from "./server.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   agentCommand,
   cronIsolatedRun,
