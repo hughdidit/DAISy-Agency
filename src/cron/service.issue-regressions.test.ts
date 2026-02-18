@@ -31,6 +31,11 @@ import type { CronJob, CronJobState } from "./types.js";
 import * as schedule from "./schedule.js";
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 import { CronService } from "./service.js";
+<<<<<<< HEAD
+=======
+import { createRunningCronServiceState } from "./service.test-harness.js";
+import { computeJobNextRunAtMs } from "./service/jobs.js";
+>>>>>>> 50e5413c1 (refactor(cron-test): share running-state fixture)
 import { createCronServiceState, type CronEvent } from "./service/state.js";
 import { onTimer } from "./service/timer.js";
 import type { CronJob, CronJobState } from "./types.js";
@@ -463,20 +468,12 @@ describe("Cron issue regressions", () => {
     const timeoutSpy = vi.spyOn(globalThis, "setTimeout");
     const store = await makeStorePath();
     const now = Date.parse("2026-02-06T10:05:00.000Z");
-    const state = createCronServiceState({
-      cronEnabled: true,
+    const state = createRunningCronServiceState({
       storePath: store.storePath,
       log: noopLogger,
       nowMs: () => now,
-      enqueueSystemEvent: vi.fn(),
-      requestHeartbeatNow: vi.fn(),
-      runIsolatedAgentJob: vi.fn().mockResolvedValue({ status: "ok", summary: "ok" }),
-    });
-    state.running = true;
-    state.store = {
-      version: 1,
       jobs: [createDueIsolatedJob({ id: "due", nowMs: now, nextRunAtMs: now - 1 })],
-    };
+    });
 
     await onTimer(state);
 
