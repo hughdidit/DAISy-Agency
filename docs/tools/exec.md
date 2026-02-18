@@ -46,8 +46,13 @@ Notes:
 - `tools.exec.security` (default: `deny` for sandbox, `allowlist` for gateway + node when unset)
 - `tools.exec.ask` (default: `on-miss`)
 - `tools.exec.node` (default: unset)
+<<<<<<< HEAD
 - `tools.exec.pathPrepend`: list of directories to prepend to `PATH` for exec runs.
 - `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries.
+=======
+- `tools.exec.pathPrepend`: list of directories to prepend to `PATH` for exec runs (gateway + sandbox only).
+- `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries (resolved path must come from trusted binary directories).
+>>>>>>> 28bac46c9 (fix(security): harden safeBins path trust)
 
 Example:
 ```json5

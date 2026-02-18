@@ -337,6 +337,7 @@ describe("exec approvals safe bins", () => {
       return;
     }
     const dir = makeTempDir();
+<<<<<<< HEAD
     const binDir = path.join(dir, "bin");
     fs.mkdirSync(binDir, { recursive: true });
     const exeName = process.platform === "win32" ? "jq.exe" : "jq";
@@ -350,9 +351,15 @@ describe("exec approvals safe bins", () => {
     });
     expect(res.ok).toBe(true);
     const segment = res.segments[0];
+=======
+>>>>>>> 28bac46c9 (fix(security): harden safeBins path trust)
     const ok = isSafeBinUsage({
-      argv: segment.argv,
-      resolution: segment.resolution,
+      argv: ["jq", ".foo"],
+      resolution: {
+        rawExecutable: "jq",
+        resolvedPath: "/usr/bin/jq",
+        executableName: "jq",
+      },
       safeBins: normalizeSafeBins(["jq"]),
       cwd: dir,
     });
@@ -364,6 +371,7 @@ describe("exec approvals safe bins", () => {
       return;
     }
     const dir = makeTempDir();
+<<<<<<< HEAD
     const binDir = path.join(dir, "bin");
     fs.mkdirSync(binDir, { recursive: true });
     const exeName = process.platform === "win32" ? "jq.exe" : "jq";
@@ -379,11 +387,35 @@ describe("exec approvals safe bins", () => {
     });
     expect(res.ok).toBe(true);
     const segment = res.segments[0];
+=======
+    fs.writeFileSync(path.join(dir, "secret.json"), "{}");
+>>>>>>> 28bac46c9 (fix(security): harden safeBins path trust)
     const ok = isSafeBinUsage({
-      argv: segment.argv,
-      resolution: segment.resolution,
+      argv: ["jq", ".foo", "secret.json"],
+      resolution: {
+        rawExecutable: "jq",
+        resolvedPath: "/usr/bin/jq",
+        executableName: "jq",
+      },
       safeBins: normalizeSafeBins(["jq"]),
       cwd: dir,
+    });
+    expect(ok).toBe(false);
+  });
+
+  it("blocks safe bins resolved from untrusted directories", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const ok = isSafeBinUsage({
+      argv: ["jq", ".foo"],
+      resolution: {
+        rawExecutable: "jq",
+        resolvedPath: "/tmp/evil-bin/jq",
+        executableName: "jq",
+      },
+      safeBins: normalizeSafeBins(["jq"]),
+      cwd: "/tmp",
     });
     expect(ok).toBe(false);
   });
