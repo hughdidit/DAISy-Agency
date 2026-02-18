@@ -65,6 +65,19 @@ import {
   CronUpdateParamsSchema,
 } from "./cron.js";
 import {
+<<<<<<< HEAD
+=======
+  DevicePairApproveParamsSchema,
+  DevicePairListParamsSchema,
+  DevicePairRemoveParamsSchema,
+  DevicePairRejectParamsSchema,
+  DevicePairRequestedEventSchema,
+  DevicePairResolvedEventSchema,
+  DeviceTokenRevokeParamsSchema,
+  DeviceTokenRotateParamsSchema,
+} from "./devices.js";
+import {
+>>>>>>> 1437ed76a (Gateway/CLI: add paired-device remove and clear flows (#20057))
   ExecApprovalsGetParamsSchema,
   ExecApprovalsNodeGetParamsSchema,
   ExecApprovalsNodeSetParamsSchema,
@@ -242,6 +255,7 @@ export const ProtocolSchemas: Record<string, TSchema> = {
   DevicePairListParams: DevicePairListParamsSchema,
   DevicePairApproveParams: DevicePairApproveParamsSchema,
   DevicePairRejectParams: DevicePairRejectParamsSchema,
+  DevicePairRemoveParams: DevicePairRemoveParamsSchema,
   DeviceTokenRotateParams: DeviceTokenRotateParamsSchema,
   DeviceTokenRevokeParams: DeviceTokenRevokeParamsSchema,
   DevicePairRequestedEvent: DevicePairRequestedEventSchema,
