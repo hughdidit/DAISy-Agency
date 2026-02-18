@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
 =======
@@ -11,6 +12,20 @@ import type { ZodIssue } from "zod";
 import type { MoltbotConfig } from "../config/config.js";
 import {
   MoltbotSchema,
+=======
+import type { ZodIssue } from "zod";
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { OpenClawConfig } from "../config/config.js";
+import type { DoctorOptions } from "./doctor-prompter.js";
+import {
+  isNumericTelegramUserId,
+  normalizeTelegramAllowFromEntry,
+} from "../channels/telegram/allow-from.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import {
+  OpenClawSchema,
+>>>>>>> 516046dba (fix: avoid doctor token regeneration on invalid repairs)
   CONFIG_PATH,
   migrateLegacyConfig,
   readConfigFileSnapshot,
@@ -19,7 +34,6 @@ import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { note } from "../terminal/note.js";
 import { normalizeLegacyConfigValues } from "./doctor-legacy-config.js";
-import type { DoctorOptions } from "./doctor-prompter.js";
 import { autoMigrateLegacyStateDir } from "./doctor-state-migrations.js";
 import { resolveHomeDir } from "../utils.js";
 
@@ -832,5 +846,10 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
 
   noteOpencodeProviderOverrides(cfg);
 
-  return { cfg, path: snapshot.path ?? CONFIG_PATH, shouldWriteConfig };
+  return {
+    cfg,
+    path: snapshot.path ?? CONFIG_PATH,
+    shouldWriteConfig,
+    sourceConfigValid: snapshot.valid,
+  };
 }
