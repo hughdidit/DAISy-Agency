@@ -68,10 +68,13 @@ describe("buildTelegramThreadParams", () => {
     });
 >>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
   });
+<<<<<<< HEAD
 
   it("normalizes thread ids to integers", () => {
     expect(buildTelegramThreadParams(42.9)).toEqual({ message_thread_id: 42 });
   });
+=======
+>>>>>>> b704bad8f (test: merge telegram thread id normalization assertions)
 });
 
 describe("buildTypingThreadParams", () => {
@@ -82,9 +85,20 @@ describe("buildTypingThreadParams", () => {
   it("includes General topic thread id for typing indicators", () => {
     expect(buildTypingThreadParams(1)).toEqual({ message_thread_id: 1 });
   });
+});
 
-  it("normalizes thread ids to integers", () => {
-    expect(buildTypingThreadParams(42.9)).toEqual({ message_thread_id: 42 });
+describe("thread id normalization", () => {
+  it.each([
+    {
+      build: () => buildTelegramThreadParams({ id: 42.9, scope: "forum" }),
+      expected: { message_thread_id: 42 },
+    },
+    {
+      build: () => buildTypingThreadParams(42.9),
+      expected: { message_thread_id: 42 },
+    },
+  ])("normalizes thread ids to integers", ({ build, expected }) => {
+    expect(build()).toEqual(expected);
   });
 });
 
