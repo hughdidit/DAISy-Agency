@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { loadSessionStore } from "../config/sessions.js";
 import {
   AUTHORIZED_WHATSAPP_COMMAND,
+  assertElevatedOffStatusReply,
   installDirectiveBehaviorE2EHooks,
   makeElevatedDirectiveConfig,
   makeWhatsAppDirectiveConfig,
@@ -269,11 +270,15 @@ describe("directive behavior", () => {
       const storePath = sessionStorePath(home);
       const res = await runElevatedCommand(home, "/elevated off\n/status");
       const text = replyText(res);
+<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
       expect(text).toContain("Elevated mode disabled.");
       const optionsLine = text?.split("\n").find((line) => line.trim().startsWith("⚙️"));
       expect(optionsLine).toBeTruthy();
       expect(optionsLine).not.toContain("elevated");
+=======
+      assertElevatedOffStatusReply(text);
+>>>>>>> 3138dbaf7 (test(auto-reply): share elevated-off status assertion)
 
       const store = loadSessionStore(storePath);
       expect(store["agent:main:main"]?.elevatedLevel).toBe("off");
