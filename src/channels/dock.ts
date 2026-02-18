@@ -174,7 +174,26 @@ function buildIMessageThreadToolContext(params: {
     hasRepliedRef: params.hasRepliedRef,
   };
 }
+<<<<<<< HEAD
 >>>>>>> d9c891eb9 (refactor(channels): share threading tool context)
+=======
+
+function resolveCaseInsensitiveAccount<T>(
+  accounts: Record<string, T> | undefined,
+  accountId?: string | null,
+): T | undefined {
+  if (!accounts) {
+    return undefined;
+  }
+  const normalized = normalizeAccountId(accountId);
+  return (
+    accounts[normalized] ??
+    accounts[
+      Object.keys(accounts).find((key) => key.toLowerCase() === normalized.toLowerCase()) ?? ""
+    ]
+  );
+}
+>>>>>>> 1f5cd65d6 (refactor(channels): share case-insensitive account lookup in dock)
 // Channel docks: lightweight channel metadata/behavior for shared code paths.
 //
 // Rules:
@@ -315,6 +334,69 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       }),
     },
   },
+<<<<<<< HEAD
+=======
+  irc: {
+    id: "irc",
+    capabilities: {
+      chatTypes: ["direct", "group"],
+      media: true,
+      blockStreaming: true,
+    },
+    outbound: { textChunkLimit: 350 },
+    streaming: {
+      blockStreamingCoalesceDefaults: { minChars: 300, idleMs: 1000 },
+    },
+    config: {
+      resolveAllowFrom: ({ cfg, accountId }) => {
+        const channel = cfg.channels?.irc;
+        const account = resolveCaseInsensitiveAccount(channel?.accounts, accountId);
+        return (account?.allowFrom ?? channel?.allowFrom ?? []).map((entry) => String(entry));
+      },
+      formatAllowFrom: ({ allowFrom }) =>
+        allowFrom
+          .map((entry) => String(entry).trim())
+          .filter(Boolean)
+          .map((entry) =>
+            entry
+              .replace(/^irc:/i, "")
+              .replace(/^user:/i, "")
+              .toLowerCase(),
+          ),
+    },
+    groups: {
+      resolveRequireMention: ({ cfg, accountId, groupId }) => {
+        if (!groupId) {
+          return true;
+        }
+        return resolveChannelGroupRequireMention({
+          cfg,
+          channel: "irc",
+          groupId,
+          accountId,
+          groupIdCaseInsensitive: true,
+        });
+      },
+      resolveToolPolicy: ({ cfg, accountId, groupId, senderId, senderName, senderUsername }) => {
+        if (!groupId) {
+          return undefined;
+        }
+        // IRC supports per-channel tool policies. Prefer the shared resolver so
+        // toolsBySender is honored consistently across surfaces.
+        return resolveChannelGroupToolsPolicy({
+          cfg,
+          channel: "irc",
+          groupId,
+          accountId,
+          groupIdCaseInsensitive: true,
+          senderId,
+          senderName,
+          senderUsername,
+        });
+      },
+    },
+  },
+>>>>>>> 1f5cd65d6 (refactor(channels): share case-insensitive account lookup in dock)
   googlechat: {
     id: "googlechat",
     capabilities: {
@@ -333,14 +415,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
               dm?: { allowFrom?: Array<string | number> };
             }
           | undefined;
-        const normalized = normalizeAccountId(accountId);
-        const account =
-          channel?.accounts?.[normalized] ??
-          channel?.accounts?.[
-            Object.keys(channel?.accounts ?? {}).find(
-              (key) => key.toLowerCase() === normalized.toLowerCase(),
-            ) ?? ""
-          ];
+        const account = resolveCaseInsensitiveAccount(channel?.accounts, accountId);
         return (account?.dm?.allowFrom ?? channel?.dm?.allowFrom ?? []).map((entry) =>
           String(entry),
         );
