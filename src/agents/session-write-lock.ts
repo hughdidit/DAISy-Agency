@@ -248,6 +248,11 @@ export async function acquireSessionWriteLock(params: {
   sessionFile: string;
   timeoutMs?: number;
   staleMs?: number;
+<<<<<<< HEAD
+=======
+  maxHoldMs?: number;
+  allowReentrant?: boolean;
+>>>>>>> 35016a380 (fix(sandbox): serialize registry mutations and lock usage)
 }): Promise<{
   release: () => Promise<void>;
 }> {
@@ -279,8 +284,9 @@ export async function acquireSessionWriteLock(params: {
     await fs.rm(current.lockPath, { force: true });
   };
 
+  const allowReentrant = params.allowReentrant ?? true;
   const held = HELD_LOCKS.get(normalizedSessionFile);
-  if (held) {
+  if (allowReentrant && held) {
     held.count += 1;
     return {
       release,
