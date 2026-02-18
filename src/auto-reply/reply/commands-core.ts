@@ -22,12 +22,15 @@ import {
   handleWhoamiCommand,
 } from "./commands-info.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { handleAllowlistCommand } from "./commands-allowlist.js";
 import { handleApproveCommand } from "./commands-approve.js";
 import { handleSubagentsCommand } from "./commands-subagents.js";
 =======
 import { handleMeshCommand } from "./commands-mesh.js";
 >>>>>>> 16e59b26a (Add mesh auto-planning with chat command UX and hardened auth/session behavior)
+=======
+>>>>>>> 01672a8f2 (Revert "Add mesh auto-planning with chat command UX and hardened auth/session behavior")
 import { handleModelsCommand } from "./commands-models.js";
 <<<<<<< HEAD
 =======
@@ -108,7 +111,6 @@ export async function handleCommands(params: HandleCommandsParams): Promise<Comm
       handleHelpCommand,
       handleCommandsListCommand,
       handleStatusCommand,
-      handleMeshCommand,
       handleAllowlistCommand,
       handleApproveCommand,
       handleContextCommand,
