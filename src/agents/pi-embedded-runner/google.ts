@@ -1,8 +1,13 @@
+import { EventEmitter } from "node:events";
 import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 import type { TSchema } from "@sinclair/typebox";
+<<<<<<< HEAD
 import { EventEmitter } from "node:events";
 import type { TranscriptPolicy } from "../transcript-policy.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { registerUnhandledRejectionHandler } from "../../infra/unhandled-rejections.js";
 import {
   hasInterSessionUserProvenance,
@@ -20,6 +25,7 @@ import {
   sanitizeToolCallInputs,
   sanitizeToolUseResultPairing,
 } from "../session-transcript-repair.js";
+import type { TranscriptPolicy } from "../transcript-policy.js";
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
 import { log } from "./logger.js";
 import { describeUnknownError } from "./utils.js";

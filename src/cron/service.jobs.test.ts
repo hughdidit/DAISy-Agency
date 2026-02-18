@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 import type { CronJob, CronJobPatch } from "./types.js";
 import { applyJobPatch } from "./service/jobs.js";
+=======
+import { applyJobPatch, createJob } from "./service/jobs.js";
+import type { CronServiceState } from "./service/state.js";
+import { DEFAULT_TOP_OF_HOUR_STAGGER_MS } from "./stagger.js";
+import type { CronJob, CronJobPatch } from "./types.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 
 describe("applyJobPatch", () => {
   it("clears delivery when switching to main session", () => {

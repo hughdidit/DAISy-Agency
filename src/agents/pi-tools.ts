@@ -6,9 +6,13 @@ import {
   readTool,
 } from "@mariozechner/pi-coding-agent";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 import type { ModelAuthMode } from "./model-auth.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
+=======
+import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { logWarn } from "../logger.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 import { isSubagentSessionKey } from "../routing/session-key.js";
@@ -22,6 +26,11 @@ import {
   type ProcessToolDefaults,
 } from "./bash-tools.js";
 import { listChannelAgentTools } from "./channel-tools.js";
+<<<<<<< HEAD
+=======
+import { resolveImageSanitizationLimits } from "./image-sanitization.js";
+import type { ModelAuthMode } from "./model-auth.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { createOpenClawTools } from "./openclaw-tools.js";
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
 import { wrapToolWithBeforeToolCallHook } from "./pi-tools.before-tool-call.js";
@@ -44,6 +53,16 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
+<<<<<<< HEAD
+=======
+import type { AnyAgentTool } from "./pi-tools.types.js";
+import type { SandboxContext } from "./sandbox.js";
+import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
+import {
+  applyToolPolicyPipeline,
+  buildDefaultToolPolicyPipelineSteps,
+} from "./tool-policy-pipeline.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import {
   applyOwnerOnlyToolPolicy,
   buildPluginToolGroups,

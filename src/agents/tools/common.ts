@@ -1,6 +1,10 @@
-import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import fs from "node:fs/promises";
+<<<<<<< HEAD
+=======
+import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { detectMime } from "../../media/mime.js";
+import type { ImageSanitizationLimits } from "../image-sanitization.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
 
 // oxlint-disable-next-line typescript/no-explicit-any

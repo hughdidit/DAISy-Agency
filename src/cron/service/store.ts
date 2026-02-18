@@ -1,11 +1,21 @@
 import fs from "node:fs";
+<<<<<<< HEAD
 import type { CronJob } from "../types.js";
 import type { CronServiceState } from "./state.js";
+=======
+import {
+  buildDeliveryFromLegacyPayload,
+  hasLegacyDeliveryHints,
+  stripLegacyDeliveryFields,
+} from "../legacy-delivery.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import { parseAbsoluteTimeMs } from "../parse.js";
 import { migrateLegacyCronPayload } from "../payload-migration.js";
 import { loadCronStore, saveCronStore } from "../store.js";
+import type { CronJob } from "../types.js";
 import { recomputeNextRuns } from "./jobs.js";
 import { inferLegacyName, normalizeOptionalText } from "./normalize.js";
+import type { CronServiceState } from "./state.js";
 
 function hasLegacyDeliveryHints(payload: Record<string, unknown>) {
   if (typeof payload.deliver === "boolean") {

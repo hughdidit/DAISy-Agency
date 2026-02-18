@@ -1,8 +1,12 @@
-import type { CronJobCreate, CronJobPatch } from "./types.js";
 import { sanitizeAgentId } from "../routing/session-key.js";
 import { parseAbsoluteTimeMs } from "./parse.js";
 import { migrateLegacyCronPayload } from "./payload-migration.js";
 import { inferLegacyName } from "./service/normalize.js";
+<<<<<<< HEAD
+=======
+import { normalizeCronStaggerMs, resolveDefaultCronStaggerMs } from "./stagger.js";
+import type { CronJobCreate, CronJobPatch } from "./types.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 
 type UnknownRecord = Record<string, unknown>;
 

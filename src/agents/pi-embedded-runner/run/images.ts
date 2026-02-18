@@ -1,6 +1,12 @@
-import type { ImageContent } from "@mariozechner/pi-ai";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
+=======
+import type { ImageContent } from "@mariozechner/pi-ai";
+import { resolveUserPath } from "../../../utils.js";
+import { loadWebMedia } from "../../../web/media.js";
+import type { ImageSanitizationLimits } from "../../image-sanitization.js";
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import type { SandboxFsBridge } from "../../sandbox/fs-bridge.js";
 import { sanitizeImageBlocks } from "../../tool-images.js";
 import { log } from "../logger.js";

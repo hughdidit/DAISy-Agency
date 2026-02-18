@@ -4,14 +4,18 @@ import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { CronJob } from "./types.js";
 =======
+=======
+>>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import * as schedule from "./schedule.js";
 >>>>>>> e74ec2acd (fix(cron): add spin-loop regression coverage)
 import { CronService } from "./service.js";
 import { computeJobNextRunAtMs } from "./service/jobs.js";
 import { createCronServiceState, type CronEvent } from "./service/state.js";
 import { onTimer } from "./service/timer.js";
+import type { CronJob, CronJobState } from "./types.js";
 
 const noopLogger = {
   info: vi.fn(),
