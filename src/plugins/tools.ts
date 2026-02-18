@@ -34,8 +34,12 @@ import { loadOpenClawPlugins } from "./loader.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9f507112b (perf(test): speed up vitest by skipping plugins + LLM slug)
 =======
+=======
+import { createPluginLoaderLogger } from "./logger.js";
+>>>>>>> aa8f87a3b (refactor(plugins): reuse plugin loader logger adapter)
 import type { OpenClawPluginToolContext } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -106,12 +110,7 @@ export function resolvePluginTools(params: {
     config: effectiveConfig,
 >>>>>>> 9f507112b (perf(test): speed up vitest by skipping plugins + LLM slug)
     workspaceDir: params.context.workspaceDir,
-    logger: {
-      info: (msg) => log.info(msg),
-      warn: (msg) => log.warn(msg),
-      error: (msg) => log.error(msg),
-      debug: (msg) => log.debug(msg),
-    },
+    logger: createPluginLoaderLogger(log),
   });
 
   const tools: AnyAgentTool[] = [];

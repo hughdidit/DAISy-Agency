@@ -20,7 +20,11 @@ import { loadOpenClawPlugins } from "../../plugins/loader.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { createPluginLoaderLogger } from "../../plugins/logger.js";
+>>>>>>> aa8f87a3b (refactor(plugins): reuse plugin loader logger adapter)
 import type { RuntimeEnv } from "../../runtime.js";
 import type { WizardPrompter } from "../../wizard/prompts.js";
 =======
@@ -236,11 +240,6 @@ export function reloadOnboardingPluginRegistry(params: {
     config: params.cfg,
     workspaceDir,
     cache: false,
-    logger: {
-      info: (msg) => log.info(msg),
-      warn: (msg) => log.warn(msg),
-      error: (msg) => log.error(msg),
-      debug: (msg) => log.debug(msg),
-    },
+    logger: createPluginLoaderLogger(log),
   });
 }

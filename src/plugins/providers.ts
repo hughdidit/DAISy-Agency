@@ -7,7 +7,11 @@ import { loadOpenClawPlugins, type PluginLoadOptions } from "./loader.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { createPluginLoaderLogger } from "./logger.js";
+>>>>>>> aa8f87a3b (refactor(plugins): reuse plugin loader logger adapter)
 import type { ProviderPlugin } from "./types.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -29,12 +33,7 @@ export function resolvePluginProviders(params: {
   const registry = loadMoltbotPlugins({
     config: params.config,
     workspaceDir: params.workspaceDir,
-    logger: {
-      info: (msg) => log.info(msg),
-      warn: (msg) => log.warn(msg),
-      error: (msg) => log.error(msg),
-      debug: (msg) => log.debug(msg),
-    },
+    logger: createPluginLoaderLogger(log),
   });
 
   return registry.providers.map((entry) => entry.provider);
