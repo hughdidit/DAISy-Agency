@@ -210,29 +210,47 @@ type VerificationResult = {
   error?: unknown;
 };
 
-async function requestOpenAiVerification(params: {
+function resolveVerificationEndpoint(params: {
   baseUrl: string;
-  apiKey: string;
   modelId: string;
+<<<<<<< HEAD
 }): Promise<VerificationResult> {
   const endpoint = new URL(
     "chat/completions",
     params.baseUrl.endsWith("/") ? params.baseUrl : `${params.baseUrl}/`,
   ).href;
+=======
+  endpointPath: "chat/completions" | "messages";
+}) {
+  const resolvedUrl = isAzureUrl(params.baseUrl)
+    ? transformAzureUrl(params.baseUrl, params.modelId)
+    : params.baseUrl;
+  const endpointUrl = new URL(
+    params.endpointPath,
+    resolvedUrl.endsWith("/") ? resolvedUrl : `${resolvedUrl}/`,
+  );
+  if (isAzureUrl(params.baseUrl)) {
+    endpointUrl.searchParams.set("api-version", "2024-10-21");
+  }
+  return endpointUrl.href;
+}
+
+async function requestVerification(params: {
+  endpoint: string;
+  headers: Record<string, string>;
+  body: Record<string, unknown>;
+}): Promise<VerificationResult> {
+>>>>>>> 4f36c813a (refactor(commands): share custom api verification request flow)
   try {
     const res = await fetchWithTimeout(
-      endpoint,
+      params.endpoint,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...buildOpenAiHeaders(params.apiKey),
+          ...params.headers,
         },
-        body: JSON.stringify({
-          model: params.modelId,
-          messages: [{ role: "user", content: "Hi" }],
-          max_tokens: 5,
-        }),
+        body: JSON.stringify(params.body),
       },
       VERIFY_TIMEOUT_MS,
     );
@@ -242,11 +260,33 @@ async function requestOpenAiVerification(params: {
   }
 }
 
+async function requestOpenAiVerification(params: {
+  baseUrl: string;
+  apiKey: string;
+  modelId: string;
+}): Promise<VerificationResult> {
+  const endpoint = resolveVerificationEndpoint({
+    baseUrl: params.baseUrl,
+    modelId: params.modelId,
+    endpointPath: "chat/completions",
+  });
+  return await requestVerification({
+    endpoint,
+    headers: buildOpenAiHeaders(params.apiKey),
+    body: {
+      model: params.modelId,
+      messages: [{ role: "user", content: "Hi" }],
+      max_tokens: 5,
+    },
+  });
+}
+
 async function requestAnthropicVerification(params: {
   baseUrl: string;
   apiKey: string;
   modelId: string;
 }): Promise<VerificationResult> {
+<<<<<<< HEAD
   const endpoint = new URL(
     "messages",
     params.baseUrl.endsWith("/") ? params.baseUrl : `${params.baseUrl}/`,
@@ -272,6 +312,22 @@ async function requestAnthropicVerification(params: {
   } catch (error) {
     return { ok: false, error };
   }
+=======
+  const endpoint = resolveVerificationEndpoint({
+    baseUrl: params.baseUrl,
+    modelId: params.modelId,
+    endpointPath: "messages",
+  });
+  return await requestVerification({
+    endpoint,
+    headers: buildAnthropicHeaders(params.apiKey),
+    body: {
+      model: params.modelId,
+      max_tokens: 16,
+      messages: [{ role: "user", content: "Hi" }],
+    },
+  });
+>>>>>>> 4f36c813a (refactor(commands): share custom api verification request flow)
 }
 
 async function promptBaseUrlAndKey(params: {
