@@ -95,6 +95,7 @@ function parseIpv4FromMappedIpv6(mapped: string): number[] | null {
   if (parts.length !== 2) {
     return null;
   }
+<<<<<<< HEAD
   const high = Number.parseInt(parts[0], 16);
   const low = Number.parseInt(parts[1], 16);
   if (
@@ -109,6 +110,108 @@ function parseIpv4FromMappedIpv6(mapped: string): number[] | null {
   }
   const value = (high << 16) + low;
   return [(value >>> 24) & 0xff, (value >>> 16) & 0xff, (value >>> 8) & 0xff, value & 0xff];
+=======
+
+  const headParts =
+    doubleColonParts[0]?.length > 0 ? doubleColonParts[0].split(":").filter(Boolean) : [];
+  const tailParts =
+    doubleColonParts.length === 2 && doubleColonParts[1]?.length > 0
+      ? doubleColonParts[1].split(":").filter(Boolean)
+      : [];
+
+  const missingParts = 8 - headParts.length - tailParts.length;
+  if (missingParts < 0) {
+    return null;
+  }
+
+  const fullParts =
+    doubleColonParts.length === 1
+      ? input.split(":")
+      : [...headParts, ...Array.from({ length: missingParts }, () => "0"), ...tailParts];
+
+  if (fullParts.length !== 8) {
+    return null;
+  }
+
+  const hextets: number[] = [];
+  for (const part of fullParts) {
+    if (!part) {
+      return null;
+    }
+    const value = Number.parseInt(part, 16);
+    if (Number.isNaN(value) || value < 0 || value > 0xffff) {
+      return null;
+    }
+    hextets.push(value);
+  }
+  return hextets;
+}
+
+function decodeIpv4FromHextets(high: number, low: number): number[] {
+  return [(high >>> 8) & 0xff, high & 0xff, (low >>> 8) & 0xff, low & 0xff];
+}
+
+type EmbeddedIpv4Rule = {
+  matches: (hextets: number[]) => boolean;
+  extract: (hextets: number[]) => [high: number, low: number];
+};
+
+const EMBEDDED_IPV4_RULES: EmbeddedIpv4Rule[] = [
+  {
+    // IPv4-mapped: ::ffff:a.b.c.d and IPv4-compatible ::a.b.c.d.
+    matches: (hextets) =>
+      hextets[0] === 0 &&
+      hextets[1] === 0 &&
+      hextets[2] === 0 &&
+      hextets[3] === 0 &&
+      hextets[4] === 0 &&
+      (hextets[5] === 0xffff || hextets[5] === 0),
+    extract: (hextets) => [hextets[6], hextets[7]],
+  },
+  {
+    // NAT64 well-known prefix: 64:ff9b::/96.
+    matches: (hextets) =>
+      hextets[0] === 0x0064 &&
+      hextets[1] === 0xff9b &&
+      hextets[2] === 0 &&
+      hextets[3] === 0 &&
+      hextets[4] === 0 &&
+      hextets[5] === 0,
+    extract: (hextets) => [hextets[6], hextets[7]],
+  },
+  {
+    // NAT64 local-use prefix: 64:ff9b:1::/48.
+    matches: (hextets) =>
+      hextets[0] === 0x0064 &&
+      hextets[1] === 0xff9b &&
+      hextets[2] === 0x0001 &&
+      hextets[3] === 0 &&
+      hextets[4] === 0 &&
+      hextets[5] === 0,
+    extract: (hextets) => [hextets[6], hextets[7]],
+  },
+  {
+    // 6to4 prefix: 2002::/16 where hextets[1..2] carry IPv4.
+    matches: (hextets) => hextets[0] === 0x2002,
+    extract: (hextets) => [hextets[1], hextets[2]],
+  },
+  {
+    // Teredo prefix: 2001:0000::/32 with client IPv4 obfuscated via XOR 0xffff.
+    matches: (hextets) => hextets[0] === 0x2001 && hextets[1] === 0x0000,
+    extract: (hextets) => [hextets[6] ^ 0xffff, hextets[7] ^ 0xffff],
+  },
+];
+
+function extractIpv4FromEmbeddedIpv6(hextets: number[]): number[] | null {
+  for (const rule of EMBEDDED_IPV4_RULES) {
+    if (!rule.matches(hextets)) {
+      continue;
+    }
+    const [high, low] = rule.extract(hextets);
+    return decodeIpv4FromHextets(high, low);
+  }
+  return null;
+>>>>>>> e8154c12e (refactor(net): table-drive embedded IPv6 decoding and SSRF tests)
 }
 
 function isPrivateIpv4(parts: number[]): boolean {
