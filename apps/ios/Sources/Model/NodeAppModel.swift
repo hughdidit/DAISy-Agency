@@ -751,8 +751,11 @@ final class NodeAppModel {
             onFailure: { [weak self] _ in
                 guard let self else { return }
                 await self.operatorGateway.disconnect()
+                await self.nodeGateway.disconnect()
                 await MainActor.run {
                     self.operatorConnected = false
+                    self.gatewayConnected = false
+                    self.gatewayStatusText = "Reconnecting…"
                     self.talkMode.updateGatewayConnected(false)
                 }
             })
@@ -2181,7 +2184,9 @@ private extension NodeAppModel {
             clientId: clientId,
             clientMode: "ui",
             clientDisplayName: displayName,
-            includeDeviceIdentity: true)
+            // Operator traffic should authenticate via shared gateway auth only.
+            // Including device identity here can trigger duplicate pairing flows.
+            includeDeviceIdentity: false)
     }
 
     func legacyClientIdFallback(currentClientId: String, error: Error) -> String? {
