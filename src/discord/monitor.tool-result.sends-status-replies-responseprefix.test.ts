@@ -8,6 +8,8 @@ import {
   updateLastRouteMock,
   upsertPairingRequestMock,
 } from "./monitor.tool-result.test-harness.js";
+import { createDiscordMessageHandler } from "./monitor/message-handler.js";
+import { __resetDiscordChannelInfoCacheForTest } from "./monitor/message-utils.js";
 
 type Config = ReturnType<typeof import("../config/config.js").loadConfig>;
 
@@ -51,7 +53,7 @@ vi.mock("../config/sessions.js", async (importOriginal) => {
 =======
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 beforeEach(() => {
-  vi.resetModules();
+  __resetDiscordChannelInfoCacheForTest();
   sendMock.mockReset().mockResolvedValue(undefined);
   updateLastRouteMock.mockReset();
   dispatchMock.mockReset().mockImplementation(async ({ dispatcher }) => {
@@ -88,7 +90,6 @@ const CATEGORY_GUILD_CFG = {
 } satisfies Config;
 
 async function createDmHandler(opts: { cfg: Config; runtimeError?: (err: unknown) => void }) {
-  const { createDiscordMessageHandler } = await import("./monitor.js");
   return createDiscordMessageHandler({
     cfg: opts.cfg,
     discordConfig: opts.cfg.channels?.discord,
@@ -112,19 +113,16 @@ async function createDmHandler(opts: { cfg: Config; runtimeError?: (err: unknown
   });
 }
 
-function createDmClient(fetchChannel?: ReturnType<typeof vi.fn>) {
-  const resolvedFetchChannel =
-    fetchChannel ??
-    vi.fn().mockResolvedValue({
+function createDmClient() {
+  return {
+    fetchChannel: vi.fn().mockResolvedValue({
       type: ChannelType.DM,
       name: "dm",
-    });
-
-  return { fetchChannel: resolvedFetchChannel } as unknown as Client;
+    }),
+  } as unknown as Client;
 }
 
 async function createCategoryGuildHandler() {
-  const { createDiscordMessageHandler } = await import("./monitor.js");
   return createDiscordMessageHandler({
     cfg: CATEGORY_GUILD_CFG,
     discordConfig: CATEGORY_GUILD_CFG.channels?.discord,
@@ -163,6 +161,7 @@ function createCategoryGuildClient() {
 }
 
 describe("discord tool result dispatch", () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
   it("sends status replies with responsePrefix", async () => {
     const cfg = {
@@ -335,6 +334,8 @@ describe("discord tool result dispatch", () => {
     expect(capturedBody).toContain("forwarded hello");
   });
 
+=======
+>>>>>>> b099171db (perf(test): dedupe slow discord monitor cases)
   it("uses channel id allowlists for non-thread channels with categories", async () => {
     let capturedCtx: { SessionKey?: string } | undefined;
     dispatchMock.mockImplementationOnce(async ({ ctx, dispatcher }) => {
