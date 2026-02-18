@@ -1,6 +1,6 @@
-import type { ChannelAccountSnapshot } from "../../channels/plugins/types.js";
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import { buildChannelAccountSnapshot } from "../../channels/plugins/status.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14,6 +14,9 @@ import type { ChannelAccountSnapshot } from "../../channels/plugins/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ChannelAccountSnapshot } from "../../channels/plugins/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { formatCliCommand } from "../../cli/command-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { withProgress } from "../../cli/progress.js";

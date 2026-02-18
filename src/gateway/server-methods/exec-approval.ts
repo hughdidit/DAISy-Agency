@@ -8,6 +8,7 @@ import type { ExecApprovalForwarder } from "../../infra/exec-approval-forwarder.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -21,10 +22,13 @@ import type { GatewayRequestHandlers } from "./types.js";
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
 import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
   type ExecApprovalDecision,
 } from "../../infra/exec-approvals.js";
+import type { ExecApprovalManager } from "../exec-approval-manager.js";
 import {
   ErrorCodes,
   errorShape,
@@ -32,6 +36,7 @@ import {
   validateExecApprovalRequestParams,
   validateExecApprovalResolveParams,
 } from "../protocol/index.js";
+import type { GatewayRequestHandlers } from "./types.js";
 
 export function createExecApprovalHandlers(
   manager: ExecApprovalManager,

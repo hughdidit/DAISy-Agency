@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
 import { startGmailWatcher, stopGmailWatcher } from "../hooks/gmail-watcher.js";
@@ -19,11 +20,16 @@ import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getActiveEmbeddedRunCount } from "../agents/pi-embedded-runner/runs.js";
 import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
+import type { CliDeps } from "../cli/deps.js";
 import { resolveAgentMaxConcurrent, resolveSubagentMaxConcurrent } from "../config/agent-limits.js";
+import type { loadConfig } from "../config/config.js";
 import { startGmailWatcher, stopGmailWatcher } from "../hooks/gmail-watcher.js";
 import { isTruthyEnvValue } from "../infra/env.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -36,6 +42,9 @@ import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resetDirectoryCache } from "../infra/outbound/target-resolver.js";
 import {
 <<<<<<< HEAD
@@ -56,6 +65,7 @@ import { CommandLane } from "../process/lanes.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { isTruthyEnvValue } from "../infra/env.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -67,6 +77,9 @@ import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveHooksConfig } from "./hooks.js";
 import { startBrowserControlServerIfEnabled } from "./server-browser.js";
 import { buildGatewayCronService, type GatewayCronState } from "./server-cron.js";

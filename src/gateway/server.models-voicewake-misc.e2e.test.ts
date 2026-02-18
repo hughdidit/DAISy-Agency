@@ -9,6 +9,7 @@ import { WebSocket } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { ChannelOutboundAdapter } from "../channels/plugins/types.js";
@@ -25,7 +26,10 @@ import { getChannelPlugin } from "../channels/plugins/index.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ChannelOutboundAdapter } from "../channels/plugins/types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getChannelPlugin } from "../channels/plugins/index.js";
+import type { ChannelOutboundAdapter } from "../channels/plugins/types.js";
 import { resolveCanvasHostUrl } from "../infra/canvas-host-url.js";
 import { GatewayLockError } from "../infra/gateway-lock.js";
 import type { PluginRegistry } from "../plugins/registry.js";

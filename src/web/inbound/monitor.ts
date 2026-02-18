@@ -4,6 +4,7 @@ import { DisconnectReason, isJidGroup } from "@whiskeysockets/baileys";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import type { WebInboundMessage, WebListenerCloseReason } from "./types.js";
@@ -13,6 +14,8 @@ import type { WebInboundMessage, WebListenerCloseReason } from "./types.js";
 =======
 import type { WebInboundMessage, WebListenerCloseReason } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createInboundDebouncer } from "../../auto-reply/inbound-debounce.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatLocationText } from "../../channels/location.js";
@@ -35,6 +38,7 @@ import {
 } from "./extract.js";
 import { downloadInboundMedia } from "./media.js";
 import { createWebSendApi } from "./send-api.js";
+import type { WebInboundMessage, WebListenerCloseReason } from "./types.js";
 
 export async function monitorWebInbox(options: {
   verbose: boolean;

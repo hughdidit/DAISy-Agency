@@ -9,11 +9,11 @@ import { renderCopyAsMarkdownButton } from "./copy-as-markdown";
 import { isToolResultMessage, normalizeRoleForGrouping } from "./message-normalizer";
 =======
 import type { AssistantIdentity } from "../assistant-identity.ts";
-import type { MessageGroup } from "../types/chat-types.ts";
 import { toSanitizedMarkdownHtml } from "../markdown.ts";
 <<<<<<< HEAD
 =======
 import { detectTextDirection } from "../text-direction.ts";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -26,6 +26,9 @@ import type { MessageGroup } from "../types/chat-types.ts";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { MessageGroup } from "../types/chat-types.ts";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 import {

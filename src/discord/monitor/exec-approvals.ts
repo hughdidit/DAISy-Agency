@@ -16,7 +16,9 @@ import { GatewayClient } from "../../gateway/client.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -31,6 +33,10 @@ import { GatewayClient } from "../../gateway/client.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { buildGatewayConnectionDetails } from "../../gateway/call.js";
+import { GatewayClient } from "../../gateway/client.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { EventFrame } from "../../gateway/protocol/index.js";
 <<<<<<< HEAD
 import type { ExecApprovalDecision } from "../../infra/exec-approvals.js";
@@ -42,6 +48,7 @@ import type {
   ExecApprovalRequest,
   ExecApprovalResolved,
 } from "../../infra/exec-approvals.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -65,6 +72,8 @@ import { GatewayClient } from "../../gateway/client.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { logDebug, logError } from "../../logger.js";
 <<<<<<< HEAD
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
@@ -75,6 +84,7 @@ import type { DiscordExecApprovalConfig } from "../../config/types.discord.js";
 import type { RuntimeEnv } from "../../runtime.js";
 =======
 import { normalizeAccountId, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+import type { RuntimeEnv } from "../../runtime.js";
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,

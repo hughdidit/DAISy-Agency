@@ -12,6 +12,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { SlackTokenSource } from "./accounts.js";
 >>>>>>> c9684a267 (Slack: support Block Kit blocks in sendMessage actions)
 =======
@@ -24,6 +25,8 @@ import type { SlackTokenSource } from "./accounts.js";
 =======
 import type { SlackTokenSource } from "./accounts.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   chunkMarkdownTextWithMode,
   resolveChunkMode,
@@ -32,6 +35,7 @@ import {
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
 import { loadWebMedia } from "../web/media.js";
+import type { SlackTokenSource } from "./accounts.js";
 import { resolveSlackAccount } from "./accounts.js";
 import { buildSlackBlocksFallbackText } from "./blocks-fallback.js";
 import { validateSlackBlocksArray } from "./blocks-input.js";

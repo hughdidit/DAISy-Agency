@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -19,7 +20,10 @@ import { loadSessionStore, saveSessionStore, type SessionEntry } from "../../con
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { FollowupRun } from "./queue.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadSessionStore, saveSessionStore, type SessionEntry } from "../../config/sessions.js";
+import type { FollowupRun } from "./queue.js";
 import { createMockTypingController } from "./test-helpers.js";
 
 const runEmbeddedPiAgentMock = vi.fn();

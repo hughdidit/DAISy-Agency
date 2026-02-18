@@ -3,6 +3,7 @@ import { type Bot, GrammyError, InputFile } from "grammy";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   markdownToTelegramChunks,
   markdownToTelegramHtml,
@@ -53,6 +54,12 @@ import type { MarkdownTableMode } from "../../config/types.base.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chunk.js";
+import type { ReplyPayload } from "../../auto-reply/types.js";
+import type { ReplyToMode } from "../../config/config.js";
+import type { MarkdownTableMode } from "../../config/types.base.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { danger, logVerbose, warn } from "../../globals.js";
 >>>>>>> 01b37f1d3 (fix(telegram): handle large file getFile errors gracefully)
 import { formatErrorMessage } from "../../infra/errors.js";
@@ -61,10 +68,12 @@ import { mediaKindFromMime } from "../../media/constants.js";
 import { fetchRemoteMedia } from "../../media/fetch.js";
 import { isGifMedia } from "../../media/mime.js";
 import { saveMediaBuffer } from "../../media/store.js";
+import type { RuntimeEnv } from "../../runtime.js";
 import { loadWebMedia } from "../../web/media.js";
 <<<<<<< HEAD
 =======
 import { withTelegramApiErrorLogging } from "../api-logging.js";
+import type { TelegramInlineButtons } from "../button-types.js";
 import { splitTelegramCaption } from "../caption.js";
 import {
   markdownToTelegramChunks,
@@ -90,6 +99,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
 =======
 import type { StickerMetadata, TelegramContext } from "./types.js";
@@ -101,6 +111,9 @@ import type { StickerMetadata, TelegramContext } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { StickerMetadata, TelegramContext } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const PARSE_ERR_RE = /can't parse entities|parse entities|find end of the entity/i;
 const VOICE_FORBIDDEN_RE = /VOICE_MESSAGES_FORBIDDEN/;

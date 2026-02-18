@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import type { GatewayRequestHandlers } from "./types.js";
@@ -11,6 +12,8 @@ import type { GatewayRequestHandlers } from "./types.js";
 =======
 import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadConfig } from "../../config/config.js";
 import { listDevicePairing } from "../../infra/device-pairing.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -58,6 +61,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { loadConfig } from "../../config/config.js";
 import { isNodeCommandAllowed, resolveNodeCommandAllowlist } from "../node-command-policy.js";
 =======
@@ -70,6 +74,9 @@ import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { GatewayRequestHandlers } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 function isNodeEntry(entry: { role?: string; roles?: string[] }) {
   if (entry.role === "node") {

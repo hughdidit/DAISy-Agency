@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { CronJob, CronJobCreate, CronJobPatch } from "./types.js";
 >>>>>>> 115cfb443 (gateway: add cron finished-run webhook (#14535))
@@ -29,6 +30,11 @@ import type { CronJob, CronJobCreate, CronJobPatch } from "./types.js";
 import * as ops from "./service/ops.js";
 import { type CronServiceDeps, createCronServiceState } from "./service/state.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import * as ops from "./service/ops.js";
+import { type CronServiceDeps, createCronServiceState } from "./service/state.js";
+import type { CronJob, CronJobCreate, CronJobPatch } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export type { CronEvent, CronServiceDeps } from "./service/state.js";
 

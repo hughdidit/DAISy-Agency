@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RequestClient } from "@buape/carbon";
 <<<<<<< HEAD
 import { Routes } from "discord-api-types/v10";
@@ -57,10 +58,19 @@ import type { RetryConfig } from "../infra/retry.js";
 import type { PollInput } from "../polls.js";
 import type { DiscordSendResult } from "./send.types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import crypto from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { serializePayload, type MessagePayloadObject, type RequestClient } from "@buape/carbon";
+import type { APIChannel } from "discord-api-types/v10";
+import { ChannelType, Routes } from "discord-api-types/v10";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveChunkMode } from "../auto-reply/chunk.js";
 import { loadConfig } from "../config/config.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
+import type { RetryConfig } from "../infra/retry.js";
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 import { convertMarkdownTables } from "../markdown/tables.js";
 <<<<<<< HEAD
@@ -69,6 +79,7 @@ import type { PollInput } from "../polls.js";
 =======
 import { maxBytesForKind } from "../media/constants.js";
 import { extensionForMime } from "../media/mime.js";
+import type { PollInput } from "../polls.js";
 import { loadWebMediaRaw } from "../web/media.js";
 >>>>>>> 725741486 (fix(discord): harden voice message media loading)
 import { resolveDiscordAccount } from "./accounts.js";
@@ -95,6 +106,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { DiscordSendResult } from "./send.types.js";
 =======
 =======
@@ -107,6 +119,9 @@ import type { DiscordSendResult } from "./send.types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { DiscordSendResult } from "./send.types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   ensureOggOpus,
   getVoiceMessageMetadata,

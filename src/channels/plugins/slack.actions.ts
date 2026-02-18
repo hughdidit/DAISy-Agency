@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createActionGate, readNumberParam, readStringParam } from "../../agents/tools/common.js";
 import { handleSlackAction, type SlackActionContext } from "../../agents/tools/slack-actions.js";
 import { listEnabledSlackAccounts } from "../../slack/accounts.js";
@@ -30,10 +31,13 @@ import type { ChannelMessageActionAdapter } from "./types.js";
 =======
 import type { ChannelMessageActionAdapter } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { handleSlackAction, type SlackActionContext } from "../../agents/tools/slack-actions.js";
 import { handleSlackMessageAction } from "../../plugin-sdk/slack-message-actions.js";
 import { extractSlackToolSend, listSlackMessageActions } from "../../slack/message-actions.js";
 import { resolveSlackChannelId } from "../../slack/targets.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -49,6 +53,9 @@ import type { ChannelMessageActionAdapter } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ChannelMessageActionAdapter } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export function createSlackActions(providerId: string): ChannelMessageActionAdapter {
   return {

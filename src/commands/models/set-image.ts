@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { logConfigUpdated } from "../../config/logging.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -31,6 +32,10 @@ import type { RuntimeEnv } from "../../runtime.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { logConfigUpdated } from "../../config/logging.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { logConfigUpdated } from "../../config/logging.js";
+import type { RuntimeEnv } from "../../runtime.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { applyDefaultModelPrimaryUpdate, updateConfig } from "./shared.js";
 >>>>>>> cb46ea037 (refactor(models): dedupe set default model updates)
 

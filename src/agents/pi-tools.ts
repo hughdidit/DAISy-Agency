@@ -10,9 +10,6 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
-import type { ModelAuthMode } from "./model-auth.js";
-import type { AnyAgentTool } from "./pi-tools.types.js";
-import type { SandboxContext } from "./sandbox.js";
 import { logWarn } from "../logger.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 >>>>>>> 076df941a (feat: add configurable tool loop detection)
@@ -49,10 +46,14 @@ import type { ModelAuthMode } from "./model-auth.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import { resolveImageSanitizationLimits } from "./image-sanitization.js";
+<<<<<<< HEAD
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 =======
 import { resolveImageSanitizationLimits } from "./image-sanitization.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ModelAuthMode } from "./model-auth.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
@@ -74,6 +75,7 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -112,6 +114,10 @@ import type { SandboxContext } from "./sandbox.js";
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { AnyAgentTool } from "./pi-tools.types.js";
+import type { SandboxContext } from "./sandbox.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import {

@@ -5,6 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { promisify } from "node:util";
 <<<<<<< HEAD
 import { colorize, isRich, theme } from "../terminal/theme.js";
@@ -23,6 +24,8 @@ import type { GatewayServiceRuntime } from "./service-runtime.js";
 =======
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES,
   resolveGatewayServiceDescription,
@@ -41,6 +44,7 @@ import { parseKeyValueOutput } from "./runtime-parse.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 <<<<<<< HEAD
 import { resolveHomeDir } from "./paths.js";
@@ -53,6 +57,9 @@ import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { GatewayServiceRuntime } from "./service-runtime.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   enableSystemdUserLinger,
   readSystemdUserLingerStatus,

@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { normalizeChatType } from "../channels/chat-type.js";
@@ -12,10 +13,12 @@ import { normalizeChatType } from "../channels/chat-type.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { normalizeChatType } from "../channels/chat-type.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { SessionChatType, SessionEntry } from "../config/sessions.js";
-import { normalizeChatType } from "../channels/chat-type.js";
 
 export type SessionSendPolicyDecision = "allow" | "deny";
 

@@ -17,7 +17,11 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> d75bcc27f (refactor(test): dedupe session reset policy setup)
+=======
+import { buildModelAliasIndex } from "../../agents/model-selection.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 >>>>>>> 5a6fc20bd (perf(test): reuse temp roots in session suites)
@@ -49,7 +53,6 @@ import { saveSessionStore } from "../../config/sessions.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { SessionEntry } from "../../config/sessions.js";
-import { buildModelAliasIndex } from "../../agents/model-selection.js";
 import { saveSessionStore } from "../../config/sessions.js";
 import { formatZonedTimestamp } from "../../infra/format-time/format-datetime.ts";
 import { enqueueSystemEvent, resetSystemEventsForTest } from "../../infra/system-events.js";

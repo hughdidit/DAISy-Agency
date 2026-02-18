@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 <<<<<<< HEAD
 
@@ -28,7 +29,12 @@ import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import fs from "node:fs/promises";
 import type { ImageSanitizationLimits } from "../image-sanitization.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import fs from "node:fs/promises";
+import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { detectMime } from "../../media/mime.js";
+import type { ImageSanitizationLimits } from "../image-sanitization.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
 
 // oxlint-disable-next-line typescript/no-explicit-any

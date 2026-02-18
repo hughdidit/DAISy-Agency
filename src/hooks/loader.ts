@@ -8,6 +8,7 @@
 import { pathToFileURL } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import path from "node:path";
 import { registerInternalHook } from "./internal-hooks.js";
 import type { MoltbotConfig } from "../config/config.js";
@@ -29,10 +30,14 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { InternalHookHandler } from "./internal-hooks.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createSubsystemLogger } from "../logging/subsystem.js";
 >>>>>>> 1c928e493 (fix(hooks): replace console logging with proper subsystem logging in loader (openclaw#11029) thanks @shadril238)
 import { resolveHookConfig } from "./config.js";
 import { shouldIncludeHook } from "./config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -46,6 +51,9 @@ import type { InternalHookHandler } from "./internal-hooks.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { InternalHookHandler } from "./internal-hooks.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { registerInternalHook } from "./internal-hooks.js";
 import { loadWorkspaceHookEntries } from "./workspace.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

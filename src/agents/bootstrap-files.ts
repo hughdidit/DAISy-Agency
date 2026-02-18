@@ -7,6 +7,7 @@ import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -21,6 +22,10 @@ import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { applyBootstrapHookOverrides } from "./bootstrap-hooks.js";
+import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   buildBootstrapContextFiles,
   resolveBootstrapMaxChars,

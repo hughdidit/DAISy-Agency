@@ -1,9 +1,11 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
 import type { ChannelId, ChannelThreadingToolContext } from "../../channels/plugins/types.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16,9 +18,14 @@ import { appendAssistantMessageToSessionTranscript } from "../../config/sessions
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { GatewayClientMode, GatewayClientName } from "../../utils/message-channel.js";
+import { throwIfAborted } from "./abort.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -43,6 +50,8 @@ import { dispatchChannelMessageAction } from "../../channels/plugins/message-act
 import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
 import { throwIfAborted } from "./abort.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { sendMessage, sendPoll } from "./message.js";
 import { extractToolPayload } from "./tool-payload.js";
 

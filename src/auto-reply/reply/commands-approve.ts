@@ -1,4 +1,3 @@
-import type { CommandHandler } from "./commands-types.js";
 import { callGateway } from "../../gateway/call.js";
 <<<<<<< HEAD
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
@@ -15,6 +14,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> efe2a464a (fix(approvals): gate /approve by gateway scopes)
 =======
 import type { CommandHandler } from "./commands-types.js";
@@ -26,6 +26,9 @@ import type { CommandHandler } from "./commands-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { CommandHandler } from "./commands-types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const COMMAND = "/approve";
 

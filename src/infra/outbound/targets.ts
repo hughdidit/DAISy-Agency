@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../../cli/command-format.js";
@@ -17,11 +18,16 @@ import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/ind
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { ChannelOutboundTargetMode } from "../../channels/plugins/types.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 9c4cbaab7 (chore: Enable eslint/no-unused-vars.)
 import type { SessionEntry } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.agent-defaults.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -38,10 +44,15 @@ import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { normalizeAccountId } from "../../routing/session-key.js";
+import { deliveryContextFromSession } from "../../utils/delivery-context.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   DeliverableMessageChannel,
   GatewayMessageChannel,
 } from "../../utils/message-channel.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -67,6 +78,8 @@ import { deliveryContextFromSession } from "../../utils/delivery-context.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   INTERNAL_MESSAGE_CHANNEL,
   isDeliverableMessageChannel,

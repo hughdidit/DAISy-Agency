@@ -1,16 +1,14 @@
-import type { SessionEntry as PiSessionEntry, SessionHeader } from "@mariozechner/pi-coding-agent";
-import { SessionManager } from "@mariozechner/pi-coding-agent";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { SessionEntry } from "../../config/sessions/types.js";
-import type { ReplyPayload } from "../types.js";
-import type { HandleCommandsParams } from "./commands-types.js";
+import type { SessionEntry as PiSessionEntry, SessionHeader } from "@mariozechner/pi-coding-agent";
+import { SessionManager } from "@mariozechner/pi-coding-agent";
 import {
   resolveDefaultSessionStorePath,
   resolveSessionFilePath,
 } from "../../config/sessions/paths.js";
 import { loadSessionStore } from "../../config/sessions/store.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -53,6 +51,12 @@ import type { HandleCommandsParams } from "./commands-types.js";
 =======
 import { resolveCommandsSystemPromptBundle } from "./commands-system-prompt.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { SessionEntry } from "../../config/sessions/types.js";
+import type { ReplyPayload } from "../types.js";
+import { resolveCommandsSystemPromptBundle } from "./commands-system-prompt.js";
+import type { HandleCommandsParams } from "./commands-types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 // Export HTML templates are bundled with this module
 const EXPORT_HTML_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "export-html");

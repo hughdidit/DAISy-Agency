@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { shouldAckReactionForWhatsApp } from "../../../channels/ack-reactions.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -16,11 +17,15 @@ import { shouldAckReactionForWhatsApp } from "../../../channels/ack-reactions.js
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { loadConfig } from "../../../config/config.js";
 import type { WebInboundMsg } from "../types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { shouldAckReactionForWhatsApp } from "../../../channels/ack-reactions.js";
+import type { loadConfig } from "../../../config/config.js";
 import { logVerbose } from "../../../globals.js";
 import { shouldAckReactionForWhatsApp } from "../../../channels/ack-reactions.js";
 import { sendReactionWhatsApp } from "../../outbound.js";
 import { formatError } from "../../session.js";
+import type { WebInboundMsg } from "../types.js";
 import { resolveGroupActivationFor } from "./group-activation.js";
 
 export function maybeSendAckReaction(params: {

@@ -3,8 +3,6 @@ import type { SessionEntry } from "../../config/sessions.js";
 import type { MsgContext } from "../templating.js";
 import type { ElevatedLevel } from "../thinking.js";
 import type { ReplyPayload } from "../types.js";
-import type { createModelSelectionState } from "./model-selection.js";
-import type { TypingController } from "./typing.js";
 import { buildStatusReply } from "./commands.js";
 import {
   applyInlineDirectivesFastLane,
@@ -34,6 +32,7 @@ import type { TypingController } from "./typing.js";
 import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
 import { clearInlineDirectives } from "./get-reply-directives-utils.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 import type { createModelSelectionState } from "./model-selection.js";
@@ -43,6 +42,10 @@ import type { TypingController } from "./typing.js";
 import { resolveCurrentDirectiveLevels } from "./directive-handling.levels.js";
 import { clearInlineDirectives } from "./get-reply-directives-utils.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { createModelSelectionState } from "./model-selection.js";
+import type { TypingController } from "./typing.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 type AgentDefaults = NonNullable<MoltbotConfig["agents"]>["defaults"];
 

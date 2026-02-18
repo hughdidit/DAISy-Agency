@@ -1,10 +1,9 @@
-import type { ReplyPayload } from "../../auto-reply/types.js";
-import type { RuntimeEnv } from "../../runtime.js";
-import type { createIMessageRpcClient } from "../client.js";
 import { chunkTextWithMode, resolveChunkMode } from "../../auto-reply/chunk.js";
+import type { ReplyPayload } from "../../auto-reply/types.js";
 import { loadConfig } from "../../config/config.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import { convertMarkdownTables } from "../../markdown/tables.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -22,6 +21,10 @@ import type { createIMessageRpcClient } from "../client.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { RuntimeEnv } from "../../runtime.js";
+import type { createIMessageRpcClient } from "../client.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { sendMessageIMessage } from "../send.js";
 
 type SentMessageCache = {

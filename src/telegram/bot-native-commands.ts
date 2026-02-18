@@ -4,6 +4,7 @@ import type { Bot, Context } from "grammy";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { CommandArgs } from "../auto-reply/commands-registry.js";
@@ -54,7 +55,10 @@ import type {
 } from "../config/types.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { TelegramContext } from "./bot/types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveChunkMode } from "../auto-reply/chunk.js";
+import type { CommandArgs } from "../auto-reply/commands-registry.js";
 import {
   buildCommandTextFromArgs,
   findCommandByNativeName,
@@ -69,6 +73,8 @@ import type { CommandArgs } from "../auto-reply/commands-registry.js";
 =======
 import { resolveCommandAuthorizedFromAuthorizers } from "../channels/command-gating.js";
 import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type { ChannelGroupPolicy } from "../config/group-policy.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 >>>>>>> 5d82c8231 (feat: per-channel responsePrefix override (#9001))
 import { resolveTelegramCustomCommands } from "../config/telegram-custom-commands.js";
@@ -87,6 +93,7 @@ import {
 } from "../config/telegram-custom-commands.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../channels/command-gating.js";
@@ -96,12 +103,15 @@ import { resolveCommandAuthorizedFromAuthorizers } from "../channels/command-gat
 =======
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   ReplyToMode,
   TelegramAccountConfig,
   TelegramGroupConfig,
   TelegramTopicConfig,
 } from "../config/types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -110,6 +120,8 @@ import type {
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { danger, logVerbose } from "../globals.js";
 import { getChildLogger } from "../logging.js";
 <<<<<<< HEAD
@@ -139,6 +151,7 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
 import {
@@ -169,6 +182,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { firstDefined, isSenderAllowed, normalizeAllowFromWithStore } from "./bot-access.js";
 import { readTelegramAllowFromStore } from "./pairing-store.js";
 =======
@@ -183,6 +197,9 @@ import type { TelegramContext } from "./bot/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { TelegramContext } from "./bot/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   evaluateTelegramGroupBaseAccess,
   evaluateTelegramGroupPolicyAccess,

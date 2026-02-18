@@ -4,6 +4,7 @@ import { cancel, confirm, isCancel, select } from "@clack/prompts";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import {
   isNixMode,
@@ -24,10 +25,13 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { formatCliCommand } from "../cli/command-format.js";
 import { isNixMode } from "../config/config.js";
 >>>>>>> 813b96a80 (refactor(commands): share cleanup plan resolver)
 import { resolveGatewayService } from "../daemon/service.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { stylePromptHint, stylePromptMessage, stylePromptTitle } from "../terminal/prompt-style.js";
 <<<<<<< HEAD
 <<<<<<< HEAD

@@ -4,6 +4,7 @@ import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelMessageActionContext, ChannelMessageActionName } from "./types.js";
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -20,7 +21,10 @@ import { getChannelPlugin, listChannelPlugins } from "./index.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ChannelMessageActionContext, ChannelMessageActionName } from "./types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getChannelPlugin, listChannelPlugins } from "./index.js";
+import type { ChannelMessageActionContext, ChannelMessageActionName } from "./types.js";
 
 export function listChannelMessageActions(cfg: MoltbotConfig): ChannelMessageActionName[] {
   const actions = new Set<ChannelMessageActionName>(["send", "broadcast"]);

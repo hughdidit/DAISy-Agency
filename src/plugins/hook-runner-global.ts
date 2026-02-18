@@ -10,6 +10,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { PluginRegistry } from "./registry.js";
 import type { PluginHookGatewayContext, PluginHookGatewayStopEvent } from "./types.js";
@@ -41,6 +42,12 @@ import type { PluginHookGatewayContext, PluginHookGatewayStopEvent } from "./typ
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { createHookRunner, type HookRunner } from "./hooks.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { createHookRunner, type HookRunner } from "./hooks.js";
+import type { PluginRegistry } from "./registry.js";
+import type { PluginHookGatewayContext, PluginHookGatewayStopEvent } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const log = createSubsystemLogger("plugins");
 

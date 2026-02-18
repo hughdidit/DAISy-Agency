@@ -12,6 +12,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 912693036 (test(cron): remove flaky real-timer polling)
 import type { CronJob } from "./types.js";
 =======
@@ -25,11 +26,14 @@ import type { CronJob, CronJobState } from "./types.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { CronJob, CronJobState } from "./types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import * as schedule from "./schedule.js";
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 import { CronService } from "./service.js";
 import { createCronServiceState, type CronEvent } from "./service/state.js";
 import { onTimer } from "./service/timer.js";
+import type { CronJob, CronJobState } from "./types.js";
 
 const noopLogger = {
   info: vi.fn(),

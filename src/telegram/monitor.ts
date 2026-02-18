@@ -3,6 +3,7 @@ import { type RunOptions, run } from "@grammyjs/runner";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { resolveAgentMaxConcurrent } from "../config/agent-limits.js";
@@ -22,6 +23,10 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { resolveAgentMaxConcurrent } from "../config/agent-limits.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { resolveAgentMaxConcurrent } from "../config/agent-limits.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadConfig } from "../config/config.js";
 import { resolveAgentMaxConcurrent } from "../config/agent-limits.js";
 import { computeBackoff, sleepWithAbort } from "../infra/backoff.js";
@@ -46,12 +51,16 @@ import { formatDurationPrecise } from "../infra/format-time/format-duration.ts";
 import { registerUnhandledRejectionHandler } from "../infra/unhandled-rejections.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveTelegramAccount } from "./accounts.js";
 import { resolveTelegramAllowedUpdates } from "./allowed-updates.js";
 import { createTelegramBot } from "./bot.js";

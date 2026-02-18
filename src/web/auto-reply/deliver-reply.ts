@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chunk.js";
 <<<<<<< HEAD
 import type { MarkdownTableMode } from "../../config/types.base.js";
@@ -12,10 +13,11 @@ import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chun
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chunk.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { MarkdownTableMode } from "../../config/types.base.js";
-import type { WebInboundMsg } from "./types.js";
-import { chunkMarkdownTextWithMode, type ChunkMode } from "../../auto-reply/chunk.js";
 import { logVerbose, shouldLogVerbose } from "../../globals.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { convertMarkdownTables } from "../../markdown/tables.js";
@@ -33,6 +35,7 @@ import { loadWebMedia } from "../media.js";
 import { newConnectionId } from "../reconnect.js";
 import { formatError } from "../session.js";
 import { whatsappOutboundLog } from "./loggers.js";
+import type { WebInboundMsg } from "./types.js";
 import { elide } from "./util.js";
 
 export async function deliverWebReply(params: {

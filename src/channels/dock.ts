@@ -2,19 +2,6 @@
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
-import type {
-  ChannelCapabilities,
-  ChannelCommandAdapter,
-  ChannelElevatedAdapter,
-  ChannelGroupAdapter,
-  ChannelId,
-  ChannelAgentPromptAdapter,
-  ChannelMentionAdapter,
-  ChannelPlugin,
-  ChannelThreadingContext,
-  ChannelThreadingAdapter,
-  ChannelThreadingToolContext,
-} from "./plugins/types.js";
 import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
@@ -57,7 +44,10 @@ import {
 =======
 import { normalizeSignalMessagingTarget } from "./plugins/normalize/signal.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b20339a23 (fix(signal): canonicalize message targets in tool and inbound flows)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   ChannelCapabilities,
   ChannelCommandAdapter,
@@ -67,6 +57,7 @@ import type {
   ChannelAgentPromptAdapter,
   ChannelMentionAdapter,
   ChannelPlugin,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -85,13 +76,18 @@ import type {
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
   ChannelThreadingContext,
   ChannelThreadingAdapter,
   ChannelThreadingToolContext,
 } from "./plugins/types.js";
+<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { CHAT_CHANNEL_ORDER, type ChatChannelId, getChatChannelMeta } from "./registry.js";
 
 export type ChannelDock = {

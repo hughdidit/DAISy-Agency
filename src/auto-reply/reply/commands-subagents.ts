@@ -5,6 +5,7 @@ import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
@@ -44,6 +45,11 @@ import type { CommandHandler } from "./commands-types.js";
 import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
 import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { AGENT_LANE_SUBAGENT } from "../../agents/lanes.js";
+import { abortEmbeddedPiRun } from "../../agents/pi-embedded.js";
+import type { SubagentRunRecord } from "../../agents/subagent-registry.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   clearSubagentRunSteerRestart,
   listSubagentRunsForRequester,
@@ -98,6 +104,7 @@ import type { CommandHandler } from "./commands-types.js";
 import { clearSessionQueues } from "./queue.js";
 =======
 import { stopSubagentsForRequester } from "./abort.js";
+import type { CommandHandler } from "./commands-types.js";
 import { clearSessionQueues } from "./queue.js";
 import { formatRunLabel, formatRunStatus, sortSubagentRuns } from "./subagents-utils.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))

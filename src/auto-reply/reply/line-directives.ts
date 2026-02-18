@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ReplyPayload } from "../types.js";
 import type { LineChannelData } from "../../line/types.js";
 =======
@@ -16,6 +17,8 @@ import type { ReplyPayload } from "../types.js";
 import type { LineChannelData } from "../../line/types.js";
 import type { ReplyPayload } from "../types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   createMediaPlayerCard,
   createEventCard,
@@ -23,6 +26,8 @@ import {
   createDeviceControlCard,
   createAppleTvRemoteCard,
 } from "../../line/flex-templates.js";
+import type { LineChannelData } from "../../line/types.js";
+import type { ReplyPayload } from "../types.js";
 
 /**
  * Parse LINE-specific directives from text and extract them into ReplyPayload fields.

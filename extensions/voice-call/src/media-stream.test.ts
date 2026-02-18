@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { MediaStreamHandler } from "./media-stream.js";
@@ -14,11 +15,13 @@ import { MediaStreamHandler } from "./media-stream.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { MediaStreamHandler } from "./media-stream.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   OpenAIRealtimeSTTProvider,
   RealtimeSTTSession,
 } from "./providers/stt-openai-realtime.js";
-import { MediaStreamHandler } from "./media-stream.js";
 
 const createStubSession = (): RealtimeSTTSession => ({
   connect: async () => {},

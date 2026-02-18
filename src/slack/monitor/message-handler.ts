@@ -1,11 +1,9 @@
-import type { ResolvedSlackAccount } from "../accounts.js";
-import type { SlackMessageEvent } from "../types.js";
-import type { SlackMonitorContext } from "./context.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
 import {
   createInboundDebouncer,
   resolveInboundDebounceMs,
 } from "../../auto-reply/inbound-debounce.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -35,6 +33,12 @@ import type { SlackMonitorContext } from "./context.js";
 =======
 import { stripSlackMentionsForCommandDetection } from "./commands.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ResolvedSlackAccount } from "../accounts.js";
+import type { SlackMessageEvent } from "../types.js";
+import { stripSlackMentionsForCommandDetection } from "./commands.js";
+import type { SlackMonitorContext } from "./context.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { dispatchPreparedSlackMessage } from "./message-handler/dispatch.js";
 import { prepareSlackMessage } from "./message-handler/prepare.js";
 import { createSlackThreadTsResolver } from "./thread-resolution.js";

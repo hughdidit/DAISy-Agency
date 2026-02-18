@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types.js";
 =======
@@ -25,6 +26,10 @@ import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types
 import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types.js";
 import { promptAccountId as promptAccountIdSdk } from "../../../plugin-sdk/onboarding.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { promptAccountId as promptAccountIdSdk } from "../../../plugin-sdk/onboarding.js";
+import type { PromptAccountId, PromptAccountIdParams } from "../onboarding-types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export const promptAccountId: PromptAccountId = async (params: PromptAccountIdParams) => {
   return await promptAccountIdSdk(params);

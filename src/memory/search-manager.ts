@@ -13,6 +13,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> f72214725 (chore: restore OpenClaw branding)
 import type { ResolvedQmdConfig } from "./backend-config.js";
 <<<<<<< HEAD
@@ -36,13 +37,16 @@ import { resolveMemoryBackendConfig } from "./backend-config.js";
 =======
 import type { ResolvedQmdConfig } from "./backend-config.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import type { ResolvedQmdConfig } from "./backend-config.js";
+import { resolveMemoryBackendConfig } from "./backend-config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   MemoryEmbeddingProbeResult,
   MemorySearchManager,
   MemorySyncProgressUpdate,
 } from "./types.js";
-import { createSubsystemLogger } from "../logging/subsystem.js";
-import { resolveMemoryBackendConfig } from "./backend-config.js";
 
 const log = createSubsystemLogger("memory");
 const QMD_MANAGER_CACHE = new Map<string, MemorySearchManager>();

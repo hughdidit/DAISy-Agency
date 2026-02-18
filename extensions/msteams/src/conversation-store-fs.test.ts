@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { PluginRuntime } from "clawdbot/plugin-sdk";
 import type { StoredConversationReference } from "./conversation-store.js";
@@ -22,7 +23,10 @@ import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { StoredConversationReference } from "./conversation-store.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
+import type { StoredConversationReference } from "./conversation-store.js";
 import { setMSTeamsRuntime } from "./runtime.js";
 <<<<<<< HEAD
 

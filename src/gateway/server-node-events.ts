@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import type { NodeEvent, NodeEventContext } from "./server-node-events-types.js";
 import { resolveSessionAgentId } from "../agents/agent-scope.js";
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { createOutboundSendDeps } from "../cli/outbound-send-deps.js";
@@ -22,6 +21,7 @@ import { parseMessageWithAttachments } from "./chat-attachments.js";
 import { normalizeRpcAttachmentsToChatAttachments } from "./server-methods/attachment-normalize.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
 import type { NodeEvent, NodeEventContext } from "./server-node-events-types.js";
 import { loadSessionEntry } from "./session-utils.js";
@@ -38,6 +38,9 @@ import type { NodeEvent, NodeEventContext } from "./server-node-events-types.js"
 >>>>>>> 96f7d35dd (fix(gateway): block cross-session fallback in node event delivery)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { NodeEvent, NodeEventContext } from "./server-node-events-types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   loadSessionEntry,
   pruneLegacyStoreKeys,

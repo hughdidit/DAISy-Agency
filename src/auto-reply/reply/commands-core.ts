@@ -2,11 +2,6 @@
 import { logVerbose } from "../../globals.js";
 =======
 import fs from "node:fs/promises";
-import type {
-  CommandHandler,
-  CommandHandlerResult,
-  HandleCommandsParams,
-} from "./commands-types.js";
 import { logVerbose } from "../../globals.js";
 import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
@@ -67,6 +62,11 @@ import type {
 =======
 import { handleSubagentsCommand } from "./commands-subagents.js";
 import { handleTtsCommands } from "./commands-tts.js";
+import type {
+  CommandHandler,
+  CommandHandlerResult,
+  HandleCommandsParams,
+} from "./commands-types.js";
 import { routeReply } from "./route-reply.js";
 >>>>>>> b7aac92ac (Gateway: add PTT chat + nodes CLI)
 

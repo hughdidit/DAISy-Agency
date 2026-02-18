@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { applyLegacyMigrations } from "./legacy.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
@@ -19,6 +20,10 @@ import type { OpenClawConfig } from "./types.js";
 import type { OpenClawConfig } from "./types.js";
 import { applyLegacyMigrations } from "./legacy.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { applyLegacyMigrations } from "./legacy.js";
+import type { OpenClawConfig } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { validateConfigObjectWithPlugins } from "./validation.js";
 
 export function migrateLegacyConfig(raw: unknown): {

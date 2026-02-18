@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 
@@ -23,9 +24,10 @@ import fs from "node:fs";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { intro as clackIntro, outro as clackOutro } from "@clack/prompts";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import fs from "node:fs";
-import type { OpenClawConfig } from "../config/config.js";
-import type { RuntimeEnv } from "../runtime.js";
+import { intro as clackIntro, outro as clackOutro } from "@clack/prompts";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
@@ -35,6 +37,7 @@ import {
   resolveHooksGmailModel,
 } from "../agents/model-selection.js";
 import { formatCliCommand } from "../cli/command-format.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -57,6 +60,9 @@ import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { CONFIG_PATH, readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { resolveGatewayService } from "../daemon/service.js";
@@ -66,6 +72,7 @@ import { buildGatewayConnectionDetails } from "../gateway/call.js";
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 =======
 import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -85,6 +92,9 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { defaultRuntime } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { stylePromptTitle } from "../terminal/prompt-style.js";

@@ -1,5 +1,4 @@
 import { messagingApi } from "@line/bot-sdk";
-import type { LineSendResult } from "./types.js";
 import { loadConfig } from "../config/config.js";
 import { logVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
@@ -10,6 +9,7 @@ import { resolveLineAccount } from "./accounts.js";
 import type { LineSendResult } from "./types.js";
 =======
 import { resolveLineChannelAccessToken } from "./channel-access-token.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> eb79785b3 (refactor(line): share channel access token resolver)
@@ -25,6 +25,9 @@ import type { LineSendResult } from "./types.js";
 =======
 import { resolveLineChannelAccessToken } from "./channel-access-token.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { LineSendResult } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 // Use the messaging API types directly
 type Message = messagingApi.Message;

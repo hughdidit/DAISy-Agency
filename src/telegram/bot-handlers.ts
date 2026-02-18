@@ -1,7 +1,4 @@
 import type { Message, ReactionTypeEmoji } from "@grammyjs/types";
-import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
-import type { TelegramMediaRef } from "./bot-message-context.js";
-import type { TelegramContext } from "./bot/types.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { hasControlCommand } from "../auto-reply/command-detection.js";
 import {
@@ -27,6 +24,7 @@ import { loadSessionStore, resolveStorePath } from "../config/sessions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -41,6 +39,9 @@ import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.j
 >>>>>>> 900b97e3c (test: type telegram action mock passthrough args)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { danger, logVerbose, warn } from "../globals.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -69,6 +70,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
 =======
 import type { TelegramMediaRef } from "./bot-message-context.js";
@@ -85,6 +87,9 @@ import type { TelegramMediaRef } from "./bot-message-context.js";
 >>>>>>> 900b97e3c (test: type telegram action mock passthrough args)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { TelegramMediaRef } from "./bot-message-context.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { RegisterTelegramHandlerParams } from "./bot-native-commands.js";
 import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
 <<<<<<< HEAD
@@ -96,6 +101,7 @@ import {
   resolveTelegramForumThreadId,
   resolveTelegramGroupAllowFromContext,
 } from "./bot/helpers.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -120,6 +126,9 @@ import type { TelegramContext } from "./bot/types.js";
 >>>>>>> 900b97e3c (test: type telegram action mock passthrough args)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { TelegramContext } from "./bot/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   evaluateTelegramGroupBaseAccess,
   evaluateTelegramGroupPolicyAccess,

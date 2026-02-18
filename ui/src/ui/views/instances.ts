@@ -4,6 +4,7 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { formatPresenceAge, formatPresenceSummary } from "../presenter";
 import type { PresenceEntry } from "../types";
@@ -27,6 +28,10 @@ import type { PresenceEntry } from "../types.ts";
 import type { PresenceEntry } from "../types.ts";
 import { formatPresenceAge, formatPresenceSummary } from "../presenter.ts";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { formatPresenceAge, formatPresenceSummary } from "../presenter.ts";
+import type { PresenceEntry } from "../types.ts";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export type InstancesProps = {
   loading: boolean;

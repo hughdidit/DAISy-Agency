@@ -8,6 +8,7 @@ import { emptyPluginConfigSchema } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 230ca789e (chore: Lint extensions folder.)
 
 import { nostrPlugin } from "./src/channel.js";
@@ -22,7 +23,10 @@ import { nostrPlugin } from "./src/channel.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { NostrProfile } from "./src/config-schema.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { nostrPlugin } from "./src/channel.js";
+import type { NostrProfile } from "./src/config-schema.js";
 import { createNostrProfileHttpHandler } from "./src/nostr-profile-http.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { setNostrRuntime, getNostrRuntime } from "./src/runtime.js";

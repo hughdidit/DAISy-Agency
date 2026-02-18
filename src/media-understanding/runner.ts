@@ -7,6 +7,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 =======
@@ -34,6 +35,8 @@ import type {
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 >>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 =======
@@ -52,6 +55,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MsgContext } from "../auto-reply/templating.js";
 import { applyTemplate } from "../auto-reply/templating.js";
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
@@ -60,12 +64,15 @@ import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js
 =======
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type {
   MediaUnderstandingConfig,
   MediaUnderstandingModelConfig,
 } from "../config/types.tools.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -74,6 +81,8 @@ import type {
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { runExec } from "../process/exec.js";
 import type {
@@ -132,10 +141,13 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 2a1f8b261 (refactor(media): extract runner entry execution helpers)
 =======
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   MediaAttachment,
   MediaUnderstandingCapability,
@@ -145,6 +157,7 @@ import type {
   MediaUnderstandingProvider,
 } from "./types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -152,6 +165,8 @@ import type {
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 <<<<<<< HEAD
 const AUTO_AUDIO_KEY_PROVIDERS = ["openai", "groq", "deepgram", "google"] as const;

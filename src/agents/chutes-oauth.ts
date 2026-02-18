@@ -1,5 +1,5 @@
-import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { createHash, randomBytes } from "node:crypto";
+import type { OAuthCredentials } from "@mariozechner/pi-ai";
 
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
 

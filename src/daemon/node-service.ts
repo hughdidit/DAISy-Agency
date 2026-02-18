@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 import { resolveGatewayService } from "./service.js";
 =======
@@ -14,6 +15,8 @@ import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 =======
 import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   NODE_SERVICE_KIND,
   NODE_SERVICE_MARKER,
@@ -22,6 +25,7 @@ import {
   resolveNodeSystemdServiceName,
   resolveNodeWindowsTaskName,
 } from "./constants.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -35,6 +39,9 @@ import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { GatewayService, GatewayServiceInstallArgs } from "./service.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveGatewayService } from "./service.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

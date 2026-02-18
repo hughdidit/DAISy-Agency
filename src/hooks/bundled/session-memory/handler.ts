@@ -14,6 +14,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import os from "node:os";
 import { fileURLToPath } from "node:url";
 import type { MoltbotConfig } from "../../../config/config.js";
@@ -42,12 +43,16 @@ import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../../../config/config.js";
 import type { HookHandler } from "../../hooks.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveAgentWorkspaceDir } from "../../../agents/agent-scope.js";
+import type { OpenClawConfig } from "../../../config/config.js";
 import { resolveStateDir } from "../../../config/paths.js";
 import { createSubsystemLogger } from "../../../logging/subsystem.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveAgentIdFromSessionKey } from "../../../routing/session-key.js";
 import { resolveHookConfig } from "../../config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -72,6 +77,9 @@ import type { HookHandler } from "../../hooks.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { HookHandler } from "../../hooks.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { generateSlugViaLLM } from "../../llm-slug-generator.js";
 
 const log = createSubsystemLogger("hooks/session-memory");

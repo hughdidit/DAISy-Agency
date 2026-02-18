@@ -1,4 +1,3 @@
-import type { Snapshot } from "../protocol/index.js";
 import { resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { getHealthSnapshot, type HealthSummary } from "../../commands/health.js";
 import { CONFIG_PATH, STATE_DIR, loadConfig } from "../../config/config.js";
@@ -11,6 +10,7 @@ import { listSystemPresence } from "../../infra/system-presence.js";
 import type { Snapshot } from "../protocol/index.js";
 =======
 import { resolveGatewayAuth } from "../auth.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
@@ -26,6 +26,9 @@ import type { Snapshot } from "../protocol/index.js";
 =======
 import { resolveGatewayAuth } from "../auth.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { Snapshot } from "../protocol/index.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 let presenceVersion = 1;
 let healthVersion = 1;

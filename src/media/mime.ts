@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import path from "node:path";
 <<<<<<< HEAD
 
@@ -15,7 +16,10 @@ import path from "node:path";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { fileTypeFromBuffer } from "file-type";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import path from "node:path";
+import { fileTypeFromBuffer } from "file-type";
 import { type MediaKind, mediaKindFromMime } from "./constants.js";
 
 // Map common mimes to preferred file extensions.

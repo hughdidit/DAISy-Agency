@@ -20,6 +20,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
 import type { ResolvedZalouserAccount, ZcaFriend, ZcaGroup, ZcaMessage } from "./types.js";
 import { getZalouserRuntime } from "./runtime.js";
@@ -43,6 +44,11 @@ import type { ResolvedZalouserAccount, ZcaFriend, ZcaGroup, ZcaMessage } from ".
 import { getZalouserRuntime } from "./runtime.js";
 import { sendMessageZalouser } from "./send.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { getZalouserRuntime } from "./runtime.js";
+import { sendMessageZalouser } from "./send.js";
+import type { ResolvedZalouserAccount, ZcaFriend, ZcaGroup, ZcaMessage } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { parseJsonOutput, runZca, runZcaStreaming } from "./zca.js";
 
 export type ZalouserMonitorOptions = {

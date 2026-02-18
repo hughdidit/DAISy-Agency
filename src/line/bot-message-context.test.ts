@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -24,11 +25,15 @@ import type { MessageEvent, PostbackEvent } from "@line/bot-sdk";
 =======
 import type { MessageEvent, PostbackEvent } from "@line/bot-sdk";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import type { MessageEvent, PostbackEvent } from "@line/bot-sdk";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
@@ -39,7 +44,10 @@ import { buildLineMessageContext, buildLinePostbackContext } from "./bot-message
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ResolvedLineAccount } from "./types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { buildLineMessageContext, buildLinePostbackContext } from "./bot-message-context.js";
+import type { ResolvedLineAccount } from "./types.js";
 
 describe("buildLineMessageContext", () => {
   let tmpDir: string;

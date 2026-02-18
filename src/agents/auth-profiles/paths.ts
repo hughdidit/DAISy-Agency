@@ -4,6 +4,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -15,10 +16,13 @@ import type { AuthProfileStore } from "./types.js";
 =======
 import type { AuthProfileStore } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { saveJsonFile } from "../../infra/json-file.js";
 import { resolveUserPath } from "../../utils.js";
 import { resolveMoltbotAgentDir } from "../agent-paths.js";
 import { AUTH_PROFILE_FILENAME, AUTH_STORE_VERSION, LEGACY_AUTH_FILENAME } from "./constants.js";
+import type { AuthProfileStore } from "./types.js";
 
 export function resolveAuthStorePath(agentDir?: string): string {
   const resolved = resolveUserPath(agentDir ?? resolveMoltbotAgentDir());

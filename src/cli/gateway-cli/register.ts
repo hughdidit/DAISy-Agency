@@ -1,9 +1,8 @@
 import type { Command } from "commander";
-import type { CostUsageSummary } from "../../infra/session-cost-usage.js";
-import type { GatewayDiscoverOpts } from "./discover.js";
 import { gatewayStatusCommand } from "../../commands/gateway-status.js";
 import { formatHealthChannelLines, type HealthSummary } from "../../commands/health.js";
 import { discoverGatewayBeacons } from "../../infra/bonjour-discovery.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -18,6 +17,9 @@ import type { CostUsageSummary } from "../../infra/session-cost-usage.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { CostUsageSummary } from "../../infra/session-cost-usage.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveWideAreaDiscoveryDomain } from "../../infra/widearea-dns.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { defaultRuntime } from "../../runtime.js";
@@ -42,6 +44,7 @@ import { formatHelpExamples } from "../help-format.js";
 import { withProgress } from "../progress.js";
 >>>>>>> 7a63b046d (refactor(cli): share gateway service subcommands)
 import { callGatewayCli, gatewayCallOpts } from "./call.js";
+import type { GatewayDiscoverOpts } from "./discover.js";
 import {
   dedupeBeacons,
   parseDiscoverTimeoutMs,

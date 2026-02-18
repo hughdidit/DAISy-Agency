@@ -6,11 +6,11 @@ import {
   type RuntimeEnv,
   type ReplyPayload,
 } from "openclaw/plugin-sdk";
-import type { MentionTarget } from "./mention.js";
 import { resolveFeishuAccount } from "./accounts.js";
 <<<<<<< HEAD
 =======
 import { createFeishuClient } from "./client.js";
+import type { MentionTarget } from "./mention.js";
 import { buildMentionedCardContent } from "./mention.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { getFeishuRuntime } from "./runtime.js";

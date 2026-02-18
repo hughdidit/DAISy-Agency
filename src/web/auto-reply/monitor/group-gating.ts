@@ -1,6 +1,3 @@
-import type { loadConfig } from "../../../config/config.js";
-import type { MentionConfig } from "../mentions.js";
-import type { WebInboundMsg } from "../types.js";
 import { hasControlCommand } from "../../../auto-reply/command-detection.js";
 import { parseActivationCommand } from "../../../auto-reply/group-activation.js";
 <<<<<<< HEAD
@@ -14,8 +11,11 @@ import { recordPendingHistoryEntryIfEnabled } from "../../../auto-reply/reply/hi
 =======
 import { recordPendingHistoryEntryIfEnabled } from "../../../auto-reply/reply/history.js";
 import { resolveMentionGating } from "../../../channels/mention-gating.js";
+import type { loadConfig } from "../../../config/config.js";
 import { normalizeE164 } from "../../../utils.js";
+import type { MentionConfig } from "../mentions.js";
 import { buildMentionConfig, debugMention, resolveOwnerList } from "../mentions.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -28,6 +28,9 @@ import type { WebInboundMsg } from "../types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { WebInboundMsg } from "../types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { stripMentionsForCommand } from "./commands.js";
 import { resolveGroupActivationFor, resolveGroupPolicyFor } from "./group-activation.js";
 import { noteGroupMember } from "./group-members.js";

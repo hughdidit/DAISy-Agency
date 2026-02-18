@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -26,6 +27,10 @@ import type { Command } from "commander";
 import fs from "node:fs/promises";
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import fs from "node:fs/promises";
+import type { Command } from "commander";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { defaultRuntime } from "../../runtime.js";
 import { writeBase64ToFile } from "../nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../nodes-canvas.js";
@@ -42,6 +47,7 @@ import { shortenHomePath } from "../../utils.js";
 import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> d4bdcda32 (refactor(nodes-cli): share node.invoke param builder)
 =======
 import type { NodesRpcOpts } from "./types.js";
@@ -55,6 +61,9 @@ import type { NodesRpcOpts } from "./types.js";
 =======
 import { buildNodeInvokeParams, callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 async function invokeCanvas(opts: NodesRpcOpts, command: string, params?: Record<string, unknown>) {
   const nodeId = await resolveNodeId(opts, String(opts.node ?? ""));

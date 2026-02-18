@@ -3,6 +3,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { normalizePluginHttpPath } from "./http-path.js";
@@ -16,7 +17,10 @@ import { normalizePluginHttpPath } from "./http-path.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { PluginHttpRouteRegistration, PluginRegistry } from "./registry.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizePluginHttpPath } from "./http-path.js";
+import type { PluginHttpRouteRegistration, PluginRegistry } from "./registry.js";
 import { requireActivePluginRegistry } from "./runtime.js";
 import { normalizePluginHttpPath } from "./http-path.js";
 

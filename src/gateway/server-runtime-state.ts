@@ -1,5 +1,7 @@
 import type { Server as HttpServer } from "node:http";
 import { WebSocketServer } from "ws";
+import { CANVAS_HOST_PATH } from "../canvas-host/a2ui.js";
+import { type CanvasHostHandler, createCanvasHostHandler } from "../canvas-host/server.js";
 import type { CliDeps } from "../cli/deps.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 import type { RuntimeEnv } from "../runtime.js";
@@ -8,6 +10,7 @@ import type { ResolvedGatewayAuth } from "./auth.js";
 import type { ChatAbortControllerEntry } from "./chat-abort.js";
 import type { ControlUiRootState } from "./control-ui.js";
 import type { HooksConfigResolved } from "./hooks.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -33,6 +36,8 @@ import { type CanvasHostHandler, createCanvasHostHandler } from "../canvas-host/
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveGatewayListenHosts } from "./net.js";
 import {
   createGatewayBroadcaster,
@@ -50,6 +55,7 @@ import { attachGatewayUpgradeHandler, createGatewayHttpServer } from "./server-h
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> c1cc28a4e (refactor(gateway): share broadcast function types)
 =======
 import type { DedupeEntry } from "./server-shared.js";
@@ -61,10 +67,14 @@ import type { DedupeEntry } from "./server-shared.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { DedupeEntry } from "./server-shared.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createGatewayHooksRequestHandler } from "./server/hooks.js";
 import { listenGatewayHttpServer } from "./server/http-listen.js";
 import { resolveGatewayListenHosts } from "./net.js";
 import { createGatewayPluginRequestHandler } from "./server/plugins-http.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -89,6 +99,10 @@ import type { GatewayWsClient } from "./server/ws-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { GatewayTlsRuntime } from "./server/tls.js";
+import type { GatewayWsClient } from "./server/ws-types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export async function createGatewayRuntimeState(params: {
   cfg: import("../config/config.js").MoltbotConfig;

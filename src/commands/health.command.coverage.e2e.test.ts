@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { setActivePluginRegistry } from "../plugins/runtime.js";
@@ -28,6 +29,12 @@ import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { stripAnsi } from "../terminal/ansi.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { setActivePluginRegistry } from "../plugins/runtime.js";
+import { stripAnsi } from "../terminal/ansi.js";
+import { createTestRegistry } from "../test-utils/channel-plugins.js";
+import type { HealthSummary } from "./health.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { healthCommand } from "./health.js";
 import { stripAnsi } from "../terminal/ansi.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";

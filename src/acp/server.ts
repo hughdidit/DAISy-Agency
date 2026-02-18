@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -21,6 +21,9 @@ import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 =======
 import type { AcpServerOptions } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadConfig } from "../config/config.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
@@ -28,6 +31,7 @@ import { GatewayClient } from "../gateway/client.js";
 import { isMainModule } from "../infra/is-main.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { AcpGatewayAgent } from "./translator.js";
+import type { AcpServerOptions } from "./types.js";
 
 export function serveAcpGateway(opts: AcpServerOptions = {}): void {
   const cfg = loadConfig();

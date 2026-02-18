@@ -3,6 +3,7 @@ import type { SlackEventMiddlewareArgs } from "@slack/bolt";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { loadConfig, writeConfigFile } from "../../../config/config.js";
 import { resolveChannelConfigWrites } from "../../../channels/plugins/config-writes.js";
@@ -44,12 +45,20 @@ import type {
   SlackChannelIdChangedEvent,
   SlackChannelRenamedEvent,
 } from "../types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveChannelConfigWrites } from "../../../channels/plugins/config-writes.js";
 import { loadConfig, writeConfigFile } from "../../../config/config.js";
 import { danger, warn } from "../../../globals.js";
 import { enqueueSystemEvent } from "../../../infra/system-events.js";
 import { migrateSlackChannelConfig } from "../../channel-migration.js";
 import { resolveSlackChannelLabel } from "../channel-config.js";
+import type { SlackMonitorContext } from "../context.js";
+import type {
+  SlackChannelCreatedEvent,
+  SlackChannelIdChangedEvent,
+  SlackChannelRenamedEvent,
+} from "../types.js";
 
 export function registerSlackChannelEvents(params: { ctx: SlackMonitorContext }) {
   const { ctx } = params;

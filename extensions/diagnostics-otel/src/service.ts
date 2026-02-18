@@ -1,6 +1,5 @@
-import type { SeverityNumber } from "@opentelemetry/api-logs";
-import type { DiagnosticEventPayload, OpenClawPluginService } from "openclaw/plugin-sdk";
 import { metrics, trace, SpanStatusCode } from "@opentelemetry/api";
+import type { SeverityNumber } from "@opentelemetry/api-logs";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
@@ -14,6 +13,7 @@ import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { DiagnosticEventPayload, OpenClawPluginService } from "openclaw/plugin-sdk";
 =======
@@ -23,6 +23,9 @@ import type { DiagnosticEventPayload, OpenClawPluginService } from "openclaw/plu
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { DiagnosticEventPayload, OpenClawPluginService } from "openclaw/plugin-sdk";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { onDiagnosticEvent, registerLogTransport } from "openclaw/plugin-sdk";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

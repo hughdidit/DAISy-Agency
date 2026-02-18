@@ -2,6 +2,7 @@ import type { MatrixClient } from "@vector-im/matrix-bot-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { AutojoinRoomsMixin } from "@vector-im/matrix-bot-sdk";
 <<<<<<< HEAD
 
@@ -26,7 +27,12 @@ import type { RuntimeEnv } from "openclaw/plugin-sdk";
 import { AutojoinRoomsMixin } from "@vector-im/matrix-bot-sdk";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { CoreConfig } from "../../types.js";
+=======
+import { AutojoinRoomsMixin } from "@vector-im/matrix-bot-sdk";
+import type { RuntimeEnv } from "openclaw/plugin-sdk";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getMatrixRuntime } from "../../runtime.js";
+import type { CoreConfig } from "../../types.js";
 
 export function registerMatrixAutoJoin(params: {
   client: MatrixClient;

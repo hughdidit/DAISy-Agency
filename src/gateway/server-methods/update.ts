@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveMoltbotPackageRoot } from "../../infra/moltbot-root.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 =======
@@ -17,6 +18,8 @@ import type { GatewayRequestHandlers } from "./types.js";
 =======
 import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadConfig } from "../../config/config.js";
 import { extractDeliveryInfo } from "../../config/sessions.js";
 import { resolveOpenClawPackageRoot } from "../../infra/openclaw-root.js";
@@ -43,6 +46,7 @@ import type { GatewayRequestHandlers } from "./types.js";
 =======
 import { validateUpdateRunParams } from "../protocol/index.js";
 import { parseRestartRequestParams } from "./restart-request.js";
+import type { GatewayRequestHandlers } from "./types.js";
 import { assertValidParams } from "./validation.js";
 >>>>>>> b743e652c (refactor(gateway): reuse shared validators + baseHash)
 

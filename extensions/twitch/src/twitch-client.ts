@@ -1,6 +1,6 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
 import { RefreshingAuthProvider, StaticAuthProvider } from "@twurple/auth";
 import { ChatClient, LogLevel } from "@twurple/chat";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -21,7 +21,11 @@ import { resolveTwitchToken } from "./token.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ChannelLogSink, TwitchAccountConfig, TwitchChatMessage } from "./types.js";
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveTwitchToken } from "./token.js";
+import type { ChannelLogSink, TwitchAccountConfig, TwitchChatMessage } from "./types.js";
 import { normalizeToken } from "./utils/twitch.js";
 
 /**

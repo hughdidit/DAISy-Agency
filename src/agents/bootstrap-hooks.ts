@@ -6,6 +6,7 @@ import type { AgentBootstrapHookContext } from "../hooks/internal-hooks.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { WorkspaceBootstrapFile } from "./workspace.js";
@@ -15,9 +16,12 @@ import type { WorkspaceBootstrapFile } from "./workspace.js";
 =======
 import type { WorkspaceBootstrapFile } from "./workspace.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createInternalHookEvent, triggerInternalHook } from "../hooks/internal-hooks.js";
 import type { AgentBootstrapHookContext } from "../hooks/internal-hooks.js";
 import { resolveAgentIdFromSessionKey } from "../routing/session-key.js";
+import type { WorkspaceBootstrapFile } from "./workspace.js";
 
 export async function applyBootstrapHookOverrides(params: {
   files: WorkspaceBootstrapFile[];

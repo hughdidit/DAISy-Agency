@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../channels/registry.js";
 =======
 import { listAgentIds } from "../agents/agent-scope.js";
@@ -29,6 +30,12 @@ import { listAgentIds } from "../agents/agent-scope.js";
 import { DEFAULT_CHAT_CHANNEL } from "../channels/registry.js";
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { listAgentIds } from "../agents/agent-scope.js";
+import { DEFAULT_CHAT_CHANNEL } from "../channels/registry.js";
+import { formatCliCommand } from "../cli/command-format.js";
+import type { CliDeps } from "../cli/deps.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { withProgress } from "../cli/progress.js";
 import { loadConfig } from "../config/config.js";
 import { resolveSessionKeyForRequest } from "./agent/session.js";
@@ -38,6 +45,7 @@ import { normalizeAgentId } from "../routing/session-key.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
@@ -50,6 +58,9 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,

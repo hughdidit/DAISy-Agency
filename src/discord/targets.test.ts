@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { ClawdbotConfig } from "../config/config.js";
 =======
@@ -17,7 +18,10 @@ import { normalizeDiscordMessagingTarget } from "../channels/plugins/normalize/d
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../config/config.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeDiscordMessagingTarget } from "../channels/plugins/normalize/discord.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { listDiscordDirectoryPeersLive } from "./directory-live.js";
 import { parseDiscordTarget, resolveDiscordChannelId, resolveDiscordTarget } from "./targets.js";
 

@@ -38,6 +38,7 @@ export function execDocker(args: string[], opts?: { allowFailure?: boolean }) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
 =======
@@ -47,12 +48,15 @@ import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from 
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { formatCliCommand } from "../../cli/command-format.js";
 import { defaultRuntime } from "../../runtime.js";
 import { computeSandboxConfigHash } from "./config-hash.js";
 import { DEFAULT_SANDBOX_IMAGE, SANDBOX_AGENT_WORKSPACE_MOUNT } from "./constants.js";
 import { readRegistry, updateRegistry } from "./registry.js";
 import { resolveSandboxAgentId, resolveSandboxScopeKey, slugifySessionKey } from "./shared.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -63,6 +67,9 @@ import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from 
 =======
 import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { validateSandboxSecurity } from "./validate-sandbox-security.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { readFileSync } from "node:fs";
 <<<<<<< HEAD
 
@@ -21,6 +22,10 @@ import type { RuntimeEnv } from "openclaw/plugin-sdk";
 import type { RuntimeEnv } from "openclaw/plugin-sdk";
 import { readFileSync } from "node:fs";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { readFileSync } from "node:fs";
+import type { RuntimeEnv } from "openclaw/plugin-sdk";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
 
 const ROOM_CACHE_TTL_MS = 5 * 60 * 1000;

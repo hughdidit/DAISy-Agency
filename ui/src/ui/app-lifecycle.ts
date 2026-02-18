@@ -1,4 +1,3 @@
-import type { Tab } from "./navigation.ts";
 import { connectGateway } from "./app-gateway.ts";
 import {
 <<<<<<< HEAD
@@ -40,6 +39,7 @@ import { loadControlUiBootstrapConfig } from "./controllers/control-ui-bootstrap
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 3b4096e02 (fix(ui): load Control UI bootstrap config via JSON endpoint)
 =======
 import type { Tab } from "./navigation.ts";
@@ -51,6 +51,9 @@ import type { Tab } from "./navigation.ts";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { Tab } from "./navigation.ts";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 type LifecycleHost = {
   basePath: string;

@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 =======
@@ -26,6 +27,12 @@ import type { OpenClawConfig } from "../config/types.js";
 =======
 import { resolveConfigPath } from "../config/paths.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import fs from "node:fs";
+import json5 from "json5";
+import { resolveConfigPath } from "../config/paths.js";
+import type { OpenClawConfig } from "../config/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 import json5 from "json5";
 

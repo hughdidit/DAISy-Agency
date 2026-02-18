@@ -1,7 +1,3 @@
-import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { AgentDefaultsConfig } from "../../config/types.js";
-import type { CronJob, CronRunOutcome, CronRunTelemetry } from "../types.js";
 import {
   resolveAgentConfig,
   resolveAgentDir,
@@ -27,6 +23,7 @@ import {
   resolveHooksGmailModel,
   resolveThinkingDefault,
 } from "../../agents/model-selection.js";
+import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
 import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 <<<<<<< HEAD
 import type { MessagingToolSend } from "../../agents/pi-embedded-messaging.js";
@@ -84,6 +81,7 @@ import { createOutboundSendDeps, type CliDeps } from "../../cli/outbound-send-de
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 import { resolveSessionTranscriptPath, updateSessionStore } from "../../config/sessions.js";
 import type { AgentDefaultsConfig } from "../../config/types.js";
@@ -108,11 +106,15 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   resolveAgentMainSessionKey,
   resolveSessionTranscriptPath,
   updateSessionStore,
 } from "../../config/sessions.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -138,6 +140,9 @@ import type { AgentDefaultsConfig } from "../../config/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { AgentDefaultsConfig } from "../../config/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { registerAgentRunContext } from "../../infra/agent-events.js";
 <<<<<<< HEAD
 =======
@@ -171,6 +176,7 @@ import { resolveCronDeliveryPlan } from "../delivery.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 511c656cb (feat(cron): introduce delivery modes for isolated jobs)
 =======
 import type { CronJob } from "../types.js";
@@ -188,6 +194,9 @@ import type { CronJob, CronRunOutcome, CronRunTelemetry } from "../types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { CronJob, CronRunOutcome, CronRunTelemetry } from "../types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveDeliveryTarget } from "./delivery-target.js";
 import {
   isHeartbeatOnlyResponse,

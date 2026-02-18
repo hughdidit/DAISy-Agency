@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { normalizeMessageChannel } from "../../utils/message-channel.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -14,7 +15,10 @@ import { normalizeMessageChannel } from "../../utils/message-channel.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { SessionConfig, SessionResetConfig } from "../types.base.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeMessageChannel } from "../../utils/message-channel.js";
+import type { SessionConfig, SessionResetConfig } from "../types.base.js";
 import { DEFAULT_IDLE_MINUTES } from "./types.js";
 import { normalizeMessageChannel } from "../../utils/message-channel.js";
 

@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { formatCliCommand } from "../cli/command-format.js";
@@ -23,6 +24,10 @@ import type { RuntimeEnv } from "../runtime.js";
 import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { formatCliCommand } from "../cli/command-format.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveGatewayPort } from "../config/config.js";
 import {
   resolveGatewayLaunchAgentLabel,
@@ -43,6 +48,7 @@ import { isWSL } from "../infra/wsl.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RuntimeEnv } from "../runtime.js";
 <<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
@@ -55,6 +61,9 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { note } from "../terminal/note.js";
 import { sleep } from "../utils.js";
 import {
@@ -64,6 +73,7 @@ import {
 } from "./daemon-runtime.js";
 import { buildGatewayInstallPlan, gatewayInstallErrorHint } from "./daemon-install-helpers.js";
 import { buildGatewayRuntimeHints, formatGatewayRuntimeSummary } from "./doctor-format.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -77,6 +87,9 @@ import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { DoctorOptions, DoctorPrompter } from "./doctor-prompter.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { formatHealthCheckFailure } from "./health-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { healthCommand } from "./health.js";

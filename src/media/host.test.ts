@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { Server } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -17,6 +18,10 @@ import type { Server } from "node:http";
 import type { Server } from "node:http";
 import fs from "node:fs/promises";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import fs from "node:fs/promises";
+import type { Server } from "node:http";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({

@@ -4,6 +4,7 @@ import type { Command } from "commander";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { defaultRuntime } from "../../runtime.js";
 import { formatAge, parsePairingList } from "./format.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
@@ -19,6 +20,8 @@ import type { NodesRpcOpts } from "./types.js";
 =======
 import type { NodesRpcOpts } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { defaultRuntime } from "../../runtime.js";
 import { getNodesTheme, runNodesCommand } from "./cli-utils.js";
 import { parsePairingList } from "./format.js";
@@ -28,6 +31,7 @@ import { parsePairingList } from "./format.js";
 import { renderPendingPairingRequestsTable } from "./pairing-render.js";
 >>>>>>> 966957fc6 (refactor(nodes-cli): share pending pairing table)
 import { callGatewayCli, nodesCallOpts, resolveNodeId } from "./rpc.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -43,6 +47,9 @@ import type { NodesRpcOpts } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export function registerNodesPairingCommands(nodes: Command) {
   nodesCallOpts(

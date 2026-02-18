@@ -1,8 +1,8 @@
-import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -23,6 +23,9 @@ import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
 >>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { type Api, completeSimple, type Model } from "@mariozechner/pi-ai";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { describe, expect, it } from "vitest";
 import { isTruthyEnvValue } from "../infra/env.js";
 import {

@@ -5,6 +5,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveCommandAuthorization } from "../command-auth.js";
 import { normalizeCommandBody } from "../commands-registry.js";
@@ -20,8 +21,12 @@ import { normalizeCommandBody } from "../commands-registry.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { MsgContext } from "../templating.js";
 import type { CommandContext } from "./commands-types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveCommandAuthorization } from "../command-auth.js";
 import { normalizeCommandBody } from "../commands-registry.js";
+import type { MsgContext } from "../templating.js";
+import type { CommandContext } from "./commands-types.js";
 import { stripMentions } from "./mentions.js";
 
 export function buildCommandContext(params: {

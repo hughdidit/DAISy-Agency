@@ -1,7 +1,7 @@
-import type { AssistantMessage } from "@mariozechner/pi-ai";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -17,6 +17,9 @@ import type { AssistantMessage } from "@mariozechner/pi-ai";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { AssistantMessage } from "@mariozechner/pi-ai";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MoltbotConfig } from "../config/config.js";

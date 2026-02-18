@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { retryAsync } from "../infra/retry.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -22,6 +23,8 @@ import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
 =======
 import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { extractBatchErrorMessage, formatUnavailableBatchError } from "./batch-error-utils.js";
 import { postJsonWithRetry } from "./batch-http.js";
 >>>>>>> ebb54d71e (refactor(memory): share batch create retry)
@@ -42,6 +45,7 @@ import { buildBatchHeaders, normalizeBatchBaseUrl } from "./batch-utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
 =======
 import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
@@ -53,6 +57,9 @@ import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { OpenAiEmbeddingClient } from "./embeddings-openai.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export type OpenAiBatchRequest = {
   custom_id: string;

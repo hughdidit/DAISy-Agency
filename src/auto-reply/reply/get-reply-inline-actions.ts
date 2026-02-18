@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { getChannelDock } from "../../channels/dock.js";
 import type { SkillCommandSpec } from "../../agents/skills.js";
 import type { MoltbotConfig } from "../../config/config.js";
@@ -25,9 +26,14 @@ import { createOpenClawTools } from "../../agents/openclaw-tools.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { createOpenClawTools } from "../../agents/openclaw-tools.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { SkillCommandSpec } from "../../agents/skills.js";
+import { getChannelDock } from "../../channels/dock.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -49,6 +55,8 @@ import { getChannelDock } from "../../channels/dock.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { logVerbose } from "../../globals.js";
 import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
 <<<<<<< HEAD
@@ -61,6 +69,7 @@ import {
   listSkillCommandsForWorkspace,
   resolveSkillCommandInvocation,
 } from "../skill-commands.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -80,10 +89,18 @@ import type { GetReplyOptions, ReplyPayload } from "../types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { MsgContext, TemplateContext } from "../templating.js";
+import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
+import type { GetReplyOptions, ReplyPayload } from "../types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getAbortMemory } from "./abort.js";
 import { buildStatusReply, handleCommands } from "./commands.js";
+import type { InlineDirectives } from "./directive-handling.js";
 import { isDirectiveOnly } from "./directive-handling.js";
+import type { createModelSelectionState } from "./model-selection.js";
 import { extractInlineSimpleCommand } from "./reply-inline.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -102,6 +119,9 @@ import type { TypingController } from "./typing.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { TypingController } from "./typing.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const builtinSlashCommands = (() => {
   return listReservedChatSlashCommandNames([

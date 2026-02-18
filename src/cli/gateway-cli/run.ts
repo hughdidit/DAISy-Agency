@@ -1,4 +1,3 @@
-import type { Command } from "commander";
 import fs from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7,6 +6,7 @@ import fs from "node:fs";
 import type { Command } from "commander";
 =======
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 748d6821d (fix(config): add forensic config write audit and watch attribution)
@@ -22,8 +22,10 @@ import type { Command } from "commander";
 =======
 import path from "node:path";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { Command } from "commander";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { GatewayAuthMode } from "../../config/config.js";
-import type { GatewayWsLogStyle } from "../../gateway/ws-logging.js";
 import {
   CONFIG_PATH,
   loadConfig,
@@ -33,6 +35,7 @@ import {
 } from "../../config/config.js";
 import { resolveGatewayAuth } from "../../gateway/auth.js";
 import { startGatewayServer } from "../../gateway/server.js";
+import type { GatewayWsLogStyle } from "../../gateway/ws-logging.js";
 import { setGatewayWsLogStyle } from "../../gateway/ws-logging.js";
 import { setVerbose } from "../../globals.js";
 import { GatewayLockError } from "../../infra/gateway-lock.js";

@@ -12,6 +12,7 @@ import type { ResolvedNextcloudTalkAccount } from "./accounts.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { CoreConfig, GroupPolicy, NextcloudTalkInboundMessage } from "./types.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
@@ -25,6 +26,8 @@ import type { CoreConfig, GroupPolicy, NextcloudTalkInboundMessage } from "./typ
 =======
 import type { CoreConfig, GroupPolicy, NextcloudTalkInboundMessage } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   normalizeNextcloudTalkAllowlist,
   resolveNextcloudTalkAllowlistMatch,
@@ -35,6 +38,7 @@ import {
 } from "./policy.js";
 import { resolveNextcloudTalkRoomKind } from "./room-info.js";
 import { sendMessageNextcloudTalk } from "./send.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -51,6 +55,9 @@ import type { CoreConfig, GroupPolicy, NextcloudTalkInboundMessage } from "./typ
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { CoreConfig, GroupPolicy, NextcloudTalkInboundMessage } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const CHANNEL_ID = "nextcloud-talk" as const;
 

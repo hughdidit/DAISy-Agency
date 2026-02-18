@@ -15,6 +15,7 @@ import { buildChannelConfigSchema } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { twitchMessageActions } from "./actions.js";
 import { removeClientManager } from "./client-manager-registry.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -55,6 +56,8 @@ import type {
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { twitchMessageActions } from "./actions.js";
 import { removeClientManager } from "./client-manager-registry.js";
 import { TwitchConfigSchema } from "./config-schema.js";
@@ -67,8 +70,11 @@ import { collectTwitchStatusIssues } from "./status.js";
 import { resolveTwitchToken } from "./token.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   ChannelAccountSnapshot,
   ChannelCapabilities,
@@ -79,9 +85,12 @@ import type {
   ChannelResolveResult,
   TwitchAccountConfig,
 } from "./types.js";
+<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { isAccountConfigured } from "./utils/twitch.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 

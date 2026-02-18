@@ -6,6 +6,7 @@ import type { OpenClawConfig } from "openclaw/plugin-sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveZaloAccount } from "./accounts.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -17,7 +18,10 @@ import { resolveZaloAccount } from "./accounts.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ZaloFetch } from "./api.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveZaloAccount } from "./accounts.js";
+import type { ZaloFetch } from "./api.js";
 import { sendMessage, sendPhoto } from "./api.js";
 import { resolveZaloAccount } from "./accounts.js";
 import { resolveZaloProxyFetch } from "./proxy.js";

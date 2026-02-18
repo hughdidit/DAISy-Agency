@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { type ModelRef, normalizeProviderId } from "../../agents/model-selection.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
@@ -19,6 +20,10 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { type ModelRef, normalizeProviderId } from "../../agents/model-selection.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { type ModelRef, normalizeProviderId } from "../../agents/model-selection.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export type ModelPickerCatalogEntry = {
   provider: string;

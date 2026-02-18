@@ -1,6 +1,3 @@
-import type { OpenClawConfig } from "../../config/config.js";
-import type { InlineDirectives } from "./directive-handling.parse.js";
-import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
 import {
   resolveAgentDir,
   resolveDefaultAgentId,
@@ -19,6 +16,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
@@ -30,11 +28,15 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { type SessionEntry, updateSessionStore } from "../../config/sessions.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { applyVerboseOverride } from "../../sessions/level-overrides.js";
 import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides.js";
 import { resolveProfileOverride } from "./directive-handling.auth.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -62,6 +64,11 @@ import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
 =======
 import { enqueueModeSwitchEvents } from "./directive-handling.shared.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { InlineDirectives } from "./directive-handling.parse.js";
+import { enqueueModeSwitchEvents } from "./directive-handling.shared.js";
+import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export async function persistInlineDirectives(params: {
   directives: InlineDirectives;

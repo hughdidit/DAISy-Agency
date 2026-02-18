@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 <<<<<<< HEAD
 import type { MoltbotConfig, GatewayAuthConfig } from "../config/config.js";
@@ -17,10 +18,12 @@ import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 >>>>>>> ae2c8f2cf (feat(models): support anthropic sonnet 4.6)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { OpenClawConfig, GatewayAuthConfig } from "../config/config.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-import { ensureAuthProfileStore } from "../agents/auth-profiles.js";
 import { promptAuthChoiceGrouped } from "./auth-choice-prompt.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { applyAuthChoice, resolvePreferredProviderForAuthChoice } from "./auth-choice.js";

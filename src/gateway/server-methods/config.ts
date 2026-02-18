@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
@@ -19,6 +20,8 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import {
   CONFIG_PATH,
@@ -45,6 +48,7 @@ import { extractDeliveryInfo } from "../../config/sessions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -54,6 +58,9 @@ import type { OpenClawConfig } from "../../config/types.openclaw.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { OpenClawConfig } from "../../config/types.openclaw.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
@@ -84,6 +91,7 @@ function resolveBaseHash(params: unknown): string | null {
 =======
 import { resolveBaseHashParam } from "./base-hash.js";
 import { parseRestartRequestParams } from "./restart-request.js";
+import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 import { assertValidParams } from "./validation.js";
 >>>>>>> b743e652c (refactor(gateway): reuse shared validators + baseHash)
 

@@ -3,6 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
@@ -20,6 +21,10 @@ import type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
 import type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
 import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
+import type { LookupFn, SsrFPolicy } from "../infra/net/ssrf.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { detectMime, extensionForMime } from "./mime.js";
 import { readResponseWithLimit } from "./read-response-with-limit.js";
 

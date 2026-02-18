@@ -1,8 +1,8 @@
 <<<<<<< HEAD
 =======
 import type { GuardedFetchResult } from "../../infra/net/fetch-guard.js";
-import type { LookupFn, SsrFPolicy } from "../../infra/net/ssrf.js";
 import { fetchWithSsrFGuard } from "../../infra/net/fetch-guard.js";
+import type { LookupFn, SsrFPolicy } from "../../infra/net/ssrf.js";
 export { fetchWithTimeout } from "../../utils/fetch-timeout.js";
 
 >>>>>>> a26670a2f (refactor: consolidate fetchWithTimeout into shared utility)

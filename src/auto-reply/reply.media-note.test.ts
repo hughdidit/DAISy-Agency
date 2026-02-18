@@ -2,12 +2,16 @@ import path from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { getReplyFromConfig } from "./reply.js";
 
 vi.mock("../agents/pi-embedded.js", () => ({

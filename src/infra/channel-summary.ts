@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
 =======
@@ -15,12 +16,15 @@ import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/
 =======
 import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   buildChannelAccountSnapshot,
   formatChannelAllowFrom,
 } from "../channels/account-summary.js";
 >>>>>>> 64df78744 (refactor(channels): share account summary helpers)
 import { listChannelPlugins } from "../channels/plugins/index.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -35,6 +39,9 @@ import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ChannelAccountSnapshot, ChannelPlugin } from "../channels/plugins/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { type OpenClawConfig, loadConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";

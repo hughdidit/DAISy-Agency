@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { EventEmitter } from "node:events";
 =======
@@ -11,9 +12,11 @@ import { EventEmitter } from "node:events";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { EventEmitter } from "node:events";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { OpenClawConfig, PluginRuntime } from "openclaw/plugin-sdk";
-import { EventEmitter } from "node:events";
 import { removeAckReactionAfterReply, shouldAckReaction } from "openclaw/plugin-sdk";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

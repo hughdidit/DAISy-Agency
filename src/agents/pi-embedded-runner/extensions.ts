@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
@@ -22,8 +23,12 @@ import { fileURLToPath } from "node:url";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { Api, Model } from "@mariozechner/pi-ai";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { Api, Model } from "@mariozechner/pi-ai";
+import type { SessionManager } from "@mariozechner/pi-coding-agent";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveContextWindowInfo } from "../context-window-guard.js";

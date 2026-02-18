@@ -3,7 +3,6 @@ import type { MoltbotConfig } from "../../config/types.js";
 import type { ChannelDirectoryEntry } from "./types.js";
 =======
 import type { OpenClawConfig } from "../../config/types.js";
-import type { ChannelDirectoryEntry } from "./types.js";
 import { resolveDiscordAccount } from "../../discord/accounts.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { resolveSlackAccount } from "../../slack/accounts.js";
@@ -11,6 +10,7 @@ import { resolveDiscordAccount } from "../../discord/accounts.js";
 import { resolveTelegramAccount } from "../../telegram/accounts.js";
 import { resolveWhatsAppAccount } from "../../web/accounts.js";
 import { normalizeSlackMessagingTarget } from "./normalize/slack.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -26,6 +26,9 @@ import type { ChannelDirectoryEntry } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ChannelDirectoryEntry } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export type DirectoryConfigParams = {
   cfg: MoltbotConfig;

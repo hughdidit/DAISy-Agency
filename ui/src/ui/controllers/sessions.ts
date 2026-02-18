@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayBrowserClient } from "../gateway";
 import { toNumber } from "../format";
 import type { SessionsListResult } from "../types";
@@ -37,6 +38,11 @@ import type { GatewayBrowserClient } from "../gateway.ts";
 import type { SessionsListResult } from "../types.ts";
 import { toNumber } from "../format.ts";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { toNumber } from "../format.ts";
+import type { GatewayBrowserClient } from "../gateway.ts";
+import type { SessionsListResult } from "../types.ts";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export type SessionsState = {
   client: GatewayBrowserClient | null;

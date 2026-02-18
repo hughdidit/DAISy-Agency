@@ -1,4 +1,3 @@
-import type { CommandHandler } from "./commands-types.js";
 import { logVerbose } from "../../globals.js";
 import { listSkillCommandsForAgents } from "../skill-commands.js";
 import {
@@ -16,6 +15,7 @@ import { buildStatusReply } from "./commands-status.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { buildContextReply } from "./commands-context-report.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -27,6 +27,9 @@ import type { CommandHandler } from "./commands-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { CommandHandler } from "./commands-types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export const handleHelpCommand: CommandHandler = async (params, allowTextCommands) => {
   if (!allowTextCommands) {

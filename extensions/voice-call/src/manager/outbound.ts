@@ -6,6 +6,7 @@ import type { CallMode } from "../config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CallManagerContext } from "./context.js";
@@ -15,6 +16,8 @@ import type { CallManagerContext } from "./context.js";
 =======
 import type { CallManagerContext } from "./context.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   TerminalStates,
   type CallId,
@@ -23,6 +26,7 @@ import {
 } from "../types.js";
 import type { CallMode } from "../config.js";
 import { mapVoiceToPolly } from "../voice-mapping.js";
+import type { CallManagerContext } from "./context.js";
 import { getCallByProviderCallId } from "./lookup.js";
 import { generateNotifyTwiml } from "./twiml.js";
 import { addTranscriptEntry, transitionState } from "./state.js";

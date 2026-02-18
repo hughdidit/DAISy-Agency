@@ -17,6 +17,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { CoreConfig } from "./types.js";
@@ -26,6 +27,8 @@ import type { CoreConfig } from "./types.js";
 =======
 import type { CoreConfig } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   listNextcloudTalkAccountIds,
   resolveDefaultNextcloudTalkAccountId,
@@ -44,6 +47,7 @@ import { sendMessageNextcloudTalk } from "./send.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { CoreConfig } from "./types.js";
 <<<<<<< HEAD
 import { resolveNextcloudTalkGroupToolPolicy } from "./policy.js";
@@ -56,6 +60,9 @@ import type { CoreConfig } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { CoreConfig } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const meta = {
   id: "nextcloud-talk",

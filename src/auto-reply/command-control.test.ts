@@ -7,6 +7,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { MsgContext } from "./templating.js";
@@ -16,6 +17,8 @@ import type { MsgContext } from "./templating.js";
 =======
 import type { MsgContext } from "./templating.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { resolveCommandAuthorization } from "./command-auth.js";
@@ -26,6 +29,7 @@ import { parseSendPolicyCommand } from "./send-policy.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MsgContext } from "./templating.js";
 <<<<<<< HEAD
 =======
@@ -36,6 +40,9 @@ import type { MsgContext } from "./templating.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { MsgContext } from "./templating.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const createRegistry = () =>
   createTestRegistry([

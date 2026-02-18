@@ -6,6 +6,7 @@ import SlackBolt from "@slack/bolt";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { SessionScope } from "../../config/sessions.js";
@@ -23,6 +24,8 @@ import type { MonitorSlackOpts } from "./types.js";
 import type { SessionScope } from "../../config/sessions.js";
 import type { MonitorSlackOpts } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { DEFAULT_GROUP_HISTORY_LIMIT } from "../../auto-reply/reply/history.js";
 import {
@@ -33,6 +36,7 @@ import {
   summarizeMapping,
 } from "../../channels/allowlists/resolve-utils.js";
 import { loadConfig } from "../../config/config.js";
+import type { SessionScope } from "../../config/sessions.js";
 import { warn } from "../../globals.js";
 import { normalizeMainKey } from "../../routing/session-key.js";
 <<<<<<< HEAD
@@ -56,6 +60,7 @@ import { registerSlackMonitorSlashCommands } from "./slash.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeAllowList } from "./allow-list.js";
 
 =======
@@ -68,6 +73,9 @@ import type { MonitorSlackOpts } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { MonitorSlackOpts } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const slackBoltModule = SlackBolt as typeof import("@slack/bolt") & {
   default?: typeof import("@slack/bolt");

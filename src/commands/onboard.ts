@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import type { RuntimeEnv } from "../runtime.js";
@@ -13,10 +14,13 @@ import type { OnboardOptions } from "./onboard-types.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { OnboardOptions } from "./onboard-types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { formatCliCommand } from "../cli/command-format.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { readConfigFileSnapshot } from "../config/config.js";
 import { assertSupportedRuntime } from "../infra/runtime-guard.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import { resolveUserPath } from "../utils.js";
 import { isDeprecatedAuthChoice, normalizeLegacyOnboardAuthChoice } from "./auth-choice-legacy.js";
@@ -27,6 +31,7 @@ import { runNonInteractiveOnboarding } from "./onboard-non-interactive.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -38,6 +43,9 @@ import type { OnboardOptions } from "./onboard-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { OnboardOptions } from "./onboard-types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export async function onboardCommand(opts: OnboardOptions, runtime: RuntimeEnv = defaultRuntime) {
   assertSupportedRuntime(runtime);

@@ -1,7 +1,7 @@
-import type { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -22,6 +22,9 @@ import type { Command } from "commander";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { Command } from "commander";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { movePathToTrash } from "../browser/trash.js";
 import { resolveStateDir } from "../config/paths.js";
 >>>>>>> e665d7791 (perf(test): remove extra module resets in cli and message suites)

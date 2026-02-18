@@ -5,6 +5,7 @@ import type { AuthProfileConfig } from "../../config/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeProviderId } from "../model-selection.js";
 <<<<<<< HEAD
 import { listProfilesForProvider } from "./profiles.js";
@@ -37,6 +38,11 @@ import type { AuthProfileIdRepairResult, AuthProfileStore } from "./types.js";
 import { findNormalizedProviderKey, normalizeProviderId } from "../model-selection.js";
 import { dedupeProfileIds, listProfilesForProvider } from "./profiles.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { findNormalizedProviderKey, normalizeProviderId } from "../model-selection.js";
+import { dedupeProfileIds, listProfilesForProvider } from "./profiles.js";
+import type { AuthProfileIdRepairResult, AuthProfileStore } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 function getProfileSuffix(profileId: string): string {
   const idx = profileId.indexOf(":");

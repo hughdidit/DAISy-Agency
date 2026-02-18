@@ -4,6 +4,7 @@ import type { DatabaseSync } from "node:sqlite";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { SessionFileEntry } from "./session-files.js";
@@ -23,13 +24,17 @@ import { createSubsystemLogger } from "../logging/subsystem.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { SessionFileEntry } from "./session-files.js";
 import type { SyncProgressState } from "./sync-progress.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createSubsystemLogger } from "../logging/subsystem.js";
+import type { SessionFileEntry } from "./session-files.js";
 import {
   buildSessionEntry,
   listSessionFilesForAgent,
   sessionPathForFile,
 } from "./session-files.js";
 import { indexFileEntryIfChanged } from "./sync-index.js";
+import type { SyncProgressState } from "./sync-progress.js";
 import { bumpSyncProgressCompleted, bumpSyncProgressTotal } from "./sync-progress.js";
 import { deleteStaleIndexedPaths } from "./sync-stale.js";
 

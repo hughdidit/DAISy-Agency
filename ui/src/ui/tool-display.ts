@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import rawConfig from "./tool-display.json";
 import type { IconName } from "./icons";
 =======
@@ -17,6 +18,8 @@ import type { IconName } from "./icons.ts";
 =======
 import type { IconName } from "./icons.ts";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   defaultTitle,
   normalizeToolName,
@@ -30,6 +33,7 @@ import {
   resolveWriteDetail,
   type ToolDisplaySpec as ToolDisplaySpecBase,
 } from "../../../src/agents/tool-display-common.js";
+import type { IconName } from "./icons.ts";
 import rawConfig from "./tool-display.json" with { type: "json" };
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 

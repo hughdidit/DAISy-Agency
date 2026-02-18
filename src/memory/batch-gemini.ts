@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createSubsystemLogger } from "../logging/subsystem.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -27,9 +28,12 @@ import type { GeminiEmbeddingClient } from "./embeddings-gemini.js";
 =======
 import type { GeminiEmbeddingClient } from "./embeddings-gemini.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { runEmbeddingBatchGroups } from "./batch-runner.js";
 import { buildBatchHeaders, normalizeBatchBaseUrl } from "./batch-utils.js";
 import { debugEmbeddingsLog } from "./embeddings-debug.js";
+import type { GeminiEmbeddingClient } from "./embeddings-gemini.js";
 import { hashText } from "./internal.js";
 >>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
 

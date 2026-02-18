@@ -1,6 +1,6 @@
-import dotenv from "dotenv";
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -18,6 +18,9 @@ import dotenv from "dotenv";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import dotenv from "dotenv";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveConfigDir } from "../utils.js";
 
 export function loadDotEnv(opts?: { quiet?: boolean }) {

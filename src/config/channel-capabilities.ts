@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { normalizeAccountId } from "../routing/session-key.js";
 <<<<<<< HEAD
@@ -19,8 +20,12 @@ import { normalizeAccountId } from "../routing/session-key.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "./config.js";
 import type { TelegramCapabilitiesConfig } from "./types.telegram.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeChannelId } from "../channels/plugins/index.js";
 import { normalizeAccountId } from "../routing/session-key.js";
+import type { OpenClawConfig } from "./config.js";
+import type { TelegramCapabilitiesConfig } from "./types.telegram.js";
 
 type CapabilitiesConfig = TelegramCapabilitiesConfig;
 

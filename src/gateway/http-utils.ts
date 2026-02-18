@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IncomingMessage } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -17,6 +18,10 @@ import type { IncomingMessage } from "node:http";
 import type { IncomingMessage } from "node:http";
 import { randomUUID } from "node:crypto";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { randomUUID } from "node:crypto";
+import type { IncomingMessage } from "node:http";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { buildAgentMainSessionKey, normalizeAgentId } from "../routing/session-key.js";
 
 export function getHeader(req: IncomingMessage, name: string): string | undefined {

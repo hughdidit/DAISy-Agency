@@ -3,6 +3,7 @@
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import fs from "node:fs/promises";
@@ -19,7 +20,10 @@ import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { BrowserServerState } from "./server-context.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
+import type { BrowserServerState } from "./server-context.js";
 import "./server-context.chrome-test-harness.js";
 import { createBrowserRouteContext } from "./server-context.js";
 

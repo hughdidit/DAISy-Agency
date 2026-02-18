@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ConfigFileSnapshot } from "./types.openclaw.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -16,6 +17,8 @@ import type { ConfigFileSnapshot } from "./types.openclaw.js";
 import type { ConfigUiHints } from "./schema.js";
 import type { ConfigFileSnapshot } from "./types.openclaw.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   REDACTED_SENTINEL,
   redactConfigSnapshot,
@@ -24,6 +27,8 @@ import {
 <<<<<<< HEAD
 =======
 import { __test__ } from "./schema.hints.js";
+import type { ConfigUiHints } from "./schema.js";
+import type { ConfigFileSnapshot } from "./types.openclaw.js";
 import { OpenClawSchema } from "./zod-schema.js";
 
 const { mapSensitivePaths } = __test__;

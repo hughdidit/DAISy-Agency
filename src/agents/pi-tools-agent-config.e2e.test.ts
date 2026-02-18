@@ -8,6 +8,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createOpenClawCodingTools } from "./pi-tools.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -34,6 +35,11 @@ import type { SandboxDockerConfig } from "./sandbox.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import { createOpenClawCodingTools } from "./pi-tools.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { createOpenClawCodingTools } from "./pi-tools.js";
+import type { SandboxDockerConfig } from "./sandbox.js";
+import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 type ToolWithExecute = {
   execute: (toolCallId: string, args: unknown, signal?: AbortSignal) => Promise<unknown>;

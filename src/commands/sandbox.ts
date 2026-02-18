@@ -3,6 +3,7 @@ import { confirm as clackConfirm } from "@clack/prompts";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -14,6 +15,8 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   listSandboxBrowsers,
   listSandboxContainers,
@@ -22,6 +25,7 @@ import {
   type SandboxBrowserInfo,
   type SandboxContainerInfo,
 } from "../agents/sandbox.js";
+import type { RuntimeEnv } from "../runtime.js";
 import {
   displayBrowsers,
   displayContainers,

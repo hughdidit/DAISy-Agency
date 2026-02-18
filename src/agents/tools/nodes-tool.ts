@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 
@@ -48,6 +49,11 @@ import { Type } from "@sinclair/typebox";
 import crypto from "node:crypto";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import crypto from "node:crypto";
+import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import { Type } from "@sinclair/typebox";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   type CameraFacing,
   cameraTempPath,
@@ -63,6 +69,7 @@ import {
   writeScreenRecordToFile,
 } from "../../cli/nodes-screen.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -88,6 +95,9 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { imageMimeFromFormat } from "../../media/mime.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveImageSanitizationLimits } from "../image-sanitization.js";

@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { Context } from "@mariozechner/pi-ai/dist/types.js";
 >>>>>>> d3d82a1c1 (refactor(test): share google-shared test helpers)
@@ -24,6 +25,10 @@ import type { Context } from "@mariozechner/pi-ai/dist/types.js";
 import type { Context } from "@mariozechner/pi-ai/dist/types.js";
 import { convertMessages } from "@mariozechner/pi-ai/dist/providers/google-shared.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { convertMessages } from "@mariozechner/pi-ai/dist/providers/google-shared.js";
+import type { Context } from "@mariozechner/pi-ai/dist/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { describe, expect, it } from "vitest";
 import {
   asRecord,

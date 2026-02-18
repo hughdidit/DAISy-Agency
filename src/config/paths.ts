@@ -6,6 +6,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
 =======
 import type { OpenClawConfig } from "./types.js";
@@ -27,6 +28,10 @@ import type { OpenClawConfig } from "./types.js";
 import type { OpenClawConfig } from "./types.js";
 import { expandHomePrefix, resolveRequiredHomeDir } from "../infra/home-dir.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { expandHomePrefix, resolveRequiredHomeDir } from "../infra/home-dir.js";
+import type { OpenClawConfig } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 /**
  * Nix mode detection: When CLAWDBOT_NIX_MODE=1, the gateway is running under Nix.

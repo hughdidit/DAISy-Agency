@@ -13,6 +13,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { buildTlonAccountFields } from "./account-fields.js";
 <<<<<<< HEAD
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
@@ -31,6 +32,10 @@ import type { TlonResolvedAccount } from "./types.js";
 import type { TlonResolvedAccount } from "./types.js";
 import { buildTlonAccountFields } from "./account-fields.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { buildTlonAccountFields } from "./account-fields.js";
+import type { TlonResolvedAccount } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { listTlonAccountIds, resolveTlonAccount } from "./types.js";
 import type { TlonResolvedAccount } from "./types.js";
 import type { MoltbotConfig } from "clawdbot/plugin-sdk";

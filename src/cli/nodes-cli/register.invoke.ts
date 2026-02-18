@@ -3,7 +3,6 @@ import path from "node:path";
 import type { Command } from "commander";
 =======
 import type { Command } from "commander";
-import type { NodesRpcOpts } from "./types.js";
 import { resolveAgentConfig, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { loadConfig } from "../../config/config.js";
 >>>>>>> f1a76e1a3 (refactor: dedupe PATH prepend helpers)
@@ -38,6 +37,7 @@ import { callGatewayCli, nodesCallOpts, resolveNodeId, unauthorizedHintForMessag
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> f1a76e1a3 (refactor: dedupe PATH prepend helpers)
 =======
 import type { NodesRpcOpts } from "./types.js";
@@ -49,6 +49,9 @@ import type { NodesRpcOpts } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { NodesRpcOpts } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 type NodesRunOpts = NodesRpcOpts & {
   node?: string;

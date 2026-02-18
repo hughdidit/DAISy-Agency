@@ -1,9 +1,3 @@
-import type { OpenClawConfig } from "../../config/config.js";
-import type { SessionEntry, SessionScope } from "../../config/sessions.js";
-import type { MediaUnderstandingDecision } from "../../media-understanding/types.js";
-import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
-import type { ReplyPayload } from "../types.js";
-import type { CommandContext } from "./commands-types.js";
 import {
   resolveAgentDir,
   resolveDefaultAgentId,
@@ -31,6 +25,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { normalizeProviderId } from "../../agents/model-selection.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
@@ -51,16 +46,22 @@ import type { SessionEntry, SessionScope } from "../../config/sessions.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { SessionEntry, SessionScope } from "../../config/sessions.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { logVerbose } from "../../globals.js";
 import {
   formatUsageWindowSummary,
   loadProviderUsageSummary,
   resolveUsageProviderId,
 } from "../../infra/provider-usage.js";
+import type { MediaUnderstandingDecision } from "../../media-understanding/types.js";
 import { normalizeGroupActivation } from "../group-activation.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { buildStatusMessage } from "../status.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -91,6 +92,11 @@ import type { CommandContext } from "./commands-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
+import type { ReplyPayload } from "../types.js";
+import type { CommandContext } from "./commands-types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getFollowupQueueDepth, resolveQueueSettings } from "./queue.js";
 import type { MediaUnderstandingDecision } from "../../media-understanding/types.js";
 import { resolveSubagentLabel } from "./subagents-utils.js";

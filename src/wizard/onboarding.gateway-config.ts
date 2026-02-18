@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomToken } from "../commands/onboard-helpers.js";
 import type { GatewayAuthChoice } from "../commands/onboard-types.js";
 <<<<<<< HEAD
@@ -83,19 +84,33 @@ import type { WizardPrompter } from "./prompts.js";
 <<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   normalizeGatewayTokenInput,
   randomToken,
   validateGatewayPasswordInput,
 } from "../commands/onboard-helpers.js";
+import type { GatewayAuthChoice } from "../commands/onboard-types.js";
+import type { GatewayBindMode, GatewayTailscaleMode, OpenClawConfig } from "../config/config.js";
 import {
   TAILSCALE_DOCS_LINES,
   TAILSCALE_EXPOSURE_OPTIONS,
   TAILSCALE_MISSING_BIN_NOTE_LINES,
 } from "../gateway/gateway-config-prompts.shared.js";
 import { findTailscaleBinary } from "../infra/tailscale.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { validateIPv4AddressInput } from "../shared/net/ipv4.js";
+<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type {
+  GatewayWizardSettings,
+  QuickstartGatewayDefaults,
+  WizardFlow,
+} from "./onboarding.types.js";
+import type { WizardPrompter } from "./prompts.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 // These commands are "high risk" (privacy writes/recording) and should be
 // explicitly armed by the user when they want to use them.

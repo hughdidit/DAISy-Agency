@@ -1,4 +1,3 @@
-import type { CronJobCreate, CronJobPatch } from "./types.js";
 import { sanitizeAgentId } from "../routing/session-key.js";
 import { isRecord } from "../utils.js";
 import {
@@ -24,10 +23,14 @@ import type { CronJobCreate, CronJobPatch } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import { normalizeCronStaggerMs, resolveDefaultCronStaggerMs } from "./stagger.js";
+<<<<<<< HEAD
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 =======
 import { normalizeCronStaggerMs, resolveDefaultCronStaggerMs } from "./stagger.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { CronJobCreate, CronJobPatch } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 type UnknownRecord = Record<string, unknown>;
 

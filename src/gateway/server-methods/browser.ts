@@ -1,6 +1,4 @@
 import crypto from "node:crypto";
-import type { NodeSession } from "../node-registry.js";
-import type { GatewayRequestHandlers } from "./types.js";
 import {
   createBrowserControlContext,
   startBrowserControlServiceFromConfig,
@@ -9,6 +7,7 @@ import { applyBrowserProxyPaths, persistBrowserProxyFiles } from "../../browser/
 import { createBrowserRouteDispatcher } from "../../browser/routes/dispatcher.js";
 import { loadConfig } from "../../config/config.js";
 import { isNodeCommandAllowed, resolveNodeCommandAllowlist } from "../node-command-policy.js";
+import type { NodeSession } from "../node-registry.js";
 import { ErrorCodes, errorShape } from "../protocol/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -17,6 +16,7 @@ import { safeParseJson } from "./nodes.helpers.js";
 import type { GatewayRequestHandlers } from "./types.js";
 =======
 import { respondUnavailableOnNodeInvokeError, safeParseJson } from "./nodes.helpers.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 73a97ee25 (refactor(gateway): share node invoke error handling)
@@ -32,6 +32,9 @@ import type { GatewayRequestHandlers } from "./types.js";
 =======
 import { respondUnavailableOnNodeInvokeError, safeParseJson } from "./nodes.helpers.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { GatewayRequestHandlers } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 type BrowserRequestParams = {
   method?: string;

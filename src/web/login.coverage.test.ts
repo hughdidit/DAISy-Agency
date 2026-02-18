@@ -1,7 +1,7 @@
-import { DisconnectReason } from "@whiskeysockets/baileys";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -17,6 +17,9 @@ import { DisconnectReason } from "@whiskeysockets/baileys";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { DisconnectReason } from "@whiskeysockets/baileys";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const rmMock = vi.spyOn(fs, "rm");

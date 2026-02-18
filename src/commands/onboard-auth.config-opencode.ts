@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { OPENCODE_ZEN_DEFAULT_MODEL_REF } from "../agents/opencode-zen-models.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -21,6 +22,10 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { OPENCODE_ZEN_DEFAULT_MODEL_REF } from "../agents/opencode-zen-models.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { OPENCODE_ZEN_DEFAULT_MODEL_REF } from "../agents/opencode-zen-models.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { applyAgentDefaultModelPrimary } from "./onboard-auth.config-shared.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
 

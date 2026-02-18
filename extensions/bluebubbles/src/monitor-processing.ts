@@ -8,11 +8,6 @@ import {
   resolveControlCommandGate,
   stripMarkdown,
 } from "openclaw/plugin-sdk";
-import type {
-  BlueBubblesCoreRuntime,
-  BlueBubblesRuntimeEnv,
-  WebhookTarget,
-} from "./monitor-shared.js";
 import { downloadBlueBubblesAttachment } from "./attachments.js";
 import { markBlueBubblesChatRead, sendBlueBubblesTyping } from "./chat.js";
 import { sendBlueBubblesMedia } from "./media-send.js";
@@ -37,14 +32,18 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   BlueBubblesCoreRuntime,
   BlueBubblesRuntimeEnv,
   WebhookTarget,
 } from "./monitor-shared.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -52,6 +51,8 @@ import type {
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeBlueBubblesReactionInput, sendBlueBubblesReaction } from "./reactions.js";

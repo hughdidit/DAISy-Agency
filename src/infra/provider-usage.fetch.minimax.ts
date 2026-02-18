@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.js";
 =======
@@ -15,10 +16,13 @@ import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.
 =======
 import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { isRecord } from "../utils.js";
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { fetchJson } from "./provider-usage.fetch.shared.js";
 import { clampPercent, PROVIDER_LABELS } from "./provider-usage.shared.js";
+import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.js";
 
 type MinimaxBaseResp = {
   status_code?: number;

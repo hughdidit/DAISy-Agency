@@ -1,6 +1,5 @@
 import type { Command } from "commander";
 import type { CronJob } from "../../cron/types.js";
-import type { GatewayRpcOpts } from "../gateway-rpc.js";
 import { danger } from "../../globals.js";
 <<<<<<< HEAD
 import { defaultRuntime } from "../../runtime.js";
@@ -22,7 +21,11 @@ import type { GatewayRpcOpts } from "../gateway-rpc.js";
 =======
 import { sanitizeAgentId } from "../../routing/session-key.js";
 import { defaultRuntime } from "../../runtime.js";
+<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { GatewayRpcOpts } from "../gateway-rpc.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { addGatewayClientOptions, callGatewayFromCli } from "../gateway-rpc.js";
 import { parsePositiveIntOrUndefined } from "../program/helpers.js";
 import {

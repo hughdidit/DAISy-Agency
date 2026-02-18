@@ -14,6 +14,7 @@ import { NostrConfigSchema } from "./config-schema.js";
 import type { NostrProfile } from "./config-schema.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
 import type { ProfilePublishResult } from "./nostr-profile.js";
 <<<<<<< HEAD
@@ -32,9 +33,16 @@ import type { ProfilePublishResult } from "./nostr-profile.js";
 =======
 import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
 import type { ProfilePublishResult } from "./nostr-profile.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { NostrConfigSchema } from "./config-schema.js";
+import type { MetricEvent, MetricsSnapshot } from "./metrics.js";
 import { normalizePubkey, startNostrBus, type NostrBusHandle } from "./nostr-bus.js";
+<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ProfilePublishResult } from "./nostr-profile.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { getNostrRuntime } from "./runtime.js";
 import {
   listNostrAccountIds,

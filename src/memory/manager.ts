@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 =======
 import type { DatabaseSync } from "node:sqlite";
@@ -149,8 +150,16 @@ import type {
   MemorySource,
   MemorySyncProgressUpdate,
 } from "./types.js";
+=======
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { DatabaseSync } from "node:sqlite";
+import { type FSWatcher } from "chokidar";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
+import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
 import { resolveMemorySearchConfig } from "../agents/memory-search.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   createEmbeddingProvider,
@@ -222,12 +231,15 @@ import { extractKeywords } from "./query-expansion.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> bcab2469d (feat: LLM-based query expansion for FTS mode)
 =======
 =======
 >>>>>>> 5115f6fdf (style: normalize imports for oxfmt 0.33)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   MemoryEmbeddingProbeResult,
   MemoryProviderStatus,
@@ -236,6 +248,7 @@ import type {
   MemorySource,
   MemorySyncProgressUpdate,
 } from "./types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -250,6 +263,8 @@ import { extractKeywords } from "./query-expansion.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 const SNIPPET_MAX_CHARS = 700;
 const VECTOR_TABLE = "chunks_vec";
 const FTS_TABLE = "chunks_fts";

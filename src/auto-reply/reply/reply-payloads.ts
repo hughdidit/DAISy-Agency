@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { isMessagingToolDuplicate } from "../../agents/pi-embedded-helpers.js";
 <<<<<<< HEAD
 import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
@@ -13,12 +14,14 @@ import { isMessagingToolDuplicate } from "../../agents/pi-embedded-helpers.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { isMessagingToolDuplicate } from "../../agents/pi-embedded-helpers.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { MessagingToolSend } from "../../agents/pi-embedded-runner.js";
 import type { ReplyToMode } from "../../config/types.js";
+import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
 import type { OriginatingChannelType } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
-import { isMessagingToolDuplicate } from "../../agents/pi-embedded-helpers.js";
-import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
 import { extractReplyToTag } from "./reply-tags.js";
 import { createReplyToModeFilterForChannel } from "./reply-threading.js";
 

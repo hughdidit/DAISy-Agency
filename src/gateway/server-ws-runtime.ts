@@ -22,9 +22,12 @@ import type { GatewayWsClient } from "./server/ws-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import type { GatewayRequestContext, GatewayRequestHandlers } from "./server-methods/types.js";
-import type { GatewayWsClient } from "./server/ws-types.js";
 import { attachGatewayWsConnectionHandler } from "./server/ws-connection.js";
+<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { GatewayWsClient } from "./server/ws-types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export function attachGatewayWsHandlers(params: {
   wss: WebSocketServer;

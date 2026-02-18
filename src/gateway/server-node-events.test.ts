@@ -34,12 +34,12 @@ import { enqueueSystemEvent } from "../infra/system-events.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 =======
 import type { CliDeps } from "../cli/deps.js";
-import type { HealthSummary } from "../commands/health.js";
-import type { NodeEventContext } from "./server-node-events-types.js";
 import { agentCommand } from "../commands/agent.js";
+import type { HealthSummary } from "../commands/health.js";
 import { updateSessionStore } from "../config/sessions.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -61,6 +61,9 @@ import type { CliDeps } from "../cli/deps.js";
 =======
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { NodeEventContext } from "./server-node-events-types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { handleNodeEvent } from "./server-node-events.js";
 import { loadSessionEntry } from "./session-utils.js";
 >>>>>>> 96f7d35dd (fix(gateway): block cross-session fallback in node event delivery)

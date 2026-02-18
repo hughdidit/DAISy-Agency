@@ -3,6 +3,7 @@ import type { BrowserActionPathResult, BrowserActionTargetOk } from "./client-ac
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { buildProfileQuery, withBaseUrl } from "./client-actions-url.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -15,11 +16,16 @@ import { fetchBrowserJson } from "./client-fetch.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { buildProfileQuery, withBaseUrl } from "./client-actions-url.js";
+import { fetchBrowserJson } from "./client-fetch.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   BrowserConsoleMessage,
   BrowserNetworkRequest,
   BrowserPageError,
 } from "./pw-session.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -41,6 +47,8 @@ import { fetchBrowserJson } from "./client-fetch.js";
 import { buildProfileQuery, withBaseUrl } from "./client-actions-url.js";
 import { fetchBrowserJson } from "./client-fetch.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 function buildQuerySuffix(params: Array<[string, string | boolean | undefined]>): string {
   const query = new URLSearchParams();

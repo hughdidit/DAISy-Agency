@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureSandboxWorkspaceForSession } from "../../agents/sandbox.js";
 import type { MoltbotConfig } from "../../config/config.js";
 =======
@@ -30,8 +31,14 @@ import type { MsgContext, TemplateContext } from "../templating.js";
 import { assertSandboxPath } from "../../agents/sandbox-paths.js";
 import { ensureSandboxWorkspaceForSession } from "../../agents/sandbox.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { assertSandboxPath } from "../../agents/sandbox-paths.js";
+import { ensureSandboxWorkspaceForSession } from "../../agents/sandbox.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { logVerbose } from "../../globals.js";
 import { CONFIG_DIR } from "../../utils.js";
+import type { MsgContext, TemplateContext } from "../templating.js";
 
 export async function stageSandboxMedia(params: {
   ctx: MsgContext;

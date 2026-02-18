@@ -1,4 +1,3 @@
-import type { ChannelOutboundAdapter } from "../types.js";
 import { sendMessageDiscord, sendPollDiscord } from "../../../discord/send.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6,6 +5,7 @@ import { sendMessageDiscord, sendPollDiscord } from "../../../discord/send.js";
 import type { ChannelOutboundAdapter } from "../types.js";
 =======
 import { normalizeDiscordOutboundTarget } from "../normalize/discord.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 3238bd78d (fix(discord): normalize bare numeric IDs in outbound target resolution)
@@ -21,6 +21,9 @@ import type { ChannelOutboundAdapter } from "../types.js";
 =======
 import { normalizeDiscordOutboundTarget } from "../normalize/discord.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ChannelOutboundAdapter } from "../types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export const discordOutbound: ChannelOutboundAdapter = {
   deliveryMode: "direct",

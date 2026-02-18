@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> a5cbd036d (refactor(gateway): dedupe wizard param validation)
@@ -25,6 +26,8 @@ import type { GatewayRequestContext, GatewayRequestHandlers, RespondFn } from ".
 =======
 import type { GatewayRequestContext, GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { defaultRuntime } from "../../runtime.js";
 import { WizardSession } from "../../wizard/session.js";
 import {
@@ -36,6 +39,7 @@ import {
   validateWizardStatusParams,
 } from "../protocol/index.js";
 import { formatForLog } from "../ws-log.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -77,6 +81,9 @@ import type { GatewayRequestContext, GatewayRequestHandlers, RespondFn } from ".
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { GatewayRequestContext, GatewayRequestHandlers, RespondFn } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { assertValidParams } from "./validation.js";
 >>>>>>> dc5d23484 (refactor(gateway): share server-method param validation)
 

@@ -4,6 +4,7 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { formatAgo } from "../format";
 import { formatSessionTokens } from "../presenter";
@@ -39,6 +40,12 @@ import { formatRelativeTimestamp } from "../format.ts";
 import { pathForTab } from "../navigation.ts";
 import { formatSessionTokens } from "../presenter.ts";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { formatRelativeTimestamp } from "../format.ts";
+import { pathForTab } from "../navigation.ts";
+import { formatSessionTokens } from "../presenter.ts";
+import type { GatewaySessionRow, SessionsListResult } from "../types.ts";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export type SessionsProps = {
   loading: boolean;

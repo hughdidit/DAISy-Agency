@@ -1,7 +1,7 @@
-import type { Command } from "commander";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -23,7 +23,11 @@ import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { OpenClawConfig } from "../config/config.js";
 import type { HookEntry } from "../hooks/types.js";
+=======
+import type { Command } from "commander";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { loadConfig, writeConfigFile } from "../config/io.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
@@ -44,6 +48,7 @@ import { recordHookInstall } from "../hooks/installs.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { HookEntry } from "../hooks/types.js";
 =======
@@ -53,6 +58,9 @@ import type { HookEntry } from "../hooks/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { HookEntry } from "../hooks/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadWorkspaceHookEntries } from "../hooks/workspace.js";
 import { resolveArchiveKind } from "../infra/archive.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

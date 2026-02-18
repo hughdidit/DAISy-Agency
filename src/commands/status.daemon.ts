@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { resolveNodeService } from "../daemon/node-service.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -14,7 +15,10 @@ import { resolveNodeService } from "../daemon/node-service.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { GatewayService } from "../daemon/service.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveNodeService } from "../daemon/node-service.js";
+import type { GatewayService } from "../daemon/service.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { resolveNodeService } from "../daemon/node-service.js";
 import { formatDaemonRuntimeShort } from "./status.format.js";

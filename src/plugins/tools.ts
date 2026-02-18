@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { AnyAgentTool } from "../agents/tools/common.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -17,7 +18,10 @@ import { normalizeToolName } from "../agents/tool-policy.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { AnyAgentTool } from "../agents/tools/common.js";
 import type { OpenClawPluginToolContext } from "./types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeToolName } from "../agents/tool-policy.js";
+import type { AnyAgentTool } from "../agents/tools/common.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 <<<<<<< HEAD
 import { loadMoltbotPlugins } from "./loader.js";
@@ -25,6 +29,7 @@ import type { MoltbotPluginToolContext } from "./types.js";
 =======
 import { applyTestPluginDefaults, normalizePluginsConfig } from "./config-state.js";
 import { loadOpenClawPlugins } from "./loader.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -40,6 +45,9 @@ import type { OpenClawPluginToolContext } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { OpenClawPluginToolContext } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const log = createSubsystemLogger("plugins");
 

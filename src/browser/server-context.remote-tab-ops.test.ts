@@ -10,6 +10,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5d8eef8b3 (perf(test): remove module reloads in browser and embedding suites)
 =======
 import fs from "node:fs/promises";
@@ -32,10 +33,13 @@ import type { BrowserServerState } from "./server-context.js";
 =======
 import type { BrowserServerState } from "./server-context.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
 >>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import * as cdpModule from "./cdp.js";
 import * as pwAiModule from "./pw-ai-module.js";
+import type { BrowserServerState } from "./server-context.js";
 import "./server-context.chrome-test-harness.js";
 import { createBrowserRouteContext } from "./server-context.js";
 

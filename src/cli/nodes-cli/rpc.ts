@@ -4,6 +4,7 @@ import type { Command } from "commander";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { callGateway } from "../../gateway/call.js";
 =======
 import type { NodeListNode, NodesRpcOpts } from "./types.js";
@@ -17,12 +18,15 @@ import type { NodeListNode, NodesRpcOpts } from "./types.js";
 =======
 import type { NodeListNode, NodesRpcOpts } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { callGateway, randomIdempotencyKey } from "../../gateway/call.js";
 >>>>>>> d4bdcda32 (refactor(nodes-cli): share node.invoke param builder)
 import { resolveNodeIdFromCandidates } from "../../shared/node-match.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 import { withProgress } from "../progress.js";
 import { parseNodeList, parsePairingList } from "./format.js";
+import type { NodeListNode, NodesRpcOpts } from "./types.js";
 
 export const nodesCallOpts = (cmd: Command, defaults?: { timeoutMs?: number }) =>
   cmd

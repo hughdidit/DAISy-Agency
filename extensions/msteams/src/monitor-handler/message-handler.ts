@@ -16,6 +16,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { StoredConversationReference } from "../conversation-store.js";
@@ -29,12 +30,15 @@ import type { StoredConversationReference } from "../conversation-store.js";
 import type { MSTeamsMessageHandlerDeps } from "../monitor-handler.js";
 import type { MSTeamsTurnContext } from "../sdk-types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   buildMSTeamsAttachmentPlaceholder,
   buildMSTeamsMediaPayload,
   type MSTeamsAttachmentLike,
   summarizeMSTeamsHtmlAttachments,
 } from "../attachments.js";
+import type { StoredConversationReference } from "../conversation-store.js";
 import { formatUnknownError } from "../errors.js";
 import {
   extractMSTeamsConversationMessageId,
@@ -43,6 +47,7 @@ import {
   stripMSTeamsMentionTags,
   wasMSTeamsBotMentioned,
 } from "../inbound.js";
+import type { MSTeamsMessageHandlerDeps } from "../monitor-handler.js";
 import {
   isMSTeamsGroupAllowed,
   resolveMSTeamsAllowlistMatch,
@@ -57,6 +62,7 @@ import { getMSTeamsRuntime } from "../runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MSTeamsTurnContext } from "../sdk-types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -66,6 +72,9 @@ import type { MSTeamsTurnContext } from "../sdk-types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { MSTeamsTurnContext } from "../sdk-types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { recordMSTeamsSentMessage, wasMSTeamsMessageSent } from "../sent-message-cache.js";
 import type { MSTeamsTurnContext } from "../sdk-types.js";
 import { resolveMSTeamsInboundMedia } from "./inbound-media.js";

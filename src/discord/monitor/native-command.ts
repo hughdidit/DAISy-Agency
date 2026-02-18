@@ -15,6 +15,7 @@ import { ApplicationCommandOptionType, ButtonStyle } from "discord-api-types/v10
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
 =======
@@ -30,6 +31,10 @@ import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { resolveHumanDelayConfig } from "../../agents/identity.js";
+import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   ChatCommandDefinition,
   CommandArgDefinition,
@@ -37,6 +42,7 @@ import type {
   CommandArgs,
   NativeCommandSpec,
 } from "../../auto-reply/commands-registry.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -61,6 +67,8 @@ import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   buildCommandTextFromArgs,
   findCommandByNativeName,
@@ -83,6 +91,7 @@ import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dis
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { MoltbotConfig, loadConfig } from "../../config/config.js";
@@ -99,8 +108,12 @@ import type { ReplyPayload } from "../../auto-reply/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ReplyPayload } from "../../auto-reply/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
+import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";

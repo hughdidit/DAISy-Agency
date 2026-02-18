@@ -5,6 +5,7 @@ import { createRequire } from "node:module";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { PluginRuntime } from "./types.js";
@@ -20,6 +21,8 @@ import type { PluginRuntime } from "./types.js";
 =======
 import type { PluginRuntime } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
 import { createMemoryGetTool, createMemorySearchTool } from "../../agents/tools/memory-tool.js";
 import { handleSlackAction } from "../../agents/tools/slack-actions.js";
@@ -163,6 +166,7 @@ import { formatNativeDependencyHint } from "./native-deps.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { textToSpeechTelephony } from "../../tts/tts.js";
 import {
   listLineAccountIds,
@@ -196,6 +200,9 @@ import type { PluginRuntime } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { PluginRuntime } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 let cachedVersion: string | null = null;
 

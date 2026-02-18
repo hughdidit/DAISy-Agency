@@ -12,6 +12,7 @@ import { mergeAllowlist, summarizeMapping, type RuntimeEnv } from "openclaw/plug
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 import type { CoreConfig, ReplyToMode } from "../../types.js";
 =======
@@ -23,8 +24,11 @@ import type { CoreConfig, ReplyToMode } from "../../types.js";
 =======
 import type { CoreConfig, ReplyToMode } from "../../types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveMatrixTargets } from "../../resolve-targets.js";
 import { getMatrixRuntime } from "../../runtime.js";
+import type { CoreConfig, ReplyToMode } from "../../types.js";
 import { resolveMatrixAccount } from "../accounts.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { setActiveMatrixClient } from "../active-client.js";

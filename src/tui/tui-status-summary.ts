@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatAge } from "../infra/channel-summary.js";
 =======
 import type { GatewayStatusSummary } from "./tui-types.js";
@@ -16,10 +17,13 @@ import type { GatewayStatusSummary } from "./tui-types.js";
 =======
 import type { GatewayStatusSummary } from "./tui-types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { formatTimeAgo } from "../infra/format-time/format-relative.ts";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 import { formatTokenCount } from "../utils/usage-format.js";
 import { formatContextUsageLine } from "./tui-formatters.js";
+import type { GatewayStatusSummary } from "./tui-types.js";
 
 export function formatStatusSummary(summary: GatewayStatusSummary) {
   const lines: string[] = [];

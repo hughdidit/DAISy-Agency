@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { spawn, type ChildProcess } from "node:child_process";
 <<<<<<< HEAD
 import * as readline from "node:readline";
@@ -10,11 +11,15 @@ import { Readable, Writable } from "node:stream";
 =======
 import { spawn, type ChildProcess } from "node:child_process";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { spawn, type ChildProcess } from "node:child_process";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import fs from "node:fs";
 import path from "node:path";
 import * as readline from "node:readline";
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -23,6 +28,8 @@ import { fileURLToPath } from "node:url";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   ClientSideConnection,
   PROTOCOL_VERSION,
@@ -61,6 +68,7 @@ const DANGEROUS_ACP_TOOLS = new Set([
   type RequestPermissionResponse,
   type SessionNotification,
 } from "@agentclientprotocol/sdk";
+<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { spawn, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
@@ -74,6 +82,8 @@ import { fileURLToPath } from "node:url";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
 import { DANGEROUS_ACP_TOOLS } from "../security/dangerous-tools.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)

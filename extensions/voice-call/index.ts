@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Type } from "@sinclair/typebox";
 <<<<<<< HEAD
 import type { CoreConfig } from "./src/core-bridge.js";
@@ -14,8 +15,10 @@ import { Type } from "@sinclair/typebox";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { GatewayRequestHandlerOptions, OpenClawPluginApi } from "openclaw/plugin-sdk";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { Type } from "@sinclair/typebox";
-import type { CoreConfig } from "./src/core-bridge.js";
+import type { GatewayRequestHandlerOptions, OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { registerVoiceCallCli } from "./src/cli.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import {
@@ -28,6 +31,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { registerVoiceCallCli } from "./src/cli.js";
 =======
 import type { CoreConfig } from "./src/core-bridge.js";
@@ -39,6 +43,9 @@ import type { CoreConfig } from "./src/core-bridge.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { CoreConfig } from "./src/core-bridge.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createVoiceCallRuntime, type VoiceCallRuntime } from "./src/runtime.js";
 
 const voiceCallConfigSchema = {

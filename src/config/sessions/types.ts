@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -23,6 +24,10 @@ import type { Skill } from "@mariozechner/pi-coding-agent";
 import type { Skill } from "@mariozechner/pi-coding-agent";
 import crypto from "node:crypto";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import crypto from "node:crypto";
+import type { Skill } from "@mariozechner/pi-coding-agent";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { ChatType } from "../../channels/chat-type.js";
 >>>>>>> 223eee0a2 (refactor: unify peer kind to ChatType, rename dm to direct (#11881))
 import type { ChannelId } from "../../channels/plugins/types.js";

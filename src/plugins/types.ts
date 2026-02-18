@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IncomingMessage, ServerResponse } from "node:http";
 <<<<<<< HEAD
 import type { Command } from "commander";
@@ -38,6 +39,11 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { Command } from "commander";
 import type { IncomingMessage, ServerResponse } from "node:http";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { IncomingMessage, ServerResponse } from "node:http";
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import type { Command } from "commander";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { AuthProfileCredential, OAuthCredential } from "../agents/auth-profiles/types.js";
 import type { AnyAgentTool } from "../agents/tools/common.js";
 import type { ChannelDock } from "../channels/dock.js";

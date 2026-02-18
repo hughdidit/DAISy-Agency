@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { formatAgo, formatDurationMs, formatMs } from "./format";
 import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types";
 =======
@@ -29,6 +30,10 @@ import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types.ts";
 import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types.ts";
 import { formatRelativeTimestamp, formatDurationHuman, formatMs } from "./format.ts";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { formatRelativeTimestamp, formatDurationHuman, formatMs } from "./format.ts";
+import type { CronJob, GatewaySessionRow, PresenceEntry } from "./types.ts";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 export function formatPresenceSummary(entry: PresenceEntry): string {
   const host = entry.host ?? "unknown";

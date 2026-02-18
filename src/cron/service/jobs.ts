@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { parseAbsoluteTimeMs } from "../parse.js";
@@ -19,6 +20,15 @@ import { computeNextRunAtMs } from "../schedule.js";
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { parseAbsoluteTimeMs } from "../parse.js";
+import { computeNextRunAtMs } from "../schedule.js";
+import {
+  normalizeCronStaggerMs,
+  resolveCronStaggerMs,
+  resolveDefaultCronStaggerMs,
+} from "../stagger.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type {
   CronDelivery,
   CronDeliveryPatch,
@@ -28,6 +38,7 @@ import type {
   CronPayload,
   CronPayloadPatch,
 } from "../types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -65,6 +76,8 @@ import {
 >>>>>>> c26cf6aa8 (feat(cron): add default stagger controls for scheduled jobs)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeHttpWebhookUrl } from "../webhook-url.js";
 >>>>>>> bc67af6ad (cron: separate webhook POST delivery from announce (#17901))
 import {
@@ -74,6 +87,7 @@ import {
   normalizePayloadToSystemText,
   normalizeRequiredName,
 } from "./normalize.js";
+import type { CronServiceState } from "./state.js";
 
 const STUCK_RUN_MS = 2 * 60 * 60 * 1000;
 

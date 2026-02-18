@@ -7,6 +7,7 @@ import { WebSocket } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -37,6 +38,11 @@ import type { ChannelPlugin } from "../channels/plugins/types.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { BARE_SESSION_RESET_PROMPT } from "../auto-reply/reply/session-reset-prompt.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
+import { BARE_SESSION_RESET_PROMPT } from "../auto-reply/reply/session-reset-prompt.js";
+import type { ChannelPlugin } from "../channels/plugins/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { emitAgentEvent, registerAgentRunContext } from "../infra/agent-events.js";
 <<<<<<< HEAD
 import type { PluginRegistry } from "../plugins/registry.js";

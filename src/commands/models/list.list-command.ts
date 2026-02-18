@@ -4,6 +4,7 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
@@ -47,10 +48,17 @@ import type { ModelRow } from "./list.types.js";
 import { resolveForwardCompatModel } from "../../agents/model-forward-compat.js";
 import { parseModelRef } from "../../agents/model-selection.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import { resolveForwardCompatModel } from "../../agents/model-forward-compat.js";
+import { parseModelRef } from "../../agents/model-selection.js";
+import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
+import type { RuntimeEnv } from "../../runtime.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveConfiguredEntries } from "./list.configured.js";
 import { formatErrorWithStack } from "./list.errors.js";
 import { loadModelRegistry, toModelRow } from "./list.registry.js";
 import { printModelTable } from "./list.table.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -69,6 +77,9 @@ import type { ModelRow } from "./list.types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ModelRow } from "./list.types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { DEFAULT_PROVIDER, ensureFlagCompatibility, isLocalBaseUrl, modelKey } from "./shared.js";
 >>>>>>> cf2524b8b (refactor(models): share auth helpers and forward-compat list fallbacks)
 

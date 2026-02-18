@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { WebhookRequestBody } from "@line/bot-sdk";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -16,7 +17,10 @@ import { logVerbose, danger } from "../globals.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { RuntimeEnv } from "../runtime.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { logVerbose, danger } from "../globals.js";
+import type { RuntimeEnv } from "../runtime.js";
 import { validateLineSignature } from "./signature.js";
 import { isLineWebhookVerificationRequest, parseLineWebhookBody } from "./webhook-utils.js";
 

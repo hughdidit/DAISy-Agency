@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import JSZip from "jszip";
 =======
@@ -15,12 +16,15 @@ import JSZip from "jszip";
 =======
 import JSZip from "jszip";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createWriteStream } from "node:fs";
 >>>>>>> d3ee5deb8 (fix(archive): enforce extraction resource limits)
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
+import JSZip from "jszip";
 import * as tar from "tar";
 import JSZip from "jszip";
 

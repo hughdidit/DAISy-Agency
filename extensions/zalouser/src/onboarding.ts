@@ -19,6 +19,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { ZcaFriend, ZcaGroup } from "./types.js";
@@ -28,12 +29,15 @@ import type { ZcaFriend, ZcaGroup } from "./types.js";
 =======
 import type { ZcaFriend, ZcaGroup } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,
   resolveZalouserAccountSync,
   checkZcaAuthenticated,
 } from "./accounts.js";
+import type { ZcaFriend, ZcaGroup } from "./types.js";
 import { runZca, runZcaInteractive, checkZcaInstalled, parseJsonOutput } from "./zca.js";
 import type { ZcaFriend, ZcaGroup } from "./types.js";
 

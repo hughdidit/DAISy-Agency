@@ -7,6 +7,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
 =======
@@ -18,7 +19,10 @@ import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { FailoverReason } from "./types.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
+import type { FailoverReason } from "./types.js";
 
 export function formatBillingErrorMessage(provider?: string): string {
   const providerName = provider?.trim();

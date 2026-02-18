@@ -1,9 +1,9 @@
-import type { ProviderPlugin } from "./types.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 <<<<<<< HEAD
 import { loadMoltbotPlugins, type PluginLoadOptions } from "./loader.js";
 =======
 import { loadOpenClawPlugins, type PluginLoadOptions } from "./loader.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16,6 +16,9 @@ import type { ProviderPlugin } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { ProviderPlugin } from "./types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const log = createSubsystemLogger("plugins");
 

@@ -3,6 +3,7 @@ import type { EventEmitter } from "node:events";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -16,7 +17,10 @@ import { logVerbose } from "../globals.js";
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { RuntimeEnv } from "../runtime.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { logVerbose } from "../globals.js";
+import type { RuntimeEnv } from "../runtime.js";
 
 type GatewayEmitter = Pick<EventEmitter, "on" | "removeListener">;
 

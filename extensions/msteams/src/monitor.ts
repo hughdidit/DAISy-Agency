@@ -12,6 +12,7 @@ import type { MSTeamsConversationStore } from "./conversation-store.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
@@ -40,9 +41,16 @@ import type { MSTeamsAdapter } from "./messenger.js";
 =======
 import type { MSTeamsConversationStore } from "./conversation-store.js";
 import type { MSTeamsAdapter } from "./messenger.js";
+=======
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
+import type { MSTeamsConversationStore } from "./conversation-store.js";
 import { formatUnknownError } from "./errors.js";
+<<<<<<< HEAD
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { MSTeamsAdapter } from "./messenger.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { registerMSTeamsHandlers, type MSTeamsActivityHandler } from "./monitor-handler.js";
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 import { createMSTeamsPollStoreFs, type MSTeamsPollStore } from "./polls.js";

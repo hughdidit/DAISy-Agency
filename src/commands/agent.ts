@@ -1,4 +1,3 @@
-import type { AgentCommandOpts } from "./agent/types.js";
 import {
   listAgentIds,
   resolveAgentDir,
@@ -64,6 +63,7 @@ import { resolveSession } from "./agent/session.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { updateSessionStoreAfterAgentRun } from "./agent/session-store.js";
 import type { AgentCommandOpts } from "./agent/types.js";
 import { normalizeAgentId } from "../routing/session-key.js";
@@ -77,6 +77,9 @@ import type { AgentCommandOpts } from "./agent/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
+=======
+import type { AgentCommandOpts } from "./agent/types.js";
+>>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 type PersistSessionEntryParams = {
   sessionStore: Record<string, SessionEntry>;
