@@ -124,6 +124,7 @@ import type { CommandHandler } from "./commands-types.js";
 =======
 >>>>>>> d30492823 (chore(auto-reply): format subagent command files)
 import { clearSessionQueues } from "./queue.js";
+<<<<<<< HEAD
 import { formatRunLabel, formatRunStatus, sortSubagentRuns } from "./subagents-utils.js";
 >>>>>>> a1123dd9b (Centralize date/time formatting utilities (#11831))
 
@@ -131,6 +132,15 @@ type SubagentTargetResolution = {
   entry?: SubagentRunRecord;
   error?: string;
 };
+=======
+import {
+  formatRunLabel,
+  formatRunStatus,
+  resolveSubagentTargetFromRuns,
+  type SubagentTargetResolution,
+  sortSubagentRuns,
+} from "./subagents-utils.js";
+>>>>>>> bec94449e (refactor(subagents): share run target resolution)
 
 const COMMAND = "/subagents";
 const COMMAND_KILL = "/kill";
@@ -219,56 +229,21 @@ function resolveSubagentTarget(
   runs: SubagentRunRecord[],
   token: string | undefined,
 ): SubagentTargetResolution {
-  const trimmed = token?.trim();
-  if (!trimmed) {
-    return { error: "Missing subagent id." };
-  }
-  if (trimmed === "last") {
-    const sorted = sortSubagentRuns(runs);
-    return { entry: sorted[0] };
-  }
-  const sorted = sortSubagentRuns(runs);
-  const recentCutoff = Date.now() - RECENT_WINDOW_MINUTES * 60_000;
-  const numericOrder = [
-    ...sorted.filter((entry) => !entry.endedAt),
-    ...sorted.filter((entry) => !!entry.endedAt && (entry.endedAt ?? 0) >= recentCutoff),
-  ];
-  if (/^\d+$/.test(trimmed)) {
-    const idx = Number.parseInt(trimmed, 10);
-    if (!Number.isFinite(idx) || idx <= 0 || idx > numericOrder.length) {
-      return { error: `Invalid subagent index: ${trimmed}` };
-    }
-    return { entry: numericOrder[idx - 1] };
-  }
-  if (trimmed.includes(":")) {
-    const match = runs.find((entry) => entry.childSessionKey === trimmed);
-    return match ? { entry: match } : { error: `Unknown subagent session: ${trimmed}` };
-  }
-  const lowered = trimmed.toLowerCase();
-  const byLabel = runs.filter((entry) => formatRunLabel(entry).toLowerCase() === lowered);
-  if (byLabel.length === 1) {
-    return { entry: byLabel[0] };
-  }
-  if (byLabel.length > 1) {
-    return { error: `Ambiguous subagent label: ${trimmed}` };
-  }
-  const byLabelPrefix = runs.filter((entry) =>
-    formatRunLabel(entry).toLowerCase().startsWith(lowered),
-  );
-  if (byLabelPrefix.length === 1) {
-    return { entry: byLabelPrefix[0] };
-  }
-  if (byLabelPrefix.length > 1) {
-    return { error: `Ambiguous subagent label prefix: ${trimmed}` };
-  }
-  const byRunId = runs.filter((entry) => entry.runId.startsWith(trimmed));
-  if (byRunId.length === 1) {
-    return { entry: byRunId[0] };
-  }
-  if (byRunId.length > 1) {
-    return { error: `Ambiguous run id prefix: ${trimmed}` };
-  }
-  return { error: `Unknown subagent id: ${trimmed}` };
+  return resolveSubagentTargetFromRuns({
+    runs,
+    token,
+    recentWindowMinutes: RECENT_WINDOW_MINUTES,
+    label: (entry) => formatRunLabel(entry),
+    errors: {
+      missingTarget: "Missing subagent id.",
+      invalidIndex: (value) => `Invalid subagent index: ${value}`,
+      unknownSession: (value) => `Unknown subagent session: ${value}`,
+      ambiguousLabel: (value) => `Ambiguous subagent label: ${value}`,
+      ambiguousLabelPrefix: (value) => `Ambiguous subagent label prefix: ${value}`,
+      ambiguousRunIdPrefix: (value) => `Ambiguous run id prefix: ${value}`,
+      unknownTarget: (value) => `Unknown subagent id: ${value}`,
+    },
+  });
 }
 
 function buildSubagentsHelp() {
