@@ -17,6 +17,26 @@ export type RequirementsMetadata = {
   os?: string[];
 };
 
+export type RequirementRemote = {
+  hasBin?: (bin: string) => boolean;
+  hasAnyBin?: (bins: string[]) => boolean;
+  platforms?: string[];
+};
+
+type RequirementsEvaluationContext = {
+  always: boolean;
+  hasLocalBin: (bin: string) => boolean;
+  localPlatform: string;
+  isEnvSatisfied: (envName: string) => boolean;
+  isConfigSatisfied: (pathStr: string) => boolean;
+};
+
+type RequirementsEvaluationRemoteContext = {
+  hasRemoteBin?: (bin: string) => boolean;
+  hasRemoteAnyBin?: (bins: string[]) => boolean;
+  remotePlatforms?: string[];
+};
+
 export function resolveMissingBins(params: {
   required: string[];
   hasLocalBin: (bin: string) => boolean;
@@ -94,6 +114,7 @@ export function buildConfigChecks(params: {
   });
 }
 
+<<<<<<< HEAD
 export function evaluateRequirements(params: {
   always: boolean;
   required: Requirements;
@@ -106,6 +127,14 @@ export function evaluateRequirements(params: {
   resolveConfigValue: (pathStr: string) => unknown;
   isConfigSatisfied: (pathStr: string) => boolean;
 }): { missing: Requirements; eligible: boolean; configChecks: RequirementConfigCheck[] } {
+=======
+export function evaluateRequirements(
+  params: RequirementsEvaluationContext &
+    RequirementsEvaluationRemoteContext & {
+      required: Requirements;
+    },
+): { missing: Requirements; eligible: boolean; configChecks: RequirementConfigCheck[] } {
+>>>>>>> 8b48e0c61 (refactor(shared): reuse requirement remote context type)
   const missingBins = resolveMissingBins({
     required: params.required.bins,
     hasLocalBin: params.hasLocalBin,
@@ -153,6 +182,7 @@ export function evaluateRequirements(params: {
   return { missing, eligible, configChecks };
 }
 
+<<<<<<< HEAD
 export function evaluateRequirementsFromMetadata(params: {
   always: boolean;
   metadata?: RequirementsMetadata;
@@ -165,6 +195,14 @@ export function evaluateRequirementsFromMetadata(params: {
   resolveConfigValue: (pathStr: string) => unknown;
   isConfigSatisfied: (pathStr: string) => boolean;
 }): {
+=======
+export function evaluateRequirementsFromMetadata(
+  params: RequirementsEvaluationContext &
+    RequirementsEvaluationRemoteContext & {
+      metadata?: RequirementsMetadata;
+    },
+): {
+>>>>>>> 8b48e0c61 (refactor(shared): reuse requirement remote context type)
   required: Requirements;
   missing: Requirements;
   eligible: boolean;
@@ -193,19 +231,12 @@ export function evaluateRequirementsFromMetadata(params: {
   return { required, ...result };
 }
 
-export function evaluateRequirementsFromMetadataWithRemote(params: {
-  always: boolean;
-  metadata?: RequirementsMetadata;
-  hasLocalBin: (bin: string) => boolean;
-  localPlatform: string;
-  remote?: {
-    hasBin?: (bin: string) => boolean;
-    hasAnyBin?: (bins: string[]) => boolean;
-    platforms?: string[];
-  };
-  isEnvSatisfied: (envName: string) => boolean;
-  isConfigSatisfied: (pathStr: string) => boolean;
-}): {
+export function evaluateRequirementsFromMetadataWithRemote(
+  params: RequirementsEvaluationContext & {
+    metadata?: RequirementsMetadata;
+    remote?: RequirementRemote;
+  },
+): {
   required: Requirements;
   missing: Requirements;
   eligible: boolean;
