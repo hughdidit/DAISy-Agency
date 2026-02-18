@@ -6,8 +6,10 @@ import {
   createBlockReplyCollector,
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
+  loadGetReplyFromConfig,
   makeCfg,
   mockRunEmbeddedPiAgentOk,
+  requireSessionStorePath,
   withTempHome,
 } from "./reply.triggers.trigger-handling.test-harness.js";
 
@@ -58,20 +60,12 @@ afterEach(() => {
 =======
 let getReplyFromConfig: typeof import("./reply.js").getReplyFromConfig;
 beforeAll(async () => {
-  ({ getReplyFromConfig } = await import("./reply.js"));
+  getReplyFromConfig = await loadGetReplyFromConfig();
 });
 
 >>>>>>> 043ae0044 (test(auto-reply): import reply after harness mocks)
 installTriggerHandlingE2eTestHooks();
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
-
-function requireSessionStorePath(cfg: { session?: { store?: string } }): string {
-  const storePath = cfg.session?.store;
-  if (!storePath) {
-    throw new Error("expected session store path");
-  }
-  return storePath;
-}
 
 describe("trigger handling", () => {
   it("reports active auth profile and key snippet in status", async () => {
