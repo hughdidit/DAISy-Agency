@@ -44,23 +44,27 @@ import type { WorkspaceBootstrapFile } from "./workspace.js";
 import type { WorkspaceBootstrapFile } from "./workspace.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
+function registerExtraBootstrapFileHook() {
+  registerInternalHook("agent:bootstrap", (event) => {
+    const context = event.context as AgentBootstrapHookContext;
+    context.bootstrapFiles = [
+      ...context.bootstrapFiles,
+      {
+        name: "EXTRA.md",
+        path: path.join(context.workspaceDir, "EXTRA.md"),
+        content: "extra",
+        missing: false,
+      } as unknown as WorkspaceBootstrapFile,
+    ];
+  });
+}
+
 describe("resolveBootstrapFilesForRun", () => {
   beforeEach(() => clearInternalHooks());
   afterEach(() => clearInternalHooks());
 
   it("applies bootstrap hook overrides", async () => {
-    registerInternalHook("agent:bootstrap", (event) => {
-      const context = event.context as AgentBootstrapHookContext;
-      context.bootstrapFiles = [
-        ...context.bootstrapFiles,
-        {
-          name: "EXTRA.md",
-          path: path.join(context.workspaceDir, "EXTRA.md"),
-          content: "extra",
-          missing: false,
-        } as unknown as WorkspaceBootstrapFile,
-      ];
-    });
+    registerExtraBootstrapFileHook();
 
     const workspaceDir = await makeTempWorkspace("moltbot-bootstrap-");
     const files = await resolveBootstrapFilesForRun({ workspaceDir });
@@ -74,18 +78,7 @@ describe("resolveBootstrapContextForRun", () => {
   afterEach(() => clearInternalHooks());
 
   it("returns context files for hook-adjusted bootstrap files", async () => {
-    registerInternalHook("agent:bootstrap", (event) => {
-      const context = event.context as AgentBootstrapHookContext;
-      context.bootstrapFiles = [
-        ...context.bootstrapFiles,
-        {
-          name: "EXTRA.md",
-          path: path.join(context.workspaceDir, "EXTRA.md"),
-          content: "extra",
-          missing: false,
-        } as unknown as WorkspaceBootstrapFile,
-      ];
-    });
+    registerExtraBootstrapFileHook();
 
     const workspaceDir = await makeTempWorkspace("moltbot-bootstrap-");
     const result = await resolveBootstrapContextForRun({ workspaceDir });
