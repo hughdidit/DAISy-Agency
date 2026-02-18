@@ -12,6 +12,10 @@ import {
   type ExecCommandSegment,
 } from "./exec-approvals-analysis.js";
 import type { ExecAllowlistEntry } from "./exec-approvals.js";
+<<<<<<< HEAD
+=======
+import { isTrustedSafeBinPath } from "./exec-safe-bin-trust.js";
+>>>>>>> 4d3403b7a (chore: fix CI errors)
 
 function isPathLikeToken(value: string): boolean {
   const trimmed = value.trim();

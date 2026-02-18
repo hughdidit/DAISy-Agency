@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
 <<<<<<< HEAD
@@ -55,11 +56,17 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { ZodIssue } from "zod";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { ZodIssue } from "zod";
+>>>>>>> 4d3403b7a (chore: fix CI errors)
 import {
   isNumericTelegramUserId,
   normalizeTelegramAllowFromEntry,
 } from "../channels/telegram/allow-from.js";
 import { formatCliCommand } from "../cli/command-format.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -86,6 +93,9 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 4d3403b7a (chore: fix CI errors)
 import {
   MoltbotSchema,
   CONFIG_PATH,

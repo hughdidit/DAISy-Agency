@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 <<<<<<< HEAD
 
@@ -27,6 +28,9 @@ import { intro as clackIntro, outro as clackOutro } from "@clack/prompts";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import fs from "node:fs";
+=======
+import fs from "node:fs";
+>>>>>>> 4d3403b7a (chore: fix CI errors)
 import { intro as clackIntro, outro as clackOutro } from "@clack/prompts";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
@@ -37,6 +41,7 @@ import {
   resolveHooksGmailModel,
 } from "../agents/model-selection.js";
 import { formatCliCommand } from "../cli/command-format.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -63,6 +68,9 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 4d3403b7a (chore: fix CI errors)
 import { CONFIG_PATH, readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
 import { resolveGatewayService } from "../daemon/service.js";
@@ -72,6 +80,7 @@ import { buildGatewayConnectionDetails } from "../gateway/call.js";
 import { resolveMoltbotPackageRoot } from "../infra/moltbot-root.js";
 =======
 import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -95,6 +104,9 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> 4d3403b7a (chore: fix CI errors)
 import { defaultRuntime } from "../runtime.js";
 import { note } from "../terminal/note.js";
 import { stylePromptTitle } from "../terminal/prompt-style.js";
