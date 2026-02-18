@@ -3,7 +3,6 @@ import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-events.js";
-import { sleep } from "../utils.js";
 import { getFinishedSession, resetProcessRegistryForTests } from "./bash-process-registry.js";
 import { createExecTool, createProcessTool, execTool, processTool } from "./bash-tools.js";
 import { buildDockerExecArgs } from "./bash-tools.shared.js";
@@ -49,17 +48,19 @@ const normalizeText = (value?: string) =>
 
 async function waitForCompletion(sessionId: string) {
   let status = "running";
-  const deadline = Date.now() + (process.platform === "win32" ? 8000 : 2000);
-  while (Date.now() < deadline && status === "running") {
-    const poll = await processTool.execute("call-wait", {
-      action: "poll",
-      sessionId,
-    });
-    status = (poll.details as { status: string }).status;
-    if (status === "running") {
-      await sleep(20);
-    }
-  }
+  await expect
+    .poll(
+      async () => {
+        const poll = await processTool.execute("call-wait", {
+          action: "poll",
+          sessionId,
+        });
+        status = (poll.details as { status: string }).status;
+        return status;
+      },
+      { timeout: process.platform === "win32" ? 8000 : 2000, interval: 20 },
+    )
+    .not.toBe("running");
   return status;
 }
 
@@ -104,24 +105,23 @@ describe("exec tool backgrounding", () => {
       expect(result.details.status).toBe("running");
       const sessionId = (result.details as { sessionId: string }).sessionId;
 
-      let status = "running";
       let output = "";
-      const deadline = Date.now() + (process.platform === "win32" ? 8000 : 2000);
+      await expect
+        .poll(
+          async () => {
+            const poll = await processTool.execute("call2", {
+              action: "poll",
+              sessionId,
+            });
+            const status = (poll.details as { status: string }).status;
+            const textBlock = poll.content.find((c) => c.type === "text");
+            output = textBlock?.text ?? "";
+            return status;
+          },
+          { timeout: process.platform === "win32" ? 8000 : 2000, interval: 20 },
+        )
+        .toBe("completed");
 
-      while (Date.now() < deadline && status === "running") {
-        const poll = await processTool.execute("call2", {
-          action: "poll",
-          sessionId,
-        });
-        status = (poll.details as { status: string }).status;
-        const textBlock = poll.content.find((c) => c.type === "text");
-        output = textBlock?.text ?? "";
-        if (status === "running") {
-          await sleep(20);
-        }
-      }
-
-      expect(status).toBe("completed");
       expect(output).toContain("done");
     },
     isWin ? 15_000 : 5_000,
@@ -147,13 +147,18 @@ describe("exec tool backgrounding", () => {
       background: true,
     });
     const sessionId = (result.details as { sessionId: string }).sessionId;
-    await sleep(25);
-
-    const list = await processTool.execute("call2", { action: "list" });
-    const sessions = (list.details as { sessions: Array<{ sessionId: string; name?: string }> })
-      .sessions;
-    const entry = sessions.find((s) => s.sessionId === sessionId);
-    expect(entry?.name).toBe("echo hello");
+    await expect
+      .poll(
+        async () => {
+          const list = await processTool.execute("call2", { action: "list" });
+          const sessions = (
+            list.details as { sessions: Array<{ sessionId: string; name?: string }> }
+          ).sessions;
+          return sessions.find((s) => s.sessionId === sessionId)?.name;
+        },
+        { timeout: process.platform === "win32" ? 8000 : 2000, interval: 20 },
+      )
+      .toBe("echo hello");
   });
 
   it("uses default timeout when timeout is omitted", async () => {
@@ -166,21 +171,18 @@ describe("exec tool backgrounding", () => {
     });
 
     const sessionId = (result.details as { sessionId: string }).sessionId;
-    let status = "running";
-    const deadline = Date.now() + 5000;
-
-    while (Date.now() < deadline && status === "running") {
-      const poll = await customProcess.execute("call2", {
-        action: "poll",
-        sessionId,
-      });
-      status = (poll.details as { status: string }).status;
-      if (status === "running") {
-        await sleep(20);
-      }
-    }
-
-    expect(status).toBe("failed");
+    await expect
+      .poll(
+        async () => {
+          const poll = await customProcess.execute("call2", {
+            action: "poll",
+            sessionId,
+          });
+          return (poll.details as { status: string }).status;
+        },
+        { timeout: 5000, interval: 20 },
+      )
+      .toBe("failed");
   });
 
   it("rejects elevated requests when not allowed", async () => {
@@ -365,10 +367,29 @@ describe("exec notifyOnExit", () => {
     const sessionId = (result.details as { sessionId: string }).sessionId;
 
     let finished = getFinishedSession(sessionId);
+<<<<<<< HEAD
     const deadline = Date.now() + (isWin ? 8000 : 2000);
     while (!finished && Date.now() < deadline) {
       await sleep(20);
       finished = getFinishedSession(sessionId);
+=======
+    let hasEvent = peekSystemEvents("agent:main:main").some((event) => event.includes(prefix));
+    await expect
+      .poll(
+        () => {
+          finished = getFinishedSession(sessionId);
+          hasEvent = peekSystemEvents("agent:main:main").some((event) => event.includes(prefix));
+          return Boolean(finished && hasEvent);
+        },
+        { timeout: isWin ? 12_000 : 5_000, interval: 20 },
+      )
+      .toBe(true);
+    if (!finished) {
+      finished = getFinishedSession(sessionId);
+    }
+    if (!hasEvent) {
+      hasEvent = peekSystemEvents("agent:main:main").some((event) => event.includes(prefix));
+>>>>>>> fae5ba637 (perf(test): replace bash-tools polling loops)
     }
 
     expect(finished).toBeTruthy();
