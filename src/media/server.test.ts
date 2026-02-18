@@ -78,6 +78,7 @@ describe("media server", () => {
     await expect(fs.stat(file)).rejects.toThrow();
   });
 
+<<<<<<< HEAD
   it("blocks path traversal attempts", async () => {
     // URL-encoded "../" to bypass client-side path normalization
     const res = await fetch(`http://localhost:${port}/media/%2e%2e%2fpackage.json`);
@@ -111,6 +112,33 @@ describe("media server", () => {
 =======
     const res = await fetch(`http://127.0.0.1:${port}/media/invalid%20id`);
 >>>>>>> 7e065d90f (perf(test): keep single media server and fast cleanup)
+=======
+  it.each([
+    {
+      testName: "blocks path traversal attempts",
+      mediaPath: "%2e%2e%2fpackage.json",
+    },
+    {
+      testName: "rejects invalid media ids",
+      mediaPath: "invalid%20id",
+      setup: async () => {
+        const file = path.join(MEDIA_DIR, "file2");
+        await fs.writeFile(file, "hello");
+      },
+    },
+    {
+      testName: "blocks symlink escaping outside media dir",
+      mediaPath: "link-out",
+      setup: async () => {
+        const target = path.join(process.cwd(), "package.json"); // outside MEDIA_DIR
+        const link = path.join(MEDIA_DIR, "link-out");
+        await fs.symlink(target, link);
+      },
+    },
+  ] as const)("$testName", async (testCase) => {
+    await testCase.setup?.();
+    const res = await fetch(`http://127.0.0.1:${port}/media/${testCase.mediaPath}`);
+>>>>>>> 20849df70 (test: merge media invalid-path scenarios)
     expect(res.status).toBe(400);
     expect(await res.text()).toBe("invalid path");
   });
