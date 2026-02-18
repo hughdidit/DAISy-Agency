@@ -17,10 +17,6 @@ const TELEGRAM_TEST_TIMINGS = {
 } as const;
 >>>>>>> e746a67cc (perf: speed up telegram media e2e flush timing)
 
-const sleep = async (ms: number) => {
-  await new Promise<void>((resolve) => setTimeout(resolve, ms));
-};
-
 async function createBotHandler(): Promise<{
   handler: (ctx: Record<string, unknown>) => Promise<void>;
   replySpy: ReturnType<typeof vi.fn>;
@@ -274,10 +270,14 @@ describe("telegram media groups", () => {
       await second;
 
       expect(replySpy).not.toHaveBeenCalled();
-      await sleep(MEDIA_GROUP_FLUSH_MS);
+      await vi.waitFor(
+        () => {
+          expect(replySpy).toHaveBeenCalledTimes(1);
+        },
+        { timeout: MEDIA_GROUP_FLUSH_MS * 2, interval: 10 },
+      );
 
       expect(runtimeError).not.toHaveBeenCalled();
-      expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0];
       expect(payload.Body).toContain("Here are my photos");
       expect(payload.MediaPaths).toHaveLength(2);
@@ -322,9 +322,12 @@ describe("telegram media groups", () => {
       await Promise.all([first, second]);
 
       expect(replySpy).not.toHaveBeenCalled();
-      await sleep(MEDIA_GROUP_FLUSH_MS);
-
-      expect(replySpy).toHaveBeenCalledTimes(2);
+      await vi.waitFor(
+        () => {
+          expect(replySpy).toHaveBeenCalledTimes(2);
+        },
+        { timeout: MEDIA_GROUP_FLUSH_MS * 2, interval: 10 },
+      );
 
       fetchSpy.mockRestore();
     },
@@ -575,9 +578,13 @@ describe("telegram text fragments", () => {
       });
 
       expect(replySpy).not.toHaveBeenCalled();
-      await sleep(TEXT_FRAGMENT_FLUSH_MS);
+      await vi.waitFor(
+        () => {
+          expect(replySpy).toHaveBeenCalledTimes(1);
+        },
+        { timeout: TEXT_FRAGMENT_FLUSH_MS * 2, interval: 10 },
+      );
 
-      expect(replySpy).toHaveBeenCalledTimes(1);
       const payload = replySpy.mock.calls[0][0] as { RawBody?: string; Body?: string };
       expect(payload.RawBody).toContain(part1.slice(0, 32));
       expect(payload.RawBody).toContain(part2.slice(0, 32));
