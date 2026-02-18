@@ -24,17 +24,6 @@ import { __setMaxChatHistoryMessagesBytesForTest } from "./server-constants.js";
 >>>>>>> fdfc34fa1 (perf(test): stabilize e2e harness and reduce flaky gateway coverage)
 installGatewayTestHooks({ scope: "suite" });
 
-async function waitFor(condition: () => boolean, timeoutMs = 1_500) {
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
-    if (condition()) {
-      return;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 5));
-  }
-  throw new Error("timeout waiting for condition");
-}
-
 const sendReq = (
   ws: { send: (payload: string) => void },
   id: string,
@@ -338,7 +327,12 @@ describe("gateway server chat", () => {
 
       const sendRes = await sendResP;
       expect(sendRes.ok).toBe(true);
-      await waitFor(() => spy.mock.calls.length > 0, 2_000);
+      await vi.waitFor(
+        () => {
+          expect(spy.mock.calls.length).toBeGreaterThan(0);
+        },
+        { timeout: 2_000, interval: 10 },
+      );
 
       const inFlight = await rpcReq<{ status?: string }>(ws, "chat.send", {
         sessionKey: "main",
@@ -354,7 +348,12 @@ describe("gateway server chat", () => {
       });
       expect(abortRes.ok).toBe(true);
       expect(abortRes.payload?.aborted).toBe(true);
-      await waitFor(() => aborted, 2_000);
+      await vi.waitFor(
+        () => {
+          expect(aborted).toBe(true);
+        },
+        { timeout: 2_000, interval: 10 },
+      );
 
       spy.mockReset();
       spy.mockResolvedValueOnce(undefined);
@@ -366,20 +365,18 @@ describe("gateway server chat", () => {
       });
       expect(completeRes.ok).toBe(true);
 
-      let completed = false;
-      for (let i = 0; i < 20; i += 1) {
-        const again = await rpcReq<{ status?: string }>(ws, "chat.send", {
-          sessionKey: "main",
-          message: "hello",
-          idempotencyKey: "idem-complete-1",
-        });
-        if (again.ok && again.payload?.status === "ok") {
-          completed = true;
-          break;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 10));
-      }
-      expect(completed).toBe(true);
+      await vi.waitFor(
+        async () => {
+          const again = await rpcReq<{ status?: string }>(ws, "chat.send", {
+            sessionKey: "main",
+            message: "hello",
+            idempotencyKey: "idem-complete-1",
+          });
+          expect(again.ok).toBe(true);
+          expect(again.payload?.status).toBe("ok");
+        },
+        { timeout: 2_000, interval: 10 },
+      );
     });
   });
 });
