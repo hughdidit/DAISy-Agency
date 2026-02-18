@@ -41,7 +41,11 @@ import {
   resolveContextWindowTokens,
   summarizeInStages,
 } from "../compaction.js";
+<<<<<<< HEAD
 import { extractSections } from "../../auto-reply/reply/post-compaction-context.js";
+=======
+import { collectTextContentBlocks } from "../content-blocks.js";
+>>>>>>> 85ebdf88b (refactor(agents): share text block extraction helper)
 import { getCompactionSafeguardRuntime } from "./compaction-safeguard-runtime.js";
 const FALLBACK_SUMMARY =
   "Summary unavailable due to context limits. Older messages were truncated.";
@@ -90,20 +94,7 @@ function formatToolFailureMeta(details: unknown): string | undefined {
 }
 
 function extractToolResultText(content: unknown): string {
-  if (!Array.isArray(content)) {
-    return "";
-  }
-  const parts: string[] = [];
-  for (const block of content) {
-    if (!block || typeof block !== "object") {
-      continue;
-    }
-    const rec = block as { type?: unknown; text?: unknown };
-    if (rec.type === "text" && typeof rec.text === "string") {
-      parts.push(rec.text);
-    }
-  }
-  return parts.join("\n");
+  return collectTextContentBlocks(content).join("\n");
 }
 
 function collectToolFailures(messages: AgentMessage[]): ToolFailure[] {

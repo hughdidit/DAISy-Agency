@@ -1,5 +1,6 @@
 import { getChannelPlugin, normalizeChannelId } from "../channels/plugins/index.js";
 import { truncateUtf16Safe } from "../utils.js";
+import { collectTextContentBlocks } from "./content-blocks.js";
 import { type MessagingToolSend } from "./pi-embedded-messaging.js";
 import { normalizeTargetForProvider } from "../infra/outbound/target-normalization.js";
 
@@ -95,20 +96,9 @@ export function extractToolResultText(result: unknown): string | undefined {
     return undefined;
   }
   const record = result as Record<string, unknown>;
-  const content = Array.isArray(record.content) ? record.content : null;
-  if (!content) {
-    return undefined;
-  }
-  const texts = content
+  const texts = collectTextContentBlocks(record.content)
     .map((item) => {
-      if (!item || typeof item !== "object") {
-        return undefined;
-      }
-      const entry = item as Record<string, unknown>;
-      if (entry.type !== "text" || typeof entry.text !== "string") {
-        return undefined;
-      }
-      const trimmed = entry.text.trim();
+      const trimmed = item.trim();
       return trimmed ? trimmed : undefined;
     })
     .filter((value): value is string => Boolean(value));
