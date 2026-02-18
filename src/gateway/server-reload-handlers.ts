@@ -1,12 +1,16 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 import { getActiveEmbeddedRunCount } from "../agents/pi-embedded-runner/runs.js";
@@ -22,11 +26,13 @@ import { getActiveEmbeddedRunCount } from "../agents/pi-embedded-runner/runs.js"
 import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
 import type { CliDeps } from "../cli/deps.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import { getActiveEmbeddedRunCount } from "../agents/pi-embedded-runner/runs.js";
+import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveAgentMaxConcurrent, resolveSubagentMaxConcurrent } from "../config/agent-limits.js";
-import type { loadConfig } from "../config/config.js";
 import { startGmailWatcher, stopGmailWatcher } from "../hooks/gmail-watcher.js";
 import { isTruthyEnvValue } from "../infra/env.js";
-import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
 import { resetDirectoryCache } from "../infra/outbound/target-resolver.js";
 import {
 <<<<<<< HEAD
@@ -42,7 +48,6 @@ import { setCommandLaneConcurrency } from "../process/command-queue.js";
 import { setCommandLaneConcurrency, getTotalQueueSize } from "../process/command-queue.js";
 >>>>>>> ad57e561c (refactor: unify gateway restart deferral and dispatcher cleanup)
 import { CommandLane } from "../process/lanes.js";
-import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
 import { resolveHooksConfig } from "./hooks.js";
 import { startBrowserControlServerIfEnabled } from "./server-browser.js";
 import { buildGatewayCronService, type GatewayCronState } from "./server-cron.js";

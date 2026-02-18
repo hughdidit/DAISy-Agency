@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { IncomingMessage } from "node:http";
 <<<<<<< HEAD
 import { listAgentIds, resolveDefaultAgentId } from "../agents/agent-scope.js";
@@ -16,8 +17,14 @@ import type { IncomingMessage } from "node:http";
 >>>>>>> d0cb8c19b (chore: wtf.)
 import { listAgentIds, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
+=======
+import type { IncomingMessage } from "node:http";
+import { randomUUID } from "node:crypto";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
+import { listAgentIds, resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { listChannelPlugins } from "../channels/plugins/index.js";
 import { readJsonBodyWithLimit, requestBodyErrorToText } from "../infra/http-body.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeAgentId } from "../routing/session-key.js";

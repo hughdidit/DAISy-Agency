@@ -4,6 +4,7 @@ import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
 =======
 import crypto from "node:crypto";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
@@ -11,6 +12,9 @@ import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
 =======
 import crypto from "node:crypto";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { startBrowserBridgeServer, stopBrowserBridgeServer } from "../../browser/bridge-server.js";
 import { type ResolvedBrowserConfig, resolveProfile } from "../../browser/config.js";
 import {
@@ -33,7 +37,6 @@ import {
 import { readBrowserRegistry, updateBrowserRegistry } from "./registry.js";
 import { resolveSandboxAgentId, slugifySessionKey } from "./shared.js";
 import { isToolAllowed } from "./tool-policy.js";
-import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
 
 const HOT_BROWSER_WINDOW_MS = 5 * 60 * 1000;
 

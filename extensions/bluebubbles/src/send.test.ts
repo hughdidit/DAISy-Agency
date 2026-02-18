@@ -3,6 +3,7 @@ import "./test-mocks.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { BlueBubblesSendTarget } from "./types.js";
 =======
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
@@ -40,6 +41,12 @@ import { sendMessageBlueBubbles, resolveChatGuidForTarget } from "./send.js";
 import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
 import type { BlueBubblesSendTarget } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { BlueBubblesSendTarget } from "./types.js";
+import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
+import { sendMessageBlueBubbles, resolveChatGuidForTarget } from "./send.js";
+import { installBlueBubblesFetchTestHooks } from "./test-harness.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 const mockFetch = vi.fn();
 

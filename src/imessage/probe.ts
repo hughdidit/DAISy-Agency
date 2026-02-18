@@ -4,6 +4,7 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 import type { BaseProbeResult } from "../channels/plugins/types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { RuntimeEnv } from "../runtime.js";
@@ -11,10 +12,12 @@ import type { RuntimeEnv } from "../runtime.js";
 =======
 import type { BaseProbeResult } from "../channels/plugins/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { RuntimeEnv } from "../runtime.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { detectBinary } from "../commands/onboard-helpers.js";
 import { loadConfig } from "../config/config.js";
 import { runCommandWithTimeout } from "../process/exec.js";
-import type { RuntimeEnv } from "../runtime.js";
 import { createIMessageRpcClient } from "./client.js";
 import { DEFAULT_IMESSAGE_PROBE_TIMEOUT_MS } from "./constants.js";
 

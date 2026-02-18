@@ -3,6 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureAuthProfileStore, listProfilesForProvider } from "./auth-profiles.js";
 =======
 import { ensureAuthProfileStore } from "./auth-profiles.js";
@@ -18,6 +19,10 @@ import { ensureAuthProfileStore } from "./auth-profiles.js";
 import { ensureAuthProfileStore } from "./auth-profiles.js";
 import type { AuthProfileCredential } from "./auth-profiles/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { AuthProfileCredential } from "./auth-profiles/types.js";
+import { ensureAuthProfileStore } from "./auth-profiles.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { normalizeProviderId } from "./model-selection.js";
 >>>>>>> 4ca75bed5 (fix(models): sync auth-profiles before availability checks)
 

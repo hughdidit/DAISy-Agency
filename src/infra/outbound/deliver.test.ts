@@ -7,6 +7,7 @@ import { whatsappOutbound } from "../../channels/plugins/outbound/whatsapp.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 =======
@@ -16,6 +17,8 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { STATE_DIR } from "../../config/paths.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { setActivePluginRegistry } from "../../plugins/runtime.js";

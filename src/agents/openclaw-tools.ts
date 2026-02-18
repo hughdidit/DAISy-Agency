@@ -5,6 +5,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import type { AnyAgentTool } from "./tools/common.js";
 =======
@@ -31,6 +32,11 @@ import { resolvePluginTools } from "../plugins/tools.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import type { AnyAgentTool } from "./tools/common.js";
+=======
+import type { GatewayMessageChannel } from "../utils/message-channel.js";
+import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+import type { AnyAgentTool } from "./tools/common.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolvePluginTools } from "../plugins/tools.js";
 import { resolveSessionAgentId } from "./agent-scope.js";
 import { createAgentsListTool } from "./tools/agents-list-tool.js";

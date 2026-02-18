@@ -14,6 +14,7 @@ import { debugEmbeddingsLog } from "./embeddings-debug.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9bfd3ca19 (refactor(memory): consolidate embeddings and batch helpers)
 =======
 import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.js";
@@ -25,6 +26,8 @@ import type { EmbeddingProvider, EmbeddingProviderOptions } from "./embeddings.j
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> 2e91552f0 (feat(agents): add generic provider api key rotation (#19587))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 export type GeminiEmbeddingClient = {
   baseUrl: string;

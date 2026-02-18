@@ -3,6 +3,7 @@ import { WebSocket, type ClientOptions, type CertMeta } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { DeviceIdentity } from "../infra/device-identity.js";
 import { loadDeviceAuthToken, storeDeviceAuthToken } from "../infra/device-auth-store.js";
 =======
@@ -11,11 +12,15 @@ import type { DeviceIdentity } from "../infra/device-identity.js";
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { DeviceIdentity } from "../infra/device-identity.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   clearDeviceAuthToken,
   loadDeviceAuthToken,
   storeDeviceAuthToken,
 } from "../infra/device-auth-store.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { DeviceIdentity } from "../infra/device-identity.js";
@@ -25,6 +30,8 @@ import type { DeviceIdentity } from "../infra/device-identity.js";
 =======
 import type { DeviceIdentity } from "../infra/device-identity.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   loadOrCreateDeviceIdentity,
   publicKeyRawBase64UrlFromPem,

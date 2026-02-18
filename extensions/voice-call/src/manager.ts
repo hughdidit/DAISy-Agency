@@ -18,6 +18,8 @@ import {
 =======
 import type { VoiceCallConfig } from "./config.js";
 import type { CallManagerContext } from "./manager/context.js";
+import type { VoiceCallProvider } from "./providers/base.js";
+import type { CallId, CallRecord, NormalizedEvent, OutboundCallOptions } from "./types.js";
 import { processEvent as processManagerEvent } from "./manager/events.js";
 import { getCallByProviderCallId as getCallByProviderCallIdFromMaps } from "./manager/lookup.js";
 import {
@@ -28,6 +30,7 @@ import {
   speakInitialMessage as speakInitialMessageWithContext,
 } from "./manager/outbound.js";
 import { getCallHistoryFromStore, loadActiveCallsFromStore } from "./manager/store.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -42,6 +45,8 @@ import type { CallId, CallRecord, NormalizedEvent, OutboundCallOptions } from ".
 import type { VoiceCallProvider } from "./providers/base.js";
 import type { CallId, CallRecord, NormalizedEvent, OutboundCallOptions } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { resolveUserPath } from "./utils.js";
 
 function resolveDefaultStoreBase(config: VoiceCallConfig, storePath?: string): string {

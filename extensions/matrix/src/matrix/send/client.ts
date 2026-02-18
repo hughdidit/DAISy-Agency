@@ -5,6 +5,7 @@ import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "openclaw/plugin-sdk/acco
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6543ce717 (perf(test): avoid plugin-sdk barrel imports)
 import type { CoreConfig } from "../../types.js";
 import { getMatrixRuntime } from "../../runtime.js";
@@ -29,6 +30,10 @@ import { getMatrixRuntime } from "../../runtime.js";
 import { getMatrixRuntime } from "../../runtime.js";
 import type { CoreConfig } from "../../types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { CoreConfig } from "../../types.js";
+import { getMatrixRuntime } from "../../runtime.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getActiveMatrixClient, getAnyActiveMatrixClient } from "../active-client.js";
 import { createPreparedMatrixClient } from "../client-bootstrap.js";
 import { isBunRuntime, resolveMatrixAuth, resolveSharedMatrixClient } from "../client.js";

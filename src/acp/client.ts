@@ -1,9 +1,3 @@
-import { spawn, type ChildProcess } from "node:child_process";
-import fs from "node:fs";
-import path from "node:path";
-import * as readline from "node:readline";
-import { Readable, Writable } from "node:stream";
-import { fileURLToPath } from "node:url";
 import {
   ClientSideConnection,
   PROTOCOL_VERSION,
@@ -14,21 +8,27 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { spawn, type ChildProcess } from "node:child_process";
 import * as readline from "node:readline";
 import { Readable, Writable } from "node:stream";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { spawn, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import * as readline from "node:readline";
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { ensureOpenClawCliOnPath } from "../infra/path-env.js";
 
 <<<<<<< HEAD

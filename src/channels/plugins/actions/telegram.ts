@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -26,6 +27,10 @@ import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../t
 >>>>>>> 33b59441d (Revert "Fix Telegram poll action wiring")
 =======
 >>>>>>> 900b97e3c (test: type telegram action mock passthrough args)
+=======
+import type { TelegramActionConfig } from "../../../config/types.telegram.js";
+import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   readNumberParam,
   readStringArrayParam,
@@ -33,14 +38,12 @@ import {
   readStringParam,
 } from "../../../agents/tools/common.js";
 import { handleTelegramAction } from "../../../agents/tools/telegram-actions.js";
-import type { TelegramActionConfig } from "../../../config/types.telegram.js";
 import { extractToolSend } from "../../../plugin-sdk/tool-send.js";
 import {
   createTelegramActionGate,
   listEnabledTelegramAccounts,
 } from "../../../telegram/accounts.js";
 import { isTelegramInlineButtonsEnabled } from "../../../telegram/inline-buttons.js";
-import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
 
 const providerId = "telegram";
 

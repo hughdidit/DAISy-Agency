@@ -4,6 +4,7 @@ import type { AgentEvent } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
@@ -23,9 +24,9 @@ import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type { PluginHookAfterToolCallEvent } from "../plugins/types.js";
-import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
-import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
 import type {
   ToolCallSummary,
   ToolHandlerContext,
@@ -34,14 +35,18 @@ import type {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
 import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> a75e95be0 (fix(reply): track messaging media aliases for dedupe)
 =======
@@ -50,6 +55,8 @@ import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messag
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   extractToolErrorMessage,
   extractToolResultText,

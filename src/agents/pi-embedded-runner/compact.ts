@@ -91,6 +91,7 @@ import { splitSdkTools } from "./tool-split.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { describeUnknownError, mapThinkingLevel, resolveExecToolDefaults } from "./utils.js";
 =======
 import type { EmbeddedPiCompactResult } from "./types.js";
@@ -106,6 +107,8 @@ import type { EmbeddedPiCompactResult } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { describeUnknownError, mapThinkingLevel } from "./utils.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { flushPendingToolResultsAfterIdle } from "./wait-for-idle-before-flush.js";

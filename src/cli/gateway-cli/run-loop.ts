@@ -1,4 +1,5 @@
 import type { startGatewayServer } from "../../gateway/server.js";
+import type { defaultRuntime } from "../../runtime.js";
 import { acquireGatewayLock } from "../../infra/gateway-lock.js";
 import { restartGatewayProcessWithFreshPid } from "../../infra/process-respawn.js";
 import {
@@ -18,6 +19,7 @@ import {
 import { createRestartIterationHook } from "../../process/restart-recovery.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { defaultRuntime } from "../../runtime.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -25,6 +27,8 @@ import type { defaultRuntime } from "../../runtime.js";
 =======
 import type { defaultRuntime } from "../../runtime.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 
 const gatewayLog = createSubsystemLogger("gateway");
 

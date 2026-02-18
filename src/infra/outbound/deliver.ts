@@ -29,6 +29,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { sendMessageDiscord } from "../../discord/send.js";
 import type { sendMessageIMessage } from "../../imessage/send.js";
@@ -41,6 +42,9 @@ import type { sendMessageIMessage } from "../../imessage/send.js";
 =======
 import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
+=======
+import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -50,6 +54,7 @@ import { throwIfAborted } from "./abort.js";
 <<<<<<< HEAD
 =======
 import { ackDelivery, enqueueDelivery, failDelivery } from "./delivery-queue.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -64,6 +69,8 @@ import type { NormalizedOutboundPayload } from "./payloads.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> f07bb8e8f (fix(hooks): backport internal message hook bridge with safe delivery semantics)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
 
 export type { NormalizedOutboundPayload } from "./payloads.js";

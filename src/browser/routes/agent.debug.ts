@@ -5,6 +5,7 @@ import type { BrowserRouteContext } from "../server-context.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { BrowserRouteRegistrar } from "./types.js";
 import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
 import { handleRouteError, readBody, requirePwAi, resolveProfileContext } from "./agent.shared.js";
@@ -23,6 +24,11 @@ import { handleRouteError, readBody, requirePwAi, resolveProfileContext } from "
 import { DEFAULT_TRACE_DIR, resolvePathWithinRoot } from "./path-output.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { BrowserRouteRegistrar } from "./types.js";
+import { handleRouteError, readBody, requirePwAi, resolveProfileContext } from "./agent.shared.js";
+import { DEFAULT_TRACE_DIR, resolvePathWithinRoot } from "./path-output.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { toBoolean, toStringOrEmpty } from "./utils.js";
 
 const DEFAULT_TRACE_DIR = resolvePreferredOpenClawTmpDir();

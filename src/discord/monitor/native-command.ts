@@ -10,8 +10,6 @@ import {
   type ComponentData,
 } from "@buape/carbon";
 import { ApplicationCommandOptionType, ButtonStyle } from "discord-api-types/v10";
-import { resolveHumanDelayConfig } from "../../agents/identity.js";
-import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import type {
   ChatCommandDefinition,
   CommandArgDefinition,
@@ -19,6 +17,10 @@ import type {
   CommandArgs,
   NativeCommandSpec,
 } from "../../auto-reply/commands-registry.js";
+import type { ReplyPayload } from "../../auto-reply/types.js";
+import type { OpenClawConfig, loadConfig } from "../../config/config.js";
+import { resolveHumanDelayConfig } from "../../agents/identity.js";
+import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import {
   buildCommandTextFromArgs,
   findCommandByNativeName,
@@ -30,9 +32,9 @@ import {
 } from "../../auto-reply/commands-registry.js";
 import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.js";
 import { dispatchReplyWithDispatcher } from "../../auto-reply/reply/provider-dispatcher.js";
-import type { ReplyPayload } from "../../auto-reply/types.js";
 import { resolveCommandAuthorizedFromAuthorizers } from "../../channels/command-gating.js";
 import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -43,6 +45,8 @@ import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";

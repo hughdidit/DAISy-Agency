@@ -3,8 +3,11 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import type {
   ChannelCapabilities,
   ChannelCommandAdapter,
@@ -19,6 +22,7 @@ import type {
   ChannelThreadingToolContext,
 } from "./plugins/types.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 01ea80887 (chore: Format files.)
@@ -26,6 +30,8 @@ import type {
 >>>>>>> ed11e93cf (chore(format))
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
@@ -57,19 +63,6 @@ import {
   resolveWhatsAppGroupToolPolicy,
 } from "./plugins/group-mentions.js";
 import { normalizeSignalMessagingTarget } from "./plugins/normalize/signal.js";
-import type {
-  ChannelCapabilities,
-  ChannelCommandAdapter,
-  ChannelElevatedAdapter,
-  ChannelGroupAdapter,
-  ChannelId,
-  ChannelAgentPromptAdapter,
-  ChannelMentionAdapter,
-  ChannelPlugin,
-  ChannelThreadingContext,
-  ChannelThreadingAdapter,
-  ChannelThreadingToolContext,
-} from "./plugins/types.js";
 import { CHAT_CHANNEL_ORDER, type ChatChannelId, getChatChannelMeta } from "./registry.js";
 
 export type ChannelDock = {

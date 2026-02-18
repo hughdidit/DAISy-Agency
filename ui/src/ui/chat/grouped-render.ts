@@ -1,10 +1,12 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { AssistantIdentity } from "../assistant-identity.ts";
+import type { MessageGroup } from "../types/chat-types.ts";
 import { toSanitizedMarkdownHtml } from "../markdown.ts";
 <<<<<<< HEAD
 =======
 import { detectTextDirection } from "../text-direction.ts";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import type { MessageGroup } from "../types/chat-types.ts";
@@ -14,6 +16,8 @@ import type { MessageGroup } from "../types/chat-types.ts";
 =======
 import type { MessageGroup } from "../types/chat-types.ts";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
 import {
   extractTextCached,

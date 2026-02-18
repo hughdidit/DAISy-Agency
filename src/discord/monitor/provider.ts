@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Client } from "@buape/carbon";
 =======
 import { Client, ReadyListener, type BaseMessageInteractiveComponent } from "@buape/carbon";
@@ -23,12 +24,16 @@ import type { GatewayPlugin } from "@buape/carbon/gateway";
 =======
 import { inspect } from "node:util";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { GatewayPlugin } from "@buape/carbon/gateway";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   Client,
   ReadyListener,
   type BaseMessageInteractiveComponent,
   type Modal,
 } from "@buape/carbon";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -41,11 +46,15 @@ import type { GatewayPlugin } from "@buape/carbon/gateway";
 =======
 import type { GatewayPlugin } from "@buape/carbon/gateway";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { Routes } from "discord-api-types/v10";
+import { inspect } from "node:util";
 import { ProxyAgent, fetch as undiciFetch } from "undici";
+import type { HistoryEntry } from "../../auto-reply/reply/history.js";
+import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { listNativeCommandSpecsForConfig } from "../../auto-reply/commands-registry.js";
-import type { HistoryEntry } from "../../auto-reply/reply/history.js";
 import { listSkillCommandsForAgents } from "../../auto-reply/skill-commands.js";
 import {
   addAllowlistUserEntriesFromConfigEntry,
@@ -60,7 +69,6 @@ import {
   resolveNativeCommandsEnabled,
   resolveNativeSkillsEnabled,
 } from "../../config/commands.js";
-import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";

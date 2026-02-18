@@ -1,3 +1,4 @@
+import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { createInlineCodeState } from "../markdown/code-spans.js";
 <<<<<<< HEAD
@@ -7,7 +8,6 @@ import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 =======
 >>>>>>> a3c695faa (perf(test): speed up compaction hook wiring tests)
 import { formatAssistantErrorText } from "./pi-embedded-helpers.js";
-import type { EmbeddedPiSubscribeContext } from "./pi-embedded-subscribe.handlers.types.js";
 import { isAssistantMessage } from "./pi-embedded-utils.js";
 >>>>>>> 478af8170 (Return user-facing message if API reuturn 429 API rate limit reached #2202 (#10415))
 

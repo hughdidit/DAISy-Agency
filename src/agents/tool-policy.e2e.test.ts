@@ -4,6 +4,7 @@ import type { AnyAgentTool } from "./tools/common.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { SandboxToolPolicy } from "./sandbox/types.js";
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -15,6 +16,11 @@ import { isToolAllowed, resolveSandboxToolPolicyForAgent } from "./sandbox/tool-
 import { isToolAllowed, resolveSandboxToolPolicyForAgent } from "./sandbox/tool-policy.js";
 import type { SandboxToolPolicy } from "./sandbox/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+import type { SandboxToolPolicy } from "./sandbox/types.js";
+import type { AnyAgentTool } from "./tools/common.js";
+import { isToolAllowed, resolveSandboxToolPolicyForAgent } from "./sandbox/tool-policy.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { TOOL_POLICY_CONFORMANCE } from "./tool-policy.conformance.js";
 import {
   applyOwnerOnlyToolPolicy,
@@ -24,7 +30,6 @@ import {
   resolveToolProfilePolicy,
   TOOL_GROUPS,
 } from "./tool-policy.js";
-import type { AnyAgentTool } from "./tools/common.js";
 
 function createOwnerPolicyTools() {
   return [

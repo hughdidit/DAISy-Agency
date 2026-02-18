@@ -4,6 +4,7 @@ import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/p
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { AnyAgentTool } from "./pi-tools.types.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -18,6 +19,11 @@ import type { ImageSanitizationLimits } from "./image-sanitization.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
+=======
+import type { ImageSanitizationLimits } from "./image-sanitization.js";
+import type { AnyAgentTool } from "./pi-tools.types.js";
+import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import { detectMime } from "../media/mime.js";
 import { sniffMimeFromBase64 } from "../media/sniff-mime-from-base64.js";
 import { assertSandboxPath } from "./sandbox-paths.js";

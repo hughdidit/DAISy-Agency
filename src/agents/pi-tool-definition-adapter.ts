@@ -4,8 +4,11 @@ import type {
   AgentToolUpdateCallback,
 } from "@mariozechner/pi-agent-core";
 import type { ToolDefinition } from "@mariozechner/pi-coding-agent";
+import type { ClientToolDefinition } from "./pi-embedded-runner/run/params.js";
+import type { HookContext } from "./pi-tools.before-tool-call.js";
 import { logDebug, logError } from "../logger.js";
 import { isPlainObject } from "../utils.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -19,6 +22,8 @@ import type { HookContext } from "./pi-tools.before-tool-call.js";
 import type { ClientToolDefinition } from "./pi-embedded-runner/run/params.js";
 import type { HookContext } from "./pi-tools.before-tool-call.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
+=======
+>>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 import {
   consumeAdjustedParamsForToolCall,
   isToolWrappedWithBeforeToolCallHook,
