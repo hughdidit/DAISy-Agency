@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { parseConfigValue } from "./config-value.js";
 =======
 import { parseSetUnsetCommandAction } from "./commands-setunset.js";
 import { parseSlashCommandOrNull } from "./commands-slash-parse.js";
 >>>>>>> 818419b4c (refactor(auto-reply): share set/unset command action parsing)
+=======
+import { parseSlashCommandWithSetUnset } from "./commands-setunset.js";
+>>>>>>> f46bcbe16 (refactor(auto-reply): share slash set/unset command parsing)
 
 export type DebugCommand =
   | { action: "show" }
@@ -13,6 +17,7 @@ export type DebugCommand =
   | { action: "error"; message: string };
 
 export function parseDebugCommand(raw: string): DebugCommand | null {
+<<<<<<< HEAD
   const trimmed = raw.trim();
   if (!trimmed.toLowerCase().startsWith("/debug")) {
     return null;
@@ -32,13 +37,27 @@ export function parseDebugCommand(raw: string): DebugCommand | null {
 =======
   const { action, args } = parsed;
   const setUnset = parseSetUnsetCommandAction<DebugCommand>({
+=======
+  return parseSlashCommandWithSetUnset<DebugCommand>({
+    raw,
+>>>>>>> f46bcbe16 (refactor(auto-reply): share slash set/unset command parsing)
     slash: "/debug",
-    action,
-    args,
+    invalidMessage: "Invalid /debug syntax.",
+    usageMessage: "Usage: /debug show|set|unset|reset",
+    onKnownAction: (action) => {
+      if (action === "show") {
+        return { action: "show" };
+      }
+      if (action === "reset") {
+        return { action: "reset" };
+      }
+      return undefined;
+    },
     onSet: (path, value) => ({ action: "set", path, value }),
     onUnset: (path) => ({ action: "unset", path }),
     onError: (message) => ({ action: "error", message }),
   });
+<<<<<<< HEAD
   if (setUnset) {
     return setUnset;
   }
@@ -92,4 +111,6 @@ export function parseDebugCommand(raw: string): DebugCommand | null {
         message: "Usage: /debug show|set|unset|reset",
       };
   }
+=======
+>>>>>>> f46bcbe16 (refactor(auto-reply): share slash set/unset command parsing)
 }
