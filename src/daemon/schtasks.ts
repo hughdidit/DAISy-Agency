@@ -35,8 +35,12 @@ import { splitArgsPreservingQuotes } from "./arg-split.js";
 import { formatGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
 =======
 import { resolveGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
+<<<<<<< HEAD
 >>>>>>> 0dbc51aa5 (refactor(daemon): share service description resolve)
 import { formatLine } from "./output.js";
+=======
+import { formatLine, writeFormattedLines } from "./output.js";
+>>>>>>> 2709c0ba5 (refactor(daemon): dedupe install output line writing)
 import { resolveGatewayStateDir } from "./paths.js";
 import { parseKeyValueOutput } from "./runtime-parse.js";
 <<<<<<< HEAD
@@ -310,9 +314,14 @@ export async function installScheduledTask({
 
   await execSchtasks(["/Run", "/TN", taskName]);
   // Ensure we don't end up writing to a clack spinner line (wizards show progress without a newline).
-  stdout.write("\n");
-  stdout.write(`${formatLine("Installed Scheduled Task", taskName)}\n`);
-  stdout.write(`${formatLine("Task script", scriptPath)}\n`);
+  writeFormattedLines(
+    stdout,
+    [
+      { label: "Installed Scheduled Task", value: taskName },
+      { label: "Task script", value: scriptPath },
+    ],
+    { leadingBlankLine: true },
+  );
   return { scriptPath };
 }
 

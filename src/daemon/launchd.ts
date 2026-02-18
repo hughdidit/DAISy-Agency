@@ -39,8 +39,12 @@ import {
   readLaunchAgentProgramArgumentsFromFile,
 } from "./launchd-plist.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { formatLine, toPosixPath } from "./output.js";
+=======
+import { formatLine, toPosixPath, writeFormattedLines } from "./output.js";
+>>>>>>> 2709c0ba5 (refactor(daemon): dedupe install output line writing)
 import { resolveGatewayStateDir, resolveHomeDir } from "./paths.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import { parseKeyValueOutput } from "./runtime-parse.js";
@@ -504,9 +508,14 @@ export async function installLaunchAgent({
   await execLaunchctl(["kickstart", "-k", `${domain}/${label}`]);
 
   // Ensure we don't end up writing to a clack spinner line (wizards show progress without a newline).
-  stdout.write("\n");
-  stdout.write(`${formatLine("Installed LaunchAgent", plistPath)}\n`);
-  stdout.write(`${formatLine("Logs", stdoutPath)}\n`);
+  writeFormattedLines(
+    stdout,
+    [
+      { label: "Installed LaunchAgent", value: plistPath },
+      { label: "Logs", value: stdoutPath },
+    ],
+    { leadingBlankLine: true },
+  );
   return { plistPath };
 }
 

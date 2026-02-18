@@ -36,8 +36,12 @@ import {
 =======
 =======
 import { execFileUtf8 } from "./exec-file.js";
+<<<<<<< HEAD
 >>>>>>> f33031bc9 (refactor: dedupe daemon exec wrappers)
 import { formatLine, toPosixPath } from "./output.js";
+=======
+import { formatLine, toPosixPath, writeFormattedLines } from "./output.js";
+>>>>>>> 2709c0ba5 (refactor(daemon): dedupe install output line writing)
 import { resolveHomeDir } from "./paths.js";
 >>>>>>> d31e0dee5 (refactor: dedupe chat envelope + daemon output + skills UI)
 import { parseKeyValueOutput } from "./runtime-parse.js";
@@ -286,8 +290,16 @@ export async function installSystemdService({
   }
 
   // Ensure we don't end up writing to a clack spinner line (wizards show progress without a newline).
-  stdout.write("\n");
-  stdout.write(`${formatLine("Installed systemd service", unitPath)}\n`);
+  writeFormattedLines(
+    stdout,
+    [
+      {
+        label: "Installed systemd service",
+        value: unitPath,
+      },
+    ],
+    { leadingBlankLine: true },
+  );
   return { unitPath };
 }
 
