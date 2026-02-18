@@ -163,6 +163,7 @@ function createCategoryGuildClient() {
 }
 
 describe("discord tool result dispatch", () => {
+<<<<<<< HEAD
   it("sends status replies with responsePrefix", async () => {
     const cfg = {
 <<<<<<< HEAD
@@ -210,6 +211,8 @@ describe("discord tool result dispatch", () => {
     expect(sendMock.mock.calls[0]?.[1]).toMatch(/^PFX /);
   }, 30_000);
 
+=======
+>>>>>>> 797ea7ed2 (perf(test): cut slow monitor/subagent test overhead)
   it("caches channel info lookups between messages", async () => {
     const cfg = {
 <<<<<<< HEAD

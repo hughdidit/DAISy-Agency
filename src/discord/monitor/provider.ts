@@ -37,6 +37,7 @@ import {
 } from "@buape/carbon";
 import type { GatewayPlugin } from "@buape/carbon/gateway";
 import { Routes } from "discord-api-types/v10";
+<<<<<<< HEAD
 import { ProxyAgent, fetch as undiciFetch } from "undici";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -64,6 +65,8 @@ import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+>>>>>>> 797ea7ed2 (perf(test): cut slow monitor/subagent test overhead)
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { listNativeCommandSpecsForConfig } from "../../auto-reply/commands-registry.js";
 import type { HistoryEntry } from "../../auto-reply/reply/history.js";
@@ -108,7 +111,6 @@ import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
-import { wrapFetchWithAbortSignal } from "../../infra/fetch.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 <<<<<<< HEAD
@@ -167,7 +169,11 @@ import {
 import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
 =======
 import { resolveDiscordPresenceUpdate } from "./presence.js";
+<<<<<<< HEAD
 >>>>>>> 6acea69b2 (Discord: refine presence config defaults (#10855) (thanks @h0tp-ftw))
+=======
+import { resolveDiscordRestFetch } from "./rest-fetch.js";
+>>>>>>> 797ea7ed2 (perf(test): cut slow monitor/subagent test overhead)
 
 export type MonitorDiscordOpts = {
   token?: string;
@@ -265,26 +271,6 @@ function dedupeSkillCommandsForDiscord(
     deduped.push(command);
   }
   return deduped;
-}
-
-function resolveDiscordRestFetch(proxyUrl: string | undefined, runtime: RuntimeEnv): typeof fetch {
-  const proxy = proxyUrl?.trim();
-  if (!proxy) {
-    return fetch;
-  }
-  try {
-    const agent = new ProxyAgent(proxy);
-    const fetcher = ((input: RequestInfo | URL, init?: RequestInit) =>
-      undiciFetch(input as string | URL, {
-        ...(init as Record<string, unknown>),
-        dispatcher: agent,
-      }) as unknown as Promise<Response>) as typeof fetch;
-    runtime.log?.("discord: rest proxy enabled");
-    return wrapFetchWithAbortSignal(fetcher);
-  } catch (err) {
-    runtime.error?.(danger(`discord: invalid rest proxy: ${String(err)}`));
-    return fetch;
-  }
 }
 
 async function deployDiscordCommands(params: {
