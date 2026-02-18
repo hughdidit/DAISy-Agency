@@ -1,3 +1,4 @@
+import type { GatewayRequestHandlers, GatewayRequestOptions } from "./server-methods/types.js";
 import { ErrorCodes, errorShape } from "./protocol/index.js";
 import { agentHandlers } from "./server-methods/agent.js";
 import { agentsHandlers } from "./server-methods/agents.js";
@@ -11,7 +12,6 @@ import { deviceHandlers } from "./server-methods/devices.js";
 import { execApprovalsHandlers } from "./server-methods/exec-approvals.js";
 import { healthHandlers } from "./server-methods/health.js";
 import { logsHandlers } from "./server-methods/logs.js";
-import { meshHandlers } from "./server-methods/mesh.js";
 import { modelsHandlers } from "./server-methods/models.js";
 import { nodeHandlers } from "./server-methods/nodes.js";
 import { sendHandlers } from "./server-methods/send.js";
@@ -20,7 +20,6 @@ import { skillsHandlers } from "./server-methods/skills.js";
 import { systemHandlers } from "./server-methods/system.js";
 import { talkHandlers } from "./server-methods/talk.js";
 import { ttsHandlers } from "./server-methods/tts.js";
-import type { GatewayRequestHandlers, GatewayRequestOptions } from "./server-methods/types.js";
 import { updateHandlers } from "./server-methods/update.js";
 import { usageHandlers } from "./server-methods/usage.js";
 import { voicewakeHandlers } from "./server-methods/voicewake.js";
@@ -77,9 +76,12 @@ const READ_METHODS = new Set([
 =======
   "config.get",
   "talk.config",
+<<<<<<< HEAD
   "mesh.plan",
   "mesh.status",
 >>>>>>> 83990ed54 (Add mesh orchestration gateway methods with DAG execution and retry)
+=======
+>>>>>>> 972d1b74d (Revert "Add mesh orchestration gateway methods with DAG execution and retry")
 ]);
 const WRITE_METHODS = new Set([
   "send",
@@ -96,8 +98,6 @@ const WRITE_METHODS = new Set([
   "chat.send",
   "chat.abort",
   "browser.request",
-  "mesh.run",
-  "mesh.retry",
 ]);
 
 function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["client"]) {
@@ -175,7 +175,6 @@ function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["c
 export const coreGatewayHandlers: GatewayRequestHandlers = {
   ...connectHandlers,
   ...logsHandlers,
-  ...meshHandlers,
   ...voicewakeHandlers,
   ...healthHandlers,
   ...channelsHandlers,
