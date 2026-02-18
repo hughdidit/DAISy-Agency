@@ -289,7 +289,7 @@ describe("gateway bonjour advertiser", () => {
 
     await started.stop();
 
-    await vi.advanceTimersByTimeAsync(120_000);
+    await vi.advanceTimersByTimeAsync(60_000);
     expect(advertise).toHaveBeenCalledTimes(2);
   });
 
