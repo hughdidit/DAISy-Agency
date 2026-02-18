@@ -25,18 +25,18 @@ export function resolveNativeSkillsEnabled(params: {
   providerSetting?: NativeCommandsSetting;
   globalSetting?: NativeCommandsSetting;
 }): boolean {
-  const { providerId, providerSetting, globalSetting } = params;
-  const setting = providerSetting === undefined ? globalSetting : providerSetting;
-  if (setting === true) {
-    return true;
-  }
-  if (setting === false) {
-    return false;
-  }
-  return resolveAutoDefault(providerId);
+  return resolveNativeCommandSetting(params);
 }
 
 export function resolveNativeCommandsEnabled(params: {
+  providerId: ChannelId;
+  providerSetting?: NativeCommandsSetting;
+  globalSetting?: NativeCommandsSetting;
+}): boolean {
+  return resolveNativeCommandSetting(params);
+}
+
+function resolveNativeCommandSetting(params: {
   providerId: ChannelId;
   providerSetting?: NativeCommandsSetting;
   globalSetting?: NativeCommandsSetting;
@@ -49,7 +49,6 @@ export function resolveNativeCommandsEnabled(params: {
   if (setting === false) {
     return false;
   }
-  // auto or undefined -> heuristic
   return resolveAutoDefault(providerId);
 }
 
