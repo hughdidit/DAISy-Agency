@@ -79,17 +79,33 @@ vi.mock("../infra/provider-usage.js", () => ({
 import "./test-helpers/fast-core-tools.js";
 import { createMoltbotTools } from "./moltbot-tools.js";
 
+function resetSessionStore(store: Record<string, unknown>) {
+  loadSessionStoreMock.mockReset();
+  updateSessionStoreMock.mockReset();
+  loadSessionStoreMock.mockReturnValue(store);
+}
+
+function getSessionStatusTool(agentSessionKey = "main") {
+  const tool = createOpenClawTools({ agentSessionKey }).find(
+    (candidate) => candidate.name === "session_status",
+  );
+  expect(tool).toBeDefined();
+  if (!tool) {
+    throw new Error("missing session_status tool");
+  }
+  return tool;
+}
+
 describe("session_status tool", () => {
   it("returns a status card for the current session", async () => {
-    loadSessionStoreMock.mockReset();
-    updateSessionStoreMock.mockReset();
-    loadSessionStoreMock.mockReturnValue({
+    resetSessionStore({
       main: {
         sessionId: "s1",
         updatedAt: 10,
       },
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -97,6 +113,9 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
+=======
+    const tool = getSessionStatusTool();
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     const result = await tool.execute("call1", {});
     const details = result.details as { ok?: boolean; statusText?: string };
@@ -107,12 +126,11 @@ describe("session_status tool", () => {
   });
 
   it("errors for unknown session keys", async () => {
-    loadSessionStoreMock.mockReset();
-    updateSessionStoreMock.mockReset();
-    loadSessionStoreMock.mockReturnValue({
+    resetSessionStore({
       main: { sessionId: "s1", updatedAt: 10 },
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -120,6 +138,9 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
+=======
+    const tool = getSessionStatusTool();
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     await expect(tool.execute("call2", { sessionKey: "nope" })).rejects.toThrow(
       "Unknown sessionId",
@@ -128,16 +149,15 @@ describe("session_status tool", () => {
   });
 
   it("resolves sessionId inputs", async () => {
-    loadSessionStoreMock.mockReset();
-    updateSessionStoreMock.mockReset();
     const sessionId = "sess-main";
-    loadSessionStoreMock.mockReturnValue({
+    resetSessionStore({
       "agent:main:main": {
         sessionId,
         updatedAt: 10,
       },
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -145,6 +165,9 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
+=======
+    const tool = getSessionStatusTool();
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     const result = await tool.execute("call3", { sessionKey: sessionId });
     const details = result.details as { ok?: boolean; sessionKey?: string };
@@ -153,15 +176,14 @@ describe("session_status tool", () => {
   });
 
   it("uses non-standard session keys without sessionId resolution", async () => {
-    loadSessionStoreMock.mockReset();
-    updateSessionStoreMock.mockReset();
-    loadSessionStoreMock.mockReturnValue({
+    resetSessionStore({
       "temp:slug-generator": {
         sessionId: "sess-temp",
         updatedAt: 10,
       },
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -169,6 +191,9 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
+=======
+    const tool = getSessionStatusTool();
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     const result = await tool.execute("call4", { sessionKey: "temp:slug-generator" });
     const details = result.details as { ok?: boolean; sessionKey?: string };
@@ -177,15 +202,14 @@ describe("session_status tool", () => {
   });
 
   it("blocks cross-agent session_status without agent-to-agent access", async () => {
-    loadSessionStoreMock.mockReset();
-    updateSessionStoreMock.mockReset();
-    loadSessionStoreMock.mockReturnValue({
+    resetSessionStore({
       "agent:other:main": {
         sessionId: "s2",
         updatedAt: 10,
       },
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "agent:main:main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -193,6 +217,9 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
+=======
+    const tool = getSessionStatusTool("agent:main:main");
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     await expect(tool.execute("call5", { sessionKey: "agent:other:main" })).rejects.toThrow(
       "Agent-to-agent status is disabled",
@@ -228,6 +255,7 @@ describe("session_status tool", () => {
       },
     );
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "agent:support:main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -235,6 +263,9 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
+=======
+    const tool = getSessionStatusTool("agent:support:main");
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     const result = await tool.execute("call6", { sessionKey: "main" });
     const details = result.details as { ok?: boolean; sessionKey?: string };
@@ -243,9 +274,7 @@ describe("session_status tool", () => {
   });
 
   it("resets per-session model override via model=default", async () => {
-    loadSessionStoreMock.mockReset();
-    updateSessionStoreMock.mockReset();
-    loadSessionStoreMock.mockReturnValue({
+    resetSessionStore({
       main: {
         sessionId: "s1",
         updatedAt: 10,
@@ -255,6 +284,7 @@ describe("session_status tool", () => {
       },
     });
 
+<<<<<<< HEAD
     const tool = createMoltbotTools({ agentSessionKey: "main" }).find(
       (candidate) => candidate.name === "session_status",
     );
@@ -262,6 +292,9 @@ describe("session_status tool", () => {
     if (!tool) {
       throw new Error("missing session_status tool");
     }
+=======
+    const tool = getSessionStatusTool();
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     await tool.execute("call3", { model: "default" });
     expect(updateSessionStoreMock).toHaveBeenCalled();

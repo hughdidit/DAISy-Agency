@@ -115,6 +115,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     return { chatLog, tui, state, setActivityStatus };
   };
 
+<<<<<<< HEAD
   it("processes tool events when runId matches activeChatRunId (even if sessionId differs)", () => {
     const state = makeState({ currentSessionId: "session-xyz", activeChatRunId: "run-123" });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
@@ -124,8 +125,35 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       chatLog: chatLog as any,
       // oxlint-disable-next-line typescript/no-explicit-any
       tui: tui as any,
+=======
+  const createHandlersHarness = (params?: {
+    state?: Partial<TuiStateAccess>;
+    chatLog?: HandlerChatLog;
+  }) => {
+    const state = makeState(params?.state);
+    const context = makeContext(state);
+    const chatLog = (params?.chatLog ?? context.chatLog) as MockChatLog & HandlerChatLog;
+    const handlers = createEventHandlers({
+      chatLog,
+      tui: context.tui,
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
       state,
-      setActivityStatus,
+      setActivityStatus: context.setActivityStatus,
+      loadHistory: context.loadHistory,
+      isLocalRunId: context.isLocalRunId,
+      forgetLocalRunId: context.forgetLocalRunId,
+    });
+    return {
+      ...context,
+      state,
+      chatLog,
+      ...handlers,
+    };
+  };
+
+  it("processes tool events when runId matches activeChatRunId (even if sessionId differs)", () => {
+    const { chatLog, tui, handleAgentEvent } = createHandlersHarness({
+      state: { currentSessionId: "session-xyz", activeChatRunId: "run-123" },
     });
 
     const evt: AgentEvent = {
@@ -146,6 +174,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
   });
 
   it("ignores tool events when runId does not match activeChatRunId", () => {
+<<<<<<< HEAD
     const state = makeState({ activeChatRunId: "run-1" });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleAgentEvent } = createEventHandlers({
@@ -155,6 +184,10 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       tui: tui as any,
       state,
       setActivityStatus,
+=======
+    const { chatLog, tui, handleAgentEvent } = createHandlersHarness({
+      state: { activeChatRunId: "run-1" },
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
     });
 
     const evt: AgentEvent = {
@@ -171,6 +204,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
   });
 
   it("processes lifecycle events when runId matches activeChatRunId", () => {
+<<<<<<< HEAD
     const state = makeState({ activeChatRunId: "run-9" });
     const { tui, setActivityStatus } = makeContext(state);
     const { handleAgentEvent } = createEventHandlers({
@@ -192,6 +226,19 @@ describe("tui-event-handlers: handleAgentEvent", () => {
 >>>>>>> 003d6c45d (chore: Fix types in tests 6/N.)
       state,
       setActivityStatus,
+=======
+    const chatLog = {
+      startTool: vi.fn(),
+      updateToolResult: vi.fn(),
+      addSystem: vi.fn(),
+      updateAssistant: vi.fn(),
+      finalizeAssistant: vi.fn(),
+      dropAssistant: vi.fn(),
+    } as unknown as HandlerChatLog;
+    const { tui, setActivityStatus, handleAgentEvent } = createHandlersHarness({
+      state: { activeChatRunId: "run-9" },
+      chatLog,
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
     });
 
     const evt: AgentEvent = {
@@ -207,6 +254,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
   });
 
   it("captures runId from chat events when activeChatRunId is unset", () => {
+<<<<<<< HEAD
     const state = makeState({ activeChatRunId: null });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleChatEvent, handleAgentEvent } = createEventHandlers({
@@ -216,6 +264,10 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       tui: tui as any,
       state,
       setActivityStatus,
+=======
+    const { state, chatLog, handleChatEvent, handleAgentEvent } = createHandlersHarness({
+      state: { activeChatRunId: null },
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
     });
 
     const chatEvt: ChatEvent = {
@@ -241,6 +293,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
   });
 
   it("clears run mapping when the session changes", () => {
+<<<<<<< HEAD
     const state = makeState({ activeChatRunId: null });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
     const { handleChatEvent, handleAgentEvent } = createEventHandlers({
@@ -250,6 +303,10 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       tui: tui as any,
       state,
       setActivityStatus,
+=======
+    const { state, chatLog, tui, handleChatEvent, handleAgentEvent } = createHandlersHarness({
+      state: { activeChatRunId: null },
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
     });
 
     handleChatEvent({
@@ -273,6 +330,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     expect(tui.requestRender).not.toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
   it("ignores lifecycle updates for non-active runs in the same session", () => {
     const state = makeState({ activeChatRunId: "run-active" });
     const { chatLog, tui, setActivityStatus } = makeContext(state);
@@ -284,6 +342,35 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       state,
       setActivityStatus,
     });
+=======
+  it("accepts tool events after chat final for the same run", () => {
+    const { state, chatLog, tui, handleChatEvent, handleAgentEvent } = createHandlersHarness({
+      state: { activeChatRunId: null },
+    });
+
+    handleChatEvent({
+      runId: "run-final",
+      sessionKey: state.currentSessionKey,
+      state: "final",
+      message: { content: [{ type: "text", text: "done" }] },
+    });
+
+    handleAgentEvent({
+      runId: "run-final",
+      stream: "tool",
+      data: { phase: "start", toolCallId: "tc-final", name: "session_status" },
+    });
+
+    expect(chatLog.startTool).toHaveBeenCalledWith("tc-final", "session_status", undefined);
+    expect(tui.requestRender).toHaveBeenCalled();
+  });
+
+  it("ignores lifecycle updates for non-active runs in the same session", () => {
+    const { state, tui, setActivityStatus, handleChatEvent, handleAgentEvent } =
+      createHandlersHarness({
+        state: { activeChatRunId: "run-active" },
+      });
+>>>>>>> a69e7682c (refactor(test): dedupe channel and monitor action suites)
 
     handleChatEvent({
       runId: "run-other",
@@ -307,16 +394,11 @@ describe("tui-event-handlers: handleAgentEvent", () => {
 =======
 
   it("suppresses tool events when verbose is off", () => {
-    const state = makeState({
-      activeChatRunId: "run-123",
-      sessionInfo: { verboseLevel: "off" },
-    });
-    const { chatLog, tui, setActivityStatus } = makeContext(state);
-    const { handleAgentEvent } = createEventHandlers({
-      chatLog,
-      tui,
-      state,
-      setActivityStatus,
+    const { chatLog, tui, handleAgentEvent } = createHandlersHarness({
+      state: {
+        activeChatRunId: "run-123",
+        sessionInfo: { verboseLevel: "off" },
+      },
     });
 
     handleAgentEvent({
@@ -330,16 +412,11 @@ describe("tui-event-handlers: handleAgentEvent", () => {
   });
 
   it("omits tool output when verbose is on (non-full)", () => {
-    const state = makeState({
-      activeChatRunId: "run-123",
-      sessionInfo: { verboseLevel: "on" },
-    });
-    const { chatLog, tui, setActivityStatus } = makeContext(state);
-    const { handleAgentEvent } = createEventHandlers({
-      chatLog,
-      tui,
-      state,
-      setActivityStatus,
+    const { chatLog, handleAgentEvent } = createHandlersHarness({
+      state: {
+        activeChatRunId: "run-123",
+        sessionInfo: { verboseLevel: "on" },
+      },
     });
 
     handleAgentEvent({
@@ -374,17 +451,8 @@ describe("tui-event-handlers: handleAgentEvent", () => {
   });
 
   it("refreshes history after a non-local chat final", () => {
-    const state = makeState({ activeChatRunId: null });
-    const { chatLog, tui, setActivityStatus, loadHistory, isLocalRunId, forgetLocalRunId } =
-      makeContext(state);
-    const { handleChatEvent } = createEventHandlers({
-      chatLog,
-      tui,
-      state,
-      setActivityStatus,
-      loadHistory,
-      isLocalRunId,
-      forgetLocalRunId,
+    const { state, loadHistory, handleChatEvent } = createHandlersHarness({
+      state: { activeChatRunId: null },
     });
 
     handleChatEvent({
@@ -398,18 +466,10 @@ describe("tui-event-handlers: handleAgentEvent", () => {
   });
 
   function createConcurrentRunHarness(localContent = "partial") {
-    const state = makeState({ activeChatRunId: "run-active" });
-    const { chatLog, tui, setActivityStatus, loadHistory, isLocalRunId, forgetLocalRunId } =
-      makeContext(state);
-    const { handleChatEvent } = createEventHandlers({
-      chatLog,
-      tui,
-      state,
-      setActivityStatus,
-      loadHistory,
-      isLocalRunId,
-      forgetLocalRunId,
-    });
+    const { state, chatLog, setActivityStatus, loadHistory, handleChatEvent } =
+      createHandlersHarness({
+        state: { activeChatRunId: "run-active" },
+      });
 
     handleChatEvent({
       runId: "run-active",
@@ -471,13 +531,8 @@ describe("tui-event-handlers: handleAgentEvent", () => {
   });
 
   it("drops streaming assistant when chat final has no message", () => {
-    const state = makeState({ activeChatRunId: null });
-    const { chatLog, tui, setActivityStatus } = makeContext(state);
-    const { handleChatEvent } = createEventHandlers({
-      chatLog,
-      tui,
-      state,
-      setActivityStatus,
+    const { state, chatLog, handleChatEvent } = createHandlersHarness({
+      state: { activeChatRunId: null },
     });
 
     handleChatEvent({
