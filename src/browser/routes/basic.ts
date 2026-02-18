@@ -14,6 +14,7 @@ import { createBrowserProfilesService } from "../profiles-service.js";
 =======
 import { resolveBrowserExecutableForPlatform } from "../chrome.executables.js";
 import { createBrowserProfilesService } from "../profiles-service.js";
+<<<<<<< HEAD
 import type { BrowserRouteContext } from "../server-context.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -29,8 +30,30 @@ import { createBrowserProfilesService } from "../profiles-service.js";
 import type { BrowserRouteContext } from "../server-context.js";
 import type { BrowserRouteRegistrar } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { BrowserRouteContext, ProfileContext } from "../server-context.js";
+import { resolveProfileContext } from "./agent.shared.js";
+import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./types.js";
+>>>>>>> 42f34af77 (refactor(browser): share basic and tabs route helpers)
 import { getProfileContext, jsonError, toStringOrEmpty } from "./utils.js";
 import type { BrowserRouteRegistrar } from "./types.js";
+
+async function withBasicProfileRoute(params: {
+  req: BrowserRequest;
+  res: BrowserResponse;
+  ctx: BrowserRouteContext;
+  run: (profileCtx: ProfileContext) => Promise<void>;
+}) {
+  const profileCtx = resolveProfileContext(params.req, params.res, params.ctx);
+  if (!profileCtx) {
+    return;
+  }
+  try {
+    await params.run(profileCtx);
+  } catch (err) {
+    jsonError(params.res, 500, String(err));
+  }
+}
 
 export function registerBrowserBasicRoutes(app: BrowserRouteRegistrar, ctx: BrowserRouteContext) {
   // List all profiles with their status
@@ -102,51 +125,45 @@ export function registerBrowserBasicRoutes(app: BrowserRouteRegistrar, ctx: Brow
 
   // Start browser (profile-aware)
   app.post("/start", async (req, res) => {
-    const profileCtx = getProfileContext(req, ctx);
-    if ("error" in profileCtx) {
-      return jsonError(res, profileCtx.status, profileCtx.error);
-    }
-
-    try {
-      await profileCtx.ensureBrowserAvailable();
-      res.json({ ok: true, profile: profileCtx.profile.name });
-    } catch (err) {
-      jsonError(res, 500, String(err));
-    }
+    await withBasicProfileRoute({
+      req,
+      res,
+      ctx,
+      run: async (profileCtx) => {
+        await profileCtx.ensureBrowserAvailable();
+        res.json({ ok: true, profile: profileCtx.profile.name });
+      },
+    });
   });
 
   // Stop browser (profile-aware)
   app.post("/stop", async (req, res) => {
-    const profileCtx = getProfileContext(req, ctx);
-    if ("error" in profileCtx) {
-      return jsonError(res, profileCtx.status, profileCtx.error);
-    }
-
-    try {
-      const result = await profileCtx.stopRunningBrowser();
-      res.json({
-        ok: true,
-        stopped: result.stopped,
-        profile: profileCtx.profile.name,
-      });
-    } catch (err) {
-      jsonError(res, 500, String(err));
-    }
+    await withBasicProfileRoute({
+      req,
+      res,
+      ctx,
+      run: async (profileCtx) => {
+        const result = await profileCtx.stopRunningBrowser();
+        res.json({
+          ok: true,
+          stopped: result.stopped,
+          profile: profileCtx.profile.name,
+        });
+      },
+    });
   });
 
   // Reset profile (profile-aware)
   app.post("/reset-profile", async (req, res) => {
-    const profileCtx = getProfileContext(req, ctx);
-    if ("error" in profileCtx) {
-      return jsonError(res, profileCtx.status, profileCtx.error);
-    }
-
-    try {
-      const result = await profileCtx.resetProfile();
-      res.json({ ok: true, profile: profileCtx.profile.name, ...result });
-    } catch (err) {
-      jsonError(res, 500, String(err));
-    }
+    await withBasicProfileRoute({
+      req,
+      res,
+      ctx,
+      run: async (profileCtx) => {
+        const result = await profileCtx.resetProfile();
+        res.json({ ok: true, profile: profileCtx.profile.name, ...result });
+      },
+    });
   });
 
   // Create a new profile
