@@ -22,6 +22,7 @@ import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 01ec81dae (refactor(test): migrate web auto-reply tests to harness)
 import { monitorWebChannel } from "./auto-reply.js";
 import {
+  createMockWebListener,
   installWebAutoReplyTestHomeHooks,
   installWebAutoReplyUnitTestHooks,
   resetLoadConfigMock,
@@ -106,18 +107,6 @@ const _makeSessionStore = async (
 installWebAutoReplyTestHomeHooks();
 >>>>>>> 01ec81dae (refactor(test): migrate web auto-reply tests to harness)
 
-function createMockListener() {
-  return {
-    close: vi.fn(async () => undefined),
-    onClose: new Promise<import("./inbound.js").WebListenerCloseReason>(() => {}),
-    signalClose: vi.fn(),
-    sendMessage: vi.fn(async () => ({ messageId: "msg-1" })),
-    sendPoll: vi.fn(async () => ({ messageId: "poll-1" })),
-    sendReaction: vi.fn(async () => undefined),
-    sendComposingTo: vi.fn(async () => undefined),
-  };
-}
-
 describe("typing controller idle", () => {
   installWebAutoReplyUnitTestHooks();
 
@@ -165,7 +154,7 @@ describe("typing controller idle", () => {
           reply,
           sendMedia,
         });
-        return createMockListener();
+        return createMockWebListener();
       },
       false,
       replyResolver,
