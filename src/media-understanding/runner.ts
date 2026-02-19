@@ -2,6 +2,7 @@ import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import {
@@ -9,6 +10,8 @@ import {
   loadModelCatalog,
   modelSupportsVision,
 } from "../agents/model-catalog.js";
+=======
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 import type { MsgContext } from "../auto-reply/templating.js";
 import { applyTemplate } from "../auto-reply/templating.js";
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
@@ -18,7 +21,37 @@ import type {
   MediaUnderstandingConfig,
   MediaUnderstandingModelConfig,
 } from "../config/types.tools.js";
+<<<<<<< HEAD
 import { MediaAttachmentCache, normalizeAttachments, selectAttachments } from "./attachments.js";
+=======
+import type {
+  MediaAttachment,
+  MediaUnderstandingCapability,
+  MediaUnderstandingDecision,
+  MediaUnderstandingModelDecision,
+  MediaUnderstandingOutput,
+  MediaUnderstandingProvider,
+} from "./types.js";
+import { resolveApiKeyForProvider } from "../agents/model-auth.js";
+import {
+  findModelInCatalog,
+  loadModelCatalog,
+  modelSupportsVision,
+} from "../agents/model-catalog.js";
+import { logVerbose, shouldLogVerbose } from "../globals.js";
+import {
+  mergeInboundPathRoots,
+  resolveIMessageAttachmentRoots,
+} from "../media/inbound-path-policy.js";
+import { getDefaultMediaLocalRoots } from "../media/local-roots.js";
+import { runExec } from "../process/exec.js";
+import {
+  MediaAttachmentCache,
+  type MediaAttachmentCacheOptions,
+  normalizeAttachments,
+  selectAttachments,
+} from "./attachments.js";
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 import {
   CLI_OUTPUT_MAX_BUFFER,
   DEFAULT_AUDIO_MODELS,
@@ -26,6 +59,7 @@ import {
 } from "./defaults.js";
 import { isMediaUnderstandingSkipError, MediaUnderstandingSkipError } from "./errors.js";
 import {
+<<<<<<< HEAD
   resolveMaxBytes,
   resolveMaxChars,
   resolveModelEntries,
@@ -42,10 +76,13 @@ import type {
   MediaUnderstandingProvider,
 } from "./types.js";
 import {
+=======
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
   buildMediaUnderstandingRegistry,
   getMediaUnderstandingProvider,
   normalizeMediaProviderId,
 } from "./providers/index.js";
+<<<<<<< HEAD
 import { describeImageWithModel } from "./providers/image.js";
 import { estimateBase64Size, resolveVideoMaxBase64Bytes } from "./video.js";
 
@@ -58,6 +95,15 @@ const DEFAULT_IMAGE_MODELS: Record<string, string> = {
   google: "gemini-3-flash-preview",
   minimax: "MiniMax-VL-01",
 };
+=======
+import { resolveModelEntries, resolveScopeDecision } from "./resolve.js";
+import {
+  buildModelDecision,
+  formatDecisionSummary,
+  runCliEntry,
+  runProviderEntry,
+} from "./runner.entries.js";
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 
 export type ActiveMediaModel = {
   provider: string;
@@ -81,8 +127,24 @@ export function normalizeMediaAttachments(ctx: MsgContext): MediaAttachment[] {
   return normalizeAttachments(ctx);
 }
 
-export function createMediaAttachmentCache(attachments: MediaAttachment[]): MediaAttachmentCache {
-  return new MediaAttachmentCache(attachments);
+export function resolveMediaAttachmentLocalRoots(params: {
+  cfg: OpenClawConfig;
+  ctx: MsgContext;
+}): readonly string[] {
+  return mergeInboundPathRoots(
+    getDefaultMediaLocalRoots(),
+    resolveIMessageAttachmentRoots({
+      cfg: params.cfg,
+      accountId: params.ctx.AccountId,
+    }),
+  );
+}
+
+export function createMediaAttachmentCache(
+  attachments: MediaAttachment[],
+  options?: MediaAttachmentCacheOptions,
+): MediaAttachmentCache {
+  return new MediaAttachmentCache(attachments, options);
 }
 
 const binaryCache = new Map<string, Promise<string | null>>();

@@ -1,7 +1,18 @@
 import path from "node:path";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
+=======
+import type { MsgContext } from "../auto-reply/templating.js";
+import type { OpenClawConfig } from "../config/config.js";
+import type {
+  MediaUnderstandingCapability,
+  MediaUnderstandingDecision,
+  MediaUnderstandingOutput,
+  MediaUnderstandingProvider,
+} from "./types.js";
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import {
@@ -36,6 +47,7 @@ import {
   buildProviderRegistry,
   createMediaAttachmentCache,
   normalizeMediaAttachments,
+  resolveMediaAttachmentLocalRoots,
   runCapability,
 } from "./runner.js";
 
@@ -348,7 +360,9 @@ export async function applyMediaUnderstanding(params: {
 
   const attachments = normalizeMediaAttachments(ctx);
   const providerRegistry = buildProviderRegistry(params.providers);
-  const cache = createMediaAttachmentCache(attachments);
+  const cache = createMediaAttachmentCache(attachments, {
+    localPathRoots: resolveMediaAttachmentLocalRoots({ cfg, ctx }),
+  });
 
   try {
     const fileBlocks = await extractFileBlocks({

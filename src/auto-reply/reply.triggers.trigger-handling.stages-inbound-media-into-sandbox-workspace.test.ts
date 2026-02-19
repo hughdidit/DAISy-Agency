@@ -7,8 +7,12 @@ import type { MsgContext, TemplateContext } from "./templating.js";
 const sandboxMocks = vi.hoisted(() => ({
   ensureSandboxWorkspaceForSession: vi.fn(),
 }));
+const childProcessMocks = vi.hoisted(() => ({
+  spawn: vi.fn(),
+}));
 
 vi.mock("../agents/sandbox.js", () => sandboxMocks);
+vi.mock("node:child_process", () => childProcessMocks);
 
 import { ensureSandboxWorkspaceForSession } from "../agents/sandbox.js";
 import { stageSandboxMedia } from "./reply/stage-sandbox-media.js";
@@ -19,6 +23,7 @@ async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  childProcessMocks.spawn.mockReset();
 });
 
 describe("stageSandboxMedia", () => {
@@ -78,4 +83,66 @@ describe("stageSandboxMedia", () => {
       await expect(fs.stat(stagedFullPath)).resolves.toBeTruthy();
     });
   });
+<<<<<<< HEAD
+=======
+
+  it("rejects staging host files from outside the media directory", async () => {
+    await withSandboxMediaTempHome("openclaw-triggers-bypass-", async (home) => {
+      // Sensitive host file outside .openclaw
+      const sensitiveFile = join(home, "secrets.txt");
+      await fs.writeFile(sensitiveFile, "SENSITIVE DATA");
+
+      const sandboxDir = join(home, "sandboxes", "session");
+      vi.mocked(ensureSandboxWorkspaceForSession).mockResolvedValue({
+        workspaceDir: sandboxDir,
+        containerWorkdir: "/work",
+      });
+
+      const { ctx, sessionCtx } = createSandboxMediaContexts(sensitiveFile);
+
+      // This should fail or skip the file
+      await stageSandboxMedia({
+        ctx,
+        sessionCtx,
+        cfg: createSandboxMediaStageConfig(home),
+        sessionKey: "agent:main:main",
+        workspaceDir: join(home, "openclaw"),
+      });
+
+      const stagedFullPath = join(sandboxDir, "media", "inbound", basename(sensitiveFile));
+      // Expect the file NOT to be staged
+      await expect(fs.stat(stagedFullPath)).rejects.toThrow();
+
+      // Context should NOT be rewritten to a sandbox path if it failed to stage
+      expect(ctx.MediaPath).toBe(sensitiveFile);
+    });
+  });
+
+  it("blocks remote SCP staging for non-iMessage attachment paths", async () => {
+    await withSandboxMediaTempHome("openclaw-triggers-remote-block-", async (home) => {
+      const sandboxDir = join(home, "sandboxes", "session");
+      vi.mocked(ensureSandboxWorkspaceForSession).mockResolvedValue({
+        workspaceDir: sandboxDir,
+        containerWorkdir: "/work",
+      });
+
+      const { ctx, sessionCtx } = createSandboxMediaContexts("/etc/passwd");
+      ctx.Provider = "imessage";
+      ctx.MediaRemoteHost = "user@gateway-host";
+      sessionCtx.Provider = "imessage";
+      sessionCtx.MediaRemoteHost = "user@gateway-host";
+
+      await stageSandboxMedia({
+        ctx,
+        sessionCtx,
+        cfg: createSandboxMediaStageConfig(home),
+        sessionKey: "agent:main:main",
+        workspaceDir: join(home, "openclaw"),
+      });
+
+      expect(childProcessMocks.spawn).not.toHaveBeenCalled();
+      expect(ctx.MediaPath).toBe("/etc/passwd");
+    });
+  });
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 });
