@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import { spawn } from "node:child_process";
+import os from "node:os";
+>>>>>>> 45db2aa0c (Security: disable plugin runtime command execution primitive (#20828))
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import os from "node:os";
 import { approveDevicePairing, listDevicePairing } from "openclaw/plugin-sdk";
@@ -26,6 +31,77 @@ type ResolveAuthResult = {
   label?: string;
   error?: string;
 };
+
+type CommandResult = {
+  code: number;
+  stdout: string;
+  stderr: string;
+};
+
+async function runFixedCommandWithTimeout(
+  argv: string[],
+  timeoutMs: number,
+): Promise<CommandResult> {
+  return await new Promise((resolve) => {
+    const [command, ...args] = argv;
+    if (!command) {
+      resolve({ code: 1, stdout: "", stderr: "command is required" });
+      return;
+    }
+    const proc = spawn(command, args, {
+      stdio: ["ignore", "pipe", "pipe"],
+      env: { ...process.env },
+    });
+
+    let stdout = "";
+    let stderr = "";
+    let settled = false;
+    let timer: NodeJS.Timeout | null = null;
+
+    const finalize = (result: CommandResult) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      if (timer) {
+        clearTimeout(timer);
+      }
+      resolve(result);
+    };
+
+    proc.stdout?.on("data", (chunk: Buffer | string) => {
+      stdout += chunk.toString();
+    });
+    proc.stderr?.on("data", (chunk: Buffer | string) => {
+      stderr += chunk.toString();
+    });
+
+    timer = setTimeout(() => {
+      proc.kill("SIGKILL");
+      finalize({
+        code: 124,
+        stdout,
+        stderr: stderr || `command timed out after ${timeoutMs}ms`,
+      });
+    }, timeoutMs);
+
+    proc.on("error", (err) => {
+      finalize({
+        code: 1,
+        stdout,
+        stderr: err.message,
+      });
+    });
+
+    proc.on("close", (code) => {
+      finalize({
+        code: code ?? 1,
+        stdout,
+        stderr,
+      });
+    });
+  });
+}
 
 function normalizeUrl(raw: string, schemeFallback: "ws" | "wss"): string | null {
   const trimmed = raw.trim();
@@ -168,16 +244,11 @@ function pickTailnetIPv4(): string | null {
   return null;
 }
 
-async function resolveTailnetHost(api: OpenClawPluginApi): Promise<string | null> {
+async function resolveTailnetHost(): Promise<string | null> {
   const candidates = ["tailscale", "/Applications/Tailscale.app/Contents/MacOS/Tailscale"];
   for (const candidate of candidates) {
     try {
-      const result = await api.runtime.system.runCommandWithTimeout(
-        [candidate, "status", "--json"],
-        {
-          timeoutMs: 5000,
-        },
-      );
+      const result = await runFixedCommandWithTimeout([candidate, "status", "--json"], 5000);
       if (result.code !== 0) {
         continue;
       }
@@ -266,7 +337,7 @@ async function resolveGatewayUrl(api: OpenClawPluginApi): Promise<ResolveUrlResu
 
   const tailscaleMode = cfg.gateway?.tailscale?.mode ?? "off";
   if (tailscaleMode === "serve" || tailscaleMode === "funnel") {
-    const host = await resolveTailnetHost(api);
+    const host = await resolveTailnetHost();
     if (!host) {
       return { error: "Tailscale Serve is enabled, but MagicDNS could not be resolved." };
     }
