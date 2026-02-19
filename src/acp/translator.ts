@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 <<<<<<< HEAD
 
@@ -17,6 +18,8 @@ import { randomUUID } from "node:crypto";
 =======
 import { randomUUID } from "node:crypto";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+>>>>>>> e01011e3e (fix(acp): harden session lifecycle against flooding)
 import type {
   Agent,
   AgentSideConnection,
@@ -43,6 +46,7 @@ import { PROTOCOL_VERSION } from "@agentclientprotocol/sdk";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -56,6 +60,9 @@ import { randomUUID } from "node:crypto";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { randomUUID } from "node:crypto";
+>>>>>>> e01011e3e (fix(acp): harden session lifecycle against flooding)
 import type { GatewayClient } from "../gateway/client.js";
 import type { EventFrame } from "../gateway/protocol/index.js";
 import type { SessionsListResult } from "../gateway/session-utils.js";
@@ -86,12 +93,50 @@ type AcpGatewayAgentOptions = AcpServerOptions & {
   sessionStore?: AcpSessionStore;
 };
 
+const SESSION_CREATE_RATE_LIMIT_DEFAULT_MAX_REQUESTS = 120;
+const SESSION_CREATE_RATE_LIMIT_DEFAULT_WINDOW_MS = 10_000;
+
+class SessionCreateRateLimiter {
+  private count = 0;
+  private windowStartMs = 0;
+
+  constructor(
+    private readonly maxRequests: number,
+    private readonly windowMs: number,
+    private readonly now: () => number = Date.now,
+  ) {}
+
+  consume(): { allowed: boolean; retryAfterMs: number; remaining: number } {
+    const nowMs = this.now();
+    if (nowMs - this.windowStartMs >= this.windowMs) {
+      this.windowStartMs = nowMs;
+      this.count = 0;
+    }
+
+    if (this.count >= this.maxRequests) {
+      return {
+        allowed: false,
+        retryAfterMs: Math.max(0, this.windowStartMs + this.windowMs - nowMs),
+        remaining: 0,
+      };
+    }
+
+    this.count += 1;
+    return {
+      allowed: true,
+      retryAfterMs: 0,
+      remaining: Math.max(0, this.maxRequests - this.count),
+    };
+  }
+}
+
 export class AcpGatewayAgent implements Agent {
   private connection: AgentSideConnection;
   private gateway: GatewayClient;
   private opts: AcpGatewayAgentOptions;
   private log: (msg: string) => void;
   private sessionStore: AcpSessionStore;
+  private sessionCreateRateLimiter: SessionCreateRateLimiter;
   private pendingPrompts = new Map<string, PendingPrompt>();
 
   constructor(
@@ -104,6 +149,16 @@ export class AcpGatewayAgent implements Agent {
     this.opts = opts;
     this.log = opts.verbose ? (msg: string) => process.stderr.write(`[acp] ${msg}\n`) : () => {};
     this.sessionStore = opts.sessionStore ?? defaultAcpSessionStore;
+    this.sessionCreateRateLimiter = new SessionCreateRateLimiter(
+      Math.max(
+        1,
+        opts.sessionCreateRateLimit?.maxRequests ?? SESSION_CREATE_RATE_LIMIT_DEFAULT_MAX_REQUESTS,
+      ),
+      Math.max(
+        1_000,
+        opts.sessionCreateRateLimit?.windowMs ?? SESSION_CREATE_RATE_LIMIT_DEFAULT_WINDOW_MS,
+      ),
+    );
   }
 
   start(): void {
@@ -160,6 +215,7 @@ export class AcpGatewayAgent implements Agent {
     if (params.mcpServers.length > 0) {
       this.log(`ignoring ${params.mcpServers.length} MCP servers`);
     }
+    this.enforceSessionCreateRateLimit("newSession");
 
     const sessionId = randomUUID();
     const meta = parseSessionMeta(params._meta);
@@ -189,6 +245,9 @@ export class AcpGatewayAgent implements Agent {
   async loadSession(params: LoadSessionRequest): Promise<LoadSessionResponse> {
     if (params.mcpServers.length > 0) {
       this.log(`ignoring ${params.mcpServers.length} MCP servers`);
+    }
+    if (!this.sessionStore.getSession(params.sessionId)) {
+      this.enforceSessionCreateRateLimit("loadSession");
     }
 
     const meta = parseSessionMeta(params._meta);
@@ -486,5 +545,15 @@ export class AcpGatewayAgent implements Agent {
         availableCommands: getAvailableCommands(),
       },
     });
+  }
+
+  private enforceSessionCreateRateLimit(method: "newSession" | "loadSession"): void {
+    const budget = this.sessionCreateRateLimiter.consume();
+    if (budget.allowed) {
+      return;
+    }
+    throw new Error(
+      `ACP session creation rate limit exceeded for ${method}; retry after ${Math.ceil(budget.retryAfterMs / 1_000)}s.`,
+    );
   }
 }
