@@ -11,6 +11,41 @@ import {
 } from "./device-pairing.js";
 
 describe("device pairing tokens", () => {
+<<<<<<< HEAD
+=======
+  test("reuses existing pending requests for the same device", async () => {
+    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    const first = await requestDevicePairing(
+      {
+        deviceId: "device-1",
+        publicKey: "public-key-1",
+      },
+      baseDir,
+    );
+    const second = await requestDevicePairing(
+      {
+        deviceId: "device-1",
+        publicKey: "public-key-1",
+      },
+      baseDir,
+    );
+
+    expect(first.created).toBe(true);
+    expect(second.created).toBe(false);
+    expect(second.request.requestId).toBe(first.request.requestId);
+  });
+
+  test("generates base64url device tokens with 256-bit entropy output length", async () => {
+    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    await setupPairedOperatorDevice(baseDir, ["operator.admin"]);
+
+    const paired = await getPairedDevice("device-1", baseDir);
+    const token = requireToken(paired?.tokens?.operator?.token);
+    expect(token).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(Buffer.from(token, "base64url")).toHaveLength(32);
+  });
+
+>>>>>>> 7a89049d1 (refactor: dedupe pending pairing request flow and add reuse tests)
   test("preserves existing token scopes when rotating without scopes", async () => {
     const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
     const request = await requestDevicePairing(
