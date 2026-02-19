@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   type ExecAsk,
   type ExecHost,
@@ -19,6 +20,8 @@ import {
 } from "../infra/exec-approvals.js";
 import { buildNodeShellCommand } from "../infra/node-shell.js";
 =======
+=======
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { type ExecHost, maxAsk, minSecurity, resolveSafeBins } from "../infra/exec-approvals.js";
 import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
 >>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
