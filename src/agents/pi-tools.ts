@@ -6,6 +6,15 @@ import {
   readTool,
 } from "@mariozechner/pi-coding-agent";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
+=======
+import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
+import type { ModelAuthMode } from "./model-auth.js";
+import type { AnyAgentTool } from "./pi-tools.types.js";
+import type { SandboxContext } from "./sandbox.js";
+import { logWarn } from "../logger.js";
+import { getPluginToolMeta } from "../plugins/tools.js";
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { resolveGatewayMessageChannel } from "../utils/message-channel.js";
 import { createApplyPatchTool } from "./apply-patch.js";
@@ -16,6 +25,10 @@ import {
   type ProcessToolDefaults,
 } from "./bash-tools.js";
 import { listChannelAgentTools } from "./channel-tools.js";
+<<<<<<< HEAD
+=======
+import { resolveImageSanitizationLimits } from "./image-sanitization.js";
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { createOpenClawTools } from "./openclaw-tools.js";
 import type { ModelAuthMode } from "./model-auth.js";
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
@@ -39,8 +52,16 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
+<<<<<<< HEAD
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
+=======
+import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
+import {
+  applyToolPolicyPipeline,
+  buildDefaultToolPolicyPipelineSteps,
+} from "./tool-policy-pipeline.js";
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import {
   applyOwnerOnlyToolPolicy,
   buildPluginToolGroups,
@@ -404,6 +425,11 @@ export function createOpenClawCodingTools(options?: {
       hasRepliedRef: options?.hasRepliedRef,
       modelHasVision: options?.modelHasVision,
       requesterAgentIdOverride: agentId,
+<<<<<<< HEAD
+=======
+      requesterSenderId: options?.senderId,
+      senderIsOwner: options?.senderIsOwner,
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
     }),
   ];
   // Security: treat unknown/undefined as unauthorized (opt-in, not opt-out)

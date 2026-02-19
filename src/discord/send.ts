@@ -40,6 +40,10 @@ export {
 export { sendMessageDiscord, sendPollDiscord, sendStickerDiscord } from "./send.outbound.js";
 export {
   fetchChannelPermissionsDiscord,
+  fetchMemberGuildPermissionsDiscord,
+  hasGuildPermissionDiscord,
+} from "./send.permissions.js";
+export {
   fetchReactionsDiscord,
   reactMessageDiscord,
   removeOwnReactionsDiscord,

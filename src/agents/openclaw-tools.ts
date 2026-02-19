@@ -1,11 +1,15 @@
 import type { OpenClawConfig } from "../config/config.js";
-import { resolvePluginTools } from "../plugins/tools.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
+<<<<<<< HEAD
+=======
+import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+import type { AnyAgentTool } from "./tools/common.js";
+import { resolvePluginTools } from "../plugins/tools.js";
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { resolveSessionAgentId } from "./agent-scope.js";
 import { createAgentsListTool } from "./tools/agents-list-tool.js";
 import { createBrowserTool } from "./tools/browser-tool.js";
 import { createCanvasTool } from "./tools/canvas-tool.js";
-import type { AnyAgentTool } from "./tools/common.js";
 import { createCronTool } from "./tools/cron-tool.js";
 import { createGatewayTool } from "./tools/gateway-tool.js";
 import { createImageTool } from "./tools/image-tool.js";
@@ -53,6 +57,17 @@ export function createOpenClawTools(options?: {
   modelHasVision?: boolean;
   /** Explicit agent ID override for cron/hook sessions. */
   requesterAgentIdOverride?: string;
+<<<<<<< HEAD
+=======
+  /** Require explicit message targets (no implicit last-route sends). */
+  requireExplicitMessageTarget?: boolean;
+  /** If true, omit the message tool from the tool list. */
+  disableMessageTool?: boolean;
+  /** Trusted sender id from inbound context (not tool args). */
+  requesterSenderId?: string | null;
+  /** Whether the requesting sender is an owner. */
+  senderIsOwner?: boolean;
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 }): AnyAgentTool[] {
   const imageTool = options?.agentDir?.trim()
     ? createImageTool({
@@ -70,6 +85,24 @@ export function createOpenClawTools(options?: {
     config: options?.config,
     sandboxed: options?.sandboxed,
   });
+<<<<<<< HEAD
+=======
+  const messageTool = options?.disableMessageTool
+    ? null
+    : createMessageTool({
+        agentAccountId: options?.agentAccountId,
+        agentSessionKey: options?.agentSessionKey,
+        config: options?.config,
+        currentChannelId: options?.currentChannelId,
+        currentChannelProvider: options?.agentChannel,
+        currentThreadTs: options?.currentThreadTs,
+        replyToMode: options?.replyToMode,
+        hasRepliedRef: options?.hasRepliedRef,
+        sandboxRoot: options?.sandboxRoot,
+        requireExplicitTarget: options?.requireExplicitMessageTarget,
+        requesterSenderId: options?.requesterSenderId ?? undefined,
+      });
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
   const tools: AnyAgentTool[] = [
     createBrowserTool({
       sandboxBridgeUrl: options?.sandboxBrowserBridgeUrl,

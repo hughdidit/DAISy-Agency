@@ -1,11 +1,16 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import type { ChannelMessageActionContext } from "../../types.js";
 import {
   readNumberParam,
   readStringArrayParam,
   readStringParam,
 } from "../../../../agents/tools/common.js";
 import { handleDiscordAction } from "../../../../agents/tools/discord-actions.js";
+<<<<<<< HEAD
 import type { ChannelMessageActionContext } from "../../types.js";
+=======
+import { resolveDiscordChannelId } from "../../../../discord/targets.js";
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { tryHandleDiscordMessageActionGuildAdmin } from "./handle-action.guild-admin.js";
 import { resolveDiscordChannelId } from "../../../../discord/targets.js";
 
@@ -18,7 +23,10 @@ function readParentIdParam(params: Record<string, unknown>): string | null | und
 }
 
 export async function handleDiscordMessageAction(
-  ctx: Pick<ChannelMessageActionContext, "action" | "params" | "cfg" | "accountId">,
+  ctx: Pick<
+    ChannelMessageActionContext,
+    "action" | "params" | "cfg" | "accountId" | "requesterSenderId" | "toolContext"
+  >,
 ): Promise<AgentToolResult<unknown>> {
   const { action, params, cfg } = ctx;
   const accountId = ctx.accountId ?? readStringParam(params, "accountId");
