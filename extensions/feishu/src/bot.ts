@@ -7,8 +7,17 @@ import {
   type HistoryEntry,
 } from "openclaw/plugin-sdk";
 import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
+<<<<<<< HEAD
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
+=======
+import type { DynamicAgentCreationConfig } from "./types.js";
+import { resolveFeishuAccount } from "./accounts.js";
+import { createFeishuClient } from "./client.js";
+import { tryRecordMessage } from "./dedup.js";
+import { maybeCreateDynamicAgent } from "./dynamic-agent.js";
+import { normalizeFeishuExternalKey } from "./external-keys.js";
+>>>>>>> ec232a9e2 (refactor(security): harden temp-path handling for inbound media)
 import { downloadMessageResourceFeishu } from "./media.js";
 import { extractMentionTargets, extractMessageBody, isMentionForwardRequest } from "./mention.js";
 import {
@@ -19,7 +28,11 @@ import {
 } from "./policy.js";
 import { createFeishuReplyDispatcher } from "./reply-dispatcher.js";
 import { getFeishuRuntime } from "./runtime.js";
+<<<<<<< HEAD
 import { getMessageFeishu } from "./send.js";
+=======
+import { getMessageFeishu, sendMessageFeishu } from "./send.js";
+>>>>>>> ec232a9e2 (refactor(security): harden temp-path handling for inbound media)
 
 // --- Permission error extraction ---
 // Extract permission grant URL from Feishu API error response.
@@ -233,18 +246,20 @@ function parseMediaKeys(
 } {
   try {
     const parsed = JSON.parse(content);
+    const imageKey = normalizeFeishuExternalKey(parsed.image_key);
+    const fileKey = normalizeFeishuExternalKey(parsed.file_key);
     switch (messageType) {
       case "image":
-        return { imageKey: parsed.image_key };
+        return { imageKey };
       case "file":
-        return { fileKey: parsed.file_key, fileName: parsed.file_name };
+        return { fileKey, fileName: parsed.file_name };
       case "audio":
-        return { fileKey: parsed.file_key };
+        return { fileKey };
       case "video":
         // Video has both file_key (video) and image_key (thumbnail)
-        return { fileKey: parsed.file_key, imageKey: parsed.image_key };
+        return { fileKey, imageKey };
       case "sticker":
-        return { fileKey: parsed.file_key };
+        return { fileKey };
       default:
         return {};
     }
@@ -281,7 +296,10 @@ function parsePostContent(content: string): {
             textContent += `@${element.user_name || element.user_id || ""}`;
           } else if (element.tag === "img" && element.image_key) {
             // Embedded image
-            imageKeys.push(element.image_key);
+            const imageKey = normalizeFeishuExternalKey(element.image_key);
+            if (imageKey) {
+              imageKeys.push(imageKey);
+            }
           }
         }
         textContent += "\n";

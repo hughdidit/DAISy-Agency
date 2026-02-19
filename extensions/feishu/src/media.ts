@@ -1,6 +1,7 @@
 import type { ClawdbotConfig } from "openclaw/plugin-sdk";
 import fs from "fs";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import os from "os";
 import path from "path";
 import { Readable } from "stream";
@@ -11,6 +12,16 @@ import { buildRandomTempFilePath, type ClawdbotConfig } from "openclaw/plugin-sd
 >>>>>>> a7c0aa94d (refactor(security): share safe temp media path builder (#20810))
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
+=======
+import { withTempDownloadPath, type ClawdbotConfig } from "openclaw/plugin-sdk";
+import path from "path";
+import { Readable } from "stream";
+import { resolveFeishuAccount } from "./accounts.js";
+import { createFeishuClient } from "./client.js";
+import { normalizeFeishuExternalKey } from "./external-keys.js";
+import { getFeishuRuntime } from "./runtime.js";
+import { assertFeishuMessageApiSuccess, toFeishuSendResult } from "./send-result.js";
+>>>>>>> ec232a9e2 (refactor(security): harden temp-path handling for inbound media)
 import { resolveReceiveIdType, normalizeFeishuTarget } from "./targets.js";
 
 export type DownloadImageResult = {
@@ -24,6 +35,67 @@ export type DownloadMessageResourceResult = {
   fileName?: string;
 };
 
+<<<<<<< HEAD
+=======
+async function readFeishuResponseBuffer(params: {
+  response: unknown;
+  tmpDirPrefix: string;
+  errorPrefix: string;
+}): Promise<Buffer> {
+  const { response } = params;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK response type
+  const responseAny = response as any;
+  if (responseAny.code !== undefined && responseAny.code !== 0) {
+    throw new Error(`${params.errorPrefix}: ${responseAny.msg || `code ${responseAny.code}`}`);
+  }
+
+  if (Buffer.isBuffer(response)) {
+    return response;
+  }
+  if (response instanceof ArrayBuffer) {
+    return Buffer.from(response);
+  }
+  if (responseAny.data && Buffer.isBuffer(responseAny.data)) {
+    return responseAny.data;
+  }
+  if (responseAny.data instanceof ArrayBuffer) {
+    return Buffer.from(responseAny.data);
+  }
+  if (typeof responseAny.getReadableStream === "function") {
+    const stream = responseAny.getReadableStream();
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    }
+    return Buffer.concat(chunks);
+  }
+  if (typeof responseAny.writeFile === "function") {
+    return await withTempDownloadPath({ prefix: params.tmpDirPrefix }, async (tmpPath) => {
+      await responseAny.writeFile(tmpPath);
+      return await fs.promises.readFile(tmpPath);
+    });
+  }
+  if (typeof responseAny[Symbol.asyncIterator] === "function") {
+    const chunks: Buffer[] = [];
+    for await (const chunk of responseAny) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    }
+    return Buffer.concat(chunks);
+  }
+  if (typeof responseAny.read === "function") {
+    const chunks: Buffer[] = [];
+    for await (const chunk of responseAny as Readable) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    }
+    return Buffer.concat(chunks);
+  }
+
+  const keys = Object.keys(responseAny);
+  const types = keys.map((k) => `${k}: ${typeof responseAny[k]}`).join(", ");
+  throw new Error(`${params.errorPrefix}: unexpected response format. Keys: [${types}]`);
+}
+
+>>>>>>> ec232a9e2 (refactor(security): harden temp-path handling for inbound media)
 /**
  * Download an image from Feishu using image_key.
  * Used for downloading images sent in messages.
@@ -34,6 +106,10 @@ export async function downloadImageFeishu(params: {
   accountId?: string;
 }): Promise<DownloadImageResult> {
   const { cfg, imageKey, accountId } = params;
+  const normalizedImageKey = normalizeFeishuExternalKey(imageKey);
+  if (!normalizedImageKey) {
+    throw new Error("Feishu image download failed: invalid image_key");
+  }
   const account = resolveFeishuAccount({ cfg, accountId });
   if (!account.configured) {
     throw new Error(`Feishu account "${account.accountId}" not configured`);
@@ -42,7 +118,7 @@ export async function downloadImageFeishu(params: {
   const client = createFeishuClient(account);
 
   const response = await client.im.image.get({
-    path: { image_key: imageKey },
+    path: { image_key: normalizedImageKey },
   });
 
 <<<<<<< HEAD
@@ -123,6 +199,10 @@ export async function downloadMessageResourceFeishu(params: {
   accountId?: string;
 }): Promise<DownloadMessageResourceResult> {
   const { cfg, messageId, fileKey, type, accountId } = params;
+  const normalizedFileKey = normalizeFeishuExternalKey(fileKey);
+  if (!normalizedFileKey) {
+    throw new Error("Feishu message resource download failed: invalid file_key");
+  }
   const account = resolveFeishuAccount({ cfg, accountId });
   if (!account.configured) {
     throw new Error(`Feishu account "${account.accountId}" not configured`);
@@ -131,7 +211,7 @@ export async function downloadMessageResourceFeishu(params: {
   const client = createFeishuClient(account);
 
   const response = await client.im.messageResource.get({
-    path: { message_id: messageId, file_key: fileKey },
+    path: { message_id: messageId, file_key: normalizedFileKey },
     params: { type },
   });
 
