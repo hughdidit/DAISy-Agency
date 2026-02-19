@@ -1,6 +1,7 @@
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { describe, expect, it, vi } from "vitest";
 =======
@@ -55,6 +56,9 @@ describe("browser extension install", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-ext-path-"));
     process.env.CLAWDBOT_STATE_DIR = tmp;
 =======
+=======
+import { Command } from "commander";
+>>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const copyToClipboard = vi.fn();
@@ -173,7 +177,6 @@ beforeEach(() => {
   runtime.log.mockReset();
   runtime.error.mockReset();
   runtime.exit.mockReset();
-  vi.clearAllMocks();
 });
 
 function writeManifest(dir: string) {
@@ -234,8 +237,6 @@ describe("browser extension install (fs-mocked)", () => {
       const dir = path.join(tmp, "browser", "chrome-extension");
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, "manifest.json"), JSON.stringify({ manifest_version: 3 }));
-
-      const { Command } = await import("commander");
 
       const program = new Command();
       const browser = program.command("browser").option("--json", "JSON output", false);

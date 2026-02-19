@@ -17,6 +17,10 @@ vi.mock("./backoff.js", () => ({
   },
 }));
 
+function createRuntime() {
+  return { log: vi.fn(), error: vi.fn(), exit: vi.fn() };
+}
+
 describe("waitForTransportReady", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -27,7 +31,7 @@ describe("waitForTransportReady", () => {
   });
 
   it("returns when the check succeeds and logs after the delay", async () => {
-    const runtime = { log: vi.fn(), error: vi.fn(), exit: vi.fn() };
+    const runtime = createRuntime();
     let attempts = 0;
     const readyPromise = waitForTransportReady({
       label: "test transport",
@@ -53,7 +57,7 @@ describe("waitForTransportReady", () => {
   });
 
   it("throws after the timeout", async () => {
-    const runtime = { log: vi.fn(), error: vi.fn(), exit: vi.fn() };
+    const runtime = createRuntime();
     const waitPromise = waitForTransportReady({
       label: "test transport",
       timeoutMs: 110,
@@ -70,7 +74,7 @@ describe("waitForTransportReady", () => {
   });
 
   it("returns early when aborted", async () => {
-    const runtime = { log: vi.fn(), error: vi.fn(), exit: vi.fn() };
+    const runtime = createRuntime();
     const controller = new AbortController();
     controller.abort();
     await waitForTransportReady({

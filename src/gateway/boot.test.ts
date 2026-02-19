@@ -64,12 +64,21 @@ describe("runBootOnce", () => {
     await fs.rm(workspaceDir, { recursive: true, force: true });
   });
 
+<<<<<<< HEAD
   it("skips when BOOT.md is empty", async () => {
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-boot-"));
     await fs.writeFile(path.join(workspaceDir, "BOOT.md"), "   \n", "utf-8");
+=======
+  it.each([
+    { title: "empty", content: "   \n", reason: "empty" as const },
+    { title: "whitespace-only", content: "\n\t ", reason: "empty" as const },
+  ])("skips when BOOT.md is $title", async ({ content, reason }) => {
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-boot-"));
+    await fs.writeFile(path.join(workspaceDir, "BOOT.md"), content, "utf-8");
+>>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
     await expect(runBootOnce({ cfg: {}, deps: makeDeps(), workspaceDir })).resolves.toEqual({
       status: "skipped",
-      reason: "empty",
+      reason,
     });
     expect(agentCommand).not.toHaveBeenCalled();
     await fs.rm(workspaceDir, { recursive: true, force: true });

@@ -1,8 +1,14 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 =======
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 >>>>>>> e211b7547 (perf(test): reuse imports in models cli suite)
+=======
+import { Command } from "commander";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { runRegisteredCli } from "../test-utils/command-runner.js";
+>>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 
 const githubCopilotLoginCommand = vi.fn();
 <<<<<<< HEAD
@@ -50,17 +56,19 @@ vi.mock("../commands/models.js", () => ({
 
 describe("models cli", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("registers github-copilot login command", { timeout: 60_000 }, async () => {
     const { Command } = await import("commander");
     const { registerModelsCli } = await import("./models-cli.js");
 
 =======
   let Command: typeof import("commander").Command;
+=======
+>>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
   let registerModelsCli: (typeof import("./models-cli.js"))["registerModelsCli"];
 
   beforeAll(async () => {
     // Load once; vi.mock above ensures command handlers are already mocked.
-    ({ Command } = await import("commander"));
     ({ registerModelsCli } = await import("./models-cli.js"));
   });
 
@@ -74,6 +82,13 @@ describe("models cli", () => {
     const program = new Command();
     registerModelsCli(program);
     return program;
+  }
+
+  async function runModelsCommand(args: string[]) {
+    await runRegisteredCli({
+      register: registerModelsCli as (program: Command) => void,
+      argv: args,
+    });
   }
 
   it("registers github-copilot login command", async () => {
@@ -100,22 +115,11 @@ describe("models cli", () => {
 <<<<<<< HEAD
 =======
 
-  it("passes --agent to models status", async () => {
-    const program = createProgram();
-
-    await program.parseAsync(["models", "status", "--agent", "poe"], { from: "user" });
-
-    expect(modelsStatusCommand).toHaveBeenCalledWith(
-      expect.objectContaining({ agent: "poe" }),
-      expect.any(Object),
-    );
-  });
-
-  it("passes parent --agent to models status", async () => {
-    const program = createProgram();
-
-    await program.parseAsync(["models", "--agent", "poe", "status"], { from: "user" });
-
+  it.each([
+    { label: "status flag", args: ["models", "status", "--agent", "poe"] },
+    { label: "parent flag", args: ["models", "--agent", "poe", "status"] },
+  ])("passes --agent to models status ($label)", async ({ args }) => {
+    await runModelsCommand(args);
     expect(modelsStatusCommand).toHaveBeenCalledWith(
       expect.objectContaining({ agent: "poe" }),
       expect.any(Object),

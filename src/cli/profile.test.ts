@@ -52,6 +52,7 @@ describe("parseCliProfileArgs", () => {
     expect(res.ok).toBe(false);
   });
 
+<<<<<<< HEAD
   it("rejects combining --dev with --profile (dev first)", () => {
     const res = parseCliProfileArgs(["node", "moltbot", "--dev", "--profile", "work", "status"]);
     expect(res.ok).toBe(false);
@@ -59,6 +60,13 @@ describe("parseCliProfileArgs", () => {
 
   it("rejects combining --dev with --profile (profile first)", () => {
     const res = parseCliProfileArgs(["node", "moltbot", "--profile", "work", "--dev", "status"]);
+=======
+  it.each([
+    ["--dev first", ["node", "openclaw", "--dev", "--profile", "work", "status"]],
+    ["--profile first", ["node", "openclaw", "--profile", "work", "--dev", "status"]],
+  ])("rejects combining --dev with --profile (%s)", (_name, argv) => {
+    const res = parseCliProfileArgs(argv);
+>>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
     expect(res.ok).toBe(false);
   });
 });
@@ -112,6 +120,7 @@ describe("applyCliProfileEnv", () => {
 });
 
 describe("formatCliCommand", () => {
+<<<<<<< HEAD
   it("returns command unchanged when no profile is set", () => {
     expect(formatCliCommand("moltbot doctor --fix", {})).toBe("moltbot doctor --fix");
   });
@@ -144,6 +153,47 @@ describe("formatCliCommand", () => {
     expect(formatCliCommand("moltbot --dev doctor", { CLAWDBOT_PROFILE: "dev" })).toBe(
       "moltbot --dev doctor",
     );
+=======
+  it.each([
+    {
+      name: "no profile is set",
+      cmd: "openclaw doctor --fix",
+      env: {},
+      expected: "openclaw doctor --fix",
+    },
+    {
+      name: "profile is default",
+      cmd: "openclaw doctor --fix",
+      env: { OPENCLAW_PROFILE: "default" },
+      expected: "openclaw doctor --fix",
+    },
+    {
+      name: "profile is Default (case-insensitive)",
+      cmd: "openclaw doctor --fix",
+      env: { OPENCLAW_PROFILE: "Default" },
+      expected: "openclaw doctor --fix",
+    },
+    {
+      name: "profile is invalid",
+      cmd: "openclaw doctor --fix",
+      env: { OPENCLAW_PROFILE: "bad profile" },
+      expected: "openclaw doctor --fix",
+    },
+    {
+      name: "--profile is already present",
+      cmd: "openclaw --profile work doctor --fix",
+      env: { OPENCLAW_PROFILE: "work" },
+      expected: "openclaw --profile work doctor --fix",
+    },
+    {
+      name: "--dev is already present",
+      cmd: "openclaw --dev doctor",
+      env: { OPENCLAW_PROFILE: "dev" },
+      expected: "openclaw --dev doctor",
+    },
+  ])("returns command unchanged when $name", ({ cmd, env, expected }) => {
+    expect(formatCliCommand(cmd, env)).toBe(expected);
+>>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
   });
 
   it("inserts --profile flag when profile is set", () => {

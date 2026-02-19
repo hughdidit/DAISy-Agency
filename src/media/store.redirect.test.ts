@@ -7,6 +7,7 @@ import { PassThrough } from "node:stream";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -21,6 +22,8 @@ import JSZip from "jszip";
 =======
 import JSZip from "jszip";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+>>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { createPinnedLookup } from "../infra/net/ssrf.js";
 import { captureEnv } from "../test-utils/env.js";
@@ -117,41 +120,6 @@ describe("media store redirects", () => {
     expect(saved.contentType).toBe("text/plain");
     expect(path.extname(saved.path)).toBe(".txt");
     expect(await fs.readFile(saved.path, "utf8")).toBe("redirected");
-  });
-
-  it("sniffs xlsx from zip content when headers and url extension are missing", async () => {
-    mockRequest.mockImplementationOnce((_url, _opts, cb) => {
-      const { req, res } = createMockHttpExchange();
-
-      res.statusCode = 200;
-      res.headers = {};
-      setImmediate(() => {
-        cb(res as unknown);
-        const zip = new JSZip();
-        zip.file(
-          "[Content_Types].xml",
-          '<Types><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/></Types>',
-        );
-        zip.file("xl/workbook.xml", "<workbook/>");
-        void zip
-          .generateAsync({ type: "nodebuffer" })
-          .then((buf) => {
-            res.write(buf);
-            res.end();
-          })
-          .catch((err) => {
-            res.destroy(err);
-          });
-      });
-
-      return req;
-    });
-
-    const saved = await saveMediaSource("https://example.com/download");
-    expect(saved.contentType).toBe(
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    );
-    expect(path.extname(saved.path)).toBe(".xlsx");
   });
 
   it("fails when redirect response omits location header", async () => {

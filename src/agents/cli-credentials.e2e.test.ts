@@ -1,15 +1,27 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD:src/agents/cli-credentials.e2e.test.ts
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+=======
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> a1cb700a0 (test: dedupe and optimize test suites):src/agents/cli-credentials.test.ts
 
 const execSyncMock = vi.fn();
 <<<<<<< HEAD:src/agents/cli-credentials.e2e.test.ts
 =======
 const execFileSyncMock = vi.fn();
 const CLI_CREDENTIALS_CACHE_TTL_MS = 15 * 60 * 1000;
+<<<<<<< HEAD:src/agents/cli-credentials.e2e.test.ts
 >>>>>>> 50805d897 (test(agents): dedupe patch and cli credential assertions):src/agents/cli-credentials.test.ts
+=======
+let readClaudeCliCredentialsCached: typeof import("./cli-credentials.js").readClaudeCliCredentialsCached;
+let resetCliCredentialCachesForTest: typeof import("./cli-credentials.js").resetCliCredentialCachesForTest;
+let writeClaudeCliKeychainCredentials: typeof import("./cli-credentials.js").writeClaudeCliKeychainCredentials;
+let writeClaudeCliCredentials: typeof import("./cli-credentials.js").writeClaudeCliCredentials;
+let readCodexCliCredentials: typeof import("./cli-credentials.js").readCodexCliCredentials;
+>>>>>>> a1cb700a0 (test: dedupe and optimize test suites):src/agents/cli-credentials.test.ts
 
 function mockExistingClaudeKeychainItem() {
   execFileSyncMock.mockImplementation((file: unknown, args: unknown) => {
@@ -37,7 +49,6 @@ function getAddGenericPasswordCall() {
 }
 
 async function readCachedClaudeCliCredentials(allowKeychainPrompt: boolean) {
-  const { readClaudeCliCredentialsCached } = await import("./cli-credentials.js");
   return readClaudeCliCredentialsCached({
     allowKeychainPrompt,
     ttlMs: CLI_CREDENTIALS_CACHE_TTL_MS,
@@ -47,15 +58,24 @@ async function readCachedClaudeCliCredentials(allowKeychainPrompt: boolean) {
 }
 
 describe("cli credentials", () => {
+  beforeAll(async () => {
+    ({
+      readClaudeCliCredentialsCached,
+      resetCliCredentialCachesForTest,
+      writeClaudeCliKeychainCredentials,
+      writeClaudeCliCredentials,
+      readCodexCliCredentials,
+    } = await import("./cli-credentials.js"));
+  });
+
   beforeEach(() => {
     vi.useFakeTimers();
   });
 
-  afterEach(async () => {
+  afterEach(() => {
     vi.useRealTimers();
     execSyncMock.mockReset();
     delete process.env.CODEX_HOME;
-    const { resetCliCredentialCachesForTest } = await import("./cli-credentials.js");
     resetCliCredentialCachesForTest();
   });
 
@@ -82,8 +102,6 @@ describe("cli credentials", () => {
 =======
     mockExistingClaudeKeychainItem();
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows):src/agents/cli-credentials.test.ts
-
-    const { writeClaudeCliKeychainCredentials } = await import("./cli-credentials.js");
 
     const ok = writeClaudeCliKeychainCredentials(
       {
@@ -113,8 +131,6 @@ describe("cli credentials", () => {
 
     mockExistingClaudeKeychainItem();
 
-    const { writeClaudeCliKeychainCredentials } = await import("./cli-credentials.js");
-
     const ok = writeClaudeCliKeychainCredentials(
       {
         access: maliciousToken,
@@ -140,8 +156,6 @@ describe("cli credentials", () => {
     const backtickPayload = "token`id`value";
 
     mockExistingClaudeKeychainItem();
-
-    const { writeClaudeCliKeychainCredentials } = await import("./cli-credentials.js");
 
     const ok = writeClaudeCliKeychainCredentials(
       {
@@ -185,8 +199,6 @@ describe("cli credentials", () => {
     );
 
     const writeKeychain = vi.fn(() => false);
-
-    const { writeClaudeCliCredentials } = await import("./cli-credentials.js");
 
     const ok = writeClaudeCliCredentials(
       {
@@ -281,7 +293,6 @@ describe("cli credentials", () => {
       });
     });
 
-    const { readCodexCliCredentials } = await import("./cli-credentials.js");
     const creds = readCodexCliCredentials({ platform: "darwin", execSync: execSyncMock });
 
     expect(creds).toMatchObject({
@@ -311,7 +322,6 @@ describe("cli credentials", () => {
       "utf8",
     );
 
-    const { readCodexCliCredentials } = await import("./cli-credentials.js");
     const creds = readCodexCliCredentials({ execSync: execSyncMock });
 
     expect(creds).toMatchObject({

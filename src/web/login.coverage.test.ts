@@ -21,10 +21,16 @@ import { DisconnectReason } from "@whiskeysockets/baileys";
 import { DisconnectReason } from "@whiskeysockets/baileys";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { loginWeb } from "./login.js";
+import { createWaSocket, formatError, waitForWaConnection } from "./session.js";
 
 const rmMock = vi.spyOn(fs, "rm");
 
-const authDir = path.join(os.tmpdir(), "wa-creds");
+function resolveTestAuthDir() {
+  return path.join(os.tmpdir(), "wa-creds");
+}
+
+const authDir = resolveTestAuthDir();
 
 vi.mock("../config/config.js", () => ({
   loadConfig: () =>
@@ -32,7 +38,7 @@ vi.mock("../config/config.js", () => ({
       channels: {
         whatsapp: {
           accounts: {
-            default: { enabled: true, authDir },
+            default: { enabled: true, authDir: resolveTestAuthDir() },
           },
         },
       },
@@ -40,6 +46,7 @@ vi.mock("../config/config.js", () => ({
 }));
 
 vi.mock("./session.js", () => {
+  const authDir = resolveTestAuthDir();
   const sockA = { ws: { close: vi.fn() } };
   const sockB = { ws: { close: vi.fn() } };
   let call = 0;
@@ -61,11 +68,9 @@ vi.mock("./session.js", () => {
   };
 });
 
-const { createWaSocket, waitForWaConnection, formatError } = await import("./session.js");
 const createWaSocketMock = vi.mocked(createWaSocket);
 const waitForWaConnectionMock = vi.mocked(waitForWaConnection);
 const formatErrorMock = vi.mocked(formatError);
-const { loginWeb } = await import("./login.js");
 
 describe("loginWeb coverage", () => {
   beforeEach(() => {
