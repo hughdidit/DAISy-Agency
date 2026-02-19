@@ -1,6 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import { buildAuthHealthSummary, DEFAULT_OAUTH_WARN_MS } from "./auth-health.js";
+=======
+import {
+  buildAuthHealthSummary,
+  DEFAULT_OAUTH_WARN_MS,
+  formatRemainingShort,
+} from "./auth-health.js";
+>>>>>>> 989c9dbd3 (refactor(auth): share remaining-time formatter)
 
 describe("buildAuthHealthSummary", () => {
   const now = 1_700_000_000_000;
@@ -58,5 +66,12 @@ describe("buildAuthHealthSummary", () => {
 
     const provider = summary.providers.find((entry) => entry.provider === "anthropic");
     expect(provider?.status).toBe("expired");
+  });
+});
+
+describe("formatRemainingShort", () => {
+  it("supports an explicit under-minute label override", () => {
+    expect(formatRemainingShort(20_000)).toBe("1m");
+    expect(formatRemainingShort(20_000, { underMinuteLabel: "soon" })).toBe("soon");
   });
 });
