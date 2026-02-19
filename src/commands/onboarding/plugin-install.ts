@@ -10,6 +10,10 @@ import { enablePluginInConfig } from "../../plugins/enable.js";
 import { installPluginFromNpmSpec } from "../../plugins/install.js";
 import { recordPluginInstall } from "../../plugins/installs.js";
 import { loadOpenClawPlugins } from "../../plugins/loader.js";
+<<<<<<< HEAD
+=======
+import { createPluginLoaderLogger } from "../../plugins/logger.js";
+>>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 
 type InstallChoice = "npm" | "local" | "skip";
 
@@ -174,6 +178,12 @@ export async function ensureOnboardingPluginInstalled(params: {
       spec: entry.install.npmSpec,
       installPath: result.targetDir,
       version: result.version,
+      resolvedName: result.npmResolution?.name,
+      resolvedVersion: result.npmResolution?.version,
+      resolvedSpec: result.npmResolution?.resolvedSpec,
+      integrity: result.npmResolution?.integrity,
+      shasum: result.npmResolution?.shasum,
+      resolvedAt: result.npmResolution?.resolvedAt,
     });
     return { cfg: next, installed: true };
   }
