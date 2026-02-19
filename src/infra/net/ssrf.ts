@@ -281,8 +281,21 @@ export function isPrivateIpAddress(address: string): boolean {
 
 export function isBlockedHostname(hostname: string): boolean {
   const normalized = normalizeHostname(hostname);
+<<<<<<< HEAD
   if (!normalized) return false;
   if (BLOCKED_HOSTNAMES.has(normalized)) return true;
+=======
+  if (!normalized) {
+    return false;
+  }
+  return isBlockedHostnameNormalized(normalized);
+}
+
+function isBlockedHostnameNormalized(normalized: string): boolean {
+  if (BLOCKED_HOSTNAMES.has(normalized)) {
+    return true;
+  }
+>>>>>>> d05c8eb91 (refactor: unify SSRF hostname/ip precheck and add policy regression)
   return (
     normalized.endsWith(".localhost") ||
     normalized.endsWith(".local") ||
@@ -295,7 +308,7 @@ export function isBlockedHostnameOrIp(hostname: string): boolean {
   if (!normalized) {
     return false;
   }
-  return isBlockedHostname(normalized) || isPrivateIpAddress(normalized);
+  return isBlockedHostnameNormalized(normalized) || isPrivateIpAddress(normalized);
 }
 
 export function createPinnedLookup(params: {
@@ -377,14 +390,8 @@ export async function resolvePinnedHostnameWithPolicy(
     throw new SsrFBlockedError(`Blocked hostname (not in allowlist): ${hostname}`);
   }
 
-  if (!allowPrivateNetwork && !isExplicitAllowed) {
-    if (isBlockedHostname(normalized)) {
-      throw new SsrFBlockedError(`Blocked hostname: ${hostname}`);
-    }
-
-    if (isPrivateIpAddress(normalized)) {
-      throw new SsrFBlockedError("Blocked: private/internal IP address");
-    }
+  if (!allowPrivateNetwork && !isExplicitAllowed && isBlockedHostnameOrIp(normalized)) {
+    throw new SsrFBlockedError("Blocked hostname or private/internal IP address");
   }
 
   const lookupFn = params.lookupFn ?? dnsLookup;
