@@ -9,8 +9,8 @@ import {
 } from "../../infra/restart-sentinel.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 import { stringEnum } from "../schema/typebox.js";
-import { type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
-import { callGatewayTool } from "./gateway.js";
+import { assertOwnerSender, type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
+import { callGatewayTool, readGatewayCallOptions } from "./gateway.js";
 
 const DEFAULT_UPDATE_TIMEOUT_MS = 20 * 60_000;
 
@@ -72,6 +72,10 @@ export function createGatewayTool(opts?: {
       "Restart, apply config, or update the gateway in-place (SIGUSR1). Use config.patch for safe partial config updates (merges with existing). Use config.apply only when replacing entire config. Both trigger restart after writing.",
     parameters: GatewayToolSchema,
     execute: async (_toolCallId, args) => {
+<<<<<<< HEAD
+=======
+      assertOwnerSender(opts?.senderIsOwner);
+>>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
       const params = args as Record<string, unknown>;
       const action = readStringParam(params, "action", { required: true });
       if (action === "restart") {
@@ -150,19 +154,7 @@ export function createGatewayTool(opts?: {
         return jsonResult(scheduled);
       }
 
-      const gatewayUrl =
-        typeof params.gatewayUrl === "string" && params.gatewayUrl.trim()
-          ? params.gatewayUrl.trim()
-          : undefined;
-      const gatewayToken =
-        typeof params.gatewayToken === "string" && params.gatewayToken.trim()
-          ? params.gatewayToken.trim()
-          : undefined;
-      const timeoutMs =
-        typeof params.timeoutMs === "number" && Number.isFinite(params.timeoutMs)
-          ? Math.max(1, Math.floor(params.timeoutMs))
-          : undefined;
-      const gatewayOpts = { gatewayUrl, gatewayToken, timeoutMs };
+      const gatewayOpts = readGatewayCallOptions(params);
 
       if (action === "config.get") {
         const result = await callGatewayTool("config.get", gatewayOpts, {});
@@ -225,6 +217,7 @@ export function createGatewayTool(opts?: {
         return jsonResult({ ok: true, result });
       }
       if (action === "update.run") {
+<<<<<<< HEAD
         const sessionKey =
           typeof params.sessionKey === "string" && params.sessionKey.trim()
             ? params.sessionKey.trim()
@@ -235,15 +228,19 @@ export function createGatewayTool(opts?: {
           typeof params.restartDelayMs === "number" && Number.isFinite(params.restartDelayMs)
             ? Math.floor(params.restartDelayMs)
             : undefined;
+=======
+        const { sessionKey, note, restartDelayMs } = resolveGatewayWriteMeta();
+        const updateTimeoutMs = gatewayOpts.timeoutMs ?? DEFAULT_UPDATE_TIMEOUT_MS;
+>>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
         const updateGatewayOpts = {
           ...gatewayOpts,
-          timeoutMs: timeoutMs ?? DEFAULT_UPDATE_TIMEOUT_MS,
+          timeoutMs: updateTimeoutMs,
         };
         const result = await callGatewayTool("update.run", updateGatewayOpts, {
           sessionKey,
           note,
           restartDelayMs,
-          timeoutMs: timeoutMs ?? DEFAULT_UPDATE_TIMEOUT_MS,
+          timeoutMs: updateTimeoutMs,
         });
         return jsonResult({ ok: true, result });
       }
