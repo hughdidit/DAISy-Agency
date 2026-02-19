@@ -20,11 +20,19 @@ import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { isRecord } from "../utils.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { fetchJson } from "./provider-usage.fetch.shared.js";
 =======
 import { buildUsageHttpErrorSnapshot, fetchJson } from "./provider-usage.fetch.shared.js";
 >>>>>>> badafdc7b (refactor: dedupe provider usage fetch logic and tests)
+=======
+import {
+  buildUsageHttpErrorSnapshot,
+  fetchJson,
+  parseFiniteNumber,
+} from "./provider-usage.fetch.shared.js";
+>>>>>>> 14b4c7fd5 (refactor: dedupe provider usage auth/fetch logic and expand coverage)
 import { clampPercent, PROVIDER_LABELS } from "./provider-usage.shared.js";
 import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.js";
 
@@ -176,15 +184,9 @@ const WINDOW_MINUTE_KEYS = [
 
 function pickNumber(record: Record<string, unknown>, keys: readonly string[]): number | undefined {
   for (const key of keys) {
-    const value = record[key];
-    if (typeof value === "number" && Number.isFinite(value)) {
-      return value;
-    }
-    if (typeof value === "string") {
-      const parsed = Number.parseFloat(value);
-      if (Number.isFinite(parsed)) {
-        return parsed;
-      }
+    const parsed = parseFiniteNumber(record[key]);
+    if (parsed !== undefined) {
+      return parsed;
     }
   }
   return undefined;
