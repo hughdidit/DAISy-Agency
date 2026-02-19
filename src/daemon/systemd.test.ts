@@ -68,6 +68,7 @@ describe("systemd runtime parsing", () => {
 
 describe("resolveSystemdUserUnitPath", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("uses default service name when CLAWDBOT_PROFILE is default", () => {
     const env = { HOME: "/home/test", CLAWDBOT_PROFILE: "default" };
     expect(resolveSystemdUserUnitPath(env)).toBe(
@@ -121,6 +122,46 @@ describe("resolveSystemdUserUnitPath", () => {
     expect(resolveSystemdUserUnitPath(env)).toBe(
       "/home/test/.config/systemd/user/custom-unit.service",
     );
+=======
+  it.each([
+    {
+      name: "uses default service name when OPENCLAW_PROFILE is unset",
+      env: { HOME: "/home/test" },
+      expected: "/home/test/.config/systemd/user/openclaw-gateway.service",
+    },
+    {
+      name: "uses profile-specific service name when OPENCLAW_PROFILE is set to a custom value",
+      env: { HOME: "/home/test", OPENCLAW_PROFILE: "jbphoenix" },
+      expected: "/home/test/.config/systemd/user/openclaw-gateway-jbphoenix.service",
+    },
+    {
+      name: "prefers OPENCLAW_SYSTEMD_UNIT over OPENCLAW_PROFILE",
+      env: {
+        HOME: "/home/test",
+        OPENCLAW_PROFILE: "jbphoenix",
+        OPENCLAW_SYSTEMD_UNIT: "custom-unit",
+      },
+      expected: "/home/test/.config/systemd/user/custom-unit.service",
+    },
+    {
+      name: "handles OPENCLAW_SYSTEMD_UNIT with .service suffix",
+      env: {
+        HOME: "/home/test",
+        OPENCLAW_SYSTEMD_UNIT: "custom-unit.service",
+      },
+      expected: "/home/test/.config/systemd/user/custom-unit.service",
+    },
+    {
+      name: "trims whitespace from OPENCLAW_SYSTEMD_UNIT",
+      env: {
+        HOME: "/home/test",
+        OPENCLAW_SYSTEMD_UNIT: "  custom-unit  ",
+      },
+      expected: "/home/test/.config/systemd/user/custom-unit.service",
+    },
+  ])("$name", ({ env, expected }) => {
+    expect(resolveSystemdUserUnitPath(env)).toBe(expected);
+>>>>>>> da341bfbe (test(daemon): dedupe service path cases and bootstrap failures)
   });
 <<<<<<< HEAD
 

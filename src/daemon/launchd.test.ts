@@ -21,6 +21,7 @@ const state = vi.hoisted(() => ({
   dirs: new Set<string>(),
   files: new Map<string, string>(),
 }));
+const defaultProgramArguments = ["node", "-e", "process.exit(0)"];
 
 function normalizeLaunchctlArgs(file: string, args: string[]): string[] {
   if (file === "launchctl") {
@@ -260,6 +261,7 @@ describe("launchd bootstrap repair", () => {
 });
 
 describe("launchd install", () => {
+<<<<<<< HEAD
   it("enables service before bootstrap (clears persisted disabled state)", async () => {
 <<<<<<< HEAD
     const originalPath = process.env.PATH;
@@ -345,13 +347,21 @@ describe("launchd install", () => {
     }
 =======
     const env: Record<string, string | undefined> = {
+=======
+  function createDefaultLaunchdEnv(): Record<string, string | undefined> {
+    return {
+>>>>>>> da341bfbe (test(daemon): dedupe service path cases and bootstrap failures)
       HOME: "/Users/test",
       OPENCLAW_PROFILE: "default",
     };
+  }
+
+  it("enables service before bootstrap (clears persisted disabled state)", async () => {
+    const env = createDefaultLaunchdEnv();
     await installLaunchAgent({
       env,
       stdout: new PassThrough(),
-      programArguments: ["node", "-e", "process.exit(0)"],
+      programArguments: defaultProgramArguments,
     });
 
     const domain = typeof process.getuid === "function" ? `gui/${process.getuid()}` : "gui/501";
@@ -372,15 +382,12 @@ describe("launchd install", () => {
   });
 
   it("writes TMPDIR to LaunchAgent environment when provided", async () => {
-    const env: Record<string, string | undefined> = {
-      HOME: "/Users/test",
-      OPENCLAW_PROFILE: "default",
-    };
+    const env = createDefaultLaunchdEnv();
     const tmpDir = "/var/folders/xy/abc123/T/";
     await installLaunchAgent({
       env,
       stdout: new PassThrough(),
-      programArguments: ["node", "-e", "process.exit(0)"],
+      programArguments: defaultProgramArguments,
       environment: { TMPDIR: tmpDir },
     });
 
@@ -393,16 +400,13 @@ describe("launchd install", () => {
 
   it("shows actionable guidance when launchctl gui domain does not support bootstrap", async () => {
     state.bootstrapError = "Bootstrap failed: 125: Domain does not support specified action";
-    const env: Record<string, string | undefined> = {
-      HOME: "/Users/test",
-      OPENCLAW_PROFILE: "default",
-    };
+    const env = createDefaultLaunchdEnv();
     let message = "";
     try {
       await installLaunchAgent({
         env,
         stdout: new PassThrough(),
-        programArguments: ["node", "-e", "process.exit(0)"],
+        programArguments: defaultProgramArguments,
       });
     } catch (error) {
       message = String(error);
@@ -411,9 +415,23 @@ describe("launchd install", () => {
     expect(message).toContain("wrong user (including sudo)");
     expect(message).toContain("https://docs.openclaw.ai/gateway");
   });
+
+  it("surfaces generic bootstrap failures without GUI-specific guidance", async () => {
+    state.bootstrapError = "Operation not permitted";
+    const env = createDefaultLaunchdEnv();
+
+    await expect(
+      installLaunchAgent({
+        env,
+        stdout: new PassThrough(),
+        programArguments: defaultProgramArguments,
+      }),
+    ).rejects.toThrow("launchctl bootstrap failed: Operation not permitted");
+  });
 });
 
 describe("resolveLaunchAgentPlistPath", () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
   it("uses default label when CLAWDBOT_PROFILE is default", () => {
     const env = { HOME: "/Users/test", CLAWDBOT_PROFILE: "default" };
@@ -469,6 +487,47 @@ describe("resolveLaunchAgentPlistPath", () => {
     expect(resolveLaunchAgentPlistPath(env)).toBe(
       "/Users/test/Library/LaunchAgents/bot.molt.myprofile.plist",
     );
+=======
+  it.each([
+    {
+      name: "uses default label when OPENCLAW_PROFILE is unset",
+      env: { HOME: "/Users/test" },
+      expected: "/Users/test/Library/LaunchAgents/ai.openclaw.gateway.plist",
+    },
+    {
+      name: "uses profile-specific label when OPENCLAW_PROFILE is set to a custom value",
+      env: { HOME: "/Users/test", OPENCLAW_PROFILE: "jbphoenix" },
+      expected: "/Users/test/Library/LaunchAgents/ai.openclaw.jbphoenix.plist",
+    },
+    {
+      name: "prefers OPENCLAW_LAUNCHD_LABEL over OPENCLAW_PROFILE",
+      env: {
+        HOME: "/Users/test",
+        OPENCLAW_PROFILE: "jbphoenix",
+        OPENCLAW_LAUNCHD_LABEL: "com.custom.label",
+      },
+      expected: "/Users/test/Library/LaunchAgents/com.custom.label.plist",
+    },
+    {
+      name: "trims whitespace from OPENCLAW_LAUNCHD_LABEL",
+      env: {
+        HOME: "/Users/test",
+        OPENCLAW_LAUNCHD_LABEL: "  com.custom.label  ",
+      },
+      expected: "/Users/test/Library/LaunchAgents/com.custom.label.plist",
+    },
+    {
+      name: "ignores empty OPENCLAW_LAUNCHD_LABEL and falls back to profile",
+      env: {
+        HOME: "/Users/test",
+        OPENCLAW_PROFILE: "myprofile",
+        OPENCLAW_LAUNCHD_LABEL: "   ",
+      },
+      expected: "/Users/test/Library/LaunchAgents/ai.openclaw.myprofile.plist",
+    },
+  ])("$name", ({ env, expected }) => {
+    expect(resolveLaunchAgentPlistPath(env)).toBe(expected);
+>>>>>>> da341bfbe (test(daemon): dedupe service path cases and bootstrap failures)
   });
 <<<<<<< HEAD
 

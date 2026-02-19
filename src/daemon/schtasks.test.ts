@@ -7,14 +7,20 @@ import { describe, expect, it } from "vitest";
 import { parseSchtasksQuery, readScheduledTaskCommand, resolveTaskScriptPath } from "./schtasks.js";
 
 describe("schtasks runtime parsing", () => {
-  it("parses status and last run info", () => {
+  it.each(["Ready", "Running"])("parses %s status", (status) => {
     const output = [
+<<<<<<< HEAD
       "TaskName: \\Moltbot Gateway",
       "Status: Ready",
+=======
+      "TaskName: \\OpenClaw Gateway",
+      `Status: ${status}`,
+>>>>>>> da341bfbe (test(daemon): dedupe service path cases and bootstrap failures)
       "Last Run Time: 1/8/2026 1:23:45 AM",
       "Last Run Result: 0x0",
     ].join("\r\n");
     expect(parseSchtasksQuery(output)).toEqual({
+<<<<<<< HEAD
       status: "Ready",
       lastRunTime: "1/8/2026 1:23:45 AM",
       lastRunResult: "0x0",
@@ -30,6 +36,9 @@ describe("schtasks runtime parsing", () => {
     ].join("\r\n");
     expect(parseSchtasksQuery(output)).toEqual({
       status: "Running",
+=======
+      status,
+>>>>>>> da341bfbe (test(daemon): dedupe service path cases and bootstrap failures)
       lastRunTime: "1/8/2026 1:23:45 AM",
       lastRunResult: "0x0",
     });
@@ -37,6 +46,7 @@ describe("schtasks runtime parsing", () => {
 });
 
 describe("resolveTaskScriptPath", () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
   it("uses default path when CLAWDBOT_PROFILE is default", () => {
     const env = { USERPROFILE: "C:\\Users\\test", CLAWDBOT_PROFILE: "default" };
@@ -103,6 +113,35 @@ describe("resolveTaskScriptPath", () => {
   it("falls back to HOME when USERPROFILE is not set", () => {
     const env = { HOME: "/home/test", CLAWDBOT_PROFILE: "default" };
     expect(resolveTaskScriptPath(env)).toBe(path.join("/home/test", ".clawdbot", "gateway.cmd"));
+=======
+  it.each([
+    {
+      name: "uses default path when OPENCLAW_PROFILE is unset",
+      env: { USERPROFILE: "C:\\Users\\test" },
+      expected: path.join("C:\\Users\\test", ".openclaw", "gateway.cmd"),
+    },
+    {
+      name: "uses profile-specific path when OPENCLAW_PROFILE is set to a custom value",
+      env: { USERPROFILE: "C:\\Users\\test", OPENCLAW_PROFILE: "jbphoenix" },
+      expected: path.join("C:\\Users\\test", ".openclaw-jbphoenix", "gateway.cmd"),
+    },
+    {
+      name: "prefers OPENCLAW_STATE_DIR over profile-derived defaults",
+      env: {
+        USERPROFILE: "C:\\Users\\test",
+        OPENCLAW_PROFILE: "rescue",
+        OPENCLAW_STATE_DIR: "C:\\State\\openclaw",
+      },
+      expected: path.join("C:\\State\\openclaw", "gateway.cmd"),
+    },
+    {
+      name: "falls back to HOME when USERPROFILE is not set",
+      env: { HOME: "/home/test", OPENCLAW_PROFILE: "default" },
+      expected: path.join("/home/test", ".openclaw", "gateway.cmd"),
+    },
+  ])("$name", ({ env, expected }) => {
+    expect(resolveTaskScriptPath(env)).toBe(expected);
+>>>>>>> da341bfbe (test(daemon): dedupe service path cases and bootstrap failures)
   });
 });
 
