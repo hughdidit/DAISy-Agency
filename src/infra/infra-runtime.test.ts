@@ -13,7 +13,6 @@ import {
   setGatewaySigusr1RestartPolicy,
 } from "./restart.js";
 import { createTelegramRetryRunner } from "./retry-policy.js";
-import { getShellPathFromLoginShell, resetShellPathCacheForTests } from "./shell-env.js";
 import { listTailnetAddresses } from "./tailnet.js";
 
 describe("infra runtime", () => {
@@ -217,6 +216,7 @@ describe("infra runtime", () => {
     });
   });
 
+<<<<<<< HEAD
 >>>>>>> 04892ee23 (refactor(core): dedupe shared config and runtime helpers)
   describe("getShellPathFromLoginShell", () => {
     afterEach(() => resetShellPathCacheForTests());
@@ -254,6 +254,8 @@ describe("infra runtime", () => {
     });
   });
 
+=======
+>>>>>>> 192366e0e (test: dedupe shell env coverage from infra runtime suite)
   describe("tailnet address detection", () => {
     it("detects tailscale IPv4 and IPv6 addresses", () => {
       vi.spyOn(os, "networkInterfaces").mockReturnValue({
