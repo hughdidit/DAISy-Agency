@@ -54,7 +54,113 @@ describe("ACP client permission classification", () => {
       "utf-8",
     );
 
+<<<<<<< HEAD
     expect(source).toContain("30_000");
     expect(source).toContain("[permission timeout]");
+=======
+  it("prompts when tool name contains read/search substrings but isn't a safe kind", async () => {
+    const prompt = vi.fn(async () => false);
+    const res = await resolvePermissionRequest(
+      makePermissionRequest({
+        toolCall: { toolCallId: "tool-t", title: "thread: reply", status: "pending" },
+      }),
+      { prompt, log: () => {} },
+    );
+    expect(prompt).toHaveBeenCalledTimes(1);
+    expect(res).toEqual({ outcome: { outcome: "selected", optionId: "reject" } });
+  });
+
+  it("uses allow_always and reject_always when once options are absent", async () => {
+    const options: RequestPermissionRequest["options"] = [
+      { kind: "allow_always", name: "Always allow", optionId: "allow-always" },
+      { kind: "reject_always", name: "Always reject", optionId: "reject-always" },
+    ];
+    const prompt = vi.fn(async () => false);
+    const res = await resolvePermissionRequest(
+      makePermissionRequest({
+        toolCall: { toolCallId: "tool-3", title: "gateway: reload", status: "pending" },
+        options,
+      }),
+      { prompt, log: () => {} },
+    );
+    expect(res).toEqual({ outcome: { outcome: "selected", optionId: "reject-always" } });
+  });
+
+  it("prompts when tool identity is unknown and can still approve", async () => {
+    const prompt = vi.fn(async () => true);
+    const res = await resolvePermissionRequest(
+      makePermissionRequest({
+        toolCall: {
+          toolCallId: "tool-4",
+          title: "Modifying critical configuration file",
+          status: "pending",
+        },
+      }),
+      { prompt, log: () => {} },
+    );
+    expect(prompt).toHaveBeenCalledWith(undefined, "Modifying critical configuration file");
+    expect(res).toEqual({ outcome: { outcome: "selected", optionId: "allow" } });
+  });
+
+  it("returns cancelled when no permission options are present", async () => {
+    const prompt = vi.fn(async () => true);
+    const res = await resolvePermissionRequest(makePermissionRequest({ options: [] }), {
+      prompt,
+      log: () => {},
+    });
+    expect(prompt).not.toHaveBeenCalled();
+    expect(res).toEqual({ outcome: { outcome: "cancelled" } });
+  });
+});
+
+describe("acp event mapper", () => {
+  it("extracts text and resource blocks into prompt text", () => {
+    const text = extractTextFromPrompt([
+      { type: "text", text: "Hello" },
+      { type: "resource", resource: { uri: "file:///tmp/spec.txt", text: "File contents" } },
+      { type: "resource_link", uri: "https://example.com", name: "Spec", title: "Spec" },
+      { type: "image", data: "abc", mimeType: "image/png" },
+    ]);
+
+    expect(text).toBe("Hello\nFile contents\n[Resource link (Spec)] https://example.com");
+  });
+
+  it("counts newline separators toward prompt byte limits", () => {
+    expect(() =>
+      extractTextFromPrompt(
+        [
+          { type: "text", text: "a" },
+          { type: "text", text: "b" },
+        ],
+        2,
+      ),
+    ).toThrow(/maximum allowed size/i);
+
+    expect(
+      extractTextFromPrompt(
+        [
+          { type: "text", text: "a" },
+          { type: "text", text: "b" },
+        ],
+        3,
+      ),
+    ).toBe("a\nb");
+  });
+
+  it("extracts image blocks into gateway attachments", () => {
+    const attachments = extractAttachmentsFromPrompt([
+      { type: "image", data: "abc", mimeType: "image/png" },
+      { type: "image", data: "", mimeType: "image/png" },
+      { type: "text", text: "ignored" },
+    ]);
+
+    expect(attachments).toEqual([
+      {
+        type: "image",
+        mimeType: "image/png",
+        content: "abc",
+      },
+    ]);
+>>>>>>> 63e39d7f5 (fix(security): harden ACP prompt size guardrails)
   });
 });
