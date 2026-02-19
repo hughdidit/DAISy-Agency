@@ -90,6 +90,23 @@ describe("resolveModelEntries", () => {
 });
 
 describe("resolveEntriesWithActiveFallback", () => {
+  type ResolveWithFallbackInput = Parameters<typeof resolveEntriesWithActiveFallback>[0];
+  const defaultActiveModel = { provider: "groq", model: "whisper-large-v3" } as const;
+
+  function resolveWithActiveFallback(params: {
+    cfg: ResolveWithFallbackInput["cfg"];
+    capability: ResolveWithFallbackInput["capability"];
+    config: ResolveWithFallbackInput["config"];
+  }) {
+    return resolveEntriesWithActiveFallback({
+      cfg: params.cfg,
+      capability: params.capability,
+      config: params.config,
+      providerRegistry,
+      activeModel: defaultActiveModel,
+    });
+  }
+
   it("uses active model when enabled and no models are configured", () => {
     const cfg: MoltbotConfig = {
       tools: {
@@ -99,12 +116,10 @@ describe("resolveEntriesWithActiveFallback", () => {
       },
     };
 
-    const entries = resolveEntriesWithActiveFallback({
+    const entries = resolveWithActiveFallback({
       cfg,
       capability: "audio",
       config: cfg.tools?.media?.audio,
-      providerRegistry,
-      activeModel: { provider: "groq", model: "whisper-large-v3" },
     });
     expect(entries).toHaveLength(1);
     expect(entries[0]?.provider).toBe("groq");
@@ -119,12 +134,10 @@ describe("resolveEntriesWithActiveFallback", () => {
       },
     };
 
-    const entries = resolveEntriesWithActiveFallback({
+    const entries = resolveWithActiveFallback({
       cfg,
       capability: "audio",
       config: cfg.tools?.media?.audio,
-      providerRegistry,
-      activeModel: { provider: "groq", model: "whisper-large-v3" },
     });
     expect(entries).toHaveLength(1);
     expect(entries[0]?.provider).toBe("openai");
@@ -139,12 +152,10 @@ describe("resolveEntriesWithActiveFallback", () => {
       },
     };
 
-    const entries = resolveEntriesWithActiveFallback({
+    const entries = resolveWithActiveFallback({
       cfg,
       capability: "video",
       config: cfg.tools?.media?.video,
-      providerRegistry,
-      activeModel: { provider: "groq", model: "whisper-large-v3" },
     });
     expect(entries).toHaveLength(0);
   });
