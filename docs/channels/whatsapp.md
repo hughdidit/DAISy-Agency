@@ -223,6 +223,7 @@ OpenClaw recommends running WhatsApp on a separate number when possible. (The ch
     Sender allowlist fallback:
 
     - if `groupAllowFrom` is unset, runtime falls back to `allowFrom` when available
+    - sender allowlists are evaluated before mention/reply activation
 
     Note: if no `channels.whatsapp` block exists at all, runtime group-policy fallback is effectively `open`.
 
@@ -236,6 +237,11 @@ OpenClaw recommends running WhatsApp on a separate number when possible. (The ch
     - explicit WhatsApp mentions of the bot identity
     - configured mention regex patterns (`agents.list[].groupChat.mentionPatterns`, fallback `messages.groupChat.mentionPatterns`)
     - implicit reply-to-bot detection (reply sender matches bot identity)
+
+    Security note:
+
+    - quote/reply only satisfies mention gating; it does **not** grant sender authorization
+    - with `groupPolicy: "allowlist"`, non-allowlisted senders are still blocked even if they reply to an allowlisted user's message
 
     Session-level activation command:
 
@@ -752,6 +758,7 @@ WhatsApp sends audio as **voice notes** (PTT bubble).
     - `groupAllowFrom` / `allowFrom`
     - `groups` allowlist entries
     - mention gating (`requireMention` + mention patterns)
+    - duplicate keys in `openclaw.json` (JSON5): later entries override earlier ones, so keep a single `groupPolicy` per scope
 
   </Accordion>
 
