@@ -21,6 +21,22 @@ async function makeTempDir(prefix = "case") {
   return dir;
 }
 
+async function expectExtractedSizeBudgetExceeded(params: {
+  archivePath: string;
+  destDir: string;
+  timeoutMs?: number;
+  maxExtractedBytes: number;
+}) {
+  await expect(
+    extractArchive({
+      archivePath: params.archivePath,
+      destDir: params.destDir,
+      timeoutMs: params.timeoutMs ?? 5_000,
+      limits: { maxExtractedBytes: params.maxExtractedBytes },
+    }),
+  ).rejects.toThrow("archive extracted size exceeds limit");
+}
+
 beforeAll(async () => {
   fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-archive-"));
 });
@@ -99,14 +115,11 @@ describe("archive utils", () => {
     await fs.writeFile(archivePath, await zip.generateAsync({ type: "nodebuffer" }));
 
     await fs.mkdir(extractDir, { recursive: true });
-    await expect(
-      extractArchive({
-        archivePath,
-        destDir: extractDir,
-        timeoutMs: 5_000,
-        limits: { maxExtractedBytes: 32 },
-      }),
-    ).rejects.toThrow("archive extracted size exceeds limit");
+    await expectExtractedSizeBudgetExceeded({
+      archivePath,
+      destDir: extractDir,
+      maxExtractedBytes: 32,
+    });
   });
 
   it("rejects archives that exceed archive size budget", async () => {
@@ -141,14 +154,11 @@ describe("archive utils", () => {
     await tar.c({ cwd: workDir, file: archivePath }, ["package"]);
 
     await fs.mkdir(extractDir, { recursive: true });
-    await expect(
-      extractArchive({
-        archivePath,
-        destDir: extractDir,
-        timeoutMs: 5_000,
-        limits: { maxExtractedBytes: 32 },
-      }),
-    ).rejects.toThrow("archive extracted size exceeds limit");
+    await expectExtractedSizeBudgetExceeded({
+      archivePath,
+      destDir: extractDir,
+      maxExtractedBytes: 32,
+    });
   });
 <<<<<<< HEAD
 >>>>>>> d3ee5deb8 (fix(archive): enforce extraction resource limits)
