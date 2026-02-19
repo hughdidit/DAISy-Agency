@@ -161,6 +161,7 @@ export const sessionsHandlers: GatewayRequestHandlers = {
     }
     respond(true, { ok: true, key: resolved.key }, undefined);
   },
+<<<<<<< HEAD
   "sessions.patch": async ({ params, respond, context }) => {
     if (!validateSessionsPatchParams(params)) {
       respond(
@@ -171,12 +172,27 @@ export const sessionsHandlers: GatewayRequestHandlers = {
           `invalid sessions.patch params: ${formatValidationErrors(validateSessionsPatchParams.errors)}`,
         ),
       );
+=======
+  "sessions.patch": async ({ params, respond, context, client, isWebchatConnect }) => {
+    if (!assertValidParams(params, validateSessionsPatchParams, "sessions.patch", respond)) {
+>>>>>>> 981d26648 (security(gateway): block webchat session mutators (#20800))
       return;
     }
     const p = params as import("../protocol/index.js").SessionsPatchParams;
     const key = String(p.key ?? "").trim();
     if (!key) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "key required"));
+      return;
+    }
+    if (client?.connect && isWebchatConnect(client.connect)) {
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.INVALID_REQUEST,
+          "webchat clients cannot patch sessions; use chat.send for session-scoped updates",
+        ),
+      );
       return;
     }
 
@@ -275,6 +291,7 @@ export const sessionsHandlers: GatewayRequestHandlers = {
     });
     respond(true, { ok: true, key: target.canonicalKey, entry: next }, undefined);
   },
+<<<<<<< HEAD
   "sessions.delete": async ({ params, respond }) => {
     if (!validateSessionsDeleteParams(params)) {
       respond(
@@ -285,12 +302,27 @@ export const sessionsHandlers: GatewayRequestHandlers = {
           `invalid sessions.delete params: ${formatValidationErrors(validateSessionsDeleteParams.errors)}`,
         ),
       );
+=======
+  "sessions.delete": async ({ params, respond, client, isWebchatConnect }) => {
+    if (!assertValidParams(params, validateSessionsDeleteParams, "sessions.delete", respond)) {
+>>>>>>> 981d26648 (security(gateway): block webchat session mutators (#20800))
       return;
     }
     const p = params as import("../protocol/index.js").SessionsDeleteParams;
     const key = String(p.key ?? "").trim();
     if (!key) {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "key required"));
+      return;
+    }
+    if (client?.connect && isWebchatConnect(client.connect)) {
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.INVALID_REQUEST,
+          "webchat clients cannot delete sessions; use chat.send for session-scoped updates",
+        ),
+      );
       return;
     }
 

@@ -77,9 +77,19 @@ error.log
 # local tooling
 .serena/
 
+<<<<<<< HEAD
 # Claude Code local (personal / machine-specific) settings
 .claude/settings.local.json
 .claude/*.local.*
+=======
+# Agent credentials and memory (NEVER COMMIT)
+/memory/
+.agent/*.json
+!.agent/workflows/
+/local/
+package-lock.json
+.claude/settings.local.json
+>>>>>>> 981d26648 (security(gateway): block webchat session mutators (#20800))
 
 
 # sensitive files
