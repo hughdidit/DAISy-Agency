@@ -370,6 +370,139 @@ describe("installHooksFromNpmSpec", () => {
     );
 
     const run = vi.mocked(runCommandWithTimeout);
+<<<<<<< HEAD
+=======
+    run.mockResolvedValue({
+      code: 0,
+      stdout: "",
+      stderr: "",
+      signal: null,
+      killed: false,
+      termination: "exit",
+    });
+
+    const res = await installHooksFromPath({
+      path: pkgDir,
+      hooksDir: path.join(stateDir, "hooks"),
+    });
+    expect(res.ok).toBe(true);
+    if (!res.ok) {
+      return;
+    }
+    expectSingleNpmInstallIgnoreScriptsCall({
+      calls: run.mock.calls as Array<[unknown, { cwd?: string } | undefined]>,
+      expectedCwd: res.targetDir,
+    });
+  });
+
+  it("installs a single hook directory", async () => {
+    const stateDir = makeTempDir();
+    const workDir = makeTempDir();
+    const hookDir = path.join(workDir, "my-hook");
+    fs.mkdirSync(hookDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(hookDir, "HOOK.md"),
+      [
+        "---",
+        "name: my-hook",
+        "description: My hook",
+        'metadata: {"openclaw":{"events":["command:new"]}}',
+        "---",
+        "",
+        "# My Hook",
+      ].join("\n"),
+      "utf-8",
+    );
+    fs.writeFileSync(path.join(hookDir, "handler.ts"), "export default async () => {};\n");
+
+    const hooksDir = path.join(stateDir, "hooks");
+    const result = await installHooksFromPath({ path: hookDir, hooksDir });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.hookPackId).toBe("my-hook");
+    expect(result.hooks).toEqual(["my-hook"]);
+    expect(result.targetDir).toBe(path.join(stateDir, "hooks", "my-hook"));
+    expect(fs.existsSync(path.join(result.targetDir, "HOOK.md"))).toBe(true);
+  });
+
+  it("rejects hook pack entries that traverse outside package directory", async () => {
+    const stateDir = makeTempDir();
+    const workDir = makeTempDir();
+    const pkgDir = path.join(workDir, "package");
+    const outsideHookDir = path.join(workDir, "outside");
+    fs.mkdirSync(pkgDir, { recursive: true });
+    fs.mkdirSync(outsideHookDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(pkgDir, "package.json"),
+      JSON.stringify({
+        name: "@openclaw/test-hooks",
+        version: "0.0.1",
+        openclaw: { hooks: ["../outside"] },
+      }),
+      "utf-8",
+    );
+    fs.writeFileSync(path.join(outsideHookDir, "HOOK.md"), "---\nname: outside\n---\n", "utf-8");
+    fs.writeFileSync(path.join(outsideHookDir, "handler.ts"), "export default async () => {};\n");
+
+    const result = await installHooksFromPath({
+      path: pkgDir,
+      hooksDir: path.join(stateDir, "hooks"),
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+    expect(result.error).toContain("openclaw.hooks entry escapes package directory");
+  });
+
+  it("rejects hook pack entries that escape via symlink", async () => {
+    const stateDir = makeTempDir();
+    const workDir = makeTempDir();
+    const pkgDir = path.join(workDir, "package");
+    const outsideHookDir = path.join(workDir, "outside");
+    const linkedDir = path.join(pkgDir, "linked");
+    fs.mkdirSync(pkgDir, { recursive: true });
+    fs.mkdirSync(outsideHookDir, { recursive: true });
+    fs.writeFileSync(path.join(outsideHookDir, "HOOK.md"), "---\nname: outside\n---\n", "utf-8");
+    fs.writeFileSync(path.join(outsideHookDir, "handler.ts"), "export default async () => {};\n");
+    try {
+      fs.symlinkSync(outsideHookDir, linkedDir, process.platform === "win32" ? "junction" : "dir");
+    } catch {
+      return;
+    }
+    fs.writeFileSync(
+      path.join(pkgDir, "package.json"),
+      JSON.stringify({
+        name: "@openclaw/test-hooks",
+        version: "0.0.1",
+        openclaw: { hooks: ["./linked"] },
+      }),
+      "utf-8",
+    );
+
+    const result = await installHooksFromPath({
+      path: pkgDir,
+      hooksDir: path.join(stateDir, "hooks"),
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+    expect(result.error).toContain("openclaw.hooks entry resolves outside package directory");
+  });
+});
+
+describe("installHooksFromNpmSpec", () => {
+  it("uses --ignore-scripts for npm pack and cleans up temp dir", async () => {
+    const stateDir = makeTempDir();
+
+    const run = vi.mocked(runCommandWithTimeout);
+>>>>>>> 81b19aaa1 (fix(security): enforce plugin and hook path containment)
     let packTmpDir = "";
     const packedName = "test-hooks-0.0.1.tgz";
     run.mockImplementation(async (argv, opts) => {
