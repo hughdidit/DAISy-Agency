@@ -27,8 +27,10 @@ import { createHash, randomBytes } from "node:crypto";
 =======
 >>>>>>> 7e54b6c96 (fix(browser): unify extension relay auth on gateway token)
 import type { IncomingMessage } from "node:http";
+import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import type { Duplex } from "node:stream";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -50,6 +52,8 @@ import { createServer } from "node:http";
 =======
 import { createServer } from "node:http";
 >>>>>>> 7e54b6c96 (fix(browser): unify extension relay auth on gateway token)
+=======
+>>>>>>> 1c04f5fcb (style: format extension relay imports)
 import WebSocket, { WebSocketServer } from "ws";
 <<<<<<< HEAD
 <<<<<<< HEAD
