@@ -8,6 +8,14 @@
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
+<<<<<<< HEAD
+=======
+import {
+  isBlockedHostnameOrIp,
+  readJsonBodyWithLimit,
+  requestBodyErrorToText,
+} from "openclaw/plugin-sdk";
+>>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 import { z } from "zod";
 
 import { NostrProfileSchema, type NostrProfile } from "./config-schema.js";
@@ -98,6 +106,7 @@ async function withPublishLock<T>(accountId: string, fn: () => Promise<T>): Prom
 // SSRF Protection
 // ============================================================================
 
+<<<<<<< HEAD
 // Block common private/internal hostnames (quick string check)
 const BLOCKED_HOSTNAMES = new Set([
   "localhost",
@@ -144,6 +153,8 @@ function isPrivateIp(ip: string): boolean {
   return false;
 }
 
+=======
+>>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 function validateUrlSafety(urlStr: string): { ok: true } | { ok: false; error: string } {
   try {
     const url = new URL(urlStr);
@@ -154,18 +165,7 @@ function validateUrlSafety(urlStr: string): { ok: true } | { ok: false; error: s
 
     const hostname = url.hostname.toLowerCase();
 
-    // Quick hostname block check
-    if (BLOCKED_HOSTNAMES.has(hostname)) {
-      return { ok: false, error: "URL must not point to private/internal addresses" };
-    }
-
-    // Check if hostname is an IP address directly
-    if (isPrivateIp(hostname)) {
-      return { ok: false, error: "URL must not point to private/internal addresses" };
-    }
-
-    // Block suspicious TLDs that resolve to localhost
-    if (hostname.endsWith(".localhost") || hostname.endsWith(".local")) {
+    if (isBlockedHostnameOrIp(hostname)) {
       return { ok: false, error: "URL must not point to private/internal addresses" };
     }
 

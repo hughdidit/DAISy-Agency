@@ -23,8 +23,16 @@ export type SsrFPolicy = {
   hostnameAllowlist?: string[];
 };
 
+<<<<<<< HEAD
 const PRIVATE_IPV6_PREFIXES = ["fe80:", "fec0:", "fc", "fd"];
 const BLOCKED_HOSTNAMES = new Set(["localhost", "metadata.google.internal"]);
+=======
+const BLOCKED_HOSTNAMES = new Set([
+  "localhost",
+  "localhost.localdomain",
+  "metadata.google.internal",
+]);
+>>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 
 function normalizeHostname(hostname: string): string {
   const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
@@ -103,8 +111,137 @@ function parseIpv4FromMappedIpv6(mapped: string): number[] | null {
   ) {
     return null;
   }
+<<<<<<< HEAD
   const value = (high << 16) + low;
   return [(value >>> 24) & 0xff, (value >>> 16) & 0xff, (value >>> 8) & 0xff, value & 0xff];
+=======
+
+  // Handle IPv4-embedded IPv6 like ::ffff:127.0.0.1 by converting the tail to 2 hextets.
+  if (input.includes(".")) {
+    const lastColon = input.lastIndexOf(":");
+    if (lastColon < 0) {
+      return null;
+    }
+    const ipv4 = parseIpv4(input.slice(lastColon + 1));
+    if (!ipv4) {
+      return null;
+    }
+    const high = (ipv4[0] << 8) + ipv4[1];
+    const low = (ipv4[2] << 8) + ipv4[3];
+    input = `${input.slice(0, lastColon)}:${high.toString(16)}:${low.toString(16)}`;
+  }
+
+  const doubleColonParts = input.split("::");
+  if (doubleColonParts.length > 2) {
+    return null;
+  }
+
+  const headParts =
+    doubleColonParts[0]?.length > 0 ? doubleColonParts[0].split(":").filter(Boolean) : [];
+  const tailParts =
+    doubleColonParts.length === 2 && doubleColonParts[1]?.length > 0
+      ? doubleColonParts[1].split(":").filter(Boolean)
+      : [];
+
+  const missingParts = 8 - headParts.length - tailParts.length;
+  if (missingParts < 0) {
+    return null;
+  }
+
+  const fullParts =
+    doubleColonParts.length === 1
+      ? input.split(":")
+      : [...headParts, ...Array.from({ length: missingParts }, () => "0"), ...tailParts];
+
+  if (fullParts.length !== 8) {
+    return null;
+  }
+
+  const hextets: number[] = [];
+  for (const part of fullParts) {
+    if (!part) {
+      return null;
+    }
+    const value = Number.parseInt(part, 16);
+    if (Number.isNaN(value) || value < 0 || value > 0xffff) {
+      return null;
+    }
+    hextets.push(value);
+  }
+  return hextets;
+}
+
+function decodeIpv4FromHextets(high: number, low: number): number[] {
+  return [(high >>> 8) & 0xff, high & 0xff, (low >>> 8) & 0xff, low & 0xff];
+}
+
+type EmbeddedIpv4Rule = {
+  matches: (hextets: number[]) => boolean;
+  extract: (hextets: number[]) => [high: number, low: number];
+};
+
+const EMBEDDED_IPV4_RULES: EmbeddedIpv4Rule[] = [
+  {
+    // IPv4-mapped: ::ffff:a.b.c.d and IPv4-compatible ::a.b.c.d.
+    matches: (hextets) =>
+      hextets[0] === 0 &&
+      hextets[1] === 0 &&
+      hextets[2] === 0 &&
+      hextets[3] === 0 &&
+      hextets[4] === 0 &&
+      (hextets[5] === 0xffff || hextets[5] === 0),
+    extract: (hextets) => [hextets[6], hextets[7]],
+  },
+  {
+    // NAT64 well-known prefix: 64:ff9b::/96.
+    matches: (hextets) =>
+      hextets[0] === 0x0064 &&
+      hextets[1] === 0xff9b &&
+      hextets[2] === 0 &&
+      hextets[3] === 0 &&
+      hextets[4] === 0 &&
+      hextets[5] === 0,
+    extract: (hextets) => [hextets[6], hextets[7]],
+  },
+  {
+    // NAT64 local-use prefix: 64:ff9b:1::/48.
+    matches: (hextets) =>
+      hextets[0] === 0x0064 &&
+      hextets[1] === 0xff9b &&
+      hextets[2] === 0x0001 &&
+      hextets[3] === 0 &&
+      hextets[4] === 0 &&
+      hextets[5] === 0,
+    extract: (hextets) => [hextets[6], hextets[7]],
+  },
+  {
+    // 6to4 prefix: 2002::/16 where hextets[1..2] carry IPv4.
+    matches: (hextets) => hextets[0] === 0x2002,
+    extract: (hextets) => [hextets[1], hextets[2]],
+  },
+  {
+    // Teredo prefix: 2001:0000::/32 with client IPv4 obfuscated via XOR 0xffff.
+    matches: (hextets) => hextets[0] === 0x2001 && hextets[1] === 0x0000,
+    extract: (hextets) => [hextets[6] ^ 0xffff, hextets[7] ^ 0xffff],
+  },
+  {
+    // ISATAP IID format: 000000ug00000000:5efe:w.x.y.z (RFC 5214 section 6.1).
+    // Match only the IID marker bits to avoid over-broad :5efe: detection.
+    matches: (hextets) => (hextets[4] & 0xfcff) === 0 && hextets[5] === 0x5efe,
+    extract: (hextets) => [hextets[6], hextets[7]],
+  },
+];
+
+function extractIpv4FromEmbeddedIpv6(hextets: number[]): number[] | null {
+  for (const rule of EMBEDDED_IPV4_RULES) {
+    if (!rule.matches(hextets)) {
+      continue;
+    }
+    const [high, low] = rule.extract(hextets);
+    return decodeIpv4FromHextets(high, low);
+  }
+  return null;
+>>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 }
 
 function isPrivateIpv4(parts: number[]): boolean {
@@ -151,6 +288,14 @@ export function isBlockedHostname(hostname: string): boolean {
     normalized.endsWith(".local") ||
     normalized.endsWith(".internal")
   );
+}
+
+export function isBlockedHostnameOrIp(hostname: string): boolean {
+  const normalized = normalizeHostname(hostname);
+  if (!normalized) {
+    return false;
+  }
+  return isBlockedHostname(normalized) || isPrivateIpAddress(normalized);
 }
 
 export function createPinnedLookup(params: {
