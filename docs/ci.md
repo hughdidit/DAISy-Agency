@@ -150,9 +150,27 @@ This eliminates ~40 lines of duplicated YAML per job.
 >>>>>>> c2178e252 (chore: Cleanup useless CI job.)
 ## Runners
 
+<<<<<<< HEAD
 | Name                            | OS           | vCPUs | Used by          |
 | ------------------------------- | ------------ | ----- | ---------------- |
 | `blacksmith-4vcpu-ubuntu-2404`  | Ubuntu 24.04 | 4     | Most jobs        |
 | `blacksmith-4vcpu-windows-2025` | Windows 2025 | 4     | `checks-windows` |
 | `macos-latest`                  | macOS        | —     | `macos`, `ios`   |
 | `ubuntu-latest`                 | Ubuntu       | 2     | Scope detection  |
+=======
+| Runner                          | Jobs                          |
+| ------------------------------- | ----------------------------- |
+| `blacksmith-8vcpu-ubuntu-2404`  | Most Linux jobs               |
+| `blacksmith-8vcpu-windows-2025` | `checks-windows`              |
+| `macos-latest`                  | `macos`, `ios`                |
+| `ubuntu-latest`                 | Scope detection (lightweight) |
+
+## Local Equivalents
+
+```bash
+pnpm check          # types + lint + format
+pnpm test           # vitest tests
+pnpm check:docs     # docs format + lint + broken links
+pnpm release:check  # validate npm pack
+```
+>>>>>>> 243549986 (ci: move blacksmith runners to 8 vcpu)
