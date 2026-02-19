@@ -21,6 +21,7 @@ import { loadConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 =======
@@ -33,6 +34,9 @@ import type { createSubsystemLogger } from "../logging/subsystem.js";
 =======
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { createSubsystemLogger } from "../logging/subsystem.js";
+>>>>>>> 758ea3c5a (style: apply oxfmt import ordering for check)
 import { safeEqualSecret } from "../security/secret-equal.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { handleSlackHttpRequest } from "../slack/http/index.js";
@@ -69,6 +73,10 @@ import { getBearerToken, getHeader } from "./http-utils.js";
 import { resolveGatewayClientIp } from "./net.js";
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
+<<<<<<< HEAD
+=======
+import { GATEWAY_CLIENT_MODES, normalizeGatewayClientMode } from "./protocol/client-info.js";
+>>>>>>> 758ea3c5a (style: apply oxfmt import ordering for check)
 import type { GatewayWsClient } from "./server/ws-types.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
 
