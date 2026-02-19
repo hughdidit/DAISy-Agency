@@ -1,5 +1,4 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import JSZip from "jszip";
 import sharp from "sharp";
@@ -10,11 +9,12 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 >>>>>>> 4d4f693f9 (test: consolidate media store header extension coverage)
 import { isPathWithinBase } from "../../test/helpers/paths.js";
-import { captureEnv } from "../test-utils/env.js";
+import { createTempHomeEnv, type TempHomeEnv } from "../test-utils/temp-home.js";
 
 describe("media store", () => {
   let store: typeof import("./store.js");
   let home = "";
+<<<<<<< HEAD
 <<<<<<< HEAD
   const envSnapshot: Record<string, string | undefined> = {};
 
@@ -61,13 +61,19 @@ describe("media store", () => {
       }
     }
     await fs.mkdir(path.join(home, ".clawdbot"), { recursive: true });
+=======
+  let tempHome: TempHomeEnv;
+
+  beforeAll(async () => {
+    tempHome = await createTempHomeEnv("openclaw-test-home-");
+    home = tempHome.home;
+>>>>>>> 0213a0921 (test: share temp home env harness)
     store = await import("./store.js");
   });
 
   afterAll(async () => {
-    envSnapshot.restore();
     try {
-      await fs.rm(home, { recursive: true, force: true });
+      await tempHome.restore();
     } catch {
       // ignore cleanup failures in tests
     }
