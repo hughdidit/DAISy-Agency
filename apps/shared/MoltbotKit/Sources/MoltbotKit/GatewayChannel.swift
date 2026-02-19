@@ -7,6 +7,7 @@ public protocol WebSocketTasking: AnyObject {
     func resume()
     func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?)
     func send(_ message: URLSessionWebSocketTask.Message) async throws
+    func sendPing(pongReceiveHandler: @escaping @Sendable (Error?) -> Void)
     func receive() async throws -> URLSessionWebSocketTask.Message
     func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, Error>) -> Void)
 }
@@ -39,6 +40,18 @@ public struct WebSocketTaskBox: @unchecked Sendable {
         completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, Error>) -> Void)
     {
         self.task.receive(completionHandler: completionHandler)
+    }
+
+    public func sendPing() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.task.sendPing { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: ())
+                }
+            }
+        }
     }
 }
 
@@ -210,7 +223,7 @@ public actor GatewayChannelActor {
     private func watchdogLoop() async {
         // Keep nudging reconnect in case exponential backoff stalls.
         while self.shouldReconnect {
-            try? await Task.sleep(nanoseconds: 30 * 1_000_000_000) // 30s cadence
+            guard await self.sleepUnlessCancelled(nanoseconds: 30 * 1_000_000_000) else { return } // 30s cadence
             guard self.shouldReconnect else { return }
             if self.connected { continue }
             do {
@@ -271,6 +284,34 @@ public actor GatewayChannelActor {
         }
     }
 
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
+=======
+    private func startKeepalive() {
+        self.keepaliveTask?.cancel()
+        self.keepaliveTask = Task { [weak self] in
+            guard let self else { return }
+            await self.keepaliveLoop()
+        }
+    }
+
+    private func keepaliveLoop() async {
+        while self.shouldReconnect {
+            guard await self.sleepUnlessCancelled(
+                nanoseconds: UInt64(self.keepaliveIntervalSeconds * 1_000_000_000))
+            else { return }
+            guard self.shouldReconnect else { return }
+            guard self.connected else { continue }
+            guard let task = self.task else { continue }
+            // Best-effort ping keeps NAT/proxy state alive without generating RPC load.
+            do {
+                try await task.sendPing()
+            } catch {
+                // Avoid spamming logs; the reconnect paths will surface meaningful errors.
+            }
+        }
+    }
+
+>>>>>>> e98ccc8e1 (iOS/Gateway: stabilize background wake and reconnect behavior (#21226)):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
     private func sendConnect() async throws {
         let platform = InstanceIdentity.platformString
         let primaryLocale = Locale.preferredLanguages.first ?? Locale.current.identifier
@@ -549,7 +590,7 @@ public actor GatewayChannelActor {
     private func watchTicks() async {
         let tolerance = self.tickIntervalMs * 2
         while self.connected {
-            try? await Task.sleep(nanoseconds: UInt64(tolerance * 1_000_000))
+            guard await self.sleepUnlessCancelled(nanoseconds: UInt64(tolerance * 1_000_000)) else { return }
             guard self.connected else { return }
             if let last = self.lastTick {
                 let delta = Date().timeIntervalSince(last) * 1000
@@ -572,7 +613,7 @@ public actor GatewayChannelActor {
         guard self.shouldReconnect else { return }
         let delay = self.backoffMs / 1000
         self.backoffMs = min(self.backoffMs * 2, 30000)
-        try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+        guard await self.sleepUnlessCancelled(nanoseconds: UInt64(delay * 1_000_000_000)) else { return }
         guard self.shouldReconnect else { return }
         do {
             try await self.connect()
@@ -581,6 +622,15 @@ public actor GatewayChannelActor {
             self.logger.error("gateway reconnect failed \(wrapped.localizedDescription, privacy: .public)")
             await self.scheduleReconnect()
         }
+    }
+
+    private nonisolated func sleepUnlessCancelled(nanoseconds: UInt64) async -> Bool {
+        do {
+            try await Task.sleep(nanoseconds: nanoseconds)
+        } catch {
+            return false
+        }
+        return !Task.isCancelled
     }
 
     public func request(
