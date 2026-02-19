@@ -5,11 +5,15 @@ import {
   readStringArrayParam,
   readStringParam,
 } from "../../../../agents/tools/common.js";
+import {
+  isDiscordModerationAction,
+  readDiscordModerationCommand,
+} from "../../../../agents/tools/discord-actions-moderation-shared.js";
 import { handleDiscordAction } from "../../../../agents/tools/discord-actions.js";
 
 type Ctx = Pick<
   ChannelMessageActionContext,
-  "action" | "params" | "cfg" | "accountId" | "requesterSenderId" | "toolContext"
+  "action" | "params" | "cfg" | "accountId" | "requesterSenderId"
 >;
 
 export async function tryHandleDiscordMessageActionGuildAdmin(params: {
@@ -337,39 +341,37 @@ export async function tryHandleDiscordMessageActionGuildAdmin(params: {
     );
   }
 
-  if (action === "timeout" || action === "kick" || action === "ban") {
-    const guildId = readStringParam(actionParams, "guildId", {
-      required: true,
-    });
-    const userId = readStringParam(actionParams, "userId", { required: true });
-    const durationMinutes = readNumberParam(actionParams, "durationMin", {
-      integer: true,
-    });
-    const until = readStringParam(actionParams, "until");
-    const reason = readStringParam(actionParams, "reason");
-    const deleteMessageDays = readNumberParam(actionParams, "deleteDays", {
-      integer: true,
+  if (isDiscordModerationAction(action)) {
+    const moderation = readDiscordModerationCommand(action, {
+      ...actionParams,
+      durationMinutes: readNumberParam(actionParams, "durationMin", { integer: true }),
+      deleteMessageDays: readNumberParam(actionParams, "deleteDays", {
+        integer: true,
+      }),
     });
 <<<<<<< HEAD
     const discordAction = action as "timeout" | "kick" | "ban";
 =======
     const senderUserId = ctx.requesterSenderId?.trim() || undefined;
+<<<<<<< HEAD
     // In channel/tool flows, require trusted sender identity for moderation authorization.
     if (ctx.toolContext?.currentChannelProvider === "discord" && !senderUserId) {
       throw new Error("Sender user ID required for Discord moderation actions.");
     }
     const discordAction = action;
 >>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
+=======
+>>>>>>> c9dee5926 (refactor(security): centralize trusted sender checks for discord moderation)
     return await handleDiscordAction(
       {
-        action: discordAction,
+        action: moderation.action,
         accountId: accountId ?? undefined,
-        guildId,
-        userId,
-        durationMinutes,
-        until,
-        reason,
-        deleteMessageDays,
+        guildId: moderation.guildId,
+        userId: moderation.userId,
+        durationMinutes: moderation.durationMinutes,
+        until: moderation.until,
+        reason: moderation.reason,
+        deleteMessageDays: moderation.deleteMessageDays,
         senderUserId,
       },
       cfg,
