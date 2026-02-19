@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
@@ -22,6 +23,8 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+>>>>>>> 74c51aeb1 (style: format gateway server methods)
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import {
   CONFIG_PATH,
@@ -49,6 +52,7 @@ import { extractDeliveryInfo } from "../../config/sessions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -61,6 +65,9 @@ import type { OpenClawConfig } from "../../config/types.openclaw.js";
 =======
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { OpenClawConfig } from "../../config/types.openclaw.js";
+>>>>>>> 74c51aeb1 (style: format gateway server methods)
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
