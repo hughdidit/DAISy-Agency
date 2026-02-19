@@ -206,7 +206,54 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
 
     // Fall back to normal delivery for media, errors, or if streaming already failed
     if (streamFailed || hasMedia(payload) || !payload.text?.trim()) {
+<<<<<<< HEAD
 =======
+=======
+      await deliverNormally(payload, streamSession?.threadTs);
+      return;
+    }
+
+    const text = payload.text.trim();
+    let plannedThreadTs: string | undefined;
+    try {
+      if (!streamSession) {
+        const streamThreadTs = replyPlan.nextThreadTs();
+        plannedThreadTs = streamThreadTs;
+        if (!streamThreadTs) {
+          logVerbose(
+            "slack-stream: no reply thread target for stream start, falling back to normal delivery",
+          );
+          streamFailed = true;
+          await deliverNormally(payload);
+          return;
+        }
+
+        streamSession = await startSlackStream({
+          client: ctx.app.client,
+          channel: message.channel,
+          threadTs: streamThreadTs,
+          text,
+          teamId: ctx.teamId,
+          userId: message.user,
+        });
+        replyPlan.markSent();
+        return;
+      }
+
+      await appendSlackStream({
+        session: streamSession,
+        text: "\n" + text,
+      });
+    } catch (err) {
+      runtime.error?.(
+        danger(`slack-stream: streaming API call failed: ${String(err)}, falling back`),
+      );
+      streamFailed = true;
+      await deliverNormally(payload, streamSession?.threadTs ?? plannedThreadTs);
+    }
+  };
+
+>>>>>>> bbcb3ac6e (fix(slack): pass recipient_team_id to streaming API calls (#20988))
   const { dispatcher, replyOptions, markDispatchIdle } = createReplyDispatcherWithTyping({
     ...prefixOptions,
     humanDelay: resolveHumanDelayConfig(cfg, route.agentId),
@@ -422,6 +469,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
       ...replyOptions,
       skillFilter: prepared.channelConfig?.skills,
       hasRepliedRef,
+<<<<<<< HEAD
       disableBlockStreaming:
         // When native streaming is active, keep block streaming enabled so we
         // get incremental block callbacks that we route through the stream.
@@ -430,6 +478,13 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
           : typeof account.config.blockStreaming === "boolean"
             ? !account.config.blockStreaming
             : undefined,
+=======
+      disableBlockStreaming: useStreaming
+        ? true
+        : typeof account.config.blockStreaming === "boolean"
+          ? !account.config.blockStreaming
+          : undefined,
+>>>>>>> bbcb3ac6e (fix(slack): pass recipient_team_id to streaming API calls (#20988))
       onModelSelected,
       onPartialReply: async (payload) => {
         updateDraftFromPartial(payload.text);
