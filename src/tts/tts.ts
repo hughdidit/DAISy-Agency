@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import { completeSimple, type TextContent } from "@mariozechner/pi-ai";
 import { EdgeTTS } from "node-edge-tts";
+=======
+import { randomBytes } from "node:crypto";
+>>>>>>> 57102cbec (Security: use crypto.randomBytes for temp file names (#20654))
 import {
   existsSync,
   mkdirSync,
@@ -377,8 +381,8 @@ function readPrefs(prefsPath: string): TtsUserPrefs {
 }
 
 function atomicWriteFileSync(filePath: string, content: string): void {
-  const tmpPath = `${filePath}.tmp.${Date.now()}.${Math.random().toString(36).slice(2)}`;
-  writeFileSync(tmpPath, content);
+  const tmpPath = `${filePath}.tmp.${Date.now()}.${randomBytes(8).toString("hex")}`;
+  writeFileSync(tmpPath, content, { mode: 0o600 });
   try {
     renameSync(tmpPath, filePath);
   } catch (err) {
