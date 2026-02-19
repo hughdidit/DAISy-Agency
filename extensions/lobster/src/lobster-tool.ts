@@ -1,6 +1,5 @@
 import { Type } from "@sinclair/typebox";
 import { spawn } from "node:child_process";
-import fs from "node:fs";
 import path from "node:path";
 
 import type { MoltbotPluginApi } from "../../../src/plugins/types.js";
@@ -22,6 +21,7 @@ type LobsterEnvelope =
       error: { type?: string; message: string };
     };
 
+<<<<<<< HEAD
 function resolveExecutablePath(lobsterPathRaw: string | undefined) {
   const lobsterPath = lobsterPathRaw?.trim() || "lobster";
 
@@ -63,6 +63,8 @@ function resolveExecutablePath(lobsterPathRaw: string | undefined) {
 function isWindowsSpawnEINVAL(err: unknown) {
   if (!err || typeof err !== "object") return false;
 =======
+=======
+>>>>>>> 29118995a (refactor(lobster): remove lobsterPath overrides)
 function normalizeForCwdSandbox(p: string): string {
   const normalized = path.normalize(p);
   return process.platform === "win32" ? normalized.toLowerCase() : normalized;
@@ -180,6 +182,7 @@ async function runLobsterSubprocessOnce(
   });
 }
 
+<<<<<<< HEAD
 async function runLobsterSubprocess(params: {
   execPath: string;
   argv: string[];
@@ -197,6 +200,8 @@ async function runLobsterSubprocess(params: {
   }
 }
 
+=======
+>>>>>>> 29118995a (refactor(lobster): remove lobsterPath overrides)
 function parseEnvelope(stdout: string): LobsterEnvelope {
   const trimmed = stdout.trim();
 
@@ -235,7 +240,38 @@ function parseEnvelope(stdout: string): LobsterEnvelope {
   throw new Error("lobster returned invalid JSON envelope");
 }
 
+<<<<<<< HEAD
 export function createLobsterTool(api: MoltbotPluginApi) {
+=======
+function buildLobsterArgv(action: string, params: Record<string, unknown>): string[] {
+  if (action === "run") {
+    const pipeline = typeof params.pipeline === "string" ? params.pipeline : "";
+    if (!pipeline.trim()) {
+      throw new Error("pipeline required");
+    }
+    const argv = ["run", "--mode", "tool", pipeline];
+    const argsJson = typeof params.argsJson === "string" ? params.argsJson : "";
+    if (argsJson.trim()) {
+      argv.push("--args-json", argsJson);
+    }
+    return argv;
+  }
+  if (action === "resume") {
+    const token = typeof params.token === "string" ? params.token : "";
+    if (!token.trim()) {
+      throw new Error("token required");
+    }
+    const approve = params.approve;
+    if (typeof approve !== "boolean") {
+      throw new Error("approve required");
+    }
+    return ["resume", "--token", token, "--approve", approve ? "yes" : "no"];
+  }
+  throw new Error(`Unknown action: ${action}`);
+}
+
+export function createLobsterTool(api: OpenClawPluginApi) {
+>>>>>>> 29118995a (refactor(lobster): remove lobsterPath overrides)
   return {
     name: "lobster",
     description:
@@ -247,11 +283,6 @@ export function createLobsterTool(api: MoltbotPluginApi) {
       argsJson: Type.Optional(Type.String()),
       token: Type.Optional(Type.String()),
       approve: Type.Optional(Type.Boolean()),
-      // SECURITY: Do not allow the agent to choose an executable path.
-      // Host can configure the lobster binary via plugin config.
-      lobsterPath: Type.Optional(
-        Type.String({ description: "(deprecated) Use plugin config instead." }),
-      ),
       cwd: Type.Optional(
         Type.String({
           description:
@@ -265,6 +296,7 @@ export function createLobsterTool(api: MoltbotPluginApi) {
       const action = String(params.action || "").trim();
       if (!action) throw new Error("action required");
 
+<<<<<<< HEAD
       // SECURITY: never allow tool callers (agent/user) to select executables.
       // If a host needs to override the binary, it must do so via plugin config.
       // We still validate the parameter shape to prevent reintroducing an RCE footgun.
@@ -280,11 +312,15 @@ export function createLobsterTool(api: MoltbotPluginApi) {
 <<<<<<< HEAD
       const cwd = typeof params.cwd === "string" && params.cwd.trim() ? params.cwd.trim() : process.cwd();
 =======
+=======
+      const execPath = "lobster";
+>>>>>>> 29118995a (refactor(lobster): remove lobsterPath overrides)
       const cwd = resolveCwd(params.cwd);
 >>>>>>> 1295b6705 (fix(lobster): block arbitrary exec via lobsterPath/cwd (GHSA-4mhr-g7xj-cg8j) (#5335))
       const timeoutMs = typeof params.timeoutMs === "number" ? params.timeoutMs : 20_000;
       const maxStdoutBytes = typeof params.maxStdoutBytes === "number" ? params.maxStdoutBytes : 512_000;
 
+<<<<<<< HEAD
       const argv = (() => {
         if (action === "run") {
           const pipeline = typeof params.pipeline === "string" ? params.pipeline : "";
@@ -305,12 +341,15 @@ export function createLobsterTool(api: MoltbotPluginApi) {
         }
         throw new Error(`Unknown action: ${action}`);
       })();
+=======
+      const argv = buildLobsterArgv(action, params);
+>>>>>>> 29118995a (refactor(lobster): remove lobsterPath overrides)
 
       if (api.runtime?.version && api.logger?.debug) {
         api.logger.debug(`lobster plugin runtime=${api.runtime.version}`);
       }
 
-      const { stdout } = await runLobsterSubprocess({
+      const { stdout } = await runLobsterSubprocessOnce({
         execPath,
         argv,
         cwd,

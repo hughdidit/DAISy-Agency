@@ -153,8 +153,12 @@ Notes:
 
 ## Install Lobster
 
+<<<<<<< HEAD
 Install the Lobster CLI on the **same host** that runs the Moltbot Gateway (see the [Lobster repo](https://github.com/moltbot/lobster)), and ensure `lobster` is on `PATH`.
 If you want to use a custom binary location, pass an **absolute** `lobsterPath` in the tool call.
+=======
+Install the Lobster CLI on the **same host** that runs the OpenClaw Gateway (see the [Lobster repo](https://github.com/openclaw/lobster)), and ensure `lobster` is on `PATH`.
+>>>>>>> 29118995a (refactor(lobster): remove lobsterPath overrides)
 
 ## Enable the tool
 
@@ -252,7 +256,7 @@ Run a pipeline in tool mode.
 {
   "action": "run",
   "pipeline": "gog.gmail.search --query 'newer_than:1d' | email.triage",
-  "cwd": "/path/to/workspace",
+  "cwd": "workspace",
   "timeoutMs": 30000,
   "maxStdoutBytes": 512000
 }
@@ -282,8 +286,7 @@ Continue a halted workflow after approval.
 
 ### Optional inputs
 
-- `lobsterPath`: Absolute path to the Lobster binary (omit to use `PATH`).
-- `cwd`: Working directory for the pipeline (defaults to the current process working directory).
+- `cwd`: Relative working directory for the pipeline (must stay within the current process working directory).
 - `timeoutMs`: Kill the subprocess if it exceeds this duration (default: 20000).
 - `maxStdoutBytes`: Kill the subprocess if stdout exceeds this size (default: 512000).
 - `argsJson`: JSON string passed to `lobster run --args-json` (workflow files only).
@@ -316,7 +319,7 @@ OpenProse pairs well with Lobster: use `/prose` to orchestrate multi-agent prep,
 - **Local subprocess only** — no network calls from the plugin itself.
 - **No secrets** — Lobster doesn't manage OAuth; it calls clawd tools that do.
 - **Sandbox-aware** — disabled when the tool context is sandboxed.
-- **Hardened** — `lobsterPath` must be absolute if specified; timeouts and output caps enforced.
+- **Hardened** — fixed executable name (`lobster`) on `PATH`; timeouts and output caps enforced.
 
 ## Troubleshooting
 
