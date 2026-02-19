@@ -1,5 +1,3 @@
-import path from "node:path";
-import type { ExecAllowlistEntry } from "./exec-approvals.js";
 import {
   DEFAULT_SAFE_BINS,
   analyzeShellCommand,
@@ -11,6 +9,7 @@ import {
   type CommandResolution,
   type ExecCommandSegment,
 } from "./exec-approvals-analysis.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -63,6 +62,9 @@ function isTrustedSafeBinPath(resolvedPath: string): boolean {
 =======
 >>>>>>> cfe8457a0 (fix(security): harden safeBins stdin-only enforcement)
 =======
+=======
+import type { ExecAllowlistEntry } from "./exec-approvals.js";
+>>>>>>> 268b0dc92 (style: fix formatting drift in security allowlist checks)
 import {
   SAFE_BIN_GENERIC_PROFILE,
   SAFE_BIN_PROFILES,
