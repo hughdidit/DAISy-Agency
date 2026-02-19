@@ -119,6 +119,11 @@ jq -r '.changelog' .local/review.json
 jq -r '.docs' .local/review.json
 ```
 
+Changelog gate requirement:
+
+- `CHANGELOG.md` must include a newly added changelog entry line.
+- When PR author metadata is available, that same changelog entry line must include `(#<PR>) thanks @<pr-author>`.
+
 4. Commit scoped changes
 
 Required commit subject format:
