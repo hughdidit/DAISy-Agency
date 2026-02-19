@@ -3,11 +3,16 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { createOpenClawCodingTools } from "./pi-tools.js";
+<<<<<<< HEAD
 
 vi.mock("../plugins/tools.js", () => ({
   getPluginToolMeta: () => undefined,
   resolvePluginTools: () => [],
 }));
+=======
+import { createHostSandboxFsBridge } from "./test-helpers/host-sandbox-fs-bridge.js";
+import { createPiToolsSandboxContext } from "./test-helpers/pi-tools-sandbox-context.js";
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
 
 vi.mock("../infra/shell-env.js", async (importOriginal) => {
   const mod = await importOriginal<typeof import("../infra/shell-env.js")>();
@@ -155,12 +160,11 @@ describe("sandboxed workspace paths", () => {
   it("uses sandbox workspace for relative read/write/edit", async () => {
     await withTempDir("openclaw-sandbox-", async (sandboxDir) => {
       await withTempDir("openclaw-workspace-", async (workspaceDir) => {
-        const sandbox = {
-          enabled: true,
-          sessionKey: "sandbox:test",
+        const sandbox = createPiToolsSandboxContext({
           workspaceDir: sandboxDir,
           agentWorkspaceDir: workspaceDir,
           workspaceAccess: "rw" as const,
+<<<<<<< HEAD
           containerName: "openclaw-sbx-test",
           containerWorkdir: "/workspace",
           docker: {
@@ -174,9 +178,11 @@ describe("sandboxed workspace paths", () => {
             capDrop: ["ALL"],
             env: { LANG: "C.UTF-8" },
           },
+=======
+          fsBridge: createHostSandboxFsBridge(sandboxDir),
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
           tools: { allow: [], deny: [] },
-          browserAllowHostControl: false,
-        };
+        });
 
         const testFile = "sandbox.txt";
         await fs.writeFile(path.join(sandboxDir, testFile), "sandbox read", "utf8");
