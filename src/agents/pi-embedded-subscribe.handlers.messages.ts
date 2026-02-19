@@ -31,6 +31,32 @@ const stripTrailingDirective = (text: string): string => {
   return text.slice(0, openIndex);
 };
 
+<<<<<<< HEAD
+=======
+function emitReasoningEnd(ctx: EmbeddedPiSubscribeContext) {
+  if (!ctx.state.reasoningStreamOpen) {
+    return;
+  }
+  ctx.state.reasoningStreamOpen = false;
+  void ctx.params.onReasoningEnd?.();
+}
+
+export function resolveSilentReplyFallbackText(params: {
+  text: string;
+  messagingToolSentTexts: string[];
+}): string {
+  const trimmed = params.text.trim();
+  if (trimmed !== SILENT_REPLY_TOKEN) {
+    return params.text;
+  }
+  const fallback = params.messagingToolSentTexts.at(-1)?.trim();
+  if (!fallback) {
+    return params.text;
+  }
+  return fallback;
+}
+
+>>>>>>> 0ff506140 (fix: clear matched tool errors and dedupe reasoning end)
 export function handleMessageStart(
   ctx: EmbeddedPiSubscribeContext,
   evt: AgentEvent & { message: AgentMessage },
@@ -63,6 +89,9 @@ export function handleMessageUpdate(
   const evtType = typeof assistantRecord?.type === "string" ? assistantRecord.type : "";
 
   if (evtType === "thinking_start" || evtType === "thinking_delta" || evtType === "thinking_end") {
+    if (evtType === "thinking_start" || evtType === "thinking_delta") {
+      ctx.state.reasoningStreamOpen = true;
+    }
     const thinkingDelta = typeof assistantRecord?.delta === "string" ? assistantRecord.delta : "";
     const thinkingContent =
       typeof assistantRecord?.content === "string" ? assistantRecord.content : "";
@@ -81,7 +110,10 @@ export function handleMessageUpdate(
       ctx.emitReasoningStream(partialThinking || thinkingContent || thinkingDelta);
     }
     if (evtType === "thinking_end") {
-      void ctx.params.onReasoningEnd?.();
+      if (!ctx.state.reasoningStreamOpen) {
+        ctx.state.reasoningStreamOpen = true;
+      }
+      emitReasoningEnd(ctx);
     }
     return;
   }
@@ -145,6 +177,16 @@ export function handleMessageUpdate(
     .trim();
   if (next) {
     const visibleDelta = chunk ? ctx.stripBlockTags(chunk, ctx.state.partialBlockState) : "";
+<<<<<<< HEAD
+=======
+    if (!wasThinking && ctx.state.partialBlockState.thinking) {
+      ctx.state.reasoningStreamOpen = true;
+    }
+    // Detect when thinking block ends (</think> tag processed)
+    if (wasThinking && !ctx.state.partialBlockState.thinking) {
+      emitReasoningEnd(ctx);
+    }
+>>>>>>> 0ff506140 (fix: clear matched tool errors and dedupe reasoning end)
     const parsedDelta = visibleDelta ? ctx.consumePartialReplyDirectives(visibleDelta) : null;
     const parsedFull = parseReplyDirectives(stripTrailingDirective(next));
     const cleanedText = parsedFull.text;
@@ -348,4 +390,5 @@ export function handleMessageEnd(
   ctx.state.blockState.inlineCode = createInlineCodeState();
   ctx.state.lastStreamedAssistant = undefined;
   ctx.state.lastStreamedAssistantCleaned = undefined;
+  ctx.state.reasoningStreamOpen = false;
 }
