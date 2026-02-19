@@ -54,7 +54,11 @@ import type { CanvasHostServer } from "../canvas-host/server.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
 import { createDefaultDeps } from "../cli/deps.js";
+<<<<<<< HEAD
 import { formatCliCommand } from "../cli/command-format.js";
+=======
+import { isRestartEnabled } from "../config/commands.js";
+>>>>>>> b4dbe0329 (refactor: unify restart gating and update availability sync)
 import {
   CONFIG_PATH,
   isNixMode,
@@ -128,6 +132,7 @@ import { startGatewayConfigReloader } from "./config-reload.js";
 <<<<<<< HEAD
 =======
 import type { ControlUiRootState } from "./control-ui.js";
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -138,6 +143,12 @@ import type { ControlUiRootState } from "./control-ui.js";
 =======
 import type { ControlUiRootState } from "./control-ui.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import {
+  GATEWAY_EVENT_UPDATE_AVAILABLE,
+  type GatewayUpdateAvailableEventPayload,
+} from "./events.js";
+>>>>>>> b4dbe0329 (refactor: unify restart gating and update availability sync)
 import { ExecApprovalManager } from "./exec-approval-manager.js";
 import { NodeRegistry } from "./node-registry.js";
 import type { startBrowserControlServerIfEnabled } from "./server-browser.js";
@@ -350,7 +361,14 @@ export async function startGatewayServer(
   if (diagnosticsEnabled) {
     startDiagnosticHeartbeat();
   }
+<<<<<<< HEAD
   setGatewaySigusr1RestartPolicy({ allowExternal: cfgAtStart.commands?.restart === true });
+=======
+  setGatewaySigusr1RestartPolicy({ allowExternal: isRestartEnabled(cfgAtStart) });
+  setPreRestartDeferralCheck(
+    () => getTotalQueueSize() + getTotalPendingReplies() + getActiveEmbeddedRunCount(),
+  );
+>>>>>>> b4dbe0329 (refactor: unify restart gating and update availability sync)
   initSubagentRegistry();
   const defaultAgentId = resolveDefaultAgentId(cfgAtStart);
   const defaultWorkspaceDir = resolveAgentWorkspaceDir(cfgAtStart, defaultAgentId);
@@ -748,7 +766,15 @@ export async function startGatewayServer(
     isNixMode,
   });
   if (!minimalTestGateway) {
-    scheduleGatewayUpdateCheck({ cfg: cfgAtStart, log, isNixMode });
+    scheduleGatewayUpdateCheck({
+      cfg: cfgAtStart,
+      log,
+      isNixMode,
+      onUpdateAvailableChange: (updateAvailable) => {
+        const payload: GatewayUpdateAvailableEventPayload = { updateAvailable };
+        broadcast(GATEWAY_EVENT_UPDATE_AVAILABLE, payload, { dropIfSlow: true });
+      },
+    });
   }
   const tailscaleCleanup = minimalTestGateway
     ? null

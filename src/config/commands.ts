@@ -65,3 +65,7 @@ export function isNativeCommandsExplicitlyDisabled(params: {
   }
   return false;
 }
+
+export function isRestartEnabled(config?: { commands?: { restart?: boolean } }): boolean {
+  return config?.commands?.restart !== false;
+}

@@ -492,11 +492,7 @@ export class OpenClawApp extends LitElement {
   @state() cronRuns: CronRunLogEntry[] = [];
   @state() cronBusy = false;
 
-  @state() updateAvailable: {
-    currentVersion: string;
-    latestVersion: string;
-    channel: string;
-  } | null = null;
+  @state() updateAvailable: import("./types.js").UpdateAvailable | null = null;
 
   @state() skillsLoading = false;
   @state() skillsReport: SkillStatusReport | null = null;

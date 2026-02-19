@@ -1,9 +1,16 @@
 import { Type } from "@sinclair/typebox";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
 import { loadConfig, resolveConfigSnapshotHash } from "../../config/io.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
+=======
+import { isRestartEnabled } from "../../config/commands.js";
+import type { OpenClawConfig } from "../../config/config.js";
+import { resolveConfigSnapshotHash } from "../../config/io.js";
+import { extractDeliveryInfo } from "../../config/sessions.js";
+>>>>>>> b4dbe0329 (refactor: unify restart gating and update availability sync)
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
@@ -76,8 +83,8 @@ export function createGatewayTool(opts?: {
       const params = args as Record<string, unknown>;
       const action = readStringParam(params, "action", { required: true });
       if (action === "restart") {
-        if (opts?.config?.commands?.restart !== true) {
-          throw new Error("Gateway restart is disabled. Set commands.restart=true to enable.");
+        if (!isRestartEnabled(opts?.config)) {
+          throw new Error("Gateway restart is disabled (commands.restart=false).");
         }
         const sessionKey =
           typeof params.sessionKey === "string" && params.sessionKey.trim()
