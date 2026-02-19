@@ -27,6 +27,7 @@ const resolveGlobalManager = vi.fn();
 const serviceLoaded = vi.fn();
 const prepareRestartScript = vi.fn();
 const runRestartScript = vi.fn();
+const mockedRunDaemonInstall = vi.fn();
 
 vi.mock("@clack/prompts", () => ({
   confirm,
@@ -90,6 +91,7 @@ vi.mock("../commands/doctor.js", () => ({
 }));
 // Mock the daemon-cli module
 vi.mock("./daemon-cli.js", () => ({
+  runDaemonInstall: mockedRunDaemonInstall,
   runDaemonRestart: vi.fn(),
 }));
 
@@ -108,7 +110,7 @@ const { readConfigFileSnapshot, writeConfigFile } = await import("../config/conf
 const { checkUpdateStatus, fetchNpmTagVersion, resolveNpmChannelTag } =
   await import("../infra/update-check.js");
 const { runCommandWithTimeout } = await import("../process/exec.js");
-const { runDaemonRestart } = await import("./daemon-cli.js");
+const { runDaemonRestart, runDaemonInstall } = await import("./daemon-cli.js");
 const { doctorCommand } = await import("../commands/doctor.js");
 const { defaultRuntime } = await import("../runtime.js");
 const { updateCommand, registerUpdateCli, updateStatusCommand, updateWizardCommand } =
@@ -227,6 +229,7 @@ describe("update-cli", () => {
     vi.mocked(resolveNpmChannelTag).mockReset();
     vi.mocked(runCommandWithTimeout).mockReset();
     vi.mocked(runDaemonRestart).mockReset();
+    vi.mocked(mockedRunDaemonInstall).mockReset();
     vi.mocked(doctorCommand).mockReset();
     vi.mocked(defaultRuntime.log).mockReset();
     vi.mocked(defaultRuntime.error).mockReset();
@@ -291,6 +294,7 @@ describe("update-cli", () => {
     serviceLoaded.mockResolvedValue(false);
     prepareRestartScript.mockResolvedValue("/tmp/openclaw-restart-test.sh");
     runRestartScript.mockResolvedValue(undefined);
+    runDaemonInstall.mockResolvedValue(undefined);
     setTty(false);
     setStdoutTty(false);
   });
@@ -656,6 +660,61 @@ describe("update-cli", () => {
     await updateCommand({});
 
     expect(runDaemonRestart).toHaveBeenCalled();
+  });
+
+  it("updateCommand refreshes gateway service env when service is already installed", async () => {
+    const mockResult: UpdateRunResult = {
+      status: "ok",
+      mode: "git",
+      steps: [],
+      durationMs: 100,
+    };
+
+    vi.mocked(runGatewayUpdate).mockResolvedValue(mockResult);
+    vi.mocked(runDaemonInstall).mockResolvedValue(undefined);
+    serviceLoaded.mockResolvedValue(true);
+
+    await updateCommand({});
+
+    expect(runDaemonInstall).toHaveBeenCalledWith({
+      force: true,
+      json: undefined,
+    });
+    expect(runDaemonRestart).not.toHaveBeenCalled();
+  });
+
+  it("updateCommand falls back to restart when env refresh install fails", async () => {
+    const mockResult: UpdateRunResult = {
+      status: "ok",
+      mode: "git",
+      steps: [],
+      durationMs: 100,
+    };
+
+    vi.mocked(runGatewayUpdate).mockResolvedValue(mockResult);
+    vi.mocked(runDaemonInstall).mockRejectedValueOnce(new Error("refresh failed"));
+    prepareRestartScript.mockResolvedValue(null);
+    serviceLoaded.mockResolvedValue(true);
+    vi.mocked(runDaemonRestart).mockResolvedValue(true);
+
+    await updateCommand({});
+
+    expect(runDaemonInstall).toHaveBeenCalledWith({
+      force: true,
+      json: undefined,
+    });
+    expect(runDaemonRestart).toHaveBeenCalled();
+  });
+
+  it("updateCommand does not refresh service env when --no-restart is set", async () => {
+    vi.mocked(runGatewayUpdate).mockResolvedValue(makeOkUpdateResult());
+    serviceLoaded.mockResolvedValue(true);
+
+    await updateCommand({ restart: false });
+
+    expect(runDaemonInstall).not.toHaveBeenCalled();
+    expect(runRestartScript).not.toHaveBeenCalled();
+    expect(runDaemonRestart).not.toHaveBeenCalled();
   });
 
   it("updateCommand continues after doctor sub-step and clears update flag", async () => {
