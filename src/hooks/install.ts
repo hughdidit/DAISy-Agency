@@ -27,7 +27,11 @@ import {
 } from "../infra/install-source-utils.js";
 >>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
+<<<<<<< HEAD
 import { runCommandWithTimeout } from "../process/exec.js";
+=======
+import { isPathInside, isPathInsideWithRealpath } from "../security/scan-paths.js";
+>>>>>>> 81b19aaa1 (fix(security): enforce plugin and hook path containment)
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 >>>>>>> 6f7d31c42 (fix(security): harden plugin/hook npm installs)
 import { parseFrontmatter } from "./frontmatter.js";
@@ -174,7 +178,23 @@ async function installHookPackageFromDir(params: {
   const resolvedHooks = [] as string[];
   for (const entry of hookEntries) {
     const hookDir = path.resolve(params.packageDir, entry);
+    if (!isPathInside(params.packageDir, hookDir)) {
+      return {
+        ok: false,
+        error: `openclaw.hooks entry escapes package directory: ${entry}`,
+      };
+    }
     await validateHookDir(hookDir);
+    if (
+      !isPathInsideWithRealpath(params.packageDir, hookDir, {
+        requireRealpath: true,
+      })
+    ) {
+      return {
+        ok: false,
+        error: `openclaw.hooks entry resolves outside package directory: ${entry}`,
+      };
+    }
     const hookName = await resolveHookNameFromDir(hookDir);
     resolvedHooks.push(hookName);
   }

@@ -9,8 +9,13 @@ import { pathToFileURL } from "node:url";
 import path from "node:path";
 import { registerInternalHook } from "./internal-hooks.js";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 import type { InternalHookHandler } from "./internal-hooks.js";
 import { loadWorkspaceHookEntries } from "./workspace.js";
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { isPathInsideWithRealpath } from "../security/scan-paths.js";
+>>>>>>> 81b19aaa1 (fix(security): enforce plugin and hook path containment)
 import { resolveHookConfig } from "./config.js";
 import { shouldIncludeHook } from "./config.js";
 
@@ -60,6 +65,16 @@ export async function loadInternalHooks(
       }
 
       try {
+        if (
+          !isPathInsideWithRealpath(entry.hook.baseDir, entry.hook.handlerPath, {
+            requireRealpath: true,
+          })
+        ) {
+          log.error(
+            `Hook '${entry.hook.name}' handler path resolves outside hook directory: ${entry.hook.handlerPath}`,
+          );
+          continue;
+        }
         // Import handler module with cache-busting
         const url = pathToFileURL(entry.hook.handlerPath).href;
         const cacheBustedUrl = `${url}?t=${Date.now()}`;
@@ -126,6 +141,16 @@ export async function loadInternalHooks(
       const rel = path.relative(baseDir, modulePath);
       if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) {
         log.error(`Handler module path must stay within workspaceDir: ${rawModule}`);
+        continue;
+      }
+      if (
+        !isPathInsideWithRealpath(baseDir, modulePath, {
+          requireRealpath: true,
+        })
+      ) {
+        log.error(
+          `Handler module path resolves outside workspaceDir after symlink resolution: ${rawModule}`,
+        );
         continue;
       }
 
