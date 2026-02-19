@@ -637,9 +637,68 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     if (!relPath || !isMemoryPath(relPath)) {
       throw new Error("path required");
     }
+<<<<<<< HEAD
     const absPath = path.resolve(this.workspaceDir, relPath);
     if (!absPath.startsWith(this.workspaceDir)) {
       throw new Error("path escapes workspace");
+=======
+    const absPath = path.isAbsolute(rawPath)
+      ? path.resolve(rawPath)
+      : path.resolve(this.workspaceDir, rawPath);
+    const relPath = path.relative(this.workspaceDir, absPath).replace(/\\/g, "/");
+    const inWorkspace =
+      relPath.length > 0 && !relPath.startsWith("..") && !path.isAbsolute(relPath);
+    const allowedWorkspace = inWorkspace && isMemoryPath(relPath);
+    let allowedAdditional = false;
+    if (!allowedWorkspace && this.settings.extraPaths.length > 0) {
+      const additionalPaths = normalizeExtraMemoryPaths(
+        this.workspaceDir,
+        this.settings.extraPaths,
+      );
+      for (const additionalPath of additionalPaths) {
+        try {
+          const stat = await fs.lstat(additionalPath);
+          if (stat.isSymbolicLink()) {
+            continue;
+          }
+          if (stat.isDirectory()) {
+            if (absPath === additionalPath || absPath.startsWith(`${additionalPath}${path.sep}`)) {
+              allowedAdditional = true;
+              break;
+            }
+            continue;
+          }
+          if (stat.isFile()) {
+            if (absPath === additionalPath && absPath.endsWith(".md")) {
+              allowedAdditional = true;
+              break;
+            }
+          }
+        } catch {}
+      }
+    }
+    if (!allowedWorkspace && !allowedAdditional) {
+      throw new Error("path required");
+    }
+    if (!absPath.endsWith(".md")) {
+      throw new Error("path required");
+    }
+    let stat;
+    try {
+      stat = await fs.lstat(absPath);
+    } catch (err: unknown) {
+      if (
+        err instanceof Error &&
+        "code" in err &&
+        (err as NodeJS.ErrnoException).code === "ENOENT"
+      ) {
+        return { text: "", path: relPath };
+      }
+      throw err;
+    }
+    if (stat.isSymbolicLink() || !stat.isFile()) {
+      throw new Error("path required");
+>>>>>>> f3f47886b (fix(memory): handle ENOENT gracefully in readFile instead of throwing)
     }
     const content = await fs.readFile(absPath, "utf-8");
     if (!params.from && !params.lines) {
