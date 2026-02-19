@@ -19,8 +19,12 @@ import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { isRecord } from "../utils.js";
+<<<<<<< HEAD
 >>>>>>> 8d75a496b (refactor: centralize isPlainObject, isRecord, isErrno, isLoopbackHost utilities (#12926))
 import { fetchJson } from "./provider-usage.fetch.shared.js";
+=======
+import { buildUsageHttpErrorSnapshot, fetchJson } from "./provider-usage.fetch.shared.js";
+>>>>>>> badafdc7b (refactor: dedupe provider usage fetch logic and tests)
 import { clampPercent, PROVIDER_LABELS } from "./provider-usage.shared.js";
 import type { ProviderUsageSnapshot, UsageWindow } from "./provider-usage.types.js";
 
@@ -245,10 +249,7 @@ function collectUsageCandidates(root: Record<string, unknown>): Record<string, u
   let scanned = 0;
 
   while (queue.length && scanned < MAX_SCAN_NODES) {
-    const next = queue.shift();
-    if (!next) {
-      break;
-    }
+    const next = queue.shift() as { value: unknown; depth: number };
     scanned += 1;
     const { value, depth } = next;
 
@@ -313,10 +314,7 @@ function deriveUsedPercent(payload: Record<string, unknown>): number | null {
   if (percentRaw !== undefined) {
     const normalized = clampPercent(percentRaw <= 1 ? percentRaw * 100 : percentRaw);
     if (fromCounts !== null) {
-      const inverted = clampPercent(100 - normalized);
-      if (Math.abs(normalized - fromCounts) <= 1 || Math.abs(inverted - fromCounts) <= 1) {
-        return fromCounts;
-      }
+      // Count-derived usage is more stable across provider percent field variations.
       return fromCounts;
     }
     return normalized;
@@ -345,12 +343,10 @@ export async function fetchMinimaxUsage(
   );
 
   if (!res.ok) {
-    return {
+    return buildUsageHttpErrorSnapshot({
       provider: "minimax",
-      displayName: PROVIDER_LABELS.minimax,
-      windows: [],
-      error: `HTTP ${res.status}`,
-    };
+      status: res.status,
+    });
   }
 
   const data = (await res.json().catch(() => null)) as MinimaxUsageResponse;
