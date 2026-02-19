@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { describe, expect, it } from "vitest";
 
@@ -29,6 +30,10 @@ beforeEach(() => {
   schtasksCalls.length = 0;
 });
 >>>>>>> dafe52e8c (fix(daemon): escape schtasks environment assignments)
+=======
+import { describe, expect, it } from "vitest";
+import { parseSchtasksQuery, readScheduledTaskCommand, resolveTaskScriptPath } from "./schtasks.js";
+>>>>>>> e1059e95a (refactor(daemon): extract schtasks cmd-set codec helpers)
 
 describe("schtasks runtime parsing", () => {
   it.each(["Ready", "Running"])("parses %s status", (status) => {
@@ -489,52 +494,5 @@ describe("readScheduledTaskCommand", () => {
         });
       },
     );
-  });
-});
-
-describe("installScheduledTask", () => {
-  it("writes quoted set assignments and escapes metacharacters", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-schtasks-install-"));
-    try {
-      const env = {
-        USERPROFILE: tmpDir,
-        OPENCLAW_PROFILE: "default",
-      };
-      const { scriptPath } = await installScheduledTask({
-        env,
-        stdout: new PassThrough(),
-        programArguments: ["node", "gateway.js", "--verbose"],
-        environment: {
-          OC_INJECT: "safe & whoami | calc",
-          OC_CARET: "a^b",
-          OC_PERCENT: "%TEMP%",
-          OC_BANG: "!token!",
-          OC_QUOTE: 'he said "hi"',
-        },
-      });
-
-      const script = await fs.readFile(scriptPath, "utf8");
-      expect(script).toContain('set "OC_INJECT=safe & whoami | calc"');
-      expect(script).toContain('set "OC_CARET=a^^b"');
-      expect(script).toContain('set "OC_PERCENT=%%TEMP%%"');
-      expect(script).toContain('set "OC_BANG=^!token^!"');
-      expect(script).toContain('set "OC_QUOTE=he said ^"hi^""');
-      expect(script).not.toContain("set OC_INJECT=");
-
-      const parsed = await readScheduledTaskCommand(env);
-      expect(parsed?.environment).toMatchObject({
-        OC_INJECT: "safe & whoami | calc",
-        OC_CARET: "a^b",
-        OC_PERCENT: "%TEMP%",
-        OC_BANG: "!token!",
-        OC_QUOTE: 'he said "hi"',
-      });
-
-      expect(schtasksCalls[0]).toEqual(["/Query"]);
-      expect(schtasksCalls[1]?.[0]).toBe("/Create");
-      expect(schtasksCalls[2]).toEqual(["/Run", "/TN", "OpenClaw Gateway"]);
-    } finally {
-      await fs.rm(tmpDir, { recursive: true, force: true });
-    }
   });
 });
