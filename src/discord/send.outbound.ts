@@ -54,6 +54,13 @@ type DiscordSendOpts = {
   silent?: boolean;
 };
 
+type DiscordClientRequest = ReturnType<typeof createDiscordClient>["request"];
+
+type DiscordChannelMessageResult = {
+  id?: string | null;
+  channel_id?: string | null;
+};
+
 /** Discord thread names are capped at 100 characters. */
 const DISCORD_THREAD_NAME_LIMIT = 100;
 
@@ -70,6 +77,27 @@ function deriveForumThreadName(text: string): string {
 /** Forum/Media channels cannot receive regular messages; detect them here. */
 function isForumLikeType(channelType?: number): boolean {
   return channelType === ChannelType.GuildForum || channelType === ChannelType.GuildMedia;
+}
+
+function toDiscordSendResult(
+  result: DiscordChannelMessageResult,
+  fallbackChannelId: string,
+): DiscordSendResult {
+  return {
+    messageId: result.id ? String(result.id) : "unknown",
+    channelId: String(result.channel_id ?? fallbackChannelId),
+  };
+}
+
+async function resolveDiscordSendTarget(
+  to: string,
+  opts: DiscordSendOpts,
+): Promise<{ rest: RequestClient; request: DiscordClientRequest; channelId: string }> {
+  const cfg = loadConfig();
+  const { rest, request } = createDiscordClient(opts, cfg);
+  const recipient = await parseAndResolveRecipient(to, opts.accountId);
+  const { channelId } = await resolveChannelId(rest, recipient, request);
+  return { rest, request, channelId };
 }
 
 export async function sendMessageDiscord(
@@ -208,10 +236,13 @@ export async function sendMessageDiscord(
       accountId: accountInfo.accountId,
       direction: "outbound",
     });
-    return {
-      messageId: messageId ? String(messageId) : "unknown",
-      channelId: String(resultChannelId ?? channelId),
-    };
+    return toDiscordSendResult(
+      {
+        id: messageId,
+        channel_id: resultChannelId,
+      },
+      channelId,
+    );
   }
 
   let result: { id: string; channel_id: string } | { id: string | null; channel_id: string };
@@ -258,10 +289,7 @@ export async function sendMessageDiscord(
     accountId: accountInfo.accountId,
     direction: "outbound",
   });
-  return {
-    messageId: result.id ? String(result.id) : "unknown",
-    channelId: String(result.channel_id ?? channelId),
-  };
+  return toDiscordSendResult(result, channelId);
 }
 
 export async function sendStickerDiscord(
@@ -269,10 +297,7 @@ export async function sendStickerDiscord(
   stickerIds: string[],
   opts: DiscordSendOpts & { content?: string } = {},
 ): Promise<DiscordSendResult> {
-  const cfg = loadConfig();
-  const { rest, request } = createDiscordClient(opts, cfg);
-  const recipient = await parseAndResolveRecipient(to, opts.accountId);
-  const { channelId } = await resolveChannelId(rest, recipient, request);
+  const { rest, request, channelId } = await resolveDiscordSendTarget(to, opts);
   const content = opts.content?.trim();
   const stickers = normalizeStickerIds(stickerIds);
   const res = (await request(
@@ -285,10 +310,7 @@ export async function sendStickerDiscord(
       }) as Promise<{ id: string; channel_id: string }>,
     "sticker",
   )) as { id: string; channel_id: string };
-  return {
-    messageId: res.id ? String(res.id) : "unknown",
-    channelId: String(res.channel_id ?? channelId),
-  };
+  return toDiscordSendResult(res, channelId);
 }
 
 export async function sendPollDiscord(
@@ -296,10 +318,7 @@ export async function sendPollDiscord(
   poll: PollInput,
   opts: DiscordSendOpts & { content?: string } = {},
 ): Promise<DiscordSendResult> {
-  const cfg = loadConfig();
-  const { rest, request } = createDiscordClient(opts, cfg);
-  const recipient = await parseAndResolveRecipient(to, opts.accountId);
-  const { channelId } = await resolveChannelId(rest, recipient, request);
+  const { rest, request, channelId } = await resolveDiscordSendTarget(to, opts);
   const content = opts.content?.trim();
   if (poll.durationSeconds !== undefined) {
     throw new Error("Discord polls do not support durationSeconds; use durationHours");
@@ -317,10 +336,7 @@ export async function sendPollDiscord(
       }) as Promise<{ id: string; channel_id: string }>,
     "poll",
   )) as { id: string; channel_id: string };
-  return {
-    messageId: res.id ? String(res.id) : "unknown",
-    channelId: String(res.channel_id ?? channelId),
-  };
+  return toDiscordSendResult(res, channelId);
 }
 
 type VoiceMessageOpts = {
@@ -409,10 +425,7 @@ export async function sendVoiceMessageDiscord(
       direction: "outbound",
     });
 
-    return {
-      messageId: result.id ? String(result.id) : "unknown",
-      channelId: String(result.channel_id ?? channelId),
-    };
+    return toDiscordSendResult(result, channelId);
   } catch (err) {
     if (channelId && rest && token) {
       throw await buildDiscordSendError(err, {
