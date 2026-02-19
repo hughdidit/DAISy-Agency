@@ -118,6 +118,20 @@ export { ToolPolicySchema } from "../config/zod-schema.agent-runtime.js";
 export type { RuntimeEnv } from "../runtime.js";
 export type { WizardPrompter } from "../wizard/prompts.js";
 export { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
+<<<<<<< HEAD
+=======
+export { formatAllowFromLowercase, isAllowedParsedChatSender } from "./allow-from.js";
+export { resolveSenderCommandAuthorization } from "./command-auth.js";
+export { handleSlackMessageAction } from "./slack-message-actions.js";
+export { extractToolSend } from "./tool-send.js";
+export { resolveChannelAccountConfigBasePath } from "./config-paths.js";
+export { chunkTextForOutbound } from "./text-chunking.js";
+export { readJsonFileWithFallback, writeJsonFileAtomically } from "./json-store.js";
+export { buildRandomTempFilePath } from "./temp-path.js";
+export type { ChatType } from "../channels/chat-type.js";
+/** @deprecated Use ChatType instead */
+export type { RoutePeerKind } from "../routing/resolve-route.js";
+>>>>>>> a7c0aa94d (refactor(security): share safe temp media path builder (#20810))
 export { resolveAckReaction } from "../agents/identity.js";
 export type { ReplyPayload } from "../auto-reply/types.js";
 export type { ChunkMode } from "../auto-reply/chunk.js";
