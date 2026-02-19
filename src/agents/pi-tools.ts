@@ -378,6 +378,7 @@ export function createMoltbotCodingTools(options?: {
       hasRepliedRef: options?.hasRepliedRef,
       modelHasVision: options?.modelHasVision,
       requesterAgentIdOverride: agentId,
+      senderIsOwner: options?.senderIsOwner,
     }),
   ];
   const coreToolNames = new Set(

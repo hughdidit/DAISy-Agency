@@ -12,6 +12,35 @@ import {
   resolveToolProfilePolicy,
   TOOL_GROUPS,
 } from "./tool-policy.js";
+<<<<<<< HEAD
+=======
+import type { AnyAgentTool } from "./tools/common.js";
+
+function createOwnerPolicyTools() {
+  return [
+    {
+      name: "read",
+      // oxlint-disable-next-line typescript/no-explicit-any
+      execute: async () => ({ content: [], details: {} }) as any,
+    },
+    {
+      name: "cron",
+      // oxlint-disable-next-line typescript/no-explicit-any
+      execute: async () => ({ content: [], details: {} }) as any,
+    },
+    {
+      name: "gateway",
+      // oxlint-disable-next-line typescript/no-explicit-any
+      execute: async () => ({ content: [], details: {} }) as any,
+    },
+    {
+      name: "whatsapp_login",
+      // oxlint-disable-next-line typescript/no-explicit-any
+      execute: async () => ({ content: [], details: {} }) as any,
+    },
+  ] as unknown as AnyAgentTool[];
+}
+>>>>>>> a40c10d3e (fix: harden agent gateway authorization scopes)
 
 describe("tool-policy", () => {
   it("expands groups and normalizes aliases", () => {
@@ -48,6 +77,8 @@ describe("tool-policy", () => {
 
   it("identifies owner-only tools", () => {
     expect(isOwnerOnlyToolName("whatsapp_login")).toBe(true);
+    expect(isOwnerOnlyToolName("cron")).toBe(true);
+    expect(isOwnerOnlyToolName("gateway")).toBe(true);
     expect(isOwnerOnlyToolName("read")).toBe(false);
   });
 
@@ -84,7 +115,7 @@ describe("tool-policy", () => {
     ] as unknown as AnyAgentTool[];
 
     const filtered = applyOwnerOnlyToolPolicy(tools, true);
-    expect(filtered.map((t) => t.name)).toEqual(["read", "whatsapp_login"]);
+    expect(filtered.map((t) => t.name)).toEqual(["read", "cron", "gateway", "whatsapp_login"]);
   });
 });
 
