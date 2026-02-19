@@ -72,6 +72,7 @@ import type { ExecAllowlistEntry } from "./exec-approvals.js";
 import {
   SAFE_BIN_GENERIC_PROFILE,
   SAFE_BIN_PROFILES,
+  type SafeBinProfile,
   validateSafeBinArgv,
 } from "./exec-safe-bin-policy.js";
 >>>>>>> 2d485cd47 (refactor(security): extract safe-bin policy and dedupe tests)
@@ -99,11 +100,15 @@ export function isSafeBinUsage(params: {
   argv: string[];
   resolution: CommandResolution | null;
   safeBins: Set<string>;
+  platform?: string | null;
   trustedSafeBinDirs?: ReadonlySet<string>;
+  safeBinProfiles?: Readonly<Record<string, SafeBinProfile>>;
+  safeBinGenericProfile?: SafeBinProfile;
+  isTrustedSafeBinPathFn?: typeof isTrustedSafeBinPath;
 }): boolean {
   // Windows host exec uses PowerShell, which has different parsing/expansion rules.
   // Keep safeBins conservative there (require explicit allowlist entries).
-  if (isWindowsPlatform(process.platform)) {
+  if (isWindowsPlatform(params.platform ?? process.platform)) {
     return false;
   }
   if (params.safeBins.size === 0) {
@@ -121,8 +126,9 @@ export function isSafeBinUsage(params: {
   if (!resolution?.resolvedPath) {
     return false;
   }
+  const isTrustedPath = params.isTrustedSafeBinPathFn ?? isTrustedSafeBinPath;
   if (
-    !isTrustedSafeBinPath({
+    !isTrustedPath({
       resolvedPath: resolution.resolvedPath,
       trustedDirs: params.trustedSafeBinDirs,
     })
@@ -130,7 +136,9 @@ export function isSafeBinUsage(params: {
     return false;
   }
   const argv = params.argv.slice(1);
-  const profile = SAFE_BIN_PROFILES[execName] ?? SAFE_BIN_GENERIC_PROFILE;
+  const safeBinProfiles = params.safeBinProfiles ?? SAFE_BIN_PROFILES;
+  const genericSafeBinProfile = params.safeBinGenericProfile ?? SAFE_BIN_GENERIC_PROFILE;
+  const profile = safeBinProfiles[execName] ?? genericSafeBinProfile;
   return validateSafeBinArgv(argv, profile);
 }
 
@@ -148,6 +156,11 @@ function evaluateSegments(
     allowlist: ExecAllowlistEntry[];
     safeBins: Set<string>;
     cwd?: string;
+<<<<<<< HEAD
+=======
+    platform?: string | null;
+    trustedSafeBinDirs?: ReadonlySet<string>;
+>>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
     skillBins?: Set<string>;
     autoAllowSkills?: boolean;
   },
@@ -175,8 +188,12 @@ function evaluateSegments(
       resolution: segment.resolution,
       safeBins: params.safeBins,
 <<<<<<< HEAD
+<<<<<<< HEAD
       cwd: params.cwd,
 =======
+=======
+      platform: params.platform,
+>>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
       trustedSafeBinDirs: params.trustedSafeBinDirs,
 >>>>>>> 165c18819 (refactor(security): simplify safe-bin validation structure)
     });
@@ -203,6 +220,11 @@ export function evaluateExecAllowlist(params: {
   allowlist: ExecAllowlistEntry[];
   safeBins: Set<string>;
   cwd?: string;
+<<<<<<< HEAD
+=======
+  platform?: string | null;
+  trustedSafeBinDirs?: ReadonlySet<string>;
+>>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
   skillBins?: Set<string>;
   autoAllowSkills?: boolean;
 }): ExecAllowlistEvaluation {
@@ -219,6 +241,11 @@ export function evaluateExecAllowlist(params: {
         allowlist: params.allowlist,
         safeBins: params.safeBins,
         cwd: params.cwd,
+<<<<<<< HEAD
+=======
+        platform: params.platform,
+        trustedSafeBinDirs: params.trustedSafeBinDirs,
+>>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
         skillBins: params.skillBins,
         autoAllowSkills: params.autoAllowSkills,
       });
@@ -236,6 +263,11 @@ export function evaluateExecAllowlist(params: {
     allowlist: params.allowlist,
     safeBins: params.safeBins,
     cwd: params.cwd,
+<<<<<<< HEAD
+=======
+    platform: params.platform,
+    trustedSafeBinDirs: params.trustedSafeBinDirs,
+>>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
     skillBins: params.skillBins,
     autoAllowSkills: params.autoAllowSkills,
   });
@@ -289,6 +321,11 @@ export function evaluateShellAllowlist(params: {
       allowlist: params.allowlist,
       safeBins: params.safeBins,
       cwd: params.cwd,
+<<<<<<< HEAD
+=======
+      platform: params.platform,
+      trustedSafeBinDirs: params.trustedSafeBinDirs,
+>>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
       skillBins: params.skillBins,
       autoAllowSkills: params.autoAllowSkills,
     });
@@ -328,6 +365,11 @@ export function evaluateShellAllowlist(params: {
       allowlist: params.allowlist,
       safeBins: params.safeBins,
       cwd: params.cwd,
+<<<<<<< HEAD
+=======
+      platform: params.platform,
+      trustedSafeBinDirs: params.trustedSafeBinDirs,
+>>>>>>> a688ccf24 (refactor(security): unify safe-bin argv parsing and harden regressions)
       skillBins: params.skillBins,
       autoAllowSkills: params.autoAllowSkills,
     });
