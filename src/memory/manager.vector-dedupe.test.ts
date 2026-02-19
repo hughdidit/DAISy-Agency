@@ -7,9 +7,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 7b31e8fc5 (chore: Fix types in tests 36/N.)
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
+=======
+import type { MemoryIndexManager } from "./index.js";
+>>>>>>> eb9861b20 (test: share memory manager bootstrap helper)
 import { buildFileEntry } from "./internal.js";
+import { createMemoryManagerOrThrow } from "./test-manager.js";
 
 vi.mock("./embeddings.js", () => {
   return {
@@ -62,12 +67,7 @@ describe("memory vector dedupe", () => {
       },
     } as OpenClawConfig;
 
-    const result = await getMemorySearchManager({ cfg, agentId: "main" });
-    expect(result.manager).not.toBeNull();
-    if (!result.manager) {
-      throw new Error("manager missing");
-    }
-    manager = result.manager as unknown as MemoryIndexManager;
+    manager = await createMemoryManagerOrThrow(cfg);
 
     const db = (
       manager as unknown as {
