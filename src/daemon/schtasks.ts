@@ -6,6 +6,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { promisify } from "node:util";
 
 =======
@@ -46,6 +47,8 @@ import { parseKeyValueOutput } from "./runtime-parse.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+>>>>>>> dafe52e8c (fix(daemon): escape schtasks environment assignments)
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 <<<<<<< HEAD
 =======
@@ -94,6 +97,12 @@ import type {
   GatewayServiceManageArgs,
   GatewayServiceRenderArgs,
 } from "./service-types.js";
+import { splitArgsPreservingQuotes } from "./arg-split.js";
+import { resolveGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
+import { formatLine, writeFormattedLines } from "./output.js";
+import { resolveGatewayStateDir } from "./paths.js";
+import { parseKeyValueOutput } from "./runtime-parse.js";
+import { execSchtasks } from "./schtasks-exec.js";
 
 function resolveTaskName(env: GatewayServiceEnv): string {
 >>>>>>> 70900feaa (refactor(daemon): share service arg types across backends)
@@ -120,6 +129,61 @@ function quoteCmdArg(value: string): string {
     return value;
   }
   return `"${value.replace(/"/g, '\\"')}"`;
+}
+
+function escapeCmdSetAssignmentComponent(value: string): string {
+  return value.replace(/\^/g, "^^").replace(/%/g, "%%").replace(/!/g, "^!").replace(/"/g, '^"');
+}
+
+function unescapeCmdSetAssignmentComponent(value: string): string {
+  let out = "";
+  for (let i = 0; i < value.length; i += 1) {
+    const ch = value[i];
+    const next = value[i + 1];
+    if (ch === "^" && (next === "^" || next === '"' || next === "!")) {
+      out += next;
+      i += 1;
+      continue;
+    }
+    if (ch === "%" && next === "%") {
+      out += "%";
+      i += 1;
+      continue;
+    }
+    out += ch;
+  }
+  return out;
+}
+
+function parseCmdSetAssignment(line: string): { key: string; value: string } | null {
+  const raw = line.trim();
+  if (!raw) {
+    return null;
+  }
+  const quoted = raw.startsWith('"') && raw.endsWith('"') && raw.length >= 2;
+  const assignment = quoted ? raw.slice(1, -1) : raw;
+  const index = assignment.indexOf("=");
+  if (index <= 0) {
+    return null;
+  }
+  const key = assignment.slice(0, index).trim();
+  const value = assignment.slice(index + 1).trim();
+  if (!key) {
+    return null;
+  }
+  if (!quoted) {
+    return { key, value };
+  }
+  return {
+    key: unescapeCmdSetAssignmentComponent(key),
+    value: unescapeCmdSetAssignmentComponent(value),
+  };
+}
+
+function renderCmdSetAssignment(key: string, value: string): string {
+  const escapedKey = escapeCmdSetAssignmentComponent(key);
+  const escapedValue = escapeCmdSetAssignmentComponent(value);
+  return `set "${escapedKey}=${escapedValue}"`;
 }
 
 function resolveTaskUser(env: GatewayServiceEnv): string | null {
@@ -164,14 +228,9 @@ export async function readScheduledTaskCommand(
         continue;
       }
       if (line.toLowerCase().startsWith("set ")) {
-        const assignment = line.slice(4).trim();
-        const index = assignment.indexOf("=");
-        if (index > 0) {
-          const key = assignment.slice(0, index).trim();
-          const value = assignment.slice(index + 1).trim();
-          if (key) {
-            environment[key] = value;
-          }
+        const assignment = parseCmdSetAssignment(line.slice(4));
+        if (assignment) {
+          environment[assignment.key] = assignment.value;
         }
         continue;
       }
@@ -237,7 +296,7 @@ function buildTaskScript({
       if (!value) {
         continue;
       }
-      lines.push(`set ${key}=${value}`);
+      lines.push(renderCmdSetAssignment(key, value));
     }
   }
   const command = programArguments.map(quoteCmdArg).join(" ");
