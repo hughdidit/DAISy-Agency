@@ -7,6 +7,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import path from "node:path";
@@ -84,6 +85,10 @@ import { buildNodeShellCommand } from "../infra/node-shell.js";
 =======
 import fs from "node:fs/promises";
 import path from "node:path";
+=======
+import fs from "node:fs/promises";
+import path from "node:path";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import { type ExecHost, maxAsk, minSecurity, resolveSafeBins } from "../infra/exec-approvals.js";
 import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
@@ -137,6 +142,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b47fa9e71 (refactor(exec): extract bash tool runtime internals)
 =======
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
@@ -157,12 +163,17 @@ import type { BashSandboxConfig } from "./bash-tools.shared.js";
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 =======
+=======
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import type {
   ExecElevatedDefaults,
   ExecToolDefaults,
   ExecToolDetails,
 } from "./bash-tools.exec-types.js";
+<<<<<<< HEAD
 >>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
+=======
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import {
   buildSandboxEnv,
   clampWithDefault,

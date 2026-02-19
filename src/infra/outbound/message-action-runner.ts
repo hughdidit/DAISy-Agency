@@ -22,17 +22,21 @@ import { dispatchChannelMessageAction } from "../../channels/plugins/message-act
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import type {
   ChannelId,
   ChannelMessageActionName,
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -57,6 +61,9 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -82,6 +89,7 @@ import { applyTargetToParams } from "./channel-target.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ensureOutboundSessionEntry, resolveOutboundSessionRoute } from "./outbound-session.js";
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
@@ -99,6 +107,9 @@ import type { OutboundSendDeps } from "./deliver.js";
 =======
 import type { OutboundSendDeps } from "./deliver.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { OutboundSendDeps } from "./deliver.js";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import {
   hydrateSendAttachmentParams,
   hydrateSetGroupIconParams,
@@ -112,6 +123,7 @@ import {
   resolveTelegramAutoThreadId,
 } from "./message-action-params.js";
 import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -131,6 +143,9 @@ import type { MessagePollResult, MessageSendResult } from "./message.js";
 =======
 import type { MessagePollResult, MessageSendResult } from "./message.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { MessagePollResult, MessageSendResult } from "./message.js";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import {
   applyCrossContextDecoration,
   buildCrossContextDecoration,

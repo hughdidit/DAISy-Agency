@@ -19,8 +19,12 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 72e9364ba (perf(test): speed up hot test files)
+=======
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { collectPluginsCodeSafetyFindings } from "./audit-extra.js";
+import type { SecurityAuditOptions, SecurityAuditReport } from "./audit.js";
 import { runSecurityAudit } from "./audit.js";
 import type { SecurityAuditOptions, SecurityAuditReport } from "./audit.js";
 import * as skillScanner from "./skill-scanner.js";

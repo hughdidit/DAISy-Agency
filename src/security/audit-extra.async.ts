@@ -38,6 +38,7 @@ import { extensionUsesSkippedScannerPath, isPathInside } from "./scan-paths.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { SkillScanFinding } from "./skill-scanner.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -50,6 +51,9 @@ import type { SkillScanFinding } from "./skill-scanner.js";
 =======
 import type { SkillScanFinding } from "./skill-scanner.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { SkillScanFinding } from "./skill-scanner.js";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import * as skillScanner from "./skill-scanner.js";
 import type { ExecFn } from "./windows-acl.js";
 

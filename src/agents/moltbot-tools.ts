@@ -9,6 +9,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
 <<<<<<< HEAD:src/agents/moltbot-tools.ts
+<<<<<<< HEAD:src/agents/moltbot-tools.ts
 >>>>>>> 90ef2d6bd (chore: Update formatting.):src/agents/openclaw-tools.ts
 import { resolvePluginTools } from "../plugins/tools.js";
 =======
@@ -40,6 +41,9 @@ import type { AnyAgentTool } from "./tools/common.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33):src/agents/openclaw-tools.ts
 import { resolvePluginTools } from "../plugins/tools.js";
+=======
+import { resolvePluginTools } from "../plugins/tools.js";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks):src/agents/openclaw-tools.ts
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveSessionAgentId } from "./agent-scope.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";

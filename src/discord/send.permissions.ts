@@ -16,6 +16,7 @@ import { ChannelType, PermissionFlagsBits, Routes } from "discord-api-types/v10"
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveDiscordRest } from "./client.js";
 <<<<<<< HEAD
 >>>>>>> 4734c985c (refactor(discord): share client rest helpers)
@@ -38,6 +39,10 @@ import { resolveDiscordRest } from "./client.js";
 import { resolveDiscordRest } from "./client.js";
 import type { DiscordPermissionsSummary, DiscordReactOpts } from "./send.types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { resolveDiscordRest } from "./client.js";
+import type { DiscordPermissionsSummary, DiscordReactOpts } from "./send.types.js";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 
 const PERMISSION_ENTRIES = Object.entries(PermissionFlagsBits).filter(
   ([, value]) => typeof value === "bigint",

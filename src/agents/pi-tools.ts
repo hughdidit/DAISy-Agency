@@ -47,6 +47,7 @@ import type { ModelAuthMode } from "./model-auth.js";
 =======
 import { resolveImageSanitizationLimits } from "./image-sanitization.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b05e89e5e (fix(agents): make image sanitization dimension configurable)
 =======
 import { resolveImageSanitizationLimits } from "./image-sanitization.js";
@@ -54,6 +55,9 @@ import { resolveImageSanitizationLimits } from "./image-sanitization.js";
 =======
 import type { ModelAuthMode } from "./model-auth.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { ModelAuthMode } from "./model-auth.js";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
@@ -75,6 +79,7 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -118,6 +123,10 @@ import type { SandboxContext } from "./sandbox.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { AnyAgentTool } from "./pi-tools.types.js";
+import type { SandboxContext } from "./sandbox.js";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import {

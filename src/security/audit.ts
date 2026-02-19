@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -22,6 +23,9 @@ import type { ExecFn } from "./windows-acl.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { resolveSandboxConfigForAgent } from "../agents/sandbox.js";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
 import { resolveBrowserControlAuth } from "../browser/control-auth.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
@@ -38,6 +42,7 @@ import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -50,6 +55,9 @@ import type { OpenClawConfig } from "../config/config.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { formatCliCommand } from "../cli/command-format.js";
@@ -84,6 +92,7 @@ import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import type { ExecFn } from "./windows-acl.js";
 =======
@@ -96,6 +105,9 @@ import type { ExecFn } from "./windows-acl.js";
 =======
 import type { ExecFn } from "./windows-acl.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { ExecFn } from "./windows-acl.js";
+>>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 
 export type SecurityAuditSeverity = "info" | "warn" | "critical";
 
