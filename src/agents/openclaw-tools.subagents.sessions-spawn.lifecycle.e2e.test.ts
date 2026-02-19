@@ -203,7 +203,24 @@ function expectSingleCompletionSend(
   expect(send?.message).toBe(expected.message);
 }
 
+<<<<<<< HEAD
 >>>>>>> 1934eebbf (refactor(agents): dedupe lifecycle send assertions and stable payload stringify)
+=======
+function createDeleteCleanupHooks(setDeletedKey: (key: string | undefined) => void) {
+  return {
+    onAgentSubagentSpawn: (params: unknown) => {
+      const rec = params as { channel?: string; timeout?: number } | undefined;
+      expect(rec?.channel).toBe("discord");
+      expect(rec?.timeout).toBe(1);
+    },
+    onSessionsDelete: (params: unknown) => {
+      const rec = params as { key?: string } | undefined;
+      setDeletedKey(rec?.key);
+    },
+  };
+}
+
+>>>>>>> d1cb779f5 (test(agents): dedupe embedded runner and sessions lifecycle fixtures)
 describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.lifecycle.e2e.test.ts
   beforeEach(() => {
@@ -305,15 +322,9 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
     callGatewayMock.mockReset();
     let deletedKey: string | undefined;
     const ctx = setupSessionsSpawnGatewayMock({
-      onAgentSubagentSpawn: (params) => {
-        const rec = params as { channel?: string; timeout?: number } | undefined;
-        expect(rec?.channel).toBe("discord");
-        expect(rec?.timeout).toBe(1);
-      },
-      onSessionsDelete: (params) => {
-        const rec = params as { key?: string } | undefined;
-        deletedKey = rec?.key;
-      },
+      ...createDeleteCleanupHooks((key) => {
+        deletedKey = key;
+      }),
     });
 
 <<<<<<< HEAD
@@ -404,15 +415,9 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
     let deletedKey: string | undefined;
     const ctx = setupSessionsSpawnGatewayMock({
       includeChatHistory: true,
-      onAgentSubagentSpawn: (params) => {
-        const rec = params as { channel?: string; timeout?: number } | undefined;
-        expect(rec?.channel).toBe("discord");
-        expect(rec?.timeout).toBe(1);
-      },
-      onSessionsDelete: (params) => {
-        const rec = params as { key?: string } | undefined;
-        deletedKey = rec?.key;
-      },
+      ...createDeleteCleanupHooks((key) => {
+        deletedKey = key;
+      }),
       agentWaitResult: { status: "ok", startedAt: 3000, endedAt: 4000 },
     });
 
