@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { resolveStateDir } from "../config/paths.js";
 import { sendVoiceMessageDiscord } from "../discord/send.js";
 import * as ssrf from "../infra/net/ssrf.js";
 import { optimizeImageToPng } from "../media/image-ops.js";
@@ -57,8 +58,8 @@ beforeAll(async () => {
   fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-test-"));
   largeJpegBuffer = await sharp({
     create: {
-      width: 800,
-      height: 800,
+      width: 400,
+      height: 400,
       channels: 3,
       background: "#ff0000",
     },
@@ -84,7 +85,8 @@ beforeAll(async () => {
     .png()
     .toBuffer();
   alphaPngFile = await writeTempFile(alphaPngBuffer, ".png");
-  const size = 72;
+  // Keep this small so the alpha-fallback test stays deterministic but fast.
+  const size = 24;
   const raw = buildDeterministicBytes(size * size * 4);
   fallbackPngBuffer = await sharp(raw, { raw: { width: size, height: size, channels: 4 } })
     .png()
@@ -142,18 +144,12 @@ describe("web media loading", () => {
     });
   });
 
-  it("strips MEDIA: prefix before reading local file", async () => {
-    const result = await loadWebMedia(`MEDIA:${tinyPngFile}`, 1024 * 1024);
-
-    expect(result.kind).toBe("image");
-    expect(result.buffer.length).toBeGreaterThan(0);
-  });
-
-  it("strips MEDIA: prefix with extra whitespace (LLM-friendly)", async () => {
-    const result = await loadWebMedia(`  MEDIA :  ${tinyPngFile}`, 1024 * 1024);
-
-    expect(result.kind).toBe("image");
-    expect(result.buffer.length).toBeGreaterThan(0);
+  it("strips MEDIA: prefix before reading local file (including whitespace variants)", async () => {
+    for (const input of [`MEDIA:${tinyPngFile}`, `  MEDIA :  ${tinyPngFile}`]) {
+      const result = await loadWebMedia(input, 1024 * 1024);
+      expect(result.kind).toBe("image");
+      expect(result.buffer.length).toBeGreaterThan(0);
+    }
   });
 
   it("compresses large local images under the provided cap", async () => {
@@ -366,7 +362,6 @@ describe("local media root guard", () => {
   });
 
   it("allows default OpenClaw state workspace and sandbox roots", async () => {
-    const { resolveStateDir } = await import("../config/paths.js");
     const stateDir = resolveStateDir();
     const readFile = vi.fn(async () => Buffer.from("generated-media"));
 
@@ -396,7 +391,6 @@ describe("local media root guard", () => {
 =======
 
   it("rejects default OpenClaw state per-agent workspace-* roots without explicit local roots", async () => {
-    const { resolveStateDir } = await import("../config/paths.js");
     const stateDir = resolveStateDir();
     const readFile = vi.fn(async () => Buffer.from("generated-media"));
 
@@ -409,7 +403,6 @@ describe("local media root guard", () => {
   });
 
   it("allows per-agent workspace-* paths with explicit local roots", async () => {
-    const { resolveStateDir } = await import("../config/paths.js");
     const stateDir = resolveStateDir();
     const readFile = vi.fn(async () => Buffer.from("generated-media"));
     const agentWorkspaceDir = path.join(stateDir, "workspace-clawdy");

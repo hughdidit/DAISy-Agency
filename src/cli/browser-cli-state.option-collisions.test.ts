@@ -66,6 +66,12 @@ describe("browser state option collisions", () => {
     return call[1] as { body?: Record<string, unknown> };
   };
 
+  const runBrowserCommand = async (argv: string[]) => {
+    const program = createBrowserProgram();
+    await program.parseAsync(["browser", ...argv], { from: "user" });
+    return getLastRequest();
+  };
+
   beforeEach(() => {
     mocks.callBrowserRequest.mockClear();
     mocks.runBrowserResizeWithOutput.mockClear();
@@ -75,8 +81,18 @@ describe("browser state option collisions", () => {
   });
 
   it("forwards parent-captured --target-id on `browser cookies set`", async () => {
-    const program = createBrowserProgram();
+    const request = await runBrowserCommand([
+      "cookies",
+      "set",
+      "session",
+      "abc",
+      "--url",
+      "https://example.com",
+      "--target-id",
+      "tab-1",
+    ]);
 
+<<<<<<< HEAD
     await program.parseAsync(
       [
         "browser",
@@ -122,6 +138,15 @@ describe("browser state option collisions", () => {
 =======
     const request = getLastRequest() as { body?: { headers?: Record<string, string> } };
 >>>>>>> 148116048 (test(cli): dedupe browser state command setup)
+=======
+    expect((request as { body?: { targetId?: string } }).body?.targetId).toBe("tab-1");
+  });
+
+  it("accepts legacy parent `--json` by parsing payload via positional headers fallback", async () => {
+    const request = (await runBrowserCommand(["set", "headers", "--json", '{"x-auth":"ok"}'])) as {
+      body?: { headers?: Record<string, string> };
+    };
+>>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
     expect(request.body?.headers).toEqual({ "x-auth": "ok" });
   });
 });
