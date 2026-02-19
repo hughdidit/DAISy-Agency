@@ -229,6 +229,191 @@ describe("lobster plugin tool", () => {
     ).rejects.toThrow(/invalid JSON/);
   });
 
+<<<<<<< HEAD
+=======
+  it("runs Windows cmd shims through Node without enabling shell", async () => {
+    setProcessPlatform("win32");
+    const shimScriptPath = path.join(tempDir, "shim-dist", "lobster-cli.cjs");
+    const shimPath = path.join(tempDir, "shim", "lobster.cmd");
+    await fs.mkdir(path.dirname(shimScriptPath), { recursive: true });
+    await fs.mkdir(path.dirname(shimPath), { recursive: true });
+    await fs.writeFile(shimScriptPath, "module.exports = {};\n", "utf8");
+    await fs.writeFile(
+      shimPath,
+      `@echo off\r\n"%dp0%\\..\\shim-dist\\lobster-cli.cjs" %*\r\n`,
+      "utf8",
+    );
+    spawnState.queue.push({
+      stdout: JSON.stringify({
+        ok: true,
+        status: "ok",
+        output: [{ hello: "world" }],
+        requiresApproval: null,
+      }),
+    });
+
+    const tool = createLobsterTool(fakeApi({ pluginConfig: { lobsterPath: shimPath } }));
+    await tool.execute("call-win-shim", {
+      action: "run",
+      pipeline: "noop",
+    });
+
+    const [command, argv, options] = spawnState.spawn.mock.calls[0] ?? [];
+    expect(command).toBe(process.execPath);
+    expect(argv).toEqual([shimScriptPath, "run", "--mode", "tool", "noop"]);
+    expect(options).toMatchObject({ windowsHide: true });
+    expect(options).not.toHaveProperty("shell");
+  });
+
+  it("runs Windows cmd shims with rooted dp0 tokens through Node", async () => {
+    setProcessPlatform("win32");
+    const shimScriptPath = path.join(tempDir, "shim-dist", "lobster-cli.cjs");
+    const shimPath = path.join(tempDir, "shim", "lobster.cmd");
+    await fs.mkdir(path.dirname(shimScriptPath), { recursive: true });
+    await fs.mkdir(path.dirname(shimPath), { recursive: true });
+    await fs.writeFile(shimScriptPath, "module.exports = {};\n", "utf8");
+    await fs.writeFile(
+      shimPath,
+      `@echo off\r\n"%dp0%\\..\\shim-dist\\lobster-cli.cjs" %*\r\n`,
+      "utf8",
+    );
+    spawnState.queue.push({
+      stdout: JSON.stringify({
+        ok: true,
+        status: "ok",
+        output: [{ hello: "rooted" }],
+        requiresApproval: null,
+      }),
+    });
+
+    const tool = createLobsterTool(fakeApi({ pluginConfig: { lobsterPath: shimPath } }));
+    await tool.execute("call-win-rooted-shim", {
+      action: "run",
+      pipeline: "noop",
+    });
+
+    const [command, argv] = spawnState.spawn.mock.calls[0] ?? [];
+    expect(command).toBe(process.execPath);
+    expect(argv).toEqual([shimScriptPath, "run", "--mode", "tool", "noop"]);
+  });
+
+  it("ignores node.exe shim entries and resolves the actual lobster script", async () => {
+    setProcessPlatform("win32");
+    const shimDir = path.join(tempDir, "shim-with-node");
+    const nodeExePath = path.join(shimDir, "node.exe");
+    const scriptPath = path.join(tempDir, "shim-dist-node", "lobster-cli.cjs");
+    const shimPath = path.join(shimDir, "lobster.cmd");
+    await fs.mkdir(path.dirname(scriptPath), { recursive: true });
+    await fs.mkdir(shimDir, { recursive: true });
+    await fs.writeFile(nodeExePath, "", "utf8");
+    await fs.writeFile(scriptPath, "module.exports = {};\n", "utf8");
+    await fs.writeFile(
+      shimPath,
+      `@echo off\r\n"%~dp0%\\node.exe" "%~dp0%\\..\\shim-dist-node\\lobster-cli.cjs" %*\r\n`,
+      "utf8",
+    );
+    spawnState.queue.push({
+      stdout: JSON.stringify({
+        ok: true,
+        status: "ok",
+        output: [{ hello: "node-first" }],
+        requiresApproval: null,
+      }),
+    });
+
+    const tool = createLobsterTool(fakeApi({ pluginConfig: { lobsterPath: shimPath } }));
+    await tool.execute("call-win-node-first", {
+      action: "run",
+      pipeline: "noop",
+    });
+
+    const [command, argv] = spawnState.spawn.mock.calls[0] ?? [];
+    expect(command).toBe(process.execPath);
+    expect(argv).toEqual([scriptPath, "run", "--mode", "tool", "noop"]);
+  });
+
+  it("resolves lobster.cmd from PATH and unwraps npm layout shim", async () => {
+    setProcessPlatform("win32");
+    const binDir = path.join(tempDir, "node_modules", ".bin");
+    const packageDir = path.join(tempDir, "node_modules", "lobster");
+    const scriptPath = path.join(packageDir, "dist", "cli.js");
+    const shimPath = path.join(binDir, "lobster.cmd");
+    await fs.mkdir(path.dirname(scriptPath), { recursive: true });
+    await fs.mkdir(binDir, { recursive: true });
+    await fs.writeFile(shimPath, "@echo off\r\n", "utf8");
+    await fs.writeFile(
+      path.join(packageDir, "package.json"),
+      JSON.stringify({ name: "lobster", version: "0.0.0", bin: { lobster: "dist/cli.js" } }),
+      "utf8",
+    );
+    await fs.writeFile(scriptPath, "module.exports = {};\n", "utf8");
+    process.env.PATHEXT = ".CMD;.EXE";
+    process.env.PATH = `${binDir};${process.env.PATH ?? ""}`;
+
+    spawnState.queue.push({
+      stdout: JSON.stringify({
+        ok: true,
+        status: "ok",
+        output: [{ hello: "path" }],
+        requiresApproval: null,
+      }),
+    });
+
+    const tool = createLobsterTool(fakeApi());
+    await tool.execute("call-win-path", {
+      action: "run",
+      pipeline: "noop",
+    });
+
+    const [command, argv] = spawnState.spawn.mock.calls[0] ?? [];
+    expect(command).toBe(process.execPath);
+    expect(argv).toEqual([scriptPath, "run", "--mode", "tool", "noop"]);
+  });
+
+  it("fails fast when cmd wrapper cannot be resolved without shell execution", async () => {
+    setProcessPlatform("win32");
+    const badShimPath = path.join(tempDir, "bad-shim", "lobster.cmd");
+    await fs.mkdir(path.dirname(badShimPath), { recursive: true });
+    await fs.writeFile(badShimPath, "@echo off\r\nREM no entrypoint\r\n", "utf8");
+
+    const tool = createLobsterTool(fakeApi({ pluginConfig: { lobsterPath: badShimPath } }));
+    await expect(
+      tool.execute("call-win-bad", {
+        action: "run",
+        pipeline: "noop",
+      }),
+    ).rejects.toThrow(/without shell execution/);
+    expect(spawnState.spawn).not.toHaveBeenCalled();
+  });
+
+  it("does not retry a failed Windows spawn with shell fallback", async () => {
+    setProcessPlatform("win32");
+    spawnState.spawn.mockReset();
+    spawnState.spawn.mockImplementationOnce(() => {
+      const child = new EventEmitter() as EventEmitter & {
+        stdout: PassThrough;
+        stderr: PassThrough;
+        kill: (signal?: string) => boolean;
+      };
+      child.stdout = new PassThrough();
+      child.stderr = new PassThrough();
+      child.kill = () => true;
+      const err = Object.assign(new Error("spawn failed"), { code: "ENOENT" });
+      setImmediate(() => child.emit("error", err));
+      return child;
+    });
+
+    const tool = createLobsterTool(fakeApi({ pluginConfig: { lobsterPath: lobsterExePath } }));
+    await expect(
+      tool.execute("call-win-no-retry", {
+        action: "run",
+        pipeline: "noop",
+      }),
+    ).rejects.toThrow(/spawn failed/);
+    expect(spawnState.spawn).toHaveBeenCalledTimes(1);
+  });
+
+>>>>>>> 1faa7a87a (lobster: parse windows cmd shim paths with rooted tokens (#20833))
   it("can be gated off in sandboxed contexts", async () => {
     const api = fakeApi();
     const factoryTool = (ctx: OpenClawPluginToolContext) => {
