@@ -506,7 +506,6 @@ describe("exec approvals safe bins", () => {
           executableName,
         },
         safeBins: normalizeSafeBins(testCase.safeBins ?? [executableName]),
-        cwd,
       });
       expect(ok).toBe(testCase.expected);
     });
@@ -525,7 +524,6 @@ describe("exec approvals safe bins", () => {
       },
       safeBins: normalizeSafeBins(["jq"]),
       trustedSafeBinDirs: new Set(["/custom/bin"]),
-      cwd: "/tmp",
     });
     expect(ok).toBe(true);
   });
@@ -553,25 +551,23 @@ describe("exec approvals safe bins", () => {
       argv: ["sort", "-o", "existing.txt"],
       resolution,
       safeBins,
-      cwd,
     });
     const missing = isSafeBinUsage({
       argv: ["sort", "-o", "missing.txt"],
       resolution,
       safeBins,
-      cwd,
     });
     const longFlag = isSafeBinUsage({
       argv: ["sort", "--output=missing.txt"],
       resolution,
       safeBins,
-      cwd,
     });
     expect(existing).toBe(false);
     expect(missing).toBe(false);
     expect(longFlag).toBe(false);
   });
 
+<<<<<<< HEAD
   it("does not consult file existence callbacks for safe-bin decisions", () => {
     if (process.platform === "win32") {
       return;
@@ -593,6 +589,43 @@ describe("exec approvals safe bins", () => {
     });
     expect(ok).toBe(false);
     expect(checkedExists).toBe(false);
+=======
+  it("threads trusted safe-bin dirs through allowlist evaluation", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const analysis = {
+      ok: true as const,
+      segments: [
+        {
+          raw: "jq .foo",
+          argv: ["jq", ".foo"],
+          resolution: {
+            rawExecutable: "jq",
+            resolvedPath: "/custom/bin/jq",
+            executableName: "jq",
+          },
+        },
+      ],
+    };
+    const denied = evaluateExecAllowlist({
+      analysis,
+      allowlist: [],
+      safeBins: normalizeSafeBins(["jq"]),
+      trustedSafeBinDirs: new Set(["/usr/bin"]),
+      cwd: "/tmp",
+    });
+    expect(denied.allowlistSatisfied).toBe(false);
+
+    const allowed = evaluateExecAllowlist({
+      analysis,
+      allowlist: [],
+      safeBins: normalizeSafeBins(["jq"]),
+      trustedSafeBinDirs: new Set(["/custom/bin"]),
+      cwd: "/tmp",
+    });
+    expect(allowed.allowlistSatisfied).toBe(true);
+>>>>>>> 165c18819 (refactor(security): simplify safe-bin validation structure)
   });
 });
 
@@ -813,7 +846,6 @@ describe("exec approvals node host allowlist check", () => {
       argv: ["unknown-tool", "--help"],
       resolution,
       safeBins: normalizeSafeBins(["jq", "curl"]),
-      cwd: "/tmp",
     });
     expect(safe).toBe(false);
   });
@@ -834,7 +866,6 @@ describe("exec approvals node host allowlist check", () => {
       argv: ["jq", ".foo"],
       resolution,
       safeBins: normalizeSafeBins(["jq"]),
-      cwd: "/tmp",
     });
     expect(safe).toBe(true);
   });
