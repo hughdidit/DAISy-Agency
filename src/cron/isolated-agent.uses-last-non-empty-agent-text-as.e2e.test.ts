@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import type { CliDeps } from "../cli/deps.js";
@@ -46,10 +47,20 @@ vi.mock("../agents/model-catalog.js", () => ({
   loadModelCatalog: vi.fn(),
 }));
 
+=======
+>>>>>>> 72e426be6 (test: reuse isolated agent mock module)
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
+import type { CliDeps } from "../cli/deps.js";
+import "./isolated-agent.mocks.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+import { makeCfg, makeJob, withTempCronHome } from "./isolated-agent.test-harness.js";
+import type { CronJob } from "./types.js";
+const withTempHome = withTempCronHome;
+>>>>>>> 72e426be6 (test: reuse isolated agent mock module)
 
 async function withTempHome<T>(fn: (home: string) => Promise<T>): Promise<T> {
   return withTempHomeBase(fn, { prefix: "moltbot-cron-" });
