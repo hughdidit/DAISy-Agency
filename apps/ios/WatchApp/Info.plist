@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>OpenClawTests</string>
+	<string>OpenClaw</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,29 +15,14 @@
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
-<<<<<<< HEAD
-<<<<<<< HEAD
-	<string>BNDL</string>
+	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2026.2.6</string>
+	<string>2026.2.19</string>
 	<key>CFBundleVersion</key>
-	<string>20260202</string>
+	<string>20260219</string>
+	<key>WKCompanionAppBundleIdentifier</key>
+	<string>$(OPENCLAW_APP_BUNDLE_ID)</string>
+	<key>WKWatchKitApp</key>
+	<true/>
 </dict>
-=======
-		<string>BNDL</string>
-		<key>CFBundleShortVersionString</key>
-		<string>2026.2.14</string>
-		<key>CFBundleVersion</key>
-		<string>20260214</string>
-	</dict>
->>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
 </plist>
-=======
-			<string>BNDL</string>
-			<key>CFBundleShortVersionString</key>
-			<string>2026.2.19</string>
-			<key>CFBundleVersion</key>
-			<string>20260219</string>
-		</dict>
-	</plist>
->>>>>>> 379b44558 (chore: bump version to 2026.2.15)
