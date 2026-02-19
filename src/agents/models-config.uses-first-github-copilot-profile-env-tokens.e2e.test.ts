@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 <<<<<<< HEAD
@@ -13,10 +14,14 @@ import { describe, expect, it, vi } from "vitest";
 =======
 import { captureEnv } from "../test-utils/env.js";
 >>>>>>> 76015aab2 (refactor(test): dedupe copilot env restores)
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> 0900ec38a (test(agents): dedupe copilot models-config token setup)
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
 import {
   installModelsConfigTestHooks,
   mockCopilotTokenExchangeSuccess,
+  withCopilotGithubToken,
   withUnsetCopilotTokenEnv,
   withModelsTempHome as withTempHome,
 } from "./models-config.e2e-harness.js";
@@ -113,6 +118,7 @@ describe("models-config", () => {
 
   it("does not override explicit github-copilot provider config", async () => {
     await withTempHome(async () => {
+<<<<<<< HEAD
       const envSnapshot = captureEnv(["COPILOT_GITHUB_TOKEN"]);
       process.env.COPILOT_GITHUB_TOKEN = "gh-token";
       const fetchMock = vi.fn().mockResolvedValue({
@@ -144,6 +150,9 @@ describe("models-config", () => {
 
         await ensureMoltbotModelsJson({
 =======
+=======
+      await withCopilotGithubToken("gh-token", async () => {
+>>>>>>> 0900ec38a (test(agents): dedupe copilot models-config token setup)
         await ensureOpenClawModelsJson({
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
           models: {
@@ -164,9 +173,7 @@ describe("models-config", () => {
         };
 
         expect(parsed.providers["github-copilot"]?.baseUrl).toBe("https://copilot.local");
-      } finally {
-        envSnapshot.restore();
-      }
+      });
     });
   });
 });

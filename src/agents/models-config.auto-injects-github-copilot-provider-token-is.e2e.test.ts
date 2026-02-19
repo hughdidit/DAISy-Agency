@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 <<<<<<< HEAD
@@ -8,9 +9,14 @@ import type { MoltbotConfig } from "../config/config.js";
 =======
 =======
 import { describe, expect, it, vi } from "vitest";
+=======
+import { describe, expect, it } from "vitest";
+>>>>>>> 0900ec38a (test(agents): dedupe copilot models-config token setup)
 import { captureEnv } from "../test-utils/env.js";
 import {
   installModelsConfigTestHooks,
+  mockCopilotTokenExchangeSuccess,
+  withCopilotGithubToken,
   withModelsTempHome as withTempHome,
 } from "./models-config.e2e-harness.js";
 >>>>>>> 96f80d6d8 (refactor(test): share models-config e2e setup)
@@ -52,6 +58,7 @@ installModelsConfigTestHooks({ restoreFetch: true });
 describe("models-config", () => {
   it("auto-injects github-copilot provider when token is present", async () => {
     await withTempHome(async (home) => {
+<<<<<<< HEAD
       const envSnapshot = captureEnv(["COPILOT_GITHUB_TOKEN"]);
       process.env.COPILOT_GITHUB_TOKEN = "gh-token";
       const fetchMock = vi.fn().mockResolvedValue({
@@ -82,6 +89,9 @@ describe("models-config", () => {
 
 =======
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
+=======
+      await withCopilotGithubToken("gh-token", async () => {
+>>>>>>> 0900ec38a (test(agents): dedupe copilot models-config token setup)
         const agentDir = path.join(home, "agent-default-base-url");
         await ensureMoltbotModelsJson({ models: { providers: {} } }, agentDir);
 
@@ -92,9 +102,7 @@ describe("models-config", () => {
 
         expect(parsed.providers["github-copilot"]?.baseUrl).toBe("https://api.copilot.example");
         expect(parsed.providers["github-copilot"]?.models?.length ?? 0).toBe(0);
-      } finally {
-        envSnapshot.restore();
-      }
+      });
     });
   });
 
@@ -105,15 +113,7 @@ describe("models-config", () => {
       process.env.GH_TOKEN = "gh-token";
       process.env.GITHUB_TOKEN = "github-token";
 
-      const fetchMock = vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => ({
-          token: "copilot-token;proxy-ep=proxy.copilot.example",
-          expires_at: Math.floor(Date.now() / 1000) + 3600,
-        }),
-      });
-      globalThis.fetch = fetchMock as unknown as typeof fetch;
+      const fetchMock = mockCopilotTokenExchangeSuccess();
 
       try {
 <<<<<<< HEAD
