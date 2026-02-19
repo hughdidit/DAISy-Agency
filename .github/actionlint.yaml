@@ -1,19 +1,35 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7880947bb (fix(ci): restore actionlint rules and add blacksmith 16 ignore)
 # actionlint configuration
 # https://github.com/rhysd/actionlint/blob/main/docs/config.md
 
 self-hosted-runner:
   labels:
     # Blacksmith CI runners
+<<<<<<< HEAD
     - blacksmith-4vcpu-ubuntu-2404
     - blacksmith-4vcpu-windows-2025
 
 # Ignore patterns for known issues
 =======
 >>>>>>> e500110ef (fix(ci): allow blacksmith 16vcpu labels in actionlint)
+=======
+    - blacksmith-8vcpu-ubuntu-2404
+    - blacksmith-8vcpu-windows-2025
+    - blacksmith-16vcpu-ubuntu-2404
+    - blacksmith-16vcpu-windows-2025
+    - blacksmith-16vcpu-ubuntu-2404-arm
+
+# Ignore patterns for known issues
+>>>>>>> 7880947bb (fix(ci): restore actionlint rules and add blacksmith 16 ignore)
 paths:
-  .github/workflows/**/*.{yml,yaml}:
+  .github/workflows/**/*.yml:
     ignore:
+      # Ignore shellcheck warnings (we run shellcheck separately)
+      - "shellcheck reported issue.+"
+      # Ignore intentional if: false for disabled jobs
+      - 'constant expression "false" in condition'
       # actionlint's built-in runner label allowlist lags Blacksmith additions.
-      # Keep runner validation enabled otherwise, but suppress this known false-positive.
       - 'label "blacksmith-16vcpu-[^"]+" is unknown\.'
