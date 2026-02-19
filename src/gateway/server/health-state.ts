@@ -3,10 +3,15 @@ import { getHealthSnapshot, type HealthSummary } from "../../commands/health.js"
 import { CONFIG_PATH, STATE_DIR, loadConfig } from "../../config/config.js";
 import { resolveMainSessionKey } from "../../config/sessions.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { getUpdateAvailable } from "../../infra/update-startup.js";
 import { listSystemPresence } from "../../infra/system-presence.js";
 >>>>>>> 2ddc13cdb (feat(ui): add update warning banner to control dashboard)
+=======
+import { listSystemPresence } from "../../infra/system-presence.js";
+import { getUpdateAvailable } from "../../infra/update-startup.js";
+>>>>>>> 34ddf0edc (style: format gateway health state and ui render)
 import { normalizeMainKey } from "../../routing/session-key.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
