@@ -9,6 +9,10 @@ import {
 import { createServer as createHttpsServer } from "node:https";
 import type { CanvasHostHandler } from "../canvas-host/server.js";
 import type { createSubsystemLogger } from "../logging/subsystem.js";
+<<<<<<< HEAD
+=======
+import type { AuthRateLimiter } from "./auth-rate-limit.js";
+>>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
 import type { GatewayWsClient } from "./server/ws-types.js";
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import {
@@ -20,7 +24,16 @@ import {
 import { loadConfig } from "../config/config.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
+<<<<<<< HEAD
 import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
+=======
+import {
+  authorizeGatewayConnect,
+  isLocalDirectRequest,
+  type GatewayAuthResult,
+  type ResolvedGatewayAuth,
+} from "./auth.js";
+>>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
 import {
   handleControlUiAvatarRequest,
   handleControlUiHttpRequest,
@@ -45,9 +58,17 @@ import { sendUnauthorized } from "./http-common.js";
 import { sendGatewayAuthFailure, setDefaultSecurityHeaders } from "./http-common.js";
 >>>>>>> e955582c8 (security: add baseline security headers to gateway HTTP responses (#10526))
 import { getBearerToken, getHeader } from "./http-utils.js";
-import { isPrivateOrLoopbackAddress, resolveGatewayClientIp } from "./net.js";
+import {
+  isPrivateOrLoopbackAddress,
+  isTrustedProxyAddress,
+  resolveGatewayClientIp,
+} from "./net.js";
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
+<<<<<<< HEAD
+=======
+import { GATEWAY_CLIENT_MODES, normalizeGatewayClientMode } from "./protocol/client-info.js";
+>>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
@@ -90,9 +111,16 @@ function isCanvasPath(pathname: string): boolean {
   );
 }
 
-function hasAuthorizedWsClientForIp(clients: Set<GatewayWsClient>, clientIp: string): boolean {
+function isNodeWsClient(client: GatewayWsClient): boolean {
+  if (client.connect.role === "node") {
+    return true;
+  }
+  return normalizeGatewayClientMode(client.connect.client.mode) === GATEWAY_CLIENT_MODES.NODE;
+}
+
+function hasAuthorizedNodeWsClientForIp(clients: Set<GatewayWsClient>, clientIp: string): boolean {
   for (const client of clients) {
-    if (client.clientIp && client.clientIp === clientIp) {
+    if (client.clientIp && client.clientIp === clientIp && isNodeWsClient(client)) {
       return true;
     }
   }
@@ -110,6 +138,13 @@ async function authorizeCanvasRequest(params: {
     return true;
   }
 
+<<<<<<< HEAD
+=======
+  const hasProxyHeaders = Boolean(getHeader(req, "x-forwarded-for") || getHeader(req, "x-real-ip"));
+  const remoteIsTrustedProxy = isTrustedProxyAddress(req.socket?.remoteAddress, trustedProxies);
+
+  let lastAuthFailure: GatewayAuthResult | null = null;
+>>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
   const token = getBearerToken(req);
   if (token) {
     const authResult = await authorizeGatewayConnect({
@@ -142,7 +177,11 @@ async function authorizeCanvasRequest(params: {
   if (!isPrivateOrLoopbackAddress(clientIp)) {
     return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
   }
-  if (hasAuthorizedWsClientForIp(clients, clientIp)) {
+  // Ignore IP fallback when proxy headers come from an untrusted source.
+  if (hasProxyHeaders && !remoteIsTrustedProxy) {
+    return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
+  }
+  if (hasAuthorizedNodeWsClientForIp(clients, clientIp)) {
     return { ok: true };
   }
   return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
