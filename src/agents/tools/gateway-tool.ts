@@ -10,7 +10,7 @@ import {
   writeRestartSentinel,
 } from "../../infra/restart-sentinel.js";
 import { stringEnum } from "../schema/typebox.js";
-import { assertOwnerSender, type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
+import { type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool, readGatewayCallOptions } from "./gateway.js";
 
 function resolveBaseHashFromSnapshot(snapshot: unknown): string | undefined {
@@ -65,14 +65,18 @@ export function createGatewayTool(opts?: {
   return {
     label: "Gateway",
     name: "gateway",
+    ownerOnly: true,
     description:
       "Restart, apply config, or update the gateway in-place (SIGUSR1). Use config.patch for safe partial config updates (merges with existing). Use config.apply only when replacing entire config. Both trigger restart after writing.",
     parameters: GatewayToolSchema,
     execute: async (_toolCallId, args) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       assertOwnerSender(opts?.senderIsOwner);
 >>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
+=======
+>>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
       const params = args as Record<string, unknown>;
       const action = readStringParam(params, "action", { required: true });
       if (action === "restart") {

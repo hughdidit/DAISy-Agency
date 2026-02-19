@@ -6,8 +6,6 @@ import {
   DEFAULT_GROUP_HISTORY_LIMIT,
   type HistoryEntry,
 } from "openclaw/plugin-sdk";
-import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
-import type { DynamicAgentCreationConfig } from "./types.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { maybeCreateDynamicAgent } from "./dynamic-agent.js";
@@ -57,7 +55,12 @@ function tryRecordMessage(messageId: string): boolean {
 }
 =======
 import { getMessageFeishu, sendMessageFeishu } from "./send.js";
+<<<<<<< HEAD
 >>>>>>> ec232a9e2 (refactor(security): harden temp-path handling for inbound media)
+=======
+import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
+import type { DynamicAgentCreationConfig } from "./types.js";
+>>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
 
 // --- Permission error extraction ---
 // Extract permission grant URL from Feishu API error response.
