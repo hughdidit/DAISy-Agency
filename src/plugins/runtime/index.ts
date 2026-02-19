@@ -130,7 +130,6 @@ import {
   readChannelAllowFromStore,
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
-import { runCommandWithTimeout } from "../../process/exec.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
 import { monitorSignalProvider } from "../../signal/index.js";
 import { probeSignal } from "../../signal/probe.js";
@@ -207,6 +206,95 @@ function resolveVersion(): string {
   }
 }
 
+<<<<<<< HEAD
+=======
+const sendMessageWhatsAppLazy: PluginRuntime["channel"]["whatsapp"]["sendMessageWhatsApp"] = async (
+  ...args
+) => {
+  const { sendMessageWhatsApp } = await loadWebOutbound();
+  return sendMessageWhatsApp(...args);
+};
+
+const sendPollWhatsAppLazy: PluginRuntime["channel"]["whatsapp"]["sendPollWhatsApp"] = async (
+  ...args
+) => {
+  const { sendPollWhatsApp } = await loadWebOutbound();
+  return sendPollWhatsApp(...args);
+};
+
+const loginWebLazy: PluginRuntime["channel"]["whatsapp"]["loginWeb"] = async (...args) => {
+  const { loginWeb } = await loadWebLogin();
+  return loginWeb(...args);
+};
+
+const startWebLoginWithQrLazy: PluginRuntime["channel"]["whatsapp"]["startWebLoginWithQr"] = async (
+  ...args
+) => {
+  const { startWebLoginWithQr } = await loadWebLoginQr();
+  return startWebLoginWithQr(...args);
+};
+
+const waitForWebLoginLazy: PluginRuntime["channel"]["whatsapp"]["waitForWebLogin"] = async (
+  ...args
+) => {
+  const { waitForWebLogin } = await loadWebLoginQr();
+  return waitForWebLogin(...args);
+};
+
+const monitorWebChannelLazy: PluginRuntime["channel"]["whatsapp"]["monitorWebChannel"] = async (
+  ...args
+) => {
+  const { monitorWebChannel } = await loadWebChannel();
+  return monitorWebChannel(...args);
+};
+
+const handleWhatsAppActionLazy: PluginRuntime["channel"]["whatsapp"]["handleWhatsAppAction"] =
+  async (...args) => {
+    const { handleWhatsAppAction } = await loadWhatsAppActions();
+    return handleWhatsAppAction(...args);
+  };
+
+let webOutboundPromise: Promise<typeof import("../../web/outbound.js")> | null = null;
+let webLoginPromise: Promise<typeof import("../../web/login.js")> | null = null;
+let webLoginQrPromise: Promise<typeof import("../../web/login-qr.js")> | null = null;
+let webChannelPromise: Promise<typeof import("../../channels/web/index.js")> | null = null;
+let whatsappActionsPromise: Promise<
+  typeof import("../../agents/tools/whatsapp-actions.js")
+> | null = null;
+
+function loadWebOutbound() {
+  webOutboundPromise ??= import("../../web/outbound.js");
+  return webOutboundPromise;
+}
+
+function loadWebLogin() {
+  webLoginPromise ??= import("../../web/login.js");
+  return webLoginPromise;
+}
+
+function loadWebLoginQr() {
+  webLoginQrPromise ??= import("../../web/login-qr.js");
+  return webLoginQrPromise;
+}
+
+function loadWebChannel() {
+  webChannelPromise ??= import("../../channels/web/index.js");
+  return webChannelPromise;
+}
+
+function loadWhatsAppActions() {
+  whatsappActionsPromise ??= import("../../agents/tools/whatsapp-actions.js");
+  return whatsappActionsPromise;
+}
+
+const runtimeCommandExecutionDisabled: PluginRuntime["system"]["runCommandWithTimeout"] =
+  async () => {
+    throw new Error(
+      "runtime.system.runCommandWithTimeout is disabled for security hardening. Use fixed-purpose runtime APIs instead.",
+    );
+  };
+
+>>>>>>> 45db2aa0c (Security: disable plugin runtime command execution primitive (#20828))
 export function createPluginRuntime(): PluginRuntime {
   return {
     version: resolveVersion(),
@@ -216,7 +304,7 @@ export function createPluginRuntime(): PluginRuntime {
     },
     system: {
       enqueueSystemEvent,
-      runCommandWithTimeout,
+      runCommandWithTimeout: runtimeCommandExecutionDisabled,
       formatNativeDependencyHint,
     },
     media: {
