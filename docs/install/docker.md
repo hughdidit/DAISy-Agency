@@ -104,7 +104,12 @@ export CLAWDBOT_EXTRA_MOUNTS="$HOME/.codex:/home/node/.codex:ro,$HOME/github:/ho
 
 Notes:
 - Paths must be shared with Docker Desktop on macOS/Windows.
+<<<<<<< HEAD
 - If you edit `CLAWDBOT_EXTRA_MOUNTS`, rerun `docker-setup.sh` to regenerate the
+=======
+- Each entry must be `source:target[:options]` with no spaces, tabs, or newlines.
+- If you edit `OPENCLAW_EXTRA_MOUNTS`, rerun `docker-setup.sh` to regenerate the
+>>>>>>> 7255c20dd (fix(docker): harden docker-setup mount validation)
   extra compose file.
 - `docker-compose.extra.yml` is generated. Don’t hand-edit it.
 
@@ -132,7 +137,13 @@ export CLAWDBOT_EXTRA_MOUNTS="$HOME/.codex:/home/node/.codex:ro,$HOME/github:/ho
 ```
 
 Notes:
+<<<<<<< HEAD
 - If you change `CLAWDBOT_HOME_VOLUME`, rerun `docker-setup.sh` to regenerate the
+=======
+
+- Named volumes must match `^[A-Za-z0-9][A-Za-z0-9_.-]*$`.
+- If you change `OPENCLAW_HOME_VOLUME`, rerun `docker-setup.sh` to regenerate the
+>>>>>>> 7255c20dd (fix(docker): harden docker-setup mount validation)
   extra compose file.
 - The named volume persists until removed with `docker volume rm <name>`.
 
