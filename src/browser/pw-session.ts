@@ -8,8 +8,15 @@ import type {
 } from "playwright-core";
 import { chromium } from "playwright-core";
 import { formatErrorMessage } from "../infra/errors.js";
+<<<<<<< HEAD
 import { getHeadersWithAuth } from "./cdp.helpers.js";
+=======
+import type { SsrFPolicy } from "../infra/net/ssrf.js";
+import { appendCdpPath, fetchJson, getHeadersWithAuth, withCdpSocket } from "./cdp.helpers.js";
+import { normalizeCdpWsUrl } from "./cdp.js";
+>>>>>>> 6195660b1 (fix(browser): unify SSRF guard path for navigation)
 import { getChromeWebSocketUrl } from "./chrome.js";
+import { assertBrowserNavigationAllowed } from "./navigation-guard.js";
 
 export type BrowserConsoleMessage = {
   type: string;
@@ -557,7 +564,11 @@ export async function listPagesViaPlaywright(opts: { cdpUrl: string }): Promise<
  * Used for remote profiles where HTTP-based /json/new is ephemeral.
  * Returns the new page's targetId and metadata.
  */
-export async function createPageViaPlaywright(opts: { cdpUrl: string; url: string }): Promise<{
+export async function createPageViaPlaywright(opts: {
+  cdpUrl: string;
+  url: string;
+  ssrfPolicy?: SsrFPolicy;
+}): Promise<{
   targetId: string;
   title: string;
   url: string;
@@ -573,6 +584,10 @@ export async function createPageViaPlaywright(opts: { cdpUrl: string; url: strin
   // Navigate to the URL
   const targetUrl = opts.url.trim() || "about:blank";
   if (targetUrl !== "about:blank") {
+    await assertBrowserNavigationAllowed({
+      url: targetUrl,
+      ssrfPolicy: opts.ssrfPolicy,
+    });
     await page.goto(targetUrl, { timeout: 30_000 }).catch(() => {
       // Navigation might fail for some URLs, but page is still created
     });
