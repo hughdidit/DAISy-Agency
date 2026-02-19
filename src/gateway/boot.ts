@@ -3,9 +3,20 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { CliDeps } from "../cli/deps.js";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import { agentCommand } from "../commands/agent.js";
 import { resolveMainSessionKey } from "../config/sessions/main-session.js";
+=======
+import {
+  resolveAgentIdFromSessionKey,
+  resolveAgentMainSessionKey,
+  resolveMainSessionKey,
+} from "../config/sessions/main-session.js";
+import { resolveStorePath } from "../config/sessions/paths.js";
+import { loadSessionStore, updateSessionStore } from "../config/sessions/store.js";
+import type { SessionEntry } from "../config/sessions/types.js";
+>>>>>>> 48e6b4fca (fix: run BOOT.md for each configured agent at startup (#20569))
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { type RuntimeEnv, defaultRuntime } from "../runtime.js";
 
@@ -62,6 +73,7 @@ export async function runBootOnce(params: {
   cfg: OpenClawConfig;
   deps: CliDeps;
   workspaceDir: string;
+  agentId?: string;
 }): Promise<BootRunResult> {
   const bootRuntime: RuntimeEnv = {
     log: () => {},
@@ -81,7 +93,9 @@ export async function runBootOnce(params: {
     return { status: "skipped", reason: result.status };
   }
 
-  const sessionKey = resolveMainSessionKey(params.cfg);
+  const sessionKey = params.agentId
+    ? resolveAgentMainSessionKey({ cfg: params.cfg, agentId: params.agentId })
+    : resolveMainSessionKey(params.cfg);
   const message = buildBootPrompt(result.content ?? "");
   const sessionId = generateBootSessionId();
 
