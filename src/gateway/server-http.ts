@@ -33,9 +33,13 @@ import {
   resolveHookDeliver,
 } from "./hooks.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { applyHookMappings } from "./hooks-mapping.js";
 =======
 import { sendGatewayAuthFailure } from "./http-common.js";
+=======
+import { sendGatewayAuthFailure, setDefaultSecurityHeaders } from "./http-common.js";
+>>>>>>> e955582c8 (security: add baseline security headers to gateway HTTP responses (#10526))
 import { getBearerToken, getHeader } from "./http-utils.js";
 import { isPrivateOrLoopbackAddress, resolveGatewayClientIp } from "./net.js";
 >>>>>>> 14fc74200 (fix(security): restrict canvas IP-based auth to private networks (#14661))
@@ -419,6 +423,8 @@ export function createGatewayHttpServer(opts: {
       });
 
   async function handleRequest(req: IncomingMessage, res: ServerResponse) {
+    setDefaultSecurityHeaders(res);
+
     // Don't interfere with WebSocket upgrades; ws handles the 'upgrade' event.
     if (String(req.headers.upgrade ?? "").toLowerCase() === "websocket") return;
 
