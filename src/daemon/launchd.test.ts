@@ -365,6 +365,26 @@ describe("launchd install", () => {
     expect(enableIndex).toBeLessThan(bootstrapIndex);
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
   });
+
+  it("writes TMPDIR to LaunchAgent environment when provided", async () => {
+    const env: Record<string, string | undefined> = {
+      HOME: "/Users/test",
+      OPENCLAW_PROFILE: "default",
+    };
+    const tmpDir = "/var/folders/xy/abc123/T/";
+    await installLaunchAgent({
+      env,
+      stdout: new PassThrough(),
+      programArguments: ["node", "-e", "process.exit(0)"],
+      environment: { TMPDIR: tmpDir },
+    });
+
+    const plistPath = resolveLaunchAgentPlistPath(env);
+    const plist = state.files.get(plistPath) ?? "";
+    expect(plist).toContain("<key>EnvironmentVariables</key>");
+    expect(plist).toContain("<key>TMPDIR</key>");
+    expect(plist).toContain(`<string>${tmpDir}</string>`);
+  });
 });
 
 describe("resolveLaunchAgentPlistPath", () => {

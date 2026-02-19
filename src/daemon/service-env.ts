@@ -1,3 +1,4 @@
+import os from "node:os";
 import path from "node:path";
 
 import { VERSION } from "../version.js";
@@ -211,8 +212,16 @@ export function buildServiceEnvironment(params: {
     launchdLabel ||
     (process.platform === "darwin" ? resolveGatewayLaunchAgentLabel(profile) : undefined);
   const systemdUnit = `${resolveGatewaySystemdServiceName(profile)}.service`;
+<<<<<<< HEAD
+=======
+  const stateDir = env.OPENCLAW_STATE_DIR;
+  const configPath = env.OPENCLAW_CONFIG_PATH;
+  // Keep a usable temp directory for supervised services even when the host env omits TMPDIR.
+  const tmpDir = env.TMPDIR?.trim() || os.tmpdir();
+>>>>>>> 2bb8ead18 (Fix LaunchAgent missing TMPDIR causing SQLITE_CANTOPEN on macOS (#20512))
   return {
     HOME: env.HOME,
+    TMPDIR: tmpDir,
     PATH: buildMinimalServicePath({ env }),
     CLAWDBOT_PROFILE: profile,
     CLAWDBOT_STATE_DIR: env.CLAWDBOT_STATE_DIR,
@@ -231,8 +240,15 @@ export function buildNodeServiceEnvironment(params: {
   env: Record<string, string | undefined>;
 }): Record<string, string | undefined> {
   const { env } = params;
+<<<<<<< HEAD
+=======
+  const stateDir = env.OPENCLAW_STATE_DIR;
+  const configPath = env.OPENCLAW_CONFIG_PATH;
+  const tmpDir = env.TMPDIR?.trim() || os.tmpdir();
+>>>>>>> 2bb8ead18 (Fix LaunchAgent missing TMPDIR causing SQLITE_CANTOPEN on macOS (#20512))
   return {
     HOME: env.HOME,
+    TMPDIR: tmpDir,
     PATH: buildMinimalServicePath({ env }),
     CLAWDBOT_STATE_DIR: env.CLAWDBOT_STATE_DIR,
     CLAWDBOT_CONFIG_PATH: env.CLAWDBOT_CONFIG_PATH,
