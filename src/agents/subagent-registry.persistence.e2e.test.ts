@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
+import "./subagent-registry.mocks.shared.js";
 import { captureEnv } from "../test-utils/env.js";
 import {
   initSubagentRegistry,
@@ -10,20 +11,6 @@ import {
   resetSubagentRegistryForTests,
 } from "./subagent-registry.js";
 import { loadSubagentRegistryFromDisk } from "./subagent-registry.store.js";
-
-const noop = () => {};
-
-vi.mock("../gateway/call.js", () => ({
-  callGateway: vi.fn(async () => ({
-    status: "ok",
-    startedAt: 111,
-    endedAt: 222,
-  })),
-}));
-
-vi.mock("../infra/agent-events.js", () => ({
-  onAgentEvent: vi.fn(() => noop),
-}));
 
 const { announceSpy } = vi.hoisted(() => ({
   announceSpy: vi.fn(async () => true),
