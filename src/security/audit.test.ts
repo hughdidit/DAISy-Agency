@@ -22,6 +22,7 @@ import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 72e9364ba (perf(test): speed up hot test files)
 import { collectPluginsCodeSafetyFindings } from "./audit-extra.js";
 import { runSecurityAudit } from "./audit.js";
+import type { SecurityAuditOptions, SecurityAuditReport } from "./audit.js";
 import * as skillScanner from "./skill-scanner.js";
 >>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
 
@@ -89,6 +90,24 @@ function successfulProbeResult(url: string) {
   };
 }
 
+async function audit(
+  cfg: OpenClawConfig,
+  extra?: Omit<SecurityAuditOptions, "config">,
+): Promise<SecurityAuditReport> {
+  return runSecurityAudit({
+    config: cfg,
+    includeFilesystem: false,
+    includeChannelSecurity: false,
+    ...extra,
+  });
+}
+
+function hasFinding(res: SecurityAuditReport, checkId: string, severity?: string): boolean {
+  return res.findings.some(
+    (f) => f.checkId === checkId && (severity == null || f.severity === severity),
+  );
+}
+
 describe("security audit", () => {
   let fixtureRoot = "";
   let caseId = 0;
@@ -97,6 +116,22 @@ describe("security audit", () => {
     const dir = path.join(fixtureRoot, `case-${caseId++}-${label}`);
     await fs.mkdir(dir, { recursive: true });
     return dir;
+  };
+
+  const withStateDir = async (label: string, fn: (tmp: string) => Promise<void>) => {
+    const prevStateDir = process.env.OPENCLAW_STATE_DIR;
+    const tmp = await makeTmpDir(label);
+    process.env.OPENCLAW_STATE_DIR = tmp;
+    await fs.mkdir(path.join(tmp, "credentials"), { recursive: true, mode: 0o700 });
+    try {
+      await fn(tmp);
+    } finally {
+      if (prevStateDir == null) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = prevStateDir;
+      }
+    }
   };
 
   beforeAll(async () => {
@@ -118,11 +153,7 @@ describe("security audit", () => {
       browser: { enabled: true },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -155,15 +186,9 @@ describe("security audit", () => {
         },
       };
 
-      const res = await runSecurityAudit({
-        config: cfg,
-        includeFilesystem: false,
-        includeChannelSecurity: false,
-      });
+      const res = await audit(cfg);
 
-      expect(
-        res.findings.some((f) => f.checkId === "gateway.bind_no_auth" && f.severity === "critical"),
-      ).toBe(true);
+      expect(hasFinding(res, "gateway.bind_no_auth", "critical")).toBe(true);
     } finally {
       // Restore env
       if (prevToken === undefined) {
@@ -187,18 +212,42 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      env: {},
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg, { env: {} });
 
-    expect(
-      res.findings.some((f) => f.checkId === "gateway.auth_no_rate_limit" && f.severity === "warn"),
-    ).toBe(true);
+    expect(hasFinding(res, "gateway.auth_no_rate_limit", "warn")).toBe(true);
   });
 
+<<<<<<< HEAD
+=======
+  it("warns when gateway.tools.allow re-enables dangerous HTTP /tools/invoke tools (loopback)", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        bind: "loopback",
+        auth: { token: "secret" },
+        tools: { allow: ["sessions_spawn"] },
+      },
+    };
+
+    const res = await audit(cfg, { env: {} });
+
+    expect(hasFinding(res, "gateway.tools_invoke_http.dangerous_allow", "warn")).toBe(true);
+  });
+
+  it("flags dangerous gateway.tools.allow over HTTP as critical when gateway binds beyond loopback", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        bind: "lan",
+        auth: { token: "secret" },
+        tools: { allow: ["sessions_spawn", "gateway"] },
+      },
+    };
+
+    const res = await audit(cfg, { env: {} });
+
+    expect(hasFinding(res, "gateway.tools_invoke_http.dangerous_allow", "critical")).toBe(true);
+  });
+
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
   it("does not warn for auth rate limiting when configured", async () => {
     const cfg: OpenClawConfig = {
       gateway: {
@@ -210,14 +259,9 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      env: {},
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg, { env: {} });
 
-    expect(res.findings.some((f) => f.checkId === "gateway.auth_no_rate_limit")).toBe(false);
+    expect(hasFinding(res, "gateway.auth_no_rate_limit")).toBe(false);
   });
 
   it("warns when loopback control UI lacks trusted proxies", async () => {
@@ -228,11 +272,7 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -253,12 +293,7 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      env: {},
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg, { env: {} });
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -275,11 +310,7 @@ describe("security audit", () => {
       logging: { redactSensitive: "off" },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -385,11 +416,7 @@ describe("security audit", () => {
       browser: { enabled: true },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     const finding = res.findings.find((f) => f.checkId === "models.small_params");
     expect(finding?.severity).toBe("critical");
@@ -411,11 +438,7 @@ describe("security audit", () => {
       browser: { enabled: false },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     const finding = res.findings.find((f) => f.checkId === "models.small_params");
     expect(finding?.severity).toBe("info");
@@ -423,6 +446,135 @@ describe("security audit", () => {
     expect(finding?.detail).toContain("sandbox=all");
   });
 
+<<<<<<< HEAD
+=======
+  it("flags sandbox docker config when sandbox mode is off", async () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "off",
+            docker: { image: "ghcr.io/example/sandbox:latest" },
+          },
+        },
+      },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          checkId: "sandbox.docker_config_mode_off",
+          severity: "warn",
+        }),
+      ]),
+    );
+  });
+
+  it("does not flag global sandbox docker config when an agent enables sandbox mode", async () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "off",
+            docker: { image: "ghcr.io/example/sandbox:latest" },
+          },
+        },
+        list: [{ id: "ops", sandbox: { mode: "all" } }],
+      },
+    };
+
+    const res = await audit(cfg);
+
+    expect(hasFinding(res, "sandbox.docker_config_mode_off")).toBe(false);
+  });
+
+  it("flags dangerous sandbox docker config (binds/network/seccomp/apparmor)", async () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "all",
+            docker: {
+              binds: ["/etc/passwd:/mnt/passwd:ro", "/run:/run"],
+              network: "host",
+              seccompProfile: "unconfined",
+              apparmorProfile: "unconfined",
+            },
+          },
+        },
+      },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ checkId: "sandbox.dangerous_bind_mount", severity: "critical" }),
+        expect.objectContaining({
+          checkId: "sandbox.dangerous_network_mode",
+          severity: "critical",
+        }),
+        expect.objectContaining({
+          checkId: "sandbox.dangerous_seccomp_profile",
+          severity: "critical",
+        }),
+        expect.objectContaining({
+          checkId: "sandbox.dangerous_apparmor_profile",
+          severity: "critical",
+        }),
+      ]),
+    );
+  });
+
+  it("flags ineffective gateway.nodes.denyCommands entries", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        nodes: {
+          denyCommands: ["system.*", "system.runx"],
+        },
+      },
+    };
+
+    const res = await audit(cfg);
+
+    const finding = res.findings.find(
+      (f) => f.checkId === "gateway.nodes.deny_commands_ineffective",
+    );
+    expect(finding?.severity).toBe("warn");
+    expect(finding?.detail).toContain("system.*");
+    expect(finding?.detail).toContain("system.runx");
+  });
+
+  it("flags agent profile overrides when global tools.profile is minimal", async () => {
+    const cfg: OpenClawConfig = {
+      tools: {
+        profile: "minimal",
+      },
+      agents: {
+        list: [
+          {
+            id: "owner",
+            tools: { profile: "full" },
+          },
+        ],
+      },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          checkId: "tools.profile_minimal_overridden",
+          severity: "warn",
+        }),
+      ]),
+    );
+  });
+
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
   it("flags tools.elevated allowFrom wildcard as critical", async () => {
     const cfg: MoltbotConfig = {
       tools: {
@@ -432,11 +584,7 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -459,12 +607,7 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      env: {},
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg, { env: {} });
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -484,14 +627,9 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      env: {},
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg, { env: {} });
 
-    expect(res.findings.some((f) => f.checkId === "browser.control_no_auth")).toBe(false);
+    expect(hasFinding(res, "browser.control_no_auth")).toBe(false);
   });
 
   it("warns when remote CDP uses HTTP", async () => {
@@ -503,11 +641,7 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -523,11 +657,7 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -546,11 +676,7 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -576,11 +702,7 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -590,8 +712,8 @@ describe("security audit", () => {
         }),
       ]),
     );
-    expect(res.findings.some((f) => f.checkId === "gateway.bind_no_auth")).toBe(false);
-    expect(res.findings.some((f) => f.checkId === "gateway.auth_no_rate_limit")).toBe(false);
+    expect(hasFinding(res, "gateway.bind_no_auth")).toBe(false);
+    expect(hasFinding(res, "gateway.auth_no_rate_limit")).toBe(false);
   });
 
   it("flags trusted-proxy auth without trustedProxies configured", async () => {
@@ -608,11 +730,7 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -636,11 +754,7 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -667,11 +781,7 @@ describe("security audit", () => {
       },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -733,6 +843,7 @@ describe("security audit", () => {
 
   it("flags Discord native commands without a guild user allowlist", async () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const prevStateDir = process.env.CLAWDBOT_STATE_DIR;
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-security-audit-discord-"));
     process.env.CLAWDBOT_STATE_DIR = tmp;
@@ -744,6 +855,10 @@ describe("security audit", () => {
     await fs.mkdir(path.join(tmp, "credentials"), { recursive: true, mode: 0o700 });
     try {
       const cfg: MoltbotConfig = {
+=======
+    await withStateDir("discord", async () => {
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         channels: {
           discord: {
             enabled: true,
@@ -775,6 +890,7 @@ describe("security audit", () => {
           }),
         ]),
       );
+<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
@@ -804,6 +920,14 @@ describe("security audit", () => {
     await fs.mkdir(path.join(tmp, "credentials"), { recursive: true, mode: 0o700 });
     try {
       const cfg: MoltbotConfig = {
+=======
+    });
+  });
+
+  it("does not flag Discord slash commands when dm.allowFrom includes a Discord snowflake id", async () => {
+    await withStateDir("discord-allowfrom-snowflake", async () => {
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         channels: {
           discord: {
             enabled: true,
@@ -835,6 +959,7 @@ describe("security audit", () => {
           }),
         ]),
       );
+<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
@@ -862,6 +987,14 @@ describe("security audit", () => {
     await fs.mkdir(path.join(tmp, "credentials"), { recursive: true, mode: 0o700 });
     try {
       const cfg: MoltbotConfig = {
+=======
+    });
+  });
+
+  it("flags Discord slash commands when access-group enforcement is disabled and no users allowlist exists", async () => {
+    await withStateDir("discord-open", async () => {
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         commands: { useAccessGroups: false },
         channels: {
           discord: {
@@ -894,6 +1027,7 @@ describe("security audit", () => {
           }),
         ]),
       );
+<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
@@ -921,6 +1055,14 @@ describe("security audit", () => {
     await fs.mkdir(path.join(tmp, "credentials"), { recursive: true, mode: 0o700 });
     try {
       const cfg: MoltbotConfig = {
+=======
+    });
+  });
+
+  it("flags Slack slash commands without a channel users allowlist", async () => {
+    await withStateDir("slack", async () => {
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         channels: {
           slack: {
             enabled: true,
@@ -947,6 +1089,7 @@ describe("security audit", () => {
           }),
         ]),
       );
+<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
@@ -974,6 +1117,14 @@ describe("security audit", () => {
     await fs.mkdir(path.join(tmp, "credentials"), { recursive: true, mode: 0o700 });
     try {
       const cfg: MoltbotConfig = {
+=======
+    });
+  });
+
+  it("flags Slack slash commands when access-group enforcement is disabled", async () => {
+    await withStateDir("slack-open", async () => {
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         commands: { useAccessGroups: false },
         channels: {
           slack: {
@@ -1001,6 +1152,7 @@ describe("security audit", () => {
           }),
         ]),
       );
+<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
@@ -1028,6 +1180,14 @@ describe("security audit", () => {
     await fs.mkdir(path.join(tmp, "credentials"), { recursive: true, mode: 0o700 });
     try {
       const cfg: MoltbotConfig = {
+=======
+    });
+  });
+
+  it("flags Telegram group commands without a sender allowlist", async () => {
+    await withStateDir("telegram", async () => {
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         channels: {
           telegram: {
             enabled: true,
@@ -1053,6 +1213,7 @@ describe("security audit", () => {
           }),
         ]),
       );
+<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
       if (prevStateDir == null) delete process.env.CLAWDBOT_STATE_DIR;
@@ -1065,14 +1226,13 @@ describe("security audit", () => {
       }
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
+=======
+    });
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
   });
 
   it("warns when Telegram allowFrom entries are non-numeric (legacy @username configs)", async () => {
-    const prevStateDir = process.env.OPENCLAW_STATE_DIR;
-    const tmp = await makeTmpDir("telegram-invalid-allowfrom");
-    process.env.OPENCLAW_STATE_DIR = tmp;
-    await fs.mkdir(path.join(tmp, "credentials"), { recursive: true, mode: 0o700 });
-    try {
+    await withStateDir("telegram-invalid-allowfrom", async () => {
       const cfg: OpenClawConfig = {
         channels: {
           telegram: {
@@ -1100,24 +1260,15 @@ describe("security audit", () => {
           }),
         ]),
       );
-    } finally {
-      if (prevStateDir == null) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = prevStateDir;
-      }
-    }
+    });
   });
 
   it("adds a warning when deep probe fails", async () => {
     const cfg: MoltbotConfig = { gateway: { mode: "local" } };
 
-    const res = await runSecurityAudit({
-      config: cfg,
+    const res = await audit(cfg, {
       deep: true,
       deepTimeoutMs: 50,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
       probeGatewayFn: async () => ({
         ok: false,
         url: "ws://127.0.0.1:18789",
@@ -1141,12 +1292,9 @@ describe("security audit", () => {
   it("adds a warning when deep probe throws", async () => {
     const cfg: MoltbotConfig = { gateway: { mode: "local" } };
 
-    const res = await runSecurityAudit({
-      config: cfg,
+    const res = await audit(cfg, {
       deep: true,
       deepTimeoutMs: 50,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
       probeGatewayFn: async () => {
         throw new Error("probe boom");
       },
@@ -1166,11 +1314,7 @@ describe("security audit", () => {
       agents: { defaults: { model: { primary: "openai/gpt-3.5-turbo" } } },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -1184,11 +1328,7 @@ describe("security audit", () => {
       agents: { defaults: { model: { primary: "anthropic/claude-haiku-4-5" } } },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -1203,11 +1343,7 @@ describe("security audit", () => {
       agents: { defaults: { model: { primary: "venice/claude-opus-45" } } },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     // Should NOT contain weak_tier warning for opus-45
     const weakTierFinding = res.findings.find((f) => f.checkId === "models.weak_tier");
@@ -1219,11 +1355,7 @@ describe("security audit", () => {
       hooks: { enabled: true, token: "short" },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -1240,11 +1372,7 @@ describe("security audit", () => {
     };
 
     try {
-      const res = await runSecurityAudit({
-        config: cfg,
-        includeFilesystem: false,
-        includeChannelSecurity: false,
-      });
+      const res = await audit(cfg);
 
       expect(res.findings).toEqual(
         expect.arrayContaining([
@@ -1265,15 +1393,108 @@ describe("security audit", () => {
     }
   });
 
+<<<<<<< HEAD
+=======
+  it("warns when hooks.defaultSessionKey is unset", async () => {
+    const cfg: OpenClawConfig = {
+      hooks: { enabled: true, token: "shared-gateway-token-1234567890" },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ checkId: "hooks.default_session_key_unset", severity: "warn" }),
+      ]),
+    );
+  });
+
+  it("flags hooks request sessionKey override when enabled", async () => {
+    const cfg: OpenClawConfig = {
+      hooks: {
+        enabled: true,
+        token: "shared-gateway-token-1234567890",
+        defaultSessionKey: "hook:ingress",
+        allowRequestSessionKey: true,
+      },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ checkId: "hooks.request_session_key_enabled", severity: "warn" }),
+        expect.objectContaining({
+          checkId: "hooks.request_session_key_prefixes_missing",
+          severity: "warn",
+        }),
+      ]),
+    );
+  });
+
+  it("escalates hooks request sessionKey override when gateway is remotely exposed", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: { bind: "lan" },
+      hooks: {
+        enabled: true,
+        token: "shared-gateway-token-1234567890",
+        defaultSessionKey: "hook:ingress",
+        allowRequestSessionKey: true,
+      },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          checkId: "hooks.request_session_key_enabled",
+          severity: "critical",
+        }),
+      ]),
+    );
+  });
+
+  it("reports HTTP API session-key override surfaces when enabled", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        http: {
+          endpoints: {
+            chatCompletions: { enabled: true },
+            responses: { enabled: true },
+          },
+        },
+      },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          checkId: "gateway.http.session_key_override_enabled",
+          severity: "info",
+        }),
+      ]),
+    );
+  });
+
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
   it("warns when state/config look like a synced folder", async () => {
     const cfg: MoltbotConfig = {};
 
+<<<<<<< HEAD
     const res = await runSecurityAudit({
       config: cfg,
       includeFilesystem: false,
       includeChannelSecurity: false,
       stateDir: "/Users/test/Dropbox/.clawdbot",
       configPath: "/Users/test/Dropbox/.clawdbot/moltbot.json",
+=======
+    const res = await audit(cfg, {
+      stateDir: "/Users/test/Dropbox/.openclaw",
+      configPath: "/Users/test/Dropbox/.openclaw/openclaw.json",
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
     });
 
     expect(res.findings).toEqual(
@@ -1667,11 +1888,7 @@ description: test skill
       channels: { whatsapp: { groupPolicy: "open" } },
     };
 
-    const res = await runSecurityAudit({
-      config: cfg,
-      includeFilesystem: false,
-      includeChannelSecurity: false,
-    });
+    const res = await audit(cfg);
 
     expect(res.findings).toEqual(
       expect.arrayContaining([
@@ -1705,111 +1922,85 @@ description: test skill
       }
     });
 
-    it("uses local auth when gateway.mode is local", async () => {
+    const makeProbeCapture = () => {
       let capturedAuth: { token?: string; password?: string } | undefined;
+<<<<<<< HEAD
       const cfg: MoltbotConfig = {
+=======
+      return {
+        probeGatewayFn: async (opts: {
+          url: string;
+          auth?: { token?: string; password?: string };
+        }) => {
+          capturedAuth = opts.auth;
+          return successfulProbeResult(opts.url);
+        },
+        getAuth: () => capturedAuth,
+      };
+    };
+
+    it("uses local auth when gateway.mode is local", async () => {
+      const { probeGatewayFn, getAuth } = makeProbeCapture();
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         gateway: {
           mode: "local",
           auth: { token: "local-token-abc123" },
         },
       };
 
-      await runSecurityAudit({
-        config: cfg,
-        deep: true,
-        deepTimeoutMs: 50,
-        includeFilesystem: false,
-        includeChannelSecurity: false,
-        probeGatewayFn: async (opts) => {
-          capturedAuth = opts.auth;
-          return {
-            ok: true,
-            url: opts.url,
-            connectLatencyMs: 10,
-            error: null,
-            close: null,
-            health: null,
-            status: null,
-            presence: null,
-            configSnapshot: null,
-          };
-        },
-      });
+      await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
 
-      expect(capturedAuth?.token).toBe("local-token-abc123");
+      expect(getAuth()?.token).toBe("local-token-abc123");
     });
 
     it("prefers env token over local config token", async () => {
+<<<<<<< HEAD
       process.env.CLAWDBOT_GATEWAY_TOKEN = "env-token";
       let capturedAuth: { token?: string; password?: string } | undefined;
       const cfg: MoltbotConfig = {
+=======
+      process.env.OPENCLAW_GATEWAY_TOKEN = "env-token";
+      const { probeGatewayFn, getAuth } = makeProbeCapture();
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         gateway: {
           mode: "local",
           auth: { token: "local-token" },
         },
       };
 
-      await runSecurityAudit({
-        config: cfg,
-        deep: true,
-        deepTimeoutMs: 50,
-        includeFilesystem: false,
-        includeChannelSecurity: false,
-        probeGatewayFn: async (opts) => {
-          capturedAuth = opts.auth;
-          return {
-            ok: true,
-            url: opts.url,
-            connectLatencyMs: 10,
-            error: null,
-            close: null,
-            health: null,
-            status: null,
-            presence: null,
-            configSnapshot: null,
-          };
-        },
-      });
+      await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
 
-      expect(capturedAuth?.token).toBe("env-token");
+      expect(getAuth()?.token).toBe("env-token");
     });
 
     it("uses local auth when gateway.mode is undefined (default)", async () => {
+<<<<<<< HEAD
       let capturedAuth: { token?: string; password?: string } | undefined;
       const cfg: MoltbotConfig = {
+=======
+      const { probeGatewayFn, getAuth } = makeProbeCapture();
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         gateway: {
           auth: { token: "default-local-token" },
         },
       };
 
-      await runSecurityAudit({
-        config: cfg,
-        deep: true,
-        deepTimeoutMs: 50,
-        includeFilesystem: false,
-        includeChannelSecurity: false,
-        probeGatewayFn: async (opts) => {
-          capturedAuth = opts.auth;
-          return {
-            ok: true,
-            url: opts.url,
-            connectLatencyMs: 10,
-            error: null,
-            close: null,
-            health: null,
-            status: null,
-            presence: null,
-            configSnapshot: null,
-          };
-        },
-      });
+      await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
 
-      expect(capturedAuth?.token).toBe("default-local-token");
+      expect(getAuth()?.token).toBe("default-local-token");
     });
 
     it("uses remote auth when gateway.mode is remote with URL", async () => {
+<<<<<<< HEAD
       let capturedAuth: { token?: string; password?: string } | undefined;
       const cfg: MoltbotConfig = {
+=======
+      const { probeGatewayFn, getAuth } = makeProbeCapture();
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         gateway: {
           mode: "remote",
           auth: { token: "local-token-should-not-use" },
@@ -1820,35 +2011,21 @@ description: test skill
         },
       };
 
-      await runSecurityAudit({
-        config: cfg,
-        deep: true,
-        deepTimeoutMs: 50,
-        includeFilesystem: false,
-        includeChannelSecurity: false,
-        probeGatewayFn: async (opts) => {
-          capturedAuth = opts.auth;
-          return {
-            ok: true,
-            url: opts.url,
-            connectLatencyMs: 10,
-            error: null,
-            close: null,
-            health: null,
-            status: null,
-            presence: null,
-            configSnapshot: null,
-          };
-        },
-      });
+      await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
 
-      expect(capturedAuth?.token).toBe("remote-token-xyz789");
+      expect(getAuth()?.token).toBe("remote-token-xyz789");
     });
 
     it("ignores env token when gateway.mode is remote", async () => {
+<<<<<<< HEAD
       process.env.CLAWDBOT_GATEWAY_TOKEN = "env-token";
       let capturedAuth: { token?: string; password?: string } | undefined;
       const cfg: MoltbotConfig = {
+=======
+      process.env.OPENCLAW_GATEWAY_TOKEN = "env-token";
+      const { probeGatewayFn, getAuth } = makeProbeCapture();
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         gateway: {
           mode: "remote",
           auth: { token: "local-token-should-not-use" },
@@ -1859,34 +2036,19 @@ description: test skill
         },
       };
 
-      await runSecurityAudit({
-        config: cfg,
-        deep: true,
-        deepTimeoutMs: 50,
-        includeFilesystem: false,
-        includeChannelSecurity: false,
-        probeGatewayFn: async (opts) => {
-          capturedAuth = opts.auth;
-          return {
-            ok: true,
-            url: opts.url,
-            connectLatencyMs: 10,
-            error: null,
-            close: null,
-            health: null,
-            status: null,
-            presence: null,
-            configSnapshot: null,
-          };
-        },
-      });
+      await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
 
-      expect(capturedAuth?.token).toBe("remote-token");
+      expect(getAuth()?.token).toBe("remote-token");
     });
 
     it("uses remote password when env is unset", async () => {
+<<<<<<< HEAD
       let capturedAuth: { token?: string; password?: string } | undefined;
       const cfg: MoltbotConfig = {
+=======
+      const { probeGatewayFn, getAuth } = makeProbeCapture();
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         gateway: {
           mode: "remote",
           remote: {
@@ -1896,35 +2058,21 @@ description: test skill
         },
       };
 
-      await runSecurityAudit({
-        config: cfg,
-        deep: true,
-        deepTimeoutMs: 50,
-        includeFilesystem: false,
-        includeChannelSecurity: false,
-        probeGatewayFn: async (opts) => {
-          capturedAuth = opts.auth;
-          return {
-            ok: true,
-            url: opts.url,
-            connectLatencyMs: 10,
-            error: null,
-            close: null,
-            health: null,
-            status: null,
-            presence: null,
-            configSnapshot: null,
-          };
-        },
-      });
+      await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
 
-      expect(capturedAuth?.password).toBe("remote-pass");
+      expect(getAuth()?.password).toBe("remote-pass");
     });
 
     it("prefers env password over remote password", async () => {
+<<<<<<< HEAD
       process.env.CLAWDBOT_GATEWAY_PASSWORD = "env-pass";
       let capturedAuth: { token?: string; password?: string } | undefined;
       const cfg: MoltbotConfig = {
+=======
+      process.env.OPENCLAW_GATEWAY_PASSWORD = "env-pass";
+      const { probeGatewayFn, getAuth } = makeProbeCapture();
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         gateway: {
           mode: "remote",
           remote: {
@@ -1934,34 +2082,19 @@ description: test skill
         },
       };
 
-      await runSecurityAudit({
-        config: cfg,
-        deep: true,
-        deepTimeoutMs: 50,
-        includeFilesystem: false,
-        includeChannelSecurity: false,
-        probeGatewayFn: async (opts) => {
-          capturedAuth = opts.auth;
-          return {
-            ok: true,
-            url: opts.url,
-            connectLatencyMs: 10,
-            error: null,
-            close: null,
-            health: null,
-            status: null,
-            presence: null,
-            configSnapshot: null,
-          };
-        },
-      });
+      await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
 
-      expect(capturedAuth?.password).toBe("env-pass");
+      expect(getAuth()?.password).toBe("env-pass");
     });
 
     it("falls back to local auth when gateway.mode is remote but URL is missing", async () => {
+<<<<<<< HEAD
       let capturedAuth: { token?: string; password?: string } | undefined;
       const cfg: MoltbotConfig = {
+=======
+      const { probeGatewayFn, getAuth } = makeProbeCapture();
+      const cfg: OpenClawConfig = {
+>>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
         gateway: {
           mode: "remote",
           auth: { token: "fallback-local-token" },
@@ -1971,29 +2104,9 @@ description: test skill
         },
       };
 
-      await runSecurityAudit({
-        config: cfg,
-        deep: true,
-        deepTimeoutMs: 50,
-        includeFilesystem: false,
-        includeChannelSecurity: false,
-        probeGatewayFn: async (opts) => {
-          capturedAuth = opts.auth;
-          return {
-            ok: true,
-            url: opts.url,
-            connectLatencyMs: 10,
-            error: null,
-            close: null,
-            health: null,
-            status: null,
-            presence: null,
-            configSnapshot: null,
-          };
-        },
-      });
+      await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
 
-      expect(capturedAuth?.token).toBe("fallback-local-token");
+      expect(getAuth()?.token).toBe("fallback-local-token");
     });
   });
 });
