@@ -265,7 +265,12 @@ jobs:
             command: pnpm canvas:a2ui:bundle && bunx vitest run --config vitest.unit.config.ts
 >>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     steps:
+      - name: Skip bun lane on push
+        if: github.event_name == 'push' && matrix.runtime == 'bun'
+        run: echo "Skipping bun test lane on push events."
+
       - name: Checkout
+        if: github.event_name != 'push' || matrix.runtime != 'bun'
         uses: actions/checkout@v4
         with:
           submodules: false
@@ -342,6 +347,7 @@ jobs:
           done
 =======
       - name: Setup Node environment
+<<<<<<< HEAD
         uses: ./.github/actions/setup-node-env
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -350,6 +356,10 @@ jobs:
 =======
         if: matrix.runtime != 'bun' || github.event_name != 'push'
 >>>>>>> 47bfb765a (ci: skip bun matrix steps on push runs)
+=======
+        if: matrix.runtime != 'bun' || github.event_name != 'push'
+        uses: ./.github/actions/setup-node-env
+>>>>>>> 18179fc2c (ci: move bun push-skip condition out of job-level matrix if)
         with:
           install-bun: "${{ matrix.runtime == 'bun' }}"
 >>>>>>> 13f2fa0c5 (ci: avoid bun setup API flake in node checks)
@@ -358,11 +368,11 @@ jobs:
       - name: Run ${{ matrix.task }}
 =======
       - name: Configure vitest JSON reports
-        if: matrix.task == 'test' && matrix.runtime == 'node'
+        if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
         run: echo "OPENCLAW_VITEST_REPORT_DIR=$RUNNER_TEMP/vitest-reports" >> "$GITHUB_ENV"
 
       - name: Configure Node test resources
-        if: matrix.task == 'test' && matrix.runtime == 'node'
+        if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
         run: |
           # `pnpm test` runs `scripts/test-parallel.mjs`, which spawns multiple Node processes.
           # Default heap limits have been too low on Linux CI (V8 OOM near 4GB).
@@ -378,13 +388,13 @@ jobs:
         run: ${{ matrix.command }}
 
       - name: Summarize slowest tests
-        if: matrix.task == 'test' && matrix.runtime == 'node'
+        if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
         run: |
           node scripts/vitest-slowest.mjs --dir "$OPENCLAW_VITEST_REPORT_DIR" --top 50 --out "$RUNNER_TEMP/vitest-slowest.md" > /dev/null
           echo "Slowest test summary written to $RUNNER_TEMP/vitest-slowest.md"
 
       - name: Upload vitest reports
-        if: matrix.task == 'test' && matrix.runtime == 'node'
+        if: (github.event_name != 'push' || matrix.runtime != 'bun') && matrix.task == 'test' && matrix.runtime == 'node'
         uses: actions/upload-artifact@v4
         with:
           name: vitest-reports-${{ runner.os }}-${{ matrix.runtime }}
