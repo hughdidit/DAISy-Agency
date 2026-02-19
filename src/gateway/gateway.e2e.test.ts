@@ -4,7 +4,12 @@ import os from "node:os";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 
+=======
+import { startGatewayServer } from "./server.js";
+import { extractPayloadText } from "./test-helpers.agent-results.js";
+>>>>>>> 947e11c33 (test(gateway): dedupe agent payload and stream fixtures)
 import {
   connectDeviceAuthReq,
   connectGatewayClient,
@@ -17,15 +22,6 @@ import { startGatewayServer } from "./server.js";
 =======
 import { buildOpenAiResponsesProviderConfig } from "./test-openai-responses-model.js";
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
-
-function extractPayloadText(result: unknown): string {
-  const record = result as Record<string, unknown>;
-  const payloads = Array.isArray(record.payloads) ? record.payloads : [];
-  const texts = payloads
-    .map((p) => (p && typeof p === "object" ? (p as Record<string, unknown>).text : undefined))
-    .filter((t): t is string => typeof t === "string" && t.trim().length > 0);
-  return texts.join("\n").trim();
-}
 
 describe("gateway e2e", () => {
   it(
