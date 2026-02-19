@@ -187,6 +187,19 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
         #expect(json.contains("\"value\""))
     }
 
+    @Test @MainActor func chatSessionKeyDefaultsToIOSBase() {
+        let appModel = NodeAppModel()
+        #expect(appModel.chatSessionKey == "ios")
+    }
+
+    @Test @MainActor func chatSessionKeyUsesAgentScopedKeyForNonDefaultAgent() {
+        let appModel = NodeAppModel()
+        appModel.gatewayDefaultAgentId = "main"
+        appModel.setSelectedAgentId("agent-123")
+        #expect(appModel.chatSessionKey == SessionKey.makeAgentSessionKey(agentId: "agent-123", baseKey: "ios"))
+        #expect(appModel.mainSessionKey == "agent:agent-123:main")
+    }
+
     @Test @MainActor func handleInvokeRejectsBackgroundCommands() async {
         let appModel = NodeAppModel()
         appModel.setScenePhase(.background)
