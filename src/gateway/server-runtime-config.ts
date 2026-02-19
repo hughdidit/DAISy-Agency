@@ -12,6 +12,7 @@ import {
 import { normalizeControlUiBasePath } from "./control-ui-shared.js";
 import { resolveHooksConfig } from "./hooks.js";
 import { isLoopbackHost, resolveGatewayBindHost } from "./net.js";
+import { mergeGatewayTailscaleConfig } from "./startup-auth.js";
 
 export type GatewayRuntimeConfig = {
   bindHost: string;
@@ -51,21 +52,27 @@ export async function resolveGatewayRuntimeConfig(params: {
   const openResponsesConfig = params.cfg.gateway?.http?.endpoints?.responses;
   const openResponsesEnabled = params.openResponsesEnabled ?? openResponsesConfig?.enabled ?? false;
   const controlUiBasePath = normalizeControlUiBasePath(params.cfg.gateway?.controlUi?.basePath);
+<<<<<<< HEAD
   const authBase = params.cfg.gateway?.auth ?? {};
   const authOverrides = params.auth ?? {};
   const authConfig = {
     ...authBase,
     ...authOverrides,
   };
+=======
+  const controlUiRootRaw = params.cfg.gateway?.controlUi?.root;
+  const controlUiRoot =
+    typeof controlUiRootRaw === "string" && controlUiRootRaw.trim().length > 0
+      ? controlUiRootRaw.trim()
+      : undefined;
+>>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
   const tailscaleBase = params.cfg.gateway?.tailscale ?? {};
   const tailscaleOverrides = params.tailscale ?? {};
-  const tailscaleConfig = {
-    ...tailscaleBase,
-    ...tailscaleOverrides,
-  };
+  const tailscaleConfig = mergeGatewayTailscaleConfig(tailscaleBase, tailscaleOverrides);
   const tailscaleMode = tailscaleConfig.mode ?? "off";
   const resolvedAuth = resolveGatewayAuth({
-    authConfig,
+    authConfig: params.cfg.gateway?.auth,
+    authOverride: params.auth,
     env: process.env,
     tailscaleMode,
   });

@@ -15,11 +15,23 @@ import {
   parseForwardedForClientIp,
   resolveGatewayClientIp,
 } from "./net.js";
+<<<<<<< HEAD
 >>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 export type ResolvedGatewayAuthMode = "token" | "password";
+=======
+
+export type ResolvedGatewayAuthMode = "none" | "token" | "password" | "trusted-proxy";
+export type ResolvedGatewayAuthModeSource =
+  | "override"
+  | "config"
+  | "password"
+  | "token"
+  | "default";
+>>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
 
 export type ResolvedGatewayAuth = {
   mode: ResolvedGatewayAuthMode;
+  modeSource?: ResolvedGatewayAuthModeSource;
   token?: string;
   password?: string;
   allowTailscale: boolean;
@@ -182,11 +194,35 @@ async function resolveVerifiedTailscaleUser(params: {
 
 export function resolveGatewayAuth(params: {
   authConfig?: GatewayAuthConfig | null;
+  authOverride?: GatewayAuthConfig | null;
   env?: NodeJS.ProcessEnv;
   tailscaleMode?: GatewayTailscaleMode;
 }): ResolvedGatewayAuth {
-  const authConfig = params.authConfig ?? {};
+  const baseAuthConfig = params.authConfig ?? {};
+  const authOverride = params.authOverride ?? undefined;
+  const authConfig: GatewayAuthConfig = { ...baseAuthConfig };
+  if (authOverride) {
+    if (authOverride.mode !== undefined) {
+      authConfig.mode = authOverride.mode;
+    }
+    if (authOverride.token !== undefined) {
+      authConfig.token = authOverride.token;
+    }
+    if (authOverride.password !== undefined) {
+      authConfig.password = authOverride.password;
+    }
+    if (authOverride.allowTailscale !== undefined) {
+      authConfig.allowTailscale = authOverride.allowTailscale;
+    }
+    if (authOverride.rateLimit !== undefined) {
+      authConfig.rateLimit = authOverride.rateLimit;
+    }
+    if (authOverride.trustedProxy !== undefined) {
+      authConfig.trustedProxy = authOverride.trustedProxy;
+    }
+  }
   const env = params.env ?? process.env;
+<<<<<<< HEAD
   const token =
     authConfig.token ?? env.OPENCLAW_GATEWAY_TOKEN ?? env.CLAWDBOT_GATEWAY_TOKEN ?? undefined;
   const password =
@@ -195,10 +231,36 @@ export function resolveGatewayAuth(params: {
     env.CLAWDBOT_GATEWAY_PASSWORD ??
     undefined;
   const mode: ResolvedGatewayAuth["mode"] = authConfig.mode ?? (password ? "password" : "token");
+=======
+  const token = authConfig.token ?? env.OPENCLAW_GATEWAY_TOKEN ?? undefined;
+  const password = authConfig.password ?? env.OPENCLAW_GATEWAY_PASSWORD ?? undefined;
+  const trustedProxy = authConfig.trustedProxy;
+
+  let mode: ResolvedGatewayAuth["mode"];
+  let modeSource: ResolvedGatewayAuth["modeSource"];
+  if (authOverride?.mode !== undefined) {
+    mode = authOverride.mode;
+    modeSource = "override";
+  } else if (authConfig.mode) {
+    mode = authConfig.mode;
+    modeSource = "config";
+  } else if (password) {
+    mode = "password";
+    modeSource = "password";
+  } else if (token) {
+    mode = "token";
+    modeSource = "token";
+  } else {
+    mode = "token";
+    modeSource = "default";
+  }
+
+>>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
   const allowTailscale =
     authConfig.allowTailscale ?? (params.tailscaleMode === "serve" && mode !== "password");
   return {
     mode,
+    modeSource,
     token,
     password,
     allowTailscale,
@@ -228,6 +290,49 @@ export async function authorizeGatewayConnect(params: {
   const tailscaleWhois = params.tailscaleWhois ?? readTailscaleWhoisIdentity;
   const localDirect = isLocalDirectRequest(req, trustedProxies);
 
+<<<<<<< HEAD
+=======
+  if (auth.mode === "trusted-proxy") {
+    if (!auth.trustedProxy) {
+      return { ok: false, reason: "trusted_proxy_config_missing" };
+    }
+    if (!trustedProxies || trustedProxies.length === 0) {
+      return { ok: false, reason: "trusted_proxy_no_proxies_configured" };
+    }
+
+    const result = authorizeTrustedProxy({
+      req,
+      trustedProxies,
+      trustedProxyConfig: auth.trustedProxy,
+    });
+
+    if ("user" in result) {
+      return { ok: true, method: "trusted-proxy", user: result.user };
+    }
+    return { ok: false, reason: result.reason };
+  }
+
+  if (auth.mode === "none") {
+    return { ok: true, method: "none" };
+  }
+
+  const limiter = params.rateLimiter;
+  const ip =
+    params.clientIp ?? resolveRequestClientIp(req, trustedProxies) ?? req?.socket?.remoteAddress;
+  const rateLimitScope = params.rateLimitScope ?? AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET;
+  if (limiter) {
+    const rlCheck: RateLimitCheckResult = limiter.check(ip, rateLimitScope);
+    if (!rlCheck.allowed) {
+      return {
+        ok: false,
+        reason: "rate_limited",
+        rateLimited: true,
+        retryAfterMs: rlCheck.retryAfterMs,
+      };
+    }
+  }
+
+>>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
   if (auth.allowTailscale && !localDirect) {
     const tailscaleCheck = await resolveVerifiedTailscaleUser({
       req,

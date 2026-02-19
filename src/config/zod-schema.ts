@@ -325,9 +325,22 @@ export const OpenClawSchema = z
           .optional(),
         auth: z
           .object({
+<<<<<<< HEAD
             mode: z.union([z.literal("token"), z.literal("password")]).optional(),
             token: z.string().optional(),
             password: z.string().optional(),
+=======
+            mode: z
+              .union([
+                z.literal("none"),
+                z.literal("token"),
+                z.literal("password"),
+                z.literal("trusted-proxy"),
+              ])
+              .optional(),
+            token: z.string().optional().register(sensitive),
+            password: z.string().optional().register(sensitive),
+>>>>>>> c5698caca (Security: default gateway auth bootstrap and explicit mode none (#20686))
             allowTailscale: z.boolean().optional(),
           })
           .strict()
