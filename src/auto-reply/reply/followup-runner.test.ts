@@ -166,6 +166,7 @@ describe("createFollowupRunner compaction", () => {
     expect(sessionStore.main.compactionCount).toBe(1);
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   it("updates totalTokens after auto-compaction using lastCallUsage", async () => {
@@ -223,6 +224,8 @@ describe("createFollowupRunner compaction", () => {
     expect(store[sessionKey]?.outputTokens).toBeUndefined();
   });
 >>>>>>> 9ac6f4673 (test(messaging): dedupe parser/proxy/followup test scaffolding)
+=======
+>>>>>>> 9a490fbbe (test: drop duplicate followup compaction token assertion)
 });
 
 describe("createFollowupRunner messaging tool dedupe", () => {
