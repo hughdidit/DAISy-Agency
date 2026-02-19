@@ -8,12 +8,17 @@ import { createMoltbotCodingTools } from "./pi-tools.js";
 =======
 import { describe, expect, it, vi } from "vitest";
 import { createOpenClawCodingTools } from "./pi-tools.js";
+<<<<<<< HEAD
 >>>>>>> 141f551a4 (fix(exec-approvals): coerce bare string allowlist entries (#9903) (thanks @mcaxtr))
 
 vi.mock("../plugins/tools.js", () => ({
   getPluginToolMeta: () => undefined,
   resolvePluginTools: () => [],
 }));
+=======
+import { createHostSandboxFsBridge } from "./test-helpers/host-sandbox-fs-bridge.js";
+import { createPiToolsSandboxContext } from "./test-helpers/pi-tools-sandbox-context.js";
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
 
 vi.mock("../infra/shell-env.js", async (importOriginal) => {
   const mod = await importOriginal<typeof import("../infra/shell-env.js")>();
@@ -167,11 +172,17 @@ describe.sequential("workspace path resolution", () => {
 
 describe.sequential("sandboxed workspace paths", () => {
   it("uses sandbox workspace for relative read/write/edit", async () => {
+<<<<<<< HEAD
     await withTempDir("moltbot-sandbox-", async (sandboxDir) => {
       await withTempDir("moltbot-workspace-", async (workspaceDir) => {
         const sandbox = {
           enabled: true,
           sessionKey: "sandbox:test",
+=======
+    await withTempDir("openclaw-sandbox-", async (sandboxDir) => {
+      await withTempDir("openclaw-workspace-", async (workspaceDir) => {
+        const sandbox = createPiToolsSandboxContext({
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
           workspaceDir: sandboxDir,
           agentWorkspaceDir: workspaceDir,
 <<<<<<< HEAD
@@ -179,6 +190,7 @@ describe.sequential("sandboxed workspace paths", () => {
           containerName: "moltbot-sbx-test",
 =======
           workspaceAccess: "rw" as const,
+<<<<<<< HEAD
           containerName: "openclaw-sbx-test",
 >>>>>>> 688f86bf2 (chore: Fix types in tests 43/N.)
           containerWorkdir: "/workspace",
@@ -193,9 +205,11 @@ describe.sequential("sandboxed workspace paths", () => {
             capDrop: ["ALL"],
             env: { LANG: "C.UTF-8" },
           },
+=======
+          fsBridge: createHostSandboxFsBridge(sandboxDir),
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
           tools: { allow: [], deny: [] },
-          browserAllowHostControl: false,
-        };
+        });
 
         const testFile = "sandbox.txt";
         await fs.writeFile(path.join(sandboxDir, testFile), "sandbox read", "utf8");

@@ -9,7 +9,11 @@ import { createMoltbotCodingTools } from "./pi-tools.js";
 =======
 import { createOpenClawCodingTools } from "./pi-tools.js";
 import { createHostSandboxFsBridge } from "./test-helpers/host-sandbox-fs-bridge.js";
+<<<<<<< HEAD
 >>>>>>> 31c6a12cf (fix(agents): restore missing runtime helpers and sandbox types)
+=======
+import { createPiToolsSandboxContext } from "./test-helpers/pi-tools-sandbox-context.js";
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
 
 const defaultTools = createMoltbotCodingTools();
 
@@ -77,16 +81,23 @@ describe("createMoltbotCodingTools", () => {
     }
   });
   it("filters tools by sandbox policy", () => {
+<<<<<<< HEAD
     const sandbox = {
       enabled: true,
       sessionKey: "sandbox:test",
       workspaceDir: path.join(os.tmpdir(), "moltbot-sandbox"),
+=======
+    const sandboxDir = path.join(os.tmpdir(), "moltbot-sandbox");
+    const sandbox = createPiToolsSandboxContext({
+      workspaceDir: sandboxDir,
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
       agentWorkspaceDir: path.join(os.tmpdir(), "moltbot-workspace"),
 <<<<<<< HEAD
       workspaceAccess: "none",
       containerName: "moltbot-sbx-test",
 =======
       workspaceAccess: "none" as const,
+<<<<<<< HEAD
       containerName: "openclaw-sbx-test",
 >>>>>>> 688f86bf2 (chore: Fix types in tests 43/N.)
       containerWorkdir: "/workspace",
@@ -101,28 +112,43 @@ describe("createMoltbotCodingTools", () => {
         capDrop: ["ALL"],
         env: { LANG: "C.UTF-8" },
       },
+=======
+      fsBridge: createHostSandboxFsBridge(sandboxDir),
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
       tools: {
         allow: ["bash"],
         deny: ["browser"],
       },
+<<<<<<< HEAD
       browserAllowHostControl: false,
     };
     const tools = createMoltbotCodingTools({ sandbox });
+=======
+    });
+    const tools = createOpenClawCodingTools({ sandbox });
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
     expect(tools.some((tool) => tool.name === "exec")).toBe(true);
     expect(tools.some((tool) => tool.name === "read")).toBe(false);
     expect(tools.some((tool) => tool.name === "browser")).toBe(false);
   });
   it("hard-disables write/edit when sandbox workspaceAccess is ro", () => {
+<<<<<<< HEAD
     const sandbox = {
       enabled: true,
       sessionKey: "sandbox:test",
       workspaceDir: path.join(os.tmpdir(), "moltbot-sandbox"),
+=======
+    const sandboxDir = path.join(os.tmpdir(), "moltbot-sandbox");
+    const sandbox = createPiToolsSandboxContext({
+      workspaceDir: sandboxDir,
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
       agentWorkspaceDir: path.join(os.tmpdir(), "moltbot-workspace"),
 <<<<<<< HEAD
       workspaceAccess: "ro",
       containerName: "moltbot-sbx-test",
 =======
       workspaceAccess: "ro" as const,
+<<<<<<< HEAD
       containerName: "openclaw-sbx-test",
 >>>>>>> 688f86bf2 (chore: Fix types in tests 43/N.)
       containerWorkdir: "/workspace",
@@ -137,13 +163,21 @@ describe("createMoltbotCodingTools", () => {
         capDrop: ["ALL"],
         env: { LANG: "C.UTF-8" },
       },
+=======
+      fsBridge: createHostSandboxFsBridge(sandboxDir),
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
       tools: {
         allow: ["read", "write", "edit"],
         deny: [],
       },
+<<<<<<< HEAD
       browserAllowHostControl: false,
     };
     const tools = createMoltbotCodingTools({ sandbox });
+=======
+    });
+    const tools = createOpenClawCodingTools({ sandbox });
+>>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
     expect(tools.some((tool) => tool.name === "read")).toBe(true);
     expect(tools.some((tool) => tool.name === "write")).toBe(false);
     expect(tools.some((tool) => tool.name === "edit")).toBe(false);
