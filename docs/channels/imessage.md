@@ -55,7 +55,13 @@ Disable with:
 }
 ```
 
+<<<<<<< HEAD
 ## Requirements
+=======
+    If `remoteHost` is not set, OpenClaw attempts to auto-detect it by parsing the SSH wrapper script.
+    `remoteHost` must be `host` or `user@host` (no spaces or SSH options).
+    OpenClaw uses strict host-key checking for SCP, so the relay host key must already exist in `~/.ssh/known_hosts`.
+>>>>>>> 49d0def6d (fix(security): harden imessage remote scp/ssh handling)
 
 - macOS with Messages signed in.
 - Full Disk Access for OpenClaw + `imsg` (Messages DB access).
@@ -207,7 +213,12 @@ Example wrapper (`~/.openclaw/scripts/imsg-ssh`):
 exec ssh -T bot@mac-mini.tailnet-1234.ts.net imsg "$@"
 ```
 
+<<<<<<< HEAD
 Notes:
+=======
+    Use SSH keys so both SSH and SCP are non-interactive.
+    Ensure the host key is trusted first (for example `ssh bot@mac-mini.tailnet-1234.ts.net`) so `known_hosts` is populated.
+>>>>>>> 49d0def6d (fix(security): harden imessage remote scp/ssh handling)
 
 - Ensure the Mac is signed in to Messages, and Remote Login is enabled.
 - Use SSH keys so `ssh bot@mac-mini.tailnet-1234.ts.net` works without prompts.
@@ -226,7 +237,17 @@ DMs:
   - `openclaw pairing approve imessage <CODE>`
 - Pairing is the default token exchange for iMessage DMs. Details: [Pairing](/channels/pairing)
 
+<<<<<<< HEAD
 Groups:
+=======
+<AccordionGroup>
+  <Accordion title="Attachments and media">
+    - inbound attachment ingestion is optional: `channels.imessage.includeAttachments`
+    - remote attachment paths can be fetched via SCP when `remoteHost` is set
+    - SCP uses strict host-key checking (`StrictHostKeyChecking=yes`)
+    - outbound media size uses `channels.imessage.mediaMaxMb` (default 16 MB)
+  </Accordion>
+>>>>>>> 49d0def6d (fix(security): harden imessage remote scp/ssh handling)
 
 - `channels.imessage.groupPolicy = open | allowlist | disabled`.
 - `channels.imessage.groupAllowFrom` controls who can trigger in groups when `allowlist` is set.
@@ -317,5 +338,47 @@ Provider options:
 
 Related global options:
 
+<<<<<<< HEAD
 - `agents.list[].groupChat.mentionPatterns` (or `messages.groupChat.mentionPatterns`).
 - `messages.responsePrefix`.
+=======
+  <Accordion title="Group messages are ignored">
+    Check:
+
+    - `channels.imessage.groupPolicy`
+    - `channels.imessage.groupAllowFrom`
+    - `channels.imessage.groups` allowlist behavior
+    - mention pattern configuration (`agents.list[].groupChat.mentionPatterns`)
+
+  </Accordion>
+
+  <Accordion title="Remote attachments fail">
+    Check:
+
+    - `channels.imessage.remoteHost`
+    - SSH/SCP key auth from the gateway host
+    - host key exists in `~/.ssh/known_hosts` on the gateway host
+    - remote path readability on the Mac running Messages
+
+  </Accordion>
+
+  <Accordion title="macOS permission prompts were missed">
+    Re-run in an interactive GUI terminal in the same user/session context and approve prompts:
+
+```bash
+imsg chats --limit 1
+imsg send <handle> "test"
+```
+
+    Confirm Full Disk Access + Automation are granted for the process context that runs OpenClaw/`imsg`.
+
+  </Accordion>
+</AccordionGroup>
+
+## Configuration reference pointers
+
+- [Configuration reference - iMessage](/gateway/configuration-reference#imessage)
+- [Gateway configuration](/gateway/configuration)
+- [Pairing](/channels/pairing)
+- [BlueBubbles](/channels/bluebubbles)
+>>>>>>> 49d0def6d (fix(security): harden imessage remote scp/ssh handling)
