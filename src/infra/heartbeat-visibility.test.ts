@@ -3,6 +3,20 @@ import type { MoltbotConfig } from "../config/config.js";
 import { resolveHeartbeatVisibility } from "./heartbeat-visibility.js";
 
 describe("resolveHeartbeatVisibility", () => {
+  function createChannelDefaultsHeartbeatConfig(heartbeat: {
+    showOk?: boolean;
+    showAlerts?: boolean;
+    useIndicator?: boolean;
+  }): OpenClawConfig {
+    return {
+      channels: {
+        defaults: {
+          heartbeat,
+        },
+      },
+    } as OpenClawConfig;
+  }
+
   function createTelegramAccountHeartbeatConfig(): OpenClawConfig {
     return {
       channels: {
@@ -34,6 +48,7 @@ describe("resolveHeartbeatVisibility", () => {
   });
 
   it("uses channel defaults when provided", () => {
+<<<<<<< HEAD
     const cfg = {
       channels: {
         defaults: {
@@ -45,6 +60,13 @@ describe("resolveHeartbeatVisibility", () => {
         },
       },
     } as MoltbotConfig;
+=======
+    const cfg = createChannelDefaultsHeartbeatConfig({
+      showOk: true,
+      showAlerts: false,
+      useIndicator: false,
+    });
+>>>>>>> cb6b835a4 (test: dedupe heartbeat and action-runner fixtures)
 
     const result = resolveHeartbeatVisibility({ cfg, channel: "telegram" });
 
@@ -276,6 +298,7 @@ describe("resolveHeartbeatVisibility", () => {
   });
 
   it("webchat uses channel defaults only (no per-channel config)", () => {
+<<<<<<< HEAD
     const cfg = {
       channels: {
         defaults: {
@@ -287,6 +310,13 @@ describe("resolveHeartbeatVisibility", () => {
         },
       },
     } as MoltbotConfig;
+=======
+    const cfg = createChannelDefaultsHeartbeatConfig({
+      showOk: true,
+      showAlerts: false,
+      useIndicator: false,
+    });
+>>>>>>> cb6b835a4 (test: dedupe heartbeat and action-runner fixtures)
 
     const result = resolveHeartbeatVisibility({ cfg, channel: "webchat" });
 

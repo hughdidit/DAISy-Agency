@@ -174,6 +174,44 @@ describe("resolveHeartbeatIntervalMs", () => {
     return sendTelegram;
   }
 
+  function createWhatsAppHeartbeatConfig(params: {
+    tmpDir: string;
+    storePath: string;
+    heartbeat?: Record<string, unknown>;
+    visibility?: Record<string, unknown>;
+  }): OpenClawConfig {
+    return createHeartbeatConfig({
+      tmpDir: params.tmpDir,
+      storePath: params.storePath,
+      heartbeat: {
+        every: "5m",
+        target: "whatsapp",
+        ...params.heartbeat,
+      },
+      channels: {
+        whatsapp: {
+          allowFrom: ["*"],
+          ...(params.visibility ? { heartbeat: params.visibility } : {}),
+        },
+      },
+    });
+  }
+
+  async function createSeededWhatsAppHeartbeatConfig(params: {
+    tmpDir: string;
+    storePath: string;
+    heartbeat?: Record<string, unknown>;
+    visibility?: Record<string, unknown>;
+  }): Promise<OpenClawConfig> {
+    const cfg = createWhatsAppHeartbeatConfig(params);
+    await seedMainSession(params.storePath, cfg, {
+      lastChannel: "whatsapp",
+      lastProvider: "whatsapp",
+      lastTo: "+1555",
+    });
+    return cfg;
+  }
+
   it("respects ackMaxChars for heartbeat acks", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
@@ -183,6 +221,7 @@ describe("resolveHeartbeatIntervalMs", () => {
       const cfg: MoltbotConfig = {
 =======
     await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
+<<<<<<< HEAD
 <<<<<<< HEAD
       const cfg: OpenClawConfig = {
 >>>>>>> ee331e8d5 (refactor(test): share heartbeat sandbox)
@@ -206,6 +245,12 @@ describe("resolveHeartbeatIntervalMs", () => {
 >>>>>>> 9c6e879a0 (refactor(test): dedupe heartbeat runner e2e scaffolding)
         },
         channels: { whatsapp: { allowFrom: ["*"] } },
+=======
+      const cfg = createWhatsAppHeartbeatConfig({
+        tmpDir,
+        storePath,
+        heartbeat: { ackMaxChars: 0 },
+>>>>>>> cb6b835a4 (test: dedupe heartbeat and action-runner fixtures)
       });
 
       await seedMainSession(storePath, cfg, {
@@ -236,6 +281,7 @@ describe("resolveHeartbeatIntervalMs", () => {
 =======
     await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const cfg: OpenClawConfig = {
 >>>>>>> ee331e8d5 (refactor(test): share heartbeat sandbox)
         agents: {
@@ -256,6 +302,12 @@ describe("resolveHeartbeatIntervalMs", () => {
 >>>>>>> 9c6e879a0 (refactor(test): dedupe heartbeat runner e2e scaffolding)
         },
         channels: { whatsapp: { allowFrom: ["*"], heartbeat: { showOk: true } } },
+=======
+      const cfg = createWhatsAppHeartbeatConfig({
+        tmpDir,
+        storePath,
+        visibility: { showOk: true },
+>>>>>>> cb6b835a4 (test: dedupe heartbeat and action-runner fixtures)
       });
 
       await seedMainSession(storePath, cfg, {
@@ -333,6 +385,7 @@ describe("resolveHeartbeatIntervalMs", () => {
 =======
     await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const cfg: OpenClawConfig = {
 >>>>>>> ee331e8d5 (refactor(test): share heartbeat sandbox)
         agents: {
@@ -358,6 +411,12 @@ describe("resolveHeartbeatIntervalMs", () => {
             heartbeat: { showOk: false, showAlerts: false, useIndicator: false },
           },
         },
+=======
+      const cfg = createWhatsAppHeartbeatConfig({
+        tmpDir,
+        storePath,
+        visibility: { showOk: false, showAlerts: false, useIndicator: false },
+>>>>>>> cb6b835a4 (test: dedupe heartbeat and action-runner fixtures)
       });
 
       await seedMainSession(storePath, cfg, {
@@ -389,6 +448,7 @@ describe("resolveHeartbeatIntervalMs", () => {
 =======
     await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const cfg: OpenClawConfig = {
 >>>>>>> ee331e8d5 (refactor(test): share heartbeat sandbox)
         agents: {
@@ -415,6 +475,11 @@ describe("resolveHeartbeatIntervalMs", () => {
         lastChannel: "whatsapp",
         lastProvider: "whatsapp",
         lastTo: "+1555",
+=======
+      const cfg = await createSeededWhatsAppHeartbeatConfig({
+        tmpDir,
+        storePath,
+>>>>>>> cb6b835a4 (test: dedupe heartbeat and action-runner fixtures)
       });
 
       replySpy.mockResolvedValue({ text: "<b>HEARTBEAT_OK</b>" });
@@ -441,6 +506,7 @@ describe("resolveHeartbeatIntervalMs", () => {
       const originalUpdatedAt = 1000;
       const bumpedUpdatedAt = 2000;
 <<<<<<< HEAD
+<<<<<<< HEAD
       const cfg: MoltbotConfig = {
         agents: {
           defaults: {
@@ -460,6 +526,11 @@ describe("resolveHeartbeatIntervalMs", () => {
 >>>>>>> 9c6e879a0 (refactor(test): dedupe heartbeat runner e2e scaffolding)
         },
         channels: { whatsapp: { allowFrom: ["*"] } },
+=======
+      const cfg = createWhatsAppHeartbeatConfig({
+        tmpDir,
+        storePath,
+>>>>>>> cb6b835a4 (test: dedupe heartbeat and action-runner fixtures)
       });
 
       const sessionKey = await seedMainSession(storePath, cfg, {
@@ -505,6 +576,7 @@ describe("resolveHeartbeatIntervalMs", () => {
 =======
     await withTempHeartbeatSandbox(async ({ tmpDir, storePath, replySpy }) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const cfg: OpenClawConfig = {
 >>>>>>> ee331e8d5 (refactor(test): share heartbeat sandbox)
         agents: {
@@ -525,6 +597,11 @@ describe("resolveHeartbeatIntervalMs", () => {
         lastChannel: "whatsapp",
         lastProvider: "whatsapp",
         lastTo: "+1555",
+=======
+      const cfg = await createSeededWhatsAppHeartbeatConfig({
+        tmpDir,
+        storePath,
+>>>>>>> cb6b835a4 (test: dedupe heartbeat and action-runner fixtures)
       });
 
       replySpy.mockResolvedValue({ text: "Heartbeat alert" });

@@ -103,6 +103,14 @@ const runDrySend = (params: {
     action: "send",
   });
 
+function createAlwaysConfiguredPluginConfig(account: Record<string, unknown> = { enabled: true }) {
+  return {
+    listAccountIds: () => ["default"],
+    resolveAccount: () => account,
+    isConfigured: () => true,
+  };
+}
+
 describe("runMessageAction context isolation", () => {
   beforeEach(async () => {
     const { createPluginRuntime } = await import("../../plugins/runtime/index.js");
@@ -625,7 +633,152 @@ describe("runMessageAction sandboxed media validation", () => {
       }),
     ).rejects.toThrow(/data:/i);
   });
+<<<<<<< HEAD
 >>>>>>> a6fd76efe (Message: clarify media schema + fix MEDIA newline)
+=======
+});
+
+describe("runMessageAction media caption behavior", () => {
+  afterEach(() => {
+    setActivePluginRegistry(createTestRegistry([]));
+  });
+
+  it("promotes caption to message for media sends when message is empty", async () => {
+    const sendMedia = vi.fn().mockResolvedValue({
+      channel: "testchat",
+      messageId: "m1",
+      chatId: "c1",
+    });
+    setActivePluginRegistry(
+      createTestRegistry([
+        {
+          pluginId: "testchat",
+          source: "test",
+          plugin: createOutboundTestPlugin({
+            id: "testchat",
+            outbound: {
+              deliveryMode: "direct",
+              sendText: vi.fn().mockResolvedValue({
+                channel: "testchat",
+                messageId: "t1",
+                chatId: "c1",
+              }),
+              sendMedia,
+            },
+          }),
+        },
+      ]),
+    );
+    const cfg = {
+      channels: {
+        testchat: {
+          enabled: true,
+        },
+      },
+    } as OpenClawConfig;
+
+    const result = await runMessageAction({
+      cfg,
+      action: "send",
+      params: {
+        channel: "testchat",
+        target: "channel:abc",
+        media: "https://example.com/cat.png",
+        caption: "caption-only text",
+      },
+      dryRun: false,
+    });
+
+    expect(result.kind).toBe("send");
+    expect(sendMedia).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: "caption-only text",
+        mediaUrl: "https://example.com/cat.png",
+      }),
+    );
+  });
+});
+
+describe("runMessageAction card-only send behavior", () => {
+  const handleAction = vi.fn(async ({ params }: { params: Record<string, unknown> }) =>
+    jsonResult({
+      ok: true,
+      card: params.card ?? null,
+      message: params.message ?? null,
+    }),
+  );
+
+  const cardPlugin: ChannelPlugin = {
+    id: "cardchat",
+    meta: {
+      id: "cardchat",
+      label: "Card Chat",
+      selectionLabel: "Card Chat",
+      docsPath: "/channels/cardchat",
+      blurb: "Card-only send test plugin.",
+    },
+    capabilities: { chatTypes: ["direct"] },
+    config: createAlwaysConfiguredPluginConfig(),
+    actions: {
+      listActions: () => ["send"],
+      supportsAction: ({ action }) => action === "send",
+      handleAction,
+    },
+  };
+
+  beforeEach(() => {
+    setActivePluginRegistry(
+      createTestRegistry([
+        {
+          pluginId: "cardchat",
+          source: "test",
+          plugin: cardPlugin,
+        },
+      ]),
+    );
+    handleAction.mockClear();
+  });
+
+  afterEach(() => {
+    setActivePluginRegistry(createTestRegistry([]));
+    vi.clearAllMocks();
+  });
+
+  it("allows card-only sends without text or media", async () => {
+    const cfg = {
+      channels: {
+        cardchat: {
+          enabled: true,
+        },
+      },
+    } as OpenClawConfig;
+
+    const card = {
+      type: "AdaptiveCard",
+      version: "1.4",
+      body: [{ type: "TextBlock", text: "Card-only payload" }],
+    };
+
+    const result = await runMessageAction({
+      cfg,
+      action: "send",
+      params: {
+        channel: "cardchat",
+        target: "channel:test-card",
+        card,
+      },
+      dryRun: false,
+    });
+
+    expect(result.kind).toBe("send");
+    expect(result.handledBy).toBe("plugin");
+    expect(handleAction).toHaveBeenCalled();
+    expect(result.payload).toMatchObject({
+      ok: true,
+      card,
+    });
+  });
+>>>>>>> cb6b835a4 (test: dedupe heartbeat and action-runner fixtures)
 });
 
 describe("runMessageAction components parsing", () => {
@@ -646,11 +799,7 @@ describe("runMessageAction components parsing", () => {
       blurb: "Discord components send test plugin.",
     },
     capabilities: { chatTypes: ["direct"] },
-    config: {
-      listAccountIds: () => ["default"],
-      resolveAccount: () => ({}),
-      isConfigured: () => true,
-    },
+    config: createAlwaysConfiguredPluginConfig({}),
     actions: {
       listActions: () => ["send"],
       supportsAction: ({ action }) => action === "send",
