@@ -234,21 +234,14 @@ describe("discoverMoltbotPlugins", () => {
         "utf-8",
       );
 
-      const proc = process as NodeJS.Process & { getuid: () => number };
-      const originalGetUid = proc.getuid;
-      const actualUid = originalGetUid();
-      try {
-        proc.getuid = () => actualUid + 1;
-        const result = await withStateDir(stateDir, async () => {
-          return discoverOpenClawPlugins({});
-        });
-        expect(result.candidates).toHaveLength(0);
-        expect(
-          result.diagnostics.some((diag) => diag.message.includes("suspicious ownership")),
-        ).toBe(true);
-      } finally {
-        proc.getuid = originalGetUid;
-      }
+      const actualUid = (process as NodeJS.Process & { getuid: () => number }).getuid();
+      const result = await withStateDir(stateDir, async () => {
+        return discoverOpenClawPlugins({ ownershipUid: actualUid + 1 });
+      });
+      expect(result.candidates).toHaveLength(0);
+      expect(result.diagnostics.some((diag) => diag.message.includes("suspicious ownership"))).toBe(
+        true,
+      );
     },
   );
 });

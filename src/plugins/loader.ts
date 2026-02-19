@@ -35,7 +35,12 @@ import {
   type NormalizedPluginsConfig,
 } from "./config-state.js";
 import { initializeGlobalHookRunner } from "./hook-runner-global.js";
+<<<<<<< HEAD
 import { clearPluginCommands } from "./commands.js";
+=======
+import { loadPluginManifestRegistry } from "./manifest-registry.js";
+import { isPathInside, safeStatSync } from "./path-safety.js";
+>>>>>>> 77c748304 (refactor(plugins): extract safety and provenance helpers)
 import { createPluginRegistry, type PluginRecord, type PluginRegistry } from "./registry.js";
 import { createPluginRuntime } from "./runtime/index.js";
 import { setActivePluginRegistry } from "./runtime.js";
@@ -231,6 +236,7 @@ function pushDiagnostics(diagnostics: PluginDiagnostic[], append: PluginDiagnost
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 export function loadMoltbotPlugins(options: PluginLoadOptions = {}): PluginRegistry {
   const cfg = applyTestPluginDefaults(options.config ?? {});
 =======
@@ -241,55 +247,102 @@ function isPathInside(baseDir: string, targetPath: string): boolean {
     return true;
   }
   return !rel.startsWith("..") && !path.isAbsolute(rel);
+=======
+type PathMatcher = {
+  exact: Set<string>;
+  dirs: string[];
+};
+
+type InstallTrackingRule = {
+  trackedWithoutPaths: boolean;
+  matcher: PathMatcher;
+};
+
+type PluginProvenanceIndex = {
+  loadPathMatcher: PathMatcher;
+  installRules: Map<string, InstallTrackingRule>;
+};
+
+function createPathMatcher(): PathMatcher {
+  return { exact: new Set<string>(), dirs: [] };
+>>>>>>> 77c748304 (refactor(plugins): extract safety and provenance helpers)
 }
 
-function pathMatchesBaseOrFile(params: { baseOrFile: string; targetFile: string }): boolean {
-  const baseResolved = resolveUserPath(params.baseOrFile);
-  const targetResolved = resolveUserPath(params.targetFile);
-  if (baseResolved === targetResolved) {
+function addPathToMatcher(matcher: PathMatcher, rawPath: string): void {
+  const trimmed = rawPath.trim();
+  if (!trimmed) {
+    return;
+  }
+  const resolved = resolveUserPath(trimmed);
+  if (!resolved) {
+    return;
+  }
+  if (matcher.exact.has(resolved) || matcher.dirs.includes(resolved)) {
+    return;
+  }
+  const stat = safeStatSync(resolved);
+  if (stat?.isDirectory()) {
+    matcher.dirs.push(resolved);
+    return;
+  }
+  matcher.exact.add(resolved);
+}
+
+function matchesPathMatcher(matcher: PathMatcher, sourcePath: string): boolean {
+  if (matcher.exact.has(sourcePath)) {
     return true;
   }
-  try {
-    const stat = fs.statSync(baseResolved);
-    if (!stat.isDirectory()) {
-      return false;
-    }
-  } catch {
-    return false;
-  }
-  return isPathInside(baseResolved, targetResolved);
+  return matcher.dirs.some((dirPath) => isPathInside(dirPath, sourcePath));
 }
 
-function isTrackedByInstallRecord(params: {
+function buildProvenanceIndex(params: {
+  config: OpenClawConfig;
+  normalizedLoadPaths: string[];
+}): PluginProvenanceIndex {
+  const loadPathMatcher = createPathMatcher();
+  for (const loadPath of params.normalizedLoadPaths) {
+    addPathToMatcher(loadPathMatcher, loadPath);
+  }
+
+  const installRules = new Map<string, InstallTrackingRule>();
+  const installs = params.config.plugins?.installs ?? {};
+  for (const [pluginId, install] of Object.entries(installs)) {
+    const rule: InstallTrackingRule = {
+      trackedWithoutPaths: false,
+      matcher: createPathMatcher(),
+    };
+    const trackedPaths = [install.installPath, install.sourcePath]
+      .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
+      .filter(Boolean);
+    if (trackedPaths.length === 0) {
+      rule.trackedWithoutPaths = true;
+    } else {
+      for (const trackedPath of trackedPaths) {
+        addPathToMatcher(rule.matcher, trackedPath);
+      }
+    }
+    installRules.set(pluginId, rule);
+  }
+
+  return { loadPathMatcher, installRules };
+}
+
+function isTrackedByProvenance(params: {
   pluginId: string;
   source: string;
-  config: OpenClawConfig;
+  index: PluginProvenanceIndex;
 }): boolean {
-  const install = params.config.plugins?.installs?.[params.pluginId];
-  if (!install) {
-    return false;
+  const sourcePath = resolveUserPath(params.source);
+  const installRule = params.index.installRules.get(params.pluginId);
+  if (installRule) {
+    if (installRule.trackedWithoutPaths) {
+      return true;
+    }
+    if (matchesPathMatcher(installRule.matcher, sourcePath)) {
+      return true;
+    }
   }
-  const trackedPaths = [install.installPath, install.sourcePath]
-    .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
-    .filter(Boolean);
-  if (trackedPaths.length === 0) {
-    return true;
-  }
-  return trackedPaths.some((trackedPath) =>
-    pathMatchesBaseOrFile({
-      baseOrFile: trackedPath,
-      targetFile: params.source,
-    }),
-  );
-}
-
-function isTrackedByLoadPath(params: { source: string; loadPaths: string[] }): boolean {
-  return params.loadPaths.some((loadPath) =>
-    pathMatchesBaseOrFile({
-      baseOrFile: loadPath,
-      targetFile: params.source,
-    }),
-  );
+  return matchesPathMatcher(params.index.loadPathMatcher, sourcePath);
 }
 
 function warnWhenAllowlistIsOpen(params: {
@@ -320,8 +373,7 @@ function warnWhenAllowlistIsOpen(params: {
 
 function warnAboutUntrackedLoadedPlugins(params: {
   registry: PluginRegistry;
-  config: OpenClawConfig;
-  normalizedLoadPaths: string[];
+  provenance: PluginProvenanceIndex;
   logger: PluginLogger;
 }) {
   for (const plugin of params.registry.plugins) {
@@ -329,18 +381,10 @@ function warnAboutUntrackedLoadedPlugins(params: {
       continue;
     }
     if (
-      isTrackedByInstallRecord({
+      isTrackedByProvenance({
         pluginId: plugin.id,
         source: plugin.source,
-        config: params.config,
-      })
-    ) {
-      continue;
-    }
-    if (
-      isTrackedByLoadPath({
-        source: plugin.source,
-        loadPaths: params.normalizedLoadPaths,
+        index: params.provenance,
       })
     ) {
       continue;
@@ -410,6 +454,10 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
       source: plugin.source,
       origin: plugin.origin,
     })),
+  });
+  const provenance = buildProvenanceIndex({
+    config: cfg,
+    normalizedLoadPaths: normalized.loadPaths,
   });
 
 <<<<<<< HEAD
@@ -693,8 +741,7 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
 
   warnAboutUntrackedLoadedPlugins({
     registry,
-    config: cfg,
-    normalizedLoadPaths: normalized.loadPaths,
+    provenance,
     logger,
   });
 
