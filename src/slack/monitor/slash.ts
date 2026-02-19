@@ -126,7 +126,11 @@ import type { SlackMonitorContext } from "./context.js";
 import type { SlackMonitorContext } from "./context.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeSlackChannelType } from "./context.js";
+<<<<<<< HEAD
 >>>>>>> fff59da96 (fix(slack): fail closed on slash command channel type lookup)
+=======
+import { escapeSlackMrkdwn } from "./mrkdwn.js";
+>>>>>>> 672b1c508 (refactor: dedupe slack monitor mrkdwn and modal event base)
 import { isSlackChannelAllowedByPolicy } from "./policy.js";
 import { resolveSlackRoomContextHints } from "./room-context.js";
 
@@ -158,15 +162,6 @@ function truncatePlainText(value: string, max: number): string {
     return trimmed.slice(0, max);
   }
   return `${trimmed.slice(0, max - 1)}…`;
-}
-
-function escapeSlackMrkdwn(value: string): string {
-  return value
-    .replaceAll("\\", "\\\\")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replace(/([*_`~])/g, "\\$1");
 }
 
 function buildSlackArgMenuConfirm(params: { command: string; arg: string }) {
