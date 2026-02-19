@@ -1,5 +1,9 @@
 import type { OpenClawConfig } from "../config/config.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
+<<<<<<< HEAD
+=======
+import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import type { AnyAgentTool } from "./tools/common.js";
 import { resolvePluginTools } from "../plugins/tools.js";
 import { resolveSessionAgentId } from "./agent-scope.js";
@@ -57,6 +61,13 @@ export function createOpenClawTools(options?: {
   requireExplicitMessageTarget?: boolean;
   /** If true, omit the message tool from the tool list. */
   disableMessageTool?: boolean;
+<<<<<<< HEAD
+=======
+  /** Trusted sender id from inbound context (not tool args). */
+  requesterSenderId?: string | null;
+  /** Whether the requesting sender is an owner. */
+  senderIsOwner?: boolean;
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 }): AnyAgentTool[] {
   const imageTool = options?.agentDir?.trim()
     ? createImageTool({
@@ -87,6 +98,7 @@ export function createOpenClawTools(options?: {
         hasRepliedRef: options?.hasRepliedRef,
         sandboxRoot: options?.sandboxRoot,
         requireExplicitTarget: options?.requireExplicitMessageTarget,
+        requesterSenderId: options?.requesterSenderId ?? undefined,
       });
   const tools: AnyAgentTool[] = [
     createBrowserTool({

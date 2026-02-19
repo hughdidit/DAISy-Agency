@@ -1,6 +1,9 @@
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+<<<<<<< HEAD
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+=======
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import type {
   ChannelId,
   ChannelMessageActionName,
@@ -18,9 +21,12 @@ import {
 } from "../../agents/tools/common.js";
 import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-actions.js";
+<<<<<<< HEAD
 import { extensionForMime } from "../../media/mime.js";
 import { parseSlackTarget } from "../../slack/targets.js";
 import { parseTelegramTarget } from "../../telegram/targets.js";
+=======
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import {
   isDeliverableMessageChannel,
   normalizeMessageChannel,
@@ -33,6 +39,21 @@ import {
   resolveMessageChannelSelection,
 } from "./channel-selection.js";
 import { applyTargetToParams } from "./channel-target.js";
+<<<<<<< HEAD
+=======
+import {
+  hydrateSendAttachmentParams,
+  hydrateSetGroupIconParams,
+  normalizeSandboxMediaList,
+  normalizeSandboxMediaParams,
+  parseButtonsParam,
+  parseCardParam,
+  parseComponentsParam,
+  readBooleanParam,
+  resolveSlackAutoThreadId,
+  resolveTelegramAutoThreadId,
+} from "./message-action-params.js";
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { actionHasTarget, actionRequiresTarget } from "./message-action-spec.js";
 import {
   applyCrossContextDecoration,
@@ -59,6 +80,7 @@ export type RunMessageActionParams = {
   action: ChannelMessageActionName;
   params: Record<string, unknown>;
   defaultAccountId?: string;
+  requesterSenderId?: string | null;
   toolContext?: ChannelThreadingToolContext;
   gateway?: MessageActionRunnerGateway;
   deps?: OutboundSendDeps;
@@ -978,6 +1000,7 @@ async function handlePluginAction(ctx: ResolvedActionContext): Promise<MessageAc
     cfg,
     params,
     accountId: accountId ?? undefined,
+    requesterSenderId: input.requesterSenderId ?? undefined,
     gateway,
     toolContext: input.toolContext,
     dryRun,

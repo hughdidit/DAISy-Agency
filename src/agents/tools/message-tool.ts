@@ -302,6 +302,7 @@ type MessageToolOptions = {
   hasRepliedRef?: { value: boolean };
   sandboxRoot?: string;
   requireExplicitTarget?: boolean;
+  requesterSenderId?: string;
 };
 
 function buildMessageToolSchema(cfg: OpenClawConfig) {
@@ -468,6 +469,7 @@ export function createMessageTool(options?: MessageToolOptions): AnyAgentTool {
         action,
         params,
         defaultAccountId: accountId ?? undefined,
+        requesterSenderId: options?.requesterSenderId,
         gateway,
         toolContext,
         agentId: options?.agentSessionKey

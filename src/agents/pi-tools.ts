@@ -6,6 +6,10 @@ import {
   readTool,
 } from "@mariozechner/pi-coding-agent";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
+=======
+import type { ToolLoopDetectionConfig } from "../config/types.tools.js";
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import type { ModelAuthMode } from "./model-auth.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxContext } from "./sandbox.js";
@@ -21,6 +25,10 @@ import {
   type ProcessToolDefaults,
 } from "./bash-tools.js";
 import { listChannelAgentTools } from "./channel-tools.js";
+<<<<<<< HEAD
+=======
+import { resolveImageSanitizationLimits } from "./image-sanitization.js";
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import { createOpenClawTools } from "./openclaw-tools.js";
 import { wrapToolWithAbortSignal } from "./pi-tools.abort.js";
 import { wrapToolWithBeforeToolCallHook } from "./pi-tools.before-tool-call.js";
@@ -44,6 +52,14 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
+<<<<<<< HEAD
+=======
+import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
+import {
+  applyToolPolicyPipeline,
+  buildDefaultToolPolicyPipelineSteps,
+} from "./tool-policy-pipeline.js";
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 import {
   applyOwnerOnlyToolPolicy,
   buildPluginToolGroups,
@@ -418,6 +434,11 @@ export function createOpenClawCodingTools(options?: {
       requireExplicitMessageTarget: options?.requireExplicitMessageTarget,
       disableMessageTool: options?.disableMessageTool,
       requesterAgentIdOverride: agentId,
+<<<<<<< HEAD
+=======
+      requesterSenderId: options?.senderId,
+      senderIsOwner: options?.senderIsOwner,
+>>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
     }),
   ];
   // Security: treat unknown/undefined as unauthorized (opt-in, not opt-out)
