@@ -29,10 +29,81 @@ function normalizeHostname(hostname: string): string {
 
 function parseIpv4(address: string): number[] | null {
   const parts = address.split(".");
+<<<<<<< HEAD
   if (parts.length !== 4) return null;
   const numbers = parts.map((part) => Number.parseInt(part, 10));
   if (numbers.some((value) => Number.isNaN(value) || value < 0 || value > 255)) return null;
   return numbers;
+=======
+  if (parts.length < 1 || parts.length > 4) {
+    return null;
+  }
+
+  const numbers: number[] = [];
+  for (const part of parts) {
+    if (!part) {
+      return null;
+    }
+    const lower = part.toLowerCase();
+    let value: number;
+    if (lower.startsWith("0x")) {
+      const hex = lower.slice(2);
+      if (!hex || !/^[0-9a-f]+$/i.test(hex)) {
+        return null;
+      }
+      value = Number.parseInt(hex, 16);
+    } else if (part.length > 1 && part.startsWith("0")) {
+      const octal = part.slice(1);
+      if (!/^[0-7]+$/.test(octal)) {
+        return null;
+      }
+      value = Number.parseInt(octal, 8);
+    } else {
+      if (!/^[0-9]+$/.test(part)) {
+        return null;
+      }
+      value = Number.parseInt(part, 10);
+    }
+    if (!Number.isFinite(value) || value < 0) {
+      return null;
+    }
+    numbers.push(value);
+  }
+
+  let ipv4Number: number;
+  if (numbers.length === 1) {
+    if (numbers[0] > 0xffffffff) {
+      return null;
+    }
+    ipv4Number = numbers[0];
+  } else if (numbers.length === 2) {
+    if (numbers[0] > 0xff || numbers[1] > 0xffffff) {
+      return null;
+    }
+    ipv4Number = numbers[0] * 0x1000000 + numbers[1];
+  } else if (numbers.length === 3) {
+    if (numbers[0] > 0xff || numbers[1] > 0xff || numbers[2] > 0xffff) {
+      return null;
+    }
+    ipv4Number = numbers[0] * 0x1000000 + numbers[1] * 0x10000 + numbers[2];
+  } else {
+    if (numbers.some((value) => value > 0xff)) {
+      return null;
+    }
+    ipv4Number = numbers[0] * 0x1000000 + numbers[1] * 0x10000 + numbers[2] * 0x100 + numbers[3];
+  }
+
+  if (!Number.isSafeInteger(ipv4Number) || ipv4Number < 0 || ipv4Number > 0xffffffff) {
+    return null;
+  }
+
+  return [
+    Math.floor(ipv4Number / 0x1000000) & 0xff,
+    Math.floor(ipv4Number / 0x10000) & 0xff,
+    Math.floor(ipv4Number / 0x100) & 0xff,
+    ipv4Number & 0xff,
+  ];
+>>>>>>> baa335f25 (fix(security): harden SSRF IPv4 literal parsing)
 }
 
 function stripIpv6ZoneId(address: string): string {

@@ -60,4 +60,82 @@ describe("ssrf pinning", () => {
     expect(fallback).toHaveBeenCalledTimes(1);
     expect(result.address).toBe("1.2.3.4");
   });
+<<<<<<< HEAD
+=======
+
+  it("enforces hostname allowlist when configured", async () => {
+    const lookup = vi.fn(async () => [
+      { address: "93.184.216.34", family: 4 },
+    ]) as unknown as LookupFn;
+
+    await expect(
+      resolvePinnedHostnameWithPolicy("api.example.com", {
+        lookupFn: lookup,
+        policy: { hostnameAllowlist: ["cdn.example.com", "*.trusted.example"] },
+      }),
+    ).rejects.toThrow(/allowlist/i);
+    expect(lookup).not.toHaveBeenCalled();
+  });
+
+  it("supports wildcard hostname allowlist patterns", async () => {
+    const lookup = vi.fn(async () => [
+      { address: "93.184.216.34", family: 4 },
+    ]) as unknown as LookupFn;
+
+    await expect(
+      resolvePinnedHostnameWithPolicy("assets.example.com", {
+        lookupFn: lookup,
+        policy: { hostnameAllowlist: ["*.example.com"] },
+      }),
+    ).resolves.toMatchObject({ hostname: "assets.example.com" });
+
+    await expect(
+      resolvePinnedHostnameWithPolicy("example.com", {
+        lookupFn: lookup,
+        policy: { hostnameAllowlist: ["*.example.com"] },
+      }),
+    ).rejects.toThrow(/allowlist/i);
+  });
+
+  it("blocks ISATAP embedded private IPv4 before DNS lookup", async () => {
+    const lookup = vi.fn(async () => [
+      { address: "93.184.216.34", family: 4 },
+    ]) as unknown as LookupFn;
+
+    await expect(
+      resolvePinnedHostnameWithPolicy("2001:db8:1234::5efe:127.0.0.1", {
+        lookupFn: lookup,
+      }),
+    ).rejects.toThrow(SsrFBlockedError);
+    expect(lookup).not.toHaveBeenCalled();
+  });
+
+  it("blocks legacy loopback IPv4 literals before DNS lookup", async () => {
+    const lookup = vi.fn(async () => [
+      { address: "93.184.216.34", family: 4 },
+    ]) as unknown as LookupFn;
+
+    await expect(
+      resolvePinnedHostnameWithPolicy("0177.0.0.1", { lookupFn: lookup }),
+    ).rejects.toThrow(SsrFBlockedError);
+    expect(lookup).not.toHaveBeenCalled();
+  });
+
+  it("allows ISATAP embedded private IPv4 when private network is explicitly enabled", async () => {
+    const lookup = vi.fn(async () => [
+      { address: "2001:db8:1234::5efe:127.0.0.1", family: 6 },
+    ]) as unknown as LookupFn;
+
+    await expect(
+      resolvePinnedHostnameWithPolicy("2001:db8:1234::5efe:127.0.0.1", {
+        lookupFn: lookup,
+        policy: { allowPrivateNetwork: true },
+      }),
+    ).resolves.toMatchObject({
+      hostname: "2001:db8:1234::5efe:127.0.0.1",
+      addresses: ["2001:db8:1234::5efe:127.0.0.1"],
+    });
+    expect(lookup).toHaveBeenCalledTimes(1);
+  });
+>>>>>>> baa335f25 (fix(security): harden SSRF IPv4 literal parsing)
 });
