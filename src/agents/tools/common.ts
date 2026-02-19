@@ -20,6 +20,20 @@ export type ActionGate<T extends Record<string, boolean | undefined>> = (
   defaultValue?: boolean,
 ) => boolean;
 
+<<<<<<< HEAD
+=======
+export const OWNER_ONLY_TOOL_ERROR = "Tool restricted to owner senders.";
+
+export class ToolInputError extends Error {
+  readonly status = 400;
+
+  constructor(message: string) {
+    super(message);
+    this.name = "ToolInputError";
+  }
+}
+
+>>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
 export function createActionGate<T extends Record<string, boolean | undefined>>(
   actions: T | undefined,
 ): ActionGate<T> {
@@ -178,6 +192,12 @@ export function jsonResult(payload: unknown): AgentToolResult<unknown> {
     ],
     details: payload,
   };
+}
+
+export function assertOwnerSender(senderIsOwner?: boolean): void {
+  if (senderIsOwner === false) {
+    throw new Error(OWNER_ONLY_TOOL_ERROR);
+  }
 }
 
 export async function imageResult(params: {

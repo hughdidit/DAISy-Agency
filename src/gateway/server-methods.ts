@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+=======
+import { formatControlPlaneActor, resolveControlPlaneActor } from "./control-plane-audit.js";
+import { consumeControlPlaneWriteBudget } from "./control-plane-rate-limit.js";
+import {
+  ADMIN_SCOPE,
+  authorizeOperatorScopesForMethod,
+  isNodeRoleMethod,
+} from "./method-scopes.js";
+>>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
 import { ErrorCodes, errorShape } from "./protocol/index.js";
 import { agentHandlers } from "./server-methods/agent.js";
 import { agentsHandlers } from "./server-methods/agents.js";
@@ -104,6 +114,7 @@ function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["c
   if (role !== "operator") {
     return errorShape(ErrorCodes.INVALID_REQUEST, `unauthorized role: ${role}`);
   }
+<<<<<<< HEAD
   if (scopes.includes(ADMIN_SCOPE)) return null;
   if (APPROVAL_METHODS.has(method) && !scopes.includes(APPROVALS_SCOPE)) {
     return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.approvals");
@@ -143,6 +154,16 @@ function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["c
     return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.admin");
   }
   return errorShape(ErrorCodes.INVALID_REQUEST, "missing scope: operator.admin");
+=======
+  if (scopes.includes(ADMIN_SCOPE)) {
+    return null;
+  }
+  const scopeAuth = authorizeOperatorScopesForMethod(method, scopes);
+  if (!scopeAuth.allowed) {
+    return errorShape(ErrorCodes.INVALID_REQUEST, `missing scope: ${scopeAuth.missingScope}`);
+  }
+  return null;
+>>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
 }
 
 export const coreGatewayHandlers: GatewayRequestHandlers = {

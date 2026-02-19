@@ -2,7 +2,7 @@ import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/ind
 import type { ChannelId } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
-import { callGateway, randomIdempotencyKey } from "../../gateway/call.js";
+import { callGatewayLeastPrivilege, randomIdempotencyKey } from "../../gateway/call.js";
 import type { PollInput } from "../../polls.js";
 import { normalizePollInput } from "../../polls.js";
 import {
@@ -115,6 +115,27 @@ function resolveGatewayOptions(opts?: MessageGatewayOptions) {
   };
 }
 
+<<<<<<< HEAD
+=======
+async function callMessageGateway<T>(params: {
+  gateway?: MessageGatewayOptions;
+  method: string;
+  params: Record<string, unknown>;
+}): Promise<T> {
+  const gateway = resolveGatewayOptions(params.gateway);
+  return await callGatewayLeastPrivilege<T>({
+    url: gateway.url,
+    token: gateway.token,
+    method: params.method,
+    params: params.params,
+    timeoutMs: gateway.timeoutMs,
+    clientName: gateway.clientName,
+    clientDisplayName: gateway.clientDisplayName,
+    mode: gateway.mode,
+  });
+}
+
+>>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
 export async function sendMessage(params: MessageSendParams): Promise<MessageSendResult> {
   const cfg = params.cfg ?? loadConfig();
   const channel = params.channel?.trim()
