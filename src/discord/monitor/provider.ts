@@ -42,6 +42,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> a61c2dc4b (Discord: add component v2 UI tool support (#17419))
 =======
 import type { GatewayPlugin } from "@buape/carbon/gateway";
@@ -56,6 +57,9 @@ import type { GatewayPlugin } from "@buape/carbon/gateway";
 =======
 import type { GatewayPlugin } from "@buape/carbon/gateway";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { GatewayCloseCodes, type GatewayPlugin } from "@buape/carbon/gateway";
+>>>>>>> f7a8c2df2 (Discord: handle gateway 4014 close)
 import { Routes } from "discord-api-types/v10";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { listNativeCommandSpecsForConfig } from "../../auto-reply/commands-registry.js";
@@ -267,6 +271,16 @@ function formatDiscordDeployErrorDetails(err: unknown): string {
     }
   }
   return details.length > 0 ? ` (${details.join(", ")})` : "";
+}
+
+const DISCORD_DISALLOWED_INTENTS_CODE = GatewayCloseCodes.DisallowedIntents;
+
+function isDiscordDisallowedIntentsError(err: unknown): boolean {
+  if (!err) {
+    return false;
+  }
+  const message = formatErrorMessage(err);
+  return message.includes(String(DISCORD_DISALLOWED_INTENTS_CODE));
 }
 
 export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
@@ -753,6 +767,8 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     }, HELLO_TIMEOUT_MS);
   };
   gatewayEmitter?.on("debug", onGatewayDebug);
+  // Disallowed intents (4014) should stop the provider without crashing the gateway.
+  let sawDisallowedIntents = false;
   try {
     await waitForDiscordGatewayStop({
       gateway: gateway
@@ -763,15 +779,30 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
         : undefined,
       abortSignal,
       onGatewayError: (err) => {
+        if (isDiscordDisallowedIntentsError(err)) {
+          sawDisallowedIntents = true;
+          runtime.error?.(
+            danger(
+              "discord: gateway closed with code 4014 (missing privileged gateway intents). Enable the required intents in the Discord Developer Portal or disable them in config.",
+            ),
+          );
+          return;
+        }
         runtime.error?.(danger(`discord gateway error: ${String(err)}`));
       },
       shouldStopOnError: (err) => {
         const message = String(err);
         return (
-          message.includes("Max reconnect attempts") || message.includes("Fatal Gateway error")
+          message.includes("Max reconnect attempts") ||
+          message.includes("Fatal Gateway error") ||
+          isDiscordDisallowedIntentsError(err)
         );
       },
     });
+  } catch (err) {
+    if (!sawDisallowedIntents && !isDiscordDisallowedIntentsError(err)) {
+      throw err;
+    }
   } finally {
     unregisterGateway(account.accountId);
     stopGatewayLogging();
