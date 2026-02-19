@@ -1,8 +1,18 @@
+<<<<<<< HEAD
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 import type { MoltbotConfig } from "../config/config.js";
 import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { ExecFn } from "./windows-acl.js";
+import { resolveSandboxConfigForAgent } from "../agents/sandbox.js";
+import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
+import { resolveBrowserControlAuth } from "../browser/control-auth.js";
+import { listChannelPlugins } from "../channels/plugins/index.js";
+import { formatCliCommand } from "../cli/command-format.js";
+>>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { formatCliCommand } from "../cli/command-format.js";
@@ -28,7 +38,11 @@ import {
   formatPermissionRemediation,
   inspectPathPermissions,
 } from "./audit-fs.js";
+<<<<<<< HEAD
 import type { ExecFn } from "./windows-acl.js";
+=======
+import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
+>>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 
 export type SecurityAuditSeverity = "info" | "warn" | "critical";
 
@@ -464,6 +478,7 @@ function collectElevatedFindings(cfg: MoltbotConfig): SecurityAuditFinding[] {
   return findings;
 }
 
+<<<<<<< HEAD
 async function collectChannelSecurityFindings(params: {
   cfg: MoltbotConfig;
   plugins: ReturnType<typeof listChannelPlugins>;
@@ -813,6 +828,51 @@ async function collectChannelSecurityFindings(params: {
         });
       }
     }
+=======
+function collectExecRuntimeFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
+  const findings: SecurityAuditFinding[] = [];
+  const globalExecHost = cfg.tools?.exec?.host;
+  const defaultSandboxMode = resolveSandboxConfigForAgent(cfg).mode;
+  const defaultHostIsExplicitSandbox = globalExecHost === "sandbox";
+
+  if (defaultHostIsExplicitSandbox && defaultSandboxMode === "off") {
+    findings.push({
+      checkId: "tools.exec.host_sandbox_no_sandbox_defaults",
+      severity: "warn",
+      title: "Exec host is sandbox but sandbox mode is off",
+      detail:
+        "tools.exec.host is explicitly set to sandbox while agents.defaults.sandbox.mode=off. " +
+        "In this mode, exec runs directly on the gateway host.",
+      remediation:
+        'Enable sandbox mode (`agents.defaults.sandbox.mode="non-main"` or `"all"`) or set tools.exec.host to "gateway" with approvals.',
+    });
+  }
+
+  const agents = Array.isArray(cfg.agents?.list) ? cfg.agents.list : [];
+  const riskyAgents = agents
+    .filter(
+      (entry) =>
+        entry &&
+        typeof entry === "object" &&
+        typeof entry.id === "string" &&
+        entry.tools?.exec?.host === "sandbox" &&
+        resolveSandboxConfigForAgent(cfg, entry.id).mode === "off",
+    )
+    .map((entry) => entry.id)
+    .slice(0, 5);
+
+  if (riskyAgents.length > 0) {
+    findings.push({
+      checkId: "tools.exec.host_sandbox_no_sandbox_agents",
+      severity: "warn",
+      title: "Agent exec host uses sandbox while sandbox mode is off",
+      detail:
+        `agents.list.*.tools.exec.host is set to sandbox for: ${riskyAgents.join(", ")}. ` +
+        "With sandbox mode off, exec runs directly on the gateway host.",
+      remediation:
+        'Enable sandbox mode for these agents (`agents.list[].sandbox.mode`) or set their tools.exec.host to "gateway".',
+    });
+>>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
   }
 
   return findings;
@@ -893,7 +953,18 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
   findings.push(...collectBrowserControlFindings(cfg));
   findings.push(...collectLoggingFindings(cfg));
   findings.push(...collectElevatedFindings(cfg));
+<<<<<<< HEAD
   findings.push(...collectHooksHardeningFindings(cfg));
+=======
+  findings.push(...collectExecRuntimeFindings(cfg));
+  findings.push(...collectHooksHardeningFindings(cfg, env));
+  findings.push(...collectGatewayHttpNoAuthFindings(cfg, env));
+  findings.push(...collectGatewayHttpSessionKeyOverrideFindings(cfg));
+  findings.push(...collectSandboxDockerNoopFindings(cfg));
+  findings.push(...collectSandboxDangerousConfigFindings(cfg));
+  findings.push(...collectNodeDenyCommandPatternFindings(cfg));
+  findings.push(...collectMinimalProfileOverrideFindings(cfg));
+>>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
   findings.push(...collectSecretsInConfigFindings(cfg));
   findings.push(...collectModelHygieneFindings(cfg));
   findings.push(...collectSmallModelRiskFindings({ cfg, env }));

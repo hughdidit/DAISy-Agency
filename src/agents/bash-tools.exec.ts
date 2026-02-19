@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import crypto from "node:crypto";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import path from "node:path";
@@ -21,6 +22,18 @@ import {
 } from "../infra/exec-approvals.js";
 import { requestHeartbeatNow } from "../infra/heartbeat-wake.js";
 import { buildNodeShellCommand } from "../infra/node-shell.js";
+=======
+import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+import fs from "node:fs/promises";
+import path from "node:path";
+import type {
+  ExecElevatedDefaults,
+  ExecToolDefaults,
+  ExecToolDetails,
+} from "./bash-tools.exec-types.js";
+import { type ExecHost, maxAsk, minSecurity, resolveSafeBins } from "../infra/exec-approvals.js";
+import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
+>>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 import {
   getShellPathFromLoginShell,
   resolveShellEnvFallbackTimeoutMs,
@@ -29,6 +42,7 @@ import { enqueueSystemEvent } from "../infra/system-events.js";
 import { logInfo, logWarn } from "../logger.js";
 import { formatSpawnError, spawnWithFallback } from "../process/spawn-utils.js";
 import {
+<<<<<<< HEAD
   type ProcessSession,
   type SessionStdin,
   addSession,
@@ -39,6 +53,23 @@ import {
   tail,
 } from "./bash-process-registry.js";
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
+=======
+  DEFAULT_MAX_OUTPUT,
+  DEFAULT_PATH,
+  DEFAULT_PENDING_MAX_OUTPUT,
+  applyPathPrepend,
+  applyShellPath,
+  normalizeExecAsk,
+  normalizeExecHost,
+  normalizeExecSecurity,
+  normalizePathPrepend,
+  renderExecHostLabel,
+  resolveApprovalRunningNoticeMs,
+  runExecProcess,
+  execSchema,
+  validateHostEnv,
+} from "./bash-tools.exec-runtime.js";
+>>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 import {
   buildDockerExecArgs,
   buildSandboxEnv,
@@ -51,11 +82,15 @@ import {
   resolveWorkdir,
   truncateMiddle,
 } from "./bash-tools.shared.js";
+<<<<<<< HEAD
 import { callGatewayTool } from "./tools/gateway.js";
 import { listNodes, resolveNodeIdFromList } from "./tools/nodes-utils.js";
 import { getShellConfig, sanitizeBinaryOutput } from "./shell-utils.js";
 import { buildCursorPositionResponse, stripDsrRequests } from "./pty-dsr.js";
 import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
+=======
+import { assertSandboxPath } from "./sandbox-paths.js";
+>>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
 
 <<<<<<< HEAD
 =======
@@ -87,8 +122,91 @@ function validateHostEnv(env: Record<string, string>): void {
   for (const key of Object.keys(env)) {
     const upperKey = key.toUpperCase();
 
+<<<<<<< HEAD
     // 1. Block known dangerous variables (Fail Closed)
     if (DANGEROUS_HOST_ENV_PREFIXES.some((prefix) => upperKey.startsWith(prefix))) {
+=======
+  // Intentionally simple parsing: we only support common forms like
+  //   python file.py
+  //   python3 -u file.py
+  //   node --experimental-something file.js
+  // If the command is more complex (pipes, heredocs, quoted paths with spaces), skip preflight.
+  const pythonMatch = raw.match(/^\s*(python3?|python)\s+(?:-[^\s]+\s+)*([^\s]+\.py)\b/i);
+  if (pythonMatch?.[2]) {
+    return { kind: "python", relOrAbsPath: pythonMatch[2] };
+  }
+  const nodeMatch = raw.match(/^\s*(node)\s+(?:--[^\s]+\s+)*([^\s]+\.js)\b/i);
+  if (nodeMatch?.[2]) {
+    return { kind: "node", relOrAbsPath: nodeMatch[2] };
+  }
+
+  return null;
+}
+
+async function validateScriptFileForShellBleed(params: {
+  command: string;
+  workdir: string;
+}): Promise<void> {
+  const target = extractScriptTargetFromCommand(params.command);
+  if (!target) {
+    return;
+  }
+
+  const absPath = path.isAbsolute(target.relOrAbsPath)
+    ? path.resolve(target.relOrAbsPath)
+    : path.resolve(params.workdir, target.relOrAbsPath);
+
+  // Best-effort: only validate if file exists and is reasonably small.
+  let stat: { isFile(): boolean; size: number };
+  try {
+    await assertSandboxPath({
+      filePath: absPath,
+      cwd: params.workdir,
+      root: params.workdir,
+    });
+    stat = await fs.stat(absPath);
+  } catch {
+    return;
+  }
+  if (!stat.isFile()) {
+    return;
+  }
+  if (stat.size > 512 * 1024) {
+    return;
+  }
+
+  const content = await fs.readFile(absPath, "utf-8");
+
+  // Common failure mode: shell env var syntax leaking into Python/JS.
+  // We deliberately match all-caps/underscore vars to avoid false positives with `$` as a JS identifier.
+  const envVarRegex = /\$[A-Z_][A-Z0-9_]{1,}/g;
+  const first = envVarRegex.exec(content);
+  if (first) {
+    const idx = first.index;
+    const before = content.slice(0, idx);
+    const line = before.split("\n").length;
+    const token = first[0];
+    throw new Error(
+      [
+        `exec preflight: detected likely shell variable injection (${token}) in ${target.kind} script: ${path.basename(
+          absPath,
+        )}:${line}.`,
+        target.kind === "python"
+          ? `In Python, use os.environ.get(${JSON.stringify(token.slice(1))}) instead of raw ${token}.`
+          : `In Node.js, use process.env[${JSON.stringify(token.slice(1))}] instead of raw ${token}.`,
+        "(If this is inside a string literal on purpose, escape it or restructure the code.)",
+      ].join("\n"),
+    );
+  }
+
+  // Another recurring pattern from the issue: shell commands accidentally emitted as JS.
+  if (target.kind === "node") {
+    const firstNonEmpty = content
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .find((l) => l.length > 0);
+    if (firstNonEmpty && /^NODE\b/.test(firstNonEmpty)) {
+>>>>>>> b40821b06 (fix: harden ACP secret handling and exec preflight boundaries)
       throw new Error(
         `Security Violation: Environment variable '${key}' is forbidden during host execution.`,
       );
