@@ -265,6 +265,7 @@ export async function agentCommand(
     let allowedModelKeys = new Set<string>();
     let allowedModelCatalog: Awaited<ReturnType<typeof loadModelCatalog>> = [];
     let modelCatalog: Awaited<ReturnType<typeof loadModelCatalog>> | null = null;
+    let allowAnyModel = false;
 
     if (needsModelCatalog) {
       modelCatalog = await loadModelCatalog({ config: cfg });
@@ -276,6 +277,7 @@ export async function agentCommand(
       });
       allowedModelKeys = allowed.allowedKeys;
       allowedModelCatalog = allowed.allowedCatalog;
+      allowAnyModel = allowed.allowAny ?? false;
     }
 
     if (sessionEntry && sessionStore && sessionKey && hasStoredOverride) {
@@ -285,8 +287,13 @@ export async function agentCommand(
       if (overrideModel) {
         const key = modelKey(overrideProvider, overrideModel);
         if (
+<<<<<<< HEAD
           !isCliProvider(overrideProvider, cfg) &&
           allowedModelKeys.size > 0 &&
+=======
+          !isCliProvider(normalizedOverride.provider, cfg) &&
+          !allowAnyModel &&
+>>>>>>> 87dd89696 (fix: sessions_sspawn model override ignored for sub-agents)
           !allowedModelKeys.has(key)
         ) {
           const { updated } = applyModelOverrideToSessionEntry({
@@ -309,8 +316,13 @@ export async function agentCommand(
       const candidateProvider = storedProviderOverride || defaultProvider;
       const key = modelKey(candidateProvider, storedModelOverride);
       if (
+<<<<<<< HEAD
         isCliProvider(candidateProvider, cfg) ||
         allowedModelKeys.size === 0 ||
+=======
+        isCliProvider(normalizedStored.provider, cfg) ||
+        allowAnyModel ||
+>>>>>>> 87dd89696 (fix: sessions_sspawn model override ignored for sub-agents)
         allowedModelKeys.has(key)
       ) {
         provider = candidateProvider;
