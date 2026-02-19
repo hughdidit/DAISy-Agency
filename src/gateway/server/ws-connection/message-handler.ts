@@ -102,7 +102,15 @@ import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
 import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
 >>>>>>> d900d5efb (style: normalize ws message handler import ordering)
 import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
+<<<<<<< HEAD
 import { loadConfig } from "../../../config/config.js";
+=======
+import {
+  buildCanvasScopedHostUrl,
+  CANVAS_CAPABILITY_TTL_MS,
+  mintCanvasCapabilityToken,
+} from "../../canvas-capability.js";
+>>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
 import { buildDeviceAuthPayload } from "../../device-auth.js";
 import { isLoopbackAddress, isTrustedProxyAddress, resolveGatewayClientIp } from "../../net.js";
 import { resolveHostName } from "../../net.js";
@@ -982,6 +990,15 @@ export function attachGatewayWsMessageHandler(params: {
           snapshot.health = cachedHealth;
           snapshot.stateVersion.health = getHealthVersion();
         }
+        const canvasCapability =
+          role === "node" && canvasHostUrl ? mintCanvasCapabilityToken() : undefined;
+        const canvasCapabilityExpiresAtMs = canvasCapability
+          ? Date.now() + CANVAS_CAPABILITY_TTL_MS
+          : undefined;
+        const scopedCanvasHostUrl =
+          canvasHostUrl && canvasCapability
+            ? (buildCanvasScopedHostUrl(canvasHostUrl, canvasCapability) ?? canvasHostUrl)
+            : canvasHostUrl;
         const helloOk = {
           type: "hello-ok",
           protocol: PROTOCOL_VERSION,
@@ -997,7 +1014,7 @@ export function attachGatewayWsMessageHandler(params: {
           },
           features: { methods: gatewayMethods, events },
           snapshot,
-          canvasHostUrl,
+          canvasHostUrl: scopedCanvasHostUrl,
           auth: deviceToken
             ? {
                 deviceToken: deviceToken.token,
@@ -1020,6 +1037,8 @@ export function attachGatewayWsMessageHandler(params: {
           connId,
           presenceKey,
           clientIp: reportedClientIp,
+          canvasCapability,
+          canvasCapabilityExpiresAtMs,
         };
         setClient(nextClient);
         setHandshakeState("connected");
