@@ -29,9 +29,13 @@ For webhook ingress, it warns when `hooks.defaultSessionKey` is unset, when requ
 It also warns when sandbox Docker settings are configured while sandbox mode is off, when `gateway.nodes.denyCommands` uses ineffective pattern-like/unknown entries, when global `tools.profile="minimal"` is overridden by agent tool profiles, and when installed extension plugin tools may be reachable under permissive tool policy.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 1def8c544 (fix(security): extend audit hardening checks)
 =======
 =======
+=======
+It also warns when npm-based plugin/hook install records are unpinned, missing integrity metadata, or drift from currently installed package versions.
+>>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 It warns when `gateway.auth.mode="none"` leaves Gateway HTTP APIs reachable without a shared secret (`/tools/invoke` plus any enabled `/v1/*` endpoint).
 >>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
 

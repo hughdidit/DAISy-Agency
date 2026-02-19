@@ -1,8 +1,13 @@
+<<<<<<< HEAD:src/plugins/install.test.ts
 import { spawnSync } from "node:child_process";
+=======
+import JSZip from "jszip";
+>>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow):src/plugins/install.e2e.test.ts
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD:src/plugins/install.test.ts
 <<<<<<< HEAD:src/plugins/install.test.ts
 <<<<<<< HEAD
 import JSZip from "jszip";
@@ -11,6 +16,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 >>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
 =======
+=======
+>>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow):src/plugins/install.e2e.test.ts
 import * as tar from "tar";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as skillScanner from "../security/skill-scanner.js";
@@ -455,7 +462,27 @@ describe("installPluginFromNpmSpec", () => {
       if (argv[0] === "npm" && argv[1] === "pack") {
         packTmpDir = String(opts?.cwd ?? "");
         await packToArchive({ pkgDir, outDir: packTmpDir, outName: packedName });
+<<<<<<< HEAD:src/plugins/install.test.ts
         return { code: 0, stdout: `${packedName}\n`, stderr: "", signal: null, killed: false };
+=======
+        return {
+          code: 0,
+          stdout: JSON.stringify([
+            {
+              id: "@openclaw/voice-call@0.0.1",
+              name: "@openclaw/voice-call",
+              version: "0.0.1",
+              filename: packedName,
+              integrity: "sha512-plugin-test",
+              shasum: "pluginshasum",
+            },
+          ]),
+          stderr: "",
+          signal: null,
+          killed: false,
+          termination: "exit",
+        };
+>>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow):src/plugins/install.e2e.test.ts
       }
       throw new Error(`unexpected command: ${argv.join(" ")}`);
     });
@@ -467,6 +494,11 @@ describe("installPluginFromNpmSpec", () => {
       logger: { info: () => {}, warn: () => {} },
     });
     expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.npmResolution?.resolvedSpec).toBe("@openclaw/voice-call@0.0.1");
+    expect(result.npmResolution?.integrity).toBe("sha512-plugin-test");
 
     const packCalls = run.mock.calls.filter(
       (c) => Array.isArray(c[0]) && c[0][0] === "npm" && c[0][1] === "pack",
@@ -492,5 +524,47 @@ describe("installPluginFromNpmSpec", () => {
       return;
     }
     expect(result.error).toContain("unsupported npm spec");
+  });
+
+  it("aborts when integrity drift callback rejects the fetched artifact", async () => {
+    const { runCommandWithTimeout } = await import("../process/exec.js");
+    const run = vi.mocked(runCommandWithTimeout);
+    run.mockResolvedValue({
+      code: 0,
+      stdout: JSON.stringify([
+        {
+          id: "@openclaw/voice-call@0.0.1",
+          name: "@openclaw/voice-call",
+          version: "0.0.1",
+          filename: "voice-call-0.0.1.tgz",
+          integrity: "sha512-new",
+          shasum: "newshasum",
+        },
+      ]),
+      stderr: "",
+      signal: null,
+      killed: false,
+      termination: "exit",
+    });
+
+    const onIntegrityDrift = vi.fn(async () => false);
+    const { installPluginFromNpmSpec } = await import("./install.js");
+    const result = await installPluginFromNpmSpec({
+      spec: "@openclaw/voice-call@0.0.1",
+      expectedIntegrity: "sha512-old",
+      onIntegrityDrift,
+    });
+
+    expect(onIntegrityDrift).toHaveBeenCalledWith(
+      expect.objectContaining({
+        expectedIntegrity: "sha512-old",
+        actualIntegrity: "sha512-new",
+      }),
+    );
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+    expect(result.error).toContain("integrity drift");
   });
 });

@@ -37,6 +37,7 @@ the plugin from loading and fail config validation.
 
 ```bash
 openclaw plugins install <path-or-spec>
+openclaw plugins install <npm-spec> --pin
 ```
 
 Security note: treat plugin installs like running code. Prefer pinned versions.
@@ -52,6 +53,30 @@ Use `--link` to avoid copying a local directory (adds to `plugins.load.paths`):
 openclaw plugins install -l ./my-plugin
 ```
 
+<<<<<<< HEAD
+=======
+Use `--pin` on npm installs to save the resolved exact spec (`name@version`) in
+`plugins.installs` while keeping the default behavior unpinned.
+
+### Uninstall
+
+```bash
+openclaw plugins uninstall <id>
+openclaw plugins uninstall <id> --dry-run
+openclaw plugins uninstall <id> --keep-files
+```
+
+`uninstall` removes plugin records from `plugins.entries`, `plugins.installs`,
+the plugin allowlist, and linked `plugins.load.paths` entries when applicable.
+For active memory plugins, the memory slot resets to `memory-core`.
+
+By default, uninstall also removes the plugin install directory under the active
+state dir extensions root (`$OPENCLAW_STATE_DIR/extensions/<id>`). Use
+`--keep-files` to keep files on disk.
+
+`--keep-config` is supported as a deprecated alias for `--keep-files`.
+
+>>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 ### Update
 
 ```bash
@@ -61,3 +86,7 @@ openclaw plugins update <id> --dry-run
 ```
 
 Updates only apply to plugins installed from npm (tracked in `plugins.installs`).
+
+When a stored integrity hash exists and the fetched artifact hash changes,
+OpenClaw prints a warning and asks for confirmation before proceeding. Use
+global `--yes` to bypass prompts in CI/non-interactive runs.

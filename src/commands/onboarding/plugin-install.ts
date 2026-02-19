@@ -1,15 +1,21 @@
 import fs from "node:fs";
 import path from "node:path";
-import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import type { ChannelPluginCatalogEntry } from "../../channels/plugins/catalog.js";
 import type { OpenClawConfig } from "../../config/config.js";
+import type { RuntimeEnv } from "../../runtime.js";
+import type { WizardPrompter } from "../../wizard/prompts.js";
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { recordPluginInstall } from "../../plugins/installs.js";
 import { enablePluginInConfig } from "../../plugins/enable.js";
 import { loadOpenClawPlugins } from "../../plugins/loader.js";
+<<<<<<< HEAD
 import { installPluginFromNpmSpec } from "../../plugins/install.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { WizardPrompter } from "../../wizard/prompts.js";
+=======
+import { createPluginLoaderLogger } from "../../plugins/logger.js";
+>>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 
 type InstallChoice = "npm" | "local" | "skip";
 
@@ -162,6 +168,12 @@ export async function ensureOnboardingPluginInstalled(params: {
       spec: entry.install.npmSpec,
       installPath: result.targetDir,
       version: result.version,
+      resolvedName: result.npmResolution?.name,
+      resolvedVersion: result.npmResolution?.version,
+      resolvedSpec: result.npmResolution?.resolvedSpec,
+      integrity: result.npmResolution?.integrity,
+      shasum: result.npmResolution?.shasum,
+      resolvedAt: result.npmResolution?.resolvedAt,
     });
     return { cfg: next, installed: true };
   }

@@ -293,6 +293,7 @@ openclaw plugins install ./plugin.tgz           # install from a local tarball
 openclaw plugins install ./plugin.zip           # install from a local zip
 openclaw plugins install -l ./extensions/voice-call # link (no copy) for dev
 openclaw plugins install @openclaw/voice-call # install from npm
+openclaw plugins install @openclaw/voice-call --pin # store exact resolved name@version
 openclaw plugins update <id>
 openclaw plugins update --all
 openclaw plugins enable <id>
@@ -301,6 +302,7 @@ openclaw plugins doctor
 ```
 
 `plugins update` only works for npm installs tracked under `plugins.installs`.
+If stored integrity metadata changes between updates, OpenClaw warns and asks for confirmation (use global `--yes` to bypass prompts).
 
 Plugins may also register their own top‑level commands (example: `openclaw voicecall`).
 
