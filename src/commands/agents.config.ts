@@ -1,4 +1,5 @@
 import {
+  listAgentEntries,
   resolveAgentDir,
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
@@ -49,6 +50,7 @@ export type AgentSummary = {
 type AgentEntry = NonNullable<NonNullable<MoltbotConfig["agents"]>["list"]>[number];
 
 export type AgentIdentity = AgentIdentityFile;
+<<<<<<< HEAD
 
 export function listAgentEntries(cfg: MoltbotConfig): AgentEntry[] {
   const list = cfg.agents?.list;
@@ -57,6 +59,9 @@ export function listAgentEntries(cfg: MoltbotConfig): AgentEntry[] {
   }
   return list.filter((entry): entry is AgentEntry => Boolean(entry && typeof entry === "object"));
 }
+=======
+export { listAgentEntries };
+>>>>>>> 8b17a369e (refactor(agents): share agent entry and block reply payload types)
 
 export function findAgentEntryIndex(list: AgentEntry[], agentId: string): number {
   const id = normalizeAgentId(agentId);

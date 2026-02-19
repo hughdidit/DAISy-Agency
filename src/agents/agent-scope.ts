@@ -33,7 +33,11 @@ type ResolvedAgentConfig = {
 
 let defaultAgentWarned = false;
 
+<<<<<<< HEAD
 function listAgents(cfg: MoltbotConfig): AgentEntry[] {
+=======
+export function listAgentEntries(cfg: OpenClawConfig): AgentEntry[] {
+>>>>>>> 8b17a369e (refactor(agents): share agent entry and block reply payload types)
   const list = cfg.agents?.list;
   if (!Array.isArray(list)) {
     return [];
@@ -41,8 +45,13 @@ function listAgents(cfg: MoltbotConfig): AgentEntry[] {
   return list.filter((entry): entry is AgentEntry => Boolean(entry && typeof entry === "object"));
 }
 
+<<<<<<< HEAD
 export function listAgentIds(cfg: MoltbotConfig): string[] {
   const agents = listAgents(cfg);
+=======
+export function listAgentIds(cfg: OpenClawConfig): string[] {
+  const agents = listAgentEntries(cfg);
+>>>>>>> 8b17a369e (refactor(agents): share agent entry and block reply payload types)
   if (agents.length === 0) {
     return [DEFAULT_AGENT_ID];
   }
@@ -59,8 +68,13 @@ export function listAgentIds(cfg: MoltbotConfig): string[] {
   return ids.length > 0 ? ids : [DEFAULT_AGENT_ID];
 }
 
+<<<<<<< HEAD
 export function resolveDefaultAgentId(cfg: MoltbotConfig): string {
   const agents = listAgents(cfg);
+=======
+export function resolveDefaultAgentId(cfg: OpenClawConfig): string {
+  const agents = listAgentEntries(cfg);
+>>>>>>> 8b17a369e (refactor(agents): share agent entry and block reply payload types)
   if (agents.length === 0) {
     return DEFAULT_AGENT_ID;
   }
@@ -94,7 +108,7 @@ export function resolveSessionAgentId(params: {
 
 function resolveAgentEntry(cfg: MoltbotConfig, agentId: string): AgentEntry | undefined {
   const id = normalizeAgentId(agentId);
-  return listAgents(cfg).find((entry) => normalizeAgentId(entry.id) === id);
+  return listAgentEntries(cfg).find((entry) => normalizeAgentId(entry.id) === id);
 }
 
 export function resolveAgentConfig(
