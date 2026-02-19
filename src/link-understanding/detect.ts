@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { isBlockedHostnameOrIp } from "../infra/net/ssrf.js";
+>>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
 import { DEFAULT_MAX_LINKS } from "./defaults.js";
 
 // Remove markdown link syntax so only bare URLs are considered.
@@ -21,7 +25,11 @@ function isAllowedUrl(raw: string): boolean {
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
       return false;
     }
+<<<<<<< HEAD
     if (parsed.hostname === "127.0.0.1") {
+=======
+    if (isBlockedHostnameOrIp(parsed.hostname)) {
+>>>>>>> d51929ecb (fix: block ISATAP SSRF bypass via shared host/ip guard)
       return false;
     }
     return true;
