@@ -42,6 +42,11 @@ export function buildEmbeddedRunPayloads(params: {
   config?: OpenClawConfig;
 >>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131))
   sessionKey: string;
+<<<<<<< HEAD
+=======
+  provider?: string;
+  model?: string;
+>>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
   verboseLevel?: VerboseLevel;
   reasoningLevel?: ReasoningLevel;
   toolResultFormat?: ToolResultFormat;
@@ -72,6 +77,11 @@ export function buildEmbeddedRunPayloads(params: {
     ? formatAssistantErrorText(params.lastAssistant, {
         cfg: params.config,
         sessionKey: params.sessionKey,
+<<<<<<< HEAD
+=======
+        provider: params.provider,
+        model: params.model,
+>>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
       })
     : undefined;
   const rawErrorMessage = lastAssistantErrored

@@ -80,6 +80,25 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads.some((payload) => payload.text?.includes("request_id"))).toBe(false);
   });
 
+<<<<<<< HEAD:src/agents/pi-embedded-runner/run/payloads.test.ts
+=======
+  it("includes provider and model context for billing errors", () => {
+    const payloads = buildPayloads({
+      lastAssistant: makeAssistant({
+        model: "claude-3-5-sonnet",
+        errorMessage: "insufficient credits",
+        content: [{ type: "text", text: "insufficient credits" }],
+      }),
+      provider: "Anthropic",
+      model: "claude-3-5-sonnet",
+    });
+
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]?.text).toBe(formatBillingErrorMessage("Anthropic", "claude-3-5-sonnet"));
+    expect(payloads[0]?.isError).toBe(true);
+  });
+
+>>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510)):src/agents/pi-embedded-runner/run/payloads.e2e.test.ts
   it("suppresses raw error JSON even when errorMessage is missing", () => {
     const lastAssistant = makeAssistant({ errorMessage: undefined });
     const payloads = buildEmbeddedRunPayloads({

@@ -158,6 +158,17 @@ const toNormalizedUsage = (usage: UsageAccumulator) => {
   };
 };
 
+function resolveActiveErrorContext(params: {
+  lastAssistant: { provider?: string; model?: string } | undefined;
+  provider: string;
+  model: string;
+}): { provider: string; model: string } {
+  return {
+    provider: params.lastAssistant?.provider ?? params.provider,
+    model: params.lastAssistant?.model ?? params.model,
+  };
+}
+
 export async function runEmbeddedPiAgent(
   params: RunEmbeddedPiAgentParams,
 ): Promise<EmbeddedPiRunResult> {
@@ -467,16 +478,46 @@ export async function runEmbeddedPiAgent(
             enforceFinalTag: params.enforceFinalTag,
           });
 
+<<<<<<< HEAD
           const { aborted, promptError, timedOut, sessionIdUsed, lastAssistant } = attempt;
           mergeUsageIntoAccumulator(
             usageAccumulator,
             attempt.attemptUsage ?? normalizeUsage(lastAssistant?.usage as UsageLike),
           );
           autoCompactionCount += Math.max(0, attempt.compactionCount ?? 0);
+=======
+          const {
+            aborted,
+            promptError,
+            timedOut,
+            timedOutDuringCompaction,
+            sessionIdUsed,
+            lastAssistant,
+          } = attempt;
+          const lastAssistantUsage = normalizeUsage(lastAssistant?.usage as UsageLike);
+          const attemptUsage = attempt.attemptUsage ?? lastAssistantUsage;
+          mergeUsageIntoAccumulator(usageAccumulator, attemptUsage);
+          // Keep prompt size from the latest model call so session totalTokens
+          // reflects current context usage, not accumulated tool-loop usage.
+          lastRunPromptUsage = lastAssistantUsage ?? attemptUsage;
+          const lastTurnTotal = lastAssistantUsage?.total ?? attemptUsage?.total;
+          const attemptCompactionCount = Math.max(0, attempt.compactionCount ?? 0);
+          autoCompactionCount += attemptCompactionCount;
+          const activeErrorContext = resolveActiveErrorContext({
+            lastAssistant,
+            provider,
+            model: modelId,
+          });
+>>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
           const formattedAssistantErrorText = lastAssistant
             ? formatAssistantErrorText(lastAssistant, {
                 cfg: params.config,
                 sessionKey: params.sessionKey ?? params.sessionId,
+<<<<<<< HEAD
+=======
+                provider: activeErrorContext.provider,
+                model: activeErrorContext.model,
+>>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
               })
             : undefined;
           const assistantErrorText =
@@ -801,6 +842,11 @@ export async function runEmbeddedPiAgent(
                   ? formatAssistantErrorText(lastAssistant, {
                       cfg: params.config,
                       sessionKey: params.sessionKey ?? params.sessionId,
+<<<<<<< HEAD
+=======
+                      provider: activeErrorContext.provider,
+                      model: activeErrorContext.model,
+>>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
                     })
                   : undefined) ||
                 lastAssistant?.errorMessage?.trim() ||
@@ -808,16 +854,27 @@ export async function runEmbeddedPiAgent(
                   ? "LLM request timed out."
                   : rateLimitFailure
                     ? "LLM request rate limited."
+<<<<<<< HEAD
                     : authFailure
                       ? "LLM request unauthorized."
                       : "LLM request failed.");
+=======
+                    : billingFailure
+                      ? formatBillingErrorMessage(
+                          activeErrorContext.provider,
+                          activeErrorContext.model,
+                        )
+                      : authFailure
+                        ? "LLM request unauthorized."
+                        : "LLM request failed.");
+>>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
               const status =
                 resolveFailoverStatus(assistantFailoverReason ?? "unknown") ??
                 (isTimeoutErrorMessage(message) ? 408 : undefined);
               throw new FailoverError(message, {
                 reason: assistantFailoverReason ?? "unknown",
-                provider,
-                model: modelId,
+                provider: activeErrorContext.provider,
+                model: activeErrorContext.model,
                 profileId: lastProfileId,
                 status,
               });
@@ -847,6 +904,11 @@ export async function runEmbeddedPiAgent(
             lastToolError: attempt.lastToolError,
             config: params.config,
             sessionKey: params.sessionKey ?? params.sessionId,
+<<<<<<< HEAD
+=======
+            provider: activeErrorContext.provider,
+            model: activeErrorContext.model,
+>>>>>>> 3d4ef5604 (fix: include provider and model name in billing error message (#20510))
             verboseLevel: params.verboseLevel,
             reasoningLevel: params.reasoningLevel,
             toolResultFormat: resolvedToolResultFormat,
