@@ -43,6 +43,9 @@ Welcome to the lobster tank! 🦞
 - **Mariano Belinky** - iOS app, Security
   - GitHub: [@mbelinky](https://github.com/mbelinky) · X: [@belimad](https://x.com/belimad)
 
+- **Vincent Koc** - Agents, Telemetry, Hooks, Security
+  - GitHub: [@vincentkoc](https://github.com/vincentkoc) · X: [@vincent_koc](https://x.com/vincent_koc)
+
 - **Seb Slight** - Docs, Agent Reliability, Runtime Hardening
   - GitHub: [@sebslight](https://github.com/sebslight) · X: [@sebslig](https://x.com/sebslig)
 
