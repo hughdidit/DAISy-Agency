@@ -24,13 +24,17 @@ function trimOutput(value: string): string {
   return `${trimmed.slice(0, MAX_OUTPUT_CHARS)}…`;
 }
 
-function formatCommandFailure(command: string, result: SpawnResult): string {
+function formatCommandResultInternal(
+  command: string,
+  result: SpawnResult,
+  statusLabel: "failed" | "exited",
+): string {
   const code = result.code ?? "null";
   const signal = result.signal ? `, signal=${result.signal}` : "";
   const killed = result.killed ? ", killed=true" : "";
   const stderr = trimOutput(result.stderr);
   const stdout = trimOutput(result.stdout);
-  const lines = [`${command} failed (code=${code}${signal}${killed})`];
+  const lines = [`${command} ${statusLabel} (code=${code}${signal}${killed})`];
   if (stderr) {
     lines.push(`stderr: ${stderr}`);
   }
@@ -40,20 +44,12 @@ function formatCommandFailure(command: string, result: SpawnResult): string {
   return lines.join("\n");
 }
 
+function formatCommandFailure(command: string, result: SpawnResult): string {
+  return formatCommandResultInternal(command, result, "failed");
+}
+
 function formatCommandResult(command: string, result: SpawnResult): string {
-  const code = result.code ?? "null";
-  const signal = result.signal ? `, signal=${result.signal}` : "";
-  const killed = result.killed ? ", killed=true" : "";
-  const stderr = trimOutput(result.stderr);
-  const stdout = trimOutput(result.stdout);
-  const lines = [`${command} exited (code=${code}${signal}${killed})`];
-  if (stderr) {
-    lines.push(`stderr: ${stderr}`);
-  }
-  if (stdout) {
-    lines.push(`stdout: ${stdout}`);
-  }
-  return lines.join("\n");
+  return formatCommandResultInternal(command, result, "exited");
 }
 
 function formatJsonParseFailure(command: string, result: SpawnResult, err: unknown): string {
