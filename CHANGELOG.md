@@ -69,6 +69,7 @@ Status: beta.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -83,6 +84,9 @@ Status: beta.
 <<<<<<< HEAD
 >>>>>>> baa335f25 (fix(security): harden SSRF IPv4 literal parsing)
 =======
+=======
+- Security/Net: enforce strict dotted-decimal IPv4 literals in SSRF checks and fail closed on unsupported legacy forms (octal/hex/short/packed, for example `0177.0.0.1`, `127.1`, `2130706433`) before DNS lookup.
+>>>>>>> 26c9b37f5 (fix(security): enforce strict IPv4 SSRF literal handling)
 - Security/Discord: enforce trusted-sender guild permission checks for moderation actions (`timeout`, `kick`, `ban`) and ignore untrusted `senderUserId` params to prevent privilege escalation in tool-driven flows. Thanks @aether-ai-agent for reporting.
 >>>>>>> 775816035 (fix(security): enforce trusted sender auth for discord moderation)
 - Security/ACP: harden ACP bridge session management with duplicate-session refresh, idle-session reaping, oldest-idle soft-cap eviction, and burst rate limiting on session creation to reduce local DoS risk without disrupting normal IDE usage.
