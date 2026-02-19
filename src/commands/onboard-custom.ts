@@ -291,6 +291,7 @@ async function requestAnthropicVerification(params: {
   apiKey: string;
   modelId: string;
 }): Promise<VerificationResult> {
+<<<<<<< HEAD
   // Transform Azure URLs to include the deployment path
   const resolvedUrl = isAzureUrl(params.baseUrl)
     ? transformAzureUrl(params.baseUrl, params.modelId)
@@ -325,6 +326,28 @@ async function requestAnthropicVerification(params: {
   } catch (error) {
     return { ok: false, error };
   }
+=======
+  // Use a base URL with /v1 injected for this raw fetch only. The rest of the app uses the
+  // Anthropic client, which appends /v1 itself; config should store the base URL
+  // without /v1 to avoid /v1/v1/messages at runtime. See docs/gateway/configuration-reference.md.
+  const baseUrlForRequest = /\/v1\/?$/.test(params.baseUrl.trim())
+    ? params.baseUrl.trim()
+    : params.baseUrl.trim().replace(/\/?$/, "") + "/v1";
+  const endpoint = resolveVerificationEndpoint({
+    baseUrl: baseUrlForRequest,
+    modelId: params.modelId,
+    endpointPath: "messages",
+  });
+  return await requestVerification({
+    endpoint,
+    headers: buildAnthropicHeaders(params.apiKey),
+    body: {
+      model: params.modelId,
+      max_tokens: 16,
+      messages: [{ role: "user", content: "Hi" }],
+    },
+  });
+>>>>>>> 6ef365d06 (resolved bug with doing a raw call to anthropic compatible apis (#21336))
 }
 
 async function promptBaseUrlAndKey(params: {
