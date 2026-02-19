@@ -4,6 +4,7 @@ import fs from "node:fs";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { appendCdpPath, createTargetViaCdp, getHeadersWithAuth, normalizeCdpWsUrl } from "./cdp.js";
 import {
@@ -98,6 +99,9 @@ import type {
 } from "./server-context.types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { SsrFBlockedError } from "../infra/net/ssrf.js";
+>>>>>>> 6195660b1 (fix(browser): unify SSRF guard path for navigation)
 import { fetchJson, fetchOk } from "./cdp.helpers.js";
 import { appendCdpPath, createTargetViaCdp, normalizeCdpWsUrl } from "./cdp.js";
 import {
@@ -113,6 +117,7 @@ import {
   ensureChromeExtensionRelayServer,
   stopChromeExtensionRelayServer,
 } from "./extension-relay.js";
+import { assertBrowserNavigationAllowed } from "./navigation-guard.js";
 import type { PwAiModule } from "./pw-ai-module.js";
 import { getPwAiModule } from "./pw-ai-module.js";
 import {
@@ -229,13 +234,20 @@ function createProfileContext(
   };
 
   const openTab = async (url: string): Promise<BrowserTab> => {
+    const ssrfPolicy = state().resolved.ssrfPolicy;
+    await assertBrowserNavigationAllowed({ url, ssrfPolicy });
+
     // For remote profiles, use Playwright's persistent connection to create tabs
     // This ensures the tab persists beyond a single request
     if (!profile.cdpIsLoopback) {
       const mod = await getPwAiModule({ mode: "strict" });
       const createPageViaPlaywright = (mod as Partial<PwAiModule> | null)?.createPageViaPlaywright;
       if (typeof createPageViaPlaywright === "function") {
-        const page = await createPageViaPlaywright({ cdpUrl: profile.cdpUrl, url });
+        const page = await createPageViaPlaywright({
+          cdpUrl: profile.cdpUrl,
+          url,
+          ...(ssrfPolicy ? { ssrfPolicy } : {}),
+        });
         const profileState = getProfileState();
         profileState.lastTargetId = page.targetId;
         return {
@@ -250,6 +262,7 @@ function createProfileContext(
     const createdViaCdp = await createTargetViaCdp({
       cdpUrl: profile.cdpUrl,
       url,
+      ...(ssrfPolicy ? { ssrfPolicy } : {}),
     })
       .then((r) => r.targetId)
       .catch(() => null);
@@ -736,7 +749,13 @@ export function createBrowserRouteContext(opts: ContextOptions): BrowserRouteCon
   const getDefaultContext = () => forProfile();
 
   const mapTabError = (err: unknown) => {
+    if (err instanceof SsrFBlockedError) {
+      return { status: 400, message: err.message };
+    }
     const msg = String(err);
+    if (msg.includes("Invalid URL:")) {
+      return { status: 400, message: msg };
+    }
     if (msg.includes("ambiguous target id prefix")) {
       return { status: 409, message: "ambiguous target id prefix" };
     }
