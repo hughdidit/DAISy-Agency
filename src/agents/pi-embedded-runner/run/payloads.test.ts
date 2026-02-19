@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { describe, expect, it } from "vitest";
 import { buildEmbeddedRunPayloads } from "./payloads.js";
@@ -167,11 +168,17 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads[0]?.text).toBe("All good");
   });
 
+<<<<<<<< HEAD:src/agents/pi-embedded-runner/run/payloads.test.ts
   it("adds tool error fallback when the assistant only invoked tools", () => {
     const payloads = buildEmbeddedRunPayloads({
       assistantTexts: [],
       toolMetas: [],
       lastAssistant: {
+========
+  it("adds tool error fallback when the assistant only invoked tools and verbose mode is on", () => {
+    const payloads = buildPayloads({
+      lastAssistant: makeAssistant({
+>>>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560)):src/agents/pi-embedded-runner/run/payloads.e2e.test.ts
         stopReason: "toolUse",
         content: [
           {
@@ -183,16 +190,56 @@ describe("buildEmbeddedRunPayloads", () => {
         ],
       } as AssistantMessage,
       lastToolError: { toolName: "exec", error: "Command exited with code 1" },
+<<<<<<<< HEAD:src/agents/pi-embedded-runner/run/payloads.test.ts
       sessionKey: "session:telegram",
       inlineToolResultsAllowed: false,
       verboseLevel: "off",
       reasoningLevel: "off",
       toolResultFormat: "plain",
+========
+      verboseLevel: "on",
+>>>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560)):src/agents/pi-embedded-runner/run/payloads.e2e.test.ts
+=======
+import { describe, expect, it } from "vitest";
+import { buildEmbeddedRunPayloads } from "./payloads.js";
+
+type BuildPayloadParams = Parameters<typeof buildEmbeddedRunPayloads>[0];
+
+function buildPayloads(overrides: Partial<BuildPayloadParams> = {}) {
+  return buildEmbeddedRunPayloads({
+    assistantTexts: [],
+    toolMetas: [],
+    lastAssistant: undefined,
+    sessionKey: "session:telegram",
+    inlineToolResultsAllowed: false,
+    verboseLevel: "off",
+    reasoningLevel: "off",
+    toolResultFormat: "plain",
+    ...overrides,
+  });
+}
+
+describe("buildEmbeddedRunPayloads tool-error warnings", () => {
+  it("suppresses exec tool errors when verbose mode is off", () => {
+    const payloads = buildPayloads({
+      lastToolError: { toolName: "exec", error: "command failed" },
+      verboseLevel: "off",
+    });
+
+    expect(payloads).toHaveLength(0);
+  });
+
+  it("shows exec tool errors when verbose mode is on", () => {
+    const payloads = buildPayloads({
+      lastToolError: { toolName: "exec", error: "command failed" },
+      verboseLevel: "on",
+>>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
     });
 
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
     expect(payloads[0]?.text).toContain("Exec");
+<<<<<<< HEAD
     expect(payloads[0]?.text).toContain("code 1");
   });
 
@@ -256,10 +303,20 @@ describe("buildEmbeddedRunPayloads", () => {
       verboseLevel: "off",
       reasoningLevel: "off",
       toolResultFormat: "plain",
+=======
+    expect(payloads[0]?.text).toContain("command failed");
+  });
+
+  it("keeps non-exec mutating tool failures visible", () => {
+    const payloads = buildPayloads({
+      lastToolError: { toolName: "write", error: "permission denied" },
+      verboseLevel: "off",
+>>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
     });
 
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
+<<<<<<< HEAD
     expect(payloads[0]?.text).toContain("required");
   });
 
@@ -359,5 +416,8 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads).toHaveLength(1);
     expect(payloads[0]?.isError).toBe(true);
     expect(payloads[0]?.text).toContain("connection timeout");
+=======
+    expect(payloads[0]?.text).toContain("Write");
+>>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
   });
 });
