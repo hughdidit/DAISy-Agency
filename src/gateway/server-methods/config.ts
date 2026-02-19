@@ -25,6 +25,7 @@ import { extractDeliveryInfo } from "../../config/sessions.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -37,6 +38,9 @@ import type { OpenClawConfig } from "../../config/types.openclaw.js";
 =======
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { OpenClawConfig } from "../../config/types.openclaw.js";
+>>>>>>> 74c51aeb1 (style: format gateway server methods)
 import {
   formatDoctorNonInteractiveHint,
   type RestartSentinelPayload,
