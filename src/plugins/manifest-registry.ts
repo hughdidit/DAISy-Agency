@@ -4,6 +4,7 @@ import { resolveUserPath } from "../utils.js";
 import { normalizePluginsConfig, type NormalizedPluginsConfig } from "./config-state.js";
 import { discoverOpenClawPlugins, type PluginCandidate } from "./discovery.js";
 import { loadPluginManifest, type PluginManifest } from "./manifest.js";
+import { safeRealpathSync } from "./path-safety.js";
 import type { PluginConfigUiHint, PluginDiagnostic, PluginKind, PluginOrigin } from "./types.js";
 
 <<<<<<< HEAD
@@ -21,6 +22,7 @@ const PLUGIN_ORIGIN_RANK: Readonly<Record<PluginOrigin, number>> = {
   bundled: 3,
 };
 
+<<<<<<< HEAD
 function safeRealpathSync(rootDir: string, cache: Map<string, string>): string | null {
   const cached = cache.get(rootDir);
   if (cached) {
@@ -36,6 +38,8 @@ function safeRealpathSync(rootDir: string, cache: Map<string, string>): string |
 }
 
 >>>>>>> 497b060e4 (refactor: simplify manifest registry duplicate detection (#16260))
+=======
+>>>>>>> 77c748304 (refactor(plugins): extract safety and provenance helpers)
 export type PluginManifestRecord = {
   id: string;
   name?: string;
