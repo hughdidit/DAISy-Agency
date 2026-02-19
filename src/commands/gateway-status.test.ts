@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 const loadConfig = vi.fn(() => ({
   gateway: {
     mode: "remote",
-    remote: { url: "ws://remote.example:18789", token: "rtok" },
+    remote: { url: "wss://remote.example:18789", token: "rtok" },
     auth: { token: "ltok" },
   },
 }));
@@ -292,7 +292,12 @@ describe("gateway-status command", () => {
       loadConfig.mockReturnValueOnce({
         gateway: {
           mode: "remote",
+<<<<<<< HEAD:src/commands/gateway-status.test.ts
           remote: { url: "ws://studio.example:18789", token: "rtok" },
+=======
+          remote: { url: "wss://studio.example:18789", token: "rtok" },
+          auth: { token: "ltok" },
+>>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803)):src/commands/gateway-status.e2e.test.ts
         },
       });
       resolveSshConfig.mockResolvedValueOnce(null);
@@ -326,7 +331,12 @@ describe("gateway-status command", () => {
     loadConfig.mockReturnValueOnce({
       gateway: {
         mode: "remote",
+<<<<<<< HEAD:src/commands/gateway-status.test.ts
         remote: { url: "ws://studio.example:18789", token: "rtok" },
+=======
+        remote: { url: "wss://studio.example:18789", token: "rtok" },
+        auth: { token: "ltok" },
+>>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803)):src/commands/gateway-status.e2e.test.ts
       },
     });
     resolveSshConfig.mockResolvedValueOnce({

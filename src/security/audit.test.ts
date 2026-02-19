@@ -1593,7 +1593,7 @@ description: test skill
           mode: "remote",
           auth: { token: "local-token-should-not-use" },
           remote: {
-            url: "ws://remote.example.com:18789",
+            url: "wss://remote.example.com:18789",
             token: "remote-token-xyz789",
           },
         },
@@ -1632,7 +1632,7 @@ description: test skill
           mode: "remote",
           auth: { token: "local-token-should-not-use" },
           remote: {
-            url: "ws://remote.example.com:18789",
+            url: "wss://remote.example.com:18789",
             token: "remote-token",
           },
         },
@@ -1669,7 +1669,7 @@ description: test skill
         gateway: {
           mode: "remote",
           remote: {
-            url: "ws://remote.example.com:18789",
+            url: "wss://remote.example.com:18789",
             password: "remote-pass",
           },
         },
@@ -1707,7 +1707,7 @@ description: test skill
         gateway: {
           mode: "remote",
           remote: {
-            url: "ws://remote.example.com:18789",
+            url: "wss://remote.example.com:18789",
             password: "remote-pass",
           },
         },

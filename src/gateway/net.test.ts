@@ -7,6 +7,11 @@ import os from "node:os";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   isPrivateOrLoopbackAddress,
+<<<<<<< HEAD
+=======
+  isSecureWebSocketUrl,
+  isTrustedProxyAddress,
+>>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
   pickPrimaryLanIPv4,
   resolveGatewayListenHosts,
 } from "./net.js";
@@ -121,4 +126,46 @@ describe("isPrivateOrLoopbackAddress", () => {
     }
   });
 });
+<<<<<<< HEAD
 >>>>>>> 14fc74200 (fix(security): restrict canvas IP-based auth to private networks (#14661))
+=======
+
+describe("isSecureWebSocketUrl", () => {
+  describe("wss:// (TLS) URLs", () => {
+    it("returns true for wss:// regardless of host", () => {
+      expect(isSecureWebSocketUrl("wss://127.0.0.1:18789")).toBe(true);
+      expect(isSecureWebSocketUrl("wss://localhost:18789")).toBe(true);
+      expect(isSecureWebSocketUrl("wss://remote.example.com:18789")).toBe(true);
+      expect(isSecureWebSocketUrl("wss://192.168.1.100:18789")).toBe(true);
+    });
+  });
+
+  describe("ws:// (plaintext) URLs", () => {
+    it("returns true for ws:// to loopback addresses", () => {
+      expect(isSecureWebSocketUrl("ws://127.0.0.1:18789")).toBe(true);
+      expect(isSecureWebSocketUrl("ws://localhost:18789")).toBe(true);
+      expect(isSecureWebSocketUrl("ws://[::1]:18789")).toBe(true);
+      expect(isSecureWebSocketUrl("ws://127.0.0.42:18789")).toBe(true);
+    });
+
+    it("returns false for ws:// to non-loopback addresses (CWE-319)", () => {
+      expect(isSecureWebSocketUrl("ws://remote.example.com:18789")).toBe(false);
+      expect(isSecureWebSocketUrl("ws://192.168.1.100:18789")).toBe(false);
+      expect(isSecureWebSocketUrl("ws://10.0.0.5:18789")).toBe(false);
+      expect(isSecureWebSocketUrl("ws://100.64.0.1:18789")).toBe(false);
+    });
+  });
+
+  describe("invalid URLs", () => {
+    it("returns false for invalid URLs", () => {
+      expect(isSecureWebSocketUrl("not-a-url")).toBe(false);
+      expect(isSecureWebSocketUrl("")).toBe(false);
+    });
+
+    it("returns false for non-WebSocket protocols", () => {
+      expect(isSecureWebSocketUrl("http://127.0.0.1:18789")).toBe(false);
+      expect(isSecureWebSocketUrl("https://127.0.0.1:18789")).toBe(false);
+    });
+  });
+});
+>>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))

@@ -29,6 +29,17 @@ vi.mock("../infra/tailnet.js", () => ({
   pickPrimaryTailnetIPv4,
 }));
 
+<<<<<<< HEAD
+=======
+vi.mock("./net.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./net.js")>();
+  return {
+    ...actual,
+    pickPrimaryLanIPv4,
+  };
+});
+
+>>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
 vi.mock("./client.js", () => ({
   describeGatewayCloseCode: (code: number) => {
     if (code === 1000) return "normal closure";
@@ -61,6 +72,35 @@ vi.mock("./client.js", () => ({
 
 const { buildGatewayConnectionDetails, callGateway } = await import("./call.js");
 
+<<<<<<< HEAD
+=======
+function resetGatewayCallMocks() {
+  loadConfig.mockReset();
+  resolveGatewayPort.mockReset();
+  pickPrimaryTailnetIPv4.mockReset();
+  pickPrimaryLanIPv4.mockReset();
+  lastClientOptions = null;
+  startMode = "hello";
+  closeCode = 1006;
+  closeReason = "";
+}
+
+function setGatewayNetworkDefaults(port = 18789) {
+  resolveGatewayPort.mockReturnValue(port);
+  pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+}
+
+function makeRemotePasswordGatewayConfig(remotePassword: string, localPassword = "from-config") {
+  return {
+    gateway: {
+      mode: "remote",
+      remote: { url: "wss://remote.example:18789", password: remotePassword },
+      auth: { password: localPassword },
+    },
+  };
+}
+
+>>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
 describe("callGateway url resolution", () => {
   beforeEach(() => {
     loadConfig.mockReset();
@@ -92,16 +132,62 @@ describe("callGateway url resolution", () => {
     expect(lastClientOptions?.url).toBe("ws://127.0.0.1:18800");
   });
 
-  it("uses tailnet IP when local bind is tailnet and tailnet is present", async () => {
-    loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "tailnet" } });
+  it("uses tailnet IP with TLS when local bind is tailnet", async () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "tailnet", tls: { enabled: true } },
+    });
     resolveGatewayPort.mockReturnValue(18800);
     pickPrimaryTailnetIPv4.mockReturnValue("100.64.0.1");
 
     await callGateway({ method: "health" });
 
-    expect(lastClientOptions?.url).toBe("ws://100.64.0.1:18800");
+    expect(lastClientOptions?.url).toBe("wss://100.64.0.1:18800");
   });
 
+<<<<<<< HEAD
+=======
+  it("blocks ws:// to tailnet IP without TLS (CWE-319)", async () => {
+    loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "tailnet" } });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue("100.64.0.1");
+
+    await expect(callGateway({ method: "health" })).rejects.toThrow("SECURITY ERROR");
+  });
+
+  it("uses LAN IP with TLS when bind is lan", async () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "lan", tls: { enabled: true } },
+    });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+    pickPrimaryLanIPv4.mockReturnValue("192.168.1.42");
+
+    await callGateway({ method: "health" });
+
+    expect(lastClientOptions?.url).toBe("wss://192.168.1.42:18800");
+  });
+
+  it("blocks ws:// to LAN IP without TLS (CWE-319)", async () => {
+    loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "lan" } });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+    pickPrimaryLanIPv4.mockReturnValue("192.168.1.42");
+
+    await expect(callGateway({ method: "health" })).rejects.toThrow("SECURITY ERROR");
+  });
+
+  it("falls back to loopback when bind is lan but no LAN IP found", async () => {
+    loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "lan" } });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+    pickPrimaryLanIPv4.mockReturnValue(undefined);
+
+    await callGateway({ method: "health" });
+
+    expect(lastClientOptions?.url).toBe("ws://127.0.0.1:18800");
+  });
+
+>>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
   it("uses url override in remote mode even when remote url is missing", async () => {
     loadConfig.mockReturnValue({
       gateway: { mode: "remote", bind: "loopback", remote: {} },
@@ -164,6 +250,35 @@ describe("buildGatewayConnectionDetails", () => {
     expect(details.message).toContain("Gateway target: ws://127.0.0.1:18789");
   });
 
+<<<<<<< HEAD
+=======
+  it("uses LAN IP with TLS and reports lan source when bind is lan", () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "lan", tls: { enabled: true } },
+    });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+    pickPrimaryLanIPv4.mockReturnValue("10.0.0.5");
+
+    const details = buildGatewayConnectionDetails();
+
+    expect(details.url).toBe("wss://10.0.0.5:18800");
+    expect(details.urlSource).toBe("local lan 10.0.0.5");
+    expect(details.bindDetail).toBe("Bind: lan");
+  });
+
+  it("throws for ws:// to LAN IP without TLS (CWE-319)", () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "lan" },
+    });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+    pickPrimaryLanIPv4.mockReturnValue("10.0.0.5");
+
+    expect(() => buildGatewayConnectionDetails()).toThrow("SECURITY ERROR");
+  });
+
+>>>>>>> 9edec67a1 (fix(security): block plaintext WebSocket connections to non-loopback addresses (#20803))
   it("prefers remote url when configured", () => {
     loadConfig.mockReturnValue({
       gateway: {
@@ -181,6 +296,34 @@ describe("buildGatewayConnectionDetails", () => {
     expect(details.urlSource).toBe("config gateway.remote.url");
     expect(details.bindDetail).toBeUndefined();
     expect(details.remoteFallbackNote).toBeUndefined();
+  });
+
+  it("throws for insecure ws:// remote URLs (CWE-319)", () => {
+    loadConfig.mockReturnValue({
+      gateway: {
+        mode: "remote",
+        bind: "loopback",
+        remote: { url: "ws://remote.example.com:18789" },
+      },
+    });
+    resolveGatewayPort.mockReturnValue(18789);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+
+    expect(() => buildGatewayConnectionDetails()).toThrow("SECURITY ERROR");
+    expect(() => buildGatewayConnectionDetails()).toThrow("plaintext ws://");
+    expect(() => buildGatewayConnectionDetails()).toThrow("wss://");
+  });
+
+  it("allows ws:// for loopback addresses in local mode", () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "loopback" },
+    });
+    resolveGatewayPort.mockReturnValue(18789);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+
+    const details = buildGatewayConnectionDetails();
+
+    expect(details.url).toBe("ws://127.0.0.1:18789");
   });
 });
 
