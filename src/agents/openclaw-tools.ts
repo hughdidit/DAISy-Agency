@@ -59,6 +59,8 @@ export function createOpenClawTools(options?: {
   requireExplicitMessageTarget?: boolean;
   /** If true, omit the message tool from the tool list. */
   disableMessageTool?: boolean;
+  /** Whether the requesting sender is an owner. */
+  senderIsOwner?: boolean;
 }): AnyAgentTool[] {
   const imageTool = options?.agentDir?.trim()
     ? createImageTool({
@@ -105,6 +107,7 @@ export function createOpenClawTools(options?: {
     }),
     createCronTool({
       agentSessionKey: options?.agentSessionKey,
+      senderIsOwner: options?.senderIsOwner,
     }),
     ...(messageTool ? [messageTool] : []),
     createTtsTool({
@@ -114,6 +117,7 @@ export function createOpenClawTools(options?: {
     createGatewayTool({
       agentSessionKey: options?.agentSessionKey,
       config: options?.config,
+      senderIsOwner: options?.senderIsOwner,
     }),
     createAgentsListTool({
       agentSessionKey: options?.agentSessionKey,
