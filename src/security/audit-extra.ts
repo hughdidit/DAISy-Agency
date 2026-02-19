@@ -11,6 +11,11 @@
 export {
   collectAttackSurfaceSummaryFindings,
   collectExposureMatrixFindings,
+<<<<<<< HEAD
+=======
+  collectGatewayHttpNoAuthFindings,
+  collectGatewayHttpSessionKeyOverrideFindings,
+>>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
   collectHooksHardeningFindings,
   collectMinimalProfileOverrideFindings,
   collectModelHygieneFindings,

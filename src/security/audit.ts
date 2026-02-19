@@ -16,6 +16,11 @@ import { collectChannelSecurityFindings } from "./audit-channel.js";
 import {
   collectAttackSurfaceSummaryFindings,
   collectExposureMatrixFindings,
+<<<<<<< HEAD
+=======
+  collectGatewayHttpNoAuthFindings,
+  collectGatewayHttpSessionKeyOverrideFindings,
+>>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
   collectHooksHardeningFindings,
   collectIncludeFilePermFindings,
   collectInstalledSkillsCodeSafetyFindings,
@@ -557,7 +562,13 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
   findings.push(...collectBrowserControlFindings(cfg));
   findings.push(...collectLoggingFindings(cfg));
   findings.push(...collectElevatedFindings(cfg));
+<<<<<<< HEAD
   findings.push(...collectHooksHardeningFindings(cfg));
+=======
+  findings.push(...collectHooksHardeningFindings(cfg, env));
+  findings.push(...collectGatewayHttpNoAuthFindings(cfg, env));
+  findings.push(...collectGatewayHttpSessionKeyOverrideFindings(cfg));
+>>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
   findings.push(...collectSandboxDockerNoopFindings(cfg));
   findings.push(...collectSandboxDangerousConfigFindings(cfg));
   findings.push(...collectNodeDenyCommandPatternFindings(cfg));
