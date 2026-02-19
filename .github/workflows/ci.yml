@@ -202,7 +202,7 @@ jobs:
 
   checks:
     needs: [docs-scope, changed-scope, check]
-    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true') && (github.event_name != 'push' || matrix.runtime != 'bun')
+    if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-4vcpu-ubuntu-2404
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
     strategy:
@@ -344,8 +344,12 @@ jobs:
       - name: Setup Node environment
         uses: ./.github/actions/setup-node-env
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 0b7e56143 (ci: split format/lint into tiered gates with shared setup action)
 =======
+=======
+        if: matrix.runtime != 'bun' || github.event_name != 'push'
+>>>>>>> 47bfb765a (ci: skip bun matrix steps on push runs)
         with:
           install-bun: "${{ matrix.runtime == 'bun' }}"
 >>>>>>> 13f2fa0c5 (ci: avoid bun setup API flake in node checks)
@@ -366,7 +370,11 @@ jobs:
           echo "OPENCLAW_TEST_MAX_OLD_SPACE_SIZE_MB=6144" >> "$GITHUB_ENV"
 
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
+<<<<<<< HEAD
 >>>>>>> 8fce7dc9b (perf(test): add vitest slowest report artifact)
+=======
+        if: matrix.runtime != 'bun' || github.event_name != 'push'
+>>>>>>> 47bfb765a (ci: skip bun matrix steps on push runs)
         run: ${{ matrix.command }}
 
       - name: Summarize slowest tests
