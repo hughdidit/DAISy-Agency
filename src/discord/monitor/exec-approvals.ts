@@ -81,11 +81,151 @@ export function parseExecApprovalData(
   };
 }
 
+<<<<<<< HEAD
 function formatExecApprovalEmbed(request: ExecApprovalRequest) {
   const commandText = request.request.command;
   const commandPreview =
     commandText.length > 1000 ? `${commandText.slice(0, 1000)}...` : commandText;
   const expiresIn = Math.max(0, Math.round((request.expiresAtMs - Date.now()) / 1000));
+=======
+type ExecApprovalContainerParams = {
+  cfg: OpenClawConfig;
+  accountId: string;
+  title: string;
+  description?: string;
+  commandPreview: string;
+  metadataLines?: string[];
+  actionRow?: Row<Button>;
+  footer?: string;
+  accentColor?: string;
+};
+
+class ExecApprovalContainer extends DiscordUiContainer {
+  constructor(params: ExecApprovalContainerParams) {
+    const components: Array<TextDisplay | Separator | Row<Button>> = [
+      new TextDisplay(`## ${params.title}`),
+    ];
+    if (params.description) {
+      components.push(new TextDisplay(params.description));
+    }
+    components.push(new Separator({ divider: true, spacing: "small" }));
+    components.push(new TextDisplay(`### Command\n\`\`\`\n${params.commandPreview}\n\`\`\``));
+    if (params.metadataLines?.length) {
+      components.push(new TextDisplay(params.metadataLines.join("\n")));
+    }
+    if (params.actionRow) {
+      components.push(params.actionRow);
+    }
+    if (params.footer) {
+      components.push(new Separator({ divider: false, spacing: "small" }));
+      components.push(new TextDisplay(`-# ${params.footer}`));
+    }
+    super({
+      cfg: params.cfg,
+      accountId: params.accountId,
+      components,
+      accentColor: params.accentColor,
+    });
+  }
+}
+
+class ExecApprovalActionButton extends Button {
+  customId: string;
+  label: string;
+  style: ButtonStyle;
+
+  constructor(params: {
+    approvalId: string;
+    action: ExecApprovalDecision;
+    label: string;
+    style: ButtonStyle;
+  }) {
+    super();
+    this.customId = buildExecApprovalCustomId(params.approvalId, params.action);
+    this.label = params.label;
+    this.style = params.style;
+  }
+}
+
+class ExecApprovalActionRow extends Row<Button> {
+  constructor(approvalId: string) {
+    super([
+      new ExecApprovalActionButton({
+        approvalId,
+        action: "allow-once",
+        label: "Allow once",
+        style: ButtonStyle.Success,
+      }),
+      new ExecApprovalActionButton({
+        approvalId,
+        action: "allow-always",
+        label: "Always allow",
+        style: ButtonStyle.Primary,
+      }),
+      new ExecApprovalActionButton({
+        approvalId,
+        action: "deny",
+        label: "Deny",
+        style: ButtonStyle.Danger,
+      }),
+    ]);
+  }
+}
+
+function resolveExecApprovalAccountId(params: {
+  cfg: OpenClawConfig;
+  request: ExecApprovalRequest;
+}): string | null {
+  const sessionKey = params.request.request.sessionKey?.trim();
+  if (!sessionKey) {
+    return null;
+  }
+  try {
+    const agentId = resolveAgentIdFromSessionKey(sessionKey);
+    const storePath = resolveStorePath(params.cfg.session?.store, { agentId });
+    const store = loadSessionStore(storePath);
+    const entry = store[sessionKey];
+    const channel = normalizeMessageChannel(entry?.origin?.provider ?? entry?.lastChannel);
+    if (channel && channel !== "discord") {
+      return null;
+    }
+    const accountId = entry?.origin?.accountId ?? entry?.lastAccountId;
+    return accountId?.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+function buildExecApprovalMetadataLines(request: ExecApprovalRequest): string[] {
+  const lines: string[] = [];
+  if (request.request.cwd) {
+    lines.push(`- Working Directory: ${request.request.cwd}`);
+  }
+  if (request.request.host) {
+    lines.push(`- Host: ${request.request.host}`);
+  }
+  if (request.request.agentId) {
+    lines.push(`- Agent: ${request.request.agentId}`);
+  }
+  return lines;
+}
+
+function buildExecApprovalPayload(container: DiscordUiContainer): MessagePayloadObject {
+  const components: TopLevelComponents[] = [container];
+  return { components };
+}
+
+function createExecApprovalRequestContainer(params: {
+  request: ExecApprovalRequest;
+  cfg: OpenClawConfig;
+  accountId: string;
+  actionRow?: Row<Button>;
+}): ExecApprovalContainer {
+  const commandText = params.request.request.command;
+  const commandRaw = commandText.length > 1000 ? `${commandText.slice(0, 1000)}...` : commandText;
+  const commandPreview = commandRaw.replace(/`/g, "\u200b`");
+  const expiresAtSeconds = Math.max(0, Math.floor(params.request.expiresAtMs / 1000));
+>>>>>>> ee6d0bd32 (fix(security): escape backticks in exec-approval command previews (#20854))
 
   const fields: Array<{ name: string; value: string; inline: boolean }> = [
     {
@@ -129,6 +269,7 @@ function formatExecApprovalEmbed(request: ExecApprovalRequest) {
   };
 }
 
+<<<<<<< HEAD
 function formatResolvedEmbed(
   request: ExecApprovalRequest,
   decision: ExecApprovalDecision,
@@ -136,6 +277,18 @@ function formatResolvedEmbed(
 ) {
   const commandText = request.request.command;
   const commandPreview = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
+=======
+function createResolvedContainer(params: {
+  request: ExecApprovalRequest;
+  decision: ExecApprovalDecision;
+  resolvedBy?: string | null;
+  cfg: OpenClawConfig;
+  accountId: string;
+}): ExecApprovalContainer {
+  const commandText = params.request.request.command;
+  const commandRaw = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
+  const commandPreview = commandRaw.replace(/`/g, "\u200b`");
+>>>>>>> ee6d0bd32 (fix(security): escape backticks in exec-approval command previews (#20854))
 
   const decisionLabel =
     decision === "allow-once"
@@ -162,9 +315,20 @@ function formatResolvedEmbed(
   };
 }
 
+<<<<<<< HEAD
 function formatExpiredEmbed(request: ExecApprovalRequest) {
   const commandText = request.request.command;
   const commandPreview = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
+=======
+function createExpiredContainer(params: {
+  request: ExecApprovalRequest;
+  cfg: OpenClawConfig;
+  accountId: string;
+}): ExecApprovalContainer {
+  const commandText = params.request.request.command;
+  const commandRaw = commandText.length > 500 ? `${commandText.slice(0, 500)}...` : commandText;
+  const commandPreview = commandRaw.replace(/`/g, "\u200b`");
+>>>>>>> ee6d0bd32 (fix(security): escape backticks in exec-approval command previews (#20854))
 
   return {
     title: "Exec Approval: Expired",
