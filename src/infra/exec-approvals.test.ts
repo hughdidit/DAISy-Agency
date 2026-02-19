@@ -19,6 +19,12 @@ import {
   resolveCommandResolution,
   resolveExecApprovals,
   resolveExecApprovalsFromFile,
+<<<<<<< HEAD
+=======
+  resolveExecApprovalsPath,
+  resolveExecApprovalsSocketPath,
+  resolveSafeBins,
+>>>>>>> cfe8457a0 (fix(security): harden safeBins stdin-only enforcement)
   type ExecAllowlistEntry,
 } from "./exec-approvals.js";
 
@@ -398,6 +404,9 @@ describe("exec approvals safe bins", () => {
     argv: string[];
     resolvedPath: string;
     expected: boolean;
+    safeBins?: string[];
+    executableName?: string;
+    rawExecutable?: string;
     cwd?: string;
     setup?: (cwd: string) => void;
   };
@@ -424,6 +433,38 @@ describe("exec approvals safe bins", () => {
       expected: false,
       cwd: "/tmp",
     },
+    {
+      name: "blocks sort output path via -o <file>",
+      argv: ["sort", "-o", "malicious.sh"],
+      resolvedPath: "/usr/bin/sort",
+      expected: false,
+      safeBins: ["sort"],
+      executableName: "sort",
+    },
+    {
+      name: "blocks sort output path via attached short option (-ofile)",
+      argv: ["sort", "-omalicious.sh"],
+      resolvedPath: "/usr/bin/sort",
+      expected: false,
+      safeBins: ["sort"],
+      executableName: "sort",
+    },
+    {
+      name: "blocks sort output path via --output=file",
+      argv: ["sort", "--output=malicious.sh"],
+      resolvedPath: "/usr/bin/sort",
+      expected: false,
+      safeBins: ["sort"],
+      executableName: "sort",
+    },
+    {
+      name: "blocks grep recursive flags that read cwd",
+      argv: ["grep", "-R", "needle"],
+      resolvedPath: "/usr/bin/grep",
+      expected: false,
+      safeBins: ["grep"],
+      executableName: "grep",
+    },
   ];
 
   for (const testCase of cases) {
@@ -433,14 +474,16 @@ describe("exec approvals safe bins", () => {
       }
       const cwd = testCase.cwd ?? makeTempDir();
       testCase.setup?.(cwd);
+      const executableName = testCase.executableName ?? "jq";
+      const rawExecutable = testCase.rawExecutable ?? executableName;
       const ok = isSafeBinUsage({
         argv: testCase.argv,
         resolution: {
-          rawExecutable: "jq",
+          rawExecutable,
           resolvedPath: testCase.resolvedPath,
-          executableName: "jq",
+          executableName,
         },
-        safeBins: normalizeSafeBins(["jq"]),
+        safeBins: normalizeSafeBins(testCase.safeBins ?? [executableName]),
         cwd,
       });
       expect(ok).toBe(testCase.expected);
@@ -463,6 +506,13 @@ describe("exec approvals safe bins", () => {
       cwd: "/tmp",
     });
     expect(ok).toBe(true);
+  });
+
+  it("does not include sort/grep in default safeBins", () => {
+    const defaults = resolveSafeBins(undefined);
+    expect(defaults.has("jq")).toBe(true);
+    expect(defaults.has("sort")).toBe(false);
+    expect(defaults.has("grep")).toBe(false);
   });
 });
 

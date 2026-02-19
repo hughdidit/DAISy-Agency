@@ -3,8 +3,12 @@ import os from "node:os";
 import path from "node:path";
 import type { ExecAllowlistEntry } from "./exec-approvals.js";
 import { splitShellArgs } from "../utils/shell-argv.js";
+<<<<<<< HEAD
+=======
+import { expandHomePrefix } from "./home-dir.js";
+>>>>>>> cfe8457a0 (fix(security): harden safeBins stdin-only enforcement)
 
-export const DEFAULT_SAFE_BINS = ["jq", "grep", "cut", "sort", "uniq", "head", "tail", "tr", "wc"];
+export const DEFAULT_SAFE_BINS = ["jq", "cut", "uniq", "head", "tail", "tr", "wc"];
 
 function expandHome(value: string): string {
   if (!value) {
