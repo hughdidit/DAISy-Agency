@@ -17,6 +17,7 @@ import {
   resolveArchiveSourcePath,
   withTempDir,
 } from "../infra/install-source-utils.js";
+import { resolveNpmIntegrityDriftWithDefaultMessage } from "../infra/npm-integrity.js";
 import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
 <<<<<<< HEAD
 >>>>>>> 4caeb203a (refactor(install): share package dir install)
@@ -440,7 +441,33 @@ export async function installHooksFromNpmSpec(params: {
       return packedResult;
     }
 
+<<<<<<< HEAD
     return await installHooksFromArchive({
+=======
+    const npmResolution: NpmSpecResolution = {
+      ...packedResult.metadata,
+      resolvedAt: new Date().toISOString(),
+    };
+
+    const driftResult = await resolveNpmIntegrityDriftWithDefaultMessage({
+      spec,
+      expectedIntegrity: params.expectedIntegrity,
+      resolution: npmResolution,
+      onIntegrityDrift: params.onIntegrityDrift,
+      warn: (message) => {
+        logger.warn?.(message);
+      },
+    });
+    const integrityDrift = driftResult.integrityDrift;
+    if (driftResult.error) {
+      return {
+        ok: false,
+        error: driftResult.error,
+      };
+    }
+
+    const installResult = await installHooksFromArchive({
+>>>>>>> edf92f1cb (refactor: share npm integrity drift handling)
       archivePath: packedResult.archivePath,
       hooksDir: params.hooksDir,
       timeoutMs,

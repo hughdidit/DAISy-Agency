@@ -48,6 +48,16 @@ type BundledPluginSource = {
   npmSpec?: string;
 };
 
+type InstallIntegrityDrift = {
+  spec: string;
+  expectedIntegrity: string;
+  actualIntegrity: string;
+  resolution: {
+    resolvedSpec?: string;
+    version?: string;
+  };
+};
+
 async function readInstalledPackageVersion(dir: string): Promise<string | undefined> {
   try {
     const raw = await fs.readFile(`${dir}/package.json`, "utf-8");
@@ -137,6 +147,32 @@ function buildLoadPathHelpers(existing: string[]) {
   };
 }
 
+function createPluginUpdateIntegrityDriftHandler(params: {
+  pluginId: string;
+  dryRun: boolean;
+  logger: PluginUpdateLogger;
+  onIntegrityDrift?: (params: PluginUpdateIntegrityDriftParams) => boolean | Promise<boolean>;
+}) {
+  return async (drift: InstallIntegrityDrift) => {
+    const payload: PluginUpdateIntegrityDriftParams = {
+      pluginId: params.pluginId,
+      spec: drift.spec,
+      expectedIntegrity: drift.expectedIntegrity,
+      actualIntegrity: drift.actualIntegrity,
+      resolvedSpec: drift.resolution.resolvedSpec,
+      resolvedVersion: drift.resolution.version,
+      dryRun: params.dryRun,
+    };
+    if (params.onIntegrityDrift) {
+      return await params.onIntegrityDrift(payload);
+    }
+    params.logger.warn?.(
+      `Integrity drift for "${params.pluginId}" (${payload.resolvedSpec ?? payload.spec}): expected ${payload.expectedIntegrity}, got ${payload.actualIntegrity}`,
+    );
+    return true;
+  };
+}
+
 export async function updateNpmInstalledPlugins(params: {
   config: OpenClawConfig;
   logger?: PluginUpdateLogger;
@@ -210,6 +246,16 @@ export async function updateNpmInstalledPlugins(params: {
           mode: "update",
           dryRun: true,
           expectedPluginId: pluginId,
+<<<<<<< HEAD
+=======
+          expectedIntegrity: record.integrity,
+          onIntegrityDrift: createPluginUpdateIntegrityDriftHandler({
+            pluginId,
+            dryRun: true,
+            logger,
+            onIntegrityDrift: params.onIntegrityDrift,
+          }),
+>>>>>>> edf92f1cb (refactor: share npm integrity drift handling)
           logger,
         });
       } catch (err) {
@@ -257,6 +303,16 @@ export async function updateNpmInstalledPlugins(params: {
         spec: record.spec,
         mode: "update",
         expectedPluginId: pluginId,
+<<<<<<< HEAD
+=======
+        expectedIntegrity: record.integrity,
+        onIntegrityDrift: createPluginUpdateIntegrityDriftHandler({
+          pluginId,
+          dryRun: false,
+          logger,
+          onIntegrityDrift: params.onIntegrityDrift,
+        }),
+>>>>>>> edf92f1cb (refactor: share npm integrity drift handling)
         logger,
       });
     } catch (err) {
