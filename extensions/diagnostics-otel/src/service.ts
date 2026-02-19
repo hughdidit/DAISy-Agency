@@ -8,6 +8,7 @@ import { BatchLogRecordProcessor, LoggerProvider } from "@opentelemetry/sdk-logs
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { ParentBasedSampler, TraceIdRatioBasedSampler } from "@opentelemetry/sdk-trace-base";
+<<<<<<< HEAD
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -15,6 +16,9 @@ import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions"
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+=======
+import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
+>>>>>>> de656e319 (fix(otel): complete diagnostics-otel OpenTelemetry v2 API migration (#12897))
 import type { DiagnosticEventPayload, OpenClawPluginService } from "openclaw/plugin-sdk";
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -60,7 +64,25 @@ function resolveSampleRate(value: number | undefined): number | undefined {
   return value;
 }
 
+<<<<<<< HEAD
 export function createDiagnosticsOtelService(): MoltbotPluginService {
+=======
+function formatError(err: unknown): string {
+  if (err instanceof Error) {
+    return err.stack ?? err.message;
+  }
+  if (typeof err === "string") {
+    return err;
+  }
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return String(err);
+  }
+}
+
+export function createDiagnosticsOtelService(): OpenClawPluginService {
+>>>>>>> de656e319 (fix(otel): complete diagnostics-otel OpenTelemetry v2 API migration (#12897))
   let sdk: NodeSDK | null = null;
   let logProvider: LoggerProvider | null = null;
   let stopLogTransport: (() => void) | null = null;
@@ -95,7 +117,7 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
       }
 
       const resource = resourceFromAttributes({
-        [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
+        [ATTR_SERVICE_NAME]: serviceName,
       });
 
       const traceUrl = resolveOtelUrl(endpoint, "v1/traces");
@@ -138,7 +160,12 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
             : {}),
         });
 
-        sdk.start();
+        try {
+          await sdk.start();
+        } catch (err) {
+          ctx.logger.error(`diagnostics-otel: failed to start SDK: ${formatError(err)}`);
+          throw err;
+        }
       }
 
       const logSeverityMap: Record<string, SeverityNumber> = {
@@ -231,50 +258,59 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
           ...(logUrl ? { url: logUrl } : {}),
           ...(headers ? { headers } : {}),
         });
-        const processor = new BatchLogRecordProcessor(
+        const logProcessor = new BatchLogRecordProcessor(
           logExporter,
           typeof otel.flushIntervalMs === "number"
             ? { scheduledDelayMillis: Math.max(1000, otel.flushIntervalMs) }
             : {},
         );
 <<<<<<< HEAD
+<<<<<<< HEAD
         const otelLogger = logProvider.getLogger("moltbot");
 =======
         logProvider = new LoggerProvider({ resource, processors: [processor] });
+=======
+        logProvider = new LoggerProvider({
+          resource,
+          processors: [logProcessor],
+        });
+>>>>>>> de656e319 (fix(otel): complete diagnostics-otel OpenTelemetry v2 API migration (#12897))
         const otelLogger = logProvider.getLogger("openclaw");
 >>>>>>> 40b11db80 (TypeScript: add extensions to tsconfig and fix type errors (#12781))
 
         stopLogTransport = registerLogTransport((logObj) => {
-          const safeStringify = (value: unknown) => {
-            try {
-              return JSON.stringify(value);
-            } catch {
-              return String(value);
-            }
-          };
-          const meta = (logObj as Record<string, unknown>)._meta as
-            | {
-                logLevelName?: string;
-                date?: Date;
-                name?: string;
-                parentNames?: string[];
-                path?: {
-                  filePath?: string;
-                  fileLine?: string;
-                  fileColumn?: string;
-                  filePathWithLine?: string;
-                  method?: string;
-                };
+          try {
+            const safeStringify = (value: unknown) => {
+              try {
+                return JSON.stringify(value);
+              } catch {
+                return String(value);
               }
-            | undefined;
-          const logLevelName = meta?.logLevelName ?? "INFO";
-          const severityNumber = logSeverityMap[logLevelName] ?? (9 as SeverityNumber);
+            };
+            const meta = (logObj as Record<string, unknown>)._meta as
+              | {
+                  logLevelName?: string;
+                  date?: Date;
+                  name?: string;
+                  parentNames?: string[];
+                  path?: {
+                    filePath?: string;
+                    fileLine?: string;
+                    fileColumn?: string;
+                    filePathWithLine?: string;
+                    method?: string;
+                  };
+                }
+              | undefined;
+            const logLevelName = meta?.logLevelName ?? "INFO";
+            const severityNumber = logSeverityMap[logLevelName] ?? (9 as SeverityNumber);
 
-          const numericArgs = Object.entries(logObj)
-            .filter(([key]) => /^\d+$/.test(key))
-            .toSorted((a, b) => Number(a[0]) - Number(b[0]))
-            .map(([, value]) => value);
+            const numericArgs = Object.entries(logObj)
+              .filter(([key]) => /^\d+$/.test(key))
+              .toSorted((a, b) => Number(a[0]) - Number(b[0]))
+              .map(([, value]) => value);
 
+<<<<<<< HEAD
           let bindings: Record<string, unknown> | undefined;
           if (typeof numericArgs[0] === "string" && numericArgs[0].trim().startsWith("{")) {
             try {
@@ -345,14 +381,80 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
           if (meta?.path?.filePathWithLine) {
             attributes["moltbot.code.location"] = meta.path.filePathWithLine;
           }
+=======
+            let bindings: Record<string, unknown> | undefined;
+            if (typeof numericArgs[0] === "string" && numericArgs[0].trim().startsWith("{")) {
+              try {
+                const parsed = JSON.parse(numericArgs[0]);
+                if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+                  bindings = parsed as Record<string, unknown>;
+                  numericArgs.shift();
+                }
+              } catch {
+                // ignore malformed json bindings
+              }
+            }
+>>>>>>> de656e319 (fix(otel): complete diagnostics-otel OpenTelemetry v2 API migration (#12897))
 
-          otelLogger.emit({
-            body: message,
-            severityText: logLevelName,
-            severityNumber,
-            attributes,
-            timestamp: meta?.date ?? new Date(),
-          });
+            let message = "";
+            if (numericArgs.length > 0 && typeof numericArgs[numericArgs.length - 1] === "string") {
+              message = String(numericArgs.pop());
+            } else if (numericArgs.length === 1) {
+              message = safeStringify(numericArgs[0]);
+              numericArgs.length = 0;
+            }
+            if (!message) {
+              message = "log";
+            }
+
+            const attributes: Record<string, string | number | boolean> = {
+              "openclaw.log.level": logLevelName,
+            };
+            if (meta?.name) {
+              attributes["openclaw.logger"] = meta.name;
+            }
+            if (meta?.parentNames?.length) {
+              attributes["openclaw.logger.parents"] = meta.parentNames.join(".");
+            }
+            if (bindings) {
+              for (const [key, value] of Object.entries(bindings)) {
+                if (
+                  typeof value === "string" ||
+                  typeof value === "number" ||
+                  typeof value === "boolean"
+                ) {
+                  attributes[`openclaw.${key}`] = value;
+                } else if (value != null) {
+                  attributes[`openclaw.${key}`] = safeStringify(value);
+                }
+              }
+            }
+            if (numericArgs.length > 0) {
+              attributes["openclaw.log.args"] = safeStringify(numericArgs);
+            }
+            if (meta?.path?.filePath) {
+              attributes["code.filepath"] = meta.path.filePath;
+            }
+            if (meta?.path?.fileLine) {
+              attributes["code.lineno"] = Number(meta.path.fileLine);
+            }
+            if (meta?.path?.method) {
+              attributes["code.function"] = meta.path.method;
+            }
+            if (meta?.path?.filePathWithLine) {
+              attributes["openclaw.code.location"] = meta.path.filePathWithLine;
+            }
+
+            otelLogger.emit({
+              body: message,
+              severityText: logLevelName,
+              severityNumber,
+              attributes,
+              timestamp: meta?.date ?? new Date(),
+            });
+          } catch (err) {
+            ctx.logger.error(`diagnostics-otel: log transport failed: ${formatError(err)}`);
+          }
         });
       }
 
@@ -649,43 +751,49 @@ export function createDiagnosticsOtelService(): MoltbotPluginService {
       };
 
       unsubscribe = onDiagnosticEvent((evt: DiagnosticEventPayload) => {
-        switch (evt.type) {
-          case "model.usage":
-            recordModelUsage(evt);
-            return;
-          case "webhook.received":
-            recordWebhookReceived(evt);
-            return;
-          case "webhook.processed":
-            recordWebhookProcessed(evt);
-            return;
-          case "webhook.error":
-            recordWebhookError(evt);
-            return;
-          case "message.queued":
-            recordMessageQueued(evt);
-            return;
-          case "message.processed":
-            recordMessageProcessed(evt);
-            return;
-          case "queue.lane.enqueue":
-            recordLaneEnqueue(evt);
-            return;
-          case "queue.lane.dequeue":
-            recordLaneDequeue(evt);
-            return;
-          case "session.state":
-            recordSessionState(evt);
-            return;
-          case "session.stuck":
-            recordSessionStuck(evt);
-            return;
-          case "run.attempt":
-            recordRunAttempt(evt);
-            return;
-          case "diagnostic.heartbeat":
-            recordHeartbeat(evt);
-            return;
+        try {
+          switch (evt.type) {
+            case "model.usage":
+              recordModelUsage(evt);
+              return;
+            case "webhook.received":
+              recordWebhookReceived(evt);
+              return;
+            case "webhook.processed":
+              recordWebhookProcessed(evt);
+              return;
+            case "webhook.error":
+              recordWebhookError(evt);
+              return;
+            case "message.queued":
+              recordMessageQueued(evt);
+              return;
+            case "message.processed":
+              recordMessageProcessed(evt);
+              return;
+            case "queue.lane.enqueue":
+              recordLaneEnqueue(evt);
+              return;
+            case "queue.lane.dequeue":
+              recordLaneDequeue(evt);
+              return;
+            case "session.state":
+              recordSessionState(evt);
+              return;
+            case "session.stuck":
+              recordSessionStuck(evt);
+              return;
+            case "run.attempt":
+              recordRunAttempt(evt);
+              return;
+            case "diagnostic.heartbeat":
+              recordHeartbeat(evt);
+              return;
+          }
+        } catch (err) {
+          ctx.logger.error(
+            `diagnostics-otel: event handler failed (${evt.type}): ${formatError(err)}`,
+          );
         }
       });
 
