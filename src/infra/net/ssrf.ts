@@ -282,6 +282,10 @@ export function isBlockedHostname(hostname: string): boolean {
   if (!normalized) {
     return false;
   }
+  return isBlockedHostnameNormalized(normalized);
+}
+
+function isBlockedHostnameNormalized(normalized: string): boolean {
   if (BLOCKED_HOSTNAMES.has(normalized)) {
     return true;
   }
@@ -297,7 +301,7 @@ export function isBlockedHostnameOrIp(hostname: string): boolean {
   if (!normalized) {
     return false;
   }
-  return isBlockedHostname(normalized) || isPrivateIpAddress(normalized);
+  return isBlockedHostnameNormalized(normalized) || isPrivateIpAddress(normalized);
 }
 
 export function createPinnedLookup(params: {
@@ -381,14 +385,8 @@ export async function resolvePinnedHostnameWithPolicy(
     throw new SsrFBlockedError(`Blocked hostname (not in allowlist): ${hostname}`);
   }
 
-  if (!allowPrivateNetwork && !isExplicitAllowed) {
-    if (isBlockedHostname(normalized)) {
-      throw new SsrFBlockedError(`Blocked hostname: ${hostname}`);
-    }
-
-    if (isPrivateIpAddress(normalized)) {
-      throw new SsrFBlockedError("Blocked: private/internal IP address");
-    }
+  if (!allowPrivateNetwork && !isExplicitAllowed && isBlockedHostnameOrIp(normalized)) {
+    throw new SsrFBlockedError("Blocked hostname or private/internal IP address");
   }
 
   const lookupFn = params.lookupFn ?? dnsLookup;
