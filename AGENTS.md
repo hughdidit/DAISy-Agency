@@ -102,7 +102,25 @@
 - Pi sessions live under `~/.clawdbot/sessions/` by default; the base directory is not configurable.
 - Environment variables: see `~/.profile`.
 - Never commit or publish real phone numbers, videos, or live configuration values. Use obviously fake placeholders in docs, tests, and examples.
+<<<<<<< HEAD
  - Release flow: always read `docs/reference/RELEASING.md` and `docs/platforms/mac/release.md` before any release work; do not ask routine questions once those docs answer them.
+=======
+- Release flow: always read `docs/reference/RELEASING.md` and `docs/platforms/mac/release.md` before any release work; do not ask routine questions once those docs answer them.
+
+## GHSA (Repo Advisory) Patch/Publish
+
+- Before reviewing security advisories, read `SECURITY.md`.
+- Fetch: `gh api /repos/openclaw/openclaw/security-advisories/<GHSA>`
+- Latest npm: `npm view openclaw version --userconfig "$(mktemp)"`
+- Private fork PRs must be closed:
+  `fork=$(gh api /repos/openclaw/openclaw/security-advisories/<GHSA> | jq -r .private_fork.full_name)`
+  `gh pr list -R "$fork" --state open` (must be empty)
+- Description newline footgun: write Markdown via heredoc to `/tmp/ghsa.desc.md` (no `"\\n"` strings)
+- Build patch JSON via jq: `jq -n --rawfile desc /tmp/ghsa.desc.md '{summary,severity,description:$desc,vulnerabilities:[...]}' > /tmp/ghsa.patch.json`
+- Patch + publish: `gh api -X PATCH /repos/openclaw/openclaw/security-advisories/<GHSA> --input /tmp/ghsa.patch.json` (publish = include `"state":"published"`; no `/publish` endpoint)
+- If publish fails (HTTP 422): missing `severity`/`description`/`vulnerabilities[]`, or private fork has open PRs
+- Verify: re-fetch; ensure `state=published`, `published_at` set; `jq -r .description | rg '\\\\n'` returns nothing
+>>>>>>> 7c9130f3c (docs: require SECURITY.md before GHSA reviews)
 
 ## Troubleshooting
 - Rebrand/migration issues or legacy config/service warnings: run `openclaw doctor` (see `docs/gateway/doctor.md`).
