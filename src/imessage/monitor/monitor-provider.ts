@@ -1,5 +1,9 @@
 import fs from "node:fs/promises";
+<<<<<<< HEAD
 
+=======
+import type { IMessagePayload, MonitorIMessageOpts } from "./types.js";
+>>>>>>> 49d0def6d (fix(security): harden imessage remote scp/ssh handling)
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";
@@ -33,6 +37,7 @@ import {
 } from "../../config/group-policy.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
 import { danger, logVerbose, shouldLogVerbose } from "../../globals.js";
+import { normalizeScpRemoteHost } from "../../infra/scp-host.js";
 import { waitForTransportReady } from "../../infra/transport-ready.js";
 import { mediaKindFromMime } from "../../media/constants.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
@@ -54,7 +59,6 @@ import {
 } from "../targets.js";
 import { deliverReplies } from "./deliver.js";
 import { normalizeAllowList, resolveRuntime } from "./runtime.js";
-import type { IMessagePayload, MonitorIMessageOpts } from "./types.js";
 
 /**
  * Try to detect remote host from an SSH wrapper script like:
@@ -135,10 +139,21 @@ export async function monitorIMessageProvider(opts: MonitorIMessageOpts = {}): P
   const cliPath = opts.cliPath ?? imessageCfg.cliPath ?? "imsg";
   const dbPath = opts.dbPath ?? imessageCfg.dbPath;
 
-  // Resolve remoteHost: explicit config, or auto-detect from SSH wrapper script
-  let remoteHost = imessageCfg.remoteHost;
+  // Resolve remoteHost: explicit config, or auto-detect from SSH wrapper script.
+  // Accept only a safe host token to avoid option/argument injection into SCP.
+  const configuredRemoteHost = normalizeScpRemoteHost(imessageCfg.remoteHost);
+  if (imessageCfg.remoteHost && !configuredRemoteHost) {
+    logVerbose("imessage: ignoring unsafe channels.imessage.remoteHost value");
+  }
+
+  let remoteHost = configuredRemoteHost;
   if (!remoteHost && cliPath && cliPath !== "imsg") {
-    remoteHost = await detectRemoteHostFromCliPath(cliPath);
+    const detected = await detectRemoteHostFromCliPath(cliPath);
+    const normalizedDetected = normalizeScpRemoteHost(detected);
+    if (detected && !normalizedDetected) {
+      logVerbose("imessage: ignoring unsafe auto-detected remoteHost from cliPath");
+    }
+    remoteHost = normalizedDetected;
     if (remoteHost) {
       logVerbose(`imessage: detected remoteHost=${remoteHost} from cliPath`);
     }
