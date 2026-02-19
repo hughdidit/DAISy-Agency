@@ -1,5 +1,8 @@
 import fs from "fs";
+<<<<<<< HEAD
 import crypto from "node:crypto";
+=======
+>>>>>>> cdb00fe24 (fix(feishu): isolate temp download writes in mkdtemp dirs)
 import os from "os";
 import path from "path";
 import { Readable } from "stream";
@@ -24,9 +27,22 @@ export type DownloadMessageResourceResult = {
   fileName?: string;
 };
 
+async function withTempDownloadPath<T>(
+  prefix: string,
+  fn: (tmpPath: string) => Promise<T>,
+): Promise<T> {
+  const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), prefix));
+  const tmpPath = path.join(dir, "download.bin");
+  try {
+    return await fn(tmpPath);
+  } finally {
+    await fs.promises.rm(dir, { recursive: true, force: true }).catch(() => {});
+  }
+}
+
 async function readFeishuResponseBuffer(params: {
   response: unknown;
-  tmpPath: string;
+  tmpDirPrefix: string;
   errorPrefix: string;
 }): Promise<Buffer> {
   const { response } = params;
@@ -57,10 +73,10 @@ async function readFeishuResponseBuffer(params: {
     return Buffer.concat(chunks);
   }
   if (typeof responseAny.writeFile === "function") {
-    await responseAny.writeFile(params.tmpPath);
-    const buffer = await fs.promises.readFile(params.tmpPath);
-    await fs.promises.unlink(params.tmpPath).catch(() => {});
-    return buffer;
+    return await withTempDownloadPath(params.tmpDirPrefix, async (tmpPath) => {
+      await responseAny.writeFile(tmpPath);
+      return await fs.promises.readFile(tmpPath);
+    });
   }
   if (typeof responseAny[Symbol.asyncIterator] === "function") {
     const chunks: Buffer[] = [];
@@ -103,10 +119,13 @@ export async function downloadImageFeishu(params: {
     path: { image_key: imageKey },
   });
 
+<<<<<<< HEAD
   const tmpPath = path.join(os.tmpdir(), `feishu_img_${Date.now()}_${crypto.randomUUID()}`);
+=======
+>>>>>>> cdb00fe24 (fix(feishu): isolate temp download writes in mkdtemp dirs)
   const buffer = await readFeishuResponseBuffer({
     response,
-    tmpPath,
+    tmpDirPrefix: "openclaw-feishu-img-",
     errorPrefix: "Feishu image download failed",
   });
   return { buffer };
@@ -136,10 +155,13 @@ export async function downloadMessageResourceFeishu(params: {
     params: { type },
   });
 
+<<<<<<< HEAD
   const tmpPath = path.join(os.tmpdir(), `feishu_${Date.now()}_${crypto.randomUUID()}`);
+=======
+>>>>>>> cdb00fe24 (fix(feishu): isolate temp download writes in mkdtemp dirs)
   const buffer = await readFeishuResponseBuffer({
     response,
-    tmpPath,
+    tmpDirPrefix: "openclaw-feishu-resource-",
     errorPrefix: "Feishu message resource download failed",
   });
   return { buffer };
