@@ -23,6 +23,57 @@ import { isLikelyMutatingToolName } from "../../tool-mutation.js";
 >>>>>>> dbdcbe03e (fix: preserve bootstrap paths and expose failed mutations (#16131))
 
 type ToolMetaEntry = { toolName: string; meta?: string };
+<<<<<<< HEAD
+=======
+type LastToolError = {
+  toolName: string;
+  meta?: string;
+  error?: string;
+  mutatingAction?: boolean;
+  actionFingerprint?: string;
+};
+
+const RECOVERABLE_TOOL_ERROR_KEYWORDS = [
+  "required",
+  "missing",
+  "invalid",
+  "must be",
+  "must have",
+  "needs",
+  "requires",
+] as const;
+
+function isRecoverableToolError(error: string | undefined): boolean {
+  const errorLower = (error ?? "").toLowerCase();
+  return RECOVERABLE_TOOL_ERROR_KEYWORDS.some((keyword) => errorLower.includes(keyword));
+}
+
+function shouldShowToolErrorWarning(params: {
+  lastToolError: LastToolError;
+  hasUserFacingReply: boolean;
+  suppressToolErrors: boolean;
+  suppressToolErrorWarnings?: boolean;
+  verboseLevel?: VerboseLevel;
+}): boolean {
+  if (params.suppressToolErrorWarnings) {
+    return false;
+  }
+  const normalizedToolName = params.lastToolError.toolName.trim().toLowerCase();
+  const verboseEnabled = params.verboseLevel === "on" || params.verboseLevel === "full";
+  if ((normalizedToolName === "exec" || normalizedToolName === "bash") && !verboseEnabled) {
+    return false;
+  }
+  const isMutatingToolError =
+    params.lastToolError.mutatingAction ?? isLikelyMutatingToolName(params.lastToolError.toolName);
+  if (isMutatingToolError) {
+    return true;
+  }
+  if (params.suppressToolErrors) {
+    return false;
+  }
+  return !params.hasUserFacingReply && !isRecoverableToolError(params.lastToolError.error);
+}
+>>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
 
 export function buildEmbeddedRunPayloads(params: {
   assistantTexts: string[];
@@ -194,6 +245,7 @@ export function buildEmbeddedRunPayloads(params: {
   }
 
   if (params.lastToolError) {
+<<<<<<< HEAD
     const lastAssistantHasToolCalls =
       Array.isArray(params.lastAssistant?.content) &&
       params.lastAssistant?.content.some((block) =>
@@ -219,6 +271,15 @@ export function buildEmbeddedRunPayloads(params: {
       params.lastToolError.mutatingAction ??
       isLikelyMutatingToolName(params.lastToolError.toolName);
     const shouldShowToolError = isMutatingToolError || (!hasUserFacingReply && !isRecoverableError);
+=======
+    const shouldShowToolError = shouldShowToolErrorWarning({
+      lastToolError: params.lastToolError,
+      hasUserFacingReply: hasUserFacingAssistantReply,
+      suppressToolErrors: Boolean(params.config?.messages?.suppressToolErrors),
+      suppressToolErrorWarnings: params.suppressToolErrorWarnings,
+      verboseLevel: params.verboseLevel,
+    });
+>>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
 
     // Always surface mutating tool failures so we do not silently confirm actions that did not happen.
     // Otherwise, keep the previous behavior and only surface non-recoverable failures when no reply exists.

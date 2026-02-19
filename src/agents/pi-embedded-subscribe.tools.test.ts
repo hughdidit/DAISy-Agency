@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { extractMessagingToolSend } from "./pi-embedded-subscribe.tools.js";
@@ -35,5 +36,20 @@ describe("extractMessagingToolSend", () => {
     expect(result?.tool).toBe("message");
     expect(result?.provider).toBe("slack");
     expect(result?.to).toBe("channel:c1");
+=======
+import { describe, expect, it } from "vitest";
+import { extractToolErrorMessage } from "./pi-embedded-subscribe.tools.js";
+
+describe("extractToolErrorMessage", () => {
+  it("ignores non-error status values", () => {
+    expect(extractToolErrorMessage({ details: { status: "0" } })).toBeUndefined();
+    expect(extractToolErrorMessage({ details: { status: "completed" } })).toBeUndefined();
+    expect(extractToolErrorMessage({ details: { status: "ok" } })).toBeUndefined();
+  });
+
+  it("keeps error-like status values", () => {
+    expect(extractToolErrorMessage({ details: { status: "failed" } })).toBe("failed");
+    expect(extractToolErrorMessage({ details: { status: "timeout" } })).toBe("timeout");
+>>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
   });
 });
