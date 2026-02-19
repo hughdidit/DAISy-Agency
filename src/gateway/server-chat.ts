@@ -243,12 +243,17 @@ export function createAgentEventHandler({
 
   return (evt: AgentEventPayload) => {
     const chatLink = chatRunState.registry.peek(evt.runId);
-    const sessionKey = chatLink?.sessionKey ?? resolveSessionKeyForRun(evt.runId);
+    const eventSessionKey =
+      typeof evt.sessionKey === "string" && evt.sessionKey.trim() ? evt.sessionKey : undefined;
+    const sessionKey =
+      chatLink?.sessionKey ?? eventSessionKey ?? resolveSessionKeyForRun(evt.runId);
     const clientRunId = chatLink?.clientRunId ?? evt.runId;
+    const eventRunId = chatLink?.clientRunId ?? evt.runId;
+    const eventForClients = chatLink ? { ...evt, runId: eventRunId } : evt;
     const isAborted =
       chatRunState.abortedRuns.has(clientRunId) || chatRunState.abortedRuns.has(evt.runId);
     // Include sessionKey so Control UI can filter tool streams per session.
-    const agentPayload = sessionKey ? { ...evt, sessionKey } : evt;
+    const agentPayload = sessionKey ? { ...eventForClients, sessionKey } : eventForClients;
     const last = agentRunSeq.get(evt.runId) ?? 0;
 <<<<<<< HEAD
     if (evt.stream === "tool" && !shouldEmitToolEvents(evt.runId, sessionKey)) {
@@ -265,13 +270,15 @@ export function createAgentEventHandler({
             const data = evt.data ? { ...evt.data } : {};
             delete data.result;
             delete data.partialResult;
-            return sessionKey ? { ...evt, sessionKey, data } : { ...evt, data };
+            return sessionKey
+              ? { ...eventForClients, sessionKey, data }
+              : { ...eventForClients, data };
           })()
         : agentPayload;
 >>>>>>> 2b02e8a7a (feat(gateway): stream thinking events and decouple tool events from verbose level (#10568))
     if (evt.seq !== last + 1) {
       broadcast("agent", {
-        runId: evt.runId,
+        runId: eventRunId,
         stream: "error",
         ts: Date.now(),
         sessionKey,
@@ -332,7 +339,7 @@ export function createAgentEventHandler({
         } else {
           emitChatFinal(
             sessionKey,
-            evt.runId,
+            eventRunId,
             evt.seq,
             lifecyclePhase === "error" ? "error" : "done",
             evt.data?.error,

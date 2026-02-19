@@ -103,6 +103,13 @@ export type SessionEntry = {
   totalTokens?: number;
   modelProvider?: string;
   model?: string;
+  /**
+   * Last selected/runtime model pair for which a fallback notice was emitted.
+   * Used to avoid repeating the same fallback notice every turn.
+   */
+  fallbackNoticeSelectedModel?: string;
+  fallbackNoticeActiveModel?: string;
+  fallbackNoticeReason?: string;
   contextTokens?: number;
   compactionCount?: number;
   memoryFlushAt?: number;

@@ -607,6 +607,7 @@
   animation: fade-in 0.2s var(--ease-out);
 }
 
+<<<<<<< HEAD
 @keyframes compaction-pulse {
   0%,
   100% {
@@ -614,6 +615,21 @@
   }
   50% {
     opacity: 1;
+=======
+.compaction-indicator--fallback {
+  color: #d97706;
+  border-color: rgba(217, 119, 6, 0.35);
+}
+
+.compaction-indicator--fallback-cleared {
+  color: var(--ok);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+@keyframes compaction-spin {
+  to {
+    transform: rotate(360deg);
+>>>>>>> c2876b69f (feat(auto-reply): add model fallback lifecycle visibility in status, verbose logs, and WebUI (#20704))
   }
 }
 

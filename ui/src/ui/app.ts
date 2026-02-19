@@ -203,7 +203,11 @@ import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./contro
 =======
 =======
   type CompactionStatus,
+<<<<<<< HEAD
 >>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
+=======
+  type FallbackStatus,
+>>>>>>> c2876b69f (feat(auto-reply): add model fallback lifecycle visibility in status, verbose logs, and WebUI (#20704))
 } from "./app-tool-stream.ts";
 import type { AppViewState } from "./app-view-state.ts";
 import { normalizeAssistantIdentity } from "./assistant-identity.ts";
@@ -333,6 +337,7 @@ export class OpenClawApp extends LitElement {
   @state() chatStreamStartedAt: number | null = null;
   @state() chatRunId: string | null = null;
   @state() compactionStatus: CompactionStatus | null = null;
+  @state() fallbackStatus: FallbackStatus | null = null;
   @state() chatAvatarUrl: string | null = null;
   @state() chatThinkingLevel: string | null = null;
   @state() chatQueue: ChatQueueItem[] = [];

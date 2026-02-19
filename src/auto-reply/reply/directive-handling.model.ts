@@ -16,6 +16,7 @@ import type { MoltbotConfig } from "../../config/config.js";
 =======
 =======
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -27,6 +28,9 @@ import type { OpenClawConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { SessionEntry } from "../../config/sessions.js";
+>>>>>>> c2876b69f (feat(auto-reply): add model fallback lifecycle visibility in status, verbose logs, and WebUI (#20704))
 import { buildBrowseProvidersButton } from "../../telegram/model-buttons.js";
 >>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
 import { shortenHomePath } from "../../utils.js";
@@ -34,6 +38,10 @@ import { shortenHomePath } from "../../utils.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+import { resolveSelectedAndActiveModel } from "../model-runtime.js";
+>>>>>>> c2876b69f (feat(auto-reply): add model fallback lifecycle visibility in status, verbose logs, and WebUI (#20704))
 import type { ReplyPayload } from "../types.js";
 <<<<<<< HEAD
 =======
@@ -254,6 +262,7 @@ export async function maybeHandleModelDirectiveInfo(params: {
   allowedModelCatalog: Array<{ provider: string; id?: string; name?: string }>;
   resetModelOverride: boolean;
   surface?: string;
+  sessionEntry?: Pick<SessionEntry, "modelProvider" | "model">;
 }): Promise<ReplyPayload | undefined> {
   if (!params.directives.hasModelDirective) {
     return undefined;
@@ -289,31 +298,45 @@ export async function maybeHandleModelDirectiveInfo(params: {
   }
 
   if (wantsSummary) {
-    const current = `${params.provider}/${params.model}`;
+    const modelRefs = resolveSelectedAndActiveModel({
+      selectedProvider: params.provider,
+      selectedModel: params.model,
+      sessionEntry: params.sessionEntry,
+    });
+    const current = modelRefs.selected.label;
     const isTelegram = params.surface === "telegram";
+    const activeRuntimeLine = modelRefs.activeDiffers
+      ? `Active: ${modelRefs.active.label} (runtime)`
+      : null;
 
     if (isTelegram) {
       const buttons = buildBrowseProvidersButton();
       return {
         text: [
-          `Current: ${current}`,
+          `Current: ${current}${modelRefs.activeDiffers ? " (selected)" : ""}`,
+          activeRuntimeLine,
           "",
           "Tap below to browse models, or use:",
           "/model <provider/model> to switch",
           "/model status for details",
-        ].join("\n"),
+        ]
+          .filter(Boolean)
+          .join("\n"),
         channelData: { telegram: { buttons } },
       };
     }
 
     return {
       text: [
-        `Current: ${current}`,
+        `Current: ${current}${modelRefs.activeDiffers ? " (selected)" : ""}`,
+        activeRuntimeLine,
         "",
         "Switch: /model <provider/model>",
         "Browse: /models (providers) or /models <provider> (models)",
         "More: /model status",
-      ].join("\n"),
+      ]
+        .filter(Boolean)
+        .join("\n"),
     };
   }
 
@@ -340,14 +363,20 @@ export async function maybeHandleModelDirectiveInfo(params: {
     authByProvider.set(provider, formatAuthLabel(auth));
   }
 
-  const current = `${params.provider}/${params.model}`;
+  const modelRefs = resolveSelectedAndActiveModel({
+    selectedProvider: params.provider,
+    selectedModel: params.model,
+    sessionEntry: params.sessionEntry,
+  });
+  const current = modelRefs.selected.label;
   const defaultLabel = `${params.defaultProvider}/${params.defaultModel}`;
   const lines = [
-    `Current: ${current}`,
+    `Current: ${current}${modelRefs.activeDiffers ? " (selected)" : ""}`,
+    modelRefs.activeDiffers ? `Active: ${modelRefs.active.label} (runtime)` : null,
     `Default: ${defaultLabel}`,
     `Agent: ${params.activeAgentId}`,
     `Auth file: ${formatPath(resolveAuthStorePathForDisplay(params.agentDir))}`,
-  ];
+  ].filter((line): line is string => Boolean(line));
   if (params.resetModelOverride) {
     lines.push(`(previous selection reset to default)`);
   }
