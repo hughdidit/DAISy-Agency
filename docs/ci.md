@@ -151,6 +151,7 @@ This eliminates ~40 lines of duplicated YAML per job.
 ## Runners
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 | Name                            | OS           | vCPUs | Used by          |
 | ------------------------------- | ------------ | ----- | ---------------- |
 | `blacksmith-4vcpu-ubuntu-2404`  | Ubuntu 24.04 | 4     | Most jobs        |
@@ -164,6 +165,13 @@ This eliminates ~40 lines of duplicated YAML per job.
 | `blacksmith-8vcpu-windows-2025` | `checks-windows`              |
 | `macos-latest`                  | `macos`, `ios`                |
 | `ubuntu-latest`                 | Scope detection (lightweight) |
+=======
+| Runner                           | Jobs                                       |
+| -------------------------------- | ------------------------------------------ |
+| `blacksmith-16vcpu-ubuntu-2404`  | Most Linux jobs, including scope detection |
+| `blacksmith-16vcpu-windows-2025` | `checks-windows`                           |
+| `macos-latest`                   | `macos`, `ios`                             |
+>>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
 
 ## Local Equivalents
 
