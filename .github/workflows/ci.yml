@@ -593,6 +593,7 @@ jobs:
           cache-key-suffix: "node22"
 >>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
 
+<<<<<<< HEAD
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -603,6 +604,8 @@ jobs:
           bun-version: "1.3.9"
 >>>>>>> 2cbf15eb6 (ci: pin bun setup version to avoid API rate-limit flakes)
 
+=======
+>>>>>>> 647a46a06 (ci: skip bun setup for windows checks)
       - name: Runtime versions
         run: |
           node -v
