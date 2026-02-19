@@ -1047,6 +1047,174 @@ describe("security audit", () => {
     }
   });
 
+<<<<<<< HEAD
+=======
+  it("warns when hooks.defaultSessionKey is unset", async () => {
+    const cfg: OpenClawConfig = {
+      hooks: { enabled: true, token: "shared-gateway-token-1234567890" },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ checkId: "hooks.default_session_key_unset", severity: "warn" }),
+      ]),
+    );
+  });
+
+  it("flags hooks request sessionKey override when enabled", async () => {
+    const cfg: OpenClawConfig = {
+      hooks: {
+        enabled: true,
+        token: "shared-gateway-token-1234567890",
+        defaultSessionKey: "hook:ingress",
+        allowRequestSessionKey: true,
+      },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ checkId: "hooks.request_session_key_enabled", severity: "warn" }),
+        expect.objectContaining({
+          checkId: "hooks.request_session_key_prefixes_missing",
+          severity: "warn",
+        }),
+      ]),
+    );
+  });
+
+  it("escalates hooks request sessionKey override when gateway is remotely exposed", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: { bind: "lan" },
+      hooks: {
+        enabled: true,
+        token: "shared-gateway-token-1234567890",
+        defaultSessionKey: "hook:ingress",
+        allowRequestSessionKey: true,
+      },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          checkId: "hooks.request_session_key_enabled",
+          severity: "critical",
+        }),
+      ]),
+    );
+  });
+
+  it("warns when gateway HTTP APIs run with auth.mode=none on loopback", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        bind: "loopback",
+        auth: { mode: "none" },
+        http: {
+          endpoints: {
+            chatCompletions: { enabled: true },
+          },
+        },
+      },
+    };
+
+    const res = await runSecurityAudit({
+      config: cfg,
+      env: {},
+      includeFilesystem: false,
+      includeChannelSecurity: false,
+    });
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ checkId: "gateway.http.no_auth", severity: "warn" }),
+      ]),
+    );
+    const finding = res.findings.find((entry) => entry.checkId === "gateway.http.no_auth");
+    expect(finding?.detail).toContain("/tools/invoke");
+    expect(finding?.detail).toContain("/v1/chat/completions");
+  });
+
+  it("flags gateway HTTP APIs with auth.mode=none as critical when remotely exposed", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        bind: "lan",
+        auth: { mode: "none" },
+        http: {
+          endpoints: {
+            responses: { enabled: true },
+          },
+        },
+      },
+    };
+
+    const res = await runSecurityAudit({
+      config: cfg,
+      env: {},
+      includeFilesystem: false,
+      includeChannelSecurity: false,
+    });
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ checkId: "gateway.http.no_auth", severity: "critical" }),
+      ]),
+    );
+  });
+
+  it("does not report gateway.http.no_auth when auth mode is token", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        bind: "loopback",
+        auth: { mode: "token", token: "secret" },
+        http: {
+          endpoints: {
+            chatCompletions: { enabled: true },
+            responses: { enabled: true },
+          },
+        },
+      },
+    };
+
+    const res = await runSecurityAudit({
+      config: cfg,
+      env: {},
+      includeFilesystem: false,
+      includeChannelSecurity: false,
+    });
+
+    expect(res.findings.some((entry) => entry.checkId === "gateway.http.no_auth")).toBe(false);
+  });
+
+  it("reports HTTP API session-key override surfaces when enabled", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        http: {
+          endpoints: {
+            chatCompletions: { enabled: true },
+            responses: { enabled: true },
+          },
+        },
+      },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          checkId: "gateway.http.session_key_override_enabled",
+          severity: "info",
+        }),
+      ]),
+    );
+  });
+
+>>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
   it("warns when state/config look like a synced folder", async () => {
     const cfg: OpenClawConfig = {};
 

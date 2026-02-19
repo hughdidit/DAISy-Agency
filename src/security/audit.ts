@@ -1,17 +1,25 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import type { ChannelId } from "../channels/plugins/types.js";
 =======
 >>>>>>> 23555de5d (refactor(security): extract channel audit checks)
 import type { OpenClawConfig } from "../config/config.js";
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import type { ExecFn } from "./windows-acl.js";
+>>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
 import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
 <<<<<<< HEAD
 =======
 import { resolveBrowserControlAuth } from "../browser/control-auth.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { formatCliCommand } from "../cli/command-format.js";
+<<<<<<< HEAD
 >>>>>>> 23555de5d (refactor(security): extract channel audit checks)
+=======
+>>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
 import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { formatCliCommand } from "../cli/command-format.js";
@@ -24,6 +32,11 @@ import { collectChannelSecurityFindings } from "./audit-channel.js";
 import {
   collectAttackSurfaceSummaryFindings,
   collectExposureMatrixFindings,
+<<<<<<< HEAD
+=======
+  collectGatewayHttpNoAuthFindings,
+  collectGatewayHttpSessionKeyOverrideFindings,
+>>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
   collectHooksHardeningFindings,
   collectIncludeFilePermFindings,
   collectInstalledSkillsCodeSafetyFindings,
@@ -48,10 +61,14 @@ import {
   inspectPathPermissions,
 } from "./audit-fs.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ExecFn } from "./windows-acl.js";
 =======
 import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
 >>>>>>> 233483d2b (refactor(security): centralize dangerous tool lists)
+=======
+import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
+>>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
 
 export type SecurityAuditSeverity = "info" | "warn" | "critical";
 
@@ -914,7 +931,13 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
   findings.push(...collectBrowserControlFindings(cfg));
   findings.push(...collectLoggingFindings(cfg));
   findings.push(...collectElevatedFindings(cfg));
+<<<<<<< HEAD
   findings.push(...collectHooksHardeningFindings(cfg));
+=======
+  findings.push(...collectHooksHardeningFindings(cfg, env));
+  findings.push(...collectGatewayHttpNoAuthFindings(cfg, env));
+  findings.push(...collectGatewayHttpSessionKeyOverrideFindings(cfg));
+>>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
   findings.push(...collectSandboxDockerNoopFindings(cfg));
   findings.push(...collectSandboxDangerousConfigFindings(cfg));
   findings.push(...collectNodeDenyCommandPatternFindings(cfg));
