@@ -428,8 +428,27 @@ const ERROR_PATTERNS = {
     "resource_exhausted",
     "usage limit",
   ],
+<<<<<<< HEAD
   overloaded: [/overloaded_error|"type"\s*:\s*"overloaded_error"/i, "overloaded"],
   timeout: ["timeout", "timed out", "deadline exceeded", "context deadline exceeded"],
+=======
+  overloaded: [
+    /overloaded_error|"type"\s*:\s*"overloaded_error"/i,
+    "overloaded",
+    "service unavailable",
+    "high demand",
+  ],
+  timeout: [
+    "timeout",
+    "timed out",
+    "deadline exceeded",
+    "context deadline exceeded",
+    /without sending (?:any )?chunks?/i,
+    /\bstop reason:\s*abort\b/i,
+    /\breason:\s*abort\b/i,
+    /\bunhandled stop reason:\s*abort\b/i,
+  ],
+>>>>>>> 2af3415fa (fix: treat HTTP 503 as failover-eligible for LLM provider errors (#21086))
   billing: [
     /\b402\b/,
     "payment required",
