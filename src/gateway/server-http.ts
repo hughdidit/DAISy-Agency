@@ -1,3 +1,5 @@
+import type { TlsOptions } from "node:tls";
+import type { WebSocketServer } from "ws";
 import {
   createServer as createHttpServer,
   type Server as HttpServer,
@@ -6,6 +8,7 @@ import {
 } from "node:http";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createServer as createHttpsServer } from "node:https";
+<<<<<<< HEAD
 import type { TlsOptions } from "node:tls";
 import type { WebSocketServer } from "ws";
 import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
@@ -14,12 +17,41 @@ import { loadConfig } from "../config/config.js";
 <<<<<<< HEAD
 import type { createSubsystemLogger } from "../logging/subsystem.js";
 =======
+=======
+import type { CanvasHostHandler } from "../canvas-host/server.js";
+import type { createSubsystemLogger } from "../logging/subsystem.js";
+import type { AuthRateLimiter } from "./auth-rate-limit.js";
+import type { GatewayWsClient } from "./server/ws-types.js";
+import { resolveAgentAvatar } from "../agents/identity-avatar.js";
+import {
+  A2UI_PATH,
+  CANVAS_HOST_PATH,
+  CANVAS_WS_PATH,
+  handleA2uiHttpRequest,
+} from "../canvas-host/a2ui.js";
+import { loadConfig } from "../config/config.js";
+>>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
 import { safeEqualSecret } from "../security/secret-equal.js";
 >>>>>>> 113ebfd6a (fix(security): harden hook and device token auth)
 import { handleSlackHttpRequest } from "../slack/http/index.js";
+<<<<<<< HEAD
 import { resolveAgentAvatar } from "../agents/identity-avatar.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
 import { setSecurityHeaders } from "./http-common.js";
+=======
+import {
+  authorizeGatewayConnect,
+  isLocalDirectRequest,
+  type GatewayAuthResult,
+  type ResolvedGatewayAuth,
+} from "./auth.js";
+import {
+  handleControlUiAvatarRequest,
+  handleControlUiHttpRequest,
+  type ControlUiRootState,
+} from "./control-ui.js";
+import { applyHookMappings } from "./hooks-mapping.js";
+>>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
 import {
   extractHookToken,
   getHookChannelError,
@@ -41,10 +73,21 @@ import { sendGatewayAuthFailure } from "./http-common.js";
 import { sendGatewayAuthFailure, setDefaultSecurityHeaders } from "./http-common.js";
 >>>>>>> e955582c8 (security: add baseline security headers to gateway HTTP responses (#10526))
 import { getBearerToken, getHeader } from "./http-utils.js";
+<<<<<<< HEAD
 import { isPrivateOrLoopbackAddress, resolveGatewayClientIp } from "./net.js";
 >>>>>>> 14fc74200 (fix(security): restrict canvas IP-based auth to private networks (#14661))
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
+=======
+import {
+  isPrivateOrLoopbackAddress,
+  isTrustedProxyAddress,
+  resolveGatewayClientIp,
+} from "./net.js";
+import { handleOpenAiHttpRequest } from "./openai-http.js";
+import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
+import { GATEWAY_CLIENT_MODES, normalizeGatewayClientMode } from "./protocol/client-info.js";
+>>>>>>> 08a796793 (fix(security): fail closed on gateway bind fallback and tighten canvas IP fallback)
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
@@ -90,9 +133,16 @@ function isCanvasPath(pathname: string): boolean {
   );
 }
 
-function hasAuthorizedWsClientForIp(clients: Set<GatewayWsClient>, clientIp: string): boolean {
+function isNodeWsClient(client: GatewayWsClient): boolean {
+  if (client.connect.role === "node") {
+    return true;
+  }
+  return normalizeGatewayClientMode(client.connect.client.mode) === GATEWAY_CLIENT_MODES.NODE;
+}
+
+function hasAuthorizedNodeWsClientForIp(clients: Set<GatewayWsClient>, clientIp: string): boolean {
   for (const client of clients) {
-    if (client.clientIp && client.clientIp === clientIp) {
+    if (client.clientIp && client.clientIp === clientIp && isNodeWsClient(client)) {
       return true;
     }
   }
@@ -110,6 +160,9 @@ async function authorizeCanvasRequest(params: {
   if (isLocalDirectRequest(req, trustedProxies)) {
     return { ok: true };
   }
+
+  const hasProxyHeaders = Boolean(getHeader(req, "x-forwarded-for") || getHeader(req, "x-real-ip"));
+  const remoteIsTrustedProxy = isTrustedProxyAddress(req.socket?.remoteAddress, trustedProxies);
 
   let lastAuthFailure: GatewayAuthResult | null = null;
   const token = getBearerToken(req);
@@ -143,7 +196,11 @@ async function authorizeCanvasRequest(params: {
   if (!isPrivateOrLoopbackAddress(clientIp)) {
     return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
   }
-  if (hasAuthorizedWsClientForIp(clients, clientIp)) {
+  // Ignore IP fallback when proxy headers come from an untrusted source.
+  if (hasProxyHeaders && !remoteIsTrustedProxy) {
+    return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
+  }
+  if (hasAuthorizedNodeWsClientForIp(clients, clientIp)) {
     return { ok: true };
   }
   return lastAuthFailure ?? { ok: false, reason: "unauthorized" };
