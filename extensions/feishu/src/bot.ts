@@ -7,12 +7,25 @@ import {
   DEFAULT_GROUP_HISTORY_LIMIT,
   type HistoryEntry,
 } from "openclaw/plugin-sdk";
+import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
+import type { DynamicAgentCreationConfig } from "./types.js";
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { tryRecordMessage } from "./dedup.js";
 import { maybeCreateDynamicAgent } from "./dynamic-agent.js";
+<<<<<<< HEAD
 import { downloadImageFeishu, downloadMessageResourceFeishu } from "./media.js";
 import { extractMentionTargets, extractMessageBody, isMentionForwardRequest } from "./mention.js";
+=======
+import { normalizeFeishuExternalKey } from "./external-keys.js";
+import { downloadMessageResourceFeishu } from "./media.js";
+import {
+  escapeRegExp,
+  extractMentionTargets,
+  extractMessageBody,
+  isMentionForwardRequest,
+} from "./mention.js";
+>>>>>>> f4b288b8f (refactor(feishu): dedupe mention regex escaping)
 import {
   resolveFeishuGroupConfig,
   resolveFeishuReplyPolicy,
@@ -25,6 +38,7 @@ import { getFeishuRuntime } from "./runtime.js";
 import { getMessageFeishu } from "./send.js";
 =======
 import { getMessageFeishu, sendMessageFeishu } from "./send.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -49,6 +63,8 @@ import type { DynamicAgentCreationConfig } from "./types.js";
 import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
 import type { DynamicAgentCreationConfig } from "./types.js";
 >>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
+=======
+>>>>>>> f4b288b8f (refactor(feishu): dedupe mention regex escaping)
 
 // --- Permission error extraction ---
 // Extract permission grant URL from Feishu API error response.
@@ -230,21 +246,17 @@ function checkBotMentioned(event: FeishuMessageEvent, botOpenId?: string): boole
 >>>>>>> c31524697 (fix(feishu): fix mention detection for post messages with embedded docs)
 }
 
-function escapeRegExp(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function stripBotMention(
+export function stripBotMention(
   text: string,
   mentions?: FeishuMessageEvent["message"]["mentions"],
 ): string {
   if (!mentions || mentions.length === 0) return text;
   let result = text;
   for (const mention of mentions) {
-    result = result.replace(new RegExp(`@${escapeRegExp(mention.name)}\\s*`, "g"), "").trim();
-    result = result.replace(new RegExp(escapeRegExp(mention.key), "g"), "").trim();
+    result = result.replace(new RegExp(`@${escapeRegExp(mention.name)}\\s*`, "g"), "");
+    result = result.replace(new RegExp(escapeRegExp(mention.key), "g"), "");
   }
-  return result;
+  return result.trim();
 }
 
 /**
