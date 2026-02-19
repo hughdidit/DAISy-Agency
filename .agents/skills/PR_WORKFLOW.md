@@ -1,6 +1,10 @@
 # PR Review Instructions
 
 Please read this in full and do not skip sections.
+<<<<<<< HEAD
+=======
+This is the single source of truth for the maintainer PR workflow.
+>>>>>>> 5a98a7984 (Remove triage order section from PR_WORKFLOW.md)
 
 ## Working rule
 
