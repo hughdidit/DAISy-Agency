@@ -9,6 +9,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types.js";
 <<<<<<< HEAD
@@ -57,6 +58,9 @@ import type { HookEligibilityContext, HookEntry, HookInstallSpec } from "./types
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
+=======
+import { evaluateEntryMetadataRequirementsForCurrentPlatform } from "../shared/entry-status.js";
+>>>>>>> b2c273745 (refactor(shared): reuse runtime entry requirement evaluator)
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 import { CONFIG_DIR } from "../utils.js";
 import { hasBinary, isConfigPathTruthy, resolveHookConfig } from "./config.js";
@@ -166,7 +170,11 @@ function buildHookStatus(
   const disabled = managedByPlugin ? false : hookConfig?.enabled === false;
   const always = entry.metadata?.always === true;
   const events = entry.metadata?.events ?? [];
+  const isEnvSatisfied = (envName: string) =>
+    Boolean(process.env[envName] || hookConfig?.env?.[envName]);
+  const isConfigSatisfied = (pathStr: string) => isConfigPathTruthy(config, pathStr);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   const {
     required,
@@ -196,6 +204,19 @@ function buildHookStatus(
       isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
     });
 >>>>>>> 137079fc2 (refactor(shared): share entry requirements evaluation)
+=======
+  const requirementStatus = evaluateEntryMetadataRequirementsForCurrentPlatform({
+    always,
+    metadata: entry.metadata,
+    frontmatter: entry.frontmatter,
+    hasLocalBin: hasBinary,
+    remote: eligibility?.remote,
+    isEnvSatisfied,
+    isConfigSatisfied,
+  });
+  const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
+    requirementStatus;
+>>>>>>> b2c273745 (refactor(shared): reuse runtime entry requirement evaluator)
 
   const eligible = !disabled && requirementsSatisfied;
 

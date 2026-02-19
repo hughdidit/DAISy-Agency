@@ -14,6 +14,7 @@ import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   buildConfigChecks,
   resolveMissingAnyBins,
@@ -43,6 +44,9 @@ import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
 >>>>>>> 137079fc2 (refactor(shared): share entry requirements evaluation)
 =======
 import { evaluateEntryMetadataRequirements } from "../shared/entry-status.js";
+=======
+import { evaluateEntryMetadataRequirementsForCurrentPlatform } from "../shared/entry-status.js";
+>>>>>>> b2c273745 (refactor(shared): reuse runtime entry requirement evaluator)
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -240,11 +244,19 @@ function buildSkillStatus(
   const allowBundled = resolveBundledAllowlist(config);
   const blockedByAllowlist = !isBundledSkillAllowed(entry, allowBundled);
   const always = entry.metadata?.always === true;
+  const isEnvSatisfied = (envName: string) =>
+    Boolean(
+      process.env[envName] ||
+      skillConfig?.env?.[envName] ||
+      (skillConfig?.apiKey && entry.metadata?.primaryEnv === envName),
+    );
+  const isConfigSatisfied = (pathStr: string) => isConfigPathTruthy(config, pathStr);
   const bundled =
     bundledNames && bundledNames.size > 0
       ? bundledNames.has(entry.skill.name)
       : entry.skill.source === "openclaw-bundled";
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   const {
     required,
@@ -284,6 +296,19 @@ function buildSkillStatus(
       isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
     });
 >>>>>>> 137079fc2 (refactor(shared): share entry requirements evaluation)
+=======
+  const requirementStatus = evaluateEntryMetadataRequirementsForCurrentPlatform({
+    always,
+    metadata: entry.metadata,
+    frontmatter: entry.frontmatter,
+    hasLocalBin: hasBinary,
+    remote: eligibility?.remote,
+    isEnvSatisfied,
+    isConfigSatisfied,
+  });
+  const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
+    requirementStatus;
+>>>>>>> b2c273745 (refactor(shared): reuse runtime entry requirement evaluator)
   const eligible = !disabled && !blockedByAllowlist && requirementsSatisfied;
 
   return {
