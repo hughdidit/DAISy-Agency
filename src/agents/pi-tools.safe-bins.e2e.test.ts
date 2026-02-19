@@ -158,9 +158,114 @@ describe("createMoltbotCodingTools safeBins", () => {
     });
     const text = result.content.find((content) => content.type === "text")?.text ?? "";
 
+<<<<<<< HEAD
     const blockedResultDetails = result.details as { status?: string };
     expect(blockedResultDetails.status).toBe("completed");
     expect(text).not.toContain(secret);
+=======
+    const run = async (command: string) => {
+      try {
+        const result = await execTool!.execute("call-oracle", { command, workdir: tmpDir });
+        const text = result.content.find((content) => content.type === "text")?.text ?? "";
+        const resultDetails = result.details as { status?: string };
+        return { kind: "result" as const, status: resultDetails.status, text };
+      } catch (err) {
+        return { kind: "error" as const, message: String(err) };
+      }
+    };
+
+    const existing = await run("sort -o existing.txt");
+    const missing = await run("sort -o missing.txt");
+    expect(existing).toEqual(missing);
+  });
+
+  it("blocks sort output flags from writing files via safeBins", async () => {
+    if (process.platform === "win32") {
+      return;
+    }
+
+    const { createOpenClawCodingTools } = await import("./pi-tools.js");
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-safe-bins-sort-"));
+
+    const cfg: OpenClawConfig = {
+      tools: {
+        exec: {
+          host: "gateway",
+          security: "allowlist",
+          ask: "off",
+          safeBins: ["sort"],
+        },
+      },
+    };
+
+    const tools = createOpenClawCodingTools({
+      config: cfg,
+      sessionKey: "agent:main:main",
+      workspaceDir: tmpDir,
+      agentDir: path.join(tmpDir, "agent"),
+    });
+    const execTool = tools.find((tool) => tool.name === "exec");
+    expect(execTool).toBeDefined();
+
+    const shortTarget = path.join(tmpDir, "blocked-short.txt");
+    await expect(
+      execTool!.execute("call1", {
+        command: "sort -oblocked-short.txt",
+        workdir: tmpDir,
+      }),
+    ).rejects.toThrow("exec denied: allowlist miss");
+    expect(fs.existsSync(shortTarget)).toBe(false);
+
+    const longTarget = path.join(tmpDir, "blocked-long.txt");
+    await expect(
+      execTool!.execute("call2", {
+        command: "sort --output=blocked-long.txt",
+        workdir: tmpDir,
+      }),
+    ).rejects.toThrow("exec denied: allowlist miss");
+    expect(fs.existsSync(longTarget)).toBe(false);
+  });
+
+  it("blocks grep recursive flags from reading cwd via safeBins", async () => {
+    if (process.platform === "win32") {
+      return;
+    }
+
+    const { createOpenClawCodingTools } = await import("./pi-tools.js");
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-safe-bins-grep-"));
+    fs.writeFileSync(
+      path.join(tmpDir, "secret.txt"),
+      "SAFE_BINS_RECURSIVE_SHOULD_NOT_LEAK\n",
+      "utf8",
+    );
+
+    const cfg: OpenClawConfig = {
+      tools: {
+        exec: {
+          host: "gateway",
+          security: "allowlist",
+          ask: "off",
+          safeBins: ["grep"],
+        },
+      },
+    };
+
+    const tools = createOpenClawCodingTools({
+      config: cfg,
+      sessionKey: "agent:main:main",
+      workspaceDir: tmpDir,
+      agentDir: path.join(tmpDir, "agent"),
+    });
+    const execTool = tools.find((tool) => tool.name === "exec");
+    expect(execTool).toBeDefined();
+
+    await expect(
+      execTool!.execute("call1", {
+        command: "grep -R SAFE_BINS_RECURSIVE_SHOULD_NOT_LEAK",
+        workdir: tmpDir,
+      }),
+    ).rejects.toThrow("exec denied: allowlist miss");
+>>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
   });
 >>>>>>> 688f86bf2 (chore: Fix types in tests 43/N.)
 });

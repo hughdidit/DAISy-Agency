@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
@@ -18,6 +19,10 @@ import { createAccountListHelpers } from "../channels/plugins/account-helpers.js
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { createAccountListHelpers } from "../channels/plugins/account-helpers.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 import type { IMessageAccountConfig } from "../config/types.js";
 import { normalizeAccountId } from "../routing/session-key.js";
 

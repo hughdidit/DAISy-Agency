@@ -6,6 +6,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../config/config.js";
 import type { MsgContext } from "../auto-reply/templating.js";
@@ -55,6 +56,11 @@ import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { finalizeInboundContext } from "../auto-reply/reply/inbound-context.js";
+import type { MsgContext } from "../auto-reply/templating.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import {
   extractFileContentFromSource,

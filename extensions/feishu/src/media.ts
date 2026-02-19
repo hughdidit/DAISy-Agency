@@ -1,5 +1,6 @@
 import fs from "fs";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 =======
 >>>>>>> cdb00fe24 (fix(feishu): isolate temp download writes in mkdtemp dirs)
@@ -7,6 +8,11 @@ import os from "os";
 import path from "path";
 import { Readable } from "stream";
 import type { ClawdbotConfig } from "openclaw/plugin-sdk";
+=======
+import path from "path";
+import { Readable } from "stream";
+import { withTempDownloadPath, type ClawdbotConfig } from "openclaw/plugin-sdk";
+>>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 <<<<<<< HEAD

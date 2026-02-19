@@ -5,6 +5,7 @@ import fs from "node:fs/promises";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -20,6 +21,8 @@ import type { IMessagePayload, MonitorIMessageOpts } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 =======
 >>>>>>> 771af4091 (chore(ci): fix main check blockers and stabilize tests)
+=======
+>>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 import { resolveHumanDelayConfig } from "../../agents/identity.js";
 import { resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import { hasControlCommand } from "../../auto-reply/command-detection.js";

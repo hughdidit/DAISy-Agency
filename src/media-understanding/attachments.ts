@@ -12,6 +12,7 @@ import type { MediaUnderstandingAttachmentsConfig } from "../config/types.tools.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 =======
@@ -26,6 +27,8 @@ import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+>>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { isAbortError } from "../infra/unhandled-rejections.js";
 >>>>>>> 53910f364 (Deduplicate more)
@@ -33,6 +36,7 @@ import { fetchRemoteMedia, MediaFetchError } from "../media/fetch.js";
 import { detectMime, getFileExtension, isAudioFileName, kindFromMime } from "../media/mime.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { fetchWithTimeout } from "./providers/shared.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -52,6 +56,9 @@ import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 =======
 import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { MediaAttachment, MediaUnderstandingCapability } from "./types.js";
+>>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 
 type MediaBufferResult = {
   buffer: Buffer;

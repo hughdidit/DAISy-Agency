@@ -29,6 +29,7 @@ import { getMessageFeishu, sendMessageFeishu } from "./send.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
 import type { DynamicAgentCreationConfig } from "./types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -44,6 +45,10 @@ import type { DynamicAgentCreationConfig } from "./types.js";
 import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
 import type { DynamicAgentCreationConfig } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { FeishuMessageContext, FeishuMediaInfo, ResolvedFeishuAccount } from "./types.js";
+import type { DynamicAgentCreationConfig } from "./types.js";
+>>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 
 // --- Permission error extraction ---
 // Extract permission grant URL from Feishu API error response.

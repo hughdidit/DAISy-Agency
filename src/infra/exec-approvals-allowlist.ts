@@ -13,7 +13,10 @@ import {
 } from "./exec-approvals-analysis.js";
 import type { ExecAllowlistEntry } from "./exec-approvals.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 0e85380e5 (style: format files and fix safe-bins e2e typing)
 import { isTrustedSafeBinPath } from "./exec-safe-bin-trust.js";
 >>>>>>> 4d3403b7a (chore: fix CI errors)
 
