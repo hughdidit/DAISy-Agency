@@ -63,6 +63,12 @@ vi.mock("../runtime.js", () => ({
 
 let registerBrowserInspectCommands: typeof import("./browser-cli-inspect.js").registerBrowserInspectCommands;
 
+type SnapshotDefaultsCase = {
+  label: string;
+  args: string[];
+  expectMode: "efficient" | undefined;
+};
+
 describe("browser cli snapshot defaults", () => {
   const runSnapshot = async (args: string[]) => {
     const program = new Command();
@@ -83,7 +89,7 @@ describe("browser cli snapshot defaults", () => {
     configMocks.loadConfig.mockReturnValue({ browser: {} });
   });
 
-  it.each([
+  it.each<SnapshotDefaultsCase>([
     {
       label: "uses config snapshot defaults when mode is not provided",
       args: [],
