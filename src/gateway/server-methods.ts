@@ -1,4 +1,9 @@
 import type { GatewayRequestHandlers, GatewayRequestOptions } from "./server-methods/types.js";
+<<<<<<< HEAD
+=======
+import { formatControlPlaneActor, resolveControlPlaneActor } from "./control-plane-audit.js";
+import { consumeControlPlaneWriteBudget } from "./control-plane-rate-limit.js";
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 import { ErrorCodes, errorShape } from "./protocol/index.js";
 import { agentHandlers } from "./server-methods/agent.js";
 import { agentsHandlers } from "./server-methods/agents.js";
@@ -95,6 +100,7 @@ const WRITE_METHODS = new Set([
   "chat.abort",
   "browser.request",
 ]);
+const CONTROL_PLANE_WRITE_METHODS = new Set(["config.apply", "config.patch", "update.run"]);
 
 function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["client"]) {
   if (!client?.connect) {
@@ -204,6 +210,32 @@ export async function handleGatewayRequest(
   if (authError) {
     respond(false, undefined, authError);
     return;
+  }
+  if (CONTROL_PLANE_WRITE_METHODS.has(req.method)) {
+    const budget = consumeControlPlaneWriteBudget({ client });
+    if (!budget.allowed) {
+      const actor = resolveControlPlaneActor(client);
+      context.logGateway.warn(
+        `control-plane write rate-limited method=${req.method} ${formatControlPlaneActor(actor)} retryAfterMs=${budget.retryAfterMs} key=${budget.key}`,
+      );
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.UNAVAILABLE,
+          `rate limit exceeded for ${req.method}; retry after ${Math.ceil(budget.retryAfterMs / 1000)}s`,
+          {
+            retryable: true,
+            retryAfterMs: budget.retryAfterMs,
+            details: {
+              method: req.method,
+              limit: "3 per 60s",
+            },
+          },
+        ),
+      );
+      return;
+    }
   }
   const handler = opts.extraHandlers?.[req.method] ?? coreGatewayHandlers[req.method];
   if (!handler) {

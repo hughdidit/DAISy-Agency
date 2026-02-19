@@ -441,8 +441,18 @@ Split your config into multiple files using the `$include` directive. This is us
 {
   gateway: { port: 18789 },
 
+<<<<<<< HEAD
   // Include a single file (replaces the key's value)
   agents: { $include: "./agents.json5" },
+=======
+<Note>
+Control-plane write RPCs (`config.apply`, `config.patch`, `update.run`) are rate-limited to **3 requests per 60 seconds** per `deviceId+clientIp`. When limited, the RPC returns `UNAVAILABLE` with `retryAfterMs`.
+</Note>
+
+<AccordionGroup>
+  <Accordion title="config.apply (full replace)">
+    Validates + writes the full config and restarts the Gateway in one step.
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 
   // Include multiple files (deep-merged in order)
   broadcast: {
@@ -461,10 +471,23 @@ Split your config into multiple files using the `$include` directive. This is us
 
 ### Merge behavior
 
+<<<<<<< HEAD
 - **Single file**: Replaces the object containing `$include`
 - **Array of files**: Deep-merges files in order (later files override earlier ones)
 - **With sibling keys**: Sibling keys are merged after includes (override included values)
 - **Sibling keys + arrays/primitives**: Not supported (included content must be an object)
+=======
+    Restart requests are coalesced while one is already pending/in-flight, and a 30-second cooldown applies between restart cycles.
+
+    ```bash
+    openclaw gateway call config.get --params '{}'  # capture payload.hash
+    openclaw gateway call config.apply --params '{
+      "raw": "{ agents: { defaults: { workspace: \"~/.openclaw/workspace\" } } }",
+      "baseHash": "<hash>",
+      "sessionKey": "agent:main:whatsapp:dm:+15555550123"
+    }'
+    ```
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 
 ```json5
 // Sibling keys override included values
@@ -488,9 +511,20 @@ Included files can themselves contain `$include` directives (up to 10 levels dee
 
 ### Path resolution
 
+<<<<<<< HEAD
 - **Relative paths**: Resolved relative to the including file
 - **Absolute paths**: Used as-is
 - **Parent directories**: `../` references work as expected
+=======
+    Restart behavior matches `config.apply`: coalesced pending restarts plus a 30-second cooldown between restart cycles.
+
+    ```bash
+    openclaw gateway call config.patch --params '{
+      "raw": "{ channels: { telegram: { groups: { \"*\": { requireMention: false } } } } }",
+      "baseHash": "<hash>"
+    }'
+    ```
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 
 ```json5
 { "$include": "./sub/config.json5" }      // relative

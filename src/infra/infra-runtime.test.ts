@@ -100,6 +100,78 @@ describe("infra runtime", () => {
       setGatewaySigusr1RestartPolicy({ allowExternal: true });
       expect(isGatewaySigusr1RestartExternallyAllowed()).toBe(true);
     });
+<<<<<<< HEAD
+=======
+
+    it("suppresses duplicate emit until the restart cycle is marked handled", () => {
+      const emitSpy = vi.spyOn(process, "emit");
+      const handler = () => {};
+      process.on("SIGUSR1", handler);
+      try {
+        expect(emitGatewayRestart()).toBe(true);
+        expect(emitGatewayRestart()).toBe(false);
+        expect(consumeGatewaySigusr1RestartAuthorization()).toBe(true);
+
+        markGatewaySigusr1RestartHandled();
+
+        expect(emitGatewayRestart()).toBe(true);
+        const sigusr1Emits = emitSpy.mock.calls.filter((args) => args[0] === "SIGUSR1");
+        expect(sigusr1Emits.length).toBe(2);
+      } finally {
+        process.removeListener("SIGUSR1", handler);
+      }
+    });
+
+    it("coalesces duplicate scheduled restarts into a single pending timer", async () => {
+      const emitSpy = vi.spyOn(process, "emit");
+      const handler = () => {};
+      process.on("SIGUSR1", handler);
+      try {
+        const first = scheduleGatewaySigusr1Restart({ delayMs: 1_000, reason: "first" });
+        const second = scheduleGatewaySigusr1Restart({ delayMs: 1_000, reason: "second" });
+
+        expect(first.coalesced).toBe(false);
+        expect(second.coalesced).toBe(true);
+
+        await vi.advanceTimersByTimeAsync(999);
+        expect(emitSpy).not.toHaveBeenCalledWith("SIGUSR1");
+
+        await vi.advanceTimersByTimeAsync(1);
+        const sigusr1Emits = emitSpy.mock.calls.filter((args) => args[0] === "SIGUSR1");
+        expect(sigusr1Emits.length).toBe(1);
+      } finally {
+        process.removeListener("SIGUSR1", handler);
+      }
+    });
+
+    it("applies restart cooldown between emitted restart cycles", async () => {
+      const emitSpy = vi.spyOn(process, "emit");
+      const handler = () => {};
+      process.on("SIGUSR1", handler);
+      try {
+        const first = scheduleGatewaySigusr1Restart({ delayMs: 0, reason: "first" });
+        expect(first.coalesced).toBe(false);
+        expect(first.delayMs).toBe(0);
+
+        await vi.advanceTimersByTimeAsync(0);
+        expect(consumeGatewaySigusr1RestartAuthorization()).toBe(true);
+        markGatewaySigusr1RestartHandled();
+
+        const second = scheduleGatewaySigusr1Restart({ delayMs: 0, reason: "second" });
+        expect(second.coalesced).toBe(false);
+        expect(second.delayMs).toBe(30_000);
+        expect(second.cooldownMsApplied).toBe(30_000);
+
+        await vi.advanceTimersByTimeAsync(29_999);
+        expect(emitSpy.mock.calls.filter((args) => args[0] === "SIGUSR1").length).toBe(1);
+
+        await vi.advanceTimersByTimeAsync(1);
+        expect(emitSpy.mock.calls.filter((args) => args[0] === "SIGUSR1").length).toBe(2);
+      } finally {
+        process.removeListener("SIGUSR1", handler);
+      }
+    });
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
   });
 
   describe("pre-restart deferral check", () => {

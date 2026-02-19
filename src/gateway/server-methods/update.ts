@@ -9,6 +9,7 @@ import {
 import { scheduleGatewaySigusr1Restart } from "../../infra/restart.js";
 import { normalizeUpdateChannel } from "../../infra/update-channels.js";
 import { runGatewayUpdate } from "../../infra/update-runner.js";
+<<<<<<< HEAD
 import {
   ErrorCodes,
   errorShape,
@@ -42,6 +43,21 @@ export const updateHandlers: GatewayRequestHandlers = {
       typeof restartDelayMsRaw === "number" && Number.isFinite(restartDelayMsRaw)
         ? Math.max(0, Math.floor(restartDelayMsRaw))
         : undefined;
+=======
+import { formatControlPlaneActor, resolveControlPlaneActor } from "../control-plane-audit.js";
+import { validateUpdateRunParams } from "../protocol/index.js";
+import { parseRestartRequestParams } from "./restart-request.js";
+import { assertValidParams } from "./validation.js";
+
+export const updateHandlers: GatewayRequestHandlers = {
+  "update.run": async ({ params, respond, client, context }) => {
+    if (!assertValidParams(params, validateUpdateRunParams, "update.run", respond)) {
+      return;
+    }
+    const actor = resolveControlPlaneActor(client);
+    const { sessionKey, note, restartDelayMs } = parseRestartRequestParams(params);
+    const { deliveryContext, threadId } = extractDeliveryInfo(sessionKey);
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
     const timeoutMsRaw = (params as { timeoutMs?: unknown }).timeoutMs;
     const timeoutMs =
       typeof timeoutMsRaw === "number" && Number.isFinite(timeoutMsRaw)
@@ -117,8 +133,22 @@ export const updateHandlers: GatewayRequestHandlers = {
         ? scheduleGatewaySigusr1Restart({
             delayMs: restartDelayMs,
             reason: "update.run",
+            audit: {
+              actor: actor.actor,
+              deviceId: actor.deviceId,
+              clientIp: actor.clientIp,
+              changedPaths: [],
+            },
           })
         : null;
+    context?.logGateway?.info(
+      `update.run completed ${formatControlPlaneActor(actor)} changedPaths=<n/a> restartReason=update.run status=${result.status}`,
+    );
+    if (restart?.coalesced) {
+      context?.logGateway?.warn(
+        `update.run restart coalesced ${formatControlPlaneActor(actor)} delayMs=${restart.delayMs}`,
+      );
+    }
 
     respond(
       true,
