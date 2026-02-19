@@ -16,12 +16,17 @@ import type {
   MediaUnderstandingOutput,
   MediaUnderstandingProvider,
 } from "./types.js";
+<<<<<<< HEAD
 import { requireApiKey, resolveApiKeyForProvider } from "../agents/model-auth.js";
+=======
+import { resolveApiKeyForProvider } from "../agents/model-auth.js";
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 import {
   findModelInCatalog,
   loadModelCatalog,
   modelSupportsVision,
 } from "../agents/model-catalog.js";
+<<<<<<< HEAD
 import { applyTemplate } from "../auto-reply/templating.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { runExec } from "../process/exec.js";
@@ -33,11 +38,36 @@ import {
 } from "./defaults.js";
 import { isMediaUnderstandingSkipError, MediaUnderstandingSkipError } from "./errors.js";
 import { describeImageWithModel } from "./providers/image.js";
+=======
+import { logVerbose, shouldLogVerbose } from "../globals.js";
+import {
+  mergeInboundPathRoots,
+  resolveIMessageAttachmentRoots,
+} from "../media/inbound-path-policy.js";
+import { getDefaultMediaLocalRoots } from "../media/local-roots.js";
+import { runExec } from "../process/exec.js";
+import {
+  MediaAttachmentCache,
+  type MediaAttachmentCacheOptions,
+  normalizeAttachments,
+  selectAttachments,
+} from "./attachments.js";
+import {
+  AUTO_AUDIO_KEY_PROVIDERS,
+  AUTO_IMAGE_KEY_PROVIDERS,
+  AUTO_VIDEO_KEY_PROVIDERS,
+  DEFAULT_IMAGE_MODELS,
+} from "./defaults.js";
+import { isMediaUnderstandingSkipError } from "./errors.js";
+import { fileExists } from "./fs.js";
+import { extractGeminiResponse } from "./output-extract.js";
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 import {
   buildMediaUnderstandingRegistry,
   getMediaUnderstandingProvider,
   normalizeMediaProviderId,
 } from "./providers/index.js";
+<<<<<<< HEAD
 import {
   resolveMaxBytes,
   resolveMaxChars,
@@ -57,6 +87,15 @@ const DEFAULT_IMAGE_MODELS: Record<string, string> = {
   google: "gemini-3-flash-preview",
   minimax: "MiniMax-VL-01",
 };
+=======
+import { resolveModelEntries, resolveScopeDecision } from "./resolve.js";
+import {
+  buildModelDecision,
+  formatDecisionSummary,
+  runCliEntry,
+  runProviderEntry,
+} from "./runner.entries.js";
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 
 export type ActiveMediaModel = {
   provider: string;
@@ -80,8 +119,24 @@ export function normalizeMediaAttachments(ctx: MsgContext): MediaAttachment[] {
   return normalizeAttachments(ctx);
 }
 
-export function createMediaAttachmentCache(attachments: MediaAttachment[]): MediaAttachmentCache {
-  return new MediaAttachmentCache(attachments);
+export function resolveMediaAttachmentLocalRoots(params: {
+  cfg: OpenClawConfig;
+  ctx: MsgContext;
+}): readonly string[] {
+  return mergeInboundPathRoots(
+    getDefaultMediaLocalRoots(),
+    resolveIMessageAttachmentRoots({
+      cfg: params.cfg,
+      accountId: params.ctx.AccountId,
+    }),
+  );
+}
+
+export function createMediaAttachmentCache(
+  attachments: MediaAttachment[],
+  options?: MediaAttachmentCacheOptions,
+): MediaAttachmentCache {
+  return new MediaAttachmentCache(attachments, options);
 }
 
 const binaryCache = new Map<string, Promise<string | null>>();

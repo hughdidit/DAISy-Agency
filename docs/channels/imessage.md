@@ -51,11 +51,33 @@ Disable with:
 
 ```json5
 {
+<<<<<<< HEAD
   channels: { imessage: { configWrites: false } },
 }
 ```
 
 ## Requirements
+=======
+  channels: {
+    imessage: {
+      enabled: true,
+      cliPath: "~/.openclaw/scripts/imsg-ssh",
+      remoteHost: "user@gateway-host", // used for SCP attachment fetches
+      includeAttachments: true,
+      // Optional: override allowed attachment roots.
+      // Defaults include /Users/*/Library/Messages/Attachments
+      attachmentRoots: ["/Users/*/Library/Messages/Attachments"],
+      remoteAttachmentRoots: ["/Users/*/Library/Messages/Attachments"],
+    },
+  },
+}
+```
+
+    If `remoteHost` is not set, OpenClaw attempts to auto-detect it by parsing the SSH wrapper script.
+    `remoteHost` must be `host` or `user@host` (no spaces or SSH options).
+    OpenClaw uses strict host-key checking for SCP, so the relay host key must already exist in `~/.ssh/known_hosts`.
+    Attachment paths are validated against allowed roots (`attachmentRoots` / `remoteAttachmentRoots`).
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 
 - macOS with Messages signed in.
 - Full Disk Access for OpenClaw + `imsg` (Messages DB access).
@@ -215,7 +237,11 @@ Notes:
 
 Multi-account support: use `channels.imessage.accounts` with per-account config and optional `name`. See [`gateway/configuration`](/gateway/configuration#telegramaccounts--discordaccounts--slackaccounts--signalaccounts--imessageaccounts) for the shared pattern. Don't commit `~/.openclaw/openclaw.json` (it often contains tokens).
 
+<<<<<<< HEAD
 ## Access control (DMs + groups)
+=======
+    Each account can override fields such as `cliPath`, `dbPath`, `allowFrom`, `groupPolicy`, `mediaMaxMb`, history settings, and attachment root allowlists.
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 
 DMs:
 
@@ -226,7 +252,21 @@ DMs:
   - `openclaw pairing approve imessage <CODE>`
 - Pairing is the default token exchange for iMessage DMs. Details: [Pairing](/channels/pairing)
 
+<<<<<<< HEAD
 Groups:
+=======
+<AccordionGroup>
+  <Accordion title="Attachments and media">
+    - inbound attachment ingestion is optional: `channels.imessage.includeAttachments`
+    - remote attachment paths can be fetched via SCP when `remoteHost` is set
+    - attachment paths must match allowed roots:
+      - `channels.imessage.attachmentRoots` (local)
+      - `channels.imessage.remoteAttachmentRoots` (remote SCP mode)
+      - default root pattern: `/Users/*/Library/Messages/Attachments`
+    - SCP uses strict host-key checking (`StrictHostKeyChecking=yes`)
+    - outbound media size uses `channels.imessage.mediaMaxMb` (default 16 MB)
+  </Accordion>
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
 
 - `channels.imessage.groupPolicy = open | allowlist | disabled`.
 - `channels.imessage.groupAllowFrom` controls who can trigger in groups when `allowlist` is set.
@@ -317,5 +357,48 @@ Provider options:
 
 Related global options:
 
+<<<<<<< HEAD
 - `agents.list[].groupChat.mentionPatterns` (or `messages.groupChat.mentionPatterns`).
 - `messages.responsePrefix`.
+=======
+  <Accordion title="Group messages are ignored">
+    Check:
+
+    - `channels.imessage.groupPolicy`
+    - `channels.imessage.groupAllowFrom`
+    - `channels.imessage.groups` allowlist behavior
+    - mention pattern configuration (`agents.list[].groupChat.mentionPatterns`)
+
+  </Accordion>
+
+  <Accordion title="Remote attachments fail">
+    Check:
+
+    - `channels.imessage.remoteHost`
+    - `channels.imessage.remoteAttachmentRoots`
+    - SSH/SCP key auth from the gateway host
+    - host key exists in `~/.ssh/known_hosts` on the gateway host
+    - remote path readability on the Mac running Messages
+
+  </Accordion>
+
+  <Accordion title="macOS permission prompts were missed">
+    Re-run in an interactive GUI terminal in the same user/session context and approve prompts:
+
+```bash
+imsg chats --limit 1
+imsg send <handle> "test"
+```
+
+    Confirm Full Disk Access + Automation are granted for the process context that runs OpenClaw/`imsg`.
+
+  </Accordion>
+</AccordionGroup>
+
+## Configuration reference pointers
+
+- [Configuration reference - iMessage](/gateway/configuration-reference#imessage)
+- [Gateway configuration](/gateway/configuration)
+- [Pairing](/channels/pairing)
+- [BlueBubbles](/channels/bluebubbles)
+>>>>>>> 1316e5740 (fix: enforce inbound attachment root policy across pipelines)
