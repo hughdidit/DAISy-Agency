@@ -5,6 +5,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import type { MoltbotPluginApi } from "../../../src/plugins/types.js";
 =======
@@ -19,6 +20,9 @@ import { Type } from "@sinclair/typebox";
 =======
 import { Type } from "@sinclair/typebox";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { Type } from "@sinclair/typebox";
+>>>>>>> 8b34719b3 (style: apply oxfmt import ordering for ci)
 import type { OpenClawPluginApi } from "../../../src/plugins/types.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 
