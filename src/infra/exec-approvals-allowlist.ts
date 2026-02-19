@@ -125,6 +125,7 @@ function evaluateSegments(
     allowlist: ExecAllowlistEntry[];
     safeBins: Set<string>;
     cwd?: string;
+    trustedSafeBinDirs?: ReadonlySet<string>;
     skillBins?: Set<string>;
     autoAllowSkills?: boolean;
   },
@@ -147,6 +148,7 @@ function evaluateSegments(
       resolution: segment.resolution,
       safeBins: params.safeBins,
       cwd: params.cwd,
+      trustedSafeBinDirs: params.trustedSafeBinDirs,
     });
     const skillAllow =
       allowSkills && segment.resolution?.executableName
@@ -163,6 +165,7 @@ export function evaluateExecAllowlist(params: {
   allowlist: ExecAllowlistEntry[];
   safeBins: Set<string>;
   cwd?: string;
+  trustedSafeBinDirs?: ReadonlySet<string>;
   skillBins?: Set<string>;
   autoAllowSkills?: boolean;
 }): ExecAllowlistEvaluation {
@@ -178,6 +181,7 @@ export function evaluateExecAllowlist(params: {
         allowlist: params.allowlist,
         safeBins: params.safeBins,
         cwd: params.cwd,
+        trustedSafeBinDirs: params.trustedSafeBinDirs,
         skillBins: params.skillBins,
         autoAllowSkills: params.autoAllowSkills,
       });
@@ -194,6 +198,7 @@ export function evaluateExecAllowlist(params: {
     allowlist: params.allowlist,
     safeBins: params.safeBins,
     cwd: params.cwd,
+    trustedSafeBinDirs: params.trustedSafeBinDirs,
     skillBins: params.skillBins,
     autoAllowSkills: params.autoAllowSkills,
   });
@@ -216,6 +221,7 @@ export function evaluateShellAllowlist(params: {
   safeBins: Set<string>;
   cwd?: string;
   env?: NodeJS.ProcessEnv;
+  trustedSafeBinDirs?: ReadonlySet<string>;
   skillBins?: Set<string>;
   autoAllowSkills?: boolean;
   platform?: string | null;
@@ -253,6 +259,7 @@ export function evaluateShellAllowlist(params: {
       allowlist: params.allowlist,
       safeBins: params.safeBins,
       cwd: params.cwd,
+      trustedSafeBinDirs: params.trustedSafeBinDirs,
       skillBins: params.skillBins,
       autoAllowSkills: params.autoAllowSkills,
     });
@@ -293,6 +300,7 @@ export function evaluateShellAllowlist(params: {
       allowlist: params.allowlist,
       safeBins: params.safeBins,
       cwd: params.cwd,
+      trustedSafeBinDirs: params.trustedSafeBinDirs,
       skillBins: params.skillBins,
       autoAllowSkills: params.autoAllowSkills,
     });
