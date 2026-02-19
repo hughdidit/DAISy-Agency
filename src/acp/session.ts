@@ -4,6 +4,7 @@ import type { AcpSession } from "./types.js";
 
 export type AcpSessionStore = {
   createSession: (params: { sessionKey: string; cwd: string; sessionId?: string }) => AcpSession;
+  hasSession: (sessionId: string) => boolean;
   getSession: (sessionId: string) => AcpSession | undefined;
   getSessionByRunId: (runId: string) => AcpSession | undefined;
   setActiveRun: (sessionId: string, runId: string, abortController: AbortController) => void;
@@ -106,6 +107,8 @@ export function createInMemorySessionStore(options: AcpSessionStoreOptions = {})
     return session;
   };
 
+  const hasSession: AcpSessionStore["hasSession"] = (sessionId) => sessions.has(sessionId);
+
   const getSession: AcpSessionStore["getSession"] = (sessionId) => {
     const session = sessions.get(sessionId);
     if (session) {
@@ -175,6 +178,7 @@ export function createInMemorySessionStore(options: AcpSessionStoreOptions = {})
 
   return {
     createSession,
+    hasSession,
     getSession,
     getSessionByRunId,
     setActiveRun,
