@@ -19,45 +19,23 @@ import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 =======
 import { setDefaultChannelPluginRegistryForTests } from "./channel-test-helpers.js";
+<<<<<<< HEAD
 >>>>>>> def3a3ced (refactor(test): reduce auth and channel setup duplication)
+=======
+import { configMocks, offsetMocks } from "./channels.mock-harness.js";
+>>>>>>> 71983716f (test: share channels command mock harness)
 import { baseConfigSnapshot, createTestRuntime } from "./test-runtime-config-helpers.js";
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
-
-const configMocks = vi.hoisted(() => ({
-  readConfigFileSnapshot: vi.fn(),
-  writeConfigFile: vi.fn().mockResolvedValue(undefined),
-}));
 
 const authMocks = vi.hoisted(() => ({
   loadAuthProfileStore: vi.fn(),
 }));
-
-const offsetMocks = vi.hoisted(() => ({
-  deleteTelegramUpdateOffset: vi.fn().mockResolvedValue(undefined),
-}));
-
-vi.mock("../config/config.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../config/config.js")>();
-  return {
-    ...actual,
-    readConfigFileSnapshot: configMocks.readConfigFileSnapshot,
-    writeConfigFile: configMocks.writeConfigFile,
-  };
-});
 
 vi.mock("../agents/auth-profiles.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../agents/auth-profiles.js")>();
   return {
     ...actual,
     loadAuthProfileStore: authMocks.loadAuthProfileStore,
-  };
-});
-
-vi.mock("../telegram/update-offset-store.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../telegram/update-offset-store.js")>();
-  return {
-    ...actual,
-    deleteTelegramUpdateOffset: offsetMocks.deleteTelegramUpdateOffset,
   };
 });
 
