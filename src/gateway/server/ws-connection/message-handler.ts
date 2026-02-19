@@ -1,7 +1,17 @@
 import type { IncomingMessage } from "node:http";
+<<<<<<< HEAD
 import os from "node:os";
 
 import type { WebSocket } from "ws";
+=======
+import type { WebSocket } from "ws";
+import os from "node:os";
+import type { createSubsystemLogger } from "../../../logging/subsystem.js";
+import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
+import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
+import type { GatewayWsClient } from "../ws-types.js";
+import { loadConfig } from "../../../config/config.js";
+>>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
 import {
   deriveDeviceIdFromPublicKey,
   normalizeDevicePublicKeyBase64Url,
@@ -20,9 +30,17 @@ import { recordRemoteNodeInfo, refreshRemoteNodeBins } from "../../../infra/skil
 import { loadVoiceWakeConfig } from "../../../infra/voicewake.js";
 import { upsertPresence } from "../../../infra/system-presence.js";
 import { rawDataToString } from "../../../infra/ws.js";
-import type { createSubsystemLogger } from "../../../logging/subsystem.js";
 import { isGatewayCliClient, isWebchatClient } from "../../../utils/message-channel.js";
+<<<<<<< HEAD
 import type { ResolvedGatewayAuth } from "../../auth.js";
+=======
+import { resolveRuntimeServiceVersion } from "../../../version.js";
+import {
+  AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN,
+  AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET,
+  type AuthRateLimiter,
+} from "../../auth-rate-limit.js";
+>>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
 import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
 import { loadConfig } from "../../../config/config.js";
 import { buildDeviceAuthPayload } from "../../device-auth.js";
@@ -41,7 +59,10 @@ import {
 } from "../../protocol/index.js";
 import { GATEWAY_CLIENT_IDS } from "../../protocol/client-info.js";
 import { MAX_BUFFERED_BYTES, MAX_PAYLOAD_BYTES, TICK_INTERVAL_MS } from "../../server-constants.js";
+<<<<<<< HEAD
 import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
+=======
+>>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
 import { handleGatewayRequest } from "../../server-methods.js";
 import { formatError } from "../../server-utils.js";
 import { formatForLog, logWs } from "../../ws-log.js";
@@ -54,7 +75,11 @@ import {
   incrementPresenceVersion,
   refreshGatewayHealthSnapshot,
 } from "../health-state.js";
+<<<<<<< HEAD
 import type { GatewayWsClient } from "../ws-types.js";
+=======
+import { formatGatewayAuthFailureMessage, type AuthProvidedKind } from "./auth-messages.js";
+>>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
@@ -642,7 +667,34 @@ export function attachGatewayWsMessageHandler(params: {
 
         const skipPairing = allowControlUiBypass && hasSharedAuth;
         if (device && devicePublicKey && !skipPairing) {
-          const requirePairing = async (reason: string, _paired?: { deviceId: string }) => {
+          const formatAuditList = (items: string[] | undefined): string => {
+            if (!items || items.length === 0) {
+              return "<none>";
+            }
+            const out = new Set<string>();
+            for (const item of items) {
+              const trimmed = item.trim();
+              if (trimmed) {
+                out.add(trimmed);
+              }
+            }
+            if (out.size === 0) {
+              return "<none>";
+            }
+            return [...out].toSorted().join(",");
+          };
+          const logUpgradeAudit = (
+            reason: "role-upgrade" | "scope-upgrade",
+            currentRoles: string[] | undefined,
+            currentScopes: string[] | undefined,
+          ) => {
+            logGateway.warn(
+              `security audit: device access upgrade requested reason=${reason} device=${device.id} ip=${reportedClientIp ?? "unknown-ip"} auth=${authMethod} roleFrom=${formatAuditList(currentRoles)} roleTo=${role} scopesFrom=${formatAuditList(currentScopes)} scopesTo=${formatAuditList(scopes)} client=${connectParams.client.id} conn=${connId}`,
+            );
+          };
+          const requirePairing = async (
+            reason: "not-paired" | "role-upgrade" | "scope-upgrade",
+          ) => {
             const pairing = await requestDevicePairing({
               deviceId: device.id,
               publicKey: devicePublicKey,
@@ -653,7 +705,7 @@ export function attachGatewayWsMessageHandler(params: {
               role,
               scopes,
               remoteIp: reportedClientIp,
-              silent: isLocalClient,
+              silent: isLocalClient && reason === "not-paired",
             });
             const context = buildRequestContext();
             if (pairing.request.silent === true) {
@@ -703,28 +755,61 @@ export function attachGatewayWsMessageHandler(params: {
             const ok = await requirePairing("not-paired");
             if (!ok) return;
           } else {
-            const allowedRoles = new Set(
-              Array.isArray(paired.roles) ? paired.roles : paired.role ? [paired.role] : [],
-            );
+            const pairedRoles = Array.isArray(paired.roles)
+              ? paired.roles
+              : paired.role
+                ? [paired.role]
+                : [];
+            const allowedRoles = new Set(pairedRoles);
             if (allowedRoles.size === 0) {
+<<<<<<< HEAD
               const ok = await requirePairing("role-upgrade", paired);
               if (!ok) return;
             } else if (!allowedRoles.has(role)) {
               const ok = await requirePairing("role-upgrade", paired);
               if (!ok) return;
+=======
+              logUpgradeAudit("role-upgrade", pairedRoles, paired.scopes);
+              const ok = await requirePairing("role-upgrade");
+              if (!ok) {
+                return;
+              }
+            } else if (!allowedRoles.has(role)) {
+              logUpgradeAudit("role-upgrade", pairedRoles, paired.scopes);
+              const ok = await requirePairing("role-upgrade");
+              if (!ok) {
+                return;
+              }
+>>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
             }
 
             const pairedScopes = Array.isArray(paired.scopes) ? paired.scopes : [];
             if (scopes.length > 0) {
               if (pairedScopes.length === 0) {
+<<<<<<< HEAD
                 const ok = await requirePairing("scope-upgrade", paired);
                 if (!ok) return;
+=======
+                logUpgradeAudit("scope-upgrade", pairedRoles, pairedScopes);
+                const ok = await requirePairing("scope-upgrade");
+                if (!ok) {
+                  return;
+                }
+>>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
               } else {
                 const allowedScopes = new Set(pairedScopes);
                 const missingScope = scopes.find((scope) => !allowedScopes.has(scope));
                 if (missingScope) {
+<<<<<<< HEAD
                   const ok = await requirePairing("scope-upgrade", paired);
                   if (!ok) return;
+=======
+                  logUpgradeAudit("scope-upgrade", pairedRoles, pairedScopes);
+                  const ok = await requirePairing("scope-upgrade");
+                  if (!ok) {
+                    return;
+                  }
+>>>>>>> 0bda0202f (fix(security): require explicit approval for device access upgrades)
                 }
               }
             }
