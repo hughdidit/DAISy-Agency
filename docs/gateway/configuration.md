@@ -335,10 +335,20 @@ To prevent the bot from responding to WhatsApp @-mentions in groups (only respon
 
 ## Config Includes (`$include`)
 
+<<<<<<< HEAD
 Split your config into multiple files using the `$include` directive. This is useful for:
 - Organizing large configs (e.g., per-client agent definitions)
 - Sharing common settings across environments
 - Keeping sensitive configs separate
+=======
+<Note>
+Control-plane write RPCs (`config.apply`, `config.patch`, `update.run`) are rate-limited to **3 requests per 60 seconds** per `deviceId+clientIp`. When limited, the RPC returns `UNAVAILABLE` with `retryAfterMs`.
+</Note>
+
+<AccordionGroup>
+  <Accordion title="config.apply (full replace)">
+    Validates + writes the full config and restarts the Gateway in one step.
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 
 ### Basic usage
 
@@ -370,7 +380,20 @@ Split your config into multiple files using the `$include` directive. This is us
 }
 ```
 
+<<<<<<< HEAD
 ### Merge behavior
+=======
+    Restart requests are coalesced while one is already pending/in-flight, and a 30-second cooldown applies between restart cycles.
+
+    ```bash
+    openclaw gateway call config.get --params '{}'  # capture payload.hash
+    openclaw gateway call config.apply --params '{
+      "raw": "{ agents: { defaults: { workspace: \"~/.openclaw/workspace\" } } }",
+      "baseHash": "<hash>",
+      "sessionKey": "agent:main:whatsapp:dm:+15555550123"
+    }'
+    ```
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 
 - **Single file**: Replaces the object containing `$include`
 - **Array of files**: Deep-merges files in order (later files override earlier ones)
@@ -397,7 +420,18 @@ Included files can themselves contain `$include` directives (up to 10 levels dee
 }
 ```
 
+<<<<<<< HEAD
 ### Path resolution
+=======
+    Restart behavior matches `config.apply`: coalesced pending restarts plus a 30-second cooldown between restart cycles.
+
+    ```bash
+    openclaw gateway call config.patch --params '{
+      "raw": "{ channels: { telegram: { groups: { \"*\": { requireMention: false } } } } }",
+      "baseHash": "<hash>"
+    }'
+    ```
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 
 - **Relative paths**: Resolved relative to the including file
 - **Absolute paths**: Used as-is

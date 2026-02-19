@@ -3,6 +3,7 @@ import {
   resolveGatewayLaunchAgentLabel,
   resolveGatewaySystemdServiceName,
 } from "../daemon/constants.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
 
 export type RestartAttempt = {
   ok: boolean;
@@ -13,12 +14,84 @@ export type RestartAttempt = {
 
 const SPAWN_TIMEOUT_MS = 2000;
 const SIGUSR1_AUTH_GRACE_MS = 5000;
+<<<<<<< HEAD
+=======
+const DEFAULT_DEFERRAL_POLL_MS = 500;
+const DEFAULT_DEFERRAL_MAX_WAIT_MS = 30_000;
+const RESTART_COOLDOWN_MS = 30_000;
+
+const restartLog = createSubsystemLogger("restart");
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 
 let sigusr1AuthorizedCount = 0;
 let sigusr1AuthorizedUntil = 0;
 let sigusr1ExternalAllowed = false;
 let preRestartCheck: (() => number) | null = null;
+<<<<<<< HEAD
 let sigusr1Emitted = false;
+=======
+let restartCycleToken = 0;
+let emittedRestartToken = 0;
+let consumedRestartToken = 0;
+let lastRestartEmittedAt = 0;
+let pendingRestartTimer: ReturnType<typeof setTimeout> | null = null;
+let pendingRestartDueAt = 0;
+let pendingRestartReason: string | undefined;
+
+function hasUnconsumedRestartSignal(): boolean {
+  return emittedRestartToken > consumedRestartToken;
+}
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
+
+function clearPendingScheduledRestart(): void {
+  if (pendingRestartTimer) {
+    clearTimeout(pendingRestartTimer);
+  }
+  pendingRestartTimer = null;
+  pendingRestartDueAt = 0;
+  pendingRestartReason = undefined;
+}
+
+export type RestartAuditInfo = {
+  actor?: string;
+  deviceId?: string;
+  clientIp?: string;
+  changedPaths?: string[];
+};
+
+function summarizeChangedPaths(paths: string[] | undefined, maxPaths = 6): string | null {
+  if (!Array.isArray(paths) || paths.length === 0) {
+    return null;
+  }
+  if (paths.length <= maxPaths) {
+    return paths.join(",");
+  }
+  const head = paths.slice(0, maxPaths).join(",");
+  return `${head},+${paths.length - maxPaths} more`;
+}
+
+function formatRestartAudit(audit: RestartAuditInfo | undefined): string {
+  const actor = typeof audit?.actor === "string" && audit.actor.trim() ? audit.actor.trim() : null;
+  const deviceId =
+    typeof audit?.deviceId === "string" && audit.deviceId.trim() ? audit.deviceId.trim() : null;
+  const clientIp =
+    typeof audit?.clientIp === "string" && audit.clientIp.trim() ? audit.clientIp.trim() : null;
+  const changed = summarizeChangedPaths(audit?.changedPaths);
+  const fields = [];
+  if (actor) {
+    fields.push(`actor=${actor}`);
+  }
+  if (deviceId) {
+    fields.push(`device=${deviceId}`);
+  }
+  if (clientIp) {
+    fields.push(`ip=${clientIp}`);
+  }
+  if (changed) {
+    fields.push(`changedPaths=${changed}`);
+  }
+  return fields.length > 0 ? fields.join(" ") : "actor=<unknown>";
+}
 
 /**
  * Register a callback that scheduleGatewaySigusr1Restart checks before emitting SIGUSR1.
@@ -35,10 +108,20 @@ export function setPreRestartDeferralCheck(fn: () => number): void {
  * to ensure only one restart fires.
  */
 export function emitGatewayRestart(): boolean {
+<<<<<<< HEAD
   if (sigusr1Emitted) {
     return false;
   }
   sigusr1Emitted = true;
+=======
+  if (hasUnconsumedRestartSignal()) {
+    clearPendingScheduledRestart();
+    return false;
+  }
+  clearPendingScheduledRestart();
+  const cycleToken = ++restartCycleToken;
+  emittedRestartToken = cycleToken;
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
   authorizeGatewaySigusr1Restart();
   try {
     if (process.listenerCount("SIGUSR1") > 0) {
@@ -49,6 +132,7 @@ export function emitGatewayRestart(): boolean {
   } catch {
     /* ignore */
   }
+  lastRestartEmittedAt = Date.now();
   return true;
 }
 
@@ -202,11 +286,14 @@ export type ScheduledRestart = {
   delayMs: number;
   reason?: string;
   mode: "emit" | "signal";
+  coalesced: boolean;
+  cooldownMsApplied: number;
 };
 
 export function scheduleGatewaySigusr1Restart(opts?: {
   delayMs?: number;
   reason?: string;
+  audit?: RestartAuditInfo;
 }): ScheduledRestart {
   const delayMsRaw =
     typeof opts?.delayMs === "number" && Number.isFinite(opts.delayMs)
@@ -217,6 +304,7 @@ export function scheduleGatewaySigusr1Restart(opts?: {
     typeof opts?.reason === "string" && opts.reason.trim()
       ? opts.reason.trim().slice(0, 200)
       : undefined;
+<<<<<<< HEAD
   const DEFERRAL_POLL_MS = 500;
   const DEFERRAL_MAX_WAIT_MS = 30_000;
 
@@ -252,13 +340,79 @@ export function scheduleGatewaySigusr1Restart(opts?: {
       }
     }, DEFERRAL_POLL_MS);
   }, delayMs);
+=======
+  const mode = process.listenerCount("SIGUSR1") > 0 ? "emit" : "signal";
+  const nowMs = Date.now();
+  const cooldownMsApplied = Math.max(0, lastRestartEmittedAt + RESTART_COOLDOWN_MS - nowMs);
+  const requestedDueAt = nowMs + delayMs + cooldownMsApplied;
+
+  if (hasUnconsumedRestartSignal()) {
+    restartLog.warn(
+      `restart request coalesced (already in-flight) reason=${reason ?? "unspecified"} ${formatRestartAudit(opts?.audit)}`,
+    );
+    return {
+      ok: true,
+      pid: process.pid,
+      signal: "SIGUSR1",
+      delayMs: 0,
+      reason,
+      mode,
+      coalesced: true,
+      cooldownMsApplied,
+    };
+  }
+
+  if (pendingRestartTimer) {
+    const remainingMs = Math.max(0, pendingRestartDueAt - nowMs);
+    const shouldPullEarlier = requestedDueAt < pendingRestartDueAt;
+    if (shouldPullEarlier) {
+      restartLog.warn(
+        `restart request rescheduled earlier reason=${reason ?? "unspecified"} pendingReason=${pendingRestartReason ?? "unspecified"} oldDelayMs=${remainingMs} newDelayMs=${Math.max(0, requestedDueAt - nowMs)} ${formatRestartAudit(opts?.audit)}`,
+      );
+      clearPendingScheduledRestart();
+    } else {
+      restartLog.warn(
+        `restart request coalesced (already scheduled) reason=${reason ?? "unspecified"} pendingReason=${pendingRestartReason ?? "unspecified"} delayMs=${remainingMs} ${formatRestartAudit(opts?.audit)}`,
+      );
+      return {
+        ok: true,
+        pid: process.pid,
+        signal: "SIGUSR1",
+        delayMs: remainingMs,
+        reason,
+        mode,
+        coalesced: true,
+        cooldownMsApplied,
+      };
+    }
+  }
+
+  pendingRestartDueAt = requestedDueAt;
+  pendingRestartReason = reason;
+  pendingRestartTimer = setTimeout(
+    () => {
+      pendingRestartTimer = null;
+      pendingRestartDueAt = 0;
+      pendingRestartReason = undefined;
+      const pendingCheck = preRestartCheck;
+      if (!pendingCheck) {
+        emitGatewayRestart();
+        return;
+      }
+      deferGatewayRestartUntilIdle({ getPendingCount: pendingCheck });
+    },
+    Math.max(0, requestedDueAt - nowMs),
+  );
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
   return {
     ok: true,
     pid: process.pid,
     signal: "SIGUSR1",
-    delayMs,
+    delayMs: Math.max(0, requestedDueAt - nowMs),
     reason,
-    mode: process.listenerCount("SIGUSR1") > 0 ? "emit" : "signal",
+    mode,
+    coalesced: false,
+    cooldownMsApplied,
   };
 }
 
@@ -268,6 +422,14 @@ export const __testing = {
     sigusr1AuthorizedUntil = 0;
     sigusr1ExternalAllowed = false;
     preRestartCheck = null;
+<<<<<<< HEAD
     sigusr1Emitted = false;
+=======
+    restartCycleToken = 0;
+    emittedRestartToken = 0;
+    consumedRestartToken = 0;
+    lastRestartEmittedAt = 0;
+    clearPendingScheduledRestart();
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
   },
 };

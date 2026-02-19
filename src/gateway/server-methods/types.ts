@@ -14,6 +14,11 @@ type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
 export type GatewayClient = {
   connect: ConnectParams;
+<<<<<<< HEAD
+=======
+  connId?: string;
+  clientIp?: string;
+>>>>>>> ff74d89e8 (fix: harden gateway control-plane restart protections)
 };
 
 export type RespondFn = (
