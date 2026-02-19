@@ -39,7 +39,7 @@ jobs:
   # Detect docs-only changes to skip heavy jobs (test, build, Windows, macOS, Android).
   # Lint and format always run. Fail-safe: if detection fails, run everything.
   docs-scope:
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: blacksmith-16vcpu-ubuntu-2404
     outputs:
       docs_only: ${{ steps.check.outputs.docs_only }}
       docs_changed: ${{ steps.check.outputs.docs_changed }}
@@ -59,7 +59,7 @@ jobs:
   changed-scope:
     needs: [docs-scope]
     if: needs.docs-scope.outputs.docs_only != 'true'
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: blacksmith-16vcpu-ubuntu-2404
     outputs:
       run_node: ${{ steps.scope.outputs.run_node }}
       run_macos: ${{ steps.scope.outputs.run_macos }}
@@ -153,7 +153,7 @@ jobs:
   build-artifacts:
     needs: [docs-scope, changed-scope, check]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: blacksmith-16vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -179,7 +179,7 @@ jobs:
   release-check:
     needs: [docs-scope, build-artifacts]
     if: github.event_name == 'push' && needs.docs-scope.outputs.docs_only != 'true'
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: blacksmith-16vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -204,11 +204,15 @@ jobs:
     needs: [docs-scope, changed-scope, check]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
 <<<<<<< HEAD
+<<<<<<< HEAD
     runs-on: blacksmith-4vcpu-ubuntu-2404
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
 =======
     runs-on: blacksmith-8vcpu-ubuntu-2404
 >>>>>>> 243549986 (ci: move blacksmith runners to 8 vcpu)
+=======
+    runs-on: blacksmith-16vcpu-ubuntu-2404
+>>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
     strategy:
       fail-fast: false
       matrix:
@@ -411,7 +415,7 @@ jobs:
     name: "check"
     needs: [docs-scope]
     if: needs.docs-scope.outputs.docs_only != 'true'
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: blacksmith-16vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -430,7 +434,7 @@ jobs:
   check-docs:
     needs: [docs-scope]
     if: needs.docs-scope.outputs.docs_changed == 'true'
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: blacksmith-16vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -447,11 +451,15 @@ jobs:
 
   secrets:
 <<<<<<< HEAD
+<<<<<<< HEAD
     name: Secrets Scan
     runs-on: ubuntu-latest
 =======
     runs-on: blacksmith-8vcpu-ubuntu-2404
 >>>>>>> 243549986 (ci: move blacksmith runners to 8 vcpu)
+=======
+    runs-on: blacksmith-16vcpu-ubuntu-2404
+>>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -507,6 +515,7 @@ jobs:
 >>>>>>> c2178e252 (chore: Cleanup useless CI job.)
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     runs-on: blacksmith-4vcpu-windows-2025
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
@@ -521,6 +530,12 @@ jobs:
       NODE_OPTIONS: --max-old-space-size=4096
       # Keep total concurrency predictable on the 8 vCPU runner:
 >>>>>>> 243549986 (ci: move blacksmith runners to 8 vcpu)
+=======
+    runs-on: blacksmith-16vcpu-windows-2025
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+      # Keep total concurrency predictable on the 16 vCPU runner:
+>>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
       # `scripts/test-parallel.mjs` runs some vitest suites in parallel processes.
       OPENCLAW_TEST_WORKERS: 2
 >>>>>>> 47596257e (ci: add concurrency controls, consolidate macOS jobs, optimize Windows CI)
@@ -1116,12 +1131,16 @@ jobs:
 >>>>>>> c2178e252 (chore: Cleanup useless CI job.)
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_android == 'true')
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> cef9bfce2 (CI: scope heavy jobs, build once, and remove duplicate validation work (#11570))
     runs-on: blacksmith-4vcpu-ubuntu-2404
 >>>>>>> 8da20027c (CI: skip heavy jobs on docs-only changes (#11328))
 =======
     runs-on: blacksmith-8vcpu-ubuntu-2404
 >>>>>>> 243549986 (ci: move blacksmith runners to 8 vcpu)
+=======
+    runs-on: blacksmith-16vcpu-ubuntu-2404
+>>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
     strategy:
       fail-fast: false
       matrix:

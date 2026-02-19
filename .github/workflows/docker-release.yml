@@ -53,7 +53,14 @@ env:
 jobs:
   # Build amd64 image
   build-amd64:
+<<<<<<< HEAD
     runs-on: ubuntu-latest
+=======
+    runs-on: blacksmith-16vcpu-ubuntu-2404
+    permissions:
+      packages: write
+      contents: read
+>>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
     steps:
@@ -147,7 +154,14 @@ jobs:
 
   # Build arm64 image
   build-arm64:
+<<<<<<< HEAD
     runs-on: ubuntu-24.04-arm
+=======
+    runs-on: blacksmith-16vcpu-ubuntu-2404-arm
+    permissions:
+      packages: write
+      contents: read
+>>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
     steps:
@@ -241,7 +255,14 @@ jobs:
 
   # Create multi-platform manifest
   create-manifest:
+<<<<<<< HEAD
     runs-on: ubuntu-latest
+=======
+    runs-on: blacksmith-16vcpu-ubuntu-2404
+    permissions:
+      packages: write
+      contents: read
+>>>>>>> ce1f0c0a1 (ci: move workflows to blacksmith 16vcpu runners)
     needs: [build-amd64, build-arm64]
     # Run manifest creation for: push events, or workflow_dispatch with dry_run=false and valid branch/tag/override
     # Note: env context is not available in job-level if conditions, so BUILD_REF is inlined here
