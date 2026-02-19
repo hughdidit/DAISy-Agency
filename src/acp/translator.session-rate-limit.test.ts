@@ -76,3 +76,48 @@ describe("acp session creation rate limit", () => {
     sessionStore.clearAllSessionsForTest();
   });
 });
+<<<<<<< HEAD
+=======
+
+describe("acp prompt size hardening", () => {
+  it("rejects oversized prompt blocks without leaking active runs", async () => {
+    const request = vi.fn(async () => ({ ok: true })) as GatewayClient["request"];
+    const sessionStore = createInMemorySessionStore();
+    const agent = new AcpGatewayAgent(createConnection(), createGateway(request), {
+      sessionStore,
+    });
+    const sessionId = "prompt-limit-oversize";
+    await agent.loadSession(createLoadSessionRequest(sessionId));
+
+    await expect(
+      agent.prompt(createPromptRequest(sessionId, "a".repeat(2 * 1024 * 1024 + 1))),
+    ).rejects.toThrow(/maximum allowed size/i);
+    expect(request).not.toHaveBeenCalledWith("chat.send", expect.anything(), expect.anything());
+    const session = sessionStore.getSession(sessionId);
+    expect(session?.activeRunId).toBeNull();
+    expect(session?.abortController).toBeNull();
+
+    sessionStore.clearAllSessionsForTest();
+  });
+
+  it("rejects oversize final messages from cwd prefix without leaking active runs", async () => {
+    const request = vi.fn(async () => ({ ok: true })) as GatewayClient["request"];
+    const sessionStore = createInMemorySessionStore();
+    const agent = new AcpGatewayAgent(createConnection(), createGateway(request), {
+      sessionStore,
+    });
+    const sessionId = "prompt-limit-prefix";
+    await agent.loadSession(createLoadSessionRequest(sessionId));
+
+    await expect(
+      agent.prompt(createPromptRequest(sessionId, "a".repeat(2 * 1024 * 1024))),
+    ).rejects.toThrow(/maximum allowed size/i);
+    expect(request).not.toHaveBeenCalledWith("chat.send", expect.anything(), expect.anything());
+    const session = sessionStore.getSession(sessionId);
+    expect(session?.activeRunId).toBeNull();
+    expect(session?.abortController).toBeNull();
+
+    sessionStore.clearAllSessionsForTest();
+  });
+});
+>>>>>>> bc6f983f8 (fix(ci): resolve format drift and acp mock typing)

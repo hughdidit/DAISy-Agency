@@ -7,9 +7,19 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { promisify } from "node:util";
 
 =======
+=======
+import { splitArgsPreservingQuotes } from "./arg-split.js";
+import { parseCmdSetAssignment, renderCmdSetAssignment } from "./cmd-set.js";
+import { resolveGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
+import { formatLine, writeFormattedLines } from "./output.js";
+import { resolveGatewayStateDir } from "./paths.js";
+import { parseKeyValueOutput } from "./runtime-parse.js";
+import { execSchtasks } from "./schtasks-exec.js";
+>>>>>>> bc6f983f8 (fix(ci): resolve format drift and acp mock typing)
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -97,13 +107,6 @@ import type {
   GatewayServiceManageArgs,
   GatewayServiceRenderArgs,
 } from "./service-types.js";
-import { splitArgsPreservingQuotes } from "./arg-split.js";
-import { parseCmdSetAssignment, renderCmdSetAssignment } from "./cmd-set.js";
-import { resolveGatewayServiceDescription, resolveGatewayWindowsTaskName } from "./constants.js";
-import { formatLine, writeFormattedLines } from "./output.js";
-import { resolveGatewayStateDir } from "./paths.js";
-import { parseKeyValueOutput } from "./runtime-parse.js";
-import { execSchtasks } from "./schtasks-exec.js";
 
 function resolveTaskName(env: GatewayServiceEnv): string {
 >>>>>>> 70900feaa (refactor(daemon): share service arg types across backends)
