@@ -343,7 +343,12 @@ jobs:
 =======
       - name: Setup Node environment
         uses: ./.github/actions/setup-node-env
+<<<<<<< HEAD
 >>>>>>> 0b7e56143 (ci: split format/lint into tiered gates with shared setup action)
+=======
+        with:
+          install-bun: "${{ matrix.runtime == 'bun' }}"
+>>>>>>> 13f2fa0c5 (ci: avoid bun setup API flake in node checks)
 
 <<<<<<< HEAD
       - name: Run ${{ matrix.task }}
