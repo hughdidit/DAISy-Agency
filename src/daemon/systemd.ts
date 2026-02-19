@@ -51,6 +51,7 @@ import { parseKeyValueOutput } from "./runtime-parse.js";
 <<<<<<< HEAD
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveHomeDir } from "./paths.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -64,6 +65,16 @@ import type { GatewayServiceRuntime } from "./service-runtime.js";
 =======
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type {
+  GatewayServiceCommandConfig,
+  GatewayServiceControlArgs,
+  GatewayServiceEnv,
+  GatewayServiceEnvArgs,
+  GatewayServiceInstallArgs,
+  GatewayServiceManageArgs,
+} from "./service-types.js";
+>>>>>>> 70900feaa (refactor(daemon): share service arg types across backends)
 import {
   enableSystemdUserLinger,
   readSystemdUserLingerStatus,
@@ -75,27 +86,29 @@ import {
   parseSystemdExecStart,
 } from "./systemd-unit.js";
 
-function resolveSystemdUnitPathForName(
-  env: Record<string, string | undefined>,
-  name: string,
-): string {
+function resolveSystemdUnitPathForName(env: GatewayServiceEnv, name: string): string {
   const home = toPosixPath(resolveHomeDir(env));
   return path.posix.join(home, ".config", "systemd", "user", `${name}.service`);
 }
 
+<<<<<<< HEAD
 function resolveSystemdServiceName(env: Record<string, string | undefined>): string {
   const override = env.CLAWDBOT_SYSTEMD_UNIT?.trim();
+=======
+function resolveSystemdServiceName(env: GatewayServiceEnv): string {
+  const override = env.OPENCLAW_SYSTEMD_UNIT?.trim();
+>>>>>>> 70900feaa (refactor(daemon): share service arg types across backends)
   if (override) {
     return override.endsWith(".service") ? override.slice(0, -".service".length) : override;
   }
   return resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
 }
 
-function resolveSystemdUnitPath(env: Record<string, string | undefined>): string {
+function resolveSystemdUnitPath(env: GatewayServiceEnv): string {
   return resolveSystemdUnitPathForName(env, resolveSystemdServiceName(env));
 }
 
-export function resolveSystemdUserUnitPath(env: Record<string, string | undefined>): string {
+export function resolveSystemdUserUnitPath(env: GatewayServiceEnv): string {
   return resolveSystemdUnitPath(env);
 }
 
@@ -105,13 +118,8 @@ export type { SystemdUserLingerStatus };
 // Unit file parsing/rendering: see systemd-unit.ts
 
 export async function readSystemdServiceExecStart(
-  env: Record<string, string | undefined>,
-): Promise<{
-  programArguments: string[];
-  workingDirectory?: string;
-  environment?: Record<string, string>;
-  sourcePath?: string;
-} | null> {
+  env: GatewayServiceEnv,
+): Promise<GatewayServiceCommandConfig | null> {
   const unitPath = resolveSystemdUnitPath(env);
   try {
     const content = await fs.readFile(unitPath, "utf8");
@@ -242,14 +250,7 @@ export async function installSystemdService({
   workingDirectory,
   environment,
   description,
-}: {
-  env: Record<string, string | undefined>;
-  stdout: NodeJS.WritableStream;
-  programArguments: string[];
-  workingDirectory?: string;
-  environment?: Record<string, string | undefined>;
-  description?: string;
-}): Promise<{ unitPath: string }> {
+}: GatewayServiceInstallArgs): Promise<{ unitPath: string }> {
   await assertSystemdAvailable();
 
   const unitPath = resolveSystemdUnitPath(env);
@@ -306,10 +307,7 @@ export async function installSystemdService({
 export async function uninstallSystemdService({
   env,
   stdout,
-}: {
-  env: Record<string, string | undefined>;
-  stdout: NodeJS.WritableStream;
-}): Promise<void> {
+}: GatewayServiceManageArgs): Promise<void> {
   await assertSystemdAvailable();
   const serviceName = resolveGatewaySystemdServiceName(env.CLAWDBOT_PROFILE);
   const unitName = `${serviceName}.service`;
@@ -326,7 +324,7 @@ export async function uninstallSystemdService({
 
 async function runSystemdServiceAction(params: {
   stdout: NodeJS.WritableStream;
-  env?: Record<string, string | undefined>;
+  env?: GatewayServiceEnv;
   action: "stop" | "restart";
   label: string;
 }) {
@@ -343,10 +341,7 @@ async function runSystemdServiceAction(params: {
 export async function stopSystemdService({
   stdout,
   env,
-}: {
-  stdout: NodeJS.WritableStream;
-  env?: Record<string, string | undefined>;
-}): Promise<void> {
+}: GatewayServiceControlArgs): Promise<void> {
   await runSystemdServiceAction({
     stdout,
     env,
@@ -358,10 +353,7 @@ export async function stopSystemdService({
 export async function restartSystemdService({
   stdout,
   env,
-}: {
-  stdout: NodeJS.WritableStream;
-  env?: Record<string, string | undefined>;
-}): Promise<void> {
+}: GatewayServiceControlArgs): Promise<void> {
   await runSystemdServiceAction({
     stdout,
     env,
@@ -370,9 +362,7 @@ export async function restartSystemdService({
   });
 }
 
-export async function isSystemdServiceEnabled(args: {
-  env?: Record<string, string | undefined>;
-}): Promise<boolean> {
+export async function isSystemdServiceEnabled(args: GatewayServiceEnvArgs): Promise<boolean> {
   await assertSystemdAvailable();
   const serviceName = resolveSystemdServiceName(args.env ?? {});
   const unitName = `${serviceName}.service`;
@@ -381,7 +371,7 @@ export async function isSystemdServiceEnabled(args: {
 }
 
 export async function readSystemdServiceRuntime(
-  env: Record<string, string | undefined> = process.env as Record<string, string | undefined>,
+  env: GatewayServiceEnv = process.env as GatewayServiceEnv,
 ): Promise<GatewayServiceRuntime> {
   try {
     await assertSystemdAvailable();
@@ -438,9 +428,7 @@ async function isSystemctlAvailable(): Promise<boolean> {
   return !detail.includes("not found");
 }
 
-export async function findLegacySystemdUnits(
-  env: Record<string, string | undefined>,
-): Promise<LegacySystemdUnit[]> {
+export async function findLegacySystemdUnits(env: GatewayServiceEnv): Promise<LegacySystemdUnit[]> {
   const results: LegacySystemdUnit[] = [];
   const systemctlAvailable = await isSystemctlAvailable();
   for (const name of LEGACY_GATEWAY_SYSTEMD_SERVICE_NAMES) {
@@ -467,10 +455,7 @@ export async function findLegacySystemdUnits(
 export async function uninstallLegacySystemdUnits({
   env,
   stdout,
-}: {
-  env: Record<string, string | undefined>;
-  stdout: NodeJS.WritableStream;
-}): Promise<LegacySystemdUnit[]> {
+}: GatewayServiceManageArgs): Promise<LegacySystemdUnit[]> {
   const units = await findLegacySystemdUnits(env);
   if (units.length === 0) {
     return units;

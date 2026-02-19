@@ -54,6 +54,7 @@ import { parseKeyValueOutput } from "./runtime-parse.js";
 <<<<<<< HEAD
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { resolveGatewayStateDir, resolveHomeDir } from "./paths.js";
 =======
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -67,6 +68,16 @@ import type { GatewayServiceRuntime } from "./service-runtime.js";
 =======
 import type { GatewayServiceRuntime } from "./service-runtime.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type {
+  GatewayServiceCommandConfig,
+  GatewayServiceControlArgs,
+  GatewayServiceEnv,
+  GatewayServiceEnvArgs,
+  GatewayServiceInstallArgs,
+  GatewayServiceManageArgs,
+} from "./service-types.js";
+>>>>>>> 70900feaa (refactor(daemon): share service arg types across backends)
 
 function resolveLaunchAgentLabel(args?: { env?: Record<string, string | undefined> }): string {
 <<<<<<< HEAD
@@ -90,12 +101,12 @@ function resolveLaunchAgentPlistPathForLabel(
   return path.posix.join(home, "Library", "LaunchAgents", `${label}.plist`);
 }
 
-export function resolveLaunchAgentPlistPath(env: Record<string, string | undefined>): string {
+export function resolveLaunchAgentPlistPath(env: GatewayServiceEnv): string {
   const label = resolveLaunchAgentLabel({ env });
   return resolveLaunchAgentPlistPathForLabel(env, label);
 }
 
-export function resolveGatewayLogPaths(env: Record<string, string | undefined>): {
+export function resolveGatewayLogPaths(env: GatewayServiceEnv): {
   logDir: string;
   stdoutPath: string;
   stderrPath: string;
@@ -111,13 +122,8 @@ export function resolveGatewayLogPaths(env: Record<string, string | undefined>):
 }
 
 export async function readLaunchAgentProgramArguments(
-  env: Record<string, string | undefined>,
-): Promise<{
-  programArguments: string[];
-  workingDirectory?: string;
-  environment?: Record<string, string>;
-  sourcePath?: string;
-} | null> {
+  env: GatewayServiceEnv,
+): Promise<GatewayServiceCommandConfig | null> {
   const plistPath = resolveLaunchAgentPlistPath(env);
   return readLaunchAgentProgramArgumentsFromFile(plistPath);
 }
@@ -235,18 +241,14 @@ export function parseLaunchctlPrint(output: string): LaunchctlPrintInfo {
   return info;
 }
 
-export async function isLaunchAgentLoaded(args: {
-  env?: Record<string, string | undefined>;
-}): Promise<boolean> {
+export async function isLaunchAgentLoaded(args: GatewayServiceEnvArgs): Promise<boolean> {
   const domain = resolveGuiDomain();
   const label = resolveLaunchAgentLabel({ env: args.env });
   const res = await execLaunchctl(["print", `${domain}/${label}`]);
   return res.code === 0;
 }
 
-export async function isLaunchAgentListed(args: {
-  env?: Record<string, string | undefined>;
-}): Promise<boolean> {
+export async function isLaunchAgentListed(args: GatewayServiceEnvArgs): Promise<boolean> {
   const label = resolveLaunchAgentLabel({ env: args.env });
   const res = await execLaunchctl(["list"]);
   if (res.code !== 0) {
@@ -255,9 +257,7 @@ export async function isLaunchAgentListed(args: {
   return res.stdout.split(/\r?\n/).some((line) => line.trim().split(/\s+/).at(-1) === label);
 }
 
-export async function launchAgentPlistExists(
-  env: Record<string, string | undefined>,
-): Promise<boolean> {
+export async function launchAgentPlistExists(env: GatewayServiceEnv): Promise<boolean> {
   try {
     const plistPath = resolveLaunchAgentPlistPath(env);
     await fs.access(plistPath);
@@ -319,9 +319,7 @@ export type LegacyLaunchAgent = {
   exists: boolean;
 };
 
-export async function findLegacyLaunchAgents(
-  env: Record<string, string | undefined>,
-): Promise<LegacyLaunchAgent[]> {
+export async function findLegacyLaunchAgents(env: GatewayServiceEnv): Promise<LegacyLaunchAgent[]> {
   const domain = resolveGuiDomain();
   const results: LegacyLaunchAgent[] = [];
   for (const label of resolveLegacyGatewayLaunchAgentLabels(env.CLAWDBOT_PROFILE)) {
@@ -345,10 +343,7 @@ export async function findLegacyLaunchAgents(
 export async function uninstallLegacyLaunchAgents({
   env,
   stdout,
-}: {
-  env: Record<string, string | undefined>;
-  stdout: NodeJS.WritableStream;
-}): Promise<LegacyLaunchAgent[]> {
+}: GatewayServiceManageArgs): Promise<LegacyLaunchAgent[]> {
   const domain = resolveGuiDomain();
   const agents = await findLegacyLaunchAgents(env);
   if (agents.length === 0) {
@@ -388,10 +383,7 @@ export async function uninstallLegacyLaunchAgents({
 export async function uninstallLaunchAgent({
   env,
   stdout,
-}: {
-  env: Record<string, string | undefined>;
-  stdout: NodeJS.WritableStream;
-}): Promise<void> {
+}: GatewayServiceManageArgs): Promise<void> {
   const domain = resolveGuiDomain();
   const label = resolveLaunchAgentLabel({ env });
   const plistPath = resolveLaunchAgentPlistPath(env);
@@ -434,13 +426,7 @@ function isUnsupportedGuiDomain(detail: string): boolean {
   );
 }
 
-export async function stopLaunchAgent({
-  stdout,
-  env,
-}: {
-  stdout: NodeJS.WritableStream;
-  env?: Record<string, string | undefined>;
-}): Promise<void> {
+export async function stopLaunchAgent({ stdout, env }: GatewayServiceControlArgs): Promise<void> {
   const domain = resolveGuiDomain();
   const label = resolveLaunchAgentLabel({ env });
   const res = await execLaunchctl(["bootout", `${domain}/${label}`]);
@@ -457,14 +443,7 @@ export async function installLaunchAgent({
   workingDirectory,
   environment,
   description,
-}: {
-  env: Record<string, string | undefined>;
-  stdout: NodeJS.WritableStream;
-  programArguments: string[];
-  workingDirectory?: string;
-  environment?: Record<string, string | undefined>;
-  description?: string;
-}): Promise<{ plistPath: string }> {
+}: GatewayServiceInstallArgs): Promise<{ plistPath: string }> {
   const { logDir, stdoutPath, stderrPath } = resolveGatewayLogPaths(env);
   await fs.mkdir(logDir, { recursive: true });
 
@@ -542,10 +521,7 @@ export async function installLaunchAgent({
 export async function restartLaunchAgent({
   stdout,
   env,
-}: {
-  stdout: NodeJS.WritableStream;
-  env?: Record<string, string | undefined>;
-}): Promise<void> {
+}: GatewayServiceControlArgs): Promise<void> {
   const domain = resolveGuiDomain();
   const label = resolveLaunchAgentLabel({ env });
   const res = await execLaunchctl(["kickstart", "-k", `${domain}/${label}`]);
