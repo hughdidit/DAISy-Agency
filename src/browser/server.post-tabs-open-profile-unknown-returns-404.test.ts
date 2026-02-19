@@ -309,6 +309,7 @@ import {
   installBrowserControlServerHooks,
   makeResponse,
   getPwMocks,
+  restoreGatewayPortEnv,
   startBrowserControlServerFromConfig,
   stopBrowserControlServer,
 } from "./server.control-server.test-harness.js";
@@ -396,6 +397,7 @@ describe("profile CRUD endpoints", () => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (prevGatewayPort === undefined) {
       delete process.env.CLAWDBOT_GATEWAY_PORT;
     } else {
@@ -407,6 +409,9 @@ describe("profile CRUD endpoints", () => {
       process.env.OPENCLAW_GATEWAY_PORT = state.prevGatewayPort;
 >>>>>>> dee3abfcd (refactor(test): share browser control server harness)
     }
+=======
+    restoreGatewayPortEnv(state.prevGatewayPort);
+>>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
     await stopBrowserControlServer();
   });
 

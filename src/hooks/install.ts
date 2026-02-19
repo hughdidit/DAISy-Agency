@@ -16,11 +16,16 @@ import {
 import { installPackageDir } from "../infra/install-package-dir.js";
 import { resolveSafeInstallDir, unscopedPackageName } from "../infra/install-safe-path.js";
 import {
+<<<<<<< HEAD
   packNpmSpecToArchive,
+=======
+  type NpmIntegrityDrift,
+  type NpmSpecResolution,
+>>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
   resolveArchiveSourcePath,
   withTempDir,
 } from "../infra/install-source-utils.js";
-import { resolveNpmIntegrityDriftWithDefaultMessage } from "../infra/npm-integrity.js";
+import { installFromNpmSpecArchive } from "../infra/npm-pack-install.js";
 import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 >>>>>>> 4caeb203a (refactor(install): share package dir install)
@@ -460,6 +465,7 @@ export async function installHooksFromNpmSpec(params: {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hook-pack-"));
   logger.info?.(`Downloading ${spec}…`);
   const res = await runCommandWithTimeout(["npm", "pack", spec], {
@@ -537,7 +543,40 @@ export async function installHooksFromNpmSpec(params: {
       expectedHookPackId,
     });
 >>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
+=======
+  logger.info?.(`Downloading ${spec}…`);
+  const flowResult = await installFromNpmSpecArchive({
+    tempDirPrefix: "openclaw-hook-pack-",
+    spec,
+    timeoutMs,
+    expectedIntegrity: params.expectedIntegrity,
+    onIntegrityDrift: params.onIntegrityDrift,
+    warn: (message) => {
+      logger.warn?.(message);
+    },
+    installFromArchive: async ({ archivePath }) =>
+      await installHooksFromArchive({
+        archivePath,
+        hooksDir: params.hooksDir,
+        timeoutMs,
+        logger,
+        mode,
+        dryRun,
+        expectedHookPackId,
+      }),
+>>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
   });
+  if (!flowResult.ok) {
+    return flowResult;
+  }
+  if (!flowResult.installResult.ok) {
+    return flowResult.installResult;
+  }
+  return {
+    ...flowResult.installResult,
+    npmResolution: flowResult.npmResolution,
+    integrityDrift: flowResult.integrityDrift,
+  };
 }
 
 export async function installHooksFromPath(params: {

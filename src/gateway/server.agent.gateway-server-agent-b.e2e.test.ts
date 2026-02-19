@@ -45,12 +45,15 @@ import type { ChannelPlugin } from "../channels/plugins/types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { emitAgentEvent, registerAgentRunContext } from "../infra/agent-events.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { PluginRegistry } from "../plugins/registry.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 =======
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
+=======
+>>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
 import { setRegistry } from "./server.agent.gateway-server-agent.mocks.js";
 <<<<<<< HEAD
 >>>>>>> e0d7f97c5 (refactor(test): share gateway server plugin mocks)
@@ -59,6 +62,7 @@ import { createRegistry } from "./server.e2e-registry-helpers.js";
 >>>>>>> c3812a1ff (refactor(test): share gateway e2e registry helper)
 import {
   agentCommand,
+  connectWebchatClient,
   connectOk,
   installGatewayTestHooks,
   onceMessage,
@@ -513,18 +517,7 @@ describe("gateway server agent", () => {
     await writeMainSessionEntry({ sessionId: "sess-main" });
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 
-    const webchatWs = new WebSocket(`ws://127.0.0.1:${port}`, {
-      headers: { origin: `http://127.0.0.1:${port}` },
-    });
-    await new Promise<void>((resolve) => webchatWs.once("open", resolve));
-    await connectOk(webchatWs, {
-      client: {
-        id: GATEWAY_CLIENT_NAMES.WEBCHAT,
-        version: "1.0.0",
-        platform: "test",
-        mode: GATEWAY_CLIENT_MODES.WEBCHAT,
-      },
-    });
+    const webchatWs = await connectWebchatClient({ port });
 
     registerAgentRunContext("run-auto-1", { sessionKey: "main" });
 

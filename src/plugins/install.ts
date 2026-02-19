@@ -21,11 +21,16 @@ import {
   unscopedPackageName,
 } from "../infra/install-safe-path.js";
 import {
+<<<<<<< HEAD
   packNpmSpecToArchive,
+=======
+  type NpmIntegrityDrift,
+  type NpmSpecResolution,
+>>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
   resolveArchiveSourcePath,
   withTempDir,
 } from "../infra/install-source-utils.js";
-import { resolveNpmIntegrityDriftWithDefaultMessage } from "../infra/npm-integrity.js";
+import { installFromNpmSpecArchive } from "../infra/npm-pack-install.js";
 import { validateRegistryNpmSpec } from "../infra/npm-registry-spec.js";
 <<<<<<< HEAD
 >>>>>>> 4caeb203a (refactor(install): share package dir install)
@@ -515,6 +520,7 @@ export async function installPluginFromNpmSpec(params: {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-npm-pack-"));
   logger.info?.(`Downloading ${spec}…`);
   const res = await runCommandWithTimeout(["npm", "pack", spec], {
@@ -595,7 +601,40 @@ export async function installPluginFromNpmSpec(params: {
       expectedPluginId,
     });
 >>>>>>> 8a9fddedc (refactor: extract shared install and embedding utilities)
+=======
+  logger.info?.(`Downloading ${spec}…`);
+  const flowResult = await installFromNpmSpecArchive({
+    tempDirPrefix: "openclaw-npm-pack-",
+    spec,
+    timeoutMs,
+    expectedIntegrity: params.expectedIntegrity,
+    onIntegrityDrift: params.onIntegrityDrift,
+    warn: (message) => {
+      logger.warn?.(message);
+    },
+    installFromArchive: async ({ archivePath }) =>
+      await installPluginFromArchive({
+        archivePath,
+        extensionsDir: params.extensionsDir,
+        timeoutMs,
+        logger,
+        mode,
+        dryRun,
+        expectedPluginId,
+      }),
+>>>>>>> dcd592a60 (refactor: eliminate jscpd clones and boost tests)
   });
+  if (!flowResult.ok) {
+    return flowResult;
+  }
+  if (!flowResult.installResult.ok) {
+    return flowResult.installResult;
+  }
+  return {
+    ...flowResult.installResult,
+    npmResolution: flowResult.npmResolution,
+    integrityDrift: flowResult.integrityDrift,
+  };
 }
 
 export async function installPluginFromPath(params: {
