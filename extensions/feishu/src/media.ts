@@ -1,8 +1,14 @@
 import type { ClawdbotConfig } from "openclaw/plugin-sdk";
 import fs from "fs";
+<<<<<<< HEAD
 import os from "os";
 import path from "path";
 import { Readable } from "stream";
+=======
+import path from "path";
+import { Readable } from "stream";
+import { buildRandomTempFilePath, type ClawdbotConfig } from "openclaw/plugin-sdk";
+>>>>>>> a7c0aa94d (refactor(security): share safe temp media path builder (#20810))
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuClient } from "./client.js";
 import { resolveReceiveIdType, normalizeFeishuTarget } from "./targets.js";
@@ -39,6 +45,7 @@ export async function downloadImageFeishu(params: {
     path: { image_key: imageKey },
   });
 
+<<<<<<< HEAD
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK response type
   const responseAny = response as any;
   if (responseAny.code !== undefined && responseAny.code !== 0) {
@@ -93,6 +100,14 @@ export async function downloadImageFeishu(params: {
     throw new Error(`Feishu image download failed: unexpected response format. Keys: [${types}]`);
   }
 
+=======
+  const tmpPath = buildRandomTempFilePath({ prefix: "feishu_img" });
+  const buffer = await readFeishuResponseBuffer({
+    response,
+    tmpPath,
+    errorPrefix: "Feishu image download failed",
+  });
+>>>>>>> a7c0aa94d (refactor(security): share safe temp media path builder (#20810))
   return { buffer };
 }
 
@@ -120,6 +135,7 @@ export async function downloadMessageResourceFeishu(params: {
     params: { type },
   });
 
+<<<<<<< HEAD
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK response type
   const responseAny = response as any;
   if (responseAny.code !== undefined && responseAny.code !== 0) {
@@ -176,6 +192,14 @@ export async function downloadMessageResourceFeishu(params: {
     );
   }
 
+=======
+  const tmpPath = buildRandomTempFilePath({ prefix: "feishu" });
+  const buffer = await readFeishuResponseBuffer({
+    response,
+    tmpPath,
+    errorPrefix: "Feishu message resource download failed",
+  });
+>>>>>>> a7c0aa94d (refactor(security): share safe temp media path builder (#20810))
   return { buffer };
 }
 
