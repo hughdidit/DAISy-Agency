@@ -332,6 +332,7 @@ describe("exec approvals safe bins", () => {
     });
     expect(ok).toBe(true);
   });
+<<<<<<< HEAD
 
   it("blocks safe bins with file args", () => {
 <<<<<<< HEAD
@@ -346,6 +347,16 @@ describe("exec approvals safe bins", () => {
     fs.writeFileSync(file, "{}");
     const res = analyzeShellCommand({
 =======
+=======
+  it("does not include sort/grep in default safeBins", () => {
+    const defaults = resolveSafeBins(undefined);
+    expect(defaults.has("jq")).toBe(true);
+    expect(defaults.has("sort")).toBe(false);
+    expect(defaults.has("grep")).toBe(false);
+  });
+
+  it("blocks sort output flags independent of file existence", () => {
+>>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
     if (process.platform === "win32") {
       return;
     }
@@ -361,6 +372,43 @@ describe("exec approvals safe bins", () => {
       cwd: dir,
     });
     expect(ok).toBe(false);
+  });
+
+  it("threads trusted safe-bin dirs through allowlist evaluation", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const analysis = {
+      ok: true as const,
+      segments: [
+        {
+          raw: "jq .foo",
+          argv: ["jq", ".foo"],
+          resolution: {
+            rawExecutable: "jq",
+            resolvedPath: "/custom/bin/jq",
+            executableName: "jq",
+          },
+        },
+      ],
+    };
+    const denied = evaluateExecAllowlist({
+      analysis,
+      allowlist: [],
+      safeBins: normalizeSafeBins(["jq"]),
+      trustedSafeBinDirs: new Set(["/usr/bin"]),
+      cwd: "/tmp",
+    });
+    expect(denied.allowlistSatisfied).toBe(false);
+
+    const allowed = evaluateExecAllowlist({
+      analysis,
+      allowlist: [],
+      safeBins: normalizeSafeBins(["jq"]),
+      trustedSafeBinDirs: new Set(["/custom/bin"]),
+      cwd: "/tmp",
+    });
+    expect(allowed.allowlistSatisfied).toBe(true);
   });
 });
 

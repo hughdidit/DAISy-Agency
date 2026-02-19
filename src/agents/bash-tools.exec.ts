@@ -6,6 +6,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import crypto from "node:crypto";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import path from "node:path";
@@ -80,6 +81,13 @@ import {
   resolveExecApprovalsFromFile,
 } from "../infra/exec-approvals.js";
 import { buildNodeShellCommand } from "../infra/node-shell.js";
+=======
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+import { type ExecHost, maxAsk, minSecurity, resolveSafeBins } from "../infra/exec-approvals.js";
+import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
+>>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
 import {
   getShellPathFromLoginShell,
   resolveShellEnvFallbackTimeoutMs,
@@ -102,30 +110,26 @@ import type { BashSandboxConfig } from "./bash-tools.shared.js";
 =======
 import { logInfo } from "../logger.js";
 import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
-import { markBackgrounded, tail } from "./bash-process-registry.js";
+import { markBackgrounded } from "./bash-process-registry.js";
+import { processGatewayAllowlist } from "./bash-tools.exec-host-gateway.js";
+import { executeNodeHostCommand } from "./bash-tools.exec-host-node.js";
 import {
-  DEFAULT_APPROVAL_REQUEST_TIMEOUT_MS,
-  DEFAULT_APPROVAL_TIMEOUT_MS,
   DEFAULT_MAX_OUTPUT,
-  DEFAULT_NOTIFY_TAIL_CHARS,
   DEFAULT_PATH,
   DEFAULT_PENDING_MAX_OUTPUT,
   applyPathPrepend,
   applyShellPath,
-  createApprovalSlug,
-  emitExecSystemEvent,
   normalizeExecAsk,
   normalizeExecHost,
   normalizeExecSecurity,
-  normalizeNotifyOutput,
   normalizePathPrepend,
   renderExecHostLabel,
   resolveApprovalRunningNoticeMs,
   runExecProcess,
   execSchema,
-  type ExecProcessHandle,
   validateHostEnv,
 } from "./bash-tools.exec-runtime.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -152,6 +156,13 @@ import type { BashSandboxConfig } from "./bash-tools.shared.js";
 =======
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type {
+  ExecElevatedDefaults,
+  ExecToolDefaults,
+  ExecToolDetails,
+} from "./bash-tools.exec-types.js";
+>>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
 import {
   buildSandboxEnv,
   clampWithDefault,
@@ -161,6 +172,7 @@ import {
   resolveWorkdir,
   truncateMiddle,
 } from "./bash-tools.shared.js";
+<<<<<<< HEAD
 import { callGatewayTool } from "./tools/gateway.js";
 import { listNodes, resolveNodeIdFromList } from "./tools/nodes-utils.js";
 import { getShellConfig, sanitizeBinaryOutput } from "./shell-utils.js";
@@ -320,41 +332,15 @@ export type ExecToolDefaults = {
   notifyOnExitEmptySuccess?: boolean;
   cwd?: string;
 };
+=======
+>>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
 
 export type { BashSandboxConfig } from "./bash-tools.shared.js";
-
-export type ExecElevatedDefaults = {
-  enabled: boolean;
-  allowed: boolean;
-  defaultLevel: "on" | "off" | "ask" | "full";
-};
-
-export type ExecToolDetails =
-  | {
-      status: "running";
-      sessionId: string;
-      pid?: number;
-      startedAt: number;
-      cwd?: string;
-      tail?: string;
-    }
-  | {
-      status: "completed" | "failed";
-      exitCode: number | null;
-      durationMs: number;
-      aggregated: string;
-      cwd?: string;
-    }
-  | {
-      status: "approval-pending";
-      approvalId: string;
-      approvalSlug: string;
-      expiresAtMs: number;
-      host: ExecHost;
-      command: string;
-      cwd?: string;
-      nodeId?: string;
-    };
+export type {
+  ExecElevatedDefaults,
+  ExecToolDefaults,
+  ExecToolDetails,
+} from "./bash-tools.exec-types.js";
 
 function extractScriptTargetFromCommand(
   command: string,
@@ -464,6 +450,7 @@ export function createExecTool(
       : 1800;
   const defaultPathPrepend = normalizePathPrepend(defaults?.pathPrepend);
   const safeBins = resolveSafeBins(defaults?.safeBins);
+  const trustedSafeBinDirs = getTrustedSafeBinDirs();
   const notifyOnExit = defaults?.notifyOnExit !== false;
   const notifyOnExitEmptySuccess = defaults?.notifyOnExitEmptySuccess === true;
   const notifySessionKey = defaults?.sessionKey?.trim() || undefined;
@@ -643,6 +630,7 @@ export function createExecTool(
       applyPathPrepend(env, defaultPathPrepend);
 
       if (host === "node") {
+<<<<<<< HEAD
         const approvals = resolveExecApprovals(agentId, { security, ask });
         const hostSecurity = minSecurity(security, approvals.agent.security);
         const hostAsk = maxAsk(ask, approvals.agent.ask);
@@ -689,11 +677,13 @@ export function createExecTool(
           applyPathPrepend(nodeEnv, defaultPathPrepend, { requireExisting: true });
         }
         const baseAllowlistEval = evaluateShellAllowlist({
+=======
+        return executeNodeHostCommand({
+>>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
           command: params.command,
-          allowlist: [],
-          safeBins: new Set(),
-          cwd: workdir,
+          workdir,
           env,
+<<<<<<< HEAD
         });
         let analysisOk = baseAllowlistEval.analysisOk;
         let allowlistSatisfied = false;
@@ -909,22 +899,30 @@ export function createExecTool(
             cwd: workdir,
           } satisfies ExecToolDetails,
         };
+=======
+          requestedEnv: params.env,
+          requestedNode: params.node?.trim(),
+          boundNode: defaults?.node?.trim(),
+          sessionKey: defaults?.sessionKey,
+          agentId,
+          security,
+          ask,
+          timeoutSec: params.timeout,
+          defaultTimeoutSec,
+          approvalRunningNoticeMs,
+          warnings,
+          notifySessionKey,
+          trustedSafeBinDirs,
+        });
+>>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
       }
 
       if (host === "gateway" && !bypassApprovals) {
-        const approvals = resolveExecApprovals(agentId, { security, ask });
-        const hostSecurity = minSecurity(security, approvals.agent.security);
-        const hostAsk = maxAsk(ask, approvals.agent.ask);
-        const askFallback = approvals.agent.askFallback;
-        if (hostSecurity === "deny") {
-          throw new Error("exec denied: host=gateway security=deny");
-        }
-        const allowlistEval = evaluateShellAllowlist({
+        const gatewayResult = await processGatewayAllowlist({
           command: params.command,
-          allowlist: approvals.allowlist,
-          safeBins,
-          cwd: workdir,
+          workdir,
           env,
+<<<<<<< HEAD
         });
         const allowlistMatches = allowlistEval.allowlistMatches;
         const analysisOk = allowlistEval.analysisOk;
@@ -1136,7 +1134,28 @@ export function createExecTool(
               allowlistEval.segments[0]?.resolution?.resolvedPath,
             );
           }
+=======
+          pty: params.pty === true && !sandbox,
+          timeoutSec: params.timeout,
+          defaultTimeoutSec,
+          security,
+          ask,
+          safeBins,
+          agentId,
+          sessionKey: defaults?.sessionKey,
+          scopeKey: defaults?.scopeKey,
+          warnings,
+          notifySessionKey,
+          approvalRunningNoticeMs,
+          maxOutput,
+          pendingMaxOutput,
+          trustedSafeBinDirs,
+        });
+        if (gatewayResult.pendingResult) {
+          return gatewayResult.pendingResult;
+>>>>>>> fec48a500 (refactor(exec): split host flows and harden safe-bin trust)
         }
+        execCommandOverride = gatewayResult.execCommandOverride;
       }
 
       const effectiveTimeout =
