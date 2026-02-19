@@ -1,7 +1,10 @@
 import { createRequire } from "node:module";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+=======
+>>>>>>> 2e421f32d (fix(security): restore trusted plugin runtime exec default)
 import type { PluginRuntime } from "./types.js";
 import { resolveEffectiveMessagesConfig, resolveHumanDelayConfig } from "../../agents/identity.js";
 import { createMemoryGetTool, createMemorySearchTool } from "../../agents/tools/memory-tool.js";
@@ -167,6 +170,7 @@ import { sendMessageWhatsApp, sendPollWhatsApp } from "../../web/outbound.js";
 import { registerMemoryCli } from "../../cli/memory-cli.js";
 import { formatNativeDependencyHint } from "./native-deps.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { textToSpeechTelephony } from "../../tts/tts.js";
 import {
   listLineAccountIds,
@@ -191,6 +195,8 @@ import { buildTemplateMessageFromPayload } from "../../line/template-messages.js
 import type { PluginRuntime } from "./types.js";
 =======
 >>>>>>> 2992639f8 (Revert "feat: add Linq channel — real iMessage via API, no Mac required")
+=======
+>>>>>>> 2e421f32d (fix(security): restore trusted plugin runtime exec default)
 
 let cachedVersion: string | null = null;
 
@@ -288,6 +294,7 @@ function loadWhatsAppActions() {
   return whatsappActionsPromise;
 }
 
+<<<<<<< HEAD
 const RUNTIME_LEGACY_EXEC_DISABLED_ERROR =
   "runtime.system.runCommandWithTimeout is disabled for security hardening. Use fixed-purpose runtime APIs instead.";
 
@@ -310,6 +317,8 @@ const runtimeCommandExecutionGuarded: PluginRuntime["system"]["runCommandWithTim
 };
 
 >>>>>>> 45db2aa0c (Security: disable plugin runtime command execution primitive (#20828))
+=======
+>>>>>>> 2e421f32d (fix(security): restore trusted plugin runtime exec default)
 export function createPluginRuntime(): PluginRuntime {
   return {
     version: resolveVersion(),
@@ -319,7 +328,7 @@ export function createPluginRuntime(): PluginRuntime {
     },
     system: {
       enqueueSystemEvent,
-      runCommandWithTimeout: runtimeCommandExecutionGuarded,
+      runCommandWithTimeout,
       formatNativeDependencyHint,
     },
     media: {

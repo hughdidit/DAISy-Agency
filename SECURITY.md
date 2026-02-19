@@ -48,6 +48,14 @@ When patching a GHSA via `gh api`, include `X-GitHub-Api-Version: 2022-11-28` (o
 - Public Internet Exposure
 - Using OpenClaw in ways that the docs recommend not to
 
+## Plugin Trust Boundary
+
+Plugins/extensions are loaded **in-process** with the Gateway and are treated as trusted code.
+
+- Plugins can execute with the same OS privileges as the OpenClaw process.
+- Runtime helpers (for example `runtime.system.runCommandWithTimeout`) are convenience APIs, not a sandbox boundary.
+- Only install plugins you trust, and prefer `plugins.allow` to pin explicit trusted plugin ids.
+
 ## Operational Guidance
 
 For threat model + hardening guidance (including `openclaw security audit --deep` and `--fix`), see:

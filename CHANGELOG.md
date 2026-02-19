@@ -105,9 +105,13 @@ Status: beta.
 - Commands/Doctor: skip embedding-provider warnings when `memory.backend` is `qmd`, because QMD manages embeddings internally and does not require `memorySearch` providers. (#17263) Thanks @miloudbelarebia.
 >>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 - Security/Webhooks: harden Feishu and Zalo webhook ingress with webhook-mode token preconditions, loopback-default Feishu bind host, JSON content-type enforcement, per-path rate limiting, replay dedupe for Zalo events, constant-time Zalo secret comparison, and anomaly status counters.
+<<<<<<< HEAD
 >>>>>>> 3c419b7bd (docs(security): document webhook hardening and changelog)
 - Security/Plugins: add explicit `plugins.runtime.allowLegacyExec` opt-in to re-enable deprecated `runtime.system.runCommandWithTimeout` for legacy modules while keeping runtime command execution disabled by default. (#20874) Thanks @mbelinky.
 >>>>>>> db7340223 (Security: add explicit opt-in for deprecated plugin runtime exec (#20874))
+=======
+- Security/Plugins: for the next npm release, clarify plugin trust boundary and keep `runtime.system.runCommandWithTimeout` available by default for trusted in-process plugins. Thanks @markmusson for reporting.
+>>>>>>> 2e421f32d (fix(security): restore trusted plugin runtime exec default)
 - Gateway/WebChat: block `sessions.patch` and `sessions.delete` for WebChat clients so session-store mutations stay restricted to non-WebChat operator flows. Thanks @allsmog for reporting.
 <<<<<<< HEAD
 >>>>>>> 981d26648 (security(gateway): block webchat session mutators (#20800))
