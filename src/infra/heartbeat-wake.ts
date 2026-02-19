@@ -1,3 +1,9 @@
+import {
+  isHeartbeatActionWakeReason,
+  normalizeHeartbeatWakeReason,
+  resolveHeartbeatReasonKind,
+} from "./heartbeat-reason.js";
+
 export type HeartbeatRunResult =
   | { status: "ran"; durationMs: number }
   | { status: "skipped"; reason: string }
@@ -23,7 +29,6 @@ let timerKind: WakeTimerKind | null = null;
 
 const DEFAULT_COALESCE_MS = 250;
 const DEFAULT_RETRY_MS = 1_000;
-const HOOK_REASON_PREFIX = "hook:";
 const REASON_PRIORITY = {
   RETRY: 0,
   INTERVAL: 1,
@@ -31,29 +36,22 @@ const REASON_PRIORITY = {
   ACTION: 3,
 } as const;
 
-function isActionWakeReason(reason: string): boolean {
-  return reason === "manual" || reason === "exec-event" || reason.startsWith(HOOK_REASON_PREFIX);
-}
-
 function resolveReasonPriority(reason: string): number {
-  if (reason === "retry") {
+  const kind = resolveHeartbeatReasonKind(reason);
+  if (kind === "retry") {
     return REASON_PRIORITY.RETRY;
   }
-  if (reason === "interval") {
+  if (kind === "interval") {
     return REASON_PRIORITY.INTERVAL;
   }
-  if (isActionWakeReason(reason)) {
+  if (isHeartbeatActionWakeReason(reason)) {
     return REASON_PRIORITY.ACTION;
   }
   return REASON_PRIORITY.DEFAULT;
 }
 
 function normalizeWakeReason(reason?: string): string {
-  if (typeof reason !== "string") {
-    return "requested";
-  }
-  const trimmed = reason.trim();
-  return trimmed.length > 0 ? trimmed : "requested";
+  return normalizeHeartbeatWakeReason(reason);
 }
 
 function queuePendingWakeReason(reason?: string, requestedAt = Date.now()) {

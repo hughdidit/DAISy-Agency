@@ -130,7 +130,37 @@ describe("Ghost reminder bug (issue #13317)", () => {
   });
 
   it("uses CRON_EVENT_PROMPT when an actionable cron event exists", async () => {
+<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-"));
+=======
+    const { result, sendTelegram, getReplySpy } = await runCronReminderCase(
+      "openclaw-cron-",
+      (sessionKey) => {
+        enqueueSystemEvent("Reminder: Check Base Scout results", { sessionKey });
+      },
+    );
+    expect(result.status).toBe("ran");
+    expectCronEventPrompt(getReplySpy, "Reminder: Check Base Scout results");
+    expect(sendTelegram).toHaveBeenCalled();
+  });
+
+  it("uses CRON_EVENT_PROMPT when cron events are mixed with heartbeat noise", async () => {
+    const { result, sendTelegram, getReplySpy } = await runCronReminderCase(
+      "openclaw-cron-mixed-",
+      (sessionKey) => {
+        enqueueSystemEvent("HEARTBEAT_OK", { sessionKey });
+        enqueueSystemEvent("Reminder: Check Base Scout results", { sessionKey });
+      },
+    );
+    expect(result.status).toBe("ran");
+    expectCronEventPrompt(getReplySpy, "Reminder: Check Base Scout results");
+    expect(sendTelegram).toHaveBeenCalled();
+  });
+
+  it("uses CRON_EVENT_PROMPT for tagged cron events on interval wake", async () => {
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cron-interval-"));
+    await fs.writeFile(path.join(tmpDir, "HEARTBEAT.md"), "- Check status\n", "utf-8");
+>>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
     const sendTelegram = vi.fn().mockResolvedValue({
       messageId: "m1",
       chatId: "155462274",

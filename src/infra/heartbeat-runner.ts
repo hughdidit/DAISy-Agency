@@ -41,6 +41,7 @@ import { normalizeAgentId, toAgentStoreSessionKey } from "../routing/session-key
 import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 import { formatErrorMessage } from "./errors.js";
 import { emitHeartbeatEvent, resolveIndicatorType } from "./heartbeat-events.js";
+import { resolveHeartbeatReasonKind } from "./heartbeat-reason.js";
 import { resolveHeartbeatVisibility } from "./heartbeat-visibility.js";
 import {
   type HeartbeatRunResult,
@@ -530,6 +531,94 @@ function normalizeHeartbeatReply(
   return { shouldSkip: false, text: finalText, hasMedia };
 }
 
+type HeartbeatReasonFlags = {
+  isExecEventReason: boolean;
+  isCronEventReason: boolean;
+  isWakeReason: boolean;
+};
+
+type HeartbeatSkipReason = "empty-heartbeat-file" | "no-heartbeat-file";
+
+type HeartbeatPreflight = HeartbeatReasonFlags & {
+  session: ReturnType<typeof resolveHeartbeatSession>;
+  pendingEventEntries: ReturnType<typeof peekSystemEventEntries>;
+  hasTaggedCronEvents: boolean;
+  shouldInspectPendingEvents: boolean;
+  skipReason?: HeartbeatSkipReason;
+};
+
+function resolveHeartbeatReasonFlags(reason?: string): HeartbeatReasonFlags {
+  const reasonKind = resolveHeartbeatReasonKind(reason);
+  return {
+    isExecEventReason: reasonKind === "exec-event",
+    isCronEventReason: reasonKind === "cron",
+    isWakeReason: reasonKind === "wake" || reasonKind === "hook",
+  };
+}
+
+async function resolveHeartbeatPreflight(params: {
+  cfg: OpenClawConfig;
+  agentId: string;
+  heartbeat?: HeartbeatConfig;
+  forcedSessionKey?: string;
+  reason?: string;
+}): Promise<HeartbeatPreflight> {
+  const reasonFlags = resolveHeartbeatReasonFlags(params.reason);
+  const session = resolveHeartbeatSession(
+    params.cfg,
+    params.agentId,
+    params.heartbeat,
+    params.forcedSessionKey,
+  );
+  const pendingEventEntries = peekSystemEventEntries(session.sessionKey);
+  const hasTaggedCronEvents = pendingEventEntries.some((event) =>
+    event.contextKey?.startsWith("cron:"),
+  );
+  const shouldInspectPendingEvents =
+    reasonFlags.isExecEventReason || reasonFlags.isCronEventReason || hasTaggedCronEvents;
+  const shouldBypassFileGates =
+    reasonFlags.isExecEventReason ||
+    reasonFlags.isCronEventReason ||
+    reasonFlags.isWakeReason ||
+    hasTaggedCronEvents;
+
+  const workspaceDir = resolveAgentWorkspaceDir(params.cfg, params.agentId);
+  const heartbeatFilePath = path.join(workspaceDir, DEFAULT_HEARTBEAT_FILENAME);
+  try {
+    const heartbeatFileContent = await fs.readFile(heartbeatFilePath, "utf-8");
+    if (isHeartbeatContentEffectivelyEmpty(heartbeatFileContent) && !shouldBypassFileGates) {
+      return {
+        ...reasonFlags,
+        session,
+        pendingEventEntries,
+        hasTaggedCronEvents,
+        shouldInspectPendingEvents,
+        skipReason: "empty-heartbeat-file",
+      };
+    }
+  } catch (err: unknown) {
+    if ((err as NodeJS.ErrnoException)?.code === "ENOENT" && !shouldBypassFileGates) {
+      return {
+        ...reasonFlags,
+        session,
+        pendingEventEntries,
+        hasTaggedCronEvents,
+        shouldInspectPendingEvents,
+        skipReason: "no-heartbeat-file",
+      };
+    }
+    // For other read errors, proceed with heartbeat as before.
+  }
+
+  return {
+    ...reasonFlags,
+    session,
+    pendingEventEntries,
+    hasTaggedCronEvents,
+    shouldInspectPendingEvents,
+  };
+}
+
 export async function runHeartbeatOnce(opts: {
   cfg?: OpenClawConfig;
   agentId?: string;
@@ -560,6 +649,7 @@ export async function runHeartbeatOnce(opts: {
     return { status: "skipped", reason: "requests-in-flight" };
   }
 
+<<<<<<< HEAD
   // Skip heartbeat if HEARTBEAT.md exists but has no actionable content.
   // This saves API calls/costs when the file is effectively empty (only comments/headers).
   // EXCEPTION: Don't skip for exec events or cron events - they have pending system events
@@ -588,6 +678,26 @@ export async function runHeartbeatOnce(opts: {
   }
 
   const { entry, sessionKey, storePath } = resolveHeartbeatSession(cfg, agentId, heartbeat);
+=======
+  // Preflight centralizes trigger classification, event inspection, and HEARTBEAT.md gating.
+  const preflight = await resolveHeartbeatPreflight({
+    cfg,
+    agentId,
+    heartbeat,
+    forcedSessionKey: opts.sessionKey,
+    reason: opts.reason,
+  });
+  if (preflight.skipReason) {
+    emitHeartbeatEvent({
+      status: "skipped",
+      reason: preflight.skipReason,
+      durationMs: Date.now() - startedAt,
+    });
+    return { status: "skipped", reason: preflight.skipReason };
+  }
+  const { entry, sessionKey, storePath } = preflight.session;
+  const { isCronEventReason, pendingEventEntries } = preflight;
+>>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
   const previousUpdatedAt = entry?.updatedAt;
   const delivery = resolveHeartbeatDeliveryTarget({ cfg, entry, heartbeat });
   const heartbeatAccountId = heartbeat?.accountId?.trim();
@@ -620,6 +730,7 @@ export async function runHeartbeatOnce(opts: {
   // Check if this is an exec event or cron event with pending system events.
   // If so, use a specialized prompt that instructs the model to relay the result
   // instead of the standard heartbeat prompt with "reply HEARTBEAT_OK".
+<<<<<<< HEAD
   const isExecEvent = opts.reason === "exec-event";
   const isCronEvent = Boolean(opts.reason?.startsWith("cron:"));
   const pendingEvents = isExecEvent || isCronEvent ? peekSystemEvents(sessionKey) : [];
@@ -652,6 +763,19 @@ export async function runHeartbeatOnce(opts: {
       ? CRON_EVENT_PROMPT
 =======
   const cronEvents = pendingEvents.filter((evt) => isCronSystemEvent(evt));
+=======
+  const shouldInspectPendingEvents = preflight.shouldInspectPendingEvents;
+  const pendingEvents = shouldInspectPendingEvents
+    ? pendingEventEntries.map((event) => event.text)
+    : [];
+  const cronEvents = pendingEventEntries
+    .filter(
+      (event) =>
+        (isCronEventReason || event.contextKey?.startsWith("cron:")) &&
+        isCronSystemEvent(event.text),
+    )
+    .map((event) => event.text);
+>>>>>>> f855d0be4 (fix: skip heartbeat when HEARTBEAT.md does not exist (#20461))
   const hasExecCompletion = pendingEvents.some(isExecCompletionEvent);
   const hasCronEvents = isCronEvent && cronEvents.length > 0;
   const prompt = hasExecCompletion
