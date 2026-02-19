@@ -2,6 +2,11 @@ import { resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { getHealthSnapshot, type HealthSummary } from "../../commands/health.js";
 import { CONFIG_PATH, STATE_DIR, loadConfig } from "../../config/config.js";
 import { resolveMainSessionKey } from "../../config/sessions.js";
+<<<<<<< HEAD
+=======
+import { getUpdateAvailable } from "../../infra/update-startup.js";
+import { listSystemPresence } from "../../infra/system-presence.js";
+>>>>>>> 2ddc13cdb (feat(ui): add update warning banner to control dashboard)
 import { normalizeMainKey } from "../../routing/session-key.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -45,6 +50,7 @@ export function buildGatewaySnapshot(): Snapshot {
   const presence = listSystemPresence();
   const uptimeMs = Math.round(process.uptime() * 1000);
   const auth = resolveGatewayAuth({ authConfig: cfg.gateway?.auth, env: process.env });
+  const updateAvailable = getUpdateAvailable() ?? undefined;
   // Health is async; caller should await getHealthSnapshot and replace later if needed.
   const emptyHealth: unknown = {};
   return {
@@ -62,6 +68,7 @@ export function buildGatewaySnapshot(): Snapshot {
       scope,
     },
     authMode: auth.mode,
+    updateAvailable,
   };
 }
 
