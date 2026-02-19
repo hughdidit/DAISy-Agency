@@ -24,7 +24,11 @@ import { Type } from "@sinclair/typebox";
 import { Type } from "@sinclair/typebox";
 >>>>>>> 8b34719b3 (style: apply oxfmt import ordering for ci)
 import type { OpenClawPluginApi } from "../../../src/plugins/types.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { resolveWindowsLobsterSpawn } from "./windows-spawn.js";
+>>>>>>> 02123e591 (refactor(lobster): extract windows spawn resolver)
 
 type LobsterEnvelope =
   | {
@@ -51,6 +55,7 @@ function resolveExecutablePath(lobsterPathRaw: string | undefined) {
   return lobsterPath;
 }
 
+<<<<<<< HEAD
 function isWindowsSpawnEINVAL(err: unknown) {
   if (!err || typeof err !== "object") {
     return false;
@@ -69,6 +74,41 @@ async function runLobsterSubprocessOnce(
   },
   useShell: boolean,
 ) {
+=======
+function normalizeForCwdSandbox(p: string): string {
+  const normalized = path.normalize(p);
+  return process.platform === "win32" ? normalized.toLowerCase() : normalized;
+}
+
+function resolveCwd(cwdRaw: unknown): string {
+  if (typeof cwdRaw !== "string" || !cwdRaw.trim()) {
+    return process.cwd();
+  }
+  const cwd = cwdRaw.trim();
+  if (path.isAbsolute(cwd)) {
+    throw new Error("cwd must be a relative path");
+  }
+  const base = process.cwd();
+  const resolved = path.resolve(base, cwd);
+
+  const rel = path.relative(normalizeForCwdSandbox(base), normalizeForCwdSandbox(resolved));
+  if (rel === "" || rel === ".") {
+    return resolved;
+  }
+  if (rel.startsWith("..") || path.isAbsolute(rel)) {
+    throw new Error("cwd must stay within the gateway working directory");
+  }
+  return resolved;
+}
+
+async function runLobsterSubprocessOnce(params: {
+  execPath: string;
+  argv: string[];
+  cwd: string;
+  timeoutMs: number;
+  maxStdoutBytes: number;
+}) {
+>>>>>>> 02123e591 (refactor(lobster): extract windows spawn resolver)
   const { execPath, argv, cwd } = params;
   const timeoutMs = Math.max(200, params.timeoutMs);
   const maxStdoutBytes = Math.max(1024, params.maxStdoutBytes);
@@ -91,6 +131,30 @@ async function runLobsterSubprocessOnce(
     let stdout = "";
     let stdoutBytes = 0;
     let stderr = "";
+    let settled = false;
+
+    const settle = (
+      result: { ok: true; value: { stdout: string } } | { ok: false; error: Error },
+    ) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(timer);
+      if (result.ok) {
+        resolve(result.value);
+      } else {
+        reject(result.error);
+      }
+    };
+
+    const failAndTerminate = (message: string) => {
+      try {
+        child.kill("SIGKILL");
+      } finally {
+        settle({ ok: false, error: new Error(message) });
+      }
+    };
 
     child.stdout?.setEncoding("utf8");
     child.stderr?.setEncoding("utf8");
@@ -99,11 +163,7 @@ async function runLobsterSubprocessOnce(
       const str = String(chunk);
       stdoutBytes += Buffer.byteLength(str, "utf8");
       if (stdoutBytes > maxStdoutBytes) {
-        try {
-          child.kill("SIGKILL");
-        } finally {
-          reject(new Error("lobster output exceeded maxStdoutBytes"));
-        }
+        failAndTerminate("lobster output exceeded maxStdoutBytes");
         return;
       }
       stdout += str;
@@ -114,25 +174,22 @@ async function runLobsterSubprocessOnce(
     });
 
     const timer = setTimeout(() => {
-      try {
-        child.kill("SIGKILL");
-      } finally {
-        reject(new Error("lobster subprocess timed out"));
-      }
+      failAndTerminate("lobster subprocess timed out");
     }, timeoutMs);
 
     child.once("error", (err) => {
-      clearTimeout(timer);
-      reject(err);
+      settle({ ok: false, error: err });
     });
 
     child.once("exit", (code) => {
-      clearTimeout(timer);
       if (code !== 0) {
-        reject(new Error(`lobster failed (${code ?? "?"}): ${stderr.trim() || stdout.trim()}`));
+        settle({
+          ok: false,
+          error: new Error(`lobster failed (${code ?? "?"}): ${stderr.trim() || stdout.trim()}`),
+        });
         return;
       }
-      resolve({ stdout });
+      settle({ ok: true, value: { stdout } });
     });
   });
 }
