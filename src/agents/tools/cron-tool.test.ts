@@ -17,6 +17,14 @@ describe("cron tool", () => {
     callGatewayMock.mockResolvedValue({ ok: true });
   });
 
+<<<<<<< HEAD:src/agents/tools/cron-tool.test.ts
+=======
+  it("marks cron as owner-only", async () => {
+    const tool = createCronTool();
+    expect(tool.ownerOnly).toBe(true);
+  });
+
+>>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps):src/agents/tools/cron-tool.e2e.test.ts
   it.each([
     [
       "update",

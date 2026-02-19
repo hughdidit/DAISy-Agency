@@ -4,7 +4,9 @@ import { detectMime } from "../../media/mime.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
 
 // oxlint-disable-next-line typescript/no-explicit-any
-export type AnyAgentTool = AgentTool<any, unknown>;
+export type AnyAgentTool = AgentTool<any, unknown> & {
+  ownerOnly?: boolean;
+};
 
 export type StringParamOptions = {
   required?: boolean;
@@ -212,10 +214,19 @@ export function jsonResult(payload: unknown): AgentToolResult<unknown> {
   };
 }
 
-export function assertOwnerSender(senderIsOwner?: boolean): void {
-  if (senderIsOwner === false) {
-    throw new Error(OWNER_ONLY_TOOL_ERROR);
+export function wrapOwnerOnlyToolExecution(
+  tool: AnyAgentTool,
+  senderIsOwner: boolean,
+): AnyAgentTool {
+  if (tool.ownerOnly !== true || senderIsOwner || !tool.execute) {
+    return tool;
   }
+  return {
+    ...tool,
+    execute: async () => {
+      throw new Error(OWNER_ONLY_TOOL_ERROR);
+    },
+  };
 }
 
 export async function imageResult(params: {

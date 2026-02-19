@@ -1,4 +1,9 @@
 import type { SkillCommandSpec } from "../../agents/skills.js";
+<<<<<<< HEAD
+=======
+import { applyOwnerOnlyToolPolicy } from "../../agents/tool-policy.js";
+import { getChannelDock } from "../../channels/dock.js";
+>>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
 import type { MsgContext, TemplateContext } from "../templating.js";
@@ -181,8 +186,9 @@ export async function handleInlineActions(params: {
         workspaceDir,
         config: cfg,
       });
+      const authorizedTools = applyOwnerOnlyToolPolicy(tools, command.senderIsOwner);
 
-      const tool = tools.find((candidate) => candidate.name === dispatch.toolName);
+      const tool = authorizedTools.find((candidate) => candidate.name === dispatch.toolName);
       if (!tool) {
         typing.cleanup();
         return { kind: "reply", reply: { text: `❌ Tool not available: ${dispatch.toolName}` } };
