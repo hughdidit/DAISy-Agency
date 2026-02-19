@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
@@ -28,7 +29,11 @@ import type { SsrFPolicy } from "../infra/net/ssrf.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { logVerbose, shouldLogVerbose } from "../globals.js";
+=======
+>>>>>>> bf3f8ec42 (refactor(media): unify safe local file reads)
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
+import { logVerbose, shouldLogVerbose } from "../globals.js";
+import { SafeOpenError, readLocalFileSafely } from "../infra/fs-safe.js";
 import { type MediaKind, maxBytesForKind, mediaKindFromMime } from "../media/constants.js";
 import { resolveUserPath } from "../utils.js";
 import { fetchRemoteMedia } from "../media/fetch.js";
@@ -69,6 +74,25 @@ export function getDefaultLocalRoots(): string[] {
   readFile?: (filePath: string) => Promise<Buffer>;
 };
 
+export type LocalMediaAccessErrorCode =
+  | "path-not-allowed"
+  | "invalid-root"
+  | "invalid-file-url"
+  | "unsafe-bypass"
+  | "not-found"
+  | "invalid-path"
+  | "not-file";
+
+export class LocalMediaAccessError extends Error {
+  code: LocalMediaAccessErrorCode;
+
+  constructor(code: LocalMediaAccessErrorCode, message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.code = code;
+    this.name = "LocalMediaAccessError";
+  }
+}
+
 export function getDefaultLocalRoots(): readonly string[] {
 >>>>>>> 683aa09b5 (refactor(media): harden localRoots bypass (#16739))
   return [
@@ -108,7 +132,10 @@ async function assertLocalMediaAllowed(
       if (rel && !rel.startsWith("..") && !path.isAbsolute(rel)) {
         const firstSegment = rel.split(path.sep)[0] ?? "";
         if (firstSegment.startsWith("workspace-")) {
-          throw new Error(`Local media path is not under an allowed directory: ${mediaPath}`);
+          throw new LocalMediaAccessError(
+            "path-not-allowed",
+            `Local media path is not under an allowed directory: ${mediaPath}`,
+          );
         }
       }
     }
@@ -121,7 +148,8 @@ async function assertLocalMediaAllowed(
       resolvedRoot = path.resolve(root);
     }
     if (resolvedRoot === path.parse(resolvedRoot).root) {
-      throw new Error(
+      throw new LocalMediaAccessError(
+        "invalid-root",
         `Invalid localRoots entry (refuses filesystem root): ${root}. Pass a narrower directory.`,
       );
     }
@@ -129,7 +157,10 @@ async function assertLocalMediaAllowed(
       return;
     }
   }
-  throw new Error(`Local media path is not under an allowed directory: ${mediaPath}`);
+  throw new LocalMediaAccessError(
+    "path-not-allowed",
+    `Local media path is not under an allowed directory: ${mediaPath}`,
+  );
 }
 
 const HEIC_MIME_RE = /^image\/hei[cf]$/i;
@@ -253,7 +284,7 @@ async function loadWebMediaInternal(
     try {
       mediaUrl = fileURLToPath(mediaUrl);
     } catch {
-      throw new Error(`Invalid file:// URL: ${mediaUrl}`);
+      throw new LocalMediaAccessError("invalid-file-url", `Invalid file:// URL: ${mediaUrl}`);
     }
   }
 
@@ -337,7 +368,8 @@ async function loadWebMediaInternal(
   }
 
   if ((sandboxValidated || localRoots === "any") && !readFileOverride) {
-    throw new Error(
+    throw new LocalMediaAccessError(
+      "unsafe-bypass",
       "Refusing localRoots bypass without readFile override. Use sandboxValidated with readFile, or pass explicit localRoots.",
     );
   }
@@ -348,7 +380,39 @@ async function loadWebMediaInternal(
   }
 
   // Local path
+<<<<<<< HEAD
   const data = await fs.readFile(mediaUrl);
+=======
+  let data: Buffer;
+  if (readFileOverride) {
+    data = await readFileOverride(mediaUrl);
+  } else {
+    try {
+      data = (await readLocalFileSafely({ filePath: mediaUrl })).buffer;
+    } catch (err) {
+      if (err instanceof SafeOpenError) {
+        if (err.code === "not-found") {
+          throw new LocalMediaAccessError("not-found", `Local media file not found: ${mediaUrl}`, {
+            cause: err,
+          });
+        }
+        if (err.code === "not-file") {
+          throw new LocalMediaAccessError(
+            "not-file",
+            `Local media path is not a file: ${mediaUrl}`,
+            { cause: err },
+          );
+        }
+        throw new LocalMediaAccessError(
+          "invalid-path",
+          `Local media path is not safe to read: ${mediaUrl}`,
+          { cause: err },
+        );
+      }
+      throw err;
+    }
+  }
+>>>>>>> bf3f8ec42 (refactor(media): unify safe local file reads)
   const mime = await detectMime({ buffer: data, filePath: mediaUrl });
   const kind = mediaKindFromMime(mime);
   let fileName = path.basename(mediaUrl) || undefined;
