@@ -132,6 +132,7 @@ targets:
             CFBundleURLSchemes:
               - openclaw
 <<<<<<< HEAD
+<<<<<<< HEAD
         CFBundleShortVersionString: "2026.2.17"
         CFBundleVersion: "20260217"
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
@@ -139,6 +140,10 @@ targets:
         CFBundleShortVersionString: "2026.2.18"
         CFBundleVersion: "20260218"
 >>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
+=======
+        CFBundleShortVersionString: "2026.2.19"
+        CFBundleVersion: "20260219"
+>>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -165,6 +170,93 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
 
+<<<<<<< HEAD
+=======
+  OpenClawShareExtension:
+    type: app-extension
+    platform: iOS
+    configFiles:
+      Debug: Signing.xcconfig
+      Release: Signing.xcconfig
+    sources:
+      - path: ShareExtension
+    dependencies:
+      - package: OpenClawKit
+    settings:
+      base:
+        CODE_SIGN_IDENTITY: "Apple Development"
+        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
+        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_SHARE_BUNDLE_ID)"
+        PROVISIONING_PROFILE_SPECIFIER: "$(OPENCLAW_SHARE_PROFILE)"
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+    info:
+      path: ShareExtension/Info.plist
+      properties:
+        CFBundleDisplayName: OpenClaw Share
+        CFBundleShortVersionString: "2026.2.19"
+        CFBundleVersion: "20260219"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).ShareViewController"
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsText: true
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+              NSExtensionActivationSupportsImageWithMaxCount: 10
+              NSExtensionActivationSupportsMovieWithMaxCount: 1
+
+  OpenClawWatchApp:
+    type: application.watchapp2
+    platform: watchOS
+    deploymentTarget: "11.0"
+    sources:
+      - path: WatchApp
+    dependencies:
+      - target: OpenClawWatchExtension
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_WATCH_APP_BUNDLE_ID)"
+    info:
+      path: WatchApp/Info.plist
+      properties:
+        CFBundleDisplayName: OpenClaw
+        CFBundleShortVersionString: "2026.2.19"
+        CFBundleVersion: "20260219"
+        WKCompanionAppBundleIdentifier: "$(OPENCLAW_APP_BUNDLE_ID)"
+        WKWatchKitApp: true
+
+  OpenClawWatchExtension:
+    type: watchkit2-extension
+    platform: watchOS
+    deploymentTarget: "11.0"
+    sources:
+      - path: WatchExtension/Sources
+    dependencies:
+      - sdk: WatchConnectivity.framework
+      - sdk: UserNotifications.framework
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_WATCH_EXTENSION_BUNDLE_ID)"
+    info:
+      path: WatchExtension/Info.plist
+      properties:
+        CFBundleDisplayName: OpenClaw
+        CFBundleShortVersionString: "2026.2.19"
+        CFBundleVersion: "20260219"
+        NSExtension:
+          NSExtensionAttributes:
+            WKAppBundleIdentifier: "$(OPENCLAW_WATCH_APP_BUNDLE_ID)"
+          NSExtensionPointIdentifier: com.apple.watchkit
+
+>>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
   OpenClawTests:
     type: bundle.unit-test
     platform: iOS
@@ -186,6 +278,7 @@ targets:
       path: Tests/Info.plist
       properties:
         CFBundleDisplayName: OpenClawTests
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -240,3 +333,7 @@ targets:
         CFBundleShortVersionString: "2026.2.18"
         CFBundleVersion: "20260218"
 >>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
+=======
+        CFBundleShortVersionString: "2026.2.19"
+        CFBundleVersion: "20260219"
+>>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)

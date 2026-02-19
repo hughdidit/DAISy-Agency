@@ -7,6 +7,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.2.1
 =======
 =======
@@ -18,6 +19,9 @@
 =======
 ## 2026.2.18
 >>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
+=======
+## 2026.2.19
+>>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
 
 ### Changes
 

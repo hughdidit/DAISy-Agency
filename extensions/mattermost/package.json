@@ -11,6 +11,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
@@ -43,6 +44,9 @@
 =======
   "version": "2026.2.18",
 >>>>>>> 4bf333883 (chore: bump version to 2026.2.18 unreleased)
+=======
+  "version": "2026.2.19",
+>>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
   "private": true,
 >>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
   "description": "OpenClaw Mattermost channel plugin",
