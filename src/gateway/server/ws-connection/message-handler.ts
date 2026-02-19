@@ -3,6 +3,7 @@ import type { IncomingMessage } from "node:http";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import os from "node:os";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -39,6 +40,10 @@ import type { GatewayWsClient } from "../ws-types.js";
 import os from "node:os";
 import type { WebSocket } from "ws";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import os from "node:os";
+import type { WebSocket } from "ws";
+>>>>>>> d900d5efb (style: normalize ws message handler import ordering)
 import { loadConfig } from "../../../config/config.js";
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import {
@@ -78,6 +83,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 =======
 import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
@@ -92,6 +98,9 @@ import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
 =======
 import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
+>>>>>>> d900d5efb (style: normalize ws message handler import ordering)
 import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
 import { loadConfig } from "../../../config/config.js";
 import { buildDeviceAuthPayload } from "../../device-auth.js";
@@ -131,6 +140,7 @@ import {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayWsClient } from "../ws-types.js";
 =======
 import {
@@ -153,6 +163,9 @@ import type { GatewayWsClient } from "../ws-types.js";
 =======
 import type { GatewayWsClient } from "../ws-types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { GatewayWsClient } from "../ws-types.js";
+>>>>>>> d900d5efb (style: normalize ws message handler import ordering)
 import { formatGatewayAuthFailureMessage, type AuthProvidedKind } from "./auth-messages.js";
 >>>>>>> 1843bcf1d (refactor(gateway): share host header parsing)
 
