@@ -12,6 +12,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.27-beta.1",
 =======
   "version": "2026.1.30",
@@ -48,6 +49,9 @@
 =======
   "version": "2026.2.19",
 >>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
+=======
+  "version": "2026.2.20",
+>>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
   "description": "Lobster workflow tool plugin (typed pipelines + resumable approvals)",
 >>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
   "type": "module",
