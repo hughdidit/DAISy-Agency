@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import type { ChannelId } from "../channels/plugins/types.js";
@@ -10,6 +11,8 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { ExecFn } from "./windows-acl.js";
 >>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
+=======
+>>>>>>> 268b0dc92 (style: fix formatting drift in security allowlist checks)
 import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
 <<<<<<< HEAD
 =======
@@ -17,9 +20,13 @@ import { resolveBrowserControlAuth } from "../browser/control-auth.js";
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { formatCliCommand } from "../cli/command-format.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 23555de5d (refactor(security): extract channel audit checks)
 =======
 >>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
+=======
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 268b0dc92 (style: fix formatting drift in security allowlist checks)
 import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { formatCliCommand } from "../cli/command-format.js";
@@ -65,10 +72,14 @@ import {
 import type { ExecFn } from "./windows-acl.js";
 =======
 import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
+<<<<<<< HEAD
 >>>>>>> 233483d2b (refactor(security): centralize dangerous tool lists)
 =======
 import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
 >>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
+=======
+import type { ExecFn } from "./windows-acl.js";
+>>>>>>> 268b0dc92 (style: fix formatting drift in security allowlist checks)
 
 export type SecurityAuditSeverity = "info" | "warn" | "critical";
 
