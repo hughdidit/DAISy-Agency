@@ -243,6 +243,7 @@ function loadWhatsAppActions() {
   return whatsappActionsPromise;
 }
 
+<<<<<<< HEAD
 const RUNTIME_LEGACY_EXEC_DISABLED_ERROR =
   "runtime.system.runCommandWithTimeout is disabled for security hardening. Use fixed-purpose runtime APIs instead.";
 
@@ -265,6 +266,8 @@ const runtimeCommandExecutionGuarded: PluginRuntime["system"]["runCommandWithTim
 };
 
 >>>>>>> 45db2aa0c (Security: disable plugin runtime command execution primitive (#20828))
+=======
+>>>>>>> 2e421f32d (fix(security): restore trusted plugin runtime exec default)
 export function createPluginRuntime(): PluginRuntime {
   return {
     version: resolveVersion(),
@@ -274,7 +277,7 @@ export function createPluginRuntime(): PluginRuntime {
     },
     system: {
       enqueueSystemEvent,
-      runCommandWithTimeout: runtimeCommandExecutionGuarded,
+      runCommandWithTimeout,
       formatNativeDependencyHint,
     },
     media: {
