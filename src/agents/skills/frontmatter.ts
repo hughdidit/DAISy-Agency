@@ -49,6 +49,7 @@ function parseInstallSpec(input: unknown): SkillInstallSpec | undefined {
   const bins = normalizeStringList(raw.bins);
   if (bins.length > 0) spec.bins = bins;
   const osList = normalizeStringList(raw.os);
+<<<<<<< HEAD
   if (osList.length > 0) spec.os = osList;
   if (typeof raw.formula === "string") spec.formula = raw.formula;
   if (typeof raw.package === "string") spec.package = raw.package;
@@ -58,6 +59,40 @@ function parseInstallSpec(input: unknown): SkillInstallSpec | undefined {
   if (typeof raw.extract === "boolean") spec.extract = raw.extract;
   if (typeof raw.stripComponents === "number") spec.stripComponents = raw.stripComponents;
   if (typeof raw.targetDir === "string") spec.targetDir = raw.targetDir;
+=======
+  if (osList.length > 0) {
+    spec.os = osList;
+  }
+  const formula = typeof raw.formula === "string" ? raw.formula.trim() : "";
+  if (formula) {
+    spec.formula = formula;
+  }
+  const cask = typeof raw.cask === "string" ? raw.cask.trim() : "";
+  if (!spec.formula && cask) {
+    spec.formula = cask;
+  }
+  if (typeof raw.package === "string") {
+    spec.package = raw.package;
+  }
+  if (typeof raw.module === "string") {
+    spec.module = raw.module;
+  }
+  if (typeof raw.url === "string") {
+    spec.url = raw.url;
+  }
+  if (typeof raw.archive === "string") {
+    spec.archive = raw.archive;
+  }
+  if (typeof raw.extract === "boolean") {
+    spec.extract = raw.extract;
+  }
+  if (typeof raw.stripComponents === "number") {
+    spec.stripComponents = raw.stripComponents;
+  }
+  if (typeof raw.targetDir === "string") {
+    spec.targetDir = raw.targetDir;
+  }
+>>>>>>> 82a174133 (fix: update formula handling in SKILL.md and frontmatter.ts (#11046))
 
   return spec;
 }
