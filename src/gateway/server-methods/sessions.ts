@@ -71,6 +71,7 @@ import { resolveSessionKeyFromResolveParams } from "../sessions-resolve.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { GatewayRequestHandlers } from "./types.js";
 =======
 =======
@@ -86,6 +87,9 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 =======
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { GatewayClient, GatewayRequestHandlers, RespondFn } from "./types.js";
+>>>>>>> 397f243de (refactor: dedupe gateway session guards and agent test fixtures)
 import { assertValidParams } from "./validation.js";
 
 function requireSessionKey(key: unknown, respond: RespondFn): string | null {
@@ -111,6 +115,26 @@ function resolveGatewaySessionTargetFromKey(key: string) {
   return { cfg, target, storePath: target.storePath };
 }
 >>>>>>> dc5d23484 (refactor(gateway): share server-method param validation)
+
+function rejectWebchatSessionMutation(params: {
+  action: "patch" | "delete";
+  client: GatewayClient | null;
+  isWebchatConnect: (params: GatewayClient["connect"] | null | undefined) => boolean;
+  respond: RespondFn;
+}): boolean {
+  if (!params.client?.connect || !params.isWebchatConnect(params.client.connect)) {
+    return false;
+  }
+  params.respond(
+    false,
+    undefined,
+    errorShape(
+      ErrorCodes.INVALID_REQUEST,
+      `webchat clients cannot ${params.action} sessions; use chat.send for session-scoped updates`,
+    ),
+  );
+  return true;
+}
 
 function migrateAndPruneSessionStoreKey(params: {
   cfg: ReturnType<typeof loadConfig>;
@@ -287,6 +311,12 @@ export const sessionsHandlers: GatewayRequestHandlers = {
     if (!key) {
       return;
     }
+<<<<<<< HEAD
+=======
+    if (rejectWebchatSessionMutation({ action: "patch", client, isWebchatConnect, respond })) {
+      return;
+    }
+>>>>>>> 397f243de (refactor: dedupe gateway session guards and agent test fixtures)
 
     const { cfg, target, storePath } = resolveGatewaySessionTargetFromKey(key);
     const applied = await updateSessionStore(storePath, async (store) => {
@@ -388,6 +418,12 @@ export const sessionsHandlers: GatewayRequestHandlers = {
     if (!key) {
       return;
     }
+<<<<<<< HEAD
+=======
+    if (rejectWebchatSessionMutation({ action: "delete", client, isWebchatConnect, respond })) {
+      return;
+    }
+>>>>>>> 397f243de (refactor: dedupe gateway session guards and agent test fixtures)
 
     const { cfg, target, storePath } = resolveGatewaySessionTargetFromKey(key);
     const mainKey = resolveMainSessionKey(cfg);
