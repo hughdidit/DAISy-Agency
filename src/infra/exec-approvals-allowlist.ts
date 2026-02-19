@@ -1,3 +1,4 @@
+import type { ExecAllowlistEntry } from "./exec-approvals.js";
 import {
   DEFAULT_SAFE_BINS,
   analyzeShellCommand,
@@ -9,6 +10,7 @@ import {
   type CommandResolution,
   type ExecCommandSegment,
 } from "./exec-approvals-analysis.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -65,6 +67,8 @@ function isTrustedSafeBinPath(resolvedPath: string): boolean {
 =======
 import type { ExecAllowlistEntry } from "./exec-approvals.js";
 >>>>>>> 268b0dc92 (style: fix formatting drift in security allowlist checks)
+=======
+>>>>>>> 165c18819 (refactor(security): simplify safe-bin validation structure)
 import {
   SAFE_BIN_GENERIC_PROFILE,
   SAFE_BIN_PROFILES,
@@ -95,8 +99,6 @@ export function isSafeBinUsage(params: {
   argv: string[];
   resolution: CommandResolution | null;
   safeBins: Set<string>;
-  cwd?: string;
-  fileExists?: (filePath: string) => boolean;
   trustedSafeBinDirs?: ReadonlySet<string>;
 }): boolean {
   // Windows host exec uses PowerShell, which has different parsing/expansion rules.
@@ -172,7 +174,11 @@ function evaluateSegments(
       argv: segment.argv,
       resolution: segment.resolution,
       safeBins: params.safeBins,
+<<<<<<< HEAD
       cwd: params.cwd,
+=======
+      trustedSafeBinDirs: params.trustedSafeBinDirs,
+>>>>>>> 165c18819 (refactor(security): simplify safe-bin validation structure)
     });
     const skillAllow =
       allowSkills && segment.resolution?.executableName
