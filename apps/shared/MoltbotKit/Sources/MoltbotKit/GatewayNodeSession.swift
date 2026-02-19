@@ -24,6 +24,13 @@ public actor GatewayNodeSession {
     private var onConnected: (@Sendable () async -> Void)?
     private var onDisconnected: (@Sendable (String) async -> Void)?
     private var onInvoke: (@Sendable (BridgeInvokeRequest) async -> BridgeInvokeResponse)?
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayNodeSession.swift
+=======
+    private var hasEverConnected = false
+    private var hasNotifiedConnected = false
+    private var snapshotReceived = false
+    private var snapshotWaiters: [CheckedContinuation<Bool, Never>] = []
+>>>>>>> 42d11a3ec (iOS: auto-resync chat after reconnect gaps (#21135)):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayNodeSession.swift
 
     static func invokeWithTimeout(
         request: BridgeInvokeRequest,
@@ -162,6 +169,7 @@ public actor GatewayNodeSession {
 <<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayNodeSession.swift
 =======
         self.activeConnectOptionsKey = nil
+        self.hasEverConnected = false
         self.resetConnectionState()
 >>>>>>> 6aedc54bd (iOS: alpha node app + setup-code onboarding (#11756)):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayNodeSession.swift
     }
@@ -223,7 +231,17 @@ public actor GatewayNodeSession {
         case let .snapshot(ok):
             let raw = ok.canvashosturl?.trimmingCharacters(in: .whitespacesAndNewlines)
             self.canvasHostUrl = (raw?.isEmpty == false) ? raw : nil
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayNodeSession.swift
             await self.onConnected?()
+=======
+            if self.hasEverConnected {
+                self.broadcastServerEvent(
+                    EventFrame(type: "event", event: "seqGap", payload: nil, seq: nil, stateversion: nil))
+            }
+            self.hasEverConnected = true
+            self.markSnapshotReceived()
+            await self.notifyConnectedIfNeeded()
+>>>>>>> 42d11a3ec (iOS: auto-resync chat after reconnect gaps (#21135)):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayNodeSession.swift
         case let .event(evt):
             await self.handleEvent(evt)
         default:
