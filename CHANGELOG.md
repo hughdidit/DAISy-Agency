@@ -10,6 +10,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.2.6-4
 =======
 =======
@@ -34,6 +35,15 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 ## 2026.2.19 (Unreleased)
+=======
+## 2026.2.20 (Unreleased)
+
+### Changes
+
+### Fixes
+
+## 2026.2.19
+>>>>>>> ff3a7e563 (chore: bump release metadata to 2026.2.20)
 
 ### Changes
 
