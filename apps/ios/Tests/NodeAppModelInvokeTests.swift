@@ -29,6 +29,46 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
     return try body()
 }
 
+<<<<<<< HEAD
+=======
+@MainActor
+private final class MockWatchMessagingService: WatchMessagingServicing, @unchecked Sendable {
+    var currentStatus = WatchMessagingStatus(
+        supported: true,
+        paired: true,
+        appInstalled: true,
+        reachable: true,
+        activationState: "activated")
+    var nextSendResult = WatchNotificationSendResult(
+        deliveredImmediately: true,
+        queuedForDelivery: false,
+        transport: "sendMessage")
+    var sendError: Error?
+    var lastSent: (id: String, params: OpenClawWatchNotifyParams)?
+    private var replyHandler: (@Sendable (WatchQuickReplyEvent) -> Void)?
+
+    func status() async -> WatchMessagingStatus {
+        self.currentStatus
+    }
+
+    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)?) {
+        self.replyHandler = handler
+    }
+
+    func sendNotification(id: String, params: OpenClawWatchNotifyParams) async throws -> WatchNotificationSendResult {
+        self.lastSent = (id: id, params: params)
+        if let sendError = self.sendError {
+            throw sendError
+        }
+        return self.nextSendResult
+    }
+
+    func emitReply(_ event: WatchQuickReplyEvent) {
+        self.replyHandler?(event)
+    }
+}
+
+>>>>>>> 738b01162 (iOS/watch: add actionable watch approvals and quick replies (#21996))
 @Suite(.serialized) struct NodeAppModelInvokeTests {
     @Test @MainActor func decodeParamsFailsWithoutJSON() {
         #expect(throws: Error.self) {
@@ -169,6 +209,115 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
         #expect(res.error?.code == .invalidRequest)
     }
 
+<<<<<<< HEAD
+=======
+    @Test @MainActor func handleInvokeWatchStatusReturnsServiceSnapshot() async throws {
+        let watchService = MockWatchMessagingService()
+        watchService.currentStatus = WatchMessagingStatus(
+            supported: true,
+            paired: true,
+            appInstalled: true,
+            reachable: false,
+            activationState: "inactive")
+        let appModel = NodeAppModel(watchMessagingService: watchService)
+        let req = BridgeInvokeRequest(id: "watch-status", command: OpenClawWatchCommand.status.rawValue)
+
+        let res = await appModel._test_handleInvoke(req)
+        #expect(res.ok == true)
+
+        let payloadData = try #require(res.payloadJSON?.data(using: .utf8))
+        let payload = try JSONDecoder().decode(OpenClawWatchStatusPayload.self, from: payloadData)
+        #expect(payload.supported == true)
+        #expect(payload.reachable == false)
+        #expect(payload.activationState == "inactive")
+    }
+
+    @Test @MainActor func handleInvokeWatchNotifyRoutesToWatchService() async throws {
+        let watchService = MockWatchMessagingService()
+        watchService.nextSendResult = WatchNotificationSendResult(
+            deliveredImmediately: false,
+            queuedForDelivery: true,
+            transport: "transferUserInfo")
+        let appModel = NodeAppModel(watchMessagingService: watchService)
+        let params = OpenClawWatchNotifyParams(
+            title: "OpenClaw",
+            body: "Meeting with Peter is at 4pm",
+            priority: .timeSensitive)
+        let paramsData = try JSONEncoder().encode(params)
+        let paramsJSON = String(decoding: paramsData, as: UTF8.self)
+        let req = BridgeInvokeRequest(
+            id: "watch-notify",
+            command: OpenClawWatchCommand.notify.rawValue,
+            paramsJSON: paramsJSON)
+
+        let res = await appModel._test_handleInvoke(req)
+        #expect(res.ok == true)
+        #expect(watchService.lastSent?.params.title == "OpenClaw")
+        #expect(watchService.lastSent?.params.body == "Meeting with Peter is at 4pm")
+        #expect(watchService.lastSent?.params.priority == .timeSensitive)
+
+        let payloadData = try #require(res.payloadJSON?.data(using: .utf8))
+        let payload = try JSONDecoder().decode(OpenClawWatchNotifyPayload.self, from: payloadData)
+        #expect(payload.deliveredImmediately == false)
+        #expect(payload.queuedForDelivery == true)
+        #expect(payload.transport == "transferUserInfo")
+    }
+
+    @Test @MainActor func handleInvokeWatchNotifyRejectsEmptyMessage() async throws {
+        let watchService = MockWatchMessagingService()
+        let appModel = NodeAppModel(watchMessagingService: watchService)
+        let params = OpenClawWatchNotifyParams(title: "   ", body: "\n")
+        let paramsData = try JSONEncoder().encode(params)
+        let paramsJSON = String(decoding: paramsData, as: UTF8.self)
+        let req = BridgeInvokeRequest(
+            id: "watch-notify-empty",
+            command: OpenClawWatchCommand.notify.rawValue,
+            paramsJSON: paramsJSON)
+
+        let res = await appModel._test_handleInvoke(req)
+        #expect(res.ok == false)
+        #expect(res.error?.code == .invalidRequest)
+        #expect(watchService.lastSent == nil)
+    }
+
+    @Test @MainActor func handleInvokeWatchNotifyReturnsUnavailableOnDeliveryFailure() async throws {
+        let watchService = MockWatchMessagingService()
+        watchService.sendError = NSError(
+            domain: "watch",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: "WATCH_UNAVAILABLE: no paired Apple Watch"])
+        let appModel = NodeAppModel(watchMessagingService: watchService)
+        let params = OpenClawWatchNotifyParams(title: "OpenClaw", body: "Delivery check")
+        let paramsData = try JSONEncoder().encode(params)
+        let paramsJSON = String(decoding: paramsData, as: UTF8.self)
+        let req = BridgeInvokeRequest(
+            id: "watch-notify-fail",
+            command: OpenClawWatchCommand.notify.rawValue,
+            paramsJSON: paramsJSON)
+
+        let res = await appModel._test_handleInvoke(req)
+        #expect(res.ok == false)
+        #expect(res.error?.code == .unavailable)
+        #expect(res.error?.message.contains("WATCH_UNAVAILABLE") == true)
+    }
+
+    @Test @MainActor func watchReplyQueuesWhenGatewayOffline() async {
+        let watchService = MockWatchMessagingService()
+        let appModel = NodeAppModel(watchMessagingService: watchService)
+        watchService.emitReply(
+            WatchQuickReplyEvent(
+                replyId: "reply-offline-1",
+                promptId: "prompt-1",
+                actionId: "approve",
+                actionLabel: "Approve",
+                sessionKey: "ios",
+                note: nil,
+                sentAtMs: 1234,
+                transport: "transferUserInfo"))
+        #expect(appModel._test_queuedWatchReplyCount() == 1)
+    }
+
+>>>>>>> 738b01162 (iOS/watch: add actionable watch approvals and quick replies (#21996))
     @Test @MainActor func handleDeepLinkSetsErrorWhenNotConnected() async {
         let appModel = NodeAppModel()
         let url = URL(string: "openclaw://agent?message=hello")!
