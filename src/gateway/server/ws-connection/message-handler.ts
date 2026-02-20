@@ -407,7 +407,9 @@ export function attachGatewayWsMessageHandler(params: {
           isControlUi && configSnapshot.gateway?.controlUi?.allowInsecureAuth === true;
         const disableControlUiDeviceAuth =
           isControlUi && configSnapshot.gateway?.controlUi?.dangerouslyDisableDeviceAuth === true;
-        const allowControlUiBypass = allowInsecureControlUi || disableControlUiDeviceAuth;
+        // `allowInsecureAuth` is retained for compatibility, but must not bypass
+        // secure-context/device-auth requirements.
+        const allowControlUiBypass = disableControlUiDeviceAuth;
         const device = disableControlUiDeviceAuth ? null : deviceRaw;
 
         const authResult = await authorizeGatewayConnect({
@@ -469,6 +471,7 @@ export function attachGatewayWsMessageHandler(params: {
 
           if (isControlUi && !allowControlUiBypass) {
             const errorMessage = "control ui requires HTTPS or localhost (secure context)";
+<<<<<<< HEAD
             setHandshakeState("failed");
             setCloseCause("control-ui-insecure-auth", {
               client: connectParams.client.id,
@@ -482,6 +485,12 @@ export function attachGatewayWsMessageHandler(params: {
               ok: false,
               error: errorShape(ErrorCodes.INVALID_REQUEST, errorMessage),
             });
+=======
+            markHandshakeFailure("control-ui-insecure-auth", {
+              insecureAuthConfigured: allowInsecureControlUi,
+            });
+            sendHandshakeErrorResponse(ErrorCodes.INVALID_REQUEST, errorMessage);
+>>>>>>> 40a292619 (fix: Control UI Insecure Auth Bypass Allows Token-Only Auth Over HTTP (#20684))
             close(1008, errorMessage);
             return;
           }
