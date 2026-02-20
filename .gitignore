@@ -84,7 +84,12 @@ USER.md
 /memory/
 .agent/*.json
 !.agent/workflows/
+<<<<<<< HEAD
 local/
+=======
+.agents/
+/local/
+>>>>>>> e2c5f8fda (chore: ignore .agents directory (#21877))
 package-lock.json
 
 # Local iOS signing overrides
