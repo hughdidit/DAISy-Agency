@@ -50,11 +50,18 @@ import {
   publicKeyRawBase64UrlFromPem,
   signDevicePayload,
 } from "../infra/device-identity.js";
+<<<<<<< HEAD
 import {
   clearDeviceAuthToken,
   loadDeviceAuthToken,
   storeDeviceAuthToken,
 } from "../infra/device-auth-store.js";
+=======
+import { clearDevicePairing } from "../infra/device-pairing.js";
+import { normalizeFingerprint } from "../infra/tls/fingerprint.js";
+import { rawDataToString } from "../infra/ws.js";
+import { logDebug, logError } from "../logger.js";
+>>>>>>> 5dd304d1c (fix(gateway): clear pairing state on device token mismatch (#22071))
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,
@@ -196,22 +203,28 @@ export class GatewayClient {
       const reasonText = rawDataToString(reason);
       this.ws = null;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       // If closed due to device token mismatch, clear the stored token so next attempt can get a fresh one
+=======
+      // If closed due to device token mismatch, clear the stored token and pairing so next attempt can get a fresh one
+>>>>>>> 5dd304d1c (fix(gateway): clear pairing state on device token mismatch (#22071))
       if (
         code === 1008 &&
         reasonText.toLowerCase().includes("device token mismatch") &&
         this.opts.deviceIdentity
       ) {
+        const deviceId = this.opts.deviceIdentity.deviceId;
         const role = this.opts.role ?? "operator";
         try {
-          clearDeviceAuthToken({ deviceId: this.opts.deviceIdentity.deviceId, role });
-          logDebug(
-            `cleared stale device-auth token for device ${this.opts.deviceIdentity.deviceId}`,
-          );
+          clearDeviceAuthToken({ deviceId, role });
+          void clearDevicePairing(deviceId).catch((err) => {
+            logDebug(`failed clearing stale device pairing for device ${deviceId}: ${String(err)}`);
+          });
+          logDebug(`cleared stale device-auth token for device ${deviceId}`);
         } catch (err) {
           logDebug(
-            `failed clearing stale device-auth token for device ${this.opts.deviceIdentity.deviceId}: ${String(err)}`,
+            `failed clearing stale device-auth token for device ${deviceId}: ${String(err)}`,
           );
         }
       }
