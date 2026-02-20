@@ -16,6 +16,9 @@ ui/src/ui/__screenshots__/
 ui/playwright-report/
 ui/test-results/
 
+# Mise configuration files
+mise.toml
+
 # Android build artifacts
 apps/android/.gradle/
 apps/android/app/build/
@@ -85,13 +88,23 @@ USER.md
 .agent/*.json
 !.agent/workflows/
 <<<<<<< HEAD
+<<<<<<< HEAD
 local/
 =======
 .agents/
 .agents
+=======
+>>>>>>> 72e937a59 (fix(gitignore): add mise configuration files and correct .agents entries)
 /local/
 >>>>>>> e2c5f8fda (chore: ignore .agents directory (#21877))
 package-lock.json
+<<<<<<< HEAD
+=======
+.claude/settings.local.json
+.agents/
+.agents
+.agent/
+>>>>>>> 72e937a59 (fix(gitignore): add mise configuration files and correct .agents entries)
 
 # Local iOS signing overrides
 apps/ios/LocalSigning.xcconfig
