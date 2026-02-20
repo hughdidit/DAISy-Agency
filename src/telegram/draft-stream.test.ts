@@ -14,8 +14,115 @@ describe("createTelegramDraftStream", () => {
 
     stream.update("Hello");
 
+<<<<<<< HEAD
     expect(api.sendMessageDraft).toHaveBeenCalledWith(123, 42, "Hello", {
       message_thread_id: 99,
+=======
+    // Normal edit (same message)
+    stream.update("Hello edited");
+    await stream.flush();
+    expect(api.editMessageText).toHaveBeenCalledWith(123, 17, "Hello edited");
+
+    // Force new message (e.g. after thinking block ends)
+    stream.forceNewMessage();
+    stream.update("After thinking");
+    await stream.flush();
+
+    // Should have sent a second new message, not edited the first
+    expect(api.sendMessage).toHaveBeenCalledTimes(2);
+    expect(api.sendMessage).toHaveBeenLastCalledWith(123, "After thinking", undefined);
+  });
+
+  it("supports rendered previews with parse_mode", async () => {
+    const api = createMockDraftApi();
+    const stream = createTelegramDraftStream({
+      // oxlint-disable-next-line typescript/no-explicit-any
+      api: api as any,
+      chatId: 123,
+      renderText: (text) => ({ text: `<i>${text}</i>`, parseMode: "HTML" }),
+    });
+
+    stream.update("hello");
+    await stream.flush();
+    expect(api.sendMessage).toHaveBeenCalledWith(123, "<i>hello</i>", { parse_mode: "HTML" });
+
+    stream.update("hello again");
+    await stream.flush();
+    expect(api.editMessageText).toHaveBeenCalledWith(123, 17, "<i>hello again</i>", {
+      parse_mode: "HTML",
+    });
+  });
+
+  it("enforces maxChars after renderText expansion", async () => {
+    const api = createMockDraftApi();
+    const warn = vi.fn();
+    const stream = createTelegramDraftStream({
+      // oxlint-disable-next-line typescript/no-explicit-any
+      api: api as any,
+      chatId: 123,
+      maxChars: 100,
+      renderText: () => ({ text: `<b>${"<".repeat(120)}</b>`, parseMode: "HTML" }),
+      warn,
+    });
+
+    stream.update("short raw text");
+    await stream.flush();
+
+    expect(api.sendMessage).not.toHaveBeenCalled();
+    expect(api.editMessageText).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("telegram stream preview stopped (text length 127 > 100)"),
+    );
+  });
+});
+
+describe("draft stream initial message debounce", () => {
+  const createMockApi = () => ({
+    sendMessage: vi.fn().mockResolvedValue({ message_id: 42 }),
+    editMessageText: vi.fn().mockResolvedValue(true),
+    deleteMessage: vi.fn().mockResolvedValue(true),
+  });
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  describe("isFinal has highest priority", () => {
+    it("sends immediately on stop() even with 1 character", async () => {
+      const api = createMockApi();
+      const stream = createTelegramDraftStream({
+        // oxlint-disable-next-line typescript/no-explicit-any
+        api: api as any,
+        chatId: 123,
+        minInitialChars: 30,
+      });
+
+      stream.update("Y");
+      await stream.stop();
+      await stream.flush();
+
+      expect(api.sendMessage).toHaveBeenCalledWith(123, "Y", undefined);
+    });
+
+    it("sends immediately on stop() with short sentence", async () => {
+      const api = createMockApi();
+      const stream = createTelegramDraftStream({
+        // oxlint-disable-next-line typescript/no-explicit-any
+        api: api as any,
+        chatId: 123,
+        minInitialChars: 30,
+      });
+
+      stream.update("Ok.");
+      await stream.stop();
+      await stream.flush();
+
+      expect(api.sendMessage).toHaveBeenCalledWith(123, "Ok.", undefined);
+>>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
     });
   });
 
