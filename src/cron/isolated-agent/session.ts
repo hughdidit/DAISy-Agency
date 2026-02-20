@@ -16,6 +16,10 @@ export function resolveCronSession(params: {
   const entry = store[params.sessionKey];
   const sessionId = crypto.randomUUID();
   const systemSent = false;
+<<<<<<< HEAD
+=======
+
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
   const sessionEntry: SessionEntry = {
     sessionId,
     updatedAt: params.nowMs,

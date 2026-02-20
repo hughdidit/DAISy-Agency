@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import { getChannelDock } from "../channels/dock.js";
+import { DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH } from "../config/agent-limits.js";
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 import type { OpenClawConfig } from "../config/config.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import type { SandboxToolPolicy } from "./sandbox.js";
@@ -97,10 +102,18 @@ const DEFAULT_SUBAGENT_TOOL_DENY = [
 
 export function resolveSubagentToolPolicy(cfg?: OpenClawConfig): SandboxToolPolicy {
   const configured = cfg?.tools?.subagents?.tools;
+<<<<<<< HEAD
   const deny = [
     ...DEFAULT_SUBAGENT_TOOL_DENY,
     ...(Array.isArray(configured?.deny) ? configured.deny : []),
   ];
+=======
+  const maxSpawnDepth =
+    cfg?.agents?.defaults?.subagents?.maxSpawnDepth ?? DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH;
+  const effectiveDepth = typeof depth === "number" && depth >= 0 ? depth : 1;
+  const baseDeny = resolveSubagentDenyList(effectiveDepth, maxSpawnDepth);
+  const deny = [...baseDeny, ...(Array.isArray(configured?.deny) ? configured.deny : [])];
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
   const allow = Array.isArray(configured?.allow) ? configured.allow : undefined;
   return { allow, deny };
 }
