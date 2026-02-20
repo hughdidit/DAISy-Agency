@@ -9,7 +9,6 @@ import {
   renameSync,
   unlinkSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { completeSimple, type TextContent } from "@mariozechner/pi-ai";
@@ -27,6 +26,11 @@ import type {
   TtsModelOverrideConfig,
 } from "../config/types.tts.js";
 import { logVerbose } from "../globals.js";
+<<<<<<< HEAD
+=======
+import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+import { stripMarkdown } from "../line/markdown-to-line.js";
+>>>>>>> c37843924 (Security: harden tool media paths)
 import { isVoiceCompatibleAudio } from "../media/audio.js";
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 import { getApiKeyForModel, requireApiKey } from "../agents/model-auth.js";
@@ -1112,7 +1116,9 @@ export async function textToSpeech(params: {
           continue;
         }
 
-        const tempDir = mkdtempSync(path.join(tmpdir(), "tts-"));
+        const tempRoot = resolvePreferredOpenClawTmpDir();
+        mkdirSync(tempRoot, { recursive: true, mode: 0o700 });
+        const tempDir = mkdtempSync(path.join(tempRoot, "tts-"));
         let edgeOutputFormat = resolveEdgeOutputFormat(config);
         const fallbackEdgeOutputFormat =
           edgeOutputFormat !== DEFAULT_EDGE_OUTPUT_FORMAT ? DEFAULT_EDGE_OUTPUT_FORMAT : undefined;
@@ -1219,7 +1225,9 @@ export async function textToSpeech(params: {
 
       const latencyMs = Date.now() - providerStart;
 
-      const tempDir = mkdtempSync(path.join(tmpdir(), "tts-"));
+      const tempRoot = resolvePreferredOpenClawTmpDir();
+      mkdirSync(tempRoot, { recursive: true, mode: 0o700 });
+      const tempDir = mkdtempSync(path.join(tempRoot, "tts-"));
       const audioPath = path.join(tempDir, `voice-${Date.now()}${output.extension}`);
       writeFileSync(audioPath, audioBuffer);
       scheduleCleanup(tempDir);

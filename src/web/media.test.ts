@@ -36,6 +36,45 @@ afterEach(async () => {
 });
 
 describe("web media loading", () => {
+<<<<<<< HEAD
+=======
+  beforeAll(() => {
+    // Ensure state dir is stable and not influenced by other tests that stub OPENCLAW_STATE_DIR.
+    // Also keep it outside the OpenClaw temp root so default localRoots doesn't accidentally make all state readable.
+    stateDirSnapshot = captureEnv(["OPENCLAW_STATE_DIR"]);
+    process.env.OPENCLAW_STATE_DIR = path.join(
+      path.parse(os.tmpdir()).root,
+      "var",
+      "lib",
+      "openclaw-media-state-test",
+    );
+  });
+
+  afterAll(() => {
+    stateDirSnapshot.restore();
+  });
+
+  beforeAll(() => {
+    vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
+      const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
+      const addresses = ["93.184.216.34"];
+      return {
+        hostname: normalized,
+        addresses,
+        lookup: ssrf.createPinnedLookup({ hostname: normalized, addresses }),
+      };
+    });
+  });
+
+  it("strips MEDIA: prefix before reading local file (including whitespace variants)", async () => {
+    for (const input of [`MEDIA:${tinyPngFile}`, `  MEDIA :  ${tinyPngFile}`]) {
+      const result = await loadWebMedia(input, 1024 * 1024);
+      expect(result.kind).toBe("image");
+      expect(result.buffer.length).toBeGreaterThan(0);
+    }
+  });
+
+>>>>>>> c37843924 (Security: harden tool media paths)
   it("compresses large local images under the provided cap", async () => {
     const buffer = await sharp({
       create: {
