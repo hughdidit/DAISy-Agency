@@ -160,10 +160,9 @@ import { type FSWatcher } from "chokidar";
 import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
 =======
 import type { Stats } from "node:fs";
-import type { DatabaseSync } from "node:sqlite";
-import { type FSWatcher } from "chokidar";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 >>>>>>> ec4198954 (Memory: harden readFile ENOENT handling)
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -175,8 +174,14 @@ import type {
   MemorySource,
   MemorySyncProgressUpdate,
 } from "./types.js";
+=======
+import type { DatabaseSync } from "node:sqlite";
+import { type FSWatcher } from "chokidar";
+>>>>>>> 14a3af212 (Format: align memory imports)
 import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
+import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
 import { resolveMemorySearchConfig } from "../agents/memory-search.js";
+import type { OpenClawConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   createEmbeddingProvider,
@@ -250,6 +255,7 @@ import { extractKeywords } from "./query-expansion.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> bcab2469d (feat: LLM-based query expansion for FTS mode)
 =======
 =======
@@ -258,6 +264,8 @@ import { extractKeywords } from "./query-expansion.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+>>>>>>> 14a3af212 (Format: align memory imports)
 import type {
   MemoryEmbeddingProbeResult,
   MemoryProviderStatus,
@@ -266,6 +274,7 @@ import type {
   MemorySource,
   MemorySyncProgressUpdate,
 } from "./types.js";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -285,6 +294,8 @@ import { extractKeywords } from "./query-expansion.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 =======
 >>>>>>> ec4198954 (Memory: harden readFile ENOENT handling)
+=======
+>>>>>>> 14a3af212 (Format: align memory imports)
 const SNIPPET_MAX_CHARS = 700;
 const VECTOR_TABLE = "chunks_vec";
 const FTS_TABLE = "chunks_fts";
