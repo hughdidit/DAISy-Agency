@@ -75,7 +75,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Gateway/Auth: require `gateway.trustedProxies` to include a loopback proxy address when `auth.mode="trusted-proxy"` and `bind="loopback"`, preventing same-host proxy misconfiguration from silently blocking auth. (#22082, follow-up to #20097) thanks @mbelinky.
+<<<<<<< HEAD
 >>>>>>> 094dbdaf2 (fix(gateway): require loopback proxy IP for trusted-proxy + bind=loopback (#22082))
+=======
+- Agents/System Prompt: label allowlisted senders as authorized senders to avoid implying ownership. Thanks @thewilloftheshadow.
+>>>>>>> 3100b77f1 (Agents: clarify authorized sender prompt (Closes #19794))
 - Gateway/Auth: allow trusted-proxy mode with loopback bind for same-host reverse-proxy deployments, while still requiring configured `gateway.trustedProxies`. (#20097) thanks @xinhuagu.
 >>>>>>> 9c5249714 (fix(gateway): trusted-proxy auth rejected when bind=loopback (#20097))
 - Gateway/Auth: allow authenticated clients across roles/scopes to call `health` while preserving role and scope enforcement for non-health methods. (#19699) thanks @Nachx639.
