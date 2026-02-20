@@ -90,7 +90,11 @@ Docs: https://docs.openclaw.ai
 =======
 - Browser/Security: block upload path symlink escapes so browser upload sources cannot traverse outside the allowed workspace via symlinked paths. (#21972) Thanks @mbelinky.
 - iOS/Watch: add actionable watch approval/reject controls and quick-reply actions so watch-originated approvals and responses can be sent directly from notification flows. (#21996) Thanks @mbelinky.
+<<<<<<< HEAD
 >>>>>>> 738b01162 (iOS/watch: add actionable watch approvals and quick replies (#21996))
+=======
+- iOS/Watch: refresh iOS and watch app icon assets with the lobster icon set to keep phone/watch branding aligned. (#21997) Thanks @mbelinky.
+>>>>>>> fd8c6d1f7 (iOS: refresh phone/watch app icons with lobster assets (#21997))
 - CLI/Onboarding: fix Anthropic-compatible custom provider verification by normalizing base URLs to avoid duplicate `/v1` paths during setup checks. (#21336) Thanks @17jmumford.
 
 ## 2026.2.19
