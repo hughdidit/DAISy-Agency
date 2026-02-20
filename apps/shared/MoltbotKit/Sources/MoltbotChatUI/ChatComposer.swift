@@ -180,10 +180,19 @@ struct MoltbotChatComposer: View {
         VStack(alignment: .leading, spacing: 8) {
             self.editorOverlay
 
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatComposer.swift
             Rectangle()
                 .fill(MoltbotChatTheme.divider)
                 .frame(height: 1)
                 .padding(.horizontal, 2)
+=======
+            if !self.isComposerCompacted {
+                Rectangle()
+                    .fill(OpenClawChatTheme.divider)
+                    .frame(height: 1)
+                    .padding(.horizontal, 2)
+            }
+>>>>>>> 9476dda9f (iOS Chat: clean UI noise and format tool outputs (#22122)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatComposer.swift
 
             HStack(alignment: .center, spacing: 8) {
                 if self.showsConnectionPill {
@@ -308,7 +317,7 @@ struct MoltbotChatComposer: View {
     }
 
     private var showsToolbar: Bool {
-        self.style == .standard
+        self.style == .standard && !self.isComposerCompacted
     }
 
     private var showsAttachments: Bool {
@@ -316,15 +325,15 @@ struct MoltbotChatComposer: View {
     }
 
     private var showsConnectionPill: Bool {
-        self.style == .standard
+        self.style == .standard && !self.isComposerCompacted
     }
 
     private var composerPadding: CGFloat {
-        self.style == .onboarding ? 5 : 6
+        self.style == .onboarding ? 5 : (self.isComposerCompacted ? 4 : 6)
     }
 
     private var editorPadding: CGFloat {
-        self.style == .onboarding ? 5 : 6
+        self.style == .onboarding ? 5 : (self.isComposerCompacted ? 4 : 6)
     }
 
     private var textMinHeight: CGFloat {
@@ -333,6 +342,14 @@ struct MoltbotChatComposer: View {
 
     private var textMaxHeight: CGFloat {
         self.style == .onboarding ? 52 : 64
+    }
+
+    private var isComposerCompacted: Bool {
+        #if os(macOS)
+        false
+        #else
+        self.style == .standard && self.isFocused
+        #endif
     }
 
     #if os(macOS)
