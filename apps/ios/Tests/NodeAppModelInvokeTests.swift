@@ -39,15 +39,34 @@ private func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws ->
     return try body()
 }
 
+<<<<<<< HEAD
 private final class TestNotificationCenter: NotificationCentering, @unchecked Sendable {
     private(set) var requestAuthorizationCalls = 0
     private(set) var addedRequests: [UNNotificationRequest] = []
     private var status: NotificationAuthorizationStatus
+=======
+@MainActor
+private final class MockWatchMessagingService: WatchMessagingServicing, @unchecked Sendable {
+    var currentStatus = WatchMessagingStatus(
+        supported: true,
+        paired: true,
+        appInstalled: true,
+        reachable: true,
+        activationState: "activated")
+    var nextSendResult = WatchNotificationSendResult(
+        deliveredImmediately: true,
+        queuedForDelivery: false,
+        transport: "sendMessage")
+    var sendError: Error?
+    var lastSent: (id: String, params: OpenClawWatchNotifyParams)?
+    private var replyHandler: (@Sendable (WatchQuickReplyEvent) -> Void)?
+>>>>>>> 738b01162 (iOS/watch: add actionable watch approvals and quick replies (#21996))
 
     init(status: NotificationAuthorizationStatus) {
         self.status = status
     }
 
+<<<<<<< HEAD
     func authorizationStatus() async -> NotificationAuthorizationStatus {
         status
     }
@@ -84,6 +103,22 @@ private struct TestScreenRecorder: ScreenRecordingServicing {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("openclaw-screen-test.mp4")
         FileManager.default.createFile(atPath: url.path, contents: Data())
         return url.path
+=======
+    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)?) {
+        self.replyHandler = handler
+    }
+
+    func sendNotification(id: String, params: OpenClawWatchNotifyParams) async throws -> WatchNotificationSendResult {
+        self.lastSent = (id: id, params: params)
+        if let sendError = self.sendError {
+            throw sendError
+        }
+        return self.nextSendResult
+>>>>>>> 738b01162 (iOS/watch: add actionable watch approvals and quick replies (#21996))
+    }
+
+    func emitReply(_ event: WatchQuickReplyEvent) {
+        self.replyHandler?(event)
     }
 }
 
@@ -450,6 +485,7 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
             floorsAscended: 1,
             floorsDescended: 2)
 
+<<<<<<< HEAD
         let appModel = makeTestAppModel(
             deviceStatusService: TestDeviceStatusService(
                 statusPayload: deviceStatusPayload,
@@ -461,6 +497,13 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
             motionService: TestMotionService(
                 activityPayload: motionPayload,
                 pedometerPayload: pedometerPayload))
+=======
+        let res = await appModel._test_handleInvoke(req)
+        #expect(res.ok == true)
+        #expect(watchService.lastSent?.params.title == "OpenClaw")
+        #expect(watchService.lastSent?.params.body == "Meeting with Peter is at 4pm")
+        #expect(watchService.lastSent?.params.priority == .timeSensitive)
+>>>>>>> 738b01162 (iOS/watch: add actionable watch approvals and quick replies (#21996))
 
         let deviceStatusReq = BridgeInvokeRequest(id: "device", command: OpenClawDeviceCommand.status.rawValue)
         let deviceStatusRes = await appModel._test_handleInvoke(deviceStatusReq)
@@ -509,6 +552,22 @@ private func decodePayload<T: Decodable>(_ json: String?, as type: T.Type) throw
         #expect(pedometerRes.ok == true)
         let decodedPedometer = try decodePayload(pedometerRes.payloadJSON, as: OpenClawPedometerPayload.self)
         #expect(decodedPedometer == pedometerPayload)
+    }
+
+    @Test @MainActor func watchReplyQueuesWhenGatewayOffline() async {
+        let watchService = MockWatchMessagingService()
+        let appModel = NodeAppModel(watchMessagingService: watchService)
+        watchService.emitReply(
+            WatchQuickReplyEvent(
+                replyId: "reply-offline-1",
+                promptId: "prompt-1",
+                actionId: "approve",
+                actionLabel: "Approve",
+                sessionKey: "ios",
+                note: nil,
+                sentAtMs: 1234,
+                transport: "transferUserInfo"))
+        #expect(appModel._test_queuedWatchReplyCount() == 1)
     }
 
     @Test @MainActor func handleDeepLinkSetsErrorWhenNotConnected() async {
