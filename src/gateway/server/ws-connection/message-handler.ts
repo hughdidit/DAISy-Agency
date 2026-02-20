@@ -65,6 +65,7 @@ import { loadVoiceWakeConfig } from "../../../infra/voicewake.js";
 import { upsertPresence } from "../../../infra/system-presence.js";
 import { rawDataToString } from "../../../infra/ws.js";
 import type { createSubsystemLogger } from "../../../logging/subsystem.js";
+import { roleScopesAllow } from "../../../shared/operator-scope-compat.js";
 import { isGatewayCliClient, isWebchatClient } from "../../../utils/message-channel.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -943,9 +944,12 @@ export function attachGatewayWsMessageHandler(params: {
                     return;
                   }
                 } else {
-                  const allowedScopes = new Set(pairedScopes);
-                  const missingScope = scopes.find((scope) => !allowedScopes.has(scope));
-                  if (missingScope) {
+                  const scopesAllowed = roleScopesAllow({
+                    role,
+                    requestedScopes: scopes,
+                    allowedScopes: pairedScopes,
+                  });
+                  if (!scopesAllowed) {
                     logUpgradeAudit("scope-upgrade", pairedRoles, pairedScopes);
                     const ok = await requirePairing("scope-upgrade");
                     if (!ok) {
