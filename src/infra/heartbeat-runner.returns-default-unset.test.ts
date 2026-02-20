@@ -1402,10 +1402,14 @@ describe("runHeartbeatOnce", () => {
     }
   });
 
+<<<<<<< HEAD
   it("runs heartbeat when HEARTBEAT.md does not exist (lets LLM decide)", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
 =======
+=======
+  it("runs heartbeat when HEARTBEAT.md does not exist", async () => {
+>>>>>>> cf4ffff3e (fix(heartbeat): run when HEARTBEAT.md is missing)
     const tmpDir = await createCaseDir("openclaw-hb");
 >>>>>>> f52805a78 (test: reuse heartbeat suite fixtures across cases)
     const storePath = path.join(tmpDir, "sessions.json");
@@ -1443,7 +1447,7 @@ describe("runHeartbeatOnce", () => {
         ),
       );
 
-      replySpy.mockResolvedValue({ text: "HEARTBEAT_OK" });
+      replySpy.mockResolvedValue({ text: "Checked logs and PRs" });
       const sendWhatsApp = vi.fn().mockResolvedValue({
         messageId: "m1",
         toJid: "jid",
@@ -1460,7 +1464,139 @@ describe("runHeartbeatOnce", () => {
         },
       });
 
+<<<<<<< HEAD
       // Should run (not skip) - let LLM decide since file doesn't exist
+=======
+      // Missing HEARTBEAT.md should still run so prompt/system instructions can drive work.
+      expect(res.status).toBe("ran");
+      expect(replySpy).toHaveBeenCalled();
+      expect(sendWhatsApp).toHaveBeenCalledTimes(1);
+    } finally {
+      replySpy.mockRestore();
+    }
+  });
+
+  it("runs heartbeat when HEARTBEAT.md read fails with a non-ENOENT error", async () => {
+    const tmpDir = await createCaseDir("openclaw-hb");
+    const storePath = path.join(tmpDir, "sessions.json");
+    const workspaceDir = path.join(tmpDir, "workspace");
+    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
+    try {
+      await fs.mkdir(workspaceDir, { recursive: true });
+      // Simulate a read failure path (readFile on a directory returns EISDIR).
+      await fs.mkdir(path.join(workspaceDir, "HEARTBEAT.md"), { recursive: true });
+
+      const cfg: OpenClawConfig = {
+        agents: {
+          defaults: {
+            workspace: workspaceDir,
+            heartbeat: { every: "5m", target: "whatsapp" },
+          },
+        },
+        channels: { whatsapp: { allowFrom: ["*"] } },
+        session: { store: storePath },
+      };
+      const sessionKey = resolveMainSessionKey(cfg);
+
+      await fs.writeFile(
+        storePath,
+        JSON.stringify(
+          {
+            [sessionKey]: {
+              sessionId: "sid",
+              updatedAt: Date.now(),
+              lastChannel: "whatsapp",
+              lastTo: "+1555",
+            },
+          },
+          null,
+          2,
+        ),
+      );
+
+      replySpy.mockResolvedValue({ text: "Checked logs and PRs" });
+      const sendWhatsApp = vi.fn().mockResolvedValue({
+        messageId: "m1",
+        toJid: "jid",
+      });
+
+      const res = await runHeartbeatOnce({
+        cfg,
+        deps: {
+          sendWhatsApp,
+          getQueueSize: () => 0,
+          nowMs: () => 0,
+          webAuthExists: async () => true,
+          hasActiveWebListener: () => true,
+        },
+      });
+
+      // Read errors other than ENOENT should not disable heartbeat runs.
+      expect(res.status).toBe("ran");
+      expect(replySpy).toHaveBeenCalled();
+      expect(sendWhatsApp).toHaveBeenCalledTimes(1);
+    } finally {
+      replySpy.mockRestore();
+    }
+  });
+
+  it("does not skip wake-triggered heartbeat when HEARTBEAT.md does not exist", async () => {
+    const tmpDir = await createCaseDir("openclaw-hb");
+    const storePath = path.join(tmpDir, "sessions.json");
+    const workspaceDir = path.join(tmpDir, "workspace");
+    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
+    try {
+      await fs.mkdir(workspaceDir, { recursive: true });
+      // Don't create HEARTBEAT.md
+
+      const cfg: OpenClawConfig = {
+        agents: {
+          defaults: {
+            workspace: workspaceDir,
+            heartbeat: { every: "5m", target: "whatsapp" },
+          },
+        },
+        channels: { whatsapp: { allowFrom: ["*"] } },
+        session: { store: storePath },
+      };
+      const sessionKey = resolveMainSessionKey(cfg);
+
+      await fs.writeFile(
+        storePath,
+        JSON.stringify(
+          {
+            [sessionKey]: {
+              sessionId: "sid",
+              updatedAt: Date.now(),
+              lastChannel: "whatsapp",
+              lastTo: "+1555",
+            },
+          },
+          null,
+          2,
+        ),
+      );
+
+      replySpy.mockResolvedValue({ text: "wake event processed" });
+      const sendWhatsApp = vi.fn().mockResolvedValue({
+        messageId: "m1",
+        toJid: "jid",
+      });
+
+      const res = await runHeartbeatOnce({
+        cfg,
+        reason: "wake",
+        deps: {
+          sendWhatsApp,
+          getQueueSize: () => 0,
+          nowMs: () => 0,
+          webAuthExists: async () => true,
+          hasActiveWebListener: () => true,
+        },
+      });
+
+      // Wake events should still run even without HEARTBEAT.md
+>>>>>>> cf4ffff3e (fix(heartbeat): run when HEARTBEAT.md is missing)
       expect(res.status).toBe("ran");
       expect(replySpy).toHaveBeenCalled();
     } finally {
