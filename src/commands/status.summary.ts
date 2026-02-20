@@ -158,6 +158,8 @@ export async function getStatusSummary(
           abortedLastRun: entry?.abortedLastRun,
           inputTokens: entry?.inputTokens,
           outputTokens: entry?.outputTokens,
+          cacheRead: entry?.cacheRead,
+          cacheWrite: entry?.cacheWrite,
           totalTokens: total ?? null,
           remainingTokens: remaining,
           percentUsed: pct,

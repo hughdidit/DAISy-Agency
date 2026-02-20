@@ -16,6 +16,12 @@ export type SessionStatus = {
   inputTokens?: number;
   outputTokens?: number;
   totalTokens: number | null;
+<<<<<<< HEAD
+=======
+  totalTokensFresh: boolean;
+  cacheRead?: number;
+  cacheWrite?: number;
+>>>>>>> f1e1cc4ee (feat: surface cached token counts in /status output (openclaw#21248) thanks @vishaltandale00)
   remainingTokens: number | null;
   percentUsed: number | null;
   model: string | null;

@@ -62,12 +62,20 @@ export async function persistSessionUsageUpdate(params: {
           const patch: Partial<SessionEntry> = {
             inputTokens: input,
             outputTokens: output,
+<<<<<<< HEAD
             totalTokens:
               deriveSessionTotalTokens({
                 usage: params.usage,
                 contextTokens: resolvedContextTokens,
                 promptTokens: params.promptTokens,
               }) ?? input,
+=======
+            cacheRead: params.usage?.cacheRead ?? 0,
+            cacheWrite: params.usage?.cacheWrite ?? 0,
+            // Missing a last-call snapshot means context utilization is stale/unknown.
+            totalTokens,
+            totalTokensFresh: typeof totalTokens === "number",
+>>>>>>> f1e1cc4ee (feat: surface cached token counts in /status output (openclaw#21248) thanks @vishaltandale00)
             modelProvider: params.providerUsed ?? entry.modelProvider,
             model: params.modelUsed ?? entry.model,
             contextTokens: resolvedContextTokens,

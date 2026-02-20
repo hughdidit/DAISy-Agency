@@ -20,6 +20,8 @@ function createDefaultSessionStoreEntry() {
     thinkingLevel: "low",
     inputTokens: 2_000,
     outputTokens: 3_000,
+    cacheRead: 2_000,
+    cacheWrite: 1_000,
     totalTokens: 5_000,
     contextTokens: 10_000,
     model: "pi:opus",
@@ -334,6 +336,12 @@ describe("statusCommand", () => {
     expect(payload.sessions.defaults.model).toBeTruthy();
     expect(payload.sessions.defaults.contextTokens).toBeGreaterThan(0);
     expect(payload.sessions.recent[0].percentUsed).toBe(50);
+<<<<<<< HEAD
+=======
+    expect(payload.sessions.recent[0].cacheRead).toBe(2_000);
+    expect(payload.sessions.recent[0].cacheWrite).toBe(1_000);
+    expect(payload.sessions.recent[0].totalTokensFresh).toBe(true);
+>>>>>>> f1e1cc4ee (feat: surface cached token counts in /status output (openclaw#21248) thanks @vishaltandale00)
     expect(payload.sessions.recent[0].remainingTokens).toBe(5000);
     expect(payload.sessions.recent[0].flags).toContain("verbose:on");
     expect(payload.securityAudit.summary.critical).toBe(1);
@@ -383,6 +391,7 @@ describe("statusCommand", () => {
     expect(logs.some((l: string) => l.includes("Sessions"))).toBe(true);
     expect(logs.some((l: string) => l.includes("+1000"))).toBe(true);
     expect(logs.some((l: string) => l.includes("50%"))).toBe(true);
+    expect(logs.some((l: string) => l.includes("40% cached"))).toBe(true);
     expect(logs.some((l: string) => l.includes("LaunchAgent"))).toBe(true);
     expect(logs.some((l: string) => l.includes("FAQ:"))).toBe(true);
     expect(logs.some((l: string) => l.includes("Troubleshooting:"))).toBe(true);
