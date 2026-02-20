@@ -2074,7 +2074,11 @@ private extension NodeAppModel {
             clientId: clientId,
             clientMode: "ui",
             clientDisplayName: displayName,
+<<<<<<< HEAD
             includeDeviceIdentity: false)
+=======
+            includeDeviceIdentity: true)
+>>>>>>> 1da23be30 (fix(pairing): preserve operator scopes for ios onboarding)
     }
 
     func legacyClientIdFallback(currentClientId: String, error: Error) -> String? {
