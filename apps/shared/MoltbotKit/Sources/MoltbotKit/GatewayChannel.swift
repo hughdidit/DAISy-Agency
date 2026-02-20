@@ -85,6 +85,13 @@ public struct GatewayConnectOptions: Sendable {
     public var clientId: String
     public var clientMode: String
     public var clientDisplayName: String?
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotKit/GatewayChannel.swift
+=======
+    // When false, the connection omits the signed device identity payload and cannot use
+    // device-scoped auth (role/scope upgrades will require pairing). Keep this true for
+    // role/scoped sessions such as operator UI clients.
+    public var includeDeviceIdentity: Bool
+>>>>>>> 8775d34fb (fix(pairing): simplify pending merge and harden mixed-role onboarding):apps/shared/OpenClawKit/Sources/OpenClawKit/GatewayChannel.swift
 
     public init(
         role: String,
