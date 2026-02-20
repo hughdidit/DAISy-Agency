@@ -136,6 +136,43 @@ Example: two agents, only the second agent runs heartbeats.
 }
 ```
 
+<<<<<<< HEAD
+=======
+### Active hours example
+
+Restrict heartbeats to business hours in a specific timezone:
+
+```json5
+{
+  agents: {
+    defaults: {
+      heartbeat: {
+        every: "30m",
+        target: "last",
+        activeHours: {
+          start: "09:00",
+          end: "22:00",
+          timezone: "America/New_York", // optional; uses your userTimezone if set, otherwise host tz
+        },
+      },
+    },
+  },
+}
+```
+
+Outside this window (before 9am or after 10pm Eastern), heartbeats are skipped. The next scheduled tick inside the window will run normally.
+
+### 24/7 setup
+
+If you want heartbeats to run all day, use one of these patterns:
+
+- Omit `activeHours` entirely (no time-window restriction; this is the default behavior).
+- Set a full-day window: `activeHours: { start: "00:00", end: "24:00" }`.
+
+Do not set the same `start` and `end` time (for example `08:00` to `08:00`).
+That is treated as a zero-width window, so heartbeats are always skipped.
+
+>>>>>>> ae4907ce6 (fix(heartbeat): return false for zero-width active-hours window (#21408))
 ### Multi account example
 
 Use `accountId` to target a specific account on multi-account channels like Telegram:
@@ -190,10 +227,11 @@ Use `accountId` to target a specific account on multi-account channels like Tele
 <<<<<<< HEAD
 =======
 - `suppressToolErrorWarnings`: when true, suppresses tool error warning payloads during heartbeat runs.
-- `activeHours`: restricts heartbeat runs to a time window. Object with `start` (HH:MM, inclusive), `end` (HH:MM exclusive; `24:00` allowed for end-of-day), and optional `timezone`.
+- `activeHours`: restricts heartbeat runs to a time window. Object with `start` (HH:MM, inclusive; use `00:00` for start-of-day), `end` (HH:MM exclusive; `24:00` allowed for end-of-day), and optional `timezone`.
   - Omitted or `"user"`: uses your `agents.defaults.userTimezone` if set, otherwise falls back to the host system timezone.
   - `"local"`: always uses the host system timezone.
   - Any IANA identifier (e.g. `America/New_York`): used directly; if invalid, falls back to the `"user"` behavior above.
+  - `start` and `end` must not be equal for an active window; equal values are treated as zero-width (always outside the window).
   - Outside the active window, heartbeats are skipped until the next tick inside the window.
 >>>>>>> 72e228e14 (Heartbeat: allow suppressing tool warnings (#18497))
 
