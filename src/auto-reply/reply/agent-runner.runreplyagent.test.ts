@@ -508,6 +508,88 @@ describe("runReplyAgent typing (heartbeat)", () => {
     expect(onToolResult).not.toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
+=======
+  it("retries transient HTTP failures once with timer-driven backoff", async () => {
+    vi.useFakeTimers();
+    let calls = 0;
+    state.runEmbeddedPiAgentMock.mockImplementation(async () => {
+      calls += 1;
+      if (calls === 1) {
+        throw new Error("502 Bad Gateway");
+      }
+      return { payloads: [{ text: "final" }], meta: {} };
+    });
+
+    const { run } = createMinimalRun({
+      typingMode: "message",
+    });
+    const runPromise = run();
+
+    await vi.advanceTimersByTimeAsync(2_499);
+    expect(calls).toBe(1);
+    await vi.advanceTimersByTimeAsync(1);
+    await runPromise;
+    expect(calls).toBe(2);
+    vi.useRealTimers();
+  });
+
+  it("delivers tool results in order even when dispatched concurrently", async () => {
+    const deliveryOrder: string[] = [];
+    const onToolResult = vi.fn(async (payload: { text?: string }) => {
+      // Simulate variable network latency: first result is slower than second
+      const delay = payload.text === "first" ? 50 : 10;
+      await new Promise((r) => setTimeout(r, delay));
+      deliveryOrder.push(payload.text ?? "");
+    });
+
+    state.runEmbeddedPiAgentMock.mockImplementationOnce(async (params: AgentRunParams) => {
+      // Fire two tool results without awaiting — simulates concurrent tool completion
+      void params.onToolResult?.({ text: "first", mediaUrls: [] });
+      void params.onToolResult?.({ text: "second", mediaUrls: [] });
+      // Small delay to let the chain settle before returning
+      await new Promise((r) => setTimeout(r, 150));
+      return { payloads: [{ text: "final" }], meta: {} };
+    });
+
+    const { run } = createMinimalRun({
+      typingMode: "message",
+      opts: { onToolResult },
+    });
+    await run();
+
+    expect(onToolResult).toHaveBeenCalledTimes(2);
+    // Despite "first" having higher latency, it must be delivered before "second"
+    expect(deliveryOrder).toEqual(["first", "second"]);
+  });
+
+  it("continues delivering later tool results after an earlier tool result fails", async () => {
+    const delivered: string[] = [];
+    const onToolResult = vi.fn(async (payload: { text?: string }) => {
+      if (payload.text === "first") {
+        throw new Error("simulated delivery failure");
+      }
+      delivered.push(payload.text ?? "");
+    });
+
+    state.runEmbeddedPiAgentMock.mockImplementationOnce(async (params: AgentRunParams) => {
+      void params.onToolResult?.({ text: "first", mediaUrls: [] });
+      void params.onToolResult?.({ text: "second", mediaUrls: [] });
+      await new Promise((r) => setTimeout(r, 50));
+      return { payloads: [{ text: "final" }], meta: {} };
+    });
+
+    const { run } = createMinimalRun({
+      typingMode: "message",
+      opts: { onToolResult },
+    });
+    await run();
+
+    expect(onToolResult).toHaveBeenCalledTimes(2);
+    expect(delivered).toEqual(["second"]);
+  });
+
+>>>>>>> e321f21da (fix: serialize tool result delivery to preserve message ordering (#21231))
   it("announces auto-compaction in verbose mode and tracks count", async () => {
     await withTempStateDir(async (stateDir) => {
       const storePath = path.join(stateDir, "sessions", "sessions.json");

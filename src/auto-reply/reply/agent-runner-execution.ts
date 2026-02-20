@@ -451,6 +451,7 @@ export async function runAgentTurnWithFallback(params: {
             shouldEmitToolResult: params.shouldEmitToolResult,
             shouldEmitToolOutput: params.shouldEmitToolOutput,
             onToolResult: onToolResult
+<<<<<<< HEAD
               ? (payload) => {
                   // `subscribeEmbeddedPiSession` may invoke tool callbacks without awaiting them.
                   // If a tool callback starts typing after the run finalized, we can end up with
@@ -468,10 +469,37 @@ export async function runAgentTurnWithFallback(params: {
                       logVerbose(`tool result delivery failed: ${String(err)}`);
                     })
                     .finally(() => {
+=======
+              ? (() => {
+                  // Serialize tool result delivery to preserve message ordering.
+                  // Without this, concurrent tool callbacks race through typing signals
+                  // and message sends, causing out-of-order delivery to the user.
+                  // See: https://github.com/openclaw/openclaw/issues/11044
+                  let toolResultChain: Promise<void> = Promise.resolve();
+                  return (payload: ReplyPayload) => {
+                    toolResultChain = toolResultChain
+                      .then(async () => {
+                        const { text, skip } = normalizeStreamingText(payload);
+                        if (skip) {
+                          return;
+                        }
+                        await params.typingSignals.signalTextDelta(text);
+                        await onToolResult({
+                          text,
+                          mediaUrls: payload.mediaUrls,
+                        });
+                      })
+                      .catch((err) => {
+                        // Keep chain healthy after an error so later tool results still deliver.
+                        logVerbose(`tool result delivery failed: ${String(err)}`);
+                      });
+                    const task = toolResultChain.finally(() => {
+>>>>>>> e321f21da (fix: serialize tool result delivery to preserve message ordering (#21231))
                       params.pendingToolTasks.delete(task);
                     });
-                  params.pendingToolTasks.add(task);
-                }
+                    params.pendingToolTasks.add(task);
+                  };
+                })()
               : undefined,
           });
         },
