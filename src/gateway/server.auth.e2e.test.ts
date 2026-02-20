@@ -277,7 +277,82 @@ describe("gateway server auth/connect", () => {
     });
   });
 
+<<<<<<< HEAD
   test("allows control ui without device identity when insecure auth is enabled", async () => {
+=======
+  describe("explicit none auth", () => {
+    let server: Awaited<ReturnType<typeof startGatewayServer>>;
+    let port: number;
+    let prevToken: string | undefined;
+
+    beforeAll(async () => {
+      prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      testState.gatewayAuth = { mode: "none" };
+      port = await getFreePort();
+      server = await startGatewayServer(port);
+    });
+
+    afterAll(async () => {
+      await server.close();
+      if (prevToken === undefined) {
+        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      } else {
+        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+      }
+    });
+
+    test("allows loopback connect without shared secret when mode is none", async () => {
+      const ws = await openWs(port);
+      const res = await connectReq(ws, { skipDefaultAuth: true });
+      expect(res.ok).toBe(true);
+      ws.close();
+    });
+  });
+
+  describe("tailscale auth", () => {
+    let server: Awaited<ReturnType<typeof startGatewayServer>>;
+    let port: number;
+
+    beforeAll(async () => {
+      testState.gatewayAuth = { mode: "token", token: "secret", allowTailscale: true };
+      port = await getFreePort();
+      server = await startGatewayServer(port);
+    });
+
+    afterAll(async () => {
+      await server.close();
+    });
+
+    beforeEach(() => {
+      testTailscaleWhois.value = { login: "peter", name: "Peter" };
+    });
+
+    afterEach(() => {
+      testTailscaleWhois.value = null;
+    });
+
+    test("requires device identity when only tailscale auth is available", async () => {
+      const ws = await openTailscaleWs(port);
+      const res = await connectReq(ws, { token: "dummy", device: null });
+      expect(res.ok).toBe(false);
+      expect(res.error?.message ?? "").toContain("device identity required");
+      ws.close();
+    });
+
+    test("allows shared token to skip device when tailscale auth is enabled", async () => {
+      const ws = await openTailscaleWs(port);
+      const res = await connectReq(ws, { token: "secret", device: null });
+      expect(res.ok).toBe(true);
+      const health = await rpcReq(ws, "health");
+      expect(health.ok).toBe(false);
+      expect(health.error?.message).toContain("missing scope");
+      ws.close();
+    });
+  });
+
+  test("rejects control ui without device identity even when insecure auth is enabled", async () => {
+>>>>>>> 40a292619 (fix: Control UI Insecure Auth Bypass Allows Token-Only Auth Over HTTP (#20684))
     testState.gatewayControlUi = { allowInsecureAuth: true };
     const { server, ws, prevToken } = await startServerWithClient("secret");
     const res = await connectReq(ws, {
@@ -290,7 +365,8 @@ describe("gateway server auth/connect", () => {
         mode: GATEWAY_CLIENT_MODES.WEBCHAT,
       },
     });
-    expect(res.ok).toBe(true);
+    expect(res.ok).toBe(false);
+    expect(res.error?.message ?? "").toContain("secure context");
     ws.close();
     await server.close();
     if (prevToken === undefined) {
@@ -300,7 +376,25 @@ describe("gateway server auth/connect", () => {
     }
   });
 
-  test("allows control ui with device identity when insecure auth is enabled", async () => {
+  test("rejects control ui password-only auth when insecure auth is enabled", async () => {
+    testState.gatewayControlUi = { allowInsecureAuth: true };
+    testState.gatewayAuth = { mode: "password", password: "secret" };
+    await withGatewayServer(async ({ port }) => {
+      const ws = await openWs(port, { origin: originForPort(port) });
+      const res = await connectReq(ws, {
+        password: "secret",
+        device: null,
+        client: {
+          ...CONTROL_UI_CLIENT,
+        },
+      });
+      expect(res.ok).toBe(false);
+      expect(res.error?.message ?? "").toContain("secure context");
+      ws.close();
+    });
+  });
+
+  test("does not bypass pairing for control ui device identity when insecure auth is enabled", async () => {
     testState.gatewayControlUi = { allowInsecureAuth: true };
     testState.gatewayAuth = { mode: "token", token: "secret" };
     const { writeConfigFile } = await import("../config/config.js");
@@ -309,6 +403,7 @@ describe("gateway server auth/connect", () => {
         trustedProxies: ["127.0.0.1"],
       },
     } as any);
+<<<<<<< HEAD
     const prevToken = process.env.CLAWDBOT_GATEWAY_TOKEN;
     process.env.CLAWDBOT_GATEWAY_TOKEN = "secret";
     const port = await getFreePort();
@@ -362,6 +457,49 @@ describe("gateway server auth/connect", () => {
       delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     } else {
       process.env.CLAWDBOT_GATEWAY_TOKEN = prevToken;
+=======
+    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+    process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
+    try {
+      await withGatewayServer(async ({ port }) => {
+        const ws = new WebSocket(`ws://127.0.0.1:${port}`, {
+          headers: {
+            origin: "https://localhost",
+            "x-forwarded-for": "203.0.113.10",
+          },
+        });
+        const challengePromise = onceMessage<{
+          type?: string;
+          event?: string;
+          payload?: Record<string, unknown> | null;
+        }>(ws, (o) => o.type === "event" && o.event === "connect.challenge");
+        await new Promise<void>((resolve) => ws.once("open", resolve));
+        const challenge = await challengePromise;
+        const nonce = (challenge.payload as { nonce?: unknown } | undefined)?.nonce;
+        expect(typeof nonce).toBe("string");
+        const scopes = ["operator.admin", "operator.approvals", "operator.pairing"];
+        const { device } = await createSignedDevice({
+          token: "secret",
+          scopes,
+          clientId: GATEWAY_CLIENT_NAMES.CONTROL_UI,
+          clientMode: GATEWAY_CLIENT_MODES.WEBCHAT,
+          nonce: String(nonce),
+        });
+        const res = await connectReq(ws, {
+          token: "secret",
+          scopes,
+          device,
+          client: {
+            ...CONTROL_UI_CLIENT,
+          },
+        });
+        expect(res.ok).toBe(false);
+        expect(res.error?.message ?? "").toContain("pairing required");
+        ws.close();
+      });
+    } finally {
+      restoreGatewayToken(prevToken);
+>>>>>>> 40a292619 (fix: Control UI Insecure Auth Bypass Allows Token-Only Auth Over HTTP (#20684))
     }
   });
 
