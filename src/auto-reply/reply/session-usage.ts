@@ -60,6 +60,7 @@ export async function persistSessionUsageUpdate(params: {
             inputTokens: input,
             outputTokens: output,
 <<<<<<< HEAD
+<<<<<<< HEAD
             totalTokens: promptTokens > 0 ? promptTokens : (params.usage?.total ?? input),
 =======
             totalTokens:
@@ -69,6 +70,13 @@ export async function persistSessionUsageUpdate(params: {
                 promptTokens: params.promptTokens,
               }) ?? input,
 >>>>>>> 957b88308 (fix(agents): stabilize overflow compaction retries and session context accounting (openclaw#14102) thanks @vpesh)
+=======
+            cacheRead: params.usage?.cacheRead ?? 0,
+            cacheWrite: params.usage?.cacheWrite ?? 0,
+            // Missing a last-call snapshot means context utilization is stale/unknown.
+            totalTokens,
+            totalTokensFresh: typeof totalTokens === "number",
+>>>>>>> f1e1cc4ee (feat: surface cached token counts in /status output (openclaw#21248) thanks @vishaltandale00)
             modelProvider: params.providerUsed ?? entry.modelProvider,
             model: params.modelUsed ?? entry.model,
             contextTokens: params.contextTokensUsed ?? entry.contextTokens,

@@ -369,6 +369,36 @@ const formatUsagePair = (input?: number | null, output?: number | null) => {
   return `🧮 Tokens: ${inputLabel} in / ${outputLabel} out`;
 };
 
+const formatCacheLine = (
+  input?: number | null,
+  cacheRead?: number | null,
+  cacheWrite?: number | null,
+) => {
+  if (!cacheRead && !cacheWrite) {
+    return null;
+  }
+  if (
+    (typeof cacheRead !== "number" || cacheRead <= 0) &&
+    (typeof cacheWrite !== "number" || cacheWrite <= 0)
+  ) {
+    return null;
+  }
+
+  const cachedLabel = typeof cacheRead === "number" ? formatTokenCount(cacheRead) : "0";
+  const newLabel = typeof cacheWrite === "number" ? formatTokenCount(cacheWrite) : "0";
+
+  const totalInput =
+    (typeof cacheRead === "number" ? cacheRead : 0) +
+    (typeof cacheWrite === "number" ? cacheWrite : 0) +
+    (typeof input === "number" ? input : 0);
+  const hitRate =
+    totalInput > 0 && typeof cacheRead === "number"
+      ? Math.round((cacheRead / totalInput) * 100)
+      : 0;
+
+  return `🗄️ Cache: ${hitRate}% hit · ${cachedLabel} cached, ${newLabel} new`;
+};
+
 const formatMediaUnderstandingLine = (decisions?: ReadonlyArray<MediaUnderstandingDecision>) => {
   if (!decisions || decisions.length === 0) {
     return null;
@@ -464,6 +494,8 @@ export function buildStatusMessage(args: StatusArgs): string {
 
   let inputTokens = entry?.inputTokens;
   let outputTokens = entry?.outputTokens;
+  let cacheRead = entry?.cacheRead;
+  let cacheWrite = entry?.cacheWrite;
   let totalTokens = entry?.totalTokens ?? (entry?.inputTokens ?? 0) + (entry?.outputTokens ?? 0);
 
   // Prefer prompt-size tokens from the session transcript when it looks larger
@@ -613,6 +645,7 @@ export function buildStatusMessage(args: StatusArgs): string {
   const commit = resolveCommitHash();
   const versionLine = `🦞 Moltbot ${VERSION}${commit ? ` (${commit})` : ""}`;
   const usagePair = formatUsagePair(inputTokens, outputTokens);
+  const cacheLine = formatCacheLine(inputTokens, cacheRead, cacheWrite);
   const costLine = costLabel ? `💵 Cost: ${costLabel}` : null;
   const usageCostLine =
     usagePair && costLine ? `${usagePair} · ${costLine}` : (usagePair ?? costLine);
@@ -625,6 +658,7 @@ export function buildStatusMessage(args: StatusArgs): string {
     modelLine,
     fallbackLine,
     usageCostLine,
+    cacheLine,
     `📚 ${contextLine}`,
     mediaLine,
     args.usageLine,

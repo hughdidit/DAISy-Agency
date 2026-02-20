@@ -41,7 +41,22 @@ type CacheRetentionStreamOptions = Partial<SimpleStreamOptions> & {
 };
 >>>>>>> e4f715536 (fix(ci): repair lint/build checks)
 
+<<<<<<< HEAD
 function resolveCacheControlTtl(
+=======
+/**
+ * Resolve cacheRetention from extraParams, supporting both new `cacheRetention`
+ * and legacy `cacheControlTtl` values for backwards compatibility.
+ *
+ * Mapping: "5m" → "short", "1h" → "long"
+ *
+ * Only applies to Anthropic provider (OpenRouter uses openai-completions API
+ * with hardcoded cache_control, not the cacheRetention stream option).
+ *
+ * Defaults to "short" for Anthropic provider when not explicitly configured.
+ */
+function resolveCacheRetention(
+>>>>>>> f1e1cc4ee (feat: surface cached token counts in /status output (openclaw#21248) thanks @vishaltandale00)
   extraParams: Record<string, unknown> | undefined,
   provider: string,
   modelId: string,
@@ -56,7 +71,9 @@ function resolveCacheControlTtl(
   if (provider === "openrouter" && modelId.startsWith("anthropic/")) {
     return raw;
   }
-  return undefined;
+
+  // Default to "short" for Anthropic when not explicitly configured
+  return "short";
 }
 
 function createStreamFnWithExtraParams(
