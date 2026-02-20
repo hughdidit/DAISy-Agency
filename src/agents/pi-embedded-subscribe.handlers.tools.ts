@@ -5,9 +5,10 @@ import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { normalizeTextForComparison } from "./pi-embedded-helpers.js";
 import { isMessagingTool, isMessagingToolSendAction } from "./pi-embedded-messaging.js";
 import {
+  extractMessagingToolSend,
   extractToolErrorMessage,
   extractToolResultText,
-  extractMessagingToolSend,
+  filterToolResultMediaUrls,
   isToolResultError,
   sanitizeToolResult,
 } from "./pi-embedded-subscribe.tools.js";
@@ -233,6 +234,23 @@ export function handleToolExecutionEnd(
     }
   }
 
+<<<<<<< HEAD
+=======
+  // Deliver media from tool results when the verbose emitToolOutput path is off.
+  // When shouldEmitToolOutput() is true, emitToolOutput already delivers media
+  // via parseReplyDirectives (MEDIA: text extraction), so skip to avoid duplicates.
+  if (ctx.params.onToolResult && !isToolError && !ctx.shouldEmitToolOutput()) {
+    const mediaPaths = filterToolResultMediaUrls(toolName, extractToolResultMediaPaths(result));
+    if (mediaPaths.length > 0) {
+      try {
+        void ctx.params.onToolResult({ mediaUrls: mediaPaths });
+      } catch {
+        // ignore delivery failures
+      }
+    }
+  }
+
+>>>>>>> c37843924 (Security: harden tool media paths)
   // Run after_tool_call plugin hook (fire-and-forget)
   const hookRunner = getGlobalHookRunner();
   if (hookRunner?.hasHooks("after_tool_call")) {

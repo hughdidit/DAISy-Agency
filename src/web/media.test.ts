@@ -36,7 +36,27 @@ afterEach(async () => {
 });
 
 describe("web media loading", () => {
+<<<<<<< HEAD
   beforeEach(() => {
+=======
+  beforeAll(() => {
+    // Ensure state dir is stable and not influenced by other tests that stub OPENCLAW_STATE_DIR.
+    // Also keep it outside the OpenClaw temp root so default localRoots doesn't accidentally make all state readable.
+    stateDirSnapshot = captureEnv(["OPENCLAW_STATE_DIR"]);
+    process.env.OPENCLAW_STATE_DIR = path.join(
+      path.parse(os.tmpdir()).root,
+      "var",
+      "lib",
+      "openclaw-media-state-test",
+    );
+  });
+
+  afterAll(() => {
+    stateDirSnapshot.restore();
+  });
+
+  beforeAll(() => {
+>>>>>>> c37843924 (Security: harden tool media paths)
     vi.spyOn(ssrf, "resolvePinnedHostname").mockImplementation(async (hostname) => {
       const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
       const addresses = ["93.184.216.34"];

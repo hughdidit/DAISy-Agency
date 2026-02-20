@@ -15,7 +15,17 @@ import {
   normalizeTextForComparison,
 } from "./pi-embedded-helpers.js";
 import { createEmbeddedPiSessionEventHandler } from "./pi-embedded-subscribe.handlers.js";
+<<<<<<< HEAD
 import { formatReasoningMessage } from "./pi-embedded-utils.js";
+=======
+import type {
+  EmbeddedPiSubscribeContext,
+  EmbeddedPiSubscribeState,
+} from "./pi-embedded-subscribe.handlers.types.js";
+import { filterToolResultMediaUrls } from "./pi-embedded-subscribe.tools.js";
+import type { SubscribeEmbeddedPiSessionParams } from "./pi-embedded-subscribe.types.js";
+import { formatReasoningMessage, stripDowngradedToolCallText } from "./pi-embedded-utils.js";
+>>>>>>> c37843924 (Security: harden tool media paths)
 import { hasNonzeroUsage, normalizeUsage, type UsageLike } from "./usage.js";
 
 const THINKING_TAG_SCAN_RE = /<\s*(\/?)\s*(?:think(?:ing)?|thought|antthinking)\s*>/gi;
@@ -300,13 +310,14 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
       markdown: useMarkdown,
     });
     const { text: cleanedText, mediaUrls } = parseReplyDirectives(agg);
-    if (!cleanedText && (!mediaUrls || mediaUrls.length === 0)) {
+    const filteredMediaUrls = filterToolResultMediaUrls(toolName, mediaUrls ?? []);
+    if (!cleanedText && filteredMediaUrls.length === 0) {
       return;
     }
     try {
       void params.onToolResult({
         text: cleanedText,
-        mediaUrls: mediaUrls?.length ? mediaUrls : undefined,
+        mediaUrls: filteredMediaUrls.length ? filteredMediaUrls : undefined,
       });
     } catch {
       // ignore tool result delivery failures
@@ -321,13 +332,14 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
     });
     const message = `${agg}\n${formatToolOutputBlock(output)}`;
     const { text: cleanedText, mediaUrls } = parseReplyDirectives(message);
-    if (!cleanedText && (!mediaUrls || mediaUrls.length === 0)) {
+    const filteredMediaUrls = filterToolResultMediaUrls(toolName, mediaUrls ?? []);
+    if (!cleanedText && filteredMediaUrls.length === 0) {
       return;
     }
     try {
       void params.onToolResult({
         text: cleanedText,
-        mediaUrls: mediaUrls?.length ? mediaUrls : undefined,
+        mediaUrls: filteredMediaUrls.length ? filteredMediaUrls : undefined,
       });
     } catch {
       // ignore tool result delivery failures
