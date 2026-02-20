@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import {
   approveDevicePairing,
+  clearDevicePairing,
   getPairedDevice,
   removePairedDevice,
   requestDevicePairing,
@@ -192,5 +193,17 @@ describe("device pairing tokens", () => {
 
     await expect(removePairedDevice("device-1", baseDir)).resolves.toBeNull();
   });
+<<<<<<< HEAD
 >>>>>>> 1437ed76a (Gateway/CLI: add paired-device remove and clear flows (#20057))
+=======
+
+  test("clears paired device state by device id", async () => {
+    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    await setupPairedOperatorDevice(baseDir, ["operator.read"]);
+
+    await expect(clearDevicePairing("device-1", baseDir)).resolves.toBe(true);
+    await expect(getPairedDevice("device-1", baseDir)).resolves.toBeNull();
+    await expect(clearDevicePairing("device-1", baseDir)).resolves.toBe(false);
+  });
+>>>>>>> 5dd304d1c (fix(gateway): clear pairing state on device token mismatch (#22071))
 });
