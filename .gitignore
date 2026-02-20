@@ -110,12 +110,17 @@ AGENTS.md.bak.md
 .agent/*.json
 !.agent/workflows/
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> d6c088910 (chore: add agent credentials to gitignore (#9874))
 =======
 local/
 <<<<<<< HEAD
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
 =======
+=======
+.agents/
+/local/
+>>>>>>> e2c5f8fda (chore: ignore .agents directory (#21877))
 package-lock.json
 <<<<<<< HEAD
 >>>>>>> 89fa93ed7 (feat: support freshness parameter for Perplexity web_search provider (#15343))
