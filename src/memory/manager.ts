@@ -6,6 +6,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 =======
 import type { DatabaseSync } from "node:sqlite";
@@ -157,9 +158,25 @@ import type { DatabaseSync } from "node:sqlite";
 import { type FSWatcher } from "chokidar";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
+=======
+import type { Stats } from "node:fs";
+import type { DatabaseSync } from "node:sqlite";
+import { type FSWatcher } from "chokidar";
+import fs from "node:fs/promises";
+import path from "node:path";
+>>>>>>> ec4198954 (Memory: harden readFile ENOENT handling)
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
-import { resolveMemorySearchConfig } from "../agents/memory-search.js";
 import type { OpenClawConfig } from "../config/config.js";
+import type {
+  MemoryEmbeddingProbeResult,
+  MemoryProviderStatus,
+  MemorySearchManager,
+  MemorySearchResult,
+  MemorySource,
+  MemorySyncProgressUpdate,
+} from "./types.js";
+import { resolveAgentDir, resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
+import { resolveMemorySearchConfig } from "../agents/memory-search.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   createEmbeddingProvider,
@@ -232,6 +249,7 @@ import { extractKeywords } from "./query-expansion.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> bcab2469d (feat: LLM-based query expansion for FTS mode)
 =======
 =======
@@ -265,6 +283,8 @@ import { extractKeywords } from "./query-expansion.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+>>>>>>> ec4198954 (Memory: harden readFile ENOENT handling)
 const SNIPPET_MAX_CHARS = 700;
 const VECTOR_TABLE = "chunks_vec";
 const FTS_TABLE = "chunks_fts";
@@ -272,6 +292,15 @@ const EMBEDDING_CACHE_TABLE = "embedding_cache";
 const BATCH_FAILURE_LIMIT = 2;
 
 const log = createSubsystemLogger("memory");
+
+function isFileMissingError(err: unknown): err is NodeJS.ErrnoException & { code: "ENOENT" } {
+  return Boolean(
+    err &&
+    typeof err === "object" &&
+    "code" in err &&
+    (err as Partial<NodeJS.ErrnoException>).code === "ENOENT",
+  );
+}
 
 const INDEX_CACHE = new Map<string, MemoryIndexManager>();
 
@@ -683,15 +712,11 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     if (!absPath.endsWith(".md")) {
       throw new Error("path required");
     }
-    let stat;
+    let stat: Stats;
     try {
       stat = await fs.lstat(absPath);
-    } catch (err: unknown) {
-      if (
-        err instanceof Error &&
-        "code" in err &&
-        (err as NodeJS.ErrnoException).code === "ENOENT"
-      ) {
+    } catch (err) {
+      if (isFileMissingError(err)) {
         return { text: "", path: relPath };
       }
       throw err;
@@ -700,7 +725,15 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
       throw new Error("path required");
 >>>>>>> f3f47886b (fix(memory): handle ENOENT gracefully in readFile instead of throwing)
     }
-    const content = await fs.readFile(absPath, "utf-8");
+    let content: string;
+    try {
+      content = await fs.readFile(absPath, "utf-8");
+    } catch (err) {
+      if (isFileMissingError(err)) {
+        return { text: "", path: relPath };
+      }
+      throw err;
+    }
     if (!params.from && !params.lines) {
       return { text: content, path: relPath };
     }
