@@ -116,9 +116,9 @@ async function expectMissingScopeAfterConnect(
   try {
     const res = await connectReq(ws, opts);
     expect(res.ok).toBe(true);
-    const health = await rpcReq(ws, "health");
-    expect(health.ok).toBe(false);
-    expect(health.error?.message).toContain("missing scope");
+    const status = await rpcReq(ws, "status");
+    expect(status.ok).toBe(false);
+    expect(status.error?.message).toContain("missing scope");
   } finally {
     ws.close();
   }
@@ -368,6 +368,18 @@ describe("gateway server auth/connect", () => {
       await expectMissingScopeAfterConnect(port, { device: null });
     });
 
+    test("allows health when scopes are empty", async () => {
+      const ws = await openWs(port);
+      try {
+        const res = await connectReq(ws, { scopes: [] });
+        expect(res.ok).toBe(true);
+        const health = await rpcReq(ws, "health");
+        expect(health.ok).toBe(true);
+      } finally {
+        ws.close();
+      }
+    });
+
     test("does not grant admin when scopes are omitted", async () => {
       const ws = await openWs(port);
       const token = resolveGatewayTokenOrEnv();
@@ -405,9 +417,11 @@ describe("gateway server auth/connect", () => {
       expect(presenceScopes).toEqual([]);
       expect(presenceScopes).not.toContain("operator.admin");
 
+      const status = await rpcReq(ws, "status");
+      expect(status.ok).toBe(false);
+      expect(status.error?.message).toContain("missing scope");
       const health = await rpcReq(ws, "health");
-      expect(health.ok).toBe(false);
-      expect(health.error?.message).toContain("missing scope");
+      expect(health.ok).toBe(true);
 
       ws.close();
     });
@@ -655,6 +669,14 @@ describe("gateway server auth/connect", () => {
       const ws = await openTailscaleWs(port);
       const res = await connectReq(ws, { token: "secret", device: null });
       expect(res.ok).toBe(true);
+<<<<<<< HEAD
+=======
+      const status = await rpcReq(ws, "status");
+      expect(status.ok).toBe(false);
+      expect(status.error?.message).toContain("missing scope");
+      const health = await rpcReq(ws, "health");
+      expect(health.ok).toBe(true);
+>>>>>>> 868fe48d5 (fix(gateway): allow health method for all authenticated roles (#19699))
       ws.close();
     });
   });
