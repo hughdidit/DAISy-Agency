@@ -126,17 +126,55 @@ describe("callGateway url resolution", () => {
     expect(lastClientOptions?.url).toBe("ws://127.0.0.1:18800");
   });
 
+<<<<<<< HEAD
   it("uses tailnet IP when local bind is tailnet and tailnet is present", async () => {
+=======
+  it("uses loopback with TLS when local bind is tailnet", async () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "tailnet", tls: { enabled: true } },
+    });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue("100.64.0.1");
+
+    await callGateway({ method: "health" });
+
+    expect(lastClientOptions?.url).toBe("wss://127.0.0.1:18800");
+  });
+
+  it("uses loopback without TLS when local bind is tailnet", async () => {
+>>>>>>> 47f397975 (Gateway: force loopback self-connections for local binds)
     loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "tailnet" } });
     resolveGatewayPort.mockReturnValue(18800);
     pickPrimaryTailnetIPv4.mockReturnValue("100.64.0.1");
 
+<<<<<<< HEAD
     await callGateway({ method: "health" });
 
     expect(lastClientOptions?.url).toBe("ws://100.64.0.1:18800");
   });
 
   it("uses LAN IP when bind is lan and LAN IP is available", async () => {
+=======
+    await callGateway({ method: "health" });
+
+    expect(lastClientOptions?.url).toBe("ws://127.0.0.1:18800");
+  });
+
+  it("uses loopback with TLS when bind is lan", async () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "lan", tls: { enabled: true } },
+    });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+    pickPrimaryLanIPv4.mockReturnValue("192.168.1.42");
+
+    await callGateway({ method: "health" });
+
+    expect(lastClientOptions?.url).toBe("wss://127.0.0.1:18800");
+  });
+
+  it("uses loopback without TLS when bind is lan", async () => {
+>>>>>>> 47f397975 (Gateway: force loopback self-connections for local binds)
     loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "lan" } });
     resolveGatewayPort.mockReturnValue(18800);
     pickPrimaryTailnetIPv4.mockReturnValue(undefined);
@@ -144,7 +182,11 @@ describe("callGateway url resolution", () => {
 
     await callGateway({ method: "health" });
 
+<<<<<<< HEAD
     expect(lastClientOptions?.url).toBe("ws://192.168.1.42:18800");
+=======
+    expect(lastClientOptions?.url).toBe("ws://127.0.0.1:18800");
+>>>>>>> 47f397975 (Gateway: force loopback self-connections for local binds)
   });
 
   it("falls back to loopback when bind is lan but no LAN IP found", async () => {
@@ -245,7 +287,26 @@ describe("buildGatewayConnectionDetails", () => {
     expect(details.message).toContain("Gateway target: ws://127.0.0.1:18789");
   });
 
+<<<<<<< HEAD
   it("uses LAN IP and reports lan source when bind is lan", () => {
+=======
+  it("uses loopback URL and loopback source when bind is lan", () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "lan", tls: { enabled: true } },
+    });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+    pickPrimaryLanIPv4.mockReturnValue("10.0.0.5");
+
+    const details = buildGatewayConnectionDetails();
+
+    expect(details.url).toBe("wss://127.0.0.1:18800");
+    expect(details.urlSource).toBe("local loopback");
+    expect(details.bindDetail).toBe("Bind: lan");
+  });
+
+  it("uses loopback URL for bind=lan without TLS", () => {
+>>>>>>> 47f397975 (Gateway: force loopback self-connections for local binds)
     loadConfig.mockReturnValue({
       gateway: { mode: "local", bind: "lan" },
     });
@@ -255,9 +316,14 @@ describe("buildGatewayConnectionDetails", () => {
 
     const details = buildGatewayConnectionDetails();
 
+<<<<<<< HEAD
     expect(details.url).toBe("ws://10.0.0.5:18800");
     expect(details.urlSource).toBe("local lan 10.0.0.5");
     expect(details.bindDetail).toBe("Bind: lan");
+=======
+    expect(details.url).toBe("ws://127.0.0.1:18800");
+    expect(details.urlSource).toBe("local loopback");
+>>>>>>> 47f397975 (Gateway: force loopback self-connections for local binds)
   });
 
   it("prefers remote url when configured", () => {
