@@ -7,6 +7,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 =======
 import type { DatabaseSync } from "node:sqlite";
@@ -83,6 +84,8 @@ import type {
 >>>>>>> 5d3af3bc6 (feat (memory): Implement new (opt-in) QMD memory backend)
 =======
 =======
+=======
+>>>>>>> 5542a4362 (Memory: share ENOENT helpers)
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { DatabaseSync } from "node:sqlite";
@@ -191,6 +194,7 @@ import {
   type OpenAiEmbeddingClient,
   type VoyageEmbeddingClient,
 } from "./embeddings.js";
+import { isFileMissingError, statRegularFile } from "./fs-utils.js";
 import { bm25RankToScore, buildFtsQuery, mergeHybridResults } from "./hybrid.js";
 <<<<<<< HEAD
 import {
@@ -303,15 +307,6 @@ const EMBEDDING_CACHE_TABLE = "embedding_cache";
 const BATCH_FAILURE_LIMIT = 2;
 
 const log = createSubsystemLogger("memory");
-
-function isFileMissingError(err: unknown): err is NodeJS.ErrnoException & { code: "ENOENT" } {
-  return Boolean(
-    err &&
-    typeof err === "object" &&
-    "code" in err &&
-    (err as Partial<NodeJS.ErrnoException>).code === "ENOENT",
-  );
-}
 
 const INDEX_CACHE = new Map<string, MemoryIndexManager>();
 
@@ -723,6 +718,7 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     if (!absPath.endsWith(".md")) {
       throw new Error("path required");
     }
+<<<<<<< HEAD
     let stat: Stats;
     try {
       stat = await fs.lstat(absPath);
@@ -735,6 +731,11 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     if (stat.isSymbolicLink() || !stat.isFile()) {
       throw new Error("path required");
 >>>>>>> f3f47886b (fix(memory): handle ENOENT gracefully in readFile instead of throwing)
+=======
+    const statResult = await statRegularFile(absPath);
+    if (statResult.missing) {
+      return { text: "", path: relPath };
+>>>>>>> 5542a4362 (Memory: share ENOENT helpers)
     }
     let content: string;
     try {
