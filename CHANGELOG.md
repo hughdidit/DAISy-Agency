@@ -43,6 +43,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -52,6 +53,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Gateway/Auth: allow authenticated clients across roles/scopes to call `health` while preserving role and scope enforcement for non-health methods. (#19699) thanks @Nachx639.
+>>>>>>> 868fe48d5 (fix(gateway): allow health method for all authenticated roles (#19699))
 - Gateway/Hooks: include transform export name in hook-transform cache keys so distinct exports from the same module do not reuse the wrong cached transform function. (#13855) thanks @mcaxtr.
 >>>>>>> c8ee33c16 (fix(gateway): include export name in hook transform cache key (#13855))
 - Gateway/Control UI: return 404 for missing static-asset paths instead of serving SPA fallback HTML, while preserving client-route fallback behavior for extensionless and non-asset dotted paths. (#12060) thanks @mcaxtr.
