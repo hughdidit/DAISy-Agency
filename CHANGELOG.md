@@ -44,6 +44,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -54,6 +55,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Gateway/Auth: allow trusted-proxy mode with loopback bind for same-host reverse-proxy deployments, while still requiring configured `gateway.trustedProxies`. (#20097) thanks @xinhuagu.
+>>>>>>> 9c5249714 (fix(gateway): trusted-proxy auth rejected when bind=loopback (#20097))
 - Gateway/Auth: allow authenticated clients across roles/scopes to call `health` while preserving role and scope enforcement for non-health methods. (#19699) thanks @Nachx639.
 >>>>>>> 868fe48d5 (fix(gateway): allow health method for all authenticated roles (#19699))
 - Gateway/Hooks: include transform export name in hook-transform cache keys so distinct exports from the same module do not reuse the wrong cached transform function. (#13855) thanks @mcaxtr.
