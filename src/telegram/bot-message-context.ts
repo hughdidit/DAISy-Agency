@@ -83,6 +83,10 @@ import { resolveControlCommandGate } from "../channels/command-gating.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatLocationText, toLocationContext } from "../channels/location.js";
 import { recordInboundSession } from "../channels/session.js";
+import {
+  createStatusReactionController,
+  type StatusReactionController,
+} from "../channels/status-reactions.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { loadConfig } from "../config/config.js";
 import { readSessionUpdatedAt, resolveStorePath } from "../config/sessions.js";
@@ -659,8 +663,41 @@ export const buildTelegramMessageContext = async ({
   };
   const reactionApi =
     typeof api.setMessageReaction === "function" ? api.setMessageReaction.bind(api) : null;
-  const ackReactionPromise =
-    shouldAckReaction() && msg.message_id && reactionApi
+
+  // Status Reactions controller (lifecycle reactions)
+  const statusReactionsConfig = cfg.messages?.statusReactions;
+  const statusReactionsEnabled =
+    statusReactionsConfig?.enabled === true && Boolean(reactionApi) && shouldAckReaction();
+  const statusReactionController: StatusReactionController | null =
+    statusReactionsEnabled && msg.message_id
+      ? createStatusReactionController({
+          enabled: true,
+          adapter: {
+            setReaction: async (emoji: string) => {
+              if (reactionApi) {
+                await reactionApi(chatId, msg.message_id, [{ type: "emoji", emoji }]);
+              }
+            },
+            // Telegram replaces atomically — no removeReaction needed
+          },
+          initialEmoji: ackReaction,
+          emojis: statusReactionsConfig?.emojis,
+          timing: statusReactionsConfig?.timing,
+          onError: (err) => {
+            logVerbose(`telegram status-reaction error for chat ${chatId}: ${String(err)}`);
+          },
+        })
+      : null;
+
+  // When status reactions are enabled, setQueued() replaces the simple ack reaction
+  const ackReactionPromise = statusReactionController
+    ? shouldAckReaction()
+      ? Promise.resolve(statusReactionController.setQueued()).then(
+          () => true,
+          () => false,
+        )
+      : null
+    : shouldAckReaction() && msg.message_id && reactionApi
       ? withTelegramApiErrorLogging({
           operation: "setMessageReaction",
           fn: () => reactionApi(chatId, msg.message_id, [{ type: "emoji", emoji: ackReaction }]),
@@ -877,6 +914,7 @@ export const buildTelegramMessageContext = async ({
     ackReactionPromise,
     reactionApi,
     removeAckAfterReply,
+    statusReactionController,
     accountId: account.accountId,
   };
 };
