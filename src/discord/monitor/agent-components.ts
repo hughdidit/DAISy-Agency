@@ -894,6 +894,7 @@ async function dispatchDiscordComponentEvent(params: {
           rest: interaction.client.rest,
           runtime,
           replyToId,
+          replyToMode,
           textLimit,
           maxLinesPerMessage: ctx.discordConfig?.maxLinesPerMessage,
           tableMode,

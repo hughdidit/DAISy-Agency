@@ -134,7 +134,11 @@ Docs: https://docs.openclaw.ai
 =======
 - Telegram/Streaming: split reasoning and answer draft preview lanes to prevent cross-lane overwrites, and ignore literal `<think>` tags inside inline/fenced code snippets so sample markup is not misrouted as reasoning. (#20774) Thanks @obviyus.
 - Telegram/Status reactions: refresh stall timers on repeated phase updates and honor ack-reaction scope when lifecycle reactions are enabled, preventing false stall emojis and unwanted group reactions. Thanks @wolly-tundracube and @thewilloftheshadow.
+<<<<<<< HEAD
 >>>>>>> 30a0d3fce (Status reactions: fix stall timers and gating (#22190))
+=======
+- Discord/Streaming: apply `replyToMode: first` only to the first Discord chunk so block-streamed replies do not spam mention pings. (#20726) Thanks @thewilloftheshadow for the report.
+>>>>>>> 64c29c375 (Discord: avoid reply spam on chunked sends)
 
 >>>>>>> 29ad0736f (fix(gateway): tolerate legacy paired metadata in ws upgrade checks (#21447))
 - Discord/Gateway: handle close code 4014 (missing privileged gateway intents) without crashing the gateway. Thanks @thewilloftheshadow.

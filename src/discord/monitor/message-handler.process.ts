@@ -692,6 +692,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
         rest: client.rest,
         runtime,
         replyToId,
+        replyToMode,
         textLimit,
         maxLinesPerMessage: discordConfig?.maxLinesPerMessage,
         tableMode,
