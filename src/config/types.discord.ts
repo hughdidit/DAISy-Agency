@@ -10,6 +10,7 @@ import type {
 import type { ChannelHeartbeatVisibilityConfig } from "./types.channels.js";
 import type { DmConfig, ProviderCommandsConfig } from "./types.messages.js";
 import type { GroupToolPolicyBySenderConfig, GroupToolPolicyConfig } from "./types.tools.js";
+import type { TtsConfig } from "./types.tts.js";
 
 export type DiscordDmConfig = {
   /** If false, ignore all incoming Discord DMs. Default: true. */
@@ -86,6 +87,22 @@ export type DiscordIntentsConfig = {
   guildMembers?: boolean;
 };
 
+export type DiscordVoiceAutoJoinConfig = {
+  /** Guild ID that owns the voice channel. */
+  guildId: string;
+  /** Voice channel ID to join. */
+  channelId: string;
+};
+
+export type DiscordVoiceConfig = {
+  /** Enable Discord voice channel conversations (default: true). */
+  enabled?: boolean;
+  /** Voice channels to auto-join on startup. */
+  autoJoin?: DiscordVoiceAutoJoinConfig[];
+  /** Optional TTS overrides for Discord voice output. */
+  tts?: TtsConfig;
+};
+
 export type DiscordExecApprovalConfig = {
   /** Enable exec approval forwarding to Discord DMs. Default: false. */
   enabled?: boolean;
@@ -157,6 +174,8 @@ export type DiscordAccountConfig = {
   execApprovals?: DiscordExecApprovalConfig;
   /** Privileged Gateway Intents (must also be enabled in Discord Developer Portal). */
   intents?: DiscordIntentsConfig;
+  /** Voice channel conversation settings. */
+  voice?: DiscordVoiceConfig;
   /** PluralKit identity resolution for proxied messages. */
   pluralkit?: DiscordPluralKitConfig;
   /** Outbound response prefix override for this channel/account. */

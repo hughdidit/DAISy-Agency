@@ -19,6 +19,7 @@ import {
   ProviderCommandsSchema,
   ReplyToModeSchema,
   RetryConfigSchema,
+  TtsConfigSchema,
   requireOpenAllowFrom,
 } from "./zod-schema.core.js";
 
@@ -255,6 +256,37 @@ export const DiscordGuildSchema = z
   })
   .strict();
 
+<<<<<<< HEAD
+=======
+const DiscordUiSchema = z
+  .object({
+    components: z
+      .object({
+        accentColor: HexColorSchema.optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict()
+  .optional();
+
+const DiscordVoiceAutoJoinSchema = z
+  .object({
+    guildId: z.string().min(1),
+    channelId: z.string().min(1),
+  })
+  .strict();
+
+const DiscordVoiceSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    autoJoin: z.array(DiscordVoiceAutoJoinSchema).optional(),
+    tts: TtsConfigSchema.optional(),
+  })
+  .strict()
+  .optional();
+
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 export const DiscordAccountSchema = z
   .object({
     name: z.string().optional(),
@@ -325,6 +357,7 @@ export const DiscordAccountSchema = z
       })
       .strict()
       .optional(),
+    voice: DiscordVoiceSchema,
     pluralkit: z
       .object({
         enabled: z.boolean().optional(),

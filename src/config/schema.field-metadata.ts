@@ -725,6 +725,17 @@ export const FIELD_HELP: Record<string, string> = {
   "channels.discord.retry.maxDelayMs": "Maximum retry delay cap in ms for Discord outbound calls.",
   "channels.discord.retry.jitter": "Jitter factor (0-1) applied to Discord retry delays.",
   "channels.discord.maxLinesPerMessage": "Soft max line count per Discord message (default: 17).",
+<<<<<<< HEAD:src/config/schema.field-metadata.ts
+=======
+  "channels.discord.ui.components.accentColor":
+    "Accent color for Discord component containers (hex). Set per account via channels.discord.accounts.<id>.ui.components.accentColor.",
+  "channels.discord.voice.enabled":
+    "Enable Discord voice channel conversations (default: true). Omit channels.discord.voice to keep voice support disabled for the account.",
+  "channels.discord.voice.autoJoin":
+    "Voice channels to auto-join on startup (list of guildId/channelId entries).",
+  "channels.discord.voice.tts":
+    "Optional TTS overrides for Discord voice playback (merged with messages.tts).",
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774)):src/config/schema.help.ts
   "channels.discord.intents.presence":
     "Enable the Guild Presences privileged intent. Must also be enabled in the Discord Developer Portal. Allows tracking user activities (e.g. Spotify). Default: false.",
   "channels.discord.intents.guildMembers":
