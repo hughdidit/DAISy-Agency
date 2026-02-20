@@ -73,6 +73,22 @@ describe("loginWeb coverage", () => {
     expect(secondSock.ws.close).toHaveBeenCalled();
   });
 
+  it("formats retry failure when restart login also closes", async () => {
+    formatErrorMock.mockReturnValueOnce("status=408 Request Time-out QR refs attempts ended");
+    waitForWaConnectionMock
+      .mockRejectedValueOnce({ output: { statusCode: 515 } })
+      .mockRejectedValueOnce({
+        output: {
+          statusCode: 408,
+          payload: { error: "Request Time-out", message: "QR refs attempts ended" },
+        },
+      });
+
+    await expect(loginWeb(false, waitForWaConnectionMock as never)).rejects.toThrow(
+      /status=408 Request Time-out QR refs attempts ended/i,
+    );
+  });
+
   it("clears creds and throws when logged out", async () => {
     waitForWaConnection.mockRejectedValueOnce({
       output: { statusCode: DisconnectReason.loggedOut },

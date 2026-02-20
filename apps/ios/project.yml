@@ -88,7 +88,14 @@ targets:
           UIApplicationSupportsMultipleScenes: false
         UIBackgroundModes:
           - audio
+<<<<<<< HEAD
         NSLocalNetworkUsageDescription: Moltbot discovers and connects to your Moltbot gateway on the local network.
+=======
+          - remote-notification
+        BGTaskSchedulerPermittedIdentifiers:
+          - ai.openclaw.ios.bgrefresh
+        NSLocalNetworkUsageDescription: OpenClaw discovers and connects to your OpenClaw gateway on the local network.
+>>>>>>> ac0c1c26b (fix: preserve ios bg refresh plist key and handle web login retry failures)
         NSAppTransportSecurity:
           NSAllowsArbitraryLoadsInWebContent: true
         NSBonjourServices:
