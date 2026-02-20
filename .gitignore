@@ -88,6 +88,7 @@ USER.md
 local/
 =======
 .agents/
+.agents
 /local/
 >>>>>>> e2c5f8fda (chore: ignore .agents directory (#21877))
 package-lock.json
