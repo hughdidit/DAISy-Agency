@@ -251,7 +251,15 @@ export function sanitizeToolsForGoogle<
   tools: AgentTool<TSchemaType, TResult>[];
   provider: string;
 }): AgentTool<TSchemaType, TResult>[] {
+<<<<<<< HEAD
   if (params.provider !== "google-antigravity" && params.provider !== "google-gemini-cli") {
+=======
+  // Cloud Code Assist uses the OpenAPI 3.03 `parameters` field for both Gemini
+  // AND Claude models.  This field does not support JSON Schema keywords such as
+  // patternProperties, additionalProperties, $ref, etc.  We must clean schemas
+  // for every provider that routes through this path.
+  if (params.provider !== "google-gemini-cli" && params.provider !== "google-antigravity") {
+>>>>>>> 59e58bf81 (fix: strip unsupported JSON Schema keywords for Claude via Cloud Code Assist (openclaw#20124) thanks @ephraimm)
     return params.tools;
   }
   return params.tools.map((tool) => {
