@@ -8,7 +8,11 @@ import { resolveStateDir } from "../config/paths.js";
 import { safeEqualSecret } from "../security/secret-equal.js";
 =======
 import { normalizeDeviceAuthScopes } from "../shared/device-auth.js";
+<<<<<<< HEAD
 >>>>>>> b9aed3a07 (refactor(infra): reuse device auth scope normalization)
+=======
+import { roleScopesAllow } from "../shared/operator-scope-compat.js";
+>>>>>>> 525d6e067 (Gateway: align pairing scope checks for read access)
 import {
   createAsyncLock,
   pruneExpiredPending,
@@ -159,17 +163,6 @@ function mergeScopes(...items: Array<string[] | undefined>): string[] | undefine
     return undefined;
   }
   return [...scopes];
-}
-
-function scopesAllow(requested: string[], allowed: string[]): boolean {
-  if (requested.length === 0) {
-    return true;
-  }
-  if (allowed.length === 0) {
-    return false;
-  }
-  const allowedSet = new Set(allowed);
-  return requested.every((scope) => allowedSet.has(scope));
 }
 
 function newToken() {
@@ -420,7 +413,7 @@ export async function verifyDeviceToken(params: {
       return { ok: false, reason: "token-mismatch" };
     }
     const requestedScopes = normalizeDeviceAuthScopes(params.scopes);
-    if (!scopesAllow(requestedScopes, entry.scopes)) {
+    if (!roleScopesAllow({ role, requestedScopes, allowedScopes: entry.scopes })) {
       return { ok: false, reason: "scope-mismatch" };
     }
     entry.lastUsedAtMs = Date.now();
@@ -451,7 +444,7 @@ export async function ensureDeviceToken(params: {
     }
     const { device, role, tokens, existing } = context;
     if (existing && !existing.revokedAtMs) {
-      if (scopesAllow(requestedScopes, existing.scopes)) {
+      if (roleScopesAllow({ role, requestedScopes, allowedScopes: existing.scopes })) {
         return existing;
       }
     }
