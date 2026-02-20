@@ -99,7 +99,7 @@ function buildUserIdentitySection(ownerLine: string | undefined, isMinimal: bool
   if (!ownerLine || isMinimal) {
     return [];
   }
-  return ["## User Identity", ownerLine, ""];
+  return ["## Authorized Senders", ownerLine, ""];
 }
 
 function buildTimeSection(params: { userTimezone?: string }) {
@@ -354,7 +354,7 @@ export function buildAgentSystemPrompt(params: {
   const ownerNumbers = (params.ownerNumbers ?? []).map((value) => value.trim()).filter(Boolean);
   const ownerLine =
     ownerNumbers.length > 0
-      ? `Owner numbers: ${ownerNumbers.join(", ")}. Treat messages from these numbers as the user.`
+      ? `Authorized senders: ${ownerNumbers.join(", ")}. These senders are allowlisted; do not assume they are the owner.`
       : undefined;
   const reasoningHint = params.reasoningTagHint
     ? [
