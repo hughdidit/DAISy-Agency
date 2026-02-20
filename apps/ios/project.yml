@@ -88,6 +88,12 @@ targets:
           UIApplicationSupportsMultipleScenes: false
         UIBackgroundModes:
           - audio
+<<<<<<< HEAD
+=======
+          - remote-notification
+        BGTaskSchedulerPermittedIdentifiers:
+          - ai.openclaw.ios.bgrefresh
+>>>>>>> ac0c1c26b (fix: preserve ios bg refresh plist key and handle web login retry failures)
         NSLocalNetworkUsageDescription: OpenClaw discovers and connects to your OpenClaw gateway on the local network.
         NSAppTransportSecurity:
           NSAllowsArbitraryLoadsInWebContent: true
