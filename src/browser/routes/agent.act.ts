@@ -18,7 +18,7 @@ import {
   DEFAULT_DOWNLOAD_DIR,
   DEFAULT_UPLOAD_DIR,
   resolvePathWithinRoot,
-  resolvePathsWithinRoot,
+  resolveExistingPathsWithinRoot,
 } from "./path-output.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -683,7 +683,7 @@ export function registerBrowserAgentActRoutes(
       targetId,
       feature: "file chooser hook",
       run: async ({ cdpUrl, tab, pw }) => {
-        const uploadPathsResult = resolvePathsWithinRoot({
+        const uploadPathsResult = await resolveExistingPathsWithinRoot({
           rootDir: DEFAULT_UPLOAD_DIR,
           requestedPaths: paths,
           scopeLabel: `uploads directory (${DEFAULT_UPLOAD_DIR})`,

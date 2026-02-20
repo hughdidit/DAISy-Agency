@@ -1,9 +1,28 @@
 import type { Command } from "commander";
+<<<<<<< HEAD
+=======
+import { DEFAULT_UPLOAD_DIR, resolveExistingPathsWithinRoot } from "../../browser/paths.js";
+>>>>>>> 8e4f6c038 (fix(browser): block upload symlink escapes (#21972))
 import { danger } from "../../globals.js";
 import { defaultRuntime } from "../../runtime.js";
 import { callBrowserRequest, type BrowserParentOpts } from "../browser-cli-shared.js";
 import { resolveBrowserActionContext } from "./shared.js";
+<<<<<<< HEAD
 import { shortenHomePath } from "../../utils.js";
+=======
+
+async function normalizeUploadPaths(paths: string[]): Promise<string[]> {
+  const result = await resolveExistingPathsWithinRoot({
+    rootDir: DEFAULT_UPLOAD_DIR,
+    requestedPaths: paths,
+    scopeLabel: `uploads directory (${DEFAULT_UPLOAD_DIR})`,
+  });
+  if (!result.ok) {
+    throw new Error(result.error);
+  }
+  return result.paths;
+}
+>>>>>>> 8e4f6c038 (fix(browser): block upload symlink escapes (#21972))
 
 export function registerBrowserFilesAndDownloadsCommands(
   browser: Command,
@@ -59,7 +78,12 @@ export function registerBrowserFilesAndDownloadsCommands(
     .action(async (paths: string[], opts, cmd) => {
       const { parent, profile } = resolveBrowserActionContext(cmd, parentOpts);
       try {
+<<<<<<< HEAD
         const timeoutMs = Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : undefined;
+=======
+        const normalizedPaths = await normalizeUploadPaths(paths);
+        const { timeoutMs, targetId } = resolveTimeoutAndTarget(opts);
+>>>>>>> 8e4f6c038 (fix(browser): block upload symlink escapes (#21972))
         const result = await callBrowserRequest<{ download: { path: string } }>(
           parent,
           {
