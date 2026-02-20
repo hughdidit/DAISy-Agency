@@ -275,10 +275,14 @@ Docs: https://docs.openclaw.ai
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 - Agents: revert accidental per-model thinkingDefault override merge. (#19195) Thanks @sebslight.
 - Sessions: revert accidental session transcript permission hardening from PR #18288. (#19224) Thanks @sebslight.
 =======
+=======
+- Agents/Antigravity: preserve unsigned Claude thinking blocks as plain text instead of dropping them during transcript sanitization, preventing reasoning context loss while avoiding `thinking.signature` request rejections.
+>>>>>>> 86f207adb (fix: clean tool schemas and thinking blocks for google-antigravity (openclaw#19732) thanks @Oceanswave)
 - Agents/Google: clean tool JSON Schemas for `google-antigravity` the same as `google-gemini-cli` before Cloud Code Assist requests, preventing Claude tool calls from failing with `patternProperties` 400 errors. (#19860)
 - Tests/Telegram: add regression coverage for command-menu sync that asserts all `setMyCommands` entries are Telegram-safe and hyphen-normalized across native/custom/plugin command sources. (#19703) Thanks @obviyus.
 - Agents/Image: collapse resize diagnostics to one line per image and include visible pixel/byte size details in the log message for faster triage.
