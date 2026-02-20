@@ -22,10 +22,14 @@ import {
 import { resolveBrowserConfig } from "../../browser/config.js";
 import { DEFAULT_AI_SNAPSHOT_MAX_CHARS } from "../../browser/constants.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { loadConfig } from "../../config/config.js";
 import { saveMediaBuffer } from "../../media/store.js";
 =======
 import { DEFAULT_UPLOAD_DIR, resolvePathsWithinRoot } from "../../browser/paths.js";
+=======
+import { DEFAULT_UPLOAD_DIR, resolveExistingPathsWithinRoot } from "../../browser/paths.js";
+>>>>>>> 8e4f6c038 (fix(browser): block upload symlink escapes (#21972))
 import { applyBrowserProxyPaths, persistBrowserProxyFiles } from "../../browser/proxy-files.js";
 import { loadConfig } from "../../config/config.js";
 import { wrapExternalContent } from "../../security/external-content.js";
@@ -587,6 +591,18 @@ export function createBrowserTool(opts?: {
           if (paths.length === 0) {
             throw new Error("paths required");
           }
+<<<<<<< HEAD
+=======
+          const uploadPathsResult = await resolveExistingPathsWithinRoot({
+            rootDir: DEFAULT_UPLOAD_DIR,
+            requestedPaths: paths,
+            scopeLabel: `uploads directory (${DEFAULT_UPLOAD_DIR})`,
+          });
+          if (!uploadPathsResult.ok) {
+            throw new Error(uploadPathsResult.error);
+          }
+          const normalizedPaths = uploadPathsResult.paths;
+>>>>>>> 8e4f6c038 (fix(browser): block upload symlink escapes (#21972))
           const ref = readStringParam(params, "ref");
           const inputRef = readStringParam(params, "inputRef");
           const element = readStringParam(params, "element");
