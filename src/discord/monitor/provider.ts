@@ -32,8 +32,10 @@ import { inspect } from "node:util";
 import {
   Client,
   ReadyListener,
+  type BaseCommand,
   type BaseMessageInteractiveComponent,
   type Modal,
+  type Plugin,
 } from "@buape/carbon";
 import { GatewayCloseCodes, type GatewayPlugin } from "@buape/carbon/gateway";
 import { Routes } from "discord-api-types/v10";
@@ -584,7 +586,12 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       ),
     );
   }
+<<<<<<< HEAD
   const commands = commandSpecs.map((spec) =>
+=======
+  const voiceManagerRef: { current: DiscordVoiceManager | null } = { current: null };
+  const commands: BaseCommand[] = commandSpecs.map((spec) =>
+>>>>>>> ab27d7b05 (Discord: fix voice command typing)
     createDiscordNativeCommand({
       command: spec,
       cfg,
@@ -661,7 +668,16 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     }
   }
 
+<<<<<<< HEAD
 >>>>>>> 5d8c6ef91 (feat(discord): add configurable presence (activity/status/type))
+=======
+  const clientPlugins: Plugin[] = [
+    createDiscordGatewayPlugin({ discordConfig: discordCfg, runtime }),
+  ];
+  if (voiceEnabled) {
+    clientPlugins.push(new VoicePlugin());
+  }
+>>>>>>> ab27d7b05 (Discord: fix voice command typing)
   const client = new Client(
     {
       baseUrl: "http://localhost",
