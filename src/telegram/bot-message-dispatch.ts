@@ -117,6 +117,7 @@ export const dispatchTelegramMessage = async ({
     ackReactionPromise,
     reactionApi,
     removeAckAfterReply,
+    statusReactionController,
   } = context;
 
   const draftMaxChars = Math.min(textLimit, 4096);
@@ -341,7 +342,15 @@ export const dispatchTelegramMessage = async ({
   };
 
   let queuedFinal = false;
+<<<<<<< HEAD
   let dispatchError: unknown;
+=======
+
+  if (statusReactionController) {
+    void statusReactionController.setThinking();
+  }
+
+>>>>>>> 30a0d3fce (Status reactions: fix stall timers and gating (#22190))
   try {
     ({ queuedFinal } = await dispatchReplyWithBufferedBlockDispatcher({
       ctx: ctxPayload,
@@ -526,6 +535,11 @@ export const dispatchTelegramMessage = async ({
               draftChunker?.reset();
             }
           : undefined,
+        onToolStart: statusReactionController
+          ? async (payload) => {
+              await statusReactionController.setTool(payload.name);
+            }
+          : undefined,
         onModelSelected,
       },
     }));
@@ -578,26 +592,40 @@ export const dispatchTelegramMessage = async ({
   }
 
   const hasFinalResponse = queuedFinal || sentFallback;
+
+  if (statusReactionController && !hasFinalResponse) {
+    void statusReactionController.setError().catch((err) => {
+      logVerbose(`telegram: status reaction error finalize failed: ${String(err)}`);
+    });
+  }
+
   if (!hasFinalResponse) {
     clearGroupHistory();
     return;
   }
-  removeAckReactionAfterReply({
-    removeAfterReply: removeAckAfterReply,
-    ackReactionPromise,
-    ackReactionValue: ackReactionPromise ? "ack" : null,
-    remove: () => reactionApi?.(chatId, msg.message_id ?? 0, []) ?? Promise.resolve(),
-    onError: (err) => {
-      if (!msg.message_id) {
-        return;
-      }
-      logAckFailure({
-        log: logVerbose,
-        channel: "telegram",
-        target: `${chatId}/${msg.message_id}`,
-        error: err,
-      });
-    },
-  });
+
+  if (statusReactionController) {
+    void statusReactionController.setDone().catch((err) => {
+      logVerbose(`telegram: status reaction finalize failed: ${String(err)}`);
+    });
+  } else {
+    removeAckReactionAfterReply({
+      removeAfterReply: removeAckAfterReply,
+      ackReactionPromise,
+      ackReactionValue: ackReactionPromise ? "ack" : null,
+      remove: () => reactionApi?.(chatId, msg.message_id ?? 0, []) ?? Promise.resolve(),
+      onError: (err) => {
+        if (!msg.message_id) {
+          return;
+        }
+        logAckFailure({
+          log: logVerbose,
+          channel: "telegram",
+          target: `${chatId}/${msg.message_id}`,
+          error: err,
+        });
+      },
+    });
+  }
   clearGroupHistory();
 };
