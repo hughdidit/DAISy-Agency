@@ -154,11 +154,16 @@ import {
   validateAnthropicTurns,
   validateGeminiTurns,
 } from "../pi-embedded-helpers.js";
+<<<<<<< HEAD
 import {
   ensurePiCompactionReserveTokens,
   resolveCompactionReserveTokensFloor,
 } from "../pi-settings.js";
 import { createMoltbotCodingTools } from "../pi-tools.js";
+=======
+import { applyPiCompactionSettingsFromConfig } from "../pi-settings.js";
+import { createOpenClawCodingTools } from "../pi-tools.js";
+>>>>>>> c1ac37a64 (Config: expose Pi compaction tuning values (openclaw#21568) thanks @Takhoffman)
 import { resolveSandboxContext } from "../sandbox.js";
 import { repairSessionFileIfNeeded } from "../session-file-repair.js";
 import { guardSessionManager } from "../session-tool-result-guard-wrapper.js";
@@ -705,9 +710,9 @@ export async function compactEmbeddedPiSessionDirect(
       });
       trackSessionManagerAccess(params.sessionFile);
       const settingsManager = SettingsManager.create(effectiveWorkspace, agentDir);
-      ensurePiCompactionReserveTokens({
+      applyPiCompactionSettingsFromConfig({
         settingsManager,
-        minReserveTokens: resolveCompactionReserveTokensFloor(params.config),
+        cfg: params.config,
       });
       const additionalExtensionPaths = buildEmbeddedExtensionPaths({
         cfg: params.config,

@@ -163,6 +163,7 @@ import {
   validateGeminiTurns,
 } from "../../pi-embedded-helpers.js";
 import { subscribeEmbeddedPiSession } from "../../pi-embedded-subscribe.js";
+<<<<<<< HEAD
 import {
   ensurePiCompactionReserveTokens,
   resolveCompactionReserveTokensFloor,
@@ -170,6 +171,9 @@ import {
 <<<<<<< HEAD
 import { createMoltbotCodingTools } from "../../pi-tools.js";
 =======
+=======
+import { applyPiCompactionSettingsFromConfig } from "../../pi-settings.js";
+>>>>>>> c1ac37a64 (Config: expose Pi compaction tuning values (openclaw#21568) thanks @Takhoffman)
 import { toClientToolDefinitions } from "../../pi-tool-definition-adapter.js";
 import { createOpenClawCodingTools, resolveToolLoopDetectionConfig } from "../../pi-tools.js";
 >>>>>>> 076df941a (feat: add configurable tool loop detection)
@@ -689,9 +693,9 @@ export async function runEmbeddedAttempt(
       });
 
       const settingsManager = SettingsManager.create(effectiveWorkspace, agentDir);
-      ensurePiCompactionReserveTokens({
+      applyPiCompactionSettingsFromConfig({
         settingsManager,
-        minReserveTokens: resolveCompactionReserveTokensFloor(params.config),
+        cfg: params.config,
       });
 
       const additionalExtensionPaths = buildEmbeddedExtensionPaths({
