@@ -38,12 +38,18 @@ moltbot config set agents.list[1].tools.exec.node "node-id-or-name"
 ## Values
 
 Values are parsed as JSON5 when possible; otherwise they are treated as strings.
-Use `--json` to require JSON5 parsing.
+Use `--strict-json` to require JSON5 parsing. `--json` remains supported as a legacy alias.
 
 ```bash
+<<<<<<< HEAD
 moltbot config set agents.defaults.heartbeat.every "0m"
 moltbot config set gateway.port 19001 --json
 moltbot config set channels.whatsapp.groups '["*"]' --json
+=======
+openclaw config set agents.defaults.heartbeat.every "0m"
+openclaw config set gateway.port 19001 --strict-json
+openclaw config set channels.whatsapp.groups '["*"]' --strict-json
+>>>>>>> d871ee91d (fix(config-cli): correct misleading --json flag description (#21332))
 ```
 
 Restart the gateway after edits.
