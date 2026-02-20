@@ -403,6 +403,9 @@ export async function clearAuthProfileCooldown(params: {
         ...freshStore.usageStats[profileId],
         errorCount: 0,
         cooldownUntil: undefined,
+        disabledUntil: undefined,
+        disabledReason: undefined,
+        failureCounts: undefined,
       };
       return true;
     },
@@ -419,6 +422,9 @@ export async function clearAuthProfileCooldown(params: {
     ...store.usageStats[profileId],
     errorCount: 0,
     cooldownUntil: undefined,
+    disabledUntil: undefined,
+    disabledReason: undefined,
+    failureCounts: undefined,
   };
   saveAuthProfileStore(store, agentDir);
 }
