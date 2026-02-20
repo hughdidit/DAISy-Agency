@@ -1,15 +1,71 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { resolveMoltbotAgentDir } from "../agents/agent-paths.js";
 import { upsertAuthProfile } from "../agents/auth-profiles.js";
+import { resolveStateDir } from "../config/paths.js";
 export { CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF } from "../agents/cloudflare-ai-gateway.js";
 export { XAI_DEFAULT_MODEL_REF } from "./onboard-auth.models.js";
 
 const resolveAuthAgentDir = (agentDir?: string) => agentDir ?? resolveMoltbotAgentDir();
 
+export type WriteOAuthCredentialsOptions = {
+  syncSiblingAgents?: boolean;
+};
+
+/** Resolve real path, returning null if the target doesn't exist. */
+function safeRealpathSync(dir: string): string | null {
+  try {
+    return fs.realpathSync(path.resolve(dir));
+  } catch {
+    return null;
+  }
+}
+
+function resolveSiblingAgentDirs(primaryAgentDir: string): string[] {
+  const normalized = path.resolve(primaryAgentDir);
+
+  // Derive agentsRoot from primaryAgentDir when it matches the standard
+  // layout (.../agents/<name>/agent). Falls back to global state dir.
+  const parentOfAgent = path.dirname(normalized);
+  const candidateAgentsRoot = path.dirname(parentOfAgent);
+  const looksLikeStandardLayout =
+    path.basename(normalized) === "agent" && path.basename(candidateAgentsRoot) === "agents";
+
+  const agentsRoot = looksLikeStandardLayout
+    ? candidateAgentsRoot
+    : path.join(resolveStateDir(), "agents");
+
+  const entries = (() => {
+    try {
+      return fs.readdirSync(agentsRoot, { withFileTypes: true });
+    } catch {
+      return [];
+    }
+  })();
+  // Include both directories and symlinks-to-directories.
+  const discovered = entries
+    .filter((entry) => entry.isDirectory() || entry.isSymbolicLink())
+    .map((entry) => path.join(agentsRoot, entry.name, "agent"));
+
+  // Deduplicate via realpath to handle symlinks and path normalization.
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const dir of [normalized, ...discovered]) {
+    const real = safeRealpathSync(dir);
+    if (real && !seen.has(real)) {
+      seen.add(real);
+      result.push(real);
+    }
+  }
+  return result;
+}
+
 export async function writeOAuthCredentials(
   provider: string,
   creds: OAuthCredentials,
   agentDir?: string,
+<<<<<<< HEAD
 <<<<<<< HEAD
 ): Promise<void> {
   // Write to resolved agent dir so gateway finds credentials on startup.
@@ -17,12 +73,28 @@ export async function writeOAuthCredentials(
   upsertAuthProfile({
     profileId: `${provider}:${email || "default"}`,
 =======
+=======
+  options?: WriteOAuthCredentialsOptions,
+>>>>>>> 7ecfc1d93 (fix(auth): bidirectional mode/type compat + sync OAuth to all agents (#12692))
 ): Promise<string> {
   const email =
     typeof creds.email === "string" && creds.email.trim() ? creds.email.trim() : "default";
   const profileId = `${provider}:${email}`;
+  const resolvedAgentDir = path.resolve(resolveAuthAgentDir(agentDir));
+  const targetAgentDirs = options?.syncSiblingAgents
+    ? resolveSiblingAgentDirs(resolvedAgentDir)
+    : [resolvedAgentDir];
+
+  const credential = {
+    type: "oauth" as const,
+    provider,
+    ...creds,
+  };
+
+  // Primary write must succeed — let it throw on failure.
   upsertAuthProfile({
     profileId,
+<<<<<<< HEAD
 >>>>>>> 38b4fb5d5 (fix(auth/session): preserve override reset behavior and repair oauth profile-id drift (openclaw#18820) thanks @Glucksberg)
     credential: {
       type: "oauth",
@@ -30,7 +102,31 @@ export async function writeOAuthCredentials(
       ...creds,
     },
     agentDir: resolveAuthAgentDir(agentDir),
+=======
+    credential,
+    agentDir: resolvedAgentDir,
+>>>>>>> 7ecfc1d93 (fix(auth): bidirectional mode/type compat + sync OAuth to all agents (#12692))
   });
+
+  // Sibling sync is best-effort — log and ignore individual failures.
+  if (options?.syncSiblingAgents) {
+    const primaryReal = safeRealpathSync(resolvedAgentDir);
+    for (const targetAgentDir of targetAgentDirs) {
+      const targetReal = safeRealpathSync(targetAgentDir);
+      if (targetReal && primaryReal && targetReal === primaryReal) {
+        continue;
+      }
+      try {
+        upsertAuthProfile({
+          profileId,
+          credential,
+          agentDir: targetAgentDir,
+        });
+      } catch {
+        // Best-effort: sibling sync failure must not block primary onboarding.
+      }
+    }
+  }
   return profileId;
 }
 
