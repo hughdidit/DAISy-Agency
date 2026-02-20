@@ -21,7 +21,11 @@ import { resolveStateDir } from "../config/paths.js";
 import { sendVoiceMessageDiscord } from "../discord/send.js";
 >>>>>>> acb2a1ce3 (perf(test): fold discord voice hardening into web media suite)
 import * as ssrf from "../infra/net/ssrf.js";
+<<<<<<< HEAD
 >>>>>>> caebe70e9 (perf(test): cut setup/import overhead in hot suites)
+=======
+import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+>>>>>>> 2dba150c1 (Fix path-root flaky tests and restore status emoji defaults (#22274))
 import { optimizeImageToPng } from "../media/image-ops.js";
 <<<<<<< HEAD
 import { loadWebMedia, optimizeImageToJpeg } from "./media.js";
@@ -87,7 +91,9 @@ async function createLargeTestJpeg(): Promise<{ buffer: Buffer; file: string }> 
 }
 
 beforeAll(async () => {
-  fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-test-"));
+  fixtureRoot = await fs.mkdtemp(
+    path.join(resolvePreferredOpenClawTmpDir(), "openclaw-media-test-"),
+  );
   largeJpegBuffer = await sharp({
     create: {
       width: 400,
@@ -381,7 +387,9 @@ describe("local media root guard", () => {
   });
 
   it("allows local paths under an explicit root", async () => {
-    const result = await loadWebMedia(tinyPngFile, 1024 * 1024, { localRoots: [os.tmpdir()] });
+    const result = await loadWebMedia(tinyPngFile, 1024 * 1024, {
+      localRoots: [resolvePreferredOpenClawTmpDir()],
+    });
     expect(result.kind).toBe("image");
   });
 

@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { SILENT_REPLY_TOKEN, type PluginRuntime } from "clawdbot/plugin-sdk";
+=======
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { SILENT_REPLY_TOKEN, type PluginRuntime } from "openclaw/plugin-sdk";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> 2dba150c1 (Fix path-root flaky tests and restore status emoji defaults (#22274))
 import type { StoredConversationReference } from "./conversation-store.js";
 import {
   type MSTeamsAdapter,
@@ -159,8 +167,12 @@ describe("msteams messenger", () => {
 <<<<<<< HEAD
 =======
     it("preserves parsed mentions when appending OneDrive fallback file links", async () => {
-      const tmpDir = await mkdtemp(path.join(os.tmpdir(), "msteams-mention-"));
-      const localFile = path.join(tmpDir, "note.txt");
+      const previousStateDir = process.env.OPENCLAW_STATE_DIR;
+      const tmpStateDir = await mkdtemp(path.join(os.tmpdir(), "msteams-mention-state-"));
+      process.env.OPENCLAW_STATE_DIR = tmpStateDir;
+      const workspaceDir = path.join(tmpStateDir, "workspace");
+      await mkdir(workspaceDir, { recursive: true });
+      const localFile = path.join(workspaceDir, "note.txt");
       await writeFile(localFile, "hello");
 
       try {
@@ -213,7 +225,12 @@ describe("msteams messenger", () => {
           },
         ]);
       } finally {
-        await rm(tmpDir, { recursive: true, force: true });
+        if (previousStateDir === undefined) {
+          delete process.env.OPENCLAW_STATE_DIR;
+        } else {
+          process.env.OPENCLAW_STATE_DIR = previousStateDir;
+        }
+        await rm(tmpStateDir, { recursive: true, force: true });
       }
     });
 
