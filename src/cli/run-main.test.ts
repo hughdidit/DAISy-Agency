@@ -49,10 +49,12 @@ describe("shouldRegisterPrimarySubcommand", () => {
   it("skips eager primary registration for help/version invocations", () => {
     expect(shouldRegisterPrimarySubcommand(["node", "openclaw", "status", "--help"])).toBe(false);
     expect(shouldRegisterPrimarySubcommand(["node", "openclaw", "-V"])).toBe(false);
+    expect(shouldRegisterPrimarySubcommand(["node", "openclaw", "-v"])).toBe(false);
   });
 
   it("keeps eager primary registration for regular command runs", () => {
     expect(shouldRegisterPrimarySubcommand(["node", "openclaw", "status"])).toBe(true);
+    expect(shouldRegisterPrimarySubcommand(["node", "openclaw", "acp", "-v"])).toBe(true);
   });
 });
 
@@ -112,6 +114,7 @@ describe("shouldEnsureCliPath", () => {
   it("skips path bootstrap for help/version invocations", () => {
     expect(shouldEnsureCliPath(["node", "openclaw", "--help"])).toBe(false);
     expect(shouldEnsureCliPath(["node", "openclaw", "-V"])).toBe(false);
+    expect(shouldEnsureCliPath(["node", "openclaw", "-v"])).toBe(false);
   });
 
   it("skips path bootstrap for read-only fast paths", () => {
@@ -124,5 +127,6 @@ describe("shouldEnsureCliPath", () => {
   it("keeps path bootstrap for mutating or unknown commands", () => {
     expect(shouldEnsureCliPath(["node", "openclaw", "message", "send"])).toBe(true);
     expect(shouldEnsureCliPath(["node", "openclaw", "voicecall", "status"])).toBe(true);
+    expect(shouldEnsureCliPath(["node", "openclaw", "acp", "-v"])).toBe(true);
   });
 });
