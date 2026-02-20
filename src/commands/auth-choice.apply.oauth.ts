@@ -69,6 +69,7 @@ export async function applyAuthChoiceOAuth(
 
       spin.stop("Chutes OAuth complete");
 <<<<<<< HEAD
+<<<<<<< HEAD
       const email = creds.email?.trim() || "default";
       const profileId = `chutes:${email}`;
 =======
@@ -77,6 +78,9 @@ export async function applyAuthChoiceOAuth(
 >>>>>>> ca47b0d79 (OAuth: normalize profile email)
 
       await writeOAuthCredentials("chutes", creds, params.agentDir);
+=======
+      const profileId = await writeOAuthCredentials("chutes", creds, params.agentDir);
+>>>>>>> 38b4fb5d5 (fix(auth/session): preserve override reset behavior and repair oauth profile-id drift (openclaw#18820) thanks @Glucksberg)
       nextConfig = applyAuthProfileConfig(nextConfig, {
         profileId,
         provider: "chutes",

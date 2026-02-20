@@ -10,11 +10,20 @@ export async function writeOAuthCredentials(
   provider: string,
   creds: OAuthCredentials,
   agentDir?: string,
+<<<<<<< HEAD
 ): Promise<void> {
   // Write to resolved agent dir so gateway finds credentials on startup.
   const email = typeof creds.email === "string" ? creds.email.trim() : "";
   upsertAuthProfile({
     profileId: `${provider}:${email || "default"}`,
+=======
+): Promise<string> {
+  const email =
+    typeof creds.email === "string" && creds.email.trim() ? creds.email.trim() : "default";
+  const profileId = `${provider}:${email}`;
+  upsertAuthProfile({
+    profileId,
+>>>>>>> 38b4fb5d5 (fix(auth/session): preserve override reset behavior and repair oauth profile-id drift (openclaw#18820) thanks @Glucksberg)
     credential: {
       type: "oauth",
       provider,
@@ -22,6 +31,7 @@ export async function writeOAuthCredentials(
     },
     agentDir: resolveAuthAgentDir(agentDir),
   });
+  return profileId;
 }
 
 export async function setAnthropicApiKey(key: string, agentDir?: string) {

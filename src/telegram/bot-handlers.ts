@@ -1,5 +1,5 @@
 import type { Message, ReactionTypeEmoji } from "@grammyjs/types";
-import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { resolveAgentDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { hasControlCommand } from "../auto-reply/command-detection.js";
 import {
   createInboundDebouncer,
@@ -7,8 +7,16 @@ import {
 } from "../auto-reply/inbound-debounce.js";
 import { buildCommandsPaginationKeyboard } from "../auto-reply/reply/commands-info.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { buildModelsProviderData } from "../auto-reply/reply/commands-models.js";
+=======
+import {
+  buildModelsProviderData,
+  formatModelsAvailableHeader,
+} from "../auto-reply/reply/commands-models.js";
+import { resolveStoredModelOverride } from "../auto-reply/reply/model-selection.js";
+>>>>>>> 38b4fb5d5 (fix(auth/session): preserve override reset behavior and repair oauth profile-id drift (openclaw#18820) thanks @Glucksberg)
 import { listSkillCommandsForAgents } from "../auto-reply/skill-commands.js";
 >>>>>>> 16349b6e9 (Telegram: add inline button model selection for /models and /model commands)
 import { buildCommandsMessagePaginated } from "../auto-reply/status.js";
@@ -294,14 +302,22 @@ export const registerTelegramHandlers = ({
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   const resolveTelegramSessionModel = (params: {
+=======
+  const resolveTelegramSessionState = (params: {
+>>>>>>> 38b4fb5d5 (fix(auth/session): preserve override reset behavior and repair oauth profile-id drift (openclaw#18820) thanks @Glucksberg)
     chatId: number | string;
     isGroup: boolean;
     isForum: boolean;
     messageThreadId?: number;
     resolvedThreadId?: number;
-  }): string | undefined => {
+  }): {
+    agentId: string;
+    sessionEntry: ReturnType<typeof loadSessionStore>[string];
+    model?: string;
+  } => {
     const resolvedThreadId =
       params.resolvedThreadId ??
       resolveTelegramForumThreadId({
@@ -342,17 +358,29 @@ export const registerTelegramHandlers = ({
       sessionKey,
     });
     if (storedOverride) {
-      return storedOverride.provider
-        ? `${storedOverride.provider}/${storedOverride.model}`
-        : storedOverride.model;
+      return {
+        agentId: route.agentId,
+        sessionEntry: entry,
+        model: storedOverride.provider
+          ? `${storedOverride.provider}/${storedOverride.model}`
+          : storedOverride.model,
+      };
     }
     const provider = entry?.modelProvider?.trim();
     const model = entry?.model?.trim();
     if (provider && model) {
-      return `${provider}/${model}`;
+      return {
+        agentId: route.agentId,
+        sessionEntry: entry,
+        model: `${provider}/${model}`,
+      };
     }
     const modelCfg = cfg.agents?.defaults?.model;
-    return typeof modelCfg === "string" ? modelCfg : modelCfg?.primary;
+    return {
+      agentId: route.agentId,
+      sessionEntry: entry,
+      model: typeof modelCfg === "string" ? modelCfg : modelCfg?.primary,
+    };
   };
 
 >>>>>>> ddedb56c0 (fix(telegram): pass parentPeer for forum topic binding inheritance (#9789))
@@ -1046,9 +1074,21 @@ export const registerTelegramHandlers = ({
           const totalPages = calculateTotalPages(models.length, pageSize);
           const safePage = Math.max(1, Math.min(page, totalPages));
 
+<<<<<<< HEAD
           // Get current model from config for checkmark display
           const modelCfg = cfg.agents?.defaults?.model;
           const currentModel = typeof modelCfg === "string" ? modelCfg : modelCfg?.primary;
+=======
+          // Resolve current model from session (prefer overrides)
+          const sessionState = resolveTelegramSessionState({
+            chatId,
+            isGroup,
+            isForum,
+            messageThreadId,
+            resolvedThreadId,
+          });
+          const currentModel = sessionState.model;
+>>>>>>> 38b4fb5d5 (fix(auth/session): preserve override reset behavior and repair oauth profile-id drift (openclaw#18820) thanks @Glucksberg)
 
           const buttons = buildModelsKeyboard({
             provider,
@@ -1058,7 +1098,13 @@ export const registerTelegramHandlers = ({
             totalPages,
             pageSize,
           });
-          const text = `Models (${provider}) — ${models.length} available`;
+          const text = formatModelsAvailableHeader({
+            provider,
+            total: models.length,
+            cfg,
+            agentDir: resolveAgentDir(cfg, sessionState.agentId),
+            sessionEntry: sessionState.sessionEntry,
+          });
           await editMessageWithButtons(text, buttons);
           return;
         }
