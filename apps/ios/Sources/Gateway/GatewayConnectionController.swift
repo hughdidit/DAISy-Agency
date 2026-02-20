@@ -117,6 +117,59 @@ final class GatewayConnectionController {
 
     func connectLastKnown() async {
         guard let last = GatewaySettingsStore.loadLastGatewayConnection() else { return }
+<<<<<<< HEAD
+=======
+        switch last {
+        case let .manual(host, port, useTLS, _):
+            await self.connectManual(host: host, port: port, useTLS: useTLS)
+        case let .discovered(stableID, _):
+            guard let gateway = self.gateways.first(where: { $0.stableID == stableID }) else { return }
+            await self.connectDiscoveredGateway(gateway)
+        }
+    }
+
+    /// Rebuild connect options from current local settings (caps/commands/permissions)
+    /// and re-apply the active gateway config so capability changes take effect immediately.
+    func refreshActiveGatewayRegistrationFromSettings() {
+        guard let appModel else { return }
+        guard let cfg = appModel.activeGatewayConnectConfig else { return }
+        guard appModel.gatewayAutoReconnectEnabled else { return }
+
+        let refreshedConfig = GatewayConnectConfig(
+            url: cfg.url,
+            stableID: cfg.stableID,
+            tls: cfg.tls,
+            token: cfg.token,
+            password: cfg.password,
+            nodeOptions: self.makeConnectOptions(stableID: cfg.stableID))
+        appModel.applyGatewayConnectConfig(refreshedConfig)
+    }
+
+    func clearPendingTrustPrompt() {
+        self.pendingTrustPrompt = nil
+        self.pendingTrustConnect = nil
+    }
+
+    func acceptPendingTrustPrompt() async {
+        guard let pending = self.pendingTrustConnect,
+              let prompt = self.pendingTrustPrompt,
+              pending.stableID == prompt.stableID
+        else { return }
+
+        GatewayTLSStore.saveFingerprint(prompt.fingerprintSha256, stableID: pending.stableID)
+        self.clearPendingTrustPrompt()
+
+        if pending.isManual {
+            GatewaySettingsStore.saveLastGatewayConnectionManual(
+                host: prompt.host,
+                port: prompt.port,
+                useTLS: true,
+                stableID: pending.stableID)
+        } else {
+            GatewaySettingsStore.saveLastGatewayConnectionDiscovered(stableID: pending.stableID, useTLS: true)
+        }
+
+>>>>>>> 582870834 (iOS/Gateway: harden pairing resolution and settings-driven capability refresh (#22120))
         let instanceId = UserDefaults.standard.string(forKey: "node.instanceId")?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let token = GatewaySettingsStore.loadGatewayToken(instanceId: instanceId)
