@@ -11,4 +11,11 @@ RUN apt-get update \
 COPY run.sh /usr/local/bin/moltbot-install-e2e
 RUN chmod +x /usr/local/bin/moltbot-install-e2e
 
+<<<<<<< HEAD
 ENTRYPOINT ["/usr/local/bin/moltbot-install-e2e"]
+=======
+RUN useradd --create-home --shell /bin/bash appuser
+USER appuser
+
+ENTRYPOINT ["/usr/local/bin/openclaw-install-e2e"]
+>>>>>>> 84281abd4 (Docker: drop root in test images)
