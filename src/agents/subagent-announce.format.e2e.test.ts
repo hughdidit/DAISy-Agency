@@ -7,6 +7,12 @@ type RequesterResolution = {
   requesterOrigin?: Record<string, unknown>;
 } | null;
 
+type DescendantRun = {
+  runId: string;
+  requesterSessionKey: string;
+  childSessionKey: string;
+};
+
 const agentSpy = vi.fn(async (_req: AgentCallRequest) => ({ runId: "run-main", status: "ok" }));
 const sessionsDeleteSpy = vi.fn((_req: AgentCallRequest) => undefined);
 const readLatestAssistantReplyMock = vi.fn(
@@ -21,6 +27,7 @@ const embeddedRunMock = {
 const subagentRegistryMock = {
   isSubagentSessionRunActive: vi.fn(() => true),
   countActiveDescendantRuns: vi.fn((_sessionKey: string) => 0),
+  listDescendantRunsForRequester: vi.fn((_sessionKey: string): DescendantRun[] => []),
   resolveRequesterForChildSession: vi.fn((_sessionKey: string): RequesterResolution => null),
 };
 let sessionStore: Record<string, Record<string, unknown>> = {};
@@ -112,6 +119,7 @@ describe("subagent announce formatting", () => {
     embeddedRunMock.waitForEmbeddedPiRunEnd.mockReset().mockResolvedValue(true);
     subagentRegistryMock.isSubagentSessionRunActive.mockReset().mockReturnValue(true);
     subagentRegistryMock.countActiveDescendantRuns.mockReset().mockReturnValue(0);
+    subagentRegistryMock.listDescendantRunsForRequester.mockReset().mockReturnValue([]);
     subagentRegistryMock.resolveRequesterForChildSession.mockReset().mockReturnValue(null);
     readLatestAssistantReplyMock.mockReset().mockResolvedValue("raw subagent reply");
     sessionStore = {};
@@ -609,6 +617,93 @@ describe("subagent announce formatting", () => {
     expect(agentSpy).not.toHaveBeenCalled();
   });
 
+  it("waits for follow-up reply when descendant runs exist and child reply is still waiting", async () => {
+    const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
+    const waitingReply = "Spawned the nested subagent. Waiting for its auto-announced result.";
+    const finalReply = "Nested subagent finished and I synthesized the final result.";
+
+    subagentRegistryMock.listDescendantRunsForRequester.mockImplementation((sessionKey: string) =>
+      sessionKey === "agent:main:subagent:parent"
+        ? [
+            {
+              runId: "run-leaf",
+              requesterSessionKey: sessionKey,
+              childSessionKey: "agent:main:subagent:parent:subagent:leaf",
+            },
+          ]
+        : [],
+    );
+    readLatestAssistantReplyMock
+      .mockResolvedValueOnce(waitingReply)
+      .mockResolvedValueOnce(waitingReply)
+      .mockResolvedValueOnce(finalReply);
+
+    vi.useFakeTimers();
+    try {
+      const announcePromise = runSubagentAnnounceFlow({
+        childSessionKey: "agent:main:subagent:parent",
+        childRunId: "run-parent",
+        requesterSessionKey: "agent:main:main",
+        requesterDisplayKey: "main",
+        ...defaultOutcomeAnnounce,
+      });
+
+      await vi.advanceTimersByTimeAsync(500);
+      const didAnnounce = await announcePromise;
+      expect(didAnnounce).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    const call = agentSpy.mock.calls[0]?.[0] as { params?: { message?: string } };
+    const msg = call?.params?.message as string;
+    expect(msg).toContain(finalReply);
+    expect(msg).not.toContain("Waiting for its auto-announced result.");
+  });
+
+  it("defers announce when descendant follow-up reply has not arrived yet", async () => {
+    const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
+    const waitingReply = "Spawned the nested subagent. Waiting for its auto-announced result.";
+
+    subagentRegistryMock.listDescendantRunsForRequester.mockImplementation((sessionKey: string) =>
+      sessionKey === "agent:main:subagent:parent"
+        ? [
+            {
+              runId: "run-leaf",
+              requesterSessionKey: sessionKey,
+              childSessionKey: "agent:main:subagent:parent:subagent:leaf",
+            },
+          ]
+        : [],
+    );
+    readLatestAssistantReplyMock.mockResolvedValue(waitingReply);
+
+    vi.useFakeTimers();
+    try {
+      const announcePromise = runSubagentAnnounceFlow({
+        childSessionKey: "agent:main:subagent:parent",
+        childRunId: "run-parent-still-waiting",
+        requesterSessionKey: "agent:main:main",
+        requesterDisplayKey: "main",
+        task: "nested test",
+        timeoutMs: 700,
+        cleanup: "keep",
+        waitForCompletion: false,
+        startedAt: 10,
+        endedAt: 20,
+        outcome: { status: "ok" },
+      });
+
+      await vi.advanceTimersByTimeAsync(1200);
+      const didAnnounce = await announcePromise;
+      expect(didAnnounce).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(agentSpy).not.toHaveBeenCalled();
+  });
+
   it("bubbles child announce to parent requester when requester subagent already ended", async () => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     subagentRegistryMock.isSubagentSessionRunActive.mockReturnValue(false);
@@ -739,6 +834,35 @@ describe("subagent announce formatting", () => {
     // The channel should match requesterOrigin, NOT the stale session entry.
     expect(call?.params?.channel).toBe("bluebubbles");
     expect(call?.params?.to).toBe("bluebubbles:chat_guid:123");
+  });
+
+  it("falls back to persisted deliverable route when requesterOrigin channel is non-deliverable", async () => {
+    const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
+    embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(false);
+    embeddedRunMock.isEmbeddedPiRunStreaming.mockReturnValue(false);
+    sessionStore = {
+      "agent:main:main": {
+        sessionId: "session-webchat-origin",
+        lastChannel: "discord",
+        lastTo: "discord:channel:123",
+        lastAccountId: "acct-store",
+      },
+    };
+
+    const didAnnounce = await runSubagentAnnounceFlow({
+      childSessionKey: "agent:main:subagent:test",
+      childRunId: "run-webchat-origin",
+      requesterSessionKey: "main",
+      requesterOrigin: { channel: "webchat", to: "ignored", accountId: "acct-live" },
+      requesterDisplayKey: "main",
+      ...defaultOutcomeAnnounce,
+    });
+
+    expect(didAnnounce).toBe(true);
+    const call = agentSpy.mock.calls[0]?.[0] as { params?: Record<string, unknown> };
+    expect(call?.params?.channel).toBe("discord");
+    expect(call?.params?.to).toBe("discord:channel:123");
+    expect(call?.params?.accountId).toBe("acct-live");
   });
 
   it("routes to parent subagent when parent run ended but session still exists (#18037)", async () => {

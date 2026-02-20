@@ -1,6 +1,10 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 import { loadSessionStore, resolveStorePath, type SessionEntry } from "../../config/sessions.js";
 
 export function resolveCronSession(params: {
@@ -17,6 +21,10 @@ export function resolveCronSession(params: {
   const entry = store[params.sessionKey];
   const sessionId = crypto.randomUUID();
   const systemSent = false;
+<<<<<<< HEAD
+=======
+
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
   const sessionEntry: SessionEntry = {
     sessionId,
     updatedAt: params.nowMs,

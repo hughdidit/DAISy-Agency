@@ -9,6 +9,30 @@ vi.mock("../../config/sessions.js", () => ({
 import { loadSessionStore } from "../../config/sessions.js";
 import { resolveCronSession } from "./session.js";
 
+<<<<<<< HEAD
+=======
+const NOW_MS = 1_737_600_000_000;
+
+type SessionStore = ReturnType<typeof loadSessionStore>;
+type SessionStoreEntry = SessionStore[string];
+type MockSessionStoreEntry = Partial<SessionStoreEntry>;
+
+function resolveWithStoredEntry(params?: { sessionKey?: string; entry?: MockSessionStoreEntry }) {
+  const sessionKey = params?.sessionKey ?? "webhook:stable-key";
+  const store: SessionStore = params?.entry
+    ? ({ [sessionKey]: params.entry as SessionStoreEntry } as SessionStore)
+    : {};
+  vi.mocked(loadSessionStore).mockReturnValue(store);
+
+  return resolveCronSession({
+    cfg: {} as OpenClawConfig,
+    sessionKey,
+    agentId: "main",
+    nowMs: NOW_MS,
+  });
+}
+
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 describe("resolveCronSession", () => {
   it("preserves modelOverride and providerOverride from existing session entry", () => {
     vi.mocked(loadSessionStore).mockReturnValue({
@@ -69,5 +93,57 @@ describe("resolveCronSession", () => {
     expect(result.sessionEntry.modelOverride).toBeUndefined();
     expect(result.sessionEntry.providerOverride).toBeUndefined();
     expect(result.sessionEntry.model).toBeUndefined();
+<<<<<<< HEAD
+=======
+    expect(result.isNewSession).toBe(true);
+  });
+
+  it("always creates a new sessionId for cron/webhook runs", () => {
+    const result = resolveWithStoredEntry({
+      entry: {
+        sessionId: "existing-session-id-123",
+        updatedAt: NOW_MS - 1000,
+        systemSent: true,
+      },
+    });
+
+    expect(result.sessionEntry.sessionId).not.toBe("existing-session-id-123");
+    expect(result.isNewSession).toBe(true);
+    expect(result.systemSent).toBe(false);
+  });
+
+  it("preserves overrides while rolling a new sessionId", () => {
+    const result = resolveWithStoredEntry({
+      entry: {
+        sessionId: "old-session-id",
+        updatedAt: NOW_MS - 86_400_000,
+        systemSent: true,
+        modelOverride: "gpt-4.1-mini",
+        providerOverride: "openai",
+        sendPolicy: "allow",
+      },
+    });
+
+    expect(result.sessionEntry.sessionId).not.toBe("old-session-id");
+    expect(result.isNewSession).toBe(true);
+    expect(result.systemSent).toBe(false);
+    expect(result.sessionEntry.modelOverride).toBe("gpt-4.1-mini");
+    expect(result.sessionEntry.providerOverride).toBe("openai");
+    expect(result.sessionEntry.sendPolicy).toBe("allow");
+  });
+
+  it("creates new sessionId when entry exists but has no sessionId", () => {
+    const result = resolveWithStoredEntry({
+      entry: {
+        updatedAt: NOW_MS - 1000,
+        modelOverride: "some-model",
+      },
+    });
+
+    expect(result.sessionEntry.sessionId).toBeDefined();
+    expect(result.isNewSession).toBe(true);
+    // Should still preserve other fields from entry
+    expect(result.sessionEntry.modelOverride).toBe("some-model");
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
   });
 });

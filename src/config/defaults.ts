@@ -1,5 +1,13 @@
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
 import { parseModelRef } from "../agents/model-selection.js";
+<<<<<<< HEAD
+=======
+import {
+  DEFAULT_AGENT_MAX_CONCURRENT,
+  DEFAULT_SUBAGENT_MAX_CONCURRENT,
+  DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH,
+} from "./agent-limits.js";
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 import { resolveTalkApiKey } from "./talk.js";
 <<<<<<< HEAD
 import type { MoltbotConfig } from "./types.js";
@@ -250,7 +258,16 @@ export function applyAgentDefaults(cfg: MoltbotConfig): MoltbotConfig {
   const hasSubMax =
     typeof defaults?.subagents?.maxConcurrent === "number" &&
     Number.isFinite(defaults.subagents.maxConcurrent);
+<<<<<<< HEAD
   if (hasMax && hasSubMax) return cfg;
+=======
+  const hasMaxSpawnDepth =
+    typeof defaults?.subagents?.maxSpawnDepth === "number" &&
+    Number.isFinite(defaults.subagents.maxSpawnDepth);
+  if (hasMax && hasSubMax && hasMaxSpawnDepth) {
+    return cfg;
+  }
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 
   let mutated = false;
   const nextDefaults = defaults ? { ...defaults } : {};
@@ -262,6 +279,10 @@ export function applyAgentDefaults(cfg: MoltbotConfig): MoltbotConfig {
   const nextSubagents = defaults?.subagents ? { ...defaults.subagents } : {};
   if (!hasSubMax) {
     nextSubagents.maxConcurrent = DEFAULT_SUBAGENT_MAX_CONCURRENT;
+    mutated = true;
+  }
+  if (!hasMaxSpawnDepth) {
+    nextSubagents.maxSpawnDepth = DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH;
     mutated = true;
   }
 

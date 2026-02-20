@@ -110,7 +110,6 @@ function startSubagentAnnounceCleanupFlow(runId: string, entry: SubagentRunRecor
     requesterOrigin,
     requesterDisplayKey: entry.requesterDisplayKey,
     task: entry.task,
-    expectsCompletionMessage: entry.expectsCompletionMessage,
     timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
     cleanup: entry.cleanup,
     waitForCompletion: false,
@@ -324,6 +323,47 @@ function finalizeSubagentCleanup(runId: string, cleanup: "delete" | "keep", didA
     return;
   }
   if (!didAnnounce) {
+<<<<<<< HEAD
+=======
+    const now = Date.now();
+    const endedAgo = typeof entry.endedAt === "number" ? now - entry.endedAt : 0;
+    // Normal defer: the run ended, but descendant runs are still active.
+    // Don't consume retry budget in this state or we can give up before
+    // descendants finish and before the parent synthesizes the final reply.
+    const activeDescendantRuns = Math.max(0, countActiveDescendantRuns(entry.childSessionKey));
+    if (entry.expectsCompletionMessage === true && activeDescendantRuns > 0) {
+      if (endedAgo > ANNOUNCE_EXPIRY_MS) {
+        logAnnounceGiveUp(entry, "expiry");
+        entry.cleanupCompletedAt = now;
+        persistSubagentRuns();
+        retryDeferredCompletedAnnounces(runId);
+        return;
+      }
+      entry.lastAnnounceRetryAt = now;
+      entry.cleanupHandled = false;
+      resumedRuns.delete(runId);
+      persistSubagentRuns();
+      setTimeout(() => {
+        resumeSubagentRun(runId);
+      }, MIN_ANNOUNCE_RETRY_DELAY_MS).unref?.();
+      return;
+    }
+
+    const retryCount = (entry.announceRetryCount ?? 0) + 1;
+    entry.announceRetryCount = retryCount;
+    entry.lastAnnounceRetryAt = now;
+
+    // Check if the announce has exceeded retry limits or expired (#18264).
+    if (retryCount >= MAX_ANNOUNCE_RETRY_COUNT || endedAgo > ANNOUNCE_EXPIRY_MS) {
+      // Give up: mark as completed to break the infinite retry loop.
+      logAnnounceGiveUp(entry, retryCount >= MAX_ANNOUNCE_RETRY_COUNT ? "retry-limit" : "expiry");
+      entry.cleanupCompletedAt = now;
+      persistSubagentRuns();
+      retryDeferredCompletedAnnounces(runId);
+      return;
+    }
+
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
     // Allow retry on the next wake if announce was deferred or failed.
     entry.cleanupHandled = false;
 >>>>>>> 191da1feb (fix: context overflow compaction and subagent announce improvements (#11664) (thanks @tyler6204))

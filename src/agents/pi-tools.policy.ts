@@ -1,5 +1,10 @@
 import type { MoltbotConfig } from "../config/config.js";
 import { getChannelDock } from "../channels/dock.js";
+<<<<<<< HEAD
+=======
+import { DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH } from "../config/agent-limits.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 import { resolveChannelGroupToolsPolicy } from "../config/group-policy.js";
 import { resolveAgentConfig, resolveAgentIdFromSessionKey } from "./agent-scope.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
@@ -75,10 +80,18 @@ const DEFAULT_SUBAGENT_TOOL_DENY = [
 
 export function resolveSubagentToolPolicy(cfg?: MoltbotConfig): SandboxToolPolicy {
   const configured = cfg?.tools?.subagents?.tools;
+<<<<<<< HEAD
   const deny = [
     ...DEFAULT_SUBAGENT_TOOL_DENY,
     ...(Array.isArray(configured?.deny) ? configured.deny : []),
   ];
+=======
+  const maxSpawnDepth =
+    cfg?.agents?.defaults?.subagents?.maxSpawnDepth ?? DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH;
+  const effectiveDepth = typeof depth === "number" && depth >= 0 ? depth : 1;
+  const baseDeny = resolveSubagentDenyList(effectiveDepth, maxSpawnDepth);
+  const deny = [...baseDeny, ...(Array.isArray(configured?.deny) ? configured.deny : [])];
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
   const allow = Array.isArray(configured?.allow) ? configured.allow : undefined;
   return { allow, deny };
 }

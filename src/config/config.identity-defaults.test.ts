@@ -1,8 +1,19 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from "./agent-limits.js";
 import { withTempHome } from "./test-helpers.js";
+=======
+import { describe, expect, it } from "vitest";
+import {
+  DEFAULT_AGENT_MAX_CONCURRENT,
+  DEFAULT_SUBAGENT_MAX_CONCURRENT,
+  DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH,
+} from "./agent-limits.js";
+import { loadConfig } from "./config.js";
+import { withTempHome } from "./home-env.test-harness.js";
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
 
 describe("config identity defaults", () => {
   let previousHome: string | undefined;
@@ -111,6 +122,16 @@ describe("config identity defaults", () => {
 
       expect(cfg.messages?.ackReaction).toBeUndefined();
       expect(cfg.messages?.ackReactionScope).toBe("group-mentions");
+<<<<<<< HEAD
+=======
+      expect(cfg.messages?.responsePrefix).toBeUndefined();
+      expect(cfg.messages?.groupChat?.mentionPatterns).toBeUndefined();
+      expect(cfg.agents?.list).toBeUndefined();
+      expect(cfg.agents?.defaults?.maxConcurrent).toBe(DEFAULT_AGENT_MAX_CONCURRENT);
+      expect(cfg.agents?.defaults?.subagents?.maxConcurrent).toBe(DEFAULT_SUBAGENT_MAX_CONCURRENT);
+      expect(cfg.agents?.defaults?.subagents?.maxSpawnDepth).toBe(DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH);
+      expect(cfg.session).toBeUndefined();
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
     });
   });
 

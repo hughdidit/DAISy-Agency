@@ -138,6 +138,27 @@ export const AgentDefaultsSchema = z
     subagents: z
       .object({
         maxConcurrent: z.number().int().positive().optional(),
+<<<<<<< HEAD
+=======
+        maxSpawnDepth: z
+          .number()
+          .int()
+          .min(1)
+          .max(5)
+          .optional()
+          .describe(
+            "Maximum nesting depth for sub-agent spawning. Default is 2 (sub-agents can spawn sub-sub-agents).",
+          ),
+        maxChildrenPerAgent: z
+          .number()
+          .int()
+          .min(1)
+          .max(20)
+          .optional()
+          .describe(
+            "Maximum number of active children a single agent session can spawn (default: 5).",
+          ),
+>>>>>>> fe57bea08 (Subagents: restore announce chain + fix nested retry/drop regressions (#22223))
         archiveAfterMinutes: z.number().int().positive().optional(),
         model: z
           .union([
