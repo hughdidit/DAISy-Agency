@@ -9,6 +9,7 @@ import type {
 import type { ChannelHeartbeatVisibilityConfig } from "./types.channels.js";
 import type { DmConfig, ProviderCommandsConfig } from "./types.messages.js";
 import type { GroupToolPolicyBySenderConfig, GroupToolPolicyConfig } from "./types.tools.js";
+import type { TtsConfig } from "./types.tts.js";
 
 export type DiscordDmConfig = {
   /** If false, ignore all incoming Discord DMs. Default: true. */
@@ -79,6 +80,22 @@ export type DiscordIntentsConfig = {
   presence?: boolean;
   /** Enable Guild Members privileged intent (requires Portal opt-in). Default: false. */
   guildMembers?: boolean;
+};
+
+export type DiscordVoiceAutoJoinConfig = {
+  /** Guild ID that owns the voice channel. */
+  guildId: string;
+  /** Voice channel ID to join. */
+  channelId: string;
+};
+
+export type DiscordVoiceConfig = {
+  /** Enable Discord voice channel conversations (default: true). */
+  enabled?: boolean;
+  /** Voice channels to auto-join on startup. */
+  autoJoin?: DiscordVoiceAutoJoinConfig[];
+  /** Optional TTS overrides for Discord voice output. */
+  tts?: TtsConfig;
 };
 
 export type DiscordExecApprovalConfig = {
@@ -152,6 +169,28 @@ export type DiscordAccountConfig = {
   execApprovals?: DiscordExecApprovalConfig;
   /** Privileged Gateway Intents (must also be enabled in Discord Developer Portal). */
   intents?: DiscordIntentsConfig;
+<<<<<<< HEAD
+=======
+  /** Voice channel conversation settings. */
+  voice?: DiscordVoiceConfig;
+  /** PluralKit identity resolution for proxied messages. */
+  pluralkit?: DiscordPluralKitConfig;
+  /** Outbound response prefix override for this channel/account. */
+  responsePrefix?: string;
+  /**
+   * Per-channel ack reaction override.
+   * Discord supports both unicode emoji and custom emoji names.
+   */
+  ackReaction?: string;
+  /** Bot activity status text (e.g. "Watching X"). */
+  activity?: string;
+  /** Bot status (online|dnd|idle|invisible). Defaults to online when presence is configured. */
+  status?: "online" | "dnd" | "idle" | "invisible";
+  /** Activity type (0=Game, 1=Streaming, 2=Listening, 3=Watching, 4=Custom, 5=Competing). Defaults to 4 (Custom) when activity is set. */
+  activityType?: 0 | 1 | 2 | 3 | 4 | 5;
+  /** Streaming URL (Twitch/YouTube). Required when activityType=1. */
+  activityUrl?: string;
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 };
 
 export type DiscordConfig = {

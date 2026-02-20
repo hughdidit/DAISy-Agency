@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 
 import { Type } from "@sinclair/typebox";
@@ -7,17 +8,18 @@ import { writeBase64ToFile } from "../../cli/nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../../cli/nodes-canvas.js";
 import { imageMimeFromFormat } from "../../media/mime.js";
 =======
+=======
+import fs from "node:fs/promises";
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { Type } from "@sinclair/typebox";
 import { writeBase64ToFile } from "../../cli/nodes-camera.js";
 import { canvasSnapshotTempPath, parseCanvasSnapshotPayload } from "../../cli/nodes-canvas.js";
 import type { OpenClawConfig } from "../../config/config.js";
-import { openFileWithinRoot, SafeOpenError } from "../../infra/fs-safe.js";
-import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
+import { logVerbose, shouldLogVerbose } from "../../globals.js";
+import { isInboundPathAllowed } from "../../media/inbound-path-policy.js";
+import { getDefaultMediaLocalRoots } from "../../media/local-roots.js";
 import { imageMimeFromFormat } from "../../media/mime.js";
-import { resolveUserPath } from "../../utils.js";
-import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveImageSanitizationLimits } from "../image-sanitization.js";
 >>>>>>> 39816e61b (Security: restrict canvas jsonlPath file reads)
 import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
@@ -37,77 +39,27 @@ const CANVAS_ACTIONS = [
 
 const CANVAS_SNAPSHOT_FORMATS = ["png", "jpg", "jpeg"] as const;
 
-const PATH_SCHEME_RE = /^[a-z][a-z0-9+.-]*:/i;
-const WINDOWS_DRIVE_RE = /^[a-zA-Z]:[\\/]/;
-
-function resolveJsonlLocalPath(rawPath: string): string {
-  const trimmed = rawPath.trim();
+async function readJsonlFromPath(jsonlPath: string): Promise<string> {
+  const trimmed = jsonlPath.trim();
   if (!trimmed) {
-    return trimmed;
+    return "";
   }
-  if (trimmed.startsWith("file://")) {
-    try {
-      return fileURLToPath(trimmed);
-    } catch (err) {
-      throw new Error(`Invalid jsonlPath file URL: ${rawPath}`, { cause: err });
+  const resolved = path.resolve(trimmed);
+  const roots = getDefaultMediaLocalRoots();
+  if (!isInboundPathAllowed({ filePath: resolved, roots })) {
+    if (shouldLogVerbose()) {
+      logVerbose(`Blocked canvas jsonlPath outside allowed roots: ${resolved}`);
     }
+    throw new Error("jsonlPath outside allowed roots");
   }
-  if (PATH_SCHEME_RE.test(trimmed) && !WINDOWS_DRIVE_RE.test(trimmed)) {
-    throw new Error("jsonlPath must be a local file path.");
-  }
-  if (trimmed.startsWith("~")) {
-    return resolveUserPath(trimmed);
-  }
-  return path.resolve(trimmed);
-}
-
-function resolveLocalRoot(filePath: string, roots: readonly string[]): string | null {
-  const resolvedPath = path.resolve(filePath);
-  for (const root of roots) {
-    const resolvedRoot = path.resolve(root);
-    const rel = path.relative(resolvedRoot, resolvedPath);
-    if (!rel || (!rel.startsWith("..") && !path.isAbsolute(rel))) {
-      return resolvedRoot;
+  const canonical = await fs.realpath(resolved).catch(() => resolved);
+  if (!isInboundPathAllowed({ filePath: canonical, roots })) {
+    if (shouldLogVerbose()) {
+      logVerbose(`Blocked canvas jsonlPath outside allowed roots: ${canonical}`);
     }
+    throw new Error("jsonlPath outside allowed roots");
   }
-  return null;
-}
-
-async function readJsonlFromPath(params: {
-  jsonlPath: string;
-  localRoots: readonly string[];
-}): Promise<string> {
-  const resolvedPath = resolveJsonlLocalPath(params.jsonlPath);
-  const resolvedRoot = resolveLocalRoot(resolvedPath, params.localRoots);
-  if (!resolvedRoot) {
-    throw new Error("jsonlPath must be under an allowed directory.");
-  }
-  const relativePath = path.relative(resolvedRoot, resolvedPath);
-  try {
-    const opened = await openFileWithinRoot({
-      rootDir: resolvedRoot,
-      relativePath,
-    });
-    try {
-      const buffer = await opened.handle.readFile();
-      return buffer.toString("utf8");
-    } finally {
-      await opened.handle.close().catch(() => {});
-    }
-  } catch (err) {
-    if (err instanceof SafeOpenError) {
-      if (err.code === "not-found") {
-        throw new Error("jsonlPath file not found.", { cause: err });
-      }
-      if (err.code === "not-file") {
-        throw new Error("jsonlPath must be a regular file.", { cause: err });
-      }
-      throw new Error("jsonlPath must be a regular file within an allowed directory.", {
-        cause: err,
-      });
-    }
-    throw err;
-  }
+  return await fs.readFile(canonical, "utf8");
 }
 
 // Flattened schema: runtime validates per-action requirements.
@@ -138,6 +90,7 @@ const CanvasToolSchema = Type.Object({
 });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export function createCanvasTool(): AnyAgentTool {
 =======
 export function createCanvasTool(options?: {
@@ -150,6 +103,10 @@ export function createCanvasTool(options?: {
     : undefined;
   const localRoots = getAgentScopedMediaLocalRoots(options?.config ?? {}, agentId);
 >>>>>>> 39816e61b (Security: restrict canvas jsonlPath file reads)
+=======
+export function createCanvasTool(options?: { config?: OpenClawConfig }): AnyAgentTool {
+  const imageSanitization = resolveImageSanitizationLimits(options?.config);
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
   return {
     label: "Canvas",
     name: "canvas",
@@ -262,10 +219,7 @@ export function createCanvasTool(options?: {
             typeof params.jsonl === "string" && params.jsonl.trim()
               ? params.jsonl
               : typeof params.jsonlPath === "string" && params.jsonlPath.trim()
-                ? await readJsonlFromPath({
-                    jsonlPath: params.jsonlPath,
-                    localRoots,
-                  })
+                ? await readJsonlFromPath(params.jsonlPath)
                 : "";
           if (!jsonl.trim()) throw new Error("jsonl or jsonlPath required");
           await invoke("canvas.a2ui.pushJSONL", { jsonl });

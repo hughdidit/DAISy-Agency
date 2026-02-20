@@ -1,6 +1,17 @@
 import { inspect } from "node:util";
+<<<<<<< HEAD
 import { Client } from "@buape/carbon";
 import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway";
+=======
+import {
+  Client,
+  ReadyListener,
+  type BaseMessageInteractiveComponent,
+  type Modal,
+} from "@buape/carbon";
+import { GatewayCloseCodes, type GatewayPlugin } from "@buape/carbon/gateway";
+import { VoicePlugin } from "@buape/carbon/voice";
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 import { Routes } from "discord-api-types/v10";
 <<<<<<< HEAD
 =======
@@ -36,6 +47,8 @@ import { fetchDiscordApplicationId } from "../probe.js";
 import { resolveDiscordChannelAllowlist } from "../resolve-channels.js";
 import { resolveDiscordUserAllowlist } from "../resolve-users.js";
 import { normalizeDiscordToken } from "../token.js";
+import { createDiscordVoiceCommand } from "../voice/command.js";
+import { DiscordVoiceManager, DiscordVoiceReadyListener } from "../voice/manager.js";
 import {
   DiscordMessageListener,
   DiscordPresenceListener,
@@ -253,6 +266,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   const useAccessGroups = cfg.commands?.useAccessGroups !== false;
   const sessionPrefix = "discord:slash";
   const ephemeralDefault = true;
+  const voiceEnabled = discordCfg.voice?.enabled !== false;
 
   if (token) {
     if (guildEntries && Object.keys(guildEntries).length > 0) {
@@ -471,6 +485,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       ),
     );
   }
+  const voiceManagerRef: { current: DiscordVoiceManager | null } = { current: null };
   const commands = commandSpecs.map((spec) =>
     createDiscordNativeCommand({
       command: spec,
@@ -481,6 +496,19 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       ephemeralDefault,
     }),
   );
+  if (nativeEnabled && voiceEnabled) {
+    commands.push(
+      createDiscordVoiceCommand({
+        cfg,
+        discordConfig: discordCfg,
+        accountId: account.accountId,
+        groupPolicy,
+        useAccessGroups,
+        getManager: () => voiceManagerRef.current,
+        ephemeralDefault,
+      }),
+    );
+  }
 
   // Initialize exec approvals handler if enabled
   const execApprovalsConfig = discordCfg.execApprovals ?? {};
@@ -507,6 +535,51 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     components.push(createExecApprovalButton({ handler: execApprovalsHandler }));
   }
 
+<<<<<<< HEAD
+=======
+  if (agentComponentsEnabled) {
+    const componentContext = {
+      cfg,
+      discordConfig: discordCfg,
+      accountId: account.accountId,
+      guildEntries,
+      allowFrom,
+      dmPolicy,
+      runtime,
+      token,
+    };
+    components.push(createAgentComponentButton(componentContext));
+    components.push(createAgentSelectMenu(componentContext));
+    components.push(createDiscordComponentButton(componentContext));
+    components.push(createDiscordComponentStringSelect(componentContext));
+    components.push(createDiscordComponentUserSelect(componentContext));
+    components.push(createDiscordComponentRoleSelect(componentContext));
+    components.push(createDiscordComponentMentionableSelect(componentContext));
+    components.push(createDiscordComponentChannelSelect(componentContext));
+    modals.push(createDiscordComponentModal(componentContext));
+  }
+
+  class DiscordStatusReadyListener extends ReadyListener {
+    async handle(_data: unknown, client: Client) {
+      const gateway = client.getPlugin<GatewayPlugin>("gateway");
+      if (!gateway) {
+        return;
+      }
+
+      const presence = resolveDiscordPresenceUpdate(discordCfg);
+      if (!presence) {
+        return;
+      }
+
+      gateway.updatePresence(presence);
+    }
+  }
+
+  const clientPlugins = [createDiscordGatewayPlugin({ discordConfig: discordCfg, runtime })];
+  if (voiceEnabled) {
+    clientPlugins.push(new VoicePlugin());
+  }
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
   const client = new Client(
     {
       baseUrl: "http://localhost",
@@ -522,6 +595,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
       components,
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
     [
       new GatewayPlugin({
         reconnect: {
@@ -534,6 +608,9 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
 =======
     [createDiscordGatewayPlugin({ discordConfig: discordCfg, runtime })],
 >>>>>>> 0cb69b0f2 (Discord: add gateway proxy support)
+=======
+    clientPlugins,
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
   );
 
   await deployDiscordCommands({ client, runtime, enabled: nativeEnabled });
@@ -541,6 +618,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   const logger = createSubsystemLogger("discord/monitor");
   const guildHistories = new Map<string, HistoryEntry[]>();
   let botUserId: string | undefined;
+  let voiceManager: DiscordVoiceManager | null = null;
 
   if (nativeDisabledExplicit) {
     await clearDiscordNativeCommands({
@@ -555,6 +633,19 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     botUserId = botUser?.id;
   } catch (err) {
     runtime.error?.(danger(`discord: failed to fetch bot identity: ${String(err)}`));
+  }
+
+  if (voiceEnabled) {
+    voiceManager = new DiscordVoiceManager({
+      client,
+      cfg,
+      discordConfig: discordCfg,
+      accountId: account.accountId,
+      runtime,
+      botUserId,
+    });
+    voiceManagerRef.current = voiceManager;
+    registerDiscordListener(client.listeners, new DiscordVoiceReadyListener(voiceManager));
   }
 
   const messageHandler = createDiscordMessageHandler({
@@ -680,6 +771,10 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
     if (helloTimeoutId) clearTimeout(helloTimeoutId);
     gatewayEmitter?.removeListener("debug", onGatewayDebug);
     abortSignal?.removeEventListener("abort", onAbort);
+    if (voiceManager) {
+      await voiceManager.destroy();
+      voiceManagerRef.current = null;
+    }
     if (execApprovalsHandler) {
       await execApprovalsHandler.stop();
     }

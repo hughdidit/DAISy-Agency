@@ -23,6 +23,7 @@ import {
   ProviderCommandsSchema,
   ReplyToModeSchema,
   RetryConfigSchema,
+  TtsConfigSchema,
   requireOpenAllowFrom,
 } from "./zod-schema.core.js";
 import { ToolPolicySchema } from "./zod-schema.agent-runtime.js";
@@ -223,6 +224,37 @@ export const DiscordGuildSchema = z
   })
   .strict();
 
+<<<<<<< HEAD
+=======
+const DiscordUiSchema = z
+  .object({
+    components: z
+      .object({
+        accentColor: HexColorSchema.optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict()
+  .optional();
+
+const DiscordVoiceAutoJoinSchema = z
+  .object({
+    guildId: z.string().min(1),
+    channelId: z.string().min(1),
+  })
+  .strict();
+
+const DiscordVoiceSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    autoJoin: z.array(DiscordVoiceAutoJoinSchema).optional(),
+    tts: TtsConfigSchema.optional(),
+  })
+  .strict()
+  .optional();
+
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 export const DiscordAccountSchema = z
   .object({
     name: z.string().optional(),
@@ -292,6 +324,25 @@ export const DiscordAccountSchema = z
       })
       .strict()
       .optional(),
+<<<<<<< HEAD
+=======
+    voice: DiscordVoiceSchema,
+    pluralkit: z
+      .object({
+        enabled: z.boolean().optional(),
+        token: z.string().optional().register(sensitive),
+      })
+      .strict()
+      .optional(),
+    responsePrefix: z.string().optional(),
+    ackReaction: z.string().optional(),
+    activity: z.string().optional(),
+    status: z.enum(["online", "dnd", "idle", "invisible"]).optional(),
+    activityType: z
+      .union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)])
+      .optional(),
+    activityUrl: z.string().url().optional(),
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
   })
   .strict();
 

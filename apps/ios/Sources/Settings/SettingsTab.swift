@@ -36,14 +36,33 @@ struct SettingsTab: View {
     @AppStorage("canvas.debugStatusEnabled") private var canvasDebugStatusEnabled: Bool = false
     @State private var connectStatus = ConnectStatusStore()
     @State private var connectingGatewayID: String?
+<<<<<<< HEAD
     @State private var localIPAddress: String?
     @State private var lastLocationModeRaw: String = OpenClawLocationMode.off.rawValue
     @State private var gatewayToken: String = ""
     @State private var gatewayPassword: String = ""
+=======
+    @State private var lastLocationModeRaw: String = OpenClawLocationMode.off.rawValue
+    @State private var gatewayToken: String = ""
+    @State private var gatewayPassword: String = ""
+    @State private var defaultShareInstruction: String = ""
+    @AppStorage("gateway.setupCode") private var setupCode: String = ""
+    @State private var setupStatusText: String?
+    @State private var manualGatewayPortText: String = ""
+    @State private var gatewayExpanded: Bool = true
+    @State private var selectedAgentPickerId: String = ""
+
+    @State private var showResetOnboardingAlert: Bool = false
+    @State private var activeFeatureHelp: FeatureHelp?
+    @State private var suppressCredentialPersist: Bool = false
+
+    private let gatewayLogger = Logger(subsystem: "ai.openclaw.ios", category: "GatewaySettings")
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 
     var body: some View {
         NavigationStack {
             Form {
+<<<<<<< HEAD
                 Section("Node") {
                     TextField("Name", text: self.$displayName)
                     Text(self.instanceId)
@@ -216,6 +235,305 @@ struct SettingsTab: View {
                     Text("Keeps the screen awake while OpenClaw is open.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+=======
+                Section {
+                    DisclosureGroup(isExpanded: self.$gatewayExpanded) {
+                        if !self.isGatewayConnected {
+                            Text(
+                                "1. Open Telegram and message your bot: /pair\n"
+                                    + "2. Copy the setup code it returns\n"
+                                    + "3. Paste here and tap Connect\n"
+                                    + "4. Back in Telegram, run /pair approve")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+
+                            if let warning = self.tailnetWarningText {
+                                Text(warning)
+                                    .font(.footnote.weight(.semibold))
+                                    .foregroundStyle(.orange)
+                            }
+
+                            TextField("Paste setup code", text: self.$setupCode)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+
+                            Button {
+                                Task { await self.applySetupCodeAndConnect() }
+                            } label: {
+                                if self.connectingGatewayID == "manual" {
+                                    HStack(spacing: 8) {
+                                        ProgressView()
+                                            .progressViewStyle(.circular)
+                                        Text("Connecting…")
+                                    }
+                                } else {
+                                    Text("Connect with setup code")
+                                }
+                            }
+                            .disabled(self.connectingGatewayID != nil
+                                || self.setupCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                            if let status = self.setupStatusLine {
+                                Text(status)
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+
+                        if self.isGatewayConnected {
+                            Picker("Bot", selection: self.$selectedAgentPickerId) {
+                                Text("Default").tag("")
+                                let defaultId = (self.appModel.gatewayDefaultAgentId ?? "")
+                                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                                ForEach(self.appModel.gatewayAgents.filter { $0.id != defaultId }, id: \.id) { agent in
+                                    let name = (agent.name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                                    Text(name.isEmpty ? agent.id : name).tag(agent.id)
+                                }
+                            }
+                            Text("Controls which bot Chat and Talk speak to.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        if self.appModel.gatewayServerName == nil {
+                            LabeledContent("Discovery", value: self.gatewayController.discoveryStatusText)
+                        }
+                        LabeledContent("Status", value: self.appModel.gatewayStatusText)
+                        Toggle("Auto-connect on launch", isOn: self.$gatewayAutoConnect)
+
+                        if let serverName = self.appModel.gatewayServerName {
+                            LabeledContent("Server", value: serverName)
+                            if let addr = self.appModel.gatewayRemoteAddress {
+                                let parts = Self.parseHostPort(from: addr)
+                                let urlString = Self.httpURLString(host: parts?.host, port: parts?.port, fallback: addr)
+                                LabeledContent("Address") {
+                                    Text(urlString)
+                                }
+                                .contextMenu {
+                                    Button {
+                                        UIPasteboard.general.string = urlString
+                                    } label: {
+                                        Label("Copy URL", systemImage: "doc.on.doc")
+                                    }
+
+                                    if let parts {
+                                        Button {
+                                            UIPasteboard.general.string = parts.host
+                                        } label: {
+                                            Label("Copy Host", systemImage: "doc.on.doc")
+                                        }
+
+                                        Button {
+                                            UIPasteboard.general.string = "\(parts.port)"
+                                        } label: {
+                                            Label("Copy Port", systemImage: "doc.on.doc")
+                                        }
+                                    }
+                                }
+                            }
+
+                            Button("Disconnect", role: .destructive) {
+                                self.appModel.disconnectGateway()
+                            }
+                        } else {
+                            self.gatewayList(showing: .all)
+                        }
+
+                        DisclosureGroup("Advanced") {
+                            Toggle("Use Manual Gateway", isOn: self.$manualGatewayEnabled)
+
+                            TextField("Host", text: self.$manualGatewayHost)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+
+                            TextField("Port (optional)", text: self.manualPortBinding)
+                                .keyboardType(.numberPad)
+
+                            Toggle("Use TLS", isOn: self.$manualGatewayTLS)
+
+                            Button {
+                                Task { await self.connectManual() }
+                            } label: {
+                                if self.connectingGatewayID == "manual" {
+                                    HStack(spacing: 8) {
+                                        ProgressView()
+                                            .progressViewStyle(.circular)
+                                        Text("Connecting…")
+                                    }
+                                } else {
+                                    Text("Connect (Manual)")
+                                }
+                            }
+                            .disabled(self.connectingGatewayID != nil || self.manualGatewayHost
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+                                .isEmpty || !self.manualPortIsValid)
+
+                            Text(
+                                "Use this when mDNS/Bonjour discovery is blocked. "
+                                    + "Leave port empty for 443 on tailnet DNS (TLS) or 18789 otherwise.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+
+                            Toggle("Discovery Debug Logs", isOn: self.$discoveryDebugLogsEnabled)
+                                .onChange(of: self.discoveryDebugLogsEnabled) { _, newValue in
+                                    self.gatewayController.setDiscoveryDebugLoggingEnabled(newValue)
+                                }
+
+                            NavigationLink("Discovery Logs") {
+                                GatewayDiscoveryDebugLogView()
+                            }
+
+                            Toggle("Debug Canvas Status", isOn: self.$canvasDebugStatusEnabled)
+
+                            TextField("Gateway Auth Token", text: self.$gatewayToken)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+
+                            SecureField("Gateway Password", text: self.$gatewayPassword)
+
+                            Button("Reset Onboarding", role: .destructive) {
+                                self.showResetOnboardingAlert = true
+                            }
+
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Debug")
+                                    .font(.footnote.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                                Text(self.gatewayDebugText())
+                                    .font(.system(size: 12, weight: .regular, design: .monospaced))
+                                    .foregroundStyle(.secondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(10)
+                                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 10) {
+                            Circle()
+                                .fill(self.isGatewayConnected ? Color.green : Color.secondary.opacity(0.35))
+                                .frame(width: 10, height: 10)
+                            Text("Gateway")
+                            Spacer()
+                            Text(self.gatewaySummaryText)
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                Section("Device") {
+                    DisclosureGroup("Features") {
+                        self.featureToggle(
+                            "Voice Wake",
+                            isOn: self.$voiceWakeEnabled,
+                            help: "Enables wake-word activation to start a hands-free session.") { newValue in
+                                self.appModel.setVoiceWakeEnabled(newValue)
+                            }
+                        self.featureToggle(
+                            "Talk Mode",
+                            isOn: self.$talkEnabled,
+                            help: "Enables voice conversation mode with your connected OpenClaw agent.") { newValue in
+                                self.appModel.setTalkEnabled(newValue)
+                            }
+                        self.featureToggle(
+                            "Background Listening",
+                            isOn: self.$talkBackgroundEnabled,
+                            help: "Keeps listening while the app is backgrounded. Uses more battery.")
+
+                        NavigationLink {
+                            VoiceWakeWordsSettingsView()
+                        } label: {
+                            LabeledContent(
+                                "Wake Words",
+                                value: VoiceWakePreferences.displayString(for: self.voiceWake.triggerWords))
+                        }
+
+                        self.featureToggle(
+                            "Allow Camera",
+                            isOn: self.$cameraEnabled,
+                            help: "Allows the gateway to request photos or short video clips while OpenClaw is foregrounded.")
+
+                        HStack(spacing: 8) {
+                            Text("Location Access")
+                            Spacer()
+                            Button {
+                                self.activeFeatureHelp = FeatureHelp(
+                                    title: "Location Access",
+                                    message: "Controls location permissions for OpenClaw. Off disables location tools, While Using enables foreground location, and Always enables background location.")
+                            } label: {
+                                Image(systemName: "info.circle")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Location Access info")
+                        }
+                        Picker("Location Access", selection: self.$locationEnabledModeRaw) {
+                            Text("Off").tag(OpenClawLocationMode.off.rawValue)
+                            Text("While Using").tag(OpenClawLocationMode.whileUsing.rawValue)
+                            Text("Always").tag(OpenClawLocationMode.always.rawValue)
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.segmented)
+
+                        self.featureToggle(
+                            "Prevent Sleep",
+                            isOn: self.$preventSleep,
+                            help: "Keeps the screen awake while OpenClaw is open.")
+
+                        DisclosureGroup("Advanced") {
+                            self.featureToggle(
+                                "Voice Directive Hint",
+                                isOn: self.$talkVoiceDirectiveHintEnabled,
+                                help: "Adds voice-switching instructions to Talk prompts. Disable to reduce prompt size.")
+                            self.featureToggle(
+                                "Show Talk Button",
+                                isOn: self.$talkButtonEnabled,
+                                help: "Shows the floating Talk button in the main interface.")
+                            TextField("Default Share Instruction", text: self.$defaultShareInstruction, axis: .vertical)
+                                .lineLimit(2 ... 6)
+                                .textInputAutocapitalization(.sentences)
+                            HStack(spacing: 8) {
+                                Text("Default Share Instruction")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                                Button {
+                                    self.activeFeatureHelp = FeatureHelp(
+                                        title: "Default Share Instruction",
+                                        message: "Appends this instruction when sharing content into OpenClaw from iOS.")
+                                } label: {
+                                    Image(systemName: "info.circle")
+                                        .foregroundStyle(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Default Share Instruction info")
+                            }
+
+                            VStack(alignment: .leading, spacing: 8) {
+                                Button {
+                                    Task { await self.appModel.runSharePipelineSelfTest() }
+                                } label: {
+                                    Label("Run Share Self-Test", systemImage: "checkmark.seal")
+                                }
+                                Text(self.appModel.lastShareEventText)
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+
+                    DisclosureGroup("Device Info") {
+                        TextField("Name", text: self.$displayName)
+                        Text(self.instanceId)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        LabeledContent("Device", value: self.deviceFamily())
+                        LabeledContent("Platform", value: self.platformString())
+                        LabeledContent("OpenClaw", value: self.openClawVersionString())
+                    }
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
                 }
             }
             .navigationTitle("Settings")
@@ -227,16 +545,53 @@ struct SettingsTab: View {
                         Image(systemName: "xmark")
                     }
                     .accessibilityLabel("Close")
+<<<<<<< HEAD
+=======
                 }
             }
+            .alert("Reset Onboarding?", isPresented: self.$showResetOnboardingAlert) {
+                Button("Reset", role: .destructive) {
+                    self.resetOnboarding()
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
+                }
+            }
+<<<<<<< HEAD
             .onAppear {
                 self.localIPAddress = Self.primaryIPv4Address()
                 self.lastLocationModeRaw = self.locationEnabledModeRaw
+=======
+            .alert(item: self.$activeFeatureHelp) { help in
+                Alert(
+                    title: Text(help.title),
+                    message: Text(help.message),
+                    dismissButton: .default(Text("OK")))
+            }
+            .onAppear {
+                self.lastLocationModeRaw = self.locationEnabledModeRaw
+                self.syncManualPortText()
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
                 let trimmedInstanceId = self.instanceId.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !trimmedInstanceId.isEmpty {
                     self.gatewayToken = GatewaySettingsStore.loadGatewayToken(instanceId: trimmedInstanceId) ?? ""
                     self.gatewayPassword = GatewaySettingsStore.loadGatewayPassword(instanceId: trimmedInstanceId) ?? ""
                 }
+<<<<<<< HEAD
+=======
+                self.defaultShareInstruction = ShareToAgentSettings.loadDefaultInstruction()
+                self.appModel.refreshLastShareEventFromRelay()
+                // Keep setup front-and-center when disconnected; keep things compact once connected.
+                self.gatewayExpanded = !self.isGatewayConnected
+                self.selectedAgentPickerId = self.appModel.selectedAgentId ?? ""
+            }
+            .onChange(of: self.selectedAgentPickerId) { _, newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                self.appModel.setSelectedAgentId(trimmed.isEmpty ? nil : trimmed)
+            }
+            .onChange(of: self.appModel.selectedAgentId ?? "") { _, newValue in
+                if newValue != self.selectedAgentPickerId {
+                    self.selectedAgentPickerId = newValue
+                }
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
             }
             .onChange(of: self.preferredGatewayStableID) { _, newValue in
                 let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -244,12 +599,20 @@ struct SettingsTab: View {
                 GatewaySettingsStore.savePreferredGatewayStableID(trimmed)
             }
             .onChange(of: self.gatewayToken) { _, newValue in
+<<<<<<< HEAD
+=======
+                guard !self.suppressCredentialPersist else { return }
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
                 let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                 let instanceId = self.instanceId.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !instanceId.isEmpty else { return }
                 GatewaySettingsStore.saveGatewayToken(trimmed, instanceId: instanceId)
             }
             .onChange(of: self.gatewayPassword) { _, newValue in
+<<<<<<< HEAD
+=======
+                guard !self.suppressCredentialPersist else { return }
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
                 let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                 let instanceId = self.instanceId.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !instanceId.isEmpty else { return }
@@ -258,6 +621,28 @@ struct SettingsTab: View {
             .onChange(of: self.appModel.gatewayServerName) { _, _ in
                 self.connectStatus.text = nil
             }
+<<<<<<< HEAD
+=======
+            .onChange(of: self.manualGatewayPort) { _, _ in
+                self.syncManualPortText()
+            }
+            .onChange(of: self.appModel.gatewayServerName) { _, newValue in
+                if newValue != nil {
+                    self.setupCode = ""
+                    self.setupStatusText = nil
+                    return
+                }
+                if self.manualGatewayEnabled {
+                    self.setupStatusText = self.appModel.gatewayStatusText
+                }
+            }
+            .onChange(of: self.appModel.gatewayStatusText) { _, newValue in
+                guard self.manualGatewayEnabled || self.connectingGatewayID == "manual" else { return }
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { return }
+                self.setupStatusText = trimmed
+            }
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
             .onChange(of: self.locationEnabledModeRaw) { _, newValue in
                 let previous = self.lastLocationModeRaw
                 self.lastLocationModeRaw = newValue
@@ -269,7 +654,14 @@ struct SettingsTab: View {
                             self.locationEnabledModeRaw = previous
                             self.lastLocationModeRaw = previous
                         }
+                        return
                     }
+<<<<<<< HEAD
+=======
+                    await MainActor.run {
+                        self.gatewayController.refreshActiveGatewayRegistrationFromSettings()
+                    }
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
                 }
             }
         }
@@ -385,8 +777,34 @@ struct SettingsTab: View {
         let machine = withUnsafeBytes(of: &systemInfo.machine) { ptr in
             String(bytes: ptr.prefix { $0 != 0 }, encoding: .utf8)
         }
+<<<<<<< HEAD
         let trimmed = machine?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return trimmed.isEmpty ? "unknown" : trimmed
+=======
+        return "\(version) (\(trimmedBuild))"
+    }
+
+    private func featureToggle(
+        _ title: String,
+        isOn: Binding<Bool>,
+        help: String,
+        onChange: ((Bool) -> Void)? = nil
+    ) -> some View {
+        HStack(spacing: 8) {
+            Toggle(title, isOn: isOn)
+            Button {
+                self.activeFeatureHelp = FeatureHelp(title: title, message: help)
+            } label: {
+                Image(systemName: "info.circle")
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("\(title) info")
+        }
+        .onChange(of: isOn.wrappedValue) { _, newValue in
+            onChange?(newValue)
+        }
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
     }
 
     private func connect(_ gateway: GatewayDiscoveryModel.DiscoveredGateway) async {

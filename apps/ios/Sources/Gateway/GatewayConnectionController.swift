@@ -14,7 +14,10 @@ import Foundation
 import Network
 import Observation
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 import Photos
 import ReplayKit
 import Security
@@ -553,6 +556,68 @@ final class GatewayConnectionController {
         return components.url
     }
 
+<<<<<<< HEAD
+=======
+    private func resolveManualUseTLS(host: String, useTLS: Bool) -> Bool {
+        useTLS || self.shouldRequireTLS(host: host)
+    }
+
+    private func shouldRequireTLS(host: String) -> Bool {
+        !Self.isLoopbackHost(host)
+    }
+
+    private func shouldForceTLS(host: String) -> Bool {
+        let trimmed = host.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if trimmed.isEmpty { return false }
+        return trimmed.hasSuffix(".ts.net") || trimmed.hasSuffix(".ts.net.")
+    }
+
+    private static func isLoopbackHost(_ rawHost: String) -> Bool {
+        var host = rawHost.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !host.isEmpty else { return false }
+
+        if host.hasPrefix("[") && host.hasSuffix("]") {
+            host.removeFirst()
+            host.removeLast()
+        }
+        if host.hasSuffix(".") {
+            host.removeLast()
+        }
+        if let zoneIndex = host.firstIndex(of: "%") {
+            host = String(host[..<zoneIndex])
+        }
+        if host.isEmpty { return false }
+
+        if host == "localhost" || host == "0.0.0.0" || host == "::" {
+            return true
+        }
+        return Self.isLoopbackIPv4(host) || Self.isLoopbackIPv6(host)
+    }
+
+    private static func isLoopbackIPv4(_ host: String) -> Bool {
+        var addr = in_addr()
+        let parsed = host.withCString { inet_pton(AF_INET, $0, &addr) == 1 }
+        guard parsed else { return false }
+        let value = ntohl(addr.s_addr)
+        let firstOctet = UInt8((value >> 24) & 0xFF)
+        return firstOctet == 127
+    }
+
+    private static func isLoopbackIPv6(_ host: String) -> Bool {
+        var addr = in6_addr()
+        let parsed = host.withCString { inet_pton(AF_INET6, $0, &addr) == 1 }
+        guard parsed else { return false }
+        return withUnsafeBytes(of: &addr) { rawBytes in
+            let bytes = rawBytes.bindMemory(to: UInt8.self)
+            let isV6Loopback = bytes[0..<15].allSatisfy { $0 == 0 } && bytes[15] == 1
+            if isV6Loopback { return true }
+
+            let isMappedV4 = bytes[0..<10].allSatisfy { $0 == 0 } && bytes[10] == 0xFF && bytes[11] == 0xFF
+            return isMappedV4 && bytes[12] == 127
+        }
+    }
+
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
     private func manualStableID(host: String, port: Int) -> String {
         "manual|\(host.lowercased())|\(port)"
     }
@@ -604,6 +669,21 @@ final class GatewayConnectionController {
         let locationMode = OpenClawLocationMode(rawValue: locationModeRaw) ?? .off
         if locationMode != .off { caps.append(OpenClawCapability.location.rawValue) }
 
+<<<<<<< HEAD
+=======
+        caps.append(OpenClawCapability.device.rawValue)
+        if WatchMessagingService.isSupportedOnDevice() {
+            caps.append(OpenClawCapability.watch.rawValue)
+        }
+        caps.append(OpenClawCapability.photos.rawValue)
+        caps.append(OpenClawCapability.contacts.rawValue)
+        caps.append(OpenClawCapability.calendar.rawValue)
+        caps.append(OpenClawCapability.reminders.rawValue)
+        if Self.motionAvailable() {
+            caps.append(OpenClawCapability.motion.rawValue)
+        }
+
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
         return caps
     }
 
@@ -634,10 +714,92 @@ final class GatewayConnectionController {
         if caps.contains(OpenClawCapability.location.rawValue) {
             commands.append(OpenClawLocationCommand.get.rawValue)
         }
+<<<<<<< HEAD
+=======
+        if caps.contains(OpenClawCapability.device.rawValue) {
+            commands.append(OpenClawDeviceCommand.status.rawValue)
+            commands.append(OpenClawDeviceCommand.info.rawValue)
+        }
+        if caps.contains(OpenClawCapability.watch.rawValue) {
+            commands.append(OpenClawWatchCommand.status.rawValue)
+            commands.append(OpenClawWatchCommand.notify.rawValue)
+        }
+        if caps.contains(OpenClawCapability.photos.rawValue) {
+            commands.append(OpenClawPhotosCommand.latest.rawValue)
+        }
+        if caps.contains(OpenClawCapability.contacts.rawValue) {
+            commands.append(OpenClawContactsCommand.search.rawValue)
+            commands.append(OpenClawContactsCommand.add.rawValue)
+        }
+        if caps.contains(OpenClawCapability.calendar.rawValue) {
+            commands.append(OpenClawCalendarCommand.events.rawValue)
+            commands.append(OpenClawCalendarCommand.add.rawValue)
+        }
+        if caps.contains(OpenClawCapability.reminders.rawValue) {
+            commands.append(OpenClawRemindersCommand.list.rawValue)
+            commands.append(OpenClawRemindersCommand.add.rawValue)
+        }
+        if caps.contains(OpenClawCapability.motion.rawValue) {
+            commands.append(OpenClawMotionCommand.activity.rawValue)
+            commands.append(OpenClawMotionCommand.pedometer.rawValue)
+        }
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
 
         return commands
     }
 
+<<<<<<< HEAD
+=======
+    private func currentPermissions() -> [String: Bool] {
+        var permissions: [String: Bool] = [:]
+        permissions["camera"] = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
+        permissions["microphone"] = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+        permissions["speechRecognition"] = SFSpeechRecognizer.authorizationStatus() == .authorized
+        permissions["location"] = Self.isLocationAuthorized(
+            status: CLLocationManager().authorizationStatus)
+            && CLLocationManager.locationServicesEnabled()
+        permissions["screenRecording"] = RPScreenRecorder.shared().isAvailable
+
+        let photoStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        permissions["photos"] = photoStatus == .authorized || photoStatus == .limited
+        let contactsStatus = CNContactStore.authorizationStatus(for: .contacts)
+        permissions["contacts"] = contactsStatus == .authorized || contactsStatus == .limited
+
+        let calendarStatus = EKEventStore.authorizationStatus(for: .event)
+        permissions["calendar"] =
+            calendarStatus == .authorized || calendarStatus == .fullAccess || calendarStatus == .writeOnly
+        let remindersStatus = EKEventStore.authorizationStatus(for: .reminder)
+        permissions["reminders"] =
+            remindersStatus == .authorized || remindersStatus == .fullAccess || remindersStatus == .writeOnly
+
+        let motionStatus = CMMotionActivityManager.authorizationStatus()
+        let pedometerStatus = CMPedometer.authorizationStatus()
+        permissions["motion"] =
+            motionStatus == .authorized || pedometerStatus == .authorized
+
+        let watchStatus = WatchMessagingService.currentStatusSnapshot()
+        permissions["watchSupported"] = watchStatus.supported
+        permissions["watchPaired"] = watchStatus.paired
+        permissions["watchAppInstalled"] = watchStatus.appInstalled
+        permissions["watchReachable"] = watchStatus.reachable
+
+        return permissions
+    }
+
+    private static func isLocationAuthorized(status: CLAuthorizationStatus) -> Bool {
+        switch status {
+        case .authorizedAlways, .authorizedWhenInUse, .authorized:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private static func motionAvailable() -> Bool {
+        CMMotionActivityManager.isActivityAvailable() || CMPedometer.isStepCountingAvailable()
+    }
+
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
     private func platformString() -> String {
         let v = ProcessInfo.processInfo.operatingSystemVersion
         let name = switch UIDevice.current.userInterfaceIdiom {

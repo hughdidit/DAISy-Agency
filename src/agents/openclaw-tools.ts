@@ -109,6 +109,7 @@ export function createOpenClawTools(options?: {
       allowHostControl: options?.allowHostBrowserControl,
     }),
 <<<<<<< HEAD
+<<<<<<< HEAD
     createCanvasTool(),
 =======
     createCanvasTool({
@@ -116,6 +117,9 @@ export function createOpenClawTools(options?: {
       agentSessionKey: options?.agentSessionKey,
     }),
 >>>>>>> 39816e61b (Security: restrict canvas jsonlPath file reads)
+=======
+    createCanvasTool({ config: options?.config }),
+>>>>>>> 4ab946eeb (Discord VC: voice channels, transcription, and TTS (#18774))
     createNodesTool({
       agentSessionKey: options?.agentSessionKey,
       config: options?.config,
