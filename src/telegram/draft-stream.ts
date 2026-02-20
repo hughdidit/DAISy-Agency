@@ -10,6 +10,11 @@ export type TelegramDraftStream = {
   stop: () => void;
 };
 
+type TelegramDraftPreview = {
+  text: string;
+  parseMode?: "HTML";
+};
+
 export function createTelegramDraftStream(params: {
   api: Bot["api"];
   chatId: number;
@@ -17,6 +22,13 @@ export function createTelegramDraftStream(params: {
   maxChars?: number;
   thread?: TelegramThreadSpec | null;
   throttleMs?: number;
+<<<<<<< HEAD
+=======
+  /** Minimum chars before sending first message (debounce for push notifications) */
+  minInitialChars?: number;
+  /** Optional preview renderer (e.g. markdown -> HTML + parse mode). */
+  renderText?: (text: string) => TelegramDraftPreview;
+>>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
   log?: (message: string) => void;
   warn?: (message: string) => void;
 }): TelegramDraftStream {
@@ -28,15 +40,20 @@ export function createTelegramDraftStream(params: {
   const threadParams = buildTelegramThreadParams(params.thread);
 
   let lastSentText = "";
+<<<<<<< HEAD
   let lastSentAt = 0;
   let pendingText = "";
   let inFlight = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
+=======
+  let lastSentParseMode: "HTML" | undefined;
+>>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
   let stopped = false;
 
   const sendDraft = async (text: string) => {
     if (stopped) return;
     const trimmed = text.trimEnd();
+<<<<<<< HEAD
     if (!trimmed) return;
     if (trimmed.length > maxChars) {
       // Drafts are capped at 4096 chars. Stop streaming once we exceed the cap
@@ -50,6 +67,65 @@ export function createTelegramDraftStream(params: {
     lastSentAt = Date.now();
     try {
       await params.api.sendMessageDraft(chatId, draftId, trimmed, threadParams);
+=======
+    if (!trimmed) {
+      return false;
+    }
+    const rendered = params.renderText?.(trimmed) ?? { text: trimmed };
+    const renderedText = rendered.text.trimEnd();
+    const renderedParseMode = rendered.parseMode;
+    if (!renderedText) {
+      return false;
+    }
+    if (renderedText.length > maxChars) {
+      // Telegram text messages/edits cap at 4096 chars.
+      // Stop streaming once we exceed the cap to avoid repeated API failures.
+      stopped = true;
+      params.warn?.(
+        `telegram stream preview stopped (text length ${renderedText.length} > ${maxChars})`,
+      );
+      return false;
+    }
+    if (renderedText === lastSentText && renderedParseMode === lastSentParseMode) {
+      return true;
+    }
+
+    // Debounce first preview send for better push notification quality.
+    if (typeof streamMessageId !== "number" && minInitialChars != null && !isFinal) {
+      if (renderedText.length < minInitialChars) {
+        return false;
+      }
+    }
+
+    lastSentText = renderedText;
+    lastSentParseMode = renderedParseMode;
+    try {
+      if (typeof streamMessageId === "number") {
+        if (renderedParseMode) {
+          await params.api.editMessageText(chatId, streamMessageId, renderedText, {
+            parse_mode: renderedParseMode,
+          });
+        } else {
+          await params.api.editMessageText(chatId, streamMessageId, renderedText);
+        }
+        return true;
+      }
+      const sendParams = renderedParseMode
+        ? {
+            ...replyParams,
+            parse_mode: renderedParseMode,
+          }
+        : replyParams;
+      const sent = await params.api.sendMessage(chatId, renderedText, sendParams);
+      const sentMessageId = sent?.message_id;
+      if (typeof sentMessageId !== "number" || !Number.isFinite(sentMessageId)) {
+        stopped = true;
+        params.warn?.("telegram stream preview stopped (missing message id from sendMessage)");
+        return false;
+      }
+      streamMessageId = Math.trunc(sentMessageId);
+      return true;
+>>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
     } catch (err) {
       stopped = true;
       params.warn?.(
@@ -125,9 +201,18 @@ export function createTelegramDraftStream(params: {
     }
   };
 
+<<<<<<< HEAD
   params.log?.(
     `telegram draft stream ready (draftId=${draftId}, maxChars=${maxChars}, throttleMs=${throttleMs})`,
   );
+=======
+  const forceNewMessage = () => {
+    streamMessageId = undefined;
+    lastSentText = "";
+    lastSentParseMode = undefined;
+    loop.resetPending();
+  };
+>>>>>>> ab256b8ec (fix: split telegram reasoning and answer draft streams (#20774))
 
   return { update, flush, stop };
 }
