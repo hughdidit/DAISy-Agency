@@ -30,6 +30,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> ee519086f (Feature/default messenger delivery target (openclaw#16985) thanks @KirillShchetinin)
 - iOS/Gateway: stabilize background wake and reconnect behavior with background reconnect suppression/lease windows, BGAppRefresh wake fallback, location wake hook throttling, and APNs wake retry+nudge instrumentation. (#21226) thanks @mbelinky.
 - Auto-reply/UI: add model fallback lifecycle visibility in verbose logs, /status active-model context with fallback reason, and cohesive WebUI fallback indicators. (#20704) Thanks @joshavant.
+- Discord/Streaming: add stream preview mode for live draft replies with partial/block options and configurable chunking. Thanks @thewilloftheshadow. Inspiration @neoagentic-ship-it.
 
 >>>>>>> e98ccc8e1 (iOS/Gateway: stabilize background wake and reconnect behavior (#21226))
 ### Fixes
