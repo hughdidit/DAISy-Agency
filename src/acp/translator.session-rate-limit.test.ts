@@ -37,6 +37,40 @@ function createLoadSessionRequest(sessionId: string, cwd = "/tmp"): LoadSessionR
   } as unknown as LoadSessionRequest;
 }
 
+<<<<<<< HEAD
+=======
+function createPromptRequest(
+  sessionId: string,
+  text: string,
+  meta: Record<string, unknown> = {},
+): PromptRequest {
+  return {
+    sessionId,
+    prompt: [{ type: "text", text }],
+    _meta: meta,
+  } as unknown as PromptRequest;
+}
+
+async function expectOversizedPromptRejected(params: { sessionId: string; text: string }) {
+  const request = vi.fn(async () => ({ ok: true })) as GatewayClient["request"];
+  const sessionStore = createInMemorySessionStore();
+  const agent = new AcpGatewayAgent(createConnection(), createGateway(request), {
+    sessionStore,
+  });
+  await agent.loadSession(createLoadSessionRequest(params.sessionId));
+
+  await expect(agent.prompt(createPromptRequest(params.sessionId, params.text))).rejects.toThrow(
+    /maximum allowed size/i,
+  );
+  expect(request).not.toHaveBeenCalledWith("chat.send", expect.anything(), expect.anything());
+  const session = sessionStore.getSession(params.sessionId);
+  expect(session?.activeRunId).toBeNull();
+  expect(session?.abortController).toBeNull();
+
+  sessionStore.clearAllSessionsForTest();
+}
+
+>>>>>>> 86907aa50 (test: dedupe lifecycle oauth and prompt-limit fixtures)
 describe("acp session creation rate limit", () => {
   it("rate limits excessive newSession bursts", async () => {
     const sessionStore = createInMemorySessionStore();
@@ -81,43 +115,17 @@ describe("acp session creation rate limit", () => {
 
 describe("acp prompt size hardening", () => {
   it("rejects oversized prompt blocks without leaking active runs", async () => {
-    const request = vi.fn(async () => ({ ok: true })) as GatewayClient["request"];
-    const sessionStore = createInMemorySessionStore();
-    const agent = new AcpGatewayAgent(createConnection(), createGateway(request), {
-      sessionStore,
+    await expectOversizedPromptRejected({
+      sessionId: "prompt-limit-oversize",
+      text: "a".repeat(2 * 1024 * 1024 + 1),
     });
-    const sessionId = "prompt-limit-oversize";
-    await agent.loadSession(createLoadSessionRequest(sessionId));
-
-    await expect(
-      agent.prompt(createPromptRequest(sessionId, "a".repeat(2 * 1024 * 1024 + 1))),
-    ).rejects.toThrow(/maximum allowed size/i);
-    expect(request).not.toHaveBeenCalledWith("chat.send", expect.anything(), expect.anything());
-    const session = sessionStore.getSession(sessionId);
-    expect(session?.activeRunId).toBeNull();
-    expect(session?.abortController).toBeNull();
-
-    sessionStore.clearAllSessionsForTest();
   });
 
   it("rejects oversize final messages from cwd prefix without leaking active runs", async () => {
-    const request = vi.fn(async () => ({ ok: true })) as GatewayClient["request"];
-    const sessionStore = createInMemorySessionStore();
-    const agent = new AcpGatewayAgent(createConnection(), createGateway(request), {
-      sessionStore,
+    await expectOversizedPromptRejected({
+      sessionId: "prompt-limit-prefix",
+      text: "a".repeat(2 * 1024 * 1024),
     });
-    const sessionId = "prompt-limit-prefix";
-    await agent.loadSession(createLoadSessionRequest(sessionId));
-
-    await expect(
-      agent.prompt(createPromptRequest(sessionId, "a".repeat(2 * 1024 * 1024))),
-    ).rejects.toThrow(/maximum allowed size/i);
-    expect(request).not.toHaveBeenCalledWith("chat.send", expect.anything(), expect.anything());
-    const session = sessionStore.getSession(sessionId);
-    expect(session?.activeRunId).toBeNull();
-    expect(session?.abortController).toBeNull();
-
-    sessionStore.clearAllSessionsForTest();
   });
 });
 >>>>>>> bc6f983f8 (fix(ci): resolve format drift and acp mock typing)
