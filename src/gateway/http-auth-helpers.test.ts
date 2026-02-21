@@ -4,7 +4,7 @@ import type { ResolvedGatewayAuth } from "./auth.js";
 import { authorizeGatewayBearerRequestOrReply } from "./http-auth-helpers.js";
 
 vi.mock("./auth.js", () => ({
-  authorizeGatewayConnect: vi.fn(),
+  authorizeHttpGatewayConnect: vi.fn(),
 }));
 
 vi.mock("./http-common.js", () => ({
@@ -15,7 +15,7 @@ vi.mock("./http-utils.js", () => ({
   getBearerToken: vi.fn(),
 }));
 
-const { authorizeGatewayConnect } = await import("./auth.js");
+const { authorizeHttpGatewayConnect } = await import("./auth.js");
 const { sendGatewayAuthFailure } = await import("./http-common.js");
 const { getBearerToken } = await import("./http-utils.js");
 
@@ -25,8 +25,13 @@ describe("authorizeGatewayBearerRequestOrReply", () => {
   });
 
   it("disables tailscale header auth for HTTP bearer checks", async () => {
+<<<<<<< HEAD
     vi.mocked(getBearerToken).mockReturnValue(null);
     vi.mocked(authorizeGatewayConnect).mockResolvedValue({
+=======
+    vi.mocked(getBearerToken).mockReturnValue(undefined);
+    vi.mocked(authorizeHttpGatewayConnect).mockResolvedValue({
+>>>>>>> 36a0df423 (refactor(gateway): make ws and http auth surfaces explicit)
       ok: false,
       reason: "token_missing",
     });
@@ -43,9 +48,8 @@ describe("authorizeGatewayBearerRequestOrReply", () => {
     });
 
     expect(ok).toBe(false);
-    expect(vi.mocked(authorizeGatewayConnect)).toHaveBeenCalledWith(
+    expect(vi.mocked(authorizeHttpGatewayConnect)).toHaveBeenCalledWith(
       expect.objectContaining({
-        allowTailscaleHeaderAuth: false,
         connectAuth: null,
       }),
     );
@@ -54,7 +58,7 @@ describe("authorizeGatewayBearerRequestOrReply", () => {
 
   it("forwards bearer token and returns true on successful auth", async () => {
     vi.mocked(getBearerToken).mockReturnValue("abc");
-    vi.mocked(authorizeGatewayConnect).mockResolvedValue({ ok: true, method: "token" });
+    vi.mocked(authorizeHttpGatewayConnect).mockResolvedValue({ ok: true, method: "token" });
 
     const ok = await authorizeGatewayBearerRequestOrReply({
       req: {} as IncomingMessage,
@@ -68,9 +72,8 @@ describe("authorizeGatewayBearerRequestOrReply", () => {
     });
 
     expect(ok).toBe(true);
-    expect(vi.mocked(authorizeGatewayConnect)).toHaveBeenCalledWith(
+    expect(vi.mocked(authorizeHttpGatewayConnect)).toHaveBeenCalledWith(
       expect.objectContaining({
-        allowTailscaleHeaderAuth: false,
         connectAuth: { token: "abc", password: "abc" },
       }),
     );

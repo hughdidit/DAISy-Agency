@@ -72,6 +72,7 @@ import { normalizeMessageChannel } from "../utils/message-channel.js";
 
 =======
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -85,6 +86,9 @@ import type { AuthRateLimiter } from "./auth-rate-limit.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { authorizeGatewayConnect, type ResolvedGatewayAuth } from "./auth.js";
 import { getBearerToken, getHeader } from "./http-utils.js";
+=======
+import { authorizeHttpGatewayConnect, type ResolvedGatewayAuth } from "./auth.js";
+>>>>>>> 36a0df423 (refactor(gateway): make ws and http auth surfaces explicit)
 import {
   readJsonBodyOrError,
   sendGatewayAuthFailure,
@@ -183,12 +187,11 @@ export async function handleToolsInvokeHttpRequest(
 
   const cfg = loadConfig();
   const token = getBearerToken(req);
-  const authResult = await authorizeGatewayConnect({
+  const authResult = await authorizeHttpGatewayConnect({
     auth: opts.auth,
     connectAuth: token ? { token, password: token } : null,
     req,
     trustedProxies: opts.trustedProxies ?? cfg.gateway?.trustedProxies,
-    allowTailscaleHeaderAuth: false,
     rateLimiter: opts.rateLimiter,
   });
   if (!authResult.ok) {

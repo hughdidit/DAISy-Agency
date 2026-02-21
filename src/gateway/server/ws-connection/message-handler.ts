@@ -88,6 +88,7 @@ import {
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 =======
 import type { GatewayAuthResult, ResolvedGatewayAuth } from "../../auth.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 >>>>>>> ed11e93cf (chore(format))
@@ -106,6 +107,13 @@ import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
 <<<<<<< HEAD
 import { loadConfig } from "../../../config/config.js";
 =======
+=======
+import {
+  authorizeHttpGatewayConnect,
+  authorizeWsControlUiGatewayConnect,
+  isLocalDirectRequest,
+} from "../../auth.js";
+>>>>>>> 36a0df423 (refactor(gateway): make ws and http auth surfaces explicit)
 import {
   buildCanvasScopedHostUrl,
   CANVAS_CAPABILITY_TTL_MS,
@@ -609,12 +617,11 @@ export function attachGatewayWsMessageHandler(params: {
 
         const resolveAuthState = async () => {
           const hasDeviceTokenCandidate = Boolean(connectParams.auth?.token && device);
-          let nextAuthResult: GatewayAuthResult = await authorizeGatewayConnect({
+          let nextAuthResult: GatewayAuthResult = await authorizeWsControlUiGatewayConnect({
             auth: resolvedAuth,
             connectAuth: connectParams.auth,
             req: upgradeReq,
             trustedProxies,
-            allowTailscaleHeaderAuth: true,
             rateLimiter: hasDeviceTokenCandidate ? undefined : rateLimiter,
             clientIp,
             rateLimitScope: AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET,
@@ -645,7 +652,7 @@ export function attachGatewayWsMessageHandler(params: {
           const nextAuthMethod =
             nextAuthResult.method ?? (resolvedAuth.mode === "password" ? "password" : "token");
           const sharedAuthResult = hasSharedAuth
-            ? await authorizeGatewayConnect({
+            ? await authorizeHttpGatewayConnect({
                 auth: { ...resolvedAuth, allowTailscale: false },
                 connectAuth: connectParams.auth,
                 req: upgradeReq,

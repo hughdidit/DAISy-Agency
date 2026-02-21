@@ -5,11 +5,20 @@ import { describe, expect, it } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 import type { AuthRateLimiter } from "./auth-rate-limit.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 30b6eccae (feat(gateway): add auth rate-limiting & brute-force protection (#15035))
 import { authorizeGatewayConnect } from "./auth.js";
 =======
 import { authorizeGatewayConnect, resolveGatewayAuth } from "./auth.js";
 >>>>>>> 1fb52b4d7 (feat(gateway): add trusted-proxy auth mode (#15940))
+=======
+import {
+  authorizeGatewayConnect,
+  authorizeHttpGatewayConnect,
+  authorizeWsControlUiGatewayConnect,
+  resolveGatewayAuth,
+} from "./auth.js";
+>>>>>>> 36a0df423 (refactor(gateway): make ws and http auth surfaces explicit)
 
 function createLimiterSpy(): AuthRateLimiter & {
   check: ReturnType<typeof vi.fn>;
@@ -165,7 +174,7 @@ describe("gateway auth", () => {
       auth: { mode: "token", token: "secret", allowTailscale: true },
       connectAuth: null,
       tailscaleWhois: async () => ({ login: "peter", name: "Peter" }),
-      allowTailscaleHeaderAuth: true,
+      authSurface: "ws-control-ui",
       req: {
         socket: { remoteAddress: "127.0.0.1" },
         headers: {
@@ -179,6 +188,49 @@ describe("gateway auth", () => {
       } as never,
     });
 
+    expect(res.ok).toBe(true);
+    expect(res.method).toBe("tailscale");
+    expect(res.user).toBe("peter");
+  });
+
+  it("keeps tailscale header auth disabled on HTTP auth wrapper", async () => {
+    const res = await authorizeHttpGatewayConnect({
+      auth: { mode: "token", token: "secret", allowTailscale: true },
+      connectAuth: null,
+      tailscaleWhois: async () => ({ login: "peter", name: "Peter" }),
+      req: {
+        socket: { remoteAddress: "127.0.0.1" },
+        headers: {
+          host: "gateway.local",
+          "x-forwarded-for": "100.64.0.1",
+          "x-forwarded-proto": "https",
+          "x-forwarded-host": "ai-hub.bone-egret.ts.net",
+          "tailscale-user-login": "peter",
+          "tailscale-user-name": "Peter",
+        },
+      } as never,
+    });
+    expect(res.ok).toBe(false);
+    expect(res.reason).toBe("token_missing");
+  });
+
+  it("enables tailscale header auth on ws control-ui auth wrapper", async () => {
+    const res = await authorizeWsControlUiGatewayConnect({
+      auth: { mode: "token", token: "secret", allowTailscale: true },
+      connectAuth: null,
+      tailscaleWhois: async () => ({ login: "peter", name: "Peter" }),
+      req: {
+        socket: { remoteAddress: "127.0.0.1" },
+        headers: {
+          host: "gateway.local",
+          "x-forwarded-for": "100.64.0.1",
+          "x-forwarded-proto": "https",
+          "x-forwarded-host": "ai-hub.bone-egret.ts.net",
+          "tailscale-user-login": "peter",
+          "tailscale-user-name": "Peter",
+        },
+      } as never,
+    });
     expect(res.ok).toBe(true);
     expect(res.method).toBe("tailscale");
     expect(res.user).toBe("peter");
