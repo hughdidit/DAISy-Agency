@@ -37,6 +37,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -49,6 +50,10 @@ Docs: https://docs.openclaw.ai
 - Telegram: dedupe sent-message cache storage by removing redundant per-chat Set tracking and using the timestamp map as the single source of truth. (#22127) thanks @TaKO8Ki.
 - Agents/Subagents: default subagent spawn depth now uses shared `maxSpawnDepth=2`, enabling depth-1 orchestrator spawning by default while keeping depth policy checks consistent across spawn and prompt paths. (#22223) Thanks @tyler6204.
 >>>>>>> 40f1a6c0d (chore: Dedupe sent-message cache storage (#22127))
+=======
+- Models/Google: add Gemini 3.1 support (`google/gemini-3.1-pro-preview`).
+- Providers/Onboarding: add Volcano Engine (Doubao) and BytePlus providers/models (including coding variants), wire onboarding auth choices for interactive + non-interactive flows, and align docs to `volcengine-api-key`. (#7967) Thanks @funmore123.
+>>>>>>> 310104723 (feat(models): add Gemini 3.1 support)
 - Channels/CLI: add per-account/channel `defaultTo` outbound routing fallback so `openclaw agent --deliver` can send without explicit `--reply-to` when a default target is configured. (#16985) Thanks @KirillShchetinin.
 <<<<<<< HEAD
 >>>>>>> ee519086f (Feature/default messenger delivery target (openclaw#16985) thanks @KirillShchetinin)
