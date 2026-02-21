@@ -134,6 +134,7 @@ targets:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         CFBundleShortVersionString: "2026.2.17"
         CFBundleVersion: "20260217"
 >>>>>>> 9a2c39419 (chore(release): bump version to 2026.2.17)
@@ -147,6 +148,9 @@ targets:
 >>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
 =======
         CFBundleShortVersionString: "2026.2.20"
+=======
+        CFBundleShortVersionString: "2026.2.21"
+>>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
         CFBundleVersion: "20260220"
 >>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
         UILaunchScreen: {}
@@ -200,7 +204,7 @@ targets:
       path: ShareExtension/Info.plist
       properties:
         CFBundleDisplayName: OpenClaw Share
-        CFBundleShortVersionString: "2026.2.20"
+        CFBundleShortVersionString: "2026.2.21"
         CFBundleVersion: "20260220"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
@@ -230,7 +234,7 @@ targets:
       path: WatchApp/Info.plist
       properties:
         CFBundleDisplayName: OpenClaw
-        CFBundleShortVersionString: "2026.2.20"
+        CFBundleShortVersionString: "2026.2.21"
         CFBundleVersion: "20260220"
         WKCompanionAppBundleIdentifier: "$(OPENCLAW_APP_BUNDLE_ID)"
         WKWatchKitApp: true
@@ -254,7 +258,7 @@ targets:
       path: WatchExtension/Info.plist
       properties:
         CFBundleDisplayName: OpenClaw
-        CFBundleShortVersionString: "2026.2.20"
+        CFBundleShortVersionString: "2026.2.21"
         CFBundleVersion: "20260220"
         NSExtension:
           NSExtensionAttributes:
@@ -283,6 +287,7 @@ targets:
       path: Tests/Info.plist
       properties:
         CFBundleDisplayName: OpenClawTests
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -345,5 +350,8 @@ targets:
 >>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
 =======
         CFBundleShortVersionString: "2026.2.20"
+=======
+        CFBundleShortVersionString: "2026.2.21"
+>>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
         CFBundleVersion: "20260220"
 >>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)

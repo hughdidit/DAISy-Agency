@@ -18,6 +18,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 Status: beta.
 =======
@@ -53,6 +54,9 @@ Status: beta.
 ## 2026.2.19 (Unreleased)
 =======
 ## 2026.2.20 (Unreleased)
+=======
+## 2026.2.21 (Unreleased)
+>>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
 
 ### Changes
 

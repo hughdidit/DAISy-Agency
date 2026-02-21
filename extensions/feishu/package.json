@@ -10,6 +10,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.4",
   "description": "OpenClaw Feishu channel plugin",
 =======
@@ -41,6 +42,9 @@
 =======
   "version": "2026.2.20",
 >>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
+=======
+  "version": "2026.2.21",
+>>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
   "description": "OpenClaw Feishu/Lark channel plugin (community maintained by @m1heng)",
 >>>>>>> 677450cd9 (chore(release): bump version to 2026.2.6)
   "type": "module",
