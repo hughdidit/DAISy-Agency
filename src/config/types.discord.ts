@@ -124,6 +124,25 @@ export type DiscordUiConfig = {
   components?: DiscordUiComponentsConfig;
 };
 
+export type DiscordThreadBindingsConfig = {
+  /**
+   * Enable Discord thread binding features (/focus, thread-bound delivery, and
+   * thread-bound subagent session flows). Overrides session.threadBindings.enabled
+   * when set.
+   */
+  enabled?: boolean;
+  /**
+   * Auto-unfocus TTL for thread-bound sessions in hours.
+   * Set to 0 to disable TTL. Default: 24.
+   */
+  ttlHours?: number;
+  /**
+   * Allow `sessions_spawn({ thread: true })` to auto-create + bind Discord
+   * threads for subagent sessions. Default: false (opt-in).
+   */
+  spawnSubagentSessions?: boolean;
+};
+
 export type DiscordSlashCommandConfig = {
   /** Reply ephemerally (default: true). */
   ephemeral?: boolean;
@@ -218,7 +237,12 @@ export type DiscordAccountConfig = {
 =======
   /** Slash command configuration. */
   slashCommand?: DiscordSlashCommandConfig;
+<<<<<<< HEAD
 >>>>>>> 122bdfa4e (feat(discord): add configurable ephemeral option for slash commands)
+=======
+  /** Thread binding lifecycle settings (focus/subagent thread sessions). */
+  threadBindings?: DiscordThreadBindingsConfig;
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   /** Privileged Gateway Intents (must also be enabled in Discord Developer Portal). */
   intents?: DiscordIntentsConfig;
   /** PluralKit identity resolution for proxied messages. */

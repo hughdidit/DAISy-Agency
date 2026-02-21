@@ -24,6 +24,7 @@ import {
   upsertChannelPairingRequest,
 } from "../../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../../routing/resolve-route.js";
+import { resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 import { fetchPluralKitMessageInfo } from "../pluralkit.js";
 import { sendMessageDiscord } from "../send.js";
 import {
@@ -58,12 +59,51 @@ import {
 } from "./message-utils.js";
 import { resolveDiscordSenderIdentity, resolveDiscordWebhookId } from "./sender-identity.js";
 import { resolveDiscordSystemEvent } from "./system-events.js";
+import {
+  isRecentlyUnboundThreadWebhookMessage,
+  type ThreadBindingRecord,
+} from "./thread-bindings.js";
 import { resolveDiscordThreadChannel, resolveDiscordThreadParentInfo } from "./threading.js";
 
 export type {
   DiscordMessagePreflightContext,
   DiscordMessagePreflightParams,
 } from "./message-handler.preflight.types.js";
+
+export function resolvePreflightMentionRequirement(params: {
+  shouldRequireMention: boolean;
+  isBoundThreadSession: boolean;
+}): boolean {
+  if (!params.shouldRequireMention) {
+    return false;
+  }
+  return !params.isBoundThreadSession;
+}
+
+export function shouldIgnoreBoundThreadWebhookMessage(params: {
+  accountId?: string;
+  threadId?: string;
+  webhookId?: string | null;
+  threadBinding?: ThreadBindingRecord;
+}): boolean {
+  const webhookId = params.webhookId?.trim() || "";
+  if (!webhookId) {
+    return false;
+  }
+  const boundWebhookId = params.threadBinding?.webhookId?.trim() || "";
+  if (!boundWebhookId) {
+    const threadId = params.threadId?.trim() || "";
+    if (!threadId) {
+      return false;
+    }
+    return isRecentlyUnboundThreadWebhookMessage({
+      accountId: params.accountId,
+      threadId,
+      webhookId,
+    });
+  }
+  return webhookId === boundWebhookId;
+}
 
 export async function preflightDiscordMessage(
   params: DiscordMessagePreflightParams,
@@ -262,7 +302,30 @@ export async function preflightDiscordMessage(
     // Pass parent peer for thread binding inheritance
     parentPeer: earlyThreadParentId ? { kind: "channel", id: earlyThreadParentId } : undefined,
   });
-  const mentionRegexes = buildMentionRegexes(params.cfg, route.agentId);
+  const threadBinding = earlyThreadChannel
+    ? params.threadBindings.getByThreadId(messageChannelId)
+    : undefined;
+  if (
+    shouldIgnoreBoundThreadWebhookMessage({
+      accountId: params.accountId,
+      threadId: messageChannelId,
+      webhookId,
+      threadBinding,
+    })
+  ) {
+    logVerbose(`discord: drop bound-thread webhook echo message ${message.id}`);
+    return null;
+  }
+  const boundSessionKey = threadBinding?.targetSessionKey?.trim();
+  const boundAgentId = boundSessionKey ? resolveAgentIdFromSessionKey(boundSessionKey) : undefined;
+  const effectiveRoute = boundSessionKey
+    ? {
+        ...route,
+        sessionKey: boundSessionKey,
+        agentId: boundAgentId ?? route.agentId,
+      }
+    : route;
+  const mentionRegexes = buildMentionRegexes(params.cfg, effectiveRoute.agentId);
   const explicitlyMentioned = Boolean(
     botId && message.mentionedUsers?.some((user: User) => user.id === botId),
   );
@@ -339,7 +402,7 @@ export async function preflightDiscordMessage(
   const threadChannelSlug = channelName ? normalizeDiscordSlug(channelName) : "";
   const threadParentSlug = threadParentName ? normalizeDiscordSlug(threadParentName) : "";
 
-  const baseSessionKey = route.sessionKey;
+  const baseSessionKey = effectiveRoute.sessionKey;
   const channelConfig = isGuildMessage
     ? resolveDiscordChannelConfigWithFallback({
         guildInfo,
@@ -438,7 +501,7 @@ export async function preflightDiscordMessage(
       : undefined;
 
   const threadOwnerId = threadChannel ? (threadChannel.ownerId ?? channelInfo?.ownerId) : undefined;
-  const shouldRequireMention = resolveDiscordShouldRequireMention({
+  const shouldRequireMentionByConfig = resolveDiscordShouldRequireMention({
     isGuildMessage,
     isThread: Boolean(threadChannel),
     botId,
@@ -447,7 +510,15 @@ export async function preflightDiscordMessage(
     guildInfo,
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  const isBoundThreadSession = Boolean(boundSessionKey && threadChannel);
+  const shouldRequireMention = resolvePreflightMentionRequirement({
+    shouldRequireMention: shouldRequireMentionByConfig,
+    isBoundThreadSession,
+  });
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 
   // Preflight audio transcription for mention detection in guilds
   // This allows voice notes to be checked for mentions before being dropped
@@ -592,6 +663,12 @@ export async function preflightDiscordMessage(
     commandAuthorized,
   });
   const effectiveWasMentioned = mentionGate.effectiveWasMentioned;
+<<<<<<< HEAD
+=======
+  logDebug(
+    `[discord-preflight] shouldRequireMention=${shouldRequireMention} baseRequireMention=${shouldRequireMentionByConfig} boundThreadSession=${isBoundThreadSession} mentionGate.shouldSkip=${mentionGate.shouldSkip} wasMentioned=${wasMentioned}`,
+  );
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   if (isGuildMessage && shouldRequireMention) {
     if (botId && mentionGate.shouldSkip) {
       logVerbose(`discord: drop guild message (mention required, botId=${botId})`);
@@ -637,7 +714,7 @@ export async function preflightDiscordMessage(
   const systemText = resolveDiscordSystemEvent(message, systemLocation);
   if (systemText) {
     enqueueSystemEvent(systemText, {
-      sessionKey: route.sessionKey,
+      sessionKey: effectiveRoute.sessionKey,
       contextKey: `discord:system:${messageChannelId}:${message.id}`,
     });
     return null;
@@ -648,6 +725,12 @@ export async function preflightDiscordMessage(
     return null;
   }
 
+<<<<<<< HEAD
+=======
+  logDebug(
+    `[discord-preflight] success: route=${effectiveRoute.agentId} sessionKey=${effectiveRoute.sessionKey}`,
+  );
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   return {
     cfg: params.cfg,
     discordConfig: params.discordConfig,
@@ -677,7 +760,10 @@ export async function preflightDiscordMessage(
     baseText,
     messageText,
     wasMentioned,
-    route,
+    route: effectiveRoute,
+    threadBinding,
+    boundSessionKey: boundSessionKey || undefined,
+    boundAgentId,
     guildInfo,
     guildSlug,
     threadChannel,
@@ -700,5 +786,6 @@ export async function preflightDiscordMessage(
     effectiveWasMentioned,
     canDetectMention,
     historyEntry,
+    threadBindings: params.threadBindings,
   };
 }

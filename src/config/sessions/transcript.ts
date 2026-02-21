@@ -2,8 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { CURRENT_SESSION_VERSION, SessionManager } from "@mariozechner/pi-coding-agent";
 import { emitSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
+<<<<<<< HEAD
 import { resolveDefaultSessionStorePath, resolveSessionTranscriptPath } from "./paths.js";
 import { loadSessionStore, updateSessionStore } from "./store.js";
+=======
+import { resolveDefaultSessionStorePath } from "./paths.js";
+import { resolveAndPersistSessionFile } from "./session-file.js";
+import { loadSessionStore } from "./store.js";
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 import type { SessionEntry } from "./types.js";
 
 function stripQuery(value: string): string {
@@ -109,10 +115,16 @@ export async function appendAssistantMessageToSessionTranscript(params: {
 =======
   let sessionFile: string;
   try {
-    sessionFile = resolveSessionFilePath(entry.sessionId, entry, {
+    const resolvedSessionFile = await resolveAndPersistSessionFile({
+      sessionId: entry.sessionId,
+      sessionKey,
+      sessionStore: store,
+      storePath,
+      sessionEntry: entry,
       agentId: params.agentId,
       sessionsDir: path.dirname(storePath),
     });
+    sessionFile = resolvedSessionFile.sessionFile;
   } catch (err) {
     return {
       ok: false,
@@ -148,6 +160,7 @@ export async function appendAssistantMessageToSessionTranscript(params: {
     timestamp: Date.now(),
   });
 
+<<<<<<< HEAD
   if (!entry.sessionFile || entry.sessionFile !== sessionFile) {
     await updateSessionStore(storePath, (current) => {
       current[sessionKey] = {
@@ -157,6 +170,8 @@ export async function appendAssistantMessageToSessionTranscript(params: {
     });
   }
 
+=======
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   emitSessionTranscriptUpdate(sessionFile);
   return { ok: true, sessionFile };
 }
