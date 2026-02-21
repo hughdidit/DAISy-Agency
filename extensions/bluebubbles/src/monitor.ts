@@ -441,11 +441,21 @@ function normalizeWebhookPath(raw: string): string {
 }
 
 export function registerBlueBubblesWebhookTarget(target: WebhookTarget): () => void {
+<<<<<<< HEAD
   const key = normalizeWebhookPath(target.path);
   const normalizedTarget = { ...target, path: key };
   const existing = webhookTargets.get(key) ?? [];
   const next = [...existing, normalizedTarget];
   webhookTargets.set(key, next);
+=======
+  const webhookPassword = target.account.config.password?.trim() ?? "";
+  if (!webhookPassword) {
+    target.runtime.error?.(
+      `[${target.account.accountId}] BlueBubbles webhook auth requires channels.bluebubbles.password. Configure a password and include it in the webhook URL.`,
+    );
+  }
+  const registered = registerWebhookTarget(webhookTargets, target);
+>>>>>>> 6b2f2811d (fix(security): require BlueBubbles webhook auth)
   return () => {
     const updated = (webhookTargets.get(key) ?? []).filter((entry) => entry !== normalizedTarget);
     if (updated.length > 0) {
@@ -1336,20 +1346,24 @@ function safeEqualSecret(aRaw: string, bRaw: string): boolean {
   return timingSafeEqual(bufA, bufB);
 }
 
-function getHostName(hostHeader?: string | string[]): string {
-  const host = (Array.isArray(hostHeader) ? hostHeader[0] : (hostHeader ?? ""))
-    .trim()
-    .toLowerCase();
-  if (!host) {
-    return "";
-  }
-  // Bracketed IPv6: [::1]:18789
-  if (host.startsWith("[")) {
-    const end = host.indexOf("]");
-    if (end !== -1) {
-      return host.slice(1, end);
+function resolveAuthenticatedWebhookTargets(
+  targets: WebhookTarget[],
+  presentedToken: string,
+): WebhookTarget[] {
+  const matches: WebhookTarget[] = [];
+  for (const target of targets) {
+    const token = target.account.config.password?.trim() ?? "";
+    if (!token) {
+      continue;
+    }
+    if (safeEqualSecret(presentedToken, token)) {
+      matches.push(target);
+      if (matches.length > 1) {
+        break;
+      }
     }
   }
+<<<<<<< HEAD
   const [name] = host.split(":");
   return name ?? "";
 }
@@ -1377,6 +1391,9 @@ function isDirectLocalLoopbackRequest(req: IncomingMessage): boolean {
   );
   return !hasForwarded;
 >>>>>>> 743f4b284 (fix(security): harden BlueBubbles webhook auth behind proxies)
+=======
+  return matches;
+>>>>>>> 6b2f2811d (fix(security): require BlueBubbles webhook auth)
 }
 
 export async function handleBlueBubblesWebhookRequest(
@@ -1483,6 +1500,7 @@ export async function handleBlueBubblesWebhookRequest(
     req.headers["x-bluebubbles-guid"] ??
     req.headers["authorization"];
   const guid = (Array.isArray(headerToken) ? headerToken[0] : headerToken) ?? guidParam ?? "";
+<<<<<<< HEAD
 
   const strictMatches: WebhookTarget[] = [];
   const passwordlessTargets: WebhookTarget[] = [];
@@ -1507,6 +1525,9 @@ export async function handleBlueBubblesWebhookRequest(
       : isDirectLocalLoopbackRequest(req)
         ? passwordlessTargets
         : [];
+=======
+  const matching = resolveAuthenticatedWebhookTargets(targets, guid);
+>>>>>>> 6b2f2811d (fix(security): require BlueBubbles webhook auth)
 
   if (matching.length === 0) {
     res.statusCode = 401;
