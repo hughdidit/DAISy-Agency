@@ -41,6 +41,39 @@ function isEnvVarPlaceholder(value: string): boolean {
   return ENV_VAR_PLACEHOLDER_PATTERN.test(value.trim());
 }
 
+function isWholeObjectSensitivePath(path: string): boolean {
+  const lowered = path.toLowerCase();
+  return lowered.endsWith("serviceaccount") || lowered.endsWith("serviceaccountref");
+}
+
+function collectSensitiveStrings(value: unknown, values: string[]): void {
+  if (typeof value === "string") {
+    if (!isEnvVarPlaceholder(value)) {
+      values.push(value);
+    }
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      collectSensitiveStrings(item, values);
+    }
+    return;
+  }
+  if (value && typeof value === "object") {
+    for (const item of Object.values(value as Record<string, unknown>)) {
+      collectSensitiveStrings(item, values);
+    }
+  }
+}
+
+function isExtensionPath(path: string): boolean {
+  return (
+    path === "plugins" ||
+    path.startsWith("plugins.") ||
+    path === "channels" ||
+    path.startsWith("channels.")
+  );
+}
 function isExplicitlyNonSensitivePath(hints: ConfigUiHints | undefined, paths: string[]): boolean {
   if (!hints) {
     return false;
@@ -144,7 +177,19 @@ function collectSensitiveValues(obj: unknown): string[] {
             result[key] = REDACTED_SENTINEL;
             values.push(value);
           } else if (typeof value === "object" && value !== null) {
-            result[key] = redactObjectWithLookup(value, lookup, candidate, values, hints);
+            if (hints[candidate]?.sensitive === true && !Array.isArray(value)) {
+              collectSensitiveStrings(value, values);
+              result[key] = REDACTED_SENTINEL;
+            } else {
+              result[key] = redactObjectWithLookup(value, lookup, candidate, values, hints);
+            }
+          } else if (
+            hints[candidate]?.sensitive === true &&
+            value !== undefined &&
+            value !== null
+          ) {
+            // Keep primitives at explicitly-sensitive paths fully redacted.
+            result[key] = REDACTED_SENTINEL;
           }
           break;
         }
@@ -169,7 +214,77 @@ function collectSensitiveValues(obj: unknown): string[] {
 >>>>>>> f0c3c8b6a (fix(config): redact dynamic catchall secret keys)
     }
   }
+<<<<<<< HEAD
   return values;
+=======
+
+  return obj;
+}
+
+/**
+ * Worker for redactObject() and collectSensitiveValues().
+ * Used when ConfigUiHints are NOT available.
+ */
+function redactObjectGuessing(
+  obj: unknown,
+  prefix: string,
+  values: string[],
+  hints?: ConfigUiHints,
+): unknown {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) => {
+      const path = `${prefix}[]`;
+      if (
+        !isExplicitlyNonSensitivePath(hints, [path]) &&
+        isSensitivePath(path) &&
+        typeof item === "string" &&
+        !isEnvVarPlaceholder(item)
+      ) {
+        values.push(item);
+        return REDACTED_SENTINEL;
+      }
+      return redactObjectGuessing(item, path, values, hints);
+    });
+  }
+
+  if (typeof obj === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+      const dotPath = prefix ? `${prefix}.${key}` : key;
+      const wildcardPath = prefix ? `${prefix}.*` : "*";
+      if (
+        !isExplicitlyNonSensitivePath(hints, [dotPath, wildcardPath]) &&
+        isSensitivePath(dotPath) &&
+        typeof value === "string" &&
+        !isEnvVarPlaceholder(value)
+      ) {
+        result[key] = REDACTED_SENTINEL;
+        values.push(value);
+      } else if (
+        !isExplicitlyNonSensitivePath(hints, [dotPath, wildcardPath]) &&
+        isSensitivePath(dotPath) &&
+        isWholeObjectSensitivePath(dotPath) &&
+        value &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+      ) {
+        collectSensitiveStrings(value, values);
+        result[key] = REDACTED_SENTINEL;
+      } else if (typeof value === "object" && value !== null) {
+        result[key] = redactObjectGuessing(value, dotPath, values, hints);
+      } else {
+        result[key] = value;
+      }
+    }
+    return result;
+  }
+
+  return obj;
+>>>>>>> c3a4251a6 (Config: add secret ref schema and redaction foundations)
 }
 
 /**
