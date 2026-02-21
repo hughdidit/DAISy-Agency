@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { captureEnv } from "../test-utils/env.js";
 <<<<<<< HEAD
 >>>>>>> 7857096d2 (refactor(test): reuse env snapshot in model scan)
 =======
+=======
+import { withEnvAsync } from "../test-utils/env.js";
+>>>>>>> bc037dfe0 (refactor(test): dedupe provider env setup in model config tests)
 import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
 >>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import { scanOpenRouterModels } from "./model-scan.js";
@@ -77,9 +81,7 @@ describe("scanOpenRouterModels", () => {
 
   it("requires an API key when probing", async () => {
     const fetchImpl = createFetchFixture({ data: [] });
-    const envSnapshot = captureEnv(["OPENROUTER_API_KEY"]);
-    try {
-      delete process.env.OPENROUTER_API_KEY;
+    await withEnvAsync({ OPENROUTER_API_KEY: undefined }, async () => {
       await expect(
         scanOpenRouterModels({
           fetchImpl,
@@ -87,8 +89,6 @@ describe("scanOpenRouterModels", () => {
           apiKey: "",
         }),
       ).rejects.toThrow(/Missing OpenRouter API key/);
-    } finally {
-      envSnapshot.restore();
-    }
+    });
   });
 });

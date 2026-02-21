@@ -11,8 +11,12 @@ import type { MoltbotConfig } from "../config/config.js";
 import { describe, expect, it, vi } from "vitest";
 =======
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD
 >>>>>>> 0900ec38a (test(agents): dedupe copilot models-config token setup)
 import { captureEnv } from "../test-utils/env.js";
+=======
+import { withEnvAsync } from "../test-utils/env.js";
+>>>>>>> bc037dfe0 (refactor(test): dedupe provider env setup in model config tests)
 import {
   installModelsConfigTestHooks,
   mockCopilotTokenExchangeSuccess,
@@ -108,13 +112,18 @@ describe("models-config", () => {
 
   it("prefers COPILOT_GITHUB_TOKEN over GH_TOKEN and GITHUB_TOKEN", async () => {
     await withTempHome(async () => {
-      const envSnapshot = captureEnv(["COPILOT_GITHUB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"]);
-      process.env.COPILOT_GITHUB_TOKEN = "copilot-token";
-      process.env.GH_TOKEN = "gh-token";
-      process.env.GITHUB_TOKEN = "github-token";
+      await withEnvAsync(
+        {
+          COPILOT_GITHUB_TOKEN: "copilot-token",
+          GH_TOKEN: "gh-token",
+          GITHUB_TOKEN: "github-token",
+        },
+        async () => {
+          const fetchMock = mockCopilotTokenExchangeSuccess();
 
-      const fetchMock = mockCopilotTokenExchangeSuccess();
+          await ensureOpenClawModelsJson({ models: { providers: {} } });
 
+<<<<<<< HEAD
       try {
 <<<<<<< HEAD
         vi.resetModules();
@@ -143,6 +152,15 @@ describe("models-config", () => {
       } finally {
         envSnapshot.restore();
       }
+=======
+          const [, opts] = fetchMock.mock.calls[0] as [
+            string,
+            { headers?: Record<string, string> },
+          ];
+          expect(opts?.headers?.Authorization).toBe("Bearer copilot-token");
+        },
+      );
+>>>>>>> bc037dfe0 (refactor(test): dedupe provider env setup in model config tests)
     });
   });
 });
