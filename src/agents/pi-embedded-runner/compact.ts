@@ -6,6 +6,7 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 >>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import {
   createAgentSession,
+  DefaultResourceLoader,
   estimateTokens,
   SessionManager,
   SettingsManager,
@@ -57,8 +58,16 @@ import {
   type SkillSnapshot,
 } from "../skills.js";
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
+<<<<<<< HEAD
 import { compactWithSafetyTimeout } from "./compaction-safety-timeout.js";
 import { buildEmbeddedExtensionPaths } from "./extensions.js";
+=======
+import {
+  compactWithSafetyTimeout,
+  EMBEDDED_COMPACTION_TIMEOUT_MS,
+} from "./compaction-safety-timeout.js";
+import { buildEmbeddedExtensionFactories } from "./extensions.js";
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
 import {
   logToolSchemasForGoogle,
   sanitizeSessionHistory,
@@ -404,14 +413,27 @@ export async function compactEmbeddedPiSessionDirect(
         settingsManager,
         minReserveTokens: resolveCompactionReserveTokensFloor(params.config),
       });
-      // Call for side effects (sets compaction/pruning runtime state)
-      buildEmbeddedExtensionPaths({
+      // Sets compaction/pruning runtime state and returns extension factories
+      // that must be passed to the resource loader for the safeguard to be active.
+      const extensionFactories = buildEmbeddedExtensionFactories({
         cfg: params.config,
         sessionManager,
         provider,
         modelId,
         model,
       });
+      // Only create an explicit resource loader when there are extension factories
+      // to register; otherwise let createAgentSession use its built-in default.
+      let resourceLoader: DefaultResourceLoader | undefined;
+      if (extensionFactories.length > 0) {
+        resourceLoader = new DefaultResourceLoader({
+          cwd: resolvedWorkspace,
+          agentDir,
+          settingsManager,
+          extensionFactories,
+        });
+        await resourceLoader.reload();
+      }
 
       const { builtInTools, customTools } = splitSdkTools({
         tools,
@@ -429,6 +451,7 @@ export async function compactEmbeddedPiSessionDirect(
         customTools,
         sessionManager,
         settingsManager,
+        resourceLoader,
       });
       applySystemPromptOverrideToSession(session, systemPromptOverride());
 
