@@ -1,4 +1,5 @@
 import { getMSTeamsRuntime } from "../runtime.js";
+import { downloadAndStoreMSTeamsRemoteMedia } from "./remote-media.js";
 import {
   extractInlineImageCandidates,
   inferPlaceholder,
@@ -6,6 +7,11 @@ import {
   isRecord,
   isUrlAllowed,
   normalizeContentType,
+<<<<<<< HEAD
+=======
+  resolveRequestUrl,
+  resolveAuthAllowedHosts,
+>>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
   resolveAllowedHosts,
 } from "./shared.js";
 import type {
@@ -116,6 +122,24 @@ async function fetchWithAuthFallback(params: {
   return firstAttempt;
 }
 
+<<<<<<< HEAD
+=======
+function readRedirectUrl(baseUrl: string, res: Response): string | null {
+  if (![301, 302, 303, 307, 308].includes(res.status)) {
+    return null;
+  }
+  const location = res.headers.get("location");
+  if (!location) {
+    return null;
+  }
+  try {
+    return new URL(location, baseUrl).toString();
+  } catch {
+    return null;
+  }
+}
+
+>>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
 /**
  * Download all file attachments from a Teams message (images, documents, etc.).
  * Renamed from downloadMSTeamsImageAttachments to support all file types.
@@ -195,6 +219,7 @@ export async function downloadMSTeamsAttachments(params: {
       continue;
     }
     try {
+<<<<<<< HEAD
       const res = await fetchWithAuthFallback({
         url: candidate.url,
         tokenProvider: params.tokenProvider,
@@ -224,7 +249,26 @@ export async function downloadMSTeamsAttachments(params: {
         path: saved.path,
         contentType: saved.contentType,
         placeholder: candidate.placeholder,
+=======
+      const media = await downloadAndStoreMSTeamsRemoteMedia({
+        url: candidate.url,
+        filePathHint: candidate.fileHint ?? candidate.url,
+        maxBytes: params.maxBytes,
+        contentTypeHint: candidate.contentTypeHint,
+        placeholder: candidate.placeholder,
+        preserveFilenames: params.preserveFilenames,
+        fetchImpl: (input, init) =>
+          fetchWithAuthFallback({
+            url: resolveRequestUrl(input),
+            tokenProvider: params.tokenProvider,
+            fetchFn: params.fetchFn,
+            requestInit: init,
+            allowHosts,
+            authAllowHosts,
+          }),
+>>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
       });
+      out.push(media);
     } catch {
       // Ignore download failures and continue with next candidate.
     }

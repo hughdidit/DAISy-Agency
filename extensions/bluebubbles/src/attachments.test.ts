@@ -42,6 +42,38 @@ import type { BlueBubblesAttachment } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 
 const mockFetch = vi.fn();
+<<<<<<< HEAD
+=======
+const fetchRemoteMediaMock = vi.fn(
+  async (params: {
+    url: string;
+    maxBytes?: number;
+    fetchImpl?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+  }) => {
+    const fetchFn = params.fetchImpl ?? fetch;
+    const res = await fetchFn(params.url);
+    if (!res.ok) {
+      const text = await res.text().catch(() => "unknown");
+      throw new Error(
+        `Failed to fetch media from ${params.url}: HTTP ${res.status}; body: ${text}`,
+      );
+    }
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (typeof params.maxBytes === "number" && buffer.byteLength > params.maxBytes) {
+      const error = new Error(`payload exceeds maxBytes ${params.maxBytes}`) as Error & {
+        code?: string;
+      };
+      error.code = "max_bytes";
+      throw error;
+    }
+    return {
+      buffer,
+      contentType: res.headers.get("content-type") ?? undefined,
+      fileName: undefined,
+    };
+  },
+);
+>>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
 
 installBlueBubblesFetchTestHooks({
   mockFetch,

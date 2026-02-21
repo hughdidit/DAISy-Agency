@@ -31,6 +31,11 @@ import { resolveBlueBubblesServerAccount } from "./account-resolve.js";
 import { postMultipartFormData } from "./multipart.js";
 >>>>>>> 719280d73 (refactor(bluebubbles): share multipart helpers)
 import { getCachedBlueBubblesPrivateApiStatus } from "./probe.js";
+<<<<<<< HEAD
+=======
+import { resolveRequestUrl } from "./request-url.js";
+import { getBlueBubblesRuntime } from "./runtime.js";
+>>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
 import { extractBlueBubblesMessageId, resolveBlueBubblesSendTarget } from "./send-helpers.js";
 >>>>>>> 811e0c579 (refactor(bluebubbles): share send helpers)
 import { resolveChatGuidForTarget } from "./send.js";
@@ -96,7 +101,22 @@ function resolveAccount(params: BlueBubblesAttachmentOpts) {
   return { baseUrl, password };
 =======
   return resolveBlueBubblesServerAccount(params);
+<<<<<<< HEAD
 >>>>>>> 544ffbcf7 (refactor(extensions): dedupe connector helper usage)
+=======
+}
+
+type MediaFetchErrorCode = "max_bytes" | "http_error" | "fetch_failed";
+
+function readMediaFetchErrorCode(error: unknown): MediaFetchErrorCode | undefined {
+  if (!error || typeof error !== "object") {
+    return undefined;
+  }
+  const code = (error as { code?: unknown }).code;
+  return code === "max_bytes" || code === "http_error" || code === "fetch_failed"
+    ? code
+    : undefined;
+>>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
 }
 
 export async function downloadBlueBubblesAttachment(
@@ -113,12 +133,38 @@ export async function downloadBlueBubblesAttachment(
     path: `/api/v1/attachment/${encodeURIComponent(guid)}/download`,
     password,
   });
+<<<<<<< HEAD
   const res = await blueBubblesFetchWithTimeout(url, { method: "GET" }, opts.timeoutMs);
   if (!res.ok) {
     const errorText = await res.text().catch(() => "");
     throw new Error(
       `BlueBubbles attachment download failed (${res.status}): ${errorText || "unknown"}`,
     );
+=======
+  const maxBytes = typeof opts.maxBytes === "number" ? opts.maxBytes : DEFAULT_ATTACHMENT_MAX_BYTES;
+  try {
+    const fetched = await getBlueBubblesRuntime().channel.media.fetchRemoteMedia({
+      url,
+      filePathHint: attachment.transferName ?? attachment.guid ?? "attachment",
+      maxBytes,
+      fetchImpl: async (input, init) =>
+        await blueBubblesFetchWithTimeout(
+          resolveRequestUrl(input),
+          { ...init, method: init?.method ?? "GET" },
+          opts.timeoutMs,
+        ),
+    });
+    return {
+      buffer: new Uint8Array(fetched.buffer),
+      contentType: fetched.contentType ?? attachment.mimeType ?? undefined,
+    };
+  } catch (error) {
+    if (readMediaFetchErrorCode(error) === "max_bytes") {
+      throw new Error(`BlueBubbles attachment too large (limit ${maxBytes} bytes)`);
+    }
+    const text = error instanceof Error ? error.message : String(error);
+    throw new Error(`BlueBubbles attachment download failed: ${text}`);
+>>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
   }
   const contentType = res.headers.get("content-type") ?? undefined;
   const buf = new Uint8Array(await res.arrayBuffer());
