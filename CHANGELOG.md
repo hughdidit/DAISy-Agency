@@ -143,7 +143,11 @@ Status: beta.
 - Chat/Usage/TUI: strip synthetic inbound metadata blocks (including `Conversation info` and trailing `Untrusted context` channel metadata wrappers) from displayed conversation history so internal prompt context no longer leaks into user-visible logs.
 - Security/Exec: in non-default setups that manually add `sort` to `tools.exec.safeBins`, block `sort --compress-program` so allowlist-mode safe-bin checks cannot bypass approval. Thanks @tdjackey for reporting.
 - Security/Discord: add `openclaw security audit` warnings for name/tag-based Discord allowlist entries (DM allowlists, guild/channel `users`, and pairing-store entries), highlighting slug-collision risk while keeping name-based matching supported. Thanks @tdjackey for reporting.
+<<<<<<< HEAD
 >>>>>>> f97c45c5b (fix(security): warn on Discord name-based allowlists in audit)
+=======
+- Security/BlueBubbles: make parsed chat allowlist checks fail closed when `allowFrom` is empty, restoring expected `pairing`/`allowlist` DM gating for BlueBubbles and blocking unauthorized DM/reaction processing when no allowlist entries are configured. This ships in the next npm release. Thanks @tdjackey for reporting.
+>>>>>>> 9632b9bcf (fix(security): fail closed parsed chat allowlist)
 - Doctor/State integrity: only require/create the OAuth credentials directory when WhatsApp or pairing-backed channels are configured, and downgrade fresh-install missing-dir noise to an informational warning.
 - Agents/Sanitization: stop rewriting billing-shaped assistant text outside explicit error context so normal replies about billing/credits/payment are preserved across messaging channels. (#17834, fixes #11359)
 - Security/Agents: cap embedded Pi runner outer retry loop with a higher profile-aware dynamic limit (32-160 attempts) and return an explicit `retry_limit` error payload when retries never converge, preventing unbounded internal retry cycles (`GHSA-76m6-pj3w-v7mf`).
