@@ -3,6 +3,7 @@ import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -19,6 +20,10 @@ import { getEmbedBatchMock, resetEmbeddingMocks } from "./embedding.test-mocks.j
 import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 =======
 import { describe, expect, it, vi } from "vitest";
+=======
+import { describe, expect, it } from "vitest";
+import { useFastShortTimeouts } from "../../test/helpers/fast-short-timeouts.js";
+>>>>>>> b6ce5e06c (test(memory): share short-timeout test helper)
 import { installEmbeddingManagerFixture } from "./embedding-manager.test-harness.js";
 >>>>>>> 71c1d09f2 (refactor(test): share memory embedding fixture)
 
@@ -234,22 +239,11 @@ describe("memory embedding batches", () => {
       return texts.map(() => [0, 1, 0]);
     });
 
-    const realSetTimeout = setTimeout;
-    const setTimeoutSpy = vi.spyOn(global, "setTimeout").mockImplementation(((
-      handler: TimerHandler,
-      timeout?: number,
-      ...args: unknown[]
-    ) => {
-      const delay = typeof timeout === "number" ? timeout : 0;
-      if (delay > 0 && delay <= 2000) {
-        return realSetTimeout(handler, 0, ...args);
-      }
-      return realSetTimeout(handler, delay, ...args);
-    }) as typeof setTimeout);
+    const restoreFastTimeouts = useFastShortTimeouts();
     try {
       await managerSmall.sync({ reason: "test" });
     } finally {
-      setTimeoutSpy.mockRestore();
+      restoreFastTimeouts();
     }
 
     expect(calls).toBe(3);
