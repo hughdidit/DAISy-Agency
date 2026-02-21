@@ -46,6 +46,8 @@ import {
 import { createDiscordMessageHandler } from "./message-handler.js";
 import {
   createDiscordCommandArgFallbackButton,
+  createDiscordModelPickerFallbackButton,
+  createDiscordModelPickerFallbackSelect,
   createDiscordNativeCommand,
 } from "./native-command.js";
 import { createExecApprovalButton, DiscordExecApprovalHandler } from "./exec-approvals.js";
@@ -501,6 +503,18 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
 
   const components: BaseMessageInteractiveComponent[] = [
     createDiscordCommandArgFallbackButton({
+      cfg,
+      discordConfig: discordCfg,
+      accountId: account.accountId,
+      sessionPrefix,
+    }),
+    createDiscordModelPickerFallbackButton({
+      cfg,
+      discordConfig: discordCfg,
+      accountId: account.accountId,
+      sessionPrefix,
+    }),
+    createDiscordModelPickerFallbackSelect({
       cfg,
       discordConfig: discordCfg,
       accountId: account.accountId,
