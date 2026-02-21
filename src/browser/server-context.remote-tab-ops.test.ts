@@ -12,6 +12,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5d8eef8b3 (perf(test): remove module reloads in browser and embedding suites)
 =======
 import fs from "node:fs/promises";
@@ -39,11 +40,14 @@ import type { BrowserServerState } from "./server-context.js";
 =======
 import type { BrowserServerState } from "./server-context.js";
 >>>>>>> 55aaeb508 (refactor(browser): centralize navigation guard enforcement)
+=======
+>>>>>>> 4cd7d9574 (style(browser): apply oxfmt cleanup for gate)
 import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
 >>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import * as cdpModule from "./cdp.js";
 import { InvalidBrowserNavigationUrlError } from "./navigation-guard.js";
 import * as pwAiModule from "./pw-ai-module.js";
+import type { BrowserServerState } from "./server-context.js";
 import "./server-context.chrome-test-harness.js";
 import { createBrowserRouteContext } from "./server-context.js";
 
