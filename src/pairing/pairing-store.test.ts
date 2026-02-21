@@ -4,8 +4,19 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { resolveOAuthDir } from "../config/paths.js";
+<<<<<<< HEAD
 import { captureEnv } from "../test-utils/env.js";
 import { listChannelPairingRequests, upsertChannelPairingRequest } from "./pairing-store.js";
+=======
+import { withEnvAsync } from "../test-utils/env.js";
+import {
+  addChannelAllowFromStoreEntry,
+  approveChannelPairingCode,
+  listChannelPairingRequests,
+  readChannelAllowFromStore,
+  upsertChannelPairingRequest,
+} from "./pairing-store.js";
+>>>>>>> 25db01fe0 (refactor(test): use withEnvAsync in pairing store fixture)
 
 let fixtureRoot = "";
 let caseId = 0;
@@ -21,15 +32,9 @@ afterAll(async () => {
 });
 
 async function withTempStateDir<T>(fn: (stateDir: string) => Promise<T>) {
-  const envSnapshot = captureEnv(["OPENCLAW_STATE_DIR"]);
   const dir = path.join(fixtureRoot, `case-${caseId++}`);
   await fs.mkdir(dir, { recursive: true });
-  process.env.OPENCLAW_STATE_DIR = dir;
-  try {
-    return await fn(dir);
-  } finally {
-    envSnapshot.restore();
-  }
+  return await withEnvAsync({ OPENCLAW_STATE_DIR: dir }, async () => await fn(dir));
 }
 
 describe("pairing store", () => {
