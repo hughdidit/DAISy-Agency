@@ -14,7 +14,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig, ConfigFileSnapshot } from "../config/types.openclaw.js";
 >>>>>>> 048e29ea3 (chore: Fix types in tests 45/N.)
 import type { UpdateRunResult } from "../infra/update-runner.js";
-import { captureEnv } from "../test-utils/env.js";
+import { withEnvAsync } from "../test-utils/env.js";
 
 const confirm = vi.fn();
 const select = vi.fn();
@@ -742,30 +742,31 @@ describe("update-cli", () => {
   });
 
   it("updateCommand continues after doctor sub-step and clears update flag", async () => {
-    const envSnapshot = captureEnv(["OPENCLAW_UPDATE_IN_PROGRESS"]);
     const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
     try {
-      delete process.env.OPENCLAW_UPDATE_IN_PROGRESS;
-      vi.mocked(runGatewayUpdate).mockResolvedValue(makeOkUpdateResult());
-      vi.mocked(runDaemonRestart).mockResolvedValue(true);
-      vi.mocked(doctorCommand).mockResolvedValue(undefined);
-      vi.mocked(defaultRuntime.log).mockClear();
+      await withEnvAsync({ OPENCLAW_UPDATE_IN_PROGRESS: undefined }, async () => {
+        vi.mocked(runGatewayUpdate).mockResolvedValue(makeOkUpdateResult());
+        vi.mocked(runDaemonRestart).mockResolvedValue(true);
+        vi.mocked(doctorCommand).mockResolvedValue(undefined);
+        vi.mocked(defaultRuntime.log).mockClear();
 
-      await updateCommand({});
+        await updateCommand({});
 
-      expect(doctorCommand).toHaveBeenCalledWith(
-        defaultRuntime,
-        expect.objectContaining({ nonInteractive: true }),
-      );
-      expect(process.env.OPENCLAW_UPDATE_IN_PROGRESS).toBeUndefined();
+        expect(doctorCommand).toHaveBeenCalledWith(
+          defaultRuntime,
+          expect.objectContaining({ nonInteractive: true }),
+        );
+        expect(process.env.OPENCLAW_UPDATE_IN_PROGRESS).toBeUndefined();
 
-      const logLines = vi.mocked(defaultRuntime.log).mock.calls.map((call) => String(call[0]));
-      expect(
-        logLines.some((line) => line.includes("Leveled up! New skills unlocked. You're welcome.")),
-      ).toBe(true);
+        const logLines = vi.mocked(defaultRuntime.log).mock.calls.map((call) => String(call[0]));
+        expect(
+          logLines.some((line) =>
+            line.includes("Leveled up! New skills unlocked. You're welcome."),
+          ),
+        ).toBe(true);
+      });
     } finally {
       randomSpy.mockRestore();
-      envSnapshot.restore();
     }
   });
 
@@ -1042,12 +1043,17 @@ describe("update-cli", () => {
 =======
 =======
     const tempDir = createCaseDir("openclaw-update-wizard");
+<<<<<<< HEAD
 >>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
     const envSnapshot = captureEnv(["OPENCLAW_GIT_DIR"]);
 >>>>>>> be4a490c2 (refactor(test): fix update-cli env restore)
     try {
       setTty(true);
       process.env.CLAWDBOT_GIT_DIR = tempDir;
+=======
+    await withEnvAsync({ OPENCLAW_GIT_DIR: tempDir }, async () => {
+      setTty(true);
+>>>>>>> bd9d3e2f8 (refactor(test): reuse env helper in update cli tests)
 
       vi.mocked(checkUpdateStatus).mockResolvedValue({
         root: "/test/path",
@@ -1073,6 +1079,7 @@ describe("update-cli", () => {
 
       const call = vi.mocked(runGatewayUpdate).mock.calls[0]?.[0];
       expect(call?.channel).toBe("dev");
+<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1085,5 +1092,8 @@ describe("update-cli", () => {
       envSnapshot.restore();
 >>>>>>> be4a490c2 (refactor(test): fix update-cli env restore)
     }
+=======
+    });
+>>>>>>> bd9d3e2f8 (refactor(test): reuse env helper in update cli tests)
   });
 });
