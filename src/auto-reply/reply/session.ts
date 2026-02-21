@@ -82,6 +82,7 @@ import type { TtsAutoMode } from "../../config/types.tts.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { archiveSessionTranscripts } from "../../gateway/session-utils.fs.js";
 import { deliverSessionMaintenanceWarning } from "../../infra/session-maintenance-warning.js";
+import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { normalizeMainKey } from "../../routing/session-key.js";
@@ -114,6 +115,8 @@ import { formatInboundBodyWithSenderMeta } from "./inbound-sender-meta.js";
 >>>>>>> 53273b490 (fix(auto-reply): prevent sender spoofing in group prompts)
 import { normalizeInboundTextNewlines } from "./inbound-text.js";
 import { normalizeSessionDeliveryFields } from "../../utils/delivery-context.js";
+
+const log = createSubsystemLogger("session-init");
 
 export type SessionInitResult = {
   sessionCtx: TemplateContext;
@@ -419,6 +422,13 @@ export async function initSessionState(params: {
     parentSessionKey !== sessionKey &&
     sessionStore[parentSessionKey]
   ) {
+<<<<<<< HEAD
+=======
+    log.warn(
+      `forking from parent session: parentKey=${parentSessionKey} → sessionKey=${sessionKey} ` +
+        `parentTokens=${sessionStore[parentSessionKey].totalTokens ?? "?"}`,
+    );
+>>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
     const forked = forkSessionFromParent({
       parentEntry: sessionStore[parentSessionKey],
     });
@@ -426,6 +436,10 @@ export async function initSessionState(params: {
       sessionId = forked.sessionId;
       sessionEntry.sessionId = forked.sessionId;
       sessionEntry.sessionFile = forked.sessionFile;
+<<<<<<< HEAD
+=======
+      log.warn(`forked session created: file=${forked.sessionFile}`);
+>>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
     }
   }
   const fallbackSessionFile = !sessionEntry.sessionFile

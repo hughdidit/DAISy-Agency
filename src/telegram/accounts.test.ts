@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
 
@@ -7,8 +8,32 @@ import type { OpenClawConfig } from "../config/config.js";
 import { withEnv } from "../test-utils/env.js";
 >>>>>>> 63488eb98 (refactor(test): dedupe telegram token env handling in tests)
 import { resolveTelegramAccount } from "./accounts.js";
+=======
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { withEnv } from "../test-utils/env.js";
+import { listTelegramAccountIds, resolveTelegramAccount } from "./accounts.js";
+
+const { warnMock } = vi.hoisted(() => ({
+  warnMock: vi.fn(),
+}));
+
+vi.mock("../logging/subsystem.js", () => ({
+  createSubsystemLogger: () => {
+    const logger = {
+      warn: warnMock,
+      child: () => logger,
+    };
+    return logger;
+  },
+}));
+>>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 
 describe("resolveTelegramAccount", () => {
+  afterEach(() => {
+    warnMock.mockReset();
+  });
+
   it("falls back to the first configured account when accountId is omitted", () => {
 <<<<<<< HEAD
     const prevTelegramToken = process.env.TELEGRAM_BOT_TOKEN;
@@ -95,5 +120,22 @@ describe("resolveTelegramAccount", () => {
       expect(account.tokenSource).toBe("none");
       expect(account.token).toBe("");
     });
+  });
+
+  it("formats debug logs with inspect-style output when debug env is enabled", () => {
+    withEnv({ TELEGRAM_BOT_TOKEN: "", OPENCLAW_DEBUG_TELEGRAM_ACCOUNTS: "1" }, () => {
+      const cfg: OpenClawConfig = {
+        channels: {
+          telegram: { accounts: { work: { botToken: "tok-work" } } },
+        },
+      };
+
+      expect(listTelegramAccountIds(cfg)).toEqual(["work"]);
+      resolveTelegramAccount({ cfg, accountId: "work" });
+    });
+
+    const lines = warnMock.mock.calls.map(([line]) => String(line));
+    expect(lines).toContain("listTelegramAccountIds [ 'work' ]");
+    expect(lines).toContain("resolve { accountId: 'work', enabled: true, tokenSource: 'config' }");
   });
 });

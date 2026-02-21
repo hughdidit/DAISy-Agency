@@ -138,7 +138,11 @@ const MESSAGE_NOT_MODIFIED_RE =
 >>>>>>> ac2ede5bb (fix(telegram): treat no-op editMessage as success)
 =======
 const CHAT_NOT_FOUND_RE = /400: Bad Request: chat not found/i;
+<<<<<<< HEAD
 >>>>>>> b6a9741ba (refactor(telegram): simplify send/dispatch/target handling (#17819))
+=======
+const sendLogger = createSubsystemLogger("telegram/send");
+>>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 const diagLogger = createSubsystemLogger("telegram/diagnostic");
 
 function createTelegramHttpLogger(cfg: ReturnType<typeof loadConfig>) {
@@ -336,7 +340,7 @@ async function withTelegramHtmlParseFallback<T>(params: {
       throw err;
     }
     if (params.verbose) {
-      console.warn(
+      sendLogger.warn(
         `telegram ${params.label} failed with HTML parse error, retrying as plain text: ${formatErrorMessage(
           err,
         )}`,
@@ -445,7 +449,7 @@ async function withTelegramThreadFallback<T>(
       throw err;
     }
     if (verbose) {
-      console.warn(
+      sendLogger.warn(
         `telegram ${label} failed with message_thread_id, retrying without thread: ${formatErrorMessage(err)}`,
       );
     }

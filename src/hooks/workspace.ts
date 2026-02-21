@@ -53,6 +53,11 @@ import type {
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { MANIFEST_KEY } from "../compat/legacy-names.js";
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { isPathInsideWithRealpath } from "../security/scan-paths.js";
+>>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 import { CONFIG_DIR, resolveUserPath } from "../utils.js";
 import { resolveBundledHooksDir } from "./bundled-dir.js";
 import { shouldIncludeHook } from "./config.js";
@@ -72,9 +77,14 @@ import type {
 
 type HookPackageManifest = {
   name?: string;
+<<<<<<< HEAD
   moltbot?: { hooks?: string[] };
   [LEGACY_MANIFEST_KEY]?: { hooks?: string[] };
 };
+=======
+} & Partial<Record<typeof MANIFEST_KEY, { hooks?: string[] }>>;
+const log = createSubsystemLogger("hooks/workspace");
+>>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 
 function filterHookEntries(
   entries: HookEntry[],
@@ -139,7 +149,7 @@ function loadHookFromDir(params: {
     }
 
     if (!handlerPath) {
-      console.warn(`[hooks] Hook "${name}" has HOOK.md but no handler file in ${params.hookDir}`);
+      log.warn(`Hook "${name}" has HOOK.md but no handler file in ${params.hookDir}`);
       return null;
     }
 
@@ -153,7 +163,8 @@ function loadHookFromDir(params: {
       handlerPath,
     };
   } catch (err) {
-    console.warn(`[hooks] Failed to load hook from ${params.hookDir}:`, err);
+    const message = err instanceof Error ? (err.stack ?? err.message) : String(err);
+    log.warn(`Failed to load hook from ${params.hookDir}: ${message}`);
     return null;
   }
 }
@@ -187,7 +198,17 @@ function loadHooksFromDir(params: { dir: string; source: HookSource; pluginId?: 
 
     if (packageHooks.length > 0) {
       for (const hookPath of packageHooks) {
+<<<<<<< HEAD
         const resolvedHookDir = path.resolve(hookDir, hookPath);
+=======
+        const resolvedHookDir = resolveContainedDir(hookDir, hookPath);
+        if (!resolvedHookDir) {
+          log.warn(
+            `Ignoring out-of-package hook path "${hookPath}" in ${hookDir} (must be within package directory)`,
+          );
+          continue;
+        }
+>>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
         const hook = loadHookFromDir({
           hookDir: resolvedHookDir,
           source,

@@ -1,22 +1,45 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { TelegramAccountConfig } from "../config/types.js";
 =======
 =======
+=======
+import util from "node:util";
+>>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 import { createAccountActionGate } from "../channels/plugins/account-action-gate.js";
 >>>>>>> e702a9eb5 (refactor(channels): share account action gate resolution)
 import type { OpenClawConfig } from "../config/config.js";
 import type { TelegramAccountConfig, TelegramActionConfig } from "../config/types.js";
 >>>>>>> 2b3ecee7c (fix(actions): layer per-account gate fallback)
 import { isTruthyEnvValue } from "../infra/env.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
 import { listBoundAccountIds, resolveDefaultAgentBoundAccountId } from "../routing/bindings.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 import { resolveTelegramToken } from "./token.js";
 
+const log = createSubsystemLogger("telegram/accounts");
+
+function formatDebugArg(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (value instanceof Error) {
+    return value.stack ?? value.message;
+  }
+  return util.inspect(value, { colors: false, depth: null, compact: true, breakLength: Infinity });
+}
+
 const debugAccounts = (...args: unknown[]) => {
+<<<<<<< HEAD
   if (isTruthyEnvValue(process.env.CLAWDBOT_DEBUG_TELEGRAM_ACCOUNTS)) {
     console.warn("[telegram:accounts]", ...args);
+=======
+  if (isTruthyEnvValue(process.env.OPENCLAW_DEBUG_TELEGRAM_ACCOUNTS)) {
+    const parts = args.map((arg) => formatDebugArg(arg));
+    log.warn(parts.join(" ").trim());
+>>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
   }
 };
 
