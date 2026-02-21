@@ -12,6 +12,7 @@ import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from ".
 >>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 =======
 import { resolveAgentModelPrimaryValue } from "./model-input.js";
+<<<<<<< HEAD
 >>>>>>> a4c373935 (fix(agents): fall back to agents.defaults.model when agent has no model config (#24210))
 import { resolveTalkApiKey } from "./talk.js";
 <<<<<<< HEAD
@@ -27,6 +28,14 @@ import type { ModelDefinitionConfig } from "./types.models.js";
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
+=======
+import {
+  DEFAULT_TALK_PROVIDER,
+  normalizeTalkConfig,
+  resolveActiveTalkProviderConfig,
+  resolveTalkApiKey,
+} from "./talk.js";
+>>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
 import type { OpenClawConfig } from "./types.js";
 import type { ModelDefinitionConfig } from "./types.models.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
@@ -203,22 +212,51 @@ export function applySessionDefaults(
   return next;
 }
 
+<<<<<<< HEAD
 export function applyTalkApiKey(config: MoltbotConfig): MoltbotConfig {
+=======
+export function applyTalkApiKey(config: OpenClawConfig): OpenClawConfig {
+  const normalized = normalizeTalkConfig(config);
+>>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
   const resolved = resolveTalkApiKey();
   if (!resolved) {
-    return config;
+    return normalized;
   }
-  const existing = config.talk?.apiKey?.trim();
-  if (existing) {
-    return config;
+
+  const talk = normalized.talk;
+  const active = resolveActiveTalkProviderConfig(talk);
+  if (active.provider && active.provider !== DEFAULT_TALK_PROVIDER) {
+    return normalized;
   }
-  return {
-    ...config,
-    talk: {
-      ...config.talk,
-      apiKey: resolved,
-    },
+
+  const existingProviderApiKey =
+    typeof active.config?.apiKey === "string" ? active.config.apiKey.trim() : "";
+  const existingLegacyApiKey = typeof talk?.apiKey === "string" ? talk.apiKey.trim() : "";
+  if (existingProviderApiKey || existingLegacyApiKey) {
+    return normalized;
+  }
+
+  const providerId = active.provider ?? DEFAULT_TALK_PROVIDER;
+  const providers = { ...talk?.providers };
+  const providerConfig = { ...providers[providerId], apiKey: resolved };
+  providers[providerId] = providerConfig;
+
+  const nextTalk = {
+    ...talk,
+    provider: talk?.provider ?? providerId,
+    providers,
+    // Keep legacy shape populated during compatibility rollout.
+    apiKey: resolved,
   };
+
+  return {
+    ...normalized,
+    talk: nextTalk,
+  };
+}
+
+export function applyTalkConfigNormalization(config: OpenClawConfig): OpenClawConfig {
+  return normalizeTalkConfig(config);
 }
 
 export function applyModelDefaults(cfg: MoltbotConfig): MoltbotConfig {

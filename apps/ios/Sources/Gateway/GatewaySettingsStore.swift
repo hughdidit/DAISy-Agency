@@ -26,6 +26,11 @@ enum GatewaySettingsStore {
     private static let instanceIdAccount = "instanceId"
     private static let preferredGatewayStableIDAccount = "preferredStableID"
     private static let lastDiscoveredGatewayStableIDAccount = "lastDiscoveredStableID"
+<<<<<<< HEAD
+=======
+    private static let talkProviderApiKeyAccountPrefix = "provider.apiKey."
+    private static let talkElevenLabsApiKeyLegacyAccount = "elevenlabs.apiKey"
+>>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
 
     static func bootstrapPersistence() {
         self.ensureStableInstanceID()
@@ -167,6 +172,189 @@ enum GatewaySettingsStore {
             account: self.gatewayPasswordAccount(instanceId: instanceId))
     }
 
+<<<<<<< HEAD
+=======
+    enum LastGatewayConnection: Equatable {
+        case manual(host: String, port: Int, useTLS: Bool, stableID: String)
+        case discovered(stableID: String, useTLS: Bool)
+
+        var stableID: String {
+            switch self {
+            case let .manual(_, _, _, stableID):
+                return stableID
+            case let .discovered(stableID, _):
+                return stableID
+            }
+        }
+
+        var useTLS: Bool {
+            switch self {
+            case let .manual(_, _, useTLS, _):
+                return useTLS
+            case let .discovered(_, useTLS):
+                return useTLS
+            }
+        }
+    }
+
+    private enum LastGatewayKind: String {
+        case manual
+        case discovered
+    }
+
+    static func loadTalkProviderApiKey(provider: String) -> String? {
+        guard let providerId = self.normalizedTalkProviderID(provider) else { return nil }
+        let account = self.talkProviderApiKeyAccount(providerId: providerId)
+        let value = KeychainStore.loadString(
+            service: self.talkService,
+            account: account)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if value?.isEmpty == false { return value }
+
+        if providerId == "elevenlabs" {
+            let legacyValue = KeychainStore.loadString(
+                service: self.talkService,
+                account: self.talkElevenLabsApiKeyLegacyAccount)?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if legacyValue?.isEmpty == false {
+                _ = KeychainStore.saveString(legacyValue!, service: self.talkService, account: account)
+                return legacyValue
+            }
+        }
+
+        return nil
+    }
+
+    static func saveTalkProviderApiKey(_ apiKey: String?, provider: String) {
+        guard let providerId = self.normalizedTalkProviderID(provider) else { return }
+        let account = self.talkProviderApiKeyAccount(providerId: providerId)
+        let trimmed = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if trimmed.isEmpty {
+            _ = KeychainStore.delete(service: self.talkService, account: account)
+            if providerId == "elevenlabs" {
+                _ = KeychainStore.delete(service: self.talkService, account: self.talkElevenLabsApiKeyLegacyAccount)
+            }
+            return
+        }
+        _ = KeychainStore.saveString(trimmed, service: self.talkService, account: account)
+        if providerId == "elevenlabs" {
+            _ = KeychainStore.delete(service: self.talkService, account: self.talkElevenLabsApiKeyLegacyAccount)
+        }
+    }
+
+    static func loadTalkElevenLabsApiKey() -> String? {
+        self.loadTalkProviderApiKey(provider: "elevenlabs")
+    }
+
+    static func saveTalkElevenLabsApiKey(_ apiKey: String?) {
+        self.saveTalkProviderApiKey(apiKey, provider: "elevenlabs")
+    }
+
+    static func saveLastGatewayConnectionManual(host: String, port: Int, useTLS: Bool, stableID: String) {
+        let defaults = UserDefaults.standard
+        defaults.set(LastGatewayKind.manual.rawValue, forKey: self.lastGatewayKindDefaultsKey)
+        defaults.set(host, forKey: self.lastGatewayHostDefaultsKey)
+        defaults.set(port, forKey: self.lastGatewayPortDefaultsKey)
+        defaults.set(useTLS, forKey: self.lastGatewayTlsDefaultsKey)
+        defaults.set(stableID, forKey: self.lastGatewayStableIDDefaultsKey)
+    }
+
+    static func saveLastGatewayConnectionDiscovered(stableID: String, useTLS: Bool) {
+        let defaults = UserDefaults.standard
+        defaults.set(LastGatewayKind.discovered.rawValue, forKey: self.lastGatewayKindDefaultsKey)
+        defaults.removeObject(forKey: self.lastGatewayHostDefaultsKey)
+        defaults.removeObject(forKey: self.lastGatewayPortDefaultsKey)
+        defaults.set(useTLS, forKey: self.lastGatewayTlsDefaultsKey)
+        defaults.set(stableID, forKey: self.lastGatewayStableIDDefaultsKey)
+    }
+
+    static func loadLastGatewayConnection() -> LastGatewayConnection? {
+        let defaults = UserDefaults.standard
+        let stableID = defaults.string(forKey: self.lastGatewayStableIDDefaultsKey)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !stableID.isEmpty else { return nil }
+        let useTLS = defaults.bool(forKey: self.lastGatewayTlsDefaultsKey)
+        let kindRaw = defaults.string(forKey: self.lastGatewayKindDefaultsKey)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let kind = LastGatewayKind(rawValue: kindRaw) ?? .manual
+
+        if kind == .discovered {
+            return .discovered(stableID: stableID, useTLS: useTLS)
+        }
+
+        let host = defaults.string(forKey: self.lastGatewayHostDefaultsKey)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let port = defaults.integer(forKey: self.lastGatewayPortDefaultsKey)
+
+        // Back-compat: older builds persisted manual-style host/port without a kind marker.
+        guard !host.isEmpty, port > 0, port <= 65535 else { return nil }
+        return .manual(host: host, port: port, useTLS: useTLS, stableID: stableID)
+    }
+
+    static func clearLastGatewayConnection(defaults: UserDefaults = .standard) {
+        defaults.removeObject(forKey: self.lastGatewayKindDefaultsKey)
+        defaults.removeObject(forKey: self.lastGatewayHostDefaultsKey)
+        defaults.removeObject(forKey: self.lastGatewayPortDefaultsKey)
+        defaults.removeObject(forKey: self.lastGatewayTlsDefaultsKey)
+        defaults.removeObject(forKey: self.lastGatewayStableIDDefaultsKey)
+    }
+
+    static func deleteGatewayCredentials(instanceId: String) {
+        let trimmed = instanceId.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        _ = KeychainStore.delete(
+            service: self.gatewayService,
+            account: self.gatewayTokenAccount(instanceId: trimmed))
+        _ = KeychainStore.delete(
+            service: self.gatewayService,
+            account: self.gatewayPasswordAccount(instanceId: trimmed))
+    }
+
+    static func loadGatewayClientIdOverride(stableID: String) -> String? {
+        let trimmedID = stableID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedID.isEmpty else { return nil }
+        let key = self.clientIdOverrideDefaultsPrefix + trimmedID
+        let value = UserDefaults.standard.string(forKey: key)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if value?.isEmpty == false { return value }
+        return nil
+    }
+
+    static func saveGatewayClientIdOverride(stableID: String, clientId: String?) {
+        let trimmedID = stableID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedID.isEmpty else { return }
+        let key = self.clientIdOverrideDefaultsPrefix + trimmedID
+        let trimmedClientId = clientId?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if trimmedClientId.isEmpty {
+            UserDefaults.standard.removeObject(forKey: key)
+        } else {
+            UserDefaults.standard.set(trimmedClientId, forKey: key)
+        }
+    }
+
+    static func loadGatewaySelectedAgentId(stableID: String) -> String? {
+        let trimmedID = stableID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedID.isEmpty else { return nil }
+        let key = self.selectedAgentDefaultsPrefix + trimmedID
+        let value = UserDefaults.standard.string(forKey: key)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if value?.isEmpty == false { return value }
+        return nil
+    }
+
+    static func saveGatewaySelectedAgentId(stableID: String, agentId: String?) {
+        let trimmedID = stableID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedID.isEmpty else { return }
+        let key = self.selectedAgentDefaultsPrefix + trimmedID
+        let trimmedAgentId = agentId?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if trimmedAgentId.isEmpty {
+            UserDefaults.standard.removeObject(forKey: key)
+        } else {
+            UserDefaults.standard.set(trimmedAgentId, forKey: key)
+        }
+    }
+
+>>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
     private static func gatewayTokenAccount(instanceId: String) -> String {
         "gateway-token.\(instanceId)"
     }
@@ -177,6 +365,15 @@ enum GatewaySettingsStore {
 
     private static func gatewayPasswordAccount(instanceId: String) -> String {
         "gateway-password.\(instanceId)"
+    }
+
+    private static func talkProviderApiKeyAccount(providerId: String) -> String {
+        self.talkProviderApiKeyAccountPrefix + providerId
+    }
+
+    private static func normalizedTalkProviderID(_ provider: String) -> String? {
+        let trimmed = provider.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return trimmed.isEmpty ? nil : trimmed
     }
 
     private static func ensureStableInstanceID() {

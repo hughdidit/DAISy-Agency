@@ -16,7 +16,11 @@ import type { GatewayRequestHandlers } from "./types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { readConfigFileSnapshot } from "../../config/config.js";
 import { redactConfigObject } from "../../config/redact-snapshot.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { buildTalkConfigResponse } from "../../config/talk.js";
+>>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
 import {
   ErrorCodes,
   errorShape,
@@ -49,6 +53,7 @@ function canReadTalkSecrets(client: { connect?: { scopes?: string[] } } | null):
   return scopes.includes(ADMIN_SCOPE) || scopes.includes(TALK_SECRETS_SCOPE);
 }
 
+<<<<<<< HEAD
 function normalizeTalkConfigSection(value: unknown): Record<string, unknown> | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return undefined;
@@ -91,6 +96,55 @@ function normalizeTalkConfigSection(value: unknown): Record<string, unknown> | u
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 
 export const talkHandlers: GatewayRequestHandlers = {
+=======
+export const talkHandlers: GatewayRequestHandlers = {
+  "talk.config": async ({ params, respond, client }) => {
+    if (!validateTalkConfigParams(params)) {
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.INVALID_REQUEST,
+          `invalid talk.config params: ${formatValidationErrors(validateTalkConfigParams.errors)}`,
+        ),
+      );
+      return;
+    }
+
+    const includeSecrets = Boolean((params as { includeSecrets?: boolean }).includeSecrets);
+    if (includeSecrets && !canReadTalkSecrets(client)) {
+      respond(
+        false,
+        undefined,
+        errorShape(ErrorCodes.INVALID_REQUEST, `missing scope: ${TALK_SECRETS_SCOPE}`),
+      );
+      return;
+    }
+
+    const snapshot = await readConfigFileSnapshot();
+    const configPayload: Record<string, unknown> = {};
+
+    const talkSource = includeSecrets
+      ? snapshot.config.talk
+      : redactConfigObject(snapshot.config.talk);
+    const talk = buildTalkConfigResponse(talkSource);
+    if (talk) {
+      configPayload.talk = talk;
+    }
+
+    const sessionMainKey = snapshot.config.session?.mainKey;
+    if (typeof sessionMainKey === "string") {
+      configPayload.session = { mainKey: sessionMainKey };
+    }
+
+    const seamColor = snapshot.config.ui?.seamColor;
+    if (typeof seamColor === "string") {
+      configPayload.ui = { seamColor };
+    }
+
+    respond(true, { config: configPayload }, undefined);
+  },
+>>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
   "talk.mode": ({ params, respond, context, client, isWebchatConnect }) => {
     if (client && isWebchatConnect(client.connect) && !context.hasConnectedMobileNode()) {
       respond(

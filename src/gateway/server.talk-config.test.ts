@@ -101,13 +101,33 @@ describe("gateway talk.config", () => {
 >>>>>>> 8887f41d7 (refactor(gateway)!: remove legacy v1 device-auth handshake)
 =======
       await connectOperator(ws, ["operator.read"]);
+<<<<<<< HEAD
 >>>>>>> 296b19e41 (test: dedupe gateway browser discord and channel coverage)
       const res = await rpcReq<{ config?: { talk?: { apiKey?: string; voiceId?: string } } }>(
         ws,
         "talk.config",
         {},
       );
+=======
+      const res = await rpcReq<{
+        config?: {
+          talk?: {
+            provider?: string;
+            providers?: {
+              elevenlabs?: { voiceId?: string; apiKey?: string };
+            };
+            apiKey?: string;
+            voiceId?: string;
+          };
+        };
+      }>(ws, "talk.config", {});
+>>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
       expect(res.ok).toBe(true);
+      expect(res.payload?.config?.talk?.provider).toBe("elevenlabs");
+      expect(res.payload?.config?.talk?.providers?.elevenlabs?.voiceId).toBe("voice-123");
+      expect(res.payload?.config?.talk?.providers?.elevenlabs?.apiKey).toBe(
+        "__OPENCLAW_REDACTED__",
+      );
       expect(res.payload?.config?.talk?.voiceId).toBe("voice-123");
       expect(res.payload?.config?.talk?.apiKey).toBe("__OPENCLAW_REDACTED__");
     });
@@ -164,6 +184,40 @@ describe("gateway talk.config", () => {
       });
       expect(res.ok).toBe(true);
       expect(res.payload?.config?.talk?.apiKey).toBe("secret-key-abc");
+    });
+  });
+
+  it("prefers normalized provider payload over conflicting legacy talk keys", async () => {
+    const { writeConfigFile } = await import("../config/config.js");
+    await writeConfigFile({
+      talk: {
+        provider: "elevenlabs",
+        providers: {
+          elevenlabs: {
+            voiceId: "voice-normalized",
+          },
+        },
+        voiceId: "voice-legacy",
+      },
+    });
+
+    await withServer(async (ws) => {
+      await connectOperator(ws, ["operator.read"]);
+      const res = await rpcReq<{
+        config?: {
+          talk?: {
+            provider?: string;
+            providers?: {
+              elevenlabs?: { voiceId?: string };
+            };
+            voiceId?: string;
+          };
+        };
+      }>(ws, "talk.config", {});
+      expect(res.ok).toBe(true);
+      expect(res.payload?.config?.talk?.provider).toBe("elevenlabs");
+      expect(res.payload?.config?.talk?.providers?.elevenlabs?.voiceId).toBe("voice-normalized");
+      expect(res.payload?.config?.talk?.voiceId).toBe("voice-normalized");
     });
   });
 });
