@@ -4,12 +4,23 @@ import readline from "node:readline";
 
 import type { NormalizedUsage, UsageLike } from "../agents/usage.js";
 import { normalizeUsage } from "../agents/usage.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions/types.js";
+=======
+import { stripInboundMetadata } from "../auto-reply/reply/strip-inbound-meta.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> 9fc6c8b71 (fix: hide synthetic untrusted metadata in chat history)
 import {
   resolveSessionFilePath,
   resolveSessionTranscriptsDirForAgent,
 } from "../config/sessions/paths.js";
+<<<<<<< HEAD
+=======
+import type { SessionEntry } from "../config/sessions/types.js";
+import { stripEnvelope, stripMessageIdHints } from "../shared/chat-envelope.js";
+import { countToolResults, extractToolCallNames } from "../utils/transcript-tools.js";
+>>>>>>> 9fc6c8b71 (fix: hide synthetic untrusted metadata in chat history)
 import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
 
 type ParsedUsageEntry = {
@@ -710,6 +721,13 @@ export async function loadSessionLogs(params: {
       }
 
       let content = contentParts.join("\n").trim();
+      if (!content) {
+        continue;
+      }
+      content = stripInboundMetadata(content);
+      if (role === "user") {
+        content = stripMessageIdHints(stripEnvelope(content)).trim();
+      }
       if (!content) {
         continue;
       }
