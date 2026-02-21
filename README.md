@@ -25,7 +25,17 @@ If you want a personal, single-user assistant that feels local, fast, and always
 
 Preferred setup: run the onboarding wizard (`moltbot onboard`). It walks through gateway, workspace, channels, and skills. The CLI wizard is the recommended path and works on **macOS, Linux, and Windows (via WSL2; strongly recommended)**.
 Works with npm, pnpm, or bun.
+<<<<<<< HEAD
 New install? Start here: [Getting started](https://docs.molt.bot/start/getting-started)
+=======
+New install? Start here: [Getting started](https://docs.openclaw.ai/start/getting-started)
+
+## Sponsors
+
+| OpenAI                                                            | Blacksmith                                                                   |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| [![OpenAI](docs/assets/sponsors/openai.svg)](https://openai.com/) | [![Blacksmith](docs/assets/sponsors/blacksmith.svg)](https://blacksmith.sh/) |
+>>>>>>> f64d5ddf6 (fix: replace README sponsors HTML table with markdown)
 
 **Subscriptions (OAuth):**
 - **[Anthropic](https://www.anthropic.com/)** (Claude Pro/Max)
