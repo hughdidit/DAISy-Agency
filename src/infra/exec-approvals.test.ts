@@ -26,6 +26,10 @@ import {
   type ExecApprovalsAgent,
 >>>>>>> a18603681 (test: fix latest tsgo inference regressions in test suites)
   type ExecAllowlistEntry,
+<<<<<<< HEAD
+=======
+  type ExecApprovalsFile,
+>>>>>>> 21087c5c7 (test: fix rebase-introduced tsgo regressions)
 } from "./exec-approvals.js";
 
 function makePathEnv(binDir: string): NodeJS.ProcessEnv {

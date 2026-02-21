@@ -5,9 +5,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import * as replyModule from "../auto-reply/reply.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
 import type { ReplyPayload } from "../auto-reply/types.js";
+=======
+>>>>>>> 21087c5c7 (test: fix rebase-introduced tsgo regressions)
 import { whatsappOutbound } from "../channels/plugins/outbound/whatsapp.js";
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> a18603681 (test: fix latest tsgo inference regressions in test suites)
@@ -22,7 +25,6 @@ import {
   isHeartbeatEnabledForAgent,
   resolveHeartbeatIntervalMs,
   resolveHeartbeatPrompt,
-  type HeartbeatDeps,
   runHeartbeatOnce,
 } from "./heartbeat-runner.js";
 <<<<<<< HEAD
