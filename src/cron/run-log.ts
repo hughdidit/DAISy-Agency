@@ -9,6 +9,12 @@ export type CronRunLogEntry = {
   status?: CronRunStatus;
   error?: string;
   summary?: string;
+<<<<<<< HEAD
+=======
+  delivered?: boolean;
+  sessionId?: string;
+  sessionKey?: string;
+>>>>>>> 09d5f508b (fix(cron): persist delivered flag in job state to surface delivery failures (openclaw#19174) thanks @simonemacario)
   runAtMs?: number;
   durationMs?: number;
   nextRunAtMs?: number;
@@ -130,6 +136,9 @@ export async function readCronRunLogEntries(
             }
           : undefined,
       };
+      if (typeof obj.delivered === "boolean") {
+        entry.delivered = obj.delivered;
+      }
       if (typeof obj.sessionId === "string" && obj.sessionId.trim().length > 0) {
         entry.sessionId = obj.sessionId;
       }

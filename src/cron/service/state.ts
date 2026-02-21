@@ -17,6 +17,12 @@ export type CronEvent = {
   status?: CronRunStatus;
   error?: string;
   summary?: string;
+<<<<<<< HEAD
+=======
+  delivered?: boolean;
+  sessionId?: string;
+  sessionKey?: string;
+>>>>>>> 09d5f508b (fix(cron): persist delivered flag in job state to surface delivery failures (openclaw#19174) thanks @simonemacario)
   nextRunAtMs?: number;
 } & CronRunTelemetry;
 

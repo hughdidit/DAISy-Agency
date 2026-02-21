@@ -299,6 +299,12 @@ export function buildGatewayCronService(params: {
           status: evt.status,
           error: evt.error,
           summary: evt.summary,
+<<<<<<< HEAD
+=======
+          delivered: evt.delivered,
+          sessionId: evt.sessionId,
+          sessionKey: evt.sessionKey,
+>>>>>>> 09d5f508b (fix(cron): persist delivered flag in job state to surface delivery failures (openclaw#19174) thanks @simonemacario)
           runAtMs: evt.runAtMs,
           durationMs: evt.durationMs,
           nextRunAtMs: evt.nextRunAtMs,
