@@ -47,8 +47,61 @@ export async function assertSandboxPath(params: { filePath: string; cwd: string;
   return resolved;
 }
 
+<<<<<<< HEAD
 async function assertNoSymlink(relative: string, root: string) {
   if (!relative) return;
+=======
+export function assertMediaNotDataUrl(media: string): void {
+  const raw = media.trim();
+  if (DATA_URL_RE.test(raw)) {
+    throw new Error("data: URLs are not supported for media. Use buffer instead.");
+  }
+}
+
+export async function resolveSandboxedMediaSource(params: {
+  media: string;
+  sandboxRoot: string;
+}): Promise<string> {
+  const raw = params.media.trim();
+  if (!raw) {
+    return raw;
+  }
+  if (HTTP_URL_RE.test(raw)) {
+    return raw;
+  }
+  let candidate = raw;
+  if (/^file:\/\//i.test(candidate)) {
+    try {
+      candidate = fileURLToPath(candidate);
+    } catch {
+      throw new Error(`Invalid file:// URL for sandboxed media: ${raw}`);
+    }
+  }
+  const resolved = path.resolve(resolveSandboxInputPath(candidate, params.sandboxRoot));
+  const tmpDir = path.resolve(os.tmpdir());
+  const candidateIsAbsolute = path.isAbsolute(expandPath(candidate));
+  if (candidateIsAbsolute && isPathInside(tmpDir, resolved)) {
+    await assertNoSymlinkEscape(path.relative(tmpDir, resolved), tmpDir);
+    return resolved;
+  }
+  const sandboxResult = await assertSandboxPath({
+    filePath: candidate,
+    cwd: params.sandboxRoot,
+    root: params.sandboxRoot,
+  });
+  return sandboxResult.resolved;
+}
+
+async function assertNoSymlinkEscape(
+  relative: string,
+  root: string,
+  options?: { allowFinalSymlink?: boolean },
+) {
+  if (!relative) {
+    return;
+  }
+  const rootReal = await tryRealpath(root);
+>>>>>>> d3991d6aa (fix: harden sandbox tmp media validation (#17892) (thanks @dashed))
   const parts = relative.split(path.sep).filter(Boolean);
   let current = root;
   for (const part of parts) {
