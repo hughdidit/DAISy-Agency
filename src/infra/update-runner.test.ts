@@ -8,7 +8,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 =======
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> 696a35821 (perf(test): speed up update-runner suite)
+=======
+import { withEnvAsync } from "../test-utils/env.js";
+>>>>>>> fc43a16d4 (refactor(test): replace ad-hoc env restore blocks with helpers)
 import { pathExists } from "../utils.js";
 >>>>>>> 53910f364 (Deduplicate more)
 import { runGatewayUpdate } from "./update-runner.js";
@@ -604,11 +608,8 @@ describe("runGatewayUpdate", () => {
 =======
 >>>>>>> 0465d314b (refactor(test): table npm global update cases)
   it("updates global bun installs when detected", async () => {
-    const oldBunInstall = process.env.BUN_INSTALL;
     const bunInstall = path.join(tempDir, "bun-install");
-    process.env.BUN_INSTALL = bunInstall;
-
-    try {
+    await withEnvAsync({ BUN_INSTALL: bunInstall }, async () => {
       const bunGlobalRoot = path.join(bunInstall, "install", "global", "node_modules");
 <<<<<<< HEAD
       const pkgRoot = path.join(bunGlobalRoot, "moltbot");
@@ -658,6 +659,7 @@ describe("runGatewayUpdate", () => {
       expect(result.mode).toBe("bun");
       expect(result.before?.version).toBe("1.0.0");
       expect(result.after?.version).toBe("2.0.0");
+<<<<<<< HEAD
       expect(calls.some((call) => call === "bun add -g moltbot@latest")).toBe(true);
     } finally {
       if (oldBunInstall === undefined) {
@@ -666,6 +668,10 @@ describe("runGatewayUpdate", () => {
         process.env.BUN_INSTALL = oldBunInstall;
       }
     }
+=======
+      expect(calls.some((call) => call === "bun add -g openclaw@latest")).toBe(true);
+    });
+>>>>>>> fc43a16d4 (refactor(test): replace ad-hoc env restore blocks with helpers)
   });
 
   it("rejects git roots that are not a moltbot checkout", async () => {
