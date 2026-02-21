@@ -203,10 +203,15 @@ describe("directive behavior", () => {
           },
           session: { store: storePath },
         },
+<<<<<<< HEAD
       );
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(text).toContain("Model set to minimax");
+=======
+      });
+      expect(text).toContain("Models (minimax");
+>>>>>>> cb84c537f (fix: normalize status auth cost handling and models header tests)
       expect(text).toContain("minimax/MiniMax-M2.1");
       expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
     });
