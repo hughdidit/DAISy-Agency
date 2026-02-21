@@ -63,6 +63,7 @@ import { updateSessionStore } from "../../config/sessions.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import * as internalHooks from "../../hooks/internal-hooks.js";
 import { clearPluginCommands, registerPluginCommand } from "../../plugins/commands.js";
+import { typedCases } from "../../test-utils/typed-cases.js";
 import type { MsgContext } from "../templating.js";
 import { resetBashChatCommandForTests } from "./bash-command.js";
 import { handleCompactCommand } from "./commands-compact.js";
@@ -229,6 +230,7 @@ describe("handleCommands gating", () => {
   it("blocks /bash when disabled or not elevated-allowlisted", async () => {
     resetBashChatCommandForTests();
 <<<<<<< HEAD
+<<<<<<< HEAD
     const cfg = {
       commands: { bash: false, text: true },
       whatsapp: { allowFrom: ["*"] },
@@ -256,6 +258,14 @@ describe("handleCommands gating", () => {
     expect(result.reply?.text).toContain("elevated is not available");
 =======
     const cases = [
+=======
+    const cases = typedCases<{
+      name: string;
+      cfg: OpenClawConfig;
+      applyParams?: (params: ReturnType<typeof buildParams>) => void;
+      expectedText: string;
+    }>([
+>>>>>>> 843a03753 (fix(test): repair readonly case table typing)
       {
         name: "disabled bash command",
         cfg: {
@@ -279,7 +289,7 @@ describe("handleCommands gating", () => {
         },
         expectedText: "elevated is not available",
       },
-    ] as const;
+    ]);
     for (const testCase of cases) {
       const params = buildParams("/bash echo hi", testCase.cfg);
       testCase.applyParams?.(params);

@@ -3,7 +3,11 @@ import { describe, expect, it } from "vitest";
 
 =======
 import type { MsgContext } from "../auto-reply/templating.js";
+<<<<<<< HEAD
 >>>>>>> b97c5d615 (perf(test): fold sender identity checks into channel config suite)
+=======
+import { typedCases } from "../test-utils/typed-cases.js";
+>>>>>>> 843a03753 (fix(test): repair readonly case table typing)
 import {
   type ChannelMatchSource,
   buildChannelKeyCandidates,
@@ -46,7 +50,18 @@ describe("resolveChannelEntryMatch", () => {
 });
 
 describe("resolveChannelEntryMatchWithFallback", () => {
-  const fallbackCases = [
+  const fallbackCases = typedCases<{
+    name: string;
+    entries: Record<string, { allow: boolean }>;
+    args: {
+      keys: string[];
+      parentKeys?: string[];
+      wildcardKey?: string;
+    };
+    expectedEntryKey: string;
+    expectedSource: ChannelMatchSource;
+    expectedMatchKey: string;
+  }>([
     {
       name: "prefers direct matches over parent and wildcard",
       entries: { a: { allow: true }, parent: { allow: false }, "*": { allow: false } },
@@ -71,7 +86,7 @@ describe("resolveChannelEntryMatchWithFallback", () => {
       expectedSource: "wildcard",
       expectedMatchKey: "*",
     },
-  ] as const;
+  ]);
 
   for (const testCase of fallbackCases) {
     it(testCase.name, () => {

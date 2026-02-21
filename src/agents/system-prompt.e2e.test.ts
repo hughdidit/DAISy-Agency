@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
+import { typedCases } from "../test-utils/typed-cases.js";
 import { buildSubagentSystemPrompt } from "./subagent-announce.js";
 import { buildAgentSystemPrompt, buildRuntimeLine } from "./system-prompt.js";
 
@@ -12,7 +13,14 @@ describe("buildAgentSystemPrompt", () => {
     });
 =======
   it("formats owner section for plain, hash, and missing owner lists", () => {
-    const cases = [
+    const cases = typedCases<{
+      name: string;
+      params: Parameters<typeof buildAgentSystemPrompt>[0];
+      expectAuthorizedSection: boolean;
+      contains: string[];
+      notContains: string[];
+      hashMatch?: RegExp;
+    }>([
       {
         name: "plain owner numbers",
         params: {
@@ -23,14 +31,14 @@ describe("buildAgentSystemPrompt", () => {
         contains: [
           "Authorized senders: +123, +456. These senders are allowlisted; do not assume they are the owner.",
         ],
-        notContains: [] as string[],
+        notContains: [],
       },
       {
         name: "hashed owner numbers",
         params: {
           workspaceDir: "/tmp/openclaw",
           ownerNumbers: ["+123", "+456", ""],
-          ownerDisplay: "hash" as const,
+          ownerDisplay: "hash",
         },
         expectAuthorizedSection: true,
         contains: ["Authorized senders:"],
@@ -43,11 +51,15 @@ describe("buildAgentSystemPrompt", () => {
           workspaceDir: "/tmp/openclaw",
         },
         expectAuthorizedSection: false,
-        contains: [] as string[],
+        contains: [],
         notContains: ["## Authorized Senders", "Authorized senders:"],
       },
+<<<<<<< HEAD
     ] as const;
 >>>>>>> f3d4045c0 (test: matrix owner and timezone system-prompt cases)
+=======
+    ]);
+>>>>>>> 843a03753 (fix(test): repair readonly case table typing)
 
     for (const testCase of cases) {
       const prompt = buildAgentSystemPrompt(testCase.params);
