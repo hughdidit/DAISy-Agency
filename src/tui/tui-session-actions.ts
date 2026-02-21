@@ -1,10 +1,13 @@
 import type { TUI } from "@mariozechner/pi-tui";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 import { stripInboundMetadata } from "../auto-reply/reply/strip-inbound-meta.js";
 >>>>>>> a4e7e952e (fix(ui): strip injected inbound metadata from user messages in history (#22142))
+=======
+>>>>>>> 45fff13b1 (TUI: strip only leading inbound metadata (#22461))
 import type { SessionsPatchResult } from "../gateway/protocol/index.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -207,7 +210,7 @@ export function createSessionActions(context: SessionActionContext) {
         if (message.role === "user") {
           const text = extractTextFromMessage(message);
           if (text) {
-            chatLog.addUser(stripInboundMetadata(text));
+            chatLog.addUser(text);
           }
           continue;
         }
