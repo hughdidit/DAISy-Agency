@@ -418,6 +418,7 @@ describe("redactConfigSnapshot", () => {
     );
   });
 
+<<<<<<< HEAD
   it("handles nested values properly (roundtrip)", () => {
     const snapshot = makeSnapshot({
       custom1: { anykey: { mySecret: "this-is-a-custom-secret-value" } },
@@ -536,6 +537,79 @@ describe("redactConfigSnapshot", () => {
     const snapshot = makeSnapshot({
       nested: {
         level: {
+=======
+  it("round-trips nested and array sensitivity cases", () => {
+    const cases: Array<{
+      name: string;
+      snapshot: TestSnapshot<Record<string, unknown>>;
+      hints?: ConfigUiHints;
+      assert: (params: {
+        redacted: Record<string, unknown>;
+        restored: Record<string, unknown>;
+      }) => void;
+    }> = [
+      {
+        name: "nested values (schema)",
+        snapshot: makeSnapshot({
+          custom1: { anykey: { mySecret: "this-is-a-custom-secret-value" } },
+          custom2: [{ mySecret: "this-is-a-custom-secret-value" }],
+        }),
+        assert: ({ redacted, restored }) => {
+          const cfg = redacted as Record<string, Record<string, unknown>>;
+          const cfgCustom2 = cfg.custom2 as unknown as unknown[];
+          expect(cfgCustom2.length).toBeGreaterThan(0);
+          expect(
+            ((cfg.custom1 as Record<string, unknown>).anykey as Record<string, unknown>).mySecret,
+          ).toBe(REDACTED_SENTINEL);
+          expect((cfgCustom2[0] as Record<string, unknown>).mySecret).toBe(REDACTED_SENTINEL);
+          const out = restored as Record<string, Record<string, unknown>>;
+          const outCustom2 = out.custom2 as unknown as unknown[];
+          expect(outCustom2.length).toBeGreaterThan(0);
+          expect(
+            ((out.custom1 as Record<string, unknown>).anykey as Record<string, unknown>).mySecret,
+          ).toBe("this-is-a-custom-secret-value");
+          expect((outCustom2[0] as Record<string, unknown>).mySecret).toBe(
+            "this-is-a-custom-secret-value",
+          );
+        },
+      },
+      {
+        name: "nested values (uiHints)",
+        hints: {
+          "custom1.*.mySecret": { sensitive: true },
+          "custom2[].mySecret": { sensitive: true },
+        },
+        snapshot: makeSnapshot({
+          custom1: { anykey: { mySecret: "this-is-a-custom-secret-value" } },
+          custom2: [{ mySecret: "this-is-a-custom-secret-value" }],
+        }),
+        assert: ({ redacted, restored }) => {
+          const cfg = redacted as Record<string, Record<string, unknown>>;
+          const cfgCustom2 = cfg.custom2 as unknown as unknown[];
+          expect(cfgCustom2.length).toBeGreaterThan(0);
+          expect(
+            ((cfg.custom1 as Record<string, unknown>).anykey as Record<string, unknown>).mySecret,
+          ).toBe(REDACTED_SENTINEL);
+          expect((cfgCustom2[0] as Record<string, unknown>).mySecret).toBe(REDACTED_SENTINEL);
+          const out = restored as Record<string, Record<string, unknown>>;
+          const outCustom2 = out.custom2 as unknown as unknown[];
+          expect(outCustom2.length).toBeGreaterThan(0);
+          expect(
+            ((out.custom1 as Record<string, unknown>).anykey as Record<string, unknown>).mySecret,
+          ).toBe("this-is-a-custom-secret-value");
+          expect((outCustom2[0] as Record<string, unknown>).mySecret).toBe(
+            "this-is-a-custom-secret-value",
+          );
+        },
+      },
+      {
+        name: "directly sensitive records and arrays",
+        snapshot: makeSnapshot({
+          custom: {
+            token: "this-is-a-custom-secret-value",
+            mySecret: "this-is-a-custom-secret-value",
+          },
+>>>>>>> c7c047287 (test: fix readonly typing regressions in check baseline)
           token: ["this-is-a-custom-secret-value", "this-is-a-custom-secret-value"],
         },
       },

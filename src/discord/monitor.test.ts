@@ -642,6 +642,7 @@ describe("discord reaction notification gating", () => {
     ).toBe(false);
   });
 
+<<<<<<< HEAD
   it("skips when mode is off", () => {
     expect(
       shouldEmitDiscordReactionNotification({
@@ -703,6 +704,17 @@ describe("discord reaction notification gating", () => {
         allowlist: ["123", "other"],
       }),
     ).toBe(true);
+=======
+    for (const testCase of cases) {
+      expect(
+        shouldEmitDiscordReactionNotification({
+          ...testCase.input,
+          allowlist: testCase.input.allowlist ? [...testCase.input.allowlist] : undefined,
+        }),
+        testCase.name,
+      ).toBe(testCase.expected);
+    }
+>>>>>>> c7c047287 (test: fix readonly typing regressions in check baseline)
   });
 });
 
@@ -912,3 +924,110 @@ describe("discord DM reaction handling", () => {
     expect(routeArgs.peer).toEqual({ kind: "group", id: "channel-1" });
   });
 });
+<<<<<<< HEAD
+=======
+
+describe("discord reaction notification modes", () => {
+  const guildId = "guild-900";
+  const guild = fakeGuild(guildId, "Mode Guild");
+
+  it("applies message-fetch behavior across notification modes and channel types", async () => {
+    const cases = [
+      {
+        name: "off mode",
+        reactionNotifications: "off" as const,
+        users: undefined,
+        userId: undefined,
+        channelType: ChannelType.GuildText,
+        channelId: undefined,
+        parentId: undefined,
+        messageAuthorId: "other-user",
+        expectedMessageFetchCalls: 0,
+        expectedEnqueueCalls: 0,
+      },
+      {
+        name: "all mode",
+        reactionNotifications: "all" as const,
+        users: undefined,
+        userId: undefined,
+        channelType: ChannelType.GuildText,
+        channelId: undefined,
+        parentId: undefined,
+        messageAuthorId: "other-user",
+        expectedMessageFetchCalls: 0,
+        expectedEnqueueCalls: 1,
+      },
+      {
+        name: "allowlist mode",
+        reactionNotifications: "allowlist" as const,
+        users: ["123"] as string[],
+        userId: "123",
+        channelType: ChannelType.GuildText,
+        channelId: undefined,
+        parentId: undefined,
+        messageAuthorId: "other-user",
+        expectedMessageFetchCalls: 0,
+        expectedEnqueueCalls: 1,
+      },
+      {
+        name: "own mode",
+        reactionNotifications: "own" as const,
+        users: undefined,
+        userId: undefined,
+        channelType: ChannelType.GuildText,
+        channelId: undefined,
+        parentId: undefined,
+        messageAuthorId: "bot-1",
+        expectedMessageFetchCalls: 1,
+        expectedEnqueueCalls: 1,
+      },
+      {
+        name: "all mode thread channel",
+        reactionNotifications: "all" as const,
+        users: undefined,
+        userId: undefined,
+        channelType: ChannelType.PublicThread,
+        channelId: "thread-1",
+        parentId: "parent-1",
+        messageAuthorId: "other-user",
+        expectedMessageFetchCalls: 0,
+        expectedEnqueueCalls: 1,
+      },
+    ] as const;
+
+    for (const testCase of cases) {
+      enqueueSystemEventSpy.mockClear();
+      resolveAgentRouteMock.mockClear();
+
+      const messageFetch = vi.fn(async () => ({
+        author: { id: testCase.messageAuthorId, username: "author", discriminator: "0" },
+      }));
+      const data = makeReactionEvent({
+        guildId,
+        guild,
+        userId: testCase.userId,
+        channelId: testCase.channelId,
+        messageFetch,
+      });
+      const client = makeReactionClient({
+        channelType: testCase.channelType,
+        parentId: testCase.parentId,
+      });
+      const guildEntries = makeEntries({
+        [guildId]: {
+          reactionNotifications: testCase.reactionNotifications,
+          users: testCase.users ? [...testCase.users] : undefined,
+        },
+      });
+      const listener = new DiscordReactionListener(makeReactionListenerParams({ guildEntries }));
+
+      await listener.handle(data, client);
+
+      expect(messageFetch, testCase.name).toHaveBeenCalledTimes(testCase.expectedMessageFetchCalls);
+      expect(enqueueSystemEventSpy, testCase.name).toHaveBeenCalledTimes(
+        testCase.expectedEnqueueCalls,
+      );
+    }
+  });
+});
+>>>>>>> c7c047287 (test: fix readonly typing regressions in check baseline)
