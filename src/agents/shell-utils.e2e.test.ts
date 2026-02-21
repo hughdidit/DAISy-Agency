@@ -3,13 +3,13 @@ import os from "node:os";
 import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { captureEnv } from "../test-utils/env.js";
 import { getShellConfig, resolveShellFromPath } from "./shell-utils.js";
 
 const isWin = process.platform === "win32";
 
 describe("getShellConfig", () => {
-  const originalShell = process.env.SHELL;
-  const originalPath = process.env.PATH;
+  let envSnapshot: ReturnType<typeof captureEnv>;
   const tempDirs: string[] = [];
 
   const createTempBin = (files: string[]) => {
@@ -24,22 +24,14 @@ describe("getShellConfig", () => {
   };
 
   beforeEach(() => {
+    envSnapshot = captureEnv(["SHELL", "PATH"]);
     if (!isWin) {
       process.env.SHELL = "/usr/bin/fish";
     }
   });
 
   afterEach(() => {
-    if (originalShell == null) {
-      delete process.env.SHELL;
-    } else {
-      process.env.SHELL = originalShell;
-    }
-    if (originalPath == null) {
-      delete process.env.PATH;
-    } else {
-      process.env.PATH = originalPath;
-    }
+    envSnapshot.restore();
     for (const dir of tempDirs.splice(0)) {
       fs.rmSync(dir, { recursive: true, force: true });
     }
@@ -82,7 +74,7 @@ describe("getShellConfig", () => {
 });
 
 describe("resolveShellFromPath", () => {
-  const originalPath = process.env.PATH;
+  let envSnapshot: ReturnType<typeof captureEnv>;
   const tempDirs: string[] = [];
 
   const createTempBin = (name: string, executable: boolean) => {
@@ -98,12 +90,12 @@ describe("resolveShellFromPath", () => {
     return dir;
   };
 
+  beforeEach(() => {
+    envSnapshot = captureEnv(["PATH"]);
+  });
+
   afterEach(() => {
-    if (originalPath == null) {
-      delete process.env.PATH;
-    } else {
-      process.env.PATH = originalPath;
-    }
+    envSnapshot.restore();
     for (const dir of tempDirs.splice(0)) {
       fs.rmSync(dir, { recursive: true, force: true });
     }
