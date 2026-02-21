@@ -3,7 +3,11 @@ import type { MoltbotConfig } from "../config/config.js";
 import "./test-helpers/fast-coding-tools.js";
 import { createMoltbotCodingTools } from "./pi-tools.js";
 
+<<<<<<< HEAD
 const defaultTools = createMoltbotCodingTools();
+=======
+const defaultTools = createOpenClawCodingTools({ senderIsOwner: true });
+>>>>>>> 8588183ab (test: stabilize docker e2e suites for pairing and model updates)
 
 describe("createMoltbotCodingTools", () => {
   it("preserves action enums in normalized schemas", () => {

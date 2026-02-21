@@ -1,3 +1,4 @@
+import "./isolated-agent.mocks.js";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -52,7 +53,6 @@ vi.mock("../agents/model-catalog.js", () => ({
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 import type { CliDeps } from "../cli/deps.js";
-import "./isolated-agent.mocks.js";
 import { runCronIsolatedAgentTurn } from "./isolated-agent.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
