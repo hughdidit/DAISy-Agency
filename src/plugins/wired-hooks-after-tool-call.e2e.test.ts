@@ -1,7 +1,7 @@
 /**
  * Test: after_tool_call hook wiring (pi-embedded-subscribe.handlers.tools.ts)
  */
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const hookMocks = vi.hoisted(() => ({
   runner: {
@@ -57,7 +57,15 @@ function createToolHandlerCtx(params: {
   };
 }
 
+let handleToolExecutionStart: typeof import("../agents/pi-embedded-subscribe.handlers.tools.js").handleToolExecutionStart;
+let handleToolExecutionEnd: typeof import("../agents/pi-embedded-subscribe.handlers.tools.js").handleToolExecutionEnd;
+
 describe("after_tool_call hook wiring", () => {
+  beforeAll(async () => {
+    ({ handleToolExecutionStart, handleToolExecutionEnd } =
+      await import("../agents/pi-embedded-subscribe.handlers.tools.js"));
+  });
+
   beforeEach(() => {
     hookMocks.runner.hasHooks.mockReset();
     hookMocks.runner.hasHooks.mockReturnValue(false);
@@ -67,9 +75,6 @@ describe("after_tool_call hook wiring", () => {
 
   it("calls runAfterToolCall in handleToolExecutionEnd when hook is registered", async () => {
     hookMocks.runner.hasHooks.mockReturnValue(true);
-
-    const { handleToolExecutionEnd, handleToolExecutionStart } =
-      await import("../agents/pi-embedded-subscribe.handlers.tools.js");
 
     const ctx = createToolHandlerCtx({
       runId: "test-run-1",
@@ -121,9 +126,6 @@ describe("after_tool_call hook wiring", () => {
   it("includes error in after_tool_call event on tool failure", async () => {
     hookMocks.runner.hasHooks.mockReturnValue(true);
 
-    const { handleToolExecutionEnd, handleToolExecutionStart } =
-      await import("../agents/pi-embedded-subscribe.handlers.tools.js");
-
     const ctx = createToolHandlerCtx({ runId: "test-run-2" });
 
     await handleToolExecutionStart(
@@ -161,9 +163,6 @@ describe("after_tool_call hook wiring", () => {
 
   it("does not call runAfterToolCall when no hooks registered", async () => {
     hookMocks.runner.hasHooks.mockReturnValue(false);
-
-    const { handleToolExecutionEnd } =
-      await import("../agents/pi-embedded-subscribe.handlers.tools.js");
 
     const ctx = createToolHandlerCtx({ runId: "r" });
 
