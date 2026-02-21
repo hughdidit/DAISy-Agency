@@ -450,7 +450,11 @@ export const OpenClawSchema = z
           .optional(),
         trustedProxies: z.array(z.string()).optional(),
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+        allowRealIpFallback: z.boolean().optional(),
+>>>>>>> be7f82500 (refactor(gateway): harden proxy client ip resolution)
         tools: z
           .object({
             deny: z.array(z.string()).optional(),
