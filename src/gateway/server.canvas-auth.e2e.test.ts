@@ -60,7 +60,27 @@ async function expectWsRejected(
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+async function expectWsConnected(url: string): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const ws = new WebSocket(url);
+    const timer = setTimeout(() => reject(new Error("timeout")), WS_CONNECT_TIMEOUT_MS);
+    ws.once("open", () => {
+      clearTimeout(timer);
+      ws.terminate();
+      resolve();
+    });
+    ws.once("unexpected-response", (_req, res) => {
+      clearTimeout(timer);
+      reject(new Error(`unexpected response ${res.statusCode}`));
+    });
+    ws.once("error", reject);
+  });
+}
+
+>>>>>>> d325c0150 (test(gateway): dedupe canvas ws connect assertions)
 function makeWsClient(params: {
   connId: string;
   clientIp: string;
@@ -371,20 +391,7 @@ describe("gateway canvas host auth", () => {
             expect(scopedA2ui.status).toBe(200);
 >>>>>>> c45f3c5b0 (fix(gateway): harden canvas auth with session capabilities)
 
-            await new Promise<void>((resolve, reject) => {
-              const ws = new WebSocket(`ws://${host}:${listener.port}${activeWsPath}`);
-              const timer = setTimeout(() => reject(new Error("timeout")), WS_CONNECT_TIMEOUT_MS);
-              ws.once("open", () => {
-                clearTimeout(timer);
-                ws.terminate();
-                resolve();
-              });
-              ws.once("unexpected-response", (_req, res) => {
-                clearTimeout(timer);
-                reject(new Error(`unexpected response ${res.statusCode}`));
-              });
-              ws.once("error", reject);
-            });
+            await expectWsConnected(`ws://${host}:${listener.port}${activeWsPath}`);
 
             clients.delete(activeNodeClient);
 
@@ -491,20 +498,7 @@ describe("gateway canvas host auth", () => {
               const scopedCanvas = await fetch(`http://[::1]:${listener.port}${canvasPath}`);
               expect(scopedCanvas.status).toBe(200);
 
-              await new Promise<void>((resolve, reject) => {
-                const ws = new WebSocket(`ws://[::1]:${listener.port}${wsPath}`);
-                const timer = setTimeout(() => reject(new Error("timeout")), WS_CONNECT_TIMEOUT_MS);
-                ws.once("open", () => {
-                  clearTimeout(timer);
-                  ws.terminate();
-                  resolve();
-                });
-                ws.once("unexpected-response", (_req, res) => {
-                  clearTimeout(timer);
-                  reject(new Error(`unexpected response ${res.statusCode}`));
-                });
-                ws.once("error", reject);
-              });
+              await expectWsConnected(`ws://[::1]:${listener.port}${wsPath}`);
             },
           });
         } catch (err) {
