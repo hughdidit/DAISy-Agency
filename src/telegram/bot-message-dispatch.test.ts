@@ -193,6 +193,30 @@ describe("dispatchTelegramMessage draft streaming", () => {
     expect(draftStream.clear).toHaveBeenCalledTimes(1);
   });
 
+<<<<<<< HEAD
+=======
+  it("uses immediate preview updates for legacy block stream mode", async () => {
+    const draftStream = createDraftStream();
+    createTelegramDraftStream.mockReturnValue(draftStream);
+    dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
+      async ({ dispatcherOptions, replyOptions }) => {
+        await replyOptions?.onPartialReply?.({ text: "Hello" });
+        await dispatcherOptions.deliver({ text: "Hello" }, { kind: "final" });
+        return { queuedFinal: true };
+      },
+    );
+    deliverReplies.mockResolvedValue({ delivered: true });
+
+    await dispatchWithContext({ context: createContext(), streamMode: "block" });
+
+    expect(createTelegramDraftStream).toHaveBeenCalledWith(
+      expect.objectContaining({
+        minInitialChars: 1,
+      }),
+    );
+  });
+
+>>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
   it("keeps block streaming enabled when account config enables it", async () => {
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(async ({ dispatcherOptions }) => {
       await dispatcherOptions.deliver({ text: "Hello" }, { kind: "final" });
@@ -364,7 +388,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
     );
   });
 
-  it("forces new message when new assistant message starts after previous output", async () => {
+  it("does not force new message for legacy block stream mode", async () => {
     const draftStream = createDraftStream(999);
     createTelegramDraftStream.mockReturnValue(draftStream);
     dispatchReplyWithBufferedBlockDispatcher.mockImplementation(
@@ -383,8 +407,7 @@ describe("dispatchTelegramMessage draft streaming", () => {
 
     await dispatchWithContext({ context: createContext(), streamMode: "block" });
 
-    // Should force new message when assistant message starts after previous output
-    expect(draftStream.forceNewMessage).toHaveBeenCalled();
+    expect(draftStream.forceNewMessage).not.toHaveBeenCalled();
   });
 
   it("does not force new message in partial mode when assistant message restarts", async () => {

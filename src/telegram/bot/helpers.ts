@@ -205,12 +205,25 @@ export function buildTypingThreadParams(messageThreadId?: number) {
   return { message_thread_id: Math.trunc(messageThreadId) };
 }
 
+<<<<<<< HEAD
 export function resolveTelegramStreamMode(
   telegramCfg: Pick<TelegramAccountConfig, "streamMode"> | undefined,
 ): TelegramStreamMode {
+=======
+export function resolveTelegramStreamMode(telegramCfg?: {
+  streaming?: boolean;
+  streamMode?: TelegramStreamMode;
+}): TelegramStreamMode {
+  if (typeof telegramCfg?.streaming === "boolean") {
+    return telegramCfg.streaming ? "partial" : "off";
+  }
+>>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
   const raw = telegramCfg?.streamMode?.trim().toLowerCase();
-  if (raw === "off" || raw === "partial" || raw === "block") {
-    return raw;
+  if (raw === "off") {
+    return "off";
+  }
+  if (raw === "partial" || raw === "block") {
+    return "partial";
   }
   return "partial";
 }
