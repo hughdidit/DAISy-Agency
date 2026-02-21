@@ -8,6 +8,29 @@ const saveMediaBufferMock = vi.fn(async () => ({
   path: "/tmp/saved.png",
   contentType: "image/png",
 }));
+const fetchRemoteMediaMock = vi.fn(
+  async (params: {
+    url: string;
+    maxBytes?: number;
+    filePathHint?: string;
+    fetchImpl?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+  }) => {
+    const fetchFn = params.fetchImpl ?? fetch;
+    const res = await fetchFn(params.url);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (typeof params.maxBytes === "number" && buffer.byteLength > params.maxBytes) {
+      throw new Error(`payload exceeds maxBytes ${params.maxBytes}`);
+    }
+    return {
+      buffer,
+      contentType: res.headers.get("content-type") ?? undefined,
+      fileName: params.filePathHint,
+    };
+  },
+);
 
 const runtimeStub = {
   media: {
@@ -15,7 +38,14 @@ const runtimeStub = {
   },
   channel: {
     media: {
+<<<<<<< HEAD
       saveMediaBuffer: (...args: unknown[]) => saveMediaBufferMock(...args),
+=======
+      fetchRemoteMedia:
+        fetchRemoteMediaMock as unknown as PluginRuntime["channel"]["media"]["fetchRemoteMedia"],
+      saveMediaBuffer:
+        saveMediaBufferMock as unknown as PluginRuntime["channel"]["media"]["saveMediaBuffer"],
+>>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
     },
   },
 } as unknown as PluginRuntime;
@@ -28,6 +58,7 @@ describe("msteams attachments", () => {
   beforeEach(() => {
     detectMimeMock.mockClear();
     saveMediaBufferMock.mockClear();
+    fetchRemoteMediaMock.mockClear();
     setMSTeamsRuntime(runtimeStub);
   });
 
@@ -118,7 +149,7 @@ describe("msteams attachments", () => {
         fetchFn: fetchMock as unknown as typeof fetch,
       });
 
-      expect(fetchMock).toHaveBeenCalledWith("https://x/img");
+      expect(fetchMock).toHaveBeenCalledWith("https://x/img", undefined);
       expect(saveMediaBufferMock).toHaveBeenCalled();
       expect(media).toHaveLength(1);
       expect(media[0]?.path).toBe("/tmp/saved.png");
@@ -145,7 +176,7 @@ describe("msteams attachments", () => {
         fetchFn: fetchMock as unknown as typeof fetch,
       });
 
-      expect(fetchMock).toHaveBeenCalledWith("https://x/dl");
+      expect(fetchMock).toHaveBeenCalledWith("https://x/dl", undefined);
       expect(media).toHaveLength(1);
     });
 
@@ -170,7 +201,7 @@ describe("msteams attachments", () => {
         fetchFn: fetchMock as unknown as typeof fetch,
       });
 
-      expect(fetchMock).toHaveBeenCalledWith("https://x/doc.pdf");
+      expect(fetchMock).toHaveBeenCalledWith("https://x/doc.pdf", undefined);
       expect(media).toHaveLength(1);
       expect(media[0]?.path).toBe("/tmp/saved.pdf");
       expect(media[0]?.placeholder).toBe("<media:document>");
@@ -198,7 +229,7 @@ describe("msteams attachments", () => {
       });
 
       expect(media).toHaveLength(1);
-      expect(fetchMock).toHaveBeenCalledWith("https://x/inline.png");
+      expect(fetchMock).toHaveBeenCalledWith("https://x/inline.png", undefined);
     });
 
     it("stores inline data:image base64 payloads", async () => {
@@ -222,12 +253,8 @@ describe("msteams attachments", () => {
     it("retries with auth when the first request is unauthorized", async () => {
       const { downloadMSTeamsAttachments } = await load();
       const fetchMock = vi.fn(async (_url: string, opts?: RequestInit) => {
-        const hasAuth = Boolean(
-          opts &&
-          typeof opts === "object" &&
-          "headers" in opts &&
-          (opts.headers as Record<string, string>)?.Authorization,
-        );
+        const headers = new Headers(opts?.headers);
+        const hasAuth = Boolean(headers.get("Authorization"));
         if (!hasAuth) {
           return new Response("unauthorized", { status: 401 });
         }
@@ -255,12 +282,8 @@ describe("msteams attachments", () => {
       const { downloadMSTeamsAttachments } = await load();
       const tokenProvider = { getAccessToken: vi.fn(async () => "token") };
       const fetchMock = vi.fn(async (_url: string, opts?: RequestInit) => {
-        const hasAuth = Boolean(
-          opts &&
-          typeof opts === "object" &&
-          "headers" in opts &&
-          (opts.headers as Record<string, string>)?.Authorization,
-        );
+        const headers = new Headers(opts?.headers);
+        const hasAuth = Boolean(headers.get("Authorization"));
         if (!hasAuth) {
           return new Response("forbidden", { status: 403 });
         }

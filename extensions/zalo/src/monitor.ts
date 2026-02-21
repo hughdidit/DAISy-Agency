@@ -374,7 +374,7 @@ async function handleImageMessage(
   if (photo) {
     try {
       const maxBytes = mediaMaxMb * 1024 * 1024;
-      const fetched = await core.channel.media.fetchRemoteMedia({ url: photo });
+      const fetched = await core.channel.media.fetchRemoteMedia({ url: photo, maxBytes });
       const saved = await core.channel.media.saveMediaBuffer(
         fetched.buffer,
         fetched.contentType,

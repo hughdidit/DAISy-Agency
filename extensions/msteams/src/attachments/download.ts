@@ -80,16 +80,21 @@ async function fetchWithAuthFallback(params: {
   url: string;
   tokenProvider?: MSTeamsAccessTokenProvider;
   fetchFn?: typeof fetch;
+  requestInit?: RequestInit;
   allowHosts: string[];
   authAllowHosts: string[];
 }): Promise<Response> {
   const fetchFn = params.fetchFn ?? fetch;
+<<<<<<< HEAD
   const firstAttempt = await fetchFn(params.url);
 <<<<<<< HEAD
   if (firstAttempt.ok) return firstAttempt;
   if (!params.tokenProvider) return firstAttempt;
   if (firstAttempt.status !== 401 && firstAttempt.status !== 403) return firstAttempt;
 =======
+=======
+  const firstAttempt = await fetchFn(params.url, params.requestInit);
+>>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
   if (firstAttempt.ok) {
     return firstAttempt;
   }
@@ -108,8 +113,11 @@ async function fetchWithAuthFallback(params: {
   for (const scope of scopes) {
     try {
       const token = await params.tokenProvider.getAccessToken(scope);
+      const authHeaders = new Headers(params.requestInit?.headers);
+      authHeaders.set("Authorization", `Bearer ${token}`);
       const res = await fetchFn(params.url, {
-        headers: { Authorization: `Bearer ${token}` },
+        ...params.requestInit,
+        headers: authHeaders,
         redirect: "manual",
       });
 <<<<<<< HEAD
@@ -120,7 +128,7 @@ async function fetchWithAuthFallback(params: {
       }
       const redirectUrl = readRedirectUrl(params.url, res);
       if (redirectUrl && isUrlAllowed(redirectUrl, params.allowHosts)) {
-        const redirectRes = await fetchFn(redirectUrl);
+        const redirectRes = await fetchFn(redirectUrl, params.requestInit);
         if (redirectRes.ok) {
           return redirectRes;
         }
@@ -128,8 +136,11 @@ async function fetchWithAuthFallback(params: {
           (redirectRes.status === 401 || redirectRes.status === 403) &&
           isUrlAllowed(redirectUrl, params.authAllowHosts)
         ) {
+          const redirectAuthHeaders = new Headers(params.requestInit?.headers);
+          redirectAuthHeaders.set("Authorization", `Bearer ${token}`);
           const redirectAuthRes = await fetchFn(redirectUrl, {
-            headers: { Authorization: `Bearer ${token}` },
+            ...params.requestInit,
+            headers: redirectAuthHeaders,
             redirect: "manual",
           });
           if (redirectAuthRes.ok) {
@@ -144,6 +155,19 @@ async function fetchWithAuthFallback(params: {
   }
 
   return firstAttempt;
+}
+
+function resolveRequestUrl(input: RequestInfo | URL): string {
+  if (typeof input === "string") {
+    return input;
+  }
+  if (input instanceof URL) {
+    return input.toString();
+  }
+  if (typeof input === "object" && input && "url" in input && typeof input.url === "string") {
+    return input.url;
+  }
+  return String(input);
 }
 
 function readRedirectUrl(baseUrl: string, res: Response): string | null {
@@ -228,24 +252,34 @@ export async function downloadMSTeamsAttachments(params: {
   for (const candidate of candidates) {
     if (!isUrlAllowed(candidate.url, allowHosts)) continue;
     try {
-      const res = await fetchWithAuthFallback({
+      const fetched = await getMSTeamsRuntime().channel.media.fetchRemoteMedia({
         url: candidate.url,
-        tokenProvider: params.tokenProvider,
-        fetchFn: params.fetchFn,
-        allowHosts,
-        authAllowHosts,
+        fetchImpl: (input, init) =>
+          fetchWithAuthFallback({
+            url: resolveRequestUrl(input),
+            tokenProvider: params.tokenProvider,
+            fetchFn: params.fetchFn,
+            requestInit: init,
+            allowHosts,
+            authAllowHosts,
+          }),
+        filePathHint: candidate.fileHint ?? candidate.url,
+        maxBytes: params.maxBytes,
       });
+<<<<<<< HEAD
       if (!res.ok) continue;
       const buffer = Buffer.from(await res.arrayBuffer());
       if (buffer.byteLength > params.maxBytes) continue;
+=======
+>>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
       const mime = await getMSTeamsRuntime().media.detectMime({
-        buffer,
-        headerMime: res.headers.get("content-type"),
+        buffer: fetched.buffer,
+        headerMime: fetched.contentType,
         filePath: candidate.fileHint ?? candidate.url,
       });
       const originalFilename = params.preserveFilenames ? candidate.fileHint : undefined;
       const saved = await getMSTeamsRuntime().channel.media.saveMediaBuffer(
-        buffer,
+        fetched.buffer,
         mime ?? candidate.contentTypeHint,
         "inbound",
         params.maxBytes,

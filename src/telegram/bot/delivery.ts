@@ -317,6 +317,20 @@ export async function resolveMedia(
   stickerMetadata?: StickerMetadata;
 } | null> {
   const msg = ctx.message;
+<<<<<<< HEAD
+=======
+  const downloadAndSaveTelegramFile = async (filePath: string, fetchImpl: typeof fetch) => {
+    const url = `https://api.telegram.org/file/bot${token}/${filePath}`;
+    const fetched = await fetchRemoteMedia({
+      url,
+      fetchImpl,
+      filePathHint: filePath,
+      maxBytes,
+    });
+    const originalName = fetched.fileName ?? filePath;
+    return saveMediaBuffer(fetched.buffer, fetched.contentType, "inbound", maxBytes, originalName);
+  };
+>>>>>>> 73d93dee6 (fix: enforce inbound media max-bytes during remote fetch)
 
   // Handle stickers separately - only static stickers (WEBP) are supported
   if (msg.sticker) {
