@@ -108,8 +108,12 @@ describe("attachChildProcessBridge", () => {
         resolve();
       });
     });
+<<<<<<< HEAD
 
     await new Promise((r) => setTimeout(r, 250));
     expect(await canConnect(port)).toBe(false);
   }, 20_000);
+=======
+  }, 15_000);
+>>>>>>> fa89ae8e9 (fix: stabilize swift protocol generation and flaky tests)
 });
