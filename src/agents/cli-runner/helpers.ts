@@ -280,6 +280,11 @@ export function buildSystemPrompt(params: {
     defaultThinkLevel: params.defaultThinkLevel,
     extraSystemPrompt: params.extraSystemPrompt,
     ownerNumbers: params.ownerNumbers,
+    ownerDisplay: params.config?.commands?.ownerDisplay,
+    ownerDisplaySecret:
+      params.config?.commands?.ownerDisplaySecret ??
+      params.config?.gateway?.auth?.token ??
+      params.config?.gateway?.remote?.token,
     reasoningTagHint: false,
     heartbeatPrompt: params.heartbeatPrompt,
     docsPath: params.docsPath,
