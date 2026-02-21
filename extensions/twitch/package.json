@@ -11,6 +11,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.29",
 =======
   "version": "2026.2.2",
@@ -31,6 +32,9 @@
   "version": "2026.2.13",
   "private": true,
 >>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
+=======
+  "version": "2026.2.21",
+>>>>>>> bdfb97afa (chore: prep 2026.2.22 unreleased and publish new npm plugins)
   "description": "OpenClaw Twitch channel plugin",
 >>>>>>> 62e4ad23d (chore: release 2026.1.29)
   "type": "module",

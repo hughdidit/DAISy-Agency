@@ -23,6 +23,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.31
 =======
 =======
@@ -43,6 +44,9 @@ Docs: https://docs.openclaw.ai
 =======
 >>>>>>> cbc3de6c9 (docs(changelog): fix conflict marker)
 ## 2026.2.15 (Unreleased)
+=======
+## 2026.2.22 (Unreleased)
+>>>>>>> bdfb97afa (chore: prep 2026.2.22 unreleased and publish new npm plugins)
 
 ### Changes
 
