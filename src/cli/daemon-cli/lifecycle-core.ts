@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import type { GatewayService } from "../../daemon/service.js";
+=======
+import type { Writable } from "node:stream";
+>>>>>>> 905e355f6 (fix: verify gateway restart health after daemon restart)
 import { loadConfig } from "../../config/config.js";
 import { resolveIsNixMode } from "../../config/paths.js";
 import { checkTokenDrift } from "../../daemon/service-audit.js";
@@ -15,6 +19,13 @@ import {
 
 type DaemonLifecycleOptions = {
   json?: boolean;
+};
+
+type RestartPostCheckContext = {
+  json: boolean;
+  stdout: Writable;
+  warnings: string[];
+  fail: (message: string, hints?: string[]) => void;
 };
 
 async function maybeAugmentSystemdHints(hints: string[]): Promise<string[]> {
@@ -235,6 +246,11 @@ export async function runServiceRestart(params: {
   service: GatewayService;
   renderStartHints: () => string[];
   opts?: DaemonLifecycleOptions;
+<<<<<<< HEAD
+=======
+  checkTokenDrift?: boolean;
+  postRestartCheck?: (ctx: RestartPostCheckContext) => Promise<void>;
+>>>>>>> 905e355f6 (fix: verify gateway restart health after daemon restart)
 }): Promise<boolean> {
   const json = Boolean(params.opts?.json);
   const { stdout, emit, fail } = createActionIO({ action: "restart", json });
@@ -287,6 +303,9 @@ export async function runServiceRestart(params: {
 
   try {
     await params.service.restart({ env: process.env, stdout });
+    if (params.postRestartCheck) {
+      await params.postRestartCheck({ json, stdout, warnings, fail });
+    }
     let restarted = true;
     try {
       restarted = await params.service.isLoaded({ env: process.env });
