@@ -228,9 +228,13 @@ This is often easier than hand-editing JSON manifests.
 3. Check gateway logs for incoming activity
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Setup (minimal text-only)
 =======
 ## Setup (minimal)
+=======
+## Onboarding (minimal)
+>>>>>>> e36245bd3 (docs: finalize onboarding option heading normalization (#22547))
 
 
 >>>>>>> b5a77b9cb (docs: finalize remaining setup heading phrasing (#22543))
