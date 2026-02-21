@@ -502,6 +502,7 @@ export function attachGatewayWsMessageHandler(params: {
             sharedAuthOk,
             authOk,
             hasSharedAuth,
+            isLocalClient,
           });
           if (decision.kind === "allow") {
             return true;
@@ -719,6 +720,7 @@ export function attachGatewayWsMessageHandler(params: {
             }
           } else {
 <<<<<<< HEAD
+<<<<<<< HEAD
             const allowedRoles = new Set(
               Array.isArray(paired.roles) ? paired.roles : paired.role ? [paired.role] : [],
             );
@@ -749,48 +751,52 @@ export function attachGatewayWsMessageHandler(params: {
 =======
             const hasLegacyPairedMetadata =
               paired.roles === undefined && paired.scopes === undefined;
+=======
+>>>>>>> fa4e4efd9 (fix(gateway): restore localhost Control UI pairing when allowInsecureAuth is set (#22996))
             const pairedRoles = Array.isArray(paired.roles)
               ? paired.roles
               : paired.role
                 ? [paired.role]
                 : [];
-            if (!hasLegacyPairedMetadata) {
-              const allowedRoles = new Set(pairedRoles);
-              if (allowedRoles.size === 0) {
-                logUpgradeAudit("role-upgrade", pairedRoles, paired.scopes);
-                const ok = await requirePairing("role-upgrade");
-                if (!ok) {
-                  return;
-                }
-              } else if (!allowedRoles.has(role)) {
-                logUpgradeAudit("role-upgrade", pairedRoles, paired.scopes);
-                const ok = await requirePairing("role-upgrade");
-                if (!ok) {
-                  return;
-                }
+            const pairedScopes = Array.isArray(paired.scopes)
+              ? paired.scopes
+              : Array.isArray(paired.approvedScopes)
+                ? paired.approvedScopes
+                : [];
+            const allowedRoles = new Set(pairedRoles);
+            if (allowedRoles.size === 0) {
+              logUpgradeAudit("role-upgrade", pairedRoles, pairedScopes);
+              const ok = await requirePairing("role-upgrade");
+              if (!ok) {
+                return;
               }
+            } else if (!allowedRoles.has(role)) {
+              logUpgradeAudit("role-upgrade", pairedRoles, pairedScopes);
+              const ok = await requirePairing("role-upgrade");
+              if (!ok) {
+                return;
+              }
+            }
 
-              const pairedScopes = Array.isArray(paired.scopes) ? paired.scopes : [];
-              if (scopes.length > 0) {
-                if (pairedScopes.length === 0) {
+            if (scopes.length > 0) {
+              if (pairedScopes.length === 0) {
+                logUpgradeAudit("scope-upgrade", pairedRoles, pairedScopes);
+                const ok = await requirePairing("scope-upgrade");
+                if (!ok) {
+                  return;
+                }
+              } else {
+                const scopesAllowed = roleScopesAllow({
+                  role,
+                  requestedScopes: scopes,
+                  allowedScopes: pairedScopes,
+                });
+                if (!scopesAllowed) {
                   logUpgradeAudit("scope-upgrade", pairedRoles, pairedScopes);
                   const ok = await requirePairing("scope-upgrade");
 >>>>>>> 29ad0736f (fix(gateway): tolerate legacy paired metadata in ws upgrade checks (#21447))
                   if (!ok) {
                     return;
-                  }
-                } else {
-                  const scopesAllowed = roleScopesAllow({
-                    role,
-                    requestedScopes: scopes,
-                    allowedScopes: pairedScopes,
-                  });
-                  if (!scopesAllowed) {
-                    logUpgradeAudit("scope-upgrade", pairedRoles, pairedScopes);
-                    const ok = await requirePairing("scope-upgrade");
-                    if (!ok) {
-                      return;
-                    }
                   }
                 }
               }
