@@ -79,6 +79,7 @@ import {
   setMistralApiKey,
   setMinimaxApiKey,
   setMoonshotApiKey,
+  setOpenaiApiKey,
   setOpencodeZenApiKey,
   setOpenrouterApiKey,
   setSyntheticApiKey,
@@ -504,16 +505,25 @@ export async function applyNonInteractiveAuthChoice(params: {
       flagName: "--openai-api-key",
       envVar: "OPENAI_API_KEY",
       runtime,
-      allowProfile: false,
     });
     if (!resolved) {
       return null;
     }
+<<<<<<< HEAD
     const key = resolved.key;
     const result = upsertSharedEnvVar({ key: "OPENAI_API_KEY", value: key });
     process.env.OPENAI_API_KEY = key;
     runtime.log(`Saved OPENAI_API_KEY to ${shortenHomePath(result.path)}`);
     return nextConfig;
+=======
+    await setOpenaiApiKey(resolved.key);
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "openai:default",
+      provider: "openai",
+      mode: "api_key",
+    });
+    return applyOpenAIConfig(nextConfig);
+>>>>>>> 68b9d89ee (Onboard: store OpenAI auth in profiles instead of .env)
   }
 
   if (authChoice === "openrouter-api-key") {

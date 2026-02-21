@@ -21,8 +21,11 @@ import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { resolveEnvApiKey } from "../agents/model-auth.js";
+<<<<<<< HEAD
 import { upsertSharedEnvVar } from "../infra/env-file.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
+=======
+>>>>>>> 68b9d89ee (Onboard: store OpenAI auth in profiles instead of .env)
 import {
   formatApiKeyPreview,
   normalizeApiKeyInput,
@@ -56,8 +59,12 @@ import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { applyDefaultModelChoice } from "./auth-choice.default-model.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
+<<<<<<< HEAD
 >>>>>>> 86e4fe0a7 (Auth: land codex oauth onboarding flow (#15406))
 import { applyAuthProfileConfig, writeOAuthCredentials } from "./onboard-auth.js";
+=======
+import { applyAuthProfileConfig, setOpenaiApiKey, writeOAuthCredentials } from "./onboard-auth.js";
+>>>>>>> 68b9d89ee (Onboard: store OpenAI auth in profiles instead of .env)
 import { openUrl } from "./onboard-helpers.js";
 import {
   applyOpenAICodexModelDefault,
@@ -112,10 +119,13 @@ export async function applyAuthChoiceOpenAI(
         initialValue: true,
       });
       if (useExisting) {
-        const result = upsertSharedEnvVar({
-          key: "OPENAI_API_KEY",
-          value: envKey.apiKey,
+        await setOpenaiApiKey(envKey.apiKey, params.agentDir);
+        nextConfig = applyAuthProfileConfig(nextConfig, {
+          profileId: "openai:default",
+          provider: "openai",
+          mode: "api_key",
         });
+<<<<<<< HEAD
         if (!process.env.OPENAI_API_KEY) {
           process.env.OPENAI_API_KEY = envKey.apiKey;
         }
@@ -126,6 +136,8 @@ export async function applyAuthChoiceOpenAI(
 <<<<<<< HEAD
         return { config: params.config };
 =======
+=======
+>>>>>>> 68b9d89ee (Onboard: store OpenAI auth in profiles instead of .env)
         return await applyOpenAiDefaultModelChoice();
 >>>>>>> aa2d74a84 (refactor(commands): dedupe OpenAI default model apply)
       }
@@ -142,10 +154,13 @@ export async function applyAuthChoiceOpenAI(
     }
 
     const trimmed = normalizeApiKeyInput(String(key));
-    const result = upsertSharedEnvVar({
-      key: "OPENAI_API_KEY",
-      value: trimmed,
+    await setOpenaiApiKey(trimmed, params.agentDir);
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "openai:default",
+      provider: "openai",
+      mode: "api_key",
     });
+<<<<<<< HEAD
     process.env.OPENAI_API_KEY = trimmed;
     await params.prompter.note(
       `Saved OPENAI_API_KEY to ${result.path} for launchd compatibility.`,
@@ -154,6 +169,8 @@ export async function applyAuthChoiceOpenAI(
 <<<<<<< HEAD
     return { config: params.config };
 =======
+=======
+>>>>>>> 68b9d89ee (Onboard: store OpenAI auth in profiles instead of .env)
     return await applyOpenAiDefaultModelChoice();
 >>>>>>> aa2d74a84 (refactor(commands): dedupe OpenAI default model apply)
   }
