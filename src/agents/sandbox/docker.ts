@@ -1,9 +1,14 @@
 import { spawn } from "node:child_process";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 901d4cb31 (revert: accidental merge of OC-09 sandbox env sanitization change)
+=======
+import { createSubsystemLogger } from "../../logging/subsystem.js";
+import { sanitizeEnvVars } from "./sanitize-env-vars.js";
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
 
 type ExecDockerRawOptions = {
   allowFailure?: boolean;
@@ -146,6 +151,8 @@ import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from 
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { validateSandboxSecurity } from "./validate-sandbox-security.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+
+const log = createSubsystemLogger("docker");
 
 const HOT_CONTAINER_WINDOW_MS = 5 * 60 * 1000;
 
@@ -332,6 +339,7 @@ export function buildSandboxCreateArgs(params: {
   if (params.cfg.user) {
     args.push("--user", params.cfg.user);
   }
+<<<<<<< HEAD
   for (const [key, value] of Object.entries(params.cfg.env ?? {})) {
 <<<<<<< HEAD
     if (!key.trim()) continue;
@@ -341,6 +349,17 @@ export function buildSandboxCreateArgs(params: {
     }
 >>>>>>> 901d4cb31 (revert: accidental merge of OC-09 sandbox env sanitization change)
     args.push("--env", key + "=" + value);
+=======
+  const envSanitization = sanitizeEnvVars(params.cfg.env ?? {});
+  if (envSanitization.blocked.length > 0) {
+    log.warn(`Blocked sensitive environment variables: ${envSanitization.blocked.join(", ")}`);
+  }
+  if (envSanitization.warnings.length > 0) {
+    log.warn(`Suspicious environment variables: ${envSanitization.warnings.join(", ")}`);
+  }
+  for (const [key, value] of Object.entries(envSanitization.allowed)) {
+    args.push("--env", `${key}=${value}`);
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
   }
   for (const cap of params.cfg.capDrop) {
     args.push("--cap-drop", cap);

@@ -29,7 +29,11 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { ExtensionAPI, FileOperations } from "@mariozechner/pi-coding-agent";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { extractSections } from "../../auto-reply/reply/post-compaction-context.js";
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+=======
+import { createSubsystemLogger } from "../../logging/subsystem.js";
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
 import {
   BASE_CHUNK_RATIO,
   MIN_CHUNK_RATIO,
@@ -47,6 +51,8 @@ import { extractSections } from "../../auto-reply/reply/post-compaction-context.
 import { collectTextContentBlocks } from "../content-blocks.js";
 >>>>>>> 85ebdf88b (refactor(agents): share text block extraction helper)
 import { getCompactionSafeguardRuntime } from "./compaction-safeguard-runtime.js";
+
+const log = createSubsystemLogger("compaction-safeguard");
 const FALLBACK_SUMMARY =
   "Summary unavailable due to context limits. Older messages were truncated.";
 const TURN_PREFIX_INSTRUCTIONS =
@@ -282,7 +288,7 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
           });
           if (pruned.droppedChunks > 0) {
             const newContentRatio = (newContentTokens / contextWindowTokens) * 100;
-            console.warn(
+            log.warn(
               `Compaction safeguard: new content uses ${newContentRatio.toFixed(
                 1,
               )}% of context; dropped ${pruned.droppedChunks} older chunk(s) ` +
@@ -313,7 +319,7 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
                   previousSummary: preparation.previousSummary,
                 });
               } catch (droppedError) {
-                console.warn(
+                log.warn(
                   `Compaction safeguard: failed to summarize dropped messages, continuing without: ${
                     droppedError instanceof Error ? droppedError.message : String(droppedError)
                   }`,
@@ -380,7 +386,7 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
         },
       };
     } catch (error) {
-      console.warn(
+      log.warn(
         `Compaction summarization failed; truncating history: ${
           error instanceof Error ? error.message : String(error)
         }`,

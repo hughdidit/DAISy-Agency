@@ -586,7 +586,28 @@ export async function syncSkillsToWorkspace(params: {
     await fsp.mkdir(targetSkillsDir, { recursive: true });
 
     for (const entry of entries) {
+<<<<<<< HEAD
       const dest = path.join(targetSkillsDir, entry.skill.name);
+=======
+      let dest: string | null = null;
+      try {
+        dest = resolveSyncedSkillDestinationPath({
+          targetSkillsDir,
+          entry,
+          usedDirNames,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : JSON.stringify(error);
+        skillsLogger.warn(`Failed to resolve safe destination for ${entry.skill.name}: ${message}`);
+        continue;
+      }
+      if (!dest) {
+        skillsLogger.warn(
+          `Failed to resolve safe destination for ${entry.skill.name}: invalid source directory name`,
+        );
+        continue;
+      }
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
       try {
         await fsp.cp(entry.skill.baseDir, dest, {
           recursive: true,
@@ -594,7 +615,7 @@ export async function syncSkillsToWorkspace(params: {
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : JSON.stringify(error);
-        console.warn(`[skills] Failed to copy ${entry.skill.name} to sandbox: ${message}`);
+        skillsLogger.warn(`Failed to copy ${entry.skill.name} to sandbox: ${message}`);
       }
     }
   });

@@ -1,10 +1,17 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import type { OpenClawConfig } from "../../config/config.js";
+import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
 import { stableStringify } from "../stable-stringify.js";
 import type { FailoverReason } from "./types.js";
 
+<<<<<<< HEAD
 export function formatBillingErrorMessage(provider?: string): string {
+=======
+const log = createSubsystemLogger("errors");
+
+export function formatBillingErrorMessage(provider?: string, model?: string): string {
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
   const providerName = provider?.trim();
   if (providerName) {
     return `⚠️ ${providerName} returned a billing error — your API key has run out of credits or has an insufficient balance. Check your ${providerName} billing dashboard and top up or switch to a different API key.`;
@@ -503,7 +510,7 @@ export function formatAssistantErrorText(
 
   // Never return raw unhandled errors - log for debugging but return safe message
   if (raw.length > 600) {
-    console.warn("[formatAssistantErrorText] Long error truncated:", raw.slice(0, 200));
+    log.warn(`Long error truncated: ${raw.slice(0, 200)}`);
   }
   return raw.length > 600 ? `${raw.slice(0, 600)}…` : raw;
 }
