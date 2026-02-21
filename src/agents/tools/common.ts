@@ -32,7 +32,7 @@ export type ActionGate<T extends Record<string, boolean | undefined>> = (
 export const OWNER_ONLY_TOOL_ERROR = "Tool restricted to owner senders.";
 
 export class ToolInputError extends Error {
-  readonly status = 400;
+  readonly status: number = 400;
 
   constructor(message: string) {
     super(message);
@@ -40,7 +40,19 @@ export class ToolInputError extends Error {
   }
 }
 
+<<<<<<< HEAD
 >>>>>>> 2777d8ad9 (refactor(security): unify gateway scope authorization flows)
+=======
+export class ToolAuthorizationError extends ToolInputError {
+  override readonly status = 403;
+
+  constructor(message: string) {
+    super(message);
+    this.name = "ToolAuthorizationError";
+  }
+}
+
+>>>>>>> 10b8839a8 (fix(security): centralize WhatsApp outbound auth and return 403 tool auth errors)
 export function createActionGate<T extends Record<string, boolean | undefined>>(
   actions: T | undefined,
 ): ActionGate<T> {

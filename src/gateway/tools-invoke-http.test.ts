@@ -9,7 +9,174 @@ import { resetTestPluginRegistry, setTestPluginRegistry, testState } from "./tes
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import { CONFIG_PATH } from "../config/config.js";
 
+<<<<<<< HEAD
 installGatewayTestHooks({ scope: "suite" });
+=======
+// Perf: keep this suite pure unit. Mock heavyweight config/session modules.
+vi.mock("../config/config.js", () => ({
+  loadConfig: () => cfg,
+}));
+
+vi.mock("../config/sessions.js", () => ({
+  resolveMainSessionKey: (params?: {
+    session?: { scope?: string; mainKey?: string };
+    agents?: { list?: Array<{ id?: string; default?: boolean }> };
+  }) => {
+    if (params?.session?.scope === "global") {
+      return "global";
+    }
+    const agents = params?.agents?.list ?? [];
+    const rawDefault = agents.find((agent) => agent?.default)?.id ?? agents[0]?.id ?? "main";
+    const agentId =
+      String(rawDefault ?? "main")
+        .trim()
+        .toLowerCase() || "main";
+    const mainKeyRaw = String(params?.session?.mainKey ?? "main")
+      .trim()
+      .toLowerCase();
+    const mainKey = mainKeyRaw || "main";
+    return `agent:${agentId}:${mainKey}`;
+  },
+}));
+
+vi.mock("./auth.js", () => ({
+  authorizeHttpGatewayConnect: async () => ({ ok: true }),
+}));
+
+vi.mock("../logger.js", () => ({
+  logWarn: () => {},
+}));
+
+vi.mock("../plugins/config-state.js", () => ({
+  isTestDefaultMemorySlotDisabled: () => false,
+}));
+
+vi.mock("../plugins/tools.js", () => ({
+  getPluginToolMeta: () => undefined,
+}));
+
+// Perf: the real tool factory instantiates many tools per request; for these HTTP
+// routing/policy tests we only need a small set of tool names.
+vi.mock("../agents/openclaw-tools.js", () => {
+  const toolInputError = (message: string) => {
+    const err = new Error(message);
+    err.name = "ToolInputError";
+    return err;
+  };
+  const toolAuthorizationError = (message: string) => {
+    const err = new Error(message) as Error & { status?: number };
+    err.name = "ToolAuthorizationError";
+    err.status = 403;
+    return err;
+  };
+
+  const tools = [
+    {
+      name: "session_status",
+      parameters: { type: "object", properties: {} },
+      execute: async () => ({ ok: true }),
+    },
+    {
+      name: "agents_list",
+      parameters: { type: "object", properties: { action: { type: "string" } } },
+      execute: async () => ({ ok: true, result: [] }),
+    },
+    {
+      name: "sessions_spawn",
+      parameters: { type: "object", properties: {} },
+      execute: async () => ({ ok: true }),
+    },
+    {
+      name: "sessions_send",
+      parameters: { type: "object", properties: {} },
+      execute: async () => ({ ok: true }),
+    },
+    {
+      name: "gateway",
+      parameters: { type: "object", properties: {} },
+      execute: async () => {
+        throw toolInputError("invalid args");
+      },
+    },
+    {
+      name: "tools_invoke_test",
+      parameters: {
+        type: "object",
+        properties: {
+          mode: { type: "string" },
+        },
+        required: ["mode"],
+        additionalProperties: false,
+      },
+      execute: async (_toolCallId: string, args: unknown) => {
+        const mode = (args as { mode?: unknown })?.mode;
+        if (mode === "input") {
+          throw toolInputError("mode invalid");
+        }
+        if (mode === "auth") {
+          throw toolAuthorizationError("mode forbidden");
+        }
+        if (mode === "crash") {
+          throw new Error("boom");
+        }
+        return { ok: true };
+      },
+    },
+  ];
+
+  return {
+    createOpenClawTools: () => tools,
+  };
+});
+
+const { handleToolsInvokeHttpRequest } = await import("./tools-invoke-http.js");
+
+let pluginHttpHandlers: Array<(req: IncomingMessage, res: ServerResponse) => Promise<boolean>> = [];
+
+let sharedPort = 0;
+let sharedServer: ReturnType<typeof createServer> | undefined;
+
+beforeAll(async () => {
+  sharedServer = createServer((req, res) => {
+    void (async () => {
+      const handled = await handleToolsInvokeHttpRequest(req, res, {
+        auth: { mode: "token", token: TEST_GATEWAY_TOKEN, allowTailscale: false },
+      });
+      if (handled) {
+        return;
+      }
+      for (const handler of pluginHttpHandlers) {
+        if (await handler(req, res)) {
+          return;
+        }
+      }
+      res.statusCode = 404;
+      res.end("not found");
+    })().catch((err) => {
+      res.statusCode = 500;
+      res.end(String(err));
+    });
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    sharedServer?.once("error", reject);
+    sharedServer?.listen(0, "127.0.0.1", () => {
+      const address = sharedServer?.address() as AddressInfo | null;
+      sharedPort = address?.port ?? 0;
+      resolve();
+    });
+  });
+});
+
+afterAll(async () => {
+  const server = sharedServer;
+  if (!server) {
+    return;
+  }
+  await new Promise<void>((resolve) => server.close(() => resolve()));
+  sharedServer = undefined;
+});
+>>>>>>> 10b8839a8 (fix(security): centralize WhatsApp outbound auth and return 403 tool auth errors)
 
 beforeEach(() => {
   // Ensure these tests are not affected by host env vars.
@@ -394,6 +561,49 @@ describe("POST /tools/invoke", () => {
     });
     expect(resMain.status).toBe(200);
 
+<<<<<<< HEAD
     await server.close();
+=======
+  it("maps tool input/auth errors to 400/403 and unexpected execution errors to 500", async () => {
+    cfg = {
+      ...cfg,
+      agents: {
+        list: [{ id: "main", default: true, tools: { allow: ["tools_invoke_test"] } }],
+      },
+    };
+
+    const inputRes = await invokeToolAuthed({
+      tool: "tools_invoke_test",
+      args: { mode: "input" },
+      sessionKey: "main",
+    });
+    expect(inputRes.status).toBe(400);
+    const inputBody = await inputRes.json();
+    expect(inputBody.ok).toBe(false);
+    expect(inputBody.error?.type).toBe("tool_error");
+    expect(inputBody.error?.message).toBe("mode invalid");
+
+    const authRes = await invokeToolAuthed({
+      tool: "tools_invoke_test",
+      args: { mode: "auth" },
+      sessionKey: "main",
+    });
+    expect(authRes.status).toBe(403);
+    const authBody = await authRes.json();
+    expect(authBody.ok).toBe(false);
+    expect(authBody.error?.type).toBe("tool_error");
+    expect(authBody.error?.message).toBe("mode forbidden");
+
+    const crashRes = await invokeToolAuthed({
+      tool: "tools_invoke_test",
+      args: { mode: "crash" },
+      sessionKey: "main",
+    });
+    expect(crashRes.status).toBe(500);
+    const crashBody = await crashRes.json();
+    expect(crashBody.ok).toBe(false);
+    expect(crashBody.error?.type).toBe("tool_error");
+    expect(crashBody.error?.message).toBe("tool execution failed");
+>>>>>>> 10b8839a8 (fix(security): centralize WhatsApp outbound auth and return 403 tool auth errors)
   });
 });
