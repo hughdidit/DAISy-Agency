@@ -255,7 +255,6 @@ export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = {
           await runtime.channel.reply.handleInboundMessage({
 =======
           // Forward to OpenClaw's message pipeline
-          // TODO: Replace with proper dispatchReplyWithBufferedBlockDispatcher call
           await (
             runtime.channel.reply as { handleInboundMessage?: (params: unknown) => Promise<void> }
           ).handleInboundMessage?.({
