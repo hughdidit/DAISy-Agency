@@ -21,6 +21,7 @@ import {
   resolveExecApprovalsPath,
   resolveExecApprovalsSocketPath,
   type ExecAllowlistEntry,
+  type ExecApprovalsAgent,
   type ExecApprovalsFile,
 } from "./exec-approvals.js";
 
@@ -224,7 +225,7 @@ describe("exec approvals command resolution", () => {
           return {
             command: "./scripts/run.sh --flag",
             cwd,
-            envPath: undefined as string | undefined,
+            envPath: undefined as NodeJS.ProcessEnv | undefined,
             expectedPath: script,
             expectedExecutableName: undefined,
           };
@@ -242,7 +243,7 @@ describe("exec approvals command resolution", () => {
           return {
             command: '"./bin/tool" --version',
             cwd,
-            envPath: undefined as string | undefined,
+            envPath: undefined as NodeJS.ProcessEnv | undefined,
             expectedPath: script,
             expectedExecutableName: undefined,
           };
@@ -278,7 +279,7 @@ describe("exec approvals shell parsing", () => {
     for (const testCase of cases) {
       const res = analyzeShellCommand({ command: testCase.command });
       expect(res.ok, testCase.name).toBe(true);
-      if (testCase.expectedSegments) {
+      if ("expectedSegments" in testCase) {
         expect(
           res.segments.map((seg) => seg.argv[0]),
           testCase.name,
@@ -1240,7 +1241,7 @@ describe("normalizeExecApprovals handles string allowlist entries (#9790)", () =
       const patterns = getMainAllowlistPatterns({
         version: 1,
         agents: {
-          main: { allowlist: testCase.allowlist } as ExecApprovalsFile["agents"]["main"],
+          main: { allowlist: testCase.allowlist } as ExecApprovalsAgent,
         },
       });
       expect(patterns, testCase.name).toEqual(testCase.expectedPatterns);
@@ -1248,7 +1249,7 @@ describe("normalizeExecApprovals handles string allowlist entries (#9790)", () =
         const entries = normalizeExecApprovals({
           version: 1,
           agents: {
-            main: { allowlist: testCase.allowlist } as ExecApprovalsFile["agents"]["main"],
+            main: { allowlist: testCase.allowlist } as ExecApprovalsAgent,
           },
         }).agents?.main?.allowlist;
         expectNoSpreadStringArtifacts(entries ?? []);

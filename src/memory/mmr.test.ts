@@ -36,10 +36,42 @@ describe("tokenize", () => {
 });
 
 describe("jaccardSimilarity", () => {
+<<<<<<< HEAD
   it("returns 1 for identical sets", () => {
     const set = new Set(["a", "b", "c"]);
     expect(jaccardSimilarity(set, set)).toBe(1);
   });
+=======
+  it("computes expected scores for overlap edge cases", () => {
+    const cases = [
+      {
+        name: "identical sets",
+        left: new Set(["a", "b", "c"]),
+        right: new Set(["a", "b", "c"]),
+        expected: 1,
+      },
+      { name: "disjoint sets", left: new Set(["a", "b"]), right: new Set(["c", "d"]), expected: 0 },
+      { name: "two empty sets", left: new Set<string>(), right: new Set<string>(), expected: 1 },
+      {
+        name: "left non-empty right empty",
+        left: new Set(["a"]),
+        right: new Set<string>(),
+        expected: 0,
+      },
+      {
+        name: "left empty right non-empty",
+        left: new Set<string>(),
+        right: new Set(["a"]),
+        expected: 0,
+      },
+      {
+        name: "partial overlap",
+        left: new Set(["a", "b", "c"]),
+        right: new Set(["b", "c", "d"]),
+        expected: 0.5,
+      },
+    ] as const;
+>>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
   it("returns 0 for disjoint sets", () => {
     const setA = new Set(["a", "b"]);

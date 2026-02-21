@@ -383,11 +383,34 @@ describe("DirectoryCache", () => {
     expect(cache.get("a", cfg)).toBeUndefined();
   });
 
+<<<<<<< HEAD
   it("evicts oldest keys when max size is exceeded", () => {
     const cache = new DirectoryCache<string>(60_000, 2);
     cache.set("a", "value-a", cfg);
     cache.set("b", "value-b", cfg);
     cache.set("c", "value-c", cfg);
+=======
+  it("evicts least-recent entries when capacity is exceeded", () => {
+    const cases = [
+      {
+        actions: [
+          ["set", "a", "value-a"],
+          ["set", "b", "value-b"],
+          ["set", "c", "value-c"],
+        ] as const,
+        expected: { a: undefined, b: "value-b", c: "value-c" },
+      },
+      {
+        actions: [
+          ["set", "a", "value-a"],
+          ["set", "b", "value-b"],
+          ["set", "a", "value-a2"],
+          ["set", "c", "value-c"],
+        ] as const,
+        expected: { a: "value-a2", b: undefined, c: "value-c" },
+      },
+    ];
+>>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
     expect(cache.get("a", cfg)).toBeUndefined();
     expect(cache.get("b", cfg)).toBe("value-b");
@@ -464,7 +487,7 @@ describe("buildOutboundResultEnvelope", () => {
         input: { delivery: discordDelivery, flattenDelivery: false },
         expected: { delivery: discordDelivery },
       },
-    ] as const;
+    ];
     for (const testCase of cases) {
       expect(buildOutboundResultEnvelope(testCase.input), testCase.name).toEqual(testCase.expected);
     }
@@ -472,6 +495,7 @@ describe("buildOutboundResultEnvelope", () => {
 });
 
 describe("formatOutboundDeliverySummary", () => {
+<<<<<<< HEAD
   it("falls back when result is missing", () => {
     expect(formatOutboundDeliverySummary("telegram")).toBe(
       "✅ Sent via Telegram. Message ID: unknown",
@@ -480,6 +504,43 @@ describe("formatOutboundDeliverySummary", () => {
       "✅ Sent via iMessage. Message ID: unknown",
     );
   });
+=======
+  it("formats fallback and channel-specific detail variants", () => {
+    const cases = [
+      {
+        name: "fallback telegram",
+        channel: "telegram" as const,
+        result: undefined,
+        expected: "✅ Sent via Telegram. Message ID: unknown",
+      },
+      {
+        name: "fallback imessage",
+        channel: "imessage" as const,
+        result: undefined,
+        expected: "✅ Sent via iMessage. Message ID: unknown",
+      },
+      {
+        name: "telegram with chat detail",
+        channel: "telegram" as const,
+        result: {
+          channel: "telegram" as const,
+          messageId: "m1",
+          chatId: "c1",
+        },
+        expected: "✅ Sent via Telegram. Message ID: m1 (chat c1)",
+      },
+      {
+        name: "discord with channel detail",
+        channel: "discord" as const,
+        result: {
+          channel: "discord" as const,
+          messageId: "d1",
+          channelId: "chan",
+        },
+        expected: "✅ Sent via Discord. Message ID: d1 (channel chan)",
+      },
+    ];
+>>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
   it("adds chat or channel details", () => {
     expect(
@@ -501,6 +562,7 @@ describe("formatOutboundDeliverySummary", () => {
 });
 
 describe("buildOutboundDeliveryJson", () => {
+<<<<<<< HEAD
   it("builds direct delivery payloads", () => {
     expect(
       buildOutboundDeliveryJson({
@@ -518,6 +580,60 @@ describe("buildOutboundDeliveryJson", () => {
       chatId: "c1",
     });
   });
+=======
+  it("builds direct delivery payloads across provider-specific fields", () => {
+    const cases = [
+      {
+        name: "telegram direct payload",
+        input: {
+          channel: "telegram" as const,
+          to: "123",
+          result: { channel: "telegram" as const, messageId: "m1", chatId: "c1" },
+          mediaUrl: "https://example.com/a.png",
+        },
+        expected: {
+          channel: "telegram",
+          via: "direct",
+          to: "123",
+          messageId: "m1",
+          mediaUrl: "https://example.com/a.png",
+          chatId: "c1",
+        },
+      },
+      {
+        name: "whatsapp metadata",
+        input: {
+          channel: "whatsapp" as const,
+          to: "+1",
+          result: { channel: "whatsapp" as const, messageId: "w1", toJid: "jid" },
+        },
+        expected: {
+          channel: "whatsapp",
+          via: "direct",
+          to: "+1",
+          messageId: "w1",
+          mediaUrl: null,
+          toJid: "jid",
+        },
+      },
+      {
+        name: "signal timestamp",
+        input: {
+          channel: "signal" as const,
+          to: "+1",
+          result: { channel: "signal" as const, messageId: "s1", timestamp: 123 },
+        },
+        expected: {
+          channel: "signal",
+          via: "direct",
+          to: "+1",
+          messageId: "s1",
+          mediaUrl: null,
+          timestamp: 123,
+        },
+      },
+    ];
+>>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
   it("supports whatsapp metadata when present", () => {
     expect(
@@ -555,11 +671,27 @@ describe("buildOutboundDeliveryJson", () => {
 });
 
 describe("formatGatewaySummary", () => {
+<<<<<<< HEAD
   it("formats gateway summaries with channel", () => {
     expect(formatGatewaySummary({ channel: "whatsapp", messageId: "m1" })).toBe(
       "✅ Sent via gateway (whatsapp). Message ID: m1",
     );
   });
+=======
+  it("formats default and custom gateway action summaries", () => {
+    const cases = [
+      {
+        name: "default send action",
+        input: { channel: "whatsapp", messageId: "m1" },
+        expected: "✅ Sent via gateway (whatsapp). Message ID: m1",
+      },
+      {
+        name: "custom action",
+        input: { action: "Poll sent", channel: "discord", messageId: "p1" },
+        expected: "✅ Poll sent via gateway (discord). Message ID: p1",
+      },
+    ];
+>>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
   it("supports custom actions", () => {
     expect(
@@ -788,8 +920,12 @@ describe("normalizeOutboundPayloadsForJson", () => {
         mediaUrls: ["https://x.test/1.png"],
         channelData: undefined,
       },
+<<<<<<< HEAD
     ]);
   });
+=======
+    ];
+>>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
   it("keeps mediaUrl null for multi MEDIA tags", () => {
     expect(
@@ -818,6 +954,7 @@ describe("normalizeOutboundPayloads", () => {
 });
 
 describe("formatOutboundPayloadLog", () => {
+<<<<<<< HEAD
   it("trims trailing text and appends media lines", () => {
     expect(
       formatOutboundPayloadLog({
@@ -826,6 +963,27 @@ describe("formatOutboundPayloadLog", () => {
       }),
     ).toBe("hello\nMEDIA:https://x.test/a.png\nMEDIA:https://x.test/b.png");
   });
+=======
+  it("formats text+media and media-only logs", () => {
+    const cases = [
+      {
+        name: "text with media lines",
+        input: {
+          text: "hello  ",
+          mediaUrls: ["https://x.test/a.png", "https://x.test/b.png"],
+        },
+        expected: "hello\nMEDIA:https://x.test/a.png\nMEDIA:https://x.test/b.png",
+      },
+      {
+        name: "media only",
+        input: {
+          text: "",
+          mediaUrls: ["https://x.test/a.png"],
+        },
+        expected: "MEDIA:https://x.test/a.png",
+      },
+    ];
+>>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
   it("logs media-only payloads", () => {
     expect(
