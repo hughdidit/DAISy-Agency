@@ -3,6 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { withEnvAsync } from "../test-utils/env.js";
 import { discoverOpenClawPlugins } from "./discovery.js";
 
 const tempDirs: string[] = [];
@@ -15,6 +16,7 @@ function makeTempDir() {
 }
 
 async function withStateDir<T>(stateDir: string, fn: () => Promise<T>) {
+<<<<<<< HEAD
 <<<<<<< HEAD
   const prev = process.env.CLAWDBOT_STATE_DIR;
   const prevBundled = process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR;
@@ -41,6 +43,16 @@ async function withStateDir<T>(stateDir: string, fn: () => Promise<T>) {
       process.env.CLAWDBOT_BUNDLED_PLUGINS_DIR = prevBundled;
     }
   }
+=======
+  return await withEnvAsync(
+    {
+      OPENCLAW_STATE_DIR: stateDir,
+      CLAWDBOT_STATE_DIR: undefined,
+      OPENCLAW_BUNDLED_PLUGINS_DIR: "/nonexistent/bundled/plugins",
+    },
+    fn,
+  );
+>>>>>>> 7a27e2648 (refactor(test): dedupe plugin env overrides via env helpers)
 }
 
 afterEach(() => {
