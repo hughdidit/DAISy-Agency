@@ -5,11 +5,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { discordPlugin } from "../../extensions/discord/src/channel.js";
 import { slackPlugin } from "../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { runSecurityAudit } from "./audit.js";
 =======
+=======
+import { captureEnv, withEnvAsync } from "../test-utils/env.js";
+import { collectPluginsCodeSafetyFindings } from "./audit-extra.js";
+>>>>>>> c240104dc (refactor(test): snapshot gateway auth env in security audit tests)
 import type { SecurityAuditOptions, SecurityAuditReport } from "./audit.js";
 import { collectPluginsCodeSafetyFindings } from "./audit-extra.js";
 import { runSecurityAudit } from "./audit.js";
@@ -2032,25 +2037,16 @@ description: test skill
   });
 
   describe("maybeProbeGateway auth selection", () => {
-    const originalEnvToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    const originalEnvPassword = process.env.OPENCLAW_GATEWAY_PASSWORD;
+    let envSnapshot: ReturnType<typeof captureEnv>;
 
     beforeEach(() => {
+      envSnapshot = captureEnv(["OPENCLAW_GATEWAY_TOKEN", "OPENCLAW_GATEWAY_PASSWORD"]);
       delete process.env.OPENCLAW_GATEWAY_TOKEN;
       delete process.env.OPENCLAW_GATEWAY_PASSWORD;
     });
 
     afterEach(() => {
-      if (originalEnvToken == null) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-      } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = originalEnvToken;
-      }
-      if (originalEnvPassword == null) {
-        delete process.env.OPENCLAW_GATEWAY_PASSWORD;
-      } else {
-        process.env.OPENCLAW_GATEWAY_PASSWORD = originalEnvPassword;
-      }
+      envSnapshot.restore();
     });
 
     it("uses local auth when gateway.mode is local", async () => {
