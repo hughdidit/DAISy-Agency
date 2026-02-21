@@ -8,8 +8,14 @@ title: "Google Chat"
 
 Status: ready for DMs + spaces via Google Chat API webhooks (HTTP only).
 
+<<<<<<< HEAD
 ## Quick setup (beginner)
 1) Create a Google Cloud project and enable the **Google Chat API**.
+=======
+## Onboarding
+
+1. Create a Google Cloud project and enable the **Google Chat API**.
+>>>>>>> 79183852f (docs: more channel onboarding naming cleanup (#22536))
    - Go to: [Google Chat API Credentials](https://console.cloud.google.com/apis/api/chat.googleapis.com/credentials)
    - Enable the API if it is not already enabled.
 2) Create a **Service Account**:

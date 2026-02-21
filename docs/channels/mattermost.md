@@ -30,11 +30,20 @@ Moltbot will offer the local install path automatically.
 
 Details: [Plugins](/plugin)
 
+<<<<<<< HEAD
 ## Quick setup
 1) Install the Mattermost plugin.
 2) Create a Mattermost bot account and copy the **bot token**.
 3) Copy the Mattermost **base URL** (e.g., `https://chat.example.com`).
 4) Configure Moltbot and start the gateway.
+=======
+## Onboarding
+
+1. Install the Mattermost plugin.
+2. Create a Mattermost bot account and copy the **bot token**.
+3. Copy the Mattermost **base URL** (e.g., `https://chat.example.com`).
+4. Configure OpenClaw and start the gateway.
+>>>>>>> 79183852f (docs: more channel onboarding naming cleanup (#22536))
 
 Minimal config:
 ```json5

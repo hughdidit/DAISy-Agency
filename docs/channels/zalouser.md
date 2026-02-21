@@ -23,10 +23,18 @@ The Gateway machine must have the `zca` binary available in `PATH`.
 - Verify: `zca --version`
 - If missing, install zca-cli (see `extensions/zalouser/README.md` or the upstream zca-cli docs).
 
+<<<<<<< HEAD
 ## Quick setup (beginner)
 1) Install the plugin (see above).
 2) Login (QR, on the Gateway machine):
    - `moltbot channels login --channel zalouser`
+=======
+## Onboarding
+
+1. Install the plugin (see above).
+2. Login (QR, on the Gateway machine):
+   - `openclaw channels login --channel zalouser`
+>>>>>>> 79183852f (docs: more channel onboarding naming cleanup (#22536))
    - Scan the QR code in the terminal with the Zalo mobile app.
 3) Enable the channel:
 
