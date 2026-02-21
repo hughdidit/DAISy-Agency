@@ -30,6 +30,15 @@ The wizard guides you step by step through setting up the gateway, workspace, ch
 Works with npm, pnpm, or bun.
 New install? Start here: [Getting started](https://docs.openclaw.ai/start/getting-started)
 
+<<<<<<< HEAD
+=======
+## Sponsors
+
+| OpenAI                                                            | Blacksmith                                                                   |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| [![OpenAI](docs/assets/sponsors/openai.svg)](https://openai.com/) | [![Blacksmith](docs/assets/sponsors/blacksmith.svg)](https://blacksmith.sh/) |
+
+>>>>>>> f64d5ddf6 (fix: replace README sponsors HTML table with markdown)
 **Subscriptions (OAuth):**
 
 - **[Anthropic](https://www.anthropic.com/)** (Claude Pro/Max)
