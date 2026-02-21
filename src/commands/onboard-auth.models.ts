@@ -20,12 +20,37 @@ export const KIMI_CODING_MODEL_REF = `kimi-coding/${KIMI_CODING_MODEL_ID}`;
 export { QIANFAN_BASE_URL, QIANFAN_DEFAULT_MODEL_ID };
 export const QIANFAN_DEFAULT_MODEL_REF = `qianfan/${QIANFAN_DEFAULT_MODEL_ID}`;
 
+<<<<<<< HEAD
 // Pricing: MiniMax doesn't publish public rates. Override in models.json for accurate costs.
+=======
+export const ZAI_CODING_GLOBAL_BASE_URL = "https://api.z.ai/api/coding/paas/v4";
+export const ZAI_CODING_CN_BASE_URL = "https://open.bigmodel.cn/api/coding/paas/v4";
+export const ZAI_GLOBAL_BASE_URL = "https://api.z.ai/api/paas/v4";
+export const ZAI_CN_BASE_URL = "https://open.bigmodel.cn/api/paas/v4";
+export const ZAI_DEFAULT_MODEL_ID = "glm-5";
+
+export function resolveZaiBaseUrl(endpoint?: string): string {
+  switch (endpoint) {
+    case "coding-cn":
+      return ZAI_CODING_CN_BASE_URL;
+    case "global":
+      return ZAI_GLOBAL_BASE_URL;
+    case "cn":
+      return ZAI_CN_BASE_URL;
+    case "coding-global":
+      return ZAI_CODING_GLOBAL_BASE_URL;
+    default:
+      return ZAI_GLOBAL_BASE_URL;
+  }
+}
+
+// Pricing per 1M tokens (USD) — https://platform.minimaxi.com/document/Price
+>>>>>>> efdec3925 (fix: correct MiniMax M2.5 pricing (was ~50x too high) (openclaw#22755) thanks @miloudbelarebia)
 export const MINIMAX_API_COST = {
-  input: 15,
-  output: 60,
-  cacheRead: 2,
-  cacheWrite: 10,
+  input: 0.3,
+  output: 1.2,
+  cacheRead: 0.03,
+  cacheWrite: 0.12,
 };
 export const MINIMAX_HOSTED_COST = {
   input: 0,
