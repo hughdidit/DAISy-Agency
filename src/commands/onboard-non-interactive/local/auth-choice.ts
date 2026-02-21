@@ -8,6 +8,7 @@ import { upsertSharedEnvVar } from "../../../infra/env-file.js";
 import { shortenHomePath } from "../../../utils.js";
 import { buildTokenProfileId, validateAnthropicSetupToken } from "../../auth-token.js";
 import { applyGoogleGeminiModelDefault } from "../../google-gemini-model-default.js";
+import { applyPrimaryModel } from "../../model-picker.js";
 import {
   applyAuthProfileConfig,
   applyCloudflareAiGatewayConfig,
@@ -42,6 +43,16 @@ import {
   setXiaomiApiKey,
   setZaiApiKey,
 } from "../../onboard-auth.js";
+<<<<<<< HEAD
+=======
+import {
+  applyCustomApiConfig,
+  CustomApiError,
+  parseNonInteractiveCustomApiFlags,
+  resolveCustomProviderId,
+} from "../../onboard-custom.js";
+import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
+>>>>>>> 581868365 (fix: finish volcengine/byteplus landing polish (#7967) (thanks @funmore123))
 import { applyOpenAIConfig } from "../../openai-model-default.js";
 import { resolveNonInteractiveApiKey } from "../api-keys.js";
 
