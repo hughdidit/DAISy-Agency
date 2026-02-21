@@ -180,6 +180,20 @@ export type ChromeExtensionRelayServer = {
   stop: () => Promise<void>;
 };
 
+type RelayRuntime = {
+  server: ChromeExtensionRelayServer;
+  relayAuthToken: string;
+};
+
+function parseUrlPort(parsed: URL): number | null {
+  const port =
+    parsed.port?.trim() !== "" ? Number(parsed.port) : parsed.protocol === "https:" ? 443 : 80;
+  if (!Number.isFinite(port) || port <= 0 || port > 65535) {
+    return null;
+  }
+  return port;
+}
+
 function parseBaseUrl(raw: string): {
   host: string;
   port: number;
@@ -190,9 +204,8 @@ function parseBaseUrl(raw: string): {
     throw new Error(`extension relay cdpUrl must be http(s), got ${parsed.protocol}`);
   }
   const host = parsed.hostname;
-  const port =
-    parsed.port?.trim() !== "" ? Number(parsed.port) : parsed.protocol === "https:" ? 443 : 80;
-  if (!Number.isFinite(port) || port <= 0 || port > 65535) {
+  const port = parseUrlPort(parsed);
+  if (!port) {
     throw new Error(`extension relay cdpUrl has invalid port: ${parsed.port || "(empty)"}`);
   }
   return { host, port, baseUrl: parsed.toString().replace(/\/$/, "") };
@@ -220,6 +233,7 @@ function rejectUpgrade(socket: Duplex, status: number, bodyText: string) {
   }
 }
 
+<<<<<<< HEAD
 const serversByPort = new Map<number, ChromeExtensionRelayServer>();
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -255,6 +269,9 @@ function resolveRelayAuthToken(): string {
     "extension relay requires gateway auth token (set gateway.auth.token or OPENCLAW_GATEWAY_TOKEN)",
   );
 }
+=======
+const relayRuntimeByPort = new Map<number, RelayRuntime>();
+>>>>>>> 764b1f293 (refactor: simplify relay runtime state)
 
 function isAddrInUseError(err: unknown): boolean {
   return (
@@ -289,7 +306,15 @@ function relayAuthTokenForUrl(url: string): string | null {
     if (!isLoopbackHost(parsed.hostname)) {
       return null;
     }
+<<<<<<< HEAD
     return resolveGatewayAuthToken();
+=======
+    const port = parseUrlPort(parsed);
+    if (!port) {
+      return null;
+    }
+    return relayRuntimeByPort.get(port)?.relayAuthToken ?? null;
+>>>>>>> 764b1f293 (refactor: simplify relay runtime state)
   } catch {
     return null;
   }
@@ -312,9 +337,9 @@ export async function ensureChromeExtensionRelayServer(opts: {
     throw new Error(`extension relay requires loopback cdpUrl host (got ${info.host})`);
   }
 
-  const existing = serversByPort.get(info.port);
+  const existing = relayRuntimeByPort.get(info.port);
   if (existing) {
-    return existing;
+    return existing.server;
   }
 
   const relayAuthToken = resolveRelayAuthToken();
@@ -840,10 +865,17 @@ export async function ensureChromeExtensionRelayServer(opts: {
         cdpWsUrl: `ws://${info.host}:${info.port}/cdp`,
         extensionConnected: () => false,
         stop: async () => {
+<<<<<<< HEAD
           serversByPort.delete(info.port);
         },
       };
       serversByPort.set(info.port, existingRelay);
+=======
+          relayRuntimeByPort.delete(info.port);
+        },
+      };
+      relayRuntimeByPort.set(info.port, { server: existingRelay, relayAuthToken });
+>>>>>>> 764b1f293 (refactor: simplify relay runtime state)
       return existingRelay;
     }
     throw err;
@@ -861,6 +893,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
     cdpWsUrl: `ws://${host}:${port}/cdp`,
     extensionConnected: () => Boolean(extensionWs),
     stop: async () => {
+<<<<<<< HEAD
       serversByPort.delete(port);
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -874,6 +907,9 @@ export async function ensureChromeExtensionRelayServer(opts: {
 >>>>>>> 66f5a4c69 (Revert "fix(browser): track original port mapping for EADDRINUSE fallback")
 =======
 >>>>>>> 7e54b6c96 (fix(browser): unify extension relay auth on gateway token)
+=======
+      relayRuntimeByPort.delete(port);
+>>>>>>> 764b1f293 (refactor: simplify relay runtime state)
       try {
         extensionWs?.close(1001, "server stopping");
       } catch {
@@ -894,16 +930,21 @@ export async function ensureChromeExtensionRelayServer(opts: {
     },
   };
 
+<<<<<<< HEAD
   serversByPort.set(port, relay);
+=======
+  relayRuntimeByPort.set(port, { server: relay, relayAuthToken });
+>>>>>>> 764b1f293 (refactor: simplify relay runtime state)
   return relay;
 }
 
 export async function stopChromeExtensionRelayServer(opts: { cdpUrl: string }): Promise<boolean> {
   const info = parseBaseUrl(opts.cdpUrl);
-  const existing = serversByPort.get(info.port);
+  const existing = relayRuntimeByPort.get(info.port);
   if (!existing) {
     return false;
   }
+<<<<<<< HEAD
   await existing.stop();
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -917,5 +958,8 @@ export async function stopChromeExtensionRelayServer(opts: { cdpUrl: string }): 
 >>>>>>> 66f5a4c69 (Revert "fix(browser): track original port mapping for EADDRINUSE fallback")
 =======
 >>>>>>> 7e54b6c96 (fix(browser): unify extension relay auth on gateway token)
+=======
+  await existing.server.stop();
+>>>>>>> 764b1f293 (refactor: simplify relay runtime state)
   return true;
 }
