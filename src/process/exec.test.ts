@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { runCommandWithTimeout } from "./exec.js";
 =======
 import { captureEnv } from "../test-utils/env.js";
+=======
+import { withEnvAsync } from "../test-utils/env.js";
+>>>>>>> ae70bf4dc (refactor(test): simplify env scoping in exec and usage tests)
 import { runCommandWithTimeout, shouldSpawnWithShell } from "./exec.js";
 >>>>>>> ee2fa5f41 (refactor(test): reuse env snapshots in unit suites)
 
@@ -31,9 +35,7 @@ describe("runCommandWithTimeout", () => {
   });
 
   it("merges custom env with process.env", async () => {
-    const envSnapshot = captureEnv(["OPENCLAW_BASE_ENV"]);
-    process.env.OPENCLAW_BASE_ENV = "base";
-    try {
+    await withEnvAsync({ OPENCLAW_BASE_ENV: "base" }, async () => {
       const result = await runCommandWithTimeout(
         [
           process.execPath,
@@ -48,9 +50,14 @@ describe("runCommandWithTimeout", () => {
 
       expect(result.code).toBe(0);
       expect(result.stdout).toBe("base|ok");
+<<<<<<< HEAD
     } finally {
       envSnapshot.restore();
     }
+=======
+      expect(result.termination).toBe("exit");
+    });
+>>>>>>> ae70bf4dc (refactor(test): simplify env scoping in exec and usage tests)
   });
 <<<<<<< HEAD
 =======
