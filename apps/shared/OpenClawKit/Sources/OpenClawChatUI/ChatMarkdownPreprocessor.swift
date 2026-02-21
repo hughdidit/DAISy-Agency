@@ -1,6 +1,21 @@
 import Foundation
 
 enum ChatMarkdownPreprocessor {
+<<<<<<< HEAD
+=======
+    // Keep in sync with `src/auto-reply/reply/strip-inbound-meta.ts`
+    // (`INBOUND_META_SENTINELS`), and extend parser expectations in
+    // `ChatMarkdownPreprocessorTests` when sentinels change.
+    private static let inboundContextHeaders = [
+        "Conversation info (untrusted metadata):",
+        "Sender (untrusted metadata):",
+        "Thread starter (untrusted, for context):",
+        "Replied message (untrusted, for context):",
+        "Forwarded message context (untrusted metadata):",
+        "Chat history since last reply (untrusted, for context):",
+    ]
+
+>>>>>>> a4e7e952e (fix(ui): strip injected inbound metadata from user messages in history (#22142))
     struct InlineImage: Identifiable {
         let id = UUID()
         let label: String
@@ -43,9 +58,72 @@ enum ChatMarkdownPreprocessor {
             cleaned.replaceSubrange(start..<end, with: "")
         }
 
+<<<<<<< HEAD
         let normalized = cleaned
             .replacingOccurrences(of: "\n\n\n", with: "\n\n")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         return Result(cleaned: normalized, images: images.reversed())
+=======
+        return Result(cleaned: self.normalize(cleaned), images: images.reversed())
+    }
+
+    private static func stripInboundContextBlocks(_ raw: String) -> String {
+        guard self.inboundContextHeaders.contains(where: raw.contains) else {
+            return raw
+        }
+
+        let normalized = raw.replacingOccurrences(of: "\r\n", with: "\n")
+        var outputLines: [String] = []
+        var inMetaBlock = false
+        var inFencedJson = false
+
+        for line in normalized.split(separator: "\n", omittingEmptySubsequences: false) {
+            let currentLine = String(line)
+
+            if !inMetaBlock && self.inboundContextHeaders.contains(where: currentLine.hasPrefix) {
+                inMetaBlock = true
+                inFencedJson = false
+                continue
+            }
+
+            if inMetaBlock {
+                if !inFencedJson && currentLine.trimmingCharacters(in: .whitespacesAndNewlines) == "```json" {
+                    inFencedJson = true
+                    continue
+                }
+
+                if inFencedJson {
+                    if currentLine.trimmingCharacters(in: .whitespacesAndNewlines) == "```" {
+                        inMetaBlock = false
+                        inFencedJson = false
+                    }
+                    continue
+                }
+
+                if currentLine.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    continue
+                }
+
+                inMetaBlock = false
+            }
+
+            outputLines.append(currentLine)
+        }
+
+        return outputLines.joined(separator: "\n").replacingOccurrences(of: #"^\n+"#, with: "", options: .regularExpression)
+    }
+
+    private static func stripPrefixedTimestamps(_ raw: String) -> String {
+        let pattern = #"(?m)^\[[A-Za-z]{3}\s+\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}(?::\d{2})?\s+(?:GMT|UTC)[+-]?\d{0,2}\]\s*"#
+        return raw.replacingOccurrences(of: pattern, with: "", options: .regularExpression)
+    }
+
+    private static func normalize(_ raw: String) -> String {
+        var output = raw
+        output = output.replacingOccurrences(of: "\r\n", with: "\n")
+        output = output.replacingOccurrences(of: "\n\n\n", with: "\n\n")
+        output = output.replacingOccurrences(of: "\n\n\n", with: "\n\n")
+        return output.trimmingCharacters(in: .whitespacesAndNewlines)
+>>>>>>> a4e7e952e (fix(ui): strip injected inbound metadata from user messages in history (#22142))
     }
 }
