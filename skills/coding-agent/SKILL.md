@@ -226,8 +226,13 @@ git worktree remove /tmp/issue-99
 5. **--full-auto for building** - auto-approves changes
 6. **vanilla for reviewing** - no special flags needed
 7. **Parallel is OK** - run many Codex processes at once for batch work
+<<<<<<< HEAD
 8. **NEVER start Codex in ~/clawd/** - it'll read your soul docs and get weird ideas about the org chart!
 9. **NEVER checkout branches in ~/Projects/moltbot/** - that's the LIVE Moltbot instance!
+=======
+8. **NEVER start Codex in ~/.openclaw/** - it'll read your soul docs and get weird ideas about the org chart!
+9. **NEVER checkout branches in ~/Projects/openclaw/** - that's the LIVE OpenClaw instance!
+>>>>>>> 24d18d0d7 (fix: Correct data path in SKILL.md (coding-agent) (#11009))
 
 ---
 
