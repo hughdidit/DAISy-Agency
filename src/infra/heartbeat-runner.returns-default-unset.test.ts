@@ -244,6 +244,7 @@ describe("resolveHeartbeatDeliveryTarget", () => {
     updatedAt: Date.now(),
   };
 
+<<<<<<< HEAD
   it("respects target none", () => {
     const cfg: MoltbotConfig = {
       agents: { defaults: { heartbeat: { target: "none" } } },
@@ -387,6 +388,119 @@ describe("resolveHeartbeatDeliveryTarget", () => {
       lastChannel: undefined,
       lastAccountId: undefined,
     });
+=======
+  it("resolves target variants across route and allowlist rules", () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      entry: typeof baseEntry & {
+        lastChannel?: "whatsapp" | "telegram" | "webchat";
+        lastTo?: string;
+      };
+      expected: ReturnType<typeof resolveHeartbeatDeliveryTarget>;
+    }> = [
+      {
+        name: "target none",
+        cfg: { agents: { defaults: { heartbeat: { target: "none" } } } },
+        entry: baseEntry,
+        expected: {
+          channel: "none",
+          reason: "target-none",
+          accountId: undefined,
+          lastChannel: undefined,
+          lastAccountId: undefined,
+        },
+      },
+      {
+        name: "use last route by default",
+        cfg: {},
+        entry: { ...baseEntry, lastChannel: "whatsapp", lastTo: "+1555" },
+        expected: {
+          channel: "whatsapp",
+          to: "+1555",
+          accountId: undefined,
+          lastChannel: "whatsapp",
+          lastAccountId: undefined,
+        },
+      },
+      {
+        name: "normalize explicit whatsapp target when allowFrom wildcard",
+        cfg: {
+          agents: { defaults: { heartbeat: { target: "whatsapp", to: "whatsapp:(555) 123" } } },
+          channels: { whatsapp: { allowFrom: ["*"] } },
+        },
+        entry: baseEntry,
+        expected: {
+          channel: "whatsapp",
+          to: "+555123",
+          accountId: undefined,
+          lastChannel: undefined,
+          lastAccountId: undefined,
+        },
+      },
+      {
+        name: "skip webchat last route",
+        cfg: {},
+        entry: { ...baseEntry, lastChannel: "webchat", lastTo: "web" },
+        expected: {
+          channel: "none",
+          reason: "no-target",
+          accountId: undefined,
+          lastChannel: undefined,
+          lastAccountId: undefined,
+        },
+      },
+      {
+        name: "reject explicit whatsapp target outside allowFrom",
+        cfg: {
+          agents: { defaults: { heartbeat: { target: "whatsapp", to: "+1999" } } },
+          channels: { whatsapp: { allowFrom: ["+1555", "+1666"] } },
+        },
+        entry: { ...baseEntry, lastChannel: "whatsapp", lastTo: "+1222" },
+        expected: {
+          channel: "none",
+          reason: "no-target",
+          accountId: undefined,
+          lastChannel: "whatsapp",
+          lastAccountId: undefined,
+        },
+      },
+      {
+        name: "normalize prefixed whatsapp group targets",
+        cfg: { channels: { whatsapp: { allowFrom: ["+1555"] } } },
+        entry: {
+          ...baseEntry,
+          lastChannel: "whatsapp",
+          lastTo: "whatsapp:120363401234567890@G.US",
+        },
+        expected: {
+          channel: "whatsapp",
+          to: "120363401234567890@g.us",
+          accountId: undefined,
+          lastChannel: "whatsapp",
+          lastAccountId: undefined,
+        },
+      },
+      {
+        name: "keep explicit telegram target",
+        cfg: { agents: { defaults: { heartbeat: { target: "telegram", to: "123" } } } },
+        entry: baseEntry,
+        expected: {
+          channel: "telegram",
+          to: "123",
+          accountId: undefined,
+          lastChannel: undefined,
+          lastAccountId: undefined,
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      expect(
+        resolveHeartbeatDeliveryTarget({ cfg: testCase.cfg, entry: testCase.entry }),
+        testCase.name,
+      ).toEqual(testCase.expected);
+    }
+>>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
   });
 
 <<<<<<< HEAD
@@ -512,6 +626,14 @@ describe("resolveHeartbeatSenderContext", () => {
 });
 
 describe("runHeartbeatOnce", () => {
+  const createHeartbeatDeps = (sendWhatsApp: ReturnType<typeof vi.fn>, nowMs = 0) => ({
+    sendWhatsApp,
+    getQueueSize: () => 0,
+    nowMs: () => nowMs,
+    webAuthExists: async () => true,
+    hasActiveWebListener: () => true,
+  });
+
   it("skips when agent heartbeat is not enabled", async () => {
     const cfg: MoltbotConfig = {
       agents: {
@@ -592,13 +714,7 @@ describe("runHeartbeatOnce", () => {
 
       await runHeartbeatOnce({
         cfg,
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
+        deps: createHeartbeatDeps(sendWhatsApp),
       });
 
       expect(sendWhatsApp).toHaveBeenCalledTimes(1);
@@ -654,13 +770,7 @@ describe("runHeartbeatOnce", () => {
       await runHeartbeatOnce({
         cfg,
         agentId: "ops",
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
+        deps: createHeartbeatDeps(sendWhatsApp),
       });
       expect(sendWhatsApp).toHaveBeenCalledTimes(1);
       expect(sendWhatsApp).toHaveBeenCalledWith("+1555", "Final alert", expect.any(Object));
@@ -735,13 +845,7 @@ describe("runHeartbeatOnce", () => {
       const result = await runHeartbeatOnce({
         cfg,
         agentId,
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
+        deps: createHeartbeatDeps(sendWhatsApp),
       });
 
       expect(result.status).toBe("ran");
@@ -762,6 +866,7 @@ describe("runHeartbeatOnce", () => {
     }
   });
 
+<<<<<<< HEAD
   it("runs heartbeats in the explicit session key when configured", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
@@ -779,146 +884,109 @@ describe("runHeartbeatOnce", () => {
             heartbeat: {
               every: "5m",
               target: "last",
-            },
-          },
-        },
-        channels: { whatsapp: { allowFrom: ["*"] } },
-        session: { store: storePath },
-      };
-      const mainSessionKey = resolveMainSessionKey(cfg);
-      const agentId = resolveAgentIdFromSessionKey(mainSessionKey);
-      const groupSessionKey = buildAgentPeerSessionKey({
-        agentId,
-        channel: "whatsapp",
-        peerKind: "group",
-        peerId: groupId,
-      });
-      if (cfg.agents?.defaults?.heartbeat) {
-        cfg.agents.defaults.heartbeat.session = groupSessionKey;
-      }
-
-      await fs.writeFile(
-        storePath,
-        JSON.stringify({
-          [mainSessionKey]: {
-            sessionId: "sid-main",
-            updatedAt: Date.now(),
-            lastChannel: "whatsapp",
-            lastTo: "+1555",
-          },
-          [groupSessionKey]: {
-            sessionId: "sid-group",
-            updatedAt: Date.now() + 10_000,
-            lastChannel: "whatsapp",
-            lastTo: groupId,
-          },
-        }),
-      );
-
-      replySpy.mockResolvedValue([{ text: "Group alert" }]);
-      const sendWhatsApp = vi.fn().mockResolvedValue({
-        messageId: "m1",
-        toJid: "jid",
-      });
-
-      await runHeartbeatOnce({
-        cfg,
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
-      });
-
-      expect(sendWhatsApp).toHaveBeenCalledTimes(1);
-      expect(sendWhatsApp).toHaveBeenCalledWith(groupId, "Group alert", expect.any(Object));
-      expect(replySpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          SessionKey: groupSessionKey,
-          From: groupId,
-          To: groupId,
-          Provider: "heartbeat",
-        }),
-        expect.objectContaining({ isHeartbeat: true, suppressToolErrorWarnings: false }),
-        cfg,
-      );
-    } finally {
-      replySpy.mockRestore();
-    }
-  });
-
-  it("runs heartbeats in forced session key overrides passed at call time", async () => {
-    const tmpDir = await createCaseDir("hb-forced-session-override");
-    const storePath = path.join(tmpDir, "sessions.json");
+=======
+  it("resolves configured and forced session key overrides", async () => {
     const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
     try {
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            workspace: tmpDir,
-            heartbeat: {
-              every: "5m",
-              target: "last",
+      const cases = [
+        {
+          name: "heartbeat.session",
+          caseDir: "hb-explicit-session",
+          peerKind: "group" as const,
+          peerId: "120363401234567890@g.us",
+          message: "Group alert",
+          applyOverride: ({ cfg, sessionKey }: { cfg: OpenClawConfig; sessionKey: string }) => {
+            if (cfg.agents?.defaults?.heartbeat) {
+              cfg.agents.defaults.heartbeat.session = sessionKey;
+            }
+          },
+          runOptions: ({ sessionKey: _sessionKey }: { sessionKey: string }) => ({
+            sessionKey: undefined as string | undefined,
+          }),
+        },
+        {
+          name: "runHeartbeatOnce sessionKey arg",
+          caseDir: "hb-forced-session-override",
+          peerKind: "direct" as const,
+          peerId: "+15559990000",
+          message: "Forced alert",
+          applyOverride: () => {},
+          runOptions: ({ sessionKey }: { sessionKey: string }) => ({ sessionKey }),
+        },
+      ] as const;
+
+      for (const testCase of cases) {
+        const tmpDir = await createCaseDir(testCase.caseDir);
+        const storePath = path.join(tmpDir, "sessions.json");
+        const cfg: OpenClawConfig = {
+          agents: {
+            defaults: {
+              workspace: tmpDir,
+              heartbeat: {
+                every: "5m",
+                target: "last",
+              },
+>>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
             },
           },
-        },
-        channels: { whatsapp: { allowFrom: ["*"] } },
-        session: { store: storePath },
-      };
-      const mainSessionKey = resolveMainSessionKey(cfg);
-      const agentId = resolveAgentIdFromSessionKey(mainSessionKey);
-      const forcedSessionKey = buildAgentPeerSessionKey({
-        agentId,
-        channel: "whatsapp",
-        peerKind: "direct",
-        peerId: "+15559990000",
-      });
+          channels: { whatsapp: { allowFrom: ["*"] } },
+          session: { store: storePath },
+        };
+        const mainSessionKey = resolveMainSessionKey(cfg);
+        const agentId = resolveAgentIdFromSessionKey(mainSessionKey);
+        const overrideSessionKey = buildAgentPeerSessionKey({
+          agentId,
+          channel: "whatsapp",
+          peerKind: testCase.peerKind,
+          peerId: testCase.peerId,
+        });
+        testCase.applyOverride({ cfg, sessionKey: overrideSessionKey });
 
-      await fs.writeFile(
-        storePath,
-        JSON.stringify({
-          [mainSessionKey]: {
-            sessionId: "sid-main",
-            updatedAt: Date.now(),
-            lastChannel: "whatsapp",
-            lastTo: "+1555",
-          },
-          [forcedSessionKey]: {
-            sessionId: "sid-forced",
-            updatedAt: Date.now() + 10_000,
-            lastChannel: "whatsapp",
-            lastTo: "+15559990000",
-          },
-        }),
-      );
+        await fs.writeFile(
+          storePath,
+          JSON.stringify({
+            [mainSessionKey]: {
+              sessionId: "sid-main",
+              updatedAt: Date.now(),
+              lastChannel: "whatsapp",
+              lastTo: "+1555",
+            },
+            [overrideSessionKey]: {
+              sessionId: `sid-${testCase.peerKind}`,
+              updatedAt: Date.now() + 10_000,
+              lastChannel: "whatsapp",
+              lastTo: testCase.peerId,
+            },
+          }),
+        );
 
-      replySpy.mockResolvedValue([{ text: "Forced alert" }]);
-      const sendWhatsApp = vi.fn().mockResolvedValue({
-        messageId: "m1",
-        toJid: "jid",
-      });
+        replySpy.mockReset();
+        replySpy.mockResolvedValue([{ text: testCase.message }]);
+        const sendWhatsApp = vi.fn().mockResolvedValue({ messageId: "m1", toJid: "jid" });
 
-      await runHeartbeatOnce({
-        cfg,
-        sessionKey: forcedSessionKey,
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
-      });
+        await runHeartbeatOnce({
+          cfg,
+          ...testCase.runOptions({ sessionKey: overrideSessionKey }),
+          deps: createHeartbeatDeps(sendWhatsApp),
+        });
 
-      expect(sendWhatsApp).toHaveBeenCalledTimes(1);
-      expect(sendWhatsApp).toHaveBeenCalledWith("+15559990000", "Forced alert", expect.any(Object));
-      expect(replySpy).toHaveBeenCalledWith(
-        expect.objectContaining({ SessionKey: forcedSessionKey }),
-        expect.objectContaining({ isHeartbeat: true }),
-        cfg,
-      );
+        expect(sendWhatsApp, testCase.name).toHaveBeenCalledTimes(1);
+        expect(sendWhatsApp, testCase.name).toHaveBeenCalledWith(
+          testCase.peerId,
+          testCase.message,
+          expect.any(Object),
+        );
+        expect(replySpy, testCase.name).toHaveBeenCalledWith(
+          expect.objectContaining({
+            SessionKey: overrideSessionKey,
+            From: testCase.peerId,
+            To: testCase.peerId,
+            Provider: "heartbeat",
+          }),
+          expect.objectContaining({ isHeartbeat: true, suppressToolErrorWarnings: false }),
+          cfg,
+        );
+      }
     } finally {
       replySpy.mockRestore();
     }
@@ -964,13 +1032,7 @@ describe("runHeartbeatOnce", () => {
 
       await runHeartbeatOnce({
         cfg,
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 60_000,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
+        deps: createHeartbeatDeps(sendWhatsApp, 60_000),
       });
 
       expect(sendWhatsApp).toHaveBeenCalledTimes(0);
@@ -979,6 +1041,7 @@ describe("runHeartbeatOnce", () => {
     }
   });
 
+<<<<<<< HEAD
   it("can include reasoning payloads when enabled", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
@@ -996,14 +1059,46 @@ describe("runHeartbeatOnce", () => {
               every: "5m",
               target: "whatsapp",
               includeReasoning: true,
+=======
+  it("handles reasoning payload delivery variants", async () => {
+    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
+    try {
+      const cases = [
+        {
+          name: "reasoning + final payload",
+          caseDir: "hb-reasoning",
+          replies: [{ text: "Reasoning:\n_Because it helps_" }, { text: "Final alert" }],
+          expectedTexts: ["Reasoning:\n_Because it helps_", "Final alert"],
+        },
+        {
+          name: "reasoning + HEARTBEAT_OK",
+          caseDir: "hb-reasoning-heartbeat-ok",
+          replies: [{ text: "Reasoning:\n_Because it helps_" }, { text: "HEARTBEAT_OK" }],
+          expectedTexts: ["Reasoning:\n_Because it helps_"],
+        },
+      ] as const;
+
+      for (const testCase of cases) {
+        const tmpDir = await createCaseDir(testCase.caseDir);
+        const storePath = path.join(tmpDir, "sessions.json");
+        const cfg: OpenClawConfig = {
+          agents: {
+            defaults: {
+              workspace: tmpDir,
+              heartbeat: {
+                every: "5m",
+                target: "whatsapp",
+                includeReasoning: true,
+              },
+>>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
             },
           },
-        },
-        channels: { whatsapp: { allowFrom: ["*"] } },
-        session: { store: storePath },
-      };
-      const sessionKey = resolveMainSessionKey(cfg);
+          channels: { whatsapp: { allowFrom: ["*"] } },
+          session: { store: storePath },
+        };
+        const sessionKey = resolveMainSessionKey(cfg);
 
+<<<<<<< HEAD
       await fs.writeFile(
         storePath,
         JSON.stringify({
@@ -1067,54 +1162,40 @@ describe("runHeartbeatOnce", () => {
               every: "5m",
               target: "whatsapp",
               includeReasoning: true,
+=======
+        await fs.writeFile(
+          storePath,
+          JSON.stringify({
+            [sessionKey]: {
+              sessionId: "sid",
+              updatedAt: Date.now(),
+              lastChannel: "whatsapp",
+              lastProvider: "whatsapp",
+              lastTo: "+1555",
+>>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
             },
-          },
-        },
-        channels: { whatsapp: { allowFrom: ["*"] } },
-        session: { store: storePath },
-      };
-      const sessionKey = resolveMainSessionKey(cfg);
+          }),
+        );
 
-      await fs.writeFile(
-        storePath,
-        JSON.stringify({
-          [sessionKey]: {
-            sessionId: "sid",
-            updatedAt: Date.now(),
-            lastChannel: "whatsapp",
-            lastProvider: "whatsapp",
-            lastTo: "+1555",
-          },
-        }),
-      );
+        replySpy.mockReset();
+        replySpy.mockResolvedValue(testCase.replies);
+        const sendWhatsApp = vi.fn().mockResolvedValue({ messageId: "m1", toJid: "jid" });
 
-      replySpy.mockResolvedValue([
-        { text: "Reasoning:\n_Because it helps_" },
-        { text: "HEARTBEAT_OK" },
-      ]);
-      const sendWhatsApp = vi.fn().mockResolvedValue({
-        messageId: "m1",
-        toJid: "jid",
-      });
+        await runHeartbeatOnce({
+          cfg,
+          deps: createHeartbeatDeps(sendWhatsApp),
+        });
 
-      await runHeartbeatOnce({
-        cfg,
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
-      });
-
-      expect(sendWhatsApp).toHaveBeenCalledTimes(1);
-      expect(sendWhatsApp).toHaveBeenNthCalledWith(
-        1,
-        "+1555",
-        "Reasoning:\n_Because it helps_",
-        expect.any(Object),
-      );
+        expect(sendWhatsApp, testCase.name).toHaveBeenCalledTimes(testCase.expectedTexts.length);
+        for (const [index, text] of testCase.expectedTexts.entries()) {
+          expect(sendWhatsApp, testCase.name).toHaveBeenNthCalledWith(
+            index + 1,
+            "+1555",
+            text,
+            expect.any(Object),
+          );
+        }
+      }
     } finally {
       replySpy.mockRestore();
     }
@@ -1167,13 +1248,7 @@ describe("runHeartbeatOnce", () => {
 
       await runHeartbeatOnce({
         cfg,
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
+        deps: createHeartbeatDeps(sendWhatsApp),
       });
 
       expect(sendWhatsApp).toHaveBeenCalledTimes(1);
@@ -1187,24 +1262,34 @@ describe("runHeartbeatOnce", () => {
     }
   });
 
+<<<<<<< HEAD
   it("skips heartbeat when HEARTBEAT.md is effectively empty (saves API calls)", async () => {
 <<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-hb-"));
 =======
+=======
+  type HeartbeatFileState = "empty" | "actionable" | "missing" | "read-error";
+
+  async function runHeartbeatFileScenario(params: {
+    fileState: HeartbeatFileState;
+    reason?: "interval" | "wake";
+    queueCronEvent?: boolean;
+    replyText?: string;
+  }) {
+>>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
     const tmpDir = await createCaseDir("openclaw-hb");
 >>>>>>> f52805a78 (test: reuse heartbeat suite fixtures across cases)
     const storePath = path.join(tmpDir, "sessions.json");
     const workspaceDir = path.join(tmpDir, "workspace");
-    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
-    try {
-      await fs.mkdir(workspaceDir, { recursive: true });
+    await fs.mkdir(workspaceDir, { recursive: true });
 
-      // Create effectively empty HEARTBEAT.md (only header and comments)
+    if (params.fileState === "empty") {
       await fs.writeFile(
         path.join(workspaceDir, "HEARTBEAT.md"),
         "# HEARTBEAT.md\n\n## Tasks\n\n",
         "utf-8",
       );
+<<<<<<< HEAD
 
       const cfg: MoltbotConfig = {
         agents: {
@@ -1342,11 +1427,15 @@ describe("runHeartbeatOnce", () => {
       await fs.mkdir(workspaceDir, { recursive: true });
 
       // Create HEARTBEAT.md with actionable content
+=======
+    } else if (params.fileState === "actionable") {
+>>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
       await fs.writeFile(
         path.join(workspaceDir, "HEARTBEAT.md"),
         "# HEARTBEAT.md\n\n- Check server logs\n- Review pending PRs\n",
         "utf-8",
       );
+<<<<<<< HEAD
 
       const cfg: MoltbotConfig = {
         agents: {
@@ -1484,78 +1573,36 @@ describe("runHeartbeatOnce", () => {
     try {
       await fs.mkdir(workspaceDir, { recursive: true });
       // Simulate a read failure path (readFile on a directory returns EISDIR).
+=======
+    } else if (params.fileState === "read-error") {
+      // readFile on a directory triggers EISDIR.
+>>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
       await fs.mkdir(path.join(workspaceDir, "HEARTBEAT.md"), { recursive: true });
-
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            workspace: workspaceDir,
-            heartbeat: { every: "5m", target: "whatsapp" },
-          },
-        },
-        channels: { whatsapp: { allowFrom: ["*"] } },
-        session: { store: storePath },
-      };
-      const sessionKey = resolveMainSessionKey(cfg);
-
-      await fs.writeFile(
-        storePath,
-        JSON.stringify(
-          {
-            [sessionKey]: {
-              sessionId: "sid",
-              updatedAt: Date.now(),
-              lastChannel: "whatsapp",
-              lastTo: "+1555",
-            },
-          },
-          null,
-          2,
-        ),
-      );
-
-      replySpy.mockResolvedValue({ text: "Checked logs and PRs" });
-      const sendWhatsApp = vi.fn().mockResolvedValue({
-        messageId: "m1",
-        toJid: "jid",
-      });
-
-      const res = await runHeartbeatOnce({
-        cfg,
-        deps: {
-          sendWhatsApp,
-          getQueueSize: () => 0,
-          nowMs: () => 0,
-          webAuthExists: async () => true,
-          hasActiveWebListener: () => true,
-        },
-      });
-
-      // Read errors other than ENOENT should not disable heartbeat runs.
-      expect(res.status).toBe("ran");
-      expect(replySpy).toHaveBeenCalled();
-      expect(sendWhatsApp).toHaveBeenCalledTimes(1);
-    } finally {
-      replySpy.mockRestore();
     }
-  });
 
-  it("does not skip wake-triggered heartbeat when HEARTBEAT.md does not exist", async () => {
-    const tmpDir = await createCaseDir("openclaw-hb");
-    const storePath = path.join(tmpDir, "sessions.json");
-    const workspaceDir = path.join(tmpDir, "workspace");
-    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
-    try {
-      await fs.mkdir(workspaceDir, { recursive: true });
-      // Don't create HEARTBEAT.md
-
-      const cfg: OpenClawConfig = {
-        agents: {
-          defaults: {
-            workspace: workspaceDir,
-            heartbeat: { every: "5m", target: "whatsapp" },
+    const cfg: OpenClawConfig = {
+      agents: {
+        defaults: {
+          workspace: workspaceDir,
+          heartbeat: { every: "5m", target: "whatsapp" },
+        },
+      },
+      channels: { whatsapp: { allowFrom: ["*"] } },
+      session: { store: storePath },
+    };
+    const sessionKey = resolveMainSessionKey(cfg);
+    await fs.writeFile(
+      storePath,
+      JSON.stringify(
+        {
+          [sessionKey]: {
+            sessionId: "sid",
+            updatedAt: Date.now(),
+            lastChannel: "whatsapp",
+            lastTo: "+1555",
           },
         },
+<<<<<<< HEAD
         channels: { whatsapp: { allowFrom: ["*"] } },
         session: { store: storePath },
       };
@@ -1601,6 +1648,131 @@ describe("runHeartbeatOnce", () => {
       expect(replySpy).toHaveBeenCalled();
     } finally {
       replySpy.mockRestore();
+=======
+        null,
+        2,
+      ),
+    );
+    if (params.queueCronEvent) {
+      enqueueSystemEvent("Cron: QMD maintenance completed", {
+        sessionKey,
+        contextKey: "cron:qmd-maintenance",
+      });
+    }
+
+    const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
+    replySpy.mockResolvedValue({ text: params.replyText ?? "Checked logs and PRs" });
+    const sendWhatsApp = vi.fn().mockResolvedValue({ messageId: "m1", toJid: "jid" });
+    const res = await runHeartbeatOnce({
+      cfg,
+      reason: params.reason,
+      deps: createHeartbeatDeps(sendWhatsApp),
+    });
+    return { res, replySpy, sendWhatsApp };
+  }
+
+  it("applies HEARTBEAT.md gating rules across file states and triggers", async () => {
+    const cases: Array<{
+      name: string;
+      fileState: HeartbeatFileState;
+      reason?: "interval" | "wake";
+      queueCronEvent?: boolean;
+      expectedStatus: "ran" | "skipped";
+      expectedSkipReason?: "empty-heartbeat-file";
+      expectedSendCalls: number;
+      expectedReplyCalls: number;
+      expectCronContext?: boolean;
+      replyText?: string;
+    }> = [
+      {
+        name: "empty file + interval skips",
+        fileState: "empty",
+        expectedStatus: "skipped",
+        expectedSkipReason: "empty-heartbeat-file",
+        expectedSendCalls: 0,
+        expectedReplyCalls: 0,
+      },
+      {
+        name: "empty file + wake runs",
+        fileState: "empty",
+        reason: "wake",
+        expectedStatus: "ran",
+        expectedSendCalls: 1,
+        expectedReplyCalls: 1,
+        replyText: "wake event processed",
+      },
+      {
+        name: "empty file + queued cron interval runs",
+        fileState: "empty",
+        reason: "interval",
+        queueCronEvent: true,
+        expectedStatus: "ran",
+        expectedSendCalls: 1,
+        expectedReplyCalls: 1,
+        expectCronContext: true,
+        replyText: "Relay this cron update now",
+      },
+      {
+        name: "actionable file runs",
+        fileState: "actionable",
+        expectedStatus: "ran",
+        expectedSendCalls: 1,
+        expectedReplyCalls: 1,
+      },
+      {
+        name: "missing file runs",
+        fileState: "missing",
+        expectedStatus: "ran",
+        expectedSendCalls: 1,
+        expectedReplyCalls: 1,
+      },
+      {
+        name: "read error runs",
+        fileState: "read-error",
+        expectedStatus: "ran",
+        expectedSendCalls: 1,
+        expectedReplyCalls: 1,
+      },
+      {
+        name: "missing file + wake runs",
+        fileState: "missing",
+        reason: "wake",
+        expectedStatus: "ran",
+        expectedSendCalls: 1,
+        expectedReplyCalls: 1,
+        replyText: "wake event processed",
+      },
+      {
+        name: "missing file + queued cron interval runs",
+        fileState: "missing",
+        reason: "interval",
+        queueCronEvent: true,
+        expectedStatus: "ran",
+        expectedSendCalls: 1,
+        expectedReplyCalls: 1,
+        expectCronContext: true,
+        replyText: "Relay this cron update now",
+      },
+    ];
+
+    for (const testCase of cases) {
+      const { res, replySpy, sendWhatsApp } = await runHeartbeatFileScenario(testCase);
+      try {
+        expect(res.status, testCase.name).toBe(testCase.expectedStatus);
+        if (res.status === "skipped") {
+          expect(res.reason, testCase.name).toBe(testCase.expectedSkipReason);
+        }
+        expect(replySpy, testCase.name).toHaveBeenCalledTimes(testCase.expectedReplyCalls);
+        expect(sendWhatsApp, testCase.name).toHaveBeenCalledTimes(testCase.expectedSendCalls);
+        if (testCase.expectCronContext) {
+          const calledCtx = replySpy.mock.calls[0]?.[0] as { Provider?: string; Body?: string };
+          expect(calledCtx.Provider, testCase.name).toBe("cron-event");
+          expect(calledCtx.Body, testCase.name).toContain("scheduled reminder has been triggered");
+        }
+      } finally {
+        replySpy.mockRestore();
+      }
+>>>>>>> 21b0eac91 (test: consolidate infra approval and heartbeat test matrices)
     }
   });
 });
