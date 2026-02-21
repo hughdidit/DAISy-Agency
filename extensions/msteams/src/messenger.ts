@@ -299,7 +299,7 @@ async function buildActivity(
       // Teams only accepts base64 data URLs for images
       const conversationType = conversationRef.conversation?.conversationType?.toLowerCase();
       const isPersonal = conversationType === "personal";
-      const isImage = contentType?.startsWith("image/") ?? false;
+      const isImage = media.kind === "image";
 
       if (
         requiresFileConsent({
@@ -351,7 +351,7 @@ async function buildActivity(
         return activity;
       }
 
-      if (!isPersonal && !isImage && tokenProvider) {
+      if (!isPersonal && media.kind !== "image" && tokenProvider) {
         // Fallback: no SharePoint site configured, try OneDrive upload
         const uploaded = await uploadAndShareOneDrive({
           buffer: media.buffer,
