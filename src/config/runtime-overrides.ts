@@ -1,9 +1,13 @@
+<<<<<<< HEAD
+=======
+import { isPlainObject } from "../utils.js";
+import { parseConfigPath, setConfigValueAtPath, unsetConfigValueAtPath } from "./config-paths.js";
+import { isBlockedObjectKey } from "./prototype-keys.js";
+>>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 import type { OpenClawConfig } from "./types.js";
 import { parseConfigPath, setConfigValueAtPath, unsetConfigValueAtPath } from "./config-paths.js";
 
 type OverrideTree = Record<string, unknown>;
-
-const BLOCKED_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 
 let overrides: OverrideTree = {};
 
@@ -20,7 +24,7 @@ function sanitizeOverrideValue(value: unknown, seen = new WeakSet<object>()): un
   seen.add(value);
   const sanitized: OverrideTree = {};
   for (const [key, entry] of Object.entries(value)) {
-    if (entry === undefined || BLOCKED_MERGE_KEYS.has(key)) {
+    if (entry === undefined || isBlockedObjectKey(key)) {
       continue;
     }
     sanitized[key] = sanitizeOverrideValue(entry, seen);
@@ -35,7 +39,7 @@ function mergeOverrides(base: unknown, override: unknown): unknown {
   }
   const next: OverrideTree = { ...base };
   for (const [key, value] of Object.entries(override)) {
-    if (value === undefined || BLOCKED_MERGE_KEYS.has(key)) {
+    if (value === undefined || isBlockedObjectKey(key)) {
       continue;
     }
     next[key] = mergeOverrides((base as OverrideTree)[key], value);

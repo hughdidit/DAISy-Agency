@@ -14,6 +14,13 @@ import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> fbb79d401 (fix(security): harden runtime command override gating)
 import { logVerbose } from "../../globals.js";
 import { clampInt } from "../../utils.js";
+<<<<<<< HEAD
+=======
+import type { MsgContext } from "../templating.js";
+import type { ReplyPayload } from "../types.js";
+import { buildDisabledCommandReply } from "./command-gates.js";
+import { formatElevatedUnavailableMessage } from "./elevated-unavailable.js";
+>>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 import { stripMentions, stripStructuralPrefixes } from "./mentions.js";
 
 const CHAT_BASH_SCOPE_KEY = "chat:bash";
@@ -221,9 +228,11 @@ export async function handleBashChatCommand(params: {
   };
 }): Promise<ReplyPayload> {
   if (!isCommandFlagEnabled(params.cfg, "bash")) {
-    return {
-      text: "⚠️ bash is disabled. Set commands.bash=true to enable. Docs: https://docs.openclaw.ai/tools/slash-commands#config",
-    };
+    return buildDisabledCommandReply({
+      label: "bash",
+      configKey: "bash",
+      docsUrl: "https://docs.openclaw.ai/tools/slash-commands#config",
+    });
   }
 
   const agentId =
