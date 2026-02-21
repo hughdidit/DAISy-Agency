@@ -1725,7 +1725,7 @@ describe("createForumTopicTelegram", () => {
       const result = await createForumTopicTelegram(testCase.target, testCase.title, {
         token: "tok",
         api,
-        ...testCase.options,
+        ...("options" in testCase ? testCase.options : {}),
       });
 
       expect(createForumTopic).toHaveBeenCalledWith(...testCase.expectedCall);
