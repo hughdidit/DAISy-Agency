@@ -156,6 +156,7 @@ import { registerGateway, unregisterGateway } from "./gateway-registry.js";
 >>>>>>> 5af322f71 (feat(discord): add set-presence action for bot activity and status)
 import {
   DiscordMessageListener,
+  DiscordMessageUpdateListener,
   DiscordPresenceListener,
   DiscordReactionListener,
   DiscordReactionRemoveListener,
@@ -745,6 +746,24 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   });
 
   registerDiscordListener(client.listeners, new DiscordMessageListener(messageHandler, logger));
+  registerDiscordListener(
+    client.listeners,
+    new DiscordMessageUpdateListener({
+      cfg,
+      accountId: account.accountId,
+      runtime,
+      botUserId,
+      guildEntries,
+      logger,
+      dmEnabled,
+      dmPolicy,
+      allowFrom,
+      groupPolicy,
+      groupDmEnabled,
+      groupDmChannels,
+      allowBots: discordCfg.allowBots ?? false,
+    }),
+  );
   registerDiscordListener(
     client.listeners,
     new DiscordReactionListener({
