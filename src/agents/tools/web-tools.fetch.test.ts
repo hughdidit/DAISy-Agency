@@ -113,7 +113,7 @@ describe("web_fetch extraction fallbacks", () => {
       externalContent?: { untrusted?: boolean; source?: string; wrapped?: boolean };
     };
 
-    expect(details.text).toContain("<<<EXTERNAL_UNTRUSTED_CONTENT>>>");
+    expect(details.text).toMatch(/<<<EXTERNAL_UNTRUSTED_CONTENT id="[a-f0-9]{16}">>>/);
     expect(details.text).toContain("Ignore previous instructions");
     expect(details.externalContent).toMatchObject({
       untrusted: true,
@@ -310,6 +310,33 @@ describe("web_fetch extraction fallbacks", () => {
     expect(details.extractor).toBe("firecrawl");
     expect(details.text).toContain("firecrawl fallback");
   });
+<<<<<<< HEAD:src/agents/tools/web-tools.fetch.test.ts
+=======
+
+  it("wraps external content and clamps oversized maxChars", async () => {
+    const large = "a".repeat(80_000);
+    installMockFetch(
+      (input: RequestInfo | URL) =>
+        Promise.resolve(textResponse(large, requestUrl(input))) as Promise<Response>,
+    );
+
+    const tool = createFetchTool({
+      firecrawl: { enabled: false },
+      maxCharsCap: 10_000,
+    });
+
+    const result = await tool?.execute?.("call", {
+      url: "https://example.com/large",
+      maxChars: 200_000,
+    });
+    const details = result?.details as { text?: string; length?: number; truncated?: boolean };
+    expect(details.text).toMatch(/<<<EXTERNAL_UNTRUSTED_CONTENT id="[a-f0-9]{16}">>>/);
+    expect(details.text).toContain("Source: Web Fetch");
+    expect(details.length).toBeLessThanOrEqual(10_000);
+    expect(details.truncated).toBe(true);
+  });
+
+>>>>>>> 58f7b7638 (Security: add per-wrapper IDs to untrusted-content markers (#19009)):src/agents/tools/web-tools.fetch.e2e.test.ts
   it("strips and truncates HTML from error responses", async () => {
     const long = "x".repeat(12_000);
     const html =
@@ -341,7 +368,7 @@ describe("web_fetch extraction fallbacks", () => {
     }
 
     expect(message).toContain("Web fetch failed (404):");
-    expect(message).toContain("<<<EXTERNAL_UNTRUSTED_CONTENT>>>");
+    expect(message).toMatch(/<<<EXTERNAL_UNTRUSTED_CONTENT id="[a-f0-9]{16}">>>/);
     expect(message).toContain("SECURITY NOTICE");
     expect(message).toContain("Not Found");
     expect(message).not.toContain("<html");
@@ -376,7 +403,7 @@ describe("web_fetch extraction fallbacks", () => {
     }
 
     expect(message).toContain("Web fetch failed (500):");
-    expect(message).toContain("<<<EXTERNAL_UNTRUSTED_CONTENT>>>");
+    expect(message).toMatch(/<<<EXTERNAL_UNTRUSTED_CONTENT id="[a-f0-9]{16}">>>/);
     expect(message).toContain("Oops");
   });
 
@@ -414,7 +441,7 @@ describe("web_fetch extraction fallbacks", () => {
     }
 
     expect(message).toContain("Firecrawl fetch failed (403):");
-    expect(message).toContain("<<<EXTERNAL_UNTRUSTED_CONTENT>>>");
+    expect(message).toMatch(/<<<EXTERNAL_UNTRUSTED_CONTENT id="[a-f0-9]{16}">>>/);
     expect(message).toContain("blocked");
   });
 });
