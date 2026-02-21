@@ -3,10 +3,14 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import { captureEnv } from "../test-utils/env.js";
 >>>>>>> 94e84e6f7 (refactor(test): clean up gateway tool env restore)
+=======
+import { withEnvAsync } from "../test-utils/env.js";
+>>>>>>> 8fd8988ff (refactor(test): reuse env helper in gateway tool e2e)
 import "./test-helpers/fast-core-tools.js";
 import { createMoltbotTools } from "./moltbot-tools.js";
 
@@ -23,6 +27,7 @@ describe("gateway tool", () => {
   it("schedules SIGUSR1 restart", async () => {
     vi.useFakeTimers();
     const kill = vi.spyOn(process, "kill").mockImplementation(() => true);
+<<<<<<< HEAD
 <<<<<<< HEAD
     const previousStateDir = process.env.CLAWDBOT_STATE_DIR;
     const previousProfile = process.env.CLAWDBOT_PROFILE;
@@ -44,18 +49,34 @@ describe("gateway tool", () => {
       if (!tool) {
         throw new Error("missing gateway tool");
       }
+=======
+    const stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
 
-      const result = await tool.execute("call1", {
-        action: "restart",
-        delayMs: 0,
-      });
-      expect(result.details).toMatchObject({
-        ok: true,
-        pid: process.pid,
-        signal: "SIGUSR1",
-        delayMs: 0,
-      });
+    try {
+      await withEnvAsync(
+        { OPENCLAW_STATE_DIR: stateDir, OPENCLAW_PROFILE: "isolated" },
+        async () => {
+          const tool = createOpenClawTools({
+            config: { commands: { restart: true } },
+          }).find((candidate) => candidate.name === "gateway");
+          expect(tool).toBeDefined();
+          if (!tool) {
+            throw new Error("missing gateway tool");
+          }
+>>>>>>> 8fd8988ff (refactor(test): reuse env helper in gateway tool e2e)
 
+          const result = await tool.execute("call1", {
+            action: "restart",
+            delayMs: 0,
+          });
+          expect(result.details).toMatchObject({
+            ok: true,
+            pid: process.pid,
+            signal: "SIGUSR1",
+            delayMs: 0,
+          });
+
+<<<<<<< HEAD
       const sentinelPath = path.join(stateDir, "restart-sentinel.json");
       const raw = await fs.readFile(sentinelPath, "utf-8");
       const parsed = JSON.parse(raw) as {
@@ -64,14 +85,27 @@ describe("gateway tool", () => {
       expect(parsed.payload?.kind).toBe("restart");
       expect(parsed.payload?.doctorHint).toBe(
         "Run: moltbot --profile isolated doctor --non-interactive",
-      );
+=======
+          const sentinelPath = path.join(stateDir, "restart-sentinel.json");
+          const raw = await fs.readFile(sentinelPath, "utf-8");
+          const parsed = JSON.parse(raw) as {
+            payload?: { kind?: string; doctorHint?: string | null };
+          };
+          expect(parsed.payload?.kind).toBe("restart");
+          expect(parsed.payload?.doctorHint).toBe(
+            "Run: openclaw --profile isolated doctor --non-interactive",
+          );
 
-      expect(kill).not.toHaveBeenCalled();
-      await vi.runAllTimersAsync();
-      expect(kill).toHaveBeenCalledWith(process.pid, "SIGUSR1");
+          expect(kill).not.toHaveBeenCalled();
+          await vi.runAllTimersAsync();
+          expect(kill).toHaveBeenCalledWith(process.pid, "SIGUSR1");
+        },
+>>>>>>> 8fd8988ff (refactor(test): reuse env helper in gateway tool e2e)
+      );
     } finally {
       kill.mockRestore();
       vi.useRealTimers();
+<<<<<<< HEAD
 <<<<<<< HEAD
       if (previousStateDir === undefined) {
         delete process.env.CLAWDBOT_STATE_DIR;
@@ -85,6 +119,8 @@ describe("gateway tool", () => {
       }
 =======
       envSnapshot.restore();
+=======
+>>>>>>> 8fd8988ff (refactor(test): reuse env helper in gateway tool e2e)
       await fs.rm(stateDir, { recursive: true, force: true });
 >>>>>>> 94e84e6f7 (refactor(test): clean up gateway tool env restore)
     }
