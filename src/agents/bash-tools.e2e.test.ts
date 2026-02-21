@@ -2,6 +2,7 @@ import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-events.js";
+import { captureEnv } from "../test-utils/env.js";
 import { getFinishedSession, resetProcessRegistryForTests } from "./bash-process-registry.js";
 import { createExecTool, createProcessTool, execTool, processTool } from "./bash-tools.js";
 import { buildDockerExecArgs } from "./bash-tools.shared.js";
@@ -62,18 +63,17 @@ beforeEach(() => {
 });
 
 describe("exec tool backgrounding", () => {
-  const originalShell = process.env.SHELL;
+  let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeEach(() => {
+    envSnapshot = captureEnv(["SHELL"]);
     if (!isWin && defaultShell) {
       process.env.SHELL = defaultShell;
     }
   });
 
   afterEach(() => {
-    if (!isWin) {
-      process.env.SHELL = originalShell;
-    }
+    envSnapshot.restore();
   });
 
   it(
@@ -302,18 +302,17 @@ describe("exec tool backgrounding", () => {
 });
 
 describe("exec exit codes", () => {
-  const originalShell = process.env.SHELL;
+  let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeEach(() => {
+    envSnapshot = captureEnv(["SHELL"]);
     if (!isWin && defaultShell) {
       process.env.SHELL = defaultShell;
     }
   });
 
   afterEach(() => {
-    if (!isWin) {
-      process.env.SHELL = originalShell;
-    }
+    envSnapshot.restore();
   });
 
   it("treats non-zero exits as completed and appends exit code", async () => {
@@ -424,20 +423,17 @@ describe("exec notifyOnExit", () => {
 });
 
 describe("exec PATH handling", () => {
-  const originalPath = process.env.PATH;
-  const originalShell = process.env.SHELL;
+  let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeEach(() => {
+    envSnapshot = captureEnv(["PATH", "SHELL"]);
     if (!isWin && defaultShell) {
       process.env.SHELL = defaultShell;
     }
   });
 
   afterEach(() => {
-    process.env.PATH = originalPath;
-    if (!isWin) {
-      process.env.SHELL = originalShell;
-    }
+    envSnapshot.restore();
   });
 
   it("prepends configured path entries", async () => {
