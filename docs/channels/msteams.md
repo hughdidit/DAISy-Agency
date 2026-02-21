@@ -227,7 +227,13 @@ This is often easier than hand-editing JSON manifests.
 2. Find the bot in Teams and send a DM
 3. Check gateway logs for incoming activity
 
+<<<<<<< HEAD
 ## Setup (minimal text-only)
+=======
+## Setup (minimal)
+
+
+>>>>>>> b5a77b9cb (docs: finalize remaining setup heading phrasing (#22543))
 1. **Install the Microsoft Teams plugin**
    - From npm: `moltbot plugins install @moltbot/msteams`
    - From a local checkout: `moltbot plugins install ./extensions/msteams`
