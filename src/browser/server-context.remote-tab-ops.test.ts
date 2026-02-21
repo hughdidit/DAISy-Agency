@@ -11,6 +11,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5d8eef8b3 (perf(test): remove module reloads in browser and embedding suites)
 =======
 import fs from "node:fs/promises";
@@ -35,11 +36,14 @@ import type { BrowserServerState } from "./server-context.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import type { BrowserServerState } from "./server-context.js";
+>>>>>>> 55aaeb508 (refactor(browser): centralize navigation guard enforcement)
 import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
 >>>>>>> cc359d338 (test: add fetch mock helper and reaction coverage)
 import * as cdpModule from "./cdp.js";
+import { InvalidBrowserNavigationUrlError } from "./navigation-guard.js";
 import * as pwAiModule from "./pw-ai-module.js";
-import type { BrowserServerState } from "./server-context.js";
 import "./server-context.chrome-test-harness.js";
 import { createBrowserRouteContext } from "./server-context.js";
 
@@ -159,7 +163,6 @@ describe("browser server-context remote profile tab operations", () => {
       cdpUrl: "https://browserless.example/chrome?token=abc",
       url: "http://127.0.0.1:3000",
       ssrfPolicy: { allowPrivateNetwork: true },
-      navigationChecked: true,
     });
 
     await remote.closeTab("T1");
@@ -333,8 +336,23 @@ describe("browser server-context tab selection state", () => {
       cdpUrl: "http://127.0.0.1:18800",
       url: "http://127.0.0.1:8080",
       ssrfPolicy: { allowPrivateNetwork: true },
-      navigationChecked: true,
     });
 >>>>>>> 9f9cd5cbb (refactor(browser): unify navigation guard path and error typing)
+  });
+
+  it("blocks unsupported non-network URLs before any HTTP tab-open fallback", async () => {
+    const fetchMock = vi.fn(async () => {
+      throw new Error("unexpected fetch");
+    });
+
+    global.fetch = withFetchPreconnect(fetchMock);
+    const state = makeState("openclaw");
+    const ctx = createBrowserRouteContext({ getState: () => state });
+    const openclaw = ctx.forProfile("openclaw");
+
+    await expect(openclaw.openTab("file:///etc/passwd")).rejects.toBeInstanceOf(
+      InvalidBrowserNavigationUrlError,
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
