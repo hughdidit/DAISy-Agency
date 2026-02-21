@@ -8,7 +8,11 @@ import { ElevatedAllowFromSchema } from "./zod-schema.agent-runtime.js";
 >>>>>>> 47f6bb414 (Commands: add commands.allowFrom config)
 =======
 import { createAllowDenyChannelRulesSchema } from "./zod-schema.allowdeny.js";
+<<<<<<< HEAD
 >>>>>>> 747b11c83 (refactor(config): share allow/deny channel policy schema)
+=======
+import { sensitive } from "./zod-schema.sensitive.js";
+>>>>>>> 9abab6a2c (Add explicit ownerDisplaySecret for owner ID hash obfuscation (#22520))
 import {
   GroupChatSchema,
   InboundDebounceSchema,
@@ -132,6 +136,8 @@ export const CommandsSchema = z
     restart: z.boolean().optional().default(true),
     useAccessGroups: z.boolean().optional(),
     ownerAllowFrom: z.array(z.union([z.string(), z.number()])).optional(),
+    ownerDisplay: z.enum(["raw", "hash"]).optional().default("raw"),
+    ownerDisplaySecret: z.string().optional().register(sensitive),
     allowFrom: ElevatedAllowFromSchema.optional(),
   })
   .strict()

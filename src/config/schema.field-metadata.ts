@@ -673,8 +673,15 @@ export const FIELD_HELP: Record<string, string> = {
   "commands.useAccessGroups": "Enforce access-group allowlists/policies for commands.",
   "commands.ownerAllowFrom":
     "Explicit owner allowlist for owner-only tools/commands. Use channel-native IDs (optionally prefixed like \"whatsapp:+15551234567\"). '*' is ignored.",
+<<<<<<< HEAD:src/config/schema.field-metadata.ts
   "commands.allowFrom":
     'Per-provider allowlist restricting who can use slash commands. If set, overrides the channel\'s allowFrom for command authorization. Use \'*\' key for global default; provider-specific keys (e.g. \'discord\') override the global. Example: { "*": ["user1"], "discord": ["user:123"] }.',
+=======
+  "commands.ownerDisplay":
+    "Controls how owner IDs are rendered in the system prompt. Allowed values: raw, hash. Default: raw.",
+  "commands.ownerDisplaySecret":
+    "Optional secret used to HMAC hash owner IDs when ownerDisplay=hash. Prefer env substitution.",
+>>>>>>> 9abab6a2c (Add explicit ownerDisplaySecret for owner ID hash obfuscation (#22520)):src/config/schema.help.ts
   "session.dmScope":
     'DM session scoping: "main" keeps continuity; "per-peer", "per-channel-peer", or "per-account-channel-peer" isolates DM history (recommended for shared inboxes/multi-account).',
   "session.identityLinks":
