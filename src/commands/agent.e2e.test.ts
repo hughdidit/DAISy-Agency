@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { beforeEach, describe, expect, it, type MockInstance, vi } from "vitest";
+<<<<<<< HEAD
 
 import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 
@@ -35,8 +36,12 @@ import type { RuntimeEnv } from "../runtime.js";
 >>>>>>> 31f9be126 (style: run oxfmt and fix gate failures)
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+>>>>>>> 23e07bc49 (test(agent): reuse isolated agent mock setup)
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
+import "../cron/isolated-agent.mocks.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
+import { withTempHome as withTempHomeBase } from "../../test/helpers/temp-home.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
 <<<<<<< HEAD
