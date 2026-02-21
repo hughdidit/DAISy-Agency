@@ -1,24 +1,25 @@
 import { describe, expect, it } from "vitest";
+import { withEnv } from "../test-utils/env.js";
 import { sanitizeEnv } from "./invoke.js";
 import { buildNodeInvokeResultParams } from "./runner.js";
 
 describe("node-host sanitizeEnv", () => {
   it("ignores PATH overrides", () => {
+<<<<<<< HEAD
     const prev = process.env.PATH;
     process.env.PATH = "/usr/bin";
     try {
       const env = sanitizeEnv({ PATH: "/tmp/evil:/usr/bin" }) ?? {};
+=======
+    withEnv({ PATH: "/usr/bin" }, () => {
+      const env = sanitizeEnv({ PATH: "/tmp/evil:/usr/bin" });
+>>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
       expect(env.PATH).toBe("/usr/bin");
-    } finally {
-      if (prev === undefined) {
-        delete process.env.PATH;
-      } else {
-        process.env.PATH = prev;
-      }
-    }
+    });
   });
 
   it("blocks dangerous env keys/prefixes", () => {
+<<<<<<< HEAD
     const prevPythonPath = process.env.PYTHONPATH;
     const prevLdPreload = process.env.LD_PRELOAD;
     try {
@@ -45,6 +46,28 @@ describe("node-host sanitizeEnv", () => {
         process.env.LD_PRELOAD = prevLdPreload;
       }
     }
+=======
+    withEnv({ PYTHONPATH: undefined, LD_PRELOAD: undefined, BASH_ENV: undefined }, () => {
+      const env = sanitizeEnv({
+        PYTHONPATH: "/tmp/pwn",
+        LD_PRELOAD: "/tmp/pwn.so",
+        BASH_ENV: "/tmp/pwn.sh",
+        FOO: "bar",
+      });
+      expect(env.FOO).toBe("bar");
+      expect(env.PYTHONPATH).toBeUndefined();
+      expect(env.LD_PRELOAD).toBeUndefined();
+      expect(env.BASH_ENV).toBeUndefined();
+    });
+  });
+
+  it("drops dangerous inherited env keys even without overrides", () => {
+    withEnv({ PATH: "/usr/bin:/bin", BASH_ENV: "/tmp/pwn.sh" }, () => {
+      const env = sanitizeEnv(undefined);
+      expect(env.PATH).toBe("/usr/bin:/bin");
+      expect(env.BASH_ENV).toBeUndefined();
+    });
+>>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
   });
 });
 
