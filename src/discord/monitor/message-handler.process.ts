@@ -249,7 +249,18 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   const forumContextLine = isForumStarter ? `[Forum parent: #${forumParentSlug}]` : null;
   const groupChannel = isGuildMessage && displayChannelSlug ? `#${displayChannelSlug}` : undefined;
   const groupSubject = isDirectMessage ? undefined : groupChannel;
+<<<<<<< HEAD
   const channelDescription = channelInfo?.topic?.trim();
+=======
+  const channelTopic = isGuildMessage ? channelInfo?.topic : undefined;
+  const untrustedChannelMetadata = isGuildMessage
+    ? buildUntrustedChannelMetadata({
+        source: "discord",
+        label: "Discord channel topic",
+        entries: [channelInfo?.topic],
+      })
+    : undefined;
+>>>>>>> eedea6cf3 (Discord: add trusted channel topics on new sessions)
   const senderName = sender.isPluralKit
     ? (sender.name ?? author.username)
     : (data.member?.nickname ?? author.globalName ?? author.username);
@@ -400,6 +411,11 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     SenderTag: senderTag,
     GroupSubject: groupSubject,
     GroupChannel: groupChannel,
+<<<<<<< HEAD
+=======
+    ChannelTopic: channelTopic,
+    UntrustedContext: untrustedChannelMetadata ? [untrustedChannelMetadata] : undefined,
+>>>>>>> eedea6cf3 (Discord: add trusted channel topics on new sessions)
     GroupSystemPrompt: isGuildMessage ? groupSystemPrompt : undefined,
     GroupSpace: isGuildMessage ? (guildInfo?.id ?? guildSlug) || undefined : undefined,
     Provider: "discord" as const,

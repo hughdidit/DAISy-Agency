@@ -46,6 +46,12 @@ Docs: https://docs.openclaw.ai
 - Auto-reply/UI: add model fallback lifecycle visibility in verbose logs, /status active-model context with fallback reason, and cohesive WebUI fallback indicators. (#20704) Thanks @joshavant.
 - Discord/Streaming: add stream preview mode for live draft replies with partial/block options and configurable chunking. Thanks @thewilloftheshadow. Inspiration @neoagentic-ship-it.
 - Discord/Telegram: add configurable lifecycle status reactions for queued/thinking/tool/done/error phases with a shared controller and emoji/timing overrides. Thanks @wolly-tundracube and @thewilloftheshadow.
+<<<<<<< HEAD
+=======
+- Discord/Voice: add voice channel join/leave/status via `/vc`, plus auto-join configuration for realtime voice conversations. Thanks @thewilloftheshadow.
+- Discord: include channel topics in trusted inbound metadata on new sessions. Thanks @thewilloftheshadow.
+- Docs/Discord: document forum channel thread creation flows and component limits. Thanks @thewilloftheshadow.
+>>>>>>> eedea6cf3 (Discord: add trusted channel topics on new sessions)
 
 >>>>>>> e98ccc8e1 (iOS/Gateway: stabilize background wake and reconnect behavior (#21226))
 ### Fixes
