@@ -345,21 +345,7 @@ enum ExecApprovalsPromptPresenter {
 
 @MainActor
 private enum ExecHostExecutor {
-    private struct ExecApprovalContext {
-        let command: [String]
-        let displayCommand: String
-        let trimmedAgent: String?
-        let approvals: ExecApprovalsResolved
-        let security: ExecSecurity
-        let ask: ExecAsk
-        let autoAllowSkills: Bool
-        let env: [String: String]?
-        let resolution: ExecCommandResolution?
-        let allowlistResolutions: [ExecCommandResolution]
-        let allowlistMatches: [ExecAllowlistEntry]
-        let allowlistSatisfied: Bool
-        let skillAllow: Bool
-    }
+    private typealias ExecApprovalContext = ExecApprovalEvaluation
 
     private static let blockedEnvKeys: Set<String> = [
         "PATH",
@@ -405,7 +391,7 @@ private enum ExecHostExecutor {
         if ExecApprovalHelpers.requiresAsk(
             ask: context.ask,
             security: context.security,
-            allowlistMatch: context.allowlistSatisfied ? context.allowlistMatches.first : nil,
+            allowlistMatch: context.allowlistMatch,
             skillAllow: context.skillAllow),
             approvalDecision == nil
         {
@@ -416,7 +402,7 @@ private enum ExecHostExecutor {
                     host: "node",
                     security: context.security.rawValue,
                     ask: context.ask.rawValue,
-                    agentId: context.trimmedAgent,
+                    agentId: context.agentId,
                     resolvedPath: context.resolution?.resolvedPath,
                     sessionKey: request.sessionKey))
 
@@ -457,7 +443,7 @@ private enum ExecHostExecutor {
                     ? context.allowlistResolutions[idx].resolvedPath
                     : nil
                 ExecApprovalsStore.recordAllowlistUse(
-                    agentId: context.trimmedAgent,
+                    agentId: context.agentId,
                     pattern: match.pattern,
                     command: context.displayCommand,
                     resolvedPath: resolvedPath)
@@ -476,49 +462,12 @@ private enum ExecHostExecutor {
     }
 
     private static func buildContext(request: ExecHostRequest, command: [String]) async -> ExecApprovalContext {
-        let displayCommand = ExecCommandFormatter.displayString(
-            for: command,
-            rawCommand: request.rawCommand)
-        let agentId = request.agentId?.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedAgent = (agentId?.isEmpty == false) ? agentId : nil
-        let approvals = ExecApprovalsStore.resolve(agentId: trimmedAgent)
-        let security = approvals.agent.security
-        let ask = approvals.agent.ask
-        let autoAllowSkills = approvals.agent.autoAllowSkills
-        let env = self.sanitizedEnv(request.env)
-        let allowlistResolutions = ExecCommandResolution.resolveForAllowlist(
+        await ExecApprovalEvaluator.evaluate(
             command: command,
             rawCommand: request.rawCommand,
             cwd: request.cwd,
-            env: env)
-        let resolution = allowlistResolutions.first
-        let allowlistMatches = security == .allowlist
-            ? ExecAllowlistMatcher.matchAll(entries: approvals.allowlist, resolutions: allowlistResolutions)
-            : []
-        let allowlistSatisfied = security == .allowlist &&
-            !allowlistResolutions.isEmpty &&
-            allowlistMatches.count == allowlistResolutions.count
-        let skillAllow: Bool
-        if autoAllowSkills, !allowlistResolutions.isEmpty {
-            let bins = await SkillBinsCache.shared.currentBins()
-            skillAllow = allowlistResolutions.allSatisfy { bins.contains($0.executableName) }
-        } else {
-            skillAllow = false
-        }
-        return ExecApprovalContext(
-            command: command,
-            displayCommand: displayCommand,
-            trimmedAgent: trimmedAgent,
-            approvals: approvals,
-            security: security,
-            ask: ask,
-            autoAllowSkills: autoAllowSkills,
-            env: env,
-            resolution: resolution,
-            allowlistResolutions: allowlistResolutions,
-            allowlistMatches: allowlistMatches,
-            allowlistSatisfied: allowlistSatisfied,
-            skillAllow: skillAllow)
+            envOverrides: request.env,
+            agentId: request.agentId)
     }
 
     private static func persistAllowlistEntry(
@@ -535,7 +484,7 @@ private enum ExecHostExecutor {
                 continue
             }
             if seenPatterns.insert(pattern).inserted {
-                ExecApprovalsStore.addAllowlistEntry(agentId: context.trimmedAgent, pattern: pattern)
+                ExecApprovalsStore.addAllowlistEntry(agentId: context.agentId, pattern: pattern)
             }
         }
     }
@@ -596,6 +545,7 @@ private enum ExecHostExecutor {
             payload: payload,
             error: nil)
     }
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/ExecApprovalsSocket.swift
 
     private static func sanitizedEnv(_ overrides: [String: String]?) -> [String: String]? {
         guard let overrides else { return nil }
@@ -610,6 +560,8 @@ private enum ExecHostExecutor {
         }
         return merged
     }
+=======
+>>>>>>> e371da38a (fix(macos): consolidate exec approval evaluation):apps/macos/Sources/OpenClaw/ExecApprovalsSocket.swift
 }
 
 private final class ExecApprovalsSocketServer: @unchecked Sendable {
