@@ -11,7 +11,14 @@ import { applyAuthChoiceMiniMax } from "./auth-choice.apply.minimax.js";
 import { applyAuthChoiceOAuth } from "./auth-choice.apply.oauth.js";
 import { applyAuthChoiceOpenAI } from "./auth-choice.apply.openai.js";
 import { applyAuthChoiceQwenPortal } from "./auth-choice.apply.qwen-portal.js";
+<<<<<<< HEAD
 import type { AuthChoice } from "./onboard-types.js";
+=======
+import { applyAuthChoiceVllm } from "./auth-choice.apply.vllm.js";
+import { applyAuthChoiceVolcengine } from "./auth-choice.apply.volcengine.js";
+import { applyAuthChoiceXAI } from "./auth-choice.apply.xai.js";
+import type { AuthChoice, OnboardOptions } from "./onboard-types.js";
+>>>>>>> 581868365 (fix: finish volcengine/byteplus landing polish (#7967) (thanks @funmore123))
 
 export type ApplyAuthChoiceParams = {
   authChoice: AuthChoice;

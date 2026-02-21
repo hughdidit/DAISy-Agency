@@ -6,6 +6,7 @@ import { upsertSharedEnvVar } from "../../../infra/env-file.js";
 import type { RuntimeEnv } from "../../../runtime.js";
 import { buildTokenProfileId, validateAnthropicSetupToken } from "../../auth-token.js";
 import { applyGoogleGeminiModelDefault } from "../../google-gemini-model-default.js";
+import { applyPrimaryModel } from "../../model-picker.js";
 import {
   applyAuthProfileConfig,
   applyKimiCodeConfig,
@@ -32,6 +33,11 @@ import {
   setZaiApiKey,
 } from "../../onboard-auth.js";
 import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
+<<<<<<< HEAD
+=======
+import { applyOpenAIConfig } from "../../openai-model-default.js";
+import { detectZaiEndpoint } from "../../zai-endpoint-detect.js";
+>>>>>>> 581868365 (fix: finish volcengine/byteplus landing polish (#7967) (thanks @funmore123))
 import { resolveNonInteractiveApiKey } from "../api-keys.js";
 import { shortenHomePath } from "../../../utils.js";
 

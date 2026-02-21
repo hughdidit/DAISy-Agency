@@ -5,6 +5,34 @@ import {
   resolveCopilotApiToken,
 } from "../providers/github-copilot-token.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "./auth-profiles.js";
+<<<<<<< HEAD
+=======
+import { discoverBedrockModels } from "./bedrock-discovery.js";
+import {
+  buildBytePlusModelDefinition,
+  BYTEPLUS_BASE_URL,
+  BYTEPLUS_MODEL_CATALOG,
+  BYTEPLUS_CODING_BASE_URL,
+  BYTEPLUS_CODING_MODEL_CATALOG,
+} from "./byteplus-models.js";
+import {
+  buildCloudflareAiGatewayModelDefinition,
+  resolveCloudflareAiGatewayBaseUrl,
+} from "./cloudflare-ai-gateway.js";
+import {
+  buildDoubaoModelDefinition,
+  DOUBAO_BASE_URL,
+  DOUBAO_MODEL_CATALOG,
+  DOUBAO_CODING_BASE_URL,
+  DOUBAO_CODING_MODEL_CATALOG,
+} from "./doubao-models.js";
+import {
+  discoverHuggingfaceModels,
+  HUGGINGFACE_BASE_URL,
+  HUGGINGFACE_MODEL_CATALOG,
+  buildHuggingfaceModelDefinition,
+} from "./huggingface-models.js";
+>>>>>>> 581868365 (fix: finish volcengine/byteplus landing polish (#7967) (thanks @funmore123))
 import { resolveAwsSdkEnvVarName, resolveEnvApiKey } from "./model-auth.js";
 import { discoverBedrockModels } from "./bedrock-discovery.js";
 import {
