@@ -11,7 +11,11 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 >>>>>>> 1c928e493 (fix(hooks): replace console logging with proper subsystem logging in loader (openclaw#11029) thanks @shadril238)
+=======
+import { captureEnv } from "../test-utils/env.js";
+>>>>>>> c3e1c8287 (refactor(test): snapshot bundled hooks env in loader tests)
 import {
   clearInternalHooks,
   getRegisteredEventKeys,
@@ -24,7 +28,7 @@ describe("loader", () => {
   let fixtureRoot = "";
   let caseId = 0;
   let tmpDir: string;
-  let originalBundledDir: string | undefined;
+  let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeAll(async () => {
     fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-hooks-loader-"));
@@ -41,18 +45,27 @@ describe("loader", () => {
     await fs.mkdir(tmpDir, { recursive: true });
 
     // Disable bundled hooks during tests by setting env var to non-existent directory
+<<<<<<< HEAD
     originalBundledDir = process.env.CLAWDBOT_BUNDLED_HOOKS_DIR;
     process.env.CLAWDBOT_BUNDLED_HOOKS_DIR = "/nonexistent/bundled/hooks";
+=======
+    envSnapshot = captureEnv(["OPENCLAW_BUNDLED_HOOKS_DIR"]);
+    process.env.OPENCLAW_BUNDLED_HOOKS_DIR = "/nonexistent/bundled/hooks";
+>>>>>>> c3e1c8287 (refactor(test): snapshot bundled hooks env in loader tests)
   });
 
   afterEach(async () => {
     clearInternalHooks();
+<<<<<<< HEAD
     // Restore original env var
     if (originalBundledDir === undefined) {
       delete process.env.CLAWDBOT_BUNDLED_HOOKS_DIR;
     } else {
       process.env.CLAWDBOT_BUNDLED_HOOKS_DIR = originalBundledDir;
     }
+=======
+    envSnapshot.restore();
+>>>>>>> c3e1c8287 (refactor(test): snapshot bundled hooks env in loader tests)
   });
 
   afterAll(async () => {
