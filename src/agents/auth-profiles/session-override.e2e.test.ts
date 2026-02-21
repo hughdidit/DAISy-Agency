@@ -1,10 +1,10 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import type { MoltbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
+import { withStateDirEnv } from "../../test-helpers/state-dir-env.js";
 import { resolveSessionAuthProfileOverride } from "./session-override.js";
 
 async function writeAuthStore(agentDir: string) {
@@ -23,11 +23,16 @@ async function writeAuthStore(agentDir: string) {
 
 describe("resolveSessionAuthProfileOverride", () => {
   it("keeps user override when provider alias differs", async () => {
+<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-auth-"));
     const prevStateDir = process.env.CLAWDBOT_STATE_DIR;
     process.env.CLAWDBOT_STATE_DIR = tmpDir;
     try {
       const agentDir = path.join(tmpDir, "agent");
+=======
+    await withStateDirEnv("openclaw-auth-", async ({ stateDir }) => {
+      const agentDir = path.join(stateDir, "agent");
+>>>>>>> 26eb1f781 (refactor(test): reuse state-dir env helper in auth profile override e2e)
       await fs.mkdir(agentDir, { recursive: true });
       await writeAuthStore(agentDir);
 
@@ -52,6 +57,7 @@ describe("resolveSessionAuthProfileOverride", () => {
 
       expect(resolved).toBe("zai:work");
       expect(sessionEntry.authProfileOverride).toBe("zai:work");
+<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
       if (prevStateDir === undefined) delete process.env.CLAWDBOT_STATE_DIR;
@@ -65,5 +71,8 @@ describe("resolveSessionAuthProfileOverride", () => {
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
+=======
+    });
+>>>>>>> 26eb1f781 (refactor(test): reuse state-dir env helper in auth profile override e2e)
   });
 });
