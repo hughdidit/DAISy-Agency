@@ -34,9 +34,15 @@ Prefer localhost, Tailscale Serve, or an SSH tunnel.
 
 ## Token basics (local vs remote)
 
+<<<<<<< HEAD
 - **Localhost**: open `http://127.0.0.1:18789/`. If you see “unauthorized,” run `moltbot dashboard` and use the tokenized link (`?token=...`).
 - **Token source**: `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`); the UI stores it after first load.
 - **Not localhost**: use Tailscale Serve (tokenless if `gateway.auth.allowTailscale: true`), tailnet bind with a token, or an SSH tunnel. See [Web surfaces](/web).
+=======
+- **Localhost**: open `http://127.0.0.1:18789/`.
+- **Token source**: `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`); the UI stores a copy in localStorage after you connect.
+- **Not localhost**: use Tailscale Serve (tokenless for Control UI/WebSocket if `gateway.auth.allowTailscale: true`, assumes trusted gateway host; HTTP APIs still need token/password), tailnet bind with a token, or an SSH tunnel. See [Web surfaces](/web).
+>>>>>>> 356d61aac (fix(gateway): scope tailscale tokenless auth to websocket)
 
 ## If you see “unauthorized” / 1008
 

@@ -25,13 +25,26 @@ Set `gateway.auth.mode` to control the handshake:
 - `password` (shared secret via `CLAWDBOT_GATEWAY_PASSWORD` or config)
 
 When `tailscale.mode = "serve"` and `gateway.auth.allowTailscale` is `true`,
+<<<<<<< HEAD
 valid Serve proxy requests can authenticate via Tailscale identity headers
 (`tailscale-user-login`) without supplying a token/password. Moltbot verifies
+=======
+Control UI/WebSocket auth can use Tailscale identity headers
+(`tailscale-user-login`) without supplying a token/password. OpenClaw verifies
+>>>>>>> 356d61aac (fix(gateway): scope tailscale tokenless auth to websocket)
 the identity by resolving the `x-forwarded-for` address via the local Tailscale
 daemon (`tailscale whois`) and matching it to the header before accepting it.
 Moltbot only treats a request as Serve when it arrives from loopback with
 Tailscale’s `x-forwarded-for`, `x-forwarded-proto`, and `x-forwarded-host`
 headers.
+<<<<<<< HEAD
+=======
+HTTP API endpoints (for example `/v1/*`, `/tools/invoke`, and `/api/channels/*`)
+still require token/password auth.
+This tokenless flow assumes the gateway host is trusted. If untrusted local code
+may run on the same host, disable `gateway.auth.allowTailscale` and require
+token/password auth instead.
+>>>>>>> 356d61aac (fix(gateway): scope tailscale tokenless auth to websocket)
 To require explicit credentials, set `gateway.auth.allowTailscale: false` or
 force `gateway.auth.mode: "password"`.
 

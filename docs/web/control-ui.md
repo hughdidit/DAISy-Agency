@@ -86,8 +86,13 @@ Open:
 
 - `https://<magicdns>/` (or your configured `gateway.controlUi.basePath`)
 
+<<<<<<< HEAD
 By default, Serve requests can authenticate via Tailscale identity headers
 (`tailscale-user-login`) when `gateway.auth.allowTailscale` is `true`. Moltbot
+=======
+By default, Control UI/WebSocket Serve requests can authenticate via Tailscale identity headers
+(`tailscale-user-login`) when `gateway.auth.allowTailscale` is `true`. OpenClaw
+>>>>>>> 356d61aac (fix(gateway): scope tailscale tokenless auth to websocket)
 verifies the identity by resolving the `x-forwarded-for` address with
 `tailscale whois` and matching it to the header, and only accepts these when the
 request hits loopback with Tailscale’s `x-forwarded-*` headers. Set
