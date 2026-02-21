@@ -20,6 +20,15 @@ import {
   withWhatsAppPrefix,
 } from "./utils.js";
 
+function withTempDirSync<T>(prefix: string, run: (dir: string) => T): T {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  try {
+    return run(dir);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 describe("normalizePath", () => {
   it("adds leading slash when missing", () => {
     expect(normalizePath("foo")).toBe("/foo");
@@ -42,10 +51,18 @@ describe("withWhatsAppPrefix", () => {
 
 describe("ensureDir", () => {
   it("creates nested directory", async () => {
+<<<<<<< HEAD
     const tmp = await fs.promises.mkdtemp(path.join(os.tmpdir(), "moltbot-test-"));
     const target = path.join(tmp, "nested", "dir");
     await ensureDir(target);
     expect(fs.existsSync(target)).toBe(true);
+=======
+    await withTempDirSync("openclaw-test-", async (tmp) => {
+      const target = path.join(tmp, "nested", "dir");
+      await ensureDir(target);
+      expect(fs.existsSync(target)).toBe(true);
+    });
+>>>>>>> 31a0449f6 (test(core): dedupe temp dirs in utils tests and cover lid lookup error fallback)
   });
 });
 
@@ -100,6 +117,7 @@ describe("jidToE164", () => {
   });
 
   it("maps @lid from authDir mapping files", () => {
+<<<<<<< HEAD
     const authDir = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-auth-"));
     const mappingPath = path.join(authDir, "lid-mapping-456_reverse.json");
     fs.writeFileSync(mappingPath, JSON.stringify("5559876"));
@@ -113,6 +131,21 @@ describe("jidToE164", () => {
     fs.writeFileSync(mappingPath, JSON.stringify(4440001));
     expect(jidToE164("789@hosted.lid", { authDir })).toBe("+4440001");
     fs.rmSync(authDir, { recursive: true, force: true });
+=======
+    withTempDirSync("openclaw-auth-", (authDir) => {
+      const mappingPath = path.join(authDir, "lid-mapping-456_reverse.json");
+      fs.writeFileSync(mappingPath, JSON.stringify("5559876"));
+      expect(jidToE164("456@lid", { authDir })).toBe("+5559876");
+    });
+  });
+
+  it("maps @hosted.lid from authDir mapping files", () => {
+    withTempDirSync("openclaw-auth-", (authDir) => {
+      const mappingPath = path.join(authDir, "lid-mapping-789_reverse.json");
+      fs.writeFileSync(mappingPath, JSON.stringify(4440001));
+      expect(jidToE164("789@hosted.lid", { authDir })).toBe("+4440001");
+    });
+>>>>>>> 31a0449f6 (test(core): dedupe temp dirs in utils tests and cover lid lookup error fallback)
   });
 
   it("accepts hosted PN JIDs", () => {
@@ -120,6 +153,7 @@ describe("jidToE164", () => {
   });
 
   it("falls back through lidMappingDirs in order", () => {
+<<<<<<< HEAD
     const first = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-lid-a-"));
     const second = fs.mkdtempSync(path.join(os.tmpdir(), "moltbot-lid-b-"));
     const mappingPath = path.join(second, "lid-mapping-321_reverse.json");
@@ -127,6 +161,15 @@ describe("jidToE164", () => {
     expect(jidToE164("321@lid", { lidMappingDirs: [first, second] })).toBe("+123321");
     fs.rmSync(first, { recursive: true, force: true });
     fs.rmSync(second, { recursive: true, force: true });
+=======
+    withTempDirSync("openclaw-lid-a-", (first) => {
+      withTempDirSync("openclaw-lid-b-", (second) => {
+        const mappingPath = path.join(second, "lid-mapping-321_reverse.json");
+        fs.writeFileSync(mappingPath, JSON.stringify("123321"));
+        expect(jidToE164("321@lid", { lidMappingDirs: [first, second] })).toBe("+123321");
+      });
+    });
+>>>>>>> 31a0449f6 (test(core): dedupe temp dirs in utils tests and cover lid lookup error fallback)
   });
 });
 
@@ -196,6 +239,14 @@ describe("resolveJidToE164", () => {
     };
     await expect(resolveJidToE164("888@s.whatsapp.net", { lidLookup })).resolves.toBe("+888");
     expect(lidLookup.getPNForLID).not.toHaveBeenCalled();
+  });
+
+  it("returns null when lidLookup throws", async () => {
+    const lidLookup = {
+      getPNForLID: vi.fn().mockRejectedValue(new Error("lookup failed")),
+    };
+    await expect(resolveJidToE164("777@lid", { lidLookup })).resolves.toBeNull();
+    expect(lidLookup.getPNForLID).toHaveBeenCalledWith("777@lid");
   });
 });
 
