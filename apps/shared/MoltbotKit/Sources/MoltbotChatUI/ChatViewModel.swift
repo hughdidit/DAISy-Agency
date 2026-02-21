@@ -197,13 +197,119 @@ public final class MoltbotChatViewModel {
 
     private static func decodeMessages(_ raw: [AnyCodable]) -> [MoltbotChatMessage] {
         let decoded = raw.compactMap { item in
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatViewModel.swift
             (try? ChatPayloadDecoding.decode(item, as: MoltbotChatMessage.self))
+=======
+            (try? ChatPayloadDecoding.decode(item, as: OpenClawChatMessage.self))
+                .map { Self.stripInboundMetadata(from: $0) }
+>>>>>>> a4e7e952e (fix(ui): strip injected inbound metadata from user messages in history (#22142)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatViewModel.swift
         }
         return Self.dedupeMessages(decoded)
     }
 
+<<<<<<< HEAD:apps/shared/MoltbotKit/Sources/MoltbotChatUI/ChatViewModel.swift
     private static func dedupeMessages(_ messages: [MoltbotChatMessage]) -> [MoltbotChatMessage] {
         var result: [MoltbotChatMessage] = []
+=======
+    private static func stripInboundMetadata(from message: OpenClawChatMessage) -> OpenClawChatMessage {
+        guard message.role.lowercased() == "user" else {
+            return message
+        }
+
+        let sanitizedContent = message.content.map { content -> OpenClawChatMessageContent in
+            guard let text = content.text else { return content }
+            let cleaned = ChatMarkdownPreprocessor.preprocess(markdown: text).cleaned
+            return OpenClawChatMessageContent(
+                type: content.type,
+                text: cleaned,
+                thinking: content.thinking,
+                thinkingSignature: content.thinkingSignature,
+                mimeType: content.mimeType,
+                fileName: content.fileName,
+                content: content.content,
+                id: content.id,
+                name: content.name,
+                arguments: content.arguments)
+        }
+
+        return OpenClawChatMessage(
+            id: message.id,
+            role: message.role,
+            content: sanitizedContent,
+            timestamp: message.timestamp,
+            toolCallId: message.toolCallId,
+            toolName: message.toolName,
+            usage: message.usage,
+            stopReason: message.stopReason)
+    }
+
+    private static func messageIdentityKey(for message: OpenClawChatMessage) -> String? {
+        let role = message.role.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !role.isEmpty else { return nil }
+
+        let timestamp: String = {
+            guard let value = message.timestamp, value.isFinite else { return "" }
+            return String(format: "%.3f", value)
+        }()
+
+        let contentFingerprint = message.content.map { item in
+            let type = (item.type ?? "text").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            let text = (item.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let id = (item.id ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let name = (item.name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let fileName = (item.fileName ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            return [type, text, id, name, fileName].joined(separator: "\\u{001F}")
+        }.joined(separator: "\\u{001E}")
+
+        let toolCallId = (message.toolCallId ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let toolName = (message.toolName ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if timestamp.isEmpty, contentFingerprint.isEmpty, toolCallId.isEmpty, toolName.isEmpty {
+            return nil
+        }
+        return [role, timestamp, toolCallId, toolName, contentFingerprint].joined(separator: "|")
+    }
+
+    private static func reconcileMessageIDs(
+        previous: [OpenClawChatMessage],
+        incoming: [OpenClawChatMessage]) -> [OpenClawChatMessage]
+    {
+        guard !previous.isEmpty, !incoming.isEmpty else { return incoming }
+
+        var idsByKey: [String: [UUID]] = [:]
+        for message in previous {
+            guard let key = Self.messageIdentityKey(for: message) else { continue }
+            idsByKey[key, default: []].append(message.id)
+        }
+
+        return incoming.map { message in
+            guard let key = Self.messageIdentityKey(for: message),
+                  var ids = idsByKey[key],
+                  let reusedId = ids.first
+            else {
+                return message
+            }
+            ids.removeFirst()
+            if ids.isEmpty {
+                idsByKey.removeValue(forKey: key)
+            } else {
+                idsByKey[key] = ids
+            }
+            guard reusedId != message.id else { return message }
+            return OpenClawChatMessage(
+                id: reusedId,
+                role: message.role,
+                content: message.content,
+                timestamp: message.timestamp,
+                toolCallId: message.toolCallId,
+                toolName: message.toolName,
+                usage: message.usage,
+                stopReason: message.stopReason)
+        }
+    }
+
+    private static func dedupeMessages(_ messages: [OpenClawChatMessage]) -> [OpenClawChatMessage] {
+        var result: [OpenClawChatMessage] = []
+>>>>>>> a4e7e952e (fix(ui): strip injected inbound metadata from user messages in history (#22142)):apps/shared/OpenClawKit/Sources/OpenClawChatUI/ChatViewModel.swift
         result.reserveCapacity(messages.count)
         var seen = Set<String>()
 

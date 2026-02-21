@@ -83,8 +83,12 @@ Docs: https://docs.openclaw.ai
 =======
 - Gateway/Auth: require `gateway.trustedProxies` to include a loopback proxy address when `auth.mode="trusted-proxy"` and `bind="loopback"`, preventing same-host proxy misconfiguration from silently blocking auth. (#22082, follow-up to #20097) thanks @mbelinky.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 094dbdaf2 (fix(gateway): require loopback proxy IP for trusted-proxy + bind=loopback (#22082))
 =======
+=======
+- Security/OpenClawKit/UI: prevent injected inbound user context metadata blocks from leaking into chat history in TUI, webchat, and macOS surfaces by stripping all untrusted metadata prefixes at display boundaries. (#22142) Thanks @Mellowambience, @vincentkoc.
+>>>>>>> a4e7e952e (fix(ui): strip injected inbound metadata from user messages in history (#22142))
 - Agents/System Prompt: label allowlisted senders as authorized senders to avoid implying ownership. Thanks @thewilloftheshadow.
 >>>>>>> 3100b77f1 (Agents: clarify authorized sender prompt (Closes #19794))
 - Gateway/Auth: allow trusted-proxy mode with loopback bind for same-host reverse-proxy deployments, while still requiring configured `gateway.trustedProxies`. (#20097) thanks @xinhuagu.
