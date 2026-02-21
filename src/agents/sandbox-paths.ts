@@ -78,7 +78,18 @@ export async function resolveSandboxedMediaSource(params: {
       throw new Error(`Invalid file:// URL for sandboxed media: ${raw}`);
     }
   }
+<<<<<<< HEAD
   const resolved = await assertSandboxPath({
+=======
+  const resolved = path.resolve(resolveSandboxInputPath(candidate, params.sandboxRoot));
+  const tmpDir = path.resolve(os.tmpdir());
+  const candidateIsAbsolute = path.isAbsolute(expandPath(candidate));
+  if (candidateIsAbsolute && isPathInside(tmpDir, resolved)) {
+    await assertNoSymlinkEscape(path.relative(tmpDir, resolved), tmpDir);
+    return resolved;
+  }
+  const sandboxResult = await assertSandboxPath({
+>>>>>>> d3991d6aa (fix: harden sandbox tmp media validation (#17892) (thanks @dashed))
     filePath: candidate,
     cwd: params.sandboxRoot,
     root: params.sandboxRoot,
