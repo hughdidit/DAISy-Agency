@@ -656,7 +656,16 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     force?: boolean;
     progress?: (update: MemorySyncProgressUpdate) => void;
   }): Promise<void> {
+<<<<<<< HEAD
     if (this.syncing) return this.syncing;
+=======
+    if (this.closed) {
+      return;
+    }
+    if (this.syncing) {
+      return this.syncing;
+    }
+>>>>>>> be756b9a8 (Memory: fix async sync close race)
     this.syncing = this.runSync(params).finally(() => {
       this.syncing = null;
     });
@@ -868,6 +877,7 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
   async close(): Promise<void> {
     if (this.closed) return;
     this.closed = true;
+    const pendingSync = this.syncing;
     if (this.watchTimer) {
       clearTimeout(this.watchTimer);
       this.watchTimer = null;
@@ -887,6 +897,11 @@ export class MemoryIndexManager extends MemoryManagerEmbeddingOps implements Mem
     if (this.sessionUnsubscribe) {
       this.sessionUnsubscribe();
       this.sessionUnsubscribe = null;
+    }
+    if (pendingSync) {
+      try {
+        await pendingSync;
+      } catch {}
     }
     this.db.close();
     INDEX_CACHE.delete(this.cacheKey);
