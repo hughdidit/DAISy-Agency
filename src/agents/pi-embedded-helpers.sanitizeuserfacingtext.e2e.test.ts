@@ -14,10 +14,12 @@ describe("sanitizeUserFacingText", () => {
     expect(sanitizeUserFacingText("Hi <final>there</final>!")).toBe("Hi there!");
   });
 
-  it("does not clobber normal numeric prefixes", () => {
-    expect(sanitizeUserFacingText("202 results found")).toBe("202 results found");
-    expect(sanitizeUserFacingText("400 days left")).toBe("400 days left");
-  });
+  it.each(["202 results found", "400 days left"])(
+    "does not clobber normal numeric prefix: %s",
+    (text) => {
+      expect(sanitizeUserFacingText(text)).toBe(text);
+    },
+  );
 
   it("sanitizes role ordering errors", () => {
     const result = sanitizeUserFacingText("400 Incorrect role information", { errorContext: true });
@@ -30,6 +32,7 @@ describe("sanitizeUserFacingText", () => {
     );
   });
 
+<<<<<<< HEAD
   it("sanitizes direct context-overflow errors", () => {
     expect(
       sanitizeUserFacingText(
@@ -45,30 +48,29 @@ describe("sanitizeUserFacingText", () => {
   it("does not swallow assistant text that quotes the canonical context-overflow string", () => {
     const text =
       "Changelog note: we fixed false positives for `Context overflow: prompt too large for the model. Try again with less input or a larger-context model.` in 2026.2.9";
+=======
+  it.each([
+    "Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.",
+    "Request size exceeds model context window",
+  ])("sanitizes direct context-overflow error: %s", (text) => {
+    expect(sanitizeUserFacingText(text, { errorContext: true })).toContain(
+      "Context overflow: prompt too large for the model.",
+    );
+  });
+
+  it.each([
+    "Changelog note: we fixed false positives for `Context overflow: prompt too large for the model. Try /reset (or /new) to start a fresh session, or use a larger-context model.` in 2026.2.9",
+    "nah it failed, hit a context overflow. the prompt was too large for the model. want me to retry it with a different approach?",
+    "Problem: When a subagent reads a very large file, it can exceed the model context window. Auto-compaction cannot help in that case.",
+  ])("does not rewrite regular context-overflow mentions: %s", (text) => {
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
     expect(sanitizeUserFacingText(text)).toBe(text);
   });
 
-  it("does not rewrite conversational mentions of context overflow", () => {
-    const text =
-      "nah it failed, hit a context overflow. the prompt was too large for the model. want me to retry it with a different approach?";
-    expect(sanitizeUserFacingText(text)).toBe(text);
-  });
-
-  it("does not rewrite technical summaries that mention context overflow", () => {
-    const text =
-      "Problem: When a subagent reads a very large file, it can exceed the model context window. Auto-compaction cannot help in that case.";
-    expect(sanitizeUserFacingText(text)).toBe(text);
-  });
-
-  it("does not rewrite conversational billing/help text without errorContext", () => {
-    const text =
-      "If your API billing is low, top up credits in your provider dashboard and retry payment verification.";
-    expect(sanitizeUserFacingText(text)).toBe(text);
-  });
-
-  it("does not rewrite normal text that mentions billing and plan", () => {
-    const text =
-      "Firebase downgraded us to the free Spark plan; check whether we need to re-enable billing.";
+  it.each([
+    "If your API billing is low, top up credits in your provider dashboard and retry payment verification.",
+    "Firebase downgraded us to the free Spark plan; check whether we need to re-enable billing.",
+  ])("does not rewrite regular billing mentions: %s", (text) => {
     expect(sanitizeUserFacingText(text)).toBe(text);
   });
 
@@ -90,14 +92,42 @@ describe("sanitizeUserFacingText", () => {
     );
   });
 
-  it("collapses consecutive duplicate paragraphs", () => {
-    const text = "Hello there!\n\nHello there!";
-    expect(sanitizeUserFacingText(text)).toBe("Hello there!");
+  it.each([
+    {
+      input: "Hello there!\n\nHello there!",
+      expected: "Hello there!",
+    },
+    {
+      input: "Hello there!\n\nDifferent line.",
+      expected: "Hello there!\n\nDifferent line.",
+    },
+  ])("normalizes paragraph blocks", ({ input, expected }) => {
+    expect(sanitizeUserFacingText(input)).toBe(expected);
   });
 
+<<<<<<< HEAD
   it("does not collapse distinct paragraphs", () => {
     const text = "Hello there!\n\nDifferent line.";
     expect(sanitizeUserFacingText(text)).toBe(text);
+=======
+  it.each([
+    { input: "\n\nHello there!", expected: "Hello there!" },
+    { input: "\nHello there!", expected: "Hello there!" },
+    { input: "\n\n\nMultiple newlines", expected: "Multiple newlines" },
+    { input: "\n \nHello", expected: "Hello" },
+    { input: "  \n\nHello", expected: "Hello" },
+  ])("strips leading empty lines: %j", ({ input, expected }) => {
+    expect(sanitizeUserFacingText(input)).toBe(expected);
+  });
+
+  it("preserves trailing whitespace and internal newlines", () => {
+    expect(sanitizeUserFacingText("Hello\n\nWorld\n")).toBe("Hello\n\nWorld\n");
+    expect(sanitizeUserFacingText("Line 1\nLine 2")).toBe("Line 1\nLine 2");
+  });
+
+  it.each(["\n\n", "  \n  "])("returns empty for whitespace-only input: %j", (input) => {
+    expect(sanitizeUserFacingText(input)).toBe("");
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
   });
 });
 
@@ -308,81 +338,60 @@ describe("downgradeOpenAIReasoningBlocks", () => {
 });
 
 describe("normalizeTextForComparison", () => {
-  it("lowercases text", () => {
-    expect(normalizeTextForComparison("Hello World")).toBe("hello world");
-  });
-
-  it("trims whitespace", () => {
-    expect(normalizeTextForComparison("  hello  ")).toBe("hello");
-  });
-
-  it("collapses multiple spaces", () => {
-    expect(normalizeTextForComparison("hello    world")).toBe("hello world");
-  });
-
-  it("strips emoji", () => {
-    expect(normalizeTextForComparison("Hello 👋 World 🌍")).toBe("hello world");
-  });
-
-  it("handles mixed normalization", () => {
-    expect(normalizeTextForComparison("  Hello 👋   WORLD  🌍  ")).toBe("hello world");
+  it.each([
+    { input: "Hello World", expected: "hello world" },
+    { input: "  hello  ", expected: "hello" },
+    { input: "hello    world", expected: "hello world" },
+    { input: "Hello 👋 World 🌍", expected: "hello world" },
+    { input: "  Hello 👋   WORLD  🌍  ", expected: "hello world" },
+  ])("normalizes comparison text", ({ input, expected }) => {
+    expect(normalizeTextForComparison(input)).toBe(expected);
   });
 });
 
 describe("isMessagingToolDuplicate", () => {
-  it("returns false for empty sentTexts", () => {
-    expect(isMessagingToolDuplicate("hello world", [])).toBe(false);
-  });
-
-  it("returns false for short texts", () => {
-    expect(isMessagingToolDuplicate("short", ["short"])).toBe(false);
-  });
-
-  it("detects exact duplicates", () => {
-    expect(
-      isMessagingToolDuplicate("Hello, this is a test message!", [
-        "Hello, this is a test message!",
-      ]),
-    ).toBe(true);
-  });
-
-  it("detects duplicates with different casing", () => {
-    expect(
-      isMessagingToolDuplicate("HELLO, THIS IS A TEST MESSAGE!", [
-        "hello, this is a test message!",
-      ]),
-    ).toBe(true);
-  });
-
-  it("detects duplicates with emoji variations", () => {
-    expect(
-      isMessagingToolDuplicate("Hello! 👋 This is a test message!", [
-        "Hello! This is a test message!",
-      ]),
-    ).toBe(true);
-  });
-
-  it("detects substring duplicates (LLM elaboration)", () => {
-    expect(
-      isMessagingToolDuplicate('I sent the message: "Hello, this is a test message!"', [
-        "Hello, this is a test message!",
-      ]),
-    ).toBe(true);
-  });
-
-  it("detects when sent text contains block reply (reverse substring)", () => {
-    expect(
-      isMessagingToolDuplicate("Hello, this is a test message!", [
-        'I sent the message: "Hello, this is a test message!"',
-      ]),
-    ).toBe(true);
-  });
-
-  it("returns false for non-matching texts", () => {
-    expect(
-      isMessagingToolDuplicate("This is completely different content.", [
-        "Hello, this is a test message!",
-      ]),
-    ).toBe(false);
+  it.each([
+    {
+      input: "hello world",
+      sentTexts: [],
+      expected: false,
+    },
+    {
+      input: "short",
+      sentTexts: ["short"],
+      expected: false,
+    },
+    {
+      input: "Hello, this is a test message!",
+      sentTexts: ["Hello, this is a test message!"],
+      expected: true,
+    },
+    {
+      input: "HELLO, THIS IS A TEST MESSAGE!",
+      sentTexts: ["hello, this is a test message!"],
+      expected: true,
+    },
+    {
+      input: "Hello! 👋 This is a test message!",
+      sentTexts: ["Hello! This is a test message!"],
+      expected: true,
+    },
+    {
+      input: 'I sent the message: "Hello, this is a test message!"',
+      sentTexts: ["Hello, this is a test message!"],
+      expected: true,
+    },
+    {
+      input: "Hello, this is a test message!",
+      sentTexts: ['I sent the message: "Hello, this is a test message!"'],
+      expected: true,
+    },
+    {
+      input: "This is completely different content.",
+      sentTexts: ["Hello, this is a test message!"],
+      expected: false,
+    },
+  ])("returns $expected for duplicate check", ({ input, sentTexts, expected }) => {
+    expect(isMessagingToolDuplicate(input, sentTexts)).toBe(expected);
   });
 });

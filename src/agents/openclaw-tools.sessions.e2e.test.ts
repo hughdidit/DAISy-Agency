@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import {
   addSubagentRunForTests,
   listSubagentRunsForRequester,
@@ -37,7 +37,13 @@ const waitForCalls = async (getCount: () => number, count: number, timeoutMs = 2
   );
 };
 
+let sessionsModule: typeof import("../config/sessions.js");
+
 describe("sessions tools", () => {
+  beforeAll(async () => {
+    sessionsModule = await import("../config/sessions.js");
+  });
+
   it("uses number (not integer) in tool schemas for Gemini compatibility", () => {
     const tools = createOpenClawTools();
     const byName = (name: string) => {
@@ -761,7 +767,6 @@ describe("sessions tools", () => {
       startedAt: now - 2 * 60_000,
     });
 
-    const sessionsModule = await import("../config/sessions.js");
     const loadSessionStoreSpy = vi
       .spyOn(sessionsModule, "loadSessionStore")
       .mockImplementation(() => ({
@@ -821,7 +826,6 @@ describe("sessions tools", () => {
       startedAt: Date.now() - 60_000,
     });
 
-    const sessionsModule = await import("../config/sessions.js");
     const loadSessionStoreSpy = vi
       .spyOn(sessionsModule, "loadSessionStore")
       .mockImplementation(() => ({

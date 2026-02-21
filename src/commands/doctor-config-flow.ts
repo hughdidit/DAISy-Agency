@@ -879,6 +879,10 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     }
   }
 
+  if (shouldRepair && pendingChanges) {
+    shouldWriteConfig = true;
+  }
+
   noteOpencodeProviderOverrides(cfg);
 
   return { cfg, path: snapshot.path ?? CONFIG_PATH, shouldWriteConfig };
