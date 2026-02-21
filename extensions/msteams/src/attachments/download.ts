@@ -1,4 +1,5 @@
 import { getMSTeamsRuntime } from "../runtime.js";
+import { downloadAndStoreMSTeamsRemoteMedia } from "./remote-media.js";
 import {
   extractInlineImageCandidates,
   inferPlaceholder,
@@ -6,6 +7,7 @@ import {
   isRecord,
   isUrlAllowed,
   normalizeContentType,
+  resolveRequestUrl,
   resolveAuthAllowedHosts,
   resolveAllowedHosts,
 } from "./shared.js";
@@ -238,6 +240,7 @@ export async function downloadMSTeamsAttachments(params: {
       continue;
     }
     try {
+<<<<<<< HEAD
       const res = await fetchWithAuthFallback({
         url: candidate.url,
         tokenProvider: params.tokenProvider,
@@ -269,7 +272,26 @@ export async function downloadMSTeamsAttachments(params: {
         path: saved.path,
         contentType: saved.contentType,
         placeholder: candidate.placeholder,
+=======
+      const media = await downloadAndStoreMSTeamsRemoteMedia({
+        url: candidate.url,
+        filePathHint: candidate.fileHint ?? candidate.url,
+        maxBytes: params.maxBytes,
+        contentTypeHint: candidate.contentTypeHint,
+        placeholder: candidate.placeholder,
+        preserveFilenames: params.preserveFilenames,
+        fetchImpl: (input, init) =>
+          fetchWithAuthFallback({
+            url: resolveRequestUrl(input),
+            tokenProvider: params.tokenProvider,
+            fetchFn: params.fetchFn,
+            requestInit: init,
+            allowHosts,
+            authAllowHosts,
+          }),
+>>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
       });
+      out.push(media);
     } catch {
       // Ignore download failures and continue with next candidate.
     }

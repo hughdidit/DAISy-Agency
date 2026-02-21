@@ -1,10 +1,12 @@
 import { getMSTeamsRuntime } from "../runtime.js";
 import { downloadMSTeamsAttachments } from "./download.js";
+import { downloadAndStoreMSTeamsRemoteMedia } from "./remote-media.js";
 import {
   GRAPH_ROOT,
   inferPlaceholder,
   isRecord,
   normalizeContentType,
+  resolveRequestUrl,
   resolveAllowedHosts,
 } from "./shared.js";
 import type {
@@ -265,6 +267,7 @@ export async function downloadMSTeamsGraphMedia(params: {
           const encodedUrl = Buffer.from(shareUrl).toString("base64url");
           const sharesUrl = `${GRAPH_ROOT}/shares/u!${encodedUrl}/driveItem/content`;
 
+<<<<<<< HEAD
           const spRes = await fetchFn(sharesUrl, {
             headers: { Authorization: `Bearer ${accessToken}` },
             redirect: "follow",
@@ -294,6 +297,26 @@ export async function downloadMSTeamsGraphMedia(params: {
               downloadedReferenceUrls.add(shareUrl);
             }
           }
+=======
+          const media = await downloadAndStoreMSTeamsRemoteMedia({
+            url: sharesUrl,
+            filePathHint: name,
+            maxBytes: params.maxBytes,
+            contentTypeHint: "application/octet-stream",
+            preserveFilenames: params.preserveFilenames,
+            fetchImpl: async (input, init) => {
+              const headers = new Headers(init?.headers);
+              headers.set("Authorization", `Bearer ${accessToken}`);
+              return await fetchFn(resolveRequestUrl(input), {
+                ...init,
+                headers,
+                redirect: "follow",
+              });
+            },
+          });
+          sharePointMedia.push(media);
+          downloadedReferenceUrls.add(shareUrl);
+>>>>>>> 61dc7ac67 (refactor(msteams,bluebubbles): dedupe inbound media download helpers)
         } catch {
           // Ignore SharePoint download failures.
         }
