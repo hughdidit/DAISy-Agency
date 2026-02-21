@@ -43,8 +43,20 @@ describe("oauth paths", () => {
 
 describe("state + config path candidates", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("prefers MOLTBOT_STATE_DIR over legacy state dir env", () => {
 =======
+=======
+  async function withTempRoot(prefix: string, run: (root: string) => Promise<void>): Promise<void> {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
+    try {
+      await run(root);
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  }
+
+>>>>>>> 7036352d9 (test(config): dedupe temp roots and cover legacy state-dir fallback)
   function expectOpenClawHomeDefaults(env: NodeJS.ProcessEnv): void {
     const configuredHome = env.OPENCLAW_HOME;
     if (!configuredHome) {
@@ -153,16 +165,29 @@ describe("state + config path candidates", () => {
 >>>>>>> 5e635c965 (feat: add Kimi K2.5 model to synthetic catalog (#4407))
   });
 
+<<<<<<< HEAD
   it("prefers ~/.moltbot when it exists and legacy dir is missing", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-state-"));
     try {
       const newDir = path.join(root, ".moltbot");
+=======
+  it("prefers ~/.openclaw when it exists and legacy dir is missing", async () => {
+    await withTempRoot("openclaw-state-", async (root) => {
+      const newDir = path.join(root, ".openclaw");
+>>>>>>> 7036352d9 (test(config): dedupe temp roots and cover legacy state-dir fallback)
       await fs.mkdir(newDir, { recursive: true });
       const resolved = resolveStateDir({} as NodeJS.ProcessEnv, () => root);
       expect(resolved).toBe(newDir);
-    } finally {
-      await fs.rm(root, { recursive: true, force: true });
-    }
+    });
+  });
+
+  it("falls back to existing legacy state dir when ~/.openclaw is missing", async () => {
+    await withTempRoot("openclaw-state-legacy-", async (root) => {
+      const legacyDir = path.join(root, ".clawdbot");
+      await fs.mkdir(legacyDir, { recursive: true });
+      const resolved = resolveStateDir({} as NodeJS.ProcessEnv, () => root);
+      expect(resolved).toBe(legacyDir);
+    });
   });
 
 <<<<<<< HEAD
@@ -178,10 +203,15 @@ describe("state + config path candidates", () => {
     const previousClawdbotState = process.env.CLAWDBOT_STATE_DIR;
 =======
   it("CONFIG_PATH prefers existing config when present", async () => {
+<<<<<<< HEAD
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-config-"));
 >>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
     try {
       const legacyDir = path.join(root, ".clawdbot");
+=======
+    await withTempRoot("openclaw-config-", async (root) => {
+      const legacyDir = path.join(root, ".openclaw");
+>>>>>>> 7036352d9 (test(config): dedupe temp roots and cover legacy state-dir fallback)
       await fs.mkdir(legacyDir, { recursive: true });
       const legacyPath = path.join(legacyDir, "clawdbot.json");
       await fs.writeFile(legacyPath, "{}", "utf-8");
@@ -263,6 +293,7 @@ describe("state + config path candidates", () => {
 =======
       const resolved = resolveConfigPathCandidate({} as NodeJS.ProcessEnv, () => root);
       expect(resolved).toBe(legacyPath);
+<<<<<<< HEAD
     } finally {
 >>>>>>> c2f7b66d2 (perf(test): replace module resets with direct spies and runtime seams)
       await fs.rm(root, { recursive: true, force: true });
@@ -273,6 +304,14 @@ describe("state + config path candidates", () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-config-override-"));
     try {
       const legacyDir = path.join(root, ".clawdbot");
+=======
+    });
+  });
+
+  it("respects state dir overrides when config is missing", async () => {
+    await withTempRoot("openclaw-config-override-", async (root) => {
+      const legacyDir = path.join(root, ".openclaw");
+>>>>>>> 7036352d9 (test(config): dedupe temp roots and cover legacy state-dir fallback)
       await fs.mkdir(legacyDir, { recursive: true });
       const legacyConfig = path.join(legacyDir, "moltbot.json");
       await fs.writeFile(legacyConfig, "{}", "utf-8");
@@ -280,9 +319,14 @@ describe("state + config path candidates", () => {
       const overrideDir = path.join(root, "override");
       const env = { MOLTBOT_STATE_DIR: overrideDir } as NodeJS.ProcessEnv;
       const resolved = resolveConfigPath(env, overrideDir, () => root);
+<<<<<<< HEAD
       expect(resolved).toBe(path.join(overrideDir, "moltbot.json"));
     } finally {
       await fs.rm(root, { recursive: true, force: true });
     }
+=======
+      expect(resolved).toBe(path.join(overrideDir, "openclaw.json"));
+    });
+>>>>>>> 7036352d9 (test(config): dedupe temp roots and cover legacy state-dir fallback)
   });
 });
