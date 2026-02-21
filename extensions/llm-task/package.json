@@ -40,9 +40,6 @@
 >>>>>>> 1872d0c59 (chore: bump version to 2026.2.10)
   "description": "OpenClaw JSON-only LLM task plugin",
   "type": "module",
-  "devDependencies": {
-    "openclaw": "workspace:*"
-  },
   "openclaw": {
     "extensions": [
       "./index.ts"
