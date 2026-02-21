@@ -32,6 +32,26 @@ async function withArchiveCase(
   await run({ workDir, archivePath, extractDir });
 }
 
+async function writePackageArchive(params: {
+  ext: "zip" | "tar";
+  workDir: string;
+  archivePath: string;
+  fileName: string;
+  content: string;
+}) {
+  if (params.ext === "zip") {
+    const zip = new JSZip();
+    zip.file(`package/${params.fileName}`, params.content);
+    await fs.writeFile(params.archivePath, await zip.generateAsync({ type: "nodebuffer" }));
+    return;
+  }
+
+  const packageDir = path.join(params.workDir, "package");
+  await fs.mkdir(packageDir, { recursive: true });
+  await fs.writeFile(path.join(packageDir, params.fileName), params.content);
+  await tar.c({ cwd: params.workDir, file: params.archivePath }, ["package"]);
+}
+
 async function expectExtractedSizeBudgetExceeded(params: {
   archivePath: string;
   destDir: string;
@@ -58,25 +78,36 @@ afterAll(async () => {
 
 describe("archive utils", () => {
   it("detects archive kinds", () => {
-    expect(resolveArchiveKind("/tmp/file.zip")).toBe("zip");
-    expect(resolveArchiveKind("/tmp/file.tgz")).toBe("tar");
-    expect(resolveArchiveKind("/tmp/file.tar.gz")).toBe("tar");
-    expect(resolveArchiveKind("/tmp/file.tar")).toBe("tar");
-    expect(resolveArchiveKind("/tmp/file.txt")).toBeNull();
+    const cases = [
+      { input: "/tmp/file.zip", expected: "zip" },
+      { input: "/tmp/file.tgz", expected: "tar" },
+      { input: "/tmp/file.tar.gz", expected: "tar" },
+      { input: "/tmp/file.tar", expected: "tar" },
+      { input: "/tmp/file.txt", expected: null },
+    ] as const;
+    for (const testCase of cases) {
+      expect(resolveArchiveKind(testCase.input), testCase.input).toBe(testCase.expected);
+    }
   });
 
-  it("extracts zip archives", async () => {
-    await withArchiveCase("zip", async ({ archivePath, extractDir }) => {
-      const zip = new JSZip();
-      zip.file("package/hello.txt", "hi");
-      await fs.writeFile(archivePath, await zip.generateAsync({ type: "nodebuffer" }));
-
-      await extractArchive({ archivePath, destDir: extractDir, timeoutMs: 5_000 });
-      const rootDir = await resolvePackedRootDir(extractDir);
-      const content = await fs.readFile(path.join(rootDir, "hello.txt"), "utf-8");
-      expect(content).toBe("hi");
-    });
-  });
+  it.each([{ ext: "zip" as const }, { ext: "tar" as const }])(
+    "extracts $ext archives",
+    async ({ ext }) => {
+      await withArchiveCase(ext, async ({ workDir, archivePath, extractDir }) => {
+        await writePackageArchive({
+          ext,
+          workDir,
+          archivePath,
+          fileName: "hello.txt",
+          content: "hi",
+        });
+        await extractArchive({ archivePath, destDir: extractDir, timeoutMs: 5_000 });
+        const rootDir = await resolvePackedRootDir(extractDir);
+        const content = await fs.readFile(path.join(rootDir, "hello.txt"), "utf-8");
+        expect(content).toBe("hi");
+      });
+    },
+  );
 
 <<<<<<< HEAD
 =======
@@ -117,6 +148,7 @@ describe("archive utils", () => {
     });
   });
 
+<<<<<<< HEAD
 >>>>>>> d35a8b48f (test(infra): dedupe archive case setup and cover packed-root multi-dir failure)
   it("extracts tar archives", async () => {
     await withArchiveCase("tar", async ({ workDir, archivePath, extractDir }) => {
@@ -134,6 +166,8 @@ describe("archive utils", () => {
 <<<<<<< HEAD
 =======
 
+=======
+>>>>>>> 204f379f6 (test(archive): share zip/tar fixture generation)
   it("rejects tar path traversal (zip slip)", async () => {
     await withArchiveCase("tar", async ({ workDir, archivePath, extractDir }) => {
       const insideDir = path.join(workDir, "inside");
@@ -148,19 +182,26 @@ describe("archive utils", () => {
     });
   });
 
-  it("rejects zip archives that exceed extracted size budget", async () => {
-    await withArchiveCase("zip", async ({ archivePath, extractDir }) => {
-      const zip = new JSZip();
-      zip.file("package/big.txt", "x".repeat(64));
-      await fs.writeFile(archivePath, await zip.generateAsync({ type: "nodebuffer" }));
+  it.each([{ ext: "zip" as const }, { ext: "tar" as const }])(
+    "rejects $ext archives that exceed extracted size budget",
+    async ({ ext }) => {
+      await withArchiveCase(ext, async ({ workDir, archivePath, extractDir }) => {
+        await writePackageArchive({
+          ext,
+          workDir,
+          archivePath,
+          fileName: "big.txt",
+          content: "x".repeat(64),
+        });
 
-      await expectExtractedSizeBudgetExceeded({
-        archivePath,
-        destDir: extractDir,
-        maxExtractedBytes: 32,
+        await expectExtractedSizeBudgetExceeded({
+          archivePath,
+          destDir: extractDir,
+          maxExtractedBytes: 32,
+        });
       });
-    });
-  });
+    },
+  );
 
   it("rejects archives that exceed archive size budget", async () => {
     await withArchiveCase("zip", async ({ archivePath, extractDir }) => {
@@ -188,6 +229,7 @@ describe("archive utils", () => {
     await expect(resolvePackedRootDir(extractDir)).rejects.toThrow(/unexpected archive layout/i);
   });
 
+<<<<<<< HEAD
   it("rejects tar archives that exceed extracted size budget", async () => {
     await withArchiveCase("tar", async ({ workDir, archivePath, extractDir }) => {
       const packageDir = path.join(workDir, "package");
@@ -206,6 +248,8 @@ describe("archive utils", () => {
 >>>>>>> d3ee5deb8 (fix(archive): enforce extraction resource limits)
 =======
 
+=======
+>>>>>>> 204f379f6 (test(archive): share zip/tar fixture generation)
   it("rejects tar entries with absolute extraction paths", async () => {
     await withArchiveCase("tar", async ({ workDir, archivePath, extractDir }) => {
       const inputDir = path.join(workDir, "input");
