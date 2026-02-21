@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 import { createHash } from "node:crypto";
 
+=======
+>>>>>>> c20d519e0 (feat(security): migrate sha1 hashes to sha256 for synthetic ids (#7343) (#22528))
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import { createHash } from "node:crypto";
 
 export type ToolCallIdMode = "strict" | "strict9";
 
@@ -40,7 +44,7 @@ export function isValidCloudCodeAssistToolId(id: string, mode: ToolCallIdMode = 
 }
 
 function shortHash(text: string, length = 8): string {
-  return createHash("sha1").update(text).digest("hex").slice(0, length);
+  return createHash("sha256").update(text).digest("hex").slice(0, length);
 }
 
 function makeUniqueToolId(params: { id: string; used: Set<string>; mode: ToolCallIdMode }): string {

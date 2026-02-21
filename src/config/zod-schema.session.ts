@@ -1,5 +1,12 @@
 import { z } from "zod";
+<<<<<<< HEAD
 
+=======
+import { parseByteSize } from "../cli/parse-bytes.js";
+import { parseDurationMs } from "../cli/parse-duration.js";
+import { ElevatedAllowFromSchema } from "./zod-schema.agent-runtime.js";
+import { createAllowDenyChannelRulesSchema } from "./zod-schema.allowdeny.js";
+>>>>>>> c20d519e0 (feat(security): migrate sha1 hashes to sha256 for synthetic ids (#7343) (#22528))
 import {
   GroupChatSchema,
   InboundDebounceSchema,
@@ -7,6 +14,7 @@ import {
   QueueSchema,
   TtsConfigSchema,
 } from "./zod-schema.core.js";
+import { sensitive } from "./zod-schema.sensitive.js";
 
 const SessionResetConfigSchema = z
   .object({

@@ -1,4 +1,6 @@
+import { createHmac, createHash } from "node:crypto";
 import type { ReasoningLevel, ThinkLevel } from "../auto-reply/thinking.js";
+<<<<<<< HEAD
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import { listDeliverableMessageChannels } from "../utils/message-channel.js";
 <<<<<<< HEAD
@@ -7,6 +9,14 @@ import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
 =======
 import { sanitizeForPromptLiteral } from "./sanitize-for-prompt.js";
 >>>>>>> 6254e96ac (fix(security): harden prompt path sanitization)
+=======
+import type { MemoryCitationsMode } from "../config/types.memory.js";
+import type { ResolvedTimeFormat } from "./date-time.js";
+import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
+import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
+import { listDeliverableMessageChannels } from "../utils/message-channel.js";
+import { sanitizeForPromptLiteral } from "./sanitize-for-prompt.js";
+>>>>>>> c20d519e0 (feat(security): migrate sha1 hashes to sha256 for synthetic ids (#7343) (#22528))
 
 /**
  * Controls which hardcoded sections are included in the system prompt.
@@ -49,8 +59,39 @@ function buildMemorySection(params: { isMinimal: boolean; availableTools: Set<st
 }
 
 function buildUserIdentitySection(ownerLine: string | undefined, isMinimal: boolean) {
+<<<<<<< HEAD
   if (!ownerLine || isMinimal) return [];
   return ["## User Identity", ownerLine, ""];
+=======
+  if (!ownerLine || isMinimal) {
+    return [];
+  }
+  return ["## Authorized Senders", ownerLine, ""];
+}
+
+function formatOwnerDisplayId(ownerId: string, ownerDisplaySecret?: string) {
+  const hasSecret = ownerDisplaySecret?.trim();
+  const digest = hasSecret
+    ? createHmac("sha256", hasSecret).update(ownerId).digest("hex")
+    : createHash("sha256").update(ownerId).digest("hex");
+  return digest.slice(0, 12);
+}
+
+function buildOwnerIdentityLine(
+  ownerNumbers: string[],
+  ownerDisplay: OwnerIdDisplay,
+  ownerDisplaySecret?: string,
+) {
+  const normalized = ownerNumbers.map((value) => value.trim()).filter(Boolean);
+  if (normalized.length === 0) {
+    return undefined;
+  }
+  const displayOwnerNumbers =
+    ownerDisplay === "hash"
+      ? normalized.map((ownerId) => formatOwnerDisplayId(ownerId, ownerDisplaySecret))
+      : normalized;
+  return `Authorized senders: ${displayOwnerNumbers.join(", ")}. These senders are allowlisted; do not assume they are the owner.`;
+>>>>>>> c20d519e0 (feat(security): migrate sha1 hashes to sha256 for synthetic ids (#7343) (#22528))
 }
 
 function buildTimeSection(params: { userTimezone?: string }) {
