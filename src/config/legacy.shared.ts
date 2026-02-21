@@ -10,8 +10,15 @@ export type LegacyConfigMigration = {
   apply: (raw: Record<string, unknown>, changes: string[]) => void;
 };
 
+<<<<<<< HEAD
 export const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value && typeof value === "object" && !Array.isArray(value));
+=======
+import { isSafeExecutableValue } from "../infra/exec-safety.js";
+import { isRecord } from "../utils.js";
+import { isBlockedObjectKey } from "./prototype-keys.js";
+export { isRecord };
+>>>>>>> 95dab6e01 (fix: harden config prototype-key guards (#22968) (thanks @Clawborn))
 
 export const getRecord = (value: unknown): Record<string, unknown> | null =>
   isRecord(value) ? value : null;
@@ -29,7 +36,13 @@ export const ensureRecord = (
 
 export const mergeMissing = (target: Record<string, unknown>, source: Record<string, unknown>) => {
   for (const [key, value] of Object.entries(source)) {
+<<<<<<< HEAD
     if (value === undefined) continue;
+=======
+    if (value === undefined || isBlockedObjectKey(key)) {
+      continue;
+    }
+>>>>>>> 95dab6e01 (fix: harden config prototype-key guards (#22968) (thanks @Clawborn))
     const existing = target[key];
     if (existing === undefined) {
       target[key] = value;
