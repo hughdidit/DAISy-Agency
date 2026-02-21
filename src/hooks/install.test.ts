@@ -80,7 +80,21 @@ function writeArchiveFixture(params: { fileName: string; contents: Buffer }) {
   };
 }
 
+<<<<<<< HEAD
 >>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
+=======
+async function expectUnsupportedNpmSpec(
+  install: (spec: string) => Promise<{ ok: boolean; error?: string }>,
+) {
+  const result = await install("github:evil/evil");
+  expect(result.ok).toBe(false);
+  if (result.ok) {
+    return;
+  }
+  expect(result.error).toContain("unsupported npm spec");
+}
+
+>>>>>>> 9ec440d1f (test(hooks): dedupe unsupported npm spec assertion)
 describe("installHooksFromArchive", () => {
   it.each([
     {
@@ -388,12 +402,7 @@ describe("installHooksFromNpmSpec", () => {
   });
 
   it("rejects non-registry npm specs", async () => {
-    const result = await installHooksFromNpmSpec({ spec: "github:evil/evil" });
-    expect(result.ok).toBe(false);
-    if (result.ok) {
-      return;
-    }
-    expect(result.error).toContain("unsupported npm spec");
+    await expectUnsupportedNpmSpec((spec) => installHooksFromNpmSpec({ spec }));
   });
 });
 <<<<<<< HEAD
