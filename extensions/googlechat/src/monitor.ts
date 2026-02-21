@@ -11,6 +11,14 @@ import {
 import {
   createReplyPrefixOptions,
   readJsonBodyWithLimit,
+<<<<<<< HEAD
+=======
+  registerWebhookTarget,
+  rejectNonPostWebhookRequest,
+  resolveSingleWebhookTargetAsync,
+  resolveWebhookPath,
+  resolveWebhookTargets,
+>>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
   requestBodyErrorToText,
   resolveMentionGatingWithBypass,
 } from "openclaw/plugin-sdk";
@@ -271,8 +279,12 @@ export async function handleGoogleChatWebhookRequest(
     ? authHeaderNow.slice("bearer ".length)
     : bearer;
 
+<<<<<<< HEAD
   let selected: WebhookTarget | undefined;
   for (const target of targets) {
+=======
+  const matchedTarget = await resolveSingleWebhookTargetAsync(targets, async (target) => {
+>>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
     const audienceType = target.audienceType;
     const audience = target.audience;
     const verification = await verifyGoogleChatRequest({
@@ -280,6 +292,7 @@ export async function handleGoogleChatWebhookRequest(
       audienceType,
       audience,
     });
+<<<<<<< HEAD
     if (verification.ok) {
       selected = target;
       break;
@@ -287,11 +300,27 @@ export async function handleGoogleChatWebhookRequest(
   }
 
   if (!selected) {
+=======
+    return verification.ok;
+  });
+
+  if (matchedTarget.kind === "none") {
+>>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
     res.statusCode = 401;
     res.end("unauthorized");
     return true;
   }
 
+<<<<<<< HEAD
+=======
+  if (matchedTarget.kind === "ambiguous") {
+    res.statusCode = 401;
+    res.end("ambiguous webhook target");
+    return true;
+  }
+
+  const selected = matchedTarget.target;
+>>>>>>> 283029bde (refactor(security): unify webhook auth matching paths)
   selected.statusSink?.({ lastInboundAt: Date.now() });
   processGoogleChatEvent(event, selected).catch((err) => {
     selected?.runtime.error?.(
