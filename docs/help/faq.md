@@ -396,9 +396,16 @@ The wizard now opens your browser with a tokenized dashboard URL right after onb
 - The token is the same value as `gateway.auth.token` (or `CLAWDBOT_GATEWAY_TOKEN`) and is stored by the UI after first load.
 
 **Not on localhost:**
+<<<<<<< HEAD
 - **Tailscale Serve** (recommended): keep bind loopback, run `moltbot gateway --tailscale serve`, open `https://<magicdns>/`. If `gateway.auth.allowTailscale` is `true`, identity headers satisfy auth (no token).
 - **Tailnet bind**: run `moltbot gateway --bind tailnet --token "<token>"`, open `http://<tailscale-ip>:18789/`, paste token in dashboard settings.
 - **SSH tunnel**: `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/?token=...` from `moltbot dashboard`.
+=======
+
+- **Tailscale Serve** (recommended): keep bind loopback, run `openclaw gateway --tailscale serve`, open `https://<magicdns>/`. If `gateway.auth.allowTailscale` is `true`, identity headers satisfy auth (no token, assumes trusted gateway host).
+- **Tailnet bind**: run `openclaw gateway --bind tailnet --token "<token>"`, open `http://<tailscale-ip>:18789/`, paste token in dashboard settings.
+- **SSH tunnel**: `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/` and paste the token in Control UI settings.
+>>>>>>> ede496fa1 (docs: clarify trusted-host assumption for tokenless tailscale)
 
 See [Dashboard](/web/dashboard) and [Web surfaces](/web) for bind modes and auth details.
 
