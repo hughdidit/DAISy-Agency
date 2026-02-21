@@ -36,6 +36,7 @@ Moltbot will offer the local install path automatically.
 Details: [Plugins](/plugin)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Quick setup (beginner)
 1) Install the Microsoft Teams plugin.
 2) Create an **Azure Bot** (App ID + client secret + tenant ID).
@@ -44,6 +45,9 @@ Details: [Plugins](/plugin)
 5) Install the Teams app package and start the gateway.
 =======
 ## Onboarding
+=======
+## Quick setup (beginner)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 1. Install the Microsoft Teams plugin.
 2. Create an **Azure Bot** (App ID + client secret + tenant ID).
@@ -229,12 +233,16 @@ This is often easier than hand-editing JSON manifests.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Setup (minimal text-only)
 =======
 ## Setup (minimal)
 =======
 ## Onboarding (minimal)
 >>>>>>> e36245bd3 (docs: finalize onboarding option heading normalization (#22547))
+=======
+## Setup (minimal text-only)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 
 >>>>>>> b5a77b9cb (docs: finalize remaining setup heading phrasing (#22543))

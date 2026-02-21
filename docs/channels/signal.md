@@ -18,6 +18,7 @@ Status: external CLI integration. Gateway talks to `signal-cli` over HTTP JSON-R
 - Browser access for Signal captcha (`signalcaptchas.org`) during registration.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Quick setup (beginner)
 <<<<<<< HEAD
 1) Use a **separate Signal number** for the bot (recommended).
@@ -29,6 +30,9 @@ Status: external CLI integration. Gateway talks to `signal-cli` over HTTP JSON-R
 =======
 ## Onboarding
 >>>>>>> 12d75ff7f (docs: continue channel onboarding/config naming cleanup (#22533))
+=======
+## Quick setup (beginner)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 1. Use a **separate Signal number** for the bot (recommended).
 2. Install `signal-cli` (Java required if you use the JVM build).
@@ -86,6 +90,7 @@ Disable with:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Setup (fast path)
 1) Install `signal-cli` (Java required).
 2) Link a bot account:
@@ -99,6 +104,9 @@ Disable with:
 =======
 ## Onboarding (option A): link existing Signal account (QR)
 >>>>>>> e36245bd3 (docs: finalize onboarding option heading normalization (#22547))
+=======
+## Setup path A: link existing Signal account (QR)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 1. Install `signal-cli` (JVM or native build).
 2. Link a bot account:
@@ -123,7 +131,7 @@ Example:
 
 Multi-account support: use `channels.signal.accounts` with per-account config and optional `name`. See [`gateway/configuration`](/gateway/configuration#telegramaccounts--discordaccounts--slackaccounts--signalaccounts--imessageaccounts) for the shared pattern.
 
-## Onboarding (option B): register dedicated bot number (SMS, Linux)
+## Setup path B: register dedicated bot number (SMS, Linux)
 
 Use this when you want a dedicated bot number instead of linking an existing Signal app account.
 
@@ -302,9 +310,13 @@ For triage flow: [/channels/troubleshooting](/channels/troubleshooting).
 - SMS verification is only needed for registration or recovery flows, but losing control of the number/account can complicate re-registration.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Configuration reference (Signal)
 =======
 ## Configuration
+=======
+## Configuration reference (Signal)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 >>>>>>> 7c593cd33 (docs: finish onboarding/config heading consistency (#22537))
 Full configuration: [Configuration](/gateway/configuration)

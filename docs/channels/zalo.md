@@ -15,12 +15,16 @@ Zalo ships as a plugin and is not bundled with the core install.
 - Details: [Plugins](/plugin)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Quick setup (beginner)
 1) Install the Zalo plugin:
    - From a source checkout: `moltbot plugins install ./extensions/zalo`
    - From npm (if published): `moltbot plugins install @moltbot/zalo`
 =======
 ## Onboarding
+=======
+## Quick setup (beginner)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 1. Install the Zalo plugin:
    - From a source checkout: `openclaw plugins install ./extensions/zalo`
@@ -54,7 +58,7 @@ It is a good fit for support or notifications where you want deterministic routi
 - DMs share the agent's main session.
 - Groups are not yet supported (Zalo docs state "coming soon").
 
-## Onboarding (quick path)
+## Setup (fast path)
 
 ### 1) Create a bot token (Zalo Bot Platform)
 <<<<<<< HEAD
@@ -166,9 +170,13 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 - Check that getUpdates polling is not running (they're mutually exclusive)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Configuration reference (Zalo)
 =======
 ## Configuration
+=======
+## Configuration reference (Zalo)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 >>>>>>> 4c4147fb0 (docs: continue onboarding terminology cleanup (#22535))
 Full configuration: [Configuration](/gateway/configuration)

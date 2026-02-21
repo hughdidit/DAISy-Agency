@@ -24,12 +24,16 @@ The Gateway machine must have the `zca` binary available in `PATH`.
 - If missing, install zca-cli (see `extensions/zalouser/README.md` or the upstream zca-cli docs).
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Quick setup (beginner)
 1) Install the plugin (see above).
 2) Login (QR, on the Gateway machine):
    - `moltbot channels login --channel zalouser`
 =======
 ## Onboarding
+=======
+## Quick setup (beginner)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 1. Install the plugin (see above).
 2. Login (QR, on the Gateway machine):

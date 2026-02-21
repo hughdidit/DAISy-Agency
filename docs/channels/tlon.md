@@ -31,7 +31,7 @@ moltbot plugins install ./extensions/tlon
 
 Details: [Plugins](/plugin)
 
-## Onboarding
+## Setup
 
 1) Install the Tlon plugin.
 2) Gather your ship URL and login code.

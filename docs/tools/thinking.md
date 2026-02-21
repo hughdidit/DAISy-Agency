@@ -43,9 +43,13 @@ title: "Thinking Levels"
 - When verbose is `full`, tool outputs are also forwarded after completion (separate bubble, truncated to a safe length). If you toggle `/verbose on|full|off` while a run is in-flight, subsequent tool bubbles honor the new setting.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Reasoning visibility (/reasoning)
 =======
 ## Reasoning visibility (/tools/thinking#reasoning-visibility-reasoning)
+=======
+## Reasoning visibility (/reasoning)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 >>>>>>> e93e67bc8 (docs: fix thinking section heading link target (#22539))
 - Levels: `on|off|stream`.
@@ -57,7 +61,6 @@ title: "Thinking Levels"
 
 ## Related
 - Elevated mode docs live in [Elevated mode](/tools/elevated).
-- Reasoning visibility behavior is documented in [Reasoning visibility](/tools/thinking#reasoning-visibility-reasoning).
 
 ## Heartbeats
 - Heartbeat probe body is the configured heartbeat prompt (default: `Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.`). Inline directives in a heartbeat message apply as usual (but avoid changing session defaults from heartbeats).

@@ -31,7 +31,7 @@ Local checkout (when running from a git repo):
 moltbot plugins install ./extensions/line
 ```
 
-## Onboarding
+## Setup
 
 <<<<<<< HEAD
 1) Create a LINE Developers account and open the Console:
@@ -57,7 +57,7 @@ The gateway responds to LINE’s webhook verification (GET) and inbound events (
 If you need a custom path, set `channels.line.webhookPath` or
 `channels.line.accounts.<id>.webhookPath` and update the URL accordingly.
 
-## Configuration
+## Configure
 
 Minimal config:
 

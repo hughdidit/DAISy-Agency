@@ -9,10 +9,14 @@ title: "Google Chat"
 Status: ready for DMs + spaces via Google Chat API webhooks (HTTP only).
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Quick setup (beginner)
 1) Create a Google Cloud project and enable the **Google Chat API**.
 =======
 ## Onboarding
+=======
+## Quick setup (beginner)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 1. Create a Google Cloud project and enable the **Google Chat API**.
 >>>>>>> 79183852f (docs: more channel onboarding naming cleanup (#22536))

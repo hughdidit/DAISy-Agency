@@ -195,9 +195,13 @@ Control whether responses are sent as a single message or streamed in blocks:
 - Outbound text is chunked to `channels.bluebubbles.textChunkLimit` (default: 4000 chars).
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Configuration reference
 =======
 ## Configuration
+=======
+## Configuration reference
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 >>>>>>> d7891badd (docs: more channel heading consistency updates (#22541))
 Full configuration: [Configuration](/gateway/configuration)

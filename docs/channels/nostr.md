@@ -39,7 +39,7 @@ moltbot plugins install --link <path-to-moltbot>/extensions/nostr
 
 Restart the Gateway after installing or enabling plugins.
 
-## Onboarding
+## Quick setup
 
 1) Generate a Nostr keypair (if needed):
 
@@ -92,7 +92,7 @@ export NOSTR_PRIVATE_KEY="nsec1..."
 4. Restart the Gateway.
 >>>>>>> 0a1f4f666 (revert(docs): undo markdownlint autofix churn)
 
-## Configuration
+## Configuration reference
 
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |

@@ -27,6 +27,7 @@ Moltbot will offer the local install path automatically.
 Details: [Plugins](/plugin)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Quick setup (beginner)
 <<<<<<< HEAD
 1) Install the Nextcloud Talk plugin.
@@ -35,6 +36,9 @@ Details: [Plugins](/plugin)
 =======
 ## Onboarding
 >>>>>>> 325992b77 (docs: small docs sweep consistency updates (#22531))
+=======
+## Quick setup (beginner)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 1. Install the Nextcloud Talk plugin.
 2. On your Nextcloud server, create a bot:
@@ -123,9 +127,13 @@ Minimal config:
 | Native commands | Not supported |
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Configuration reference (Nextcloud Talk)
 =======
 ## Configuration
+=======
+## Configuration reference (Nextcloud Talk)
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 >>>>>>> 325992b77 (docs: small docs sweep consistency updates (#22531))
 Full configuration: [Configuration](/gateway/configuration)

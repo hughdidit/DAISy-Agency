@@ -35,7 +35,7 @@ Status: production-ready via WhatsApp Web (Baileys). Gateway owns linked session
   </Card>
 </CardGroup>
 
-## Onboarding
+## Quick setup
 
 <Steps>
   <Step title="Configure WhatsApp access policy">
@@ -767,7 +767,7 @@ WhatsApp sends audio as **voice notes** (PTT bubble).
   </Accordion>
 </AccordionGroup>
 
-## Configuration
+## Configuration reference pointers
 
 Primary reference:
 

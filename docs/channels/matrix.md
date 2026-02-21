@@ -35,7 +35,7 @@ Moltbot will offer the local install path automatically.
 
 Details: [Plugins](/plugin)
 
-## Onboarding
+## Setup
 
 1) Install the Matrix plugin:
    - From npm: `moltbot plugins install @moltbot/matrix`
@@ -289,7 +289,7 @@ Common failures:
 
 For triage flow: [/channels/troubleshooting](/channels/troubleshooting).
 
-## Configuration
+## Configuration reference (Matrix)
 
 Full configuration: [Configuration](/gateway/configuration)
 
