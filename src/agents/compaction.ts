@@ -5,12 +5,18 @@ import { estimateTokens, generateSummary } from "@mariozechner/pi-coding-agent";
 
 =======
 import { retryAsync } from "../infra/retry.js";
+<<<<<<< HEAD
 >>>>>>> 068b9c974 (feat: wrap compaction generateSummary in retryAsync)
+=======
+import { createSubsystemLogger } from "../logging/subsystem.js";
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
 import { DEFAULT_CONTEXT_TOKENS } from "./defaults.js";
 <<<<<<< HEAD
 =======
 import { repairToolUseResultPairing, stripToolResultDetails } from "./session-transcript-repair.js";
 >>>>>>> a4bf61952 (refactor(agents): share toolResult details stripping)
+
+const log = createSubsystemLogger("compaction");
 
 export const BASE_CHUNK_RATIO = 0.4;
 export const MIN_CHUNK_RATIO = 0.15;
@@ -213,7 +219,7 @@ export async function summarizeWithFallback(params: {
   try {
     return await summarizeChunks(params);
   } catch (fullError) {
-    console.warn(
+    log.warn(
       `Full summarization failed, trying partial: ${
         fullError instanceof Error ? fullError.message : String(fullError)
       }`,
@@ -245,7 +251,7 @@ export async function summarizeWithFallback(params: {
       const notes = oversizedNotes.length > 0 ? `\n\n${oversizedNotes.join("\n")}` : "";
       return partialSummary + notes;
     } catch (partialError) {
-      console.warn(
+      log.warn(
         `Partial summarization also failed: ${
           partialError instanceof Error ? partialError.message : String(partialError)
         }`,

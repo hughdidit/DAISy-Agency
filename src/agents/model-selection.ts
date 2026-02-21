@@ -13,11 +13,14 @@ import { resolveAgentModelPrimary } from "./agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
 import { resolveAgentConfig, resolveAgentModelPrimary } from "./agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import type { ModelCatalogEntry } from "./model-catalog.js";
 import { normalizeGoogleModelId } from "./models-config.providers.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
+
+const log = createSubsystemLogger("model-selection");
 
 export type ModelRef = {
   provider: string;
@@ -301,8 +304,13 @@ export function resolveConfiguredModelRef(params: {
       }
 
       // Default to anthropic if no provider is specified, but warn as this is deprecated.
+<<<<<<< HEAD
       console.warn(
         `[moltbot] Model "${trimmed}" specified without provider. Falling back to "anthropic/${trimmed}". Please use "anthropic/${trimmed}" in your config.`,
+=======
+      log.warn(
+        `Model "${trimmed}" specified without provider. Falling back to "anthropic/${trimmed}". Please use "anthropic/${trimmed}" in your config.`,
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
       );
       return { provider: "anthropic", model: trimmed };
     }

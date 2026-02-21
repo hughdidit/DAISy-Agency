@@ -8,6 +8,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
 =======
@@ -21,11 +22,20 @@ import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
 import type { FailoverReason } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { createSubsystemLogger } from "../../logging/subsystem.js";
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
 import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
 import { stableStringify } from "../stable-stringify.js";
 import type { FailoverReason } from "./types.js";
 
+<<<<<<< HEAD
 export function formatBillingErrorMessage(provider?: string): string {
+=======
+const log = createSubsystemLogger("errors");
+
+export function formatBillingErrorMessage(provider?: string, model?: string): string {
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
   const providerName = provider?.trim();
   if (providerName) {
     return `⚠️ ${providerName} returned a billing error — your API key has run out of credits or has an insufficient balance. Check your ${providerName} billing dashboard and top up or switch to a different API key.`;
@@ -528,7 +538,7 @@ export function formatAssistantErrorText(
 
   // Never return raw unhandled errors - log for debugging but return safe message
   if (raw.length > 600) {
-    console.warn("[formatAssistantErrorText] Long error truncated:", raw.slice(0, 200));
+    log.warn(`Long error truncated: ${raw.slice(0, 200)}`);
   }
   return raw.length > 600 ? `${raw.slice(0, 600)}…` : raw;
 }

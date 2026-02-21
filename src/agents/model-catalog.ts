@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 import { type MoltbotConfig, loadConfig } from "../config/config.js";
 import { resolveMoltbotAgentDir } from "./agent-paths.js";
 import { ensureMoltbotModelsJson } from "./models-config.js";
+=======
+import { type OpenClawConfig, loadConfig } from "../config/config.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { resolveOpenClawAgentDir } from "./agent-paths.js";
+import { ensureOpenClawModelsJson } from "./models-config.js";
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
+
+const log = createSubsystemLogger("model-catalog");
 
 export type ModelCatalogEntry = {
   id: string;
@@ -140,7 +149,7 @@ export async function loadModelCatalog(params?: {
     } catch (error) {
       if (!hasLoggedModelCatalogError) {
         hasLoggedModelCatalogError = true;
-        console.warn(`[model-catalog] Failed to load model catalog: ${String(error)}`);
+        log.warn(`Failed to load model catalog: ${String(error)}`);
       }
       // Don't poison the cache on transient dependency/filesystem issues.
       modelCatalogPromise = null;

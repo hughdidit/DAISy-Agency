@@ -7,6 +7,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
 import type { SkillEntry, SkillSnapshot } from "./types.js";
@@ -19,6 +20,10 @@ import type { SkillEntry, SkillSnapshot } from "./types.js";
 =======
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 =======
+=======
+import { isDangerousHostEnvVarName } from "../../infra/host-env-security.js";
+import { createSubsystemLogger } from "../../logging/subsystem.js";
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
 import { sanitizeEnvVars, validateEnvVarValue } from "../sandbox/sanitize-env-vars.js";
 >>>>>>> 8c9f35cdb (Agents: sanitize skill env overrides)
 import { resolveSkillConfig } from "./config.js";
@@ -26,10 +31,15 @@ import { resolveSkillKey } from "./frontmatter.js";
 import type { SkillEntry, SkillSnapshot } from "./types.js";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export function applySkillEnvOverrides(params: { skills: SkillEntry[]; config?: MoltbotConfig }) {
   const { skills, config } = params;
   const updates: Array<{ key: string; prev: string | undefined }> = [];
 =======
+=======
+const log = createSubsystemLogger("env-overrides");
+
+>>>>>>> ffa63173e (refactor(agents): migrate console.warn/error/info to subsystem logger (#22906))
 type EnvUpdate = { key: string; prev: string | undefined };
 type SkillConfig = NonNullable<ReturnType<typeof resolveSkillConfig>>;
 >>>>>>> a76777759 (refactor(skills): dedupe env overrides)
@@ -136,13 +146,10 @@ function applySkillConfigEnvOverrides(params: {
   });
 
   if (sanitized.blocked.length > 0) {
-    console.warn(
-      `[Security] Blocked skill env overrides for ${skillKey}:`,
-      sanitized.blocked.join(", "),
-    );
+    log.warn(`Blocked skill env overrides for ${skillKey}: ${sanitized.blocked.join(", ")}`);
   }
   if (sanitized.warnings.length > 0) {
-    console.warn(`[Security] Suspicious skill env overrides for ${skillKey}:`, sanitized.warnings);
+    log.warn(`Suspicious skill env overrides for ${skillKey}: ${sanitized.warnings.join(", ")}`);
   }
 
   for (const [envKey, envValue] of Object.entries(sanitized.allowed)) {
