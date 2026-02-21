@@ -244,7 +244,10 @@ import {
   writeConfigFile,
 } from "./doctor.e2e-harness.js";
 
+const DOCTOR_MIGRATION_TIMEOUT_MS = 20_000;
+
 describe("doctor command", () => {
+<<<<<<< HEAD
   it("migrates routing.allowFrom to channels.whatsapp.allowFrom", { timeout: 60_000 }, async () => {
 <<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
@@ -259,24 +262,37 @@ describe("doctor command", () => {
       issues: [{ path: "routing.allowFrom", message: "legacy" }],
       legacyIssues: [{ path: "routing.allowFrom", message: "legacy" }],
     });
+=======
+  it(
+    "migrates routing.allowFrom to channels.whatsapp.allowFrom",
+    { timeout: DOCTOR_MIGRATION_TIMEOUT_MS },
+    async () => {
+      mockDoctorConfigSnapshot({
+        parsed: { routing: { allowFrom: ["+15555550123"] } },
+        valid: false,
+        issues: [{ path: "routing.allowFrom", message: "legacy" }],
+        legacyIssues: [{ path: "routing.allowFrom", message: "legacy" }],
+      });
+>>>>>>> 8cc3a5e46 (test(doctor): tighten legacy migration e2e timeout budgets)
 
-    const { doctorCommand } = await import("./doctor.js");
-    const runtime = createDoctorRuntime();
+      const { doctorCommand } = await import("./doctor.js");
+      const runtime = createDoctorRuntime();
 
-    migrateLegacyConfig.mockReturnValue({
-      config: { channels: { whatsapp: { allowFrom: ["+15555550123"] } } },
-      changes: ["Moved routing.allowFrom → channels.whatsapp.allowFrom."],
-    });
+      migrateLegacyConfig.mockReturnValue({
+        config: { channels: { whatsapp: { allowFrom: ["+15555550123"] } } },
+        changes: ["Moved routing.allowFrom → channels.whatsapp.allowFrom."],
+      });
 
-    await doctorCommand(runtime, { nonInteractive: true, repair: true });
+      await doctorCommand(runtime, { nonInteractive: true, repair: true });
 
-    expect(writeConfigFile).toHaveBeenCalledTimes(1);
-    const written = writeConfigFile.mock.calls[0]?.[0] as Record<string, unknown>;
-    expect((written.channels as Record<string, unknown>)?.whatsapp).toEqual({
-      allowFrom: ["+15555550123"],
-    });
-    expect(written.routing).toBeUndefined();
-  });
+      expect(writeConfigFile).toHaveBeenCalledTimes(1);
+      const written = writeConfigFile.mock.calls[0]?.[0] as Record<string, unknown>;
+      expect((written.channels as Record<string, unknown>)?.whatsapp).toEqual({
+        allowFrom: ["+15555550123"],
+      });
+      expect(written.routing).toBeUndefined();
+    },
+  );
 
 <<<<<<< HEAD
   it("migrates legacy gateway services", { timeout: 60_000 }, async () => {
@@ -290,6 +306,7 @@ describe("doctor command", () => {
       issues: [],
       legacyIssues: [],
     });
+<<<<<<< HEAD
 =======
   it("skips legacy gateway services migration", { timeout: 60_000 }, async () => {
     mockDoctorConfigSnapshot();
@@ -304,13 +321,61 @@ describe("doctor command", () => {
     ]);
     serviceIsLoaded.mockResolvedValueOnce(false);
     serviceInstall.mockClear();
+=======
 
     const { doctorCommand } = await import("./doctor.js");
-    await doctorCommand(createDoctorRuntime());
+    const runtime = createDoctorRuntime();
 
+    migrateLegacyConfig.mockReturnValue({
+      config: {
+        channels: { whatsapp: { allowFrom: ["+15555550123"] } },
+        gateway: { remote: { token: "legacy-remote-token" } },
+      },
+      changes: ["Moved routing.allowFrom → channels.whatsapp.allowFrom."],
+    });
+
+    await doctorCommand(runtime, { repair: true });
+
+    expect(writeConfigFile).toHaveBeenCalledTimes(1);
+    const written = writeConfigFile.mock.calls[0]?.[0] as Record<string, unknown>;
+    const gateway = (written.gateway as Record<string, unknown>) ?? {};
+    const auth = gateway.auth as Record<string, unknown> | undefined;
+    const remote = gateway.remote as Record<string, unknown>;
+
+    expect(remote.token).toBe("legacy-remote-token");
+    expect(auth).toBeUndefined();
+  });
+
+  it(
+    "skips legacy gateway services migration",
+    { timeout: DOCTOR_MIGRATION_TIMEOUT_MS },
+    async () => {
+      mockDoctorConfigSnapshot();
+
+      findLegacyGatewayServices.mockResolvedValueOnce([
+        {
+          platform: "darwin",
+          label: "com.steipete.openclaw.gateway",
+          detail: "loaded",
+        },
+      ]);
+      serviceIsLoaded.mockResolvedValueOnce(false);
+      serviceInstall.mockClear();
+>>>>>>> 8cc3a5e46 (test(doctor): tighten legacy migration e2e timeout budgets)
+
+      const { doctorCommand } = await import("./doctor.js");
+      await doctorCommand(createDoctorRuntime());
+
+<<<<<<< HEAD
     expect(uninstallLegacyGatewayServices).toHaveBeenCalledTimes(1);
     expect(serviceInstall).toHaveBeenCalledTimes(1);
   });
+=======
+      expect(uninstallLegacyGatewayServices).not.toHaveBeenCalled();
+      expect(serviceInstall).not.toHaveBeenCalled();
+    },
+  );
+>>>>>>> 8cc3a5e46 (test(doctor): tighten legacy migration e2e timeout budgets)
 
   it("offers to update first for git checkouts", async () => {
     delete process.env.CLAWDBOT_UPDATE_IN_PROGRESS;
