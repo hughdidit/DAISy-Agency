@@ -213,6 +213,21 @@ final class TalkModeManager: NSObject {
         self.recognitionTask = recognizer.recognitionTask(with: request) { [weak self] result, error in
             guard let self else { return }
             if let error {
+<<<<<<< HEAD
+=======
+                let msg = error.localizedDescription
+                let lowered = msg.lowercased()
+                let isCancellation = lowered.contains("cancelled") || lowered.contains("canceled")
+                if isCancellation {
+                    GatewayDiagnostics.log("talk speech: cancelled")
+                    if self.captureMode == .continuous, self.isEnabled, !self.isSpeaking {
+                        self.statusText = "Listening"
+                    }
+                    self.logger.debug("speech recognition cancelled")
+                    return
+                }
+                GatewayDiagnostics.log("talk speech: error=\(msg)")
+>>>>>>> d6353cc54 (fix(ios): suppress expected speech cancellation errors)
                 if !self.isSpeaking {
                     self.statusText = "Speech error: \(error.localizedDescription)"
                 }
