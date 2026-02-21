@@ -254,7 +254,15 @@ export function buildServiceEnvironment(params: {
 >>>>>>> 2bb8ead18 (Fix LaunchAgent missing TMPDIR causing SQLITE_CANTOPEN on macOS (#20512))
 =======
   const proxyEnv = readServiceProxyEnvironment(env);
+<<<<<<< HEAD
 >>>>>>> b97571142 (fix(daemon): stabilize LaunchAgent restart and proxy env passthrough (#27276))
+=======
+  // On macOS, launchd services don't inherit the shell environment, so Node's undici/fetch
+  // cannot locate the system CA bundle. Default to /etc/ssl/cert.pem so TLS verification
+  // works correctly when running as a LaunchAgent without extra user configuration.
+  const nodeCaCerts =
+    env.NODE_EXTRA_CA_CERTS ?? (process.platform === "darwin" ? "/etc/ssl/cert.pem" : undefined);
+>>>>>>> d33f24c4e (Fix NODE_EXTRA_CA_CERTS missing from LaunchAgent environment on macOS)
   return {
     HOME: env.HOME,
     TMPDIR: tmpDir,
@@ -272,6 +280,7 @@ export function buildServiceEnvironment(params: {
     CLAWDBOT_SERVICE_VERSION: VERSION,
 =======
     ...proxyEnv,
+    NODE_EXTRA_CA_CERTS: nodeCaCerts,
     OPENCLAW_PROFILE: profile,
     OPENCLAW_STATE_DIR: stateDir,
     OPENCLAW_CONFIG_PATH: configPath,
@@ -299,7 +308,15 @@ export function buildNodeServiceEnvironment(params: {
 >>>>>>> 2bb8ead18 (Fix LaunchAgent missing TMPDIR causing SQLITE_CANTOPEN on macOS (#20512))
 =======
   const proxyEnv = readServiceProxyEnvironment(env);
+<<<<<<< HEAD
 >>>>>>> b97571142 (fix(daemon): stabilize LaunchAgent restart and proxy env passthrough (#27276))
+=======
+  // On macOS, launchd services don't inherit the shell environment, so Node's undici/fetch
+  // cannot locate the system CA bundle. Default to /etc/ssl/cert.pem so TLS verification
+  // works correctly when running as a LaunchAgent without extra user configuration.
+  const nodeCaCerts =
+    env.NODE_EXTRA_CA_CERTS ?? (process.platform === "darwin" ? "/etc/ssl/cert.pem" : undefined);
+>>>>>>> d33f24c4e (Fix NODE_EXTRA_CA_CERTS missing from LaunchAgent environment on macOS)
   return {
     HOME: env.HOME,
     TMPDIR: tmpDir,
@@ -317,6 +334,7 @@ export function buildNodeServiceEnvironment(params: {
     CLAWDBOT_SERVICE_VERSION: VERSION,
 =======
     ...proxyEnv,
+    NODE_EXTRA_CA_CERTS: nodeCaCerts,
     OPENCLAW_STATE_DIR: stateDir,
     OPENCLAW_CONFIG_PATH: configPath,
     OPENCLAW_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
