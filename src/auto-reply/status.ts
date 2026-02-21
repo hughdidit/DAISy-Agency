@@ -10,6 +10,12 @@ import { resolveModelAuthMode } from "../agents/model-auth.js";
 import { resolveConfiguredModelRef } from "../agents/model-selection.js";
 import { resolveSandboxRuntimeStatus } from "../agents/sandbox.js";
 import { derivePromptTokens, normalizeUsage, type UsageLike } from "../agents/usage.js";
+<<<<<<< HEAD
+=======
+import { resolveChannelModelOverride } from "../channels/model-overrides.js";
+import { isCommandFlagEnabled } from "../config/commands.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> fbb79d401 (fix(security): harden runtime command override gating)
 import {
   resolveMainSessionKey,
   resolveSessionFilePath,
@@ -511,10 +517,10 @@ export function buildHelpMessage(cfg?: OpenClawConfig): string {
   lines.push("");
 
   const optionParts = ["/think <level>", "/model <id>", "/verbose on|off"];
-  if (cfg?.commands?.config === true) {
+  if (isCommandFlagEnabled(cfg, "config")) {
     optionParts.push("/config");
   }
-  if (cfg?.commands?.debug === true) {
+  if (isCommandFlagEnabled(cfg, "debug")) {
     optionParts.push("/debug");
   }
   lines.push("Options");

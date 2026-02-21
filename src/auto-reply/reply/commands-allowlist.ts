@@ -5,6 +5,11 @@ import { getChannelDock } from "../../channels/dock.js";
 import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes.js";
 import { listPairingChannels } from "../../channels/plugins/pairing.js";
 import { normalizeChannelId } from "../../channels/registry.js";
+<<<<<<< HEAD
+=======
+import { isCommandFlagEnabled } from "../../config/commands.js";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> fbb79d401 (fix(security): harden runtime command override gating)
 import {
   readConfigFileSnapshot,
   validateConfigObjectWithPlugins,
@@ -520,7 +525,7 @@ export const handleAllowlistCommand: CommandHandler = async (params, allowTextCo
     return { shouldContinue: false, reply: { text: lines.join("\n") } };
   }
 
-  if (params.cfg.commands?.config !== true) {
+  if (!isCommandFlagEnabled(params.cfg, "config")) {
     return {
       shouldContinue: false,
       reply: { text: "⚠️ /allowlist edits are disabled. Set commands.config=true to enable." },

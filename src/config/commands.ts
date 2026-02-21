@@ -1,4 +1,5 @@
 import type { ChannelId } from "../channels/plugins/types.js";
+import { isPlainObject } from "../infra/plain-object.js";
 import type { NativeCommandsSetting } from "./types.js";
 import { normalizeChannelId } from "../channels/plugins/index.js";
 
@@ -62,3 +63,25 @@ export function isNativeCommandsExplicitlyDisabled(params: {
   }
   return false;
 }
+<<<<<<< HEAD
+=======
+
+function getOwnCommandFlagValue(config: { commands?: unknown } | undefined, key: string): unknown {
+  const { commands } = config ?? {};
+  if (!isPlainObject(commands) || !Object.hasOwn(commands, key)) {
+    return undefined;
+  }
+  return commands[key];
+}
+
+export function isCommandFlagEnabled(
+  config: { commands?: unknown } | undefined,
+  key: string,
+): boolean {
+  return getOwnCommandFlagValue(config, key) === true;
+}
+
+export function isRestartEnabled(config?: { commands?: unknown }): boolean {
+  return getOwnCommandFlagValue(config, "restart") !== false;
+}
+>>>>>>> fbb79d401 (fix(security): harden runtime command override gating)
