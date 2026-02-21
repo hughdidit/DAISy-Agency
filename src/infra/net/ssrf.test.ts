@@ -67,6 +67,7 @@ const nonIpHostnameCases = ["example.com", "abc.123.example", "1password.com", "
 >>>>>>> 26c9b37f5 (fix(security): enforce strict IPv4 SSRF literal handling)
 
 describe("ssrf ip classification", () => {
+<<<<<<< HEAD
   it("treats IPv4-mapped and IPv4-compatible IPv6 loopback as private", () => {
     expect(isPrivateIpAddress("::ffff:127.0.0.1")).toBe(true);
     expect(isPrivateIpAddress("0:0:0:0:0:ffff:7f00:1")).toBe(true);
@@ -125,12 +126,25 @@ describe("ssrf ip classification", () => {
   it.each(unsupportedLegacyIpv4Cases)(
     "fails closed for unsupported legacy IPv4 literal %s",
     (address) => {
+=======
+  it("classifies blocked ip literals as private", () => {
+    const blockedCases = [...privateIpCases, ...malformedIpv6Cases, ...unsupportedLegacyIpv4Cases];
+    for (const address of blockedCases) {
+>>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
       expect(isPrivateIpAddress(address)).toBe(true);
-    },
-  );
+    }
+  });
 
-  it.each(nonIpHostnameCases)("does not treat hostname %s as an IP literal", (hostname) => {
-    expect(isPrivateIpAddress(hostname)).toBe(false);
+  it("classifies public ip literals as non-private", () => {
+    for (const address of publicIpCases) {
+      expect(isPrivateIpAddress(address)).toBe(false);
+    }
+  });
+
+  it("does not treat hostnames as ip literals", () => {
+    for (const hostname of nonIpHostnameCases) {
+      expect(isPrivateIpAddress(hostname)).toBe(false);
+    }
   });
 });
 

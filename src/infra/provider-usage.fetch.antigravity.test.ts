@@ -142,7 +142,22 @@ describe("fetchAntigravityUsage", () => {
     expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 
+<<<<<<< HEAD
   it("uses cloudaicompanionProject string as project id", async () => {
+=======
+  it.each([
+    {
+      name: "uses cloudaicompanionProject string as project id",
+      project: "projects/alpha",
+      expectedBody: JSON.stringify({ project: "projects/alpha" }),
+    },
+    {
+      name: "uses cloudaicompanionProject object id when present",
+      project: { id: "projects/beta" },
+      expectedBody: JSON.stringify({ project: "projects/beta" }),
+    },
+  ])("project payload: $name", async ({ project, expectedBody }) => {
+>>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
     let capturedBody: string | undefined;
     const mockFetch = vi.fn<Parameters<typeof fetch>, ReturnType<typeof fetch>>(
       async (input, init) => {
@@ -247,6 +262,7 @@ describe("fetchAntigravityUsage", () => {
     expect(snapshot.windows).toHaveLength(0);
   });
 
+<<<<<<< HEAD
   it("extracts plan info from currentTier.name", async () => {
     const mockFetch = vi.fn<Parameters<typeof fetch>, ReturnType<typeof fetch>>(async (input) => {
       const url =
@@ -266,6 +282,32 @@ describe("fetchAntigravityUsage", () => {
       }
 
       return makeResponse(404, "not found");
+=======
+  it.each([
+    {
+      name: "extracts plan info from currentTier.name",
+      loadCodeAssist: {
+        availablePromptCredits: 500,
+        planInfo: { monthlyPromptCredits: 1000 },
+        planType: "Basic",
+        currentTier: { id: "tier2", name: "Premium Tier" },
+      },
+      expectedPlan: "Premium Tier",
+    },
+    {
+      name: "falls back to planType when currentTier.name is missing",
+      loadCodeAssist: {
+        availablePromptCredits: 500,
+        planInfo: { monthlyPromptCredits: 1000 },
+        planType: "Basic Plan",
+      },
+      expectedPlan: "Basic Plan",
+    },
+  ])("plan label: $name", async ({ loadCodeAssist, expectedPlan }) => {
+    const mockFetch = createEndpointFetch({
+      loadCodeAssist: () => makeResponse(200, loadCodeAssist),
+      fetchAvailableModels: () => makeResponse(500, "Error"),
+>>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
     });
 
     const snapshot = await fetchAntigravityUsage("token-123", 5000, mockFetch);
