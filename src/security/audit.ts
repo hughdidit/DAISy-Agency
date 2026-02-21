@@ -413,9 +413,13 @@ function collectGatewayConfigFindings(
     findings.push({
       checkId: "gateway.control_ui.insecure_auth",
       severity: "critical",
-      title: "Control UI allows insecure HTTP auth",
+      title: "Control UI insecure auth toggle enabled",
       detail:
+<<<<<<< HEAD
         "gateway.controlUi.allowInsecureAuth=true allows token-only auth over HTTP and skips device identity.",
+=======
+        "gateway.controlUi.allowInsecureAuth=true does not bypass secure context or device identity checks; only dangerouslyDisableDeviceAuth disables Control UI device identity checks.",
+>>>>>>> 99048dbec (fix(gateway): align insecure-auth toggle messaging)
       remediation: "Disable it or switch to HTTPS (Tailscale Serve) or localhost.",
     });
   }

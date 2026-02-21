@@ -66,7 +66,17 @@ export type GatewayControlUiConfig = {
   basePath?: string;
   /** Optional filesystem root for Control UI assets (defaults to dist/control-ui). */
   root?: string;
+<<<<<<< HEAD
   /** Allow token-only auth over insecure HTTP (default: false). */
+=======
+  /** Allowed browser origins for Control UI/WebChat websocket connections. */
+  allowedOrigins?: string[];
+  /**
+   * Insecure-auth toggle.
+   * Control UI still requires secure context + device identity unless
+   * dangerouslyDisableDeviceAuth is enabled.
+   */
+>>>>>>> 99048dbec (fix(gateway): align insecure-auth toggle messaging)
   allowInsecureAuth?: boolean;
   /** DANGEROUS: Disable device identity checks for the Control UI (default: false). */
   dangerouslyDisableDeviceAuth?: boolean;
