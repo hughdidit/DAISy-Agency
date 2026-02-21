@@ -47,6 +47,7 @@ import {
 } from "../../test-utils/channel-plugins.js";
 =======
 import { createOutboundTestPlugin, createTestRegistry } from "../../test-utils/channel-plugins.js";
+import { withEnvAsync } from "../../test-utils/env.js";
 import { createIMessageTestPlugin } from "../../test-utils/imessage-test-plugin.js";
 <<<<<<< HEAD
 >>>>>>> eb4215d57 (perf(test): speed up Vitest bootstrap)
@@ -154,6 +155,7 @@ describe("deliverOutboundPayloads", () => {
   it("chunks telegram markdown and passes through accountId", async () => {
     const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
 <<<<<<< HEAD
+<<<<<<< HEAD
     const cfg: MoltbotConfig = {
       channels: { telegram: { botToken: "tok-1", textChunkLimit: 2 } },
     };
@@ -162,6 +164,9 @@ describe("deliverOutboundPayloads", () => {
     const prevTelegramToken = process.env.TELEGRAM_BOT_TOKEN;
     process.env.TELEGRAM_BOT_TOKEN = "";
     try {
+=======
+    await withEnvAsync({ TELEGRAM_BOT_TOKEN: "" }, async () => {
+>>>>>>> 63488eb98 (refactor(test): dedupe telegram token env handling in tests)
       const results = await deliverOutboundPayloads({
         cfg: telegramChunkConfig,
         channel: "telegram",
@@ -178,20 +183,12 @@ describe("deliverOutboundPayloads", () => {
       }
       expect(results).toHaveLength(2);
       expect(results[0]).toMatchObject({ channel: "telegram", chatId: "c1" });
-    } finally {
-      if (prevTelegramToken === undefined) {
-        delete process.env.TELEGRAM_BOT_TOKEN;
-      } else {
-        process.env.TELEGRAM_BOT_TOKEN = prevTelegramToken;
-      }
-    }
+    });
   });
 
   it("keeps payload replyToId across all chunked telegram sends", async () => {
     const sendTelegram = vi.fn().mockResolvedValue({ messageId: "m1", chatId: "c1" });
-    const prevTelegramToken = process.env.TELEGRAM_BOT_TOKEN;
-    process.env.TELEGRAM_BOT_TOKEN = "";
-    try {
+    await withEnvAsync({ TELEGRAM_BOT_TOKEN: "" }, async () => {
       await deliverOutboundPayloads({
         cfg: telegramChunkConfig,
         channel: "telegram",
@@ -204,13 +201,7 @@ describe("deliverOutboundPayloads", () => {
       for (const call of sendTelegram.mock.calls) {
         expect(call[2]).toEqual(expect.objectContaining({ replyToMessageId: 777 }));
       }
-    } finally {
-      if (prevTelegramToken === undefined) {
-        delete process.env.TELEGRAM_BOT_TOKEN;
-      } else {
-        process.env.TELEGRAM_BOT_TOKEN = prevTelegramToken;
-      }
-    }
+    });
   });
 
   it("passes explicit accountId to sendTelegram", async () => {
