@@ -152,7 +152,122 @@ Discord uses numeric ids everywhere; OpenClaw config prefers ids.
 
 #### Token
 
+<<<<<<< HEAD
 Set the bot token via env var (recommended on servers):
+=======
+OpenClaw supports Discord components v2 containers for agent messages. Use the message tool with a `components` payload. Interaction results are routed back to the agent as normal inbound messages and follow the existing Discord `replyToMode` settings.
+
+Supported blocks:
+
+- `text`, `section`, `separator`, `actions`, `media-gallery`, `file`
+- Action rows allow up to 5 buttons or a single select menu
+- Select types: `string`, `user`, `role`, `mentionable`, `channel`
+
+By default, components are single use. Set `components.reusable=true` to allow buttons, selects, and forms to be used multiple times until they expire.
+
+To restrict who can click a button, set `allowedUsers` on that button (Discord user IDs, tags, or `*`). When configured, unmatched users receive an ephemeral denial.
+
+The `/model` and `/models` slash commands open an interactive model picker with provider and model dropdowns plus a Submit step. The picker reply is ephemeral and only the invoking user can use it.
+
+File attachments:
+
+- `file` blocks must point to an attachment reference (`attachment://<filename>`)
+- Provide the attachment via `media`/`path`/`filePath` (single file); use `media-gallery` for multiple files
+- Use `filename` to override the upload name when it should match the attachment reference
+
+Modal forms:
+
+- Add `components.modal` with up to 5 fields
+- Field types: `text`, `checkbox`, `radio`, `select`, `role-select`, `user-select`
+- OpenClaw adds a trigger button automatically
+
+Example:
+
+```json5
+{
+  channel: "discord",
+  action: "send",
+  to: "channel:123456789012345678",
+  message: "Optional fallback text",
+  components: {
+    reusable: true,
+    text: "Choose a path",
+    blocks: [
+      {
+        type: "actions",
+        buttons: [
+          {
+            label: "Approve",
+            style: "success",
+            allowedUsers: ["123456789012345678"],
+          },
+          { label: "Decline", style: "danger" },
+        ],
+      },
+      {
+        type: "actions",
+        select: {
+          type: "string",
+          placeholder: "Pick an option",
+          options: [
+            { label: "Option A", value: "a" },
+            { label: "Option B", value: "b" },
+          ],
+        },
+      },
+    ],
+    modal: {
+      title: "Details",
+      triggerLabel: "Open form",
+      fields: [
+        { type: "text", label: "Requester" },
+        {
+          type: "select",
+          label: "Priority",
+          options: [
+            { label: "Low", value: "low" },
+            { label: "High", value: "high" },
+          ],
+        },
+      ],
+    },
+  },
+}
+```
+
+## Access control and routing
+
+<Tabs>
+  <Tab title="DM policy">
+    `channels.discord.dmPolicy` controls DM access (legacy: `channels.discord.dm.policy`):
+
+    - `pairing` (default)
+    - `allowlist`
+    - `open` (requires `channels.discord.allowFrom` to include `"*"`; legacy: `channels.discord.dm.allowFrom`)
+    - `disabled`
+
+    If DM policy is not open, unknown users are blocked (or prompted for pairing in `pairing` mode).
+
+    DM target format for delivery:
+
+    - `user:<id>`
+    - `<@id>` mention
+
+    Bare numeric IDs are ambiguous and rejected unless an explicit user/channel target kind is provided.
+
+  </Tab>
+
+  <Tab title="Guild policy">
+    Guild handling is controlled by `channels.discord.groupPolicy`:
+
+    - `open`
+    - `allowlist`
+    - `disabled`
+
+    Secure baseline when `channels.discord` exists is `allowlist`.
+
+    `allowlist` behavior:
+>>>>>>> b7644d61a (fix: restore Discord model picker UX (#21458) (thanks @pejmanjohn))
 
 <<<<<<< HEAD
 - `DISCORD_BOT_TOKEN=...`
