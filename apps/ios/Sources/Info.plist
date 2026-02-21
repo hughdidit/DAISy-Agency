@@ -23,6 +23,7 @@
 	<key>CFBundleShortVersionString</key>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	<string>2026.2.6</string>
 	<key>CFBundleVersion</key>
 <<<<<<< HEAD
@@ -39,6 +40,9 @@
 =======
 	<string>2026.2.20</string>
 >>>>>>> f66b23de7 (chore(release): bump versions to 2026.2.20)
+=======
+	<string>2026.2.21</string>
+>>>>>>> 9231d7d30 (chore: bump version to 2026.2.21)
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
