@@ -3,13 +3,43 @@ import type { OpenClawConfig } from "./types.js";
 
 type OverrideTree = Record<string, unknown>;
 
+const BLOCKED_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
+
 let overrides: OverrideTree = {};
+
+function sanitizeOverrideValue(value: unknown, seen = new WeakSet<object>()): unknown {
+  if (Array.isArray(value)) {
+    return value.map((entry) => sanitizeOverrideValue(entry, seen));
+  }
+  if (!isPlainObject(value)) {
+    return value;
+  }
+  if (seen.has(value)) {
+    return {};
+  }
+  seen.add(value);
+  const sanitized: OverrideTree = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (entry === undefined || BLOCKED_MERGE_KEYS.has(key)) {
+      continue;
+    }
+    sanitized[key] = sanitizeOverrideValue(entry, seen);
+  }
+  seen.delete(value);
+  return sanitized;
+}
 
 function mergeOverrides(base: unknown, override: unknown): unknown {
   if (!isPlainObject(base) || !isPlainObject(override)) return override;
   const next: OverrideTree = { ...base };
   for (const [key, value] of Object.entries(override)) {
+<<<<<<< HEAD
     if (value === undefined) continue;
+=======
+    if (value === undefined || BLOCKED_MERGE_KEYS.has(key)) {
+      continue;
+    }
+>>>>>>> fbb79d401 (fix(security): harden runtime command override gating)
     next[key] = mergeOverrides((base as OverrideTree)[key], value);
   }
   return next;
@@ -43,7 +73,7 @@ export function setConfigOverride(
   if (!parsed.ok || !parsed.path) {
     return { ok: false, error: parsed.error ?? "Invalid path." };
   }
-  setConfigValueAtPath(overrides, parsed.path, value);
+  setConfigValueAtPath(overrides, parsed.path, sanitizeOverrideValue(value));
   return { ok: true };
 }
 
