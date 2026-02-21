@@ -93,6 +93,39 @@ describe("resolveApiKeyForProfile fallback to main agent", () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
   });
 
+  async function resolveOauthProfileForConfiguredMode(mode: "token" | "api_key") {
+    const profileId = "anthropic:default";
+    const store: AuthProfileStore = {
+      version: 1,
+      profiles: {
+        [profileId]: {
+          type: "oauth",
+          provider: "anthropic",
+          access: "oauth-token",
+          refresh: "refresh-token",
+          expires: Date.now() + 60_000,
+        },
+      },
+    };
+
+    const result = await resolveApiKeyForProfile({
+      cfg: {
+        auth: {
+          profiles: {
+            [profileId]: {
+              provider: "anthropic",
+              mode,
+            },
+          },
+        },
+      },
+      store,
+      profileId,
+    });
+
+    return result;
+  }
+
   it("falls back to main agent credentials when secondary agent token is expired and refresh fails", async () => {
     const profileId = "anthropic:claude-cli";
     const now = Date.now();
@@ -271,34 +304,7 @@ describe("resolveApiKeyForProfile fallback to main agent", () => {
   });
 
   it("accepts mode=token + type=oauth for legacy compatibility", async () => {
-    const profileId = "anthropic:default";
-    const store: AuthProfileStore = {
-      version: 1,
-      profiles: {
-        [profileId]: {
-          type: "oauth",
-          provider: "anthropic",
-          access: "oauth-token",
-          refresh: "refresh-token",
-          expires: Date.now() + 60_000,
-        },
-      },
-    };
-
-    const result = await resolveApiKeyForProfile({
-      cfg: {
-        auth: {
-          profiles: {
-            [profileId]: {
-              provider: "anthropic",
-              mode: "token",
-            },
-          },
-        },
-      },
-      store,
-      profileId,
-    });
+    const result = await resolveOauthProfileForConfiguredMode("token");
 
     expect(result?.apiKey).toBe("oauth-token");
   });
@@ -336,34 +342,7 @@ describe("resolveApiKeyForProfile fallback to main agent", () => {
   });
 
   it("rejects true mode/type mismatches", async () => {
-    const profileId = "anthropic:default";
-    const store: AuthProfileStore = {
-      version: 1,
-      profiles: {
-        [profileId]: {
-          type: "oauth",
-          provider: "anthropic",
-          access: "oauth-token",
-          refresh: "refresh-token",
-          expires: Date.now() + 60_000,
-        },
-      },
-    };
-
-    const result = await resolveApiKeyForProfile({
-      cfg: {
-        auth: {
-          profiles: {
-            [profileId]: {
-              provider: "anthropic",
-              mode: "api_key",
-            },
-          },
-        },
-      },
-      store,
-      profileId,
-    });
+    const result = await resolveOauthProfileForConfiguredMode("api_key");
 
     expect(result).toBeNull();
   });
