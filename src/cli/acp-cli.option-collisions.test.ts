@@ -31,6 +31,27 @@ vi.mock("../runtime.js", () => ({
 describe("acp cli option collisions", () => {
   let registerAcpCli: typeof import("./acp-cli.js").registerAcpCli;
 
+  async function withSecretFiles<T>(
+    secrets: { token?: string; password?: string },
+    run: (files: { tokenFile?: string; passwordFile?: string }) => Promise<T>,
+  ): Promise<T> {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-acp-cli-"));
+    try {
+      const files: { tokenFile?: string; passwordFile?: string } = {};
+      if (secrets.token !== undefined) {
+        files.tokenFile = path.join(dir, "token.txt");
+        await fs.writeFile(files.tokenFile, secrets.token, "utf8");
+      }
+      if (secrets.password !== undefined) {
+        files.passwordFile = path.join(dir, "password.txt");
+        await fs.writeFile(files.passwordFile, secrets.password, "utf8");
+      }
+      return await run(files);
+    } finally {
+      await fs.rm(dir, { recursive: true, force: true });
+    }
+  }
+
   beforeAll(async () => {
     ({ registerAcpCli } = await import("./acp-cli.js"));
   });
@@ -54,4 +75,88 @@ describe("acp cli option collisions", () => {
       }),
     );
   });
+<<<<<<< HEAD
+=======
+
+  it("loads gateway token/password from files", async () => {
+    const { registerAcpCli } = await import("./acp-cli.js");
+    const program = new Command();
+    registerAcpCli(program);
+
+    await withSecretFiles({ token: "tok_file\n", password: "pw_file\n" }, async (files) => {
+      await program.parseAsync(
+        ["acp", "--token-file", files.tokenFile ?? "", "--password-file", files.passwordFile ?? ""],
+        {
+          from: "user",
+        },
+      );
+    });
+
+    expect(serveAcpGateway).toHaveBeenCalledWith(
+      expect.objectContaining({
+        gatewayToken: "tok_file",
+        gatewayPassword: "pw_file",
+      }),
+    );
+  });
+
+  it("rejects mixed secret flags and file flags", async () => {
+    const { registerAcpCli } = await import("./acp-cli.js");
+    const program = new Command();
+    registerAcpCli(program);
+
+    await withSecretFiles({ token: "tok_file\n" }, async (files) => {
+      await program.parseAsync(
+        ["acp", "--token", "tok_inline", "--token-file", files.tokenFile ?? ""],
+        {
+          from: "user",
+        },
+      );
+    });
+
+    expect(serveAcpGateway).not.toHaveBeenCalled();
+    expect(defaultRuntime.error).toHaveBeenCalledWith(
+      expect.stringMatching(/Use either --token or --token-file/),
+    );
+    expect(defaultRuntime.exit).toHaveBeenCalledWith(1);
+  });
+
+  it("rejects mixed password flags and file flags", async () => {
+    const { registerAcpCli } = await import("./acp-cli.js");
+    const program = new Command();
+    registerAcpCli(program);
+
+    await withSecretFiles({ password: "pw_file\n" }, async (files) => {
+      await program.parseAsync(
+        ["acp", "--password", "pw_inline", "--password-file", files.passwordFile ?? ""],
+        {
+          from: "user",
+        },
+      );
+    });
+
+    expect(serveAcpGateway).not.toHaveBeenCalled();
+    expect(defaultRuntime.error).toHaveBeenCalledWith(
+      expect.stringMatching(/Use either --password or --password-file/),
+    );
+    expect(defaultRuntime.exit).toHaveBeenCalledWith(1);
+  });
+
+  it("warns when inline secret flags are used", async () => {
+    const { registerAcpCli } = await import("./acp-cli.js");
+    const program = new Command();
+    registerAcpCli(program);
+
+    await program.parseAsync(["acp", "--token", "tok_inline", "--password", "pw_inline"], {
+      from: "user",
+    });
+
+    expect(defaultRuntime.error).toHaveBeenCalledWith(
+      expect.stringMatching(/--token can be exposed via process listings/),
+    );
+    expect(defaultRuntime.error).toHaveBeenCalledWith(
+      expect.stringMatching(/--password can be exposed via process listings/),
+    );
+  });
+>>>>>>> 0ecb07e6d (test(cli): dedupe acp secret file setup and cover password flag collisions)
 });
