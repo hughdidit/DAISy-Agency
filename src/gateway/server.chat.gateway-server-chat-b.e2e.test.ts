@@ -174,6 +174,46 @@ describe("gateway server chat", () => {
     });
   });
 
+<<<<<<< HEAD
+=======
+  test("chat.send does not force-disable block streaming", async () => {
+    await withGatewayChatHarness(async ({ ws, createSessionDir }) => {
+      const spy = getReplyFromConfig;
+      await connectOk(ws);
+
+      await createSessionDir();
+      await writeMainSessionStore();
+      testState.agentConfig = { blockStreamingDefault: "on" };
+      try {
+        spy.mockReset();
+        let capturedOpts: GetReplyOptions | undefined;
+        spy.mockImplementationOnce(async (_ctx: unknown, opts?: GetReplyOptions) => {
+          capturedOpts = opts;
+          return undefined;
+        });
+
+        const sendRes = await rpcReq(ws, "chat.send", {
+          sessionKey: "main",
+          message: "hello",
+          idempotencyKey: "idem-block-streaming",
+        });
+        expect(sendRes.ok).toBe(true);
+
+        await vi.waitFor(
+          () => {
+            expect(spy.mock.calls.length).toBeGreaterThan(0);
+          },
+          { timeout: 2_000, interval: 10 },
+        );
+
+        expect(capturedOpts?.disableBlockStreaming).toBeUndefined();
+      } finally {
+        testState.agentConfig = undefined;
+      }
+    });
+  });
+
+>>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
   test("chat.history hard-caps single oversized nested payloads", async () => {
     await withGatewayChatHarness(async ({ ws, createSessionDir }) => {
       const historyMaxBytes = 64 * 1024;
@@ -315,6 +355,7 @@ describe("gateway server chat", () => {
             { once: true },
           );
         });
+        return undefined;
       });
 
       const sendResP = onceMessage(ws, (o) => o.type === "res" && o.id === "send-abort-1", 8_000);

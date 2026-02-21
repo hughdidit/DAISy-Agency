@@ -9,8 +9,11 @@ import type { MsgContext } from "../auto-reply/templating.js";
 <<<<<<< HEAD
 =======
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 >>>>>>> 22ffde90b (tests: align macmini suite expectations with current behavior (openclaw#22379) thanks @Takhoffman)
+=======
+>>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
 import {
   buildProviderRegistry,
   createMediaAttachmentCache,
@@ -26,13 +29,13 @@ async function withAudioFixture(
   }) => Promise<void>,
 ) {
   const originalPath = process.env.PATH;
-  process.env.PATH = "/usr/bin:/bin";
+  process.env.PATH = "";
   const tmpPath = path.join(os.tmpdir(), `openclaw-auto-audio-${Date.now()}.wav`);
   await fs.writeFile(tmpPath, Buffer.from("RIFF"));
   const ctx: MsgContext = { MediaPath: tmpPath, MediaType: "audio/wav" };
   const media = normalizeMediaAttachments(ctx);
   const cache = createMediaAttachmentCache(media, {
-    localPathRoots: [resolvePreferredOpenClawTmpDir(), os.tmpdir()],
+    localPathRoots: [path.dirname(tmpPath)],
   });
 
   try {
