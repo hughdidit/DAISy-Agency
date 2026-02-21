@@ -1,11 +1,15 @@
 {
   "name": "@openclaw/tlon",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.6-3",
 =======
   "version": "2026.2.9",
   "private": true,
 >>>>>>> 33c75cb6b (chore(extensions): mark bundled packages private)
+=======
+  "version": "2026.2.22",
+>>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
   "description": "OpenClaw Tlon/Urbit channel plugin",
   "type": "module",
   "dependencies": {

@@ -1,6 +1,10 @@
 {
   "name": "@openclaw/irc",
+<<<<<<< HEAD
   "version": "2026.2.10",
+=======
+  "version": "2026.2.22",
+>>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
   "description": "OpenClaw IRC channel plugin",
   "type": "module",
   "devDependencies": {

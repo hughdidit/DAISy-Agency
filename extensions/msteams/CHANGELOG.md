@@ -1,5 +1,6 @@
 # Changelog
 
+<<<<<<< HEAD
 ## 2026.2.6-3
 
 ### Changes
@@ -85,6 +86,9 @@
 - Version alignment with core OpenClaw release numbers.
 
 ## 2026.1.16
+=======
+## 2026.2.22
+>>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
 
 ### Changes
 
