@@ -3,7 +3,12 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
+<<<<<<< HEAD
 import { createMoltbotCodingTools } from "./pi-tools.js";
+=======
+import { createOpenClawCodingTools } from "./pi-tools.js";
+import { expectReadWriteEditTools } from "./test-helpers/pi-tools-fs-helpers.js";
+>>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
 
 describe("createMoltbotCodingTools", () => {
   it("uses workspaceDir for Read tool path resolution", async () => {
@@ -87,6 +92,7 @@ describe("createMoltbotCodingTools", () => {
   it("accepts Claude Code parameter aliases for read/write/edit", async () => {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-alias-"));
     try {
+<<<<<<< HEAD
       const tools = createMoltbotCodingTools({ workspaceDir: tmpDir });
       const readTool = tools.find((tool) => tool.name === "read");
       const writeTool = tools.find((tool) => tool.name === "write");
@@ -94,6 +100,10 @@ describe("createMoltbotCodingTools", () => {
       expect(readTool).toBeDefined();
       expect(writeTool).toBeDefined();
       expect(editTool).toBeDefined();
+=======
+      const tools = createOpenClawCodingTools({ workspaceDir: tmpDir });
+      const { readTool, writeTool, editTool } = expectReadWriteEditTools(tools);
+>>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
 
       const filePath = "alias-test.txt";
       await writeTool?.execute("tool-alias-1", {

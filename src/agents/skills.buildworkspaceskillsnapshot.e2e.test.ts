@@ -1,29 +1,27 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { createTrackedTempDirs } from "../test-utils/tracked-temp-dirs.js";
 import { writeSkill } from "./skills.e2e-test-helpers.js";
 import { buildWorkspaceSkillSnapshot } from "./skills.js";
 
-const tempDirs: string[] = [];
-
-async function createTempDir(prefix: string) {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
-  tempDirs.push(dir);
-  return dir;
-}
+const tempDirs = createTrackedTempDirs();
 
 afterEach(async () => {
-  await Promise.all(tempDirs.splice(0).map((dir) => fs.rm(dir, { recursive: true, force: true })));
+  await tempDirs.cleanup();
 });
 
 describe("buildWorkspaceSkillSnapshot", () => {
   it("returns an empty snapshot when skills dirs are missing", async () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
 =======
     const workspaceDir = await createTempDir("openclaw-");
 >>>>>>> b3c7fd6c6 (refactor(test): dedupe temp dirs and skill writer in snapshot e2e)
+=======
+    const workspaceDir = await tempDirs.make("openclaw-");
+>>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
 
     const snapshot = buildWorkspaceSkillSnapshot(workspaceDir, {
       managedSkillsDir: path.join(workspaceDir, ".managed"),
@@ -36,10 +34,14 @@ describe("buildWorkspaceSkillSnapshot", () => {
 
   it("omits disable-model-invocation skills from the prompt", async () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
     await _writeSkill({
 =======
     const workspaceDir = await createTempDir("openclaw-");
+=======
+    const workspaceDir = await tempDirs.make("openclaw-");
+>>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
     await writeSkill({
 >>>>>>> b3c7fd6c6 (refactor(test): dedupe temp dirs and skill writer in snapshot e2e)
       dir: path.join(workspaceDir, "skills", "visible-skill"),
@@ -67,7 +69,7 @@ describe("buildWorkspaceSkillSnapshot", () => {
   });
 
   it("truncates the skills prompt when it exceeds the configured char budget", async () => {
-    const workspaceDir = await createTempDir("openclaw-");
+    const workspaceDir = await tempDirs.make("openclaw-");
 
     // Make a bunch of skills with very long descriptions.
     for (let i = 0; i < 25; i += 1) {
@@ -97,8 +99,8 @@ describe("buildWorkspaceSkillSnapshot", () => {
   });
 
   it("limits discovery for nested repo-style skills roots (dir/skills/*)", async () => {
-    const workspaceDir = await createTempDir("openclaw-");
-    const repoDir = await createTempDir("openclaw-skills-repo-");
+    const workspaceDir = await tempDirs.make("openclaw-");
+    const repoDir = await tempDirs.make("openclaw-skills-repo-");
 
     for (let i = 0; i < 20; i += 1) {
       const name = `repo-skill-${String(i).padStart(2, "0")}`;
@@ -132,7 +134,7 @@ describe("buildWorkspaceSkillSnapshot", () => {
   });
 
   it("skips skills whose SKILL.md exceeds maxSkillFileBytes", async () => {
-    const workspaceDir = await createTempDir("openclaw-");
+    const workspaceDir = await tempDirs.make("openclaw-");
 
     await writeSkill({
       dir: path.join(workspaceDir, "skills", "small-skill"),
@@ -166,8 +168,8 @@ describe("buildWorkspaceSkillSnapshot", () => {
   });
 
   it("detects nested skills roots beyond the first 25 entries", async () => {
-    const workspaceDir = await createTempDir("openclaw-");
-    const repoDir = await createTempDir("openclaw-skills-repo-");
+    const workspaceDir = await tempDirs.make("openclaw-");
+    const repoDir = await tempDirs.make("openclaw-skills-repo-");
 
     // Create 30 nested dirs, but only the last one is an actual skill.
     for (let i = 0; i < 30; i += 1) {
@@ -203,8 +205,8 @@ describe("buildWorkspaceSkillSnapshot", () => {
   });
 
   it("enforces maxSkillFileBytes for root-level SKILL.md", async () => {
-    const workspaceDir = await createTempDir("openclaw-");
-    const rootSkillDir = await createTempDir("openclaw-root-skill-");
+    const workspaceDir = await tempDirs.make("openclaw-");
+    const rootSkillDir = await tempDirs.make("openclaw-root-skill-");
 
     await writeSkill({
       dir: rootSkillDir,

@@ -17,6 +17,7 @@ vi.mock("../plugins/tools.js", () => ({
 }));
 =======
 import { createHostSandboxFsBridge } from "./test-helpers/host-sandbox-fs-bridge.js";
+import { expectReadWriteEditTools, getTextContent } from "./test-helpers/pi-tools-fs-helpers.js";
 import { createPiToolsSandboxContext } from "./test-helpers/pi-tools-sandbox-context.js";
 >>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
 
@@ -42,12 +43,16 @@ async function withTempDir<T>(prefix: string, fn: (dir: string) => Promise<T>) {
   }
 }
 
+<<<<<<< HEAD
 function getTextContent(result?: { content?: Array<{ type: string; text?: string }> }) {
   const textBlock = result?.content?.find((block) => block.type === "text");
   return textBlock?.text ?? "";
 }
 
 describe.sequential("workspace path resolution", () => {
+=======
+describe("workspace path resolution", () => {
+>>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
   it("reads relative paths against workspaceDir even after cwd changes", async () => {
     await withTempDir("moltbot-ws-", async (workspaceDir) => {
       await withTempDir("moltbot-cwd-", async (otherDir) => {
@@ -215,6 +220,7 @@ describe.sequential("sandboxed workspace paths", () => {
         await fs.writeFile(path.join(sandboxDir, testFile), "sandbox read", "utf8");
         await fs.writeFile(path.join(workspaceDir, testFile), "workspace read", "utf8");
 
+<<<<<<< HEAD
         const tools = createMoltbotCodingTools({ workspaceDir, sandbox });
         const readTool = tools.find((tool) => tool.name === "read");
         const writeTool = tools.find((tool) => tool.name === "write");
@@ -223,6 +229,10 @@ describe.sequential("sandboxed workspace paths", () => {
         expect(readTool).toBeDefined();
         expect(writeTool).toBeDefined();
         expect(editTool).toBeDefined();
+=======
+        const tools = createOpenClawCodingTools({ workspaceDir, sandbox });
+        const { readTool, writeTool, editTool } = expectReadWriteEditTools(tools);
+>>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
 
         const result = await readTool?.execute("sbx-read", { path: testFile });
         expect(getTextContent(result)).toContain("sandbox read");

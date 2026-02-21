@@ -206,7 +206,23 @@ function resolveCaseInsensitiveAccount<T>(
     ]
   );
 }
+<<<<<<< HEAD
 >>>>>>> 1f5cd65d6 (refactor(channels): share case-insensitive account lookup in dock)
+=======
+
+function resolveDefaultToCaseInsensitiveAccount(params: {
+  channel?:
+    | {
+        accounts?: Record<string, { defaultTo?: string }>;
+        defaultTo?: string;
+      }
+    | undefined;
+  accountId?: string | null;
+}): string | undefined {
+  const account = resolveCaseInsensitiveAccount(params.channel?.accounts, params.accountId);
+  return (account?.defaultTo ?? params.channel?.defaultTo)?.trim() || undefined;
+}
+>>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
 // Channel docks: lightweight channel metadata/behavior for shared code paths.
 //
 // Rules:
@@ -392,15 +408,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
         const channel = cfg.channels?.irc as
           | { accounts?: Record<string, { defaultTo?: string }>; defaultTo?: string }
           | undefined;
-        const normalized = normalizeAccountId(accountId);
-        const account =
-          channel?.accounts?.[normalized] ??
-          channel?.accounts?.[
-            Object.keys(channel?.accounts ?? {}).find(
-              (key) => key.toLowerCase() === normalized.toLowerCase(),
-            ) ?? ""
-          ];
-        return (account?.defaultTo ?? channel?.defaultTo)?.trim() || undefined;
+        return resolveDefaultToCaseInsensitiveAccount({ channel, accountId });
       },
     },
     groups: {
@@ -474,15 +482,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
         const channel = cfg.channels?.googlechat as
           | { accounts?: Record<string, { defaultTo?: string }>; defaultTo?: string }
           | undefined;
-        const normalized = normalizeAccountId(accountId);
-        const account =
-          channel?.accounts?.[normalized] ??
-          channel?.accounts?.[
-            Object.keys(channel?.accounts ?? {}).find(
-              (key) => key.toLowerCase() === normalized.toLowerCase(),
-            ) ?? ""
-          ];
-        return (account?.defaultTo ?? channel?.defaultTo)?.trim() || undefined;
+        return resolveDefaultToCaseInsensitiveAccount({ channel, accountId });
       },
     },
     groups: {
