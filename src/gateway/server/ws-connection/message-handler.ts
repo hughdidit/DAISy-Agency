@@ -134,7 +134,11 @@ import {
   validateConnectParams,
   validateRequestFrame,
 } from "../../protocol/index.js";
+<<<<<<< HEAD
 import { GATEWAY_CLIENT_IDS } from "../../protocol/client-info.js";
+=======
+import { parseGatewayRole } from "../../role-policy.js";
+>>>>>>> 51149fcaf (refactor(gateway): extract connect and role policy logic)
 import { MAX_BUFFERED_BYTES, MAX_PAYLOAD_BYTES, TICK_INTERVAL_MS } from "../../server-constants.js";
 import type { GatewayRequestContext, GatewayRequestHandlers } from "../../server-methods/types.js";
 import { handleGatewayRequest } from "../../server-methods.js";
@@ -184,12 +188,21 @@ import type { GatewayWsClient } from "../ws-types.js";
 import type { GatewayWsClient } from "../ws-types.js";
 >>>>>>> d900d5efb (style: normalize ws message handler import ordering)
 import { formatGatewayAuthFailureMessage, type AuthProvidedKind } from "./auth-messages.js";
+<<<<<<< HEAD
 >>>>>>> 1843bcf1d (refactor(gateway): share host header parsing)
+=======
+import {
+  evaluateMissingDeviceIdentity,
+  resolveControlUiAuthPolicy,
+  shouldSkipControlUiPairing,
+} from "./connect-policy.js";
+>>>>>>> 51149fcaf (refactor(gateway): extract connect and role policy logic)
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
 const DEVICE_SIGNATURE_SKEW_MS = 10 * 60 * 1000;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 function resolveHostName(hostHeader?: string): string {
@@ -306,6 +319,8 @@ function shouldSkipControlUiPairing(policy: ControlUiAuthPolicy, sharedAuthOk: b
 }
 
 >>>>>>> 14b0d2b81 (refactor: harden control-ui auth flow and add insecure-flag audit summary)
+=======
+>>>>>>> 51149fcaf (refactor(gateway): extract connect and role policy logic)
 export function attachGatewayWsMessageHandler(params: {
   socket: WebSocket;
   upgradeReq: IncomingMessage;
@@ -535,7 +550,7 @@ export function attachGatewayWsMessageHandler(params: {
         }
 
         const roleRaw = connectParams.role ?? "operator";
-        const role = roleRaw === "operator" || roleRaw === "node" ? roleRaw : null;
+        const role = parseGatewayRole(roleRaw);
         if (!role) {
           markHandshakeFailure("invalid-role", {
             role: roleRaw,
@@ -729,14 +744,28 @@ export function attachGatewayWsMessageHandler(params: {
           }
         };
         const handleMissingDeviceIdentity = (): boolean => {
-          if (device) {
+          if (!device) {
+            clearUnboundScopes();
+          }
+          const decision = evaluateMissingDeviceIdentity({
+            hasDeviceIdentity: Boolean(device),
+            role,
+            isControlUi,
+            controlUiAuthPolicy,
+            sharedAuthOk,
+            authOk,
+            hasSharedAuth,
+          });
+          if (decision.kind === "allow") {
             return true;
           }
-          clearUnboundScopes();
-          const canSkipDevice = role === "operator" && sharedAuthOk;
 
+<<<<<<< HEAD
           if (isControlUi && !controlUiAuthPolicy.allowBypass) {
 >>>>>>> 14b0d2b81 (refactor: harden control-ui auth flow and add insecure-flag audit summary)
+=======
+          if (decision.kind === "reject-control-ui-insecure-auth") {
+>>>>>>> 51149fcaf (refactor(gateway): extract connect and role policy logic)
             const errorMessage =
               "control ui requires device identity (use HTTPS or localhost secure context)";
             markHandshakeFailure("control-ui-insecure-auth", {
@@ -748,29 +777,24 @@ export function attachGatewayWsMessageHandler(params: {
             return false;
           }
 
-          // Allow shared-secret authenticated connections (e.g., control-ui) to skip device identity.
-          if (!canSkipDevice) {
-            if (!authOk && hasSharedAuth) {
-              rejectUnauthorized(authResult);
-              return false;
-            }
-            markHandshakeFailure("device-required");
-            sendHandshakeErrorResponse(ErrorCodes.NOT_PAIRED, "device identity required");
-            close(1008, "device identity required");
+          if (decision.kind === "reject-unauthorized") {
+            rejectUnauthorized(authResult);
             return false;
           }
 
-          return true;
+          markHandshakeFailure("device-required");
+          sendHandshakeErrorResponse(ErrorCodes.NOT_PAIRED, "device identity required");
+          close(1008, "device identity required");
+          return false;
         };
         if (!handleMissingDeviceIdentity()) {
           return;
         }
         if (device) {
-          const derivedId = deriveDeviceIdFromPublicKey(device.publicKey);
-          if (!derivedId || derivedId !== device.id) {
+          const rejectDeviceAuthInvalid = (reason: string, message: string) => {
             setHandshakeState("failed");
             setCloseCause("device-auth-invalid", {
-              reason: "device-id-mismatch",
+              reason,
               client: connectParams.client.id,
               deviceId: device.id,
             });
@@ -778,9 +802,13 @@ export function attachGatewayWsMessageHandler(params: {
               type: "res",
               id: frame.id,
               ok: false,
-              error: errorShape(ErrorCodes.INVALID_REQUEST, "device identity mismatch"),
+              error: errorShape(ErrorCodes.INVALID_REQUEST, message),
             });
-            close(1008, "device identity mismatch");
+            close(1008, message);
+          };
+          const derivedId = deriveDeviceIdFromPublicKey(device.publicKey);
+          if (!derivedId || derivedId !== device.id) {
+            rejectDeviceAuthInvalid("device-id-mismatch", "device identity mismatch");
             return;
           }
           const signedAt = device.signedAt;
@@ -788,53 +816,17 @@ export function attachGatewayWsMessageHandler(params: {
             typeof signedAt !== "number" ||
             Math.abs(Date.now() - signedAt) > DEVICE_SIGNATURE_SKEW_MS
           ) {
-            setHandshakeState("failed");
-            setCloseCause("device-auth-invalid", {
-              reason: "device-signature-stale",
-              client: connectParams.client.id,
-              deviceId: device.id,
-            });
-            send({
-              type: "res",
-              id: frame.id,
-              ok: false,
-              error: errorShape(ErrorCodes.INVALID_REQUEST, "device signature expired"),
-            });
-            close(1008, "device signature expired");
+            rejectDeviceAuthInvalid("device-signature-stale", "device signature expired");
             return;
           }
           const nonceRequired = !isLocalClient;
           const providedNonce = typeof device.nonce === "string" ? device.nonce.trim() : "";
           if (nonceRequired && !providedNonce) {
-            setHandshakeState("failed");
-            setCloseCause("device-auth-invalid", {
-              reason: "device-nonce-missing",
-              client: connectParams.client.id,
-              deviceId: device.id,
-            });
-            send({
-              type: "res",
-              id: frame.id,
-              ok: false,
-              error: errorShape(ErrorCodes.INVALID_REQUEST, "device nonce required"),
-            });
-            close(1008, "device nonce required");
+            rejectDeviceAuthInvalid("device-nonce-missing", "device nonce required");
             return;
           }
           if (providedNonce && providedNonce !== connectNonce) {
-            setHandshakeState("failed");
-            setCloseCause("device-auth-invalid", {
-              reason: "device-nonce-mismatch",
-              client: connectParams.client.id,
-              deviceId: device.id,
-            });
-            send({
-              type: "res",
-              id: frame.id,
-              ok: false,
-              error: errorShape(ErrorCodes.INVALID_REQUEST, "device nonce mismatch"),
-            });
-            close(1008, "device nonce mismatch");
+            rejectDeviceAuthInvalid("device-nonce-mismatch", "device nonce mismatch");
             return;
           }
           const payload = buildDeviceAuthPayload({
@@ -848,21 +840,8 @@ export function attachGatewayWsMessageHandler(params: {
             nonce: providedNonce || undefined,
             version: providedNonce ? "v2" : "v1",
           });
-          const rejectDeviceSignatureInvalid = () => {
-            setHandshakeState("failed");
-            setCloseCause("device-auth-invalid", {
-              reason: "device-signature",
-              client: connectParams.client.id,
-              deviceId: device.id,
-            });
-            send({
-              type: "res",
-              id: frame.id,
-              ok: false,
-              error: errorShape(ErrorCodes.INVALID_REQUEST, "device signature invalid"),
-            });
-            close(1008, "device signature invalid");
-          };
+          const rejectDeviceSignatureInvalid = () =>
+            rejectDeviceAuthInvalid("device-signature", "device signature invalid");
           const signatureOk = verifyDeviceSignature(device.publicKey, payload, device.signature);
           const allowLegacy = !nonceRequired && !providedNonce;
           if (!signatureOk && allowLegacy) {
@@ -888,19 +867,7 @@ export function attachGatewayWsMessageHandler(params: {
           }
           devicePublicKey = normalizeDevicePublicKeyBase64Url(device.publicKey);
           if (!devicePublicKey) {
-            setHandshakeState("failed");
-            setCloseCause("device-auth-invalid", {
-              reason: "device-public-key",
-              client: connectParams.client.id,
-              deviceId: device.id,
-            });
-            send({
-              type: "res",
-              id: frame.id,
-              ok: false,
-              error: errorShape(ErrorCodes.INVALID_REQUEST, "device public key invalid"),
-            });
-            close(1008, "device public key invalid");
+            rejectDeviceAuthInvalid("device-public-key", "device public key invalid");
             return;
           }
         }
