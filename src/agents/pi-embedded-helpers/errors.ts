@@ -474,6 +474,7 @@ export function sanitizeUserFacingText(text: string): string {
     return BILLING_ERROR_USER_MESSAGE;
   }
 
+<<<<<<< HEAD
   if (isRawApiErrorPayload(trimmed) || isLikelyHttpErrorText(trimmed)) {
     return formatRawAssistantErrorForUi(trimmed);
   }
@@ -488,6 +489,8 @@ export function sanitizeUserFacingText(text: string): string {
     return formatRawAssistantErrorForUi(trimmed);
   }
 
+=======
+>>>>>>> 5e423b596 (fix: remove false-positive billing error rewrite on normal assistant text (openclaw#17834) thanks @niceysam)
   // Strip leading blank lines (including whitespace-only lines) without clobbering indentation on
   // the first content line (e.g. markdown/code blocks).
   const withoutLeadingEmptyLines = stripped.replace(/^(?:[ \t]*\r?\n)+/, "");
