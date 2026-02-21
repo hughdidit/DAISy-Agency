@@ -17,6 +17,60 @@ export type TelegramThreadSpec = {
   scope: "dm" | "forum" | "none";
 };
 
+<<<<<<< HEAD
+=======
+export async function resolveTelegramGroupAllowFromContext(params: {
+  chatId: string | number;
+  accountId?: string;
+  dmPolicy?: string;
+  isForum?: boolean;
+  messageThreadId?: number | null;
+  groupAllowFrom?: Array<string | number>;
+  resolveTelegramGroupConfig: (
+    chatId: string | number,
+    messageThreadId?: number,
+  ) => { groupConfig?: TelegramGroupConfig; topicConfig?: TelegramTopicConfig };
+}): Promise<{
+  resolvedThreadId?: number;
+  storeAllowFrom: string[];
+  groupConfig?: TelegramGroupConfig;
+  topicConfig?: TelegramTopicConfig;
+  groupAllowOverride?: Array<string | number>;
+  effectiveGroupAllow: NormalizedAllowFrom;
+  hasGroupAllowOverride: boolean;
+}> {
+  const resolvedThreadId = resolveTelegramForumThreadId({
+    isForum: params.isForum,
+    messageThreadId: params.messageThreadId,
+  });
+  const storeAllowFrom = await readChannelAllowFromStore(
+    "telegram",
+    process.env,
+    params.accountId,
+  ).catch(() => []);
+  const { groupConfig, topicConfig } = params.resolveTelegramGroupConfig(
+    params.chatId,
+    resolvedThreadId,
+  );
+  const groupAllowOverride = firstDefined(topicConfig?.allowFrom, groupConfig?.allowFrom);
+  const effectiveGroupAllow = normalizeAllowFromWithStore({
+    allowFrom: groupAllowOverride ?? params.groupAllowFrom,
+    storeAllowFrom,
+    dmPolicy: params.dmPolicy,
+  });
+  const hasGroupAllowOverride = typeof groupAllowOverride !== "undefined";
+  return {
+    resolvedThreadId,
+    storeAllowFrom,
+    groupConfig,
+    topicConfig,
+    groupAllowOverride,
+    effectiveGroupAllow,
+    hasGroupAllowOverride,
+  };
+}
+
+>>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
 /**
  * Resolve the thread ID for Telegram forum topics.
  * For non-forum groups, returns undefined even if messageThreadId is present

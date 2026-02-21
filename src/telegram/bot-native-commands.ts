@@ -141,7 +141,14 @@ async function resolveTelegramCommandAuth(params: {
   const isGroup = msg.chat.type === "group" || msg.chat.type === "supergroup";
   const messageThreadId = (msg as { message_thread_id?: number }).message_thread_id;
   const isForum = (msg.chat as { is_forum?: boolean }).is_forum === true;
+<<<<<<< HEAD
   const resolvedThreadId = resolveTelegramForumThreadId({
+=======
+  const groupAllowContext = await resolveTelegramGroupAllowFromContext({
+    chatId,
+    accountId,
+    dmPolicy: telegramCfg.dmPolicy ?? "pairing",
+>>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
     isForum,
     messageThreadId,
   });
@@ -227,6 +234,7 @@ async function resolveTelegramCommandAuth(params: {
   const dmAllow = normalizeAllowFromWithStore({
     allowFrom: allowFrom,
     storeAllowFrom,
+    dmPolicy: telegramCfg.dmPolicy ?? "pairing",
   });
   const senderAllowed = isSenderAllowed({
     allow: dmAllow,

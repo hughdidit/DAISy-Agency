@@ -187,7 +187,10 @@ export function registerSlackMonitorSlashCommands(params: {
         return;
       }
 
-      const storeAllowFrom = await readChannelAllowFromStore("slack").catch(() => []);
+      const storeAllowFrom =
+        ctx.dmPolicy === "allowlist"
+          ? []
+          : await readChannelAllowFromStore("slack").catch(() => []);
       const effectiveAllowFrom = normalizeAllowList([...ctx.allowFrom, ...storeAllowFrom]);
       const effectiveAllowFromLower = normalizeAllowListLower(effectiveAllowFrom);
 

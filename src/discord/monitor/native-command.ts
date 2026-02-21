@@ -1320,9 +1320,19 @@ async function dispatchDiscordCommandInteraction(params: {
       return;
     }
     if (dmPolicy !== "open") {
+<<<<<<< HEAD
       const storeAllowFrom = await readChannelAllowFromStore("discord").catch(() => []);
       const effectiveAllowFrom = [...(discordConfig?.dm?.allowFrom ?? []), ...storeAllowFrom];
       const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:"]);
+=======
+      const storeAllowFrom =
+        dmPolicy === "allowlist" ? [] : await readChannelAllowFromStore("discord").catch(() => []);
+      const effectiveAllowFrom = [
+        ...(discordConfig?.allowFrom ?? discordConfig?.dm?.allowFrom ?? []),
+        ...storeAllowFrom,
+      ];
+      const allowList = normalizeDiscordAllowList(effectiveAllowFrom, ["discord:", "user:", "pk:"]);
+>>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
       const permitted = allowList
         ? allowListMatches(allowList, {
             id: user.id,

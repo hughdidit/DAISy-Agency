@@ -219,8 +219,16 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       }
 
       const senderName = await getMemberDisplayName(roomId, senderId);
+<<<<<<< HEAD
       const storeAllowFrom = await core.channel.pairing.readAllowFromStore("matrix").catch(() => []);
       const effectiveAllowFrom = normalizeAllowListLower([...allowFrom, ...storeAllowFrom]);
+=======
+      const storeAllowFrom =
+        dmPolicy === "allowlist"
+          ? []
+          : await core.channel.pairing.readAllowFromStore("matrix").catch(() => []);
+      const effectiveAllowFrom = normalizeMatrixAllowList([...allowFrom, ...storeAllowFrom]);
+>>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
       const groupAllowFrom = cfg.channels?.matrix?.groupAllowFrom ?? [];
       const effectiveGroupAllowFrom = normalizeAllowListLower([
         ...groupAllowFrom,

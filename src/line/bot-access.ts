@@ -24,6 +24,7 @@ export const normalizeAllowFrom = (list?: Array<string | number>): NormalizedAll
 export const normalizeAllowFromWithStore = (params: {
   allowFrom?: Array<string | number>;
   storeAllowFrom?: string[];
+<<<<<<< HEAD
 }): NormalizedAllowFrom => {
   const combined = [...(params.allowFrom ?? []), ...(params.storeAllowFrom ?? [])];
   return normalizeAllowFrom(combined);
@@ -35,6 +36,10 @@ export const firstDefined = <T>(...values: Array<T | undefined>) => {
   }
   return undefined;
 };
+=======
+  dmPolicy?: string;
+}): NormalizedAllowFrom => normalizeAllowFrom(mergeAllowFromSources(params));
+>>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
 
 export const isSenderAllowed = (params: {
   allow: NormalizedAllowFrom;
