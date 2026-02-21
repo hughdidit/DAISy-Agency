@@ -290,12 +290,20 @@ export type GatewayConfig = {
   nodes?: GatewayNodesConfig;
   /**
    * IPs of trusted reverse proxies (e.g. Traefik, nginx). When a connection
-   * arrives from one of these IPs, the Gateway trusts `x-forwarded-for` (or
-   * `x-real-ip`) to determine the client IP for local pairing and HTTP checks.
+   * arrives from one of these IPs, the Gateway trusts `x-forwarded-for`
+   * to determine the client IP for local pairing and HTTP checks.
    */
   trustedProxies?: string[];
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  /**
+   * Allow `x-real-ip` as a fallback only when `x-forwarded-for` is missing.
+   * Default: false (safer fail-closed behavior).
+   */
+  allowRealIpFallback?: boolean;
+>>>>>>> be7f82500 (refactor(gateway): harden proxy client ip resolution)
   /** Tool access restrictions for HTTP /tools/invoke endpoint. */
   tools?: GatewayToolsConfig;
   /**
