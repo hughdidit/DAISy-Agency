@@ -149,8 +149,17 @@ skills-lock.json
 # Local iOS signing overrides
 apps/ios/LocalSigning.xcconfig
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
 =======
+=======
+
+# Xcode build directories (xcodebuild output)
+apps/ios/build/
+apps/shared/OpenClawKit/build/
+Swabble/build/
+
+>>>>>>> 73f526f02 (fix(ios): support Xcode 16+ team detection and fix ntohl build error)
 # Generated protocol schema (produced via pnpm protocol:gen)
 dist/protocol.schema.json
 <<<<<<< HEAD
