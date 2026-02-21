@@ -170,6 +170,8 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     guildSlug,
     channelConfig,
     baseSessionKey,
+    boundSessionKey,
+    threadBindings,
     route,
     commandAuthorized,
   } = ctx;
@@ -404,7 +406,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     CommandBody: baseText,
     From: effectiveFrom,
     To: effectiveTo,
-    SessionKey: autoThreadContext?.SessionKey ?? threadKeys.sessionKey,
+    SessionKey: boundSessionKey ?? autoThreadContext?.SessionKey ?? threadKeys.sessionKey,
     AccountId: route.accountId,
     ChatType: isDirectMessage ? "direct" : "channel",
     ConversationLabel: fromLabel,
@@ -432,6 +434,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     ReplyToBody: replyContext?.body,
     ReplyToSender: replyContext?.sender,
     ParentSessionKey: autoThreadContext?.ParentSessionKey ?? threadKeys.parentSessionKey,
+    MessageThreadId: threadChannel?.id ?? autoThreadContext?.createdThreadId ?? undefined,
     ThreadStarterBody: threadStarterBody,
     ThreadLabel: threadLabel,
     Timestamp: resolveTimestampMs(message.timestamp),
@@ -719,6 +722,8 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
         maxLinesPerMessage: discordConfig?.maxLinesPerMessage,
         tableMode,
         chunkMode,
+        sessionKey: ctxPayload.SessionKey,
+        threadBindings,
       });
       replyReference.markSent();
     },

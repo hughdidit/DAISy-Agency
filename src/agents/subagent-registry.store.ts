@@ -26,7 +26,7 @@ import { resolveStateDir } from "../config/paths.js";
 >>>>>>> 02fe0c840 (perf(test): remove resetModules from auth/models/subagent suites)
 import { loadJsonFile, saveJsonFile } from "../infra/json-file.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
-import type { SubagentRunRecord } from "./subagent-registry.js";
+import type { SubagentRunRecord } from "./subagent-registry.types.js";
 
 export type PersistedSubagentRegistryVersion = 1 | 2;
 
@@ -124,6 +124,7 @@ export function loadSubagentRegistryFromDisk(): Map<string, SubagentRunRecord> {
       requesterOrigin,
       cleanupCompletedAt,
       cleanupHandled,
+      spawnMode: typed.spawnMode === "session" ? "session" : "run",
     });
     if (isLegacy) {
       migrated = true;

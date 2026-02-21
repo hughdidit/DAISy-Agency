@@ -61,10 +61,23 @@ export type {
 export type { ChannelConfigSchema, ChannelPlugin } from "../channels/plugins/types.plugin.js";
 export type {
 <<<<<<< HEAD
+<<<<<<< HEAD
   MoltbotPluginApi,
   MoltbotPluginService,
   MoltbotPluginServiceContext,
 =======
+=======
+  ThreadBindingManager,
+  ThreadBindingRecord,
+  ThreadBindingTargetKind,
+} from "../discord/monitor/thread-bindings.js";
+export {
+  autoBindSpawnedDiscordSubagent,
+  listThreadBindingsBySessionKey,
+  unbindThreadBindingsBySessionKey,
+} from "../discord/monitor/thread-bindings.js";
+export type {
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   AnyAgentTool,
   OpenClawPluginApi,
   OpenClawPluginService,

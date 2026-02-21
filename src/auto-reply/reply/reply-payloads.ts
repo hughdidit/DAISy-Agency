@@ -20,6 +20,7 @@ import { isMessagingToolDuplicate } from "../../agents/pi-embedded-helpers.js";
 import type { MessagingToolSend } from "../../agents/pi-embedded-runner.js";
 import type { ReplyToMode } from "../../config/types.js";
 import { normalizeTargetForProvider } from "../../infra/outbound/target-normalization.js";
+import { normalizeOptionalAccountId } from "../../routing/account-id.js";
 import type { OriginatingChannelType } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
 import { extractReplyToTag } from "./reply-tags.js";
@@ -141,11 +142,6 @@ export function filterMessagingToolMediaDuplicates(params: {
   });
 }
 
-function normalizeAccountId(value?: string): string | undefined {
-  const trimmed = value?.trim();
-  return trimmed ? trimmed.toLowerCase() : undefined;
-}
-
 export function shouldSuppressMessagingToolReplies(params: {
   messageProvider?: string;
   messagingToolSentTargets?: MessagingToolSend[];
@@ -160,7 +156,7 @@ export function shouldSuppressMessagingToolReplies(params: {
   if (!originTarget) {
     return false;
   }
-  const originAccount = normalizeAccountId(params.accountId);
+  const originAccount = normalizeOptionalAccountId(params.accountId);
   const sentTargets = params.messagingToolSentTargets ?? [];
   if (sentTargets.length === 0) {
     return false;
@@ -176,7 +172,7 @@ export function shouldSuppressMessagingToolReplies(params: {
     if (!targetKey) {
       return false;
     }
-    const targetAccount = normalizeAccountId(target.accountId);
+    const targetAccount = normalizeOptionalAccountId(target.accountId);
     if (originAccount && targetAccount && originAccount !== targetAccount) {
       return false;
     }

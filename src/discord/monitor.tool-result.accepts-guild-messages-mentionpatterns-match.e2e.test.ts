@@ -18,6 +18,7 @@ import {
 } from "./monitor.tool-result.test-harness.js";
 >>>>>>> 93ca0ed54 (refactor(channels): dedupe transport and gateway test scaffolds)
 import { __resetDiscordChannelInfoCacheForTest } from "./monitor/message-utils.js";
+import { createNoopThreadBindingManager } from "./monitor/thread-bindings.js";
 const loadConfigMock = vi.fn();
 
 vi.mock("../config/config.js", async (importOriginal) => {
@@ -120,6 +121,7 @@ async function createHandler(cfg: LoadedConfig) {
     dmEnabled: true,
     groupDmEnabled: false,
     guildEntries: cfg.channels?.discord?.guilds,
+    threadBindings: createNoopThreadBindingManager("default"),
   });
 }
 
@@ -426,6 +428,7 @@ describe("discord tool result dispatch", () => {
         accountId: "default",
         sessionPrefix: "discord:slash",
         ephemeralDefault: true,
+        threadBindings: createNoopThreadBindingManager("default"),
       });
 
       const reply = vi.fn().mockResolvedValue(undefined);

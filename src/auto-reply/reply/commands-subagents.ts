@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import crypto from "node:crypto";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -93,11 +94,22 @@ import {
 } from "../../config/sessions.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 import { callGateway } from "../../gateway/call.js";
+=======
+import { listSubagentRunsForRequester } from "../../agents/subagent-registry.js";
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 import { logVerbose } from "../../globals.js";
-import { formatTimeAgo } from "../../infra/format-time/format-relative.ts";
-import { parseAgentSessionKey } from "../../routing/session-key.js";
-import { extractTextFromChatContent } from "../../shared/chat-content.js";
+import { handleSubagentsAgentsAction } from "./commands-subagents/action-agents.js";
+import { handleSubagentsFocusAction } from "./commands-subagents/action-focus.js";
+import { handleSubagentsHelpAction } from "./commands-subagents/action-help.js";
+import { handleSubagentsInfoAction } from "./commands-subagents/action-info.js";
+import { handleSubagentsKillAction } from "./commands-subagents/action-kill.js";
+import { handleSubagentsListAction } from "./commands-subagents/action-list.js";
+import { handleSubagentsLogAction } from "./commands-subagents/action-log.js";
+import { handleSubagentsSendAction } from "./commands-subagents/action-send.js";
+import { handleSubagentsSpawnAction } from "./commands-subagents/action-spawn.js";
+import { handleSubagentsUnfocusAction } from "./commands-subagents/action-unfocus.js";
 import {
+<<<<<<< HEAD
   formatDurationCompact,
   formatTokenUsageDisplay,
   truncateLine,
@@ -322,24 +334,30 @@ function loadSubagentSessionEntry(
   }
   return { storePath, store, entry: store[childKey] };
 }
+=======
+  type SubagentsCommandContext,
+  extractMessageText,
+  resolveHandledPrefix,
+  resolveRequesterSessionKey,
+  resolveSubagentsAction,
+  stopWithText,
+} from "./commands-subagents/shared.js";
+import type { CommandHandler } from "./commands-types.js";
+
+export { extractMessageText };
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 
 export const handleSubagentsCommand: CommandHandler = async (params, allowTextCommands) => {
   if (!allowTextCommands) {
     return null;
   }
+
   const normalized = params.command.commandBodyNormalized;
-  const handledPrefix = normalized.startsWith(COMMAND)
-    ? COMMAND
-    : normalized.startsWith(COMMAND_KILL)
-      ? COMMAND_KILL
-      : normalized.startsWith(COMMAND_STEER)
-        ? COMMAND_STEER
-        : normalized.startsWith(COMMAND_TELL)
-          ? COMMAND_TELL
-          : null;
+  const handledPrefix = resolveHandledPrefix(normalized);
   if (!handledPrefix) {
     return null;
   }
+
   if (!params.command.isAuthorizedSender) {
     logVerbose(
       `Ignoring ${handledPrefix} from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
@@ -349,82 +367,51 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
 
   const rest = normalized.slice(handledPrefix.length).trim();
   const restTokens = rest.split(/\s+/).filter(Boolean);
-  let action = "list";
-  if (handledPrefix === COMMAND) {
-    const [actionRaw] = restTokens;
-    action = actionRaw?.toLowerCase() || "list";
-    if (!ACTIONS.has(action)) {
-      return { shouldContinue: false, reply: { text: buildSubagentsHelp() } };
-    }
-    restTokens.splice(0, 1);
-  } else if (handledPrefix === COMMAND_KILL) {
-    action = "kill";
-  } else {
-    action = "steer";
+  const action = resolveSubagentsAction({ handledPrefix, restTokens });
+  if (!action) {
+    return handleSubagentsHelpAction();
   }
 
   const requesterKey = resolveRequesterSessionKey(params);
   if (!requesterKey) {
-    return { shouldContinue: false, reply: { text: "⚠️ Missing session key." } };
-  }
-  const runs = listSubagentRunsForRequester(requesterKey);
-
-  if (action === "help") {
-    return { shouldContinue: false, reply: { text: buildSubagentsHelp() } };
+    return stopWithText("⚠️ Missing session key.");
   }
 
-  if (action === "list") {
-    const sorted = sortSubagentRuns(runs);
-    const now = Date.now();
-    const recentCutoff = now - RECENT_WINDOW_MINUTES * 60_000;
-    const storeCache: SessionStoreCache = new Map();
-    let index = 1;
-    const mapRuns = (
-      entries: SubagentRunRecord[],
-      runtimeMs: (entry: SubagentRunRecord) => number,
-    ) =>
-      entries.map((entry) => {
-        const { entry: sessionEntry } = loadSubagentSessionEntry(
-          params,
-          entry.childSessionKey,
-          storeCache,
-        );
-        const line = formatSubagentListLine({
-          entry,
-          index,
-          runtimeMs: runtimeMs(entry),
-          sessionEntry,
-        });
-        index += 1;
-        return line;
-      });
-    const activeEntries = sorted.filter((entry) => !entry.endedAt);
-    const activeLines = mapRuns(
-      activeEntries,
-      (entry) => now - (entry.startedAt ?? entry.createdAt),
-    );
-    const recentEntries = sorted.filter(
-      (entry) => !!entry.endedAt && (entry.endedAt ?? 0) >= recentCutoff,
-    );
-    const recentLines = mapRuns(
-      recentEntries,
-      (entry) => (entry.endedAt ?? now) - (entry.startedAt ?? entry.createdAt),
-    );
+  const ctx: SubagentsCommandContext = {
+    params,
+    handledPrefix,
+    requesterKey,
+    runs: listSubagentRunsForRequester(requesterKey),
+    restTokens,
+  };
 
-    const lines = ["active subagents:", "-----"];
-    if (activeLines.length === 0) {
-      lines.push("(none)");
-    } else {
-      lines.push(activeLines.join("\n"));
-    }
-    lines.push("", `recent subagents (last ${RECENT_WINDOW_MINUTES}m):`, "-----");
-    if (recentLines.length === 0) {
-      lines.push("(none)");
-    } else {
-      lines.push(recentLines.join("\n"));
-    }
-    return { shouldContinue: false, reply: { text: lines.join("\n") } };
+  switch (action) {
+    case "help":
+      return handleSubagentsHelpAction();
+    case "agents":
+      return handleSubagentsAgentsAction(ctx);
+    case "focus":
+      return await handleSubagentsFocusAction(ctx);
+    case "unfocus":
+      return handleSubagentsUnfocusAction(ctx);
+    case "list":
+      return handleSubagentsListAction(ctx);
+    case "kill":
+      return await handleSubagentsKillAction(ctx);
+    case "info":
+      return handleSubagentsInfoAction(ctx);
+    case "log":
+      return await handleSubagentsLogAction(ctx);
+    case "send":
+      return await handleSubagentsSendAction(ctx, false);
+    case "steer":
+      return await handleSubagentsSendAction(ctx, true);
+    case "spawn":
+      return await handleSubagentsSpawnAction(ctx);
+    default:
+      return handleSubagentsHelpAction();
   }
+<<<<<<< HEAD
 
   if (action === "kill") {
     const target = restTokens[0];
@@ -782,4 +769,6 @@ export const handleSubagentsCommand: CommandHandler = async (params, allowTextCo
   }
 
   return { shouldContinue: false, reply: { text: buildSubagentsHelp() } };
+=======
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 };

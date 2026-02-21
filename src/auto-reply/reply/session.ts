@@ -49,6 +49,7 @@ import {
   evaluateSessionFreshness,
   type GroupKeyResolution,
   loadSessionStore,
+  resolveAndPersistSessionFile,
   resolveChannelResetConfig,
   resolveThreadFlag,
   resolveSessionResetPolicy,
@@ -427,13 +428,21 @@ export async function initSessionState(params: {
       sessionEntry.sessionFile = forked.sessionFile;
     }
   }
-  if (!sessionEntry.sessionFile) {
-    sessionEntry.sessionFile = resolveSessionTranscriptPath(
-      sessionEntry.sessionId,
-      agentId,
-      ctx.MessageThreadId,
-    );
-  }
+  const fallbackSessionFile = !sessionEntry.sessionFile
+    ? resolveSessionTranscriptPath(sessionEntry.sessionId, agentId, ctx.MessageThreadId)
+    : undefined;
+  const resolvedSessionFile = await resolveAndPersistSessionFile({
+    sessionId: sessionEntry.sessionId,
+    sessionKey,
+    sessionStore,
+    storePath,
+    sessionEntry,
+    agentId,
+    sessionsDir: path.dirname(storePath),
+    fallbackSessionFile,
+    activeSessionKey: sessionKey,
+  });
+  sessionEntry = resolvedSessionFile.sessionEntry;
   if (isNewSession) {
     sessionEntry.compactionCount = 0;
     sessionEntry.memoryFlushCompactionCount = undefined;

@@ -76,6 +76,51 @@ export const SessionSchema = z
       })
       .strict()
       .optional(),
+<<<<<<< HEAD
+=======
+    threadBindings: z
+      .object({
+        enabled: z.boolean().optional(),
+        ttlHours: z.number().nonnegative().optional(),
+      })
+      .strict()
+      .optional(),
+    maintenance: z
+      .object({
+        mode: z.enum(["enforce", "warn"]).optional(),
+        pruneAfter: z.union([z.string(), z.number()]).optional(),
+        /** @deprecated Use pruneAfter instead. */
+        pruneDays: z.number().int().positive().optional(),
+        maxEntries: z.number().int().positive().optional(),
+        rotateBytes: z.union([z.string(), z.number()]).optional(),
+      })
+      .strict()
+      .superRefine((val, ctx) => {
+        if (val.pruneAfter !== undefined) {
+          try {
+            parseDurationMs(String(val.pruneAfter).trim(), { defaultUnit: "d" });
+          } catch {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ["pruneAfter"],
+              message: "invalid duration (use ms, s, m, h, d)",
+            });
+          }
+        }
+        if (val.rotateBytes !== undefined) {
+          try {
+            parseByteSize(String(val.rotateBytes).trim(), { defaultUnit: "b" });
+          } catch {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ["rotateBytes"],
+              message: "invalid size (use b, kb, mb, gb, tb)",
+            });
+          }
+        }
+      })
+      .optional(),
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
   })
   .strict()
   .optional();
@@ -146,4 +191,10 @@ export const CommandsSchema = z
   })
   .strict()
   .optional()
+<<<<<<< HEAD
   .default({ native: "auto", nativeSkills: "auto", restart: true });
+=======
+  .default(
+    () => ({ native: "auto", nativeSkills: "auto", restart: true, ownerDisplay: "raw" }) as const,
+  );
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))

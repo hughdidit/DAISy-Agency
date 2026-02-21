@@ -59,6 +59,16 @@ Docs: https://docs.openclaw.ai
 >>>>>>> ee519086f (Feature/default messenger delivery target (openclaw#16985) thanks @KirillShchetinin)
 =======
 - Telegram/Streaming: simplify preview streaming config to `channels.telegram.streaming` (boolean), auto-map legacy `streamMode` values, and remove block-vs-partial preview branching. (#22012) thanks @obviyus.
+<<<<<<< HEAD
+=======
+- Discord/Streaming: add stream preview mode for live draft replies with partial/block options and configurable chunking. Thanks @thewilloftheshadow. Inspiration @neoagentic-ship-it.
+- Discord/Telegram: add configurable lifecycle status reactions for queued/thinking/tool/done/error phases with a shared controller and emoji/timing overrides. Thanks @wolly-tundracube and @thewilloftheshadow.
+- Discord/Voice: add voice channel join/leave/status via `/vc`, plus auto-join configuration for realtime voice conversations. Thanks @thewilloftheshadow.
+- Discord: add configurable ephemeral defaults for slash-command responses. (#16563) Thanks @wei.
+- Discord: support updating forum `available_tags` via channel edit actions for forum tag management. (#12070) Thanks @xiaoyaner0201.
+- Discord: include channel topics in trusted inbound metadata on new sessions. Thanks @thewilloftheshadow.
+- Discord/Subagents: add thread-bound subagent sessions on Discord with per-thread focus/list controls and thread-bound continuation routing for spawned helper agents. (#21805) Thanks @onutc.
+>>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 - iOS/Chat: clean chat UI noise by stripping inbound untrusted metadata/timestamp prefixes, formatting tool outputs into concise summaries/errors, compacting the composer while typing, and supporting tap-to-dismiss keyboard in chat view. (#22122) thanks @mbelinky.
 - iOS/Watch: bridge mirrored watch prompt notification actions into iOS quick-reply handling, including queued action handoff until app model initialization. (#22123) thanks @mbelinky.
 - iOS/Tests: cover IPv4-mapped IPv6 loopback in manual TLS policy tests for connect validation paths. (#22045) Thanks @mbelinky.
