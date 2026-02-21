@@ -52,6 +52,7 @@ title: "Thinking Levels"
 
 ## Related
 - Elevated mode docs live in [Elevated mode](/tools/elevated).
+- Reasoning visibility behavior is documented in [Reasoning visibility](/tools/thinking#reasoning-visibility-reasoning).
 
 ## Heartbeats
 - Heartbeat probe body is the configured heartbeat prompt (default: `Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.`). Inline directives in a heartbeat message apply as usual (but avoid changing session defaults from heartbeats).

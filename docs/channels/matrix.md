@@ -35,7 +35,7 @@ Moltbot will offer the local install path automatically.
 
 Details: [Plugins](/plugin)
 
-## Setup
+## Onboarding
 
 1) Install the Matrix plugin:
    - From npm: `moltbot plugins install @moltbot/matrix`
