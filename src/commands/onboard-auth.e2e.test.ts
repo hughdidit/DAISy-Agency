@@ -477,16 +477,6 @@ describe("applyMinimaxApiConfig", () => {
     expect(cfg.models?.providers?.minimax?.models[0]?.reasoning).toBe(false);
   });
 
-  it("preserves existing model fallbacks", () => {
-    const cfg = applyMinimaxApiConfig(createConfigWithFallbacks());
-    expectFallbacksPreserved(cfg);
-  });
-
-  it("adds model alias", () => {
-    const cfg = applyMinimaxApiConfig({}, "MiniMax-M2.1");
-    expect(cfg.agents?.defaults?.models?.["minimax/MiniMax-M2.1"]?.alias).toBe("Minimax");
-  });
-
   it("preserves existing model params when adding alias", () => {
     const cfg = applyMinimaxApiConfig(
       {
@@ -683,19 +673,9 @@ describe("applyXaiConfig", () => {
     });
     expect(cfg.agents?.defaults?.model?.primary).toBe(XAI_DEFAULT_MODEL_REF);
   });
-
-  it("preserves existing model fallbacks", () => {
-    const cfg = applyXaiConfig(createConfigWithFallbacks());
-    expectFallbacksPreserved(cfg);
-  });
 });
 
 describe("applyXaiProviderConfig", () => {
-  it("adds model alias", () => {
-    const cfg = applyXaiProviderConfig({});
-    expect(cfg.agents?.defaults?.models?.[XAI_DEFAULT_MODEL_REF]?.alias).toBe("Grok");
-  });
-
   it("merges xAI models and keeps existing provider overrides", () => {
     const cfg = applyXaiProviderConfig(
       createLegacyProviderConfig({
@@ -713,6 +693,7 @@ describe("applyXaiProviderConfig", () => {
   });
 });
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 describe("applyOpencodeZenProviderConfig", () => {
   it("adds allowlist entry for the default model", () => {
@@ -774,6 +755,39 @@ describe("applyOpenrouterProviderConfig", () => {
     expectAliasPreserved(cfg, OPENROUTER_DEFAULT_MODEL_REF, "Router");
   });
 =======
+=======
+describe("fallback preservation helpers", () => {
+  it("preserves existing model fallbacks", () => {
+    const fallbackCases = [applyMinimaxApiConfig, applyXaiConfig] as const;
+    for (const applyConfig of fallbackCases) {
+      const cfg = applyConfig(createConfigWithFallbacks());
+      expectFallbacksPreserved(cfg);
+    }
+  });
+});
+
+describe("provider alias defaults", () => {
+  it("adds expected alias for provider defaults", () => {
+    const aliasCases = [
+      {
+        applyConfig: () => applyMinimaxApiConfig({}, "MiniMax-M2.1"),
+        modelRef: "minimax/MiniMax-M2.1",
+        alias: "Minimax",
+      },
+      {
+        applyConfig: () => applyXaiProviderConfig({}),
+        modelRef: XAI_DEFAULT_MODEL_REF,
+        alias: "Grok",
+      },
+    ] as const;
+    for (const testCase of aliasCases) {
+      const cfg = testCase.applyConfig();
+      expect(cfg.agents?.defaults?.models?.[testCase.modelRef]?.alias).toBe(testCase.alias);
+    }
+  });
+});
+
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
 describe("allowlist provider helpers", () => {
   it("adds allowlist entry and preserves alias", () => {
     const providerCases = [

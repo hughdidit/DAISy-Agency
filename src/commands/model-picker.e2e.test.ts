@@ -62,6 +62,7 @@ function createSelectAllMultiselect() {
 }
 
 describe("promptDefaultModel", () => {
+<<<<<<< HEAD
   it("filters internal router models from the selection list", async () => {
     loadModelCatalog.mockResolvedValue(OPENROUTER_CATALOG);
 
@@ -84,6 +85,8 @@ describe("promptDefaultModel", () => {
     expectRouterModelFiltering(options);
   });
 
+=======
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
   it("supports configuring vLLM during onboarding", async () => {
     loadModelCatalog.mockResolvedValue([
       {
@@ -134,6 +137,7 @@ describe("promptDefaultModel", () => {
 });
 
 describe("promptModelAllowlist", () => {
+<<<<<<< HEAD
   it("filters internal router models from the selection list", async () => {
     loadModelCatalog.mockResolvedValue(OPENROUTER_CATALOG);
 
@@ -149,6 +153,8 @@ describe("promptModelAllowlist", () => {
     expect(call?.searchable).toBe(true);
   });
 
+=======
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
   it("filters to allowed keys when provided", async () => {
     loadModelCatalog.mockResolvedValue([
       {
@@ -182,6 +188,37 @@ describe("promptModelAllowlist", () => {
     expect(options.map((opt: { value: string }) => opt.value)).toEqual([
       "anthropic/claude-opus-4-5",
     ]);
+  });
+});
+
+describe("router model filtering", () => {
+  it("filters internal router models in both default and allowlist prompts", async () => {
+    loadModelCatalog.mockResolvedValue(OPENROUTER_CATALOG);
+
+    const select = vi.fn(async (params) => {
+      const first = params.options[0];
+      return first?.value ?? "";
+    });
+    const multiselect = createSelectAllMultiselect();
+    const defaultPrompter = makePrompter({ select });
+    const allowlistPrompter = makePrompter({ multiselect });
+    const config = { agents: { defaults: {} } } as OpenClawConfig;
+
+    await promptDefaultModel({
+      config,
+      prompter: defaultPrompter,
+      allowKeep: false,
+      includeManual: false,
+      ignoreAllowlist: true,
+    });
+    await promptModelAllowlist({ config, prompter: allowlistPrompter });
+
+    const defaultOptions = select.mock.calls[0]?.[0]?.options ?? [];
+    expectRouterModelFiltering(defaultOptions);
+
+    const allowlistCall = multiselect.mock.calls[0]?.[0];
+    expectRouterModelFiltering(allowlistCall?.options as Array<{ value: string }>);
+    expect(allowlistCall?.searchable).toBe(true);
   });
 });
 

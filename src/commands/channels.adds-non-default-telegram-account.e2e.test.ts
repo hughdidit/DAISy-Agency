@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -18,6 +19,9 @@ import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 =======
+=======
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
 import { setDefaultChannelPluginRegistryForTests } from "./channel-test-helpers.js";
 <<<<<<< HEAD
 >>>>>>> def3a3ced (refactor(test): reduce auth and channel setup duplication)
@@ -65,9 +69,17 @@ const baseSnapshot = {
 };
 =======
 const runtime = createTestRuntime();
+<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+let clackPrompterModule: typeof import("../wizard/clack-prompter.js");
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
 
 describe("channels command", () => {
+  beforeAll(async () => {
+    clackPrompterModule = await import("../wizard/clack-prompter.js");
+  });
+
   beforeEach(() => {
     configMocks.readConfigFileSnapshot.mockReset();
     configMocks.writeConfigFile.mockClear();
@@ -219,9 +231,8 @@ describe("channels command", () => {
     });
 
     const prompt = { confirm: vi.fn().mockResolvedValue(true) };
-    const prompterModule = await import("../wizard/clack-prompter.js");
     const promptSpy = vi
-      .spyOn(prompterModule, "createClackPrompter")
+      .spyOn(clackPrompterModule, "createClackPrompter")
       .mockReturnValue(prompt as never);
 
     await channelsRemoveCommand({ channel: "discord", account: "default" }, runtime, {
@@ -541,9 +552,8 @@ describe("channels command", () => {
     });
 
     const prompt = { confirm: vi.fn().mockResolvedValue(true) };
-    const prompterModule = await import("../wizard/clack-prompter.js");
     const promptSpy = vi
-      .spyOn(prompterModule, "createClackPrompter")
+      .spyOn(clackPrompterModule, "createClackPrompter")
       .mockReturnValue(prompt as never);
 
     await channelsRemoveCommand({ channel: "telegram", account: "default" }, runtime, {

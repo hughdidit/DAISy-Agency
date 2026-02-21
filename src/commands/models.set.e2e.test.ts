@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const readConfigFileSnapshot = vi.fn();
 const writeConfigFile = vi.fn().mockResolvedValue(undefined);
@@ -43,7 +43,15 @@ function expectWrittenPrimaryModel(model: string) {
   });
 }
 
+let modelsSetCommand: typeof import("./models/set.js").modelsSetCommand;
+let modelsFallbacksAddCommand: typeof import("./models/fallbacks.js").modelsFallbacksAddCommand;
+
 describe("models set + fallbacks", () => {
+  beforeAll(async () => {
+    ({ modelsSetCommand } = await import("./models/set.js"));
+    ({ modelsFallbacksAddCommand } = await import("./models/fallbacks.js"));
+  });
+
   beforeEach(() => {
     readConfigFileSnapshot.mockReset();
     writeConfigFile.mockClear();
@@ -66,8 +74,11 @@ describe("models set + fallbacks", () => {
 =======
     mockConfigSnapshot({});
     const runtime = makeRuntime();
+<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     const { modelsSetCommand } = await import("./models/set.js");
+=======
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
 
     await modelsSetCommand("z.ai/glm-4.7", runtime);
 
@@ -91,8 +102,11 @@ describe("models set + fallbacks", () => {
 =======
     mockConfigSnapshot({ agents: { defaults: { model: { fallbacks: [] } } } });
     const runtime = makeRuntime();
+<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     const { modelsFallbacksAddCommand } = await import("./models/fallbacks.js");
+=======
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
 
     await modelsFallbacksAddCommand("z-ai/glm-4.7", runtime);
 
@@ -123,8 +137,11 @@ describe("models set + fallbacks", () => {
 =======
     mockConfigSnapshot({});
     const runtime = makeRuntime();
+<<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
     const { modelsSetCommand } = await import("./models/set.js");
+=======
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
 
     await modelsSetCommand("Z.AI/glm-4.7", runtime);
 

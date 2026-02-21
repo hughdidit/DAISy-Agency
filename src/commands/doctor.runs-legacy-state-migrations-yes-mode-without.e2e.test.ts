@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -335,6 +336,9 @@ import { describe, expect, it } from "vitest";
 =======
 import { describe, expect, it, vi } from "vitest";
 >>>>>>> 6264c5e84 (chore: Fix types in tests 41/N.)
+=======
+import { beforeAll, describe, expect, it, vi } from "vitest";
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
 import {
   arrangeLegacyStateMigrationTest,
   confirm,
@@ -347,7 +351,15 @@ import {
 } from "./doctor.e2e-harness.js";
 >>>>>>> ae97f8f79 (refactor(test): share doctor e2e harness)
 
+let doctorCommand: typeof import("./doctor.js").doctorCommand;
+let healthCommand: typeof import("./health.js").healthCommand;
+
 describe("doctor command", () => {
+  beforeAll(async () => {
+    ({ doctorCommand } = await import("./doctor.js"));
+    ({ healthCommand } = await import("./health.js"));
+  });
+
   it("runs legacy state migrations in yes mode without prompting", async () => {
 <<<<<<< HEAD
     readConfigFileSnapshot.mockResolvedValue({
@@ -444,14 +456,12 @@ describe("doctor command", () => {
     mockDoctorConfigSnapshot();
 >>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
 
-    const { healthCommand } = await import("./health.js");
     vi.mocked(healthCommand).mockRejectedValueOnce(new Error("gateway closed"));
 
     serviceIsLoaded.mockResolvedValueOnce(true);
     serviceRestart.mockClear();
     confirm.mockClear();
 
-    const { doctorCommand } = await import("./doctor.js");
     await doctorCommand(createDoctorRuntime(), { nonInteractive: true });
 
     expect(serviceRestart).not.toHaveBeenCalled();
@@ -492,7 +502,6 @@ describe("doctor command", () => {
       },
     });
 
-    const { doctorCommand } = await import("./doctor.js");
     await doctorCommand(createDoctorRuntime(), { yes: true });
 
     const written = writeConfigFile.mock.calls.at(-1)?.[0] as Record<string, unknown>;

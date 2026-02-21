@@ -2,6 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let originalIsTTY: boolean | undefined;
@@ -340,9 +341,18 @@ describe("doctor command", () => {
       parsed: {},
       valid: true,
 =======
+=======
+import { beforeAll, describe, expect, it, vi } from "vitest";
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
 import { createDoctorRuntime, mockDoctorConfigSnapshot, note } from "./doctor.e2e-harness.js";
 
+let doctorCommand: typeof import("./doctor.js").doctorCommand;
+
 describe("doctor command", () => {
+  beforeAll(async () => {
+    ({ doctorCommand } = await import("./doctor.js"));
+  });
+
   it("warns when per-agent sandbox docker/browser/prune overrides are ignored under shared scope", async () => {
     mockDoctorConfigSnapshot({
 >>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
@@ -373,7 +383,6 @@ describe("doctor command", () => {
 
     note.mockClear();
 
-    const { doctorCommand } = await import("./doctor.js");
     await doctorCommand(createDoctorRuntime(), { nonInteractive: true });
 
     expect(
@@ -427,7 +436,6 @@ describe("doctor command", () => {
       return realExists(value as never);
     });
 
-    const { doctorCommand } = await import("./doctor.js");
     await doctorCommand(createDoctorRuntime(), { nonInteractive: true });
 
     expect(

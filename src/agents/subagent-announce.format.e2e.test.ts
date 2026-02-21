@@ -1295,7 +1295,7 @@ describe("subagent announce formatting", () => {
         threadId: 99,
       },
     },
-  ] as const)("$testName", async (testCase) => {
+  ] as const)("thread routing: $testName", async (testCase) => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
     embeddedRunMock.isEmbeddedPiRunStreaming.mockReturnValue(false);
@@ -1382,7 +1382,7 @@ describe("subagent announce formatting", () => {
       expectedChannel: "whatsapp",
       expectedAccountId: "acct-987",
     },
-  ] as const)("$testName", async (testCase) => {
+  ] as const)("direct announce: $testName", async (testCase) => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(false);
     embeddedRunMock.isEmbeddedPiRunStreaming.mockReturnValue(false);

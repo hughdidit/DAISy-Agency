@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let originalIsTTY: boolean | undefined;
@@ -349,9 +350,18 @@ describe("doctor command", () => {
     });
 =======
 import { describe, expect, it } from "vitest";
+=======
+import { beforeAll, describe, expect, it } from "vitest";
+>>>>>>> 861718e4d (test: group remaining suite cleanups)
 import { createDoctorRuntime, mockDoctorConfigSnapshot, note } from "./doctor.e2e-harness.js";
 
+let doctorCommand: typeof import("./doctor.js").doctorCommand;
+
 describe("doctor command", () => {
+  beforeAll(async () => {
+    ({ doctorCommand } = await import("./doctor.js"));
+  });
+
   it("warns when the state directory is missing", async () => {
     mockDoctorConfigSnapshot();
 >>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
@@ -361,7 +371,6 @@ describe("doctor command", () => {
     process.env.CLAWDBOT_STATE_DIR = missingDir;
     note.mockClear();
 
-    const { doctorCommand } = await import("./doctor.js");
     await doctorCommand(createDoctorRuntime(), {
       nonInteractive: true,
       workspaceSuggestions: false,
@@ -395,7 +404,6 @@ describe("doctor command", () => {
       },
     });
 
-    const { doctorCommand } = await import("./doctor.js");
     await doctorCommand(createDoctorRuntime(), {
       nonInteractive: true,
       workspaceSuggestions: false,
@@ -430,7 +438,6 @@ describe("doctor command", () => {
     note.mockClear();
 
     try {
-      const { doctorCommand } = await import("./doctor.js");
       await doctorCommand(createDoctorRuntime(), {
         nonInteractive: true,
         workspaceSuggestions: false,
