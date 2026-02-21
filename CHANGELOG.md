@@ -140,6 +140,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 6cdcb5904 (chore: update changelog for merged fixes 7734 and 21086 (#21254))
 =======
 - Security/Systemd: reject CR/LF in systemd unit environment values and fix argument escaping so generated units cannot be injected with extra directives. Thanks @thewilloftheshadow.
+- Security/Tools: add per-wrapper random IDs to untrusted-content markers from `wrapExternalContent`/`wrapWebContent`, preventing marker spoofing from escaping content boundaries. (#19009) Thanks @Whoaa512.
 - Skills/Security: sanitize skill env overrides to block unsafe runtime injection variables and only allow sensitive keys when declared in skill metadata, with warnings for suspicious values. Thanks @thewilloftheshadow.
 - Skills/SonosCLI: add troubleshooting guidance for `sonos discover` failures on macOS direct mode (`sendto: no route to host`) and sandbox network restrictions (`bind: operation not permitted`). (#21316) Thanks @huntharo.
 >>>>>>> 02ac5b59d (Skills: add SonosCLI troubleshooting guidance (openclaw#21316) thanks @huntharo)
