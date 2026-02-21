@@ -35,6 +35,7 @@ function makeTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-exec-approvals-"));
 }
 
+<<<<<<< HEAD
 function createSafeBinJqCase(params: { command: string; seedFileName?: string }) {
   const dir = makeTempDir();
   const binDir = path.join(dir, "bin");
@@ -53,6 +54,28 @@ function createSafeBinJqCase(params: { command: string; seedFileName?: string })
   });
   expect(res.ok).toBe(true);
   return { dir, segment: res.segments[0] };
+=======
+type ShellParserParityFixtureCase = {
+  id: string;
+  command: string;
+  ok: boolean;
+  executables: string[];
+};
+
+type ShellParserParityFixture = {
+  cases: ShellParserParityFixtureCase[];
+};
+
+function loadShellParserParityFixtureCases(): ShellParserParityFixtureCase[] {
+  const fixturePath = path.join(
+    process.cwd(),
+    "test",
+    "fixtures",
+    "exec-allowlist-shell-parser-parity.json",
+  );
+  const fixture = JSON.parse(fs.readFileSync(fixturePath, "utf8")) as ShellParserParityFixture;
+  return fixture.cases;
+>>>>>>> 1bc5c2a7e (refactor: unify exec shell parser parity and gateway websocket test helpers)
 }
 
 describe("exec approvals allowlist matching", () => {
@@ -287,6 +310,25 @@ describe("exec approvals shell parsing", () => {
     expect(res.ok).toBe(true);
     expect(res.segments[0]?.argv).toEqual(["C:\\Program Files\\Tool\\tool.exe", "--version"]);
   });
+});
+
+describe("exec approvals shell parser parity fixture", () => {
+  const fixtures = loadShellParserParityFixtureCases();
+
+  for (const fixture of fixtures) {
+    it(`matches fixture: ${fixture.id}`, () => {
+      const res = analyzeShellCommand({ command: fixture.command });
+      expect(res.ok).toBe(fixture.ok);
+      if (fixture.ok) {
+        const executables = res.segments.map((segment) =>
+          path.basename(segment.argv[0] ?? "").toLowerCase(),
+        );
+        expect(executables).toEqual(fixture.executables.map((entry) => entry.toLowerCase()));
+      } else {
+        expect(res.segments).toHaveLength(0);
+      }
+    });
+  }
 });
 
 describe("exec approvals shell allowlist (chained commands)", () => {
