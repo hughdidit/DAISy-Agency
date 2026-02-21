@@ -1,6 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+=======
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import os from "node:os";
 import path from "node:path";
 >>>>>>> 2dba150c1 (Fix path-root flaky tests and restore status emoji defaults (#22274))
@@ -164,12 +168,8 @@ describe("msteams messenger", () => {
 <<<<<<< HEAD
 =======
     it("preserves parsed mentions when appending OneDrive fallback file links", async () => {
-      const previousStateDir = process.env.OPENCLAW_STATE_DIR;
-      const tmpStateDir = await mkdtemp(path.join(os.tmpdir(), "msteams-mention-state-"));
-      process.env.OPENCLAW_STATE_DIR = tmpStateDir;
-      const workspaceDir = path.join(tmpStateDir, "workspace");
-      await mkdir(workspaceDir, { recursive: true });
-      const localFile = path.join(workspaceDir, "note.txt");
+      const tmpDir = await mkdtemp(path.join(os.tmpdir(), "msteams-mention-"));
+      const localFile = path.join(tmpDir, "note.txt");
       await writeFile(localFile, "hello");
 
       try {
@@ -222,12 +222,7 @@ describe("msteams messenger", () => {
           },
         ]);
       } finally {
-        if (previousStateDir === undefined) {
-          delete process.env.OPENCLAW_STATE_DIR;
-        } else {
-          process.env.OPENCLAW_STATE_DIR = previousStateDir;
-        }
-        await rm(tmpStateDir, { recursive: true, force: true });
+        await rm(tmpDir, { recursive: true, force: true });
       }
     });
 

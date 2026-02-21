@@ -35,6 +35,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 =======
 - Discord/Voice: add voice channel join/leave/status via `/vc`, plus auto-join configuration for realtime voice conversations. Thanks @thewilloftheshadow.
+- Channels: allow per-channel model overrides via `channels.modelByChannel` and note them in /status. Thanks @thewilloftheshadow.
 - Discord: include channel topics in trusted inbound metadata on new sessions. Thanks @thewilloftheshadow.
 - Docs/Discord: document forum channel thread creation flows and component limits. Thanks @thewilloftheshadow.
 >>>>>>> eedea6cf3 (Discord: add trusted channel topics on new sessions)
