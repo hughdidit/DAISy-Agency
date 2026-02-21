@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 =======
 =======
@@ -72,6 +73,8 @@
 ### Changes
 - Version alignment with core Moltbot release numbers.
 
+=======
+>>>>>>> 95c14d9b5 (docs: prune low-signal changelog entries)
 ## 2026.1.17-1
 
 - Initial version with full channel plugin support

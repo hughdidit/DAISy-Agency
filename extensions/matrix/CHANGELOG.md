@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 =======
 =======
@@ -96,6 +97,12 @@
 
 ### Features
 - Version alignment with core Moltbot release numbers.
+=======
+## 2026.1.14
+
+### Features
+
+>>>>>>> 95c14d9b5 (docs: prune low-signal changelog entries)
 - Matrix channel plugin with homeserver + user ID auth (access token or password login with device name).
 - Direct messages with pairing/allowlist/open/disabled policies and allowFrom support.
 - Group/room controls: allowlist policy, per-room config, mention gating, auto-reply, per-room skills/system prompts.

@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 =======
 =======
@@ -52,6 +53,8 @@
 ### Changes
 - Version alignment with core Moltbot release numbers.
 
+=======
+>>>>>>> 95c14d9b5 (docs: prune low-signal changelog entries)
 ## 2026.1.26
 
 ### Changes
@@ -60,6 +63,7 @@
 - Removed legacy `tts.model`/`tts.voice`/`tts.instructions` plugin fields.
 - Ngrok free-tier bypass renamed to `tunnel.allowNgrokFreeTierLoopbackBypass` and gated to loopback + `tunnel.provider="ngrok"`.
 
+<<<<<<< HEAD
 ## 2026.1.23
 
 ### Changes
@@ -105,6 +109,8 @@
 ### Changes
 - Version alignment with core Moltbot release numbers.
 
+=======
+>>>>>>> 95c14d9b5 (docs: prune low-signal changelog entries)
 ## 0.1.0
 
 ### Highlights
