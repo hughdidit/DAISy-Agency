@@ -100,6 +100,13 @@ function createGroupMessage(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function makeInboundCfg(messagePrefix = "") {
+  return {
+    agents: { defaults: { workspace: "/tmp/openclaw" } },
+    channels: { whatsapp: { messagePrefix } },
+  } as never;
+}
+
 describe("applyGroupGating", () => {
   it("treats reply-to-bot as implicit mention", () => {
     const cfg = makeConfig({});
@@ -303,10 +310,7 @@ describe("applyGroupGating", () => {
 describe("buildInboundLine", () => {
   it("prefixes group messages with sender", () => {
     const line = buildInboundLine({
-      cfg: {
-        agents: { defaults: { workspace: "/tmp/openclaw" } },
-        channels: { whatsapp: { messagePrefix: "" } },
-      } as never,
+      cfg: makeInboundCfg(""),
       agentId: "main",
       msg: createGroupMessage({
         to: "+15550009999",
@@ -325,10 +329,7 @@ describe("buildInboundLine", () => {
 
   it("includes reply-to context blocks when replyToBody is present", () => {
     const line = buildInboundLine({
-      cfg: {
-        agents: { defaults: { workspace: "/tmp/openclaw" } },
-        channels: { whatsapp: { messagePrefix: "" } },
-      } as never,
+      cfg: makeInboundCfg(""),
       agentId: "main",
       msg: {
         from: "+1555",
@@ -349,10 +350,7 @@ describe("buildInboundLine", () => {
 
   it("applies the WhatsApp messagePrefix when configured", () => {
     const line = buildInboundLine({
-      cfg: {
-        agents: { defaults: { workspace: "/tmp/openclaw" } },
-        channels: { whatsapp: { messagePrefix: "[PFX]" } },
-      } as never,
+      cfg: makeInboundCfg("[PFX]"),
       agentId: "main",
       msg: {
         from: "+1555",
@@ -365,10 +363,35 @@ describe("buildInboundLine", () => {
 
     expect(line).toContain("[PFX] ping");
   });
+
+  it("normalizes direct from labels by stripping whatsapp: prefix", () => {
+    const line = buildInboundLine({
+      cfg: makeInboundCfg(""),
+      agentId: "main",
+      msg: {
+        from: "whatsapp:+15550001111",
+        to: "+2666",
+        body: "ping",
+        chatType: "direct",
+      } as never,
+      envelope: { includeTimestamp: false },
+    });
+
+    expect(line).toContain("+15550001111");
+    expect(line).not.toContain("whatsapp:+15550001111");
+  });
 });
 
 describe("formatReplyContext", () => {
   it("returns null when replyToBody is missing", () => {
     expect(formatReplyContext({} as never)).toBeNull();
+  });
+
+  it("uses unknown sender label when reply sender is absent", () => {
+    expect(
+      formatReplyContext({
+        replyToBody: "original",
+      } as never),
+    ).toBe("[Replying to unknown sender]\noriginal\n[/Replying]");
   });
 });
