@@ -86,7 +86,14 @@ Docs: https://docs.openclaw.ai
 - Docs/Discord: document forum channel thread creation flows and component limits. Thanks @thewilloftheshadow.
 >>>>>>> eedea6cf3 (Discord: add trusted channel topics on new sessions)
 
+<<<<<<< HEAD
 >>>>>>> e98ccc8e1 (iOS/Gateway: stabilize background wake and reconnect behavior (#21226))
+=======
+### Breaking
+
+- **BREAKING:** unify channel preview-streaming config to `channels.<channel>.streaming` with enum values `off | partial | block | progress`, and move Slack native stream toggle to `channels.slack.nativeStreaming`. Legacy keys (`streamMode`, Slack boolean `streaming`) are still read and migrated by `openclaw doctor --fix`, but canonical saved config/docs now use the unified names.
+
+>>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
 ### Fixes
 
 <<<<<<< HEAD

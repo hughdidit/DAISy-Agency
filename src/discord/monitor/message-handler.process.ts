@@ -68,6 +68,7 @@ import {
   type StatusReactionAdapter,
 } from "../../channels/status-reactions.js";
 import { createTypingCallbacks } from "../../channels/typing.js";
+import { resolveDiscordPreviewStreamMode } from "../../config/discord-preview-streaming.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 >>>>>>> 30a0d3fce (Status reactions: fix stall timers and gating (#22190))
 import { readSessionUpdatedAt, resolveStorePath } from "../../config/sessions.js";
@@ -499,7 +500,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   });
 
   // --- Discord draft stream (edit-based preview streaming) ---
-  const discordStreamMode = discordConfig?.streamMode ?? "off";
+  const discordStreamMode = resolveDiscordPreviewStreamMode(discordConfig);
   const draftMaxChars = Math.min(textLimit, 2000);
   const accountBlockStreamingEnabled =
     typeof discordConfig?.blockStreaming === "boolean"

@@ -35,6 +35,7 @@ import { formatLocationText, type NormalizedLocation } from "../../channels/loca
 >>>>>>> ed11e93cf (chore(format))
 =======
 import { formatLocationText, type NormalizedLocation } from "../../channels/location.js";
+import { resolveTelegramPreviewStreamMode } from "../../config/discord-preview-streaming.js";
 import type { TelegramGroupConfig, TelegramTopicConfig } from "../../config/types.js";
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
@@ -211,9 +212,10 @@ export function resolveTelegramStreamMode(
 ): TelegramStreamMode {
 =======
 export function resolveTelegramStreamMode(telegramCfg?: {
-  streaming?: boolean;
-  streamMode?: TelegramStreamMode;
+  streaming?: unknown;
+  streamMode?: unknown;
 }): TelegramStreamMode {
+<<<<<<< HEAD
   if (typeof telegramCfg?.streaming === "boolean") {
     return telegramCfg.streaming ? "partial" : "off";
   }
@@ -226,6 +228,9 @@ export function resolveTelegramStreamMode(telegramCfg?: {
     return "partial";
   }
   return "off";
+=======
+  return resolveTelegramPreviewStreamMode(telegramCfg);
+>>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
 }
 
 export function buildTelegramGroupPeerId(chatId: number | string, messageThreadId?: number) {
