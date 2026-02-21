@@ -733,7 +733,7 @@ export function attachGatewayWsMessageHandler(params: {
             return true;
           }
           clearUnboundScopes();
-          const canSkipDevice = sharedAuthOk;
+          const canSkipDevice = role === "operator" && sharedAuthOk;
 
           if (isControlUi && !controlUiAuthPolicy.allowBypass) {
 >>>>>>> 14b0d2b81 (refactor: harden control-ui auth flow and add insecure-flag audit summary)
