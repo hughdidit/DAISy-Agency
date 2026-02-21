@@ -2,6 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
 import type { NormalizedUsage, UsageLike } from "../agents/usage.js";
+<<<<<<< HEAD
+=======
+import { normalizeUsage } from "../agents/usage.js";
+import { stripInboundMetadata } from "../auto-reply/reply/strip-inbound-meta.js";
+>>>>>>> 9fc6c8b71 (fix: hide synthetic untrusted metadata in chat history)
 import type { OpenClawConfig } from "../config/config.js";
 import type { SessionEntry } from "../config/sessions/types.js";
 import { normalizeUsage } from "../agents/usage.js";
@@ -9,6 +14,11 @@ import {
   resolveSessionFilePath,
   resolveSessionTranscriptsDirForAgent,
 } from "../config/sessions/paths.js";
+<<<<<<< HEAD
+=======
+import type { SessionEntry } from "../config/sessions/types.js";
+import { stripEnvelope, stripMessageIdHints } from "../shared/chat-envelope.js";
+>>>>>>> 9fc6c8b71 (fix: hide synthetic untrusted metadata in chat history)
 import { countToolResults, extractToolCallNames } from "../utils/transcript-tools.js";
 import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
 
@@ -1038,6 +1048,13 @@ export async function loadSessionLogs(params: {
       }
 
       let content = contentParts.join("\n").trim();
+      if (!content) {
+        continue;
+      }
+      content = stripInboundMetadata(content);
+      if (role === "user") {
+        content = stripMessageIdHints(stripEnvelope(content)).trim();
+      }
       if (!content) {
         continue;
       }
