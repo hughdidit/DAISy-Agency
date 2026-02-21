@@ -90,6 +90,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -109,6 +110,10 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 7417c3626 (fix(cron): honor maxConcurrentRuns in timer loop (openclaw#22413) thanks @Takhoffman)
 =======
 =======
+=======
+- WhatsApp/Security: enforce allowlist JID authorization for reaction actions so authenticated callers cannot target non-allowlisted chats by forging `chatJid` + valid `messageId` pairs. This ships in the next npm release. Thanks @aether-ai-agent for reporting.
+- Agents/Tool images: include source filenames in `agents/tool-images` resize logs so compression events can be traced back to specific files.
+>>>>>>> 2706cbd6d (fix(agents): include filenames in image resize logs)
 - ACP/Security: escape control and delimiter characters in ACP `resource_link` title/URI metadata before prompt interpolation to prevent metadata-driven prompt injection through resource links. This ships in the next npm release. Thanks @aether-ai-agent for reporting.
 - TTS/Security: make model-driven provider switching opt-in by default (`messages.tts.modelOverrides.allowProvider=false` unless explicitly enabled), while keeping voice/style overrides available, to reduce prompt-injection-driven provider hops and unexpected TTS cost escalation. This ships in the next npm release. Thanks @aether-ai-agent for reporting.
 - Security/Agents: keep overflow compaction retry budgeting global across tool-result truncation recovery so successful truncation cannot reset the overflow retry counter and amplify retry/cost cycles. This ships in the next npm release. Thanks @aether-ai-agent for reporting.
