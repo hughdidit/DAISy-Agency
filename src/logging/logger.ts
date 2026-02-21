@@ -40,7 +40,11 @@ import type { ConsoleStyle } from "./console.js";
 import type { ConsoleStyle } from "./console.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
+<<<<<<< HEAD
 import { readLoggingConfig } from "./config.js";
+=======
+import { resolveNodeRequireFromMeta } from "./node-require.js";
+>>>>>>> b791ac216 (refactor(logging): share node createRequire resolution)
 import { loggingState } from "./state.js";
 
 <<<<<<< HEAD
@@ -59,28 +63,7 @@ const LOG_PREFIX = "openclaw";
 const LOG_SUFFIX = ".log";
 const MAX_LOG_AGE_MS = 24 * 60 * 60 * 1000; // 24h
 
-function resolveNodeRequire(): ((id: string) => NodeJS.Require) | null {
-  const getBuiltinModule = (
-    process as NodeJS.Process & {
-      getBuiltinModule?: (id: string) => unknown;
-    }
-  ).getBuiltinModule;
-  if (typeof getBuiltinModule !== "function") {
-    return null;
-  }
-  try {
-    const moduleNamespace = getBuiltinModule("module") as {
-      createRequire?: (id: string) => NodeJS.Require;
-    };
-    return typeof moduleNamespace.createRequire === "function"
-      ? moduleNamespace.createRequire
-      : null;
-  } catch {
-    return null;
-  }
-}
-
-const requireConfig = resolveNodeRequire()?.(import.meta.url) ?? null;
+const requireConfig = resolveNodeRequireFromMeta(import.meta.url);
 
 export type LoggerSettings = {
   level?: LogLevel;
