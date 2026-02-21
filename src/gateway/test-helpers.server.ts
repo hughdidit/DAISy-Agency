@@ -80,6 +80,7 @@ async function getServerModule() {
   return await serverModulePromise;
 }
 
+<<<<<<< HEAD
 let previousHome: string | undefined;
 let previousUserProfile: string | undefined;
 let previousStateDir: string | undefined;
@@ -95,6 +96,24 @@ let previousSkipProviders: string | undefined;
 let previousSkipCron: string | undefined;
 let previousMinimalGateway: string | undefined;
 >>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
+=======
+const GATEWAY_TEST_ENV_KEYS = [
+  "HOME",
+  "USERPROFILE",
+  "OPENCLAW_STATE_DIR",
+  "OPENCLAW_CONFIG_PATH",
+  "OPENCLAW_SKIP_BROWSER_CONTROL_SERVER",
+  "OPENCLAW_SKIP_GMAIL_WATCHER",
+  "OPENCLAW_SKIP_CANVAS_HOST",
+  "OPENCLAW_BUNDLED_PLUGINS_DIR",
+  "OPENCLAW_SKIP_CHANNELS",
+  "OPENCLAW_SKIP_PROVIDERS",
+  "OPENCLAW_SKIP_CRON",
+  "OPENCLAW_TEST_MINIMAL_GATEWAY",
+] as const;
+
+let gatewayEnvSnapshot: ReturnType<typeof captureEnv> | undefined;
+>>>>>>> 577e5cc74 (refactor(test): dedupe gateway env setup and add env util coverage)
 let tempHome: string | undefined;
 let tempConfigRoot: string | undefined;
 
@@ -127,6 +146,7 @@ export async function writeSessionStore(params: {
 }
 
 async function setupGatewayTestHome() {
+<<<<<<< HEAD
   previousHome = process.env.HOME;
   previousUserProfile = process.env.USERPROFILE;
 <<<<<<< HEAD
@@ -147,6 +167,9 @@ async function setupGatewayTestHome() {
   previousSkipProviders = process.env.OPENCLAW_SKIP_PROVIDERS;
   previousSkipCron = process.env.OPENCLAW_SKIP_CRON;
   previousMinimalGateway = process.env.OPENCLAW_TEST_MINIMAL_GATEWAY;
+=======
+  gatewayEnvSnapshot = captureEnv([...GATEWAY_TEST_ENV_KEYS]);
+>>>>>>> 577e5cc74 (refactor(test): dedupe gateway env setup and add env util coverage)
   tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gateway-home-"));
 >>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
   process.env.HOME = tempHome;
@@ -238,6 +261,7 @@ async function cleanupGatewayTestHome(options: { restoreEnv: boolean }) {
   resetLogger();
   if (options.restoreEnv) {
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (previousHome === undefined) delete process.env.HOME;
     else process.env.HOME = previousHome;
     if (previousUserProfile === undefined) delete process.env.USERPROFILE;
@@ -318,6 +342,10 @@ async function cleanupGatewayTestHome(options: { restoreEnv: boolean }) {
       process.env.OPENCLAW_TEST_MINIMAL_GATEWAY = previousMinimalGateway;
     }
 >>>>>>> 98bb4225f (perf(test): minimize gateway startup in vitest)
+=======
+    gatewayEnvSnapshot?.restore();
+    gatewayEnvSnapshot = undefined;
+>>>>>>> 577e5cc74 (refactor(test): dedupe gateway env setup and add env util coverage)
   }
   if (options.restoreEnv && tempHome) {
     await fs.rm(tempHome, {
