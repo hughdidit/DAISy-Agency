@@ -1,8 +1,12 @@
 import { formatRawAssistantErrorForUi } from "../agents/pi-embedded-helpers.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { stripInboundMetadata } from "../auto-reply/reply/strip-inbound-meta.js";
 >>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
+=======
+import { stripLeadingInboundMetadata } from "../auto-reply/reply/strip-inbound-meta.js";
+>>>>>>> 45fff13b1 (TUI: strip only leading inbound metadata (#22461))
 import { stripAnsi } from "../terminal/ansi.js";
 import { formatTokenCount } from "../utils/usage-format.js";
 
@@ -280,7 +284,7 @@ export function extractTextFromMessage(
 <<<<<<< HEAD
 =======
     if (record.role === "user") {
-      return stripInboundMetadata(text);
+      return stripLeadingInboundMetadata(text);
     }
 >>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
     return text;
