@@ -595,13 +595,31 @@ describe("sendMessageTelegram", () => {
         fileName: "video.mp4",
       });
 
+<<<<<<< HEAD
       await sendMessageTelegram(chatId, testCase.text, {
+=======
+      const opts: Parameters<typeof sendMessageTelegram>[2] = {
+>>>>>>> 828f4e18e (test: finish readonly fixture compatibility for CI check)
         token: "tok",
         api,
         mediaUrl: "https://example.com/video.mp4",
         asVideoNote: true,
+<<<<<<< HEAD
         ...testCase.options,
       });
+=======
+        ...("replyToMessageId" in testCase.options
+          ? { replyToMessageId: testCase.options.replyToMessageId }
+          : {}),
+        ...("buttons" in testCase.options
+          ? {
+              buttons: testCase.options.buttons.map((row) => row.map((button) => ({ ...button }))),
+            }
+          : {}),
+      };
+
+      await sendMessageTelegram(chatId, testCase.text, opts);
+>>>>>>> 828f4e18e (test: finish readonly fixture compatibility for CI check)
 
       expect(sendVideoNote).toHaveBeenCalledWith(
         chatId,
