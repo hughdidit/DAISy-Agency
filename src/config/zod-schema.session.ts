@@ -155,4 +155,8 @@ export const CommandsSchema = z
   })
   .strict()
   .optional()
+<<<<<<< HEAD
   .default({ native: "auto", nativeSkills: "auto" });
+=======
+  .default({ native: "auto", nativeSkills: "auto", restart: true, ownerDisplay: "raw" });
+>>>>>>> e1cb73cde (fix: unblock Docker build by aligning commands schema default (#22558))

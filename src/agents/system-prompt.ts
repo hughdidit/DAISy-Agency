@@ -1,8 +1,16 @@
 import type { ReasoningLevel, ThinkLevel } from "../auto-reply/thinking.js";
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
+<<<<<<< HEAD
 import { listDeliverableMessageChannels } from "../utils/message-channel.js";
 import type { ResolvedTimeFormat } from "./date-time.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
+=======
+import type { MemoryCitationsMode } from "../config/types.memory.js";
+import { listDeliverableMessageChannels } from "../utils/message-channel.js";
+import type { ResolvedTimeFormat } from "./date-time.js";
+import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
+import { sanitizeForPromptLiteral } from "./sanitize-for-prompt.js";
+>>>>>>> e1cb73cde (fix: unblock Docker build by aligning commands schema default (#22558))
 
 /**
  * Controls which hardcoded sections are included in the system prompt.

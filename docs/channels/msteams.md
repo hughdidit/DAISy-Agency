@@ -216,7 +216,12 @@ This is often easier than hand-editing JSON manifests.
 2. Find the bot in Teams and send a DM
 3. Check gateway logs for incoming activity
 
+<<<<<<< HEAD
 ## Setup (minimal text-only)
+=======
+## Onboarding (minimal)
+
+>>>>>>> e1cb73cde (fix: unblock Docker build by aligning commands schema default (#22558))
 1. **Install the Microsoft Teams plugin**
    - From npm: `moltbot plugins install @moltbot/msteams`
    - From a local checkout: `moltbot plugins install ./extensions/msteams`
