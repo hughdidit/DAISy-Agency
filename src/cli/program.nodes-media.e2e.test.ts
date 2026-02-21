@@ -1,6 +1,7 @@
 import * as fs from "node:fs/promises";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { parseCameraSnapPayload, parseCameraClipPayload } from "./nodes-camera.js";
+import { IOS_NODE, createIosNodeListResponse } from "./program.nodes-test-helpers.js";
 import { callGateway, installBaseProgramMocks, runTui, runtime } from "./program.test-mocks.js";
 
 installBaseProgramMocks();
@@ -48,6 +49,7 @@ function expectParserRejectsMissingMedia(
   expect(() => parse(payload)).toThrow(expectedMessage);
 }
 
+<<<<<<< HEAD
 const IOS_NODE = {
   nodeId: "ios-node",
   displayName: "iOS Node",
@@ -69,6 +71,8 @@ function mockCameraGateway(
   payload: Record<string, unknown>,
 ) {
 =======
+=======
+>>>>>>> d6ad647f5 (test(cli): share nodes ios fixture helpers)
 function mockNodeGateway(command?: string, payload?: Record<string, unknown>) {
 <<<<<<< HEAD
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
@@ -78,10 +82,7 @@ function mockNodeGateway(command?: string, payload?: Record<string, unknown>) {
     const opts = (args[0] ?? {}) as { method?: string };
 >>>>>>> 048e29ea3 (chore: Fix types in tests 45/N.)
     if (opts.method === "node.list") {
-      return {
-        ts: Date.now(),
-        nodes: [IOS_NODE],
-      };
+      return createIosNodeListResponse();
     }
     if (opts.method === "node.invoke" && command) {
       return {
