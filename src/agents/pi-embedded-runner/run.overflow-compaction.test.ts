@@ -144,14 +144,28 @@ vi.mock("../pi-embedded-helpers.js", async () => {
 });
 
 import { runEmbeddedPiAgent } from "./run.js";
+<<<<<<< HEAD
 import { runEmbeddedAttempt } from "./run/attempt.js";
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { log } from "./logger.js";
 
 import type { EmbeddedRunAttemptResult } from "./run/types.js";
+=======
+import { makeAttemptResult, mockOverflowRetrySuccess } from "./run.overflow-compaction.fixture.js";
+import { runEmbeddedAttempt } from "./run/attempt.js";
+import type { EmbeddedRunAttemptResult } from "./run/types.js";
+import {
+  sessionLikelyHasOversizedToolResults,
+  truncateOversizedToolResultsInSession,
+} from "./tool-result-truncation.js";
+>>>>>>> b577228d6 (test(security): add overflow compaction truncation-budget regression)
 
 const mockedRunEmbeddedAttempt = vi.mocked(runEmbeddedAttempt);
 const mockedCompactDirect = vi.mocked(compactEmbeddedPiSessionDirect);
+const mockedSessionLikelyHasOversizedToolResults = vi.mocked(sessionLikelyHasOversizedToolResults);
+const mockedTruncateOversizedToolResultsInSession = vi.mocked(
+  truncateOversizedToolResultsInSession,
+);
 
 function makeAttemptResult(
   overrides: Partial<EmbeddedRunAttemptResult> = {},
@@ -281,5 +295,65 @@ describe("overflow compaction in run loop", () => {
     expect(mockedCompactDirect).not.toHaveBeenCalled();
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(1);
     expect(result.meta.error?.kind).toBe("compaction_failure");
+  });
+
+  it("does not reset compaction attempt budget after successful tool-result truncation", async () => {
+    const overflowError = new Error("request_too_large: Request size exceeds model context window");
+
+    mockedRunEmbeddedAttempt
+      .mockResolvedValueOnce(
+        makeAttemptResult({
+          promptError: overflowError,
+          messagesSnapshot: [
+            {
+              role: "assistant",
+              content: "big tool output",
+            } as unknown as EmbeddedRunAttemptResult["messagesSnapshot"][number],
+          ],
+        }),
+      )
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
+      // Keep one extra mocked response so legacy reset behavior does not crash the test.
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }));
+
+    mockedCompactDirect
+      .mockResolvedValueOnce({
+        ok: false,
+        compacted: false,
+        reason: "nothing to compact",
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        compacted: true,
+        result: { summary: "Compacted 2", firstKeptEntryId: "entry-5", tokensBefore: 160000 },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        compacted: true,
+        result: { summary: "Compacted 3", firstKeptEntryId: "entry-7", tokensBefore: 140000 },
+      });
+
+    mockedSessionLikelyHasOversizedToolResults.mockReturnValue(true);
+    mockedTruncateOversizedToolResultsInSession.mockResolvedValueOnce({
+      truncated: true,
+      truncatedCount: 1,
+    });
+
+    const result = await runEmbeddedPiAgent({
+      sessionId: "test-session",
+      sessionKey: "test-key",
+      sessionFile: "/tmp/session.json",
+      workspaceDir: "/tmp/workspace",
+      prompt: "hello",
+      timeoutMs: 30000,
+      runId: "run-1",
+    });
+
+    expect(mockedCompactDirect).toHaveBeenCalledTimes(3);
+    expect(mockedTruncateOversizedToolResultsInSession).toHaveBeenCalledTimes(1);
+    expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(4);
+    expect(result.meta.error?.kind).toBe("context_overflow");
   });
 });
