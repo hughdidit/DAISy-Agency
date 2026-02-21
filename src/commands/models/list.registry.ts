@@ -67,7 +67,6 @@ import {
 =======
 >>>>>>> 382fe8009 (refactor!: remove google-antigravity provider support)
 import { ensureOpenClawModelsJson } from "../../agents/models-config.js";
-import { ensurePiAuthJsonFromAuthProfiles } from "../../agents/pi-auth-json.js";
 import type { ModelRegistry } from "../../agents/pi-model-discovery.js";
 import { discoverAuthStorage, discoverModels } from "../../agents/pi-model-discovery.js";
 <<<<<<< HEAD
@@ -241,10 +240,13 @@ export async function loadModelRegistry(cfg: OpenClawConfig) {
   await ensureOpenClawModelsJson(cfg);
   const agentDir = resolveOpenClawAgentDir();
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> a0cbf9002 (fix(models): antigravity opus 4.6 availability follow-up (#12845))
 =======
   await ensurePiAuthJsonFromAuthProfiles(agentDir);
 >>>>>>> 4ca75bed5 (fix(models): sync auth-profiles before availability checks)
+=======
+>>>>>>> 4c5a2c3c6 (Agents: inject pi auth storage from runtime profiles)
   const authStorage = discoverAuthStorage(agentDir);
   const registry = discoverModels(authStorage, agentDir);
   const models = registry.getAll();

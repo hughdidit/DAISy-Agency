@@ -187,15 +187,19 @@ export async function loadModelCatalog(params?: {
       await ensureMoltbotModelsJson(cfg);
 =======
       await ensureOpenClawModelsJson(cfg);
+<<<<<<< HEAD
       await (
         await import("./pi-auth-json.js")
       ).ensurePiAuthJsonFromAuthProfiles(resolveOpenClawAgentDir());
 >>>>>>> 07faab6ac (openai-codex: bridge OAuth profiles into pi auth.json for model discovery (#15184))
+=======
+>>>>>>> 4c5a2c3c6 (Agents: inject pi auth storage from runtime profiles)
       // IMPORTANT: keep the dynamic import *inside* the try/catch.
       // If this fails once (e.g. during a pnpm install that temporarily swaps node_modules),
       // we must not poison the cache with a rejected promise (otherwise all channel handlers
       // will keep failing until restart).
       const piSdk = await importPiSdk();
+<<<<<<< HEAD
       const agentDir = resolveMoltbotAgentDir();
       const authStorage = piSdk.discoverAuthStorage(agentDir);
       const registry = piSdk.discoverModels(authStorage, agentDir) as
@@ -203,6 +207,21 @@ export async function loadModelCatalog(params?: {
             getAll: () => Array<DiscoveredModel>;
           }
         | Array<DiscoveredModel>;
+=======
+      const agentDir = resolveOpenClawAgentDir();
+      const { join } = await import("node:path");
+      const authStorage = piSdk.discoverAuthStorage(agentDir);
+      const registry = new (piSdk.ModelRegistry as unknown as {
+        new (
+          authStorage: unknown,
+          modelsFile: string,
+        ):
+          | Array<DiscoveredModel>
+          | {
+              getAll: () => Array<DiscoveredModel>;
+            };
+      })(authStorage, join(agentDir, "models.json"));
+>>>>>>> 4c5a2c3c6 (Agents: inject pi auth storage from runtime profiles)
       const entries = Array.isArray(registry) ? registry : registry.getAll();
       for (const entry of entries) {
         const id = String(entry?.id ?? "").trim();
