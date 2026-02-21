@@ -1,4 +1,20 @@
 import type { AnyAgentTool } from "./tools/common.js";
+<<<<<<< HEAD
+=======
+
+// Keep tool-policy browser-safe: do not import tools/common at runtime.
+function wrapOwnerOnlyToolExecution(tool: AnyAgentTool, senderIsOwner: boolean): AnyAgentTool {
+  if (tool.ownerOnly !== true || senderIsOwner || !tool.execute) {
+    return tool;
+  }
+  return {
+    ...tool,
+    execute: async () => {
+      throw new Error("Tool restricted to owner senders.");
+    },
+  };
+}
+>>>>>>> 5cc631cc9 (fix(agents): harden model-skip and tool-policy imports)
 
 export type ToolProfileId = "minimal" | "coding" | "messaging" | "full";
 
