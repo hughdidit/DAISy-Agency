@@ -1,6 +1,10 @@
 {
   "name": "openclaw",
+<<<<<<< HEAD
   "version": "2026.2.9",
+=======
+  "version": "2026.2.22",
+>>>>>>> bdfb97afa (chore: prep 2026.2.22 unreleased and publish new npm plugins)
   "description": "Multi-channel AI gateway with extensible messaging integrations",
   "keywords": [],
   "license": "MIT",

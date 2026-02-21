@@ -1,11 +1,15 @@
 {
   "name": "@openclaw/tlon",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.2.9",
 =======
   "version": "2026.2.13",
   "private": true,
 >>>>>>> 67251e97b (fix(ci): sync extension versions to root release (#15199))
+=======
+  "version": "2026.2.21",
+>>>>>>> bdfb97afa (chore: prep 2026.2.22 unreleased and publish new npm plugins)
   "description": "OpenClaw Tlon/Urbit channel plugin",
   "type": "module",
   "dependencies": {
