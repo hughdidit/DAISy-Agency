@@ -348,6 +348,7 @@ Status: beta.
 - Security/Browser: route browser URL navigation through one SSRF-guarded validation path for tab-open/CDP-target/Playwright navigation flows and block private/metadata destinations by default (configurable via `browser.ssrfPolicy`). This ships in the next npm release. Thanks @dorjoos for reporting.
 - Security/Exec: for the next npm release, harden safe-bin stdin-only enforcement by blocking output/recursive flags (`sort -o/--output`, grep recursion) and tightening default safe bins to remove `sort`/`grep`, preventing safe-bin allowlist bypass for file writes/recursive reads. Thanks @nedlir for reporting.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> cfe8457a0 (fix(security): harden safeBins stdin-only enforcement)
 - Cron/Webhooks: protect cron webhook POST delivery with SSRF-guarded outbound fetch (`fetchWithSsrFGuard`) to block private/metadata destinations before request dispatch. Thanks @Adam55A-code.
 <<<<<<< HEAD
@@ -358,6 +359,9 @@ Status: beta.
 =======
 =======
 >>>>>>> b0e55283d (chore: bump release metadata to 2026.2.19)
+=======
+- Security/Exec: block grep safe-bin positional operand bypass by setting grep positional budget to zero, so `-e/--regexp` cannot smuggle bare filename reads (for example `.env`) via ambiguous positionals; safe-bin grep patterns must come from `-e/--regexp`. This ships in the next npm release. Thanks @athuljayaram for reporting.
+>>>>>>> c6ee14d60 (fix(security): block grep safe-bin file-read bypass)
 - Security/Gateway/Agents: remove implicit admin scopes from agent tool gateway calls by classifying methods to least-privilege operator scopes, and enforce owner-only tooling (`cron`, `gateway`, `whatsapp_login`) through centralized tool-policy wrappers plus tool metadata to prevent non-owner DM privilege escalation. Ships in the next npm release. Thanks @Adam55A-code for reporting.
 - Security/Gateway: centralize gateway method-scope authorization and default non-CLI gateway callers to least-privilege method scopes, with explicit CLI scope handling, full core-handler scope classification coverage, and regression guards to prevent scope drift.
 >>>>>>> 3d7ad1cfc (fix(security): centralize owner-only tool gating and scope maps)
