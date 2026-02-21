@@ -1,11 +1,17 @@
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import type { SecretRef } from "../../config/types.secrets.js";
+>>>>>>> b50c4c2c4 (Gateway: add eager secrets runtime snapshot activation)
 
 export type ApiKeyCredential = {
   type: "api_key";
   provider: string;
   key?: string;
+  keyRef?: SecretRef;
   email?: string;
   /** Optional provider-specific metadata (e.g., account IDs, gateway IDs). */
   metadata?: Record<string, string>;
@@ -19,6 +25,7 @@ export type TokenCredential = {
   type: "token";
   provider: string;
   token: string;
+  tokenRef?: SecretRef;
   /** Optional expiry timestamp (ms since epoch). */
   expires?: number;
   email?: string;

@@ -255,8 +255,13 @@ export type GatewayConfigReloader = {
 export function startGatewayConfigReloader(opts: {
   initialConfig: MoltbotConfig;
   readSnapshot: () => Promise<ConfigFileSnapshot>;
+<<<<<<< HEAD
   onHotReload: (plan: GatewayReloadPlan, nextConfig: MoltbotConfig) => Promise<void>;
   onRestart: (plan: GatewayReloadPlan, nextConfig: MoltbotConfig) => void;
+=======
+  onHotReload: (plan: GatewayReloadPlan, nextConfig: OpenClawConfig) => Promise<void>;
+  onRestart: (plan: GatewayReloadPlan, nextConfig: OpenClawConfig) => void | Promise<void>;
+>>>>>>> b50c4c2c4 (Gateway: add eager secrets runtime snapshot activation)
   log: {
     info: (msg: string) => void;
     warn: (msg: string) => void;

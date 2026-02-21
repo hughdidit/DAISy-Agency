@@ -1401,6 +1401,7 @@ let configCache: {
   expiresAt: number;
   config: MoltbotConfig;
 } | null = null;
+let runtimeConfigSnapshot: OpenClawConfig | null = null;
 
 function resolveConfigCacheMs(env: NodeJS.ProcessEnv): number {
 <<<<<<< HEAD
@@ -1438,7 +1439,28 @@ export function clearConfigCache(): void {
   configCache = null;
 }
 
+<<<<<<< HEAD
 export function loadConfig(): MoltbotConfig {
+=======
+export function setRuntimeConfigSnapshot(config: OpenClawConfig): void {
+  runtimeConfigSnapshot = config;
+  clearConfigCache();
+}
+
+export function clearRuntimeConfigSnapshot(): void {
+  runtimeConfigSnapshot = null;
+  clearConfigCache();
+}
+
+export function getRuntimeConfigSnapshot(): OpenClawConfig | null {
+  return runtimeConfigSnapshot;
+}
+
+export function loadConfig(): OpenClawConfig {
+  if (runtimeConfigSnapshot) {
+    return runtimeConfigSnapshot;
+  }
+>>>>>>> b50c4c2c4 (Gateway: add eager secrets runtime snapshot activation)
   const io = createConfigIO();
   const configPath = io.configPath;
   const now = Date.now();
