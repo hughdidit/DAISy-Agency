@@ -29,7 +29,7 @@ Minimal config:
   </Card>
 </CardGroup>
 
-## Quick setup
+## Onboarding
 
 <Tabs>
   <Tab title="Socket Mode (default)">
@@ -848,7 +848,37 @@ openclaw pairing list slack
   </Accordion>
 </AccordionGroup>
 
+<<<<<<< HEAD
 ## Configuration reference pointers
+=======
+## Text streaming
+
+OpenClaw supports Slack native text streaming via the Agents and AI Apps API.
+
+By default, streaming is enabled. Disable it per account:
+
+```yaml
+channels:
+  slack:
+    streaming: false
+```
+
+### Requirements
+
+1. Enable **Agents and AI Apps** in your Slack app settings.
+2. Ensure the app has the `assistant:write` scope.
+3. A reply thread must be available for that message. Thread selection still follows `replyToMode`.
+
+### Behavior
+
+- First text chunk starts a stream (`chat.startStream`).
+- Later text chunks append to the same stream (`chat.appendStream`).
+- End of reply finalizes stream (`chat.stopStream`).
+- Media and non-text payloads fall back to normal delivery.
+- If streaming fails mid-reply, OpenClaw falls back to normal delivery for remaining payloads.
+
+## Configuration
+>>>>>>> 12d75ff7f (docs: continue channel onboarding/config naming cleanup (#22533))
 
 Primary reference:
 

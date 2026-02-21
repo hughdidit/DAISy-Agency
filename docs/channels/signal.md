@@ -17,6 +17,7 @@ Status: external CLI integration. Gateway talks to `signal-cli` over HTTP JSON-R
 - A phone number that can receive one verification SMS (for SMS registration path).
 - Browser access for Signal captcha (`signalcaptchas.org`) during registration.
 
+<<<<<<< HEAD
 ## Quick setup (beginner)
 <<<<<<< HEAD
 1) Use a **separate Signal number** for the bot (recommended).
@@ -25,6 +26,9 @@ Status: external CLI integration. Gateway talks to `signal-cli` over HTTP JSON-R
    - `signal-cli link -n "Moltbot"`
 4) Configure Moltbot and start the gateway.
 =======
+=======
+## Onboarding
+>>>>>>> 12d75ff7f (docs: continue channel onboarding/config naming cleanup (#22533))
 
 1. Use a **separate Signal number** for the bot (recommended).
 2. Install `signal-cli` (Java required if you use the JVM build).
