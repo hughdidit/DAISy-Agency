@@ -216,6 +216,7 @@ describe("security audit", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   it("warns when gateway.tools.allow re-enables dangerous HTTP /tools/invoke tools (loopback)", async () => {
     const cfg: OpenClawConfig = {
@@ -223,26 +224,44 @@ describe("security audit", () => {
         bind: "loopback",
         auth: { token: "secret" },
         tools: { allow: ["sessions_spawn"] },
+=======
+  it("scores dangerous gateway.tools.allow over HTTP by exposure", async () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      expectedSeverity: "warn" | "critical";
+    }> = [
+      {
+        name: "loopback bind",
+        cfg: {
+          gateway: {
+            bind: "loopback",
+            auth: { token: "secret" },
+            tools: { allow: ["sessions_spawn"] },
+          },
+        },
+        expectedSeverity: "warn",
+>>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
       },
-    };
-
-    const res = await audit(cfg, { env: {} });
-
-    expect(hasFinding(res, "gateway.tools_invoke_http.dangerous_allow", "warn")).toBe(true);
-  });
-
-  it("flags dangerous gateway.tools.allow over HTTP as critical when gateway binds beyond loopback", async () => {
-    const cfg: OpenClawConfig = {
-      gateway: {
-        bind: "lan",
-        auth: { token: "secret" },
-        tools: { allow: ["sessions_spawn", "gateway"] },
+      {
+        name: "non-loopback bind",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            auth: { token: "secret" },
+            tools: { allow: ["sessions_spawn", "gateway"] },
+          },
+        },
+        expectedSeverity: "critical",
       },
-    };
-
-    const res = await audit(cfg, { env: {} });
-
-    expect(hasFinding(res, "gateway.tools_invoke_http.dangerous_allow", "critical")).toBe(true);
+    ];
+    for (const testCase of cases) {
+      const res = await audit(testCase.cfg, { env: {} });
+      expect(
+        hasFinding(res, "gateway.tools_invoke_http.dangerous_allow", testCase.expectedSeverity),
+        testCase.name,
+      ).toBe(true);
+    }
   });
 
 >>>>>>> 825cc7079 (test: dedupe gateway auth and sessions patch coverage (#20087))
@@ -566,6 +585,7 @@ describe("security audit", () => {
     expect(res.findings.some((f) => f.checkId === "fs.config.perms_group_readable")).toBe(false);
   });
 
+<<<<<<< HEAD
 >>>>>>> 8c1518f0f (fix(sandbox): use one-time noVNC observer tokens)
   it("warns when small models are paired with web/browser tools", async () => {
     const cfg: MoltbotConfig = {
@@ -574,21 +594,49 @@ describe("security audit", () => {
         web: {
           search: { enabled: true },
           fetch: { enabled: true },
+=======
+  it("scores small-model risk by tool/sandbox exposure", async () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      expectedSeverity: "info" | "critical";
+      detailIncludes: string[];
+    }> = [
+      {
+        name: "small model with web and browser enabled",
+        cfg: {
+          agents: { defaults: { model: { primary: "ollama/mistral-8b" } } },
+          tools: { web: { search: { enabled: true }, fetch: { enabled: true } } },
+          browser: { enabled: true },
+>>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
         },
+        expectedSeverity: "critical",
+        detailIncludes: ["mistral-8b", "web_search", "web_fetch", "browser"],
       },
-      browser: { enabled: true },
-    };
-
-    const res = await audit(cfg);
-
-    const finding = res.findings.find((f) => f.checkId === "models.small_params");
-    expect(finding?.severity).toBe("critical");
-    expect(finding?.detail).toContain("mistral-8b");
-    expect(finding?.detail).toContain("web_search");
-    expect(finding?.detail).toContain("web_fetch");
-    expect(finding?.detail).toContain("browser");
+      {
+        name: "small model with sandbox all and web/browser disabled",
+        cfg: {
+          agents: {
+            defaults: { model: { primary: "ollama/mistral-8b" }, sandbox: { mode: "all" } },
+          },
+          tools: { web: { search: { enabled: false }, fetch: { enabled: false } } },
+          browser: { enabled: false },
+        },
+        expectedSeverity: "info",
+        detailIncludes: ["mistral-8b", "sandbox=all"],
+      },
+    ];
+    for (const testCase of cases) {
+      const res = await audit(testCase.cfg);
+      const finding = res.findings.find((f) => f.checkId === "models.small_params");
+      expect(finding?.severity, testCase.name).toBe(testCase.expectedSeverity);
+      for (const text of testCase.detailIncludes) {
+        expect(finding?.detail, `${testCase.name}:${text}`).toContain(text);
+      }
+    }
   });
 
+<<<<<<< HEAD
   it("treats small models as safe when sandbox is on and web tools are disabled", async () => {
     const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "ollama/mistral-8b" }, sandbox: { mode: "all" } } },
@@ -618,39 +666,50 @@ describe("security audit", () => {
           sandbox: {
             mode: "off",
             docker: { image: "ghcr.io/example/sandbox:latest" },
+=======
+  it("checks sandbox docker mode-off findings with/without agent override", async () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      expectedPresent: boolean;
+    }> = [
+      {
+        name: "mode off with docker config only",
+        cfg: {
+          agents: {
+            defaults: {
+              sandbox: {
+                mode: "off",
+                docker: { image: "ghcr.io/example/sandbox:latest" },
+              },
+            },
+>>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
           },
         },
+        expectedPresent: true,
       },
-    };
-
-    const res = await audit(cfg);
-
-    expect(res.findings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          checkId: "sandbox.docker_config_mode_off",
-          severity: "warn",
-        }),
-      ]),
-    );
-  });
-
-  it("does not flag global sandbox docker config when an agent enables sandbox mode", async () => {
-    const cfg: OpenClawConfig = {
-      agents: {
-        defaults: {
-          sandbox: {
-            mode: "off",
-            docker: { image: "ghcr.io/example/sandbox:latest" },
+      {
+        name: "agent enables sandbox mode",
+        cfg: {
+          agents: {
+            defaults: {
+              sandbox: {
+                mode: "off",
+                docker: { image: "ghcr.io/example/sandbox:latest" },
+              },
+            },
+            list: [{ id: "ops", sandbox: { mode: "all" } }],
           },
         },
-        list: [{ id: "ops", sandbox: { mode: "all" } }],
+        expectedPresent: false,
       },
-    };
-
-    const res = await audit(cfg);
-
-    expect(hasFinding(res, "sandbox.docker_config_mode_off")).toBe(false);
+    ];
+    for (const testCase of cases) {
+      const res = await audit(testCase.cfg);
+      expect(hasFinding(res, "sandbox.docker_config_mode_off"), testCase.name).toBe(
+        testCase.expectedPresent,
+      );
+    }
   });
 
   it("flags dangerous sandbox docker config (binds/network/seccomp/apparmor)", async () => {
@@ -691,6 +750,63 @@ describe("security audit", () => {
     );
   });
 
+<<<<<<< HEAD
+=======
+  it("checks sandbox browser bridge-network restrictions", async () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      expectedPresent: boolean;
+      expectedSeverity?: "warn";
+      detailIncludes?: string;
+    }> = [
+      {
+        name: "bridge without cdpSourceRange",
+        cfg: {
+          agents: {
+            defaults: {
+              sandbox: {
+                mode: "all",
+                browser: { enabled: true, network: "bridge" },
+              },
+            },
+          },
+        },
+        expectedPresent: true,
+        expectedSeverity: "warn",
+        detailIncludes: "agents.defaults.sandbox.browser",
+      },
+      {
+        name: "dedicated default network",
+        cfg: {
+          agents: {
+            defaults: {
+              sandbox: {
+                mode: "all",
+                browser: { enabled: true },
+              },
+            },
+          },
+        },
+        expectedPresent: false,
+      },
+    ];
+    for (const testCase of cases) {
+      const res = await audit(testCase.cfg);
+      const finding = res.findings.find(
+        (f) => f.checkId === "sandbox.browser_cdp_bridge_unrestricted",
+      );
+      expect(Boolean(finding), testCase.name).toBe(testCase.expectedPresent);
+      if (testCase.expectedPresent) {
+        expect(finding?.severity, testCase.name).toBe(testCase.expectedSeverity);
+        if (testCase.detailIncludes) {
+          expect(finding?.detail, testCase.name).toContain(testCase.detailIncludes);
+        }
+      }
+    }
+  });
+
+>>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
   it("flags ineffective gateway.nodes.denyCommands entries", async () => {
     const cfg: OpenClawConfig = {
       gateway: {
@@ -886,109 +1002,91 @@ describe("security audit", () => {
     expect(finding?.detail).toContain("tools.exec.applyPatch.workspaceOnly=false");
   });
 
-  it("flags trusted-proxy auth mode without generic shared-secret findings", async () => {
-    const cfg: OpenClawConfig = {
-      gateway: {
-        bind: "lan",
-        trustedProxies: ["10.0.0.1"],
-        auth: {
-          mode: "trusted-proxy",
-          trustedProxy: {
-            userHeader: "x-forwarded-user",
+  it("evaluates trusted-proxy auth guardrails", async () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      expectedCheckId: string;
+      expectedSeverity: "warn" | "critical";
+      suppressesGenericSharedSecretFindings?: boolean;
+    }> = [
+      {
+        name: "trusted-proxy base mode",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            trustedProxies: ["10.0.0.1"],
+            auth: {
+              mode: "trusted-proxy",
+              trustedProxy: { userHeader: "x-forwarded-user" },
+            },
           },
         },
+        expectedCheckId: "gateway.trusted_proxy_auth",
+        expectedSeverity: "critical",
+        suppressesGenericSharedSecretFindings: true,
       },
-    };
-
-    const res = await audit(cfg);
-
-    expect(res.findings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          checkId: "gateway.trusted_proxy_auth",
-          severity: "critical",
-        }),
-      ]),
-    );
-    expect(hasFinding(res, "gateway.bind_no_auth")).toBe(false);
-    expect(hasFinding(res, "gateway.auth_no_rate_limit")).toBe(false);
-  });
-
-  it("flags trusted-proxy auth without trustedProxies configured", async () => {
-    const cfg: OpenClawConfig = {
-      gateway: {
-        bind: "lan",
-        trustedProxies: [],
-        auth: {
-          mode: "trusted-proxy",
-          trustedProxy: {
-            userHeader: "x-forwarded-user",
+      {
+        name: "missing trusted proxies",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            trustedProxies: [],
+            auth: {
+              mode: "trusted-proxy",
+              trustedProxy: { userHeader: "x-forwarded-user" },
+            },
           },
         },
+        expectedCheckId: "gateway.trusted_proxy_no_proxies",
+        expectedSeverity: "critical",
       },
-    };
-
-    const res = await audit(cfg);
-
-    expect(res.findings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          checkId: "gateway.trusted_proxy_no_proxies",
-          severity: "critical",
-        }),
-      ]),
-    );
-  });
-
-  it("flags trusted-proxy auth without userHeader configured", async () => {
-    const cfg: OpenClawConfig = {
-      gateway: {
-        bind: "lan",
-        trustedProxies: ["10.0.0.1"],
-        auth: {
-          mode: "trusted-proxy",
-          trustedProxy: {} as never,
-        },
-      },
-    };
-
-    const res = await audit(cfg);
-
-    expect(res.findings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          checkId: "gateway.trusted_proxy_no_user_header",
-          severity: "critical",
-        }),
-      ]),
-    );
-  });
-
-  it("warns when trusted-proxy auth allows all users", async () => {
-    const cfg: OpenClawConfig = {
-      gateway: {
-        bind: "lan",
-        trustedProxies: ["10.0.0.1"],
-        auth: {
-          mode: "trusted-proxy",
-          trustedProxy: {
-            userHeader: "x-forwarded-user",
-            allowUsers: [],
+      {
+        name: "missing user header",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            trustedProxies: ["10.0.0.1"],
+            auth: {
+              mode: "trusted-proxy",
+              trustedProxy: {} as never,
+            },
           },
         },
+        expectedCheckId: "gateway.trusted_proxy_no_user_header",
+        expectedSeverity: "critical",
       },
-    };
+      {
+        name: "missing user allowlist",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            trustedProxies: ["10.0.0.1"],
+            auth: {
+              mode: "trusted-proxy",
+              trustedProxy: {
+                userHeader: "x-forwarded-user",
+                allowUsers: [],
+              },
+            },
+          },
+        },
+        expectedCheckId: "gateway.trusted_proxy_no_allowlist",
+        expectedSeverity: "warn",
+      },
+    ];
 
-    const res = await audit(cfg);
-
-    expect(res.findings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          checkId: "gateway.trusted_proxy_no_allowlist",
-          severity: "warn",
-        }),
-      ]),
-    );
+    for (const testCase of cases) {
+      const res = await audit(testCase.cfg);
+      expect(
+        hasFinding(res, testCase.expectedCheckId, testCase.expectedSeverity),
+        testCase.name,
+      ).toBe(true);
+      if (testCase.suppressesGenericSharedSecretFindings) {
+        expect(hasFinding(res, "gateway.bind_no_auth"), testCase.name).toBe(false);
+        expect(hasFinding(res, "gateway.auth_no_rate_limit"), testCase.name).toBe(false);
+      }
+    }
   });
 
   it("warns when multiple DM senders share the main session", async () => {
@@ -1461,6 +1559,7 @@ describe("security audit", () => {
     });
   });
 
+<<<<<<< HEAD
   it("adds a warning when deep probe fails", async () => {
     const cfg: MoltbotConfig = { gateway: { mode: "local" } };
 
@@ -1495,18 +1594,52 @@ describe("security audit", () => {
       deepTimeoutMs: 50,
       probeGatewayFn: async () => {
         throw new Error("probe boom");
+=======
+  it("adds probe_failed warnings for deep probe failure modes", async () => {
+    const cfg: OpenClawConfig = { gateway: { mode: "local" } };
+    const cases: Array<{
+      name: string;
+      probeGatewayFn: NonNullable<SecurityAuditOptions["probeGatewayFn"]>;
+      assertDeep?: (res: SecurityAuditReport) => void;
+    }> = [
+      {
+        name: "probe returns failed result",
+        probeGatewayFn: async () => ({
+          ok: false,
+          url: "ws://127.0.0.1:18789",
+          connectLatencyMs: null,
+          error: "connect failed",
+          close: null,
+          health: null,
+          status: null,
+          presence: null,
+          configSnapshot: null,
+        }),
+>>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
       },
-    });
-
-    expect(res.deep?.gateway?.ok).toBe(false);
-    expect(res.deep?.gateway?.error).toContain("probe boom");
-    expect(res.findings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ checkId: "gateway.probe_failed", severity: "warn" }),
-      ]),
-    );
+      {
+        name: "probe throws",
+        probeGatewayFn: async () => {
+          throw new Error("probe boom");
+        },
+        assertDeep: (res) => {
+          expect(res.deep?.gateway?.ok).toBe(false);
+          expect(res.deep?.gateway?.error).toContain("probe boom");
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const res = await audit(cfg, {
+        deep: true,
+        deepTimeoutMs: 50,
+        probeGatewayFn: testCase.probeGatewayFn,
+      });
+      testCase.assertDeep?.(res);
+      expect(hasFinding(res, "gateway.probe_failed", "warn"), testCase.name).toBe(true);
+    }
   });
 
+<<<<<<< HEAD
   it("warns on legacy model configuration", async () => {
     const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "openai/gpt-3.5-turbo" } } },
@@ -1546,6 +1679,43 @@ describe("security audit", () => {
     // Should NOT contain weak_tier warning for opus-45
     const weakTierFinding = res.findings.find((f) => f.checkId === "models.weak_tier");
     expect(weakTierFinding).toBeUndefined();
+=======
+  it("classifies legacy and weak-tier model identifiers", async () => {
+    const cases: Array<{
+      name: string;
+      model: string;
+      expectedFindings?: Array<{ checkId: string; severity: "warn" }>;
+      expectedAbsentCheckId?: string;
+    }> = [
+      {
+        name: "legacy model",
+        model: "openai/gpt-3.5-turbo",
+        expectedFindings: [{ checkId: "models.legacy", severity: "warn" }],
+      },
+      {
+        name: "weak-tier model",
+        model: "anthropic/claude-haiku-4-5",
+        expectedFindings: [{ checkId: "models.weak_tier", severity: "warn" }],
+      },
+      {
+        // Venice uses "claude-opus-45" format (no dash between 4 and 5).
+        name: "venice opus-45",
+        model: "venice/claude-opus-45",
+        expectedAbsentCheckId: "models.weak_tier",
+      },
+    ];
+    for (const testCase of cases) {
+      const res = await audit({
+        agents: { defaults: { model: { primary: testCase.model } } },
+      });
+      for (const expected of testCase.expectedFindings ?? []) {
+        expect(hasFinding(res, expected.checkId, expected.severity), testCase.name).toBe(true);
+      }
+      if (testCase.expectedAbsentCheckId) {
+        expect(hasFinding(res, testCase.expectedAbsentCheckId), testCase.name).toBe(false);
+      }
+    }
+>>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
   });
 
   it("warns when hooks token looks short", async () => {
@@ -1607,29 +1777,44 @@ describe("security audit", () => {
     );
   });
 
-  it("flags hooks request sessionKey override when enabled", async () => {
-    const cfg: OpenClawConfig = {
-      hooks: {
-        enabled: true,
-        token: "shared-gateway-token-1234567890",
-        defaultSessionKey: "hook:ingress",
-        allowRequestSessionKey: true,
+  it("scores hooks request sessionKey override by gateway exposure", async () => {
+    const baseHooks = {
+      enabled: true,
+      token: "shared-gateway-token-1234567890",
+      defaultSessionKey: "hook:ingress",
+      allowRequestSessionKey: true,
+    } satisfies NonNullable<OpenClawConfig["hooks"]>;
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      expectedSeverity: "warn" | "critical";
+      expectsPrefixesMissing?: boolean;
+    }> = [
+      {
+        name: "local exposure",
+        cfg: { hooks: baseHooks },
+        expectedSeverity: "warn",
+        expectsPrefixesMissing: true,
       },
-    };
-
-    const res = await audit(cfg);
-
-    expect(res.findings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ checkId: "hooks.request_session_key_enabled", severity: "warn" }),
-        expect.objectContaining({
-          checkId: "hooks.request_session_key_prefixes_missing",
-          severity: "warn",
-        }),
-      ]),
-    );
+      {
+        name: "remote exposure",
+        cfg: { gateway: { bind: "lan" }, hooks: baseHooks },
+        expectedSeverity: "critical",
+      },
+    ];
+    for (const testCase of cases) {
+      const res = await audit(testCase.cfg);
+      expect(
+        hasFinding(res, "hooks.request_session_key_enabled", testCase.expectedSeverity),
+        testCase.name,
+      ).toBe(true);
+      if (testCase.expectsPrefixesMissing) {
+        expect(hasFinding(res, "hooks.request_session_key_prefixes_missing", "warn")).toBe(true);
+      }
+    }
   });
 
+<<<<<<< HEAD
   it("escalates hooks request sessionKey override when gateway is remotely exposed", async () => {
     const cfg: OpenClawConfig = {
       gateway: { bind: "lan" },
@@ -1651,6 +1836,82 @@ describe("security audit", () => {
         }),
       ]),
     );
+=======
+  it("scores gateway HTTP no-auth findings by exposure", async () => {
+    const cases: Array<{
+      name: string;
+      cfg: OpenClawConfig;
+      expectedSeverity: "warn" | "critical";
+      detailIncludes?: string[];
+    }> = [
+      {
+        name: "loopback no-auth",
+        cfg: {
+          gateway: {
+            bind: "loopback",
+            auth: { mode: "none" },
+            http: { endpoints: { chatCompletions: { enabled: true } } },
+          },
+        },
+        expectedSeverity: "warn",
+        detailIncludes: ["/tools/invoke", "/v1/chat/completions"],
+      },
+      {
+        name: "remote no-auth",
+        cfg: {
+          gateway: {
+            bind: "lan",
+            auth: { mode: "none" },
+            http: { endpoints: { responses: { enabled: true } } },
+          },
+        },
+        expectedSeverity: "critical",
+      },
+    ];
+
+    for (const testCase of cases) {
+      const res = await runSecurityAudit({
+        config: testCase.cfg,
+        env: {},
+        includeFilesystem: false,
+        includeChannelSecurity: false,
+      });
+      expect(
+        hasFinding(res, "gateway.http.no_auth", testCase.expectedSeverity),
+        testCase.name,
+      ).toBe(true);
+      if (testCase.detailIncludes) {
+        const finding = res.findings.find((entry) => entry.checkId === "gateway.http.no_auth");
+        for (const text of testCase.detailIncludes) {
+          expect(finding?.detail, `${testCase.name}:${text}`).toContain(text);
+        }
+      }
+    }
+  });
+
+  it("does not report gateway.http.no_auth when auth mode is token", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        bind: "loopback",
+        auth: { mode: "token", token: "secret" },
+        http: {
+          endpoints: {
+            chatCompletions: { enabled: true },
+            responses: { enabled: true },
+          },
+        },
+      },
+    };
+
+    const res = await runSecurityAudit({
+      config: cfg,
+      env: {},
+      includeFilesystem: false,
+      includeChannelSecurity: false,
+    });
+
+    expect(res.findings.some((entry) => entry.checkId === "gateway.http.no_auth")).toBe(false);
+>>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
   });
 
   it("reports HTTP API session-key override surfaces when enabled", async () => {
@@ -2137,6 +2398,7 @@ description: test skill
       };
     };
 
+<<<<<<< HEAD
     it("uses local auth when gateway.mode is local", async () => {
       const { probeGatewayFn, getAuth } = makeProbeCapture();
       const cfg: OpenClawConfig = {
@@ -2205,15 +2467,87 @@ description: test skill
           remote: {
             url: "ws://remote.example.com:18789",
             token: "remote-token-xyz789",
-          },
+=======
+    const setProbeEnv = (env?: { token?: string; password?: string }) => {
+      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+      if (env?.token !== undefined) {
+        process.env.OPENCLAW_GATEWAY_TOKEN = env.token;
+      }
+      if (env?.password !== undefined) {
+        process.env.OPENCLAW_GATEWAY_PASSWORD = env.password;
+      }
+    };
+
+    it("applies token precedence across local/remote gateway modes", async () => {
+      const cases: Array<{
+        name: string;
+        cfg: OpenClawConfig;
+        env?: { token?: string };
+        expectedToken: string;
+      }> = [
+        {
+          name: "uses local auth when gateway.mode is local",
+          cfg: { gateway: { mode: "local", auth: { token: "local-token-abc123" } } },
+          expectedToken: "local-token-abc123",
         },
-      };
+        {
+          name: "prefers env token over local config token",
+          cfg: { gateway: { mode: "local", auth: { token: "local-token" } } },
+          env: { token: "env-token" },
+          expectedToken: "env-token",
+        },
+        {
+          name: "uses local auth when gateway.mode is undefined (default)",
+          cfg: { gateway: { auth: { token: "default-local-token" } } },
+          expectedToken: "default-local-token",
+        },
+        {
+          name: "uses remote auth when gateway.mode is remote with URL",
+          cfg: {
+            gateway: {
+              mode: "remote",
+              auth: { token: "local-token-should-not-use" },
+              remote: { url: "wss://remote.example.com:18789", token: "remote-token-xyz789" },
+            },
+>>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
+          },
+          expectedToken: "remote-token-xyz789",
+        },
+        {
+          name: "ignores env token when gateway.mode is remote",
+          cfg: {
+            gateway: {
+              mode: "remote",
+              auth: { token: "local-token-should-not-use" },
+              remote: { url: "wss://remote.example.com:18789", token: "remote-token" },
+            },
+          },
+          env: { token: "env-token" },
+          expectedToken: "remote-token",
+        },
+        {
+          name: "falls back to local auth when gateway.mode is remote but URL is missing",
+          cfg: {
+            gateway: {
+              mode: "remote",
+              auth: { token: "fallback-local-token" },
+              remote: { token: "remote-token-should-not-use" },
+            },
+          },
+          expectedToken: "fallback-local-token",
+        },
+      ];
 
-      await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
-
-      expect(getAuth()?.token).toBe("remote-token-xyz789");
+      for (const testCase of cases) {
+        setProbeEnv(testCase.env);
+        const { probeGatewayFn, getAuth } = makeProbeCapture();
+        await audit(testCase.cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
+        expect(getAuth()?.token, testCase.name).toBe(testCase.expectedToken);
+      }
     });
 
+<<<<<<< HEAD
     it("ignores env token when gateway.mode is remote", async () => {
 <<<<<<< HEAD
       process.env.CLAWDBOT_GATEWAY_TOKEN = "env-token";
@@ -2230,8 +2564,26 @@ description: test skill
           remote: {
             url: "ws://remote.example.com:18789",
             token: "remote-token",
+=======
+    it("applies password precedence for remote gateways", async () => {
+      const cases: Array<{
+        name: string;
+        cfg: OpenClawConfig;
+        env?: { password?: string };
+        expectedPassword: string;
+      }> = [
+        {
+          name: "uses remote password when env is unset",
+          cfg: {
+            gateway: {
+              mode: "remote",
+              remote: { url: "wss://remote.example.com:18789", password: "remote-pass" },
+            },
+>>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
           },
+          expectedPassword: "remote-pass",
         },
+<<<<<<< HEAD
       };
 
       await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
@@ -2252,10 +2604,22 @@ description: test skill
           remote: {
             url: "ws://remote.example.com:18789",
             password: "remote-pass",
+=======
+        {
+          name: "prefers env password over remote password",
+          cfg: {
+            gateway: {
+              mode: "remote",
+              remote: { url: "wss://remote.example.com:18789", password: "remote-pass" },
+            },
+>>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
           },
+          env: { password: "env-pass" },
+          expectedPassword: "env-pass",
         },
-      };
+      ];
 
+<<<<<<< HEAD
       await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
 
       expect(getAuth()?.password).toBe("remote-pass");
@@ -2305,6 +2669,14 @@ description: test skill
       await audit(cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
 
       expect(getAuth()?.token).toBe("fallback-local-token");
+=======
+      for (const testCase of cases) {
+        setProbeEnv(testCase.env);
+        const { probeGatewayFn, getAuth } = makeProbeCapture();
+        await audit(testCase.cfg, { deep: true, deepTimeoutMs: 50, probeGatewayFn });
+        expect(getAuth()?.password, testCase.name).toBe(testCase.expectedPassword);
+      }
+>>>>>>> 0608587bc (test: streamline config, audit, and qmd coverage)
     });
   });
 });
