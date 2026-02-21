@@ -1,4 +1,9 @@
 import { formatRawAssistantErrorForUi } from "../agents/pi-embedded-helpers.js";
+<<<<<<< HEAD
+=======
+import { stripInboundMetadataBlocks } from "../shared/chat-envelope.js";
+import { stripAnsi } from "../terminal/ansi.js";
+>>>>>>> d94d21f9b (test: isolate local media regression fixtures to allowed roots (#22369))
 import { formatTokenCount } from "../utils/usage-format.js";
 
 export function resolveFinalAssistantText(params: {
@@ -158,6 +163,9 @@ export function extractTextFromMessage(
   const record = message as Record<string, unknown>;
   const text = extractTextBlocks(record.content, opts);
   if (text) {
+    if (record.role === "user") {
+      return stripInboundMetadataBlocks(text);
+    }
     return text;
   }
 
