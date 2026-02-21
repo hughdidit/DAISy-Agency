@@ -300,7 +300,7 @@ enum ExecApprovalsStore {
     }
 
     static func ensureFile() -> ExecApprovalsFile {
-        var file = self.loadFile()
+        var file = self.normalizeIncoming(self.loadFile())
         if file.socket == nil { file.socket = ExecApprovalsSocketConfig(path: nil, token: nil) }
         let path = file.socket?.path?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if path.isEmpty {
@@ -309,6 +309,18 @@ enum ExecApprovalsStore {
         let token = file.socket?.token?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if token.isEmpty {
             file.socket?.token = self.generateToken()
+        }
+        if var agents = file.agents {
+            for (key, entry) in agents {
+                guard let allowlist = entry.allowlist else { continue }
+                let migrated = allowlist.map { self.migrateLegacyPattern($0) }
+                if migrated != allowlist {
+                    var next = entry
+                    next.allowlist = migrated
+                    agents[key] = next
+                }
+            }
+            file.agents = agents.isEmpty ? nil : agents
         }
         if file.agents == nil { file.agents = [:] }
         self.saveFile(file)
@@ -394,7 +406,7 @@ enum ExecApprovalsStore {
 
     static func addAllowlistEntry(agentId: String?, pattern: String) {
         let trimmed = pattern.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard !trimmed.isEmpty, self.isPathPattern(trimmed) else { return }
         self.updateFile { file in
             let key = self.agentKey(agentId)
             var agents = file.agents ?? [:]
@@ -447,7 +459,7 @@ enum ExecApprovalsStore {
                         lastUsedCommand: item.lastUsedCommand,
                         lastResolvedPath: item.lastResolvedPath)
                 }
-                .filter { !$0.pattern.isEmpty }
+                .filter { !$0.pattern.isEmpty && self.isPathPattern($0.pattern) }
             entry.allowlist = cleaned
             agents[key] = entry
             file.agents = agents
@@ -515,6 +527,37 @@ enum ExecApprovalsStore {
     private static func normalizedPattern(_ pattern: String?) -> String? {
         let trimmed = pattern?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return trimmed.isEmpty ? nil : trimmed.lowercased()
+    }
+
+    private static func isPathPattern(_ pattern: String) -> Bool {
+        pattern.contains("/") || pattern.contains("~") || pattern.contains("\\")
+    }
+
+    private static func migrateLegacyPattern(_ entry: ExecAllowlistEntry) -> ExecAllowlistEntry {
+        let trimmedPattern = entry.pattern.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedResolved = entry.lastResolvedPath?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !trimmedPattern.isEmpty else {
+            return ExecAllowlistEntry(
+                id: entry.id,
+                pattern: trimmedPattern,
+                lastUsedAt: entry.lastUsedAt,
+                lastUsedCommand: entry.lastUsedCommand,
+                lastResolvedPath: entry.lastResolvedPath)
+        }
+        if self.isPathPattern(trimmedPattern) || trimmedResolved.isEmpty || !self.isPathPattern(trimmedResolved) {
+            return ExecAllowlistEntry(
+                id: entry.id,
+                pattern: trimmedPattern,
+                lastUsedAt: entry.lastUsedAt,
+                lastUsedCommand: entry.lastUsedCommand,
+                lastResolvedPath: entry.lastResolvedPath)
+        }
+        return ExecAllowlistEntry(
+            id: entry.id,
+            pattern: trimmedResolved,
+            lastUsedAt: entry.lastUsedAt,
+            lastUsedCommand: entry.lastUsedCommand,
+            lastResolvedPath: entry.lastResolvedPath)
     }
 
     private static func mergeAgents(
