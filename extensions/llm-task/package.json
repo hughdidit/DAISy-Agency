@@ -57,12 +57,15 @@
 >>>>>>> 85cd55e22 (chore: bump to 2026.2.1)
   "type": "module",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "description": "OpenClaw JSON-only LLM task plugin",
 =======
   "devDependencies": {
     "openclaw": "workspace:*"
   },
 >>>>>>> aa91f6e70 (chore: Add `openclaw` to `devDependencies` for all extensions so that types resolve.)
+=======
+>>>>>>> 187f4ea41 (deadcode: remove unused extension dev dependencies (#22495))
   "openclaw": {
     "extensions": [
       "./index.ts"
