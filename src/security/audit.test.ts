@@ -10,6 +10,7 @@ import type { ChannelPlugin } from "../channels/plugins/types.js";
 >>>>>>> bc88e58fc (security: add skill/plugin code safety scanner (#9806))
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 import { runSecurityAudit } from "./audit.js";
 import { discordPlugin } from "../../extensions/discord/src/channel.js";
@@ -19,6 +20,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 =======
+=======
+import { captureEnv, withEnvAsync } from "../test-utils/env.js";
+import { collectPluginsCodeSafetyFindings } from "./audit-extra.js";
+>>>>>>> c240104dc (refactor(test): snapshot gateway auth env in security audit tests)
 import type { SecurityAuditOptions, SecurityAuditReport } from "./audit.js";
 import { collectPluginsCodeSafetyFindings } from "./audit-extra.js";
 import { runSecurityAudit } from "./audit.js";
@@ -1988,25 +1993,16 @@ description: test skill
   });
 
   describe("maybeProbeGateway auth selection", () => {
-    const originalEnvToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    const originalEnvPassword = process.env.OPENCLAW_GATEWAY_PASSWORD;
+    let envSnapshot: ReturnType<typeof captureEnv>;
 
     beforeEach(() => {
+      envSnapshot = captureEnv(["OPENCLAW_GATEWAY_TOKEN", "OPENCLAW_GATEWAY_PASSWORD"]);
       delete process.env.OPENCLAW_GATEWAY_TOKEN;
       delete process.env.OPENCLAW_GATEWAY_PASSWORD;
     });
 
     afterEach(() => {
-      if (originalEnvToken == null) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-      } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = originalEnvToken;
-      }
-      if (originalEnvPassword == null) {
-        delete process.env.OPENCLAW_GATEWAY_PASSWORD;
-      } else {
-        process.env.OPENCLAW_GATEWAY_PASSWORD = originalEnvPassword;
-      }
+      envSnapshot.restore();
     });
 
     it("uses local auth when gateway.mode is local", async () => {
