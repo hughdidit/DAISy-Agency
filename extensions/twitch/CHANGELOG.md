@@ -1,5 +1,6 @@
 # Changelog
 
+<<<<<<< HEAD
 ## 2026.2.13
 
 ### Changes
@@ -54,6 +55,8 @@
 
 - Version alignment with core OpenClaw release numbers.
 
+=======
+>>>>>>> 95c14d9b5 (docs: prune low-signal changelog entries)
 ## 2026.1.23
 
 ### Features
