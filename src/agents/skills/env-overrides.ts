@@ -104,9 +104,10 @@ function applySkillConfigEnvOverrides(params: {
     }
   }
 
-  if (normalizedPrimaryEnv && skillConfig.apiKey && !process.env[normalizedPrimaryEnv]) {
+  const resolvedApiKey = typeof skillConfig.apiKey === "string" ? skillConfig.apiKey.trim() : "";
+  if (normalizedPrimaryEnv && resolvedApiKey && !process.env[normalizedPrimaryEnv]) {
     if (!pendingOverrides[normalizedPrimaryEnv]) {
-      pendingOverrides[normalizedPrimaryEnv] = skillConfig.apiKey;
+      pendingOverrides[normalizedPrimaryEnv] = resolvedApiKey;
     }
   }
 
