@@ -11,6 +11,7 @@ vi.mock("../plugins/tools.js", () => ({
 }));
 =======
 import { createHostSandboxFsBridge } from "./test-helpers/host-sandbox-fs-bridge.js";
+import { expectReadWriteEditTools, getTextContent } from "./test-helpers/pi-tools-fs-helpers.js";
 import { createPiToolsSandboxContext } from "./test-helpers/pi-tools-sandbox-context.js";
 >>>>>>> b96419fab (test(agents): share pi-tools sandbox fixture context)
 
@@ -25,11 +26,6 @@ async function withTempDir<T>(prefix: string, fn: (dir: string) => Promise<T>) {
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
   }
-}
-
-function getTextContent(result?: { content?: Array<{ type: string; text?: string }> }) {
-  const textBlock = result?.content?.find((block) => block.type === "text");
-  return textBlock?.text ?? "";
 }
 
 describe("workspace path resolution", () => {
@@ -189,13 +185,7 @@ describe("sandboxed workspace paths", () => {
         await fs.writeFile(path.join(workspaceDir, testFile), "workspace read", "utf8");
 
         const tools = createOpenClawCodingTools({ workspaceDir, sandbox });
-        const readTool = tools.find((tool) => tool.name === "read");
-        const writeTool = tools.find((tool) => tool.name === "write");
-        const editTool = tools.find((tool) => tool.name === "edit");
-
-        expect(readTool).toBeDefined();
-        expect(writeTool).toBeDefined();
-        expect(editTool).toBeDefined();
+        const { readTool, writeTool, editTool } = expectReadWriteEditTools(tools);
 
         const result = await readTool?.execute("sbx-read", { path: testFile });
         expect(getTextContent(result)).toContain("sandbox read");
