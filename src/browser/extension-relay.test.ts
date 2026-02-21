@@ -13,7 +13,11 @@ import { afterEach, describe, expect, it } from "vitest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 >>>>>>> 7e54b6c96 (fix(browser): unify extension relay auth on gateway token)
 import WebSocket from "ws";
+<<<<<<< HEAD
 
+=======
+import { captureEnv } from "../test-utils/env.js";
+>>>>>>> e588e3cc2 (refactor(test): standardize env helpers across suites)
 import {
   ensureChromeExtensionRelayServer,
   stopChromeExtensionRelayServer,
@@ -125,10 +129,10 @@ async function waitForListMatch<T>(
 describe("chrome extension relay server", () => {
   const TEST_GATEWAY_TOKEN = "test-gateway-token";
   let cdpUrl = "";
-  let previousGatewayToken: string | undefined;
+  let envSnapshot: ReturnType<typeof captureEnv>;
 
   beforeEach(() => {
-    previousGatewayToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+    envSnapshot = captureEnv(["OPENCLAW_GATEWAY_TOKEN"]);
     process.env.OPENCLAW_GATEWAY_TOKEN = TEST_GATEWAY_TOKEN;
   });
 
@@ -137,11 +141,7 @@ describe("chrome extension relay server", () => {
       await stopChromeExtensionRelayServer({ cdpUrl }).catch(() => {});
       cdpUrl = "";
     }
-    if (previousGatewayToken === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
-    } else {
-      process.env.OPENCLAW_GATEWAY_TOKEN = previousGatewayToken;
-    }
+    envSnapshot.restore();
   });
 
   it("advertises CDP WS only when extension is connected", async () => {
@@ -417,8 +417,6 @@ describe("chrome extension relay server", () => {
       fakeRelay.once("error", reject);
     });
 
-    const prev = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "test-gateway-token";
     try {
       cdpUrl = `http://127.0.0.1:${port}`;
       const relay = await ensureChromeExtensionRelayServer({ cdpUrl });
@@ -428,11 +426,6 @@ describe("chrome extension relay server", () => {
       };
       expect(status.connected).toBe(false);
     } finally {
-      if (prev === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
-      } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prev;
-      }
       await new Promise<void>((resolve) => fakeRelay.close(() => resolve()));
     }
   });
