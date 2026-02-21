@@ -40,6 +40,10 @@ import {
 >>>>>>> 08b7932df (feat(agents) : Hugging Face Inference provider first-class support and Together API fix and Direct Injection Refactor Auths [AI-assisted] (#13472))
 import {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  buildKimiCodingProvider,
+>>>>>>> c62a6e704 (fix(models): add kimi-coding implicit provider template (openclaw#22526) thanks @lailoo)
   buildQianfanProvider,
   buildXiaomiProvider,
   QIANFAN_DEFAULT_MODEL_ID,
@@ -128,10 +132,14 @@ import {
 <<<<<<< HEAD
   QIANFAN_BASE_URL,
   QIANFAN_DEFAULT_MODEL_REF,
+<<<<<<< HEAD
   QIANFAN_DEFAULT_MODEL_ID,
 =======
   buildXaiModelDefinition,
 >>>>>>> db31c0ccc (feat: add xAI Grok provider support)
+=======
+  KIMI_CODING_MODEL_ID,
+>>>>>>> c62a6e704 (fix(models): add kimi-coding implicit provider template (openclaw#22526) thanks @lailoo)
   KIMI_CODING_MODEL_REF,
   MOONSHOT_BASE_URL,
   MOONSHOT_CN_BASE_URL,
@@ -556,19 +564,19 @@ export function applyKimiCodeProviderConfig(cfg: OpenClawConfig): OpenClawConfig
   const models = { ...cfg.agents?.defaults?.models };
   models[KIMI_CODING_MODEL_REF] = {
     ...models[KIMI_CODING_MODEL_REF],
-    alias: models[KIMI_CODING_MODEL_REF]?.alias ?? "Kimi K2.5",
+    alias: models[KIMI_CODING_MODEL_REF]?.alias ?? "Kimi for Coding",
   };
 
-  return {
-    ...cfg,
-    agents: {
-      ...cfg.agents,
-      defaults: {
-        ...cfg.agents?.defaults,
-        models,
-      },
-    },
-  };
+  const defaultModel = buildKimiCodingProvider().models[0];
+
+  return applyProviderConfigWithDefaultModel(cfg, {
+    agentModels: models,
+    providerId: "kimi-coding",
+    api: "anthropic-messages",
+    baseUrl: "https://api.kimi.com/coding/",
+    defaultModel,
+    defaultModelId: KIMI_CODING_MODEL_ID,
+  });
 }
 
 export function applyKimiCodeConfig(cfg: MoltbotConfig): MoltbotConfig {
