@@ -60,10 +60,14 @@
 =======
   "dependencies": {
     "@microsoft/agents-hosting": "^1.2.3",
+<<<<<<< HEAD
     "@microsoft/agents-hosting-express": "^1.2.3",
     "@microsoft/agents-hosting-extensions-teams": "^1.2.3",
     "express": "^5.2.1",
     "proper-lockfile": "^4.1.2"
+=======
+    "express": "^5.2.1"
+>>>>>>> f4a59eb5d (Chore: harden A2UI bundle dependency resolution (#22507))
   },
   "devDependencies": {
     "openclaw": "workspace:*"
