@@ -8,6 +8,7 @@ import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
+import { typedCases } from "../../test-utils/typed-cases.js";
 import {
   ackDelivery,
   computeBackoffMs,
@@ -457,7 +458,11 @@ describe("buildOutboundResultEnvelope", () => {
       mediaUrl: null,
       channelId: "C1",
     };
-    const cases = [
+    const cases = typedCases<{
+      name: string;
+      input: Parameters<typeof buildOutboundResultEnvelope>[0];
+      expected: unknown;
+    }>([
       {
         name: "flatten delivery by default",
         input: { delivery: whatsappDelivery },
@@ -488,7 +493,7 @@ describe("buildOutboundResultEnvelope", () => {
         input: { delivery: discordDelivery, flattenDelivery: false },
         expected: { delivery: discordDelivery },
       },
-    ];
+    ]);
     for (const testCase of cases) {
       expect(buildOutboundResultEnvelope(testCase.input), testCase.name).toEqual(testCase.expected);
     }
@@ -900,6 +905,7 @@ describe("resolveOutboundSessionRoute", () => {
 });
 
 describe("normalizeOutboundPayloadsForJson", () => {
+<<<<<<< HEAD
   it("normalizes payloads with mediaUrl and mediaUrls", () => {
     expect(
       normalizeOutboundPayloadsForJson([
@@ -909,6 +915,13 @@ describe("normalizeOutboundPayloadsForJson", () => {
       ]),
     ).toEqual([
       { text: "hi", mediaUrl: null, mediaUrls: undefined, channelData: undefined },
+=======
+  it("normalizes payloads for JSON output", () => {
+    const cases = typedCases<{
+      input: Parameters<typeof normalizeOutboundPayloadsForJson>[0];
+      expected: ReturnType<typeof normalizeOutboundPayloadsForJson>;
+    }>([
+>>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
       {
         text: "photo",
         mediaUrl: "https://x.test/a.jpg",
@@ -922,11 +935,15 @@ describe("normalizeOutboundPayloadsForJson", () => {
         channelData: undefined,
       },
 <<<<<<< HEAD
+<<<<<<< HEAD
     ]);
   });
 =======
     ];
 >>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
+=======
+    ]);
+>>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
 
 <<<<<<< HEAD
   it("keeps mediaUrl null for multi MEDIA tags", () => {
@@ -980,7 +997,11 @@ describe("formatOutboundPayloadLog", () => {
   });
 =======
   it("formats text+media and media-only logs", () => {
-    const cases = [
+    const cases = typedCases<{
+      name: string;
+      input: Parameters<typeof formatOutboundPayloadLog>[0];
+      expected: string;
+    }>([
       {
         name: "text with media lines",
         input: {
@@ -997,8 +1018,12 @@ describe("formatOutboundPayloadLog", () => {
         },
         expected: "MEDIA:https://x.test/a.png",
       },
+<<<<<<< HEAD
     ];
 >>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
+=======
+    ]);
+>>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
 
   it("logs media-only payloads", () => {
     expect(
