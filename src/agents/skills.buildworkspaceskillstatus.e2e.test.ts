@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { withEnv } from "../test-utils/env.js";
 import { buildWorkspaceSkillStatus } from "./skills-status.js";
 import { writeSkill } from "./skills.e2e-test-helpers.js";
 
@@ -60,7 +61,10 @@ describe("buildWorkspaceSkillStatus", () => {
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-"));
     const bundledDir = path.join(workspaceDir, ".bundled");
     const bundledSkillDir = path.join(bundledDir, "peekaboo");
+<<<<<<< HEAD
     const originalBundled = process.env.CLAWDBOT_BUNDLED_SKILLS_DIR;
+=======
+>>>>>>> c0706b779 (refactor(test): reuse env helper in workspace skill status tests)
 
     await writeSkill({
       dir: bundledSkillDir,
@@ -69,8 +73,12 @@ describe("buildWorkspaceSkillStatus", () => {
       body: "# Peekaboo\n",
     });
 
+<<<<<<< HEAD
     try {
       process.env.CLAWDBOT_BUNDLED_SKILLS_DIR = bundledDir;
+=======
+    withEnv({ OPENCLAW_BUNDLED_SKILLS_DIR: bundledDir }, () => {
+>>>>>>> c0706b779 (refactor(test): reuse env helper in workspace skill status tests)
       const report = buildWorkspaceSkillStatus(workspaceDir, {
         managedSkillsDir: path.join(workspaceDir, ".managed"),
         config: { skills: { allowBundled: ["other-skill"] } },
@@ -80,6 +88,7 @@ describe("buildWorkspaceSkillStatus", () => {
       expect(skill).toBeDefined();
       expect(skill?.blockedByAllowlist).toBe(true);
       expect(skill?.eligible).toBe(false);
+<<<<<<< HEAD
     } finally {
       if (originalBundled === undefined) {
         delete process.env.CLAWDBOT_BUNDLED_SKILLS_DIR;
@@ -87,6 +96,9 @@ describe("buildWorkspaceSkillStatus", () => {
         process.env.CLAWDBOT_BUNDLED_SKILLS_DIR = originalBundled;
       }
     }
+=======
+    });
+>>>>>>> c0706b779 (refactor(test): reuse env helper in workspace skill status tests)
   });
 
   it("filters install options by OS", async () => {
