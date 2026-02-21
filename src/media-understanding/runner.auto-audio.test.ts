@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -46,6 +47,12 @@ async function withAudioFixture(
     await fs.unlink(tmpPath).catch(() => {});
   }
 }
+=======
+import { describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { buildProviderRegistry, runCapability } from "./runner.js";
+import { withAudioFixture } from "./runner.test-utils.js";
+>>>>>>> 01f42a037 (refactor(test): share media audio fixture across runner tests)
 
 function createOpenAiAudioProvider(
   transcribeAudio: (req: { model?: string }) => Promise<{ text: string; model: string }>,
@@ -75,6 +82,7 @@ function createOpenAiAudioCfg(extra?: Partial<OpenClawConfig>): OpenClawConfig {
 
 describe("runCapability auto audio entries", () => {
   it("uses provider keys to auto-enable audio transcription", async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     const originalPath = process.env.PATH;
     process.env.PATH = "/usr/bin:/bin";
@@ -110,6 +118,9 @@ describe("runCapability auto audio entries", () => {
     try {
 =======
     await withAudioFixture(async ({ ctx, media, cache }) => {
+=======
+    await withAudioFixture("openclaw-auto-audio", async ({ ctx, media, cache }) => {
+>>>>>>> 01f42a037 (refactor(test): share media audio fixture across runner tests)
       let seenModel: string | undefined;
       const providerRegistry = createOpenAiAudioProvider(async (req) => {
         seenModel = req.model;
@@ -133,6 +144,7 @@ describe("runCapability auto audio entries", () => {
   });
 
   it("skips auto audio when disabled", async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     const originalPath = process.env.PATH;
     process.env.PATH = "/usr/bin:/bin";
@@ -169,6 +181,9 @@ describe("runCapability auto audio entries", () => {
     } as unknown as MoltbotConfig;
 =======
     await withAudioFixture(async ({ ctx, media, cache }) => {
+=======
+    await withAudioFixture("openclaw-auto-audio", async ({ ctx, media, cache }) => {
+>>>>>>> 01f42a037 (refactor(test): share media audio fixture across runner tests)
       const providerRegistry = createOpenAiAudioProvider(async () => ({
         text: "ok",
         model: "whisper-1",
@@ -198,7 +213,7 @@ describe("runCapability auto audio entries", () => {
   });
 
   it("prefers explicitly configured audio model entries", async () => {
-    await withAudioFixture(async ({ ctx, media, cache }) => {
+    await withAudioFixture("openclaw-auto-audio", async ({ ctx, media, cache }) => {
       let seenModel: string | undefined;
       const providerRegistry = createOpenAiAudioProvider(async (req) => {
         seenModel = req.model;

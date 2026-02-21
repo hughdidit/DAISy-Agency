@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -59,6 +60,16 @@ describe("runCapability deepgram provider options", () => {
     });
 =======
     await withAudioFixture(async ({ ctx, media, cache }) => {
+=======
+import { describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
+import { buildProviderRegistry, runCapability } from "./runner.js";
+import { withAudioFixture } from "./runner.test-utils.js";
+
+describe("runCapability deepgram provider options", () => {
+  it("merges provider options, headers, and baseUrl overrides", async () => {
+    await withAudioFixture("openclaw-deepgram", async ({ ctx, media, cache }) => {
+>>>>>>> 01f42a037 (refactor(test): share media audio fixture across runner tests)
       let seenQuery: Record<string, string | number | boolean> | undefined;
       let seenBaseUrl: string | undefined;
       let seenHeaders: Record<string, string> | undefined;
