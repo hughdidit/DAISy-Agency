@@ -6,7 +6,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 =======
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 >>>>>>> 096a7a571 (perf(test): speed up update-startup and docker-setup suites)
+=======
+import { captureEnv } from "../test-utils/env.js";
+>>>>>>> 992b7e557 (refactor(test): use env snapshots in setup hooks)
 import type { UpdateCheckResult } from "./update-check.js";
 
 vi.mock("./moltbot-root.js", () => ({
@@ -43,12 +47,7 @@ describe("update-startup", () => {
   let suiteRoot = "";
   let suiteCase = 0;
   let tempDir: string;
-  let prevStateDir: string | undefined;
-  let prevNodeEnv: string | undefined;
-  let prevVitest: string | undefined;
-  let hadStateDir = false;
-  let hadNodeEnv = false;
-  let hadVitest = false;
+  let envSnapshot: ReturnType<typeof captureEnv>;
 
   let resolveOpenClawPackageRoot: (typeof import("./openclaw-root.js"))["resolveOpenClawPackageRoot"];
   let checkUpdateStatus: (typeof import("./update-check.js"))["checkUpdateStatus"];
@@ -71,22 +70,22 @@ describe("update-startup", () => {
 =======
     tempDir = path.join(suiteRoot, `case-${++suiteCase}`);
     await fs.mkdir(tempDir);
-    hadStateDir = Object.prototype.hasOwnProperty.call(process.env, "OPENCLAW_STATE_DIR");
-    prevStateDir = process.env.OPENCLAW_STATE_DIR;
+    envSnapshot = captureEnv(["OPENCLAW_STATE_DIR", "NODE_ENV", "VITEST"]);
     process.env.OPENCLAW_STATE_DIR = tempDir;
 <<<<<<< HEAD
 >>>>>>> 096a7a571 (perf(test): speed up update-startup and docker-setup suites)
     delete process.env.VITEST;
 =======
 
+<<<<<<< HEAD
     hadNodeEnv = Object.prototype.hasOwnProperty.call(process.env, "NODE_ENV");
     prevNodeEnv = process.env.NODE_ENV;
 >>>>>>> ed2ae5886 (perf(test): avoid process.env cloning in update-startup suite)
+=======
+>>>>>>> 992b7e557 (refactor(test): use env snapshots in setup hooks)
     process.env.NODE_ENV = "test";
 
     // Ensure update checks don't short-circuit in test mode.
-    hadVitest = Object.prototype.hasOwnProperty.call(process.env, "VITEST");
-    prevVitest = process.env.VITEST;
     delete process.env.VITEST;
 
     // Perf: load mocked modules once (after timers/env are set up).
@@ -105,21 +104,7 @@ describe("update-startup", () => {
 
   afterEach(async () => {
     vi.useRealTimers();
-    if (hadStateDir) {
-      process.env.OPENCLAW_STATE_DIR = prevStateDir;
-    } else {
-      delete process.env.OPENCLAW_STATE_DIR;
-    }
-    if (hadNodeEnv) {
-      process.env.NODE_ENV = prevNodeEnv;
-    } else {
-      delete process.env.NODE_ENV;
-    }
-    if (hadVitest) {
-      process.env.VITEST = prevVitest;
-    } else {
-      delete process.env.VITEST;
-    }
+    envSnapshot.restore();
     resetUpdateAvailableStateForTest();
   });
 
