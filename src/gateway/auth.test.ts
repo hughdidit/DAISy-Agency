@@ -27,6 +27,24 @@ function createLimiterSpy(): AuthRateLimiter & {
   };
 }
 
+function createTailscaleForwardedReq(): never {
+  return {
+    socket: { remoteAddress: "127.0.0.1" },
+    headers: {
+      host: "gateway.local",
+      "x-forwarded-for": "100.64.0.1",
+      "x-forwarded-proto": "https",
+      "x-forwarded-host": "ai-hub.bone-egret.ts.net",
+      "tailscale-user-login": "peter",
+      "tailscale-user-name": "Peter",
+    },
+  } as never;
+}
+
+function createTailscaleWhois() {
+  return async () => ({ login: "peter", name: "Peter" });
+}
+
 describe("gateway auth", () => {
   it("resolves token/password from OPENCLAW gateway env vars", () => {
     expect(
@@ -138,18 +156,8 @@ describe("gateway auth", () => {
     const res = await authorizeGatewayConnect({
       auth: { mode: "token", token: "secret", allowTailscale: true },
       connectAuth: null,
-      tailscaleWhois: async () => ({ login: "peter", name: "Peter" }),
-      req: {
-        socket: { remoteAddress: "127.0.0.1" },
-        headers: {
-          host: "gateway.local",
-          "x-forwarded-for": "100.64.0.1",
-          "x-forwarded-proto": "https",
-          "x-forwarded-host": "ai-hub.bone-egret.ts.net",
-          "tailscale-user-login": "peter",
-          "tailscale-user-name": "Peter",
-        },
-      } as never,
+      tailscaleWhois: createTailscaleWhois(),
+      req: createTailscaleForwardedReq(),
     });
 
     expect(res.ok).toBe(false);
@@ -160,19 +168,9 @@ describe("gateway auth", () => {
     const res = await authorizeGatewayConnect({
       auth: { mode: "token", token: "secret", allowTailscale: true },
       connectAuth: null,
-      tailscaleWhois: async () => ({ login: "peter", name: "Peter" }),
+      tailscaleWhois: createTailscaleWhois(),
       authSurface: "ws-control-ui",
-      req: {
-        socket: { remoteAddress: "127.0.0.1" },
-        headers: {
-          host: "gateway.local",
-          "x-forwarded-for": "100.64.0.1",
-          "x-forwarded-proto": "https",
-          "x-forwarded-host": "ai-hub.bone-egret.ts.net",
-          "tailscale-user-login": "peter",
-          "tailscale-user-name": "Peter",
-        },
-      } as never,
+      req: createTailscaleForwardedReq(),
     });
 
     expect(res.ok).toBe(true);
@@ -184,18 +182,8 @@ describe("gateway auth", () => {
     const res = await authorizeHttpGatewayConnect({
       auth: { mode: "token", token: "secret", allowTailscale: true },
       connectAuth: null,
-      tailscaleWhois: async () => ({ login: "peter", name: "Peter" }),
-      req: {
-        socket: { remoteAddress: "127.0.0.1" },
-        headers: {
-          host: "gateway.local",
-          "x-forwarded-for": "100.64.0.1",
-          "x-forwarded-proto": "https",
-          "x-forwarded-host": "ai-hub.bone-egret.ts.net",
-          "tailscale-user-login": "peter",
-          "tailscale-user-name": "Peter",
-        },
-      } as never,
+      tailscaleWhois: createTailscaleWhois(),
+      req: createTailscaleForwardedReq(),
     });
     expect(res.ok).toBe(false);
     expect(res.reason).toBe("token_missing");
@@ -205,18 +193,8 @@ describe("gateway auth", () => {
     const res = await authorizeWsControlUiGatewayConnect({
       auth: { mode: "token", token: "secret", allowTailscale: true },
       connectAuth: null,
-      tailscaleWhois: async () => ({ login: "peter", name: "Peter" }),
-      req: {
-        socket: { remoteAddress: "127.0.0.1" },
-        headers: {
-          host: "gateway.local",
-          "x-forwarded-for": "100.64.0.1",
-          "x-forwarded-proto": "https",
-          "x-forwarded-host": "ai-hub.bone-egret.ts.net",
-          "tailscale-user-login": "peter",
-          "tailscale-user-name": "Peter",
-        },
-      } as never,
+      tailscaleWhois: createTailscaleWhois(),
+      req: createTailscaleForwardedReq(),
     });
     expect(res.ok).toBe(true);
     expect(res.method).toBe("tailscale");
