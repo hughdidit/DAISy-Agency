@@ -107,6 +107,7 @@ const emptyRegistry = createRegistry([]);
 
 describe("gateway server models + voicewake", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const setTempHome = (homeDir: string) => {
     const prevHome = process.env.HOME;
     const prevStateDir = process.env.CLAWDBOT_STATE_DIR;
@@ -154,10 +155,22 @@ describe("gateway server models + voicewake", () => {
 
 =======
 >>>>>>> c529bafdc (refactor(test): reuse temp-home helper in voicewake e2e)
+=======
+  const withTempHome = async <T>(fn: (homeDir: string) => Promise<T>): Promise<T> => {
+    const tempHome = await createTempHomeEnv("openclaw-home-");
+    try {
+      return await fn(tempHome.home);
+    } finally {
+      await tempHome.restore();
+    }
+  };
+
+>>>>>>> b43aadc34 (refactor(test): dedupe temp-home setup in voicewake suite)
   test(
     "voicewake.get returns defaults and voicewake.set broadcasts",
     { timeout: 60_000 },
     async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
       const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-home-"));
       const restoreHome = setTempHome(homeDir);
@@ -168,6 +181,9 @@ describe("gateway server models + voicewake", () => {
 =======
       const tempHome = await createTempHomeEnv("openclaw-home-");
       try {
+=======
+      await withTempHome(async (homeDir) => {
+>>>>>>> b43aadc34 (refactor(test): dedupe temp-home setup in voicewake suite)
         const initial = await rpcReq<{ triggers: string[] }>(ws, "voicewake.get");
         expect(initial.ok).toBe(true);
         expect(initial.payload?.triggers).toEqual(["openclaw", "claude", "computer"]);
@@ -209,27 +225,32 @@ describe("gateway server models + voicewake", () => {
       restoreHome();
 =======
         const onDisk = JSON.parse(
-          await fs.readFile(
-            path.join(tempHome.home, ".openclaw", "settings", "voicewake.json"),
-            "utf8",
-          ),
+          await fs.readFile(path.join(homeDir, ".openclaw", "settings", "voicewake.json"), "utf8"),
         ) as { triggers?: unknown; updatedAtMs?: unknown };
         expect(onDisk.triggers).toEqual(["hi", "there"]);
         expect(typeof onDisk.updatedAtMs).toBe("number");
+<<<<<<< HEAD
       } finally {
         await tempHome.restore();
       }
 >>>>>>> c529bafdc (refactor(test): reuse temp-home helper in voicewake e2e)
+=======
+      });
+>>>>>>> b43aadc34 (refactor(test): dedupe temp-home setup in voicewake suite)
     },
   );
 
   test("pushes voicewake.changed to nodes on connect and on updates", async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-home-"));
     const restoreHome = setTempHome(homeDir);
 =======
     const tempHome = await createTempHomeEnv("openclaw-home-");
     try {
+=======
+    await withTempHome(async () => {
+>>>>>>> b43aadc34 (refactor(test): dedupe temp-home setup in voicewake suite)
       const nodeWs = new WebSocket(`ws://127.0.0.1:${port}`);
       await new Promise<void>((resolve) => nodeWs.once("open", resolve));
       const firstEventP = onceMessage(
@@ -300,10 +321,14 @@ describe("gateway server models + voicewake", () => {
       ]);
 
       nodeWs.close();
+<<<<<<< HEAD
     } finally {
       await tempHome.restore();
     }
 >>>>>>> c529bafdc (refactor(test): reuse temp-home helper in voicewake e2e)
+=======
+    });
+>>>>>>> b43aadc34 (refactor(test): dedupe temp-home setup in voicewake suite)
   });
 
   test("models.list returns model catalog", async () => {
