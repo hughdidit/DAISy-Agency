@@ -24,6 +24,15 @@ async function writeAuthProfiles(agentDir: string, profiles: unknown) {
   );
 }
 
+async function withTempAgentDir<T>(run: (agentDir: string) => Promise<T>): Promise<T> {
+  const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
+  try {
+    return await run(agentDir);
+  } finally {
+    await fs.rm(agentDir, { recursive: true, force: true });
+  }
+}
+
 const ONE_PIXEL_PNG_B64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/woAAn8B9FD5fHAAAAAASUVORK5CYII=";
 const ONE_PIXEL_GIF_B64 = "R0lGODlhAQABAIABAP///wAAACwAAAAAAQABAAACAkQBADs=";
@@ -147,6 +156,7 @@ describe("image tool implicit imageModel config", () => {
   });
 
   it("stays disabled without auth when no pairing is possible", async () => {
+<<<<<<< HEAD
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
     const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "openai/gpt-5.2" } } },
@@ -166,26 +176,51 @@ describe("image tool implicit imageModel config", () => {
     expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
       primary: "minimax/MiniMax-VL-01",
       fallbacks: ["openai/gpt-5-mini", "anthropic/claude-opus-4-5"],
+=======
+    await withTempAgentDir(async (agentDir) => {
+      const cfg: OpenClawConfig = {
+        agents: { defaults: { model: { primary: "openai/gpt-5.2" } } },
+      };
+      expect(resolveImageModelConfigForTool({ cfg, agentDir })).toBeNull();
+      expect(createImageTool({ config: cfg, agentDir })).toBeNull();
     });
-    expect(createImageTool({ config: cfg, agentDir })).not.toBeNull();
+  });
+
+  it("pairs minimax primary with MiniMax-VL-01 (and fallbacks) when auth exists", async () => {
+    await withTempAgentDir(async (agentDir) => {
+      vi.stubEnv("MINIMAX_API_KEY", "minimax-test");
+      vi.stubEnv("OPENAI_API_KEY", "openai-test");
+      vi.stubEnv("ANTHROPIC_API_KEY", "anthropic-test");
+      const cfg: OpenClawConfig = {
+        agents: { defaults: { model: { primary: "minimax/MiniMax-M2.1" } } },
+      };
+      expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
+        primary: "minimax/MiniMax-VL-01",
+        fallbacks: ["openai/gpt-5-mini", "anthropic/claude-opus-4-5"],
+      });
+      expect(createImageTool({ config: cfg, agentDir })).not.toBeNull();
+>>>>>>> a353dae14 (test(image-tool): share temp agent dirs and table-drive validation cases)
+    });
   });
 
   it("pairs zai primary with glm-4.6v (and fallbacks) when auth exists", async () => {
-    const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-image-"));
-    vi.stubEnv("ZAI_API_KEY", "zai-test");
-    vi.stubEnv("OPENAI_API_KEY", "openai-test");
-    vi.stubEnv("ANTHROPIC_API_KEY", "anthropic-test");
-    const cfg: OpenClawConfig = {
-      agents: { defaults: { model: { primary: "zai/glm-4.7" } } },
-    };
-    expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
-      primary: "zai/glm-4.6v",
-      fallbacks: ["openai/gpt-5-mini", "anthropic/claude-opus-4-5"],
+    await withTempAgentDir(async (agentDir) => {
+      vi.stubEnv("ZAI_API_KEY", "zai-test");
+      vi.stubEnv("OPENAI_API_KEY", "openai-test");
+      vi.stubEnv("ANTHROPIC_API_KEY", "anthropic-test");
+      const cfg: OpenClawConfig = {
+        agents: { defaults: { model: { primary: "zai/glm-4.7" } } },
+      };
+      expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
+        primary: "zai/glm-4.6v",
+        fallbacks: ["openai/gpt-5-mini", "anthropic/claude-opus-4-5"],
+      });
+      expect(createImageTool({ config: cfg, agentDir })).not.toBeNull();
     });
-    expect(createImageTool({ config: cfg, agentDir })).not.toBeNull();
   });
 
   it("pairs a custom provider when it declares an image-capable model", async () => {
+<<<<<<< HEAD
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
     await writeAuthProfiles(agentDir, {
       version: 1,
@@ -203,28 +238,58 @@ describe("image tool implicit imageModel config", () => {
               makeModelDefinition("text-1", ["text"]),
               makeModelDefinition("vision-1", ["text", "image"]),
             ],
+=======
+    await withTempAgentDir(async (agentDir) => {
+      await writeAuthProfiles(agentDir, {
+        version: 1,
+        profiles: {
+          "acme:default": { type: "api_key", provider: "acme", key: "sk-test" },
+        },
+      });
+      const cfg: OpenClawConfig = {
+        agents: { defaults: { model: { primary: "acme/text-1" } } },
+        models: {
+          providers: {
+            acme: {
+              baseUrl: "https://example.com",
+              models: [
+                makeModelDefinition("text-1", ["text"]),
+                makeModelDefinition("vision-1", ["text", "image"]),
+              ],
+            },
+>>>>>>> a353dae14 (test(image-tool): share temp agent dirs and table-drive validation cases)
           },
         },
-      },
-    };
-    expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
-      primary: "acme/vision-1",
+      };
+      expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
+        primary: "acme/vision-1",
+      });
+      expect(createImageTool({ config: cfg, agentDir })).not.toBeNull();
     });
-    expect(createImageTool({ config: cfg, agentDir })).not.toBeNull();
   });
 
   it("prefers explicit agents.defaults.imageModel", async () => {
+<<<<<<< HEAD
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
     const cfg: MoltbotConfig = {
       agents: {
         defaults: {
           model: { primary: "minimax/MiniMax-M2.1" },
           imageModel: { primary: "openai/gpt-5-mini" },
+=======
+    await withTempAgentDir(async (agentDir) => {
+      const cfg: OpenClawConfig = {
+        agents: {
+          defaults: {
+            model: { primary: "minimax/MiniMax-M2.1" },
+            imageModel: { primary: "openai/gpt-5-mini" },
+          },
+>>>>>>> a353dae14 (test(image-tool): share temp agent dirs and table-drive validation cases)
         },
-      },
-    };
-    expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
-      primary: "openai/gpt-5-mini",
+      };
+      expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
+        primary: "openai/gpt-5-mini",
+      });
     });
   });
 
@@ -233,6 +298,7 @@ describe("image tool implicit imageModel config", () => {
     // because images are auto-injected into prompts. The tool description is
     // adjusted via modelHasVision to discourage redundant usage.
     vi.stubEnv("OPENAI_API_KEY", "test-key");
+<<<<<<< HEAD
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-image-"));
     const cfg: MoltbotConfig = {
       agents: {
@@ -246,17 +312,35 @@ describe("image tool implicit imageModel config", () => {
           acme: {
             baseUrl: "https://example.com",
             models: [makeModelDefinition("vision-1", ["text", "image"])],
+=======
+    await withTempAgentDir(async (agentDir) => {
+      const cfg: OpenClawConfig = {
+        agents: {
+          defaults: {
+            model: { primary: "acme/vision-1" },
+            imageModel: { primary: "openai/gpt-5-mini" },
+>>>>>>> a353dae14 (test(image-tool): share temp agent dirs and table-drive validation cases)
           },
         },
-      },
-    };
-    // Tool should still be available for explicit image analysis requests
-    expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
-      primary: "openai/gpt-5-mini",
+        models: {
+          providers: {
+            acme: {
+              baseUrl: "https://example.com",
+              models: [makeModelDefinition("vision-1", ["text", "image"])],
+            },
+          },
+        },
+      };
+      // Tool should still be available for explicit image analysis requests
+      expect(resolveImageModelConfigForTool({ cfg, agentDir })).toEqual({
+        primary: "openai/gpt-5-mini",
+      });
+      const tool = createImageTool({ config: cfg, agentDir, modelHasVision: true });
+      expect(tool).not.toBeNull();
+      expect(tool?.description).toContain(
+        "Only use this tool when images were NOT already provided",
+      );
     });
-    const tool = createImageTool({ config: cfg, agentDir, modelHasVision: true });
-    expect(tool).not.toBeNull();
-    expect(tool?.description).toContain("Only use this tool when images were NOT already provided");
   });
 
   it("exposes an Anthropic-safe image schema without union keywords", async () => {
@@ -647,10 +731,27 @@ describe("image tool response validation", () => {
     };
   }
 
-  it("caps image-tool max tokens by model capability", () => {
-    expect(__testing.resolveImageToolMaxTokens(4000)).toBe(4000);
+  it.each([
+    {
+      name: "caps image-tool max tokens by model capability",
+      maxOutputTokens: 4000,
+      expected: 4000,
+    },
+    {
+      name: "keeps requested image-tool max tokens when model capability is higher",
+      maxOutputTokens: 8192,
+      expected: 4096,
+    },
+    {
+      name: "falls back to requested image-tool max tokens when model capability is missing",
+      maxOutputTokens: undefined,
+      expected: 4096,
+    },
+  ])("$name", ({ maxOutputTokens, expected }) => {
+    expect(__testing.resolveImageToolMaxTokens(maxOutputTokens)).toBe(expected);
   });
 
+<<<<<<< HEAD
   it("keeps requested image-tool max tokens when model capability is higher", () => {
     expect(__testing.resolveImageToolMaxTokens(8192)).toBe(4096);
   });
@@ -661,28 +762,32 @@ describe("image tool response validation", () => {
 
 >>>>>>> 5f1233476 (refactor: dedupe image, web, and auth profile test fixtures)
   it("rejects image-model responses with no final text", () => {
+=======
+  it.each([
+    {
+      name: "rejects image-model responses with no final text",
+      message: createAssistantMessage({
+        content: [{ type: "thinking", thinking: "hmm" }],
+      }) as never,
+      expectedError: /returned no text/i,
+    },
+    {
+      name: "surfaces provider errors from image-model responses",
+      message: createAssistantMessage({
+        stopReason: "error",
+        errorMessage: "boom",
+      }) as never,
+      expectedError: /boom/i,
+    },
+  ])("$name", ({ message, expectedError }) => {
+>>>>>>> a353dae14 (test(image-tool): share temp agent dirs and table-drive validation cases)
     expect(() =>
       __testing.coerceImageAssistantText({
         provider: "openai",
         model: "gpt-5-mini",
-        message: createAssistantMessage({
-          content: [{ type: "thinking", thinking: "hmm" }],
-        }) as never,
+        message,
       }),
-    ).toThrow(/returned no text/i);
-  });
-
-  it("surfaces provider errors from image-model responses", () => {
-    expect(() =>
-      __testing.coerceImageAssistantText({
-        provider: "openai",
-        model: "gpt-5-mini",
-        message: createAssistantMessage({
-          stopReason: "error",
-          errorMessage: "boom",
-        }) as never,
-      }),
-    ).toThrow(/boom/i);
+    ).toThrow(expectedError);
   });
 
   it("returns trimmed text from image-model responses", () => {
