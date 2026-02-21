@@ -317,7 +317,14 @@ export const registerTelegramHandlers = ({
 
       const messageThreadId = callbackMessage.message_thread_id;
       const isForum = callbackMessage.chat.is_forum === true;
+<<<<<<< HEAD
       const resolvedThreadId = resolveTelegramForumThreadId({
+=======
+      const groupAllowContext = await resolveTelegramGroupAllowFromContext({
+        chatId,
+        accountId,
+        dmPolicy: telegramCfg.dmPolicy ?? "pairing",
+>>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
         isForum,
         messageThreadId,
       });
@@ -327,12 +334,21 @@ export const registerTelegramHandlers = ({
       const effectiveGroupAllow = normalizeAllowFromWithStore({
         allowFrom: groupAllowOverride ?? groupAllowFrom,
         storeAllowFrom,
+<<<<<<< HEAD
       });
+=======
+        groupConfig,
+        topicConfig,
+        effectiveGroupAllow,
+        hasGroupAllowOverride,
+      } = groupAllowContext;
+      const dmPolicy = telegramCfg.dmPolicy ?? "pairing";
+>>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
       const effectiveDmAllow = normalizeAllowFromWithStore({
         allowFrom: telegramCfg.allowFrom,
         storeAllowFrom,
+        dmPolicy,
       });
-      const dmPolicy = telegramCfg.dmPolicy ?? "pairing";
       const senderId = callback.from?.id ? String(callback.from.id) : "";
       const senderUsername = callback.from?.username ?? "";
 
@@ -675,6 +691,7 @@ export const registerTelegramHandlers = ({
         return;
       }
 
+<<<<<<< HEAD
       const chatId = msg.chat.id;
       const isGroup = msg.chat.type === "group" || msg.chat.type === "supergroup";
       const messageThreadId = msg.message_thread_id;
@@ -682,6 +699,16 @@ export const registerTelegramHandlers = ({
       const resolvedThreadId = resolveTelegramForumThreadId({
         isForum,
         messageThreadId,
+=======
+      const groupAllowContext = await resolveTelegramGroupAllowFromContext({
+        chatId: event.chatId,
+        accountId,
+        dmPolicy: telegramCfg.dmPolicy ?? "pairing",
+        isForum: event.isForum,
+        messageThreadId: event.messageThreadId,
+        groupAllowFrom,
+        resolveTelegramGroupConfig,
+>>>>>>> 0bd9f0d4a (fix: enforce strict allowlist across pairing stores (#23017))
       });
       const storeAllowFrom = await readChannelAllowFromStore("telegram").catch(() => []);
       const { groupConfig, topicConfig } = resolveTelegramGroupConfig(chatId, resolvedThreadId);
