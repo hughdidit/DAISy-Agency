@@ -476,8 +476,12 @@ jobs:
           name: dead-code-${{ matrix.tool }}-${{ github.run_id }}
           path: .artifacts/deadcode
 
+<<<<<<< HEAD
   # Validate docs (spellcheck, format, lint, broken links) only when docs files changed.
 >>>>>>> 3002be76e (docs: add custom spellcheck dictionary and fix docs typos (#22457))
+=======
+  # Validate docs (format, lint, broken links) only when docs files changed.
+>>>>>>> d9844c6af (CI: remove docs spellcheck step (#22738))
   check-docs:
     needs: [docs-scope]
     if: needs.docs-scope.outputs.docs_changed == 'true'
@@ -495,9 +499,6 @@ jobs:
 
       - name: Check docs
         run: pnpm check:docs
-
-      - name: Spellcheck docs
-        run: pnpm docs:spellcheck
 
   secrets:
 <<<<<<< HEAD
