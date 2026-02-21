@@ -4,7 +4,13 @@ import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import * as replyModule from "../auto-reply/reply.js";
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
+=======
+import type { ReplyPayload } from "../auto-reply/types.js";
+import { whatsappOutbound } from "../channels/plugins/outbound/whatsapp.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> a18603681 (test: fix latest tsgo inference regressions in test suites)
 import {
   resolveAgentIdFromSessionKey,
   resolveAgentMainSessionKey,
@@ -16,6 +22,7 @@ import {
   isHeartbeatEnabledForAgent,
   resolveHeartbeatIntervalMs,
   resolveHeartbeatPrompt,
+  type HeartbeatDeps,
   runHeartbeatOnce,
 } from "./heartbeat-runner.js";
 <<<<<<< HEAD
