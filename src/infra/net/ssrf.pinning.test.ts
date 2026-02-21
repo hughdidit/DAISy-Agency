@@ -11,6 +11,10 @@ import {
 } from "./ssrf.js";
 >>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
 
+function createPublicLookupMock(): LookupFn {
+  return vi.fn(async () => [{ address: "93.184.216.34", family: 4 }]) as unknown as LookupFn;
+}
+
 describe("ssrf pinning", () => {
   it("pins resolved addresses for the target hostname", async () => {
     const lookup = vi.fn(async () => [
@@ -114,5 +118,47 @@ describe("ssrf pinning", () => {
       }),
     ).rejects.toThrow(/allowlist/i);
   });
+<<<<<<< HEAD
 >>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
+=======
+
+  it.each([
+    {
+      name: "ISATAP embedded private IPv4",
+      hostname: "2001:db8:1234::5efe:127.0.0.1",
+    },
+    {
+      name: "legacy loopback IPv4 literal",
+      hostname: "0177.0.0.1",
+    },
+    {
+      name: "unsupported short-form IPv4 literal",
+      hostname: "8.8.2056",
+    },
+  ])("blocks $name before DNS lookup", async ({ hostname }) => {
+    const lookup = createPublicLookupMock();
+
+    await expect(resolvePinnedHostnameWithPolicy(hostname, { lookupFn: lookup })).rejects.toThrow(
+      SsrFBlockedError,
+    );
+    expect(lookup).not.toHaveBeenCalled();
+  });
+
+  it("allows ISATAP embedded private IPv4 when private network is explicitly enabled", async () => {
+    const lookup = vi.fn(async () => [
+      { address: "2001:db8:1234::5efe:127.0.0.1", family: 6 },
+    ]) as unknown as LookupFn;
+
+    await expect(
+      resolvePinnedHostnameWithPolicy("2001:db8:1234::5efe:127.0.0.1", {
+        lookupFn: lookup,
+        policy: { allowPrivateNetwork: true },
+      }),
+    ).resolves.toMatchObject({
+      hostname: "2001:db8:1234::5efe:127.0.0.1",
+      addresses: ["2001:db8:1234::5efe:127.0.0.1"],
+    });
+    expect(lookup).toHaveBeenCalledTimes(1);
+  });
+>>>>>>> ffd9b86ca (test(ssrf): table-drive blocked hostname literal checks)
 });
