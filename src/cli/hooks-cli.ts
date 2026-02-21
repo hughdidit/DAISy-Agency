@@ -79,7 +79,16 @@ import { formatDocsLink } from "../terminal/links.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
 import { formatCliCommand } from "./command-format.js";
+<<<<<<< HEAD
 import { resolveUserPath, shortenHomePath } from "../utils.js";
+=======
+import {
+  buildNpmInstallRecordFields,
+  logPinnedNpmSpecMessages,
+  resolvePinnedNpmSpec,
+} from "./npm-resolution.js";
+import { promptYesNo } from "./prompt.js";
+>>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
 
 export type HooksListOptions = {
   json?: boolean;
@@ -230,6 +239,25 @@ function createInstallLogger() {
 
 function logGatewayRestartHint() {
   defaultRuntime.log("Restart the gateway to load hooks.");
+}
+
+function logIntegrityDriftWarning(
+  hookId: string,
+  drift: {
+    resolution: { resolvedSpec?: string };
+    spec: string;
+    expectedIntegrity: string;
+    actualIntegrity: string;
+  },
+) {
+  const specLabel = drift.resolution.resolvedSpec ?? drift.spec;
+  defaultRuntime.log(
+    theme.warn(
+      `Integrity drift detected for "${hookId}" (${specLabel})` +
+        `\nExpected: ${drift.expectedIntegrity}` +
+        `\nActual:   ${drift.actualIntegrity}`,
+    ),
+  );
 }
 
 async function readInstalledPackageVersion(dir: string): Promise<string | undefined> {
@@ -781,6 +809,7 @@ export function registerHooksCli(program: Command): void {
       }
 =======
       let next = enableInternalHookEntries(cfg, result.hooks);
+<<<<<<< HEAD
 >>>>>>> 29e84dc13 (refactor(cli): dedupe hooks install config updates)
 
       next = recordHookInstall(next, {
@@ -789,6 +818,27 @@ export function registerHooksCli(program: Command): void {
         spec: raw,
         installPath: result.targetDir,
         version: result.version,
+=======
+      const pinInfo = resolvePinnedNpmSpec({
+        rawSpec: raw,
+        pin: Boolean(opts.pin),
+        resolvedSpec: result.npmResolution?.resolvedSpec,
+      });
+      logPinnedNpmSpecMessages(
+        pinInfo,
+        (message) => defaultRuntime.log(message),
+        (message) => defaultRuntime.log(theme.warn(message)),
+      );
+
+      next = recordHookInstall(next, {
+        hookId: result.hookPackId,
+        ...buildNpmInstallRecordFields({
+          spec: pinInfo.recordSpec,
+          installPath: result.targetDir,
+          version: result.version,
+          resolution: result.npmResolution,
+        }),
+>>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
         hooks: result.hooks,
       });
       await writeConfigFile(next);
@@ -839,6 +889,14 @@ export function registerHooksCli(program: Command): void {
             mode: "update",
             dryRun: true,
             expectedHookPackId: hookId,
+<<<<<<< HEAD
+=======
+            expectedIntegrity: record.integrity,
+            onIntegrityDrift: async (drift) => {
+              logIntegrityDriftWarning(hookId, drift);
+              return true;
+            },
+>>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
             logger: createInstallLogger(),
           });
           if (!probe.ok) {
@@ -860,6 +918,14 @@ export function registerHooksCli(program: Command): void {
           spec: record.spec,
           mode: "update",
           expectedHookPackId: hookId,
+<<<<<<< HEAD
+=======
+          expectedIntegrity: record.integrity,
+          onIntegrityDrift: async (drift) => {
+            logIntegrityDriftWarning(hookId, drift);
+            return await promptYesNo(`Continue updating "${hookId}" with this artifact?`);
+          },
+>>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
           logger: createInstallLogger(),
         });
         if (!result.ok) {
@@ -870,10 +936,19 @@ export function registerHooksCli(program: Command): void {
         const nextVersion = result.version ?? (await readInstalledPackageVersion(result.targetDir));
         nextCfg = recordHookInstall(nextCfg, {
           hookId,
+<<<<<<< HEAD
           source: "npm",
           spec: record.spec,
           installPath: result.targetDir,
           version: nextVersion,
+=======
+          ...buildNpmInstallRecordFields({
+            spec: record.spec,
+            installPath: result.targetDir,
+            version: nextVersion,
+            resolution: result.npmResolution,
+          }),
+>>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
           hooks: result.hooks,
         });
         updatedCount += 1;
