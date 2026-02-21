@@ -674,6 +674,7 @@ extension GeneralSettings {
         guard let host else { return }
         let user = NSUserName()
         if self.state.remoteTransport == .direct {
+<<<<<<< HEAD
             if let url = GatewayDiscoveryHelpers.directUrl(for: gateway) {
                 self.state.remoteUrl = url
             }
@@ -684,6 +685,18 @@ extension GeneralSettings {
                 port: gateway.sshPort)
             self.state.remoteCliPath = gateway.cliPath ?? ""
             OpenClawConfigFile.setRemoteGatewayUrl(host: host, port: gateway.gatewayPort)
+=======
+            self.state.remoteUrl = GatewayDiscoveryHelpers.directUrl(for: gateway) ?? ""
+        } else {
+            self.state.remoteTarget = GatewayDiscoveryHelpers.sshTarget(for: gateway) ?? ""
+        }
+        if let endpoint = GatewayDiscoveryHelpers.serviceEndpoint(for: gateway) {
+            OpenClawConfigFile.setRemoteGatewayUrl(
+                host: endpoint.host,
+                port: endpoint.port)
+        } else {
+            OpenClawConfigFile.clearRemoteGatewayUrl()
+>>>>>>> bfe016fa2 (fix: clear stale remote discovery endpoints (#21618) (thanks @bmendonca3))
         }
     }
 }
