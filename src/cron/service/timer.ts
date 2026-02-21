@@ -89,6 +89,7 @@ const DEFAULT_JOB_TIMEOUT_MS = 10 * 60_000; // 10 minutes
 type TimedCronRunOutcome = CronRunOutcome &
   CronRunTelemetry & {
     jobId: string;
+    delivered?: boolean;
     startedAt: number;
     endedAt: number;
   };
@@ -128,6 +129,7 @@ function applyJobResult(
   result: {
     status: CronRunStatus;
     error?: string;
+    delivered?: boolean;
     startedAt: number;
     endedAt: number;
   },
@@ -137,6 +139,7 @@ function applyJobResult(
   job.state.lastStatus = result.status;
   job.state.lastDurationMs = Math.max(0, result.endedAt - result.startedAt);
   job.state.lastError = result.error;
+  job.state.lastDelivered = result.delivered;
   job.updatedAtMs = result.endedAt;
 
   // Track consecutive errors for backoff / auto-disable.
@@ -392,6 +395,7 @@ export async function onTimer(state: CronServiceState) {
           const shouldDelete = applyJobResult(state, job, {
             status: result.status,
             error: result.error,
+            delivered: result.delivered,
             startedAt: result.startedAt,
             endedAt: result.endedAt,
           });
@@ -510,7 +514,7 @@ export async function runDueJobs(state: CronServiceState) {
 async function executeJobCore(
   state: CronServiceState,
   job: CronJob,
-): Promise<CronRunOutcome & CronRunTelemetry> {
+): Promise<CronRunOutcome & CronRunTelemetry & { delivered?: boolean }> {
   if (job.sessionTarget === "main") {
     const text = resolveJobPayloadTextForMain(job);
     if (!text) {
@@ -615,6 +619,7 @@ async function executeJobCore(
     status: res.status,
     error: res.error,
     summary: res.summary,
+    delivered: res.delivered,
     sessionId: res.sessionId,
     sessionKey: res.sessionKey,
     model: res.model,
@@ -643,6 +648,7 @@ export async function executeJob(
 
   let coreResult: {
     status: CronRunStatus;
+    delivered?: boolean;
   } & CronRunOutcome &
     CronRunTelemetry;
   try {
@@ -655,6 +661,7 @@ export async function executeJob(
   const shouldDelete = applyJobResult(state, job, {
     status: coreResult.status,
     error: coreResult.error,
+    delivered: coreResult.delivered,
     startedAt,
     endedAt,
   });
@@ -672,6 +679,7 @@ function emitJobFinished(
   job: CronJob,
   result: {
     status: CronRunStatus;
+    delivered?: boolean;
   } & CronRunOutcome &
     CronRunTelemetry,
   runAtMs: number,
@@ -682,6 +690,7 @@ function emitJobFinished(
     status: result.status,
     error: result.error,
     summary: result.summary,
+    delivered: result.delivered,
     sessionId: result.sessionId,
     sessionKey: result.sessionKey,
     runAtMs,
