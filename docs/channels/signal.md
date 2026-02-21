@@ -84,6 +84,7 @@ Disable with:
 - For "I text the bot and it replies," use a **separate bot number**.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Setup (fast path)
 1) Install `signal-cli` (Java required).
 2) Link a bot account:
@@ -91,6 +92,9 @@ Disable with:
 3) Configure Signal and start the gateway.
 =======
 ## Setup path A: link existing Signal account (QR)
+=======
+## Setup (option A): link existing Signal account (QR)
+>>>>>>> d7891badd (docs: more channel heading consistency updates (#22541))
 
 1. Install `signal-cli` (JVM or native build).
 2. Link a bot account:
@@ -115,7 +119,7 @@ Example:
 
 Multi-account support: use `channels.signal.accounts` with per-account config and optional `name`. See [`gateway/configuration`](/gateway/configuration#telegramaccounts--discordaccounts--slackaccounts--signalaccounts--imessageaccounts) for the shared pattern.
 
-## Setup path B: register dedicated bot number (SMS, Linux)
+## Setup (option B): register dedicated bot number (SMS, Linux)
 
 Use this when you want a dedicated bot number instead of linking an existing Signal app account.
 

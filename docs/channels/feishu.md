@@ -453,7 +453,7 @@ Feishu does not support message editing, so block streaming is enabled by defaul
 
 ---
 
-## Configuration reference
+## Configuration
 
 Full configuration: [Gateway configuration](/gateway/configuration)
 
