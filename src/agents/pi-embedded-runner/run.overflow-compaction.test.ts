@@ -1,13 +1,13 @@
 import "./run.overflow-compaction.mocks.shared.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { pickFallbackThinkingLevel } from "../pi-embedded-helpers.js";
-import { compactEmbeddedPiSessionDirect } from "./compact.js";
 import { runEmbeddedPiAgent } from "./run.js";
 <<<<<<< HEAD
 import { mockOverflowRetrySuccess } from "./run.overflow-compaction.fixture.js";
 =======
 import { makeAttemptResult, mockOverflowRetrySuccess } from "./run.overflow-compaction.fixture.js";
 import { mockedGlobalHookRunner } from "./run.overflow-compaction.mocks.shared.js";
+<<<<<<< HEAD
 >>>>>>> 542fc169d (Plugins/Hooks: avoid duplicate before_agent_start executions)
 import { runEmbeddedAttempt } from "./run/attempt.js";
 
@@ -19,6 +19,16 @@ const mockedSessionLikelyHasOversizedToolResults = vi.mocked(sessionLikelyHasOve
 const mockedTruncateOversizedToolResultsInSession = vi.mocked(
   truncateOversizedToolResultsInSession,
 );
+=======
+import {
+  mockedCompactDirect,
+  mockedRunEmbeddedAttempt,
+  mockedSessionLikelyHasOversizedToolResults,
+  mockedTruncateOversizedToolResultsInSession,
+  overflowBaseRunParams,
+} from "./run.overflow-compaction.shared-test.js";
+import type { EmbeddedRunAttemptResult } from "./run/types.js";
+>>>>>>> f41be7159 (test(pi): share overflow-compaction test setup)
 const mockedPickFallbackThinkingLevel = vi.mocked(pickFallbackThinkingLevel);
 >>>>>>> b25d3652e (fix(agents): cap embedded runner retry loop)
 
@@ -63,15 +73,7 @@ describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
       compactDirect: mockedCompactDirect,
     });
 
-    await runEmbeddedPiAgent({
-      sessionId: "test-session",
-      sessionKey: "test-key",
-      sessionFile: "/tmp/session.json",
-      workspaceDir: "/tmp/workspace",
-      prompt: "hello",
-      timeoutMs: 30000,
-      runId: "run-1",
-    });
+    await runEmbeddedPiAgent(overflowBaseRunParams);
 
     expect(mockedCompactDirect).toHaveBeenCalledTimes(1);
     expect(mockedCompactDirect).toHaveBeenCalledWith(
@@ -128,15 +130,7 @@ describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
       truncatedCount: 1,
     });
 
-    const result = await runEmbeddedPiAgent({
-      sessionId: "test-session",
-      sessionKey: "test-key",
-      sessionFile: "/tmp/session.json",
-      workspaceDir: "/tmp/workspace",
-      prompt: "hello",
-      timeoutMs: 30000,
-      runId: "run-1",
-    });
+    const result = await runEmbeddedPiAgent(overflowBaseRunParams);
 
     expect(mockedCompactDirect).toHaveBeenCalledTimes(3);
     expect(mockedTruncateOversizedToolResultsInSession).toHaveBeenCalledTimes(1);
@@ -153,15 +147,7 @@ describe("runEmbeddedPiAgent overflow compaction trigger routing", () => {
     );
     mockedPickFallbackThinkingLevel.mockReturnValue("low");
 
-    const result = await runEmbeddedPiAgent({
-      sessionId: "test-session",
-      sessionKey: "test-key",
-      sessionFile: "/tmp/session.json",
-      workspaceDir: "/tmp/workspace",
-      prompt: "hello",
-      timeoutMs: 30000,
-      runId: "run-1",
-    });
+    const result = await runEmbeddedPiAgent(overflowBaseRunParams);
 
     expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(32);
     expect(mockedCompactDirect).not.toHaveBeenCalled();
