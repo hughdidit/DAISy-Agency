@@ -113,7 +113,20 @@ describe("callGateway url resolution", () => {
     closeReason = "";
   });
 
+<<<<<<< HEAD
   it("keeps loopback when local bind is auto even if tailnet is present", async () => {
+=======
+  it.each([
+    {
+      label: "keeps loopback when local bind is auto even if tailnet is present",
+      tailnetIp: "100.64.0.1",
+    },
+    {
+      label: "falls back to loopback when local bind is auto without tailnet IP",
+      tailnetIp: undefined,
+    },
+  ])("local auto-bind: $label", async ({ tailnetIp }) => {
+>>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
     loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "auto" } });
     resolveGatewayPort.mockReturnValue(18800);
     pickPrimaryTailnetIPv4.mockReturnValue("100.64.0.1");
@@ -208,6 +221,7 @@ describe("callGateway url resolution", () => {
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
   it("uses least-privilege scopes by default for non-CLI callers", async () => {
     loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "loopback" } });
     resolveGatewayPort.mockReturnValue(18789);
@@ -230,6 +244,23 @@ describe("callGateway url resolution", () => {
       "operator.approvals",
       "operator.pairing",
     ]);
+=======
+  it.each([
+    {
+      label: "uses least-privilege scopes by default for non-CLI callers",
+      call: () => callGateway({ method: "health" }),
+      expectedScopes: ["operator.read"],
+    },
+    {
+      label: "keeps legacy admin scopes for explicit CLI callers",
+      call: () => callGatewayCli({ method: "health" }),
+      expectedScopes: ["operator.admin", "operator.approvals", "operator.pairing"],
+    },
+  ])("scope selection: $label", async ({ call, expectedScopes }) => {
+    setLocalLoopbackGatewayConfig();
+    await call();
+    expect(lastClientOptions?.scopes).toEqual(expectedScopes);
+>>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   });
 
   it("passes explicit scopes through, including empty arrays", async () => {

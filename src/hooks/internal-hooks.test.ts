@@ -182,6 +182,218 @@ describe("hooks", () => {
     });
   });
 
+<<<<<<< HEAD
+=======
+  describe("isGatewayStartupEvent", () => {
+    it("returns true for gateway:startup events with expected context", () => {
+      const context: GatewayStartupHookContext = {
+        cfg: {},
+      };
+      const event = createInternalHookEvent("gateway", "startup", "gateway:startup", context);
+      expect(isGatewayStartupEvent(event)).toBe(true);
+    });
+
+    it("returns false for non-startup gateway events", () => {
+      const event = createInternalHookEvent("gateway", "shutdown", "gateway:shutdown", {});
+      expect(isGatewayStartupEvent(event)).toBe(false);
+    });
+  });
+
+  describe("isMessageReceivedEvent", () => {
+    it("returns true for message:received events with expected context", () => {
+      const context: MessageReceivedHookContext = {
+        from: "+1234567890",
+        content: "Hello world",
+        channelId: "whatsapp",
+        conversationId: "chat-123",
+        timestamp: Date.now(),
+      };
+      const event = createInternalHookEvent("message", "received", "test-session", context);
+      expect(isMessageReceivedEvent(event)).toBe(true);
+    });
+
+    it("returns false for message:sent events", () => {
+      const context: MessageSentHookContext = {
+        to: "+1234567890",
+        content: "Hello world",
+        success: true,
+        channelId: "whatsapp",
+      };
+      const event = createInternalHookEvent("message", "sent", "test-session", context);
+      expect(isMessageReceivedEvent(event)).toBe(false);
+    });
+  });
+
+  describe("isMessageSentEvent", () => {
+    it("returns true for message:sent events with expected context", () => {
+      const context: MessageSentHookContext = {
+        to: "+1234567890",
+        content: "Hello world",
+        success: true,
+        channelId: "telegram",
+        conversationId: "chat-456",
+        messageId: "msg-789",
+      };
+      const event = createInternalHookEvent("message", "sent", "test-session", context);
+      expect(isMessageSentEvent(event)).toBe(true);
+    });
+
+    it("returns true when success is false (error case)", () => {
+      const context: MessageSentHookContext = {
+        to: "+1234567890",
+        content: "Hello world",
+        success: false,
+        error: "Network error",
+        channelId: "whatsapp",
+      };
+      const event = createInternalHookEvent("message", "sent", "test-session", context);
+      expect(isMessageSentEvent(event)).toBe(true);
+    });
+
+    it("returns false for message:received events", () => {
+      const context: MessageReceivedHookContext = {
+        from: "+1234567890",
+        content: "Hello world",
+        channelId: "whatsapp",
+      };
+      const event = createInternalHookEvent("message", "received", "test-session", context);
+      expect(isMessageSentEvent(event)).toBe(false);
+    });
+  });
+
+  describe("message type-guard shared negatives", () => {
+    it("returns false for non-message and missing-context shapes", () => {
+      const cases: Array<{
+        match: (event: ReturnType<typeof createInternalHookEvent>) => boolean;
+      }> = [
+        {
+          match: isMessageReceivedEvent,
+        },
+        {
+          match: isMessageSentEvent,
+        },
+      ];
+      const nonMessageEvent = createInternalHookEvent("command", "new", "test-session");
+      const missingReceivedContext = createInternalHookEvent(
+        "message",
+        "received",
+        "test-session",
+        {
+          from: "+1234567890",
+          // missing channelId
+        },
+      );
+      const missingSentContext = createInternalHookEvent("message", "sent", "test-session", {
+        to: "+1234567890",
+        channelId: "whatsapp",
+        // missing success
+      });
+
+      for (const testCase of cases) {
+        expect(testCase.match(nonMessageEvent)).toBe(false);
+      }
+      expect(isMessageReceivedEvent(missingReceivedContext)).toBe(false);
+      expect(isMessageSentEvent(missingSentContext)).toBe(false);
+    });
+  });
+
+  describe("message hooks", () => {
+    it("should trigger message:received handlers", async () => {
+      const handler = vi.fn();
+      registerInternalHook("message:received", handler);
+
+      const context: MessageReceivedHookContext = {
+        from: "+1234567890",
+        content: "Hello world",
+        channelId: "whatsapp",
+        conversationId: "chat-123",
+      };
+      const event = createInternalHookEvent("message", "received", "test-session", context);
+      await triggerInternalHook(event);
+
+      expect(handler).toHaveBeenCalledWith(event);
+    });
+
+    it("should trigger message:sent handlers", async () => {
+      const handler = vi.fn();
+      registerInternalHook("message:sent", handler);
+
+      const context: MessageSentHookContext = {
+        to: "+1234567890",
+        content: "Hello world",
+        success: true,
+        channelId: "telegram",
+        messageId: "msg-123",
+      };
+      const event = createInternalHookEvent("message", "sent", "test-session", context);
+      await triggerInternalHook(event);
+
+      expect(handler).toHaveBeenCalledWith(event);
+    });
+
+    it("should trigger general message handlers for both received and sent", async () => {
+      const handler = vi.fn();
+      registerInternalHook("message", handler);
+
+      const receivedContext: MessageReceivedHookContext = {
+        from: "+1234567890",
+        content: "Hello",
+        channelId: "whatsapp",
+      };
+      const receivedEvent = createInternalHookEvent(
+        "message",
+        "received",
+        "test-session",
+        receivedContext,
+      );
+      await triggerInternalHook(receivedEvent);
+
+      const sentContext: MessageSentHookContext = {
+        to: "+1234567890",
+        content: "World",
+        success: true,
+        channelId: "whatsapp",
+      };
+      const sentEvent = createInternalHookEvent("message", "sent", "test-session", sentContext);
+      await triggerInternalHook(sentEvent);
+
+      expect(handler).toHaveBeenCalledTimes(2);
+      expect(handler).toHaveBeenNthCalledWith(1, receivedEvent);
+      expect(handler).toHaveBeenNthCalledWith(2, sentEvent);
+    });
+
+    it("should handle hook errors without breaking message processing", async () => {
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+      const errorHandler = vi.fn(() => {
+        throw new Error("Hook failed");
+      });
+      const successHandler = vi.fn();
+
+      registerInternalHook("message:received", errorHandler);
+      registerInternalHook("message:received", successHandler);
+
+      const context: MessageReceivedHookContext = {
+        from: "+1234567890",
+        content: "Hello",
+        channelId: "whatsapp",
+      };
+      const event = createInternalHookEvent("message", "received", "test-session", context);
+      await triggerInternalHook(event);
+
+      // Both handlers were called
+      expect(errorHandler).toHaveBeenCalled();
+      expect(successHandler).toHaveBeenCalled();
+      // Error was logged but didn't prevent second handler
+      expect(consoleError).toHaveBeenCalledWith(
+        expect.stringContaining("Hook error"),
+        expect.stringContaining("Hook failed"),
+      );
+
+      consoleError.mockRestore();
+    });
+  });
+
+>>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   describe("getRegisteredEventKeys", () => {
     it("should return all registered event keys", () => {
       registerInternalHook("command:new", vi.fn());

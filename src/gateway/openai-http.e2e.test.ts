@@ -7,10 +7,12 @@ import { agentCommand, getFreePort, installGatewayTestHooks } from "./test-helpe
 
 installGatewayTestHooks({ scope: "suite" });
 
+let startGatewayServer: typeof import("./server.js").startGatewayServer;
 let enabledServer: Awaited<ReturnType<typeof startServer>>;
 let enabledPort: number;
 
 beforeAll(async () => {
+  ({ startGatewayServer } = await import("./server.js"));
   enabledPort = await getFreePort();
   enabledServer = await startServer(enabledPort);
 });
@@ -20,7 +22,6 @@ afterAll(async () => {
 });
 
 async function startServerWithDefaultConfig(port: number) {
-  const { startGatewayServer } = await import("./server.js");
   return await startGatewayServer(port, {
     host: "127.0.0.1",
     auth: { mode: "token", token: "secret" },
@@ -30,7 +31,6 @@ async function startServerWithDefaultConfig(port: number) {
 }
 
 async function startServer(port: number, opts?: { openAiChatCompletionsEnabled?: boolean }) {
-  const { startGatewayServer } = await import("./server.js");
   return await startGatewayServer(port, {
     host: "127.0.0.1",
     auth: { mode: "token", token: "secret" },

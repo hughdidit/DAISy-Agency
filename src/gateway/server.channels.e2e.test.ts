@@ -9,7 +9,8 @@ import {
   startServerWithClient,
 } from "./test-helpers.js";
 
-const loadConfigHelpers = async () => await import("../config/config.js");
+let readConfigFileSnapshot: typeof import("../config/config.js").readConfigFileSnapshot;
+let writeConfigFile: typeof import("../config/config.js").writeConfigFile;
 
 installGatewayTestHooks({ scope: "suite" });
 
@@ -97,7 +98,6 @@ const telegramPlugin: ChannelPlugin = {
   }),
   gateway: {
     logoutAccount: async ({ cfg }) => {
-      const { writeConfigFile } = await import("../config/config.js");
       const nextTelegram = cfg.channels?.telegram ? { ...cfg.channels.telegram } : {};
       delete nextTelegram.botToken;
       await writeConfigFile({
@@ -138,6 +138,7 @@ let server: Awaited<ReturnType<typeof startServerWithClient>>["server"];
 let ws: Awaited<ReturnType<typeof startServerWithClient>>["ws"];
 
 beforeAll(async () => {
+  ({ readConfigFileSnapshot, writeConfigFile } = await import("../config/config.js"));
   setRegistry(defaultRegistry);
   const started = await startServerWithClient();
   server = started.server;
@@ -197,7 +198,6 @@ describe("gateway server channels", () => {
   test("channels.logout clears telegram bot token from config", async () => {
     vi.stubEnv("TELEGRAM_BOT_TOKEN", undefined);
     setRegistry(defaultRegistry);
-    const { readConfigFileSnapshot, writeConfigFile } = await loadConfigHelpers();
     await writeConfigFile({
       channels: {
         telegram: {

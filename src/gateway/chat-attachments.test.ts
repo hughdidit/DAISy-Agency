@@ -37,6 +37,7 @@ describe("buildMessageWithAttachments", () => {
     };
     expect(() => buildMessageWithAttachments("x", [bad])).toThrow(/image/);
   });
+<<<<<<< HEAD
 
   it("rejects invalid base64 content", () => {
     const bad: ChatAttachment = {
@@ -64,6 +65,8 @@ describe("buildMessageWithAttachments", () => {
     expect(base64Calls).toHaveLength(0);
     fromSpy.mockRestore();
   });
+=======
+>>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
 });
 
 describe("parseMessageWithAttachments", () => {
@@ -85,6 +88,7 @@ describe("parseMessageWithAttachments", () => {
     expect(parsed.images[0]?.data).toBe(PNG_1x1);
   });
 
+<<<<<<< HEAD
   it("rejects invalid base64 content", async () => {
     await expect(
       parseMessageWithAttachments(
@@ -124,6 +128,8 @@ describe("parseMessageWithAttachments", () => {
     fromSpy.mockRestore();
   });
 
+=======
+>>>>>>> cc2ff6894 (test: optimize gateway infra memory and security coverage)
   it("sniffs mime when missing", async () => {
     const logs: string[] = [];
     const parsed = await parseMessageWithAttachments(
@@ -222,5 +228,45 @@ describe("parseMessageWithAttachments", () => {
     expect(parsed.images[0]?.mimeType).toBe("image/png");
     expect(parsed.images[0]?.data).toBe(PNG_1x1);
     expect(logs.some((l) => /non-image/i.test(l))).toBe(true);
+  });
+});
+
+describe("shared attachment validation", () => {
+  it("rejects invalid base64 content for both builder and parser", async () => {
+    const bad: ChatAttachment = {
+      type: "image",
+      mimeType: "image/png",
+      fileName: "dot.png",
+      content: "%not-base64%",
+    };
+
+    expect(() => buildMessageWithAttachments("x", [bad])).toThrow(/base64/i);
+    await expect(
+      parseMessageWithAttachments("x", [bad], { log: { warn: () => {} } }),
+    ).rejects.toThrow(/base64/i);
+  });
+
+  it("rejects images over limit for both builder and parser without decoding base64", async () => {
+    const big = "A".repeat(10_000);
+    const att: ChatAttachment = {
+      type: "image",
+      mimeType: "image/png",
+      fileName: "big.png",
+      content: big,
+    };
+
+    const fromSpy = vi.spyOn(Buffer, "from");
+    try {
+      expect(() => buildMessageWithAttachments("x", [att], { maxBytes: 16 })).toThrow(
+        /exceeds size limit/i,
+      );
+      await expect(
+        parseMessageWithAttachments("x", [att], { maxBytes: 16, log: { warn: () => {} } }),
+      ).rejects.toThrow(/exceeds size limit/i);
+      const base64Calls = fromSpy.mock.calls.filter((args) => (args as unknown[])[1] === "base64");
+      expect(base64Calls).toHaveLength(0);
+    } finally {
+      fromSpy.mockRestore();
+    }
   });
 });
