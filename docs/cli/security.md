@@ -48,7 +48,11 @@ It also warns when sandbox browser uses Docker `bridge` network without `sandbox
 It also warns when existing sandbox browser Docker containers have missing/stale hash labels (for example pre-migration containers missing `openclaw.browserConfigEpoch`) and recommends `openclaw sandbox recreate --browser --all`.
 >>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 It also warns when npm-based plugin/hook install records are unpinned, missing integrity metadata, or drift from currently installed package versions.
+<<<<<<< HEAD
 >>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
+=======
+It warns when Discord allowlists (`channels.discord.allowFrom`, `channels.discord.guilds.*.users`, pairing store) use name or tag entries instead of stable IDs.
+>>>>>>> f97c45c5b (fix(security): warn on Discord name-based allowlists in audit)
 It warns when `gateway.auth.mode="none"` leaves Gateway HTTP APIs reachable without a shared secret (`/tools/invoke` plus any enabled `/v1/*` endpoint).
 >>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
 

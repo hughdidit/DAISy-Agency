@@ -203,6 +203,7 @@ Notes:
 - **Permission audits** (`channels status --probe`) only check numeric channel IDs. If you use slugs/names as `channels.discord.guilds.*.channels` keys, the audit can’t verify permissions.
 - **DMs don’t work**: `channels.discord.dm.enabled=false`, `channels.discord.dm.policy="disabled"`, or you haven’t been approved yet (`channels.discord.dm.policy="pairing"`).
 
+<<<<<<< HEAD
 ## Capabilities & limits
 - DMs and guild text channels (threads are treated as separate channels; voice not supported).
 - Typing indicators sent best-effort; message chunking uses `channels.discord.textChunkLimit` (default 2000) and splits tall replies by line count (`channels.discord.maxLinesPerMessage`, default 17).
@@ -216,6 +217,205 @@ Notes:
 Outbound Discord API calls retry on rate limits (429) using Discord `retry_after` when available, with exponential backoff and jitter. Configure via `channels.discord.retry`. See [Retry policy](/concepts/retry).
 
 ## Config
+=======
+    <Tabs>
+      <Tab title="Ask your agent">
+        > "Allow my agent to respond on this server without having to be @mentioned"
+      </Tab>
+      <Tab title="Config">
+        Set `requireMention: false` in your guild config:
+
+```json5
+{
+  channels: {
+    discord: {
+      guilds: {
+        YOUR_SERVER_ID: {
+          requireMention: false,
+        },
+      },
+    },
+  },
+}
+```
+
+      </Tab>
+    </Tabs>
+
+  </Step>
+
+  <Step title="Plan for memory in guild channels">
+    By default, long-term memory (MEMORY.md) only loads in DM sessions. Guild channels do not auto-load MEMORY.md.
+
+    <Tabs>
+      <Tab title="Ask your agent">
+        > "When I ask questions in Discord channels, use memory_search or memory_get if you need long-term context from MEMORY.md."
+      </Tab>
+      <Tab title="Manual">
+        If you need shared context in every channel, put the stable instructions in `AGENTS.md` or `USER.md` (they are injected for every session). Keep long-term notes in `MEMORY.md` and access them on demand with memory tools.
+      </Tab>
+    </Tabs>
+
+  </Step>
+</Steps>
+
+Now create some channels on your Discord server and start chatting. Your agent can see the channel name, and each channel gets its own isolated session — so you can set up `#coding`, `#home`, `#research`, or whatever fits your workflow.
+
+## Runtime model
+
+- Gateway owns the Discord connection.
+- Reply routing is deterministic: Discord inbound replies back to Discord.
+- By default (`session.dmScope=main`), direct chats share the agent main session (`agent:main:main`).
+- Guild channels are isolated session keys (`agent:<agentId>:discord:channel:<channelId>`).
+- Group DMs are ignored by default (`channels.discord.dm.groupEnabled=false`).
+- Native slash commands run in isolated command sessions (`agent:<agentId>:discord:slash:<userId>`), while still carrying `CommandTargetSessionKey` to the routed conversation session.
+
+## Forum channels
+
+Discord forum and media channels only accept thread posts. OpenClaw supports two ways to create them:
+
+- Send a message to the forum parent (`channel:<forumId>`) to auto-create a thread. The thread title uses the first non-empty line of your message.
+- Use `openclaw message thread create` to create a thread directly. Do not pass `--message-id` for forum channels.
+
+Example: send to forum parent to create a thread
+
+```bash
+openclaw message send --channel discord --target channel:<forumId> \
+  --message "Topic title\nBody of the post"
+```
+
+Example: create a forum thread explicitly
+
+```bash
+openclaw message thread create --channel discord --target channel:<forumId> \
+  --thread-name "Topic title" --message "Body of the post"
+```
+
+Forum parents do not accept Discord components. If you need components, send to the thread itself (`channel:<threadId>`).
+
+## Interactive components
+
+OpenClaw supports Discord components v2 containers for agent messages. Use the message tool with a `components` payload. Interaction results are routed back to the agent as normal inbound messages and follow the existing Discord `replyToMode` settings.
+
+Supported blocks:
+
+- `text`, `section`, `separator`, `actions`, `media-gallery`, `file`
+- Action rows allow up to 5 buttons or a single select menu
+- Select types: `string`, `user`, `role`, `mentionable`, `channel`
+
+By default, components are single use. Set `components.reusable=true` to allow buttons, selects, and forms to be used multiple times until they expire.
+
+To restrict who can click a button, set `allowedUsers` on that button (Discord user IDs, tags, or `*`). When configured, unmatched users receive an ephemeral denial.
+
+The `/model` and `/models` slash commands open an interactive model picker with provider and model dropdowns plus a Submit step. The picker reply is ephemeral and only the invoking user can use it.
+
+File attachments:
+
+- `file` blocks must point to an attachment reference (`attachment://<filename>`)
+- Provide the attachment via `media`/`path`/`filePath` (single file); use `media-gallery` for multiple files
+- Use `filename` to override the upload name when it should match the attachment reference
+
+Modal forms:
+
+- Add `components.modal` with up to 5 fields
+- Field types: `text`, `checkbox`, `radio`, `select`, `role-select`, `user-select`
+- OpenClaw adds a trigger button automatically
+
+Example:
+
+```json5
+{
+  channel: "discord",
+  action: "send",
+  to: "channel:123456789012345678",
+  message: "Optional fallback text",
+  components: {
+    reusable: true,
+    text: "Choose a path",
+    blocks: [
+      {
+        type: "actions",
+        buttons: [
+          {
+            label: "Approve",
+            style: "success",
+            allowedUsers: ["123456789012345678"],
+          },
+          { label: "Decline", style: "danger" },
+        ],
+      },
+      {
+        type: "actions",
+        select: {
+          type: "string",
+          placeholder: "Pick an option",
+          options: [
+            { label: "Option A", value: "a" },
+            { label: "Option B", value: "b" },
+          ],
+        },
+      },
+    ],
+    modal: {
+      title: "Details",
+      triggerLabel: "Open form",
+      fields: [
+        { type: "text", label: "Requester" },
+        {
+          type: "select",
+          label: "Priority",
+          options: [
+            { label: "Low", value: "low" },
+            { label: "High", value: "high" },
+          ],
+        },
+      ],
+    },
+  },
+}
+```
+
+## Access control and routing
+
+<Tabs>
+  <Tab title="DM policy">
+    `channels.discord.dmPolicy` controls DM access (legacy: `channels.discord.dm.policy`):
+
+    - `pairing` (default)
+    - `allowlist`
+    - `open` (requires `channels.discord.allowFrom` to include `"*"`; legacy: `channels.discord.dm.allowFrom`)
+    - `disabled`
+
+    If DM policy is not open, unknown users are blocked (or prompted for pairing in `pairing` mode).
+
+    DM target format for delivery:
+
+    - `user:<id>`
+    - `<@id>` mention
+
+    Bare numeric IDs are ambiguous and rejected unless an explicit user/channel target kind is provided.
+
+  </Tab>
+
+  <Tab title="Guild policy">
+    Guild handling is controlled by `channels.discord.groupPolicy`:
+
+    - `open`
+    - `allowlist`
+    - `disabled`
+
+    Secure baseline when `channels.discord` exists is `allowlist`.
+
+    `allowlist` behavior:
+
+    - guild must match `channels.discord.guilds` (`id` preferred, slug accepted)
+    - optional sender allowlists: `users` (IDs or names) and `roles` (role IDs only); if either is configured, senders are allowed when they match `users` OR `roles`
+    - names/tags are supported for `users`, but IDs are safer; `openclaw security audit` warns when name/tag entries are used
+    - if a guild has `channels` configured, non-listed channels are denied
+    - if a guild has no `channels` block, all channels in that allowlisted guild are allowed
+
+    Example:
+>>>>>>> f97c45c5b (fix(security): warn on Discord name-based allowlists in audit)
 
 ```json5
 {
