@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+import { captureEnv } from "../../test-utils/env.js";
+>>>>>>> 884166c7a (refactor(test): snapshot telegram action env in e2e suite)
 import { handleTelegramAction, readTelegramButtons } from "./telegram-actions.js";
 
 const reactMessageTelegram = vi.fn(async () => ({ ok: true }));
@@ -13,7 +18,7 @@ const sendStickerTelegram = vi.fn(async () => ({
   chatId: "123",
 }));
 const deleteMessageTelegram = vi.fn(async () => ({ ok: true }));
-const originalToken = process.env.TELEGRAM_BOT_TOKEN;
+let envSnapshot: ReturnType<typeof captureEnv>;
 
 vi.mock("../../telegram/send.js", () => ({
   reactMessageTelegram: (...args: Parameters<typeof reactMessageTelegram>) =>
@@ -51,6 +56,7 @@ describe("handleTelegramAction", () => {
   }
 
   beforeEach(() => {
+    envSnapshot = captureEnv(["TELEGRAM_BOT_TOKEN"]);
     reactMessageTelegram.mockClear();
     sendMessageTelegram.mockClear();
     sendStickerTelegram.mockClear();
@@ -59,11 +65,7 @@ describe("handleTelegramAction", () => {
   });
 
   afterEach(() => {
-    if (originalToken === undefined) {
-      delete process.env.TELEGRAM_BOT_TOKEN;
-    } else {
-      process.env.TELEGRAM_BOT_TOKEN = originalToken;
-    }
+    envSnapshot.restore();
   });
 
   it("adds reactions when reactionLevel is minimal", async () => {
