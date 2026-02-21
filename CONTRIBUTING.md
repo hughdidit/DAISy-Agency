@@ -58,12 +58,18 @@ Welcome to the lobster tank! 🦞
 =======
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 - **Maximilian Nussbaumer** - DevOps, CI, Code Sanity
   - GitHub: [@quotentiroler](https://github.com/quotentiroler) · X: [@quotentiroler](https://x.com/quotentiroler)
 >>>>>>> 96c46ed61 (Docs: restore maintainers in contributing)
 
 =======
 >>>>>>> 9b2e1769c (docs(contributing): update maintainers list (#17719))
+=======
+- **Onur Solmaz** - Agents, dev workflows, ACP integrations, MS Teams
+  - GitHub: [@onutc](https://github.com/onutc), [@osolmaz](https://github.com/osolmaz) · X: [@onusoz](https://x.com/onusoz)
+
+>>>>>>> ac633366c (docs: add Onur Solmaz to contributors (#22890))
 ## How to Contribute
 1. **Bugs & small fixes** → Open a PR!
 2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/moltbot/moltbot/discussions) or ask in Discord first
