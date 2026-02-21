@@ -3,6 +3,7 @@ summary: "Sub-agents: spawning isolated agent runs that announce results back to
 read_when:
   - You want background/parallel work via the agent
   - You are changing sessions_spawn or sub-agent tool policy
+  - You are implementing or troubleshooting thread-bound subagent sessions
 title: "Sub-Agents"
 ---
 
@@ -18,13 +19,40 @@ Sub-agents let you run background tasks without blocking the main conversation. 
 
 ## Quick Start
 
+<<<<<<< HEAD
 The simplest way to use sub-agents is to ask your agent naturally:
+=======
+Discord thread binding controls:
+
+- `/focus <subagent-label|session-key|session-id|session-label>`
+- `/unfocus`
+- `/agents`
+- `/session ttl <duration|off>`
+
+`/subagents info` shows run metadata (status, timestamps, session id, transcript path, cleanup).
+>>>>>>> 817905f3a (docs: document thread-bound subagent sessions and remove plan)
 
 > "Spawn a sub-agent to research the latest Node.js release notes"
 
 The agent will call the `sessions_spawn` tool behind the scenes. When the sub-agent finishes, it announces its findings back into your chat.
 
+<<<<<<< HEAD
 You can also be explicit about options:
+=======
+- The spawn command is non-blocking; it returns a run id immediately.
+- On completion, the sub-agent announces a summary/result message back to the requester chat channel.
+- For manual spawns, delivery is resilient:
+  - OpenClaw tries direct `agent` delivery first with a stable idempotency key.
+  - If direct delivery fails, it falls back to queue routing.
+  - If queue routing is still not available, the announce is retried with a short exponential backoff before final give-up.
+- The completion message is a system message and includes:
+  - `Result` (`assistant` reply text, or latest `toolResult` if the assistant reply is empty)
+  - `Status` (`completed successfully` / `failed` / `timed out`)
+  - compact runtime/token stats
+- `--model` and `--thinking` override defaults for that specific run.
+- Use `info`/`log` to inspect details and output after completion.
+- `/subagents spawn` is one-shot mode (`mode: "run"`). For persistent thread-bound sessions, use `sessions_spawn` with `thread: true` and `mode: "session"`.
+>>>>>>> 817905f3a (docs: document thread-bound subagent sessions and remove plan)
 
 > "Spawn a sub-agent to analyze the server logs from today. Use gpt-5.2 and set a 5-minute timeout."
 
@@ -58,9 +86,74 @@ Sub-agents work out of the box with no configuration. Defaults:
 - Max concurrent: 8
 - Auto-archive: after 60 minutes
 
+<<<<<<< HEAD
 ### Setting a Default Model
 
 Use a cheaper model for sub-agents to save on token costs:
+=======
+- `task` (required)
+- `label?` (optional)
+- `agentId?` (optional; spawn under another agent id if allowed)
+- `model?` (optional; overrides the sub-agent model; invalid values are skipped and the sub-agent runs on the default model with a warning in the tool result)
+- `thinking?` (optional; overrides thinking level for the sub-agent run)
+- `runTimeoutSeconds?` (default `0`; when set, the sub-agent run is aborted after N seconds)
+- `thread?` (default `false`; when `true`, requests channel thread binding for this sub-agent session)
+- `mode?` (`run|session`)
+  - default is `run`
+  - if `thread: true` and `mode` omitted, default becomes `session`
+  - `mode: "session"` requires `thread: true`
+- `cleanup?` (`delete|keep`, default `keep`)
+
+## Discord thread-bound sessions
+
+When thread bindings are enabled, a sub-agent can stay bound to a Discord thread so follow-up user messages in that thread keep routing to the same sub-agent session.
+
+Quick flow:
+
+1. Spawn with `sessions_spawn` using `thread: true` (and optionally `mode: "session"`).
+2. OpenClaw creates or binds a Discord thread to that session target.
+3. Replies and follow-up messages in that thread route to the bound session.
+4. Use `/session ttl` to inspect/update auto-unfocus TTL.
+5. Use `/unfocus` to detach manually.
+
+Manual controls:
+
+- `/focus <target>` binds the current thread (or creates one) to a sub-agent/session target.
+- `/unfocus` removes the binding for the current Discord thread.
+- `/agents` lists active runs and binding state (`thread:<id>` or `unbound`).
+- `/session ttl` only works for focused Discord threads.
+
+Config switches:
+
+- Global default: `session.threadBindings.enabled`, `session.threadBindings.ttlHours`
+- Discord override: `channels.discord.threadBindings.enabled`, `channels.discord.threadBindings.ttlHours`
+- Spawn auto-bind opt-in: `channels.discord.threadBindings.spawnSubagentSessions`
+
+See [Discord](/channels/discord), [Configuration Reference](/gateway/configuration-reference), and [Slash commands](/tools/slash-commands).
+
+Allowlist:
+
+- `agents.list[].subagents.allowAgents`: list of agent ids that can be targeted via `agentId` (`["*"]` to allow any). Default: only the requester agent.
+
+Discovery:
+
+- Use `agents_list` to see which agent ids are currently allowed for `sessions_spawn`.
+
+Auto-archive:
+
+- Sub-agent sessions are automatically archived after `agents.defaults.subagents.archiveAfterMinutes` (default: 60).
+- Archive uses `sessions.delete` and renames the transcript to `*.deleted.<timestamp>` (same folder).
+- `cleanup: "delete"` archives immediately after announce (still keeps the transcript via rename).
+- Auto-archive is best-effort; pending timers are lost if the gateway restarts.
+- `runTimeoutSeconds` does **not** auto-archive; it only stops the run. The session remains until auto-archive.
+- Auto-archive applies equally to depth-1 and depth-2 sessions.
+
+## Nested Sub-Agents
+
+By default, sub-agents cannot spawn their own sub-agents (`maxSpawnDepth: 1`). You can enable one level of nesting by setting `maxSpawnDepth: 2`, which allows the **orchestrator pattern**: main → orchestrator sub-agent → worker sub-sub-agents.
+
+### How to enable
+>>>>>>> 817905f3a (docs: document thread-bound subagent sessions and remove plan)
 
 ```json5
 {
