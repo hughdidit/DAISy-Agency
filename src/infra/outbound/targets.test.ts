@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it } from "vitest";
 import type { MoltbotConfig } from "../../config/config.js";
 
@@ -15,24 +16,70 @@ import type { OpenClawConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
 >>>>>>> ee519086f (Feature/default messenger delivery target (openclaw#16985) thanks @KirillShchetinin)
+=======
+import { describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> fd8b7b5c4 (test(outbound): share resolveOutboundTarget test suite)
 import { resolveOutboundTarget, resolveSessionDeliveryTarget } from "./targets.js";
+import {
+  installResolveOutboundTargetPluginRegistryHooks,
+  runResolveOutboundTargetCoreTests,
+} from "./targets.shared-test.js";
 
-describe("resolveOutboundTarget", () => {
-  beforeEach(() => {
-    setActivePluginRegistry(
-      createTestRegistry([
-        { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
-        { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
-      ]),
-    );
+runResolveOutboundTargetCoreTests();
+
+describe("resolveOutboundTarget defaultTo config fallback", () => {
+  installResolveOutboundTargetPluginRegistryHooks();
+
+  it("uses whatsapp defaultTo when no explicit target is provided", () => {
+    const cfg: OpenClawConfig = {
+      channels: { whatsapp: { defaultTo: "+15551234567", allowFrom: ["*"] } },
+    };
+    const res = resolveOutboundTarget({
+      channel: "whatsapp",
+      to: undefined,
+      cfg,
+      mode: "implicit",
+    });
+    expect(res).toEqual({ ok: true, to: "+15551234567" });
   });
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   it("falls back to whatsapp allowFrom via config", () => {
     const cfg: MoltbotConfig = {
 =======
   it("rejects whatsapp with empty target even when allowFrom configured", () => {
+=======
+  it("uses telegram defaultTo when no explicit target is provided", () => {
+    const cfg: OpenClawConfig = {
+      channels: { telegram: { defaultTo: "123456789" } },
+    };
+    const res = resolveOutboundTarget({
+      channel: "telegram",
+      to: "",
+      cfg,
+      mode: "implicit",
+    });
+    expect(res).toEqual({ ok: true, to: "123456789" });
+  });
+
+  it("explicit --reply-to overrides defaultTo", () => {
+    const cfg: OpenClawConfig = {
+      channels: { whatsapp: { defaultTo: "+15551234567", allowFrom: ["*"] } },
+    };
+    const res = resolveOutboundTarget({
+      channel: "whatsapp",
+      to: "+15559999999",
+      cfg,
+      mode: "explicit",
+    });
+    expect(res).toEqual({ ok: true, to: "+15559999999" });
+  });
+
+  it("still errors when no defaultTo and no explicit target", () => {
+>>>>>>> fd8b7b5c4 (test(outbound): share resolveOutboundTarget test suite)
     const cfg: OpenClawConfig = {
 >>>>>>> 39ee708df (fix(outbound): return error instead of silently redirecting to allowList[0] (#13578))
 =======
@@ -45,9 +92,10 @@ describe("resolveOutboundTarget", () => {
       channel: "whatsapp",
       to: "",
       cfg,
-      mode: "explicit",
+      mode: "implicit",
     });
     expect(res.ok).toBe(false);
+<<<<<<< HEAD
     if (!res.ok) {
       expect(res.error.message).toContain("WhatsApp");
     }
@@ -188,6 +236,8 @@ import { resolveSessionDeliveryTarget } from "./targets.js";
       });
       expect(res.ok).toBe(false);
     });
+=======
+>>>>>>> fd8b7b5c4 (test(outbound): share resolveOutboundTarget test suite)
   });
 });
 >>>>>>> ee519086f (Feature/default messenger delivery target (openclaw#16985) thanks @KirillShchetinin)

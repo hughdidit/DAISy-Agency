@@ -2,8 +2,6 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
-import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
@@ -39,7 +37,7 @@ import {
   normalizeOutboundPayloads,
   normalizeOutboundPayloadsForJson,
 } from "./payloads.js";
-import { resolveOutboundTarget } from "./targets.js";
+import { runResolveOutboundTargetCoreTests } from "./targets.shared-test.js";
 
 describe("delivery-queue", () => {
   let tmpDir: string;
@@ -1035,6 +1033,7 @@ describe("formatOutboundPayloadLog", () => {
   });
 });
 
+<<<<<<< HEAD
 describe("resolveOutboundTarget", () => {
   beforeEach(() => {
     setActivePluginRegistry(
@@ -1141,3 +1140,6 @@ describe("resolveOutboundTarget", () => {
     }
   });
 });
+=======
+runResolveOutboundTargetCoreTests();
+>>>>>>> fd8b7b5c4 (test(outbound): share resolveOutboundTarget test suite)
