@@ -263,6 +263,7 @@ describe("exec approvals shell allowlist (chained commands)", () => {
 });
 
 describe("exec approvals safe bins", () => {
+<<<<<<< HEAD
   it("allows safe bins with non-path args", () => {
     const dir = makeTempDir();
     const binDir = path.join(dir, "bin");
@@ -275,6 +276,126 @@ describe("exec approvals safe bins", () => {
       command: "jq .foo",
       cwd: dir,
       env: makePathEnv(binDir),
+=======
+  type SafeBinCase = {
+    name: string;
+    argv: string[];
+    resolvedPath: string;
+    expected: boolean;
+    safeBins?: string[];
+    executableName?: string;
+    rawExecutable?: string;
+    cwd?: string;
+    setup?: (cwd: string) => void;
+  };
+
+  const cases: SafeBinCase[] = [
+    {
+      name: "allows safe bins with non-path args",
+      argv: ["jq", ".foo"],
+      resolvedPath: "/usr/bin/jq",
+      expected: true,
+    },
+    {
+      name: "blocks safe bins with file args",
+      argv: ["jq", ".foo", "secret.json"],
+      resolvedPath: "/usr/bin/jq",
+      expected: false,
+      setup: (cwd) => fs.writeFileSync(path.join(cwd, "secret.json"), "{}"),
+    },
+    {
+      name: "blocks safe bins resolved from untrusted directories",
+      argv: ["jq", ".foo"],
+      resolvedPath: "/tmp/evil-bin/jq",
+      expected: false,
+      cwd: "/tmp",
+    },
+    {
+      name: "blocks sort output path via -o <file>",
+      argv: ["sort", "-o", "malicious.sh"],
+      resolvedPath: "/usr/bin/sort",
+      expected: false,
+      safeBins: ["sort"],
+      executableName: "sort",
+    },
+    {
+      name: "blocks sort output path via attached short option (-ofile)",
+      argv: ["sort", "-omalicious.sh"],
+      resolvedPath: "/usr/bin/sort",
+      expected: false,
+      safeBins: ["sort"],
+      executableName: "sort",
+    },
+    {
+      name: "blocks sort output path via --output=file",
+      argv: ["sort", "--output=malicious.sh"],
+      resolvedPath: "/usr/bin/sort",
+      expected: false,
+      safeBins: ["sort"],
+      executableName: "sort",
+    },
+    {
+      name: "blocks sort external program flag via --compress-program=<prog>",
+      argv: ["sort", "--compress-program=sh"],
+      resolvedPath: "/usr/bin/sort",
+      expected: false,
+      safeBins: ["sort"],
+      executableName: "sort",
+    },
+    {
+      name: "blocks sort external program flag via --compress-program <prog>",
+      argv: ["sort", "--compress-program", "sh"],
+      resolvedPath: "/usr/bin/sort",
+      expected: false,
+      safeBins: ["sort"],
+      executableName: "sort",
+    },
+    {
+      name: "blocks grep recursive flags that read cwd",
+      argv: ["grep", "-R", "needle"],
+      resolvedPath: "/usr/bin/grep",
+      expected: false,
+      safeBins: ["grep"],
+      executableName: "grep",
+    },
+    {
+      name: "blocks grep file positional when pattern uses -e",
+      argv: ["grep", "-e", "needle", ".env"],
+      resolvedPath: "/usr/bin/grep",
+      expected: false,
+      safeBins: ["grep"],
+      executableName: "grep",
+    },
+    {
+      name: "blocks grep file positional after -- terminator",
+      argv: ["grep", "-e", "needle", "--", ".env"],
+      resolvedPath: "/usr/bin/grep",
+      expected: false,
+      safeBins: ["grep"],
+      executableName: "grep",
+    },
+  ];
+
+  for (const testCase of cases) {
+    it(testCase.name, () => {
+      if (process.platform === "win32") {
+        return;
+      }
+      const cwd = testCase.cwd ?? makeTempDir();
+      testCase.setup?.(cwd);
+      const executableName = testCase.executableName ?? "jq";
+      const rawExecutable = testCase.rawExecutable ?? executableName;
+      const ok = isSafeBinUsage({
+        argv: testCase.argv,
+        resolution: {
+          rawExecutable,
+          resolvedPath: testCase.resolvedPath,
+          executableName,
+        },
+        safeBins: normalizeSafeBins(testCase.safeBins ?? [executableName]),
+      });
+      expect(ok).toBe(testCase.expected);
+>>>>>>> 57fbbaebc (fix: block safeBins sort --compress-program bypass)
     });
     expect(res.ok).toBe(true);
     const segment = res.segments[0];
