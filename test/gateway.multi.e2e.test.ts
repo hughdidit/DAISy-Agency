@@ -36,9 +36,12 @@ type NodeListPayload = {
   nodes?: Array<{ nodeId?: string; connected?: boolean; paired?: boolean }>;
 };
 
-const GATEWAY_START_TIMEOUT_MS = 45_000;
+const GATEWAY_START_TIMEOUT_MS = 20_000;
 const GATEWAY_STOP_TIMEOUT_MS = 1_500;
 const E2E_TIMEOUT_MS = 120_000;
+const GATEWAY_CONNECT_STATUS_TIMEOUT_MS = 2_000;
+const GATEWAY_NODE_STATUS_TIMEOUT_MS = 4_000;
+const GATEWAY_NODE_STATUS_POLL_MS = 20;
 
 const getFreePort = async () => {
   const srv = net.createServer();
@@ -87,7 +90,7 @@ const waitForPortOpen = async (
       // keep polling
     }
 
-    await sleep(25);
+    await sleep(10);
   }
   const stdout = chunksOut.join("");
   const stderr = chunksErr.join("");
@@ -272,7 +275,7 @@ const connectNode = async (
 
 const connectStatusClient = async (
   inst: GatewayInstance,
-  timeoutMs = 5_000,
+  timeoutMs = GATEWAY_CONNECT_STATUS_TIMEOUT_MS,
 ): Promise<GatewayClient> => {
   let settled = false;
   let timer: NodeJS.Timeout | null = null;
@@ -319,8 +322,13 @@ const connectStatusClient = async (
   });
 };
 
-const waitForNodeStatus = async (inst: GatewayInstance, nodeId: string, timeoutMs = 10_000) => {
+const waitForNodeStatus = async (
+  inst: GatewayInstance,
+  nodeId: string,
+  timeoutMs = GATEWAY_NODE_STATUS_TIMEOUT_MS,
+) => {
   const deadline = Date.now() + timeoutMs;
+<<<<<<< HEAD
 <<<<<<< HEAD
   while (Date.now() < deadline) {
 <<<<<<< HEAD
@@ -339,6 +347,12 @@ const waitForNodeStatus = async (inst: GatewayInstance, nodeId: string, timeoutM
       return;
 =======
   const client = await connectStatusClient(inst);
+=======
+  const client = await connectStatusClient(
+    inst,
+    Math.min(GATEWAY_CONNECT_STATUS_TIMEOUT_MS, timeoutMs),
+  );
+>>>>>>> 4a2ff03f4 (test: dedupe channel/web cases and tighten gateway e2e waits)
   try {
     while (Date.now() < deadline) {
       const list = await client.request<NodeListPayload>("node.list", {});
@@ -346,8 +360,12 @@ const waitForNodeStatus = async (inst: GatewayInstance, nodeId: string, timeoutM
       if (match?.connected && match?.paired) {
         return;
       }
+<<<<<<< HEAD
       await sleep(50);
 >>>>>>> b05c41f34 (perf: reduce gateway multi e2e websocket churn)
+=======
+      await sleep(GATEWAY_NODE_STATUS_POLL_MS);
+>>>>>>> 4a2ff03f4 (test: dedupe channel/web cases and tighten gateway e2e waits)
     }
   } finally {
     client.stop();
