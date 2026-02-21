@@ -927,6 +927,7 @@ describe("normalizeOutboundPayloadsForJson", () => {
     ];
 >>>>>>> 0e1aa7792 (chore(tsgo/format): fix CI errors)
 
+<<<<<<< HEAD
   it("keeps mediaUrl null for multi MEDIA tags", () => {
     expect(
       normalizeOutboundPayloadsForJson([
@@ -942,6 +943,17 @@ describe("normalizeOutboundPayloadsForJson", () => {
         channelData: undefined,
       },
     ]);
+=======
+    for (const testCase of cases) {
+      const input = testCase.input.map((payload) => {
+        if ("mediaUrls" in payload && payload.mediaUrls) {
+          return { ...payload, mediaUrls: [...payload.mediaUrls] };
+        }
+        return { ...payload };
+      });
+      expect(normalizeOutboundPayloadsForJson(input)).toEqual(testCase.expected);
+    }
+>>>>>>> 828f4e18e (test: finish readonly fixture compatibility for CI check)
   });
 });
 

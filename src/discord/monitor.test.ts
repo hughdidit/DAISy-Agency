@@ -724,9 +724,22 @@ describe("discord reaction notification gating", () => {
     ] as const;
 
     for (const testCase of cases) {
+<<<<<<< HEAD
       expect(shouldEmitDiscordReactionNotification(testCase.input), testCase.name).toBe(
         testCase.expected,
       );
+=======
+      expect(
+        shouldEmitDiscordReactionNotification({
+          ...testCase.input,
+          allowlist:
+            "allowlist" in testCase.input && testCase.input.allowlist
+              ? [...testCase.input.allowlist]
+              : undefined,
+        }),
+        testCase.name,
+      ).toBe(testCase.expected);
+>>>>>>> 828f4e18e (test: finish readonly fixture compatibility for CI check)
     }
   });
 });
