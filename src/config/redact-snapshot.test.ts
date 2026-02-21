@@ -386,6 +386,32 @@ describe("redactConfigSnapshot", () => {
   });
 
   it("round-trips nested and array sensitivity cases", () => {
+    const customSecretValue = "this-is-a-custom-secret-value";
+    const buildNestedValuesSnapshot = () =>
+      makeSnapshot({
+        custom1: { anykey: { mySecret: customSecretValue } },
+        custom2: [{ mySecret: customSecretValue }],
+      });
+    const assertNestedValuesRoundTrip = ({
+      redacted,
+      restored,
+    }: {
+      redacted: Record<string, unknown>;
+      restored: Record<string, unknown>;
+    }) => {
+      const cfg = redacted as Record<string, Record<string, unknown>>;
+      const cfgCustom2 = cfg.custom2 as unknown as unknown[];
+      expect(cfgCustom2.length).toBeGreaterThan(0);
+      expect((cfg.custom1.anykey as Record<string, unknown>).mySecret).toBe(REDACTED_SENTINEL);
+      expect((cfgCustom2[0] as Record<string, unknown>).mySecret).toBe(REDACTED_SENTINEL);
+
+      const out = restored as Record<string, Record<string, unknown>>;
+      const outCustom2 = out.custom2 as unknown as unknown[];
+      expect(outCustom2.length).toBeGreaterThan(0);
+      expect((out.custom1.anykey as Record<string, unknown>).mySecret).toBe(customSecretValue);
+      expect((outCustom2[0] as Record<string, unknown>).mySecret).toBe(customSecretValue);
+    };
+
     const cases: Array<{
       name: string;
       snapshot: TestSnapshot<Record<string, unknown>>;
@@ -397,6 +423,7 @@ describe("redactConfigSnapshot", () => {
     }> = [
       {
         name: "nested values (schema)",
+<<<<<<< HEAD
         snapshot: makeSnapshot({
           custom1: { anykey: { mySecret: "this-is-a-custom-secret-value" } },
           custom2: [{ mySecret: "this-is-a-custom-secret-value" }],
@@ -417,6 +444,10 @@ describe("redactConfigSnapshot", () => {
             "this-is-a-custom-secret-value",
           );
         },
+=======
+        snapshot: buildNestedValuesSnapshot(),
+        assert: assertNestedValuesRoundTrip,
+>>>>>>> 271999d42 (test(config): dedupe nested redaction round-trip assertions)
       },
       {
         name: "nested values (uiHints)",
@@ -424,6 +455,7 @@ describe("redactConfigSnapshot", () => {
           "custom1.*.mySecret": { sensitive: true },
           "custom2[].mySecret": { sensitive: true },
         },
+<<<<<<< HEAD
         snapshot: makeSnapshot({
           custom1: { anykey: { mySecret: "this-is-a-custom-secret-value" } },
           custom2: [{ mySecret: "this-is-a-custom-secret-value" }],
@@ -444,6 +476,10 @@ describe("redactConfigSnapshot", () => {
             "this-is-a-custom-secret-value",
           );
         },
+=======
+        snapshot: buildNestedValuesSnapshot(),
+        assert: assertNestedValuesRoundTrip,
+>>>>>>> 271999d42 (test(config): dedupe nested redaction round-trip assertions)
       },
       {
         name: "directly sensitive records and arrays",
