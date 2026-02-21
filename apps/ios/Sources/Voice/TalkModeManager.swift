@@ -23,6 +23,10 @@ final class TalkModeManager: NSObject {
     var statusText: String = "Off"
     /// 0..1-ish (not calibrated). Intended for UI feedback only.
     var micLevel: Double = 0
+    var gatewayTalkConfigLoaded: Bool = false
+    var gatewayTalkApiKeyConfigured: Bool = false
+    var gatewayTalkDefaultModelId: String?
+    var gatewayTalkDefaultVoiceId: String?
 
     private enum CaptureMode {
         case idle
@@ -1699,7 +1703,23 @@ extension TalkModeManager {
             }
             self.defaultOutputFormat = (talk?["outputFormat"] as? String)?
                 .trimmingCharacters(in: .whitespacesAndNewlines)
+<<<<<<< HEAD
             self.apiKey = (talk?["apiKey"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+=======
+            let rawConfigApiKey = (talk?["apiKey"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let configApiKey = Self.normalizedTalkApiKey(rawConfigApiKey)
+            let localApiKey = Self.normalizedTalkApiKey(GatewaySettingsStore.loadTalkElevenLabsApiKey())
+            if rawConfigApiKey == Self.redactedConfigSentinel {
+                self.apiKey = (localApiKey?.isEmpty == false) ? localApiKey : nil
+                GatewayDiagnostics.log("talk config apiKey redacted; using local override if present")
+            } else {
+                self.apiKey = (localApiKey?.isEmpty == false) ? localApiKey : configApiKey
+            }
+            self.gatewayTalkDefaultVoiceId = self.defaultVoiceId
+            self.gatewayTalkDefaultModelId = self.defaultModelId
+            self.gatewayTalkApiKeyConfigured = (self.apiKey?.isEmpty == false)
+            self.gatewayTalkConfigLoaded = true
+>>>>>>> 78caf9ec3 (feat(ios): surface gateway talk defaults and refresh icon assets (#22530))
             if let interrupt = talk?["interruptOnSpeech"] as? Bool {
                 self.interruptOnSpeech = interrupt
             }
@@ -1708,6 +1728,10 @@ extension TalkModeManager {
             if !self.modelOverrideActive {
                 self.currentModelId = self.defaultModelId
             }
+            self.gatewayTalkDefaultVoiceId = nil
+            self.gatewayTalkDefaultModelId = nil
+            self.gatewayTalkApiKeyConfigured = false
+            self.gatewayTalkConfigLoaded = false
         }
     }
 
