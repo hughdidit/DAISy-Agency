@@ -760,7 +760,38 @@ const FIELD_PLACEHOLDERS: Record<string, string> = {
   "agents.list[].identity.avatar": "avatars/openclaw.png",
 };
 
+<<<<<<< HEAD
 const SENSITIVE_PATTERNS = [/token$/i, /password/i, /secret/i, /api.?key/i];
+=======
+/**
+ * Non-sensitive field names that happen to match sensitive patterns.
+ * These are explicitly excluded from redaction (plugin config) and
+ * warnings about not being marked sensitive (base config).
+ */
+const SENSITIVE_KEY_WHITELIST_SUFFIXES = [
+  "maxtokens",
+  "maxoutputtokens",
+  "maxinputtokens",
+  "maxcompletiontokens",
+  "contexttokens",
+  "totaltokens",
+  "tokencount",
+  "tokenlimit",
+  "tokenbudget",
+  "passwordFile",
+] as const;
+const NORMALIZED_SENSITIVE_KEY_WHITELIST_SUFFIXES = SENSITIVE_KEY_WHITELIST_SUFFIXES.map((suffix) =>
+  suffix.toLowerCase(),
+);
+
+const SENSITIVE_PATTERNS = [
+  /token$/i,
+  /password/i,
+  /secret/i,
+  /api.?key/i,
+  /serviceaccount(?:ref)?$/i,
+];
+>>>>>>> c3a4251a6 (Config: add secret ref schema and redaction foundations)
 
 function isSensitiveConfigPath(path: string): boolean {
   return SENSITIVE_PATTERNS.some((pattern) => pattern.test(path));
