@@ -112,7 +112,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> a305dfe62 (Memory/QMD: harden multi-collection search and embed scheduling)
 =======
 - Memory/Builtin: prevent automatic sync races with manager shutdown by skipping post-close sync starts and waiting for in-flight sync before closing SQLite, so `onSearch`/`onSessionStart` no longer fail with `database is not open` in ephemeral CLI flows. (#20556, #7464) Thanks @FuzzyTG and @henrybottter.
+<<<<<<< HEAD
 >>>>>>> be756b9a8 (Memory: fix async sync close race)
+=======
+- Hooks/Session memory: trigger bundled `session-memory` persistence on both `/new` and `/reset` so reset flows no longer skip markdown transcript capture before archival. (#21382) Thanks @mofesolapaul.
+>>>>>>> d583399c9 (Hooks: persist session memory on /reset)
 - Signal/Outbound: preserve case for Base64 group IDs during outbound target normalization so cross-context routing and policy checks no longer break when group IDs include uppercase characters. (#5578) Thanks @heyhudson.
 >>>>>>> 7b81383d4 (fix(signal): preserve case for Base64 group IDs in target normalization (openclaw#10623) thanks @heyhudson)
 - Providers/Copilot: add `claude-sonnet-4.6` and `claude-sonnet-4.5` to the default GitHub Copilot model catalog and add coverage for model-list/definition helpers. (#20270, fixes #20091) Thanks @Clawborn.
