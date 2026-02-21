@@ -40,6 +40,7 @@ import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 <<<<<<< HEAD
 =======
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
+<<<<<<< HEAD
 =======
 >>>>>>> ed11e93cf (chore(format))
 =======
@@ -50,6 +51,11 @@ import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 =======
 import type { OpenClawConfig, loadConfig } from "../../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
+import { logVerbose } from "../../globals.js";
+import { createSubsystemLogger } from "../../logging/subsystem.js";
+>>>>>>> 2f46308d5 (refactor(logging): migrate non-agent internal console calls to subsystem logger (#22964))
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
@@ -83,6 +89,7 @@ import type { ThreadBindingManager } from "./thread-bindings.js";
 import { resolveDiscordThreadParentInfo } from "./threading.js";
 
 type DiscordConfig = NonNullable<OpenClawConfig["channels"]>["discord"];
+const log = createSubsystemLogger("discord/native-command");
 
 function buildDiscordCommandOptions(params: {
   command: ChatCommandDefinition;
@@ -1584,7 +1591,8 @@ async function dispatchDiscordCommandInteraction(params: {
         didReply = true;
       },
       onError: (err, info) => {
-        console.error(`discord slash ${info.kind} reply failed`, err);
+        const message = err instanceof Error ? (err.stack ?? err.message) : String(err);
+        log.error(`discord slash ${info.kind} reply failed: ${message}`);
       },
     },
     replyOptions: {

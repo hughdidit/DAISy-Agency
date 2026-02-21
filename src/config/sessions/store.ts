@@ -641,7 +641,7 @@ async function saveSessionStoreUnlocked(
           // Final attempt failed — skip this save.  The write lock ensures
           // the next save will retry with fresh data.  Log for diagnostics.
           if (i === 4) {
-            console.warn(`[session-store] rename failed after 5 attempts: ${storePath}`);
+            log.warn(`rename failed after 5 attempts: ${storePath}`);
           }
         }
       }
