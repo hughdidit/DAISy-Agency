@@ -84,8 +84,7 @@ import { resolveUserPath, shortenHomePath } from "../utils.js";
 =======
 import {
   buildNpmInstallRecordFields,
-  logPinnedNpmSpecMessages,
-  resolvePinnedNpmSpec,
+  resolvePinnedNpmInstallRecordForCli,
 } from "./npm-resolution.js";
 import { promptYesNo } from "./prompt.js";
 >>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
@@ -810,6 +809,7 @@ export function registerHooksCli(program: Command): void {
 =======
       let next = enableInternalHookEntries(cfg, result.hooks);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 29e84dc13 (refactor(cli): dedupe hooks install config updates)
 
       next = recordHookInstall(next, {
@@ -828,10 +828,21 @@ export function registerHooksCli(program: Command): void {
         pinInfo,
         (message) => defaultRuntime.log(message),
         (message) => defaultRuntime.log(theme.warn(message)),
+=======
+      const installRecord = resolvePinnedNpmInstallRecordForCli(
+        raw,
+        Boolean(opts.pin),
+        result.targetDir,
+        result.version,
+        result.npmResolution,
+        defaultRuntime.log,
+        theme.warn,
+>>>>>>> 9d17a3064 (refactor(cli): share pinned npm install record helper)
       );
 
       next = recordHookInstall(next, {
         hookId: result.hookPackId,
+<<<<<<< HEAD
         ...buildNpmInstallRecordFields({
           spec: pinInfo.recordSpec,
           installPath: result.targetDir,
@@ -839,6 +850,9 @@ export function registerHooksCli(program: Command): void {
           resolution: result.npmResolution,
         }),
 >>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
+=======
+        ...installRecord,
+>>>>>>> 9d17a3064 (refactor(cli): share pinned npm install record helper)
         hooks: result.hooks,
       });
       await writeConfigFile(next);

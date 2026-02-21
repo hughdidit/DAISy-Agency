@@ -58,11 +58,7 @@ import { formatDocsLink } from "../terminal/links.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
 import { resolveUserPath, shortenHomeInString, shortenHomePath } from "../utils.js";
-import {
-  buildNpmInstallRecordFields,
-  logPinnedNpmSpecMessages,
-  resolvePinnedNpmSpec,
-} from "./npm-resolution.js";
+import { resolvePinnedNpmInstallRecordForCli } from "./npm-resolution.js";
 import { setPluginEnabledInConfig } from "./plugins-config.js";
 import { promptYesNo } from "./prompt.js";
 
@@ -703,6 +699,7 @@ export function registerPluginsCli(program: Command) {
 =======
       let next = enablePluginInConfig(cfg, result.pluginId).config;
 <<<<<<< HEAD
+<<<<<<< HEAD
       const resolvedSpec = result.npmResolution?.resolvedSpec;
       const recordSpec = opts.pin && resolvedSpec ? resolvedSpec : raw;
       if (opts.pin && !resolvedSpec) {
@@ -740,6 +737,20 @@ export function registerPluginsCli(program: Command) {
           resolution: result.npmResolution,
         }),
 >>>>>>> 2d4e4e228 (refactor(cli): share npm install metadata helpers)
+=======
+      const installRecord = resolvePinnedNpmInstallRecordForCli(
+        raw,
+        Boolean(opts.pin),
+        result.targetDir,
+        result.version,
+        result.npmResolution,
+        defaultRuntime.log,
+        theme.warn,
+      );
+      next = recordPluginInstall(next, {
+        pluginId: result.pluginId,
+        ...installRecord,
+>>>>>>> 9d17a3064 (refactor(cli): share pinned npm install record helper)
       });
       const slotResult = applySlotSelectionForPlugin(next, result.pluginId);
       next = slotResult.config;
