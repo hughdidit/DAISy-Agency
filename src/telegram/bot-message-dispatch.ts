@@ -164,8 +164,7 @@ export const dispatchTelegramMessage = async ({
   const canStreamReasoningDraft = canStreamAnswerDraft || streamReasoningDraft;
   const draftReplyToMessageId =
     replyToMode !== "off" && typeof msg.message_id === "number" ? msg.message_id : undefined;
-  const draftMinInitialChars =
-    previewStreamingEnabled || streamReasoningDraft ? 1 : DRAFT_MIN_INITIAL_CHARS;
+  const draftMinInitialChars = DRAFT_MIN_INITIAL_CHARS;
   const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, route.agentId);
   type LaneName = "answer" | "reasoning";
   type DraftLaneState = {
@@ -201,6 +200,8 @@ export const dispatchTelegramMessage = async ({
   const reasoningLane = lanes.reasoning;
   let splitReasoningOnNextStream = false;
   const reasoningStepState = createTelegramReasoningStepState();
+  type ArchivedPreview = { messageId: number; textSnapshot: string };
+  const archivedAnswerPreviews: ArchivedPreview[] = [];
   type SplitLaneSegment = { lane: LaneName; text: string };
   const splitTextIntoLaneSegments = (text?: string): SplitLaneSegment[] => {
     const split = splitTelegramReasoningText(text);
@@ -451,6 +452,8 @@ export const dispatchTelegramMessage = async ({
     updateLaneSnapshot?: boolean;
     skipRegressive: "always" | "existingOnly";
     context: "final" | "update";
+    previewMessageId?: number;
+    previewTextSnapshot?: string;
   }): Promise<boolean> => {
     const {
       lane,
@@ -461,19 +464,26 @@ export const dispatchTelegramMessage = async ({
       updateLaneSnapshot = false,
       skipRegressive,
       context,
+      previewMessageId: previewMessageIdOverride,
+      previewTextSnapshot,
     } = params;
     if (!lane.stream) {
       return false;
     }
-    const hadPreviewMessage = typeof lane.stream.messageId() === "number";
+    const lanePreviewMessageId = lane.stream.messageId();
+    const hadPreviewMessage =
+      typeof previewMessageIdOverride === "number" || typeof lanePreviewMessageId === "number";
     if (stopBeforeEdit) {
       await lane.stream.stop();
     }
-    const previewMessageId = lane.stream.messageId();
+    const previewMessageId =
+      typeof previewMessageIdOverride === "number"
+        ? previewMessageIdOverride
+        : lane.stream.messageId();
     if (typeof previewMessageId !== "number") {
       return false;
     }
-    const currentPreviewText = getLanePreviewText(lane);
+    const currentPreviewText = previewTextSnapshot ?? getLanePreviewText(lane);
     const shouldSkipRegressive =
       Boolean(currentPreviewText) &&
       currentPreviewText.startsWith(text) &&
@@ -544,6 +554,36 @@ export const dispatchTelegramMessage = async ({
       !hasMedia && text.length > 0 && text.length <= draftMaxChars && !payload.isError;
 
     if (infoKind === "final") {
+      if (laneName === "answer" && archivedAnswerPreviews.length > 0) {
+        const archivedPreview = archivedAnswerPreviews.shift();
+        if (archivedPreview) {
+          if (canEditViaPreview) {
+            const finalized = await tryUpdatePreviewForLane({
+              lane,
+              laneName,
+              text,
+              previewButtons,
+              stopBeforeEdit: false,
+              skipRegressive: "existingOnly",
+              context: "final",
+              previewMessageId: archivedPreview.messageId,
+              previewTextSnapshot: archivedPreview.textSnapshot,
+            });
+            if (finalized) {
+              return "preview-finalized";
+            }
+          }
+          try {
+            await bot.api.deleteMessage(chatId, archivedPreview.messageId);
+          } catch (err) {
+            logVerbose(
+              `telegram: archived answer preview cleanup failed (${archivedPreview.messageId}): ${String(err)}`,
+            );
+          }
+          const delivered = await sendPayload(applyTextToPayload(payload, text));
+          return delivered ? "sent" : "skipped";
+        }
+      }
       if (canEditViaPreview && !finalizedPreviewByLane[laneName]) {
         await flushDraftLane(lane);
         const finalized = await tryUpdatePreviewForLane({
@@ -773,6 +813,7 @@ export const dispatchTelegramMessage = async ({
               draftChunker?.reset();
             }
           : undefined,
+<<<<<<< HEAD
         onReasoningEnd: draftStream
           ? () => {
 <<<<<<< HEAD
@@ -784,7 +825,21 @@ export const dispatchTelegramMessage = async ({
               draftText = "";
               draftChunker?.reset();
 =======
+=======
+        onAssistantMessageStart: answerLane.stream
+          ? async () => {
+>>>>>>> 8b1fe0d1e (fix(telegram): split streaming preview per assistant block (#22613))
               reasoningStepState.resetForNextStep();
+              if (answerLane.hasStreamedMessage) {
+                const previewMessageId = answerLane.stream?.messageId();
+                if (typeof previewMessageId === "number") {
+                  archivedAnswerPreviews.push({
+                    messageId: previewMessageId,
+                    textSnapshot: answerLane.lastPartialText,
+                  });
+                }
+                answerLane.stream?.forceNewMessage();
+              }
               resetDraftLaneState(answerLane);
             }
           : undefined,
@@ -806,7 +861,47 @@ export const dispatchTelegramMessage = async ({
   } catch (err) {
     dispatchError = err;
   } finally {
+<<<<<<< HEAD
     await draftStream?.stop();
+=======
+    // Must stop() first to flush debounced content before clear() wipes state.
+    const streamCleanupStates = new Map<
+      NonNullable<DraftLaneState["stream"]>,
+      { shouldClear: boolean }
+    >();
+    const lanesToCleanup: Array<{ laneName: LaneName; lane: DraftLaneState }> = [
+      { laneName: "answer", lane: answerLane },
+      { laneName: "reasoning", lane: reasoningLane },
+    ];
+    for (const laneState of lanesToCleanup) {
+      const stream = laneState.lane.stream;
+      if (!stream) {
+        continue;
+      }
+      const shouldClear = !finalizedPreviewByLane[laneState.laneName];
+      const existing = streamCleanupStates.get(stream);
+      if (!existing) {
+        streamCleanupStates.set(stream, { shouldClear });
+        continue;
+      }
+      existing.shouldClear = existing.shouldClear && shouldClear;
+    }
+    for (const [stream, cleanupState] of streamCleanupStates) {
+      await stream.stop();
+      if (cleanupState.shouldClear) {
+        await stream.clear();
+      }
+    }
+    for (const archivedPreview of archivedAnswerPreviews) {
+      try {
+        await bot.api.deleteMessage(chatId, archivedPreview.messageId);
+      } catch (err) {
+        logVerbose(
+          `telegram: archived answer preview cleanup failed (${archivedPreview.messageId}): ${String(err)}`,
+        );
+      }
+    }
+>>>>>>> 8b1fe0d1e (fix(telegram): split streaming preview per assistant block (#22613))
   }
   let sentFallback = false;
 <<<<<<< HEAD
