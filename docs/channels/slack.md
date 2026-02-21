@@ -21,7 +21,7 @@ Status: production-ready for DMs + channels via Slack app integrations. Default 
   </Card>
 </CardGroup>
 
-## Onboarding
+## Quick setup
 
 <Tabs>
   <Tab title="Socket Mode (default)">
@@ -461,8 +461,12 @@ channels:
 - Media and non-text payloads fall back to normal delivery.
 - If streaming fails mid-reply, OpenClaw falls back to normal delivery for remaining payloads.
 
+<<<<<<< HEAD
 ## Configuration
 >>>>>>> 12d75ff7f (docs: continue channel onboarding/config naming cleanup (#22533))
+=======
+## Configuration reference pointers
+>>>>>>> 59c78c105 (docs: revert automated heading consistency edits (#22743))
 
 Primary reference:
 

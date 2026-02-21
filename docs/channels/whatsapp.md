@@ -21,7 +21,7 @@ Status: production-ready via WhatsApp Web (Baileys). Gateway owns linked session
   </Card>
 </CardGroup>
 
-## Onboarding
+## Quick setup
 
 <Steps>
   <Step title="Configure WhatsApp access policy">
@@ -427,7 +427,7 @@ Yes, by routing each sender to a different agent via `bindings` (peer `kind: "dm
   </Accordion>
 </AccordionGroup>
 
-## Configuration
+## Configuration reference pointers
 
 Primary reference:
 
