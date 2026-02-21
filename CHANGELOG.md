@@ -211,8 +211,12 @@ Docs: https://docs.openclaw.ai
 - CLI/Onboarding: fix Anthropic-compatible custom provider verification by normalizing base URLs to avoid duplicate `/v1` paths during setup checks. (#21336) Thanks @17jmumford.
 - Security/Dependencies: bump transitive `hono` usage to `4.11.10` to incorporate timing-safe authentication comparison hardening for `basicAuth`/`bearerAuth` (`GHSA-gq3j-xvxp-8hrf`). Thanks @vincentkoc.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 8e4f6c038 (fix(browser): block upload symlink escapes (#21972))
 =======
+=======
+- Security/Gateway: parse `X-Forwarded-For` with trust-preserving semantics when requests come from configured trusted proxies, preventing proxy-chain spoofing from influencing client IP classification and rate-limit identity. Thanks @AnthonyDiSanti and @vincentkoc.
+>>>>>>> 07039dc08 (Gateway: harden trusted proxy X-Forwarded-For parsing (#22429))
 - iOS/Gateway/Tools: prefer uniquely connected node matches when duplicate display names exist, surface actionable `nodes invoke` pairing-required guidance with request IDs, and refresh active iOS gateway registration after location-capability setting changes so capability updates apply immediately. (#22120) thanks @mbelinky.
 >>>>>>> 582870834 (iOS/Gateway: harden pairing resolution and settings-driven capability refresh (#22120))
 
