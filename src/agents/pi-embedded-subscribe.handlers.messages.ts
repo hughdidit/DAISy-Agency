@@ -34,7 +34,33 @@ import {
   formatReasoningMessage,
   promoteThinkingTagsToBlocks,
 } from "./pi-embedded-utils.js";
+<<<<<<< HEAD
 import { createInlineCodeState } from "../markdown/code-spans.js";
+=======
+
+const stripTrailingDirective = (text: string): string => {
+  const openIndex = text.lastIndexOf("[[");
+  if (openIndex < 0) {
+    if (text.endsWith("[")) {
+      return text.slice(0, -1);
+    }
+    return text;
+  }
+  const closeIndex = text.indexOf("]]", openIndex + 2);
+  if (closeIndex >= 0) {
+    return text;
+  }
+  return text.slice(0, openIndex);
+};
+
+function emitReasoningEnd(ctx: EmbeddedPiSubscribeContext) {
+  if (!ctx.state.reasoningStreamOpen) {
+    return;
+  }
+  ctx.state.reasoningStreamOpen = false;
+  void ctx.params.onReasoningEnd?.();
+}
+>>>>>>> 9a6b26d42 (fix(ui): strip inbound metadata blocks and guard reply-tag streaming (clean rewrite) (#22346))
 
 export function resolveSilentReplyFallbackText(params: {
   text: string;

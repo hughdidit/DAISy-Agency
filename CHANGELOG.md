@@ -88,7 +88,11 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 - Security/OpenClawKit/UI: prevent injected inbound user context metadata blocks from leaking into chat history in TUI, webchat, and macOS surfaces by stripping all untrusted metadata prefixes at display boundaries. (#22142) Thanks @Mellowambience, @vincentkoc.
+<<<<<<< HEAD
 >>>>>>> a4e7e952e (fix(ui): strip injected inbound metadata from user messages in history (#22142))
+=======
+- Security/OpenClawKit/UI: prevent inbound metadata leaks and reply-tag streaming artifacts in TUI rendering by stripping untrusted metadata prefixes at display boundaries. (#22346) Thanks @akramcodez, @vincentkoc.
+>>>>>>> 9a6b26d42 (fix(ui): strip inbound metadata blocks and guard reply-tag streaming (clean rewrite) (#22346))
 - Agents/System Prompt: label allowlisted senders as authorized senders to avoid implying ownership. Thanks @thewilloftheshadow.
 <<<<<<< HEAD
 >>>>>>> 3100b77f1 (Agents: clarify authorized sender prompt (Closes #19794))
