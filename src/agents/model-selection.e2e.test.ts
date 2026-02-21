@@ -1,4 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
+<<<<<<< HEAD
+=======
+import type { OpenClawConfig } from "../config/config.js";
+import { resetLogger, setLoggerOverride } from "../logging/logger.js";
+>>>>>>> 738e2c21d (chore(tests): properly check logging in tests)
 import {
   parseModelRef,
   resolveModelRefFromString,
@@ -149,26 +154,46 @@ describe("model-selection", () => {
 
   describe("resolveConfiguredModelRef", () => {
     it("should fall back to anthropic and warn if provider is missing for non-alias", () => {
+      setLoggerOverride({ level: "silent", consoleLevel: "warn" });
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+<<<<<<< HEAD
       const cfg: Partial<MoltbotConfig> = {
         agents: {
           defaults: {
             model: { primary: "claude-3-5-sonnet" },
+=======
+      try {
+        const cfg: Partial<OpenClawConfig> = {
+          agents: {
+            defaults: {
+              model: { primary: "claude-3-5-sonnet" },
+            },
+>>>>>>> 738e2c21d (chore(tests): properly check logging in tests)
           },
-        },
-      };
+        };
 
+<<<<<<< HEAD
       const result = resolveConfiguredModelRef({
         cfg: cfg as MoltbotConfig,
         defaultProvider: "google",
         defaultModel: "gemini-pro",
       });
+=======
+        const result = resolveConfiguredModelRef({
+          cfg: cfg as OpenClawConfig,
+          defaultProvider: "google",
+          defaultModel: "gemini-pro",
+        });
+>>>>>>> 738e2c21d (chore(tests): properly check logging in tests)
 
-      expect(result).toEqual({ provider: "anthropic", model: "claude-3-5-sonnet" });
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Falling back to "anthropic/claude-3-5-sonnet"'),
-      );
-      warnSpy.mockRestore();
+        expect(result).toEqual({ provider: "anthropic", model: "claude-3-5-sonnet" });
+        expect(warnSpy).toHaveBeenCalledWith(
+          expect.stringContaining('Falling back to "anthropic/claude-3-5-sonnet"'),
+        );
+      } finally {
+        setLoggerOverride(null);
+        resetLogger();
+      }
     });
 
     it("should use default provider/model if config is empty", () => {
