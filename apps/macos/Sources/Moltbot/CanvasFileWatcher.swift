@@ -8,9 +8,23 @@ final class CanvasFileWatcher: @unchecked Sendable {
     private var pending = false
     private let onChange: () -> Void
 
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/CanvasFileWatcher.swift
     init(url: URL, onChange: @escaping () -> Void) {
         self.url = url
         self.queue = DispatchQueue(label: "bot.molt.canvaswatcher")
+=======
+    init(
+        paths: [String],
+        queueLabel: String,
+        coalesceDelay: TimeInterval = 0.12,
+        shouldNotify: @escaping (Int, UnsafeMutableRawPointer?) -> Bool = { _, _ in true },
+        onChange: @escaping () -> Void)
+    {
+        self.paths = paths
+        self.queue = DispatchQueue(label: queueLabel)
+        self.coalesceDelay = coalesceDelay
+        self.shouldNotify = shouldNotify
+>>>>>>> 5da03e622 (fix(macos): harden exec allowlist shell-chain checks):apps/macos/Sources/OpenClaw/CoalescingFSEventsWatcher.swift
         self.onChange = onChange
     }
 
@@ -78,7 +92,15 @@ extension CanvasFileWatcher {
         watcher.handleEvents(numEvents: numEvents, eventFlags: eventFlags)
     }
 
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/CanvasFileWatcher.swift
     private func handleEvents(numEvents: Int, eventFlags: UnsafePointer<FSEventStreamEventFlags>?) {
+=======
+    private func handleEvents(
+        numEvents: Int,
+        eventPaths: UnsafeMutableRawPointer?,
+        eventFlags: UnsafePointer<FSEventStreamEventFlags>?)
+    {
+>>>>>>> 5da03e622 (fix(macos): harden exec allowlist shell-chain checks):apps/macos/Sources/OpenClaw/CoalescingFSEventsWatcher.swift
         guard numEvents > 0 else { return }
         guard eventFlags != nil else { return }
 
