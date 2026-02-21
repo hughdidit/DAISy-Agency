@@ -45,6 +45,17 @@ describe("handleTelegramAction", () => {
     } as OpenClawConfig;
   }
 
+  function telegramConfig(overrides?: Record<string, unknown>): OpenClawConfig {
+    return {
+      channels: {
+        telegram: {
+          botToken: "tok",
+          ...overrides,
+        },
+      },
+    } as OpenClawConfig;
+  }
+
   async function expectReactionAdded(reactionLevel: "minimal" | "extensive") {
     await handleTelegramAction(defaultReactionAction, reactionConfig(reactionLevel));
     expect(reactMessageTelegram).toHaveBeenCalledWith(
@@ -219,6 +230,7 @@ describe("handleTelegramAction", () => {
     );
   });
 
+<<<<<<< HEAD
   it("blocks reactions when reactionLevel is off", async () => {
 <<<<<<< HEAD
     const cfg = {
@@ -227,6 +239,18 @@ describe("handleTelegramAction", () => {
 =======
     const cfg = reactionConfig("off");
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
+=======
+  it.each([
+    {
+      level: "off" as const,
+      expectedMessage: /Telegram agent reactions disabled.*reactionLevel="off"/,
+    },
+    {
+      level: "ack" as const,
+      expectedMessage: /Telegram agent reactions disabled.*reactionLevel="ack"/,
+    },
+  ])("blocks reactions when reactionLevel is $level", async ({ level, expectedMessage }) => {
+>>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
     await expect(
       handleTelegramAction(
         {
@@ -235,8 +259,9 @@ describe("handleTelegramAction", () => {
           messageId: "456",
           emoji: "✅",
         },
-        cfg,
+        reactionConfig(level),
       ),
+<<<<<<< HEAD
     ).rejects.toThrow(/Telegram agent reactions disabled.*reactionLevel="off"/);
   });
 
@@ -259,6 +284,9 @@ describe("handleTelegramAction", () => {
         cfg,
       ),
     ).rejects.toThrow(/Telegram agent reactions disabled.*reactionLevel="ack"/);
+=======
+    ).rejects.toThrow(expectedMessage);
+>>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
   });
 
   it("also respects legacy actions.reactions gating", async () => {
@@ -285,16 +313,19 @@ describe("handleTelegramAction", () => {
   });
 
   it("sends a text message", async () => {
+<<<<<<< HEAD
     const cfg = {
       channels: { telegram: { botToken: "tok" } },
     } as MoltbotConfig;
+=======
+>>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
     const result = await handleTelegramAction(
       {
         action: "sendMessage",
         to: "@testchannel",
         content: "Hello, Telegram!",
       },
-      cfg,
+      telegramConfig(),
     );
     expect(sendMessageTelegram).toHaveBeenCalledWith(
       "@testchannel",
@@ -307,17 +338,25 @@ describe("handleTelegramAction", () => {
     });
   });
 
+<<<<<<< HEAD
   it("sends a message with media", async () => {
     const cfg = {
       channels: { telegram: { botToken: "tok" } },
     } as MoltbotConfig;
     await handleTelegramAction(
       {
+=======
+  it.each([
+    {
+      name: "media",
+      params: {
+>>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
         action: "sendMessage",
         to: "123456",
         content: "Check this image!",
         mediaUrl: "https://example.com/image.jpg",
       },
+<<<<<<< HEAD
       cfg,
     );
     expect(sendMessageTelegram).toHaveBeenCalledWith(
@@ -336,21 +375,27 @@ describe("handleTelegramAction", () => {
     } as MoltbotConfig;
     await handleTelegramAction(
       {
+=======
+      expectedTo: "123456",
+      expectedContent: "Check this image!",
+      expectedOptions: { mediaUrl: "https://example.com/image.jpg" },
+    },
+    {
+      name: "quoteText",
+      params: {
+>>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
         action: "sendMessage",
         to: "123456",
         content: "Replying now",
         replyToMessageId: 144,
         quoteText: "The text you want to quote",
       },
-      cfg,
-    );
-    expect(sendMessageTelegram).toHaveBeenCalledWith(
-      "123456",
-      "Replying now",
-      expect.objectContaining({
-        token: "tok",
+      expectedTo: "123456",
+      expectedContent: "Replying now",
+      expectedOptions: {
         replyToMessageId: 144,
         quoteText: "The text you want to quote",
+<<<<<<< HEAD
       }),
     );
   });
@@ -361,33 +406,47 @@ describe("handleTelegramAction", () => {
     } as MoltbotConfig;
     await handleTelegramAction(
       {
+=======
+      },
+    },
+    {
+      name: "media-only",
+      params: {
+>>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
         action: "sendMessage",
         to: "123456",
         mediaUrl: "https://example.com/note.ogg",
       },
-      cfg,
-    );
+      expectedTo: "123456",
+      expectedContent: "",
+      expectedOptions: { mediaUrl: "https://example.com/note.ogg" },
+    },
+  ] as const)("maps sendMessage params for $name", async (testCase) => {
+    await handleTelegramAction(testCase.params, telegramConfig());
     expect(sendMessageTelegram).toHaveBeenCalledWith(
-      "123456",
-      "",
+      testCase.expectedTo,
+      testCase.expectedContent,
       expect.objectContaining({
         token: "tok",
-        mediaUrl: "https://example.com/note.ogg",
+        ...testCase.expectedOptions,
       }),
     );
   });
 
   it("requires content when no mediaUrl is provided", async () => {
+<<<<<<< HEAD
     const cfg = {
       channels: { telegram: { botToken: "tok" } },
     } as MoltbotConfig;
+=======
+>>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
     await expect(
       handleTelegramAction(
         {
           action: "sendMessage",
           to: "123456",
         },
-        cfg,
+        telegramConfig(),
       ),
     ).rejects.toThrow(/content required/i);
   });
@@ -478,22 +537,40 @@ describe("handleTelegramAction", () => {
     expect(sendMessageTelegram).toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
   it("blocks inline buttons when scope is off", async () => {
     const cfg = {
       channels: {
         telegram: { botToken: "tok", capabilities: { inlineButtons: "off" } },
       },
     } as MoltbotConfig;
+=======
+  it.each([
+    {
+      name: "scope is off",
+      to: "@testchannel",
+      inlineButtons: "off" as const,
+      expectedMessage: /inline buttons are disabled/i,
+    },
+    {
+      name: "scope is dm and target is group",
+      to: "-100123456",
+      inlineButtons: "dm" as const,
+      expectedMessage: /inline buttons are limited to DMs/i,
+    },
+  ])("blocks inline buttons when $name", async ({ to, inlineButtons, expectedMessage }) => {
+>>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
     await expect(
       handleTelegramAction(
         {
           action: "sendMessage",
-          to: "@testchannel",
+          to,
           content: "Choose",
           buttons: [[{ text: "Ok", callback_data: "cmd:ok" }]],
         },
-        cfg,
+        telegramConfig({ capabilities: { inlineButtons } }),
       ),
+<<<<<<< HEAD
     ).rejects.toThrow(/inline buttons are disabled/i);
   });
 
@@ -514,6 +591,9 @@ describe("handleTelegramAction", () => {
         cfg,
       ),
     ).rejects.toThrow(/inline buttons are limited to DMs/i);
+=======
+    ).rejects.toThrow(expectedMessage);
+>>>>>>> 2595690a4 (test(actions): table-drive slack and telegram action cases)
   });
 
   it("allows inline buttons in DMs with tg: prefixed targets", async () => {
