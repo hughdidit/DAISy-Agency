@@ -3,7 +3,12 @@ import os from "node:os";
 import path from "node:path";
 import JSZip from "jszip";
 import * as tar from "tar";
+<<<<<<< HEAD
 import { afterEach, describe, expect, it } from "vitest";
+=======
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import type { ArchiveSecurityError } from "./archive.js";
+>>>>>>> ed960ba4e (refactor(security): centralize path guard helpers)
 import { extractArchive, resolveArchiveKind, resolvePackedRootDir } from "./archive.js";
 
 const tempDirs: string[] = [];
@@ -80,7 +85,9 @@ describe("archive utils", () => {
 
     await expect(
       extractArchive({ archivePath, destDir: extractDir, timeoutMs: 5_000 }),
-    ).rejects.toThrow(/symlink/i);
+    ).rejects.toMatchObject({
+      code: "destination-symlink-traversal",
+    } satisfies Partial<ArchiveSecurityError>);
 
     const outsideFile = path.join(outsideDir, "pwn.txt");
     const outsideExists = await fs

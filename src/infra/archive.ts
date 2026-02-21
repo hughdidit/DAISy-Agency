@@ -6,10 +6,19 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import * as tar from "tar";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import JSZip from "jszip";
 =======
 import { resolveSafeBaseDir } from "./path-safety.js";
 >>>>>>> 2363e1b08 (fix(security): restrict skill download target paths)
+=======
+import {
+  resolveArchiveOutputPath,
+  stripArchivePath,
+  validateArchiveEntryPath,
+} from "./archive-path.js";
+import { isNotFoundPathError, isPathInside, isSymlinkOpenError } from "./path-guards.js";
+>>>>>>> ed960ba4e (refactor(security): centralize path guard helpers)
 
 export type ArchiveKind = "tar" | "zip";
 
@@ -33,6 +42,21 @@ export type ArchiveExtractLimits = {
   /** Max extracted bytes for a single file entry. */
   maxEntryBytes?: number;
 };
+
+export type ArchiveSecurityErrorCode =
+  | "destination-not-directory"
+  | "destination-symlink"
+  | "destination-symlink-traversal";
+
+export class ArchiveSecurityError extends Error {
+  code: ArchiveSecurityErrorCode;
+
+  constructor(code: ArchiveSecurityErrorCode, message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.code = code;
+    this.name = "ArchiveSecurityError";
+  }
+}
 
 /** @internal */
 export const DEFAULT_MAX_ARCHIVE_BYTES_ZIP = 256 * 1024 * 1024;
@@ -202,41 +226,25 @@ function createExtractBudgetTransform(params: {
   });
 }
 
-function isNodeError(value: unknown): value is NodeJS.ErrnoException {
-  return Boolean(
-    value && typeof value === "object" && "code" in (value as Record<string, unknown>),
+function symlinkTraversalError(originalPath: string): ArchiveSecurityError {
+  return new ArchiveSecurityError(
+    "destination-symlink-traversal",
+    `${ERROR_ARCHIVE_ENTRY_TRAVERSES_SYMLINK}: ${originalPath}`,
   );
-}
-
-function isNotFoundError(value: unknown): boolean {
-  return isNodeError(value) && (value.code === "ENOENT" || value.code === "ENOTDIR");
-}
-
-function isSymlinkOpenError(value: unknown): boolean {
-  return (
-    isNodeError(value) &&
-    (value.code === "ELOOP" || value.code === "EINVAL" || value.code === "ENOTSUP")
-  );
-}
-
-function symlinkTraversalError(originalPath: string): Error {
-  return new Error(`${ERROR_ARCHIVE_ENTRY_TRAVERSES_SYMLINK}: ${originalPath}`);
 }
 
 async function assertDestinationDirReady(destDir: string): Promise<string> {
   const stat = await fs.lstat(destDir);
   if (stat.isSymbolicLink()) {
-    throw new Error("archive destination is a symlink");
+    throw new ArchiveSecurityError("destination-symlink", "archive destination is a symlink");
   }
   if (!stat.isDirectory()) {
-    throw new Error("archive destination is not a directory");
+    throw new ArchiveSecurityError(
+      "destination-not-directory",
+      "archive destination is not a directory",
+    );
   }
   return await fs.realpath(destDir);
-}
-
-function pathInside(root: string, target: string): boolean {
-  const rel = path.relative(root, target);
-  return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
 }
 
 async function assertNoSymlinkTraversal(params: {
@@ -252,7 +260,7 @@ async function assertNoSymlinkTraversal(params: {
     try {
       stat = await fs.lstat(current);
     } catch (err) {
-      if (isNotFoundError(err)) {
+      if (isNotFoundPathError(err)) {
         continue;
       }
       throw err;
@@ -272,12 +280,12 @@ async function assertResolvedInsideDestination(params: {
   try {
     resolved = await fs.realpath(params.targetPath);
   } catch (err) {
-    if (isNotFoundError(err)) {
+    if (isNotFoundPathError(err)) {
       return;
     }
     throw err;
   }
-  if (!pathInside(params.destinationRealDir, resolved)) {
+  if (!isPathInside(params.destinationRealDir, resolved)) {
     throw symlinkTraversalError(params.originalPath);
   }
 }
@@ -298,7 +306,7 @@ async function cleanupPartialRegularFile(filePath: string): Promise<void> {
   try {
     stat = await fs.lstat(filePath);
   } catch (err) {
-    if (isNotFoundError(err)) {
+    if (isNotFoundPathError(err)) {
       return;
     }
     throw err;
@@ -315,6 +323,8 @@ type ZipEntry = {
   nodeStream?: () => NodeJS.ReadableStream;
   async: (type: "nodebuffer") => Promise<Buffer>;
 };
+
+type ZipExtractBudget = ReturnType<typeof createByteBudgetTracker>;
 
 async function readZipEntryStream(entry: ZipEntry): Promise<NodeJS.ReadableStream> {
   if (typeof entry.nodeStream === "function") {
@@ -343,6 +353,90 @@ function resolveCheckedOutPath(destDir: string, relPath: string, original: strin
   return outPath;
 }
 
+function resolveZipOutputPath(params: {
+  entryPath: string;
+  strip: number;
+  destinationDir: string;
+}): { relPath: string; outPath: string } | null {
+  validateArchiveEntryPath(params.entryPath);
+  const relPath = stripArchivePath(params.entryPath, params.strip);
+  if (!relPath) {
+    return null;
+  }
+  validateArchiveEntryPath(relPath);
+  return {
+    relPath,
+    outPath: resolveArchiveOutputPath({
+      rootDir: params.destinationDir,
+      relPath,
+      originalPath: params.entryPath,
+    }),
+  };
+}
+
+async function prepareZipOutputPath(params: {
+  destinationDir: string;
+  destinationRealDir: string;
+  relPath: string;
+  outPath: string;
+  originalPath: string;
+  isDirectory: boolean;
+}): Promise<void> {
+  await assertNoSymlinkTraversal({
+    rootDir: params.destinationDir,
+    relPath: params.relPath,
+    originalPath: params.originalPath,
+  });
+
+  if (params.isDirectory) {
+    await fs.mkdir(params.outPath, { recursive: true });
+    await assertResolvedInsideDestination({
+      destinationRealDir: params.destinationRealDir,
+      targetPath: params.outPath,
+      originalPath: params.originalPath,
+    });
+    return;
+  }
+
+  const parentDir = path.dirname(params.outPath);
+  await fs.mkdir(parentDir, { recursive: true });
+  await assertResolvedInsideDestination({
+    destinationRealDir: params.destinationRealDir,
+    targetPath: parentDir,
+    originalPath: params.originalPath,
+  });
+}
+
+async function writeZipFileEntry(params: {
+  entry: ZipEntry;
+  outPath: string;
+  budget: ZipExtractBudget;
+}): Promise<void> {
+  const handle = await openZipOutputFile(params.outPath, params.entry.name);
+  params.budget.startEntry();
+  const readable = await readZipEntryStream(params.entry);
+  const writable = handle.createWriteStream();
+
+  try {
+    await pipeline(
+      readable,
+      createExtractBudgetTransform({ onChunkBytes: params.budget.addBytes }),
+      writable,
+    );
+  } catch (err) {
+    await cleanupPartialRegularFile(params.outPath).catch(() => undefined);
+    throw err;
+  }
+
+  // Best-effort permission restore for zip entries created on unix.
+  if (typeof params.entry.unixPermissions === "number") {
+    const mode = params.entry.unixPermissions & 0o777;
+    if (mode !== 0) {
+      await fs.chmod(params.outPath, mode).catch(() => undefined);
+    }
+  }
+}
+
 async function extractZip(params: {
   archivePath: string;
   destDir: string;
@@ -364,14 +458,16 @@ async function extractZip(params: {
   const strip = Math.max(0, Math.floor(params.stripComponents ?? 0));
 
   for (const entry of entries) {
-    validateArchiveEntryPath(entry.name);
-
-    const relPath = stripArchivePath(entry.name, strip);
-    if (!relPath) {
+    const output = resolveZipOutputPath({
+      entryPath: entry.name,
+      strip,
+      destinationDir: params.destDir,
+    });
+    if (!output) {
       continue;
     }
-    validateArchiveEntryPath(relPath);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     const outPath = resolveCheckedOutPath(params.destDir, relPath, entry.name);
 =======
@@ -383,19 +479,22 @@ async function extractZip(params: {
     await assertNoSymlinkTraversal({
       rootDir: params.destDir,
       relPath,
+=======
+    await prepareZipOutputPath({
+      destinationDir: params.destDir,
+      destinationRealDir,
+      relPath: output.relPath,
+      outPath: output.outPath,
+>>>>>>> ed960ba4e (refactor(security): centralize path guard helpers)
       originalPath: entry.name,
+      isDirectory: entry.dir,
     });
 >>>>>>> 4b226b74f (fix(security): block zip symlink escape in archive extraction)
     if (entry.dir) {
-      await fs.mkdir(outPath, { recursive: true });
-      await assertResolvedInsideDestination({
-        destinationRealDir,
-        targetPath: outPath,
-        originalPath: entry.name,
-      });
       continue;
     }
 
+<<<<<<< HEAD
     await fs.mkdir(path.dirname(outPath), { recursive: true });
 <<<<<<< HEAD
     const data = await entry.async("nodebuffer");
@@ -430,6 +529,13 @@ async function extractZip(params: {
         await fs.chmod(outPath, mode).catch(() => undefined);
       }
     }
+=======
+    await writeZipFileEntry({
+      entry,
+      outPath: output.outPath,
+      budget,
+    });
+>>>>>>> ed960ba4e (refactor(security): centralize path guard helpers)
   }
 }
 
