@@ -601,14 +601,19 @@ describe("sendMessageTelegram", () => {
       });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       await sendMessageTelegram(chatId, testCase.text, {
 =======
       const opts: Parameters<typeof sendMessageTelegram>[2] = {
 >>>>>>> 828f4e18e (test: finish readonly fixture compatibility for CI check)
+=======
+      const sendOptions: NonNullable<Parameters<typeof sendMessageTelegram>[2]> = {
+>>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
         token: "tok",
         api,
         mediaUrl: "https://example.com/video.mp4",
         asVideoNote: true,
+<<<<<<< HEAD
 <<<<<<< HEAD
         ...testCase.options,
       });
@@ -625,6 +630,19 @@ describe("sendMessageTelegram", () => {
 
       await sendMessageTelegram(chatId, testCase.text, opts);
 >>>>>>> 828f4e18e (test: finish readonly fixture compatibility for CI check)
+=======
+      };
+      if (
+        "replyToMessageId" in testCase.options &&
+        testCase.options.replyToMessageId !== undefined
+      ) {
+        sendOptions.replyToMessageId = testCase.options.replyToMessageId;
+      }
+      if ("buttons" in testCase.options && testCase.options.buttons) {
+        sendOptions.buttons = testCase.options.buttons;
+      }
+      await sendMessageTelegram(chatId, testCase.text, sendOptions);
+>>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
 
       expect(sendVideoNote).toHaveBeenCalledWith(
         chatId,
@@ -802,11 +820,19 @@ describe("sendMessageTelegram", () => {
         token: "tok",
         api,
         mediaUrl: testCase.mediaUrl,
+<<<<<<< HEAD
         ...(testCase.asVoice ? { asVoice: true } : {}),
         ...(testCase.messageThreadId !== undefined
           ? { messageThreadId: testCase.messageThreadId }
           : {}),
         ...(testCase.replyToMessageId !== undefined
+=======
+        ...("asVoice" in testCase && testCase.asVoice ? { asVoice: true } : {}),
+        ...("messageThreadId" in testCase && testCase.messageThreadId !== undefined
+          ? { messageThreadId: testCase.messageThreadId }
+          : {}),
+        ...("replyToMessageId" in testCase && testCase.replyToMessageId !== undefined
+>>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
           ? { replyToMessageId: testCase.replyToMessageId }
           : {}),
       });
@@ -1518,13 +1544,21 @@ describe("editMessageTelegram", () => {
       if (testCase.firstExpectNoReplyMarkup) {
         expect(firstParams, testCase.name).not.toHaveProperty("reply_markup");
       }
+<<<<<<< HEAD
       if (testCase.firstExpectReplyMarkup) {
+=======
+      if ("firstExpectReplyMarkup" in testCase && testCase.firstExpectReplyMarkup) {
+>>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
         expect(firstParams, testCase.name).toEqual(
           expect.objectContaining({ reply_markup: testCase.firstExpectReplyMarkup }),
         );
       }
 
+<<<<<<< HEAD
       if (testCase.secondExpectReplyMarkup) {
+=======
+      if ("secondExpectReplyMarkup" in testCase && testCase.secondExpectReplyMarkup) {
+>>>>>>> 8752203f5 (refactor(test): stabilize case tables and readonly helper inputs)
         const secondParams = (botApi.editMessageText.mock.calls[1] ?? [])[3] as Record<
           string,
           unknown
