@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -23,15 +24,11 @@ import { buildDispatchInboundCaptureMock } from "../../../test/helpers/dispatch-
 =======
 import { buildDispatchInboundContextCapture } from "../../../test/helpers/inbound-contract-capture.js";
 >>>>>>> e1b491d96 (test(channels): dedupe inbound contract dispatch capture setup)
+=======
+import { describe, expect, it } from "vitest";
+import { inboundCtxCapture as capture } from "../../../test/helpers/inbound-contract-dispatch-mock.js";
+>>>>>>> df3582981 (test(inbound): share dispatch capture mock across channels)
 import { expectInboundContextContract } from "../../../test/helpers/inbound-contract.js";
-import type { MsgContext } from "../../auto-reply/templating.js";
-
-const capture = vi.hoisted(() => ({ ctx: undefined as MsgContext | undefined }));
-
-vi.mock("../../auto-reply/dispatch.js", async (importOriginal) => {
-  return await buildDispatchInboundContextCapture(importOriginal, capture);
-});
-
 import { createSignalEventHandler } from "./event-handler.js";
 import {
   createBaseSignalEventHandlerDeps,

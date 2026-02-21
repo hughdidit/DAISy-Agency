@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -39,6 +40,12 @@ vi.mock("../../auto-reply/dispatch.js", async (importOriginal) => {
   return await buildDispatchInboundContextCapture(importOriginal, capture);
 });
 
+=======
+import { describe, expect, it } from "vitest";
+import { inboundCtxCapture as capture } from "../../../test/helpers/inbound-contract-dispatch-mock.js";
+import { expectInboundContextContract } from "../../../test/helpers/inbound-contract.js";
+import type { DiscordMessagePreflightContext } from "./message-handler.preflight.js";
+>>>>>>> df3582981 (test(inbound): share dispatch capture mock across channels)
 import { processDiscordMessage } from "./message-handler.process.js";
 import { createBaseDiscordMessageContext } from "./message-handler.test-harness.js";
 
