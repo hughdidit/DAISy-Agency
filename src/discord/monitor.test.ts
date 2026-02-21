@@ -67,16 +67,41 @@ describe("registerDiscordListener", () => {
 });
 
 describe("DiscordMessageListener", () => {
+<<<<<<< HEAD
   it("returns before the handler finishes", async () => {
-    let handlerResolved = false;
-    let resolveHandler: (() => void) | null = null;
-    const handlerPromise = new Promise<void>((resolve) => {
-      resolveHandler = () => {
-        handlerResolved = true;
-        resolve();
-      };
+=======
+  function createDeferred() {
+    let resolve: (() => void) | null = null;
+    const promise = new Promise<void>((done) => {
+      resolve = done;
     });
-    const handler = vi.fn(() => handlerPromise);
+    return {
+      promise,
+      resolve: () => {
+        if (typeof resolve === "function") {
+          (resolve as () => void)();
+        }
+      },
+    };
+  }
+
+  async function expectPending(promise: Promise<unknown>) {
+    let resolved = false;
+    void promise.then(() => {
+      resolved = true;
+    });
+    await Promise.resolve();
+    expect(resolved).toBe(false);
+  }
+
+  it("awaits the handler before returning", async () => {
+>>>>>>> 150c048b0 (refactor: unify discord listener slow-log flow and test helpers)
+    let handlerResolved = false;
+    const deferred = createDeferred();
+    const handler = vi.fn(async () => {
+      await deferred.promise;
+      handlerResolved = true;
+    });
     const listener = new DiscordMessageListener(handler);
 
     await listener.handle(
@@ -86,12 +111,23 @@ describe("DiscordMessageListener", () => {
 
     expect(handler).toHaveBeenCalledOnce();
     expect(handlerResolved).toBe(false);
+<<<<<<< HEAD
 
     const release = resolveHandler;
     if (typeof release === "function") {
       (release as () => void)();
     }
     await handlerPromise;
+=======
+    await expectPending(handlePromise);
+
+    // Release the handler
+    deferred.resolve();
+
+    // Now await handle() - it should complete only after handler resolves
+    await handlePromise;
+    expect(handlerResolved).toBe(true);
+>>>>>>> 150c048b0 (refactor: unify discord listener slow-log flow and test helpers)
   });
 
   it("logs handler failures", async () => {
@@ -118,11 +154,8 @@ describe("DiscordMessageListener", () => {
     vi.setSystemTime(0);
 
     try {
-      let resolveHandler: (() => void) | null = null;
-      const handlerPromise = new Promise<void>((resolve) => {
-        resolveHandler = resolve;
-      });
-      const handler = vi.fn(() => handlerPromise);
+      const deferred = createDeferred();
+      const handler = vi.fn(() => deferred.promise);
       const logger = {
         warn: vi.fn(),
         error: vi.fn(),
@@ -133,14 +166,27 @@ describe("DiscordMessageListener", () => {
         {} as unknown as import("./monitor/listeners.js").DiscordMessageEvent,
         {} as unknown as import("@buape/carbon").Client,
       );
+<<<<<<< HEAD
+=======
+      await expectPending(handlePromise);
+>>>>>>> 150c048b0 (refactor: unify discord listener slow-log flow and test helpers)
 
       vi.setSystemTime(31_000);
+<<<<<<< HEAD
       const release = resolveHandler;
       if (typeof release === "function") {
         (release as () => void)();
       }
       await handlerPromise;
       await Promise.resolve();
+=======
+
+      // Release the handler
+      deferred.resolve();
+
+      // Now await handle() - it should complete and log the slow listener
+      await handlePromise;
+>>>>>>> 150c048b0 (refactor: unify discord listener slow-log flow and test helpers)
 
       expect(logger.warn).toHaveBeenCalled();
       const warnMock = logger.warn as unknown as { mock: { calls: unknown[][] } };
