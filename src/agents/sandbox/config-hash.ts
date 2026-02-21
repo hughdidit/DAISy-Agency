@@ -9,9 +9,24 @@ type SandboxHashInput = {
   agentWorkspaceDir: string;
 };
 
+<<<<<<< HEAD
 function isPrimitive(value: unknown): value is string | number | boolean | bigint | symbol | null {
   return value === null || (typeof value !== "object" && typeof value !== "function");
 }
+=======
+type SandboxBrowserHashInput = {
+  docker: SandboxDockerConfig;
+  browser: Pick<
+    SandboxBrowserConfig,
+    "cdpPort" | "vncPort" | "noVncPort" | "headless" | "enableNoVnc"
+  >;
+  securityEpoch: string;
+  workspaceAccess: SandboxWorkspaceAccess;
+  workspaceDir: string;
+  agentWorkspaceDir: string;
+};
+
+>>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 function normalizeForHash(value: unknown): unknown {
   if (value === undefined) return undefined;
   if (Array.isArray(value)) {

@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import type { ChannelId } from "../channels/plugins/types.js";
@@ -13,6 +14,10 @@ import type { ExecFn } from "./windows-acl.js";
 >>>>>>> e3e0ffd80 (feat(security): audit gateway HTTP no-auth exposure)
 =======
 >>>>>>> 268b0dc92 (style: fix formatting drift in security allowlist checks)
+=======
+import { resolveSandboxConfigForAgent } from "../agents/sandbox.js";
+import { execDockerRaw } from "../agents/sandbox/docker.js";
+>>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
 <<<<<<< HEAD
 =======
@@ -47,6 +52,7 @@ import {
   collectHooksHardeningFindings,
   collectIncludeFilePermFindings,
   collectInstalledSkillsCodeSafetyFindings,
+  collectSandboxBrowserHashLabelFindings,
   collectMinimalProfileOverrideFindings,
   collectModelHygieneFindings,
   collectNodeDenyCommandPatternFindings,
@@ -131,6 +137,8 @@ export type SecurityAuditOptions = {
   probeGatewayFn?: typeof probeGateway;
   /** Dependency injection for tests (Windows ACL checks). */
   execIcacls?: ExecFn;
+  /** Dependency injection for tests (Docker label checks). */
+  execDockerRawFn?: typeof execDockerRaw;
 };
 
 function countBySeverity(findings: SecurityAuditFinding[]): SecurityAuditSummary {
@@ -980,6 +988,11 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
     }
     findings.push(
       ...(await collectStateDeepFilesystemFindings({ cfg, env, stateDir, platform, execIcacls })),
+    );
+    findings.push(
+      ...(await collectSandboxBrowserHashLabelFindings({
+        execDockerRawFn: opts.execDockerRawFn,
+      })),
     );
     findings.push(...(await collectPluginsTrustFindings({ cfg, stateDir })));
     if (opts.deep === true) {

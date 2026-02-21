@@ -11,7 +11,17 @@ import {
   DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME,
 } from "../../browser/constants.js";
 import { BROWSER_BRIDGES } from "./browser-bridges.js";
+<<<<<<< HEAD
 import { DEFAULT_SANDBOX_BROWSER_IMAGE, SANDBOX_AGENT_WORKSPACE_MOUNT } from "./constants.js";
+=======
+import { computeSandboxBrowserConfigHash } from "./config-hash.js";
+import { resolveSandboxBrowserDockerCreateConfig } from "./config.js";
+import {
+  DEFAULT_SANDBOX_BROWSER_IMAGE,
+  SANDBOX_AGENT_WORKSPACE_MOUNT,
+  SANDBOX_BROWSER_SECURITY_HASH_EPOCH,
+} from "./constants.js";
+>>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 import {
   buildSandboxCreateArgs,
   dockerContainerState,
@@ -105,13 +115,87 @@ export async function ensureSandboxBrowser(params: {
   const name = `${params.cfg.browser.containerPrefix}${slug}`;
   const containerName = name.slice(0, 63);
   const state = await dockerContainerState(containerName);
+<<<<<<< HEAD
   if (!state.exists) {
     await ensureSandboxBrowserImage(params.cfg.browser.image ?? DEFAULT_SANDBOX_BROWSER_IMAGE);
+=======
+  const browserImage = params.cfg.browser.image ?? DEFAULT_SANDBOX_BROWSER_IMAGE;
+  const browserDockerCfg = resolveSandboxBrowserDockerCreateConfig({
+    docker: params.cfg.docker,
+    browser: { ...params.cfg.browser, image: browserImage },
+  });
+  const expectedHash = computeSandboxBrowserConfigHash({
+    docker: browserDockerCfg,
+    browser: {
+      cdpPort: params.cfg.browser.cdpPort,
+      vncPort: params.cfg.browser.vncPort,
+      noVncPort: params.cfg.browser.noVncPort,
+      headless: params.cfg.browser.headless,
+      enableNoVnc: params.cfg.browser.enableNoVnc,
+    },
+    securityEpoch: SANDBOX_BROWSER_SECURITY_HASH_EPOCH,
+    workspaceAccess: params.cfg.workspaceAccess,
+    workspaceDir: params.workspaceDir,
+    agentWorkspaceDir: params.agentWorkspaceDir,
+  });
+
+  const now = Date.now();
+  let hasContainer = state.exists;
+  let running = state.running;
+  let currentHash: string | null = null;
+  let hashMismatch = false;
+
+  if (hasContainer) {
+    const registry = await readBrowserRegistry();
+    const registryEntry = registry.entries.find((entry) => entry.containerName === containerName);
+    currentHash = await readDockerContainerLabel(containerName, "openclaw.configHash");
+    hashMismatch = !currentHash || currentHash !== expectedHash;
+    if (!currentHash) {
+      currentHash = registryEntry?.configHash ?? null;
+      hashMismatch = !currentHash || currentHash !== expectedHash;
+    }
+    if (hashMismatch) {
+      const lastUsedAtMs = registryEntry?.lastUsedAtMs;
+      const isHot =
+        running && (typeof lastUsedAtMs !== "number" || now - lastUsedAtMs < HOT_BROWSER_WINDOW_MS);
+      if (isHot) {
+        const hint = (() => {
+          if (params.cfg.scope === "session") {
+            return `openclaw sandbox recreate --browser --session ${params.scopeKey}`;
+          }
+          if (params.cfg.scope === "agent") {
+            const agentId = resolveSandboxAgentId(params.scopeKey) ?? "main";
+            return `openclaw sandbox recreate --browser --agent ${agentId}`;
+          }
+          return "openclaw sandbox recreate --browser --all";
+        })();
+        defaultRuntime.log(
+          `Sandbox browser config changed for ${containerName} (recently used). Recreate to apply: ${hint}`,
+        );
+      } else {
+        await execDocker(["rm", "-f", containerName], { allowFailure: true });
+        hasContainer = false;
+        running = false;
+      }
+    }
+  }
+
+  if (!hasContainer) {
+    await ensureSandboxBrowserImage(browserImage);
+>>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
     const args = buildSandboxCreateArgs({
       name: containerName,
       cfg: params.cfg.docker,
       scopeKey: params.scopeKey,
+<<<<<<< HEAD
       labels: { "openclaw.sandboxBrowser": "1" },
+=======
+      labels: {
+        "openclaw.sandboxBrowser": "1",
+        "openclaw.browserConfigEpoch": SANDBOX_BROWSER_SECURITY_HASH_EPOCH,
+      },
+      configHash: expectedHash,
+>>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
     });
     const mainMountSuffix =
       params.cfg.workspaceAccess === "ro" && params.workspaceDir === params.agentWorkspaceDir

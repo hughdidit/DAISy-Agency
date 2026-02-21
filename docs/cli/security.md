@@ -35,10 +35,14 @@ It also warns when sandbox Docker settings are configured while sandbox mode is 
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 1def8c544 (fix(security): extend audit hardening checks)
 =======
 =======
 =======
+=======
+It also warns when existing sandbox browser Docker containers have missing/stale hash labels (for example pre-migration containers missing `openclaw.browserConfigEpoch`) and recommends `openclaw sandbox recreate --browser --all`.
+>>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 It also warns when npm-based plugin/hook install records are unpinned, missing integrity metadata, or drift from currently installed package versions.
 >>>>>>> 5dc50b8a3 (fix(security): harden npm plugin and hook install integrity flow)
 It warns when `gateway.auth.mode="none"` leaves Gateway HTTP APIs reachable without a shared secret (`/tools/invoke` plus any enabled `/v1/*` endpoint).
