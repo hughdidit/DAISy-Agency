@@ -26,11 +26,15 @@ title: grammY
 =======
 - **Config knobs:** `channels.telegram.botToken`, `channels.telegram.dmPolicy`, `channels.telegram.groups` (allowlist + mention defaults), `channels.telegram.allowFrom`, `channels.telegram.groupAllowFrom`, `channels.telegram.groupPolicy`, `channels.telegram.mediaMaxMb`, `channels.telegram.linkPreview`, `channels.telegram.proxy`, `channels.telegram.webhookSecret`, `channels.telegram.webhookUrl`, `channels.telegram.webhookHost`.
 <<<<<<< HEAD
+<<<<<<< HEAD
 - **Live stream preview:** optional `channels.telegram.streamMode` sends a temporary message and updates it with `editMessageText`. This is separate from channel block streaming.
 >>>>>>> a69e82765 (fix(telegram): stream replies in-place without duplicate final sends)
 =======
 - **Live stream preview:** optional `channels.telegram.streaming` sends a temporary message and updates it with `editMessageText`. This is separate from channel block streaming.
 >>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
+=======
+- **Live stream preview:** `channels.telegram.streaming` (`off | partial | block | progress`) sends a temporary message and updates it with `editMessageText`. This is separate from channel block streaming.
+>>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
 - **Tests:** grammy mocks cover DM + group mention gating and outbound send; more media/webhook fixtures still welcome.
 
 Open questions

@@ -45,7 +45,8 @@ export type SlackChannelConfig = {
 };
 
 export type SlackReactionNotificationMode = "off" | "own" | "all" | "allowlist";
-export type SlackStreamMode = "replace" | "status_final" | "append";
+export type SlackStreamingMode = "off" | "partial" | "block" | "progress";
+export type SlackLegacyStreamMode = "replace" | "status_final" | "append";
 
 export type SlackActionConfig = {
   reactions?: boolean;
@@ -127,6 +128,7 @@ export type SlackAccountConfig = {
   blockStreamingCoalesce?: BlockStreamingCoalesceConfig;
 <<<<<<< HEAD
   /**
+<<<<<<< HEAD
    * Enable Slack native text streaming (Agents & AI Apps).
    *
    * When true, replies are streamed word-by-word into a single updating
@@ -141,6 +143,24 @@ export type SlackAccountConfig = {
   /** Slack stream preview mode (replace|status_final|append). Default: replace. */
   streamMode?: SlackStreamMode;
 >>>>>>> 89ce1460e (feat(slack): add configurable stream modes)
+=======
+   * Stream preview mode:
+   * - "off": disable live preview streaming
+   * - "partial": replace preview text with the latest partial output (default)
+   * - "block": append chunked preview updates
+   * - "progress": show progress status, then send final text
+   *
+   * Legacy boolean values are still accepted and auto-migrated.
+   */
+  streaming?: SlackStreamingMode | boolean;
+  /**
+   * Slack native text streaming toggle (`chat.startStream` / `chat.appendStream` / `chat.stopStream`).
+   * Used when `streaming` is `partial`. Default: true.
+   */
+  nativeStreaming?: boolean;
+  /** @deprecated Legacy preview mode key; migrated automatically to `streaming`. */
+  streamMode?: SlackLegacyStreamMode;
+>>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
   mediaMaxMb?: number;
   /** Reaction notification mode (off|own|all|allowlist). Default: own. */
   reactionNotifications?: SlackReactionNotificationMode;

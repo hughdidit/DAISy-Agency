@@ -772,13 +772,36 @@ For triage flow: [/channels/troubleshooting](/channels/troubleshooting).
 
 Slack's [Agents & AI Apps](https://docs.slack.dev/ai/developing-ai-apps) feature includes native text streaming APIs that let your app stream responses word-by-word (similar to ChatGPT) instead of waiting for the full response.
 
+<<<<<<< HEAD
 Enable it per-account:
+=======
+`channels.slack.streaming` controls live preview behavior:
+
+- `off`: disable live preview streaming.
+- `partial` (default): replace preview text with the latest partial output.
+- `block`: append chunked preview updates.
+- `progress`: show progress status text while generating, then send final text.
+
+`channels.slack.nativeStreaming` controls Slack's native streaming API (`chat.startStream` / `chat.appendStream` / `chat.stopStream`) when `streaming` is `partial` (default: `true`).
+
+Disable native Slack streaming (keep draft preview behavior):
+>>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
 
 ```yaml
 channels:
   slack:
+<<<<<<< HEAD
     streaming: true
+=======
+    streaming: partial
+    nativeStreaming: false
+>>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
 ```
+
+Legacy keys:
+
+- `channels.slack.streamMode` (`replace | status_final | append`) is auto-migrated to `channels.slack.streaming`.
+- boolean `channels.slack.streaming` is auto-migrated to `channels.slack.nativeStreaming`.
 
 ### Requirements
 
@@ -804,6 +827,7 @@ channels:
 
 ## Notes
 
+<<<<<<< HEAD
 - Mention gating is controlled via `channels.slack.channels` (set `requireMention` to `true`); `agents.list[].groupChat.mentionPatterns` (or `messages.groupChat.mentionPatterns`) also count as mentions.
 - Multi-agent override: set per-agent patterns on `agents.list[].groupChat.mentionPatterns`.
 - Reaction notifications follow `channels.slack.reactionNotifications` (use `reactionAllowlist` with mode `allowlist`).
@@ -811,3 +835,20 @@ channels:
 - Warning: If you allow replies to other bots (`channels.slack.allowBots=true` or `channels.slack.channels.<id>.allowBots=true`), prevent bot-to-bot reply loops with `requireMention`, `channels.slack.channels.<id>.users` allowlists, and/or clear guardrails in `AGENTS.md` and `SOUL.md`.
 - For the Slack tool, reaction removal semantics are in [/tools/reactions](/tools/reactions).
 - Attachments are downloaded to the media store when permitted and under the size limit.
+=======
+  High-signal Slack fields:
+  - mode/auth: `mode`, `botToken`, `appToken`, `signingSecret`, `webhookPath`, `accounts.*`
+  - DM access: `dm.enabled`, `dmPolicy`, `allowFrom` (legacy: `dm.policy`, `dm.allowFrom`), `dm.groupEnabled`, `dm.groupChannels`
+  - channel access: `groupPolicy`, `channels.*`, `channels.*.users`, `channels.*.requireMention`
+  - threading/history: `replyToMode`, `replyToModeByChatType`, `thread.*`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
+  - delivery: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `streaming`, `nativeStreaming`
+  - ops/features: `configWrites`, `commands.native`, `slashCommand.*`, `actions.*`, `userToken`, `userTokenReadOnly`
+
+## Related
+
+- [Pairing](/channels/pairing)
+- [Channel routing](/channels/channel-routing)
+- [Troubleshooting](/channels/troubleshooting)
+- [Configuration](/gateway/configuration)
+- [Slash commands](/tools/slash-commands)
+>>>>>>> 2c14b0cf4 (refactor(config): unify streaming config across channels)
