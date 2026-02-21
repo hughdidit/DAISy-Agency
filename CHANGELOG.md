@@ -92,10 +92,15 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 9a6b26d42 (fix(ui): strip inbound metadata blocks and guard reply-tag streaming (clean rewrite) (#22346))
 - Agents/System Prompt: label allowlisted senders as authorized senders to avoid implying ownership. Thanks @thewilloftheshadow.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 3100b77f1 (Agents: clarify authorized sender prompt (Closes #19794))
 =======
 - Agents/Tool display: fix exec cwd suffix inference so `pushd ... && popd ... && <command>` does not keep stale `(in <dir>)` context in summaries. (#21925) thanks @Lukavyi.
 >>>>>>> 0e068194a (fix(tool-display): `cd ~/dir && npm install` shows as `run cd` — compound commands truncated to first stage (#21925))
+=======
+- Agents/Tool display: fix exec cwd suffix inference so `pushd ... && popd ... && <command>` does not keep stale `(in <dir>)` context in summaries. (#21925) Thanks @Lukavyi.
+- Discord: restore model picker back navigation when a provider is missing and document the Discord picker flow. (#21458) Thanks @pejmanjohn and @thewilloftheshadow.
+>>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
 - Gateway/Auth: allow trusted-proxy mode with loopback bind for same-host reverse-proxy deployments, while still requiring configured `gateway.trustedProxies`. (#20097) thanks @xinhuagu.
 >>>>>>> 9c5249714 (fix(gateway): trusted-proxy auth rejected when bind=loopback (#20097))
 - Gateway/Auth: allow authenticated clients across roles/scopes to call `health` while preserving role and scope enforcement for non-health methods. (#19699) thanks @Nachx639.
@@ -138,7 +143,10 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 57f0ac21e (fix(heartbeat): constrain 24-hour sentinel to 24:00 only in regex (#21410))
 =======
 - Heartbeat: treat `activeHours` windows with identical `start`/`end` times as zero-width (always outside the window) instead of always-active. (#21408) thanks @adhitShet.
+<<<<<<< HEAD
 >>>>>>> ae4907ce6 (fix(heartbeat): return false for zero-width active-hours window (#21408))
+=======
+>>>>>>> 35be87b09 (fix(tui): strip inbound metadata blocks from user messages (clean rewrite) (#22345))
 - Gateway/Pairing: tolerate legacy paired devices missing `roles`/`scopes` metadata in websocket upgrade checks and backfill metadata on reconnect. (#21447, fixes #21236) Thanks @joshavant.
 <<<<<<< HEAD
 =======
