@@ -4,6 +4,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { OpenClawConfig } from "../config/config.js";
+<<<<<<< HEAD
+=======
+import { resolveControlUiRootSync } from "../infra/control-ui-assets.js";
+import { isWithinDir } from "../infra/path-safety.js";
+>>>>>>> 6ac89757b (Security/Gateway: harden Control UI static path containment (#21203))
 import { DEFAULT_ASSISTANT_IDENTITY, resolveAssistantIdentity } from "./assistant-identity.js";
 import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth } from "./auth.js";
 import {
@@ -326,8 +331,20 @@ function resolveSafeControlUiFile(
 function isSafeRelativePath(relPath: string) {
   if (!relPath) return false;
   const normalized = path.posix.normalize(relPath);
+<<<<<<< HEAD
   if (normalized.startsWith("../") || normalized === "..") return false;
   if (normalized.includes("\0")) return false;
+=======
+  if (path.posix.isAbsolute(normalized) || path.win32.isAbsolute(normalized)) {
+    return false;
+  }
+  if (normalized.startsWith("../") || normalized === "..") {
+    return false;
+  }
+  if (normalized.includes("\0")) {
+    return false;
+  }
+>>>>>>> 6ac89757b (Security/Gateway: harden Control UI static path containment (#21203))
   return true;
 }
 
@@ -405,8 +422,8 @@ export async function handleControlUiHttpRequest(
     return true;
   }
 
-  const filePath = path.join(root, fileRel);
-  if (!filePath.startsWith(root)) {
+  const filePath = path.resolve(root, fileRel);
+  if (!isWithinDir(root, filePath)) {
     respondNotFound(res);
     return true;
   }
