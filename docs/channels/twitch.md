@@ -30,7 +30,7 @@ moltbot plugins install ./extensions/twitch
 
 Details: [Plugins](/plugin)
 
-## Quick setup (beginner)
+## Onboarding
 
 1) Create a dedicated Twitch account for the bot (or use an existing account).
 2) Generate credentials: [Twitch Token Generator](https://twitchtokengenerator.com/)

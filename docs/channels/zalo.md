@@ -14,10 +14,18 @@ Zalo ships as a plugin and is not bundled with the core install.
 - Or select **Zalo** during onboarding and confirm the install prompt
 - Details: [Plugins](/plugin)
 
+<<<<<<< HEAD
 ## Quick setup (beginner)
 1) Install the Zalo plugin:
    - From a source checkout: `moltbot plugins install ./extensions/zalo`
    - From npm (if published): `moltbot plugins install @moltbot/zalo`
+=======
+## Onboarding
+
+1. Install the Zalo plugin:
+   - From a source checkout: `openclaw plugins install ./extensions/zalo`
+   - From npm (if published): `openclaw plugins install @openclaw/zalo`
+>>>>>>> 4c4147fb0 (docs: continue onboarding terminology cleanup (#22535))
    - Or pick **Zalo** in onboarding and confirm the install prompt
 2) Set the token:
    - Env: `ZALO_BOT_TOKEN=...`
@@ -157,7 +165,12 @@ Multi-account support: use `channels.zalo.accounts` with per-account tokens and 
 - Confirm the gateway HTTP endpoint is reachable on the configured path
 - Check that getUpdates polling is not running (they're mutually exclusive)
 
+<<<<<<< HEAD
 ## Configuration reference (Zalo)
+=======
+## Configuration
+
+>>>>>>> 4c4147fb0 (docs: continue onboarding terminology cleanup (#22535))
 Full configuration: [Configuration](/gateway/configuration)
 
 Provider options:
