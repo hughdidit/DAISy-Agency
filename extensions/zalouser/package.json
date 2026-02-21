@@ -6,7 +6,11 @@
   "description": "Moltbot Zalo Personal Account plugin via zca-cli",
 =======
   "name": "@openclaw/zalouser",
+<<<<<<< HEAD
   "version": "2026.1.30",
+=======
+  "version": "2026.2.22",
+>>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
   "description": "OpenClaw Zalo Personal Account plugin via zca-cli",
   "type": "module",
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)

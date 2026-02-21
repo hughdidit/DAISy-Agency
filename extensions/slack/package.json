@@ -8,9 +8,13 @@
 =======
   "name": "@openclaw/slack",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "2026.1.30",
 =======
   "version": "2026.2.9",
+=======
+  "version": "2026.2.22",
+>>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
   "private": true,
 >>>>>>> 33c75cb6b (chore(extensions): mark bundled packages private)
   "description": "OpenClaw Slack channel plugin",

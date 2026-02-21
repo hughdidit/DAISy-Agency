@@ -6,7 +6,11 @@
   "description": "Moltbot voice-call plugin",
 =======
   "name": "@openclaw/voice-call",
+<<<<<<< HEAD
   "version": "2026.1.30",
+=======
+  "version": "2026.2.22",
+>>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
   "description": "OpenClaw voice-call plugin",
   "type": "module",
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)

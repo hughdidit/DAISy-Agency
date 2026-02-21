@@ -1,14 +1,19 @@
 # Changelog
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 2026.1.27-beta.1
 =======
 ## 2026.2.1
+=======
+## 2026.2.22
+>>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
 
 ### Changes
 
 - Version alignment with core OpenClaw release numbers.
 
+<<<<<<< HEAD
 ## 2026.1.31
 
 ### Changes
@@ -102,6 +107,8 @@
 - Version alignment with core OpenClaw release numbers.
 >>>>>>> 8cab78abb (chore: Run `pnpm format:fix`.)
 
+=======
+>>>>>>> 549549f6a (fix(ci): sync plugin versions and harden install smoke)
 ## 2026.1.15
 
 ### Features
