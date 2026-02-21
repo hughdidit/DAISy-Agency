@@ -37,6 +37,14 @@ OpenClaw is both a product and an experiment: you’re wiring frontier-model beh
 
 Start with the smallest access that still works, then widen it as you gain confidence.
 
+## Deployment assumption (important)
+
+OpenClaw assumes the host and config boundary are trusted:
+
+- If someone can modify Gateway host state/config (`~/.openclaw`, including `openclaw.json`), treat them as a trusted operator.
+- Running one Gateway for multiple mutually untrusted/adversarial operators is **not a recommended setup**.
+- For mixed-trust teams, split trust boundaries with separate gateways (or at minimum separate OS users/hosts).
+
 ## Hardened baseline in 60 seconds
 
 Use this baseline first, then selectively re-enable tools per trusted agent:
@@ -73,6 +81,7 @@ If more than one person can DM your bot:
 - Set `session.dmScope: "per-channel-peer"` (or `"per-account-channel-peer"` for multi-account channels).
 - Keep `dmPolicy: "pairing"` or strict allowlists.
 - Never combine shared DMs with broad tool access.
+- This hardens cooperative/shared inboxes, but is not designed as hostile co-tenant isolation when users share host/config write access.
 
 ### What the audit checks (high level)
 
@@ -296,7 +305,22 @@ By default, OpenClaw routes **all DMs into the main session** so your assistant 
 }
 ```
 
+<<<<<<< HEAD
 This prevents cross-user context leakage while keeping group chats isolated. If you run multiple accounts on the same channel, use `per-account-channel-peer` instead. If the same person contacts you on multiple channels, use `session.identityLinks` to collapse those DM sessions into one canonical identity. See [Session Management](/concepts/session) and [Configuration](/gateway/configuration).
+=======
+This prevents cross-user context leakage while keeping group chats isolated.
+
+This is a messaging-context boundary, not a host-admin boundary. If users are mutually adversarial and share the same Gateway host/config, run separate gateways per trust boundary instead.
+
+### Secure DM mode (recommended)
+
+Treat the snippet above as **secure DM mode**:
+
+- Default: `session.dmScope: "main"` (all DMs share one session for continuity).
+- Secure DM mode: `session.dmScope: "per-channel-peer"` (each channel+sender pair gets an isolated DM context).
+
+If you run multiple accounts on the same channel, use `per-account-channel-peer` instead. If the same person contacts you on multiple channels, use `session.identityLinks` to collapse those DM sessions into one canonical identity. See [Session Management](/concepts/session) and [Configuration](/gateway/configuration).
+>>>>>>> 810218756 (docs(security): clarify trusted-host deployment assumptions)
 
 ## Allowlists (DM + groups) — terminology
 

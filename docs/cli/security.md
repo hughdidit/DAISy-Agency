@@ -21,7 +21,12 @@ openclaw security audit --fix
 openclaw security audit --json
 ```
 
+<<<<<<< HEAD
 The audit warns when multiple DM senders share the main session and recommends `session.dmScope="per-channel-peer"` (or `per-account-channel-peer` for multi-account channels) for shared inboxes.
+=======
+The audit warns when multiple DM senders share the main session and recommends **secure DM mode**: `session.dmScope="per-channel-peer"` (or `per-account-channel-peer` for multi-account channels) for shared inboxes.
+This is for cooperative/shared inbox hardening. A single Gateway shared by mutually untrusted/adversarial operators is not a recommended setup; split trust boundaries with separate gateways (or separate OS users/hosts).
+>>>>>>> 810218756 (docs(security): clarify trusted-host deployment assumptions)
 It also warns when small models (`<=300B`) are used without sandboxing and with web/browser tools enabled.
 <<<<<<< HEAD
 =======
