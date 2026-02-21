@@ -8,6 +8,7 @@ import { ensureAuthProfileStore } from "./auth-profiles.js";
 import { resolvePiCredentialMapFromStore, type PiCredentialMap } from "./pi-auth-credentials.js";
 
 export { AuthStorage, ModelRegistry } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -28,6 +29,8 @@ type PiCredentialMap = Record<string, PiCredential>;
 
 =======
 >>>>>>> cec404225 (Auth labels: handle token refs and share Pi credential conversion)
+=======
+>>>>>>> 301fe1890 (Agents: inject pi auth storage from runtime profiles)
 function createAuthStorage(AuthStorageLike: unknown, path: string, creds: PiCredentialMap) {
   const withInMemory = AuthStorageLike as { inMemory?: (data?: unknown) => unknown };
   if (typeof withInMemory.inMemory === "function") {
