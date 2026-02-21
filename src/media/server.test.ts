@@ -35,6 +35,16 @@ describe("media server", () => {
   let server: Awaited<ReturnType<typeof startMediaServer>>;
   let port = 0;
 
+  function mediaUrl(id: string) {
+    return `http://127.0.0.1:${port}/media/${id}`;
+  }
+
+  async function writeMediaFile(id: string, contents: string) {
+    const filePath = path.join(MEDIA_DIR, id);
+    await fs.writeFile(filePath, contents);
+    return filePath;
+  }
+
   beforeAll(async () => {
     MEDIA_DIR = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-test-"));
     server = await startMediaServer(0, 1_000);
@@ -48,6 +58,7 @@ describe("media server", () => {
   });
 
   it("serves media and cleans up after send", async () => {
+<<<<<<< HEAD
     const file = path.join(MEDIA_DIR, "file1");
     await fs.writeFile(file, "hello");
 <<<<<<< HEAD
@@ -57,16 +68,20 @@ describe("media server", () => {
 =======
     const res = await fetch(`http://127.0.0.1:${port}/media/file1`);
 >>>>>>> 7e065d90f (perf(test): keep single media server and fast cleanup)
+=======
+    const file = await writeMediaFile("file1", "hello");
+    const res = await fetch(mediaUrl("file1"));
+>>>>>>> e46634db9 (test(media): dedupe server fixture helpers and cover 404/id validation)
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("hello");
     await waitForFileRemoval(file);
   });
 
   it("expires old media", async () => {
-    const file = path.join(MEDIA_DIR, "old");
-    await fs.writeFile(file, "stale");
+    const file = await writeMediaFile("old", "stale");
     const past = Date.now() - 10_000;
     await fs.utimes(file, past / 1000, past / 1000);
+<<<<<<< HEAD
 <<<<<<< HEAD
     const server = await startMediaServer(0, 1_000);
     const port = (server.address() as AddressInfo).port;
@@ -74,6 +89,9 @@ describe("media server", () => {
 =======
     const res = await fetch(`http://127.0.0.1:${port}/media/old`);
 >>>>>>> 7e065d90f (perf(test): keep single media server and fast cleanup)
+=======
+    const res = await fetch(mediaUrl("old"));
+>>>>>>> e46634db9 (test(media): dedupe server fixture helpers and cover 404/id validation)
     expect(res.status).toBe(410);
     await expect(fs.stat(file)).rejects.toThrow();
   });
@@ -122,8 +140,7 @@ describe("media server", () => {
       testName: "rejects invalid media ids",
       mediaPath: "invalid%20id",
       setup: async () => {
-        const file = path.join(MEDIA_DIR, "file2");
-        await fs.writeFile(file, "hello");
+        await writeMediaFile("file2", "hello");
       },
     },
     {
@@ -137,16 +154,20 @@ describe("media server", () => {
     },
   ] as const)("$testName", async (testCase) => {
     await testCase.setup?.();
+<<<<<<< HEAD
     const res = await fetch(`http://127.0.0.1:${port}/media/${testCase.mediaPath}`);
 >>>>>>> 20849df70 (test: merge media invalid-path scenarios)
+=======
+    const res = await fetch(mediaUrl(testCase.mediaPath));
+>>>>>>> e46634db9 (test(media): dedupe server fixture helpers and cover 404/id validation)
     expect(res.status).toBe(400);
     expect(await res.text()).toBe("invalid path");
   });
 
   it("rejects oversized media files", async () => {
-    const file = path.join(MEDIA_DIR, "big");
-    await fs.writeFile(file, "");
+    const file = await writeMediaFile("big", "");
     await fs.truncate(file, MEDIA_MAX_BYTES + 1);
+<<<<<<< HEAD
 <<<<<<< HEAD
     const server = await startMediaServer(0, 5_000);
     const port = (server.address() as AddressInfo).port;
@@ -154,7 +175,27 @@ describe("media server", () => {
 =======
     const res = await fetch(`http://127.0.0.1:${port}/media/big`);
 >>>>>>> 7e065d90f (perf(test): keep single media server and fast cleanup)
+=======
+    const res = await fetch(mediaUrl("big"));
+>>>>>>> e46634db9 (test(media): dedupe server fixture helpers and cover 404/id validation)
     expect(res.status).toBe(413);
     expect(await res.text()).toBe("too large");
+  });
+
+  it("returns not found for missing media IDs", async () => {
+    const res = await fetch(mediaUrl("missing-file"));
+    expect(res.status).toBe(404);
+    expect(await res.text()).toBe("not found");
+  });
+
+  it("returns 404 when route param is missing (dot path)", async () => {
+    const res = await fetch(mediaUrl("."));
+    expect(res.status).toBe(404);
+  });
+
+  it("rejects overlong media id", async () => {
+    const res = await fetch(mediaUrl(`${"a".repeat(201)}.txt`));
+    expect(res.status).toBe(400);
+    expect(await res.text()).toBe("invalid path");
   });
 });
