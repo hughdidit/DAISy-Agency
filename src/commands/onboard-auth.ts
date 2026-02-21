@@ -74,6 +74,11 @@ export {
   setOpenaiApiKey,
   setAnthropicApiKey,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  setCloudflareAiGatewayConfig,
+  setByteplusApiKey,
+>>>>>>> 59e5f12bf (Onboard: move volcengine/byteplus auth from .env to profiles)
   setQianfanApiKey,
 =======
   setCloudflareAiGatewayConfig,
@@ -93,6 +98,7 @@ export {
   setVeniceApiKey,
   setVercelAiGatewayApiKey,
   setXiaomiApiKey,
+  setVolcengineApiKey,
   setZaiApiKey,
   setXaiApiKey,
   writeOAuthCredentials,
