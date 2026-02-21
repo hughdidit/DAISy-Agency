@@ -1,9 +1,15 @@
+import { findCodeRegions, isInsideCode } from "./code-regions.js";
 export type ReasoningTagMode = "strict" | "preserve";
 export type ReasoningTagTrim = "none" | "start" | "both";
 
 const QUICK_TAG_RE = /<\s*\/?\s*(?:think(?:ing)?|thought|antthinking|final)\b/i;
+<<<<<<< HEAD
 const FINAL_TAG_RE = /<\s*\/?\s*final\b[^>]*>/gi;
 const THINKING_TAG_RE = /<\s*(\/?)\s*(?:think(?:ing)?|thought|antthinking)\b[^>]*>/gi;
+=======
+const FINAL_TAG_RE = /<\s*\/?\s*final\b[^<>]*>/gi;
+const THINKING_TAG_RE = /<\s*(\/?)\s*(?:think(?:ing)?|thought|antthinking)\b[^<>]*>/gi;
+>>>>>>> a32edf423 (refactor(text): share code-region parsing for reasoning tags)
 
 function applyTrim(value: string, mode: ReasoningTagTrim): string {
   if (mode === "none") {
