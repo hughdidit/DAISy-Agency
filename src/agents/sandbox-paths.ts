@@ -93,11 +93,20 @@ export async function resolveSandboxedMediaSource(params: {
       throw new Error(`Invalid file:// URL for sandboxed media: ${raw}`);
     }
   }
+<<<<<<< HEAD
   // Allow files under os.tmpdir() — consistent with buildMediaLocalRoots() defaults.
   const resolved = path.resolve(params.sandboxRoot, candidate);
   const tmpDir = os.tmpdir();
   if (resolved === tmpDir || resolved.startsWith(tmpDir + path.sep)) {
     return resolved;
+=======
+  const tmpMediaPath = await resolveAllowedTmpMediaPath({
+    candidate,
+    sandboxRoot: params.sandboxRoot,
+  });
+  if (tmpMediaPath) {
+    return tmpMediaPath;
+>>>>>>> 55e38d3b4 (refactor: extract tmp media resolver helper and dedupe sandbox-path tests)
   }
   const sandboxResult = await assertSandboxPath({
     filePath: candidate,
@@ -108,8 +117,28 @@ export async function resolveSandboxedMediaSource(params: {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 async function assertNoSymlink(relative: string, root: string) {
 =======
+=======
+async function resolveAllowedTmpMediaPath(params: {
+  candidate: string;
+  sandboxRoot: string;
+}): Promise<string | undefined> {
+  const candidateIsAbsolute = path.isAbsolute(expandPath(params.candidate));
+  if (!candidateIsAbsolute) {
+    return undefined;
+  }
+  const resolved = path.resolve(resolveSandboxInputPath(params.candidate, params.sandboxRoot));
+  const tmpDir = path.resolve(os.tmpdir());
+  if (!isPathInside(tmpDir, resolved)) {
+    return undefined;
+  }
+  await assertNoSymlinkEscape(path.relative(tmpDir, resolved), tmpDir);
+  return resolved;
+}
+
+>>>>>>> 55e38d3b4 (refactor: extract tmp media resolver helper and dedupe sandbox-path tests)
 async function assertNoSymlinkEscape(
   relative: string,
   root: string,
