@@ -127,6 +127,31 @@ are treated as allowlisted on nodes (macOS node or headless node host). This use
 `tools.exec.safeBins` defines a small list of **stdin-only** binaries (for example `jq`)
 that can run in allowlist mode **without** explicit allowlist entries. Safe bins reject
 positional file args and path-like tokens, so they can only operate on the incoming stream.
+<<<<<<< HEAD
+=======
+Validation is deterministic from argv shape only (no host filesystem existence checks), which
+prevents file-existence oracle behavior from allow/deny differences.
+File-oriented options are denied for default safe bins (for example `sort -o`, `sort --output`,
+`sort --files0-from`, `sort --compress-program`, `wc --files0-from`, `jq -f/--from-file`,
+`grep -f/--file`).
+Safe bins also enforce explicit per-binary flag policy for options that break stdin-only
+behavior (for example `sort -o/--output/--compress-program` and grep recursive flags).
+Denied flags by safe-bin profile:
+
+<!-- SAFE_BIN_DENIED_FLAGS:START -->
+
+- `grep`: `--dereference-recursive`, `--directories`, `--exclude-from`, `--file`, `--recursive`, `-R`, `-d`, `-f`, `-r`
+- `jq`: `--argfile`, `--from-file`, `--library-path`, `--rawfile`, `--slurpfile`, `-L`, `-f`
+- `sort`: `--compress-program`, `--files0-from`, `--output`, `-o`
+- `wc`: `--files0-from`
+<!-- SAFE_BIN_DENIED_FLAGS:END -->
+
+Safe bins also force argv tokens to be treated as **literal text** at execution time (no globbing
+and no `$VARS` expansion) for stdin-only segments, so patterns like `*` or `$HOME/...` cannot be
+used to smuggle file reads.
+Safe bins must also resolve from trusted binary directories (system defaults plus the gateway
+process `PATH` at startup). This blocks request-scoped PATH hijacking attempts.
+>>>>>>> 89aad7b92 (refactor: tighten safe-bin policy model and docs parity)
 Shell chaining and redirections are not auto-allowed in allowlist mode.
 
 Shell chaining (`&&`, `||`, `;`) is allowed when every top-level segment satisfies the allowlist
