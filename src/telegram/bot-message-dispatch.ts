@@ -6,7 +6,6 @@ import {
   modelSupportsVision,
 } from "../agents/model-catalog.js";
 import { resolveDefaultModelForAgent } from "../agents/model-selection.js";
-import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 import { resolveChunkMode } from "../auto-reply/chunk.js";
 import { clearHistoryEntriesIfEnabled } from "../auto-reply/reply/history.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
@@ -54,7 +53,6 @@ import type { TelegramBotOptions } from "./bot.js";
 import { deliverReplies } from "./bot/delivery.js";
 import type { TelegramStreamMode } from "./bot/types.js";
 import type { TelegramInlineButtons } from "./button-types.js";
-import { resolveTelegramDraftStreamingChunking } from "./draft-chunking.js";
 import { createTelegramDraftStream } from "./draft-stream.js";
 import { editMessageTelegram } from "./send.js";
 import { cacheSticker, describeStickerImage } from "./sticker-cache.js";
@@ -125,6 +123,7 @@ export const dispatchTelegramMessage = async ({
     typeof telegramCfg.blockStreaming === "boolean"
       ? telegramCfg.blockStreaming
       : cfg.agents?.defaults?.blockStreamingDefault === "on";
+<<<<<<< HEAD
   const canStreamDraft = streamMode !== "off" && !accountBlockStreamingEnabled;
   const draftReplyToMessageId =
     replyToMode !== "off" && typeof msg.message_id === "number" ? msg.message_id : undefined;
@@ -151,12 +150,84 @@ export const dispatchTelegramMessage = async ({
   let hasStreamedMessage = false;
   const updateDraftFromPartial = (text?: string) => {
     if (!draftStream || !text) {
+=======
+  const resolvedReasoningLevel = resolveTelegramReasoningLevel({
+    cfg,
+    sessionKey: ctxPayload.SessionKey,
+    agentId: route.agentId,
+  });
+  const forceBlockStreamingForReasoning = resolvedReasoningLevel === "on";
+  const streamReasoningDraft = resolvedReasoningLevel === "stream";
+  const previewStreamingEnabled = streamMode !== "off";
+  const canStreamAnswerDraft =
+    previewStreamingEnabled && !accountBlockStreamingEnabled && !forceBlockStreamingForReasoning;
+  const canStreamReasoningDraft = canStreamAnswerDraft || streamReasoningDraft;
+  const draftReplyToMessageId =
+    replyToMode !== "off" && typeof msg.message_id === "number" ? msg.message_id : undefined;
+  const draftMinInitialChars =
+    previewStreamingEnabled || streamReasoningDraft ? 1 : DRAFT_MIN_INITIAL_CHARS;
+  const mediaLocalRoots = getAgentScopedMediaLocalRoots(cfg, route.agentId);
+  type LaneName = "answer" | "reasoning";
+  type DraftLaneState = {
+    stream: ReturnType<typeof createTelegramDraftStream> | undefined;
+    lastPartialText: string;
+    hasStreamedMessage: boolean;
+  };
+  const createDraftLane = (enabled: boolean): DraftLaneState => {
+    const stream = enabled
+      ? createTelegramDraftStream({
+          api: bot.api,
+          chatId,
+          maxChars: draftMaxChars,
+          thread: threadSpec,
+          replyToMessageId: draftReplyToMessageId,
+          minInitialChars: draftMinInitialChars,
+          renderText: renderDraftPreview,
+          log: logVerbose,
+          warn: logVerbose,
+        })
+      : undefined;
+    return {
+      stream,
+      lastPartialText: "",
+      hasStreamedMessage: false,
+    };
+  };
+  const lanes: Record<LaneName, DraftLaneState> = {
+    answer: createDraftLane(canStreamAnswerDraft),
+    reasoning: createDraftLane(canStreamReasoningDraft),
+  };
+  const answerLane = lanes.answer;
+  const reasoningLane = lanes.reasoning;
+  let splitReasoningOnNextStream = false;
+  const reasoningStepState = createTelegramReasoningStepState();
+  type SplitLaneSegment = { lane: LaneName; text: string };
+  const splitTextIntoLaneSegments = (text?: string): SplitLaneSegment[] => {
+    const split = splitTelegramReasoningText(text);
+    const segments: SplitLaneSegment[] = [];
+    if (split.reasoningText) {
+      segments.push({ lane: "reasoning", text: split.reasoningText });
+    }
+    if (split.answerText) {
+      segments.push({ lane: "answer", text: split.answerText });
+    }
+    return segments;
+  };
+  const resetDraftLaneState = (lane: DraftLaneState) => {
+    lane.lastPartialText = "";
+    lane.hasStreamedMessage = false;
+  };
+  const updateDraftFromPartial = (lane: DraftLaneState, text: string | undefined) => {
+    const laneStream = lane.stream;
+    if (!laneStream || !text) {
+>>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
       return;
     }
     if (text === lastPartialText) {
       return;
     }
     // Mark that we've received streaming content (for forceNewMessage decision).
+<<<<<<< HEAD
     hasStreamedMessage = true;
     if (streamMode === "partial") {
       // Some providers briefly emit a shorter prefix snapshot (for example
@@ -198,11 +269,27 @@ export const dispatchTelegramMessage = async ({
         draftStream.update(draftText);
       },
     });
+=======
+    lane.hasStreamedMessage = true;
+    // Some providers briefly emit a shorter prefix snapshot (for example
+    // "Sure." -> "Sure" -> "Sure."). Keep the longer preview to avoid
+    // visible punctuation flicker.
+    if (
+      lane.lastPartialText &&
+      lane.lastPartialText.startsWith(text) &&
+      text.length < lane.lastPartialText.length
+    ) {
+      return;
+    }
+    lane.lastPartialText = text;
+    laneStream.update(text);
+>>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
   };
   const flushDraft = async () => {
     if (!draftStream) {
       return;
     }
+<<<<<<< HEAD
     if (draftChunker?.hasBuffered()) {
       draftChunker.drain({
         force: true,
@@ -224,6 +311,18 @@ export const dispatchTelegramMessage = async ({
       : typeof telegramCfg.blockStreaming === "boolean"
         ? !telegramCfg.blockStreaming
         : draftStream
+=======
+    await lane.stream.flush();
+  };
+
+  const disableBlockStreaming = !previewStreamingEnabled
+    ? true
+    : forceBlockStreamingForReasoning
+      ? false
+      : typeof telegramCfg.blockStreaming === "boolean"
+        ? !telegramCfg.blockStreaming
+        : canStreamAnswerDraft
+>>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
           ? true
           : undefined;
 
@@ -340,6 +439,156 @@ export const dispatchTelegramMessage = async ({
     linkPreview: telegramCfg.linkPreview,
     replyQuoteText,
   };
+<<<<<<< HEAD
+=======
+  const getLanePreviewText = (lane: DraftLaneState) => lane.lastPartialText;
+  const tryUpdatePreviewForLane = async (params: {
+    lane: DraftLaneState;
+    laneName: LaneName;
+    text: string;
+    previewButtons?: TelegramInlineButtons;
+    stopBeforeEdit?: boolean;
+    updateLaneSnapshot?: boolean;
+    skipRegressive: "always" | "existingOnly";
+    context: "final" | "update";
+  }): Promise<boolean> => {
+    const {
+      lane,
+      laneName,
+      text,
+      previewButtons,
+      stopBeforeEdit = false,
+      updateLaneSnapshot = false,
+      skipRegressive,
+      context,
+    } = params;
+    if (!lane.stream) {
+      return false;
+    }
+    const hadPreviewMessage = typeof lane.stream.messageId() === "number";
+    if (stopBeforeEdit) {
+      await lane.stream.stop();
+    }
+    const previewMessageId = lane.stream.messageId();
+    if (typeof previewMessageId !== "number") {
+      return false;
+    }
+    const currentPreviewText = getLanePreviewText(lane);
+    const shouldSkipRegressive =
+      Boolean(currentPreviewText) &&
+      currentPreviewText.startsWith(text) &&
+      text.length < currentPreviewText.length &&
+      (skipRegressive === "always" || hadPreviewMessage);
+    if (shouldSkipRegressive) {
+      // Avoid regressive punctuation/wording flicker from occasional shorter finals.
+      deliveryState.delivered = true;
+      return true;
+    }
+    try {
+      await editMessageTelegram(chatId, previewMessageId, text, {
+        api: bot.api,
+        cfg,
+        accountId: route.accountId,
+        linkPreview: telegramCfg.linkPreview,
+        buttons: previewButtons,
+      });
+      if (updateLaneSnapshot) {
+        lane.lastPartialText = text;
+      }
+      deliveryState.delivered = true;
+      return true;
+    } catch (err) {
+      logVerbose(
+        `telegram: ${laneName} preview ${context} edit failed; falling back to standard send (${String(err)})`,
+      );
+      return false;
+    }
+  };
+  const applyTextToPayload = (payload: ReplyPayload, text: string): ReplyPayload => {
+    if (payload.text === text) {
+      return payload;
+    }
+    return { ...payload, text };
+  };
+  const sendPayload = async (payload: ReplyPayload) => {
+    const result = await deliverReplies({
+      ...deliveryBaseOptions,
+      replies: [payload],
+      onVoiceRecording: sendRecordVoice,
+    });
+    if (result.delivered) {
+      deliveryState.delivered = true;
+    }
+    return result.delivered;
+  };
+  type LaneDeliveryResult = "preview-finalized" | "preview-updated" | "sent" | "skipped";
+  const deliverLaneText = async (params: {
+    laneName: LaneName;
+    text: string;
+    payload: ReplyPayload;
+    infoKind: string;
+    previewButtons?: TelegramInlineButtons;
+    allowPreviewUpdateForNonFinal?: boolean;
+  }): Promise<LaneDeliveryResult> => {
+    const {
+      laneName,
+      text,
+      payload,
+      infoKind,
+      previewButtons,
+      allowPreviewUpdateForNonFinal = false,
+    } = params;
+    const lane = lanes[laneName];
+    const hasMedia = Boolean(payload.mediaUrl) || (payload.mediaUrls?.length ?? 0) > 0;
+    const canEditViaPreview =
+      !hasMedia && text.length > 0 && text.length <= draftMaxChars && !payload.isError;
+
+    if (infoKind === "final") {
+      if (canEditViaPreview && !finalizedPreviewByLane[laneName]) {
+        await flushDraftLane(lane);
+        const finalized = await tryUpdatePreviewForLane({
+          lane,
+          laneName,
+          text,
+          previewButtons,
+          stopBeforeEdit: true,
+          skipRegressive: "existingOnly",
+          context: "final",
+        });
+        if (finalized) {
+          finalizedPreviewByLane[laneName] = true;
+          return "preview-finalized";
+        }
+      } else if (!hasMedia && !payload.isError && text.length > draftMaxChars) {
+        logVerbose(
+          `telegram: preview final too long for edit (${text.length} > ${draftMaxChars}); falling back to standard send`,
+        );
+      }
+      await lane.stream?.stop();
+      const delivered = await sendPayload(applyTextToPayload(payload, text));
+      return delivered ? "sent" : "skipped";
+    }
+
+    if (allowPreviewUpdateForNonFinal && canEditViaPreview) {
+      const updated = await tryUpdatePreviewForLane({
+        lane,
+        laneName,
+        text,
+        previewButtons,
+        stopBeforeEdit: false,
+        updateLaneSnapshot: true,
+        skipRegressive: "always",
+        context: "update",
+      });
+      if (updated) {
+        return "preview-updated";
+      }
+    }
+
+    const delivered = await sendPayload(applyTextToPayload(payload, text));
+    return delivered ? "sent" : "skipped";
+  };
+>>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
 
   let queuedFinal = false;
 <<<<<<< HEAD
@@ -526,6 +775,7 @@ export const dispatchTelegramMessage = async ({
           : undefined,
         onReasoningEnd: draftStream
           ? () => {
+<<<<<<< HEAD
               // Same policy as assistant-message boundaries: split only in block mode.
               if (shouldSplitPreviewMessages && hasStreamedMessage) {
                 draftStream.forceNewMessage();
@@ -533,6 +783,16 @@ export const dispatchTelegramMessage = async ({
               lastPartialText = "";
               draftText = "";
               draftChunker?.reset();
+=======
+              reasoningStepState.resetForNextStep();
+              resetDraftLaneState(answerLane);
+            }
+          : undefined,
+        onReasoningEnd: reasoningLane.stream
+          ? () => {
+              // Split when/if a later reasoning block begins.
+              splitReasoningOnNextStream = reasoningLane.hasStreamedMessage;
+>>>>>>> 677384c51 (refactor: simplify Telegram preview streaming to single boolean (#22012))
             }
           : undefined,
         onToolStart: statusReactionController
