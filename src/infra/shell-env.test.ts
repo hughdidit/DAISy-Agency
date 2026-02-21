@@ -72,4 +72,83 @@ describe("shell env fallback", () => {
     expect(env.DISCORD_BOT_TOKEN).toBe("discord");
     expect(exec2).not.toHaveBeenCalled();
   });
+<<<<<<< HEAD
+=======
+
+  it("resolves PATH via login shell and caches it", () => {
+    resetShellPathCacheForTests();
+    const exec = vi.fn(() => Buffer.from("PATH=/usr/local/bin:/usr/bin\0HOME=/tmp\0"));
+
+    const { first, second } = getShellPathTwice({
+      exec: exec as unknown as Parameters<typeof getShellPathFromLoginShell>[0]["exec"],
+      platform: "linux",
+    });
+
+    expect(first).toBe("/usr/local/bin:/usr/bin");
+    expect(second).toBe("/usr/local/bin:/usr/bin");
+    expect(exec).toHaveBeenCalledOnce();
+  });
+
+  it("returns null on shell env read failure and caches null", () => {
+    resetShellPathCacheForTests();
+    const exec = vi.fn(() => {
+      throw new Error("exec failed");
+    });
+
+    const { first, second } = getShellPathTwice({
+      exec: exec as unknown as Parameters<typeof getShellPathFromLoginShell>[0]["exec"],
+      platform: "linux",
+    });
+
+    expect(first).toBeNull();
+    expect(second).toBeNull();
+    expect(exec).toHaveBeenCalledOnce();
+  });
+
+  it("falls back to /bin/sh when SHELL is non-absolute", () => {
+    const env: NodeJS.ProcessEnv = { SHELL: "zsh" };
+    const exec = vi.fn(() => Buffer.from("OPENAI_API_KEY=from-shell\0"));
+
+    const res = loadShellEnvFallback({
+      enabled: true,
+      env,
+      expectedKeys: ["OPENAI_API_KEY"],
+      exec: exec as unknown as Parameters<typeof loadShellEnvFallback>[0]["exec"],
+    });
+
+    expect(res.ok).toBe(true);
+    expect(exec).toHaveBeenCalledTimes(1);
+    expect(exec).toHaveBeenCalledWith("/bin/sh", ["-l", "-c", "env -0"], expect.any(Object));
+  });
+
+  it("falls back to /bin/sh when SHELL points to an untrusted path", () => {
+    const env: NodeJS.ProcessEnv = { SHELL: "/tmp/evil-shell" };
+    const exec = vi.fn(() => Buffer.from("OPENAI_API_KEY=from-shell\0"));
+
+    const res = loadShellEnvFallback({
+      enabled: true,
+      env,
+      expectedKeys: ["OPENAI_API_KEY"],
+      exec: exec as unknown as Parameters<typeof loadShellEnvFallback>[0]["exec"],
+    });
+
+    expect(res.ok).toBe(true);
+    expect(exec).toHaveBeenCalledTimes(1);
+    expect(exec).toHaveBeenCalledWith("/bin/sh", ["-l", "-c", "env -0"], expect.any(Object));
+  });
+
+  it("returns null without invoking shell on win32", () => {
+    resetShellPathCacheForTests();
+    const exec = vi.fn(() => Buffer.from("PATH=/usr/local/bin:/usr/bin\0HOME=/tmp\0"));
+
+    const { first, second } = getShellPathTwice({
+      exec: exec as unknown as Parameters<typeof getShellPathFromLoginShell>[0]["exec"],
+      platform: "win32",
+    });
+
+    expect(first).toBeNull();
+    expect(second).toBeNull();
+    expect(exec).not.toHaveBeenCalled();
+  });
+>>>>>>> 25e89cc86 (fix(security): harden shell env fallback)
 });
