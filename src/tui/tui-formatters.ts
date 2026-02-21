@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+import { formatRawAssistantErrorForUi } from "../agents/pi-embedded-helpers.js";
+import { stripInboundMetadataBlocks } from "../shared/chat-envelope.js";
+import { stripAnsi } from "../terminal/ansi.js";
+>>>>>>> d94d21f9b (test: isolate local media regression fixtures to allowed roots (#22369))
 import { formatTokenCount } from "../utils/usage-format.js";
 import { formatRawAssistantErrorForUi } from "../agents/pi-embedded-helpers.js";
 
@@ -131,7 +137,16 @@ export function extractTextFromMessage(
   if (!message || typeof message !== "object") return "";
   const record = message as Record<string, unknown>;
   const text = extractTextBlocks(record.content, opts);
+<<<<<<< HEAD
   if (text) return text;
+=======
+  if (text) {
+    if (record.role === "user") {
+      return stripInboundMetadataBlocks(text);
+    }
+    return text;
+  }
+>>>>>>> d94d21f9b (test: isolate local media regression fixtures to allowed roots (#22369))
 
   const stopReason = typeof record.stopReason === "string" ? record.stopReason : "";
   if (stopReason !== "error") return "";

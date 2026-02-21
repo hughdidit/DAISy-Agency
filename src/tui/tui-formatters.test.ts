@@ -59,6 +59,77 @@ describe("extractTextFromMessage", () => {
 
     expect(text).toBe("[thinking]\nponder\n\nhello");
   });
+<<<<<<< HEAD
+=======
+
+  it("sanitizes ANSI and control chars from string content", () => {
+    const text = extractTextFromMessage({
+      role: "assistant",
+      content: "Hello\x1b[31m red\x1b[0m\x00world",
+    });
+
+    expect(text).toBe("Hello redworld");
+  });
+
+  it("redacts heavily corrupted binary-like lines", () => {
+    const text = extractTextFromMessage({
+      role: "assistant",
+      content: [{ type: "text", text: "������������������������" }],
+    });
+
+    expect(text).toBe("[binary data omitted]");
+  });
+
+  it("strips leading inbound metadata blocks for user messages", () => {
+    const text = extractTextFromMessage({
+      role: "user",
+      content: `Conversation info (untrusted metadata):
+\`\`\`json
+{
+  "message_id": "abc123"
+}
+\`\`\`
+
+Sender (untrusted metadata):
+\`\`\`json
+{
+  "label": "Someone"
+}
+\`\`\`
+
+Actual user message`,
+    });
+
+    expect(text).toBe("Actual user message");
+  });
+
+  it("keeps metadata-like blocks for non-user messages", () => {
+    const text = extractTextFromMessage({
+      role: "assistant",
+      content: `Conversation info (untrusted metadata):
+\`\`\`json
+{"message_id":"abc123"}
+\`\`\`
+
+Assistant body`,
+    });
+
+    expect(text).toContain("Conversation info (untrusted metadata):");
+    expect(text).toContain("Assistant body");
+  });
+
+  it("does not strip metadata-like blocks that are not a leading prefix", () => {
+    const text = extractTextFromMessage({
+      role: "user",
+      content:
+        'Hello world\nConversation info (untrusted metadata):\n```json\n{"message_id":"123"}\n```\n\nFollow-up',
+    });
+
+    expect(text).toBe(
+      'Hello world\nConversation info (untrusted metadata):\n```json\n{"message_id":"123"}\n```\n\nFollow-up',
+    );
+  });
+>>>>>>> d94d21f9b (test: isolate local media regression fixtures to allowed roots (#22369))
 });
 
 describe("extractThinkingFromMessage", () => {

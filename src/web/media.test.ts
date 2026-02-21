@@ -1,6 +1,23 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import sharp from "sharp";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { resolveStateDir } from "../config/paths.js";
+import { sendVoiceMessageDiscord } from "../discord/send.js";
+import * as ssrf from "../infra/net/ssrf.js";
+import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+import { optimizeImageToPng } from "../media/image-ops.js";
+import { captureEnv } from "../test-utils/env.js";
+import {
+  LocalMediaAccessError,
+  loadWebMedia,
+  loadWebMediaRaw,
+  optimizeImageToJpeg,
+} from "./media.js";
+>>>>>>> d94d21f9b (test: isolate local media regression fixtures to allowed roots (#22369))
 
 import sharp from "sharp";
 <<<<<<< HEAD
@@ -36,7 +53,18 @@ function buildDeterministicBytes(length: number): Buffer {
 }
 
 async function createLargeTestJpeg(): Promise<{ buffer: Buffer; file: string }> {
+<<<<<<< HEAD
   const buffer = await sharp({
+=======
+  return { buffer: largeJpegBuffer, file: largeJpegFile };
+}
+
+beforeAll(async () => {
+  fixtureRoot = await fs.mkdtemp(
+    path.join(resolvePreferredOpenClawTmpDir(), "openclaw-media-test-"),
+  );
+  largeJpegBuffer = await sharp({
+>>>>>>> d94d21f9b (test: isolate local media regression fixtures to allowed roots (#22369))
     create: {
       width: 1600,
       height: 1600,
@@ -312,7 +340,107 @@ describe("web media loading", () => {
 
     expect(result.kind).toBe("image");
     expect(result.contentType).toBe("image/jpeg");
+<<<<<<< HEAD
     expect(result.buffer.length).toBeLessThanOrEqual(cap);
+=======
+    expect(result.buffer.length).toBeLessThanOrEqual(fallbackPngCap);
+  });
+});
+
+describe("Discord voice message input hardening", () => {
+  it("rejects local paths outside allowed media roots", async () => {
+    const candidate = path.join(process.cwd(), "package.json");
+    await expect(sendVoiceMessageDiscord("channel:123", candidate)).rejects.toThrow(
+      /Local media path is not under an allowed directory/i,
+    );
+  });
+
+  it("blocks SSRF targets when given a private-network URL", async () => {
+    await expect(
+      sendVoiceMessageDiscord("channel:123", "http://127.0.0.1/voice.ogg"),
+    ).rejects.toThrow(/Failed to fetch media|Blocked|private|internal/i);
+  });
+
+  it("rejects non-http URL schemes", async () => {
+    await expect(
+      sendVoiceMessageDiscord("channel:123", "rtsp://example.com/voice.ogg"),
+    ).rejects.toThrow(/Local media path is not under an allowed directory|ENOENT|no such file/i);
+  });
+});
+
+describe("local media root guard", () => {
+  it("rejects local paths outside allowed roots", async () => {
+    // Explicit roots that don't contain the temp file.
+    await expect(
+      loadWebMedia(tinyPngFile, 1024 * 1024, { localRoots: ["/nonexistent-root"] }),
+    ).rejects.toMatchObject({ code: "path-not-allowed" });
+  });
+
+  it("allows local paths under an explicit root", async () => {
+    const result = await loadWebMedia(tinyPngFile, 1024 * 1024, {
+      localRoots: [resolvePreferredOpenClawTmpDir()],
+    });
+    expect(result.kind).toBe("image");
+  });
+
+  it("requires readFile override for localRoots bypass", async () => {
+    await expect(
+      loadWebMedia(tinyPngFile, {
+        maxBytes: 1024 * 1024,
+        localRoots: "any",
+      }),
+    ).rejects.toBeInstanceOf(LocalMediaAccessError);
+    await expect(
+      loadWebMedia(tinyPngFile, {
+        maxBytes: 1024 * 1024,
+        localRoots: "any",
+      }),
+    ).rejects.toMatchObject({ code: "unsafe-bypass" });
+  });
+
+  it("allows any path when localRoots is 'any'", async () => {
+    const result = await loadWebMedia(tinyPngFile, {
+      maxBytes: 1024 * 1024,
+      localRoots: "any",
+      readFile: (filePath) => fs.readFile(filePath),
+    });
+    expect(result.kind).toBe("image");
+  });
+
+  it("rejects filesystem root entries in localRoots", async () => {
+    await expect(
+      loadWebMedia(tinyPngFile, 1024 * 1024, {
+        localRoots: [path.parse(tinyPngFile).root],
+      }),
+    ).rejects.toMatchObject({ code: "invalid-root" });
+  });
+
+  it("allows default OpenClaw state workspace and sandbox roots", async () => {
+    const stateDir = resolveStateDir();
+    const readFile = vi.fn(async () => Buffer.from("generated-media"));
+
+    await expect(
+      loadWebMedia(path.join(stateDir, "workspace", "tmp", "render.bin"), {
+        maxBytes: 1024 * 1024,
+        readFile,
+      }),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        kind: "unknown",
+      }),
+    );
+
+    await expect(
+      loadWebMedia(path.join(stateDir, "sandboxes", "session-1", "frame.bin"), {
+        maxBytes: 1024 * 1024,
+        readFile,
+      }),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        kind: "unknown",
+      }),
+    );
+>>>>>>> d94d21f9b (test: isolate local media regression fixtures to allowed roots (#22369))
   });
 
   it("rejects default OpenClaw state per-agent workspace-* roots without explicit local roots", async () => {
