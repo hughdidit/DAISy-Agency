@@ -12,7 +12,13 @@ import Testing
             uptimems: 123,
             configpath: nil,
             statedir: nil,
+<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/MacGatewayChatTransportMappingTests.swift
             sessiondefaults: nil)
+=======
+            sessiondefaults: nil,
+            authmode: nil,
+            updateavailable: nil)
+>>>>>>> 90a378ca3 (fix(macos): block quoted shell substitution in allowlist checks):apps/macos/Tests/OpenClawIPCTests/MacGatewayChatTransportMappingTests.swift
 
         let hello = HelloOk(
             type: "hello",
