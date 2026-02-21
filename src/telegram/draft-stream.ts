@@ -220,6 +220,7 @@ export function createTelegramDraftStream(params: {
     streamMessageId = undefined;
     lastSentText = "";
     loop.resetPending();
+    loop.resetThrottleWindow();
   };
 
   params.log?.(`telegram stream preview ready (maxChars=${maxChars}, throttleMs=${throttleMs})`);
