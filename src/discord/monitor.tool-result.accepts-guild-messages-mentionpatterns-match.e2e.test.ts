@@ -1,10 +1,14 @@
 import type { Client } from "@buape/carbon";
 import { ChannelType, MessageType } from "@buape/carbon";
 import { Routes } from "discord-api-types/v10";
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD:src/discord/monitor.tool-result.accepts-guild-messages-mentionpatterns-match.test.ts
 
 =======
+=======
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> 58254b3b5 (test: dedupe channel and transport adapters)
 import { createReplyDispatcherWithTyping } from "../auto-reply/reply/reply-dispatcher.js";
 <<<<<<< HEAD
 >>>>>>> 9131b22a2 (test: migrate suites to e2e coverage layout):src/discord/monitor.tool-result.accepts-guild-messages-mentionpatterns-match.e2e.test.ts
@@ -93,6 +97,12 @@ describe("discord tool result dispatch", () => {
 const MENTION_PATTERNS_TEST_TIMEOUT_MS = process.platform === "win32" ? 90_000 : 60_000;
 
 type LoadedConfig = ReturnType<(typeof import("../config/config.js"))["loadConfig"]>;
+let createDiscordMessageHandler: typeof import("./monitor.js").createDiscordMessageHandler;
+let createDiscordNativeCommand: typeof import("./monitor.js").createDiscordNativeCommand;
+
+beforeAll(async () => {
+  ({ createDiscordMessageHandler, createDiscordNativeCommand } = await import("./monitor.js"));
+});
 
 function makeRuntime() {
   return {
@@ -105,7 +115,6 @@ function makeRuntime() {
 }
 
 async function createHandler(cfg: LoadedConfig) {
-  const { createDiscordMessageHandler } = await import("./monitor.js");
   return createDiscordMessageHandler({
     cfg,
     discordConfig: cfg.channels?.discord,
@@ -402,7 +411,6 @@ describe("discord tool result dispatch", () => {
     "skips tool results for native slash commands",
     { timeout: MENTION_PATTERNS_TEST_TIMEOUT_MS },
     async () => {
-      const { createDiscordNativeCommand } = await import("./monitor.js");
       const cfg = {
         agents: {
           defaults: {

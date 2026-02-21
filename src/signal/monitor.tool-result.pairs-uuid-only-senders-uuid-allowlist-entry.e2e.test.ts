@@ -96,10 +96,9 @@ const { replyMock, sendMock, streamMock, upsertPairingRequestMock } =
   getSignalToolResultTestMocks();
 >>>>>>> 20cefd78c (refactor(test): share signal tool result test setup)
 
-async function runMonitorWithMocks(
-  opts: Parameters<(typeof import("./monitor.js"))["monitorSignalProvider"]>[0],
-) {
-  const { monitorSignalProvider } = await import("./monitor.js");
+type MonitorSignalProviderOptions = Parameters<typeof monitorSignalProvider>[0];
+
+async function runMonitorWithMocks(opts: MonitorSignalProviderOptions) {
   return monitorSignalProvider(opts);
 }
 describe("monitorSignalProvider tool results", () => {
