@@ -102,13 +102,13 @@ describe("onboard-hooks", () => {
       createMockHook(
         {
           name: "session-memory",
-          description: "Save session context to memory when /new command is issued",
+          description: "Save session context to memory when /new or /reset command is issued",
           filePath: "/mock/workspace/hooks/session-memory/HOOK.md",
           baseDir: "/mock/workspace/hooks/session-memory",
           handlerPath: "/mock/workspace/hooks/session-memory/handler.js",
           hookKey: "session-memory",
           emoji: "💾",
-          events: ["command:new"],
+          events: ["command:new", "command:reset"],
         },
 >>>>>>> f717a1303 (refactor(agent): dedupe harness and command workflows)
         eligible,
@@ -202,7 +202,7 @@ describe("onboard-hooks", () => {
           {
             value: "session-memory",
             label: "💾 session-memory",
-            hint: "Save session context to memory when /new command is issued",
+            hint: "Save session context to memory when /new or /reset command is issued",
           },
           {
             value: "command-logger",

@@ -246,10 +246,14 @@ describe("resolveMoltbotMetadata", () => {
     // This is the actual format used in the bundled hooks
     const content = `---
 name: session-memory
+<<<<<<< HEAD
 description: "Save session context to memory when /new command is issued"
 <<<<<<< HEAD
 homepage: https://docs.molt.bot/hooks#session-memory
 =======
+=======
+description: "Save session context to memory when /new or /reset command is issued"
+>>>>>>> d583399c9 (Hooks: persist session memory on /reset)
 homepage: https://docs.openclaw.ai/automation/hooks#session-memory
 >>>>>>> f8ba8f769 (fix(docs): update outdated hooks documentation URLs (#16165))
 metadata:
@@ -257,7 +261,7 @@ metadata:
     "moltbot":
       {
         "emoji": "💾",
-        "events": ["command:new"],
+        "events": ["command:new", "command:reset"],
         "requires": { "config": ["workspace.dir"] },
         "install": [{ "id": "bundled", "kind": "bundled", "label": "Bundled with Moltbot" }],
       },
@@ -271,12 +275,21 @@ metadata:
     expect(frontmatter.name).toBe("session-memory");
     expect(frontmatter.metadata).toBeDefined();
 
+<<<<<<< HEAD
     const moltbot = resolveMoltbotMetadata(frontmatter);
     expect(moltbot).toBeDefined();
     expect(moltbot?.emoji).toBe("💾");
     expect(moltbot?.events).toEqual(["command:new"]);
     expect(moltbot?.requires?.config).toEqual(["workspace.dir"]);
     expect(moltbot?.install?.[0].kind).toBe("bundled");
+=======
+    const openclaw = resolveOpenClawMetadata(frontmatter);
+    expect(openclaw).toBeDefined();
+    expect(openclaw?.emoji).toBe("💾");
+    expect(openclaw?.events).toEqual(["command:new", "command:reset"]);
+    expect(openclaw?.requires?.config).toEqual(["workspace.dir"]);
+    expect(openclaw?.install?.[0].kind).toBe("bundled");
+>>>>>>> d583399c9 (Hooks: persist session memory on /reset)
   });
 
   it("parses YAML metadata map", () => {
