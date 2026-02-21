@@ -431,9 +431,12 @@ jobs:
         run: pnpm check
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   # Validate docs (format, lint, broken links) only when docs files changed.
 =======
 
+=======
+>>>>>>> 92ac6c95c (CI: format github workflow (#22497))
   # Report-only dead-code scans. Runs after scope detection and stores machine-readable
   # results as artifacts for later triage before we enable hard gates.
   # Temporarily disabled in CI while we process initial findings.
