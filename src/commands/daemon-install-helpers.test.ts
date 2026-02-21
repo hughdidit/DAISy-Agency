@@ -134,6 +134,31 @@ describe("buildGatewayInstallPlan", () => {
     expect(plan.environment.HOME).toBe("/Users/me");
   });
 
+  it("drops dangerous config env vars before service merge", async () => {
+    mockNodeGatewayPlanFixture({
+      serviceEnvironment: {
+        OPENCLAW_PORT: "3000",
+      },
+    });
+
+    const plan = await buildGatewayInstallPlan({
+      env: {},
+      port: 3000,
+      runtime: "node",
+      config: {
+        env: {
+          vars: {
+            NODE_OPTIONS: "--require /tmp/evil.js",
+            SAFE_KEY: "safe-value",
+          },
+        },
+      },
+    });
+
+    expect(plan.environment.NODE_OPTIONS).toBeUndefined();
+    expect(plan.environment.SAFE_KEY).toBe("safe-value");
+  });
+
   it("does not include empty config env values", async () => {
     mocks.resolvePreferredNodePath.mockResolvedValue("/opt/node");
     mocks.resolveGatewayProgramArguments.mockResolvedValue({
