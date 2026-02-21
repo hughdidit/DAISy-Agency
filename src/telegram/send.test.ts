@@ -147,7 +147,12 @@ describe("buildInlineKeyboard", () => {
       },
     ];
     for (const testCase of cases) {
+<<<<<<< HEAD
       expect(buildInlineKeyboard(testCase.input), testCase.name).toEqual(testCase.expected);
+=======
+      const input = testCase.input?.map((row) => row.map((button) => ({ ...button })));
+      expect(buildInlineKeyboard(input), testCase.name).toEqual(testCase.expected);
+>>>>>>> 4414af977 (test: guard inline keyboard fixture against undefined input)
     }
   });
 });
