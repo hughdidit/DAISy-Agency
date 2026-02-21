@@ -12,6 +12,15 @@ import {
 } from "./nodes-camera.js";
 import { parseScreenRecordPayload, screenRecordTempPath } from "./nodes-screen.js";
 
+async function withTempDir<T>(prefix: string, run: (dir: string) => Promise<T>): Promise<T> {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
+  try {
+    return await run(dir);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+}
+
 describe("nodes camera helpers", () => {
   it("parses camera.snap payload", () => {
     expect(
@@ -58,8 +67,7 @@ describe("nodes camera helpers", () => {
   });
 
   it("writes camera clip payload to temp path", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
-    try {
+    await withTempDir("openclaw-test-", async (dir) => {
       const out = await writeCameraClipPayloadToFile({
         payload: {
           format: "mp4",
@@ -73,17 +81,23 @@ describe("nodes camera helpers", () => {
       });
       expect(out).toBe(path.join(dir, "openclaw-camera-clip-front-clip1.mp4"));
       await expect(fs.readFile(out, "utf8")).resolves.toBe("hi");
-    } finally {
-      await fs.rm(dir, { recursive: true, force: true });
-    }
+    });
   });
 
   it("writes base64 to file", async () => {
+<<<<<<< HEAD
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-test-"));
     const out = path.join(dir, "x.bin");
     await writeBase64ToFile(out, "aGk=");
     await expect(fs.readFile(out, "utf8")).resolves.toBe("hi");
     await fs.rm(dir, { recursive: true, force: true });
+=======
+    await withTempDir("openclaw-test-", async (dir) => {
+      const out = path.join(dir, "x.bin");
+      await writeBase64ToFile(out, "aGk=");
+      await expect(fs.readFile(out, "utf8")).resolves.toBe("hi");
+    });
+>>>>>>> b889a5d51 (test(cli): dedupe temp dirs in camera tests and cover non-ok url responses)
   });
 
   afterEach(() => {
@@ -95,14 +109,11 @@ describe("nodes camera helpers", () => {
       "fetch",
       vi.fn(async () => new Response("url-content", { status: 200 })),
     );
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
-    const out = path.join(dir, "x.bin");
-    try {
+    await withTempDir("openclaw-test-", async (dir) => {
+      const out = path.join(dir, "x.bin");
       await writeUrlToFile(out, "https://example.com/clip.mp4");
       await expect(fs.readFile(out, "utf8")).resolves.toBe("url-content");
-    } finally {
-      await fs.rm(dir, { recursive: true, force: true });
-    }
+    });
   });
 
   it("rejects non-https url payload", async () => {
@@ -124,6 +135,16 @@ describe("nodes camera helpers", () => {
     );
     await expect(writeUrlToFile("/tmp/ignored", "https://example.com/huge.bin")).rejects.toThrow(
       /exceeds max/i,
+    );
+  });
+
+  it("rejects non-ok https url payload responses", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("down", { status: 503, statusText: "Service Unavailable" })),
+    );
+    await expect(writeUrlToFile("/tmp/ignored", "https://example.com/down.bin")).rejects.toThrow(
+      /503/i,
     );
   });
 });
