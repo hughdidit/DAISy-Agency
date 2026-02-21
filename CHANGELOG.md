@@ -134,8 +134,13 @@ Docs: https://docs.openclaw.ai
 - Browser/Security: block upload path symlink escapes so browser upload sources cannot traverse outside the allowed workspace via symlinked paths. (#21972) Thanks @mbelinky.
 - Security/Dependencies: bump transitive `hono` usage to `4.11.10` to incorporate timing-safe authentication comparison hardening for `basicAuth`/`bearerAuth` (`GHSA-gq3j-xvxp-8hrf`). Thanks @vincentkoc.
 - Security/Gateway: parse `X-Forwarded-For` with trust-preserving semantics when requests come from configured trusted proxies, preventing proxy-chain spoofing from influencing client IP classification and rate-limit identity. Thanks @AnthonyDiSanti and @vincentkoc.
+<<<<<<< HEAD
 - Security/Sandbox: remove default `--no-sandbox` for the browser container entrypoint, add explicit opt-in via `OPENCLAW_BROWSER_NO_SANDBOX` / `CLAWDBOT_BROWSER_NO_SANDBOX`, and harden the default container security posture (`GHSA-43x4-g22p-3hrq`). Thanks @TerminalsandCoffee and @vincentkoc.
 >>>>>>> 220bd95ef (fix(browser): block non-network navigation schemes)
+=======
+- Security/Sandbox: remove default `--no-sandbox` for the browser container entrypoint, add explicit opt-in via `OPENCLAW_BROWSER_NO_SANDBOX` / `CLAWDBOT_BROWSER_NO_SANDBOX`, and add security-audit checks for stale/missing sandbox browser Docker hash labels. This ships in the next npm release. Thanks @TerminalsandCoffee and @vincentkoc.
+- Security/Sandbox Browser: require VNC password auth for noVNC observer sessions in the sandbox browser entrypoint, plumb per-container noVNC passwords from runtime, and emit password-bearing auto-connect observer URLs while keeping loopback-only host port publishing. This ships in the next npm release. Thanks @TerminalsandCoffee for reporting.
+>>>>>>> 621d8e131 (fix(sandbox): require noVNC observer password auth)
 - Auto-reply/Tools: forward `senderIsOwner` through embedded queued/followup runner params so owner-only tools remain available for authorized senders. (#22296) thanks @hcoj.
 - Agents/Subagents: restore announce-chain delivery to agent injection, defer nested announce output until descendant follow-up content is ready, and prevent descendant deferrals from consuming announce retry budget so deep chains do not drop final completions. (#22223) Thanks @tyler6204.
 >>>>>>> 5dae5e6ef (fix(tools): forward senderIsOwner to embedded runner so owner-only tools work (#22296))

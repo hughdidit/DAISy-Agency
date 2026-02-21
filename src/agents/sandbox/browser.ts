@@ -31,6 +31,7 @@ import {
   buildSandboxCreateArgs,
   dockerContainerState,
   execDocker,
+  readDockerContainerEnvVar,
   readDockerContainerLabel,
   readDockerPort,
 } from "./docker.js";
@@ -40,6 +41,23 @@ import { isToolAllowed } from "./tool-policy.js";
 import type { SandboxBrowserContext, SandboxConfig } from "./types.js";
 
 const HOT_BROWSER_WINDOW_MS = 5 * 60 * 1000;
+const NOVNC_PASSWORD_ENV_KEY = "OPENCLAW_BROWSER_NOVNC_PASSWORD";
+
+function generateNoVncPassword() {
+  // VNC auth uses an 8-char password max.
+  return crypto.randomBytes(4).toString("hex");
+}
+
+export function buildNoVncObserverUrl(port: number, password?: string) {
+  const query = new URLSearchParams({
+    autoconnect: "1",
+    resize: "remote",
+  });
+  if (password?.trim()) {
+    query.set("password", password);
+  }
+  return `http://127.0.0.1:${port}/vnc.html?${query.toString()}`;
+}
 
 async function waitForSandboxCdp(params: { cdpPort: number; timeoutMs: number }): Promise<boolean> {
   const deadline = Date.now() + Math.max(0, params.timeoutMs);
@@ -147,8 +165,14 @@ export async function ensureSandboxBrowser(params: {
   let running = state.running;
   let currentHash: string | null = null;
   let hashMismatch = false;
+  const noVncEnabled = params.cfg.browser.enableNoVnc && !params.cfg.browser.headless;
+  let noVncPassword: string | undefined;
 
   if (hasContainer) {
+    if (noVncEnabled) {
+      noVncPassword =
+        (await readDockerContainerEnvVar(containerName, NOVNC_PASSWORD_ENV_KEY)) ?? undefined;
+    }
     const registry = await readBrowserRegistry();
     const registryEntry = registry.entries.find((entry) => entry.containerName === containerName);
     currentHash = await readDockerContainerLabel(containerName, "openclaw.configHash");
@@ -184,6 +208,9 @@ export async function ensureSandboxBrowser(params: {
   }
 
   if (!hasContainer) {
+    if (noVncEnabled) {
+      noVncPassword = generateNoVncPassword();
+    }
     await ensureSandboxBrowserImage(browserImage);
     const args = buildSandboxCreateArgs({
       name: containerName,
@@ -209,7 +236,7 @@ export async function ensureSandboxBrowser(params: {
       );
     }
     args.push("-p", `127.0.0.1::${params.cfg.browser.cdpPort}`);
-    if (params.cfg.browser.enableNoVnc && !params.cfg.browser.headless) {
+    if (noVncEnabled) {
       args.push("-p", `127.0.0.1::${params.cfg.browser.noVncPort}`);
     }
 <<<<<<< HEAD
@@ -225,6 +252,9 @@ export async function ensureSandboxBrowser(params: {
     args.push("-e", `OPENCLAW_BROWSER_CDP_PORT=${params.cfg.browser.cdpPort}`);
     args.push("-e", `OPENCLAW_BROWSER_VNC_PORT=${params.cfg.browser.vncPort}`);
     args.push("-e", `OPENCLAW_BROWSER_NOVNC_PORT=${params.cfg.browser.noVncPort}`);
+    if (noVncEnabled && noVncPassword) {
+      args.push("-e", `${NOVNC_PASSWORD_ENV_KEY}=${noVncPassword}`);
+    }
     args.push(browserImage);
 >>>>>>> 1f1fc095a (refactor(sandbox): auto-recreate browser container on config changes (#16254))
     await execDocker(args);
@@ -238,10 +268,13 @@ export async function ensureSandboxBrowser(params: {
     throw new Error(`Failed to resolve CDP port mapping for ${containerName}.`);
   }
 
-  const mappedNoVnc =
-    params.cfg.browser.enableNoVnc && !params.cfg.browser.headless
-      ? await readDockerPort(containerName, params.cfg.browser.noVncPort)
-      : null;
+  const mappedNoVnc = noVncEnabled
+    ? await readDockerPort(containerName, params.cfg.browser.noVncPort)
+    : null;
+  if (noVncEnabled && !noVncPassword) {
+    noVncPassword =
+      (await readDockerContainerEnvVar(containerName, NOVNC_PASSWORD_ENV_KEY)) ?? undefined;
+  }
 
   const desiredAuthToken = params.bridgeAuth?.token?.trim() || undefined;
   const desiredAuthPassword = params.bridgeAuth?.password?.trim() || undefined;
@@ -327,9 +360,7 @@ export async function ensureSandboxBrowser(params: {
   });
 
   const noVncUrl =
-    mappedNoVnc && params.cfg.browser.enableNoVnc && !params.cfg.browser.headless
-      ? `http://127.0.0.1:${mappedNoVnc}/vnc.html?autoconnect=1&resize=remote`
-      : undefined;
+    mappedNoVnc && noVncEnabled ? buildNoVncObserverUrl(mappedNoVnc, noVncPassword) : undefined;
 
   return {
     bridgeUrl: resolvedBridge.baseUrl,

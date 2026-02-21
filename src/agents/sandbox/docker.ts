@@ -107,7 +107,29 @@ export async function readDockerContainerLabel(
   return raw;
 }
 
+<<<<<<< HEAD
 >>>>>>> 1f1fc095a (refactor(sandbox): auto-recreate browser container on config changes (#16254))
+=======
+export async function readDockerContainerEnvVar(
+  containerName: string,
+  envVar: string,
+): Promise<string | null> {
+  const result = await execDocker(
+    ["inspect", "-f", "{{range .Config.Env}}{{println .}}{{end}}", containerName],
+    { allowFailure: true },
+  );
+  if (result.code !== 0) {
+    return null;
+  }
+  for (const line of result.stdout.split(/\r?\n/)) {
+    if (line.startsWith(`${envVar}=`)) {
+      return line.slice(envVar.length + 1);
+    }
+  }
+  return null;
+}
+
+>>>>>>> 621d8e131 (fix(sandbox): require noVNC observer password auth)
 export async function readDockerPort(containerName: string, port: number) {
   const result = await execDocker(["port", containerName, `${port}/tcp`], {
     allowFailure: true,
