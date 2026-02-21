@@ -114,8 +114,19 @@ function replaceMarkers(content: string): string {
   }
   const replacements: Array<{ start: number; end: number; value: string }> = [];
   const patterns: Array<{ regex: RegExp; value: string }> = [
+<<<<<<< HEAD
     { regex: /<<<EXTERNAL_UNTRUSTED_CONTENT>>>/gi, value: "[[MARKER_SANITIZED]]" },
     { regex: /<<<END_EXTERNAL_UNTRUSTED_CONTENT>>>/gi, value: "[[END_MARKER_SANITIZED]]" },
+=======
+    {
+      regex: /<<<EXTERNAL_UNTRUSTED_CONTENT(?:\s+id="[^"]{1,128}")?\s*>>>/gi,
+      value: "[[MARKER_SANITIZED]]",
+    },
+    {
+      regex: /<<<END_EXTERNAL_UNTRUSTED_CONTENT(?:\s+id="[^"]{1,128}")?\s*>>>/gi,
+      value: "[[END_MARKER_SANITIZED]]",
+    },
+>>>>>>> c2f562891 (Fix formatting (#22474))
   ];
 
   for (const pattern of patterns) {
