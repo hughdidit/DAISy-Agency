@@ -23,6 +23,11 @@ enum GatewaySettingsStore {
     private static let instanceIdAccount = "instanceId"
     private static let preferredGatewayStableIDAccount = "preferredStableID"
     private static let lastDiscoveredGatewayStableIDAccount = "lastDiscoveredStableID"
+<<<<<<< HEAD
+=======
+    private static let talkProviderApiKeyAccountPrefix = "provider.apiKey."
+    private static let talkElevenLabsApiKeyLegacyAccount = "elevenlabs.apiKey"
+>>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
 
     static func bootstrapPersistence() {
         self.ensureStableInstanceID()
@@ -114,7 +119,87 @@ enum GatewaySettingsStore {
             account: self.gatewayPasswordAccount(instanceId: instanceId))
     }
 
+<<<<<<< HEAD
     static func saveLastGatewayConnection(host: String, port: Int, useTLS: Bool, stableID: String) {
+=======
+    enum LastGatewayConnection: Equatable {
+        case manual(host: String, port: Int, useTLS: Bool, stableID: String)
+        case discovered(stableID: String, useTLS: Bool)
+
+        var stableID: String {
+            switch self {
+            case let .manual(_, _, _, stableID):
+                return stableID
+            case let .discovered(stableID, _):
+                return stableID
+            }
+        }
+
+        var useTLS: Bool {
+            switch self {
+            case let .manual(_, _, useTLS, _):
+                return useTLS
+            case let .discovered(_, useTLS):
+                return useTLS
+            }
+        }
+    }
+
+    private enum LastGatewayKind: String {
+        case manual
+        case discovered
+    }
+
+    static func loadTalkProviderApiKey(provider: String) -> String? {
+        guard let providerId = self.normalizedTalkProviderID(provider) else { return nil }
+        let account = self.talkProviderApiKeyAccount(providerId: providerId)
+        let value = KeychainStore.loadString(
+            service: self.talkService,
+            account: account)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if value?.isEmpty == false { return value }
+
+        if providerId == "elevenlabs" {
+            let legacyValue = KeychainStore.loadString(
+                service: self.talkService,
+                account: self.talkElevenLabsApiKeyLegacyAccount)?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if legacyValue?.isEmpty == false {
+                _ = KeychainStore.saveString(legacyValue!, service: self.talkService, account: account)
+                return legacyValue
+            }
+        }
+
+        return nil
+    }
+
+    static func saveTalkProviderApiKey(_ apiKey: String?, provider: String) {
+        guard let providerId = self.normalizedTalkProviderID(provider) else { return }
+        let account = self.talkProviderApiKeyAccount(providerId: providerId)
+        let trimmed = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if trimmed.isEmpty {
+            _ = KeychainStore.delete(service: self.talkService, account: account)
+            if providerId == "elevenlabs" {
+                _ = KeychainStore.delete(service: self.talkService, account: self.talkElevenLabsApiKeyLegacyAccount)
+            }
+            return
+        }
+        _ = KeychainStore.saveString(trimmed, service: self.talkService, account: account)
+        if providerId == "elevenlabs" {
+            _ = KeychainStore.delete(service: self.talkService, account: self.talkElevenLabsApiKeyLegacyAccount)
+        }
+    }
+
+    static func loadTalkElevenLabsApiKey() -> String? {
+        self.loadTalkProviderApiKey(provider: "elevenlabs")
+    }
+
+    static func saveTalkElevenLabsApiKey(_ apiKey: String?) {
+        self.saveTalkProviderApiKey(apiKey, provider: "elevenlabs")
+    }
+
+    static func saveLastGatewayConnectionManual(host: String, port: Int, useTLS: Bool, stableID: String) {
+>>>>>>> d58f71571 (feat(talk): add provider-agnostic config with legacy compatibility)
         let defaults = UserDefaults.standard
         defaults.set(host, forKey: self.lastGatewayHostDefaultsKey)
         defaults.set(port, forKey: self.lastGatewayPortDefaultsKey)
@@ -185,6 +270,15 @@ enum GatewaySettingsStore {
 
     private static func gatewayPasswordAccount(instanceId: String) -> String {
         "gateway-password.\(instanceId)"
+    }
+
+    private static func talkProviderApiKeyAccount(providerId: String) -> String {
+        self.talkProviderApiKeyAccountPrefix + providerId
+    }
+
+    private static func normalizedTalkProviderID(_ provider: String) -> String? {
+        let trimmed = provider.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return trimmed.isEmpty ? nil : trimmed
     }
 
     private static func ensureStableInstanceID() {
