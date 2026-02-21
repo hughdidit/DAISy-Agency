@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { withEnvAsync } from "../test-utils/env.js";
 import {
   ensureTailscaleEndpoint,
   resetGmailSetupUtilsCachesForTest,
@@ -36,8 +37,11 @@ describe("resolvePythonExecutablePath", () => {
 =======
 >>>>>>> b272158fe (perf(test): eliminate resetModules via injectable seams)
       const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-python-"));
+<<<<<<< HEAD
 >>>>>>> 8899f9e94 (perf(test): optimize heavy suites and stabilize lock timing)
       const originalPath = process.env.PATH;
+=======
+>>>>>>> 807968e4d (refactor(test): replace manual PATH restore with env helpers)
       try {
         const realPython = path.join(tmp, "python-real");
         await fs.writeFile(realPython, "#!/bin/sh\nexit 0\n", "utf-8");
@@ -49,25 +53,25 @@ describe("resolvePythonExecutablePath", () => {
         await fs.writeFile(shim, "#!/bin/sh\nexit 0\n", "utf-8");
         await fs.chmod(shim, 0o755);
 
-        process.env.PATH = `${shimDir}${path.delimiter}/usr/bin`;
+        await withEnvAsync({ PATH: `${shimDir}${path.delimiter}/usr/bin` }, async () => {
+          runCommandWithTimeoutMock.mockResolvedValue({
+            stdout: `${realPython}\n`,
+            stderr: "",
+            code: 0,
+            signal: null,
+            killed: false,
+          });
 
-        runCommandWithTimeoutMock.mockResolvedValue({
-          stdout: `${realPython}\n`,
-          stderr: "",
-          code: 0,
-          signal: null,
-          killed: false,
+          const resolved = await resolvePythonExecutablePath();
+          expect(resolved).toBe(realPython);
+
+          await withEnvAsync({ PATH: "/bin" }, async () => {
+            const cached = await resolvePythonExecutablePath();
+            expect(cached).toBe(realPython);
+          });
+          expect(runCommandWithTimeoutMock).toHaveBeenCalledTimes(1);
         });
-
-        const resolved = await resolvePythonExecutablePath();
-        expect(resolved).toBe(realPython);
-
-        process.env.PATH = "/bin";
-        const cached = await resolvePythonExecutablePath();
-        expect(cached).toBe(realPython);
-        expect(runCommandWithTimeoutMock).toHaveBeenCalledTimes(1);
       } finally {
-        process.env.PATH = originalPath;
         await fs.rm(tmp, { recursive: true, force: true });
       }
     },
