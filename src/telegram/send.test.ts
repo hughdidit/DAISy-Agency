@@ -601,7 +601,18 @@ describe("sendMessageTelegram", () => {
         api,
         mediaUrl: "https://example.com/video.mp4",
         asVideoNote: true,
+<<<<<<< HEAD
         ...testCase.options,
+=======
+        ...("replyToMessageId" in testCase.options
+          ? { replyToMessageId: testCase.options.replyToMessageId }
+          : {}),
+        ...(Array.isArray(testCase.options.buttons)
+          ? {
+              buttons: testCase.options.buttons.map((row) => row.map((button) => ({ ...button }))),
+            }
+          : {}),
+>>>>>>> 21087c5c7 (test: fix rebase-introduced tsgo regressions)
       };
       if (opts.buttons) {
         opts.buttons = opts.buttons.map((row) => [...row]);
