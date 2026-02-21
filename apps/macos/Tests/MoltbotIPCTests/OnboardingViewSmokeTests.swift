@@ -1,4 +1,9 @@
+<<<<<<< HEAD:apps/macos/Tests/MoltbotIPCTests/OnboardingViewSmokeTests.swift
 import MoltbotDiscovery
+=======
+import Foundation
+import OpenClawDiscovery
+>>>>>>> bfe016fa2 (fix: clear stale remote discovery endpoints (#21618) (thanks @bmendonca3)):apps/macos/Tests/OpenClawIPCTests/OnboardingViewSmokeTests.swift
 import SwiftUI
 import Testing
 @testable import Moltbot
@@ -24,5 +29,37 @@ struct OnboardingViewSmokeTests {
     @Test func pageOrderOmitsOnboardingChatWhenIdentityKnown() {
         let order = OnboardingView.pageOrder(for: .local, showOnboardingChat: false)
         #expect(!order.contains(8))
+    }
+
+    @Test func selectRemoteGatewayClearsStaleSshTargetWhenEndpointUnresolved() async {
+        let override = FileManager().temporaryDirectory
+            .appendingPathComponent("openclaw-config-\(UUID().uuidString)")
+            .appendingPathComponent("openclaw.json")
+            .path
+
+        await TestIsolation.withEnvValues(["OPENCLAW_CONFIG_PATH": override]) {
+            let state = AppState(preview: true)
+            state.remoteTransport = .ssh
+            state.remoteTarget = "user@old-host:2222"
+            let view = OnboardingView(
+                state: state,
+                permissionMonitor: PermissionMonitor.shared,
+                discoveryModel: GatewayDiscoveryModel(localDisplayName: InstanceIdentity.displayName))
+            let gateway = GatewayDiscoveryModel.DiscoveredGateway(
+                displayName: "Unresolved",
+                serviceHost: nil,
+                servicePort: nil,
+                lanHost: "txt-host.local",
+                tailnetDns: "txt-host.ts.net",
+                sshPort: 22,
+                gatewayPort: 18789,
+                cliPath: "/tmp/openclaw",
+                stableID: UUID().uuidString,
+                debugID: UUID().uuidString,
+                isLocal: false)
+
+            view.selectRemoteGateway(gateway)
+            #expect(state.remoteTarget.isEmpty)
+        }
     }
 }

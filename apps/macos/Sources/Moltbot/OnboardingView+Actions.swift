@@ -26,6 +26,7 @@ extension OnboardingView {
         GatewayDiscoveryPreferences.setPreferredStableID(gateway.stableID)
 
         if self.state.remoteTransport == .direct {
+<<<<<<< HEAD:apps/macos/Sources/Moltbot/OnboardingView+Actions.swift
             if let url = GatewayDiscoveryHelpers.directUrl(for: gateway) {
                 self.state.remoteUrl = url
             }
@@ -36,6 +37,18 @@ extension OnboardingView {
                 host: host,
                 port: gateway.sshPort)
             MoltbotConfigFile.setRemoteGatewayUrl(host: host, port: gateway.gatewayPort)
+=======
+            self.state.remoteUrl = GatewayDiscoveryHelpers.directUrl(for: gateway) ?? ""
+        } else {
+            self.state.remoteTarget = GatewayDiscoveryHelpers.sshTarget(for: gateway) ?? ""
+        }
+        if let endpoint = GatewayDiscoveryHelpers.serviceEndpoint(for: gateway) {
+            OpenClawConfigFile.setRemoteGatewayUrl(
+                host: endpoint.host,
+                port: endpoint.port)
+        } else {
+            OpenClawConfigFile.clearRemoteGatewayUrl()
+>>>>>>> bfe016fa2 (fix: clear stale remote discovery endpoints (#21618) (thanks @bmendonca3)):apps/macos/Sources/OpenClaw/OnboardingView+Actions.swift
         }
         self.state.remoteCliPath = gateway.cliPath ?? ""
 
