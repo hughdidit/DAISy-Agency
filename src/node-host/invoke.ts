@@ -34,6 +34,16 @@ import {
 import { getTrustedSafeBinDirs } from "../infra/exec-safe-bin-trust.js";
 import { validateSystemRunCommandConsistency } from "../infra/system-run-command.js";
 import { runBrowserProxyCommand } from "./invoke-browser.js";
+<<<<<<< HEAD
+=======
+import { handleSystemRunInvoke } from "./invoke-system-run.js";
+import type {
+  ExecEventPayload,
+  RunResult,
+  SkillBinsProvider,
+  SystemRunParams,
+} from "./invoke-types.js";
+>>>>>>> b25fd03b8 (refactor(node-host): share invoke type definitions)
 
 const OUTPUT_CAP = 200_000;
 const OUTPUT_EVENT_TAIL = 20_000;
@@ -43,6 +53,7 @@ const execHostEnforced = process.env.OPENCLAW_NODE_EXEC_HOST?.trim().toLowerCase
 const execHostFallbackAllowed =
   process.env.OPENCLAW_NODE_EXEC_FALLBACK?.trim().toLowerCase() !== "0";
 
+<<<<<<< HEAD
 const blockedEnvKeys = new Set([
   "NODE_OPTIONS",
   "PYTHONHOME",
@@ -68,6 +79,8 @@ type SystemRunParams = {
   runId?: string | null;
 };
 
+=======
+>>>>>>> b25fd03b8 (refactor(node-host): share invoke type definitions)
 type SystemWhichParams = {
   bins: string[];
 };
@@ -84,28 +97,6 @@ type ExecApprovalsSnapshot = {
   file: ExecApprovalsFile;
 };
 
-type RunResult = {
-  exitCode?: number;
-  timedOut: boolean;
-  success: boolean;
-  stdout: string;
-  stderr: string;
-  error?: string | null;
-  truncated: boolean;
-};
-
-type ExecEventPayload = {
-  sessionKey: string;
-  runId: string;
-  host: string;
-  command?: string;
-  exitCode?: number;
-  timedOut?: boolean;
-  success?: boolean;
-  output?: string;
-  reason?: string;
-};
-
 export type NodeInvokeRequestPayload = {
   id: string;
   nodeId: string;
@@ -115,9 +106,7 @@ export type NodeInvokeRequestPayload = {
   idempotencyKey?: string | null;
 };
 
-export type SkillBinsProvider = {
-  current(force?: boolean): Promise<Set<string>>;
-};
+export type { SkillBinsProvider } from "./invoke-types.js";
 
 function resolveExecSecurity(value?: string): ExecSecurity {
   return value === "deny" || value === "allowlist" || value === "full" ? value : "allowlist";
