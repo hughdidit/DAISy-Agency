@@ -14,6 +14,12 @@ import fs from "node:fs";
 import path from "node:path";
 
 import JSON5 from "json5";
+<<<<<<< HEAD
+=======
+import { isPathInside } from "../security/scan-paths.js";
+import { isPlainObject } from "../utils.js";
+import { isBlockedObjectKey } from "./prototype-keys.js";
+>>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 
 export const INCLUDE_KEY = "$include";
 export const MAX_INCLUDE_DEPTH = 10;
@@ -54,6 +60,7 @@ export class CircularIncludeError extends ConfigIncludeError {
 // ============================================================================
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return (
     typeof value === "object" &&
@@ -66,6 +73,8 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 const BLOCKED_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 >>>>>>> e0aaf2d39 (fix(security): block prototype-polluting keys in deepMerge (#20853))
 
+=======
+>>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 /** Deep merge: arrays concatenate, objects merge recursively, primitives: source wins */
 export function deepMerge(target: unknown, source: unknown): unknown {
   if (Array.isArray(target) && Array.isArray(source)) {
@@ -74,7 +83,7 @@ export function deepMerge(target: unknown, source: unknown): unknown {
   if (isPlainObject(target) && isPlainObject(source)) {
     const result: Record<string, unknown> = { ...target };
     for (const key of Object.keys(source)) {
-      if (BLOCKED_MERGE_KEYS.has(key)) {
+      if (isBlockedObjectKey(key)) {
         continue;
       }
       result[key] = key in result ? deepMerge(result[key], source[key]) : source[key];

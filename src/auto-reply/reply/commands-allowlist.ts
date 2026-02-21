@@ -5,7 +5,6 @@ import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes
 import { listPairingChannels } from "../../channels/plugins/pairing.js";
 import type { ChannelId } from "../../channels/plugins/types.js";
 import { normalizeChannelId } from "../../channels/registry.js";
-import { isCommandFlagEnabled } from "../../config/commands.js";
 import type { OpenClawConfig } from "../../config/config.js";
 >>>>>>> fbb79d401 (fix(security): harden runtime command override gating)
 import {
@@ -13,6 +12,7 @@ import {
   validateConfigObjectWithPlugins,
   writeConfigFile,
 } from "../../config/config.js";
+<<<<<<< HEAD
 import { resolveChannelConfigWrites } from "../../channels/plugins/config-writes.js";
 import { getChannelDock } from "../../channels/dock.js";
 import { normalizeChannelId } from "../../channels/registry.js";
@@ -20,6 +20,10 @@ import { listPairingChannels } from "../../channels/plugins/pairing.js";
 import { logVerbose } from "../../globals.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../routing/session-key.js";
 import { resolveDiscordAccount } from "../../discord/accounts.js";
+=======
+import { resolveDiscordAccount } from "../../discord/accounts.js";
+import { resolveDiscordUserAllowlist } from "../../discord/resolve-users.js";
+>>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 import { resolveIMessageAccount } from "../../imessage/accounts.js";
 import { resolveSignalAccount } from "../../signal/accounts.js";
 import { resolveSlackAccount } from "../../slack/accounts.js";
@@ -32,8 +36,18 @@ import {
   readChannelAllowFromStore,
   removeChannelAllowFromStoreEntry,
 } from "../../pairing/pairing-store.js";
+<<<<<<< HEAD
 import type { OpenClawConfig } from "../../config/config.js";
 import type { ChannelId } from "../../channels/plugins/types.js";
+=======
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../routing/session-key.js";
+import { resolveSignalAccount } from "../../signal/accounts.js";
+import { resolveSlackAccount } from "../../slack/accounts.js";
+import { resolveSlackUserAllowlist } from "../../slack/resolve-users.js";
+import { resolveTelegramAccount } from "../../telegram/accounts.js";
+import { resolveWhatsAppAccount } from "../../web/accounts.js";
+import { rejectUnauthorizedCommand, requireCommandFlagEnabled } from "./command-gates.js";
+>>>>>>> 08e020881 (refactor(security): unify command gating and blocked-key guards)
 import type { CommandHandler } from "./commands-types.js";
 
 type AllowlistScope = "dm" | "group" | "all";
@@ -307,11 +321,9 @@ export const handleAllowlistCommand: CommandHandler = async (params, allowTextCo
   if (parsed.action === "error") {
     return { shouldContinue: false, reply: { text: `⚠️ ${parsed.message}` } };
   }
-  if (!params.command.isAuthorizedSender) {
-    logVerbose(
-      `Ignoring /allowlist from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
-    );
-    return { shouldContinue: false };
+  const unauthorized = rejectUnauthorizedCommand(params, "/allowlist");
+  if (unauthorized) {
+    return unauthorized;
   }
 
   const channelId =
@@ -492,11 +504,13 @@ export const handleAllowlistCommand: CommandHandler = async (params, allowTextCo
     return { shouldContinue: false, reply: { text: lines.join("\n") } };
   }
 
-  if (!isCommandFlagEnabled(params.cfg, "config")) {
-    return {
-      shouldContinue: false,
-      reply: { text: "⚠️ /allowlist edits are disabled. Set commands.config=true to enable." },
-    };
+  const disabled = requireCommandFlagEnabled(params.cfg, {
+    label: "/allowlist edits",
+    configKey: "config",
+    disabledVerb: "are",
+  });
+  if (disabled) {
+    return disabled;
   }
 
   const shouldUpdateConfig = parsed.target !== "store";
