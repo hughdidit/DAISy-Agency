@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -5,22 +6,21 @@ import type { Api, Model } from "@mariozechner/pi-ai";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { Api, Model } from "@mariozechner/pi-ai";
+import type { ExtensionFactory, SessionManager } from "@mariozechner/pi-coding-agent";
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
 import { resolveContextWindowInfo } from "../context-window-guard.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../defaults.js";
 import { setCompactionSafeguardRuntime } from "../pi-extensions/compaction-safeguard-runtime.js";
+import compactionSafeguardExtension from "../pi-extensions/compaction-safeguard.js";
+import contextPruningExtension from "../pi-extensions/context-pruning.js";
 import { setContextPruningRuntime } from "../pi-extensions/context-pruning/runtime.js";
 import { computeEffectiveSettings } from "../pi-extensions/context-pruning/settings.js";
 import { makeToolPrunablePredicate } from "../pi-extensions/context-pruning/tools.js";
 import { ensurePiCompactionReserveTokens } from "../pi-settings.js";
 import { isCacheTtlEligibleProvider, readLastCacheTtlTimestamp } from "./cache-ttl.js";
-
-function resolvePiExtensionPath(id: string): string {
-  const self = fileURLToPath(import.meta.url);
-  const dir = path.dirname(self);
-  // In dev this file is `.ts` (tsx), in production it's `.js`.
-  const ext = path.extname(self) === ".ts" ? "ts" : "js";
-  return path.join(dir, "..", "pi-extensions", `${id}.${ext}`);
-}
 
 function resolveContextWindowTokens(params: {
   cfg: MoltbotConfig | undefined;
@@ -37,19 +37,38 @@ function resolveContextWindowTokens(params: {
   }).tokens;
 }
 
+<<<<<<< HEAD
 function buildContextPruningExtension(params: {
   cfg: MoltbotConfig | undefined;
+=======
+function buildContextPruningFactory(params: {
+  cfg: OpenClawConfig | undefined;
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
   sessionManager: SessionManager;
   provider: string;
   modelId: string;
   model: Model<Api> | undefined;
-}): { additionalExtensionPaths?: string[] } {
+}): ExtensionFactory | undefined {
   const raw = params.cfg?.agents?.defaults?.contextPruning;
+<<<<<<< HEAD
   if (raw?.mode !== "cache-ttl") return {};
   if (!isCacheTtlEligibleProvider(params.provider, params.modelId)) return {};
 
   const settings = computeEffectiveSettings(raw);
   if (!settings) return {};
+=======
+  if (raw?.mode !== "cache-ttl") {
+    return undefined;
+  }
+  if (!isCacheTtlEligibleProvider(params.provider, params.modelId)) {
+    return undefined;
+  }
+
+  const settings = computeEffectiveSettings(raw);
+  if (!settings) {
+    return undefined;
+  }
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
 
   setContextPruningRuntime(params.sessionManager, {
     settings,
@@ -58,23 +77,26 @@ function buildContextPruningExtension(params: {
     lastCacheTouchAt: readLastCacheTtlTimestamp(params.sessionManager),
   });
 
-  return {
-    additionalExtensionPaths: [resolvePiExtensionPath("context-pruning")],
-  };
+  return contextPruningExtension;
 }
 
 function resolveCompactionMode(cfg?: MoltbotConfig): "default" | "safeguard" {
   return cfg?.agents?.defaults?.compaction?.mode === "safeguard" ? "safeguard" : "default";
 }
 
+<<<<<<< HEAD
 export function buildEmbeddedExtensionPaths(params: {
   cfg: MoltbotConfig | undefined;
+=======
+export function buildEmbeddedExtensionFactories(params: {
+  cfg: OpenClawConfig | undefined;
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
   sessionManager: SessionManager;
   provider: string;
   modelId: string;
   model: Model<Api> | undefined;
-}): string[] {
-  const paths: string[] = [];
+}): ExtensionFactory[] {
+  const factories: ExtensionFactory[] = [];
   if (resolveCompactionMode(params.cfg) === "safeguard") {
     const compactionCfg = params.cfg?.agents?.defaults?.compaction;
     const contextWindowInfo = resolveContextWindowInfo({
@@ -88,13 +110,13 @@ export function buildEmbeddedExtensionPaths(params: {
       maxHistoryShare: compactionCfg?.maxHistoryShare,
       contextWindowTokens: contextWindowInfo.tokens,
     });
-    paths.push(resolvePiExtensionPath("compaction-safeguard"));
+    factories.push(compactionSafeguardExtension);
   }
-  const pruning = buildContextPruningExtension(params);
-  if (pruning.additionalExtensionPaths) {
-    paths.push(...pruning.additionalExtensionPaths);
+  const pruningFactory = buildContextPruningFactory(params);
+  if (pruningFactory) {
+    factories.push(pruningFactory);
   }
-  return paths;
+  return factories;
 }
 
 export { ensurePiCompactionReserveTokens };

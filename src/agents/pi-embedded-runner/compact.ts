@@ -7,6 +7,7 @@ import type { AgentMessage } from "@mariozechner/pi-agent-core";
 >>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
 import {
   createAgentSession,
+  DefaultResourceLoader,
   estimateTokens,
   SessionManager,
   SettingsManager,
@@ -66,9 +67,17 @@ import {
 <<<<<<< HEAD
 =======
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
+<<<<<<< HEAD
 import { compactWithSafetyTimeout } from "./compaction-safety-timeout.js";
 >>>>>>> c0cd3c3c0 (fix: add safety timeout to session.compact() to prevent lane deadlock (#16533))
 import { buildEmbeddedExtensionPaths } from "./extensions.js";
+=======
+import {
+  compactWithSafetyTimeout,
+  EMBEDDED_COMPACTION_TIMEOUT_MS,
+} from "./compaction-safety-timeout.js";
+import { buildEmbeddedExtensionFactories } from "./extensions.js";
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
 import {
   logToolSchemasForGoogle,
   sanitizeSessionHistory,
@@ -406,13 +415,31 @@ export async function compactEmbeddedPiSessionDirect(
         settingsManager,
         minReserveTokens: resolveCompactionReserveTokensFloor(params.config),
       });
+<<<<<<< HEAD
       const additionalExtensionPaths = buildEmbeddedExtensionPaths({
+=======
+      // Sets compaction/pruning runtime state and returns extension factories
+      // that must be passed to the resource loader for the safeguard to be active.
+      const extensionFactories = buildEmbeddedExtensionFactories({
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
         cfg: params.config,
         sessionManager,
         provider,
         modelId,
         model,
       });
+      // Only create an explicit resource loader when there are extension factories
+      // to register; otherwise let createAgentSession use its built-in default.
+      let resourceLoader: DefaultResourceLoader | undefined;
+      if (extensionFactories.length > 0) {
+        resourceLoader = new DefaultResourceLoader({
+          cwd: resolvedWorkspace,
+          agentDir,
+          settingsManager,
+          extensionFactories,
+        });
+        await resourceLoader.reload();
+      }
 
       const { builtInTools, customTools } = splitSdkTools({
         tools,
@@ -469,6 +496,7 @@ export async function compactEmbeddedPiSessionDirect(
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         skills: [],
         contextFiles: [],
         additionalExtensionPaths,
@@ -484,6 +512,9 @@ export async function compactEmbeddedPiSessionDirect(
         skills: [],
         contextFiles: [],
 >>>>>>> bcde2fca5 (fix: align embedded agent session setup)
+=======
+        resourceLoader,
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
       });
 >>>>>>> d2a852b98 (fix: align embedded session setup with sdk)
 =======

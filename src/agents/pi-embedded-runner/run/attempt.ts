@@ -10,16 +10,20 @@ import type { ImageContent } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
 <<<<<<< HEAD
 >>>>>>> bcde2fca5 (fix: align embedded agent session setup)
 =======
+=======
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
 import {
   createAgentSession,
   DefaultResourceLoader,
   SessionManager,
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 >>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
 =======
 import { createAgentSession, SessionManager, SettingsManager } from "@mariozechner/pi-coding-agent";
@@ -34,6 +38,8 @@ import { createAgentSession, SessionManager, SettingsManager } from "@mariozechn
 
 =======
 >>>>>>> 6dcc052bb (fix: stabilize model catalog and pi discovery auth storage compatibility)
+=======
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
 <<<<<<< HEAD
 =======
@@ -98,11 +104,17 @@ import {
   resolveSkillsPromptForRun,
 } from "../../skills.js";
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../../workspace.js";
+<<<<<<< HEAD
 import { buildSystemPromptReport } from "../../system-prompt-report.js";
 import { resolveDefaultModelForAgent } from "../../model-selection.js";
 
 import { isAbortError } from "../abort.js";
 import { buildEmbeddedExtensionPaths } from "../extensions.js";
+=======
+import { isRunnerAbortError } from "../abort.js";
+import { appendCacheTtlTimestamp, isCacheTtlEligibleProvider } from "../cache-ttl.js";
+import { buildEmbeddedExtensionFactories } from "../extensions.js";
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
 import { applyExtraParamsToAgent } from "../extra-params.js";
 import { appendCacheTtlTimestamp, isCacheTtlEligibleProvider } from "../cache-ttl.js";
 import {
@@ -484,13 +496,31 @@ export async function runEmbeddedAttempt(
         minReserveTokens: resolveCompactionReserveTokensFloor(params.config),
       });
 
+<<<<<<< HEAD
       const additionalExtensionPaths = buildEmbeddedExtensionPaths({
+=======
+      // Sets compaction/pruning runtime state and returns extension factories
+      // that must be passed to the resource loader for the safeguard to be active.
+      const extensionFactories = buildEmbeddedExtensionFactories({
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
         cfg: params.config,
         sessionManager,
         provider: params.provider,
         modelId: params.modelId,
         model: params.model,
       });
+      // Only create an explicit resource loader when there are extension factories
+      // to register; otherwise let createAgentSession use its built-in default.
+      let resourceLoader: DefaultResourceLoader | undefined;
+      if (extensionFactories.length > 0) {
+        resourceLoader = new DefaultResourceLoader({
+          cwd: resolvedWorkspace,
+          agentDir,
+          settingsManager,
+          extensionFactories,
+        });
+        await resourceLoader.reload();
+      }
 
       // Get hook runner early so it's available when creating tools
       const hookRunner = getGlobalHookRunner();
@@ -534,6 +564,7 @@ export async function runEmbeddedAttempt(
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         skills: [],
         contextFiles: [],
         additionalExtensionPaths,
@@ -554,6 +585,9 @@ export async function runEmbeddedAttempt(
 >>>>>>> 3367b2aa2 (fix: align embedded runner with session API changes)
 =======
 >>>>>>> e58291e07 (fix: align embedded runner with pi-coding-agent API)
+=======
+        resourceLoader,
+>>>>>>> 1410d15c5 (fix: compaction safeguard extension not loading in production builds (openclaw#22349) thanks @Glucksberg)
       }));
       applySystemPromptOverrideToSession(session, systemPromptText);
       if (!session) {
