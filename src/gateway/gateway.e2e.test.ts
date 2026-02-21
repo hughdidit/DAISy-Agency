@@ -5,8 +5,12 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+=======
+import { captureEnv } from "../test-utils/env.js";
+>>>>>>> bfa59bd22 (refactor(test): collapse gateway e2e env snapshots)
 import { startGatewayServer } from "./server.js";
 import { extractPayloadText } from "./test-helpers.agent-results.js";
 >>>>>>> 947e11c33 (test(gateway): dedupe agent payload and stream fixtures)
@@ -28,6 +32,7 @@ describe("gateway e2e", () => {
     "runs a mock OpenAI tool call end-to-end via gateway agent loop",
     { timeout: 90_000 },
     async () => {
+<<<<<<< HEAD
       const prev = {
         home: process.env.HOME,
         configPath: process.env.CLAWDBOT_CONFIG_PATH,
@@ -38,6 +43,18 @@ describe("gateway e2e", () => {
         skipCanvas: process.env.CLAWDBOT_SKIP_CANVAS_HOST,
         skipBrowser: process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER,
       };
+=======
+      const envSnapshot = captureEnv([
+        "HOME",
+        "OPENCLAW_CONFIG_PATH",
+        "OPENCLAW_GATEWAY_TOKEN",
+        "OPENCLAW_SKIP_CHANNELS",
+        "OPENCLAW_SKIP_GMAIL_WATCHER",
+        "OPENCLAW_SKIP_CRON",
+        "OPENCLAW_SKIP_CANVAS_HOST",
+        "OPENCLAW_SKIP_BROWSER_CONTROL_SERVER",
+      ]);
+>>>>>>> bfa59bd22 (refactor(test): collapse gateway e2e env snapshots)
 
       const { baseUrl: openaiBaseUrl, restore } = installOpenAiResponsesMock();
 
@@ -131,6 +148,7 @@ describe("gateway e2e", () => {
         await server.close({ reason: "mock openai test complete" });
         await fs.rm(tempHome, { recursive: true, force: true });
         restore();
+<<<<<<< HEAD
         process.env.HOME = prev.home;
         process.env.CLAWDBOT_CONFIG_PATH = prev.configPath;
         process.env.CLAWDBOT_GATEWAY_TOKEN = prev.token;
@@ -139,11 +157,15 @@ describe("gateway e2e", () => {
         process.env.CLAWDBOT_SKIP_CRON = prev.skipCron;
         process.env.CLAWDBOT_SKIP_CANVAS_HOST = prev.skipCanvas;
         process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = prev.skipBrowser;
+=======
+        envSnapshot.restore();
+>>>>>>> bfa59bd22 (refactor(test): collapse gateway e2e env snapshots)
       }
     },
   );
 
   it("runs wizard over ws and writes auth token config", { timeout: 90_000 }, async () => {
+<<<<<<< HEAD
     const prev = {
       home: process.env.HOME,
       stateDir: process.env.CLAWDBOT_STATE_DIR,
@@ -155,6 +177,19 @@ describe("gateway e2e", () => {
       skipCanvas: process.env.CLAWDBOT_SKIP_CANVAS_HOST,
       skipBrowser: process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER,
     };
+=======
+    const envSnapshot = captureEnv([
+      "HOME",
+      "OPENCLAW_STATE_DIR",
+      "OPENCLAW_CONFIG_PATH",
+      "OPENCLAW_GATEWAY_TOKEN",
+      "OPENCLAW_SKIP_CHANNELS",
+      "OPENCLAW_SKIP_GMAIL_WATCHER",
+      "OPENCLAW_SKIP_CRON",
+      "OPENCLAW_SKIP_CANVAS_HOST",
+      "OPENCLAW_SKIP_BROWSER_CONTROL_SERVER",
+    ]);
+>>>>>>> bfa59bd22 (refactor(test): collapse gateway e2e env snapshots)
 
     process.env.CLAWDBOT_SKIP_CHANNELS = "1";
     process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = "1";
@@ -257,6 +292,7 @@ describe("gateway e2e", () => {
     } finally {
       await server2.close({ reason: "wizard auth verify" });
       await fs.rm(tempHome, { recursive: true, force: true });
+<<<<<<< HEAD
       process.env.HOME = prev.home;
       process.env.CLAWDBOT_STATE_DIR = prev.stateDir;
       process.env.CLAWDBOT_CONFIG_PATH = prev.configPath;
@@ -266,6 +302,9 @@ describe("gateway e2e", () => {
       process.env.CLAWDBOT_SKIP_CRON = prev.skipCron;
       process.env.CLAWDBOT_SKIP_CANVAS_HOST = prev.skipCanvas;
       process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = prev.skipBrowser;
+=======
+      envSnapshot.restore();
+>>>>>>> bfa59bd22 (refactor(test): collapse gateway e2e env snapshots)
     }
   });
 });
