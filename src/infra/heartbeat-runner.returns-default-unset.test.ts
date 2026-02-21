@@ -9,6 +9,12 @@ import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
 import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import * as replyModule from "../auto-reply/reply.js";
+<<<<<<< HEAD
+=======
+import type { ReplyPayload } from "../auto-reply/types.js";
+import { whatsappOutbound } from "../channels/plugins/outbound/whatsapp.js";
+import type { OpenClawConfig } from "../config/config.js";
+>>>>>>> a18603681 (test: fix latest tsgo inference regressions in test suites)
 import {
   resolveAgentIdFromSessionKey,
   resolveAgentMainSessionKey,
@@ -23,6 +29,7 @@ import {
   isHeartbeatEnabledForAgent,
   resolveHeartbeatIntervalMs,
   resolveHeartbeatPrompt,
+  type HeartbeatDeps,
   runHeartbeatOnce,
 } from "./heartbeat-runner.js";
 import {

@@ -17,6 +17,13 @@ import {
   resolveCommandResolution,
   resolveExecApprovals,
   resolveExecApprovalsFromFile,
+<<<<<<< HEAD
+=======
+  resolveExecApprovalsPath,
+  resolveExecApprovalsSocketPath,
+  resolveSafeBins,
+  type ExecApprovalsAgent,
+>>>>>>> a18603681 (test: fix latest tsgo inference regressions in test suites)
   type ExecAllowlistEntry,
   type ExecApprovalsFile,
 } from "./exec-approvals.js";
