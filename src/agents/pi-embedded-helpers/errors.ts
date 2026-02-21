@@ -139,6 +139,21 @@ function isLikelyHttpErrorText(raw: string): boolean {
   return HTTP_ERROR_HINTS.some((hint) => message.includes(hint));
 }
 
+<<<<<<< HEAD
+=======
+function shouldRewriteContextOverflowText(raw: string): boolean {
+  if (!isContextOverflowError(raw)) {
+    return false;
+  }
+  return (
+    isRawApiErrorPayload(raw) ||
+    isLikelyHttpErrorText(raw) ||
+    ERROR_PREFIX_RE.test(raw) ||
+    CONTEXT_OVERFLOW_ERROR_HEAD_RE.test(raw)
+  );
+}
+
+>>>>>>> 5e423b596 (fix: remove false-positive billing error rewrite on normal assistant text (openclaw#17834) thanks @niceysam)
 type ErrorPayload = Record<string, unknown>;
 
 function isErrorPayloadObject(payload: unknown): payload is ErrorPayload {
@@ -403,7 +418,21 @@ export function sanitizeUserFacingText(text: string): string {
     if (isTimeoutErrorMessage(trimmed)) {
       return "LLM request timed out.";
     }
+<<<<<<< HEAD
     return formatRawAssistantErrorForUi(trimmed);
+=======
+
+    if (ERROR_PREFIX_RE.test(trimmed)) {
+      const prefixedCopy = formatRateLimitOrOverloadedErrorCopy(trimmed);
+      if (prefixedCopy) {
+        return prefixedCopy;
+      }
+      if (isTimeoutErrorMessage(trimmed)) {
+        return "LLM request timed out.";
+      }
+      return formatRawAssistantErrorForUi(trimmed);
+    }
+>>>>>>> 5e423b596 (fix: remove false-positive billing error rewrite on normal assistant text (openclaw#17834) thanks @niceysam)
   }
 
   // Strip leading blank lines (including whitespace-only lines) without clobbering indentation on
