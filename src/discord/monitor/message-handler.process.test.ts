@@ -15,6 +15,7 @@ import path from "node:path";
 =======
 >>>>>>> 05bfb7f9f (refactor(test): reuse discord message handler base context harness)
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DEFAULT_EMOJIS } from "../../channels/status-reactions.js";
 import { createBaseDiscordMessageContext } from "./message-handler.test-harness.js";
 
 const reactMessageDiscord = vi.fn(async () => {});
@@ -291,9 +292,9 @@ describe("processDiscordMessage ack reactions", () => {
       reactMessageDiscord.mock.calls as unknown as Array<[unknown, unknown, string]>
     ).map((call) => call[2]);
     expect(emojis).toContain("👀");
-    expect(emojis).toContain("✅");
-    expect(emojis).not.toContain("🧠");
-    expect(emojis).not.toContain("💻");
+    expect(emojis).toContain(DEFAULT_EMOJIS.done);
+    expect(emojis).not.toContain(DEFAULT_EMOJIS.thinking);
+    expect(emojis).not.toContain(DEFAULT_EMOJIS.coding);
   });
 
   it("shows stall emojis for long no-progress runs", async () => {
@@ -319,9 +320,9 @@ describe("processDiscordMessage ack reactions", () => {
     const emojis = (
       reactMessageDiscord.mock.calls as unknown as Array<[unknown, unknown, string]>
     ).map((call) => call[2]);
-    expect(emojis).toContain("⏳");
-    expect(emojis).toContain("⚠️");
-    expect(emojis).toContain("✅");
+    expect(emojis).toContain(DEFAULT_EMOJIS.stallSoft);
+    expect(emojis).toContain(DEFAULT_EMOJIS.stallHard);
+    expect(emojis).toContain(DEFAULT_EMOJIS.done);
   });
 });
 
