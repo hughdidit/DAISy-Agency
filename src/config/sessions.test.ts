@@ -9,11 +9,15 @@ import { describe, expect, it } from "vitest";
 =======
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 66951e52e (perf(test): speed up sessions suite)
 import { sleep } from "../utils.js";
 >>>>>>> 6b0d6e254 (chore: We have a sleep at home. The sleep at home:)
 =======
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
+=======
+import { withEnv } from "../test-utils/env.js";
+>>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
 import {
   buildGroupDisplayName,
   deriveSessionKey,
@@ -44,6 +48,9 @@ describe("sessions", () => {
   afterAll(async () => {
     await fs.rm(fixtureRoot, { recursive: true, force: true });
   });
+
+  const withStateDir = <T>(stateDir: string, fn: () => T): T =>
+    withEnv({ OPENCLAW_STATE_DIR: stateDir }, fn);
 
   it("returns normalized per-sender key", () => {
     expect(deriveSessionKey("per-sender", { From: "whatsapp:+1555" })).toBe("+1555");
@@ -478,9 +485,13 @@ describe("sessions", () => {
   });
 
   it("includes topic ids in session transcript filenames", () => {
+<<<<<<< HEAD
     const prev = process.env.CLAWDBOT_STATE_DIR;
     process.env.CLAWDBOT_STATE_DIR = "/custom/state";
     try {
+=======
+    withStateDir("/custom/state", () => {
+>>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
       const sessionFile = resolveSessionTranscriptPath("sess-1", "main", 123);
       expect(sessionFile).toBe(
         path.join(
@@ -491,6 +502,7 @@ describe("sessions", () => {
           "sess-1-topic-123.jsonl",
         ),
       );
+<<<<<<< HEAD
     } finally {
       if (prev === undefined) {
         delete process.env.CLAWDBOT_STATE_DIR;
@@ -504,12 +516,20 @@ describe("sessions", () => {
     const prev = process.env.CLAWDBOT_STATE_DIR;
     process.env.CLAWDBOT_STATE_DIR = "/custom/state";
     try {
+=======
+    });
+  });
+
+  it("uses agent id when resolving session file fallback paths", () => {
+    withStateDir("/custom/state", () => {
+>>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
       const sessionFile = resolveSessionFilePath("sess-2", undefined, {
         agentId: "codex",
       });
       expect(sessionFile).toBe(
         path.join(path.resolve("/custom/state"), "agents", "codex", "sessions", "sess-2.jsonl"),
       );
+<<<<<<< HEAD
     } finally {
       if (prev === undefined) {
         delete process.env.CLAWDBOT_STATE_DIR;
@@ -517,13 +537,14 @@ describe("sessions", () => {
         process.env.CLAWDBOT_STATE_DIR = prev;
       }
     }
+=======
+    });
+>>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
   });
 
   it("resolves cross-agent absolute sessionFile paths", () => {
-    const prev = process.env.OPENCLAW_STATE_DIR;
     const stateDir = path.resolve("/home/user/.openclaw");
-    process.env.OPENCLAW_STATE_DIR = stateDir;
-    try {
+    withStateDir(stateDir, () => {
       const bot2Session = path.join(stateDir, "agents", "bot2", "sessions", "sess-1.jsonl");
       // Agent bot1 resolves a sessionFile that belongs to agent bot2
       const sessionFile = resolveSessionFilePath(
@@ -532,19 +553,11 @@ describe("sessions", () => {
         { agentId: "bot1" },
       );
       expect(sessionFile).toBe(bot2Session);
-    } finally {
-      if (prev === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = prev;
-      }
-    }
+    });
   });
 
   it("resolves cross-agent paths when OPENCLAW_STATE_DIR differs from stored paths", () => {
-    const prev = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = path.resolve("/different/state");
-    try {
+    withStateDir(path.resolve("/different/state"), () => {
       const originalBase = path.resolve("/original/state");
       const bot2Session = path.join(originalBase, "agents", "bot2", "sessions", "sess-1.jsonl");
       // sessionFile was created under a different state dir than current env
@@ -554,19 +567,11 @@ describe("sessions", () => {
         { agentId: "bot1" },
       );
       expect(sessionFile).toBe(bot2Session);
-    } finally {
-      if (prev === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = prev;
-      }
-    }
+    });
   });
 
   it("rejects absolute sessionFile paths outside agent sessions directories", () => {
-    const prev = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = path.resolve("/home/user/.openclaw");
-    try {
+    withStateDir(path.resolve("/home/user/.openclaw"), () => {
       expect(() =>
         resolveSessionFilePath(
           "sess-1",
@@ -574,13 +579,7 @@ describe("sessions", () => {
           { agentId: "bot1" },
         ),
       ).toThrow(/within sessions directory/);
-    } finally {
-      if (prev === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = prev;
-      }
-    }
+    });
   });
 
   it("updateSessionStoreEntry merges concurrent patches", async () => {

@@ -9,6 +9,7 @@ import type { MoltbotConfig } from "../config/config.js";
 import { loadCostUsageSummary, loadSessionCostSummary } from "./session-cost-usage.js";
 =======
 import type { OpenClawConfig } from "../config/config.js";
+import { withEnvAsync } from "../test-utils/env.js";
 import {
   discoverAllSessions,
   loadCostUsageSummary,
@@ -17,6 +18,9 @@ import {
 >>>>>>> 8a352c8f9 (Web UI: add token usage dashboard (#10072))
 
 describe("session cost usage", () => {
+  const withStateDir = async <T>(stateDir: string, fn: () => Promise<T>): Promise<T> =>
+    await withEnvAsync({ OPENCLAW_STATE_DIR: stateDir }, fn);
+
   it("aggregates daily totals with log cost and pricing fallback", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-cost-"));
     const sessionsDir = path.join(root, "agents", "main", "sessions");
@@ -107,13 +111,18 @@ describe("session cost usage", () => {
     } as unknown as OpenClawConfig;
 >>>>>>> 6e5df1dc0 (chore: Fix types in tests 25/N.)
 
+<<<<<<< HEAD
     const originalState = process.env.CLAWDBOT_STATE_DIR;
     process.env.CLAWDBOT_STATE_DIR = root;
     try {
+=======
+    await withStateDir(root, async () => {
+>>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
       const summary = await loadCostUsageSummary({ days: 30, config });
       expect(summary.daily.length).toBe(1);
       expect(summary.totals.totalTokens).toBe(50);
       expect(summary.totals.totalCost).toBeCloseTo(0.03003, 5);
+<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
       if (originalState === undefined) delete process.env.CLAWDBOT_STATE_DIR;
@@ -126,6 +135,9 @@ describe("session cost usage", () => {
       }
 >>>>>>> 5ceff756e (chore: Enable "curly" rule to avoid single-statement if confusion/errors.)
     }
+=======
+    });
+>>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
   });
 
   it("summarizes a single session file", async () => {
@@ -239,22 +251,14 @@ describe("session cost usage", () => {
     const now = Date.now();
     await fs.utimes(sessionFile, now / 1000, now / 1000);
 
-    const originalState = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = root;
-    try {
+    await withStateDir(root, async () => {
       const sessions = await discoverAllSessions({
         startMs: now - 7 * 24 * 60 * 60 * 1000,
         endMs: now - 24 * 60 * 60 * 1000,
       });
       expect(sessions.length).toBe(1);
       expect(sessions[0]?.sessionId).toBe("sess-late");
-    } finally {
-      if (originalState === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = originalState;
-      }
-    }
+    });
   });
 <<<<<<< HEAD
 =======
@@ -286,9 +290,7 @@ describe("session cost usage", () => {
       "utf-8",
     );
 
-    const originalState = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = root;
-    try {
+    await withStateDir(root, async () => {
       const summary = await loadSessionCostSummary({
         sessionId: "sess-worker-1",
         sessionEntry: {
@@ -300,13 +302,7 @@ describe("session cost usage", () => {
       });
       expect(summary?.totalTokens).toBe(18);
       expect(summary?.totalCost).toBeCloseTo(0.01, 5);
-    } finally {
-      if (originalState === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = originalState;
-      }
-    }
+    });
   });
 
   it("resolves non-main absolute sessionFile using explicit agentId for timeseries", async () => {
@@ -332,9 +328,7 @@ describe("session cost usage", () => {
       "utf-8",
     );
 
-    const originalState = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = root;
-    try {
+    await withStateDir(root, async () => {
       const timeseries = await loadSessionUsageTimeSeries({
         sessionId: "sess-worker-2",
         sessionEntry: {
@@ -346,13 +340,7 @@ describe("session cost usage", () => {
       });
       expect(timeseries?.points.length).toBe(1);
       expect(timeseries?.points[0]?.totalTokens).toBe(8);
-    } finally {
-      if (originalState === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = originalState;
-      }
-    }
+    });
   });
 
   it("resolves non-main absolute sessionFile using explicit agentId for logs", async () => {
@@ -376,9 +364,7 @@ describe("session cost usage", () => {
       "utf-8",
     );
 
-    const originalState = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = root;
-    try {
+    await withStateDir(root, async () => {
       const logs = await loadSessionLogs({
         sessionId: "sess-worker-3",
         sessionEntry: {
@@ -391,13 +377,7 @@ describe("session cost usage", () => {
       expect(logs).toHaveLength(1);
       expect(logs?.[0]?.content).toContain("hello worker");
       expect(logs?.[0]?.role).toBe("user");
-    } finally {
-      if (originalState === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = originalState;
-      }
-    }
+    });
   });
 
   it("preserves totals and cumulative values when downsampling timeseries", async () => {

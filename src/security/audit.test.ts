@@ -20,9 +20,13 @@ import type { ChannelPlugin } from "../channels/plugins/types.js";
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 import type { OpenClawConfig } from "../config/config.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 72e9364ba (perf(test): speed up hot test files)
 =======
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
+=======
+import { withEnvAsync } from "../test-utils/env.js";
+>>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
 import { collectPluginsCodeSafetyFindings } from "./audit-extra.js";
 import type { SecurityAuditOptions, SecurityAuditReport } from "./audit.js";
 import { runSecurityAudit } from "./audit.js";
@@ -123,19 +127,9 @@ describe("security audit", () => {
   };
 
   const withStateDir = async (label: string, fn: (tmp: string) => Promise<void>) => {
-    const prevStateDir = process.env.OPENCLAW_STATE_DIR;
     const tmp = await makeTmpDir(label);
-    process.env.OPENCLAW_STATE_DIR = tmp;
     await fs.mkdir(path.join(tmp, "credentials"), { recursive: true, mode: 0o700 });
-    try {
-      await fn(tmp);
-    } finally {
-      if (prevStateDir == null) {
-        delete process.env.OPENCLAW_STATE_DIR;
-      } else {
-        process.env.OPENCLAW_STATE_DIR = prevStateDir;
-      }
-    }
+    await withEnvAsync({ OPENCLAW_STATE_DIR: tmp }, async () => await fn(tmp));
   };
 
   beforeAll(async () => {

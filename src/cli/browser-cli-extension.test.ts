@@ -60,6 +60,7 @@ describe("browser extension install", () => {
 import { Command } from "commander";
 >>>>>>> a1cb700a0 (test: dedupe and optimize test suites)
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { withEnvAsync } from "../test-utils/env.js";
 
 const copyToClipboard = vi.fn();
 const runtime = {
@@ -226,12 +227,15 @@ describe("browser extension install (fs-mocked)", () => {
   });
 
   it("copies extension path to clipboard", async () => {
-    const prev = process.env.OPENCLAW_STATE_DIR;
     const tmp = abs("/tmp/openclaw-ext-path");
+<<<<<<< HEAD
     process.env.OPENCLAW_STATE_DIR = tmp;
 >>>>>>> 92f8c0fac (perf(test): speed up suites and reduce fs churn)
 
     try {
+=======
+    await withEnvAsync({ OPENCLAW_STATE_DIR: tmp }, async () => {
+>>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
       copyToClipboard.mockResolvedValue(true);
 
       const dir = path.join(tmp, "browser", "chrome-extension");
@@ -247,6 +251,7 @@ describe("browser extension install (fs-mocked)", () => {
 
       await program.parseAsync(["browser", "extension", "path"], { from: "user" });
       expect(copyToClipboard).toHaveBeenCalledWith(dir);
+<<<<<<< HEAD
     } finally {
 <<<<<<< HEAD
       if (prev === undefined) delete process.env.CLAWDBOT_STATE_DIR;
@@ -268,5 +273,8 @@ describe("browser extension install (fs-mocked)", () => {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
 >>>>>>> 1008c28f5 (test(cli): use unique temp dir for extension install)
+=======
+    });
+>>>>>>> 7724abeee (refactor(test): dedupe env setup across suites)
   });
 });
