@@ -24,6 +24,30 @@ final class TalkModeManager: NSObject {
     var isListening: Bool = false
     var isSpeaking: Bool = false
     var statusText: String = "Off"
+<<<<<<< HEAD
+=======
+    /// 0..1-ish (not calibrated). Intended for UI feedback only.
+    var micLevel: Double = 0
+    var gatewayTalkConfigLoaded: Bool = false
+    var gatewayTalkApiKeyConfigured: Bool = false
+    var gatewayTalkDefaultModelId: String?
+    var gatewayTalkDefaultVoiceId: String?
+
+    private enum CaptureMode {
+        case idle
+        case continuous
+        case pushToTalk
+    }
+
+    private var captureMode: CaptureMode = .idle
+    private var resumeContinuousAfterPTT: Bool = false
+    private var activePTTCaptureId: String?
+    private var pttAutoStopEnabled: Bool = false
+    private var pttCompletion: CheckedContinuation<OpenClawTalkPTTStopPayload, Never>?
+    private var pttTimeoutTask: Task<Void, Never>?
+
+    private let allowSimulatorCapture: Bool
+>>>>>>> 78caf9ec3 (feat(ios): surface gateway talk defaults and refresh icon assets (#22530))
 
     private let audioEngine = AVAudioEngine()
     private var speechRecognizer: SFSpeechRecognizer?
@@ -697,7 +721,23 @@ final class TalkModeManager: NSObject {
             }
             self.defaultOutputFormat = (talk?["outputFormat"] as? String)?
                 .trimmingCharacters(in: .whitespacesAndNewlines)
+<<<<<<< HEAD
             self.apiKey = (talk?["apiKey"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+=======
+            let rawConfigApiKey = (talk?["apiKey"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let configApiKey = Self.normalizedTalkApiKey(rawConfigApiKey)
+            let localApiKey = Self.normalizedTalkApiKey(GatewaySettingsStore.loadTalkElevenLabsApiKey())
+            if rawConfigApiKey == Self.redactedConfigSentinel {
+                self.apiKey = (localApiKey?.isEmpty == false) ? localApiKey : nil
+                GatewayDiagnostics.log("talk config apiKey redacted; using local override if present")
+            } else {
+                self.apiKey = (localApiKey?.isEmpty == false) ? localApiKey : configApiKey
+            }
+            self.gatewayTalkDefaultVoiceId = self.defaultVoiceId
+            self.gatewayTalkDefaultModelId = self.defaultModelId
+            self.gatewayTalkApiKeyConfigured = (self.apiKey?.isEmpty == false)
+            self.gatewayTalkConfigLoaded = true
+>>>>>>> 78caf9ec3 (feat(ios): surface gateway talk defaults and refresh icon assets (#22530))
             if let interrupt = talk?["interruptOnSpeech"] as? Bool {
                 self.interruptOnSpeech = interrupt
             }
@@ -706,6 +746,10 @@ final class TalkModeManager: NSObject {
             if !self.modelOverrideActive {
                 self.currentModelId = self.defaultModelId
             }
+            self.gatewayTalkDefaultVoiceId = nil
+            self.gatewayTalkDefaultModelId = nil
+            self.gatewayTalkApiKeyConfigured = false
+            self.gatewayTalkConfigLoaded = false
         }
     }
 
