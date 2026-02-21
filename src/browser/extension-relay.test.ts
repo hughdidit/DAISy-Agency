@@ -154,6 +154,22 @@ describe("chrome extension relay server", () => {
     ext.close();
   });
 
+<<<<<<< HEAD
+=======
+  it("uses relay-scoped token only for known relay ports", async () => {
+    const port = await getFreePort();
+    const unknown = getChromeExtensionRelayAuthHeaders(`http://127.0.0.1:${port}`);
+    expect(unknown).toEqual({});
+
+    cdpUrl = `http://127.0.0.1:${port}`;
+    await ensureChromeExtensionRelayServer({ cdpUrl });
+
+    const headers = getChromeExtensionRelayAuthHeaders(cdpUrl);
+    expect(Object.keys(headers)).toContain("x-openclaw-relay-token");
+    expect(headers["x-openclaw-relay-token"]).not.toBe(TEST_GATEWAY_TOKEN);
+  });
+
+>>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
   it("rejects CDP access without relay auth token", async () => {
     const port = await getFreePort();
     cdpUrl = `http://127.0.0.1:${port}`;
@@ -167,6 +183,33 @@ describe("chrome extension relay server", () => {
     expect(err.message).toContain("401");
   });
 
+<<<<<<< HEAD
+=======
+  it("rejects extension websocket access without relay auth token", async () => {
+    const port = await getFreePort();
+    cdpUrl = `http://127.0.0.1:${port}`;
+    await ensureChromeExtensionRelayServer({ cdpUrl });
+
+    const ext = new WebSocket(`ws://127.0.0.1:${port}/extension`);
+    const err = await waitForError(ext);
+    expect(err.message).toContain("401");
+  });
+
+  it("accepts extension websocket access with relay token query param", async () => {
+    const port = await getFreePort();
+    cdpUrl = `http://127.0.0.1:${port}`;
+    await ensureChromeExtensionRelayServer({ cdpUrl });
+
+    const token = relayAuthHeaders(`ws://127.0.0.1:${port}/extension`)["x-openclaw-relay-token"];
+    expect(token).toBeTruthy();
+    const ext = new WebSocket(
+      `ws://127.0.0.1:${port}/extension?token=${encodeURIComponent(String(token))}`,
+    );
+    await waitForOpen(ext);
+    ext.close();
+  });
+
+>>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
   it("tracks attached page targets and exposes them via CDP + /json/list", async () => {
     const port = await getFreePort();
     cdpUrl = `http://127.0.0.1:${port}`;
@@ -351,4 +394,75 @@ describe("chrome extension relay server", () => {
     cdp.close();
     ext.close();
   });
+<<<<<<< HEAD
+=======
+
+  it("reuses an already-bound relay port when another process owns it", async () => {
+    const port = await getFreePort();
+    let probeToken: string | undefined;
+    const fakeRelay = createServer((req, res) => {
+      if (req.url?.startsWith("/json/version")) {
+        const header = req.headers["x-openclaw-relay-token"];
+        probeToken = Array.isArray(header) ? header[0] : header;
+        if (!probeToken) {
+          res.writeHead(401);
+          res.end("Unauthorized");
+          return;
+        }
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ Browser: "OpenClaw/extension-relay" }));
+        return;
+      }
+      if (req.url?.startsWith("/extension/status")) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ connected: false }));
+        return;
+      }
+      res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("OK");
+    });
+    await new Promise<void>((resolve, reject) => {
+      fakeRelay.listen(port, "127.0.0.1", () => resolve());
+      fakeRelay.once("error", reject);
+    });
+
+    const prev = process.env.OPENCLAW_GATEWAY_TOKEN;
+    process.env.OPENCLAW_GATEWAY_TOKEN = "test-gateway-token";
+    try {
+      cdpUrl = `http://127.0.0.1:${port}`;
+      const relay = await ensureChromeExtensionRelayServer({ cdpUrl });
+      expect(relay.port).toBe(port);
+      const status = (await fetch(`${cdpUrl}/extension/status`).then((r) => r.json())) as {
+        connected?: boolean;
+      };
+      expect(status.connected).toBe(false);
+      expect(probeToken).toBeTruthy();
+      expect(probeToken).not.toBe("test-gateway-token");
+    } finally {
+      if (prev === undefined) {
+        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      } else {
+        process.env.OPENCLAW_GATEWAY_TOKEN = prev;
+      }
+      await new Promise<void>((resolve) => fakeRelay.close(() => resolve()));
+    }
+  });
+
+  it("does not swallow EADDRINUSE when occupied port is not an openclaw relay", async () => {
+    const port = await getFreePort();
+    const blocker = createServer((_, res) => {
+      res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("not-relay");
+    });
+    await new Promise<void>((resolve, reject) => {
+      blocker.listen(port, "127.0.0.1", () => resolve());
+      blocker.once("error", reject);
+    });
+    const blockedUrl = `http://127.0.0.1:${port}`;
+    await expect(ensureChromeExtensionRelayServer({ cdpUrl: blockedUrl })).rejects.toThrow(
+      /EADDRINUSE/i,
+    );
+    await new Promise<void>((resolve) => blocker.close(() => resolve()));
+  });
+>>>>>>> afa22acc4 (fix: harden extension relay auth token flow)
 });
