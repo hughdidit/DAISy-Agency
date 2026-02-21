@@ -15,6 +15,7 @@ import { getFreePortBlockWithPermissionFallback } from "../test-utils/ports.js";
 import type { GatewayAuthConfig } from "../config/config.js";
 >>>>>>> 6264c5e84 (chore: Fix types in tests 41/N.)
 import { makeTempWorkspace } from "../test-helpers/workspace.js";
+import { captureEnv } from "../test-utils/env.js";
 import { getFreePortBlockWithPermissionFallback } from "../test-utils/ports.js";
 import {
   createThrowingRuntime,
@@ -114,6 +115,7 @@ async function expectGatewayTokenAuth(params: {
 }
 
 describe("onboard (non-interactive): gateway and remote auth", () => {
+<<<<<<< HEAD
   const prev = {
     home: process.env.HOME,
     stateDir: process.env.CLAWDBOT_STATE_DIR,
@@ -126,6 +128,9 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     token: process.env.CLAWDBOT_GATEWAY_TOKEN,
     password: process.env.CLAWDBOT_GATEWAY_PASSWORD,
   };
+=======
+  let envSnapshot: ReturnType<typeof captureEnv>;
+>>>>>>> dda9e9f09 (refactor(test): snapshot onboarding gateway env via helper)
   let tempHome: string | undefined;
 
   const initStateDir = async (prefix: string) => {
@@ -149,6 +154,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     }
   };
   beforeAll(async () => {
+<<<<<<< HEAD
     process.env.CLAWDBOT_SKIP_CHANNELS = "1";
     process.env.CLAWDBOT_SKIP_GMAIL_WATCHER = "1";
     process.env.CLAWDBOT_SKIP_CRON = "1";
@@ -156,6 +162,27 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = "1";
     delete process.env.CLAWDBOT_GATEWAY_TOKEN;
     delete process.env.CLAWDBOT_GATEWAY_PASSWORD;
+=======
+    envSnapshot = captureEnv([
+      "HOME",
+      "OPENCLAW_STATE_DIR",
+      "OPENCLAW_CONFIG_PATH",
+      "OPENCLAW_SKIP_CHANNELS",
+      "OPENCLAW_SKIP_GMAIL_WATCHER",
+      "OPENCLAW_SKIP_CRON",
+      "OPENCLAW_SKIP_CANVAS_HOST",
+      "OPENCLAW_SKIP_BROWSER_CONTROL_SERVER",
+      "OPENCLAW_GATEWAY_TOKEN",
+      "OPENCLAW_GATEWAY_PASSWORD",
+    ]);
+    process.env.OPENCLAW_SKIP_CHANNELS = "1";
+    process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
+    process.env.OPENCLAW_SKIP_CRON = "1";
+    process.env.OPENCLAW_SKIP_CANVAS_HOST = "1";
+    process.env.OPENCLAW_SKIP_BROWSER_CONTROL_SERVER = "1";
+    delete process.env.OPENCLAW_GATEWAY_TOKEN;
+    delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+>>>>>>> dda9e9f09 (refactor(test): snapshot onboarding gateway env via helper)
 
 <<<<<<< HEAD
     tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-onboard-"));
@@ -169,6 +196,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     if (tempHome) {
       await fs.rm(tempHome, { recursive: true, force: true });
     }
+<<<<<<< HEAD
     process.env.HOME = prev.home;
     process.env.CLAWDBOT_STATE_DIR = prev.stateDir;
     process.env.CLAWDBOT_CONFIG_PATH = prev.configPath;
@@ -179,6 +207,9 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     process.env.CLAWDBOT_SKIP_BROWSER_CONTROL_SERVER = prev.skipBrowser;
     process.env.CLAWDBOT_GATEWAY_TOKEN = prev.token;
     process.env.CLAWDBOT_GATEWAY_PASSWORD = prev.password;
+=======
+    envSnapshot.restore();
+>>>>>>> dda9e9f09 (refactor(test): snapshot onboarding gateway env via helper)
   });
 
   it("writes gateway token auth into config and gateway enforces it", async () => {
