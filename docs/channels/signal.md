@@ -293,7 +293,12 @@ For triage flow: [/channels/troubleshooting](/channels/troubleshooting).
 - Keep `channels.signal.dmPolicy: "pairing"` unless you explicitly want broader DM access.
 - SMS verification is only needed for registration or recovery flows, but losing control of the number/account can complicate re-registration.
 
+<<<<<<< HEAD
 ## Configuration reference (Signal)
+=======
+## Configuration
+
+>>>>>>> 7c593cd33 (docs: finish onboarding/config heading consistency (#22537))
 Full configuration: [Configuration](/gateway/configuration)
 
 Provider options:

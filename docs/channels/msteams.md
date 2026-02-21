@@ -35,12 +35,22 @@ Moltbot will offer the local install path automatically.
 
 Details: [Plugins](/plugin)
 
+<<<<<<< HEAD
 ## Quick setup (beginner)
 1) Install the Microsoft Teams plugin.
 2) Create an **Azure Bot** (App ID + client secret + tenant ID).
 3) Configure Moltbot with those credentials.
 4) Expose `/api/messages` (port 3978 by default) via a public URL or tunnel.
 5) Install the Teams app package and start the gateway.
+=======
+## Onboarding
+
+1. Install the Microsoft Teams plugin.
+2. Create an **Azure Bot** (App ID + client secret + tenant ID).
+3. Configure OpenClaw with those credentials.
+4. Expose `/api/messages` (port 3978 by default) via a public URL or tunnel.
+5. Install the Teams app package and start the gateway.
+>>>>>>> 7c593cd33 (docs: finish onboarding/config heading consistency (#22537))
 
 Minimal config:
 ```json5

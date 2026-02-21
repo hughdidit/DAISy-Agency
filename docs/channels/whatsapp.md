@@ -767,7 +767,7 @@ WhatsApp sends audio as **voice notes** (PTT bubble).
   </Accordion>
 </AccordionGroup>
 
-## Configuration reference pointers
+## Configuration
 
 Primary reference:
 

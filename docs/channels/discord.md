@@ -1157,7 +1157,7 @@ openclaw logs --follow
   </Accordion>
 </AccordionGroup>
 
-## Configuration reference pointers
+## Configuration
 
 Primary reference:
 
