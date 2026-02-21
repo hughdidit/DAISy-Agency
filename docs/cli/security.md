@@ -36,11 +36,15 @@ It also warns when sandbox Docker settings are configured while sandbox mode is 
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 1def8c544 (fix(security): extend audit hardening checks)
 =======
 =======
 =======
 =======
+=======
+It also warns when sandbox browser uses Docker `bridge` network without `sandbox.browser.cdpSourceRange`.
+>>>>>>> f48698a50 (fix(security): harden sandbox browser network defaults)
 It also warns when existing sandbox browser Docker containers have missing/stale hash labels (for example pre-migration containers missing `openclaw.browserConfigEpoch`) and recommends `openclaw sandbox recreate --browser --all`.
 >>>>>>> 1835dec20 (fix(security): force sandbox browser hash migration and audit stale labels)
 It also warns when npm-based plugin/hook install records are unpinned, missing integrity metadata, or drift from currently installed package versions.
