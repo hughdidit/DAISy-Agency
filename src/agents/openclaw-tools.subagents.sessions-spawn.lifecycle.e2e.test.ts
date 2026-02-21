@@ -186,8 +186,11 @@ const waitFor = async (predicate: () => boolean, timeoutMs = 2000) => {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> bbcbabab7 (fix(ci): repair e2e mocks and tool schemas)
 =======
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 function expectSingleCompletionSend(
   calls: GatewayRequest[],
   expected: { sessionKey: string; channel: string; to: string; message: string },
@@ -204,8 +207,11 @@ function expectSingleCompletionSend(
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 1934eebbf (refactor(agents): dedupe lifecycle send assertions and stable payload stringify)
 =======
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 function createDeleteCleanupHooks(setDeletedKey: (key: string | undefined) => void) {
   return {
     onAgentSubagentSpawn: (params: unknown) => {
@@ -220,7 +226,10 @@ function createDeleteCleanupHooks(setDeletedKey: (key: string | undefined) => vo
   };
 }
 
+<<<<<<< HEAD
 >>>>>>> d1cb779f5 (test(agents): dedupe embedded runner and sessions lifecycle fixtures)
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.lifecycle.e2e.test.ts
   beforeEach(() => {

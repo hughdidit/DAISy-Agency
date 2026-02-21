@@ -35,7 +35,11 @@ import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "./
 import { lookupContextTokens } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveModelAuthMode } from "../agents/model-auth.js";
-import { resolveConfiguredModelRef } from "../agents/model-selection.js";
+import {
+  buildModelAliasIndex,
+  resolveConfiguredModelRef,
+  resolveModelRefFromString,
+} from "../agents/model-selection.js";
 import { resolveSandboxRuntimeStatus } from "../agents/sandbox.js";
 import type { SkillCommandSpec } from "../agents/skills.js";
 import { derivePromptTokens, normalizeUsage, type UsageLike } from "../agents/usage.js";
@@ -46,8 +50,12 @@ import { derivePromptTokens, normalizeUsage, type UsageLike } from "../agents/us
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { MoltbotConfig } from "../config/config.js";
 =======
+=======
+import { resolveChannelModelOverride } from "../channels/model-overrides.js";
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import type { OpenClawConfig } from "../config/config.js";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -164,6 +172,7 @@ type StatusArgs = {
   agent: AgentConfig;
   sessionEntry?: SessionEntry;
   sessionKey?: string;
+  parentSessionKey?: string;
   sessionScope?: SessionScope;
   sessionStorePath?: string;
   groupActivation?: "mention" | "always";
@@ -635,7 +644,46 @@ export function buildStatusMessage(args: StatusArgs): string {
     state: entry,
   });
   const selectedAuthLabel = selectedAuthLabelValue ? ` · 🔑 ${selectedAuthLabelValue}` : "";
-  const modelLine = `🧠 Model: ${selectedModelLabel}${selectedAuthLabel}`;
+  const channelModelNote = (() => {
+    if (!args.config || !entry) {
+      return undefined;
+    }
+    if (entry.modelOverride?.trim() || entry.providerOverride?.trim()) {
+      return undefined;
+    }
+    const channelOverride = resolveChannelModelOverride({
+      cfg: args.config,
+      channel: entry.channel ?? entry.origin?.provider,
+      groupId: entry.groupId,
+      groupChannel: entry.groupChannel,
+      groupSubject: entry.subject,
+      parentSessionKey: args.parentSessionKey,
+    });
+    if (!channelOverride) {
+      return undefined;
+    }
+    const aliasIndex = buildModelAliasIndex({
+      cfg: args.config,
+      defaultProvider: DEFAULT_PROVIDER,
+    });
+    const resolvedOverride = resolveModelRefFromString({
+      raw: channelOverride.model,
+      defaultProvider: DEFAULT_PROVIDER,
+      aliasIndex,
+    });
+    if (!resolvedOverride) {
+      return undefined;
+    }
+    if (
+      resolvedOverride.ref.provider !== selectedProvider ||
+      resolvedOverride.ref.model !== selectedModel
+    ) {
+      return undefined;
+    }
+    return "channel override";
+  })();
+  const modelNote = channelModelNote ? ` · ${channelModelNote}` : "";
+  const modelLine = `🧠 Model: ${selectedModelLabel}${selectedAuthLabel}${modelNote}`;
   const showFallbackAuth = activeAuthLabelValue && activeAuthLabelValue !== selectedAuthLabelValue;
   const fallbackLine = fallbackState.active
     ? `↪️ Fallback: ${activeModelLabel}${

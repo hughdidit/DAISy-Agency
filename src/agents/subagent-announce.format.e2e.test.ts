@@ -119,7 +119,10 @@ describe("subagent announce formatting", () => {
   beforeEach(() => {
     agentSpy.mockClear();
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
     sendSpy.mockClear();
     sessionsDeleteSpy.mockClear();
 >>>>>>> 289f215b3 (fix(agents): make manual subagent completion announce deterministic)
@@ -134,10 +137,14 @@ describe("subagent announce formatting", () => {
     subagentRegistryMock.resolveRequesterForChildSession.mockReset().mockReturnValue(null);
     readLatestAssistantReplyMock.mockReset().mockResolvedValue("raw subagent reply");
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 =======
     chatHistoryMock.mockReset().mockResolvedValue({ messages: [] });
 >>>>>>> fa4f66255 (fix(subagents): return completion message for manual session spawns)
+=======
+    chatHistoryMock.mockReset().mockResolvedValue({ messages: [] });
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
     sessionStore = {};
     configOverride = {
       session: {
@@ -1038,6 +1045,7 @@ describe("subagent announce formatting", () => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   it("does not delete child session when announce is deferred for an active run", async () => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
@@ -1102,6 +1110,8 @@ describe("subagent announce formatting", () => {
 =======
 =======
 >>>>>>> c25a18493 (test: merge direct announce origin variants)
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
   it("prefers requesterOrigin channel over stale session lastChannel in queued announce", async () => {
     const { runSubagentAnnounceFlow } = await import("./subagent-announce.js");
     embeddedRunMock.isEmbeddedPiRunActive.mockReturnValue(true);
@@ -1166,7 +1176,10 @@ describe("subagent announce formatting", () => {
     // The channel should match requesterOrigin, NOT the stale session entry.
     expect(call?.params?.channel).toBe("bluebubbles");
     expect(call?.params?.to).toBe("bluebubbles:chat_guid:123");
+<<<<<<< HEAD
 >>>>>>> 6daa4911e (perf(subagents): speed announce retry polling and trim duplicate e2e coverage)
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
   });
 
   it("routes to parent subagent when parent run ended but session still exists (#18037)", async () => {

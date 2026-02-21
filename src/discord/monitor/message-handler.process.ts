@@ -250,9 +250,12 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
   const groupChannel = isGuildMessage && displayChannelSlug ? `#${displayChannelSlug}` : undefined;
   const groupSubject = isDirectMessage ? undefined : groupChannel;
 <<<<<<< HEAD
+<<<<<<< HEAD
   const channelDescription = channelInfo?.topic?.trim();
 =======
   const channelTopic = isGuildMessage ? channelInfo?.topic : undefined;
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
   const untrustedChannelMetadata = isGuildMessage
     ? buildUntrustedChannelMetadata({
         source: "discord",
@@ -412,8 +415,11 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     GroupSubject: groupSubject,
     GroupChannel: groupChannel,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     ChannelTopic: channelTopic,
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
     UntrustedContext: untrustedChannelMetadata ? [untrustedChannelMetadata] : undefined,
 >>>>>>> eedea6cf3 (Discord: add trusted channel topics on new sessions)
     GroupSystemPrompt: isGuildMessage ? groupSystemPrompt : undefined,

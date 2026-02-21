@@ -380,6 +380,7 @@ export async function handleInlineActions(params: {
       command,
       sessionEntry,
       sessionKey,
+      parentSessionKey: ctx.ParentSessionKey,
       sessionScope,
       provider,
       model,

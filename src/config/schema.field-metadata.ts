@@ -697,6 +697,12 @@ export const FIELD_HELP: Record<string, string> = {
     "Allow iMessage to write config in response to channel events/commands (default: true).",
   "channels.msteams.configWrites":
     "Allow Microsoft Teams to write config in response to channel events/commands (default: true).",
+<<<<<<< HEAD:src/config/schema.field-metadata.ts
+=======
+  "channels.modelByChannel":
+    "Map provider -> channel id -> model override (values are provider/model or aliases).",
+  ...IRC_FIELD_HELP,
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides):src/config/schema.help.ts
   "channels.discord.commands.native": 'Override native commands for Discord (bool or "auto").',
   "channels.discord.commands.nativeSkills":
     'Override native skill commands for Discord (bool or "auto").',

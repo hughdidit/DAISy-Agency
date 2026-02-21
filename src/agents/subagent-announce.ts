@@ -11,7 +11,10 @@ import { resolveQueueSettings } from "../auto-reply/reply/queue.js";
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 =======
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
+<<<<<<< HEAD
 >>>>>>> 553d17f8a (refactor(agents): use silent token constant in prompts)
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import { loadConfig } from "../config/config.js";
 import {
   loadSessionStore,
@@ -40,11 +43,15 @@ import {
 } from "../utils/delivery-context.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { isEmbeddedPiRunActive, queueEmbeddedPiMessage } from "./pi-embedded.js";
 =======
 =======
 import { isDeliverableMessageChannel } from "../utils/message-channel.js";
 >>>>>>> e8816c554 (Agents: fix subagent completion delivery to origin channel)
+=======
+import { isDeliverableMessageChannel } from "../utils/message-channel.js";
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import {
   buildAnnounceIdFromChildRun,
   buildAnnounceIdempotencyKey,
@@ -66,7 +73,10 @@ type ToolResultMessage = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 type SubagentDeliveryPath = "queued" | "steered" | "direct" | "none";
 
 type SubagentAnnounceDeliveryResult = {
@@ -105,7 +115,10 @@ function summarizeDeliveryError(error: unknown): string {
   }
 }
 
+<<<<<<< HEAD
 >>>>>>> e8816c554 (Agents: fix subagent completion delivery to origin channel)
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 function extractToolResultText(content: unknown): string {
   if (typeof content === "string") {
     return sanitizeTextContent(content);
@@ -115,6 +128,12 @@ function extractToolResultText(content: unknown): string {
       text?: unknown;
       output?: unknown;
       content?: unknown;
+<<<<<<< HEAD
+=======
+      result?: unknown;
+      error?: unknown;
+      summary?: unknown;
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
     };
     if (typeof obj.text === "string") {
       return sanitizeTextContent(obj.text);
@@ -125,6 +144,18 @@ function extractToolResultText(content: unknown): string {
     if (typeof obj.content === "string") {
       return sanitizeTextContent(obj.content);
     }
+<<<<<<< HEAD
+=======
+    if (typeof obj.result === "string") {
+      return sanitizeTextContent(obj.result);
+    }
+    if (typeof obj.error === "string") {
+      return sanitizeTextContent(obj.error);
+    }
+    if (typeof obj.summary === "string") {
+      return sanitizeTextContent(obj.summary);
+    }
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
   }
   if (!Array.isArray(content)) {
     return "";
@@ -155,10 +186,15 @@ function extractSubagentOutputText(message: unknown): string {
     return "";
   }
   const role = (message as { role?: unknown }).role;
+<<<<<<< HEAD
   if (role === "assistant") {
 <<<<<<< HEAD
     return extractAssistantText(message) ?? "";
 =======
+=======
+  const content = (message as { content?: unknown }).content;
+  if (role === "assistant") {
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
     const assistantText = extractAssistantText(message);
     if (assistantText) {
       return assistantText;
@@ -170,20 +206,29 @@ function extractSubagentOutputText(message: unknown): string {
       return extractInlineTextContent(content);
     }
     return "";
+<<<<<<< HEAD
 >>>>>>> 54e9924fc (refactor(agents): dedupe subagent inline text extraction)
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
   }
   if (role === "toolResult" || role === "tool") {
     return extractToolResultText((message as ToolResultMessage).content);
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
   if (typeof content === "string") {
     return sanitizeTextContent(content);
   }
   if (Array.isArray(content)) {
     return extractInlineTextContent(content);
   }
+<<<<<<< HEAD
 >>>>>>> 54e9924fc (refactor(agents): dedupe subagent inline text extraction)
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
   return "";
 }
 
@@ -438,6 +483,7 @@ async function maybeQueueSubagentAnnounce(params: {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 async function buildSubagentStatsLine(params: {
   sessionKey: string;
   startedAt?: number;
@@ -465,6 +511,29 @@ async function buildSubagentStatsLine(params: {
     } catch {
       transcriptPath = undefined;
 =======
+=======
+function queueOutcomeToDeliveryResult(
+  outcome: "steered" | "queued" | "none",
+): SubagentAnnounceDeliveryResult {
+  if (outcome === "steered") {
+    return {
+      delivered: true,
+      path: "steered",
+    };
+  }
+  if (outcome === "queued") {
+    return {
+      delivered: true,
+      path: "queued",
+    };
+  }
+  return {
+    delivered: false,
+    path: "none",
+  };
+}
+
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 async function sendSubagentAnnounceDirectly(params: {
   targetRequesterSessionKey: string;
   triggerMessage: string;
@@ -585,6 +654,7 @@ async function deliverSubagentAnnouncement(params: {
     const queued = queueOutcomeToDeliveryResult(queueOutcome);
     if (queued.delivered) {
       return queued;
+<<<<<<< HEAD
 >>>>>>> 289f215b3 (fix(agents): make manual subagent completion announce deterministic)
     }
   }
@@ -631,6 +701,11 @@ async function deliverSubagentAnnouncement(params: {
   if (transcriptPath) {
     parts.push(`transcript ${transcriptPath}`);
 =======
+=======
+    }
+  }
+
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
   // Completion-mode uses direct send first so manual spawns can return immediately
   // in the common ready-to-deliver case.
   const direct = await sendSubagentAnnounceDirectly({
@@ -645,6 +720,7 @@ async function deliverSubagentAnnouncement(params: {
   });
   if (direct.delivered || !params.expectsCompletionMessage) {
     return direct;
+<<<<<<< HEAD
 >>>>>>> 289f215b3 (fix(agents): make manual subagent completion announce deterministic)
   }
 
@@ -655,6 +731,26 @@ async function deliverSubagentAnnouncement(params: {
 =======
 =======
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
+=======
+  }
+
+  // If completion path failed direct delivery, try queueing as a fallback so the
+  // report can still be delivered once the requester session is idle.
+  const queueOutcome = await maybeQueueSubagentAnnounce({
+    requesterSessionKey: params.requesterSessionKey,
+    announceId: params.announceId,
+    triggerMessage: params.triggerMessage,
+    summaryLine: params.summaryLine,
+    requesterOrigin: params.requesterOrigin,
+  });
+  if (queueOutcome === "steered" || queueOutcome === "queued") {
+    return queueOutcomeToDeliveryResult(queueOutcome);
+  }
+
+  return direct;
+}
+
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 function loadSessionEntryByKey(sessionKey: string) {
   const cfg = loadConfig();
   const agentId = resolveAgentIdFromSessionKey(sessionKey);
@@ -663,6 +759,7 @@ function loadSessionEntryByKey(sessionKey: string) {
   return store[sessionKey];
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 async function readLatestAssistantReplyWithRetry(params: {
   sessionKey: string;
@@ -689,6 +786,8 @@ async function readLatestAssistantReplyWithRetry(params: {
 >>>>>>> 6daa4911e (perf(subagents): speed announce retry polling and trim duplicate e2e coverage)
 =======
 >>>>>>> 81db05962 (fix(subagents): always read latest assistant/tool output on subagent completion)
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 export function buildSubagentSystemPrompt(params: {
   requesterSessionKey?: string;
   requesterOrigin?: DeliveryContext;
@@ -789,7 +888,11 @@ function buildAnnounceReplyInstruction(params: {
   remainingActiveSubagentRuns: number;
   requesterIsSubagent: boolean;
   announceType: SubagentAnnounceType;
+  expectsCompletionMessage?: boolean;
 }): string {
+  if (params.expectsCompletionMessage) {
+    return `A completed ${params.announceType} is ready for user delivery. Convert the result above into your normal assistant voice and send that user-facing update now. Keep this internal context private (don't mention system/log/stats/session details or announce type).`;
+  }
   if (params.remainingActiveSubagentRuns > 0) {
     const activeRunsLabel = params.remainingActiveSubagentRuns === 1 ? "run" : "runs";
     return `There are still ${params.remainingActiveSubagentRuns} active subagent ${activeRunsLabel} for this session. If they are part of the same workflow, wait for the remaining results before sending a user update. If they are unrelated, respond normally using only the result above.`;
@@ -816,8 +919,14 @@ export async function runSubagentAnnounceFlow(params: {
   label?: string;
   outcome?: SubagentRunOutcome;
   announceType?: SubagentAnnounceType;
+  expectsCompletionMessage?: boolean;
 }): Promise<boolean> {
   let didAnnounce = false;
+<<<<<<< HEAD
+=======
+  const expectsCompletionMessage = params.expectsCompletionMessage === true;
+  let shouldDeleteChildSession = params.cleanup === "delete";
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
   try {
 <<<<<<< HEAD
     const requesterOrigin = normalizeDeliveryContext(params.requesterOrigin);
@@ -834,6 +943,22 @@ export async function runSubagentAnnounceFlow(params: {
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
     let reply = params.roundOneReply;
     let outcome: SubagentRunOutcome | undefined = params.outcome;
+<<<<<<< HEAD
+=======
+    // Lifecycle "end" can arrive before auto-compaction retries finish. If the
+    // subagent is still active, wait for the embedded run to fully settle.
+    if (!expectsCompletionMessage && childSessionId && isEmbeddedPiRunActive(childSessionId)) {
+      const settled = await waitForEmbeddedPiRunEnd(childSessionId, settleTimeoutMs);
+      if (!settled && isEmbeddedPiRunActive(childSessionId)) {
+        // The child run is still active (e.g., compaction retry still in progress).
+        // Defer announcement so we don't report stale/partial output.
+        // Keep the child session so output is not lost while the run is still active.
+        shouldDeleteChildSession = false;
+        return false;
+      }
+    }
+
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
     if (!reply && params.waitForCompletion !== false) {
       const waitMs = Math.min(params.timeoutMs, 60_000);
       const wait = await callGateway<{
@@ -868,6 +993,7 @@ export async function runSubagentAnnounceFlow(params: {
         }
       }
 <<<<<<< HEAD
+<<<<<<< HEAD
       reply = await readLatestAssistantReply({
         sessionKey: params.childSessionKey,
       });
@@ -882,6 +1008,8 @@ export async function runSubagentAnnounceFlow(params: {
     if (!reply?.trim()) {
       reply = await readLatestToolResultWithRetry({
 =======
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
       reply = await readLatestSubagentOutput(params.childSessionKey);
     }
 
@@ -891,13 +1019,21 @@ export async function runSubagentAnnounceFlow(params: {
 
     if (!reply?.trim()) {
       reply = await readLatestSubagentOutputWithRetry({
+<<<<<<< HEAD
 >>>>>>> 81db05962 (fix(subagents): always read latest assistant/tool output on subagent completion)
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
         sessionKey: params.childSessionKey,
         maxWaitMs: params.timeoutMs,
       });
     }
 
-    if (!reply?.trim() && childSessionId && isEmbeddedPiRunActive(childSessionId)) {
+    if (
+      !expectsCompletionMessage &&
+      !reply?.trim() &&
+      childSessionId &&
+      isEmbeddedPiRunActive(childSessionId)
+    ) {
       // Avoid announcing "(no output)" while the child run is still producing output.
       shouldDeleteChildSession = false;
       return false;
@@ -915,7 +1051,7 @@ export async function runSubagentAnnounceFlow(params: {
     } catch {
       // Best-effort only; fall back to direct announce behavior when unavailable.
     }
-    if (activeChildDescendantRuns > 0) {
+    if (!expectsCompletionMessage && activeChildDescendantRuns > 0) {
       // The finished run still has active descendant subagents. Defer announcing
       // this run until descendants settle so we avoid posting in-progress updates.
       shouldDeleteChildSession = false;
@@ -942,7 +1078,7 @@ export async function runSubagentAnnounceFlow(params: {
     let triggerMessage = "";
 
     let requesterDepth = getSubagentDepthFromSessionStore(targetRequesterSessionKey);
-    let requesterIsSubagent = requesterDepth >= 1;
+    let requesterIsSubagent = !expectsCompletionMessage && requesterDepth >= 1;
     // If the requester subagent has already finished, bubble the announce to its
     // requester (typically main) so descendant completion is not silently lost.
     // BUT: only fallback if the parent SESSION is deleted, not just if the current
@@ -995,6 +1131,7 @@ export async function runSubagentAnnounceFlow(params: {
       remainingActiveSubagentRuns,
       requesterIsSubagent,
       announceType,
+      expectsCompletionMessage,
     });
     const statsLine = await buildCompactAnnounceStatsLine({
       sessionKey: params.childSessionKey,
@@ -1019,6 +1156,7 @@ export async function runSubagentAnnounceFlow(params: {
       childSessionKey: params.childSessionKey,
       childRunId: params.childRunId,
     });
+<<<<<<< HEAD
 <<<<<<< HEAD
     const queued = await maybeQueueSubagentAnnounce({
 =======
@@ -1060,6 +1198,8 @@ export async function runSubagentAnnounceFlow(params: {
       return true;
     }
 
+=======
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
     // Send to the requester session. For nested subagents this is an internal
     // follow-up injection (deliver=false) so the orchestrator receives it.
     let directOrigin = targetRequesterOrigin;
@@ -1071,26 +1211,26 @@ export async function runSubagentAnnounceFlow(params: {
     // catches duplicates if this announce is also queued by the gateway-
     // level message queue while the main session is busy (#17122).
     const directIdempotencyKey = buildAnnounceIdempotencyKey(announceId);
-    await callGateway({
-      method: "agent",
-      params: {
-        sessionKey: targetRequesterSessionKey,
-        message: triggerMessage,
-        deliver: !requesterIsSubagent,
-        channel: requesterIsSubagent ? undefined : directOrigin?.channel,
-        accountId: requesterIsSubagent ? undefined : directOrigin?.accountId,
-        to: requesterIsSubagent ? undefined : directOrigin?.to,
-        threadId:
-          !requesterIsSubagent && directOrigin?.threadId != null && directOrigin.threadId !== ""
-            ? String(directOrigin.threadId)
-            : undefined,
-        idempotencyKey: directIdempotencyKey,
-      },
-      expectFinal: true,
-      timeoutMs: 15_000,
+    const delivery = await deliverSubagentAnnouncement({
+      requesterSessionKey: targetRequesterSessionKey,
+      announceId,
+      triggerMessage,
+      completionMessage,
+      summaryLine: taskLabel,
+      requesterOrigin: targetRequesterOrigin,
+      completionDirectOrigin: targetRequesterOrigin,
+      directOrigin,
+      targetRequesterSessionKey,
+      requesterIsSubagent,
+      expectsCompletionMessage: expectsCompletionMessage,
+      directIdempotencyKey,
     });
-
-    didAnnounce = true;
+    didAnnounce = delivery.delivered;
+    if (!delivery.delivered && delivery.path === "direct" && delivery.error) {
+      defaultRuntime.error?.(
+        `Subagent completion direct announce failed for run ${params.childRunId}: ${delivery.error}`,
+      );
+    }
   } catch (err) {
     defaultRuntime.error?.(`Subagent announce failed: ${String(err)}`);
     // Best-effort follow-ups; ignore failures to avoid breaking the caller response.

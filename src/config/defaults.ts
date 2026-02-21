@@ -1,6 +1,10 @@
 import { DEFAULT_CONTEXT_TOKENS } from "../agents/defaults.js";
 import { parseModelRef } from "../agents/model-selection.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+import { DEFAULT_AGENT_MAX_CONCURRENT, DEFAULT_SUBAGENT_MAX_CONCURRENT } from "./agent-limits.js";
+>>>>>>> f555835b0 (Channels: add thread-aware model overrides)
 import { resolveTalkApiKey } from "./talk.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
