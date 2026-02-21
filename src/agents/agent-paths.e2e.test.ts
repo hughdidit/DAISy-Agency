@@ -13,12 +13,15 @@ describe("resolveMoltbotAgentDir", () => {
   const previousPiAgentDir = process.env.PI_CODING_AGENT_DIR;
 =======
 import { afterEach, describe, expect, it } from "vitest";
-import { captureEnv } from "../test-utils/env.js";
+import { withEnv } from "../test-utils/env.js";
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
 
 describe("resolveOpenClawAgentDir", () => {
+<<<<<<< HEAD
   const env = captureEnv(["OPENCLAW_STATE_DIR", "OPENCLAW_AGENT_DIR", "PI_CODING_AGENT_DIR"]);
 >>>>>>> aabe4d9b4 (refactor(test): reuse env snapshot helper)
+=======
+>>>>>>> c41d1070b (refactor(test): use env helper in agent paths e2e)
   let tempStateDir: string | null = null;
 
   afterEach(async () => {
@@ -26,6 +29,7 @@ describe("resolveOpenClawAgentDir", () => {
       await fs.rm(tempStateDir, { recursive: true, force: true });
       tempStateDir = null;
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
     if (previousStateDir === undefined) {
       delete process.env.CLAWDBOT_STATE_DIR;
@@ -67,5 +71,46 @@ describe("resolveOpenClawAgentDir", () => {
     const resolved = resolveMoltbotAgentDir();
 
     expect(resolved).toBe(path.resolve(override));
+=======
+  });
+
+  it("defaults to the multi-agent path when no overrides are set", async () => {
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+    const stateDir = tempStateDir;
+    if (!stateDir) {
+      throw new Error("expected temp state dir");
+    }
+    withEnv(
+      {
+        OPENCLAW_STATE_DIR: stateDir,
+        OPENCLAW_AGENT_DIR: undefined,
+        PI_CODING_AGENT_DIR: undefined,
+      },
+      () => {
+        const resolved = resolveOpenClawAgentDir();
+        expect(resolved).toBe(path.join(stateDir, "agents", "main", "agent"));
+      },
+    );
+  });
+
+  it("honors OPENCLAW_AGENT_DIR overrides", async () => {
+    tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+    const stateDir = tempStateDir;
+    if (!stateDir) {
+      throw new Error("expected temp state dir");
+    }
+    const override = path.join(stateDir, "agent");
+    withEnv(
+      {
+        OPENCLAW_STATE_DIR: undefined,
+        OPENCLAW_AGENT_DIR: override,
+        PI_CODING_AGENT_DIR: undefined,
+      },
+      () => {
+        const resolved = resolveOpenClawAgentDir();
+        expect(resolved).toBe(path.resolve(override));
+      },
+    );
+>>>>>>> c41d1070b (refactor(test): use env helper in agent paths e2e)
   });
 });
