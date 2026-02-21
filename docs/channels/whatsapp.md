@@ -427,7 +427,7 @@ Yes, by routing each sender to a different agent via `bindings` (peer `kind: "dm
   </Accordion>
 </AccordionGroup>
 
-## Configuration reference pointers
+## Configuration
 
 Primary reference:
 
