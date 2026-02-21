@@ -408,6 +408,171 @@ describe("security audit", () => {
     ).toBe(true);
   });
 
+<<<<<<< HEAD
+=======
+  it("warns when sandbox browser containers have missing or stale hash labels", async () => {
+    const tmp = await makeTmpDir("browser-hash-labels");
+    const stateDir = path.join(tmp, "state");
+    await fs.mkdir(stateDir, { recursive: true, mode: 0o700 });
+    const configPath = path.join(stateDir, "openclaw.json");
+    await fs.writeFile(configPath, "{}\n", "utf-8");
+    await fs.chmod(configPath, 0o600);
+
+    const execDockerRawFn = (async (args: string[]) => {
+      if (args[0] === "ps") {
+        return {
+          stdout: Buffer.from("openclaw-sbx-browser-old\nopenclaw-sbx-browser-missing-hash\n"),
+          stderr: Buffer.alloc(0),
+          code: 0,
+        };
+      }
+      if (args[0] === "inspect" && args.at(-1) === "openclaw-sbx-browser-old") {
+        return {
+          stdout: Buffer.from("abc123\tepoch-v0\n"),
+          stderr: Buffer.alloc(0),
+          code: 0,
+        };
+      }
+      if (args[0] === "inspect" && args.at(-1) === "openclaw-sbx-browser-missing-hash") {
+        return {
+          stdout: Buffer.from("<no value>\t<no value>\n"),
+          stderr: Buffer.alloc(0),
+          code: 0,
+        };
+      }
+      return {
+        stdout: Buffer.alloc(0),
+        stderr: Buffer.from("not found"),
+        code: 1,
+      };
+    }) as NonNullable<SecurityAuditOptions["execDockerRawFn"]>;
+
+    const res = await runSecurityAudit({
+      config: {},
+      includeFilesystem: true,
+      includeChannelSecurity: false,
+      stateDir,
+      configPath,
+      execDockerRawFn,
+    });
+
+    expect(hasFinding(res, "sandbox.browser_container.hash_label_missing", "warn")).toBe(true);
+    expect(hasFinding(res, "sandbox.browser_container.hash_epoch_stale", "warn")).toBe(true);
+    const staleEpoch = res.findings.find(
+      (f) => f.checkId === "sandbox.browser_container.hash_epoch_stale",
+    );
+    expect(staleEpoch?.detail).toContain("openclaw-sbx-browser-old");
+  });
+
+  it("skips sandbox browser hash label checks when docker inspect is unavailable", async () => {
+    const tmp = await makeTmpDir("browser-hash-labels-skip");
+    const stateDir = path.join(tmp, "state");
+    await fs.mkdir(stateDir, { recursive: true, mode: 0o700 });
+    const configPath = path.join(stateDir, "openclaw.json");
+    await fs.writeFile(configPath, "{}\n", "utf-8");
+    await fs.chmod(configPath, 0o600);
+
+    const execDockerRawFn = (async () => {
+      throw new Error("spawn docker ENOENT");
+    }) as NonNullable<SecurityAuditOptions["execDockerRawFn"]>;
+
+    const res = await runSecurityAudit({
+      config: {},
+      includeFilesystem: true,
+      includeChannelSecurity: false,
+      stateDir,
+      configPath,
+      execDockerRawFn,
+    });
+
+    expect(hasFinding(res, "sandbox.browser_container.hash_label_missing")).toBe(false);
+    expect(hasFinding(res, "sandbox.browser_container.hash_epoch_stale")).toBe(false);
+  });
+
+  it("flags sandbox browser containers with non-loopback published ports", async () => {
+    const tmp = await makeTmpDir("browser-non-loopback-publish");
+    const stateDir = path.join(tmp, "state");
+    await fs.mkdir(stateDir, { recursive: true, mode: 0o700 });
+    const configPath = path.join(stateDir, "openclaw.json");
+    await fs.writeFile(configPath, "{}\n", "utf-8");
+    await fs.chmod(configPath, 0o600);
+
+    const execDockerRawFn = (async (args: string[]) => {
+      if (args[0] === "ps") {
+        return {
+          stdout: Buffer.from("openclaw-sbx-browser-exposed\n"),
+          stderr: Buffer.alloc(0),
+          code: 0,
+        };
+      }
+      if (args[0] === "inspect" && args.at(-1) === "openclaw-sbx-browser-exposed") {
+        return {
+          stdout: Buffer.from("hash123\t2026-02-21-novnc-auth-default\n"),
+          stderr: Buffer.alloc(0),
+          code: 0,
+        };
+      }
+      if (args[0] === "port" && args.at(-1) === "openclaw-sbx-browser-exposed") {
+        return {
+          stdout: Buffer.from("6080/tcp -> 0.0.0.0:49101\n9222/tcp -> 127.0.0.1:49100\n"),
+          stderr: Buffer.alloc(0),
+          code: 0,
+        };
+      }
+      return {
+        stdout: Buffer.alloc(0),
+        stderr: Buffer.from("not found"),
+        code: 1,
+      };
+    }) as NonNullable<SecurityAuditOptions["execDockerRawFn"]>;
+
+    const res = await runSecurityAudit({
+      config: {},
+      includeFilesystem: true,
+      includeChannelSecurity: false,
+      stateDir,
+      configPath,
+      execDockerRawFn,
+    });
+
+    expect(hasFinding(res, "sandbox.browser_container.non_loopback_publish", "critical")).toBe(
+      true,
+    );
+  });
+
+  it("uses symlink target permissions for config checks", async () => {
+    if (isWindows) {
+      return;
+    }
+
+    const tmp = await makeTmpDir("config-symlink");
+    const stateDir = path.join(tmp, "state");
+    await fs.mkdir(stateDir, { recursive: true, mode: 0o700 });
+
+    const targetConfigPath = path.join(tmp, "managed-openclaw.json");
+    await fs.writeFile(targetConfigPath, "{}\n", "utf-8");
+    await fs.chmod(targetConfigPath, 0o444);
+
+    const configPath = path.join(stateDir, "openclaw.json");
+    await fs.symlink(targetConfigPath, configPath);
+
+    const res = await runSecurityAudit({
+      config: {},
+      includeFilesystem: true,
+      includeChannelSecurity: false,
+      stateDir,
+      configPath,
+    });
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([expect.objectContaining({ checkId: "fs.config.symlink" })]),
+    );
+    expect(res.findings.some((f) => f.checkId === "fs.config.perms_writable")).toBe(false);
+    expect(res.findings.some((f) => f.checkId === "fs.config.perms_world_readable")).toBe(false);
+    expect(res.findings.some((f) => f.checkId === "fs.config.perms_group_readable")).toBe(false);
+  });
+
+>>>>>>> 8c1518f0f (fix(sandbox): use one-time noVNC observer tokens)
   it("warns when small models are paired with web/browser tools", async () => {
     const cfg: MoltbotConfig = {
       agents: { defaults: { model: { primary: "ollama/mistral-8b" } } },
