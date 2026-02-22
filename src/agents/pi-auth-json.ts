@@ -8,6 +8,7 @@ import path from "node:path";
 import { ensureAuthProfileStore, listProfilesForProvider } from "./auth-profiles.js";
 =======
 import { ensureAuthProfileStore } from "./auth-profiles.js";
+<<<<<<< HEAD
 import type { AuthProfileCredential } from "./auth-profiles/types.js";
 <<<<<<< HEAD
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
@@ -30,23 +31,19 @@ import type { AuthProfileCredential } from "./auth-profiles/types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { normalizeProviderId } from "./model-selection.js";
 >>>>>>> 4ca75bed5 (fix(models): sync auth-profiles before availability checks)
+=======
+import {
+  piCredentialsEqual,
+  resolvePiCredentialMapFromStore,
+  type PiCredential,
+} from "./pi-auth-credentials.js";
+>>>>>>> cec404225 (Auth labels: handle token refs and share Pi credential conversion)
 
 /**
  * @deprecated Legacy bridge for older flows that still expect `agentDir/auth.json`.
  * Runtime auth resolution uses auth-profiles directly and should not depend on this module.
  */
-type AuthJsonCredential =
-  | {
-      type: "api_key";
-      key: string;
-    }
-  | {
-      type: "oauth";
-      access: string;
-      refresh: string;
-      expires: number;
-      [key: string]: unknown;
-    };
+type AuthJsonCredential = PiCredential;
 
 type AuthJsonShape = Record<string, AuthJsonCredential>;
 
@@ -64,6 +61,7 @@ async function readAuthJson(filePath: string): Promise<AuthJsonShape> {
 }
 
 /**
+<<<<<<< HEAD
 <<<<<<< HEAD
  * pi-coding-agent's ModelRegistry/AuthStorage expects OAuth credentials in auth.json.
 =======
@@ -136,6 +134,8 @@ function credentialsEqual(a: AuthJsonCredential | undefined, b: AuthJsonCredenti
 }
 
 /**
+=======
+>>>>>>> cec404225 (Auth labels: handle token refs and share Pi credential conversion)
  * pi-coding-agent's ModelRegistry/AuthStorage expects credentials in auth.json.
 >>>>>>> 4ca75bed5 (fix(models): sync auth-profiles before availability checks)
  *
@@ -181,6 +181,7 @@ export async function ensurePiAuthJsonFromAuthProfiles(agentDir: string): Promis
   }
 
   const authPath = path.join(agentDir, "auth.json");
+<<<<<<< HEAD
   const next = await readAuthJson(authPath);
 
   const existing = next["openai-codex"];
@@ -212,6 +213,26 @@ export async function ensurePiAuthJsonFromAuthProfiles(agentDir: string): Promis
   }
 
   next["openai-codex"] = desired;
+=======
+  const providerCredentials = resolvePiCredentialMapFromStore(store);
+  if (Object.keys(providerCredentials).length === 0) {
+    return { wrote: false, authPath };
+  }
+
+  const existing = await readAuthJson(authPath);
+  let changed = false;
+
+  for (const [provider, cred] of Object.entries(providerCredentials)) {
+    if (!piCredentialsEqual(existing[provider], cred)) {
+      existing[provider] = cred;
+      changed = true;
+    }
+  }
+
+  if (!changed) {
+    return { wrote: false, authPath };
+  }
+>>>>>>> cec404225 (Auth labels: handle token refs and share Pi credential conversion)
 
   await fs.mkdir(agentDir, { recursive: true, mode: 0o700 });
   await fs.writeFile(authPath, `${JSON.stringify(next, null, 2)}\n`, { mode: 0o600 });
