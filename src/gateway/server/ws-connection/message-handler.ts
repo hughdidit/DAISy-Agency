@@ -1127,9 +1127,12 @@ export function attachGatewayWsMessageHandler(params: {
             version: process.env.CLAWDBOT_VERSION ?? process.env.npm_package_version ?? "dev",
 =======
             version: resolveRuntimeServiceVersion(process.env, "dev"),
+<<<<<<< HEAD
 >>>>>>> 07fdceb5f (refactor: centralize presence routing and version precedence coverage (#19609))
             commit: process.env.GIT_COMMIT,
             host: os.hostname(),
+=======
+>>>>>>> 2c6dd8471 (fix(gateway): remove hello-ok host and commit fields)
             connId,
           },
           features: { methods: gatewayMethods, events },
