@@ -176,6 +176,210 @@ describe("sessions tools", () => {
     expect(withToolsDetails.messages).toHaveLength(2);
   });
 
+<<<<<<< HEAD
+=======
+  it("sessions_history caps oversized payloads and strips heavy fields", async () => {
+    const oversized = Array.from({ length: 80 }, (_, idx) => ({
+      role: "assistant",
+      content: [
+        {
+          type: "text",
+          text: `${String(idx)}:${"x".repeat(5000)}`,
+        },
+        {
+          type: "thinking",
+          thinking: "y".repeat(7000),
+          thinkingSignature: "sig".repeat(4000),
+        },
+      ],
+      details: {
+        giant: "z".repeat(12000),
+      },
+      usage: {
+        input: 1,
+        output: 1,
+      },
+    }));
+    callGatewayMock.mockImplementation(async (opts: unknown) => {
+      const request = opts as { method?: string };
+      if (request.method === "chat.history") {
+        return { messages: oversized };
+      }
+      return {};
+    });
+
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_history");
+    expect(tool).toBeDefined();
+    if (!tool) {
+      throw new Error("missing sessions_history tool");
+    }
+
+    const result = await tool.execute("call4b", {
+      sessionKey: "main",
+      includeTools: true,
+    });
+    const details = result.details as {
+      messages?: Array<Record<string, unknown>>;
+      truncated?: boolean;
+      droppedMessages?: boolean;
+      contentTruncated?: boolean;
+      contentRedacted?: boolean;
+      bytes?: number;
+    };
+    expect(details.truncated).toBe(true);
+    expect(details.droppedMessages).toBe(true);
+    expect(details.contentTruncated).toBe(true);
+    expect(details.contentRedacted).toBe(false);
+    expect(typeof details.bytes).toBe("number");
+    expect((details.bytes ?? 0) <= 80 * 1024).toBe(true);
+    expect(details.messages && details.messages.length > 0).toBe(true);
+
+    const first = details.messages?.[0] as
+      | {
+          details?: unknown;
+          usage?: unknown;
+          content?: Array<{
+            type?: string;
+            text?: string;
+            thinking?: string;
+            thinkingSignature?: string;
+          }>;
+        }
+      | undefined;
+    expect(first?.details).toBeUndefined();
+    expect(first?.usage).toBeUndefined();
+    const textBlock = first?.content?.find((block) => block.type === "text");
+    expect(typeof textBlock?.text).toBe("string");
+    expect((textBlock?.text ?? "").length <= 4015).toBe(true);
+    const thinkingBlock = first?.content?.find((block) => block.type === "thinking");
+    expect(thinkingBlock?.thinkingSignature).toBeUndefined();
+  });
+
+  it("sessions_history enforces a hard byte cap even when a single message is huge", async () => {
+    callGatewayMock.mockImplementation(async (opts: unknown) => {
+      const request = opts as { method?: string };
+      if (request.method === "chat.history") {
+        return {
+          messages: [
+            {
+              role: "assistant",
+              content: [{ type: "text", text: "ok" }],
+              extra: "x".repeat(200_000),
+            },
+          ],
+        };
+      }
+      return {};
+    });
+
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_history");
+    expect(tool).toBeDefined();
+    if (!tool) {
+      throw new Error("missing sessions_history tool");
+    }
+
+    const result = await tool.execute("call4c", {
+      sessionKey: "main",
+      includeTools: true,
+    });
+    const details = result.details as {
+      messages?: Array<Record<string, unknown>>;
+      truncated?: boolean;
+      droppedMessages?: boolean;
+      contentTruncated?: boolean;
+      contentRedacted?: boolean;
+      bytes?: number;
+    };
+    expect(details.truncated).toBe(true);
+    expect(details.droppedMessages).toBe(true);
+    expect(details.contentTruncated).toBe(false);
+    expect(details.contentRedacted).toBe(false);
+    expect(typeof details.bytes).toBe("number");
+    expect((details.bytes ?? 0) <= 80 * 1024).toBe(true);
+    expect(details.messages).toHaveLength(1);
+    expect(details.messages?.[0]?.content).toContain(
+      "[sessions_history omitted: message too large]",
+    );
+  });
+
+  it("sessions_history sets contentRedacted when sensitive data is redacted", async () => {
+    callGatewayMock.mockReset();
+    callGatewayMock.mockImplementation(async (opts: unknown) => {
+      const request = opts as { method?: string };
+      if (request.method === "chat.history") {
+        return {
+          messages: [
+            {
+              role: "assistant",
+              content: [
+                { type: "text", text: "Use sk-1234567890abcdef1234 to authenticate with the API." },
+              ],
+            },
+          ],
+        };
+      }
+      return {};
+    });
+
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_history");
+    expect(tool).toBeDefined();
+    if (!tool) {
+      throw new Error("missing sessions_history tool");
+    }
+
+    const result = await tool.execute("call-redact-1", { sessionKey: "main" });
+    const details = result.details as {
+      messages?: Array<Record<string, unknown>>;
+      truncated?: boolean;
+      contentTruncated?: boolean;
+      contentRedacted?: boolean;
+    };
+    expect(details.contentRedacted).toBe(true);
+    expect(details.contentTruncated).toBe(false);
+    expect(details.truncated).toBe(false);
+    const msg = details.messages?.[0] as { content?: Array<{ type?: string; text?: string }> };
+    const textBlock = msg?.content?.find((b) => b.type === "text");
+    expect(typeof textBlock?.text).toBe("string");
+    expect(textBlock?.text).not.toContain("sk-1234567890abcdef1234");
+  });
+
+  it("sessions_history sets both contentRedacted and contentTruncated independently", async () => {
+    callGatewayMock.mockReset();
+    const longPrefix = "safe text ".repeat(420);
+    const sensitiveText = `${longPrefix} sk-9876543210fedcba9876 end`;
+    callGatewayMock.mockImplementation(async (opts: unknown) => {
+      const request = opts as { method?: string };
+      if (request.method === "chat.history") {
+        return {
+          messages: [
+            {
+              role: "assistant",
+              content: [{ type: "text", text: sensitiveText }],
+            },
+          ],
+        };
+      }
+      return {};
+    });
+
+    const tool = createOpenClawTools().find((candidate) => candidate.name === "sessions_history");
+    expect(tool).toBeDefined();
+    if (!tool) {
+      throw new Error("missing sessions_history tool");
+    }
+
+    const result = await tool.execute("call-redact-2", { sessionKey: "main" });
+    const details = result.details as {
+      truncated?: boolean;
+      contentTruncated?: boolean;
+      contentRedacted?: boolean;
+    };
+    expect(details.contentRedacted).toBe(true);
+    expect(details.contentTruncated).toBe(true);
+    expect(details.truncated).toBe(true);
+  });
+
+>>>>>>> d306fc8ef (fix(security): OC-07 redact session history credentials and enforce webhook secret  (#16928))
   it("sessions_history resolves sessionId inputs", async () => {
     callGatewayMock.mockReset();
     const sessionId = "sess-group";

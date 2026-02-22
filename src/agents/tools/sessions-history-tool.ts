@@ -2,7 +2,13 @@ import { Type } from "@sinclair/typebox";
 
 import { loadConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
+<<<<<<< HEAD
 import { isSubagentSessionKey, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
+=======
+import { capArrayByJsonBytes } from "../../gateway/session-utils.fs.js";
+import { redactSensitiveText } from "../../logging/redact.js";
+import { truncateUtf16Safe } from "../../utils.js";
+>>>>>>> d306fc8ef (fix(security): OC-07 redact session history credentials and enforce webhook secret  (#16928))
 import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readStringParam } from "./common.js";
 import {
@@ -21,6 +27,7 @@ const SessionsHistoryToolSchema = Type.Object({
   includeTools: Type.Optional(Type.Boolean()),
 });
 
+<<<<<<< HEAD
 function resolveSandboxSessionToolsVisibility(cfg: ReturnType<typeof loadConfig>) {
   return cfg.agents?.defaults?.sandbox?.sessionToolsVisibility ?? "spawned";
 }
@@ -29,6 +36,127 @@ async function isSpawnedSessionAllowed(params: {
   requesterSessionKey: string;
   targetSessionKey: string;
 }): Promise<boolean> {
+=======
+const SESSIONS_HISTORY_MAX_BYTES = 80 * 1024;
+const SESSIONS_HISTORY_TEXT_MAX_CHARS = 4000;
+
+// sandbox policy handling is shared with sessions-list-tool via sessions-helpers.ts
+
+function truncateHistoryText(text: string): {
+  text: string;
+  truncated: boolean;
+  redacted: boolean;
+} {
+  // Redact credentials, API keys, tokens before returning session history.
+  // Prevents sensitive data leakage via sessions_history tool (OC-07).
+  const sanitized = redactSensitiveText(text);
+  const redacted = sanitized !== text;
+  if (sanitized.length <= SESSIONS_HISTORY_TEXT_MAX_CHARS) {
+    return { text: sanitized, truncated: false, redacted };
+  }
+  const cut = truncateUtf16Safe(sanitized, SESSIONS_HISTORY_TEXT_MAX_CHARS);
+  return { text: `${cut}\n…(truncated)…`, truncated: true, redacted };
+}
+
+function sanitizeHistoryContentBlock(block: unknown): {
+  block: unknown;
+  truncated: boolean;
+  redacted: boolean;
+} {
+  if (!block || typeof block !== "object") {
+    return { block, truncated: false, redacted: false };
+  }
+  const entry = { ...(block as Record<string, unknown>) };
+  let truncated = false;
+  let redacted = false;
+  const type = typeof entry.type === "string" ? entry.type : "";
+  if (typeof entry.text === "string") {
+    const res = truncateHistoryText(entry.text);
+    entry.text = res.text;
+    truncated ||= res.truncated;
+    redacted ||= res.redacted;
+  }
+  if (type === "thinking") {
+    if (typeof entry.thinking === "string") {
+      const res = truncateHistoryText(entry.thinking);
+      entry.thinking = res.text;
+      truncated ||= res.truncated;
+      redacted ||= res.redacted;
+    }
+    // The encrypted signature can be extremely large and is not useful for history recall.
+    if ("thinkingSignature" in entry) {
+      delete entry.thinkingSignature;
+      truncated = true;
+    }
+  }
+  if (typeof entry.partialJson === "string") {
+    const res = truncateHistoryText(entry.partialJson);
+    entry.partialJson = res.text;
+    truncated ||= res.truncated;
+    redacted ||= res.redacted;
+  }
+  if (type === "image") {
+    const data = typeof entry.data === "string" ? entry.data : undefined;
+    const bytes = data ? data.length : undefined;
+    if ("data" in entry) {
+      delete entry.data;
+      truncated = true;
+    }
+    entry.omitted = true;
+    if (bytes !== undefined) {
+      entry.bytes = bytes;
+    }
+  }
+  return { block: entry, truncated, redacted };
+}
+
+function sanitizeHistoryMessage(message: unknown): {
+  message: unknown;
+  truncated: boolean;
+  redacted: boolean;
+} {
+  if (!message || typeof message !== "object") {
+    return { message, truncated: false, redacted: false };
+  }
+  const entry = { ...(message as Record<string, unknown>) };
+  let truncated = false;
+  let redacted = false;
+  // Tool result details often contain very large nested payloads.
+  if ("details" in entry) {
+    delete entry.details;
+    truncated = true;
+  }
+  if ("usage" in entry) {
+    delete entry.usage;
+    truncated = true;
+  }
+  if ("cost" in entry) {
+    delete entry.cost;
+    truncated = true;
+  }
+
+  if (typeof entry.content === "string") {
+    const res = truncateHistoryText(entry.content);
+    entry.content = res.text;
+    truncated ||= res.truncated;
+    redacted ||= res.redacted;
+  } else if (Array.isArray(entry.content)) {
+    const updated = entry.content.map((block) => sanitizeHistoryContentBlock(block));
+    entry.content = updated.map((item) => item.block);
+    truncated ||= updated.some((item) => item.truncated);
+    redacted ||= updated.some((item) => item.redacted);
+  }
+  if (typeof entry.text === "string") {
+    const res = truncateHistoryText(entry.text);
+    entry.text = res.text;
+    truncated ||= res.truncated;
+    redacted ||= res.redacted;
+  }
+  return { message: entry, truncated, redacted };
+}
+
+function jsonUtf8Bytes(value: unknown): number {
+>>>>>>> d306fc8ef (fix(security): OC-07 redact session history credentials and enforce webhook secret  (#16928))
   try {
     const list = (await callGateway({
       method: "sessions.list",
@@ -179,10 +307,35 @@ export function createSessionsHistoryTool(opts?: {
         params: { sessionKey: resolvedKey, limit },
       })) as { messages?: unknown[] };
       const rawMessages = Array.isArray(result?.messages) ? result.messages : [];
+<<<<<<< HEAD
       const messages = includeTools ? rawMessages : stripToolMessages(rawMessages);
       return jsonResult({
         sessionKey: displayKey,
         messages,
+=======
+      const selectedMessages = includeTools ? rawMessages : stripToolMessages(rawMessages);
+      const sanitizedMessages = selectedMessages.map((message) => sanitizeHistoryMessage(message));
+      const contentTruncated = sanitizedMessages.some((entry) => entry.truncated);
+      const contentRedacted = sanitizedMessages.some((entry) => entry.redacted);
+      const cappedMessages = capArrayByJsonBytes(
+        sanitizedMessages.map((entry) => entry.message),
+        SESSIONS_HISTORY_MAX_BYTES,
+      );
+      const droppedMessages = cappedMessages.items.length < selectedMessages.length;
+      const hardened = enforceSessionsHistoryHardCap({
+        items: cappedMessages.items,
+        bytes: cappedMessages.bytes,
+        maxBytes: SESSIONS_HISTORY_MAX_BYTES,
+      });
+      return jsonResult({
+        sessionKey: displayKey,
+        messages: hardened.items,
+        truncated: droppedMessages || contentTruncated || hardened.hardCapped,
+        droppedMessages: droppedMessages || hardened.hardCapped,
+        contentTruncated,
+        contentRedacted,
+        bytes: hardened.bytes,
+>>>>>>> d306fc8ef (fix(security): OC-07 redact session history credentials and enforce webhook secret  (#16928))
       });
     },
   };
