@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { createEditorSubmitHandler } from "./tui.js";
 =======
@@ -26,6 +27,10 @@ function createSubmitHarness() {
   });
   return { editor, handleCommand, sendMessage, handleBangLine, onSubmit };
 }
+=======
+import { createSubmitHarness } from "./tui-submit-test-helpers.js";
+import { createSubmitBurstCoalescer, shouldEnableWindowsGitBashPasteFallback } from "./tui.js";
+>>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
 
 describe("createEditorSubmitHandler", () => {
   it("routes lines starting with ! to handleBangLine", () => {

@@ -71,6 +71,17 @@ type MockChatLog = {
 type MockTui = { requestRender: MockFn };
 >>>>>>> 003d6c45d (chore: Fix types in tests 6/N.)
 
+function createMockChatLog(): MockChatLog & HandlerChatLog {
+  return {
+    startTool: vi.fn(),
+    updateToolResult: vi.fn(),
+    addSystem: vi.fn(),
+    updateAssistant: vi.fn(),
+    finalizeAssistant: vi.fn(),
+    dropAssistant: vi.fn(),
+  } as unknown as MockChatLog & HandlerChatLog;
+}
+
 describe("tui-event-handlers: handleAgentEvent", () => {
   const makeState = (overrides?: Partial<TuiStateAccess>): TuiStateAccess => ({
     agentDefaultId: "main",
@@ -96,6 +107,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
   });
 
   const makeContext = (state: TuiStateAccess) => {
+<<<<<<< HEAD
     const chatLog = {
       startTool: vi.fn(),
       updateToolResult: vi.fn(),
@@ -108,9 +120,23 @@ describe("tui-event-handlers: handleAgentEvent", () => {
     const tui = { requestRender: vi.fn() };
 =======
     } as unknown as MockChatLog & HandlerChatLog;
+=======
+    const chatLog = createMockChatLog();
+>>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
     const tui = { requestRender: vi.fn() } as unknown as MockTui & HandlerTui;
 >>>>>>> 003d6c45d (chore: Fix types in tests 6/N.)
     const setActivityStatus = vi.fn();
+<<<<<<< HEAD
+=======
+    const loadHistory = vi.fn();
+    const localRunIds = new Set<string>();
+    const noteLocalRunId = (runId: string) => {
+      localRunIds.add(runId);
+    };
+    const forgetLocalRunId = localRunIds.delete.bind(localRunIds);
+    const isLocalRunId = localRunIds.has.bind(localRunIds);
+    const clearLocalRunIds = localRunIds.clear.bind(localRunIds);
+>>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
 
     return { chatLog, tui, state, setActivityStatus };
   };
@@ -205,6 +231,7 @@ describe("tui-event-handlers: handleAgentEvent", () => {
 
   it("processes lifecycle events when runId matches activeChatRunId", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const state = makeState({ activeChatRunId: "run-9" });
     const { tui, setActivityStatus } = makeContext(state);
     const { handleAgentEvent } = createEventHandlers({
@@ -235,6 +262,9 @@ describe("tui-event-handlers: handleAgentEvent", () => {
       finalizeAssistant: vi.fn(),
       dropAssistant: vi.fn(),
     } as unknown as HandlerChatLog;
+=======
+    const chatLog = createMockChatLog();
+>>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
     const { tui, setActivityStatus, handleAgentEvent } = createHandlersHarness({
       state: { activeChatRunId: "run-9" },
       chatLog,

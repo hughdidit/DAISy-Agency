@@ -36,7 +36,7 @@ import {
 import type { ChatLog } from "./components/chat-log.js";
 import type { GatewayAgentsList, GatewayChatClient } from "./gateway-chat.js";
 import { asString, extractTextFromMessage, isCommandMessage } from "./tui-formatters.js";
-import type { TuiOptions, TuiStateAccess } from "./tui-types.js";
+import type { SessionInfo, TuiOptions, TuiStateAccess } from "./tui-types.js";
 
 type SessionActionContext = {
   client: GatewayChatClient;
@@ -52,6 +52,21 @@ type SessionActionContext = {
   updateFooter: () => void;
   updateAutocompleteProvider: () => void;
   setActivityStatus: (text: string) => void;
+<<<<<<< HEAD
+=======
+  clearLocalRunIds?: () => void;
+};
+
+type SessionInfoDefaults = {
+  model?: string | null;
+  modelProvider?: string | null;
+  contextTokens?: number | null;
+};
+
+type SessionInfoEntry = SessionInfo & {
+  modelOverride?: string;
+  providerOverride?: string;
+>>>>>>> 38752338d (refactor(tui): dedupe handlers and formatter test setup)
 };
 
 export function createSessionActions(context: SessionActionContext) {
