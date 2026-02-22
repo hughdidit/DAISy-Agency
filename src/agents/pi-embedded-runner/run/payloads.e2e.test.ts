@@ -143,7 +143,47 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads[0]?.text).toBe("All good");
   });
 
+<<<<<<< HEAD
   it("adds tool error fallback when the assistant only invoked tools", () => {
+=======
+  it("adds completion fallback when tools run successfully without final assistant text", () => {
+    const payloads = buildPayloads({
+      toolMetas: [{ toolName: "write", meta: "/tmp/out.md" }],
+      lastAssistant: makeAssistant({
+        stopReason: "stop",
+        errorMessage: undefined,
+        content: [],
+      }),
+    });
+
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]?.isError).toBeUndefined();
+    expect(payloads[0]?.text).toBe("✅ Done.");
+  });
+
+  it("does not add completion fallback when the run still has a tool error", () => {
+    const payloads = buildPayloads({
+      toolMetas: [{ toolName: "browser", meta: "open https://example.com" }],
+      lastToolError: { toolName: "browser", error: "url required" },
+    });
+
+    expect(payloads).toHaveLength(0);
+  });
+
+  it("does not add completion fallback when no tools ran", () => {
+    const payloads = buildPayloads({
+      lastAssistant: makeAssistant({
+        stopReason: "stop",
+        errorMessage: undefined,
+        content: [],
+      }),
+    });
+
+    expect(payloads).toHaveLength(0);
+  });
+
+  it("adds tool error fallback when the assistant only invoked tools and verbose mode is on", () => {
+>>>>>>> 6ceadaa41 (Agents: add fallback reply for tool-only completions)
     const payloads = buildPayloads({
       lastAssistant: makeAssistant({
         stopReason: "toolUse",
