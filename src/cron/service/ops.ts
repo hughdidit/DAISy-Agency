@@ -16,6 +16,7 @@ import { ensureLoaded, persist, warnIfDisabled } from "./store.js";
 import { armTimer, emit, executeJob, stopTimer, wake } from "./timer.js";
 =======
 import {
+  DEFAULT_JOB_TIMEOUT_MS,
   applyJobResult,
   armTimer,
   emit,
@@ -294,8 +295,40 @@ export async function run(state: CronServiceState, id: string, mode?: "due" | "f
         status: "error";
         error: string;
       };
+  const configuredTimeoutMs =
+    prepared.executionJob.payload.kind === "agentTurn" &&
+    typeof prepared.executionJob.payload.timeoutSeconds === "number"
+      ? Math.floor(prepared.executionJob.payload.timeoutSeconds * 1_000)
+      : undefined;
+  const jobTimeoutMs =
+    configuredTimeoutMs !== undefined
+      ? configuredTimeoutMs <= 0
+        ? undefined
+        : configuredTimeoutMs
+      : DEFAULT_JOB_TIMEOUT_MS;
   try {
-    coreResult = await executeJobCore(state, prepared.executionJob);
+    const runAbortController = typeof jobTimeoutMs === "number" ? new AbortController() : undefined;
+    coreResult =
+      typeof jobTimeoutMs === "number"
+        ? await (async () => {
+            let timeoutId: NodeJS.Timeout | undefined;
+            try {
+              return await Promise.race([
+                executeJobCore(state, prepared.executionJob, runAbortController?.signal),
+                new Promise<never>((_, reject) => {
+                  timeoutId = setTimeout(() => {
+                    runAbortController?.abort(new Error("cron: job execution timed out"));
+                    reject(new Error("cron: job execution timed out"));
+                  }, jobTimeoutMs);
+                }),
+              ]);
+            } finally {
+              if (timeoutId) {
+                clearTimeout(timeoutId);
+              }
+            }
+          })()
+        : await executeJobCore(state, prepared.executionJob);
   } catch (err) {
     coreResult = { status: "error", error: String(err) };
   }
