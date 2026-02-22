@@ -2,8 +2,9 @@
    Mobile Layout
    =========================================== */
 
-/* Tablet: Horizontal nav */
+/* Tablet: keep side nav vertical, narrow sidebar */
 @media (max-width: 1100px) {
+<<<<<<< HEAD
   .nav {
     display: flex;
     flex-direction: row;
@@ -41,6 +42,10 @@
     border-radius: var(--radius-md);
     white-space: nowrap;
     flex-shrink: 0;
+=======
+  .shell {
+    --shell-nav-width: 200px;
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   }
 }
 
@@ -49,6 +54,7 @@
   .shell {
     --shell-pad: 8px;
     --shell-gap: 8px;
+    --shell-nav-width: 180px;
   }
 
   /* Topbar */
@@ -124,12 +130,32 @@
 
   /* Content */
   .content-header {
+<<<<<<< HEAD
+=======
+    height: 64px;
+    min-height: 64px;
+    padding: 12px 0;
+    /* This controls the height of the content header on mobile */
+    max-height: 64px;
+    margin-top: 24px;
+  }
+
+  .content:not(.content--chat) .content-header {
+    display: none;
+  }
+
+  .content--chat .page-title {
+    font-size: 16px;
+  }
+
+  .content--chat .page-sub {
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
     display: none;
   }
 
   .content {
-    padding: 4px 4px 16px;
-    gap: 12px;
+    padding: 4px 6px 12px;
+    gap: 10px;
   }
 
   /* Cards */
@@ -194,6 +220,13 @@
   }
 
   /* Chat */
+<<<<<<< HEAD
+=======
+  .chat-agent-bar {
+    padding: 2px 6px;
+  }
+
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   .chat-header {
     flex-direction: column;
     align-items: stretch;
@@ -288,6 +321,7 @@
     font-size: 11px;
   }
 
+<<<<<<< HEAD
   /* Theme toggle */
   .theme-toggle {
     --theme-item: 24px;
@@ -298,6 +332,12 @@
   .theme-icon {
     width: 12px;
     height: 12px;
+=======
+  .theme-select {
+    height: 26px;
+    min-width: 78px;
+    font-size: 11px;
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   }
 }
 
@@ -361,6 +401,7 @@
     font-size: 10px;
   }
 
+<<<<<<< HEAD
   .theme-toggle {
     --theme-item: 22px;
     --theme-gap: 2px;
@@ -370,5 +411,11 @@
   .theme-icon {
     width: 11px;
     height: 11px;
+=======
+  .theme-select {
+    height: 24px;
+    min-width: 72px;
+    font-size: 10px;
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   }
 }

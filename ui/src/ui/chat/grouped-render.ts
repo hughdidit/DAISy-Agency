@@ -3,6 +3,12 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { AssistantIdentity } from "../assistant-identity.ts";
 import type { MessageGroup } from "../types/chat-types.ts";
 import { toSanitizedMarkdownHtml } from "../markdown.ts";
+<<<<<<< HEAD
+=======
+import { detectTextDirection } from "../text-direction.ts";
+import type { MessageGroup, ToolCard } from "../types/chat-types.ts";
+import { agentLogoUrl } from "../views/agents-utils.ts";
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown.ts";
 import {
   extractTextCached,
@@ -54,10 +60,10 @@ function extractImages(message: unknown): ImageBlock[] {
   return images;
 }
 
-export function renderReadingIndicatorGroup(assistant?: AssistantIdentity) {
+export function renderReadingIndicatorGroup(assistant?: AssistantIdentity, basePath?: string) {
   return html`
     <div class="chat-group assistant">
-      ${renderAvatar("assistant", assistant)}
+      ${renderAvatar("assistant", assistant, basePath)}
       <div class="chat-group-messages">
         <div class="chat-bubble chat-reading-indicator" aria-hidden="true">
           <span class="chat-reading-indicator__dots">
@@ -74,6 +80,7 @@ export function renderStreamingGroup(
   startedAt: number,
   onOpenSidebar?: (content: string) => void,
   assistant?: AssistantIdentity,
+  basePath?: string,
 ) {
   const timestamp = new Date(startedAt).toLocaleTimeString([], {
     hour: "numeric",
@@ -83,7 +90,7 @@ export function renderStreamingGroup(
 
   return html`
     <div class="chat-group assistant">
-      ${renderAvatar("assistant", assistant)}
+      ${renderAvatar("assistant", assistant, basePath)}
       <div class="chat-group-messages">
         ${renderGroupedMessage(
           {
@@ -110,6 +117,11 @@ export function renderMessageGroup(
     showReasoning: boolean;
     assistantName?: string;
     assistantAvatar?: string | null;
+<<<<<<< HEAD
+=======
+    basePath?: string;
+    onDelete?: () => void;
+>>>>>>> e697ec273 (UI: polish dashboard — agents overview, chat toolbar, debug & login UX (#23553))
   },
 ) {
   const normalizedRole = normalizeRoleForGrouping(group.role);
@@ -129,10 +141,14 @@ export function renderMessageGroup(
 
   return html`
     <div class="chat-group ${roleClass}">
-      ${renderAvatar(group.role, {
-        name: assistantName,
-        avatar: opts.assistantAvatar ?? null,
-      })}
+      ${renderAvatar(
+        group.role,
+        {
+          name: assistantName,
+          avatar: opts.assistantAvatar ?? null,
+        },
+        opts.basePath,
+      )}
       <div class="chat-group-messages">
         ${group.messages.map((item, index) =>
           renderGroupedMessage(
@@ -153,7 +169,11 @@ export function renderMessageGroup(
   `;
 }
 
-function renderAvatar(role: string, assistant?: Pick<AssistantIdentity, "name" | "avatar">) {
+function renderAvatar(
+  role: string,
+  assistant?: Pick<AssistantIdentity, "name" | "avatar">,
+  basePath?: string,
+) {
   const normalized = normalizeRoleForGrouping(role);
   const assistantName = assistant?.name?.trim() || "Assistant";
   const assistantAvatar = assistant?.avatar?.trim() || "";
@@ -182,7 +202,26 @@ function renderAvatar(role: string, assistant?: Pick<AssistantIdentity, "name" |
         alt="${assistantName}"
       />`;
     }
+    /* Use OpenClaw logo instead of emoji (e.g. ✨) for assistant avatar */
+    const logoUrl = basePath ? agentLogoUrl(basePath) : "";
+    if (logoUrl) {
+      return html`<img
+        class="chat-avatar ${className} chat-avatar--logo"
+        src="${logoUrl}"
+        alt="${assistantName}"
+      />`;
+    }
     return html`<div class="chat-avatar ${className}">${assistantAvatar}</div>`;
+  }
+
+  /* Assistant with no custom avatar: use logo when basePath available */
+  if (normalized === "assistant" && basePath) {
+    const logoUrl = agentLogoUrl(basePath);
+    return html`<img
+      class="chat-avatar ${className} chat-avatar--logo"
+      src="${logoUrl}"
+      alt="${assistantName}"
+    />`;
   }
 
   return html`<div class="chat-avatar ${className}">${initial}</div>`;
