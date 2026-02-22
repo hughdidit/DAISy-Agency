@@ -130,6 +130,30 @@ export function buildGatewayConnectionDetails(
     ? "Warn: gateway.mode=remote but gateway.remote.url is missing; set gateway.remote.url or switch gateway.mode=local."
     : undefined;
   const bindDetail = !urlOverride && !remoteUrl ? `Bind: ${bindMode}` : undefined;
+<<<<<<< HEAD
+=======
+
+  // Security check: block ALL insecure ws:// to non-loopback addresses (CWE-319, CVSS 9.8)
+  // This applies to the FINAL resolved URL, regardless of source (config, CLI override, etc).
+  // Both credentials and chat/conversation data must not be transmitted over plaintext to remote hosts.
+  if (!isSecureWebSocketUrl(url)) {
+    throw new Error(
+      [
+        `SECURITY ERROR: Gateway URL "${url}" uses plaintext ws:// to a non-loopback address.`,
+        "Both credentials and chat data would be exposed to network interception.",
+        `Source: ${urlSource}`,
+        `Config: ${configPath}`,
+        "Fix: Use wss:// for remote gateway URLs.",
+        "Safe remote access defaults:",
+        "- keep gateway.bind=loopback and use an SSH tunnel (ssh -N -L 18789:127.0.0.1:18789 user@gateway-host)",
+        "- or use Tailscale Serve/Funnel for HTTPS remote access",
+        "Doctor: openclaw doctor --fix",
+        "Docs: https://docs.openclaw.ai/gateway/remote",
+      ].join("\n"),
+    );
+  }
+
+>>>>>>> 8a3d04c19 (Gateway UX: harden remote ws guidance and onboarding defaults)
   const message = [
     `Gateway target: ${url}`,
     `Source: ${urlSource}`,

@@ -143,6 +143,31 @@ export class GatewayClient {
       this.opts.onConnectError?.(new Error("gateway tls fingerprint requires wss:// gateway url"));
       return;
     }
+<<<<<<< HEAD
+=======
+
+    // Security check: block ALL plaintext ws:// to non-loopback addresses (CWE-319, CVSS 9.8)
+    // This protects both credentials AND chat/conversation data from MITM attacks.
+    // Device tokens may be loaded later in sendConnect(), so we block regardless of hasCredentials.
+    if (!isSecureWebSocketUrl(url)) {
+      // Safe hostname extraction - avoid throwing on malformed URLs in error path
+      let displayHost = url;
+      try {
+        displayHost = new URL(url).hostname || url;
+      } catch {
+        // Use raw URL if parsing fails
+      }
+      const error = new Error(
+        `SECURITY ERROR: Cannot connect to "${displayHost}" over plaintext ws://. ` +
+          "Both credentials and chat data would be exposed to network interception. " +
+          "Use wss:// for remote URLs. Safe defaults: keep gateway.bind=loopback and connect via SSH tunnel " +
+          "(ssh -N -L 18789:127.0.0.1:18789 user@gateway-host), or use Tailscale Serve/Funnel. " +
+          "Run `openclaw doctor --fix` for guidance.",
+      );
+      this.opts.onConnectError?.(error);
+      return;
+    }
+>>>>>>> 8a3d04c19 (Gateway UX: harden remote ws guidance and onboarding defaults)
     // Allow node screen snapshots and other large responses.
     const wsOptions: ClientOptions = {
       maxPayload: 25 * 1024 * 1024,
