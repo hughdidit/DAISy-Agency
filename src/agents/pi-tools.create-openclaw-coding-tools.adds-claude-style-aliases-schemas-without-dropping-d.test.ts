@@ -24,8 +24,13 @@ const tinyPngBuffer = Buffer.from(
 );
 >>>>>>> c7a4346e4 (test: remove sharp dependency from read-tool metadata test)
 
+<<<<<<< HEAD
 describe("createMoltbotCodingTools", () => {
   it("keeps read tool image metadata intact", async () => {
+=======
+describe("createOpenClawCodingTools", () => {
+  it("returns image metadata for images and text-only blocks for text files", async () => {
+>>>>>>> 96515a572 (test: merge duplicate read-tool content coverage cases)
     const readTool = defaultTools.find((tool) => tool.name === "read");
     expect(readTool).toBeDefined();
 
@@ -34,19 +39,20 @@ describe("createMoltbotCodingTools", () => {
       const imagePath = path.join(tmpDir, "sample.png");
       await fs.writeFile(imagePath, tinyPngBuffer);
 
-      const result = await readTool?.execute("tool-1", {
+      const imageResult = await readTool?.execute("tool-1", {
         path: imagePath,
       });
 
-      expect(result?.content?.some((block) => block.type === "image")).toBe(true);
-      const text = result?.content?.find((block) => block.type === "text") as
+      expect(imageResult?.content?.some((block) => block.type === "image")).toBe(true);
+      const imageText = imageResult?.content?.find((block) => block.type === "text") as
         | { text?: string }
         | undefined;
-      expect(text?.text ?? "").toContain("Read image file [image/png]");
-      const image = result?.content?.find((block) => block.type === "image") as
+      expect(imageText?.text ?? "").toContain("Read image file [image/png]");
+      const image = imageResult?.content?.find((block) => block.type === "image") as
         | { mimeType?: string }
         | undefined;
       expect(image?.mimeType).toBe("image/png");
+<<<<<<< HEAD
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
@@ -62,16 +68,19 @@ describe("createMoltbotCodingTools", () => {
 
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-read-"));
     try {
+=======
+
+>>>>>>> 96515a572 (test: merge duplicate read-tool content coverage cases)
       const textPath = path.join(tmpDir, "sample.txt");
       const contents = "Hello from moltbot read tool.";
       await fs.writeFile(textPath, contents, "utf8");
 
-      const result = await readTool?.execute("tool-2", {
+      const textResult = await readTool?.execute("tool-2", {
         path: textPath,
       });
 
-      expect(result?.content?.some((block) => block.type === "image")).toBe(false);
-      const textBlocks = result?.content?.filter((block) => block.type === "text") as
+      expect(textResult?.content?.some((block) => block.type === "image")).toBe(false);
+      const textBlocks = textResult?.content?.filter((block) => block.type === "text") as
         | Array<{ text?: string }>
         | undefined;
       expect(textBlocks?.length ?? 0).toBeGreaterThan(0);
