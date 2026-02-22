@@ -31,12 +31,23 @@ import {
   resolveDiscordChannelAllowlist,
   type DiscordChannelResolution,
 } from "../../../discord/resolve-channels.js";
+<<<<<<< HEAD
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
+=======
+import { resolveDiscordUserAllowlist } from "../../../discord/resolve-users.js";
+import { DEFAULT_ACCOUNT_ID } from "../../../routing/session-key.js";
+>>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
 import { formatDocsLink } from "../../../terminal/links.js";
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 import { promptChannelAccessConfig } from "./channel-access.js";
-import { addWildcardAllowFrom, promptAccountId, promptResolvedAllowFrom } from "./helpers.js";
+import {
+  addWildcardAllowFrom,
+  promptResolvedAllowFrom,
+  resolveAccountIdForConfigure,
+  resolveOnboardingAccountId,
+  splitOnboardingEntries,
+} from "./helpers.js";
 
 const channel = "discord" as const;
 
@@ -187,22 +198,23 @@ function setDiscordAllowFrom(cfg: MoltbotConfig, allowFrom: string[]): MoltbotCo
   };
 }
 
-function parseDiscordAllowFromInput(raw: string): string[] {
-  return raw
-    .split(/[\n,;]+/g)
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-}
-
 async function promptDiscordAllowFrom(params: {
   cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
+<<<<<<< HEAD
 }): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
       : resolveDefaultDiscordAccountId(params.cfg);
+=======
+}): Promise<OpenClawConfig> {
+  const accountId = resolveOnboardingAccountId({
+    accountId: params.accountId,
+    defaultAccountId: resolveDefaultDiscordAccountId(params.cfg),
+  });
+>>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
   const resolved = resolveDiscordAccount({ cfg: params.cfg, accountId });
   const token = resolved.token;
   const existing =
@@ -220,7 +232,7 @@ async function promptDiscordAllowFrom(params: {
     "Discord allowlist",
   );
 
-  const parseInputs = (value: string) => parseDiscordAllowFromInput(value);
+  const parseInputs = (value: string) => splitOnboardingEntries(value);
   const parseId = (value: string) => {
     const trimmed = value.trim();
     if (!trimmed) {
@@ -282,21 +294,16 @@ export const discordOnboardingAdapter: ChannelOnboardingAdapter = {
     };
   },
   configure: async ({ cfg, prompter, accountOverrides, shouldPromptAccountIds }) => {
-    const discordOverride = accountOverrides.discord?.trim();
     const defaultDiscordAccountId = resolveDefaultDiscordAccountId(cfg);
-    let discordAccountId = discordOverride
-      ? normalizeAccountId(discordOverride)
-      : defaultDiscordAccountId;
-    if (shouldPromptAccountIds && !discordOverride) {
-      discordAccountId = await promptAccountId({
-        cfg,
-        prompter,
-        label: "Discord",
-        currentId: discordAccountId,
-        listAccountIds: listDiscordAccountIds,
-        defaultAccountId: defaultDiscordAccountId,
-      });
-    }
+    const discordAccountId = await resolveAccountIdForConfigure({
+      cfg,
+      prompter,
+      label: "Discord",
+      accountOverride: accountOverrides.discord,
+      shouldPromptAccountIds,
+      listAccountIds: listDiscordAccountIds,
+      defaultAccountId: defaultDiscordAccountId,
+    });
 
     let next = cfg;
     const resolvedAccount = resolveDiscordAccount({

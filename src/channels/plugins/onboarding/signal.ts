@@ -31,6 +31,7 @@ import { detectBinary } from "../../../commands/onboard-helpers.js";
 import { installSignalCli } from "../../../commands/signal-install.js";
 import type { OpenClawConfig } from "../../../config/config.js";
 import type { DmPolicy } from "../../../config/types.js";
+<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import { formatCliCommand } from "../../../cli/command-format.js";
@@ -45,6 +46,9 @@ import type { OpenClawConfig } from "../../../config/config.js";
 import type { DmPolicy } from "../../../config/types.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
+=======
+import { DEFAULT_ACCOUNT_ID } from "../../../routing/session-key.js";
+>>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
 import {
   listSignalAccountIds,
   resolveDefaultSignalAccountId,
@@ -61,6 +65,7 @@ import { normalizeE164 } from "../../../utils.js";
 <<<<<<< HEAD
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
+<<<<<<< HEAD
 import { addWildcardAllowFrom, promptAccountId } from "./helpers.js";
 =======
 =======
@@ -81,6 +86,16 @@ import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onb
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { addWildcardAllowFrom, mergeAllowFromEntries, promptAccountId } from "./helpers.js";
 >>>>>>> 64f5e4a42 (refactor(onboarding): reuse allowlist merge across channels)
+=======
+import {
+  mergeAllowFromEntries,
+  resolveAccountIdForConfigure,
+  resolveOnboardingAccountId,
+  setAccountAllowFromForChannel,
+  setChannelDmPolicyWithAllowFrom,
+  splitOnboardingEntries,
+} from "./helpers.js";
+>>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
 
 const channel = "signal" as const;
 const MIN_E164_DIGITS = 5;
@@ -105,6 +120,7 @@ export function normalizeSignalAccountInput(value: string | null | undefined): s
   return `+${digits}`;
 }
 
+<<<<<<< HEAD
 function setSignalDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
     dmPolicy === "open" ? addWildcardAllowFrom(cfg.channels?.signal?.allowFrom) : undefined;
@@ -161,6 +177,14 @@ function parseSignalAllowFromInput(raw: string): string[] {
     .split(/[\n,;]+/g)
     .map((entry) => entry.trim())
     .filter(Boolean);
+=======
+function setSignalDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
+  return setChannelDmPolicyWithAllowFrom({
+    cfg,
+    channel: "signal",
+    dmPolicy,
+  });
+>>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
 }
 
 function isUuidLike(value: string): boolean {
@@ -171,11 +195,19 @@ async function promptSignalAllowFrom(params: {
   cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
+<<<<<<< HEAD
 }): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
       : resolveDefaultSignalAccountId(params.cfg);
+=======
+}): Promise<OpenClawConfig> {
+  const accountId = resolveOnboardingAccountId({
+    accountId: params.accountId,
+    defaultAccountId: resolveDefaultSignalAccountId(params.cfg),
+  });
+>>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
   const resolved = resolveSignalAccount({ cfg: params.cfg, accountId });
   const existing = resolved.config.allowFrom ?? [];
   await params.prompter.note(
@@ -198,7 +230,7 @@ async function promptSignalAllowFrom(params: {
       if (!raw) {
         return "Required";
       }
-      const parts = parseSignalAllowFromInput(raw);
+      const parts = splitOnboardingEntries(raw);
       for (const part of parts) {
         if (part === "*") {
           continue;
@@ -219,7 +251,7 @@ async function promptSignalAllowFrom(params: {
       return undefined;
     },
   });
-  const parts = parseSignalAllowFromInput(String(entry));
+  const parts = splitOnboardingEntries(String(entry));
   const normalized = parts.map((part) => {
     if (part === "*") {
       return "*";
@@ -236,7 +268,12 @@ async function promptSignalAllowFrom(params: {
     undefined,
     normalized.filter((part): part is string => typeof part === "string" && part.trim().length > 0),
   );
-  return setSignalAllowFrom(params.cfg, accountId, unique);
+  return setAccountAllowFromForChannel({
+    cfg: params.cfg,
+    channel: "signal",
+    accountId,
+    allowFrom: unique,
+  });
 }
 
 const dmPolicy: ChannelOnboardingDmPolicy = {
@@ -276,21 +313,16 @@ export const signalOnboardingAdapter: ChannelOnboardingAdapter = {
     shouldPromptAccountIds,
     options,
   }) => {
-    const signalOverride = accountOverrides.signal?.trim();
     const defaultSignalAccountId = resolveDefaultSignalAccountId(cfg);
-    let signalAccountId = signalOverride
-      ? normalizeAccountId(signalOverride)
-      : defaultSignalAccountId;
-    if (shouldPromptAccountIds && !signalOverride) {
-      signalAccountId = await promptAccountId({
-        cfg,
-        prompter,
-        label: "Signal",
-        currentId: signalAccountId,
-        listAccountIds: listSignalAccountIds,
-        defaultAccountId: defaultSignalAccountId,
-      });
-    }
+    const signalAccountId = await resolveAccountIdForConfigure({
+      cfg,
+      prompter,
+      label: "Signal",
+      accountOverride: accountOverrides.signal,
+      shouldPromptAccountIds,
+      listAccountIds: listSignalAccountIds,
+      defaultAccountId: defaultSignalAccountId,
+    });
 
     let next = cfg;
     const resolvedAccount = resolveSignalAccount({

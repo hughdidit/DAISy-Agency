@@ -25,7 +25,7 @@ import {
   resolveIMessageAccount,
 } from "../../../imessage/accounts.js";
 import { normalizeIMessageHandle } from "../../../imessage/targets.js";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
+import { DEFAULT_ACCOUNT_ID } from "../../../routing/session-key.js";
 import { formatDocsLink } from "../../../terminal/links.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -35,6 +35,7 @@ import { formatDocsLink } from "../../../terminal/links.js";
 <<<<<<< HEAD
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
+<<<<<<< HEAD
 import { addWildcardAllowFrom, promptAccountId } from "./helpers.js";
 =======
 =======
@@ -114,17 +115,44 @@ function parseIMessageAllowFromInput(raw: string): string[] {
     .split(/[\n,;]+/g)
     .map((entry) => entry.trim())
     .filter(Boolean);
+=======
+import {
+  mergeAllowFromEntries,
+  resolveAccountIdForConfigure,
+  resolveOnboardingAccountId,
+  setAccountAllowFromForChannel,
+  setChannelDmPolicyWithAllowFrom,
+  splitOnboardingEntries,
+} from "./helpers.js";
+
+const channel = "imessage" as const;
+
+function setIMessageDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
+  return setChannelDmPolicyWithAllowFrom({
+    cfg,
+    channel: "imessage",
+    dmPolicy,
+  });
+>>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
 }
 
 async function promptIMessageAllowFrom(params: {
   cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
+<<<<<<< HEAD
 }): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
       : resolveDefaultIMessageAccountId(params.cfg);
+=======
+}): Promise<OpenClawConfig> {
+  const accountId = resolveOnboardingAccountId({
+    accountId: params.accountId,
+    defaultAccountId: resolveDefaultIMessageAccountId(params.cfg),
+  });
+>>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
   const resolved = resolveIMessageAccount({ cfg: params.cfg, accountId });
   const existing = resolved.config.allowFrom ?? [];
   await params.prompter.note(
@@ -149,7 +177,7 @@ async function promptIMessageAllowFrom(params: {
       if (!raw) {
         return "Required";
       }
-      const parts = parseIMessageAllowFromInput(raw);
+      const parts = splitOnboardingEntries(raw);
       for (const part of parts) {
         if (part === "*") {
           continue;
@@ -180,9 +208,14 @@ async function promptIMessageAllowFrom(params: {
       return undefined;
     },
   });
-  const parts = parseIMessageAllowFromInput(String(entry));
+  const parts = splitOnboardingEntries(String(entry));
   const unique = mergeAllowFromEntries(undefined, parts);
-  return setIMessageAllowFrom(params.cfg, accountId, unique);
+  return setAccountAllowFromForChannel({
+    cfg: params.cfg,
+    channel: "imessage",
+    accountId,
+    allowFrom: unique,
+  });
 }
 
 const dmPolicy: ChannelOnboardingDmPolicy = {
@@ -222,21 +255,16 @@ export const imessageOnboardingAdapter: ChannelOnboardingAdapter = {
     };
   },
   configure: async ({ cfg, prompter, accountOverrides, shouldPromptAccountIds }) => {
-    const imessageOverride = accountOverrides.imessage?.trim();
     const defaultIMessageAccountId = resolveDefaultIMessageAccountId(cfg);
-    let imessageAccountId = imessageOverride
-      ? normalizeAccountId(imessageOverride)
-      : defaultIMessageAccountId;
-    if (shouldPromptAccountIds && !imessageOverride) {
-      imessageAccountId = await promptAccountId({
-        cfg,
-        prompter,
-        label: "iMessage",
-        currentId: imessageAccountId,
-        listAccountIds: listIMessageAccountIds,
-        defaultAccountId: defaultIMessageAccountId,
-      });
-    }
+    const imessageAccountId = await resolveAccountIdForConfigure({
+      cfg,
+      prompter,
+      label: "iMessage",
+      accountOverride: accountOverrides.imessage,
+      shouldPromptAccountIds,
+      listAccountIds: listIMessageAccountIds,
+      defaultAccountId: defaultIMessageAccountId,
+    });
 
     let next = cfg;
     const resolvedAccount = resolveIMessageAccount({

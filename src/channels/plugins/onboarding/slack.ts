@@ -1,6 +1,6 @@
 import type { MoltbotConfig } from "../../../config/config.js";
 import type { DmPolicy } from "../../../config/types.js";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
+import { DEFAULT_ACCOUNT_ID } from "../../../routing/session-key.js";
 import {
   listSlackAccountIds,
   resolveDefaultSlackAccountId,
@@ -12,10 +12,17 @@ import { formatDocsLink } from "../../../terminal/links.js";
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 import { promptChannelAccessConfig } from "./channel-access.js";
-import { addWildcardAllowFrom, promptAccountId, promptResolvedAllowFrom } from "./helpers.js";
+import {
+  addWildcardAllowFrom,
+  promptResolvedAllowFrom,
+  resolveAccountIdForConfigure,
+  resolveOnboardingAccountId,
+  splitOnboardingEntries,
+} from "./helpers.js";
 
 const channel = "slack" as const;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 function setSlackDmPolicy(cfg: MoltbotConfig, dmPolicy: DmPolicy) {
   const allowFrom =
@@ -25,14 +32,19 @@ function setSlackDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
   const existingAllowFrom = cfg.channels?.slack?.allowFrom ?? cfg.channels?.slack?.dm?.allowFrom;
   const allowFrom = dmPolicy === "open" ? addWildcardAllowFrom(existingAllowFrom) : undefined;
 >>>>>>> 47b6cde8c (refactor(config): add dmPolicy aliases for Slack/Discord)
+=======
+function patchSlackConfigWithDm(
+  cfg: OpenClawConfig,
+  patch: Record<string, unknown>,
+): OpenClawConfig {
+>>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
   return {
     ...cfg,
     channels: {
       ...cfg.channels,
       slack: {
         ...cfg.channels?.slack,
-        dmPolicy,
-        ...(allowFrom ? { allowFrom } : {}),
+        ...patch,
         dm: {
           ...cfg.channels?.slack?.dm,
           enabled: cfg.channels?.slack?.dm?.enabled ?? true,
@@ -40,6 +52,15 @@ function setSlackDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
       },
     },
   };
+}
+
+function setSlackDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
+  const existingAllowFrom = cfg.channels?.slack?.allowFrom ?? cfg.channels?.slack?.dm?.allowFrom;
+  const allowFrom = dmPolicy === "open" ? addWildcardAllowFrom(existingAllowFrom) : undefined;
+  return patchSlackConfigWithDm(cfg, {
+    dmPolicy,
+    ...(allowFrom ? { allowFrom } : {}),
+  });
 }
 
 function buildSlackManifest(botName: string) {
@@ -215,6 +236,7 @@ function setSlackChannelAllowlist(
   return patchSlackConfigForAccount(cfg, accountId, { channels });
 }
 
+<<<<<<< HEAD
 function setSlackAllowFrom(cfg: MoltbotConfig, allowFrom: string[]): MoltbotConfig {
   return {
     ...cfg,
@@ -237,17 +259,29 @@ function parseSlackAllowFromInput(raw: string): string[] {
     .split(/[\n,;]+/g)
     .map((entry) => entry.trim())
     .filter(Boolean);
+=======
+function setSlackAllowFrom(cfg: OpenClawConfig, allowFrom: string[]): OpenClawConfig {
+  return patchSlackConfigWithDm(cfg, { allowFrom });
+>>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
 }
 
 async function promptSlackAllowFrom(params: {
   cfg: MoltbotConfig;
   prompter: WizardPrompter;
   accountId?: string;
+<<<<<<< HEAD
 }): Promise<MoltbotConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
       : resolveDefaultSlackAccountId(params.cfg);
+=======
+}): Promise<OpenClawConfig> {
+  const accountId = resolveOnboardingAccountId({
+    accountId: params.accountId,
+    defaultAccountId: resolveDefaultSlackAccountId(params.cfg),
+  });
+>>>>>>> 32a1273d8 (refactor(onboarding): dedupe channel allowlist flows)
   const resolved = resolveSlackAccount({ cfg: params.cfg, accountId });
   const token = resolved.config.userToken ?? resolved.config.botToken ?? "";
   const existing =
@@ -263,7 +297,7 @@ async function promptSlackAllowFrom(params: {
     ].join("\n"),
     "Slack allowlist",
   );
-  const parseInputs = (value: string) => parseSlackAllowFromInput(value);
+  const parseInputs = (value: string) => splitOnboardingEntries(value);
   const parseId = (value: string) => {
     const trimmed = value.trim();
     if (!trimmed) {
@@ -326,19 +360,16 @@ export const slackOnboardingAdapter: ChannelOnboardingAdapter = {
     };
   },
   configure: async ({ cfg, prompter, accountOverrides, shouldPromptAccountIds }) => {
-    const slackOverride = accountOverrides.slack?.trim();
     const defaultSlackAccountId = resolveDefaultSlackAccountId(cfg);
-    let slackAccountId = slackOverride ? normalizeAccountId(slackOverride) : defaultSlackAccountId;
-    if (shouldPromptAccountIds && !slackOverride) {
-      slackAccountId = await promptAccountId({
-        cfg,
-        prompter,
-        label: "Slack",
-        currentId: slackAccountId,
-        listAccountIds: listSlackAccountIds,
-        defaultAccountId: defaultSlackAccountId,
-      });
-    }
+    const slackAccountId = await resolveAccountIdForConfigure({
+      cfg,
+      prompter,
+      label: "Slack",
+      accountOverride: accountOverrides.slack,
+      shouldPromptAccountIds,
+      listAccountIds: listSlackAccountIds,
+      defaultAccountId: defaultSlackAccountId,
+    });
 
     let next = cfg;
     const resolvedAccount = resolveSlackAccount({
