@@ -66,6 +66,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -121,6 +122,9 @@ Docs: https://docs.openclaw.ai
 =======
 =======
 =======
+=======
+- Skills: remove bundled `food-order` skill from this repo; manage/install it from ClawHub instead.
+>>>>>>> 7abae052f (chore(skills): remove bundled food-order skill)
 - Docs/Subagents: make thread-bound session guidance channel-first instead of Discord-specific, and list thread-supporting channels explicitly. (#23589) Thanks @osolmaz.
 >>>>>>> f39a66de2 (docs: make subagents thread guidance channel-first (#23589) (thanks @osolmaz))
 - Channels/Config: unify channel preview streaming config handling with a shared resolver and canonical migration path.
