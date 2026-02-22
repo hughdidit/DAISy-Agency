@@ -8,7 +8,6 @@ import type {
   CronStatus,
   SkillStatusReport,
 } from "../types.ts";
-import { renderAgentOverview } from "./agents-panels-overview.ts";
 import {
   renderAgentFiles,
   renderAgentChannels,
@@ -16,54 +15,25 @@ import {
 } from "./agents-panels-status-files.ts";
 import { renderAgentTools, renderAgentSkills } from "./agents-panels-tools-skills.ts";
 import {
-  agentAvatarHue,
   agentBadgeText,
   agentLogoUrl,
   buildAgentContext,
+  buildModelOptions,
   normalizeAgentLabel,
+<<<<<<< HEAD
   resolveAgentAvatarUrl,
+=======
+  normalizeModelValue,
+  parseFallbackList,
+  resolveAgentConfig,
+  resolveAgentEmoji,
+  resolveModelFallbacks,
+  resolveModelLabel,
+  resolveModelPrimary,
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 } from "./agents-utils.ts";
 
 export type AgentsPanel = "overview" | "files" | "tools" | "skills" | "channels" | "cron";
-
-export type ConfigState = {
-  form: Record<string, unknown> | null;
-  loading: boolean;
-  saving: boolean;
-  dirty: boolean;
-};
-
-export type ChannelsState = {
-  snapshot: ChannelsStatusSnapshot | null;
-  loading: boolean;
-  error: string | null;
-  lastSuccess: number | null;
-};
-
-export type CronState = {
-  status: CronStatus | null;
-  jobs: CronJob[];
-  loading: boolean;
-  error: string | null;
-};
-
-export type AgentFilesState = {
-  list: AgentsFilesListResult | null;
-  loading: boolean;
-  error: string | null;
-  active: string | null;
-  contents: Record<string, string>;
-  drafts: Record<string, string>;
-  saving: boolean;
-};
-
-export type AgentSkillsState = {
-  report: SkillStatusReport | null;
-  loading: boolean;
-  error: string | null;
-  agentId: string | null;
-  filter: string;
-};
 
 export type AgentsProps = {
   basePath: string;
@@ -72,16 +42,33 @@ export type AgentsProps = {
   agentsList: AgentsListResult | null;
   selectedAgentId: string | null;
   activePanel: AgentsPanel;
-  config: ConfigState;
-  channels: ChannelsState;
-  cron: CronState;
-  agentFiles: AgentFilesState;
+  configForm: Record<string, unknown> | null;
+  configLoading: boolean;
+  configSaving: boolean;
+  configDirty: boolean;
+  channelsLoading: boolean;
+  channelsError: string | null;
+  channelsSnapshot: ChannelsStatusSnapshot | null;
+  channelsLastSuccess: number | null;
+  cronLoading: boolean;
+  cronStatus: CronStatus | null;
+  cronJobs: CronJob[];
+  cronError: string | null;
+  agentFilesLoading: boolean;
+  agentFilesError: string | null;
+  agentFilesList: AgentsFilesListResult | null;
+  agentFileActive: string | null;
+  agentFileContents: Record<string, string>;
+  agentFileDrafts: Record<string, string>;
+  agentFileSaving: boolean;
   agentIdentityLoading: boolean;
   agentIdentityError: string | null;
   agentIdentityById: Record<string, AgentIdentityResult>;
-  agentSkills: AgentSkillsState;
-  sidebarFilter: string;
-  onSidebarFilterChange: (value: string) => void;
+  agentSkillsLoading: boolean;
+  agentSkillsReport: SkillStatusReport | null;
+  agentSkillsError: string | null;
+  agentSkillsAgentId: string | null;
+  skillsFilter: string;
   onRefresh: () => void;
   onSelectAgent: (agentId: string) => void;
   onSelectPanel: (panel: AgentsPanel) => void;
@@ -98,13 +85,20 @@ export type AgentsProps = {
   onModelFallbacksChange: (agentId: string, fallbacks: string[]) => void;
   onChannelsRefresh: () => void;
   onCronRefresh: () => void;
-  onCronRunNow: (jobId: string) => void;
   onSkillsFilterChange: (next: string) => void;
   onSkillsRefresh: () => void;
   onAgentSkillToggle: (agentId: string, skillName: string, enabled: boolean) => void;
   onAgentSkillsClear: (agentId: string) => void;
   onAgentSkillsDisableAll: (agentId: string) => void;
-  onSetDefault: (agentId: string) => void;
+};
+
+export type AgentContext = {
+  workspace: string;
+  model: string;
+  identityName: string;
+  identityEmoji: string;
+  skillsLabel: string;
+  isDefault: boolean;
 };
 
 export function renderAgents(props: AgentsProps) {
@@ -114,27 +108,6 @@ export function renderAgents(props: AgentsProps) {
   const selectedAgent = selectedId
     ? (agents.find((agent) => agent.id === selectedId) ?? null)
     : null;
-
-  const sidebarFilter = props.sidebarFilter.trim().toLowerCase();
-  const filteredAgents = sidebarFilter
-    ? agents.filter((agent) => {
-        const label = normalizeAgentLabel(agent).toLowerCase();
-        return label.includes(sidebarFilter) || agent.id.toLowerCase().includes(sidebarFilter);
-      })
-    : agents;
-
-  const channelEntryCount = props.channels.snapshot
-    ? Object.keys(props.channels.snapshot.channelAccounts ?? {}).length
-    : null;
-  const cronJobCount = selectedId
-    ? props.cron.jobs.filter((j) => j.agentId === selectedId).length
-    : null;
-  const tabCounts: Record<string, number | null> = {
-    files: props.agentFiles.list?.files?.length ?? null,
-    skills: props.agentSkills.report?.skills?.length ?? null,
-    channels: channelEntryCount,
-    cron: cronJobCount || null,
-  };
 
   return html`
     <div class="agents-layout">
@@ -149,45 +122,35 @@ export function renderAgents(props: AgentsProps) {
           </button>
         </div>
         ${
-          agents.length > 1
-            ? html`
-                <input
-                  class="field"
-                  type="text"
-                  placeholder="Filter agents…"
-                  .value=${props.sidebarFilter}
-                  @input=${(e: Event) =>
-                    props.onSidebarFilterChange((e.target as HTMLInputElement).value)}
-                  style="margin-top: 8px;"
-                />
-              `
-            : nothing
-        }
-        ${
           props.error
             ? html`<div class="callout danger" style="margin-top: 12px;">${props.error}</div>`
             : nothing
         }
         <div class="agent-list" style="margin-top: 12px;">
           ${
-            filteredAgents.length === 0
+            agents.length === 0
               ? html`
-                  <div class="muted">${sidebarFilter ? "No matching agents." : "No agents found."}</div>
+                  <div class="muted">No agents found.</div>
                 `
-              : filteredAgents.map((agent) => {
+              : agents.map((agent) => {
                   const badge = agentBadgeText(agent.id, defaultId);
+<<<<<<< HEAD
                   const avatarUrl = resolveAgentAvatarUrl(
                     agent,
                     props.agentIdentityById[agent.id] ?? null,
                   );
                   const hue = agentAvatarHue(agent.id);
                   const logoUrl = agentLogoUrl(props.basePath);
+=======
+                  const emoji = resolveAgentEmoji(agent, props.agentIdentityById[agent.id] ?? null);
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
                   return html`
                     <button
                       type="button"
                       class="agent-row ${selectedId === agent.id ? "active" : ""}"
                       @click=${() => props.onSelectAgent(agent.id)}
                     >
+<<<<<<< HEAD
                       <div class="agent-avatar" style="--agent-hue: ${hue}">
                         ${
                           avatarUrl
@@ -195,6 +158,9 @@ export function renderAgents(props: AgentsProps) {
                             : html`<img src=${logoUrl} alt="" class="agent-avatar__img agent-avatar__logo" />`
                         }
                       </div>
+=======
+                      <div class="agent-avatar">${emoji || normalizeAgentLabel(agent).slice(0, 1)}</div>
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
                       <div class="agent-info">
                         <div class="agent-title">${normalizeAgentLabel(agent)}</div>
                         <div class="agent-sub mono">${agent.id}</div>
@@ -220,25 +186,38 @@ export function renderAgents(props: AgentsProps) {
                   selectedAgent,
                   defaultId,
                   props.agentIdentityById[selectedAgent.id] ?? null,
+<<<<<<< HEAD
                   props.onSetDefault,
                   props.basePath,
+=======
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
                 )}
-                ${renderAgentTabs(props.activePanel, (panel) => props.onSelectPanel(panel), tabCounts)}
+                ${renderAgentTabs(props.activePanel, (panel) => props.onSelectPanel(panel))}
                 ${
                   props.activePanel === "overview"
                     ? renderAgentOverview({
                         agent: selectedAgent,
                         defaultId,
+<<<<<<< HEAD
                         configForm: props.config.form,
                         agentFilesList: props.agentFiles.list,
                         configLoading: props.config.loading,
                         configSaving: props.config.saving,
                         configDirty: props.config.dirty,
+=======
+                        configForm: props.configForm,
+                        agentFilesList: props.agentFilesList,
+                        agentIdentity: props.agentIdentityById[selectedAgent.id] ?? null,
+                        agentIdentityError: props.agentIdentityError,
+                        agentIdentityLoading: props.agentIdentityLoading,
+                        configLoading: props.configLoading,
+                        configSaving: props.configSaving,
+                        configDirty: props.configDirty,
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
                         onConfigReload: props.onConfigReload,
                         onConfigSave: props.onConfigSave,
                         onModelChange: props.onModelChange,
                         onModelFallbacksChange: props.onModelFallbacksChange,
-                        onSelectPanel: props.onSelectPanel,
                       })
                     : nothing
                 }
@@ -246,13 +225,13 @@ export function renderAgents(props: AgentsProps) {
                   props.activePanel === "files"
                     ? renderAgentFiles({
                         agentId: selectedAgent.id,
-                        agentFilesList: props.agentFiles.list,
-                        agentFilesLoading: props.agentFiles.loading,
-                        agentFilesError: props.agentFiles.error,
-                        agentFileActive: props.agentFiles.active,
-                        agentFileContents: props.agentFiles.contents,
-                        agentFileDrafts: props.agentFiles.drafts,
-                        agentFileSaving: props.agentFiles.saving,
+                        agentFilesList: props.agentFilesList,
+                        agentFilesLoading: props.agentFilesLoading,
+                        agentFilesError: props.agentFilesError,
+                        agentFileActive: props.agentFileActive,
+                        agentFileContents: props.agentFileContents,
+                        agentFileDrafts: props.agentFileDrafts,
+                        agentFileSaving: props.agentFileSaving,
                         onLoadFiles: props.onLoadFiles,
                         onSelectFile: props.onSelectFile,
                         onFileDraftChange: props.onFileDraftChange,
@@ -265,10 +244,10 @@ export function renderAgents(props: AgentsProps) {
                   props.activePanel === "tools"
                     ? renderAgentTools({
                         agentId: selectedAgent.id,
-                        configForm: props.config.form,
-                        configLoading: props.config.loading,
-                        configSaving: props.config.saving,
-                        configDirty: props.config.dirty,
+                        configForm: props.configForm,
+                        configLoading: props.configLoading,
+                        configSaving: props.configSaving,
+                        configDirty: props.configDirty,
                         onProfileChange: props.onToolsProfileChange,
                         onOverridesChange: props.onToolsOverridesChange,
                         onConfigReload: props.onConfigReload,
@@ -280,15 +259,15 @@ export function renderAgents(props: AgentsProps) {
                   props.activePanel === "skills"
                     ? renderAgentSkills({
                         agentId: selectedAgent.id,
-                        report: props.agentSkills.report,
-                        loading: props.agentSkills.loading,
-                        error: props.agentSkills.error,
-                        activeAgentId: props.agentSkills.agentId,
-                        configForm: props.config.form,
-                        configLoading: props.config.loading,
-                        configSaving: props.config.saving,
-                        configDirty: props.config.dirty,
-                        filter: props.agentSkills.filter,
+                        report: props.agentSkillsReport,
+                        loading: props.agentSkillsLoading,
+                        error: props.agentSkillsError,
+                        activeAgentId: props.agentSkillsAgentId,
+                        configForm: props.configForm,
+                        configLoading: props.configLoading,
+                        configSaving: props.configSaving,
+                        configDirty: props.configDirty,
+                        filter: props.skillsFilter,
                         onFilterChange: props.onSkillsFilterChange,
                         onRefresh: props.onSkillsRefresh,
                         onToggle: props.onAgentSkillToggle,
@@ -304,16 +283,16 @@ export function renderAgents(props: AgentsProps) {
                     ? renderAgentChannels({
                         context: buildAgentContext(
                           selectedAgent,
-                          props.config.form,
-                          props.agentFiles.list,
+                          props.configForm,
+                          props.agentFilesList,
                           defaultId,
                           props.agentIdentityById[selectedAgent.id] ?? null,
                         ),
-                        configForm: props.config.form,
-                        snapshot: props.channels.snapshot,
-                        loading: props.channels.loading,
-                        error: props.channels.error,
-                        lastSuccess: props.channels.lastSuccess,
+                        configForm: props.configForm,
+                        snapshot: props.channelsSnapshot,
+                        loading: props.channelsLoading,
+                        error: props.channelsError,
+                        lastSuccess: props.channelsLastSuccess,
                         onRefresh: props.onChannelsRefresh,
                       })
                     : nothing
@@ -323,18 +302,17 @@ export function renderAgents(props: AgentsProps) {
                     ? renderAgentCron({
                         context: buildAgentContext(
                           selectedAgent,
-                          props.config.form,
-                          props.agentFiles.list,
+                          props.configForm,
+                          props.agentFilesList,
                           defaultId,
                           props.agentIdentityById[selectedAgent.id] ?? null,
                         ),
                         agentId: selectedAgent.id,
-                        jobs: props.cron.jobs,
-                        status: props.cron.status,
-                        loading: props.cron.loading,
-                        error: props.cron.error,
+                        jobs: props.cronJobs,
+                        status: props.cronStatus,
+                        loading: props.cronLoading,
+                        error: props.cronError,
                         onRefresh: props.onCronRefresh,
-                        onRunNow: props.onCronRunNow,
                       })
                     : nothing
                 }
@@ -345,18 +323,20 @@ export function renderAgents(props: AgentsProps) {
   `;
 }
 
-let actionsMenuOpen = false;
-
 function renderAgentHeader(
   agent: AgentsListResult["agents"][number],
   defaultId: string | null,
   agentIdentity: AgentIdentityResult | null,
+<<<<<<< HEAD
   onSetDefault: (agentId: string) => void,
   basePath: string,
+=======
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 ) {
   const badge = agentBadgeText(agent.id, defaultId);
   const displayName = normalizeAgentLabel(agent);
   const subtitle = agent.identity?.theme?.trim() || "Agent workspace and routing.";
+<<<<<<< HEAD
   const avatarUrl = resolveAgentAvatarUrl(agent, agentIdentity);
   const hue = agentAvatarHue(agent.id);
   const isDefault = Boolean(defaultId && agent.id === defaultId);
@@ -377,6 +357,13 @@ function renderAgentHeader(
               : html`<img src=${logoUrl} alt="" class="agent-avatar__img agent-avatar__logo" />`
           }
         </div>
+=======
+  const emoji = resolveAgentEmoji(agent, agentIdentity);
+  return html`
+    <section class="card agent-header">
+      <div class="agent-header-main">
+        <div class="agent-avatar agent-avatar--lg">${emoji || displayName.slice(0, 1)}</div>
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
         <div>
           <div class="card-title">${displayName}</div>
           <div class="card-sub">${subtitle}</div>
@@ -384,47 +371,13 @@ function renderAgentHeader(
       </div>
       <div class="agent-header-meta">
         <div class="mono">${agent.id}</div>
-        <div class="row" style="gap: 8px; align-items: center;">
-          ${badge ? html`<span class="agent-pill">${badge}</span>` : nothing}
-          <div class="agent-actions-wrap">
-            <button
-              class="agent-actions-toggle"
-              type="button"
-              @click=${() => {
-                actionsMenuOpen = !actionsMenuOpen;
-              }}
-            >⋯</button>
-            ${
-              actionsMenuOpen
-                ? html`
-                    <div class="agent-actions-menu">
-                      <button type="button" @click=${copyId}>Copy agent ID</button>
-                      <button
-                        type="button"
-                        ?disabled=${isDefault}
-                        @click=${() => {
-                          onSetDefault(agent.id);
-                          actionsMenuOpen = false;
-                        }}
-                      >
-                        ${isDefault ? "Already default" : "Set as default"}
-                      </button>
-                    </div>
-                  `
-                : nothing
-            }
-          </div>
-        </div>
+        ${badge ? html`<span class="agent-pill">${badge}</span>` : nothing}
       </div>
     </section>
   `;
 }
 
-function renderAgentTabs(
-  active: AgentsPanel,
-  onSelect: (panel: AgentsPanel) => void,
-  counts: Record<string, number | null>,
-) {
+function renderAgentTabs(active: AgentsPanel, onSelect: (panel: AgentsPanel) => void) {
   const tabs: Array<{ id: AgentsPanel; label: string }> = [
     { id: "overview", label: "Overview" },
     { id: "files", label: "Files" },
@@ -442,7 +395,7 @@ function renderAgentTabs(
             type="button"
             @click=${() => onSelect(tab.id)}
           >
-            ${tab.label}${counts[tab.id] != null ? html`<span class="agent-tab-count">${counts[tab.id]}</span>` : nothing}
+            ${tab.label}
           </button>
         `,
       )}
@@ -450,6 +403,9 @@ function renderAgentTabs(
   `;
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 
 function renderAgentOverview(params: {
   agent: AgentsListResult["agents"][number];
@@ -552,7 +508,11 @@ function renderAgentOverview(params: {
         <div class="label">Model Selection</div>
         <div class="row" style="gap: 12px; flex-wrap: wrap;">
           <label class="field" style="min-width: 260px; flex: 1;">
+<<<<<<< HEAD
             <span>Primary model</span>
+=======
+            <span>Primary model${isDefault ? " (default)" : ""}</span>
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
             <select
               .value=${effectivePrimary ?? ""}
               ?disabled=${!configForm || configLoading || configSaving}
@@ -560,10 +520,13 @@ function renderAgentOverview(params: {
                 onModelChange(agent.id, (e.target as HTMLSelectElement).value || null)}
             >
 <<<<<<< HEAD
+<<<<<<< HEAD
               <option value="">
                 ${defaultPrimary ? `Inherit default (${defaultPrimary})` : "Inherit default"}
               </option>
 =======
+=======
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
               ${
                 isDefault
                   ? nothing
@@ -573,7 +536,10 @@ function renderAgentOverview(params: {
                       </option>
                     `
               }
+<<<<<<< HEAD
 >>>>>>> 6c445889b (refactor(ui): split agents view into focused panel modules)
+=======
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
               ${buildModelOptions(configForm, effectivePrimary ?? undefined)}
             </select>
           </label>
@@ -607,5 +573,8 @@ function renderAgentOverview(params: {
     </section>
   `;
 }
+<<<<<<< HEAD
 =======
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
+=======
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)

@@ -12,7 +12,6 @@ export const pt_BR: TranslationMap = {
     na: "n/a",
     docs: "Docs",
     resources: "Recursos",
-    search: "Pesquisar",
   },
   nav: {
     chat: "Chat",
@@ -107,6 +106,7 @@ export const pt_BR: TranslationMap = {
       hint: "Esta página é HTTP, então o navegador bloqueia a identidade do dispositivo. Use HTTPS (Tailscale Serve) ou abra {url} no host do gateway.",
       stayHttp: "Se você precisar permanecer em HTTP, defina {config} (apenas token).",
     },
+<<<<<<< HEAD
     connection: {
       title: "Como conectar",
       step1: "Inicie o gateway na sua máquina host:",
@@ -148,6 +148,8 @@ export const pt_BR: TranslationMap = {
   login: {
     subtitle: "Painel do Gateway",
     tokenPlaceholder: "cole o token do gateway",
+=======
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
   },
   chat: {
     disconnected: "Desconectado do gateway.",

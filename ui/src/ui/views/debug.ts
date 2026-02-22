@@ -7,16 +7,19 @@ import type { EventLogEntry } from "../app-events";
 import type { EventLogEntry } from "../app-events.ts";
 import { formatEventPayload } from "../presenter.ts";
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import type { HealthSummary, ModelCatalogEntry } from "../types.ts";
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
+=======
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 
 export type DebugProps = {
   loading: boolean;
   status: Record<string, unknown> | null;
-  health: HealthSummary | null;
-  models: ModelCatalogEntry[];
+  health: Record<string, unknown> | null;
+  models: unknown[];
   heartbeat: unknown;
   eventLog: EventLogEntry[];
   callMethod: string;

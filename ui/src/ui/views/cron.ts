@@ -397,10 +397,14 @@ export function renderCron(props: CronProps) {
               `
             : html`
 <<<<<<< HEAD
+<<<<<<< HEAD
               <div class="list" style="margin-top: 12px;">
                 ${props.runs.map((entry) => renderRun(entry))}
 =======
               <div class="list list-scroll" style="margin-top: 12px;">
+=======
+              <div class="list" style="margin-top: 12px;">
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
                 ${orderedRuns.map((entry) => renderRun(entry, props.basePath))}
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
               </div>

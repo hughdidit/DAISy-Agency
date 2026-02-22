@@ -106,7 +106,6 @@ import { loadAssistantIdentity } from "./controllers/assistant-identity";
 import { loadSessions } from "./controllers/sessions";
 =======
 } from "./controllers/exec-approval.ts";
-import { loadHealthState } from "./controllers/health.ts";
 import { loadNodes } from "./controllers/nodes.ts";
 import { loadSessions } from "./controllers/sessions.ts";
 import type { GatewayEventFrame, GatewayHelloOk } from "./gateway.ts";
@@ -141,7 +140,7 @@ import type { AgentsListResult, PresenceEntry, HealthSnapshot, StatusSummary } f
 import type {
   AgentsListResult,
   PresenceEntry,
-  HealthSummary,
+  HealthSnapshot,
   StatusSummary,
   UpdateAvailable,
 } from "./types.ts";
@@ -164,10 +163,7 @@ type GatewayHost = {
   agentsLoading: boolean;
   agentsList: AgentsListResult | null;
   agentsError: string | null;
-  healthLoading: boolean;
-  healthResult: HealthSummary | null;
-  healthError: string | null;
-  debugHealth: HealthSummary | null;
+  debugHealth: HealthSnapshot | null;
   assistantName: string;
   assistantAvatar: string | null;
   assistantAgentId: string | null;
@@ -274,7 +270,6 @@ export function connectGateway(host: GatewayHost) {
 =======
       void loadAssistantIdentity(host as unknown as OpenClawApp);
       void loadAgents(host as unknown as OpenClawApp);
-      void loadHealthState(host as unknown as OpenClawApp);
       void loadNodes(host as unknown as OpenClawApp, { quiet: true });
       void loadDevices(host as unknown as OpenClawApp, { quiet: true });
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
@@ -326,7 +321,7 @@ function handleGatewayEventUnsafe(host: GatewayHost, evt: GatewayEventFrame) {
     { ts: Date.now(), event: evt.event, payload: evt.payload },
     ...host.eventLogBuffer,
   ].slice(0, 250);
-  if (host.tab === "debug" || host.tab === "overview") {
+  if (host.tab === "debug") {
     host.eventLog = host.eventLogBuffer;
   }
 
@@ -438,7 +433,7 @@ export function applySnapshot(host: GatewayHost, hello: GatewayHelloOk) {
   const snapshot = hello.snapshot as
     | {
         presence?: PresenceEntry[];
-        health?: HealthSummary;
+        health?: HealthSnapshot;
         sessionDefaults?: SessionDefaultsSnapshot;
         updateAvailable?: UpdateAvailable;
       }
@@ -448,7 +443,6 @@ export function applySnapshot(host: GatewayHost, hello: GatewayHelloOk) {
   }
   if (snapshot?.health) {
     host.debugHealth = snapshot.health;
-    host.healthResult = snapshot.health;
   }
   if (snapshot?.sessionDefaults) {
     applySessionDefaults(host, snapshot.sessionDefaults);

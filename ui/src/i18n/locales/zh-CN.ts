@@ -12,7 +12,6 @@ export const zh_CN: TranslationMap = {
     na: "不适用",
     docs: "文档",
     resources: "资源",
-    search: "搜索",
   },
   nav: {
     chat: "聊天",
@@ -104,6 +103,7 @@ export const zh_CN: TranslationMap = {
       hint: "此页面为 HTTP，因此浏览器阻止设备标识。请使用 HTTPS (Tailscale Serve) 或在网关主机上打开 {url}。",
       stayHttp: "如果您必须保持 HTTP，请设置 {config} (仅限令牌)。",
     },
+<<<<<<< HEAD
     connection: {
       title: "如何连接",
       step1: "在主机上启动网关：",
@@ -145,6 +145,8 @@ export const zh_CN: TranslationMap = {
   login: {
     subtitle: "网关仪表盘",
     tokenPlaceholder: "粘贴网关令牌",
+=======
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
   },
   chat: {
     disconnected: "已断开与网关的连接。",

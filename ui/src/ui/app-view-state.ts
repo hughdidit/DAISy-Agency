@@ -16,26 +16,28 @@ import type { Tab } from "./navigation.ts";
 import type { UiSettings } from "./storage.ts";
 import type { ThemeTransitionContext } from "./theme-transition.ts";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { ThemeMode } from "./theme.ts";
 >>>>>>> 6e09c1142 (chore: Switch to `NodeNext` for `module`/`moduleResolution` in `ui`.)
 =======
 import type { ResolvedTheme, ThemeMode } from "./theme.ts";
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
+=======
+import type { ThemeMode } from "./theme.ts";
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 import type {
   AgentsListResult,
   AgentsFilesListResult,
   AgentIdentityResult,
-  AttentionItem,
   ChannelsStatusSnapshot,
   ConfigSnapshot,
   ConfigUiHints,
   CronJob,
   CronRunLogEntry,
   CronStatus,
-  HealthSummary,
+  HealthSnapshot,
   LogEntry,
   LogLevel,
-  ModelCatalogEntry,
   NostrProfile,
   PresenceEntry,
   SessionsUsageResult,
@@ -71,8 +73,7 @@ export type AppViewState = {
   basePath: string;
   connected: boolean;
   theme: ThemeMode;
-  themeResolved: ResolvedTheme;
-  themeOrder: ThemeMode[];
+  themeResolved: "light" | "dark";
   hello: GatewayHelloOk | null;
   lastError: string | null;
   eventLog: EventLogEntry[];
@@ -171,7 +172,6 @@ export type AppViewState = {
   agentSkillsError: string | null;
   agentSkillsReport: SkillStatusReport | null;
   agentSkillsAgentId: string | null;
-  agentsSidebarFilter: string;
   sessionsLoading: boolean;
   sessionsResult: SessionsListResult | null;
   sessionsError: string | null;
@@ -229,13 +229,10 @@ export type AppViewState = {
   skillEdits: Record<string, string>;
   skillMessages: Record<string, SkillMessage>;
   skillsBusyKey: string | null;
-  healthLoading: boolean;
-  healthResult: HealthSummary | null;
-  healthError: string | null;
   debugLoading: boolean;
   debugStatus: StatusSummary | null;
-  debugHealth: HealthSummary | null;
-  debugModels: ModelCatalogEntry[];
+  debugHealth: HealthSnapshot | null;
+  debugModels: unknown[];
   debugHeartbeat: unknown;
   debugCallMethod: string;
   debugCallParams: string;
@@ -255,12 +252,6 @@ export type AppViewState = {
   logsMaxBytes: number;
   logsAtBottom: boolean;
   updateAvailable: import("./types.js").UpdateAvailable | null;
-  // Overview dashboard state
-  attentionItems: AttentionItem[];
-  paletteOpen: boolean;
-  streamMode: boolean;
-  overviewLogLines: string[];
-  overviewLogCursor: number;
   client: GatewayBrowserClient | null;
   refreshSessionsAfterChat: Set<string>;
   connect: () => void;

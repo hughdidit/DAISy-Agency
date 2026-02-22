@@ -6,6 +6,7 @@ import { html, nothing } from "lit";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 import { formatPresenceAge, formatPresenceSummary } from "../presenter";
 import type { PresenceEntry } from "../types";
@@ -19,6 +20,9 @@ import { formatPresenceAge, formatPresenceSummary } from "../presenter.ts";
 import { icons } from "../icons.ts";
 import { formatPresenceAge } from "../presenter.ts";
 >>>>>>> 3bbbe33a1 (UI: gateway dashboard with glassmorphism theme system)
+=======
+import { formatPresenceAge, formatPresenceSummary } from "../presenter.ts";
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 import type { PresenceEntry } from "../types.ts";
 >>>>>>> 90ef2d6bd (chore: Update formatting.)
 =======
@@ -43,15 +47,10 @@ export type InstancesProps = {
   entries: PresenceEntry[];
   lastError: string | null;
   statusMessage: string | null;
-  streamMode: boolean;
   onRefresh: () => void;
 };
 
-let hostsRevealed = false;
-
 export function renderInstances(props: InstancesProps) {
-  const masked = props.streamMode || !hostsRevealed;
-
   return html`
     <section class="card">
       <div class="row" style="justify-content: space-between;">
@@ -59,24 +58,9 @@ export function renderInstances(props: InstancesProps) {
           <div class="card-title">Connected Instances</div>
           <div class="card-sub">Presence beacons from the gateway and clients.</div>
         </div>
-        <div class="row" style="gap: 8px;">
-          <button
-            class="btn btn--icon ${masked ? "" : "active"}"
-            @click=${() => {
-              hostsRevealed = !hostsRevealed;
-              props.onRefresh();
-            }}
-            title=${masked ? "Show hosts and IPs" : "Hide hosts and IPs"}
-            aria-label="Toggle host visibility"
-            aria-pressed=${!masked}
-            style="width: 36px; height: 36px;"
-          >
-            ${masked ? icons.eyeOff : icons.eye}
-          </button>
-          <button class="btn" ?disabled=${props.loading} @click=${props.onRefresh}>
-            ${props.loading ? "Loading…" : "Refresh"}
-          </button>
-        </div>
+        <button class="btn" ?disabled=${props.loading} @click=${props.onRefresh}>
+          ${props.loading ? "Loading…" : "Refresh"}
+        </button>
       </div>
       ${
         props.lastError
@@ -98,18 +82,16 @@ export function renderInstances(props: InstancesProps) {
             ? html`
                 <div class="muted">No instances reported yet.</div>
               `
-            : props.entries.map((entry) => renderEntry(entry, masked))
+            : props.entries.map((entry) => renderEntry(entry))
         }
       </div>
     </section>
   `;
 }
 
-function renderEntry(entry: PresenceEntry, masked: boolean) {
+function renderEntry(entry: PresenceEntry) {
   const lastInput = entry.lastInputSeconds != null ? `${entry.lastInputSeconds}s ago` : "n/a";
   const mode = entry.mode ?? "unknown";
-  const host = entry.host ?? "unknown host";
-  const ip = entry.ip ?? null;
   const roles = Array.isArray(entry.roles) ? entry.roles.filter(Boolean) : [];
   const scopes = Array.isArray(entry.scopes) ? entry.scopes.filter(Boolean) : [];
   const scopesLabel =
@@ -121,12 +103,8 @@ function renderEntry(entry: PresenceEntry, masked: boolean) {
   return html`
     <div class="list-item">
       <div class="list-main">
-        <div class="list-title">
-          <span class="${masked ? "redacted" : ""}">${host}</span>
-        </div>
-        <div class="list-sub">
-          ${ip ? html`<span class="${masked ? "redacted" : ""}">${ip}</span> ` : nothing}${mode} ${entry.version ?? ""}
-        </div>
+        <div class="list-title">${entry.host ?? "unknown host"}</div>
+        <div class="list-sub">${formatPresenceSummary(entry)}</div>
         <div class="chip-row">
           <span class="chip">${mode}</span>
           ${roles.map((role) => html`<span class="chip">${role}</span>`)}

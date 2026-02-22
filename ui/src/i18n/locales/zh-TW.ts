@@ -12,7 +12,6 @@ export const zh_TW: TranslationMap = {
     na: "不適用",
     docs: "文檔",
     resources: "資源",
-    search: "搜尋",
   },
   nav: {
     chat: "聊天",
@@ -104,6 +103,7 @@ export const zh_TW: TranslationMap = {
       hint: "此頁面為 HTTP，因此瀏覽器阻止設備標識。請使用 HTTPS (Tailscale Serve) 或在網關主機上打開 {url}。",
       stayHttp: "如果您必須保持 HTTP，請設置 {config} (僅限令牌)。",
     },
+<<<<<<< HEAD
     connection: {
       title: "如何連接",
       step1: "在主機上啟動閘道：",
@@ -145,6 +145,8 @@ export const zh_TW: TranslationMap = {
   login: {
     subtitle: "閘道儀表板",
     tokenPlaceholder: "貼上閘道令牌",
+=======
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
   },
   chat: {
     disconnected: "已斷開與網關的連接。",
