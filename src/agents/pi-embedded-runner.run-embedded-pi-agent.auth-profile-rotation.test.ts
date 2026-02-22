@@ -124,6 +124,122 @@ describe("runEmbeddedPiAgent auth profile rotation", () => {
     const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
     try {
+<<<<<<< HEAD
+=======
+      return await run({ agentDir, workspaceDir, now });
+    } finally {
+      await fs.rm(agentDir, { recursive: true, force: true });
+      await fs.rm(workspaceDir, { recursive: true, force: true });
+    }
+  } finally {
+    vi.useRealTimers();
+  }
+}
+
+async function withAgentWorkspace<T>(
+  run: (ctx: { agentDir: string; workspaceDir: string }) => Promise<T>,
+) {
+  const agentDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-agent-"));
+  const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+  try {
+    return await run({ agentDir, workspaceDir });
+  } finally {
+    await fs.rm(agentDir, { recursive: true, force: true });
+    await fs.rm(workspaceDir, { recursive: true, force: true });
+  }
+}
+
+async function runTurnWithCooldownSeed(params: {
+  sessionKey: string;
+  runId: string;
+  authProfileId: string | undefined;
+  authProfileIdSource: "auto" | "user";
+}) {
+  return await withTimedAgentWorkspace(async ({ agentDir, workspaceDir, now }) => {
+    await writeAuthStore(agentDir, {
+      usageStats: {
+        "openai:p1": { lastUsed: 1, cooldownUntil: now + 60 * 60 * 1000 },
+        "openai:p2": { lastUsed: 2 },
+      },
+    });
+    mockSingleSuccessfulAttempt();
+
+    await runEmbeddedPiAgent({
+      sessionId: "session:test",
+      sessionKey: params.sessionKey,
+      sessionFile: path.join(workspaceDir, "session.jsonl"),
+      workspaceDir,
+      agentDir,
+      config: makeConfig(),
+      prompt: "hello",
+      provider: "openai",
+      model: "mock-1",
+      authProfileId: params.authProfileId,
+      authProfileIdSource: params.authProfileIdSource,
+      timeoutMs: 5_000,
+      runId: params.runId,
+    });
+
+    expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(1);
+    return { usageStats: await readUsageStats(agentDir), now };
+  });
+}
+
+describe("runEmbeddedPiAgent auth profile rotation", () => {
+  it("rotates for auto-pinned profiles across retryable stream failures", async () => {
+    const cases = [
+      {
+        errorMessage: "rate limit",
+        sessionKey: "agent:test:auto",
+        runId: "run:auto",
+      },
+      {
+        errorMessage: "request ended without sending any chunks",
+        sessionKey: "agent:test:empty-chunk-stream",
+        runId: "run:empty-chunk-stream",
+      },
+    ] as const;
+
+    for (const testCase of cases) {
+      runEmbeddedAttemptMock.mockClear();
+      await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
+        await writeAuthStore(agentDir);
+        mockFailedThenSuccessfulAttempt(testCase.errorMessage);
+        await runAutoPinnedOpenAiTurn({
+          agentDir,
+          workspaceDir,
+          sessionKey: testCase.sessionKey,
+          runId: testCase.runId,
+        });
+
+        expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(2);
+        await expectProfileP2UsageUpdated(agentDir);
+      });
+    }
+  });
+
+  it("rotates on timeout without cooling down the timed-out profile", async () => {
+    await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
+      await writeAuthStore(agentDir);
+      mockFailedThenSuccessfulAttempt("request ended without sending any chunks");
+
+      await runAutoPinnedOpenAiTurn({
+        agentDir,
+        workspaceDir,
+        sessionKey: "agent:test:timeout-no-cooldown",
+        runId: "run:timeout-no-cooldown",
+      });
+
+      expect(runEmbeddedAttemptMock).toHaveBeenCalledTimes(2);
+      const usageStats = await readUsageStats(agentDir);
+      expect(typeof usageStats["openai:p2"]?.lastUsed).toBe("number");
+      expect(usageStats["openai:p1"]?.cooldownUntil).toBeUndefined();
+    });
+  });
+
+  it("does not rotate for compaction timeouts", async () => {
+    await withAgentWorkspace(async ({ agentDir, workspaceDir }) => {
+>>>>>>> 3e2849c57 (fix: align timeout cooldown behavior docs/tests (#22622) (thanks @vageeshkumar))
       await writeAuthStore(agentDir);
 
       runEmbeddedAttemptMock
