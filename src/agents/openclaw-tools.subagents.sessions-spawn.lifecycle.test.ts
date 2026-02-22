@@ -42,7 +42,9 @@ import { createOpenClawTools } from "./openclaw-tools.js";
 >>>>>>> cd8eb079e (perf(test): replace subagent lifecycle polling helper)
 import {
   getCallGatewayMock,
+  getSessionsSpawnTool,
   resetSessionsSpawnConfigOverride,
+  setupSessionsSpawnGatewayMock,
   setSessionsSpawnConfigOverride,
 } from "./openclaw-tools.subagents.sessions-spawn.test-harness.js";
 >>>>>>> dd11a6bcd (refactor(test): share sessions_spawn e2e harness)
@@ -58,6 +60,7 @@ vi.mock("./pi-embedded.js", () => ({
 const callGatewayMock = getCallGatewayMock();
 const RUN_TIMEOUT_SECONDS = 1;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.e2e.test.ts
@@ -83,6 +86,8 @@ async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
 type GatewayRequest = { method?: string; params?: unknown };
 type AgentWaitCall = { runId?: string; timeoutMs?: number };
 
+=======
+>>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
 function buildDiscordCleanupHooks(onDelete: (key: string | undefined) => void) {
   return {
     onAgentSubagentSpawn: (params: unknown) => {
@@ -97,6 +102,7 @@ function buildDiscordCleanupHooks(onDelete: (key: string | undefined) => void) {
   };
 }
 
+<<<<<<< HEAD
 function setupSessionsSpawnGatewayMock(opts: {
   includeSessionsList?: boolean;
   includeChatHistory?: boolean;
@@ -195,6 +201,8 @@ function setupSessionsSpawnGatewayMock(opts: {
 =======
 const waitFor = async (predicate: () => boolean, timeoutMs = 2000) => {
 =======
+=======
+>>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
 const waitFor = async (predicate: () => boolean, timeoutMs = 1_500) => {
 >>>>>>> 0b7c7ee1a (perf(test): speed up sessions_spawn lifecycle suite setup)
   await vi.waitFor(

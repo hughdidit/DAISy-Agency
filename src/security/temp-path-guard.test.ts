@@ -2,8 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
+import { listRepoFiles } from "../test-utils/repo-scan.js";
 
-const RUNTIME_ROOTS = ["src", "extensions"];
+const RUNTIME_ROOTS = ["src", "extensions"] as const;
 const SKIP_PATTERNS = [
   /\.test\.tsx?$/,
   /\.test-utils\.tsx?$/,
@@ -81,28 +82,6 @@ function hasDynamicTmpdirJoin(source: string, filePath = "fixture.ts"): boolean 
   return found;
 }
 
-async function listTsFiles(dir: string): Promise<string[]> {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  const out: string[] = [];
-  for (const entry of entries) {
-    if (entry.name === "node_modules" || entry.name === "dist" || entry.name.startsWith(".")) {
-      continue;
-    }
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      out.push(...(await listTsFiles(fullPath)));
-      continue;
-    }
-    if (!entry.isFile()) {
-      continue;
-    }
-    if (fullPath.endsWith(".ts") || fullPath.endsWith(".tsx")) {
-      out.push(fullPath);
-    }
-  }
-  return out;
-}
-
 describe("temp path guard", () => {
   it("skips test helper filename variants", () => {
     expect(shouldSkip("src/commands/test-helpers.ts")).toBe(true);
@@ -136,6 +115,7 @@ describe("temp path guard", () => {
     const repoRoot = process.cwd();
     const offenders: string[] = [];
 
+<<<<<<< HEAD
     for (const root of RUNTIME_ROOTS) {
       const absRoot = path.join(repoRoot, root);
       const files = await listTsFiles(absRoot);
@@ -148,6 +128,24 @@ describe("temp path guard", () => {
         if (hasDynamicTmpdirJoin(source, relativePath)) {
           offenders.push(relativePath);
         }
+=======
+    const files = await listRepoFiles(repoRoot, {
+      roots: RUNTIME_ROOTS,
+      extensions: [".ts", ".tsx"],
+      skipHiddenDirectories: true,
+    });
+    for (const file of files) {
+      const relativePath = path.relative(repoRoot, file);
+      if (shouldSkip(relativePath)) {
+        continue;
+      }
+      const source = await fs.readFile(file, "utf-8");
+      if (!QUICK_TMPDIR_JOIN_PATTERN.test(source)) {
+        continue;
+      }
+      if (hasDynamicTmpdirJoin(source, relativePath)) {
+        offenders.push(relativePath);
+>>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
       }
     }
 
