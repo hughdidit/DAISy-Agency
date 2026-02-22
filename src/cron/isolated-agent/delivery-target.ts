@@ -1,6 +1,10 @@
 import type { ChannelId } from "../../channels/plugins/types.js";
+<<<<<<< HEAD
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import type { MoltbotConfig } from "../../config/config.js";
+=======
+import type { OpenClawConfig } from "../../config/config.js";
+>>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
 import {
   loadSessionStore,
   resolveAgentMainSessionKey,
@@ -21,7 +25,7 @@ export async function resolveDeliveryTarget(
     to?: string;
   },
 ): Promise<{
-  channel: Exclude<OutboundChannel, "none">;
+  channel?: Exclude<OutboundChannel, "none">;
   to?: string;
   accountId?: string;
   mode: "explicit" | "implicit";
@@ -45,12 +49,20 @@ export async function resolveDeliveryTarget(
   });
 
   let fallbackChannel: Exclude<OutboundChannel, "none"> | undefined;
+  let channelResolutionError: Error | undefined;
   if (!preliminary.channel) {
-    try {
-      const selection = await resolveMessageChannelSelection({ cfg });
-      fallbackChannel = selection.channel;
-    } catch {
-      fallbackChannel = preliminary.lastChannel ?? DEFAULT_CHAT_CHANNEL;
+    if (preliminary.lastChannel) {
+      fallbackChannel = preliminary.lastChannel;
+    } else {
+      try {
+        const selection = await resolveMessageChannelSelection({ cfg });
+        fallbackChannel = selection.channel;
+      } catch (err) {
+        const detail = err instanceof Error ? err.message : String(err);
+        channelResolutionError = new Error(
+          `${detail} Set delivery.channel explicitly or use a main session with a previous channel.`,
+        );
+      }
     }
   }
 
@@ -65,12 +77,55 @@ export async function resolveDeliveryTarget(
       })
     : preliminary;
 
-  const channel = resolved.channel ?? fallbackChannel ?? DEFAULT_CHAT_CHANNEL;
+  const channel = resolved.channel ?? fallbackChannel;
   const mode = resolved.mode as "explicit" | "implicit";
   const toCandidate = resolved.to;
 
+  if (!channel) {
+    return {
+      channel: undefined,
+      to: undefined,
+      accountId,
+      threadId,
+      mode,
+      error: channelResolutionError,
+    };
+  }
+
   if (!toCandidate) {
+<<<<<<< HEAD
     return { channel, to: undefined, accountId: resolved.accountId, mode };
+=======
+    return {
+      channel,
+      to: undefined,
+      accountId,
+      threadId,
+      mode,
+      error: channelResolutionError,
+    };
+  }
+
+  let allowFromOverride: string[] | undefined;
+  if (channel === "whatsapp") {
+    const configuredAllowFromRaw = resolveWhatsAppAccount({ cfg, accountId }).allowFrom ?? [];
+    const configuredAllowFrom = configuredAllowFromRaw
+      .map((entry) => String(entry).trim())
+      .filter((entry) => entry && entry !== "*")
+      .map((entry) => normalizeWhatsAppTarget(entry))
+      .filter((entry): entry is string => Boolean(entry));
+    const storeAllowFrom = readChannelAllowFromStoreSync("whatsapp", process.env, accountId)
+      .map((entry) => normalizeWhatsAppTarget(entry))
+      .filter((entry): entry is string => Boolean(entry));
+    allowFromOverride = [...new Set([...configuredAllowFrom, ...storeAllowFrom])];
+
+    if (mode === "implicit" && allowFromOverride.length > 0) {
+      const normalizedCurrentTarget = normalizeWhatsAppTarget(toCandidate);
+      if (!normalizedCurrentTarget || !allowFromOverride.includes(normalizedCurrentTarget)) {
+        toCandidate = allowFromOverride[0];
+      }
+    }
+>>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
   }
 
   const docked = resolveOutboundTarget({
@@ -85,6 +140,6 @@ export async function resolveDeliveryTarget(
     to: docked.ok ? docked.to : undefined,
     accountId: resolved.accountId,
     mode,
-    error: docked.ok ? undefined : docked.error,
+    error: docked.ok ? channelResolutionError : docked.error,
   };
 }

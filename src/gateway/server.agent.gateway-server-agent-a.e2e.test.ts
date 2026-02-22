@@ -456,6 +456,7 @@ describe("gateway server agent", () => {
     expect(images[0]?.data).toBe(BASE_IMAGE_PNG);
   });
 
+<<<<<<< HEAD
   test("agent falls back to whatsapp when delivery requested and no last channel exists", async () => {
     setRegistry(defaultRegistry);
     testState.allowFrom = ["+1555"];
@@ -484,6 +485,33 @@ describe("gateway server agent", () => {
     expect(call.deliver).toBe(true);
     expect(call.sessionId).toBe("sess-main-missing-provider");
     testState.allowFrom = undefined;
+=======
+  test("agent errors when delivery requested and no last channel exists", async () => {
+    setRegistry(defaultRegistry);
+    testState.allowFrom = ["+1555"];
+    try {
+      await setTestSessionStore({
+        entries: {
+          main: {
+            sessionId: "sess-main-missing-provider",
+            updatedAt: Date.now(),
+          },
+        },
+      });
+      const res = await rpcReq(ws, "agent", {
+        message: "hi",
+        sessionKey: "main",
+        deliver: true,
+        idempotencyKey: "idem-agent-missing-provider",
+      });
+      expect(res.ok).toBe(false);
+      expect(res.error?.code).toBe("INVALID_REQUEST");
+      expect(res.error?.message).toContain("Channel is required");
+      expect(vi.mocked(agentCommand)).not.toHaveBeenCalled();
+    } finally {
+      testState.allowFrom = undefined;
+    }
+>>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
   });
 
   test("agent routes main last-channel whatsapp", async () => {

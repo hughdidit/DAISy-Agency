@@ -1,8 +1,14 @@
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
+<<<<<<< HEAD
 import type { ChannelId } from "../../channels/plugins/types.js";
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
 import { loadConfig } from "../../config/config.js";
 import { createOutboundSendDeps } from "../../cli/deps.js";
+=======
+import { createOutboundSendDeps } from "../../cli/deps.js";
+import { loadConfig } from "../../config/config.js";
+import { resolveMessageChannelSelection } from "../../infra/outbound/channel-selection.js";
+>>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
 import { deliverOutboundPayloads } from "../../infra/outbound/deliver.js";
 import { normalizeReplyPayloadsForDelivery } from "../../infra/outbound/payloads.js";
 import {
@@ -99,7 +105,16 @@ export const sendHandlers: GatewayRequestHandlers = {
       );
       return;
     }
-    const channel = normalizedChannel ?? DEFAULT_CHAT_CHANNEL;
+    const cfg = loadConfig();
+    let channel = normalizedChannel;
+    if (!channel) {
+      try {
+        channel = (await resolveMessageChannelSelection({ cfg })).channel;
+      } catch (err) {
+        respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
+        return;
+      }
+    }
     const accountId =
       typeof request.accountId === "string" && request.accountId.trim().length
         ? request.accountId.trim()
@@ -117,7 +132,6 @@ export const sendHandlers: GatewayRequestHandlers = {
 
     const work = (async (): Promise<InflightResult> => {
       try {
-        const cfg = loadConfig();
         const resolved = resolveOutboundTarget({
           channel: outboundChannel,
           to,
@@ -285,7 +299,39 @@ export const sendHandlers: GatewayRequestHandlers = {
       );
       return;
     }
+<<<<<<< HEAD
     const channel = normalizedChannel ?? DEFAULT_CHAT_CHANNEL;
+=======
+    const cfg = loadConfig();
+    let channel = normalizedChannel;
+    if (!channel) {
+      try {
+        channel = (await resolveMessageChannelSelection({ cfg })).channel;
+      } catch (err) {
+        respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, String(err)));
+        return;
+      }
+    }
+    if (typeof request.durationSeconds === "number" && channel !== "telegram") {
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.INVALID_REQUEST,
+          "durationSeconds is only supported for Telegram polls",
+        ),
+      );
+      return;
+    }
+    if (typeof request.isAnonymous === "boolean" && channel !== "telegram") {
+      respond(
+        false,
+        undefined,
+        errorShape(ErrorCodes.INVALID_REQUEST, "isAnonymous is only supported for Telegram polls"),
+      );
+      return;
+    }
+>>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
     const poll = {
       question: request.question,
       options: request.options,
@@ -307,7 +353,6 @@ export const sendHandlers: GatewayRequestHandlers = {
         );
         return;
       }
-      const cfg = loadConfig();
       const resolved = resolveOutboundTarget({
         channel: channel as Exclude<OutboundChannel, "none">,
         to,

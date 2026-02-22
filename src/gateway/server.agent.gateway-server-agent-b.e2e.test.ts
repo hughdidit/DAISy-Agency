@@ -127,7 +127,11 @@ describe("gateway server agent", () => {
     setActivePluginRegistry(emptyRegistry);
   });
 
+<<<<<<< HEAD
   test("agent routes main last-channel msteams", async () => {
+=======
+  test("agent errors when deliver=true and last-channel plugin is unavailable", async () => {
+>>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
     const registry = createRegistry([
       {
         pluginId: "msteams",
@@ -156,6 +160,7 @@ describe("gateway server agent", () => {
       deliver: true,
       idempotencyKey: "idem-agent-last-msteams",
     });
+<<<<<<< HEAD
     expect(res.ok).toBe(true);
 
     const spy = vi.mocked(agentCommand);
@@ -165,6 +170,12 @@ describe("gateway server agent", () => {
     expect(call.deliver).toBe(true);
     expect(call.bestEffortDeliver).toBe(true);
     expect(call.sessionId).toBe("sess-teams");
+=======
+    expect(res.ok).toBe(false);
+    expect(res.error?.code).toBe("INVALID_REQUEST");
+    expect(res.error?.message).toContain("Channel is required");
+    expect(vi.mocked(agentCommand)).not.toHaveBeenCalled();
+>>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
   });
 
   test("agent accepts channel aliases (imsg/teams)", async () => {
@@ -229,7 +240,7 @@ describe("gateway server agent", () => {
     expect(res.error?.code).toBe("INVALID_REQUEST");
   });
 
-  test("agent ignores webchat last-channel for routing", async () => {
+  test("agent errors when deliver=true and last channel is webchat", async () => {
     testState.allowFrom = ["+1555"];
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "moltbot-gw-"));
     testState.sessionStorePath = path.join(dir, "sessions.json");
@@ -250,6 +261,7 @@ describe("gateway server agent", () => {
       deliver: true,
       idempotencyKey: "idem-agent-webchat",
     });
+<<<<<<< HEAD
     expect(res.ok).toBe(true);
 
     const spy = vi.mocked(agentCommand);
@@ -259,6 +271,12 @@ describe("gateway server agent", () => {
     expect(call.deliver).toBe(true);
     expect(call.bestEffortDeliver).toBe(true);
     expect(call.sessionId).toBe("sess-main-webchat");
+=======
+    expect(res.ok).toBe(false);
+    expect(res.error?.code).toBe("INVALID_REQUEST");
+    expect(res.error?.message).toMatch(/Channel is required|runtime not initialized/);
+    expect(vi.mocked(agentCommand)).not.toHaveBeenCalled();
+>>>>>>> 1cd3b3090 (fix: stop hardcoded channel fallback and auto-pick sole configured channel (#23357) (thanks @lbo728))
   });
 
   test("agent uses webchat for internal runs when last provider is webchat", async () => {
