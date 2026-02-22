@@ -112,6 +112,41 @@ describe("gateway auth", () => {
         } as NodeJS.ProcessEnv,
       }),
     ).toMatchObject({
+<<<<<<< HEAD
+=======
+      mode: "token",
+      modeSource: "default",
+      token: undefined,
+      password: undefined,
+    });
+  });
+
+  it("keeps gateway auth config values ahead of env overrides", () => {
+    expect(
+      resolveGatewayAuth({
+        authConfig: {
+          token: "config-token",
+          password: "config-password",
+        },
+        env: {
+          OPENCLAW_GATEWAY_TOKEN: "env-token",
+          OPENCLAW_GATEWAY_PASSWORD: "env-password",
+        } as NodeJS.ProcessEnv,
+      }),
+    ).toMatchObject({
+      token: "config-token",
+      password: "config-password",
+    });
+  });
+
+  it("resolves explicit auth mode none from config", () => {
+    expect(
+      resolveGatewayAuth({
+        authConfig: { mode: "none" },
+        env: {} as NodeJS.ProcessEnv,
+      }),
+    ).toMatchObject({
+>>>>>>> 08431da5d (refactor(gateway): unify credential precedence across entrypoints)
       mode: "none",
       token: undefined,
       password: undefined,

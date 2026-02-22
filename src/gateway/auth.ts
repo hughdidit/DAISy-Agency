@@ -15,6 +15,7 @@ import {
   type AuthRateLimiter,
   type RateLimitCheckResult,
 } from "./auth-rate-limit.js";
+import { resolveGatewayCredentialsFromValues } from "./credentials.js";
 import {
   isLoopbackAddress,
   isTrustedProxyAddress,
@@ -227,8 +228,16 @@ export function resolveGatewayAuth(params: {
 }): ResolvedGatewayAuth {
   const authConfig = params.authConfig ?? {};
   const env = params.env ?? process.env;
-  const token = authConfig.token ?? env.OPENCLAW_GATEWAY_TOKEN ?? undefined;
-  const password = authConfig.password ?? env.OPENCLAW_GATEWAY_PASSWORD ?? undefined;
+  const resolvedCredentials = resolveGatewayCredentialsFromValues({
+    configToken: authConfig.token,
+    configPassword: authConfig.password,
+    env,
+    includeLegacyEnv: false,
+    tokenPrecedence: "config-first",
+    passwordPrecedence: "config-first",
+  });
+  const token = resolvedCredentials.token;
+  const password = resolvedCredentials.password;
   const trustedProxy = authConfig.trustedProxy;
 
   let mode: ResolvedGatewayAuth["mode"];
