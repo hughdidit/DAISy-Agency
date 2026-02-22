@@ -89,6 +89,7 @@ describe("trigger handling", () => {
 =======
       const storePath = join(tmpdir(), `openclaw-session-test-${Date.now()}.json`);
 <<<<<<< HEAD
+<<<<<<< HEAD
       getCompactEmbeddedPiSessionMock().mockResolvedValue({
 >>>>>>> eb594a090 (refactor(test): dedupe trigger-handling e2e setup)
         ok: true,
@@ -100,6 +101,10 @@ describe("trigger handling", () => {
         },
       });
 =======
+=======
+      const cfg = makeCfg(home);
+      cfg.session = { ...cfg.session, store: storePath };
+>>>>>>> 83a292632 (test: align remaining trigger configs with fast harness defaults)
       mockSuccessfulCompaction();
 >>>>>>> 31f83c86b (refactor(test): dedupe agent harnesses and routing fixtures)
 
@@ -111,6 +116,7 @@ describe("trigger handling", () => {
           CommandAuthorized: true,
         },
         {},
+<<<<<<< HEAD
         {
           agents: {
             defaults: {
@@ -132,6 +138,9 @@ describe("trigger handling", () => {
             store: storePath,
           },
         },
+=======
+        cfg,
+>>>>>>> 83a292632 (test: align remaining trigger configs with fast harness defaults)
       );
       const text = replyText(res);
       expect(text?.startsWith("⚙️ Compacted")).toBe(true);
