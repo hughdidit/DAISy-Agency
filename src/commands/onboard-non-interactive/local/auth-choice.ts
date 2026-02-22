@@ -447,7 +447,9 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    await setVolcengineApiKey(resolved.key);
+    if (resolved.source !== "profile") {
+      await setVolcengineApiKey(resolved.key);
+    }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "volcengine:default",
       provider: "volcengine",
@@ -468,7 +470,9 @@ export async function applyNonInteractiveAuthChoice(params: {
     if (!resolved) {
       return null;
     }
-    await setByteplusApiKey(resolved.key);
+    if (resolved.source !== "profile") {
+      await setByteplusApiKey(resolved.key);
+    }
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "byteplus:default",
       provider: "byteplus",
@@ -514,6 +518,7 @@ export async function applyNonInteractiveAuthChoice(params: {
       return null;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     const key = resolved.key;
     const result = upsertSharedEnvVar({ key: "OPENAI_API_KEY", value: key });
     process.env.OPENAI_API_KEY = key;
@@ -521,6 +526,11 @@ export async function applyNonInteractiveAuthChoice(params: {
     return nextConfig;
 =======
     await setOpenaiApiKey(resolved.key);
+=======
+    if (resolved.source !== "profile") {
+      await setOpenaiApiKey(resolved.key);
+    }
+>>>>>>> 13b499328 (Onboard non-interactive: avoid rewriting profile-backed keys)
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "openai:default",
       provider: "openai",
