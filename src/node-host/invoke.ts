@@ -52,6 +52,7 @@ const DEFAULT_NODE_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sb
 const execHostEnforced = process.env.OPENCLAW_NODE_EXEC_HOST?.trim().toLowerCase() === "app";
 const execHostFallbackAllowed =
   process.env.OPENCLAW_NODE_EXEC_FALLBACK?.trim().toLowerCase() !== "0";
+const preferMacAppExecHost = process.platform === "darwin" && execHostEnforced;
 
 <<<<<<< HEAD
 const blockedEnvKeys = new Set([
@@ -657,6 +658,7 @@ export async function handleInvoke(
     } else {
       const result: ExecHostRunResult = response.payload;
       await sendExecFinishedEvent({ client, sessionKey, runId, cmdText, result });
+<<<<<<< HEAD
       await sendInvokeResult(client, frame, {
         ok: true,
         payloadJSON: JSON.stringify(result),
@@ -820,6 +822,10 @@ export async function handleInvoke(
       stderr: result.stderr,
       error: result.error ?? null,
     }),
+=======
+    },
+    preferMacAppExecHost,
+>>>>>>> e4d67137d (fix(node): default mac headless system.run to local host)
   });
 }
 

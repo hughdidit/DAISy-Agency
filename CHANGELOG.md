@@ -101,7 +101,11 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 73fab7e44 (fix(agents): map container workdir paths in workspace guard)
 =======
 - Gateway/Exec approvals: expire approval requests immediately when no approval-capable gateway clients are connected and no forwarding targets are available, avoiding delayed approvals after restarts/offline approver windows. (#22144)
+<<<<<<< HEAD
 >>>>>>> d24f5c1e3 (fix(gateway): fail fast exec approvals when no approvers are reachable)
+=======
+- Node/macOS exec host: default headless macOS node `system.run` to local execution and only route through the companion app when `OPENCLAW_NODE_EXEC_HOST=app` is explicitly set, avoiding companion-app filesystem namespace mismatches during exec. (#23547)
+>>>>>>> e4d67137d (fix(node): default mac headless system.run to local host)
 - Slack/Threading: sessions: keep parent-session forking and thread-history context active beyond first turn by removing first-turn-only gates in session init, thread-history fetch, and reply prompt context injection. (#23843, #23090) Thanks @vincentkoc and @Taskle.
 >>>>>>> 5e73f3344 (fix(slack): keep thread session fork/history context after first turn (#23843))
 - Slack/Threading: respect `replyToMode` when Slack auto-populates top-level `thread_ts`, and ignore inline `replyToId` directive tags when `replyToMode` is `off` so thread forcing stays disabled unless explicitly configured. (#23839, #23320, #23513) Thanks @vincentkoc and @dorukardahan.
