@@ -165,6 +165,7 @@ describe("subagent announce formatting", () => {
     sessionsDeleteSpy.mockReset().mockImplementation((_req: AgentCallRequest) => undefined);
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
     embeddedRunMock.isEmbeddedPiRunActive.mockReset().mockReturnValue(false);
+<<<<<<< HEAD
     embeddedRunMock.isEmbeddedPiRunStreaming.mockReset().mockReturnValue(false);
     embeddedRunMock.queueEmbeddedPiMessage.mockReset().mockReturnValue(false);
     embeddedRunMock.waitForEmbeddedPiRunEnd.mockReset().mockResolvedValue(true);
@@ -173,15 +174,27 @@ describe("subagent announce formatting", () => {
     subagentRegistryMock.isSubagentSessionRunActive.mockReset().mockReturnValue(true);
     subagentRegistryMock.countActiveDescendantRuns.mockReset().mockReturnValue(0);
     subagentRegistryMock.resolveRequesterForChildSession.mockReset().mockReturnValue(null);
+=======
+    embeddedRunMock.isEmbeddedPiRunStreaming.mockClear().mockReturnValue(false);
+    embeddedRunMock.queueEmbeddedPiMessage.mockClear().mockReturnValue(false);
+    embeddedRunMock.waitForEmbeddedPiRunEnd.mockClear().mockResolvedValue(true);
+    subagentRegistryMock.isSubagentSessionRunActive.mockClear().mockReturnValue(true);
+    subagentRegistryMock.countActiveDescendantRuns.mockClear().mockReturnValue(0);
+    subagentRegistryMock.resolveRequesterForChildSession.mockClear().mockReturnValue(null);
+>>>>>>> 76828e8dc (test(agents): use lightweight clears for stable subagent announce defaults)
     hasSubagentDeliveryTargetHook = false;
     hookRunnerMock.hasHooks.mockClear();
     hookRunnerMock.runSubagentDeliveryTarget.mockClear();
     subagentDeliveryTargetHookMock.mockReset().mockResolvedValue(undefined);
+<<<<<<< HEAD
     readLatestAssistantReplyMock.mockReset().mockResolvedValue("raw subagent reply");
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> b8f66c260 (Agents: add nested subagent orchestration controls and reduce subagent token waste (#14447))
 =======
+=======
+    readLatestAssistantReplyMock.mockClear().mockResolvedValue("raw subagent reply");
+>>>>>>> 76828e8dc (test(agents): use lightweight clears for stable subagent announce defaults)
     chatHistoryMock.mockReset().mockResolvedValue({ messages: [] });
 >>>>>>> fa4f66255 (fix(subagents): return completion message for manual session spawns)
 =======
