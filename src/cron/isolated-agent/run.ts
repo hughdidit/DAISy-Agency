@@ -5,6 +5,7 @@ import {
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
 } from "../../agents/agent-scope.js";
+import { resolveSessionAuthProfileOverride } from "../../agents/auth-profiles/session-override.js";
 import { runCliAgent } from "../../agents/cli-runner.js";
 import { getCliSessionId, setCliSessionId } from "../../agents/cli-session.js";
 import { lookupContextTokens } from "../../agents/context.js";
@@ -436,6 +437,21 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
   cronSession.sessionEntry.systemSent = true;
   await persistSessionEntry();
 
+  // Resolve auth profile for the session, mirroring the inbound auto-reply path
+  // (get-reply-run.ts). Without this, isolated cron sessions fall back to env-var
+  // auth which may not match the configured auth-profiles, causing 401 errors.
+  const authProfileId = await resolveSessionAuthProfileOverride({
+    cfg: cfgWithAgentDefaults,
+    provider,
+    agentDir,
+    sessionEntry: cronSession.sessionEntry,
+    sessionStore: cronSession.store,
+    sessionKey: agentSessionKey,
+    storePath: cronSession.storePath,
+    isNewSession: cronSession.isNewSession,
+  });
+  const authProfileIdSource = cronSession.sessionEntry.authProfileOverrideSource;
+
   let runResult: Awaited<ReturnType<typeof runEmbeddedPiAgent>>;
   let fallbackProvider = provider;
   let fallbackModel = model;
@@ -494,6 +510,8 @@ let skillsSnapshot = cronSession.sessionEntry.skillsSnapshot;
           lane: params.lane ?? "cron",
           provider: providerOverride,
           model: modelOverride,
+          authProfileId,
+          authProfileIdSource,
           thinkLevel,
           verboseLevel: resolvedVerboseLevel,
           timeoutMs,
