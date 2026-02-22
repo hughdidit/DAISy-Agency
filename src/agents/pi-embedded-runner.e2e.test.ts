@@ -6,6 +6,31 @@ import "./test-helpers/fast-coding-tools.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { ensureOpenClawModelsJson } from "./models-config.js";
 
+vi.mock("@mariozechner/pi-coding-agent", async () => {
+  const actual = await vi.importActual<typeof import("@mariozechner/pi-coding-agent")>(
+    "@mariozechner/pi-coding-agent",
+  );
+
+  return {
+    ...actual,
+    createAgentSession: async (
+      ...args: Parameters<typeof actual.createAgentSession>
+    ): ReturnType<typeof actual.createAgentSession> => {
+      const result = await actual.createAgentSession(...args);
+      const modelId = (args[0] as { model?: { id?: string } } | undefined)?.model?.id;
+      if (modelId === "mock-throw") {
+        const session = result.session as { prompt?: (...params: unknown[]) => Promise<unknown> };
+        if (session && typeof session.prompt === "function") {
+          session.prompt = async () => {
+            throw new Error("transport failed");
+          };
+        }
+      }
+      return result;
+    },
+  };
+});
+
 vi.mock("@mariozechner/pi-ai", async () => {
   const actual = await vi.importActual<typeof import("@mariozechner/pi-ai")>("@mariozechner/pi-ai");
 
@@ -74,11 +99,14 @@ vi.mock("@mariozechner/pi-ai", async () => {
     },
     streamSimple: (model: { api: string; provider: string; id: string }) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const stream = new actual.AssistantMessageEventStream();
 =======
       if (model.id === "mock-throw") {
         throw new Error("transport failed");
       }
+=======
+>>>>>>> eda941f39 (perf(test): remove flaky transport timeout and dedupe safeBins checks)
       const stream = actual.createAssistantMessageEventStream();
 >>>>>>> db3529e92 (chore: Fix types in tests 14/N.)
       queueMicrotask(() => {
@@ -388,35 +416,33 @@ describe("runEmbeddedPiAgent", () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   it("persists prompt transport errors as transcript entries", async () => {
+=======
+  it("fails fast on prompt transport errors", async () => {
+>>>>>>> eda941f39 (perf(test): remove flaky transport timeout and dedupe safeBins checks)
     const sessionFile = nextSessionFile();
     const cfg = makeOpenAiConfig(["mock-throw"]);
     await ensureModels(cfg);
 
-    const result = await runEmbeddedPiAgent({
-      sessionId: "session:test",
-      sessionKey: testSessionKey,
-      sessionFile,
-      workspaceDir,
-      config: cfg,
-      prompt: "transport error",
-      provider: "openai",
-      model: "mock-throw",
-      timeoutMs: 5_000,
-      agentDir,
-      runId: nextRunId("transport-error"),
-      enqueue: immediateEnqueue,
-    });
-    expect(result.payloads?.[0]?.isError).toBe(true);
-
-    const entries = await readSessionEntries(sessionFile);
-    const promptErrorEntry = entries.find(
-      (entry) => entry.type === "custom" && entry.customType === "openclaw:prompt-error",
-    ) as { data?: { error?: string } } | undefined;
-
-    expect(promptErrorEntry).toBeTruthy();
-    expect(promptErrorEntry?.data?.error).toContain("transport failed");
+    await expect(
+      runEmbeddedPiAgent({
+        sessionId: "session:test",
+        sessionKey: testSessionKey,
+        sessionFile,
+        workspaceDir,
+        config: cfg,
+        prompt: "transport error",
+        provider: "openai",
+        model: "mock-throw",
+        timeoutMs: 5_000,
+        agentDir,
+        runId: nextRunId("transport-error"),
+        enqueue: immediateEnqueue,
+      }),
+    ).rejects.toThrow("transport failed");
+    await expect(fs.stat(sessionFile)).rejects.toBeTruthy();
   });
 
 >>>>>>> db3529e92 (chore: Fix types in tests 14/N.)
