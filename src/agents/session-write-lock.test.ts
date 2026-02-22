@@ -99,9 +99,152 @@ describe.sequential("acquireSessionWriteLock", () => {
     const raw = await fs.readFile(lockPath, "utf8");
     const payload = JSON.parse(raw) as { pid: number };
 
+<<<<<<< HEAD
     expect(payload.pid).toBe(process.pid);
     await lock.release();
     markLockAsReleased(lock);
+=======
+      expect(payload.pid).toBe(process.pid);
+      await lock.release();
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("does not reclaim fresh malformed lock files during contention", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-"));
+    try {
+      const sessionFile = path.join(root, "sessions.json");
+      const lockPath = `${sessionFile}.lock`;
+      await fs.writeFile(lockPath, "{}", "utf8");
+
+      await expect(
+        acquireSessionWriteLock({ sessionFile, timeoutMs: 50, staleMs: 60_000 }),
+      ).rejects.toThrow(/session file locked/);
+      await expect(fs.access(lockPath)).resolves.toBeUndefined();
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("reclaims malformed lock files once they are old enough", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-"));
+    try {
+      const sessionFile = path.join(root, "sessions.json");
+      const lockPath = `${sessionFile}.lock`;
+      await fs.writeFile(lockPath, "{}", "utf8");
+      const staleDate = new Date(Date.now() - 2 * 60_000);
+      await fs.utimes(lockPath, staleDate, staleDate);
+
+      const lock = await acquireSessionWriteLock({ sessionFile, timeoutMs: 500, staleMs: 10_000 });
+      await lock.release();
+      await expect(fs.access(lockPath)).rejects.toThrow();
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("watchdog releases stale in-process locks", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-"));
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const sessionFile = path.join(root, "session.jsonl");
+      const lockPath = `${sessionFile}.lock`;
+      const lockA = await acquireSessionWriteLock({
+        sessionFile,
+        timeoutMs: 500,
+        maxHoldMs: 1,
+      });
+
+      const released = await __testing.runLockWatchdogCheck(Date.now() + 1000);
+      expect(released).toBeGreaterThanOrEqual(1);
+      await expect(fs.access(lockPath)).rejects.toThrow();
+
+      const lockB = await acquireSessionWriteLock({ sessionFile, timeoutMs: 500 });
+      await expect(fs.access(lockPath)).resolves.toBeUndefined();
+
+      // Old release handle must not affect the new lock.
+      await lockA.release();
+      await expect(fs.access(lockPath)).resolves.toBeUndefined();
+
+      await lockB.release();
+      await expect(fs.access(lockPath)).rejects.toThrow();
+    } finally {
+      warnSpy.mockRestore();
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("derives max hold from timeout plus grace", () => {
+    expect(resolveSessionLockMaxHoldFromTimeout({ timeoutMs: 600_000 })).toBe(720_000);
+    expect(resolveSessionLockMaxHoldFromTimeout({ timeoutMs: 1_000, minMs: 5_000 })).toBe(121_000);
+  });
+
+  it("clamps max hold for effectively no-timeout runs", () => {
+    expect(
+      resolveSessionLockMaxHoldFromTimeout({
+        timeoutMs: 2_147_000_000,
+      }),
+    ).toBe(2_147_000_000);
+  });
+
+  it("cleans stale .jsonl lock files in sessions directories", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lock-"));
+    const sessionsDir = path.join(root, "sessions");
+    await fs.mkdir(sessionsDir, { recursive: true });
+
+    const nowMs = Date.now();
+    const staleDeadLock = path.join(sessionsDir, "dead.jsonl.lock");
+    const staleAliveLock = path.join(sessionsDir, "old-live.jsonl.lock");
+    const freshAliveLock = path.join(sessionsDir, "fresh-live.jsonl.lock");
+
+    try {
+      await fs.writeFile(
+        staleDeadLock,
+        JSON.stringify({
+          pid: 999_999,
+          createdAt: new Date(nowMs - 120_000).toISOString(),
+        }),
+        "utf8",
+      );
+      await fs.writeFile(
+        staleAliveLock,
+        JSON.stringify({
+          pid: process.pid,
+          createdAt: new Date(nowMs - 120_000).toISOString(),
+        }),
+        "utf8",
+      );
+      await fs.writeFile(
+        freshAliveLock,
+        JSON.stringify({
+          pid: process.pid,
+          createdAt: new Date(nowMs - 1_000).toISOString(),
+        }),
+        "utf8",
+      );
+
+      const result = await cleanStaleLockFiles({
+        sessionsDir,
+        staleMs: 30_000,
+        nowMs,
+        removeStale: true,
+      });
+
+      expect(result.locks).toHaveLength(3);
+      expect(result.cleaned).toHaveLength(2);
+      expect(result.cleaned.map((entry) => path.basename(entry.lockPath)).toSorted()).toEqual([
+        "dead.jsonl.lock",
+        "old-live.jsonl.lock",
+      ]);
+
+      await expect(fs.access(staleDeadLock)).rejects.toThrow();
+      await expect(fs.access(staleAliveLock)).rejects.toThrow();
+      await expect(fs.access(freshAliveLock)).resolves.toBeUndefined();
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+>>>>>>> 1becebe18 (fix: harden session lock contention and cleanup)
   });
 
   it("removes held locks on termination signals", async () => {
