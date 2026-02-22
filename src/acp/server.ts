@@ -11,7 +11,11 @@ import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-cha
 import { AcpGatewayAgent } from "./translator.js";
 import type { AcpServerOptions } from "./types.js";
 
+<<<<<<< HEAD
 export function serveAcpGateway(opts: AcpServerOptions = {}): void {
+=======
+export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void> {
+>>>>>>> 7499e0f61 (fix(acp): wait for gateway connection before processing ACP messages)
   const cfg = loadConfig();
   const connection = buildGatewayConnectionDetails({
     config: cfg,
@@ -53,6 +57,38 @@ export function serveAcpGateway(opts: AcpServerOptions = {}): void {
     },
   });
 
+<<<<<<< HEAD
+=======
+  const shutdown = () => {
+    if (stopped) {
+      return;
+    }
+    stopped = true;
+    gateway.stop();
+    // If no WebSocket is active (e.g. between reconnect attempts),
+    // gateway.stop() won't trigger onClose, so resolve directly.
+    onClosed();
+  };
+
+  process.once("SIGINT", shutdown);
+  process.once("SIGTERM", shutdown);
+
+  // Start gateway first and wait for connection before processing ACP messages
+  gateway.start();
+
+  // Use a promise to wait for hello (connection established)
+  const helloReceived = new Promise<void>((resolve) => {
+    const originalOnHelloOk = gateway.opts.onHelloOk;
+    gateway.opts.onHelloOk = (hello) => {
+      originalOnHelloOk?.(hello);
+      resolve();
+    };
+  });
+
+  // Wait for gateway connection before creating AgentSideConnection
+  await helloReceived;
+
+>>>>>>> 7499e0f61 (fix(acp): wait for gateway connection before processing ACP messages)
   const input = Writable.toWeb(process.stdout);
   const output = Readable.toWeb(process.stdin) as unknown as ReadableStream<Uint8Array>;
   const stream = ndJsonStream(input, output);
@@ -63,7 +99,11 @@ export function serveAcpGateway(opts: AcpServerOptions = {}): void {
     return agent;
   }, stream);
 
+<<<<<<< HEAD
   gateway.start();
+=======
+  return closed;
+>>>>>>> 7499e0f61 (fix(acp): wait for gateway connection before processing ACP messages)
 }
 
 function parseArgs(args: string[]): AcpServerOptions {
