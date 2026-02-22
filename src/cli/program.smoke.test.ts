@@ -79,6 +79,16 @@ installBaseProgramMocks();
 installSmokeProgramMocks();
 >>>>>>> af784b9a8 (refactor(test): share cli program e2e mocks)
 
+vi.mock("./config-cli.js", () => ({
+  registerConfigCli: (program: {
+    command: (name: string) => { action: (fn: () => unknown) => void };
+  }) => {
+    program.command("config").action(() => configureCommand({}, runtime));
+  },
+  runConfigGet: vi.fn(),
+  runConfigUnset: vi.fn(),
+}));
+
 const { buildProgram } = await import("./program.js");
 
 describe("cli program (smoke)", () => {
