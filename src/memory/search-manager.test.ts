@@ -149,7 +149,7 @@ beforeEach(() => {
   fallbackManager.probeEmbeddingAvailability.mockClear();
   fallbackManager.probeVectorAvailability.mockClear();
   fallbackManager.close.mockClear();
-  mockMemoryIndexGet.mockReset();
+  mockMemoryIndexGet.mockClear();
   mockMemoryIndexGet.mockResolvedValue(fallbackManager);
 <<<<<<< HEAD
 >>>>>>> c4dbcc344 (Memory/QMD: make status checks side-effect free)

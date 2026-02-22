@@ -186,7 +186,7 @@ describe("applyAuthChoice", () => {
   afterEach(async () => {
     vi.unstubAllGlobals();
     resolvePluginProviders.mockClear();
-    loginOpenAICodexOAuth.mockReset();
+    loginOpenAICodexOAuth.mockClear();
     loginOpenAICodexOAuth.mockResolvedValue(null);
 <<<<<<< HEAD
     if (tempStateDir) {
