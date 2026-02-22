@@ -38,6 +38,19 @@ type SystemRunInvokeResult = {
   error?: { code?: string; message?: string } | null;
 };
 
+export function formatSystemRunAllowlistMissMessage(params?: {
+  windowsShellWrapperBlocked?: boolean;
+}): string {
+  if (params?.windowsShellWrapperBlocked) {
+    return (
+      "SYSTEM_RUN_DENIED: allowlist miss " +
+      "(Windows shell wrappers like cmd.exe /c require approval; " +
+      "approve once/always or run with --ask on-miss|always)"
+    );
+  }
+  return "SYSTEM_RUN_DENIED: allowlist miss";
+}
+
 export async function handleSystemRunInvoke(opts: {
   client: GatewayClient;
   params: SystemRunParams;
@@ -176,7 +189,8 @@ export async function handleSystemRunInvoke(opts: {
   const cmdInvocation = shellCommand
     ? opts.isCmdExeInvocation(segments[0]?.argv ?? [])
     : opts.isCmdExeInvocation(argv);
-  if (security === "allowlist" && isWindows && cmdInvocation) {
+  const windowsShellWrapperBlocked = security === "allowlist" && isWindows && cmdInvocation;
+  if (windowsShellWrapperBlocked) {
     analysisOk = false;
     allowlistSatisfied = false;
   }
@@ -330,7 +344,10 @@ export async function handleSystemRunInvoke(opts: {
     );
     await opts.sendInvokeResult({
       ok: false,
-      error: { code: "UNAVAILABLE", message: "SYSTEM_RUN_DENIED: allowlist miss" },
+      error: {
+        code: "UNAVAILABLE",
+        message: formatSystemRunAllowlistMissMessage({ windowsShellWrapperBlocked }),
+      },
     });
     return;
   }
