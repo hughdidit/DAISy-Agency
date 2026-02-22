@@ -418,6 +418,22 @@ describe("buildEmbeddedRunPayloads tool-error warnings", () => {
     expect(payloads[0]?.text).toContain("connection timeout");
 =======
     expect(payloads[0]?.text).toContain("Write");
+<<<<<<< HEAD
 >>>>>>> 6b05916c1 (fix: gate Telegram exec tool warnings behind verbose mode (#20560))
+=======
+    expect(payloads[0]?.text).not.toContain("permission denied");
+  });
+
+  it("includes mutating tool error details when verbose mode is on", () => {
+    const payloads = buildPayloads({
+      lastToolError: { toolName: "write", error: "permission denied" },
+      verboseLevel: "on",
+    });
+
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]?.isError).toBe(true);
+    expect(payloads[0]?.text).toContain("Write");
+    expect(payloads[0]?.text).toContain("permission denied");
+>>>>>>> 835be4392 (fix: gate tool error details behind verbose)
   });
 });
