@@ -100,6 +100,7 @@ function startMonitorWebChannel(params: {
   listenerFactory: unknown;
   sleep: ReturnType<typeof vi.fn>;
   signal?: AbortSignal;
+  heartbeatSeconds?: number;
   reconnect?: { initialMs: number; maxMs: number; maxAttempts: number; factor: number };
 }) {
   const runtime = createRuntime();
@@ -112,7 +113,7 @@ function startMonitorWebChannel(params: {
     runtime as never,
     params.signal ?? controller.signal,
     {
-      heartbeatSeconds: 1,
+      heartbeatSeconds: params.heartbeatSeconds ?? 1,
       reconnect: params.reconnect ?? { initialMs: 10, maxMs: 10, maxAttempts: 3, factor: 1.1 },
       sleep: params.sleep,
     },
@@ -225,6 +226,7 @@ describe("web auto-reply", () => {
         monitorWebChannelFn: monitorWebChannel as never,
         listenerFactory,
         sleep,
+        heartbeatSeconds: 60,
       });
 
       await Promise.resolve();
