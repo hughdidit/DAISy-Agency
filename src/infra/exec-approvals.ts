@@ -33,6 +33,7 @@ export type ExecApprovalResolved = {
   decision: ExecApprovalDecision;
   resolvedBy?: string | null;
   ts: number;
+  request?: ExecApprovalRequest["request"];
 };
 
 export type ExecApprovalsDefaults = {
