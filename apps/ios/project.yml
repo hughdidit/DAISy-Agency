@@ -222,6 +222,9 @@ targets:
 >>>>>>> bfc973636 (feat: share to openclaw ios app (#19424))
     type: bundle.unit-test
     platform: iOS
+    configFiles:
+      Debug: Signing.xcconfig
+      Release: Signing.xcconfig
     sources:
       - path: Tests
     dependencies:
@@ -231,7 +234,14 @@ targets:
       - sdk: AppIntents.framework
     settings:
       base:
+<<<<<<< HEAD
         PRODUCT_BUNDLE_IDENTIFIER: bot.molt.ios.tests
+=======
+        CODE_SIGN_IDENTITY: "Apple Development"
+        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
+        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
+        PRODUCT_BUNDLE_IDENTIFIER: ai.openclaw.ios.tests
+>>>>>>> d06d8701f (iOS: normalize watch quick actions and fix test signing)
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Moltbot.app/Moltbot"
