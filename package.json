@@ -307,6 +307,7 @@
     "@homebridge/ciao": "^1.3.5",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 3573f26d4 (chore: Update deps.)
     "@larksuiteoapi/node-sdk": "^1.58.0",
 >>>>>>> 460808e0c (Update deps.)
@@ -315,6 +316,9 @@
 >>>>>>> 722c010b9 (chore(deps): update dependencies)
 =======
 >>>>>>> 3b8d7b2e4 (deps: remove dead root dependency (#22471))
+=======
+    "@larksuiteoapi/node-sdk": "^1.59.0",
+>>>>>>> 95e85e627 (fix(feishu): restore group command fallback and plugin deps)
     "@line/bot-sdk": "^10.6.0",
     "@lydell/node-pty": "1.2.0-beta.3",
     "@mariozechner/pi-agent-core": "0.54.0",
