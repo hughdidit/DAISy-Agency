@@ -17,8 +17,12 @@ vi.mock("../process/exec.js", () => ({
 
 describe("runCliAgent resume cleanup", () => {
   beforeEach(() => {
+<<<<<<< HEAD
     runCommandWithTimeoutMock.mockReset();
     runExecMock.mockReset();
+=======
+    supervisorSpawnMock.mockClear();
+>>>>>>> 1ba1c3f30 (test(core): reduce reset overhead in messaging and agent e2e mocks)
   });
 
   it("kills stale resume processes for codex sessions", async () => {
