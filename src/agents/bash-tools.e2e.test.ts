@@ -5,7 +5,6 @@ import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-even
 import { captureEnv } from "../test-utils/env.js";
 import { getFinishedSession, resetProcessRegistryForTests } from "./bash-process-registry.js";
 import { createExecTool, createProcessTool } from "./bash-tools.js";
-import { buildDockerExecArgs } from "./bash-tools.shared.js";
 import { resolveShellFromPath, sanitizeBinaryOutput } from "./shell-utils.js";
 
 const isWin = process.platform === "win32";
@@ -459,6 +458,7 @@ describe("exec PATH handling", () => {
     expect(entries).toContain(basePath);
   });
 });
+<<<<<<< HEAD
 
 describe("buildDockerExecArgs", () => {
   it("prepends custom PATH after login shell sourcing to preserve both custom and system tools", () => {
@@ -550,3 +550,5 @@ describe("buildDockerExecArgs", () => {
     expect(args).toContain("-t");
   });
 });
+=======
+>>>>>>> 17a65a6f4 (test: split pure docker exec arg checks from bash e2e suite)
