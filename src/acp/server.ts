@@ -29,9 +29,9 @@ import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
 >>>>>>> f76f98b26 (chore: fix formatting drift and stabilize cron tool mocks)
 import { loadConfig } from "../config/config.js";
-import { resolveGatewayAuth } from "../gateway/auth.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
 import { GatewayClient } from "../gateway/client.js";
+import { resolveGatewayCredentialsFromConfig } from "../gateway/credentials.js";
 import { isMainModule } from "../infra/is-main.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { AcpGatewayAgent } from "./translator.js";
@@ -47,6 +47,7 @@ export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void
     config: cfg,
     url: opts.gatewayUrl,
   });
+<<<<<<< HEAD
 
   const isRemoteMode = cfg.gateway?.mode === "remote";
   const remote = isRemoteMode ? cfg.gateway?.remote : undefined;
@@ -62,12 +63,22 @@ export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void
     (isRemoteMode ? remote?.password?.trim() : undefined) ??
     process.env.CLAWDBOT_GATEWAY_PASSWORD ??
     auth.password;
+=======
+  const creds = resolveGatewayCredentialsFromConfig({
+    cfg,
+    env: process.env,
+    explicitAuth: {
+      token: opts.gatewayToken,
+      password: opts.gatewayPassword,
+    },
+  });
+>>>>>>> 66529c7aa (refactor(gateway): unify auth credential resolution)
 
   let agent: AcpGatewayAgent | null = null;
   const gateway = new GatewayClient({
     url: connection.url,
-    token: token || undefined,
-    password: password || undefined,
+    token: creds.token,
+    password: creds.password,
     clientName: GATEWAY_CLIENT_NAMES.CLI,
     clientDisplayName: "ACP",
     clientVersion: "acp",

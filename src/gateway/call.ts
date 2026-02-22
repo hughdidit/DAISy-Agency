@@ -22,8 +22,12 @@ import {
 import { loadGatewayTlsRuntime } from "../infra/tls/gateway.js";
 import { GatewayClient } from "./client.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { pickPrimaryLanIPv4 } from "./net.js";
 =======
+=======
+import { resolveGatewayCredentialsFromConfig } from "./credentials.js";
+>>>>>>> 66529c7aa (refactor(gateway): unify auth credential resolution)
 import {
   CLI_DEFAULT_OPERATOR_SCOPES,
   resolveLeastPrivilegeOperatorScopesForMethod,
@@ -162,6 +166,7 @@ export async function callGateway<T = unknown>(opts: CallGatewayOptions): Promis
       ].join("\n"),
     );
   }
+<<<<<<< HEAD
   const authToken = config.gateway?.auth?.token;
   const authPassword = config.gateway?.auth?.password;
   const connectionDetails = buildGatewayConnectionDetails({
@@ -170,6 +175,36 @@ export async function callGateway<T = unknown>(opts: CallGatewayOptions): Promis
     ...(opts.configPath ? { configPath: opts.configPath } : {}),
   });
   const url = connectionDetails.url;
+=======
+  throw new Error(
+    [
+      "gateway remote mode misconfigured: gateway.remote.url missing",
+      `Config: ${context.configPath}`,
+      "Fix: set gateway.remote.url, or set gateway.mode=local.",
+    ].join("\n"),
+  );
+}
+
+function resolveGatewayCredentials(context: ResolvedGatewayCallContext): {
+  token?: string;
+  password?: string;
+} {
+  return resolveGatewayCredentialsFromConfig({
+    cfg: context.config,
+    env: process.env,
+    explicitAuth: context.explicitAuth,
+    urlOverride: context.urlOverride,
+    remotePasswordPrecedence: "env-first",
+  });
+}
+
+async function resolveGatewayTlsFingerprint(params: {
+  opts: CallGatewayBaseOptions;
+  context: ResolvedGatewayCallContext;
+  url: string;
+}): Promise<string | undefined> {
+  const { opts, context, url } = params;
+>>>>>>> 66529c7aa (refactor(gateway): unify auth credential resolution)
   const useLocalTls =
     config.gateway?.tls?.enabled === true && !urlOverride && !remoteUrl && url.startsWith("wss://");
   const tlsRuntime = useLocalTls ? await loadGatewayTlsRuntime(config.gateway?.tls) : undefined;
