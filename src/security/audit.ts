@@ -76,6 +76,11 @@ import {
 } from "./audit-fs.js";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+import { collectEnabledInsecureOrDangerousFlags } from "./dangerous-config-flags.js";
+import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
+>>>>>>> f101d59d5 (feat(security): warn on dangerous config flags at startup)
 import type { ExecFn } from "./windows-acl.js";
 =======
 import { DEFAULT_GATEWAY_HTTP_TOOL_DENY } from "./dangerous-tools.js";
