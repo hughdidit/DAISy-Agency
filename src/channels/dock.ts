@@ -156,7 +156,29 @@ const stringifyAllowFrom = (allowFrom: Array<string | number>) =>
 const trimAllowFromEntries = (allowFrom: Array<string | number>) =>
   allowFrom.map((entry) => String(entry).trim()).filter(Boolean);
 
+<<<<<<< HEAD
 >>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
+=======
+const DEFAULT_OUTBOUND_TEXT_CHUNK_LIMIT_4000 = { textChunkLimit: 4000 };
+
+const DEFAULT_BLOCK_STREAMING_COALESCE = {
+  blockStreamingCoalesceDefaults: { minChars: 1500, idleMs: 1000 },
+};
+
+function formatAllowFromWithReplacements(
+  allowFrom: Array<string | number>,
+  replacements: RegExp[],
+): string[] {
+  return trimAllowFromEntries(allowFrom).map((entry) => {
+    let normalized = entry;
+    for (const replacement of replacements) {
+      normalized = normalized.replace(replacement, "");
+    }
+    return normalized.toLowerCase();
+  });
+}
+
+>>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 const formatDiscordAllowFrom = (allowFrom: Array<string | number>) =>
   allowFrom
     .map((entry) =>
@@ -254,7 +276,39 @@ function resolveDefaultToCaseInsensitiveAccount(params: {
   const account = resolveCaseInsensitiveAccount(params.channel?.accounts, params.accountId);
   return (account?.defaultTo ?? params.channel?.defaultTo)?.trim() || undefined;
 }
+<<<<<<< HEAD
 >>>>>>> ad1c07e7c (refactor: eliminate remaining duplicate blocks across draft streams and tests)
+=======
+
+function resolveChannelDefaultTo(
+  channel:
+    | {
+        accounts?: Record<string, { defaultTo?: string }>;
+        defaultTo?: string;
+      }
+    | undefined,
+  accountId?: string | null,
+): string | undefined {
+  return resolveDefaultToCaseInsensitiveAccount({ channel, accountId });
+}
+
+type CaseInsensitiveDefaultToChannel = {
+  accounts?: Record<string, { defaultTo?: string }>;
+  defaultTo?: string;
+};
+
+type CaseInsensitiveDefaultToChannels = Partial<
+  Record<"irc" | "googlechat", CaseInsensitiveDefaultToChannel>
+>;
+
+function resolveNamedChannelDefaultTo(params: {
+  channels?: CaseInsensitiveDefaultToChannels;
+  channelId: keyof CaseInsensitiveDefaultToChannels;
+  accountId?: string | null;
+}): string | undefined {
+  return resolveChannelDefaultTo(params.channels?.[params.channelId], params.accountId);
+}
+>>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 // Channel docks: lightweight channel metadata/behavior for shared code paths.
 //
 // Rules:
@@ -273,7 +327,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       nativeCommands: true,
       blockStreaming: true,
     },
-    outbound: { textChunkLimit: 4000 },
+    outbound: DEFAULT_OUTBOUND_TEXT_CHUNK_LIMIT_4000,
     config: {
       resolveAllowFrom: ({ cfg, accountId }) =>
         stringifyAllowFrom(resolveTelegramAccount({ cfg, accountId }).config.allowFrom ?? []),
@@ -320,7 +374,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       enforceOwnerForCommands: true,
       skipWhenConfigEmpty: true,
     },
-    outbound: { textChunkLimit: 4000 },
+    outbound: DEFAULT_OUTBOUND_TEXT_CHUNK_LIMIT_4000,
     config: {
       resolveAllowFrom: ({ cfg, accountId }) =>
         resolveWhatsAppAccount({ cfg, accountId }).allowFrom ?? [],
@@ -375,9 +429,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       threads: true,
     },
     outbound: { textChunkLimit: 2000 },
-    streaming: {
-      blockStreamingCoalesceDefaults: { minChars: 1500, idleMs: 1000 },
-    },
+    streaming: DEFAULT_BLOCK_STREAMING_COALESCE,
     elevated: {
       allowFromFallback: ({ cfg }) =>
         cfg.channels?.discord?.allowFrom ?? cfg.channels?.discord?.dm?.allowFrom,
@@ -429,21 +481,13 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
         return (account?.allowFrom ?? channel?.allowFrom ?? []).map((entry) => String(entry));
       },
       formatAllowFrom: ({ allowFrom }) =>
-        allowFrom
-          .map((entry) => String(entry).trim())
-          .filter(Boolean)
-          .map((entry) =>
-            entry
-              .replace(/^irc:/i, "")
-              .replace(/^user:/i, "")
-              .toLowerCase(),
-          ),
-      resolveDefaultTo: ({ cfg, accountId }) => {
-        const channel = cfg.channels?.irc as
-          | { accounts?: Record<string, { defaultTo?: string }>; defaultTo?: string }
-          | undefined;
-        return resolveDefaultToCaseInsensitiveAccount({ channel, accountId });
-      },
+        formatAllowFromWithReplacements(allowFrom, [/^irc:/i, /^user:/i]),
+      resolveDefaultTo: ({ cfg, accountId }) =>
+        resolveNamedChannelDefaultTo({
+          channels: cfg.channels as CaseInsensitiveDefaultToChannels | undefined,
+          channelId: "irc",
+          accountId,
+        }),
     },
     groups: {
       resolveRequireMention: ({ cfg, accountId, groupId }) => {
@@ -487,7 +531,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       threads: true,
       blockStreaming: true,
     },
-    outbound: { textChunkLimit: 4000 },
+    outbound: DEFAULT_OUTBOUND_TEXT_CHUNK_LIMIT_4000,
     config: {
       resolveAllowFrom: ({ cfg, accountId }) => {
         const channel = cfg.channels?.googlechat as
@@ -502,22 +546,17 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
         );
       },
       formatAllowFrom: ({ allowFrom }) =>
-        allowFrom
-          .map((entry) => String(entry).trim())
-          .filter(Boolean)
-          .map((entry) =>
-            entry
-              .replace(/^(googlechat|google-chat|gchat):/i, "")
-              .replace(/^user:/i, "")
-              .replace(/^users\//i, "")
-              .toLowerCase(),
-          ),
-      resolveDefaultTo: ({ cfg, accountId }) => {
-        const channel = cfg.channels?.googlechat as
-          | { accounts?: Record<string, { defaultTo?: string }>; defaultTo?: string }
-          | undefined;
-        return resolveDefaultToCaseInsensitiveAccount({ channel, accountId });
-      },
+        formatAllowFromWithReplacements(allowFrom, [
+          /^(googlechat|google-chat|gchat):/i,
+          /^user:/i,
+          /^users\//i,
+        ]),
+      resolveDefaultTo: ({ cfg, accountId }) =>
+        resolveNamedChannelDefaultTo({
+          channels: cfg.channels as CaseInsensitiveDefaultToChannels | undefined,
+          channelId: "googlechat",
+          accountId,
+        }),
     },
     groups: {
       resolveRequireMention: resolveGoogleChatGroupRequireMention,
@@ -538,10 +577,8 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       nativeCommands: true,
       threads: true,
     },
-    outbound: { textChunkLimit: 4000 },
-    streaming: {
-      blockStreamingCoalesceDefaults: { minChars: 1500, idleMs: 1000 },
-    },
+    outbound: DEFAULT_OUTBOUND_TEXT_CHUNK_LIMIT_4000,
+    streaming: DEFAULT_BLOCK_STREAMING_COALESCE,
     config: {
       resolveAllowFrom: ({ cfg, accountId }) => {
         const account = resolveSlackAccount({ cfg, accountId });
@@ -574,10 +611,8 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       reactions: true,
       media: true,
     },
-    outbound: { textChunkLimit: 4000 },
-    streaming: {
-      blockStreamingCoalesceDefaults: { minChars: 1500, idleMs: 1000 },
-    },
+    outbound: DEFAULT_OUTBOUND_TEXT_CHUNK_LIMIT_4000,
+    streaming: DEFAULT_BLOCK_STREAMING_COALESCE,
     config: {
       resolveAllowFrom: ({ cfg, accountId }) =>
         stringifyAllowFrom(resolveSignalAccount({ cfg, accountId }).config.allowFrom ?? []),
@@ -600,7 +635,7 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
       reactions: true,
       media: true,
     },
-    outbound: { textChunkLimit: 4000 },
+    outbound: DEFAULT_OUTBOUND_TEXT_CHUNK_LIMIT_4000,
     config: {
       resolveAllowFrom: ({ cfg, accountId }) =>
         (resolveIMessageAccount({ cfg, accountId }).config.allowFrom ?? []).map((entry) =>

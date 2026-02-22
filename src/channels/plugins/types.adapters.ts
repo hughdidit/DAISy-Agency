@@ -247,7 +247,30 @@ export type ChannelHeartbeatAdapter = {
   };
 };
 
+type ChannelDirectorySelfParams = {
+  cfg: OpenClawConfig;
+  accountId?: string | null;
+  runtime: RuntimeEnv;
+};
+
+type ChannelDirectoryListParams = {
+  cfg: OpenClawConfig;
+  accountId?: string | null;
+  query?: string | null;
+  limit?: number | null;
+  runtime: RuntimeEnv;
+};
+
+type ChannelDirectoryListGroupMembersParams = {
+  cfg: OpenClawConfig;
+  accountId?: string | null;
+  groupId: string;
+  limit?: number | null;
+  runtime: RuntimeEnv;
+};
+
 export type ChannelDirectoryAdapter = {
+<<<<<<< HEAD
   self?: (params: {
     cfg: MoltbotConfig;
     accountId?: string | null;
@@ -288,6 +311,16 @@ export type ChannelDirectoryAdapter = {
     limit?: number | null;
     runtime: RuntimeEnv;
   }) => Promise<ChannelDirectoryEntry[]>;
+=======
+  self?: (params: ChannelDirectorySelfParams) => Promise<ChannelDirectoryEntry | null>;
+  listPeers?: (params: ChannelDirectoryListParams) => Promise<ChannelDirectoryEntry[]>;
+  listPeersLive?: (params: ChannelDirectoryListParams) => Promise<ChannelDirectoryEntry[]>;
+  listGroups?: (params: ChannelDirectoryListParams) => Promise<ChannelDirectoryEntry[]>;
+  listGroupsLive?: (params: ChannelDirectoryListParams) => Promise<ChannelDirectoryEntry[]>;
+  listGroupMembers?: (
+    params: ChannelDirectoryListGroupMembersParams,
+  ) => Promise<ChannelDirectoryEntry[]>;
+>>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 };
 
 export type ChannelResolveKind = "user" | "group";

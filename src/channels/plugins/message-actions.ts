@@ -26,7 +26,24 @@ import type { ChannelMessageActionContext, ChannelMessageActionName } from "./ty
 import { getChannelPlugin, listChannelPlugins } from "./index.js";
 import type { ChannelMessageActionContext, ChannelMessageActionName } from "./types.js";
 
+<<<<<<< HEAD
 export function listChannelMessageActions(cfg: MoltbotConfig): ChannelMessageActionName[] {
+=======
+const trustedRequesterRequiredByChannel: Readonly<
+  Partial<Record<string, ReadonlySet<ChannelMessageActionName>>>
+> = {
+  discord: new Set<ChannelMessageActionName>(["timeout", "kick", "ban"]),
+};
+
+type ChannelActions = NonNullable<NonNullable<ReturnType<typeof getChannelPlugin>>["actions"]>;
+
+function requiresTrustedRequesterSender(ctx: ChannelMessageActionContext): boolean {
+  const actions = trustedRequesterRequiredByChannel[ctx.channel];
+  return Boolean(actions?.has(ctx.action) && ctx.toolContext);
+}
+
+export function listChannelMessageActions(cfg: OpenClawConfig): ChannelMessageActionName[] {
+>>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
   const actions = new Set<ChannelMessageActionName>(["send", "broadcast"]);
   for (const plugin of listChannelPlugins()) {
     const list = plugin.actions?.listActions?.({ cfg });
@@ -40,6 +57,7 @@ export function listChannelMessageActions(cfg: MoltbotConfig): ChannelMessageAct
   return Array.from(actions);
 }
 
+<<<<<<< HEAD
 export function supportsChannelMessageButtons(cfg: MoltbotConfig): boolean {
   for (const plugin of listChannelPlugins()) {
     if (plugin.actions?.supportsButtons?.({ cfg })) {
@@ -47,6 +65,10 @@ export function supportsChannelMessageButtons(cfg: MoltbotConfig): boolean {
     }
   }
   return false;
+=======
+export function supportsChannelMessageButtons(cfg: OpenClawConfig): boolean {
+  return supportsMessageFeature(cfg, (actions) => actions?.supportsButtons?.({ cfg }) === true);
+>>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 }
 
 <<<<<<< HEAD
@@ -56,14 +78,14 @@ export function supportsChannelMessageButtonsForChannel(params: {
   cfg: OpenClawConfig;
   channel?: string;
 }): boolean {
-  if (!params.channel) {
-    return false;
-  }
-  const plugin = getChannelPlugin(params.channel as Parameters<typeof getChannelPlugin>[0]);
-  return plugin?.actions?.supportsButtons?.({ cfg: params.cfg }) === true;
+  return supportsMessageFeatureForChannel(
+    params,
+    (actions) => actions.supportsButtons?.(params) === true,
+  );
 }
 
 export function supportsChannelMessageCards(cfg: OpenClawConfig): boolean {
+<<<<<<< HEAD
 >>>>>>> c8a536e30 (fix(agents): scope message tool schema by channel (#18215))
   for (const plugin of listChannelPlugins()) {
     if (plugin.actions?.supportsCards?.({ cfg })) {
@@ -71,17 +93,45 @@ export function supportsChannelMessageCards(cfg: OpenClawConfig): boolean {
     }
   }
   return false;
+=======
+  return supportsMessageFeature(cfg, (actions) => actions?.supportsCards?.({ cfg }) === true);
+>>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
 }
 
 export function supportsChannelMessageCardsForChannel(params: {
   cfg: OpenClawConfig;
   channel?: string;
 }): boolean {
+  return supportsMessageFeatureForChannel(
+    params,
+    (actions) => actions.supportsCards?.(params) === true,
+  );
+}
+
+function supportsMessageFeature(
+  cfg: OpenClawConfig,
+  check: (actions: ChannelActions) => boolean,
+): boolean {
+  for (const plugin of listChannelPlugins()) {
+    if (plugin.actions && check(plugin.actions)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function supportsMessageFeatureForChannel(
+  params: {
+    cfg: OpenClawConfig;
+    channel?: string;
+  },
+  check: (actions: ChannelActions) => boolean,
+): boolean {
   if (!params.channel) {
     return false;
   }
   const plugin = getChannelPlugin(params.channel as Parameters<typeof getChannelPlugin>[0]);
-  return plugin?.actions?.supportsCards?.({ cfg: params.cfg }) === true;
+  return plugin?.actions ? check(plugin.actions) : false;
 }
 
 export async function dispatchChannelMessageAction(

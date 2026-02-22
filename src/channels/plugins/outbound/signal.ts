@@ -1,20 +1,15 @@
-import { chunkText } from "../../../auto-reply/chunk.js";
+import type { OutboundSendDeps } from "../../../infra/outbound/deliver.js";
 import { sendMessageSignal } from "../../../signal/send.js";
-import { resolveChannelMediaMaxBytes } from "../media-limits.js";
-import type { ChannelOutboundAdapter } from "../types.js";
+import {
+  createScopedChannelMediaMaxBytesResolver,
+  createDirectTextMediaOutbound,
+} from "./direct-text-media.js";
 
-function resolveSignalMaxBytes(params: {
-  cfg: Parameters<typeof resolveChannelMediaMaxBytes>[0]["cfg"];
-  accountId?: string | null;
-}) {
-  return resolveChannelMediaMaxBytes({
-    cfg: params.cfg,
-    resolveChannelLimitMb: ({ cfg, accountId }) =>
-      cfg.channels?.signal?.accounts?.[accountId]?.mediaMaxMb ?? cfg.channels?.signal?.mediaMaxMb,
-    accountId: params.accountId,
-  });
+function resolveSignalSender(deps: OutboundSendDeps | undefined) {
+  return deps?.sendSignal ?? sendMessageSignal;
 }
 
+<<<<<<< HEAD
 export const signalOutbound: ChannelOutboundAdapter = {
   deliveryMode: "direct",
   chunker: chunkText,
@@ -40,3 +35,20 @@ export const signalOutbound: ChannelOutboundAdapter = {
     return { channel: "signal", ...result };
   },
 };
+=======
+export const signalOutbound = createDirectTextMediaOutbound({
+  channel: "signal",
+  resolveSender: resolveSignalSender,
+  resolveMaxBytes: createScopedChannelMediaMaxBytesResolver("signal"),
+  buildTextOptions: ({ maxBytes, accountId }) => ({
+    maxBytes,
+    accountId: accountId ?? undefined,
+  }),
+  buildMediaOptions: ({ mediaUrl, maxBytes, accountId, mediaLocalRoots }) => ({
+    mediaUrl,
+    maxBytes,
+    accountId: accountId ?? undefined,
+    mediaLocalRoots,
+  }),
+});
+>>>>>>> 66f814a0a (refactor(channels): dedupe plugin routing and channel helpers)
