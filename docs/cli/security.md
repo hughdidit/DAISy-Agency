@@ -31,6 +31,7 @@ It also warns when small models (`<=300B`) are used without sandboxing and with 
 <<<<<<< HEAD
 =======
 For webhook ingress, it warns when `hooks.defaultSessionKey` is unset, when request `sessionKey` overrides are enabled, and when overrides are enabled without `hooks.allowedSessionKeyPrefixes`.
+<<<<<<< HEAD
 It also warns when sandbox Docker settings are configured while sandbox mode is off, when `gateway.nodes.denyCommands` uses ineffective pattern-like/unknown entries, when global `tools.profile="minimal"` is overridden by agent tool profiles, and when installed extension plugin tools may be reachable under permissive tool policy.
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -43,6 +44,9 @@ It also warns when sandbox Docker settings are configured while sandbox mode is 
 =======
 =======
 =======
+=======
+It also warns when sandbox Docker settings are configured while sandbox mode is off, when `gateway.nodes.denyCommands` uses ineffective pattern-like/unknown entries, when global `tools.profile="minimal"` is overridden by agent tool profiles, when open groups expose runtime/filesystem tools without sandbox/workspace guards, and when installed extension plugin tools may be reachable under permissive tool policy.
+>>>>>>> 049b8b14b (fix(security): flag open-group runtime/fs exposure in audit)
 It also warns when sandbox browser uses Docker `bridge` network without `sandbox.browser.cdpSourceRange`.
 >>>>>>> f48698a50 (fix(security): harden sandbox browser network defaults)
 It also warns when existing sandbox browser Docker containers have missing/stale hash labels (for example pre-migration containers missing `openclaw.browserConfigEpoch`) and recommends `openclaw sandbox recreate --browser --all`.
