@@ -1,10 +1,10 @@
-import fs from "node:fs";
-import path from "node:path";
 import { splitShellArgs } from "../utils/shell-argv.js";
-import type { ExecAllowlistEntry } from "./exec-approvals.js";
-import { unwrapDispatchWrappersForResolution } from "./exec-wrapper-resolution.js";
-import { expandHomePrefix } from "./home-dir.js";
+import {
+  resolveCommandResolutionFromArgv,
+  type CommandResolution,
+} from "./exec-command-resolution.js";
 
+<<<<<<< HEAD
 export const DEFAULT_SAFE_BINS = ["jq", "grep", "cut", "sort", "uniq", "head", "tail", "tr", "wc"];
 
 export type CommandResolution = {
@@ -222,6 +222,18 @@ export function matchAllowlist(
   }
   return null;
 }
+=======
+export {
+  DEFAULT_SAFE_BINS,
+  matchAllowlist,
+  parseExecArgvToken,
+  resolveAllowlistCandidatePath,
+  resolveCommandResolution,
+  resolveCommandResolutionFromArgv,
+  type CommandResolution,
+  type ExecArgvToken,
+} from "./exec-command-resolution.js";
+>>>>>>> 862975507 (refactor(exec): split command resolution and trusted-dir normalization)
 
 export type ExecCommandSegment = {
   raw: string;
@@ -710,6 +722,50 @@ function shellEscapeSingleArg(value: string): string {
   return `'${value.replace(/'/g, singleQuoteEscape)}'`;
 }
 
+type ShellSegmentRenderResult = { ok: true; rendered: string } | { ok: false; reason: string };
+
+function rebuildShellCommandFromSource(params: {
+  command: string;
+  platform?: string | null;
+  renderSegment: (rawSegment: string, segmentIndex: number) => ShellSegmentRenderResult;
+}): { ok: boolean; command?: string; reason?: string; segmentCount?: number } {
+  const platform = params.platform ?? null;
+  if (isWindowsPlatform(platform)) {
+    return { ok: false, reason: "unsupported platform" };
+  }
+  const source = params.command.trim();
+  if (!source) {
+    return { ok: false, reason: "empty command" };
+  }
+
+  const chain = splitCommandChainWithOperators(source);
+  const chainParts: ShellChainPart[] = chain ?? [{ part: source, opToNext: null }];
+  let segmentCount = 0;
+  let out = "";
+
+  for (const part of chainParts) {
+    const pipelineSplit = splitShellPipeline(part.part);
+    if (!pipelineSplit.ok) {
+      return { ok: false, reason: pipelineSplit.reason ?? "unable to parse pipeline" };
+    }
+    const renderedSegments: string[] = [];
+    for (const segmentRaw of pipelineSplit.segments) {
+      const rendered = params.renderSegment(segmentRaw, segmentCount);
+      if (!rendered.ok) {
+        return { ok: false, reason: rendered.reason };
+      }
+      renderedSegments.push(rendered.rendered);
+      segmentCount += 1;
+    }
+    out += renderedSegments.join(" | ");
+    if (part.opToNext) {
+      out += ` ${part.opToNext} `;
+    }
+  }
+
+  return { ok: true, command: out, segmentCount };
+}
+
 /**
  * Builds a shell command string that preserves pipes/chaining, but forces *arguments* to be
  * literal (no globbing, no env-var expansion) by single-quoting every argv token.
@@ -721,40 +777,21 @@ export function buildSafeShellCommand(params: { command: string; platform?: stri
   command?: string;
   reason?: string;
 } {
-  const platform = params.platform ?? null;
-  if (isWindowsPlatform(platform)) {
-    return { ok: false, reason: "unsupported platform" };
-  }
-  const source = params.command.trim();
-  if (!source) {
-    return { ok: false, reason: "empty command" };
-  }
-
-  const chain = splitCommandChainWithOperators(source);
-  const chainParts = chain ?? [{ part: source, opToNext: null }];
-  let out = "";
-
-  for (let i = 0; i < chainParts.length; i += 1) {
-    const part = chainParts[i];
-    const pipelineSplit = splitShellPipeline(part.part);
-    if (!pipelineSplit.ok) {
-      return { ok: false, reason: pipelineSplit.reason ?? "unable to parse pipeline" };
-    }
-    const renderedSegments: string[] = [];
-    for (const segmentRaw of pipelineSplit.segments) {
+  const rebuilt = rebuildShellCommandFromSource({
+    command: params.command,
+    platform: params.platform,
+    renderSegment: (segmentRaw) => {
       const argv = splitShellArgs(segmentRaw);
       if (!argv || argv.length === 0) {
         return { ok: false, reason: "unable to parse shell segment" };
       }
-      renderedSegments.push(argv.map((token) => shellEscapeSingleArg(token)).join(" "));
-    }
-    out += renderedSegments.join(" | ");
-    if (part.opToNext) {
-      out += ` ${part.opToNext} `;
-    }
+      return { ok: true, rendered: argv.map((token) => shellEscapeSingleArg(token)).join(" ") };
+    },
+  });
+  if (!rebuilt.ok) {
+    return { ok: false, reason: rebuilt.reason };
   }
-
-  return { ok: true, command: out };
+  return { ok: true, command: rebuilt.command };
 }
 
 function renderQuotedArgv(argv: string[]): string {
@@ -781,48 +818,29 @@ export function buildSafeBinsShellCommand(params: {
   segmentSatisfiedBy: ("allowlist" | "safeBins" | "skills" | null)[];
   platform?: string | null;
 }): { ok: boolean; command?: string; reason?: string } {
-  const platform = params.platform ?? null;
-  if (isWindowsPlatform(platform)) {
-    return { ok: false, reason: "unsupported platform" };
-  }
   if (params.segments.length !== params.segmentSatisfiedBy.length) {
     return { ok: false, reason: "segment metadata mismatch" };
   }
-
-  const chain = splitCommandChainWithOperators(params.command.trim());
-  const chainParts: ShellChainPart[] = chain ?? [{ part: params.command.trim(), opToNext: null }];
-  let segIndex = 0;
-  let out = "";
-
-  for (const part of chainParts) {
-    const pipelineSplit = splitShellPipeline(part.part);
-    if (!pipelineSplit.ok) {
-      return { ok: false, reason: pipelineSplit.reason ?? "unable to parse pipeline" };
-    }
-
-    const rendered: string[] = [];
-    for (const raw of pipelineSplit.segments) {
-      const seg = params.segments[segIndex];
-      const by = params.segmentSatisfiedBy[segIndex];
+  const rebuilt = rebuildShellCommandFromSource({
+    command: params.command,
+    platform: params.platform,
+    renderSegment: (raw, segmentIndex) => {
+      const seg = params.segments[segmentIndex];
+      const by = params.segmentSatisfiedBy[segmentIndex];
       if (!seg || by === undefined) {
         return { ok: false, reason: "segment mapping failed" };
       }
       const needsLiteral = by === "safeBins";
-      rendered.push(needsLiteral ? renderSafeBinSegmentArgv(seg) : raw.trim());
-      segIndex += 1;
-    }
-
-    out += rendered.join(" | ");
-    if (part.opToNext) {
-      out += ` ${part.opToNext} `;
-    }
+      return { ok: true, rendered: needsLiteral ? renderSafeBinSegmentArgv(seg) : raw.trim() };
+    },
+  });
+  if (!rebuilt.ok) {
+    return { ok: false, reason: rebuilt.reason };
   }
-
-  if (segIndex !== params.segments.length) {
+  if (rebuilt.segmentCount !== params.segments.length) {
     return { ok: false, reason: "segment count mismatch" };
   }
-
-  return { ok: true, command: out };
+  return { ok: true, command: rebuilt.command };
 }
 
 /**
