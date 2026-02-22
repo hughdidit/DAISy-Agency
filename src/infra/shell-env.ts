@@ -1,7 +1,9 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { isTruthyEnvValue } from "./env.js";
+import { sanitizeHostExecEnv } from "./host-env-security.js";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 const DEFAULT_MAX_BUFFER_BYTES = 2 * 1024 * 1024;
@@ -18,7 +20,26 @@ let cachedShellPath: string | null | undefined;
 let cachedEtcShells: Set<string> | null | undefined;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+function resolveShellExecEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const execEnv = sanitizeHostExecEnv({ baseEnv: env });
+
+  // Startup-file resolution must stay pinned to the real user home.
+  const home = os.homedir().trim();
+  if (home) {
+    execEnv.HOME = home;
+  } else {
+    delete execEnv.HOME;
+  }
+
+  // Avoid zsh startup-file redirection via env poisoning.
+  delete execEnv.ZDOTDIR;
+  return execEnv;
+}
+
+>>>>>>> 9363c320d (fix(security): harden shell env fallback startup env handling)
 function resolveTimeoutMs(timeoutMs: number | undefined): number {
   if (typeof timeoutMs !== "number" || !Number.isFinite(timeoutMs)) {
     return DEFAULT_TIMEOUT_MS;
@@ -136,9 +157,11 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
       : DEFAULT_TIMEOUT_MS;
 
   const shell = resolveShell(opts.env);
+  const execEnv = resolveShellExecEnv(opts.env);
 
   let stdout: Buffer;
   try {
+<<<<<<< HEAD
     stdout = exec(shell, ["-l", "-c", "env -0"], {
       encoding: "buffer",
       timeout: timeoutMs,
@@ -146,6 +169,9 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
       env: opts.env,
       stdio: ["ignore", "pipe", "pipe"],
     });
+=======
+    stdout = execLoginShellEnvZero({ shell, env: execEnv, exec, timeoutMs });
+>>>>>>> 9363c320d (fix(security): harden shell env fallback startup env handling)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     logger.warn(`[openclaw] shell env fallback failed: ${msg}`);
@@ -211,9 +237,11 @@ export function getShellPathFromLoginShell(opts: {
       ? Math.max(0, opts.timeoutMs)
       : DEFAULT_TIMEOUT_MS;
   const shell = resolveShell(opts.env);
+  const execEnv = resolveShellExecEnv(opts.env);
 
   let stdout: Buffer;
   try {
+<<<<<<< HEAD
     stdout = exec(shell, ["-l", "-c", "env -0"], {
       encoding: "buffer",
       timeout: timeoutMs,
@@ -221,6 +249,9 @@ export function getShellPathFromLoginShell(opts: {
       env: opts.env,
       stdio: ["ignore", "pipe", "pipe"],
     });
+=======
+    stdout = execLoginShellEnvZero({ shell, env: execEnv, exec, timeoutMs });
+>>>>>>> 9363c320d (fix(security): harden shell env fallback startup env handling)
   } catch {
     cachedShellPath = null;
     return cachedShellPath;
