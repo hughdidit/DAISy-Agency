@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { emitAgentEvent } from "../infra/agent-events.js";
 <<<<<<< HEAD
 <<<<<<< HEAD:src/agents/openclaw-tools.subagents.sessions-spawn-normalizes-allowlisted-agent-ids.e2e.test.ts
@@ -43,6 +43,7 @@ import { createOpenClawTools } from "./openclaw-tools.js";
 import {
   getCallGatewayMock,
   resetSessionsSpawnConfigOverride,
+  setSessionsSpawnConfigOverride,
 } from "./openclaw-tools.subagents.sessions-spawn.test-harness.js";
 >>>>>>> dd11a6bcd (refactor(test): share sessions_spawn e2e harness)
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
@@ -55,6 +56,7 @@ vi.mock("./pi-embedded.js", () => ({
 }));
 
 const callGatewayMock = getCallGatewayMock();
+const RUN_TIMEOUT_SECONDS = 1;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -188,14 +190,18 @@ function setupSessionsSpawnGatewayMock(opts: {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6b4590be0 (fix(agents): stabilize sessions_spawn e2e suite)
 =======
 const waitFor = async (predicate: () => boolean, timeoutMs = 2000) => {
+=======
+const waitFor = async (predicate: () => boolean, timeoutMs = 1_500) => {
+>>>>>>> 0b7c7ee1a (perf(test): speed up sessions_spawn lifecycle suite setup)
   await vi.waitFor(
     () => {
       expect(predicate()).toBe(true);
     },
-    { timeout: timeoutMs, interval: 10 },
+    { timeout: timeoutMs, interval: 8 },
   );
 };
 
@@ -248,11 +254,39 @@ function createDeleteCleanupHooks(setDeletedKey: (key: string | undefined) => vo
 =======
 >>>>>>> 8178ea472 (feat: thread-bound subagents on Discord (#21805))
 describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
+<<<<<<< HEAD
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.lifecycle.e2e.test.ts
+=======
+  let previousFastTestEnv: string | undefined;
+
+>>>>>>> 0b7c7ee1a (perf(test): speed up sessions_spawn lifecycle suite setup)
   beforeEach(() => {
+    if (previousFastTestEnv === undefined) {
+      previousFastTestEnv = process.env.OPENCLAW_TEST_FAST;
+    }
+    vi.stubEnv("OPENCLAW_TEST_FAST", "1");
     resetSessionsSpawnConfigOverride();
+    setSessionsSpawnConfigOverride({
+      session: {
+        mainKey: "main",
+        scope: "per-sender",
+      },
+      messages: {
+        queue: {
+          debounceMs: 0,
+        },
+      },
+    });
     resetSubagentRegistryForTests();
     callGatewayMock.mockClear();
+  });
+
+  afterAll(() => {
+    if (previousFastTestEnv === undefined) {
+      delete process.env.OPENCLAW_TEST_FAST;
+      return;
+    }
+    process.env.OPENCLAW_TEST_FAST = previousFastTestEnv;
   });
 
   it("sessions_spawn runs cleanup flow after subagent completion", async () => {
@@ -278,7 +312,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
 
     const result = await tool.execute("call2", {
       task: "do thing",
-      runTimeoutSeconds: 1,
+      runTimeoutSeconds: RUN_TIMEOUT_SECONDS,
       label: "my-task",
     });
     expect(result.details).toMatchObject({
@@ -362,7 +396,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
 
     const result = await tool.execute("call1", {
       task: "do thing",
-      runTimeoutSeconds: 1,
+      runTimeoutSeconds: RUN_TIMEOUT_SECONDS,
       cleanup: "delete",
     });
     expect(result.details).toMatchObject({
@@ -459,7 +493,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
 
     const result = await tool.execute("call1b", {
       task: "do thing",
-      runTimeoutSeconds: 1,
+      runTimeoutSeconds: RUN_TIMEOUT_SECONDS,
       cleanup: "delete",
     });
     expect(result.details).toMatchObject({
@@ -544,7 +578,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
 
     const result = await tool.execute("call-timeout", {
       task: "do thing",
-      runTimeoutSeconds: 1,
+      runTimeoutSeconds: RUN_TIMEOUT_SECONDS,
       cleanup: "keep",
     });
     expect(result.details).toMatchObject({
@@ -614,7 +648,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
 
     const result = await tool.execute("call-announce-account", {
       task: "do thing",
-      runTimeoutSeconds: 1,
+      runTimeoutSeconds: RUN_TIMEOUT_SECONDS,
       cleanup: "keep",
     });
     expect(result.details).toMatchObject({
