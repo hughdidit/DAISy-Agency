@@ -114,6 +114,7 @@ import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 import type { OpenClawConfig, ReplyToMode } from "../../config/config.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
 import { loadConfig } from "../../config/config.js";
+import type { GroupPolicy } from "../../config/types.base.js";
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
@@ -343,6 +344,25 @@ function dedupeSkillCommandsForDiscord(
   return deduped;
 }
 
+function resolveDiscordRuntimeGroupPolicy(params: {
+  providerConfigPresent: boolean;
+  groupPolicy?: GroupPolicy;
+  defaultGroupPolicy?: GroupPolicy;
+}): {
+  groupPolicy: GroupPolicy;
+  providerMissingFallbackApplied: boolean;
+} {
+  const groupPolicy =
+    params.groupPolicy ??
+    params.defaultGroupPolicy ??
+    (params.providerConfigPresent ? "open" : "allowlist");
+  const providerMissingFallbackApplied =
+    !params.providerConfigPresent &&
+    params.groupPolicy === undefined &&
+    params.defaultGroupPolicy === undefined;
+  return { groupPolicy, providerMissingFallbackApplied };
+}
+
 async function deployDiscordCommands(params: {
   client: Client;
   runtime: RuntimeEnv;
@@ -426,16 +446,16 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
   const dmConfig = discordCfg.dm;
   let guildEntries = discordCfg.guilds;
   const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-  const groupPolicy = discordCfg.groupPolicy ?? defaultGroupPolicy ?? "open";
-  if (
-    discordCfg.groupPolicy === undefined &&
-    discordCfg.guilds === undefined &&
-    defaultGroupPolicy === undefined &&
-    groupPolicy === "open"
-  ) {
+  const providerConfigPresent = cfg.channels?.discord !== undefined;
+  const { groupPolicy, providerMissingFallbackApplied } = resolveDiscordRuntimeGroupPolicy({
+    providerConfigPresent,
+    groupPolicy: discordCfg.groupPolicy,
+    defaultGroupPolicy,
+  });
+  if (providerMissingFallbackApplied) {
     runtime.log?.(
       warn(
-        'discord: groupPolicy defaults to "open" when channels.discord is missing; set channels.discord.groupPolicy (or channels.defaults.groupPolicy) or add channels.discord.guilds to restrict access.',
+        'discord: channels.discord is missing; defaulting groupPolicy to "allowlist" (guild messages blocked until explicitly configured).',
       ),
     );
   }
@@ -1072,6 +1092,7 @@ async function clearDiscordNativeCommands(params: {
 export const __testing = {
   createDiscordGatewayPlugin,
   dedupeSkillCommandsForDiscord,
+  resolveDiscordRuntimeGroupPolicy,
   resolveDiscordRestFetch,
   resolveThreadBindingsEnabled,
 };
