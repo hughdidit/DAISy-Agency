@@ -242,7 +242,73 @@ export function wrapToolParamNormalization(
   };
 }
 
+<<<<<<< HEAD
 function wrapSandboxPathGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
+=======
+export function wrapToolWorkspaceRootGuard(tool: AnyAgentTool, root: string): AnyAgentTool {
+  return wrapToolWorkspaceRootGuardWithOptions(tool, root);
+}
+
+function mapContainerPathToWorkspaceRoot(params: {
+  filePath: string;
+  root: string;
+  containerWorkdir?: string;
+}): string {
+  const containerWorkdir = params.containerWorkdir?.trim();
+  if (!containerWorkdir) {
+    return params.filePath;
+  }
+  const normalizedWorkdir = containerWorkdir.replace(/\\/g, "/").replace(/\/+$/, "");
+  if (!normalizedWorkdir.startsWith("/")) {
+    return params.filePath;
+  }
+  if (!normalizedWorkdir) {
+    return params.filePath;
+  }
+
+  let candidate = params.filePath;
+  if (/^file:\/\//i.test(candidate)) {
+    try {
+      candidate = fileURLToPath(candidate);
+    } catch {
+      try {
+        const parsed = new URL(candidate);
+        if (parsed.protocol !== "file:") {
+          return params.filePath;
+        }
+        candidate = decodeURIComponent(parsed.pathname || "");
+        if (!candidate.startsWith("/")) {
+          return params.filePath;
+        }
+      } catch {
+        return params.filePath;
+      }
+    }
+  }
+
+  const normalizedCandidate = candidate.replace(/\\/g, "/");
+  if (normalizedCandidate === normalizedWorkdir) {
+    return path.resolve(params.root);
+  }
+  const prefix = `${normalizedWorkdir}/`;
+  if (!normalizedCandidate.startsWith(prefix)) {
+    return candidate;
+  }
+  const relative = normalizedCandidate.slice(prefix.length);
+  if (!relative) {
+    return path.resolve(params.root);
+  }
+  return path.resolve(params.root, ...relative.split("/").filter(Boolean));
+}
+
+export function wrapToolWorkspaceRootGuardWithOptions(
+  tool: AnyAgentTool,
+  root: string,
+  options?: {
+    containerWorkdir?: string;
+  },
+): AnyAgentTool {
+>>>>>>> 1e582dcc6 (fix: harden windows path handling in CI tests)
   return {
     ...tool,
     execute: async (toolCallId, args, signal, onUpdate) => {
