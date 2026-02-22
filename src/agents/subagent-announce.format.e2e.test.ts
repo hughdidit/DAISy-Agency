@@ -987,26 +987,16 @@ describe("subagent announce formatting", () => {
         childRunId: "run-1",
         requesterSessionKey: "main",
         requesterDisplayKey: "main",
+        ...defaultOutcomeAnnounce,
         task: "first task",
-        timeoutMs: 1000,
-        cleanup: "keep",
-        waitForCompletion: false,
-        startedAt: 10,
-        endedAt: 20,
-        outcome: { status: "ok" },
       });
       await runSubagentAnnounceFlow({
         childSessionKey: "agent:main:subagent:worker",
         childRunId: "run-2",
         requesterSessionKey: "main",
         requesterDisplayKey: "main",
+        ...defaultOutcomeAnnounce,
         task: "second task",
-        timeoutMs: 1000,
-        cleanup: "keep",
-        waitForCompletion: false,
-        startedAt: 10,
-        endedAt: 20,
-        outcome: { status: "ok" },
       });
     } finally {
       nowSpy.mockRestore();
@@ -1545,13 +1535,8 @@ describe("subagent announce formatting", () => {
       childRunId: "run-leaf-missing-fallback",
       requesterSessionKey: "agent:main:subagent:orchestrator",
       requesterDisplayKey: "agent:main:subagent:orchestrator",
-      task: "do thing",
-      timeoutMs: 1000,
+      ...defaultOutcomeAnnounce,
       cleanup: "delete",
-      waitForCompletion: false,
-      startedAt: 10,
-      endedAt: 20,
-      outcome: { status: "ok" },
     });
 
     expect(didAnnounce).toBe(false);
@@ -1701,13 +1686,8 @@ describe("subagent announce formatting", () => {
         childRunId: testCase.childRunId,
         requesterSessionKey: "agent:main:main",
         requesterDisplayKey: "main",
+        ...defaultOutcomeAnnounce,
         task: testCase.task,
-        timeoutMs: 1000,
-        cleanup: "keep",
-        waitForCompletion: false,
-        startedAt: 10,
-        endedAt: 20,
-        outcome: { status: "ok" },
         ...(testCase.expectsCompletionMessage ? { expectsCompletionMessage: true } : {}),
       });
 
@@ -1886,13 +1866,8 @@ describe("subagent announce formatting", () => {
         childRunId: testCase.childRunId,
         requesterSessionKey: testCase.requesterSessionKey,
         requesterDisplayKey: testCase.requesterDisplayKey,
+        ...defaultOutcomeAnnounce,
         task: "QA task",
-        timeoutMs: 1000,
-        cleanup: "keep",
-        waitForCompletion: false,
-        startedAt: 10,
-        endedAt: 20,
-        outcome: { status: "ok" },
       });
 
       expect(didAnnounce, testCase.name).toBe(true);
