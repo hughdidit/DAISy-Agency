@@ -136,11 +136,6 @@ export class GatewayBrowserClient {
     if (this.connectSent) {
       return;
     }
-    const nonce = this.connectNonce?.trim() ?? "";
-    if (!nonce) {
-      this.ws?.close(CONNECT_FAILED_CLOSE_CODE, "connect challenge missing nonce");
-      return;
-    }
     this.connectSent = true;
     if (this.connectTimer !== null) {
       window.clearTimeout(this.connectTimer);
@@ -155,6 +150,7 @@ export class GatewayBrowserClient {
     const scopes = ["operator.admin", "operator.approvals", "operator.pairing"];
     const role = "operator";
     let deviceIdentity: Awaited<ReturnType<typeof loadOrCreateDeviceIdentity>> | null = null;
+    let canFallbackToShared = false;
     let authToken = this.opts.token;
 
     if (isSecureContext) {
@@ -164,6 +160,7 @@ export class GatewayBrowserClient {
         role,
       })?.token;
       authToken = storedToken ?? this.opts.token;
+      canFallbackToShared = Boolean(storedToken && this.opts.token);
     }
     const auth =
       authToken || this.opts.password
@@ -179,12 +176,13 @@ export class GatewayBrowserClient {
           publicKey: string;
           signature: string;
           signedAt: number;
-          nonce: string;
+          nonce: string | undefined;
         }
       | undefined;
 
     if (isSecureContext && deviceIdentity) {
       const signedAtMs = Date.now();
+      const nonce = this.connectNonce ?? undefined;
       const payload = buildDeviceAuthPayload({
         deviceId: deviceIdentity.deviceId,
         clientId: this.opts.clientName ?? GATEWAY_CLIENT_NAMES.CONTROL_UI,
@@ -237,11 +235,7 @@ export class GatewayBrowserClient {
         this.opts.onHello?.(hello);
       })
       .catch(() => {
-        // Clear stale device token on any connect failure so the next attempt
-        // falls back to the shared gateway token (if present) or retries without
-        // a cached device token. Without this, a rotated/revoked device token
-        // causes an infinite mismatch loop when no shared token is configured.
-        if (deviceIdentity) {
+        if (canFallbackToShared && deviceIdentity) {
           clearDeviceAuthToken({ deviceId: deviceIdentity.deviceId, role });
         }
         this.ws?.close(CONNECT_FAILED_CLOSE_CODE, "connect failed");
@@ -262,12 +256,10 @@ export class GatewayBrowserClient {
       if (evt.event === "connect.challenge") {
         const payload = evt.payload as { nonce?: unknown } | undefined;
         const nonce = payload && typeof payload.nonce === "string" ? payload.nonce : null;
-        if (!nonce || nonce.trim().length === 0) {
-          this.ws?.close(CONNECT_FAILED_CLOSE_CODE, "connect challenge missing nonce");
-          return;
+        if (nonce) {
+          this.connectNonce = nonce;
+          void this.sendConnect();
         }
-        this.connectNonce = nonce.trim();
-        void this.sendConnect();
         return;
       }
       const seq = typeof evt.seq === "number" ? evt.seq : null;
@@ -321,10 +313,7 @@ export class GatewayBrowserClient {
       window.clearTimeout(this.connectTimer);
     }
     this.connectTimer = window.setTimeout(() => {
-      if (this.connectSent || this.ws?.readyState !== WebSocket.OPEN) {
-        return;
-      }
-      this.ws?.close(CONNECT_FAILED_CLOSE_CODE, "connect challenge timeout");
-    }, 2_000);
+      void this.sendConnect();
+    }, 750);
   }
 }

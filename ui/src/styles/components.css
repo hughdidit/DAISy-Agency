@@ -1,80 +1,6 @@
 @import "./chat.css";
 
 /* ===========================================
-   Login Gate
-   =========================================== */
-
-.login-gate {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  min-height: 100dvh;
-  background: var(--bg);
-  padding: 24px;
-}
-
-.login-gate__theme {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 10;
-}
-
-.login-gate__card {
-  width: min(520px, 100%);
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 32px;
-  animation: scale-in 0.25s var(--ease-out);
-}
-
-.login-gate__header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.login-gate__logo {
-  width: 48px;
-  height: 48px;
-  margin-bottom: 12px;
-}
-
-.login-gate__title {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.login-gate__sub {
-  color: var(--muted);
-  font-size: 14px;
-  margin-top: 4px;
-}
-
-.login-gate__form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.login-gate__connect {
-  margin-top: 4px;
-  width: 100%;
-  justify-content: center;
-  padding: 10px 16px;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.login-gate__help {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-/* ===========================================
    Update Banner
    =========================================== */
 
@@ -100,7 +26,7 @@
 }
 
 .update-banner__btn:hover:not(:disabled) {
-  background: var(--danger-subtle);
+  background: rgba(239, 68, 68, 0.15);
 }
 
 /* ===========================================
@@ -130,7 +56,7 @@
 }
 
 .card-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text-strong);
@@ -138,7 +64,7 @@
 
 .card-sub {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
   margin-top: 6px;
   line-height: 1.5;
 }
@@ -148,10 +74,10 @@
    =========================================== */
 
 .stat {
-  background: color-mix(in srgb, var(--card) 96%, transparent);
+  background: var(--card);
   border-radius: var(--radius-md);
   padding: 14px 16px;
-  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+  border: 1px solid var(--border);
   transition:
     border-color var(--duration-normal) var(--ease-out),
     box-shadow var(--duration-normal) var(--ease-out);
@@ -161,20 +87,20 @@
 .stat:hover {
   border-color: var(--border-strong);
   box-shadow:
-    0 6px 16px rgba(0, 0, 0, 0.18),
+    var(--shadow-sm),
     inset 0 1px 0 var(--card-highlight);
 }
 
 .stat-label {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .stat-value {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
   margin-top: 6px;
   letter-spacing: -0.03em;
@@ -222,7 +148,7 @@
 
 .account-count {
   margin-top: 10px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--muted);
 }
@@ -258,13 +184,13 @@
 
 .account-card-id {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 12px;
   color: var(--muted);
 }
 
 .account-card-status {
   margin-top: 10px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .account-card-status div {
@@ -274,7 +200,7 @@
 .account-card-error {
   margin-top: 8px;
   color: var(--danger);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 /* ===========================================
@@ -283,7 +209,7 @@
 
 .label {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
 }
 
@@ -291,20 +217,17 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+  border: 1px solid var(--border);
   padding: 6px 12px;
   border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--secondary) 92%, transparent);
-  font-size: 14px;
+  background: var(--secondary);
+  font-size: 13px;
   font-weight: 500;
-  transition:
-    border-color var(--duration-fast) ease,
-    background var(--duration-fast) ease;
+  transition: border-color var(--duration-fast) ease;
 }
 
 .pill:hover {
   border-color: var(--border-strong);
-  background: var(--bg-hover);
 }
 
 .pill.danger {
@@ -318,100 +241,67 @@
    =========================================== */
 
 .theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--clay-border-color);
-  border-radius: 999px;
-  padding: 5px;
-  height: 36px;
-  background: var(--clay-bg);
-  overflow: hidden;
-  max-width: 36px;
-  transition:
-    max-width var(--clay-duration-normal) var(--clay-easing),
-    padding var(--clay-duration-normal) var(--clay-easing);
+  --theme-item: 28px;
+  --theme-gap: 2px;
+  --theme-pad: 4px;
+  position: relative;
 }
 
-@media (hover: hover) {
-  .theme-toggle:hover {
-    max-width: 400px;
-    padding: 4px 6px;
-  }
+.theme-toggle__track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, var(--theme-item));
+  gap: var(--theme-gap);
+  padding: var(--theme-pad);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--secondary);
 }
 
-.theme-toggle:focus-within {
-  max-width: 400px;
-  padding: 4px 6px;
+.theme-toggle__indicator {
+  position: absolute;
+  top: 50%;
+  left: var(--theme-pad);
+  width: var(--theme-item);
+  height: var(--theme-item);
+  border-radius: var(--radius-full);
+  transform: translateY(-50%)
+    translateX(calc(var(--theme-index, 0) * (var(--theme-item) + var(--theme-gap))));
+  background: var(--accent);
+  transition: transform var(--duration-normal) var(--ease-out);
+  z-index: 0;
 }
 
-.theme-toggle.theme-toggle--open {
-  max-width: 400px;
-  padding: 4px 6px;
-}
-
-.theme-btn {
+.theme-toggle__button {
+  height: var(--theme-item);
+  width: var(--theme-item);
+  display: grid;
+  place-items: center;
   border: 0;
+  border-radius: var(--radius-full);
   background: transparent;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 0.84rem;
   color: var(--muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  white-space: nowrap;
-  flex-shrink: 0;
   cursor: pointer;
-  transition:
-    color var(--clay-duration-fast) var(--clay-easing),
-    background var(--clay-duration-fast) var(--clay-easing),
-    transform var(--clay-duration-fast) var(--clay-easing);
+  position: relative;
+  z-index: 1;
+  transition: color var(--duration-fast) ease;
 }
 
-.theme-btn.active {
-  padding: 6px 8px;
-  background: var(--clay-bg-button);
-  color: var(--text);
-  box-shadow: var(--clay-shadow-pressed);
-}
-
-.theme-btn:not(.active) {
-  opacity: 0;
-  pointer-events: none;
-  width: 0;
-  padding: 6px 0;
-  overflow: hidden;
-  transition:
-    opacity var(--clay-duration-fast) var(--clay-easing),
-    width var(--clay-duration-fast) var(--clay-easing),
-    padding var(--clay-duration-fast) var(--clay-easing),
-    color var(--clay-duration-fast) var(--clay-easing),
-    background var(--clay-duration-fast) var(--clay-easing),
-    transform var(--clay-duration-fast) var(--clay-easing);
-}
-
-.theme-toggle:hover .theme-btn,
-.theme-toggle:focus-within .theme-btn,
-.theme-toggle--open .theme-btn {
-  opacity: 1;
-  pointer-events: auto;
-  width: auto;
-  padding: 6px 10px;
-}
-
-.theme-btn:hover {
-  border: 0;
+.theme-toggle__button:hover {
   color: var(--text);
 }
 
-.theme-btn:active {
-  transform: scale(0.93);
+.theme-toggle__button.active {
+  color: var(--accent-foreground);
 }
 
-.theme-btn svg {
-  width: 16px;
-  height: 16px;
+.theme-toggle__button.active .theme-icon {
+  stroke: var(--accent-foreground);
+}
+
+.theme-icon {
+  width: 14px;
+  height: 14px;
   stroke: currentColor;
   fill: none;
   stroke-width: 1.5px;
@@ -428,13 +318,13 @@
   height: 8px;
   border-radius: var(--radius-full);
   background: var(--danger);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--danger) 50%, transparent);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
   animation: pulse-subtle 2s ease-in-out infinite;
 }
 
 .statusDot.ok {
   background: var(--ok);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--ok) 50%, transparent);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
   animation: none;
 }
 
@@ -446,13 +336,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 8px;
-  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
-  background: color-mix(in srgb, var(--bg-elevated) 95%, transparent);
-  padding: 10px 18px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding: 9px 16px;
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: -0.01em;
   cursor: pointer;
@@ -463,14 +352,14 @@
     transform var(--duration-fast) var(--ease-out);
 }
 
-.btn:hover:not(:disabled) {
+.btn:hover {
   background: var(--bg-hover);
   border-color: var(--border-strong);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
-.btn:active:not(:disabled) {
+.btn:active {
   background: var(--secondary);
   transform: translateY(0);
   box-shadow: none;
@@ -488,16 +377,18 @@
 }
 
 .btn.primary {
-  border-color: color-mix(in srgb, var(--accent) 88%, black 10%);
+  border-color: var(--accent);
   background: var(--accent);
   color: var(--primary-foreground);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .btn.primary:hover {
   background: var(--accent-hover);
   border-color: var(--accent-hover);
-  box-shadow: var(--shadow-md);
+  box-shadow:
+    var(--shadow-md),
+    0 0 20px var(--accent-glow);
 }
 
 /* Keyboard shortcut badge (shadcn style) */
@@ -521,20 +412,28 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+:root[data-theme="light"] .btn-kbd {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="light"] .btn.primary .btn-kbd {
+  background: rgba(255, 255, 255, 0.25);
+}
+
 .btn.active {
-  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-  background: color-mix(in srgb, var(--accent-subtle) 75%, var(--secondary));
+  border-color: var(--accent);
+  background: var(--accent-subtle);
   color: var(--accent);
 }
 
 .btn.danger {
-  border-color: color-mix(in srgb, var(--danger) 25%, transparent);
+  border-color: transparent;
   background: var(--danger-subtle);
   color: var(--danger);
 }
 
 .btn.danger:hover {
-  background: color-mix(in srgb, var(--danger-subtle) 70%, transparent);
+  background: rgba(239, 68, 68, 0.15);
 }
 
 .btn--sm {
@@ -542,16 +441,9 @@
   font-size: 12px;
 }
 
-.btn:focus-visible {
-  border-color: var(--ring);
-  box-shadow: var(--focus-ring);
-}
-
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
 /* ===========================================
@@ -569,39 +461,29 @@
 
 .field span {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .field input,
 .field textarea,
 .field select {
-  border: 1px solid color-mix(in srgb, var(--input) 92%, transparent);
-  background: color-mix(in srgb, var(--card) 96%, var(--bg));
+  border: 1px solid var(--input);
+  background: var(--card);
   border-radius: var(--radius-md);
-  padding: 10px 14px;
+  padding: 8px 12px;
   outline: none;
   box-shadow: inset 0 1px 0 var(--card-highlight);
   transition:
     border-color var(--duration-fast) ease,
-    box-shadow var(--duration-fast) ease,
-    background var(--duration-fast) ease;
+    box-shadow var(--duration-fast) ease;
 }
 
-.field input:focus-visible,
-.field textarea:focus-visible,
-.field select:focus-visible {
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
   border-color: var(--ring);
   box-shadow: var(--focus-ring);
-  background: var(--card);
-}
-
-.field input:disabled,
-.field textarea:disabled,
-.field select:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: color-mix(in srgb, var(--secondary) 80%, transparent);
 }
 
 .field select {
@@ -644,6 +526,36 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
+<<<<<<< HEAD
+=======
+:root[data-theme="light"] .field input,
+:root[data-theme="light"] .field textarea,
+:root[data-theme="light"] .field select {
+  background: var(--card);
+  border-color: var(--input);
+}
+
+:root[data-theme="light"] .btn {
+  background: var(--bg);
+  border-color: var(--input);
+}
+
+:root[data-theme="light"] .btn:hover {
+  background: var(--bg-hover);
+}
+
+:root[data-theme="light"] .btn.active {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+:root[data-theme="light"] .btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
 /* ===========================================
    Utilities
    =========================================== */
@@ -671,43 +583,21 @@
 }
 
 .callout.danger {
-  border-color: color-mix(in srgb, var(--danger) 25%, transparent);
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--danger) 8%, transparent) 0%,
-    color-mix(in srgb, var(--danger) 4%, transparent) 100%
-  );
+  border-color: rgba(239, 68, 68, 0.25);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.04) 100%);
   color: var(--danger);
 }
 
 .callout.info {
-  border-color: color-mix(in srgb, var(--info) 25%, transparent);
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--info) 8%, transparent) 0%,
-    color-mix(in srgb, var(--info) 4%, transparent) 100%
-  );
+  border-color: rgba(59, 130, 246, 0.25);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.04) 100%);
   color: var(--info);
 }
 
 .callout.success {
-  border-color: color-mix(in srgb, var(--ok) 25%, transparent);
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--ok) 8%, transparent) 0%,
-    color-mix(in srgb, var(--ok) 4%, transparent) 100%
-  );
+  border-color: rgba(34, 197, 94, 0.25);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(34, 197, 94, 0.04) 100%);
   color: var(--ok);
-}
-
-.callout.warn {
-  border-color: color-mix(in srgb, var(--warn) 25%, transparent);
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--warn) 8%, transparent) 0%,
-    color-mix(in srgb, var(--warn) 4%, transparent) 100%
-  );
-  color: var(--warn);
 }
 
 /* Compaction indicator */
@@ -720,7 +610,7 @@
   line-height: 1.2;
   padding: 6px 14px;
   margin-bottom: 8px;
-  border-radius: var(--radius-full);
+  border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--panel-strong);
   color: var(--text);
@@ -742,7 +632,7 @@
 
 .compaction-indicator--active {
   color: var(--info);
-  border-color: color-mix(in srgb, var(--info) 35%, transparent);
+  border-color: rgba(59, 130, 246, 0.35);
 }
 
 .compaction-indicator--active svg {
@@ -751,17 +641,17 @@
 
 .compaction-indicator--complete {
   color: var(--ok);
-  border-color: color-mix(in srgb, var(--ok) 35%, transparent);
+  border-color: rgba(34, 197, 94, 0.35);
 }
 
 .compaction-indicator--fallback {
-  color: var(--warn);
+  color: #d97706;
   border-color: rgba(217, 119, 6, 0.35);
 }
 
 .compaction-indicator--fallback-cleared {
   color: var(--ok);
-  border-color: color-mix(in srgb, var(--ok) 35%, transparent);
+  border-color: rgba(34, 197, 94, 0.35);
 }
 
 @keyframes compaction-spin {
@@ -787,6 +677,13 @@
   max-width: 100%;
 }
 
+:root[data-theme="light"] .code-block,
+:root[data-theme="light"] .list-item,
+:root[data-theme="light"] .table-row,
+:root[data-theme="light"] .chip {
+  background: var(--bg);
+}
+
 /* ===========================================
    Lists
    =========================================== */
@@ -797,24 +694,16 @@
   container-type: inline-size;
 }
 
-.list-scroll {
-  max-height: 400px;
-  overflow-y: auto;
-}
-
 .list-item {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(200px, 260px);
   gap: 16px;
   align-items: start;
-  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 12px;
-  background: color-mix(in srgb, var(--card) 97%, transparent);
-  transition:
-    border-color var(--duration-fast) ease,
-    box-shadow var(--duration-fast) ease,
-    background var(--duration-fast) ease;
+  background: var(--card);
+  transition: border-color var(--duration-fast) ease;
 }
 
 .list-item-clickable {
@@ -823,14 +712,11 @@
 
 .list-item-clickable:hover {
   border-color: var(--border-strong);
-  background: color-mix(in srgb, var(--card) 80%, var(--bg-hover));
-  box-shadow: var(--shadow-sm);
 }
 
 .list-item-selected {
-  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  border-color: var(--accent);
   box-shadow: var(--focus-ring);
-  background: color-mix(in srgb, var(--accent-subtle) 45%, var(--card));
 }
 
 .list-main {
@@ -845,9 +731,7 @@
 
 .list-sub {
   color: var(--muted);
-  font-size: 13px;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  font-size: 12px;
 }
 
 .list-meta {
@@ -879,7 +763,7 @@
 
 .cron-job .list-title {
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
   letter-spacing: -0.015em;
 }
 
@@ -919,7 +803,6 @@
   display: grid;
   gap: 3px;
   margin-top: 2px;
-  min-width: 0;
 }
 
 .cron-job-detail-label {
@@ -933,9 +816,6 @@
 .cron-job-detail-value {
   font-size: 13px;
   line-height: 1.35;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  min-width: 0;
 }
 
 .cron-job-state {
@@ -975,7 +855,7 @@
 
 .cron-job-status-ok {
   color: var(--ok);
-  border-color: color-mix(in srgb, var(--ok) 35%, transparent);
+  border-color: rgba(34, 197, 94, 0.35);
   background: var(--ok-subtle);
 }
 
@@ -1044,13 +924,13 @@
 }
 
 .chip {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+  border: 1px solid var(--border);
   border-radius: var(--radius-full);
   padding: 5px 12px;
   color: var(--muted);
-  background: color-mix(in srgb, var(--secondary) 92%, transparent);
+  background: var(--secondary);
   transition:
     border-color var(--duration-fast) var(--ease-out),
     background var(--duration-fast) var(--ease-out),
@@ -1059,7 +939,6 @@
 
 .chip:hover {
   border-color: var(--border-strong);
-  background: var(--bg-hover);
   transform: translateY(-1px);
 }
 
@@ -1081,7 +960,7 @@
 
 .chip-danger {
   color: var(--danger);
-  border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+  border-color: rgba(239, 68, 68, 0.3);
   background: var(--danger-subtle);
 }
 
@@ -1091,7 +970,7 @@
 
 .table {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .table-head,
@@ -1103,32 +982,22 @@
 }
 
 .table-head {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--muted);
   padding: 0 12px;
 }
 
 .table-row {
-  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
-  padding: 12px 14px;
+  border: 1px solid var(--border);
+  padding: 10px 12px;
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--card) 97%, transparent);
-  transition:
-    border-color var(--duration-fast) ease,
-    box-shadow var(--duration-fast) ease,
-    background var(--duration-fast) ease;
+  background: var(--card);
+  transition: border-color var(--duration-fast) ease;
 }
 
 .table-row:hover {
   border-color: var(--border-strong);
-  background: color-mix(in srgb, var(--card) 82%, var(--bg-hover));
-  box-shadow: var(--shadow-sm);
-}
-
-.table-row:focus-within {
-  border-color: var(--ring);
-  box-shadow: var(--focus-ring);
 }
 
 .session-link {
@@ -1162,13 +1031,12 @@
    =========================================== */
 
 .log-stream {
-  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--card) 98%, transparent);
+  background: var(--card);
   max-height: 500px;
   overflow: auto;
   container-type: inline-size;
-  box-shadow: inset 0 1px 0 var(--card-highlight);
 }
 
 .log-row {
@@ -1176,9 +1044,9 @@
   grid-template-columns: 90px 70px minmax(140px, 200px) minmax(0, 1fr);
   gap: 12px;
   align-items: start;
-  padding: 9px 12px;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
-  font-size: 13px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
   transition: background var(--duration-fast) ease;
 }
 
@@ -1380,7 +1248,7 @@
 .chat-new-messages {
   align-self: center;
   margin: 8px auto 0;
-  border-radius: var(--radius-full);
+  border-radius: 999px;
   padding: 6px 12px;
   font-size: 12px;
   line-height: 1;
@@ -1419,14 +1287,29 @@
   min-width: 0;
 }
 
+:root[data-theme="light"] .chat-bubble {
+  border-color: var(--border);
+  background: var(--bg);
+}
+
 .chat-line.user .chat-bubble {
   border-color: transparent;
   background: var(--accent-subtle);
 }
 
+:root[data-theme="light"] .chat-line.user .chat-bubble {
+  border-color: rgba(234, 88, 12, 0.2);
+  background: rgba(251, 146, 60, 0.12);
+}
+
 .chat-line.assistant .chat-bubble {
   border-color: transparent;
   background: var(--secondary);
+}
+
+:root[data-theme="light"] .chat-line.assistant .chat-bubble {
+  border-color: var(--border);
+  background: var(--bg-muted);
 }
 
 @keyframes chatStreamPulse {
@@ -1559,6 +1442,10 @@
   background: var(--secondary);
 }
 
+:root[data-theme="light"] .chat-text :where(:not(pre) > code) {
+  background: var(--bg-muted);
+}
+
 .chat-text :where(pre) {
   margin-top: 0.75em;
   padding: 10px 12px;
@@ -1566,6 +1453,10 @@
   border: 1px solid var(--border);
   background: var(--secondary);
   overflow: auto;
+}
+
+:root[data-theme="light"] .chat-text :where(pre) {
+  background: var(--bg-muted);
 }
 
 .chat-text :where(pre code) {
@@ -1602,6 +1493,10 @@
   background: var(--secondary);
   display: grid;
   gap: 4px;
+}
+
+:root[data-theme="light"] .chat-tool-card {
+  background: var(--bg-muted);
 }
 
 .chat-tool-card__title {
@@ -1658,8 +1553,12 @@
   background: var(--card);
 }
 
+:root[data-theme="light"] .chat-tool-card__output {
+  background: var(--bg);
+}
+
 .chat-stamp {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
 }
 
@@ -1789,7 +1688,7 @@
 }
 
 .exec-approval-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -1866,8 +1765,6 @@
   display: grid;
   gap: 12px;
   align-self: start;
-  position: sticky;
-  top: 16px;
 }
 
 .agents-main {
@@ -1908,7 +1805,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: hsl(var(--agent-hue, 220) 30% 18%);
+  background: var(--secondary);
   display: grid;
   place-items: center;
   font-weight: 600;
@@ -1996,13 +1893,6 @@
   color: white;
 }
 
-.agent-tab-count {
-  font-weight: 400;
-  font-size: 11px;
-  opacity: 0.7;
-  margin-left: 4px;
-}
-
 .agents-overview-grid {
   display: grid;
   gap: 10px;
@@ -2013,10 +1903,6 @@
   display: grid;
   gap: 6px;
   min-width: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  background: var(--bg-elevated);
 }
 
 .agent-kv > div {
@@ -2275,6 +2161,7 @@
     grid-template-columns: 1fr;
   }
 }
+<<<<<<< HEAD
 
 .agent-identity-card {
   display: flex;
@@ -3066,3 +2953,5 @@
     display: flex;
   }
 }
+=======
+>>>>>>> 629869800 (revert(ui): remove UI portions of mixed commits from main)
