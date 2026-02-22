@@ -390,6 +390,7 @@ describe("runEmbeddedPiAgent", () => {
     ).rejects.toThrow("Malformed agent session key");
   });
 
+<<<<<<< HEAD
   it("persists the first user message before assistant output", { timeout: 120_000 }, async () => {
     const sessionFile = nextSessionFile();
 <<<<<<< HEAD
@@ -425,6 +426,8 @@ describe("runEmbeddedPiAgent", () => {
     }
   });
 
+=======
+>>>>>>> bd6be417e (test: trim duplicate smoke and embedded runner cases)
   it("persists the user message when prompt fails before assistant output", async () => {
     const sessionFile = nextSessionFile();
     const cfg = makeOpenAiConfig(["mock-error"]);
