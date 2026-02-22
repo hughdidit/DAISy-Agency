@@ -72,8 +72,12 @@ Docs: https://docs.openclaw.ai
 - Telegram/Network: default Node 22+ DNS result ordering to `ipv4first` for Telegram fetch paths and add `OPENCLAW_TELEGRAM_DNS_RESULT_ORDER`/`channels.telegram.network.dnsResultOrder` overrides to reduce IPv6-path fetch failures. (#5405) Thanks @Glucksberg.
 - Telegram/Streaming: preserve archived draft preview mapping after flush and clean superseded reasoning preview bubbles so multi-message preview finals no longer cross-edit or orphan stale messages under send/rotation races. (#23202) Thanks @obviyus.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 2f023a477 (fix(telegram): disable autoSelectFamily by default on WSL2 (#21916))
 =======
+=======
+- Telegram/Replies: extract forwarded-origin context from unified reply targets (`reply_to_message` and `external_reply`) so forward+comment metadata is preserved across partial reply shapes. (#9720) thanks @mcaxtr.
+>>>>>>> 337eef55d (fix(telegram): link forwarded messages with comments (#9720))
 - Telegram/Polling: persist a safe update-offset watermark bounded by pending updates so crash/restart cannot skip queued lower `update_id` updates after out-of-order completion. (#23284) thanks @frankekn.
 >>>>>>> e33d7fcd1 (fix(telegram): prevent update offset skipping queued updates (#23284))
 - Slack/Slash commands: preserve the Bolt app receiver when registering external select options handlers so monitor startup does not crash on runtimes that require bound `app.options` calls. (#23209) Thanks @0xgaia.
