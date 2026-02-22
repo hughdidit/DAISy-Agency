@@ -14,6 +14,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> fa472623f (perf(test): use prebuilt hook install fixtures)
 =======
 =======
@@ -25,6 +26,15 @@ import {
   expectSingleNpmPackIgnoreScriptsCall,
 } from "../test-utils/exec-assertions.js";
 >>>>>>> f05395ae0 (refactor(test): share internal hook and npm pack assertions)
+=======
+import { expectSingleNpmPackIgnoreScriptsCall } from "../test-utils/exec-assertions.js";
+import {
+  expectInstallUsesIgnoreScripts,
+  expectIntegrityDriftRejected,
+  expectUnsupportedNpmSpec,
+  mockNpmPackMetadataResult,
+} from "../test-utils/npm-spec-install-test-helpers.js";
+>>>>>>> 12635de1c (test: cover shared installer flow helpers)
 import { isAddressInUseError } from "./gmail-watcher.js";
 >>>>>>> 5e3b211d9 (perf(test): fold gmail watcher assertions into hooks install suite)
 
@@ -81,6 +91,7 @@ function writeArchiveFixture(params: { fileName: string; contents: Buffer }) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 616d4692a (refactor(hooks): share install temp-dir and archive fixtures)
 =======
 async function expectUnsupportedNpmSpec(
@@ -97,6 +108,8 @@ async function expectUnsupportedNpmSpec(
 <<<<<<< HEAD
 >>>>>>> 9ec440d1f (test(hooks): dedupe unsupported npm spec assertion)
 =======
+=======
+>>>>>>> 12635de1c (test: cover shared installer flow helpers)
 function expectInstallFailureContains(
   result: Awaited<ReturnType<typeof installHooksFromArchive>>,
   snippets: string[],
@@ -321,26 +334,13 @@ describe("installHooksFromPath", () => {
     );
 
     const run = vi.mocked(runCommandWithTimeout);
-    run.mockResolvedValue({
-      code: 0,
-      stdout: "",
-      stderr: "",
-      signal: null,
-      killed: false,
-      termination: "exit",
-    });
-
-    const res = await installHooksFromPath({
-      path: pkgDir,
-      hooksDir: path.join(stateDir, "hooks"),
-    });
-    expect(res.ok).toBe(true);
-    if (!res.ok) {
-      return;
-    }
-    expectSingleNpmInstallIgnoreScriptsCall({
-      calls: run.mock.calls as Array<[unknown, { cwd?: string } | undefined]>,
-      expectedCwd: res.targetDir,
+    await expectInstallUsesIgnoreScripts({
+      run,
+      install: async () =>
+        await installHooksFromPath({
+          path: pkgDir,
+          hooksDir: path.join(stateDir, "hooks"),
+        }),
     });
   });
 
@@ -428,6 +428,34 @@ describe("installHooksFromNpmSpec", () => {
   it("rejects non-registry npm specs", async () => {
     await expectUnsupportedNpmSpec((spec) => installHooksFromNpmSpec({ spec }));
   });
+<<<<<<< HEAD
+=======
+
+  it("aborts when integrity drift callback rejects the fetched artifact", async () => {
+    const run = vi.mocked(runCommandWithTimeout);
+    mockNpmPackMetadataResult(run, {
+      id: "@openclaw/test-hooks@0.0.1",
+      name: "@openclaw/test-hooks",
+      version: "0.0.1",
+      filename: "test-hooks-0.0.1.tgz",
+      integrity: "sha512-new",
+      shasum: "newshasum",
+    });
+
+    const onIntegrityDrift = vi.fn(async () => false);
+    const result = await installHooksFromNpmSpec({
+      spec: "@openclaw/test-hooks@0.0.1",
+      expectedIntegrity: "sha512-old",
+      onIntegrityDrift,
+    });
+    expectIntegrityDriftRejected({
+      onIntegrityDrift,
+      result,
+      expectedIntegrity: "sha512-old",
+      actualIntegrity: "sha512-new",
+    });
+  });
+>>>>>>> 12635de1c (test: cover shared installer flow helpers)
 });
 <<<<<<< HEAD
 >>>>>>> a7142c621 (perf(test): cache hook installer fixtures)
