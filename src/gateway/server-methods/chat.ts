@@ -20,6 +20,13 @@ import { createReplyPrefixOptions } from "../../channels/reply-prefix.js";
 import { resolveSessionFilePath } from "../../config/sessions.js";
 >>>>>>> 4199f9889 (fix: harden session transcript path resolution)
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
+<<<<<<< HEAD
+=======
+import {
+  stripInlineDirectiveTagsForDisplay,
+  stripInlineDirectiveTagsFromMessageForDisplay,
+} from "../../utils/directive-tags.js";
+>>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";
 import {
   abortChatRunById,
@@ -177,7 +184,11 @@ function broadcastChatFinal(params: {
     sessionKey: params.sessionKey,
     seq,
     state: "final" as const,
+<<<<<<< HEAD
     message: params.message,
+=======
+    message: stripInlineDirectiveTagsFromMessageForDisplay(params.message),
+>>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
   };
   params.context.broadcast("chat", payload);
   params.context.nodeSendToSession(params.sessionKey, "chat", payload);
@@ -696,7 +707,11 @@ export const chatHandlers: GatewayRequestHandlers = {
       sessionKey: p.sessionKey,
       seq: 0,
       state: "final" as const,
+<<<<<<< HEAD
       message: transcriptEntry.message,
+=======
+      message: stripInlineDirectiveTagsFromMessageForDisplay(appended.message),
+>>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
     };
     context.broadcast("chat", chatPayload);
     context.nodeSendToSession(p.sessionKey, "chat", chatPayload);

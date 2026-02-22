@@ -359,8 +359,29 @@ describe("subagent announce formatting", () => {
     };
 
     const didAnnounce = await runSubagentAnnounceFlow({
+<<<<<<< HEAD
       childSessionKey: "agent:main:subagent:test",
       childRunId: "run-child-active-delete",
+=======
+      childSessionKey: "agent:main:subagent:parent",
+      childRunId: "run-parent-synth",
+      requesterSessionKey: "agent:main:subagent:orchestrator",
+      requesterDisplayKey: "agent:main:subagent:orchestrator",
+      ...defaultOutcomeAnnounce,
+      timeoutMs: 100,
+    });
+
+    expect(didAnnounce).toBe(true);
+    const call = agentSpy.mock.calls[0]?.[0] as { params?: { message?: string } };
+    const msg = call?.params?.message ?? "";
+    expect(msg).toContain("Final synthesized answer.");
+    expect(msg).not.toContain("Waiting for child output...");
+  });
+
+  it("bubbles child announce to parent requester when requester subagent already ended", async () => {
+    subagentRegistryMock.isSubagentSessionRunActive.mockReturnValue(false);
+    subagentRegistryMock.resolveRequesterForChildSession.mockReturnValue({
+>>>>>>> 78c3c2a54 (fix: stabilize flaky tests and sanitize directive-only chat tags)
       requesterSessionKey: "agent:main:main",
       requesterDisplayKey: "main",
       task: "context-stress-test",
