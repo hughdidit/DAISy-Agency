@@ -197,7 +197,12 @@ Docs: https://docs.openclaw.ai
 - Memory/Remote HTTP: centralize remote memory HTTP calls behind a shared guarded helper (`withRemoteHttpResponse`) so embeddings and batch flows use one request/release path.
 - Memory/Embeddings: apply configured remote-base host pinning (`allowedHostnames`) across OpenAI/Voyage/Gemini embedding requests to keep private/self-hosted endpoints working without cross-host drift. (#18198) Thanks @ianpcook.
 - Memory/Batch: route OpenAI/Voyage/Gemini batch upload/create/status/download requests through the same guarded HTTP path for consistent SSRF policy enforcement.
+<<<<<<< HEAD
 - Install/Discord Voice: make `@discordjs/opus` an optional dependency so `openclaw` install/update no longer hard-fails when native Opus builds fail, while keeping `opusscript` as the runtime fallback decoder for Discord voice flows. (#23737, #23733, #23703)
+=======
+- Memory/QMD: on Windows, resolve bare `qmd`/`mcporter` command names to npm shim executables (`.cmd`) before spawning, so qmd boot updates and mcporter-backed searches no longer fail with `spawn ... ENOENT` on default npm installs. (#23899) Thanks @arcbuilder-ai.
+- Install/Discord Voice: make `@discordjs/opus` an optional dependency so `openclaw` install/update no longer hard-fails when native Opus builds fail, while keeping `opusscript` as the runtime fallback decoder for Discord voice flows. (#23737, #23733, #23703) Thanks @jeadland, @Sheetaa, and @Breakyman.
+>>>>>>> 1ad9f9af5 (fix(memory): resolve qmd Windows shim commands)
 - Slack/Upload: resolve bare user IDs (U-prefix) to DM channel IDs via `conversations.open` before calling `files.uploadV2`, which rejects non-channel IDs. `chat.postMessage` tolerates user IDs directly, but `files.uploadV2` → `completeUploadExternal` validates `channel_id` against `^[CGDZ][A-Z0-9]{8,}$`, causing `invalid_arguments` when agents reply with media to DM conversations.
 <<<<<<< HEAD
 >>>>>>> af9881b9c (fix(slack): resolve user IDs to DM channels before files.uploadV2 (#23773))
