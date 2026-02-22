@@ -96,6 +96,16 @@ import {
 } from "./bot/helpers.js";
 import type { StickerMetadata, TelegramContext } from "./bot/types.js";
 import { evaluateTelegramGroupBaseAccess } from "./group-access.js";
+<<<<<<< HEAD
+=======
+import { resolveTelegramGroupPromptSettings } from "./group-config-helpers.js";
+import {
+  buildTelegramStatusReactionVariants,
+  resolveTelegramAllowedEmojiReactions,
+  resolveTelegramReactionVariant,
+  resolveTelegramStatusReactionEmojis,
+} from "./status-reaction-variants.js";
+>>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
 
 export type TelegramMediaRef = {
   path: string;
@@ -668,13 +678,10 @@ export const buildTelegramMessageContext = async ({
     });
   }
 
-  const skillFilter = firstDefined(topicConfig?.skills, groupConfig?.skills);
-  const systemPromptParts = [
-    groupConfig?.systemPrompt?.trim() || null,
-    topicConfig?.systemPrompt?.trim() || null,
-  ].filter((entry): entry is string => Boolean(entry));
-  const groupSystemPrompt =
-    systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : undefined;
+  const { skillFilter, groupSystemPrompt } = resolveTelegramGroupPromptSettings({
+    groupConfig,
+    topicConfig,
+  });
   const commandBody = normalizeCommandBody(rawBody, { botUsername });
   const inboundHistory =
     isGroup && historyKey && historyLimit > 0

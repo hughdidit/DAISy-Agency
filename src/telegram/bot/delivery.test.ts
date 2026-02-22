@@ -61,6 +61,16 @@ function mockMediaLoad(fileName: string, contentType: string, data: string) {
   });
 }
 
+function createSendMessageHarness(messageId = 4) {
+  const runtime = createRuntime();
+  const sendMessage = vi.fn().mockResolvedValue({
+    message_id: messageId,
+    chat: { id: "123" },
+  });
+  const bot = createBot({ sendMessage });
+  return { runtime, sendMessage, bot };
+}
+
 describe("deliverReplies", () => {
   beforeEach(() => {
     loadWebMedia.mockReset();
@@ -188,6 +198,7 @@ describe("deliverReplies", () => {
   it("does not include message_thread_id for DMs (threads don't exist in private chats)", async () => {
 =======
   it("includes message_thread_id for DM topics", async () => {
+<<<<<<< HEAD
 >>>>>>> 0cff8bc4e (fix(telegram): include DM topic thread id in replies (#18586))
     const runtime = createRuntime();
 >>>>>>> a177f7b9f (refactor(tests): dedupe slack telegram and web monitor setup)
@@ -196,6 +207,9 @@ describe("deliverReplies", () => {
       chat: { id: "123" },
     });
     const bot = createBot({ sendMessage });
+=======
+    const { runtime, sendMessage, bot } = createSendMessageHarness();
+>>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
 
     await deliverWith({
       replies: [{ text: "Hello" }],
@@ -218,12 +232,7 @@ describe("deliverReplies", () => {
   });
 
   it("does not include link_preview_options when linkPreview is true", async () => {
-    const runtime = createRuntime();
-    const sendMessage = vi.fn().mockResolvedValue({
-      message_id: 4,
-      chat: { id: "123" },
-    });
-    const bot = createBot({ sendMessage });
+    const { runtime, sendMessage, bot } = createSendMessageHarness();
 
     await deliverWith({
       replies: [{ text: "Check https://example.com" }],

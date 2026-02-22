@@ -32,6 +32,20 @@ vi.mock("./bot/delivery.js", () => ({
 }));
 
 describe("registerTelegramNativeCommands", () => {
+  type RegisteredCommand = {
+    command: string;
+    description: string;
+  };
+
+  async function waitForRegisteredCommands(
+    setMyCommands: ReturnType<typeof vi.fn>,
+  ): Promise<RegisteredCommand[]> {
+    await vi.waitFor(() => {
+      expect(setMyCommands).toHaveBeenCalled();
+    });
+    return setMyCommands.mock.calls[0]?.[0] as RegisteredCommand[];
+  }
+
   beforeEach(() => {
 <<<<<<< HEAD
     listSkillCommandsForAgents.mockReset();
@@ -153,8 +167,35 @@ describe("registerTelegramNativeCommands", () => {
     );
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> cc2249a43 (refactor(telegram): extract native command menu helpers)
 =======
+=======
+
+  it("normalizes hyphenated native command names for Telegram registration", async () => {
+    const setMyCommands = vi.fn().mockResolvedValue(undefined);
+    const command = vi.fn();
+
+    registerTelegramNativeCommands({
+      ...buildParams({}),
+      bot: {
+        api: {
+          setMyCommands,
+          sendMessage: vi.fn().mockResolvedValue(undefined),
+        },
+        command,
+      } as unknown as Parameters<typeof registerTelegramNativeCommands>[0]["bot"],
+    });
+
+    const registeredCommands = await waitForRegisteredCommands(setMyCommands);
+    expect(registeredCommands.some((entry) => entry.command === "export_session")).toBe(true);
+    expect(registeredCommands.some((entry) => entry.command === "export-session")).toBe(false);
+
+    const registeredHandlers = command.mock.calls.map(([name]) => name);
+    expect(registeredHandlers).toContain("export_session");
+    expect(registeredHandlers).not.toContain("export-session");
+  });
+>>>>>>> 75c1bfbae (refactor(channels): dedupe message routing and telegram helpers)
 
   it("registers only Telegram-safe command names across native, custom, and plugin sources", async () => {
     const setMyCommands = vi.fn().mockResolvedValue(undefined);
@@ -181,14 +222,7 @@ describe("registerTelegramNativeCommands", () => {
       } as TelegramAccountConfig,
     });
 
-    await vi.waitFor(() => {
-      expect(setMyCommands).toHaveBeenCalled();
-    });
-
-    const registeredCommands = setMyCommands.mock.calls[0]?.[0] as Array<{
-      command: string;
-      description: string;
-    }>;
+    const registeredCommands = await waitForRegisteredCommands(setMyCommands);
 
     expect(registeredCommands.length).toBeGreaterThan(0);
     for (const entry of registeredCommands) {
