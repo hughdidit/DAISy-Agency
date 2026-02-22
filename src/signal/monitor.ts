@@ -292,6 +292,11 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
   );
   const readReceiptsViaDaemon = Boolean(autoStart && sendReadReceipts);
   let daemonHandle: ReturnType<typeof spawnSignalDaemon> | null = null;
+  let daemonStopRequested = false;
+  const stopDaemon = () => {
+    daemonStopRequested = true;
+    daemonHandle?.stop();
+  };
 
   if (autoStart) {
     const cliPath = opts.cliPath ?? accountInfo.config.cliPath ?? "signal-cli";
@@ -308,10 +313,24 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
       sendReadReceipts,
       runtime,
     });
+<<<<<<< HEAD
+=======
+    void daemonHandle.exited.then((exit) => {
+      if (daemonStopRequested || opts.abortSignal?.aborted) {
+        return;
+      }
+      daemonExitError = new Error(
+        `signal daemon exited (code=${String(exit.code ?? "null")} signal=${String(exit.signal ?? "null")})`,
+      );
+      if (!daemonAbortController.signal.aborted) {
+        daemonAbortController.abort(daemonExitError);
+      }
+    });
+>>>>>>> 602a1ebd5 (fix: handle intentional signal daemon shutdown on abort (#23379) (thanks @frankekn))
   }
 
   const onAbort = () => {
-    daemonHandle?.stop();
+    stopDaemon();
   };
   opts.abortSignal?.addEventListener("abort", onAbort, { once: true });
 
@@ -371,6 +390,6 @@ export async function monitorSignalProvider(opts: MonitorSignalOpts = {}): Promi
     throw err;
   } finally {
     opts.abortSignal?.removeEventListener("abort", onAbort);
-    daemonHandle?.stop();
+    stopDaemon();
   }
 }
