@@ -9,6 +9,17 @@ import { getChannelDock } from "../../channels/dock.js";
 import type { SkillCommandSpec } from "../../agents/skills.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
+<<<<<<< HEAD
+=======
+import { logVerbose } from "../../globals.js";
+import { generateSecureToken } from "../../infra/secure-random.js";
+import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
+import {
+  listReservedChatSlashCommandNames,
+  listSkillCommandsForWorkspace,
+  resolveSkillCommandInvocation,
+} from "../skill-commands.js";
+>>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 import type { MsgContext, TemplateContext } from "../templating.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
@@ -189,7 +200,7 @@ export async function handleInlineActions(params: {
         return { kind: "reply", reply: { text: `❌ Tool not available: ${dispatch.toolName}` } };
       }
 
-      const toolCallId = `cmd_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+      const toolCallId = `cmd_${generateSecureToken(8)}`;
       try {
         const result = await tool.execute(toolCallId, {
           command: rawArgs,

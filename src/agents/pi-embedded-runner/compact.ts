@@ -15,6 +15,14 @@ import { listChannelSupportedActions, resolveChannelMessageToolHints } from "../
 import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { getMachineDisplayName } from "../../infra/machine-name.js";
+<<<<<<< HEAD
+=======
+import { generateSecureToken } from "../../infra/secure-random.js";
+import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+import { type enqueueCommand, enqueueCommandInLane } from "../../process/command-queue.js";
+import { isCronSessionKey, isSubagentSessionKey } from "../../routing/session-key.js";
+import { resolveSignalReactionLevel } from "../../signal/reaction-level.js";
+>>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 import { resolveTelegramInlineButtonsScope } from "../../telegram/inline-buttons.js";
 import { resolveTelegramReactionLevel } from "../../telegram/reaction-level.js";
 import { resolveSignalReactionLevel } from "../../signal/reaction-level.js";
@@ -105,6 +113,125 @@ export type CompactEmbeddedPiSessionParams = {
   ownerNumbers?: string[];
 };
 
+<<<<<<< HEAD
+=======
+type CompactionMessageMetrics = {
+  messages: number;
+  historyTextChars: number;
+  toolResultChars: number;
+  estTokens?: number;
+  contributors: Array<{ role: string; chars: number; tool?: string }>;
+};
+
+function createCompactionDiagId(): string {
+  return `cmp-${Date.now().toString(36)}-${generateSecureToken(4)}`;
+}
+
+function getMessageTextChars(msg: AgentMessage): number {
+  const content = (msg as { content?: unknown }).content;
+  if (typeof content === "string") {
+    return content.length;
+  }
+  if (!Array.isArray(content)) {
+    return 0;
+  }
+  let total = 0;
+  for (const block of content) {
+    if (!block || typeof block !== "object") {
+      continue;
+    }
+    const text = (block as { text?: unknown }).text;
+    if (typeof text === "string") {
+      total += text.length;
+    }
+  }
+  return total;
+}
+
+function resolveMessageToolLabel(msg: AgentMessage): string | undefined {
+  const candidate =
+    (msg as { toolName?: unknown }).toolName ??
+    (msg as { name?: unknown }).name ??
+    (msg as { tool?: unknown }).tool;
+  return typeof candidate === "string" && candidate.trim().length > 0 ? candidate : undefined;
+}
+
+function summarizeCompactionMessages(messages: AgentMessage[]): CompactionMessageMetrics {
+  let historyTextChars = 0;
+  let toolResultChars = 0;
+  const contributors: Array<{ role: string; chars: number; tool?: string }> = [];
+  let estTokens = 0;
+  let tokenEstimationFailed = false;
+
+  for (const msg of messages) {
+    const role = typeof msg.role === "string" ? msg.role : "unknown";
+    const chars = getMessageTextChars(msg);
+    historyTextChars += chars;
+    if (role === "toolResult") {
+      toolResultChars += chars;
+    }
+    contributors.push({ role, chars, tool: resolveMessageToolLabel(msg) });
+    if (!tokenEstimationFailed) {
+      try {
+        estTokens += estimateTokens(msg);
+      } catch {
+        tokenEstimationFailed = true;
+      }
+    }
+  }
+
+  return {
+    messages: messages.length,
+    historyTextChars,
+    toolResultChars,
+    estTokens: tokenEstimationFailed ? undefined : estTokens,
+    contributors: contributors.toSorted((a, b) => b.chars - a.chars).slice(0, 3),
+  };
+}
+
+function classifyCompactionReason(reason?: string): string {
+  const text = (reason ?? "").trim().toLowerCase();
+  if (!text) {
+    return "unknown";
+  }
+  if (text.includes("nothing to compact")) {
+    return "no_compactable_entries";
+  }
+  if (text.includes("below threshold")) {
+    return "below_threshold";
+  }
+  if (text.includes("already compacted")) {
+    return "already_compacted_recently";
+  }
+  if (text.includes("guard")) {
+    return "guard_blocked";
+  }
+  if (text.includes("summary")) {
+    return "summary_failed";
+  }
+  if (text.includes("timed out") || text.includes("timeout")) {
+    return "timeout";
+  }
+  if (
+    text.includes("400") ||
+    text.includes("401") ||
+    text.includes("403") ||
+    text.includes("429")
+  ) {
+    return "provider_error_4xx";
+  }
+  if (
+    text.includes("500") ||
+    text.includes("502") ||
+    text.includes("503") ||
+    text.includes("504")
+  ) {
+    return "provider_error_5xx";
+  }
+  return "unknown";
+}
+
+>>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 /**
  * Core compaction logic without lane queueing.
  * Use this when already inside a session/global lane to avoid deadlocks.

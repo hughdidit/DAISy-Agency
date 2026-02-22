@@ -1,5 +1,11 @@
 import fs from "node:fs/promises";
 import type { ThinkLevel } from "../../auto-reply/thinking.js";
+<<<<<<< HEAD
+=======
+import { generateSecureToken } from "../../infra/secure-random.js";
+import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+import type { PluginHookBeforeAgentStartResult } from "../../plugins/types.js";
+>>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 import { enqueueCommandInLane } from "../../process/command-queue.js";
 import { resolveUserPath } from "../../utils.js";
 import { isMarkdownCapableMessageChannel } from "../../utils/message-channel.js";
@@ -67,6 +73,118 @@ function scrubAnthropicRefusalMagic(prompt: string): string {
   );
 }
 
+<<<<<<< HEAD
+=======
+type UsageAccumulator = {
+  input: number;
+  output: number;
+  cacheRead: number;
+  cacheWrite: number;
+  total: number;
+  /** Cache fields from the most recent API call (not accumulated). */
+  lastCacheRead: number;
+  lastCacheWrite: number;
+  lastInput: number;
+};
+
+const createUsageAccumulator = (): UsageAccumulator => ({
+  input: 0,
+  output: 0,
+  cacheRead: 0,
+  cacheWrite: 0,
+  total: 0,
+  lastCacheRead: 0,
+  lastCacheWrite: 0,
+  lastInput: 0,
+});
+
+function createCompactionDiagId(): string {
+  return `ovf-${Date.now().toString(36)}-${generateSecureToken(4)}`;
+}
+
+// Defensive guard for the outer run loop across all retry branches.
+const BASE_RUN_RETRY_ITERATIONS = 24;
+const RUN_RETRY_ITERATIONS_PER_PROFILE = 8;
+const MIN_RUN_RETRY_ITERATIONS = 32;
+const MAX_RUN_RETRY_ITERATIONS = 160;
+
+function resolveMaxRunRetryIterations(profileCandidateCount: number): number {
+  const scaled =
+    BASE_RUN_RETRY_ITERATIONS +
+    Math.max(1, profileCandidateCount) * RUN_RETRY_ITERATIONS_PER_PROFILE;
+  return Math.min(MAX_RUN_RETRY_ITERATIONS, Math.max(MIN_RUN_RETRY_ITERATIONS, scaled));
+}
+
+const hasUsageValues = (
+  usage: ReturnType<typeof normalizeUsage>,
+): usage is NonNullable<ReturnType<typeof normalizeUsage>> =>
+  !!usage &&
+  [usage.input, usage.output, usage.cacheRead, usage.cacheWrite, usage.total].some(
+    (value) => typeof value === "number" && Number.isFinite(value) && value > 0,
+  );
+
+const mergeUsageIntoAccumulator = (
+  target: UsageAccumulator,
+  usage: ReturnType<typeof normalizeUsage>,
+) => {
+  if (!hasUsageValues(usage)) {
+    return;
+  }
+  target.input += usage.input ?? 0;
+  target.output += usage.output ?? 0;
+  target.cacheRead += usage.cacheRead ?? 0;
+  target.cacheWrite += usage.cacheWrite ?? 0;
+  target.total +=
+    usage.total ??
+    (usage.input ?? 0) + (usage.output ?? 0) + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0);
+  // Track the most recent API call's cache fields for accurate context-size reporting.
+  // Accumulated cache totals inflate context size when there are multiple tool-call round-trips,
+  // since each call reports cacheRead ≈ current_context_size.
+  target.lastCacheRead = usage.cacheRead ?? 0;
+  target.lastCacheWrite = usage.cacheWrite ?? 0;
+  target.lastInput = usage.input ?? 0;
+};
+
+const toNormalizedUsage = (usage: UsageAccumulator) => {
+  const hasUsage =
+    usage.input > 0 ||
+    usage.output > 0 ||
+    usage.cacheRead > 0 ||
+    usage.cacheWrite > 0 ||
+    usage.total > 0;
+  if (!hasUsage) {
+    return undefined;
+  }
+  // Use the LAST API call's cache fields for context-size calculation.
+  // The accumulated cacheRead/cacheWrite inflate context size because each tool-call
+  // round-trip reports cacheRead ≈ current_context_size, and summing N calls gives
+  // N × context_size which gets clamped to contextWindow (e.g. 200k).
+  // See: https://github.com/openclaw/openclaw/issues/13698
+  //
+  // We use lastInput/lastCacheRead/lastCacheWrite (from the most recent API call) for
+  // cache-related fields, but keep accumulated output (total generated text this turn).
+  const lastPromptTokens = usage.lastInput + usage.lastCacheRead + usage.lastCacheWrite;
+  return {
+    input: usage.lastInput || undefined,
+    output: usage.output || undefined,
+    cacheRead: usage.lastCacheRead || undefined,
+    cacheWrite: usage.lastCacheWrite || undefined,
+    total: lastPromptTokens + usage.output || undefined,
+  };
+};
+
+function resolveActiveErrorContext(params: {
+  lastAssistant: { provider?: string; model?: string } | undefined;
+  provider: string;
+  model: string;
+}): { provider: string; model: string } {
+  return {
+    provider: params.lastAssistant?.provider ?? params.provider,
+    model: params.lastAssistant?.model ?? params.model,
+  };
+}
+
+>>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 export async function runEmbeddedPiAgent(
   params: RunEmbeddedPiAgentParams,
 ): Promise<EmbeddedPiRunResult> {

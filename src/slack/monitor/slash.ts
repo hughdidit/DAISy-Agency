@@ -15,7 +15,6 @@ import { finalizeInboundContext } from "../../auto-reply/reply/inbound-context.j
 import { resolveNativeCommandsEnabled, resolveNativeSkillsEnabled } from "../../config/commands.js";
 import { resolveMarkdownTableMode } from "../../config/markdown-tables.js";
 import { danger, logVerbose } from "../../globals.js";
-import { generateSecureToken } from "../../infra/secure-random.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
   readChannelAllowFromStore,
@@ -41,6 +40,16 @@ import {
 import { resolveSlackChannelConfig, type SlackChannelConfigResolved } from "./channel-config.js";
 import { buildSlackSlashCommandMatcher, resolveSlackSlashCommandConfig } from "./commands.js";
 import type { SlackMonitorContext } from "./context.js";
+<<<<<<< HEAD
+=======
+import { normalizeSlackChannelType } from "./context.js";
+import {
+  createSlackExternalArgMenuStore,
+  SLACK_EXTERNAL_ARG_MENU_PREFIX,
+  type SlackExternalArgMenuChoice,
+} from "./external-arg-menu-store.js";
+import { escapeSlackMrkdwn } from "./mrkdwn.js";
+>>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
 import { isSlackChannelAllowedByPolicy } from "./policy.js";
 import { deliverSlackSlashReplies } from "./replies.js";
 
@@ -55,17 +64,24 @@ const SLACK_COMMAND_ARG_OVERFLOW_MIN = 3;
 const SLACK_COMMAND_ARG_OVERFLOW_MAX = 5;
 const SLACK_COMMAND_ARG_SELECT_OPTIONS_MAX = 100;
 const SLACK_COMMAND_ARG_SELECT_OPTION_VALUE_MAX = 75;
-const SLACK_COMMAND_ARG_EXTERNAL_PREFIX = "openclaw_cmdarg_ext:";
-const SLACK_COMMAND_ARG_EXTERNAL_TTL_MS = 10 * 60 * 1000;
-const SLACK_COMMAND_ARG_EXTERNAL_TOKEN_PATTERN = /^[A-Za-z0-9_-]{24}$/;
 const SLACK_HEADER_TEXT_MAX = 150;
 >>>>>>> ae8d4a8ee (fix(security): harden channel token and id generation)
 
+<<<<<<< HEAD
 function chunkItems<T>(items: T[], size: number): T[][] {
   if (size <= 0) return [items];
   const rows: T[][] = [];
   for (let i = 0; i < items.length; i += size) {
     rows.push(items.slice(i, i + size));
+=======
+type EncodedMenuChoice = SlackExternalArgMenuChoice;
+const slackExternalArgMenuStore = createSlackExternalArgMenuStore();
+
+function truncatePlainText(value: string, max: number): string {
+  const trimmed = value.trim();
+  if (trimmed.length <= max) {
+    return trimmed;
+>>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
   }
 <<<<<<< HEAD
   return rows;
@@ -90,43 +106,18 @@ function buildSlackArgMenuConfirm(params: { command: string; arg: string }) {
   };
 }
 
-function pruneSlackExternalArgMenuStore(now = Date.now()) {
-  for (const [token, entry] of slackExternalArgMenuStore.entries()) {
-    if (entry.expiresAt <= now) {
-      slackExternalArgMenuStore.delete(token);
-    }
-  }
-}
-
-function createSlackExternalArgMenuToken(): string {
-  // 18 bytes -> 24 base64url chars; loop avoids replacing an existing live token.
-  let token = "";
-  do {
-    token = generateSecureToken(18);
-  } while (slackExternalArgMenuStore.has(token));
-  return token;
-}
-
 function storeSlackExternalArgMenu(params: {
   choices: EncodedMenuChoice[];
   userId: string;
 }): string {
-  pruneSlackExternalArgMenuStore();
-  const token = createSlackExternalArgMenuToken();
-  slackExternalArgMenuStore.set(token, {
+  return slackExternalArgMenuStore.create({
     choices: params.choices,
     userId: params.userId,
-    expiresAt: Date.now() + SLACK_COMMAND_ARG_EXTERNAL_TTL_MS,
   });
-  return token;
 }
 
 function readSlackExternalArgMenuToken(raw: unknown): string | undefined {
-  if (typeof raw !== "string" || !raw.startsWith(SLACK_COMMAND_ARG_EXTERNAL_PREFIX)) {
-    return undefined;
-  }
-  const token = raw.slice(SLACK_COMMAND_ARG_EXTERNAL_PREFIX.length).trim();
-  return SLACK_COMMAND_ARG_EXTERNAL_TOKEN_PATTERN.test(token) ? token : undefined;
+  return slackExternalArgMenuStore.readToken(raw);
 }
 
 type CommandsRegistry = typeof import("../../auto-reply/commands-registry.js");
@@ -206,6 +197,99 @@ function buildSlackCommandArgMenuBlocks(params: {
       }),
     })),
   }));
+<<<<<<< HEAD
+=======
+  const canUseStaticSelect = encodedChoices.every(
+    (choice) => choice.value.length <= SLACK_COMMAND_ARG_SELECT_OPTION_VALUE_MAX,
+  );
+  const canUseOverflow =
+    canUseStaticSelect &&
+    encodedChoices.length >= SLACK_COMMAND_ARG_OVERFLOW_MIN &&
+    encodedChoices.length <= SLACK_COMMAND_ARG_OVERFLOW_MAX;
+  const canUseExternalSelect =
+    params.supportsExternalSelect &&
+    canUseStaticSelect &&
+    encodedChoices.length > SLACK_COMMAND_ARG_SELECT_OPTIONS_MAX;
+  const rows = canUseOverflow
+    ? [
+        {
+          type: "actions",
+          elements: [
+            {
+              type: "overflow",
+              action_id: SLACK_COMMAND_ARG_ACTION_ID,
+              confirm: buildSlackArgMenuConfirm({ command: params.command, arg: params.arg }),
+              options: encodedChoices.map((choice) => ({
+                text: { type: "plain_text", text: choice.label.slice(0, 75) },
+                value: choice.value,
+              })),
+            },
+          ],
+        },
+      ]
+    : canUseExternalSelect
+      ? [
+          {
+            type: "actions",
+            block_id: `${SLACK_EXTERNAL_ARG_MENU_PREFIX}${params.createExternalMenuToken(
+              encodedChoices,
+            )}`,
+            elements: [
+              {
+                type: "external_select",
+                action_id: SLACK_COMMAND_ARG_ACTION_ID,
+                confirm: buildSlackArgMenuConfirm({ command: params.command, arg: params.arg }),
+                min_query_length: 0,
+                placeholder: {
+                  type: "plain_text",
+                  text: `Search ${params.arg}`,
+                },
+              },
+            ],
+          },
+        ]
+      : encodedChoices.length <= SLACK_COMMAND_ARG_BUTTON_ROW_SIZE || !canUseStaticSelect
+        ? chunkItems(encodedChoices, SLACK_COMMAND_ARG_BUTTON_ROW_SIZE).map((choices) => ({
+            type: "actions",
+            elements: choices.map((choice) => ({
+              type: "button",
+              action_id: SLACK_COMMAND_ARG_ACTION_ID,
+              text: { type: "plain_text", text: choice.label },
+              value: choice.value,
+              confirm: buildSlackArgMenuConfirm({ command: params.command, arg: params.arg }),
+            })),
+          }))
+        : chunkItems(encodedChoices, SLACK_COMMAND_ARG_SELECT_OPTIONS_MAX).map(
+            (choices, index) => ({
+              type: "actions",
+              elements: [
+                {
+                  type: "static_select",
+                  action_id: SLACK_COMMAND_ARG_ACTION_ID,
+                  confirm: buildSlackArgMenuConfirm({ command: params.command, arg: params.arg }),
+                  placeholder: {
+                    type: "plain_text",
+                    text:
+                      index === 0 ? `Choose ${params.arg}` : `Choose ${params.arg} (${index + 1})`,
+                  },
+                  options: choices.map((choice) => ({
+                    text: { type: "plain_text", text: choice.label.slice(0, 75) },
+                    value: choice.value,
+                  })),
+                },
+              ],
+            }),
+          );
+  const headerText = truncatePlainText(
+    `/${params.command}: choose ${params.arg}`,
+    SLACK_HEADER_TEXT_MAX,
+  );
+  const sectionText = truncatePlainText(params.title, 3000);
+  const contextText = truncatePlainText(
+    `Select one option to continue /${params.command} (${params.arg})`,
+    3000,
+  );
+>>>>>>> 6c2e99977 (refactor(security): unify secure id paths and guard weak patterns)
   return [
     {
       type: "section",
@@ -641,7 +725,6 @@ export function registerSlackMonitorSlashCommands(params: {
         actions?: Array<{ block_id?: string }>;
         block_id?: string;
       };
-      pruneSlackExternalArgMenuStore();
       const blockId = typedBody.actions?.[0]?.block_id ?? typedBody.block_id;
       const token = readSlackExternalArgMenuToken(blockId);
       if (!token) {
