@@ -29,6 +29,7 @@ import { createOpenClawCodingTools } from "./pi-tools.js";
 import { createOpenClawCodingTools } from "./pi-tools.js";
 import type { SandboxDockerConfig } from "./sandbox.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
+<<<<<<< HEAD
 >>>>>>> d0cb8c19b (chore: wtf.)
 =======
 import type { SandboxDockerConfig } from "./sandbox.js";
@@ -40,6 +41,9 @@ import { createOpenClawCodingTools } from "./pi-tools.js";
 import type { SandboxDockerConfig } from "./sandbox.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 >>>>>>> b8b43175c (style: align formatting with oxfmt 0.33)
+=======
+import { createRestrictedAgentSandboxConfig } from "./test-helpers/sandbox-agent-config-fixtures.js";
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
 type ToolWithExecute = {
   execute: (toolCallId: string, args: unknown, signal?: AbortSignal) => Promise<unknown>;
@@ -119,6 +123,7 @@ describe("Agent-specific tool filtering", () => {
     }
   }
 
+<<<<<<< HEAD
   it("should apply global tool policy when no agent-specific policy exists", () => {
     const cfg: MoltbotConfig = {
       tools: {
@@ -136,11 +141,43 @@ describe("Agent-specific tool filtering", () => {
     };
 
     const tools = createMoltbotCodingTools({
+=======
+  function createMainSessionTools(cfg: OpenClawConfig) {
+    return createOpenClawCodingTools({
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
       config: cfg,
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test",
       agentDir: "/tmp/agent",
     });
+  }
+
+  function createMainAgentConfig(params: {
+    tools: NonNullable<OpenClawConfig["tools"]>;
+    agentTools?: NonNullable<NonNullable<OpenClawConfig["agents"]>["list"]>[number]["tools"];
+  }): OpenClawConfig {
+    return {
+      tools: params.tools,
+      agents: {
+        list: [
+          {
+            id: "main",
+            workspace: "~/openclaw",
+            ...(params.agentTools ? { tools: params.agentTools } : {}),
+          },
+        ],
+      },
+    };
+  }
+
+  it("should apply global tool policy when no agent-specific policy exists", () => {
+    const cfg = createMainAgentConfig({
+      tools: {
+        allow: ["read", "write"],
+        deny: ["bash"],
+      },
+    });
+    const tools = createMainSessionTools(cfg);
 
     const toolNames = tools.map((t) => t.name);
     expect(toolNames).toContain("read");
@@ -150,6 +187,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should keep global tool policy when agent only sets tools.elevated", () => {
+<<<<<<< HEAD
     const cfg: MoltbotConfig = {
       tools: {
         deny: ["write"],
@@ -175,7 +213,20 @@ describe("Agent-specific tool filtering", () => {
       sessionKey: "agent:main:main",
       workspaceDir: "/tmp/test",
       agentDir: "/tmp/agent",
+=======
+    const cfg = createMainAgentConfig({
+      tools: {
+        deny: ["write"],
+      },
+      agentTools: {
+        elevated: {
+          enabled: true,
+          allowFrom: { whatsapp: ["+15555550123"] },
+        },
+      },
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
     });
+    const tools = createMainSessionTools(cfg);
 
     const toolNames = tools.map((t) => t.name);
     expect(toolNames).toContain("exec");
@@ -561,6 +612,7 @@ describe("Agent-specific tool filtering", () => {
   });
 
   it("should work with sandbox tools filtering", () => {
+<<<<<<< HEAD
     const cfg: MoltbotConfig = {
       agents: {
         defaults: {
@@ -583,16 +635,18 @@ describe("Agent-specific tool filtering", () => {
             },
           },
         ],
+=======
+    const cfg = createRestrictedAgentSandboxConfig({
+      agentTools: {
+        allow: ["read"], // Agent further restricts to only read
+        deny: ["exec", "write"],
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
       },
-      tools: {
-        sandbox: {
-          tools: {
-            allow: ["read", "write", "exec"], // Sandbox allows these
-            deny: [],
-          },
-        },
+      globalSandboxTools: {
+        allow: ["read", "write", "exec"], // Sandbox allows these
+        deny: [],
       },
-    };
+    });
 
     const tools = createMoltbotCodingTools({
       config: cfg,

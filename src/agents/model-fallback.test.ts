@@ -9,7 +9,9 @@ import type { AuthProfileStore } from "./auth-profiles.js";
 import { saveAuthProfileStore } from "./auth-profiles.js";
 import { AUTH_STORE_VERSION } from "./auth-profiles/constants.js";
 import { runWithModelFallback } from "./model-fallback.js";
+import { makeModelFallbackCfg } from "./test-helpers/model-fallback-config-fixture.js";
 
+<<<<<<< HEAD
 function makeCfg(overrides: Partial<MoltbotConfig> = {}): MoltbotConfig {
   return {
     agents: {
@@ -23,6 +25,9 @@ function makeCfg(overrides: Partial<MoltbotConfig> = {}): MoltbotConfig {
     ...overrides,
   } as MoltbotConfig;
 }
+=======
+const makeCfg = makeModelFallbackCfg;
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
 function makeFallbacksOnlyCfg(): OpenClawConfig {
   return {
@@ -100,6 +105,24 @@ async function expectFallsBackToHaiku(params: {
   expect(run.mock.calls[1]?.[1]).toBe("claude-haiku-3-5");
 }
 
+function createOverrideFailureRun(params: {
+  overrideProvider: string;
+  overrideModel: string;
+  fallbackProvider: string;
+  fallbackModel: string;
+  firstError: Error;
+}) {
+  return vi.fn().mockImplementation(async (provider, model) => {
+    if (provider === params.overrideProvider && model === params.overrideModel) {
+      throw params.firstError;
+    }
+    if (provider === params.fallbackProvider && model === params.fallbackModel) {
+      return "ok";
+    }
+    throw new Error(`unexpected fallback candidate: ${provider}/${model}`);
+  });
+}
+
 describe("runWithModelFallback", () => {
   it("normalizes openai gpt-5.3 codex to openai-codex before running", async () => {
     const cfg = makeCfg();
@@ -152,14 +175,12 @@ describe("runWithModelFallback", () => {
       },
     });
 
-    const run = vi.fn().mockImplementation(async (provider, model) => {
-      if (provider === "anthropic" && model === "claude-opus-4-5") {
-        throw Object.assign(new Error("unauthorized"), { status: 401 });
-      }
-      if (provider === "openai" && model === "gpt-4.1-mini") {
-        return "ok";
-      }
-      throw new Error(`unexpected fallback candidate: ${provider}/${model}`);
+    const run = createOverrideFailureRun({
+      overrideProvider: "anthropic",
+      overrideModel: "claude-opus-4-5",
+      fallbackProvider: "openai",
+      fallbackModel: "gpt-4.1-mini",
+      firstError: Object.assign(new Error("unauthorized"), { status: 401 }),
     });
 
     const result = await runWithModelFallback({
@@ -239,14 +260,12 @@ describe("runWithModelFallback", () => {
 
   it("falls back to configured primary for override credential validation errors", async () => {
     const cfg = makeCfg();
-    const run = vi.fn().mockImplementation(async (provider, model) => {
-      if (provider === "anthropic" && model === "claude-opus-4") {
-        throw new Error('No credentials found for profile "anthropic:default".');
-      }
-      if (provider === "openai" && model === "gpt-4.1-mini") {
-        return "ok";
-      }
-      throw new Error(`unexpected fallback candidate: ${provider}/${model}`);
+    const run = createOverrideFailureRun({
+      overrideProvider: "anthropic",
+      overrideModel: "claude-opus-4",
+      fallbackProvider: "openai",
+      fallbackModel: "gpt-4.1-mini",
+      firstError: new Error('No credentials found for profile "anthropic:default".'),
     });
 
     const result = await runWithModelFallback({

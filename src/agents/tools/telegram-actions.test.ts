@@ -597,11 +597,15 @@ describe("handleTelegramAction", () => {
   });
 
   it("allows inline buttons in DMs with tg: prefixed targets", async () => {
+<<<<<<< HEAD
     const cfg = {
       channels: {
         telegram: { botToken: "tok", capabilities: { inlineButtons: "dm" } },
       },
     } as MoltbotConfig;
+=======
+    const cfg = telegramConfig({ capabilities: { inlineButtons: "dm" } });
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
     await handleTelegramAction(
       {
         action: "sendMessage",
@@ -615,11 +619,15 @@ describe("handleTelegramAction", () => {
   });
 
   it("allows inline buttons in groups with topic targets", async () => {
+<<<<<<< HEAD
     const cfg = {
       channels: {
         telegram: { botToken: "tok", capabilities: { inlineButtons: "group" } },
       },
     } as MoltbotConfig;
+=======
+    const cfg = telegramConfig({ capabilities: { inlineButtons: "group" } });
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
     await handleTelegramAction(
       {
         action: "sendMessage",
@@ -633,11 +641,15 @@ describe("handleTelegramAction", () => {
   });
 
   it("sends messages with inline keyboard buttons when enabled", async () => {
+<<<<<<< HEAD
     const cfg = {
       channels: {
         telegram: { botToken: "tok", capabilities: { inlineButtons: "all" } },
       },
     } as MoltbotConfig;
+=======
+    const cfg = telegramConfig({ capabilities: { inlineButtons: "all" } });
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
     await handleTelegramAction(
       {
         action: "sendMessage",
@@ -657,11 +669,7 @@ describe("handleTelegramAction", () => {
   });
 
   it("forwards optional button style", async () => {
-    const cfg = {
-      channels: {
-        telegram: { botToken: "tok", capabilities: { inlineButtons: "all" } },
-      },
-    } as OpenClawConfig;
+    const cfg = telegramConfig({ capabilities: { inlineButtons: "all" } });
     await handleTelegramAction(
       {
         action: "sendMessage",

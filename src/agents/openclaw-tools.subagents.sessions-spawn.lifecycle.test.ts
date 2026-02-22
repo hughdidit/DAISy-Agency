@@ -289,7 +289,33 @@ async function executeSpawnAndExpectAccepted(params: {
   return result;
 }
 
+<<<<<<< HEAD
 >>>>>>> ad1072842 (test: dedupe agent tests and session helpers)
+=======
+async function emitLifecycleEndAndFlush(params: {
+  runId: string;
+  startedAt: number;
+  endedAt: number;
+}) {
+  vi.useFakeTimers();
+  try {
+    emitAgentEvent({
+      runId: params.runId,
+      stream: "lifecycle",
+      data: {
+        phase: "end",
+        startedAt: params.startedAt,
+        endedAt: params.endedAt,
+      },
+    });
+
+    await vi.runAllTimersAsync();
+  } finally {
+    vi.useRealTimers();
+  }
+}
+
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
 <<<<<<< HEAD
 >>>>>>> 870b1d50d (perf(test): consolidate sessions_spawn e2e tests):src/agents/openclaw-tools.subagents.sessions-spawn.lifecycle.e2e.test.ts
@@ -445,6 +471,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       throw new Error("missing child runId");
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     emitAgentEvent({
       runId: childRunId,
       stream: "lifecycle",
@@ -471,6 +498,13 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
     await sleep(0);
     await sleep(0);
     await sleep(0);
+=======
+    await emitLifecycleEndAndFlush({
+      runId: child.runId,
+      startedAt: 1234,
+      endedAt: 2345,
+    });
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
     await waitFor(() => ctx.calls.filter((call) => call.method === "agent").length >= 2);
     await waitFor(() => Boolean(deletedKey));
@@ -614,6 +648,7 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
       throw new Error("missing child runId");
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     emitAgentEvent({
       runId: childRunId,
       stream: "lifecycle",
@@ -640,6 +675,13 @@ describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
     await sleep(0);
     await sleep(0);
     await sleep(0);
+=======
+    await emitLifecycleEndAndFlush({
+      runId: child.runId,
+      startedAt: 1000,
+      endedAt: 2000,
+    });
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
     const agentCalls = ctx.calls.filter((call) => call.method === "agent");
     expect(agentCalls).toHaveLength(2);

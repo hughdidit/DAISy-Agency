@@ -151,7 +151,13 @@ vi.mock("../pi-embedded-helpers.js", async () => {
 =======
 import { log } from "./logger.js";
 import { runEmbeddedPiAgent } from "./run.js";
-import { makeAttemptResult, mockOverflowRetrySuccess } from "./run.overflow-compaction.fixture.js";
+import {
+  makeAttemptResult,
+  makeCompactionSuccess,
+  makeOverflowError,
+  mockOverflowRetrySuccess,
+  queueOverflowAttemptWithOversizedToolOutput,
+} from "./run.overflow-compaction.fixture.js";
 import {
   mockedCompactDirect,
   mockedRunEmbeddedAttempt,
@@ -295,15 +301,13 @@ describe("overflow compaction in run loop", () => {
       .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowHintError }))
       .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
 
-    mockedCompactDirect.mockResolvedValueOnce({
-      ok: true,
-      compacted: true,
-      result: {
+    mockedCompactDirect.mockResolvedValueOnce(
+      makeCompactionSuccess({
         summary: "Compacted session",
         firstKeptEntryId: "entry-6",
         tokensBefore: 140000,
-      },
-    });
+      }),
+    );
 
     const result = await runEmbeddedPiAgent(baseParams);
 
@@ -314,7 +318,7 @@ describe("overflow compaction in run loop", () => {
   });
 
   it("returns error if compaction fails", async () => {
-    const overflowError = new Error("request_too_large: Request size exceeds model context window");
+    const overflowError = makeOverflowError();
 
     mockedRunEmbeddedAttempt.mockResolvedValue(makeAttemptResult({ promptError: overflowError }));
 
@@ -333,6 +337,7 @@ describe("overflow compaction in run loop", () => {
     expect(log.warn).toHaveBeenCalledWith(expect.stringContaining("auto-compaction failed"));
   });
 
+<<<<<<< HEAD
   it("returns error if overflow happens again after compaction", async () => {
     const overflowError = new Error("request_too_large: Request size exceeds model context window");
 
@@ -351,6 +356,11 @@ describe("overflow compaction in run loop", () => {
         }),
       )
       .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
+=======
+  it("falls back to tool-result truncation and retries when oversized results are detected", async () => {
+    queueOverflowAttemptWithOversizedToolOutput(mockedRunEmbeddedAttempt, makeOverflowError());
+    mockedRunEmbeddedAttempt.mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
     mockedCompactDirect.mockResolvedValueOnce({
       ok: false,
@@ -378,7 +388,7 @@ describe("overflow compaction in run loop", () => {
   });
 
   it("retries compaction up to 3 times before giving up", async () => {
-    const overflowError = new Error("request_too_large: Request size exceeds model context window");
+    const overflowError = makeOverflowError();
 
     // 4 overflow errors: 3 compaction retries + final failure
     mockedRunEmbeddedAttempt
@@ -388,6 +398,7 @@ describe("overflow compaction in run loop", () => {
       .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
       .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }));
 
+<<<<<<< HEAD
     mockedCompactDirect.mockResolvedValueOnce({
       ok: true,
       compacted: true,
@@ -397,6 +408,30 @@ describe("overflow compaction in run loop", () => {
         tokensBefore: 180000,
       },
     });
+=======
+    mockedCompactDirect
+      .mockResolvedValueOnce(
+        makeCompactionSuccess({
+          summary: "Compacted 1",
+          firstKeptEntryId: "entry-3",
+          tokensBefore: 180000,
+        }),
+      )
+      .mockResolvedValueOnce(
+        makeCompactionSuccess({
+          summary: "Compacted 2",
+          firstKeptEntryId: "entry-5",
+          tokensBefore: 160000,
+        }),
+      )
+      .mockResolvedValueOnce(
+        makeCompactionSuccess({
+          summary: "Compacted 3",
+          firstKeptEntryId: "entry-7",
+          tokensBefore: 140000,
+        }),
+      );
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
 
     const result = await runEmbeddedPiAgent(baseParams);
 
@@ -408,6 +443,40 @@ describe("overflow compaction in run loop", () => {
     expect(result.payloads?.[0]?.isError).toBe(true);
   });
 
+<<<<<<< HEAD
+=======
+  it("succeeds after second compaction attempt", async () => {
+    const overflowError = makeOverflowError();
+
+    mockedRunEmbeddedAttempt
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: overflowError }))
+      .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
+
+    mockedCompactDirect
+      .mockResolvedValueOnce(
+        makeCompactionSuccess({
+          summary: "Compacted 1",
+          firstKeptEntryId: "entry-3",
+          tokensBefore: 180000,
+        }),
+      )
+      .mockResolvedValueOnce(
+        makeCompactionSuccess({
+          summary: "Compacted 2",
+          firstKeptEntryId: "entry-5",
+          tokensBefore: 160000,
+        }),
+      );
+
+    const result = await runEmbeddedPiAgent(baseParams);
+
+    expect(mockedCompactDirect).toHaveBeenCalledTimes(2);
+    expect(mockedRunEmbeddedAttempt).toHaveBeenCalledTimes(3);
+    expect(result.meta.error).toBeUndefined();
+  });
+
+>>>>>>> 3c75bc0e4 (refactor(test): dedupe agent and discord test fixtures)
   it("does not attempt compaction for compaction_failure errors", async () => {
     const compactionFailureError = new Error(
       "request_too_large: summarization failed - Request size exceeds model context window",
@@ -439,15 +508,13 @@ describe("overflow compaction in run loop", () => {
       )
       .mockResolvedValueOnce(makeAttemptResult({ promptError: null }));
 
-    mockedCompactDirect.mockResolvedValueOnce({
-      ok: true,
-      compacted: true,
-      result: {
+    mockedCompactDirect.mockResolvedValueOnce(
+      makeCompactionSuccess({
         summary: "Compacted session",
         firstKeptEntryId: "entry-5",
         tokensBefore: 150000,
-      },
-    });
+      }),
+    );
 
     const result = await runEmbeddedPiAgent(baseParams);
 
