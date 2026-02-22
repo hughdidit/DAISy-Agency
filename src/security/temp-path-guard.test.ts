@@ -60,6 +60,7 @@ describe("temp path guard", () => {
         if (shouldSkip(relativePath)) {
           continue;
         }
+<<<<<<< HEAD
         const source = await fs.readFile(file, "utf-8");
 <<<<<<< HEAD
         if (DYNAMIC_TMPDIR_JOIN_RE.test(source)) {
@@ -69,6 +70,10 @@ describe("temp path guard", () => {
         }
         if (hasDynamicTmpdirJoin(source, relativePath)) {
 >>>>>>> 401106b96 (fix: harden flaky tests and cover native google thought signatures (#23457) (thanks @echoVic))
+=======
+        const source = await fs.readFile(file, "utf8");
+        if (hasDynamicTmpdirJoin(source)) {
+>>>>>>> b79c89fc9 (fix: stabilize CI type and test harness coverage)
           offenders.push(relativePath);
         }
       }
