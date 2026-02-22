@@ -434,7 +434,7 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
-  it("passes resolved threadId into shared subagent announce flow", async () => {
+  it("routes threaded announce targets through direct delivery", async () => {
     await withTempCronHome(async (home) => {
       const storePath = await writeSessionStore(home, { lastProvider: "webchat", lastTo: "" });
       await fs.writeFile(
@@ -464,6 +464,7 @@ describe("runCronIsolatedAgentTurn", () => {
       });
 
       expect(res.status).toBe("ok");
+<<<<<<< HEAD
       const announceArgs = vi.mocked(runSubagentAnnounceFlow).mock.calls[0]?.[0] as
         | { requesterOrigin?: { threadId?: string | number; channel?: string; to?: string } }
         | undefined;
@@ -471,6 +472,18 @@ describe("runCronIsolatedAgentTurn", () => {
       expect(announceArgs?.requesterOrigin?.to).toBe("123");
       expect(announceArgs?.requesterOrigin?.threadId).toBe(42);
 >>>>>>> 8fae55e8e (fix(cron): share isolated announce flow + harden cron scheduling/delivery (#11641))
+=======
+      expect(res.delivered).toBe(true);
+      expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
+      expect(deps.sendMessageTelegram).toHaveBeenCalledTimes(1);
+      expect(deps.sendMessageTelegram).toHaveBeenCalledWith(
+        "123",
+        "Final weather summary",
+        expect.objectContaining({
+          messageThreadId: 42,
+        }),
+      );
+>>>>>>> ffb12397a (fix(cron): direct-deliver thread and topic announce targets)
     });
   });
 
