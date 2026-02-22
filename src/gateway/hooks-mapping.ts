@@ -1,7 +1,11 @@
 import path from "node:path";
+<<<<<<< HEAD
 import { pathToFileURL } from "node:url";
 
+=======
+>>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
 import { CONFIG_PATH, type HookMappingConfig, type HooksConfig } from "../config/config.js";
+import { importFileModule, resolveFunctionModuleExport } from "../hooks/module-loader.js";
 import type { HookMessageChannel } from "./hooks.js";
 
 export type HookMappingResolved = {
@@ -300,21 +304,34 @@ function validateAction(action: HookAction): HookMappingResult {
 }
 
 async function loadTransform(transform: HookMappingTransformResolved): Promise<HookTransformFn> {
+<<<<<<< HEAD
   const cached = transformCache.get(transform.modulePath);
   if (cached) return cached;
   const url = pathToFileURL(transform.modulePath).href;
   const mod = (await import(url)) as Record<string, unknown>;
+=======
+  const cacheKey = `${transform.modulePath}::${transform.exportName ?? "default"}`;
+  const cached = transformCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+  const mod = await importFileModule({ modulePath: transform.modulePath });
+>>>>>>> 9f97555b5 (refactor(security): unify hook rate-limit and hook module loading)
   const fn = resolveTransformFn(mod, transform.exportName);
   transformCache.set(transform.modulePath, fn);
   return fn;
 }
 
 function resolveTransformFn(mod: Record<string, unknown>, exportName?: string): HookTransformFn {
-  const candidate = exportName ? mod[exportName] : (mod.default ?? mod.transform);
-  if (typeof candidate !== "function") {
+  const candidate = resolveFunctionModuleExport<HookTransformFn>({
+    mod,
+    exportName,
+    fallbackExportNames: ["default", "transform"],
+  });
+  if (!candidate) {
     throw new Error("hook transform module must export a function");
   }
-  return candidate as HookTransformFn;
+  return candidate;
 }
 
 function resolvePath(baseDir: string, target: string): string {
