@@ -77,6 +77,11 @@ import {
   createSandboxedWriteTool,
   normalizeToolParams,
   patchToolSchemaForClaudeCompatibility,
+<<<<<<< HEAD
+=======
+  wrapToolWorkspaceRootGuard,
+  wrapToolWorkspaceRootGuardWithOptions,
+>>>>>>> 73fab7e44 (fix(agents): map container workdir paths in workspace guard)
   wrapToolParamNormalization,
 } from "./pi-tools.read.js";
 import { cleanToolSchemaForGemini, normalizeToolParameters } from "./pi-tools.schema.js";
@@ -443,7 +448,13 @@ export function createMoltbotCodingTools(options?: {
           modelContextWindowTokens: options?.modelContextWindowTokens,
           imageSanitization,
         });
-        return [workspaceOnly ? wrapToolWorkspaceRootGuard(sandboxed, sandboxRoot) : sandboxed];
+        return [
+          workspaceOnly
+            ? wrapToolWorkspaceRootGuardWithOptions(sandboxed, sandboxRoot, {
+                containerWorkdir: sandbox.containerWorkdir,
+              })
+            : sandboxed,
+        ];
       }
       const freshReadTool = createReadTool(workspaceRoot);
       const wrapped = createOpenClawReadTool(freshReadTool, {
@@ -525,7 +536,30 @@ export function createMoltbotCodingTools(options?: {
     ...base,
     ...(sandboxRoot
       ? allowWorkspaceWrites
+<<<<<<< HEAD
         ? [createSandboxedEditTool(sandboxRoot), createSandboxedWriteTool(sandboxRoot)]
+=======
+        ? [
+            workspaceOnly
+              ? wrapToolWorkspaceRootGuardWithOptions(
+                  createSandboxedEditTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
+                  sandboxRoot,
+                  {
+                    containerWorkdir: sandbox.containerWorkdir,
+                  },
+                )
+              : createSandboxedEditTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
+            workspaceOnly
+              ? wrapToolWorkspaceRootGuardWithOptions(
+                  createSandboxedWriteTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
+                  sandboxRoot,
+                  {
+                    containerWorkdir: sandbox.containerWorkdir,
+                  },
+                )
+              : createSandboxedWriteTool({ root: sandboxRoot, bridge: sandboxFsBridge! }),
+          ]
+>>>>>>> 73fab7e44 (fix(agents): map container workdir paths in workspace guard)
         : []
       : []),
     ...(applyPatchTool ? [applyPatchTool as unknown as AnyAgentTool] : []),
