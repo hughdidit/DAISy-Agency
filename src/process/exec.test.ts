@@ -98,6 +98,7 @@ describe("runCommandWithTimeout", () => {
   it("kills command when no output timeout elapses", async () => {
     const result = await runCommandWithTimeout(
 <<<<<<< HEAD
+<<<<<<< HEAD
       [
         process.execPath,
         "-e",
@@ -114,6 +115,12 @@ describe("runCommandWithTimeout", () => {
         timeoutMs: PROCESS_TEST_TIMEOUT_MS.standard,
         noOutputTimeoutMs: PROCESS_TEST_NO_OUTPUT_TIMEOUT_MS.exec,
 >>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
+=======
+      [process.execPath, "-e", "setTimeout(() => {}, 40)"],
+      {
+        timeoutMs: 500,
+        noOutputTimeoutMs: 20,
+>>>>>>> d01cc69ef (test: tighten process timeout fixtures)
       },
     );
 
@@ -128,6 +135,7 @@ describe("runCommandWithTimeout", () => {
         process.execPath,
         "-e",
 <<<<<<< HEAD
+<<<<<<< HEAD
         'process.stdout.write("."); setTimeout(() => process.stdout.write("."), 30); setTimeout(() => process.exit(0), 60);',
       ],
       {
@@ -140,6 +148,13 @@ describe("runCommandWithTimeout", () => {
         timeoutMs: PROCESS_TEST_TIMEOUT_MS.extraLong,
         noOutputTimeoutMs: PROCESS_TEST_NO_OUTPUT_TIMEOUT_MS.streamingAllowance,
 >>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
+=======
+        'process.stdout.write("."); setTimeout(() => process.stdout.write("."), 20); setTimeout(() => process.exit(0), 40);',
+      ],
+      {
+        timeoutMs: 500,
+        noOutputTimeoutMs: 250,
+>>>>>>> d01cc69ef (test: tighten process timeout fixtures)
       },
     );
 
@@ -153,6 +168,7 @@ describe("runCommandWithTimeout", () => {
   it("reports global timeout termination when overall timeout elapses", async () => {
     const result = await runCommandWithTimeout(
 <<<<<<< HEAD
+<<<<<<< HEAD
       [
         process.execPath,
         "-e",
@@ -161,6 +177,9 @@ describe("runCommandWithTimeout", () => {
 =======
       [process.execPath, "-e", "setTimeout(() => {}, 60)"],
 >>>>>>> 00eb2541d (test: shorten idle child timers in timeout assertions)
+=======
+      [process.execPath, "-e", "setTimeout(() => {}, 40)"],
+>>>>>>> d01cc69ef (test: tighten process timeout fixtures)
       {
 <<<<<<< HEAD
         timeoutMs: 15,

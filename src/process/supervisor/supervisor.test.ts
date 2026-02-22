@@ -25,10 +25,14 @@ describe("process supervisor", () => {
       sessionId: "s1",
       argv: [process.execPath, "-e", 'process.stdout.write("ok")'],
 <<<<<<< HEAD
+<<<<<<< HEAD
       timeoutMs: 800,
 =======
       timeoutMs: PROCESS_TEST_TIMEOUT_MS.long,
 >>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
+=======
+      timeoutMs: 1_000,
+>>>>>>> d01cc69ef (test: tighten process timeout fixtures)
       stdinMode: "pipe-closed",
     });
     const exit = await run.wait();
@@ -42,6 +46,7 @@ describe("process supervisor", () => {
     const run = await spawnChild(supervisor, {
       sessionId: "s1",
 <<<<<<< HEAD
+<<<<<<< HEAD
       backendId: "test",
       mode: "child",
 <<<<<<< HEAD
@@ -53,6 +58,10 @@ describe("process supervisor", () => {
       argv: [process.execPath, "-e", "setTimeout(() => {}, 60)"],
 >>>>>>> 00eb2541d (test: shorten idle child timers in timeout assertions)
       timeoutMs: 1_000,
+=======
+      argv: [process.execPath, "-e", "setTimeout(() => {}, 40)"],
+      timeoutMs: 500,
+>>>>>>> d01cc69ef (test: tighten process timeout fixtures)
       noOutputTimeoutMs: 20,
 =======
       argv: [
@@ -77,6 +86,7 @@ describe("process supervisor", () => {
       sessionId: "s1",
       scopeKey: "scope:a",
 <<<<<<< HEAD
+<<<<<<< HEAD
       mode: "child",
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -95,6 +105,10 @@ describe("process supervisor", () => {
       ],
       timeoutMs: PROCESS_TEST_TIMEOUT_MS.standard,
 >>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
+=======
+      argv: [process.execPath, "-e", "setTimeout(() => {}, 40)"],
+      timeoutMs: 500,
+>>>>>>> d01cc69ef (test: tighten process timeout fixtures)
       stdinMode: "pipe-open",
     });
 
@@ -104,10 +118,14 @@ describe("process supervisor", () => {
       replaceExistingScope: true,
       argv: [process.execPath, "-e", 'process.stdout.write("new")'],
 <<<<<<< HEAD
+<<<<<<< HEAD
       timeoutMs: 800,
 =======
       timeoutMs: PROCESS_TEST_TIMEOUT_MS.long,
 >>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
+=======
+      timeoutMs: 1_000,
+>>>>>>> d01cc69ef (test: tighten process timeout fixtures)
       stdinMode: "pipe-closed",
     });
 
@@ -123,6 +141,7 @@ describe("process supervisor", () => {
     const run = await spawnChild(supervisor, {
       sessionId: "s-timeout",
 <<<<<<< HEAD
+<<<<<<< HEAD
       backendId: "test",
       mode: "child",
 <<<<<<< HEAD
@@ -133,6 +152,9 @@ describe("process supervisor", () => {
 >>>>>>> d116bcfb1 (refactor(runtime): consolidate followup, gateway, and provider dedupe paths)
       argv: [process.execPath, "-e", "setTimeout(() => {}, 60)"],
 >>>>>>> 00eb2541d (test: shorten idle child timers in timeout assertions)
+=======
+      argv: [process.execPath, "-e", "setTimeout(() => {}, 40)"],
+>>>>>>> d01cc69ef (test: tighten process timeout fixtures)
       timeoutMs: 1,
 =======
       argv: [
@@ -156,10 +178,14 @@ describe("process supervisor", () => {
       sessionId: "s-capture",
       argv: [process.execPath, "-e", 'process.stdout.write("streamed")'],
 <<<<<<< HEAD
+<<<<<<< HEAD
       timeoutMs: 800,
 =======
       timeoutMs: PROCESS_TEST_TIMEOUT_MS.long,
 >>>>>>> a4607277a (test: consolidate sessions_spawn and guardrail helpers)
+=======
+      timeoutMs: 1_000,
+>>>>>>> d01cc69ef (test: tighten process timeout fixtures)
       stdinMode: "pipe-closed",
       captureOutput: false,
       onStdout: (chunk) => {
