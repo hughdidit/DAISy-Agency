@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -227,6 +228,9 @@ import { describe, expect, it, vi } from "vitest";
 =======
 import { describe, expect, it } from "vitest";
 >>>>>>> 3a2fffefd (refactor(test): centralize doctor e2e runtime and snapshot scaffolding)
+=======
+import { describe, expect, it, vi } from "vitest";
+>>>>>>> 32c33f4fa (test: isolate doctor allowFrom migration assertions from unrelated checks)
 import {
   createDoctorRuntime,
   findLegacyGatewayServices,
@@ -245,6 +249,54 @@ import {
 } from "./doctor.e2e-harness.js";
 
 const DOCTOR_MIGRATION_TIMEOUT_MS = 20_000;
+
+vi.mock("./doctor-completion.js", () => ({
+  doctorShellCompletion: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("./doctor-gateway-daemon-flow.js", () => ({
+  maybeRepairGatewayDaemon: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("./doctor-gateway-health.js", () => ({
+  checkGatewayHealth: vi.fn().mockResolvedValue({ healthOk: false }),
+}));
+
+vi.mock("./doctor-memory-search.js", () => ({
+  noteMemorySearchHealth: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("./doctor-platform-notes.js", () => ({
+  noteDeprecatedLegacyEnvVars: vi.fn(),
+  noteMacLaunchAgentOverrides: vi.fn().mockResolvedValue(undefined),
+  noteMacLaunchctlGatewayEnvOverrides: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("./doctor-sandbox.js", () => ({
+  maybeRepairSandboxImages: vi.fn(async (cfg: unknown) => cfg),
+  noteSandboxScopeWarnings: vi.fn(),
+}));
+
+vi.mock("./doctor-security.js", () => ({
+  noteSecurityWarnings: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("./doctor-session-locks.js", () => ({
+  noteSessionLockHealth: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("./doctor-state-integrity.js", () => ({
+  noteStateIntegrity: vi.fn().mockResolvedValue(undefined),
+  noteWorkspaceBackupTip: vi.fn(),
+}));
+
+vi.mock("./doctor-ui.js", () => ({
+  maybeRepairUiProtocolFreshness: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("./doctor-workspace-status.js", () => ({
+  noteWorkspaceStatus: vi.fn(),
+}));
 
 describe("doctor command", () => {
 <<<<<<< HEAD
