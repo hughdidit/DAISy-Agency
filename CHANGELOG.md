@@ -49,6 +49,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Memory/QMD: add optional `memory.qmd.mcporter` search routing so QMD `query/search/vsearch` can run through mcporter keep-alive flows (including multi-collection paths) to reduce cold starts, while keeping searches on agent-scoped QMD state for consistent recall. (#19617) Thanks @vignesh07.
 =======
 =======
@@ -58,6 +59,11 @@ Docs: https://docs.openclaw.ai
 =======
 - Auth/Profiles: prevent cooldown deadline from being reset on every retry when the backoff is already saturated. Previously each failed request overwrote `cooldownUntil` with `now + backoffMs`, so a 60-minute cooldown was perpetually extended by cron or inbound retries, trapping the gateway in an unrecoverable loop that required manual `usageStats` deletion to resolve. (#23516)
 =======
+=======
+- Telegram/Webhook: keep webhook monitors alive until gateway abort signals fire, preventing false channel exits and immediate webhook auto-restart loops.
+- Signal/RPC: guard malformed Signal RPC JSON responses with a clear status-scoped error and add regression coverage for invalid JSON responses. (#22995) Thanks @adhitShet.
+- Gateway/Subagents: guard gateway and subagent session-key/message trim paths against undefined inputs to prevent early `Cannot read properties of undefined (reading 'trim')` crashes during subagent spawn and wait flows.
+>>>>>>> 1a9b5840d (fix(telegram): keep webhook monitor alive until abort)
 - Agents/Workspace: guard `resolveUserPath` against undefined/null input to prevent `Cannot read properties of undefined (reading 'trim')` crashes when workspace paths are missing in embedded runner flows.
 - Auth/Profiles: keep active `cooldownUntil`/`disabledUntil` windows immutable across retries so mid-window failures cannot extend recovery indefinitely; only recompute a backoff window after the previous deadline has expired. This resolves cron/inbound retry loops that could trap gateways until manual `usageStats` cleanup. (#23516, #23536) Thanks @arosstale.
 >>>>>>> eec3182cb (fix(utils): guard resolveUserPath for missing workspace input)
