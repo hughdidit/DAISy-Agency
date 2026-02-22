@@ -10,9 +10,15 @@ describe("resolveTailnetDnsHint", () => {
   const prevTailnetDns = { value: undefined as string | undefined };
 
   beforeEach(() => {
+<<<<<<< HEAD
     prevTailnetDns.value = process.env.CLAWDBOT_TAILNET_DNS;
     delete process.env.CLAWDBOT_TAILNET_DNS;
     getTailnetHostname.mockReset();
+=======
+    prevTailnetDns.value = process.env.OPENCLAW_TAILNET_DNS;
+    delete process.env.OPENCLAW_TAILNET_DNS;
+    getTailnetHostname.mockClear();
+>>>>>>> 7cac6bd85 (test(core): continue mock reset reductions in auth, gateway, npm install)
   });
 
   afterEach(() => {
