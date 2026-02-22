@@ -34,7 +34,11 @@ describe("process supervisor", () => {
       backendId: "test",
       mode: "child",
 <<<<<<< HEAD
+<<<<<<< HEAD
       argv: [process.execPath, "-e", "setTimeout(() => {}, 120)"],
+=======
+      argv: [process.execPath, "-e", "setTimeout(() => {}, 60)"],
+>>>>>>> 00eb2541d (test: shorten idle child timers in timeout assertions)
       timeoutMs: 1_000,
       noOutputTimeoutMs: 20,
 =======
@@ -62,7 +66,11 @@ describe("process supervisor", () => {
       scopeKey: "scope:a",
       mode: "child",
 <<<<<<< HEAD
+<<<<<<< HEAD
       argv: [process.execPath, "-e", "setTimeout(() => {}, 120)"],
+=======
+      argv: [process.execPath, "-e", "setTimeout(() => {}, 60)"],
+>>>>>>> 00eb2541d (test: shorten idle child timers in timeout assertions)
       timeoutMs: 1_000,
 =======
       argv: [
@@ -104,7 +112,11 @@ describe("process supervisor", () => {
       backendId: "test",
       mode: "child",
 <<<<<<< HEAD
+<<<<<<< HEAD
       argv: [process.execPath, "-e", "setTimeout(() => {}, 120)"],
+=======
+      argv: [process.execPath, "-e", "setTimeout(() => {}, 60)"],
+>>>>>>> 00eb2541d (test: shorten idle child timers in timeout assertions)
       timeoutMs: 1,
 =======
       argv: [
