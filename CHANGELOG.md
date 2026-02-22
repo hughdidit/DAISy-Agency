@@ -57,6 +57,7 @@ Docs: https://docs.openclaw.ai
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Memory/QMD: add optional `memory.qmd.mcporter` search routing so QMD `query/search/vsearch` can run through mcporter keep-alive flows (including multi-collection paths) to reduce cold starts, while keeping searches on agent-scoped QMD state for consistent recall. (#19617) Thanks @vignesh07.
 =======
 =======
@@ -75,6 +76,9 @@ Docs: https://docs.openclaw.ai
 - OpenRouter/Anthropic: inject `cache_control` on system prompts for OpenRouter Anthropic models to improve prompt-cache reuse. (#17473) Thanks @rrenamed.
 
 >>>>>>> c52b2ad5c (fix(cache): inject cache_control into system prompt for OpenRouter Anthropic (#15151) (#17473))
+=======
+- Providers/OpenRouter: inject `cache_control` on system prompts for OpenRouter Anthropic models to improve prompt-cache reuse. (#17473) Thanks @rrenamed.
+>>>>>>> 24fd8cbdc (fix(auto-reply): preserve OpenRouter @preset model directives (#23769))
 - Providers/OpenRouter: allow pass-through OpenRouter and Opencode model IDs in live model filtering so custom routed model IDs are treated as modern refs. (#14312) Thanks @Joly0.
 >>>>>>> ded9a59f7 (OpenRouter: allow any model ID instead of restricting to static catalog (#14312))
 - Providers/OpenRouter: default reasoning to enabled when the selected model advertises `reasoning: true` and no session/directive override is set. (#22513) Thanks @zwffff.
@@ -91,6 +95,7 @@ Docs: https://docs.openclaw.ai
 >>>>>>> 3891ba4bb (fix(providers): preserve openrouter/ prefix for native models (#12942))
 =======
 - Providers/OpenRouter: pass through provider routing parameters from model params.provider to OpenRouter request payloads for provider selection controls. (#17148) Thanks @carrotRakko.
+- Providers/OpenRouter: preserve model allowlist entries containing OpenRouter preset paths (for example `openrouter/@preset/...`) by treating `/model ...@profile` auth-profile parsing as a suffix-only override. (#14120) Thanks @NotMainstream.
 - Cron/Auth: propagate auth-profile resolution to isolated cron sessions so provider API keys are resolved the same way as main sessions, fixing 401 errors when using providers configured via auth-profiles. (#20689) Thanks @lailoo.
 >>>>>>> 91944ede4 (fix(cron): propagate auth-profile resolution to isolated sessions (#20624) (#20689))
 - Telegram/Webhook: keep webhook monitors alive until gateway abort signals fire, preventing false channel exits and immediate webhook auto-restart loops.
