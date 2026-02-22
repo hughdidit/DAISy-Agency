@@ -1,68 +1,7 @@
-import { spawn } from "node:child_process";
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
-
-const waitForReady = async (
-  proc: ReturnType<typeof spawn>,
-  chunksOut: string[],
-  chunksErr: string[],
-  timeoutMs: number,
-) => {
-  await new Promise<void>((resolve, reject) => {
-    const timer = setTimeout(() => {
-      const stdout = chunksOut.join("");
-      const stderr = chunksErr.join("");
-      cleanup();
-      reject(
-        new Error(
-          `timeout waiting for gateway to start\n` +
-            `--- stdout ---\n${stdout}\n--- stderr ---\n${stderr}`,
-        ),
-      );
-    }, timeoutMs);
-
-    const cleanup = () => {
-      clearTimeout(timer);
-      proc.off("exit", onExit);
-      proc.off("message", onMessage);
-      proc.stdout?.off("data", onStdout);
-    };
-
-    const onExit = () => {
-      const stdout = chunksOut.join("");
-      const stderr = chunksErr.join("");
-      cleanup();
-      reject(
-        new Error(
-          `gateway exited before ready (code=${String(proc.exitCode)} signal=${String(proc.signalCode)})\n` +
-            `--- stdout ---\n${stdout}\n--- stderr ---\n${stderr}`,
-        ),
-      );
-    };
-
-    const onMessage = (msg: unknown) => {
-      if (msg && typeof msg === "object" && "ready" in msg) {
-        cleanup();
-        resolve();
-      }
-    };
-
-    const onStdout = (chunk: unknown) => {
-      if (String(chunk).includes("READY")) {
-        cleanup();
-        resolve();
-      }
-    };
-
-    proc.once("exit", onExit);
-    proc.on("message", onMessage);
-    proc.stdout?.on("data", onStdout);
-  });
-};
+import { describe, it } from "vitest";
 
 describe("gateway SIGTERM", () => {
+<<<<<<< HEAD
   let child: ReturnType<typeof spawn> | null = null;
 
   afterEach(() => {
@@ -170,5 +109,10 @@ describe("gateway SIGTERM", () => {
       return;
     }
     expect(result.signal).toBeNull();
+=======
+  it.skip("covered by runGatewayLoop signal tests in src/cli/gateway-cli/run-loop.test.ts", () => {
+    // Kept as a placeholder to document why the old child-process integration
+    // case was retired: it duplicated run-loop signal coverage at high runtime cost.
+>>>>>>> ee7a43b89 (test: replace slow gateway SIGTERM integration coverage)
   });
 });
