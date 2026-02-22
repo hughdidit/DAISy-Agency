@@ -5,8 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
+=======
+import { typedCases } from "../../test-utils/typed-cases.js";
+>>>>>>> 0c1a52307 (fix: align draft/outbound typings and tests)
 import {
   ackDelivery,
   computeBackoffMs,
